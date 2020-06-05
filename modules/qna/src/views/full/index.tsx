@@ -4,6 +4,7 @@ import { Downloader, reorderFlows } from 'botpress/utils'
 import cx from 'classnames'
 import { debounce } from 'lodash'
 import React, { FC, useCallback, useEffect, useReducer, useRef, useState } from 'react'
+import VizSensor from 'react-visibility-sensor'
 
 import style from './style.scss'
 import { dispatchMiddleware, fetchReducer, itemHasError, ITEMS_PER_PAGE, Props } from './utils/qnaList.utils'
@@ -19,6 +20,7 @@ const QnAList: FC<Props> = props => {
   const [questionSearch, setQuestionSearch] = useState('')
   const [showImportModal, setShowImportModal] = useState(false)
   const [currentTab, setCurrentTab] = useState('qna')
+  const [currentVisibleIndex, setCurrentVisibleIndex] = useState({})
   const [currentLang, setCurrentLang] = useState(props.contentLang)
   const [url, setUrl] = useState('')
   const debounceDispatchMiddleware = useCallback(debounce(dispatchMiddleware, 300), [])
@@ -26,14 +28,16 @@ const QnAList: FC<Props> = props => {
   const [state, dispatch] = useReducer(fetchReducer, {
     count: 0,
     items: [],
+    highlighted: undefined,
     loading: true,
     firstUpdate: true,
     page: 1,
     fetchMore: false,
     expandedItems: {}
   })
-  const { items, loading, firstUpdate, page, fetchMore, count, expandedItems } = state
+  const { items, loading, firstUpdate, page, fetchMore, count, expandedItems, highlighted } = state
   const { bp, languages, defaultLanguage, isLite } = props
+  const queryParams = new URLSearchParams(window.location.search)
 
   useEffect(() => {
     wrapperRef.current.addEventListener('scroll', handleScroll)
@@ -43,9 +47,6 @@ const QnAList: FC<Props> = props => {
       .catch(() => {})
 
     fetchFlows()
-    fetchHighlightedQna('rkmsylph53_hello')
-      .then()
-      .catch()
 
     return () => {
       wrapperRef.current.removeEventListener('scroll', handleScroll)
@@ -54,6 +55,16 @@ const QnAList: FC<Props> = props => {
       setQuestionSearch('')
     }
   }, [])
+
+  useEffect(() => {
+    if (queryParams.get('id')) {
+      fetchHighlightedQna(queryParams.get('id'))
+        .then(() => {})
+        .catch(() => {})
+    } else {
+      dispatch({ type: 'resetHighlighted' })
+    }
+  }, [queryParams.get('id')])
 
   useEffect(() => {
     if (!firstUpdate) {
@@ -200,10 +211,12 @@ const QnAList: FC<Props> = props => {
   const fetchHighlightedQna = async id => {
     const { data } = await bp.axios.get(`/mod/qna/questions/${id}`)
 
-    console.log(data)
+    dispatch({ type: 'highlightedSuccess', data })
   }
 
   const hasFilteredResults = questionSearch.length || filterContexts.length
+
+  console.log(currentVisibleIndex)
 
   return (
     <MainContent.Wrapper childRef={ref => (wrapperRef.current = ref)}>
@@ -229,33 +242,79 @@ const QnAList: FC<Props> = props => {
         )}
       </div>
       <div className={cx(style.content, { [style.empty]: !items.length })}>
+        {highlighted && (
+          <div className={style.highlightedQna}>
+            <QnA
+              updateQnA={data =>
+                debounceDispatchMiddleware(dispatch, {
+                  type: 'updateQnA',
+                  data: { qnaItem: data, index: 'highlighted', bp, currentLang }
+                })
+              }
+              bp={bp}
+              isLite={isLite}
+              key={highlighted.id}
+              flows={flows}
+              defaultLanguage={defaultLanguage}
+              deleteQnA={() => {
+                dispatch({ type: 'deleteQnA', data: { index: 'highlighted', bp } })
+
+                window.history.pushState(
+                  window.history.state,
+                  '',
+                  window.location.href.replace(window.location.search, '')
+                )
+              }}
+              toggleEnabledQnA={() =>
+                dispatchMiddleware(dispatch, {
+                  type: 'toggleEnabledQnA',
+                  data: { qnaItem: highlighted, bp }
+                })
+              }
+              isActive={isActive === highlighted.id}
+              setIsActive={setIsActive}
+              contentLang={currentLang}
+              errorMessages={itemHasError(highlighted, currentLang)}
+              setExpanded={isExpanded => dispatch({ type: 'toggleExpandOne', data: { highlighted: isExpanded } })}
+              expanded={expandedItems['highlighted']}
+              qnaItem={highlighted}
+            />
+          </div>
+        )}
         {items.map((item, index) => (
-          <QnA
-            updateQnA={data =>
-              debounceDispatchMiddleware(dispatch, {
-                type: 'updateQnA',
-                data: { qnaItem: data, index, bp, currentLang }
-              })
-            }
-            bp={bp}
-            isLite={isLite}
-            key={item.key || item.id}
-            flows={flows}
-            defaultLanguage={defaultLanguage}
-            deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp } })}
-            toggleEnabledQnA={() =>
-              dispatchMiddleware(dispatch, { type: 'toggleEnabledQnA', data: { qnaItem: item, index, bp } })
-            }
-            isActive={isActive === item.id}
-            setIsActive={setIsActive}
-            contentLang={currentLang}
-            errorMessages={itemHasError(item, currentLang)}
-            setExpanded={isExpanded =>
-              dispatch({ type: 'toggleExpandOne', data: { [item.key || item.id]: isExpanded } })
-            }
-            expanded={expandedItems[item.key || item.id]}
-            qnaItem={item}
-          />
+          <VizSensor
+            key={`${item.key || item.id}`}
+            partialVisibility
+            onChange={isVisible => {
+              setCurrentVisibleIndex({ ...currentVisibleIndex, [index]: isVisible })
+            }}
+          >
+            <QnA
+              updateQnA={data =>
+                debounceDispatchMiddleware(dispatch, {
+                  type: 'updateQnA',
+                  data: { qnaItem: data, index, bp, currentLang }
+                })
+              }
+              bp={bp}
+              isLite={isLite}
+              flows={flows}
+              defaultLanguage={defaultLanguage}
+              deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp } })}
+              toggleEnabledQnA={() =>
+                dispatchMiddleware(dispatch, { type: 'toggleEnabledQnA', data: { qnaItem: item, bp } })
+              }
+              isActive={isActive === item.id}
+              setIsActive={setIsActive}
+              contentLang={currentLang}
+              errorMessages={itemHasError(item, currentLang)}
+              setExpanded={isExpanded =>
+                dispatch({ type: 'toggleExpandOne', data: { [item.key || item.id]: isExpanded } })
+              }
+              expanded={expandedItems[item.key || item.id]}
+              qnaItem={item}
+            />
+          </VizSensor>
         ))}
         {!items.length && !loading && (
           <EmptyState

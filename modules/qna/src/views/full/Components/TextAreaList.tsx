@@ -24,6 +24,7 @@ interface Props {
   duplicateMsg?: string
   canAddContent?: boolean
   readonly?: boolean
+  id?: any
 }
 
 const TextAreaList: FC<Props> = props => {
@@ -40,7 +41,8 @@ const TextAreaList: FC<Props> = props => {
     addItemLabel,
     label,
     refItems,
-    placeholder
+    placeholder,
+    id
   } = props
   const focusedElement = useRef(props.initialFocus || '')
 

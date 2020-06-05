@@ -4,7 +4,7 @@ import { confirmDialog, lang, MoreOptions, MoreOptionsItems } from 'botpress/sha
 import { getFlowLabel } from 'botpress/utils'
 import cx from 'classnames'
 import _uniqueId from 'lodash/uniqueId'
-import React, { createRef, FC, Fragment, useEffect, useState } from 'react'
+import React, { FC, Fragment, useState } from 'react'
 import Select from 'react-select'
 
 import { QnaItem } from '../../../backend/qna'
@@ -28,6 +28,7 @@ interface Props {
   defaultLanguage: string
   errorMessages?: string[]
   flows?: Flow[]
+  childRef?: (ref: HTMLDivElement | null) => void
   updateQnA: (qnaItem: QnaItem) => void
   deleteQnA: () => void
   toggleEnabledQnA: () => void
@@ -36,7 +37,6 @@ interface Props {
 }
 
 const QnA: FC<Props> = props => {
-  const wrapperEl = createRef<HTMLDivElement>()
   const [showOption, setShowOption] = useState(false)
   const {
     contentLang,
@@ -49,6 +49,7 @@ const QnA: FC<Props> = props => {
     flows,
     isLite,
     isActive,
+    childRef,
     setIsActive,
     bp
   } = props
@@ -142,7 +143,7 @@ const QnA: FC<Props> = props => {
   const flowsList = flows.map(({ name }) => ({ label: getFlowLabel(name), value: name }))
 
   return (
-    <div onClick={() => setIsActive(id)} ref={wrapperEl} className={style.questionWrapper}>
+    <div ref={ref => childRef?.(ref)} onClick={() => setIsActive(id)} className={style.questionWrapper}>
       <div className={style.headerWrapper}>
         <Button minimal small onClick={() => setExpanded(!expanded)} className={style.questionHeader}>
           <div className={style.left}>
@@ -200,6 +201,7 @@ const QnA: FC<Props> = props => {
             />
           )}
           <TextAreaList
+            id={id}
             readonly={!isActive}
             key="questions"
             items={questions || ['']}
@@ -218,6 +220,7 @@ const QnA: FC<Props> = props => {
             addItemLabel={lang.tr('module.qna.form.addQuestionAlternative')}
           />
           <TextAreaList
+            id={id}
             readonly={!isActive}
             key="answers"
             items={answers || ['']}
