@@ -23,7 +23,6 @@ import { clearRequireCache, requireFromString } from '../../modules/require'
 import { TYPES } from '../../types'
 import { BotService } from '../bot-service'
 import { ActionExecutionError } from '../dialog/errors'
-import { EventCollector } from '../middleware/event-collector'
 import { WorkspaceService } from '../workspace-service'
 
 import { extractMetadata } from './metadata'
@@ -64,7 +63,6 @@ export default class ActionService {
     @inject(TYPES.TasksRepository) private tasksRepository: TasksRepository,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
     @inject(TYPES.BotService) private botService: BotService,
-    @inject(TYPES.EventCollector) private eventCollector: EventCollector,
     @inject(TYPES.Logger)
     @tagged('name', 'ActionService')
     private logger: Logger
@@ -90,8 +88,7 @@ export default class ActionService {
       botId,
       this.cache,
       this.tasksRepository,
-      workspaceId,
-      this.eventCollector
+      workspaceId
     )
     this._scopedActions.set(botId, service)
     return service
@@ -134,8 +131,7 @@ export class ScopedActionService {
     private botId: string,
     private cache: ObjectCache,
     private tasksRepository: TasksRepository,
-    private workspaceId: string,
-    private eventCollector: EventCollector
+    private workspaceId: string
   ) {
     this._listenForCacheInvalidation()
   }

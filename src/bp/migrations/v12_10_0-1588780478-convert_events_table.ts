@@ -30,11 +30,11 @@ const migration: Migration = {
     }
 
     if (columnType !== 'integer') {
-      return { success: true, message: 'Table is already correct' }
+      return { success: true, message: 'Table is already migrated' }
     } else {
       const tempTableExists = await bp.database.schema.hasTable(TEMP_TABLE_NAME)
       if (tempTableExists) {
-        return { success: false, message: 'The temporary table should not exist - something went bad' }
+        return { success: false, message: `Temporary table already exists - remove it (${TEMP_TABLE_NAME})` }
       }
     }
 

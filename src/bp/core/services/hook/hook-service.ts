@@ -16,7 +16,6 @@ import { clearRequireCache, requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
 import { filterDisabled } from '../action/utils'
 import { VmRunner } from '../action/vm'
-import { EventCollector } from '../middleware/event-collector'
 
 const debug = DEBUG('hooks')
 const DEBOUNCE_DELAY = ms('2s')
@@ -159,8 +158,7 @@ export class HookService {
     @tagged('name', 'HookService')
     private logger: sdk.Logger,
     @inject(TYPES.GhostService) private ghost: GhostService,
-    @inject(TYPES.ObjectCache) private cache: ObjectCache,
-    @inject(TYPES.EventCollector) private eventCollector: EventCollector
+    @inject(TYPES.ObjectCache) private cache: ObjectCache
   ) {
     this._listenForCacheInvalidation()
     this._invalidateDebounce = _.debounce(this._invalidateRequire, DEBOUNCE_DELAY, { leading: true, trailing: false })

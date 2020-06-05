@@ -4,16 +4,13 @@ import { createSpyObject, MockObject } from 'core/misc/utils'
 import 'jest-extended'
 import 'reflect-metadata'
 
-import { EventCollector } from './event-collector'
 import { MiddlewareChain } from './middleware'
 
 describe('Middleware', () => {
   let middleware: MiddlewareChain
-  let eventCollector: MockObject<EventCollector>
   let event: MockObject<IO.Event>
 
   beforeEach(() => {
-    eventCollector = createSpyObject<EventCollector>()
     middleware = new MiddlewareChain({ timeoutInMs: 5 })
     event = createSpyObject<IO.Event>()
   })
