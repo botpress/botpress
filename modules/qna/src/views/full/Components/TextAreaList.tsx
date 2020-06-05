@@ -23,8 +23,6 @@ interface Props {
   initialFocus?: string
   duplicateMsg?: string
   canAddContent?: boolean
-  readonly?: boolean
-  id?: any
 }
 
 const TextAreaList: FC<Props> = props => {
@@ -32,18 +30,7 @@ const TextAreaList: FC<Props> = props => {
   const [localItems, setLocalItems] = useState(props.items)
   // Generating unique keys so we don't need to rerender all the list as soon as we add or delete one element
   const [keys, setKeys] = useState(localItems.map(x => _uniqueId(keyPrefix)))
-  const {
-    readonly,
-    duplicateMsg,
-    updateItems,
-    keyPrefix,
-    canAddContent,
-    addItemLabel,
-    label,
-    refItems,
-    placeholder,
-    id
-  } = props
+  const { duplicateMsg, updateItems, keyPrefix, canAddContent, addItemLabel, label, refItems, placeholder } = props
   const focusedElement = useRef(props.initialFocus || '')
 
   useEffect(() => {
@@ -103,19 +90,15 @@ const TextAreaList: FC<Props> = props => {
             </div>
           ) : (
             <div key={keys[index]} className={style.textareaWrapper}>
-              {!readonly ? (
-                <Textarea
-                  isFocused={focusedElement.current === `${keyPrefix}${index}`}
-                  className={cx(style.textarea, { [style.hasError]: errors[index] })}
-                  placeholder={refItems?.[index] ? refItems[index] : placeholder(index)}
-                  onChange={value => updateLocalItem(index, value)}
-                  onBlur={() => updateItems(localItems)}
-                  onKeyDown={e => onKeyDown(e, index)}
-                  value={item}
-                />
-              ) : (
-                <div className={cx(style.textarea, { [style.hasError]: errors[index] })}>{item}</div>
-              )}
+              <Textarea
+                isFocused={focusedElement.current === `${keyPrefix}${index}`}
+                className={cx(style.textarea, { [style.hasError]: errors[index] })}
+                placeholder={refItems?.[index] ? refItems[index] : placeholder(index)}
+                onChange={value => updateLocalItem(index, value)}
+                onBlur={() => updateItems(localItems)}
+                onKeyDown={e => onKeyDown(e, index)}
+                value={item}
+              />
               {errors[index] && (
                 <div className={style.errorIcon}>
                   <Tooltip content={errors[index]} position={Position.BOTTOM}>

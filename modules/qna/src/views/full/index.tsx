@@ -13,7 +13,6 @@ import QnA from './Components/QnA'
 import EmptyStateIcon from './Icons/EmptyStateIcon'
 
 const QnAList: FC<Props> = props => {
-  const [isActive, setIsActive] = useState(null)
   const [flows, setFlows] = useState([])
   const [filterContexts, setFilterContexts] = useState([])
   const [questionSearch, setQuestionSearch] = useState('')
@@ -267,8 +266,6 @@ const QnAList: FC<Props> = props => {
                   data: { qnaItem: highlighted, bp }
                 })
               }
-              isActive={isActive === highlighted.id}
-              setIsActive={setIsActive}
               contentLang={currentLang}
               errorMessages={itemHasError(highlighted, currentLang)}
               setExpanded={isExpanded => dispatch({ type: 'toggleExpandOne', data: { highlighted: isExpanded } })}
@@ -294,8 +291,6 @@ const QnAList: FC<Props> = props => {
             toggleEnabledQnA={() =>
               dispatchMiddleware(dispatch, { type: 'toggleEnabledQnA', data: { qnaItem: item, bp } })
             }
-            isActive={isActive === item.id}
-            setIsActive={setIsActive}
             contentLang={currentLang}
             errorMessages={itemHasError(item, currentLang)}
             setExpanded={isExpanded =>

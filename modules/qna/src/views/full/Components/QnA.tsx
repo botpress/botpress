@@ -32,8 +32,6 @@ interface Props {
   updateQnA: (qnaItem: QnaItem) => void
   deleteQnA: () => void
   toggleEnabledQnA: () => void
-  isActive: boolean
-  setIsActive: (id: string) => void
 }
 
 const QnA: FC<Props> = props => {
@@ -48,9 +46,6 @@ const QnA: FC<Props> = props => {
     defaultLanguage,
     flows,
     isLite,
-    isActive,
-    childRef,
-    setIsActive,
     bp
   } = props
   const [showRedirectToFlow, setShowRedirectToFlow] = useState(!!(data.redirectFlow || data.redirectNode))
@@ -143,7 +138,7 @@ const QnA: FC<Props> = props => {
   const flowsList = flows.map(({ name }) => ({ label: getFlowLabel(name), value: name }))
 
   return (
-    <div ref={ref => childRef?.(ref)} onClick={() => setIsActive(id)} className={style.questionWrapper}>
+    <div className={style.questionWrapper}>
       <div className={style.headerWrapper}>
         <Button minimal small onClick={() => setExpanded(!expanded)} className={style.questionHeader}>
           <div className={style.left}>
@@ -202,8 +197,6 @@ const QnA: FC<Props> = props => {
             />
           )}
           <TextAreaList
-            id={id}
-            readonly={!isActive}
             key="questions"
             items={questions || ['']}
             updateItems={items =>
@@ -221,8 +214,6 @@ const QnA: FC<Props> = props => {
             addItemLabel={lang.tr('module.qna.form.addQuestionAlternative')}
           />
           <TextAreaList
-            id={id}
-            readonly={!isActive}
             key="answers"
             items={answers || ['']}
             duplicateMsg={lang.tr('module.qna.form.duplicateAnswer')}
