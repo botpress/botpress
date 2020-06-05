@@ -12,7 +12,7 @@ import { TYPES } from '../../types'
 import { incrementMetric } from '../monitoring'
 import { Queue } from '../queue'
 
-import { EventCollector } from './event-collector'
+import { EventCollector, LAST_EVENT_STEP } from './event-collector'
 import { MiddlewareChain } from './middleware'
 
 const directionRegex = /^(incoming|outgoing)$/
@@ -113,6 +113,9 @@ export class EventEngine {
       const { outgoing } = await this.getBotMiddlewareChains(event.botId)
       await outgoing.run(event)
       this._outgoingPerf.record()
+
+      event.addStep(LAST_EVENT_STEP)
+      this.eventCollector.storeEvent(event)
     })
 
     this.setupPerformanceHooks()
