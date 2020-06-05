@@ -148,7 +148,7 @@ export async function sendServerPackage() {
 
 export async function setupServerPackageLoop() {
   await sendServerPackage()
-  // TODO: async interval to add
+  setInterval(async () => await sendServerPackage(), ms('1h'))
 }
 
 export function startTelemetry(event_type: string, data: dataType, name: string = 'data') {
