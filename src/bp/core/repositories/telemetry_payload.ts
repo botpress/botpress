@@ -2,26 +2,44 @@ import { DataRetentionService } from 'core/services/retention/service'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
-import ms from 'ms'
+import moment from 'moment'
 
 import Database from '../database'
 import { TYPES } from '../types'
 
 export interface TelemetryPayloadRepository {
   getPayload(uuid: string): Promise<any>
-  insertPayload(uuid: string, url: string, payload: JSON): Promise<void>
+  insertPayload(uuid: string, payload: JSON): Promise<void>
   removePayload(uuid: string): Promise<void>
   removeArray(uuidArray: string[]): Promise<void>
   updateArray(uuidArray: string[], status: boolean): Promise<void>
-  getAll(): Promise<any>
+  refreshAvailability(): Promise<void>
   getN(n: number): Promise<any>
 }
 
 @injectable()
 export class KnexTelemetryPayloadRepository implements TelemetryPayloadRepository {
   private readonly tableName = 'telemetry_payloads'
+  private readonly awsURL = 'https://telemetry.botpress.dev'
 
   constructor(@inject(TYPES.Database) private database: Database) {}
+
+  async refreshAvailability(): Promise<void> {
+    const time = moment(new Date())
+      .subtract(5, 'minute')
+      .toISOString()
+
+    const events = await this.database.knex
+      .from(this.tableName)
+      .select('uuid')
+      .where(function() {
+        this.where('lastChanged', '<', time)
+      })
+
+    const uuidArray = events.map(event => event.uuid)
+
+    await this.updateArray(uuidArray, true)
+  }
 
   async updateArray(uuidArray: string[], status: boolean): Promise<void> {
     if (uuidArray.length > 0) {
@@ -31,7 +49,6 @@ export class KnexTelemetryPayloadRepository implements TelemetryPayloadRepositor
         .update({
           uuid: undefined,
           payload: undefined,
-          url: undefined,
           available: status,
           lastChanged: new Date().toISOString()
         })
@@ -54,22 +71,14 @@ export class KnexTelemetryPayloadRepository implements TelemetryPayloadRepositor
 
     if (events.length > 0) {
       const uuidArray = events.map(event => event.uuid)
-      console.log(uuidArray)
       await this.updateArray(uuidArray, false)
     }
-
-    console.log(events)
-    return events
+    return { url: this.awsURL, events: events.map(event => event.payload) }
   }
 
-  async getAll(): Promise<any> {
-    return await this.database.knex.from(this.tableName).select('*')
-  }
-
-  async insertPayload(uuid: string, url: string, payload: JSON) {
+  async insertPayload(uuid: string, payload: JSON) {
     await this.database.knex(this.tableName).insert({
       uuid: uuid,
-      url: url,
       payload: JSON.stringify(payload),
       available: true,
       lastChanged: new Date().toISOString()

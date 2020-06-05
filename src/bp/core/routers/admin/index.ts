@@ -133,8 +133,11 @@ export class AdminRouter extends CustomRouter {
       '/telemetry',
       this.checkTokenHeader,
       this.asyncMiddleware(async (req, res) => {
-        await this.telemetryPayloadRepository.removeArray(req.body.OK)
-        await this.telemetryPayloadRepository.updateArray(req.body.INACCESSIBLE, true)
+        if (req.body.status === 'ok') {
+          await this.telemetryPayloadRepository.removeArray(req.body.events)
+        } else if (req.body.status === 'fail') {
+          await this.telemetryPayloadRepository.updateArray(req.body.events, true)
+        }
         return sendSuccess(res, 'Updated events')
       })
     )
