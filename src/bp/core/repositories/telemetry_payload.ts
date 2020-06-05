@@ -10,7 +10,9 @@ import { TYPES } from '../types'
 export interface TelemetryPayloadRepository {
   getPayload(uuid: string): Promise<any>
   insertPayload(uuid: string, url: string, payload: JSON): Promise<void>
-  removePayload(uuid: string): Promise<any>
+  removePayload(uuid: string): Promise<void>
+  removeArray(uuidArray: string[]): Promise<void>
+  updateArray(uuidArray: string[], status: boolean): Promise<void>
   getAll(): Promise<any>
   getN(n: number): Promise<any>
 }
@@ -21,11 +23,43 @@ export class KnexTelemetryPayloadRepository implements TelemetryPayloadRepositor
 
   constructor(@inject(TYPES.Database) private database: Database) {}
 
+  async updateArray(uuidArray: string[], status: boolean): Promise<void> {
+    if (uuidArray.length > 0) {
+      await this.database
+        .knex(this.tableName)
+        .whereIn('uuid', uuidArray)
+        .update({
+          uuid: undefined,
+          payload: undefined,
+          url: undefined,
+          available: status,
+          lastChanged: new Date().toISOString()
+        })
+    }
+  }
+
+  async removeArray(uuidArray: string[]) {
+    await this.database
+      .knex(this.tableName)
+      .whereIn('uuid', uuidArray)
+      .del()
+  }
+
   async getN(n: number): Promise<any> {
-    return await this.database.knex
+    const events = await this.database.knex
       .from(this.tableName)
       .select('*')
+      .where('available', true)
       .limit(n)
+
+    if (events.length > 0) {
+      const uuidArray = events.map(event => event.uuid)
+      console.log(uuidArray)
+      await this.updateArray(uuidArray, false)
+    }
+
+    console.log(events)
+    return events
   }
 
   async getAll(): Promise<any> {
@@ -33,7 +67,13 @@ export class KnexTelemetryPayloadRepository implements TelemetryPayloadRepositor
   }
 
   async insertPayload(uuid: string, url: string, payload: JSON) {
-    await this.database.knex(this.tableName).insert({ uuid: uuid, url: url, payload: JSON.stringify(payload) })
+    await this.database.knex(this.tableName).insert({
+      uuid: uuid,
+      url: url,
+      payload: JSON.stringify(payload),
+      available: true,
+      lastChanged: new Date().toISOString()
+    })
   }
 
   async getPayload(uuid: string): Promise<any> {
