@@ -1,7 +1,18 @@
-import { BoxedVarContructor, BoxedVariable } from 'botpress/sdk'
+import { BoxedVarContructor, BoxedVariable, FlowVariableConfig } from 'botpress/sdk'
 
 class BoxedBoolean implements BoxedVariable<boolean> {
   public static type = 'boolean'
+  public static config: FlowVariableConfig = {
+    name: 'boolean',
+    label: 'module.builtin.variables.boolean.label',
+    params: [
+      {
+        name: 'defaultValue',
+        label: 'module.builtin.variables.boolean.params.defaultValue.label',
+        control: 'nullableCheckbox'
+      }
+    ]
+  }
   private _confidence?: number
   private _value?: boolean
   private _nbTurns?: number
