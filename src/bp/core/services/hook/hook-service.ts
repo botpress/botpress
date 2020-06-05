@@ -285,7 +285,7 @@ export class HookService {
   }
 
   private addEventStep = (hookName: string, status: 'completed' | 'error', hook: Hooks.BaseHook) => {
-    if (hook instanceof Hooks.EventHook && hook.args?.event) {
+    if (hook instanceof Hooks.EventHook && hook.args?.event?.addStep) {
       const event = hook.args.event as IO.Event
       event.addStep(`hook:${hookName}:${status}`)
     }
