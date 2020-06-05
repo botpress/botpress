@@ -19,7 +19,7 @@ export interface TelemetryPayloadRepository {
 
 @injectable()
 export class KnexTelemetryPayloadRepository implements TelemetryPayloadRepository {
-  private readonly tableName = 'telemetry_table'
+  private readonly tableName = 'telemetry_payloads'
 
   constructor(@inject(TYPES.Database) private database: Database) {}
 
