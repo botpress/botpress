@@ -72,6 +72,8 @@ export interface EntityService {
 }
 
 export interface NLUState {
+  nluVersion: string
+  langServerVersion: string
   nluByBot: _.Dictionary<BotState>
   languageProvider?: LanguageProvider
   health?: NLUHealth

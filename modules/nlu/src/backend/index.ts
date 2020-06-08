@@ -14,7 +14,9 @@ import { getOnServerReady } from './module-lifecycle/on-server-ready'
 import { getOnSeverStarted } from './module-lifecycle/on-server-started'
 import { NLUState } from './typings'
 
-const state: NLUState = { nluByBot: {} }
+import nluInfo from '../../package.json'
+
+const state: NLUState = { nluByBot: {}, nluVersion: nluInfo.version, langServerVersion: '' }
 
 const onServerStarted = getOnSeverStarted(state)
 const onServerReady = getOnServerReady(state)
