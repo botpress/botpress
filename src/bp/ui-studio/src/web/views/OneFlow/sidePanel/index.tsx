@@ -134,11 +134,6 @@ const SidePanelContent: FC<Props> = props => {
     downloadTextFile(JSON.stringify(topic), `${topicName}.json`)
   }
 
-  const exportWorkflow = async name => {
-    const workflow = await exportCompleteWorkflow(name)
-    downloadTextFile(JSON.stringify(workflow), `${name}.json`)
-  }
-
   const onImportCompleted = () => {
     props.fetchFlows()
     props.fetchTopics()
