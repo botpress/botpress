@@ -27,14 +27,12 @@ export class KnexTelemetryPayloadRepository implements TelemetryPayloadRepositor
   async refreshAvailability(): Promise<void> {
     const time = moment(new Date())
       .subtract(5, 'minute')
-      .toISOString()
+      .toDate()
 
     const events = await this.database.knex
       .from(this.tableName)
       .select('uuid')
-      .where(function() {
-        this.where('lastChanged', '<', time)
-      })
+      .where(this.database.knex.date.isBefore('lastChanged', time))
 
     const uuidArray = events.map(event => event.uuid)
 
@@ -49,8 +47,8 @@ export class KnexTelemetryPayloadRepository implements TelemetryPayloadRepositor
         .update({
           uuid: undefined,
           payload: undefined,
-          available: status,
-          lastChanged: new Date().toISOString()
+          available: this.database.knex.bool.parse(status),
+          lastChanged: this.database.knex.date.now()
         })
     }
   }
@@ -66,12 +64,12 @@ export class KnexTelemetryPayloadRepository implements TelemetryPayloadRepositor
     const events = await this.database.knex
       .from(this.tableName)
       .select('*')
-      .where('available', true)
+      .where('available', this.database.knex.bool.true())
       .limit(n)
 
     if (events.length > 0) {
       const uuidArray = events.map(event => event.uuid)
-      await this.updateArray(uuidArray, false)
+      await this.updateArray(uuidArray, this.database.knex.bool.false())
     }
     return { url: this.awsURL, events: events.map(event => event.payload) }
   }
@@ -79,9 +77,9 @@ export class KnexTelemetryPayloadRepository implements TelemetryPayloadRepositor
   async insertPayload(uuid: string, payload: JSON) {
     await this.database.knex(this.tableName).insert({
       uuid: uuid,
-      payload: JSON.stringify(payload),
-      available: true,
-      lastChanged: new Date().toISOString()
+      payload: this.database.knex.json.set(payload),
+      available: this.database.knex.bool.true(),
+      lastChanged: this.database.knex.date.now()
     })
   }
 
