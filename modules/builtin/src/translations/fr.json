@@ -68,6 +68,12 @@
   "typingIndicator": "Afficher l'indicateur de frappe",
   "useMarkdown": "Utiliser markdown",
   "variables": {
+    "string": {
+      "label": "Texte"
+    },
+    "number": {
+      "label": "Nombre"
+    },
     "boolean": {
       "label": "Booléen",
       "params": {

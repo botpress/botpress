@@ -40,6 +40,12 @@
   "typingIndicator": "Show typing indicators",
   "useMarkdown": "Use markdown",
   "variables": {
+    "string": {
+      "label": "String"
+    },
+    "number": {
+      "label": "Number"
+    },
     "boolean": {
       "label": "Boolean",
       "params": {
