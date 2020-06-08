@@ -6,7 +6,7 @@ export class TelemetryPayloadTable extends Table {
   async bootstrap() {
     let created = false
 
-    // await this.knex.schema.dropTable('telemetry_table')
+    // await this.knex.schema.dropTable('telemetry_payloads')
 
     await this.knex.createTableIfNotExists(this.name, table => {
       table.uuid('uuid').notNullable()
