@@ -151,7 +151,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
   }
 
   private extractLangServerVersion(data: any) {
-    let version = semver.valid(semver.coerce(data.version))
+    const version = semver.valid(semver.coerce(data.version))
 
     if (!version) {
       throw new Error('Lang server has an invalid version')
