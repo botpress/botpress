@@ -51,7 +51,7 @@ export default async function(options: ArgV) {
   const version = '1.0.0' // TODO: declare this elsewhere
 
   const apiOptions: APIOptions = {
-    version,
+    version: version,
     host: options.host,
     port: options.port,
     authToken: options.authToken,
@@ -62,7 +62,7 @@ export default async function(options: ArgV) {
 
   logger.info(chalk`========================================
 {bold ${center(`Botpress Language Server`, 40, 9)}}
-{dim ${center(`Version ${langServerVersion}`, 40, 9)}}
+{dim ${center(`Version ${version}`, 40, 9)}}
 {dim ${center(`OS ${process.distro}`, 40, 9)}}
 ${_.repeat(' ', 9)}========================================`)
 

@@ -9,6 +9,7 @@ import moment from 'moment'
 import ms from 'ms'
 import path from 'path'
 import crypto from 'crypto'
+import semver from 'semver'
 
 import { setSimilarity, vocabNGram } from '../tools/strings'
 import { isSpace, processUtteranceTokens, restoreOriginalUtteranceCasing } from '../tools/token-utils'
@@ -130,7 +131,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
           this._validProvidersCount++
           data.languages.forEach(x => this.addProvider(x.lang, source, client))
 
-          this._state.langServerVersion = data.version
+          this.extractLangServerVersion(data)
         }, this.discoveryRetryPolicy)
       } catch (err) {
         this.handleLanguageServerError(err, source.endpoint, logger)
@@ -147,6 +148,15 @@ export class RemoteLanguageProvider implements LanguageProvider {
     await this.restoreTokensCache()
 
     return this
+  }
+
+  private extractLangServerVersion(data: any) {
+    let version = semver.valid(semver.coerce(data.version))
+
+    if (!version) {
+      throw new Error('Lang server has an invalid version')
+    }
+    this._state.langServerVersion = semver.clean(version)
   }
 
   private computeCacheFilesPaths = () => {
@@ -491,10 +501,12 @@ export class RemoteLanguageProvider implements LanguageProvider {
 
   private computeVersionHash = () => {
     const { nluVersion, langServerVersion } = this._state
-    const content = `${nluVersion}:${langServerVersion}`
+
+    const omitPatchNumber = (v: string) => `${semver.major(v)}.${semver.minor(v)}.0`
+    const hashContent = `${omitPatchNumber(nluVersion)}:${omitPatchNumber(langServerVersion)}`
     return crypto
       .createHash('md5')
-      .update(content)
+      .update(hashContent)
       .digest('hex')
   }
 }
