@@ -3,7 +3,6 @@ import _ from 'lodash'
 import { DefaultLinkModel, DiagramEngine, DiagramModel, DiagramWidget, PointModel } from 'storm-react-diagrams'
 import { hashCode } from '~/util'
 
-import { BlockNodeModel } from '../../OneFlow/diagram/nodes/Block'
 import { SaySomethingNodeModel } from '../../OneFlow/diagram/nodes/SaySomethingNode'
 
 import { BaseNodeModel } from './nodes/BaseNodeModel'
@@ -59,8 +58,6 @@ const createNodeModel = (node, modelProps) => {
   const { type } = node
   if (type === 'skill-call') {
     return new SkillCallNodeModel(modelProps)
-  } else if (type === 'block') {
-    return new BlockNodeModel(modelProps)
   } else if (type === 'say_something') {
     return new SaySomethingNodeModel(modelProps)
   } else if (type === 'execute') {

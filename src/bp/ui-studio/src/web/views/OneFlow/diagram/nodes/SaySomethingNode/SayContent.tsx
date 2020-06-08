@@ -1,7 +1,9 @@
 import { MarkdownContent } from 'botpress/shared'
+import cx from 'classnames'
 import { FormData } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment } from 'react'
+import Dotdotdot from 'react-dotdotdot'
 import withLanguage from '~/components/Util/withLanguage'
 
 import style from '../style.scss'
@@ -15,22 +17,27 @@ interface Props {
   onClick: () => void
   contentLang: string
   defaultLanguage: string
+  isSelected: boolean
 }
 
 const SayNodeContent: FC<Props> = props => {
-  const { content, onClick } = props
+  const { content, onClick, isSelected } = props
 
   const variationsCount = (content.variations as FormData[])?.filter(v => v.item)?.length
 
   const renderCard = (item, index?) => {
-    const { image, title, subtitle } = item
+    const { image, title, text } = item
 
     return (
       <div key={index} className={style.contentImgWrapper}>
         {image && <div style={{ backgroundImage: `url('${image}')` }} className={style.img}></div>}
         <div className={style.textWrapper}>
-          {title && <span className={style.primaryText}>{title}</span>}
-          {subtitle && <span className={style.secondaryText}>{_.truncate(subtitle, { length: 25 })}</span>}
+          <Dotdotdot clamp={text ? 2 : 3}>{title && title}</Dotdotdot>
+          {text && (
+            <Dotdotdot clamp={1}>
+              <span className={style.secondaryText}>{_.truncate(text, { length: 25 })}</span>
+            </Dotdotdot>
+          )}
         </div>
       </div>
     )
@@ -42,11 +49,13 @@ const SayNodeContent: FC<Props> = props => {
       case 'builtin_card':
         return renderCard(content)
       case 'builtin_carousel':
-        return (content.cards as FormData[])?.map((item, index) => renderCard(item, index)) || null
+        return renderCard(content.cards?.[0])
       default:
         return (
           <Fragment>
-            <MarkdownContent markdown={content.markdown as boolean} content={content.text as string} />
+            <Dotdotdot clamp={!!variationsCount ? 2 : 3}>
+              <MarkdownContent markdown={content.markdown as boolean} content={content.text as string} />
+            </Dotdotdot>
             {!!variationsCount && <span className={contentStyle.extraItems}>+ {variationsCount} variations</span>}
           </Fragment>
         )
@@ -54,7 +63,7 @@ const SayNodeContent: FC<Props> = props => {
   }
 
   return (
-    <button className={contentStyle.content} onClick={onClick}>
+    <button className={cx(contentStyle.content, { [contentStyle.selected]: isSelected })} onClick={onClick}>
       {renderContent()}
     </button>
   )

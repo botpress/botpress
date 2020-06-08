@@ -138,7 +138,7 @@
         "add": "add",
         "addAction": "Add new action",
         "cantSeeActions": "Can't see your action?",
-        "chatbotSays": "Chabot Says",
+        "chatbotSays": "Chatbot Says",
         "confirmOverwriteParameters": "Do you want to overwrite existing parameters?",
         "contentPaste": "content_paste",
         "couldNotRetrieveActionServer": "Could not retrieve action servers",

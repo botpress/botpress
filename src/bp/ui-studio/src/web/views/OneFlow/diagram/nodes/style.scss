@@ -1,14 +1,5 @@
 @import '../../../../palette.scss';
 
-.primaryText {
-  display: block;
-  margin-bottom: 4px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  width: 100%;
-}
-
 .secondaryText {
   color: #5C7080;
   display: block;
@@ -27,8 +18,6 @@
 
   .textWrapper {
     overflow: hidden;
-    font-size: 12px;
-    line-height: 13px;
   }
 }
 
