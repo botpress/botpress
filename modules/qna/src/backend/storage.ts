@@ -95,6 +95,7 @@ export default class Storage {
     await this.checkForDuplicatedQuestions(data, id)
 
     id = id || makeID(data)
+    data.lastModified = new Date()
     const item: QnaItem = { id, data }
 
     if (data.enabled) {
@@ -123,6 +124,7 @@ export default class Storage {
     const ids = await Promise.mapSeries(_.isArray(qna) ? qna : [qna], async (data, i) => {
       const id = makeID(data)
       await this.checkForDuplicatedQuestions(data, id)
+      data.lastModified = new Date()
       const item: QnaItem = { id, data }
       if (data.enabled) {
         await this.createNLUIntentFromQnaItem(item, true)
@@ -164,13 +166,19 @@ export default class Storage {
     if (!question.data.answers) {
       question.data.answers = [question.data.answer]
     }
+    if (!question.data.lastModified) {
+      question.data.lastModified = new Date()
+    }
     return question
   }
 
   async getQnaItem(id: string): Promise<QnaItem> {
     const filename = `${id}.json`
 
-    const data = await this.bp.ghost.forBot(this.botId).readFileAsObject(this.config.qnaDir, filename)
+    const data: QnaItem = await this.bp.ghost.forBot(this.botId).readFileAsObject(this.config.qnaDir, filename)
+    if (data.data.lastModified) {
+      data.data.lastModified = new Date(data.data.lastModified)
+    }
 
     return this.migrate_11_2_to_11_3(data)
   }
@@ -189,7 +197,23 @@ export default class Storage {
     }
   }
 
-  async filterByContextsAndQuestion(question: string, filteredContexts: string[]) {
+  async filterByContextsAndQuestion(
+    question: string,
+    filteredContexts: string[],
+    stateFilter: string,
+    order: string,
+    lang: string
+  ) {
+    let enabledRequiredValue = undefined
+    let requiredIncomplete = false
+    if (stateFilter === 'active') {
+      enabledRequiredValue = true
+    } else if (stateFilter === 'disabled') {
+      enabledRequiredValue = false
+    } else if (stateFilter === 'incomplete') {
+      requiredIncomplete = true
+    }
+
     const allQuestions = await this.fetchQNAs()
     const filteredQuestions = allQuestions.filter(q => {
       const { questions, contexts } = q.data
@@ -201,6 +225,18 @@ export default class Storage {
           .toLowerCase()
           .indexOf(question.toLowerCase()) !== -1
 
+      if (enabledRequiredValue !== undefined && q.data.enabled !== enabledRequiredValue) {
+        return false
+      }
+
+      if (
+        requiredIncomplete &&
+        q.data.questions[lang]?.length >= 3 &&
+        (q.data.answers[lang]?.length >= 1 || q.data.redirectFlow || q.data.redirectNode)
+      ) {
+        return false
+      }
+
       if (!filteredContexts.length) {
         return hasMatch || q.id.includes(question)
       }
@@ -211,24 +247,30 @@ export default class Storage {
       return hasMatch && !!_.intersection(contexts, filteredContexts).length
     })
 
-    return filteredQuestions.reverse()
+    if (order === 'asc') {
+      return filteredQuestions.sort((a, b) => a.data.lastModified.getTime() - b.data.lastModified.getTime())
+    } else if (order === 'desc') {
+      return filteredQuestions.sort((a, b) => b.data.lastModified.getTime() - a.data.lastModified.getTime())
+    } else {
+      return filteredQuestions.reverse()
+    }
   }
 
   async getQuestions(
-    { question = '', filteredContexts = [] },
+    { question = '', filteredContexts = [], stateFilter = undefined, order = undefined, lang = undefined },
     { limit = 50, offset = 0 }
   ): Promise<{ items: QnaItem[]; count: number }> {
     let items: QnaItem[] = []
     let count = 0
 
-    if (!(question || filteredContexts.length)) {
+    if (!(question || filteredContexts.length || stateFilter)) {
       items = await this.fetchQNAs({
         start: +offset,
         count: +limit
       })
       count = await this.count()
     } else {
-      const tmpQuestions = await this.filterByContextsAndQuestion(question, filteredContexts)
+      const tmpQuestions = await this.filterByContextsAndQuestion(question, filteredContexts, stateFilter, order, lang)
       items = tmpQuestions.slice(offset, offset + limit)
       count = tmpQuestions.length
     }
