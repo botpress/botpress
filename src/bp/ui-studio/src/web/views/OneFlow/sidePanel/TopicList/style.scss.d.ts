@@ -5,7 +5,9 @@ interface CssExports {
   'addBtn': string;
   'contextMenu': string;
   'emptyState': string;
+  'importInput': string;
   'inlineEditing': string;
+  'inputLabel': string;
   'isTopic': string;
   'searchBar': string;
   'tag': string;

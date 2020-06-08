@@ -187,3 +187,18 @@
     background:  var(--hover-ocean) !important;
   }
 }
+
+.inputLabel {
+  cursor: pointer;
+  margin: 0;
+  vertical-align: middle;
+}
+
+.importInput {
+  display: block;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  visibility: hidden;
+  width: 0;
+}

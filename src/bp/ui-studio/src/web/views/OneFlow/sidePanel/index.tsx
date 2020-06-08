@@ -26,11 +26,10 @@ import Library from './Library'
 import { exportCompleteTopic } from './TopicEditor/export'
 import CreateTopicModal from './TopicEditor/CreateTopicModal'
 import EditTopicModal from './TopicEditor/EditTopicModal'
-import ImportModal from './TopicEditor/ImportModal'
+import ImportTopic from './TopicEditor/ImportTopic'
 import TopicList from './TopicList'
 import EditTopicQnAModal from './TopicQnAEditor/EditTopicQnAModal'
 import WorkflowEditor from './WorkflowEditor'
-import { exportCompleteWorkflow } from './WorkflowEditor/export'
 import { buildFlowName } from './WorkflowEditor/utils'
 
 export type PanelPermissions = 'create' | 'rename' | 'delete'
@@ -170,7 +169,13 @@ const SidePanelContent: FC<Props> = props => {
             {props.permissions.includes('create') && currentTab === 'topics' && (
               <NavbarGroup align={Alignment.RIGHT}>
                 <Tooltip content={lang.tr('studio.flow.sidePanel.importTopic')}>
-                  <Button icon="import" onClick={() => setImportModalOpen(true)} />
+                  <ImportTopic
+                    isOpen={importModalOpen}
+                    onImportCompleted={onImportCompleted}
+                    selectedTopic={selectedTopic}
+                    flows={props.flows}
+                    topics={props.topics}
+                  />
                 </Tooltip>
                 <Tooltip content={lang.tr('studio.flow.sidePanel.addTopic')}>
                   <Button icon="plus" onClick={() => createTopic()} />
@@ -220,15 +225,6 @@ const SidePanelContent: FC<Props> = props => {
         selectedTopic={selectedTopic}
         readOnly={props.readOnly}
         canRename={props.permissions.includes('rename')}
-      />
-
-      <ImportModal
-        isOpen={importModalOpen}
-        toggle={() => setImportModalOpen(!importModalOpen)}
-        onImportCompleted={onImportCompleted}
-        selectedTopic={selectedTopic}
-        flows={props.flows}
-        topics={props.topics}
       />
     </div>
   )
