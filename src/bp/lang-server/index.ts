@@ -51,7 +51,7 @@ export default async function(options: ArgV) {
   const version = '1.0.0' // TODO: declare this elsewhere
 
   const apiOptions: APIOptions = {
-    version,
+    version: version,
     host: options.host,
     port: options.port,
     authToken: options.authToken,
