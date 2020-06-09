@@ -36,14 +36,12 @@ const ImportTopic: FC<Props> = props => {
 
     const fr = new FileReader()
     fr.readAsArrayBuffer(files[0])
-    fr.onload = loadedEvent => {
+    fr.onload = async loadedEvent => {
       try {
         const dec = new TextDecoder('utf-8')
         const content = JSON.parse(dec.decode(_.get(loadedEvent, 'target.result')))
 
-        analyzeImport(content, content?.name, detectFileType(content))
-          .then()
-          .catch()
+        await analyzeImport(content, content?.name, detectFileType(content))
       } catch (err) {
         toastFailure(lang.tr('studio.flow.topicEditor.couldNotParseFile', { msg: err.message }))
         console.error(err)
