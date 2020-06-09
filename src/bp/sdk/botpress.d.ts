@@ -504,6 +504,7 @@ declare module 'botpress/sdk' {
     }
 
     export interface EntityMeta {
+      sensitive: boolean
       confidence: number
       provider: string
       source: string
