@@ -70,7 +70,6 @@ const ImportTopic: FC<Props> = props => {
       } else if (detected === ElementType.Workflow) {
         const content = fileContent as ExportedFlow
 
-        console.log('workflows')
         const actions = await analyzeWorkflowFile(content, props.flows)
         const wfAction = getWorkflowAction(
           { ...content, name, location: name },
