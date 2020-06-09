@@ -17,6 +17,14 @@
   }
 }
 
+.highlightedQna {
+  margin-bottom: var(--spacing-large);
+
+  .questionWrapper {
+    border: 1px solid var(--ocean);
+  }
+}
+
 .header :global(.more-options-selected-option) {
   background: var(--hover-ocean) !important;
 

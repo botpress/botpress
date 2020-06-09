@@ -6,6 +6,7 @@ import React, { FC, Fragment, useEffect, useState } from 'react'
 interface Props {
   contexts: string[]
   isSearch?: boolean
+  customIdSuffix?: string | number
   className?: string
   bp: any
   saveContexts: (ctx: string[]) => void
@@ -13,24 +14,25 @@ interface Props {
 
 const ContextSelector: FC<Props> = props => {
   const [availableContexts, setContexts] = useState([])
+  const contexts = props.contexts || []
 
   useEffect(() => {
     props.bp.axios.get(`/mod/nlu/contexts`).then(({ data }) => setContexts(data))
   }, [])
 
   const removeCtx = (_, idx: number) => {
-    props.saveContexts([...props.contexts.slice(0, idx), ...props.contexts.slice(idx + 1)])
+    props.saveContexts([...contexts.slice(0, idx), ...contexts.slice(idx + 1)])
   }
 
   const addCtx = (ctx: string) => {
     if (availableContexts.indexOf(ctx) === -1) {
       setContexts([...availableContexts, ctx])
     }
-    props.saveContexts([...props.contexts, ctx])
+    props.saveContexts([...contexts, ctx])
   }
 
   const onItemSelect = (ctx: string) => {
-    const idx = props.contexts.indexOf(ctx)
+    const idx = contexts?.indexOf(ctx)
     if (idx !== -1) {
       removeCtx(ctx, idx)
     } else {
@@ -44,7 +46,7 @@ const ContextSelector: FC<Props> = props => {
       key={ctx}
       onClick={handleClick}
       active={modifiers.active}
-      icon={props.contexts.indexOf(ctx) !== -1 ? 'tick' : 'blank'}
+      icon={contexts?.indexOf(ctx) !== -1 ? 'tick' : 'blank'}
     />
   )
 
@@ -81,9 +83,13 @@ const ContextSelector: FC<Props> = props => {
         itemPredicate={(q: string, ctx: string) => !q || ctx.includes(q)}
         onItemSelect={onItemSelect}
         tagRenderer={ctx => ctx}
-        tagInputProps={{ tagProps: { minimal: true }, onRemove: removeCtx, inputProps: { id: 'select-context' } }}
+        tagInputProps={{
+          tagProps: { minimal: true },
+          onRemove: removeCtx,
+          inputProps: { id: `select-context${props.customIdSuffix ? props.customIdSuffix : ''}` }
+        }}
         popoverProps={{ minimal: true, fill: true, usePortal: false }}
-        selectedItems={props.contexts}
+        selectedItems={contexts}
         createNewItemRenderer={!props.isSearch && createNewItemRenderer}
         createNewItemFromQuery={q => q}
       />

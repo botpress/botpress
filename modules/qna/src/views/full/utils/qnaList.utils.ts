@@ -4,11 +4,12 @@ import _uniqueId from 'lodash/uniqueId'
 
 import { QnaItem } from '../../../backend/qna'
 
-export const ITEMS_PER_PAGE = 20
+export const ITEMS_PER_PAGE = 50
 
 export interface State {
   count: number
-  items: any[]
+  items: QnaItem[]
+  highlighted?: QnaItem
   loading: boolean
   firstUpdate: boolean
   page: number
@@ -136,6 +137,17 @@ export const fetchReducer = (state: State, action): State => {
       page,
       fetchMore: false
     }
+  } else if (action.type === 'highlightedSuccess') {
+    return {
+      ...state,
+      highlighted: action.data,
+      expandedItems: { ...state.expandedItems, highlighted: true }
+    }
+  } else if (action.type === 'resetHighlighted') {
+    return {
+      ...state,
+      highlighted: undefined
+    }
   } else if (action.type === 'resetData') {
     return {
       ...state,
@@ -154,6 +166,15 @@ export const fetchReducer = (state: State, action): State => {
   } else if (action.type === 'updateQnA') {
     const { qnaItem, index } = action.data
     const newItems = state.items
+
+    if (index === 'highlighted') {
+      const newHighlighted = { ...state.highlighted, saveError: qnaItem.saveError, id: qnaItem.id, data: qnaItem.data }
+
+      return {
+        ...state,
+        highlighted: newHighlighted
+      }
+    }
 
     newItems[index] = { ...newItems[index], saveError: qnaItem.saveError, id: qnaItem.id, data: qnaItem.data }
 
@@ -191,6 +212,18 @@ export const fetchReducer = (state: State, action): State => {
     const { index, bp } = action.data
     const newItems = state.items
 
+    if (index === 'highlighted') {
+      bp.axios
+        .post(`/mod/qna/questions/${state.highlighted.id}/delete`)
+        .then(() => {})
+        .catch(() => {})
+
+      return {
+        ...state,
+        highlighted: undefined
+      }
+    }
+
     const [deletedItem] = newItems.splice(index, 1)
 
     if (!deletedItem.id.startsWith('qna-')) {
@@ -222,16 +255,6 @@ export const fetchReducer = (state: State, action): State => {
     return {
       ...state,
       expandedItems: {}
-    }
-  } else if (action.type === 'disableQnA') {
-    const { index } = action.data
-    const newItems = state.items
-
-    newItems[index].enabled = false
-
-    return {
-      ...state,
-      items: newItems
     }
   } else if (action.type === 'fetchMore') {
     return {

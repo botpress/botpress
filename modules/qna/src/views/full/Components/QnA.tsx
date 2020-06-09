@@ -28,6 +28,7 @@ interface Props {
   defaultLanguage: string
   errorMessages?: string[]
   flows?: Flow[]
+  childRef?: (ref: HTMLDivElement | null) => void
   updateQnA: (qnaItem: QnaItem) => void
   deleteQnA: () => void
   toggleEnabledQnA: () => void
@@ -185,6 +186,7 @@ const QnA: FC<Props> = props => {
             <ContextSelector
               className={cx(style.contextSelector)}
               contexts={data.contexts}
+              customIdSuffix={id}
               saveContexts={contexts =>
                 updateQnA({
                   id,
