@@ -88,7 +88,6 @@ const ImportTopic: FC<Props> = props => {
 
   const doImport = async (actions, detected) => {
     try {
-      console.log(detected, actions)
       if (detected === ElementType.Topic) {
         await executeTopicActions(actions)
       } else {
