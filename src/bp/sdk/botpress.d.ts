@@ -1292,7 +1292,6 @@ declare module 'botpress/sdk' {
     | 'skill-call'
     | 'listen'
     | 'say_something'
-    | 'block'
     | 'success'
     | 'failure'
     | 'trigger'
@@ -1306,6 +1305,7 @@ declare module 'botpress/sdk' {
     type?: FlowNodeType
     timeoutNode?: string
     flow?: string
+    isNew?: boolean
     /** Used internally by the flow editor */
     readonly lastModified?: Date
   } & NodeActions
@@ -1353,11 +1353,6 @@ declare module 'botpress/sdk' {
     /** An array of possible transitions once everything is completed */
     next?: NodeTransition[]
     /** For node of type say_something, this contains the element to render */
-    content?: {
-      contentType: string
-      /** Every properties required by the content type, including translations */
-      formData: object
-    }
     contents?: {
       contentType: string
       /** Every properties required by the content type, including translations */

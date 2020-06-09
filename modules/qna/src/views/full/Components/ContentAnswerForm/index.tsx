@@ -24,7 +24,7 @@ const fetchReducer = (state, action) => {
         ...state,
         contentTypes: data.map(type => ({
           value: type.id,
-          label: lang.tr(type.id === 'builtin_single-choice' ? 'module.builtin.types.suggestions.title' : type.title)
+          label: lang.tr(type.title)
         })),
         contentTypesFields: data.reduce((acc, type) => ({ ...acc, [type.id]: type.schema.newJson }), {})
       }
@@ -41,12 +41,11 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
   const contentType = useRef(formData?.contentType || 'builtin_image')
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
-  const shownCategories = ['builtin_image', 'builtin_carousel', 'builtin_card', 'builtin_single-choice']
   const { contentTypes, contentTypesFields } = state
 
   useEffect(() => {
     bp.axios.get('/content/types').then(({ data }) => {
-      dispatch({ type: 'fetchSuccess', data: data.filter(type => shownCategories.includes(type.id)) })
+      dispatch({ type: 'fetchSuccess', data: data.filter(type => type.schema.newJson?.displayedIn.includes('qna')) })
     })
   }, [])
 

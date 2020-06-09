@@ -194,6 +194,7 @@ module.exports = {
     }
   },
   newSchema:{
+    displayedIn: ['qna', 'sayNode'],
     advancedSettings: [
       {
         key: 'markdown',

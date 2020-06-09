@@ -58,7 +58,6 @@ import { TriggerNodeModel, TriggerWidgetFactory } from '~/views/FlowBuilder/diag
 import style from '~/views/FlowBuilder/diagram/style.scss'
 import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/OneFlow/diagram/nodes/SaySomethingNode'
 
-import { BlockNodeModel, BlockWidgetFactory } from './nodes/Block'
 import ContentForm from './ContentForm'
 import TriggerEditor from './TriggerEditor'
 import WorkflowToolbar from './WorkflowToolbar'
@@ -108,9 +107,8 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory(this.props.skills))
     this.diagramEngine.registerNodeFactory(
-      new BlockWidgetFactory(this.editContent.bind(this), this.isContentSelected.bind(this))
+      new SaySomethingWidgetFactory(this.editContent.bind(this), this.getEditingContent.bind(this))
     )
-    this.diagramEngine.registerNodeFactory(new SaySomethingWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ListenWidgetFactory())
     this.diagramEngine.registerNodeFactory(new RouterWidgetFactory())
@@ -166,6 +164,14 @@ class Diagram extends Component<Props> {
   componentDidUpdate(prevProps, prevState) {
     this.manager.setCurrentFlow(this.props.currentFlow)
     this.manager.setReadOnly(this.props.readOnly)
+
+    if (
+      !prevState.editingNodeContent &&
+      this.props.currentFlowNode?.isNew &&
+      this.props.currentFlowNode?.type === 'say_something'
+    ) {
+      this.editContent(this.props.currentFlowNode, 0)
+    }
 
     if (this.diagramContainer) {
       this.manager.setDiagramContainer(this.diagramWidget, {
@@ -249,12 +255,13 @@ class Diagram extends Component<Props> {
     triggerNode: (point: Point, moreProps) => {
       this.props.createFlowNode({ ...point, type: 'trigger', conditions: [], next: [defaultTransition], ...moreProps })
     },
-    block: (point: Point, moreProps) => {
+    say: (point: Point, moreProps) => {
       this.props.createFlowNode({
         ...point,
-        type: 'block',
+        type: 'say_something',
         contents: [{ contentType: 'builtin_text' }],
         next: [defaultTransition],
+        isNew: true,
         ...moreProps
       })
     },
@@ -311,7 +318,7 @@ class Diagram extends Component<Props> {
         )}
         <MenuItem
           text={lang.tr('studio.flow.nodeType.sendMessage')}
-          onClick={wrap(this.add.block, point, { blockType: 'say' })}
+          onClick={wrap(this.add.say, point)}
           icon="comment"
         />
         <MenuItem
@@ -358,10 +365,7 @@ class Diagram extends Component<Props> {
 
     const isNodeTargeted = targetModel instanceof NodeModel
     const isTriggerNode = targetModel instanceof TriggerNodeModel
-    const isLibraryNode =
-      targetModel instanceof SaySomethingNodeModel ||
-      targetModel instanceof ExecuteNodeModel ||
-      targetModel instanceof BlockNodeModel
+    const isLibraryNode = targetModel instanceof SaySomethingNodeModel || targetModel instanceof ExecuteNodeModel
 
     const isSuccessNode = targetModel instanceof SuccessNodeModel
     const isFailureNode = targetModel instanceof FailureNodeModel
@@ -443,7 +447,6 @@ class Diagram extends Component<Props> {
 
     const targetModel = target.model
     return (
-      targetModel instanceof SaySomethingNodeModel ||
       targetModel instanceof StandardNodeModel ||
       targetModel instanceof SkillCallNodeModel ||
       targetModel instanceof RouterNodeModel
@@ -507,11 +510,15 @@ class Diagram extends Component<Props> {
 
   editContent(node, index) {
     clearTimeout(this.timeout)
+    if (node.isNew) {
+      this.props.updateFlowNode({ isNew: false })
+    }
+
     this.setState({ editingNodeContent: { node, index } })
   }
 
-  isContentSelected(node, index) {
-    return this.state.editingNodeContent?.node === node && this.state.editingNodeContent?.index === index
+  getEditingContent() {
+    return this.state.editingNodeContent
   }
 
   deleteSelectedElements() {
@@ -627,7 +634,7 @@ class Diagram extends Component<Props> {
     } else if (data.type === 'node') {
       switch (data.id) {
         case 'say_something':
-          this.add.block(point, {})
+          this.add.say(point, {})
           break
         case 'execute':
           this.add.executeNode(point, data.contentId ? { onReceive: [`${data.contentId}`] } : {})

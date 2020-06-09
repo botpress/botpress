@@ -7,6 +7,7 @@ interface CssExports {
   'nodeWrapper': string;
   'out': string;
   'outRouting': string;
+  'selected': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

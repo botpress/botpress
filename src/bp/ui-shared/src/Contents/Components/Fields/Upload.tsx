@@ -7,10 +7,7 @@ import { FieldProps } from '../typings'
 
 interface UploadFieldProps extends FieldProps {
   axios: any
-<<<<<<< HEAD
   customPath?: string
-=======
->>>>>>> dev
 }
 
 const Upload: FC<UploadFieldProps> = props => {

@@ -118,7 +118,7 @@ const formReducer = (state, action) => {
 }
 
 const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettings, onUpdate }) => {
-  const newFormData = getEmptyFormData(contentType || 'builtin_image')
+  const newFormData = getEmptyFormData(contentType || 'image')
   const [state, dispatch] = useReducer(formReducer, newFormData)
 
   useEffect(() => {

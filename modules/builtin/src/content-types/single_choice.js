@@ -90,7 +90,7 @@ function renderElement(data, channel) {
 module.exports = {
   id: 'builtin_single-choice',
   group: 'Built-in Messages',
-  title: 'module.builtin.types.singleChoice.title',
+  title: 'module.builtin.types.suggestions.title',
 
   jsonSchema: {
     description: 'module.builtin.types.singleChoice.description',
@@ -142,6 +142,7 @@ module.exports = {
   },
 
   newSchema: {
+    displayedIn: ['qna', 'sayNode'],
     advancedSettings: [
       {
         key: 'onTopOfKeyboard',
