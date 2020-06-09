@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { json } from 'body-parser'
 import shared from 'botpress/shared'
 import { createHash } from 'crypto'
 import _ from 'lodash'
@@ -12,8 +11,7 @@ import store from './store'
 export const telemetryPackageVersion = '1.0.0'
 export const dataClusterVersion = '1.0.0'
 
-const endpointMock = 'http://sarscovid2.ddns.net:8000/mock'
-const endpoint = 'https://telemetry.botpress.dev/'
+const endpoint = 'https://telemetry.botpress.dev'
 
 function toHash(content: string) {
   return createHash('sha256')
@@ -118,7 +116,8 @@ export function checkInfoReceived() {
 export async function sendServerPackage() {
   try {
     const packages = (await api.getSecured().get(serverUrl)).data
-    console.log(packages)
+
+    console.log('packages got', packages)
 
     const feedback = { events: [], status: '' }
 
@@ -126,11 +125,14 @@ export async function sendServerPackage() {
       const url = packages.url
       const events = packages.events.map(event => JSON.parse(event))
 
+      events.map(obj => (obj.source = 'client'))
+
       feedback.events = events.map(obj => obj.uuid)
 
       try {
         await axios.post(url, events, corsConfig)
         feedback['status'] = 'ok'
+        console.log('packages sent', events)
       } catch (err) {
         feedback['status'] = 'fail'
         console.log('Could not send the telemetry packages to the storage server', err)
@@ -140,28 +142,34 @@ export async function sendServerPackage() {
     await api
       .getSecured()
       .post(serverUrl, feedback)
+      .then(res => console.log('feedbacks sent', feedback))
       .catch(err => console.log('Could not send the feedbacks to the botpress server', err))
   } catch (err) {
     console.log('Could not access the botpress server', err)
   }
 }
 
-export async function setupServerPackageLoop() {
-  await sendServerPackage()
+export function setupServerPackageLoop() {
+  sendServerPackage().catch()
   setInterval(async () => await sendServerPackage(), ms('1h'))
 }
 
-export function startTelemetry(event_type: string, data: dataType, name: string = 'data') {
-  sendTelemetry(getTelemetryPackage(event_type, data, name), event_type)
+export async function startTelemetry(event_type: string, data: dataType, name: string = 'data') {
+  await sendTelemetry(getTelemetryPackage(event_type, data, name), event_type)
 }
 
-export async function setupTelemetry() {
-  setupEventsType()
+export function setupEveryTelemetry() {
+  setupTelemetry()
+  setupServerPackageLoop()
+}
 
-  await setupServerPackageLoop()
+export function setupTelemetry() {
+  setupEventsType()
 
   store.subscribe(() => {
     const state = store.getState()
+
+    console.log(state)
 
     if (_.has(state, 'version.currentVersion') && state.version.currentVersion !== '') {
       info.bp_release = state.version.currentVersion
@@ -176,9 +184,11 @@ export async function setupTelemetry() {
     }
 
     if (checkInfoReceived()) {
+      console.log('info validated')
       eventsType.forEach(event => {
         if (!locks[event]) {
           changeLock(event)
+          console.log('info to send')
           const data = {
             user: {
               email: toHash(info.email),
@@ -187,7 +197,9 @@ export async function setupTelemetry() {
             language: shared.lang.getLocale()
           }
 
-          startTelemetry(event, data)
+          startTelemetry(event, data).catch(err => {
+            console.log(err)
+          })
         }
       })
     }
@@ -214,24 +226,8 @@ export function getTelemetryPackage(event_type: string, data: dataType, name: st
   }
 }
 
-function sendTelemetry(data: TelemetryPackage, event: string) {
-  axios
-    .post(endpoint, data, {
-      headers: {
-        'content-type': 'application/json',
-        withCredentials: false,
-        timeout: 1000,
-        transformRequest: [
-          (data, headers) => {
-            return JSON.stringify(data)
-          }
-        ]
-      }
-    })
-    .then(res => {
-      addTimeout(event, ms('8h'))
-    })
-    .catch(err => {
-      changeLock(event)
-    })
+async function sendTelemetry(data: TelemetryPackage, event: string) {
+  const res = await axios.post(endpoint, data, corsConfig)
+  console.log('info sent', res)
+  addTimeout(event, ms('8h'))
 }
