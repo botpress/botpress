@@ -37,14 +37,16 @@ const ContentForm: FC<Props> = ({ editingContent, close, formData, onUpdate, del
   const contentType = useRef(formData?.contentType || 'builtin_text')
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
-  const shownCategories = ['builtin_text', 'builtin_image', 'builtin_carousel', 'builtin_card', 'builtin_single-choice']
   const { contentTypes, contentTypesFields } = state
 
   useEffect(() => {
     axios
       .get(`${window.BOT_API_PATH}/content/types`)
       .then(({ data }) => {
-        dispatch({ type: 'fetchSuccess', data: data.filter(type => shownCategories.includes(type.id)) })
+        dispatch({
+          type: 'fetchSuccess',
+          data: data.filter(type => type.schema.newJson?.displayedIn.includes('sayNode'))
+        })
       })
       .catch(() => {})
   }, [])
@@ -82,7 +84,7 @@ const ContentForm: FC<Props> = ({ editingContent, close, formData, onUpdate, del
         </div>
         <div className={cx(style.fieldWrapper, style.contentTypeField)}>
           <span className={style.formLabel}>{lang.tr('studio.content.contentType')}</span>
-          {contentTypes.length && (
+          {!!contentTypes.length && (
             <Dropdown
               filterable={false}
               className={style.formSelect}
