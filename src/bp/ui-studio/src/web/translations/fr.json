@@ -155,6 +155,7 @@
         "message": "Message",
         "messageToSend": "Message à envoyer",
         "missingLink": "Lien manquant",
+        "nameAlreadyExists": "Ce nom existe déjà",
         "noActionsFound": "Aucune action trouvée sur ce serveur d'actions",
         "noDescription": "Pas de description",
         "nodeName": "Nom du node",

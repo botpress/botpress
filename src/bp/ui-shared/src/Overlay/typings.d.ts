@@ -1,5 +1,4 @@
-import { SyntheticEvent } from 'react';
-
 export interface OverlayProps {
-  onClick: (e: SyntheticEvent) => void
+  onClick: (e: MouseEvent<HTMLDivElement, MouseEvent>) => void
+  onContextMenu?: (e: MouseEvent<HTMLDivElement, MouseEvent>) => void
 }

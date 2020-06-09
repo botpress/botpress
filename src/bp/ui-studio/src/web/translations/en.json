@@ -159,6 +159,7 @@
         "missingLink": "Missing Link",
         "noActionsFound": "No actions found on this action server",
         "noDescription": "No description",
+        "nameAlreadyExists": "This name already exists",
         "nodeName": "Node Name",
         "onEnter": "On Enter",
         "onReceive": "On Receive",

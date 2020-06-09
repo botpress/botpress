@@ -28,6 +28,7 @@ import {
   insertNewSkillNode,
   openFlowNodeProps,
   pasteFlowNode,
+  refreshFlowsLinks,
   removeFlowNode,
   switchFlow,
   switchFlowNode,
@@ -107,7 +108,13 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory(this.props.skills))
     this.diagramEngine.registerNodeFactory(
-      new SaySomethingWidgetFactory(this.editContent.bind(this), this.getEditingContent.bind(this))
+      new SaySomethingWidgetFactory(
+        this.editContent.bind(this),
+        this.getEditingContent.bind(this),
+        this.deleteSelectedElements.bind(this),
+        this.getCurrentFlow.bind(this),
+        this.updateNodeAndRefresh.bind(this)
+      )
     )
     this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ListenWidgetFactory())
@@ -517,6 +524,15 @@ class Diagram extends Component<Props> {
     this.setState({ editingNodeContent: { node, index } })
   }
 
+  updateNodeAndRefresh(args) {
+    this.props.updateFlowNode({ ...args })
+    this.props.refreshFlowsLinks()
+  }
+
+  getCurrentFlow() {
+    return this.props.currentFlow
+  }
+
   getEditingContent() {
     return this.state.editingNodeContent
   }
@@ -801,7 +817,8 @@ const mapDispatchToProps = {
   insertNewSkillNode,
   updateFlowProblems,
   buildSkill: buildNewSkill,
-  addElementToLibrary
+  addElementToLibrary,
+  refreshFlowsLinks
 }
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps, null, {

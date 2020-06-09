@@ -25,7 +25,7 @@
         }
 
         &.active, &:hover {
-          .content {
+          .content, &:after {
             background: #fff !important;
           }
         }
@@ -33,7 +33,7 @@
     }
   }
 
-  .blockHeader {
+  .headerWrapper {
     background: #fff;
     border: none;
     border-top: 2px solid var(--say);
@@ -48,7 +48,6 @@
     line-height: 1.08;
     margin: 0;
     min-height: 32px;
-    padding: 0 var(--spacing-medium);
     position: relative;
     width: 100%;
 
@@ -57,6 +56,63 @@
       border: none;
       border-top: 2px solid var(--say);
       box-shadow: none;
+    }
+
+    .button {
+      background: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      color: var(--shark);
+      display: flex;
+      font-size: 12px;
+      font-weight: bold;
+      justify-content: flex-start;
+      line-height: 1.08;
+      margin: 0 !important;
+      min-height: 30px;
+      padding: 0 var(--spacing-medium) !important;
+      width: 100%;
+      align-items: center;
+      position: relative;
+
+      svg {
+        fill: var(--shark) !important;
+      }
+
+      input {
+        background-color: #fff;
+        border-radius: 5px;
+        border: solid 1px var(--ocean);
+        color: var(--shark);
+        font-size: 12px;
+        line-height: 1.08;
+        margin-top: -2px;
+        padding: 4px 6px 3px;
+        width: 100%;
+
+        &::placeholder {
+          opacity: 1;
+          color: var(--reef);
+        }
+
+        &.error {
+          border-color: var(--lighthouse) !important;
+        }
+      }
+
+      .errorIcon {
+        cursor: default;
+        position: absolute;
+        top: 50%;
+        right: 3px;
+        line-height: 0;
+        transform: translate(-100%, -50%);
+        z-index: 99999;
+
+        svg {
+          fill: var(--lighthouse) !important;
+        }
+      }
     }
   }
 

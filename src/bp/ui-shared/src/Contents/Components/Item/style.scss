@@ -52,6 +52,16 @@
   }
 }
 
+.contentImgWrapper {
+  display: flex;
+  max-height: 30px;
+
+  .textWrapper {
+    text-align: left;
+    overflow: hidden;
+  }
+}
+
 .extraItems {
   color: var(--reef);
   display: block;
