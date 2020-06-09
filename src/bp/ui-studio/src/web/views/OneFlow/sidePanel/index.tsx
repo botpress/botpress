@@ -1,4 +1,4 @@
-import { Alignment, Button, Icon, Navbar, NavbarGroup, Tab, Tabs, Tooltip } from '@blueprintjs/core'
+import { Alignment, Button, Navbar, NavbarGroup, Tab, Tabs, Tooltip } from '@blueprintjs/core'
 import axios from 'axios'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
@@ -17,11 +17,9 @@ import {
   updateFlow
 } from '~/actions'
 import { history } from '~/components/Routes'
-import { SearchBar, SidePanel, SidePanelSection } from '~/components/Shared/Interface'
-import { getAllFlows, getCurrentFlow, getFlowNamesList, RootReducer } from '~/reducers'
+import { getAllFlows, getFlowNamesList, RootReducer } from '~/reducers'
 
 import Inspector from '../../FlowBuilder/inspector'
-import Toolbar from '../../FlowBuilder/sidePanel/Toolbar'
 
 import style from './style.scss'
 import Library from './Library'
@@ -29,10 +27,9 @@ import { exportCompleteTopic } from './TopicEditor/export'
 import CreateTopicModal from './TopicEditor/CreateTopicModal'
 import EditTopicModal from './TopicEditor/EditTopicModal'
 import ImportModal from './TopicEditor/ImportModal'
-import TopicList, { CountByTopic } from './TopicList'
+import TopicList from './TopicList'
 import EditTopicQnAModal from './TopicQnAEditor/EditTopicQnAModal'
 import WorkflowEditor from './WorkflowEditor'
-import { exportCompleteWorkflow } from './WorkflowEditor/export'
 import { buildFlowName } from './WorkflowEditor/utils'
 
 export type PanelPermissions = 'create' | 'rename' | 'delete'
@@ -69,18 +66,15 @@ const SidePanelContent: FC<Props> = props => {
   const [editWorkflowModalOpen, setEditWorkflowModalOpen] = useState(false)
   const [importWorkflowModalOpen, setImportWorkflowModalOpen] = useState(false)
   const [importModalOpen, setImportModalOpen] = useState(false)
+  const [editing, setEditing] = useState<string>()
+  const [isEditingNew, setIsEditingNew] = useState(false)
 
   const [selectedWorkflow, setSelectedWorkflow] = useState<string>('')
   const [selectedTopic, setSelectedTopic] = useState<string>('')
 
-  const [topicFilter, setTopicFilter] = useState('')
   const [libraryFilter, setLibraryFilter] = useState('')
 
   const [currentTab, setCurrentTab] = useState('topics')
-  const [focusedText, setFocusedText] = useState('')
-  const [newPath, setNewPath] = useState('')
-
-  const [expandedPaths, setExpandedPaths] = useState<string[]>([])
 
   useEffect(() => {
     props.refreshConditions()
@@ -94,21 +88,6 @@ const SidePanelContent: FC<Props> = props => {
     setSelectedTopic(topicName)
     setTopicQnAModalOpen(true)
   }
-
-  const editTopic = (topicName: string) => {
-    setSelectedTopic(topicName)
-    setTopicModalOpen(true)
-  }
-
-  const duplicateFlow = (flowName: string) => {}
-
-  const editWorkflow = (workflowId: string, data) => {
-    props.switchFlow(data.name)
-    setSelectedTopic(data.name.split('/')[0])
-    setSelectedWorkflow(workflowId)
-    setEditWorkflowModalOpen(true)
-  }
-
   const createWorkflow = (topicName: string) => {
     const originalName = 'Workflow'
     let name = originalName
@@ -116,12 +95,13 @@ const SidePanelContent: FC<Props> = props => {
     let index = 0
     while (props.flows.find(f => f.name === fullName)) {
       index++
-      name = `${originalName} ${index}`
+      name = `${originalName}-${index}`
       fullName = buildFlowName({ topic: topicName, workflow: name }, true)
     }
 
-    setFocusedText(fullName)
-    setNewPath(fullName)
+    setEditing(fullName.replace('.flow.json', ''))
+    setIsEditingNew(true)
+
     props.createFlow(fullName)
   }
 
@@ -131,13 +111,13 @@ const SidePanelContent: FC<Props> = props => {
     let index = 0
     while (props.topics.find(t => t.name === name)) {
       index++
-      name = `${originalName} ${index}`
+      name = `${originalName}-${index}`
     }
 
+    setEditing(name)
+    setIsEditingNew(true)
+
     await axios.post(`${window.BOT_API_PATH}/topic`, { name, description: undefined })
-    setNewPath(name)
-    setFocusedText(name)
-    onExpandToggle(name, true)
     props.fetchTopics()
   }
 
@@ -151,11 +131,6 @@ const SidePanelContent: FC<Props> = props => {
   const exportTopic = async topicName => {
     const topic = await exportCompleteTopic(topicName, props.flows)
     downloadTextFile(JSON.stringify(topic), `${topicName}.json`)
-  }
-
-  const exportWorkflow = async name => {
-    const workflow = await exportCompleteWorkflow(name)
-    downloadTextFile(JSON.stringify(workflow), `${name}.json`)
   }
 
   const onImportCompleted = () => {
@@ -172,19 +147,10 @@ const SidePanelContent: FC<Props> = props => {
     setTopicQnAModalOpen(!topicQnAModalOpen)
   }
 
-  const importWorkflow = () => setImportWorkflowModalOpen(!importWorkflowModalOpen)
   const canDelete = props.permissions.includes('delete')
 
   const onTabChanged = tabId => {
     setCurrentTab(tabId)
-  }
-
-  const onExpandToggle = (path, isExpanded) => {
-    if (isExpanded) {
-      setExpandedPaths([path, ...expandedPaths])
-    } else {
-      setExpandedPaths(expandedPaths.filter(x => x !== path))
-    }
   }
 
   return (
@@ -213,37 +179,19 @@ const SidePanelContent: FC<Props> = props => {
           </Navbar>
 
           {currentTab === 'topics' && (
-            <React.Fragment>
-              <SearchBar
-                icon="filter"
-                placeholder={lang.tr('studio.flow.sidePanel.filterTopicsAndWorkflows')}
-                onChange={setTopicFilter}
-              />
-              <TopicList
-                readOnly={props.readOnly}
-                qnaCountByTopic={props.qnaCountByTopic}
-                goToFlow={goToFlow}
-                duplicateFlow={duplicateFlow}
-                editWorkflow={editWorkflow}
-                createWorkflow={createWorkflow}
-                exportWorkflow={exportWorkflow}
-                importWorkflow={importWorkflow}
-                editTopic={editTopic}
-                editQnA={editQnA}
-                exportTopic={exportTopic}
-                onExpandToggle={onExpandToggle}
-                canDelete={canDelete}
-                filter={topicFilter}
-                expandedPaths={expandedPaths}
-                newPath={newPath}
-                setNewPath={setNewPath}
-                focusedText={focusedText}
-                setFocusedText={x => {
-                  setFocusedText(x)
-                  props.fetchTopics()
-                }}
-              />
-            </React.Fragment>
+            <TopicList
+              readOnly={props.readOnly}
+              qnaCountByTopic={props.qnaCountByTopic}
+              goToFlow={goToFlow}
+              createWorkflow={createWorkflow}
+              editQnA={editQnA}
+              exportTopic={exportTopic}
+              canDelete={canDelete}
+              editing={editing}
+              setEditing={setEditing}
+              isEditingNew={isEditingNew}
+              setIsEditingNew={setIsEditingNew}
+            />
           )}
 
           {currentTab === 'library' && <Library filter={libraryFilter} />}

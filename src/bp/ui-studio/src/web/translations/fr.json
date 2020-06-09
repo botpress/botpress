@@ -281,9 +281,10 @@
       },
       "topicList": {
         "bigWarning": "ATTENTION:",
-        "confirmDeleteFlow": "Voulez-vous vraiment supprimer le flow {name}?",
-        "confirmDeleteTopic": "Voulez-vous vraiment supprimer le sujet {name}?",
+        "confirmDeleteFlow": "Souhaitez-vous vraiment supprimer ce workflow?",
+        "confirmDeleteTopic": "Souhaitez-vous vraiment supprimer ce sujet? Ses questions-réponses et ses workflows seront également supprimés.",
         "createNewWorkflow": "Créer un nouveau workflow",
+        "defaultWorkflows": "Workflows par défaut",
         "deleteTopic": "Supprimer le sujet",
         "deleteWorkflow": "Supprimer le workflow",
         "editQna": "Modifier Q&R",
