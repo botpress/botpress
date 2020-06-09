@@ -8,7 +8,7 @@ import tar from 'tar'
 import tmp from 'tmp'
 
 import { TrainArtefacts, TrainInput, TrainOutput } from './training-pipeline'
-import { EntityCache } from './typings'
+import { EntityCache, NLUVersionInfo } from './typings'
 
 export interface Model {
   hash: string
@@ -31,10 +31,11 @@ function makeFileName(hash: string, lang: string): string {
 }
 
 // we might want to make this language specific
-export function computeModelHash(intents: any, entities: any): string {
+export function computeModelHash(intents: any, entities: any, version: NLUVersionInfo): string {
+  const { nluVersion, langServerVersion } = version
   return crypto
     .createHash('md5')
-    .update(JSON.stringify({ intents, entities }))
+    .update(JSON.stringify({ intents, entities, nluVersion, langServerVersion }))
     .digest('hex')
 }
 

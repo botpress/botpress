@@ -9,7 +9,7 @@ import EntityService from '../entities/entities-service'
 import { getIntents } from '../intents/intent-service'
 import * as ModelService from '../model-service'
 import { makeTrainingSession, makeTrainSessionKey } from '../train-session-service'
-import { NLUState } from '../typings'
+import { NLUState, NLUVersionInfo } from '../typings'
 
 const missingLangMsg = botId =>
   `Bot ${botId} has configured languages that are not supported by language sources. Configure a before incoming hook to call an external NLU provider for those languages.`
@@ -27,7 +27,13 @@ export function getOnBotMount(state: NLUState) {
       bp.logger.warn(missingLangMsg(botId), { notSupported: _.difference(bot.languages, languages) })
     }
 
-    const engine = new Engine(bot.defaultLanguage, bot.id)
+    if (!state.nluVersion || !state.langServerVersion) {
+      bp.logger.error('Either the nlu version or the lang server version is not set correctly.')
+    }
+
+    const version = state as NLUVersionInfo
+
+    const engine = new Engine(bot.defaultLanguage, bot.id, version)
     const trainOrLoad = _.debounce(
       async (forceTrain: boolean = false) => {
         // bot got deleted
@@ -37,7 +43,7 @@ export function getOnBotMount(state: NLUState) {
 
         const intentDefs = await getIntents(ghost)
         const entityDefs = await entityService.getCustomEntities()
-        const hash = ModelService.computeModelHash(intentDefs, entityDefs)
+        const hash = ModelService.computeModelHash(intentDefs, entityDefs, version)
 
         const kvs = bp.kvs.forBot(botId)
         await kvs.set(KVS_TRAINING_STATUS_KEY, 'training')

@@ -20,7 +20,6 @@ import {
   LanguageSource,
   NLUHealth,
   Token2Vec,
-  NLUState,
   LangServerInfo
 } from '../typings'
 
@@ -34,6 +33,11 @@ const JUNK_TOKEN_MAX = 20
 const VECTOR_FILE_PREFIX = 'lang_vectors'
 const TOKEN_FILE_PREFIX = 'utterance_tokens'
 const JUNK_FILE_PREFIX = 'junk_words'
+
+type VersionInfo = {
+  nluVersion: string
+  langServerInfo: LangServerInfo
+}
 
 export class RemoteLanguageProvider implements LanguageProvider {
   private _cacheDir = path.join(process.APP_DATA_PATH, 'cache')
@@ -49,7 +53,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
   private _validProvidersCount: number
   private _languageDims: number
 
-  private _state: NLUState
+  private _version: Partial<VersionInfo>
 
   private discoveryRetryPolicy = {
     interval: 1000,
@@ -69,8 +73,12 @@ export class RemoteLanguageProvider implements LanguageProvider {
     debug(`[${lang.toUpperCase()}] Language Provider added %o`, source)
   }
 
-  async initialize(sources: LanguageSource[], logger: typeof sdk.logger, state: NLUState): Promise<LanguageProvider> {
-    this._state = state
+  async initialize(
+    sources: LanguageSource[],
+    logger: typeof sdk.logger,
+    version: Partial<VersionInfo>
+  ): Promise<LanguageProvider> {
+    this._version = version
     this._validProvidersCount = 0
 
     this._vectorsCache = new lru<string, Float32Array>({
@@ -172,7 +180,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
       domain: data.domain
     }
 
-    this._state = { ...this._state, langServerInfo }
+    this._version = { ...this._version, langServerInfo }
   }
 
   private computeCacheFilesPaths = () => {
@@ -517,7 +525,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
   }
 
   private computeVersionHash = () => {
-    const { nluVersion, langServerInfo } = this._state
+    const { nluVersion, langServerInfo } = this._version
     const { dim, domain, version: langServerVersion } = langServerInfo
 
     const omitPatchNumber = (v: string) => `${semver.major(v)}.${semver.minor(v)}.0`
