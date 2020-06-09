@@ -136,6 +136,7 @@ declare module 'botpress/sdk' {
     translations?: { [lang: string]: object }
     /** List of new conditions that the module can register */
     dialogConditions?: Condition[]
+    variables?: any
     /** Called once the core is initialized. Usually for middlewares / database init */
     onServerStarted?: (bp: typeof import('botpress/sdk')) => Promise<void>
     /** This is called once all modules are initialized, usually for routing and logic */
@@ -740,6 +741,13 @@ declare module 'botpress/sdk' {
       context: DialogContext
       /** This variable points to the currently active workflow */
       workflow: WorkflowHistory
+      /** Update or set a new variable */
+      setVariable: (
+        name: string,
+        value: any,
+        type: string,
+        options?: { nbOfTurns: number; specificWorkflow?: string }
+      ) => void
       /**
        * EXPERIMENTAL
        * This includes all the flow/nodes which were traversed for the current event
@@ -806,6 +814,7 @@ declare module 'botpress/sdk' {
       /** Only one workflow can be active at a time, when a child workflow is active, the parent will be pending */
       status: 'active' | 'pending' | 'completed'
       success?: boolean
+      variables: { [name: string]: BoxedVariable<any> | UnboxedVariable<any> }
     }
 
     export type StoredEvent = {
@@ -1458,6 +1467,37 @@ declare module 'botpress/sdk' {
     asChatUser?: boolean
   }
 
+  export interface BoxedVarConstructable<T> {
+    new (ctor: BoxedVarContructor<T>): BoxedVariable<T>
+    /** The internal ID used to represent this variable */
+    type: string
+  }
+
+  export interface BoxedVariable<T> {
+    value: T
+    readonly type?: string
+    trySet(value: T, confidence?: number): void
+    setRetentionPolicy(nbOfTurns: number): void
+    toString(): string
+    unbox(): UnboxedVariable<T>
+  }
+
+  export interface UnboxedVariable<T> {
+    type: string
+    value: T
+    nbTurns: number
+    confidence: number
+  }
+
+  export interface BoxedVarContructor<T> {
+    /** The number of turns left until this value is no longer valid */
+    nbOfTurns: number
+    /** The confidence percentage of the value currently stored */
+    confidence?: number
+    /** The current value stored in the db */
+    value: T
+  }
+
   ////////////////
   //////// API
   ////////////////
@@ -1775,6 +1815,8 @@ declare module 'botpress/sdk' {
      * Returns the list of conditions that can be used in an NLU Trigger node
      */
     export function getConditions(): Condition[]
+
+    export function getVariables(): any[]
   }
 
   export namespace config {
