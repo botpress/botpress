@@ -37,7 +37,7 @@
       "message": "Message"
     }
   },
-  "typingIndicator": "Show typing indicators",
+  "typingIndicator": "Display typing indicators",
   "useMarkdown": "Use markdown",
   "variables": {
     "string": {
