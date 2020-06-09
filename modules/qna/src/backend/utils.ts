@@ -11,9 +11,9 @@ export const getQuestionForIntent = async (storage: Storage, intentName) => {
   }
 }
 
-export const getAlternativeAnswer = (qnaEntry: QnaEntry, lang: string): string => {
-  const randomIndex = Math.floor(Math.random() * qnaEntry.answers[lang].length)
-  return qnaEntry.answers[lang][randomIndex]
+export const getRandomAnswer = (answers: any[]) => {
+  const randomIndex = Math.floor(Math.random() * answers.length)
+  return answers[randomIndex]
 }
 
 export const getQnaEntryPayloads = async (
@@ -32,21 +32,31 @@ export const getQnaEntryPayloads = async (
   }
 
   let lang = event.state?.user?.language ?? defaultLang
-  if (!qnaEntry.answers[lang]) {
-    if (!qnaEntry.answers[defaultLang]) {
+  if (!qnaEntry.answers[lang] && !qnaEntry.contentAnswers[lang]) {
+    if (!qnaEntry.answers[defaultLang] && !qnaEntry.contentAnswers[defaultLang]) {
       throw new Error(`No answers found for language ${lang} or default language ${defaultLang}`)
     }
 
     lang = defaultLang
   }
 
-  const electedAnswer = getAlternativeAnswer(qnaEntry, lang)
-  if (electedAnswer.startsWith('#!')) {
-    renderer = `!${electedAnswer.replace('#!', '')}`
-  } else {
+  if (qnaEntry.answers[lang].length > 0) {
+    const electedAnswer = getRandomAnswer(qnaEntry.answers[lang])
+    if (electedAnswer.startsWith('#!')) {
+      renderer = `!${electedAnswer.replace('#!', '')}`
+    } else {
+      args = {
+        ...args,
+        text: electedAnswer,
+        typing: true
+      }
+    }
+  } else if (qnaEntry.contentAnswers[lang].length > 0) {
+    const electedAnswer = getRandomAnswer(qnaEntry.contentAnswers[lang])
+    renderer = `#${electedAnswer.contentType}`
     args = {
       ...args,
-      text: electedAnswer,
+      ...electedAnswer,
       typing: true
     }
   }
