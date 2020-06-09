@@ -341,6 +341,9 @@ class Diagram extends Component<Props> {
         <MenuItem text={lang.tr('split')} onClick={wrap(this.add.routerNode, point)} icon="flow-branch" />
         <MenuItem text={lang.tr('action')} onClick={wrap(this.add.actionNode, point)} icon="offline" />
 
+        {/*
+        // TODO enable in the future when the feature is ready
+
         <MenuItem text="Outcome" icon="take-action">
           <MenuItem text="Success" onClick={wrap(this.add.successNode, point)} icon="tick" />
           <MenuItem text="Failure" onClick={wrap(this.add.failureNode, point)} icon="cross" />
@@ -350,7 +353,7 @@ class Diagram extends Component<Props> {
           {this.props.currentFlowSubFlows?.map(flow => (
             <MenuItem text={flow.workflow} onClick={wrap(this.add.gotoSubWorkflow, point, flow.workflowPath)} />
           ))}
-        </MenuItem>
+        </MenuItem> */}
 
         <MenuItem tagName="button" text={lang.tr('skills')} icon="add">
           {this.props.skills.map(skill => (
