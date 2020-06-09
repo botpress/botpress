@@ -8,13 +8,16 @@
       "name": "Debug App",
       "program": "${workspaceFolder}/out/bp/index.js",
       "cwd": "${workspaceFolder}",
-      "args": ["start"],
+      "args": ["start", "--auto-migrate"],
       "protocol": "auto",
       "env": {
         "BP_MODULES_PATH": "${workspaceFolder}/modules:${workspaceFolder}/internal-modules",
         "NODE_PATH": "${workspaceFolder}/out/bp",
         "DEBUG": "bp:none",
-        "BLUEBIRD_DEBUG": "1"
+        "BLUEBIRD_DEBUG": "1",
+        "TESTMIG_CONFIG_VERSION": "12.9.0",
+        "TESTMIG_BP_VERSION": "12.10.0",
+        "TESTMIG_IGNORE_COMPLETED": true
       },
       "smartStep": true,
       "outFiles": [
