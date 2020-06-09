@@ -1,5 +1,17 @@
 import Joi from 'joi'
 
+const QnaItemContentAnswerSchema = Joi.object().pattern(
+  Joi.string(),
+  Joi.alternatives().try(
+    Joi.number(),
+    Joi.boolean(),
+    // tslint:disable-next-line
+    Joi.allow(null),
+    Joi.string().allow(''),
+    Joi.array().items(Joi.object())
+  )
+)
+
 export const QnaDefSchema = Joi.object().keys({
   action: Joi.string().required(),
   // Keeping optional category for import schema validation
@@ -19,6 +31,9 @@ export const QnaDefSchema = Joi.object().keys({
     .default({}),
   answers: Joi.object()
     .pattern(/.*/, Joi.array().items(Joi.string()))
+    .default({}),
+  contentAnswers: Joi.object()
+    .pattern(/^[a-z]{2}$/, Joi.array().items(QnaItemContentAnswerSchema))
     .default({})
 })
 

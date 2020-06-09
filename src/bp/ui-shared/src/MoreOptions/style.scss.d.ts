@@ -8,7 +8,6 @@ interface CssExports {
   'moreMenu': string;
   'moreMenuItem': string;
   'noHover': string;
-  'overlay': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

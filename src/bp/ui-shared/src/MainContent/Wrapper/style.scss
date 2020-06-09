@@ -9,14 +9,3 @@
   position: relative;
   transition: padding 0.3s;
 }
-
-.rightSidebar {
-  width: var(--right-sidebar-width);
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  overflow: auto;
-  transform: translateX(100%);
-  transition: transform 0.3s;
-}

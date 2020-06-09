@@ -250,3 +250,9 @@ export interface ActionParameterDefinition {
 export type ActionServerWithActions = ActionServer & {
   actions: ActionDefinition[] | undefined
 }
+
+export interface FormData {
+  id?: string
+  contentType?: string
+  [key: string]: undefined | number | boolean | string | FormData[]
+}

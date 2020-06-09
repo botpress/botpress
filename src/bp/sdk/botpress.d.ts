@@ -1164,6 +1164,7 @@ declare module 'botpress/sdk' {
      * The jsonSchema used to validate the form data of the Content Elements.
      */
     jsonSchema: object
+    newSchema?: object
     uiSchema?: object
 
     /**
@@ -1204,6 +1205,16 @@ declare module 'botpress/sdk' {
     timeoutNode?: string
     type?: string
     timeout?: { name: string; flow: string; node: string }[]
+    variables?: FlowVariable[]
+  }
+
+  export interface FlowVariable {
+    type: string
+    name: string
+    isInput?: boolean
+    isOutput?: boolean
+    description?: string
+    params?: any
   }
 
   export interface FlowVariableConfig {

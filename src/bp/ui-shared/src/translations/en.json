@@ -2,6 +2,7 @@
   "action": "Action",
   "actionRequired": "Action Required",
   "add": "Add",
+  "advancedSettings": "Advanced Settings",
   "all": "All",
   "back": "Back",
   "cancel": "Cancel",
@@ -115,6 +116,7 @@
     }
   },
   "label": "Label",
+  "learnMore": "Learn More",
   "library": "Library",
   "line": "Line",
   "list": "List",
