@@ -263,7 +263,7 @@ export default class Storage {
     let items: QnaItem[] = []
     let count = 0
 
-    if (!(question || filteredContexts.length || stateFilter)) {
+    if (!(question || filteredContexts.length || stateFilter || order)) {
       items = await this.fetchQNAs({
         start: +offset,
         count: +limit
