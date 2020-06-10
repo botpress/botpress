@@ -13,7 +13,7 @@
   background: #fff;
   border-bottom: 1px solid var(--c-neutral--light-2);
   color: var(--c-text--light);
-  font-family: var(--font-family);
+  font-family: Roboto;
   height: 50px;
   width: 100%;
   z-index: 1000;
@@ -35,6 +35,7 @@
     }
 
     .item {
+      background: none;
       border: none;
       border-radius: 5px;
       color: var(--c-content-color-darker);

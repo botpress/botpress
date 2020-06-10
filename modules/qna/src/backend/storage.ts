@@ -89,7 +89,6 @@ export default class Storage {
     }
 
     await axios.post('/mod/nlu/intents', intent, axiosConfig)
-    this.bp.logger.info(`${create ? `Created` : `Updated`} NLU intent for QNA ${qnaItem.id}`)
   }
 
   async update(data: QnaEntry, id: string): Promise<string> {
@@ -123,6 +122,7 @@ export default class Storage {
   async insert(qna: QnaEntry | QnaEntry[]): Promise<string[]> {
     const ids = await Promise.mapSeries(_.isArray(qna) ? qna : [qna], async (data, i) => {
       const id = makeID(data)
+      await this.checkForDuplicatedQuestions(data, id)
       const item: QnaItem = { id, data }
       if (data.enabled) {
         await this.createNLUIntentFromQnaItem(item, true)
@@ -142,9 +142,12 @@ export default class Storage {
     const qnaItems = (await this.fetchQNAs()).filter(q => !editingQnaId || q.id != editingQnaId)
 
     const newQuestions = Object.values(newItem.questions).reduce((a, b) => a.concat(b), [])
-    const dupes = _.flatMap(qnaItems, item => Object.values(item.data.questions))
-      .reduce((a, b) => a.concat(b), [])
-      .filter(q => newQuestions.includes(q))
+    const dupes = qnaItems
+      .map(item => ({
+        id: item.id,
+        questions: Object.values(item.data.questions).reduce((acc, arr) => [...acc, ...arr], [])
+      }))
+      .filter(existingQuestion => !!existingQuestion.questions.filter(q => newQuestions.includes(q)).length)
 
     if (dupes.length) {
       this.bp.logger

@@ -31,7 +31,12 @@ const CommandPalette: FC<Props> = props => {
     }
 
     const commands: QuickShortcut[] = [
-      { label: lang.tr('flows'), type: 'goto', category: 'studio', url: '/flows/main' },
+      {
+        label: lang.tr('flows'),
+        type: 'goto',
+        category: 'studio',
+        url: `/${window.USE_ONEFLOW ? 'oneflow' : 'flows'}/main`
+      },
       { label: lang.tr('content'), type: 'goto', category: 'studio', url: '/content' },
       {
         label: lang.tr('commander.backToAdmin'),

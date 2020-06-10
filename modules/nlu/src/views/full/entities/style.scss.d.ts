@@ -7,6 +7,7 @@ interface CssExports {
   'entityEditorBody': string;
   'occurrence': string;
   'occurrenceName': string;
+  'occurrencesList': string;
   'regexInputDash': string;
   'validationTag': string;
 }

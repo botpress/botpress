@@ -1,4 +1,5 @@
 export interface ShortcutLabelProps {
-  shortcut: string
+  keys?: string[]
+  shortcut?: string
   light?: boolean
 }

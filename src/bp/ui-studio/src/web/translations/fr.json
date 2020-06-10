@@ -231,7 +231,15 @@
         "nameInUse": "Nom déjà utilisé",
         "nameInUseMessage": "Un flow portant ce nom existe déjà. Veuillez en choisir un autre.",
         "node": "Nœud",
-        "renameFlow": "Renommer le flow"
+        "renameFlow": "Renommer le flow",
+        "importTopic": "Importer sujet",
+        "addTopic": "Ajouter sujet",
+        "addWorkflow": "Ajouter workflow",
+        "tapIconsToAdd": "Appuyez sur les icônes de la barre d'outils pour importer ou ajouter votre premier sujet.",
+        "renameWorkflow": "Renommer workflow",
+        "renameTopic": "Renommer sujet",
+        "nameWorkflow": "Name Workflow",
+        "nameTopic": "Name Topic"
       },
       "skills": {
         "couldNotLoad": "Impossible de charger la vue des compétences",
@@ -273,9 +281,10 @@
       },
       "topicList": {
         "bigWarning": "ATTENTION:",
-        "confirmDeleteFlow": "Voulez-vous vraiment supprimer le flow {name}?",
-        "confirmDeleteTopic": "Voulez-vous vraiment supprimer le sujet {name}?",
+        "confirmDeleteFlow": "Souhaitez-vous vraiment supprimer ce workflow?",
+        "confirmDeleteTopic": "Souhaitez-vous vraiment supprimer ce sujet? Ses questions-réponses et ses workflows seront également supprimés.",
         "createNewWorkflow": "Créer un nouveau workflow",
+        "defaultWorkflows": "Workflows par défaut",
         "deleteTopic": "Supprimer le sujet",
         "deleteWorkflow": "Supprimer le workflow",
         "editQna": "Modifier Q&R",

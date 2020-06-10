@@ -1,0 +1,153 @@
+{
+  "nodes": [
+    {
+      "id": "skill-b71567",
+      "position": {
+        "x": 340,
+        "y": 440
+      }
+    },
+    {
+      "id": "451f60deab",
+      "position": {
+        "x": 960,
+        "y": 635
+      }
+    },
+    {
+      "id": "f69abffa5b",
+      "position": {
+        "x": 30,
+        "y": 320
+      }
+    },
+    {
+      "id": "9e942a28fb",
+      "position": {
+        "x": 320,
+        "y": 325
+      }
+    },
+    {
+      "id": "53c079f447",
+      "position": {
+        "x": 665,
+        "y": 430
+      }
+    },
+    {
+      "id": "3cfb59a35f",
+      "position": {
+        "x": 660,
+        "y": 500
+      }
+    }
+  ],
+  "links": [
+    {
+      "source": "3cfb59a35f",
+      "sourcePort": "out0",
+      "target": "451f60deab",
+      "points": [
+        {
+          "x": 860,
+          "y": 559
+        },
+        {
+          "x": 960,
+          "y": 694
+        }
+      ]
+    },
+    {
+      "source": "53c079f447",
+      "sourcePort": "out0",
+      "target": "451f60deab",
+      "points": [
+        {
+          "x": 864,
+          "y": 489
+        },
+        {
+          "x": 960,
+          "y": 694
+        }
+      ]
+    },
+    {
+      "source": "9e942a28fb",
+      "sourcePort": "out0",
+      "target": "skill-b71567",
+      "points": [
+        {
+          "x": 519,
+          "y": 384
+        },
+        {
+          "x": 439,
+          "y": 433
+        }
+      ]
+    },
+    {
+      "source": "f69abffa5b",
+      "sourcePort": "out0",
+      "target": "9e942a28fb",
+      "points": [
+        {
+          "x": 230,
+          "y": 379
+        },
+        {
+          "x": 320,
+          "y": 384
+        }
+      ]
+    },
+    {
+      "source": "skill-b71567",
+      "sourcePort": "out1",
+      "target": "3cfb59a35f",
+      "points": [
+        {
+          "x": 546,
+          "y": 512
+        },
+        {
+          "x": 660,
+          "y": 559
+        }
+      ]
+    },
+    {
+      "source": "skill-b71567",
+      "sourcePort": "out2",
+      "target": "451f60deab",
+      "points": [
+        {
+          "x": 546,
+          "y": 534
+        },
+        {
+          "x": 960,
+          "y": 694
+        }
+      ]
+    },
+    {
+      "source": "skill-b71567",
+      "sourcePort": "out0",
+      "target": "53c079f447",
+      "points": [
+        {
+          "x": 546,
+          "y": 490
+        },
+        {
+          "x": 665,
+          "y": 489
+        }
+      ]
+    }
+  ]
+}
