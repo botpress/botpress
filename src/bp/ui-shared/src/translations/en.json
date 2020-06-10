@@ -10,6 +10,7 @@
   "chips": "Chips",
   "chooseFile": "Choose file...",
   "close": "Close",
+  "collapseAll": "Collapse All",
   "commander": {
     "backToAdmin": "Back to Admin",
     "category": {
@@ -44,6 +45,7 @@
   "delete": "Delete",
   "description": "Description",
   "details": "Details",
+  "disabled": "Disabled",
   "duplicate": "Duplicate",
   "edit": "Edit",
   "email": "E-mail",
@@ -51,13 +53,67 @@
   "enabled": "Enabled",
   "error": "Error",
   "execute": "Execute",
+  "expandAll": "Expand All",
   "export": "Export",
+  "exportToJson": "Export to JSON",
+  "filterBy": "Filter By",
   "flows": "Flows",
   "general": "General",
   "id": "ID",
   "image": "Image",
   "import": "Import",
+  "importJson": "Import JSON",
   "insert": "Insert",
+  "isoLangs": {
+    "ar": {
+      "name": "Arabic",
+      "nativeName": "العربية"
+    },
+    "nl": {
+      "name": "Dutch",
+      "nativeName": "Nederlands, Vlaams"
+    },
+    "en": {
+      "name": "English",
+      "nativeName": "English"
+    },
+    "fr": {
+      "name": "French",
+      "nativeName": "Français"
+    },
+    "de": {
+      "name": "German",
+      "nativeName": "Deutsch"
+    },
+    "he": {
+      "name": "Hebrew",
+      "nativeName": "עברית"
+    },
+    "it": {
+      "name": "Italian",
+      "nativeName": "Italiano"
+    },
+    "ja": {
+      "name": "Japanese",
+      "nativeName": "日本語 (にほんご／にっぽんご)"
+    },
+    "pl": {
+      "name": "Polish",
+      "nativeName": "polski"
+    },
+    "pt": {
+      "name": "Portuguese",
+      "nativeName": "Português"
+    },
+    "ru": {
+      "name": "Russian",
+      "nativeName": "русский язык"
+    },
+    "es": {
+      "name": "Spanish",
+      "nativeName": "español"
+    }
+  },
   "label": "Label",
   "library": "Library",
   "line": "Line",
@@ -115,6 +171,7 @@
     "workspace": "Workspace"
   },
   "skills": "Skills",
+  "sortBy": "Sort By",
   "split": "Split",
   "status": "Status",
   "submit": "Submit",

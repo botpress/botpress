@@ -2,6 +2,24 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import yn from 'yn'
 
+import { generateFlowLegacy } from './choice_legacy'
+
+export const MAX_LABEL_LENGTH = 8
+
+export interface ChoiceData {
+  contentId: string
+  invalidContentId: string
+  keywords: any
+  config: ChoiceConfig
+  randomId?: string
+}
+
+export interface ChoiceConfig {
+  nbMaxRetries: number
+  repeatChoicesOnInvalid: boolean
+  contentElement: string
+}
+
 const setup = async bp => {
   const router = bp.http.createRouterForBot('basic-skills')
 
@@ -32,11 +50,19 @@ const setup = async bp => {
   }
 }
 
-const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Promise<sdk.FlowGenerationResult> => {
+const generateFlow = async (
+  data: ChoiceData,
+  metadata: sdk.FlowGeneratorMetadata
+): Promise<sdk.FlowGenerationResult> => {
   const { randomId } = data
+
   const hardRetryLimit = 10
   const nbMaxRetries = Math.min(Number(data.config.nbMaxRetries), hardRetryLimit)
   const repeatQuestion = yn(data.config.repeatChoicesOnInvalid)
+
+  if (!metadata.isOneFlow) {
+    return generateFlowLegacy(data)
+  }
 
   const sorrySteps = []
 
@@ -65,49 +91,90 @@ const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Pro
           args: { skill: 'choice' }
         }
       ],
-      next: [{ condition: 'true', node: 'parse' }]
+      onReceive: [],
+      next: [{ condition: 'true', node: 'wait' }]
+    },
+    /**
+     * We tell the dialog engine to stay on this node, since triggers will always score higher and will send the user on the correct node
+     * The onReceive ensures it doesn't go into an infinite loop
+     */
+    {
+      name: 'wait',
+      onReceive: [],
+      next: [{ condition: 'true', node: 'wait' }]
     },
     {
-      name: 'parse',
-      onReceive: [
-        {
-          type: sdk.NodeActionType.RunAction,
-          name: 'basic-skills/choice_parse_answer',
-          args: { ...data, randomId }
-        }
-      ],
-      next: [
-        { condition: `temp['skill-choice-valid-${randomId}'] === true`, node: '#' },
-        { condition: 'true', node: 'invalid' }
-      ],
-      triggers: [{ conditions: [{ id: 'always' }] }]
-    },
-    {
-      name: 'invalid',
+      name: 'failure',
+      type: 'trigger',
+      conditions: [{ id: 'custom_confidence', params: { confidence: '0.3' } }],
       onEnter: [
         {
           type: sdk.NodeActionType.RunAction,
           name: 'basic-skills/choice_invalid_answer',
           args: { randomId }
-        }
+        },
+        ...sorrySteps
       ],
+      onReceive: [],
       next: [
         {
           condition: `Number(temp['skill-choice-invalid-count-${randomId}']) > Number(${nbMaxRetries})`,
           node: '#'
         },
-        { condition: 'true', node: 'sorry' }
-      ]
-    },
-    {
-      name: 'sorry',
-      onEnter: sorrySteps,
-      next: [{ condition: 'true', node: 'parse' }]
+        {
+          condition: 'true',
+          node: 'failure'
+        }
+      ],
+      activeWorkflow: true
     }
   ]
 
+  Object.keys(data.keywords).forEach((choice, idx) => {
+    const index = idx + 1
+    const successNodeId = `success-${index}`
+
+    const addNode = (type: string, condition: any) => {
+      nodes.push({
+        name: `trigger-${index}-${type}`,
+        type: 'trigger',
+        activeWorkflow: true,
+        onEnter: [],
+        next: [
+          {
+            condition: 'true',
+            node: successNodeId
+          }
+        ],
+        conditions: [condition]
+      })
+    }
+
+    addNode('entity', {
+      id: 'extracted_entity',
+      params: { type: 'system.number', comparison: 'equal', expectedValue: index }
+    })
+
+    if (choice.startsWith('intent:')) {
+      addNode('intent', { id: 'user_intent_is', params: { intentName: data.keywords[choice].replace('intent:', '') } })
+    } else {
+      addNode('text', { id: 'type_text', params: { candidate: data.keywords[choice], exactMatch: false } })
+    }
+
+    nodes.push({
+      name: successNodeId,
+      type: 'success',
+      next: [
+        {
+          condition: 'true',
+          node: '#'
+        }
+      ]
+    })
+  })
+
   return {
-    transitions: createTransitions(data, randomId),
+    transitions: createTransitions(data),
     flow: {
       nodes: nodes,
       catchAll: {
@@ -117,13 +184,13 @@ const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Pro
   }
 }
 
-const createTransitions = (data, randomId) => {
-  const transitions: sdk.NodeTransition[] = Object.keys(data.keywords).map(choice => {
-    const choiceShort = choice.length > 8 ? choice.substr(0, 7) + '...' : choice
+const createTransitions = (data: ChoiceData) => {
+  const transitions: sdk.NodeTransition[] = Object.keys(data.keywords).map((choice, idx) => {
+    const choiceShort = choice.length > MAX_LABEL_LENGTH ? choice.substr(0, MAX_LABEL_LENGTH - 1) + '...' : choice
 
     return {
       caption: `User picked [${choiceShort}]`,
-      condition: `temp['skill-choice-ret-${randomId}'] == "${choice}"`,
+      condition: `lastNode=success-${idx + 1}`,
       node: ''
     }
   })
