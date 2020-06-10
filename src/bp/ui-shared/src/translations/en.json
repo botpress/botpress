@@ -187,5 +187,10 @@
   "undo": "Undo",
   "update": "Update",
   "upload": "Upload",
-  "usage": "Usage"
+  "usage": "Usage",
+  "date": "Date",
+  "number": "Number",
+  "boolean": "Boolean",
+  "string": "String",
+  "format": "Format"
 }

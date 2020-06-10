@@ -4,7 +4,7 @@ class BoxedNumber implements BoxedVariable<number> {
   public static type = 'number'
   public static config: FlowVariableConfig = {
     name: 'number',
-    label: 'module.builtin.variables.number.label',
+    label: 'number',
     params: []
   }
   private _confidence?: number

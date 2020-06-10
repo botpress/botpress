@@ -67,28 +67,5 @@
   },
   "typingIndicator": "Display typing indicators",
   "useMarkdown": "Use markdown",
-  "variables": {
-    "string": {
-      "label": "String"
-    },
-    "number": {
-      "label": "Number"
-    },
-    "boolean": {
-      "label": "Boolean",
-      "params": {
-        "defaultValue": {
-          "label": "Default Value"
-        }
-      }
-    },
-    "date": {
-      "label": "Date",
-      "params": {
-        "format": {
-          "label": "Format"
-        }
-      }
-    }
-  }
+  "defaultValue": "Default Value"
 }

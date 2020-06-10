@@ -7,11 +7,11 @@ class BoxedDate implements BoxedVariable<BoxedDateType> {
   public static type = 'date'
   public static config: FlowVariableConfig = {
     name: 'date',
-    label: 'module.builtin.variables.date.label',
+    label: 'date',
     params: [
       {
         name: 'format',
-        label: 'module.builtin.variables.date.params.format.label',
+        label: 'format',
         control: 'textbox'
       }
     ]

@@ -4,7 +4,7 @@ class BoxedString implements BoxedVariable<string> {
   public static type = 'string'
   public static config: FlowVariableConfig = {
     name: 'string',
-    label: 'module.builtin.variables.string.label',
+    label: 'string',
     params: []
   }
   private _confidence?: number
