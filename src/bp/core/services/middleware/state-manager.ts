@@ -51,7 +51,6 @@ export class StateManager {
   public async initialize() {
     if (!this._variables) {
       this._variables = await this.moduleLoader.getVariables()
-      console.log(this._variables)
     }
 
     if (!this.useRedis) {
