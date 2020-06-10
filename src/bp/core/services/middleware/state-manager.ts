@@ -120,7 +120,7 @@ export class StateManager {
         return
       }
 
-      const BoxedVar = this._variables?.find(x => x.type === type)
+      const BoxedVar = this._variables?.find(x => x.config.type === type)
       if (BoxedVar) {
         wf.variables[name] = new BoxedVar({
           nbOfTurns: options?.nbOfTurns ?? 10,
@@ -138,7 +138,7 @@ export class StateManager {
 
       workflows[wf].variables = Object.keys(variables).reduce((acc, id) => {
         const unboxed = variables[id] as sdk.UnboxedVariable<any>
-        const BoxedVar = this._variables.find(x => x.type === unboxed.type)
+        const BoxedVar = this._variables.find(x => x.config.type === unboxed.type)
 
         if (BoxedVar) {
           acc[id] = new BoxedVar({ nbOfTurns: unboxed.nbTurns - 1, value: unboxed.value })
