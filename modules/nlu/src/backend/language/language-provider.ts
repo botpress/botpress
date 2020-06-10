@@ -139,7 +139,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     })
 
     this.computeCacheFilesPaths()
-    this.clearOldCacheFiles()
+    await this.clearOldCacheFiles()
 
     debug(`loaded ${Object.keys(this.langs).length} languages from ${sources.length} sources`)
 
@@ -150,7 +150,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     return this
   }
 
-  private extractLangServerVersion(data: any) {
+  private extractLangServerVersion(data) {
     const version = semver.valid(semver.coerce(data.version))
 
     if (!version) {
@@ -166,8 +166,8 @@ export class RemoteLanguageProvider implements LanguageProvider {
     this._tokensCachePath = path.join(this._cacheDir, `${TOKEN_FILE_PREFIX}_${versionHash}.json`)
   }
 
-  private clearOldCacheFiles = () => {
-    const allCacheFiles = fse.readdirSync(this._cacheDir)
+  private clearOldCacheFiles = async () => {
+    const allCacheFiles = await fse.readdir(this._cacheDir)
 
     const currentHash = this.computeVersionHash()
 
@@ -191,7 +191,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
       .map(f => path.join(this._cacheDir, f))
 
     for (const f of filesToDelete) {
-      fse.unlinkSync(f)
+      await fse.unlink(f)
     }
   }
 
