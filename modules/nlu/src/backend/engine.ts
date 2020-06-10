@@ -88,7 +88,7 @@ export default class Engine implements NLUEngine {
     // Model should be build here, Trainer should not have any idea of how this is stored
     // Error handling should be done here
     const model = await Trainer(input, Engine.tools)
-    model.hash = computeModelHash(intentDefs, entityDefs, this.version)
+    model.hash = computeModelHash(intentDefs, entityDefs, this.version, model.languageCode)
     if (model.success) {
       trainingSession &&
         Engine.tools.reportTrainingProgress(this.botId, 'Training complete', {

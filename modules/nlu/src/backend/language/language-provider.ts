@@ -20,7 +20,7 @@ import {
   LanguageSource,
   NLUHealth,
   Token2Vec,
-  LangServerInfo
+  NLUVersionInfo
 } from '../typings'
 
 const debug = DEBUG('nlu').sub('lang')
@@ -33,11 +33,6 @@ const JUNK_TOKEN_MAX = 20
 const VECTOR_FILE_PREFIX = 'lang_vectors'
 const TOKEN_FILE_PREFIX = 'utterance_tokens'
 const JUNK_FILE_PREFIX = 'junk_words'
-
-type VersionInfo = {
-  nluVersion: string
-  langServerInfo: LangServerInfo
-}
 
 export class RemoteLanguageProvider implements LanguageProvider {
   private _cacheDir = path.join(process.APP_DATA_PATH, 'cache')
@@ -53,7 +48,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
   private _validProvidersCount: number
   private _languageDims: number
 
-  private _version: Partial<VersionInfo>
+  private _version: NLUVersionInfo
 
   private discoveryRetryPolicy = {
     interval: 1000,
@@ -76,7 +71,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
   async initialize(
     sources: LanguageSource[],
     logger: typeof sdk.logger,
-    version: Partial<VersionInfo>
+    version: NLUVersionInfo
   ): Promise<LanguageProvider> {
     this._version = version
     this._validProvidersCount = 0
@@ -174,7 +169,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     if (!version) {
       throw new Error('Lang server has an invalid version')
     }
-    const langServerInfo: LangServerInfo = {
+    const langServerInfo = {
       version: semver.clean(version),
       dim: data.dimentions,
       domain: data.domain

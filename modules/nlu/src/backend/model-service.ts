@@ -31,11 +31,19 @@ function makeFileName(hash: string, lang: string): string {
 }
 
 // we might want to make this language specific
-export function computeModelHash(intents: any, entities: any, version: NLUVersionInfo): string {
-  const { nluVersion, langServerVersion } = version
+export function computeModelHash(
+  intents: sdk.NLU.IntentDefinition[],
+  entities: sdk.NLU.EntityDefinition[],
+  version: NLUVersionInfo,
+  lang: string
+): string {
+  const { nluVersion, langServerInfo } = version
+
+  const singleLangIntents = intents.map(i => ({ ...i, utterances: i.utterances[lang] }))
+
   return crypto
     .createHash('md5')
-    .update(JSON.stringify({ intents, entities, nluVersion, langServerVersion }))
+    .update(JSON.stringify({ singleLangIntents, entities, nluVersion, langServerInfo }))
     .digest('hex')
 }
 
