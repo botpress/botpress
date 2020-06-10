@@ -109,6 +109,7 @@ const SidePanelContent: FC<Props> = props => {
     const originalName = 'Topic'
     let name = originalName
     let index = 0
+
     while (props.topics.find(t => t.name === name)) {
       index++
       name = `${originalName}-${index}`
@@ -163,8 +164,9 @@ const SidePanelContent: FC<Props> = props => {
             <NavbarGroup>
               <Tabs onChange={onTabChanged}>
                 <Tab id="topics" title={lang.tr('topics')} />
-                {/* TODO bring this back when we actualy have somethibg in the library
-                <Tab id="library" title={lang.tr('library')} /> 
+                {/*
+                  TODO add Library once we have something display
+                  <Tab id="library" title={lang.tr('library')} />
                 */}
               </Tabs>
             </NavbarGroup>

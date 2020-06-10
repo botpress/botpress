@@ -236,7 +236,7 @@ const QnAList: FC<Props> = props => {
           />
         )}
       </div>
-      <div className={cx(style.content, { [style.empty]: !items.length })}>
+      <div className={cx(style.content, { [style.empty]: !items.length && !highlighted })}>
         {highlighted && (
           <div className={style.highlightedQna}>
             <QnA
