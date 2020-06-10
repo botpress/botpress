@@ -6,8 +6,9 @@ import { computeModelHash, Model } from './model-service'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
-import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
+import { computeKmeans, ProcessIntents, Trainer, TrainInput } from './training-pipeline'
 import { EntityCacheDump, ListEntity, ListEntityModel, NLUEngine, Tools, TrainingSession } from './typings'
+import { TrainingCanceledError } from './train-error'
 
 const trainDebug = DEBUG('nlu').sub('training')
 
@@ -77,9 +78,28 @@ export default class Engine implements NLUEngine {
         }))
     }
 
-    // Model should be build here, Trainer should not have any idea of how this is stored
-    // Error handling should be done here
-    const model = await Trainer(input, Engine.tools)
+    const model: Partial<Model> = {
+      startedAt: new Date(),
+      languageCode: input.languageCode,
+      data: {
+        input
+      }
+    }
+
+    try {
+      const trainOutput = await Trainer(input, Engine.tools)
+      _.merge(model, { success: true, data: { artefacts: trainOutput, intents: trainOutput.intents } })
+    } catch (err) {
+      if (err instanceof TrainingCanceledError) {
+        trainDebug.forBot(input.botId, 'Training aborted')
+      } else {
+        // TODO use bp.logger once this is moved in Engine2
+        console.log('Could not finish training NLU model', err)
+      }
+      model.success = false
+    }
+
+    model.finishedAt = new Date()
     model.hash = computeModelHash(intentDefs, entityDefs)
     if (model.success) {
       trainingSession &&
@@ -92,7 +112,7 @@ export default class Engine implements NLUEngine {
       trainDebug.forBot(this.botId, `Successfully finished ${languageCode} training`)
     }
 
-    return model
+    return model as Model
   }
 
   private modelAlreadyLoaded(model: Model) {
@@ -119,14 +139,14 @@ export default class Engine implements NLUEngine {
     if (this.modelAlreadyLoaded(model)) {
       return
     }
-    if (!model.data.output) {
+    if (!model.data.intents) {
       const intents = await ProcessIntents(
         model.data.input.intents,
         model.languageCode,
         model.data.artefacts.list_entities,
         Engine.tools
       )
-      model.data.output = { intents } as TrainOutput
+      model.data.intents = intents
     }
 
     this._warmEntitiesCaches(_.get(model, 'data.artefacts.list_entities', []))
@@ -147,7 +167,7 @@ export default class Engine implements NLUEngine {
   }
 
   private async _makePredictors(model: Model): Promise<Predictors> {
-    const { input, output, artefacts } = model.data
+    const { input, intents, artefacts } = model.data
     const tools = Engine.tools
 
     if (_.flatMap(input.intents, i => i.utterances).length <= 0) {
@@ -169,7 +189,7 @@ export default class Engine implements NLUEngine {
     const slot_tagger = new SlotTagger(tools.mlToolkit)
     slot_tagger.load(artefacts.slots_model)
 
-    const kmeans = computeKmeans(output.intents, tools) // TODO load from artefacts when persisted
+    const kmeans = computeKmeans(intents, tools) // TODO load from artefacts when persisted
 
     return {
       ...artefacts,
@@ -179,7 +199,7 @@ export default class Engine implements NLUEngine {
       slot_tagger,
       kmeans,
       pattern_entities: input.pattern_entities,
-      intents: output.intents,
+      intents,
       contexts: input.contexts
     }
   }

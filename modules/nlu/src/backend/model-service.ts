@@ -8,7 +8,8 @@ import tar from 'tar'
 import tmp from 'tmp'
 
 import { TrainArtefacts, TrainInput, TrainOutput } from './training-pipeline'
-import { EntityCache } from './typings'
+import { EntityCache, Intent } from './typings'
+import Utterance from './utterance/utterance'
 
 export interface Model {
   hash: string
@@ -18,7 +19,7 @@ export interface Model {
   success: boolean
   data: {
     input: TrainInput
-    output?: TrainOutput
+    intents?: Intent<Utterance>[]
     artefacts?: TrainArtefacts
   }
 }
