@@ -85,7 +85,8 @@ export async function crossValidate(
 
   const [trainSet, testSet] = await splitSet(language, intents)
 
-  const engine = new Engine(language, botId)
+  const dummyVersion = { nluVersion: '', langServerVersion: '' } // we don't really care about the model hash here...
+  const engine = new Engine(language, botId, dummyVersion)
   const model = await engine.train(trainSet, entities, language)
   await engine.loadModel(model)
 
