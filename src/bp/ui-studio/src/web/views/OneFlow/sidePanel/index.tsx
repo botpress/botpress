@@ -109,6 +109,7 @@ const SidePanelContent: FC<Props> = props => {
     const originalName = 'Topic'
     let name = originalName
     let index = 0
+
     while (props.topics.find(t => t.name === name)) {
       index++
       name = `${originalName}-${index}`
