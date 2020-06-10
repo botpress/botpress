@@ -26,6 +26,7 @@ const fetchReducer = (state, action) => {
           value: type.id,
           label: lang.tr(type.title)
         })),
+        contentTypesRenderType: data.reduce((acc, type) => ({ ...acc, [type.id]: type.schema.newJson.renderType }), {}),
         contentTypesFields: data.reduce((acc, type) => ({ ...acc, [type.id]: type.schema.newJson }), {})
       }
     default:
@@ -36,12 +37,13 @@ const fetchReducer = (state, action) => {
 const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onUpdate, deleteContent }) => {
   const [state, dispatch] = useReducer(fetchReducer, {
     contentTypes: [],
+    contentTypesRenderType: {},
     contentTypesFields: {}
   })
   const contentType = useRef(formData?.contentType || 'builtin_image')
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
-  const { contentTypes, contentTypesFields } = state
+  const { contentTypes, contentTypesRenderType, contentTypesFields } = state
 
   useEffect(() => {
     bp.axios.get('/content/types').then(({ data }) => {
@@ -65,7 +67,7 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
 
   const handleContentTypeChange = value => {
     contentType.current = value
-    onUpdate({ ...Contents.getEmptyFormData(value), contentType: value, id: formData?.id })
+    onUpdate({ ...Contents.getEmptyFormData(contentTypesRenderType[value]), contentType: value, id: formData?.id })
   }
 
   const contentFields = contentTypesFields?.[contentType.current]
@@ -100,7 +102,7 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
             advancedSettings={contentFields.advancedSettings}
             bp={bp}
             formData={formData}
-            contentType={contentType.current}
+            contentType={contentTypesRenderType[contentType.current]}
             onUpdate={data => onUpdate({ ...data, contentType: contentType.current })}
           />
         )}

@@ -21,27 +21,16 @@ const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active }) => {
     )
   }
 
-  const ellipsisText = (text: string): string => {
-    if (text.length > 51) {
-      const shortText = text.substr(0, 51)
-      text = `${shortText}${shortText.substr(-1) !== '.' ? '...' : ''}`
-    }
-
-    return text
-  }
-
   const renderContent = (): JSX.Element | string => {
     switch (content.contentType) {
       case 'builtin_image':
       case 'builtin_card':
         return renderCardOrImg(content)
       case 'builtin_carousel':
-        return renderCardOrImg(content.cards?.[0])
+        return renderCardOrImg(content.items?.[0] || {})
       case 'builtin_single-choice':
         return (
-          <Dotdotdot clamp={3}>
-            {(content.suggestions as FormData[]).map(suggestion => suggestion.label).join(' · ')}
-          </Dotdotdot>
+          <Dotdotdot clamp={3}>{(content.choices as FormData[]).map(choice => choice.title).join(' · ')}</Dotdotdot>
         )
       default:
         const variationsCount = (content.variations as FormData[])?.filter(v => v.item)?.length

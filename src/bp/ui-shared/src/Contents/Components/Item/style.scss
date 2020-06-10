@@ -57,8 +57,10 @@
   max-height: 30px;
 
   .textWrapper {
-    text-align: left;
+    align-items: center;
+    display: flex;
     overflow: hidden;
+    text-align: left;
   }
 }
 

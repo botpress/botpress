@@ -112,6 +112,7 @@ module.exports = {
   },
   newSchema: {
     displayedIn: ['sayNode'],
+    renderType: 'text',
     advancedSettings: [
       {
         key: 'markdown',
@@ -146,6 +147,7 @@ module.exports = {
         },
         type: 'group',
         key: 'variations',
+        renderType: 'variations',
         label: 'module.builtin.types.text.alternative',
         fields: [
           {

@@ -2,42 +2,40 @@ import { FormData } from 'common/typings'
 
 export const getEmptyFormData = (contentType: string, isPartOfGroup = false): FormData => {
   switch (contentType) {
-    case 'builtin_image':
+    case 'image':
       return {
         markdown: true,
         typingIndicator: true,
         image: undefined,
         title: ''
       }
-    case 'builtin_text':
+    case 'text':
       return {
         markdown: true,
         typingIndicator: true,
         text: '',
         variations: []
       }
-    case 'cards':
-    case 'builtin_card':
+    case 'card':
       const advanced = isPartOfGroup ? {} : { markdown: true, typingIndicator: true }
 
       return {
         ...advanced,
         image: undefined,
         title: '',
-        text: '',
-        buttons: []
+        subtitle: '',
+        items: []
       }
-    case 'builtin_carousel':
+    case 'carousel':
       return {
         markdown: true,
         typingIndicator: true,
-        cards: [getEmptyFormData('builtin_card', true)]
+        items: [getEmptyFormData('card', true)]
       }
     case 'suggestions':
-    case 'builtin_single-choice':
       if (isPartOfGroup) {
         return {
-          label: '',
+          title: '',
           value: ''
         }
       }
@@ -46,12 +44,13 @@ export const getEmptyFormData = (contentType: string, isPartOfGroup = false): Fo
         typingIndicator: true,
         canAdd: false,
         multiple: false,
-        suggestions: [getEmptyFormData('builtin_single-choice', true)]
+        choices: [getEmptyFormData('suggestions', true)]
       }
     case 'buttons':
       return {
-        buttonText: '',
-        action: 'say'
+        title: '',
+        action: '',
+        actionSelect: 'say'
       }
     case 'variations':
       return { item: '' }

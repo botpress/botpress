@@ -38,6 +38,7 @@ module.exports = {
 
   newSchema: {
     displayedIn: ['qna', 'sayNode'],
+    renderType: 'card',
     advancedSettings: [
       {
         key: 'markdown',
@@ -68,7 +69,7 @@ module.exports = {
       },
       {
         type: 'text',
-        key: 'text',
+        key: 'subtitle',
         label: 'text',
         placeholder: 'module.builtin.optional'
       },
@@ -83,12 +84,13 @@ module.exports = {
           ]
         },
         type: 'group',
-        key: 'buttons',
-        label: 'fields::buttonText',
+        key: 'items',
+        renderType: 'buttons',
+        label: 'fields::title',
         fields: [
           {
             type: 'text',
-            key: 'buttonText',
+            key: 'title',
             label: 'module.builtin.types.actionButton.textLabel',
             placeholder: 'module.builtin.types.actionButton.textPlaceholder'
           },

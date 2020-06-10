@@ -23,6 +23,7 @@ const fetchReducer = (state, action) => {
       return {
         ...state,
         contentTypes: data.map(type => ({ value: type.id, label: lang.tr(type.title) })),
+        contentTypesRenderType: data.reduce((acc, type) => ({ ...acc, [type.id]: type.schema.newJson.renderType }), {}),
         contentTypesFields: data.reduce((acc, type) => ({ ...acc, [type.id]: type.schema.newJson }), {})
       }
     default:
@@ -33,13 +34,14 @@ const fetchReducer = (state, action) => {
 const ContentForm: FC<Props> = ({ customKey, editingContent, close, formData, onUpdate, deleteContent }) => {
   const [state, dispatch] = useReducer(fetchReducer, {
     contentTypes: [],
+    contentTypesRenderType: {},
     contentTypesFields: {}
   })
   const contentType = useRef(formData?.contentType || 'builtin_text')
   const [isConfirming, setIsConfirming] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
-  const { contentTypes, contentTypesFields } = state
+  const { contentTypes, contentTypesRenderType, contentTypesFields } = state
 
   useEffect(() => {
     axios
@@ -69,7 +71,7 @@ const ContentForm: FC<Props> = ({ customKey, editingContent, close, formData, on
 
   const handleContentTypeChange = value => {
     contentType.current = value
-    onUpdate({ ...Contents.getEmptyFormData(value), contentType: value, id: formData?.id })
+    onUpdate({ ...Contents.getEmptyFormData(contentTypesRenderType[value]), contentType: value, id: formData?.id })
   }
 
   const contentFields = contentTypesFields?.[contentType.current]
@@ -109,7 +111,7 @@ const ContentForm: FC<Props> = ({ customKey, editingContent, close, formData, on
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
             formData={formData}
-            contentType={contentType.current}
+            contentType={contentTypesRenderType[contentType.current]}
             onUpdate={data => onUpdate({ ...data, contentType: contentType.current })}
           />
         )}
