@@ -19,7 +19,7 @@ import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { generatePath, RouteComponentProps } from 'react-router'
 import { Alert, Col, Row } from 'reactstrap'
-import { setupEventsType, setupEveryTelemetry, setupServerPackageLoop, setupTelemetry } from '~/telemetry'
+import { setupServerPackageLoop } from '~/telemetry'
 import { toastSuccess } from '~/utils/toaster'
 import { toastFailure } from '~/utils/toaster'
 import { filterList } from '~/utils/util'
@@ -76,7 +76,7 @@ class Bots extends Component<Props> {
     if (!this.props.licensing) {
       this.props.fetchLicensing()
     }
-    setupEveryTelemetry()
+    setupServerPackageLoop()
   }
 
   toggleCreateBotModal = () => {

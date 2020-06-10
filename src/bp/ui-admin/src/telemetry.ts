@@ -168,11 +168,6 @@ export async function startTelemetry(event_type: string, data: dataType, name: s
   await sendTelemetry(getTelemetryPackage(event_type, data, name), event_type)
 }
 
-export function setupEveryTelemetry() {
-  setupTelemetry()
-  setupServerPackageLoop()
-}
-
 export function setupTelemetry() {
   setupEventsType()
 
