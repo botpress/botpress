@@ -4,17 +4,16 @@ import moment from 'moment'
 type BoxedDateType = string | Date | moment.Moment
 
 class BoxedDate implements BoxedVariable<BoxedDateType> {
-  public static type = 'date'
   public static config: FlowVariableConfig = {
-    name: 'date',
-    label: 'date',
-    params: [
+    type: 'date',
+    fields: [
       {
-        name: 'format',
-        label: 'format',
-        control: 'textbox'
+        type: 'text',
+        key: 'format',
+        label: 'format'
       }
-    ]
+    ],
+    advancedSettings: []
   }
 
   private _value?: BoxedDateType
@@ -65,7 +64,7 @@ class BoxedDate implements BoxedVariable<BoxedDateType> {
 
   // This method must return a simple object that will be stored with the session
   unbox() {
-    return { value: this._value, nbTurns: this._nbTurns, confidence: this._confidence, type: BoxedDate.type }
+    return { value: this._value, nbTurns: this._nbTurns, confidence: this._confidence, type: BoxedDate.config.type }
   }
 }
 

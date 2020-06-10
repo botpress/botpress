@@ -1,18 +1,18 @@
 import { BoxedVarContructor, BoxedVariable, FlowVariableConfig } from 'botpress/sdk'
 
 class BoxedBoolean implements BoxedVariable<boolean> {
-  public static type = 'boolean'
   public static config: FlowVariableConfig = {
-    name: 'boolean',
-    label: 'boolean',
-    params: [
+    type: 'boolean',
+    fields: [
       {
-        name: 'defaultValue',
-        label: 'module.builtin.defaultValue',
-        control: 'nullableCheckbox'
+        type: 'checkbox',
+        key: 'defaultValue',
+        label: 'module.builtin.defaultValue'
       }
-    ]
+    ],
+    advancedSettings: []
   }
+
   private _confidence?: number
   private _value?: boolean
   private _nbTurns?: number
@@ -51,7 +51,7 @@ class BoxedBoolean implements BoxedVariable<boolean> {
   }
 
   unbox() {
-    return { value: this._value, nbTurns: this._nbTurns, confidence: this._confidence, type: BoxedBoolean.type }
+    return { value: this._value, nbTurns: this._nbTurns, confidence: this._confidence, type: BoxedBoolean.config.type }
   }
 }
 

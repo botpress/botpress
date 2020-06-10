@@ -1,12 +1,12 @@
 import { BoxedVarContructor, BoxedVariable, FlowVariableConfig } from 'botpress/sdk'
 
 class BoxedNumber implements BoxedVariable<number> {
-  public static type = 'number'
   public static config: FlowVariableConfig = {
-    name: 'number',
-    label: 'number',
-    params: []
+    type: 'number',
+    fields: [],
+    advancedSettings: []
   }
+
   private _confidence?: number
   private _value?: number
   private _nbTurns?: number
@@ -45,7 +45,7 @@ class BoxedNumber implements BoxedVariable<number> {
   }
 
   unbox() {
-    return { value: this._value, nbTurns: this._nbTurns, confidence: this._confidence, type: BoxedNumber.type }
+    return { value: this._value, nbTurns: this._nbTurns, confidence: this._confidence, type: BoxedNumber.config.type }
   }
 }
 
