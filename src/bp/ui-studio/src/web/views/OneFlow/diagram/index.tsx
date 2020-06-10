@@ -266,7 +266,7 @@ class Diagram extends Component<Props> {
       this.props.createFlowNode({
         ...point,
         type: 'say_something',
-        contents: [{ contentType: 'builtin_text' }],
+        contents: [{ contentType: 'text' }],
         next: [defaultTransition],
         isNew: true,
         ...moreProps

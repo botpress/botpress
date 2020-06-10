@@ -23,11 +23,13 @@ const fetchReducer = (state, action) => {
       return {
         ...state,
         contentTypes: data.map(type => ({
-          value: type.id,
+          value: type.schema.newJson.renderType,
           label: lang.tr(type.title)
         })),
-        contentTypesRenderType: data.reduce((acc, type) => ({ ...acc, [type.id]: type.schema.newJson.renderType }), {}),
-        contentTypesFields: data.reduce((acc, type) => ({ ...acc, [type.id]: type.schema.newJson }), {})
+        contentTypesFields: data.reduce(
+          (acc, type) => ({ ...acc, [type.schema.newJson.renderType]: type.schema.newJson }),
+          {}
+        )
       }
     default:
       throw new Error(`That action type isn't supported.`)
@@ -37,13 +39,12 @@ const fetchReducer = (state, action) => {
 const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onUpdate, deleteContent }) => {
   const [state, dispatch] = useReducer(fetchReducer, {
     contentTypes: [],
-    contentTypesRenderType: {},
     contentTypesFields: {}
   })
-  const contentType = useRef(formData?.contentType || 'builtin_image')
+  const contentType = useRef(formData?.contentType || 'image')
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
-  const { contentTypes, contentTypesRenderType, contentTypesFields } = state
+  const { contentTypes, contentTypesFields } = state
 
   useEffect(() => {
     bp.axios.get('/content/types').then(({ data }) => {
@@ -52,7 +53,7 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
   }, [])
 
   useEffect(() => {
-    contentType.current = formData?.contentType || 'builtin_image'
+    contentType.current = formData?.contentType || 'image'
     setForceUpdate(!forceUpdate)
   }, [editingContent])
 
@@ -67,7 +68,7 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
 
   const handleContentTypeChange = value => {
     contentType.current = value
-    onUpdate({ ...Contents.getEmptyFormData(contentTypesRenderType[value]), contentType: value, id: formData?.id })
+    onUpdate({ ...Contents.getEmptyFormData(value), contentType: value, id: formData?.id })
   }
 
   const contentFields = contentTypesFields?.[contentType.current]
@@ -102,7 +103,7 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
             advancedSettings={contentFields.advancedSettings}
             bp={bp}
             formData={formData}
-            contentType={contentTypesRenderType[contentType.current]}
+            contentType={contentType.current}
             onUpdate={data => onUpdate({ ...data, contentType: contentType.current })}
           />
         )}

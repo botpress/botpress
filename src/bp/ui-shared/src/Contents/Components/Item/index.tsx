@@ -23,12 +23,12 @@ const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active }) => {
 
   const renderContent = (): JSX.Element | string => {
     switch (content.contentType) {
-      case 'builtin_image':
-      case 'builtin_card':
+      case 'image':
+      case 'card':
         return renderCardOrImg(content)
-      case 'builtin_carousel':
+      case 'carousel':
         return renderCardOrImg(content.items?.[0] || {})
-      case 'builtin_single-choice':
+      case 'suggestions':
         return (
           <Dotdotdot clamp={3}>{(content.choices as FormData[]).map(choice => choice.title).join(' · ')}</Dotdotdot>
         )
@@ -53,7 +53,7 @@ const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active }) => {
     <button
       className={cx('content-wrapper', style.contentWrapper, {
         [`${style.active} active`]: active,
-        [style.carousel]: content.contentType === 'builtin_carousel'
+        [style.carousel]: content.contentType === 'carousel'
       })}
       onClick={onEdit}
     >
