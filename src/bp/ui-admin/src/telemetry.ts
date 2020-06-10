@@ -123,9 +123,19 @@ export async function sendServerPackage() {
 
     if ((packages !== undefined && _.has(packages, 'url'), _.has(packages, 'events'))) {
       const url = packages.url
-      const events = packages.events.map(event => JSON.parse(event))
+      const events = packages.events
+
+      let i = 0
+      for (const obj of events) {
+        if (typeof obj === 'string') {
+          events[i] = JSON.parse(obj)
+        }
+        i++
+      }
 
       events.map(obj => (obj.source = 'client'))
+
+      console.log(events)
 
       feedback.events = events.map(obj => obj.uuid)
 
@@ -142,7 +152,7 @@ export async function sendServerPackage() {
     await api
       .getSecured()
       .post(serverUrl, feedback)
-      .then(res => console.log('feedbacks sent', feedback))
+      .then(res => console.log('feedbacks sent', res, feedback))
       .catch(err => console.log('Could not send the feedbacks to the botpress server', err))
   } catch (err) {
     console.log('Could not access the botpress server', err)
@@ -169,8 +179,6 @@ export function setupTelemetry() {
   store.subscribe(() => {
     const state = store.getState()
 
-    console.log(state)
-
     if (_.has(state, 'version.currentVersion') && state.version.currentVersion !== '') {
       info.bp_release = state.version.currentVersion
     }
@@ -184,7 +192,6 @@ export function setupTelemetry() {
     }
 
     if (checkInfoReceived()) {
-      console.log('info validated')
       eventsType.forEach(event => {
         if (!locks[event]) {
           changeLock(event)
