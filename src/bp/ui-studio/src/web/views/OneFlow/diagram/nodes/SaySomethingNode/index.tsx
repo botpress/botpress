@@ -1,9 +1,9 @@
 import { Button, Icon, Intent, Menu, MenuItem, Tooltip } from '@blueprintjs/core'
-import { Contents, contextMenu, lang } from 'botpress/shared'
+import { Contents, contextMenu, lang, ShortcutLabel } from 'botpress/shared'
 import cx from 'classnames'
 import { FormData } from 'common/typings'
 import _ from 'lodash'
-import React, { FC, useRef, useState } from 'react'
+import React, { FC, Fragment, useRef, useState } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
 import { BaseNodeModel } from '~/views/FlowBuilder/diagram/nodes/BaseNodeModel'
 import { StandardPortWidget } from '~/views/FlowBuilder/diagram/nodes/Ports'
@@ -50,7 +50,16 @@ const SaySomethingWidget: FC<Props> = ({
             setIsEditing(true)
           }}
         />
-        <MenuItem text={lang.tr('delete')} intent={Intent.DANGER} onClick={onDeleteSelectedElements} />
+        <MenuItem
+          text={
+            <div className={style.contextMenuLabel}>
+              {lang.tr('delete')}
+              <ShortcutLabel light keys={['backspace']} />
+            </div>
+          }
+          intent={Intent.DANGER}
+          onClick={onDeleteSelectedElements}
+        />
       </Menu>
     )
   }

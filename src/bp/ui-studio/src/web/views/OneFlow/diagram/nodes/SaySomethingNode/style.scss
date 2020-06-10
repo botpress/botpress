@@ -134,3 +134,9 @@
     transform: translate(50%, 25%);
   }
 }
+
+.contextMenuLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}

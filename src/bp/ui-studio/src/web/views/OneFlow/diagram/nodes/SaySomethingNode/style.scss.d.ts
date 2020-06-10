@@ -3,6 +3,7 @@
 interface CssExports {
   'button': string;
   'contentsWrapper': string;
+  'contextMenuLabel': string;
   'error': string;
   'errorIcon': string;
   'headerWrapper': string;
