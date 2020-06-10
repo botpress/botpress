@@ -503,20 +503,22 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
     }
   }
 
-  const predictions: sdk.NLU.Predictions = step.ctx_predictions?.reduce(
-    (preds, { label, confidence }) => ({
-      ...preds,
-      [label]: {
-        confidence: confidence,
-        oos: step.oos_predictions[label] || 0,
-        intents: step.intent_predictions.per_ctx[label].map(i => ({
-          ...i,
-          slots: (step.slot_predictions_per_intent[i.label] || []).reduce(slotsCollectionReducer, {})
-        }))
-      }
-    }),
-    {}
-  )
+  const predictions: sdk.NLU.Predictions = step.ctx_predictions
+    ?.filter(ctx => !!step.intent_predictions.per_ctx[ctx.label])
+    .reduce(
+      (preds, { label, confidence }) => ({
+        ...preds,
+        [label]: {
+          confidence: confidence,
+          oos: step.oos_predictions[label] || 0,
+          intents: step.intent_predictions.per_ctx[label].map(i => ({
+            ...i,
+            slots: (step.slot_predictions_per_intent[i.label] || []).reduce(slotsCollectionReducer, {})
+          }))
+        }
+      }),
+      {}
+    )
 
   return {
     ambiguous: step.intent_predictions.ambiguous, // legacy pre-ndu
