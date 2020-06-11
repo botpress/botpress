@@ -11,7 +11,7 @@ export const getQuestionForIntent = async (storage: Storage, intentName) => {
   }
 }
 
-export const getRandomAnswer = (answers: any[]) => {
+export const getRandomAnswer = (answers: string[]): string => {
   const randomIndex = Math.floor(Math.random() * answers.length)
   return answers[randomIndex]
 }
@@ -23,7 +23,16 @@ export const getQnaEntryPayloads = async (
   defaultLang: string,
   bp: typeof sdk
 ) => {
-  let args: any = {
+  let lang = event.state?.user?.language ?? defaultLang
+  if (!qnaEntry.answers[lang] && !qnaEntry.contentAnswers[lang]) {
+    if (!qnaEntry.answers[defaultLang] && !qnaEntry.contentAnswers[defaultLang]) {
+      throw new Error(`No answers found for language ${lang} or default language ${defaultLang}`)
+    }
+    lang = defaultLang
+  }
+
+  const payloads: object[] = []
+  const args: any = {
     event,
     user: _.get(event, 'state.user') || {},
     session: _.get(event, 'state.session') || {},
@@ -31,42 +40,46 @@ export const getQnaEntryPayloads = async (
     collectFeedback: true
   }
 
-  let lang = event.state?.user?.language ?? defaultLang
-  if (!qnaEntry.answers[lang] && !qnaEntry.contentAnswers[lang]) {
-    if (!qnaEntry.answers[defaultLang] && !qnaEntry.contentAnswers[defaultLang]) {
-      throw new Error(`No answers found for language ${lang} or default language ${defaultLang}`)
-    }
-
-    lang = defaultLang
-  }
-
   if (qnaEntry.answers[lang].length > 0) {
     const electedAnswer = getRandomAnswer(qnaEntry.answers[lang])
+    const textArgs = { ...args }
+
     if (electedAnswer.startsWith('#!')) {
       renderer = `!${electedAnswer.replace('#!', '')}`
     } else {
-      args = {
-        ...args,
-        text: electedAnswer,
-        typing: true
-      }
+      textArgs.text = electedAnswer
+      textArgs.typing = true
     }
-  } else if (qnaEntry.contentAnswers[lang].length > 0) {
-    const electedAnswer = getRandomAnswer(qnaEntry.contentAnswers[lang])
-    renderer = `#${electedAnswer.contentType}`
-    args = {
-      ...args,
-      ...electedAnswer,
-      typing: true
-    }
+
+    payloads.push(
+      ...(await bp.cms.renderElement(renderer, textArgs, {
+        botId: event.botId,
+        channel: event.channel,
+        target: event.target,
+        threadId: event.threadId
+      }))
+    )
   }
 
-  return bp.cms.renderElement(renderer, args, {
-    botId: event.botId,
-    channel: event.channel,
-    target: event.target,
-    threadId: event.threadId
-  })
+  for (const contentAnswer of qnaEntry.contentAnswers[lang]) {
+    renderer = `#${contentAnswer.contentType}`
+    const contentArgs = {
+      ...args,
+      ...contentAnswer,
+      typing: payloads.length === 0
+    }
+
+    payloads.push(
+      ...(await bp.cms.renderElement(renderer, contentArgs, {
+        botId: event.botId,
+        channel: event.channel,
+        target: event.target,
+        threadId: event.threadId
+      }))
+    )
+  }
+
+  return payloads
 }
 
 export const getIntentActions = async (
