@@ -119,8 +119,7 @@ export async function sendServerPackage() {
 
     const feedback = { events: [], status: '' }
 
-    if (packages && packages.url && packages.events) {
-      const url = packages.url
+    if (packages && packages.events) {
       const events = packages.events
 
       events.map(obj => (obj.source = 'client'))
@@ -128,7 +127,7 @@ export async function sendServerPackage() {
       feedback.events = events.map(obj => obj.uuid)
 
       try {
-        await axios.post(url, events, corsConfig)
+        await axios.post(endpoint, events, corsConfig)
         feedback['status'] = 'ok'
       } catch (err) {
         feedback['status'] = 'fail'
@@ -173,7 +172,6 @@ export function setupTelemetry() {
       eventsType.forEach(event => {
         if (!locks[event]) {
           changeLock(event)
-          console.log('info to send')
           const data = {
             user: {
               email: toHash(info.email),
