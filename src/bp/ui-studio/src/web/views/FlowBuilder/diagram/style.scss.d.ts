@@ -2,6 +2,7 @@
 // Please do not change this file!
 interface CssExports {
   'floatingInfo': string;
+  'hidden': string;
   'insertMode': string;
   'insertNode': string;
 }

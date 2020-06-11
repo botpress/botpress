@@ -49,6 +49,7 @@ const FlowBuilder = (props: Props) => {
   const [mutex, setMutex] = useState()
   const [actions, setActions] = useState(allActions)
   const [highlightFilter, setHighlightFilter] = useState()
+  const [topicQnA, setTopicQnA] = useState(null)
 
   useEffect(() => {
     props.refreshActions()
@@ -162,6 +163,12 @@ const FlowBuilder = (props: Props) => {
     props.switchFlow(`${name}.flow.json`)
   }
 
+  const pathName = window.location.pathname.split('/')
+  const currentWorkflow = pathName.pop()
+  let currentTopic = pathName.pop()
+
+  currentTopic = currentTopic === 'oneflow' ? '' : currentTopic
+
   return (
     <MainContainer keyHandlers={keyHandlers}>
       <SidePanel
@@ -171,15 +178,20 @@ const FlowBuilder = (props: Props) => {
         permissions={actions}
         flowPreview={flowPreview}
         onCreateFlow={createFlow}
+        selectedTopic={currentTopic}
+        selectedWorkflow={currentWorkflow}
       />
       <div className={style.diagram}>
         <Diagram
           readOnly={readOnly}
           flowPreview={flowPreview}
           showSearch={showSearch}
+          topicQnA={topicQnA}
           hideSearch={() => setShowSearch(false)}
           handleFilterChanged={handleFilterChanged}
           highlightFilter={highlightFilter}
+          selectedTopic={currentTopic}
+          selectedWorkflow={currentWorkflow}
           ref={el => {
             if (!!el) {
               // @ts-ignore
