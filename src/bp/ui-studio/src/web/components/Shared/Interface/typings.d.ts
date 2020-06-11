@@ -157,6 +157,7 @@ export interface KeyboardShortcutsProps {
 }
 
 export interface SearchBarProps {
+  className?: string
   /** The input element ID */
   id?: string
   /** Text to display when there's no input value */

@@ -104,7 +104,7 @@
 
 .tree {
   overflow: auto;
-  height: calc(100% - 98px);
+  height: 100%;
 }
 
 .topicsEmptyState {
@@ -251,17 +251,17 @@
 .topicsNavbar {
   $height: 34px;
 
-  height: $height;
-  padding: 0 var(--spacing-large);
-  box-shadow: unset;
-  margin-bottom: var(--spacing-medium);
+  height: $height !important;
+  padding: 0 var(--spacing-large) !important;
+  box-shadow: unset !important;
+  margin-bottom: var(--spacing-medium) !important;
 
   :global {
     .bp3-button {
       box-shadow: unset !important;
       background-image: unset !important;
       border-radius: 5px !important;
-      background-color: var(--white);
+      background-color: var(--white) !important;
     }
 
     .bp3-tab {
@@ -289,7 +289,7 @@
     }
 
     .bp3-icon {
-      color: var(--shark);
+      color: var(--shark) !important;
     }
 
     .bp3-tab-indicator-wrapper {
@@ -300,8 +300,12 @@
       margin-right: var(--spacing-x-large);
     }
 
+    .bp3-tab:not([aria-disabled="true"]):hover {
+      color: var(--reef) !important;
+    }
+
     .bp3-tab-indicator {
-      background-color: var(--ocean);
+      background-color: var(--ocean) !important;
     }
   }
 }

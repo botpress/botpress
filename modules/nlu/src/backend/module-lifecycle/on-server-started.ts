@@ -125,13 +125,13 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
     }
   })
 
-  function removeSensitiveText(event) {
+  function removeSensitiveText(event: sdk.IO.IncomingEvent) {
     if (!event.nlu.entities || !event.payload.text) {
       return
     }
 
     try {
-      const sensitiveEntities = event.nlu.entities.filter(ent => ent.sensitive)
+      const sensitiveEntities = event.nlu.entities.filter(ent => ent.meta.sensitive)
       for (const entity of sensitiveEntities) {
         const stars = '*'.repeat(entity.data.value.length)
         event.payload.text = event.payload.text.replace(entity.data.value, stars)
