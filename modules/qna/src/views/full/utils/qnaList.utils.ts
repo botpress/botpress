@@ -228,7 +228,7 @@ export const fetchReducer = (state: State, action): State => {
         .post(`/mod/qna/questions/${state.highlighted.id}/delete`)
         .then(() => {})
         .catch(() => {})
-        getQnaCountByTopic?.()
+      getQnaCountByTopic?.()
 
       return {
         ...state,
