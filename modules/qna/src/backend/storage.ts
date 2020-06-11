@@ -248,9 +248,7 @@ export default class Storage {
     })
 
     if (order === 'asc') {
-      return filteredQuestions.sort((a, b) => a.data.lastModified.getTime() - b.data.lastModified.getTime())
-    } else if (order === 'desc') {
-      return filteredQuestions.sort((a, b) => b.data.lastModified.getTime() - a.data.lastModified.getTime())
+      return _.orderBy(filteredQuestions, q => q.data.lastModified?.getTime(), [<'asc' | 'desc'>order])
     } else {
       return filteredQuestions.reverse()
     }
