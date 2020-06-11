@@ -237,12 +237,15 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
   const ctxToPredict = input.ctx_predictions.map(p => p.label)
   const predictions = (
     await Promise.map(ctxToPredict, async ctx => {
+      let preds: sdk.MLToolkit.SVM.Prediction[] = []
+
       const predictor = predictors.intent_classifier_per_ctx[ctx]
-      if (!predictor) {
-        return
+      if (predictor) {
+        const features = [...input.utterance.sentenceEmbedding, input.utterance.tokens.length]
+        const tmp = await predictor.predict(features)
+        preds.push(...tmp)
       }
-      const features = [...input.utterance.sentenceEmbedding, input.utterance.tokens.length]
-      let preds = await predictor.predict(features)
+
       const exactPred = findExactIntentForCtx(predictors.exact_match_index, input.utterance, ctx)
       if (exactPred) {
         const idxToRemove = preds.findIndex(p => p.label === exactPred.label)
@@ -252,7 +255,13 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
 
       if (input.alternateUtterance) {
         const alternateFeats = [...input.alternateUtterance.sentenceEmbedding, input.alternateUtterance.tokens.length]
-        const alternatePreds = await predictor.predict(alternateFeats)
+
+        const alternatePreds: sdk.MLToolkit.SVM.Prediction[] = []
+        if (predictor) {
+          const tmp = await predictor.predict(alternateFeats)
+          alternatePreds.push(...tmp)
+        }
+
         const exactPred = findExactIntentForCtx(predictors.exact_match_index, input.alternateUtterance, ctx)
         if (exactPred) {
           const idxToRemove = alternatePreds.findIndex(p => p.label === exactPred.label)
