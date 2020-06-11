@@ -213,6 +213,9 @@ export default class Storage {
       enabledRequiredValue = false
     } else if (stateFilter === 'incomplete') {
       requiredIncomplete = true
+      if (!lang) {
+        throw new Error('Using the incomplete parameter requires the lang parameter to be set')
+      }
     }
 
     const allQuestions = await this.fetchQNAs()
