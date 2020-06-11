@@ -1,25 +1,24 @@
-'use strict'
+import _ from 'lodash'
+import BaseSVM from '../core/base-svm'
+import { Data } from '../typings'
 
-var mout = require('mout'),
-  _a = mout.array,
-  _o = mout.object
-var assert = require('assert')
+const assert = require('assert')
 
-function computeFScore(precision, recall) {
+function computeFScore(precision: number, recall: number) {
   if (recall === 0 && precision === 0) {
     return 0
   }
   return (2 * recall * precision) / (recall + precision)
 }
 
-function compute(predictions) {
-  var sumPredicted = {},
+function compute(predictions: number[][]) {
+  const sumPredicted = {},
     sumExpected = {}
 
-  var classScores = _a.reduce(
+  const classScores = _.reduce(
     predictions,
     function(res, arr) {
-      var predicted = arr[0],
+      const predicted = arr[0],
         expected = arr[1]
 
       sumPredicted[predicted] = (sumPredicted[predicted] || 0) + 1.0
@@ -31,10 +30,10 @@ function compute(predictions) {
     {}
   )
 
-  var classReports = _o.map(classScores, function(scores, label) {
-    var tp = scores[label] || 0,
-      precision = 0,
-      recall = 0
+  const classReports = _.map(classScores, function(scores, label) {
+    const tp = scores[label] || 0
+    let precision = 0
+    let recall = 0
     if (tp !== 0) {
       precision = tp / sumPredicted[label]
       recall = tp / sumExpected[label]
@@ -46,40 +45,35 @@ function compute(predictions) {
       size: sumExpected[label]
     }
   })
-  var nbGood = _o.reduce(
-    classScores,
-    function(sum, scores, label) {
-      return sum + (scores[label] || 0)
-    },
-    0
-  )
+  const nbGood = _.reduce(classScores, (sum, scores, label) => sum + (scores[label] || 0), 0)
   return {
     accuracy: nbGood / predictions.length,
-    fscore: _o.min(classReports, function(report) {
+    fscore: _.minBy(classReports, function(report) {
       return report.fscore
-    }).fscore,
-    recall: _o.min(classReports, function(report) {
+    })?.fscore,
+    recall: _.minBy(classReports, function(report) {
       return report.recall
-    }).recall,
-    precision: _o.min(classReports, function(report) {
+    })?.recall,
+    precision: _.minBy(classReports, function(report) {
       return report.precision
-    }).precision,
+    })?.precision,
     class: classReports,
     size: predictions.length
   }
 }
-/**
- NOTICE : this function assumes your predictor is already trained
- */
-function evaluate(testSet, clf) {
+
+/*
+  NOTICE : this function assumes your predictor is already trained
+  */
+function evaluate(testSet: Data[], clf: BaseSVM) {
   assert(testSet.length > 0, 'test set cannot be empty')
-  var predictions = testSet.map(function(test) {
+  const predictions: number[][] = testSet.map(test => {
     return [clf.predictSync(test[0]), test[1]]
   })
   return compute(predictions)
 }
 
-module.exports = {
+export default {
   evaluate: evaluate,
   compute: compute
 }

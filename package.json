@@ -121,6 +121,8 @@
     "@types/tmp": "^0.0.33",
     "@types/universal-analytics": "^0.4.2",
     "@types/verror": "^1.10.3",
+    "@types/q": "^1.5.4",
+    "@types/numeric": "^1.2.1",
     "cheerio": "^1.0.0-rc.2",
     "cross-env": "^5.2.0",
     "expect-puppeteer": "^4.4.0",
