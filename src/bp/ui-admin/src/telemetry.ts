@@ -113,45 +113,28 @@ export function checkInfoReceived() {
 
 export async function sendServerPackage() {
   try {
-    const packages = (await api.getSecured().get(serverUrl)).data
-
-    console.log('packages got', packages)
+    const { data: packages } = (await api.getSecured().get(serverUrl)).data
 
     const feedback = { events: [], status: '' }
 
-    if ((packages !== undefined && _.has(packages, 'url'), _.has(packages, 'events'))) {
+    if (packages && packages.url && packages.events) {
       const url = packages.url
       const events = packages.events
 
-      let i = 0
-      for (const obj of events) {
-        if (typeof obj === 'string') {
-          events[i] = JSON.parse(obj)
-        }
-        i++
-      }
-
       events.map((obj) => (obj.source = 'client'))
-
-      console.log(events)
 
       feedback.events = events.map((obj) => obj.uuid)
 
       try {
         await axios.post(url, events, corsConfig)
         feedback['status'] = 'ok'
-        console.log('packages sent', events)
       } catch (err) {
         feedback['status'] = 'fail'
         console.log('Could not send the telemetry packages to the storage server', err)
       }
     }
 
-    await api
-      .getSecured()
-      .post(serverUrl, feedback)
-      .then((res) => console.log('feedbacks sent', res, feedback))
-      .catch((err) => console.log('Could not send the feedbacks to the botpress server', err))
+    await api.getSecured().post(serverUrl, feedback)
   } catch (err) {
     console.log('Could not access the botpress server', err)
   }
@@ -228,6 +211,5 @@ export function getTelemetryPackage(event_type: string, data: dataType, name: st
 
 async function sendTelemetry(data: TelemetryPackage, event: string) {
   const res = await axios.post(endpoint, data, corsConfig)
-  console.log('info sent', res, data)
   addTimeout(event, ms('8h'))
 }
