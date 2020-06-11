@@ -5,6 +5,7 @@ import _ from 'lodash'
 import nanoid from 'nanoid/generate'
 
 import { QnaEntry, QnaItem } from './qna'
+import { isQnaComplete } from './utils'
 
 export const NLU_PREFIX = '__qna__'
 
@@ -229,11 +230,7 @@ export default class Storage {
         return false
       }
 
-      if (
-        requiredIncomplete &&
-        q.data.questions[lang]?.length >= 3 &&
-        (q.data.answers[lang]?.length >= 1 || q.data.redirectFlow || q.data.redirectNode)
-      ) {
+      if (requiredIncomplete && isQnaComplete(q.data, lang)) {
         return false
       }
 

@@ -4,6 +4,18 @@ import _ from 'lodash'
 import { QnaEntry } from './qna'
 import Storage, { NLU_PREFIX } from './storage'
 
+export const QNA_MIN_QUESTIONS = 3
+export const QNA_MIN_ANSWERS = 1
+
+export const isQnaComplete = (qnaEntry: QnaEntry, lang: string): boolean => {
+  return (
+    qnaEntry.questions[lang]?.length >= QNA_MIN_QUESTIONS &&
+    (qnaEntry.answers[lang]?.length >= QNA_MIN_ANSWERS ||
+      qnaEntry.redirectFlow !== undefined ||
+      qnaEntry.redirectNode !== undefined)
+  )
+}
+
 export const getQuestionForIntent = async (storage: Storage, intentName) => {
   if (intentName && intentName.startsWith(NLU_PREFIX)) {
     const qnaId = intentName.substring(NLU_PREFIX.length)
