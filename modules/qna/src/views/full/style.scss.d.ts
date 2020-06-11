@@ -5,6 +5,7 @@ interface CssExports {
   'collapsibleWrapper': string;
   'content': string;
   'contentAnswer': string;
+  'contentAnswerWrapper': string;
   'contextInput': string;
   'contextSelector': string;
   'empty': string;
@@ -13,6 +14,7 @@ interface CssExports {
   'hasError': string;
   'header': string;
   'headerWrapper': string;
+  'highlightedQna': string;
   'initialLoading': string;
   'input': string;
   'items': string;

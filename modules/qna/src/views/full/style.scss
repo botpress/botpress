@@ -17,6 +17,14 @@
   }
 }
 
+.highlightedQna {
+  margin-bottom: var(--spacing-large);
+
+  .questionWrapper {
+    border: 1px solid var(--ocean);
+  }
+}
+
 .header :global(.more-options-selected-option) {
   background: var(--hover-ocean) !important;
 
@@ -35,7 +43,7 @@
 
   label {
     font-size: 12px;
-    font-weight: 400;
+    font-weight: 500;
     line-height: 1.25;
     color: var(--shark);
     margin: 0 0 var(--spacing-medium);
@@ -249,6 +257,12 @@
       top: 50%;
       margin-top: 20px;
     }
+  }
+
+  .contentAnswerWrapper {
+    align-items: flex-start;
+    display: flex;
+    flex-wrap: wrap;
   }
 
   .questionHeader {

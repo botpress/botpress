@@ -504,6 +504,7 @@ declare module 'botpress/sdk' {
     }
 
     export interface EntityMeta {
+      sensitive: boolean
       confidence: number
       provider: string
       source: string
@@ -1155,6 +1156,7 @@ declare module 'botpress/sdk' {
      * The jsonSchema used to validate the form data of the Content Elements.
      */
     jsonSchema: object
+    newSchema?: object
     uiSchema?: object
 
     /**

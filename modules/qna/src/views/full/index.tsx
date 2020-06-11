@@ -25,14 +25,16 @@ const QnAList: FC<Props> = props => {
   const [state, dispatch] = useReducer(fetchReducer, {
     count: 0,
     items: [],
+    highlighted: undefined,
     loading: true,
     firstUpdate: true,
     page: 1,
     fetchMore: false,
     expandedItems: {}
   })
-  const { items, loading, firstUpdate, page, fetchMore, count, expandedItems } = state
+  const { items, loading, firstUpdate, page, fetchMore, count, expandedItems, highlighted } = state
   const { bp, languages, defaultLanguage, isLite } = props
+  const queryParams = new URLSearchParams(window.location.search)
 
   useEffect(() => {
     wrapperRef.current.addEventListener('scroll', handleScroll)
@@ -50,6 +52,16 @@ const QnAList: FC<Props> = props => {
       setQuestionSearch('')
     }
   }, [])
+
+  useEffect(() => {
+    if (queryParams.get('id')) {
+      fetchHighlightedQna(queryParams.get('id'))
+        .then(() => {})
+        .catch(() => {})
+    } else {
+      dispatch({ type: 'resetHighlighted' })
+    }
+  }, [queryParams.get('id')])
 
   useEffect(() => {
     if (!firstUpdate) {
@@ -136,7 +148,7 @@ const QnAList: FC<Props> = props => {
       disabled: !items.length || languages?.length <= 1,
       tooltip: noItemsTooltip || languesTooltip
     },
-    {
+    /*{
       icon: 'filter',
       disabled: true,
       onClick: () => {},
@@ -147,37 +159,38 @@ const QnAList: FC<Props> = props => {
       disabled: true,
       onClick: () => {},
       tooltip: noItemsTooltip || lang.tr('sortBy')
-    },
+    },*/
     {
       icon: allExpanded ? 'collapse-all' : 'expand-all',
       disabled: !items.length,
       onClick: () => dispatch({ type: allExpanded ? 'collapseAll' : 'expandAll' }),
       tooltip: noItemsTooltip || lang.tr(allExpanded ? 'collapseAll' : 'expandAll')
-    },
-    {
-      icon: 'plus',
-      onClick: () => {
-        dispatch({ type: 'addQnA', data: { languages, contexts: [props.topicName || 'global'] } })
-      },
-      tooltip: lang.tr('module.qna.form.addQuestion')
     }
   ]
 
   if (!isLite) {
-    buttons.unshift(
-      {
-        icon: 'import',
-        onClick: () => setShowImportModal(true),
-        tooltip: lang.tr('importJson')
-      },
+    buttons.push(
       {
         icon: 'export',
         disabled: !items.length,
         onClick: startDownload,
         tooltip: noItemsTooltip || lang.tr('exportToJson')
+      },
+      {
+        icon: 'import',
+        onClick: () => setShowImportModal(true),
+        tooltip: lang.tr('importJson')
       }
     )
   }
+
+  buttons.push({
+    icon: 'plus',
+    onClick: () => {
+      dispatch({ type: 'addQnA', data: { languages, contexts: [props.topicName || 'global'] } })
+    },
+    tooltip: lang.tr('module.qna.form.addQuestion')
+  })
 
   const fetchData = async (page = 1) => {
     dispatch({ type: 'loading' })
@@ -190,6 +203,12 @@ const QnAList: FC<Props> = props => {
     })
 
     dispatch({ type: 'dataSuccess', data: { ...data, page } })
+  }
+
+  const fetchHighlightedQna = async id => {
+    const { data } = await bp.axios.get(`/mod/qna/questions/${id}`)
+
+    dispatch({ type: 'highlightedSuccess', data })
   }
 
   const hasFilteredResults = questionSearch.length || filterContexts.length
@@ -217,33 +236,72 @@ const QnAList: FC<Props> = props => {
           />
         )}
       </div>
-      <div className={cx(style.content, { [style.empty]: !items.length })}>
-        {items.map((item, index) => (
-          <QnA
-            updateQnA={data =>
-              debounceDispatchMiddleware(dispatch, {
-                type: 'updateQnA',
-                data: { qnaItem: data, index, bp, currentLang }
-              })
-            }
-            bp={bp}
-            isLite={isLite}
-            key={item.key || item.id}
-            flows={flows}
-            defaultLanguage={defaultLanguage}
-            deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp } })}
-            toggleEnabledQnA={() =>
-              dispatchMiddleware(dispatch, { type: 'toggleEnabledQnA', data: { qnaItem: item, index, bp } })
-            }
-            contentLang={currentLang}
-            errorMessages={itemHasError(item, currentLang)}
-            setExpanded={isExpanded =>
-              dispatch({ type: 'toggleExpandOne', data: { [item.key || item.id]: isExpanded } })
-            }
-            expanded={expandedItems[item.key || item.id]}
-            qnaItem={item}
-          />
-        ))}
+      <div className={cx(style.content, { [style.empty]: !items.length && !highlighted })}>
+        {highlighted && (
+          <div className={style.highlightedQna}>
+            <QnA
+              updateQnA={data =>
+                debounceDispatchMiddleware(dispatch, {
+                  type: 'updateQnA',
+                  data: { qnaItem: data, index: 'highlighted', bp, currentLang }
+                })
+              }
+              bp={bp}
+              isLite={isLite}
+              key={highlighted.id}
+              flows={flows}
+              defaultLanguage={defaultLanguage}
+              deleteQnA={() => {
+                dispatch({ type: 'deleteQnA', data: { index: 'highlighted', bp } })
+
+                window.history.pushState(
+                  window.history.state,
+                  '',
+                  window.location.href.replace(window.location.search, '')
+                )
+              }}
+              toggleEnabledQnA={() =>
+                dispatchMiddleware(dispatch, {
+                  type: 'toggleEnabledQnA',
+                  data: { qnaItem: highlighted, bp }
+                })
+              }
+              contentLang={currentLang}
+              errorMessages={itemHasError(highlighted, currentLang)}
+              setExpanded={isExpanded => dispatch({ type: 'toggleExpandOne', data: { highlighted: isExpanded } })}
+              expanded={expandedItems['highlighted']}
+              qnaItem={highlighted}
+            />
+          </div>
+        )}
+        {items
+          .filter(item => highlighted?.id !== item.id)
+          .map((item, index) => (
+            <QnA
+              updateQnA={data =>
+                debounceDispatchMiddleware(dispatch, {
+                  type: 'updateQnA',
+                  data: { qnaItem: data, index, bp, currentLang }
+                })
+              }
+              key={item.key || item.id}
+              bp={bp}
+              isLite={isLite}
+              flows={flows}
+              defaultLanguage={defaultLanguage}
+              deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp } })}
+              toggleEnabledQnA={() =>
+                dispatchMiddleware(dispatch, { type: 'toggleEnabledQnA', data: { qnaItem: item, bp } })
+              }
+              contentLang={currentLang}
+              errorMessages={itemHasError(item, currentLang)}
+              setExpanded={isExpanded =>
+                dispatch({ type: 'toggleExpandOne', data: { [item.key || item.id]: isExpanded } })
+              }
+              expanded={expandedItems[item.key || item.id]}
+              qnaItem={item}
+            />
+          ))}
         {!items.length && !loading && (
           <EmptyState
             icon={<EmptyStateIcon />}

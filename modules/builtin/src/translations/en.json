@@ -1,15 +1,31 @@
 {
   "actionButton": "Action Button",
   "fullName": "Basic Skills",
+  "optional": "Optional",
   "types": {
     "actionButton": {
+      "add": "Add Button",
+      "actionLabel": "Action Button",
       "buttonTitle": "Title of the button",
+      "delete": "Delete Button",
       "description": "A button that triggers an action, often used in cards",
+      "sayLabel": "Say",
+      "sayTextLabel": "Text",
+      "sayPlaceholder": "What will your chatbot say?",
+      "postLabel": "Post Back",
+      "postFieldLabel": "Payload",
       "textTitle": "Enter text or the ID of a content element (ex: #!builtin_text-myid)",
-      "title": "Action Button"
+      "textLabel": "Button Text",
+      "textPlaceholder": "What is written on the button?",
+      "title": "Action Button",
+      "urlLabel": "Open URL",
+      "urlPlaceholder": "Write a valid URL"
     },
     "card": {
-      "description": "A card message with a title with optional subtitle, image and action buttons."
+      "add": "Add Card",
+      "delete": "Delete Card",
+      "description": "A card message with a title with optional subtitle, image and action buttons.",
+      "cardSubject": "What is your card subject?"
     },
     "carousel": {
       "cards": "Carousel cards",
@@ -31,12 +47,24 @@
       "itemValue": "The value that your bot gets when the user picks this choice (usually hidden from the user)",
       "title": "Single Choice"
     },
+    "suggestions": {
+      "add": "Add Suggestion",
+      "allowMultiplePick": "Allow user to pick multiple suggestions",
+      "allowToAdd": "Allow user to add suggestions",
+      "delete": "Delete Suggestion",
+      "displayOnTop": "Display on top of the keyboard",
+      "label": "Suggestion Label",
+      "labelPlaceholder": "What is the suggestion displayed?",
+      "title": "Suggestions",
+      "value": "Value",
+      "valuePlaceholder": "What will your chatbot receive?"
+    },
     "text": {
       "alternatives": "Alternates",
       "description": "A regular text message with optional typing indicators and alternates",
       "message": "Message"
     }
   },
-  "typingIndicator": "Show typing indicators",
+  "typingIndicator": "Display typing indicator",
   "useMarkdown": "Use markdown"
 }

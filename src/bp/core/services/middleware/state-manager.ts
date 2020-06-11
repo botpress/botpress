@@ -93,11 +93,13 @@ export class StateManager {
     state.bot = await this.kvs.forBot(event.botId).get(this.BOT_GLOBAL_KEY)
     state.__stacktrace = []
 
-    Object.defineProperty(state, 'workflow', {
-      get() {
-        return state.session.workflows[state.session.currentWorkflow!]
-      }
-    })
+    if (!state.workflow) {
+      Object.defineProperty(state, 'workflow', {
+        get() {
+          return state.session.workflows[state.session.currentWorkflow!]
+        }
+      })
+    }
   }
 
   public async persist(event: sdk.IO.IncomingEvent, ignoreContext: boolean) {
@@ -106,7 +108,7 @@ export class StateManager {
     if (this.useRedis) {
       await this._redisClient.set(
         getRedisSessionKey(sessionId),
-        JSON.stringify(_.omit(event.state, ['__stacktrace', '__error'])),
+        JSON.stringify(_.omit(event.state, ['__stacktrace', '__error', 'workflow'])),
         'PX',
         REDIS_MEMORY_DURATION
       )

@@ -2,6 +2,8 @@ import { Button, Icon } from '@blueprintjs/core'
 import cx from 'classnames'
 import React, { FC, Fragment } from 'react'
 
+import Overlay from '../Overlay'
+
 import style from './style.scss'
 import { MoreOptionsProps } from './typings'
 
@@ -63,7 +65,7 @@ const MoreOptions: FC<MoreOptionsProps> = props => {
           })}
         </ul>
       )}
-      {show && <div className={style.overlay} onClick={handleToggle}></div>}
+      {show && <Overlay onClick={handleToggle} />}
     </Fragment>
   )
 }

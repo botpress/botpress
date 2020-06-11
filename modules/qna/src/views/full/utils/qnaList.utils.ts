@@ -1,14 +1,16 @@
+import { FormData } from 'botpress/common/typings'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import _uniqueId from 'lodash/uniqueId'
 
 import { QnaItem } from '../../../backend/qna'
 
-export const ITEMS_PER_PAGE = 20
+export const ITEMS_PER_PAGE = 50
 
 export interface State {
   count: number
-  items: any[]
+  items: QnaItem[]
+  highlighted?: QnaItem
   loading: boolean
   firstUpdate: boolean
   page: number
@@ -31,9 +33,11 @@ export interface FormErrors {
 }
 
 export const hasPopulatedLang = (data: { [lang: string]: string[] }): boolean => {
-  return !!Object.values(data)
-    .reduce((acc, arr) => [...acc, ...arr], [])
-    .filter(entry => !!entry.trim().length).length
+  return !!_.flatMap(data).filter(entry => !!entry.trim().length).length
+}
+
+export const hasContentAnswer = (data: { [lang: string]: FormData[] }): boolean => {
+  return data && !!_.flatMap(data).length
 }
 
 export const itemHasError = (qnaItem: QnaItem, currentLang: string): string[] => {
@@ -48,7 +52,12 @@ export const itemHasError = (qnaItem: QnaItem, currentLang: string): string[] =>
   if (!hasPopulatedLang(data.questions)) {
     errors.push(lang.tr('module.qna.form.missingQuestion'))
   }
-  if (!hasPopulatedLang(data.answers) && !data.redirectFlow && !data.redirectNode) {
+  if (
+    !hasPopulatedLang(data.answers) &&
+    !hasContentAnswer(data.contentAnswers) &&
+    !data.redirectFlow &&
+    !data.redirectNode
+  ) {
     errors.push(lang.tr('module.qna.form.missingAnswer'))
   }
   if (hasDuplicateQuestions.length) {
@@ -136,6 +145,17 @@ export const fetchReducer = (state: State, action): State => {
       page,
       fetchMore: false
     }
+  } else if (action.type === 'highlightedSuccess') {
+    return {
+      ...state,
+      highlighted: action.data,
+      expandedItems: { ...state.expandedItems, highlighted: true }
+    }
+  } else if (action.type === 'resetHighlighted') {
+    return {
+      ...state,
+      highlighted: undefined
+    }
   } else if (action.type === 'resetData') {
     return {
       ...state,
@@ -154,6 +174,15 @@ export const fetchReducer = (state: State, action): State => {
   } else if (action.type === 'updateQnA') {
     const { qnaItem, index } = action.data
     const newItems = state.items
+
+    if (index === 'highlighted') {
+      const newHighlighted = { ...state.highlighted, saveError: qnaItem.saveError, id: qnaItem.id, data: qnaItem.data }
+
+      return {
+        ...state,
+        highlighted: newHighlighted
+      }
+    }
 
     newItems[index] = { ...newItems[index], saveError: qnaItem.saveError, id: qnaItem.id, data: qnaItem.data }
 
@@ -177,6 +206,7 @@ export const fetchReducer = (state: State, action): State => {
         enabled: true,
         answers: _.cloneDeep(languageArrays),
         questions: _.cloneDeep(languageArrays),
+        contentAnswers: languages.reduce((acc, lang) => ({ ...acc, [lang]: [] }), {}),
         redirectFlow: '',
         redirectNode: ''
       }
@@ -190,6 +220,18 @@ export const fetchReducer = (state: State, action): State => {
   } else if (action.type === 'deleteQnA') {
     const { index, bp } = action.data
     const newItems = state.items
+
+    if (index === 'highlighted') {
+      bp.axios
+        .post(`/mod/qna/questions/${state.highlighted.id}/delete`)
+        .then(() => {})
+        .catch(() => {})
+
+      return {
+        ...state,
+        highlighted: undefined
+      }
+    }
 
     const [deletedItem] = newItems.splice(index, 1)
 
@@ -216,22 +258,12 @@ export const fetchReducer = (state: State, action): State => {
 
     return {
       ...state,
-      expandedItems: items.reduce((acc, item) => ({ ...acc, [item.id]: true }), {})
+      expandedItems: items.reduce((acc, item) => ({ ...acc, [item.key || item.id]: true }), {})
     }
   } else if (action.type === 'collapseAll') {
     return {
       ...state,
       expandedItems: {}
-    }
-  } else if (action.type === 'disableQnA') {
-    const { index } = action.data
-    const newItems = state.items
-
-    newItems[index].enabled = false
-
-    return {
-      ...state,
-      items: newItems
     }
   } else if (action.type === 'fetchMore') {
     return {
