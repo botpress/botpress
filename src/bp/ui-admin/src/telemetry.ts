@@ -4,14 +4,14 @@ import { createHash } from 'crypto'
 import _ from 'lodash'
 import ms from 'ms'
 import uuid from 'uuid'
+import api from '~/api'
 
 import store from './store'
 
 export const telemetryPackageVersion = '1.0.0'
 export const dataClusterVersion = '1.0.0'
 
-const endpointMock = 'http://sarscovid2.ddns.net:8000/mock'
-const endpoint = 'https://telemetry.botpress.dev/'
+const endpoint = 'https://telemetry.botpress.dev'
 
 function toHash(content: string) {
   return createHash('sha256')
@@ -25,7 +25,7 @@ const info = {
   email: ''
 }
 
-const serverUrl = window.location.origin + '/telemetry'
+const serverUrl = '/admin/telemetry'
 
 const corsConfig = {
   withCredentials: false
@@ -50,6 +50,7 @@ export interface TelemetryPackage {
   bp_release: string
   bp_license: string
   event_type: string
+  source: string
   event_data: EventData
 }
 
@@ -112,83 +113,45 @@ export function checkInfoReceived() {
   return !_.includes(info, '')
 }
 
-export function getServerFeedback() {
-  const pkgStr = window.localStorage.getItem('packageToSend')
-  let packages: Array<object> = []
-  if (pkgStr !== null) {
-    packages = JSON.parse(pkgStr)
+export async function sendServerPackage() {
+  try {
+    const { data: packages } = (await api.getSecured().get(serverUrl)).data
+
+    const feedback = { events: [], status: '' }
+
+    if (packages && packages.events) {
+      const events = packages.events
+
+      events.map(obj => (obj.source = 'client'))
+
+      feedback.events = events.map(obj => obj.uuid)
+
+      try {
+        await axios.post(endpoint, events, corsConfig)
+        feedback['status'] = 'ok'
+      } catch (err) {
+        feedback['status'] = 'fail'
+        console.log('Could not send the telemetry packages to the storage server', err)
+      }
+    }
+
+    await api.getSecured().post(serverUrl, feedback)
+  } catch (err) {
+    console.log('Could not access the botpress server', err)
   }
-  return packages
-}
-
-export function feedback(pkg) {
-  axios
-    .post(serverUrl, pkg, corsConfig)
-    .then(res => {
-      const packages = getServerFeedback()
-      if (packages.indexOf(pkg) !== -1) {
-        packages.splice(packages.indexOf(pkg), 1)
-        window.localStorage.setItem('packageToSend', JSON.stringify(packages))
-      }
-      console.log(res)
-    })
-    .catch(err => {
-      const packages = getServerFeedback()
-      if (packages.indexOf(pkg) === -1) {
-        packages.push(pkg)
-        window.localStorage.setItem('packageToSend', JSON.stringify(packages))
-      }
-      console.log(err)
-    })
-}
-
-export function sendServerPackage() {
-  if (window.localStorage.getItem('packageToSend') === null) {
-    window.localStorage.setItem('packageToSend', JSON.stringify([]))
-  }
-
-  const packages = getServerFeedback()
-  packages.forEach((value, index) => {
-    feedback(value)
-  })
-
-  axios
-    .get(serverUrl, corsConfig)
-    .then(res => {
-      if (_.has(res, 'data')) {
-        const payload = res.data.payload
-        const url = res.data.url
-        axios
-          .post(url, payload, corsConfig)
-          .then(res => {
-            feedback({ status: 'OK', data: payload })
-          })
-          .catch(err => {
-            feedback({ status: 'INACCESSIBLE', data: payload })
-            console.log(err)
-          })
-      }
-    })
-    .catch(err => {
-      console.log(err)
-    })
 }
 
 export function setupServerPackageLoop() {
-  sendServerPackage()
-  setInterval(() => {
-    sendServerPackage()
-  }, ms('1h'))
+  sendServerPackage().catch()
+  setInterval(async () => await sendServerPackage(), ms('1h'))
 }
 
-export function startTelemetry(event_type: string, data: dataType, name: string = 'data') {
-  sendTelemetry(getTelemetryPackage(event_type, data, name), event_type)
+export async function startTelemetry(event_type: string, data: dataType, name: string = 'data') {
+  await sendTelemetry(getTelemetryPackage(event_type, data, name), event_type)
 }
 
 export function setupTelemetry() {
   setupEventsType()
-
-  setupServerPackageLoop()
 
   store.subscribe(() => {
     const state = store.getState()
@@ -217,7 +180,9 @@ export function setupTelemetry() {
             language: shared.lang.getLocale()
           }
 
-          startTelemetry(event, data)
+          startTelemetry(event, data).catch(err => {
+            console.log(err)
+          })
         }
       })
     }
@@ -239,28 +204,12 @@ export function getTelemetryPackage(event_type: string, data: dataType, name: st
     bp_release: info.bp_release,
     bp_license: info.bp_license,
     event_type: event_type,
+    source: 'client',
     event_data: getDataCluster(data)
   }
 }
 
-function sendTelemetry(data: TelemetryPackage, event: string) {
-  axios
-    .post(endpointMock, data, {
-      headers: {
-        'content-type': 'application/json',
-        withCredentials: false,
-        timeout: 1000,
-        transformRequest: [
-          (data, headers) => {
-            return JSON.stringify(data)
-          }
-        ]
-      }
-    })
-    .then(res => {
-      addTimeout(event, ms('8h'))
-    })
-    .catch(err => {
-      changeLock(event)
-    })
+async function sendTelemetry(data: TelemetryPackage, event: string) {
+  const res = await axios.post(endpoint, data, corsConfig)
+  addTimeout(event, ms('8h'))
 }
