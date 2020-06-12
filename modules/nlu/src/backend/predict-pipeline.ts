@@ -241,7 +241,7 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
 
       const predictor = predictors.intent_classifier_per_ctx[ctx]
       if (predictor) {
-        const features = [...input.utterance.sentenceEmbedding, input.utterance.tokens.length]
+        const features = [...input.utterance.sentenceEmbedding, input.utterance.tokens.length] // TODO: extract this logic 'getIntentFeatures()' in a place for intent featurizing
         const tmp = await predictor.predict(features)
         preds.push(...tmp)
       }
