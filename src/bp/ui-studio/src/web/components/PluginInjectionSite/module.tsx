@@ -10,6 +10,8 @@ interface Props {
   onNotFound?: any
   extraProps?: any
   contentLang?: string
+  defaultLanguage?: string
+  languages?: string[]
 }
 
 interface State {
@@ -143,6 +145,8 @@ Please check our migration guide here: https://botpress.com/docs/developers/migr
         component={moduleComponent}
         name={this.props.moduleName}
         contentLang={this.props.contentLang}
+        defaultLanguage={this.props.defaultLanguage}
+        languages={this.props.languages}
         bp={bp}
         {...extraProps}
       />

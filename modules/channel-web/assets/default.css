@@ -427,17 +427,17 @@ body {
 
 /* CAROUSEL  */
 .slick-arrow {
-  background-color: #fff;
-  border: 1px solid #dddfe2;
-  width: 32px;
-  height: 32px;
+  background-color: #fff !important;
+  border: 1px solid #dddfe2 !important;
+  width: 32px !important;
+  height: 32px !important;
   border-radius: 3px;
   box-shadow: none;
   color: #444;
   z-index: 1;
 }
 .slick-arrow:before {
-  color: #444;
+  color: #444 !important;
 }
 
 .slick-track {

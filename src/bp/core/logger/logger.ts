@@ -34,6 +34,8 @@ function serializeArgs(args: any): string {
   }
 }
 
+const hostname = os.hostname()
+
 @injectable()
 // Suggestion: Would be best to have a CompositeLogger that separates the Console and DB loggers
 export class PersistedConsoleLogger implements Logger {
@@ -68,7 +70,7 @@ export class PersistedConsoleLogger implements Logger {
     @inject(TYPES.LoggerFilePersister) private loggerFilePersister: LoggerFilePersister
   ) {
     this.displayLevel = process.VERBOSITY_LEVEL
-    this.serverHostname = os.hostname()
+    this.serverHostname = hostname
   }
 
   forBot(botId: string): this {

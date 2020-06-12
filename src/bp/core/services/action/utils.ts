@@ -1,4 +1,5 @@
 import { BUILTIN_MODULES } from 'common/defaults'
+import { ActionScope } from 'common/typings'
 import { requireAtPaths } from 'core/modules/require'
 import path from 'path'
 
@@ -58,3 +59,7 @@ export const isTrustedAction = (actionName: string) =>
   !!BUILTIN_MODULES.find(module => actionName.startsWith(`${module}/`))
 
 export const actionServerIdRegex = /^[a-zA-Z0-9]*$/
+
+export const runOutsideVm = (scope: ActionScope): boolean => {
+  return (process.DISABLE_GLOBAL_SANDBOX && scope === 'global') || (process.DISABLE_BOT_SANDBOX && scope !== 'global')
+}

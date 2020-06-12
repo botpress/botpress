@@ -227,6 +227,14 @@ class ConditionModalForm extends Component {
             onChange={() => updateNode('')}
           />
           <label htmlFor="rPreviousNode">{lang.tr('studio.flow.node.transition.returnToCallingNode')}</label>
+          <br></br>
+          <input
+            type="checkbox"
+            id="executeNode"
+            checked={this.state.returnToNode === '#'}
+            onChange={() => updateNode('#')}
+          />
+          <label htmlFor="executeNode">{lang.tr('studio.flow.node.transition.returnToCallingNodeExecute')}</label>
         </div>
       </div>
     )

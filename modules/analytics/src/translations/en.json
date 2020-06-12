@@ -44,6 +44,6 @@
   "title": "Analytics",
   "understoodMessages": "Understood Messages",
   "understoodTopLevelMessages": "Understood Top-Level Messages",
-  "userActivities": "User Activities",
+  "userActivities": "Daily active users",
   "workflowsInitiated": "Workflows Initiated"
 }

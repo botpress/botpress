@@ -1,12 +1,15 @@
-import { confirmDialog, lang } from 'botpress/shared'
+import { confirmDialog, lang, toast } from 'botpress/shared'
 import { action, computed, observable, runInAction } from 'mobx'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
+import path from 'path'
 
 import { EditableFile } from '../../../backend/typings'
 import { calculateHash, toastSuccess } from '../utils'
 import { wrapper } from '../utils/wrapper'
 
 import { RootStore } from '.'
+
+const NO_EDIT_EXTENSIONS = ['.tgz', '.sqlite', '.png', '.gif', '.jpg']
 
 class EditorStore {
   /** Reference to monaco the editor so we can call triggers */
@@ -50,6 +53,11 @@ class EditorStore {
 
   @action.bound
   async openFile(file: EditableFile) {
+    if (NO_EDIT_EXTENSIONS.includes(path.extname(file.location))) {
+      toast.warning('module.code-editor.error.cannotOpenFile')
+      return
+    }
+
     let content = file.content
     if (!content) {
       content = await this.rootStore.api.readFile(file)

@@ -27,7 +27,6 @@ export default {
       _.chain(event?.nlu?.predictions ?? {})
         .toPairs()
         .orderBy(x => x[1].confidence, 'desc')
-        .filter(x => x[0] !== 'oos')
         .first()
         .value() || []
 

@@ -1,12 +1,17 @@
 @import '../variables.scss';
 
 .emptyState {
+  align-items: center;
   align-self: center;
   color: var(--shark);
+  display: flex;
+  flex-direction: column;
   font-size: 12px;
+  justify-content: center;
   line-height: 1.25;
   margin: 0 auto;
   max-width: 130px;
+  min-height: 150px;
   text-align: center;
 
   p {

@@ -78,8 +78,15 @@ export class GhostService {
   }
 
   // Not caching this scope since it's rarely used
-  root(): ScopedGhostService {
-    return new ScopedGhostService(`./data`, this.diskDriver, this.dbDriver, this.useDbDriver, this.cache, this.logger)
+  root(useDbDriver?: boolean): ScopedGhostService {
+    return new ScopedGhostService(
+      `./data`,
+      this.diskDriver,
+      this.dbDriver,
+      useDbDriver ?? this.useDbDriver,
+      this.cache,
+      this.logger
+    )
   }
 
   global(): ScopedGhostService {

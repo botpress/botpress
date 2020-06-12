@@ -27,7 +27,7 @@ const Toolbar: FC<Props> = props => {
   return (
     <header className={style.toolbar}>
       <div className={style.list}>
-        {hasDoc && (
+        {!!hasDoc && (
           <Fragment>
             <Tooltip
               content={
