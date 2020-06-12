@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 
 import style from '../style.scss'
 import { FieldProps } from '../typings'
@@ -7,15 +7,28 @@ interface TextPorps extends FieldProps {
   type: string
 }
 
-const Text: FC<TextPorps> = ({ onBlur, onChange, placeholder, type, value }) => (
-  <input
-    className={style.input}
-    type={type}
-    placeholder={placeholder}
-    onChange={e => onChange?.(e.target.value)}
-    onBlur={onBlur}
-    value={value}
-  />
-)
+const Text: FC<TextPorps> = ({ onBlur, onChange, placeholder, type, value }) => {
+  const [localValue, setLocalValue] = useState(value || '')
+
+  useEffect(() => {
+    setLocalValue(value || '')
+  }, [value])
+
+  return (
+    <input
+      className={style.input}
+      type={type}
+      placeholder={placeholder}
+      onChange={e => {
+        const value = e.target.value
+
+        onChange?.(value)
+        setLocalValue(value)
+      }}
+      onBlur={() => onBlur?.(localValue)}
+      value={localValue}
+    />
+  )
+}
 
 export default Text

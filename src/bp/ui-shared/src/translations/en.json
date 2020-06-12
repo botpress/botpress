@@ -44,6 +44,7 @@
   "create": "Create",
   "createdOn": "Created On",
   "delete": "Delete",
+  "deleteContent": "Delete Content",
   "description": "Description",
   "details": "Details",
   "disabled": "Disabled",

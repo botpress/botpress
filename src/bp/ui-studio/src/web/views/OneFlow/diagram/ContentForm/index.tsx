@@ -3,6 +3,7 @@ import axios from 'axios'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import { FormData } from 'common/typings'
+import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
 
 import style from './style.scss'
@@ -63,8 +64,7 @@ const ContentForm: FC<Props> = ({ customKey, editingContent, close, formData, on
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
-      icon: 'trash',
-      label: lang.tr('module.qna.contentForm.deleteContent'),
+      label: lang.tr('deleteContent'),
       action: deleteContent,
       type: 'delete'
     }
@@ -76,6 +76,19 @@ const ContentForm: FC<Props> = ({ customKey, editingContent, close, formData, on
   }
 
   const contentFields = contentTypesFields?.[contentType.current]
+
+  const hasChanged = !(
+    _.isEqual(formData, { contentType: contentType.current }) ||
+    _.isEqual(formData, {
+      ...Contents.getEmptyFormData(contentType.current),
+      contentType: contentType.current
+    }) ||
+    _.isEqual(formData, {
+      ...Contents.getEmptyFormData(contentType.current),
+      contentType: contentType.current,
+      id: formData?.id
+    })
+  )
 
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={!isConfirming} close={() => close(editingContent)}>
@@ -95,11 +108,13 @@ const ContentForm: FC<Props> = ({ customKey, editingContent, close, formData, on
               items={contentTypes}
               defaultItem={contentType.current}
               rightIcon="chevron-down"
-              confirmChange={{
-                message: lang.tr('studio.content.confirmChangeContentType'),
-                acceptLabel: lang.tr('change'),
-                callback: setIsConfirming
-              }}
+              confirmChange={
+                hasChanged && {
+                  message: lang.tr('studio.content.confirmChangeContentType'),
+                  acceptLabel: lang.tr('change'),
+                  callback: setIsConfirming
+                }
+              }
               onChange={option => {
                 handleContentTypeChange(option.value)
               }}
