@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import { FlowVariableType } from 'common/typings'
 import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
@@ -30,7 +31,7 @@ export class StateManager {
   private knex!: sdk.KnexExtended
   private currentPromise
   private useRedis
-  private _variables!: sdk.BoxedVarConstructable<any>[]
+  private _variables!: FlowVariableType[]
 
   constructor(
     @inject(TYPES.Logger)
@@ -120,7 +121,7 @@ export class StateManager {
         return
       }
 
-      const BoxedVar = this._variables?.find(x => x.config.type === type)
+      const BoxedVar = this._variables?.find(x => x.id === type)?.box
       if (BoxedVar) {
         wf.variables[name] = new BoxedVar({
           nbOfTurns: options?.nbOfTurns ?? 10,
@@ -138,7 +139,7 @@ export class StateManager {
 
       workflows[wf].variables = Object.keys(variables).reduce((acc, id) => {
         const unboxed = variables[id] as sdk.UnboxedVariable<any>
-        const BoxedVar = this._variables.find(x => x.config.type === unboxed.type)
+        const BoxedVar = this._variables.find(x => x.id === unboxed.type)?.box
 
         if (BoxedVar) {
           acc[id] = new BoxedVar({ nbOfTurns: unboxed.nbTurns - 1, value: unboxed.value })

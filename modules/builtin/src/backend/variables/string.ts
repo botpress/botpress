@@ -1,12 +1,7 @@
-import { BoxedVarContructor, BoxedVariable, FlowVariableConfig } from 'botpress/sdk'
+import { BoxedVarContructor, BoxedVariable } from 'botpress/sdk'
+import { FlowVariableConfig, FlowVariableType } from 'common/typings'
 
 class BoxedString implements BoxedVariable<string> {
-  public static config: FlowVariableConfig = {
-    type: 'string',
-    fields: [],
-    advancedSettings: []
-  }
-
   private _confidence?: number
   private _value?: string
   private _nbTurns?: number
@@ -40,8 +35,19 @@ class BoxedString implements BoxedVariable<string> {
   }
 
   unbox() {
-    return { value: this._value, nbTurns: this._nbTurns, confidence: this._confidence, type: BoxedString.config.type }
+    return { value: this._value, nbTurns: this._nbTurns, confidence: this._confidence, type: StringVariableType.id }
   }
 }
 
-export default BoxedString
+const StringVariableConfig: FlowVariableConfig = {
+  fields: [],
+  advancedSettings: []
+}
+
+const StringVariableType: FlowVariableType = {
+  id: 'string',
+  config: StringVariableConfig,
+  box: BoxedString
+}
+
+export default StringVariableType

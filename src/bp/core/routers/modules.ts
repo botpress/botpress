@@ -162,7 +162,13 @@ export class ModulesRouter extends CustomRouter {
       '/variables',
       this.checkTokenHeader,
       this.asyncMiddleware(async (_req, res, _next) => {
-        res.send(await this.moduleLoader.getVariables().map(v => v.config))
+        res.send(
+          await this.moduleLoader.getVariables().map(v => {
+            const cleaned = { ...v }
+            cleaned.box = undefined
+            return cleaned
+          })
+        )
       })
     )
   }

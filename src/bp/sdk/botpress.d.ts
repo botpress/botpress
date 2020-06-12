@@ -1183,48 +1183,6 @@ declare module 'botpress/sdk' {
     computePreviewText?: (formData: object) => string
   }
 
-  export interface FormMoreInfo {
-    label: string
-    url?: string
-  }
-
-  export interface FormAdvancedSetting {
-    key: string
-    label: string
-    type: string
-    moreInfo?: FormMoreInfo
-  }
-
-  export interface FormOption {
-    value: string
-    label: string
-    related: FormField
-  }
-
-  export interface FormContextMenu {
-    type: string
-    label: string
-  }
-
-  export interface FormField {
-    type: 'checkbox' | 'group' | 'select' | 'text' | 'textarea' | 'upload' | 'url'
-    key: string
-    label: string
-    placeholder?: string
-    options?: FormOption[]
-    fields?: FormField[]
-    group?: {
-      addLabel?: string // you have to specify the add button label
-      minimum?: number // you can specify a minimum so the delete button won't show if there isn't more than the minimum
-      contextMenu?: FormContextMenu[] // you can add a contextual menu to add extra options
-    }
-  }
-
-  export interface FormDefinition {
-    advancedSettings: FormAdvancedSetting[]
-    fields: FormField[]
-  }
-
   /**
    * The flow is used by the dialog engine to answer the user and send him to the correct destination
    */
@@ -1257,11 +1215,6 @@ declare module 'botpress/sdk' {
     isOutput?: boolean
     description?: string
     params?: any
-  }
-
-  export interface FlowVariableConfig extends FormDefinition {
-    /** Id use by FlowVariable to refer to this FlowVariableConfig */
-    type: string
   }
 
   export interface DecisionTriggerCondition {
@@ -1526,13 +1479,10 @@ declare module 'botpress/sdk' {
 
   export interface BoxedVarConstructable<T> {
     new (ctor: BoxedVarContructor<T>): BoxedVariable<T>
-    /** The internal ID used to represent this variable */
-    config: FlowVariableConfig
   }
 
   export interface BoxedVariable<T> {
     value: T
-    readonly config?: FlowVariableConfig
     trySet(value: T, confidence?: number): void
     setRetentionPolicy(nbOfTurns: number): void
     toString(): string

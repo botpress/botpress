@@ -1,21 +1,10 @@
-import { BoxedVariable, FlowVariableConfig } from 'botpress/sdk'
+import { BoxedVariable } from 'botpress/sdk'
+import { FlowVariableConfig, FlowVariableType } from 'common/typings'
 import moment from 'moment'
 
 type BoxedDateType = string | Date | moment.Moment
 
 class BoxedDate implements BoxedVariable<BoxedDateType> {
-  public static config: FlowVariableConfig = {
-    type: 'date',
-    fields: [
-      {
-        type: 'text',
-        key: 'format',
-        label: 'format'
-      }
-    ],
-    advancedSettings: []
-  }
-
   private _value?: BoxedDateType
   private _nbTurns?: number
   private _confidence: number = 0
@@ -64,8 +53,25 @@ class BoxedDate implements BoxedVariable<BoxedDateType> {
 
   // This method must return a simple object that will be stored with the session
   unbox() {
-    return { value: this._value, nbTurns: this._nbTurns, confidence: this._confidence, type: BoxedDate.config.type }
+    return { value: this._value, nbTurns: this._nbTurns, confidence: this._confidence, type: DateVariableType.id }
   }
 }
 
-export default BoxedDate
+const DateVariableConfig: FlowVariableConfig = {
+  fields: [
+    {
+      type: 'text',
+      key: 'format',
+      label: 'format'
+    }
+  ],
+  advancedSettings: []
+}
+
+const DateVariableType: FlowVariableType = {
+  id: 'date',
+  config: DateVariableConfig,
+  box: BoxedDate
+}
+
+export default DateVariableType
