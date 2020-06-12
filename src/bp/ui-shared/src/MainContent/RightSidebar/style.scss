@@ -1,5 +1,5 @@
 .wRightSidebar {
-  padding-right: var(--right-sidebar-width);
+  padding-right: calc(var(--spacing-x-large) + var(--right-sidebar-width));
 }
 
 .rightSidebar {

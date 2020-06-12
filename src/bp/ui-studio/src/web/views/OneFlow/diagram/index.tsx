@@ -37,6 +37,7 @@ import {
   updateFlowProblems
 } from '~/actions'
 import { toastSuccess } from '~/components/Shared/Utils'
+import withLanguage from '~/components/Util/withLanguage'
 import { getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/reducers'
 import {
   defaultTransition,
@@ -64,6 +65,7 @@ import TriggerEditor from './TriggerEditor'
 import WorkflowToolbar from './WorkflowToolbar'
 
 interface OwnProps {
+  childRef: (el: any) => void
   showSearch: boolean
   hideSearch: () => void
   readOnly: boolean
@@ -73,10 +75,16 @@ interface OwnProps {
   handleFilterChanged: (event: any) => void
 }
 
+interface LangProps {
+  contentLang: string
+  languages: string[]
+  defaultLanguage: string
+}
+
 type StateProps = ReturnType<typeof mapStateToProps>
 type DispatchProps = typeof mapDispatchToProps
 
-type Props = DispatchProps & StateProps & OwnProps
+type Props = DispatchProps & StateProps & OwnProps & LangProps
 
 type BpNodeModel = StandardNodeModel | SkillCallNodeModel
 
@@ -98,7 +106,8 @@ class Diagram extends Component<Props> {
     highlightFilter: '',
     currentTriggerNode: null,
     isTriggerEditOpen: false,
-    editingNodeContent: null
+    editingNodeContent: null,
+    currentLang: ''
   }
 
   constructor(props) {
@@ -113,7 +122,8 @@ class Diagram extends Component<Props> {
         this.getEditingContent.bind(this),
         this.deleteSelectedElements.bind(this),
         this.getCurrentFlow.bind(this),
-        this.updateNodeAndRefresh.bind(this)
+        this.updateNodeAndRefresh.bind(this),
+        this.getCurrentLang.bind(this)
       )
     )
     this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
@@ -157,9 +167,14 @@ class Diagram extends Component<Props> {
 
   componentDidMount() {
     this.props.fetchFlows()
+    this.setState({ currentLang: this.props.contentLang })
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('dblclick', this.onDiagramDoubleClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
+    this.props.childRef({
+      deleteSelectedElements: this.deleteSelectedElements.bind(this),
+      createFlow: this.createFlow.bind(this)
+    })
   }
 
   componentWillUnmount() {
@@ -266,7 +281,7 @@ class Diagram extends Component<Props> {
       this.props.createFlowNode({
         ...point,
         type: 'say_something',
-        contents: [{ contentType: 'text' }],
+        contents: [{ [this.state.currentLang]: { contentType: 'text' } }],
         next: [defaultTransition],
         isNew: true,
         ...moreProps
@@ -529,6 +544,10 @@ class Diagram extends Component<Props> {
     this.props.refreshFlowsLinks()
   }
 
+  getCurrentLang() {
+    return this.state.currentLang
+  }
+
   getCurrentFlow() {
     return this.props.currentFlow
   }
@@ -691,7 +710,7 @@ class Diagram extends Component<Props> {
     } = this.state.editingNodeContent
     const newContents = [...contents]
 
-    newContents[index] = data
+    newContents[index][this.state.currentLang] = data
     this.props.updateFlowNode({ contents: newContents })
   }
 
@@ -700,9 +719,17 @@ class Diagram extends Component<Props> {
       node: { contents },
       index
     } = this.state.editingNodeContent
-    const newContents = [...contents.filter((content, contentIndex) => contentIndex !== index)]
+    const newContents = [...contents]
 
-    if (newContents.length === 0) {
+    newContents[index] = Object.keys(newContents[index]).reduce((acc, lang) => {
+      if (lang !== this.state.currentLang) {
+        acc = { ...acc, [lang]: { ...newContents[index][lang] } }
+      }
+
+      return acc
+    }, {})
+
+    if (this.isContentEmpty(newContents[index])) {
       this.deleteSelectedElements()
     } else {
       this.props.updateFlowNode({ contents: newContents })
@@ -711,10 +738,24 @@ class Diagram extends Component<Props> {
     this.setState({ editingNodeContent: null })
   }
 
+  isContentEmpty(content) {
+    return !_.flatMap(content).length
+  }
+
+  getEmptyContent(content) {
+    return { contentType: content[Object.keys(content)[0]]?.contentType }
+  }
+
   render() {
+    const editingContent = this.state.editingNodeContent?.node?.contents?.[this.state.editingNodeContent.index]
+
     return (
       <MainContent.Wrapper>
-        <WorkflowToolbar />
+        <WorkflowToolbar
+          currentLang={this.state.currentLang}
+          languages={this.props.languages}
+          setCurrentLang={lang => this.setState({ currentLang: lang })}
+        />
         <div
           id="diagramContainer"
           ref={ref => (this.diagramContainer = ref)}
@@ -746,7 +787,7 @@ class Diagram extends Component<Props> {
             customKey={`${this.state.editingNodeContent.node.name}${this.state.editingNodeContent.index}`}
             deleteContent={() => this.deleteNodeContent()}
             editingContent={this.state.editingNodeContent.index}
-            formData={this.state.editingNodeContent?.node?.contents?.[this.state.editingNodeContent.index]}
+            formData={editingContent?.[this.state.currentLang] || this.getEmptyContent(editingContent)}
             onUpdate={this.updateNodeContent.bind(this)}
             close={() => {
               this.timeout = setTimeout(() => {
@@ -823,4 +864,4 @@ const mapDispatchToProps = {
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps, null, {
   withRef: true
-})(Diagram)
+})(withLanguage(Diagram))

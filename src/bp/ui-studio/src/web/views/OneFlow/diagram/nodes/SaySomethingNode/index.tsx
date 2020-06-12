@@ -17,6 +17,7 @@ interface Props {
   onDeleteSelectedElements: () => void
   editContent: (node: SaySomethingNodeModel, index: number) => void
   selectedNodeContent: () => { node: SaySomethingNodeModel; index: number }
+  getCurrentLang: () => string
 }
 
 const SaySomethingWidget: FC<Props> = ({
@@ -25,7 +26,8 @@ const SaySomethingWidget: FC<Props> = ({
   editContent,
   onDeleteSelectedElements,
   selectedNodeContent,
-  updateFlowNode
+  updateFlowNode,
+  getCurrentLang
 }) => {
   const [expanded, setExpanded] = useState(node.isNew)
   const [error, setError] = useState(null)
@@ -92,6 +94,7 @@ const SaySomethingWidget: FC<Props> = ({
 
     setIsEditing(false)
   }
+  const currentLang = getCurrentLang()
 
   const selectedContent = selectedNodeContent()
 
@@ -144,9 +147,9 @@ const SaySomethingWidget: FC<Props> = ({
           {node.contents?.map((content, index) => (
             <Contents.Item
               active={selectedContent?.node?.id === node.id && index === selectedContent?.index}
-              key={index}
+              key={`${index}${currentLang}`}
               onEdit={() => editContent?.(node, index)}
-              content={content}
+              content={content[currentLang] || {}}
             />
           ))}
         </div>
@@ -156,7 +159,7 @@ const SaySomethingWidget: FC<Props> = ({
 }
 
 export class SaySomethingNodeModel extends BaseNodeModel {
-  public contents: FormData[] = []
+  public contents: { [lang: string]: FormData }[] = []
   public isNew: boolean
 
   constructor({
@@ -190,6 +193,7 @@ export class SaySomethingWidgetFactory extends AbstractNodeFactory {
   private editContent: (node: SaySomethingNodeModel, index: number) => void
   private selectedNodeContent: () => { node: SaySomethingNodeModel; index: number }
   private deleteSelectedElements: () => void
+  private getCurrentLang: () => string
   private getCurrentFlow: any
   private updateFlowNode: any
 
@@ -198,7 +202,8 @@ export class SaySomethingWidgetFactory extends AbstractNodeFactory {
     selectedNodeContent: () => { node: SaySomethingNodeModel; index: number },
     deleteSelectedElements: () => void,
     getCurrentFlow: any,
-    updateFlowNode: any
+    updateFlowNode: any,
+    getCurrentLang: () => string
   ) {
     super('say_something')
 
@@ -207,6 +212,7 @@ export class SaySomethingWidgetFactory extends AbstractNodeFactory {
     this.deleteSelectedElements = deleteSelectedElements
     this.getCurrentFlow = getCurrentFlow
     this.updateFlowNode = updateFlowNode
+    this.getCurrentLang = getCurrentLang
   }
 
   generateReactWidget(diagramEngine: DiagramEngine, node: SaySomethingNodeModel) {
@@ -218,6 +224,7 @@ export class SaySomethingWidgetFactory extends AbstractNodeFactory {
         onDeleteSelectedElements={this.deleteSelectedElements}
         updateFlowNode={this.updateFlowNode}
         selectedNodeContent={this.selectedNodeContent}
+        getCurrentLang={this.getCurrentLang}
       />
     )
   }
