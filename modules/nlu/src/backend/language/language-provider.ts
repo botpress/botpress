@@ -167,6 +167,11 @@ export class RemoteLanguageProvider implements LanguageProvider {
   }
 
   private clearOldCacheFiles = async () => {
+    const cacheExists = await fse.pathExists(this._cacheDir)
+    if (!cacheExists) {
+      return
+    }
+
     const allCacheFiles = await fse.readdir(this._cacheDir)
 
     const currentHash = this.computeVersionHash()
