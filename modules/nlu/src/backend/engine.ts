@@ -1,5 +1,6 @@
 import { MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
+import crypto from 'crypto'
 
 import * as CacheManager from './cache-manager'
 import { computeModelHash, Model } from './model-service'
@@ -16,8 +17,13 @@ import {
   TrainingSession,
   NLUVersionInfo
 } from './typings'
+import { getOrCreateCache } from './cache-manager'
 
 const trainDebug = DEBUG('nlu').sub('training')
+
+export type TrainingOptions = {
+  forceRetrain: boolean
+}
 
 export default class Engine implements NLUEngine {
   // NOTE: removed private in order to prevent important refactor (which will be done later)
@@ -35,8 +41,11 @@ export default class Engine implements NLUEngine {
     intentDefs: NLU.IntentDefinition[],
     entityDefs: NLU.EntityDefinition[],
     languageCode: string,
-    trainingSession?: TrainingSession
+    trainingSession?: TrainingSession,
+    options?: TrainingOptions
   ): Promise<Model> {
+    // TODO: evaluate if training needed for language...
+
     trainDebug.forBot(this.botId, `Started ${languageCode} training`)
 
     const list_entities = entityDefs
@@ -68,6 +77,16 @@ export default class Engine implements NLUEngine {
       .uniq()
       .value()
 
+    const modifiedCtx = this._updateAndGetModifiedCtx(languageCode, intentDefs, contexts)
+    const trainAllCtx =
+      options?.forceRetrain || !this.modelsByLang[languageCode] || contexts.length === modifiedCtx.length
+    const ctxToTrain = trainAllCtx ? contexts : modifiedCtx
+
+    const debugMsg = trainAllCtx
+      ? `Training all contexts for language: ${languageCode}`
+      : `Retraining only contexts: [${ctxToTrain}] for language: ${languageCode}`
+    trainDebug.forBot(this.botId, debugMsg)
+
     const input: TrainInput = {
       botId: this.botId,
       trainingSession,
@@ -82,12 +101,17 @@ export default class Engine implements NLUEngine {
           contexts: x.contexts,
           utterances: x.utterances[languageCode],
           slot_definitions: x.slots
-        }))
+        })),
+      ctxToTrain
     }
 
     // Model should be build here, Trainer should not have any idea of how this is stored
     // Error handling should be done here
-    const model = await Trainer(input, Engine.tools)
+    let model = await Trainer(input, Engine.tools)
+    if (!trainAllCtx) {
+      model = this._mergeModels(this.modelsByLang[languageCode], model)
+    }
+
     model.hash = computeModelHash(intentDefs, entityDefs, this.version, model.languageCode)
     if (model.success) {
       trainingSession &&
@@ -196,5 +220,49 @@ export default class Engine implements NLUEngine {
 
     // error handled a level highr
     return Predict(input, Engine.tools, this.predictorsByLang)
+  }
+
+  private _mergeModels(previousModel: Model, trainingOuput: Model) {
+    const { artefacts: previousArtefacts } = previousModel.data
+    const { artefacts: currentArtefacts } = trainingOuput.data
+    if (!previousArtefacts || !currentArtefacts) {
+      return previousModel
+    }
+
+    const artefacts = _.merge({}, previousArtefacts, currentArtefacts)
+    const mergedModel = _.merge({}, trainingOuput, { data: { artefacts } })
+
+    // lodash merge messes up buffers objects
+    mergedModel.data.artefacts.slots_model = new Buffer(mergedModel.data.artefacts.slots_model)
+    return mergedModel
+  }
+
+  private _updateAndGetModifiedCtx = (languageCode: string, intents: NLU.IntentDefinition[], ctxs: string[]) => {
+    const ctxCache = getOrCreateCache(this.getCtxCacheId(languageCode))
+
+    const modifiedCtx: string[] = []
+    for (const ctx of ctxs) {
+      const previousCtxHash = ctxCache.get(ctx)
+      const currentCtxHash = this._computeCtxHash(languageCode, intents, ctx)
+      if (previousCtxHash !== currentCtxHash) {
+        modifiedCtx.push(ctx)
+        ctxCache.set(ctx, currentCtxHash)
+      }
+    }
+    return modifiedCtx
+  }
+
+  private getCtxCacheId = (langCode: string) => {
+    return `ctx_cache.${langCode}`
+  }
+
+  private _computeCtxHash = (languageCode: string, intents: NLU.IntentDefinition[], ctx: string) => {
+    const intentsOfCtx = intents.filter(i => i.contexts.includes(ctx))
+    const utterancesOfCtx = _.flatMap(intentsOfCtx, i => i.utterances[languageCode])
+    const uttString = utterancesOfCtx.reduce((acc, cur) => `${acc}+${cur}`, '')
+    return crypto
+      .createHash('md5')
+      .update(uttString)
+      .digest('hex')
   }
 }
