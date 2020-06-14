@@ -170,7 +170,7 @@ function keyboardButtons<T>(arr: any[] | undefined): T[] | undefined {
           return Markup.urlButton(x.title, x.url)
         }
 
-        return Markup.callbackButton(x.title, x.payload)
+        return Markup.callbackButton(x.title, x.payload || '')
       }) as any
   )
 }
