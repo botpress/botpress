@@ -237,12 +237,15 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
   const ctxToPredict = input.ctx_predictions.map(p => p.label)
   const predictions = (
     await Promise.map(ctxToPredict, async ctx => {
+      let preds: sdk.MLToolkit.SVM.Prediction[] = []
+
       const predictor = predictors.intent_classifier_per_ctx[ctx]
-      if (!predictor) {
-        return
+      if (predictor) {
+        const features = [...input.utterance.sentenceEmbedding, input.utterance.tokens.length] // TODO: extract this logic 'getIntentFeatures()' in a place for intent featurizing
+        const tmp = await predictor.predict(features)
+        preds.push(...tmp)
       }
-      const features = [...input.utterance.sentenceEmbedding, input.utterance.tokens.length]
-      let preds = await predictor.predict(features)
+
       const exactPred = findExactIntentForCtx(predictors.exact_match_index, input.utterance, ctx)
       if (exactPred) {
         const idxToRemove = preds.findIndex(p => p.label === exactPred.label)
@@ -252,7 +255,13 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
 
       if (input.alternateUtterance) {
         const alternateFeats = [...input.alternateUtterance.sentenceEmbedding, input.alternateUtterance.tokens.length]
-        const alternatePreds = await predictor.predict(alternateFeats)
+
+        const alternatePreds: sdk.MLToolkit.SVM.Prediction[] = []
+        if (predictor) {
+          const tmp = await predictor.predict(alternateFeats)
+          alternatePreds.push(...tmp)
+        }
+
         const exactPred = findExactIntentForCtx(predictors.exact_match_index, input.alternateUtterance, ctx)
         if (exactPred) {
           const idxToRemove = alternatePreds.findIndex(p => p.label === exactPred.label)
@@ -332,12 +341,17 @@ function electIntent(input: PredictStep): PredictStep {
         .map(p => ({ ...p, confidence: _.round(p.confidence, 2) }))
         .orderBy('confidence', 'desc')
         .value() as (sdk.MLToolkit.SVM.Prediction & { context: string })[]
-      if (intentPreds[0].confidence === 1 || intentPreds.length === 1) {
+      if (intentPreds[0]?.confidence === 1 || intentPreds.length === 1) {
         return [{ label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: 1 }]
-      } // are we sure theres always at least two intents ? otherwise down there it may crash
+      }
 
+      const noneIntent = { label: NONE_INTENT, context: ctx, confidence: 1 }
       if (predictionsReallyConfused(intentPreds)) {
-        intentPreds.unshift({ label: NONE_INTENT, context: ctx, confidence: 1 })
+        intentPreds.unshift(noneIntent)
+      }
+
+      if (intentPreds.length <= 1) {
+        return noneIntent
       }
 
       const lnstd = math.std(intentPreds.filter(x => x.confidence !== 0).map(x => Math.log(x.confidence))) // because we want a lognormal distribution
@@ -503,20 +517,26 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
     }
   }
 
-  const predictions: sdk.NLU.Predictions = step.ctx_predictions?.reduce(
-    (preds, { label, confidence }) => ({
+  const predictions: sdk.NLU.Predictions = step.ctx_predictions.reduce((preds, current) => {
+    const { label, confidence } = current
+
+    const intentPred = step.intent_predictions.per_ctx[label]
+    const intents = !intentPred
+      ? []
+      : intentPred.map(i => ({
+          ...i,
+          slots: (step.slot_predictions_per_intent[i.label] || []).reduce(slotsCollectionReducer, {})
+        }))
+
+    return {
       ...preds,
       [label]: {
         confidence: confidence,
         oos: step.oos_predictions[label] || 0,
-        intents: step.intent_predictions.per_ctx[label].map(i => ({
-          ...i,
-          slots: (step.slot_predictions_per_intent[i.label] || []).reduce(slotsCollectionReducer, {})
-        }))
+        intents
       }
-    }),
-    {}
-  )
+    }
+  }, {})
 
   return {
     ambiguous: step.intent_predictions.ambiguous, // legacy pre-ndu
