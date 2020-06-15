@@ -159,29 +159,9 @@ export default class Storage {
     }
   }
 
-  /**
-   * This will migrate questions to the new format.
-   * @deprecated Questions support multiple answers since v11.3
-   */
-  private migrate_11_2_to_11_3(question) {
-    if (!question.data.answers) {
-      question.data.answers = [question.data.answer]
-    }
-    if (!question.data.lastModified) {
-      question.data.lastModified = new Date()
-    }
-    return question
-  }
-
   async getQnaItem(id: string): Promise<QnaItem> {
     const filename = `${id}.json`
-
-    const data: QnaItem = await this.bp.ghost.forBot(this.botId).readFileAsObject(this.config.qnaDir, filename)
-    if (data.data.lastModified) {
-      data.data.lastModified = new Date(data.data.lastModified)
-    }
-
-    return this.migrate_11_2_to_11_3(data)
+    return await this.bp.ghost.forBot(this.botId).readFileAsObject(this.config.qnaDir, filename)
   }
 
   async fetchQNAs(opts?: Paging) {
@@ -248,7 +228,9 @@ export default class Storage {
     })
 
     if (order === 'asc') {
-      return _.orderBy(filteredQuestions, q => q.data.lastModified?.getTime(), [<'asc' | 'desc'>order])
+      return _.orderBy(filteredQuestions, q => (q.data.lastModified ? new Date(q.data.lastModified).getTime() : 0), [
+        <'asc' | 'desc'>order
+      ])
     } else {
       return filteredQuestions.reverse()
     }
