@@ -59,8 +59,7 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
-      icon: 'trash',
-      label: lang.tr('module.qna.contentForm.deleteContent'),
+      label: lang.tr('deleteContent'),
       action: deleteContent,
       type: 'delete'
     }

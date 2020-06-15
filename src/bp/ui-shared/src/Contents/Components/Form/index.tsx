@@ -176,8 +176,9 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
             <TextArea
               placeholder={lang(field.placeholder)}
-              onChange={value => dispatch({ type: 'updateField', data: { field: field.key, parent, value } })}
-              onBlur={() => onUpdate(state)}
+              onBlur={value => {
+                dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
+              }}
               value={data[field.key]}
             />
             {field.moreInfo && printMoreInfo(field.moreInfo)}
@@ -218,8 +219,9 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
             <Text
               placeholder={lang(field.placeholder)}
-              onChange={value => dispatch({ type: 'updateField', data: { field: field.key, parent, value } })}
-              onBlur={() => onUpdate(state)}
+              onBlur={value => {
+                dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
+              }}
               type={field.type}
               value={data[field.key]}
             />

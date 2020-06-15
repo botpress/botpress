@@ -3,6 +3,7 @@ import axios from 'axios'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import { FormData } from 'common/typings'
+import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
 
 import style from './style.scss'
@@ -30,7 +31,10 @@ const ContentForm: FC<Props> = ({
   const contentType = useRef(formData?.contentType || 'text')
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
-  const contentTypesFields = contentTypes.reduce((acc, type) => ({ ...acc, [type.id]: type.schema.newJson }), {})
+  const contentTypesFields = contentTypes.reduce(
+    (acc, type) => ({ ...acc, [type.schema.newJson.renderType]: type.schema.newJson }),
+    {}
+  )
 
   useEffect(() => {
     contentType.current = formData?.contentType || 'text'
@@ -39,8 +43,7 @@ const ContentForm: FC<Props> = ({
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
-      icon: 'trash',
-      label: lang.tr('module.qna.contentForm.deleteContent'),
+      label: lang.tr('deleteContent'),
       action: deleteContent,
       type: 'delete'
     }
@@ -52,6 +55,19 @@ const ContentForm: FC<Props> = ({
   }
 
   const contentFields = contentTypesFields?.[contentType.current]
+
+  const hasChanged = !(
+    _.isEqual(formData, { contentType: contentType.current }) ||
+    _.isEqual(formData, {
+      ...Contents.getEmptyFormData(contentType.current),
+      contentType: contentType.current
+    }) ||
+    _.isEqual(formData, {
+      ...Contents.getEmptyFormData(contentType.current),
+      contentType: contentType.current,
+      id: formData?.id
+    })
+  )
 
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={!isConfirming} close={() => close(editingContent)}>
@@ -68,14 +84,16 @@ const ContentForm: FC<Props> = ({
             <Dropdown
               filterable={false}
               className={style.formSelect}
-              items={contentTypes.map(type => ({ value: type.id, label: lang.tr(type.title) }))}
+              items={contentTypes.map(type => ({ value: type.schema.newJson.renderType, label: lang.tr(type.title) }))}
               defaultItem={contentType.current}
               rightIcon="chevron-down"
-              confirmChange={{
-                message: lang.tr('studio.content.confirmChangeContentType'),
-                acceptLabel: lang.tr('change'),
-                callback: setIsConfirming
-              }}
+              confirmChange={
+                hasChanged && {
+                  message: lang.tr('studio.content.confirmChangeContentType'),
+                  acceptLabel: lang.tr('change'),
+                  callback: setIsConfirming
+                }
+              }
               onChange={option => {
                 handleContentTypeChange(option.value)
               }}
