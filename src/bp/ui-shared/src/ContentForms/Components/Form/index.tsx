@@ -1,10 +1,10 @@
 import { Checkbox } from '@blueprintjs/core'
+import { FormMoreInfo } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer } from 'react'
 
 import { lang } from '../../../translations'
 import { getEmptyFormData } from '../../utils/fields'
-import { MoreInfo } from '../../utils/typings'
 import AddButton from '../Fields/AddButton'
 import Select from '../Fields/Select'
 import Text from '../Fields/Text'
@@ -26,7 +26,7 @@ const printLabel = (field, data) => {
   return lang(field.label)
 }
 
-const printMoreInfo = (moreInfo: MoreInfo): JSX.Element => {
+const printMoreInfo = (moreInfo: FormMoreInfo): JSX.Element => {
   const { url, label } = moreInfo
   if (url) {
     return (
