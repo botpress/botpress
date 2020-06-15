@@ -1,4 +1,3 @@
-import { BoxedVarContructor, BoxedVariable, FlowVariableConfig } from 'botpress/sdk'
 import { BoxedVarContructor, BoxedVariable } from 'botpress/sdk'
 import { FlowVariableConfig, FlowVariableType } from 'common/typings'
 import moment from 'moment'
