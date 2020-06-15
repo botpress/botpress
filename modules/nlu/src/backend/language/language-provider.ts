@@ -20,7 +20,8 @@ import {
   LanguageSource,
   NLUHealth,
   Token2Vec,
-  NLUVersionInfo
+  NLUVersionInfo,
+  LangServerInfo
 } from '../typings'
 
 const debug = DEBUG('nlu').sub('lang')
@@ -161,6 +162,10 @@ export class RemoteLanguageProvider implements LanguageProvider {
     await this.restoreTokensCache()
 
     return this
+  }
+
+  public get langServerInfo(): LangServerInfo {
+    return this._version.langServerInfo
   }
 
   private extractLangServerInfo(data) {

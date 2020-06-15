@@ -31,6 +31,7 @@ export interface LangsGateway {
 
 export interface LanguageProvider {
   languages: string[]
+  langServerInfo: LangServerInfo
   vectorize(tokens: string[], lang: string): Promise<Float32Array[]>
   tokenize(utterances: string[], lang: string, vocab?: Token2Vec): Promise<string[][]>
   generateSimilarJunkWords(subsetVocab: string[], lang: string): Promise<string[]>
@@ -84,7 +85,7 @@ export interface NLUVersionInfo {
   langServerInfo: LangServerInfo
 }
 
-interface LangServerInfo {
+export interface LangServerInfo {
   version: string
   domain: string
   dim: number
