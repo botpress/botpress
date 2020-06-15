@@ -84,7 +84,7 @@ module.exports = {
       },
       variations: {
         type: 'array',
-        title: 'module.builtin.types.text.alternatives',
+        title: 'module.builtin.types.text.alternative_plural',
         items: {
           type: 'string',
           default: ''
