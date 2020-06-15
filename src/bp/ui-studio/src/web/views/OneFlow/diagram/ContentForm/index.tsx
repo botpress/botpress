@@ -14,47 +14,23 @@ interface Props {
   close: (closingKey: number) => void
   onUpdate: (data: any) => void
   formData: FormData
+  contentTypes: any
 }
 
-const fetchReducer = (state, action) => {
-  switch (action.type) {
-    case 'fetchSuccess':
-      const { data } = action
-      return {
-        ...state,
-        contentTypes: data.map(type => ({ value: type.schema.newJson.renderType, label: lang.tr(type.title) })),
-        contentTypesFields: data.reduce(
-          (acc, type) => ({ ...acc, [type.schema.newJson.renderType]: type.schema.newJson }),
-          {}
-        )
-      }
-    default:
-      throw new Error(`That action type isn't supported.`)
-  }
-}
-
-const ContentForm: FC<Props> = ({ customKey, editingContent, close, formData, onUpdate, deleteContent }) => {
-  const [state, dispatch] = useReducer(fetchReducer, {
-    contentTypes: [],
-    contentTypesFields: {}
-  })
-  const contentType = useRef(formData?.contentType || 'text')
+const ContentForm: FC<Props> = ({
+  contentTypes,
+  customKey,
+  editingContent,
+  close,
+  formData,
+  onUpdate,
+  deleteContent
+}) => {
   const [isConfirming, setIsConfirming] = useState(false)
+  const contentType = useRef(formData?.contentType || 'text')
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
-  const { contentTypes, contentTypesFields } = state
-
-  useEffect(() => {
-    axios
-      .get(`${window.BOT_API_PATH}/content/types`)
-      .then(({ data }) => {
-        dispatch({
-          type: 'fetchSuccess',
-          data: data.filter(type => type.schema.newJson?.displayedIn.includes('sayNode'))
-        })
-      })
-      .catch(() => {})
-  }, [])
+  const contentTypesFields = contentTypes.reduce((acc, type) => ({ ...acc, [type.id]: type.schema.newJson }), {})
 
   useEffect(() => {
     contentType.current = formData?.contentType || 'text'
@@ -92,7 +68,7 @@ const ContentForm: FC<Props> = ({ customKey, editingContent, close, formData, on
             <Dropdown
               filterable={false}
               className={style.formSelect}
-              items={contentTypes}
+              items={contentTypes.map(type => ({ value: type.id, label: lang.tr(type.title) }))}
               defaultItem={contentType.current}
               rightIcon="chevron-down"
               confirmChange={{

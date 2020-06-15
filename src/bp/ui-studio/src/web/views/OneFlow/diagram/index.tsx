@@ -24,6 +24,7 @@ import {
   copyFlowNode,
   createFlow,
   createFlowNode,
+  fetchContentCategories,
   fetchFlows,
   insertNewSkillNode,
   openFlowNodeProps,
@@ -157,6 +158,7 @@ class Diagram extends Component<Props> {
 
   componentDidMount() {
     this.props.fetchFlows()
+    this.props.fetchContentCategories()
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('dblclick', this.onDiagramDoubleClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
@@ -744,6 +746,7 @@ class Diagram extends Component<Props> {
         {this.state.editingNodeContent && (
           <ContentForm
             customKey={`${this.state.editingNodeContent.node.name}${this.state.editingNodeContent.index}`}
+            contentTypes={this.props.contentTypes.filter(type => type.schema.newJson?.displayedIn.includes('sayNode'))}
             deleteContent={() => this.deleteNodeContent()}
             editingContent={this.state.editingNodeContent.index}
             formData={this.state.editingNodeContent?.node?.contents?.[this.state.editingNodeContent.index]}
@@ -798,7 +801,8 @@ const mapStateToProps = (state: RootReducer) => ({
   currentDiagramAction: state.flows.currentDiagramAction,
   canPasteNode: Boolean(state.flows.nodeInBuffer),
   skills: state.skills.installed,
-  library: state.content.library
+  library: state.content.library,
+  contentTypes: state.content.categories
 })
 
 const mapDispatchToProps = {
@@ -818,7 +822,8 @@ const mapDispatchToProps = {
   updateFlowProblems,
   buildSkill: buildNewSkill,
   addElementToLibrary,
-  refreshFlowsLinks
+  refreshFlowsLinks,
+  fetchContentCategories
 }
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps, null, {
