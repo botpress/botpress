@@ -199,11 +199,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
       )
     }
 
-    const fileEndsWithIncorrectHash = (fileName: string) => {
-      const extensionIdx = fileName.lastIndexOf('.')
-      const fileNameWithoutExtension = fileName.slice(0, extensionIdx)
-      return !fileNameWithoutExtension.endsWith(currentHash)
-    }
+    const fileEndsWithIncorrectHash = (fileName: string) => !fileName.includes(currentHash)
 
     const filesToDelete = allCacheFiles
       .filter(fileStartWithPrefix)
