@@ -16,7 +16,7 @@ const WorkflowToolbar = props => {
     }
   ]
 
-  let languesTooltip = lang.tr('module.qna.form.translate')
+  let languesTooltip = lang.tr('translate')
 
   if (languages?.length <= 1) {
     languesTooltip = lang.tr('module.qna.form.onlyOneLanguage')
