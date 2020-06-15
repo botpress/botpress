@@ -1,7 +1,8 @@
 import { Button, Checkbox, FormGroup, IDialogProps, InputGroup } from '@blueprintjs/core'
 import axios from 'axios'
-import { FlowVariable, FlowVariableConfig, FlowVariableParameter } from 'botpress/sdk'
+import { FlowVariable } from 'botpress/sdk'
 import { Dialog, Dropdown, lang, Option } from 'botpress/shared'
+import { FlowVariableConfig, FlowVariableType, FormField } from 'common/typings'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 
 type Props = {
@@ -15,21 +16,21 @@ const boolOptions: Option[] = [
 ]
 
 const VariableModal: FC<Props> = props => {
-  const [variableConfigs, setVariableConfigs] = useState<FlowVariableConfig[]>()
+  const [variableConfigs, setVariableConfigs] = useState<FlowVariableType[]>()
   const [name, setName] = useState<string>()
   const [type, setType] = useState<string>()
   const [params, setParams] = useState<any>()
 
-  const configsOptions = (variableConfigs || []).map<Option>(c => new Option(lang.tr(c.label), c.name))
+  const configsOptions = (variableConfigs || []).map<Option>(c => new Option(lang.tr(c.id), c.id))
   const currentConfigOption = configsOptions.find(o => o.value === type)
-  const currentConfig = (variableConfigs || []).find(c => c.name === type)
-  const normalParams = (currentConfig?.params || []).filter(p => !p.isAdvanced)
-  const advancedParams = (currentConfig?.params || []).filter(p => p.isAdvanced)
+  const currentConfig = (variableConfigs || []).find(c => c.id === type)
+  const fields = currentConfig?.config?.fields || []
 
   useEffect(() => {
     async function fetchVariables() {
       const res = await axios.get(`${window.API_PATH}/modules/variables`)
       setVariableConfigs(res.data)
+      console.log(res.data)
     }
     fetchVariables()
   }, [])
@@ -40,9 +41,9 @@ const VariableModal: FC<Props> = props => {
     setParams(props.variable?.params || {})
   }, [props.variable])
 
-  const setParameter = (param: FlowVariableParameter, value) => {
+  const setParameter = (param: FormField, value) => {
     const newParams = { ...params }
-    newParams[param.name] = value
+    newParams[param.key] = value
     setParams(newParams)
   }
 
@@ -55,33 +56,33 @@ const VariableModal: FC<Props> = props => {
     props.onClose()
   }
 
-  const renderParameter = (param: FlowVariableParameter) => {
-    if (param.control === 'nullableCheckbox') {
+  const renderParameter = (param: FormField) => {
+    if (param.type === 'checkbox') {
       return renderNullableCheckboxParameter(param)
     } else {
       return renderTextboxParameter(param)
     }
   }
 
-  const renderTextboxParameter = (param: FlowVariableParameter) => {
+  const renderTextboxParameter = (param: FormField) => {
     return (
-      <FormGroup key={param.name} label={lang.tr(param.label)}>
-        <InputGroup value={params[param.name] || ''} onChange={x => setParameter(param, x.currentTarget.value)} />
+      <FormGroup key={param.key} label={lang.tr(param.label)}>
+        <InputGroup value={params[param.key] || ''} onChange={x => setParameter(param, x.currentTarget.value)} />
       </FormGroup>
     )
   }
 
-  const renderNullableCheckboxParameter = (param: FlowVariableParameter) => {
-    const currentBoolOption = boolOptions.find(b => b.value === params[param.name]) || boolOptions[0]
+  const renderNullableCheckboxParameter = (param: FormField) => {
+    const currentBoolOption = boolOptions.find(b => b.value === params[param.key]) || boolOptions[0]
     return (
-      <div key={param.name}>
+      <div key={param.key}>
         <Checkbox
-          key={param.name}
-          checked={params[param.name] !== undefined}
+          key={param.key}
+          checked={params[param.key] !== undefined}
           onChange={x => setParameter(param, x.currentTarget.checked ? true : undefined)}
           label={lang.tr(param.label)}
         />
-        {params[param.name] && (
+        {params[param.key] && (
           <Dropdown items={boolOptions} defaultItem={currentBoolOption} onChange={x => setParameter(param, x.value)} />
         )}
       </div>
@@ -98,13 +99,7 @@ const VariableModal: FC<Props> = props => {
           <FormGroup label="Name">
             <InputGroup value={name || ''} onChange={x => setName(x.currentTarget.value)} />
           </FormGroup>
-          {normalParams.map(param => renderParameter(param))}
-          {advancedParams.length > 0 && (
-            <Fragment>
-              <span>Advanced Parameters</span>
-              {advancedParams.map(param => renderParameter(param))}
-            </Fragment>
-          )}
+          {fields.map(param => renderParameter(param))}
         </form>
       </Dialog.Body>
       <Dialog.Footer>

@@ -25,7 +25,11 @@ const VariablesEditor: FC<Props> = props => {
   }
 
   const computeCreateVariable = (flow: FlowView, newVariable: FlowVariable) => {
-    flow.variables.push(newVariable)
+    if (!flow.variables) {
+      flow.variables = [newVariable]
+    } else {
+      flow.variables.push(newVariable)
+    }
   }
 
   const computeDeleteVariable = (flow: FlowView, variableName: string) => {
@@ -40,7 +44,7 @@ const VariablesEditor: FC<Props> = props => {
   const handleCreateClick = async () => {
     const newVariable: FlowVariable = {
       type: 'string',
-      name: `New Variable ${props.currentFlow.variables.length}`,
+      name: `New Variable ${props.currentFlow.variables?.length ?? 0}`,
       description: 'A new variable'
     }
     const flow = props.currentFlow
