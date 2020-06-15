@@ -44,7 +44,7 @@ const ContextSelector: FC<Props> = props => {
       key={ctx}
       onClick={handleClick}
       active={modifiers.active}
-      icon={props.contexts?.indexOf(ctx) ? 'tick' : 'blank'}
+      icon={props.contexts.indexOf(ctx) !== -1 ? 'tick' : 'blank'}
     />
   )
 
