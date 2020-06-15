@@ -1,5 +1,5 @@
 import { IO, Logger } from 'botpress/sdk'
-import { parseActionInstruction } from 'common/action'
+import { extractEventCommonArgs, parseActionInstruction } from 'common/action'
 import { ActionServer } from 'common/typings'
 import ActionServersService from 'core/services/action/action-servers-service'
 import ActionService from 'core/services/action/action-service'
@@ -45,6 +45,14 @@ export class ActionStrategy implements InstructionStrategy {
     }
   }
 
+  public async invokeSendMessage(args: any, contentType: string, event: IO.IncomingEvent) {
+    const eventDestination = _.pick(event, ['channel', 'target', 'botId', 'threadId'])
+    const commonArgs = extractEventCommonArgs(event, args)
+    const renderedElements = await this.cms.renderElement(contentType, commonArgs, eventDestination)
+
+    await this.eventEngine.replyToEvent(eventDestination, renderedElements, event.id)
+  }
+
   private async invokeOutputProcessor(botId, instruction, event: IO.IncomingEvent): Promise<ProcessingResult> {
     const chunks = instruction.fn.split(' ')
     const params = _.slice(chunks, 2).join(' ')
@@ -85,18 +93,7 @@ export class ActionStrategy implements InstructionStrategy {
       event.state.session.lastMessages.push(message)
     }
 
-    args = {
-      ...args,
-      event,
-      user: _.get(event, 'state.user', {}),
-      session: _.get(event, 'state.session', {}),
-      temp: _.get(event, 'state.temp', {}),
-      bot: _.get(event, 'state.bot', {})
-    }
-
-    const eventDestination = _.pick(event, ['channel', 'target', 'botId', 'threadId'])
-    const renderedElements = await this.cms.renderElement(outputType, args, eventDestination)
-    await this.eventEngine.replyToEvent(eventDestination, renderedElements, event.id)
+    await this.invokeSendMessage(args, outputType, event)
 
     return ProcessingResult.none()
   }

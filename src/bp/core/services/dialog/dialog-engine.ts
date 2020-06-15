@@ -12,6 +12,7 @@ import { FlowError, ProcessingError, TimeoutNodeNotFound } from './errors'
 import { FlowService } from './flow/service'
 import { InstructionProcessor } from './instruction/processor'
 import { InstructionQueue } from './instruction/queue'
+import { isPromptEvent, PromptManager } from './prompt-manager'
 import { InstructionsQueueBuilder } from './queue-builder'
 
 const debug = DEBUG('dialog')
@@ -27,12 +28,18 @@ export class DialogEngine {
   constructor(
     @inject(TYPES.FlowService) private flowService: FlowService,
     @inject(TYPES.HookService) private hookService: HookService,
-    @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor
+    @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
+    @inject(TYPES.PromptManager) private promptManager: PromptManager
   ) {}
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent): Promise<IO.IncomingEvent> {
     const botId = event.botId
     await this._loadFlows(botId)
+
+    if (isPromptEvent(event)) {
+      await this.promptManager.processPrompt(event)
+      return event
+    }
 
     const context = _.isEmpty(event.state.context) ? this.initializeContext(event) : event.state.context
     const currentFlow = this._findFlow(botId, context.currentFlow)
@@ -53,6 +60,11 @@ export class DialogEngine {
       if (workflowEnded && workflow) {
         workflow.success = currentNode.type === 'success'
         workflow.status = 'completed'
+      }
+
+      if (currentNode.type === 'prompt') {
+        event.prompt = currentNode.prompt
+        return this.processEvent(sessionId, event)
       }
     }
 
@@ -454,7 +466,7 @@ export class DialogEngine {
 
     const flow = flows.find(x => x.name === flowName)
     if (!flow) {
-      throw new FlowError(`Flow not found."`, botId, flowName)
+      throw new FlowError(`Flow not found: ${flowName}`, botId, flowName)
     }
     return flow
   }
@@ -462,7 +474,7 @@ export class DialogEngine {
   private _findNode(botId: string, flow: FlowView, nodeName: string) {
     const node = flow.nodes && flow.nodes.find(x => x.name === nodeName)
     if (!node) {
-      throw new FlowError(`Node not found.`, botId, flow.name, nodeName)
+      throw new FlowError(`Node not found: ${nodeName}`, botId, flow.name, nodeName)
     }
     return node
   }

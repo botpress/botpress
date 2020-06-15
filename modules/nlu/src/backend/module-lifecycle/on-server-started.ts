@@ -92,7 +92,8 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
         !state.health.isEnabled ||
         !event.preview ||
         EVENTS_TO_IGNORE.includes(event.type) ||
-        event.hasFlag(bp.IO.WellKnownFlags.SKIP_NATIVE_NLU)
+        event.hasFlag(bp.IO.WellKnownFlags.SKIP_NATIVE_NLU) ||
+        event.restored
       ) {
         return next()
       }
