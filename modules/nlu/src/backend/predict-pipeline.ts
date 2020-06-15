@@ -461,6 +461,7 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
           value: e.value
         },
         meta: {
+          sensitive: e.sensitive,
           confidence: e.confidence,
           end: e.endPos,
           source: e.metadata.source,
