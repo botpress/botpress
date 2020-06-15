@@ -1217,27 +1217,6 @@ declare module 'botpress/sdk' {
     params?: any
   }
 
-  export interface FlowVariableConfig {
-    /** Id use by FlowVariable to refer to this FlowVariableConfig */
-    name: string
-    /** Translation key to be used for display */
-    label: string
-    params: FlowVariableParameter[]
-  }
-
-  export interface FlowVariableParameter {
-    /** Key to place in parms of the FlowVariable */
-    name: string
-    /** Translation key to be used for display */
-    label: string
-    /** Type of control to use to enter the parameter */
-    control: string
-    /** Specific settings for the control. Optional. */
-    controlData?: any
-    /** Indicates if this parameter should be placed in the advanced section */
-    isAdvanced?: boolean
-  }
-
   export interface DecisionTriggerCondition {
     id: string
     params?: { [key: string]: any }
@@ -1500,13 +1479,10 @@ declare module 'botpress/sdk' {
 
   export interface BoxedVarConstructable<T> {
     new (ctor: BoxedVarContructor<T>): BoxedVariable<T>
-    /** The internal ID used to represent this variable */
-    type: string
   }
 
   export interface BoxedVariable<T> {
     value: T
-    readonly type?: string
     trySet(value: T, confidence?: number): void
     setRetentionPolicy(nbOfTurns: number): void
     toString(): string
