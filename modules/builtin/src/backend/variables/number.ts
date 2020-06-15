@@ -6,36 +6,48 @@ class BoxedNumber implements BoxedVariable<number> {
   private _value?: number
   private _nbTurns?: number
 
-  constructor({ nbOfTurns, value }: BoxedVarContructor<number | string>) {
-    if (typeof value === 'boolean') {
-      this._value = value
-      this._confidence = 1
+  constructor({ nbOfTurns, value, confidence }: BoxedVarContructor<number>) {
+    if (value) {
+      this._nbTurns = nbOfTurns
+      this.trySet(value, confidence)
+    }
+  }
+
+  get value(): number | undefined {
+    return this._nbTurns !== 0 ? this._value : undefined
+  }
+
+  set value(newValue: number) {
+    this.trySet(newValue, 1)
+  }
+
+  trySet(value: number, confidence: number) {
+    if (typeof value === 'number') {
+      this.value = value
+      this._confidence = confidence
     } else if (typeof value === 'string') {
+      const extracted = (<string>value).replace(/^\D+/g, '')
+      this._value = Number(extracted)
+      this._confidence = confidence * 0.75
+    } else {
       this._value = Number(value)
-      this._confidence = 0.5
+      this._confidence = confidence * 0.5
     }
 
-    this._nbTurns = nbOfTurns
-  }
-
-  get value() {
-    return this._value
-  }
-
-  set value(val) {
-    this._value = val
-  }
-
-  trySet(val: number, confidence: number) {
-    this._value = val
-    this._confidence = confidence
+    if (this._value === undefined) {
+      this._confidence = 0
+    }
   }
 
   setRetentionPolicy(nbOfTurns: number) {
     this._nbTurns = nbOfTurns
   }
 
-  toString() {
+  getConfidence() {
+    return this._confidence
+  }
+
+  toString(customFormat?: string) {
     return this._value.toString()
   }
 

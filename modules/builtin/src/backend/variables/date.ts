@@ -1,4 +1,5 @@
-import { BoxedVariable } from 'botpress/sdk'
+import { BoxedVarContructor, BoxedVariable, FlowVariableConfig } from 'botpress/sdk'
+import { BoxedVarContructor, BoxedVariable } from 'botpress/sdk'
 import { FlowVariableConfig, FlowVariableType } from 'common/typings'
 import moment from 'moment'
 
@@ -10,7 +11,7 @@ class BoxedDate implements BoxedVariable<BoxedDateType> {
   private _confidence: number = 0
 
   // This is the value loaded by the state manager. nbTurns is incremented before the constructor is called
-  constructor({ nbOfTurns, value, confidence }) {
+  constructor({ nbOfTurns, value, confidence }: BoxedVarContructor<BoxedDateType>) {
     if (value) {
       this._nbTurns = nbOfTurns
       this.trySet(value, confidence)
