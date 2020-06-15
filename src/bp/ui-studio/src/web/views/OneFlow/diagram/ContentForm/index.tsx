@@ -31,7 +31,10 @@ const ContentForm: FC<Props> = ({
   const contentType = useRef(formData?.contentType || 'text')
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
-  const contentTypesFields = contentTypes.reduce((acc, type) => ({ ...acc, [type.id]: type.schema.newJson }), {})
+  const contentTypesFields = contentTypes.reduce(
+    (acc, type) => ({ ...acc, [type.schema.newJson.renderType]: type.schema.newJson }),
+    {}
+  )
 
   useEffect(() => {
     contentType.current = formData?.contentType || 'text'
@@ -81,7 +84,7 @@ const ContentForm: FC<Props> = ({
             <Dropdown
               filterable={false}
               className={style.formSelect}
-              items={contentTypes.map(type => ({ value: type.id, label: lang.tr(type.title) }))}
+              items={contentTypes.map(type => ({ value: type.schema.newJson.renderType, label: lang.tr(type.title) }))}
               defaultItem={contentType.current}
               rightIcon="chevron-down"
               confirmChange={
