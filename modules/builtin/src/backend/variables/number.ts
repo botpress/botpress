@@ -44,14 +44,9 @@ class BoxedNumber implements BoxedVariable<number> {
   }
 }
 
-const NumberVariableConfig: FlowVariableConfig = {
-  fields: [],
-  advancedSettings: []
-}
-
 const NumberVariableType: FlowVariableType = {
   id: 'number',
-  config: NumberVariableConfig,
+  config: undefined,
   box: BoxedNumber
 }
 
