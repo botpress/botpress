@@ -31,16 +31,7 @@ const passThroughNodeProps: string[] = [
 export const DIAGRAM_PADDING: number = 100
 
 // Must be identified by the deleteSelectedElement logic to know it needs to delete something
-export const nodeTypes = [
-  'standard',
-  'trigger',
-  'skill-call',
-  'say_something',
-  'execute',
-  'listen',
-  'router',
-  'action'
-]
+export const nodeTypes = ['standard', 'trigger', 'skill-call', 'say_something', 'execute', 'listen', 'router', 'action']
 
 // Using the new node types to prevent displaying start port
 export const newNodeTypes = ['block', 'say_something', 'execute', 'listen', 'router']
