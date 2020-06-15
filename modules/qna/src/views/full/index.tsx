@@ -1,6 +1,6 @@
 import { Spinner } from '@blueprintjs/core'
 import { EmptyState, HeaderButtonProps, lang, MainContent } from 'botpress/shared'
-import { AccessControl, Downloader, reorderFlows } from 'botpress/utils'
+import { Downloader, reorderFlows } from 'botpress/utils'
 import cx from 'classnames'
 import { debounce } from 'lodash'
 import React, { FC, useCallback, useEffect, useReducer, useRef, useState } from 'react'
@@ -196,84 +196,82 @@ const QnAList: FC<Props> = props => {
   const hasFilteredResults = questionSearch.length || filterContexts.length
 
   return (
-    <AccessControl resource="module.qna" operation="write">
-      <MainContent.Wrapper childRef={ref => (wrapperRef.current = ref)}>
-        <MainContent.Header className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
+    <MainContent.Wrapper childRef={ref => (wrapperRef.current = ref)}>
+      <MainContent.Header className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
 
-        <div className={style.searchWrapper}>
-          <input
-            className={style.input}
-            type="text"
-            value={questionSearch}
-            onChange={e => setQuestionSearch(e.currentTarget.value)}
-            placeholder={lang.tr('module.qna.search')}
-          />
-
-          {!isLite && (
-            <ContextSelector
-              className={style.contextInput}
-              contexts={filterContexts}
-              saveContexts={contexts => setFilterContexts(contexts)}
-              bp={bp}
-              isSearch
-            />
-          )}
-        </div>
-        <div className={cx(style.content, { [style.empty]: !items.length })}>
-          {items.map((item, index) => (
-            <QnA
-              updateQnA={data =>
-                debounceDispatchMiddleware(dispatch, {
-                  type: 'updateQnA',
-                  data: { qnaItem: data, index, bp, currentLang }
-                })
-              }
-              bp={bp}
-              isLite={isLite}
-              key={item.key || item.id}
-              flows={flows}
-              defaultLanguage={defaultLanguage}
-              deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp } })}
-              toggleEnabledQnA={() =>
-                dispatchMiddleware(dispatch, { type: 'toggleEnabledQnA', data: { qnaItem: item, index, bp } })
-              }
-              contentLang={currentLang}
-              errorMessages={itemHasError(item, currentLang)}
-              setExpanded={isExpanded =>
-                dispatch({ type: 'toggleExpandOne', data: { [item.key || item.id]: isExpanded } })
-              }
-              expanded={expandedItems[item.key || item.id]}
-              qnaItem={item}
-            />
-          ))}
-          {!items.length && !loading && (
-            <EmptyState
-              icon={<EmptyStateIcon />}
-              text={
-                hasFilteredResults
-                  ? lang.tr('module.qna.form.noResultsFromFilters')
-                  : lang.tr('module.qna.form.emptyState')
-              }
-            />
-          )}
-          {loading && (
-            <Spinner
-              className={cx({ [style.initialLoading]: !fetchMore, [style.loading]: fetchMore })}
-              size={fetchMore ? 20 : 50}
-            />
-          )}
-        </div>
-
-        <Downloader url={url} />
-
-        <ImportModal
-          axios={bp.axios}
-          onImportCompleted={() => fetchData()}
-          isOpen={showImportModal}
-          toggle={() => setShowImportModal(!showImportModal)}
+      <div className={style.searchWrapper}>
+        <input
+          className={style.input}
+          type="text"
+          value={questionSearch}
+          onChange={e => setQuestionSearch(e.currentTarget.value)}
+          placeholder={lang.tr('module.qna.search')}
         />
-      </MainContent.Wrapper>
-    </AccessControl>
+
+        {!isLite && (
+          <ContextSelector
+            className={style.contextInput}
+            contexts={filterContexts}
+            saveContexts={contexts => setFilterContexts(contexts)}
+            bp={bp}
+            isSearch
+          />
+        )}
+      </div>
+      <div className={cx(style.content, { [style.empty]: !items.length })}>
+        {items.map((item, index) => (
+          <QnA
+            updateQnA={data =>
+              debounceDispatchMiddleware(dispatch, {
+                type: 'updateQnA',
+                data: { qnaItem: data, index, bp, currentLang }
+              })
+            }
+            bp={bp}
+            isLite={isLite}
+            key={item.key || item.id}
+            flows={flows}
+            defaultLanguage={defaultLanguage}
+            deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp } })}
+            toggleEnabledQnA={() =>
+              dispatchMiddleware(dispatch, { type: 'toggleEnabledQnA', data: { qnaItem: item, index, bp } })
+            }
+            contentLang={currentLang}
+            errorMessages={itemHasError(item, currentLang)}
+            setExpanded={isExpanded =>
+              dispatch({ type: 'toggleExpandOne', data: { [item.key || item.id]: isExpanded } })
+            }
+            expanded={expandedItems[item.key || item.id]}
+            qnaItem={item}
+          />
+        ))}
+        {!items.length && !loading && (
+          <EmptyState
+            icon={<EmptyStateIcon />}
+            text={
+              hasFilteredResults
+                ? lang.tr('module.qna.form.noResultsFromFilters')
+                : lang.tr('module.qna.form.emptyState')
+            }
+          />
+        )}
+        {loading && (
+          <Spinner
+            className={cx({ [style.initialLoading]: !fetchMore, [style.loading]: fetchMore })}
+            size={fetchMore ? 20 : 50}
+          />
+        )}
+      </div>
+
+      <Downloader url={url} />
+
+      <ImportModal
+        axios={bp.axios}
+        onImportCompleted={() => fetchData()}
+        isOpen={showImportModal}
+        toggle={() => setShowImportModal(!showImportModal)}
+      />
+    </MainContent.Wrapper>
   )
 }
 
