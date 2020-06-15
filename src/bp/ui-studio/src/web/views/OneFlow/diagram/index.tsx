@@ -670,11 +670,11 @@ class Diagram extends Component<Props> {
               topicName: this.props.selectedTopic,
               languages: this.props.languages,
               defaultLanguage: this.props.defaultLanguage,
-              getQnaCountByTopic: () => {
+              refreshQnaCount: () => {
                 // So it's processed on the next tick, otherwise it won't update with the latest update
                 setTimeout(() => {
                   this.props.getQnaCountByTopic()
-                })
+                }, 100)
               }
             }}
           />
@@ -686,7 +686,7 @@ class Diagram extends Component<Props> {
               id="diagramContainer"
               ref={ref => (this.diagramContainer = ref)}
               tabIndex={1}
-              style={{ outline: 'none', width: '100%', height: 'calc(100% - 28px)' }}
+              className={style.diagramContainer}
               onContextMenu={this.handleContextMenu}
               onDrop={this.handleToolDropped}
               onDragOver={event => event.preventDefault()}
