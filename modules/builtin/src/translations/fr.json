@@ -62,7 +62,7 @@
     "text": {
       "add": "Ajouter une alternative",
       "alternative": "Alternative",
-      "alternatives": "Alternatives",
+      "alternative_plural": "Alternatives",
       "alternativeLabel": "Texte",
       "delete": "Supprimer l'alternative",
       "description": "Un texte régulier",

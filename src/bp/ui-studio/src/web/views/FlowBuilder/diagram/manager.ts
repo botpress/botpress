@@ -32,7 +32,6 @@ export const DIAGRAM_PADDING: number = 100
 
 // Must be identified by the deleteSelectedElement logic to know it needs to delete something
 export const nodeTypes = [
-  'block',
   'standard',
   'trigger',
   'skill-call',

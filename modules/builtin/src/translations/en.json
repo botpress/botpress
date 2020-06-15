@@ -62,7 +62,7 @@
     "text": {
       "add": "Add Text Alternatives",
       "alternative": "Alternative",
-      "alternatives": "Alternatives",
+      "alternative_plural": "Alternatives",
       "alternativeLabel": "Text",
       "delete": "Delete Alternative",
       "description": "A regular text message with optional typing indicators and alternates",
