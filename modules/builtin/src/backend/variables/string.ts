@@ -27,15 +27,15 @@ class BoxedString implements BoxedVariable<string> {
   }
 
   trySet(value: string, confidence: number) {
-    try {
-      if (typeof value === 'string') {
-        this._value = value
-        this._confidence = confidence
-      } else {
-        this._value = String(value)
-        this._confidence = 0.5
-      }
-    } catch {
+    if (typeof value === 'string') {
+      this._value = value
+      this._confidence = confidence
+    } else {
+      this._value = String(value)
+      this._confidence = 0.5 * confidence
+    }
+
+    if (this.value === undefined) {
       this._confidence = 0
     }
   }

@@ -18,7 +18,7 @@ class BoxedNumber implements BoxedVariable<number> {
     }
   }
 
-  get value(): number {
+  get value(): number | undefined {
     return this._nbTurns !== 0 ? this._value : undefined
   }
 
@@ -27,15 +27,19 @@ class BoxedNumber implements BoxedVariable<number> {
   }
 
   trySet(value: number, confidence: number) {
-    try {
-      if (typeof value === 'number') {
-        this._value = value
-        this._confidence = confidence
-      } else {
-        this._value = Number(value)
-        this._confidence = 0.5
-      }
-    } catch {
+    if (typeof value === 'number') {
+      this.value = value
+      this._confidence = confidence
+    } else if (typeof value === 'string') {
+      const extracted = (<string>value).replace(/^\D+/g, '')
+      this._value = Number(extracted)
+      this._confidence = confidence * 0.75
+    } else {
+      this._value = Number(value)
+      this._confidence = confidence * 0.5
+    }
+
+    if (this._value === undefined) {
       this._confidence = 0
     }
   }
@@ -48,7 +52,7 @@ class BoxedNumber implements BoxedVariable<number> {
     return this._confidence
   }
 
-  toString() {
+  toString(customFormat?: string) {
     return this._value.toString()
   }
 

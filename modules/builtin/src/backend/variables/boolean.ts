@@ -1,4 +1,5 @@
 import { BoxedVarContructor, BoxedVariable, FlowVariableConfig } from 'botpress/sdk'
+import yn from 'yn'
 
 class BoxedBoolean implements BoxedVariable<boolean> {
   public static type = 'boolean'
@@ -24,7 +25,7 @@ class BoxedBoolean implements BoxedVariable<boolean> {
     }
   }
 
-  get value(): boolean {
+  get value(): boolean | undefined {
     return this._nbTurns !== 0 ? this._value : undefined
   }
 
@@ -33,15 +34,15 @@ class BoxedBoolean implements BoxedVariable<boolean> {
   }
 
   trySet(value: boolean, confidence: number) {
-    try {
-      if (typeof value === 'boolean') {
-        this._value = value
-        this._confidence = confidence
-      } else {
-        this._value = Boolean(value)
-        this._confidence = 0.5
-      }
-    } catch {
+    if (typeof value === 'boolean') {
+      this.value = value
+      this._confidence = confidence
+    } else {
+      this._value = yn(value)
+      this._confidence = 0.5 * confidence
+    }
+
+    if (this._value === undefined) {
       this._confidence = 0
     }
   }
@@ -54,8 +55,12 @@ class BoxedBoolean implements BoxedVariable<boolean> {
     return this._confidence
   }
 
-  toString() {
-    return this._value.toString()
+  toString(customFormat?: string) {
+    if (customFormat === 'y/n') {
+      return this._value ? 'Yes' : 'No'
+    } else {
+      return this._value.toString()
+    }
   }
 
   unbox() {
