@@ -3,11 +3,11 @@ import React, { FC, useEffect, useState } from 'react'
 import style from '../style.scss'
 import { FieldProps } from '../typings'
 
-interface TextPorps extends FieldProps {
+interface TextProps extends FieldProps {
   type: string
 }
 
-const Text: FC<TextPorps> = ({ onBlur, onChange, placeholder, type, value }) => {
+const Text: FC<TextProps> = ({ onBlur, onChange, placeholder, type, value }) => {
   const [localValue, setLocalValue] = useState(value || '')
 
   useEffect(() => {

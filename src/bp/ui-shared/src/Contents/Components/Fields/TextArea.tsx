@@ -15,7 +15,6 @@ const TextArea: FC<FieldProps> = ({ onBlur, onChange, placeholder, value }) => {
     <Textarea
       className={style.textarea}
       placeholder={placeholder}
-      rows={1}
       onChange={value => {
         onChange?.(value)
         setLocalValue(value)

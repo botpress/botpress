@@ -34,12 +34,10 @@ async function migrateFlow(
     }
 
     const element = contentMap[contentId]
-    n.contents = [
-      {
-        contentType: contentId.substring(0, contentId.lastIndexOf('-')),
-        formData: element.formData
-      }
-    ]
+    n.content = {
+      contentType: contentId.substring(0, contentId.lastIndexOf('-')),
+      formData: element.formData
+    }
     n.onEnter = []
   }
   return flow
