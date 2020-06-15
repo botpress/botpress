@@ -136,6 +136,7 @@ declare module 'botpress/sdk' {
     translations?: { [lang: string]: object }
     /** List of new conditions that the module can register */
     dialogConditions?: Condition[]
+    prompts?: PromptDefinition[]
     /** Called once the core is initialized. Usually for middlewares / database init */
     onServerStarted?: (bp: typeof import('botpress/sdk')) => Promise<void>
     /** This is called once all modules are initialized, usually for routing and logic */
@@ -1494,12 +1495,19 @@ declare module 'botpress/sdk' {
     asChatUser?: boolean
   }
 
+  export interface PromptDefinition {
+    id: string
+    config: PromptConfig
+    prompt: PromptConstructable<Prompt>
+  }
+
   /** The configuration of the prompt which is saved on the flow */
   export interface PromptConfig {
     /** An ID used internally to refer to this prompt */
     type: string
     /** The label displayed in the studio */
     label?: string
+    icon?: string
     /** The ID representing the type of value that is collected by this prompt */
     valueType?: string
     /** A list of ID represented by the type of values collected by this prompt */
@@ -1548,8 +1556,6 @@ declare module 'botpress/sdk' {
 
   export interface PromptConstructable<T> {
     new (ctor: any): Prompt
-    /** The internal ID used to represent this variable */
-    config: PromptConfig
   }
 
   ////////////////

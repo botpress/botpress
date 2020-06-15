@@ -2,16 +2,6 @@ import { IO, Prompt, PromptConfig } from 'botpress/sdk'
 import moment from 'moment'
 
 class PromptDate implements Prompt {
-  public static config: PromptConfig = {
-    type: 'date',
-    label: 'Date',
-    valueType: 'date',
-    params: {
-      mustBePast: { label: 'The date must be in the past', type: 'boolean' },
-      mustBeFuture: { label: 'The date must be in the future', type: 'boolean' }
-    }
-  }
-
   private _mustBePast: boolean
   private _mustBeFuture: boolean
 
@@ -53,4 +43,14 @@ class PromptDate implements Prompt {
   }
 }
 
-export default PromptDate
+const config: PromptConfig = {
+  type: 'date',
+  label: 'Date',
+  valueType: 'date',
+  params: {
+    mustBePast: { label: 'The date must be in the past', type: 'boolean' },
+    mustBeFuture: { label: 'The date must be in the future', type: 'boolean' }
+  }
+}
+
+export default { id: 'date', config, prompt: PromptDate }

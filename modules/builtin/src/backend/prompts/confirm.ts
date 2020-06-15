@@ -4,17 +4,6 @@ import { extractEventCommonArgs } from 'common/action'
 import yn from 'yn'
 
 class PromptConfirm implements Prompt {
-  public static config: PromptConfig = {
-    type: 'confirm',
-    label: 'Confirm',
-    valueType: 'boolean',
-    minConfidence: 1,
-    noValidation: true,
-    params: {
-      question: { label: 'Question to ask to user', type: 'string' }
-    }
-  }
-
   private _question: string
 
   constructor({ question }) {
@@ -56,4 +45,15 @@ class PromptConfirm implements Prompt {
   }
 }
 
-export default PromptConfirm
+const config: PromptConfig = {
+  type: 'confirm',
+  label: 'Confirm',
+  valueType: 'boolean',
+  minConfidence: 1,
+  noValidation: true,
+  params: {
+    question: { label: 'Question to ask to user', type: 'string' }
+  }
+}
+
+export default { id: 'confirm', config, prompt: PromptConfirm }

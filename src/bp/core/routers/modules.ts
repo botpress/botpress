@@ -157,6 +157,14 @@ export class ModulesRouter extends CustomRouter {
         res.send(await this.moduleLoader.getTranslations())
       })
     )
+
+    this.router.get(
+      '/prompts',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req, res) => {
+        res.send(await this.moduleLoader.getPrompts())
+      })
+    )
   }
 
   private async _findModule(moduleName: string): Promise<ModuleInfo> {
