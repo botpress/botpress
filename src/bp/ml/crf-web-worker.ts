@@ -1,13 +1,15 @@
-import * as sdk from 'botpress/sdk'
 import nanoid from 'nanoid'
+import * as sdk from 'botpress/sdk'
+import crfsuite, { Trainer as CRFTrainer, Options } from './crfsuite'
 
-import addon, { Tagger as AddonTagger, Trainer as AddonTrainer, Options } from './addon'
-
-export class Trainer implements Omit<AddonTrainer, 'train'>, sdk.MLToolkit.CRF.Trainer {
-  private crfsuite_addon: AddonTrainer
+/**
+ * This is only a wrapper class over the binding to respect the sdk interface
+ */
+export class WebWorkerCrfTrainer implements Omit<CRFTrainer, 'train'>, sdk.MLToolkit.CRF.Trainer {
+  private crfsuite_addon: CRFTrainer
 
   constructor() {
-    this.crfsuite_addon = new addon.Trainer({ debug: true })
+    this.crfsuite_addon = new crfsuite.Trainer({ debug: true })
   }
 
   append(xseq: string[][], yseq: string[]): void {
@@ -49,29 +51,5 @@ export class Trainer implements Omit<AddonTrainer, 'train'>, sdk.MLToolkit.CRF.T
       process.on('message', messageHandler)
     })
     return ret as Promise<string> // Bluebird promise to promise does not build...
-  }
-
-  trainFromFile(filePath: string) {
-    return this.crfsuite_addon.train(filePath)
-  }
-}
-
-export class Tagger implements sdk.MLToolkit.CRF.Tagger {
-  private crfsuite_addon: AddonTagger
-
-  constructor() {
-    this.crfsuite_addon = new addon.Tagger()
-  }
-
-  tag(xseq: string[][]): { probability: number; result: string[] } {
-    return this.crfsuite_addon.tag(xseq)
-  }
-
-  open(model_filename: string): boolean {
-    return this.crfsuite_addon.open(model_filename)
-  }
-
-  marginal(xseq: string[][]): { [label: string]: number }[] {
-    return this.crfsuite_addon.marginal(xseq)
   }
 }

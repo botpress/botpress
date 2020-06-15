@@ -6,12 +6,13 @@ import nanoid from 'nanoid'
 import tmp from 'tmp'
 
 import { registerMsgHandler, spawnMLWorkers, WORKER_TYPES } from '../cluster'
-import { Tagger, Trainer as CRFTrainer } from './crf-js'
+import crfsuite from './crfsuite'
 import { FastTextModel } from './fasttext'
 import computeJaroWinklerDistance from './homebrew/jaro-winkler'
 import computeLevenshteinDistance from './homebrew/levenshtein'
 import { processor } from './sentencepiece'
 import { Predictor, Trainer as SVMTrainer } from './svm'
+import { WebWorkerCrfTrainer } from './crf-web-worker'
 
 type MsgType = 'svm_train' | 'svm_progress' | 'svm_done' | 'svm_error' | 'crf_train' | 'crf_done' | 'crf_error'
 
@@ -30,8 +31,8 @@ const MLToolkit: typeof sdk.MLToolkit = {
     kmeans
   },
   CRF: {
-    createTagger: () => new Tagger(),
-    createTrainer: () => new CRFTrainer()
+    createTagger: () => new crfsuite.Tagger(),
+    createTrainer: () => new WebWorkerCrfTrainer()
   },
   SVM: {
     Predictor,
@@ -107,7 +108,7 @@ if (cluster.isWorker) {
 
       if (msg.type === 'crf_train') {
         const debugTrain = DEBUG('nlu').sub('training')
-        const trainer = new CRFTrainer()
+        const trainer = new crfsuite.Trainer()
 
         try {
           trainer.set_params(msg.payload.params)

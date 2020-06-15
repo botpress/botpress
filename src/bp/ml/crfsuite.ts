@@ -9,7 +9,7 @@ type BindingType = {
   Trainer: TrainerCtor
 }
 
-export declare class Tagger {
+export interface Tagger {
   tag(xseq: Array<string[]>): { probability: number; result: string[] }
   open(model_filename: string): boolean
   marginal(xseq: Array<string[]>): { [key: string]: number }[]
@@ -24,8 +24,7 @@ export interface TrainerOptions {
   debug?: boolean
 }
 
-export declare class Trainer {
-  constructor(opts?: TrainerOptions)
+export interface Trainer {
   append(xseq: Array<string[]>, yseq: string[]): void
   train(model_filename: string): number
   train_async(model_filename: string, cb: (s: string) => void): Promise<number>
