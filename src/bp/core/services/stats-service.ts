@@ -46,7 +46,7 @@ export class StatsService {
 
   public start() {
     const telemetry1 = 'https://telemetry.botpress.io/ingest'
-    const telemetry2 = 'http://telemetry.botpress.dev'
+    const telemetry2 = 'https://telemetry.botpress.dev'
 
     // tslint:disable-next-line: no-floating-promises
     this.run(this.getStats.bind(this), LOCK_RESOURCE, JOB_INTERVAL, `${telemetry1}`)
@@ -74,6 +74,7 @@ export class StatsService {
     if (lock) {
       debug('Acquired lock')
       const stats = await job()
+      await this.sendStats(url, stats)
       await this.sendStats(url, stats)
     }
   }
@@ -289,49 +290,19 @@ export class StatsService {
   }
 
   private parseFlow(flow) {
-    flow.actions = flow.actions.map(node => [node[0].split('/')[1], JSON.parse(node[1])])
+    flow.actions = flow.actions.map(node => {
+      const actionName = node[0].split('/')[1]
+      const params = JSON.parse(node[1])
 
-    flow.actions.forEach(action => {
-      for (const key in action[1]) {
-        action[1][key] = action[1][key] ? 1 : 0
+      for (const [key] of Object.keys(params)) {
+        params[key] = !!params[key] ? 1 : 0
       }
+      return { actionName: actionName, params: params }
     })
 
-    const actionsPayload = {}
-
-    flow.actions.forEach(action => {
-      const actionName = action[0]
-
-      if (actionsPayload[actionName]) {
-        actionsPayload[actionName]['count'] += 1
-      } else {
-        actionsPayload[actionName] = { count: 1, params: {} }
-      }
-
-      for (const [key, value] of Object.entries(action[1])) {
-        actionsPayload[action[0]].params[key] = actionsPayload[action[0]].params[key]
-          ? (actionsPayload[action[0]].params[key] += value)
-          : value
-      }
-    })
-
-    flow.actions = actionsPayload
     flow.flowName = this.calculateHash(flow.flowName)
     flow.botID = this.calculateHash(flow.botID)
 
     return flow
   }
-
-  // private async getEmptyActionsPayload() {
-  //   const actions = await this.ghostService.global().directoryListing('actions', '*.js')
-  //   const actionsPayload = {}
-
-  //   actions.forEach(action => {
-  //     const actionNameList = action.split('/')
-  //     const actionName = actionNameList[actionNameList.length - 1].split('.')[0]
-  //     actionsPayload[actionName] = { count: 0, params: {} }
-  //   })
-
-  //   return actionsPayload
-  // }
 }
