@@ -33,6 +33,7 @@ const VariableModal: FC<Props> = props => {
       const res = await axios.get(`${window.API_PATH}/modules/variables`)
       setVariableConfigs(res.data)
     }
+    // tslint:disable-next-line: no-floating-promises
     fetchVariables()
   }, [])
 
