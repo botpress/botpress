@@ -112,7 +112,7 @@ const ContentForm: FC<Props> = ({
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
             formData={formData}
-            contentType={renderTypes[contentType.current]}
+            renderType={renderTypes[contentType.current]}
             onUpdate={data =>
               onUpdate({ ...data, renderType: renderTypes[contentType.current], contentType: contentType.current })
             }
