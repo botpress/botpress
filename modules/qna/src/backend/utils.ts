@@ -40,7 +40,7 @@ export const getQnaEntryPayloads = async (
     collectFeedback: true
   }
 
-  if (qnaEntry.answers[lang].length > 0) {
+  if (qnaEntry.answers && qnaEntry.answers[lang]?.length > 0) {
     const electedAnswer = getRandomAnswer(qnaEntry.answers[lang])
     const textArgs = { ...args }
 
@@ -61,22 +61,24 @@ export const getQnaEntryPayloads = async (
     )
   }
 
-  for (const contentAnswer of qnaEntry.contentAnswers[lang]) {
-    renderer = `#${contentAnswer.contentType}`
-    const contentArgs = {
-      ...args,
-      ...contentAnswer,
-      typing: payloads.length === 0
-    }
+  if (qnaEntry.contentAnswers) {
+    for (const contentAnswer of qnaEntry.contentAnswers[lang]) {
+      renderer = `#${contentAnswer.contentType}`
+      const contentArgs = {
+        ...args,
+        ...contentAnswer,
+        typing: payloads.length === 0
+      }
 
-    payloads.push(
-      ...(await bp.cms.renderElement(renderer, contentArgs, {
-        botId: event.botId,
-        channel: event.channel,
-        target: event.target,
-        threadId: event.threadId
-      }))
-    )
+      payloads.push(
+        ...(await bp.cms.renderElement(renderer, contentArgs, {
+          botId: event.botId,
+          channel: event.channel,
+          target: event.target,
+          threadId: event.threadId
+        }))
+      )
+    }
   }
 
   return payloads
