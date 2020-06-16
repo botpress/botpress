@@ -141,9 +141,7 @@ export class PromptManager {
     if (status.extracted) {
       debugPrompt('successfully extracted!', status.value)
 
-      // TODO save the variable
-      //  event.state.setVariable(node.output, highest.extracted, valueType!)
-
+      event.state.setVariable(node.output, highest.extracted, node.type)
       await this._continueOriginalEvent(event)
     }
   }
