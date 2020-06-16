@@ -20,6 +20,7 @@
     "@types/slate": "^0.47.1",
     "@types/slate-react": "^0.22.5",
     "@types/tar": "^4.0.3",
+    "@types/semver": "^7.2.0",
     "rimraf": "^3.0.2"
   },
   "dependencies": {
@@ -39,6 +40,7 @@
     "ms": "^2.1.1",
     "nanoid": "^2.0.1",
     "object-sizeof": "^1.5.2",
+    "semver": "^7.3.2",
     "seedrandom": "^3.0.5",
     "slate": "^0.47.4",
     "slate-react": "^0.22.4",
