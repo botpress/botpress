@@ -20,6 +20,8 @@ export const initializeLanguageProvider = async (bp: typeof sdk, state: NLUState
 
   try {
     const languageProvider = await LangProvider.initialize(globalConfig.languageSources, bp.logger, state)
+    state.langServerInfo = languageProvider.langServerInfo
+
     const { validProvidersCount, validLanguages } = languageProvider.getHealth()
     const health = {
       isEnabled: validProvidersCount > 0 && validLanguages.length > 0,
