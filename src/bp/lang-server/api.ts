@@ -24,6 +24,7 @@ import {
 } from './util'
 
 export type APIOptions = {
+  version: string
   host: string
   port: number
   authToken?: string
@@ -91,7 +92,7 @@ export default async function(
 
   app.get('/info', (req, res) => {
     res.send({
-      version: '1',
+      version: options.version,
       ready: languageService.isReady,
       dimentions: languageService.dim,
       domain: languageService.domain,

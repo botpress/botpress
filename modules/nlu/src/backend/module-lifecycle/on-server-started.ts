@@ -1,6 +1,7 @@
 import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
+import semver from 'semver'
 
 import { Config } from '../../config'
 import Engine from '../engine'
@@ -12,11 +13,13 @@ import { InvalidLanguagePredictorError } from '../predict-pipeline'
 import { removeTrainingSession, setTrainingSession } from '../train-session-service'
 import { NLUState, Token2Vec, Tools, TrainingSession } from '../typings'
 
+import nluInfo from '../../../package.json'
+
 export const initializeLanguageProvider = async (bp: typeof sdk, state: NLUState) => {
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
 
   try {
-    const languageProvider = await LangProvider.initialize(globalConfig.languageSources, bp.logger)
+    const languageProvider = await LangProvider.initialize(globalConfig.languageSources, bp.logger, state)
     const { validProvidersCount, validLanguages } = languageProvider.getHealth()
     const health = {
       isEnabled: validProvidersCount > 0 && validLanguages.length > 0,
@@ -142,8 +145,18 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
   }
 }
 
+function setNluVersion(bp: typeof sdk, state: NLUState) {
+  if (!semver.valid(nluInfo.version)) {
+    bp.logger.error('nlu package.json file has an incorrect version format')
+    return
+  }
+
+  state.nluVersion = semver.clean(nluInfo.version)
+}
+
 export function getOnSeverStarted(state: NLUState) {
   return async (bp: typeof sdk) => {
+    setNluVersion(bp, state)
     await initDucklingExtractor(bp)
     await initializeLanguageProvider(bp, state)
     initializeEngine(bp, state)

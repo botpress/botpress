@@ -8,10 +8,21 @@ import lru from 'lru-cache'
 import moment from 'moment'
 import ms from 'ms'
 import path from 'path'
+import crypto from 'crypto'
+import semver from 'semver'
 
 import { setSimilarity, vocabNGram } from '../tools/strings'
 import { isSpace, processUtteranceTokens, restoreOriginalUtteranceCasing } from '../tools/token-utils'
-import { Gateway, LangsGateway, LanguageProvider, LanguageSource, NLUHealth, Token2Vec } from '../typings'
+import {
+  Gateway,
+  LangsGateway,
+  LanguageProvider,
+  LanguageSource,
+  NLUHealth,
+  Token2Vec,
+  NLUState,
+  LangServerInfo
+} from '../typings'
 
 const debug = DEBUG('nlu').sub('lang')
 
@@ -20,10 +31,15 @@ const JUNK_VOCAB_SIZE = 500
 const JUNK_TOKEN_MIN = 1
 const JUNK_TOKEN_MAX = 20
 
+const VECTOR_FILE_PREFIX = 'lang_vectors'
+const TOKEN_FILE_PREFIX = 'utterance_tokens'
+const JUNK_FILE_PREFIX = 'junk_words'
+
 export class RemoteLanguageProvider implements LanguageProvider {
-  private _vectorsCachePath = path.join(process.APP_DATA_PATH, 'cache', 'lang_vectors.json')
-  private _junkwordsCachePath = path.join(process.APP_DATA_PATH, 'cache', 'junk_words.json')
-  private _tokensCachePath = path.join(process.APP_DATA_PATH, 'cache', 'utterance_tokens.json')
+  private _cacheDir = path.join(process.APP_DATA_PATH, 'cache')
+  private _vectorsCachePath: string
+  private _junkwordsCachePath: string
+  private _tokensCachePath: string
 
   private _vectorsCache: lru<string, Float32Array>
   private _tokensCache: lru<string, string[]>
@@ -32,6 +48,8 @@ export class RemoteLanguageProvider implements LanguageProvider {
   private _cacheDumpDisabled: boolean = false
   private _validProvidersCount: number
   private _languageDims: number
+
+  private _state: NLUState
 
   private discoveryRetryPolicy = {
     interval: 1000,
@@ -51,7 +69,8 @@ export class RemoteLanguageProvider implements LanguageProvider {
     debug(`[${lang.toUpperCase()}] Language Provider added %o`, source)
   }
 
-  async initialize(sources: LanguageSource[], logger: typeof sdk.logger): Promise<LanguageProvider> {
+  async initialize(sources: LanguageSource[], logger: typeof sdk.logger, state: NLUState): Promise<LanguageProvider> {
+    this._state = state
     this._validProvidersCount = 0
 
     this._vectorsCache = new lru<string, Float32Array>({
@@ -115,16 +134,22 @@ export class RemoteLanguageProvider implements LanguageProvider {
             this._languageDims = data.dimentions // note typo in language server
           }
 
+          // TODO: also check that the domain and version is consistent across all sources
           if (this._languageDims !== data.dimentions) {
             throw new Error('Language sources have different dimensions')
           }
           this._validProvidersCount++
           data.languages.forEach(x => this.addProvider(x.lang, source, client))
+
+          this.extractLangServerInfo(data)
         }, this.discoveryRetryPolicy)
       } catch (err) {
         this.handleLanguageServerError(err, source.endpoint, logger)
       }
     })
+
+    this.computeCacheFilesPaths()
+    await this.clearOldCacheFiles()
 
     debug(`loaded ${Object.keys(this.langs).length} languages from ${sources.length} sources`)
 
@@ -133,6 +158,58 @@ export class RemoteLanguageProvider implements LanguageProvider {
     await this.restoreTokensCache()
 
     return this
+  }
+
+  private extractLangServerInfo(data) {
+    const version = semver.valid(semver.coerce(data.version))
+
+    if (!version) {
+      throw new Error('Lang server has an invalid version')
+    }
+    const langServerInfo: LangServerInfo = {
+      version: semver.clean(version),
+      dim: data.dimentions,
+      domain: data.domain
+    }
+
+    this._state = { ...this._state, langServerInfo }
+  }
+
+  private computeCacheFilesPaths = () => {
+    const versionHash = this.computeVersionHash()
+    this._vectorsCachePath = path.join(this._cacheDir, `${VECTOR_FILE_PREFIX}_${versionHash}.json`)
+    this._junkwordsCachePath = path.join(this._cacheDir, `${JUNK_FILE_PREFIX}_${versionHash}.json`)
+    this._tokensCachePath = path.join(this._cacheDir, `${TOKEN_FILE_PREFIX}_${versionHash}.json`)
+  }
+
+  private clearOldCacheFiles = async () => {
+    const cacheExists = await fse.pathExists(this._cacheDir)
+    if (!cacheExists) {
+      return
+    }
+
+    const allCacheFiles = await fse.readdir(this._cacheDir)
+
+    const currentHash = this.computeVersionHash()
+
+    const fileStartWithPrefix = (fileName: string) => {
+      return (
+        fileName.startsWith(VECTOR_FILE_PREFIX) ||
+        fileName.startsWith(TOKEN_FILE_PREFIX) ||
+        fileName.startsWith(JUNK_FILE_PREFIX)
+      )
+    }
+
+    const fileEndsWithIncorrectHash = (fileName: string) => !fileName.includes(currentHash)
+
+    const filesToDelete = allCacheFiles
+      .filter(fileStartWithPrefix)
+      .filter(fileEndsWithIncorrectHash)
+      .map(f => path.join(this._cacheDir, f))
+
+    for (const f of filesToDelete) {
+      await fse.unlink(f)
+    }
   }
 
   private handleLanguageServerError = (err, endpoint: string, logger) => {
@@ -437,6 +514,18 @@ export class RemoteLanguageProvider implements LanguageProvider {
 
     // we restore original chars and casing
     return tokenUtterances.map((tokens, i) => restoreOriginalUtteranceCasing(tokens, utterances[i]))
+  }
+
+  private computeVersionHash = () => {
+    const { nluVersion, langServerInfo } = this._state
+    const { dim, domain, version: langServerVersion } = langServerInfo
+
+    const omitPatchNumber = (v: string) => `${semver.major(v)}.${semver.minor(v)}.0`
+    const hashContent = `${omitPatchNumber(nluVersion)}:${omitPatchNumber(langServerVersion)}:${dim}:${domain}`
+    return crypto
+      .createHash('md5')
+      .update(hashContent)
+      .digest('hex')
   }
 }
 
