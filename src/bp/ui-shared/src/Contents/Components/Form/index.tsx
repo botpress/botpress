@@ -48,7 +48,7 @@ const formReducer = (state, action) => {
       const { key, index } = parent
       const updatedItem = state[key]
 
-      updatedItem[index][field] = [...updatedItem[index][field], newData]
+      updatedItem[index][field] = [...(updatedItem[index][field] || []), newData]
 
       return {
         ...state,
@@ -58,7 +58,7 @@ const formReducer = (state, action) => {
 
     return {
       ...state,
-      [field]: [...state[field], newData]
+      [field]: [...(state[field] || []), newData]
     }
   } else if (action.type === 'deleteGroupItem') {
     const { deleteIndex, field, onUpdate, parent } = action.data
@@ -143,8 +143,8 @@ const formReducer = (state, action) => {
   }
 }
 
-const Form: FC<FormProps> = ({ bp, customFields, contentType, formData, fields, advancedSettings, onUpdate }) => {
-  const newFormData = getEmptyFormData(contentType || 'image')
+const Form: FC<FormProps> = ({ bp, customFields, renderType, formData, fields, advancedSettings, onUpdate }) => {
+  const newFormData = getEmptyFormData(renderType || 'image')
   const [state, dispatch] = useReducer(formReducer, newFormData)
 
   useEffect(() => {

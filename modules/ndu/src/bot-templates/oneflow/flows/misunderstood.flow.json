@@ -50,7 +50,8 @@
       "type": "say_something",
       "contents": [
         {
-          "contentType": "text",
+          "contentType": "builtin_text",
+          "renderType": "text",
           "markdown": true,
           "typing": true,
           "en": {

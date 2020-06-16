@@ -22,7 +22,7 @@ const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active }) => {
   }
 
   const renderContent = (): JSX.Element | string => {
-    switch (content.contentType) {
+    switch (content.renderType) {
       case 'image':
       case 'card':
         return renderCardOrImg(content)
@@ -30,7 +30,7 @@ const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active }) => {
         return renderCardOrImg(content.items?.[0] || {})
       case 'suggestions':
         return (
-          <Dotdotdot clamp={3}>{(content.choices as FormData[]).map(choice => choice.title).join(' · ')}</Dotdotdot>
+          <Dotdotdot clamp={3}>{(content.choices as FormData[])?.map(choice => choice.title).join(' · ')}</Dotdotdot>
         )
       default:
         const variationsCount = (content.variations as FormData[])?.filter(Boolean)?.length
@@ -53,7 +53,7 @@ const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active }) => {
     <button
       className={cx('content-wrapper', style.contentWrapper, {
         [`${style.active} active`]: active,
-        [style.carousel]: content.contentType === 'carousel'
+        [style.carousel]: content.renderType === 'carousel'
       })}
       onClick={onEdit}
     >

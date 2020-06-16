@@ -1,7 +1,7 @@
 import { FormData } from 'common/typings'
 
-export const getEmptyFormData = (contentType: string, isPartOfGroup = false): FormData => {
-  switch (contentType) {
+export const getEmptyFormData = (renderType: string, isPartOfGroup = false): FormData => {
+  switch (renderType) {
     case 'image':
       return {
         markdown: true,

@@ -29,16 +29,14 @@ const ContentForm: FC<Props> = ({
   deleteContent
 }) => {
   const [isConfirming, setIsConfirming] = useState(false)
-  const contentType = useRef(formData?.contentType || 'text')
+  const contentType = useRef(formData?.contentType || 'builtin_text')
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
-  const contentTypesFields = contentTypes.reduce(
-    (acc, type) => ({ ...acc, [type.schema.newJson.renderType]: type.schema.newJson }),
-    {}
-  )
+  const renderTypes = contentTypes.reduce((acc, type) => ({ ...acc, [type.id]: type.schema.newJson.renderType }), {})
+  const contentTypesFields = contentTypes.reduce((acc, type) => ({ ...acc, [type.id]: type.schema.newJson }), {})
 
   useEffect(() => {
-    contentType.current = formData?.contentType || 'text'
+    contentType.current = formData?.contentType || 'builtin_text'
     setForceUpdate(!forceUpdate)
   }, [editingContent, customKey])
 
@@ -52,20 +50,28 @@ const ContentForm: FC<Props> = ({
 
   const handleContentTypeChange = value => {
     contentType.current = value
-    onUpdate({ ...Contents.getEmptyFormData(value), contentType: value, id: formData?.id })
+    onUpdate({
+      ...Contents.getEmptyFormData(renderTypes[value]),
+      renderType: renderTypes[value],
+      contentType: value,
+      id: formData?.id
+    })
   }
 
   const contentFields = contentTypesFields?.[contentType.current]
+  const renderType = renderTypes[contentType.current]
 
   const hasChanged = !(
-    _.isEqual(formData, { contentType: contentType.current }) ||
+    _.isEqual(formData, { contentType: contentType.current, renderType }) ||
     _.isEqual(formData, {
-      ...Contents.getEmptyFormData(contentType.current),
-      contentType: contentType.current
+      ...Contents.getEmptyFormData(renderType),
+      contentType: contentType.current,
+      renderType
     }) ||
     _.isEqual(formData, {
-      ...Contents.getEmptyFormData(contentType.current),
+      ...Contents.getEmptyFormData(renderType),
       contentType: contentType.current,
+      renderType,
       id: formData?.id
     })
   )
@@ -85,7 +91,7 @@ const ContentForm: FC<Props> = ({
             <Dropdown
               filterable={false}
               className={style.formSelect}
-              items={contentTypes.map(type => ({ value: type.schema.newJson.renderType, label: lang.tr(type.title) }))}
+              items={contentTypes.map(type => ({ value: type.id, label: lang.tr(type.title) }))}
               defaultItem={contentType.current}
               rightIcon="chevron-down"
               confirmChange={
@@ -110,8 +116,10 @@ const ContentForm: FC<Props> = ({
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
             formData={formData}
-            contentType={contentType.current}
-            onUpdate={data => onUpdate({ ...data, contentType: contentType.current })}
+            contentType={renderTypes[contentType.current]}
+            onUpdate={data =>
+              onUpdate({ ...data, renderType: renderTypes[contentType.current], contentType: contentType.current })
+            }
           />
         )}
       </Fragment>
