@@ -1,3 +1,5 @@
+import { FormData } from '../common/typings'
+
 /**
  * This is the official Botpress SDK, designed to help our fellow developers to create wonderful modules and
  * extend the world's best chatbot functionality to make it even better! Your module will receives an instance of
@@ -1374,9 +1376,7 @@ declare module 'botpress/sdk' {
     next?: NodeTransition[]
     /** For node of type say_something, this contains the element to render */
     contents?: {
-      contentType: string
-      /** Every properties required by the content type, including translations */
-      formData: object
+      [lang: string]: FormData
     }[]
   }
 
