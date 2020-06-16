@@ -138,5 +138,10 @@
   "undo": "Annuler",
   "update": "Actualiser",
   "upload": "Téléverser",
-  "usage": "Utilisation"
+  "usage": "Utilisation",
+  "date": "Date",
+  "number": "Nombre",
+  "boolean": "Booléen",
+  "string": "Texte",
+  "format": "Format"
 }
