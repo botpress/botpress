@@ -1556,7 +1556,7 @@ declare module 'botpress/sdk' {
      * This method will receive multiple
      * @param event
      */
-    extraction(event: IO.IncomingEvent): { value: string; confidence: number } | undefined
+    extraction(event: IO.IncomingEvent): { value: any; confidence: number } | undefined
     /**
      * This method
      * @param value

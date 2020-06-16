@@ -141,7 +141,7 @@ export class PromptManager {
     if (status.extracted) {
       debugPrompt('successfully extracted!', status.value)
 
-      event.state.setVariable(node.output, highest.extracted, node.type)
+      event.state.setVariable(node.output, status.value, node.type)
       await this._continueOriginalEvent(event)
     }
   }
@@ -192,8 +192,17 @@ export class PromptManager {
     const { originalEvent } = event.state.session.prompt!
     const promptEvent = Event(originalEvent as IO.IncomingEvent) as IO.IncomingEvent
 
+    const state = _.omit(event.state, ['session.prompt', 'workflow']) as IO.EventState
+
+    // Must redefine the property since it is removed when omitting
+    Object.defineProperty(state, 'workflow', {
+      get() {
+        return state.session.workflows[state.session.currentWorkflow!]
+      }
+    })
+
     promptEvent.restored = true
-    promptEvent.state = _.omit(event.state, ['session.prompt']) as IO.EventState
+    promptEvent.state = state
 
     await this.eventEngine.sendEvent(promptEvent)
   }
