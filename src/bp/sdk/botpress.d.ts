@@ -1,5 +1,3 @@
-import { FormData } from '../common/typings'
-
 /**
  * This is the official Botpress SDK, designed to help our fellow developers to create wonderful modules and
  * extend the world's best chatbot functionality to make it even better! Your module will receives an instance of
@@ -7,6 +5,7 @@ import { FormData } from '../common/typings'
  * Please let us know in our official Github Repo!
  */
 declare module 'botpress/sdk' {
+  import { FormData } from 'common/typings'
   import Knex from 'knex'
   import { Router, Request, Response, NextFunction } from 'express'
 

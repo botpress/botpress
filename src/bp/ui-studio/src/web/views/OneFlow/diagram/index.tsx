@@ -716,7 +716,15 @@ class Diagram extends Component<Props> {
     } = this.state.editingNodeContent
     const newContents = [...contents]
 
-    newContents[index][this.state.currentLang] = data
+    if (
+      newContents[index][this.state.currentLang].contentType &&
+      newContents[index][this.state.currentLang].contentType !== data.contentType
+    ) {
+      newContents[index] = { [this.state.currentLang]: data }
+    } else {
+      newContents[index][this.state.currentLang] = data
+    }
+
     this.props.updateFlowNode({ contents: newContents })
   }
 

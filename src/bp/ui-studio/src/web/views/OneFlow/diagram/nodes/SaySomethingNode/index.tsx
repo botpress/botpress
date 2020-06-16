@@ -98,6 +98,19 @@ const SaySomethingWidget: FC<Props> = ({
 
   const selectedContent = selectedNodeContent()
 
+  const getTranslatedContent = content => {
+    const langArr = Object.keys(content)
+    if (!langArr.length) {
+      return {}
+    }
+
+    if (!langArr.includes(currentLang)) {
+      return { contentType: content[langArr[0]].contentType }
+    }
+
+    return content[currentLang]
+  }
+
   return (
     <div
       className={style.nodeWrapper}
@@ -149,7 +162,7 @@ const SaySomethingWidget: FC<Props> = ({
               active={selectedContent?.node?.id === node.id && index === selectedContent?.index}
               key={`${index}${currentLang}`}
               onEdit={() => editContent?.(node, index)}
-              content={content[currentLang] || {}}
+              content={getTranslatedContent(content)}
             />
           ))}
         </div>
