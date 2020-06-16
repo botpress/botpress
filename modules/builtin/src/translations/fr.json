@@ -71,5 +71,6 @@
     }
   },
   "typingIndicator": "Afficher l'indicateur de frappe",
-  "useMarkdown": "Utiliser markdown"
+  "useMarkdown": "Utiliser markdown",
+  "defaultValue": "Default Value"
 }

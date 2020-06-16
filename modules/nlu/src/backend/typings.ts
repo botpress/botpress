@@ -31,6 +31,7 @@ export interface LangsGateway {
 
 export interface LanguageProvider {
   languages: string[]
+  langServerInfo: LangServerInfo
   vectorize(tokens: string[], lang: string): Promise<Float32Array[]>
   tokenize(utterances: string[], lang: string, vocab?: Token2Vec): Promise<string[][]>
   generateSimilarJunkWords(subsetVocab: string[], lang: string): Promise<string[]>
@@ -71,12 +72,23 @@ export interface EntityService {
   updateEntity(x: string, y: sdk.NLU.EntityDefinition): Promise<void>
 }
 
-export interface NLUState {
+export type NLUState = {
   nluByBot: _.Dictionary<BotState>
   languageProvider?: LanguageProvider
   health?: NLUHealth
   broadcastLoadModel?: (botId: string, hash: string, language: string) => Promise<void>
   broadcastCancelTraining?: (botId: string, language: string) => Promise<void>
+} & NLUVersionInfo
+
+export interface NLUVersionInfo {
+  nluVersion: string
+  langServerInfo: LangServerInfo
+}
+
+export interface LangServerInfo {
+  version: string
+  domain: string
+  dim: number
 }
 
 export interface BotState {
