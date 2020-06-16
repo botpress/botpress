@@ -37,7 +37,7 @@ declare module 'botpress/shared' {
     Form(props: FormProps): JSX.Element
     Item(props: ItemProps): JSX.Element
     contentTypesFields: any
-    getEmptyFormData: (contentType: string, isPartOfGroup?: boolean) => any
+    getEmptyFormData: (renderType: string, isPartOfGroup?: boolean) => any
   }
   export const FormFields: {
     AddButton(props: AddButtonProps): JSX.Element
