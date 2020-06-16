@@ -24,9 +24,10 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **Environment (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 11.8.0]
+ - OS: [e.g. iOS, macOS, Windows]
+ - Browser [e.g. Chrome, Safari]
+ - Browser Version [e.g. 83.0.4103.97]
+ - Botpress Version [e.g. 12.10.0]
  - NodeJS [e.g. 10.11]
 
 **Additional context**
