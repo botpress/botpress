@@ -45,6 +45,7 @@ const MODULE_SCHEMA = joi.object().keys({
   prompts: joi.array().optional(),
   botTemplates: joi.array().optional(),
   dialogConditions: joi.array().optional(),
+  variables: joi.array().optional(),
   definition: joi.object().keys({
     name: joi.string().required(),
     fullName: joi.string().optional(),
@@ -350,6 +351,10 @@ export class ModuleLoader {
 
   public getPrompts(): PromptDefinition[] {
     return this._getModuleElements('prompts')
+  }
+
+  public getVariables(): any[] {
+    return this._getModuleElements('variables')
   }
 
   public getLoadedModules(): ModuleDefinition[] {

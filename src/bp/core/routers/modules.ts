@@ -165,6 +165,14 @@ export class ModulesRouter extends CustomRouter {
         res.send(await this.moduleLoader.getPrompts())
       })
     )
+
+    this.router.get(
+      '/variables',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (_req, res, _next) => {
+        res.send(await this.moduleLoader.getVariables())
+      })
+    )
   }
 
   private async _findModule(moduleName: string): Promise<ModuleInfo> {

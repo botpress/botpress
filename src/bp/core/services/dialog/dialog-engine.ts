@@ -139,23 +139,29 @@ export class DialogEngine {
     return event
   }
 
-  public changeWorkflow(event: IO.IncomingEvent, nextFlow: string) {
+  public changeWorkflow(event: IO.IncomingEvent, nextFlowName: string) {
     const { currentWorkflow, workflows } = event.state.session
     const { workflow } = event.state
 
-    const parentFlow = this._findFlow(event.botId, `${nextFlow}.flow.json`).parent
-    const isSubFlow = !!currentWorkflow && nextFlow.startsWith(currentWorkflow)
+    const nextFlow = this._findFlow(event.botId, `${nextFlowName}.flow.json`)
+    const parentFlow = nextFlow.parent
+    const isSubFlow = !!currentWorkflow && nextFlowName.startsWith(currentWorkflow)
 
     // This workflow doesn't already exist, so we add it
     if (!workflow) {
-      BOTPRESS_CORE_EVENT('bp_core_workflow_started', { botId: event.botId, channel: event.channel, wfName: nextFlow })
+      BOTPRESS_CORE_EVENT('bp_core_workflow_started', {
+        botId: event.botId,
+        channel: event.channel,
+        wfName: nextFlowName
+      })
 
       event.state.session.workflows = {
         ...event.state.session.workflows,
-        [nextFlow]: {
+        [nextFlowName]: {
           eventId: event.id,
           status: 'active',
-          parent: parentFlow
+          parent: parentFlow,
+          variables: {}
         }
       }
       return
@@ -163,25 +169,30 @@ export class DialogEngine {
 
     // We dive one level deeper (one more child)
     if (isSubFlow) {
-      BOTPRESS_CORE_EVENT('bp_core_workflow_started', { botId: event.botId, channel: event.channel, wfName: nextFlow })
+      BOTPRESS_CORE_EVENT('bp_core_workflow_started', {
+        botId: event.botId,
+        channel: event.channel,
+        wfName: nextFlowName
+      })
 
       // The parent flow is inactive for now
       workflow.status = 'pending'
 
       event.state.session.workflows = {
         ...event.state.session.workflows,
-        [nextFlow]: {
+        [nextFlowName]: {
           eventId: event.id,
           status: 'active',
-          parent: currentWorkflow
+          parent: currentWorkflow,
+          variables: {}
         }
       }
     } else {
       workflow.status = 'completed'
 
       // If the current workflow has a parent, and we return there, we update its status
-      if (workflow.parent && workflows[nextFlow]) {
-        workflows[nextFlow].status = 'active'
+      if (workflow.parent && workflows[nextFlowName]) {
+        workflows[nextFlowName].status = 'active'
       }
     }
   }

@@ -18,14 +18,13 @@ import { TextareaProps } from './Textarea/typings'
 import { RightSidebarProps } from './MainContent/RightSidebar/typings'
 import { FormProps } from './ContentForms/Components/Form/typings'
 import { AddButtonProps } from './ContentForms/Components/typings'
-import { FormDefinition } from './ContentForms/utils/typings'
 import { OverlayProps } from './Overlay/typings'
 
 declare module 'botpress/shared' {
   export function Commander(props: CommanderProps): JSX.Element
   export const Dialog: {
     Wrapper(props: DialogProps): JSX.Element
-    Body(props: { children: any, className?: string }): JSX.Element
+    Body(props: { children: any; className?: string }): JSX.Element
     Footer(props: { children: any }): JSX.Element
   }
   export const MainContent: {
@@ -61,6 +60,10 @@ declare module 'botpress/shared' {
     getAvailable(): string[]
   }
 
+  export const Icons: {
+    Say(): JSX.Element
+  }
+
   export const toast: {
     success: (message: string | React.ReactElement, details?: string, options?: ToastOptions) => void
     failure: (message: string | React.ReactElement, details?: string, options?: ToastOptions) => void
@@ -74,7 +77,7 @@ declare module 'botpress/shared' {
     isInputFocused(): boolean
   }
 
-  export { Option, MoreOptionsItems, HeaderButtonProps, QuickShortcut, FormDefinition }
+  export { Option, MoreOptionsItems, HeaderButtonProps, QuickShortcut }
 }
 
 declare global {
