@@ -5,7 +5,7 @@ import { Dialog } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { fetchFlows } from '~/actions'
+import { fetchFlows, updateFlow } from '~/actions'
 import { getCurrentFlow, RootReducer } from '~/reducers'
 
 import VariableModal from './Modal'
@@ -20,8 +20,7 @@ const VariablesEditor: FC<Props> = props => {
   const [editingVariable, setEditingVariable] = useState<FlowVariable>(undefined)
 
   const affectUpdateFlow = async (flow: FlowView) => {
-    await axios.post(`${window.BOT_API_PATH}/flow/${flow.location}`, { flow })
-    props.fetchFlows()
+    props.updateFlow(flow)
   }
 
   const computeCreateVariable = (flow: FlowView, newVariable: FlowVariable) => {
@@ -44,8 +43,7 @@ const VariablesEditor: FC<Props> = props => {
   const handleCreateClick = async () => {
     const newVariable: FlowVariable = {
       type: 'string',
-      name: `New Variable ${props.currentFlow.variables?.length ?? 0}`,
-      description: 'A new variable'
+      name: `new-variable-${props.currentFlow.variables?.length ?? 0}`
     }
     const flow = props.currentFlow
     computeCreateVariable(flow, newVariable)
@@ -134,6 +132,6 @@ const VariablesEditor: FC<Props> = props => {
 
 const mapStateToProps = (state: RootReducer) => ({ currentFlow: getCurrentFlow(state) })
 
-const mapDispatchToProps = { fetchFlows }
+const mapDispatchToProps = { fetchFlows, updateFlow }
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(VariablesEditor)
