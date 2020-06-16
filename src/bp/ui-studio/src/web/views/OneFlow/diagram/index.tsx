@@ -783,13 +783,6 @@ class Diagram extends Component<Props> {
 
             <Toolbar />
           </div>
-
-          <DiagramWidget
-            ref={w => (this.diagramWidget = w)}
-            deleteKeys={[]}
-            diagramEngine={this.diagramEngine}
-            inverseZoom={true}
-          />
         </Fragment>
 
         <TriggerEditor
