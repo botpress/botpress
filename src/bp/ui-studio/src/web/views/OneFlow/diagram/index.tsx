@@ -58,6 +58,7 @@ import { TriggerNodeModel, TriggerWidgetFactory } from '~/views/FlowBuilder/diag
 import style from '~/views/FlowBuilder/diagram/style.scss'
 import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/OneFlow/diagram/nodes/SaySomethingNode'
 
+import Toolbar from './Toolbar'
 import TriggerEditor from './TriggerEditor'
 import VariablesEditor from './VariablesEditor'
 import WorkflowToolbar from './WorkflowToolbar'
@@ -609,6 +610,9 @@ class Diagram extends Component<Props> {
       this.add.skillNode(point, data.id)
     } else if (data.type === 'node') {
       switch (data.id) {
+        case 'trigger':
+          this.add.triggerNode(point, {})
+          break
         case 'say_something':
           const contentId = data.contentId?.startsWith('#!') ? data.contentId : `#!${data.contentId}`
           this.add.sayNode(point, contentId ? { onEnter: [`say ${contentId}`] } : {})
@@ -677,6 +681,8 @@ class Diagram extends Component<Props> {
               diagramEngine={this.diagramEngine}
               inverseZoom={true}
             />
+
+            <Toolbar />
           </div>
 
           <TriggerEditor
