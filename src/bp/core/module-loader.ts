@@ -43,6 +43,7 @@ const MODULE_SCHEMA = joi.object().keys({
   translations: joi.object().optional(),
   botTemplates: joi.array().optional(),
   dialogConditions: joi.array().optional(),
+  variables: joi.array().optional(),
   definition: joi.object().keys({
     name: joi.string().required(),
     fullName: joi.string().optional(),
@@ -335,14 +336,19 @@ export class ModuleLoader {
     return _.flatten(templates)
   }
 
-  public getDialogConditions(): Condition[] {
+  private _getModuleElements<T>(type: 'dialogConditions' | 'variables') {
     const modules = Array.from(this.entryPoints.values())
-    const conditions = _.flatMap(
-      modules.filter(module => module.dialogConditions),
-      x => x.dialogConditions
-    ) as Condition[]
+    const filtered = modules.filter(module => module[type])
 
-    return _.orderBy(conditions, x => x?.displayOrder)
+    return _.flatMap(filtered, mod => mod[type]) as T[]
+  }
+
+  public getDialogConditions(): Condition[] {
+    return _.orderBy(this._getModuleElements('dialogConditions'), x => x?.displayOrder)
+  }
+
+  public getVariables(): any[] {
+    return this._getModuleElements('variables')
   }
 
   public getLoadedModules(): ModuleDefinition[] {

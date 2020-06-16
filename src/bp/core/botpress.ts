@@ -449,7 +449,7 @@ export class Botpress {
       this.realtimeService.sendToSocket(payload)
     }
 
-    this.stateManager.initialize()
+    await this.stateManager.initialize()
     await this.logJanitor.start()
     await this.dialogJanitor.start()
     await this.monitoringService.start()

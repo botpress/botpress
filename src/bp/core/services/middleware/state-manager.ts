@@ -1,8 +1,10 @@
 import * as sdk from 'botpress/sdk'
+import { FlowVariableType } from 'common/typings'
 import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
 import { createExpiry } from 'core/misc/expiry'
+import { ModuleLoader } from 'core/module-loader'
 import { inject, injectable, tagged } from 'inversify'
 import { Redis } from 'ioredis'
 import Knex from 'knex'
@@ -29,6 +31,7 @@ export class StateManager {
   private knex!: sdk.KnexExtended
   private currentPromise
   private useRedis
+  private _variables!: FlowVariableType[]
 
   constructor(
     @inject(TYPES.Logger)
@@ -39,13 +42,18 @@ export class StateManager {
     @inject(TYPES.SessionRepository) private sessionRepo: SessionRepository,
     @inject(TYPES.KeyValueStore) private kvs: KeyValueStore,
     @inject(TYPES.Database) private database: Database,
-    @inject(TYPES.JobService) private jobService: JobService
+    @inject(TYPES.JobService) private jobService: JobService,
+    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
   ) {
     // Temporarily opt-in until thoroughly tested
     this.useRedis = process.CLUSTER_ENABLED && yn(process.env.USE_REDIS_STATE)
   }
 
-  public initialize() {
+  public async initialize() {
+    if (!this._variables) {
+      this._variables = await this.moduleLoader.getVariables()
+    }
+
     if (!this.useRedis) {
       return
     }
@@ -100,9 +108,63 @@ export class StateManager {
         }
       })
     }
+
+    this.boxWorkflowVariables(state.session.workflows)
+
+    Object.defineProperty(state, 'workflow', {
+      get() {
+        return state.session.workflows[state.session.currentWorkflow!]
+      }
+    })
+
+    // This can be used to set a variable on the current workflow, or on a specific workflow
+    state.setVariable = (
+      name: string,
+      value: any,
+      type: string,
+      options?: { nbOfTurns: number; specificWorkflow?: string }
+    ) => {
+      const wf = options?.specificWorkflow ? state.session.workflows[options?.specificWorkflow] : state.workflow
+      if (!wf) {
+        return
+      }
+
+      const BoxedVar = this._variables?.find(x => x.id === type)?.box
+      if (BoxedVar) {
+        wf.variables[name] = new BoxedVar({
+          nbOfTurns: options?.nbOfTurns ?? 10,
+          value
+        })
+      } else {
+        console.log('Unknown variable type')
+      }
+    }
+  }
+
+  private boxWorkflowVariables(workflows: { [name: string]: sdk.IO.WorkflowHistory }) {
+    for (const wf in workflows) {
+      const variables = workflows[wf].variables
+
+      workflows[wf].variables = Object.keys(variables).reduce((acc, id) => {
+        const unboxed = variables[id] as sdk.UnboxedVariable<any>
+        const BoxedVar = this._variables.find(x => x.id === unboxed.type)?.box
+
+        if (BoxedVar) {
+          acc[id] = new BoxedVar({ nbOfTurns: unboxed.nbTurns - 1, value: unboxed.value })
+        }
+
+        return acc
+      }, {})
+    }
   }
 
   public async persist(event: sdk.IO.IncomingEvent, ignoreContext: boolean) {
+    const { workflows } = event.state.session
+
+    for (const wf of Object.keys(workflows)) {
+      workflows[wf].variables = _.mapValues(workflows[wf].variables, (x: sdk.BoxedVariable<any>) => x.unbox()) as any
+    }
+
     const sessionId = SessionIdFactory.createIdFromEvent(event)
 
     if (this.useRedis) {

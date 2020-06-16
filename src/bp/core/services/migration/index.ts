@@ -263,7 +263,7 @@ ${_.repeat(' ', 9)}========================================`)
         const [rawVersion, timestamp, title] = path.basename(filepath).split('-')
         return {
           filename: path.basename(filepath),
-          version: semver.valid(rawVersion.replace(/_/g, '.')),
+          version: semver.valid(rawVersion.replace(/_/g, '.')) as string,
           title: (title || '').replace(/\.js$/i, ''),
           date: Number(timestamp),
           location: path.join(rootPath, filepath)

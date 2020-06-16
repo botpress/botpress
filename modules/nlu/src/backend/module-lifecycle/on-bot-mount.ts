@@ -27,7 +27,11 @@ export function getOnBotMount(state: NLUState) {
       bp.logger.warn(missingLangMsg(botId), { notSupported: _.difference(bot.languages, languages) })
     }
 
-    const engine = new Engine(bot.defaultLanguage, bot.id)
+    if (!state.nluVersion.length || !state.langServerInfo.version.length) {
+      bp.logger.warn('Either the nlu version or the lang server version is not set correctly.')
+    }
+
+    const engine = new Engine(bot.defaultLanguage, bot.id, state)
     const trainOrLoad = _.debounce(
       async (forceTrain: boolean = false) => {
         // bot got deleted
@@ -37,7 +41,6 @@ export function getOnBotMount(state: NLUState) {
 
         const intentDefs = await getIntents(ghost)
         const entityDefs = await entityService.getCustomEntities()
-        const hash = ModelService.computeModelHash(intentDefs, entityDefs)
 
         const kvs = bp.kvs.forBot(botId)
         await kvs.set(KVS_TRAINING_STATUS_KEY, 'training')
@@ -49,10 +52,12 @@ export function getOnBotMount(state: NLUState) {
             if (!lock) {
               return
             }
+
+            const hash = ModelService.computeModelHash(intentDefs, entityDefs, state, languageCode)
             await ModelService.pruneModels(ghost, languageCode)
             let model = await ModelService.getModel(ghost, hash, languageCode)
-            const isSingleOOS = typeof (model?.data?.artefacts?.oos_model ?? {}) === 'string' // temporary until we include nlu version in model hash
-            if ((forceTrain || !model || isSingleOOS) && !yn(process.env.BP_NLU_DISABLE_TRAINING)) {
+
+            if ((forceTrain || !model) && !yn(process.env.BP_NLU_DISABLE_TRAINING)) {
               const trainSession = makeTrainingSession(languageCode, lock)
               state.nluByBot[botId].trainSessions[languageCode] = trainSession
 

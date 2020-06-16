@@ -110,13 +110,7 @@ export class ActionStrategy implements InstructionStrategy {
       throw new Error(`Action "${actionName}" has invalid arguments (not a valid JSON string): ${argsStr}`)
     }
 
-    const actionArgs = {
-      event,
-      user: _.get(event, 'state.user', {}),
-      session: _.get(event, 'state.session', {}),
-      temp: _.get(event, 'state.temp', {}),
-      bot: _.get(event, 'state.bot', {})
-    }
+    const actionArgs = extractEventCommonArgs(event)
 
     args = _.mapValues(args, value => renderTemplate(value, actionArgs))
 
@@ -166,12 +160,7 @@ export class TransitionStrategy implements InstructionStrategy {
   private unsafeRegex = new RegExp(/[\(\)\`]/)
 
   async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
-    const conditionSuccessful = await this.runCode(instruction, {
-      event,
-      user: event.state.user,
-      temp: event.state.temp || {},
-      session: event.state.session
-    })
+    const conditionSuccessful = await this.runCode(instruction, extractEventCommonArgs(event))
 
     if (conditionSuccessful) {
       debug.forBot(
