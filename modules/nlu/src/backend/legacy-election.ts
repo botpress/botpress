@@ -58,12 +58,18 @@ function electIntent(input: PredictOutput): PredictOutput {
         .map(p => ({ ...p, confidence: _.round(p.confidence, 2) }))
         .orderBy('confidence', 'desc')
         .value() as (sdk.MLToolkit.SVM.Prediction & { context: string })[]
-      if (intentPreds[0].confidence === 1 || intentPreds.length === 1) {
-        return [{ label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: 1 }]
-      } // are we sure theres always at least two intents ? otherwise down there it may crash
 
+      if (intentPreds[0]?.confidence === 1 || intentPreds.length === 1) {
+        return [{ label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: 1 }]
+      }
+
+      const noneIntent = { label: NONE_INTENT, context: ctx, confidence: 1 }
       if (predictionsReallyConfused(intentPreds)) {
-        intentPreds.unshift({ label: NONE_INTENT, context: ctx, confidence: 1 })
+        intentPreds.unshift(noneIntent)
+      }
+
+      if (intentPreds.length <= 1) {
+        return noneIntent
       }
 
       const lnstd = math.std(intentPreds.filter(x => x.confidence !== 0).map(x => Math.log(x.confidence))) // because we want a lognormal distribution
