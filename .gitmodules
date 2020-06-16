@@ -3,7 +3,7 @@
 	url = git@github.com:botpress/botpress-pro.git
 [submodule "src/bp/ml/crfsuite"]
 	path = src/bp/ml/crfsuite
-	url = https://github.com/botpress/node-crfsuite.git
+	url = https://github.com/botpress/node-crfsuite-napi.git
 [submodule "src/bp/ml/fasttext"]
 	path = src/bp/ml/fasttext
 	url = https://github.com/botpress/node-fasttext.git
