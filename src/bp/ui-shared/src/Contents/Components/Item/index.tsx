@@ -33,7 +33,7 @@ const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active }) => {
           <Dotdotdot clamp={3}>{(content.choices as FormData[]).map(choice => choice.title).join(' · ')}</Dotdotdot>
         )
       default:
-        const variationsCount = (content.variations as FormData[])?.filter(v => v.item)?.length
+        const variationsCount = (content.variations as FormData[])?.filter(Boolean)?.length
         return (
           <Fragment>
             <Dotdotdot clamp={!!variationsCount ? 2 : 3}>
@@ -41,7 +41,7 @@ const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active }) => {
             </Dotdotdot>
             {!!variationsCount && (
               <span className={style.extraItems}>
-                + {variationsCount} {lang('module.builtin.types.text.alternatives')}
+                + {variationsCount} {lang('module.builtin.types.text.alternative_plural')}
               </span>
             )}
           </Fragment>

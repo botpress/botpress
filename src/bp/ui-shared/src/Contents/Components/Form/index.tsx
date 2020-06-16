@@ -107,6 +107,32 @@ const formReducer = (state, action) => {
 
     onUpdate?.(newState)
     return { ...newState }
+  } else if (action.type === 'updateCustomField') {
+    const { value, field, parent, onUpdate } = action.data
+    if (parent) {
+      const { index } = parent
+      const getArray = [index, field]
+
+      if (parent.parent) {
+        // Needs recursion if we end up having more than one level of groups
+        getArray.unshift(parent.parent.key, parent.parent.index)
+      }
+
+      _.set(state, getArray, value)
+
+      onUpdate?.(state)
+      return {
+        ...state
+      }
+    }
+
+    const newState = {
+      ...state,
+      ...value
+    }
+
+    onUpdate?.(newState)
+    return { ...newState }
   } else if (action.type === 'setData') {
     return {
       ...state,
@@ -219,13 +245,14 @@ const Form: FC<FormProps> = ({ bp, customFields, contentType, formData, fields, 
           <Fragment key={field.key}>
             {customFields?.[field.key]?.({
               field,
-              data: data[field.key],
+              data,
               label: printLabel(field, data[field.key]),
-              onChange: value => {}
-              /*dispatch({
-              type: 'updateField',
-              data: { field: field.key, onUpdate, value }
-            })*/
+              onChange: value => {
+                dispatch({
+                  type: 'updateCustomField',
+                  data: { field: field.key, onUpdate, value }
+                })
+              }
             })}
           </Fragment>
         )

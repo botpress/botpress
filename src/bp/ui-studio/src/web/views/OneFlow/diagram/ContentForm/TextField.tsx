@@ -2,21 +2,30 @@ import { Position, Tooltip } from '@blueprintjs/core'
 import { FormFields, lang, ShortcutLabel, Textarea, utils } from 'botpress/shared'
 import { FormData } from 'common/typings'
 import _uniqueId from 'lodash/uniqueId'
-import React, { FC, Fragment, SyntheticEvent, useRef, useState } from 'react'
+import React, { FC, Fragment, SyntheticEvent, useEffect, useRef, useState } from 'react'
 
 import style from './style.scss'
 
 interface Props {
   field: any
-  data: FormData
+  data: any
   label: string
-  onChange: (value: string[]) => void
+  onChange: (value: FormData) => void
 }
 
 const TextAreaList: FC<Props> = props => {
-  const [localItems, setLocalItems] = useState([])
   const { label, onChange, field, data } = props
+  const [text, setText] = useState(data.text || '')
+  const [localItems, setLocalItems] = useState(data.variations || [])
   const focusedElement = useRef(-1)
+
+  useEffect(() => {
+    setText(data.text || '')
+  }, [data.text])
+
+  useEffect(() => {
+    setLocalItems(data.variations || [])
+  }, [data.variations.length])
 
   const updateLocalItem = (index: number, value: string): void => {
     localItems[index] = value
@@ -28,13 +37,22 @@ const TextAreaList: FC<Props> = props => {
     setLocalItems([...localItems, ''])
   }
 
-  const onKeyDown = (e: KeyboardEvent, index: number): void => {
+  const onKeyDown = (e, index: number): void => {
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault()
       addItem()
     }
 
-    const shouldDelete = localItems.length > 1 && !localItems[index].length
+    if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+      e.preventDefault()
+      e.target.select()
+    }
+
+    if (index === -1) {
+      return
+    }
+
+    const shouldDelete = !localItems[index].length
 
     if (e.key === 'Backspace' && shouldDelete) {
       e.preventDefault()
@@ -44,31 +62,33 @@ const TextAreaList: FC<Props> = props => {
   }
 
   const deleteItem = (index: number): void => {
-    localItems.splice(index, 1)
-    focusedElement.current = index === 0 ? 0 : index - 1
-    onChange(localItems)
-  }
-
-  const placeholder = (index: number): string => {
-    if (index === 0) {
-      return lang.tr('What will your chatbot say?')
-    }
-
-    return ''
+    setLocalItems(localItems.filter((item, i) => i !== index))
+    focusedElement.current = index - 1
+    onChange({ text, variations: localItems })
   }
 
   return (
     <Fragment key={field.key}>
       <div className={style.items}>
         <h2>{label}</h2>
+        <div className={style.textareaWrapper}>
+          <Textarea
+            isFocused={focusedElement.current === -1}
+            className={style.customTextarea}
+            placeholder={lang.tr('module.builtin.types.actionButton.sayPlaceholder')}
+            onChange={value => setText(value)}
+            onBlur={() => onChange({ text, variations: localItems })}
+            onKeyDown={e => onKeyDown(e, -1)}
+            value={text}
+          />
+        </div>
         {localItems?.map((item, index) => (
           <div key={index} className={style.textareaWrapper}>
             <Textarea
               isFocused={focusedElement.current === index}
               className={style.customTextarea}
-              placeholder={placeholder(index)}
               onChange={value => updateLocalItem(index, value)}
-              onBlur={() => onChange(localItems)}
+              onBlur={() => onChange({ text, variations: localItems })}
               onKeyDown={e => onKeyDown(e, index)}
               value={item}
             />
