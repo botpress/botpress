@@ -31,7 +31,6 @@ const ContentForm: FC<Props> = ({
   const contentType = useRef(formData?.contentType || 'builtin_text')
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
-  const renderTypes = contentTypes.reduce((acc, type) => ({ ...acc, [type.id]: type.schema.newJson.renderType }), {})
   const contentTypesFields = contentTypes.reduce((acc, type) => ({ ...acc, [type.id]: type.schema.newJson }), {})
 
   useEffect(() => {
@@ -50,27 +49,23 @@ const ContentForm: FC<Props> = ({
   const handleContentTypeChange = value => {
     contentType.current = value
     onUpdate({
-      ...Contents.getEmptyFormData(renderTypes[value]),
-      renderType: renderTypes[value],
+      ...Contents.getEmptyFormData(value),
       contentType: value,
       id: formData?.id
     })
   }
 
   const contentFields = contentTypesFields?.[contentType.current]
-  const renderType = renderTypes[contentType.current]
 
   const hasChanged = !(
-    _.isEqual(formData, { contentType: contentType.current, renderType }) ||
+    _.isEqual(formData, { contentType: contentType.current }) ||
     _.isEqual(formData, {
-      ...Contents.getEmptyFormData(renderType),
-      contentType: contentType.current,
-      renderType
+      ...Contents.getEmptyFormData(contentType.current),
+      contentType: contentType.current
     }) ||
     _.isEqual(formData, {
-      ...Contents.getEmptyFormData(renderType),
+      ...Contents.getEmptyFormData(contentType.current),
       contentType: contentType.current,
-      renderType,
       id: formData?.id
     })
   )
@@ -112,10 +107,8 @@ const ContentForm: FC<Props> = ({
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
             formData={formData}
-            renderType={renderTypes[contentType.current]}
-            onUpdate={data =>
-              onUpdate({ ...data, renderType: renderTypes[contentType.current], contentType: contentType.current })
-            }
+            contentType={contentType.current}
+            onUpdate={data => onUpdate({ ...data, contentType: contentType.current })}
           />
         )}
       </Fragment>

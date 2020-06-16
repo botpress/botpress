@@ -1375,7 +1375,6 @@ declare module 'botpress/sdk' {
     /** For node of type say_something, this contains the element to render */
     contents?: {
       contentType: string
-      renderType: string
       /** Every properties required by the content type, including translations */
       formData: object
     }[]

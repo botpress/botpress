@@ -6,6 +6,6 @@ export interface FormProps {
   fields: FormField[]
   advancedSettings?: FormAdvancedSetting[]
   formData?: FormData
-  renderType?: string
+  contentType?: string
   onUpdate: (data: { [key: string]: string }) => void
 }

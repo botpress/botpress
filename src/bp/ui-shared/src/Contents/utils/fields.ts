@@ -1,15 +1,15 @@
 import { FormData } from 'common/typings'
 
-export const getEmptyFormData = (renderType: string, isPartOfGroup = false): FormData => {
-  switch (renderType) {
-    case 'image':
+export const getEmptyFormData = (contentType: string, isPartOfGroup = false): FormData => {
+  switch (contentType) {
+    case 'builtin_image':
       return {
         markdown: true,
         typingIndicator: true,
         image: undefined,
         title: ''
       }
-    case 'text':
+    case 'builtin_text':
       return {
         markdown: true,
         typingIndicator: true,
@@ -17,6 +17,7 @@ export const getEmptyFormData = (renderType: string, isPartOfGroup = false): For
         variations: []
       }
     case 'card':
+    case 'builtin_card':
       const advanced = isPartOfGroup ? {} : { markdown: true, typingIndicator: true }
 
       return {
@@ -26,12 +27,13 @@ export const getEmptyFormData = (renderType: string, isPartOfGroup = false): For
         subtitle: '',
         items: []
       }
-    case 'carousel':
+    case 'builtin_carousel':
       return {
         markdown: true,
         typingIndicator: true,
-        items: [getEmptyFormData('card', true)]
+        items: [getEmptyFormData('builtin_card', true)]
       }
+    case 'builtin_single-choice':
     case 'suggestions':
       if (isPartOfGroup) {
         return {
@@ -44,7 +46,7 @@ export const getEmptyFormData = (renderType: string, isPartOfGroup = false): For
         typingIndicator: true,
         canAdd: false,
         multiple: false,
-        choices: [getEmptyFormData('suggestions', true)]
+        choices: [getEmptyFormData('builtin_single-choice', true)]
       }
     case 'buttons':
       return {

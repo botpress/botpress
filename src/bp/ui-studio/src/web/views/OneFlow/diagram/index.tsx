@@ -284,7 +284,7 @@ class Diagram extends Component<Props> {
       this.props.createFlowNode({
         ...point,
         type: 'say_something',
-        contents: [{ [this.state.currentLang]: { renderType: 'text', contentType: 'builtin_text' } }],
+        contents: [{ [this.state.currentLang]: { contentType: 'builtin_text' } }],
         next: [defaultTransition],
         isNew: true,
         ...moreProps
@@ -750,8 +750,7 @@ class Diagram extends Component<Props> {
 
   getEmptyContent(content) {
     return {
-      contentType: content[Object.keys(content)[0]]?.contentType,
-      renderType: content[Object.keys(content)[0]]?.renderType
+      contentType: content[Object.keys(content)[0]]?.contentType
     }
   }
 

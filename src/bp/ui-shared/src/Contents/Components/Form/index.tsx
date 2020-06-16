@@ -41,8 +41,8 @@ const printMoreInfo = (moreInfo: FormMoreInfo): JSX.Element => {
 
 const formReducer = (state, action) => {
   if (action.type === 'add') {
-    const { field, renderType, parent } = action.data
-    const newData = getEmptyFormData(renderType, true)
+    const { field, contentType, parent } = action.data
+    const newData = getEmptyFormData(contentType, true)
 
     if (parent) {
       const { key, index } = parent
@@ -117,8 +117,8 @@ const formReducer = (state, action) => {
   }
 }
 
-const Form: FC<FormProps> = ({ bp, renderType, formData, fields, advancedSettings, onUpdate }) => {
-  const newFormData = getEmptyFormData(renderType || 'image')
+const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettings, onUpdate }) => {
+  const newFormData = getEmptyFormData(contentType || 'builtin_image')
   const [state, dispatch] = useReducer(formReducer, newFormData)
 
   useEffect(() => {
