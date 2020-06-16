@@ -111,12 +111,6 @@ export class StateManager {
 
     this.boxWorkflowVariables(state.session.workflows)
 
-    Object.defineProperty(state, 'workflow', {
-      get() {
-        return state.session.workflows[state.session.currentWorkflow!]
-      }
-    })
-
     // This can be used to set a variable on the current workflow, or on a specific workflow
     state.setVariable = (
       name: string,
