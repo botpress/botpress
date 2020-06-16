@@ -117,7 +117,7 @@ const formReducer = (state, action) => {
   }
 }
 
-const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettings, onUpdate }) => {
+const Form: FC<FormProps> = ({ bp, customFields, contentType, formData, fields, advancedSettings, onUpdate }) => {
   const newFormData = getEmptyFormData(contentType || 'image')
   const [state, dispatch] = useReducer(formReducer, newFormData)
 
@@ -213,6 +213,21 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
             />
             {field.moreInfo && printMoreInfo(field.moreInfo)}
           </div>
+        )
+      case 'custom':
+        return (
+          <Fragment key={field.key}>
+            {customFields?.[field.key]?.({
+              field,
+              data: data[field.key],
+              label: printLabel(field, data[field.key]),
+              onChange: value => {}
+              /*dispatch({
+              type: 'updateField',
+              data: { field: field.key, onUpdate, value }
+            })*/
+            })}
+          </Fragment>
         )
       default:
         return (

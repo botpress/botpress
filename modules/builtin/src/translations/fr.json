@@ -66,6 +66,7 @@
       "alternativeLabel": "Texte",
       "delete": "Supprimer l'alternative",
       "description": "Un texte régulier",
+      "text": "Texte",
       "message": "Message"
     }
   },
