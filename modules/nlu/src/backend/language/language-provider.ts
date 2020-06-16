@@ -134,6 +134,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
             this._languageDims = data.dimentions // note typo in language server
           }
 
+          // TODO: also check that the domain and version is consistent across all sources
           if (this._languageDims !== data.dimentions) {
             throw new Error('Language sources have different dimensions')
           }
