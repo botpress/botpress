@@ -717,7 +717,7 @@ class Diagram extends Component<Props> {
     const newContents = [...contents]
 
     if (
-      newContents[index][this.state.currentLang].contentType &&
+      newContents[index][this.state.currentLang]?.contentType &&
       newContents[index][this.state.currentLang].contentType !== data.contentType
     ) {
       newContents[index] = { [this.state.currentLang]: data }
