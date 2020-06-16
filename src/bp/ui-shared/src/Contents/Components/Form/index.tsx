@@ -41,8 +41,8 @@ const printMoreInfo = (moreInfo: MoreInfo): JSX.Element => {
 
 const formReducer = (state, action) => {
   if (action.type === 'add') {
-    const { field, parent } = action.data
-    const newData = getEmptyFormData(field, true)
+    const { field, renderType, parent } = action.data
+    const newData = getEmptyFormData(renderType, true)
 
     if (parent) {
       const { key, index } = parent
@@ -149,7 +149,9 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
             ))}
             <AddButton
               text={lang(field.group?.addLabel)}
-              onClick={() => dispatch({ type: 'add', data: { field: field.key, parent } })}
+              onClick={() =>
+                dispatch({ type: 'add', data: { field: field.key, renderType: field.renderType, parent } })
+              }
             />
           </Fragment>
         )
@@ -174,8 +176,9 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
             <TextArea
               placeholder={lang(field.placeholder)}
-              onChange={value => dispatch({ type: 'updateField', data: { field: field.key, parent, value } })}
-              onBlur={() => onUpdate(state)}
+              onBlur={value => {
+                dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
+              }}
               value={data[field.key]}
             />
             {field.moreInfo && printMoreInfo(field.moreInfo)}
@@ -216,8 +219,9 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
             <Text
               placeholder={lang(field.placeholder)}
-              onChange={value => dispatch({ type: 'updateField', data: { field: field.key, parent, value } })}
-              onBlur={() => onUpdate(state)}
+              onBlur={value => {
+                dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
+              }}
               type={field.type}
               value={data[field.key]}
             />

@@ -162,6 +162,7 @@ module.exports = {
 
   newSchema: {
     displayedIn: ['qna', 'sayNode'],
+    renderType: 'image',
     advancedSettings: [
       {
         key: 'markdown',

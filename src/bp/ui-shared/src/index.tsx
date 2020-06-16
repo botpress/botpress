@@ -3,7 +3,7 @@ import { isInputFocused } from './utils/inputs'
 import { controlKey, keyMap } from './utils/keyboardShortcuts'
 import { Commander } from './Commander'
 import confirmDialog from './ConfirmDialog'
-import ContentForms from './ContentForms'
+import Contents from './Contents'
 import contextMenu from './ContextMenu'
 import { Body, Footer, Wrapper } from './Dialog'
 import Dropdown from './Dropdown'
@@ -25,7 +25,7 @@ exports.Dialog = { Wrapper, Footer, Body }
 exports.Dropdown = Dropdown
 exports.EmptyState = EmptyState
 exports.MainContainer = MainContainer
-exports.ContentForms = ContentForms
+exports.Contents = Contents
 exports.FormFields = FormFields
 exports.MainContent = MainContent
 exports.RightSidebar = RightSidebar

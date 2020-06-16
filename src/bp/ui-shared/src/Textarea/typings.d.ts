@@ -1,5 +1,4 @@
 export interface TextareaProps {
-  rows: number
   className?: string
   placeholder?: string
   isFocused?: boolean

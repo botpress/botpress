@@ -49,6 +49,7 @@
   "studio": {
     "content": {
       "cloneElements": "Cloner les éléments sélectionnés",
+      "confirmChangeContentType": "Souhaitez-vous vraiment changer le type de ce contenu ? Tous les champs seront effacés.",
       "confirmDeleteItem": "Voulez-vous vraiment supprimer {count, number} {count, plural, one {item} other {items}}?",
       "contentType": "Type de contenu",
       "createNew": "Créer un nouveau {title}",
@@ -154,11 +155,13 @@
         "message": "Message",
         "messageToSend": "Message à envoyer",
         "missingLink": "Lien manquant",
+        "nameAlreadyExists": "Ce nom existe déjà",
         "noActionsFound": "Aucune action trouvée sur ce serveur d'actions",
         "noDescription": "Pas de description",
         "nodeName": "Nom du node",
         "onEnter": "Sur Entrée",
         "onReceive": "Sur réception",
+        "renameBlock": "Renommer le block",
         "return": "Revenir",
         "saySomething": "Écrire quelque chose",
         "theBotWill": "Le bot va",

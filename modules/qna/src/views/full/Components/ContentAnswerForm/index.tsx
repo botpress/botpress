@@ -1,6 +1,6 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import { FormData } from 'botpress/common/typings'
-import { ContentForms, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
+import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
 
@@ -23,10 +23,13 @@ const fetchReducer = (state, action) => {
       return {
         ...state,
         contentTypes: data.map(type => ({
-          value: type.id,
+          value: type.schema.newJson.renderType,
           label: lang.tr(type.title)
         })),
-        contentTypesFields: data.reduce((acc, type) => ({ ...acc, [type.id]: type.schema.newJson }), {})
+        contentTypesFields: data.reduce(
+          (acc, type) => ({ ...acc, [type.schema.newJson.renderType]: type.schema.newJson }),
+          {}
+        )
       }
     default:
       throw new Error(`That action type isn't supported.`)
@@ -38,7 +41,7 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
     contentTypes: [],
     contentTypesFields: {}
   })
-  const contentType = useRef(formData?.contentType || 'builtin_image')
+  const contentType = useRef(formData?.contentType || 'image')
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
   const { contentTypes, contentTypesFields } = state
@@ -50,14 +53,13 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
   }, [])
 
   useEffect(() => {
-    contentType.current = formData?.contentType || 'builtin_image'
+    contentType.current = formData?.contentType || 'image'
     setForceUpdate(!forceUpdate)
   }, [editingContent])
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
-      icon: 'trash',
-      label: lang.tr('module.qna.contentForm.deleteContent'),
+      label: lang.tr('deleteContent'),
       action: deleteContent,
       type: 'delete'
     }
@@ -65,7 +67,7 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
 
   const handleContentTypeChange = value => {
     contentType.current = value
-    onUpdate({ ...ContentForms.getEmptyFormData(value), contentType: value, id: formData?.id })
+    onUpdate({ ...Contents.getEmptyFormData(value), contentType: value, id: formData?.id })
   }
 
   const contentFields = contentTypesFields?.[contentType.current]
@@ -95,7 +97,7 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
           )}
         </div>
         {contentFields && (
-          <ContentForms.Form
+          <Contents.Form
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
             bp={bp}

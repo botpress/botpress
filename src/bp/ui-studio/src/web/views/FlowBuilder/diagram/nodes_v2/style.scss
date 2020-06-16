@@ -4,6 +4,10 @@
   border: 1px solid #52B1EE !important;
 }
 
+:global(.srd-node--selected) {
+  z-index: 9999;
+}
+
 .baseNode {
   background-color: $node-bg;
   border-radius: 3px;

@@ -15,4 +15,29 @@
     top: -8px;
     left: 15px;
   }
+
+  :global {
+    .bp3-menu-item {
+      color: var(--shark);
+      font-size: 12px;
+      line-height: 1.25;
+
+      &.bp3-intent-danger {
+        color: var(--lighthouse);
+
+        svg {
+          fill: var(--lighthouse) !important;
+        }
+
+        &:hover {
+          color: var(--lighthouse);
+          background: var(--hover-lighthouse-30);
+
+          svg {
+            fill: var(--lighthouse) !important;
+          }
+        }
+      }
+    }
+  }
 }

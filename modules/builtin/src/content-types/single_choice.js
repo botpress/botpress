@@ -143,6 +143,7 @@ module.exports = {
 
   newSchema: {
     displayedIn: ['qna', 'sayNode'],
+    renderType: 'suggestions',
     advancedSettings: [
       {
         key: 'onTopOfKeyboard',
@@ -178,12 +179,13 @@ module.exports = {
           ]
         },
         type: 'group',
-        key: 'suggestions',
-        label: 'fields::label',
+        key: 'choices',
+        renderType: 'suggestions',
+        label: 'fields::title',
         fields: [
           {
             type: 'text',
-            key: 'label',
+            key: 'title',
             label: 'module.builtin.types.suggestions.label',
             placeholder: 'module.builtin.types.suggestions.labelPlaceholder'
           },
