@@ -16,5 +16,8 @@
   "resolutions": {
     "fstream": ">=1.0.12",
     "lodash": ">=4.17.12"
+  },
+  "dependencies": {
+    "yn": "^4.0.0"
   }
 }
