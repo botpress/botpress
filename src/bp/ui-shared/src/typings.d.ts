@@ -63,6 +63,10 @@ declare module 'botpress/shared' {
     getAvailable(): string[]
   }
 
+  export const Icons: {
+    Say(): JSX.Element
+  }
+
   export const toast: {
     success: (message: string | React.ReactElement, details?: string, options?: ToastOptions) => void
     failure: (message: string | React.ReactElement, details?: string, options?: ToastOptions) => void

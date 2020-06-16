@@ -62,6 +62,7 @@ import style from '~/views/FlowBuilder/diagram/style.scss'
 import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/OneFlow/diagram/nodes/SaySomethingNode'
 
 import ContentForm from './ContentForm'
+import Toolbar from './Toolbar'
 import TriggerEditor from './TriggerEditor'
 import WorkflowToolbar from './WorkflowToolbar'
 
@@ -670,6 +671,9 @@ class Diagram extends Component<Props> {
       this.add.skillNode(point, data.id)
     } else if (data.type === 'node') {
       switch (data.id) {
+        case 'trigger':
+          this.add.triggerNode(point, {})
+          break
         case 'say_something':
           this.add.say(point, {})
           break
@@ -758,16 +762,27 @@ class Diagram extends Component<Props> {
           languages={this.props.languages}
           setCurrentLang={lang => this.setState({ currentLang: lang })}
         />
-        <div
-          id="diagramContainer"
-          ref={ref => (this.diagramContainer = ref)}
-          tabIndex={1}
-          style={{ outline: 'none', width: '100%', height: '100%' }}
-          onContextMenu={this.handleContextMenu}
-          onDrop={this.handleToolDropped}
-          onDragOver={event => event.preventDefault()}
-        >
-          <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
+        <Fragment>
+          <div
+            id="diagramContainer"
+            ref={ref => (this.diagramContainer = ref)}
+            tabIndex={1}
+            style={{ outline: 'none', width: '100%', height: '100%' }}
+            onContextMenu={this.handleContextMenu}
+            onDrop={this.handleToolDropped}
+            onDragOver={event => event.preventDefault()}
+          >
+            <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
+
+            <DiagramWidget
+              ref={w => (this.diagramWidget = w)}
+              deleteKeys={[]}
+              diagramEngine={this.diagramEngine}
+              inverseZoom={true}
+            />
+
+            <Toolbar />
+          </div>
 
           <DiagramWidget
             ref={w => (this.diagramWidget = w)}
@@ -775,7 +790,7 @@ class Diagram extends Component<Props> {
             diagramEngine={this.diagramEngine}
             inverseZoom={true}
           />
-        </div>
+        </Fragment>
 
         <TriggerEditor
           node={this.state.currentTriggerNode}

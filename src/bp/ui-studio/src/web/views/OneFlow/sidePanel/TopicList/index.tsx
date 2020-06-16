@@ -7,6 +7,7 @@ import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { deleteFlow, fetchFlows, fetchTopics, renameFlow, updateFlow } from '~/actions'
 import { SearchBar } from '~/components/Shared/Interface'
+import { AccessControl } from '~/components/Shared/Utils'
 import { getCurrentFlow, getFlowNamesList, RootReducer } from '~/reducers'
 import { sanitizeName } from '~/util'
 
@@ -316,7 +317,7 @@ const TopicList: FC<Props> = props => {
     const path = `${parentId}${parentId && '/'}${item.id}`
     const isTopic = level === 0
 
-    return (
+    const treeItem = (
       <div className={cx(item.type, { empty: isEmpty })} key={path}>
         <TreeItem
           className={cx(style.treeItem, {
@@ -350,6 +351,16 @@ const TopicList: FC<Props> = props => {
         )}
       </div>
     )
+
+    if (item.type === 'qna') {
+      return (
+        <AccessControl resource="module.qna" operation="write">
+          {treeItem}
+        </AccessControl>
+      )
+    } else {
+      return treeItem
+    }
   }
 
   const newFlowsAsArray = getFlattenFlows(newFlows)
