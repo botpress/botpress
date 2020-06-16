@@ -1354,11 +1354,6 @@ declare module 'botpress/sdk' {
     /** An array of possible transitions once everything is completed */
     next?: NodeTransition[]
     /** For node of type say_something, this contains the element to render */
-    content?: {
-      contentType: string
-      /** Every properties required by the content type, including translations */
-      formData: object
-    }
     contents?: {
       contentType: string
       /** Every properties required by the content type, including translations */

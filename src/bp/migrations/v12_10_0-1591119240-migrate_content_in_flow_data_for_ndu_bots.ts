@@ -34,6 +34,7 @@ async function migrateFlow(
     }
 
     const element = contentMap[contentId]
+    // @ts-ignore
     n.content = {
       contentType: contentId.substring(0, contentId.lastIndexOf('-')),
       formData: element.formData
