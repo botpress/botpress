@@ -195,7 +195,6 @@ module.exports = {
   },
   newSchema:{
     displayedIn: ['qna', 'sayNode'],
-    renderType: 'carousel',
     advancedSettings: [
       {
         key: 'markdown',

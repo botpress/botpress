@@ -38,7 +38,6 @@ module.exports = {
 
   newSchema: {
     displayedIn: ['qna', 'sayNode'],
-    renderType: 'card',
     advancedSettings: [
       {
         key: 'markdown',

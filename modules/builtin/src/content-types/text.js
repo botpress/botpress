@@ -112,7 +112,6 @@ module.exports = {
   },
   newSchema: {
     displayedIn: ['sayNode'],
-    renderType: 'text',
     advancedSettings: [
       {
         key: 'markdown',
