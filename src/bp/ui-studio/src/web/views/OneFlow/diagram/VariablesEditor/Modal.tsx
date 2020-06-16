@@ -4,6 +4,7 @@ import { FlowVariable } from 'botpress/sdk'
 import { ContentForms, Dialog, Dropdown, lang, Option } from 'botpress/shared'
 import { FlowVariableType, FormData } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
+import { sanitizeName } from '~/util'
 
 type Props = {
   variable: FlowVariable
@@ -53,22 +54,26 @@ const VariableModal: FC<Props> = props => {
   return (
     <Dialog.Wrapper title="Edit" {...props}>
       <Dialog.Body>
-        <form>
-          <FormGroup label="Type">
-            <Dropdown items={configsOptions} defaultItem={currentConfigOption} onChange={x => setType(x.value)} />
-          </FormGroup>
-          <FormGroup label="Name">
-            <InputGroup value={name || ''} onChange={x => setName(x.currentTarget.value)} />
-          </FormGroup>
-          <ContentForms.Form
-            fields={fields}
-            advancedSettings={advancedSettings}
-            bp={undefined}
-            formData={props.variable?.params}
-            contentType={undefined}
-            onUpdate={x => setParams(x)}
+        <FormGroup label="Type">
+          <Dropdown items={configsOptions} defaultItem={currentConfigOption} onChange={x => setType(x.value)} />
+        </FormGroup>
+        <FormGroup label="Name">
+          <InputGroup
+            value={name || ''}
+            onChange={x => setName(sanitizeName(x.currentTarget.value))}
+            onSubmit={e => {
+              e.preventDefault()
+            }}
           />
-        </form>
+        </FormGroup>
+        <ContentForms.Form
+          fields={fields}
+          advancedSettings={advancedSettings}
+          bp={undefined}
+          formData={props.variable?.params}
+          contentType={undefined}
+          onUpdate={x => setParams(x)}
+        />
       </Dialog.Body>
       <Dialog.Footer>
         <Button text="Save" onClick={() => handleSaveClick()} />
