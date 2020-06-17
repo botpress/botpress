@@ -64,6 +64,7 @@ import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/OneFlo
 import ContentForm from './ContentForm'
 import Toolbar from './Toolbar'
 import TriggerEditor from './TriggerEditor'
+import VariablesEditor from './VariablesEditor'
 import WorkflowToolbar from './WorkflowToolbar'
 
 interface OwnProps {
@@ -110,6 +111,7 @@ class Diagram extends Component<Props> {
     isTriggerEditOpen: false,
     editingNodeContent: null,
     currentLang: ''
+    currentTab: 'workflow'
   }
 
   constructor(props) {
@@ -761,6 +763,10 @@ class Diagram extends Component<Props> {
     }
   }
 
+  handleTabChanged = (tab: string) => {
+    this.setState({ currentTab: tab })
+  }
+
   render() {
     const editingContent = this.state.editingNodeContent?.node?.contents?.[this.state.editingNodeContent.index]
 
@@ -770,13 +776,20 @@ class Diagram extends Component<Props> {
           currentLang={this.state.currentLang}
           languages={this.props.languages}
           setCurrentLang={lang => this.setState({ currentLang: lang })}
+          tabChange={this.handleTabChanged}
         />
+        {this.state.currentTab === 'variables' && <VariablesEditor />}
         <Fragment>
           <div
             id="diagramContainer"
             ref={ref => (this.diagramContainer = ref)}
             tabIndex={1}
-            style={{ outline: 'none', width: '100%', height: '100%' }}
+            style={{
+              outline: 'none',
+              width: '100%',
+              height: '100%',
+              display: this.state.currentTab === 'workflow' ? 'inherit' : 'none'
+            }}
             onContextMenu={this.handleContextMenu}
             onDrop={this.handleToolDropped}
             onDragOver={event => event.preventDefault()}
