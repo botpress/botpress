@@ -161,7 +161,6 @@ export class TriggerNodeModel extends BaseNodeModel {
   }
 
   setData({ conditions = [], activeWorkflow = false, isNew = false, ...data }) {
-    console.log(isNew)
     this.conditions = conditions
     this.activeWorkflow = activeWorkflow
     this.isNew = isNew

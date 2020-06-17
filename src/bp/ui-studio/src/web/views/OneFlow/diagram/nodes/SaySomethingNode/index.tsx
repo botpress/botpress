@@ -154,7 +154,6 @@ export class SaySomethingNodeModel extends BaseNodeModel {
   setData({ contents, isNew, ...data }: any) {
     this.contents = contents
     this.isNew = isNew
-    console.log('test')
 
     super.setData(data as any)
   }
