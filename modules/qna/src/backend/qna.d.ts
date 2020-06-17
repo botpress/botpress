@@ -20,14 +20,14 @@ export interface QnaEntry {
   }
   redirectFlow: string
   redirectNode: string
+  lastModified?: Date
 }
 
 export interface QnaItem {
   id: string
+  key?: string
   isNew?: boolean
-  key?: string
   saveError?: string
-  key?: string
   data: QnaEntry
 }
 

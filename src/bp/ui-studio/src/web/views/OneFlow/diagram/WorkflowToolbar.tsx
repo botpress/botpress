@@ -10,6 +10,10 @@ const WorkflowToolbar = props => {
     {
       id: 'workflow',
       title: lang.tr('workflow')
+    },
+    {
+      id: 'variables',
+      title: lang.tr('variables')
     }
   ]
 
@@ -28,7 +32,7 @@ const WorkflowToolbar = props => {
     }
   ]
 
-  return <MainContent.Header tabs={tabs} buttons={buttons} />
+  return <MainContent.Header tabs={tabs} buttons={buttons} tabChange={props.tabChange} />
 }
 
 const mapStateToProps = state => ({
