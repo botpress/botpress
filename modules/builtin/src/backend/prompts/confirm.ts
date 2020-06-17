@@ -22,11 +22,18 @@ class PromptConfirm implements Prompt {
 
   customPrompt = async (event: IO.OutgoingEvent, incomingEvent, bp: typeof sdk) => {
     if (event.channel === 'web') {
-      const payloads = await bp.cms.renderElement(
-        '@builtin_text',
-        extractEventCommonArgs(incomingEvent, this._question),
-        event
-      )
+      let payloads
+
+      if (typeof this._question !== 'string') {
+        payloads = await bp.cms.renderElement(
+          '@builtin_text',
+          extractEventCommonArgs(incomingEvent, this._question),
+          event
+        )
+      } else {
+        payloads = await bp.cms.renderElement('builtin_text', { type: 'text', text: this._question }, event)
+      }
+
       const withoutTyping = payloads.filter((x: any) => x.type !== 'typing')
 
       event.type = 'custom'
