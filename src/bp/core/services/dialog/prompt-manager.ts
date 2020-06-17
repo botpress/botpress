@@ -84,7 +84,7 @@ export class PromptManager {
     const { minConfidence, prompt } = this._getPrompt(node, event)
 
     const extractedVars = await this.evaluateEventVariables(events, prompt)
-    const highest = _.orderBy(extractedVars, 'confidence', 'desc')[0]
+    const highest = _.orderBy(extractedVars, 'confidence', 'desc')[0] ?? { confidence: 0, extracted: false }
 
     debugPrompt('before processing %o', { highest })
 
