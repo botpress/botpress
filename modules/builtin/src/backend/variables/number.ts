@@ -7,7 +7,7 @@ class BoxedNumber implements BoxedVariable<number> {
   private _nbTurns?: number
 
   constructor({ nbOfTurns, value, confidence }: BoxedVarContructor<number>) {
-    if (value) {
+    if (value !== undefined) {
       this._nbTurns = nbOfTurns
       this.trySet(value, confidence)
     }
@@ -23,7 +23,7 @@ class BoxedNumber implements BoxedVariable<number> {
 
   trySet(value: number, confidence: number) {
     if (typeof value === 'number') {
-      this.value = value
+      this._value = value
       this._confidence = confidence
     } else if (typeof value === 'string') {
       const extracted = (<string>value).replace(/^\D+/g, '')
