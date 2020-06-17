@@ -5,13 +5,11 @@ class PromptDate implements Prompt {
   private _mustBePast: boolean
   private _mustBeFuture: boolean
 
-  // Those are the actual values of the configured prompt on the workflow
   constructor({ mustBePast, mustBeFuture }) {
     this._mustBePast = mustBePast
     this._mustBeFuture = mustBeFuture
   }
 
-  // This method is provided with the incoming event to extract any necessary information
   extraction(event: IO.IncomingEvent): { value: string; confidence: number } | undefined {
     const entity = event.nlu?.entities?.find(x => x.type === 'system.time')
     if (entity) {
@@ -22,7 +20,6 @@ class PromptDate implements Prompt {
     }
   }
 
-  // Return a percentage of how confident you are that the provided value is valid (from 0 to 1)
   async validate(value): Promise<{ valid: boolean; message?: string }> {
     const { _mustBePast, _mustBeFuture } = this
 

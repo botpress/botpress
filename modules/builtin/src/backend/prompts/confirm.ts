@@ -20,7 +20,6 @@ class PromptConfirm implements Prompt {
     return { valid: value === true || value === false, message: 'Invalid' }
   }
 
-  // Customize the prompt event that is sent through the specific channels.
   customPrompt = async (event: IO.OutgoingEvent, incomingEvent, bp: typeof sdk) => {
     if (event.channel === 'web') {
       const payloads = await bp.cms.renderElement(
