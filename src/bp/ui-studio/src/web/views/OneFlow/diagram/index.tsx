@@ -131,7 +131,7 @@ class Diagram extends Component<Props> {
         selectedNodeContent: this.getEditingContent.bind(this),
         deleteSelectedElements: this.deleteSelectedElements.bind(this),
         getCurrentFlow: this.getCurrentFlow.bind(this),
-        updateNodeAndRefresh: this.updateNodeAndRefresh.bind(this),
+        updateFlowNode: this.updateNodeAndRefresh.bind(this),
         getCurrentLang: this.getCurrentLang.bind(this)
       })
     )
