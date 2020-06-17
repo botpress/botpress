@@ -1,8 +1,8 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
+import { FormData } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
-import { FormData } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
 
