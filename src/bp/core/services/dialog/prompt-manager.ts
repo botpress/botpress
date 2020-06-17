@@ -141,7 +141,8 @@ export class PromptManager {
     if (status.extracted) {
       debugPrompt('successfully extracted!', status.value)
 
-      event.state.setVariable(node.output, status.value, node.type)
+      const config = this._prompts.find(x => x.id === node.type)?.config
+      event.state.setVariable(node.output, status.value, config?.valueType ?? '')
       await this._continueOriginalEvent(event)
     }
   }
