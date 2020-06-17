@@ -1,13 +1,19 @@
+// color
+$bg-color: var(--bg);
+$dot-color: #e2e2e2;
+
+// Dimensions
+$dot-size: 2px;
+$dot-space: 12px;
+
 .diagram {
-  height: calc(100%);
-  background: url('assets/ui-studio/public/img/grid.png') repeat;
+  height: 100%;
 }
 
 .diagram :global(.srd-diagram) {
-  height: calc(100%);
-  background: url('assets/ui-studio/public/img/grid.png') repeat;
-}
-
-.wrapper {
-  background-color: #f1f1f1;
+  background: linear-gradient(90deg, $bg-color ($dot-space - $dot-size), transparent 1%) center, linear-gradient($bg-color ($dot-space - $dot-size), transparent 1%) center, $dot-color;
+  background-position: top left;
+  background-size: $dot-space $dot-space;
+  height: 100%;
+  margin: 0 calc(var(--spacing-x-large) * -1);
 }
