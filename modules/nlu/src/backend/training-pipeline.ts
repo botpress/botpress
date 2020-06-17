@@ -58,7 +58,7 @@ export interface TrainArtefacts {
   tfidf: TFIDF
   vocabVectors: Token2Vec
   // kmeans: KmeansResult
-  ctx_model: string
+  ctx_model?: string
   intent_model_by_ctx: Dic<string>
   slots_model: Buffer
   exact_match_index: ExactMatchIndex
@@ -279,7 +279,11 @@ const TrainContextClassifier = async (
   if (points.length === 0 || input.contexts.length <= 1) {
     progress()
     debugTraining.forBot(input.botId, 'No context to train')
-    return
+    return ''
+  } else if (!input.ctxToTrain.length) {
+    progress()
+    debugTraining.forBot(input.botId, 'No context to train')
+    return // there is a context model, but we don't need to retrain it
   }
 
   const svm = new tools.mlToolkit.SVM.Trainer()
@@ -542,12 +546,14 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
       list_entities: output.list_entities,
       oos_model,
       tfidf: output.tfIdf,
-      ctx_model,
       intent_model_by_ctx,
       slots_model,
       vocabVectors: output.vocabVectors,
       exact_match_index
       // kmeans: {} add this when mlKmeans supports loading from serialized data,
+    }
+    if (_.isString(ctx_model)) {
+      _.merge(artefacts, { ctx_model })
     }
 
     _.merge(model, { success: true, data: { artefacts, output } })
