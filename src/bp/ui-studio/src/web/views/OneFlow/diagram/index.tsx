@@ -11,6 +11,7 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
+import { throws } from 'assert'
 import { lang, MainContent } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -60,10 +61,10 @@ import { FailureNodeModel, FailureWidgetFactory } from '~/views/FlowBuilder/diag
 import { ListenWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ListenNode'
 import { RouterNodeModel, RouterWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/RouterNode'
 import { SuccessNodeModel, SuccessWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SuccessNode'
-import { TriggerNodeModel, TriggerWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/TriggerNode'
 import style from '~/views/FlowBuilder/diagram/style.scss'
-import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/OneFlow/diagram/nodes/SaySomethingNode'
 
+import { SaySomethingNodeModel, SaySomethingWidgetFactory } from './nodes/SaySomethingNode'
+import { TriggerNodeModel, TriggerWidgetFactory } from './nodes/TriggerNode'
 import ContentForm from './ContentForm'
 import Toolbar from './Toolbar'
 import TriggerEditor from './TriggerEditor'
@@ -131,8 +132,9 @@ class Diagram extends Component<Props> {
         selectedNodeContent: this.getEditingContent.bind(this),
         deleteSelectedElements: this.deleteSelectedElements.bind(this),
         getCurrentFlow: this.getCurrentFlow.bind(this),
-        updateNodeAndRefresh: this.updateNodeAndRefresh.bind(this),
-        getCurrentLang: this.getCurrentLang.bind(this)
+        getCurrentLang: this.getCurrentLang.bind(this),
+        updateFlowNode: this.updateNodeAndRefresh.bind(this),
+        switchFlowNode: this.switchFlowNode.bind(this)
       })
     )
     this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
@@ -140,7 +142,17 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(new RouterWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ActionWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SuccessWidgetFactory())
-    this.diagramEngine.registerNodeFactory(new TriggerWidgetFactory())
+    this.diagramEngine.registerNodeFactory(
+      new TriggerWidgetFactory({
+        editContent: this.editContent.bind(this),
+        selectedNodeContent: this.getEditingContent.bind(this),
+        deleteSelectedElements: this.deleteSelectedElements.bind(this),
+        getCurrentFlow: this.getCurrentFlow.bind(this),
+        getCurrentLang: this.getCurrentLang.bind(this),
+        updateFlowNode: this.updateNodeAndRefresh.bind(this),
+        switchFlowNode: this.switchFlowNode.bind(this)
+      })
+    )
     this.diagramEngine.registerNodeFactory(new FailureWidgetFactory())
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
 
@@ -179,7 +191,6 @@ class Diagram extends Component<Props> {
     this.setState({ currentLang: this.props.contentLang })
     this.props.fetchContentCategories()
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
-    ReactDOM.findDOMNode(this.diagramWidget).addEventListener('dblclick', this.onDiagramDoubleClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
     this.props.childRef({
       deleteSelectedElements: this.deleteSelectedElements.bind(this),
@@ -189,7 +200,6 @@ class Diagram extends Component<Props> {
 
   componentWillUnmount() {
     ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('click', this.onDiagramClick)
-    ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('dblclick', this.onDiagramDoubleClick)
     document.getElementById('diagramContainer').removeEventListener('keydown', this.onKeyDown)
   }
 
@@ -285,7 +295,14 @@ class Diagram extends Component<Props> {
     flowNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'standard' }),
     skillNode: (point: Point, skillId: string) => this.props.buildSkill({ location: point, id: skillId }),
     triggerNode: (point: Point, moreProps) => {
-      this.props.createFlowNode({ ...point, type: 'trigger', conditions: [], next: [defaultTransition], ...moreProps })
+      this.props.createFlowNode({
+        ...point,
+        type: 'trigger',
+        conditions: [{ id: null, params: {} }],
+        next: [defaultTransition],
+        isNew: true,
+        ...moreProps
+      })
     },
     say: (point: Point, moreProps) => {
       this.props.createFlowNode({
@@ -309,18 +326,6 @@ class Diagram extends Component<Props> {
       }),
     routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' }),
     actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action' })
-  }
-
-  onDiagramDoubleClick = (event?: MouseEvent) => {
-    if (!event) {
-      return
-    }
-
-    const target = this.diagramWidget.getMouseElement(event)
-
-    if (target?.model instanceof TriggerNodeModel) {
-      this.editTriggers(target.model)
-    }
   }
 
   handleContextMenuNoElement = (event: React.MouseEvent) => {
@@ -566,6 +571,10 @@ class Diagram extends Component<Props> {
     return this.state.editingNodeContent
   }
 
+  switchFlowNode(nodeId) {
+    this.props.switchFlowNode(nodeId)
+  }
+
   deleteSelectedElements() {
     const elements = _.sortBy(this.diagramEngine.getDiagramModel().getSelectedItems(), 'nodeType')
     this.setState({ editingNodeContent: null })
@@ -718,11 +727,8 @@ class Diagram extends Component<Props> {
   }
 
   updateNodeContent(data) {
-    const {
-      node: { contents },
-      index
-    } = this.state.editingNodeContent
-    const newContents = [...contents]
+    const { node, index } = this.state.editingNodeContent
+    const newContents = [...node.contents]
     const currentType = newContents[index][this.state.currentLang]?.contentType
 
     if (currentType && currentType !== data.contentType) {
@@ -730,6 +736,8 @@ class Diagram extends Component<Props> {
     } else {
       newContents[index][this.state.currentLang] = data
     }
+
+    this.setState({ editingNodeContent: { node: { ...node, contents: newContents }, index } })
 
     this.props.updateFlowNode({ contents: newContents })
   }
@@ -776,6 +784,7 @@ class Diagram extends Component<Props> {
     const editingContent = this.state.editingNodeContent?.node?.contents?.[this.state.editingNodeContent.index]
 
     const isQnA = this.props.selectedWorkflow === 'qna'
+
     return (
       <Fragment>
         {isQnA && (
@@ -828,13 +837,6 @@ class Diagram extends Component<Props> {
                 inverseZoom={true}
               />
             </div>
-
-            <TriggerEditor
-              node={this.state.currentTriggerNode}
-              isOpen={this.state.isTriggerEditOpen}
-              diagramEngine={this.diagramEngine}
-              toggle={() => this.setState({ isTriggerEditOpen: !this.state.isTriggerEditOpen })}
-            />
 
             <Toolbar />
           </Fragment>

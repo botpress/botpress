@@ -3,27 +3,28 @@ import { FormData } from 'botpress/sdk'
 import { Contents, contextMenu, lang, ShortcutLabel } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
-import React, { FC, useState } from 'react'
+import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
 import { BaseNodeModel } from '~/views/FlowBuilder/diagram/nodes/BaseNodeModel'
 import { StandardPortWidget } from '~/views/FlowBuilder/diagram/nodes/Ports'
 
 import style from '../Components/style.scss'
+import NodeContentItem from '../Components/NodeContentItem'
 import NodeHeader from '../Components/NodeHeader'
 import NodeWrapper from '../Components/NodeWrapper'
 
 interface Props {
-  node: SaySomethingNodeModel
+  node: TriggerNodeModel
   getCurrentFlow: any
   updateFlowNode: any
   onDeleteSelectedElements: () => void
-  editContent: (node: SaySomethingNodeModel, index: number) => void
-  selectedNodeContent: () => { node: SaySomethingNodeModel; index: number }
+  editContent: (node: TriggerNodeModel, index: number) => void
+  selectedNodeContent: () => { node: TriggerNodeModel; index: number }
   getCurrentLang: () => string
   switchFlowNode: (id: string) => void
 }
 
-const SaySomethingWidget: FC<Props> = ({
+const TriggerWidget: FC<Props> = ({
   node,
   getCurrentFlow,
   editContent,
@@ -100,12 +101,13 @@ const SaySomethingWidget: FC<Props> = ({
   return (
     <NodeWrapper>
       <NodeHeader
+        className={style.trigger}
         setExpanded={setExpanded}
         expanded={expanded}
         handleContextMenu={handleContextMenu}
         isEditing={isEditing}
         saveName={saveName}
-        defaultLabel={lang.tr('studio.flow.node.chatbotSays')}
+        defaultLabel={lang.tr('studio.flow.node.triggeredBy')}
         name={node.name}
         error={error}
       >
@@ -114,13 +116,18 @@ const SaySomethingWidget: FC<Props> = ({
       </NodeHeader>
       {expanded && (
         <div className={style.contentsWrapper}>
-          {node.contents?.map((content, index) => (
-            <Contents.Item
-              active={selectedContent?.node?.id === node.id && index === selectedContent?.index}
-              key={`${index}${currentLang}`}
-              onEdit={() => editContent?.(node, index)}
-              content={getTranslatedContent(content)}
-            />
+          {node.conditions?.map((condition, index) => (
+            <Fragment key={`${index}${currentLang}`}>
+              <NodeContentItem
+                className={cx(style.hasJoinLabel, {
+                  [style.active]: selectedContent?.node?.id === node.id && index === selectedContent?.index
+                })}
+                onEdit={() => editContent?.(node, index)}
+              >
+                <span className={style.content}>{condition.id}</span>
+              </NodeContentItem>
+              <span className={style.joinLabel}>{lang.tr('and')}</span>
+            </Fragment>
           ))}
         </div>
       )}
@@ -128,8 +135,9 @@ const SaySomethingWidget: FC<Props> = ({
   )
 }
 
-export class SaySomethingNodeModel extends BaseNodeModel {
-  public contents: { [lang: string]: FormData }[] = []
+export class TriggerNodeModel extends BaseNodeModel {
+  public conditions = []
+  public activeWorkflow: boolean
   public isNew: boolean
 
   constructor({
@@ -139,30 +147,32 @@ export class SaySomethingNodeModel extends BaseNodeModel {
     name,
     onEnter = [],
     next = [],
-    contents,
-    isNew,
+    conditions = [],
+    activeWorkflow = false,
+    isNew = false,
     isStartNode = false,
     isHighlighted = false
   }) {
-    super('say_something', id)
-    this.setData({ name, onEnter, next, isNew, contents, isStartNode, isHighlighted })
+    super('trigger', id)
+    this.setData({ name, onEnter, next, isStartNode, isHighlighted, conditions, activeWorkflow, isNew })
 
     this.x = this.oldX = x
     this.y = this.oldY = y
   }
 
-  setData({ contents, isNew, ...data }: any) {
-    this.contents = contents
+  setData({ conditions = [], activeWorkflow = false, isNew = false, ...data }) {
+    console.log(isNew)
+    this.conditions = conditions
+    this.activeWorkflow = activeWorkflow
     this.isNew = isNew
-    console.log('test')
 
     super.setData(data as any)
   }
 }
 
-export class SaySomethingWidgetFactory extends AbstractNodeFactory {
-  private editContent: (node: SaySomethingNodeModel, index: number) => void
-  private selectedNodeContent: () => { node: SaySomethingNodeModel; index: number }
+export class TriggerWidgetFactory extends AbstractNodeFactory {
+  private editContent: (node: TriggerNodeModel, index: number) => void
+  private selectedNodeContent: () => { node: TriggerNodeModel; index: number }
   private deleteSelectedElements: () => void
   private getCurrentLang: () => string
   private getCurrentFlow: any
@@ -170,7 +180,7 @@ export class SaySomethingWidgetFactory extends AbstractNodeFactory {
   private switchFlowNode: (id: string) => void
 
   constructor(methods) {
-    super('say_something')
+    super('trigger')
 
     this.editContent = methods.editContent
     this.selectedNodeContent = methods.selectedNodeContent
@@ -181,9 +191,9 @@ export class SaySomethingWidgetFactory extends AbstractNodeFactory {
     this.switchFlowNode = methods.switchFlowNode
   }
 
-  generateReactWidget(diagramEngine: DiagramEngine, node: SaySomethingNodeModel) {
+  generateReactWidget(diagramEngine: DiagramEngine, node: TriggerNodeModel) {
     return (
-      <SaySomethingWidget
+      <TriggerWidget
         node={node}
         getCurrentFlow={this.getCurrentFlow}
         editContent={this.editContent}
@@ -198,6 +208,6 @@ export class SaySomethingWidgetFactory extends AbstractNodeFactory {
 
   getNewInstance() {
     // @ts-ignore
-    return new SaySomethingNodeModel()
+    return new TriggerNodeModel()
   }
 }

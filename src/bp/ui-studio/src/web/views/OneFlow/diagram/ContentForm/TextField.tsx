@@ -1,6 +1,6 @@
 import { Position, Tooltip } from '@blueprintjs/core'
+import { FormData } from 'botpress/sdk'
 import { FormFields, lang, ShortcutLabel, Textarea, utils } from 'botpress/shared'
-import { FormData } from 'common/typings'
 import _uniqueId from 'lodash/uniqueId'
 import React, { FC, Fragment, SyntheticEvent, useEffect, useRef, useState } from 'react'
 

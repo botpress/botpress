@@ -195,6 +195,7 @@
           "whenMetDo": "When condition is met, do"
         },
         "transitions": "Transitions",
+        "triggeredBy": "Workflow is Triggered by",
         "unknownParameterType": "⚠️ Unknown parameter type ({type}). This parameter will be ignored.",
         "valuePlaceholder": "Value",
         "waitForUserMessage": "Wait for user message",

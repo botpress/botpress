@@ -193,6 +193,7 @@
           "whenMetDo": "Lorsque la condition est remplie, faire"
         },
         "transitions": "Transitions",
+        "triggeredBy": "Le workflow est is déclenché par",
         "unknownParameterType": "⚠️ Type de paramètre inconnu ({type}). Ce paramètre sera ignoré.",
         "valuePlaceholder": "Valeur",
         "waitForUserMessage": "Attendre le message de l'utilisateur",
