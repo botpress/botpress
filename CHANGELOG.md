@@ -1,10 +1,10 @@
-## [12.10.1](https://github.com/botpress/botpress/compare/v12.9.3...v12.10.1) (2020-06-16)
+## [12.10.1](https://github.com/botpress/botpress/compare/v12.10.0...v12.10.1) (2020-06-16)
 
 
 ### Bug Fixes
 
+* **choice:** fix legacy choice ([#3466](https://github.com/botpress/botpress/issues/3466)) ([ef359b4](https://github.com/botpress/botpress/commit/ef359b4))
 * **nlu:** fix nlu predictions for intents with no trained predictors ([#3441](https://github.com/botpress/botpress/issues/3441)) ([2732571](https://github.com/botpress/botpress/commit/2732571)), closes [#3444](https://github.com/botpress/botpress/issues/3444) [#3448](https://github.com/botpress/botpress/issues/3448)
-
 
 
 # [12.10.0](https://github.com/botpress/botpress/compare/v12.9.3...v12.10.0) (2020-06-10)
