@@ -18,6 +18,7 @@ interface Props {
   editContent: (node: SaySomethingNodeModel, index: number) => void
   selectedNodeContent: () => { node: SaySomethingNodeModel; index: number }
   getCurrentLang: () => string
+  switchFlowNode: (id: string) => void
 }
 
 const SaySomethingWidget: FC<Props> = ({
@@ -27,7 +28,8 @@ const SaySomethingWidget: FC<Props> = ({
   onDeleteSelectedElements,
   selectedNodeContent,
   updateFlowNode,
-  getCurrentLang
+  getCurrentLang,
+  switchFlowNode
 }) => {
   const [expanded, setExpanded] = useState(node.isNew)
   const [error, setError] = useState(null)
@@ -43,6 +45,7 @@ const SaySomethingWidget: FC<Props> = ({
   const handleContextMenu = e => {
     e.stopPropagation()
     e.preventDefault()
+    switchFlowNode(node.id)
     contextMenu(
       e,
       <Menu>
@@ -209,6 +212,7 @@ export class SaySomethingWidgetFactory extends AbstractNodeFactory {
   private getCurrentLang: () => string
   private getCurrentFlow: any
   private updateFlowNode: any
+  private switchFlowNode: (id: string) => void
 
   constructor(methods) {
     super('say_something')
@@ -219,6 +223,7 @@ export class SaySomethingWidgetFactory extends AbstractNodeFactory {
     this.getCurrentFlow = methods.getCurrentFlow
     this.updateFlowNode = methods.updateFlowNode
     this.getCurrentLang = methods.getCurrentLang
+    this.switchFlowNode = methods.switchFlowNode
   }
 
   generateReactWidget(diagramEngine: DiagramEngine, node: SaySomethingNodeModel) {
@@ -231,6 +236,7 @@ export class SaySomethingWidgetFactory extends AbstractNodeFactory {
         updateFlowNode={this.updateFlowNode}
         selectedNodeContent={this.selectedNodeContent}
         getCurrentLang={this.getCurrentLang}
+        switchFlowNode={this.switchFlowNode}
       />
     )
   }

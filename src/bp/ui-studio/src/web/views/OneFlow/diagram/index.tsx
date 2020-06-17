@@ -132,7 +132,8 @@ class Diagram extends Component<Props> {
         deleteSelectedElements: this.deleteSelectedElements.bind(this),
         getCurrentFlow: this.getCurrentFlow.bind(this),
         updateFlowNode: this.updateNodeAndRefresh.bind(this),
-        getCurrentLang: this.getCurrentLang.bind(this)
+        getCurrentLang: this.getCurrentLang.bind(this),
+        switchFlowNode: this.switchFlowNode.bind(this)
       })
     )
     this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
@@ -564,6 +565,10 @@ class Diagram extends Component<Props> {
 
   getEditingContent() {
     return this.state.editingNodeContent
+  }
+
+  switchFlowNode(nodeId) {
+    this.props.switchFlowNode(nodeId)
   }
 
   deleteSelectedElements() {
