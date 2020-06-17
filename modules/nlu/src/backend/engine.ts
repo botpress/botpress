@@ -22,7 +22,7 @@ import { getOrCreateCache } from './cache-manager'
 const trainDebug = DEBUG('nlu').sub('training')
 
 export type TrainingOptions = {
-  forceRetrain: boolean
+  forceTrain: boolean
 }
 
 export default class Engine implements NLUEngine {
@@ -44,8 +44,6 @@ export default class Engine implements NLUEngine {
     trainingSession?: TrainingSession,
     options?: TrainingOptions
   ): Promise<Model> {
-    // TODO: evaluate if training needed for language...
-
     trainDebug.forBot(this.botId, `Started ${languageCode} training`)
 
     const list_entities = entityDefs
@@ -79,7 +77,7 @@ export default class Engine implements NLUEngine {
 
     const modifiedCtx = this._updateAndGetModifiedCtx(languageCode, intentDefs, contexts)
     const trainAllCtx =
-      options?.forceRetrain || !this.modelsByLang[languageCode] || contexts.length === modifiedCtx.length
+      options?.forceTrain || !this.modelsByLang[languageCode] || contexts.length === modifiedCtx.length
     const ctxToTrain = trainAllCtx ? contexts : modifiedCtx
 
     const debugMsg = trainAllCtx
