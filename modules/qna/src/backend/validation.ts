@@ -34,8 +34,7 @@ export const QnaDefSchema = Joi.object().keys({
     .default({}),
   contentAnswers: Joi.object()
     .pattern(/^[a-z]{2}$/, Joi.array().items(QnaItemContentAnswerSchema))
-    .default({}),
-  lastModified: Joi.date().optional()
+    .default({})
 })
 
 const QnaItemSchema = Joi.object().keys({

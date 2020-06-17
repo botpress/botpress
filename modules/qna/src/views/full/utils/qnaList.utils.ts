@@ -24,7 +24,6 @@ export interface Props {
   topicName: string
   contentLang: string
   defaultLanguage: string
-  refreshQnaCount: () => void
   languages: string[]
 }
 
@@ -69,7 +68,7 @@ export const itemHasError = (qnaItem: QnaItem, currentLang: string): string[] =>
 }
 
 export const dispatchMiddleware = async (dispatch, action) => {
-  const { qnaItem, bp, refreshQnaCount } = action.data
+  const { qnaItem, bp } = action.data
   switch (action.type) {
     case 'updateQnA':
       const { currentLang } = action.data
@@ -97,7 +96,6 @@ export const dispatchMiddleware = async (dispatch, action) => {
           try {
             const res = await bp.axios.post('/mod/qna/questions', cleanData)
             itemId = res.data[0]
-            refreshQnaCount?.()
           } catch ({ response: { data } }) {
             saveError = data.message
           }
@@ -220,7 +218,7 @@ export const fetchReducer = (state: State, action): State => {
       expandedItems: { ...state.expandedItems, [id]: true }
     }
   } else if (action.type === 'deleteQnA') {
-    const { index, bp, refreshQnaCount } = action.data
+    const { index, bp } = action.data
     const newItems = state.items
 
     if (index === 'highlighted') {
@@ -228,7 +226,6 @@ export const fetchReducer = (state: State, action): State => {
         .post(`/mod/qna/questions/${state.highlighted.id}/delete`)
         .then(() => {})
         .catch(() => {})
-      refreshQnaCount?.()
 
       return {
         ...state,
@@ -244,7 +241,6 @@ export const fetchReducer = (state: State, action): State => {
         .then(() => {})
         .catch(() => {})
     }
-    refreshQnaCount?.()
 
     return {
       ...state,

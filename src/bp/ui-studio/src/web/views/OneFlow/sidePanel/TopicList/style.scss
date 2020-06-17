@@ -93,10 +93,6 @@
   overflow: auto;
   padding: var(--spacing-small) var(--spacing-x-large) 0 var(--spacing-large);
 
-  & > div:nth-last-of-type(2) {
-    margin-bottom: var(--spacing-medium);
-  }
-
   :global {
     .default {
       border-top: 1px solid var(--gray);

@@ -35,14 +35,13 @@ interface OwnProps {
   qnaCountByTopic: CountByTopic[]
   goToFlow: (flow: any) => void
   createWorkflow: (topicId: string) => void
+  editQnA: (topicName: string) => void
   exportTopic: (topicName: string | NodeData) => void
   canDelete: boolean
   editing: string
   setEditing: (name: string) => void
   isEditingNew: boolean
   setIsEditingNew: (val: boolean) => void
-  selectedTopic: string
-  selectedWorkflow: string
 }
 
 type StateProps = ReturnType<typeof mapStateToProps>
@@ -71,7 +70,7 @@ const TopicList: FC<Props> = props => {
   const [forcedSelect, setForcedSelect] = useState(false)
   const [expanded, setExpanded] = useState<any>({})
 
-  const filterByText = item => item.name?.toLowerCase()?.includes(filter.toLowerCase())
+  const filterByText = item => item.name.toLowerCase().includes(filter.toLowerCase())
 
   useEffect(() => {
     const qna = props.topics.filter(filterByText).map(topic => ({
@@ -85,11 +84,12 @@ const TopicList: FC<Props> = props => {
   }, [props.flowsName, filter, props.topics, props.qnaCountByTopic])
 
   useEffect(() => {
-    if (!forcedSelect && props.selectedWorkflow) {
-      setExpanded({ [props.selectedTopic || 'default']: true })
+    if (!forcedSelect && props.currentFlow) {
+      const splitPath = props.currentFlow.location.split('/')
+      setExpanded({ [splitPath.length > 1 ? splitPath[0] : 'default']: true })
       setForcedSelect(true)
     }
-  }, [props.selectedTopic, props.selectedWorkflow])
+  }, [props.currentFlow])
 
   const deleteFlow = async (name: string, skipDialog = false) => {
     if (
@@ -136,7 +136,7 @@ const TopicList: FC<Props> = props => {
   const handleContextMenu = (element: NodeData, isTopic: boolean, path: string) => {
     if (isTopic) {
       const folder = element.id
-      if (folder === 'default' || element.type === 'qna') {
+      if (folder === 'default') {
         return null
       }
 
@@ -161,6 +161,20 @@ const TopicList: FC<Props> = props => {
             label={lang.tr('studio.flow.topicList.deleteTopic')}
             intent={Intent.DANGER}
             onClick={() => deleteTopic(folder)}
+          />
+        </Fragment>
+      )
+    } else if (element.type === 'qna') {
+      const { name } = element as NodeData
+
+      return (
+        <Fragment>
+          <MenuItem
+            id="btn-edit"
+            disabled={props.readOnly}
+            icon="edit"
+            label={lang.tr('edit')}
+            onClick={() => props.editQnA(name.replace('/qna', ''))}
           />
         </Fragment>
       )
@@ -204,11 +218,11 @@ const TopicList: FC<Props> = props => {
           id: 'default',
           label: lang.tr('studio.flow.topicList.defaultWorkflows'),
           children: {
-            [nodeLabel]: { ...workflow, id: workflow.name.replace('.flow.json', '') }
+            [nodeLabel]: { ...workflow, id: workflow.name }
           }
         }
       } else {
-        newFlows['default'].children[nodeLabel] = { ...workflow, id: workflow.name.replace('.flow.json', '') }
+        newFlows['default'].children[nodeLabel] = { ...workflow, id: workflow.name }
       }
     }
 
@@ -236,9 +250,6 @@ const TopicList: FC<Props> = props => {
 
   const sortItems = flows => {
     return flows.sort((a, b) => {
-      if (a.id === editing && isEditingNew) {
-        return -1
-      }
       const aItem = a.id.toUpperCase()
       const bItem = b.id.toUpperCase()
       if (a.type === 'default' || b.type === 'qna') {
@@ -283,16 +294,13 @@ const TopicList: FC<Props> = props => {
       if (value !== item.id && !props.topics.find(x => x.name == value)) {
         await axios.post(`${window.BOT_API_PATH}/topic/${item.id}`, { name: value, description: undefined })
 
-        if (expanded[item.id] || isEditingNew) {
+        if (expanded[item.id]) {
           setExpanded({ ...expanded, [item.id]: false, [value]: true })
         }
 
         await props.fetchFlows()
         await props.fetchTopics()
-        props.goToFlow(isEditingNew ? `${value}/qna` : props.currentFlow?.location.replace(item.id, value))
-      } else if (isEditingNew) {
-        setExpanded({ ...expanded, [value]: true })
-        props.goToFlow(`${value}/qna`)
+        props.goToFlow(props.currentFlow?.location.replace(item.id, value))
       }
     } else if (value !== (item.name || item.id)) {
       const fullName = buildFlowName({ topic: item.topic, workflow: sanitize(value) }, true)
@@ -314,7 +322,7 @@ const TopicList: FC<Props> = props => {
         <TreeItem
           className={cx(style.treeItem, {
             [style.isTopic]: isTopic,
-            [style.active]: item.id === props.selectedWorkflow && (props.selectedTopic || 'default') === parentId
+            [style.active]: item.name === props.currentFlow?.name
           })}
           isExpanded={expanded[path]}
           item={item}
@@ -323,6 +331,7 @@ const TopicList: FC<Props> = props => {
           isEditingNew={isEditingNew}
           onSave={value => handleSave(item, isTopic, value)}
           contextMenuContent={handleContextMenu(item, isTopic, path)}
+          onDoubleClick={() => (item.type === 'qna' ? props.editQnA(item.name.replace('/qna', '')) : null)}
           onClick={() => handleClick({ ...item, isTopic, path })}
           qnaCount={props.qnaCountByTopic?.[item.id] || 0}
         />

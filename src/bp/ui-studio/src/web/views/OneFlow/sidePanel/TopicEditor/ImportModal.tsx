@@ -24,6 +24,7 @@ interface Props {
   toggle: () => void
   flows: FlowView[]
   topics: Topic[]
+  selectedTopic: string
 }
 
 const ImportModal: FC<Props> = props => {

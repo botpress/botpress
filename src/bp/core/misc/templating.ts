@@ -17,12 +17,10 @@ export function renderRecursive(item: TemplateItem, context: any): any {
 }
 
 export function renderTemplate(template: string, context: any): string {
-  if (typeof template === 'string') {
-    const variables = template.match(/\$[a-zA-Z]+/g) ?? []
-    for (const match of variables) {
-      const name = match.replace('$', '')
-      template = template.replace(match, `{{workflow.variables.${name}}}`)
-    }
+  const variables = template.match(/\$[a-zA-Z]+/g) ?? []
+  for (const match of variables) {
+    const name = match.replace('$', '')
+    template = template.replace(match, `{{workflow.variables.${name}}}`)
   }
 
   let i = 0
