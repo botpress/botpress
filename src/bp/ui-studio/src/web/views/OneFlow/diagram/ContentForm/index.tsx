@@ -57,6 +57,7 @@ const ContentForm: FC<Props> = ({
 
   const contentFields = contentTypesFields?.[contentType.current]
 
+  // TODO reimplement hasChanged, doesn't work properly atm
   const hasChanged = !(
     _.isEqual(formData, { contentType: contentType.current }) ||
     _.isEqual(formData, {
