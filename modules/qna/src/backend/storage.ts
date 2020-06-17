@@ -96,8 +96,7 @@ export default class Storage {
     await this.checkForDuplicatedQuestions(data, id)
 
     id = id || makeID(data)
-    data.lastModified = new Date()
-    const item: QnaItem = { id, data }
+    const item: QnaItem = { id, data: { ...data, lastModified: new Date() } }
 
     if (data.enabled) {
       await this.createNLUIntentFromQnaItem(item, false)
@@ -125,8 +124,7 @@ export default class Storage {
     const ids = await Promise.mapSeries(_.isArray(qna) ? qna : [qna], async (data, i) => {
       const id = makeID(data)
       await this.checkForDuplicatedQuestions(data, id)
-      data.lastModified = new Date()
-      const item: QnaItem = { id, data }
+      const item: QnaItem = { id, data: { ...data, lastModified: new Date() } }
       if (data.enabled) {
         await this.createNLUIntentFromQnaItem(item, true)
       }
@@ -185,17 +183,8 @@ export default class Storage {
     order: string,
     lang: string
   ) {
-    let enabledRequiredValue = undefined
-    let requiredIncomplete = false
-    if (stateFilter === 'active') {
-      enabledRequiredValue = true
-    } else if (stateFilter === 'disabled') {
-      enabledRequiredValue = false
-    } else if (stateFilter === 'incomplete') {
-      requiredIncomplete = true
-      if (!lang) {
-        throw new Error('Using the incomplete parameter requires the lang parameter to be set')
-      }
+    if (stateFilter === 'incomplete' && !lang) {
+      throw new Error('Using the incomplete parameter requires the lang parameter to be set')
     }
 
     const allQuestions = await this.fetchQNAs()
@@ -209,11 +198,11 @@ export default class Storage {
           .toLowerCase()
           .indexOf(question.toLowerCase()) !== -1
 
-      if (enabledRequiredValue !== undefined && q.data.enabled !== enabledRequiredValue) {
-        return false
-      }
-
-      if (requiredIncomplete && isQnaComplete(q.data, lang)) {
+      if (
+        (stateFilter === 'active' && q.data.enabled) ||
+        (stateFilter === 'disabled' && !q.data.enabled) ||
+        (stateFilter === 'incomplete' && isQnaComplete(q.data, lang))
+      ) {
         return false
       }
 
@@ -227,7 +216,7 @@ export default class Storage {
       return hasMatch && !!_.intersection(contexts, filteredContexts).length
     })
 
-    if (order === 'asc') {
+    if (order) {
       return _.orderBy(filteredQuestions, q => (q.data.lastModified ? new Date(q.data.lastModified).getTime() : 0), [
         <'asc' | 'desc'>order
       ])
