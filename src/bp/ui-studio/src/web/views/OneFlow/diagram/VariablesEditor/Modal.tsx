@@ -1,8 +1,8 @@
 import { Button, FormGroup, IDialogProps, InputGroup } from '@blueprintjs/core'
 import axios from 'axios'
-import { FlowVariable } from 'botpress/sdk'
-import { ContentForms, Dialog, Dropdown, lang, Option } from 'botpress/shared'
-import { FlowVariableType, FormData } from 'common/typings'
+import { FlowVariable, FormData } from 'botpress/sdk'
+import { Contents, Dialog, Dropdown, lang, Option } from 'botpress/shared'
+import { FlowVariableType } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { sanitizeName } from '~/util'
 
@@ -67,7 +67,7 @@ const VariableModal: FC<Props> = props => {
             }}
           />
         </FormGroup>
-        <ContentForms.Form
+        <Contents.Form
           fields={fields}
           advancedSettings={advancedSettings}
           bp={undefined}
