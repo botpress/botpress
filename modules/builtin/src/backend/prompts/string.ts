@@ -8,12 +8,11 @@ class PromptString implements Prompt {
 
   // This method is provided with the incoming event to extract any necessary information
   extraction(event: IO.IncomingEvent): { value: string; confidence: number } | undefined {
-    const entity = event.nlu?.entities?.find(x => x.type === 'system.number')
-    console.log(event)
-    if (entity) {
+    const text = event.payload.text
+    if (text) {
       return {
-        value: entity.data.value,
-        confidence: entity.meta.confidence
+        value: text,
+        confidence: 1
       }
     }
   }
