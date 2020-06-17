@@ -1,5 +1,5 @@
+import { FormData } from 'botpress/sdk'
 import cx from 'classnames'
-import { FormData } from 'common/typings'
 import React, { FC, Fragment } from 'react'
 import Dotdotdot from 'react-dotdotdot'
 

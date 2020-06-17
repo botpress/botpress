@@ -119,14 +119,14 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory(this.props.skills))
     this.diagramEngine.registerNodeFactory(
-      new SaySomethingWidgetFactory(
-        this.editContent.bind(this),
-        this.getEditingContent.bind(this),
-        this.deleteSelectedElements.bind(this),
-        this.getCurrentFlow.bind(this),
-        this.updateNodeAndRefresh.bind(this),
-        this.getCurrentLang.bind(this)
-      )
+      new SaySomethingWidgetFactory({
+        editContent: this.editContent.bind(this),
+        selectedNodeContent: this.getEditingContent.bind(this),
+        deleteSelectedElements: this.deleteSelectedElements.bind(this),
+        getCurrentFlow: this.getCurrentFlow.bind(this),
+        updateNodeAndRefresh: this.updateNodeAndRefresh.bind(this),
+        getCurrentLang: this.getCurrentLang.bind(this)
+      })
     )
     this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ListenWidgetFactory())
@@ -561,6 +561,7 @@ class Diagram extends Component<Props> {
 
   deleteSelectedElements() {
     const elements = _.sortBy(this.diagramEngine.getDiagramModel().getSelectedItems(), 'nodeType')
+    this.setState({ editingNodeContent: null })
 
     // Use sorting to make the nodes first in the array, deleting the node before the links
     for (const element of elements) {
@@ -715,11 +716,9 @@ class Diagram extends Component<Props> {
       index
     } = this.state.editingNodeContent
     const newContents = [...contents]
+    const currentType = newContents[index][this.state.currentLang]?.contentType
 
-    if (
-      newContents[index][this.state.currentLang]?.contentType &&
-      newContents[index][this.state.currentLang].contentType !== data.contentType
-    ) {
+    if (currentType && currentType !== data.contentType) {
       newContents[index] = { [this.state.currentLang]: data }
     } else {
       newContents[index][this.state.currentLang] = data

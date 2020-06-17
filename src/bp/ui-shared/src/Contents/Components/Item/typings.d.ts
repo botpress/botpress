@@ -1,4 +1,4 @@
-import { FormData } from 'common/typings'
+import { FormData } from 'botpress/sdk'
 
 export interface ItemProps {
   content: FormData

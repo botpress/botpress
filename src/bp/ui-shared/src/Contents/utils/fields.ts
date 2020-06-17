@@ -1,24 +1,24 @@
-import { FormData } from 'common/typings'
+import { FormData } from 'botpress/sdk'
 
 export const getEmptyFormData = (contentType: string, isPartOfGroup = false): FormData => {
   switch (contentType) {
     case 'builtin_image':
       return {
         markdown: true,
-        typingIndicator: true,
+        typing: true,
         image: undefined,
         title: ''
       }
     case 'builtin_text':
       return {
         markdown: true,
-        typingIndicator: true,
+        typing: true,
         text: '',
         variations: []
       }
     case 'card':
     case 'builtin_card':
-      const advanced = isPartOfGroup ? {} : { markdown: true, typingIndicator: true }
+      const advanced = isPartOfGroup ? {} : { markdown: true, typing: true }
 
       return {
         ...advanced,
@@ -30,7 +30,7 @@ export const getEmptyFormData = (contentType: string, isPartOfGroup = false): Fo
     case 'builtin_carousel':
       return {
         markdown: true,
-        typingIndicator: true,
+        typing: true,
         items: [getEmptyFormData('builtin_card', true)]
       }
     case 'builtin_single-choice':
@@ -43,7 +43,7 @@ export const getEmptyFormData = (contentType: string, isPartOfGroup = false): Fo
       }
       return {
         onTopOfKeyboard: true,
-        typingIndicator: true,
+        typing: true,
         canAdd: false,
         multiple: false,
         choices: [getEmptyFormData('builtin_single-choice', true)]

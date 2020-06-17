@@ -1,7 +1,7 @@
 import { Button, Icon, Intent, Menu, MenuItem, Tooltip } from '@blueprintjs/core'
+import { FormData } from 'botpress/sdk'
 import { Contents, contextMenu, lang, ShortcutLabel } from 'botpress/shared'
 import cx from 'classnames'
-import { FormData } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useRef, useState } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
@@ -210,22 +210,15 @@ export class SaySomethingWidgetFactory extends AbstractNodeFactory {
   private getCurrentFlow: any
   private updateFlowNode: any
 
-  constructor(
-    editContent: (node, index) => void,
-    selectedNodeContent: () => { node: SaySomethingNodeModel; index: number },
-    deleteSelectedElements: () => void,
-    getCurrentFlow: any,
-    updateFlowNode: any,
-    getCurrentLang: () => string
-  ) {
+  constructor(methods) {
     super('say_something')
 
-    this.editContent = editContent
-    this.selectedNodeContent = selectedNodeContent
-    this.deleteSelectedElements = deleteSelectedElements
-    this.getCurrentFlow = getCurrentFlow
-    this.updateFlowNode = updateFlowNode
-    this.getCurrentLang = getCurrentLang
+    this.editContent = methods.editContent
+    this.selectedNodeContent = methods.selectedNodeContent
+    this.deleteSelectedElements = methods.deleteSelectedElements
+    this.getCurrentFlow = methods.getCurrentFlow
+    this.updateFlowNode = methods.updateFlowNode
+    this.getCurrentLang = methods.getCurrentLang
   }
 
   generateReactWidget(diagramEngine: DiagramEngine, node: SaySomethingNodeModel) {

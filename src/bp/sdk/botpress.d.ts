@@ -5,7 +5,6 @@
  * Please let us know in our official Github Repo!
  */
 declare module 'botpress/sdk' {
-  import { FormData } from 'common/typings'
   import Knex from 'knex'
   import { Router, Request, Response, NextFunction } from 'express'
 
@@ -1359,6 +1358,12 @@ declare module 'botpress/sdk' {
     condition: string
     /** The destination node */
     node: string
+  }
+
+  export interface FormData {
+    id?: string
+    contentType?: string
+    [key: string]: undefined | number | boolean | string | FormData[]
   }
 
   /**
