@@ -1,4 +1,4 @@
-import { BotDetails, Flow, FlowNode, RolloutStrategy, StageRequestApprovers } from 'botpress/sdk'
+import { BotDetails, BoxedVarConstructable, Flow, FlowNode, RolloutStrategy, StageRequestApprovers } from 'botpress/sdk'
 import { StrategyUser } from 'botpress/sdk'
 import { Request } from 'express'
 
@@ -251,8 +251,58 @@ export type ActionServerWithActions = ActionServer & {
   actions: ActionDefinition[] | undefined
 }
 
+export interface FlowVariableType {
+  id: string
+  config: FlowVariableConfig
+  box: BoxedVarConstructable<any>
+}
+
+export type FlowVariableConfig = FormDefinition
+
 export interface FormData {
   id?: string
   contentType?: string
   [key: string]: undefined | number | boolean | string | FormData[]
+}
+
+export interface FormMoreInfo {
+  label: string
+  url?: string
+}
+
+export interface FormAdvancedSetting {
+  key: string
+  label: string
+  type: string
+  moreInfo?: FormMoreInfo
+}
+
+export interface FormOption {
+  value: string
+  label: string
+  related: FormField
+}
+
+export interface FormContextMenu {
+  type: string
+  label: string
+}
+
+export interface FormField {
+  type: 'checkbox' | 'group' | 'select' | 'text' | 'textarea' | 'upload' | 'url'
+  key: string
+  label: string
+  placeholder?: string
+  options?: FormOption[]
+  fields?: FormField[]
+  group?: {
+    addLabel?: string // you have to specify the add button label
+    minimum?: number // you can specify a minimum so the delete button won't show if there isn't more than the minimum
+    contextMenu?: FormContextMenu[] // you can add a contextual menu to add extra options
+  }
+}
+
+export interface FormDefinition {
+  advancedSettings: FormAdvancedSetting[]
+  fields: FormField[]
 }

@@ -9,6 +9,7 @@ import { Body, Footer, Wrapper } from './Dialog'
 import Dropdown from './Dropdown'
 import EmptyState from './EmptyState'
 import FormFields from './FormFields'
+import Icons from './Icons'
 import MainContainer from './MainContainer'
 import MainContent from './MainContent'
 import RightSidebar from './MainContent/RightSidebar'
@@ -35,6 +36,7 @@ exports.Overlay = Overlay
 exports.ShortcutLabel = ShortcutLabel
 exports.Textarea = Textarea
 exports.TreeView = TreeView
+exports.Icons = Icons
 
 exports.contextMenu = contextMenu
 exports.confirmDialog = confirmDialog

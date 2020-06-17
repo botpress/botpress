@@ -158,6 +158,7 @@ function extractForListModel(utterance: Utterance, listModel: ListEntityModel): 
         occurrence: match.occurrence,
         entityId: listModel.id
       },
+      sensitive: listModel.sensitive,
       type: listModel.entityName
     })) as EntityExtractionResult[]
 }
@@ -204,6 +205,7 @@ export const extractPatternEntities = (
         source: res.value,
         entityId: `custom.pattern.${ent.name}`
       },
+      sensitive: ent.sensitive,
       type: ent.name
     }))
   })
