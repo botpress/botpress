@@ -110,7 +110,7 @@ class Diagram extends Component<Props> {
     currentTriggerNode: null,
     isTriggerEditOpen: false,
     editingNodeContent: null,
-    currentLang: ''
+    currentLang: '',
     currentTab: 'workflow'
   }
 
