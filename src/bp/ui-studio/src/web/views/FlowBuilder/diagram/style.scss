@@ -16,3 +16,13 @@
     margin-top: 10px;
   }
 }
+
+.hidden {
+  display: none;
+}
+
+.diagramContainer {
+  outline: none;
+  width: 100%;
+  height: calc(100% - 28px);
+}
