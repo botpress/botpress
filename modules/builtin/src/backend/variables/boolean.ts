@@ -24,7 +24,7 @@ class BoxedBoolean implements BoxedVariable<boolean> {
 
   trySet(value: boolean, confidence: number) {
     if (typeof value === 'boolean') {
-      this.value = value
+      this._value = value
       this._confidence = confidence
     } else {
       this._value = yn(value)
@@ -48,7 +48,7 @@ class BoxedBoolean implements BoxedVariable<boolean> {
     if (customFormat === 'y/n') {
       return this._value ? 'Yes' : 'No'
     } else {
-      return this._value.toString()
+      return this._value ? 'True' : 'False'
     }
   }
 
