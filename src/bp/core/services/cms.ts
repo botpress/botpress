@@ -612,6 +612,11 @@ export class CMSService implements IDisposeOnExit {
       const defaultLang = (await this.configProvider.getBotConfig(eventDestination.botId)).defaultLanguage
       const lang = _.get(args, 'event.state.user.language')
 
+      // Supports the new format for say nodes
+      if (formData?.[lang] || formData?.[defaultLang]) {
+        return formData?.[lang] || formData?.[defaultLang]
+      }
+
       return this.getOriginalProps(formData, contentTypeRenderer, lang, defaultLang)
     }
 
