@@ -12,6 +12,7 @@ import {
   Toaster
 } from '@blueprintjs/core'
 import { lang, MainContent } from 'botpress/shared'
+import cx from 'classnames'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
@@ -26,6 +27,7 @@ import {
   createFlowNode,
   fetchFlows,
   fetchPrompts,
+  getQnaCountByTopic,
   insertNewSkillNode,
   openFlowNodeProps,
   pasteFlowNode,
@@ -36,7 +38,9 @@ import {
   updateFlowNode,
   updateFlowProblems
 } from '~/actions'
+import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { toastSuccess } from '~/components/Shared/Utils'
+import withLanguage from '~/components/Util/withLanguage'
 import { getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/reducers'
 import {
   defaultTransition,
@@ -62,6 +66,7 @@ import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/OneFlo
 import { PromptNodeModel, PromptWidgetFactory } from './nodes/PromptNode'
 import Toolbar from './Toolbar'
 import TriggerEditor from './TriggerEditor'
+import VariablesEditor from './VariablesEditor'
 import WorkflowToolbar from './WorkflowToolbar'
 
 interface OwnProps {
@@ -69,15 +74,23 @@ interface OwnProps {
   hideSearch: () => void
   readOnly: boolean
   canPasteNode: boolean
+  selectedTopic: string
+  selectedWorkflow: string
   flowPreview: boolean
   highlightFilter: string
   handleFilterChanged: (event: any) => void
 }
 
+interface LangProps {
+  contentLang: string
+  languages: string[]
+  defaultLanguage: string
+}
+
 type StateProps = ReturnType<typeof mapStateToProps>
 type DispatchProps = typeof mapDispatchToProps
 
-type Props = DispatchProps & StateProps & OwnProps
+type Props = DispatchProps & StateProps & OwnProps & LangProps
 
 type BpNodeModel = StandardNodeModel | SkillCallNodeModel
 
@@ -97,7 +110,8 @@ class Diagram extends Component<Props> {
   state = {
     highlightFilter: '',
     currentTriggerNode: null,
-    isTriggerEditOpen: false
+    isTriggerEditOpen: false,
+    currentTab: 'workflow'
   }
 
   constructor(props) {
@@ -693,40 +707,68 @@ class Diagram extends Component<Props> {
     return target && target.model instanceof RouterNodeModel
   }
 
-  render() {
-    return (
-      <MainContent.Wrapper>
-        <WorkflowToolbar />
-        <Fragment>
-          <div
-            id="diagramContainer"
-            ref={ref => (this.diagramContainer = ref)}
-            tabIndex={1}
-            style={{ outline: 'none', width: '100%', height: '100%' }}
-            onContextMenu={this.handleContextMenu}
-            onDrop={this.handleToolDropped}
-            onDragOver={event => event.preventDefault()}
-          >
-            <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
+  handleTabChanged = (tab: string) => {
+    this.setState({ currentTab: tab })
+  }
 
-            <DiagramWidget
-              ref={w => (this.diagramWidget = w)}
-              deleteKeys={[]}
+  render() {
+    const isQnA = this.props.selectedWorkflow === 'qna'
+    return (
+      <Fragment>
+        {isQnA && (
+          <InjectedModuleView
+            key={`${this.props.selectedTopic}`}
+            moduleName="qna"
+            componentName="LiteEditor"
+            contentLang={this.props.contentLang}
+            extraProps={{
+              isLite: true,
+              topicName: this.props.selectedTopic,
+              languages: this.props.languages,
+              defaultLanguage: this.props.defaultLanguage,
+              refreshQnaCount: () => {
+                // So it's processed on the next tick, otherwise it won't update with the latest update
+                setTimeout(() => {
+                  this.props.getQnaCountByTopic()
+                }, 100)
+              }
+            }}
+          />
+        )}
+        <MainContent.Wrapper className={cx({ [style.hidden]: isQnA })}>
+          <WorkflowToolbar tabChange={this.handleTabChanged} />
+          {this.state.currentTab === 'variables' && <VariablesEditor />}
+          <Fragment>
+            <div
+              id="diagramContainer"
+              ref={ref => (this.diagramContainer = ref)}
+              tabIndex={1}
+              className={style.diagramContainer}
+              onContextMenu={this.handleContextMenu}
+              onDrop={this.handleToolDropped}
+              onDragOver={event => event.preventDefault()}
+            >
+              <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
+
+              <DiagramWidget
+                ref={w => (this.diagramWidget = w)}
+                deleteKeys={[]}
+                diagramEngine={this.diagramEngine}
+                inverseZoom={true}
+              />
+            </div>
+
+            <TriggerEditor
+              node={this.state.currentTriggerNode}
+              isOpen={this.state.isTriggerEditOpen}
               diagramEngine={this.diagramEngine}
-              inverseZoom={true}
+              toggle={() => this.setState({ isTriggerEditOpen: !this.state.isTriggerEditOpen })}
             />
 
             <Toolbar />
-          </div>
-
-          <TriggerEditor
-            node={this.state.currentTriggerNode}
-            isOpen={this.state.isTriggerEditOpen}
-            diagramEngine={this.diagramEngine}
-            toggle={() => this.setState({ isTriggerEditOpen: !this.state.isTriggerEditOpen })}
-          />
-        </Fragment>
-      </MainContent.Wrapper>
+          </Fragment>
+        </MainContent.Wrapper>
+      </Fragment>
     )
   }
 
@@ -790,9 +832,10 @@ const mapDispatchToProps = {
   insertNewSkillNode,
   updateFlowProblems,
   buildSkill: buildNewSkill,
-  addElementToLibrary
+  addElementToLibrary,
+  getQnaCountByTopic
 }
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps, null, {
   withRef: true
-})(Diagram)
+})(withLanguage(Diagram))
