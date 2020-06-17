@@ -64,6 +64,7 @@ import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/OneFlo
 
 import Toolbar from './Toolbar'
 import TriggerEditor from './TriggerEditor'
+import VariablesEditor from './VariablesEditor'
 import WorkflowToolbar from './WorkflowToolbar'
 
 interface OwnProps {
@@ -107,7 +108,8 @@ class Diagram extends Component<Props> {
   state = {
     highlightFilter: '',
     currentTriggerNode: null,
-    isTriggerEditOpen: false
+    isTriggerEditOpen: false,
+    currentTab: 'workflow'
   }
 
   constructor(props) {
@@ -659,6 +661,10 @@ class Diagram extends Component<Props> {
     return target && target.model instanceof RouterNodeModel
   }
 
+  handleTabChanged = (tab: string) => {
+    this.setState({ currentTab: tab })
+  }
+
   render() {
     const isQnA = this.props.selectedWorkflow === 'qna'
     return (
@@ -684,7 +690,8 @@ class Diagram extends Component<Props> {
           />
         )}
         <MainContent.Wrapper className={cx({ [style.hidden]: isQnA })}>
-          <WorkflowToolbar />
+          <WorkflowToolbar tabChange={this.handleTabChanged} />
+          {this.state.currentTab === 'variables' && <VariablesEditor />}
           <Fragment>
             <div
               id="diagramContainer"
