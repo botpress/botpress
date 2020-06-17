@@ -199,8 +199,8 @@ export default class Storage {
           .indexOf(question.toLowerCase()) !== -1
 
       if (
-        (stateFilter === 'active' && q.data.enabled) ||
-        (stateFilter === 'disabled' && !q.data.enabled) ||
+        (stateFilter === 'active' && !q.data.enabled) ||
+        (stateFilter === 'disabled' && q.data.enabled) ||
         (stateFilter === 'incomplete' && isQnaComplete(q.data, lang))
       ) {
         return false
