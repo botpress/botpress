@@ -1,5 +1,5 @@
+import { FormData } from 'botpress/sdk'
 import cx from 'classnames'
-import { FormData } from 'common/typings'
 import React, { FC, Fragment } from 'react'
 import Dotdotdot from 'react-dotdotdot'
 
@@ -22,13 +22,13 @@ const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active }) => {
   }
 
   const renderContent = (): JSX.Element | string => {
-    switch (content.renderType) {
-      case 'image':
-      case 'card':
+    switch (content.contentType) {
+      case 'builtin_image':
+      case 'builtin_card':
         return renderCardOrImg(content)
-      case 'carousel':
+      case 'builtin_carousel':
         return renderCardOrImg(content.items?.[0] || {})
-      case 'suggestions':
+      case 'builtin_single-choice':
         return (
           <Dotdotdot clamp={3}>{(content.choices as FormData[])?.map(choice => choice.title).join(' · ')}</Dotdotdot>
         )
@@ -53,7 +53,7 @@ const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active }) => {
     <button
       className={cx('content-wrapper', style.contentWrapper, {
         [`${style.active} active`]: active,
-        [style.carousel]: content.renderType === 'carousel'
+        [style.carousel]: content.contentType === 'builtin_carousel'
       })}
       onClick={onEdit}
     >

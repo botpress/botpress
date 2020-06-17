@@ -1360,6 +1360,12 @@ declare module 'botpress/sdk' {
     node: string
   }
 
+  export interface FormData {
+    id?: string
+    contentType?: string
+    [key: string]: undefined | number | boolean | string | FormData[]
+  }
+
   /**
    * A Node Action represent all the possible actions that will be executed when the user is on the node. When the user
    * enters the node, actions in the 'onEnter' are executed. If there are actions in 'onReceive', they will be called
@@ -1374,10 +1380,7 @@ declare module 'botpress/sdk' {
     next?: NodeTransition[]
     /** For node of type say_something, this contains the element to render */
     contents?: {
-      contentType: string
-      renderType: string
-      /** Every properties required by the content type, including translations */
-      formData: object
+      [lang: string]: FormData
     }[]
   }
 

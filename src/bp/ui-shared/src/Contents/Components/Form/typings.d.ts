@@ -1,5 +1,5 @@
 import { FormAdvancedSetting, FormField } from '../../utils/typings'
-import { FormData } from 'common/typings'
+import { FormData } from 'botpress/sdk'
 
 export interface FormProps {
   bp?: any
@@ -7,6 +7,6 @@ export interface FormProps {
   fields: FormField[]
   advancedSettings?: FormAdvancedSetting[]
   formData?: FormData
-  renderType?: string
+  contentType?: string
   onUpdate: (data: { [key: string]: string }) => void
 }

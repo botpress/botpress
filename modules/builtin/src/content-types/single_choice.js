@@ -143,7 +143,6 @@ module.exports = {
 
   newSchema: {
     displayedIn: ['qna', 'sayNode'],
-    renderType: 'suggestions',
     advancedSettings: [
       {
         key: 'onTopOfKeyboard',
@@ -151,7 +150,7 @@ module.exports = {
         label: 'module.builtin.types.suggestions.displayOnTop'
       },
       {
-        key: 'typingIndicator',
+        key: 'typing',
         type: 'checkbox',
         label: 'module.builtin.typingIndicator'
       },

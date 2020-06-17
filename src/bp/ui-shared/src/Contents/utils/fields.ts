@@ -1,23 +1,24 @@
-import { FormData } from 'common/typings'
+import { FormData } from 'botpress/sdk'
 
-export const getEmptyFormData = (renderType: string, isPartOfGroup = false): FormData => {
-  switch (renderType) {
-    case 'image':
+export const getEmptyFormData = (contentType: string, isPartOfGroup = false): FormData => {
+  switch (contentType) {
+    case 'builtin_image':
       return {
         markdown: true,
-        typingIndicator: true,
+        typing: true,
         image: undefined,
         title: ''
       }
-    case 'text':
+    case 'builtin_text':
       return {
         markdown: true,
-        typingIndicator: true,
+        typing: true,
         text: '',
         variations: []
       }
     case 'card':
-      const advanced = isPartOfGroup ? {} : { markdown: true, typingIndicator: true }
+    case 'builtin_card':
+      const advanced = isPartOfGroup ? {} : { markdown: true, typing: true }
 
       return {
         ...advanced,
@@ -26,12 +27,13 @@ export const getEmptyFormData = (renderType: string, isPartOfGroup = false): For
         subtitle: '',
         items: []
       }
-    case 'carousel':
+    case 'builtin_carousel':
       return {
         markdown: true,
-        typingIndicator: true,
-        items: [getEmptyFormData('card', true)]
+        typing: true,
+        items: [getEmptyFormData('builtin_card', true)]
       }
+    case 'builtin_single-choice':
     case 'suggestions':
       if (isPartOfGroup) {
         return {
@@ -41,10 +43,10 @@ export const getEmptyFormData = (renderType: string, isPartOfGroup = false): For
       }
       return {
         onTopOfKeyboard: true,
-        typingIndicator: true,
+        typing: true,
         canAdd: false,
         multiple: false,
-        choices: [getEmptyFormData('suggestions', true)]
+        choices: [getEmptyFormData('builtin_single-choice', true)]
       }
     case 'buttons':
       return {
