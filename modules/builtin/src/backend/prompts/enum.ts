@@ -3,6 +3,8 @@ import { ExtractionResult, IO, Prompt, ValidationResult } from 'botpress/sdk'
 import * as sdk from 'botpress/sdk'
 import { PromptConfig } from 'common/typings'
 
+import commonFields from './common'
+
 class PromptEnum implements Prompt {
   private _entity: string
   private _question: string
@@ -16,7 +18,6 @@ class PromptEnum implements Prompt {
 
   extraction(event: IO.IncomingEvent): ExtractionResult | undefined {
     const entity = event.nlu?.entities?.find(x => x.type === `custom.list.${this._entity}`)
-    console.log(entity)
     if (entity) {
       return {
         value: entity.data.value,
@@ -73,6 +74,7 @@ const config: PromptConfig = {
   label: 'Enum',
   valueType: 'string',
   fields: [
+    ...commonFields(),
     {
       type: 'text',
       key: 'entity',

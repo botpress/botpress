@@ -1,6 +1,8 @@
 import { ExtractionResult, IO, Prompt, ValidationResult } from 'botpress/sdk'
 import { PromptConfig } from 'common/typings'
 
+import commonFields from './common'
+
 class PromptString implements Prompt {
   private _maxLength: boolean
   private _regexPattern: string
@@ -42,6 +44,7 @@ const config: PromptConfig = {
   label: 'String',
   valueType: 'string',
   fields: [
+    ...commonFields(),
     {
       type: 'text',
       key: 'maxLength',

@@ -9,6 +9,7 @@ import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
+import { cpuUsage } from 'process'
 
 import { EventEngine } from '../middleware/event-engine'
 
@@ -144,7 +145,7 @@ export class PromptManager {
 
       event.state.setVariable(node.output, status.value, valueType ?? '')
       await this._continueOriginalEvent(event)
-    } else if (status.turns > 5) {
+    } else if (status.turns > node?.params?.duration) {
       debugPrompt('prompt expired', status.value)
       await this._continueOriginalEvent(event)
     }
@@ -217,9 +218,10 @@ export class PromptManager {
       return [event]
     }
 
+    const count = event.prompt?.params?.searchBackCount
     const lastEvents: IO.StoredEvent[] = await this.eventRepository.findEvents(
       { direction: 'incoming', target: event.target },
-      { count: 5, sortOrder: [{ column: 'createdOn', desc: true }] }
+      { count, sortOrder: [{ column: 'createdOn', desc: true }] }
     )
 
     return lastEvents.map(x => x.event as IO.IncomingEvent)

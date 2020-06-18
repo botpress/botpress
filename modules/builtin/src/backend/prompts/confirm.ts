@@ -4,6 +4,8 @@ import { extractEventCommonArgs } from 'common/action'
 import { PromptConfig } from 'common/typings'
 import yn from 'yn'
 
+import commonFields from './common'
+
 class PromptConfirm implements Prompt {
   private _question: string
 
@@ -59,6 +61,7 @@ const config: PromptConfig = {
   minConfidence: 1,
   noValidation: true,
   fields: [
+    ...commonFields(),
     {
       type: 'text',
       key: 'question',

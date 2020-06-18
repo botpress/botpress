@@ -2,6 +2,8 @@ import { ExtractionResult, IO, Prompt, ValidationResult } from 'botpress/sdk'
 import { PromptConfig } from 'common/typings'
 import moment from 'moment'
 
+import commonFields from './common'
+
 class PromptDate implements Prompt {
   private _mustBePast: boolean
   private _mustBeFuture: boolean
@@ -46,6 +48,7 @@ const config: PromptConfig = {
   label: 'Date',
   valueType: 'date',
   fields: [
+    ...commonFields(),
     {
       type: 'checkbox',
       key: 'mustBePast',
