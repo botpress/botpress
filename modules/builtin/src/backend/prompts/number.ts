@@ -1,6 +1,4 @@
-import { IO, Prompt, PromptConfig } from 'botpress/sdk'
-import { max, min } from 'lodash'
-import moment from 'moment'
+import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
 
 class PromptNumber implements Prompt {
   private _min: boolean
@@ -11,7 +9,7 @@ class PromptNumber implements Prompt {
     this._max = max
   }
 
-  extraction(event: IO.IncomingEvent): { value: number; confidence: number } | undefined {
+  extraction(event: IO.IncomingEvent): ExtractionResult | undefined {
     const entity = event.nlu?.entities?.find(x => x.type === 'system.number')
     if (entity) {
       return {
@@ -21,7 +19,7 @@ class PromptNumber implements Prompt {
     }
   }
 
-  async validate(value): Promise<{ valid: boolean; message?: string }> {
+  async validate(value): Promise<ValidationResult> {
     const { _min, _max } = this
 
     if (value == undefined) {

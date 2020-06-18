@@ -1,11 +1,9 @@
-import { IO, Prompt, PromptConfig } from 'botpress/sdk'
-import { max, min } from 'lodash'
-import moment from 'moment'
+import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
 
 class PromptString implements Prompt {
   constructor() {}
 
-  extraction(event: IO.IncomingEvent): { value: string; confidence: number } | undefined {
+  extraction(event: IO.IncomingEvent): ExtractionResult | undefined {
     const text = event.payload.text
     if (text) {
       return {
@@ -15,7 +13,7 @@ class PromptString implements Prompt {
     }
   }
 
-  async validate(value): Promise<{ valid: boolean; message?: string }> {
+  async validate(value): Promise<ValidationResult> {
     if (value == undefined) {
       return { valid: false, message: 'Provided value is invalid' }
     }

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { IO, Prompt, PromptConfig } from 'botpress/sdk'
+import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
 import * as sdk from 'botpress/sdk'
 
 class PromptEnum implements Prompt {
@@ -13,7 +13,7 @@ class PromptEnum implements Prompt {
     this._useDropdown = useDropdown
   }
 
-  extraction(event: IO.IncomingEvent): { value: string; confidence: number } | undefined {
+  extraction(event: IO.IncomingEvent): ExtractionResult | undefined {
     const entity = event.nlu?.entities?.find(x => x.type === `custom.list.${this._entity}`)
     if (entity) {
       return {
@@ -23,7 +23,7 @@ class PromptEnum implements Prompt {
     }
   }
 
-  async validate(value): Promise<{ valid: boolean; message?: string }> {
+  async validate(value): Promise<ValidationResult> {
     if (value == undefined) {
       return { valid: false, message: 'Provided value is invalid' }
     }

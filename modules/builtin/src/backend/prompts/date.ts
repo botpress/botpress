@@ -1,4 +1,4 @@
-import { IO, Prompt, PromptConfig } from 'botpress/sdk'
+import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
 import moment from 'moment'
 
 class PromptDate implements Prompt {
@@ -10,7 +10,7 @@ class PromptDate implements Prompt {
     this._mustBeFuture = mustBeFuture
   }
 
-  extraction(event: IO.IncomingEvent): { value: string; confidence: number } | undefined {
+  extraction(event: IO.IncomingEvent): ExtractionResult | undefined {
     const entity = event.nlu?.entities?.find(x => x.type === 'system.time')
     if (entity) {
       return {
@@ -20,7 +20,7 @@ class PromptDate implements Prompt {
     }
   }
 
-  async validate(value): Promise<{ valid: boolean; message?: string }> {
+  async validate(value): Promise<ValidationResult> {
     const { _mustBePast, _mustBeFuture } = this
 
     if (value == undefined) {

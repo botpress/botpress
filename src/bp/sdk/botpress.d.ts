@@ -1556,12 +1556,12 @@ declare module 'botpress/sdk' {
      * This method will receive multiple
      * @param event
      */
-    extraction(event: IO.IncomingEvent): { value: any; confidence: number } | undefined
+    extraction(event: IO.IncomingEvent): ExtractionResult | undefined
     /**
      * This method
      * @param value
      */
-    validate(value): Promise<{ valid: boolean; message?: string }>
+    validate(value): Promise<ValidationResult>
     /**
      * When the prompt is sent to the user, an event of type "prompt" is sent to the corresponding channel.
      * You can customize the event that will be sent to the user
@@ -1571,6 +1571,16 @@ declare module 'botpress/sdk' {
       incomingEvent: IO.IncomingEvent,
       bp: typeof import('botpress/sdk')
     ): Promise<void>
+  }
+
+  export interface ExtractionResult {
+    value: any
+    confidence: number
+  }
+
+  export interface ValidationResult {
+    valid: boolean
+    message?: string
   }
 
   export interface PromptConstructable<T> {
