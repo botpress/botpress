@@ -162,8 +162,8 @@ export class SlackClient {
     if (event.type === 'typing') {
       if (this.rtm) {
         await this.rtm.sendTyping(event.threadId || event.target)
+        await new Promise(resolve => setTimeout(() => resolve(), 1000))
       }
-      await new Promise(resolve => setTimeout(() => resolve(), 1000))
 
       return next(undefined, false)
     }

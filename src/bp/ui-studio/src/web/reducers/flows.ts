@@ -437,7 +437,7 @@ let reducer = handleActions(
         ...state.flowsByName,
         [state.currentFlow]: {
           ...state.flowsByName[state.currentFlow],
-          nodes: state.flowsByName[state.currentFlow].nodes.map(node => ({ ...node, lastModified: new Date() }))
+          nodes: state.flowsByName[state.currentFlow]?.nodes.map(node => ({ ...node, lastModified: new Date() })) || []
         }
       }
     })

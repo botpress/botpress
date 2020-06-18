@@ -14,6 +14,7 @@ interface CssExports {
   'hasError': string;
   'header': string;
   'headerWrapper': string;
+  'highlightedQna': string;
   'initialLoading': string;
   'input': string;
   'items': string;

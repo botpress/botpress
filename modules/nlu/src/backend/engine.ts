@@ -7,7 +7,15 @@ import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipe
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
 import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
-import { EntityCacheDump, ListEntity, ListEntityModel, NLUEngine, Tools, TrainingSession } from './typings'
+import {
+  EntityCacheDump,
+  ListEntity,
+  ListEntityModel,
+  NLUEngine,
+  Tools,
+  TrainingSession,
+  NLUVersionInfo
+} from './typings'
 
 const trainDebug = DEBUG('nlu').sub('training')
 
@@ -17,7 +25,7 @@ export default class Engine implements NLUEngine {
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<Model> = {}
 
-  constructor(private defaultLanguage: string, private botId: string) {}
+  constructor(private defaultLanguage: string, private botId: string, private version: NLUVersionInfo) {}
 
   static provideTools(tools: Tools) {
     Engine.tools = tools
@@ -80,7 +88,7 @@ export default class Engine implements NLUEngine {
     // Model should be build here, Trainer should not have any idea of how this is stored
     // Error handling should be done here
     const model = await Trainer(input, Engine.tools)
-    model.hash = computeModelHash(intentDefs, entityDefs)
+    model.hash = computeModelHash(intentDefs, entityDefs, this.version, model.languageCode)
     if (model.success) {
       trainingSession &&
         Engine.tools.reportTrainingProgress(this.botId, 'Training complete', {
@@ -108,11 +116,6 @@ export default class Engine implements NLUEngine {
       !!model.hash &&
       this.modelsByLang[lang].hash === model.hash
     )
-  }
-
-  async loadModels(models: Model[]) {
-    // note the usage of mapSeries, possible race condition
-    return Promise.mapSeries(models, model => this.loadModel(model))
   }
 
   async loadModel(model: Model) {

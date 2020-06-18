@@ -65,6 +65,7 @@
       "message": "Message"
     }
   },
-  "typingIndicator": "Display typing indicator",
-  "useMarkdown": "Use markdown"
+  "typingIndicator": "Display typing indicators",
+  "useMarkdown": "Use markdown",
+  "defaultValue": "Default Value"
 }

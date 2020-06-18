@@ -8,6 +8,7 @@ import React, { FC, Fragment, useRef, useState } from 'react'
 import Select from 'react-select'
 
 import { QnaItem } from '../../../backend/qna'
+import { isQnaComplete } from '../../../backend/utils'
 import style from '../style.scss'
 
 import ContentAnswer from './ContentAnswer'
@@ -30,6 +31,7 @@ interface Props {
   defaultLanguage: string
   errorMessages?: string[]
   flows?: Flow[]
+  childRef?: (ref: HTMLDivElement | null) => void
   updateQnA: (qnaItem: QnaItem) => void
   deleteQnA: () => void
   toggleEnabledQnA: () => void
@@ -166,9 +168,7 @@ const QnA: FC<Props> = props => {
     })
   }
 
-  const showIncomplete =
-    questions?.filter(q => !!q.trim()).length < 3 ||
-    (answers?.filter(q => !!q.trim()).length < 1 && !data.redirectFlow && !data.redirectNode)
+  const showIncomplete = !isQnaComplete(props.qnaItem.data, contentLang)
   const currentFlow = flows ? flows.find(({ name }) => name === data.redirectFlow) || { nodes: [] } : { nodes: [] }
   const nodeList = (currentFlow.nodes as FlowNode[])?.map(({ name }) => ({ label: name, value: name }))
   const flowsList = flows.map(({ name }) => ({ label: getFlowLabel(name), value: name }))
@@ -222,6 +222,7 @@ const QnA: FC<Props> = props => {
             <ContextSelector
               className={cx(style.contextSelector)}
               contexts={data.contexts}
+              customIdSuffix={id}
               saveContexts={contexts =>
                 updateQnA({
                   id,
