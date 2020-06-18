@@ -865,38 +865,6 @@ class Diagram extends Component<Props> {
       </Fragment>
     )
   }
-
-  render22() {
-    return (
-      <Fragment>
-        <div
-          id="diagramContainer"
-          ref={ref => (this.diagramContainer = ref)}
-          tabIndex={1}
-          style={{ outline: 'none', width: '100%', height: '100%' }}
-          onContextMenu={this.handleContextMenu}
-          onDrop={this.handleToolDropped}
-          onDragOver={event => event.preventDefault()}
-        >
-          <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
-
-          <DiagramWidget
-            ref={w => (this.diagramWidget = w)}
-            deleteKeys={[]}
-            diagramEngine={this.diagramEngine}
-            inverseZoom={true}
-          />
-        </div>
-
-        <TriggerEditor
-          node={this.state.currentTriggerNode}
-          isOpen={this.state.isTriggerEditOpen}
-          diagramEngine={this.diagramEngine}
-          toggle={() => this.setState({ isTriggerEditOpen: !this.state.isTriggerEditOpen })}
-        />
-      </Fragment>
-    )
-  }
 }
 
 const mapStateToProps = (state: RootReducer) => ({
