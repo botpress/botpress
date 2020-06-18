@@ -1,6 +1,7 @@
-import { IO, Prompt, PromptConfig } from 'botpress/sdk'
+import { IO, Prompt } from 'botpress/sdk'
 import * as sdk from 'botpress/sdk'
 import { extractEventCommonArgs } from 'common/action'
+import { PromptConfig } from 'common/typings'
 import yn from 'yn'
 
 class PromptConfirm implements Prompt {
@@ -57,9 +58,14 @@ const config: PromptConfig = {
   valueType: 'boolean',
   minConfidence: 1,
   noValidation: true,
-  params: {
-    question: { label: 'Question to ask to user', type: 'string' }
-  }
+  fields: [
+    {
+      type: 'text',
+      key: 'question',
+      label: 'module.builtin.questionToAskUser'
+    }
+  ],
+  advancedSettings: []
 }
 
 export default { id: 'confirm', config, prompt: PromptConfirm }

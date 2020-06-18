@@ -1,6 +1,7 @@
 import axios from 'axios'
-import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
+import { ExtractionResult, IO, Prompt, ValidationResult } from 'botpress/sdk'
 import * as sdk from 'botpress/sdk'
+import { PromptConfig } from 'common/typings'
 
 class PromptEnum implements Prompt {
   private _entity: string
@@ -71,11 +72,24 @@ const config: PromptConfig = {
   type: 'enum',
   label: 'Enum',
   valueType: 'string',
-  params: {
-    entity: { label: 'Entity', type: 'string' },
-    question: { label: 'Question', type: 'string' },
-    useDropdown: { label: 'Use dropdown', type: 'boolean' }
-  }
+  fields: [
+    {
+      type: 'text',
+      key: 'entity',
+      label: 'module.builtin.entity'
+    },
+    {
+      type: 'text',
+      key: 'question',
+      label: 'module.builtin.question'
+    },
+    {
+      type: 'checkbox',
+      key: 'useDropdown',
+      label: 'module.builtin.useDropdown'
+    }
+  ],
+  advancedSettings: []
 }
 
 export default { id: 'enum', config, prompt: PromptEnum }

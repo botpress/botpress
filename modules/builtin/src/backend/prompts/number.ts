@@ -1,4 +1,5 @@
-import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
+import { ExtractionResult, IO, Prompt, ValidationResult } from 'botpress/sdk'
+import { PromptConfig } from 'common/typings'
 
 class PromptNumber implements Prompt {
   private _min: boolean
@@ -39,10 +40,19 @@ const config: PromptConfig = {
   type: 'number',
   label: 'Number',
   valueType: 'number',
-  params: {
-    min: { label: 'Minimum', type: 'number' },
-    max: { label: 'Maximum', type: 'number' }
-  }
+  fields: [
+    {
+      type: 'text',
+      key: 'min',
+      label: 'module.builtin.min'
+    },
+    {
+      type: 'text',
+      key: 'max',
+      label: 'module.builtin.max'
+    }
+  ],
+  advancedSettings: []
 }
 
 export default { id: 'number', config, prompt: PromptNumber }

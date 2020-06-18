@@ -1,4 +1,5 @@
-import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
+import { ExtractionResult, IO, Prompt, ValidationResult } from 'botpress/sdk'
+import { PromptConfig } from 'common/typings'
 
 class PromptString implements Prompt {
   private _maxLength: boolean
@@ -40,10 +41,19 @@ const config: PromptConfig = {
   type: 'string',
   label: 'String',
   valueType: 'string',
-  params: {
-    maxLength: { label: 'Maximum lenght', type: 'number' },
-    regexPattern: { label: 'Regex pattern', type: 'string' }
-  }
+  fields: [
+    {
+      type: 'text',
+      key: 'maxLength',
+      label: 'module.builtin.maxLength'
+    },
+    {
+      type: 'text',
+      key: 'regexPattern',
+      label: 'module.builtin.regexPattern'
+    }
+  ],
+  advancedSettings: []
 }
 
 export default { id: 'string', config, prompt: PromptString }
