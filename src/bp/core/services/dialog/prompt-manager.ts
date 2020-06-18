@@ -81,10 +81,10 @@ export class PromptManager {
     }
 
     const node: PromptNode = session.prompt!.config
-    const { minConfidence, prompt } = this._getPrompt(node, event)
+    const { minConfidence, prompt, valueType } = this._getPrompt(node, event)
 
     const extractedVars = await this.evaluateEventVariables(events, prompt)
-    const highest = _.orderBy(extractedVars, 'confidence', 'desc')[0] ?? { confidence: 0, extracted: false }
+    const highest = _.orderBy(extractedVars, 'confidence', 'desc')[0] ?? { confidence: 0, extracted: undefined }
 
     debugPrompt('before processing %o', { highest })
 
@@ -141,8 +141,10 @@ export class PromptManager {
     if (status.extracted) {
       debugPrompt('successfully extracted!', status.value)
 
-      const config = this._prompts.find(x => x.id === node.type)?.config
-      event.state.setVariable(node.output, status.value, config?.valueType ?? '')
+      event.state.setVariable(node.output, status.value, valueType ?? '')
+      await this._continueOriginalEvent(event)
+    } else if (status.turns > 5) {
+      debugPrompt('prompt expired', status.value)
       await this._continueOriginalEvent(event)
     }
   }
