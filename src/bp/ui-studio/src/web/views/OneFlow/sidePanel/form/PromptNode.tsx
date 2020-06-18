@@ -1,5 +1,6 @@
 import { FormGroup, Icon, InputGroup, Position, Tooltip } from '@blueprintjs/core'
-import { Dropdown, lang } from 'botpress/shared'
+import { ContentForms, Dropdown, lang } from 'botpress/shared'
+import { stat } from 'fs'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -38,8 +39,8 @@ function PromptNodeReducer(state, action) {
     return { ...state, type: data, params: {} }
   } else if (type === 'setOutput') {
     return { ...state, output: data }
-  } else if (type === 'setCondition') {
-    return { ...state, condition: data }
+  } else if (type === 'setConfig') {
+    return { ...state, config: data }
   } else if (type === 'updateQuestion') {
     return { ...state, question: { ...state.question, [data.lang]: data.question } }
   } else if (type === 'updateConfirm') {
@@ -89,7 +90,7 @@ const SubWorkflowNode: FC<Props> = props => {
       return
     }
 
-    dispatch({ type: 'setCondition', data: props.prompts.find(x => x.id === state.type)?.config })
+    dispatch({ type: 'setConfig', data: props.prompts.find(x => x.id === state.type)?.config })
   }, [state.type, props.prompts])
 
   useEffect(() => {
@@ -216,11 +217,20 @@ const SubWorkflowNode: FC<Props> = props => {
         <InputGroup value={state.output} onChange={updateOutput}></InputGroup>
       </div>
 
-      {state.condition && state.condition.params && (
+      {state.config && state.config.fields && (
         <div className={style.fieldWrapper}>
           <span className={style.formLabel}>Configuration & Validation</span>
 
-          <InputParams {...props} condition={state.condition} params={state.params} updateParams={updateParam} />
+          {console.log(state.config)}
+
+          <ContentForms.Form
+            fields={state.config.fields}
+            advancedSettings={state.config.advancedSettings}
+            bp={undefined}
+            formData={state.params}
+            contentType={undefined}
+            onUpdate={updateParam}
+          />
 
           <br></br>
         </div>
