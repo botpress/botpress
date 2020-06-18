@@ -1,5 +1,6 @@
-import { IO, Prompt, PromptConfig, PromptDefinition, PromptNode } from 'botpress/sdk'
+import { IO, Prompt, PromptNode } from 'botpress/sdk'
 import { extractEventCommonArgs } from 'common/action'
+import { PromptConfig, PromptDefinition } from 'common/typings'
 import { createForBotpress } from 'core/api'
 import { ModuleLoader } from 'core/module-loader'
 import { EventRepository } from 'core/repositories'

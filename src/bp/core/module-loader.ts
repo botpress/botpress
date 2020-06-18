@@ -7,10 +7,9 @@ import {
   Logger,
   ModuleDefinition,
   ModuleEntryPoint,
-  PromptDefinition,
   Skill
 } from 'botpress/sdk'
-import { ModuleInfo } from 'common/typings'
+import { FlowVariableType, ModuleInfo, PromptDefinition } from 'common/typings'
 import { ValidationError } from 'errors'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
@@ -353,7 +352,7 @@ export class ModuleLoader {
     return this._getModuleElements('prompts')
   }
 
-  public getVariables(): any[] {
+  public getVariables(): FlowVariableType[] {
     return this._getModuleElements('variables')
   }
 
