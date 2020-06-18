@@ -221,8 +221,6 @@ const SubWorkflowNode: FC<Props> = props => {
         <div className={style.fieldWrapper}>
           <span className={style.formLabel}>Configuration & Validation</span>
 
-          {console.log(state.config)}
-
           <ContentForms.Form
             fields={state.config.fields}
             advancedSettings={state.config.advancedSettings}
