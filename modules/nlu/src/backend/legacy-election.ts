@@ -136,7 +136,8 @@ function detectAmbiguity(input: PredictOutput): PredictOutput {
 
 function extractElectedIntentSlot(input: PredictOutput): PredictOutput {
   const intentWasElectedWithoutAmbiguity = input?.intent?.name && !_.isEmpty(input.predictions) && !input.ambiguous
-  if (!intentWasElectedWithoutAmbiguity) {
+  const intentIsNone = input?.intent?.name === NONE_INTENT
+  if (!intentWasElectedWithoutAmbiguity || intentIsNone) {
     return input
   }
 

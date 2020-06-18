@@ -166,7 +166,7 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
         const nlu = legacyElectionPipeline(event.nlu)
         _.merge(event, { nlu })
       } catch (err) {
-        bp.logger.warn('Error extracting metadata for incoming text: ' + err.message)
+        bp.logger.warn('Error making nlu election for incoming text: ' + err.message)
       } finally {
         next()
       }
