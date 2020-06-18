@@ -15,10 +15,11 @@ class PromptEnum implements Prompt {
 
   extraction(event: IO.IncomingEvent): ExtractionResult | undefined {
     const entity = event.nlu?.entities?.find(x => x.type === `custom.list.${this._entity}`)
+    console.log(entity)
     if (entity) {
       return {
         value: entity.data.value,
-        confidence: 1
+        confidence: entity.meta.confidence
       }
     }
   }
