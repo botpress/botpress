@@ -17,8 +17,8 @@ interface Props {
   getCurrentFlow: any
   updateFlowNode: any
   onDeleteSelectedElements: () => void
-  editContent: (node: SaySomethingNodeModel, index: number) => void
-  selectedNodeContent: () => { node: SaySomethingNodeModel; index: number }
+  editNodeItem: (node: SaySomethingNodeModel, index: number) => void
+  selectedNodeItem: () => { node: SaySomethingNodeModel; index: number }
   getCurrentLang: () => string
   switchFlowNode: (id: string) => void
 }
@@ -26,9 +26,9 @@ interface Props {
 const SaySomethingWidget: FC<Props> = ({
   node,
   getCurrentFlow,
-  editContent,
+  editNodeItem,
   onDeleteSelectedElements,
-  selectedNodeContent,
+  selectedNodeItem,
   updateFlowNode,
   getCurrentLang,
   switchFlowNode
@@ -82,7 +82,7 @@ const SaySomethingWidget: FC<Props> = ({
   }
   const currentLang = getCurrentLang()
 
-  const selectedContent = selectedNodeContent()
+  const selectedContent = selectedNodeItem()
 
   const getTranslatedContent = content => {
     const langArr = Object.keys(content)
@@ -118,7 +118,7 @@ const SaySomethingWidget: FC<Props> = ({
             <Contents.Item
               active={selectedContent?.node?.id === node.id && index === selectedContent?.index}
               key={`${index}${currentLang}`}
-              onEdit={() => editContent?.(node, index)}
+              onEdit={() => editNodeItem?.(node, index)}
               content={getTranslatedContent(content)}
             />
           ))}
@@ -160,8 +160,8 @@ export class SaySomethingNodeModel extends BaseNodeModel {
 }
 
 export class SaySomethingWidgetFactory extends AbstractNodeFactory {
-  private editContent: (node: SaySomethingNodeModel, index: number) => void
-  private selectedNodeContent: () => { node: SaySomethingNodeModel; index: number }
+  private editNodeItem: (node: SaySomethingNodeModel, index: number) => void
+  private selectedNodeItem: () => { node: SaySomethingNodeModel; index: number }
   private deleteSelectedElements: () => void
   private getCurrentLang: () => string
   private getCurrentFlow: any
@@ -171,8 +171,8 @@ export class SaySomethingWidgetFactory extends AbstractNodeFactory {
   constructor(methods) {
     super('say_something')
 
-    this.editContent = methods.editContent
-    this.selectedNodeContent = methods.selectedNodeContent
+    this.editNodeItem = methods.editNodeItem
+    this.selectedNodeItem = methods.selectedNodeItem
     this.deleteSelectedElements = methods.deleteSelectedElements
     this.getCurrentFlow = methods.getCurrentFlow
     this.updateFlowNode = methods.updateFlowNode
@@ -185,10 +185,10 @@ export class SaySomethingWidgetFactory extends AbstractNodeFactory {
       <SaySomethingWidget
         node={node}
         getCurrentFlow={this.getCurrentFlow}
-        editContent={this.editContent}
+        editNodeItem={this.editNodeItem}
         onDeleteSelectedElements={this.deleteSelectedElements}
         updateFlowNode={this.updateFlowNode}
-        selectedNodeContent={this.selectedNodeContent}
+        selectedNodeItem={this.selectedNodeItem}
         getCurrentLang={this.getCurrentLang}
         switchFlowNode={this.switchFlowNode}
       />

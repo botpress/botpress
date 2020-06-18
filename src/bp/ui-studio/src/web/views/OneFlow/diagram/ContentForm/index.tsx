@@ -72,12 +72,16 @@ const ContentForm: FC<Props> = ({
     })
   )
 
+  const handleEmptyData = renderType => {
+    return Contents.getEmptyFormData(renderType || contentType.current || 'builtin_text')
+  }
+
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={!isConfirming} close={() => close(editingContent)}>
       <Fragment key={`${contentType.current}-${customKey || editingContent}`}>
         <div className={style.formHeader}>
           <Tabs id="contentFormTabs">
-            <Tab id="content" title="Say" />
+            <Tab id="content" title={lang.tr('studio.flow.nodeType.say')} />
           </Tabs>
           <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
         </div>
@@ -109,10 +113,10 @@ const ContentForm: FC<Props> = ({
             customFields={{
               text: props => <TextField {...props} />
             }}
+            getEmptyData={handleEmptyData}
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
             formData={formData}
-            contentType={contentType.current}
             onUpdate={data => onUpdate({ ...data, contentType: contentType.current })}
           />
         )}

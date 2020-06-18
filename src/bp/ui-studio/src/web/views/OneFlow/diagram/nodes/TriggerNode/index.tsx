@@ -18,21 +18,23 @@ interface Props {
   getCurrentFlow: any
   updateFlowNode: any
   onDeleteSelectedElements: () => void
-  editContent: (node: TriggerNodeModel, index: number) => void
-  selectedNodeContent: () => { node: TriggerNodeModel; index: number }
+  editNodeItem: (node: TriggerNodeModel, index: number) => void
+  selectedNodeItem: () => { node: TriggerNodeModel; index: number }
   getCurrentLang: () => string
   switchFlowNode: (id: string) => void
+  addCondition: () => void
 }
 
 const TriggerWidget: FC<Props> = ({
   node,
   getCurrentFlow,
-  editContent,
+  editNodeItem,
   onDeleteSelectedElements,
-  selectedNodeContent,
+  selectedNodeItem,
   updateFlowNode,
   getCurrentLang,
-  switchFlowNode
+  switchFlowNode,
+  addCondition
 }) => {
   const [expanded, setExpanded] = useState(node.isNew)
   const [error, setError] = useState(null)
@@ -49,6 +51,12 @@ const TriggerWidget: FC<Props> = ({
           text={lang.tr('studio.flow.node.renameBlock')}
           onClick={() => {
             setIsEditing(true)
+          }}
+        />
+        <MenuItem
+          text={lang.tr('studio.flow.node.addCondition')}
+          onClick={() => {
+            addCondition()
           }}
         />
         <MenuItem
@@ -83,7 +91,7 @@ const TriggerWidget: FC<Props> = ({
   }
   const currentLang = getCurrentLang()
 
-  const selectedContent = selectedNodeContent()
+  const selectedContent = selectedNodeItem()
 
   const getTranslatedContent = content => {
     const langArr = Object.keys(content)
@@ -122,7 +130,7 @@ const TriggerWidget: FC<Props> = ({
                 className={cx(style.hasJoinLabel, {
                   [style.active]: selectedContent?.node?.id === node.id && index === selectedContent?.index
                 })}
-                onEdit={() => editContent?.(node, index)}
+                onEdit={() => editNodeItem?.(node, index)}
               >
                 <span className={style.content}>{condition.id}</span>
               </NodeContentItem>
@@ -170,24 +178,26 @@ export class TriggerNodeModel extends BaseNodeModel {
 }
 
 export class TriggerWidgetFactory extends AbstractNodeFactory {
-  private editContent: (node: TriggerNodeModel, index: number) => void
-  private selectedNodeContent: () => { node: TriggerNodeModel; index: number }
+  private editNodeItem: (node: TriggerNodeModel, index: number) => void
+  private selectedNodeItem: () => { node: TriggerNodeModel; index: number }
   private deleteSelectedElements: () => void
   private getCurrentLang: () => string
   private getCurrentFlow: any
   private updateFlowNode: any
   private switchFlowNode: (id: string) => void
+  private addCondition: () => void
 
   constructor(methods) {
     super('trigger')
 
-    this.editContent = methods.editContent
-    this.selectedNodeContent = methods.selectedNodeContent
+    this.editNodeItem = methods.editNodeItem
+    this.selectedNodeItem = methods.selectedNodeItem
     this.deleteSelectedElements = methods.deleteSelectedElements
     this.getCurrentFlow = methods.getCurrentFlow
     this.updateFlowNode = methods.updateFlowNode
     this.getCurrentLang = methods.getCurrentLang
     this.switchFlowNode = methods.switchFlowNode
+    this.addCondition = methods.addCondition
   }
 
   generateReactWidget(diagramEngine: DiagramEngine, node: TriggerNodeModel) {
@@ -195,12 +205,13 @@ export class TriggerWidgetFactory extends AbstractNodeFactory {
       <TriggerWidget
         node={node}
         getCurrentFlow={this.getCurrentFlow}
-        editContent={this.editContent}
+        editNodeItem={this.editNodeItem}
         onDeleteSelectedElements={this.deleteSelectedElements}
         updateFlowNode={this.updateFlowNode}
-        selectedNodeContent={this.selectedNodeContent}
+        selectedNodeItem={this.selectedNodeItem}
         getCurrentLang={this.getCurrentLang}
         switchFlowNode={this.switchFlowNode}
+        addCondition={this.addCondition}
       />
     )
   }

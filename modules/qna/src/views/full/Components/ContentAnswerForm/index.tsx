@@ -73,6 +73,10 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
 
   const contentFields = contentTypesFields?.[contentType.current]
 
+  const handleEmptyData = renderType => {
+    return Contents.getEmptyFormData(renderType || contentType.current || 'builtin_text')
+  }
+
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose close={() => close(editingContent)}>
       <Fragment key={`${contentType.current}-${editingContent}`}>
@@ -103,7 +107,7 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
             advancedSettings={contentFields.advancedSettings}
             bp={bp}
             formData={formData}
-            contentType={contentType.current}
+            getEmptyData={handleEmptyData}
             onUpdate={data => onUpdate({ ...data, contentType: contentType.current })}
           />
         )}

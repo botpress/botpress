@@ -47,6 +47,10 @@
     "switchLang": "Change the bot content language. Currently editing: {currentLang}"
   },
   "studio": {
+    "condition": {
+      "label": "Condition",
+      "pickCondition": "Pick a condition"
+    },
     "content": {
       "cloneElements": "Clone selected elements",
       "confirmChangeContentType": "Are you sure you want to change this content type? All fields will be erased.",
@@ -138,6 +142,7 @@
         "actionsRegisteredOnServer": "Actions are registered on the server-side. Read about how to register new actions by searching for `bp.registerActions()`.",
         "add": "add",
         "addAction": "Add new action",
+        "addCondition": "Add Condition",
         "cantSeeActions": "Can't see your action?",
         "chatbotSays": "Chatbot Says",
         "confirmOverwriteParameters": "Do you want to overwrite existing parameters?",

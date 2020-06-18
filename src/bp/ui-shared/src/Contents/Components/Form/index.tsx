@@ -41,14 +41,15 @@ const printMoreInfo = (moreInfo: FormMoreInfo): JSX.Element => {
 
 const formReducer = (state, action) => {
   if (action.type === 'add') {
-    const { field, contentType, parent } = action.data
-    const newData = getEmptyFormData(contentType, true)
+    const { field, renderType, parent, getEmptyData } = action.data
+    const newData = getEmptyData?.(renderType, true)
 
     if (parent) {
       const { key, index } = parent
       const updatedItem = state[key]
 
       updatedItem[index][field] = [...(updatedItem[index][field] || []), newData]
+      console.log(updatedItem)
 
       return {
         ...state,
@@ -143,8 +144,8 @@ const formReducer = (state, action) => {
   }
 }
 
-const Form: FC<FormProps> = ({ bp, customFields, contentType, formData, fields, advancedSettings, onUpdate }) => {
-  const newFormData = getEmptyFormData(contentType || 'builtin_image')
+const Form: FC<FormProps> = ({ bp, customFields, getEmptyData, formData, fields, advancedSettings, onUpdate }) => {
+  const newFormData = getEmptyData?.()
   const [state, dispatch] = useReducer(formReducer, newFormData)
 
   useEffect(() => {
@@ -176,7 +177,10 @@ const Form: FC<FormProps> = ({ bp, customFields, contentType, formData, fields, 
             <AddButton
               text={lang(field.group?.addLabel)}
               onClick={() =>
-                dispatch({ type: 'add', data: { field: field.key, renderType: field.renderType, parent } })
+                dispatch({
+                  type: 'add',
+                  data: { field: field.key, renderType: field.renderType, parent, getEmptyData }
+                })
               }
             />
           </Fragment>
