@@ -8,20 +8,18 @@ import Database from '../database'
 import { TYPES } from '../types'
 
 export interface TelemetryPayloadRepository {
-  getPayload(uuid: string): Promise<TelemetryPayload[]>
+  getPayload(uuid: string): Promise<any>
   insertPayload(uuid: string, payload: JSON): Promise<void>
   removePayload(uuid: string): Promise<void>
   removeArray(uuidArray: string[]): Promise<void>
   updateArray(uuidArray: string[], status: boolean): Promise<void>
   refreshAvailability(): Promise<void>
-  getN(n: number): Promise<TelemetryPayload[]>
+  getN(n: number): Promise<any>
 }
 
 export type TelemetryPayload = {
-  uuid: string
-  available: boolean
-  lastChanged: string
-  payload: Object
+  url: string
+  events: Object[]
 }
 
 @injectable()
@@ -78,7 +76,7 @@ export class KnexTelemetryPayloadRepository implements TelemetryPayloadRepositor
       const uuidArray = events.map(event => event.uuid)
       await this.updateArray(uuidArray, this.database.knex.bool.false())
     }
-    return { url: this.awsURL, events: events.map(event => event.payload) }
+    return { url: this.awsURL, events: events.map(event => this.database.knex.json.get(event.payload)) }
   }
 
   async insertPayload(uuid: string, payload: JSON) {

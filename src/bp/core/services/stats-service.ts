@@ -25,8 +25,11 @@ const path = require('path')
 
 const LOCK_RESOURCE = 'botpress:statsService'
 const LOCK_RESOURCE24 = 'botpress:statsService24'
+const LOCK_RESOURCE15 = 'botpress:statsService15'
 const debug = DEBUG('stats')
 const JOB_INTERVAL = '6 hours'
+const telemetry1 = 'https://telemetry.botpress.io/ingest'
+const telemetry2 = 'https://telemetry.botpress.dev'
 
 @injectable()
 export class StatsService {
@@ -45,9 +48,6 @@ export class StatsService {
   ) {}
 
   public start() {
-    const telemetry1 = 'https://telemetry.botpress.io/ingest'
-    const telemetry2 = 'https://telemetry.botpress.dev'
-
     // tslint:disable-next-line: no-floating-promises
     this.run(this.getStats.bind(this), LOCK_RESOURCE, JOB_INTERVAL, `${telemetry1}`)
     // tslint:disable-next-line: no-floating-promises
@@ -62,7 +62,7 @@ export class StatsService {
       ms('1d')
     )
 
-    setInterval(this.run.bind(this, this.refreshDB()), ms('15m'))
+    setInterval(this.run.bind(this, this.refreshDB(), LOCK_RESOURCE15, `${telemetry2}`), ms('15m'))
   }
 
   private async refreshDB() {
@@ -75,7 +75,6 @@ export class StatsService {
       debug('Acquired lock')
       const stats = await job()
       await this.sendStats(url, stats)
-      await this.sendStats(url, stats)
     }
   }
 
@@ -83,8 +82,11 @@ export class StatsService {
     debug('Sending stats: %o', stats)
     try {
       await axios.post(url, stats)
+      if (url === telemetry2) {
+        await this.telemetryPayloadRepository.insertPayload(stats.uuid, stats)
+      }
     } catch (err) {
-      if (url === 'http://telemetry.botpress.dev') {
+      if (url === telemetry2) {
         await this.telemetryPayloadRepository.insertPayload(stats.uuid, stats)
       }
     }
