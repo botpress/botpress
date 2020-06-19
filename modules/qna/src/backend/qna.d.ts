@@ -1,5 +1,4 @@
 import * as sdk from 'botpress/sdk'
-import { FormData } from 'common/typings'
 import { Config } from 'src/config'
 import Storage from './storage'
 
@@ -16,7 +15,7 @@ export interface QnaEntry {
     [lang: string]: string[]
   }
   contentAnswers: {
-    [lang: string]: FormData[]
+    [lang: string]: sdk.FormData[]
   }
   redirectFlow: string
   redirectNode: string

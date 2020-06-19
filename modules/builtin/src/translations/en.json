@@ -60,7 +60,11 @@
       "valuePlaceholder": "What will your chatbot receive?"
     },
     "text": {
-      "alternatives": "Alternates",
+      "add": "Add Text Alternatives",
+      "alternative": "Alternative",
+      "alternative_plural": "Alternatives",
+      "alternativeLabel": "Text",
+      "delete": "Delete Alternative",
       "description": "A regular text message with optional typing indicators and alternates",
       "message": "Message"
     }

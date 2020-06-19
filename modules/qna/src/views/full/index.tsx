@@ -125,7 +125,7 @@ const QnAList: FC<Props> = props => {
   const allExpanded = Object.keys(expandedItems).filter(itemId => expandedItems[itemId]).length === items.length
 
   let noItemsTooltip
-  let languesTooltip = lang.tr('module.qna.form.translate')
+  let languesTooltip = lang.tr('translate')
 
   if (!items.length) {
     noItemsTooltip = lang.tr('module.qna.form.addOneItemTooltip')

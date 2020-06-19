@@ -142,7 +142,7 @@ const FlowBuilder = (props: Props) => {
     delete: e => {
       if (!utils.isInputFocused()) {
         e.preventDefault()
-        diagram?.deleteSelectedElements()
+        diagram.current?.deleteSelectedElements()
       }
     },
     cancel: e => {
@@ -159,7 +159,7 @@ const FlowBuilder = (props: Props) => {
   }
 
   const createFlow = name => {
-    diagram.createFlow(name)
+    diagram.current.createFlow(name)
     props.switchFlow(`${name}.flow.json`)
   }
 
@@ -172,7 +172,7 @@ const FlowBuilder = (props: Props) => {
   return (
     <MainContainer keyHandlers={keyHandlers}>
       <SidePanel
-        onDeleteSelectedElements={() => diagram?.deleteSelectedElements()}
+        onDeleteSelectedElements={() => diagram.current?.deleteSelectedElements()}
         readOnly={readOnly}
         mutexInfo={mutex}
         permissions={actions}
@@ -192,10 +192,9 @@ const FlowBuilder = (props: Props) => {
           highlightFilter={highlightFilter}
           selectedTopic={currentTopic}
           selectedWorkflow={currentWorkflow}
-          ref={el => {
+          childRef={el => {
             if (!!el) {
-              // @ts-ignore
-              diagram = el.getWrappedInstance()
+              diagram.current = el
             }
           }}
         />

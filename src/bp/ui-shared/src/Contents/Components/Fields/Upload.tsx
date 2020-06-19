@@ -7,6 +7,7 @@ import { FieldProps } from '../typings'
 
 interface UploadFieldProps extends FieldProps {
   axios: any
+  customPath?: string
 }
 
 const Upload: FC<UploadFieldProps> = props => {
@@ -63,7 +64,7 @@ const Upload: FC<UploadFieldProps> = props => {
 
     dispatch({ type: 'uploadStart' })
     await props.axios
-      .post(`media`, data, { headers: { 'Content-Type': 'multipart/form-data' } })
+      .post(props.customPath ? props.customPath : `media`, data, { headers: { 'Content-Type': 'multipart/form-data' } })
       .then(response => {
         const { url } = response.data
 
