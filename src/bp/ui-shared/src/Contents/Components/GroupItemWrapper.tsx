@@ -18,7 +18,6 @@ const GroupItemWrapper: FC<GroupItemWrapperProps> = ({ label, contextMenu, defau
     }
 
     return contextMenu.map(({ label, type }) => ({
-      icon: 'trash',
       type: type === 'delete' ? type : undefined,
       label: lang(label),
       action: type === 'delete' ? onDelete : undefined

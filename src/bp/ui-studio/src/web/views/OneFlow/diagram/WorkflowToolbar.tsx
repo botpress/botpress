@@ -5,7 +5,10 @@ import { connect } from 'react-redux'
 import { flowEditorRedo, flowEditorUndo } from '~/actions'
 import { canFlowRedo, canFlowUndo } from '~/reducers'
 
+import style from './style.scss'
+
 const WorkflowToolbar = props => {
+  const { languages } = props
   const tabs = [
     {
       id: 'workflow',
@@ -17,7 +20,25 @@ const WorkflowToolbar = props => {
     }
   ]
 
+  let languesTooltip = lang.tr('translate')
+
+  if (languages?.length <= 1) {
+    languesTooltip = lang.tr('module.qna.form.onlyOneLanguage')
+  }
+
   const buttons: HeaderButtonProps[] = [
+    {
+      icon: 'translate',
+      optionsItems: languages?.map(language => ({
+        label: lang.tr(`isoLangs.${language}.name`),
+        selected: props.currentLang === language,
+        action: () => {
+          props.setCurrentLang(language)
+        }
+      })),
+      disabled: languages?.length <= 1,
+      tooltip: languesTooltip
+    },
     {
       icon: 'undo',
       disabled: !props.canUndo,
@@ -32,7 +53,7 @@ const WorkflowToolbar = props => {
     }
   ]
 
-  return <MainContent.Header tabs={tabs} buttons={buttons} tabChange={props.tabChange} />
+  return <MainContent.Header className={style.header} tabs={tabs} buttons={buttons} tabChange={props.tabChange} />
 }
 
 const mapStateToProps = state => ({

@@ -3,6 +3,8 @@ import { ItemPredicate, Select } from '@blueprintjs/select'
 import { FC, useEffect, useState } from 'react'
 import React from 'react'
 
+import confirmDialog from '../ConfirmDialog'
+
 import { DropdownProps, Option } from './typings'
 
 const itemRenderer = (option, { modifiers, handleClick }) => {
@@ -27,13 +29,17 @@ const filterOptions: ItemPredicate<Option> = (query, option) => {
 }
 
 const Dropdown: FC<DropdownProps> = props => {
-  const { defaultItem, items, onChange, small, icon, rightIcon, spaced, className, filterable } = props
+  const { confirmChange, defaultItem, items, onChange, small, icon, rightIcon, spaced, className, filterable } = props
   const [activeItem, setActiveItem] = useState<Option | undefined>()
   const SimpleDropdown = Select.ofType<Option>()
 
   useEffect(() => {
     setActiveItem(typeof defaultItem === 'string' ? items.find(item => item.value === defaultItem) : defaultItem)
   }, [defaultItem])
+
+  const updateSelectedOption = option => {
+    onChange(option)
+  }
 
   return (
     <SimpleDropdown
@@ -44,9 +50,23 @@ const Dropdown: FC<DropdownProps> = props => {
       popoverProps={{ minimal: true, usePortal: false }}
       itemRenderer={itemRenderer}
       itemPredicate={filterOptions}
-      onItemSelect={option => {
-        onChange(option)
-        setActiveItem(option)
+      onItemSelect={async option => {
+        if (confirmChange) {
+          confirmChange.callback?.(true)
+
+          if (
+            await confirmDialog(confirmChange.message, {
+              acceptLabel: confirmChange.acceptLabel
+            })
+          ) {
+            confirmChange.callback?.(false)
+            updateSelectedOption(option)
+          } else {
+            confirmChange.callback?.(false)
+          }
+        } else {
+          updateSelectedOption(option)
+        }
       }}
     >
       <Button

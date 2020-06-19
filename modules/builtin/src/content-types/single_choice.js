@@ -90,7 +90,7 @@ function renderElement(data, channel) {
 module.exports = {
   id: 'builtin_single-choice',
   group: 'Built-in Messages',
-  title: 'module.builtin.types.singleChoice.title',
+  title: 'module.builtin.types.suggestions.title',
 
   jsonSchema: {
     description: 'module.builtin.types.singleChoice.description',
@@ -142,6 +142,7 @@ module.exports = {
   },
 
   newSchema: {
+    displayedIn: ['qna', 'sayNode'],
     advancedSettings: [
       {
         key: 'onTopOfKeyboard',
@@ -149,7 +150,7 @@ module.exports = {
         label: 'module.builtin.types.suggestions.displayOnTop'
       },
       {
-        key: 'typingIndicator',
+        key: 'typing',
         type: 'checkbox',
         label: 'module.builtin.typingIndicator'
       },
@@ -177,12 +178,13 @@ module.exports = {
           ]
         },
         type: 'group',
-        key: 'suggestions',
-        label: 'fields::label',
+        key: 'choices',
+        renderType: 'suggestions',
+        label: 'fields::title',
         fields: [
           {
             type: 'text',
-            key: 'label',
+            key: 'title',
             label: 'module.builtin.types.suggestions.label',
             placeholder: 'module.builtin.types.suggestions.labelPlaceholder'
           },
