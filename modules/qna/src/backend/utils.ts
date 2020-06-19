@@ -52,7 +52,7 @@ export const getQnaEntryPayloads = async (
     collectFeedback: true
   }
 
-  if (qnaEntry.answers[lang].length > 0) {
+  if (qnaEntry.answers?.[lang]?.length > 0) {
     const electedAnswer = getRandomAnswer(qnaEntry.answers[lang])
     const textArgs = { ...args }
 
@@ -71,6 +71,10 @@ export const getQnaEntryPayloads = async (
         threadId: event.threadId
       }))
     )
+  }
+
+  if (!qnaEntry.contentAnswers) {
+    return payloads
   }
 
   for (const contentAnswer of qnaEntry.contentAnswers[lang]) {
