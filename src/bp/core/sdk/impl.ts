@@ -48,6 +48,7 @@ export class IOEvent implements sdk.IO.Event {
   public readonly incomingEventId?: string
   private readonly flags: any
   private readonly nlu?: sdk.IO.EventUnderstanding
+  private readonly ndu?: sdk.NDU.DialogUnderstanding
 
   constructor(args: sdk.IO.EventCtorArgs) {
     this.type = args.type
@@ -62,6 +63,7 @@ export class IOEvent implements sdk.IO.Event {
     this.preview = args.preview || this.constructPreview()
     this.flags = {}
     this.state = { __stacktrace: [] }
+    this.ndu = args.ndu
     args.nlu = args.nlu || {}
 
     if (this.direction === 'incoming') {
