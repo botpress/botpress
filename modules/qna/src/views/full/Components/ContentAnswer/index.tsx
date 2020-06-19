@@ -1,4 +1,4 @@
-import { FormData } from 'botpress/common/typings'
+import { FormData } from 'botpress/sdk'
 import cx from 'classnames'
 import React, { FC, Fragment } from 'react'
 

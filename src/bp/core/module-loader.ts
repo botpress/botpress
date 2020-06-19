@@ -4,12 +4,14 @@ import {
   ContentElement,
   ElementChangedAction,
   Flow,
+  FlowVariableType,
   Logger,
   ModuleDefinition,
   ModuleEntryPoint,
+  PromptDefinition,
   Skill
 } from 'botpress/sdk'
-import { FlowVariableType, ModuleInfo, PromptDefinition } from 'common/typings'
+import { ModuleInfo } from 'common/typings'
 import { ValidationError } from 'errors'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'

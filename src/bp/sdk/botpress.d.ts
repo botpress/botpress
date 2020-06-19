@@ -136,8 +136,8 @@ declare module 'botpress/sdk' {
     translations?: { [lang: string]: object }
     /** List of new conditions that the module can register */
     dialogConditions?: Condition[]
-    prompts?: any
-    variables?: any
+    prompts?: PromptDefinition[]
+    variables?: FlowVariableType[]
     /** Called once the core is initialized. Usually for middlewares / database init */
     onServerStarted?: (bp: typeof import('botpress/sdk')) => Promise<void>
     /** This is called once all modules are initialized, usually for routing and logic */
@@ -1562,6 +1562,29 @@ declare module 'botpress/sdk' {
     new (ctor: any): Prompt
   }
 
+  export interface PromptDefinition {
+    id: string
+    config: PromptConfig
+    prompt: PromptConstructable
+  }
+
+  /** The configuration of the prompt which is saved on the flow */
+  export type PromptConfig = {
+    /** An ID used internally to refer to this prompt */
+    type: string
+    /** The label displayed in the studio */
+    label?: string
+    icon?: string
+    /** The ID representing the type of value that is collected by this prompt */
+    valueType?: string
+    /** A list of ID represented by the type of values collected by this prompt */
+    valueTypes?: string[]
+    /** The minimum confidence required for the value to be considered valid */
+    minConfidence?: number
+    /** Whatever happens, the prompt will never ask the user to validate the provided value */
+    noValidation?: boolean
+  } & FormDefinition
+
   export interface BoxedVarConstructable<T> {
     new (ctor: BoxedVarContructor<T>): BoxedVariable<T>
   }
@@ -1588,6 +1611,62 @@ declare module 'botpress/sdk' {
     confidence?: number
     /** The current value stored in the db */
     value: T
+  }
+
+  export interface FlowVariableType {
+    id: string
+    config: FlowVariableConfig
+    box: BoxedVarConstructable<any>
+  }
+
+  export type FlowVariableConfig = FormDefinition
+
+  export interface FormData {
+    id?: string
+    contentType?: string
+    [key: string]: undefined | number | boolean | string | FormData[]
+  }
+
+  export interface FormMoreInfo {
+    label: string
+    url?: string
+  }
+
+  export interface FormAdvancedSetting {
+    key: string
+    label: string
+    type: string
+    moreInfo?: FormMoreInfo
+  }
+
+  export interface FormOption {
+    value: string
+    label: string
+    related: FormField
+  }
+
+  export interface FormContextMenu {
+    type: string
+    label: string
+  }
+
+  export interface FormField {
+    type: 'checkbox' | 'group' | 'select' | 'text' | 'textarea' | 'upload' | 'url'
+    key: string
+    label: string
+    placeholder?: string
+    options?: FormOption[]
+    fields?: FormField[]
+    group?: {
+      addLabel?: string // you have to specify the add button label
+      minimum?: number // you can specify a minimum so the delete button won't show if there isn't more than the minimum
+      contextMenu?: FormContextMenu[] // you can add a contextual menu to add extra options
+    }
+  }
+
+  export interface FormDefinition {
+    advancedSettings: FormAdvancedSetting[]
+    fields: FormField[]
   }
 
   ////////////////

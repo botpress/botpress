@@ -1,6 +1,4 @@
-import { IO, Prompt, PromptNode } from 'botpress/sdk'
-import { extractEventCommonArgs } from 'common/action'
-import { PromptConfig, PromptDefinition } from 'common/typings'
+import { IO, Prompt, PromptConfig, PromptDefinition, PromptNode } from 'botpress/sdk'
 import { createForBotpress } from 'core/api'
 import { ModuleLoader } from 'core/module-loader'
 import { EventRepository } from 'core/repositories'
@@ -9,7 +7,6 @@ import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
-import { cpuUsage } from 'process'
 
 import { EventEngine } from '../middleware/event-engine'
 

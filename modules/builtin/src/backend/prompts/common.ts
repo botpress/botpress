@@ -1,4 +1,4 @@
-import { FormField } from 'common/typings'
+import { FormField } from 'botpress/sdk'
 
 const commonFields = (defaultDuration: number = 5, defaultSearchBackCount: number = 0): FormField[] => {
   return [

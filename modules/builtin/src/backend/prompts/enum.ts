@@ -1,7 +1,6 @@
 import axios from 'axios'
-import { ExtractionResult, IO, Prompt, ValidationResult } from 'botpress/sdk'
+import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
 import * as sdk from 'botpress/sdk'
-import { PromptConfig } from 'common/typings'
 
 import commonFields from './common'
 

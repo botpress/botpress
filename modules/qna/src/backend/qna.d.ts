@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { FormData } from 'common/typings'
+import { FormData } from 'botpress/sdk'
 import { Config } from 'src/config'
 import Storage from './storage'
 

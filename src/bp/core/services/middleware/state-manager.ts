@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { FlowVariableType } from 'common/typings'
+import { FlowVariableType } from 'botpress/sdk'
 import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'

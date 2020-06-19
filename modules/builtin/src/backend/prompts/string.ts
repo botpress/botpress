@@ -1,5 +1,4 @@
-import { ExtractionResult, IO, Prompt, ValidationResult } from 'botpress/sdk'
-import { PromptConfig } from 'common/typings'
+import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
 
 import commonFields from './common'
 
