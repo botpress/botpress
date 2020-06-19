@@ -1,6 +1,5 @@
-import { FormGroup, Icon, InputGroup, Position, Tooltip } from '@blueprintjs/core'
-import { ContentForms, Dropdown, lang } from 'botpress/shared'
-import { stat } from 'fs'
+import { Icon, InputGroup, Position, Tooltip } from '@blueprintjs/core'
+import { Contents, Dropdown } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -8,8 +7,6 @@ import { closeFlowNodeProps, copyFlowNode, fetchPrompts, pasteFlowNode, refreshF
 import withLanguage from '~/components/Util/withLanguage'
 import { getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/reducers'
 import EditableInput from '~/views/FlowBuilder/common/EditableInput'
-
-import InputParams from '../../diagram/TriggerEditor/Condition/InputParams'
 
 import style from './style.scss'
 
@@ -221,7 +218,7 @@ const SubWorkflowNode: FC<Props> = props => {
         <div className={style.fieldWrapper}>
           <span className={style.formLabel}>Configuration & Validation</span>
 
-          <ContentForms.Form
+          <Contents.Form
             fields={state.config.fields}
             advancedSettings={state.config.advancedSettings}
             bp={undefined}
