@@ -1136,7 +1136,7 @@ declare module 'botpress/sdk' {
     /** The Id of the Content Type for which the Element belongs to. */
     contentType: string
     /** The raw form data that contains templating that needs to be interpreted. */
-    formData: object
+    formData: { [property: string]: any }
     /** The computed form data that contains the interpreted data. */
     computedData: object
     /** The textual representation of the Content Element, for each supported languages  */
@@ -1363,7 +1363,7 @@ declare module 'botpress/sdk' {
   export interface FormData {
     id?: string
     contentType?: string
-    [key: string]: undefined | number | boolean | string | FormData[]
+    [key: string]: FormData[] | any
   }
 
   /**
