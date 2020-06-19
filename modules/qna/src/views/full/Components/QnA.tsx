@@ -1,6 +1,6 @@
 import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
 import { Flow, FlowNode } from 'botpress/sdk'
-import { confirmDialog, FormFields, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
+import { confirmDialog, Contents, FormFields, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
 import { getFlowLabel } from 'botpress/utils'
 import cx from 'classnames'
 import _uniqueId from 'lodash/uniqueId'
@@ -11,7 +11,6 @@ import { QnaItem } from '../../../backend/qna'
 import { isQnaComplete } from '../../../backend/utils'
 import style from '../style.scss'
 
-import ContentAnswer from './ContentAnswer'
 import ContentAnswerForm from './ContentAnswerForm'
 import ContextSelector from './ContextSelector'
 import TextAreaList from './TextAreaList'
@@ -269,7 +268,7 @@ const QnA: FC<Props> = props => {
             />
             <div className={style.contentAnswerWrapper}>
               {contentAnswers?.map((content, index) => (
-                <ContentAnswer
+                <Contents.Item
                   key={index}
                   content={content}
                   active={editingContent.current === index}

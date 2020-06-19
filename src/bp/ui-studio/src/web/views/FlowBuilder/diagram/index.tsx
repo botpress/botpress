@@ -36,7 +36,6 @@ import {
   updateFlowProblems
 } from '~/actions'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
-import { SaySomethingWidgetFactory } from '~/views/OneFlow/diagram/nodes/SaySomethingNode'
 
 import { SkillDefinition } from '../sidePanel/FlowTools'
 
@@ -64,7 +63,6 @@ class Diagram extends Component<Props> {
     this.diagramEngine = new DiagramEngine()
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory(this.props.skills))
-    this.diagramEngine.registerNodeFactory(new SaySomethingWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ListenWidgetFactory())
     this.diagramEngine.registerNodeFactory(new RouterWidgetFactory())

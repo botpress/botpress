@@ -1,3 +1,3 @@
-import AddButton from '../ContentForms/Components/Fields/AddButton'
+import AddButton from '../Contents/Components/Fields/AddButton'
 
 export default { AddButton }

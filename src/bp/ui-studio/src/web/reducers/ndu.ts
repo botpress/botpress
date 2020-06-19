@@ -1,5 +1,4 @@
-import { Condition, Topic } from 'botpress/sdk'
-import { PromptDefinition } from 'common/typings'
+import { Condition, PromptDefinition, Topic } from 'botpress/sdk'
 import _ from 'lodash'
 import { handleActions } from 'redux-actions'
 import { conditionsReceived, promptsReceived, receiveQNACountByTopic, topicsReceived } from '~/actions'

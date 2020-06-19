@@ -24,7 +24,7 @@ const passThroughNodeProps: string[] = [
   'next',
   'skill',
   'conditions',
-  'content',
+  'contents',
   'activeWorkflow',
   'prompt'
 ]

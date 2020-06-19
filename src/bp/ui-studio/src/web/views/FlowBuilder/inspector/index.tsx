@@ -15,7 +15,6 @@ import {
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 import PromptNode from '~/views/OneFlow/sidePanel/form/PromptNode'
 
-import SaySomethingForm from '../../OneFlow/sidePanel/form/SaySomethingForm'
 import { nodeTypes } from '../diagram/manager'
 import FlowInformation from '../nodeProps/FlowInformation'
 import SkillCallNode from '../nodeProps/SkillCallNode'
@@ -107,15 +106,16 @@ class Inspector extends Component<Props> {
       )
     }
 
-    if (nodeType === 'say_something') {
+    if (nodeType === 'prompt') {
       return (
-        <SaySomethingForm
-          onDeleteSelectedElements={onDeleteSelectedElements}
-          contentType={currentFlowNode.content?.contentType}
-          formData={currentFlowNode.content?.formData}
-          updateNode={updateNodeAndRefresh}
+        <PromptNode
           readOnly={readOnly}
+          user={this.props.user}
+          flow={this.props.currentFlow}
           subflows={subflows}
+          node={this.props.currentFlowNode}
+          updateNode={updateNodeAndRefresh}
+          updateFlow={this.props.updateFlow}
         />
       )
     }

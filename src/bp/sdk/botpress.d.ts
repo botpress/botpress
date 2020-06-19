@@ -616,6 +616,7 @@ declare module 'botpress/sdk' {
       suggestions?: Suggestion[]
       credentials?: any
       nlu?: Partial<EventUnderstanding>
+      ndu?: NDU.DialogUnderstanding
       incomingEventId?: string
     }
 
@@ -671,16 +672,16 @@ declare module 'botpress/sdk' {
     }
 
     export interface EventUnderstanding {
-      intent: NLU.Intent
+      intent?: NLU.Intent
       /** Predicted intents needs disambiguation */
-      readonly ambiguous: boolean
-      intents: NLU.Intent[]
+      readonly ambiguous?: boolean
+      intents?: NLU.Intent[]
       /** The language used for prediction. Will be equal to detected language when its part of supported languages, falls back to default language otherwise */
       readonly language: string
       /** Language detected from users input. */
       readonly detectedLanguage: string
       readonly entities: NLU.Entity[]
-      readonly slots: NLU.SlotCollection
+      readonly slots?: NLU.SlotCollection
       readonly errored: boolean
       readonly includedContexts: string[]
       readonly predictions?: NLU.Predictions
@@ -1361,6 +1362,7 @@ declare module 'botpress/sdk' {
     timeoutNode?: string
     flow?: string
     prompt?: PromptNode
+    isNew?: boolean
     /** Used internally by the flow editor */
     readonly lastModified?: Date
   } & NodeActions
@@ -1395,6 +1397,12 @@ declare module 'botpress/sdk' {
     node: string
   }
 
+  export interface FormData {
+    id?: string
+    contentType?: string
+    [key: string]: undefined | number | boolean | string | FormData[]
+  }
+
   /**
    * A Node Action represent all the possible actions that will be executed when the user is on the node. When the user
    * enters the node, actions in the 'onEnter' are executed. If there are actions in 'onReceive', they will be called
@@ -1408,11 +1416,9 @@ declare module 'botpress/sdk' {
     /** An array of possible transitions once everything is completed */
     next?: NodeTransition[]
     /** For node of type say_something, this contains the element to render */
-    content?: {
-      contentType: string
-      /** Every properties required by the content type, including translations */
-      formData: object
-    }
+    contents?: {
+      [lang: string]: FormData
+    }[]
   }
 
   export interface ActionBuilderProps {
@@ -1514,6 +1520,34 @@ declare module 'botpress/sdk' {
     asChatUser?: boolean
   }
 
+<<<<<<< HEAD
+=======
+  export interface PromptDefinition {
+    id: string
+    config: PromptConfig
+    prompt: PromptConstructable<Prompt>
+  }
+
+  /** The configuration of the prompt which is saved on the flow */
+  export interface PromptConfig {
+    /** An ID used internally to refer to this prompt */
+    type: string
+    /** The label displayed in the studio */
+    label?: string
+    icon?: string
+    /** The ID representing the type of value that is collected by this prompt */
+    valueType?: string
+    /** A list of ID represented by the type of values collected by this prompt */
+    valueTypes?: string[]
+    /** List of custom parameters that will be asked by the prompt */
+    params?: { [paramName: string]: ConditionParam }
+    /** The minimum confidence required for the value to be considered valid */
+    minConfidence?: number
+    /** Whatever happens, the prompt will never ask the user to validate the provided value*/
+    noValidation?: boolean
+  }
+
+>>>>>>> ya-prompts
   export interface PromptNode {
     type: string
     /** The name of the variable that will be filled with the value extracted */
@@ -1531,7 +1565,11 @@ declare module 'botpress/sdk' {
      * This method will receive multiple
      * @param event
      */
+<<<<<<< HEAD
     extraction(event: IO.IncomingEvent): ExtractionResult | undefined
+=======
+    extraction(event: IO.IncomingEvent): { value: any; confidence: number } | undefined
+>>>>>>> ya-prompts
     /**
      * This method
      * @param value

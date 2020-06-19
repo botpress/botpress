@@ -1,6 +1,6 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import { FormData } from 'botpress/sdk'
-import { ContentForms, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
+import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
 
@@ -24,7 +24,7 @@ const fetchReducer = (state, action) => {
         ...state,
         contentTypes: data.map(type => ({
           value: type.id,
-          label: lang.tr(type.id === 'builtin_single-choice' ? 'module.builtin.types.suggestions.title' : type.title)
+          label: lang.tr(type.title)
         })),
         contentTypesFields: data.reduce((acc, type) => ({ ...acc, [type.id]: type.schema.newJson }), {})
       }
@@ -41,12 +41,11 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
   const contentType = useRef(formData?.contentType || 'builtin_image')
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
-  const shownCategories = ['builtin_image', 'builtin_carousel', 'builtin_card', 'builtin_single-choice']
   const { contentTypes, contentTypesFields } = state
 
   useEffect(() => {
     bp.axios.get('/content/types').then(({ data }) => {
-      dispatch({ type: 'fetchSuccess', data: data.filter(type => shownCategories.includes(type.id)) })
+      dispatch({ type: 'fetchSuccess', data: data.filter(type => type.schema.newJson?.displayedIn.includes('qna')) })
     })
   }, [])
 
@@ -57,8 +56,7 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
-      icon: 'trash',
-      label: lang.tr('module.qna.contentForm.deleteContent'),
+      label: lang.tr('deleteContent'),
       action: deleteContent,
       type: 'delete'
     }
@@ -66,7 +64,11 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
 
   const handleContentTypeChange = value => {
     contentType.current = value
-    onUpdate({ ...ContentForms.getEmptyFormData(value), contentType: value, id: formData?.id })
+    onUpdate({
+      ...Contents.getEmptyFormData(value),
+      contentType: value,
+      id: formData?.id
+    })
   }
 
   const contentFields = contentTypesFields?.[contentType.current]
@@ -96,7 +98,7 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
           )}
         </div>
         {contentFields && (
-          <ContentForms.Form
+          <Contents.Form
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
             bp={bp}

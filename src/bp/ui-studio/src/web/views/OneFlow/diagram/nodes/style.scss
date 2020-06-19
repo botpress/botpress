@@ -1,14 +1,5 @@
 @import '../../../../palette.scss';
 
-.primaryText {
-  display: block;
-  margin-bottom: 4px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  width: 100%;
-}
-
 .secondaryText {
   color: #5C7080;
   display: block;
@@ -23,13 +14,11 @@
 
 .contentImgWrapper {
   display: flex;
-  margin-bottom: 10px;
   max-height: 50px;
 
   .textWrapper {
+    text-align: left;
     overflow: hidden;
-    font-size: 12px;
-    line-height: 13px;
   }
 }
 
@@ -39,8 +28,8 @@
   background-size: cover;
   border-radius: 3px;
   flex-shrink: 0;
-  height: 50px;
-  margin-right: 8px;
+  height: 30px;
+  margin-right: var(--spacing-medium);
   overflow: hidden;
-  width: 50px;
+  width: 30px;
 }

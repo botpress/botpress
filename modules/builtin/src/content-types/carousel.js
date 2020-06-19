@@ -194,6 +194,7 @@ module.exports = {
     }
   },
   newSchema:{
+    displayedIn: ['qna', 'sayNode'],
     advancedSettings: [
       {
         key: 'markdown',
@@ -205,7 +206,7 @@ module.exports = {
         }
       },
       {
-        key: 'typingIndicator',
+        key: 'typing',
         type: 'checkbox',
         label: 'module.builtin.typingIndicator'
       }
@@ -223,7 +224,8 @@ module.exports = {
           ]
         },
         type: 'group',
-        key: 'cards',
+        key: 'items',
+        renderType: 'card',
         label: 'fields::title',
         fields: Card.newSchema.fields
       }

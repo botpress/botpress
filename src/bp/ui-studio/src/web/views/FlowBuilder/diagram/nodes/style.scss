@@ -1,7 +1,3 @@
-:global(.srd-diagram .node) {
-  opacity: 0.9;
-}
-
 :global(.srd-diagram .node.selected) > .node-container {
   border-color: #028aee !important;
 }

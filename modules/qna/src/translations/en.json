@@ -2,9 +2,6 @@
   "addNew": "Add new",
   "answer": "Answer",
   "confirmDelete": "Do you want to delete the question?",
-  "contentForm": {
-    "deleteContent": "Delete Content"
-  },
   "context": {
     "canTypeToCreate": "You can type in the select bar to add new contexts.",
     "createQuery": "Create context",
