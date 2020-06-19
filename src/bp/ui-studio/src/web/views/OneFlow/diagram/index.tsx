@@ -133,8 +133,8 @@ class Diagram extends Component<Props> {
         selectedNodeItem: this.getEditingNodeItem.bind(this),
         deleteSelectedElements: this.deleteSelectedElements.bind(this),
         getCurrentFlow: this.getCurrentFlow.bind(this),
-        getCurrentLang: this.getCurrentLang.bind(this),
         updateFlowNode: this.updateNodeAndRefresh.bind(this),
+        getCurrentLang: this.getCurrentLang.bind(this),
         switchFlowNode: this.switchFlowNode.bind(this)
       })
     )
@@ -573,12 +573,12 @@ class Diagram extends Component<Props> {
     return this.state.editingNodeItem
   }
 
-  switchFlowNode(nodeId) {
-    this.props.switchFlowNode(nodeId)
-  }
-
   addCondition(nodeId) {
     this.props.updateFlowNode({ conditions: [...this.props.currentFlowNode.conditions, { params: {} }] })
+  }
+
+  switchFlowNode(nodeId) {
+    this.props.switchFlowNode(nodeId)
   }
 
   deleteSelectedElements() {
@@ -920,38 +920,6 @@ class Diagram extends Component<Props> {
             />
           )}
         </MainContent.Wrapper>
-      </Fragment>
-    )
-  }
-
-  render22() {
-    return (
-      <Fragment>
-        <div
-          id="diagramContainer"
-          ref={ref => (this.diagramContainer = ref)}
-          tabIndex={1}
-          style={{ outline: 'none', width: '100%', height: '100%' }}
-          onContextMenu={this.handleContextMenu}
-          onDrop={this.handleToolDropped}
-          onDragOver={event => event.preventDefault()}
-        >
-          <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
-
-          <DiagramWidget
-            ref={w => (this.diagramWidget = w)}
-            deleteKeys={[]}
-            diagramEngine={this.diagramEngine}
-            inverseZoom={true}
-          />
-        </div>
-
-        <TriggerEditor
-          node={this.state.currentTriggerNode}
-          isOpen={this.state.isTriggerEditOpen}
-          diagramEngine={this.diagramEngine}
-          toggle={() => this.setState({ isTriggerEditOpen: !this.state.isTriggerEditOpen })}
-        />
       </Fragment>
     )
   }

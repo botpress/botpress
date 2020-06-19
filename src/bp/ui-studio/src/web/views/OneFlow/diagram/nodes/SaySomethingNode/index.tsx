@@ -97,6 +97,9 @@ const SaySomethingWidget: FC<Props> = ({
     return content[currentLang]
   }
 
+  // Prevents moving the node while editing the name so text can be selected
+  node.locked = isEditing
+
   return (
     <NodeWrapper>
       <NodeHeader

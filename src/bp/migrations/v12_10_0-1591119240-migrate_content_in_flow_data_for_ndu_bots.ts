@@ -59,9 +59,9 @@ async function getBotContentMap(ghost: sdk.ScopedGhostService): Promise<_.Dictio
 
 const migration: Migration = {
   info: {
-    description: 'migrates all cms content refered in on-enter transitions directly to ',
+    description: 'Migrate content of say nodes from the CMS the flow node',
     target: 'bot',
-    type: 'config'
+    type: 'content'
   },
   up: async ({ bp, inversify, metadata }: MigrationOpts): Promise<sdk.MigrationResult> => {
     const flowService = inversify.get<FlowService>(TYPES.FlowService)
@@ -101,7 +101,7 @@ const migration: Migration = {
       }
     }
 
-    return { success: true, message: 'Configuration updated successfully' }
+    return { success: true, message: 'Bot content updated successfully' }
   }
 }
 

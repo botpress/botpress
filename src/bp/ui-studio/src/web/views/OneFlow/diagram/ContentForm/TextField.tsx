@@ -18,9 +18,14 @@ const TextAreaList: FC<Props> = props => {
   const [text, setText] = useState(data.text || '')
   const [localItems, setLocalItems] = useState(data.variations || [])
   const focusedElement = useRef(-1)
+  const [forceUpdateHeight, setForceUpdateHeight] = useState(false)
 
   useEffect(() => {
     setText(data.text || '')
+
+    if (data.text) {
+      setForceUpdateHeight(!forceUpdateHeight)
+    }
   }, [data.text])
 
   useEffect(() => {
@@ -79,6 +84,7 @@ const TextAreaList: FC<Props> = props => {
             onChange={value => setText(value)}
             onBlur={() => onChange({ text, variations: localItems })}
             onKeyDown={e => onKeyDown(e, -1)}
+            forceUpdateHeight={forceUpdateHeight}
             value={text}
           />
         </div>

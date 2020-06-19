@@ -354,7 +354,7 @@ export class FlowService {
         'description',
         'variables'
       ]),
-      nodes: flow.nodes.map(node => _.omit(node, 'x', 'y', 'lastModified'))
+      nodes: flow.nodes.map(node => _.omit(node, 'x', 'y', 'lastModified', 'isNew'))
     }
 
     const flowPath = flow.location
