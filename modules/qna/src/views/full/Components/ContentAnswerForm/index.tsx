@@ -1,5 +1,5 @@
 import { Tab, Tabs } from '@blueprintjs/core'
-import { FormData } from 'botpress/common/typings'
+import { FormData } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
@@ -43,7 +43,7 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
   const contentType = useRef(formData?.contentType || 'builtin_image')
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
-  const { contentTypes, renderTypes, contentTypesFields } = state
+  const { contentTypes, contentTypesFields } = state
 
   useEffect(() => {
     bp.axios.get('/content/types').then(({ data }) => {
@@ -67,8 +67,7 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
   const handleContentTypeChange = value => {
     contentType.current = value
     onUpdate({
-      ...Contents.getEmptyFormData(renderTypes[value]),
-      renderType: renderTypes[value],
+      ...Contents.getEmptyFormData(value),
       contentType: value,
       id: formData?.id
     })
@@ -107,9 +106,7 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
             bp={bp}
             formData={formData}
             renderType={contentType.current}
-            onUpdate={data =>
-              onUpdate({ ...data, renderType: renderTypes[contentType.current], contentType: contentType.current })
-            }
+            onUpdate={data => onUpdate({ ...data, contentType: contentType.current })}
           />
         )}
       </Fragment>

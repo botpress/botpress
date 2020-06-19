@@ -12,6 +12,7 @@ import {
   Toaster
 } from '@blueprintjs/core'
 import { lang, MainContent } from 'botpress/shared'
+import cx from 'classnames'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
@@ -26,6 +27,7 @@ import {
   createFlowNode,
   fetchContentCategories,
   fetchFlows,
+  getQnaCountByTopic,
   insertNewSkillNode,
   openFlowNodeProps,
   pasteFlowNode,
@@ -37,6 +39,7 @@ import {
   updateFlowNode,
   updateFlowProblems
 } from '~/actions'
+import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { toastSuccess } from '~/components/Shared/Utils'
 import withLanguage from '~/components/Util/withLanguage'
 import { getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/reducers'
@@ -64,6 +67,7 @@ import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/OneFlo
 import ContentForm from './ContentForm'
 import Toolbar from './Toolbar'
 import TriggerEditor from './TriggerEditor'
+import VariablesEditor from './VariablesEditor'
 import WorkflowToolbar from './WorkflowToolbar'
 
 interface OwnProps {
@@ -72,6 +76,8 @@ interface OwnProps {
   hideSearch: () => void
   readOnly: boolean
   canPasteNode: boolean
+  selectedTopic: string
+  selectedWorkflow: string
   flowPreview: boolean
   highlightFilter: string
   handleFilterChanged: (event: any) => void
@@ -109,7 +115,8 @@ class Diagram extends Component<Props> {
     currentTriggerNode: null,
     isTriggerEditOpen: false,
     editingNodeContent: null,
-    currentLang: ''
+    currentLang: '',
+    currentTab: 'workflow'
   }
 
   constructor(props) {
@@ -119,14 +126,15 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory(this.props.skills))
     this.diagramEngine.registerNodeFactory(
-      new SaySomethingWidgetFactory(
-        this.editContent.bind(this),
-        this.getEditingContent.bind(this),
-        this.deleteSelectedElements.bind(this),
-        this.getCurrentFlow.bind(this),
-        this.updateNodeAndRefresh.bind(this),
-        this.getCurrentLang.bind(this)
-      )
+      new SaySomethingWidgetFactory({
+        editContent: this.editContent.bind(this),
+        selectedNodeContent: this.getEditingContent.bind(this),
+        deleteSelectedElements: this.deleteSelectedElements.bind(this),
+        getCurrentFlow: this.getCurrentFlow.bind(this),
+        updateFlowNode: this.updateNodeAndRefresh.bind(this),
+        getCurrentLang: this.getCurrentLang.bind(this),
+        switchFlowNode: this.switchFlowNode.bind(this)
+      })
     )
     this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ListenWidgetFactory())
@@ -284,7 +292,7 @@ class Diagram extends Component<Props> {
       this.props.createFlowNode({
         ...point,
         type: 'say_something',
-        contents: [{ [this.state.currentLang]: { renderType: 'text', contentType: 'builtin_text' } }],
+        contents: [{ [this.state.currentLang]: { contentType: 'builtin_text' } }],
         next: [defaultTransition],
         isNew: true,
         ...moreProps
@@ -559,8 +567,13 @@ class Diagram extends Component<Props> {
     return this.state.editingNodeContent
   }
 
+  switchFlowNode(nodeId) {
+    this.props.switchFlowNode(nodeId)
+  }
+
   deleteSelectedElements() {
     const elements = _.sortBy(this.diagramEngine.getDiagramModel().getSelectedItems(), 'nodeType')
+    this.setState({ editingNodeContent: null })
 
     // Use sorting to make the nodes first in the array, deleting the node before the links
     for (const element of elements) {
@@ -715,8 +728,14 @@ class Diagram extends Component<Props> {
       index
     } = this.state.editingNodeContent
     const newContents = [...contents]
+    const currentType = newContents[index][this.state.currentLang]?.contentType
 
-    newContents[index][this.state.currentLang] = data
+    if (currentType && currentType !== data.contentType) {
+      newContents[index] = { [this.state.currentLang]: data }
+    } else {
+      newContents[index][this.state.currentLang] = data
+    }
+
     this.props.updateFlowNode({ contents: newContents })
   }
 
@@ -750,98 +769,99 @@ class Diagram extends Component<Props> {
 
   getEmptyContent(content) {
     return {
-      contentType: content[Object.keys(content)[0]]?.contentType,
-      renderType: content[Object.keys(content)[0]]?.renderType
+      contentType: content[Object.keys(content)[0]]?.contentType
     }
+  }
+
+  handleTabChanged = (tab: string) => {
+    this.setState({ currentTab: tab })
   }
 
   render() {
     const editingContent = this.state.editingNodeContent?.node?.contents?.[this.state.editingNodeContent.index]
 
+    const isQnA = this.props.selectedWorkflow === 'qna'
     return (
-      <MainContent.Wrapper>
-        <WorkflowToolbar
-          currentLang={this.state.currentLang}
-          languages={this.props.languages}
-          setCurrentLang={lang => this.setState({ currentLang: lang })}
-        />
-        <Fragment>
-          <div
-            id="diagramContainer"
-            ref={ref => (this.diagramContainer = ref)}
-            tabIndex={1}
-            style={{ outline: 'none', width: '100%', height: '100%' }}
-            onContextMenu={this.handleContextMenu}
-            onDrop={this.handleToolDropped}
-            onDragOver={event => event.preventDefault()}
-          >
-            <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
-
-            <DiagramWidget
-              ref={w => (this.diagramWidget = w)}
-              deleteKeys={[]}
-              diagramEngine={this.diagramEngine}
-              inverseZoom={true}
-            />
-
-            <Toolbar />
-          </div>
-        </Fragment>
-
-        <TriggerEditor
-          node={this.state.currentTriggerNode}
-          isOpen={this.state.isTriggerEditOpen}
-          diagramEngine={this.diagramEngine}
-          toggle={() => this.setState({ isTriggerEditOpen: !this.state.isTriggerEditOpen })}
-        />
-
-        {this.state.editingNodeContent && (
-          <ContentForm
-            customKey={`${this.state.editingNodeContent.node.name}${this.state.editingNodeContent.index}`}
-            contentTypes={this.props.contentTypes.filter(type => type.schema.newJson?.displayedIn.includes('sayNode'))}
-            deleteContent={() => this.deleteNodeContent()}
-            editingContent={this.state.editingNodeContent.index}
-            formData={editingContent?.[this.state.currentLang] || this.getEmptyContent(editingContent)}
-            onUpdate={this.updateNodeContent.bind(this)}
-            close={() => {
-              this.timeout = setTimeout(() => {
-                this.setState({ editingNodeContent: null })
-              }, 200)
+      <Fragment>
+        {isQnA && (
+          <InjectedModuleView
+            key={`${this.props.selectedTopic}`}
+            moduleName="qna"
+            componentName="LiteEditor"
+            contentLang={this.props.contentLang}
+            extraProps={{
+              isLite: true,
+              topicName: this.props.selectedTopic,
+              languages: this.props.languages,
+              defaultLanguage: this.props.defaultLanguage,
+              refreshQnaCount: () => {
+                // So it's processed on the next tick, otherwise it won't update with the latest update
+                setTimeout(() => {
+                  this.props.getQnaCountByTopic()
+                }, 100)
+              }
             }}
           />
         )}
-      </MainContent.Wrapper>
-    )
-  }
-
-  render22() {
-    return (
-      <Fragment>
-        <div
-          id="diagramContainer"
-          ref={ref => (this.diagramContainer = ref)}
-          tabIndex={1}
-          style={{ outline: 'none', width: '100%', height: '100%' }}
-          onContextMenu={this.handleContextMenu}
-          onDrop={this.handleToolDropped}
-          onDragOver={event => event.preventDefault()}
-        >
-          <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
-
-          <DiagramWidget
-            ref={w => (this.diagramWidget = w)}
-            deleteKeys={[]}
-            diagramEngine={this.diagramEngine}
-            inverseZoom={true}
+        <MainContent.Wrapper className={cx({ [style.hidden]: isQnA })}>
+          <WorkflowToolbar
+            currentLang={this.state.currentLang}
+            languages={this.props.languages}
+            setCurrentLang={lang => this.setState({ currentLang: lang })}
+            tabChange={this.handleTabChanged}
           />
-        </div>
+          {this.state.currentTab === 'variables' && <VariablesEditor />}
+          <Fragment>
+            <div
+              id="diagramContainer"
+              ref={ref => (this.diagramContainer = ref)}
+              tabIndex={1}
+              className={style.diagramContainer}
+              style={{
+                display: this.state.currentTab === 'workflow' ? 'inherit' : 'none'
+              }}
+              onContextMenu={this.handleContextMenu}
+              onDrop={this.handleToolDropped}
+              onDragOver={event => event.preventDefault()}
+            >
+              <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
 
-        <TriggerEditor
-          node={this.state.currentTriggerNode}
-          isOpen={this.state.isTriggerEditOpen}
-          diagramEngine={this.diagramEngine}
-          toggle={() => this.setState({ isTriggerEditOpen: !this.state.isTriggerEditOpen })}
-        />
+              <DiagramWidget
+                ref={w => (this.diagramWidget = w)}
+                deleteKeys={[]}
+                diagramEngine={this.diagramEngine}
+                inverseZoom={true}
+              />
+            </div>
+
+            <Toolbar />
+          </Fragment>
+
+          <TriggerEditor
+            node={this.state.currentTriggerNode}
+            isOpen={this.state.isTriggerEditOpen}
+            diagramEngine={this.diagramEngine}
+            toggle={() => this.setState({ isTriggerEditOpen: !this.state.isTriggerEditOpen })}
+          />
+
+          {this.state.editingNodeContent && (
+            <ContentForm
+              customKey={`${this.state.editingNodeContent.node.name}${this.state.editingNodeContent.index}`}
+              contentTypes={this.props.contentTypes.filter(type =>
+                type.schema.newJson?.displayedIn.includes('sayNode')
+              )}
+              deleteContent={() => this.deleteNodeContent()}
+              editingContent={this.state.editingNodeContent.index}
+              formData={editingContent?.[this.state.currentLang] || this.getEmptyContent(editingContent)}
+              onUpdate={this.updateNodeContent.bind(this)}
+              close={() => {
+                this.timeout = setTimeout(() => {
+                  this.setState({ editingNodeContent: null })
+                }, 200)
+              }}
+            />
+          )}
+        </MainContent.Wrapper>
       </Fragment>
     )
   }
@@ -875,7 +895,8 @@ const mapDispatchToProps = {
   buildSkill: buildNewSkill,
   addElementToLibrary,
   refreshFlowsLinks,
-  fetchContentCategories
+  fetchContentCategories,
+  getQnaCountByTopic
 }
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps, null, {

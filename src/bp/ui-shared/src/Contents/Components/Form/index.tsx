@@ -41,8 +41,8 @@ const printMoreInfo = (moreInfo: FormMoreInfo): JSX.Element => {
 
 const formReducer = (state, action) => {
   if (action.type === 'add') {
-    const { field, renderType, parent } = action.data
-    const newData = getEmptyFormData(renderType, true)
+    const { field, contentType, parent } = action.data
+    const newData = getEmptyFormData(contentType, true)
 
     if (parent) {
       const { key, index } = parent

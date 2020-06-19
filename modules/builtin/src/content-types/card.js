@@ -50,7 +50,7 @@ module.exports = {
         }
       },
       {
-        key: 'typingIndicator',
+        key: 'typing',
         type: 'checkbox',
         label: 'module.builtin.typingIndicator'
       }

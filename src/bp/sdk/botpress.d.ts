@@ -670,16 +670,16 @@ declare module 'botpress/sdk' {
     }
 
     export interface EventUnderstanding {
-      intent: NLU.Intent
+      intent?: NLU.Intent
       /** Predicted intents needs disambiguation */
-      readonly ambiguous: boolean
-      intents: NLU.Intent[]
+      readonly ambiguous?: boolean
+      intents?: NLU.Intent[]
       /** The language used for prediction. Will be equal to detected language when its part of supported languages, falls back to default language otherwise */
       readonly language: string
       /** Language detected from users input. */
       readonly detectedLanguage: string
       readonly entities: NLU.Entity[]
-      readonly slots: NLU.SlotCollection
+      readonly slots?: NLU.SlotCollection
       readonly errored: boolean
       readonly includedContexts: string[]
       readonly predictions?: NLU.Predictions
@@ -1360,6 +1360,12 @@ declare module 'botpress/sdk' {
     node: string
   }
 
+  export interface FormData {
+    id?: string
+    contentType?: string
+    [key: string]: undefined | number | boolean | string | FormData[]
+  }
+
   /**
    * A Node Action represent all the possible actions that will be executed when the user is on the node. When the user
    * enters the node, actions in the 'onEnter' are executed. If there are actions in 'onReceive', they will be called
@@ -1374,10 +1380,7 @@ declare module 'botpress/sdk' {
     next?: NodeTransition[]
     /** For node of type say_something, this contains the element to render */
     contents?: {
-      contentType: string
-      renderType: string
-      /** Every properties required by the content type, including translations */
-      formData: object
+      [lang: string]: FormData
     }[]
   }
 

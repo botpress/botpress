@@ -1,9 +1,9 @@
 import { Button, Icon, Intent, Menu, MenuItem, Tooltip } from '@blueprintjs/core'
+import { FormData } from 'botpress/sdk'
 import { Contents, contextMenu, lang, ShortcutLabel } from 'botpress/shared'
 import cx from 'classnames'
-import { FormData } from 'common/typings'
 import _ from 'lodash'
-import React, { FC, Fragment, useRef, useState } from 'react'
+import React, { FC, useState } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
 import { BaseNodeModel } from '~/views/FlowBuilder/diagram/nodes/BaseNodeModel'
 import { StandardPortWidget } from '~/views/FlowBuilder/diagram/nodes/Ports'
@@ -18,6 +18,7 @@ interface Props {
   editContent: (node: SaySomethingNodeModel, index: number) => void
   selectedNodeContent: () => { node: SaySomethingNodeModel; index: number }
   getCurrentLang: () => string
+  switchFlowNode: (id: string) => void
 }
 
 const SaySomethingWidget: FC<Props> = ({
@@ -27,7 +28,8 @@ const SaySomethingWidget: FC<Props> = ({
   onDeleteSelectedElements,
   selectedNodeContent,
   updateFlowNode,
-  getCurrentLang
+  getCurrentLang,
+  switchFlowNode
 }) => {
   const [expanded, setExpanded] = useState(node.isNew)
   const [error, setError] = useState(null)
@@ -43,6 +45,7 @@ const SaySomethingWidget: FC<Props> = ({
   const handleContextMenu = e => {
     e.stopPropagation()
     e.preventDefault()
+    switchFlowNode(node.id)
     contextMenu(
       e,
       <Menu>
@@ -98,6 +101,22 @@ const SaySomethingWidget: FC<Props> = ({
 
   const selectedContent = selectedNodeContent()
 
+  const getTranslatedContent = content => {
+    const langArr = Object.keys(content)
+    if (!langArr.length) {
+      return {}
+    }
+
+    if (!langArr.includes(currentLang)) {
+      return { contentType: content[langArr[0]].contentType }
+    }
+
+    return content[currentLang]
+  }
+
+  // Prevents moving the node while editing the name so text can be selected
+  node.locked = isEditing
+
   return (
     <div
       className={style.nodeWrapper}
@@ -149,7 +168,7 @@ const SaySomethingWidget: FC<Props> = ({
               active={selectedContent?.node?.id === node.id && index === selectedContent?.index}
               key={`${index}${currentLang}`}
               onEdit={() => editContent?.(node, index)}
-              content={content[currentLang] || {}}
+              content={getTranslatedContent(content)}
             />
           ))}
         </div>
@@ -196,23 +215,18 @@ export class SaySomethingWidgetFactory extends AbstractNodeFactory {
   private getCurrentLang: () => string
   private getCurrentFlow: any
   private updateFlowNode: any
+  private switchFlowNode: (id: string) => void
 
-  constructor(
-    editContent: (node, index) => void,
-    selectedNodeContent: () => { node: SaySomethingNodeModel; index: number },
-    deleteSelectedElements: () => void,
-    getCurrentFlow: any,
-    updateFlowNode: any,
-    getCurrentLang: () => string
-  ) {
+  constructor(methods) {
     super('say_something')
 
-    this.editContent = editContent
-    this.selectedNodeContent = selectedNodeContent
-    this.deleteSelectedElements = deleteSelectedElements
-    this.getCurrentFlow = getCurrentFlow
-    this.updateFlowNode = updateFlowNode
-    this.getCurrentLang = getCurrentLang
+    this.editContent = methods.editContent
+    this.selectedNodeContent = methods.selectedNodeContent
+    this.deleteSelectedElements = methods.deleteSelectedElements
+    this.getCurrentFlow = methods.getCurrentFlow
+    this.updateFlowNode = methods.updateFlowNode
+    this.getCurrentLang = methods.getCurrentLang
+    this.switchFlowNode = methods.switchFlowNode
   }
 
   generateReactWidget(diagramEngine: DiagramEngine, node: SaySomethingNodeModel) {
@@ -225,6 +239,7 @@ export class SaySomethingWidgetFactory extends AbstractNodeFactory {
         updateFlowNode={this.updateFlowNode}
         selectedNodeContent={this.selectedNodeContent}
         getCurrentLang={this.getCurrentLang}
+        switchFlowNode={this.switchFlowNode}
       />
     )
   }

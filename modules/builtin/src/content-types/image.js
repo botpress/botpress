@@ -162,7 +162,6 @@ module.exports = {
 
   newSchema: {
     displayedIn: ['qna', 'sayNode'],
-    renderType: 'image',
     advancedSettings: [
       {
         key: 'markdown',
@@ -174,7 +173,7 @@ module.exports = {
         }
       },
       {
-        key: 'typingIndicator',
+        key: 'typing',
         type: 'checkbox',
         label: 'module.builtin.typingIndicator'
       }

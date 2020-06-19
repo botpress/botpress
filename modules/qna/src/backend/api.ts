@@ -18,11 +18,14 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
   router.get('/questions', async (req: Request, res: Response) => {
     try {
       const {
-        query: { question = '', filteredContexts = [], limit, offset }
+        query: { question = '', filteredContexts = [], limit, offset, stateFilter, order, lang }
       } = req
 
       const { storage } = bots[req.params.botId]
-      const items = await storage.getQuestions({ question, filteredContexts }, { limit, offset })
+      const items = await storage.getQuestions(
+        { question, filteredContexts, stateFilter, order, lang },
+        { limit, offset }
+      )
       res.send({ ...items })
     } catch (e) {
       bp.logger.attachError(e).error('Error listing questions')
@@ -53,7 +56,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
 
   router.post('/questions/:id', async (req: Request, res: Response, next: Function) => {
     const {
-      query: { limit, offset, question, filteredContexts }
+      query: { limit, offset, question, filteredContexts, stateFilter, order, lang }
     } = req
 
     try {
@@ -61,7 +64,10 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
       const { storage } = bots[req.params.botId]
       await storage.update(qnaEntry, req.params.id)
 
-      const questions = await storage.getQuestions({ question, filteredContexts }, { limit, offset })
+      const questions = await storage.getQuestions(
+        { question, filteredContexts, stateFilter, order, lang },
+        { limit, offset }
+      )
       res.send(questions)
     } catch (e) {
       next(new Error(e.message))
@@ -70,13 +76,16 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
 
   router.post('/questions/:id/delete', async (req: Request, res: Response) => {
     const {
-      query: { limit, offset, question, filteredContexts }
+      query: { limit, offset, question, filteredContexts, stateFilter, order, lang }
     } = req
 
     try {
       const { storage } = bots[req.params.botId]
       await storage.delete(req.params.id)
-      const questionsData = await storage.getQuestions({ question, filteredContexts }, { limit, offset })
+      const questionsData = await storage.getQuestions(
+        { question, filteredContexts, stateFilter, order, lang },
+        { limit, offset }
+      )
       res.send(questionsData)
     } catch (e) {
       bp.logger.attachError(e).error(`Could not delete QnA #${req.params.id}`)

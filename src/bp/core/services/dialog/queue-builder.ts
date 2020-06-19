@@ -57,10 +57,12 @@ export class InstructionsQueueBuilder {
 
       if (this.currentNode.type === 'say_something' && this.currentNode.contents?.length) {
         this.currentNode.contents.forEach(content => {
+          const { contentType } = content[Object.keys(content)[0]]
+
           this._queue.enqueue({
             type: 'on-enter',
-            fn: `say @${content.contentType}`,
-            args: content.formData
+            fn: `say @${contentType}`,
+            args: content
           })
         })
       }
