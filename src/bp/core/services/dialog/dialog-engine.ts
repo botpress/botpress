@@ -51,7 +51,7 @@ export class DialogEngine {
       const { currentWorkflow } = event.state.session
       const { workflow } = event.state
 
-      if (currentWorkflow !== workflowName) {
+      if (currentWorkflow !== workflowName || !event.state.session.workflows?.[workflowName]) {
         this.changeWorkflow(event, workflowName)
         event.state.session.currentWorkflow = workflowName
       }
