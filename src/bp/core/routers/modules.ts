@@ -159,6 +159,14 @@ export class ModulesRouter extends CustomRouter {
     )
 
     this.router.get(
+      '/prompts',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req, res) => {
+        res.send(await this.moduleLoader.getPrompts())
+      })
+    )
+
+    this.router.get(
       '/variables',
       this.checkTokenHeader,
       this.asyncMiddleware(async (_req, res, _next) => {

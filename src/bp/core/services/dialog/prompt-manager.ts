@@ -1,20 +1,17 @@
-import { IO, Prompt, PromptConfig, PromptNode } from 'botpress/sdk'
+import { IO, Prompt, PromptConfig, PromptDefinition, PromptNode } from 'botpress/sdk'
 import { extractEventCommonArgs } from 'common/action'
 import { createForBotpress } from 'core/api'
+import { ModuleLoader } from 'core/module-loader'
 import { EventRepository } from 'core/repositories'
 import { Event } from 'core/sdk/impl'
 import { TYPES } from 'core/types'
-import { inject, injectable } from 'inversify'
+import { inject, injectable, postConstruct } from 'inversify'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 
-import { CMSService } from '../cms'
 import { EventEngine } from '../middleware/event-engine'
 
 import { ActionStrategy } from './instruction/strategy'
-import PromptConfirm from './prompts/confirm'
-import PromptDate from './prompts/date'
-
-const prompts = [PromptDate, PromptConfirm]
 
 const debugPrompt = DEBUG('dialog:prompt')
 
@@ -55,11 +52,20 @@ export const isPromptEvent = (event: IO.IncomingEvent): boolean => {
 
 @injectable()
 export class PromptManager {
+  private _prompts!: PromptDefinition[]
+
   constructor(
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.EventRepository) private eventRepository: EventRepository,
-    @inject(TYPES.ActionStrategy) private actionStrategy: ActionStrategy
+    @inject(TYPES.ActionStrategy) private actionStrategy: ActionStrategy,
+    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
   ) {}
+
+  @postConstruct()
+  public async init() {
+    await AppLifecycle.waitFor(AppLifecycleEvents.BOTPRESS_READY)
+    this._prompts = await this.moduleLoader.getPrompts()
+  }
 
   public async processPrompt(event: IO.IncomingEvent) {
     const { session } = event.state
@@ -78,7 +84,7 @@ export class PromptManager {
     const { minConfidence, prompt } = this._getPrompt(node, event)
 
     const extractedVars = await this.evaluateEventVariables(events, prompt)
-    const highest = _.orderBy(extractedVars, 'confidence', 'desc')[0]
+    const highest = _.orderBy(extractedVars, 'confidence', 'desc')[0] ?? { confidence: 0, extracted: false }
 
     debugPrompt('before processing %o', { highest })
 
@@ -135,7 +141,7 @@ export class PromptManager {
     if (status.extracted) {
       debugPrompt('successfully extracted!', status.value)
 
-      event.state.setVariable(node.output, highest.extracted, node.type)
+      event.state.setVariable(node.output, status.value, node.type)
       await this._continueOriginalEvent(event)
     }
   }
@@ -161,7 +167,8 @@ export class PromptManager {
     debugPrompt('low confidence, asking validation for %o', { value: value, output: node.output })
 
     const confirmNode = getConfirmPromptNode(node, value)
-    await this._sendCustomPrompt(event, new PromptConfirm(confirmNode), confirmNode)
+    const promptConfirm = this.loadPrompt(confirmNode).prompt
+    await this._sendCustomPrompt(event, promptConfirm, confirmNode)
   }
 
   private async _sendCustomPrompt(incomingEvent: IO.IncomingEvent, prompt: Prompt, node: PromptNode) {
@@ -185,8 +192,17 @@ export class PromptManager {
     const { originalEvent } = event.state.session.prompt!
     const promptEvent = Event(originalEvent as IO.IncomingEvent) as IO.IncomingEvent
 
+    const state = _.omit(event.state, ['session.prompt', 'workflow']) as IO.EventState
+
+    // Must redefine the property since it is removed when omitting
+    Object.defineProperty(state, 'workflow', {
+      get() {
+        return state.session.workflows[state.session.currentWorkflow!]
+      }
+    })
+
     promptEvent.restored = true
-    promptEvent.state = _.omit(event.state, ['session.prompt']) as IO.EventState
+    promptEvent.state = state
 
     await this.eventEngine.sendEvent(promptEvent)
   }
@@ -212,13 +228,13 @@ export class PromptManager {
   }
 
   private loadPrompt(promptNode: PromptNode): { prompt: Prompt } & PromptConfig {
-    const promptClass = prompts.find(x => x.config.type === promptNode.type)
-    if (!promptClass) {
+    const definition = this._prompts.find(x => x.id === promptNode.type)
+    if (!definition) {
       throw new Error(`Unknown prompt type ${promptNode.type}`)
     }
 
-    const prompt = new promptClass(promptNode.params as any)
-    return { prompt, ...promptClass.config }
+    const prompt = new definition.prompt(promptNode.params as any)
+    return { prompt, ...definition.config }
   }
 
   private async evaluateEventVariables(

@@ -497,3 +497,11 @@ export const fetchBotIds = () => dispatch => {
     dispatch(botsReceived(res.data))
   })
 }
+
+export const promptsReceived = createAction('PROMPTS/RECEIVED')
+export const fetchPrompts = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.get(`${window.API_PATH}/modules/prompts`).then(({ data }) => {
+    dispatch(promptsReceived(data))
+  })
+}

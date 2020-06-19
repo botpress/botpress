@@ -26,6 +26,7 @@ import {
   createFlow,
   createFlowNode,
   fetchFlows,
+  fetchPrompts,
   getQnaCountByTopic,
   insertNewSkillNode,
   openFlowNodeProps,
@@ -62,6 +63,7 @@ import { TriggerNodeModel, TriggerWidgetFactory } from '~/views/FlowBuilder/diag
 import style from '~/views/FlowBuilder/diagram/style.scss'
 import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/OneFlow/diagram/nodes/SaySomethingNode'
 
+import { PromptNodeModel, PromptWidgetFactory } from './nodes/PromptNode'
 import Toolbar from './Toolbar'
 import TriggerEditor from './TriggerEditor'
 import VariablesEditor from './VariablesEditor'
@@ -127,6 +129,7 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(new TriggerWidgetFactory())
     this.diagramEngine.registerNodeFactory(new FailureWidgetFactory())
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
+    this.diagramEngine.registerNodeFactory(new PromptWidgetFactory())
 
     // This reference allows us to update flow nodes from widgets
     this.diagramEngine.flowBuilder = this
@@ -160,6 +163,7 @@ class Diagram extends Component<Props> {
 
   componentDidMount() {
     this.props.fetchFlows()
+    this.props.fetchPrompts()
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('dblclick', this.onDiagramDoubleClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
@@ -277,7 +281,37 @@ class Diagram extends Component<Props> {
         triggers: [{ conditions: [{ id: 'always' }] }]
       }),
     routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' }),
-    actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action' })
+    actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action' }),
+
+    promptNode: (point: Point, promptType: string) => {
+      console.log('add', promptType)
+      this.props.createFlowNode({
+        ...point,
+        type: 'prompt',
+        prompt: {
+          type: promptType,
+          output: '',
+          question: {}
+        },
+        // TODO: Implement transitions when variables are merged
+        next: [
+          {
+            condition: 'true',
+            node: ''
+          }
+          /*{
+            caption: 'Value Extracted',
+            condition: 'lastNode=extracted',
+            node: ''
+          },
+          {
+            caption: 'User did not answer',
+            condition: 'lastNode=timeout',
+            node: ''
+          }*/
+        ]
+      })
+    }
   }
 
   onDiagramDoubleClick = (event?: MouseEvent) => {
@@ -339,6 +373,17 @@ class Diagram extends Component<Props> {
               tagName="button"
               onClick={wrap(this.add.skillNode, point, skill.id)}
               icon={skill.icon}
+            />
+          ))}
+        </MenuItem>
+        <MenuItem tagName="button" text={lang.tr('prompt')} icon="take-action">
+          {this.props.prompts.map(({ id, config }) => (
+            <MenuItem
+              key={id}
+              text={lang.tr(config.label)}
+              tagName="button"
+              onClick={wrap(this.add.promptNode, point, id)}
+              icon={config.icon as any}
             />
           ))}
         </MenuItem>
@@ -451,7 +496,8 @@ class Diagram extends Component<Props> {
       targetModel instanceof SaySomethingNodeModel ||
       targetModel instanceof StandardNodeModel ||
       targetModel instanceof SkillCallNodeModel ||
-      targetModel instanceof RouterNodeModel
+      targetModel instanceof RouterNodeModel ||
+      targetModel instanceof PromptNodeModel
     )
   }
 
@@ -765,11 +811,13 @@ const mapStateToProps = (state: RootReducer) => ({
   currentDiagramAction: state.flows.currentDiagramAction,
   canPasteNode: Boolean(state.flows.nodeInBuffer),
   skills: state.skills.installed,
-  library: state.content.library
+  library: state.content.library,
+  prompts: state.ndu.prompts
 })
 
 const mapDispatchToProps = {
   fetchFlows,
+  fetchPrompts,
   switchFlowNode,
   openFlowNodeProps,
   closeFlowNodeProps,
