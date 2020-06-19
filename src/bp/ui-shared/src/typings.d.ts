@@ -85,5 +85,6 @@ declare module 'botpress/shared' {
 declare global {
   interface Window {
     BOT_API_PATH: string
+    API_PATH: string
   }
 }

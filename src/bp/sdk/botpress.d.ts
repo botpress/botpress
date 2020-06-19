@@ -1379,6 +1379,13 @@ declare module 'botpress/sdk' {
     label: string
   }
 
+  export interface FormDynamicOptions {
+    endpoint: string // an enpoint to call to get the options
+    path?: string // used with _.get() on the data returned by api to get to the list of items
+    valueField: string // field from DB to map as the value of the options
+    labelField: string // field from DB to map as the label of the options
+  }
+
   export interface FormField {
     type: 'checkbox' | 'custom' | 'group' | 'number' | 'select' | 'text' | 'textarea' | 'upload' | 'url'
     key: string
@@ -1387,13 +1394,9 @@ declare module 'botpress/sdk' {
     options?: FormOption[]
     defaultValue?: FormDataField
     required?: boolean
-    dynamicOptions?: {
-      endpoint: string // an enpoint to call to get the options
-      path?: string // used with _.get() on the data returned by api to get to the list of items
-      valueField: string // field from DB to map as the value of the options
-      labelField: string // field from DB to map as the label of the options
-    }
+    dynamicOptions?: FormDynamicOptions
     fields?: FormField[]
+    moreInfo?: FormMoreInfo
     group?: {
       addLabel?: string // you have to specify the add button label
       minimum?: number // you can specify a minimum so the delete button won't show if there isn't more than the minimum
@@ -1401,6 +1404,10 @@ declare module 'botpress/sdk' {
     }
   }
 
+  export interface FormMoreInfo {
+    label: string
+    url?: string
+  }
   /**
    * A Node Action represent all the possible actions that will be executed when the user is on the node. When the user
    * enters the node, actions in the 'onEnter' are executed. If there are actions in 'onReceive', they will be called

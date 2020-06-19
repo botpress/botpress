@@ -88,6 +88,7 @@ const ConditionForm: FC<Props> = ({
         </div>
         {selectedCondition?.params && (
           <Contents.Form
+            bp={{ axios }}
             customFields={{
               text: props => <TextField {...props} />
             }}

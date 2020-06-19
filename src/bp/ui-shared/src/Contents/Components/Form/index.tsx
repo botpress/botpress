@@ -1,5 +1,5 @@
 import { Checkbox } from '@blueprintjs/core'
-import { FormMoreInfo } from 'common/typings'
+import { FormMoreInfo } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer } from 'react'
 
@@ -152,7 +152,7 @@ const Form: FC<FormProps> = ({ bp, customFields, getEmptyData, formData, fields,
     dispatch({ type: 'setData', data: formData })
   }, [])
 
-  const printField = (field, data, parent?) => {
+  const printField = async (field, data, parent?) => {
     switch (field.type) {
       case 'group':
         return (
@@ -186,18 +186,17 @@ const Form: FC<FormProps> = ({ bp, customFields, getEmptyData, formData, fields,
           </Fragment>
         )
       case 'select':
-        const value = data[field.key] || field.defaultValue || field.options[0]?.value
-        const currentOption = field.options.find(option => option.value === value)
-
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
             <Select
-              options={field.options.map(option => ({ ...option, label: lang(option.label) }))}
-              value={value}
+              bp={bp}
+              parent={parent}
+              printField={printField}
+              data={data}
+              field={field}
               placeholder={lang(field.placeholder)}
               onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
             />
-            {currentOption.related && printField(currentOption.related, data, parent)}
             {field.moreInfo && printMoreInfo(field.moreInfo)}
           </FieldWrapper>
         )
