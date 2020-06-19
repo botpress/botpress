@@ -143,7 +143,6 @@ module.exports = {
 
   newSchema: {
     displayedIn: ['qna', 'sayNode'],
-    renderType: 'suggestions',
     advancedSettings: [
       {
         key: 'onTopOfKeyboard',

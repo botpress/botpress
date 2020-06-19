@@ -834,15 +834,15 @@ class Diagram extends Component<Props> {
               />
             </div>
 
+            <TriggerEditor
+              node={this.state.currentTriggerNode}
+              isOpen={this.state.isTriggerEditOpen}
+              diagramEngine={this.diagramEngine}
+              toggle={() => this.setState({ isTriggerEditOpen: !this.state.isTriggerEditOpen })}
+            />
+
             <Toolbar />
           </Fragment>
-
-          <TriggerEditor
-            node={this.state.currentTriggerNode}
-            isOpen={this.state.isTriggerEditOpen}
-            diagramEngine={this.diagramEngine}
-            toggle={() => this.setState({ isTriggerEditOpen: !this.state.isTriggerEditOpen })}
-          />
 
           {this.state.editingNodeContent && (
             <ContentForm

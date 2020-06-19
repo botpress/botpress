@@ -1,8 +1,8 @@
 import { FormData } from 'botpress/sdk'
 
-export const getEmptyFormData = (renderType: string, isPartOfGroup = false): FormData => {
-  switch (renderType) {
-    case 'image':
+export const getEmptyFormData = (contentType: string, isPartOfGroup = false): FormData => {
+  switch (contentType) {
+    case 'builtin_image':
       return {
         markdown: true,
         typing: true,
@@ -27,7 +27,7 @@ export const getEmptyFormData = (renderType: string, isPartOfGroup = false): For
         subtitle: '',
         items: []
       }
-    case 'carousel':
+    case 'builtin_carousel':
       return {
         markdown: true,
         typing: true,

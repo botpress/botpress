@@ -26,7 +26,6 @@ const fetchReducer = (state, action) => {
           value: type.id,
           label: lang.tr(type.title)
         })),
-        renderTypes: data.reduce((acc, type) => ({ ...acc, [type.id]: type.schema.newJson.renderType }), {}),
         contentTypesFields: data.reduce((acc, type) => ({ ...acc, [type.id]: type.schema.newJson }), {})
       }
     default:
@@ -37,7 +36,6 @@ const fetchReducer = (state, action) => {
 const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onUpdate, deleteContent }) => {
   const [state, dispatch] = useReducer(fetchReducer, {
     contentTypes: [],
-    renderTypes: {},
     contentTypesFields: {}
   })
   const contentType = useRef(formData?.contentType || 'builtin_image')
@@ -105,7 +103,7 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
             advancedSettings={contentFields.advancedSettings}
             bp={bp}
             formData={formData}
-            renderType={contentType.current}
+            contentType={contentType.current}
             onUpdate={data => onUpdate({ ...data, contentType: contentType.current })}
           />
         )}

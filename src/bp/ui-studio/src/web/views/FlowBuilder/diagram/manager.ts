@@ -32,7 +32,7 @@ export const DIAGRAM_PADDING: number = 100
 export const nodeTypes = ['standard', 'trigger', 'skill-call', 'say_something', 'execute', 'listen', 'router', 'action']
 
 // Using the new node types to prevent displaying start port
-export const newNodeTypes = ['block', 'say_something', 'execute', 'listen', 'router']
+export const newNodeTypes = ['say_something', 'execute', 'listen', 'router']
 
 // Default transition applied for new nodes 1.5
 export const defaultTransition = { condition: 'true', node: '' }
