@@ -1520,34 +1520,6 @@ declare module 'botpress/sdk' {
     asChatUser?: boolean
   }
 
-<<<<<<< HEAD
-=======
-  export interface PromptDefinition {
-    id: string
-    config: PromptConfig
-    prompt: PromptConstructable<Prompt>
-  }
-
-  /** The configuration of the prompt which is saved on the flow */
-  export interface PromptConfig {
-    /** An ID used internally to refer to this prompt */
-    type: string
-    /** The label displayed in the studio */
-    label?: string
-    icon?: string
-    /** The ID representing the type of value that is collected by this prompt */
-    valueType?: string
-    /** A list of ID represented by the type of values collected by this prompt */
-    valueTypes?: string[]
-    /** List of custom parameters that will be asked by the prompt */
-    params?: { [paramName: string]: ConditionParam }
-    /** The minimum confidence required for the value to be considered valid */
-    minConfidence?: number
-    /** Whatever happens, the prompt will never ask the user to validate the provided value*/
-    noValidation?: boolean
-  }
-
->>>>>>> ya-prompts
   export interface PromptNode {
     type: string
     /** The name of the variable that will be filled with the value extracted */
@@ -1565,11 +1537,7 @@ declare module 'botpress/sdk' {
      * This method will receive multiple
      * @param event
      */
-<<<<<<< HEAD
     extraction(event: IO.IncomingEvent): ExtractionResult | undefined
-=======
-    extraction(event: IO.IncomingEvent): { value: any; confidence: number } | undefined
->>>>>>> ya-prompts
     /**
      * This method
      * @param value
@@ -1658,12 +1626,6 @@ declare module 'botpress/sdk' {
   }
 
   export type FlowVariableConfig = FormDefinition
-
-  export interface FormData {
-    id?: string
-    contentType?: string
-    [key: string]: undefined | number | boolean | string | FormData[]
-  }
 
   export interface FormMoreInfo {
     label: string
