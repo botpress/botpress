@@ -95,7 +95,7 @@ const migration: Migration = {
       })
     } catch (err) {
       bp.logger.attachError(err).error(`Could not fix events table`)
-      return { success: false, message: 'Configuration updated successfully' }
+      return { success: false, message: 'Could not fix events table' }
     }
 
     return { success: true, message: 'Configuration updated successfully' }

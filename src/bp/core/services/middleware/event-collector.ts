@@ -108,9 +108,9 @@ export class EventCollector {
       createdOn: this.knex.date.now()
     }
 
-    const exists = this.batch.findIndex(x => x.id === id)
-    if (exists !== -1) {
-      this.batch.splice(exists, 1, entry)
+    const existingIndex = this.batch.findIndex(x => x.id === id)
+    if (existingIndex !== -1) {
+      this.batch.splice(existingIndex, 1, entry)
     } else {
       this.batch.push(entry)
     }

@@ -17,7 +17,7 @@ export class MiddlewareChain {
     this.options = { ...defaultOptions, ...options }
   }
 
-  use({ handler, name }) {
+  use({ handler, name }: sdk.IO.MiddlewareDefinition) {
     this.stack.push({ mw: handler, name })
   }
 

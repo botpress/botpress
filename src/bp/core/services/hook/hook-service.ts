@@ -40,8 +40,6 @@ export namespace Hooks {
     }
   }
 
-  export class EventHook extends BaseHook {}
-
   export class AfterServerStart extends BaseHook {
     constructor(private bp: typeof sdk) {
       super('after_server_start', { bp })
@@ -60,37 +58,37 @@ export namespace Hooks {
     }
   }
 
-  export class BeforeIncomingMiddleware extends EventHook {
+  export class BeforeIncomingMiddleware extends BaseHook {
     constructor(bp: typeof sdk, event: IO.Event) {
       super('before_incoming_middleware', { bp, event })
     }
   }
 
-  export class AfterIncomingMiddleware extends EventHook {
+  export class AfterIncomingMiddleware extends BaseHook {
     constructor(bp: typeof sdk, event: IO.Event) {
       super('after_incoming_middleware', { bp, event })
     }
   }
 
-  export class BeforeOutgoingMiddleware extends EventHook {
+  export class BeforeOutgoingMiddleware extends BaseHook {
     constructor(bp: typeof sdk, event: IO.Event) {
       super('before_outgoing_middleware', { bp, event })
     }
   }
 
-  export class AfterEventProcessed extends EventHook {
+  export class AfterEventProcessed extends BaseHook {
     constructor(bp: typeof sdk, event: IO.Event) {
       super('after_event_processed', { bp, event })
     }
   }
 
-  export class BeforeSessionTimeout extends EventHook {
+  export class BeforeSessionTimeout extends BaseHook {
     constructor(bp: typeof sdk, event: IO.Event) {
       super('before_session_timeout', { bp, event })
     }
   }
 
-  export class BeforeSuggestionsElection extends EventHook {
+  export class BeforeSuggestionsElection extends BaseHook {
     constructor(bp: typeof sdk, sessionId: string, event: IO.Event, suggestions: IO.Suggestion[]) {
       super('before_suggestions_election', { bp, sessionId, event, suggestions })
     }
@@ -286,7 +284,7 @@ export class HookService {
   }
 
   private addEventStep = (hookName: string, status: 'completed' | 'error', hook: Hooks.BaseHook) => {
-    if (hook instanceof Hooks.EventHook && hook.args?.event?.addStep) {
+    if (hook.args?.event?.addStep) {
       const event = hook.args.event as IO.Event
       event.addStep(`hook:${hookName}:${status}`)
     }
