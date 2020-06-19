@@ -9,7 +9,9 @@ interface CssExports {
   'alignBtnRight': string;
   'category': string;
   'checkboxLabel': string;
+  'contentAnswer': string;
   'contentTypeField': string;
+  'customTextarea': string;
   'deleteBtn': string;
   'description': string;
   'emptyState': string;
@@ -18,6 +20,7 @@ interface CssExports {
   'formHeader': string;
   'formLabel': string;
   'formSelect': string;
+  'hasError': string;
   'imgWrapper': string;
   'imgWrapperActions': string;
   'innerWrapper': string;
