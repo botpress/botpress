@@ -7,9 +7,9 @@ export default {
   description: `The user's intention is {intentName}`,
   callback: '/mod/nlu/condition/intentChanged',
   displayOrder: 0,
-  params: {
-    intentName: { label: 'Name of intent', type: 'string' }
-  },
+  params: [
+    { key: 'intentName', label: 'Name of intent', type: 'text' }
+  ],
   editor: {
     module: 'nlu',
     component: 'LiteEditor'

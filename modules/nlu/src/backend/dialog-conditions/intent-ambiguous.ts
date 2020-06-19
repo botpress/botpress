@@ -12,10 +12,10 @@ export default {
   label: 'Intent is ambiguous within topic',
   description: `The users's intention is can be interpreted as multiple intents within the same topic`,
   displayOrder: 1,
-  params: {
-    ambiguityThreshold: { label: 'Ambiguity threshold', type: 'number', defaultValue: 0.1 },
-    onlyIfActive: { label: 'Only if topic is already active', type: 'boolean', defaultValue: false }
-  },
+  params: [
+    { key: 'ambiguityThreshold', label: 'Ambiguity threshold', type: 'number' },
+    { key: 'onlyIfActive', label: 'Only if topic is already active', type: 'checkbox' }
+  ],
   evaluate: (event: IO.IncomingEvent, { ambiguityThreshold, onlyIfActive, topicName }: Params) => {
     const currentTopic = _.get(event.state.session, 'nduContext.last_topic')
 

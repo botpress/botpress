@@ -6,14 +6,15 @@ export default {
   label: 'Users says something misunderstood (intent)',
   description: `The user's intention is misunderstood`,
   displayOrder: 3,
-  params: {
-    maxConfidence: {
+  params: [
+    {
+      key: 'maxConfidence',
       label: 'Maximum reachable confidence (%)',
       type: 'number',
       defaultValue: 100,
       required: true
     }
-  },
+  ],
   evaluate: (event, params) => {
     const highestCtx = _.chain(event?.nlu?.predictions ?? {})
       .toPairs()

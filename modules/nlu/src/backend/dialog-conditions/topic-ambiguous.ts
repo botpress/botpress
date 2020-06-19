@@ -10,9 +10,9 @@ export default {
   label: 'Detected topics are ambiguous',
   description: 'What user said might refer to multiple topics ',
   displayOrder: 2,
-  params: {
-    ambiguityThreshold: { label: 'Ambiguity threshold', type: 'number', defaultValue: 0.15 }
-  },
+  params: [
+    { key: 'ambiguityThreshold', label: 'Ambiguity threshold', type: 'number', defaultValue: 0.15 }
+  ],
   evaluate: (event: IO.IncomingEvent, { ambiguityThreshold }: Params) => {
     const highestTopics: number[] = _.chain(event?.nlu?.predictions ?? {})
       .toPairs()

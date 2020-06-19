@@ -1360,10 +1360,12 @@ declare module 'botpress/sdk' {
     node: string
   }
 
+  export type FormDataField = undefined | number | boolean | string | FormData[]
+
   export interface FormData {
     id?: string
     contentType?: string
-    [key: string]: undefined | number | boolean | string | FormData[]
+    [key: string]: FormDataField
   }
 
   interface FormOption {
@@ -1383,6 +1385,8 @@ declare module 'botpress/sdk' {
     label: string
     placeholder?: string
     options?: FormOption[]
+    defaultValue?: FormDataField
+    required?: boolean
     dynamicOptions?: {
       endpoint: string // an enpoint to call to get the options
       path?: string // used with _.get() on the data returned by api to get to the list of items
@@ -1412,7 +1416,7 @@ declare module 'botpress/sdk' {
     /** For node of type triggers, this contains the element to render */
     conditions?: {
       id?: string
-      params: {}
+      params: FormData
     }[]
     /** For node of type say_something, this contains the element to render */
     contents?: {

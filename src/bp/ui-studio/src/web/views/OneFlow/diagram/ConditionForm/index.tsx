@@ -57,8 +57,6 @@ const ConditionForm: FC<Props> = ({
   const selectedCondition = conditions.find(cond => cond.id === condition.current)
   const selectedOption = options.find(cond => cond.value === condition.current)
 
-  console.log(formData, selectedCondition?.params)
-
   const handleEmptyData = renderType => {
     return Contents.getEmptyFormData(renderType)
   }
