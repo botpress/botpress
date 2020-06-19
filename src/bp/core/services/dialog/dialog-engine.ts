@@ -62,7 +62,7 @@ export class DialogEngine {
         workflow.status = 'completed'
       }
 
-      if (currentNode.type === 'prompt') {
+      if (currentNode.type === 'prompt' && !event.restored) {
         event.prompt = currentNode.prompt
         return this.processEvent(sessionId, event)
       }

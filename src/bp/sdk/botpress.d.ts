@@ -616,6 +616,7 @@ declare module 'botpress/sdk' {
       suggestions?: Suggestion[]
       credentials?: any
       nlu?: Partial<EventUnderstanding>
+      ndu?: NDU.DialogUnderstanding
       incomingEventId?: string
     }
 

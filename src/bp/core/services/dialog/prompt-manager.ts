@@ -75,7 +75,7 @@ export class PromptManager {
     if (event.prompt) {
       session.prompt = {
         config: event.prompt,
-        originalEvent: _.omit(event, ['state'])
+        originalEvent: _.omit(event, ['state', 'id'])
       }
       delete event.prompt
     }
