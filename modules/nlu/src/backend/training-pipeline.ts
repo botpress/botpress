@@ -36,8 +36,10 @@ export type TrainInput = Readonly<{
   contexts: string[]
   intents: Intent<string>[]
   trainingSession: TrainingSession
+  ctxToTrain: string[]
 }>
 
+// TODO: this should be named TrainStep and should not be returned by the pipeline
 export type TrainOutput = Readonly<{
   botId: string
   languageCode: string
@@ -48,6 +50,7 @@ export type TrainOutput = Readonly<{
   vocabVectors: Token2Vec
   tfIdf?: TFIDF
   kmeans?: sdk.MLToolkit.KMeans.KmeansResult
+  ctxToTrain: string[]
 }>
 
 export interface TrainArtefacts {
@@ -213,8 +216,8 @@ const TrainIntentClassifier = async (
     .filter(u => u.tokens.filter(t => t.isWord).length >= 3)
     .value()
 
-  for (let i = 0; i < input.contexts.length; i++) {
-    const ctx = input.contexts[i]
+  for (let i = 0; i < input.ctxToTrain.length; i++) {
+    const ctx = input.ctxToTrain[i]
     const trainableIntents = input.intents.filter(
       i => i.name !== NONE_INTENT && i.contexts.includes(ctx) && i.utterances.length >= MIN_NB_UTTERANCES
     )
@@ -241,12 +244,12 @@ const TrainIntentClassifier = async (
       .value()
 
     if (points.length <= 0) {
-      progress(1 / input.contexts.length)
+      progress(1 / input.ctxToTrain.length)
       continue
     }
     const svm = new tools.mlToolkit.SVM.Trainer()
     const model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
-      const completion = (i + p) / input.contexts.length
+      const completion = (i + p) / input.ctxToTrain.length
       progress(completion)
     })
     svmPerCtx[ctx] = model
@@ -467,7 +470,7 @@ const TrainOutOfScope = async (
 
   const oos_points = featurizeOOSUtterances(noneUtts, input.vocabVectors, tools)
   let combinedProgress = 0
-  const ctxModels: [string, string][] = await Promise.map(input.contexts, async ctx => {
+  const ctxModels: [string, string][] = await Promise.map(input.ctxToTrain, async ctx => {
     const in_ctx_scope_points = _.chain(input.intents)
       .filter(i => i.name !== NONE_INTENT && i.contexts.includes(ctx))
       .flatMap(i => featurizeInScopeUtterances(i.utterances, i.name))
@@ -475,7 +478,7 @@ const TrainOutOfScope = async (
 
     const svm = new tools.mlToolkit.SVM.Trainer()
     const model = await svm.train([...in_ctx_scope_points, ...oos_points], trainingOptions, p => {
-      combinedProgress += p / input.contexts.length
+      combinedProgress += p / input.ctxToTrain.length
       progress(combinedProgress)
     })
     return [ctx, model] as [string, string]
