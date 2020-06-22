@@ -37,7 +37,10 @@ class PromptEnum implements Prompt {
     if (this._useDropdown && event.channel === 'web') {
       const {
         data: { occurrences }
-      } = await axios.get(`mod/nlu/entities/${this._entity}`, await bp.http.getAxiosConfigForBot(event.botId))
+      } = await axios.get(
+        `mod/nlu/entities/${this._entity}`,
+        await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
+      )
 
       const replies = occurrences.map(x => {
         return { label: x.name, payload: x.name }
