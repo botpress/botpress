@@ -216,6 +216,10 @@ export class PromptManager {
     }
 
     const count = event.prompt?.params?.searchBackCount
+    if (!count) {
+      return []
+    }
+
     const lastEvents: IO.StoredEvent[] = await this.eventRepository.findEvents(
       { direction: 'incoming', target: event.target },
       { count, sortOrder: [{ column: 'createdOn', desc: true }] }
