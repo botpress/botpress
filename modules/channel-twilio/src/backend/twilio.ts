@@ -1,14 +1,14 @@
 import * as sdk from 'botpress/sdk'
+import * as entities from 'entities'
 import { json as expressJson, Router } from 'express'
 import _ from 'lodash'
-import twilio from 'twilio'
-import entryPoint from './index'
-
-import * as entities from 'entities'
 import * as stringUtils from 'mout/string'
 import removeMd from 'remove-markdown'
+import twilio from 'twilio'
 
 import { Config } from '../config'
+
+import entryPoint from './index'
 
 const debug = DEBUG('channel-twilio')
 const debugMessages = debug.sub('messages')
@@ -110,7 +110,7 @@ export class TwilioService {
 
     const fromNumber = body.To
     const toNumber = body.From
-    this.fromToMap[toNumber] = { fromNumber, language: null }
+    this.fromToMap[toNumber] = { fromNumber, language: undefined }
 
     const bot = this.getTwilioClientByBotId(botId)
 
@@ -146,9 +146,7 @@ export class TwilioService {
 
     const langOptions = [event.nlu.language, event.nlu.detectedLanguage, event.state.user.language]
 
-    const lang = (langOptions.filter(
-      l => l && l !== 'n/a'
-    )[0] || 'en').toLowerCase().substring(0, 2);
+    let lang = (langOptions.filter(l => l && l !== 'n/a')[0] || 'en').toLowerCase().substring(0, 2)
 
     if (!entryPoint.translations[lang]) {
       lang = 'en'
@@ -172,29 +170,29 @@ export class TwilioService {
     const twilio = this.getTwilioClientByBotId(event.botId)
 
     if (messageType === 'text' || messageType === 'carousel' || messageType === 'dropdown') {
-      let elements = event.payload.elements || [ event.payload ]
-      for (let element of elements ) {
+      const elements = event.payload.elements || [event.payload]
+      for (const element of elements) {
         let message = element.text || element.message
-        let options = element.quick_replies || element.options || element.buttons
-        if (messageType === 'carousel'){
-          message = element.title + (element.subtitle ? `\n${element.subtitle}` : "")
-          for (let option of options) {
+        const options = element.quick_replies || element.options || element.buttons
+        if (messageType === 'carousel') {
+          message = element.title + (element.subtitle ? `\n${element.subtitle}` : '')
+          for (const option of options) {
             if (option.type === 'open_url') {
               message += `\n\n${option.title}: ${option.url}`
               options.splice(options.indexOf(option), 1)
             }
           }
         }
-        
+
         if (message) {
           message = stringUtils.stripHtmlTags(entities.decodeHTML(removeMd(message)))
         }
-        
+
         await twilio.sendTextMessage(event.target, recipient.fromNumber, message)
 
         if (undefined != options && options.length < 10 && options.length > 0) {
-          let quick_replies = options.map(reply => reply.title || reply.label)
-          let str = tr['youCanSay'] + quick_replies.join(', ')
+          const quick_replies = options.map(reply => reply.title || reply.label)
+          const str = tr['youCanSay'] + quick_replies.join(', ')
 
           await twilio.sendTextMessage(event.target, recipient.fromNumber, str)
         }
@@ -225,7 +223,7 @@ export class TwilioClient {
     return config
   }
 
-  async sendTextMessage(senderId: string, recipientId: string, message: string, action?: string | string[], ) {
+  async sendTextMessage(senderId: string, recipientId: string, message: string, action?: string | string[]) {
     const config = await this.getConfig()
     const client = twilio(config.accountSID, config.authToken)
 

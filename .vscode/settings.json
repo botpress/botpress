@@ -64,5 +64,6 @@
       "name": "BP Core DB"
     }
   ],
-  "sqltools.useNodeRuntime": true
+  "sqltools.useNodeRuntime": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }

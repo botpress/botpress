@@ -19,5 +19,3 @@ export interface Config {
    */
   authToken: string
 }
-
-

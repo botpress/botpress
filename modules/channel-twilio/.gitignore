@@ -1,7 +1,8 @@
-dist
-node_modules
-*.tgz
-assets/web/full.bundle.js
-assets/web/full.bundle.js.map
-assets/web/lite.bundle.js
-assets/web/lite.bundle.js.map
+/bin
+/node_modules
+/node_production_modules
+/dist
+/assets/web/
+/assets/config.schema.json
+botpress.d.ts
+global.d.ts
