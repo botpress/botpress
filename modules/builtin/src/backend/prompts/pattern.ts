@@ -2,11 +2,11 @@ import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'bo
 
 import commonFields from './common'
 
-class PromptString implements Prompt {
-  private _maxLength: boolean
+class PromptPattern implements Prompt {
+  private _regexPattern: string
 
-  constructor({ maxLength }) {
-    this._maxLength = maxLength
+  constructor({ regexPattern }) {
+    this._regexPattern = regexPattern
   }
 
   extraction(event: IO.IncomingEvent): ExtractionResult | undefined {
@@ -24,8 +24,8 @@ class PromptString implements Prompt {
       return { valid: false, message: 'Provided value is invalid' }
     }
 
-    if (value.length > this._maxLength) {
-      return { valid: false, message: 'Text is too long' }
+    if (!new RegExp(this._regexPattern).test(value)) {
+      return { valid: false, message: 'Value does not match regex pattern' }
     }
 
     return { valid: true }
@@ -33,18 +33,18 @@ class PromptString implements Prompt {
 }
 
 const config: PromptConfig = {
-  type: 'string',
-  label: 'String',
+  type: 'pattern',
+  label: 'Pattern',
   valueType: 'string',
   fields: [
     ...commonFields(),
     {
       type: 'text',
-      key: 'maxLength',
-      label: 'module.builtin.maxLength'
+      key: 'regexPattern',
+      label: 'module.builtin.regexPattern'
     }
   ],
   advancedSettings: []
 }
 
-export default { id: 'string', config, prompt: PromptString }
+export default { id: 'pattern', config, prompt: PromptPattern }
