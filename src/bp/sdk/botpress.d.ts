@@ -1520,6 +1520,29 @@ declare module 'botpress/sdk' {
     asChatUser?: boolean
   }
 
+  export interface PromptDefinition {
+    id: string
+    config: PromptConfig
+    prompt: PromptConstructable
+  }
+
+  /** The configuration of the prompt which is saved on the flow */
+  export type PromptConfig = {
+    /** An ID used internally to refer to this prompt */
+    type: string
+    /** The label displayed in the studio */
+    label?: string
+    icon?: string
+    /** The ID representing the type of value that is collected by this prompt */
+    valueType?: string
+    /** A list of ID represented by the type of values collected by this prompt */
+    valueTypes?: string[]
+    /** The minimum confidence required for the value to be considered valid */
+    minConfidence?: number
+    /** Whatever happens, the prompt will never ask the user to validate the provided value */
+    noValidation?: boolean
+  } & FormDefinition
+
   export interface PromptNode {
     type: string
     /** The name of the variable that will be filled with the value extracted */
@@ -1567,29 +1590,6 @@ declare module 'botpress/sdk' {
   export interface PromptConstructable {
     new (ctor: any): Prompt
   }
-
-  export interface PromptDefinition {
-    id: string
-    config: PromptConfig
-    prompt: PromptConstructable
-  }
-
-  /** The configuration of the prompt which is saved on the flow */
-  export type PromptConfig = {
-    /** An ID used internally to refer to this prompt */
-    type: string
-    /** The label displayed in the studio */
-    label?: string
-    icon?: string
-    /** The ID representing the type of value that is collected by this prompt */
-    valueType?: string
-    /** A list of ID represented by the type of values collected by this prompt */
-    valueTypes?: string[]
-    /** The minimum confidence required for the value to be considered valid */
-    minConfidence?: number
-    /** Whatever happens, the prompt will never ask the user to validate the provided value */
-    noValidation?: boolean
-  } & FormDefinition
 
   export interface BoxedVarConstructable<T> {
     new (ctor: BoxedVarContructor<T>): BoxedVariable<T>
