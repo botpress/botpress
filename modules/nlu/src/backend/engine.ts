@@ -15,9 +15,9 @@ import {
   NLUEngine,
   Tools,
   TrainingSession,
-  NLUVersionInfo
+  NLUVersionInfo,
+  Intent
 } from './typings'
-import { getOrCreateCache } from './cache-manager'
 
 const trainDebug = DEBUG('nlu').sub('training')
 
@@ -75,10 +75,27 @@ export default class Engine implements NLUEngine {
       .uniq()
       .value()
 
-    const modifiedCtx = this._updateAndGetModifiedCtx(languageCode, intentDefs, contexts)
-    const trainAllCtx =
-      options?.forceTrain || !this.modelsByLang[languageCode] || contexts.length === modifiedCtx.length
-    const ctxToTrain = trainAllCtx ? contexts : modifiedCtx
+    const intents = intentDefs
+      .filter(x => !!x.utterances[languageCode])
+      .map(x => ({
+        name: x.name,
+        contexts: x.contexts,
+        utterances: x.utterances[languageCode],
+        slot_definitions: x.slots
+      }))
+
+    const previousModel = this.modelsByLang[languageCode]
+    let trainAllCtx = options?.forceTrain || !previousModel
+    let ctxToTrain = contexts
+
+    if (!trainAllCtx) {
+      const previousIntents = previousModel.data.input.intents
+      const ctxHasChanged = this._ctxHasChanged(previousIntents, intents)
+      const modifiedCtx = contexts.filter(ctxHasChanged)
+
+      trainAllCtx = modifiedCtx.length === contexts.length
+      ctxToTrain = trainAllCtx ? contexts : modifiedCtx
+    }
 
     const debugMsg = trainAllCtx
       ? `Training all contexts for language: ${languageCode}`
@@ -92,14 +109,7 @@ export default class Engine implements NLUEngine {
       list_entities,
       pattern_entities,
       contexts,
-      intents: intentDefs
-        .filter(x => !!x.utterances[languageCode])
-        .map(x => ({
-          name: x.name,
-          contexts: x.contexts,
-          utterances: x.utterances[languageCode],
-          slot_definitions: x.slots
-        })),
+      intents,
       ctxToTrain
     }
 
@@ -107,7 +117,7 @@ export default class Engine implements NLUEngine {
     // Error handling should be done here
     let model = await Trainer(input, Engine.tools)
     if (!trainAllCtx) {
-      model = this._mergeModels(this.modelsByLang[languageCode], model)
+      model = this._mergeModels(previousModel, model)
     }
 
     model.hash = computeModelHash(intentDefs, entityDefs, this.version, model.languageCode)
@@ -235,32 +245,17 @@ export default class Engine implements NLUEngine {
     return mergedModel
   }
 
-  private _updateAndGetModifiedCtx = (languageCode: string, intents: NLU.IntentDefinition[], ctxs: string[]) => {
-    const ctxCache = getOrCreateCache(this.getCtxCacheId(languageCode))
-
-    const modifiedCtx: string[] = []
-    for (const ctx of ctxs) {
-      const previousCtxHash = ctxCache.get(ctx)
-      const currentCtxHash = this._computeCtxHash(languageCode, intents, ctx)
-      if (previousCtxHash !== currentCtxHash) {
-        modifiedCtx.push(ctx)
-        ctxCache.set(ctx, currentCtxHash)
-      }
-    }
-    return modifiedCtx
+  private _ctxHasChanged = (previousIntents: Intent<string>[], currentIntents: Intent<string>[]) => (ctx: string) => {
+    const prevHash = this._computeCtxHash(previousIntents, ctx)
+    const currHash = this._computeCtxHash(currentIntents, ctx)
+    return prevHash !== currHash
   }
 
-  private getCtxCacheId = (langCode: string) => {
-    return `ctx_cache.${langCode}`
-  }
-
-  private _computeCtxHash = (languageCode: string, intents: NLU.IntentDefinition[], ctx: string) => {
+  private _computeCtxHash = (intents: Intent<string>[], ctx: string) => {
     const intentsOfCtx = intents.filter(i => i.contexts.includes(ctx))
-    const utterancesOfCtx = _.flatMap(intentsOfCtx, i => i.utterances[languageCode])
-    const uttString = utterancesOfCtx.reduce((acc, cur) => `${acc}+${cur}`, '')
     return crypto
       .createHash('md5')
-      .update(uttString)
+      .update(JSON.stringify(intentsOfCtx))
       .digest('hex')
   }
 }
