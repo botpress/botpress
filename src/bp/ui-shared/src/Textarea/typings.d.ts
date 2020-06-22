@@ -1,3 +1,5 @@
+import { SyntheticEvent } from 'react';
+
 export interface TextareaProps {
   className?: string
   placeholder?: string
@@ -5,6 +7,6 @@ export interface TextareaProps {
   forceUpdateHeight?: boolean
   onChange: (value: string) => void
   onBlur?: () => void
-  onKeyDown?: () => void
+  onKeyDown?: (e?: SyntheticEvent) => void
   value: string
 }

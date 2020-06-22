@@ -1,10 +1,7 @@
-import { Position, Tooltip } from '@blueprintjs/core'
 import { FormData } from 'botpress/sdk'
-import { FormFields, lang, ShortcutLabel, Textarea, utils } from 'botpress/shared'
+import { FormFields, lang } from 'botpress/shared'
 import _uniqueId from 'lodash/uniqueId'
-import React, { FC, Fragment, SyntheticEvent, useEffect, useRef, useState } from 'react'
-
-import style from './style.scss'
+import React, { FC, useEffect, useState } from 'react'
 
 interface Props {
   field: any
@@ -15,101 +12,28 @@ interface Props {
 
 const TextAreaList: FC<Props> = props => {
   const { label, onChange, field, data } = props
-  const [text, setText] = useState(data.text || '')
-  const [localItems, setLocalItems] = useState(data.variations || [])
-  const focusedElement = useRef(-1)
   const [forceUpdateHeight, setForceUpdateHeight] = useState(false)
 
   useEffect(() => {
-    setText(data.text || '')
-
     if (data.text) {
       setForceUpdateHeight(!forceUpdateHeight)
     }
   }, [data.text])
 
-  useEffect(() => {
-    setLocalItems(data.variations || [])
-  }, [data.variations.length])
-
-  const updateLocalItem = (index: number, value: string): void => {
-    localItems[index] = value
-    setLocalItems([...localItems])
-  }
-
-  const addItem = (value = ''): void => {
-    focusedElement.current = localItems.length
-    setLocalItems([...localItems, ''])
-  }
-
-  const onKeyDown = (e, index: number): void => {
-    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-      e.preventDefault()
-      addItem()
-    }
-
-    if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
-      e.preventDefault()
-      e.target.select()
-    }
-
-    if (index === -1) {
-      return
-    }
-
-    const shouldDelete = !localItems[index].length
-
-    if (e.key === 'Backspace' && shouldDelete) {
-      e.preventDefault()
-
-      deleteItem(index)
-    }
-  }
-
-  const deleteItem = (index: number): void => {
-    setLocalItems(localItems.filter((item, i) => i !== index))
-    focusedElement.current = index - 1
-    onChange({ text, variations: localItems })
+  const handleChange = items => {
+    const firstItem = items.shift()
+    onChange({ text: firstItem, variations: items })
   }
 
   return (
-    <Fragment key={field.key}>
-      <div className={style.items}>
-        <h2>{label}</h2>
-        <div className={style.textareaWrapper}>
-          <Textarea
-            isFocused={focusedElement.current === -1}
-            className={style.customTextarea}
-            placeholder={lang.tr('module.builtin.types.actionButton.sayPlaceholder')}
-            onChange={value => setText(value)}
-            onBlur={() => onChange({ text, variations: localItems })}
-            onKeyDown={e => onKeyDown(e, -1)}
-            forceUpdateHeight={forceUpdateHeight}
-            value={text}
-          />
-        </div>
-        {localItems?.map((item, index) => (
-          <div key={index} className={style.textareaWrapper}>
-            <Textarea
-              isFocused={focusedElement.current === index}
-              className={style.customTextarea}
-              onChange={value => updateLocalItem(index, value)}
-              onBlur={() => onChange({ text, variations: localItems })}
-              onKeyDown={e => onKeyDown(e, index)}
-              value={item}
-            />
-          </div>
-        ))}
-        <Tooltip
-          content={lang.tr('module.qna.form.quickAddAlternative', {
-            shortcut: <ShortcutLabel light keys={[utils.controlKey, 'enter']} />
-          })}
-          position={Position.BOTTOM}
-        >
-          <FormFields.AddButton text={lang.tr('module.builtin.types.text.add')} onClick={() => addItem()} />
-        </Tooltip>
-      </div>
-    </Fragment>
+    <FormFields.TextFieldsArray
+      key={`${field.key}${forceUpdateHeight}`}
+      label={label}
+      items={[data.text, ...(data.variations || [])]}
+      onChange={handleChange}
+      addBtnLabel={lang.tr('module.builtin.types.text.add')}
+      getPlaceholder={index => (index === 0 ? lang.tr('module.builtin.types.actionButton.sayPlaceholder') : '')}
+    />
   )
 }
 
