@@ -92,7 +92,8 @@ const ConditionForm: FC<Props> = ({
             customFields={{
               text: props => <TextField {...props} />
             }}
-            fields={selectedCondition.params}
+            fields={selectedCondition.params.fields || []}
+            advancedSettings={selectedCondition.params.advancedSettings || []}
             formData={formData}
             getEmptyData={handleEmptyData}
             onUpdate={data => onUpdate({ ...data, id: condition.current })}

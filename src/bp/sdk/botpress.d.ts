@@ -1230,7 +1230,10 @@ declare module 'botpress/sdk' {
     /** The description holds placeholders for param values so they can be displayed in the view */
     description?: string
     /** The definition of all parameters used by this condition */
-    params?: FormField[]
+    params?: {
+      fields: FormField[],
+      advancedSettings?: FormAdvancedSetting[]
+    }
     /** In which order the conditions will be displayed in the dropdown menu. 0 is the first item */
     displayOrder?: number
     /** This callback url is called when the condition is deleted or pasted in the flow */
@@ -1384,6 +1387,13 @@ declare module 'botpress/sdk' {
     path?: string // used with _.get() on the data returned by api to get to the list of items
     valueField: string // field from DB to map as the value of the options
     labelField: string // field from DB to map as the label of the options
+  }
+
+  export interface FormAdvancedSetting {
+    key: string
+    label: string
+    type: string
+    moreInfo?: FormMoreInfo
   }
 
   export interface FormField {

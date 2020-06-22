@@ -6,16 +6,18 @@ export const dialogConditions: sdk.Condition[] = [
     id: 'user_channel_is',
     label: 'User is using a specific channel',
     description: `The user speaks on channel {channelName}`,
-    params: [{
-      type: 'select',
-      key: 'channelName',
-      label: 'Select a channel from the list',
-      dynamicOptions: {
-        endpoint: 'BOT_API_PATH/mod/ndu/channels',
-        valueField: 'value',
-        labelField: 'label'
-      }
-    }],
+    params: {
+      fields: [{
+        type: 'select',
+        key: 'channelName',
+        label: 'Select a channel from the list',
+        dynamicOptions: {
+          endpoint: 'BOT_API_PATH/mod/ndu/channels',
+          valueField: 'value',
+          labelField: 'label'
+        }
+      }]
+    },
     evaluate: (event, params) => {
       return event.channel === params.channelName ? 1 : 0
     }
@@ -24,17 +26,19 @@ export const dialogConditions: sdk.Condition[] = [
     id: 'user_language_is',
     label: 'User speaks a specific language',
     description: `The user's language is {language}`,
-    params: [{
-      type: 'select',
-      key: 'language',
-      label: 'Language',
-      dynamicOptions: {
-        endpoint: 'API_PATH/admin/languages',
-        path: 'installed',
-        valueField: 'lang',
-        labelField: 'name'
-      }
-    }],
+    params: {
+      fields: [{
+        type: 'select',
+        key: 'language',
+        label: 'Language',
+        dynamicOptions: {
+          endpoint: 'API_PATH/admin/languages',
+          path: 'installed',
+          valueField: 'lang',
+          labelField: 'name'
+        }
+      }]
+    },
     evaluate: (event, params) => {
       return event.state.user.language === params.language ? 1 : 0
     }
@@ -50,16 +54,18 @@ export const dialogConditions: sdk.Condition[] = [
     id: 'user_topic_source',
     label: 'User is coming from a specific topic',
     description: `The user's last topic was {topicName}`,
-    params: [{
-      type: 'select',
-      key: 'topicName',
-      label: 'Name of the topic',
-      dynamicOptions: {
-        endpoint: 'BOT_API_PATH/topics',
-        valueField: 'name',
-        labelField: 'name'
-      }
-    }],
+    params: {
+      fields: [{
+        type: 'select',
+        key: 'topicName',
+        label: 'Name of the topic',
+        dynamicOptions: {
+          endpoint: 'BOT_API_PATH/topics',
+          valueField: 'name',
+          labelField: 'name'
+        }
+      }]
+    },
     evaluate: (event, params) => {
       const topics = event.state.session.lastTopics
       return topics && topics[topics.length - 1] === params.topicName ? 1 : 0
@@ -69,18 +75,20 @@ export const dialogConditions: sdk.Condition[] = [
     id: 'raw_js',
     label: 'Raw JS Expression',
     description: `{label}`,
-    params: [
-      {
-        type: 'textarea',
-        key: 'expression',
-        label: 'Expression to Evaluate'
-      },
-      {
-        type: 'text',
-        key: 'label',
-        label: 'Custom Label'
-      }
-    ],
+    params: {
+      fields: [
+        {
+          type: 'textarea',
+          key: 'expression',
+          label: 'Expression to Evaluate'
+        },
+        {
+          type: 'text',
+          key: 'label',
+          label: 'Custom Label'
+        }
+      ]
+    },
     evaluate: (event, params) => {
       const code = `
       try {
@@ -116,7 +124,9 @@ export const dialogConditions: sdk.Condition[] = [
     id: 'custom_confidence',
     label: 'Custom confidence level',
     description: `Confidence level of {confidence}`,
-    params: [{ type: 'number', key: 'confidence', label: 'Confidence' }],
+    params: {
+      fields: [{ type: 'number', key: 'confidence', label: 'Confidence' }]
+    },
     evaluate: (_event, params) => {
       return params.confidence
     }
@@ -132,23 +142,27 @@ export const dialogConditions: sdk.Condition[] = [
     id: 'type_text',
     label: 'The user typed something specific',
     description: `The user typed {text}`,
-    params: [
-      {
-        key: 'candidate',
-        label: 'One or multiple words to detect (one per line)',
-        type: 'custom'
-      },
-      {
-        key: 'exactMatch',
-        label: 'Must be an exact match',
-        type: 'checkbox'
-      },
-      {
-        key: 'caseSensitive',
-        label: 'Case sensitive',
-        type: 'checkbox'
-      }
-    ],
+    params: {
+      fields: [
+        {
+          key: 'candidate',
+          label: 'One or multiple words to detect (one per line)',
+          type: 'custom'
+        }
+      ],
+      advancedSettings: [
+        {
+          key: 'exactMatch',
+          label: 'Must be an exact match',
+          type: 'checkbox'
+        },
+        {
+          key: 'caseSensitive',
+          label: 'Case sensitive',
+          type: 'checkbox'
+        }
+      ]
+    },
     evaluate: (event, params) => {
       const { candidate, exactMatch, caseSensitive } = params
 
@@ -167,22 +181,24 @@ export const dialogConditions: sdk.Condition[] = [
   {
     id: 'workflow_ended',
     label: 'The user ended a workflow',
-    params: [
-      {
-        key: 'outcome',
-        label: 'Workflow Outcome',
-        type: 'select',
-        options: [
-          { label: 'Success', value: 'success' },
-          { label: 'Failure', value: 'failure' }
-        ]
-      },
-      {
-        key: 'ignoredWorkflows',
-        label: 'List of workflows to ignore (their completion will not activate this trigger)',
-        type: 'custom'
-      }
-    ],
+    params: {
+      fields: [
+        {
+          key: 'outcome',
+          label: 'Workflow Outcome',
+          type: 'select',
+          options: [
+            { label: 'Success', value: 'success' },
+            { label: 'Failure', value: 'failure' }
+          ]
+        },
+        {
+          key: 'ignoredWorkflows',
+          label: 'List of workflows to ignore (their completion will not activate this trigger)',
+          type: 'custom'
+        }
+      ]
+    },
     evaluate: (event, params) => {
       if (event.type !== 'workflow_ended') {
         return 0

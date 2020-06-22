@@ -1,4 +1,4 @@
-import { BotDetails, BoxedVarConstructable, Flow, FlowNode, FormField, RolloutStrategy, StageRequestApprovers, StrategyUser } from 'botpress/sdk'
+import { BotDetails, BoxedVarConstructable, Flow, FlowNode, FormAdvancedSetting, FormField, RolloutStrategy, StageRequestApprovers, StrategyUser } from 'botpress/sdk'
 import { Request } from 'express'
 
 import { BotpressConfig } from '../core/config/botpress.config'
@@ -261,13 +261,6 @@ export type FlowVariableConfig = FormDefinition
 export interface FormMoreInfo {
   label: string
   url?: string
-}
-
-export interface FormAdvancedSetting {
-  key: string
-  label: string
-  type: string
-  moreInfo?: FormMoreInfo
 }
 
 export interface FormDefinition {

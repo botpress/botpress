@@ -1,4 +1,4 @@
-import { FormData, FormOption, FormField, FormDynamicOptions } from 'botpress/sdk'
+import { FormData, FormDynamicOptions, FormField, FormOption } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 

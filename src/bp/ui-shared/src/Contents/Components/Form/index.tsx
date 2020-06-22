@@ -152,7 +152,7 @@ const Form: FC<FormProps> = ({ bp, customFields, getEmptyData, formData, fields,
     dispatch({ type: 'setData', data: formData })
   }, [])
 
-  const printField = async (field, data, parent?) => {
+  const printField = (field, data, parent?) => {
     switch (field.type) {
       case 'group':
         return (
