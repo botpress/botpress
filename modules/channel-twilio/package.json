@@ -1,0 +1,31 @@
+{
+  "name": "channel-twilio",
+  "fullName": "Channel - Twilio",
+  "version": "1.0.0",
+  "description": "A Botpress connector for Twilio",
+  "private": true,
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0-only",
+  "main": "dist/backend/index.js",
+  "devDependencies": {
+    "module-builder": "../../build/module-builder"
+  },
+  "scripts": {
+    "build": "./node_modules/.bin/module-builder build",
+    "watch": "./node_modules/.bin/module-builder watch",
+    "package": "./node_modules/.bin/module-builder package"
+  },
+  "dependencies": {
+    "axios": "^0.19.0",
+    "bluebird-global": "^1.0.1",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "lodash": "^4.17.11",
+    "remove-markdown": "^0.3.0",
+    "twilio": "^3.39.0"
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12",
+    "lodash": ">=4.17.12"
+  }
+}

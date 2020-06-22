@@ -1,0 +1,30 @@
+{
+  "description": "#TopLevel",
+  "type": "object",
+  "properties": {
+    "enabled": {
+      "description": "This this in the LOCAL config (unique to every bot)\nWhether or not the twilio module is enabled for this bot",
+      "default": false,
+      "type": "boolean"
+    },
+    "accountSID": {
+      "description": "This this in the GLOBAL config (same for all bots)\nThe account SID and auth token are the master keys to your account\nThey can be found on your Account Dashboard in the Twilio Console: https://www.twilio.com/console/project/settings",
+      "type": "string"
+    },
+    "authToken": {
+      "description": "This this in the GLOBAL config (same for all bots)\nThe account SID and auth token are the master keys to your account\nThey can be found on your Account Dashboard in the Twilio Console: https://www.twilio.com/console/project/settings",
+      "type": "string"
+    },
+    "$schema": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "accountSID",
+    "authToken",
+    "enabled"
+  ],
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
+

@@ -1,0 +1,7 @@
+dist
+node_modules
+*.tgz
+assets/web/full.bundle.js
+assets/web/full.bundle.js.map
+assets/web/lite.bundle.js
+assets/web/lite.bundle.js.map
