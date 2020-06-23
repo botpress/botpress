@@ -8,7 +8,7 @@ This module has been built to accelerate and facilitate development of SMS/Whats
 
 ## Configuration
 
-There's 2 required configuration variables:
+There are 2 required configuration variables:
 
 - `accountSID` or env `BP_MODULE_CHANNEL_TWILIO_ACCOUNTSID`
 - `authToken` or env `BP_MODULE_CHANNEL_TWILIO_AUTHTOKEN`
