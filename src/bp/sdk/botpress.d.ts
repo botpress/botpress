@@ -1400,7 +1400,7 @@ declare module 'botpress/sdk' {
     type: 'checkbox' | 'custom' | 'group' | 'number' | 'select' | 'text' | 'text_array' | 'textarea' | 'upload' | 'url'
     key: string
     label: string
-    placeholder?: string
+    placeholder?: string | string[]
     options?: FormOption[]
     defaultValue?: FormDataField
     required?: boolean

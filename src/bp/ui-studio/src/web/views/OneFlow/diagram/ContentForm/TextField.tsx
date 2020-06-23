@@ -25,8 +25,6 @@ const TextAreaList: FC<Props> = props => {
     onChange({ text: firstItem, variations: items })
   }
 
-  console.log(FormFields)
-
   return (
     <FormFields.TextFieldsArray
       key={`${field.key}${forceUpdateHeight}`}

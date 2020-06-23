@@ -203,7 +203,7 @@ const Form: FC<FormProps> = ({ bp, customFields, getEmptyData, formData, fields,
         return (
           <Fragment key={field.key}>
             <TextFieldsArray
-              getPlaceholder={index => (index === 0 ? lang(field.placeholder) : '')}
+              getPlaceholder={index => (index === 0 && field.placeholder ? lang(field.placeholder) : '')}
               onChange={value => {
                 dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
               }}

@@ -130,11 +130,11 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(
       new SaySomethingWidgetFactory({
         editNodeItem: this.editNodeItem.bind(this),
-        selectedNodeItem: this.getEditingNodeItem.bind(this),
+        selectedNodeItem: () => this.getStateProperty('editingNodeItem'),
         deleteSelectedElements: this.deleteSelectedElements.bind(this),
-        getCurrentFlow: this.getCurrentFlow.bind(this),
+        getCurrentFlow: () => this.getPropsProperty('currentFlow'),
         updateFlowNode: this.updateNodeAndRefresh.bind(this),
-        getCurrentLang: this.getCurrentLang.bind(this),
+        getCurrentLang: () => this.getStateProperty('currentLang'),
         switchFlowNode: this.switchFlowNode.bind(this)
       })
     )
@@ -146,10 +146,10 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(
       new TriggerWidgetFactory({
         editNodeItem: this.editNodeItem.bind(this),
-        selectedNodeItem: this.getEditingNodeItem.bind(this),
+        selectedNodeItem: () => this.getStateProperty('editingNodeItem'),
         deleteSelectedElements: this.deleteSelectedElements.bind(this),
-        getCurrentFlow: this.getCurrentFlow.bind(this),
-        getCurrentLang: this.getCurrentLang.bind(this),
+        getCurrentFlow: () => this.getPropsProperty('currentFlow'),
+        getConditions: () => this.getPropsProperty('conditions'),
         updateFlowNode: this.updateNodeAndRefresh.bind(this),
         switchFlowNode: this.switchFlowNode.bind(this),
         addCondition: this.addCondition.bind(this)
@@ -561,16 +561,12 @@ class Diagram extends Component<Props> {
     this.props.refreshFlowsLinks()
   }
 
-  getCurrentLang() {
-    return this.state.currentLang
+  getStateProperty(propertyName) {
+    return this.state[propertyName]
   }
 
-  getCurrentFlow() {
-    return this.props.currentFlow
-  }
-
-  getEditingNodeItem() {
-    return this.state.editingNodeItem
+  getPropsProperty(propertyName) {
+    return this.props[propertyName]
   }
 
   addCondition(nodeId) {

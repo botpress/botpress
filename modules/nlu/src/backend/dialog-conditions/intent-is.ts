@@ -9,7 +9,26 @@ export default {
   displayOrder: 0,
   params: {
     fields: [
-      { key: 'intentName', label: 'Name of intent', type: 'text' }
+      // Tagging for slots will come in a future PR
+      {
+        key: 'intentName',
+        label: 'Intent',
+        type: 'text_array',
+        placeholder: [
+          'nlu.intents.placeholderEmpty',
+          'nlu.intents.placeholderOne',
+          'nlu.intents.placeholderTwo',
+          'nlu.intents.placeholderMore',
+          /*placeholderEmpty
+          placeholderOne
+          placeholderTwo
+          placeholderMore
+          placeholderMoreSingular*/
+        ],
+        group: {
+          addLabel: 'nlu.intents.addBtn'
+        }
+      }
     ]
   },
   editor: {

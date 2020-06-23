@@ -20,7 +20,7 @@ interface Props {
   onDeleteSelectedElements: () => void
   editNodeItem: (node: TriggerNodeModel, index: number) => void
   selectedNodeItem: () => { node: TriggerNodeModel; index: number }
-  getCurrentLang: () => string
+  getConditions: () => any
   switchFlowNode: (id: string) => void
   addCondition: () => void
 }
@@ -32,7 +32,7 @@ const TriggerWidget: FC<Props> = ({
   onDeleteSelectedElements,
   selectedNodeItem,
   updateFlowNode,
-  getCurrentLang,
+  getConditions,
   switchFlowNode,
   addCondition
 }) => {
@@ -89,22 +89,11 @@ const TriggerWidget: FC<Props> = ({
 
     setIsEditing(false)
   }
-  const currentLang = getCurrentLang()
 
-  const selectedContent = selectedNodeItem()
+  const conditionLabels = getConditions().reduce((acc, cond) => ({ ...acc, [cond.id]: cond.label }), {})
+  const selectedCondition = selectedNodeItem()
 
-  const getTranslatedContent = content => {
-    const langArr = Object.keys(content)
-    if (!langArr.length) {
-      return {}
-    }
-
-    if (!langArr.includes(currentLang)) {
-      return { contentType: content[langArr[0]].contentType }
-    }
-
-    return content[currentLang]
-  }
+  console.log(conditionLabels)
 
   return (
     <NodeWrapper>
@@ -125,14 +114,14 @@ const TriggerWidget: FC<Props> = ({
       {expanded && (
         <div className={style.contentsWrapper}>
           {node.conditions?.map((condition, index) => (
-            <Fragment key={`${index}${currentLang}`}>
+            <Fragment key={index}>
               <NodeContentItem
                 className={cx(style.hasJoinLabel, {
-                  [style.active]: selectedContent?.node?.id === node.id && index === selectedContent?.index
+                  [style.active]: selectedCondition?.node?.id === node.id && index === selectedCondition?.index
                 })}
                 onEdit={() => editNodeItem?.(node, index)}
               >
-                <span className={style.content}>{condition.id}</span>
+                <span className={style.content}>{conditionLabels[condition.id]}</span>
               </NodeContentItem>
               <span className={style.joinLabel}>{lang.tr('and')}</span>
             </Fragment>
@@ -181,7 +170,7 @@ export class TriggerWidgetFactory extends AbstractNodeFactory {
   private editNodeItem: (node: TriggerNodeModel, index: number) => void
   private selectedNodeItem: () => { node: TriggerNodeModel; index: number }
   private deleteSelectedElements: () => void
-  private getCurrentLang: () => string
+  private getConditions: () => string
   private getCurrentFlow: any
   private updateFlowNode: any
   private switchFlowNode: (id: string) => void
@@ -195,7 +184,7 @@ export class TriggerWidgetFactory extends AbstractNodeFactory {
     this.deleteSelectedElements = methods.deleteSelectedElements
     this.getCurrentFlow = methods.getCurrentFlow
     this.updateFlowNode = methods.updateFlowNode
-    this.getCurrentLang = methods.getCurrentLang
+    this.getConditions = methods.getConditions
     this.switchFlowNode = methods.switchFlowNode
     this.addCondition = methods.addCondition
   }
@@ -209,7 +198,7 @@ export class TriggerWidgetFactory extends AbstractNodeFactory {
         onDeleteSelectedElements={this.deleteSelectedElements}
         updateFlowNode={this.updateFlowNode}
         selectedNodeItem={this.selectedNodeItem}
-        getCurrentLang={this.getCurrentLang}
+        getConditions={this.getConditions}
         switchFlowNode={this.switchFlowNode}
         addCondition={this.addCondition}
       />

@@ -38,6 +38,7 @@
   "fullName": "NLU",
   "intents": {
     "actionErrorMessage": "Impossible de {action} cet intention",
+    "addBtn": "Ajouter une intention alternative",
     "chooseContainerLabel": "Choisissez une intention différente pour cette condition",
     "contextSelectorCreateMissing": "Créer \"{query}\"",
     "contextSelectorPlaceholder": "Sélectionnez un contexte",
