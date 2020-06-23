@@ -120,20 +120,6 @@ class Inspector extends Component<Props> {
       )
     }
 
-    if (nodeType === 'prompt') {
-      return (
-        <PromptNode
-          readOnly={readOnly}
-          user={this.props.user}
-          flow={this.props.currentFlow}
-          subflows={subflows}
-          node={this.props.currentFlowNode}
-          updateNode={updateNodeAndRefresh}
-          updateFlow={this.props.updateFlow}
-        />
-      )
-    }
-
     if (nodeTypes.includes(nodeType)) {
       return (
         <StandardNode
