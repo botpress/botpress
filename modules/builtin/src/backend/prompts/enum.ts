@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
 import * as sdk from 'botpress/sdk'
+import { extractEventCommonArgs } from 'common/action'
 
 import commonFields from './common'
 
@@ -33,41 +34,45 @@ class PromptEnum implements Prompt {
     return { valid: true }
   }
 
-  customPrompt = async (event: IO.OutgoingEvent, incomingEvent, bp: typeof sdk) => {
-    if (this._useDropdown && event.channel === 'web') {
-      const {
-        data: { occurrences }
-      } = await axios.get(
-        `mod/nlu/entities/${this._entity}`,
-        await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
-      )
+  customPrompt = async (event: IO.OutgoingEvent, incomingEvent: IO.IncomingEvent, bp: typeof sdk): Promise<boolean> => {
+    if (!this._useDropdown) {
+      return false
+    }
 
-      const replies = occurrences.map(x => {
-        return { label: x.name, payload: x.name }
-      })
+    const {
+      data: { occurrences }
+    } = await axios.get(
+      `mod/nlu/entities/${this._entity}`,
+      await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
+    )
 
-      event.type = 'custom'
-      if (replies.length <= 3) {
-        const payloads = await bp.cms.renderElement('builtin_text', { type: 'text', text: this._question }, event)
-        const withoutTyping = payloads.filter((x: any) => x.type !== 'typing')
-
-        event.payload = {
-          type: 'custom',
-          module: 'channel-web',
-          component: 'QuickReplies',
-          quick_replies: replies,
-          wrapped: withoutTyping[0]
-        }
-      } else {
-        event.payload = {
-          type: 'custom',
-          module: 'extensions',
-          message: this._question,
-          component: 'Dropdown',
-          options: replies
+    let payloads = []
+    if (occurrences.length <= 3) {
+      const element = {
+        en: {
+          text: this._question,
+          choices: occurrences.map(x => ({ title: x.name, value: x.name }))
         }
       }
+
+      payloads = await bp.cms.renderElement(
+        '@builtin_single-choice',
+        extractEventCommonArgs(incomingEvent, element),
+        event
+      )
+    } else {
+      const element = {
+        en: {
+          message: this._question,
+          options: occurrences.map(x => ({ label: x.name, value: x.name }))
+        }
+      }
+
+      payloads = await bp.cms.renderElement('@dropdown', extractEventCommonArgs(incomingEvent, element), event)
     }
+
+    await bp.events.replyToEvent(incomingEvent, payloads, incomingEvent.id)
+    return true
   }
 }
 

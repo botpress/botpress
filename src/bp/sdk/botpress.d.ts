@@ -1574,7 +1574,7 @@ declare module 'botpress/sdk' {
       event: IO.OutgoingEvent,
       incomingEvent: IO.IncomingEvent,
       bp: typeof import('botpress/sdk')
-    ): Promise<void>
+    ): Promise<boolean>
   }
 
   export interface ExtractionResult {

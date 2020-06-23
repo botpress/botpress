@@ -158,9 +158,7 @@ export class PromptManager {
   private async _askQuestion(event: IO.IncomingEvent, prompt: Prompt, node: PromptNode) {
     debugPrompt('ask prompt question')
 
-    if (prompt.customPrompt) {
-      await this._sendCustomPrompt(event, prompt, node)
-    } else {
+    if (!prompt.customPrompt || !this._sendCustomPrompt(event, prompt, node)) {
       await this.actionStrategy.invokeSendMessage(buildMessage(node.question), '@builtin_text', event)
     }
   }
@@ -173,7 +171,7 @@ export class PromptManager {
     await this._sendCustomPrompt(event, promptConfirm, confirmNode)
   }
 
-  private async _sendCustomPrompt(incomingEvent: IO.IncomingEvent, prompt: Prompt, node: PromptNode) {
+  private async _sendCustomPrompt(incomingEvent: IO.IncomingEvent, prompt: Prompt, node: PromptNode): Promise<boolean> {
     debugPrompt('sending custom prompt to user')
 
     const promptEvent = Event({
@@ -185,9 +183,7 @@ export class PromptManager {
     })
 
     const bp = await createForBotpress()
-    await prompt.customPrompt?.(promptEvent, incomingEvent, bp)
-
-    await this.eventEngine.sendEvent(promptEvent)
+    return (await prompt.customPrompt?.(promptEvent, incomingEvent, bp)) ?? false
   }
 
   private async _continueOriginalEvent(event: IO.IncomingEvent) {

@@ -22,34 +22,31 @@ class PromptConfirm implements Prompt {
     return { valid: value === true || value === false, message: 'Invalid' }
   }
 
-  customPrompt = async (event: IO.OutgoingEvent, incomingEvent, bp: typeof sdk) => {
-    if (event.channel === 'web') {
-      let payloads
+  customPrompt = async (event: IO.OutgoingEvent, incomingEvent: IO.IncomingEvent, bp: typeof sdk) => {
+    let text = this._question
+    if (typeof text !== 'string') {
+      text = (<any>this._question).text$en
+    }
 
-      if (typeof this._question !== 'string') {
-        payloads = await bp.cms.renderElement(
-          '@builtin_text',
-          extractEventCommonArgs(incomingEvent, this._question),
-          event
-        )
-      } else {
-        payloads = await bp.cms.renderElement('builtin_text', { type: 'text', text: this._question }, event)
-      }
-
-      const withoutTyping = payloads.filter((x: any) => x.type !== 'typing')
-
-      event.type = 'custom'
-      event.payload = {
-        type: 'custom',
-        module: 'channel-web',
-        component: 'QuickReplies',
-        quick_replies: [
-          { label: 'Yes', payload: 'yes' },
-          { label: 'No', payload: 'no' }
-        ],
-        wrapped: withoutTyping[0]
+    const element = {
+      en: {
+        text: text,
+        choices: [
+          { title: 'Yes', value: 'yes' },
+          { title: 'No', value: 'no' }
+        ]
       }
     }
+
+    const payloads = await bp.cms.renderElement(
+      '@builtin_single-choice',
+      extractEventCommonArgs(incomingEvent, element),
+      event
+    )
+
+    await bp.events.replyToEvent(incomingEvent, payloads, incomingEvent.id)
+
+    return true
   }
 }
 
