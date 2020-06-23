@@ -10,6 +10,7 @@ import _ from 'lodash'
 
 import { EventEngine } from '../middleware/event-engine'
 
+import { DialogEngine } from './dialog-engine'
 import { ActionStrategy } from './instruction/strategy'
 
 const debugPrompt = DEBUG('dialog:prompt')
@@ -17,6 +18,7 @@ const debugPrompt = DEBUG('dialog:prompt')
 // The lost confidence percentage for older messages (index * percent)
 const OLD_MESSAGE_CONFIDENCE_DECREASE = 0.15
 const MIN_CONFIDENCE_VALIDATION = 0.7
+const MIN_CONFIDENCE_CANCEL = 0.5
 
 const buildMessage = (messagesByLang: { [lang: string]: string }, text?: string) => {
   return Object.keys(messagesByLang || {}).reduce((acc, lang) => {
@@ -49,9 +51,21 @@ export const isPromptEvent = (event: IO.IncomingEvent): boolean => {
   return !!(event.prompt || event.state?.session?.prompt || (event.type === 'prompt' && event.direction === 'incoming'))
 }
 
+const shouldCancelPrompt = (event: IO.IncomingEvent): boolean => {
+  const confidence = _.chain(event.ndu!.triggers)
+    .values()
+    .filter(val => val.trigger.name?.startsWith('prompt_cancel'))
+    .map((x: any) => x.result[Object.keys(x.result)[0]])
+    .first()
+    .value()
+
+  return confidence !== undefined && confidence > MIN_CONFIDENCE_CANCEL
+}
+
 @injectable()
 export class PromptManager {
   private _prompts!: PromptDefinition[]
+  public dialogEngine!: DialogEngine
 
   constructor(
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
@@ -66,6 +80,21 @@ export class PromptManager {
     this._prompts = await this.moduleLoader.getPrompts()
   }
 
+  public async promptJumpTo(event: IO.IncomingEvent, destination: { flowName: string; node: string }) {
+    const prompt = event.state.session.prompt!
+
+    if (prompt.status) {
+      prompt.status.exiting = true
+      prompt.status.nextDestination = destination
+    }
+  }
+
+  // Every prompt adds their output to the temp variable, so it's a reliable check to know ifit's been processed
+  public hasCurrentNodeBeenProcessed(event: IO.IncomingEvent) {
+    const { context, temp } = event.state
+    return context.currentNode && temp[context.currentNode] !== undefined
+  }
+
   public async processPrompt(event: IO.IncomingEvent) {
     const { session } = event.state
     const events: IO.IncomingEvent[] = await this._getLastEvents(event)
@@ -77,6 +106,7 @@ export class PromptManager {
         originalEvent: _.omit(event, ['state', 'id'])
       }
       delete event.prompt
+      this._setCurrentNodeValue(event, 'init', true)
     }
 
     const node: PromptNode = session.prompt!.config
@@ -91,7 +121,19 @@ export class PromptManager {
     const needValidation = status.turns === 0 || highest.confidence <= MIN_CONFIDENCE_VALIDATION
     const isConfidentEnough = highest.confidence > 0 && (!minConfidence || highest.confidence >= minConfidence)
 
-    if (status.confirming) {
+    if (shouldCancelPrompt(event)) {
+      debugPrompt('user wish to cancel the prompt')
+
+      this._setCurrentNodeValue(event, 'cancelled', true)
+      status.exiting = true
+    }
+
+    if (status.exiting) {
+      await this.exitPrompt({ event, session, status, highest, isConfidentEnough })
+    }
+
+    // Confirming the value
+    else if (status.confirming) {
       if (isConfidentEnough && highest.extracted === true) {
         status.extracted = true
       } else {
@@ -138,14 +180,44 @@ export class PromptManager {
 
     if (status.extracted) {
       debugPrompt('successfully extracted!', status.value)
+      this._setCurrentNodeValue(event, 'extracted', true)
 
       const { valueType } = this.loadPrompt(node)
       event.state.setVariable(node.output, status.value, valueType ?? '')
+
       await this._continueOriginalEvent(event)
-    } else if (status.turns > node?.params?.duration) {
+    }
+
+    // Exit the prompt he was stuck there too long
+    else if (status.turns > node?.params?.duration) {
       debugPrompt('prompt expired', status.value)
       await this._continueOriginalEvent(event)
     }
+  }
+
+  private async exitPrompt({ event, session, status, highest, isConfidentEnough }) {
+    const needConfirm = session.prompt?.config?.params?.confirmBeforeCancel
+
+    if (!needConfirm) {
+      await this._continueOriginalEvent(event)
+      return
+    }
+
+    if (!isConfidentEnough) {
+      await this._askLeaveConfirmation(event)
+      return
+    }
+
+    if (highest.extracted === true) {
+      debugPrompt('leaving prompt')
+      await this._continueOriginalEvent(event)
+    } else if (highest.extracted === false) {
+      status.leaving = false
+    }
+  }
+
+  private _setCurrentNodeValue(event: IO.IncomingEvent, variable: string, value: any) {
+    _.set(event.state.temp, `[${event.state.context.currentNode!}].${variable}`, value)
   }
 
   private async _explainPromptError(event: IO.IncomingEvent, prompt: Prompt, value: any) {
@@ -161,6 +233,23 @@ export class PromptManager {
     if (!prompt.customPrompt || !this._sendCustomPrompt(event, prompt, node)) {
       await this.actionStrategy.invokeSendMessage(buildMessage(node.question), '@builtin_text', event)
     }
+  }
+
+  private async _askLeaveConfirmation(event: IO.IncomingEvent) {
+    debugPrompt('ask validation before leaving prompt')
+
+    // TODO: definitely something better
+    const question = { en: 'Do you really wanna leave the current prompt?' }
+
+    const confirmNode = {
+      type: 'confirm',
+      question,
+      output: 'confirmed',
+      params: { question }
+    }
+
+    const promptConfirm = this.loadPrompt(confirmNode).prompt
+    await this._sendCustomPrompt(event, promptConfirm, confirmNode)
   }
 
   private async _askConfirmation(event: IO.IncomingEvent, value: any, node: PromptNode) {
@@ -187,7 +276,7 @@ export class PromptManager {
   }
 
   private async _continueOriginalEvent(event: IO.IncomingEvent) {
-    const { originalEvent } = event.state.session.prompt!
+    const { originalEvent, status } = event.state.session.prompt!
     const promptEvent = Event(originalEvent as IO.IncomingEvent) as IO.IncomingEvent
 
     const state = _.omit(event.state, ['session.prompt', 'workflow']) as IO.EventState
@@ -201,6 +290,12 @@ export class PromptManager {
 
     promptEvent.restored = true
     promptEvent.state = state
+
+    if (status?.nextDestination) {
+      const { flowName, node } = status?.nextDestination
+      debugPrompt('jumping to location', { flowName, node })
+      await this.dialogEngine.jumpTo('', promptEvent, flowName, node)
+    }
 
     await this.eventEngine.sendEvent(promptEvent)
   }
@@ -227,7 +322,7 @@ export class PromptManager {
   private _getPrompt(node: PromptNode, event: IO.IncomingEvent) {
     const status = event.state.session?.prompt?.status
 
-    return this.loadPrompt(status?.confirming ? getConfirmPromptNode(node, status?.value) : node)
+    return this.loadPrompt(status?.confirming || status?.exiting ? getConfirmPromptNode(node, status?.value) : node)
   }
 
   private loadPrompt(promptNode: PromptNode): { prompt: Prompt } & PromptConfig {

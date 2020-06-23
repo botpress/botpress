@@ -325,22 +325,22 @@ class Diagram extends Component<Props> {
           output: '',
           question: {}
         },
-        // TODO: Implement transitions when variables are merged
         next: [
           {
-            condition: 'true',
-            node: ''
-          }
-          /*{
             caption: 'Value Extracted',
-            condition: 'lastNode=extracted',
+            condition: 'thisNode.extracted === true',
             node: ''
           },
           {
             caption: 'User did not answer',
-            condition: 'lastNode=timeout',
+            condition: 'thisNode.timeout === true',
             node: ''
-          }*/
+          },
+          {
+            caption: 'User Cancelled ',
+            condition: 'thisNode.cancelled === true',
+            node: ''
+          }
         ]
       })
     }

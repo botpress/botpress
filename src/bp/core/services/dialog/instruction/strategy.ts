@@ -187,6 +187,9 @@ export class TransitionStrategy implements InstructionStrategy {
       const lastEntry = stack.length === 1 ? stack[0] : stack[stack.length - 2] // -2 because we want the previous node (not the current one)
 
       return instruction.fn === `lastNode=${lastEntry.node}`
+    } else if (instruction.fn?.startsWith('thisNode')) {
+      const nodeName = sandbox.event.state.context.currentNode
+      instruction.fn = instruction.fn.replace('thisNode', `(event.state.temp['${nodeName}'] || {})`)
     }
 
     const code = `

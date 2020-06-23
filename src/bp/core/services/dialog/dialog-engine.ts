@@ -30,7 +30,10 @@ export class DialogEngine {
     @inject(TYPES.HookService) private hookService: HookService,
     @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
     @inject(TYPES.PromptManager) private promptManager: PromptManager
-  ) {}
+  ) {
+    // Can't inject the dialog engine in the prompt manager directly (circular reference)
+    this.promptManager.dialogEngine = this
+  }
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent): Promise<IO.IncomingEvent> {
     const botId = event.botId
@@ -62,7 +65,7 @@ export class DialogEngine {
         workflow.status = 'completed'
       }
 
-      if (currentNode.type === 'prompt' && !event.restored) {
+      if (currentNode.type === 'prompt' && !this.promptManager.hasCurrentNodeBeenProcessed(event)) {
         event.prompt = currentNode.prompt
         return this.processEvent(sessionId, event)
       }

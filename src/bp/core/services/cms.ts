@@ -660,12 +660,17 @@ export class CMSService implements IDisposeOnExit {
       }
     }
 
-    let payloads = contentTypeRenderer.renderElement({ ...this._getAdditionalData(), ...args }, channel)
-    if (!_.isArray(payloads)) {
-      payloads = [payloads]
-    }
+    try {
+      let payloads = contentTypeRenderer.renderElement({ ...this._getAdditionalData(), ...args }, channel)
+      if (!_.isArray(payloads)) {
+        payloads = [payloads]
+      }
 
-    return payloads
+      return payloads
+    } catch (err) {
+      this.logger.attachError(err).warn(`Could not render element ${contentId}`)
+      return []
+    }
   }
 
   /**
