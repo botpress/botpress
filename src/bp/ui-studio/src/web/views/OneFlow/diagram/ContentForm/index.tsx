@@ -106,8 +106,8 @@ const ContentForm: FC<Props> = ({
         {!!contentFields && (
           <Contents.Form
             bp={{ axios, mediaPath: `${window.BOT_API_PATH}/media` }}
-            customFields={{
-              text: props => <TextField {...props} />
+            overrideFields={{
+              textOverride: props => <TextField {...props} />
             }}
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}

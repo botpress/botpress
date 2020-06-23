@@ -130,7 +130,8 @@ module.exports = {
     ],
     fields: [
       {
-        type: 'custom',
+        type: 'overridable',
+        overrideKey: 'textOverride',
         key: 'text',
         label: 'module.builtin.types.text.text'
       }

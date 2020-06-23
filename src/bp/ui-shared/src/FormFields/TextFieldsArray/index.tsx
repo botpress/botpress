@@ -4,9 +4,9 @@ import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
 import { lang } from '../../translations'
 import { controlKey } from '../../utils/keyboardShortcuts'
+import AddButton from '../../Contents/Components/Fields/AddButton'
 import ShortcutLabel from '../../ShortcutLabel'
 import Textarea from '../../Textarea'
-import FormFields from '../index'
 
 import style from './style.scss'
 
@@ -78,7 +78,7 @@ const TextFieldsArray: FC<TextFieldsArrayProps> = props => {
         })}
         position={Position.BOTTOM}
       >
-        <FormFields.AddButton text={addBtnLabel} onClick={() => addItem()} />
+        <AddButton text={addBtnLabel} onClick={() => addItem()} />
       </Tooltip>
     </div>
   )
