@@ -4,9 +4,11 @@ import commonFields from './common'
 
 class PromptPattern implements Prompt {
   private _regexPattern: string
+  private _formatInvalidMessage: { [lang: string]: string }
 
-  constructor({ regexPattern }) {
+  constructor({ regexPattern, formatInvalidMessage }) {
     this._regexPattern = regexPattern
+    this._formatInvalidMessage = formatInvalidMessage
   }
 
   extraction(event: IO.IncomingEvent): ExtractionResult | undefined {
@@ -25,7 +27,7 @@ class PromptPattern implements Prompt {
     }
 
     if (!new RegExp(this._regexPattern).test(value)) {
-      return { valid: false, message: 'Value does not match regex pattern' }
+      return { valid: false, message: this._formatInvalidMessage['en'] ?? 'Value does not match format' }
     }
 
     return { valid: true }
@@ -42,6 +44,12 @@ const config: PromptConfig = {
       type: 'text',
       key: 'regexPattern',
       label: 'module.builtin.regexPattern'
+      // TODO add combo box to select from predefined patterns or custom
+    },
+    {
+      type: 'text',
+      key: 'formatInvalidMessage',
+      label: 'module.builtin.formatInvalidMessage'
     }
   ],
   advancedSettings: []

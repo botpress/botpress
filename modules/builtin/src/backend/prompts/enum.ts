@@ -2,12 +2,13 @@ import axios from 'axios'
 import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
 import * as sdk from 'botpress/sdk'
 import { extractEventCommonArgs } from 'common/action'
+import { createMultiLangObject } from 'common/prompts'
 
 import commonFields from './common'
 
 class PromptEnum implements Prompt {
   private _entity: string
-  private _question: string
+  private _question: { [lang: string]: string }
   private _useDropdown: boolean
 
   constructor({ entity, question, useDropdown }) {
@@ -48,12 +49,9 @@ class PromptEnum implements Prompt {
 
     let payloads = []
     if (occurrences.length <= 3) {
-      const element = {
-        en: {
-          text: this._question,
-          choices: occurrences.map(x => ({ title: x.name, value: x.name }))
-        }
-      }
+      const element = createMultiLangObject(this._question, 'text', {
+        choices: occurrences.map(x => ({ title: x.name, value: x.name }))
+      })
 
       payloads = await bp.cms.renderElement(
         '@builtin_single-choice',
@@ -61,12 +59,9 @@ class PromptEnum implements Prompt {
         event
       )
     } else {
-      const element = {
-        en: {
-          message: this._question,
-          options: occurrences.map(x => ({ label: x.name, value: x.name }))
-        }
-      }
+      const element = createMultiLangObject(this._question, 'message', {
+        options: occurrences.map(x => ({ label: x.name, value: x.name }))
+      })
 
       payloads = await bp.cms.renderElement('@dropdown', extractEventCommonArgs(incomingEvent, element), event)
     }

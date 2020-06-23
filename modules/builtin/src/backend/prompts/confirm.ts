@@ -1,12 +1,13 @@
 import { IO, Prompt, PromptConfig } from 'botpress/sdk'
 import * as sdk from 'botpress/sdk'
 import { extractEventCommonArgs } from 'common/action'
+import { createMultiLangObject } from 'common/prompts'
 import yn from 'yn'
 
 import commonFields from './common'
 
 class PromptConfirm implements Prompt {
-  private _question: string
+  private _question: { [lang: string]: string }
 
   constructor({ question }) {
     this._question = question
@@ -23,20 +24,12 @@ class PromptConfirm implements Prompt {
   }
 
   customPrompt = async (event: IO.OutgoingEvent, incomingEvent: IO.IncomingEvent, bp: typeof sdk) => {
-    let text = this._question
-    if (typeof text !== 'string') {
-      text = (<any>this._question).text$en
-    }
-
-    const element = {
-      en: {
-        text: text,
-        choices: [
-          { title: 'Yes', value: 'yes' },
-          { title: 'No', value: 'no' }
-        ]
-      }
-    }
+    const element = createMultiLangObject(this._question, 'text', {
+      choices: [
+        { title: 'Yes', value: 'yes' },
+        { title: 'No', value: 'no' }
+      ]
+    })
 
     const payloads = await bp.cms.renderElement(
       '@builtin_single-choice',
