@@ -43,11 +43,10 @@ export class TwilioService {
       enableJsonBodyParser: false // we use our custom json body parser instead, see below
     })
 
-    // tslint:disable-next-line: no-floating-promises
-    this.router.getPublicPath().then(publicPath => {
-      if (publicPath.indexOf('https://') !== 0) {
-        this.bp.logger.warn('Twilio requires HTTPS to be setup to work properly. See EXTERNAL_URL botpress config.')
-      }
+    this.publicPath = await this.router.getPublicPath()
+    if (this.publicPath.indexOf('https://') !== 0) {
+      this.bp.logger.warn('Twilio requires HTTPS to be setup to work properly. See EXTERNAL_URL botpress config.')
+    }
 
       this.publicPath = publicPath
     })
