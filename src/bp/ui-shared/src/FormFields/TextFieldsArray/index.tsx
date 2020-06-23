@@ -73,7 +73,7 @@ const TextFieldsArray: FC<TextFieldsArrayProps> = props => {
         </div>
       ))}
       <Tooltip
-        content={lang('module.qna.form.quickAddAlternative', {
+        content={lang('quickAddAlternative', {
           shortcut: <ShortcutLabel light keys={[controlKey, 'enter']} />
         })}
         position={Position.BOTTOM}

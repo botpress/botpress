@@ -107,7 +107,7 @@ const formReducer = (state, action) => {
 
     onUpdate?.(newState)
     return { ...newState }
-  } else if (action.type === 'updateCustomField') {
+  } else if (action.type === 'updateOverridableField') {
     const { value, field, parent, onUpdate } = action.data
     if (parent) {
       const { index } = parent
@@ -143,7 +143,7 @@ const formReducer = (state, action) => {
   }
 }
 
-const Form: FC<FormProps> = ({ bp, customFields, getEmptyData, formData, fields, advancedSettings, onUpdate }) => {
+const Form: FC<FormProps> = ({ bp, overrideFields, getEmptyData, formData, fields, advancedSettings, onUpdate }) => {
   const newFormData = getEmptyData?.()
   const [state, dispatch] = useReducer(formReducer, newFormData)
 
@@ -257,16 +257,16 @@ const Form: FC<FormProps> = ({ bp, customFields, getEmptyData, formData, fields,
             {field.moreInfo && printMoreInfo(field.moreInfo)}
           </div>
         )
-      case 'custom':
+      case 'overridable':
         return (
           <Fragment key={field.key}>
-            {customFields?.[field.key]?.({
+            {overrideFields?.[field.overrideKey]?.({
               field,
               data,
               label: printLabel(field, data[field.key]),
               onChange: value => {
                 dispatch({
-                  type: 'updateCustomField',
+                  type: 'updateOverridableField',
                   data: { field: field.key, onUpdate, value }
                 })
               }

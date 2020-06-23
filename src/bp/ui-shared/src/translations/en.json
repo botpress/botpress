@@ -144,6 +144,7 @@
   "pleaseWait": "Please wait...",
   "preview": "Preview",
   "previous": "Previous",
+  "quickAddAlternative": "Press {shortcut} while inline to add new alternative quickly",
   "redo": "Redo",
   "refresh": "Refresh",
   "remove": "Remove",

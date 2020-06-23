@@ -107,7 +107,7 @@ const TextAreaList: FC<Props> = props => {
           )
         )}
         <Tooltip
-          content={lang.tr('module.qna.form.quickAddAlternative', {
+          content={lang.tr('quickAddAlternative', {
             shortcut: <ShortcutLabel light keys={[utils.controlKey, 'enter']} />
           })}
           position={Position.BOTTOM}
