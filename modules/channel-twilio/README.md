@@ -4,7 +4,7 @@
 
 Official Twilio (SMS/WhatsApp) connector module for [Botpress](http://github.com/botpress/botpress).
 
-This module has been build to accelerate and facilitate development of SMS/WhatsApp bots.
+This module has been built to accelerate and facilitate development of SMS/WhatsApp bots.
 
 ## Configuration
 
