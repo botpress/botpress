@@ -136,6 +136,7 @@ declare module 'botpress/sdk' {
     translations?: { [lang: string]: object }
     /** List of new conditions that the module can register */
     dialogConditions?: Condition[]
+    prompts?: PromptDefinition[]
     variables?: any
     /** Called once the core is initialized. Usually for middlewares / database init */
     onServerStarted?: (bp: typeof import('botpress/sdk')) => Promise<void>
@@ -615,6 +616,7 @@ declare module 'botpress/sdk' {
       suggestions?: Suggestion[]
       credentials?: any
       nlu?: Partial<EventUnderstanding>
+      ndu?: NDU.DialogUnderstanding
       incomingEventId?: string
     }
 
@@ -627,11 +629,11 @@ declare module 'botpress/sdk' {
       /** A sortable unique identifier for that event (time-based) */
       readonly id: string
       /** The type of the event, i.e. image, text, timeout, etc */
-      readonly type: string
+      type: string
       /** Is it (in)coming from the user to the bot or (out)going from the bot to the user? */
       readonly direction: EventDirection
       /** The channel-specific raw payload */
-      readonly payload: any
+      payload: any
       /** A textual representation of the event */
       readonly preview: string
       /** The date the event was created */
@@ -698,6 +700,10 @@ declare module 'botpress/sdk' {
       /* HITL module has possibility to pause conversation */
       readonly isPause?: boolean
       readonly ndu?: NDU.DialogUnderstanding
+      /** When the prompt property is set, the current dialog is paused until the prompt is resolved */
+      prompt?: PromptNode
+      /** This flag skips the processing of some middlewares (since we restore an existing event) */
+      restored?: boolean
     }
 
     export interface OutgoingEvent extends Event {
@@ -758,6 +764,34 @@ declare module 'botpress/sdk' {
       __error?: EventError
     }
 
+    /** Keeps the status of the prompt in the session */
+    export interface ActivePrompt {
+      /** Copy of the configuration taken from event.prompt */
+      config: PromptNode
+      status?: PromptStatus
+      /** The list of extracted values with their confidence */
+      evaluation?: ExtractedVariable[]
+      /** All the content of the original event, without the state */
+      originalEvent: Partial<IO.IncomingEvent>
+    }
+
+    export interface ExtractedVariable {
+      confidence: number
+      extracted: any
+    }
+
+    export interface PromptStatus {
+      value?: any
+      /** Keeping track of the number of turns so we can stop the prompt after x turns */
+      turns: number
+      /** When true, the value is valid and can be stored to a variable */
+      extracted?: boolean
+      /** Used to avoid repeating the question, since we may not need to ask it to the user */
+      questionAsked?: boolean
+      /** Sent a confirmation message to the user and waiting for a yes/no */
+      confirming?: boolean
+    }
+
     export interface EventError {
       type: 'action-execution' | 'dialog-transition'
       stacktrace?: string
@@ -805,6 +839,7 @@ declare module 'botpress/sdk' {
         [name: string]: WorkflowHistory
       }
       currentWorkflow?: string
+      prompt?: ActivePrompt
       // Prevent warnings when using the code editor with custom properties
       [anyKey: string]: any
     }
@@ -1318,6 +1353,7 @@ declare module 'botpress/sdk' {
     | 'execute'
     | 'router'
     | 'action'
+    | 'prompt'
 
   export type FlowNode = {
     id?: string
@@ -1325,6 +1361,7 @@ declare module 'botpress/sdk' {
     type?: FlowNodeType
     timeoutNode?: string
     flow?: string
+    prompt?: PromptNode
     isNew?: boolean
     /** Used internally by the flow editor */
     readonly lastModified?: Date
@@ -1481,6 +1518,69 @@ declare module 'botpress/sdk' {
     asAdmin?: boolean
     /** When enabled, user is added as a chat user (role is ignored)  */
     asChatUser?: boolean
+  }
+
+  export interface PromptDefinition {
+    id: string
+    config: PromptConfig
+    prompt: PromptConstructable<Prompt>
+  }
+
+  /** The configuration of the prompt which is saved on the flow */
+  export interface PromptConfig {
+    /** An ID used internally to refer to this prompt */
+    type: string
+    /** The label displayed in the studio */
+    label?: string
+    icon?: string
+    /** The ID representing the type of value that is collected by this prompt */
+    valueType?: string
+    /** A list of ID represented by the type of values collected by this prompt */
+    valueTypes?: string[]
+    /** List of custom parameters that will be asked by the prompt */
+    params?: { [paramName: string]: ConditionParam }
+    /** The minimum confidence required for the value to be considered valid */
+    minConfidence?: number
+    /** Whatever happens, the prompt will never ask the user to validate the provided value*/
+    noValidation?: boolean
+  }
+
+  export interface PromptNode {
+    type: string
+    /** The name of the variable that will be filled with the value extracted */
+    output: string
+    /** The list of custom parameters of the prompt with their associated values */
+    params?: { [paramName: string]: any }
+    /** The question to ask to the user for this prompt */
+    question: { [lang: string]: string }
+    /** Confirmation message to send to ask the user if the provided value is correct */
+    confirm?: { [lang: string]: string }
+  }
+
+  export interface Prompt {
+    /**
+     * This method will receive multiple
+     * @param event
+     */
+    extraction(event: IO.IncomingEvent): { value: any; confidence: number } | undefined
+    /**
+     * This method
+     * @param value
+     */
+    validate(value): Promise<{ valid: boolean; message?: string }>
+    /**
+     * When the prompt is sent to the user, an event of type "prompt" is sent to the corresponding channel.
+     * You can customize the event that will be sent to the user
+     * */
+    customPrompt?(
+      event: IO.OutgoingEvent,
+      incomingEvent: IO.IncomingEvent,
+      bp: typeof import('botpress/sdk')
+    ): Promise<void>
+  }
+
+  export interface PromptConstructable<T> {
+    new (ctor: any): Prompt
   }
 
   export interface BoxedVarConstructable<T> {

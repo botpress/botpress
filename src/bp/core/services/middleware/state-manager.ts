@@ -200,6 +200,11 @@ export class StateManager {
     const dialogSession = await this.sessionRepo.getOrCreateSession(sessionId, event.botId, trx)
     const expiry = createExpiry(botConfig, botpressConfig)
 
+    // Deletes the prompt after the event is stored, so we have traces in the debugger
+    if (session?.prompt?.status?.extracted) {
+      delete session.prompt
+    }
+
     dialogSession.session_data = session || {}
     dialogSession.session_expiry = expiry.session
     dialogSession.context_expiry = expiry.context

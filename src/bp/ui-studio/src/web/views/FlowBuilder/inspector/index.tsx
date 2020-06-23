@@ -13,6 +13,7 @@ import {
   updateFlowNode
 } from '~/actions'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
+import PromptNode from '~/views/OneFlow/sidePanel/form/PromptNode'
 
 import { nodeTypes } from '../diagram/manager'
 import FlowInformation from '../nodeProps/FlowInformation'
@@ -101,6 +102,20 @@ class Inspector extends Component<Props> {
           copyFlowNodeElement={copyFlowNodeElement}
           pasteFlowNodeElement={pasteFlowNodeElement}
           buffer={buffer}
+        />
+      )
+    }
+
+    if (nodeType === 'prompt') {
+      return (
+        <PromptNode
+          readOnly={readOnly}
+          user={this.props.user}
+          flow={this.props.currentFlow}
+          subflows={subflows}
+          node={this.props.currentFlowNode}
+          updateNode={updateNodeAndRefresh}
+          updateFlow={this.props.updateFlow}
         />
       )
     }

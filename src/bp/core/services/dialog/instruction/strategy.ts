@@ -45,6 +45,14 @@ export class ActionStrategy implements InstructionStrategy {
     }
   }
 
+  public async invokeSendMessage(args: any, contentType: string, event: IO.IncomingEvent) {
+    const eventDestination = _.pick(event, ['channel', 'target', 'botId', 'threadId'])
+    const commonArgs = extractEventCommonArgs(event, args)
+    const renderedElements = await this.cms.renderElement(contentType, commonArgs, eventDestination)
+
+    await this.eventEngine.replyToEvent(eventDestination, renderedElements, event.id)
+  }
+
   private async invokeOutputProcessor(botId, instruction, event: IO.IncomingEvent): Promise<ProcessingResult> {
     const chunks = instruction.fn.split(' ')
     const params = _.slice(chunks, 2).join(' ')
@@ -85,11 +93,7 @@ export class ActionStrategy implements InstructionStrategy {
       event.state.session.lastMessages.push(message)
     }
 
-    const commonArgs = extractEventCommonArgs(event, args)
-
-    const eventDestination = _.pick(event, ['channel', 'target', 'botId', 'threadId'])
-    const renderedElements = await this.cms.renderElement(outputType, commonArgs, eventDestination)
-    await this.eventEngine.replyToEvent(eventDestination, renderedElements, event.id)
+    await this.invokeSendMessage(args, outputType, event)
 
     return ProcessingResult.none()
   }

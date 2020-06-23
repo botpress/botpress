@@ -7,6 +7,7 @@ import {
   Logger,
   ModuleDefinition,
   ModuleEntryPoint,
+  PromptDefinition,
   Skill
 } from 'botpress/sdk'
 import { ModuleInfo } from 'common/typings'
@@ -41,6 +42,7 @@ const MODULE_SCHEMA = joi.object().keys({
   onElementChanged: joi.func().optional(),
   skills: joi.array().optional(),
   translations: joi.object().optional(),
+  prompts: joi.array().optional(),
   botTemplates: joi.array().optional(),
   dialogConditions: joi.array().optional(),
   variables: joi.array().optional(),
@@ -336,7 +338,7 @@ export class ModuleLoader {
     return _.flatten(templates)
   }
 
-  private _getModuleElements<T>(type: 'dialogConditions' | 'variables') {
+  private _getModuleElements<T>(type: 'dialogConditions' | 'variables' | 'prompts') {
     const modules = Array.from(this.entryPoints.values())
     const filtered = modules.filter(module => module[type])
 
@@ -345,6 +347,10 @@ export class ModuleLoader {
 
   public getDialogConditions(): Condition[] {
     return _.orderBy(this._getModuleElements('dialogConditions'), x => x?.displayOrder)
+  }
+
+  public getPrompts(): PromptDefinition[] {
+    return this._getModuleElements('prompts')
   }
 
   public getVariables(): any[] {

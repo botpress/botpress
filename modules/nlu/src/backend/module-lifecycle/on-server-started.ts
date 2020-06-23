@@ -3,18 +3,17 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import semver from 'semver'
 
+import nluInfo from '../../../package.json'
 import { Config } from '../../config'
 import Engine from '../engine'
-import legacyElectionPipeline from '../legacy-election'
 import { DucklingEntityExtractor } from '../entities/duckling_extractor'
 import LangProvider from '../language/language-provider'
 import { getPOSTagger, tagSentence } from '../language/pos-tagger'
+import legacyElectionPipeline from '../legacy-election'
 import { getLatestModel } from '../model-service'
 import { InvalidLanguagePredictorError } from '../predict-pipeline'
 import { removeTrainingSession, setTrainingSession } from '../train-session-service'
 import { NLUState, Token2Vec, Tools, TrainingSession } from '../typings'
-
-import nluInfo from '../../../package.json'
 
 export const initializeLanguageProvider = async (bp: typeof sdk, state: NLUState) => {
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
@@ -91,7 +90,8 @@ const ignoreEvent = (bp: typeof sdk, state: NLUState, event: sdk.IO.IncomingEven
     !state.health.isEnabled ||
     !event.preview ||
     EVENTS_TO_IGNORE.includes(event.type) ||
-    event.hasFlag(bp.IO.WellKnownFlags.SKIP_NATIVE_NLU)
+    event.hasFlag(bp.IO.WellKnownFlags.SKIP_NATIVE_NLU) ||
+    event.restored
   )
 }
 
