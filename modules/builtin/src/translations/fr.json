@@ -71,5 +71,18 @@
   },
   "typingIndicator": "Afficher l'indicateur de frappe",
   "useMarkdown": "Utiliser markdown",
-  "defaultValue": "Default Value"
+  "defaultValue": "Default Value",
+  "duration": "Durée",
+  "searchBackCount": "Nombre de recherche en arrière",
+  "questionToAskUser": "Question pour l'utilisateur",
+  "mustBePast": "Doit être dans le passé",
+  "mustBeFuture": "Doit être dans le futur",
+  "entity": "Entité",
+  "question": "Question",
+  "useDropdown": "Utiliser dropdown",
+  "min": "Min",
+  "max": "Max",
+  "regexPattern": "Expression régulière",
+  "formatInvalidMessage": "Message pour format invalide",
+  "maxLength": "Longeur maximale"
 }
