@@ -3,7 +3,7 @@
   "configurations": [
     {
       "type": "node",
-      "runtimeVersion": "10.11.0",
+      "runtimeVersion": "12.13.0",
       "request": "launch",
       "name": "Debug App",
       "program": "${workspaceFolder}/out/bp/index.js",
