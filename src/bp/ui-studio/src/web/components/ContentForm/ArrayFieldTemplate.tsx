@@ -1,10 +1,12 @@
-import { Button, Intent, Position, Tooltip } from '@blueprintjs/core'
+import { AnchorButton, Button, ButtonGroup, Intent, Position, Tooltip } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
-import React, { useEffect, useRef } from 'react'
+import React, { Fragment, useEffect, useRef } from 'react'
 import style from '~/views/OneFlow/sidePanel/form/style.scss'
 
 import SmartInput from '../SmartInput'
+
+import localStyle from './style.scss'
 
 const ArrayFieldTemplate = props => {
   const { canAdd, onAddClick, items, schema, formContext } = props
@@ -14,18 +16,16 @@ const ArrayFieldTemplate = props => {
     key.current = formContext.customKey
   }, [formContext?.customKey])
 
-  const renderDeleteBtn = (element, className?) => (
-    <div className={className}>
-      <Tooltip content={lang.tr('delete')} position={Position.TOP}>
-        <Button
-          icon="trash"
-          minimal
-          small
-          intent={Intent.DANGER}
-          onClick={element.onDropIndexClick(element.index)}
-        ></Button>
-      </Tooltip>
-    </div>
+  const renderDeleteBtn = (element, minimal) => (
+    <Tooltip content={lang.tr('delete')} position={Position.TOP}>
+      <Button
+        icon="trash"
+        minimal={minimal}
+        small
+        intent={Intent.DANGER}
+        onClick={element.onDropIndexClick(element.index)}
+      ></Button>
+    </Tooltip>
   )
 
   return (
@@ -45,12 +45,34 @@ const ArrayFieldTemplate = props => {
                 isSideForm
                 singleLine={false}
               >
-                {renderDeleteBtn(element)}
+                {renderDeleteBtn(element, true)}
               </SmartInput>
             ) : (
               <div className={cx(style.multipleInputs)}>
                 {element.children}
-                {renderDeleteBtn(element, style.deleteBtn)}
+                <ButtonGroup className={localStyle.actionsWrapper}>
+                  {props.uiSchema?.['ui:options']?.orderable !== false && (
+                    <Fragment>
+                      <Tooltip content={lang.tr('moveUp')} position={Position.TOP}>
+                        <AnchorButton
+                          icon="arrow-up"
+                          disabled={!element.hasMoveUp}
+                          small
+                          onClick={element.onReorderClick(element.index, element.index - 1)}
+                        ></AnchorButton>
+                      </Tooltip>
+                      <Tooltip content={lang.tr('moveDown')} position={Position.TOP}>
+                        <AnchorButton
+                          icon="arrow-down"
+                          small
+                          disabled={!element.hasMoveDown}
+                          onClick={element.onReorderClick(element.index, element.index + 1)}
+                        ></AnchorButton>
+                      </Tooltip>
+                    </Fragment>
+                  )}
+                  {renderDeleteBtn(element, false)}
+                </ButtonGroup>
               </div>
             )}
           </div>

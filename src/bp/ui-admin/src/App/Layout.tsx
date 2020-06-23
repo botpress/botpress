@@ -30,12 +30,10 @@ const App: FC<Props> = props => {
   const [tokenInterval, setTokenInterval] = useState()
 
   useEffect(() => {
+    setupBranding()
+
     props.fetchLicensing()
     props.fetchProfile()
-
-    if (!props.version) {
-      props.fetchCurrentVersion()
-    }
 
     setTokenInterval(
       setInterval(async () => {
@@ -43,6 +41,23 @@ const App: FC<Props> = props => {
       }, REFRESH_INTERVAL)
     )
   }, [])
+
+  const setupBranding = () => {
+    window.document.title = window.APP_NAME || 'Botpress Admin Panel'
+
+    if (window.APP_FAVICON) {
+      const link = document.querySelector('link[rel="icon"]')
+      link && link.setAttribute('href', window.APP_FAVICON)
+    }
+
+    if (window.APP_CUSTOM_CSS) {
+      const sheet = document.createElement('link')
+      sheet.rel = 'stylesheet'
+      sheet.href = window.APP_CUSTOM_CSS
+      sheet.type = 'text/css'
+      document.head.appendChild(sheet)
+    }
+  }
 
   const tryRefreshToken = async () => {
     try {
@@ -85,7 +100,7 @@ const App: FC<Props> = props => {
         </div>
       </div>
 
-      <Footer version={props.version} />
+      <Footer version={window.APP_VERSION} />
     </Fragment>
   )
 }
@@ -127,14 +142,12 @@ const Unlicensed = () => (
 
 const mapStateToProps = state => ({
   profile: state.user.profile,
-  licensing: state.license.licensing,
-  version: state.version.currentVersion
+  licensing: state.license.licensing
 })
 
 const mapDispatchToProps = {
   fetchLicensing,
-  fetchProfile,
-  fetchCurrentVersion
+  fetchProfile
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)

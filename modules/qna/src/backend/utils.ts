@@ -23,18 +23,15 @@ export const getQnaEntryPayloads = async (
   defaultLang: string,
   bp: typeof sdk
 ) => {
-  let lang = event.nlu.language
-  if (lang === 'n/a') {
-    lang = defaultLang
-  }
-
   let args: any = {
+    event,
     user: _.get(event, 'state.user') || {},
     session: _.get(event, 'state.session') || {},
     temp: _.get(event, 'state.temp') || {},
     collectFeedback: true
   }
 
+  let lang = event.state?.user?.language ?? defaultLang
   if (!qnaEntry.answers[lang]) {
     if (!qnaEntry.answers[defaultLang]) {
       throw new Error(`No answers found for language ${lang} or default language ${defaultLang}`)

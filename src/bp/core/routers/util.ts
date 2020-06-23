@@ -1,6 +1,5 @@
-import { Logger } from 'botpress/sdk'
+import { Logger, StrategyUser } from 'botpress/sdk'
 import { checkRule } from 'common/auth'
-import { StrategyUser } from 'core/repositories/strategy_users'
 import { InvalidOperationError } from 'core/services/auth/errors'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { NextFunction, Request, Response } from 'express'
@@ -24,6 +23,8 @@ const debugFailure = DEBUG('audit:collab:fail')
 const debugSuccess = DEBUG('audit:collab:success')
 const debugSuperSuccess = DEBUG('audit:admin:success')
 const debugSuperFailure = DEBUG('audit:admin:fail')
+
+// TODO: Remove BPRequest, AsyncMiddleware and asyncMiddleware from this file
 
 export type BPRequest = Request & {
   authUser: StrategyUser | undefined

@@ -15,11 +15,12 @@ import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
-import React, { FC, Fragment, useEffect, useState } from 'react'
+import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
 import { MetricEntry } from '../../backend/typings'
 
 import {
+  last7days,
   lastMonthEnd,
   lastMonthStart,
   lastWeekEnd,
@@ -32,6 +33,7 @@ import {
   thisYear
 } from './dates'
 import style from './style.scss'
+import { fillMissingValues, getNotNaN } from './utils'
 import FlatProgressChart from './FlatProgressChart'
 import ItemsList from './ItemsList'
 import NumberMetric from './NumberMetric'
@@ -46,6 +48,18 @@ interface State {
   pageTitle: string
   selectedChannel: string
   shownSection: string
+  disableAnalyticsFetching?: boolean
+}
+
+interface ExportPeriod {
+  startDate: string
+  endDate: string
+  metrics: MetricEntry[]
+}
+
+export interface Channel {
+  label: string
+  value: string
 }
 
 export interface Extras {
@@ -71,7 +85,8 @@ const fetchReducer = (state: State, action): State => {
 
     return {
       ...state,
-      dateRange
+      dateRange,
+      disableAnalyticsFetching: false
     }
   } else if (action.type === 'receivedMetrics') {
     const { metrics } = action.data
@@ -103,16 +118,27 @@ const fetchReducer = (state: State, action): State => {
       shownSection,
       pageTitle
     }
+  } else if (action.type === 'setManualDate') {
+    const { dateRange } = action.data
+
+    return {
+      ...state,
+      dateRange,
+      disableAnalyticsFetching: true
+    }
   } else {
     throw new Error(`That action type isn't supported.`)
   }
 }
 
+const defaultChannels = [
+  { value: 'all', label: lang.tr('module.analytics.channels.all') },
+  { value: 'api', label: lang.tr('module.analytics.channels.api') }
+]
+
 const Analytics: FC<any> = ({ bp }) => {
-  const [channels, setChannels] = useState([
-    lang.tr('module.analytics.channels.all'),
-    lang.tr('module.analytics.channels.api')
-  ])
+  const loadJson = useRef(null)
+  const [channels, setChannels] = useState(defaultChannels)
 
   const [state, dispatch] = React.useReducer(fetchReducer, {
     dateRange: undefined,
@@ -120,7 +146,7 @@ const Analytics: FC<any> = ({ bp }) => {
     metrics: [],
     previousRangeMetrics: [],
     pageTitle: lang.tr('module.analytics.dashboard'),
-    selectedChannel: 'all',
+    selectedChannel: defaultChannels[0].value,
     shownSection: 'dashboard'
   })
 
@@ -129,16 +155,19 @@ const Analytics: FC<any> = ({ bp }) => {
       const channels = data
         .map(x => x.name)
         .filter(x => x.startsWith('channel'))
-        .map(x => x.replace('channel-', ''))
+        .map(x => {
+          const channel = x.replace('channel-', '')
+          return { value: channel, label: capitalize(channel) }
+        })
 
       setChannels(prevState => [...prevState, ...channels])
     })
 
-    dispatch({ type: 'datesSuccess', data: { dateRange: [thisWeek, now] } })
+    dispatch({ type: 'datesSuccess', data: { dateRange: [last7days, now] } })
   }, [])
 
   useEffect(() => {
-    if (!state.dateRange?.[0] || !state.dateRange?.[1]) {
+    if (!state.dateRange?.[0] || !state.dateRange?.[1] || state.disableAnalyticsFetching) {
       return
     }
 
@@ -159,7 +188,7 @@ const Analytics: FC<any> = ({ bp }) => {
     })
   }, [state.dateRange, state.selectedChannel])
 
-  const fetchAnalytics = async (channel, dateRange): Promise<MetricEntry[]> => {
+  const fetchAnalytics = async (channel: string, dateRange): Promise<MetricEntry[]> => {
     const startDate = moment(dateRange[0]).unix()
     const endDate = moment(dateRange[1]).unix()
 
@@ -234,8 +263,6 @@ const Analytics: FC<any> = ({ bp }) => {
     return getNotNaN(percent, '%')
   }
 
-  const getNotNaN = (value, suffix = '') => (Number.isNaN(value) ? 'N/A' : `${Math.round(value)}${suffix}`)
-
   const getMetric = metricName => state.metrics.filter(x => x.metric === metricName)
 
   const getTopItems = (metricName: string, type: string) => {
@@ -256,6 +283,7 @@ const Analytics: FC<any> = ({ bp }) => {
   const renderEngagement = () => {
     const newUserCountDiff = getMetricCount('new_users_count') - getPreviousRangeMetricCount('new_users_count')
     const activeUserCountDiff = getMetricCount('active_users_count') - getPreviousRangeMetricCount('active_users_count')
+    const activeUsers = fillMissingValues(getMetric('active_users_count'), state.dateRange[0], state.dateRange[1])
 
     return (
       <div className={style.metricsContainer}>
@@ -273,7 +301,7 @@ const Analytics: FC<any> = ({ bp }) => {
         />
         <TimeSeriesChart
           name={lang.tr('module.analytics.userActivities')}
-          data={getMetric('new_users_count')}
+          data={activeUsers}
           className={style.fullGrid}
           channels={channels}
         />
@@ -282,14 +310,11 @@ const Analytics: FC<any> = ({ bp }) => {
   }
 
   const renderConversations = () => {
+    const sessionsCount = fillMissingValues(getMetric('sessions_count'), state.dateRange[0], state.dateRange[1])
+
     return (
       <div className={style.metricsContainer}>
-        <TimeSeriesChart
-          name="Sessions"
-          data={getMetric('sessions_count')}
-          className={style.threeQuarterGrid}
-          channels={channels}
-        />
+        <TimeSeriesChart name="Sessions" data={sessionsCount} className={style.threeQuarterGrid} channels={channels} />
         <NumberMetric
           name={lang.tr('module.analytics.messageExchanged')}
           value={getAvgMsgPerSessions()}
@@ -326,6 +351,9 @@ const Analytics: FC<any> = ({ bp }) => {
 
   const renderHandlingUnderstanding = () => {
     const { total, inside, outside } = getMisunderStoodData()
+    const positiveFeedback = getMetricCount('feedback_positive_qna')
+    const negativeFeedback = getMetricCount('feedback_negative_qna')
+    const positivePct = Math.round((positiveFeedback / (positiveFeedback + negativeFeedback)) * 100)
 
     return (
       <div className={cx(style.metricsContainer, style.fullWidth)}>
@@ -348,24 +376,26 @@ const Analytics: FC<any> = ({ bp }) => {
                 itemLimit={3}
                 className={style.list}
               />
-              <ItemsList
+              {/* <ItemsList
                 name={lang.tr('module.analytics.mostFailedQuestions')}
                 items={getTopItems('feedback_negative_qna', 'qna')}
                 itemLimit={3}
                 hasTooltip
                 className={style.list}
-              />
+              /> */}
             </div>
             <RadialMetric
               name={lang.tr('module.analytics.successfulWorkflowCompletions', {
                 nb: getMetricCount('workflow_completed_count')
               })}
-              value={getMetricCount('workflow_completed_count')}
+              value={Math.round(
+                (getMetricCount('workflow_completed_count') / getMetricCount('workflow_started_count')) * 100
+              )}
               className={style.quarter}
             />
             <RadialMetric
-              name={lang.tr('module.analytics.positiveQnaFeedback', { nb: getMetricCount('feedback_positive_qna') })}
-              value={getMetricCount('feedback_positive_qna')}
+              name={lang.tr('module.analytics.positiveQnaFeedback', { nb: positiveFeedback })}
+              value={isNaN(positivePct) ? 0 : positivePct}
               className={style.quarter}
             />
           </Fragment>
@@ -425,16 +455,16 @@ const Analytics: FC<any> = ({ bp }) => {
     const { dateRange, metrics, previousDateRange, previousRangeMetrics } = state
     const formatDate = date => moment(date).format('YYYY-MM-DD')
 
-    const json = [
+    const json: ExportPeriod[] = [
       {
         startDate: formatDate(dateRange?.[0]),
         endDate: formatDate(dateRange?.[1]),
-        metrics
+        metrics: _.sortBy(metrics, ['metric', 'date'])
       },
       {
         startDate: formatDate(previousDateRange?.[0]),
         endDate: formatDate(previousDateRange?.[1]),
-        metrics: previousRangeMetrics
+        metrics: _.sortBy(previousRangeMetrics, ['metric', 'date'])
       }
     ]
 
@@ -444,18 +474,48 @@ const Analytics: FC<any> = ({ bp }) => {
     link.click()
   }
 
+  const readFile = (e: any) => {
+    const fr = new FileReader()
+    fr.readAsArrayBuffer((e.target as HTMLInputElement).files[0])
+    fr.onload = loadedEvent => {
+      try {
+        const dec = new TextDecoder('utf-8')
+        const content = JSON.parse(dec.decode(_.get(loadedEvent, 'target.result'))) as ExportPeriod[]
+
+        const loadDateRange = (type, data) => {
+          const { startDate, endDate, metrics } = data
+          dispatch({ type, data: { dateRange: [startDate, endDate], metrics } })
+        }
+
+        const [currentPeriod, prevPeriod] = content
+
+        loadDateRange('receivedMetrics', currentPeriod)
+        loadDateRange('receivedPreviousRangeMetrics', prevPeriod)
+
+        dispatch({
+          type: 'setManualDate',
+          data: { dateRange: [moment(currentPeriod.startDate).toDate(), moment(currentPeriod.endDate).toDate()] }
+        })
+      } catch (err) {
+        console.error(`Could not load metrics`, err)
+      }
+    }
+  }
+
   return (
     <div className={style.mainWrapper}>
       <div className={style.innerWrapper}>
         <div className={style.header}>
-          <h1 className={style.pageTitle}>{lang.tr('module.analytics.title')}</h1>
+          <h1 className={style.pageTitle} onDoubleClick={() => loadJson.current.click()}>
+            {lang.tr('module.analytics.title')}
+          </h1>
           <div className={style.filters}>
             <BpTooltip content={lang.tr('module.analytics.filterChannels')} position={Position.LEFT}>
               <HTMLSelect className={style.filterItem} onChange={handleChannelChange} value={state.selectedChannel}>
                 {channels.map(channel => {
                   return (
-                    <option key={channel} value={channel}>
-                      {capitalize(channel)}
+                    <option key={channel.value} value={channel.value}>
+                      {channel.label}
                     </option>
                   )
                 })}
@@ -504,6 +564,7 @@ const Analytics: FC<any> = ({ bp }) => {
             {renderHandlingUnderstanding()}
           </div>
         </div>
+        <input type="file" ref={loadJson} onChange={readFile} style={{ visibility: 'hidden' }}></input>
       </div>
     </div>
   )

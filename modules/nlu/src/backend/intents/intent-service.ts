@@ -1,5 +1,5 @@
-import { FlowView } from 'botpress/common/typings'
 import * as sdk from 'botpress/sdk'
+import { FlowView } from 'common/typings'
 import _ from 'lodash'
 
 import { EntityService } from '../typings'

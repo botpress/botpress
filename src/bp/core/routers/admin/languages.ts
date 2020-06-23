@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { Logger } from 'botpress/sdk'
+import { StandardError, UnexpectedError } from 'common/http'
 import { ConfigProvider } from 'core/config/config-loader'
 import { ModuleLoader } from 'core/module-loader'
 import { WorkspaceService } from 'core/services/workspace-service'
@@ -72,7 +73,7 @@ export class LanguagesRouter extends CustomRouter {
             ...(await this.getExtraLangs())
           })
         } catch (err) {
-          res.status(500).send(err.message)
+          throw new UnexpectedError('Could not fetch languages', err)
         }
       })
     )
@@ -96,7 +97,7 @@ export class LanguagesRouter extends CustomRouter {
           const client = await this.getSourceClient()
           await client.get('/info').then(({ data }) => res.send(data))
         } catch (err) {
-          res.status(500).send(err.message)
+          throw new StandardError('Could not get language info', err)
         }
       })
     )
@@ -109,7 +110,7 @@ export class LanguagesRouter extends CustomRouter {
           const client = await this.getSourceClient()
           await client.post('/languages/' + req.params.lang).then(({ data }) => res.send(data))
         } catch (err) {
-          res.status(500).send(err)
+          throw new StandardError('Could not add language', err)
         }
       })
     )
@@ -122,7 +123,7 @@ export class LanguagesRouter extends CustomRouter {
           const client = await this.getSourceClient()
           await client.post(`/languages/${req.params.lang}/load`).then(({ data }) => res.send(data))
         } catch (err) {
-          res.status(500).send(err.message)
+          throw new StandardError('Could not load language', err)
         }
       })
     )
@@ -135,7 +136,7 @@ export class LanguagesRouter extends CustomRouter {
           const client = await this.getSourceClient()
           await client.post(`/languages/${req.params.lang}/delete`).then(({ data }) => res.send(data))
         } catch (err) {
-          res.status(500).send(err.message)
+          throw new StandardError('Could not delete language', err)
         }
       })
     )

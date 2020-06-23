@@ -1,6 +1,6 @@
 import axios from 'axios'
-import { FlowView } from 'botpress/common/typings'
 import * as sdk from 'botpress/sdk'
+import { FlowView } from 'common/typings'
 import _ from 'lodash'
 
 import { Config } from '../config'
@@ -135,7 +135,7 @@ export class UnderstandingEngine {
       }
     })
 
-    if (event.type !== 'text' && event.type !== 'quick_reply') {
+    if (event.type !== 'text' && event.type !== 'quick_reply' && event.type !== 'workflow_ended') {
       return
     }
 

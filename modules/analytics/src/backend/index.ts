@@ -37,7 +37,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     name: 'analytics',
     fullName: 'Analytics',
     homepage: 'https://botpress.com',
-    menuIcon: 'timeline',
+    menuIcon: 'timeline-line-chart',
     menuText: 'Analytics'
   }
 }

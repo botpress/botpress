@@ -17,14 +17,14 @@ export const HOOK_SIGNATURES = {
   on_stage_request: `function hook(
   bp: typeof sdk,
   bot: sdk.BotConfig,
-  users: Partial<sdk.AuthUser[]>,
+  users: Partial<sdk.StrategyUser[]>,
   pipeline: sdk.Pipeline,
   hookResult: any)`,
   after_stage_changed: `function hook(
   bp: typeof sdk,
   previousBotConfig: sdk.BotConfig,
   bot: sdk.BotConfig,
-  users: Partial<sdk.AuthUser[]>,
+  users: Partial<sdk.StrategyUser[]>,
   pipeline: sdk.Pipeline)`,
   on_bot_error: `function hook(bp: typeof sdk, botId: string, events: sdk.LoggerEntry[])`
 }

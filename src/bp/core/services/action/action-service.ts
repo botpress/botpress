@@ -32,7 +32,8 @@ import {
   getBaseLookupPaths,
   isTrustedAction,
   prepareRequire,
-  prepareRequireTester
+  prepareRequireTester,
+  runOutsideVm
 } from './utils'
 import { VmRunner } from './vm'
 
@@ -54,7 +55,7 @@ const ACTION_SERVER_RESPONSE_SCHEMA = joi.object({
 
 @injectable()
 export default class ActionService {
-  private _scopedActions: Map<string, ScopedActionService> = new Map()
+  private _scopedActions: Map<string, Promise<ScopedActionService>> = new Map()
   private _invalidateDebounce
 
   constructor(
@@ -76,20 +77,15 @@ export default class ActionService {
       return this._scopedActions.get(botId)!
     }
 
-    if (!(await this.botService.botExists(botId, true))) {
-      throw new NotFoundError(`This bot does not exist`)
-    }
+    const service = new Promise<ScopedActionService>(async cb => {
+      if (!(await this.botService.botExists(botId, true))) {
+        throw new NotFoundError(`This bot does not exist`)
+      }
 
-    const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
+      const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
+      cb(new ScopedActionService(this.ghost, this.logger, botId, this.cache, this.tasksRepository, workspaceId))
+    })
 
-    const service = new ScopedActionService(
-      this.ghost,
-      this.logger,
-      botId,
-      this.cache,
-      this.tasksRepository,
-      workspaceId
-    )
     this._scopedActions.set(botId, service)
     return service
   }
@@ -289,7 +285,7 @@ export class ScopedActionService {
   ) {
     const { actionName, actionArgs, incomingEvent, runType } = props
 
-    const { code, _require, dirPath } = await this.loadLocalAction(actionName)
+    const { code, _require, dirPath, action } = await this.loadLocalAction(actionName)
 
     const args = {
       event: incomingEvent,
@@ -307,6 +303,9 @@ export class ScopedActionService {
         return this._runWithoutVm(code, { bp: await createForAction(), ...args }, _require)
       }
       case 'legacy': {
+        if (runOutsideVm(action.scope)) {
+          return this._runWithoutVm(code, { bp: await createForAction(), ...args }, _require)
+        }
         // bp is created here because it cannot be created in the Local Action Server thread
         return this._runInVm(code, dirPath, { bp: await createForAction(), ...args }, _require)
       }
@@ -357,11 +356,11 @@ export class ScopedActionService {
       await this._checkActionRequires(actionName)
     }
 
-    const { code, dirPath, lookups } = await this._getActionDetails(actionName)
+    const { code, dirPath, lookups, action } = await this._getActionDetails(actionName)
 
     const _require = prepareRequire(dirPath, lookups)
 
-    return { code, _require, dirPath }
+    return { code, _require, dirPath, action }
   }
 
   private _listenForCacheInvalidation() {

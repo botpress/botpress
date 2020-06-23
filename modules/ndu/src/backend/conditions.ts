@@ -146,5 +146,47 @@ export const dialogConditions: sdk.Condition[] = [
 
       return foundMatch ? 1 : 0
     }
+  },
+  {
+    id: 'workflow_ended',
+    label: 'The user ended a workflow',
+    params: {
+      outcome: {
+        label: 'Workflow Outcome',
+        type: 'list',
+        subType: 'radio',
+        defaultValue: 'success',
+        list: {
+          items: [
+            { label: 'Success', value: 'success' },
+            { label: 'Failure', value: 'failure' }
+          ]
+        }
+      },
+      ignoredWorkflows: {
+        label: 'List of workflows to ignore (their completion will not activate this trigger)',
+        type: 'array',
+        rows: 5,
+        defaultValue: ['misunderstood', 'workflow_ended', 'error']
+      }
+    },
+    evaluate: (event, params) => {
+      if (event.type !== 'workflow_ended') {
+        return 0
+      }
+
+      const { workflow, success } = event.payload
+      const { ignoredWorkflows, outcome } = params
+
+      if (ignoredWorkflows?.find(wf => wf === workflow)) {
+        return 0
+      }
+
+      if ((outcome === 'success' && success) || (outcome === 'failure' && !success)) {
+        return 1
+      }
+
+      return 0
+    }
   }
 ]
