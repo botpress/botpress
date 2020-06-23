@@ -8,6 +8,7 @@ import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 're
 
 import style from './style.scss'
 import CodeEditor from './CodeEditor'
+import IntentEditor from './IntentEditor'
 
 interface Props {
   deleteCondition: () => void
@@ -89,8 +90,8 @@ const ConditionForm: FC<Props> = ({
         {selectedCondition?.params && (
           <Contents.Form
             bp={{ axios }}
-            customFields={{
-              expression: props => <CodeEditor {...props} />
+            overrideFields={{
+              intent: props => <IntentEditor {...props} />
             }}
             fields={selectedCondition.params.fields || []}
             advancedSettings={selectedCondition.params.advancedSettings || []}

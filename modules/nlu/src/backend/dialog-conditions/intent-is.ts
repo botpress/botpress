@@ -13,21 +13,8 @@ export default {
       {
         key: 'intentName',
         label: 'Intent',
-        type: 'text_array',
-        placeholder: [
-          'nlu.intents.placeholderEmpty',
-          'nlu.intents.placeholderOne',
-          'nlu.intents.placeholderTwo',
-          'nlu.intents.placeholderMore',
-          /*placeholderEmpty
-          placeholderOne
-          placeholderTwo
-          placeholderMore
-          placeholderMoreSingular*/
-        ],
-        group: {
-          addLabel: 'nlu.intents.addBtn'
-        }
+        type: 'overridable',
+        overrideKey: 'intent'
       }
     ]
   },

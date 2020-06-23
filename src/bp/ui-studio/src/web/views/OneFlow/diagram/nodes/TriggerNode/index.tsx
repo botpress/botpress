@@ -93,8 +93,6 @@ const TriggerWidget: FC<Props> = ({
   const conditionLabels = getConditions().reduce((acc, cond) => ({ ...acc, [cond.id]: cond.label }), {})
   const selectedCondition = selectedNodeItem()
 
-  console.log(conditionLabels)
-
   return (
     <NodeWrapper>
       <NodeHeader

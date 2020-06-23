@@ -151,6 +151,18 @@ const Form: FC<FormProps> = ({ bp, overrideFields, getEmptyData, formData, field
     dispatch({ type: 'setData', data: formData })
   }, [])
 
+  const getArrayPlaceholder = (index, placeholder) => {
+    if (Array.isArray(placeholder)) {
+      if (index < placeholder.length) {
+        return lang(placeholder[index], { count: index })
+      } else {
+        return ''
+      }
+    }
+
+    return index === 0 && placeholder ? lang(placeholder) : ''
+  }
+
   const printField = (field, data, parent?) => {
     switch (field.type) {
       case 'group':
@@ -203,7 +215,7 @@ const Form: FC<FormProps> = ({ bp, overrideFields, getEmptyData, formData, field
         return (
           <Fragment key={field.key}>
             <TextFieldsArray
-              getPlaceholder={index => (index === 0 && field.placeholder ? lang(field.placeholder) : '')}
+              getPlaceholder={index => getArrayPlaceholder(index, field.placeholder)}
               onChange={value => {
                 dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
               }}
