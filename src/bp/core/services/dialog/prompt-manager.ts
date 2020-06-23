@@ -71,7 +71,9 @@ export class PromptManager {
     const events: IO.IncomingEvent[] = await this._getLastEvents(event)
 
     // It's the first event, setup the prompt
+    let isNewPrompt = false
     if (event.prompt) {
+      isNewPrompt = true
       session.prompt = {
         config: event.prompt,
         originalEvent: _.omit(event, ['state', 'id'])
@@ -87,7 +89,7 @@ export class PromptManager {
 
     debugPrompt('before processing %o', { highest })
 
-    const needValidation = highest.confidence <= MIN_CONFIDENCE_VALIDATION
+    const needValidation = isNewPrompt || highest.confidence <= MIN_CONFIDENCE_VALIDATION
     const isConfidentEnough = highest.confidence > 0 && (!minConfidence || highest.confidence >= minConfidence)
 
     const status: IO.PromptStatus = session.prompt?.status || { turns: 0 }
