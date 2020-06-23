@@ -96,10 +96,6 @@ const copyBinaries = () => {
   return gulp.src('src/bp/ml/bin/*.*').pipe(gulp.dest('./out/bp/ml/bin'))
 }
 
-const copyJs = () => {
-  return gulp.src('src/bp/ml/svm-js/**/*.*').pipe(gulp.dest('./out/bp/ml/svm-js'))
-}
-
 const checkTranslations = cb => {
   const reorder = process.argv.find(x => x.toLowerCase() === '--reorder')
   exec(`node build/check-translations.js ${reorder && '--reorder'}`, (err, stdout, stderr) => {
@@ -115,7 +111,6 @@ const build = () => {
     compileTypescript,
     buildSchemas,
     createOutputDirs,
-    copyJs,
     copyBinaries
   ])
 }
