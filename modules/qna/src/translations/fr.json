@@ -2,9 +2,6 @@
   "addNew": "Ajouter un élément",
   "answer": "Réponse",
   "confirmDelete": "Voulez-vous supprimer la question?",
-  "contentForm": {
-    "deleteContent": "Supprimer le contenu"
-  },
   "context": {
     "canTypeToCreate": "Vous pouvez taper dans la barre de sélection pour créer de nouveaux contextes.",
     "create": "Créer \"{query}\"",

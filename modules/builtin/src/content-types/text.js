@@ -84,7 +84,7 @@ module.exports = {
       },
       variations: {
         type: 'array',
-        title: 'module.builtin.types.text.alternatives',
+        title: 'module.builtin.types.text.alternative_plural',
         items: {
           type: 'string',
           default: ''
@@ -109,6 +109,54 @@ module.exports = {
         orderable: false
       }
     }
+  },
+  newSchema: {
+    displayedIn: ['sayNode'],
+    advancedSettings: [
+      {
+        key: 'markdown',
+        label: 'module.builtin.useMarkdown',
+        type: 'checkbox',
+        moreInfo: {
+          label: 'learnMore',
+          url: 'https://daringfireball.net/projects/markdown/'
+        }
+      },
+      {
+        key: 'typing',
+        type: 'checkbox',
+        label: 'module.builtin.typingIndicator'
+      }
+    ],
+    fields: [
+      {
+        type: 'text',
+        key: 'text',
+        label: 'module.builtin.types.text.message'
+      },
+      {
+        group: {
+          addLabel: 'module.builtin.types.text.add',
+          contextMenu: [
+            {
+              type: 'delete',
+              label: 'module.builtin.types.text.delete'
+            }
+          ]
+        },
+        type: 'group',
+        key: 'variations',
+        renderType: 'variations',
+        label: 'module.builtin.types.text.alternative',
+        fields: [
+          {
+            type: 'text',
+            key: 'item',
+            label: 'module.builtin.types.text.alternativeLabel'
+          }
+        ]
+      }
+    ]
   },
   computePreviewText: formData => formData.text,
 

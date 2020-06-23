@@ -61,7 +61,7 @@ export function getOnBotMount(state: NLUState) {
               const trainSession = makeTrainingSession(languageCode, lock)
               state.nluByBot[botId].trainSessions[languageCode] = trainSession
 
-              model = await engine.train(intentDefs, entityDefs, languageCode, trainSession)
+              model = await engine.train(intentDefs, entityDefs, languageCode, trainSession, { forceTrain })
               if (model.success) {
                 await engine.loadModel(model)
                 await ModelService.saveModel(ghost, model, hash)

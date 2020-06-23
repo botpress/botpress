@@ -60,7 +60,11 @@
       "valuePlaceholder": "Que recevra votre agent conversationnel?"
     },
     "text": {
-      "alternatives": "Alternatives",
+      "add": "Ajouter une alternative",
+      "alternative": "Alternative",
+      "alternative_plural": "Alternatives",
+      "alternativeLabel": "Texte",
+      "delete": "Supprimer l'alternative",
       "description": "Un texte régulier",
       "message": "Message"
     }

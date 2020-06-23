@@ -52,12 +52,34 @@
   }
 }
 
+.contentImgWrapper {
+  display: flex;
+  max-height: 30px;
+
+  .textWrapper {
+    align-items: center;
+    display: flex;
+    overflow: hidden;
+    text-align: left;
+  }
+}
+
+.extraItems {
+  color: var(--reef);
+  display: block;
+  font-size: 7px;
+  margin-top: 2px;
+  text-align: left;
+  width: 100%;
+}
+
 .content {
   align-items: center;
   background: #fff;
   border: 1px solid var(--gray);
   border-radius: 5px;
   display: flex;
+  flex-wrap: wrap;
   height: 100%;
   padding: var(--spacing-small);
   transition: background 0.3s, border 0.3s;

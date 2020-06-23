@@ -1,51 +1,61 @@
-import { FormData } from 'common/typings'
+import { FormData } from 'botpress/sdk'
 
 export const getEmptyFormData = (contentType: string, isPartOfGroup = false): FormData => {
   switch (contentType) {
     case 'builtin_image':
       return {
         markdown: true,
-        typingIndicator: true,
+        typing: true,
         image: undefined,
         title: ''
       }
-    case 'cards':
+    case 'builtin_text':
+      return {
+        markdown: true,
+        typing: true,
+        text: '',
+        variations: []
+      }
+    case 'card':
     case 'builtin_card':
-      const advanced = isPartOfGroup ? {} : { markdown: true, typingIndicator: true }
+      const advanced = isPartOfGroup ? {} : { markdown: true, typing: true }
 
       return {
         ...advanced,
         image: undefined,
         title: '',
-        text: '',
-        buttons: []
+        subtitle: '',
+        items: []
       }
     case 'builtin_carousel':
       return {
         markdown: true,
-        typingIndicator: true,
-        cards: [getEmptyFormData('builtin_card', true)]
+        typing: true,
+        items: [getEmptyFormData('builtin_card', true)]
       }
-    case 'suggestions':
     case 'builtin_single-choice':
+    case 'suggestions':
       if (isPartOfGroup) {
         return {
-          label: '',
+          title: '',
           value: ''
         }
       }
       return {
         onTopOfKeyboard: true,
-        typingIndicator: true,
+        typing: true,
         canAdd: false,
         multiple: false,
-        suggestions: [getEmptyFormData('builtin_single-choice', true)]
+        choices: [getEmptyFormData('builtin_single-choice', true)]
       }
     case 'buttons':
       return {
-        buttonText: '',
-        action: 'say'
+        title: '',
+        action: '',
+        actionSelect: 'say'
       }
+    case 'variations':
+      return { item: '' }
     default:
       return {}
   }

@@ -259,12 +259,6 @@ export interface FlowVariableType {
 
 export type FlowVariableConfig = FormDefinition
 
-export interface FormData {
-  id?: string
-  contentType?: string
-  [key: string]: undefined | number | boolean | string | FormData[]
-}
-
 export interface FormMoreInfo {
   label: string
   url?: string

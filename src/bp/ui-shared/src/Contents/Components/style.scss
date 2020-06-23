@@ -43,7 +43,7 @@
   }
 
   button {
-    border: 1px solid var(--gray) !important;
+    border: 1px solid var(--seashell) !important;
     border-radius: 3px !important;
     box-shadow: none !important;
     color: var(--shark) !important;
@@ -51,7 +51,7 @@
     font-size: 16px !important;
     font-weight: 400 !important;
     justify-content: space-between !important;
-    height: 38px !important;
+    height: 40px !important;
     line-height: 1.25 !important;
     padding: var(--spacing-medium) var(--spacing-large) !important;
     width: 100% !important;
@@ -95,12 +95,13 @@
 .groupLabel {
   display: flex !important;
   justify-content: flex-start !important;
-  margin: var(--spacing-xx-large) 0 !important;
+  margin: var(--spacing-x-large) 0 !important;
   min-height: auto !important;
   padding: 0 var(--spacing-xxx-large) 0 0 !important;
   width: 100% !important;
 
   :global(.bp3-button-text) {
+    font-size: 12px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -125,12 +126,12 @@
 
 .input, .textarea {
   background: #fff !important;
-  border: 1px solid var(--gray) !important;
+  border: 1px solid var(--seashell) !important;
   border-radius: 3px !important;
   color: var(--shark) !important;
   font-size: 12px !important;
   font-weight: 400 !important;
-  line-height: 1.25 !important;
+  line-height: 1.85 !important;
   padding: var(--spacing-medium) var(--spacing-large) !important;
   resize: none;
   transition: border 0.3s !important;
@@ -171,7 +172,7 @@
     .bp3-control-indicator {
       box-shadow: none !important;
       background: #fff !important;
-      border: 1px solid var(--gray) !important;
+      border: 1px solid var(--seashell) !important;
       font-size: 15px !important;
       height: 15px !important;
       width: 15px !important;
@@ -185,7 +186,7 @@
   transition: background 0.3s;
 
   &:hover {
-    background: var(--hover-lighthouse) !important;
+    background: var(--hover-lighthouse-30) !important;
   }
 
   svg {
@@ -233,7 +234,7 @@
 .fieldWrapper :global(.bp3-file-upload-input) {
   align-items: center;
   background: #fff;
-  border: 1px dotted var(--gray);
+  border: 1px dashed var(--seashell);
   box-shadow: none;
   color: #fff;
   display: flex;
@@ -245,7 +246,7 @@
   width: 66px !important;
 
   svg {
-    fill: var(--gray) !important;
+    fill: var(--seashell) !important;
     transition: fill 0.3s;
   }
 

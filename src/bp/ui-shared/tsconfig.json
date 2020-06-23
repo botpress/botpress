@@ -18,7 +18,7 @@
     "noImplicitAny": false,
     "baseUrl": "./src",
     "paths": {
-      "botpress/sdk": ["../../../sdk/botpress.d.ts"],
+      "botpress/sdk": ["../../sdk/botpress.d.ts"],
       "common/*": ["../../../../out/bp/common/*"],
       "@blueprintjs/core": ["../../ui-studio/node_modules/@blueprintjs/core"],
       "@blueprintjs/select": ["../../ui-studio/node_modules/@blueprintjs/select"],
