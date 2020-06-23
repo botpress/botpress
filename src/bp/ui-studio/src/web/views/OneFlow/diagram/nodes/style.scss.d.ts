@@ -3,7 +3,6 @@
 interface CssExports {
   'contentImgWrapper': string;
   'img': string;
-  'primaryText': string;
   'secondaryText': string;
   'text': string;
   'textWrapper': string;

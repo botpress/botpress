@@ -160,6 +160,39 @@ module.exports = {
     }
   },
 
+  newSchema: {
+    displayedIn: ['qna', 'sayNode'],
+    advancedSettings: [
+      {
+        key: 'markdown',
+        label: 'module.builtin.useMarkdown',
+        type: 'checkbox',
+        moreInfo: {
+          label: 'learnMore',
+          url: 'https://daringfireball.net/projects/markdown/'
+        }
+      },
+      {
+        key: 'typing',
+        type: 'checkbox',
+        label: 'module.builtin.typingIndicator'
+      }
+    ],
+    fields: [
+      {
+        type: 'upload',
+        key: 'image',
+        label: 'module.builtin.types.image.uploadImage'
+      },
+      {
+        type: 'text',
+        key: 'title',
+        label: 'title',
+        placeholder: 'module.builtin.optional'
+      }
+    ]
+  },
+
   computePreviewText: formData => {
     if (!formData.image) {
       return

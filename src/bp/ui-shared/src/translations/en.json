@@ -2,6 +2,7 @@
   "action": "Action",
   "actionRequired": "Action Required",
   "add": "Add",
+  "advancedSettings": "Advanced Settings",
   "all": "All",
   "back": "Back",
   "cancel": "Cancel",
@@ -43,6 +44,7 @@
   "create": "Create",
   "createdOn": "Created On",
   "delete": "Delete",
+  "deleteContent": "Delete Content",
   "description": "Description",
   "details": "Details",
   "disabled": "Disabled",
@@ -115,6 +117,7 @@
     }
   },
   "label": "Label",
+  "learnMore": "Learn More",
   "library": "Library",
   "line": "Line",
   "list": "List",
@@ -180,10 +183,16 @@
   "title": "Title",
   "tools": "Tools",
   "topics": "Topics",
+  "translate": "Translate",
   "trigger": "Trigger",
   "type": "Type",
   "undo": "Undo",
   "update": "Update",
   "upload": "Upload",
-  "usage": "Usage"
+  "usage": "Usage",
+  "date": "Date",
+  "number": "Number",
+  "boolean": "Boolean",
+  "string": "String",
+  "format": "Format"
 }

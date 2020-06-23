@@ -48,7 +48,10 @@ export default async function(options: ArgV) {
   const langService = new LanguageService(options.dim, options.domain, options.langDir)
   const downloadManager = new DownloadManager(options.dim, options.domain, options.langDir, options.metadataLocation)
 
+  const version = '1.0.0' // TODO: declare this elsewhere
+
   const apiOptions: APIOptions = {
+    version,
     host: options.host,
     port: options.port,
     authToken: options.authToken,
@@ -59,6 +62,7 @@ export default async function(options: ArgV) {
 
   logger.info(chalk`========================================
 {bold ${center(`Botpress Language Server`, 40, 9)}}
+{dim ${center(`Version ${version}`, 40, 9)}}
 {dim ${center(`OS ${process.distro}`, 40, 9)}}
 ${_.repeat(' ', 9)}========================================`)
 

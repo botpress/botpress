@@ -18,6 +18,7 @@ import { initializeLanguageProvider } from './module-lifecycle/on-server-started
 import { crossValidate } from './tools/cross-validation'
 import { getTrainingSession } from './train-session-service'
 import { NLUState } from './typings'
+import legacyElectionPipeline from './legacy-election'
 
 export const PredictSchema = Joi.object().keys({
   contexts: Joi.array()
@@ -76,7 +77,8 @@ export default async (bp: typeof sdk, state: NLUState) => {
     }
 
     try {
-      const nlu = await state.nluByBot[botId].engine.predict(value.text, value.contexts)
+      let nlu = await state.nluByBot[botId].engine.predict(value.text, value.contexts)
+      nlu = legacyElectionPipeline(nlu)
       res.send({ nlu })
     } catch (err) {
       res.status(500).send('Could not extract nlu data')

@@ -1,5 +1,5 @@
 import { Button, ContextMenu, Icon, Menu } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { contextMenu, lang } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, useEffect, useState } from 'react'
 import { sanitizeName } from '~/util'
@@ -42,10 +42,7 @@ const TreeItem: FC<Props> = ({
       return
     }
 
-    ContextMenu.show(<Menu className={style.contextMenu}>{contextMenuContent}</Menu>, {
-      left: e.clientX,
-      top: e.clientY
-    })
+    contextMenu(e, <Menu className={style.contextMenu}>{contextMenuContent}</Menu>)
   }
 
   useEffect(() => {
@@ -61,7 +58,7 @@ const TreeItem: FC<Props> = ({
       event.target.select()
     }
 
-    if (event.key === 'Enter') {
+    if (event.key === 'Escape' || event.key === 'Enter') {
       event.target.blur()
     }
   }

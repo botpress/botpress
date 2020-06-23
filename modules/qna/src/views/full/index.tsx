@@ -1,6 +1,6 @@
 import { Spinner } from '@blueprintjs/core'
 import { EmptyState, HeaderButtonProps, lang, MainContent } from 'botpress/shared'
-import { Downloader, reorderFlows } from 'botpress/utils'
+import { AccessControl, Downloader, reorderFlows } from 'botpress/utils'
 import cx from 'classnames'
 import { debounce } from 'lodash'
 import React, { FC, useCallback, useEffect, useReducer, useRef, useState } from 'react'
@@ -33,7 +33,7 @@ const QnAList: FC<Props> = props => {
     expandedItems: {}
   })
   const { items, loading, firstUpdate, page, fetchMore, count, expandedItems, highlighted } = state
-  const { bp, languages, defaultLanguage, isLite } = props
+  const { bp, languages, defaultLanguage, isLite, refreshQnaCount } = props
   const queryParams = new URLSearchParams(window.location.search)
 
   useEffect(() => {
@@ -116,7 +116,7 @@ const QnAList: FC<Props> = props => {
   }
 
   const tabs = [
-    !isLite && {
+    {
       id: 'qna',
       title: lang.tr('module.qna.fullName')
     }
@@ -125,7 +125,7 @@ const QnAList: FC<Props> = props => {
   const allExpanded = Object.keys(expandedItems).filter(itemId => expandedItems[itemId]).length === items.length
 
   let noItemsTooltip
-  let languesTooltip = lang.tr('module.qna.form.translate')
+  let languesTooltip = lang.tr('translate')
 
   if (!items.length) {
     noItemsTooltip = lang.tr('module.qna.form.addOneItemTooltip')
@@ -214,121 +214,123 @@ const QnAList: FC<Props> = props => {
   const hasFilteredResults = questionSearch.length || filterContexts.length
 
   return (
-    <MainContent.Wrapper childRef={ref => (wrapperRef.current = ref)}>
-      <MainContent.Header className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
+    <AccessControl resource="module.qna" operation="write">
+      <MainContent.Wrapper childRef={ref => (wrapperRef.current = ref)}>
+        <MainContent.Header className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
 
-      <div className={style.searchWrapper}>
-        <input
-          className={style.input}
-          type="text"
-          value={questionSearch}
-          onChange={e => setQuestionSearch(e.currentTarget.value)}
-          placeholder={lang.tr('module.qna.search')}
+        <div className={style.searchWrapper}>
+          <input
+            className={style.input}
+            type="text"
+            value={questionSearch}
+            onChange={e => setQuestionSearch(e.currentTarget.value)}
+            placeholder={lang.tr('module.qna.search')}
+          />
+
+          {!isLite && (
+            <ContextSelector
+              className={style.contextInput}
+              contexts={filterContexts}
+              saveContexts={contexts => setFilterContexts(contexts)}
+              bp={bp}
+              isSearch
+            />
+          )}
+        </div>
+        <div className={cx(style.content, { [style.empty]: !items.length && !highlighted })}>
+          {highlighted && (
+            <div className={style.highlightedQna}>
+              <QnA
+                updateQnA={data =>
+                  debounceDispatchMiddleware(dispatch, {
+                    type: 'updateQnA',
+                    data: { qnaItem: data, index: 'highlighted', bp, currentLang, refreshQnaCount }
+                  })
+                }
+                bp={bp}
+                isLite={isLite}
+                key={highlighted.id}
+                flows={flows}
+                defaultLanguage={defaultLanguage}
+                deleteQnA={() => {
+                  dispatch({ type: 'deleteQnA', data: { index: 'highlighted', bp, refreshQnaCount } })
+
+                  window.history.pushState(
+                    window.history.state,
+                    '',
+                    window.location.href.replace(window.location.search, '')
+                  )
+                }}
+                toggleEnabledQnA={() =>
+                  dispatchMiddleware(dispatch, {
+                    type: 'toggleEnabledQnA',
+                    data: { qnaItem: highlighted, bp }
+                  })
+                }
+                contentLang={currentLang}
+                errorMessages={itemHasError(highlighted, currentLang)}
+                setExpanded={isExpanded => dispatch({ type: 'toggleExpandOne', data: { highlighted: isExpanded } })}
+                expanded={expandedItems['highlighted']}
+                qnaItem={highlighted}
+              />
+            </div>
+          )}
+          {items
+            .filter(item => highlighted?.id !== item.id)
+            .map((item, index) => (
+              <QnA
+                updateQnA={data =>
+                  debounceDispatchMiddleware(dispatch, {
+                    type: 'updateQnA',
+                    data: { qnaItem: data, index, bp, currentLang, refreshQnaCount }
+                  })
+                }
+                key={item.key || item.id}
+                bp={bp}
+                isLite={isLite}
+                flows={flows}
+                defaultLanguage={defaultLanguage}
+                deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp, refreshQnaCount } })}
+                toggleEnabledQnA={() =>
+                  dispatchMiddleware(dispatch, { type: 'toggleEnabledQnA', data: { qnaItem: item, bp } })
+                }
+                contentLang={currentLang}
+                errorMessages={itemHasError(item, currentLang)}
+                setExpanded={isExpanded =>
+                  dispatch({ type: 'toggleExpandOne', data: { [item.key || item.id]: isExpanded } })
+                }
+                expanded={expandedItems[item.key || item.id]}
+                qnaItem={item}
+              />
+            ))}
+          {!items.length && !loading && (
+            <EmptyState
+              icon={<EmptyStateIcon />}
+              text={
+                hasFilteredResults
+                  ? lang.tr('module.qna.form.noResultsFromFilters')
+                  : lang.tr('module.qna.form.emptyState')
+              }
+            />
+          )}
+          {loading && (
+            <Spinner
+              className={cx({ [style.initialLoading]: !fetchMore, [style.loading]: fetchMore })}
+              size={fetchMore ? 20 : 50}
+            />
+          )}
+        </div>
+
+        <Downloader url={url} />
+
+        <ImportModal
+          axios={bp.axios}
+          onImportCompleted={() => fetchData()}
+          isOpen={showImportModal}
+          toggle={() => setShowImportModal(!showImportModal)}
         />
-
-        {!isLite && (
-          <ContextSelector
-            className={style.contextInput}
-            contexts={filterContexts}
-            saveContexts={contexts => setFilterContexts(contexts)}
-            bp={bp}
-            isSearch
-          />
-        )}
-      </div>
-      <div className={cx(style.content, { [style.empty]: !items.length && !highlighted })}>
-        {highlighted && (
-          <div className={style.highlightedQna}>
-            <QnA
-              updateQnA={data =>
-                debounceDispatchMiddleware(dispatch, {
-                  type: 'updateQnA',
-                  data: { qnaItem: data, index: 'highlighted', bp, currentLang }
-                })
-              }
-              bp={bp}
-              isLite={isLite}
-              key={highlighted.id}
-              flows={flows}
-              defaultLanguage={defaultLanguage}
-              deleteQnA={() => {
-                dispatch({ type: 'deleteQnA', data: { index: 'highlighted', bp } })
-
-                window.history.pushState(
-                  window.history.state,
-                  '',
-                  window.location.href.replace(window.location.search, '')
-                )
-              }}
-              toggleEnabledQnA={() =>
-                dispatchMiddleware(dispatch, {
-                  type: 'toggleEnabledQnA',
-                  data: { qnaItem: highlighted, bp }
-                })
-              }
-              contentLang={currentLang}
-              errorMessages={itemHasError(highlighted, currentLang)}
-              setExpanded={isExpanded => dispatch({ type: 'toggleExpandOne', data: { highlighted: isExpanded } })}
-              expanded={expandedItems['highlighted']}
-              qnaItem={highlighted}
-            />
-          </div>
-        )}
-        {items
-          .filter(item => highlighted?.id !== item.id)
-          .map((item, index) => (
-            <QnA
-              updateQnA={data =>
-                debounceDispatchMiddleware(dispatch, {
-                  type: 'updateQnA',
-                  data: { qnaItem: data, index, bp, currentLang }
-                })
-              }
-              key={item.key || item.id}
-              bp={bp}
-              isLite={isLite}
-              flows={flows}
-              defaultLanguage={defaultLanguage}
-              deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp } })}
-              toggleEnabledQnA={() =>
-                dispatchMiddleware(dispatch, { type: 'toggleEnabledQnA', data: { qnaItem: item, bp } })
-              }
-              contentLang={currentLang}
-              errorMessages={itemHasError(item, currentLang)}
-              setExpanded={isExpanded =>
-                dispatch({ type: 'toggleExpandOne', data: { [item.key || item.id]: isExpanded } })
-              }
-              expanded={expandedItems[item.key || item.id]}
-              qnaItem={item}
-            />
-          ))}
-        {!items.length && !loading && (
-          <EmptyState
-            icon={<EmptyStateIcon />}
-            text={
-              hasFilteredResults
-                ? lang.tr('module.qna.form.noResultsFromFilters')
-                : lang.tr('module.qna.form.emptyState')
-            }
-          />
-        )}
-        {loading && (
-          <Spinner
-            className={cx({ [style.initialLoading]: !fetchMore, [style.loading]: fetchMore })}
-            size={fetchMore ? 20 : 50}
-          />
-        )}
-      </div>
-
-      <Downloader url={url} />
-
-      <ImportModal
-        axios={bp.axios}
-        onImportCompleted={() => fetchData()}
-        isOpen={showImportModal}
-        toggle={() => setShowImportModal(!showImportModal)}
-      />
-    </MainContent.Wrapper>
+      </MainContent.Wrapper>
+    </AccessControl>
   )
 }
 

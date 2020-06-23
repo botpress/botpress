@@ -49,6 +49,7 @@
   "studio": {
     "content": {
       "cloneElements": "Clone selected elements",
+      "confirmChangeContentType": "Are you sure you want to change this content type? All fields will be erased.",
       "confirmDeleteItem": "Do you really want to delete {count, number} {count, plural, one {item} other {items}}?",
       "contentType": "Content Type",
       "createNew": "Create new {title}",
@@ -138,6 +139,7 @@
         "add": "add",
         "addAction": "Add new action",
         "cantSeeActions": "Can't see your action?",
+        "chatbotSays": "Chatbot Says",
         "confirmOverwriteParameters": "Do you want to overwrite existing parameters?",
         "contentPaste": "content_paste",
         "couldNotRetrieveActionServer": "Could not retrieve action servers",
@@ -157,9 +159,11 @@
         "missingLink": "Missing Link",
         "noActionsFound": "No actions found on this action server",
         "noDescription": "No description",
+        "nameAlreadyExists": "This name already exists",
         "nodeName": "Node Name",
         "onEnter": "On Enter",
         "onReceive": "On Receive",
+        "renameBlock": "Rename Block",
         "return": "Return",
         "saySomething": "Say Something",
         "theBotWill": "The bot will",
