@@ -1,7 +1,6 @@
 {
   "typescript.tsdk": "node_modules/typescript/lib",
   "editor.tabSize": 2,
-  "editor.formatOnSave": true,
   "files.eol": "\n",
   "editor.codeActionsOnSave": {
     "source.fixAll.tslint": true
@@ -64,6 +63,5 @@
       "name": "BP Core DB"
     }
   ],
-  "sqltools.useNodeRuntime": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode"
+  "sqltools.useNodeRuntime": true
 }
