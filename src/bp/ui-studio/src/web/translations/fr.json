@@ -121,6 +121,9 @@
       "flowWideOnReceives": "{count, plural, one {réception} other {réceptions}} à l'échelle du flow",
       "flowWideTransitions": "{count, plural, one {transition} other {transitions}} à l'échelle du flow",
       "highlightByName": "Tapez le nom d'un élément",
+      "ignoredWorkflows": {
+        "addLabel": "Ajouter un workflow"
+      },
       "logs": {
         "autoRefresh": "Actualisation automatique",
         "downloadArchives": "Télécharger l'archive du journal",

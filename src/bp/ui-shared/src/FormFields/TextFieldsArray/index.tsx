@@ -13,7 +13,7 @@ import style from './style.scss'
 const TextFieldsArray: FC<TextFieldsArrayProps> = props => {
   const { addBtnLabel, label, onChange, items, getPlaceholder } = props
   const [localItems, setLocalItems] = useState(items || [])
-  const focusedElement = useRef(0)
+  const focusedElement = useRef(items.length)
 
   useEffect(() => {
     setLocalItems(items || [])

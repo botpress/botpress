@@ -122,6 +122,9 @@
       "flowWideOnReceives": "flow-wide on {count, plural, one {receive} other {receives}}",
       "flowWideTransitions": "flow-wide {count, plural, one {transition} other {transitions}}",
       "highlightByName": "Highlight nodes by name",
+      "ignoredWorkflows": {
+        "addLabel": "Add Workflow"
+      },
       "logs": {
         "autoRefresh": "Auto-refresh",
         "downloadArchives": "Download log archive",

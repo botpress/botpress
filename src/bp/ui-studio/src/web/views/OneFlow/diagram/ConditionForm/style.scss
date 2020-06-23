@@ -53,6 +53,13 @@ input[type="checkbox"], input[type="radio"] {
   margin-bottom: var(--spacing-xx-large);
 }
 
+.codeEditor {
+  border-bottom: 1px solid var(--seashell);
+  border-top: 1px solid var(--seashell);
+  padding: var(--spacing-medium) 0;
+  min-height: 35px;
+}
+
 .formSelect {
   display: block;
   padding: 0;
@@ -63,6 +70,39 @@ input[type="checkbox"], input[type="radio"] {
       width: 100%;
     }
 
+    .bp3-input-group {
+      margin: var(--spacing-medium) var(--spacing-medium) var(--spacing-small);
+
+      svg {
+        fill: var(--gray) !important;
+      }
+
+      .bp3-input-action {
+        button {
+          margin: 0;
+          top: 0;
+          bottom: 0;
+          right: 0;
+          background: none !important;
+          border: none !important;
+          height: 100% !important;
+        }
+      }
+
+      input {
+        border: 1px solid var(--seashell);
+        box-shadow: none !important;
+        font-size: 12px;
+        line-height: 1.25;
+
+        &:focus {
+          outline: none !important;
+          box-shadow: none !important;
+          border-color: var(--ocean);
+        }
+      }
+    }
+
     .bp3-menu-item {
       color: var(--shark);
       font-size: 12px;
@@ -70,6 +110,12 @@ input[type="checkbox"], input[type="radio"] {
 
       &:not(.bp3-active):hover {
         background: var(--seashell) !important;
+      }
+
+      & > div {
+        line-height: 1.25;
+        overflow: visible !important;
+        white-space: normal;
       }
     }
 
@@ -84,7 +130,7 @@ input[type="checkbox"], input[type="radio"] {
 
     .bp3-select-popover {
       width: 100%;
-      max-height: 150px;
+      max-height: 250px;
       overflow-y: auto;
     }
 

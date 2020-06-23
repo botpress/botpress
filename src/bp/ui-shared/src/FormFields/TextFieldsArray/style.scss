@@ -1,5 +1,12 @@
 .items {
   line-height: 0;
+
+  h2 {
+    font-size: 12px;
+    line-height: 1.25;
+    color: var(--shark);
+    margin: var(--spacing-medium) 0 var(--spacing-medium);
+  }
 }
 
 .textareaWrapper {
@@ -46,11 +53,4 @@
   resize: none;
   transition: border 0.3s;
   width: 100%;
-}
-
-h2 {
-  font-size: 12px;
-  line-height: 1.25;
-  color: var(--shark);
-  margin: 0 0 var(--spacing-medium);
 }

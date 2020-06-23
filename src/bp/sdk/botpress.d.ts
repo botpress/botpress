@@ -1397,7 +1397,7 @@ declare module 'botpress/sdk' {
   }
 
   export interface FormField {
-    type: 'checkbox' | 'custom' | 'group' | 'number' | 'select' | 'text' | 'textarea' | 'upload' | 'url'
+    type: 'checkbox' | 'custom' | 'group' | 'number' | 'select' | 'text' | 'text_array' | 'textarea' | 'upload' | 'url'
     key: string
     label: string
     placeholder?: string

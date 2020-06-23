@@ -9,6 +9,7 @@ interface CssExports {
   'alignBtnRight': string;
   'category': string;
   'checkboxLabel': string;
+  'codeEditor': string;
   'contentAnswer': string;
   'contentTypeField': string;
   'customTextarea': string;

@@ -4,7 +4,7 @@ import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer } from 'react'
 
 import { lang } from '../../../translations'
-import { getEmptyFormData } from '../../utils/fields'
+import TextFieldsArray from '../../../FormFields/TextFieldsArray'
 import AddButton from '../Fields/AddButton'
 import Select from '../Fields/Select'
 import Text from '../Fields/Text'
@@ -49,7 +49,6 @@ const formReducer = (state, action) => {
       const updatedItem = state[key]
 
       updatedItem[index][field] = [...(updatedItem[index][field] || []), newData]
-      console.log(updatedItem)
 
       return {
         ...state,
@@ -199,6 +198,21 @@ const Form: FC<FormProps> = ({ bp, customFields, getEmptyData, formData, fields,
             />
             {field.moreInfo && printMoreInfo(field.moreInfo)}
           </FieldWrapper>
+        )
+      case 'text_array':
+        return (
+          <Fragment key={field.key}>
+            <TextFieldsArray
+              getPlaceholder={index => (index === 0 ? lang(field.placeholder) : '')}
+              onChange={value => {
+                dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
+              }}
+              items={data[field.key] || ['']}
+              label={printLabel(field, data[field.key])}
+              addBtnLabel={lang(field.group?.addLabel)}
+            />
+            {field.moreInfo && printMoreInfo(field.moreInfo)}
+          </Fragment>
         )
       case 'textarea':
         return (

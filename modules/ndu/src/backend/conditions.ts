@@ -146,8 +146,11 @@ export const dialogConditions: sdk.Condition[] = [
       fields: [
         {
           key: 'candidate',
-          label: 'One or multiple words to detect (one per line)',
-          type: 'custom'
+          label: 'One or multiple words to detect',
+          type: 'text_array',
+          group: {
+            addLabel: 'studio.flow.condition.addCondition'
+          }
         }
       ],
       advancedSettings: [
@@ -195,7 +198,10 @@ export const dialogConditions: sdk.Condition[] = [
         {
           key: 'ignoredWorkflows',
           label: 'List of workflows to ignore (their completion will not activate this trigger)',
-          type: 'custom'
+          type: 'text_array',
+          group: {
+            addLabel: 'studio.flow.ignoredWorkflows.addLabel'
+          }
         }
       ]
     },

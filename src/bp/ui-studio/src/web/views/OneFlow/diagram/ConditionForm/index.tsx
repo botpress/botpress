@@ -7,7 +7,7 @@ import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
 
 import style from './style.scss'
-import TextField from './TextField'
+import CodeEditor from './CodeEditor'
 
 interface Props {
   deleteCondition: () => void
@@ -90,7 +90,7 @@ const ConditionForm: FC<Props> = ({
           <Contents.Form
             bp={{ axios }}
             customFields={{
-              text: props => <TextField {...props} />
+              expression: props => <CodeEditor {...props} />
             }}
             fields={selectedCondition.params.fields || []}
             advancedSettings={selectedCondition.params.advancedSettings || []}
