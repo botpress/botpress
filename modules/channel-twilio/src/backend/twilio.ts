@@ -48,9 +48,6 @@ export class TwilioService {
       this.bp.logger.warn('Twilio requires HTTPS to be setup to work properly. See EXTERNAL_URL botpress config.')
     }
 
-      this.publicPath = publicPath
-    })
-
     this.router.post('/webhook', this._handleIncomingMessage.bind(this))
 
     this.bp.events.registerMiddleware({
@@ -110,8 +107,6 @@ export class TwilioService {
     const fromNumber = body.To
     const toNumber = body.From
     this.fromToMap[toNumber] = { fromNumber, language: undefined }
-
-    const bot = this.getTwilioClientByBotId(botId)
 
     if (undefined != body.Latitude) {
       this.bp.logger.info('location')
