@@ -1,9 +1,9 @@
 .moreInfo {
-  color: var(--shark);
+  color: var(--reef);
   display: block;
   font-size: 8px;
   line-height: 1.25;
-  margin-left: 26px;
+  margin: 0 0 var(--spacing-medium);
 }
 
 a.moreInfo {
@@ -14,6 +14,10 @@ a.moreInfo {
     color: var(--hover-ocean);
     text-decoration: none;
   }
+}
+
+.moreInfo.isCheckbox {
+  margin-left: 26px;
 }
 
 .checkboxWrapper {

@@ -203,6 +203,9 @@ export const dialogConditions: sdk.Condition[] = [
         {
           key: 'ignoredWorkflows',
           label: 'module.nlu.conditions.fields.label.ignoredWorkflows',
+          moreInfo: {
+            label: 'module.nlu.conditions.fields.label.ignoredWorkflowsMoreInfo'
+          },
           type: 'text_array',
           group: {
             addLabel: 'studio.flow.ignoredWorkflows.addLabel'

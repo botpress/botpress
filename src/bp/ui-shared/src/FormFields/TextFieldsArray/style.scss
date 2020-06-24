@@ -5,12 +5,16 @@
     font-size: 12px;
     line-height: 1.25;
     color: var(--shark);
-    margin: var(--spacing-medium) 0 var(--spacing-medium);
+    margin: var(--spacing-medium) 0 var(--spacing-small);
   }
 }
 
 .textareaWrapper {
   position: relative;
+
+  &:first-of-type {
+    margin-top: var(--spacing-small);
+  }
 
   &:focus-within {
     & + .textareaWrapper {

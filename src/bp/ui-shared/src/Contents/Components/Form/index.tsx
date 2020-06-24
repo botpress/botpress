@@ -1,5 +1,6 @@
 import { Checkbox } from '@blueprintjs/core'
 import { FormMoreInfo } from 'botpress/sdk'
+import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer } from 'react'
 
@@ -26,17 +27,17 @@ const printLabel = (field, data) => {
   return lang(field.label)
 }
 
-const printMoreInfo = (moreInfo: FormMoreInfo): JSX.Element => {
+const printMoreInfo = (moreInfo: FormMoreInfo, isCheckbox = false): JSX.Element => {
   const { url, label } = moreInfo
   if (url) {
     return (
-      <a className={style.moreInfo} href={url} target="_blank">
+      <a className={cx(style.moreInfo, { [style.isCheckbox]: isCheckbox })} href={url} target="_blank">
         {lang(label)}
       </a>
     )
   }
 
-  return <p className={style.moreInfo}>{lang(label)}</p>
+  return <p className={cx(style.moreInfo, { [style.isCheckbox]: isCheckbox })}>{lang(label)}</p>
 }
 
 const formReducer = (state, action) => {
@@ -199,6 +200,7 @@ const Form: FC<FormProps> = ({ bp, overrideFields, getEmptyData, formData, field
       case 'select':
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
+            {field.moreInfo && printMoreInfo(field.moreInfo)}
             <Select
               bp={bp}
               parent={parent}
@@ -208,7 +210,6 @@ const Form: FC<FormProps> = ({ bp, overrideFields, getEmptyData, formData, field
               placeholder={lang(field.placeholder)}
               onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
             />
-            {field.moreInfo && printMoreInfo(field.moreInfo)}
           </FieldWrapper>
         )
       case 'text_array':
@@ -216,6 +217,7 @@ const Form: FC<FormProps> = ({ bp, overrideFields, getEmptyData, formData, field
           <Fragment key={field.key}>
             <TextFieldsArray
               getPlaceholder={index => getArrayPlaceholder(index, field.placeholder)}
+              moreInfo={field.moreInfo && printMoreInfo(field.moreInfo)}
               onChange={value => {
                 dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
               }}
@@ -223,12 +225,12 @@ const Form: FC<FormProps> = ({ bp, overrideFields, getEmptyData, formData, field
               label={printLabel(field, data[field.key])}
               addBtnLabel={lang(field.group?.addLabel)}
             />
-            {field.moreInfo && printMoreInfo(field.moreInfo)}
           </Fragment>
         )
       case 'textarea':
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
+            {field.moreInfo && printMoreInfo(field.moreInfo)}
             <TextArea
               placeholder={lang(field.placeholder)}
               onBlur={value => {
@@ -236,12 +238,12 @@ const Form: FC<FormProps> = ({ bp, overrideFields, getEmptyData, formData, field
               }}
               value={data[field.key]}
             />
-            {field.moreInfo && printMoreInfo(field.moreInfo)}
           </FieldWrapper>
         )
       case 'upload':
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
+            {field.moreInfo && printMoreInfo(field.moreInfo)}
             <Upload
               axios={bp?.axios}
               customPath={bp?.mediaPath}
@@ -249,7 +251,6 @@ const Form: FC<FormProps> = ({ bp, overrideFields, getEmptyData, formData, field
               onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
               value={data[field.key]}
             />
-            {field.moreInfo && printMoreInfo(field.moreInfo)}
           </FieldWrapper>
         )
       case 'checkbox':
@@ -266,7 +267,7 @@ const Form: FC<FormProps> = ({ bp, overrideFields, getEmptyData, formData, field
                 })
               }
             />
-            {field.moreInfo && printMoreInfo(field.moreInfo)}
+            {field.moreInfo && printMoreInfo(field.moreInfo, true)}
           </div>
         )
       case 'overridable':
@@ -288,6 +289,7 @@ const Form: FC<FormProps> = ({ bp, overrideFields, getEmptyData, formData, field
       default:
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
+            {field.moreInfo && printMoreInfo(field.moreInfo)}
             <Text
               placeholder={lang(field.placeholder)}
               onBlur={value => {
@@ -296,7 +298,6 @@ const Form: FC<FormProps> = ({ bp, overrideFields, getEmptyData, formData, field
               type={field.type}
               value={data[field.key]}
             />
-            {field.moreInfo && printMoreInfo(field.moreInfo)}
           </FieldWrapper>
         )
     }
