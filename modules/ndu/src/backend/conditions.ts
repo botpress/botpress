@@ -151,6 +151,7 @@ export const dialogConditions: sdk.Condition[] = [
         {
           key: 'candidate',
           label: 'module.nlu.conditions.fields.label.candidate',
+          placeholder: 'module.nlu.conditions.fields.placeholder.oneWordPerLine',
           type: 'text_array',
           group: {
             addLabel: 'studio.flow.condition.addCondition'
@@ -206,6 +207,7 @@ export const dialogConditions: sdk.Condition[] = [
           moreInfo: {
             label: 'module.nlu.conditions.fields.label.ignoredWorkflowsMoreInfo'
           },
+          placeholder: 'module.nlu.conditions.fields.placeholder.workflowName',
           type: 'text_array',
           group: {
             addLabel: 'studio.flow.ignoredWorkflows.addLabel'

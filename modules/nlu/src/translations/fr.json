@@ -34,12 +34,14 @@
         "workflowOutcome": "Résultat du flux de travail"
       },
       "placeholder": {
+        "oneWordPerLine": "Un mot par ligne",
         "pickChannel": "Choisissez un canal",
         "pickComparisonMethod": "Choisissez une méthode de comparaison",
         "pickLanguage": "Choisissez une langue",
         "pickTopic": "Choisissez un sujet",
         "pickVariableType": "Choisissez un type de variable",
-        "pickWorkflowOutcome": "Choisissez un résultat de flux de travail"
+        "pickWorkflowOutcome": "Choisissez un résultat de flux de travail",
+        "workflowName": "Nom du workflow"
       }
     },
     "saySomethingMisunderstood": "L’utilisateur dit quelque chose qui est mal compris (intention)",

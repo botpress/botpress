@@ -34,12 +34,14 @@
         "workflowOutcome": "Workflow Outcome"
       },
       "placeholder": {
+        "oneWordPerLine": "One word per line",
         "pickChannel": "Pick a channel",
         "pickComparisonMethod": "Pick a comparison method",
         "pickLanguage": "Pick a language",
         "pickTopic": "Pick a topic",
         "pickVariableType": "Pick an variable type",
-        "pickWorkflowOutcome": "Pick a workflow outcome"
+        "pickWorkflowOutcome": "Pick a workflow outcome",
+        "workflowName": "Workflow Name"
       }
     },
     "saySomethingMisunderstood": "Users says something misunderstood (intent)",
