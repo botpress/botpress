@@ -271,7 +271,7 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
 
         if (
           (alternatePreds && alternatePreds.filter(p => p.label !== NONE_INTENT)[0]?.confidence) ??
-          0 >= preds.filter(p => p.label !== NONE_INTENT)[0].confidence
+          0 >= preds.filter(p => p.label !== NONE_INTENT)[0]?.confidence
         ) {
           preds = _.chain([...alternatePreds, ...preds])
             .groupBy('label')
