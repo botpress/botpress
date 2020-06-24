@@ -1,7 +1,7 @@
 const addon = require('./node-svm.node')
 export default addon as BindingType
 
-type SvmCtor = new () => NSVM
+type SvmCtor = new (args?: { random_seed: number }) => NSVM
 type HelloWorld = () => string
 type BindingType = {
   NSVM: SvmCtor
