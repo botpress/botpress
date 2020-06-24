@@ -3,7 +3,7 @@ import _ from 'lodash'
 
 export default {
   id: 'user_intent_misunderstood',
-  label: 'Users says something misunderstood (intent)',
+  label: 'module.nlu.conditions.saySomethingMisunderstood',
   description: `The user's intention is misunderstood`,
   displayOrder: 3,
   params: {

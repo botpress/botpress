@@ -3,7 +3,7 @@ import InjectedModuleView from '~/components/PluginInjectionSite/module'
 
 export default props => {
   const onUpdateParams = params => {
-    props.onChange({ ...params })
+    props.onChange({ ...params, topicName: props.topicName })
   }
 
   return (

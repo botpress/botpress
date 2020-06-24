@@ -908,6 +908,7 @@ class Diagram extends Component<Props> {
               editingCondition={this.state.editingNodeItem.index}
               topicName={this.props.selectedTopic}
               formData={editingNodeItem}
+              contentLang={this.state.currentLang}
               onUpdate={this.updateNodeCondition.bind(this)}
               close={() => {
                 this.timeout = setTimeout(() => {

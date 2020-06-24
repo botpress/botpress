@@ -4,7 +4,7 @@ import _ from 'lodash'
 export const dialogConditions: sdk.Condition[] = [
   {
     id: 'user_channel_is',
-    label: 'User is using a specific channel',
+    label: 'module.nlu.conditions.userUsingChannel',
     description: `The user speaks on channel {channelName}`,
     params: {
       fields: [{
@@ -24,7 +24,7 @@ export const dialogConditions: sdk.Condition[] = [
   },
   {
     id: 'user_language_is',
-    label: 'User speaks a specific language',
+    label: 'module.nlu.conditions.userSpeaks',
     description: `The user's language is {language}`,
     params: {
       fields: [{
@@ -45,14 +45,14 @@ export const dialogConditions: sdk.Condition[] = [
   },
   {
     id: 'user_is_authenticated',
-    label: 'The user is authenticated',
+    label: 'module.nlu.conditions.userAuthenticated',
     evaluate: event => {
       return event.state.session.isAuthenticated ? 1 : 0
     }
   },
   {
     id: 'user_topic_source',
-    label: 'User is coming from a specific topic',
+    label: 'module.nlu.conditions.userComingFromTopic',
     description: `The user's last topic was {topicName}`,
     params: {
       fields: [{
@@ -73,7 +73,7 @@ export const dialogConditions: sdk.Condition[] = [
   },
   {
     id: 'raw_js',
-    label: 'Raw JS Expression',
+    label: 'module.nlu.conditions.customCode',
     description: `{label}`,
     params: {
       fields: [
@@ -107,7 +107,7 @@ export const dialogConditions: sdk.Condition[] = [
   },
   {
     id: 'user_already_spoke',
-    label: 'User has already spoke with the bot',
+    label: 'module.nlu.conditions.userAlreadySpoke',
     evaluate: event => {
       const { lastMessages } = event.state.session
       return lastMessages && lastMessages.length > 0 ? 1 : 0
@@ -115,14 +115,14 @@ export const dialogConditions: sdk.Condition[] = [
   },
   {
     id: 'outside_flow_node',
-    label: 'User is not in any flow or node',
+    label: 'module.nlu.conditions.userNotInWorkflowOrBlock',
     evaluate: event => {
       return !event.state.context?.currentFlow && !event.state.context?.currentNode ? 1 : 0
     }
   },
   {
     id: 'custom_confidence',
-    label: 'Custom confidence level',
+    label: 'module.nlu.conditions.customPriority',
     description: `Confidence level of {confidence}`,
     params: {
       fields: [{ type: 'number', key: 'confidence', label: 'Confidence' }]
@@ -133,14 +133,14 @@ export const dialogConditions: sdk.Condition[] = [
   },
   {
     id: 'always',
-    label: 'This condition is always true',
+    label: 'module.nlu.conditions.alwaysTrue',
     evaluate: () => {
       return 1
     }
   },
   {
     id: 'type_text',
-    label: 'The user typed something specific',
+    label: 'module.nlu.conditions.userTyped',
     description: `The user typed {text}`,
     params: {
       fields: [
@@ -183,7 +183,7 @@ export const dialogConditions: sdk.Condition[] = [
   },
   {
     id: 'workflow_ended',
-    label: 'The user ended a workflow',
+    label: 'module.nlu.conditions.userEndedWorkflow',
     params: {
       fields: [
         {

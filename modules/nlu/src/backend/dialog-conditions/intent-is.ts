@@ -3,7 +3,7 @@ import _ from 'lodash'
 
 export default {
   id: 'user_intent_is',
-  label: 'User asks something (intent)',
+  label: 'module.nlu.conditions.userWantsTo',
   description: `The user's intention is {intentName}`,
   callback: '/mod/nlu/condition/intentChanged',
   displayOrder: 0,

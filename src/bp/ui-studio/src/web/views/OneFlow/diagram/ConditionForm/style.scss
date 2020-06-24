@@ -66,6 +66,10 @@ input[type="checkbox"], input[type="radio"] {
   position: relative;
 
   :global {
+    .bp3-popover {
+      overflow-x: hidden;
+    }
+
     .bp3-popover-target {
       width: 100%;
     }

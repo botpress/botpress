@@ -7,7 +7,7 @@ interface Params {
 
 export default {
   id: 'topic_is_ambiguous',
-  label: 'Detected topics are ambiguous',
+  label: 'module.nlu.conditions.ambiguousTopics',
   description: 'What user said might refer to multiple topics ',
   displayOrder: 2,
   params: {

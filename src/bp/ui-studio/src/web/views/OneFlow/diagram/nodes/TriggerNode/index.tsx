@@ -119,7 +119,7 @@ const TriggerWidget: FC<Props> = ({
                 })}
                 onEdit={() => editNodeItem?.(node, index)}
               >
-                <span className={style.content}>{conditionLabels[condition.id]}</span>
+                <span className={style.content}>{lang.tr(conditionLabels[condition.id], { ...condition })}</span>
               </NodeContentItem>
               <span className={style.joinLabel}>{lang.tr('and')}</span>
             </Fragment>

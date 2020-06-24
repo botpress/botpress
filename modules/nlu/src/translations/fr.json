@@ -1,6 +1,24 @@
 {
   "autoTrain": "Entraînement automatique",
   "cancelTraining": "Arrêter l'entraînement",
+  "conditions": {
+    "alwaysTrue": "Cette condition est toujours vraie",
+    "ambiguousIntentInTopic": "L’intention est ambiguë à l’intérieur du sujet",
+    "ambiguousTopics": "Les sujets détectés sont ambigus",
+    "customCode": "Code personnalisé",
+    "customPriority": "Niveau de priorité personnalisé",
+    "entityExtractedFromMessage": "Une variable été extraite du message de l’utilisateur",
+    "saySomethingMisunderstood": "L’utilisateur dit quelque chose qui est mal compris (intention)",
+    "userAlreadySpoke": "L’utilisateur a déjà parlé avec l’agent conversationnel",
+    "userAuthenticated": "L’utilisateur est authentifié",
+    "userComingFromTopic": "L’utilisateur vient de {topicName}",
+    "userEndedWorkflow": "L’utilisateur a mis fin à un flux de travail",
+    "userNotInWorkflowOrBlock": "L’utilisateur n’est pas dans un flux de travail ou un bloc",
+    "userSpeaks": "L’utilisateur parle {language}",
+    "userTyped": "L’utilisateur a tapé quelque chose de spécifique",
+    "userUsingChannel": "L’utilisateur utilise {channelName}",
+    "userWantsTo": "L’utilisateur veut {intentName}"
+  },
   "description": "Utilisez la compréhension du langage de Botpress pour rendre votre agent plus intelligent.",
   "entities": {
     "deleteMessage": "Êtes-vous sûr de vouloir supprimer l'entité \"{entityName}\" ?",

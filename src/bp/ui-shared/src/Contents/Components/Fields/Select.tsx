@@ -52,7 +52,7 @@ const Select: FC<SelectProps> = ({ onChange, printField, parent, field, data, bp
         filterable={false}
         className={style.formSelect}
         items={options?.map(option => ({ ...option, label: lang(option.label) }))}
-        defaultItem={value}
+        defaultItem={currentOption}
         rightIcon="chevron-down"
         onChange={option => onChange?.(option.value)}
       />

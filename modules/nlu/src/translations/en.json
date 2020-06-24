@@ -1,6 +1,24 @@
 {
   "autoTrain": "Auto Training",
   "cancelTraining": "Cancel Training",
+  "conditions": {
+    "alwaysTrue": "This condition is always true",
+    "ambiguousIntentInTopic": "Intent is ambiguous within topic",
+    "ambiguousTopics": "Detected topics are ambiguous",
+    "customCode": "Custom code",
+    "customPriority": "Custom priority level",
+    "entityExtractedFromMessage": "A variable was extracted from the user’s message",
+    "saySomethingMisunderstood": "Users says something misunderstood (intent)",
+    "userAlreadySpoke": "User has already spoke with the bot",
+    "userAuthenticated": "User is authenticated",
+    "userComingFromTopic": "User is coming from {topicName}",
+    "userEndedWorkflow": "User ended a workflow",
+    "userNotInWorkflowOrBlock": "User is not in any workflow or block",
+    "userSpeaks": "User speaks {language}",
+    "userTyped": "User typed something specific",
+    "userUsingChannel": "User is using {channelName}",
+    "userWantsTo": "User wants to {intentName}"
+  },
   "description": "Use Botpress native Natural Language Understanding engine to make your bot smarter.",
   "entities": {
     "deleteMessage": "Are you sure you want to delete the entity \"{entityName}\" ?",

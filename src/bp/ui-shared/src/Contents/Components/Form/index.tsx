@@ -270,7 +270,6 @@ const Form: FC<FormProps> = ({ bp, overrideFields, getEmptyData, formData, field
           </div>
         )
       case 'overridable':
-        console.log(data)
         return (
           <Fragment key={field.key}>
             {overrideFields?.[field.overrideKey]?.({

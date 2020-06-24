@@ -15,6 +15,7 @@ interface Props {
   editingCondition: number
   topicName?: string
   customKey: string
+  contentLang: string
   close: (closingKey: number) => void
   onUpdate: (data: any) => void
   formData: FormData
@@ -23,6 +24,7 @@ interface Props {
 const ConditionForm: FC<Props> = ({
   customKey,
   conditions,
+  contentLang,
   editingCondition,
   close,
   formData,
@@ -55,7 +57,14 @@ const ConditionForm: FC<Props> = ({
     })
   }
 
-  const options = conditions.map(type => ({ value: type.id, label: lang.tr(type.label) }))
+  const optionsVariablePlaceholder = {
+    intentName: `[${lang.tr('studio.condition.optionsVariablePlaceholder.intent')}]`,
+    channelName: `[${lang.tr('studio.condition.optionsVariablePlaceholder.channel')}]`,
+    language: `[${lang.tr('studio.condition.optionsVariablePlaceholder.language')}]`,
+    topicName: `[${lang.tr('studio.condition.optionsVariablePlaceholder.topic')}]`
+  }
+
+  const options = conditions.map(type => ({ value: type.id, label: lang.tr(type.label, optionsVariablePlaceholder) }))
   const selectedCondition = conditions.find(cond => cond.id === condition.current)
   const selectedOption = options.find(cond => cond.value === condition.current)
 
@@ -92,7 +101,14 @@ const ConditionForm: FC<Props> = ({
           <Contents.Form
             bp={{ axios }}
             overrideFields={{
-              intent: props => <IntentEditor topicName={topicName} setKeepSidebarOpen={setIsConfirming} {...props} />
+              intent: props => (
+                <IntentEditor
+                  contentLang={contentLang}
+                  topicName={topicName}
+                  setKeepSidebarOpen={setIsConfirming}
+                  {...props}
+                />
+              )
             }}
             fields={selectedCondition.params.fields || []}
             advancedSettings={selectedCondition.params.advancedSettings || []}

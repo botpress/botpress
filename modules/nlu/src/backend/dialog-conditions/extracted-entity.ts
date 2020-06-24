@@ -3,7 +3,7 @@ import _ from 'lodash'
 
 export default {
   id: 'extracted_entity',
-  label: `An entity was extracted from the user's message`,
+  label: `module.nlu.conditions.entityExtractedFromMessage`,
   description: `Entity {type} {comparison} {value}`,
   params: {
     fields: [

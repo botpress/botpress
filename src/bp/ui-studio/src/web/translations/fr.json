@@ -49,6 +49,12 @@
   "studio": {
     "condition": {
       "label": "Condition",
+      "optionsVariablePlaceholder": {
+        "intent": "intention",
+        "channel": "channel",
+        "language": "langue",
+        "topic": "Sujet"
+      },
       "pickCondition": "Sélectionnez une condition"
     },
     "content": {
