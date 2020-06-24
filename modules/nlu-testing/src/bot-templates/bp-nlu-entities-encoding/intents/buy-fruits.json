@@ -1,0 +1,24 @@
+{
+  "name": "buy-fruits",
+  "utterances": {
+    "en": [
+      "Can you please go buy fruits?",
+      "Can you buy bunch of [apples](fruits_to_buy) for tonight?",
+      "We would really need a [lemon](fruits_to_buy) for tonight's party...",
+      "Please, get some [apples](fruits_to_buy)!",
+      "Go buy me a juicy [lemon](fruits_to_buy) right now",
+      "buy [apples](fruits_to_buy)",
+      "You shall give me a [lemon](fruits_to_buy)!",
+      "take some [apples](fruits_to_buy) for tomorow's lunch"
+    ]
+  },
+  "slots": [
+    {
+      "id": "h-EMqjsD2q_xRz1GOj0NF",
+      "name": "fruits_to_buy",
+      "entities": ["Fruits"],
+      "color": 1
+    }
+  ],
+  "contexts": ["global"]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "buy-guns",
+  "utterances": {
+    "en": [
+      "Can you please go buy guns?",
+      "Could you take some [M1](gun_to_buy)?",
+      "Don't forget the [M2](gun_to_buy) at the grocery store!",
+      "Comon! take yourself an [M3](gun_to_buy)!",
+      "Dad, please get me a [M4](gun_to_buy) for my birthday...",
+      "I want you to by me an [M5](gun_to_buy).",
+      "Go and get me an [M6](gun_to_buy)!",
+      "Take few [M7](gun_to_buy) with you, just in case..."
+    ]
+  },
+  "slots": [
+    {
+      "id": "HSLif1uD1fW_0Nclb-o4f",
+      "name": "gun_to_buy",
+      "entities": ["Guns"],
+      "color": 1
+    }
+  ],
+  "contexts": ["global"]
+}

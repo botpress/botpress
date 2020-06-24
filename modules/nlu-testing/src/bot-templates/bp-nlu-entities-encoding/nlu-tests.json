@@ -1,0 +1,128 @@
+[
+  {
+    "id": "1593027748741",
+    "utterance": "Comon! take yourself an orange!",
+    "context": "*",
+    "conditions": [
+      ["context", "is", "global"],
+      ["intent", "is", "buy-fruits"]
+    ]
+  },
+  {
+    "id": "1593027795947",
+    "utterance": "Dad, please get me a strawberry for my birthday...",
+    "context": "*",
+    "conditions": [
+      ["context", "is", "global"],
+      ["intent", "is", "buy-fruits"]
+    ]
+  },
+  {
+    "id": "1593027837825",
+    "utterance": "I want you to by me an avocado.",
+    "context": "*",
+    "conditions": [
+      ["context", "is", "global"],
+      ["intent", "is", "buy-fruits"]
+    ]
+  },
+  {
+    "id": "1593027871527",
+    "utterance": "Go and get me an orange!",
+    "context": "*",
+    "conditions": [
+      ["context", "is", "global"],
+      ["intent", "is", "buy-fruits"]
+    ]
+  },
+  {
+    "id": "1593027901278",
+    "utterance": "Take few bananas with you, just in case...",
+    "context": "*",
+    "conditions": [
+      ["context", "is", "global"],
+      ["intent", "is", "buy-fruits"]
+    ]
+  },
+  {
+    "id": "1593033385575",
+    "utterance": "Could you take some grapes?",
+    "context": "*",
+    "conditions": [
+      ["context", "is", "global"],
+      ["intent", "is", "buy-fruits"]
+    ]
+  },
+  {
+    "id": "1593033411528",
+    "utterance": "Don't forget the berries at the grocery store!",
+    "context": "*",
+    "conditions": [
+      ["context", "is", "global"],
+      ["intent", "is", "buy-fruits"]
+    ]
+  },
+  {
+    "id": "1593028975204",
+    "utterance": "Please, get some G36!",
+    "context": "*",
+    "conditions": [
+      ["context", "is", "global"],
+      ["intent", "is", "buy-guns"]
+    ]
+  },
+  {
+    "id": "1593029002299",
+    "utterance": "Go buy me a juicy M13 right now",
+    "context": "*",
+    "conditions": [
+      ["context", "is", "global"],
+      ["intent", "is", "buy-guns"]
+    ]
+  },
+  {
+    "id": "1593029020952",
+    "utterance": " buy AB12",
+    "context": "*",
+    "conditions": [
+      ["context", "is", "global"],
+      ["intent", "is", "buy-guns"]
+    ]
+  },
+  {
+    "id": "1593029043054",
+    "utterance": "You shall give me a MP5!",
+    "context": "*",
+    "conditions": [
+      ["context", "is", "global"],
+      ["intent", "is", "buy-guns"]
+    ]
+  },
+  {
+    "id": "1593029061910",
+    "utterance": "take some AK47 for tomorow's lunch",
+    "context": "*",
+    "conditions": [
+      ["context", "is", "global"],
+      ["intent", "is", "buy-guns"]
+    ]
+  },
+  {
+    "id": "1593033336755",
+    "utterance": "Can you buy bunch of SA87 for tonight?",
+    "context": "*",
+    "conditions": [
+      ["context", "is", "global"],
+      ["intent", "is", "buy-guns"]
+    ]
+  },
+  {
+    "id": "1593033364132",
+    "utterance": "We would really need a P90 for tonight's party...",
+    "context": "*",
+    "conditions": [
+      ["context", "is", "global"],
+      ["intent", "is", "buy-guns"]
+    ]
+  }
+]
