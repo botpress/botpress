@@ -1,4 +1,14 @@
-import { BotDetails, BoxedVarConstructable, Flow, FlowNode, FormAdvancedSetting, FormField, RolloutStrategy, StageRequestApprovers, StrategyUser } from 'botpress/sdk'
+import {
+  BotDetails,
+  BoxedVarConstructable,
+  Flow,
+  FlowNode,
+  FormAdvancedSetting,
+  FormField,
+  RolloutStrategy,
+  StageRequestApprovers,
+  StrategyUser
+} from 'botpress/sdk'
 import { Request } from 'express'
 
 import { BotpressConfig } from '../core/config/botpress.config'

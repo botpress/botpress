@@ -158,7 +158,9 @@ export default async (bp: typeof sdk, state: NLUState) => {
       try {
         const ghost = bp.ghost.forBot(botId)
 
-        await updateContextsFromTopics(ghost, state.nluByBot[botId].entityService, [(condition.params.intentName as string)])
+        await updateContextsFromTopics(ghost, state.nluByBot[botId].entityService, [
+          condition.params.intentName as string
+        ])
         return res.sendStatus(200)
       } catch (err) {
         return res.status(400).send(err.message)

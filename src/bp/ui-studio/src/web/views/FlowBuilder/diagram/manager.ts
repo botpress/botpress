@@ -16,7 +16,6 @@ import { ListenNodeModel } from './nodes_v2/ListenNode'
 import { RouterNodeModel } from './nodes_v2/RouterNode'
 import { SuccessNodeModel } from './nodes_v2/SuccessNode'
 
-
 const passThroughNodeProps: string[] = [
   'name',
   'onEnter',

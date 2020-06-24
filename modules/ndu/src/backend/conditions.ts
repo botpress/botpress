@@ -7,17 +7,19 @@ export const dialogConditions: sdk.Condition[] = [
     label: 'module.nlu.conditions.userUsingChannel',
     description: `The user speaks on channel {channelName}`,
     params: {
-      fields: [{
-        type: 'select',
-        key: 'channelName',
-        label: 'module.nlu.conditions.fields.label.channel',
-        placeholder: 'module.nlu.conditions.fields.placeholder.pickChannel',
-        dynamicOptions: {
-          endpoint: 'BOT_API_PATH/mod/ndu/channels',
-          valueField: 'value',
-          labelField: 'label'
+      fields: [
+        {
+          type: 'select',
+          key: 'channelName',
+          label: 'module.nlu.conditions.fields.label.channel',
+          placeholder: 'module.nlu.conditions.fields.placeholder.pickChannel',
+          dynamicOptions: {
+            endpoint: 'BOT_API_PATH/mod/ndu/channels',
+            valueField: 'value',
+            labelField: 'label'
+          }
         }
-      }]
+      ]
     },
     evaluate: (event, params) => {
       return event.channel === params.channelName ? 1 : 0
@@ -28,18 +30,20 @@ export const dialogConditions: sdk.Condition[] = [
     label: 'module.nlu.conditions.userSpeaks',
     description: `The user's language is {language}`,
     params: {
-      fields: [{
-        type: 'select',
-        key: 'language',
-        label: 'module.nlu.conditions.fields.label.language',
-        placeholder: 'module.nlu.conditions.fields.placeholder.pickLanguage',
-        dynamicOptions: {
-          endpoint: 'API_PATH/admin/languages',
-          path: 'installed',
-          valueField: 'lang',
-          labelField: 'name'
+      fields: [
+        {
+          type: 'select',
+          key: 'language',
+          label: 'module.nlu.conditions.fields.label.language',
+          placeholder: 'module.nlu.conditions.fields.placeholder.pickLanguage',
+          dynamicOptions: {
+            endpoint: 'API_PATH/admin/languages',
+            path: 'installed',
+            valueField: 'lang',
+            labelField: 'name'
+          }
         }
-      }]
+      ]
     },
     evaluate: (event, params) => {
       return event.state.user.language === params.language ? 1 : 0
@@ -57,17 +61,19 @@ export const dialogConditions: sdk.Condition[] = [
     label: 'module.nlu.conditions.userComingFromTopic',
     description: `The user's last topic was {topicName}`,
     params: {
-      fields: [{
-        type: 'select',
-        key: 'topicName',
-        label: 'module.nlu.conditions.fields.label.topic',
-        placeholder: 'module.nlu.conditions.fields.placeholder.pickTopic',
-        dynamicOptions: {
-          endpoint: 'BOT_API_PATH/topics',
-          valueField: 'name',
-          labelField: 'name'
+      fields: [
+        {
+          type: 'select',
+          key: 'topicName',
+          label: 'module.nlu.conditions.fields.label.topic',
+          placeholder: 'module.nlu.conditions.fields.placeholder.pickTopic',
+          dynamicOptions: {
+            endpoint: 'BOT_API_PATH/topics',
+            valueField: 'name',
+            labelField: 'name'
+          }
         }
-      }]
+      ]
     },
     evaluate: (event, params) => {
       const topics = event.state.session.lastTopics
