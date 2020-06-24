@@ -3,14 +3,15 @@ import _ from 'lodash'
 
 export default {
   id: 'extracted_entity',
-  label: `module.nlu.conditions.entityExtractedFromMessage`,
+  label: `module.nlu.conditions.variableExtractedFromMessage`,
   description: `Entity {type} {comparison} {value}`,
   params: {
     fields: [
       {
         key: 'type',
         type: 'select',
-        label: 'Select the type of entity',
+        label: 'module.nlu.conditions.fields.label.variableType',
+        placeholder: 'module.nlu.conditions.fields.placeholder.pickVariableType',
         dynamicOptions: {
           endpoint: 'BOT_API_PATH/mod/nlu/entities',
           valueField: 'label',
@@ -19,14 +20,15 @@ export default {
       },
       {
         key: 'comparison',
-        label: 'Comparison method',
+        label: 'module.nlu.conditions.fields.label.comparisonMethod',
+        placeholder: 'module.nlu.conditions.fields.placeholder.pickComparisonMethod',
         type: 'select',
         options: [
-          { label: 'None', value: 'none' },
-          { label: 'Equal', value: 'equal' },
-          { label: 'Not equal', value: 'notEqual' },
-          { label: 'Bigger than', value: 'biggerThan' },
-          { label: 'Less than', value: 'lessThan' }
+          { label: 'module.nlu.conditions.fields.label.none', value: 'none' },
+          { label: 'module.nlu.conditions.fields.label.equal', value: 'equal' },
+          { label: 'module.nlu.conditions.fields.label.notEqual', value: 'notEqual' },
+          { label: 'module.nlu.conditions.fields.label.biggerThan', value: 'biggerThan' },
+          { label: 'module.nlu.conditions.fields.label.lessThan', value: 'lessThan' }
         ]
       },
       { key: 'expectedValue', label: 'Expected value', type: 'text' }

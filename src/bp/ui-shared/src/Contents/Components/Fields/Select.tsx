@@ -43,7 +43,7 @@ const Select: FC<SelectProps> = ({ onChange, printField, parent, field, data, bp
     }
   }
 
-  const value = (data[field.key] || field.defaultValue || options?.[0]?.value) as string
+  const value = (data[field.key] || field.defaultValue || (!field.placeholder && options?.[0]?.value)) as string
   const currentOption = options?.find(option => option.value === value)
 
   return (
@@ -51,6 +51,7 @@ const Select: FC<SelectProps> = ({ onChange, printField, parent, field, data, bp
       <Dropdown
         filterable={false}
         className={style.formSelect}
+        placeholder={field.placeholder && lang(field.placeholder as string)}
         items={options?.map(option => ({ ...option, label: lang(option.label) }))}
         defaultItem={currentOption}
         rightIcon="chevron-down"

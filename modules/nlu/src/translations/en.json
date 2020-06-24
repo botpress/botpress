@@ -7,7 +7,40 @@
     "ambiguousTopics": "Detected topics are ambiguous",
     "customCode": "Custom code",
     "customPriority": "Custom priority level",
-    "entityExtractedFromMessage": "A variable was extracted from the user’s message",
+    "fields": {
+      "label": {
+        "activeWorkflowOnly": "Enable action in active workflow only",
+        "ambiguityThreshold": "Ambiguity Threshold",
+        "biggerThan": "Bigger Than",
+        "candidate": "One or multiple words to detect",
+        "caseSensitive": "Case Sensitive",
+        "channel": "Channel",
+        "code": "Code",
+        "comparisonMethod": "Comparison Method",
+        "confidence": "Confidence",
+        "equal": "Equal",
+        "exactMatch": "Must be an exact match",
+        "failure": "Failure",
+        "ignoredWorkflows": "Ignored Workflows (their completion will not activate this trigger)",
+        "language": "Language",
+        "lessThan": "Less Than",
+        "maxConfidence": "Maximum reachable confidence (%)",
+        "none": "None",
+        "notEqual": "Not Equal",
+        "success": "Success",
+        "topic": "Topic",
+        "variableType": "Variable Type",
+        "workflowOutcome": "Workflow Outcome"
+      },
+      "placeholder": {
+        "pickChannel": "Pick a channel",
+        "pickComparisonMethod": "Pick a comparison method",
+        "pickLanguage": "Pick a language",
+        "pickTopic": "Pick a topic",
+        "pickVariableType": "Pick an variable type",
+        "pickWorkflowOutcome": "Pick a workflow outcome"
+      }
+    },
     "saySomethingMisunderstood": "Users says something misunderstood (intent)",
     "userAlreadySpoke": "User has already spoke with the bot",
     "userAuthenticated": "User is authenticated",
@@ -17,7 +50,8 @@
     "userSpeaks": "User speaks {language}",
     "userTyped": "User typed something specific",
     "userUsingChannel": "User is using {channelName}",
-    "userWantsTo": "User wants to {intentName}"
+    "userWantsTo": "User wants to {intentName}",
+    "variableExtractedFromMessage": "A variable was extracted from the user’s message"
   },
   "description": "Use Botpress native Natural Language Understanding engine to make your bot smarter.",
   "entities": {

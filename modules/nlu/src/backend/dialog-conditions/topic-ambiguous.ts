@@ -12,7 +12,7 @@ export default {
   displayOrder: 2,
   params: {
     fields: [
-      { key: 'ambiguityThreshold', label: 'Ambiguity threshold', type: 'number', defaultValue: 0.15 }
+      { key: 'ambiguityThreshold', label: 'module.nlu.conditions.fields.label.ambiguityThreshold', type: 'number', defaultValue: 0.15 }
     ]
   },
   evaluate: (event: IO.IncomingEvent, { ambiguityThreshold }: Params) => {

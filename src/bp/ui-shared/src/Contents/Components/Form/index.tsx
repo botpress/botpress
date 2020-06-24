@@ -17,7 +17,7 @@ import style from './style.scss'
 import { FormProps } from './typings'
 
 const printLabel = (field, data) => {
-  if (field.label.startsWith('fields::') && field.fields?.length) {
+  if (field.label?.startsWith('fields::') && field.fields?.length) {
     const labelField = field.fields?.find(subField => subField.key === field.label.replace('fields::', ''))
 
     return data[labelField.key] || lang(labelField.label)

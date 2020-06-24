@@ -10,7 +10,8 @@ export const dialogConditions: sdk.Condition[] = [
       fields: [{
         type: 'select',
         key: 'channelName',
-        label: 'Select a channel from the list',
+        label: 'module.nlu.conditions.fields.label.channel',
+        placeholder: 'module.nlu.conditions.fields.placeholder.pickChannel',
         dynamicOptions: {
           endpoint: 'BOT_API_PATH/mod/ndu/channels',
           valueField: 'value',
@@ -30,7 +31,8 @@ export const dialogConditions: sdk.Condition[] = [
       fields: [{
         type: 'select',
         key: 'language',
-        label: 'Language',
+        label: 'module.nlu.conditions.fields.label.language',
+        placeholder: 'module.nlu.conditions.fields.placeholder.pickLanguage',
         dynamicOptions: {
           endpoint: 'API_PATH/admin/languages',
           path: 'installed',
@@ -58,7 +60,8 @@ export const dialogConditions: sdk.Condition[] = [
       fields: [{
         type: 'select',
         key: 'topicName',
-        label: 'Name of the topic',
+        label: 'module.nlu.conditions.fields.label.topic',
+        placeholder: 'module.nlu.conditions.fields.placeholder.pickTopic',
         dynamicOptions: {
           endpoint: 'BOT_API_PATH/topics',
           valueField: 'name',
@@ -80,12 +83,7 @@ export const dialogConditions: sdk.Condition[] = [
         {
           type: 'textarea',
           key: 'expression',
-          label: 'Expression to Evaluate'
-        },
-        {
-          type: 'text',
-          key: 'label',
-          label: 'Custom Label'
+          label: 'module.nlu.conditions.fields.label.code'
         }
       ]
     },
@@ -125,7 +123,7 @@ export const dialogConditions: sdk.Condition[] = [
     label: 'module.nlu.conditions.customPriority',
     description: `Confidence level of {confidence}`,
     params: {
-      fields: [{ type: 'number', key: 'confidence', label: 'Confidence' }]
+      fields: [{ type: 'number', key: 'confidence', label: 'module.nlu.conditions.fields.label.confidence' }]
     },
     evaluate: (_event, params) => {
       return params.confidence
@@ -146,7 +144,7 @@ export const dialogConditions: sdk.Condition[] = [
       fields: [
         {
           key: 'candidate',
-          label: 'One or multiple words to detect',
+          label: 'module.nlu.conditions.fields.label.candidate',
           type: 'text_array',
           group: {
             addLabel: 'studio.flow.condition.addCondition'
@@ -156,12 +154,12 @@ export const dialogConditions: sdk.Condition[] = [
       advancedSettings: [
         {
           key: 'exactMatch',
-          label: 'Must be an exact match',
+          label: 'module.nlu.conditions.fields.label.exactMatch',
           type: 'checkbox'
         },
         {
           key: 'caseSensitive',
-          label: 'Case sensitive',
+          label: 'module.nlu.conditions.fields.label.caseSensitive',
           type: 'checkbox'
         }
       ]
@@ -188,16 +186,17 @@ export const dialogConditions: sdk.Condition[] = [
       fields: [
         {
           key: 'outcome',
-          label: 'Workflow Outcome',
+          label: 'module.nlu.conditions.fields.label.workflowOutcome',
+          placeholder: 'module.nlu.conditions.fields.placeholder.pickWorkflowOutcome',
           type: 'select',
           options: [
-            { label: 'Success', value: 'success' },
-            { label: 'Failure', value: 'failure' }
+            { label: 'module.nlu.conditions.fields.label.success', value: 'success' },
+            { label: 'module.nlu.conditions.fields.label.failure', value: 'failure' }
           ]
         },
         {
           key: 'ignoredWorkflows',
-          label: 'List of workflows to ignore (their completion will not activate this trigger)',
+          label: 'module.nlu.conditions.fields.label.ignoredWorkflows',
           type: 'text_array',
           group: {
             addLabel: 'studio.flow.ignoredWorkflows.addLabel'

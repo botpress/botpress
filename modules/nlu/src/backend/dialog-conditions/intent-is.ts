@@ -12,7 +12,6 @@ export default {
       // Tagging for slots will come in a future PR
       {
         key: 'intentName',
-        label: 'Intent',
         type: 'overridable',
         overrideKey: 'intent'
       }

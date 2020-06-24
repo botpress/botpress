@@ -14,10 +14,10 @@ export default {
   displayOrder: 1,
   params: {
     fields: [
-      { key: 'ambiguityThreshold', label: 'Ambiguity threshold', type: 'number' }
+      { key: 'ambiguityThreshold', label: 'module.nlu.conditions.fields.label.ambiguityThreshold', type: 'number' }
     ],
     advancedSettings: [
-      { key: 'onlyIfActive', label: 'Only if topic is already active', type: 'checkbox' }
+      { key: 'onlyIfActive', label: 'module.nlu.conditions.fields.label.activeWorkflowOnly', type: 'checkbox' }
     ]
   },
   evaluate: (event: IO.IncomingEvent, { ambiguityThreshold, onlyIfActive, topicName }: Params) => {

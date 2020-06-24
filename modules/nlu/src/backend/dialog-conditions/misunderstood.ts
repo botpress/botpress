@@ -10,7 +10,7 @@ export default {
     fields: [
       {
         key: 'maxConfidence',
-        label: 'Maximum reachable confidence (%)',
+        label: 'module.nlu.conditions.fields.label.maxConfidence',
         type: 'number',
         defaultValue: 100,
         required: true

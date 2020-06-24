@@ -7,7 +7,40 @@
     "ambiguousTopics": "Les sujets détectés sont ambigus",
     "customCode": "Code personnalisé",
     "customPriority": "Niveau de priorité personnalisé",
-    "entityExtractedFromMessage": "Une variable été extraite du message de l’utilisateur",
+    "fields": {
+      "label": {
+        "activeWorkflowOnly": "Activer l’action uniquement dans le flux de travail actif",
+        "ambiguityThreshold": "Seuil d’ambiguïté",
+        "biggerThan": "Plus grand que",
+        "candidate": "Un ou plusieurs mots à détecter",
+        "caseSensitive": "Sensibilité aux majuscules et minuscules",
+        "channel": "Chaîne",
+        "code": "Code",
+        "comparisonMethod": "Méthode de comparaison",
+        "confidence": "Confiance",
+        "equal": "Est égal",
+        "exactMatch": "Doit être une correspondance exacte",
+        "failure": "Échec",
+        "ignoredWorkflows": "Flux de travail ignorés (leur complétion n’activera pas ce déclencheur)",
+        "language": "Langue",
+        "lessThan": "Moins de",
+        "maxConfidence": "Confiance maximale atteignable (%)",
+        "none": "Aucune",
+        "notEqual": "N’est pas égal",
+        "success": "Succès",
+        "topic": "Sujet",
+        "variableType": "Type de variable",
+        "workflowOutcome": "Résultat du flux de travail"
+      },
+      "placeholder": {
+        "pickChannel": "Choisissez un canal",
+        "pickComparisonMethod": "Choisissez une méthode de comparaison",
+        "pickLanguage": "Choisissez une langue",
+        "pickTopic": "Choisissez un sujet",
+        "pickVariableType": "Choisissez un type de variable",
+        "pickWorkflowOutcome": "Choisissez un résultat de flux de travail"
+      }
+    },
     "saySomethingMisunderstood": "L’utilisateur dit quelque chose qui est mal compris (intention)",
     "userAlreadySpoke": "L’utilisateur a déjà parlé avec l’agent conversationnel",
     "userAuthenticated": "L’utilisateur est authentifié",
@@ -17,7 +50,8 @@
     "userSpeaks": "L’utilisateur parle {language}",
     "userTyped": "L’utilisateur a tapé quelque chose de spécifique",
     "userUsingChannel": "L’utilisateur utilise {channelName}",
-    "userWantsTo": "L’utilisateur veut {intentName}"
+    "userWantsTo": "L’utilisateur veut {intentName}",
+    "variableExtractedFromMessage": "Une variable été extraite du message de l’utilisateur"
   },
   "description": "Utilisez la compréhension du langage de Botpress pour rendre votre agent plus intelligent.",
   "entities": {
