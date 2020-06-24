@@ -5,7 +5,10 @@ import fr from '../translations/fr.json'
 
 import PromptConfirm from './prompts/confirm'
 import PromptDate from './prompts/date'
+import PromptEnum from './prompts/enum'
 import PromptNumber from './prompts/number'
+import PromptPattern from './prompts/pattern'
+import PromptString from './prompts/string'
 import BoxedBoolean from './variables/boolean'
 import BoxedDate from './variables/date'
 import BoxedNumber from './variables/number'
@@ -21,7 +24,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   variables: [BoxedDate, BoxedBoolean, BoxedNumber, BoxedString],
   botTemplates,
   translations: { en, fr },
-  prompts: [PromptConfirm, PromptDate, PromptNumber],
+  prompts: [PromptConfirm, PromptDate, PromptNumber, PromptString, PromptEnum, PromptPattern],
   definition: {
     name: 'builtin',
     menuIcon: 'fiber_smart_record',

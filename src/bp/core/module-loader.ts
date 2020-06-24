@@ -4,6 +4,7 @@ import {
   ContentElement,
   ElementChangedAction,
   Flow,
+  FlowVariableType,
   Logger,
   ModuleDefinition,
   ModuleEntryPoint,
@@ -342,7 +343,7 @@ export class ModuleLoader {
     const modules = Array.from(this.entryPoints.values())
     const filtered = modules.filter(module => module[type])
 
-    return _.flatMap(filtered, mod => mod[type]) as T[]
+    return _.flatMap(filtered, mod => <any>mod[type]) as T[]
   }
 
   public getDialogConditions(): Condition[] {
@@ -353,7 +354,7 @@ export class ModuleLoader {
     return this._getModuleElements('prompts')
   }
 
-  public getVariables(): any[] {
+  public getVariables(): FlowVariableType[] {
     return this._getModuleElements('variables')
   }
 

@@ -1,18 +1,18 @@
-import { IO, Prompt, PromptConfig } from 'botpress/sdk'
+import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
 import moment from 'moment'
+
+import commonFields from './common'
 
 class PromptDate implements Prompt {
   private _mustBePast: boolean
   private _mustBeFuture: boolean
 
-  // Those are the actual values of the configured prompt on the workflow
   constructor({ mustBePast, mustBeFuture }) {
     this._mustBePast = mustBePast
     this._mustBeFuture = mustBeFuture
   }
 
-  // This method is provided with the incoming event to extract any necessary information
-  extraction(event: IO.IncomingEvent): { value: string; confidence: number } | undefined {
+  extraction(event: IO.IncomingEvent): ExtractionResult | undefined {
     const entity = event.nlu?.entities?.find(x => x.type === 'system.time')
     if (entity) {
       return {
@@ -22,8 +22,7 @@ class PromptDate implements Prompt {
     }
   }
 
-  // Return a percentage of how confident you are that the provided value is valid (from 0 to 1)
-  async validate(value): Promise<{ valid: boolean; message?: string }> {
+  async validate(value): Promise<ValidationResult> {
     const { _mustBePast, _mustBeFuture } = this
 
     if (value == undefined) {
@@ -47,10 +46,20 @@ const config: PromptConfig = {
   type: 'date',
   label: 'Date',
   valueType: 'date',
-  params: {
-    mustBePast: { label: 'The date must be in the past', type: 'boolean' },
-    mustBeFuture: { label: 'The date must be in the future', type: 'boolean' }
-  }
+  fields: [
+    ...commonFields(),
+    {
+      type: 'checkbox',
+      key: 'mustBePast',
+      label: 'module.builtin.mustBePast'
+    },
+    {
+      type: 'checkbox',
+      key: 'mustBeFuture',
+      label: 'module.builtin.mustBeFuture'
+    }
+  ],
+  advancedSettings: []
 }
 
 export default { id: 'date', config, prompt: PromptDate }

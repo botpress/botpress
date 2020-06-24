@@ -1,5 +1,5 @@
 import { Checkbox } from '@blueprintjs/core'
-import { FormMoreInfo } from 'common/typings'
+import { FormMoreInfo } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer } from 'react'
 

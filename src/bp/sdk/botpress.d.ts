@@ -137,7 +137,7 @@ declare module 'botpress/sdk' {
     /** List of new conditions that the module can register */
     dialogConditions?: Condition[]
     prompts?: PromptDefinition[]
-    variables?: any
+    variables?: FlowVariableType[]
     /** Called once the core is initialized. Usually for middlewares / database init */
     onServerStarted?: (bp: typeof import('botpress/sdk')) => Promise<void>
     /** This is called once all modules are initialized, usually for routing and logic */
@@ -1523,11 +1523,11 @@ declare module 'botpress/sdk' {
   export interface PromptDefinition {
     id: string
     config: PromptConfig
-    prompt: PromptConstructable<Prompt>
+    prompt: PromptConstructable
   }
 
   /** The configuration of the prompt which is saved on the flow */
-  export interface PromptConfig {
+  export type PromptConfig = {
     /** An ID used internally to refer to this prompt */
     type: string
     /** The label displayed in the studio */
@@ -1537,13 +1537,11 @@ declare module 'botpress/sdk' {
     valueType?: string
     /** A list of ID represented by the type of values collected by this prompt */
     valueTypes?: string[]
-    /** List of custom parameters that will be asked by the prompt */
-    params?: { [paramName: string]: ConditionParam }
     /** The minimum confidence required for the value to be considered valid */
     minConfidence?: number
-    /** Whatever happens, the prompt will never ask the user to validate the provided value*/
+    /** Whatever happens, the prompt will never ask the user to validate the provided value */
     noValidation?: boolean
-  }
+  } & FormDefinition
 
   export interface PromptNode {
     type: string
@@ -1562,12 +1560,12 @@ declare module 'botpress/sdk' {
      * This method will receive multiple
      * @param event
      */
-    extraction(event: IO.IncomingEvent): { value: any; confidence: number } | undefined
+    extraction(event: IO.IncomingEvent): ExtractionResult | undefined
     /**
      * This method
      * @param value
      */
-    validate(value): Promise<{ valid: boolean; message?: string }>
+    validate(value): Promise<ValidationResult>
     /**
      * When the prompt is sent to the user, an event of type "prompt" is sent to the corresponding channel.
      * You can customize the event that will be sent to the user
@@ -1576,10 +1574,20 @@ declare module 'botpress/sdk' {
       event: IO.OutgoingEvent,
       incomingEvent: IO.IncomingEvent,
       bp: typeof import('botpress/sdk')
-    ): Promise<void>
+    ): Promise<boolean>
   }
 
-  export interface PromptConstructable<T> {
+  export interface ExtractionResult {
+    value: any
+    confidence: number
+  }
+
+  export interface ValidationResult {
+    valid: boolean
+    message?: string
+  }
+
+  export interface PromptConstructable {
     new (ctor: any): Prompt
   }
 
@@ -1609,6 +1617,56 @@ declare module 'botpress/sdk' {
     confidence?: number
     /** The current value stored in the db */
     value: T
+  }
+
+  export interface FlowVariableType {
+    id: string
+    config: FlowVariableConfig
+    box: BoxedVarConstructable<any>
+  }
+
+  export type FlowVariableConfig = FormDefinition
+
+  export interface FormMoreInfo {
+    label: string
+    url?: string
+  }
+
+  export interface FormAdvancedSetting {
+    key: string
+    label: string
+    type: string
+    moreInfo?: FormMoreInfo
+  }
+
+  export interface FormOption {
+    value: string
+    label: string
+    related: FormField
+  }
+
+  export interface FormContextMenu {
+    type: string
+    label: string
+  }
+
+  export interface FormField {
+    type: 'checkbox' | 'group' | 'select' | 'text' | 'textarea' | 'upload' | 'url'
+    key: string
+    label: string
+    placeholder?: string
+    options?: FormOption[]
+    fields?: FormField[]
+    group?: {
+      addLabel?: string // you have to specify the add button label
+      minimum?: number // you can specify a minimum so the delete button won't show if there isn't more than the minimum
+      contextMenu?: FormContextMenu[] // you can add a contextual menu to add extra options
+    }
+  }
+
+  export interface FormDefinition {
+    advancedSettings: FormAdvancedSetting[]
+    fields: FormField[]
   }
 
   ////////////////

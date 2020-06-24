@@ -1,19 +1,17 @@
-import { IO, Prompt, PromptConfig } from 'botpress/sdk'
-import { max, min } from 'lodash'
-import moment from 'moment'
+import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
+
+import commonFields from './common'
 
 class PromptNumber implements Prompt {
   private _min: boolean
   private _max: boolean
 
-  // Those are the actual values of the configured prompt on the workflow
   constructor({ min, max }) {
     this._min = min
     this._max = max
   }
 
-  // This method is provided with the incoming event to extract any necessary information
-  extraction(event: IO.IncomingEvent): { value: number; confidence: number } | undefined {
+  extraction(event: IO.IncomingEvent): ExtractionResult | undefined {
     const entity = event.nlu?.entities?.find(x => x.type === 'system.number')
     if (entity) {
       return {
@@ -23,8 +21,7 @@ class PromptNumber implements Prompt {
     }
   }
 
-  // Return a percentage of how confident you are that the provided value is valid (from 0 to 1)
-  async validate(value): Promise<{ valid: boolean; message?: string }> {
+  async validate(value): Promise<ValidationResult> {
     const { _min, _max } = this
 
     if (value == undefined) {
@@ -44,10 +41,20 @@ const config: PromptConfig = {
   type: 'number',
   label: 'Number',
   valueType: 'number',
-  params: {
-    min: { label: 'Minimum', type: 'number' },
-    max: { label: 'Maximum', type: 'number' }
-  }
+  fields: [
+    ...commonFields(),
+    {
+      type: 'text',
+      key: 'min',
+      label: 'module.builtin.min'
+    },
+    {
+      type: 'text',
+      key: 'max',
+      label: 'module.builtin.max'
+    }
+  ],
+  advancedSettings: []
 }
 
 export default { id: 'number', config, prompt: PromptNumber }

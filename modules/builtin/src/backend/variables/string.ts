@@ -1,5 +1,4 @@
-import { BoxedVarContructor, BoxedVariable } from 'botpress/sdk'
-import { FlowVariableConfig, FlowVariableType } from 'common/typings'
+import { BoxedVarContructor, BoxedVariable, FlowVariableConfig, FlowVariableType } from 'botpress/sdk'
 
 class BoxedString implements BoxedVariable<string> {
   private _confidence?: number

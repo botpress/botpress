@@ -1,8 +1,7 @@
 import { Button, FormGroup, IDialogProps, InputGroup } from '@blueprintjs/core'
 import axios from 'axios'
-import { FlowVariable, FormData } from 'botpress/sdk'
+import { FlowVariable, FlowVariableType, FormData } from 'botpress/sdk'
 import { Contents, Dialog, Dropdown, lang, Option } from 'botpress/shared'
-import { FlowVariableType } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { sanitizeName } from '~/util'
 

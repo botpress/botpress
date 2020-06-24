@@ -1,5 +1,4 @@
 import { IO, Prompt, PromptConfig, PromptDefinition, PromptNode } from 'botpress/sdk'
-import { extractEventCommonArgs } from 'common/action'
 import { createForBotpress } from 'core/api'
 import { ModuleLoader } from 'core/module-loader'
 import { EventRepository } from 'core/repositories'
@@ -84,14 +83,13 @@ export class PromptManager {
     const { minConfidence, prompt } = this._getPrompt(node, event)
 
     const extractedVars = await this.evaluateEventVariables(events, prompt)
-    const highest = _.orderBy(extractedVars, 'confidence', 'desc')[0] ?? { confidence: 0, extracted: false }
+    const highest = _.orderBy(extractedVars, 'confidence', 'desc')[0] ?? { confidence: 0, extracted: undefined }
 
     debugPrompt('before processing %o', { highest })
 
-    const needValidation = highest.confidence <= MIN_CONFIDENCE_VALIDATION
-    const isConfidentEnough = highest.confidence > 0 && (!minConfidence || highest.confidence >= minConfidence)
-
     const status: IO.PromptStatus = session.prompt?.status || { turns: 0 }
+    const needValidation = status.turns === 0 || highest.confidence <= MIN_CONFIDENCE_VALIDATION
+    const isConfidentEnough = highest.confidence > 0 && (!minConfidence || highest.confidence >= minConfidence)
 
     if (status.confirming) {
       if (isConfidentEnough && highest.extracted === true) {
@@ -141,7 +139,11 @@ export class PromptManager {
     if (status.extracted) {
       debugPrompt('successfully extracted!', status.value)
 
-      event.state.setVariable(node.output, status.value, node.type)
+      const { valueType } = this.loadPrompt(node)
+      event.state.setVariable(node.output, status.value, valueType ?? '')
+      await this._continueOriginalEvent(event)
+    } else if (status.turns > node?.params?.duration) {
+      debugPrompt('prompt expired', status.value)
       await this._continueOriginalEvent(event)
     }
   }
@@ -156,9 +158,7 @@ export class PromptManager {
   private async _askQuestion(event: IO.IncomingEvent, prompt: Prompt, node: PromptNode) {
     debugPrompt('ask prompt question')
 
-    if (prompt.customPrompt) {
-      await this._sendCustomPrompt(event, prompt, node)
-    } else {
+    if (!prompt.customPrompt || !this._sendCustomPrompt(event, prompt, node)) {
       await this.actionStrategy.invokeSendMessage(buildMessage(node.question), '@builtin_text', event)
     }
   }
@@ -171,7 +171,7 @@ export class PromptManager {
     await this._sendCustomPrompt(event, promptConfirm, confirmNode)
   }
 
-  private async _sendCustomPrompt(incomingEvent: IO.IncomingEvent, prompt: Prompt, node: PromptNode) {
+  private async _sendCustomPrompt(incomingEvent: IO.IncomingEvent, prompt: Prompt, node: PromptNode): Promise<boolean> {
     debugPrompt('sending custom prompt to user')
 
     const promptEvent = Event({
@@ -183,9 +183,7 @@ export class PromptManager {
     })
 
     const bp = await createForBotpress()
-    await prompt.customPrompt?.(promptEvent, incomingEvent, bp)
-
-    await this.eventEngine.sendEvent(promptEvent)
+    return (await prompt.customPrompt?.(promptEvent, incomingEvent, bp)) ?? false
   }
 
   private async _continueOriginalEvent(event: IO.IncomingEvent) {
@@ -213,9 +211,14 @@ export class PromptManager {
       return [event]
     }
 
+    const count = event.prompt?.params?.searchBackCount
+    if (!count) {
+      return []
+    }
+
     const lastEvents: IO.StoredEvent[] = await this.eventRepository.findEvents(
       { direction: 'incoming', target: event.target },
-      { count: 5, sortOrder: [{ column: 'createdOn', desc: true }] }
+      { count, sortOrder: [{ column: 'createdOn', desc: true }] }
     )
 
     return lastEvents.map(x => x.event as IO.IncomingEvent)
