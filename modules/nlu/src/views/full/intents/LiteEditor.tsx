@@ -22,6 +22,7 @@ interface Props {
   topicName: string
   params: IntentParams
   updateParams: (params: IntentParams) => void
+  setKeepSidebarOpen: (isOpen: boolean) => void
 }
 
 export const sanitizeName = (text: string) =>
@@ -81,7 +82,10 @@ export const LiteEditor: FC<Props> = props => {
     }
   }
 
-  const toggleModal = () => setModalOpen(!isModalOpen)
+  const toggleModal = () => {
+    props.setKeepSidebarOpen(!isModalOpen)
+    setModalOpen(!isModalOpen)
+  }
 
   return (
     <div>
@@ -102,14 +106,9 @@ export const LiteEditor: FC<Props> = props => {
         />
       )}
 
-      <div className={style.chooseContainer}>
-        <ControlGroup>
-          <FormGroup label={lang.tr('module.nlu.intents.chooseContainerLabel')}>
-            <Button text={lang.tr('module.nlu.intents.createLabel')} onClick={toggleModal} />
-            <IntentDropdown intents={intents} currentIntent={currentIntent} onChange={onIntentChanged} />
-          </FormGroup>
-        </ControlGroup>
-      </div>
+      <span className={style.chooseLabel}>{lang.tr('module.nlu.intents.chooseContainerLabel')}</span>
+      <Button className={style.createBtn} text={lang.tr('module.nlu.intents.createLabel')} onClick={toggleModal} />
+      <IntentDropdown intents={intents} currentIntent={currentIntent} onChange={onIntentChanged} />
     </div>
   )
 }

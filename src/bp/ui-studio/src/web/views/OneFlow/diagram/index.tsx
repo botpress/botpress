@@ -906,6 +906,7 @@ class Diagram extends Component<Props> {
               conditions={this.props.conditions}
               deleteCondition={() => this.deleteNodeCondition()}
               editingCondition={this.state.editingNodeItem.index}
+              topicName={this.props.selectedTopic}
               formData={editingNodeItem}
               onUpdate={this.updateNodeCondition.bind(this)}
               close={() => {

@@ -7,13 +7,13 @@ import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
 
 import style from './style.scss'
-import CodeEditor from './CodeEditor'
 import IntentEditor from './IntentEditor'
 
 interface Props {
   deleteCondition: () => void
   conditions: Condition[]
   editingCondition: number
+  topicName?: string
   customKey: string
   close: (closingKey: number) => void
   onUpdate: (data: any) => void
@@ -26,6 +26,7 @@ const ConditionForm: FC<Props> = ({
   editingCondition,
   close,
   formData,
+  topicName,
   onUpdate,
   deleteCondition
 }) => {
@@ -91,7 +92,7 @@ const ConditionForm: FC<Props> = ({
           <Contents.Form
             bp={{ axios }}
             overrideFields={{
-              intent: props => <IntentEditor {...props} />
+              intent: props => <IntentEditor topicName={topicName} setKeepSidebarOpen={setIsConfirming} {...props} />
             }}
             fields={selectedCondition.params.fields || []}
             advancedSettings={selectedCondition.params.advancedSettings || []}
