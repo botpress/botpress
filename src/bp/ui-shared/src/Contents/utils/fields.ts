@@ -62,7 +62,36 @@ export const getEmptyFormData = (contentType: string, isPartOfGroup = false): Fo
 }
 
 export const createEmptyDataFromSchema = (fields: FormField[]): FormData => {
-  console.log(fields)
+  const emptyData = fields.reduce(emptyDataReducer, {})
 
-  return {}
+  return emptyData
+}
+
+const emptyDataReducer = (emptyData: FormData, field: FormField): FormData => {
+  return {...emptyData, [field.key]: getFieldDefaultValue(field) }
+}
+
+const getFieldDefaultValue = (field: FormField) => {
+  if (field.defaultValue) {
+    return field.defaultValue
+  }
+
+  switch (field.type) {
+    case 'checkbox':
+      return false
+    case 'group':
+      return [field.fields?.reduce(emptyDataReducer, {})]
+    case 'number':
+      return 0
+    case 'select':
+      return null
+    case 'text_array':
+      return ['']
+    case 'overridable':
+    case 'text':
+    case 'textarea':
+    case 'upload':
+    case 'url':
+      return ''
+  }
 }
