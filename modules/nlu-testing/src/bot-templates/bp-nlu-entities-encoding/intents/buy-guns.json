@@ -2,23 +2,16 @@
   "name": "buy-guns",
   "utterances": {
     "en": [
-      "Can you please go buy guns?",
-      "Could you take some [M1](gun_to_buy)?",
-      "Don't forget the [M2](gun_to_buy) at the grocery store!",
-      "Comon! take yourself an [M3](gun_to_buy)!",
-      "Dad, please get me a [M4](gun_to_buy) for my birthday...",
-      "I want you to by me an [M5](gun_to_buy).",
-      "Go and get me an [M6](gun_to_buy)!",
-      "Take few [M7](gun_to_buy) with you, just in case..."
+      "Could you take some M16?",
+      "Don't forget the G36 at the grocery store!",
+      "Come on man! take yourself an M16!",
+      "Daddy, will you get me a G36 as a birthday present...",
+      "I want you to by me a colossal and hairy M16.",
+      "Leave right now and never come back unless you bring back an M16 with you.",
+      "Take few G36 with you, just in case...",
+      "Tell mom not to forget the M16 at the local organic market!"
     ]
   },
-  "slots": [
-    {
-      "id": "HSLif1uD1fW_0Nclb-o4f",
-      "name": "gun_to_buy",
-      "entities": ["Guns"],
-      "color": 1
-    }
-  ],
+  "slots": [],
   "contexts": ["global"]
 }
