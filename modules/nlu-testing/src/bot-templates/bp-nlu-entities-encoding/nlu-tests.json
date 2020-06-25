@@ -10,7 +10,7 @@
   },
   {
     "id": "c4ca4238a0b923820dcc509a6f75849b",
-    "utterance": "Don't forget the grapes at the grocery store!",
+    "utterance": "Don't forget the grapes at the ammunation store!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -37,7 +37,7 @@
   },
   {
     "id": "a87ff679a2f3e71d9181a67b7542122c",
-    "utterance": "I want you to buy me a colossal and hairy grape.",
+    "utterance": "I want you to buy me a colossal and shinny grape.",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -64,7 +64,7 @@
   },
   {
     "id": "8f14e45fceea167a5a36dedd4bea2543",
-    "utterance": "Tell mom not to forget the grapes at the local organic market!",
+    "utterance": "Tell mom not to forget the grapes at the local hillbilly market!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -82,7 +82,7 @@
   },
   {
     "id": "45c48cce2e2d7fbdea1afc51c7c6ad26",
-    "utterance": "Don't forget the bananas at the grocery store!",
+    "utterance": "Don't forget the bananas at the ammunation store!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -109,7 +109,7 @@
   },
   {
     "id": "c20ad4d76fe97759aa27a0c99bff6710",
-    "utterance": "I want you to buy me a colossal and hairy banana.",
+    "utterance": "I want you to buy me a colossal and shinny banana.",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -136,7 +136,7 @@
   },
   {
     "id": "9bf31c7ff062936a96d3c8bd1f8f2ff3",
-    "utterance": "Tell mom not to forget the bananas at the local organic market!",
+    "utterance": "Tell mom not to forget the bananas at the local hillbilly market!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -154,7 +154,7 @@
   },
   {
     "id": "70efdf2ec9b086079795c442636b55fb",
-    "utterance": "Don't forget the oranges at the grocery store!",
+    "utterance": "Don't forget the oranges at the ammunation store!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -181,7 +181,7 @@
   },
   {
     "id": "98f13708210194c475687be6106a3b84",
-    "utterance": "I want you to buy me a colossal and hairy orange.",
+    "utterance": "I want you to buy me a colossal and shinny orange.",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -208,7 +208,7 @@
   },
   {
     "id": "37693cfc748049e45d87b8c7d8b9aacd",
-    "utterance": "Tell mom not to forget the orange at the local organic market!",
+    "utterance": "Tell mom not to forget the orange at the local hillbilly market!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -226,7 +226,7 @@
   },
   {
     "id": "8e296a067a37563370ded05f5a3bf3ec",
-    "utterance": "Don't forget the avocados at the grocery store!",
+    "utterance": "Don't forget the avocados at the ammunation store!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -253,7 +253,7 @@
   },
   {
     "id": "33e75ff09dd601bbe69f351039152189",
-    "utterance": "I want you to buy me a colossal and hairy avocado.",
+    "utterance": "I want you to buy me a colossal and shinny avocado.",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -280,7 +280,7 @@
   },
   {
     "id": "c16a5320fa475530d9583c34fd356ef5",
-    "utterance": "Tell mom not to forget the avocados at the local organic market!",
+    "utterance": "Tell mom not to forget the avocados at the local hillbilly market!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -298,7 +298,7 @@
   },
   {
     "id": "182be0c5cdcd5072bb1864cdee4d3d6e",
-    "utterance": "Don't forget the kiwis at the grocery store!",
+    "utterance": "Don't forget the kiwis at the ammunation store!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -325,7 +325,7 @@
   },
   {
     "id": "19ca14e7ea6328a42e0eb13d585e4c22",
-    "utterance": "I want you to buy me a colossal and hairy kiwi.",
+    "utterance": "I want you to buy me a colossal and shinny kiwi.",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -352,7 +352,7 @@
   },
   {
     "id": "d67d8ab4f4c10bf22aa353e27879133c",
-    "utterance": "Tell mom not to forget the kiwis at the local organic market!",
+    "utterance": "Tell mom not to forget the kiwis at the local hillbilly market!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -370,7 +370,7 @@
   },
   {
     "id": "3416a75f4cea9109507cacd8e2f2aefc",
-    "utterance": "Don't forget the berries at the grocery store!",
+    "utterance": "Don't forget the berries at the ammunation store!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -397,7 +397,7 @@
   },
   {
     "id": "f7177163c833dff4b38fc8d2872f1ec6",
-    "utterance": "I want you to buy me a colossal and hairy berry.",
+    "utterance": "I want you to buy me a colossal and shinny berry.",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -424,7 +424,7 @@
   },
   {
     "id": "67c6a1e7ce56d3d6fa748ab6d9af3fd7",
-    "utterance": "Tell mom not to forget the berries at the local organic market!",
+    "utterance": "Tell mom not to forget the berries at the local hillbilly market!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
