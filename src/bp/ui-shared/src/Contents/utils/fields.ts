@@ -1,4 +1,4 @@
-import { FormData } from 'botpress/sdk'
+import { FormData, FormField } from 'botpress/sdk'
 
 export const getEmptyFormData = (contentType: string, isPartOfGroup = false): FormData => {
   switch (contentType) {
@@ -59,4 +59,10 @@ export const getEmptyFormData = (contentType: string, isPartOfGroup = false): Fo
     default:
       return {}
   }
+}
+
+export const createEmptyDataFromSchema = (fields: FormField[]): FormData => {
+  console.log(fields)
+
+  return {}
 }

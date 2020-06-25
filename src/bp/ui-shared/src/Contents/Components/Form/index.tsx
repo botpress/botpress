@@ -6,6 +6,7 @@ import React, { FC, Fragment, useEffect, useReducer } from 'react'
 
 import { lang } from '../../../translations'
 import TextFieldsArray from '../../../FormFields/TextFieldsArray'
+import { createEmptyDataFromSchema } from '../../utils/fields'
 import AddButton from '../Fields/AddButton'
 import Select from '../Fields/Select'
 import Text from '../Fields/Text'
@@ -154,7 +155,9 @@ const Form: FC<FormProps> = ({
   advancedSettings,
   onUpdate
 }) => {
-  const newFormData = getEmptyData?.()
+  const newFormData = getEmptyData
+    ? getEmptyData()
+    : createEmptyDataFromSchema([...fields, ...(advancedSettings || [])])
   const [state, dispatch] = useReducer(formReducer, newFormData)
 
   useEffect(() => {

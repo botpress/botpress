@@ -1395,6 +1395,7 @@ declare module 'botpress/sdk' {
     key: string
     label: string
     type: string
+    defaultValue?: FormDataField
     moreInfo?: FormMoreInfo
   }
 

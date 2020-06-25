@@ -189,6 +189,7 @@ export const dialogConditions: sdk.Condition[] = [
         label: 'module.ndu.conditions.fields.label.workflowOutcome',
         placeholder: 'module.ndu.conditions.fields.placeholder.pickWorkflowOutcome',
         type: 'select',
+        defaultValue: 'success',
         options: [
           { label: 'module.ndu.conditions.fields.label.success', value: 'success' },
           { label: 'module.ndu.conditions.fields.label.failure', value: 'failure' }
@@ -196,6 +197,7 @@ export const dialogConditions: sdk.Condition[] = [
       },
       {
         key: 'ignoredWorkflows',
+        defaultValue: ['misunderstood', 'workflow_ended', 'error'],
         label: 'module.ndu.conditions.fields.label.ignoredWorkflows',
         moreInfo: {
           label: 'module.ndu.conditions.fields.label.ignoredWorkflowsMoreInfo'
