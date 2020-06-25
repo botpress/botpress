@@ -68,7 +68,7 @@ export const createEmptyDataFromSchema = (fields: FormField[]): FormData => {
 }
 
 const emptyDataReducer = (emptyData: FormData, field: FormField): FormData => {
-  return {...emptyData, [field.key]: getFieldDefaultValue(field) }
+  return { ...emptyData, [field.key]: getFieldDefaultValue(field) }
 }
 
 const getFieldDefaultValue = (field: FormField) => {
