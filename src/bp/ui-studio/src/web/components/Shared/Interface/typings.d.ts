@@ -24,7 +24,7 @@ declare global {
     botpressWebChat: any
     BOT_API_PATH: string
     API_PATH: string
-    BOTPRESS_VERSION: string
+    APP_VERSION: string
     BOT_NAME: string
     BOT_ID: string
     BP_BASE_PATH: string
@@ -157,6 +157,7 @@ export interface KeyboardShortcutsProps {
 }
 
 export interface SearchBarProps {
+  className?: string
   /** The input element ID */
   id?: string
   /** Text to display when there's no input value */

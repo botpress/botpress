@@ -7,6 +7,7 @@ import { BIO } from '../typings'
 import Utterance, { buildUtteranceBatch } from '../utterance/utterance'
 
 import MultiClassF1Scorer, { F1 } from './f1-scorer'
+import legacyElectionPipeline from '../legacy-election'
 const seedrandom = require('seedrandom')
 
 interface CrossValidationResults {
@@ -85,8 +86,11 @@ export async function crossValidate(
 
   const [trainSet, testSet] = await splitSet(language, intents)
 
-  const engine = new Engine(language, botId)
-  await engine.train(trainSet, entities, language)
+  const langServerInfo = { version: '', domain: '', dim: 0 }
+  const dummyVersion = { nluVersion: '', langServerInfo } // we don't really care about the model hash here...
+  const engine = new Engine(language, botId, dummyVersion)
+  const model = await engine.train(trainSet, entities, language)
+  await engine.loadModel(model)
 
   const allCtx = _.chain(intents)
     .flatMap(i => i.contexts)
@@ -103,7 +107,8 @@ export async function crossValidate(
 
   for (const ex of testSet) {
     for (const ctx of ex.ctxs) {
-      const res = await engine.predict(ex.utterance.toString(), [ctx])
+      let res = await engine.predict(ex.utterance.toString(), [ctx])
+      res = legacyElectionPipeline(res)
       intentF1Scorers[ctx].record(res.intent.name, ex.intent)
       const intentHasSlots = !!intentMap[ex.intent].slots.length
       if (intentHasSlots) {
@@ -111,7 +116,8 @@ export async function crossValidate(
       }
     }
     if (allCtx.length > 1) {
-      const res = await engine.predict(ex.utterance.toString(), allCtx)
+      let res = await engine.predict(ex.utterance.toString(), allCtx)
+      res = legacyElectionPipeline(res)
       intentF1Scorers['all'].record(res.intent.name, ex.intent)
     }
   }

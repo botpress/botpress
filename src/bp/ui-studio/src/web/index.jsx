@@ -19,6 +19,7 @@ import 'expose-loader?Reactstrap!reactstrap' // TODO Remove me once we migrated 
 import 'expose-loader?BlueprintJsCore!@blueprintjs/core'
 import 'expose-loader?BlueprintJsSelect!@blueprintjs/select'
 import 'expose-loader?BotpressShared!ui-shared'
+import 'expose-loader?BotpressContentTypePicker!~/components/Content/Select'
 import 'expose-loader?BotpressContentPicker!~/components/Content/Select/Widget'
 import 'expose-loader?SmartInput!~/components/SmartInput'
 import 'expose-loader?ElementsList!~/components/Shared/ElementsList'

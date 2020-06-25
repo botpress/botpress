@@ -5,6 +5,7 @@ import _ from 'lodash'
 import nanoid from 'nanoid/generate'
 
 import { QnaEntry, QnaItem } from './qna'
+import { isQnaComplete } from './utils'
 
 export const NLU_PREFIX = '__qna__'
 
@@ -89,14 +90,13 @@ export default class Storage {
     }
 
     await axios.post('/mod/nlu/intents', intent, axiosConfig)
-    this.bp.logger.info(`${create ? `Created` : `Updated`} NLU intent for QNA ${qnaItem.id}`)
   }
 
   async update(data: QnaEntry, id: string): Promise<string> {
     await this.checkForDuplicatedQuestions(data, id)
 
     id = id || makeID(data)
-    const item: QnaItem = { id, data }
+    const item: QnaItem = { id, data: { ...data, lastModified: new Date() } }
 
     if (data.enabled) {
       await this.createNLUIntentFromQnaItem(item, false)
@@ -123,7 +123,8 @@ export default class Storage {
   async insert(qna: QnaEntry | QnaEntry[]): Promise<string[]> {
     const ids = await Promise.mapSeries(_.isArray(qna) ? qna : [qna], async (data, i) => {
       const id = makeID(data)
-      const item: QnaItem = { id, data }
+      await this.checkForDuplicatedQuestions(data, id)
+      const item: QnaItem = { id, data: { ...data, lastModified: new Date() } }
       if (data.enabled) {
         await this.createNLUIntentFromQnaItem(item, true)
       }
@@ -142,32 +143,23 @@ export default class Storage {
     const qnaItems = (await this.fetchQNAs()).filter(q => !editingQnaId || q.id != editingQnaId)
 
     const newQuestions = Object.values(newItem.questions).reduce((a, b) => a.concat(b), [])
-    const dupes = _.flatMap(qnaItems, item => Object.values(item.data.questions))
-      .reduce((a, b) => a.concat(b), [])
-      .filter(q => newQuestions.includes(q))
+    const dupes = qnaItems
+      .map(item => ({
+        id: item.id,
+        questions: Object.values(item.data.questions).reduce((acc, arr) => [...acc, ...arr], [])
+      }))
+      .filter(existingQuestion => !!existingQuestion.questions.filter(q => newQuestions.includes(q)).length)
 
     if (dupes.length) {
-      throw new Error(`These questions already exist in another entry: ${dupes.join(', ')}`)
+      this.bp.logger
+        .forBot(this.botId)
+        .warn(`These questions already exist in another entry: ${dupes.join(', ')}. Please remove duplicates`)
     }
-  }
-
-  /**
-   * This will migrate questions to the new format.
-   * @deprecated Questions support multiple answers since v11.3
-   */
-  private migrate_11_2_to_11_3(question) {
-    if (!question.data.answers) {
-      question.data.answers = [question.data.answer]
-    }
-    return question
   }
 
   async getQnaItem(id: string): Promise<QnaItem> {
     const filename = `${id}.json`
-
-    const data = await this.bp.ghost.forBot(this.botId).readFileAsObject(this.config.qnaDir, filename)
-
-    return this.migrate_11_2_to_11_3(data)
+    return await this.bp.ghost.forBot(this.botId).readFileAsObject(this.config.qnaDir, filename)
   }
 
   async fetchQNAs(opts?: Paging) {
@@ -184,7 +176,17 @@ export default class Storage {
     }
   }
 
-  async filterByContextsAndQuestion(question: string, filteredContexts: string[]) {
+  async filterByContextsAndQuestion(
+    question: string,
+    filteredContexts: string[],
+    stateFilter: string,
+    order: string,
+    lang: string
+  ) {
+    if (stateFilter === 'incomplete' && !lang) {
+      throw new Error('Using the incomplete parameter requires the lang parameter to be set')
+    }
+
     const allQuestions = await this.fetchQNAs()
     const filteredQuestions = allQuestions.filter(q => {
       const { questions, contexts } = q.data
@@ -196,6 +198,14 @@ export default class Storage {
           .toLowerCase()
           .indexOf(question.toLowerCase()) !== -1
 
+      if (
+        (stateFilter === 'active' && !q.data.enabled) ||
+        (stateFilter === 'disabled' && q.data.enabled) ||
+        (stateFilter === 'incomplete' && isQnaComplete(q.data, lang))
+      ) {
+        return false
+      }
+
       if (!filteredContexts.length) {
         return hasMatch || q.id.includes(question)
       }
@@ -206,24 +216,30 @@ export default class Storage {
       return hasMatch && !!_.intersection(contexts, filteredContexts).length
     })
 
-    return filteredQuestions.reverse()
+    if (order) {
+      return _.orderBy(filteredQuestions, q => (q.data.lastModified ? new Date(q.data.lastModified).getTime() : 0), [
+        <'asc' | 'desc'>order
+      ])
+    } else {
+      return filteredQuestions.reverse()
+    }
   }
 
   async getQuestions(
-    { question = '', filteredContexts = [] },
+    { question = '', filteredContexts = [], stateFilter = undefined, order = undefined, lang = undefined },
     { limit = 50, offset = 0 }
   ): Promise<{ items: QnaItem[]; count: number }> {
     let items: QnaItem[] = []
     let count = 0
 
-    if (!(question || filteredContexts.length)) {
+    if (!(question || filteredContexts.length || stateFilter || order)) {
       items = await this.fetchQNAs({
         start: +offset,
         count: +limit
       })
       count = await this.count()
     } else {
-      const tmpQuestions = await this.filterByContextsAndQuestion(question, filteredContexts)
+      const tmpQuestions = await this.filterByContextsAndQuestion(question, filteredContexts, stateFilter, order, lang)
       items = tmpQuestions.slice(offset, offset + limit)
       count = tmpQuestions.length
     }

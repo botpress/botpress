@@ -90,7 +90,7 @@ function renderElement(data, channel) {
 module.exports = {
   id: 'builtin_single-choice',
   group: 'Built-in Messages',
-  title: 'module.builtin.types.singleChoice.title',
+  title: 'module.builtin.types.suggestions.title',
 
   jsonSchema: {
     description: 'module.builtin.types.singleChoice.description',
@@ -139,6 +139,64 @@ module.exports = {
     choices: {
       'ui:field': 'i18n_array'
     }
+  },
+
+  newSchema: {
+    displayedIn: ['qna', 'sayNode'],
+    advancedSettings: [
+      {
+        key: 'onTopOfKeyboard',
+        type: 'checkbox',
+        label: 'module.builtin.types.suggestions.displayOnTop'
+      },
+      {
+        key: 'typing',
+        type: 'checkbox',
+        label: 'module.builtin.typingIndicator'
+      },
+      {
+        key: 'canAdd',
+        type: 'checkbox',
+        label: 'module.builtin.types.suggestions.allowToAdd'
+      },
+      {
+        key: 'multiple',
+        type: 'checkbox',
+        label: 'module.builtin.types.suggestions.allowMultiplePick'
+      }
+    ],
+    fields: [
+      {
+        group: {
+          addLabel: 'module.builtin.types.suggestions.add',
+          minimum: 1,
+          contextMenu: [
+            {
+              type: 'delete',
+              label: 'module.builtin.types.suggestions.delete'
+            }
+          ]
+        },
+        type: 'group',
+        key: 'choices',
+        renderType: 'suggestions',
+        label: 'fields::title',
+        fields: [
+          {
+            type: 'text',
+            key: 'title',
+            label: 'module.builtin.types.suggestions.label',
+            placeholder: 'module.builtin.types.suggestions.labelPlaceholder'
+          },
+          {
+            type: 'text',
+            key: 'value',
+            label: 'module.builtin.types.suggestions.value',
+            placeholder: 'module.builtin.types.suggestions.valuePlaceholder'
+          }
+        ]
+      }
+    ]
   },
   computePreviewText: formData =>
     formData.choices && formData.text && `Choices (${formData.choices.length}) ${formData.text}`,

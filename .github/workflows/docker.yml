@@ -1,0 +1,34 @@
+name: Docker
+on: [push]
+jobs:
+  build_and_push:
+    name: Build and push Docker image to GitHub Packages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2.1.0
+        with:
+          token: ${{ secrets.PAT_DOCKER }}
+          submodules: true
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.13.0'
+      - name: Build
+        run: |
+          export npm_config_target_platform=linux
+          export EDITION=pro
+          git submodule update --init
+          yarn --force --ignore-engines
+          yarn run build --linux --prod --verbose
+          yarn run package --linux
+          cp build/docker/Dockerfile out/binaries/
+      - name: Docker build and push
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.pkg.github.com
+          repository: botpress/botpress/botpress
+          path: out/binaries
+          tag_with_sha: true

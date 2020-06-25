@@ -1,4 +1,5 @@
 import { BotConfig, Logger } from 'botpress/sdk'
+import { UnexpectedError } from 'common/http'
 import { RequestWithUser } from 'common/typings'
 import { ConfigProvider } from 'core/config/config-loader'
 import { BotService } from 'core/services/bot-service'
@@ -161,11 +162,7 @@ export class BotsRouter extends CustomRouter {
 
           return res.sendStatus(200)
         } catch (err) {
-          this.logger
-            .forBot(req.params.botId)
-            .attachError(err)
-            .error(`Cannot request bot: ${req.params.botId} for stage change`)
-          res.status(400).send(err.message)
+          throw new UnexpectedError('Cannot request state change for bot', err)
         }
       })
     )
@@ -180,11 +177,7 @@ export class BotsRouter extends CustomRouter {
 
           return res.sendStatus(200)
         } catch (err) {
-          this.logger
-            .forBot(req.params.botId)
-            .attachError(err)
-            .error(`Cannot request bot: ${req.params.botId} for stage change`)
-          res.status(400).send(err.message)
+          throw new UnexpectedError('Cannot approve state change for bot', err)
         }
       })
     )
@@ -202,12 +195,7 @@ export class BotsRouter extends CustomRouter {
             botId
           })
         } catch (err) {
-          this.logger
-            .forBot(req.params.botId)
-            .attachError(err)
-            .error(`Cannot update bot: ${botId}`)
-
-          res.status(400).send(err.message)
+          throw new UnexpectedError('Cannot update bot', err)
         }
       })
     )
@@ -223,12 +211,7 @@ export class BotsRouter extends CustomRouter {
           await this.workspaceService.deleteBotRef(botId)
           return sendSuccess(res, 'Removed bot from team', { botId })
         } catch (err) {
-          this.logger
-            .forBot(botId)
-            .attachError(err)
-            .error(`Could not delete bot: ${botId}`)
-
-          res.status(400).send(err.message)
+          throw new UnexpectedError('Cannot delete bot', err)
         }
       })
     )
@@ -278,11 +261,7 @@ export class BotsRouter extends CustomRouter {
             revisions
           })
         } catch (err) {
-          this.logger
-            .forBot(botId)
-            .attachError(err)
-            .error(`Could not list revisions for bot ${botId}`)
-          res.status(400).send(err.message)
+          throw new UnexpectedError('Cannot list revisions for bot', err)
         }
       })
     )
@@ -296,11 +275,7 @@ export class BotsRouter extends CustomRouter {
           await this.botService.createRevision(botId)
           return sendSuccess(res, `Created a new revision for bot ${botId}`)
         } catch (err) {
-          this.logger
-            .forBot(botId)
-            .attachError(err)
-            .error(`Could not create revision for bot: ${botId}`)
-          res.status(400).send(err.message)
+          throw new UnexpectedError('Cannot create new revision for bot', err)
         }
       })
     )

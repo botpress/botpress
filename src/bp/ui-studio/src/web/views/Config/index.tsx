@@ -216,7 +216,7 @@ class ConfigView extends Component<Props, State> {
         this.setState({ error: undefined, isSaving: false })
       }
     } catch (err) {
-      this.setState({ error: err, isSaving: false })
+      this.setState({ error: err.response?.data, isSaving: false })
     }
   }
 

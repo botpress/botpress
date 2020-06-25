@@ -1,5 +1,6 @@
 import { Logger, RouterOptions } from 'botpress/sdk'
 import { Serialize } from 'cerialize'
+import { UnexpectedError } from 'common/http'
 import { gaId, machineUUID } from 'common/stats'
 import { FlowView } from 'common/typings'
 import { BotpressConfig } from 'core/config/botpress.config'
@@ -22,6 +23,7 @@ import { Express, RequestHandler, Router } from 'express'
 import { validate } from 'joi'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
+import mime from 'mime-types'
 import moment from 'moment'
 import ms from 'ms'
 import multer from 'multer'
@@ -187,11 +189,7 @@ export class BotsRouter extends CustomRouter {
       sendUsageStats: this.botpressConfig!.sendUsageStats,
       uuid: this.machineId,
       gaId: gaId,
-      flowEditorDisabled: !process.IS_LICENSED,
-      botpress: {
-        name: 'Botpress Studio',
-        version: process.BOTPRESS_VERSION
-      }
+      flowEditorDisabled: !process.IS_LICENSED
     }
   }
 
@@ -215,6 +213,7 @@ export class BotsRouter extends CustomRouter {
           return res.sendStatus(404)
         }
 
+        const branding = await this.configProvider.getBrandingConfig('studio')
         const config = await this.configProvider.getBotpressConfig()
         const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
 
@@ -240,8 +239,10 @@ export class BotsRouter extends CustomRouter {
               window.BOT_ID = "${botId}";
               window.BOT_NAME = "${bot.name}";
               window.BP_BASE_PATH = "${process.ROOT_PATH}/${app}/${botId}";
-              window.BOTPRESS_VERSION = "${data.botpress.version}";
-              window.APP_NAME = "${data.botpress.name}";
+              window.APP_VERSION = "${process.BOTPRESS_VERSION}";
+              window.APP_NAME = "${branding.title}";
+              window.APP_FAVICON = "${branding.favicon}";
+              window.APP_CUSTOM_CSS = "${branding.customCss}";
               window.SHOW_POWERED_BY = ${!!config.showPoweredBy};
               window.BOT_LOCKED = ${!!bot.locked};
               window.USE_ONEFLOW = ${!!bot['oneflow']};
@@ -359,7 +360,7 @@ export class BotsRouter extends CustomRouter {
             return res.send(423) // Mutex locked
           }
 
-          res.status(400).send(err.message)
+          throw new UnexpectedError('Error saving flow', err)
         }
       })
     )
@@ -443,17 +444,18 @@ export class BotsRouter extends CustomRouter {
     const mediaUploadMulter = multer({
       fileFilter: (_req, file, cb) => {
         let allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif']
+        const extMimeType = mime.lookup(file.originalname)
 
         const uploadConfig = this.botpressConfig!.fileUpload
         if (uploadConfig?.allowedMimeTypes) {
           allowedMimeTypes = uploadConfig.allowedMimeTypes
         }
 
-        if (allowedMimeTypes.includes(file.mimetype)) {
+        if (allowedMimeTypes.includes(file.mimetype) && allowedMimeTypes.includes(extMimeType)) {
           return cb(undefined, true)
         }
 
-        cb(new Error(`Invalid mime type (${file.mimetype})`), false)
+        cb(new Error(`This type of file is not allowed (${file.mimetype})`), false)
       },
       limits: {
         fileSize: asBytes(_.get(this.botpressConfig, 'fileUpload.maxFileSize', DEFAULT_MAX_SIZE))

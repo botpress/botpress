@@ -1,4 +1,4 @@
-import { IO, Logger } from 'botpress/sdk'
+import { FormData, IO, Logger } from 'botpress/sdk'
 import { ContentElement, ContentType, KnexExtended, SearchParams } from 'botpress/sdk'
 import { renderRecursive, renderTemplate } from 'core/misc/templating'
 import { ModuleLoader } from 'core/module-loader'
@@ -9,7 +9,7 @@ import nanoid from 'nanoid'
 import path from 'path'
 import { VError } from 'verror'
 
-import { IDisposeOnExit } from '../../common/typings'
+import { EventCommonArgs, IDisposeOnExit } from '../../common/typings'
 import { ConfigProvider } from '../config/config-loader'
 import { LoggerProvider } from '../logger/logger'
 import { CodeFile, SafeCodeSandbox } from '../misc/code-sandbox'
@@ -535,11 +535,13 @@ export class CMSService implements IDisposeOnExit {
         result[lang] = 'No preview'
       } else {
         const translated = this.getOriginalProps(formData, contentType, lang)
-        let preview = contentType.computePreviewText(translated)
+        let preview = contentType.computePreviewText({ ...translated, ...this._getAdditionalData() })
 
         if (!preview) {
           const defaultTranslation = this.getOriginalProps(formData, contentType, defaultLang)
-          preview = '(missing translation) ' + contentType.computePreviewText(defaultTranslation)
+          preview =
+            '(missing translation) ' +
+            contentType.computePreviewText({ ...defaultTranslation, ...this._getAdditionalData() })
         }
 
         result[lang] = preview
@@ -597,7 +599,20 @@ export class CMSService implements IDisposeOnExit {
     }, {})
   }
 
-  async renderElement(contentId: string, args, eventDestination: IO.EventDestination) {
+  private _getAdditionalData() {
+    return { BOT_URL: process.EXTERNAL_URL }
+  }
+
+  private _prepareTextAndShuffle(args: EventCommonArgs) {
+    const { text, variations } = args
+
+    const message = _.sample([text, ...(variations || [])])
+    if (message) {
+      args.text = renderTemplate(message, args)
+    }
+  }
+
+  async renderElement(contentId: string, args: EventCommonArgs, eventDestination: IO.EventDestination) {
     const { botId, channel } = eventDestination
     contentId = contentId.replace(/^#?/i, '')
     let contentTypeRenderer: ContentType
@@ -605,6 +620,11 @@ export class CMSService implements IDisposeOnExit {
     const translateFormData = async (formData: object): Promise<object> => {
       const defaultLang = (await this.configProvider.getBotConfig(eventDestination.botId)).defaultLanguage
       const lang = _.get(args, 'event.state.user.language')
+
+      // Supports the new format for say nodes
+      if (formData?.[lang] || formData?.[defaultLang]) {
+        return formData?.[lang] || formData?.[defaultLang]
+      }
 
       return this.getOriginalProps(formData, contentTypeRenderer, lang, defaultLang)
     }
@@ -620,14 +640,6 @@ export class CMSService implements IDisposeOnExit {
 
       _.set(content, 'formData', renderRecursive(content.formData, args))
 
-      const text = _.get(content.formData, 'text')
-      const variations = _.get(content.formData, 'variations')
-
-      const message = _.sample([text, ...(variations || [])])
-      if (message) {
-        _.set(content, 'formData.text', renderTemplate(message, args))
-      }
-
       args = {
         ...args,
         ...content.formData
@@ -640,17 +652,13 @@ export class CMSService implements IDisposeOnExit {
       }
     } else {
       contentTypeRenderer = this.getContentType(contentId)
-      if (args.text) {
-        args = {
-          ...args,
-          text: renderTemplate(args.text, args)
-        }
-      }
     }
 
-    const additionalData = { BOT_URL: process.EXTERNAL_URL }
+    if (args.text) {
+      this._prepareTextAndShuffle(args)
+    }
 
-    let payloads = contentTypeRenderer.renderElement({ ...additionalData, ...args }, channel)
+    let payloads = contentTypeRenderer.renderElement({ ...this._getAdditionalData(), ...args }, channel)
     if (!_.isArray(payloads)) {
       payloads = [payloads]
     }

@@ -45,10 +45,8 @@ export class Dropdown extends React.Component {
   }
 
   renderSelect(inKeyboard) {
-    const placeholder = this.props.store.intl.formatMessage({
-      id: 'composer.dropdownPlaceholder',
-      defaultMessage: 'Select a subject'
-    })
+    const placeholder = this.props.intl.locale === 'fr' ? 'Sélectionnez un choix' : 'Select a choice'
+
     return (
       <div className={inKeyboard && 'bpw-keyboard-quick_reply-dropdown'}>
         <div style={{ width: +this.props.width || 210, display: 'inline-block', marginRight: 15 }}>

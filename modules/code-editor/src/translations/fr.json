@@ -1,5 +1,6 @@
 {
   "error": {
+    "cannotOpenFile": "Impossible d'ouvrir ce type de fichier",
     "cannotSaveFile": "Impossible de sauvegarder le fichier",
     "cannotUploadFile": "Impossible de téléverser votre fichier",
     "fileUploadDisabled": "L'envoi de fichier a été désactivé via une variable d'environnement.",

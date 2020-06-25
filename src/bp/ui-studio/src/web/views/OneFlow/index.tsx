@@ -49,6 +49,7 @@ const FlowBuilder = (props: Props) => {
   const [mutex, setMutex] = useState()
   const [actions, setActions] = useState(allActions)
   const [highlightFilter, setHighlightFilter] = useState()
+  const [topicQnA, setTopicQnA] = useState(null)
 
   useEffect(() => {
     props.refreshActions()
@@ -141,7 +142,7 @@ const FlowBuilder = (props: Props) => {
     delete: e => {
       if (!utils.isInputFocused()) {
         e.preventDefault()
-        diagram?.deleteSelectedElements()
+        diagram.current?.deleteSelectedElements()
       }
     },
     cancel: e => {
@@ -158,32 +159,42 @@ const FlowBuilder = (props: Props) => {
   }
 
   const createFlow = name => {
-    diagram.createFlow(name)
+    diagram.current.createFlow(name)
     props.switchFlow(`${name}.flow.json`)
   }
+
+  const pathName = window.location.pathname.split('/')
+  const currentWorkflow = pathName.pop()
+  let currentTopic = pathName.pop()
+
+  currentTopic = currentTopic === 'oneflow' ? '' : currentTopic
 
   return (
     <MainContainer keyHandlers={keyHandlers}>
       <SidePanel
-        onDeleteSelectedElements={() => diagram?.deleteSelectedElements()}
+        onDeleteSelectedElements={() => diagram.current?.deleteSelectedElements()}
         readOnly={readOnly}
         mutexInfo={mutex}
         permissions={actions}
         flowPreview={flowPreview}
         onCreateFlow={createFlow}
+        selectedTopic={currentTopic}
+        selectedWorkflow={currentWorkflow}
       />
       <div className={style.diagram}>
         <Diagram
           readOnly={readOnly}
           flowPreview={flowPreview}
           showSearch={showSearch}
+          topicQnA={topicQnA}
           hideSearch={() => setShowSearch(false)}
           handleFilterChanged={handleFilterChanged}
           highlightFilter={highlightFilter}
-          ref={el => {
+          selectedTopic={currentTopic}
+          selectedWorkflow={currentWorkflow}
+          childRef={el => {
             if (!!el) {
-              // @ts-ignore
-              diagram = el.getWrappedInstance()
+              diagram.current = el
             }
           }}
         />

@@ -6,12 +6,13 @@ import nanoid from 'nanoid'
 import tmp from 'tmp'
 
 import { registerMsgHandler, spawnMLWorkers, WORKER_TYPES } from '../cluster'
-const { Tagger, Trainer: CRFTrainer } = require('./crfsuite')
+import crfsuite from './crfsuite'
 import { FastTextModel } from './fasttext'
 import computeJaroWinklerDistance from './homebrew/jaro-winkler'
 import computeLevenshteinDistance from './homebrew/levenshtein'
 import { processor } from './sentencepiece'
 import { Predictor, Trainer as SVMTrainer } from './svm'
+import { WebWorkerCrfTrainer } from './crf-web-worker'
 
 type MsgType = 'svm_train' | 'svm_progress' | 'svm_done' | 'svm_error' | 'crf_train' | 'crf_done' | 'crf_error'
 
@@ -30,8 +31,8 @@ const MLToolkit: typeof sdk.MLToolkit = {
     kmeans
   },
   CRF: {
-    createTagger: Tagger,
-    createTrainer: CRFTrainer
+    createTagger: () => new crfsuite.Tagger(),
+    createTrainer: () => new WebWorkerCrfTrainer()
   },
   SVM: {
     Predictor,
@@ -81,30 +82,6 @@ function overloadTrainers() {
       process.on('message', messageHandler)
     })
   }
-
-  MLToolkit.CRF.createTrainer.prototype.train = (elements: any, params?: any): any => {
-    return Promise.fromCallback(completedCb => {
-      const id = nanoid()
-      const messageHandler = (msg: Message) => {
-        if (msg.id !== id) {
-          return
-        }
-
-        if (msg.type === 'crf_done') {
-          completedCb(undefined, msg.payload.crfModelFilename)
-          process.off('message', messageHandler)
-        }
-
-        if (msg.type === 'crf_error') {
-          completedCb(msg.payload.error)
-          process.off('message', messageHandler)
-        }
-      }
-
-      process.send!({ type: 'crf_train', id, payload: { elements, params } })
-      process.on('message', messageHandler)
-    })
-  }
 }
 
 if (cluster.isWorker) {
@@ -131,18 +108,17 @@ if (cluster.isWorker) {
 
       if (msg.type === 'crf_train') {
         const debugTrain = DEBUG('nlu').sub('training')
-        const trainer = new CRFTrainer()
+        const trainer = new crfsuite.Trainer()
 
         try {
           trainer.set_params(msg.payload.params)
-          trainer.set_callback(str => debugTrain('CRFSUITE', str))
 
           for (const { features, labels } of msg.payload.elements) {
             trainer.append(features, labels)
           }
 
           const crfModelFilename = tmp.fileSync({ postfix: '.bin' }).name
-          trainer.train(crfModelFilename)
+          await trainer.train_async(crfModelFilename, str => debugTrain('CRFSUITE', str))
 
           process.send!({ type: 'crf_done', id: msg.id, payload: { crfModelFilename } })
         } catch (error) {

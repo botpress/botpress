@@ -3,35 +3,27 @@ import cx from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
 import React, { FC } from 'react'
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
 import { MetricEntry } from '../../backend/typings'
 
-import { Extras } from './index'
+import { Channel, Extras } from './index'
 import style from './style.scss'
+import { mergeDataForCharts } from './utils'
 
 const CHANNEL_COLORS = {
+  api: '#4A154B',
   web: '#1F8FFA',
   messenger: '#0196FF',
   slack: '#4A154B',
-  telegram: '#2EA6DA'
+  telegram: '#2EA6DA',
+  teams: '#8000ff'
 }
 
 interface Props extends Extras {
   name: string
   data: MetricEntry[] | any
-  channels: string[]
-}
-
-const mapDataForCharts = (data: MetricEntry[]) => {
-  const chartsData = data.map(metric => ({
-    time: moment(metric.date)
-      .startOf('day')
-      .unix(),
-    [metric.channel]: metric.value
-  }))
-
-  return _.sortBy(chartsData, 'time')
+  channels: Channel[]
 }
 
 const formatTick = timestamp => moment.unix(timestamp).format('D')
@@ -49,11 +41,11 @@ const TimeSeriesChart: FC<Props> = props => {
         {!data.length && <p className={style.emptyState}>{lang.tr('module.analytics.noDataAvailable')}</p>}
         {!!data.length && (
           <ResponsiveContainer height={160}>
-            <AreaChart data={mapDataForCharts(data)}>
+            <AreaChart data={mergeDataForCharts(data)} margin={{ left: -30 }}>
               <defs>
                 {channels
-                  .filter(x => x !== 'all')
-                  .map((channel, idx) => (
+                  .filter(x => x.value !== 'all')
+                  .map(({ value: channel }, idx) => (
                     <linearGradient key={idx} id={`gradientBg-${channel}`} x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor={CHANNEL_COLORS[channel] || '#000'} stopOpacity={0.31} />
                       <stop offset="45%" stopColor={CHANNEL_COLORS[channel] || '#000'} stopOpacity={0.34} />
@@ -74,16 +66,18 @@ const TimeSeriesChart: FC<Props> = props => {
                 tickFormatter={formatTick}
                 tickCount={data.length}
               />
+              <YAxis allowDecimals={false} />
               {channels
-                .filter(x => x !== 'all')
+                .filter(x => x.value !== 'all')
                 .map((channel, idx) => (
                   <Area
                     key={idx}
                     type="monotone"
-                    dataKey={channel}
+                    dataKey={channel.value}
+                    label={channel.label}
                     strokeWidth={3}
-                    stroke={CHANNEL_COLORS[channel] || '#000'}
-                    fill={`url(#gradientBg-${channel})`}
+                    stroke={CHANNEL_COLORS[channel.value] || '#000'}
+                    fill={`url(#gradientBg-${channel.value})`}
                   />
                 ))}
             </AreaChart>

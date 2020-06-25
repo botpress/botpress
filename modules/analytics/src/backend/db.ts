@@ -175,9 +175,9 @@ export default class Database {
 
       return [
         ...metrics,
-        ...newUsersCount.map(x => ({ ...x, metric: 'new_users_count' })),
-        ...activeUsersCount.map(x => ({ ...x, metric: 'active_users_count' }))
-      ].map(x => ({ ...x, created_on: x.date }))
+        ...newUsersCount.map(x => ({ ...x, value: Number(x.value), metric: 'new_users_count' })),
+        ...activeUsersCount.map(x => ({ ...x, value: Number(x.value), metric: 'active_users_count' }))
+      ].map(x => ({ ...x, created_on: x.date, date: moment(x.date).format('YYYY-MM-DD') }))
     } catch (err) {
       this.bp.logger.attachError(err).warn('Could not retrieve analytics')
       return []

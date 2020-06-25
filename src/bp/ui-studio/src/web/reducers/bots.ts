@@ -6,7 +6,7 @@ export interface BotsReducer {
 }
 
 const defaultState = {
-  bots: []
+  bots: undefined
 }
 
 const reducer = handleActions(

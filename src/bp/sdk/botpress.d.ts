@@ -25,6 +25,29 @@ declare module 'botpress/sdk' {
     ): Promise<T>
   }
 
+  export interface Incident {
+    id: string
+    ruleName: string
+    hostName: string
+    startTime: Date
+    endTime?: Date
+    triggerValue: number
+  }
+
+  export type StrategyUser = {
+    id?: number
+    password?: string
+    salt?: string
+  } & UserInfo
+
+  export interface UserInfo {
+    email: string
+    strategy: string
+    createdOn?: string
+    updatedOn?: string
+    attributes: any
+  }
+
   export type KnexExtended = Knex & KnexExtension
 
   /**
@@ -113,6 +136,7 @@ declare module 'botpress/sdk' {
     translations?: { [lang: string]: object }
     /** List of new conditions that the module can register */
     dialogConditions?: Condition[]
+    variables?: any
     /** Called once the core is initialized. Usually for middlewares / database init */
     onServerStarted?: (bp: typeof import('botpress/sdk')) => Promise<void>
     /** This is called once all modules are initialized, usually for routing and logic */
@@ -218,6 +242,7 @@ declare module 'botpress/sdk' {
 
   export interface FlowGeneratorMetadata {
     botId: string
+    isOneFlow?: boolean
   }
 
   export interface ModulePluginEntry {
@@ -480,6 +505,7 @@ declare module 'botpress/sdk' {
     }
 
     export interface EntityMeta {
+      sensitive: boolean
       confidence: number
       provider: string
       source: string
@@ -644,16 +670,16 @@ declare module 'botpress/sdk' {
     }
 
     export interface EventUnderstanding {
-      intent: NLU.Intent
+      intent?: NLU.Intent
       /** Predicted intents needs disambiguation */
-      readonly ambiguous: boolean
-      intents: NLU.Intent[]
+      readonly ambiguous?: boolean
+      intents?: NLU.Intent[]
       /** The language used for prediction. Will be equal to detected language when its part of supported languages, falls back to default language otherwise */
       readonly language: string
       /** Language detected from users input. */
       readonly detectedLanguage: string
       readonly entities: NLU.Entity[]
-      readonly slots: NLU.SlotCollection
+      readonly slots?: NLU.SlotCollection
       readonly errored: boolean
       readonly includedContexts: string[]
       readonly predictions?: NLU.Predictions
@@ -714,6 +740,15 @@ declare module 'botpress/sdk' {
       bot: any
       /** Used internally by Botpress to keep the user's current location and upcoming instructions */
       context: DialogContext
+      /** This variable points to the currently active workflow */
+      workflow: WorkflowHistory
+      /** Update or set a new variable */
+      setVariable: (
+        name: string,
+        value: any,
+        type: string,
+        options?: { nbOfTurns: number; specificWorkflow?: string }
+      ) => void
       /**
        * EXPERIMENTAL
        * This includes all the flow/nodes which were traversed for the current event
@@ -738,6 +773,8 @@ declare module 'botpress/sdk' {
       node: string
       /** When a jump point is used, it will be removed from the list on the next transition */
       used?: boolean
+      /** When true, the node targeted by this jump point will be executed from the start (instead of only transitions) */
+      executeNode?: boolean
     }
 
     export interface DialogContext {
@@ -764,16 +801,21 @@ declare module 'botpress/sdk' {
       lastMessages: DialogTurnHistory[]
       nluContexts?: NluContext[]
       nduContext?: NduContext
-      lastWorkflows: WorkflowHistory[]
+      workflows: {
+        [name: string]: WorkflowHistory
+      }
+      currentWorkflow?: string
       // Prevent warnings when using the code editor with custom properties
       [anyKey: string]: any
     }
 
     export interface WorkflowHistory {
-      workflow: string
       eventId: string
+      parent?: string
+      /** Only one workflow can be active at a time, when a child workflow is active, the parent will be pending */
+      status: 'active' | 'pending' | 'completed'
       success?: boolean
-      active?: boolean
+      variables: { [name: string]: BoxedVariable<any> | UnboxedVariable<any> }
     }
 
     export type StoredEvent = {
@@ -1094,7 +1136,7 @@ declare module 'botpress/sdk' {
     /** The Id of the Content Type for which the Element belongs to. */
     contentType: string
     /** The raw form data that contains templating that needs to be interpreted. */
-    formData: object
+    formData: { [property: string]: any }
     /** The computed form data that contains the interpreted data. */
     computedData: object
     /** The textual representation of the Content Element, for each supported languages  */
@@ -1123,6 +1165,7 @@ declare module 'botpress/sdk' {
      * The jsonSchema used to validate the form data of the Content Elements.
      */
     jsonSchema: object
+    newSchema?: object
     uiSchema?: object
 
     /**
@@ -1163,6 +1206,16 @@ declare module 'botpress/sdk' {
     timeoutNode?: string
     type?: string
     timeout?: { name: string; flow: string; node: string }[]
+    variables?: FlowVariable[]
+  }
+
+  export interface FlowVariable {
+    type: string
+    name: string
+    isInput?: boolean
+    isOutput?: boolean
+    description?: string
+    params?: any
   }
 
   export interface DecisionTriggerCondition {
@@ -1272,6 +1325,7 @@ declare module 'botpress/sdk' {
     type?: FlowNodeType
     timeoutNode?: string
     flow?: string
+    isNew?: boolean
     /** Used internally by the flow editor */
     readonly lastModified?: Date
   } & NodeActions
@@ -1285,7 +1339,7 @@ declare module 'botpress/sdk' {
     triggers: { conditions: DecisionTriggerCondition[] }[]
   }
 
-  export type SkillFlowNode = Partial<ListenNode> & Pick<Required<ListenNode>, 'name'>
+  export type SkillFlowNode = Partial<ListenNode> & Pick<Required<ListenNode>, 'name'> & Partial<TriggerNode>
 
   /**
    * Node Transitions are all the possible outcomes when a user's interaction on a node is completed. The possible destinations
@@ -1306,6 +1360,12 @@ declare module 'botpress/sdk' {
     node: string
   }
 
+  export interface FormData {
+    id?: string
+    contentType?: string
+    [key: string]: FormData[] | any
+  }
+
   /**
    * A Node Action represent all the possible actions that will be executed when the user is on the node. When the user
    * enters the node, actions in the 'onEnter' are executed. If there are actions in 'onReceive', they will be called
@@ -1319,11 +1379,9 @@ declare module 'botpress/sdk' {
     /** An array of possible transitions once everything is completed */
     next?: NodeTransition[]
     /** For node of type say_something, this contains the element to render */
-    content?: {
-      contentType: string
-      /** Every properties required by the content type, including translations */
-      formData: object
-    }
+    contents?: {
+      [lang: string]: FormData
+    }[]
   }
 
   export interface ActionBuilderProps {
@@ -1423,6 +1481,34 @@ declare module 'botpress/sdk' {
     asAdmin?: boolean
     /** When enabled, user is added as a chat user (role is ignored)  */
     asChatUser?: boolean
+  }
+
+  export interface BoxedVarConstructable<T> {
+    new (ctor: BoxedVarContructor<T>): BoxedVariable<T>
+  }
+
+  export interface BoxedVariable<T> {
+    value: T
+    trySet(value: T, confidence?: number): void
+    setRetentionPolicy(nbOfTurns: number): void
+    toString(): string
+    unbox(): UnboxedVariable<T>
+  }
+
+  export interface UnboxedVariable<T> {
+    type: string
+    value: T
+    nbTurns: number
+    confidence: number
+  }
+
+  export interface BoxedVarContructor<T> {
+    /** The number of turns left until this value is no longer valid */
+    nbOfTurns: number
+    /** The confidence percentage of the value currently stored */
+    confidence?: number
+    /** The current value stored in the db */
+    value: T
   }
 
   ////////////////
@@ -1742,6 +1828,8 @@ declare module 'botpress/sdk' {
      * Returns the list of conditions that can be used in an NLU Trigger node
      */
     export function getConditions(): Condition[]
+
+    export function getVariables(): any[]
   }
 
   export namespace config {

@@ -1,5 +1,5 @@
 import { IO, Logger } from 'botpress/sdk'
-import { parseActionInstruction } from 'common/action'
+import { extractEventCommonArgs, parseActionInstruction } from 'common/action'
 import { ActionServer } from 'common/typings'
 import ActionServersService from 'core/services/action/action-servers-service'
 import ActionService from 'core/services/action/action-service'
@@ -9,28 +9,13 @@ import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import { NodeVM } from 'vm2'
 
-import { container } from '../../../app.inversify'
 import { renderTemplate } from '../../../misc/templating'
 import { TYPES } from '../../../types'
 import { VmRunner } from '../../action/vm'
 
-import { Instruction, InstructionType, ProcessingResult } from '.'
+import { Instruction, ProcessingResult } from '.'
 
 const debug = DEBUG('dialog')
-
-@injectable()
-export class StrategyFactory {
-  create(type: InstructionType): InstructionStrategy {
-    if (type === 'on-enter' || type === 'on-receive') {
-      return container.get<ActionStrategy>(TYPES.ActionStrategy)
-    } else if (type === 'transition') {
-      return container.get<TransitionStrategy>(TYPES.TransitionStrategy)
-    } else if (type === 'wait') {
-      return container.get<WaitStrategy>(TYPES.WaitStrategy)
-    }
-    throw new Error(`Undefined instruction type "${type}"`)
-  }
-}
 
 export interface InstructionStrategy {
   processInstruction(botId: string, instruction: Instruction, event): Promise<ProcessingResult>
@@ -100,17 +85,10 @@ export class ActionStrategy implements InstructionStrategy {
       event.state.session.lastMessages.push(message)
     }
 
-    args = {
-      ...args,
-      event,
-      user: _.get(event, 'state.user', {}),
-      session: _.get(event, 'state.session', {}),
-      temp: _.get(event, 'state.temp', {}),
-      bot: _.get(event, 'state.bot', {})
-    }
+    const commonArgs = extractEventCommonArgs(event, args)
 
     const eventDestination = _.pick(event, ['channel', 'target', 'botId', 'threadId'])
-    const renderedElements = await this.cms.renderElement(outputType, args, eventDestination)
+    const renderedElements = await this.cms.renderElement(outputType, commonArgs, eventDestination)
     await this.eventEngine.replyToEvent(eventDestination, renderedElements, event.id)
 
     return ProcessingResult.none()
@@ -128,13 +106,7 @@ export class ActionStrategy implements InstructionStrategy {
       throw new Error(`Action "${actionName}" has invalid arguments (not a valid JSON string): ${argsStr}`)
     }
 
-    const actionArgs = {
-      event,
-      user: _.get(event, 'state.user', {}),
-      session: _.get(event, 'state.session', {}),
-      temp: _.get(event, 'state.temp', {}),
-      bot: _.get(event, 'state.bot', {})
-    }
+    const actionArgs = extractEventCommonArgs(event)
 
     args = _.mapValues(args, value => renderTemplate(value, actionArgs))
 
@@ -169,8 +141,7 @@ export class ActionStrategy implements InstructionStrategy {
       }
 
       const { onErrorFlowTo } = event.state.temp
-      const errorFlowName = event.ndu ? 'Built-In/error.flow.json' : 'error.flow.json'
-      const errorFlow = typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : errorFlowName
+      const errorFlow = typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : 'error.flow.json'
 
       return ProcessingResult.transition(errorFlow)
     }
@@ -181,19 +152,11 @@ export class ActionStrategy implements InstructionStrategy {
 
 @injectable()
 export class TransitionStrategy implements InstructionStrategy {
-  constructor(
-    @inject(TYPES.Logger)
-    @tagged('name', 'Transition')
-    private logger: Logger
-  ) {}
+  // Characters considered unsafe which will cause the transition to run in the sandbox
+  private unsafeRegex = new RegExp(/[\(\)\`]/)
 
   async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
-    const conditionSuccessful = await this.runCode(instruction, {
-      event,
-      user: event.state.user,
-      temp: event.state.temp || {},
-      session: event.state.session
-    })
+    const conditionSuccessful = await this.runCode(instruction, extractEventCommonArgs(event))
 
     if (conditionSuccessful) {
       debug.forBot(
@@ -211,17 +174,17 @@ export class TransitionStrategy implements InstructionStrategy {
   private async runCode(instruction: Instruction, sandbox): Promise<any> {
     if (instruction.fn === 'true') {
       return true
-    } else if (instruction.fn && instruction.fn.match(/^event\.nlu\.intent\.name === '([a-zA-Z0-9_-]+)'$/)) {
-      const fn = new Function(...Object.keys(sandbox), `return ${instruction.fn}`)
-      return fn(...Object.values(sandbox))
+    } else if (instruction.fn?.startsWith('lastNode')) {
+      const stack = sandbox.event.state.__stacktrace
+      if (!stack.length) {
+        return false
+      }
+
+      const lastEntry = stack.length === 1 ? stack[0] : stack[stack.length - 2] // -2 because we want the previous node (not the current one)
+
+      return instruction.fn === `lastNode=${lastEntry.node}`
     }
 
-    const vm = new NodeVM({
-      wrapper: 'none',
-      sandbox: sandbox,
-      timeout: 5000
-    })
-    const runner = new VmRunner()
     const code = `
     try {
       return ${instruction.fn};
@@ -231,15 +194,19 @@ export class TransitionStrategy implements InstructionStrategy {
         return false
       }
       throw err
-    }
-    `
-    return await runner.runInVm(vm, code)
-  }
-}
+    }`
 
-@injectable()
-export class WaitStrategy implements InstructionStrategy {
-  async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
-    return ProcessingResult.wait()
+    if (process.DISABLE_TRANSITION_SANDBOX || !this.unsafeRegex.test(instruction.fn!)) {
+      const fn = new Function(...Object.keys(sandbox), code)
+      return fn(...Object.values(sandbox))
+    }
+
+    const vm = new NodeVM({
+      wrapper: 'none',
+      sandbox: sandbox,
+      timeout: 5000
+    })
+    const runner = new VmRunner()
+    return await runner.runInVm(vm, code)
   }
 }

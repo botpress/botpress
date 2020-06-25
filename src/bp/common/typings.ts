@@ -1,8 +1,16 @@
-import { BotDetails, Flow, FlowNode, RolloutStrategy, StageRequestApprovers } from 'botpress/sdk'
+import {
+  BotDetails,
+  BoxedVarConstructable,
+  Flow,
+  FlowNode,
+  IO,
+  RolloutStrategy,
+  StageRequestApprovers
+} from 'botpress/sdk'
+import { StrategyUser } from 'botpress/sdk'
 import { Request } from 'express'
 
 import { BotpressConfig } from '../core/config/botpress.config'
-import { StrategyUser } from '../core/repositories/strategy_users'
 
 export interface IDisposeOnExit {
   disposeOnExit(): void
@@ -204,6 +212,17 @@ export interface LibraryElement {
   path: string
 }
 
+export interface EventCommonArgs {
+  event: IO.IncomingEvent
+  user: { [attribute: string]: any }
+  temp: { [property: string]: any }
+  bot: { [property: string]: any }
+  session: IO.CurrentSession
+  workflow: IO.WorkflowHistory
+  // Any other additional property
+  [property: string]: any
+}
+
 export interface ServerHealth {
   serverId: string
   hostname: string
@@ -249,4 +268,54 @@ export interface ActionParameterDefinition {
 
 export type ActionServerWithActions = ActionServer & {
   actions: ActionDefinition[] | undefined
+}
+
+export interface FlowVariableType {
+  id: string
+  config: FlowVariableConfig
+  box: BoxedVarConstructable<any>
+}
+
+export type FlowVariableConfig = FormDefinition
+
+export interface FormMoreInfo {
+  label: string
+  url?: string
+}
+
+export interface FormAdvancedSetting {
+  key: string
+  label: string
+  type: string
+  moreInfo?: FormMoreInfo
+}
+
+export interface FormOption {
+  value: string
+  label: string
+  related: FormField
+}
+
+export interface FormContextMenu {
+  type: string
+  label: string
+}
+
+export interface FormField {
+  type: 'checkbox' | 'group' | 'select' | 'text' | 'textarea' | 'upload' | 'url'
+  key: string
+  label: string
+  placeholder?: string
+  options?: FormOption[]
+  fields?: FormField[]
+  group?: {
+    addLabel?: string // you have to specify the add button label
+    minimum?: number // you can specify a minimum so the delete button won't show if there isn't more than the minimum
+    contextMenu?: FormContextMenu[] // you can add a contextual menu to add extra options
+  }
+}
+
+export interface FormDefinition {
+  advancedSettings: FormAdvancedSetting[]
+  fields: FormField[]
 }

@@ -34,7 +34,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   translations: { en, fr },
   definition: {
     name: 'testing',
-    menuIcon: 'polymer',
+    menuIcon: 'record',
     menuText: 'Testing',
     noInterface: false,
     fullName: 'Testing',

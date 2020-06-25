@@ -1,6 +1,5 @@
 export const LATIN_CHARSET = `
 0123456789
--
 abcdefghijklmnopqrstuvwxyz
 ÄäÀàÁáÂâÃãÅåǍǎĄąĂăÆæĀā
 ÇçĆćĈĉČč

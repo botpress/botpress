@@ -3,16 +3,11 @@
 interface CssExports {
   'active': string;
   'customIcon': string;
-  'empty': string;
-  'experimental': string;
   'link': string;
   'logo': string;
-  'mainMenu': string;
-  'mainMenu__item': string;
-  'mainMenu__link': string;
-  'mainMenu_level2': string;
   'sidebar': string;
-  'sidebarReact': string;
+  'tag': string;
+  'tooltipContent': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

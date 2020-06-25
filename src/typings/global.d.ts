@@ -49,11 +49,9 @@ declare namespace NodeJS {
     IS_FAILSAFE: boolean
     /** A random ID generated on server start to identify each server in a cluster */
     SERVER_ID: string
-    /**
-     * When true, global hooks and actions will be executed outside of the sandbox.
-     * This gives a boost in performances for code deemed "safe", while bot-specific content is executed in the sandbox
-     */
     DISABLE_GLOBAL_SANDBOX: boolean
+    DISABLE_BOT_SANDBOX: boolean
+    DISABLE_TRANSITION_SANDBOX: boolean
     WEB_WORKER: number
     ML_WORKERS: number[]
   }
@@ -191,6 +189,12 @@ declare type BotpressEnvironmentVariables = {
    * Can give a significant performance improvement but removes some protections.
    */
   readonly DISABLE_GLOBAL_SANDBOX?: boolean
+
+  /** When true, bot-scoped actions and hooks are executed outside of the sandbox  */
+  readonly DISABLE_BOT_SANDBOX?: boolean
+
+  /** When true, transitions are executed outside of the sandbox  */
+  readonly DISABLE_TRANSITION_SANDBOX?: boolean
 
   /** Runs all migrations from v12.0.0 up to the latest migration found in modules and core */
   readonly TESTMIG_ALL?: boolean

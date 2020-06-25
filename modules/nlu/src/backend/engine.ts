@@ -1,5 +1,6 @@
 import { MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
+import crypto from 'crypto'
 
 import * as CacheManager from './cache-manager'
 import { computeModelHash, Model } from './model-service'
@@ -7,9 +8,22 @@ import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipe
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
 import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
-import { EntityCacheDump, ListEntity, ListEntityModel, NLUEngine, Tools, TrainingSession } from './typings'
+import {
+  EntityCacheDump,
+  ListEntity,
+  ListEntityModel,
+  NLUEngine,
+  Tools,
+  TrainingSession,
+  NLUVersionInfo,
+  Intent
+} from './typings'
 
 const trainDebug = DEBUG('nlu').sub('training')
+
+export type TrainingOptions = {
+  forceTrain: boolean
+}
 
 export default class Engine implements NLUEngine {
   // NOTE: removed private in order to prevent important refactor (which will be done later)
@@ -17,7 +31,7 @@ export default class Engine implements NLUEngine {
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<Model> = {}
 
-  constructor(private defaultLanguage: string, private botId: string) {}
+  constructor(private defaultLanguage: string, private botId: string, private version: NLUVersionInfo) {}
 
   static provideTools(tools: Tools) {
     Engine.tools = tools
@@ -27,7 +41,8 @@ export default class Engine implements NLUEngine {
     intentDefs: NLU.IntentDefinition[],
     entityDefs: NLU.EntityDefinition[],
     languageCode: string,
-    trainingSession?: TrainingSession
+    trainingSession?: TrainingSession,
+    options?: TrainingOptions
   ): Promise<Model> {
     trainDebug.forBot(this.botId, `Started ${languageCode} training`)
 
@@ -60,6 +75,33 @@ export default class Engine implements NLUEngine {
       .uniq()
       .value()
 
+    const intents = intentDefs
+      .filter(x => !!x.utterances[languageCode])
+      .map(x => ({
+        name: x.name,
+        contexts: x.contexts,
+        utterances: x.utterances[languageCode],
+        slot_definitions: x.slots
+      }))
+
+    const previousModel = this.modelsByLang[languageCode]
+    let trainAllCtx = options?.forceTrain || !previousModel
+    let ctxToTrain = contexts
+
+    if (!trainAllCtx) {
+      const previousIntents = previousModel.data.input.intents
+      const ctxHasChanged = this._ctxHasChanged(previousIntents, intents)
+      const modifiedCtx = contexts.filter(ctxHasChanged)
+
+      trainAllCtx = modifiedCtx.length === contexts.length
+      ctxToTrain = trainAllCtx ? contexts : modifiedCtx
+    }
+
+    const debugMsg = trainAllCtx
+      ? `Training all contexts for language: ${languageCode}`
+      : `Retraining only contexts: [${ctxToTrain}] for language: ${languageCode}`
+    trainDebug.forBot(this.botId, debugMsg)
+
     const input: TrainInput = {
       botId: this.botId,
       trainingSession,
@@ -67,20 +109,18 @@ export default class Engine implements NLUEngine {
       list_entities,
       pattern_entities,
       contexts,
-      intents: intentDefs
-        .filter(x => !!x.utterances[languageCode])
-        .map(x => ({
-          name: x.name,
-          contexts: x.contexts,
-          utterances: x.utterances[languageCode],
-          slot_definitions: x.slots
-        }))
+      intents,
+      ctxToTrain
     }
 
     // Model should be build here, Trainer should not have any idea of how this is stored
     // Error handling should be done here
-    const model = await Trainer(input, Engine.tools)
-    model.hash = computeModelHash(intentDefs, entityDefs)
+    let model = await Trainer(input, Engine.tools)
+    if (!trainAllCtx) {
+      model = this._mergeModels(previousModel, model)
+    }
+
+    model.hash = computeModelHash(intentDefs, entityDefs, this.version, model.languageCode)
     if (model.success) {
       trainingSession &&
         Engine.tools.reportTrainingProgress(this.botId, 'Training complete', {
@@ -108,11 +148,6 @@ export default class Engine implements NLUEngine {
       !!model.hash &&
       this.modelsByLang[lang].hash === model.hash
     )
-  }
-
-  async loadModels(models: Model[]) {
-    // note the usage of mapSeries, possible race condition
-    return Promise.mapSeries(models, model => this.loadModel(model))
   }
 
   async loadModel(model: Model) {
@@ -193,5 +228,34 @@ export default class Engine implements NLUEngine {
 
     // error handled a level highr
     return Predict(input, Engine.tools, this.predictorsByLang)
+  }
+
+  private _mergeModels(previousModel: Model, trainingOuput: Model) {
+    const { artefacts: previousArtefacts } = previousModel.data
+    const { artefacts: currentArtefacts } = trainingOuput.data
+    if (!previousArtefacts || !currentArtefacts) {
+      return previousModel
+    }
+
+    const artefacts = _.merge({}, previousArtefacts, currentArtefacts)
+    const mergedModel = _.merge({}, trainingOuput, { data: { artefacts } })
+
+    // lodash merge messes up buffers objects
+    mergedModel.data.artefacts.slots_model = new Buffer(mergedModel.data.artefacts.slots_model)
+    return mergedModel
+  }
+
+  private _ctxHasChanged = (previousIntents: Intent<string>[], currentIntents: Intent<string>[]) => (ctx: string) => {
+    const prevHash = this._computeCtxHash(previousIntents, ctx)
+    const currHash = this._computeCtxHash(currentIntents, ctx)
+    return prevHash !== currHash
+  }
+
+  private _computeCtxHash = (intents: Intent<string>[], ctx: string) => {
+    const intentsOfCtx = intents.filter(i => i.contexts.includes(ctx))
+    return crypto
+      .createHash('md5')
+      .update(JSON.stringify(intentsOfCtx))
+      .digest('hex')
   }
 }
