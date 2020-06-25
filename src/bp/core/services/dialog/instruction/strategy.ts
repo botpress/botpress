@@ -154,8 +154,7 @@ export class ActionStrategy implements InstructionStrategy {
       }
 
       const { onErrorFlowTo } = event.state.temp
-      const errorFlowName = event.ndu ? 'Built-In/error.flow.json' : 'error.flow.json'
-      const errorFlow = typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : errorFlowName
+      const errorFlow = typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : 'error.flow.json'
 
       return ProcessingResult.transition(errorFlow)
     }
@@ -193,6 +192,15 @@ export class TransitionStrategy implements InstructionStrategy {
   private async runCode(instruction: Instruction, sandbox): Promise<any> {
     if (instruction.fn === 'true') {
       return true
+    } else if (instruction.fn?.startsWith('lastNode')) {
+      const stack = sandbox.event.state.__stacktrace
+      if (!stack.length) {
+        return false
+      }
+
+      const lastEntry = stack.length === 1 ? stack[0] : stack[stack.length - 2] // -2 because we want the previous node (not the current one)
+
+      return instruction.fn === `lastNode=${lastEntry.node}`
     }
 
     const code = `

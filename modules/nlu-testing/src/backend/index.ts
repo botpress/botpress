@@ -39,7 +39,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   translations: { en, fr },
   definition: {
     name: 'nlu-testing',
-    menuIcon: 'done_outline',
+    menuIcon: 'lab-test',
     menuText: 'NLU Testing',
     fullName: 'NLU Regression Testing',
     homepage: 'https://botpress.com',

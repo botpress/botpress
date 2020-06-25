@@ -33,7 +33,7 @@ import {
   thisYear
 } from './dates'
 import style from './style.scss'
-import { fillMissingValues } from './utils'
+import { fillMissingValues, getNotNaN } from './utils'
 import FlatProgressChart from './FlatProgressChart'
 import ItemsList from './ItemsList'
 import NumberMetric from './NumberMetric'
@@ -262,8 +262,6 @@ const Analytics: FC<any> = ({ bp }) => {
 
     return getNotNaN(percent, '%')
   }
-
-  const getNotNaN = (value, suffix = '') => (Number.isNaN(value) ? 'N/A' : `${Math.round(value)}${suffix}`)
 
   const getMetric = metricName => state.metrics.filter(x => x.metric === metricName)
 

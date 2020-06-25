@@ -139,7 +139,7 @@ class SkillsBuilder extends React.Component {
 
     return axios
       .post(
-        `${window.API_PATH}/modules/${skill.moduleName}/skill/${skill.id}/generateFlow?botId=${window.BOT_ID}`,
+        `${window.API_PATH}/modules/${skill.moduleName}/skill/${skill.id}/generateFlow?botId=${window.BOT_ID}&isOneFlow=${window.USE_ONEFLOW}`,
         this.data
       )
       .then(({ data }) => data)

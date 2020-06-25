@@ -45,6 +45,7 @@ export type TrainOutput = Readonly<{
   pattern_entities: PatternEntity[]
   contexts: string[]
   intents: Intent<Utterance>[]
+  vocabVectors: Token2Vec
   tfIdf?: TFIDF
   kmeans?: sdk.MLToolkit.KMeans.KmeansResult
 }>
@@ -58,7 +59,7 @@ export interface TrainArtefacts {
   intent_model_by_ctx: Dic<string>
   slots_model: Buffer
   exact_match_index: ExactMatchIndex
-  oos_model: string
+  oos_model: _.Dictionary<string>
 }
 
 export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] }>
@@ -93,11 +94,13 @@ const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainOu
   )
 
   const intents = await ProcessIntents(input.intents, input.languageCode, list_entities, tools)
+  const vocabVectors = buildVectorsVocab(intents)
 
   return {
     ..._.omit(input, 'list_entities', 'intents'),
     list_entities,
-    intents
+    intents,
+    vocabVectors
   } as TrainOutput
 }
 
@@ -203,22 +206,41 @@ const TrainIntentClassifier = async (
 ): Promise<_.Dictionary<string> | undefined> => {
   debugTraining.forBot(input.botId, 'Training intent classifier')
   const svmPerCtx: _.Dictionary<string> = {}
+
+  const noneUtts = _.chain(input.intents)
+    .filter(i => i.name === NONE_INTENT) // in case use defines a none intent we want to combine utterances
+    .flatMap(i => i.utterances)
+    .filter(u => u.tokens.filter(t => t.isWord).length >= 3)
+    .value()
+
   for (let i = 0; i < input.contexts.length; i++) {
     const ctx = input.contexts[i]
-    const points = _.chain(input.intents)
-      .filter(i => i.contexts.includes(ctx) && i.utterances.length >= MIN_NB_UTTERANCES)
+    const trainableIntents = input.intents.filter(
+      i => i.name !== NONE_INTENT && i.contexts.includes(ctx) && i.utterances.length >= MIN_NB_UTTERANCES
+    )
+
+    const nAvgUtts = Math.ceil(_.meanBy(trainableIntents, 'utterances.length'))
+    const points = _.chain(trainableIntents)
+      .thru(ints => [
+        ...ints,
+        {
+          name: NONE_INTENT,
+          utterances: _.chain(noneUtts)
+            .shuffle()
+            .take(nAvgUtts * 2.5) // undescriptible magic n, no sens to extract constant
+            .value()
+        }
+      ])
       .flatMap(i =>
-        i.utterances
-          .filter((u, idx) => i.name !== NONE_INTENT || (u.tokens.length > 2 && idx % 3 === 0))
-          .map(utt => ({
-            label: i.name,
-            coordinates: [...utt.sentenceEmbedding, utt.tokens.length]
-          }))
+        i.utterances.map(utt => ({
+          label: i.name,
+          coordinates: [...utt.sentenceEmbedding, utt.tokens.length]
+        }))
       )
       .filter(x => !x.coordinates.some(isNaN))
       .value()
 
-    if (points.length < 0) {
+    if (points.length <= 0) {
       progress(1 / input.contexts.length)
       continue
     }
@@ -340,7 +362,7 @@ export const AppendNoneIntent = async (input: TrainOutput, tools: Tools): Promis
     .flattenDeep<string>()
     .value()
 
-  const junkWords = await tools.generateSimilarJunkWords(_.uniq(vocabWithDupes), input.languageCode)
+  const junkWords = await tools.generateSimilarJunkWords(Object.keys(input.vocabVectors), input.languageCode)
   const avgTokens = _.meanBy(allUtterances, x => x.tokens.length)
   const nbOfNoneUtterances = _.clamp(
     (allUtterances.length * 2) / 3,
@@ -420,14 +442,17 @@ const TrainSlotTagger = async (input: TrainOutput, tools: Tools, progress: progr
   return slotTagger.serialized
 }
 
-const TrainOutOfScope = async (input: TrainOutput, tools: Tools, progress: progressCB): Promise<string | undefined> => {
+const TrainOutOfScope = async (
+  input: TrainOutput,
+  tools: Tools,
+  progress: progressCB
+): Promise<_.Dictionary<string>> => {
   debugTraining.forBot(input.botId, 'Training out of scope classifier')
   const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
     c: [10],
     gamma: [0.1],
     kernel: 'LINEAR',
-    classifier: 'C_SVC',
-    reduce: false
+    classifier: 'C_SVC'
   }
 
   const noneUtts = _.chain(input.intents)
@@ -437,22 +462,31 @@ const TrainOutOfScope = async (input: TrainOutput, tools: Tools, progress: progr
 
   if (!isPOSAvailable(input.languageCode) || noneUtts.length === 0) {
     progress()
-    return
+    return {}
   }
 
-  const oos_points = featurizeOOSUtterances(noneUtts, tools)
+  const oos_points = featurizeOOSUtterances(noneUtts, input.vocabVectors, tools)
+  let combinedProgress = 0
+  const ctxModels: [string, string][] = await Promise.map(input.contexts, async ctx => {
+    const in_ctx_scope_points = _.chain(input.intents)
+      .filter(i => i.name !== NONE_INTENT && i.contexts.includes(ctx))
+      .flatMap(i => featurizeInScopeUtterances(i.utterances, i.name))
+      .value()
 
-  const in_scope_points = _.chain(input.intents)
-    .filter(i => i.name !== NONE_INTENT)
-    .flatMap(i => featurizeInScopeUtterances(i.utterances, i.name))
-    .value()
-
-  const svm = new tools.mlToolkit.SVM.Trainer()
-  const model = await svm.train([...in_scope_points, ...oos_points], trainingOptions, p => {
-    progress(_.round(p, 2))
+    const svm = new tools.mlToolkit.SVM.Trainer()
+    const model = await svm.train([...in_ctx_scope_points, ...oos_points], trainingOptions, p => {
+      combinedProgress += p / input.contexts.length
+      progress(combinedProgress)
+    })
+    return [ctx, model] as [string, string]
   })
+
   debugTraining.forBot(input.botId, 'Done training out of scope')
-  return model
+  progress(1)
+  return ctxModels.reduce((acc, [ctx, model]) => {
+    acc[ctx] = model
+    return acc
+  }, {})
 }
 
 const NB_STEPS = 5 // change this if the training pipeline changes
@@ -508,7 +542,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
       ctx_model,
       intent_model_by_ctx,
       slots_model,
-      vocabVectors: buildVectorsVocab(output.intents),
+      vocabVectors: output.vocabVectors,
       exact_match_index
       // kmeans: {} add this when mlKmeans supports loading from serialized data,
     }

@@ -1,3 +1,49 @@
+## [12.10.1](https://github.com/botpress/botpress/compare/v12.10.0...v12.10.1) (2020-06-16)
+
+
+### Bug Fixes
+
+* **choice:** fix legacy choice ([#3466](https://github.com/botpress/botpress/issues/3466)) ([ef359b4](https://github.com/botpress/botpress/commit/ef359b4))
+* **nlu:** fix nlu predictions for intents with no trained predictors ([#3441](https://github.com/botpress/botpress/issues/3441)) ([2732571](https://github.com/botpress/botpress/commit/2732571)), closes [#3444](https://github.com/botpress/botpress/issues/3444) [#3448](https://github.com/botpress/botpress/issues/3448)
+
+
+# [12.10.0](https://github.com/botpress/botpress/compare/v12.9.3...v12.10.0) (2020-06-10)
+
+
+### Bug Fixes
+
+* **analytics:** fix nan display ([#3407](https://github.com/botpress/botpress/issues/3407)) ([23f32dc](https://github.com/botpress/botpress/commit/23f32dc))
+* **broadcast:** ported to 12.x ([#3078](https://github.com/botpress/botpress/issues/3078)) ([dcfa435](https://github.com/botpress/botpress/commit/dcfa435))
+* **core:** clear workflow property before assigning ([#3405](https://github.com/botpress/botpress/issues/3405)) ([e7827d9](https://github.com/botpress/botpress/commit/e7827d9))
+* **core:** flag to run transitions outside of the sandbox ([#3363](https://github.com/botpress/botpress/issues/3363)) ([bd0738f](https://github.com/botpress/botpress/commit/bd0738f))
+* **core:** implement choice in ndu ([#3233](https://github.com/botpress/botpress/issues/3233)) ([a28d094](https://github.com/botpress/botpress/commit/a28d094))
+* **core:** locking mechanism when not using redis ([#3357](https://github.com/botpress/botpress/issues/3357)) ([6e042b8](https://github.com/botpress/botpress/commit/6e042b8))
+* **core:** say something was not using templates properly ([#3396](https://github.com/botpress/botpress/issues/3396)) ([48dc885](https://github.com/botpress/botpress/commit/48dc885))
+* **core:** update sandbox behavior ([#3359](https://github.com/botpress/botpress/issues/3359)) ([6fd5a79](https://github.com/botpress/botpress/commit/6fd5a79))
+* **ndu:** updated bot template ([#3315](https://github.com/botpress/botpress/issues/3315)) ([aff76c2](https://github.com/botpress/botpress/commit/aff76c2))
+* **ndu:** updated workflows management  & workflow ended ([#3235](https://github.com/botpress/botpress/issues/3235)) ([cacc5ec](https://github.com/botpress/botpress/commit/cacc5ec))
+* **nlu:** entities duplication ([#3183](https://github.com/botpress/botpress/issues/3183)) ([36c9c48](https://github.com/botpress/botpress/commit/36c9c48))
+* **nlu:** remove sensitive data from text ([ee12dbf](https://github.com/botpress/botpress/commit/ee12dbf))
+* **nlu:** update slots and intents on entity removal ([#2820](https://github.com/botpress/botpress/issues/2820)) ([d21938d](https://github.com/botpress/botpress/commit/d21938d))
+* **qna:** fix issue with toggle all qnas ([#3378](https://github.com/botpress/botpress/issues/3378)) ([6f1e998](https://github.com/botpress/botpress/commit/6f1e998))
+* **qna:** remove nlu logger for qna ([#3330](https://github.com/botpress/botpress/issues/3330)) ([656cd9f](https://github.com/botpress/botpress/commit/656cd9f))
+* **qna:** various bug fixes ([f81b5ab](https://github.com/botpress/botpress/commit/f81b5ab))
+* **studio:** flow / oneflow path ([#3406](https://github.com/botpress/botpress/issues/3406)) ([977ee3a](https://github.com/botpress/botpress/commit/977ee3a))
+* **topics:** quickfix for release for topics list ([#3371](https://github.com/botpress/botpress/issues/3371)) ([4b7ad2f](https://github.com/botpress/botpress/commit/4b7ad2f))
+
+
+### Features
+
+* **core:** branding &  white label ([#3323](https://github.com/botpress/botpress/issues/3323)) ([ef47cfa](https://github.com/botpress/botpress/commit/ef47cfa))
+* **core:** module management ([#3336](https://github.com/botpress/botpress/issues/3336)) ([826ce82](https://github.com/botpress/botpress/commit/826ce82))
+* **nlu:** out of scope model by topic ([b00a967](https://github.com/botpress/botpress/commit/b00a967))
+* **qna:** new UI for QnA ([#3279](https://github.com/botpress/botpress/issues/3279)) ([63e0be2](https://github.com/botpress/botpress/commit/63e0be2))
+* **shared:** right sidebar portal that pushes content ([#3331](https://github.com/botpress/botpress/issues/3331)) ([6f6e086](https://github.com/botpress/botpress/commit/6f6e086))
+* **studio:** implement style for new sidebar menu ([#3309](https://github.com/botpress/botpress/issues/3309)) ([5445ffa](https://github.com/botpress/botpress/commit/5445ffa))
+* **studio:** topics ([#3222](https://github.com/botpress/botpress/issues/3222)) ([230bb39](https://github.com/botpress/botpress/commit/230bb39))
+
+
+
 ## [12.9.3](https://github.com/botpress/botpress/compare/v12.9.2...v12.9.3) (2020-05-21)
 
 

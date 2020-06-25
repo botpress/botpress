@@ -2,7 +2,6 @@ import { MLToolkit, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
 import * as CacheManager from './cache-manager'
-import { isPOSAvailable } from './language/pos-tagger'
 import { computeModelHash, Model } from './model-service'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
@@ -163,7 +162,10 @@ export default class Engine implements NLUEngine {
       (c, [ctx, intentModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(intentModel as string) }),
       {} as _.Dictionary<MLToolkit.SVM.Predictor>
     )
-    const oos_classifier = isPOSAvailable(model.languageCode) ? new tools.mlToolkit.SVM.Predictor(oos_model) : undefined
+    const oos_classifier = _.toPairs(oos_model).reduce(
+      (c, [ctx, mod]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(mod) }),
+      {} as _.Dictionary<MLToolkit.SVM.Predictor>
+    )
     const slot_tagger = new SlotTagger(tools.mlToolkit)
     slot_tagger.load(artefacts.slots_model)
 
@@ -172,7 +174,7 @@ export default class Engine implements NLUEngine {
     return {
       ...artefacts,
       ctx_classifier,
-      oos_classifier,
+      oos_classifier_per_ctx: oos_classifier,
       intent_classifier_per_ctx,
       slot_tagger,
       kmeans,

@@ -51,7 +51,8 @@ export function getOnBotMount(state: NLUState) {
             }
             await ModelService.pruneModels(ghost, languageCode)
             let model = await ModelService.getModel(ghost, hash, languageCode)
-            if ((forceTrain || !model) && !yn(process.env.BP_NLU_DISABLE_TRAINING)) {
+            const isSingleOOS = typeof (model?.data?.artefacts?.oos_model ?? {}) === 'string' // temporary until we include nlu version in model hash
+            if ((forceTrain || !model || isSingleOOS) && !yn(process.env.BP_NLU_DISABLE_TRAINING)) {
               const trainSession = makeTrainingSession(languageCode, lock)
               state.nluByBot[botId].trainSessions[languageCode] = trainSession
 

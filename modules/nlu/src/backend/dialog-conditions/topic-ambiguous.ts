@@ -16,7 +16,6 @@ export default {
   evaluate: (event: IO.IncomingEvent, { ambiguityThreshold }: Params) => {
     const highestTopics: number[] = _.chain(event?.nlu?.predictions ?? {})
       .toPairs()
-      .filter(x => x[0] !== 'oos')
       .orderBy('1.confidence', 'desc')
       .map('1.confidence')
       .take(2)

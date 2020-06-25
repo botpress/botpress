@@ -55,7 +55,6 @@
     "prop-types": "^15.6.0",
     "query-string": "^5.1.1",
     "react": "16.8.6",
-    "react-autosize-textarea": "^7.0.0",
     "react-bootstrap": "^0.33.1",
     "react-dock": "^0.2.4",
     "react-dom": "16.8.6",
