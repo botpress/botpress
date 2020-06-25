@@ -12,14 +12,12 @@ export default {
   label: 'module.nlu.conditions.ambiguousIntentInTopic',
   description: `The users's intention is can be interpreted as multiple intents within the same topic`,
   displayOrder: 1,
-  params: {
-    fields: [
-      { key: 'ambiguityThreshold', label: 'module.nlu.conditions.fields.label.ambiguityThreshold', type: 'number' }
-    ],
-    advancedSettings: [
-      { key: 'onlyIfActive', label: 'module.nlu.conditions.fields.label.activeWorkflowOnly', type: 'checkbox' }
-    ]
-  },
+  fields: [
+    { key: 'ambiguityThreshold', label: 'module.nlu.conditions.fields.label.ambiguityThreshold', type: 'number' }
+  ],
+  advancedSettings: [
+    { key: 'onlyIfActive', label: 'module.nlu.conditions.fields.label.activeWorkflowOnly', type: 'checkbox' }
+  ],
   evaluate: (event: IO.IncomingEvent, { ambiguityThreshold, onlyIfActive, topicName }: Params) => {
     const currentTopic = _.get(event.state.session, 'nduContext.last_topic')
 

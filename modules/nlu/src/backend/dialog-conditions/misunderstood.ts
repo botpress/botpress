@@ -6,17 +6,15 @@ export default {
   label: 'module.nlu.conditions.saySomethingMisunderstood',
   description: `The user's intention is misunderstood`,
   displayOrder: 3,
-  params: {
-    fields: [
-      {
-        key: 'maxConfidence',
-        label: 'module.nlu.conditions.fields.label.maxConfidence',
-        type: 'number',
-        defaultValue: 100,
-        required: true
-      }
-    ]
-  },
+  fields: [
+    {
+      key: 'maxConfidence',
+      label: 'module.nlu.conditions.fields.label.maxConfidence',
+      type: 'number',
+      defaultValue: 100,
+      required: true
+    }
+  ],
   evaluate: (event, params) => {
     const highestCtx = _.chain(event?.nlu?.predictions ?? {})
       .toPairs()

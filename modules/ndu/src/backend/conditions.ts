@@ -6,21 +6,19 @@ export const dialogConditions: sdk.Condition[] = [
     id: 'user_channel_is',
     label: 'module.ndu.conditions.userUsingChannel',
     description: `The user speaks on channel {channelName}`,
-    params: {
-      fields: [
-        {
-          type: 'select',
-          key: 'channelName',
-          label: 'module.ndu.conditions.fields.label.channel',
-          placeholder: 'module.ndu.conditions.fields.placeholder.pickChannel',
-          dynamicOptions: {
-            endpoint: 'BOT_API_PATH/mod/ndu/channels',
-            valueField: 'value',
-            labelField: 'label'
-          }
+    fields: [
+      {
+        type: 'select',
+        key: 'channelName',
+        label: 'module.ndu.conditions.fields.label.channel',
+        placeholder: 'module.ndu.conditions.fields.placeholder.pickChannel',
+        dynamicOptions: {
+          endpoint: 'BOT_API_PATH/mod/ndu/channels',
+          valueField: 'value',
+          labelField: 'label'
         }
-      ]
-    },
+      }
+    ],
     evaluate: (event, params) => {
       return event.channel === params.channelName ? 1 : 0
     }
@@ -29,22 +27,20 @@ export const dialogConditions: sdk.Condition[] = [
     id: 'user_language_is',
     label: 'module.ndu.conditions.userSpeaks',
     description: `The user's language is {language}`,
-    params: {
-      fields: [
-        {
-          type: 'select',
-          key: 'language',
-          label: 'module.ndu.conditions.fields.label.language',
-          placeholder: 'module.ndu.conditions.fields.placeholder.pickLanguage',
-          dynamicOptions: {
-            endpoint: 'API_PATH/admin/languages',
-            path: 'installed',
-            valueField: 'lang',
-            labelField: 'name'
-          }
+    fields: [
+      {
+        type: 'select',
+        key: 'language',
+        label: 'module.ndu.conditions.fields.label.language',
+        placeholder: 'module.ndu.conditions.fields.placeholder.pickLanguage',
+        dynamicOptions: {
+          endpoint: 'API_PATH/admin/languages',
+          path: 'installed',
+          valueField: 'lang',
+          labelField: 'name'
         }
-      ]
-    },
+      }
+    ],
     evaluate: (event, params) => {
       return event.state.user.language === params.language ? 1 : 0
     }
@@ -60,21 +56,19 @@ export const dialogConditions: sdk.Condition[] = [
     id: 'user_topic_source',
     label: 'module.ndu.conditions.userComingFromTopic',
     description: `The user's last topic was {topicName}`,
-    params: {
-      fields: [
-        {
-          type: 'select',
-          key: 'topicName',
-          label: 'module.ndu.conditions.fields.label.topic',
-          placeholder: 'module.ndu.conditions.fields.placeholder.pickTopic',
-          dynamicOptions: {
-            endpoint: 'BOT_API_PATH/topics',
-            valueField: 'name',
-            labelField: 'name'
-          }
+    fields: [
+      {
+        type: 'select',
+        key: 'topicName',
+        label: 'module.ndu.conditions.fields.label.topic',
+        placeholder: 'module.ndu.conditions.fields.placeholder.pickTopic',
+        dynamicOptions: {
+          endpoint: 'BOT_API_PATH/topics',
+          valueField: 'name',
+          labelField: 'name'
         }
-      ]
-    },
+      }
+    ],
     evaluate: (event, params) => {
       const topics = event.state.session.lastTopics
       return topics && topics[topics.length - 1] === params.topicName ? 1 : 0
@@ -84,15 +78,13 @@ export const dialogConditions: sdk.Condition[] = [
     id: 'raw_js',
     label: 'module.ndu.conditions.customCode',
     description: `{label}`,
-    params: {
-      fields: [
-        {
-          type: 'textarea',
-          key: 'expression',
-          label: 'module.ndu.conditions.fields.label.code'
-        }
-      ]
-    },
+    fields: [
+      {
+        type: 'textarea',
+        key: 'expression',
+        label: 'module.ndu.conditions.fields.label.code'
+      }
+    ],
     evaluate: (event, params) => {
       const code = `
       try {
@@ -128,9 +120,13 @@ export const dialogConditions: sdk.Condition[] = [
     id: 'custom_confidence',
     label: 'module.ndu.conditions.customPriority',
     description: `Confidence level of {confidence}`,
-    params: {
-      fields: [{ type: 'number', key: 'confidence', label: 'module.ndu.conditions.fields.label.confidence' }]
-    },
+    fields: [
+      {
+        type: 'number',
+        key: 'confidence',
+        label: 'module.ndu.conditions.fields.label.confidence'
+      }
+    ],
     evaluate: (_event, params) => {
       return params.confidence
     }
@@ -146,31 +142,29 @@ export const dialogConditions: sdk.Condition[] = [
     id: 'type_text',
     label: 'module.ndu.conditions.userTyped',
     description: `The user typed {text}`,
-    params: {
-      fields: [
-        {
-          key: 'candidate',
-          label: 'module.ndu.conditions.fields.label.candidate',
-          placeholder: 'module.ndu.conditions.fields.placeholder.oneWordPerLine',
-          type: 'text_array',
-          group: {
-            addLabel: 'module.ndu.conditions.fields.label.addWord'
-          }
+    fields: [
+      {
+        key: 'candidate',
+        label: 'module.ndu.conditions.fields.label.candidate',
+        placeholder: 'module.ndu.conditions.fields.placeholder.oneWordPerLine',
+        type: 'text_array',
+        group: {
+          addLabel: 'module.ndu.conditions.fields.label.addWord'
         }
-      ],
-      advancedSettings: [
-        {
-          key: 'exactMatch',
-          label: 'module.ndu.conditions.fields.label.exactMatch',
-          type: 'checkbox'
-        },
-        {
-          key: 'caseSensitive',
-          label: 'module.ndu.conditions.fields.label.caseSensitive',
-          type: 'checkbox'
-        }
-      ]
-    },
+      }
+    ],
+    advancedSettings: [
+      {
+        key: 'exactMatch',
+        label: 'module.ndu.conditions.fields.label.exactMatch',
+        type: 'checkbox'
+      },
+      {
+        key: 'caseSensitive',
+        label: 'module.ndu.conditions.fields.label.caseSensitive',
+        type: 'checkbox'
+      }
+    ],
     evaluate: (event, params) => {
       const { candidate, exactMatch, caseSensitive } = params
 
@@ -189,32 +183,30 @@ export const dialogConditions: sdk.Condition[] = [
   {
     id: 'workflow_ended',
     label: 'module.ndu.conditions.userEndedWorkflow',
-    params: {
-      fields: [
-        {
-          key: 'outcome',
-          label: 'module.ndu.conditions.fields.label.workflowOutcome',
-          placeholder: 'module.ndu.conditions.fields.placeholder.pickWorkflowOutcome',
-          type: 'select',
-          options: [
-            { label: 'module.ndu.conditions.fields.label.success', value: 'success' },
-            { label: 'module.ndu.conditions.fields.label.failure', value: 'failure' }
-          ]
+    fields: [
+      {
+        key: 'outcome',
+        label: 'module.ndu.conditions.fields.label.workflowOutcome',
+        placeholder: 'module.ndu.conditions.fields.placeholder.pickWorkflowOutcome',
+        type: 'select',
+        options: [
+          { label: 'module.ndu.conditions.fields.label.success', value: 'success' },
+          { label: 'module.ndu.conditions.fields.label.failure', value: 'failure' }
+        ]
+      },
+      {
+        key: 'ignoredWorkflows',
+        label: 'module.ndu.conditions.fields.label.ignoredWorkflows',
+        moreInfo: {
+          label: 'module.ndu.conditions.fields.label.ignoredWorkflowsMoreInfo'
         },
-        {
-          key: 'ignoredWorkflows',
-          label: 'module.ndu.conditions.fields.label.ignoredWorkflows',
-          moreInfo: {
-            label: 'module.ndu.conditions.fields.label.ignoredWorkflowsMoreInfo'
-          },
-          placeholder: 'module.ndu.conditions.fields.placeholder.workflowName',
-          type: 'text_array',
-          group: {
-            addLabel: 'studio.flow.ignoredWorkflows.addLabel'
-          }
+        placeholder: 'module.ndu.conditions.fields.placeholder.workflowName',
+        type: 'text_array',
+        group: {
+          addLabel: 'studio.flow.ignoredWorkflows.addLabel'
         }
-      ]
-    },
+      }
+    ],
     evaluate: (event, params) => {
       if (event.type !== 'workflow_ended') {
         return 0

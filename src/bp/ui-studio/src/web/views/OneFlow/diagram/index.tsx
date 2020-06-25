@@ -67,7 +67,6 @@ import { TriggerNodeModel, TriggerWidgetFactory } from './nodes/TriggerNode'
 import ConditionForm from './ConditionForm'
 import ContentForm from './ContentForm'
 import Toolbar from './Toolbar'
-import TriggerEditor from './TriggerEditor'
 import VariablesEditor from './VariablesEditor'
 import WorkflowToolbar from './WorkflowToolbar'
 
@@ -113,8 +112,6 @@ class Diagram extends Component<Props> {
 
   state = {
     highlightFilter: '',
-    currentTriggerNode: null,
-    isTriggerEditOpen: false,
     editingNodeItem: null,
     currentLang: '',
     currentTab: 'workflow'
@@ -426,9 +423,6 @@ class Diagram extends Component<Props> {
         )}
         {isNodeTargeted && (
           <Fragment>
-            {isTriggerNode && (
-              <MenuItem icon="edit" text={lang.tr('edit')} onClick={() => this.editTriggers(targetModel)} />
-            )}
             <MenuItem
               icon="trash"
               text={lang.tr('delete')}
@@ -537,13 +531,6 @@ class Diagram extends Component<Props> {
     500,
     { leading: true }
   )
-
-  editTriggers(node) {
-    this.setState({
-      currentTriggerNode: node,
-      isTriggerEditOpen: true
-    })
-  }
 
   editNodeItem(node, index) {
     clearTimeout(this.timeout)
@@ -873,13 +860,6 @@ class Diagram extends Component<Props> {
 
             <Toolbar />
           </Fragment>
-
-          <TriggerEditor
-            node={this.state.currentTriggerNode}
-            isOpen={this.state.isTriggerEditOpen}
-            diagramEngine={this.diagramEngine}
-            toggle={() => this.setState({ isTriggerEditOpen: !this.state.isTriggerEditOpen })}
-          />
 
           {formType === 'say_something' && (
             <ContentForm

@@ -5,35 +5,33 @@ export default {
   id: 'extracted_entity',
   label: `module.nlu.conditions.variableExtractedFromMessage`,
   description: `Entity {type} {comparison} {value}`,
-  params: {
-    fields: [
-      {
-        key: 'type',
-        type: 'select',
-        label: 'module.nlu.conditions.fields.label.variableType',
-        placeholder: 'module.nlu.conditions.fields.placeholder.pickVariableType',
-        dynamicOptions: {
-          endpoint: 'BOT_API_PATH/mod/nlu/entities',
-          valueField: 'label',
-          labelField: 'label'
-        }
-      },
-      {
-        key: 'comparison',
-        label: 'module.nlu.conditions.fields.label.comparisonMethod',
-        placeholder: 'module.nlu.conditions.fields.placeholder.pickComparisonMethod',
-        type: 'select',
-        options: [
-          { label: 'module.nlu.conditions.fields.label.none', value: 'none' },
-          { label: 'module.nlu.conditions.fields.label.equal', value: 'equal' },
-          { label: 'module.nlu.conditions.fields.label.notEqual', value: 'notEqual' },
-          { label: 'module.nlu.conditions.fields.label.biggerThan', value: 'biggerThan' },
-          { label: 'module.nlu.conditions.fields.label.lessThan', value: 'lessThan' }
-        ]
-      },
-      { key: 'expectedValue', label: 'module.nlu.conditions.fields.label.expectedValue', type: 'text' }
-    ]
-  },
+  fields: [
+    {
+      key: 'type',
+      type: 'select',
+      label: 'module.nlu.conditions.fields.label.variableType',
+      placeholder: 'module.nlu.conditions.fields.placeholder.pickVariableType',
+      dynamicOptions: {
+        endpoint: 'BOT_API_PATH/mod/nlu/entities',
+        valueField: 'label',
+        labelField: 'label'
+      }
+    },
+    {
+      key: 'comparison',
+      label: 'module.nlu.conditions.fields.label.comparisonMethod',
+      placeholder: 'module.nlu.conditions.fields.placeholder.pickComparisonMethod',
+      type: 'select',
+      options: [
+        { label: 'module.nlu.conditions.fields.label.none', value: 'none' },
+        { label: 'module.nlu.conditions.fields.label.equal', value: 'equal' },
+        { label: 'module.nlu.conditions.fields.label.notEqual', value: 'notEqual' },
+        { label: 'module.nlu.conditions.fields.label.biggerThan', value: 'biggerThan' },
+        { label: 'module.nlu.conditions.fields.label.lessThan', value: 'lessThan' }
+      ]
+    },
+    { key: 'expectedValue', label: 'module.nlu.conditions.fields.label.expectedValue', type: 'text' }
+  ],
   evaluate: (event, params) => {
     const { type, comparison, expectedValue } = params
     const entity = event.nlu?.entities?.find(x => x.type === type)

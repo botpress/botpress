@@ -1230,10 +1230,8 @@ declare module 'botpress/sdk' {
     /** The description holds placeholders for param values so they can be displayed in the view */
     description?: string
     /** The definition of all parameters used by this condition */
-    params?: {
-      fields: FormField[],
-      advancedSettings?: FormAdvancedSetting[]
-    }
+    fields?: FormField[],
+    advancedSettings?: FormAdvancedSetting[]
     /** In which order the conditions will be displayed in the dropdown menu. 0 is the first item */
     displayOrder?: number
     /** This callback url is called when the condition is deleted or pasted in the flow */

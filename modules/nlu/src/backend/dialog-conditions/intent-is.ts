@@ -7,16 +7,14 @@ export default {
   description: `The user's intention is {intentName}`,
   callback: '/mod/nlu/condition/intentChanged',
   displayOrder: 0,
-  params: {
-    fields: [
-      // Tagging for slots will come in a future PR
-      {
-        key: 'intentName',
-        type: 'overridable',
-        overrideKey: 'intent'
-      }
-    ]
-  },
+  fields: [
+    // Tagging for slots will come in a future PR
+    {
+      key: 'intentName',
+      type: 'overridable',
+      overrideKey: 'intent'
+    }
+  ],
   evaluate: (event, { intentName, topicName }) => {
     const topicConf = _.get(event, `nlu.predictions.${topicName}.confidence`, 0)
     const oosConfidence = _.get(event, `nlu.predictions.${topicName}.oos`, 0)

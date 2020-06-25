@@ -97,7 +97,7 @@ const ConditionForm: FC<Props> = ({
             />
           )}
         </div>
-        {selectedCondition?.params && (
+        {selectedCondition && (
           <Contents.Form
             bp={{ axios }}
             overrideFields={{
@@ -110,8 +110,8 @@ const ConditionForm: FC<Props> = ({
                 />
               )
             }}
-            fields={selectedCondition.params.fields || []}
-            advancedSettings={selectedCondition.params.advancedSettings || []}
+            fields={selectedCondition.fields || []}
+            advancedSettings={selectedCondition.advancedSettings || []}
             formData={formData.params}
             getEmptyData={handleEmptyData}
             onUpdate={data => onUpdate({ params: { ...data }, id: condition.current })}
