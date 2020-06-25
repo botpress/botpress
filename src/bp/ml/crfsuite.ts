@@ -1,6 +1,33 @@
-import * as sdk from 'botpress/sdk'
+const addon = require('./crfsuite.node')
+export default addon as BindingType
 
-const binding = require('./crfsuite.node')
+type TaggerCtor = new () => Tagger
+type TrainerCtor = new (opt?: TrainerOptions) => Trainer
 
-export const Trainer = binding.TrainerClass as () => sdk.MLToolkit.CRF.Trainer
-export const Tagger = binding.TaggerClass as () => sdk.MLToolkit.CRF.Tagger
+type BindingType = {
+  Tagger: TaggerCtor
+  Trainer: TrainerCtor
+}
+
+export interface Tagger {
+  tag(xseq: Array<string[]>): { probability: number; result: string[] }
+  open(model_filename: string): boolean
+  marginal(xseq: Array<string[]>): { [key: string]: number }[]
+}
+
+export interface Options {
+  [key: string]: string
+}
+
+export interface TrainerOptions {
+  [key: string]: any
+  debug?: boolean
+}
+
+export interface Trainer {
+  append(xseq: Array<string[]>, yseq: string[]): void
+  train(model_filename: string): number
+  train_async(model_filename: string, cb: (s: string) => void): Promise<number>
+  get_params(options: Options): any
+  set_params(options: Options): void
+}

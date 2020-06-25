@@ -5,6 +5,7 @@ import {
   FlowNode,
   FormAdvancedSetting,
   FormField,
+  IO,
   RolloutStrategy,
   StageRequestApprovers,
   StrategyUser
@@ -211,6 +212,17 @@ export interface LibraryElement {
   type: 'say_something' | 'execute'
   preview: string
   path: string
+}
+
+export interface EventCommonArgs {
+  event: IO.IncomingEvent
+  user: { [attribute: string]: any }
+  temp: { [property: string]: any }
+  bot: { [property: string]: any }
+  session: IO.CurrentSession
+  workflow: IO.WorkflowHistory
+  // Any other additional property
+  [property: string]: any
 }
 
 export interface ServerHealth {

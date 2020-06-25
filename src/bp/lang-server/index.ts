@@ -48,7 +48,7 @@ export default async function(options: ArgV) {
   const langService = new LanguageService(options.dim, options.domain, options.langDir)
   const downloadManager = new DownloadManager(options.dim, options.domain, options.langDir, options.metadataLocation)
 
-  const version = '1.0.0' // TODO: declare this elsewhere
+  const version = '1.1.0' // TODO: declare this elsewhere
 
   const apiOptions: APIOptions = {
     version,

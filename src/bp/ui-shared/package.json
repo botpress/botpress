@@ -21,7 +21,7 @@
     "css-loader": "^0.28.11",
     "css-modules-typescript-loader": "^2.0.3",
     "hard-source-webpack-plugin": "^0.13.1",
-    "node-sass": "^4.8.3",
+    "node-sass": "^4.14.1",
     "node-sass-tilde-importer": "^1.0.2",
     "postcss-loader": "^2.0.8",
     "prop-types": "^15.6.0",
