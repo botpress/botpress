@@ -10,7 +10,7 @@
   },
   {
     "id": "c4ca4238a0b923820dcc509a6f75849b",
-    "utterance": "Don't forget the grapes at the ammunation store!",
+    "utterance": "Do not forget the grapes at the ammunation store!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -19,7 +19,7 @@
   },
   {
     "id": "c81e728d9d4c2f636f067f89cc14862c",
-    "utterance": "Come on man! take yourself an grape!",
+    "utterance": "Come on man! take yourself a grape!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -28,7 +28,7 @@
   },
   {
     "id": "eccbc87e4b5ce2fe28308fd9f2a7baf3",
-    "utterance": "Daddy, will you get me a grape as a birthday present...",
+    "utterance": "Daddy, will you get me an grape as a birthday present...",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -37,7 +37,7 @@
   },
   {
     "id": "a87ff679a2f3e71d9181a67b7542122c",
-    "utterance": "I want you to buy me a colossal and shinny grape.",
+    "utterance": "I want you to buy me an colossal and shinny grape.",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -46,7 +46,7 @@
   },
   {
     "id": "e4da3b7fbbce2345d7772b0674a318d5",
-    "utterance": "Leave right now and never come back unless you bring back an grape with you.",
+    "utterance": "Leave right now and never come back unless you bring back a M16 with you.grape with you.",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -55,7 +55,7 @@
   },
   {
     "id": "1679091c5a880faf6fb5e6087eb1b2dc",
-    "utterance": "Take few grapes with you, just in case...",
+    "utterance": "Take few grapes with you, just in a case...",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -64,7 +64,7 @@
   },
   {
     "id": "8f14e45fceea167a5a36dedd4bea2543",
-    "utterance": "Tell mom not to forget the grapes at the local hillbilly market!",
+    "utterance": "Tell mom not to forget an grapes at the local hillbilly market!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -82,7 +82,7 @@
   },
   {
     "id": "45c48cce2e2d7fbdea1afc51c7c6ad26",
-    "utterance": "Don't forget the bananas at the ammunation store!",
+    "utterance": "Do not forget the bananas at the ammunation store!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -91,7 +91,7 @@
   },
   {
     "id": "d3d9446802a44259755d38e6d163e820",
-    "utterance": "Come on man! take yourself an banana!",
+    "utterance": "Come on man! take yourself a banana!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -100,7 +100,7 @@
   },
   {
     "id": "6512bd43d9caa6e02c990b0a82652dca",
-    "utterance": "Daddy, will you get me a banana as a birthday present...",
+    "utterance": "Daddy, will you get me an banana as a birthday present...",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -109,7 +109,7 @@
   },
   {
     "id": "c20ad4d76fe97759aa27a0c99bff6710",
-    "utterance": "I want you to buy me a colossal and shinny banana.",
+    "utterance": "I want you to buy me an colossal and shinny banana.",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -118,7 +118,7 @@
   },
   {
     "id": "c51ce410c124a10e0db5e4b97fc2af39",
-    "utterance": "Leave right now and never come back unless you bring back an banana with you.",
+    "utterance": "Leave right now and never come back unless you bring back a M16 with you.banana with you.",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -127,7 +127,7 @@
   },
   {
     "id": "aab3238922bcc25a6f606eb525ffdc56",
-    "utterance": "Take few bananas with you, just in case...",
+    "utterance": "Take few bananas with you, just in a case...",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -136,7 +136,7 @@
   },
   {
     "id": "9bf31c7ff062936a96d3c8bd1f8f2ff3",
-    "utterance": "Tell mom not to forget the bananas at the local hillbilly market!",
+    "utterance": "Tell mom not to forget an bananas at the local hillbilly market!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -154,7 +154,7 @@
   },
   {
     "id": "70efdf2ec9b086079795c442636b55fb",
-    "utterance": "Don't forget the oranges at the ammunation store!",
+    "utterance": "Do not forget the oranges at the ammunation store!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -163,7 +163,7 @@
   },
   {
     "id": "6f4922f45568161a8cdf4ad2299f6d23",
-    "utterance": "Come on man! take yourself an orange!",
+    "utterance": "Come on man! take yourself a orange!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -172,7 +172,7 @@
   },
   {
     "id": "1f0e3dad99908345f7439f8ffabdffc4",
-    "utterance": "Daddy, will you get me a orange as a birthday present...",
+    "utterance": "Daddy, will you get me an orange as a birthday present...",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -181,7 +181,7 @@
   },
   {
     "id": "98f13708210194c475687be6106a3b84",
-    "utterance": "I want you to buy me a colossal and shinny orange.",
+    "utterance": "I want you to buy me an colossal and shinny orange.",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -190,7 +190,7 @@
   },
   {
     "id": "3c59dc048e8850243be8079a5c74d079",
-    "utterance": "Leave right now and never come back unless you bring back an orange with you.",
+    "utterance": "Leave right now and never come back unless you bring back a M16 with you.orange with you.",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -199,7 +199,7 @@
   },
   {
     "id": "b6d767d2f8ed5d21a44b0e5886680cb9",
-    "utterance": "Take few oranges with you, just in case...",
+    "utterance": "Take few oranges with you, just in a case...",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -208,7 +208,7 @@
   },
   {
     "id": "37693cfc748049e45d87b8c7d8b9aacd",
-    "utterance": "Tell mom not to forget the orange at the local hillbilly market!",
+    "utterance": "Tell mom not to forget an orange at the local hillbilly market!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -226,7 +226,7 @@
   },
   {
     "id": "8e296a067a37563370ded05f5a3bf3ec",
-    "utterance": "Don't forget the avocados at the ammunation store!",
+    "utterance": "Do not forget the avocados at the ammunation store!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -235,7 +235,7 @@
   },
   {
     "id": "4e732ced3463d06de0ca9a15b6153677",
-    "utterance": "Come on man! take yourself an avocado!",
+    "utterance": "Come on man! take yourself a avocado!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -244,7 +244,7 @@
   },
   {
     "id": "02e74f10e0327ad868d138f2b4fdd6f0",
-    "utterance": "Daddy, will you get me a avocado as a birthday present...",
+    "utterance": "Daddy, will you get me an avocado as a birthday present...",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -253,7 +253,7 @@
   },
   {
     "id": "33e75ff09dd601bbe69f351039152189",
-    "utterance": "I want you to buy me a colossal and shinny avocado.",
+    "utterance": "I want you to buy me an colossal and shinny avocado.",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -262,7 +262,7 @@
   },
   {
     "id": "6ea9ab1baa0efb9e19094440c317e21b",
-    "utterance": "Leave right now and never come back unless you bring back an avocado with you.",
+    "utterance": "Leave right now and never come back unless you bring back a M16 with you.avocado with you.",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -271,7 +271,7 @@
   },
   {
     "id": "34173cb38f07f89ddbebc2ac9128303f",
-    "utterance": "Take few avocados with you, just in case...",
+    "utterance": "Take few avocados with you, just in a case...",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -280,7 +280,7 @@
   },
   {
     "id": "c16a5320fa475530d9583c34fd356ef5",
-    "utterance": "Tell mom not to forget the avocados at the local hillbilly market!",
+    "utterance": "Tell mom not to forget an avocados at the local hillbilly market!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -298,7 +298,7 @@
   },
   {
     "id": "182be0c5cdcd5072bb1864cdee4d3d6e",
-    "utterance": "Don't forget the kiwis at the ammunation store!",
+    "utterance": "Do not forget the kiwis at the ammunation store!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -307,7 +307,7 @@
   },
   {
     "id": "e369853df766fa44e1ed0ff613f563bd",
-    "utterance": "Come on man! take yourself an kiwi!",
+    "utterance": "Come on man! take yourself a kiwi!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -316,7 +316,7 @@
   },
   {
     "id": "1c383cd30b7c298ab50293adfecb7b18",
-    "utterance": "Daddy, will you get me a kiwi as a birthday present...",
+    "utterance": "Daddy, will you get me an kiwi as a birthday present...",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -325,7 +325,7 @@
   },
   {
     "id": "19ca14e7ea6328a42e0eb13d585e4c22",
-    "utterance": "I want you to buy me a colossal and shinny kiwi.",
+    "utterance": "I want you to buy me an colossal and shinny kiwi.",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -334,7 +334,7 @@
   },
   {
     "id": "a5bfc9e07964f8dddeb95fc584cd965d",
-    "utterance": "Leave right now and never come back unless you bring back an kiwi with you.",
+    "utterance": "Leave right now and never come back unless you bring back a M16 with you.kiwi with you.",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -343,7 +343,7 @@
   },
   {
     "id": "a5771bce93e200c36f7cd9dfd0e5deaa",
-    "utterance": "Take few kiwis with you, just in case...",
+    "utterance": "Take few kiwis with you, just in a case...",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -352,7 +352,7 @@
   },
   {
     "id": "d67d8ab4f4c10bf22aa353e27879133c",
-    "utterance": "Tell mom not to forget the kiwis at the local hillbilly market!",
+    "utterance": "Tell mom not to forget an kiwis at the local hillbilly market!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -370,7 +370,7 @@
   },
   {
     "id": "3416a75f4cea9109507cacd8e2f2aefc",
-    "utterance": "Don't forget the berries at the ammunation store!",
+    "utterance": "Do not forget the berries at the ammunation store!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -379,7 +379,7 @@
   },
   {
     "id": "a1d0c6e83f027327d8461063f4ac58a6",
-    "utterance": "Come on man! take yourself an berry!",
+    "utterance": "Come on man! take yourself a berry!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -388,7 +388,7 @@
   },
   {
     "id": "17e62166fc8586dfa4d1bc0e1742c08b",
-    "utterance": "Daddy, will you get me a berry as a birthday present...",
+    "utterance": "Daddy, will you get me an berry as a birthday present...",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -397,7 +397,7 @@
   },
   {
     "id": "f7177163c833dff4b38fc8d2872f1ec6",
-    "utterance": "I want you to buy me a colossal and shinny berry.",
+    "utterance": "I want you to buy me an colossal and shinny berry.",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -406,7 +406,7 @@
   },
   {
     "id": "6c8349cc7260ae62e3b1396831a8398f",
-    "utterance": "Leave right now and never come back unless you bring back an berry with you.",
+    "utterance": "Leave right now and never come back unless you bring back a M16 with you.berry with you.",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -415,7 +415,7 @@
   },
   {
     "id": "d9d4f495e875a2e075a1a4a6e1b9770f",
-    "utterance": "Take few berry with you, just in case...",
+    "utterance": "Take few berry with you, just in a case...",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -424,7 +424,7 @@
   },
   {
     "id": "67c6a1e7ce56d3d6fa748ab6d9af3fd7",
-    "utterance": "Tell mom not to forget the berries at the local hillbilly market!",
+    "utterance": "Tell mom not to forget an berries at the local hillbilly market!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -433,7 +433,7 @@
   },
   {
     "id": "642e92efb79421734881b53e1e1b18b6",
-    "utterance": "Can you purchase a cluster of wild MP5 for tonight?",
+    "utterance": "Can you purchase an cluster of wild MP5 for tonight?",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -442,7 +442,7 @@
   },
   {
     "id": "f457c545a9ded88f18ecee47145a72c0",
-    "utterance": "We would really need a MP5 for tonight's party...",
+    "utterance": "We would really need an MP5 for tonight's party...",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -451,7 +451,7 @@
   },
   {
     "id": "c0c7c76d30bd3dcaefc96f40275bdc0a",
-    "utterance": "Please, get some MP5!",
+    "utterance": "Please, get some of MP5!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -460,7 +460,7 @@
   },
   {
     "id": "2838023a778dfaecdc212708f721b788",
-    "utterance": "Go buy me a juicy MP5 right now",
+    "utterance": "Go buy me an juicy MP5 right now",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -469,7 +469,7 @@
   },
   {
     "id": "9a1158154dfa42caddbd0694a4e9bdc8",
-    "utterance": "You shall give me a MP5!",
+    "utterance": "You shall give me an MP5!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -478,7 +478,7 @@
   },
   {
     "id": "d82c8d1619ad8176d665453cfb2e55f0",
-    "utterance": "take some MP5 for tomorow's lunch",
+    "utterance": "take some MP5 for tomorow lunch",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -487,7 +487,7 @@
   },
   {
     "id": "a684eceee76fc522773286a895bc8436",
-    "utterance": "You know what they say? An MP5 a day keeps the doctor away! So make sure to buy one.",
+    "utterance": "You know what they say? A MP5 a day keeps the doctor away! So make sure to buy one.",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -496,7 +496,7 @@
   },
   {
     "id": "b53b3a3d6ab90ce0268229151c9bde11",
-    "utterance": "Can you purchase a cluster of wild AK47 for tonight?",
+    "utterance": "Can you purchase an cluster of wild AK47 for tonight?",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -505,7 +505,7 @@
   },
   {
     "id": "9f61408e3afb633e50cdf1b20de6f466",
-    "utterance": "We would really need a AK47 for tonight's party...",
+    "utterance": "We would really need an AK47 for tonight's party...",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -514,7 +514,7 @@
   },
   {
     "id": "72b32a1f754ba1c09b3695e0cb6cde7f",
-    "utterance": "Please, get some AK47!",
+    "utterance": "Please, get some of AK47!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -523,7 +523,7 @@
   },
   {
     "id": "66f041e16a60928b05a7e228a89c3799",
-    "utterance": "Go buy me a juicy AK47 right now",
+    "utterance": "Go buy me an juicy AK47 right now",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -532,7 +532,7 @@
   },
   {
     "id": "093f65e080a295f8076b1c5722a46aa2",
-    "utterance": "You shall give me a AK47!",
+    "utterance": "You shall give me an AK47!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -541,7 +541,7 @@
   },
   {
     "id": "072b030ba126b2f4b2374f342be9ed44",
-    "utterance": "take some AK47 for tomorow's lunch",
+    "utterance": "take some AK47 for tomorow lunch",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -550,7 +550,7 @@
   },
   {
     "id": "7f39f8317fbdb1988ef4c628eba02591",
-    "utterance": "You know what they say? An AK47 a day keeps the doctor away! So make sure to buy one.",
+    "utterance": "You know what they say? A AK47 a day keeps the doctor away! So make sure to buy one.",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -559,7 +559,7 @@
   },
   {
     "id": "44f683a84163b3523afe57c2e008bc8c",
-    "utterance": "Can you purchase a cluster of wild SA87 for tonight?",
+    "utterance": "Can you purchase an cluster of wild SA87 for tonight?",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -568,7 +568,7 @@
   },
   {
     "id": "03afdbd66e7929b125f8597834fa83a4",
-    "utterance": "We would really need a SA87 for tonight's party...",
+    "utterance": "We would really need an SA87 for tonight's party...",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -577,7 +577,7 @@
   },
   {
     "id": "ea5d2f1c4608232e07d3aa3d998e5135",
-    "utterance": "Please, get some SA87!",
+    "utterance": "Please, get some of SA87!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -586,7 +586,7 @@
   },
   {
     "id": "fc490ca45c00b1249bbe3554a4fdf6fb",
-    "utterance": "Go buy me a juicy SA87 right now",
+    "utterance": "Go buy me an juicy SA87 right now",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -595,7 +595,7 @@
   },
   {
     "id": "3295c76acbf4caaed33c36b1b5fc2cb1",
-    "utterance": "You shall give me a SA87!",
+    "utterance": "You shall give me an SA87!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -604,7 +604,7 @@
   },
   {
     "id": "735b90b4568125ed6c3f678819b6e058",
-    "utterance": "take some SA87 for tomorow's lunch",
+    "utterance": "take some SA87 for tomorow lunch",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -613,7 +613,7 @@
   },
   {
     "id": "a3f390d88e4c41f2747bfa2f1b5f87db",
-    "utterance": "You know what they say? An SA87 a day keeps the doctor away! So make sure to buy one.",
+    "utterance": "You know what they say? A SA87 a day keeps the doctor away! So make sure to buy one.",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -622,7 +622,7 @@
   },
   {
     "id": "14bfa6bb14875e45bba028a21ed38046",
-    "utterance": "Can you purchase a cluster of wild P90 for tonight?",
+    "utterance": "Can you purchase an cluster of wild P90 for tonight?",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -631,7 +631,7 @@
   },
   {
     "id": "7cbbc409ec990f19c78c75bd1e06f215",
-    "utterance": "We would really need a P90 for tonight's party...",
+    "utterance": "We would really need an P90 for tonight's party...",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -640,7 +640,7 @@
   },
   {
     "id": "e2c420d928d4bf8ce0ff2ec19b371514",
-    "utterance": "Please, get some P90!",
+    "utterance": "Please, get some of P90!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -649,7 +649,7 @@
   },
   {
     "id": "32bb90e8976aab5298d5da10fe66f21d",
-    "utterance": "Go buy me a juicy P90 right now",
+    "utterance": "Go buy me an juicy P90 right now",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -658,7 +658,7 @@
   },
   {
     "id": "d2ddea18f00665ce8623e36bd4e3c7c5",
-    "utterance": "You shall give me a P90!",
+    "utterance": "You shall give me an P90!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -667,7 +667,7 @@
   },
   {
     "id": "ad61ab143223efbc24c7d2583be69251",
-    "utterance": "take some P90 for tomorow's lunch",
+    "utterance": "take some P90 for tomorow lunch",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -676,7 +676,7 @@
   },
   {
     "id": "d09bf41544a3365a46c9077ebb5e35c3",
-    "utterance": "You know what they say? An P90 a day keeps the doctor away! So make sure to buy one.",
+    "utterance": "You know what they say? A P90 a day keeps the doctor away! So make sure to buy one.",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -685,7 +685,7 @@
   },
   {
     "id": "fbd7939d674997cdb4692d34de8633c4",
-    "utterance": "Can you purchase a cluster of wild BA42 for tonight?",
+    "utterance": "Can you purchase an cluster of wild BA42 for tonight?",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -694,7 +694,7 @@
   },
   {
     "id": "28dd2c7955ce926456240b2ff0100bde",
-    "utterance": "We would really need a BA42 for tonight's party...",
+    "utterance": "We would really need an BA42 for tonight's party...",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -703,7 +703,7 @@
   },
   {
     "id": "35f4a8d465e6e1edc05f3d8ab658c551",
-    "utterance": "Please, get some BA42!",
+    "utterance": "Please, get some of BA42!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -712,7 +712,7 @@
   },
   {
     "id": "d1fe173d08e959397adf34b1d77e88d7",
-    "utterance": "Go buy me a juicy BA42 right now",
+    "utterance": "Go buy me an juicy BA42 right now",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -721,7 +721,7 @@
   },
   {
     "id": "f033ab37c30201f73f142449d037028d",
-    "utterance": "You shall give me a BA42!",
+    "utterance": "You shall give me an BA42!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -730,7 +730,7 @@
   },
   {
     "id": "43ec517d68b6edd3015b3edc9a11367b",
-    "utterance": "take some BA42 for tomorow's lunch",
+    "utterance": "take some BA42 for tomorow lunch",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -739,7 +739,7 @@
   },
   {
     "id": "9778d5d219c5080b9a6a17bef029331c",
-    "utterance": "You know what they say? An BA42 a day keeps the doctor away! So make sure to buy one.",
+    "utterance": "You know what they say? A BA42 a day keeps the doctor away! So make sure to buy one.",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -748,7 +748,7 @@
   },
   {
     "id": "fe9fc289c3ff0af142b6d3bead98a923",
-    "utterance": "Can you purchase a cluster of wild Z9 for tonight?",
+    "utterance": "Can you purchase an cluster of wild Z9 for tonight?",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -757,7 +757,7 @@
   },
   {
     "id": "68d30a9594728bc39aa24be94b319d21",
-    "utterance": "We would really need a Z9 for tonight's party...",
+    "utterance": "We would really need an Z9 for tonight's party...",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -766,7 +766,7 @@
   },
   {
     "id": "3ef815416f775098fe977004015c6193",
-    "utterance": "Please, get some Z9!",
+    "utterance": "Please, get some of Z9!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -775,7 +775,7 @@
   },
   {
     "id": "93db85ed909c13838ff95ccfa94cebd9",
-    "utterance": "Go buy me a juicy Z9 right now",
+    "utterance": "Go buy me an juicy Z9 right now",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -784,7 +784,7 @@
   },
   {
     "id": "c7e1249ffc03eb9ded908c236bd1996d",
-    "utterance": "You shall give me a Z9!",
+    "utterance": "You shall give me an Z9!",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -793,7 +793,7 @@
   },
   {
     "id": "2a38a4a9316c49e5a833517c45d31070",
-    "utterance": "take some Z9 for tomorow's lunch",
+    "utterance": "take some Z9 for tomorow lunch",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
@@ -802,7 +802,7 @@
   },
   {
     "id": "7647966b7343c29048673252e490f736",
-    "utterance": "You know what they say? An Z9 a day keeps the doctor away! So make sure to buy one.",
+    "utterance": "You know what they say? A Z9 a day keeps the doctor away! So make sure to buy one.",
     "context": "*",
     "conditions": [
       ["context", "is", "global"],
