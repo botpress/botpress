@@ -105,7 +105,7 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
           <Contents.Form
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
-            bp={bp}
+            axios={bp.axios}
             formData={formData}
             getEmptyData={handleEmptyData}
             onUpdate={data => onUpdate({ ...data, contentType: contentType.current })}

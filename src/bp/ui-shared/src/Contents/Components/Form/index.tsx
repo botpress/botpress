@@ -144,7 +144,16 @@ const formReducer = (state, action) => {
   }
 }
 
-const Form: FC<FormProps> = ({ bp, overrideFields, getEmptyData, formData, fields, advancedSettings, onUpdate }) => {
+const Form: FC<FormProps> = ({
+  axios,
+  mediaPath,
+  overrideFields,
+  getEmptyData,
+  formData,
+  fields,
+  advancedSettings,
+  onUpdate
+}) => {
   const newFormData = getEmptyData?.()
   const [state, dispatch] = useReducer(formReducer, newFormData)
 
@@ -202,7 +211,7 @@ const Form: FC<FormProps> = ({ bp, overrideFields, getEmptyData, formData, field
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
             {field.moreInfo && printMoreInfo(field.moreInfo)}
             <Select
-              bp={bp}
+              axios={axios}
               parent={parent}
               printField={printField}
               data={data}
@@ -245,8 +254,8 @@ const Form: FC<FormProps> = ({ bp, overrideFields, getEmptyData, formData, field
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
             {field.moreInfo && printMoreInfo(field.moreInfo)}
             <Upload
-              axios={bp?.axios}
-              customPath={bp?.mediaPath}
+              axios={axios}
+              customPath={mediaPath}
               placeholder={lang(field.placeholder)}
               onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
               value={data[field.key]}

@@ -10,12 +10,12 @@ import { FieldProps } from '../typings'
 interface SelectProps extends FieldProps {
   data: FormData
   field: FormField
-  bp?: any
+  axios?: any
   parent?
   printField?
 }
 
-const Select: FC<SelectProps> = ({ onChange, printField, parent, field, data, bp }) => {
+const Select: FC<SelectProps> = ({ onChange, printField, parent, field, data, axios }) => {
   const [options, setOptions] = useState<FormOption[]>([])
 
   useEffect(() => {
@@ -31,7 +31,7 @@ const Select: FC<SelectProps> = ({ onChange, printField, parent, field, data, bp
     const { endpoint, path, valueField, labelField } = field.dynamicOptions as FormDynamicOptions
 
     try {
-      const { data } = await bp.axios.get(
+      const { data } = await axios.get(
         endpoint.replace('BOT_API_PATH', window.BOT_API_PATH).replace('API_PATH', window.API_PATH)
       )
       const elements = path ? _.get(data, path) : data

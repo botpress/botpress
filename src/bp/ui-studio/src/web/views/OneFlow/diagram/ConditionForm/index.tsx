@@ -99,7 +99,7 @@ const ConditionForm: FC<Props> = ({
         </div>
         {selectedCondition && (
           <Contents.Form
-            bp={{ axios }}
+            axios={axios}
             overrideFields={{
               intent: props => (
                 <IntentEditor
