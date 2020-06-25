@@ -7,6 +7,7 @@ import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
 
 import style from './style.scss'
+import TextField from './TextField'
 
 interface Props {
   deleteContent: () => void
@@ -105,6 +106,9 @@ const ContentForm: FC<Props> = ({
         {!!contentFields && (
           <Contents.Form
             bp={{ axios, mediaPath: `${window.BOT_API_PATH}/media` }}
+            overrideFields={{
+              textOverride: props => <TextField {...props} />
+            }}
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
             formData={formData}

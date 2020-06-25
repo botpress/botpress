@@ -302,9 +302,10 @@ export interface FormContextMenu {
 }
 
 export interface FormField {
-  type: 'checkbox' | 'group' | 'select' | 'text' | 'textarea' | 'upload' | 'url'
+  type: 'checkbox' | 'group' | 'overridable' | 'select' | 'text' | 'textarea' | 'upload' | 'url'
   key: string
   label: string
+  overrideKey?: string
   placeholder?: string
   options?: FormOption[]
   fields?: FormField[]
