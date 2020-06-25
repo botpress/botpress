@@ -133,7 +133,7 @@ module.exports = {
         type: 'overridable',
         overrideKey: 'textOverride',
         key: 'text',
-        label: 'module.builtin.types.text.text'
+        label: 'text'
       }
     ]
   },
