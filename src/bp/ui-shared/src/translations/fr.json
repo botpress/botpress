@@ -75,6 +75,12 @@
   "list": "Liste",
   "listen": "Écouter",
   "logs": "Journalisation",
+  "lowercase": {
+    "intent": "intention",
+    "channel": "channel",
+    "language": "langue",
+    "topic": "Sujet"
+  },
   "message": "Message",
   "modifiedOn": "Modifié le",
   "move": "Déplacer",

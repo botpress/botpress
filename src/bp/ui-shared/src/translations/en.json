@@ -124,6 +124,12 @@
   "list": "List",
   "listen": "Listen",
   "logs": "Logs",
+  "lowercase": {
+    "intent": "intent",
+    "channel": "channel",
+    "language": "language",
+    "topic": "topic"
+  },
   "message": "Message",
   "modifiedOn": "Modified On",
   "move": "Move",

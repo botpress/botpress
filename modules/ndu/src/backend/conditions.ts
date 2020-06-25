@@ -4,15 +4,15 @@ import _ from 'lodash'
 export const dialogConditions: sdk.Condition[] = [
   {
     id: 'user_channel_is',
-    label: 'module.nlu.conditions.userUsingChannel',
+    label: 'module.ndu.conditions.userUsingChannel',
     description: `The user speaks on channel {channelName}`,
     params: {
       fields: [
         {
           type: 'select',
           key: 'channelName',
-          label: 'module.nlu.conditions.fields.label.channel',
-          placeholder: 'module.nlu.conditions.fields.placeholder.pickChannel',
+          label: 'module.ndu.conditions.fields.label.channel',
+          placeholder: 'module.ndu.conditions.fields.placeholder.pickChannel',
           dynamicOptions: {
             endpoint: 'BOT_API_PATH/mod/ndu/channels',
             valueField: 'value',
@@ -27,15 +27,15 @@ export const dialogConditions: sdk.Condition[] = [
   },
   {
     id: 'user_language_is',
-    label: 'module.nlu.conditions.userSpeaks',
+    label: 'module.ndu.conditions.userSpeaks',
     description: `The user's language is {language}`,
     params: {
       fields: [
         {
           type: 'select',
           key: 'language',
-          label: 'module.nlu.conditions.fields.label.language',
-          placeholder: 'module.nlu.conditions.fields.placeholder.pickLanguage',
+          label: 'module.ndu.conditions.fields.label.language',
+          placeholder: 'module.ndu.conditions.fields.placeholder.pickLanguage',
           dynamicOptions: {
             endpoint: 'API_PATH/admin/languages',
             path: 'installed',
@@ -51,22 +51,22 @@ export const dialogConditions: sdk.Condition[] = [
   },
   {
     id: 'user_is_authenticated',
-    label: 'module.nlu.conditions.userAuthenticated',
+    label: 'module.ndu.conditions.userAuthenticated',
     evaluate: event => {
       return event.state.session.isAuthenticated ? 1 : 0
     }
   },
   {
     id: 'user_topic_source',
-    label: 'module.nlu.conditions.userComingFromTopic',
+    label: 'module.ndu.conditions.userComingFromTopic',
     description: `The user's last topic was {topicName}`,
     params: {
       fields: [
         {
           type: 'select',
           key: 'topicName',
-          label: 'module.nlu.conditions.fields.label.topic',
-          placeholder: 'module.nlu.conditions.fields.placeholder.pickTopic',
+          label: 'module.ndu.conditions.fields.label.topic',
+          placeholder: 'module.ndu.conditions.fields.placeholder.pickTopic',
           dynamicOptions: {
             endpoint: 'BOT_API_PATH/topics',
             valueField: 'name',
@@ -82,14 +82,14 @@ export const dialogConditions: sdk.Condition[] = [
   },
   {
     id: 'raw_js',
-    label: 'module.nlu.conditions.customCode',
+    label: 'module.ndu.conditions.customCode',
     description: `{label}`,
     params: {
       fields: [
         {
           type: 'textarea',
           key: 'expression',
-          label: 'module.nlu.conditions.fields.label.code'
+          label: 'module.ndu.conditions.fields.label.code'
         }
       ]
     },
@@ -111,7 +111,7 @@ export const dialogConditions: sdk.Condition[] = [
   },
   {
     id: 'user_already_spoke',
-    label: 'module.nlu.conditions.userAlreadySpoke',
+    label: 'module.ndu.conditions.userAlreadySpoke',
     evaluate: event => {
       const { lastMessages } = event.state.session
       return lastMessages && lastMessages.length > 0 ? 1 : 0
@@ -119,17 +119,17 @@ export const dialogConditions: sdk.Condition[] = [
   },
   {
     id: 'outside_flow_node',
-    label: 'module.nlu.conditions.userNotInWorkflowOrBlock',
+    label: 'module.ndu.conditions.userNotInWorkflowOrBlock',
     evaluate: event => {
       return !event.state.context?.currentFlow && !event.state.context?.currentNode ? 1 : 0
     }
   },
   {
     id: 'custom_confidence',
-    label: 'module.nlu.conditions.customPriority',
+    label: 'module.ndu.conditions.customPriority',
     description: `Confidence level of {confidence}`,
     params: {
-      fields: [{ type: 'number', key: 'confidence', label: 'module.nlu.conditions.fields.label.confidence' }]
+      fields: [{ type: 'number', key: 'confidence', label: 'module.ndu.conditions.fields.label.confidence' }]
     },
     evaluate: (_event, params) => {
       return params.confidence
@@ -137,36 +137,36 @@ export const dialogConditions: sdk.Condition[] = [
   },
   {
     id: 'always',
-    label: 'module.nlu.conditions.alwaysTrue',
+    label: 'module.ndu.conditions.alwaysTrue',
     evaluate: () => {
       return 1
     }
   },
   {
     id: 'type_text',
-    label: 'module.nlu.conditions.userTyped',
+    label: 'module.ndu.conditions.userTyped',
     description: `The user typed {text}`,
     params: {
       fields: [
         {
           key: 'candidate',
-          label: 'module.nlu.conditions.fields.label.candidate',
-          placeholder: 'module.nlu.conditions.fields.placeholder.oneWordPerLine',
+          label: 'module.ndu.conditions.fields.label.candidate',
+          placeholder: 'module.ndu.conditions.fields.placeholder.oneWordPerLine',
           type: 'text_array',
           group: {
-            addLabel: 'studio.flow.condition.addCondition'
+            addLabel: 'module.ndu.conditions.fields.label.addWord'
           }
         }
       ],
       advancedSettings: [
         {
           key: 'exactMatch',
-          label: 'module.nlu.conditions.fields.label.exactMatch',
+          label: 'module.ndu.conditions.fields.label.exactMatch',
           type: 'checkbox'
         },
         {
           key: 'caseSensitive',
-          label: 'module.nlu.conditions.fields.label.caseSensitive',
+          label: 'module.ndu.conditions.fields.label.caseSensitive',
           type: 'checkbox'
         }
       ]
@@ -188,26 +188,26 @@ export const dialogConditions: sdk.Condition[] = [
   },
   {
     id: 'workflow_ended',
-    label: 'module.nlu.conditions.userEndedWorkflow',
+    label: 'module.ndu.conditions.userEndedWorkflow',
     params: {
       fields: [
         {
           key: 'outcome',
-          label: 'module.nlu.conditions.fields.label.workflowOutcome',
-          placeholder: 'module.nlu.conditions.fields.placeholder.pickWorkflowOutcome',
+          label: 'module.ndu.conditions.fields.label.workflowOutcome',
+          placeholder: 'module.ndu.conditions.fields.placeholder.pickWorkflowOutcome',
           type: 'select',
           options: [
-            { label: 'module.nlu.conditions.fields.label.success', value: 'success' },
-            { label: 'module.nlu.conditions.fields.label.failure', value: 'failure' }
+            { label: 'module.ndu.conditions.fields.label.success', value: 'success' },
+            { label: 'module.ndu.conditions.fields.label.failure', value: 'failure' }
           ]
         },
         {
           key: 'ignoredWorkflows',
-          label: 'module.nlu.conditions.fields.label.ignoredWorkflows',
+          label: 'module.ndu.conditions.fields.label.ignoredWorkflows',
           moreInfo: {
-            label: 'module.nlu.conditions.fields.label.ignoredWorkflowsMoreInfo'
+            label: 'module.ndu.conditions.fields.label.ignoredWorkflowsMoreInfo'
           },
-          placeholder: 'module.nlu.conditions.fields.placeholder.workflowName',
+          placeholder: 'module.ndu.conditions.fields.placeholder.workflowName',
           type: 'text_array',
           group: {
             addLabel: 'studio.flow.ignoredWorkflows.addLabel'

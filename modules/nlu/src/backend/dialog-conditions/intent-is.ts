@@ -17,10 +17,6 @@ export default {
       }
     ]
   },
-  editor: {
-    module: 'nlu',
-    component: 'LiteEditor'
-  },
   evaluate: (event, { intentName, topicName }) => {
     const topicConf = _.get(event, `nlu.predictions.${topicName}.confidence`, 0)
     const oosConfidence = _.get(event, `nlu.predictions.${topicName}.oos`, 0)

@@ -1383,10 +1383,14 @@ declare module 'botpress/sdk' {
   }
 
   export interface FormDynamicOptions {
-    endpoint: string // an enpoint to call to get the options
-    path?: string // used with _.get() on the data returned by api to get to the list of items
-    valueField: string // field from DB to map as the value of the options
-    labelField: string // field from DB to map as the label of the options
+    /** An enpoint to call to get the options */
+    endpoint: string
+    /** Used with _.get() on the data returned by api to get to the list of items */
+    path?: string
+    /** Field from DB to map as the value of the options */
+    valueField: string
+    /** Field from DB to map as the label of the options */
+    labelField: string
   }
 
   export interface FormAdvancedSetting {
@@ -1409,9 +1413,12 @@ declare module 'botpress/sdk' {
     fields?: FormField[]
     moreInfo?: FormMoreInfo
     group?: {
-      addLabel?: string // you have to specify the add button label
-      minimum?: number // you can specify a minimum so the delete button won't show if there isn't more than the minimum
-      contextMenu?: FormContextMenu[] // you can add a contextual menu to add extra options
+      /** You have to specify the add button label */
+      addLabel?: string
+      /** You can specify a minimum so the delete button won't show if there isn't more than the minimum */
+      minimum?: number
+      /** You can add a contextual menu to add extra options */
+      contextMenu?: FormContextMenu[]
     }
   }
 

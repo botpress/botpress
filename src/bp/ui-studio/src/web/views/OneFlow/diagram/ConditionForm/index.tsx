@@ -18,7 +18,7 @@ interface Props {
   contentLang: string
   close: (closingKey: number) => void
   onUpdate: (data: any) => void
-  formData: FormData
+  formData: { id: string; params: FormData }
 }
 
 const ConditionForm: FC<Props> = ({
@@ -58,10 +58,10 @@ const ConditionForm: FC<Props> = ({
   }
 
   const optionsVariablePlaceholder = {
-    intentName: `[${lang.tr('studio.condition.optionsVariablePlaceholder.intent')}]`,
-    channelName: `[${lang.tr('studio.condition.optionsVariablePlaceholder.channel')}]`,
-    language: `[${lang.tr('studio.condition.optionsVariablePlaceholder.language')}]`,
-    topicName: `[${lang.tr('studio.condition.optionsVariablePlaceholder.topic')}]`
+    intentName: `[${lang.tr('lowercase.intent')}]`,
+    channelName: `[${lang.tr('lowercase.channel')}]`,
+    language: `[${lang.tr('lowercase.language')}]`,
+    topicName: `[${lang.tr('lowercase.topic')}]`
   }
 
   const options = conditions.map(type => ({ value: type.id, label: lang.tr(type.label, optionsVariablePlaceholder) }))
@@ -112,9 +112,9 @@ const ConditionForm: FC<Props> = ({
             }}
             fields={selectedCondition.params.fields || []}
             advancedSettings={selectedCondition.params.advancedSettings || []}
-            formData={formData}
+            formData={formData.params}
             getEmptyData={handleEmptyData}
-            onUpdate={data => onUpdate({ ...data, id: condition.current })}
+            onUpdate={data => onUpdate({ params: { ...data }, id: condition.current })}
           />
         )}
       </Fragment>

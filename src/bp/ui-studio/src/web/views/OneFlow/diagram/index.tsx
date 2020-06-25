@@ -11,7 +11,6 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
-import { throws } from 'assert'
 import { lang, MainContent } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -124,18 +123,22 @@ class Diagram extends Component<Props> {
   constructor(props) {
     super(props)
 
+    const commonProps = {
+      editNodeItem: this.editNodeItem.bind(this),
+      selectedNodeItem: () => this.getStateProperty('editingNodeItem'),
+      deleteSelectedElements: this.deleteSelectedElements.bind(this),
+      getCurrentFlow: () => this.getPropsProperty('currentFlow'),
+      updateFlowNode: this.updateNodeAndRefresh.bind(this),
+      switchFlowNode: this.switchFlowNode.bind(this)
+    }
+
     this.diagramEngine = new DiagramEngine()
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory(this.props.skills))
     this.diagramEngine.registerNodeFactory(
       new SaySomethingWidgetFactory({
-        editNodeItem: this.editNodeItem.bind(this),
-        selectedNodeItem: () => this.getStateProperty('editingNodeItem'),
-        deleteSelectedElements: this.deleteSelectedElements.bind(this),
-        getCurrentFlow: () => this.getPropsProperty('currentFlow'),
-        updateFlowNode: this.updateNodeAndRefresh.bind(this),
-        getCurrentLang: () => this.getStateProperty('currentLang'),
-        switchFlowNode: this.switchFlowNode.bind(this)
+        ...commonProps,
+        getCurrentLang: () => this.getStateProperty('currentLang')
       })
     )
     this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
@@ -145,13 +148,8 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(new SuccessWidgetFactory())
     this.diagramEngine.registerNodeFactory(
       new TriggerWidgetFactory({
-        editNodeItem: this.editNodeItem.bind(this),
-        selectedNodeItem: () => this.getStateProperty('editingNodeItem'),
-        deleteSelectedElements: this.deleteSelectedElements.bind(this),
-        getCurrentFlow: () => this.getPropsProperty('currentFlow'),
+        ...commonProps,
         getConditions: () => this.getPropsProperty('conditions'),
-        updateFlowNode: this.updateNodeAndRefresh.bind(this),
-        switchFlowNode: this.switchFlowNode.bind(this),
         addCondition: this.addCondition.bind(this)
       })
     )

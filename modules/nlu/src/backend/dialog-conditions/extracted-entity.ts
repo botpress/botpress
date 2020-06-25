@@ -31,7 +31,7 @@ export default {
           { label: 'module.nlu.conditions.fields.label.lessThan', value: 'lessThan' }
         ]
       },
-      { key: 'expectedValue', label: 'Expected value', type: 'text' }
+      { key: 'expectedValue', label: 'module.nlu.conditions.fields.label.expectedValue', type: 'text' }
     ]
   },
   evaluate: (event, params) => {
