@@ -5,7 +5,12 @@ import React, { FC, useEffect, useState } from 'react'
 
 import style from './style.scss'
 
-const AutoTrainToggle: FC<{ api: NLUApi }> = ({ api }) => {
+type AutoTrainListener = (status: boolean) => void
+export type AutoTrainObserver = {
+  listeners: AutoTrainListener[]
+}
+
+const AutoTrainToggle: FC<{ api: NLUApi; observer: AutoTrainObserver }> = ({ api, observer }) => {
   const [autoTrain, setAutoTrain] = useState(false)
   const [loading, setLoading] = useState(true)
 
@@ -15,15 +20,22 @@ const AutoTrainToggle: FC<{ api: NLUApi }> = ({ api }) => {
       const isOn = await api.isAutoTrainOn()
       setAutoTrain(isOn)
       setLoading(false)
+      notifyListeners(isOn)
     }
 
     // tslint:disable-next-line: no-floating-promises
     fetchAutoTrain()
   }, [])
 
+  const notifyListeners = (autoTrainStatus: boolean) => {
+    observer.listeners.forEach(l => l(autoTrainStatus))
+  }
+
   const toggleAutoTrain = async () => {
-    await api.setAutoTrain(!autoTrain)
-    setAutoTrain(!autoTrain)
+    const newStatus = !autoTrain
+    await api.setAutoTrain(newStatus)
+    setAutoTrain(newStatus)
+    notifyListeners(newStatus)
   }
 
   return (
