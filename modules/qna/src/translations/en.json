@@ -2,9 +2,6 @@
   "addNew": "Add new",
   "answer": "Answer",
   "confirmDelete": "Do you want to delete the question?",
-  "contentForm": {
-    "deleteContent": "Delete Content"
-  },
   "context": {
     "canTypeToCreate": "You can type in the select bar to add new contexts.",
     "createQuery": "Create context",
@@ -62,7 +59,6 @@
     "pickNode": "Pick a Node",
     "pickWorkflow": "Pick a Workflow",
     "q": "Q",
-    "quickAddAlternative": "Press {shortcut} while inline to add new alternative quickly",
     "redirectQuestionTo": "Redirect question to",
     "redirectToWorkflow": "Redirect to Workflow",
     "translate": "Translate",

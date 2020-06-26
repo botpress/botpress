@@ -16,8 +16,10 @@ import { WrapperProps } from './MainContent/Wrapper/typings'
 import { EmptyStateProps } from './EmptyState/typings'
 import { TextareaProps } from './Textarea/typings'
 import { RightSidebarProps } from './MainContent/RightSidebar/typings'
-import { FormProps } from './ContentForms/Components/Form/typings'
-import { AddButtonProps } from './ContentForms/Components/typings'
+import { FormProps } from './Contents/Components/Form/typings'
+import { ItemProps } from './Contents/Components/Item/typings'
+import { AddButtonProps } from './Contents/Components/typings'
+import { TextFieldsArrayProps } from './FormFields/TextFieldsArrayProps/typings'
 import { OverlayProps } from './Overlay/typings'
 
 declare module 'botpress/shared' {
@@ -31,13 +33,15 @@ declare module 'botpress/shared' {
     Header(props: HeaderProps): JSX.Element
     Wrapper(props: WrapperProps): JSX.Element
   }
-  export const ContentForms: {
+  export const Contents: {
     Form(props: FormProps): JSX.Element
+    Item(props: ItemProps): JSX.Element
     contentTypesFields: any
     getEmptyFormData: (contentType: string, isPartOfGroup?: boolean) => any
   }
   export const FormFields: {
     AddButton(props: AddButtonProps): JSX.Element
+    TextFieldsArray(props: TextFieldsArrayProps): JSX.Element
   }
   export function Dropdown(props: DropdownProps): JSX.Element
   export function EmptyState(props: EmptyStateProps): JSX.Element

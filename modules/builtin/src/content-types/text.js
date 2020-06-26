@@ -84,7 +84,7 @@ module.exports = {
       },
       variations: {
         type: 'array',
-        title: 'module.builtin.types.text.alternatives',
+        title: 'module.builtin.types.text.alternative_plural',
         items: {
           type: 'string',
           default: ''
@@ -109,6 +109,33 @@ module.exports = {
         orderable: false
       }
     }
+  },
+  newSchema: {
+    displayedIn: ['sayNode'],
+    advancedSettings: [
+      {
+        key: 'markdown',
+        label: 'module.builtin.useMarkdown',
+        type: 'checkbox',
+        moreInfo: {
+          label: 'learnMore',
+          url: 'https://daringfireball.net/projects/markdown/'
+        }
+      },
+      {
+        key: 'typing',
+        type: 'checkbox',
+        label: 'module.builtin.typingIndicator'
+      }
+    ],
+    fields: [
+      {
+        type: 'overridable',
+        overrideKey: 'textOverride',
+        key: 'text',
+        label: 'text'
+      }
+    ]
   },
   computePreviewText: formData => formData.text,
 

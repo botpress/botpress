@@ -1,4 +1,12 @@
-import { BotDetails, BoxedVarConstructable, Flow, FlowNode, RolloutStrategy, StageRequestApprovers } from 'botpress/sdk'
+import {
+  BotDetails,
+  BoxedVarConstructable,
+  Flow,
+  FlowNode,
+  IO,
+  RolloutStrategy,
+  StageRequestApprovers
+} from 'botpress/sdk'
 import { StrategyUser } from 'botpress/sdk'
 import { Request } from 'express'
 
@@ -204,6 +212,17 @@ export interface LibraryElement {
   path: string
 }
 
+export interface EventCommonArgs {
+  event: IO.IncomingEvent
+  user: { [attribute: string]: any }
+  temp: { [property: string]: any }
+  bot: { [property: string]: any }
+  session: IO.CurrentSession
+  workflow: IO.WorkflowHistory
+  // Any other additional property
+  [property: string]: any
+}
+
 export interface ServerHealth {
   serverId: string
   hostname: string
@@ -259,12 +278,6 @@ export interface FlowVariableType {
 
 export type FlowVariableConfig = FormDefinition
 
-export interface FormData {
-  id?: string
-  contentType?: string
-  [key: string]: undefined | number | boolean | string | FormData[]
-}
-
 export interface FormMoreInfo {
   label: string
   url?: string
@@ -289,9 +302,10 @@ export interface FormContextMenu {
 }
 
 export interface FormField {
-  type: 'checkbox' | 'group' | 'select' | 'text' | 'textarea' | 'upload' | 'url'
+  type: 'checkbox' | 'group' | 'overridable' | 'select' | 'text' | 'textarea' | 'upload' | 'url'
   key: string
   label: string
+  overrideKey?: string
   placeholder?: string
   options?: FormOption[]
   fields?: FormField[]
