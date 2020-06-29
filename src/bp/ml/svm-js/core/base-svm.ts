@@ -14,7 +14,7 @@ class BaseSVM {
   }
 
   static restore = (model: SvmModel) => {
-    const random_seed = parseInt(process.env.RANDOM_SEED || "")
+    const random_seed = parseInt(process.env.RANDOM_SEED || '')
     const clf = new addon.NSVM({ random_seed })
 
     clf.set_model(model) // might throw
@@ -25,10 +25,8 @@ class BaseSVM {
     const dims = numeric.dim(dataset)
     assert(dims[0] > 0 && dims[1] === 2 && dims[2] > 0, 'dataset must be a list of [X,y] tuples')
 
-    const random_seed = parseInt(process.env.RANDOM_SEED || "")
-    this._clf = random_seed ?
-      new addon.NSVM({ random_seed })
-      : new addon.NSVM()
+    const random_seed = parseInt(process.env.RANDOM_SEED || '')
+    this._clf = new addon.NSVM({ random_seed })
 
     const X = dataset.map(d => d[0])
     const y = dataset.map(d => d[1])
