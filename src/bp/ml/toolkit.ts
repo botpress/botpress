@@ -21,6 +21,10 @@ interface Message {
   payload: any
 }
 
+// assuming 10 bots, 10 ctx * (oos, intent) + ndu + ctx cls + slot tagger
+// all training concurrently
+const MAX_TRAINING_LISTENENRS = 10 * (10 * 2 + 2)
+
 const MLToolkit: typeof sdk.MLToolkit = {
   KMeans: {
     kmeans
@@ -44,6 +48,8 @@ function overloadTrainers() {
     options?: Partial<sdk.MLToolkit.SVM.SVMOptions>,
     progressCb?: sdk.MLToolkit.SVM.TrainProgressCallback | undefined
   ): any => {
+    process.setMaxListeners(MAX_TRAINING_LISTENENRS)
+
     return Promise.fromCallback(completedCb => {
       const id = nanoid()
       const messageHandler = (msg: Message) => {

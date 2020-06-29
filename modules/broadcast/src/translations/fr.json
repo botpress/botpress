@@ -1,0 +1,49 @@
+{
+  "fullName": "Diffusions",
+  "title": "Diffusions",
+  "cantFetchFromServer": "Impossible de récupérer la liste de diffusion du serveur.",
+  "contentFieldRequired": "Le champ de contenu est obligatoire.",
+  "unknownErrorOccurred": "Une erreur inconnue est survenue",
+  "processing": "En traitement",
+  "notStarted": "Pas commencé",
+  "done": "Terminé",
+  "usersTime": "temps des utilisateurs",
+  "yourTime": "votre temps",
+  "noFilter": "Pas de filtre",
+  "filters": "filtres",
+  "youHaveNoBroadcasts": "Vous n'avez aucune diffusion",
+  "newBroadcast": "Nouvelle diffusion",
+
+  "section": {
+    "upcoming": "Diffusions à venir (3 prochains jours)",
+    "past": "Diffusions passées (3 derniers jours)",
+    "other": "Autres diffusions"
+  },
+
+  "table": {
+    "date": "Date",
+    "content": "Contenu",
+    "filters": "Filtres",
+    "progress": "Progrès",
+    "action": "Action"
+  },
+
+  "alert": {
+    "title": "Une erreur s'est produite lors de l'envoi d'une diffusion",
+    "message": "Consultez les journaux pour voir ce qui s'est passé",
+    "hide": "Cacher alerte"
+  },
+
+  "form": {
+    "content": "Contenu",
+    "pickContent": "Choisissez le contenu",
+    "date": "Date",
+    "time": "Temps",
+    "userTimeZone": "Fuseau horaire utilisateur",
+    "filters": "Filtres",
+    "modify": "Modifier",
+    "create": "Créer",
+    "modifyBroadcast": "Modifier diffusion",
+    "createBroadcast": "Créer diffusion"
+  }
+}

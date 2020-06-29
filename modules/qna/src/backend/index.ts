@@ -111,7 +111,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   translations: { en, fr },
   definition: {
     name: 'qna',
-    menuIcon: 'question_answer',
+    menuIcon: 'chat',
     menuText: 'Q&A',
     fullName: 'QNA',
     homepage: 'https://botpress.com'

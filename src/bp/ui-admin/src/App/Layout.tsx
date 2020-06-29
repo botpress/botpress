@@ -30,12 +30,9 @@ const App: FC<Props> = props => {
   const [tokenInterval, setTokenInterval] = useState()
 
   useEffect(() => {
+
     props.fetchLicensing()
     props.fetchProfile()
-
-    if (!props.version) {
-      props.fetchCurrentVersion()
-    }
 
     setTokenInterval(
       setInterval(async () => {
@@ -85,7 +82,7 @@ const App: FC<Props> = props => {
         </div>
       </div>
 
-      <Footer version={props.version} />
+      <Footer version={window.APP_VERSION} />
     </Fragment>
   )
 }
@@ -127,14 +124,12 @@ const Unlicensed = () => (
 
 const mapStateToProps = state => ({
   profile: state.user.profile,
-  licensing: state.license.licensing,
-  version: state.version.currentVersion
+  licensing: state.license.licensing
 })
 
 const mapDispatchToProps = {
   fetchLicensing,
-  fetchProfile,
-  fetchCurrentVersion
+  fetchProfile
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)

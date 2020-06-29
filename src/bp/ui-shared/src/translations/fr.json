@@ -10,6 +10,7 @@
   "chips": "Chips",
   "chooseFile": "Choisir fichier...",
   "close": "Fermer",
+  "collapseAll": "Tout réduire",
   "commander": {
     "backToAdmin": "Retour à l'admin",
     "category": {
@@ -47,6 +48,7 @@
   "delete": "Supprimer",
   "description": "Description",
   "details": "Détails",
+  "disabled": "Désactivé",
   "duplicate": "Dupliquer",
   "edit": "Modifier",
   "email": "Adresse courriel",
@@ -54,7 +56,9 @@
   "enabled": "Activé",
   "error": "Erreur",
   "execute": "Executer",
+  "expandAll": "Tout développer",
   "export": "Exporter",
+  "filterBy": "Filtrer par",
   "flows": "Flows",
   "general": "Général",
   "id": "ID",
@@ -118,6 +122,7 @@
     "workspace": "Espace de travail"
   },
   "skills": "Compétences",
+  "sortBy": "Trier par",
   "split": "Séparer",
   "status": "Statut",
   "submit": "Soumettre",

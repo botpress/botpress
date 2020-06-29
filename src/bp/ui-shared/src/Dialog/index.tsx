@@ -40,8 +40,8 @@ export const Wrapper: FC<DialogProps> = props => {
   )
 }
 
-export const Body = ({ children }) => {
-  return <div className={cx(Classes.DIALOG_BODY, Classes.UI_TEXT, style.dialogBody)}>{children}</div>
+export const Body = ({ children, className }: { children: any; className?: string }) => {
+  return <div className={cx(Classes.DIALOG_BODY, Classes.UI_TEXT, style.dialogBody, className)}>{children}</div>
 }
 
 export const Footer = ({ children }) => {

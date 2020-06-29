@@ -19,6 +19,8 @@
       "react-dom": "ReactDOM",
       "react-bootstrap": "ReactBootstrap",
       "botpress/elements-list": "ElementsList",
+      "botpress/content-type-picker": "BotpressContentTypePicker",
+      "botpress/content-picker": "BotpressContentPicker",
       "botpress/utils": "BotpressUtils"
     }
   },
