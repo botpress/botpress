@@ -188,5 +188,20 @@ export const dialogConditions: sdk.Condition[] = [
 
       return 0
     }
+  },
+  {
+    id: 'is_inside_prompt',
+    label: 'The user is currently in a prompt',
+    evaluate: (event: sdk.IO.IncomingEvent, _params) => {
+      const isPrompt = !!(
+        event.prompt ||
+        event.state?.session?.prompt ||
+        (event.type === 'prompt' && event.direction === 'incoming')
+      )
+
+      const turns = event.state.session.prompt?.status?.turns ?? 0
+      // Yes, absolutely magic numbers (will move to const once I know more about them)
+      return isPrompt ? 0.8 - turns * 0.1 : 0
+    }
   }
 ]

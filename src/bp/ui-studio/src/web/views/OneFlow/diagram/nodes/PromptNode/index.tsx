@@ -31,7 +31,15 @@ class PromptNodeWidget extends React.Component<{ node: PromptNodeModel }> {
         </div>
         <div className={style.ports}>
           <StandardPortWidget name="in" node={node} className={style.in} />
-          <StandardPortWidget name="out0" node={node} className={style.out} />
+          {node.next?.map((item, i) => {
+            const outputPortName = `out${i}`
+            return (
+              <div key={`${i}.${item}`} style={{ display: 'flex', justifyContent: 'space-between', padding: 1 }}>
+                {item.caption}
+                <StandardPortWidget name={outputPortName} node={node} className={style.outRouting} />
+              </div>
+            )
+          })}
         </div>
       </div>
     )

@@ -189,6 +189,11 @@ export class TransitionStrategy implements InstructionStrategy {
       return instruction.fn === `lastNode=${lastEntry.node}`
     }
 
+    if (instruction.fn?.includes('thisNode')) {
+      const nodeName = sandbox.event.state.context.currentNode
+      instruction.fn = instruction.fn.replace(/thisNode/g, `(event.state.temp['${nodeName}'] || {})`)
+    }
+
     const code = `
     try {
       return ${instruction.fn};

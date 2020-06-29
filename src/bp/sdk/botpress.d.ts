@@ -538,6 +538,7 @@ declare module 'botpress/sdk' {
 
   export namespace NDU {
     interface GenericTrigger {
+      name?: string
       conditions: DecisionTriggerCondition[]
     }
 
@@ -790,6 +791,10 @@ declare module 'botpress/sdk' {
       questionAsked?: boolean
       /** Sent a confirmation message to the user and waiting for a yes/no */
       confirming?: boolean
+      /** User is about to leave the prompt (either cancelled or another flow is a better match) */
+      exiting?: boolean
+      /** If the leave confirmation is successful, we jump the user to that location */
+      nextDestination?: { flowName: string; node: string }
     }
 
     export interface EventError {
@@ -1373,7 +1378,7 @@ declare module 'botpress/sdk' {
   }
 
   export type ListenNode = FlowNode & {
-    triggers: { conditions: DecisionTriggerCondition[] }[]
+    triggers: { name?: string; conditions: DecisionTriggerCondition[] }[]
   }
 
   export type SkillFlowNode = Partial<ListenNode> & Pick<Required<ListenNode>, 'name'> & Partial<TriggerNode>

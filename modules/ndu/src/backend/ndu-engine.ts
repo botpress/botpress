@@ -382,7 +382,7 @@ export class UnderstandingEngine {
       : trigger.type === 'faq'
       ? `faq/${trigger.topicName}/${trigger.faqId}`
       : trigger.type === 'node'
-      ? `node/${trigger.workflowId}/${trigger.nodeId}`
+      ? `node/${trigger.workflowId}/${trigger.nodeId}${trigger.name ? `/${trigger.name}` : ''}`
       : 'invalid_trigger/' + _.random(10 ^ 9, false)
   }
 
@@ -449,16 +449,36 @@ export class UnderstandingEngine {
             activeWorkflow: tn.activeWorkflow,
             nodeId: tn.name
           })
-        } else if ((<sdk.ListenNode>node)?.triggers?.length) {
+        } else if ((<sdk.ListenNode>node)?.triggers?.length || node.type === 'prompt') {
           const ln = node as sdk.ListenNode
+
+          if (node.type === 'prompt') {
+            ln.triggers = [
+              {
+                name: 'prompt_yes',
+                conditions: [{ id: 'user_intent_yes' }]
+              },
+              {
+                name: 'prompt_no',
+                conditions: [{ id: 'user_intent_no' }]
+              },
+              {
+                name: 'prompt_cancel',
+                conditions: [{ id: 'user_intent_cancel' }]
+              },
+              { name: 'is_inside_prompt', conditions: [{ id: 'is_inside_prompt' }] }
+            ]
+          }
+
           triggers.push(
             ...ln.triggers.map(
               trigger =>
                 <sdk.NDU.NodeTrigger>{
                   nodeId: ln.name,
+                  name: trigger.name,
                   conditions: trigger.conditions.map(x => ({
                     ...x,
-                    params: { ...x.params, topicName, wfName: flowName }
+                    params: { topicName, wfName: flowName, ...x.params }
                   })),
                   type: 'node',
                   workflowId: flowName

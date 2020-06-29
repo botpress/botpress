@@ -84,5 +84,6 @@
   "max": "Max",
   "regexPattern": "Regex pattern",
   "formatInvalidMessage": "Format invalid message",
-  "maxLength": "Max length"
+  "maxLength": "Max length",
+  "confirmBeforeCancel": "Confirm before cancel"
 }
