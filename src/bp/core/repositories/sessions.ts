@@ -131,18 +131,14 @@ export class KnexSessionRepository implements SessionRepository {
   }
 
   async getExpiredPromptsSessionIds(botId: string): Promise<string[]> {
-    const query = this.database
+    return this.database
       .knex(this.tableName)
       .where('botId', botId)
       .andWhere(this.database.knex.date.isBefore('prompt_expiry', new Date()))
-
-    return (await query
       .select('id')
       .limit(250)
       .orderBy('modified_on')
-      .then(rows => {
-        return rows.map(r => r.id)
-      })) as string[]
+      .then(rows => rows.map(r => r.id))
   }
 
   async deleteExpiredSessions(botId: string): Promise<void> {

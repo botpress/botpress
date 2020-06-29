@@ -22,7 +22,9 @@ export function createExpiry(botConfig: BotConfig, botpressConfig: BotpressConfi
   const sessionTimeout = ms(
     _.get(botConfig, 'dialog.sessionTimeoutInterval', botpressConfig.dialog.sessionTimeoutInterval)
   )
-  const promptTimeout = ms(botConfig?.dialog?.promptTimeoutInterval ?? botpressConfig.dialog.promptTimeoutInterval)
+  const promptTimeout = ms(
+    botConfig?.dialog?.promptTimeoutInterval ?? botpressConfig.dialog.promptTimeoutInterval ?? '3m'
+  )
 
   return {
     context: moment()

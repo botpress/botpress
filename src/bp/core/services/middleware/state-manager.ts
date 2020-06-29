@@ -104,7 +104,7 @@ export class StateManager {
     if (!state.workflow) {
       Object.defineProperty(state, 'workflow', {
         get() {
-          return state.session.workflows[state.session.currentWorkflow!]
+          return state.session.workflows?.[state.session.currentWorkflow!]
         }
       })
     }

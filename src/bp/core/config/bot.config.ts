@@ -68,6 +68,11 @@ export interface DialogConfig {
    * The interval until the session timeout. The default value is 30m. This deletes the session from the database.
    */
   sessionTimeoutInterval?: string
+  /**
+   * The interval before the prompt expires. It must be less than the timeout of the context
+   * @default 3m
+   */
+  promptTimeoutInterval: string
 }
 
 export type ConverseConfig = {
