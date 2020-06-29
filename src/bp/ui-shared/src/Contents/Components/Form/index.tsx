@@ -1,10 +1,12 @@
 import { Checkbox } from '@blueprintjs/core'
 import { FormMoreInfo } from 'botpress/sdk'
+import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer } from 'react'
 
 import { lang } from '../../../translations'
-import { getEmptyFormData } from '../../utils/fields'
+import TextFieldsArray from '../../../FormFields/TextFieldsArray'
+import { createEmptyDataFromSchema } from '../../utils/fields'
 import AddButton from '../Fields/AddButton'
 import Select from '../Fields/Select'
 import Text from '../Fields/Text'
@@ -17,7 +19,7 @@ import style from './style.scss'
 import { FormProps } from './typings'
 
 const printLabel = (field, data) => {
-  if (field.label.startsWith('fields::') && field.fields?.length) {
+  if (field.label?.startsWith('fields::') && field.fields?.length) {
     const labelField = field.fields?.find(subField => subField.key === field.label.replace('fields::', ''))
 
     return data[labelField.key] || lang(labelField.label)
@@ -26,23 +28,27 @@ const printLabel = (field, data) => {
   return lang(field.label)
 }
 
-const printMoreInfo = (moreInfo: FormMoreInfo): JSX.Element => {
+const printMoreInfo = (moreInfo: FormMoreInfo, isCheckbox = false): JSX.Element | undefined => {
+  if (!moreInfo) {
+    return
+  }
+
   const { url, label } = moreInfo
   if (url) {
     return (
-      <a className={style.moreInfo} href={url} target="_blank">
+      <a className={cx(style.moreInfo, { [style.isCheckbox]: isCheckbox })} href={url} target="_blank">
         {lang(label)}
       </a>
     )
   }
 
-  return <p className={style.moreInfo}>{lang(label)}</p>
+  return <p className={cx(style.moreInfo, { [style.isCheckbox]: isCheckbox })}>{lang(label)}</p>
 }
 
 const formReducer = (state, action) => {
   if (action.type === 'add') {
-    const { field, contentType, parent } = action.data
-    const newData = getEmptyFormData(contentType, true)
+    const { field, parent } = action.data
+    const newData = createEmptyDataFromSchema([...(field.fields || [])])
 
     if (parent) {
       const { key, index } = parent
@@ -107,6 +113,32 @@ const formReducer = (state, action) => {
 
     onUpdate?.(newState)
     return { ...newState }
+  } else if (action.type === 'updateOverridableField') {
+    const { value, field, parent, onUpdate } = action.data
+    if (parent) {
+      const { index } = parent
+      const getArray = [index, field]
+
+      if (parent.parent) {
+        // Needs recursion if we end up having more than one level of groups
+        getArray.unshift(parent.parent.key, parent.parent.index)
+      }
+
+      _.set(state, getArray, value)
+
+      onUpdate?.(state)
+      return {
+        ...state
+      }
+    }
+
+    const newState = {
+      ...state,
+      ...value
+    }
+
+    onUpdate?.(newState)
+    return { ...newState }
   } else if (action.type === 'setData') {
     return {
       ...state,
@@ -117,13 +149,25 @@ const formReducer = (state, action) => {
   }
 }
 
-const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettings, onUpdate }) => {
-  const newFormData = getEmptyFormData(contentType || 'builtin_image')
+const Form: FC<FormProps> = ({ axios, mediaPath, overrideFields, formData, fields, advancedSettings, onUpdate }) => {
+  const newFormData = createEmptyDataFromSchema([...(fields || []), ...(advancedSettings || [])])
   const [state, dispatch] = useReducer(formReducer, newFormData)
 
   useEffect(() => {
     dispatch({ type: 'setData', data: formData })
   }, [])
+
+  const getArrayPlaceholder = (index, placeholder) => {
+    if (Array.isArray(placeholder)) {
+      if (index < placeholder.length) {
+        return lang(placeholder[index], { count: index })
+      } else {
+        return ''
+      }
+    }
+
+    return index === 0 && placeholder ? lang(placeholder) : ''
+  }
 
   const printField = (field, data, parent?) => {
     switch (field.type) {
@@ -150,30 +194,51 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
             <AddButton
               text={lang(field.group?.addLabel)}
               onClick={() =>
-                dispatch({ type: 'add', data: { field: field.key, renderType: field.renderType, parent } })
+                dispatch({
+                  type: 'add',
+                  data: {
+                    field: field.key,
+                    parent
+                  }
+                })
               }
             />
           </Fragment>
         )
       case 'select':
-        const value = data[field.key] || field.defaultValue || field.options[0]?.value
-        const currentOption = field.options.find(option => option.value === value)
-
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
+            {printMoreInfo(field.moreInfo)}
             <Select
-              options={field.options.map(option => ({ ...option, label: lang(option.label) }))}
-              value={value}
+              axios={axios}
+              parent={parent}
+              printField={printField}
+              data={data}
+              field={field}
               placeholder={lang(field.placeholder)}
               onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
             />
-            {currentOption.related && printField(currentOption.related, data, parent)}
-            {field.moreInfo && printMoreInfo(field.moreInfo)}
           </FieldWrapper>
+        )
+      case 'text_array':
+        return (
+          <Fragment key={field.key}>
+            <TextFieldsArray
+              getPlaceholder={index => getArrayPlaceholder(index, field.placeholder)}
+              moreInfo={printMoreInfo(field.moreInfo)}
+              onChange={value => {
+                dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
+              }}
+              items={data[field.key] || ['']}
+              label={printLabel(field, data[field.key])}
+              addBtnLabel={lang(field.group?.addLabel)}
+            />
+          </Fragment>
         )
       case 'textarea':
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
+            {printMoreInfo(field.moreInfo)}
             <TextArea
               placeholder={lang(field.placeholder)}
               onBlur={value => {
@@ -181,20 +246,19 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
               }}
               value={data[field.key]}
             />
-            {field.moreInfo && printMoreInfo(field.moreInfo)}
           </FieldWrapper>
         )
       case 'upload':
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
+            {printMoreInfo(field.moreInfo)}
             <Upload
-              axios={bp?.axios}
-              customPath={bp?.mediaPath}
+              axios={axios}
+              customPath={mediaPath}
               placeholder={lang(field.placeholder)}
               onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
               value={data[field.key]}
             />
-            {field.moreInfo && printMoreInfo(field.moreInfo)}
           </FieldWrapper>
         )
       case 'checkbox':
@@ -211,12 +275,29 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
                 })
               }
             />
-            {field.moreInfo && printMoreInfo(field.moreInfo)}
+            {field.moreInfo && printMoreInfo(field.moreInfo, true)}
           </div>
+        )
+      case 'overridable':
+        return (
+          <Fragment key={field.key}>
+            {overrideFields?.[field.overrideKey]?.({
+              field,
+              data,
+              label: printLabel(field, data[field.key]),
+              onChange: value => {
+                dispatch({
+                  type: 'updateOverridableField',
+                  data: { field: field.key, onUpdate, value }
+                })
+              }
+            })}
+          </Fragment>
         )
       default:
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
+            {printMoreInfo(field.moreInfo)}
             <Text
               placeholder={lang(field.placeholder)}
               onBlur={value => {
@@ -225,7 +306,6 @@ const Form: FC<FormProps> = ({ bp, contentType, formData, fields, advancedSettin
               type={field.type}
               value={data[field.key]}
             />
-            {field.moreInfo && printMoreInfo(field.moreInfo)}
           </FieldWrapper>
         )
     }

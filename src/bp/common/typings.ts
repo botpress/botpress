@@ -3,11 +3,12 @@ import {
   BoxedVarConstructable,
   Flow,
   FlowNode,
-  PromptConstructable,
+  FormField,
+  IO,
   RolloutStrategy,
-  StageRequestApprovers
+  StageRequestApprovers,
+  StrategyUser
 } from 'botpress/sdk'
-import { StrategyUser } from 'botpress/sdk'
 import { Request } from 'express'
 
 import { BotpressConfig } from '../core/config/botpress.config'
@@ -212,6 +213,17 @@ export interface LibraryElement {
   path: string
 }
 
+export interface EventCommonArgs {
+  event: IO.IncomingEvent
+  user: { [attribute: string]: any }
+  temp: { [property: string]: any }
+  bot: { [property: string]: any }
+  session: IO.CurrentSession
+  workflow: IO.WorkflowHistory
+  // Any other additional property
+  [property: string]: any
+}
+
 export interface ServerHealth {
   serverId: string
   hostname: string
@@ -257,4 +269,33 @@ export interface ActionParameterDefinition {
 
 export type ActionServerWithActions = ActionServer & {
   actions: ActionDefinition[] | undefined
+}
+
+export interface FlowVariableType {
+  id: string
+  config: FlowVariableConfig
+  box: BoxedVarConstructable<any>
+}
+
+export type FlowVariableConfig = FormDefinition
+
+export interface FormMoreInfo {
+  label: string
+  url?: string
+}
+
+export interface FormOption {
+  value: string
+  label: string
+  related: FormField
+}
+
+export interface FormContextMenu {
+  type: string
+  label: string
+}
+
+export interface FormDefinition {
+  advancedSettings: FormField[]
+  fields: FormField[]
 }

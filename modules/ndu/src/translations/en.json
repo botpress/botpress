@@ -1,0 +1,34 @@
+{
+  "conditions": {
+    "alwaysTrue": "This condition is always true",
+    "customCode": "Custom code",
+    "customPriority": "Custom priority level",
+    "fields": {
+      "label": {
+        "addWord": "Add Word",
+        "candidate": "One or multiple words to detect",
+        "caseSensitive": "Case Sensitive",
+        "exactMatch": "Must be an exact match",
+        "ignoredWorkflows": "Ignored Workflows",
+        "ignoredWorkflowsMoreInfo": "Their completion will not activate this trigger",
+        "workflowOutcome": "Workflow Outcome"
+      },
+      "placeholder": {
+        "oneWordPerLine": "One word per line",
+        "pickChannel": "Pick a channel",
+        "pickLanguage": "Pick a language",
+        "pickTopic": "Pick a topic",
+        "pickWorkflowOutcome": "Pick a workflow outcome",
+        "workflowName": "Workflow Name"
+      }
+    },
+    "userAlreadySpoke": "User has already spoke with the bot",
+    "userAuthenticated": "User is authenticated",
+    "userComingFromTopic": "User is coming from {topicName}",
+    "userEndedWorkflow": "User ended a workflow",
+    "userNotInWorkflowOrBlock": "User is not in any workflow or block",
+    "userSpeaks": "User speaks {language}",
+    "userTyped": "User typed something specific",
+    "userUsingChannel": "User is using {channelName}"
+  }
+}

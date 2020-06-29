@@ -1,4 +1,4 @@
-import { IO, Logger } from 'botpress/sdk'
+import { FormData, IO, Logger } from 'botpress/sdk'
 import { ContentElement, ContentType, KnexExtended, SearchParams } from 'botpress/sdk'
 import { renderRecursive, renderTemplate } from 'core/misc/templating'
 import { ModuleLoader } from 'core/module-loader'
@@ -9,7 +9,7 @@ import nanoid from 'nanoid'
 import path from 'path'
 import { VError } from 'verror'
 
-import { IDisposeOnExit } from '../../common/typings'
+import { EventCommonArgs, IDisposeOnExit } from '../../common/typings'
 import { ConfigProvider } from '../config/config-loader'
 import { LoggerProvider } from '../logger/logger'
 import { CodeFile, SafeCodeSandbox } from '../misc/code-sandbox'
@@ -603,7 +603,16 @@ export class CMSService implements IDisposeOnExit {
     return { BOT_URL: process.EXTERNAL_URL }
   }
 
-  async renderElement(contentId: string, args, eventDestination: IO.EventDestination) {
+  private _prepareTextAndShuffle(args: EventCommonArgs) {
+    const { text, variations } = args
+
+    const message = _.sample([text, ...(variations || [])])
+    if (message) {
+      args.text = renderTemplate(message, args)
+    }
+  }
+
+  async renderElement(contentId: string, args: EventCommonArgs, eventDestination: IO.EventDestination) {
     const { botId, channel } = eventDestination
     contentId = contentId.replace(/^#?/i, '')
     let contentTypeRenderer: ContentType
@@ -631,14 +640,6 @@ export class CMSService implements IDisposeOnExit {
 
       _.set(content, 'formData', renderRecursive(content.formData, args))
 
-      const text = _.get(content.formData, 'text')
-      const variations = _.get(content.formData, 'variations')
-
-      const message = _.sample([text, ...(variations || [])])
-      if (message) {
-        _.set(content, 'formData.text', renderTemplate(message, args))
-      }
-
       args = {
         ...args,
         ...content.formData
@@ -654,10 +655,7 @@ export class CMSService implements IDisposeOnExit {
     }
 
     if (args.text) {
-      args = {
-        ...args,
-        text: renderTemplate(args.text, args)
-      }
+      this._prepareTextAndShuffle(args)
     }
 
     try {

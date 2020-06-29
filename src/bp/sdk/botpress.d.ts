@@ -1177,7 +1177,7 @@ declare module 'botpress/sdk' {
     /** The Id of the Content Type for which the Element belongs to. */
     contentType: string
     /** The raw form data that contains templating that needs to be interpreted. */
-    formData: object
+    formData: { [property: string]: any }
     /** The computed form data that contains the interpreted data. */
     computedData: object
     /** The textual representation of the Content Element, for each supported languages  */
@@ -1261,7 +1261,7 @@ declare module 'botpress/sdk' {
 
   export interface DecisionTriggerCondition {
     id: string
-    params?: { [key: string]: any }
+    params?: FormData
   }
 
   export interface Condition {
@@ -1271,7 +1271,8 @@ declare module 'botpress/sdk' {
     /** The description holds placeholders for param values so they can be displayed in the view */
     description?: string
     /** The definition of all parameters used by this condition */
-    params?: { [paramName: string]: ConditionParam }
+    fields?: FormField[]
+    advancedSettings?: FormField[]
     /** In which order the conditions will be displayed in the dropdown menu. 0 is the first item */
     displayOrder?: number
     /** This callback url is called when the condition is deleted or pasted in the flow */
@@ -1403,12 +1404,73 @@ declare module 'botpress/sdk' {
     node: string
   }
 
+  export type FormDataField = any
+
   export interface FormData {
     id?: string
     contentType?: string
-    [key: string]: undefined | number | boolean | string | FormData[]
+    [key: string]: FormDataField
   }
 
+  interface FormOption {
+    value: string
+    label: string
+    related?: FormField
+  }
+
+  interface FormContextMenu {
+    type: string
+    label: string
+  }
+
+  // TODO use namespace to group form related interfaces
+  export interface FormDynamicOptions {
+    /** An enpoint to call to get the options */
+    endpoint: string
+    /** Used with _.get() on the data returned by api to get to the list of items */
+    path?: string
+    /** Field from DB to map as the value of the options */
+    valueField: string
+    /** Field from DB to map as the label of the options */
+    labelField: string
+  }
+
+  export interface FormField {
+    type:
+      | 'checkbox'
+      | 'group'
+      | 'number'
+      | 'overridable'
+      | 'select'
+      | 'text'
+      | 'text_array'
+      | 'textarea'
+      | 'upload'
+      | 'url'
+    key: string
+    label: string
+    overrideKey?: string
+    placeholder?: string | string[]
+    options?: FormOption[]
+    defaultValue?: FormDataField
+    required?: boolean
+    dynamicOptions?: FormDynamicOptions
+    fields?: FormField[]
+    moreInfo?: FormMoreInfo
+    group?: {
+      /** You have to specify the add button label */
+      addLabel?: string
+      /** You can specify a minimum so the delete button won't show if there isn't more than the minimum */
+      minimum?: number
+      /** You can add a contextual menu to add extra options */
+      contextMenu?: FormContextMenu[]
+    }
+  }
+
+  export interface FormMoreInfo {
+    label: string
+    url?: string
+  }
   /**
    * A Node Action represent all the possible actions that will be executed when the user is on the node. When the user
    * enters the node, actions in the 'onEnter' are executed. If there are actions in 'onReceive', they will be called
@@ -1421,6 +1483,11 @@ declare module 'botpress/sdk' {
     onReceive?: ActionBuilderProps[] | string[]
     /** An array of possible transitions once everything is completed */
     next?: NodeTransition[]
+    /** For node of type triggers, this contains the element to render */
+    conditions?: {
+      id?: string
+      params: FormData
+    }[]
     /** For node of type say_something, this contains the element to render */
     contents?: {
       [lang: string]: FormData
@@ -1645,29 +1712,9 @@ declare module 'botpress/sdk' {
     moreInfo?: FormMoreInfo
   }
 
-  export interface FormOption {
-    value: string
-    label: string
-    related: FormField
-  }
-
   export interface FormContextMenu {
     type: string
     label: string
-  }
-
-  export interface FormField {
-    type: 'checkbox' | 'group' | 'select' | 'text' | 'textarea' | 'upload' | 'url'
-    key: string
-    label: string
-    placeholder?: string
-    options?: FormOption[]
-    fields?: FormField[]
-    group?: {
-      addLabel?: string // you have to specify the add button label
-      minimum?: number // you can specify a minimum so the delete button won't show if there isn't more than the minimum
-      contextMenu?: FormContextMenu[] // you can add a contextual menu to add extra options
-    }
   }
 
   export interface FormDefinition {

@@ -43,8 +43,8 @@ const buildModule = (modulePath, cb) => {
   const targetOs = getTargetOSConfig()
   const linkCmd = process.env.LINK ? `&& yarn link "module-builder"` : ''
   const buildCommand = process.argv.find(x => x.toLowerCase() === '--prod')
-    ? `cross-env NODE_ENV=production yarn build --nomap`
-    : 'yarn build'
+    ? `cross-env NODE_ENV=production yarn build --nomap --fail-on-error`
+    : 'yarn build --fail-on-error'
 
   exec(
     `cross-env npm_config_target_platform=${targetOs} yarn ${linkCmd} && ${buildCommand}`,

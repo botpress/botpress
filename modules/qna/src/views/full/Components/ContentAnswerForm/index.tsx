@@ -63,9 +63,10 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
   ]
 
   const handleContentTypeChange = value => {
+    const { fields, advancedSettings } = contentTypesFields?.[value] || {}
     contentType.current = value
     onUpdate({
-      ...Contents.getEmptyFormData(value),
+      ...Contents.createEmptyDataFromSchema([...fields, ...(advancedSettings || [])]),
       contentType: value,
       id: formData?.id
     })
@@ -101,9 +102,8 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
           <Contents.Form
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
-            bp={bp}
+            axios={bp.axios}
             formData={formData}
-            contentType={contentType.current}
             onUpdate={data => onUpdate({ ...data, contentType: contentType.current })}
           />
         )}
