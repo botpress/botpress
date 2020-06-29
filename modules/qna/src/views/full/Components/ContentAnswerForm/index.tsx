@@ -63,19 +63,16 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
   ]
 
   const handleContentTypeChange = value => {
+    const { fields, advancedSettings } = contentTypesFields?.[value] || {}
     contentType.current = value
     onUpdate({
-      ...Contents.getEmptyFormData(value),
+      ...Contents.createEmptyDataFromSchema([...fields, ...(advancedSettings || [])]),
       contentType: value,
       id: formData?.id
     })
   }
 
   const contentFields = contentTypesFields?.[contentType.current]
-
-  const handleEmptyData = renderType => {
-    return Contents.getEmptyFormData(renderType || contentType.current || 'builtin_text')
-  }
 
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose close={() => close(editingContent)}>
@@ -107,7 +104,6 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
             advancedSettings={contentFields.advancedSettings}
             axios={bp.axios}
             formData={formData}
-            getEmptyData={handleEmptyData}
             onUpdate={data => onUpdate({ ...data, contentType: contentType.current })}
           />
         )}

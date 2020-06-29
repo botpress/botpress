@@ -43,8 +43,8 @@ const printMoreInfo = (moreInfo: FormMoreInfo, isCheckbox = false): JSX.Element 
 
 const formReducer = (state, action) => {
   if (action.type === 'add') {
-    const { field, renderType, parent, getEmptyData, createEmptyDataFromSchema } = action.data
-    const newData = getEmptyData ? getEmptyData(renderType, true) : createEmptyDataFromSchema([...(field.fields || [])])
+    const { field, parent, createEmptyDataFromSchema } = action.data
+    const newData = createEmptyDataFromSchema([...(field.fields || [])])
 
     if (parent) {
       const { key, index } = parent
@@ -145,19 +145,8 @@ const formReducer = (state, action) => {
   }
 }
 
-const Form: FC<FormProps> = ({
-  axios,
-  mediaPath,
-  overrideFields,
-  getEmptyData,
-  formData,
-  fields,
-  advancedSettings,
-  onUpdate
-}) => {
-  const newFormData = getEmptyData
-    ? getEmptyData()
-    : createEmptyDataFromSchema([...fields, ...(advancedSettings || [])])
+const Form: FC<FormProps> = ({ axios, mediaPath, overrideFields, formData, fields, advancedSettings, onUpdate }) => {
+  const newFormData = createEmptyDataFromSchema([...(fields || []), ...(advancedSettings || [])])
   const [state, dispatch] = useReducer(formReducer, newFormData)
 
   useEffect(() => {
@@ -205,9 +194,7 @@ const Form: FC<FormProps> = ({
                   type: 'add',
                   data: {
                     field: field.key,
-                    renderType: field.renderType,
                     parent,
-                    getEmptyData,
                     createEmptyDataFromSchema
                   }
                 })
