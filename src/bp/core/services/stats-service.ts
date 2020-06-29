@@ -4,6 +4,7 @@ import { machineUUID } from 'common/stats'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
 import { UserRepository } from 'core/repositories'
+import { TelemetryPayloadRepository } from 'core/repositories/telemetry_payload'
 import { TYPES } from 'core/types'
 import crypto from 'crypto'
 import { inject, injectable } from 'inversify'
@@ -24,8 +25,12 @@ const path = require('path')
 
 const LOCK_RESOURCE = 'botpress:statsService'
 const LOCK_RESOURCE24 = 'botpress:statsService24'
+const LOCK_RESOURCE15 = 'botpress:statsService15'
+
 const debug = DEBUG('stats')
 const JOB_INTERVAL = '6 hours'
+const telemetry1 = 'https://telemetry.botpress.io/ingest'
+const telemetry2 = 'https://telemetry.botpress.dev'
 
 @injectable()
 export class StatsService {
@@ -39,36 +44,34 @@ export class StatsService {
     @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.UserRepository) private userRepository: UserRepository,
+    @inject(TYPES.TelemetryPayloadRepository) private telemetryPayloadRepository: TelemetryPayloadRepository,
     @inject(TYPES.Database) private database: Database
   ) {}
 
   public start() {
     // tslint:disable-next-line: no-floating-promises
-    this.run(this.getStats.bind(this), LOCK_RESOURCE, JOB_INTERVAL, 'https://telemetry.botpress.io/ingest')
+    this.run(this.getStats.bind(this), LOCK_RESOURCE, JOB_INTERVAL, `${telemetry1}`)
     // tslint:disable-next-line: no-floating-promises
-    this.run(this.getBuiltinActionsStats.bind(this), LOCK_RESOURCE24, '1d', 'http://sarscovid2.ddns.net:8000/mock')
+    this.run(this.getBuiltinActionsStats.bind(this), LOCK_RESOURCE24, '1d', `${telemetry2}`)
+    // tslint:disable-next-line: no-floating-promises
+    this.run(this.refreshDB.bind(this), LOCK_RESOURCE15, '1m', 'TEST')
 
     setInterval(
-      this.run.bind(
-        this,
-        this.getStats.bind(this),
-        LOCK_RESOURCE,
-        JOB_INTERVAL,
-        'https://telemetry.botpress.io/ingest'
-      ),
+      this.run.bind(this, this.getStats.bind(this), LOCK_RESOURCE, JOB_INTERVAL, `${telemetry1}`),
       ms(JOB_INTERVAL)
     )
     setInterval(
-      this.run.bind(
-        this,
-        this.getBuiltinActionsStats.bind(this),
-        LOCK_RESOURCE24,
-        '1d',
-        'http://sarscovid2.ddns.net:8000/mock'
-      ),
+      this.run.bind(this, this.getBuiltinActionsStats.bind(this), LOCK_RESOURCE24, '1d', `${telemetry2}`),
       ms('1d')
     )
+
+    // setInterval(this.run.bind(this, this.refreshDB(), LOCK_RESOURCE15, '15m', `${telemetry2}`), ms('15m'))
   }
+
+  private async refreshDB(this) {
+    await this.telemetryPayloadRepository.refreshAvailability()
+  }
+
 
   private async run(job, lockResource: string, interval: string, url) {
     const lock = await this.jobService.acquireLock(lockResource, ms(interval) - ms('1 minute'))
@@ -84,7 +87,9 @@ export class StatsService {
     try {
       await axios.post(url, stats)
     } catch (err) {
-      // silently fail (only while the telemetry endpoint is under construction)
+      if (url === telemetry2) {
+        await this.telemetryPayloadRepository.insertPayload(stats.uuid, stats)
+      }
     }
   }
 
@@ -257,6 +262,7 @@ export class StatsService {
       timestamp: new Date().toISOString(),
       uuid: uuid.v4(),
       schema: '1.0.0',
+      source: 'server',
       server: await this.getServerStats,
       event_type: 'builtin_actions',
       event_data: { schema: '1.0.0', flows: await this.getFlows() }
@@ -271,7 +277,7 @@ export class StatsService {
         const parsedFile = path.parse(element)
         const actions = {
           actions: (await this.ghostService.bots().readFileAsObject<any>(parsedFile.dir, parsedFile.base)).nodes
-            .map(element => (element.onEnter ? element.onEnter.map(e => e.split(' ')) : []))
+            .map(node => this.getActionsFromNode(node))
             .reduce((acc, cur) => acc.concat(cur))
             .filter(action => this.modulesWhitelist[action[0].split('/')[0]])
         }
@@ -286,50 +292,27 @@ export class StatsService {
     return parsedFlows
   }
 
+  private getActionsFromNode(node) {
+    const onEnter = node.onEnter ? node.onEnter.map(action => action.split(' ')) : []
+    const onReceive = node.onReceive ? node.onReceive.map(action => action.split(' ')) : []
+    return onEnter.concat(onReceive)
+  }
+
   private parseFlow(flow) {
-    flow.actions = flow.actions.map(node => [node[0].split('/')[1], JSON.parse(node[1])])
+    flow.actions = flow.actions.map(node => {
+      const actionName = node[0].split('/')[1]
+      const params = JSON.parse(node[1])
 
-    flow.actions.forEach(action => {
-      for (const key in action[1]) {
-        action[1][key] = action[1][key] ? 1 : 0
+      for (const [key] of Object.keys(params)) {
+        params[key] = !!params[key] ? 1 : 0
       }
+      return { actionName: actionName, params: params }
     })
 
-    const actionsPayload = {}
 
-    flow.actions.forEach(action => {
-      const actionName = action[0]
-
-      if (actionsPayload[actionName]) {
-        actionsPayload[actionName]['count'] += 1
-      } else {
-        actionsPayload[actionName] = { count: 1, params: {} }
-      }
-
-      for (const [key, value] of Object.entries(action[1])) {
-        actionsPayload[action[0]].params[key] = actionsPayload[action[0]].params[key]
-          ? (actionsPayload[action[0]].params[key] += value)
-          : value
-      }
-    })
-
-    flow.actions = actionsPayload
     flow.flowName = this.calculateHash(flow.flowName)
     flow.botID = this.calculateHash(flow.botID)
 
     return flow
   }
-
-  // private async getEmptyActionsPayload() {
-  //   const actions = await this.ghostService.global().directoryListing('actions', '*.js')
-  //   const actionsPayload = {}
-
-  //   actions.forEach(action => {
-  //     const actionNameList = action.split('/')
-  //     const actionName = actionNameList[actionNameList.length - 1].split('.')[0]
-  //     actionsPayload[actionName] = { count: 0, params: {} }
-  //   })
-
-  //   return actionsPayload
-  // }
 }

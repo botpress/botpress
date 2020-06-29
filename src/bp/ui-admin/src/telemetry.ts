@@ -115,14 +115,17 @@ export function checkInfoReceived() {
 
 export async function sendServerPackage() {
   try {
-    const { data: packages } = (await api.getSecured().get(serverUrl)).data
+    const {
+      data: { events }
+    } = await api.getSecured().get(serverUrl)
+    console.log(events)
 
     const feedback = { events: [], status: '' }
 
-    if (packages && packages.events) {
-      const events = packages.events
-
+    if (events) {
       events.map(obj => (obj.source = 'client'))
+      console.log(events)
+
 
       feedback.events = events.map(obj => obj.uuid)
 
@@ -156,7 +159,10 @@ export function setupTelemetry() {
   store.subscribe(() => {
     const state = store.getState()
 
+
+    // @ts-ignore
     if (_.has(state, 'version.currentVersion') && state.version.currentVersion !== '') {
+      // @ts-ignore
       info.bp_release = state.version.currentVersion
     }
 
