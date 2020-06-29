@@ -126,6 +126,7 @@ export async function sendServerPackage() {
       events.map(obj => (obj.source = 'client'))
       console.log(events)
 
+
       feedback.events = events.map(obj => obj.uuid)
 
       try {
@@ -158,6 +159,7 @@ export function setupTelemetry() {
   store.subscribe(() => {
     const state = store.getState()
 
+
     // @ts-ignore
     if (_.has(state, 'version.currentVersion') && state.version.currentVersion !== '') {
       // @ts-ignore
@@ -165,12 +167,10 @@ export function setupTelemetry() {
     }
 
     if (_.has(state, 'license.licensing.isPro')) {
-      // @ts-ignore
       info.bp_license = state.license.licensing.isPro ? 'pro' : 'community'
     }
 
     if (_.has(state, 'user.profile.email')) {
-      // @ts-ignore
       info.email = state.user.profile.email
     }
 

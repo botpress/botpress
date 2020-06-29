@@ -26,6 +26,7 @@ const path = require('path')
 const LOCK_RESOURCE = 'botpress:statsService'
 const LOCK_RESOURCE24 = 'botpress:statsService24'
 const LOCK_RESOURCE15 = 'botpress:statsService15'
+
 const debug = DEBUG('stats')
 const JOB_INTERVAL = '6 hours'
 const telemetry1 = 'https://telemetry.botpress.io/ingest'
@@ -70,6 +71,7 @@ export class StatsService {
   private async refreshDB(this) {
     await this.telemetryPayloadRepository.refreshAvailability()
   }
+
 
   private async run(job, lockResource: string, interval: string, url) {
     const lock = await this.jobService.acquireLock(lockResource, ms(interval) - ms('1 minute'))
@@ -269,7 +271,6 @@ export class StatsService {
 
   private async getFlows() {
     const flows = await this.ghostService.bots().directoryListing('/', '*/flows/*.flow.json')
-    console.log(flows)
 
     const parsedFlows = await Promise.all(
       flows.map(async element => {
@@ -307,6 +308,7 @@ export class StatsService {
       }
       return { actionName: actionName, params: params }
     })
+
 
     flow.flowName = this.calculateHash(flow.flowName)
     flow.botID = this.calculateHash(flow.botID)
