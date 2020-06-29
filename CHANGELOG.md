@@ -1,3 +1,14 @@
+## [12.10.2](https://github.com/botpress/botpress/compare/v12.10.1...v12.10.2) (2020-06-24)
+
+
+### Bug Fixes
+
+* **core:** whilelabel login page ([ad83865](https://github.com/botpress/botpress/commit/ad83865))
+* **core:** whitelabel login page ([3456a6f](https://github.com/botpress/botpress/commit/3456a6f))
+* **nlu:** do not assume there is at least one prediction ([#3486](https://github.com/botpress/botpress/issues/3486)) ([3ba309c](https://github.com/botpress/botpress/commit/3ba309c))
+
+
+
 ## [12.10.1](https://github.com/botpress/botpress/compare/v12.10.0...v12.10.1) (2020-06-16)
 
 
