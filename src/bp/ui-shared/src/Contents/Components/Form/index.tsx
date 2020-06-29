@@ -6,6 +6,7 @@ import React, { FC, Fragment, useEffect, useReducer } from 'react'
 
 import { lang } from '../../../translations'
 import TextFieldsArray from '../../../FormFields/TextFieldsArray'
+import { createEmptyDataFromSchema } from '../../utils/fields'
 import AddButton from '../Fields/AddButton'
 import Select from '../Fields/Select'
 import Text from '../Fields/Text'
@@ -42,8 +43,8 @@ const printMoreInfo = (moreInfo: FormMoreInfo, isCheckbox = false): JSX.Element 
 
 const formReducer = (state, action) => {
   if (action.type === 'add') {
-    const { field, renderType, parent, getEmptyData } = action.data
-    const newData = getEmptyData?.(renderType, true)
+    const { field, parent } = action.data
+    const newData = createEmptyDataFromSchema([...(field.fields || [])])
 
     if (parent) {
       const { key, index } = parent
@@ -144,17 +145,8 @@ const formReducer = (state, action) => {
   }
 }
 
-const Form: FC<FormProps> = ({
-  axios,
-  mediaPath,
-  overrideFields,
-  getEmptyData,
-  formData,
-  fields,
-  advancedSettings,
-  onUpdate
-}) => {
-  const newFormData = getEmptyData?.()
+const Form: FC<FormProps> = ({ axios, mediaPath, overrideFields, formData, fields, advancedSettings, onUpdate }) => {
+  const newFormData = createEmptyDataFromSchema([...(fields || []), ...(advancedSettings || [])])
   const [state, dispatch] = useReducer(formReducer, newFormData)
 
   useEffect(() => {
@@ -200,7 +192,10 @@ const Form: FC<FormProps> = ({
               onClick={() =>
                 dispatch({
                   type: 'add',
-                  data: { field: field.key, renderType: field.renderType, parent, getEmptyData }
+                  data: {
+                    field: field.key,
+                    parent
+                  }
                 })
               }
             />

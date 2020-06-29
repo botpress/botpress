@@ -68,10 +68,6 @@ const ConditionForm: FC<Props> = ({
   const selectedCondition = conditions.find(cond => cond.id === condition.current)
   const selectedOption = options.find(cond => cond.value === condition.current)
 
-  const handleEmptyData = renderType => {
-    return Contents.getEmptyFormData(renderType)
-  }
-
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={!isConfirming} close={() => close(editingCondition)}>
       <Fragment key={`${condition.current}-${customKey || editingCondition}`}>
@@ -113,7 +109,6 @@ const ConditionForm: FC<Props> = ({
             fields={selectedCondition.fields || []}
             advancedSettings={selectedCondition.advancedSettings || []}
             formData={formData.params}
-            getEmptyData={handleEmptyData}
             onUpdate={data => onUpdate({ params: { ...data }, id: condition.current })}
           />
         )}

@@ -48,33 +48,33 @@ const ContentForm: FC<Props> = ({
   ]
 
   const handleContentTypeChange = value => {
+    const { fields, advancedSettings } = contentTypesFields?.[value] || {}
+    const schemaFields = [...(fields || []), ...(advancedSettings || [])]
     contentType.current = value
     onUpdate({
-      ...Contents.getEmptyFormData(value),
+      ...Contents.createEmptyDataFromSchema(schemaFields),
       contentType: value,
       id: formData?.id
     })
   }
 
   const contentFields = contentTypesFields?.[contentType.current]
+  const { fields, advancedSettings } = contentFields || {}
+  const schemaFields = [...(fields || []), ...(advancedSettings || [])]
 
   // TODO reimplement hasChanged, doesn't work properly atm
   const hasChanged = !(
     _.isEqual(formData, { contentType: contentType.current }) ||
     _.isEqual(formData, {
-      ...Contents.getEmptyFormData(contentType.current),
+      ...Contents.createEmptyDataFromSchema(schemaFields),
       contentType: contentType.current
     }) ||
     _.isEqual(formData, {
-      ...Contents.getEmptyFormData(contentType.current),
+      ...Contents.createEmptyDataFromSchema(schemaFields),
       contentType: contentType.current,
       id: formData?.id
     })
   )
-
-  const handleEmptyData = renderType => {
-    return Contents.getEmptyFormData(renderType || contentType.current || 'builtin_text')
-  }
 
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={!isConfirming} close={() => close(editingContent)}>
@@ -114,7 +114,6 @@ const ContentForm: FC<Props> = ({
             overrideFields={{
               textOverride: props => <TextField {...props} />
             }}
-            getEmptyData={handleEmptyData}
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
             formData={formData}

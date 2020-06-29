@@ -146,11 +146,13 @@ module.exports = {
     advancedSettings: [
       {
         key: 'onTopOfKeyboard',
+        defaultValue: true,
         type: 'checkbox',
         label: 'module.builtin.types.suggestions.displayOnTop'
       },
       {
         key: 'typing',
+        defaultValue: true,
         type: 'checkbox',
         label: 'module.builtin.typingIndicator'
       },

@@ -41,6 +41,7 @@ module.exports = {
     advancedSettings: [
       {
         key: 'markdown',
+        defaultValue: true,
         label: 'module.builtin.useMarkdown',
         type: 'checkbox',
         moreInfo: {
@@ -50,6 +51,7 @@ module.exports = {
       },
       {
         key: 'typing',
+        defaultValue: true,
         type: 'checkbox',
         label: 'module.builtin.typingIndicator'
       }
@@ -95,6 +97,7 @@ module.exports = {
           },
           {
             type: 'select',
+            defaultValue: 'say',
             key: 'action',
             label: 'module.builtin.types.actionButton.actionLabel',
             options: [
