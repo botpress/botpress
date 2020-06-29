@@ -3,35 +3,38 @@ import { FormData } from 'botpress/sdk'
 import { Contents, contextMenu, lang, ShortcutLabel } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
-import React, { FC, useState } from 'react'
+import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
 import { BaseNodeModel } from '~/views/FlowBuilder/diagram/nodes/BaseNodeModel'
 import { StandardPortWidget } from '~/views/FlowBuilder/diagram/nodes/Ports'
 
 import style from '../Components/style.scss'
+import NodeContentItem from '../Components/NodeContentItem'
 import NodeHeader from '../Components/NodeHeader'
 import NodeWrapper from '../Components/NodeWrapper'
 
 interface Props {
-  node: SaySomethingNodeModel
+  node: TriggerNodeModel
   getCurrentFlow: any
   updateFlowNode: any
   onDeleteSelectedElements: () => void
-  editNodeItem: (node: SaySomethingNodeModel, index: number) => void
-  selectedNodeItem: () => { node: SaySomethingNodeModel; index: number }
-  getCurrentLang: () => string
+  editNodeItem: (node: TriggerNodeModel, index: number) => void
+  selectedNodeItem: () => { node: TriggerNodeModel; index: number }
+  getConditions: () => any
   switchFlowNode: (id: string) => void
+  addCondition: () => void
 }
 
-const SaySomethingWidget: FC<Props> = ({
+const TriggerWidget: FC<Props> = ({
   node,
   getCurrentFlow,
   editNodeItem,
   onDeleteSelectedElements,
   selectedNodeItem,
   updateFlowNode,
-  getCurrentLang,
-  switchFlowNode
+  getConditions,
+  switchFlowNode,
+  addCondition
 }) => {
   const [expanded, setExpanded] = useState(node.isNew)
   const [error, setError] = useState(null)
@@ -48,6 +51,12 @@ const SaySomethingWidget: FC<Props> = ({
           text={lang.tr('studio.flow.node.renameBlock')}
           onClick={() => {
             setIsEditing(true)
+          }}
+        />
+        <MenuItem
+          text={lang.tr('studio.flow.node.addCondition')}
+          onClick={() => {
+            addCondition()
           }}
         />
         <MenuItem
@@ -80,35 +89,20 @@ const SaySomethingWidget: FC<Props> = ({
 
     setIsEditing(false)
   }
-  const currentLang = getCurrentLang()
 
-  const selectedContent = selectedNodeItem()
-
-  const getTranslatedContent = content => {
-    const langArr = Object.keys(content)
-    if (!langArr.length) {
-      return {}
-    }
-
-    if (!langArr.includes(currentLang)) {
-      return { contentType: content[langArr[0]].contentType }
-    }
-
-    return content[currentLang]
-  }
-
-  // Prevents moving the node while editing the name so text can be selected
-  node.locked = isEditing
+  const conditionLabels = getConditions().reduce((acc, cond) => ({ ...acc, [cond.id]: cond.label }), {})
+  const selectedCondition = selectedNodeItem()
 
   return (
     <NodeWrapper>
       <NodeHeader
+        className={style.trigger}
         setExpanded={setExpanded}
         expanded={expanded}
         handleContextMenu={handleContextMenu}
         isEditing={isEditing}
         saveName={saveName}
-        defaultLabel={lang.tr('studio.flow.node.chatbotSays')}
+        defaultLabel={lang.tr('studio.flow.node.triggeredBy')}
         name={node.name}
         error={error}
       >
@@ -117,13 +111,18 @@ const SaySomethingWidget: FC<Props> = ({
       </NodeHeader>
       {expanded && (
         <div className={style.contentsWrapper}>
-          {node.contents?.map((content, index) => (
-            <Contents.Item
-              active={selectedContent?.node?.id === node.id && index === selectedContent?.index}
-              key={`${index}${currentLang}`}
-              onEdit={() => editNodeItem?.(node, index)}
-              content={getTranslatedContent(content)}
-            />
+          {node.conditions?.map((condition, index) => (
+            <Fragment key={index}>
+              <NodeContentItem
+                className={cx(style.hasJoinLabel, {
+                  [style.active]: selectedCondition?.node?.id === node.id && index === selectedCondition?.index
+                })}
+                onEdit={() => editNodeItem?.(node, index)}
+              >
+                <span className={style.content}>{lang.tr(conditionLabels[condition.id], { ...condition.params })}</span>
+              </NodeContentItem>
+              <span className={style.joinLabel}>{lang.tr('and')}</span>
+            </Fragment>
           ))}
         </div>
       )}
@@ -131,8 +130,9 @@ const SaySomethingWidget: FC<Props> = ({
   )
 }
 
-export class SaySomethingNodeModel extends BaseNodeModel {
-  public contents: { [lang: string]: FormData }[] = []
+export class TriggerNodeModel extends BaseNodeModel {
+  public conditions = []
+  public activeWorkflow: boolean
   public isNew: boolean
 
   constructor({
@@ -142,64 +142,69 @@ export class SaySomethingNodeModel extends BaseNodeModel {
     name,
     onEnter = [],
     next = [],
-    contents,
-    isNew,
+    conditions = [],
+    activeWorkflow = false,
+    isNew = false,
     isStartNode = false,
     isHighlighted = false
   }) {
-    super('say_something', id)
-    this.setData({ name, onEnter, next, isNew, contents, isStartNode, isHighlighted })
+    super('trigger', id)
+    this.setData({ name, onEnter, next, isStartNode, isHighlighted, conditions, activeWorkflow, isNew })
 
     this.x = this.oldX = x
     this.y = this.oldY = y
   }
 
-  setData({ contents, isNew, ...data }: any) {
-    this.contents = contents
+  setData({ conditions = [], activeWorkflow = false, isNew = false, ...data }) {
+    this.conditions = conditions
+    this.activeWorkflow = activeWorkflow
     this.isNew = isNew
 
     super.setData(data as any)
   }
 }
 
-export class SaySomethingWidgetFactory extends AbstractNodeFactory {
-  private editNodeItem: (node: SaySomethingNodeModel, index: number) => void
-  private selectedNodeItem: () => { node: SaySomethingNodeModel; index: number }
+export class TriggerWidgetFactory extends AbstractNodeFactory {
+  private editNodeItem: (node: TriggerNodeModel, index: number) => void
+  private selectedNodeItem: () => { node: TriggerNodeModel; index: number }
   private deleteSelectedElements: () => void
-  private getCurrentLang: () => string
+  private getConditions: () => string
   private getCurrentFlow: any
   private updateFlowNode: any
   private switchFlowNode: (id: string) => void
+  private addCondition: () => void
 
   constructor(methods) {
-    super('say_something')
+    super('trigger')
 
     this.editNodeItem = methods.editNodeItem
     this.selectedNodeItem = methods.selectedNodeItem
     this.deleteSelectedElements = methods.deleteSelectedElements
     this.getCurrentFlow = methods.getCurrentFlow
     this.updateFlowNode = methods.updateFlowNode
-    this.getCurrentLang = methods.getCurrentLang
+    this.getConditions = methods.getConditions
     this.switchFlowNode = methods.switchFlowNode
+    this.addCondition = methods.addCondition
   }
 
-  generateReactWidget(diagramEngine: DiagramEngine, node: SaySomethingNodeModel) {
+  generateReactWidget(diagramEngine: DiagramEngine, node: TriggerNodeModel) {
     return (
-      <SaySomethingWidget
+      <TriggerWidget
         node={node}
         getCurrentFlow={this.getCurrentFlow}
         editNodeItem={this.editNodeItem}
         onDeleteSelectedElements={this.deleteSelectedElements}
         updateFlowNode={this.updateFlowNode}
         selectedNodeItem={this.selectedNodeItem}
-        getCurrentLang={this.getCurrentLang}
+        getConditions={this.getConditions}
         switchFlowNode={this.switchFlowNode}
+        addCondition={this.addCondition}
       />
     )
   }
 
   getNewInstance() {
     // @ts-ignore
-    return new SaySomethingNodeModel()
+    return new TriggerNodeModel()
   }
 }

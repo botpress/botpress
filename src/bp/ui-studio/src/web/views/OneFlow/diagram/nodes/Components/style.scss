@@ -1,3 +1,37 @@
+.secondaryText {
+  color: #5C7080;
+  display: block;
+}
+
+.text {
+  ul {
+    padding-left: 20px;
+    margin: 0;
+  }
+}
+
+.contentImgWrapper {
+  display: flex;
+  max-height: 50px;
+
+  .textWrapper {
+    text-align: left;
+    overflow: hidden;
+  }
+}
+
+.img {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-radius: 3px;
+  flex-shrink: 0;
+  height: 30px;
+  margin-right: var(--spacing-medium);
+  overflow: hidden;
+  width: 30px;
+}
+
 .nodeWrapper {
   background: #fff;
   width: 150px;
@@ -51,11 +85,19 @@
     position: relative;
     width: 100%;
 
+    &.trigger {
+      border-color: var(--trigger);
+    }
+
     &:hover {
       background: #fff;
       border: none;
       border-top: 2px solid var(--say);
       box-shadow: none;
+
+      &.trigger {
+        border-color: var(--trigger);
+      }
     }
 
     .button {
@@ -100,6 +142,11 @@
         }
       }
 
+      :global(.bp3-button-text) {
+        padding: var(--spacing-medium) 0;
+        word-break: break-word;
+      }
+
       .errorIcon {
         cursor: default;
         position: absolute;
@@ -139,4 +186,57 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.joinLabel {
+  color: var(--shark);
+  display: block;
+  font-size: 8px;
+  font-weight: bold;
+  line-height: 1.25;
+  margin: var(--spacing-small) 0;
+  text-align: center;
+
+  &:last-of-type {
+    display: none;
+  }
+}
+
+.contentWrapper {
+  background: #fff;
+  border-radius: 5px;
+  border: none;
+  color: var(--shark);
+  font-size: 8px;
+  line-height: 1.25;
+  margin: var(--spacing-medium) var(--spacing-medium) 0 0;
+  height: 40px;
+  padding: 0;
+  position: relative;
+  width: 135px;
+  z-index: 1;
+
+  &.hasJoinLabel {
+    margin-top: 0;
+  }
+
+  &:hover, &.active {
+    .content {
+      border: solid 1px var(--ocean);
+    }
+  }
+}
+
+.content {
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--gray);
+  border-radius: 5px;
+  display: flex;
+  flex-wrap: wrap;
+  height: 100%;
+  padding: var(--spacing-small);
+  transition: background 0.3s, border 0.3s;
+  width: 100%;
+  word-break: break-all;
 }

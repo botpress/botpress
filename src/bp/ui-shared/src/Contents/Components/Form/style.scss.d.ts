@@ -2,6 +2,7 @@
 // Please do not change this file!
 interface CssExports {
   'checkboxWrapper': string;
+  'isCheckbox': string;
   'moreInfo': string;
 }
 declare var cssExports: CssExports;

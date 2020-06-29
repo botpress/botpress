@@ -13,7 +13,7 @@ import style from './style.scss'
 const TextFieldsArray: FC<TextFieldsArrayProps> = props => {
   const { addBtnLabel, label, onChange, items, getPlaceholder } = props
   const [localItems, setLocalItems] = useState(items || [])
-  const focusedElement = useRef(0)
+  const focusedElement = useRef(items.length)
 
   useEffect(() => {
     setLocalItems(items || [])
@@ -59,6 +59,7 @@ const TextFieldsArray: FC<TextFieldsArrayProps> = props => {
   return (
     <div className={style.items}>
       <h2>{label}</h2>
+      {props.moreInfo}
       {localItems?.map((item, index) => (
         <div key={index} className={style.textareaWrapper}>
           <Textarea

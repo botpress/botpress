@@ -47,6 +47,10 @@
     "switchLang": "Change the bot content language. Currently editing: {currentLang}"
   },
   "studio": {
+    "condition": {
+      "label": "Condition",
+      "pickCondition": "Pick a condition"
+    },
     "content": {
       "cloneElements": "Clone selected elements",
       "confirmChangeContentType": "Are you sure you want to change this content type? All fields will be erased.",
@@ -118,6 +122,9 @@
       "flowWideOnReceives": "flow-wide on {count, plural, one {receive} other {receives}}",
       "flowWideTransitions": "flow-wide {count, plural, one {transition} other {transitions}}",
       "highlightByName": "Highlight nodes by name",
+      "ignoredWorkflows": {
+        "addLabel": "Add Workflow"
+      },
       "logs": {
         "autoRefresh": "Auto-refresh",
         "downloadArchives": "Download log archive",
@@ -138,6 +145,7 @@
         "actionsRegisteredOnServer": "Actions are registered on the server-side. Read about how to register new actions by searching for `bp.registerActions()`.",
         "add": "add",
         "addAction": "Add new action",
+        "addCondition": "Add Condition",
         "cantSeeActions": "Can't see your action?",
         "chatbotSays": "Chatbot Says",
         "confirmOverwriteParameters": "Do you want to overwrite existing parameters?",
@@ -195,6 +203,7 @@
           "whenMetDo": "When condition is met, do"
         },
         "transitions": "Transitions",
+        "triggeredBy": "Workflow is Triggered by",
         "unknownParameterType": "⚠️ Unknown parameter type ({type}). This parameter will be ignored.",
         "valuePlaceholder": "Value",
         "waitForUserMessage": "Wait for user message",

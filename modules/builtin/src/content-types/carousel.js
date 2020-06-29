@@ -199,6 +199,7 @@ module.exports = {
       {
         key: 'markdown',
         label: 'module.builtin.useMarkdown',
+        defaultValue: true,
         type: 'checkbox',
         moreInfo: {
           label: 'learnMore',
@@ -207,6 +208,7 @@ module.exports = {
       },
       {
         key: 'typing',
+        defaultValue: true,
         type: 'checkbox',
         label: 'module.builtin.typingIndicator'
       }

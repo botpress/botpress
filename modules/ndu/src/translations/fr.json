@@ -1,0 +1,34 @@
+{
+  "conditions": {
+    "alwaysTrue": "Cette condition est toujours vraie",
+    "customCode": "Code personnalisé",
+    "customPriority": "Niveau de priorité personnalisé",
+    "fields": {
+      "label": {
+        "addWord": "Ajouter un mot",
+        "candidate": "Un ou plusieurs mots à détecter",
+        "caseSensitive": "Sensibilité aux majuscules et minuscules",
+        "exactMatch": "Doit être une correspondance exacte",
+        "ignoredWorkflows": "Flux de travail ignorés",
+        "ignoredWorkflowsMoreInfo": "Leur complétion n’activera pas ce déclencheur",
+        "workflowOutcome": "Résultat du flux de travail"
+      },
+      "placeholder": {
+        "oneWordPerLine": "Un mot par ligne",
+        "pickChannel": "Choisissez un canal",
+        "pickLanguage": "Choisissez une langue",
+        "pickTopic": "Choisissez un sujet",
+        "pickWorkflowOutcome": "Choisissez un résultat de flux de travail",
+        "workflowName": "Nom du workflow"
+      }
+    },
+    "userAlreadySpoke": "L’utilisateur a déjà parlé avec l’agent conversationnel",
+    "userAuthenticated": "L’utilisateur est authentifié",
+    "userComingFromTopic": "L’utilisateur vient de {topicName}",
+    "userEndedWorkflow": "L’utilisateur a mis fin à un flux de travail",
+    "userNotInWorkflowOrBlock": "L’utilisateur n’est pas dans un flux de travail ou un bloc",
+    "userSpeaks": "L’utilisateur parle {language}",
+    "userTyped": "L’utilisateur a tapé quelque chose de spécifique",
+    "userUsingChannel": "L’utilisateur utilise {channelName}"
+  }
+}
