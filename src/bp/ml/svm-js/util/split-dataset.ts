@@ -4,7 +4,13 @@ import { Data } from '../typings'
 import { getMostRepresentedClass } from './count-class'
 import seedrandom from 'seedrandom'
 
-seedrandom('split-dataset', { global: true })
+let lo = _
+const randomSeed = parseInt(process.env.RANDOM_SEED || "")
+if (randomSeed) {
+  seedrandom(`${randomSeed}`, { global: true })
+  lo = _.runInContext()
+  seedrandom(`${new Date().getMilliseconds()}`, { global: true })
+}
 
 export default function (dataset: Data[], k = 5): SplittedDataSet[] {
   const kFold = Math.min(dataset.length, k)
@@ -21,8 +27,6 @@ export default function (dataset: Data[], k = 5): SplittedDataSet[] {
   const nTestSample = Math.floor(n / kFold)
   let available_test_samples = [...dataset]
   const res: SplittedDataSet[] = []
-
-  const lo = _.runInContext()
 
   for (let i = 0; i < kFold; i++) {
     const test_set = lo(available_test_samples)
