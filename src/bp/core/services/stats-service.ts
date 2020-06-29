@@ -72,7 +72,6 @@ export class StatsService {
     await this.telemetryPayloadRepository.refreshAvailability()
   }
 
-
   private async run(job, lockResource: string, interval: string, url) {
     const lock = await this.jobService.acquireLock(lockResource, ms(interval) - ms('1 minute'))
     if (lock) {
@@ -308,7 +307,6 @@ export class StatsService {
       }
       return { actionName: actionName, params: params }
     })
-
 
     flow.flowName = this.calculateHash(flow.flowName)
     flow.botID = this.calculateHash(flow.botID)
