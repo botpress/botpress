@@ -1149,6 +1149,7 @@ declare module 'botpress/sdk' {
     timeoutInterval: string
     /** The interval until a session expires */
     sessionTimeoutInterval: string
+    promptTimeoutInterval: string
   }
 
   /**

@@ -12,7 +12,8 @@ import { FlowError, ProcessingError, TimeoutNodeNotFound } from './errors'
 import { FlowService } from './flow/service'
 import { InstructionProcessor } from './instruction/processor'
 import { InstructionQueue } from './instruction/queue'
-import { isPromptEvent, PromptManager } from './prompt-manager'
+import { PromptManager } from './prompt-manager'
+import { isPromptEvent } from './prompt-utils'
 import { InstructionsQueueBuilder } from './queue-builder'
 
 const debug = DEBUG('dialog')

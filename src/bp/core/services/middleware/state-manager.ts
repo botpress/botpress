@@ -104,7 +104,7 @@ export class StateManager {
     if (!state.workflow) {
       Object.defineProperty(state, 'workflow', {
         get() {
-          return state.session.workflows[state.session.currentWorkflow!]
+          return state.session.workflows?.[state.session.currentWorkflow!]
         }
       })
     }
@@ -203,6 +203,10 @@ export class StateManager {
     // Deletes the prompt after the event is stored, so we have traces in the debugger
     if (session?.prompt?.status?.extracted) {
       delete session.prompt
+    }
+
+    if (session?.prompt?.status?.turns === 1) {
+      dialogSession.prompt_expiry = expiry.prompt
     }
 
     dialogSession.session_data = session || {}
