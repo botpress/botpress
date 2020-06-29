@@ -43,8 +43,8 @@ const printMoreInfo = (moreInfo: FormMoreInfo, isCheckbox = false): JSX.Element 
 
 const formReducer = (state, action) => {
   if (action.type === 'add') {
-    const { field, renderType, parent, getEmptyData } = action.data
-    const newData = getEmptyData?.(renderType, true)
+    const { field, renderType, parent, getEmptyData, createEmptyDataFromSchema } = action.data
+    const newData = getEmptyData ? getEmptyData(renderType, true) : createEmptyDataFromSchema([...(field.fields || [])])
 
     if (parent) {
       const { key, index } = parent
@@ -203,7 +203,13 @@ const Form: FC<FormProps> = ({
               onClick={() =>
                 dispatch({
                   type: 'add',
-                  data: { field: field.key, renderType: field.renderType, parent, getEmptyData }
+                  data: {
+                    field: field.key,
+                    renderType: field.renderType,
+                    parent,
+                    getEmptyData,
+                    createEmptyDataFromSchema
+                  }
                 })
               }
             />

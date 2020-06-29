@@ -62,11 +62,7 @@ export const getEmptyFormData = (contentType: string, isPartOfGroup = false): Fo
 }
 
 export const createEmptyDataFromSchema = (fields: FormField[]): FormData => {
-  return fields.reduce(emptyDataReducer, {})
-}
-
-const emptyDataReducer = (emptyData: FormData, field: FormField): FormData => {
-  return { ...emptyData, [field.key]: getFieldDefaultValue(field) }
+  return fields.reduce((acc, field) => ({ ...acc, [field.key]: getFieldDefaultValue(field) }), {})
 }
 
 const getFieldDefaultValue = (field: FormField) => {
@@ -78,7 +74,11 @@ const getFieldDefaultValue = (field: FormField) => {
     case 'checkbox':
       return false
     case 'group':
-      return [field.fields?.reduce(emptyDataReducer, {})]
+      if (!field.fields) {
+        return {}
+      }
+
+      return [createEmptyDataFromSchema(field.fields)]
     case 'number':
       return 0
     case 'select':
