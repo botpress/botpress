@@ -52,6 +52,8 @@ export class StatsService {
     this.run(this.getStats.bind(this), LOCK_RESOURCE, JOB_INTERVAL, `${telemetry1}`)
     // tslint:disable-next-line: no-floating-promises
     this.run(this.getBuiltinActionsStats.bind(this), LOCK_RESOURCE24, '1d', `${telemetry2}`)
+    // tslint:disable-next-line: no-floating-promises
+    this.run(this.refreshDB.bind(this), LOCK_RESOURCE15, '1m', 'TEST')
 
     setInterval(
       this.run.bind(this, this.getStats.bind(this), LOCK_RESOURCE, JOB_INTERVAL, `${telemetry1}`),
@@ -62,10 +64,10 @@ export class StatsService {
       ms('1d')
     )
 
-    setInterval(this.run.bind(this, this.refreshDB(), LOCK_RESOURCE15, `${telemetry2}`), ms('15m'))
+    // setInterval(this.run.bind(this, this.refreshDB(), LOCK_RESOURCE15, '15m', `${telemetry2}`), ms('15m'))
   }
 
-  private async refreshDB() {
+  private async refreshDB(this) {
     await this.telemetryPayloadRepository.refreshAvailability()
   }
 
@@ -82,9 +84,6 @@ export class StatsService {
     debug('Sending stats: %o', stats)
     try {
       await axios.post(url, stats)
-      if (url === telemetry2) {
-        await this.telemetryPayloadRepository.insertPayload(stats.uuid, stats)
-      }
     } catch (err) {
       if (url === telemetry2) {
         await this.telemetryPayloadRepository.insertPayload(stats.uuid, stats)
@@ -270,13 +269,14 @@ export class StatsService {
 
   private async getFlows() {
     const flows = await this.ghostService.bots().directoryListing('/', '*/flows/*.flow.json')
+    console.log(flows)
 
     const parsedFlows = await Promise.all(
       flows.map(async element => {
         const parsedFile = path.parse(element)
         const actions = {
           actions: (await this.ghostService.bots().readFileAsObject<any>(parsedFile.dir, parsedFile.base)).nodes
-            .map(element => (element.onEnter ? element.onEnter.map(e => e.split(' ')) : []))
+            .map(node => this.getActionsFromNode(node))
             .reduce((acc, cur) => acc.concat(cur))
             .filter(action => this.modulesWhitelist[action[0].split('/')[0]])
         }
@@ -289,6 +289,12 @@ export class StatsService {
       .map(flow => this.parseFlow(flow))
 
     return parsedFlows
+  }
+
+  private getActionsFromNode(node) {
+    const onEnter = node.onEnter ? node.onEnter.map(action => action.split(' ')) : []
+    const onReceive = node.onReceive ? node.onReceive.map(action => action.split(' ')) : []
+    return onEnter.concat(onReceive)
   }
 
   private parseFlow(flow) {
