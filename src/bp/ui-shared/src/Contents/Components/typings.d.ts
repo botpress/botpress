@@ -2,6 +2,7 @@ export interface FieldProps {
   placeholder?: string
   onChange?: (value: null | number | string) => void
   onBlur?: (value?: string | number | null) => void
+  childRef?: (ref: HTMLElement | null) => void
   value: string
 }
 
