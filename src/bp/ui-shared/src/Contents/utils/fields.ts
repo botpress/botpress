@@ -62,9 +62,7 @@ export const getEmptyFormData = (contentType: string, isPartOfGroup = false): Fo
 }
 
 export const createEmptyDataFromSchema = (fields: FormField[]): FormData => {
-  const emptyData = fields.reduce(emptyDataReducer, {})
-
-  return emptyData
+  return fields.reduce(emptyDataReducer, {})
 }
 
 const emptyDataReducer = (emptyData: FormData, field: FormField): FormData => {
