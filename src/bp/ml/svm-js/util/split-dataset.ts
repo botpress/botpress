@@ -4,9 +4,9 @@ import { Data } from '../typings'
 import { getMostRepresentedClass } from './count-class'
 import seedrandom from 'seedrandom'
 
-seedrandom('split-dataset')
+seedrandom('split-dataset', { global: true })
 
-export default function(dataset: Data[], k = 5): SplittedDataSet[] {
+export default function (dataset: Data[], k = 5): SplittedDataSet[] {
   const kFold = Math.min(dataset.length, k)
   const n = dataset.length
   assert(n >= kFold, 'kFold parameter must be <= n')

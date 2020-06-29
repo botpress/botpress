@@ -3,7 +3,7 @@ import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
 import fse from 'fs-extra'
 import httpsProxyAgent from 'https-proxy-agent'
-import _, { debounce, sumBy } from 'lodash'
+import { debounce, sumBy } from 'lodash'
 import lru from 'lru-cache'
 import moment from 'moment'
 import ms from 'ms'
@@ -11,6 +11,7 @@ import path from 'path'
 import crypto from 'crypto'
 import semver from 'semver'
 
+import _ from "../tools/seeded-lodash"
 import { setSimilarity, vocabNGram } from '../tools/strings'
 import { isSpace, processUtteranceTokens, restoreOriginalUtteranceCasing } from '../tools/token-utils'
 import {

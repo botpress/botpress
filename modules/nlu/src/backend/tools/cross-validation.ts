@@ -1,14 +1,14 @@
 import { NLU } from 'botpress/sdk'
-import _ from 'lodash'
 
 import Engine from '../engine'
 import { MIN_NB_UTTERANCES } from '../training-pipeline'
 import { BIO } from '../typings'
 import Utterance, { buildUtteranceBatch } from '../utterance/utterance'
-
-import MultiClassF1Scorer, { F1 } from './f1-scorer'
 import legacyElectionPipeline from '../legacy-election'
-const seedrandom = require('seedrandom')
+
+import _ from './seeded-lodash'
+import MultiClassF1Scorer, { F1 } from './f1-scorer'
+
 
 interface CrossValidationResults {
   intents: Dic<F1> //
@@ -36,17 +36,16 @@ async function makeIntentTestSet(rawUtts: string[], ctxs: string[], intent: stri
 }
 
 async function splitSet(language: string, intents: TrainSet): Promise<[TrainSet, TestSet]> {
-  const lo = _.runInContext() // so seed is applied
   let testSet: TestSet = []
   const trainSet = (
-    await Promise.map(intents, async i => {
+    await Promise.mapSeries(intents, async i => {
       // split data & preserve distribution
       const nTrain = Math.floor(TRAIN_SET_SIZE * i.utterances[language].length)
       if (nTrain < MIN_NB_UTTERANCES) {
         return // filter out thouse without enough data
       }
 
-      const utterances = lo.shuffle(i.utterances[language])
+      const utterances = _.shuffle(i.utterances[language])
       const trainUtts = utterances.slice(0, nTrain)
       const iTestSet = await makeIntentTestSet(utterances.slice(nTrain), i.contexts, i.name, language)
       testSet = [...testSet, ...iTestSet]
@@ -82,7 +81,6 @@ export async function crossValidate(
   entities: NLU.EntityDefinition[],
   language: string
 ): Promise<CrossValidationResults> {
-  seedrandom('confusion', { global: true })
 
   const [trainSet, testSet] = await splitSet(language, intents)
 
@@ -122,7 +120,6 @@ export async function crossValidate(
     }
   }
 
-  seedrandom()
   return {
     intents: _.fromPairs(_.toPairs(intentF1Scorers).map(([ctx, scorer]) => [ctx, scorer.getResults()])),
     slots: slotsF1Scorer.getResults()
