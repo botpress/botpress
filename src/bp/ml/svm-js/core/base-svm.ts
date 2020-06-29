@@ -15,9 +15,7 @@ class BaseSVM {
 
   static restore = (model: SvmModel) => {
     const random_seed = parseInt(process.env.RANDOM_SEED || "")
-    const clf = random_seed ?
-      new addon.NSVM({ random_seed })
-      : new addon.NSVM()
+    const clf = new addon.NSVM({ random_seed })
 
     clf.set_model(model) // might throw
     return new BaseSVM(clf)
