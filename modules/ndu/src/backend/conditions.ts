@@ -10,7 +10,7 @@ export const dialogConditions: sdk.Condition[] = [
       {
         type: 'select',
         key: 'channelName',
-        label: 'module.ndu.conditions.fields.label.channel',
+        label: 'channel',
         placeholder: 'module.ndu.conditions.fields.placeholder.pickChannel',
         dynamicOptions: {
           endpoint: 'BOT_API_PATH/mod/ndu/channels',
@@ -31,7 +31,7 @@ export const dialogConditions: sdk.Condition[] = [
       {
         type: 'select',
         key: 'language',
-        label: 'module.ndu.conditions.fields.label.language',
+        label: 'language',
         placeholder: 'module.ndu.conditions.fields.placeholder.pickLanguage',
         dynamicOptions: {
           endpoint: 'API_PATH/admin/languages',
@@ -60,7 +60,7 @@ export const dialogConditions: sdk.Condition[] = [
       {
         type: 'select',
         key: 'topicName',
-        label: 'module.ndu.conditions.fields.label.topic',
+        label: 'topic',
         placeholder: 'module.ndu.conditions.fields.placeholder.pickTopic',
         dynamicOptions: {
           endpoint: 'BOT_API_PATH/topics',
@@ -82,7 +82,7 @@ export const dialogConditions: sdk.Condition[] = [
       {
         type: 'textarea',
         key: 'expression',
-        label: 'module.ndu.conditions.fields.label.code'
+        label: 'code'
       }
     ],
     evaluate: (event, params) => {
@@ -124,7 +124,7 @@ export const dialogConditions: sdk.Condition[] = [
       {
         type: 'number',
         key: 'confidence',
-        label: 'module.ndu.conditions.fields.label.confidence'
+        label: 'confidence'
       }
     ],
     evaluate: (_event, params) => {
@@ -191,8 +191,8 @@ export const dialogConditions: sdk.Condition[] = [
         type: 'select',
         defaultValue: 'success',
         options: [
-          { label: 'module.ndu.conditions.fields.label.success', value: 'success' },
-          { label: 'module.ndu.conditions.fields.label.failure', value: 'failure' }
+          { label: 'success', value: 'success' },
+          { label: 'failure', value: 'failure' }
         ]
       },
       {
