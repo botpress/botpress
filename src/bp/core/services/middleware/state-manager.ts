@@ -205,6 +205,10 @@ export class StateManager {
       delete session.prompt
     }
 
+    if (session?.prompt?.status?.turns === 1) {
+      dialogSession.prompt_expiry = expiry.prompt
+    }
+
     dialogSession.session_data = session || {}
     dialogSession.session_expiry = expiry.session
     dialogSession.context_expiry = expiry.context

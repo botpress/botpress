@@ -14,6 +14,7 @@ export class DialogSessionTable extends Table {
       table.json('session_data').notNullable()
       table.timestamp('context_expiry').nullable()
       table.timestamp('session_expiry').nullable()
+      table.timestamp('prompt_expiry').nullable()
       table.timestamp('created_on').notNullable()
       table.timestamp('modified_on').notNullable()
       created = true

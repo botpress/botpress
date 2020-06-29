@@ -30,6 +30,11 @@ export interface DialogConfig {
    * @default 30m
    */
   sessionTimeoutInterval: string
+  /**
+   * Interval before a prompt expires
+   * @default 5m
+   */
+  promptTimeoutInterval: string
 }
 
 export interface LogsConfig {

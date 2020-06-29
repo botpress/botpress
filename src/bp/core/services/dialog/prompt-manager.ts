@@ -12,55 +12,14 @@ import { EventEngine } from '../middleware/event-engine'
 
 import { DialogEngine } from './dialog-engine'
 import { ActionStrategy } from './instruction/strategy'
+import { buildMessage, getConfirmPromptNode, shouldCancelPrompt } from './prompt-utils'
 
 const debugPrompt = DEBUG('dialog:prompt')
 
 // The lost confidence percentage for older messages (index * percent)
 const OLD_MESSAGE_CONFIDENCE_DECREASE = 0.15
 const MIN_CONFIDENCE_VALIDATION = 0.7
-const MIN_CONFIDENCE_CANCEL = 0.5
-
-const buildMessage = (messagesByLang: { [lang: string]: string }, text?: string) => {
-  return Object.keys(messagesByLang || {}).reduce((acc, lang) => {
-    acc[`markdown$${lang}`] = true
-    acc[`typing$${lang}`] = true
-    acc[`text$${lang}`] = `${messagesByLang[lang]}${text ? `: ${text}` : ''}`
-    return acc
-  }, {})
-}
-
-// TODO backend translations
-const getConfirmationQuestion = value => {
-  return {
-    en: `Is that value correct?: ${value}`,
-    fr: `Est-ce que cette valeur est correcte?: ${value}`
-  }
-}
-
-const getConfirmPromptNode = (node: PromptNode, value: any): PromptNode => {
-  const question = buildMessage(node.confirm || getConfirmationQuestion(value))
-  return {
-    type: 'confirm',
-    output: 'confirmed',
-    question,
-    params: { question }
-  }
-}
-
-export const isPromptEvent = (event: IO.IncomingEvent): boolean => {
-  return !!(event.prompt || event.state?.session?.prompt || (event.type === 'prompt' && event.direction === 'incoming'))
-}
-
-const shouldCancelPrompt = (event: IO.IncomingEvent): boolean => {
-  const confidence = _.chain(event.ndu!.triggers)
-    .values()
-    .filter(val => val.trigger.name?.startsWith('prompt_cancel'))
-    .map((x: any) => x.result[Object.keys(x.result)[0]])
-    .first()
-    .value()
-
-  return confidence !== undefined && confidence > MIN_CONFIDENCE_CANCEL
-}
+export const MIN_CONFIDENCE_CANCEL = 0.5
 
 @injectable()
 export class PromptManager {
@@ -273,6 +232,11 @@ export class PromptManager {
 
     const bp = await createForBotpress()
     return (await prompt.customPrompt?.(promptEvent, incomingEvent, bp)) ?? false
+  }
+
+  public async processTimeout(event) {
+    this._setCurrentNodeValue(event, 'timeout', true)
+    return this._continueOriginalEvent(event)
   }
 
   private async _continueOriginalEvent(event: IO.IncomingEvent) {
