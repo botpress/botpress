@@ -3,7 +3,6 @@ import {
   BoxedVarConstructable,
   Flow,
   FlowNode,
-  FormAdvancedSetting,
   FormField,
   IO,
   RolloutStrategy,
@@ -297,6 +296,6 @@ export interface FormContextMenu {
 }
 
 export interface FormDefinition {
-  advancedSettings: FormAdvancedSetting[]
+  advancedSettings: FormField[]
   fields: FormField[]
 }

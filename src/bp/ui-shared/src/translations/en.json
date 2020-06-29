@@ -9,9 +9,11 @@
   "cancel": "Cancel",
   "card": "Card",
   "change": "Change",
+  "channel": "Channel",
   "chips": "Chips",
   "chooseFile": "Choose file...",
   "close": "Close",
+  "code": "Code",
   "collapseAll": "Collapse All",
   "commander": {
     "backToAdmin": "Back to Admin",
@@ -37,6 +39,7 @@
     "typeCommand": "Type a command",
     "viewBot": "View bot: {name}"
   },
+  "confidence": "Confidence",
   "configuration": "Config",
   "confirmPrompt": "Confirmation Required",
   "content": "Content",
@@ -59,6 +62,7 @@
   "expandAll": "Expand All",
   "export": "Export",
   "exportToJson": "Export to JSON",
+  "failure": "Failure",
   "filterBy": "Filter By",
   "flows": "Flows",
   "general": "General",
@@ -67,6 +71,7 @@
   "import": "Import",
   "importJson": "Import JSON",
   "insert": "Insert",
+  "intent": "intent",
   "isoLangs": {
     "ar": {
       "name": "Arabic",
@@ -118,18 +123,13 @@
     }
   },
   "label": "Label",
+  "language": "Language",
   "learnMore": "Learn More",
   "library": "Library",
   "line": "Line",
   "list": "List",
   "listen": "Listen",
   "logs": "Logs",
-  "lowercase": {
-    "intent": "intent",
-    "channel": "channel",
-    "language": "language",
-    "topic": "topic"
-  },
   "message": "Message",
   "modifiedOn": "Modified On",
   "move": "Move",
@@ -187,9 +187,11 @@
   "status": "Status",
   "submit": "Submit",
   "subtitle": "Subtitle",
+  "success": "Success",
   "text": "Text",
   "title": "Title",
   "tools": "Tools",
+  "topic": "Topic",
   "topics": "Topics",
   "translate": "Translate",
   "trigger": "Trigger",

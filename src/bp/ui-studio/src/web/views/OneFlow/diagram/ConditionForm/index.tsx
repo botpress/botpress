@@ -58,10 +58,10 @@ const ConditionForm: FC<Props> = ({
   }
 
   const optionsVariablePlaceholder = {
-    intentName: `[${lang.tr('lowercase.intent')}]`,
-    channelName: `[${lang.tr('lowercase.channel')}]`,
-    language: `[${lang.tr('lowercase.language')}]`,
-    topicName: `[${lang.tr('lowercase.topic')}]`
+    intentName: `[${lang.tr('intent').toLowerCase()}]`,
+    channelName: `[${lang.tr('channel').toLowerCase()}]`,
+    language: `[${lang.tr('language').toLowerCase()}]`,
+    topicName: `[${lang.tr('topic').toLowerCase()}]`
   }
 
   const options = conditions.map(type => ({ value: type.id, label: lang.tr(type.label, optionsVariablePlaceholder) }))

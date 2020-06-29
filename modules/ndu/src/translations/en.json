@@ -8,16 +8,9 @@
         "addWord": "Add Word",
         "candidate": "One or multiple words to detect",
         "caseSensitive": "Case Sensitive",
-        "channel": "Channel",
-        "code": "Code",
-        "confidence": "Confidence",
         "exactMatch": "Must be an exact match",
-        "failure": "Failure",
         "ignoredWorkflows": "Ignored Workflows",
         "ignoredWorkflowsMoreInfo": "Their completion will not activate this trigger",
-        "language": "Language",
-        "success": "Success",
-        "topic": "Topic",
         "workflowOutcome": "Workflow Outcome"
       },
       "placeholder": {

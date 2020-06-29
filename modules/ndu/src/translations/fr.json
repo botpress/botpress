@@ -8,16 +8,9 @@
         "addWord": "Ajouter un mot",
         "candidate": "Un ou plusieurs mots à détecter",
         "caseSensitive": "Sensibilité aux majuscules et minuscules",
-        "channel": "Chaîne",
-        "code": "Code",
-        "confidence": "Confiance",
         "exactMatch": "Doit être une correspondance exacte",
-        "failure": "Échec",
         "ignoredWorkflows": "Flux de travail ignorés",
         "ignoredWorkflowsMoreInfo": "Leur complétion n’activera pas ce déclencheur",
-        "language": "Langue",
-        "success": "Succès",
-        "topic": "Sujet",
         "workflowOutcome": "Résultat du flux de travail"
       },
       "placeholder": {

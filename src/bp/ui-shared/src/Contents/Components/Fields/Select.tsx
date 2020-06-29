@@ -23,12 +23,12 @@ const Select: FC<SelectProps> = ({ onChange, printField, parent, field, data, ax
       // tslint:disable-next-line: no-floating-promises
       loadListElements()
     } else {
-      setOptions(field.options as FormOption[])
+      setOptions(field.options!)
     }
   }, [])
 
   const loadListElements = async () => {
-    const { endpoint, path, valueField, labelField } = field.dynamicOptions as FormDynamicOptions
+    const { endpoint, path, valueField, labelField } = field.dynamicOptions!
 
     try {
       const { data } = await axios.get(
@@ -43,7 +43,7 @@ const Select: FC<SelectProps> = ({ onChange, printField, parent, field, data, ax
     }
   }
 
-  const value = (data[field.key] || field.defaultValue || (!field.placeholder && options?.[0]?.value)) as string
+  const value = data[field.key] || field.defaultValue || (!field.placeholder && options?.[0]?.value)
   const currentOption = options?.find(option => option.value === value)
 
   return (

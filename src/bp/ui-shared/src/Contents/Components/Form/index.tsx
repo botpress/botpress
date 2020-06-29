@@ -28,7 +28,11 @@ const printLabel = (field, data) => {
   return lang(field.label)
 }
 
-const printMoreInfo = (moreInfo: FormMoreInfo, isCheckbox = false): JSX.Element => {
+const printMoreInfo = (moreInfo: FormMoreInfo, isCheckbox = false): JSX.Element | undefined => {
+  if (!moreInfo) {
+    return
+  }
+
   const { url, label } = moreInfo
   if (url) {
     return (
@@ -204,7 +208,7 @@ const Form: FC<FormProps> = ({ axios, mediaPath, overrideFields, formData, field
       case 'select':
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
-            {field.moreInfo && printMoreInfo(field.moreInfo)}
+            {printMoreInfo(field.moreInfo)}
             <Select
               axios={axios}
               parent={parent}
@@ -221,7 +225,7 @@ const Form: FC<FormProps> = ({ axios, mediaPath, overrideFields, formData, field
           <Fragment key={field.key}>
             <TextFieldsArray
               getPlaceholder={index => getArrayPlaceholder(index, field.placeholder)}
-              moreInfo={field.moreInfo && printMoreInfo(field.moreInfo)}
+              moreInfo={printMoreInfo(field.moreInfo)}
               onChange={value => {
                 dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
               }}
@@ -234,7 +238,7 @@ const Form: FC<FormProps> = ({ axios, mediaPath, overrideFields, formData, field
       case 'textarea':
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
-            {field.moreInfo && printMoreInfo(field.moreInfo)}
+            {printMoreInfo(field.moreInfo)}
             <TextArea
               placeholder={lang(field.placeholder)}
               onBlur={value => {
@@ -247,7 +251,7 @@ const Form: FC<FormProps> = ({ axios, mediaPath, overrideFields, formData, field
       case 'upload':
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
-            {field.moreInfo && printMoreInfo(field.moreInfo)}
+            {printMoreInfo(field.moreInfo)}
             <Upload
               axios={axios}
               customPath={mediaPath}
@@ -293,7 +297,7 @@ const Form: FC<FormProps> = ({ axios, mediaPath, overrideFields, formData, field
       default:
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
-            {field.moreInfo && printMoreInfo(field.moreInfo)}
+            {printMoreInfo(field.moreInfo)}
             <Text
               placeholder={lang(field.placeholder)}
               onBlur={value => {

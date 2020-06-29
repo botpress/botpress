@@ -1231,7 +1231,7 @@ declare module 'botpress/sdk' {
     description?: string
     /** The definition of all parameters used by this condition */
     fields?: FormField[],
-    advancedSettings?: FormAdvancedSetting[]
+    advancedSettings?: FormField[]
     /** In which order the conditions will be displayed in the dropdown menu. 0 is the first item */
     displayOrder?: number
     /** This callback url is called when the condition is deleted or pasted in the flow */
@@ -1380,6 +1380,7 @@ declare module 'botpress/sdk' {
     label: string
   }
 
+  // TODO use namespace to group form related interfaces
   export interface FormDynamicOptions {
     /** An enpoint to call to get the options */
     endpoint: string
@@ -1389,14 +1390,6 @@ declare module 'botpress/sdk' {
     valueField: string
     /** Field from DB to map as the label of the options */
     labelField: string
-  }
-
-  export interface FormAdvancedSetting {
-    key: string
-    label: string
-    type: string
-    defaultValue?: FormDataField
-    moreInfo?: FormMoreInfo
   }
 
   export interface FormField {

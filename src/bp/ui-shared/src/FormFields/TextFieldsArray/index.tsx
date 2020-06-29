@@ -59,7 +59,7 @@ const TextFieldsArray: FC<TextFieldsArrayProps> = props => {
   return (
     <div className={style.items}>
       <h2>{label}</h2>
-      {props.moreInfo && props.moreInfo}
+      {props.moreInfo}
       {localItems?.map((item, index) => (
         <div key={index} className={style.textareaWrapper}>
           <Textarea
