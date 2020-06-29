@@ -43,7 +43,7 @@ const printMoreInfo = (moreInfo: FormMoreInfo, isCheckbox = false): JSX.Element 
 
 const formReducer = (state, action) => {
   if (action.type === 'add') {
-    const { field, parent, createEmptyDataFromSchema } = action.data
+    const { field, parent } = action.data
     const newData = createEmptyDataFromSchema([...(field.fields || [])])
 
     if (parent) {
@@ -194,8 +194,7 @@ const Form: FC<FormProps> = ({ axios, mediaPath, overrideFields, formData, field
                   type: 'add',
                   data: {
                     field: field.key,
-                    parent,
-                    createEmptyDataFromSchema
+                    parent
                   }
                 })
               }
