@@ -30,7 +30,7 @@ class PromptEnum implements Prompt {
 
   async validate(value): Promise<ValidationResult> {
     if (value == undefined) {
-      return { valid: false, message: lang.tr('prompt.invalid') }
+      return { valid: false, message: lang.tr('module.builtin.prompt.invalid') }
     }
 
     return { valid: true }

@@ -33,7 +33,7 @@ class PromptConfirm implements Prompt {
   }
 
   async validate(value) {
-    return { valid: value === true || value === false, message: lang.tr('prompt.invalid') }
+    return { valid: value === true || value === false, message: lang.tr('module.builtin.prompt.invalid') }
   }
 
   customPrompt = async (event: IO.OutgoingEvent, incomingEvent: IO.IncomingEvent, bp: typeof sdk) => {

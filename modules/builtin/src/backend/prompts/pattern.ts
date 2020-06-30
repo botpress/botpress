@@ -24,11 +24,11 @@ class PromptPattern implements Prompt {
 
   async validate(value): Promise<ValidationResult> {
     if (value == undefined) {
-      return { valid: false, message: lang.tr('prompt.invalid') }
+      return { valid: false, message: lang.tr('module.builtin.prompt.invalid') }
     }
 
     if (!new RegExp(this._regexPattern).test(value)) {
-      return { valid: false, message: this._formatInvalidMessage ?? lang.tr('prompt.pattern.invalid') }
+      return { valid: false, message: this._formatInvalidMessage ?? lang.tr('module.builtin.prompt.pattern.invalid') }
     }
 
     return { valid: true }

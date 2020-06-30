@@ -27,17 +27,17 @@ class PromptDate implements Prompt {
     const { _mustBePast, _mustBeFuture } = this
 
     if (value == undefined) {
-      return { valid: false, message: lang.tr('prompt.invalid') }
+      return { valid: false, message: lang.tr('module.builtin.prompt.invalid') }
     }
 
     if (!moment(value).isValid()) {
-      return { valid: false, message: lang.tr('prompt.date.invalid') }
+      return { valid: false, message: lang.tr('module.builtin.prompt.date.invalid') }
     }
 
     if (_mustBePast) {
-      return { valid: moment(value).isBefore(moment()), message: lang.tr('prompt.date.mustBePast') }
+      return { valid: moment(value).isBefore(moment()), message: lang.tr('module.builtin.prompt.date.mustBePast') }
     } else if (_mustBeFuture) {
-      return { valid: moment(value).isAfter(moment()), message: lang.tr('prompt.date.mustBeFuture') }
+      return { valid: moment(value).isAfter(moment()), message: lang.tr('module.builtin.prompt.date.mustBeFuture') }
     }
 
     return { valid: true }
