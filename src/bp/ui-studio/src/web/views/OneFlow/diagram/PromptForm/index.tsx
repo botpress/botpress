@@ -1,6 +1,6 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
-import { Condition, FormData } from 'botpress/sdk'
+import { Condition, FormData, PromptNode } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -15,7 +15,7 @@ interface Props {
   contentLang: string
   close: () => void
   onUpdate: (data: any) => void
-  formData: { type: string; params: FormData }
+  formData: PromptNode
 }
 
 const PromptForm: FC<Props> = ({ customKey, prompts, contentLang, close, formData, onUpdate, deletePrompt }) => {
@@ -43,8 +43,6 @@ const PromptForm: FC<Props> = ({ customKey, prompts, contentLang, close, formDat
   const options = prompts.map(x => ({ label: x.config.label, value: x.id }))
   const selectedPromptType = prompts.find(x => x.id === promptType.current)
   const selectedOption = options.find(x => x.value === promptType.current)
-
-  console.log(promptType.current)
 
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={!isConfirming} close={() => close()}>
@@ -77,7 +75,7 @@ const PromptForm: FC<Props> = ({ customKey, prompts, contentLang, close, formDat
             axios={axios}
             fields={selectedPromptType.config?.fields || []}
             advancedSettings={selectedPromptType.config?.advancedSettings || []}
-            formData={formData.params}
+            formData={formData?.params || {}}
             onUpdate={data => onUpdate({ params: { ...data }, type: promptType.current })}
           />
         )}

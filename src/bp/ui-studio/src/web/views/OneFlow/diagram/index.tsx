@@ -797,7 +797,6 @@ class Diagram extends Component<Props> {
   }
 
   updatePromptNode(args) {
-    console.log(args.params)
     this.props.updateFlowNode({ prompt: { ...args } })
   }
 
@@ -862,8 +861,6 @@ class Diagram extends Component<Props> {
       editingNodeItem = this.state.editingNodeItem?.node?.contents?.[this.state.editingNodeItem.index]
     } else if (formType === 'trigger') {
       editingNodeItem = this.state.editingNodeItem?.node?.conditions?.[this.state.editingNodeItem.index]
-    } else if (formType === 'prompt') {
-      editingNodeItem = this.state.editingNodeItem?.node.prompt
     }
 
     const isQnA = this.props.selectedWorkflow === 'qna'
@@ -961,8 +958,8 @@ class Diagram extends Component<Props> {
           {formType === 'prompt' && (
             <PromptForm
               prompts={this.props.prompts}
-              customKey={`${this.state.editingNodeItem.node.name}${this.state.editingNodeItem.node.prompt?.type}`}
-              formData={editingNodeItem}
+              customKey={`${this.state.editingNodeItem.node.name}${this.state.editingNodeItem?.node?.prompt?.type}`}
+              formData={this.props.currentFlowNode?.prompt}
               onUpdate={this.updatePromptNode.bind(this)}
               deletePrompt={this.deleteSelectedElements.bind(this)}
               contentLang={this.state.currentLang}

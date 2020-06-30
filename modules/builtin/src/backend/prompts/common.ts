@@ -4,6 +4,11 @@ const common: FormDefinition = {
   fields: [
     {
       type: 'text',
+      key: 'output',
+      label: 'module.builtin.setValueTo'
+    },
+    {
+      type: 'text',
       key: 'question',
       translated: true,
       label: 'message'

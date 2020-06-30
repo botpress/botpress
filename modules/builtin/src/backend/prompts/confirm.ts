@@ -61,9 +61,7 @@ const config: PromptConfig = {
   valueType: 'boolean',
   minConfidence: 0.3,
   noValidation: true,
-  fields: [
-    ...common.fields
-  ],
+  fields: [...common.fields],
   advancedSettings: [...common.advancedSettings]
 }
 

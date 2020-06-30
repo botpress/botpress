@@ -84,6 +84,7 @@
   "min": "Min",
   "max": "Max",
   "regexPattern": "Expression régulière",
+  "setValueTo": "Définir la valeur à",
   "formatInvalidMessage": "Message pour format invalide",
   "maxLength": "Longeur maximale"
 }

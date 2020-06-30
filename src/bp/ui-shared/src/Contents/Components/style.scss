@@ -155,29 +155,6 @@
       min-width: auto;
     }
   }
-
-  .bp3-control input:checked ~ .bp3-control-indicator {
-    background: var(--ocean) !important;
-    box-shadow: none !important;
-    border: none !important;
-  }
-
-  .bp3-checkbox {
-    color: var(--shark);
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 1.25;
-    margin: 0;
-
-    .bp3-control-indicator {
-      box-shadow: none !important;
-      background: #fff !important;
-      border: 1px solid var(--seashell) !important;
-      font-size: 15px !important;
-      height: 15px !important;
-      width: 15px !important;
-    }
-  }
 }
 
 .deleteImg {
