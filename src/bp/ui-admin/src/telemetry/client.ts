@@ -118,13 +118,6 @@ export async function checkTelemetry() {
 }
 
 export function startTelemetry() {
-  for (const event in eventPackageInfo) {
-    if (isTimeoutLocalStorage(event)) {
-      switchLock(event)
-      setTimeout(() => switchLock(event), getTimeoutLocalStorage(event))
-    }
-  }
-
   addStoreInfo('email', 'user.profile.email')
 
   addStoreInfo('bp_release', 'version.currentVersion')
@@ -142,6 +135,13 @@ export function startTelemetry() {
       language: shared.lang.getLocale()
     }
   })
+
+  for (const event in eventPackageInfo) {
+    if (isTimeoutLocalStorage(event)) {
+      switchLock(event)
+      setTimeout(() => switchLock(event), getTimeoutLocalStorage(event))
+    }
+  }
 
   store.subscribe(() => {
     for (const infoName in storeInfos) {
