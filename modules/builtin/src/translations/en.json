@@ -89,6 +89,8 @@
   "maxLength": "Max length",
   "confirmBeforeCancel": "Confirm before cancel",
   "prompt": {
+    "confirmValue": "Is that value correct? {value}",
+    "confirmLeaving": "Do you really want to abandon this prompt?",
     "confirmation": "Is the value {value} correct ?",
     "invalid": "Provided value is invalid",
     "date": {
