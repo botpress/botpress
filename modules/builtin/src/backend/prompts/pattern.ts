@@ -6,7 +6,7 @@ class PromptPattern implements Prompt {
   private _regexPattern: string
   private _formatInvalidMessage: { [lang: string]: string }
 
-  constructor({ regexPattern, formatInvalidMessage }) {
+  constructor({ regexPattern = '', formatInvalidMessage = {} } = {}) {
     this._regexPattern = regexPattern
     this._formatInvalidMessage = formatInvalidMessage
   }

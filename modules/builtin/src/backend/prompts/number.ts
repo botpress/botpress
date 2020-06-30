@@ -3,10 +3,10 @@ import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'bo
 import common from './common'
 
 class PromptNumber implements Prompt {
-  private _min: boolean
-  private _max: boolean
+  private _min: boolean | undefined
+  private _max: boolean | undefined
 
-  constructor({ min, max }) {
+  constructor({ min = undefined, max = undefined } = {}) {
     this._min = min
     this._max = max
   }
@@ -28,11 +28,12 @@ class PromptNumber implements Prompt {
       return { valid: false, message: 'Provided value is invalid' }
     }
 
-    if (_min && value < _min) {
+    if (_min !== undefined && value < _min) {
       return { valid: false, message: 'Value is lower than minimum' }
-    } else if (_max && value > _max) {
+    } else if (_max !== undefined && value > _max) {
       return { valid: false, message: 'Value is higher than maximum' }
     }
+
     return { valid: true }
   }
 }

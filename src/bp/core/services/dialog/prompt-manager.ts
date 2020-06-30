@@ -295,7 +295,8 @@ export class PromptManager {
       throw new Error(`Unknown prompt type ${promptNode.type}`)
     }
 
-    const prompt = new definition.prompt(promptNode.params as any)
+    const params = (promptNode.params as any) || {}
+    const prompt = new definition.prompt(params)
     return { prompt, ...definition.config }
   }
 

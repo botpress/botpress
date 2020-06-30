@@ -3,9 +3,9 @@ import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'bo
 import common from './common'
 
 class PromptString implements Prompt {
-  private _maxLength: boolean
+  private _maxLength: number | undefined
 
-  constructor({ maxLength }) {
+  constructor({ maxLength = undefined } = {}) {
     this._maxLength = maxLength
   }
 

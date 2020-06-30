@@ -18,7 +18,7 @@ export function renderRecursive(item: TemplateItem, context: any): any {
 
 export function renderTemplate(template: string, context: any): string {
   if (typeof template === 'string') {
-    const variables = template.match(/\$[a-zA-Z]+/g) ?? []
+    const variables = template.match(/\$[a-zA-Z][a-zA-Z0-9_-]*/g) ?? []
     for (const match of variables) {
       const name = match.replace('$', '')
       template = template.replace(match, `{{workflow.variables.${name}}}`)
