@@ -295,6 +295,15 @@ function isActualRename(state, modification): boolean {
   return modification.newName && !_.keys(state.flowsByName).includes(modification.newName)
 }
 
+const getNextNodeName = (type: string, nodes) => {
+  const filteredNodes = nodes
+    .filter(x => x.type === type && x.name.startsWith(`${type}-`))
+    .map(x => Number(x.name.replace(`${type}-`, '')))
+
+  const highest: number = _.max(filteredNodes) ?? 0
+  return `${type}-${highest + 1}`
+}
+
 // *****
 // Reducer that deals with non-recordable (no snapshot taking)
 // *****
@@ -781,7 +790,7 @@ reducer = reduceReducers(
               _.merge(
                 {
                   id: prettyId(),
-                  name: `node-${prettyId(4)}`,
+                  name: getNextNodeName(payload.type, state.flowsByName[state.currentFlow].nodes),
                   x: 0,
                   y: 0,
                   next: [],

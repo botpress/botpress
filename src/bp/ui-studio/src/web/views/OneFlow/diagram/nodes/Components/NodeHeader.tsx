@@ -10,6 +10,7 @@ interface Props {
   expanded?: boolean
   defaultLabel: string
   name: string
+  type: string
   handleContextMenu: (e: SyntheticEvent) => void
   isEditing: boolean
   saveName: (value: string) => void
@@ -23,6 +24,7 @@ const NodeHeader: FC<Props> = ({
   expanded,
   defaultLabel,
   name,
+  type,
   handleContextMenu,
   isEditing,
   saveName,
@@ -30,7 +32,7 @@ const NodeHeader: FC<Props> = ({
   children,
   className
 }) => {
-  const isDefaultName = name.startsWith('node-')
+  const isDefaultName = name.startsWith(`${type}-`) || name.startsWith(`node-`)
   const getInitialInputValue = () => {
     return isDefaultName ? '' : name
   }
