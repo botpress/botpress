@@ -101,7 +101,7 @@ export function getStoreInfo(name: string) {
 
 export function addTelemetryEvent(name: string, timeout: string, getPackage: Function) {
   eventPackageInfo[name] = {
-    locked: false,
+    locked: isTimeoutLocalStorage(name),
     timeout: timeout,
     getPackage: getPackage
   }
@@ -138,7 +138,6 @@ export function startTelemetry() {
 
   for (const event in eventPackageInfo) {
     if (isTimeoutLocalStorage(event)) {
-      switchLock(event)
       setTimeout(() => switchLock(event), getTimeoutLocalStorage(event))
     }
   }
