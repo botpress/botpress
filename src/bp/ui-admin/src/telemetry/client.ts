@@ -7,46 +7,7 @@ import uuid from 'uuid'
 
 import store from '../store'
 
-export interface StoreInfoBody {
-  storedInfo: string
-  loadInfo: Function
-}
-
-export interface StoreInfoType {
-  [key: string]: StoreInfoBody
-}
-
-export const storeInfos: StoreInfoType = {}
-
-export interface EventPackageInfoType {
-  [key: string]: EventPackageInfoBody
-}
-
-export interface EventPackageInfoBody {
-  locked: boolean
-  timeout: string
-  getPackage: Function
-}
-
-export const eventPackageInfo: EventPackageInfoType = {}
-
-export type dataType = string | number | boolean | object
-
-export interface EventData {
-  schema: string
-  [key: string]: dataType
-}
-
-export interface TelemetryPackage {
-  schema: string
-  uuid: string
-  timestamp: string
-  bp_release: string
-  bp_license: string
-  event_type: string
-  source: string
-  event_data: EventData
-}
+import { EventData, EventPackageInfoType, StoreInfoType, TelemetryPackage } from './telemetry_type'
 
 export const telemetryPackageVersion = '1.0.0'
 export const dataClusterVersion = '1.0.0'
@@ -57,6 +18,10 @@ export const corsConfig = {
   withCredentials: false
 }
 
+export const storeInfos: StoreInfoType = {}
+
+export const eventPackageInfo: EventPackageInfoType = {}
+
 export function toHash(content: string) {
   return createHash('sha256')
     .update(content)
@@ -66,15 +31,6 @@ export function toHash(content: string) {
 export function switchLock(lockKey: string) {
   if (_.has(eventPackageInfo, lockKey)) {
     eventPackageInfo[lockKey].locked = !eventPackageInfo[lockKey].locked
-  }
-}
-
-export function setupEventsTimeout() {
-  for (const event in eventPackageInfo) {
-    if (isTimeoutLocalStorage(event)) {
-      switchLock(event)
-      setTimeout(() => switchLock(event), getTimeoutLocalStorage(event))
-    }
   }
 }
 
@@ -161,7 +117,14 @@ export async function checkTelemetry() {
   }
 }
 
-function setupTelemetry() {
+export function startTelemetry() {
+  for (const event in eventPackageInfo) {
+    if (isTimeoutLocalStorage(event)) {
+      switchLock(event)
+      setTimeout(() => switchLock(event), getTimeoutLocalStorage(event))
+    }
+  }
+
   addStoreInfo('email', 'user.profile.email')
 
   addStoreInfo('bp_release', 'version.currentVersion')
@@ -179,12 +142,6 @@ function setupTelemetry() {
       language: shared.lang.getLocale()
     }
   })
-}
-
-export function startTelemetry() {
-  setupEventsTimeout()
-
-  setupTelemetry()
 
   store.subscribe(() => {
     for (const infoName in storeInfos) {
@@ -207,6 +164,11 @@ export function getDataCluster(data: object): EventData {
 }
 
 export function getTelemetryPackage(event_type: string, data: object): TelemetryPackage {
+  const baseCluster: EventData = {
+    schema: dataClusterVersion
+  }
+  const event_data = _.assign(baseCluster, data)
+
   return {
     schema: telemetryPackageVersion,
     uuid: uuid.v4(),
@@ -215,7 +177,7 @@ export function getTelemetryPackage(event_type: string, data: object): Telemetry
     bp_license: getStoreInfo('bp_license'),
     event_type: event_type,
     source: 'client',
-    event_data: getDataCluster(data)
+    event_data: event_data
   }
 }
 
