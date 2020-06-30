@@ -50,12 +50,12 @@
       "type": "say_something",
       "contents": [
         {
-          "contentType": "builtin_text",
-          "renderType": "text",
-          "markdown": true,
-          "typing": true,
           "en": {
-            "text": "Sorry, I didn't understand"
+            "contentType": "builtin_text",
+            "text": "Sorry, I didn't understand",
+            "markdown": true,
+            "typing": true,
+            "variations": []
           }
         }
       ]

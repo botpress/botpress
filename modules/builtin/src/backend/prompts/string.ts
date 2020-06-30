@@ -1,6 +1,6 @@
 import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
 
-import commonFields from './common'
+import common from './common'
 
 class PromptString implements Prompt {
   private _maxLength: boolean
@@ -37,14 +37,14 @@ const config: PromptConfig = {
   label: 'String',
   valueType: 'string',
   fields: [
-    ...commonFields(),
+    ...common.fields,
     {
       type: 'text',
       key: 'maxLength',
       label: 'module.builtin.maxLength'
     }
   ],
-  advancedSettings: []
+  advancedSettings: [...common.advancedSettings]
 }
 
 export default { id: 'string', config, prompt: PromptString }

@@ -5,7 +5,7 @@ import { createMultiLangObject } from 'common/prompts'
 import _ from 'lodash'
 import yn from 'yn'
 
-import commonFields from './common'
+import common from './common'
 
 class PromptConfirm implements Prompt {
   private _question: { [lang: string]: string }
@@ -62,14 +62,14 @@ const config: PromptConfig = {
   minConfidence: 0.3,
   noValidation: true,
   fields: [
-    ...commonFields(),
+    ...common.fields,
     {
       type: 'text',
       key: 'question',
       label: 'module.builtin.questionToAskUser'
     }
   ],
-  advancedSettings: []
+  advancedSettings: [...common.advancedSettings]
 }
 
 export default { id: 'confirm', config, prompt: PromptConfirm }
