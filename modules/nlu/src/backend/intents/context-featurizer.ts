@@ -2,22 +2,13 @@ import _ from 'lodash'
 
 import { computeNorm, scalarDivide, vectorAdd, zeroes } from '../tools/math'
 import Utterance, { UtteranceToken } from '../utterance/utterance'
+import { getEntitiesEncoding } from './entities-featurizer'
 
 function shouldConsiderToken(token: UtteranceToken): boolean {
   const isSysOrPatternEntity = token.entities.some(
     en => en.metadata.extractor === 'pattern' || en.metadata.extractor === 'system'
   )
   return token.isWord && !isSysOrPatternEntity
-}
-
-function getEntitiesEncoding(utt: Utterance, customEntities: string[]): number[] {
-  const entityMap: _.Dictionary<number> = customEntities.reduce((map, next) => ({ ...map, [next]: 0 }), {})
-  utt.entities.forEach(e => entityMap[e.type]++)
-  return _.chain(entityMap)
-    .toPairs()
-    .orderBy('0')
-    .map(([key, val]) => val)
-    .value()
 }
 
 export function getCtxFeatures(utt: Utterance, customEntities: string[]): number[] {

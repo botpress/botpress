@@ -197,10 +197,8 @@ const getCustomEntitiesNames = (predictors: Predictors): string[] => [
 ]
 
 async function predictContext(input: PredictStep, predictors: Predictors): Promise<PredictStep> {
-  const customEntities = [
-    ...predictors.list_entities.map(e => e.entityName),
-    ...predictors.pattern_entities.map(e => e.name)
-  ]
+  const customEntities = getCustomEntitiesNames(predictors)
+
   const classifier = predictors.ctx_classifier
   if (!classifier) {
     return {

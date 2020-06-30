@@ -271,7 +271,7 @@ const TrainContextClassifier = async (
   progress: progressCB
 ): Promise<string | undefined> => {
   debugTraining.forBot(input.botId, 'Training context classifier')
-  const customEntities = [...input.list_entities.map(e => e.entityName), ...input.pattern_entities.map(e => e.name)]
+  const customEntities = getCustomEntitiesNames(input)
   const points = _.flatMapDeep(input.contexts, ctx => {
     return input.intents
       .filter(intent => intent.contexts.includes(ctx) && intent.name !== NONE_INTENT)
