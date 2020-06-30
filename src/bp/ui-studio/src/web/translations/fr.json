@@ -147,7 +147,7 @@
         "addCondition": "Ajouter une condition",
         "cantSeeActions": "Vous ne voyez pas votre action?",
         "chatbotSays": "L'assistant virtuel dit",
-        "chatbotPromptsUser": "L’agent conversationnel questionne l’utilisateur",
+        "chatbotPromptsUser": "L'agent conversationnel questionne l'utilisateur",
         "confirmOverwriteParameters": "Voulez-vous remplacer les paramètres existants?",
         "couldNotRetrieveActionServer": "Impossible de récupérer les serveurs d'actions",
         "editAction": "Modifier l'action",
@@ -322,6 +322,7 @@
       }
     },
     "prompt": {
+      "label": "Type",
       "pickType": "Sélectionnez un type"
     },
     "sideBar": {

@@ -324,6 +324,7 @@
       }
     },
     "prompt": {
+      "label": "Type",
       "pickType": "Pick a type"
     },
     "sideBar": {

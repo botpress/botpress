@@ -57,7 +57,7 @@ const PromptForm: FC<Props> = ({ customKey, prompts, contentLang, close, formDat
           <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
         </div>
         <div className={cx(style.fieldWrapper, style.contentTypeField)}>
-          <span className={style.formLabel}>{lang.tr('studio.condition.label')}</span>
+          <span className={style.formLabel}>{lang.tr('studio.prompt.label')}</span>
           {!!prompts.length && (
             <Dropdown
               filterable
@@ -78,7 +78,7 @@ const PromptForm: FC<Props> = ({ customKey, prompts, contentLang, close, formDat
             fields={selectedPromptType.config?.fields || []}
             advancedSettings={selectedPromptType.config?.advancedSettings || []}
             formData={formData}
-            onUpdate={data => onUpdate({ ...data })}
+            onUpdate={data => onUpdate({ params: { ...data }, type: promptType.current })}
           />
         )}
       </Fragment>
