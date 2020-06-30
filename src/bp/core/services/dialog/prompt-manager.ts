@@ -248,7 +248,7 @@ export class PromptManager {
     // Must redefine the property since it is removed when omitting
     Object.defineProperty(state, 'workflow', {
       get() {
-        return state.session.workflows[state.session.currentWorkflow!]
+        return state.session.workflows?.[state.session.currentWorkflow!]
       }
     })
 

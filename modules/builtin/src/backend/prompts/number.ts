@@ -1,6 +1,6 @@
 import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
 
-import commonFields from './common'
+import common from './common'
 
 class PromptNumber implements Prompt {
   private _min: boolean
@@ -42,7 +42,7 @@ const config: PromptConfig = {
   label: 'Number',
   valueType: 'number',
   fields: [
-    ...commonFields(),
+    ...common.fields,
     {
       type: 'text',
       key: 'min',
@@ -54,7 +54,7 @@ const config: PromptConfig = {
       label: 'module.builtin.max'
     }
   ],
-  advancedSettings: []
+  advancedSettings: [...common.advancedSettings]
 }
 
 export default { id: 'number', config, prompt: PromptNumber }
