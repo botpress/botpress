@@ -1,4 +1,5 @@
 import { IO, Prompt, PromptConfig, PromptDefinition, PromptNode } from 'botpress/sdk'
+import lang from 'common/lang'
 import { createMultiLangObject } from 'common/prompts'
 import { createForBotpress } from 'core/api'
 import { ModuleLoader } from 'core/module-loader'
@@ -206,11 +207,12 @@ export class PromptManager {
   private async _askLeaveConfirmation(event: IO.IncomingEvent) {
     debugPrompt('ask validation before leaving prompt')
 
-    // TODO: backend translations
-
     const confirmNode = {
       type: 'confirm',
-      params: { output: 'confirmed', question: { en: 'Do you really wanna leave the current prompt?' } }
+      params: {
+        output: 'confirmed',
+        question: lang.tr('module.builtin.prompt.confirmLeaving')
+      }
     }
 
     const promptConfirm = this.loadPrompt(confirmNode).prompt
