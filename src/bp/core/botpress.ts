@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import lang from 'common/lang'
 import { copyDir } from 'core/misc/pkg-fs'
 import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
@@ -460,6 +461,8 @@ export class Botpress {
     if (this.config!.dataRetention) {
       await this.dataRetentionJanitor.start()
     }
+
+    lang.init(await this.moduleLoader.getTranslations())
 
     // tslint:disable-next-line: no-floating-promises
     this.hintsService.refreshAll()

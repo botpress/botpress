@@ -22,11 +22,11 @@ class PromptString implements Prompt {
 
   async validate(value): Promise<ValidationResult> {
     if (value == undefined) {
-      return { valid: false, message: lang.tr('prompt.invalid') }
+      return { valid: false, message: lang.tr('module.builtin.prompt.invalid') }
     }
 
     if (value.length > this._maxLength) {
-      return { valid: false, message: lang.tr('prompt.string.tooLong', { maxLength: this._maxLength }) }
+      return { valid: false, message: lang.tr('module.builtin.prompt.string.tooLong', { maxLength: this._maxLength }) }
     }
 
     return { valid: true }

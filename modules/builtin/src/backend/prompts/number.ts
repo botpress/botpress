@@ -26,13 +26,13 @@ class PromptNumber implements Prompt {
     const { _min, _max } = this
 
     if (value == undefined) {
-      return { valid: false, message: lang.tr('prompt.invalid') }
+      return { valid: false, message: lang.tr('module.builtin.prompt.invalid') }
     }
 
     if (_min !== undefined && value < _min) {
-      return { valid: false, message: lang.tr('prompt.number.lowerThanMin') }
+      return { valid: false, message: lang.tr('module.builtin.prompt.number.lowerThanMin') }
     } else if (_max !== undefined && value > _max) {
-      return { valid: false, message: lang.tr('prompt.number.higherThanMax') }
+      return { valid: false, message: lang.tr('module.builtin.prompt.number.higherThanMax') }
     }
 
     return { valid: true }
