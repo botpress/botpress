@@ -37,6 +37,7 @@ import {
   updateFlowProblems
 } from '~/actions'
 import { hashCode, prettyId } from '~/util'
+import { parseFlowName } from '~/util/workflows'
 
 export interface FlowReducer {
   currentFlow?: string
@@ -236,7 +237,8 @@ const doCreateNewFlow = name => {
     }
   ]
 
-  if (window.USE_ONEFLOW) {
+  const isSubWorkflow = window.USE_ONEFLOW && parseFlowName(name).folders?.length
+  if (isSubWorkflow) {
     nodes.push(
       {
         id: prettyId(),
