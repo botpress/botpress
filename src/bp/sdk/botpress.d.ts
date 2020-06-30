@@ -1705,20 +1705,13 @@ declare module 'botpress/sdk' {
     url?: string
   }
 
-  export interface FormAdvancedSetting {
-    key: string
-    label: string
-    type: string
-    moreInfo?: FormMoreInfo
-  }
-
   export interface FormContextMenu {
     type: string
     label: string
   }
 
   export interface FormDefinition {
-    advancedSettings: FormAdvancedSetting[]
+    advancedSettings: FormField[]
     fields: FormField[]
   }
 

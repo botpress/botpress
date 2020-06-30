@@ -221,9 +221,7 @@ const SubWorkflowNode: FC<Props> = props => {
           <Contents.Form
             fields={state.config.fields}
             advancedSettings={state.config.advancedSettings}
-            bp={undefined}
             formData={state.params}
-            contentType={undefined}
             onUpdate={updateParam}
           />
 

@@ -18,6 +18,8 @@ interface CssExports {
   'nodeWrapper': string;
   'out': string;
   'outRouting': string;
+  'ports': string;
+  'prompt': string;
   'secondaryText': string;
   'text': string;
   'textWrapper': string;

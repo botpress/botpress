@@ -63,11 +63,12 @@ import { RouterNodeModel, RouterWidgetFactory } from '~/views/FlowBuilder/diagra
 import { SuccessNodeModel, SuccessWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SuccessNode'
 import style from '~/views/FlowBuilder/diagram/style.scss'
 
-import { PromptNodeModel, PromptWidgetFactory } from './nodes/PromptNode'
+import { PromptWidgetFactory } from './nodes/PromptNode'
 import { SaySomethingNodeModel, SaySomethingWidgetFactory } from './nodes/SaySomethingNode'
-import { TriggerNodeModel, TriggerWidgetFactory } from './nodes/TriggerNode'
+import { TriggerWidgetFactory } from './nodes/TriggerNode'
 import ConditionForm from './ConditionForm'
 import ContentForm from './ContentForm'
+import PromptForm from './PromptForm'
 import Toolbar from './Toolbar'
 import VariablesEditor from './VariablesEditor'
 import WorkflowToolbar from './WorkflowToolbar'
@@ -154,7 +155,12 @@ class Diagram extends Component<Props> {
     )
     this.diagramEngine.registerNodeFactory(new FailureWidgetFactory())
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
-    this.diagramEngine.registerNodeFactory(new PromptWidgetFactory())
+    this.diagramEngine.registerNodeFactory(
+      new PromptWidgetFactory({
+        ...commonProps,
+        getCurrentLang: () => this.getStateProperty('currentLang')
+      })
+    )
 
     // This reference allows us to update flow nodes from widgets
     this.diagramEngine.flowBuilder = this
@@ -211,7 +217,9 @@ class Diagram extends Component<Props> {
     if (
       !prevState.editingNodeItem &&
       this.props.currentFlowNode?.isNew &&
-      (this.props.currentFlowNode?.type === 'say_something' || this.props.currentFlowNode?.type === 'trigger')
+      (this.props.currentFlowNode?.type === 'say_something' ||
+        this.props.currentFlowNode?.type === 'trigger' ||
+        this.props.currentFlowNode?.type === 'prompt')
     ) {
       this.editNodeItem(this.props.currentFlowNode, 0)
     }
@@ -333,6 +341,7 @@ class Diagram extends Component<Props> {
       this.props.createFlowNode({
         ...point,
         type: 'prompt',
+        isNew: true,
         prompt: {
           type: promptType,
           output: '',
@@ -443,7 +452,6 @@ class Diagram extends Component<Props> {
     const point = this.manager.getRealPosition(event)
 
     const isNodeTargeted = targetModel instanceof NodeModel
-    const isTriggerNode = targetModel instanceof TriggerNodeModel
     const isLibraryNode = targetModel instanceof SaySomethingNodeModel || targetModel instanceof ExecuteNodeModel
 
     const isSuccessNode = targetModel instanceof SuccessNodeModel
@@ -525,8 +533,7 @@ class Diagram extends Component<Props> {
     return (
       targetModel instanceof StandardNodeModel ||
       targetModel instanceof SkillCallNodeModel ||
-      targetModel instanceof RouterNodeModel ||
-      targetModel instanceof PromptNodeModel
+      targetModel instanceof RouterNodeModel
     )
   }
 
@@ -724,6 +731,9 @@ class Diagram extends Component<Props> {
         case 'trigger':
           this.add.triggerNode(point, {})
           break
+        case 'prompt':
+          this.add.promptNode(point, '')
+          break
         case 'say_something':
           this.add.say(point, {})
           break
@@ -784,6 +794,11 @@ class Diagram extends Component<Props> {
     this.setState({ editingNodeItem: { node: { ...node, conditions: newConditions }, index } })
 
     this.props.updateFlowNode({ conditions: newConditions })
+  }
+
+  updatePromptNode(args) {
+    this.props.updateFlowNode({ prompt: { ...this.state.editingNodeItem?.node.prompt, ...args } })
+    this.props.refreshFlowsLinks()
   }
 
   deleteNodeContent() {
@@ -847,6 +862,8 @@ class Diagram extends Component<Props> {
       editingNodeItem = this.state.editingNodeItem?.node?.contents?.[this.state.editingNodeItem.index]
     } else if (formType === 'trigger') {
       editingNodeItem = this.state.editingNodeItem?.node?.conditions?.[this.state.editingNodeItem.index]
+    } else if (formType === 'prompt') {
+      editingNodeItem = this.state.editingNodeItem?.node.prompt
     }
 
     const isQnA = this.props.selectedWorkflow === 'qna'
@@ -934,6 +951,21 @@ class Diagram extends Component<Props> {
               formData={editingNodeItem}
               contentLang={this.state.currentLang}
               onUpdate={this.updateNodeCondition.bind(this)}
+              close={() => {
+                this.timeout = setTimeout(() => {
+                  this.setState({ editingNodeItem: null })
+                }, 200)
+              }}
+            />
+          )}
+          {formType === 'prompt' && (
+            <PromptForm
+              prompts={this.props.prompts}
+              customKey={`${this.state.editingNodeItem.node.name}${this.state.editingNodeItem.index}`}
+              formData={editingNodeItem}
+              onUpdate={this.updatePromptNode.bind(this)}
+              deletePrompt={this.deleteSelectedElements.bind(this)}
+              contentLang={this.state.currentLang}
               close={() => {
                 this.timeout = setTimeout(() => {
                   this.setState({ editingNodeItem: null })
