@@ -87,5 +87,22 @@
   "setValueTo": "Set Value to",
   "formatInvalidMessage": "Format invalid message",
   "maxLength": "Max length",
-  "confirmBeforeCancel": "Confirm before cancel"
+  "confirmBeforeCancel": "Confirm before cancel",
+  "prompt": {
+    "confirmation": "Is the value {value} correct ?",
+    "invalid": "Provided value is invalid",
+    "date": {
+      "invalid": "The provided date is not valid"
+    },
+    "number": {
+      "lowerThanMin": "Value is lower than minimum",
+      "higherThanMax": "Value is higher than maximum"
+    },
+    "pattern": {
+      "invalid": "The provided value doesn't match the expected pattern"
+    },
+    "string": {
+      "tooLong": "The maximum length is {maxLength} {maxLength, plural, one {character} other {characters}}."
+    }
+  }
 }

@@ -1,4 +1,5 @@
 import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
+import lang from 'common/lang'
 
 import common from './common'
 
@@ -25,13 +26,13 @@ class PromptNumber implements Prompt {
     const { _min, _max } = this
 
     if (value == undefined) {
-      return { valid: false, message: 'Provided value is invalid' }
+      return { valid: false, message: lang.tr('prompt.invalid') }
     }
 
     if (_min && value < _min) {
-      return { valid: false, message: 'Value is lower than minimum' }
+      return { valid: false, message: lang.tr('prompt.number.lowerThanMin') }
     } else if (_max && value > _max) {
-      return { valid: false, message: 'Value is higher than maximum' }
+      return { valid: false, message: lang.tr('prompt.number.higherThanMax') }
     }
     return { valid: true }
   }

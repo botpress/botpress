@@ -619,6 +619,7 @@ declare module 'botpress/sdk' {
       nlu?: Partial<EventUnderstanding>
       ndu?: NDU.DialogUnderstanding
       incomingEventId?: string
+      debugger?: boolean
     }
 
     /**
@@ -1619,14 +1620,17 @@ declare module 'botpress/sdk' {
 
   export interface PromptNode {
     type: string
-    /** The name of the variable that will be filled with the value extracted */
-    output: string
     /** The list of custom parameters of the prompt with their associated values */
-    params?: { [paramName: string]: any }
-    /** The question to ask to the user for this prompt */
-    question: { [lang: string]: string }
-    /** Confirmation message to send to ask the user if the provided value is correct */
-    confirm?: { [lang: string]: string }
+    params: {
+      /** The name of the variable that will be filled with the value extracted */
+      output: string
+      /** The question to ask to the user for this prompt */
+      question: { [lang: string]: string }
+      /** Confirmation message to send to ask the user if the provided value is correct */
+      confirm?: { [lang: string]: string }
+      /** Additional param for prompts */
+      [paramName: string]: any
+    }
   }
 
   export interface Prompt {
@@ -1658,7 +1662,7 @@ declare module 'botpress/sdk' {
 
   export interface ValidationResult {
     valid: boolean
-    message?: string
+    message?: { [lang: string]: string }
   }
 
   export interface PromptConstructable {

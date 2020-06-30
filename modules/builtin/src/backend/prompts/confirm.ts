@@ -1,6 +1,7 @@
 import { IO, Prompt, PromptConfig } from 'botpress/sdk'
 import * as sdk from 'botpress/sdk'
 import { extractEventCommonArgs } from 'common/action'
+import lang from 'common/lang'
 import { createMultiLangObject } from 'common/prompts'
 import _ from 'lodash'
 import yn from 'yn'
@@ -32,7 +33,7 @@ class PromptConfirm implements Prompt {
   }
 
   async validate(value) {
-    return { valid: value === true || value === false, message: 'Invalid' }
+    return { valid: value === true || value === false, message: lang.tr('prompt.invalid') }
   }
 
   customPrompt = async (event: IO.OutgoingEvent, incomingEvent: IO.IncomingEvent, bp: typeof sdk) => {

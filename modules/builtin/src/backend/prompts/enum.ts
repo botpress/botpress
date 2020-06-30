@@ -2,6 +2,7 @@ import axios from 'axios'
 import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
 import * as sdk from 'botpress/sdk'
 import { extractEventCommonArgs } from 'common/action'
+import lang from 'common/lang'
 import { createMultiLangObject } from 'common/prompts'
 
 import common from './common'
@@ -29,7 +30,7 @@ class PromptEnum implements Prompt {
 
   async validate(value): Promise<ValidationResult> {
     if (value == undefined) {
-      return { valid: false, message: 'Provided value is invalid' }
+      return { valid: false, message: lang.tr('prompt.invalid') }
     }
 
     return { valid: true }
@@ -78,8 +79,13 @@ const config: PromptConfig = {
   fields: [
     ...common.fields,
     {
-      type: 'text',
+      type: 'select',
       key: 'entity',
+      dynamicOptions: {
+        endpoint: 'BOT_API_PATH/mod/nlu/entities?ignoreSystem=true',
+        valueField: 'id',
+        labelField: 'name'
+      },
       label: 'module.builtin.entity'
     },
     {
