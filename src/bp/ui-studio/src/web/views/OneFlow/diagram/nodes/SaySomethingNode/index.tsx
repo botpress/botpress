@@ -110,6 +110,7 @@ const SaySomethingWidget: FC<Props> = ({
         saveName={saveName}
         defaultLabel={lang.tr('studio.flow.node.chatbotSays')}
         name={node.name}
+        type={node.type}
         error={error}
       >
         <StandardPortWidget name="in" node={node} className={style.in} />
