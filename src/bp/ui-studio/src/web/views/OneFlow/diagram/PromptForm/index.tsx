@@ -4,7 +4,7 @@ import { Condition, FormData } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
-import React, { FC, Fragment, useRef, useState } from 'react'
+import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
 import style from './style.scss'
 
@@ -34,9 +34,9 @@ const PromptForm: FC<Props> = ({ customKey, prompts, contentLang, close, formDat
 
   const handleTypeChange = value => {
     promptType.current = value
-    console.log(value)
     onUpdate({
-      type: value
+      type: value,
+      params: {}
     })
   }
 
@@ -44,7 +44,7 @@ const PromptForm: FC<Props> = ({ customKey, prompts, contentLang, close, formDat
   const selectedPromptType = prompts.find(x => x.id === promptType.current)
   const selectedOption = options.find(x => x.value === promptType.current)
 
-  console.log(formData, selectedPromptType)
+  console.log(promptType.current)
 
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={!isConfirming} close={() => close()}>
@@ -77,7 +77,7 @@ const PromptForm: FC<Props> = ({ customKey, prompts, contentLang, close, formDat
             axios={axios}
             fields={selectedPromptType.config?.fields || []}
             advancedSettings={selectedPromptType.config?.advancedSettings || []}
-            formData={formData}
+            formData={formData.params}
             onUpdate={data => onUpdate({ params: { ...data }, type: promptType.current })}
           />
         )}

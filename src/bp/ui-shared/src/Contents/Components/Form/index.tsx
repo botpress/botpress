@@ -88,7 +88,12 @@ const formReducer = (state, action) => {
     onUpdate?.(newState)
     return newState
   } else if (action.type === 'updateField') {
-    const { value, field, parent, onUpdate } = action.data
+    const { field, parent, onUpdate, lang } = action.data
+    let { value } = action.data
+
+    if (lang) {
+      value = { ...state[field], [lang]: value }
+    }
 
     if (parent) {
       const { key, index } = parent
@@ -98,7 +103,7 @@ const formReducer = (state, action) => {
         // Needs recursion if we end up having more than one level of groups
         getArray.unshift(parent.parent.key, parent.parent.index)
       }
-      console.log(getArray)
+
       _.set(state, getArray, value)
 
       onUpdate?.(state)
@@ -231,7 +236,7 @@ const Form: FC<FormProps> = ({
               onChange={value =>
                 dispatch({
                   type: 'updateField',
-                  data: { field: field.key, translated: field.translated, parent, value, onUpdate }
+                  data: { field: field.key, lang: field.translated && currentLang, parent, value, onUpdate }
                 })
               }
             />
@@ -246,7 +251,7 @@ const Form: FC<FormProps> = ({
               onChange={value => {
                 dispatch({
                   type: 'updateField',
-                  data: { field: field.key, translated: field.translated, parent, value, onUpdate }
+                  data: { field: field.key, lang: field.translated && currentLang, parent, value, onUpdate }
                 })
               }}
               items={currentValue || ['']}
@@ -264,7 +269,7 @@ const Form: FC<FormProps> = ({
               onBlur={value => {
                 dispatch({
                   type: 'updateField',
-                  data: { field: field.key, translated: field.translated, parent, value, onUpdate }
+                  data: { field: field.key, lang: field.translated && currentLang, parent, value, onUpdate }
                 })
               }}
               value={currentValue}
@@ -282,7 +287,7 @@ const Form: FC<FormProps> = ({
               onChange={value =>
                 dispatch({
                   type: 'updateField',
-                  data: { field: field.key, translated: field.translated, parent, value, onUpdate }
+                  data: { field: field.key, lang: field.translated && currentLang, parent, value, onUpdate }
                 })
               }
               value={currentValue}
@@ -299,7 +304,12 @@ const Form: FC<FormProps> = ({
               onChange={e =>
                 dispatch({
                   type: 'updateField',
-                  data: { field: field.key, translated: field.translated, value: e.currentTarget.checked, onUpdate }
+                  data: {
+                    field: field.key,
+                    lang: field.translated && currentLang,
+                    value: e.currentTarget.checked,
+                    onUpdate
+                  }
                 })
               }
             />
@@ -331,7 +341,7 @@ const Form: FC<FormProps> = ({
               onBlur={value => {
                 dispatch({
                   type: 'updateField',
-                  data: { field: field.key, translated: field.translated, parent, value, onUpdate }
+                  data: { field: field.key, lang: field.translated && currentLang, parent, value, onUpdate }
                 })
               }}
               type={field.type}

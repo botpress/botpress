@@ -85,17 +85,19 @@ const PromptWidget: FC<Props> = ({
 
   const currentLang = getCurrentLang()
   const selectedContent = selectedNodeItem()
+  const { next, name } = node || {}
   const { type, output } = node.prompt || {}
 
   return (
     <NodeWrapper>
       <NodeHeader
+        type={type}
         className={style.prompt}
         handleContextMenu={handleContextMenu}
         isEditing={isEditing}
         saveName={saveName}
         defaultLabel={lang.tr('studio.flow.node.chatbotPromptsUser')}
-        name={node.name}
+        name={name}
         error={error}
       />
       <button className={style.content} onClick={() => editNodeItem?.(node, 0)}>
@@ -103,7 +105,7 @@ const PromptWidget: FC<Props> = ({
       </button>
       <div className={style.ports}>
         <StandardPortWidget name="in" node={node} className={style.in} />
-        {node.next?.map((item, i) => {
+        {next?.map((item, i) => {
           const outputPortName = `out${i}`
           return (
             <div key={`${i}.${item}`} style={{ display: 'flex', justifyContent: 'space-between', padding: 1 }}>

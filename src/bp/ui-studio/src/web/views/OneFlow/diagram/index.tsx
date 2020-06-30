@@ -797,8 +797,8 @@ class Diagram extends Component<Props> {
   }
 
   updatePromptNode(args) {
-    this.props.updateFlowNode({ prompt: { ...this.state.editingNodeItem?.node.prompt, ...args } })
-    this.props.refreshFlowsLinks()
+    console.log(args.params)
+    this.props.updateFlowNode({ prompt: { ...args } })
   }
 
   deleteNodeContent() {
@@ -961,7 +961,7 @@ class Diagram extends Component<Props> {
           {formType === 'prompt' && (
             <PromptForm
               prompts={this.props.prompts}
-              customKey={`${this.state.editingNodeItem.node.name}${this.state.editingNodeItem.index}`}
+              customKey={`${this.state.editingNodeItem.node.name}${this.state.editingNodeItem.node.prompt?.type}`}
               formData={editingNodeItem}
               onUpdate={this.updatePromptNode.bind(this)}
               deletePrompt={this.deleteSelectedElements.bind(this)}
