@@ -155,13 +155,6 @@ export function startTelemetry() {
   })
 }
 
-export function getDataCluster(data: object): EventData {
-  const baseCluster: EventData = {
-    schema: dataClusterVersion
-  }
-  return _.assign(baseCluster, data)
-}
-
 export function getTelemetryPackage(event_type: string, data: object): TelemetryPackage {
   const baseCluster: EventData = {
     schema: dataClusterVersion
