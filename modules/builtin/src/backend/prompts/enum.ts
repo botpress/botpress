@@ -4,7 +4,7 @@ import * as sdk from 'botpress/sdk'
 import { extractEventCommonArgs } from 'common/action'
 import { createMultiLangObject } from 'common/prompts'
 
-import commonFields from './common'
+import common from './common'
 
 class PromptEnum implements Prompt {
   private _entity: string
@@ -76,7 +76,7 @@ const config: PromptConfig = {
   label: 'Enum',
   valueType: 'string',
   fields: [
-    ...commonFields(),
+    ...common.fields,
     {
       type: 'text',
       key: 'entity',
@@ -93,7 +93,7 @@ const config: PromptConfig = {
       label: 'module.builtin.useDropdown'
     }
   ],
-  advancedSettings: []
+  advancedSettings: [...common.advancedSettings]
 }
 
 export default { id: 'enum', config, prompt: PromptEnum }

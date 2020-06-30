@@ -1,6 +1,6 @@
 import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
 
-import commonFields from './common'
+import common from './common'
 
 class PromptPattern implements Prompt {
   private _regexPattern: string
@@ -39,7 +39,7 @@ const config: PromptConfig = {
   label: 'Pattern',
   valueType: 'string',
   fields: [
-    ...commonFields(),
+    ...common.fields,
     {
       type: 'text',
       key: 'regexPattern',
@@ -52,7 +52,7 @@ const config: PromptConfig = {
       label: 'module.builtin.formatInvalidMessage'
     }
   ],
-  advancedSettings: []
+  advancedSettings: [...common.advancedSettings]
 }
 
 export default { id: 'pattern', config, prompt: PromptPattern }

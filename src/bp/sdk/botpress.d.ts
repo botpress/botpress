@@ -1718,7 +1718,7 @@ declare module 'botpress/sdk' {
   }
 
   export interface FormDefinition {
-    advancedSettings: FormAdvancedSetting[]
+    advancedSettings: FormField[]
     fields: FormField[]
   }
 
