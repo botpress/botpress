@@ -59,4 +59,6 @@ const squash = (space, root = {}, path = ''): { [key: string]: string } => {
   return root
 }
 
-export default { init, tr, extend }
+const available = () => Object.keys(translations)
+
+export default { init, tr, extend, available }

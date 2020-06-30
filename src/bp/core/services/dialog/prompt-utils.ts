@@ -1,27 +1,24 @@
 import { IO, PromptNode } from 'botpress/sdk'
-import { createMultiLangObject } from 'common/prompts'
+import lang from 'common/lang'
 import { Event } from 'core/sdk/impl'
 import _ from 'lodash'
 
 import { MIN_CONFIDENCE_CANCEL } from './prompt-manager'
 
-// TODO backend translations
-
 export const getConfirmPromptNode = (node: PromptNode, value: any): PromptNode => {
   const output = node.params
 
-  const defaultConfirmation = {
-    en: `Is that value correct?: $${output}`,
-    fr: `Est-ce que cette valeur est correcte?: $${output}`
-  }
+  let question = lang.tr('module.builtin.prompt.confirmValue', { value })
 
-  const question = node.params?.confirm || defaultConfirmation
+  if (node.params?.confirm) {
+    question = _.mapValues(node.params?.confirm, q => q.replace(`$${output}`, value))
+  }
 
   return {
     type: 'confirm',
     params: {
       output: 'confirmed',
-      question: _.mapValues(question, q => q.replace(`$${output}`, value))
+      question
     }
   }
 }
