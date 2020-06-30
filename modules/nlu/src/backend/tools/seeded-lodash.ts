@@ -1,13 +1,20 @@
-import _ from "lodash"
-import seedrandom from "seedrandom"
+import _ from 'lodash'
+import seedrandom from 'seedrandom'
 
-let lo = _
+export const getSeededLodash = (randomSeed?: number | string) => {
+  let lo = _
+  if (!randomSeed) {
+    return lo
+  }
 
-const randomSeed = parseInt(process.env.RANDOM_SEED || "")
-if (randomSeed) {
-  seedrandom(`${randomSeed}`, { global: true })
-  lo = _.runInContext()
-  seedrandom(`${new Date().getMilliseconds()}`, { global: true })
+  let seed = _.isString(randomSeed) ? parseInt(randomSeed) : randomSeed
+  if (seed) {
+    seedrandom(`${seed}`, { global: true })
+    lo = _.runInContext()
+  }
+  return lo
 }
 
-export default lo
+export const cancelRandomSeed = () => {
+  seedrandom(`${new Date().getMilliseconds()}`, { global: true })
+}

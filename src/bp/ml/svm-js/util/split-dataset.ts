@@ -4,15 +4,7 @@ import { Data } from '../typings'
 import { getMostRepresentedClass } from './count-class'
 import seedrandom from 'seedrandom'
 
-let lo = _
-const randomSeed = parseInt(process.env.RANDOM_SEED || "")
-if (randomSeed) {
-  seedrandom(`${randomSeed}`, { global: true })
-  lo = _.runInContext()
-  seedrandom(`${new Date().getMilliseconds()}`, { global: true })
-}
-
-export default function (dataset: Data[], k = 5): SplittedDataSet[] {
+export default function(dataset: Data[], k = 5): SplittedDataSet[] {
   const kFold = Math.min(dataset.length, k)
   const n = dataset.length
   assert(n >= kFold, 'kFold parameter must be <= n')
@@ -28,6 +20,13 @@ export default function (dataset: Data[], k = 5): SplittedDataSet[] {
   let available_test_samples = [...dataset]
   const res: SplittedDataSet[] = []
 
+  let lo = _
+  const randomSeed = parseInt(process.env.RANDOM_SEED || '')
+  if (randomSeed) {
+    seedrandom(`${randomSeed}`, { global: true })
+    lo = _.runInContext()
+  }
+
   for (let i = 0; i < kFold; i++) {
     const test_set = lo(available_test_samples)
       .shuffle()
@@ -41,6 +40,12 @@ export default function (dataset: Data[], k = 5): SplittedDataSet[] {
       train: train_set
     })
   }
+
+  if (randomSeed) {
+    // cancel back the random seed
+    seedrandom(`${new Date().getMilliseconds()}`, { global: true })
+  }
+
   return res
 }
 

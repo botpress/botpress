@@ -3,7 +3,7 @@ import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
 import fse from 'fs-extra'
 import httpsProxyAgent from 'https-proxy-agent'
-import { debounce, sumBy } from 'lodash'
+import _, { debounce, sumBy } from 'lodash'
 import lru from 'lru-cache'
 import moment from 'moment'
 import ms from 'ms'
@@ -11,7 +11,7 @@ import path from 'path'
 import crypto from 'crypto'
 import semver from 'semver'
 
-import _ from "../tools/seeded-lodash"
+import { getSeededLodash, cancelRandomSeed } from '../tools/seeded-lodash'
 import { setSimilarity, vocabNGram } from '../tools/strings'
 import { isSpace, processUtteranceTokens, restoreOriginalUtteranceCasing } from '../tools/token-utils'
 import {
@@ -406,11 +406,13 @@ export class RemoteLanguageProvider implements LanguageProvider {
     const minJunkSize = Math.max(JUNK_TOKEN_MIN, meanWordSize / 2) // Twice as short
     const maxJunkSize = Math.min(JUNK_TOKEN_MAX, meanWordSize * 1.5) // A bit longer.  Those numbers are discretionary and are not expected to make a big impact on the models.
     return _.range(0, JUNK_VOCAB_SIZE).map(() => {
-      const finalSize = _.random(minJunkSize, maxJunkSize, false)
+      const lo = getSeededLodash(process.env.RANDOM_SEED)
+      const finalSize = lo.random(minJunkSize, maxJunkSize, false)
       let word = ''
       while (word.length < finalSize) {
-        word += _.sample(gramset)
+        word += lo.sample(gramset)
       }
+      cancelRandomSeed()
       return word
     }) // randomly generated words
   }
