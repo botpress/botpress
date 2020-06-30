@@ -1,4 +1,5 @@
 import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
+import lang from 'common/lang'
 
 import common from './common'
 
@@ -21,11 +22,11 @@ class PromptString implements Prompt {
 
   async validate(value): Promise<ValidationResult> {
     if (value == undefined) {
-      return { valid: false, message: 'Provided value is invalid' }
+      return { valid: false, message: lang.tr('prompt.invalid') }
     }
 
     if (value.length > this._maxLength) {
-      return { valid: false, message: 'Text is too long' }
+      return { valid: false, message: lang.tr('prompt.string.tooLong', { maxLength: this._maxLength }) }
     }
 
     return { valid: true }

@@ -1,4 +1,5 @@
 import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
+import lang from 'common/lang'
 
 import common from './common'
 
@@ -23,11 +24,11 @@ class PromptPattern implements Prompt {
 
   async validate(value): Promise<ValidationResult> {
     if (value == undefined) {
-      return { valid: false, message: 'Provided value is invalid' }
+      return { valid: false, message: lang.tr('prompt.invalid') }
     }
 
     if (!new RegExp(this._regexPattern).test(value)) {
-      return { valid: false, message: this._formatInvalidMessage['en'] ?? 'Value does not match format' }
+      return { valid: false, message: this._formatInvalidMessage ?? lang.tr('prompt.pattern.invalid') }
     }
 
     return { valid: true }
