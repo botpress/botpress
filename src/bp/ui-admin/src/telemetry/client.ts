@@ -129,7 +129,7 @@ export function startTelemetry() {
   addTelemetryEvent('ui_language', '8h', () => {
     return {
       user: {
-        email: toHash(getStoreInfo('email')),
+        email: getStoreInfo('email'),
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
       },
       language: shared.lang.getLocale()
