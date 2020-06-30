@@ -89,6 +89,7 @@ const formReducer = (state, action) => {
     return newState
   } else if (action.type === 'updateField') {
     const { value, field, parent, onUpdate } = action.data
+
     if (parent) {
       const { key, index } = parent
       const getArray = [key, index, field]
@@ -97,7 +98,7 @@ const formReducer = (state, action) => {
         // Needs recursion if we end up having more than one level of groups
         getArray.unshift(parent.parent.key, parent.parent.index)
       }
-
+      console.log(getArray)
       _.set(state, getArray, value)
 
       onUpdate?.(state)
@@ -149,7 +150,16 @@ const formReducer = (state, action) => {
   }
 }
 
-const Form: FC<FormProps> = ({ axios, mediaPath, overrideFields, formData, fields, advancedSettings, onUpdate }) => {
+const Form: FC<FormProps> = ({
+  currentLang,
+  axios,
+  mediaPath,
+  overrideFields,
+  formData,
+  fields,
+  advancedSettings,
+  onUpdate
+}) => {
   const newFormData = createEmptyDataFromSchema([...(fields || []), ...(advancedSettings || [])])
   const [state, dispatch] = useReducer(formReducer, newFormData)
 
@@ -170,15 +180,17 @@ const Form: FC<FormProps> = ({ axios, mediaPath, overrideFields, formData, field
   }
 
   const printField = (field, data, parent?) => {
+    const currentValue = field.translated ? data[field.key][currentLang!] : data[field.key]
+
     switch (field.type) {
       case 'group':
         return (
           <Fragment key={field.key}>
-            {data[field.key]?.map((fieldData, index) => (
+            {currentValue?.map((fieldData, index) => (
               <GroupItemWrapper
                 key={`${field.key}${index}`}
                 contextMenu={
-                  (!field.group?.minimum || data[field.key]?.length > field.group?.minimum) && field.group?.contextMenu
+                  (!field.group?.minimum || currentValue?.length > field.group?.minimum) && field.group?.contextMenu
                 }
                 onDelete={() =>
                   dispatch({
@@ -207,7 +219,7 @@ const Form: FC<FormProps> = ({ axios, mediaPath, overrideFields, formData, field
         )
       case 'select':
         return (
-          <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
+          <FieldWrapper key={field.key} label={printLabel(field, currentValue)}>
             {printMoreInfo(field.moreInfo)}
             <Select
               axios={axios}
@@ -216,7 +228,12 @@ const Form: FC<FormProps> = ({ axios, mediaPath, overrideFields, formData, field
               data={data}
               field={field}
               placeholder={lang(field.placeholder)}
-              onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
+              onChange={value =>
+                dispatch({
+                  type: 'updateField',
+                  data: { field: field.key, translated: field.translated, parent, value, onUpdate }
+                })
+              }
             />
           </FieldWrapper>
         )
@@ -227,37 +244,48 @@ const Form: FC<FormProps> = ({ axios, mediaPath, overrideFields, formData, field
               getPlaceholder={index => getArrayPlaceholder(index, field.placeholder)}
               moreInfo={printMoreInfo(field.moreInfo)}
               onChange={value => {
-                dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
+                dispatch({
+                  type: 'updateField',
+                  data: { field: field.key, translated: field.translated, parent, value, onUpdate }
+                })
               }}
-              items={data[field.key] || ['']}
-              label={printLabel(field, data[field.key])}
+              items={currentValue || ['']}
+              label={printLabel(field, currentValue)}
               addBtnLabel={lang(field.group?.addLabel)}
             />
           </Fragment>
         )
       case 'textarea':
         return (
-          <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
+          <FieldWrapper key={field.key} label={printLabel(field, currentValue)}>
             {printMoreInfo(field.moreInfo)}
             <TextArea
               placeholder={lang(field.placeholder)}
               onBlur={value => {
-                dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
+                dispatch({
+                  type: 'updateField',
+                  data: { field: field.key, translated: field.translated, parent, value, onUpdate }
+                })
               }}
-              value={data[field.key]}
+              value={currentValue}
             />
           </FieldWrapper>
         )
       case 'upload':
         return (
-          <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
+          <FieldWrapper key={field.key} label={printLabel(field, currentValue)}>
             {printMoreInfo(field.moreInfo)}
             <Upload
               axios={axios}
               customPath={mediaPath}
               placeholder={lang(field.placeholder)}
-              onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
-              value={data[field.key]}
+              onChange={value =>
+                dispatch({
+                  type: 'updateField',
+                  data: { field: field.key, translated: field.translated, parent, value, onUpdate }
+                })
+              }
+              value={currentValue}
             />
           </FieldWrapper>
         )
@@ -265,13 +293,13 @@ const Form: FC<FormProps> = ({ axios, mediaPath, overrideFields, formData, field
         return (
           <div key={field.key} className={style.checkboxWrapper}>
             <Checkbox
-              checked={data[field.key]}
+              checked={currentValue}
               key={field.key}
-              label={printLabel(field, data[field.key])}
+              label={printLabel(field, currentValue)}
               onChange={e =>
                 dispatch({
                   type: 'updateField',
-                  data: { field: field.key, onUpdate, value: e.currentTarget.checked }
+                  data: { field: field.key, translated: field.translated, value: e.currentTarget.checked, onUpdate }
                 })
               }
             />
@@ -284,7 +312,7 @@ const Form: FC<FormProps> = ({ axios, mediaPath, overrideFields, formData, field
             {overrideFields?.[field.overrideKey]?.({
               field,
               data,
-              label: printLabel(field, data[field.key]),
+              label: printLabel(field, currentValue),
               onChange: value => {
                 dispatch({
                   type: 'updateOverridableField',
@@ -296,15 +324,18 @@ const Form: FC<FormProps> = ({ axios, mediaPath, overrideFields, formData, field
         )
       default:
         return (
-          <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
+          <FieldWrapper key={field.key} label={printLabel(field, currentValue)}>
             {printMoreInfo(field.moreInfo)}
             <Text
               placeholder={lang(field.placeholder)}
               onBlur={value => {
-                dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
+                dispatch({
+                  type: 'updateField',
+                  data: { field: field.key, translated: field.translated, parent, value, onUpdate }
+                })
               }}
               type={field.type}
-              value={data[field.key]}
+              value={currentValue}
             />
           </FieldWrapper>
         )

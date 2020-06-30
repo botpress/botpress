@@ -4,8 +4,7 @@ import { Condition, FormData } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
-import { type } from 'os'
-import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
+import React, { FC, Fragment, useRef, useState } from 'react'
 
 import style from './style.scss'
 
@@ -74,6 +73,7 @@ const PromptForm: FC<Props> = ({ customKey, prompts, contentLang, close, formDat
         </div>
         {selectedPromptType && (
           <Contents.Form
+            currentLang={contentLang}
             axios={axios}
             fields={selectedPromptType.config?.fields || []}
             advancedSettings={selectedPromptType.config?.advancedSettings || []}

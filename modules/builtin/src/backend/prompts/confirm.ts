@@ -62,12 +62,7 @@ const config: PromptConfig = {
   minConfidence: 0.3,
   noValidation: true,
   fields: [
-    ...common.fields,
-    {
-      type: 'text',
-      key: 'question',
-      label: 'module.builtin.questionToAskUser'
-    }
+    ...common.fields
   ],
   advancedSettings: [...common.advancedSettings]
 }
