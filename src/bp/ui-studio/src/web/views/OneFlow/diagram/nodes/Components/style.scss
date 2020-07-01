@@ -1,5 +1,5 @@
 .secondaryText {
-  color: #5C7080;
+  color: #5c7080;
   display: block;
 }
 
@@ -32,26 +32,6 @@
   width: 30px;
 }
 
-.ports {
-  .in {
-    position: absolute;
-    bottom: 20%;
-    left: 0;
-    transform: translate(-50%, 0);
-  }
-  .out {
-    position: absolute;
-    bottom: 20%;
-    right: 0;
-    transform: translate(50%, 0);
-  }
-  .outRouting {
-    position: absolute;
-    right: 0;
-    transform: translate(50%, 25%);
-  }
-}
-
 .nodeWrapper {
   background: #fff;
   width: 150px;
@@ -78,8 +58,10 @@
           margin-top: 0 !important;
         }
 
-        &.active, &:hover {
-          .content, &:after {
+        &.active,
+        &:hover {
+          .content,
+          &:after {
             background: #fff !important;
           }
         }
@@ -254,7 +236,8 @@
     margin-top: 0;
   }
 
-  &:hover, &.active {
+  &:hover,
+  &.active {
     .content:not(.promptPortContent) {
       border: solid 1px var(--ocean);
     }
