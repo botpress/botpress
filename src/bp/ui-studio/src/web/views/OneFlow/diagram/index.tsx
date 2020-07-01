@@ -911,7 +911,7 @@ class Diagram extends Component<Props> {
 
           {formType === 'say_something' && (
             <ContentForm
-              customKey={`${this.state.editingNodeItem.node.name}${this.state.editingNodeItem.index}`}
+              customKey={`${this.state.editingNodeItem.node.id}${this.state.editingNodeItem.index}`}
               contentTypes={this.props.contentTypes.filter(type =>
                 type.schema.newJson?.displayedIn.includes('sayNode')
               )}
@@ -928,7 +928,7 @@ class Diagram extends Component<Props> {
           )}
           {formType === 'trigger' && (
             <ConditionForm
-              customKey={`${this.state.editingNodeItem.node.name}${this.state.editingNodeItem.index}`}
+              customKey={`${this.state.editingNodeItem.node.id}${this.state.editingNodeItem.index}`}
               conditions={this.props.conditions}
               deleteCondition={() => this.deleteNodeCondition()}
               editingCondition={this.state.editingNodeItem.index}

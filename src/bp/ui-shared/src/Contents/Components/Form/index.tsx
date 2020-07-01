@@ -2,7 +2,7 @@ import { Checkbox } from '@blueprintjs/core'
 import { FormMoreInfo } from 'botpress/sdk'
 import cx from 'classnames'
 import _ from 'lodash'
-import React, { FC, Fragment, useEffect, useReducer } from 'react'
+import React, { FC, Fragment, useReducer } from 'react'
 
 import { lang } from '../../../translations'
 import TextFieldsArray from '../../../FormFields/TextFieldsArray'
@@ -170,11 +170,7 @@ const Form: FC<FormProps> = ({
   onUpdate
 }) => {
   const newFormData = createEmptyDataFromSchema([...(fields || []), ...(advancedSettings || [])])
-  const [state, dispatch] = useReducer(formReducer, newFormData)
-
-  useEffect(() => {
-    dispatch({ type: 'setData', data: formData })
-  }, [])
+  const [state, dispatch] = useReducer(formReducer, formData || newFormData)
 
   const getArrayPlaceholder = (index, placeholder) => {
     if (Array.isArray(placeholder)) {
@@ -189,7 +185,7 @@ const Form: FC<FormProps> = ({
   }
 
   const printField = (field, data, parent?) => {
-    const currentValue = field.translated ? data[field.key][currentLang!] : data[field.key]
+    const currentValue = field.translated ? data[field.key]?.[currentLang!] : data[field.key]
 
     switch (field.type) {
       case 'group':
