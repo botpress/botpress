@@ -14,7 +14,8 @@ export interface TelemetryPayloadRepository {
   removeArray(uuidArray: string[]): Promise<void>
   updateArray(uuidArray: string[], status: boolean): Promise<void>
   refreshAvailability(): Promise<void>
-  getN(n: number): Promise<any>
+  getEntries(n: number): Promise<any>
+  keepTopEntries(n: number): Promise<void>
 }
 
 export type TelemetryPayload = {
@@ -58,6 +59,21 @@ export class KnexTelemetryPayloadRepository implements TelemetryPayloadRepositor
     }
   }
 
+  async keepTopEntries(n: number) {
+    const uuidArray = (
+      await this.database.knex
+        .from(this.tableName)
+        .select('uuid')
+        .orderBy('creationDate', 'desc')
+        .limit(n)
+    ).map(entry => entry.uuid)
+
+    await this.database
+      .knex(this.tableName)
+      .whereNotIn('uuid', uuidArray)
+      .del()
+  }
+
   async removeArray(uuidArray: string[]) {
     await this.database
       .knex(this.tableName)
@@ -65,7 +81,7 @@ export class KnexTelemetryPayloadRepository implements TelemetryPayloadRepositor
       .del()
   }
 
-  async getN(n: number): Promise<any> {
+  async getEntries(n: number): Promise<any> {
     const events = await this.database.knex
       .from(this.tableName)
       .select('*')
@@ -84,7 +100,8 @@ export class KnexTelemetryPayloadRepository implements TelemetryPayloadRepositor
       uuid: uuid,
       payload: this.database.knex.json.set(payload),
       available: this.database.knex.bool.true(),
-      lastChanged: this.database.knex.date.now()
+      lastChanged: this.database.knex.date.now(),
+      creationDate: this.database.knex.date.now()
     })
   }
 

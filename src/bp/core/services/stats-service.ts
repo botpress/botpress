@@ -28,6 +28,8 @@ const LOCK_RESOURCE24 = 'botpress:statsService24'
 const LOCK_RESOURCE15 = 'botpress:statsService15'
 const debug = DEBUG('stats')
 const JOB_INTERVAL = '6 hours'
+const TELEMETRY_INTERVAL = '1d'
+const DB_REFRESH_INTERVAL = '15 minute'
 const telemetry1 = 'https://telemetry.botpress.io/ingest'
 const telemetry2 = 'https://telemetry.botpress.dev'
 
@@ -51,24 +53,32 @@ export class StatsService {
     // tslint:disable-next-line: no-floating-promises
     this.run(this.getStats.bind(this), LOCK_RESOURCE, JOB_INTERVAL, `${telemetry1}`)
     // tslint:disable-next-line: no-floating-promises
-    this.run(this.getBuiltinActionsStats.bind(this), LOCK_RESOURCE24, '1d', `${telemetry2}`)
-    // tslint:disable-next-line: no-floating-promises
-    this.run(this.refreshDB.bind(this), LOCK_RESOURCE15, '1m', 'TEST')
+    this.run(this.getBuiltinActionsStats.bind(this), LOCK_RESOURCE24, TELEMETRY_INTERVAL, `${telemetry2}`)
 
     setInterval(
       this.run.bind(this, this.getStats.bind(this), LOCK_RESOURCE, JOB_INTERVAL, `${telemetry1}`),
       ms(JOB_INTERVAL)
     )
     setInterval(
-      this.run.bind(this, this.getBuiltinActionsStats.bind(this), LOCK_RESOURCE24, '1d', `${telemetry2}`),
-      ms('1d')
+      this.run.bind(this, this.getBuiltinActionsStats.bind(this), LOCK_RESOURCE24, TELEMETRY_INTERVAL, `${telemetry2}`),
+      ms(TELEMETRY_INTERVAL)
     )
 
-    // setInterval(this.run.bind(this, this.refreshDB(), LOCK_RESOURCE15, '15m', `${telemetry2}`), ms('15m'))
+    // tslint:disable-next-line: no-floating-promises
+    this.refreshDB(DB_REFRESH_INTERVAL)
+
+    setInterval(this.refreshDB.bind(this, DB_REFRESH_INTERVAL), ms(DB_REFRESH_INTERVAL))
   }
 
-  private async refreshDB(this) {
-    await this.telemetryPayloadRepository.refreshAvailability()
+  private async refreshDB(interval: string) {
+    const config = await this.config.getBotpressConfig()
+    const limit = config.telemetry.entriesLimit
+
+    const lock = await this.jobService.acquireLock(LOCK_RESOURCE15, ms(interval) - ms('1 minute'))
+    if (lock) {
+      await this.telemetryPayloadRepository.refreshAvailability()
+      await this.telemetryPayloadRepository.keepTopEntries(limit)
+    }
   }
 
   private async run(job, lockResource: string, interval: string, url) {
