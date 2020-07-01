@@ -25,7 +25,7 @@ class PromptString implements Prompt {
       return { valid: false, message: lang.tr('module.builtin.prompt.invalid') }
     }
 
-    if (value.length > this._maxLength) {
+    if (this._maxLength !== undefined && value.length > this._maxLength) {
       return { valid: false, message: lang.tr('module.builtin.prompt.string.tooLong', { maxLength: this._maxLength }) }
     }
 
@@ -37,15 +37,17 @@ const config: PromptConfig = {
   type: 'string',
   label: 'String',
   valueType: 'string',
-  fields: [
-    ...common.fields,
+  fields: common.fields,
+  advancedSettings: [
     {
-      type: 'text',
+      type: 'number',
       key: 'maxLength',
+      min: 0,
+      max: 10000,
       label: 'module.builtin.maxLength'
-    }
-  ],
-  advancedSettings: [...common.advancedSettings]
+    },
+    ...common.advancedSettings
+  ]
 }
 
 export default { id: 'string', config, prompt: PromptString }
