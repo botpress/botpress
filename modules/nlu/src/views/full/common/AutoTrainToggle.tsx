@@ -1,42 +1,18 @@
 import { Switch } from '@blueprintjs/core'
-import { NLUApi } from 'api'
 import { lang } from 'botpress/shared'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC } from 'react'
 
 import style from './style.scss'
 
-type AutoTrainListener = (status: boolean) => void
-export type AutoTrainObserver = {
-  listeners: AutoTrainListener[]
+interface Props {
+  autoTrain: boolean
+  loading: boolean
+  toggleAutoTrain: () => void
 }
 
-const AutoTrainToggle: FC<{ api: NLUApi; observer: AutoTrainObserver }> = ({ api, observer }) => {
-  const [autoTrain, setAutoTrain] = useState(false)
-  const [loading, setLoading] = useState(true)
+const AutoTrainToggle: FC<Props> = (props: Props) => {
 
-  useEffect(() => {
-    const fetchAutoTrain = async () => {
-      setLoading(true)
-      const isOn = await api.isAutoTrainOn()
-      setAutoTrain(isOn)
-      setLoading(false)
-      notifyListeners(isOn)
-    }
-
-    // tslint:disable-next-line: no-floating-promises
-    fetchAutoTrain()
-  }, [])
-
-  const notifyListeners = (autoTrainStatus: boolean) => {
-    observer.listeners.forEach(l => l(autoTrainStatus))
-  }
-
-  const toggleAutoTrain = async () => {
-    const newStatus = !autoTrain
-    await api.setAutoTrain(newStatus)
-    setAutoTrain(newStatus)
-    notifyListeners(newStatus)
-  }
+  const { autoTrain, loading, toggleAutoTrain } = props
 
   return (
     <Switch

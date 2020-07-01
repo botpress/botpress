@@ -4,12 +4,9 @@ import { props } from 'bluebird'
 import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
 
-import { AutoTrainObserver } from './AutoTrainToggle'
-
-const TrainNow: FC<{ api: NLUApi; eventBus: any; observer: AutoTrainObserver }> = ({ api, eventBus, observer }) => {
+const TrainNow: FC<{ api: NLUApi; eventBus: any; autoTrain: boolean }> = ({ api, eventBus, autoTrain }) => {
   const [loading, setLoading] = useState(true)
   const [training, setTraining] = useState(false)
-  const [forcing, setForcing] = useState(false)
 
   useEffect(() => {
     const fetchIsTraining = async () => {
@@ -30,9 +27,6 @@ const TrainNow: FC<{ api: NLUApi; eventBus: any; observer: AutoTrainObserver }> 
       }
     })
 
-    observer.listeners.push((status: boolean) => {
-      setForcing(status)
-    })
   }, [])
 
   const onClick = async () => {
@@ -46,7 +40,7 @@ const TrainNow: FC<{ api: NLUApi; eventBus: any; observer: AutoTrainObserver }> 
   }
 
   const renderTrain = () => {
-    return forcing ? lang.tr('module.nlu.retrainAll') : lang.tr('module.nlu.trainNow')
+    return autoTrain ? lang.tr('module.nlu.retrainAll') : lang.tr('module.nlu.trainNow')
   }
 
   return (
