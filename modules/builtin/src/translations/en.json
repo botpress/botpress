@@ -84,6 +84,7 @@
   "min": "Min",
   "max": "Max",
   "regexPattern": "Regex pattern",
+  "setValueTo": "Set Value to",
   "formatInvalidMessage": "Format invalid message",
   "maxLength": "Max length",
   "confirmBeforeCancel": "Confirm before cancel"

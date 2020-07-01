@@ -1435,18 +1435,19 @@ declare module 'botpress/sdk' {
     labelField: string
   }
 
+  export type FormFieldType = 'checkbox'
+    | 'group'
+    | 'number'
+    | 'overridable'
+    | 'select'
+    | 'text'
+    | 'text_array'
+    | 'textarea'
+    | 'upload'
+    | 'url'
+
   export interface FormField {
-    type:
-      | 'checkbox'
-      | 'group'
-      | 'number'
-      | 'overridable'
-      | 'select'
-      | 'text'
-      | 'text_array'
-      | 'textarea'
-      | 'upload'
-      | 'url'
+    type: FormFieldType
     key: string
     label: string
     overrideKey?: string
@@ -1454,6 +1455,15 @@ declare module 'botpress/sdk' {
     options?: FormOption[]
     defaultValue?: FormDataField
     required?: boolean
+    max?: number
+    min?: number
+    maxLength?: number
+    valueManipulation?: {
+      regex: string
+      modifier: string
+      replaceChar: string
+    }
+    translated?: boolean
     dynamicOptions?: FormDynamicOptions
     fields?: FormField[]
     moreInfo?: FormMoreInfo
@@ -1618,14 +1628,15 @@ declare module 'botpress/sdk' {
 
   export interface PromptNode {
     type: string
-    /** The name of the variable that will be filled with the value extracted */
-    output: string
     /** The list of custom parameters of the prompt with their associated values */
-    params?: { [paramName: string]: any }
-    /** The question to ask to the user for this prompt */
-    question: { [lang: string]: string }
-    /** Confirmation message to send to ask the user if the provided value is correct */
-    confirm?: { [lang: string]: string }
+    params?: {
+      /** The name of the variable that will be filled with the value extracted */
+      output: string
+      /** The question to ask to the user for this prompt */
+      question: { [lang: string]: string }
+      /** Confirmation message to send to ask the user if the provided value is correct */
+      confirm?: { [lang: string]: string }
+      [paramName: string]: any }
   }
 
   export interface Prompt {
@@ -1703,13 +1714,6 @@ declare module 'botpress/sdk' {
   export interface FormMoreInfo {
     label: string
     url?: string
-  }
-
-  export interface FormAdvancedSetting {
-    key: string
-    label: string
-    type: string
-    moreInfo?: FormMoreInfo
   }
 
   export interface FormContextMenu {

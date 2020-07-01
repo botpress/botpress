@@ -6,8 +6,8 @@ import React, { FC, SyntheticEvent, useEffect, useState } from 'react'
 import style from './style.scss'
 
 interface Props {
-  setExpanded: (expanded: boolean) => void
-  expanded: boolean
+  setExpanded?: (expanded: boolean) => void
+  expanded?: boolean
   defaultLabel: string
   name: string
   type: string
@@ -15,7 +15,7 @@ interface Props {
   isEditing: boolean
   saveName: (value: string) => void
   error?: string
-  children: any
+  children?: any
   className?: string
 }
 
@@ -53,12 +53,14 @@ const NodeHeader: FC<Props> = ({
     }
   }
 
+  const icon = expanded ? 'chevron-down' : 'chevron-right'
+
   return (
     <div className={cx(style.headerWrapper, className)}>
       {!isEditing ? (
         <Button
-          icon={expanded ? 'chevron-down' : 'chevron-right'}
-          onClick={() => setExpanded(!expanded)}
+          icon={setExpanded ? icon : null}
+          onClick={() => setExpanded?.(!expanded)}
           className={style.button}
           onContextMenu={handleContextMenu}
         >
@@ -66,7 +68,7 @@ const NodeHeader: FC<Props> = ({
         </Button>
       ) : (
         <div className={style.button}>
-          <Icon icon={expanded ? 'chevron-down' : 'chevron-right'} />
+          {setExpanded && <Icon icon={icon} />}
           <input
             type="text"
             placeholder={lang.tr('studio.flow.node.renameBlock')}

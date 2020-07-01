@@ -1,6 +1,8 @@
-import classnames from 'classnames'
+import { Intent, Menu, MenuItem } from '@blueprintjs/core'
+import { contextMenu, lang, ShortcutLabel } from 'botpress/shared'
+import cx from 'classnames'
 import _ from 'lodash'
-import React from 'react'
+import React, { FC, useState } from 'react'
 import { AbstractNodeFactory } from 'storm-react-diagrams'
 import { BaseNodeModel } from '~/views/FlowBuilder/diagram/nodes/BaseNodeModel'
 import {
@@ -8,42 +10,119 @@ import {
   StandardOutgoingPortModel,
   StandardPortWidget
 } from '~/views/FlowBuilder/diagram/nodes/Ports'
-import { showHeaderV2 } from '~/views/FlowBuilder/diagram/nodes_v2/utils'
 
-import style from '../../../../FlowBuilder/diagram/nodes_v2/style.scss'
+import style from '../Components/style.scss'
+import NodeHeader from '../Components/NodeHeader'
+import NodeWrapper from '../Components/NodeWrapper'
 
-import promptStyle from './style.scss'
+interface Props {
+  node: PromptNodeModel
+  getCurrentFlow: any
+  updateFlowNode: any
+  onDeleteSelectedElements: () => void
+  editNodeItem: (node: PromptNodeModel, index: number) => void
+  selectedNodeItem: () => { node: PromptNodeModel; index: number }
+  getCurrentLang: () => string
+  switchFlowNode: (id: string) => void
+}
 
-class PromptNodeWidget extends React.Component<{ node: PromptNodeModel }> {
-  render() {
-    const node = this.props.node
-    const { type, output } = node.prompt || {}
+const PromptWidget: FC<Props> = ({
+  node,
+  getCurrentFlow,
+  editNodeItem,
+  onDeleteSelectedElements,
+  selectedNodeItem,
+  updateFlowNode,
+  getCurrentLang,
+  switchFlowNode
+}) => {
+  const [error, setError] = useState(null)
+  const [isEditing, setIsEditing] = useState(false)
 
-    return (
-      <div
-        className={classnames(style.baseNode, promptStyle.nodePrompt, {
-          [style.highlightedNode]: node.isHighlighted
-        })}
-      >
-        {showHeaderV2({ nodeType: `Prompt ${type}`, nodeName: node.name, isStartNode: node.isStartNode })}
-        <div className={style.content}>
-          Output: <b>{output}</b>
+  const handleContextMenu = e => {
+    e.stopPropagation()
+    e.preventDefault()
+    switchFlowNode(node.id)
+    contextMenu(
+      e,
+      <Menu>
+        <MenuItem
+          text={lang.tr('studio.flow.node.renameBlock')}
+          onClick={() => {
+            setIsEditing(true)
+          }}
+        />
+        <MenuItem
+          text={
+            <div className={style.contextMenuLabel}>
+              {lang.tr('delete')}
+              <ShortcutLabel light keys={['backspace']} />
+            </div>
+          }
+          intent={Intent.DANGER}
+          onClick={onDeleteSelectedElements}
+        />
+      </Menu>
+    )
+  }
+
+  const saveName = (value): void => {
+    setError(null)
+
+    if (value) {
+      const alreadyExists = getCurrentFlow().nodes.find(x => x.name === value && x.id !== node.id)
+
+      if (alreadyExists) {
+        setError(lang.tr('studio.flow.node.nameAlreadyExists'))
+        return
+      }
+
+      updateFlowNode({ name: value })
+    }
+
+    setIsEditing(false)
+  }
+
+  const currentLang = getCurrentLang()
+  const selectedContent = selectedNodeItem()
+  const { next, name } = node || {}
+  const { type, params } = node.prompt || {}
+
+  return (
+    <NodeWrapper>
+      <NodeHeader
+        type={node.type}
+        className={style.prompt}
+        handleContextMenu={handleContextMenu}
+        isEditing={isEditing}
+        saveName={saveName}
+        defaultLabel={lang.tr('studio.flow.node.chatbotPromptsUser')}
+        name={name}
+        error={error}
+      />
+      <div className={style.contentsWrapper}>
+        <div
+          className={cx(style.contentWrapper, {
+            [style.active]: selectedContent?.node?.id === node.id
+          })}
+        >
+          <span className={style.content}>{params?.question?.[currentLang]}</span>
         </div>
-        <div className={style.ports}>
-          <StandardPortWidget name="in" node={node} className={style.in} />
-          {node.next?.map((item, i) => {
-            const outputPortName = `out${i}`
-            return (
-              <div key={`${i}.${item}`} style={{ display: 'flex', justifyContent: 'space-between', padding: 1 }}>
+        <StandardPortWidget name="in" node={node} className={style.in} />
+        {next?.map((item, i) => {
+          const outputPortName = `out${i}`
+          return (
+            <div key={`${i}.${item}`} className={style.contentWrapper}>
+              <div className={cx(style.content, style.promptPortContent)}>
                 {item.caption}
                 <StandardPortWidget name={outputPortName} node={node} className={style.outRouting} />
               </div>
-            )
-          })}
-        </div>
+            </div>
+          )
+        })}
       </div>
-    )
-  }
+    </NodeWrapper>
+  )
 }
 
 export class PromptNodeModel extends BaseNodeModel {
@@ -98,12 +177,39 @@ export class PromptNodeModel extends BaseNodeModel {
 }
 
 export class PromptWidgetFactory extends AbstractNodeFactory {
-  constructor() {
+  private editNodeItem: (node: PromptNodeModel, index: number) => void
+  private selectedNodeItem: () => { node: PromptNodeModel; index: number }
+  private deleteSelectedElements: () => void
+  private getCurrentLang: () => string
+  private getCurrentFlow: any
+  private updateFlowNode: any
+  private switchFlowNode: (id: string) => void
+
+  constructor(methods) {
     super('prompt')
+
+    this.editNodeItem = methods.editNodeItem
+    this.selectedNodeItem = methods.selectedNodeItem
+    this.deleteSelectedElements = methods.deleteSelectedElements
+    this.getCurrentFlow = methods.getCurrentFlow
+    this.updateFlowNode = methods.updateFlowNode
+    this.getCurrentLang = methods.getCurrentLang
+    this.switchFlowNode = methods.switchFlowNode
   }
 
   generateReactWidget(diagramEngine, node) {
-    return <PromptNodeWidget node={node} />
+    return (
+      <PromptWidget
+        node={node}
+        getCurrentFlow={this.getCurrentFlow}
+        editNodeItem={this.editNodeItem}
+        onDeleteSelectedElements={this.deleteSelectedElements}
+        updateFlowNode={this.updateFlowNode}
+        selectedNodeItem={this.selectedNodeItem}
+        getCurrentLang={this.getCurrentLang}
+        switchFlowNode={this.switchFlowNode}
+      />
+    )
   }
 
   getNewInstance() {

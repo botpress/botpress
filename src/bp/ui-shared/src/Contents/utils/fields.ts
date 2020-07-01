@@ -4,7 +4,7 @@ export const createEmptyDataFromSchema = (fields: FormField[]): FormData => {
   return fields.reduce((acc, field) => ({ ...acc, [field.key]: getFieldDefaultValue(field) }), {})
 }
 
-const getFieldDefaultValue = (field: FormField) => {
+export const getFieldDefaultValue = (field: Partial<FormField>) => {
   if (field.defaultValue) {
     return field.defaultValue
   }
@@ -19,7 +19,7 @@ const getFieldDefaultValue = (field: FormField) => {
 
       return [createEmptyDataFromSchema(field.fields)]
     case 'number':
-      return 0
+      return
     case 'select':
       return null
     case 'text_array':
@@ -29,6 +29,6 @@ const getFieldDefaultValue = (field: FormField) => {
     case 'textarea':
     case 'upload':
     case 'url':
-      return ''
+      return field.translated ? {} : ''
   }
 }

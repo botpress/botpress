@@ -2,7 +2,7 @@ import { Checkbox } from '@blueprintjs/core'
 import { FormMoreInfo } from 'botpress/sdk'
 import cx from 'classnames'
 import _ from 'lodash'
-import React, { FC, Fragment, useEffect, useReducer } from 'react'
+import React, { FC, Fragment, useReducer } from 'react'
 
 import { lang } from '../../../translations'
 import TextFieldsArray from '../../../FormFields/TextFieldsArray'
@@ -88,7 +88,17 @@ const formReducer = (state, action) => {
     onUpdate?.(newState)
     return newState
   } else if (action.type === 'updateField') {
-    const { value, field, parent, onUpdate } = action.data
+    const { field, type, parent, onUpdate, lang } = action.data
+    let { value } = action.data
+
+    if (type === 'number') {
+      value = Number(value)
+    }
+
+    if (lang) {
+      value = { ...state[field], [lang]: value }
+    }
+
     if (parent) {
       const { key, index } = parent
       const getArray = [key, index, field]
@@ -149,13 +159,18 @@ const formReducer = (state, action) => {
   }
 }
 
-const Form: FC<FormProps> = ({ axios, mediaPath, overrideFields, formData, fields, advancedSettings, onUpdate }) => {
+const Form: FC<FormProps> = ({
+  currentLang,
+  axios,
+  mediaPath,
+  overrideFields,
+  formData,
+  fields,
+  advancedSettings,
+  onUpdate
+}) => {
   const newFormData = createEmptyDataFromSchema([...(fields || []), ...(advancedSettings || [])])
-  const [state, dispatch] = useReducer(formReducer, newFormData)
-
-  useEffect(() => {
-    dispatch({ type: 'setData', data: formData })
-  }, [])
+  const [state, dispatch] = useReducer(formReducer, formData || newFormData)
 
   const getArrayPlaceholder = (index, placeholder) => {
     if (Array.isArray(placeholder)) {
@@ -170,15 +185,17 @@ const Form: FC<FormProps> = ({ axios, mediaPath, overrideFields, formData, field
   }
 
   const printField = (field, data, parent?) => {
+    const currentValue = field.translated ? data[field.key]?.[currentLang!] : data[field.key]
+
     switch (field.type) {
       case 'group':
         return (
           <Fragment key={field.key}>
-            {data[field.key]?.map((fieldData, index) => (
+            {currentValue?.map((fieldData, index) => (
               <GroupItemWrapper
                 key={`${field.key}${index}`}
                 contextMenu={
-                  (!field.group?.minimum || data[field.key]?.length > field.group?.minimum) && field.group?.contextMenu
+                  (!field.group?.minimum || currentValue?.length > field.group?.minimum) && field.group?.contextMenu
                 }
                 onDelete={() =>
                   dispatch({
@@ -207,7 +224,7 @@ const Form: FC<FormProps> = ({ axios, mediaPath, overrideFields, formData, field
         )
       case 'select':
         return (
-          <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
+          <FieldWrapper key={field.key} label={printLabel(field, currentValue)}>
             {printMoreInfo(field.moreInfo)}
             <Select
               axios={axios}
@@ -216,7 +233,12 @@ const Form: FC<FormProps> = ({ axios, mediaPath, overrideFields, formData, field
               data={data}
               field={field}
               placeholder={lang(field.placeholder)}
-              onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
+              onChange={value =>
+                dispatch({
+                  type: 'updateField',
+                  data: { field: field.key, lang: field.translated && currentLang, parent, value, onUpdate }
+                })
+              }
             />
           </FieldWrapper>
         )
@@ -227,37 +249,49 @@ const Form: FC<FormProps> = ({ axios, mediaPath, overrideFields, formData, field
               getPlaceholder={index => getArrayPlaceholder(index, field.placeholder)}
               moreInfo={printMoreInfo(field.moreInfo)}
               onChange={value => {
-                dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
+                dispatch({
+                  type: 'updateField',
+                  data: { field: field.key, lang: field.translated && currentLang, parent, value, onUpdate }
+                })
               }}
-              items={data[field.key] || ['']}
-              label={printLabel(field, data[field.key])}
+              items={currentValue || ['']}
+              label={printLabel(field, currentValue)}
               addBtnLabel={lang(field.group?.addLabel)}
             />
           </Fragment>
         )
       case 'textarea':
         return (
-          <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
+          <FieldWrapper key={field.key} label={printLabel(field, currentValue)}>
             {printMoreInfo(field.moreInfo)}
             <TextArea
+              field={field}
               placeholder={lang(field.placeholder)}
               onBlur={value => {
-                dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
+                dispatch({
+                  type: 'updateField',
+                  data: { field: field.key, lang: field.translated && currentLang, parent, value, onUpdate }
+                })
               }}
-              value={data[field.key]}
+              value={currentValue}
             />
           </FieldWrapper>
         )
       case 'upload':
         return (
-          <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
+          <FieldWrapper key={field.key} label={printLabel(field, currentValue)}>
             {printMoreInfo(field.moreInfo)}
             <Upload
               axios={axios}
               customPath={mediaPath}
               placeholder={lang(field.placeholder)}
-              onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
-              value={data[field.key]}
+              onChange={value =>
+                dispatch({
+                  type: 'updateField',
+                  data: { field: field.key, lang: field.translated && currentLang, parent, value, onUpdate }
+                })
+              }
+              value={currentValue}
             />
           </FieldWrapper>
         )
@@ -265,13 +299,18 @@ const Form: FC<FormProps> = ({ axios, mediaPath, overrideFields, formData, field
         return (
           <div key={field.key} className={style.checkboxWrapper}>
             <Checkbox
-              checked={data[field.key]}
+              checked={currentValue}
               key={field.key}
-              label={printLabel(field, data[field.key])}
+              label={printLabel(field, currentValue)}
               onChange={e =>
                 dispatch({
                   type: 'updateField',
-                  data: { field: field.key, onUpdate, value: e.currentTarget.checked }
+                  data: {
+                    field: field.key,
+                    lang: field.translated && currentLang,
+                    value: e.currentTarget.checked,
+                    onUpdate
+                  }
                 })
               }
             />
@@ -284,7 +323,7 @@ const Form: FC<FormProps> = ({ axios, mediaPath, overrideFields, formData, field
             {overrideFields?.[field.overrideKey]?.({
               field,
               data,
-              label: printLabel(field, data[field.key]),
+              label: printLabel(field, currentValue),
               onChange: value => {
                 dispatch({
                   type: 'updateOverridableField',
@@ -296,15 +335,25 @@ const Form: FC<FormProps> = ({ axios, mediaPath, overrideFields, formData, field
         )
       default:
         return (
-          <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
+          <FieldWrapper key={field.key} label={printLabel(field, currentValue)}>
             {printMoreInfo(field.moreInfo)}
             <Text
               placeholder={lang(field.placeholder)}
+              field={field}
               onBlur={value => {
-                dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
+                dispatch({
+                  type: 'updateField',
+                  data: {
+                    field: field.key,
+                    type: field.type,
+                    lang: field.translated && currentLang,
+                    parent,
+                    value,
+                    onUpdate
+                  }
+                })
               }}
-              type={field.type}
-              value={data[field.key]}
+              value={currentValue}
             />
           </FieldWrapper>
         )

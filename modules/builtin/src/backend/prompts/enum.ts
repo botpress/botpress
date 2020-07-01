@@ -83,11 +83,6 @@ const config: PromptConfig = {
       label: 'module.builtin.entity'
     },
     {
-      type: 'text',
-      key: 'question',
-      label: 'module.builtin.question'
-    },
-    {
       type: 'checkbox',
       key: 'useDropdown',
       label: 'module.builtin.useDropdown'

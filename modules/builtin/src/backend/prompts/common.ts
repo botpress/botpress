@@ -1,7 +1,30 @@
 import { FormDefinition } from 'botpress/sdk'
 
 const common: FormDefinition = {
-  fields: [],
+  fields: [
+    {
+      type: 'text',
+      key: 'output',
+      label: 'module.builtin.setValueTo',
+      valueManipulation: {
+        regex: '[^a-z0-9-_.]',
+        modifier: 'gi',
+        replaceChar: '_'
+      }
+    },
+    {
+      type: 'text',
+      key: 'question',
+      translated: true,
+      label: 'message'
+    },
+    {
+      type: 'text',
+      key: 'confirm',
+      translated: true,
+      label: 'confirmation'
+    }
+  ],
   advancedSettings: [
     {
       type: 'number',
