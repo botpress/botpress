@@ -2,6 +2,7 @@ import { Button } from '@blueprintjs/core'
 import { NLUApi } from 'api'
 import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
+import { NluProgressEvent } from '../../../backend/typings'
 
 const TrainNow: FC<{ api: NLUApi; eventBus: any; autoTrain: boolean }> = ({ api, eventBus, autoTrain }) => {
   const [loading, setLoading] = useState(true)
@@ -21,7 +22,7 @@ const TrainNow: FC<{ api: NLUApi; eventBus: any; autoTrain: boolean }> = ({ api,
 
   useEffect(() => {
     eventBus.on('statusbar.event', event => {
-      if (event.type === 'nlu' && (event.message === 'Training complete' || event.message === 'Training not needed')) {
+      if (event.type === 'nlu' && (event as NluProgressEvent).trainSession.status === "done") {
         setTraining(false)
       }
     })
