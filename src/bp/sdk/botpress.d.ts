@@ -1455,6 +1455,14 @@ declare module 'botpress/sdk' {
     options?: FormOption[]
     defaultValue?: FormDataField
     required?: boolean
+    max?: number
+    min?: number
+    maxLength?: number
+    valueManipulation?: {
+      regex: string
+      modifier: string
+      replaceChar: string
+    }
     translated?: boolean
     dynamicOptions?: FormDynamicOptions
     fields?: FormField[]

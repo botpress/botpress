@@ -136,11 +136,7 @@ class Diagram extends Component<Props> {
     this.diagramEngine = new DiagramEngine()
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory(this.props.skills))
-    this.diagramEngine.registerNodeFactory(
-      new SaySomethingWidgetFactory({
-        ...commonProps
-      })
-    )
+    this.diagramEngine.registerNodeFactory(new SaySomethingWidgetFactory(commonProps))
     this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ListenWidgetFactory())
     this.diagramEngine.registerNodeFactory(new RouterWidgetFactory())
@@ -155,11 +151,7 @@ class Diagram extends Component<Props> {
     )
     this.diagramEngine.registerNodeFactory(new FailureWidgetFactory())
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
-    this.diagramEngine.registerNodeFactory(
-      new PromptWidgetFactory({
-        ...commonProps
-      })
-    )
+    this.diagramEngine.registerNodeFactory(new PromptWidgetFactory(commonProps))
 
     // This reference allows us to update flow nodes from widgets
     this.diagramEngine.flowBuilder = this

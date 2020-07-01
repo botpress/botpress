@@ -101,7 +101,7 @@ const PromptWidget: FC<Props> = ({
         error={error}
       />
       <button className={style.content} onClick={() => editNodeItem?.(node, 0)}>
-        Output: <b>{params.output}</b>
+        Output: <b>{params?.output}</b>
       </button>
       <div className={style.ports}>
         <StandardPortWidget name="in" node={node} className={style.in} />

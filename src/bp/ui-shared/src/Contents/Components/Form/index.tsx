@@ -265,6 +265,7 @@ const Form: FC<FormProps> = ({
           <FieldWrapper key={field.key} label={printLabel(field, currentValue)}>
             {printMoreInfo(field.moreInfo)}
             <TextArea
+              field={field}
               placeholder={lang(field.placeholder)}
               onBlur={value => {
                 dispatch({
@@ -338,13 +339,13 @@ const Form: FC<FormProps> = ({
             {printMoreInfo(field.moreInfo)}
             <Text
               placeholder={lang(field.placeholder)}
+              field={field}
               onBlur={value => {
                 dispatch({
                   type: 'updateField',
                   data: { field: field.key, lang: field.translated && currentLang, parent, value, onUpdate }
                 })
               }}
-              type={field.type}
               value={currentValue}
             />
           </FieldWrapper>
