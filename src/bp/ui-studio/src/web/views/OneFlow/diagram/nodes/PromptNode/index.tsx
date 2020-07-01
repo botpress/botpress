@@ -87,7 +87,7 @@ const PromptWidget: FC<Props> = ({
   const selectedContent = selectedNodeItem()
   const { next, name } = node || {}
   const { type, params } = node.prompt || {}
-  console.log(selectedContent?.node?.id)
+
   return (
     <NodeWrapper>
       <NodeHeader

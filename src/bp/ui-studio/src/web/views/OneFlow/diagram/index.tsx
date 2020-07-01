@@ -340,17 +340,17 @@ class Diagram extends Component<Props> {
         },
         next: [
           {
-            caption: 'User answers correctly',
+            caption: lang.tr('studio.prompt.userAnswersCorrectly'),
             condition: 'thisNode.extracted === true',
             node: ''
           },
           {
-            caption: 'User does not answer',
+            caption: lang.tr('studio.prompt.userDoesNotAnswer'),
             condition: 'thisNode.timeout === true',
             node: ''
           },
           {
-            caption: 'User Cancels',
+            caption: lang.tr('studio.prompt.userCancels'),
             condition: 'thisNode.cancelled === true',
             node: ''
           }

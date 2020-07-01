@@ -325,7 +325,10 @@
     },
     "prompt": {
       "label": "Type",
-      "pickType": "Pick a type"
+      "pickType": "Pick a type",
+      "userAnswersCorrectly": "User answers correctly",
+      "userCancels": "User Cancels",
+      "userDoesNotAnswer": "User does not answer"
     },
     "sideBar": {
       "config": "Config",
