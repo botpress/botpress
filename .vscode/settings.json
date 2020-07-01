@@ -63,7 +63,9 @@
     "src\\bp\\core\\repositories\\telemetry_payload.ts",
     "src\\bp\\core\\services\\stats-service.ts",
     "src\\bp\\core\\database\\helpers.ts",
-    "src\\typings\\knex.d.ts"
+    "src\\typings\\knex.d.ts",
+    "src\\bp\\ui-admin\\src\\telemetry\\client.ts",
+    "src\\bp\\ui-admin\\src\\telemetry\\middleware.ts"
   ],
   "sqltools.connections": [
     {

@@ -13,6 +13,7 @@ export class TelemetryPayloadTable extends Table {
       table.json('payload').notNullable()
       table.boolean('available').notNullable()
       table.timestamp('lastChanged').notNullable()
+      table.timestamp('creationDate').notNullable()
       created = true
     })
     return created

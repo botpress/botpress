@@ -146,7 +146,7 @@ export class AdminRouter extends CustomRouter {
       '/telemetry',
       this.checkTokenHeader,
       this.asyncMiddleware(async (req, res) => {
-        res.send(await this.telemetryPayloadRepository.getN(1000))
+        res.send(await this.telemetryPayloadRepository.getEntries(1000))
       })
     )
 
