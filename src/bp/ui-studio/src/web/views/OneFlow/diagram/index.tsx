@@ -63,7 +63,7 @@ import { RouterNodeModel, RouterWidgetFactory } from '~/views/FlowBuilder/diagra
 import { SuccessNodeModel, SuccessWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SuccessNode'
 import style from '~/views/FlowBuilder/diagram/style.scss'
 
-import { PromptWidgetFactory } from './nodes/PromptNode'
+import { PromptNodeModel, PromptWidgetFactory } from './nodes/PromptNode'
 import { SaySomethingNodeModel, SaySomethingWidgetFactory } from './nodes/SaySomethingNode'
 import { TriggerWidgetFactory } from './nodes/TriggerNode'
 import menuStyle from './style.scss'
@@ -340,17 +340,17 @@ class Diagram extends Component<Props> {
         },
         next: [
           {
-            caption: 'Value Extracted',
+            caption: 'User answers correctly',
             condition: 'thisNode.extracted === true',
             node: ''
           },
           {
-            caption: 'User did not answer',
+            caption: 'User does not answer',
             condition: 'thisNode.timeout === true',
             node: ''
           },
           {
-            caption: 'User Cancelled ',
+            caption: 'User Cancels',
             condition: 'thisNode.cancelled === true',
             node: ''
           }
@@ -532,6 +532,10 @@ class Diagram extends Component<Props> {
     if (selectedNode && selectedNode instanceof PointModel) {
       this.dragPortSource = selectedNode
       this.handleContextMenu(event as any)
+    }
+
+    if (target.model instanceof PromptNodeModel) {
+      this.editNodeItem(selectedNode, 0)
     }
 
     this.canTargetOpenInspector(target) ? this.props.openFlowNodeProps() : this.props.closeFlowNodeProps()

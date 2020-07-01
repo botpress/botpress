@@ -32,26 +32,6 @@
   width: 30px;
 }
 
-.ports {
-  .in {
-    position: absolute;
-    bottom: 20%;
-    left: 0;
-    transform: translate(-50%, 0);
-  }
-  .out {
-    position: absolute;
-    bottom: 20%;
-    right: 0;
-    transform: translate(50%, 0);
-  }
-  .outRouting {
-    position: absolute;
-    right: 0;
-    transform: translate(50%, 25%);
-  }
-}
-
 .nodeWrapper {
   background: #fff;
   width: 150px;
@@ -204,9 +184,11 @@
     transform: translate(50%, 0);
   }
   .outRouting {
+    background-color: var(--prompt) !important;
     position: absolute;
-    right: 0;
-    transform: translate(50%, 25%);
+    top: 50%;
+    right: calc(var(--spacing-small) * -1);
+    transform: translate(65%, -50%);
   }
 }
 
@@ -236,9 +218,9 @@
   border: none;
   color: var(--shark);
   font-size: 8px;
+  height: 40px;
   line-height: 1.25;
   margin: var(--spacing-medium) var(--spacing-medium) 0 0;
-  height: 40px;
   padding: 0;
   position: relative;
   width: 135px;
@@ -249,7 +231,7 @@
   }
 
   &:hover, &.active {
-    .content {
+    .content:not(.promptPortContent) {
       border: solid 1px var(--ocean);
     }
   }
@@ -258,8 +240,8 @@
 .content {
   align-items: center;
   background: #fff;
-  border: 1px solid var(--gray);
   border-radius: 5px;
+  border: 1px solid var(--gray);
   display: flex;
   flex-wrap: wrap;
   height: 100%;
@@ -267,4 +249,8 @@
   transition: background 0.3s, border 0.3s;
   width: 100%;
   word-break: break-all;
+
+  &.promptPortContent {
+    position: relative;
+  }
 }

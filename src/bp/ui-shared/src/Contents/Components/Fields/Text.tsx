@@ -35,11 +35,11 @@ const Text: FC<TextProps> = ({
       value = value.replace(re, replaceChar)
     }
 
-    if (max && Number(value) > max) {
+    if (max !== undefined && Number(value) > max) {
       value = `${max}`
     }
 
-    if (min && Number(value) < min) {
+    if (min !== undefined && Number(value) < min) {
       value = `${min}`
     }
 
