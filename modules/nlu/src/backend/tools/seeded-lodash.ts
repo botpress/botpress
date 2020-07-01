@@ -7,7 +7,7 @@ export const getSeededLodash = (randomSeed?: number | string) => {
     return lo
   }
 
-  let seed = _.isString(randomSeed) ? parseInt(randomSeed) : randomSeed
+  const seed = _.isString(randomSeed) ? parseInt(randomSeed) : randomSeed
   if (seed) {
     seedrandom(`${seed}`, { global: true })
     lo = _.runInContext()
