@@ -100,23 +100,17 @@ const PromptWidget: FC<Props> = ({
         name={name}
         error={error}
       />
-      <div className={style.contentsWrapper}>
-        <div
-          className={cx(style.contentWrapper, {
-            [style.active]: selectedContent?.node?.id === node.id
-          })}
-        >
-          <span className={style.content}>{params?.question?.[currentLang]}</span>
-        </div>
+      <button className={style.content} onClick={() => editNodeItem?.(node, 0)}>
+        Output: <b>{params?.output}</b>
+      </button>
+      <div className={style.ports}>
         <StandardPortWidget name="in" node={node} className={style.in} />
         {next?.map((item, i) => {
           const outputPortName = `out${i}`
           return (
-            <div key={`${i}.${item}`} className={style.contentWrapper}>
-              <div className={cx(style.content, style.promptPortContent)}>
-                {item.caption}
-                <StandardPortWidget name={outputPortName} node={node} className={style.outRouting} />
-              </div>
+            <div key={`${i}.${item}`} style={{ display: 'flex', justifyContent: 'space-between', padding: 1 }}>
+              {item.caption}
+              <StandardPortWidget name={outputPortName} node={node} className={style.outRouting} />
             </div>
           )
         })}

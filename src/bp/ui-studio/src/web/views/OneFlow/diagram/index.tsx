@@ -63,7 +63,7 @@ import { RouterNodeModel, RouterWidgetFactory } from '~/views/FlowBuilder/diagra
 import { SuccessNodeModel, SuccessWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SuccessNode'
 import style from '~/views/FlowBuilder/diagram/style.scss'
 
-import { PromptNodeModel, PromptWidgetFactory } from './nodes/PromptNode'
+import { PromptWidgetFactory } from './nodes/PromptNode'
 import { SaySomethingNodeModel, SaySomethingWidgetFactory } from './nodes/SaySomethingNode'
 import { TriggerWidgetFactory } from './nodes/TriggerNode'
 import menuStyle from './style.scss'
@@ -946,7 +946,7 @@ class Diagram extends Component<Props> {
           {formType === 'prompt' && (
             <PromptForm
               prompts={this.props.prompts}
-              customKey={`${this.state.editingNodeItem?.node?.id}${this.state.editingNodeItem?.node?.prompt?.type}`}
+              customKey={`${this.state.editingNodeItem.node.name}${this.state.editingNodeItem?.node?.prompt?.type}`}
               formData={this.props.currentFlowNode?.prompt}
               onUpdate={this.updatePromptNode.bind(this)}
               deletePrompt={this.deleteSelectedElements.bind(this)}
