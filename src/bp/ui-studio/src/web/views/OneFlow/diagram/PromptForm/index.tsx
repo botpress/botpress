@@ -24,6 +24,11 @@ const PromptForm: FC<Props> = ({ customKey, prompts, contentLang, close, formDat
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
 
+  useEffect(() => {
+    promptType.current = formData?.type
+    setForceUpdate(!forceUpdate)
+  }, [customKey])
+
   const moreOptionsItems: MoreOptionsItems[] = [
     {
       label: lang.tr('deletePrompt'),
@@ -45,7 +50,7 @@ const PromptForm: FC<Props> = ({ customKey, prompts, contentLang, close, formDat
   const selectedOption = options.find(x => x.value === promptType.current)
 
   return (
-    <RightSidebar className={style.wrapper} canOutsideClickClose={!isConfirming} close={() => close()}>
+    <RightSidebar className={style.wrapper} canOutsideClickClose={!isConfirming} close={close}>
       <Fragment key={`${promptType.current}-${customKey}`}>
         <div className={style.formHeader}>
           <Tabs id="contentFormTabs">

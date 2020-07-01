@@ -1436,18 +1436,20 @@ declare module 'botpress/sdk' {
     labelField: string
   }
 
+  export type FormFieldType =
+    | 'checkbox'
+    | 'group'
+    | 'number'
+    | 'overridable'
+    | 'select'
+    | 'text'
+    | 'text_array'
+    | 'textarea'
+    | 'upload'
+    | 'url'
+
   export interface FormField {
-    type:
-      | 'checkbox'
-      | 'group'
-      | 'number'
-      | 'overridable'
-      | 'select'
-      | 'text'
-      | 'text_array'
-      | 'textarea'
-      | 'upload'
-      | 'url'
+    type: FormFieldType
     key: string
     label: string
     overrideKey?: string
@@ -1455,6 +1457,14 @@ declare module 'botpress/sdk' {
     options?: FormOption[]
     defaultValue?: FormDataField
     required?: boolean
+    max?: number
+    min?: number
+    maxLength?: number
+    valueManipulation?: {
+      regex: string
+      modifier: string
+      replaceChar: string
+    }
     translated?: boolean
     dynamicOptions?: FormDynamicOptions
     fields?: FormField[]

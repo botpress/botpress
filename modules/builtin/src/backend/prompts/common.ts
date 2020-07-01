@@ -5,7 +5,12 @@ const common: FormDefinition = {
     {
       type: 'text',
       key: 'output',
-      label: 'module.builtin.setValueTo'
+      label: 'module.builtin.setValueTo',
+      valueManipulation: {
+        regex: '[^a-z0-9-_.]',
+        modifier: 'gi',
+        replaceChar: '_'
+      }
     },
     {
       type: 'text',

@@ -88,8 +88,12 @@ const formReducer = (state, action) => {
     onUpdate?.(newState)
     return newState
   } else if (action.type === 'updateField') {
-    const { field, parent, onUpdate, lang } = action.data
+    const { field, type, parent, onUpdate, lang } = action.data
     let { value } = action.data
+
+    if (type === 'number') {
+      value = Number(value)
+    }
 
     if (lang) {
       value = { ...state[field], [lang]: value }
@@ -265,6 +269,7 @@ const Form: FC<FormProps> = ({
           <FieldWrapper key={field.key} label={printLabel(field, currentValue)}>
             {printMoreInfo(field.moreInfo)}
             <TextArea
+              field={field}
               placeholder={lang(field.placeholder)}
               onBlur={value => {
                 dispatch({
@@ -338,13 +343,20 @@ const Form: FC<FormProps> = ({
             {printMoreInfo(field.moreInfo)}
             <Text
               placeholder={lang(field.placeholder)}
+              field={field}
               onBlur={value => {
                 dispatch({
                   type: 'updateField',
-                  data: { field: field.key, lang: field.translated && currentLang, parent, value, onUpdate }
+                  data: {
+                    field: field.key,
+                    type: field.type,
+                    lang: field.translated && currentLang,
+                    parent,
+                    value,
+                    onUpdate
+                  }
                 })
               }}
-              type={field.type}
               value={currentValue}
             />
           </FieldWrapper>
