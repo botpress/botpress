@@ -8,7 +8,7 @@ class PromptDate implements Prompt {
   private _mustBePast: boolean
   private _mustBeFuture: boolean
 
-  constructor({ mustBePast, mustBeFuture }) {
+  constructor({ mustBePast = false, mustBeFuture = false } = {}) {
     this._mustBePast = mustBePast
     this._mustBeFuture = mustBeFuture
   }

@@ -11,7 +11,7 @@ import common from './common'
 class PromptConfirm implements Prompt {
   private _question: { [lang: string]: string }
 
-  constructor({ question }) {
+  constructor({ question = {} } = {}) {
     this._question = question
   }
 
