@@ -11,10 +11,18 @@ const TextArea: FC<FieldProps> = ({ onBlur, onChange, placeholder, value }) => {
     setLocalValue(value || '')
   }, [value])
 
+  const onKeyDown = e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+      e.preventDefault()
+      e.target.select()
+    }
+  }
+
   return (
     <Textarea
       className={style.textarea}
       placeholder={placeholder}
+      onKeyDown={onKeyDown}
       onChange={value => {
         onChange?.(value)
         setLocalValue(value)

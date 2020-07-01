@@ -24,6 +24,11 @@ const PromptForm: FC<Props> = ({ customKey, prompts, contentLang, close, formDat
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
 
+  useEffect(() => {
+    promptType.current = formData?.type
+    setForceUpdate(!forceUpdate)
+  }, [customKey])
+
   const moreOptionsItems: MoreOptionsItems[] = [
     {
       label: lang.tr('deletePrompt'),
