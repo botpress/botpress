@@ -37,10 +37,11 @@ class PromptConfirm implements Prompt {
   }
 
   customPrompt = async (event: IO.OutgoingEvent, incomingEvent: IO.IncomingEvent, bp: typeof sdk) => {
+    // TODO move translations to ui-shared once they are available for backend
     const element = createMultiLangObject(this._question, 'text', {
       choices: [
-        { title: 'Yes', value: 'yes' },
-        { title: 'No', value: 'no' }
+        { title: lang.tr('module.builtin.yes'), value: 'yes' },
+        { title: lang.tr('module.builtin.no'), value: 'no' }
       ]
     })
 
@@ -62,8 +63,8 @@ const config: PromptConfig = {
   valueType: 'boolean',
   minConfidence: 0.3,
   noValidation: true,
-  fields: [...common.fields],
-  advancedSettings: [...common.advancedSettings]
+  fields: common.fields,
+  advancedSettings: common.advancedSettings
 }
 
 export default { id: 'confirm', config, prompt: PromptConfirm }

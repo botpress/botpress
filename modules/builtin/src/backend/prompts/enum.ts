@@ -94,7 +94,7 @@ const config: PromptConfig = {
       label: 'module.builtin.useDropdown'
     }
   ],
-  advancedSettings: [...common.advancedSettings]
+  advancedSettings: common.advancedSettings
 }
 
 export default { id: 'enum', config, prompt: PromptEnum }

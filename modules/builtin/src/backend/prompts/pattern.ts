@@ -44,16 +44,18 @@ const config: PromptConfig = {
     {
       type: 'text',
       key: 'regexPattern',
+      placeholder: 'module.builtin.regexPatternPlaceholder',
       label: 'module.builtin.regexPattern'
       // TODO add combo box to select from predefined patterns or custom
     },
     {
       type: 'text',
       key: 'formatInvalidMessage',
+      placeholder: 'module.builtin.formatInvalidMessagePlaceholder',
       label: 'module.builtin.formatInvalidMessage'
     }
   ],
-  advancedSettings: [...common.advancedSettings]
+  advancedSettings: common.advancedSettings
 }
 
 export default { id: 'pattern', config, prompt: PromptPattern }

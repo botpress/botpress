@@ -61,7 +61,7 @@ const config: PromptConfig = {
       label: 'module.builtin.mustBeFuture'
     }
   ],
-  advancedSettings: [...common.advancedSettings]
+  advancedSettings: common.advancedSettings
 }
 
 export default { id: 'date', config, prompt: PromptDate }

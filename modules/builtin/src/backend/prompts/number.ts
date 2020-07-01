@@ -46,17 +46,17 @@ const config: PromptConfig = {
   fields: [
     ...common.fields,
     {
-      type: 'text',
+      type: 'number',
       key: 'min',
       label: 'module.builtin.min'
     },
     {
-      type: 'text',
+      type: 'number',
       key: 'max',
       label: 'module.builtin.max'
     }
   ],
-  advancedSettings: [...common.advancedSettings]
+  advancedSettings: common.advancedSettings
 }
 
 export default { id: 'number', config, prompt: PromptNumber }

@@ -6,6 +6,7 @@ const common: FormDefinition = {
       type: 'text',
       key: 'output',
       label: 'module.builtin.setValueTo',
+      placeholder: 'module.builtin.setValueToPlaceholder',
       valueManipulation: {
         regex: '[^a-z0-9-_.]',
         modifier: 'gi',
@@ -16,36 +17,41 @@ const common: FormDefinition = {
       type: 'text',
       key: 'question',
       translated: true,
+      maxLength: 150,
+      placeholder: 'module.builtin.messagePlaceholder',
       label: 'message'
-    },
-    {
-      type: 'text',
-      key: 'confirm',
-      translated: true,
-      label: 'confirmation'
     }
   ],
   advancedSettings: [
     {
+      type: 'text',
+      key: 'confirm',
+      translated: true,
+      maxLength: 150,
+      placeholder: 'module.builtin.customConfirmPlaceholder',
+      label: 'module.builtin.customConfirm'
+    },
+    {
       type: 'number',
       key: 'duration',
       defaultValue: 5,
-      moreInfo: {
-        label: 'The number of turns (exchange between bot and user) before the prompt is cancelled automatically'
-      },
+      min: 0,
+      moreInfo: { label: 'module.builtin.durationMoreInfo' },
       label: 'module.builtin.duration'
     },
     {
       type: 'number',
       key: 'searchBackCount',
       defaultValue: 0,
-      moreInfo: { label: 'The number of previous events to analyze to try extracting the information' },
+      min: 0,
+      max: 10,
+      moreInfo: { label: 'module.builtin.searchBackCountMoreInfo' },
       label: 'module.builtin.searchBackCount'
     },
     {
       type: 'checkbox',
       key: 'confirmBeforeCancel',
-      moreInfo: { label: 'Ask a confirmation to the user before cancelling or moving to another flow' },
+      moreInfo: { label: 'module.builtin.confirmBeforeCancelMoreInfo' },
       label: 'module.builtin.confirmBeforeCancel'
     }
   ]
