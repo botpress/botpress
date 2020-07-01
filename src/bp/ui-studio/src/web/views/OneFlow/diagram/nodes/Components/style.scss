@@ -226,6 +226,10 @@
   width: 135px;
   z-index: 1;
 
+  &:first-of-type {
+    margin-top: 0;
+  }
+
   &.hasJoinLabel {
     margin-top: 0;
   }

@@ -534,10 +534,6 @@ class Diagram extends Component<Props> {
       this.handleContextMenu(event as any)
     }
 
-    if (target.model instanceof PromptNodeModel) {
-      this.editNodeItem(selectedNode, 0)
-    }
-
     this.canTargetOpenInspector(target) ? this.props.openFlowNodeProps() : this.props.closeFlowNodeProps()
 
     if (!selectedNode) {
@@ -554,6 +550,10 @@ class Diagram extends Component<Props> {
     }
 
     this.checkForLinksUpdate()
+
+    if (target?.model instanceof PromptNodeModel) {
+      this.editNodeItem(selectedNode, 0)
+    }
   }
 
   checkForLinksUpdate = _.debounce(
@@ -946,7 +946,7 @@ class Diagram extends Component<Props> {
           {formType === 'prompt' && (
             <PromptForm
               prompts={this.props.prompts}
-              customKey={`${this.state.editingNodeItem.node.name}${this.state.editingNodeItem?.node?.prompt?.type}`}
+              customKey={`${this.state.editingNodeItem?.node?.id}${this.state.editingNodeItem?.node?.prompt?.type}`}
               formData={this.props.currentFlowNode?.prompt}
               onUpdate={this.updatePromptNode.bind(this)}
               deletePrompt={this.deleteSelectedElements.bind(this)}

@@ -19,7 +19,7 @@ export const getFieldDefaultValue = (field: Partial<FormField>) => {
 
       return [createEmptyDataFromSchema(field.fields)]
     case 'number':
-      return 0
+      return
     case 'select':
       return null
     case 'text_array':
