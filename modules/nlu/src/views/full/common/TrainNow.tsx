@@ -1,6 +1,5 @@
 import { Button } from '@blueprintjs/core'
 import { NLUApi } from 'api'
-import { props } from 'bluebird'
 import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
 
@@ -29,23 +28,27 @@ const TrainNow: FC<{ api: NLUApi; eventBus: any; autoTrain: boolean }> = ({ api,
 
   }, [])
 
-  const onClick = async () => {
-    if (training) {
-      await api.cancelTraining()
-      setTraining(false)
-    } else {
-      setTraining(true)
-      await api.train()
-    }
+  const trainNow = async () => {
+    setTraining(true)
+    await api.train()
   }
 
-  const renderTrain = () => {
-    return autoTrain ? lang.tr('module.nlu.retrainAll') : lang.tr('module.nlu.trainNow')
+  const cancelTraining = async () => {
+    await api.cancelTraining()
+    setTraining(false)
+  }
+
+  if (training) {
+    return (
+      <Button loading={loading} onClick={cancelTraining}>
+        {lang.tr('module.nlu.cancelTraining')}
+      </Button>
+    )
   }
 
   return (
-    <Button loading={loading} onClick={onClick}>
-      {training ? lang.tr('module.nlu.cancelTraining') : renderTrain()}
+    <Button loading={loading} onClick={trainNow}>
+      {lang.tr(autoTrain ? 'module.nlu.retrainAll' : 'module.nlu.trainNow')}
     </Button>
   )
 }
