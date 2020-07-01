@@ -4,7 +4,7 @@ export const createEmptyDataFromSchema = (fields: FormField[]): FormData => {
   return fields.reduce((acc, field) => ({ ...acc, [field.key]: getFieldDefaultValue(field) }), {})
 }
 
-export const getFieldDefaultValue = (field: FormField) => {
+export const getFieldDefaultValue = (field: Partial<FormField>) => {
   if (field.defaultValue) {
     return field.defaultValue
   }

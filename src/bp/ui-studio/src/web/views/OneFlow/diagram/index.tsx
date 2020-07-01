@@ -11,7 +11,7 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
-import { lang, MainContent } from 'botpress/shared'
+import { Icons, lang, MainContent } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
@@ -129,7 +129,8 @@ class Diagram extends Component<Props> {
       deleteSelectedElements: this.deleteSelectedElements.bind(this),
       getCurrentFlow: () => this.getPropsProperty('currentFlow'),
       updateFlowNode: this.updateNodeAndRefresh.bind(this),
-      switchFlowNode: this.switchFlowNode.bind(this)
+      switchFlowNode: this.switchFlowNode.bind(this),
+      getCurrentLang: () => this.getStateProperty('currentLang')
     }
 
     this.diagramEngine = new DiagramEngine()
@@ -137,8 +138,7 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory(this.props.skills))
     this.diagramEngine.registerNodeFactory(
       new SaySomethingWidgetFactory({
-        ...commonProps,
-        getCurrentLang: () => this.getStateProperty('currentLang')
+        ...commonProps
       })
     )
     this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
@@ -157,8 +157,7 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
     this.diagramEngine.registerNodeFactory(
       new PromptWidgetFactory({
-        ...commonProps,
-        getCurrentLang: () => this.getStateProperty('currentLang')
+        ...commonProps
       })
     )
 
@@ -217,9 +216,7 @@ class Diagram extends Component<Props> {
     if (
       !prevState.editingNodeItem &&
       this.props.currentFlowNode?.isNew &&
-      (this.props.currentFlowNode?.type === 'say_something' ||
-        this.props.currentFlowNode?.type === 'trigger' ||
-        this.props.currentFlowNode?.type === 'prompt')
+      ['say_something', 'trigger', 'prompt'].includes(this.props.currentFlowNode?.type)
     ) {
       this.editNodeItem(this.props.currentFlowNode, 0)
     }
@@ -337,15 +334,16 @@ class Diagram extends Component<Props> {
     actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action' }),
 
     promptNode: (point: Point, promptType: string) => {
-      console.log('add', promptType)
       this.props.createFlowNode({
         ...point,
         type: 'prompt',
         isNew: true,
         prompt: {
           type: promptType,
-          output: '',
-          question: {}
+          params: {
+            output: '',
+            question: {}
+          }
         },
         next: [
           {
@@ -387,22 +385,21 @@ class Diagram extends Component<Props> {
         )}
         <MenuDivider title={lang.tr('studio.flow.addNode')} />
         {!originatesFromOutPort && (
-          <MenuItem
-            text={lang.tr('studio.flow.nodeType.trigger')}
-            onClick={wrap(this.add.triggerNode, point)}
-            icon="send-to-graph"
-          />
+          <MenuItem text={lang.tr('trigger')} onClick={wrap(this.add.triggerNode, point)} icon="send-to-graph" />
         )}
-        <MenuItem
-          text={lang.tr('studio.flow.nodeType.sendMessage')}
-          onClick={wrap(this.add.say, point)}
-          icon="comment"
-        />
-        <MenuItem
-          text={lang.tr('studio.flow.nodeType.executeAction')}
-          onClick={wrap(this.add.executeNode, point)}
-          icon="code-block"
-        />
+        <MenuItem text={lang.tr('say')} onClick={wrap(this.add.say, point)} icon={<Icons.Say />} />
+        <MenuItem tagName="button" text={lang.tr('prompt')} icon="citation">
+          {this.props.prompts.map(({ id, config }) => (
+            <MenuItem
+              key={id}
+              text={lang.tr(config.label)}
+              tagName="button"
+              onClick={wrap(this.add.promptNode, point, id)}
+              icon={config.icon as any}
+            />
+          ))}
+        </MenuItem>
+        <MenuItem text={lang.tr('execute')} onClick={wrap(this.add.executeNode, point)} icon="code" />
         <MenuItem text={lang.tr('listen')} onClick={wrap(this.add.listenNode, point)} icon="hand" />
         <MenuItem text={lang.tr('split')} onClick={wrap(this.add.routerNode, point)} icon="flow-branch" />
         <MenuItem text={lang.tr('action')} onClick={wrap(this.add.actionNode, point)} icon="offline" />
@@ -415,17 +412,6 @@ class Diagram extends Component<Props> {
               tagName="button"
               onClick={wrap(this.add.skillNode, point, skill.id)}
               icon={skill.icon}
-            />
-          ))}
-        </MenuItem>
-        <MenuItem tagName="button" text={lang.tr('prompt')} icon="take-action">
-          {this.props.prompts.map(({ id, config }) => (
-            <MenuItem
-              key={id}
-              text={lang.tr(config.label)}
-              tagName="button"
-              onClick={wrap(this.add.promptNode, point, id)}
-              icon={config.icon as any}
             />
           ))}
         </MenuItem>

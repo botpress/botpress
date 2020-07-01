@@ -86,7 +86,7 @@ const PromptWidget: FC<Props> = ({
   const currentLang = getCurrentLang()
   const selectedContent = selectedNodeItem()
   const { next, name } = node || {}
-  const { type, output } = node.prompt || {}
+  const { type, params } = node.prompt || {}
 
   return (
     <NodeWrapper>
@@ -101,7 +101,7 @@ const PromptWidget: FC<Props> = ({
         error={error}
       />
       <button className={style.content} onClick={() => editNodeItem?.(node, 0)}>
-        Output: <b>{output}</b>
+        Output: <b>{params.output}</b>
       </button>
       <div className={style.ports}>
         <StandardPortWidget name="in" node={node} className={style.in} />

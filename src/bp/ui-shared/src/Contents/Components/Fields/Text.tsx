@@ -5,15 +5,13 @@ import { getFieldDefaultValue } from '../../utils/fields'
 import style from '../style.scss'
 import { FieldProps } from '../typings'
 
-interface TextProps extends FieldProps {
-  type: FormFieldType
-}
+type TextProps = FieldProps & { type: FormFieldType }
 
 const Text: FC<TextProps> = ({ onBlur, onChange, placeholder, type, value }) => {
-  const [localValue, setLocalValue] = useState(value || getFieldDefaultValue({ type } as FormField))
+  const [localValue, setLocalValue] = useState(value || getFieldDefaultValue({ type }))
 
   useEffect(() => {
-    setLocalValue(value || getFieldDefaultValue({ type } as FormField))
+    setLocalValue(value || getFieldDefaultValue({ type }))
   }, [value])
 
   const onKeyDown = e => {
