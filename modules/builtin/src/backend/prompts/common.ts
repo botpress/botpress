@@ -7,7 +7,7 @@ const common: FormDefinition = {
       key: 'output',
       label: 'module.builtin.setValueTo',
       valueManipulation: {
-        regex: '[^a-z0-9-_\.]',
+        regex: '[^a-z0-9-_.]',
         modifier: 'gi',
         replaceChar: '_'
       }
