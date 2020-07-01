@@ -91,7 +91,7 @@ const PromptWidget: FC<Props> = ({
   return (
     <NodeWrapper>
       <NodeHeader
-        type={type}
+        type={node.type}
         className={style.prompt}
         handleContextMenu={handleContextMenu}
         isEditing={isEditing}

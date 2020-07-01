@@ -93,7 +93,6 @@ const formReducer = (state, action) => {
 
     if (type === 'number') {
       value = Number(value)
-      console.log(value)
     }
 
     if (lang) {

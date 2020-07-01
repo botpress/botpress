@@ -27,24 +27,34 @@ const Text: FC<TextProps> = ({
     }
   }
 
+  const reformatValue = value => {
+    if (valueManipulation) {
+      const { regex, modifier, replaceChar } = valueManipulation
+      const re = new RegExp(regex, modifier)
+
+      value = value.replace(re, replaceChar)
+    }
+
+    if (max && Number(value) > max) {
+      value = `${max}`
+    }
+
+    if (min && Number(value) < min) {
+      value = `${min}`
+    }
+
+    return value
+  }
+
   return (
     <input
       className={style.input}
       type={type}
-      max={max}
-      min={min}
       maxLength={maxLength}
       placeholder={placeholder}
       onKeyDown={onKeyDown}
       onChange={e => {
-        let value = e.target.value
-
-        if (valueManipulation) {
-          const { regex, modifier, replaceChar } = valueManipulation
-          const re = new RegExp(regex, modifier)
-
-          value = value.replace(re, replaceChar)
-        }
+        const value = reformatValue(e.target.value)
 
         onChange?.(value)
         setLocalValue(value)

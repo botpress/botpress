@@ -66,6 +66,7 @@ import style from '~/views/FlowBuilder/diagram/style.scss'
 import { PromptWidgetFactory } from './nodes/PromptNode'
 import { SaySomethingNodeModel, SaySomethingWidgetFactory } from './nodes/SaySomethingNode'
 import { TriggerWidgetFactory } from './nodes/TriggerNode'
+import menuStyle from './style.scss'
 import ConditionForm from './ConditionForm'
 import ContentForm from './ContentForm'
 import PromptForm from './PromptForm'
@@ -379,7 +380,12 @@ class Diagram extends Component<Props> {
         {!originatesFromOutPort && (
           <MenuItem text={lang.tr('trigger')} onClick={wrap(this.add.triggerNode, point)} icon="send-to-graph" />
         )}
-        <MenuItem text={lang.tr('say')} onClick={wrap(this.add.say, point)} icon={<Icons.Say />} />
+        <MenuItem
+          className={menuStyle.sayNodeContextMenu}
+          text={lang.tr('say')}
+          onClick={wrap(this.add.say, point)}
+          icon={<Icons.Say />}
+        />
         <MenuItem tagName="button" text={lang.tr('prompt')} icon="citation">
           {this.props.prompts.map(({ id, config }) => (
             <MenuItem
