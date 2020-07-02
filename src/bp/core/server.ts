@@ -26,7 +26,7 @@ import { ExternalAuthConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
 import { ModuleLoader } from './module-loader'
 import { LogsRepository } from './repositories/logs'
-import { TelemetryPayloadRepository } from './repositories/telemetry_payload'
+import { TelemetryRepo } from './repositories/telemetry_payload'
 import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
@@ -129,7 +129,7 @@ export default class HTTPServer {
     @inject(TYPES.AlertingService) private alertingService: AlertingService,
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.LogsRepository) private logsRepo: LogsRepository,
-    @inject(TYPES.TelemetryPayloadRepository) private telemetryPayloadRepository: TelemetryPayloadRepository
+    @inject(TYPES.TelemetryRepo) private telemetryRepo: TelemetryRepo
   ) {
     this.app = express()
 
@@ -171,7 +171,7 @@ export default class HTTPServer {
       moduleLoader,
       this.jobService,
       this.logsRepo,
-      this.telemetryPayloadRepository
+      this.telemetryRepo
     )
     this.shortLinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({
