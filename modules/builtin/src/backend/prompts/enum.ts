@@ -18,17 +18,15 @@ class PromptEnum implements Prompt {
     this._useDropdown = useDropdown
   }
 
-  extraction(event: IO.IncomingEvent): ExtractionResult | undefined {
-    const entity = event.nlu?.entities?.find(x => x.type === `custom.list.${this._entity}`)
-    if (entity) {
-      return {
-        value: entity.data.value,
-        confidence: entity.meta.confidence
-      }
-    }
+  extraction(event: IO.IncomingEvent): ExtractionResult[] {
+    const entities = event.nlu?.entities?.filter(x => x.type === `custom.list.${this._entity}`) ?? []
+    return entities.map(entity => ({
+      value: entity.data.value,
+      confidence: entity.meta.confidence
+    }))
   }
 
-  async validate(value): Promise<ValidationResult> {
+  validate(value): ValidationResult {
     if (value == undefined) {
       return { valid: false, message: lang.tr('module.builtin.prompt.invalid') }
     }

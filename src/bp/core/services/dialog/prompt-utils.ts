@@ -24,7 +24,7 @@ export const getConfirmPromptNode = (node: PromptNode, value: any): PromptNode =
 }
 
 export const isPromptEvent = (event: IO.IncomingEvent): boolean => {
-  return !!(event.prompt || event.state?.session?.prompt || (event.type === 'prompt' && event.direction === 'incoming'))
+  return !!event.state.context.activePromptStatus || (event.type === 'prompt' && event.direction === 'incoming')
 }
 
 export const shouldCancelPrompt = (event: IO.IncomingEvent): boolean => {

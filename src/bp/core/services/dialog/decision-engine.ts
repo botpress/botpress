@@ -82,7 +82,8 @@ export class DecisionEngine {
     }
 
     const hasContinue = event.ndu.actions.find(x => x.action === 'continue')
-    if (!event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE) && hasContinue) {
+    const hasPrompt = event.ndu.actions.find(x => x.action.startsWith('prompt.'))
+    if (!event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE) && (hasContinue || hasPrompt)) {
       const processedEvent = await this.dialogEngine.processEvent(sessionId, event)
 
       // In case there are no unknown errors, remove skills/ flow from the stacktrace

@@ -229,18 +229,17 @@ export const dialogConditions: sdk.Condition[] = [
     }
   },
   {
-    id: 'is_inside_prompt',
-    label: 'The user is currently in a prompt',
+    id: 'prompt_listening',
+    label: 'A prompt is currently active and listening for user input',
     evaluate: (event: sdk.IO.IncomingEvent, _params) => {
-      const isPrompt = !!(
-        event.prompt ||
-        event.state?.session?.prompt ||
-        (event.type === 'prompt' && event.direction === 'incoming')
-      )
-
-      const turns = event.state.session.prompt?.status?.turns ?? 0
-      // Yes, absolutely magic numbers (will move to const once I know more about them)
-      return isPrompt ? 0.8 - turns * 0.1 : 0
+      return event.state.context.activePromptStatus?.status === 'pending' ? 1 : 0
+    }
+  },
+  {
+    id: 'prompt_cancellable',
+    label: 'A prompt is currently active and is cancellable',
+    evaluate: (event: sdk.IO.IncomingEvent, _params) => {
+      return event.state.context.activePromptStatus?.configuration?.cancellable ? 1 : 0
     }
   }
 ]

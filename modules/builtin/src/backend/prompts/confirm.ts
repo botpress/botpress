@@ -15,10 +15,10 @@ class PromptConfirm implements Prompt {
     this._question = question
   }
 
-  extraction(event: IO.IncomingEvent) {
+  extraction(event: IO.IncomingEvent): sdk.ExtractionResult[] {
     const yesOrNo = yn(event.payload?.payload || event.preview)
     if (yesOrNo !== undefined) {
-      return { value: yesOrNo, confidence: 1 }
+      return [{ value: yesOrNo, confidence: 1 }]
     }
 
     const topConfirmation = _.chain(event.ndu.triggers)
@@ -29,10 +29,10 @@ class PromptConfirm implements Prompt {
       .first()
       .value()
 
-    return { value: topConfirmation?.name === 'prompt_yes', confidence: topConfirmation?.confidence ?? 0 }
+    return [{ value: topConfirmation?.name === 'prompt_yes', confidence: topConfirmation?.confidence ?? 0 }]
   }
 
-  async validate(value) {
+  validate(value): sdk.ValidationResult {
     return { valid: value === true || value === false, message: lang.tr('module.builtin.prompt.invalid') }
   }
 

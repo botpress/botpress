@@ -1,6 +1,7 @@
 import { IO } from 'botpress/sdk'
 import { FlowView } from 'common/typings'
 import { createForGlobalHooks } from 'core/api'
+import { EventRepository } from 'core/repositories'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
@@ -29,6 +30,7 @@ export class DialogEngine {
   constructor(
     @inject(TYPES.FlowService) private flowService: FlowService,
     @inject(TYPES.HookService) private hookService: HookService,
+    @inject(TYPES.EventRepository) private eventRepository: EventRepository,
     @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
     @inject(TYPES.PromptManager) private promptManager: PromptManager
   ) {
@@ -39,11 +41,6 @@ export class DialogEngine {
   public async processEvent(sessionId: string, event: IO.IncomingEvent): Promise<IO.IncomingEvent> {
     const botId = event.botId
     await this._loadFlows(botId)
-
-    if (isPromptEvent(event)) {
-      await this.promptManager.processPrompt(event)
-      return event
-    }
 
     const context = _.isEmpty(event.state.context) ? this.initializeContext(event) : event.state.context
     const currentFlow = this._findFlow(botId, context.currentFlow)
@@ -58,7 +55,7 @@ export class DialogEngine {
       if (currentWorkflow !== workflowName || !event.state.session.workflows?.[workflowName]) {
         this.changeWorkflow(event, workflowName)
         event.state.session.currentWorkflow = workflowName
-      }
+      } // TODO: this is weird, check
 
       const workflowEnded = currentNode.type === 'success' || currentNode.type === 'failure'
       if (workflowEnded && workflow) {
@@ -66,10 +63,73 @@ export class DialogEngine {
         workflow.status = 'completed'
       }
 
-      if (currentNode.type === 'prompt' && !this.promptManager.hasCurrentNodeBeenProcessed(event)) {
-        event.prompt = currentNode.prompt
-        return this.processEvent(sessionId, event)
+      if (currentNode.type === 'prompt' && !event.state.context.activePromptStatus) {
+        event.state.context.activePromptStatus = {
+          stage: 'new',
+          status: 'pending',
+          state: {},
+          turn: 0,
+          configuration: {
+            cancellable: true,
+            confirmCancellation: !!currentNode.prompt?.params?.confirm ?? false,
+            outputVariableName: currentNode.prompt?.params?.output ?? '',
+            promptConfirm: 'confirm?',
+            promptQuestion: 'question?', // TODO:
+            promptType: currentNode.prompt!.type,
+            promptParams: currentNode.prompt!.params
+          }
+        }
       }
+
+      if (event.state.context.activePromptStatus?.status === 'pending') {
+        if (event.state.context.activePromptStatus?.stage !== 'new') {
+          event.state.context.activePromptStatus.turn++
+        }
+
+        const previousEvents = await this.eventRepository
+          .findEvents(
+            { direction: 'incoming', target: event.target },
+            { count: 6, sortOrder: [{ column: 'createdOn', desc: true }] } // TODO: replace 6 by smt else
+          )
+          .then(events => events.map(x => <IO.IncomingEvent>x.event))
+
+        const { status: promptStatus, actions } = await this.promptManager.processPrompt(event, previousEvents)
+        event.state.context.activePromptStatus = promptStatus
+
+        for (const action of actions) {
+          if (action.type === 'say') {
+            // TODO:
+            console.log('===> SAY ', action)
+          }
+          if (action.type === 'listen') {
+            return event
+          }
+        }
+      }
+
+      if (event.state.context.activePromptStatus?.status === 'resolved') {
+        const promptStatus = event.state.context.activePromptStatus
+        event.state.setVariable(
+          promptStatus.configuration.outputVariableName,
+          promptStatus.state.value,
+          promptStatus.configuration.promptType, // TODO:
+          {
+            nbOfTurns: 10, // TODO:
+            specificWorkflow: currentWorkflow
+          }
+        )
+        console.log('ELECTED')
+        this._setCurrentNodeValue(event, 'extracted', true)
+      }
+
+      if (event.state.context.activePromptStatus?.status === 'rejected') {
+        const promptStatus = event.state.context.activePromptStatus
+        if (promptStatus.stage === 'confirm-cancel') {
+          this._setCurrentNodeValue(event, 'cancelled', true)
+        }
+      }
+
+      delete event.state.context.activePromptStatus // TODO: ?
     }
 
     // Property type skill-call means that the node points to a subflow.
@@ -199,6 +259,10 @@ export class DialogEngine {
         workflows[nextFlowName].status = 'active'
       }
     }
+  }
+
+  private _setCurrentNodeValue(event: IO.IncomingEvent, variable: string, value: any) {
+    _.set(event.state.temp, `[${event.state.context.currentNode!}].${variable}`, value)
   }
 
   public async jumpTo(sessionId: string, event: IO.IncomingEvent, targetFlowName: string, targetNodeName?: string) {

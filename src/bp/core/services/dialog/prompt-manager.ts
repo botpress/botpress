@@ -30,7 +30,6 @@ export class PromptManager {
 
   constructor(
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.EventRepository) private eventRepository: EventRepository,
     @inject(TYPES.ActionStrategy) private actionStrategy: ActionStrategy,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
   ) {}
@@ -56,191 +55,429 @@ export class PromptManager {
     return context.currentNode && temp[context.currentNode] !== undefined
   }
 
-  public async processPrompt(event: IO.IncomingEvent) {
-    const { session } = event.state
-    const events: IO.IncomingEvent[] = await this._getLastEvents(event)
+  // Actions: 'say', 'continue', 'jump', listen'
+  public async processPrompt(
+    event: IO.IncomingEvent,
+    previousEvents: IO.IncomingEvent[]
+  ): Promise<{ status: IO.PromptStatus; actions: any[] }> {
+    const { context } = event.state
+    const s = context.activePromptStatus!
+    const varName = s.configuration.outputVariableName
+    const slots = event.nlu?.slots ?? {}
 
-    // It's the first event, setup the prompt
-    if (event.prompt) {
-      session.prompt = {
-        config: event.prompt,
-        originalEvent: _.omit(event, ['state', 'id'])
+    debugPrompt('before process prompt %o', { prompt: s })
+
+    // TODO: add force-confirm prompt config
+
+    // if ndu.actions = prompt.cancel
+    // if ndu.actions = prompt.confirm.yes
+    // if ndu.actions = prompt.confirm.no
+    // if ndu.actions = prompt.extract
+    // if ndu.actions = workflow.start
+    // if ndu.actions = question.answer
+
+    const candidates: IO.PromptCandidate[] = []
+    const prompt = this.loadPrompt(s.configuration.promptType, s.configuration.promptParams)
+    const actions: any[] = []
+
+    const tryElect = (value: string): boolean => {
+      const result = prompt.validate(value)
+      if (!result.valid) {
+        actions.push({
+          type: 'say',
+          message: 'invalid (' + result.message + ')'
+        })
       }
-      delete event.prompt
-      this._setCurrentNodeValue(event, 'init', true)
+      return result.valid
     }
 
-    const node: PromptNode = session.prompt!.config
-    const { minConfidence, prompt } = this._getPrompt(node, event)
-
-    const extractedVars = await this.evaluateEventVariables(events, prompt)
-    const highest = _.orderBy(extractedVars, 'confidence', 'desc')[0] ?? { confidence: 0, extracted: undefined }
-
-    debugPrompt('before processing %o', { highest })
-
-    const status: IO.PromptStatus = session.prompt?.status || { turns: 0 }
-    const needValidation = status.turns === 0 || highest.confidence <= MIN_CONFIDENCE_VALIDATION
-    const isConfidentEnough = highest.confidence > 0 && (!minConfidence || highest.confidence >= minConfidence)
-
-    if (shouldCancelPrompt(event)) {
-      debugPrompt('user wish to cancel the prompt')
-
-      this._setCurrentNodeValue(event, 'cancelled', true)
-      status.exiting = true
+    if (event.ndu?.actions.find(x => x.action === 'goToNode')) {
+      // TODO: can we get rid of goToNode ?
+      // TODO: action = prompt.*
     }
 
-    if (status.exiting) {
-      await this.exitPrompt({ event, session, status, highest, isConfidentEnough })
+    const confirmPrompt = this.loadPrompt('confirm', {})
+    const confirmValue = _.chain(confirmPrompt.extraction(event))
+      .filter(x => x.confidence >= 0.6) // TODO: confidence
+      .orderBy('confidence', 'desc')
+      .first()
+      .value()
+
+    if (s.stage === 'confirm-cancel') {
+      if (
+        event.ndu?.actions?.find(x => x.action === 'prompt.cancel') ||
+        (confirmValue && confirmValue.value === true)
+      ) {
+        // TODO: go somewhere else?
+        return {
+          actions,
+          status: {
+            ...s,
+            status: 'rejected',
+            state: {}
+          }
+        }
+      }
+    } else if (s.stage === 'confirm-candidate') {
+      if (confirmValue && confirmValue.value === true) {
+        if (tryElect(confirmValue.value)) {
+          return {
+            actions,
+            status: {
+              ...s,
+              status: 'resolved',
+              state: {
+                value: s.state.confirmCandidate?.value_raw
+              }
+            }
+          }
+        } else {
+          actions.push({ type: 'say', message: 'RE-PROMPT' })
+          return {
+            actions,
+            status: {
+              ...s,
+              stage: 'prompt',
+              state: {}
+            }
+          }
+        }
+      }
+    } else if (s.stage === 'confirm-jump') {
+      // TODO: go somewhere else?
+      if (confirmValue && confirmValue.value === true) {
+        return {
+          actions,
+          status: {
+            ...s,
+            status: 'rejected',
+            state: {}
+          }
+        }
+      }
+    } else if (s.stage === 'disambiguate-candidates') {
+      // TODO: implement this
+      // prompt choice
+      // if top choice is inside candidates, direct resolve
+      // else fallback to filling the prompt
     }
 
-    // Confirming the value
-    else if (status.confirming) {
-      if (isConfidentEnough && highest.extracted === true) {
-        status.extracted = true
+    // if (s.stage === 'new' || s.stage === 'prompt') {
+    let eventsToExtractFrom = [event]
+
+    if (s.stage === 'new') {
+      eventsToExtractFrom = _.orderBy([event, ...previousEvents], 'id', 'desc')
+
+      const currentVariable = event.state.workflow.variables[varName]
+      if (currentVariable?.value !== undefined && currentVariable?.value !== null) {
+        if (tryElect(currentVariable.value)) {
+          return {
+            actions,
+            status: {
+              ...s,
+              status: 'resolved', //
+              state: {
+                value: (currentVariable as any).value // TODO: bad casting
+              }
+            }
+          }
+        }
+      }
+    }
+
+    const slotCandidate = slots[varName]
+    if (slotCandidate?.value !== undefined && slotCandidate?.value !== null) {
+      candidates.push({
+        confidence: slotCandidate.confidence,
+        source: 'slot',
+        turns_ago: 0,
+        value_raw: slotCandidate.value,
+        value_string: slotCandidate?.value.toString() ?? '' // TODO:
+      })
+    }
+
+    for (const [turn, pastEvent] of eventsToExtractFrom.entries()) {
+      const promptCandidates = prompt.extraction(pastEvent)
+      for (const candidate of promptCandidates) {
+        const candidateValueStr = slotCandidate?.value.toString()
+        if (candidates.find(x => x.value_string === candidateValueStr)) {
+          // we don't suggest double candidates if older
+          continue
+        }
+
+        candidates.push({
+          confidence: candidate.confidence / promptCandidates.length,
+          source: 'prompt',
+          turns_ago: turn,
+          value_raw: candidate.value,
+          value_string: slotCandidate?.value.toString() ?? '' // TODO:
+        })
+      }
+    }
+
+    const shortlistedCandidates = candidates
+      .filter(x => x.turns_ago === 0)
+      .filter(x => x.confidence >= 0.6) // TODO:
+      .filter(x => x.source === 'slot' || s.stage !== 'new')
+
+    if (shortlistedCandidates.length === 1) {
+      if (tryElect(shortlistedCandidates[0].value_raw)) {
+        return {
+          actions,
+          status: {
+            ...s,
+            status: 'resolved',
+            state: {
+              value: shortlistedCandidates[0].value_raw
+            }
+          }
+        }
+      }
+    } else if (shortlistedCandidates.length > 1) {
+      actions.push({ type: 'say', message: 'DISAMBIGUATE ', candidates: shortlistedCandidates }, { type: 'listen' })
+      return {
+        actions,
+        status: {
+          ...s,
+          stage: 'disambiguate-candidates',
+          state: {
+            disambiguateCandidates: shortlistedCandidates
+          }
+        }
+      }
+    } else {
+      const others = _.chain(candidates)
+        .difference(shortlistedCandidates)
+        .map(x => ({
+          ...x,
+          confidence: x.confidence * (1 - 0.15 * x.turns_ago) // TODO:
+        }))
+        .orderBy(x => x.confidence, 'desc')
+        .take(3)
+        .value()
+
+      if (others.length === 1) {
+        actions.push({ type: 'say', message: 'CONFIRM ', candidate: others[0] }, { type: 'listen' })
+        return {
+          actions,
+          status: {
+            ...s,
+            stage: 'confirm-candidate',
+            state: {
+              confirmCandidate: others[0]
+            }
+          }
+        }
+      } else if (others.length > 1) {
+        actions.push({ type: 'say', message: 'DISAMBIGUATE ', candidates: others }, { type: 'listen' })
+        return {
+          actions,
+          status: {
+            ...s,
+            stage: 'disambiguate-candidates',
+            state: {
+              disambiguateCandidates: others
+            }
+          }
+        }
+      }
+    }
+
+    if (event.ndu?.actions.find(x => x.action === 'prompt.cancel')) {
+      // TODO: Cancel prompt
+      if (s.configuration.confirmCancellation) {
+        actions.push({ type: 'say', message: 'CANCEL ? ' }, { type: 'listen' })
+        return { actions, status: { ...s, stage: 'confirm-cancel' } }
       } else {
-        status.value = undefined
-        status.confirming = false
-
-        await this._askQuestion(event, this.loadPrompt(node).prompt, node)
+        return { actions, status: { ...s, status: 'rejected' } } // TODO:  go somewhere?
       }
     }
 
-    // We're confident enough about the value, but need to confirm
-    else if (isConfidentEnough && needValidation) {
-      status.value = highest.extracted
-      status.confirming = true
+    actions.push({ type: 'say', message: 'PROMPT ' + s.configuration.promptQuestion }, { type: 'listen' })
+    return { actions, status: { ...s, stage: 'prompt', state: {} } }
 
-      await this._askConfirmation(event, highest.extracted, node)
-    }
+    // First turn --> Build candidates
+    // from slots (variables)
+    // from unconsumed matching entities
 
-    // If confident enough OR if the value was validated....
-    else if (isConfidentEnough && !needValidation) {
-      status.value = highest.extracted
-      status.extracted = true
-    }
+    // Subsequent turns --> Amend candidates
+    // from unconsumed matching entities
 
-    // We already processed the previous events, the user sent a response and it doesn't match. We explain why
-    else if (!isConfidentEnough && status.turns > 0) {
-      await this._explainPromptError(event, prompt, highest.extracted)
-    }
+    // PromptStage --> success: confirm, disambiguate, resolve | failure: prompt
+    // ConfirmationStage --> success: resolve, reset
+    // DisambiguationStage --> success: resolve
 
-    // Ask the question to the user, only if we could not extract it
-    else if (!status.questionAsked) {
-      status.questionAsked = true
+    // const node: PromptNode = session.prompt!.config
+    // const { minConfidence, prompt } = this._getPrompt(node, event)
 
-      await this._askQuestion(event, prompt, node)
-    }
+    // const extractedVars = await this.evaluateEventVariables(previousEvents, prompt)
+    // const highest = _.orderBy(extractedVars, 'confidence', 'desc')[0] ?? { confidence: 0, extracted: undefined }
 
-    status.turns++
+    // debugPrompt('before processing %o', { highest })
 
-    session.prompt = {
-      ...session.prompt,
-      evaluation: extractedVars,
-      status
-    } as IO.ActivePrompt
+    // const status: IO.PromptStatus = session.prompt?.status || { turns: 0 }
+    // const needValidation = status.turns === 0 || highest.confidence <= MIN_CONFIDENCE_VALIDATION
+    // const isConfidentEnough = highest.confidence > 0 && (!minConfidence || highest.confidence >= minConfidence)
 
-    if (status.extracted) {
-      debugPrompt('successfully extracted!', status.value)
-      this._setCurrentNodeValue(event, 'extracted', true)
+    // if (shouldCancelPrompt(event)) {
+    //   debugPrompt('user wish to cancel the prompt')
 
-      const { valueType } = this.loadPrompt(node)
-      event.state.setVariable(node.params.output, status.value, valueType ?? '')
+    //   this._setCurrentNodeValue(event, 'cancelled', true)
+    //   status.exiting = true
+    // }
 
-      await this._continueOriginalEvent(event)
-    }
+    // if (status.exiting) {
+    //   await this.exitPrompt({ event, session, status, highest, isConfidentEnough })
+    // }
 
-    // Exit the prompt he was stuck there too long
-    else if (status.turns > node?.params?.duration) {
-      debugPrompt('prompt expired', status.value)
-      await this._continueOriginalEvent(event)
-    }
+    // // Confirming the value
+    // else if (status.confirming) {
+    //   if (isConfidentEnough && highest.extracted === true) {
+    //     status.extracted = true
+    //   } else {
+    //     status.value = undefined
+    //     status.confirming = false
+
+    //     await this._askQuestion(event, this.loadPrompt(node).prompt, node)
+    //   }
+    // }
+
+    // // We're confident enough about the value, but need to confirm
+    // else if (isConfidentEnough && needValidation) {
+    //   status.value = highest.extracted
+    //   status.confirming = true
+
+    //   await this._askConfirmation(event, highest.extracted, node)
+    // }
+
+    // // If confident enough OR if the value was validated....
+    // else if (isConfidentEnough && !needValidation) {
+    //   status.value = highest.extracted
+    //   status.extracted = true
+    // }
+
+    // // We already processed the previous events, the user sent a response and it doesn't match. We explain why
+    // else if (!isConfidentEnough && status.turns > 0) {
+    //   await this._explainPromptError(event, prompt, highest.extracted)
+    // }
+
+    // // Ask the question to the user, only if we could not extract it
+    // else if (!status.questionAsked) {
+    //   status.questionAsked = true
+
+    //   await this._askQuestion(event, prompt, node)
+    // }
+
+    // status.turns++
+
+    // session.prompt = {
+    //   ...session.prompt,
+    //   evaluation: extractedVars,
+    //   status
+    // } as IO.ActivePrompt
+
+    // if (status.extracted) {
+    //   debugPrompt('successfully extracted!', status.value)
+    //   this._setCurrentNodeValue(event, 'extracted', true)
+
+    //   const { valueType } = this.loadPrompt(node)
+    //   event.state.setVariable(node.params.output, status.value, valueType ?? '')
+
+    //   await this._continueOriginalEvent(event)
+    // }
+
+    // // Exit the prompt he was stuck there too long
+    // else if (status.turns > node?.params?.duration) {
+    //   debugPrompt('prompt expired', status.value)
+    //   await this._continueOriginalEvent(event)
+    // }
   }
 
-  private async exitPrompt({ event, session, status, highest, isConfidentEnough }) {
-    const needConfirm = session.prompt?.config?.params?.confirmBeforeCancel
+  // private async exitPrompt({ event, session, status, highest, isConfidentEnough }) {
+  //   const needConfirm = session.prompt?.config?.params?.confirmBeforeCancel
 
-    if (!needConfirm) {
-      await this._continueOriginalEvent(event)
-      return
-    }
+  //   if (!needConfirm) {
+  //     await this._continueOriginalEvent(event)
+  //     return
+  //   }
 
-    if (!isConfidentEnough) {
-      await this._askLeaveConfirmation(event)
-      return
-    }
+  //   if (!isConfidentEnough) {
+  //     await this._askLeaveConfirmation(event)
+  //     return
+  //   }
 
-    if (highest.extracted === true) {
-      debugPrompt('leaving prompt')
-      await this._continueOriginalEvent(event)
-    } else if (highest.extracted === false) {
-      status.leaving = false
-    }
-  }
+  //   if (highest.extracted === true) {
+  //     debugPrompt('leaving prompt')
+  //     await this._continueOriginalEvent(event)
+  //   } else if (highest.extracted === false) {
+  //     status.leaving = false
+  //   }
+  // }
 
   private _setCurrentNodeValue(event: IO.IncomingEvent, variable: string, value: any) {
     _.set(event.state.temp, `[${event.state.context.currentNode!}].${variable}`, value)
   }
 
-  private async _explainPromptError(event: IO.IncomingEvent, prompt: Prompt, value: any) {
-    const { valid, message } = await prompt.validate(value)
-    debugPrompt('provided answer doesnt match, explain error %o', { valid, message })
+  // private async _explainPromptError(event: IO.IncomingEvent, prompt: Prompt, value: any) {
+  //   const { valid, message } = await prompt.validate(value)
+  //   debugPrompt('provided answer doesnt match, explain error %o', { valid, message })
 
-    await this.actionStrategy.invokeSendMessage(
-      createMultiLangObject(message!, 'text', { typing: true }),
-      '@builtin_text',
-      event
-    )
-  }
+  //   await this.actionStrategy.invokeSendMessage(
+  //     createMultiLangObject(message!, 'text', { typing: true }),
+  //     '@builtin_text',
+  //     event
+  //   )
+  // }
 
-  private async _askQuestion(event: IO.IncomingEvent, prompt: Prompt, node: PromptNode) {
-    debugPrompt('ask prompt question')
+  // private async _askQuestion(event: IO.IncomingEvent, prompt: Prompt, node: PromptNode) {
+  //   debugPrompt('ask prompt question')
 
-    if (!prompt.customPrompt || !this._sendCustomPrompt(event, prompt, node)) {
-      await this.actionStrategy.invokeSendMessage(
-        createMultiLangObject(node.params.question, 'text', { typing: true }),
-        '@builtin_text',
-        event
-      )
-    }
-  }
+  //   if (!prompt.customPrompt || !this._sendCustomPrompt(event, prompt, node)) {
+  //     await this.actionStrategy.invokeSendMessage(
+  //       createMultiLangObject(node.params.question, 'text', { typing: true }),
+  //       '@builtin_text',
+  //       event
+  //     )
+  //   }
+  // }
 
-  private async _askLeaveConfirmation(event: IO.IncomingEvent) {
-    debugPrompt('ask validation before leaving prompt')
+  // private async _askLeaveConfirmation(event: IO.IncomingEvent) {
+  //   debugPrompt('ask validation before leaving prompt')
 
-    const confirmNode = {
-      type: 'confirm',
-      params: {
-        output: 'confirmed',
-        question: lang.tr('module.builtin.prompt.confirmLeaving')
-      }
-    }
+  //   const confirmNode = {
+  //     type: 'confirm',
+  //     params: {
+  //       output: 'confirmed',
+  //       question: lang.tr('module.builtin.prompt.confirmLeaving')
+  //     }
+  //   }
 
-    const promptConfirm = this.loadPrompt(confirmNode).prompt
-    await this._sendCustomPrompt(event, promptConfirm, confirmNode)
-  }
+  //   // const promptConfirm = this.loadPrompt(confirmNode).prompt
+  //   // await this._sendCustomPrompt(event, promptConfirm, confirmNode)
+  // }
 
-  private async _askConfirmation(event: IO.IncomingEvent, value: any, node: PromptNode) {
-    debugPrompt('low confidence, asking validation for %o', { value: value, output: node.params.output })
+  // private async _askConfirmation(event: IO.IncomingEvent, value: any, node: PromptNode) {
+  //   debugPrompt('low confidence, asking validation for %o', { value: value, output: node.params.output })
 
-    const confirmNode = getConfirmPromptNode(node, value)
-    const promptConfirm = this.loadPrompt(confirmNode).prompt
-    await this._sendCustomPrompt(event, promptConfirm, confirmNode)
-  }
+  //   const confirmNode = getConfirmPromptNode(node, value)
+  //   const promptConfirm = this.loadPrompt(confirmNode).prompt
+  //   await this._sendCustomPrompt(event, promptConfirm, confirmNode)
+  // }
 
-  private async _sendCustomPrompt(incomingEvent: IO.IncomingEvent, prompt: Prompt, node: PromptNode): Promise<boolean> {
-    debugPrompt('sending custom prompt to user')
+  // private async _sendCustomPrompt(incomingEvent: IO.IncomingEvent, prompt: Prompt, node: PromptNode): Promise<boolean> {
+  //   debugPrompt('sending custom prompt to user')
 
-    const promptEvent = Event({
-      ..._.pick(incomingEvent, ['botId', 'channel', 'target', 'threadId']),
-      direction: 'outgoing',
-      type: 'prompt',
-      payload: node,
-      incomingEventId: incomingEvent.id
-    })
+  //   const promptEvent = Event({
+  //     ..._.pick(incomingEvent, ['botId', 'channel', 'target', 'threadId']),
+  //     direction: 'outgoing',
+  //     type: 'prompt',
+  //     payload: node,
+  //     incomingEventId: incomingEvent.id
+  //   })
 
-    const bp = await createForBotpress()
-    return (await prompt.customPrompt?.(promptEvent, incomingEvent, bp)) ?? false
-  }
+  //   const bp = await createForBotpress()
+  //   return (await prompt.customPrompt?.(promptEvent, incomingEvent, bp)) ?? false
+  // }
 
   public async processTimeout(event) {
     this._setCurrentNodeValue(event, 'timeout', true)
@@ -272,54 +509,26 @@ export class PromptManager {
     await this.eventEngine.sendEvent(promptEvent)
   }
 
-  /** Returns the last 6 events if it's the first time the prompt is executed */
-  private async _getLastEvents(event: IO.IncomingEvent): Promise<IO.IncomingEvent[]> {
-    if (event.state.session.prompt) {
-      return [event]
-    }
-
-    const count = event.prompt?.params?.searchBackCount
-    if (!count) {
-      return []
-    }
-
-    const lastEvents: IO.StoredEvent[] = await this.eventRepository.findEvents(
-      { direction: 'incoming', target: event.target },
-      { count, sortOrder: [{ column: 'createdOn', desc: true }] }
-    )
-
-    return lastEvents.map(x => x.event as IO.IncomingEvent)
-  }
-
-  private _getPrompt(node: PromptNode, event: IO.IncomingEvent) {
-    const status = event.state.session?.prompt?.status
-
-    return this.loadPrompt(status?.confirming || status?.exiting ? getConfirmPromptNode(node, status?.value) : node)
-  }
-
-  private loadPrompt(promptNode: PromptNode): { prompt: Prompt } & PromptConfig {
-    const definition = this._prompts.find(x => x.id === promptNode.type)
+  private loadPrompt(type: string, params: any): Prompt {
+    const definition = this._prompts.find(x => x.id === type)
     if (!definition) {
-      throw new Error(`Unknown prompt type ${promptNode.type}`)
+      throw new Error(`Unknown prompt type ${type}`)
     }
-
-    const params = (promptNode.params as any) || {}
-    const prompt = new definition.prompt(params)
-    return { prompt, ...definition.config }
+    return new definition.prompt(params)
   }
 
-  private async evaluateEventVariables(
-    events: IO.IncomingEvent[],
-    prompt: Prompt
-  ): Promise<{ confidence: number; extracted: any }[]> {
-    return Promise.mapSeries(events, async (event, idx) => {
-      const { value, confidence } = prompt.extraction(event) || {}
-      const { valid } = (await prompt.validate(value)) || {}
-      const finalConfidence = +!!valid * (confidence ?? 0) * (1 - idx * OLD_MESSAGE_CONFIDENCE_DECREASE)
+  // private async evaluateEventVariables(
+  //   events: IO.IncomingEvent[],
+  //   prompt: Prompt
+  // ): Promise<{ confidence: number; extracted: any }[]> {
+  //   return Promise.mapSeries(events, async (event, idx) => {
+  //     const { value, confidence } = prompt.extraction(event) || {}
+  //     const { valid } = (await prompt.validate(value)) || {}
+  //     const finalConfidence = +!!valid * (confidence ?? 0) * (1 - idx * OLD_MESSAGE_CONFIDENCE_DECREASE)
 
-      debugPrompt('variable extraction %o', { preview: event.preview, valid, value, finalConfidence })
+  //     debugPrompt('variable extraction %o', { preview: event.preview, valid, value, finalConfidence })
 
-      return { confidence: finalConfidence ?? 0, extracted: value }
-    })
-  }
+  //     return { confidence: finalConfidence ?? 0, extracted: value }
+  //   })
+  // }
 }

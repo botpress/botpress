@@ -560,6 +560,7 @@ declare module 'botpress/sdk' {
       type: 'node'
       workflowId: string
       nodeId: string
+      effect: 'prompt.cancel' | 'prompt.inform'
     }
 
     export type Trigger = NodeTrigger | FaqTrigger | WorkflowTrigger
@@ -576,7 +577,7 @@ declare module 'botpress/sdk' {
     }
 
     export interface Actions {
-      action: 'send' | 'startWorkflow' | 'redirect' | 'continue' | 'goToNode'
+      action: 'send' | 'startWorkflow' | 'redirect' | 'continue' | 'goToNode' | 'prompt.inform' | 'prompt.cancel'
       data?: SendContent | FlowRedirect
     }
 
@@ -702,8 +703,8 @@ declare module 'botpress/sdk' {
       /* HITL module has possibility to pause conversation */
       readonly isPause?: boolean
       readonly ndu?: NDU.DialogUnderstanding
-      /** When the prompt property is set, the current dialog is paused until the prompt is resolved */
-      prompt?: PromptNode
+      // /** When the prompt property is set, the current dialog is paused until the prompt is resolved */
+      // prompt?: PromptNode
       /** This flag skips the processing of some middlewares (since we restore an existing event) */
       restored?: boolean
     }
@@ -767,35 +768,66 @@ declare module 'botpress/sdk' {
     }
 
     /** Keeps the status of the prompt in the session */
-    export interface ActivePrompt {
-      /** Copy of the configuration taken from event.prompt */
-      config: PromptNode
-      status?: PromptStatus
-      /** The list of extracted values with their confidence */
-      evaluation?: ExtractedVariable[]
-      /** All the content of the original event, without the state */
-      originalEvent: Partial<IO.IncomingEvent>
-    }
+    // export interface ActivePrompt {
+    //   /** Copy of the configuration taken from event.prompt */
+    //   config: PromptNode
+    //   status?: PromptStatus
+    //   /** The list of extracted values with their confidence */
+    //   evaluation?: ExtractedVariable[]
+    //   /** All the content of the original event, without the state */
+    //   originalEvent: Partial<IO.IncomingEvent>
+    // }
 
-    export interface ExtractedVariable {
-      confidence: number
-      extracted: any
-    }
+    // export interface ExtractedVariable {
+    //   confidence: number
+    //   extracted: any
+    // }
+
+    // export interface PromptStatus {
+    //   value?: any
+    //   /** Keeping track of the number of turns so we can stop the prompt after x turns */
+    //   turns: number
+    //   /** When true, the value is valid and can be stored to a variable */
+    //   extracted?: boolean
+    //   /** Used to avoid repeating the question, since we may not need to ask it to the user */
+    //   questionAsked?: boolean
+    //   /** Sent a confirmation message to the user and waiting for a yes/no */
+    //   confirming?: boolean
+    //   /** User is about to leave the prompt (either cancelled or another flow is a better match) */
+    //   exiting?: boolean
+    //   /** If the leave confirmation is successful, we jump the user to that location */
+    //   nextDestination?: { flowName: string; node: string }
+    // }
 
     export interface PromptStatus {
-      value?: any
-      /** Keeping track of the number of turns so we can stop the prompt after x turns */
-      turns: number
-      /** When true, the value is valid and can be stored to a variable */
-      extracted?: boolean
-      /** Used to avoid repeating the question, since we may not need to ask it to the user */
-      questionAsked?: boolean
-      /** Sent a confirmation message to the user and waiting for a yes/no */
-      confirming?: boolean
-      /** User is about to leave the prompt (either cancelled or another flow is a better match) */
-      exiting?: boolean
-      /** If the leave confirmation is successful, we jump the user to that location */
-      nextDestination?: { flowName: string; node: string }
+      turn: number
+      readonly configuration: Readonly<PromptConfiguration>
+      status: 'resolved' | 'rejected' | 'pending'
+      stage: 'new' | 'prompt' | 'confirm-candidate' | 'confirm-cancel' | 'confirm-jump' | 'disambiguate-candidates'
+      rejection?: 'cancelled' | 'timedout' | 'jumped'
+      state: {
+        confirmCandidate?: PromptCandidate
+        disambiguateCandidates?: PromptCandidate[]
+        value?: any
+      }
+    }
+
+    export interface PromptConfiguration {
+      cancellable: boolean
+      confirmCancellation: boolean
+      outputVariableName: string
+      promptType: string
+      promptParams: any
+      promptQuestion: string // TODO: change
+      promptConfirm: string // TODO: change
+    }
+
+    export interface PromptCandidate {
+      source: 'slot' | 'prompt'
+      value_raw: any
+      value_string: string
+      turns_ago: number
+      confidence: number
     }
 
     export interface EventError {
@@ -835,6 +867,8 @@ declare module 'botpress/sdk' {
        * This is used to execute the target flow catchAll transitions.
        */
       hasJumped?: boolean
+      /** The status of the current active prompt */
+      activePromptStatus?: PromptStatus
     }
 
     export interface CurrentSession {
@@ -845,7 +879,6 @@ declare module 'botpress/sdk' {
         [name: string]: WorkflowHistory
       }
       currentWorkflow?: string
-      prompt?: ActivePrompt
       // Prevent warnings when using the code editor with custom properties
       [anyKey: string]: any
     }
@@ -856,7 +889,7 @@ declare module 'botpress/sdk' {
       /** Only one workflow can be active at a time, when a child workflow is active, the parent will be pending */
       status: 'active' | 'pending' | 'completed'
       success?: boolean
-      variables: { [name: string]: BoxedVariable<any> | UnboxedVariable<any> }
+      variables: { [name: string]: BoxedVariable<any> }
     }
 
     export type StoredEvent = {
@@ -1381,7 +1414,7 @@ declare module 'botpress/sdk' {
   }
 
   export type ListenNode = FlowNode & {
-    triggers: { name?: string; conditions: DecisionTriggerCondition[] }[]
+    triggers: { name?: string; effect: 'prompt.inform' | 'prompt.cancel' ; conditions: DecisionTriggerCondition[] }[]
   }
 
   export type SkillFlowNode = Partial<ListenNode> & Pick<Required<ListenNode>, 'name'> & Partial<TriggerNode>
@@ -1648,12 +1681,12 @@ declare module 'botpress/sdk' {
      * This method will receive multiple
      * @param event
      */
-    extraction(event: IO.IncomingEvent): ExtractionResult | undefined
+    extraction(event: IO.IncomingEvent): ExtractionResult[]
     /**
      * This method
      * @param value
      */
-    validate(value): Promise<ValidationResult>
+    validate(value): ValidationResult
     /**
      * When the prompt is sent to the user, an event of type "prompt" is sent to the corresponding channel.
      * You can customize the event that will be sent to the user
