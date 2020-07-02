@@ -9,8 +9,8 @@ import store from '../store'
 
 import { EventData, EventPackageInfoType, StoreInfoType, TelemetryPackage } from './telemetry_type'
 
-export const telemetryPackageVersion = '1.0.0'
-export const dataClusterVersion = '1.0.0'
+const telemetryPackageVersion = '1.0.0'
+const dataClusterVersion = '1.0.0'
 
 export const endpoint = 'https://telemetry.botpress.dev'
 
@@ -18,17 +18,11 @@ export const corsConfig = {
   withCredentials: false
 }
 
-export const storeInfos: StoreInfoType = {}
+const storeInfos: StoreInfoType = {}
 
-export const eventPackageInfo: EventPackageInfoType = {}
+const eventPackageInfo: EventPackageInfoType = {}
 
-export function toHash(content: string) {
-  return createHash('sha256')
-    .update(content)
-    .digest('hex')
-}
-
-export function switchLock(lockKey: string) {
+function switchLock(lockKey: string) {
   if (_.has(eventPackageInfo, lockKey)) {
     eventPackageInfo[lockKey].locked = !eventPackageInfo[lockKey].locked
   }
@@ -63,7 +57,7 @@ function addTimeoutLocalStorage(event: string, timeout: number) {
   window.localStorage.setItem(event, (timeout + new Date().getTime()).toString())
 }
 
-export function checkStoreInfoReceived() {
+function checkStoreInfoReceived() {
   let check = true
   for (const infoName in storeInfos) {
     check = check && getStoreInfo(infoName) !== '' && getStoreInfo(infoName) !== undefined
@@ -75,7 +69,6 @@ export function addStoreInfo(name: string, pathInStore: string) {
   storeInfos[name] = {
     storedInfo: '',
     loadInfo: function() {
-      // @ts-ignore
       storeInfos[name].storedInfo = _.get(store.getState(), pathInStore)
     }
   }
@@ -85,7 +78,6 @@ export function addStoreInfoFormatted(name: string, pathInStore: string, formatt
   storeInfos[name] = {
     storedInfo: '',
     loadInfo: () => {
-      // @ts-ignore
       storeInfos[name].storedInfo = formatter(_.get(store.getState(), pathInStore))
     }
   }
@@ -107,7 +99,7 @@ export function addTelemetryEvent(name: string, timeout: string, getPackage: Fun
   }
 }
 
-export async function checkTelemetry() {
+async function checkTelemetry() {
   for (const event in eventPackageInfo) {
     if (!eventPackageInfo[event].locked) {
       switchLock(event)
@@ -155,7 +147,7 @@ export function startTelemetry() {
   })
 }
 
-export function getTelemetryPackage(event_type: string, data: object): TelemetryPackage {
+function getTelemetryPackage(event_type: string, data: object): TelemetryPackage {
   const baseCluster: EventData = {
     schema: dataClusterVersion
   }
@@ -173,7 +165,7 @@ export function getTelemetryPackage(event_type: string, data: object): Telemetry
   }
 }
 
-export async function sendTelemetry(data: TelemetryPackage, event: string) {
+async function sendTelemetry(data: TelemetryPackage, event: string) {
   await axios.post(endpoint, data, corsConfig)
   addTimeoutLocalStorage(event, ms(eventPackageInfo[event].timeout))
 }
