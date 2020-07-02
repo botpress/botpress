@@ -560,7 +560,7 @@ declare module 'botpress/sdk' {
       type: 'node'
       workflowId: string
       nodeId: string
-      effect: 'prompt.cancel' | 'prompt.inform'
+      effect?: 'prompt.cancel' | 'prompt.inform'
     }
 
     export type Trigger = NodeTrigger | FaqTrigger | WorkflowTrigger
@@ -809,6 +809,7 @@ declare module 'botpress/sdk' {
         confirmCandidate?: PromptCandidate
         disambiguateCandidates?: PromptCandidate[]
         value?: any
+        nextDestination?: { flowName: string; node: string }
       }
     }
 
@@ -1414,7 +1415,7 @@ declare module 'botpress/sdk' {
   }
 
   export type ListenNode = FlowNode & {
-    triggers: { name?: string; effect: 'prompt.inform' | 'prompt.cancel' ; conditions: DecisionTriggerCondition[] }[]
+    triggers: { name?: string; effect?: 'prompt.inform' | 'prompt.cancel'; conditions: DecisionTriggerCondition[] }[]
   }
 
   export type SkillFlowNode = Partial<ListenNode> & Pick<Required<ListenNode>, 'name'> & Partial<TriggerNode>

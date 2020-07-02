@@ -140,7 +140,7 @@ export class StateManager {
       const variables = workflows[wf].variables
 
       workflows[wf].variables = Object.keys(variables).reduce((acc, id) => {
-        const unboxed = variables[id] as sdk.UnboxedVariable<any>
+        const unboxed = (variables[id] as any) as sdk.UnboxedVariable<any>
         const BoxedVar = this._variables.find(x => x.id === unboxed.type)?.box
 
         if (BoxedVar) {

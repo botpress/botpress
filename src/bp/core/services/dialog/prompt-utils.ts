@@ -5,22 +5,14 @@ import _ from 'lodash'
 
 import { MIN_CONFIDENCE_CANCEL } from './prompt-manager'
 
-export const getConfirmPromptNode = (node: PromptNode, value: any): PromptNode => {
+export const getConfirmPromptQuestion = (messages: { [lang: string]: string }, value: any) => {
   let question = lang.tr('module.builtin.prompt.confirmValue', { value })
 
-  if (node.params?.confirm) {
-    question = _.mapValues(node.params?.confirm, (q, lang) =>
-      q.length > 0 ? q.replace(`$value`, value) : question[lang]
-    )
+  if (messages) {
+    question = _.mapValues(messages, (q, lang) => (q.length > 0 ? q.replace(`$value`, value) : question[lang]))
   }
 
-  return {
-    type: 'confirm',
-    params: {
-      output: 'confirmed',
-      question
-    }
-  }
+  return question
 }
 
 export const isPromptEvent = (event: IO.IncomingEvent): boolean => {

@@ -1,4 +1,5 @@
 import { IO } from 'botpress/sdk'
+import { createMultiLangObject } from 'common/prompts'
 import { FlowView } from 'common/typings'
 import { createForGlobalHooks } from 'core/api'
 import { EventRepository } from 'core/repositories'
@@ -13,6 +14,7 @@ import { FlowError, ProcessingError, TimeoutNodeNotFound } from './errors'
 import { FlowService } from './flow/service'
 import { InstructionProcessor } from './instruction/processor'
 import { InstructionQueue } from './instruction/queue'
+import { ActionStrategy } from './instruction/strategy'
 import { PromptManager } from './prompt-manager'
 import { isPromptEvent } from './prompt-utils'
 import { InstructionsQueueBuilder } from './queue-builder'
@@ -32,7 +34,8 @@ export class DialogEngine {
     @inject(TYPES.HookService) private hookService: HookService,
     @inject(TYPES.EventRepository) private eventRepository: EventRepository,
     @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
-    @inject(TYPES.PromptManager) private promptManager: PromptManager
+    @inject(TYPES.PromptManager) private promptManager: PromptManager,
+    @inject(TYPES.ActionStrategy) private actionStrategy: ActionStrategy
   ) {
     // Can't inject the dialog engine in the prompt manager directly (circular reference)
     this.promptManager.dialogEngine = this
@@ -98,6 +101,12 @@ export class DialogEngine {
 
         for (const action of actions) {
           if (action.type === 'say') {
+            await this.actionStrategy.invokeSendMessage(
+              createMultiLangObject(action.message, 'text', { typing: true }),
+              '@builtin_text',
+              event
+            )
+
             // TODO:
             console.log('===> SAY ', action)
           }

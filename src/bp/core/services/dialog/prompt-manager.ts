@@ -14,7 +14,7 @@ import { EventEngine } from '../middleware/event-engine'
 
 import { DialogEngine } from './dialog-engine'
 import { ActionStrategy } from './instruction/strategy'
-import { getConfirmPromptNode, shouldCancelPrompt } from './prompt-utils'
+import { getConfirmPromptQuestion, shouldCancelPrompt } from './prompt-utils'
 
 const debugPrompt = DEBUG('dialog:prompt')
 
@@ -41,11 +41,11 @@ export class PromptManager {
   }
 
   public async promptJumpTo(event: IO.IncomingEvent, destination: { flowName: string; node: string }) {
-    const prompt = event.state.session.prompt!
+    const prompt = event.state.context.activePromptStatus
 
-    if (prompt.status) {
-      prompt.status.exiting = true
-      prompt.status.nextDestination = destination
+    if (prompt) {
+      prompt.stage = 'confirm-jump'
+      prompt.state.nextDestination = destination
     }
   }
 
@@ -64,6 +64,7 @@ export class PromptManager {
     const s = context.activePromptStatus!
     const varName = s.configuration.outputVariableName
     const slots = event.nlu?.slots ?? {}
+    const params = s.configuration.promptParams
 
     debugPrompt('before process prompt %o', { prompt: s })
 
@@ -81,14 +82,11 @@ export class PromptManager {
     const actions: any[] = []
 
     const tryElect = (value: string): boolean => {
-      const result = prompt.validate(value)
-      if (!result.valid) {
-        actions.push({
-          type: 'say',
-          message: 'invalid (' + result.message + ')'
-        })
+      const { valid, message } = prompt.validate(value)
+      if (!valid) {
+        actions.push({ type: 'say', message })
       }
-      return result.valid
+      return valid
     }
 
     if (event.ndu?.actions.find(x => x.action === 'goToNode')) {
@@ -104,10 +102,7 @@ export class PromptManager {
       .value()
 
     if (s.stage === 'confirm-cancel') {
-      if (
-        event.ndu?.actions?.find(x => x.action === 'prompt.cancel') ||
-        (confirmValue && confirmValue.value === true)
-      ) {
+      if (event.ndu?.actions?.find(x => x.action === 'prompt.cancel') || confirmValue?.value === true) {
         // TODO: go somewhere else?
         return {
           actions,
@@ -119,7 +114,7 @@ export class PromptManager {
         }
       }
     } else if (s.stage === 'confirm-candidate') {
-      if (confirmValue && confirmValue.value === true) {
+      if (confirmValue?.value === true) {
         if (tryElect(confirmValue.value)) {
           return {
             actions,
@@ -132,7 +127,7 @@ export class PromptManager {
             }
           }
         } else {
-          actions.push({ type: 'say', message: 'RE-PROMPT' })
+          actions.push({ type: 'say', message: params.question })
           return {
             actions,
             status: {
@@ -145,7 +140,7 @@ export class PromptManager {
       }
     } else if (s.stage === 'confirm-jump') {
       // TODO: go somewhere else?
-      if (confirmValue && confirmValue.value === true) {
+      if (confirmValue?.value === true) {
         return {
           actions,
           status: {
@@ -199,7 +194,7 @@ export class PromptManager {
     for (const [turn, pastEvent] of eventsToExtractFrom.entries()) {
       const promptCandidates = prompt.extraction(pastEvent)
       for (const candidate of promptCandidates) {
-        const candidateValueStr = slotCandidate?.value.toString()
+        const candidateValueStr = candidate?.value.toString()
         if (candidates.find(x => x.value_string === candidateValueStr)) {
           // we don't suggest double candidates if older
           continue
@@ -210,7 +205,7 @@ export class PromptManager {
           source: 'prompt',
           turns_ago: turn,
           value_raw: candidate.value,
-          value_string: slotCandidate?.value.toString() ?? '' // TODO:
+          value_string: candidate?.value.toString() ?? '' // TODO:
         })
       }
     }
@@ -257,7 +252,10 @@ export class PromptManager {
         .value()
 
       if (others.length === 1) {
-        actions.push({ type: 'say', message: 'CONFIRM ', candidate: others[0] }, { type: 'listen' })
+        actions.push(
+          { type: 'say', message: getConfirmPromptQuestion(params.confirm, others[0].value_raw) },
+          { type: 'listen' }
+        )
         return {
           actions,
           status: {
@@ -269,7 +267,14 @@ export class PromptManager {
           }
         }
       } else if (others.length > 1) {
-        actions.push({ type: 'say', message: 'DISAMBIGUATE ', candidates: others }, { type: 'listen' })
+        actions.push(
+          {
+            type: 'say',
+            message: { en: `Please choose (${varName}) between ${others.map(x => x.value_raw).join(', ')}  ` },
+            candidates: others
+          },
+          { type: 'listen' }
+        )
         return {
           actions,
           status: {
@@ -286,14 +291,14 @@ export class PromptManager {
     if (event.ndu?.actions.find(x => x.action === 'prompt.cancel')) {
       // TODO: Cancel prompt
       if (s.configuration.confirmCancellation) {
-        actions.push({ type: 'say', message: 'CANCEL ? ' }, { type: 'listen' })
+        actions.push({ type: 'say', message: lang.tr('module.builtin.prompt.confirmLeaving') }, { type: 'listen' })
         return { actions, status: { ...s, stage: 'confirm-cancel' } }
       } else {
         return { actions, status: { ...s, status: 'rejected' } } // TODO:  go somewhere?
       }
     }
 
-    actions.push({ type: 'say', message: 'PROMPT ' + s.configuration.promptQuestion }, { type: 'listen' })
+    actions.push({ type: 'say', message: params.question }, { type: 'listen' })
     return { actions, status: { ...s, stage: 'prompt', state: {} } }
 
     // First turn --> Build candidates
