@@ -12,9 +12,18 @@ if (!process.BOTPRESS_EVENTS) {
   process.BOTPRESS_EVENTS = new EventEmitter()
 }
 
-process.distro = {
-  os: require('os').platform(),
-  codename: '',
-  dist: '',
-  release: ''
-}
+const os = require('os').platform()
+process.distro =
+  os !== 'linux'
+    ? {
+        os,
+        codename: '',
+        dist: '',
+        release: ''
+      }
+    : {
+        os,
+        codename: '',
+        dist: 'Alpine Linux', // github checks runs on alpine...
+        release: '3.11.6'
+      }
