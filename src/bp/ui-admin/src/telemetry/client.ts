@@ -1,7 +1,8 @@
 import axios from 'axios'
-import shared from 'botpress/shared'
+import { lang } from 'botpress/shared'
 import { createHash } from 'crypto'
 import _ from 'lodash'
+import moment from 'moment'
 import ms from 'ms'
 import uuid from 'uuid'
 
@@ -9,32 +10,29 @@ import store from '../store'
 
 import { EventData, EventPackageInfoType, StoreInfoType, TelemetryPackage } from './telemetry_type'
 
-export const telemetryPackageVersion = '1.0.0'
-export const dataClusterVersion = '1.0.0'
+const telemetryPackageVersion = '1.0.0'
+const dataClusterVersion = '1.0.0'
 
 export const endpoint = 'https://telemetry.botpress.dev'
 
 export const corsConfig = {
-  withCredentials: false
+  baseURL: endpoint,
+  headers: {
+    withCredentials: false
+  }
 }
 
-export const storeInfos: StoreInfoType = {}
+const storeInfos: StoreInfoType = {}
 
-export const eventPackageInfo: EventPackageInfoType = {}
+const eventPackageInfo: EventPackageInfoType = {}
 
-export function toHash(content: string) {
-  return createHash('sha256')
-    .update(content)
-    .digest('hex')
-}
-
-export function switchLock(lockKey: string) {
+const switchLock = (lockKey: string) => {
   if (_.has(eventPackageInfo, lockKey)) {
     eventPackageInfo[lockKey].locked = !eventPackageInfo[lockKey].locked
   }
 }
 
-function isTimeoutLocalStorage(event: string) {
+const isEventExpired = (event: string) => {
   const item = window.localStorage.getItem(event)
   if (item !== null) {
     const timeout = parseInt(item) - new Date().getTime()
@@ -46,7 +44,7 @@ function isTimeoutLocalStorage(event: string) {
   return false
 }
 
-function getTimeoutLocalStorage(event: string) {
+const getEventTimeout = (event: string) => {
   const item = window.localStorage.getItem(event)
   if (item !== null) {
     const timeout = parseInt(item) - new Date().getTime()
@@ -58,12 +56,12 @@ function getTimeoutLocalStorage(event: string) {
   return 0
 }
 
-function addTimeoutLocalStorage(event: string, timeout: number) {
+const addEventTimeout = (event: string, timeout: number) => {
   setTimeout(() => switchLock(event), timeout)
-  window.localStorage.setItem(event, (timeout + new Date().getTime()).toString())
+  window.localStorage.setItem(event, (timeout + moment().unix()).toString())
 }
 
-export function checkStoreInfoReceived() {
+const checkStoreInfoReceived = () => {
   let check = true
   for (const infoName in storeInfos) {
     check = check && getStoreInfo(infoName) !== '' && getStoreInfo(infoName) !== undefined
@@ -71,27 +69,25 @@ export function checkStoreInfoReceived() {
   return check
 }
 
-export function addStoreInfo(name: string, pathInStore: string) {
+export const addStoreInfo = (name: string, pathInStore: string) => {
   storeInfos[name] = {
     storedInfo: '',
     loadInfo: function() {
-      // @ts-ignore
       storeInfos[name].storedInfo = _.get(store.getState(), pathInStore)
     }
   }
 }
 
-export function addStoreInfoFormatted(name: string, pathInStore: string, formatter: Function) {
+export const addStoreInfoFormatted = (name: string, pathInStore: string, formatter: Function) => {
   storeInfos[name] = {
     storedInfo: '',
     loadInfo: () => {
-      // @ts-ignore
       storeInfos[name].storedInfo = formatter(_.get(store.getState(), pathInStore))
     }
   }
 }
 
-export function getStoreInfo(name: string) {
+export const getStoreInfo = (name: string) => {
   if (storeInfos[name]) {
     return storeInfos[name].storedInfo
   } else {
@@ -99,15 +95,15 @@ export function getStoreInfo(name: string) {
   }
 }
 
-export function addTelemetryEvent(name: string, timeout: string, getPackage: Function) {
+export const addTelemetryEvent = (name: string, timeout: string, getPackage: Function) => {
   eventPackageInfo[name] = {
-    locked: isTimeoutLocalStorage(name),
+    locked: getEventTimeout(name) >= 0,
     timeout: timeout,
     getPackage: getPackage
   }
 }
 
-export async function checkTelemetry() {
+const checkTelemetry = async () => {
   for (const event in eventPackageInfo) {
     if (!eventPackageInfo[event].locked) {
       switchLock(event)
@@ -117,7 +113,7 @@ export async function checkTelemetry() {
   }
 }
 
-export function startTelemetry() {
+export const startTelemetry = () => {
   addStoreInfo('email', 'user.profile.email')
 
   addStoreInfo('bp_release', 'version.currentVersion')
@@ -132,13 +128,13 @@ export function startTelemetry() {
         email: getStoreInfo('email'),
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
       },
-      language: shared.lang.getLocale()
+      language: lang.getLocale()
     }
   })
 
   for (const event in eventPackageInfo) {
-    if (isTimeoutLocalStorage(event)) {
-      setTimeout(() => switchLock(event), getTimeoutLocalStorage(event))
+    if (getEventTimeout(event) >= 0) {
+      setTimeout(() => switchLock(event), getEventTimeout(event))
     }
   }
 
@@ -155,7 +151,7 @@ export function startTelemetry() {
   })
 }
 
-export function getTelemetryPackage(event_type: string, data: object): TelemetryPackage {
+const getTelemetryPackage = (event_type: string, data: object): TelemetryPackage => {
   const baseCluster: EventData = {
     schema: dataClusterVersion
   }
@@ -173,7 +169,7 @@ export function getTelemetryPackage(event_type: string, data: object): Telemetry
   }
 }
 
-export async function sendTelemetry(data: TelemetryPackage, event: string) {
-  await axios.post(endpoint, data, corsConfig)
-  addTimeoutLocalStorage(event, ms(eventPackageInfo[event].timeout))
+const sendTelemetry = async (data: TelemetryPackage, event: string) => {
+  await axios.post('/', data, corsConfig)
+  addEventTimeout(event, ms(eventPackageInfo[event].timeout))
 }

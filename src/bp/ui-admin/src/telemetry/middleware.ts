@@ -6,35 +6,36 @@ import { corsConfig, endpoint } from './client'
 
 const serverUrl = '/admin/telemetry'
 
-async function sendServerPackage() {
+const sendServerPackage = async () => {
   try {
     const {
       data: { events }
     } = await api.getSecured().get(serverUrl)
 
-    const feedback = { events: [], status: '' }
-
-    if (events) {
-      events.map(event => (event.source = 'client'))
-
-      feedback.events = events.map(event => event.uuid)
-
-      try {
-        await axios.post(endpoint, events, corsConfig)
-        feedback['status'] = 'ok'
-      } catch (err) {
-        feedback['status'] = 'fail'
-        console.log('Could not send the telemetry packages to the storage server', err)
-      }
+    if (!events) {
+      return
     }
 
-    await api.getSecured().post(serverUrl, feedback)
+    let status
+    try {
+      await axios.post(
+        '/',
+        events.map(e => ({ ...e, source: 'client' })),
+        corsConfig
+      )
+      status = 'ok'
+    } catch (err) {
+      status = 'fail'
+      console.error('Could not send the telemetry packages to the storage server', err)
+    }
+
+    await api.getSecured().post(serverUrl, { events: events.map(e => e.uuid), status })
   } catch (err) {
-    console.log('Could not access the botpress server', err)
+    console.error('Could not access the botpress server', err)
   }
 }
 
-export function setupServerPackageLoop() {
+export const setupServerPackageLoop = () => {
   sendServerPackage().catch()
   setInterval(async () => await sendServerPackage().catch(), ms('1h'))
 }
