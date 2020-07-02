@@ -1,33 +1,25 @@
 import { IO, PromptNode } from 'botpress/sdk'
+import lang from 'common/lang'
 import { Event } from 'core/sdk/impl'
 import _ from 'lodash'
 
 import { MIN_CONFIDENCE_CANCEL } from './prompt-manager'
 
-export const buildMessage = (messagesByLang: { [lang: string]: string }, text?: string) => {
-  return Object.keys(messagesByLang || {}).reduce((acc, lang) => {
-    acc[`markdown$${lang}`] = true
-    acc[`typing$${lang}`] = true
-    acc[`text$${lang}`] = `${messagesByLang[lang]}${text ? `: ${text}` : ''}`
-    return acc
-  }, {})
-}
-
-// TODO backend translations
-const getConfirmationQuestion = value => {
-  return {
-    en: `Is that value correct?: ${value}`,
-    fr: `Est-ce que cette valeur est correcte?: ${value}`
-  }
-}
-
 export const getConfirmPromptNode = (node: PromptNode, value: any): PromptNode => {
-  const question = buildMessage(node.confirm || getConfirmationQuestion(value))
+  let question = lang.tr('module.builtin.prompt.confirmValue', { value })
+
+  if (node.params?.confirm) {
+    question = _.mapValues(node.params?.confirm, (q, lang) =>
+      q.length > 0 ? q.replace(`$value`, value) : question[lang]
+    )
+  }
+
   return {
     type: 'confirm',
-    output: 'confirmed',
-    question,
-    params: { question }
+    params: {
+      output: 'confirmed',
+      question
+    }
   }
 }
 

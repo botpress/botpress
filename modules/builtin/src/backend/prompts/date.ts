@@ -1,4 +1,5 @@
 import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
+import lang from 'common/lang'
 import moment from 'moment'
 
 import common from './common'
@@ -26,19 +27,20 @@ class PromptDate implements Prompt {
     const { _mustBePast, _mustBeFuture } = this
 
     if (value == undefined) {
-      return { valid: false, message: 'Provided value is invalid' }
+      return { valid: false, message: lang.tr('module.builtin.prompt.invalid') }
     }
 
     if (!moment(value).isValid()) {
-      return { valid: false, message: 'The provided date is not valid' }
+      return { valid: false, message: lang.tr('module.builtin.prompt.date.invalid') }
     }
 
-    if (_mustBePast && moment(value).isBefore(moment())) {
-      return { valid: true }
-    } else if (_mustBeFuture && moment(value).isAfter(moment())) {
-      return { valid: true }
+    if (_mustBePast) {
+      return { valid: moment(value).isBefore(moment()), message: lang.tr('module.builtin.prompt.date.mustBePast') }
+    } else if (_mustBeFuture) {
+      return { valid: moment(value).isAfter(moment()), message: lang.tr('module.builtin.prompt.date.mustBeFuture') }
     }
-    return { valid: false, message: 'Outside bounds' }
+
+    return { valid: true }
   }
 }
 
@@ -59,7 +61,7 @@ const config: PromptConfig = {
       label: 'module.builtin.mustBeFuture'
     }
   ],
-  advancedSettings: [...common.advancedSettings]
+  advancedSettings: common.advancedSettings
 }
 
 export default { id: 'date', config, prompt: PromptDate }

@@ -1,4 +1,6 @@
 import { IO, Prompt, PromptConfig, PromptDefinition, PromptNode } from 'botpress/sdk'
+import lang from 'common/lang'
+import { createMultiLangObject } from 'common/prompts'
 import { createForBotpress } from 'core/api'
 import { ModuleLoader } from 'core/module-loader'
 import { EventRepository } from 'core/repositories'
@@ -12,7 +14,7 @@ import { EventEngine } from '../middleware/event-engine'
 
 import { DialogEngine } from './dialog-engine'
 import { ActionStrategy } from './instruction/strategy'
-import { buildMessage, getConfirmPromptNode, shouldCancelPrompt } from './prompt-utils'
+import { getConfirmPromptNode, shouldCancelPrompt } from './prompt-utils'
 
 const debugPrompt = DEBUG('dialog:prompt')
 
@@ -142,7 +144,7 @@ export class PromptManager {
       this._setCurrentNodeValue(event, 'extracted', true)
 
       const { valueType } = this.loadPrompt(node)
-      event.state.setVariable(node.output, status.value, valueType ?? '')
+      event.state.setVariable(node.params.output, status.value, valueType ?? '')
 
       await this._continueOriginalEvent(event)
     }
@@ -183,28 +185,34 @@ export class PromptManager {
     const { valid, message } = await prompt.validate(value)
     debugPrompt('provided answer doesnt match, explain error %o', { valid, message })
 
-    await this.actionStrategy.invokeSendMessage(buildMessage({ en: message! }), '@builtin_text', event)
+    await this.actionStrategy.invokeSendMessage(
+      createMultiLangObject(message!, 'text', { typing: true }),
+      '@builtin_text',
+      event
+    )
   }
 
   private async _askQuestion(event: IO.IncomingEvent, prompt: Prompt, node: PromptNode) {
     debugPrompt('ask prompt question')
 
     if (!prompt.customPrompt || !this._sendCustomPrompt(event, prompt, node)) {
-      await this.actionStrategy.invokeSendMessage(buildMessage(node.question), '@builtin_text', event)
+      await this.actionStrategy.invokeSendMessage(
+        createMultiLangObject(node.params.question, 'text', { typing: true }),
+        '@builtin_text',
+        event
+      )
     }
   }
 
   private async _askLeaveConfirmation(event: IO.IncomingEvent) {
     debugPrompt('ask validation before leaving prompt')
 
-    // TODO: definitely something better
-    const question = { en: 'Do you really wanna leave the current prompt?' }
-
     const confirmNode = {
       type: 'confirm',
-      question,
-      output: 'confirmed',
-      params: { question }
+      params: {
+        output: 'confirmed',
+        question: lang.tr('module.builtin.prompt.confirmLeaving')
+      }
     }
 
     const promptConfirm = this.loadPrompt(confirmNode).prompt
@@ -212,7 +220,7 @@ export class PromptManager {
   }
 
   private async _askConfirmation(event: IO.IncomingEvent, value: any, node: PromptNode) {
-    debugPrompt('low confidence, asking validation for %o', { value: value, output: node.output })
+    debugPrompt('low confidence, asking validation for %o', { value: value, output: node.params.output })
 
     const confirmNode = getConfirmPromptNode(node, value)
     const promptConfirm = this.loadPrompt(confirmNode).prompt

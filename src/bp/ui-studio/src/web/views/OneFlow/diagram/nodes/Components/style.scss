@@ -1,5 +1,5 @@
 .secondaryText {
-  color: #5C7080;
+  color: #5c7080;
   display: block;
 }
 
@@ -58,8 +58,10 @@
           margin-top: 0 !important;
         }
 
-        &.active, &:hover {
-          .content, &:after {
+        &.active,
+        &:hover {
+          .content,
+          &:after {
             background: #fff !important;
           }
         }
@@ -234,7 +236,8 @@
     margin-top: 0;
   }
 
-  &:hover, &.active {
+  &:hover,
+  &.active {
     .content:not(.promptPortContent) {
       border: solid 1px var(--ocean);
     }

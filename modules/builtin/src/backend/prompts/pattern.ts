@@ -1,4 +1,5 @@
 import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
+import lang from 'common/lang'
 
 import common from './common'
 
@@ -23,11 +24,11 @@ class PromptPattern implements Prompt {
 
   async validate(value): Promise<ValidationResult> {
     if (value == undefined) {
-      return { valid: false, message: 'Provided value is invalid' }
+      return { valid: false, message: lang.tr('module.builtin.prompt.invalid') }
     }
 
     if (!new RegExp(this._regexPattern).test(value)) {
-      return { valid: false, message: this._formatInvalidMessage['en'] ?? 'Value does not match format' }
+      return { valid: false, message: this._formatInvalidMessage ?? lang.tr('module.builtin.prompt.pattern.invalid') }
     }
 
     return { valid: true }
@@ -43,16 +44,18 @@ const config: PromptConfig = {
     {
       type: 'text',
       key: 'regexPattern',
+      placeholder: 'module.builtin.regexPatternPlaceholder',
       label: 'module.builtin.regexPattern'
       // TODO add combo box to select from predefined patterns or custom
     },
     {
       type: 'text',
       key: 'formatInvalidMessage',
+      placeholder: 'module.builtin.formatInvalidMessagePlaceholder',
       label: 'module.builtin.formatInvalidMessage'
     }
   ],
-  advancedSettings: [...common.advancedSettings]
+  advancedSettings: common.advancedSettings
 }
 
 export default { id: 'pattern', config, prompt: PromptPattern }

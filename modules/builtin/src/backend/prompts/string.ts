@@ -1,4 +1,5 @@
 import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
+import lang from 'common/lang'
 
 import common from './common'
 
@@ -21,11 +22,11 @@ class PromptString implements Prompt {
 
   async validate(value): Promise<ValidationResult> {
     if (value == undefined) {
-      return { valid: false, message: 'Provided value is invalid' }
+      return { valid: false, message: lang.tr('module.builtin.prompt.invalid') }
     }
 
-    if (value.length > this._maxLength) {
-      return { valid: false, message: 'Text is too long' }
+    if (this._maxLength !== undefined && value.length > this._maxLength) {
+      return { valid: false, message: lang.tr('module.builtin.prompt.string.tooLong', { maxLength: this._maxLength }) }
     }
 
     return { valid: true }
@@ -36,15 +37,17 @@ const config: PromptConfig = {
   type: 'string',
   label: 'String',
   valueType: 'string',
-  fields: [
-    ...common.fields,
+  fields: common.fields,
+  advancedSettings: [
     {
-      type: 'text',
+      type: 'number',
       key: 'maxLength',
+      min: 0,
+      max: 10000,
       label: 'module.builtin.maxLength'
-    }
-  ],
-  advancedSettings: [...common.advancedSettings]
+    },
+    ...common.advancedSettings
+  ]
 }
 
 export default { id: 'string', config, prompt: PromptString }
