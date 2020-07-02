@@ -185,7 +185,8 @@ const Form: FC<FormProps> = ({
   }
 
   const printField = (field, data, parent?) => {
-    const currentValue = field.translated ? data[field.key]?.[currentLang!] : data[field.key]
+    let currentValue = data[field.key] || newFormData[field.key]
+    currentValue = field.translated ? currentValue?.[currentLang!] : currentValue
 
     switch (field.type) {
       case 'group':
