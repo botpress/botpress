@@ -32,18 +32,6 @@ const switchLock = (lockKey: string) => {
   }
 }
 
-const isEventExpired = (event: string) => {
-  const item = window.localStorage.getItem(event)
-  if (item !== null) {
-    const timeout = parseInt(item) - new Date().getTime()
-    if (timeout >= 0) {
-      return true
-    }
-    window.localStorage.removeItem(event)
-  }
-  return false
-}
-
 const getEventTimeout = (event: string) => {
   const item = window.localStorage.getItem(event)
   if (item !== null) {
