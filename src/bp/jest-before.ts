@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events'
+import { Distro } from './common/getos'
 
 const { Debug: _Debug } = require('./debug.ts')
 
@@ -13,7 +14,8 @@ if (!process.BOTPRESS_EVENTS) {
 }
 
 const os = require('os').platform()
-process.distro =
+
+const distribution =
   os !== 'linux'
     ? {
         os,
@@ -27,3 +29,4 @@ process.distro =
         dist: 'Alpine Linux', // github checks runs on alpine...
         release: '3.11.6'
       }
+process.distro = new Distro(distribution)
