@@ -1,6 +1,5 @@
 import React, { FC, useEffect, useRef, useState } from 'react'
 
-import asSuperInput from '../../../FormFields/asSuperInput'
 import style from '../style.scss'
 import { FieldProps } from '../typings'
 
@@ -33,4 +32,4 @@ const Text: FC<TextProps> = ({ onBlur, onChange, placeholder, type, value, child
   )
 }
 
-export default asSuperInput(Text)
+export default Text

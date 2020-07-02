@@ -1,0 +1,32 @@
+.superInput {
+  background: #fff !important;
+  border: 1px solid var(--seashell) !important;
+  border-radius: 3px !important;
+  color: var(--shark) !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  line-height: 1.85 !important;
+  padding: var(--spacing-medium) var(--spacing-large) !important;
+  resize: none;
+  transition: border 0.3s !important;
+  width: 100% !important;
+
+  &:focus, &:focus-within {
+    border-color: var(--ocean) !important;
+    box-shadow: none !important;
+  }
+
+  :global {
+    .tagify__tag {
+      height: 20px;
+
+      .tagify__tag__removeBtn{
+        display: none;
+      }
+    }
+
+    .tagify__input {
+      padding: 0;
+    }
+  }
+}

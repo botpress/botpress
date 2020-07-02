@@ -15,6 +15,7 @@ import GroupItemWrapper from '../GroupItemWrapper'
 
 import style from './style.scss'
 import { FormProps } from './typings'
+import SuperInput from '../../../FormFields/SuperInput'
 
 const printLabel = (field, data) => {
   if (field.label.startsWith('fields::') && field.fields?.length) {
@@ -145,11 +146,7 @@ const formReducer = (state, action) => {
 
 const Form: FC<FormProps> = ({ bp, overrideFields, contentType, formData, fields, advancedSettings, onUpdate }) => {
   const newFormData = getEmptyFormData(contentType || 'builtin_image')
-  const [state, dispatch] = useReducer(formReducer, newFormData)
-
-  useEffect(() => {
-    dispatch({ type: 'setData', data: formData })
-  }, [])
+  const [state, dispatch] = useReducer(formReducer, formData || newFormData)
 
   const printField = (field, data, parent?) => {
     switch (field.type) {
@@ -259,9 +256,10 @@ const Form: FC<FormProps> = ({ bp, overrideFields, contentType, formData, fields
       default:
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
-            <Text
+            <SuperInput
               placeholder={lang(field.placeholder)}
               onBlur={value => {
+                console.log(value)
                 dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
               }}
               type={field.type}

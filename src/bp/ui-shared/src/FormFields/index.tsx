@@ -1,6 +1,6 @@
 import AddButton from '../Contents/Components/Fields/AddButton'
 
-import asSuperInput from './asSuperInput'
+import SuperInput from './SuperInput'
 import TextFieldsArray from './TextFieldsArray'
 
-export default { AddButton, TextFieldsArray, asSuperInput }
+export default { AddButton, TextFieldsArray, SuperInput }
