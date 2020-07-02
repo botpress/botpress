@@ -1,6 +1,5 @@
 import axios from 'axios'
 import { lang } from 'botpress/shared'
-import { createHash } from 'crypto'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
@@ -46,7 +45,7 @@ const getEventTimeout = (event: string) => {
 
 const addEventTimeout = (event: string, timeout: number) => {
   setTimeout(() => switchLock(event), timeout)
-  window.localStorage.setItem(event, (timeout + moment().unix()).toString())
+  window.localStorage.setItem(event, (timeout + moment().valueOf()).toString())
 }
 
 const checkStoreInfoReceived = () => {
