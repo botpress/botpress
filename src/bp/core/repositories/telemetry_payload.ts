@@ -7,16 +7,16 @@ import moment from 'moment'
 import Database from '../database'
 import { TYPES } from '../types'
 
-export interface TelemetryPayloadRepository {
-  getPayload(uuid: string): Promise<any>
-  insertPayload(uuid: string, payload: JSON): Promise<void>
-  removePayload(uuid: string): Promise<void>
-  removeArray(uuidArray: string[]): Promise<void>
-  updateArray(uuidArray: string[], status: boolean): Promise<void>
-  refreshAvailability(): Promise<void>
-  getEntries(n: number): Promise<any>
-  keepTopEntries(n: number): Promise<void>
-}
+// export interface TelemetryPayloadRepository {
+//   getPayload(uuid: string): Promise<any>
+//   insertPayload(uuid: string, payload: JSON): Promise<void>
+//   removePayload(uuid: string): Promise<void>
+//   removeArray(uuIds: string[]): Promise<void>
+//   updateArray(uuIds: string[], status: boolean): Promise<void>
+//   refreshAvailability(): Promise<void>
+//   getEntries(n: number): Promise<any>
+//   keepTopEntries(n: number): Promise<void>
+// }
 
 export type TelemetryPayload = {
   url: string
@@ -24,7 +24,7 @@ export type TelemetryPayload = {
 }
 
 @injectable()
-export class KnexTelemetryPayloadRepository implements TelemetryPayloadRepository {
+export class TelemetryRepo {
   private readonly tableName = 'telemetry_payloads'
   private readonly awsURL = 'https://telemetry.botpress.dev'
 
@@ -40,57 +40,57 @@ export class KnexTelemetryPayloadRepository implements TelemetryPayloadRepositor
       .select('uuid')
       .where(this.database.knex.date.isBefore('lastChanged', time))
 
-    const uuidArray = events.map(event => event.uuid)
+    const uuIds = events.map(event => event.uuid)
 
-    await this.updateArray(uuidArray, true)
+    await this.updateArray(uuIds, true)
   }
 
-  async updateArray(uuidArray: string[], status: boolean): Promise<void> {
-    if (uuidArray.length > 0) {
-      await this.database
-        .knex(this.tableName)
-        .whereIn('uuid', uuidArray)
-        .update({
-          uuid: undefined,
-          payload: undefined,
-          available: this.database.knex.bool.parse(status),
-          lastChanged: this.database.knex.date.now()
-        })
+  async updateArray(uuIds: string[], status: boolean): Promise<void> {
+    if (!uuIds.length) {
+      return
     }
+    await this.database
+      .knex(this.tableName)
+      .whereIn('uuid', uuIds)
+      .update({
+        uuid: undefined,
+        payload: undefined,
+        available: this.database.knex.bool.parse(status),
+        lastChanged: this.database.knex.date.now()
+      })
   }
 
   async keepTopEntries(n: number) {
-    const uuidArray = (
-      await this.database.knex
-        .from(this.tableName)
-        .select('uuid')
-        .orderBy('creationDate', 'desc')
-        .limit(n)
-    ).map(entry => entry.uuid)
+    const uuIds = await this.database.knex
+      .from(this.tableName)
+      .select('uuid')
+      .orderBy('creationDate', 'desc')
+      .limit(n)
+      .then(rows => rows.map(entry => entry.uuid))
 
     await this.database
       .knex(this.tableName)
-      .whereNotIn('uuid', uuidArray)
+      .whereNotIn('uuid', uuIds)
       .del()
   }
 
-  async removeArray(uuidArray: string[]) {
+  async removeArray(uuIds: string[]) {
     await this.database
       .knex(this.tableName)
-      .whereIn('uuid', uuidArray)
+      .whereIn('uuid', uuIds)
       .del()
   }
 
-  async getEntries(n: number): Promise<any> {
+  async getEntries(count: number): Promise<any> {
     const events = await this.database.knex
       .from(this.tableName)
       .select('*')
       .where('available', this.database.knex.bool.true())
-      .limit(n)
+      .limit(count)
 
     if (events.length > 0) {
-      const uuidArray = events.map(event => event.uuid)
-      await this.updateArray(uuidArray, this.database.knex.bool.false())
+      const uuIds = events.map(event => event.uuid)
+      await this.updateArray(uuIds, this.database.knex.bool.false())
     }
     return { url: this.awsURL, events: events.map(event => this.database.knex.json.get(event.payload)) }
   }
@@ -106,11 +106,10 @@ export class KnexTelemetryPayloadRepository implements TelemetryPayloadRepositor
   }
 
   async getPayload(uuid: string): Promise<any> {
-    const payload = await this.database.knex
+    return this.database.knex
       .from(this.tableName)
       .select('*')
       .where('uuid', uuid)
-    return payload
   }
 
   async removePayload(uuid: string): Promise<any> {

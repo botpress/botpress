@@ -5,7 +5,7 @@ import LicensingService from 'common/licensing-service'
 import { ConfigProvider } from 'core/config/config-loader'
 import { ModuleLoader } from 'core/module-loader'
 import { LogsRepository } from 'core/repositories/logs'
-import { TelemetryPayloadRepository } from 'core/repositories/telemetry_payload'
+import { TelemetryRepo } from 'core/repositories/telemetry_payload'
 import { GhostService } from 'core/services'
 import { AlertingService } from 'core/services/alerting-service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
@@ -58,7 +58,7 @@ export class AdminRouter extends CustomRouter {
     moduleLoader: ModuleLoader,
     jobService: JobService,
     private logsRepository: LogsRepository,
-    private telemetryPayloadRepository: TelemetryPayloadRepository
+    private telemetryRepo: TelemetryRepo
   ) {
     super('Admin', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
@@ -133,10 +133,12 @@ export class AdminRouter extends CustomRouter {
       '/telemetry',
       this.checkTokenHeader,
       this.asyncMiddleware(async (req, res) => {
-        if (req.body.status === 'ok') {
-          await this.telemetryPayloadRepository.removeArray(req.body.events)
-        } else if (req.body.status === 'fail') {
-          await this.telemetryPayloadRepository.updateArray(req.body.events, true)
+        const { status, events } = req.body
+
+        if (status === 'ok') {
+          await this.telemetryRepo.removeArray(events)
+        } else if (status === 'fail') {
+          await this.telemetryRepo.updateArray(events, true)
         }
         return sendSuccess(res, 'Updated events')
       })
@@ -146,7 +148,7 @@ export class AdminRouter extends CustomRouter {
       '/telemetry',
       this.checkTokenHeader,
       this.asyncMiddleware(async (req, res) => {
-        res.send(await this.telemetryPayloadRepository.getEntries(1000))
+        res.send(await this.telemetryRepo.getEntries(1000))
       })
     )
 

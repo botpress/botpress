@@ -1,5 +1,4 @@
 import { ConverseConfig } from 'botpress/sdk'
-import { number } from 'joi'
 import { Algorithm } from 'jsonwebtoken'
 
 import { ActionServer, UniqueUser } from '../../common/typings'
@@ -294,13 +293,11 @@ export type BotpressConfig = {
    * @default true
    */
   showPoweredBy: boolean
-
   /**
-   * Displays the "Powered by Botpress" under the webchat.
-   * Help us spread the word, enable this to show your support !
-   * @default true
+   * When true, the bot will avoid repeating itself. By default it is disabled.
+   * Use in conjunction with BP_DECISION_MIN_NO_REPEAT to set the time before the bot will repeat itself
+   * @default false
    */
-
   noRepeatPolicy: boolean
   /**
    * By adding this, you'll make possible to translate a bot in more languages than those supported by your botpress language server
