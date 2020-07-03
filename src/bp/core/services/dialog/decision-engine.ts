@@ -71,12 +71,7 @@ export class DecisionEngine {
         } else if (action === 'redirect' || action === 'startWorkflow' || action === 'goToNode') {
           const { flow, node } = data as NDU.FlowRedirect
           const flowName = flow.endsWith('.flow.json') ? flow : `${flow}.flow.json`
-
-          if (event.state.session.prompt) {
-            await this.promptManager.promptJumpTo(event, { flowName, node })
-          } else {
-            await this.dialogEngine.jumpTo(sessionId, event, flowName, node)
-          }
+          await this.dialogEngine.jumpTo(sessionId, event, flowName, node)
         }
       }
     }
