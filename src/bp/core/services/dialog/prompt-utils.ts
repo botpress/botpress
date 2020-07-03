@@ -1,11 +1,11 @@
-import { IO, PromptNode } from 'botpress/sdk'
+import { IO, MultiLangText, PromptNode } from 'botpress/sdk'
 import lang from 'common/lang'
 import { Event } from 'core/sdk/impl'
 import _ from 'lodash'
 
 import { MIN_CONFIDENCE_CANCEL } from './prompt-manager'
 
-export const getConfirmPromptQuestion = (messages: { [lang: string]: string }, value: any) => {
+export const getConfirmPromptQuestion = (messages: MultiLangText | undefined, value: any) => {
   let question = lang.tr('module.builtin.prompt.confirmValue', { value })
 
   if (messages) {

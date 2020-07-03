@@ -73,26 +73,24 @@ export class DialogEngine {
           state: {},
           turn: 0,
           configuration: {
-            cancellable: true,
-            confirmCancellation: !!currentNode.prompt?.params?.confirm ?? false,
-            outputVariableName: currentNode.prompt?.params?.output ?? '',
-            promptConfirm: 'confirm?',
-            promptQuestion: 'question?', // TODO:
-            promptType: currentNode.prompt!.type,
-            promptParams: currentNode.prompt!.params
+            type: currentNode.prompt!.type,
+            ...currentNode.prompt!.params
           }
         }
       }
 
-      if (event.state.context.activePromptStatus?.status === 'pending') {
-        if (event.state.context.activePromptStatus?.stage !== 'new') {
-          event.state.context.activePromptStatus.turn++
+      if (context.activePromptStatus?.status === 'pending') {
+        if (context.activePromptStatus?.stage !== 'new') {
+          context.activePromptStatus.turn++
         }
 
         const previousEvents = await this.eventRepository
           .findEvents(
             { direction: 'incoming', target: event.target },
-            { count: 6, sortOrder: [{ column: 'createdOn', desc: true }] } // TODO: replace 6 by smt else
+            {
+              count: context.activePromptStatus.configuration.searchBackCount,
+              sortOrder: [{ column: 'createdOn', desc: true }]
+            }
           )
           .then(events => events.map(x => <IO.IncomingEvent>x.event))
 
@@ -106,10 +104,8 @@ export class DialogEngine {
               '@builtin_text',
               event
             )
-
-            // TODO:
-            console.log('===> SAY ', action)
           }
+
           if (action.type === 'listen') {
             return event
           }
@@ -119,9 +115,9 @@ export class DialogEngine {
       if (event.state.context.activePromptStatus?.status === 'resolved') {
         const promptStatus = event.state.context.activePromptStatus
         event.state.setVariable(
-          promptStatus.configuration.outputVariableName,
+          promptStatus.configuration.output,
           promptStatus.state.value,
-          promptStatus.configuration.promptType, // TODO:
+          promptStatus.configuration.type, // TODO:
           {
             nbOfTurns: 10, // TODO:
             specificWorkflow: currentWorkflow

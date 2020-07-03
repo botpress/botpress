@@ -767,38 +767,6 @@ declare module 'botpress/sdk' {
       __error?: EventError
     }
 
-    /** Keeps the status of the prompt in the session */
-    // export interface ActivePrompt {
-    //   /** Copy of the configuration taken from event.prompt */
-    //   config: PromptNode
-    //   status?: PromptStatus
-    //   /** The list of extracted values with their confidence */
-    //   evaluation?: ExtractedVariable[]
-    //   /** All the content of the original event, without the state */
-    //   originalEvent: Partial<IO.IncomingEvent>
-    // }
-
-    // export interface ExtractedVariable {
-    //   confidence: number
-    //   extracted: any
-    // }
-
-    // export interface PromptStatus {
-    //   value?: any
-    //   /** Keeping track of the number of turns so we can stop the prompt after x turns */
-    //   turns: number
-    //   /** When true, the value is valid and can be stored to a variable */
-    //   extracted?: boolean
-    //   /** Used to avoid repeating the question, since we may not need to ask it to the user */
-    //   questionAsked?: boolean
-    //   /** Sent a confirmation message to the user and waiting for a yes/no */
-    //   confirming?: boolean
-    //   /** User is about to leave the prompt (either cancelled or another flow is a better match) */
-    //   exiting?: boolean
-    //   /** If the leave confirmation is successful, we jump the user to that location */
-    //   nextDestination?: { flowName: string; node: string }
-    // }
-
     export interface PromptStatus {
       turn: number
       readonly configuration: Readonly<PromptConfiguration>
@@ -813,15 +781,7 @@ declare module 'botpress/sdk' {
       }
     }
 
-    export interface PromptConfiguration {
-      cancellable: boolean
-      confirmCancellation: boolean
-      outputVariableName: string
-      promptType: string
-      promptParams: any
-      promptQuestion: string // TODO: change
-      promptConfirm: string // TODO: change
-    }
+    export type PromptConfiguration = { type: string } & PromptNodeParams
 
     export interface PromptCandidate {
       source: 'slot' | 'prompt'
@@ -1665,16 +1625,24 @@ declare module 'botpress/sdk' {
   export interface PromptNode {
     type: string
     /** The list of custom parameters of the prompt with their associated values */
-    params: {
-      /** The name of the variable that will be filled with the value extracted */
-      output: string
-      /** The question to ask to the user for this prompt */
-      question: { [lang: string]: string }
-      /** Confirmation message to send to ask the user if the provided value is correct */
-      confirm?: { [lang: string]: string }
-      /** Additional param for prompts */
-      [paramName: string]: any
-    }
+    params: PromptNodeParams
+  }
+
+  export interface PromptNodeParams {
+    cancellable?: boolean
+    confirmCancellation?: boolean
+    /** The name of the variable that will be filled with the value extracted */
+    output: string
+    /** The question to ask to the user for this prompt */
+    question: MultiLangText
+    /** Confirmation message to send to ask the user if the provided value is correct */
+    confirm?: MultiLangText
+    /** Additional param for prompts */
+    [paramName: string]: any
+  }
+
+  export interface MultiLangText {
+    [lang: string]: string
   }
 
   export interface Prompt {
@@ -1706,7 +1674,7 @@ declare module 'botpress/sdk' {
 
   export interface ValidationResult {
     valid: boolean
-    message?: { [lang: string]: string }
+    message?: MultiLangText
   }
 
   export interface PromptConstructable {
