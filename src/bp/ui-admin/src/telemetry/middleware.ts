@@ -2,7 +2,7 @@ import axios from 'axios'
 import ms from 'ms'
 
 import api from './../api'
-import { axiosConfig } from './client'
+import { corsConfig, endpoint } from './client'
 
 const serverUrl = '/admin/telemetry'
 
@@ -21,7 +21,7 @@ const sendServerPackage = async () => {
       await axios.post(
         '/',
         events.map(e => ({ ...e, source: 'client' })),
-        axiosConfig
+        corsConfig
       )
       status = 'ok'
     } catch (err) {
