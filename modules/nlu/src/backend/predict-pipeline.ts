@@ -248,8 +248,8 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
       const predictor = predictors.intent_classifier_per_ctx[ctx]
       if (predictor) {
         const features = getIntentFeatures(input.utterance, customEntities)
-        const tmp = await predictor.predict(features)
-        preds.push(...tmp)
+        const prediction = await predictor.predict(features)
+        preds.push(...prediction)
       }
       const exactPred = findExactIntentForCtx(predictors.exact_match_index, input.utterance, ctx)
       if (exactPred) {
@@ -263,8 +263,8 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
 
         const alternatePreds: sdk.MLToolkit.SVM.Prediction[] = []
         if (predictor) {
-          const tmp = await predictor.predict(alternateFeats)
-          alternatePreds.push(...tmp)
+          const prediction = await predictor.predict(alternateFeats)
+          alternatePreds.push(...prediction)
         }
 
         const exactPred = findExactIntentForCtx(predictors.exact_match_index, input.alternateUtterance, ctx)
@@ -382,9 +382,9 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
     const intents = !intentPred
       ? []
       : intentPred.map(i => ({
-          ...i,
-          slots: (step.slot_predictions_per_intent[i.label] || []).reduce(slotsCollectionReducer, {})
-        }))
+        ...i,
+        slots: (step.slot_predictions_per_intent[i.label] || []).reduce(slotsCollectionReducer, {})
+      }))
 
     return {
       ...preds,

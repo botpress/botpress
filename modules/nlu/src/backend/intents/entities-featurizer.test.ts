@@ -1,6 +1,6 @@
 import _ from 'lodash'
 
-import Utterance, { UtteranceEntity, UtteranceRange } from '../utterance/utterance'
+import { UtteranceEntity, UtteranceRange, makeTestUtterance } from '../utterance/utterance'
 
 import { getEntitiesEncoding } from './entities-featurizer'
 
@@ -23,18 +23,12 @@ function buildEntity(type: string): Entity {
   }
 }
 
-class UtteranceMock extends Utterance {
-  constructor() {
-    super(['heyhey'], [Array(300).fill(0)], ['ADJ'], 'en')
-  }
-}
-
 describe('Entities featurizer', () => {
-  test('All entities should be represented in features even the one with no occurences', () => {
+  test('All entities should be represented in features even the ones with no occurences', () => {
     // Arrange
     const definitions = ['Tata', 'Toto', 'Tutu', 'Titi']
 
-    const utt = new UtteranceMock()
+    const utt = makeTestUtterance('"Fool of a Took! Throw yourself in next time, and rid us of your stupidity" - Gandalf')
     utt.entities = [
       buildEntity('Tutu'),
       buildEntity('Tutu'),
