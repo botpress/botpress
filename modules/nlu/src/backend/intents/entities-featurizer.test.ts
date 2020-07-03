@@ -28,7 +28,9 @@ describe('Entities featurizer', () => {
     // Arrange
     const definitions = ['Tata', 'Toto', 'Tutu', 'Titi']
 
-    const utt = makeTestUtterance('"Fool of a Took! Throw yourself in next time, and rid us of your stupidity" - Gandalf')
+    const utt = makeTestUtterance(
+      '"Fool of a Took! Throw yourself in next time, and rid us of your stupidity" - Gandalf'
+    )
     utt.entities = [
       buildEntity('Tutu'),
       buildEntity('Tutu'),
