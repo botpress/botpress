@@ -12,7 +12,7 @@ import { getPOSTagger, tagSentence } from '../language/pos-tagger'
 import { getLatestModel } from '../model-service'
 import { InvalidLanguagePredictorError } from '../predict-pipeline'
 import { removeTrainingSession, setTrainingSession } from '../train-session-service'
-import { NLUState, Token2Vec, Tools, TrainingSession } from '../typings'
+import { NLUState, Token2Vec, Tools, TrainingSession, NLUProgressEvent } from '../typings'
 
 import nluInfo from '../../../package.json'
 
@@ -62,7 +62,7 @@ function initializeEngine(bp: typeof sdk, state: NLUState) {
     reportTrainingProgress: async (botId: string, message: string, trainSession: TrainingSession) => {
       await setTrainingSession(bp, botId, trainSession)
 
-      const ev = {
+      const ev: NLUProgressEvent = {
         type: 'nlu',
         working: trainSession.status === 'training',
         botId,
