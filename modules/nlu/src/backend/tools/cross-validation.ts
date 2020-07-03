@@ -7,7 +7,7 @@ import { BIO } from '../typings'
 import Utterance, { buildUtteranceBatch } from '../utterance/utterance'
 import legacyElectionPipeline from '../legacy-election'
 
-import { getSeededLodash, cancelRandomSeed } from './seeded-lodash'
+import { getSeededLodash, resetSeed } from './seeded-lodash'
 import MultiClassF1Scorer, { F1 } from './f1-scorer'
 
 interface CrossValidationResults {
@@ -36,7 +36,7 @@ async function makeIntentTestSet(rawUtts: string[], ctxs: string[], intent: stri
 }
 
 async function splitSet(language: string, intents: TrainSet): Promise<[TrainSet, TestSet]> {
-  const lo = getSeededLodash(process.env.RANDOM_SEED)
+  const lo = getSeededLodash(process.env.NLU_SEED)
 
   let testSet: TestSet = []
   const trainSet = (
@@ -48,7 +48,7 @@ async function splitSet(language: string, intents: TrainSet): Promise<[TrainSet,
       }
 
       const utterances = lo.shuffle(i.utterances[language])
-      cancelRandomSeed()
+      resetSeed()
 
       const trainUtts = utterances.slice(0, nTrain)
       const iTestSet = await makeIntentTestSet(utterances.slice(nTrain), i.contexts, i.name, language)

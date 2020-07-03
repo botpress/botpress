@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { getSeededLodash, cancelRandomSeed } from './tools/seeded-lodash'
+import { getSeededLodash, resetSeed } from './tools/seeded-lodash'
 import { getOrCreateCache } from './cache-manager'
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
 import { getSentenceEmbeddingForCtx } from './intents/context-classifier-featurizer'
@@ -225,7 +225,7 @@ const TrainIntentClassifier = async (
 
     const nAvgUtts = Math.ceil(_.meanBy(trainableIntents, 'utterances.length'))
 
-    const lo = getSeededLodash(process.env.RANDOM_SEED)
+    const lo = getSeededLodash(process.env.NLU_SEED)
     const points = _.chain(trainableIntents)
       .thru(ints => [
         ...ints,
@@ -247,7 +247,7 @@ const TrainIntentClassifier = async (
       .filter(x => !x.coordinates.some(isNaN))
       .value()
 
-    cancelRandomSeed()
+    resetSeed()
 
     if (points.length <= 0) {
       progress(1 / input.ctxToTrain.length)
@@ -365,7 +365,7 @@ export const AppendNoneIntent = async (input: TrainOutput, tools: Tools): Promis
     return input
   }
 
-  const lo = getSeededLodash(process.env.RANDOM_SEED)
+  const lo = getSeededLodash(process.env.NLU_SEED)
 
   const allUtterances = lo.flatten(input.intents.map(x => x.utterances))
   const vocabWithDupes = lo
@@ -420,7 +420,7 @@ export const AppendNoneIntent = async (input: TrainOutput, tools: Tools): Promis
     slot_entities: []
   }
 
-  cancelRandomSeed()
+  resetSeed()
   return { ...input, intents: [...input.intents, intent] }
 }
 

@@ -21,7 +21,7 @@ export default function(dataset: Data[], k = 5): SplittedDataSet[] {
   const res: SplittedDataSet[] = []
 
   let lo = _
-  const randomSeed = parseInt(process.env.RANDOM_SEED || '')
+  const randomSeed = parseInt(process.env.NLU_SEED || '')
   if (randomSeed) {
     seedrandom(`${randomSeed}`, { global: true })
     lo = _.runInContext()

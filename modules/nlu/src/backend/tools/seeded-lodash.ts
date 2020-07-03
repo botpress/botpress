@@ -15,6 +15,6 @@ export const getSeededLodash = (randomSeed?: number | string) => {
   return lo
 }
 
-export const cancelRandomSeed = () => {
+export const resetSeed = () => {
   seedrandom(`${new Date().getMilliseconds()}`, { global: true })
 }
