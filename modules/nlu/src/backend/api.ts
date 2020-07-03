@@ -305,7 +305,8 @@ export default async (bp: typeof sdk, state: NLUState) => {
   router.post('/train', async (req, res) => {
     try {
       const { botId } = req.params
-      await state.nluByBot[botId].trainOrLoad(true)
+      const isAuto = await isAutoTrainOn(bp, botId)
+      await state.nluByBot[botId].trainOrLoad(isAuto)
       res.sendStatus(200)
     } catch {
       res.sendStatus(500)

@@ -74,5 +74,6 @@
     "tagSelectionMessage": "Click on a slot or use numbers as keyboard shortcuts"
   },
   "title": "Language Understanding",
-  "trainNow": "Train now"
+  "trainNow": "Train now",
+  "retrainAll": "Force train"
 }

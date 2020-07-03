@@ -74,5 +74,6 @@
     "tagSelectionMessage": "Sélectionnez un paramètre ou utilisez les chiffres pour choisir un élément"
   },
   "title": "Compréhension du langage",
-  "trainNow": "Entraîner maintenant"
+  "trainNow": "Entraîner maintenant",
+  "retrainAll": "Forcer un entraînement"
 }

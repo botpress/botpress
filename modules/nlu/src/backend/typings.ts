@@ -169,6 +169,14 @@ export interface Tools {
   mlToolkit: typeof sdk.MLToolkit
 }
 
+export interface NLUProgressEvent {
+  type: 'nlu'
+  working: boolean
+  botId: string
+  message: string
+  trainSession: TrainingSession
+}
+
 export interface SystemEntityExtractor {
   extractMultiple(input: string[], lang: string, useCache?: Boolean): Promise<EntityExtractionResult[][]>
   extract(input: string, lang: string): Promise<EntityExtractionResult[]>
