@@ -75,5 +75,5 @@
   },
   "title": "Language Understanding",
   "trainNow": "Train now",
-  "retrainAll": "Retrain all"
+  "retrainAll": "Force train"
 }
