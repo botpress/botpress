@@ -131,7 +131,6 @@ export const startTelemetry = () => {
     }
 
     if (checkStoreInfoReceived()) {
-      unsubscribe()
       checkTelemetry().catch(err => {
         console.log(err)
       })
