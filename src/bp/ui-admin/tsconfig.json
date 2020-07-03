@@ -7,14 +7,9 @@
     "resolveJsonModule": true,
     "allowJs": true,
     "target": "es5",
-    "lib": [
-      "es7",
-      "dom"
-    ],
+    "lib": ["es7", "dom"],
     "jsx": "preserve",
-    "typeRoots": [
-      "./node_modules/@types"
-    ],
+    "typeRoots": ["./node_modules/@types"],
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
@@ -22,8 +17,6 @@
     "isolatedModules": true,
     "noEmit": true
   },
-  "include": [
-    "src"
-  ],
+  "include": ["src"],
   "extends": "./tsconfig_bp.json"
 }
