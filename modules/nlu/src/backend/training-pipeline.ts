@@ -3,7 +3,8 @@ import _ from 'lodash'
 
 import { getOrCreateCache } from './cache-manager'
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
-import { getSentenceEmbeddingForCtx } from './intents/context-classifier-featurizer'
+import { getCtxFeatures } from './intents/context-featurizer'
+import { getIntentFeatures } from './intents/intent-featurizer'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getStopWordsForLang } from './language/stopWords'
 import { Model } from './model-service'
@@ -202,12 +203,17 @@ export const BuildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
     .value()
 }
 
+const getCustomEntitiesNames = (input: TrainOutput): string[] => {
+  return [...input.list_entities.map(e => e.entityName), ...input.pattern_entities.map(e => e.name)]
+}
+
 const TrainIntentClassifier = async (
   input: TrainOutput,
   tools: Tools,
   progress: progressCB
 ): Promise<_.Dictionary<string> | undefined> => {
   debugTraining.forBot(input.botId, 'Training intent classifier')
+  const customEntities = getCustomEntitiesNames(input)
   const svmPerCtx: _.Dictionary<string> = {}
 
   const noneUtts = _.chain(input.intents)
@@ -237,7 +243,7 @@ const TrainIntentClassifier = async (
       .flatMap(i =>
         i.utterances.map(utt => ({
           label: i.name,
-          coordinates: [...utt.sentenceEmbedding, utt.tokens.length]
+          coordinates: getIntentFeatures(utt, customEntities)
         }))
       )
       .filter(x => !x.coordinates.some(isNaN))
@@ -265,13 +271,14 @@ const TrainContextClassifier = async (
   progress: progressCB
 ): Promise<string | undefined> => {
   debugTraining.forBot(input.botId, 'Training context classifier')
+  const customEntities = getCustomEntitiesNames(input)
   const points = _.flatMapDeep(input.contexts, ctx => {
     return input.intents
       .filter(intent => intent.contexts.includes(ctx) && intent.name !== NONE_INTENT)
       .map(intent =>
         intent.utterances.map(utt => ({
           label: ctx,
-          coordinates: getSentenceEmbeddingForCtx(utt)
+          coordinates: getCtxFeatures(utt, customEntities)
         }))
       )
   }).filter(x => x.coordinates.filter(isNaN).length === 0)
@@ -329,21 +336,10 @@ export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise
     true
   )
 
-  const customReferencedInSlots = _.chain(input.intents)
-    .flatMap('slot_entities')
-    .uniq()
-    .value()
-
-  // only extract list entities referenced in slots
-  // TODO: remove this once we merge in entity encoding
-  const listEntitiesToExtract = input.list_entities.filter(ent => customReferencedInSlots.includes(ent.entityName))
-  const pattenEntitiesToExtract = input.pattern_entities.filter(ent => customReferencedInSlots.includes(ent.name))
-
   _.zip(utterances, allSysEntities)
     .map(([utt, sysEntities]) => {
-      // TODO: remove this slot check once we merge in entity encoding
-      const listEntities = utt.slots.length ? extractListEntities(utt, listEntitiesToExtract) : []
-      const patternEntities = utt.slots.length ? extractPatternEntities(utt, pattenEntitiesToExtract) : []
+      const listEntities = extractListEntities(utt, input.list_entities)
+      const patternEntities = extractPatternEntities(utt, input.pattern_entities)
       return [utt, [...sysEntities, ...listEntities, ...patternEntities]] as [Utterance, EntityExtractionResult[]]
     })
     .forEach(([utt, entities]) => {

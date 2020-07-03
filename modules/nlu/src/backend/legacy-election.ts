@@ -8,6 +8,7 @@ const OOS_AS_NONE_TRESH = 0.4
 const LOW_INTENT_CONFIDENCE_TRESH = 0.4
 const NONE_INTENT = 'none' // should extract in comon code
 
+// @deprecated > 13
 export default function legacyElectionPipeline(predictOutput: PredictOutput) {
   predictOutput = electIntent(predictOutput)
   predictOutput = detectAmbiguity(predictOutput)
