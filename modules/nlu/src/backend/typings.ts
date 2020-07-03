@@ -168,7 +168,7 @@ export interface Tools {
   mlToolkit: typeof sdk.MLToolkit
 }
 
-export interface NluProgressEvent {
+export interface NLUProgressEvent {
   type: 'nlu'
   working: boolean
   botId: string
