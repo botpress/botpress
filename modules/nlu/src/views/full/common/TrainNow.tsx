@@ -2,7 +2,7 @@ import { Button } from '@blueprintjs/core'
 import { NLUApi } from 'api'
 import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
-import { NluProgressEvent } from '../../../backend/typings'
+import { NLUProgressEvent } from '../../../backend/typings'
 
 const TrainNow: FC<{ api: NLUApi; eventBus: any; autoTrain: boolean }> = ({ api, eventBus, autoTrain }) => {
   const [loading, setLoading] = useState(true)
