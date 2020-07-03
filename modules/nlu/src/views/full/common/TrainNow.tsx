@@ -26,7 +26,6 @@ const TrainNow: FC<{ api: NLUApi; eventBus: any; autoTrain: boolean }> = ({ api,
         setTraining(false)
       }
     })
-
   }, [])
 
   const trainNow = async () => {
