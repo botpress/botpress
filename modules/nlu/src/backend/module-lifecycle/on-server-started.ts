@@ -62,7 +62,7 @@ function initializeEngine(bp: typeof sdk, state: NLUState) {
     reportTrainingProgress: async (botId: string, message: string, trainSession: TrainingSession) => {
       await setTrainingSession(bp, botId, trainSession)
 
-      const ev: NluProgressEvent = {
+      const ev: NLUProgressEvent = {
         type: 'nlu',
         working: trainSession.status === 'training',
         botId,
