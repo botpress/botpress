@@ -22,7 +22,7 @@ const TrainNow: FC<{ api: NLUApi; eventBus: any; autoTrain: boolean }> = ({ api,
 
   useEffect(() => {
     eventBus.on('statusbar.event', event => {
-      if (event.type === 'nlu' && (event as NluProgressEvent).trainSession.status === "done") {
+      if (event.type === 'nlu' && (event as NLUProgressEvent).trainSession.status === "done") {
         setTraining(false)
       }
     })
