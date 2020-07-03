@@ -117,9 +117,8 @@ export const startTelemetry = () => {
 
   setInterval(() => {
     if (checkStoreInfoReceived()) {
-      unsubscribe()
       checkTelemetry().catch(err => {
-        console.log(err)
+        console.error(err)
       })
     }
   }, ms('5m'))
