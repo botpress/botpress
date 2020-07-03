@@ -112,7 +112,7 @@ describe('makeExtractedSlots', () => {
     expect(extractedSlots[0].slot.source).toEqual('big AI')
     expect(extractedSlots[0].slot.value).toEqual(value)
 
-    const actualEntity = _.omit(extractedSlots[0].slot.entity, "start", "end")
+    const actualEntity = _.omit(extractedSlots[0].slot.entity, 'start', 'start')
     expect(actualEntity).toEqual(entity)
   })
 

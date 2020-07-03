@@ -122,7 +122,7 @@ export function makeExtractedSlots(
       )
       if (associatedEntityInRange) {
         extracted.slot.entity = {
-          ..._.omit(associatedEntityInRange, "startPos", "endPos", "startTokenIdx", "endTokenIdx"),
+          ..._.omit(associatedEntityInRange, 'startPos', 'endPos', 'startTokenIdx', 'endTokenIdx'),
           start: associatedEntityInRange.startPos,
           end: associatedEntityInRange.endPos
         }
@@ -136,7 +136,7 @@ export default class SlotTagger {
   private _crfModelFn = ''
   private _crfTagger!: sdk.MLToolkit.CRF.Tagger
 
-  constructor(private mlToolkit: typeof sdk.MLToolkit) { }
+  constructor(private mlToolkit: typeof sdk.MLToolkit) {}
 
   load(crf: Buffer) {
     this._crfModelFn = tmp.tmpNameSync()

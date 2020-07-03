@@ -330,27 +330,30 @@ async function extractSlots(input: PredictStep, predictors: Predictors): Promise
 function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
   // legacy pre-ndu
 
-  const entitiesMapper = (e: EntityExtractionResult) => ({
-    name: e.type,
-    type: e.metadata.entityId,
-    data: {
-      unit: e.metadata.unit,
-      value: e.value
-    },
-    meta: {
-      sensitive: e.sensitive,
-      confidence: e.confidence,
-      end: e.end,
-      source: e.metadata.source,
-      start: e.start
-    }
-  } as sdk.NLU.Entity)
+  const entitiesMapper = (e: EntityExtractionResult) =>
+    ({
+      name: e.type,
+      type: e.metadata.entityId,
+      data: {
+        unit: e.metadata.unit,
+        value: e.value
+      },
+      meta: {
+        sensitive: e.sensitive,
+        confidence: e.confidence,
+        end: e.end,
+        source: e.metadata.source,
+        start: e.start
+      }
+    } as sdk.NLU.Entity)
 
-  const entities = step.utterance.entities.map(e => ({
-    ...e,
-    start: e.startPos, // TODO: a translation from 'startPos' to 'start' should not be needed...
-    end: e.endPos
-  })).map(entitiesMapper)
+  const entities = step.utterance.entities
+    .map(e => ({
+      ...e,
+      start: e.startPos, // TODO: a translation from 'startPos' to 'start' should not be needed...
+      end: e.endPos
+    }))
+    .map(entitiesMapper)
 
   const slotsCollectionReducer = (slots: sdk.NLU.SlotCollection, s: SlotExtractionResult): sdk.NLU.SlotCollection => {
     if (slots[s.slot.name] && slots[s.slot.name].confidence > s.slot.confidence) {
@@ -379,9 +382,9 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
     const intents = !intentPred
       ? []
       : intentPred.map(i => ({
-        ...i,
-        slots: (step.slot_predictions_per_intent[i.label] || []).reduce(slotsCollectionReducer, {})
-      }))
+          ...i,
+          slots: (step.slot_predictions_per_intent[i.label] || []).reduce(slotsCollectionReducer, {})
+        }))
 
     return {
       ...preds,
