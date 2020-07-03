@@ -10,7 +10,7 @@ import SlotTagger from './slots/slot-tagger'
 import * as math from './tools/math'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './training-pipeline'
-import { Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
+import { Intent, PatternEntity, SlotExtractionResult, Tools, EntityExtractionResult } from './typings'
 import Utterance, { buildUtteranceBatch, getAlternateUtterance } from './utterance/utterance'
 
 export type ExactMatchResult = (sdk.MLToolkit.SVM.Prediction & { extractor: 'exact-matcher' }) | undefined
@@ -464,25 +464,31 @@ async function extractSlots(input: PredictStep, predictors: Predictors): Promise
 }
 
 function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
-  // legacy pre-ndu
-  const entities = step.utterance.entities.map(
-    e =>
-      ({
-        name: e.type,
-        type: e.metadata.entityId,
-        data: {
-          unit: e.metadata.unit,
-          value: e.value
-        },
-        meta: {
-          sensitive: e.sensitive,
-          confidence: e.confidence,
-          end: e.endPos,
-          source: e.metadata.source,
-          start: e.startPos
-        }
-      } as sdk.NLU.Entity)
-  )
+  const entitiesMapper = (e: EntityExtractionResult) =>
+    ({
+      name: e.type,
+      type: e.metadata.entityId,
+      data: {
+        unit: e.metadata.unit,
+        value: e.value
+      },
+      meta: {
+        sensitive: e.sensitive,
+        confidence: e.confidence,
+        end: e.end,
+        source: e.metadata.source,
+        start: e.start
+      }
+    } as sdk.NLU.Entity)
+
+  const entities = step.utterance.entities
+    .map(e => ({
+      ...e,
+      start: e.startPos, // TODO: a translation from 'startPos' to 'start' should not be needed...
+      end: e.endPos
+    }))
+    .map(entitiesMapper)
+
   // legacy pre-ndu
   const slots = step.utterance.slots.reduce((slots, s) => {
     return {
@@ -512,8 +518,9 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
         confidence: s.slot.confidence,
         name: s.slot.name,
         source: s.slot.source,
-        value: s.slot.value
-      } as sdk.NLU.Slot
+        value: s.slot.value,
+        entity: entitiesMapper(s.slot.entity)
+      }
     }
   }
 
