@@ -7,12 +7,17 @@ interface Params {
 
 export default {
   id: 'topic_is_ambiguous',
-  label: 'Detected topics are ambiguous',
+  label: 'module.nlu.conditions.ambiguousTopics',
   description: 'What user said might refer to multiple topics ',
   displayOrder: 2,
-  params: {
-    ambiguityThreshold: { label: 'Ambiguity threshold', type: 'number', defaultValue: 0.15 }
-  },
+  fields: [
+    {
+      key: 'ambiguityThreshold',
+      label: 'module.nlu.conditions.fields.label.ambiguityThreshold',
+      type: 'number',
+      defaultValue: 0.15
+    }
+  ],
   evaluate: (event: IO.IncomingEvent, { ambiguityThreshold }: Params) => {
     const highestTopics: number[] = _.chain(event?.nlu?.predictions ?? {})
       .toPairs()

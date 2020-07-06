@@ -81,6 +81,7 @@ export const IntentEditor: FC<Props> = props => {
         <UtterancesEditor
           intentName={intent.name}
           utterances={utterances}
+          liteEditor={props.liteEditor}
           onChange={handleUtterancesChange}
           slots={intent.slots}
         />

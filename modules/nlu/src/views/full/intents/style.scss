@@ -44,7 +44,16 @@
 
 .utterances {
   flex: 1;
-  min-width: 300px;
+
+  &:not(.liteEditor) {
+    min-width: 300px;
+  }
+
+  &.liteEditor {
+    border-bottom: 1px solid var(--gray);
+    margin-bottom: var(--spacing-large);
+    padding-bottom: var(--spacing-large);
+  }
 }
 
 .entities-list {

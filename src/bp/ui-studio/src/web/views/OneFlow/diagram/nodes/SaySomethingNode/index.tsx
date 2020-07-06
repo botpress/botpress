@@ -8,15 +8,17 @@ import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
 import { BaseNodeModel } from '~/views/FlowBuilder/diagram/nodes/BaseNodeModel'
 import { StandardPortWidget } from '~/views/FlowBuilder/diagram/nodes/Ports'
 
-import style from './style.scss'
+import style from '../Components/style.scss'
+import NodeHeader from '../Components/NodeHeader'
+import NodeWrapper from '../Components/NodeWrapper'
 
 interface Props {
   node: SaySomethingNodeModel
   getCurrentFlow: any
   updateFlowNode: any
   onDeleteSelectedElements: () => void
-  editContent: (node: SaySomethingNodeModel, index: number) => void
-  selectedNodeContent: () => { node: SaySomethingNodeModel; index: number }
+  editNodeItem: (node: SaySomethingNodeModel, index: number) => void
+  selectedNodeItem: () => { node: SaySomethingNodeModel; index: number }
   getCurrentLang: () => string
   switchFlowNode: (id: string) => void
 }
@@ -24,9 +26,9 @@ interface Props {
 const SaySomethingWidget: FC<Props> = ({
   node,
   getCurrentFlow,
-  editContent,
+  editNodeItem,
   onDeleteSelectedElements,
-  selectedNodeContent,
+  selectedNodeItem,
   updateFlowNode,
   getCurrentLang,
   switchFlowNode
@@ -34,13 +36,6 @@ const SaySomethingWidget: FC<Props> = ({
   const [expanded, setExpanded] = useState(node.isNew)
   const [error, setError] = useState(null)
   const [isEditing, setIsEditing] = useState(false)
-  const isDefaultName = node.name.startsWith('node-')
-
-  const getInitialInputValue = () => {
-    return isDefaultName ? '' : node.name
-  }
-
-  const [inputValue, setInputValue] = useState(getInitialInputValue())
 
   const handleContextMenu = e => {
     e.stopPropagation()
@@ -69,37 +64,25 @@ const SaySomethingWidget: FC<Props> = ({
     )
   }
 
-  const onKeyDown = event => {
-    if ((event.ctrlKey || event.metaKey) && event.key === 'a') {
-      event.target.select()
-    }
-
-    if (event.key === 'Escape' || event.key === 'Enter') {
-      event.target.blur()
-    }
-  }
-
-  const saveName = (): void => {
+  const saveName = (value): void => {
     setError(null)
 
-    if (inputValue) {
-      const alreadyExists = getCurrentFlow().nodes.find(x => x.name === inputValue && x.id !== node.id)
+    if (value) {
+      const alreadyExists = getCurrentFlow().nodes.find(x => x.name === value && x.id !== node.id)
 
       if (alreadyExists) {
         setError(lang.tr('studio.flow.node.nameAlreadyExists'))
         return
       }
 
-      updateFlowNode({ name: inputValue })
-    } else {
-      setInputValue(getInitialInputValue())
+      updateFlowNode({ name: value })
     }
 
     setIsEditing(false)
   }
   const currentLang = getCurrentLang()
 
-  const selectedContent = selectedNodeContent()
+  const selectedContent = selectedNodeItem()
 
   const getTranslatedContent = content => {
     const langArr = Object.keys(content)
@@ -118,62 +101,33 @@ const SaySomethingWidget: FC<Props> = ({
   node.locked = isEditing
 
   return (
-    <div
-      className={style.nodeWrapper}
-      onContextMenu={e => {
-        e.stopPropagation()
-        e.preventDefault()
-      }}
-    >
-      <div className={style.headerWrapper}>
-        {!isEditing ? (
-          <Button
-            icon={expanded ? 'chevron-down' : 'chevron-right'}
-            onClick={() => setExpanded(!expanded)}
-            className={style.button}
-            onContextMenu={handleContextMenu}
-          >
-            {isDefaultName ? lang.tr('studio.flow.node.chatbotSays') : node.name}
-          </Button>
-        ) : (
-          <div className={style.button}>
-            <Icon icon={expanded ? 'chevron-down' : 'chevron-right'} />
-            <input
-              type="text"
-              placeholder={lang.tr('studio.flow.node.renameBlock')}
-              autoFocus
-              onFocus={e => e.currentTarget.select()}
-              onKeyDown={onKeyDown}
-              onChange={e => setInputValue(e.currentTarget.value)}
-              onBlur={saveName}
-              value={inputValue}
-              className={cx({ [style.error]: error })}
-            />
-            {error && (
-              <span className={style.errorIcon}>
-                <Tooltip content={error}>
-                  <Icon icon="warning-sign" iconSize={10} intent={Intent.DANGER} />
-                </Tooltip>
-              </span>
-            )}
-          </div>
-        )}
+    <NodeWrapper>
+      <NodeHeader
+        setExpanded={setExpanded}
+        expanded={expanded}
+        handleContextMenu={handleContextMenu}
+        isEditing={isEditing}
+        saveName={saveName}
+        defaultLabel={lang.tr('studio.flow.node.chatbotSays')}
+        name={node.name}
+        error={error}
+      >
         <StandardPortWidget name="in" node={node} className={style.in} />
         <StandardPortWidget name="out0" node={node} className={style.out} />
-      </div>
+      </NodeHeader>
       {expanded && (
         <div className={style.contentsWrapper}>
           {node.contents?.map((content, index) => (
             <Contents.Item
               active={selectedContent?.node?.id === node.id && index === selectedContent?.index}
               key={`${index}${currentLang}`}
-              onEdit={() => editContent?.(node, index)}
+              onEdit={() => editNodeItem?.(node, index)}
               content={getTranslatedContent(content)}
             />
           ))}
         </div>
       )}
-    </div>
+    </NodeWrapper>
   )
 }
 
@@ -209,8 +163,8 @@ export class SaySomethingNodeModel extends BaseNodeModel {
 }
 
 export class SaySomethingWidgetFactory extends AbstractNodeFactory {
-  private editContent: (node: SaySomethingNodeModel, index: number) => void
-  private selectedNodeContent: () => { node: SaySomethingNodeModel; index: number }
+  private editNodeItem: (node: SaySomethingNodeModel, index: number) => void
+  private selectedNodeItem: () => { node: SaySomethingNodeModel; index: number }
   private deleteSelectedElements: () => void
   private getCurrentLang: () => string
   private getCurrentFlow: any
@@ -220,8 +174,8 @@ export class SaySomethingWidgetFactory extends AbstractNodeFactory {
   constructor(methods) {
     super('say_something')
 
-    this.editContent = methods.editContent
-    this.selectedNodeContent = methods.selectedNodeContent
+    this.editNodeItem = methods.editNodeItem
+    this.selectedNodeItem = methods.selectedNodeItem
     this.deleteSelectedElements = methods.deleteSelectedElements
     this.getCurrentFlow = methods.getCurrentFlow
     this.updateFlowNode = methods.updateFlowNode
@@ -234,10 +188,10 @@ export class SaySomethingWidgetFactory extends AbstractNodeFactory {
       <SaySomethingWidget
         node={node}
         getCurrentFlow={this.getCurrentFlow}
-        editContent={this.editContent}
+        editNodeItem={this.editNodeItem}
         onDeleteSelectedElements={this.deleteSelectedElements}
         updateFlowNode={this.updateFlowNode}
-        selectedNodeContent={this.selectedNodeContent}
+        selectedNodeItem={this.selectedNodeItem}
         getCurrentLang={this.getCurrentLang}
         switchFlowNode={this.switchFlowNode}
       />

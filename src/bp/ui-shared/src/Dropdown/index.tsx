@@ -1,10 +1,12 @@
 import { Button, Classes, MenuItem } from '@blueprintjs/core'
 import { ItemPredicate, Select } from '@blueprintjs/select'
+import cx from 'classnames'
 import { FC, useEffect, useState } from 'react'
 import React from 'react'
 
 import confirmDialog from '../ConfirmDialog'
 
+import style from './style.scss'
 import { DropdownProps, Option } from './typings'
 
 const itemRenderer = (option, { modifiers, handleClick }) => {
@@ -29,7 +31,19 @@ const filterOptions: ItemPredicate<Option> = (query, option) => {
 }
 
 const Dropdown: FC<DropdownProps> = props => {
-  const { confirmChange, defaultItem, items, onChange, small, icon, rightIcon, spaced, className, filterable } = props
+  const {
+    placeholder,
+    confirmChange,
+    defaultItem,
+    items,
+    onChange,
+    small,
+    icon,
+    rightIcon,
+    spaced,
+    className,
+    filterable
+  } = props
   const [activeItem, setActiveItem] = useState<Option | undefined>()
   const SimpleDropdown = Select.ofType<Option>()
 
@@ -40,6 +54,8 @@ const Dropdown: FC<DropdownProps> = props => {
   const updateSelectedOption = option => {
     onChange(option)
   }
+
+  const btnText = activeItem ? activeItem.label : placeholder
 
   return (
     <SimpleDropdown
@@ -70,11 +86,11 @@ const Dropdown: FC<DropdownProps> = props => {
       }}
     >
       <Button
-        text={small ? <small>{activeItem && activeItem.label}</small> : activeItem && activeItem.label}
+        className={cx(style.btn, { [style.spaced]: spaced, [style.placeholder]: !activeItem })}
+        text={small ? <small>{btnText}</small> : btnText}
         icon={icon}
         rightIcon={rightIcon || 'double-caret-vertical'}
         small={small}
-        style={{ margin: spaced ? '0 5px 0 5px' : 0 }}
       />
     </SimpleDropdown>
   )

@@ -14,11 +14,11 @@ import {
 } from './intents/intent-service'
 import recommendations from './intents/recommendations'
 import { IntentDefCreateSchema } from './intents/validation'
+import legacyElectionPipeline from './legacy-election'
 import { initializeLanguageProvider } from './module-lifecycle/on-server-started'
 import { crossValidate } from './tools/cross-validation'
 import { getTrainingSession } from './train-session-service'
 import { NLUState } from './typings'
-import legacyElectionPipeline from './legacy-election'
 
 export const PredictSchema = Joi.object().keys({
   contexts: Joi.array()
@@ -158,7 +158,9 @@ export default async (bp: typeof sdk, state: NLUState) => {
       try {
         const ghost = bp.ghost.forBot(botId)
 
-        await updateContextsFromTopics(ghost, state.nluByBot[botId].entityService, [condition.params.intentName])
+        await updateContextsFromTopics(ghost, state.nluByBot[botId].entityService, [
+          condition.params.intentName as string
+        ])
         return res.sendStatus(200)
       } catch (err) {
         return res.status(400).send(err.message)
@@ -305,7 +307,8 @@ export default async (bp: typeof sdk, state: NLUState) => {
   router.post('/train', async (req, res) => {
     try {
       const { botId } = req.params
-      await state.nluByBot[botId].trainOrLoad(true)
+      const isAuto = await isAutoTrainOn(bp, botId)
+      await state.nluByBot[botId].trainOrLoad(isAuto)
       res.sendStatus(200)
     } catch {
       res.sendStatus(500)

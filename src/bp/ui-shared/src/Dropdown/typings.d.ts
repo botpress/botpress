@@ -9,6 +9,7 @@ export interface DropdownProps {
     acceptLabel?: string
     callback?: (value?: any) => void
   }
+  placeholder?: string
   filterable?: boolean
   className?: string
   items: Option[]

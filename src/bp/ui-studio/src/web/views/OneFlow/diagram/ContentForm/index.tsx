@@ -48,25 +48,29 @@ const ContentForm: FC<Props> = ({
   ]
 
   const handleContentTypeChange = value => {
+    const { fields, advancedSettings } = contentTypesFields?.[value] || {}
+    const schemaFields = [...(fields || []), ...(advancedSettings || [])]
     contentType.current = value
     onUpdate({
-      ...Contents.getEmptyFormData(value),
+      ...Contents.createEmptyDataFromSchema(schemaFields),
       contentType: value,
       id: formData?.id
     })
   }
 
   const contentFields = contentTypesFields?.[contentType.current]
+  const { fields, advancedSettings } = contentFields || {}
+  const schemaFields = [...(fields || []), ...(advancedSettings || [])]
 
   // TODO reimplement hasChanged, doesn't work properly atm
   const hasChanged = !(
     _.isEqual(formData, { contentType: contentType.current }) ||
     _.isEqual(formData, {
-      ...Contents.getEmptyFormData(contentType.current),
+      ...Contents.createEmptyDataFromSchema(schemaFields),
       contentType: contentType.current
     }) ||
     _.isEqual(formData, {
-      ...Contents.getEmptyFormData(contentType.current),
+      ...Contents.createEmptyDataFromSchema(schemaFields),
       contentType: contentType.current,
       id: formData?.id
     })
@@ -81,7 +85,7 @@ const ContentForm: FC<Props> = ({
       <Fragment key={`${contentType.current}-${customKey || editingContent}`}>
         <div className={style.formHeader}>
           <Tabs id="contentFormTabs">
-            <Tab id="content" title="Say" />
+            <Tab id="content" title={lang.tr('studio.flow.nodeType.say')} />
           </Tabs>
           <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
         </div>
@@ -109,7 +113,8 @@ const ContentForm: FC<Props> = ({
         </div>
         {!!contentFields && (
           <Contents.Form
-            bp={{ axios, mediaPath: `${window.BOT_API_PATH}/media` }}
+            axios={axios}
+            mediaPath={`${window.BOT_API_PATH}/media`}
             overrideFields={{
               textOverride: props => <TextField {...props} />
             }}
@@ -117,7 +122,6 @@ const ContentForm: FC<Props> = ({
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
             formData={formData}
-            contentType={contentType.current}
             onUpdate={data => onUpdate({ ...data, contentType: contentType.current })}
           />
         )}

@@ -1,6 +1,8 @@
 import * as sdk from 'botpress/sdk'
 
 import { Config } from '../config'
+import en from '../translations/en.json'
+import fr from '../translations/fr.json'
 
 import api from './api'
 import { dialogConditions } from './conditions'
@@ -56,6 +58,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onFlowChanged,
   botTemplates,
   dialogConditions,
+  translations: { en, fr },
   definition: {
     name: 'ndu',
     menuIcon: 'poll',

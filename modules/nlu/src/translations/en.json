@@ -1,6 +1,32 @@
 {
   "autoTrain": "Auto Training",
   "cancelTraining": "Cancel Training",
+  "conditions": {
+    "ambiguousIntentInTopic": "Intent is ambiguous within topic",
+    "ambiguousTopics": "Detected topics are ambiguous",
+    "fields": {
+      "label": {
+        "activeWorkflowOnly": "Enable action in active workflow only",
+        "ambiguityThreshold": "Ambiguity Threshold",
+        "biggerThan": "Bigger Than",
+        "comparisonMethod": "Comparison Method",
+        "equal": "Equal",
+        "expectedValue": "Expected value",
+        "lessThan": "Less Than",
+        "maxConfidence": "Maximum reachable confidence (%)",
+        "none": "None",
+        "notEqual": "Not Equal",
+        "variableType": "Variable Type"
+      },
+      "placeholder": {
+        "pickComparisonMethod": "Pick a comparison method",
+        "pickVariableType": "Pick an variable type"
+      }
+    },
+    "saySomethingMisunderstood": "Users says something misunderstood (intent)",
+    "userWantsTo": "User wants to {intentName}",
+    "variableExtractedFromMessage": "A variable was extracted from the user’s message"
+  },
   "description": "Use Botpress native Natural Language Understanding engine to make your bot smarter.",
   "entities": {
     "deleteMessage": "Are you sure you want to delete the entity \"{entityName}\" ?",
@@ -38,6 +64,7 @@
   "fullName": "NLU",
   "intents": {
     "actionErrorMessage": "Could not {action} intent",
+    "addBtn": "Add Intent Alternatives",
     "chooseContainerLabel": "Choose a different intent for the condition",
     "contextSelectorCreateMissing": "Create \"{query}\"",
     "contextSelectorPlaceholder": "Select context...",
@@ -74,5 +101,6 @@
     "tagSelectionMessage": "Click on a slot or use numbers as keyboard shortcuts"
   },
   "title": "Language Understanding",
-  "trainNow": "Train now"
+  "trainNow": "Train now",
+  "retrainAll": "Force train"
 }

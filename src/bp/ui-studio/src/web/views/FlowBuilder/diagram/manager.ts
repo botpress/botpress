@@ -4,6 +4,7 @@ import { DefaultLinkModel, DiagramEngine, DiagramModel, DiagramWidget, PointMode
 import { hashCode } from '~/util'
 
 import { SaySomethingNodeModel } from '../../OneFlow/diagram/nodes/SaySomethingNode'
+import { TriggerNodeModel } from '../../OneFlow/diagram/nodes/TriggerNode'
 
 import { BaseNodeModel } from './nodes/BaseNodeModel'
 import { SkillCallNodeModel } from './nodes/SkillCallNode'
@@ -14,7 +15,6 @@ import { FailureNodeModel } from './nodes_v2/FailureNode'
 import { ListenNodeModel } from './nodes_v2/ListenNode'
 import { RouterNodeModel } from './nodes_v2/RouterNode'
 import { SuccessNodeModel } from './nodes_v2/SuccessNode'
-import { TriggerNodeModel } from './nodes_v2/TriggerNode'
 
 const passThroughNodeProps: string[] = [
   'name',
