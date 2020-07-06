@@ -703,10 +703,6 @@ declare module 'botpress/sdk' {
       /* HITL module has possibility to pause conversation */
       readonly isPause?: boolean
       readonly ndu?: NDU.DialogUnderstanding
-      // /** When the prompt property is set, the current dialog is paused until the prompt is resolved */
-      // prompt?: PromptNode
-      /** This flag skips the processing of some middlewares (since we restore an existing event) */
-      restored?: boolean
     }
 
     export interface OutgoingEvent extends Event {

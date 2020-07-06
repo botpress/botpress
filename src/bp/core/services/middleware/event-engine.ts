@@ -37,7 +37,6 @@ const eventSchema = {
   credentials: joi.any().optional(),
   incomingEventId: joi.string().optional(),
   ndu: joi.any().optional(),
-  restored: joi.boolean().optional(),
   nlu: joi
     .object({
       intent: joi.object().optional(),

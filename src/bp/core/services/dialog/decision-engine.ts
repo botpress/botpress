@@ -56,23 +56,22 @@ export class DecisionEngine {
         this.onAfterEventProcessed && (await this.onAfterEventProcessed(event))
       }
     }
-    if (!event.restored) {
-      for (const { action, data } of event.ndu.actions) {
-        if (action === 'send' && data) {
-          const content = data as NDU.SendContent
-          await this._sendContent(content, event)
 
-          BOTPRESS_CORE_EVENT('bp_core_send_content', {
-            botId: event.botId,
-            channel: event.channel,
-            source: content.source,
-            details: content.sourceDetails!
-          })
-        } else if (action === 'redirect' || action === 'startWorkflow' || action === 'goToNode') {
-          const { flow, node } = data as NDU.FlowRedirect
-          const flowName = flow.endsWith('.flow.json') ? flow : `${flow}.flow.json`
-          await this.dialogEngine.jumpTo(sessionId, event, flowName, node)
-        }
+    for (const { action, data } of event.ndu.actions) {
+      if (action === 'send' && data) {
+        const content = data as NDU.SendContent
+        await this._sendContent(content, event)
+
+        BOTPRESS_CORE_EVENT('bp_core_send_content', {
+          botId: event.botId,
+          channel: event.channel,
+          source: content.source,
+          details: content.sourceDetails!
+        })
+      } else if (action === 'redirect' || action === 'startWorkflow' || action === 'goToNode') {
+        const { flow, node } = data as NDU.FlowRedirect
+        const flowName = flow.endsWith('.flow.json') ? flow : `${flow}.flow.json`
+        await this.dialogEngine.jumpTo(sessionId, event, flowName, node)
       }
     }
 
