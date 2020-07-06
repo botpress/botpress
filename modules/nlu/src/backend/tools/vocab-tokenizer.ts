@@ -35,7 +35,7 @@ export default (vocab: string[]) => (token: string) => {
 
   const coverAllToken = matchesCoverAllToken(token)
 
-  for (let p of pairs(matchingVocabTokens.length)) {
+  for (const p of pairs(matchingVocabTokens.length)) {
     const [first, second] = _(p)
       .map(idx => matchingVocabTokens[idx])
       .orderBy(m => m.start)
