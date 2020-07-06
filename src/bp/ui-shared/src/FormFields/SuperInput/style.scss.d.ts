@@ -2,6 +2,9 @@
 // Please do not change this file!
 interface CssExports {
   'superInput': string;
+  'superInputWrapper': string;
+  'tagBtn': string;
+  'tagBtnWrapper': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

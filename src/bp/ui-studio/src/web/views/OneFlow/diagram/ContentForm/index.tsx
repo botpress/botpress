@@ -28,7 +28,7 @@ const ContentForm: FC<Props> = ({
   onUpdate,
   deleteContent
 }) => {
-  const [isConfirming, setIsConfirming] = useState(false)
+  const [canOutsideClickClose, setCanOutsideClickClose] = useState(true)
   const contentType = useRef(formData?.contentType || 'builtin_text')
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
@@ -73,7 +73,11 @@ const ContentForm: FC<Props> = ({
   )
 
   return (
-    <RightSidebar className={style.wrapper} canOutsideClickClose={!isConfirming} close={() => close(editingContent)}>
+    <RightSidebar
+      className={style.wrapper}
+      canOutsideClickClose={canOutsideClickClose}
+      close={() => close(editingContent)}
+    >
       <Fragment key={`${contentType.current}-${customKey || editingContent}`}>
         <div className={style.formHeader}>
           <Tabs id="contentFormTabs">
@@ -94,7 +98,7 @@ const ContentForm: FC<Props> = ({
                 hasChanged && {
                   message: lang.tr('studio.content.confirmChangeContentType'),
                   acceptLabel: lang.tr('change'),
-                  callback: setIsConfirming
+                  callback: setCanOutsideClickClose
                 }
               }
               onChange={option => {
@@ -109,6 +113,7 @@ const ContentForm: FC<Props> = ({
             overrideFields={{
               textOverride: props => <TextField {...props} />
             }}
+            setCanOutsideClickClose={setCanOutsideClickClose}
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
             formData={formData}

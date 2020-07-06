@@ -52,17 +52,17 @@ const Dropdown: FC<DropdownProps> = props => {
       itemPredicate={filterOptions}
       onItemSelect={async option => {
         if (confirmChange) {
-          confirmChange.callback?.(true)
+          confirmChange.callback?.(false)
 
           if (
             await confirmDialog(confirmChange.message, {
               acceptLabel: confirmChange.acceptLabel
             })
           ) {
-            confirmChange.callback?.(false)
+            confirmChange.callback?.(true)
             updateSelectedOption(option)
           } else {
-            confirmChange.callback?.(false)
+            confirmChange.callback?.(true)
           }
         } else {
           updateSelectedOption(option)

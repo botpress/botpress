@@ -1,9 +1,10 @@
 import { Checkbox } from '@blueprintjs/core'
 import { FormMoreInfo } from 'common/typings'
 import _ from 'lodash'
-import React, { FC, Fragment, useEffect, useReducer } from 'react'
+import React, { FC, Fragment, useEffect, useReducer, useRef } from 'react'
 
 import { lang } from '../../../translations'
+import SuperInput from '../../../FormFields/SuperInput'
 import { getEmptyFormData } from '../../utils/fields'
 import AddButton from '../Fields/AddButton'
 import Select from '../Fields/Select'
@@ -15,7 +16,6 @@ import GroupItemWrapper from '../GroupItemWrapper'
 
 import style from './style.scss'
 import { FormProps } from './typings'
-import SuperInput from '../../../FormFields/SuperInput'
 
 const printLabel = (field, data) => {
   if (field.label.startsWith('fields::') && field.fields?.length) {
@@ -144,9 +144,19 @@ const formReducer = (state, action) => {
   }
 }
 
-const Form: FC<FormProps> = ({ bp, overrideFields, contentType, formData, fields, advancedSettings, onUpdate }) => {
+const Form: FC<FormProps> = ({
+  bp,
+  overrideFields,
+  contentType,
+  formData,
+  fields,
+  advancedSettings,
+  setCanOutsideClickClose,
+  onUpdate
+}) => {
   const newFormData = getEmptyFormData(contentType || 'builtin_image')
   const [state, dispatch] = useReducer(formReducer, formData || newFormData)
+  const outsideClickTimeout = useRef<any>()
 
   const printField = (field, data, parent?) => {
     switch (field.type) {
@@ -256,15 +266,37 @@ const Form: FC<FormProps> = ({ bp, overrideFields, contentType, formData, fields
       default:
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
-            <SuperInput
-              placeholder={lang(field.placeholder)}
-              onBlur={value => {
-                console.log(value)
-                dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
-              }}
-              type={field.type}
-              value={data[field.key]}
-            />
+            {// TODO apply SuperInput everywhere
+            field.type === 'text' ? (
+              <SuperInput
+                placeholder={lang(field.placeholder)}
+                variables={[]}
+                events={{}}
+                setCanOutsideClickClose={canClickOuside => {
+                  if (outsideClickTimeout.current) {
+                    clearTimeout(outsideClickTimeout.current)
+                  }
+
+                  setCanOutsideClickClose?.(canClickOuside)
+                }}
+                onBlur={value => {
+                  outsideClickTimeout.current = setTimeout(() => {
+                    setCanOutsideClickClose?.(true)
+                  }, 200)
+                  dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
+                }}
+                value={data[field.key]}
+              />
+            ) : (
+              <Text
+                placeholder={lang(field.placeholder)}
+                onBlur={value => {
+                  dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
+                }}
+                type={field.type}
+                value={data[field.key]}
+              />
+            )}
             {field.moreInfo && printMoreInfo(field.moreInfo)}
           </FieldWrapper>
         )

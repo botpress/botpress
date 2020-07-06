@@ -1,32 +1,79 @@
-.superInput {
+.superInputWrapper {
   background: #fff !important;
   border: 1px solid var(--seashell) !important;
   border-radius: 3px !important;
-  color: var(--shark) !important;
-  font-size: 12px !important;
-  font-weight: 400 !important;
-  line-height: 1.85 !important;
-  padding: var(--spacing-medium) var(--spacing-large) !important;
-  resize: none;
-  transition: border 0.3s !important;
-  width: 100% !important;
 
-  &:focus, &:focus-within {
-    border-color: var(--ocean) !important;
-    box-shadow: none !important;
+  .tagBtnWrapper  {
+    float: right;
+    position: relative;
+    z-index: 9;
   }
 
-  :global {
-    .tagify__tag {
-      height: 20px;
+  .tagBtn {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: var(--spacing-small) var(--spacing-medium) var(--spacing-medium);
 
-      .tagify__tag__removeBtn{
-        display: none;
-      }
+    svg {
+      fill: var(--reef);
+      transition: fill 0.3s;
     }
 
-    .tagify__input {
-      padding: 0;
+    &:hover svg {
+      fill: var(--shark);
+    }
+  }
+
+  .superInput {
+    background: none;
+    border: none;
+    color: var(--shark) !important;
+    display: block;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    line-height: 1.85 !important;
+    padding: var(--spacing-medium) var(--spacing-large) !important;
+    resize: none;
+    transition: border 0.3s !important;
+    width: 100% !important;
+
+    &:focus, &:focus-within {
+      border-color: var(--ocean) !important;
+      box-shadow: none !important;
+    }
+
+    :global {
+      .tagify__tag {
+        color: var(--shark);
+        font-size: 8px;
+
+        svg {
+          fill: var(--shark);
+        }
+
+        & > div {
+          align-items: center;
+          background: var(--seashell);
+          border-radius: 3px;
+          display: flex;
+          height: 20px;
+          line-height: 1.25;
+          padding: 0 var(--spacing-small);
+
+          &:before {
+            display: none
+          }
+
+          .tagify__tag-text {
+            margin-left: var(--spacing-x-small);
+          }
+        }
+      }
+
+      .tagify__input {
+        padding: 0;
+      }
     }
   }
 }

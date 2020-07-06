@@ -9,4 +9,5 @@ export interface FormProps {
   formData?: FormData
   contentType?: string
   onUpdate: (data: { [key: string]: string }) => void
+  setCanOutsideClickClose?: (canClickOutside: boolean) => void
 }
