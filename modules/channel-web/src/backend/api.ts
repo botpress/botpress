@@ -284,10 +284,10 @@ export default async (bp: typeof sdk, db: Database) => {
       event.debugger = true
     }
 
-    bp.events.sendEvent(event)
-
     const message = await db.appendUserMessage(botId, userId, conversationId, sanitizedPayload, event.id, user)
     bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
+
+    await bp.events.sendEvent(event)
   }
 
   router.post(
