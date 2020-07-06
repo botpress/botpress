@@ -128,7 +128,7 @@ export default ({ canAddElements, events, variables, setCanOutsideClickClose, on
           mode: 'mix',
           pattern: /\$|{{/
         }}
-        value={convertToTags(value)}
+        value={convertToTags(value!)}
         onChange={e => (e.persist(), onBlur?.(convertToString(e.target.value)))}
       />
     </div>
