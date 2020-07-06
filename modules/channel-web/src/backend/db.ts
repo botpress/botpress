@@ -1,4 +1,3 @@
-import Bluebird from 'bluebird'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import moment from 'moment'
@@ -10,14 +9,83 @@ import { Config } from '../config'
 export default class WebchatDb {
   knex: any
   users: typeof sdk.users
+  private queued_messages: any[] = []
+  private queued_convos: Dic<any> = {}
+  private message_lock: boolean
+  private convo_lock: boolean
 
   constructor(private bp: typeof sdk) {
     this.users = bp.users
     this.knex = bp['database'] // TODO Fixme
+    setInterval(() => this.flushMessages(), ms('1s'))
+    setInterval(() => this.flushConvoUpdates(), ms('1s'))
   }
 
-  async getUserInfo(userId) {
-    const { result: user } = await this.users.getOrCreateUser('web', userId)
+  async flushMessages() {
+    if (this.message_lock || !this.queued_messages.length) {
+      return
+    }
+    this.message_lock = true
+
+    console.log(`inserting ${this.queued_messages.length} messages`)
+
+    try {
+      const original = this.queued_messages
+      this.queued_messages = []
+
+      this.knex('web_messages')
+        .insert(original)
+        .catch(() => {
+          this.queued_messages = original.concat(this.queued_messages)
+        })
+    } finally {
+      this.message_lock = false
+    }
+  }
+
+  async flushConvoUpdates() {
+    if (this.convo_lock) {
+      return
+    }
+    this.convo_lock = true
+
+    try {
+      if (Object.keys(this.queued_convos).length === 0) {
+        return
+      }
+
+      await this.knex.transaction(async trx => {
+        const queries = []
+
+        for (const key in this.queued_convos) {
+          const [conversationId, userId, botId] = key.split('_')
+          const value = this.queued_convos[key]
+
+          const query = this.knex('web_conversations')
+            .where({ id: conversationId, userId: userId, botId: botId })
+            .update({ last_heard_on: value })
+            .transacting(trx)
+
+          queries.push(query)
+        }
+
+        this.queued_convos = []
+
+        console.log(`updating ${queries.length} convos`)
+
+        await Promise.all(queries)
+          .then(trx.commit)
+          .catch(trx.rollback)
+      })
+    } finally {
+      this.convo_lock = false
+    }
+  }
+
+  async getUserInfo(userId, user) {
+    if (!user) {
+      user = await (await this.users.getOrCreateUser('web', userId)).result
+    }
 
     let fullName = 'User'
 
@@ -64,20 +132,9 @@ export default class WebchatDb {
       })
   }
 
-  async appendUserMessage(botId, userId, conversationId, payload, incomingEventId) {
-    const { fullName, avatar_url } = await this.getUserInfo(userId)
+  async appendUserMessage(botId, userId, conversationId, payload, incomingEventId, user = undefined) {
+    const { fullName, avatar_url } = await this.getUserInfo(userId, user)
     const { type, text, raw, data } = payload
-
-    const convo = await this.knex('web_conversations')
-      .where({ userId, id: conversationId, botId })
-      .select('id')
-      .limit(1)
-      .then()
-      .get(0)
-
-    if (!convo) {
-      throw new Error(`Conversation "${conversationId}" not found - BP_CONV_NOT_FOUND`)
-    }
 
     const message = {
       id: uuid.v4(),
@@ -94,24 +151,8 @@ export default class WebchatDb {
       sent_on: this.knex.date.now()
     }
 
-    return Bluebird.join(
-      this.knex('web_messages')
-        .insert(message)
-        .then(),
-
-      this.knex('web_conversations')
-        .where({ id: conversationId, userId: userId, botId: botId })
-        .update({ last_heard_on: this.knex.date.now() })
-        .then(),
-
-      () => ({
-        ...message,
-        sent_on: new Date(),
-        message_raw: raw,
-        message_data: data,
-        payload: payload
-      })
-    )
+    this.queued_messages.push(message)
+    this.queued_convos[`${conversationId}_${userId}_${botId}`] = this.knex.date.now()
   }
 
   async appendBotMessage(botName, botAvatar, conversationId, payload, incomingEventId) {
@@ -131,9 +172,7 @@ export default class WebchatDb {
       sent_on: this.knex.date.now()
     }
 
-    await this.knex('web_messages')
-      .insert(message)
-      .then()
+    this.queued_messages.push(message)
 
     return Object.assign(message, {
       sent_on: new Date(),
