@@ -163,7 +163,7 @@ const Form: FC<FormProps> = ({
   events
 }) => {
   const newFormData = createEmptyDataFromSchema([...(fields || []), ...(advancedSettings || [])])
-  const [state, dispatch] = useReducer(formReducer, formData)
+  const [state, dispatch] = useReducer(formReducer, formData || newFormData)
   const outsideClickTimeout = useRef<any>()
 
   useEffect(() => {
