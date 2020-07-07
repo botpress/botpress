@@ -28,14 +28,14 @@ export default async (botId: string, bp: typeof sdk, db: Database) => {
         }
 
         const fn = new Function('bp', 'userId', 'channel', fnBody)
-        return !fn(bp, row.userId, row.platform)
+        return fn(bp, row.userId, row.platform)
       }).then(values => {
         return _.some(values, v => {
           if (!_.isBoolean(v)) {
             bp.logger.warn('Filter returned something other ' + 'than a boolean (or a Promise of a boolean)')
           }
 
-          return typeof v !== 'undefined' && v !== null
+          return typeof v !== 'undefined' && v !== null && v !== true
         })
       })
     }
