@@ -1,3 +1,4 @@
+import { ConfigProvider } from 'core/config/config-loader'
 import { DataRetentionService } from 'core/services/retention/service'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
@@ -6,6 +7,8 @@ import moment from 'moment'
 
 import Database from '../database'
 import { TYPES } from '../types'
+
+const DEFAULT_ENTRIES_LIMIT = 1000
 
 type TelemetryEntries = {
   url: string
@@ -25,7 +28,10 @@ export class TelemetryRepository {
   private readonly tableName = 'telemetry'
   private readonly telemetryServerUrl = 'https://telemetry.botpress.dev'
 
-  constructor(@inject(TYPES.Database) private database: Database) {}
+  constructor(
+    @inject(TYPES.Database) private database: Database,
+    @inject(TYPES.ConfigProvider) private config: ConfigProvider
+  ) {}
 
   async refreshAvailability(): Promise<void> {
     const time = moment()
@@ -90,6 +96,11 @@ export class TelemetryRepository {
   }
 
   async insertPayload(uuid: string, payload: JSON) {
+    const config = await this.config.getBotpressConfig()
+    const limit = config.telemetry?.entriesLimit ?? DEFAULT_ENTRIES_LIMIT
+
+    await this.keepTopEntries(limit - 1)
+
     await this.database.knex(this.tableName).insert({
       uuid: uuid,
       payload: this.database.knex.json.set(payload),

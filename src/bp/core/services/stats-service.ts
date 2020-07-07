@@ -96,13 +96,9 @@ export class StatsService {
   }
 
   private async refreshDB(interval: number) {
-    const config = await this.config.getBotpressConfig()
-    const limit = config.telemetry?.entriesLimit ?? DEFAULT_ENTRIES_LIMIT
-
     const lock = await this.jobService.acquireLock(DB_REFRESH_LOCK, interval - ms('1 minute'))
     if (lock) {
       await this.telemetryRepo.refreshAvailability()
-      await this.telemetryRepo.keepTopEntries(limit)
     }
   }
 
