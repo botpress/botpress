@@ -1,35 +1,39 @@
 import axios from 'axios'
+import _ from 'lodash'
 import ms from 'ms'
 
 import api from './../api'
 import { axiosConfig } from './client'
 
-const serverUrl = '/admin/telemetry'
+const serverUrlPayloads = '/admin/telemetry-payloads'
+const serverUrlFeedback = '/admin/telemetry-feedback'
 
 const sendServerPackage = async () => {
   try {
-    const {
-      data: { events }
-    } = await api.getSecured().get(serverUrl)
+    while (true) {
+      const {
+        data: { events }
+      } = await api.getSecured().get(serverUrlPayloads)
 
-    if (!events) {
-      return
+      if (_.isEmpty(events)) {
+        return
+      }
+
+      let status
+      try {
+        await axios.post(
+          '/',
+          events.map(e => ({ ...e, source: 'client' })),
+          axiosConfig
+        )
+        status = 'ok'
+      } catch (err) {
+        status = 'fail'
+        console.error('Could not send the telemetry packages to the storage server', err)
+      }
+
+      await api.getSecured().post(serverUrlFeedback, { events: events.map(e => e.uuid), status })
     }
-
-    let status
-    try {
-      await axios.post(
-        '/',
-        events.map(e => ({ ...e, source: 'client' })),
-        axiosConfig
-      )
-      status = 'ok'
-    } catch (err) {
-      status = 'fail'
-      console.error('Could not send the telemetry packages to the storage server', err)
-    }
-
-    await api.getSecured().post(serverUrl, { events: events.map(e => e.uuid), status })
   } catch (err) {
     console.error('Could not access the botpress server', err)
   }
