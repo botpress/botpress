@@ -12,7 +12,7 @@ type TelemetryEntries = {
   events: Array<JSON>
 }
 
-type TelemetryPayload = {
+type TelemetryEntry = {
   uuid: string
   payload: JSON
   available: Knex.Bool
@@ -99,7 +99,7 @@ export class TelemetryRepository {
     })
   }
 
-  async getPayload(uuid: string): Promise<TelemetryPayload> {
+  async getEntry(uuid: string): Promise<TelemetryEntry> {
     return (await this.database.knex
       .from(this.tableName)
       .select('*')
@@ -109,7 +109,7 @@ export class TelemetryRepository {
           throw new Error('Entity not found')
         }
         return res[0]
-      })) as TelemetryPayload
+      })) as TelemetryEntry
   }
 
   async removePayload(uuid: string): Promise<void> {
