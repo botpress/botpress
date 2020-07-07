@@ -1,12 +1,8 @@
-import { FlowVariable } from "botpress/sdk"
-
-interface Events {
-  [key: string]: string | Events
-}
+import { BotEvent, FlowVariable } from "botpress/sdk"
 
 export interface SuperInputProps {
   setCanOutsideClickClose?: (canOutsideClick: boolean) => void
   variables?: FlowVariable[]
-  events: Events
+  events?: BotEvent[]
   canAddElements?: boolean
 }

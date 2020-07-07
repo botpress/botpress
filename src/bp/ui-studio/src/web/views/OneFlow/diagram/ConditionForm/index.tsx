@@ -1,6 +1,6 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
-import { Condition, FlowVariable, FormData } from 'botpress/sdk'
+import { BotEvent, Condition, FlowVariable, FormData } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -20,6 +20,7 @@ interface Props {
   onUpdate: (data: any) => void
   formData: { id: string; params: FormData }
   variables: FlowVariable[]
+  events: BotEvent[]
 }
 
 const ConditionForm: FC<Props> = ({
@@ -32,7 +33,8 @@ const ConditionForm: FC<Props> = ({
   topicName,
   onUpdate,
   deleteCondition,
-  variables
+  variables,
+  events
 }) => {
   const [isConfirming, setIsConfirming] = useState(false)
   const condition = useRef(formData?.id)
@@ -109,8 +111,9 @@ const ConditionForm: FC<Props> = ({
               )
             }}
             variables={variables}
-            fields={selectedCondition.fields || []}
-            advancedSettings={selectedCondition.advancedSettings || []}
+            events={events}
+            fields={selectedCondition.fields}
+            advancedSettings={selectedCondition.advancedSettings}
             formData={formData.params}
             onUpdate={data => onUpdate({ params: { ...data }, id: condition.current })}
           />

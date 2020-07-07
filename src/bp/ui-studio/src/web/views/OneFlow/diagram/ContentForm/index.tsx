@@ -1,6 +1,6 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
-import { FlowVariable, FormData } from 'botpress/sdk'
+import { BotEvent, FlowVariable, FormData } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -14,6 +14,7 @@ interface Props {
   editingContent: number
   customKey: string
   variables: FlowVariable[]
+  events: BotEvent[]
   close: (closingKey: number) => void
   onUpdate: (data: any) => void
   formData: FormData
@@ -28,7 +29,8 @@ const ContentForm: FC<Props> = ({
   formData,
   onUpdate,
   deleteContent,
-  variables
+  variables,
+  events
 }) => {
   const [canOutsideClickClose, setCanOutsideClickClose] = useState(true)
   const contentType = useRef(formData?.contentType || 'builtin_text')
@@ -121,6 +123,7 @@ const ContentForm: FC<Props> = ({
               textOverride: props => <TextField {...props} />
             }}
             variables={variables}
+            events={events}
             setCanOutsideClickClose={setCanOutsideClickClose}
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}

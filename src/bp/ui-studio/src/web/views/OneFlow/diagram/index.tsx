@@ -32,6 +32,7 @@ import {
   openFlowNodeProps,
   pasteFlowNode,
   refreshFlowsLinks,
+  refreshHints,
   removeFlowNode,
   switchFlow,
   switchFlowNode,
@@ -869,6 +870,7 @@ class Diagram extends Component<Props> {
               )}
               deleteContent={() => this.deleteNodeContent()}
               variables={this.props.currentFlow.variables || []}
+              events={this.props.hints || []}
               editingContent={this.state.editingNodeItem.index}
               formData={editingNodeItem?.[this.state.currentLang] || this.getEmptyContent(editingNodeItem)}
               onUpdate={this.updateNodeContent.bind(this)}
@@ -886,7 +888,8 @@ class Diagram extends Component<Props> {
               deleteCondition={() => this.deleteNodeCondition()}
               editingCondition={this.state.editingNodeItem.index}
               topicName={this.props.selectedTopic}
-              variables={this.props.currentFlow.variables || []}
+              variables={this.props.currentFlow.variables}
+              events={this.props.hints}
               formData={editingNodeItem}
               contentLang={this.state.currentLang}
               onUpdate={this.updateNodeCondition.bind(this)}
@@ -911,7 +914,8 @@ const mapStateToProps = (state: RootReducer) => ({
   skills: state.skills.installed,
   library: state.content.library,
   contentTypes: state.content.categories,
-  conditions: state.ndu.conditions
+  conditions: state.ndu.conditions,
+  hints: state.hints.inputs
 })
 
 const mapDispatchToProps = {
@@ -933,7 +937,8 @@ const mapDispatchToProps = {
   addElementToLibrary,
   refreshFlowsLinks,
   fetchContentCategories,
-  getQnaCountByTopic
+  getQnaCountByTopic,
+  refreshHints
 }
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps, null, {

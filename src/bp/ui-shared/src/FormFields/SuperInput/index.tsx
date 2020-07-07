@@ -19,6 +19,8 @@ export default ({ canAddElements, events, variables, setCanOutsideClickClose, on
   const [currentWhitelist, setCurrentWhitelist] = useState<string[]>([])
   const tagifyRef = useRef<any>()
 
+  // TODO implement the autocomplete selection when event selected is partial
+
   const tagifyCallbacks = {
     input: e => {
       const prefix = e.detail.prefix
@@ -30,7 +32,7 @@ export default ({ canAddElements, events, variables, setCanOutsideClickClose, on
 
         if (prefix == '{{') {
           // TODO refactor to use the schema format properly and allow to breakdown into an object type search
-          setCurrentWhitelist(Object.keys(events))
+          setCurrentWhitelist(events?.map(event => event.name) || [])
         }
 
         if (e.detail.value.length > 1) {

@@ -34,6 +34,10 @@ declare module 'botpress/sdk' {
     triggerValue: number
   }
 
+  export interface BotEvent {
+    [key: string]: any
+  }
+
   export type StrategyUser = {
     id?: number
     password?: string
