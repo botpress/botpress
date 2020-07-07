@@ -7,31 +7,28 @@ import moment from 'moment'
 import Database from '../database'
 import { TYPES } from '../types'
 
-// export interface TelemetryPayloadRepository {
-//   getPayload(uuid: string): Promise<any>
-//   insertPayload(uuid: string, payload: JSON): Promise<void>
-//   removePayload(uuid: string): Promise<void>
-//   removeArray(uuIds: string[]): Promise<void>
-//   updateArray(uuIds: string[], status: boolean): Promise<void>
-//   refreshAvailability(): Promise<void>
-//   getEntries(n: number): Promise<any>
-//   keepTopEntries(n: number): Promise<void>
-// }
-
-export type TelemetryPayload = {
+type TelemetryEntries = {
   url: string
-  events: Object[]
+  events: Array<JSON>
+}
+
+type TelemetryPayload = {
+  uuid: string
+  payload: JSON
+  available: Knex.Bool
+  lastChanged: Knex.Date
+  creationDate: Knex.Date
 }
 
 @injectable()
-export class TelemetryRepo {
-  private readonly tableName = 'telemetry_payloads'
-  private readonly awsURL = 'https://telemetry.botpress.dev'
+export class TelemetryRepository {
+  private readonly tableName = 'telemetry'
+  private readonly telemetryServerUrl = 'https://telemetry.botpress.dev'
 
   constructor(@inject(TYPES.Database) private database: Database) {}
 
   async refreshAvailability(): Promise<void> {
-    const time = moment(new Date())
+    const time = moment()
       .subtract(5, 'minute')
       .toDate()
 
@@ -42,10 +39,10 @@ export class TelemetryRepo {
 
     const uuIds = events.map(event => event.uuid)
 
-    await this.updateArray(uuIds, true)
+    await this.updateAvailability(uuIds, true)
   }
 
-  async updateArray(uuIds: string[], status: boolean): Promise<void> {
+  async updateAvailability(uuIds: string[], status: boolean): Promise<void> {
     if (!uuIds.length) {
       return
     }
@@ -68,31 +65,28 @@ export class TelemetryRepo {
       .limit(n)
       .then(rows => rows.map(entry => entry.uuid))
 
-    await this.database
-      .knex(this.tableName)
-      .whereNotIn('uuid', uuIds)
-      .del()
+    await this.removeMany(uuIds)
   }
 
-  async removeArray(uuIds: string[]) {
+  async removeMany(uuIds: string[]) {
     await this.database
       .knex(this.tableName)
       .whereIn('uuid', uuIds)
       .del()
   }
 
-  async getEntries(count: number): Promise<any> {
+  async getEntries(): Promise<TelemetryEntries> {
     const events = await this.database.knex
       .from(this.tableName)
       .select('*')
       .where('available', this.database.knex.bool.true())
-      .limit(count)
+      .limit(1000)
 
     if (events.length > 0) {
       const uuIds = events.map(event => event.uuid)
-      await this.updateArray(uuIds, this.database.knex.bool.false())
+      await this.updateAvailability(uuIds, this.database.knex.bool.false())
     }
-    return { url: this.awsURL, events: events.map(event => this.database.knex.json.get(event.payload)) }
+    return { url: this.telemetryServerUrl, events: events.map(event => this.database.knex.json.get(event.payload)) }
   }
 
   async insertPayload(uuid: string, payload: JSON) {
@@ -105,14 +99,20 @@ export class TelemetryRepo {
     })
   }
 
-  async getPayload(uuid: string): Promise<any> {
-    return this.database.knex
+  async getPayload(uuid: string): Promise<TelemetryPayload> {
+    return (await this.database.knex
       .from(this.tableName)
       .select('*')
       .where('uuid', uuid)
+      .then(res => {
+        if (!res || !res.length) {
+          throw new Error('Entity not found')
+        }
+        return res[0]
+      })) as TelemetryPayload
   }
 
-  async removePayload(uuid: string): Promise<any> {
+  async removePayload(uuid: string): Promise<void> {
     await this.database
       .knex(this.tableName)
       .where({ uuid: uuid })

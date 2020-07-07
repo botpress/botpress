@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { parseActionInstruction } from 'common/action'
 import { BUILTIN_MODULES } from 'common/defaults'
 import LicensingService from 'common/licensing-service'
 import { machineUUID } from 'common/stats'
@@ -6,10 +7,10 @@ import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
 import { calculateHash } from 'core/misc/utils'
 import { UserRepository } from 'core/repositories'
-import { TelemetryRepo } from 'core/repositories/telemetry_payload'
+import { TelemetryRepository } from 'core/repositories/telemetry_payload'
 import { TYPES } from 'core/types'
-import crypto from 'crypto'
 import { inject, injectable } from 'inversify'
+import { string } from 'joi'
 import ms from 'ms'
 import os from 'os'
 import path from 'path'
@@ -35,9 +36,24 @@ const LEGACY_TELEM_URL = 'https://telemetry.botpress.io/ingest'
 const TELEMETRY_URL = 'https://telemetry.botpress.dev'
 const DEFAULT_ENTRIES_LIMIT = 1000
 
-type Stats = {
-  uuid: string
-  [key: string]: any
+type NextNode = {
+  condition: string
+  node: string
+}
+
+type Node = {
+  id: string
+  name: string
+  next: Array<NextNode>
+  onEnter: Array<string>
+  onReceive: Array<string>
+  type: string
+}
+
+type Flow = {
+  flowName: string
+  botID: string
+  actions: Array<string>
 }
 
 @injectable()
@@ -52,15 +68,14 @@ export class StatsService {
     @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.UserRepository) private userRepository: UserRepository,
-    @inject(TYPES.TelemetryRepo) private telemetryRepo: TelemetryRepo,
+    @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository,
     @inject(TYPES.Database) private database: Database
   ) {}
 
-  public start() {
-    // tslint:disable-next-line: no-floating-promises
-    this.run(this.getStats.bind(this), LEGACY_TELEM_LOCK, JOB_INTERVAL, `${LEGACY_TELEM_URL}`)
-    // tslint:disable-next-line: no-floating-promises
-    this.run(this.getBuiltinActionsStats.bind(this), TELEMETRY_LOCK, TELEMETRY_INTERVAL, `${TELEMETRY_URL}`)
+  public async start() {
+    await this.run(this.getStats.bind(this), LEGACY_TELEM_LOCK, JOB_INTERVAL, `${LEGACY_TELEM_URL}`)
+    await this.run(this.getBuiltinActionsStats.bind(this), TELEMETRY_LOCK, TELEMETRY_INTERVAL, `${TELEMETRY_URL}`)
+    await this.refreshDB(DB_REFRESH_INTERVAL)
 
     setInterval(
       this.run.bind(this, this.getStats.bind(this), LEGACY_TELEM_LOCK, JOB_INTERVAL, `${LEGACY_TELEM_URL}`),
@@ -77,9 +92,6 @@ export class StatsService {
       TELEMETRY_INTERVAL
     )
 
-    // tslint:disable-next-line: no-floating-promises
-    this.refreshDB(DB_REFRESH_INTERVAL)
-
     setInterval(this.refreshDB.bind(this, DB_REFRESH_INTERVAL), DB_REFRESH_INTERVAL)
   }
 
@@ -94,7 +106,7 @@ export class StatsService {
     }
   }
 
-  private async run(job, lockResource: string, interval: number, url: string) {
+  private async run(job: Function, lockResource: string, interval: number, url: string) {
     const lock = await this.jobService.acquireLock(lockResource, interval - ms('1 minute'))
     if (lock) {
       debug('Acquired lock')
@@ -264,16 +276,9 @@ export class StatsService {
     return (await this.authService.getAllUsers()).length
   }
 
-  private modulesWhitelist = {
-    builtin: true,
-    analytics: true,
-    'basic-skills': true,
-    'channel-web': true
-  }
-
   private async getBuiltinActionsStats() {
     return {
-      timestamp: new Date().toISOString(),
+      timestamp: new Date(),
       uuid: uuid.v4(),
       schema: '1.0.0',
       source: 'server',
@@ -284,43 +289,46 @@ export class StatsService {
   }
 
   private async getFlows() {
-    const flows = await this.ghostService.bots().directoryListing('/', '*/flows/*.flow.json')
-
-    const parsedFlows = await Promise.all(
-      flows.map(async element => {
-        const { dir, base: flowName } = path.parse(element)
+    const paths = await this.ghostService.bots().directoryListing('/', '*/flows/*.flow.json')
+    let flows
+    try {
+      flows = await Promise.mapSeries(paths, async flowPath => {
+        const { dir, base: flowName } = path.parse(flowPath)
+        const botID = dir.split('/')[0]
         const actions = (await this.ghostService.bots().readFileAsObject<any>(dir, flowName)).nodes
           .map(node => this.getActionsFromNode(node))
-          .reduce((acc, cur) => acc.concat(cur))
-          .filter(action => BUILTIN_MODULES.includes(action[0].split('/')[0]))
-
-        const botID = dir.split('/')[0]
-
+          .reduce((acc, cur) => [...acc, ...cur])
         return { flowName, botID, actions }
       })
-    )
-      .filter(flow => flow.actions.length > 0)
-      .map(flow => this.parseFlow(flow))
-
-    return parsedFlows
+    } catch (error) {
+      return {}
+    }
+    return flows.filter(flow => flow.actions.length > 0).map(flow => this.parseFlow(flow))
   }
 
-  private getActionsFromNode(node) {
-    const onEnter = node.onEnter ? node.onEnter.map(action => action.split(' ')) : []
-    const onReceive = node.onReceive ? node.onReceive.map(action => action.split(' ')) : []
-    return onEnter.concat(onReceive)
+  private getActionsFromNode(node: Node) {
+    const onEnter = node.onEnter ?? []
+    const onReceive = node.onReceive ?? []
+    return [...onEnter, ...onReceive]
   }
 
-  private parseFlow(flow) {
+  private parseFlow(flow: Flow) {
+    const actions = flow.actions
+      .map(action => parseActionInstruction(action))
+      .filter(action => BUILTIN_MODULES.includes(action.actionName.split('/')[0]))
+
     return {
-      actions: flow.actions.map(node => {
-        const actionName = node[0].split('/')[1]
-        const params = JSON.parse(node[1])
-
-        for (const [key] of Object.keys(params)) {
-          params[key] = !!params[key] ? 1 : 0
+      actions: actions.map(action => {
+        const actionName = action.actionName.split('/')[1]
+        try {
+          const params = JSON.parse(action.argsStr)
+          for (const key in params) {
+            params[key] = !!params[key] ? 1 : 0
+          }
+          return { actionName, params }
+        } catch (error) {
+          return { actionName, params: {} }
         }
-        return { actionName, params }
       }),
       flowName: calculateHash(flow.flowName),
       botID: calculateHash(flow.botID)
