@@ -2,7 +2,7 @@ export interface FieldProps {
   placeholder?: string
   onChange?: (value: null | number | string) => void
   onBlur?: (value?: string | number | null) => void
-  value: string
+  value?: string
 }
 
 export interface AddButtonProps {

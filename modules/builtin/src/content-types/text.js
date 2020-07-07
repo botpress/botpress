@@ -117,12 +117,14 @@ module.exports = {
         key: 'markdown',
         label: 'module.builtin.useMarkdown',
         type: 'checkbox',
+        defaultValue: true,
         moreInfo: {
           label: 'learnMore',
           url: 'https://daringfireball.net/projects/markdown/'
         }
       },
       {
+        defaultValue: true,
         key: 'typing',
         type: 'checkbox',
         label: 'module.builtin.typingIndicator'
@@ -130,31 +132,10 @@ module.exports = {
     ],
     fields: [
       {
-        type: 'text',
+        type: 'overridable',
+        overrideKey: 'textOverride',
         key: 'text',
-        label: 'module.builtin.types.text.message'
-      },
-      {
-        group: {
-          addLabel: 'module.builtin.types.text.add',
-          contextMenu: [
-            {
-              type: 'delete',
-              label: 'module.builtin.types.text.delete'
-            }
-          ]
-        },
-        type: 'group',
-        key: 'variations',
-        renderType: 'variations',
-        label: 'module.builtin.types.text.alternative',
-        fields: [
-          {
-            type: 'text',
-            key: 'item',
-            label: 'module.builtin.types.text.alternativeLabel'
-          }
-        ]
+        label: 'text'
       }
     ]
   },

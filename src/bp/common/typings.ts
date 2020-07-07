@@ -1,5 +1,14 @@
-import { BotDetails, BoxedVarConstructable, Flow, FlowNode, RolloutStrategy, StageRequestApprovers } from 'botpress/sdk'
-import { StrategyUser } from 'botpress/sdk'
+import {
+  BotDetails,
+  BoxedVarConstructable,
+  Flow,
+  FlowNode,
+  FormField,
+  IO,
+  RolloutStrategy,
+  StageRequestApprovers,
+  StrategyUser
+} from 'botpress/sdk'
 import { Request } from 'express'
 
 import { BotpressConfig } from '../core/config/botpress.config'
@@ -204,6 +213,17 @@ export interface LibraryElement {
   path: string
 }
 
+export interface EventCommonArgs {
+  event: IO.IncomingEvent
+  user: { [attribute: string]: any }
+  temp: { [property: string]: any }
+  bot: { [property: string]: any }
+  session: IO.CurrentSession
+  workflow: IO.WorkflowHistory
+  // Any other additional property
+  [property: string]: any
+}
+
 export interface ServerHealth {
   serverId: string
   hostname: string
@@ -264,13 +284,6 @@ export interface FormMoreInfo {
   url?: string
 }
 
-export interface FormAdvancedSetting {
-  key: string
-  label: string
-  type: string
-  moreInfo?: FormMoreInfo
-}
-
 export interface FormOption {
   value: string
   label: string
@@ -282,21 +295,7 @@ export interface FormContextMenu {
   label: string
 }
 
-export interface FormField {
-  type: 'checkbox' | 'group' | 'select' | 'text' | 'textarea' | 'upload' | 'url'
-  key: string
-  label: string
-  placeholder?: string
-  options?: FormOption[]
-  fields?: FormField[]
-  group?: {
-    addLabel?: string // you have to specify the add button label
-    minimum?: number // you can specify a minimum so the delete button won't show if there isn't more than the minimum
-    contextMenu?: FormContextMenu[] // you can add a contextual menu to add extra options
-  }
-}
-
 export interface FormDefinition {
-  advancedSettings: FormAdvancedSetting[]
+  advancedSettings: FormField[]
   fields: FormField[]
 }

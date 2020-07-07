@@ -130,7 +130,7 @@ export async function updateContextsFromTopics(
     for (const node of flow.nodes.filter(x => x.type === 'trigger')) {
       const tn = node as sdk.TriggerNode
       const match = tn.conditions.find(x => x.id === 'user_intent_is')
-      const name = match?.params?.intentName
+      const name = match?.params?.intentName as string
 
       if (name && name !== 'none' && (!intentNames || intentNames.includes(name))) {
         intents[name] = _.uniq([...(intents[name] || []), topicName])

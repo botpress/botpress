@@ -66,6 +66,7 @@
       "alternativeLabel": "Text",
       "delete": "Delete Alternative",
       "description": "A regular text message with optional typing indicators and alternates",
+      "text": "Text",
       "message": "Message"
     }
   },

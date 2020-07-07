@@ -308,7 +308,6 @@ const TopicList: FC<Props> = props => {
     const hasChildren = !!item.children.length
     const path = `${parentId}${parentId && '/'}${item.id}`
     const isTopic = level === 0
-
     const treeItem = (
       <div className={cx(item.type, { empty: isEmpty })} key={path}>
         <TreeItem
@@ -345,7 +344,7 @@ const TopicList: FC<Props> = props => {
 
     if (item.type === 'qna') {
       return (
-        <AccessControl resource="module.qna" operation="write">
+        <AccessControl key={path} resource="module.qna" operation="write">
           {treeItem}
         </AccessControl>
       )
@@ -356,7 +355,6 @@ const TopicList: FC<Props> = props => {
 
   const newFlowsAsArray = getFlattenFlows(newFlows)
   const isEmpty = !newFlowsAsArray.filter(item => item.type !== 'default').length
-
   return (
     <div className={cx(style.tree)}>
       {!!(!isEmpty || filter.length) && (

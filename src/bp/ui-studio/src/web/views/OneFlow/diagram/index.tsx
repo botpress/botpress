@@ -60,13 +60,13 @@ import { FailureNodeModel, FailureWidgetFactory } from '~/views/FlowBuilder/diag
 import { ListenWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ListenNode'
 import { RouterNodeModel, RouterWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/RouterNode'
 import { SuccessNodeModel, SuccessWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SuccessNode'
-import { TriggerNodeModel, TriggerWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/TriggerNode'
 import style from '~/views/FlowBuilder/diagram/style.scss'
-import { SaySomethingNodeModel, SaySomethingWidgetFactory } from '~/views/OneFlow/diagram/nodes/SaySomethingNode'
 
+import { SaySomethingNodeModel, SaySomethingWidgetFactory } from './nodes/SaySomethingNode'
+import { TriggerNodeModel, TriggerWidgetFactory } from './nodes/TriggerNode'
+import ConditionForm from './ConditionForm'
 import ContentForm from './ContentForm'
 import Toolbar from './Toolbar'
-import TriggerEditor from './TriggerEditor'
 import VariablesEditor from './VariablesEditor'
 import WorkflowToolbar from './WorkflowToolbar'
 
@@ -112,9 +112,7 @@ class Diagram extends Component<Props> {
 
   state = {
     highlightFilter: '',
-    currentTriggerNode: null,
-    isTriggerEditOpen: false,
-    editingNodeContent: null,
+    editingNodeItem: null,
     currentLang: '',
     currentTab: 'workflow'
   }
@@ -122,18 +120,22 @@ class Diagram extends Component<Props> {
   constructor(props) {
     super(props)
 
+    const commonProps = {
+      editNodeItem: this.editNodeItem.bind(this),
+      selectedNodeItem: () => this.getStateProperty('editingNodeItem'),
+      deleteSelectedElements: this.deleteSelectedElements.bind(this),
+      getCurrentFlow: () => this.getPropsProperty('currentFlow'),
+      updateFlowNode: this.updateNodeAndRefresh.bind(this),
+      switchFlowNode: this.switchFlowNode.bind(this)
+    }
+
     this.diagramEngine = new DiagramEngine()
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory(this.props.skills))
     this.diagramEngine.registerNodeFactory(
       new SaySomethingWidgetFactory({
-        editContent: this.editContent.bind(this),
-        selectedNodeContent: this.getEditingContent.bind(this),
-        deleteSelectedElements: this.deleteSelectedElements.bind(this),
-        getCurrentFlow: this.getCurrentFlow.bind(this),
-        updateFlowNode: this.updateNodeAndRefresh.bind(this),
-        getCurrentLang: this.getCurrentLang.bind(this),
-        switchFlowNode: this.switchFlowNode.bind(this)
+        ...commonProps,
+        getCurrentLang: () => this.getStateProperty('currentLang')
       })
     )
     this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
@@ -141,7 +143,13 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(new RouterWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ActionWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SuccessWidgetFactory())
-    this.diagramEngine.registerNodeFactory(new TriggerWidgetFactory())
+    this.diagramEngine.registerNodeFactory(
+      new TriggerWidgetFactory({
+        ...commonProps,
+        getConditions: () => this.getPropsProperty('conditions'),
+        addCondition: this.addCondition.bind(this)
+      })
+    )
     this.diagramEngine.registerNodeFactory(new FailureWidgetFactory())
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
 
@@ -180,7 +188,6 @@ class Diagram extends Component<Props> {
     this.setState({ currentLang: this.props.contentLang })
     this.props.fetchContentCategories()
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
-    ReactDOM.findDOMNode(this.diagramWidget).addEventListener('dblclick', this.onDiagramDoubleClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
     this.props.childRef({
       deleteSelectedElements: this.deleteSelectedElements.bind(this),
@@ -190,7 +197,6 @@ class Diagram extends Component<Props> {
 
   componentWillUnmount() {
     ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('click', this.onDiagramClick)
-    ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('dblclick', this.onDiagramDoubleClick)
     document.getElementById('diagramContainer').removeEventListener('keydown', this.onKeyDown)
   }
 
@@ -199,11 +205,11 @@ class Diagram extends Component<Props> {
     this.manager.setReadOnly(this.props.readOnly)
 
     if (
-      !prevState.editingNodeContent &&
+      !prevState.editingNodeItem &&
       this.props.currentFlowNode?.isNew &&
-      this.props.currentFlowNode?.type === 'say_something'
+      (this.props.currentFlowNode?.type === 'say_something' || this.props.currentFlowNode?.type === 'trigger')
     ) {
-      this.editContent(this.props.currentFlowNode, 0)
+      this.editNodeItem(this.props.currentFlowNode, 0)
     }
 
     if (this.diagramContainer) {
@@ -286,7 +292,14 @@ class Diagram extends Component<Props> {
     flowNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'standard' }),
     skillNode: (point: Point, skillId: string) => this.props.buildSkill({ location: point, id: skillId }),
     triggerNode: (point: Point, moreProps) => {
-      this.props.createFlowNode({ ...point, type: 'trigger', conditions: [], next: [defaultTransition], ...moreProps })
+      this.props.createFlowNode({
+        ...point,
+        type: 'trigger',
+        conditions: [{ params: {} }],
+        next: [defaultTransition],
+        isNew: true,
+        ...moreProps
+      })
     },
     say: (point: Point, moreProps) => {
       this.props.createFlowNode({
@@ -310,18 +323,6 @@ class Diagram extends Component<Props> {
       }),
     routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' }),
     actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action' })
-  }
-
-  onDiagramDoubleClick = (event?: MouseEvent) => {
-    if (!event) {
-      return
-    }
-
-    const target = this.diagramWidget.getMouseElement(event)
-
-    if (target?.model instanceof TriggerNodeModel) {
-      this.editTriggers(target.model)
-    }
   }
 
   handleContextMenuNoElement = (event: React.MouseEvent) => {
@@ -422,9 +423,6 @@ class Diagram extends Component<Props> {
         )}
         {isNodeTargeted && (
           <Fragment>
-            {isTriggerNode && (
-              <MenuItem icon="edit" text={lang.tr('edit')} onClick={() => this.editTriggers(targetModel)} />
-            )}
             <MenuItem
               icon="trash"
               text={lang.tr('delete')}
@@ -534,20 +532,13 @@ class Diagram extends Component<Props> {
     { leading: true }
   )
 
-  editTriggers(node) {
-    this.setState({
-      currentTriggerNode: node,
-      isTriggerEditOpen: true
-    })
-  }
-
-  editContent(node, index) {
+  editNodeItem(node, index) {
     clearTimeout(this.timeout)
     if (node.isNew) {
       this.props.updateFlowNode({ isNew: false })
     }
 
-    this.setState({ editingNodeContent: { node, index } })
+    this.setState({ editingNodeItem: { node, index } })
   }
 
   updateNodeAndRefresh(args) {
@@ -555,16 +546,16 @@ class Diagram extends Component<Props> {
     this.props.refreshFlowsLinks()
   }
 
-  getCurrentLang() {
-    return this.state.currentLang
+  getStateProperty(propertyName) {
+    return this.state[propertyName]
   }
 
-  getCurrentFlow() {
-    return this.props.currentFlow
+  getPropsProperty(propertyName) {
+    return this.props[propertyName]
   }
 
-  getEditingContent() {
-    return this.state.editingNodeContent
+  addCondition(nodeId) {
+    this.props.updateFlowNode({ conditions: [...this.props.currentFlowNode.conditions, { params: {} }] })
   }
 
   switchFlowNode(nodeId) {
@@ -573,7 +564,7 @@ class Diagram extends Component<Props> {
 
   deleteSelectedElements() {
     const elements = _.sortBy(this.diagramEngine.getDiagramModel().getSelectedItems(), 'nodeType')
-    this.setState({ editingNodeContent: null })
+    this.setState({ editingNodeItem: null })
 
     // Use sorting to make the nodes first in the array, deleting the node before the links
     for (const element of elements) {
@@ -723,11 +714,8 @@ class Diagram extends Component<Props> {
   }
 
   updateNodeContent(data) {
-    const {
-      node: { contents },
-      index
-    } = this.state.editingNodeContent
-    const newContents = [...contents]
+    const { node, index } = this.state.editingNodeItem
+    const newContents = [...node.contents]
     const currentType = newContents[index][this.state.currentLang]?.contentType
 
     if (currentType && currentType !== data.contentType) {
@@ -736,14 +724,27 @@ class Diagram extends Component<Props> {
       newContents[index][this.state.currentLang] = data
     }
 
+    this.setState({ editingNodeItem: { node: { ...node, contents: newContents }, index } })
+
     this.props.updateFlowNode({ contents: newContents })
+  }
+
+  updateNodeCondition(data) {
+    const { node, index } = this.state.editingNodeItem
+    const newConditions = [...node.conditions]
+
+    newConditions[index] = data
+
+    this.setState({ editingNodeItem: { node: { ...node, conditions: newConditions }, index } })
+
+    this.props.updateFlowNode({ conditions: newConditions })
   }
 
   deleteNodeContent() {
     const {
       node: { contents },
       index
-    } = this.state.editingNodeContent
+    } = this.state.editingNodeItem
     const newContents = [...contents]
 
     newContents[index] = Object.keys(newContents[index]).reduce((acc, lang) => {
@@ -760,7 +761,23 @@ class Diagram extends Component<Props> {
       this.props.updateFlowNode({ contents: newContents })
     }
 
-    this.setState({ editingNodeContent: null })
+    this.setState({ editingNodeItem: null })
+  }
+
+  deleteNodeCondition() {
+    const {
+      node: { conditions },
+      index
+    } = this.state.editingNodeItem
+    const newConditions = conditions.filter((cond, i) => index !== i)
+
+    if (!newConditions.length) {
+      this.deleteSelectedElements()
+    } else {
+      this.props.updateFlowNode({ conditions: newConditions })
+    }
+
+    this.setState({ editingNodeItem: null })
   }
 
   isContentEmpty(content) {
@@ -778,9 +795,16 @@ class Diagram extends Component<Props> {
   }
 
   render() {
-    const editingContent = this.state.editingNodeContent?.node?.contents?.[this.state.editingNodeContent.index]
+    const formType: string = this.state.editingNodeItem?.node?.type
+    let editingNodeItem
+    if (formType === 'say_something') {
+      editingNodeItem = this.state.editingNodeItem?.node?.contents?.[this.state.editingNodeItem.index]
+    } else if (formType === 'trigger') {
+      editingNodeItem = this.state.editingNodeItem?.node?.conditions?.[this.state.editingNodeItem.index]
+    }
 
     const isQnA = this.props.selectedWorkflow === 'qna'
+
     return (
       <Fragment>
         {isQnA && (
@@ -837,26 +861,36 @@ class Diagram extends Component<Props> {
             <Toolbar />
           </Fragment>
 
-          <TriggerEditor
-            node={this.state.currentTriggerNode}
-            isOpen={this.state.isTriggerEditOpen}
-            diagramEngine={this.diagramEngine}
-            toggle={() => this.setState({ isTriggerEditOpen: !this.state.isTriggerEditOpen })}
-          />
-
-          {this.state.editingNodeContent && (
+          {formType === 'say_something' && (
             <ContentForm
-              customKey={`${this.state.editingNodeContent.node.name}${this.state.editingNodeContent.index}`}
+              customKey={`${this.state.editingNodeItem.node.name}${this.state.editingNodeItem.index}`}
               contentTypes={this.props.contentTypes.filter(type =>
                 type.schema.newJson?.displayedIn.includes('sayNode')
               )}
               deleteContent={() => this.deleteNodeContent()}
-              editingContent={this.state.editingNodeContent.index}
-              formData={editingContent?.[this.state.currentLang] || this.getEmptyContent(editingContent)}
+              editingContent={this.state.editingNodeItem.index}
+              formData={editingNodeItem?.[this.state.currentLang] || this.getEmptyContent(editingNodeItem)}
               onUpdate={this.updateNodeContent.bind(this)}
               close={() => {
                 this.timeout = setTimeout(() => {
-                  this.setState({ editingNodeContent: null })
+                  this.setState({ editingNodeItem: null })
+                }, 200)
+              }}
+            />
+          )}
+          {formType === 'trigger' && (
+            <ConditionForm
+              customKey={`${this.state.editingNodeItem.node.name}${this.state.editingNodeItem.index}`}
+              conditions={this.props.conditions}
+              deleteCondition={() => this.deleteNodeCondition()}
+              editingCondition={this.state.editingNodeItem.index}
+              topicName={this.props.selectedTopic}
+              formData={editingNodeItem}
+              contentLang={this.state.currentLang}
+              onUpdate={this.updateNodeCondition.bind(this)}
+              close={() => {
+                this.timeout = setTimeout(() => {
+                  this.setState({ editingNodeItem: null })
                 }, 200)
               }}
             />
@@ -874,7 +908,8 @@ const mapStateToProps = (state: RootReducer) => ({
   canPasteNode: Boolean(state.flows.nodeInBuffer),
   skills: state.skills.installed,
   library: state.content.library,
-  contentTypes: state.content.categories
+  contentTypes: state.content.categories,
+  conditions: state.ndu.conditions
 })
 
 const mapDispatchToProps = {

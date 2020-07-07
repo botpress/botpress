@@ -8,11 +8,20 @@ const Textarea: FC<TextareaProps> = props => {
   const [forceUpdate, setForceUpdate] = useState(false)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const height = useRef(39)
+  const initialChange = useRef(true)
 
   useEffect(() => {
     height.current = inputRef.current?.scrollHeight || 39
     setForceUpdate(!forceUpdate)
   }, [])
+
+  useEffect(() => {
+    if (!initialChange.current) {
+      updateHeight()
+    }
+
+    initialChange.current = false
+  }, [props.forceUpdateHeight])
 
   useEffect(() => {
     if (inputRef.current && props.isFocused) {
@@ -23,7 +32,7 @@ const Textarea: FC<TextareaProps> = props => {
     }
   }, [props.isFocused])
 
-  const onInput = () => {
+  const updateHeight = () => {
     if (inputRef.current) {
       inputRef.current.style.height = '0'
       inputRef.current.style.height = inputRef.current.scrollHeight + 'px'
@@ -45,7 +54,7 @@ const Textarea: FC<TextareaProps> = props => {
       onChange={e => onChange(e.currentTarget.value)}
       onBlur={props.onBlur}
       onKeyDown={props.onKeyDown}
-      onInput={onInput}
+      onInput={updateHeight}
     />
   )
 }
