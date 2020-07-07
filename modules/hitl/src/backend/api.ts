@@ -80,4 +80,13 @@ export default async (bp: SDK, db: Database) => {
       res.status(400).send(`Can't find attributes: ${err.message}`)
     }
   })
+
+  router.get('/config/autocomplete', async (req, res) => {
+    try {
+      const config = (await bp.config.getModuleConfigForBot('hitl', req.params.botId)) as Config
+      res.send(config.autoComplete)
+    } catch (err) {
+      res.status(400).send(`Can't find autocomplete: ${err.message}`)
+    }
+  })
 }

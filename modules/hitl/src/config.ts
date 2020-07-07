@@ -11,6 +11,25 @@ export interface Config {
    * @default [{"label": "Language", "attributePath": "language"}]
    */
   attributes: Attribute[]
+  /**
+   */
+  autoComplete: AutoComplete
+}
+
+export interface Shortcut {
+  name: string
+  value: string
+}
+
+export interface AutoComplete {
+  /**
+   * @default /
+   */
+  trigger: string
+  /**
+   * @default [{ "name": "hello", "value": "hello how are you?" },{ "name": "heart", "value": "❤️" }]
+   */
+  shortcuts: Shortcut[]
 }
 
 export interface Attribute {
