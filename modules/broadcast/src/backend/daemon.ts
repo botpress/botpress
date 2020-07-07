@@ -28,7 +28,7 @@ export default async (botId: string, bp: typeof sdk, db: Database) => {
         }
 
         const fn = new Function('bp', 'userId', 'channel', fnBody)
-        return !fn(bp, row.userId, row.platform)
+        return fn(bp, row.userId, row.platform)
       }).then(values => {
         return _.some(values, v => {
           if (!_.isBoolean(v)) {
