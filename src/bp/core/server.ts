@@ -312,6 +312,7 @@ export default class HTTPServer {
           window.APP_NAME = "${branding.title}";
           window.APP_FAVICON = "${branding.favicon}";
           window.APP_CUSTOM_CSS = "${branding.customCss}";
+          window.TELEMETRY_URL = "${process.TELEMETRY_URL}";
         })(typeof window != 'undefined' ? window : {})
       `)
     })
