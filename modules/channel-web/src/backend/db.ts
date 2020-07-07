@@ -144,7 +144,7 @@ export default class WebchatDb {
       message_raw: this.knex.json.set(raw),
       message_data: this.knex.json.set(data),
       payload: this.knex.json.set(payload),
-      sent_on: this.knex.date.now()
+      sent_on: new Date().toISOString()
     }
 
     this.queued_messages.push(message)
@@ -173,7 +173,7 @@ export default class WebchatDb {
       message_raw: this.knex.json.set(raw),
       message_data: this.knex.json.set(data),
       payload: this.knex.json.set(payload),
-      sent_on: this.knex.date.now()
+      sent_on: new Date().toISOString()
     }
 
     this.queued_messages.push(message)
