@@ -18,6 +18,7 @@ type Props = FieldProps & SuperInputProps
 export default ({ canAddElements, events, variables, setCanOutsideClickClose, onBlur, value }: Props) => {
   const [currentWhitelist, setCurrentWhitelist] = useState<string[]>([])
   const tagifyRef = useRef<any>()
+  const eventsDesc = events?.reduce((acc, event) => ({ ...acc, [event.name]: event.description }), {})
 
   // TODO implement the autocomplete selection when event selected is partial
 
@@ -53,7 +54,7 @@ export default ({ canAddElements, events, variables, setCanOutsideClickClose, on
   }
 
   const addPrefix = prefix => {
-    if (!tagifyRef.current?.DOM.input.innerHTML.endsWith('&nbsp;')) {
+    if (tagifyRef.current?.DOM.input.innerHTML !== '' && !tagifyRef.current?.DOM.input.innerHTML.endsWith('&nbsp;')) {
       addSpace()
     }
 
@@ -123,6 +124,21 @@ export default ({ canAddElements, events, variables, setCanOutsideClickClose, on
                   <span class="tagify__tag-text">${tagData}</span>
                 </div>
               </tag>`
+            },
+            dropdown(settings) {
+              return `<div class="${style.dropdown} tagify__dropdown tagify__dropdown--below" role="listbox" aria-labelledby="dropdown">
+                  <div class="tagify__dropdown__wrapper"></div>
+              </div>`
+            },
+            dropdownItem(item) {
+              // TODO add icon when variable supports them and add variables description when they exist
+              return `<div
+                class='tagify__dropdown__item'
+                tabindex="0"
+                role="option">
+                ${item.value}
+                ${`<span class="description">${eventsDesc?.[item.value] || ''}</span>`}
+              </div>`
             }
           },
           duplicates: true,
