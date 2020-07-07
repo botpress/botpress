@@ -130,7 +130,7 @@ export class AdminRouter extends CustomRouter {
     )
 
     router.post(
-      '/telemetry',
+      '/telemetry-feedback',
       this.checkTokenHeader,
       this.asyncMiddleware(async (req, res) => {
         const { status, events } = req.body
@@ -145,7 +145,7 @@ export class AdminRouter extends CustomRouter {
     )
 
     router.get(
-      '/telemetry',
+      '/telemetry-payloads',
       this.checkTokenHeader,
       this.asyncMiddleware(async (req, res) => {
         res.send(await this.telemetryRepo.getEntries())
