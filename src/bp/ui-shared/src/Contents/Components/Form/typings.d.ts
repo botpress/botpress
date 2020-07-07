@@ -1,4 +1,4 @@
-import { FormData, FormField } from 'botpress/sdk'
+import { FlowVariable, FormData, FormField } from 'botpress/sdk'
 
 export interface FormProps {
   axios?: any
@@ -10,4 +10,5 @@ export interface FormProps {
   getEmptyData?: (renderType?: string) => FormData
   onUpdate: (data: { [key: string]: string }) => void
   setCanOutsideClickClose?: (canClickOutside: boolean) => void
+  variables?: FlowVariable[]
 }

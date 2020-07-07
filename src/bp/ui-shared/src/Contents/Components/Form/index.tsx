@@ -158,10 +158,11 @@ const Form: FC<FormProps> = ({
   fields,
   advancedSettings,
   setCanOutsideClickClose,
-  onUpdate
+  onUpdate,
+  variables
 }) => {
   const newFormData = createEmptyDataFromSchema([...(fields || []), ...(advancedSettings || [])])
-  const [state, dispatch] = useReducer(formReducer, newFormData)
+  const [state, dispatch] = useReducer(formReducer, formData)
   const outsideClickTimeout = useRef<any>()
 
   useEffect(() => {
@@ -313,7 +314,7 @@ const Form: FC<FormProps> = ({
             field.type === 'text' ? (
               <SuperInput
                 placeholder={lang(field.placeholder)}
-                variables={[]}
+                variables={variables}
                 events={{}}
                 setCanOutsideClickClose={canClickOuside => {
                   if (outsideClickTimeout.current) {

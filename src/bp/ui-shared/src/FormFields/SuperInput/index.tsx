@@ -25,7 +25,7 @@ export default ({ canAddElements, events, variables, setCanOutsideClickClose, on
 
       if (prefix) {
         if (prefix == '$') {
-          setCurrentWhitelist(variables || [])
+          setCurrentWhitelist(variables?.map(({ name }) => name) || [])
         }
 
         if (prefix == '{{') {

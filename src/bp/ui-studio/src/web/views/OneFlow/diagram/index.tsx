@@ -868,6 +868,7 @@ class Diagram extends Component<Props> {
                 type.schema.newJson?.displayedIn.includes('sayNode')
               )}
               deleteContent={() => this.deleteNodeContent()}
+              variables={this.props.currentFlow.variables || []}
               editingContent={this.state.editingNodeItem.index}
               formData={editingNodeItem?.[this.state.currentLang] || this.getEmptyContent(editingNodeItem)}
               onUpdate={this.updateNodeContent.bind(this)}
@@ -885,6 +886,7 @@ class Diagram extends Component<Props> {
               deleteCondition={() => this.deleteNodeCondition()}
               editingCondition={this.state.editingNodeItem.index}
               topicName={this.props.selectedTopic}
+              variables={this.props.currentFlow.variables || []}
               formData={editingNodeItem}
               contentLang={this.state.currentLang}
               onUpdate={this.updateNodeCondition.bind(this)}

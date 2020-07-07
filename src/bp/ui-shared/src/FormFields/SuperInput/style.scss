@@ -13,7 +13,7 @@
     background: none !important;
     border: none !important;
     box-shadow: none !important;
-    padding: var(--spacing-small) var(--spacing-medium) var(--spacing-medium);
+    padding: calc(var(--spacing-large) - 1px) var(--spacing-medium);
 
     svg {
       fill: var(--reef);
