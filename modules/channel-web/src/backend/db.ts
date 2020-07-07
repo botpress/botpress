@@ -153,6 +153,14 @@ export default class WebchatDb {
 
     this.queued_messages.push(message)
     this.queued_convos[`${conversationId}_${userId}_${botId}`] = this.knex.date.now()
+
+    return {
+      ...message,
+      sent_on: new Date(),
+      message_raw: raw,
+      message_data: data,
+      payload: payload
+    }
   }
 
   async appendBotMessage(botName, botAvatar, conversationId, payload, incomingEventId) {
@@ -174,12 +182,13 @@ export default class WebchatDb {
 
     this.queued_messages.push(message)
 
-    return Object.assign(message, {
+    return {
+      ...message,
       sent_on: new Date(),
-      message_raw: this.knex.json.get(message.message_raw),
-      message_data: this.knex.json.get(message.message_data),
-      payload: this.knex.json.get(message.payload)
-    })
+      message_raw: raw,
+      message_data: data,
+      payload: payload
+    }
   }
 
   async createConversation(botId, userId, { originatesFromUserMessage = false } = {}) {
