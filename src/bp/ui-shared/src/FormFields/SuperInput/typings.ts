@@ -1,4 +1,4 @@
-import { BotEvent, FlowVariable } from "botpress/sdk"
+import { BotEvent, FlowVariable } from 'botpress/sdk'
 
 export interface SuperInputProps {
   setCanOutsideClickClose?: (canOutsideClick: boolean) => void
