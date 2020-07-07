@@ -17,8 +17,8 @@ export default class WebchatDb {
   constructor(private bp: typeof sdk) {
     this.users = bp.users
     this.knex = bp['database'] // TODO Fixme
-    setInterval(() => this.flushMessages(), ms('1s'))
-    setInterval(() => this.flushConvoUpdates(), ms('1s'))
+    setInterval(() => this.flushMessages(), ms('5s'))
+    setInterval(() => this.flushConvoUpdates(), ms('5s'))
   }
 
   async flushMessages() {
@@ -26,8 +26,6 @@ export default class WebchatDb {
       return
     }
     this.message_lock = true
-
-    console.log(`inserting ${this.queued_messages.length} messages`)
 
     try {
       const original = this.queued_messages
@@ -70,8 +68,6 @@ export default class WebchatDb {
         }
 
         this.queued_convos = []
-
-        console.log(`updating ${queries.length} convos`)
 
         await Promise.all(queries)
           .then(trx.commit)
