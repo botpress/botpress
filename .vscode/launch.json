@@ -4,7 +4,7 @@
     {
       "type": "node",
       "runtimeVersion": "12.13.0",
-      "request": "launch",
+      "request": "",
       "name": "Debug App",
       "program": "${workspaceFolder}/out/bp/index.js",
       "cwd": "${workspaceFolder}",
@@ -14,7 +14,8 @@
         "BP_MODULES_PATH": "${workspaceFolder}/modules:${workspaceFolder}/internal-modules",
         "NODE_PATH": "${workspaceFolder}/out/bp",
         "DEBUG": "bp:none",
-        "BLUEBIRD_DEBUG": "1"
+        "BLUEBIRD_DEBUG": "1",
+        "TELEMETRY_URL": "https://telemetry.botpress.dev"
       },
       "smartStep": true,
       "outFiles": [
@@ -29,10 +30,12 @@
     },
     {
       "type": "node",
-      "request": "launch",
+      "request": "",
       "name": "Debug Jest Tests",
       "cwd": "${workspaceFolder}",
-      "env": { "NATIVE_EXTENSIONS_DIR": "./build/native-extensions" },
+      "env": {
+        "NATIVE_EXTENSIONS_DIR": "./build/native-extensions"
+      },
       "args": [
         "--inspect-brk",
         "${workspaceFolder}/node_modules/.bin/jest",
@@ -57,10 +60,13 @@
     },
     {
       "type": "node",
-      "request": "launch",
+      "request": "",
       "name": "Debug Jest Integration Tests",
       "cwd": "${workspaceFolder}",
-      "env": { "NATIVE_EXTENSIONS_DIR": "./build/native-extensions", "JEST_TIMEOUT": "30000" },
+      "env": {
+        "NATIVE_EXTENSIONS_DIR": "./build/native-extensions",
+        "JEST_TIMEOUT": "30000"
+      },
       "args": [
         "--inspect-brk",
         "${workspaceFolder}/node_modules/.bin/jest",
@@ -80,9 +86,9 @@
       "autoAttachChildProcesses": true
     },
     {
-      "name": "(lldb) Launch",
+      "name": "(lldb) ",
       "type": "lldb",
-      "request": "launch",
+      "request": "",
       "program": "node",
       "args": ["test/start.js"],
       "env": {
@@ -92,17 +98,17 @@
       "cwd": "${workspaceFolder}/out/bp"
     },
     {
-      "name": "(lldb) CRFSuite Launch",
+      "name": "(lldb) CRFSuite ",
       "type": "lldb",
-      "request": "launch",
+      "request": "",
       "program": "node",
       "args": ["test/start.js"],
       "cwd": "${workspaceFolder}/src/bp/ml/crfsuite"
     },
     {
-      "name": "(lldb) FastText Launch",
+      "name": "(lldb) FastText ",
       "type": "lldb",
-      "request": "launch",
+      "request": "",
       "program": "node",
       "args": ["test/start.js"],
       "cwd": "${workspaceFolder}/src/bp/ml/fasttext"

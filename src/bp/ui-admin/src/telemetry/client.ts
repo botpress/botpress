@@ -13,7 +13,7 @@ const telemetryPackageVersion = '1.0.0'
 const dataClusterVersion = '1.0.0'
 
 export const axiosConfig = {
-  baseURL: 'https://telemetry.botpress.dev',
+  baseURL: window.TELEMETRY_URL,
   headers: {
     withCredentials: false
   }
