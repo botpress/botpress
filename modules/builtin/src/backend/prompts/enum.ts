@@ -33,41 +33,6 @@ class PromptEnum implements Prompt {
 
     return { valid: true }
   }
-
-  customPrompt = async (event: IO.OutgoingEvent, incomingEvent: IO.IncomingEvent, bp: typeof sdk): Promise<boolean> => {
-    if (!this._useDropdown) {
-      return false
-    }
-
-    const {
-      data: { occurrences }
-    } = await axios.get(
-      `mod/nlu/entities/${this._entity}`,
-      await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
-    )
-
-    let payloads = []
-    if (occurrences.length <= 3) {
-      const element = createMultiLangObject(this._question, 'text', {
-        choices: occurrences.map(x => ({ title: x.name, value: x.name }))
-      })
-
-      payloads = await bp.cms.renderElement(
-        '@builtin_single-choice',
-        extractEventCommonArgs(incomingEvent, element),
-        event
-      )
-    } else {
-      const element = createMultiLangObject(this._question, 'message', {
-        options: occurrences.map(x => ({ label: x.name, value: x.name }))
-      })
-
-      payloads = await bp.cms.renderElement('@dropdown', extractEventCommonArgs(incomingEvent, element), event)
-    }
-
-    await bp.events.replyToEvent(incomingEvent, payloads, incomingEvent.id)
-    return true
-  }
 }
 
 const config: PromptConfig = {

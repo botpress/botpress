@@ -1832,6 +1832,101 @@ declare module 'botpress/sdk' {
     content: string | Buffer
   }
 
+  export namespace Content {
+    export interface Base {
+      metadata?: Metadata
+    }
+
+    export interface Metadata {
+      /** Display quick reply buttons */
+      __buttons?: Option[]
+      /** Display a dropdown menu to select an item  */
+      __dropdown?: Option[] | Dropdown
+      /** When true, the typing effect will not be used */
+      __typing?: boolean
+      /** Use markdown for text fields when possible */
+      __markdown?: boolean
+      /** If the channel supports it, it will trim the text to the specified length */
+      __trimText?: number
+      /** If a prompt has a picker (for example confirm or date), use this effect to display it with the prompt */
+      __usePicker?: boolean
+      /** Additional properties provided by the CMS */
+      extraProps?: {
+        BOT_URL: string
+      }
+      /** Any other user-defined properties */
+      [customProps: string]: any
+    }
+
+    export interface Text extends Base {
+      type: 'text'
+      text: string | MultiLangText
+      variations?: string[]
+    }
+
+    export interface Image extends Base {
+      type: 'image'
+      image: string
+      title?: string
+    }
+
+    export interface Card extends Base {
+      type: 'card'
+      title: string
+      subtitle?: string
+      image?: string
+      actions?: Actions[]
+    }
+
+    export interface ActionButton {
+      title: string
+    }
+
+    export interface ActionSaySomething extends ActionButton {
+      type: 'say_something'
+      // TODO cleanup legacy
+      action: 'Say something'
+      text: string
+    }
+
+    export interface ActionOpenURL extends ActionButton {
+      type: 'open_url'
+      // TODO cleanup legacy
+      action: 'Open URL'
+      url: string
+    }
+
+    export interface ActionPostback extends ActionButton {
+      type: 'postback'
+      // TODO cleanup legacy
+      action: 'Postback'
+      payload: string
+    }
+
+    export interface Carousel extends Base {
+      type: 'carousel'
+      items: Card[]
+    }
+
+    export interface Custom extends Base {
+      type: 'custom'
+      [prop: string]: any
+    }
+
+    export type All = Text | Image | Carousel | Custom
+    export type Actions = ActionSaySomething | ActionOpenURL | ActionPostback
+
+    export interface Dropdown {
+      buttonText?: string
+      options: Option[]
+      /** Below options are for channel-web only */
+      width?: number
+      displayInKeyboard?: boolean
+      allowCreation?: boolean
+      allowMultiple?: boolean
+    }
+  }
+
   export namespace http {
     /**
      * Create a shortlink to any destination
@@ -1930,6 +2025,12 @@ declare module 'botpress/sdk' {
      * @param payloads - One or multiple payloads to send
      */
     export function replyToEvent(eventDestination: IO.EventDestination, payloads: any[], incomingEventId?: string): void
+
+    export function replyContentToEvent(
+      payload: Content.All,
+      event: IO.Event,
+      options: { incomingEventId?: string; eventType?: string }
+    ): Promise<void>
 
     /**
      * Return the state of the incoming queue. True if there are any events(messages)

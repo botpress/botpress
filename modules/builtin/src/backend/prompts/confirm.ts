@@ -35,26 +35,6 @@ class PromptConfirm implements Prompt {
   validate(value): sdk.ValidationResult {
     return { valid: value === true || value === false, message: lang.tr('module.builtin.prompt.invalid') }
   }
-
-  customPrompt = async (event: IO.OutgoingEvent, incomingEvent: IO.IncomingEvent, bp: typeof sdk) => {
-    // TODO move translations to ui-shared once they are available for backend
-    const element = createMultiLangObject(this._question, 'text', {
-      choices: [
-        { title: lang.tr('module.builtin.yes'), value: 'yes' },
-        { title: lang.tr('module.builtin.no'), value: 'no' }
-      ]
-    })
-
-    const payloads = await bp.cms.renderElement(
-      '@builtin_single-choice',
-      extractEventCommonArgs(incomingEvent, element),
-      event
-    )
-
-    await bp.events.replyToEvent(incomingEvent, payloads, incomingEvent.id)
-
-    return true
-  }
 }
 
 const config: PromptConfig = {
