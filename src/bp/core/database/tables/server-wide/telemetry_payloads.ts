@@ -1,7 +1,7 @@
 import { Table } from 'core/database/interfaces'
 
 export class TelemetryPayloadTable extends Table {
-  name: string = 'telemetry_payloads'
+  name: string = 'telemetry'
 
   async bootstrap() {
     let created = false
