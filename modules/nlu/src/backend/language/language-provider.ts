@@ -11,6 +11,7 @@ import path from 'path'
 import crypto from 'crypto'
 import semver from 'semver'
 
+import { getSeededLodash, resetSeed } from '../tools/seeded-lodash'
 import { setSimilarity, vocabNGram } from '../tools/strings'
 import { isSpace, processUtteranceTokens, restoreOriginalUtteranceCasing } from '../tools/token-utils'
 import {
@@ -405,11 +406,13 @@ export class RemoteLanguageProvider implements LanguageProvider {
     const minJunkSize = Math.max(JUNK_TOKEN_MIN, meanWordSize / 2) // Twice as short
     const maxJunkSize = Math.min(JUNK_TOKEN_MAX, meanWordSize * 1.5) // A bit longer.  Those numbers are discretionary and are not expected to make a big impact on the models.
     return _.range(0, JUNK_VOCAB_SIZE).map(() => {
-      const finalSize = _.random(minJunkSize, maxJunkSize, false)
+      const lo = getSeededLodash(process.env.NLU_SEED)
+      const finalSize = lo.random(minJunkSize, maxJunkSize, false)
       let word = ''
       while (word.length < finalSize) {
-        word += _.sample(gramset)
+        word += lo.sample(gramset)
       }
+      resetSeed()
       return word
     }) // randomly generated words
   }

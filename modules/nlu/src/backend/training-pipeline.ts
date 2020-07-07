@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { getSeededLodash, resetSeed } from './tools/seeded-lodash'
 import { getOrCreateCache } from './cache-manager'
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
 import { getCtxFeatures } from './intents/context-featurizer'
@@ -229,12 +230,15 @@ const TrainIntentClassifier = async (
     )
 
     const nAvgUtts = Math.ceil(_.meanBy(trainableIntents, 'utterances.length'))
+
+    const lo = getSeededLodash(process.env.NLU_SEED)
     const points = _.chain(trainableIntents)
       .thru(ints => [
         ...ints,
         {
           name: NONE_INTENT,
-          utterances: _.chain(noneUtts)
+          utterances: lo
+            .chain(noneUtts)
             .shuffle()
             .take(nAvgUtts * 2.5) // undescriptible magic n, no sens to extract constant
             .value()
@@ -248,6 +252,8 @@ const TrainIntentClassifier = async (
       )
       .filter(x => !x.coordinates.some(isNaN))
       .value()
+
+    resetSeed()
 
     if (points.length <= 0) {
       progress(1 / input.ctxToTrain.length)
@@ -355,21 +361,25 @@ export const AppendNoneIntent = async (input: TrainOutput, tools: Tools): Promis
     return input
   }
 
-  const allUtterances = _.flatten(input.intents.map(x => x.utterances))
-  const vocabWithDupes = _.chain(allUtterances)
+  const lo = getSeededLodash(process.env.NLU_SEED)
+
+  const allUtterances = lo.flatten(input.intents.map(x => x.utterances))
+  const vocabWithDupes = lo
+    .chain(allUtterances)
     .map(x => x.tokens.map(x => x.value))
     .flattenDeep<string>()
     .value()
 
   const junkWords = await tools.generateSimilarJunkWords(Object.keys(input.vocabVectors), input.languageCode)
-  const avgTokens = _.meanBy(allUtterances, x => x.tokens.length)
-  const nbOfNoneUtterances = _.clamp(
+  const avgTokens = lo.meanBy(allUtterances, x => x.tokens.length)
+  const nbOfNoneUtterances = lo.clamp(
     (allUtterances.length * 2) / 3,
     NONE_UTTERANCES_BOUNDS.MIN,
     NONE_UTTERANCES_BOUNDS.MAX
   )
   const stopWords = await getStopWordsForLang(input.languageCode)
-  const vocabWords = _.chain(input.tfIdf)
+  const vocabWords = lo
+    .chain(input.tfIdf)
     .toPairs()
     .filter(([word, tfidf]) => tfidf <= 0.3)
     .map('0')
@@ -378,19 +388,19 @@ export const AppendNoneIntent = async (input: TrainOutput, tools: Tools): Promis
   // If 30% in utterances is a space, language is probably space-separated so we'll join tokens using spaces
   const joinChar = vocabWithDupes.filter(x => isSpace(x)).length >= vocabWithDupes.length * 0.3 ? SPACE : ''
 
-  const vocabUtts = _.range(0, nbOfNoneUtterances).map(() => {
-    const nbWords = Math.round(_.random(1, avgTokens * 2, false))
-    return _.sampleSize(_.uniq([...stopWords, ...vocabWords]), nbWords).join(joinChar)
+  const vocabUtts = lo.range(0, nbOfNoneUtterances).map(() => {
+    const nbWords = Math.round(lo.random(1, avgTokens * 2, false))
+    return lo.sampleSize(lo.uniq([...stopWords, ...vocabWords]), nbWords).join(joinChar)
   })
 
-  const junkWordsUtts = _.range(0, nbOfNoneUtterances).map(() => {
-    const nbWords = Math.round(_.random(1, avgTokens * 2, false))
-    return _.sampleSize(junkWords, nbWords).join(joinChar)
+  const junkWordsUtts = lo.range(0, nbOfNoneUtterances).map(() => {
+    const nbWords = Math.round(lo.random(1, avgTokens * 2, false))
+    return lo.sampleSize(junkWords, nbWords).join(joinChar)
   })
 
-  const mixedUtts = _.range(0, nbOfNoneUtterances).map(() => {
-    const nbWords = Math.round(_.random(1, avgTokens * 2, false))
-    return _.sampleSize([...junkWords, ...stopWords], nbWords).join(joinChar)
+  const mixedUtts = lo.range(0, nbOfNoneUtterances).map(() => {
+    const nbWords = Math.round(lo.random(1, avgTokens * 2, false))
+    return lo.sampleSize([...junkWords, ...stopWords], nbWords).join(joinChar)
   })
 
   const intent: Intent<Utterance> = {
@@ -406,6 +416,7 @@ export const AppendNoneIntent = async (input: TrainOutput, tools: Tools): Promis
     slot_entities: []
   }
 
+  resetSeed()
   return { ...input, intents: [...input.intents, intent] }
 }
 
