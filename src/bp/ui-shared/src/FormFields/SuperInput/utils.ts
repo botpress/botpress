@@ -36,3 +36,9 @@ export const convertToTags = (value: string): string => {
 
   return newString
 }
+
+export const sanitizeName = text =>
+  text
+    .replace(/\s/g, '-')
+    .replace(/[^a-zA-Z0-9\/_-]/g, '')
+    .replace(/\/\//, '/')

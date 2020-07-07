@@ -107,7 +107,7 @@
         opacity: 0;
         max-height: 0;
         overflow: hidden;
-        transition: opacity 0.3s 0.3s, visibility 0.3s 0.3s;
+        transition: opacity 0.3s 0.3s, visibility 0.3s 0.3s, max-height 1s 0;
         font-size: 8px;
         line-height: 1.25;
         color: var(--shark);

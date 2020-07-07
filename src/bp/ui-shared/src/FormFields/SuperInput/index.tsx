@@ -16,7 +16,6 @@ type Props = FieldProps & SuperInputProps
 // TODO implement canAddElements
 
 export default ({ canAddElements, events, variables, setCanOutsideClickClose, onBlur, value }: Props) => {
-  const [currentWhitelist, setCurrentWhitelist] = useState<string[]>([])
   const tagifyRef = useRef<any>()
   const eventsDesc = events?.reduce((acc, event) => ({ ...acc, [event.name]: event.description }), {})
 
@@ -28,12 +27,12 @@ export default ({ canAddElements, events, variables, setCanOutsideClickClose, on
 
       if (prefix) {
         if (prefix == '$') {
-          setCurrentWhitelist(variables?.map(({ name }) => name) || [])
+          tagifyRef.current.settings.whitelist = variables?.map(({ name }) => name) || []
         }
 
         if (prefix == '{{') {
           // TODO refactor to use the schema format properly and allow to breakdown into an object type search
-          setCurrentWhitelist(events?.map(event => event.name) || [])
+          tagifyRef.current.settings.whitelist = events?.map(event => event.name) || []
         }
 
         if (e.detail.value.length > 1) {
@@ -54,7 +53,19 @@ export default ({ canAddElements, events, variables, setCanOutsideClickClose, on
   }
 
   const addPrefix = prefix => {
-    if (tagifyRef.current?.DOM.input.innerHTML !== '' && !tagifyRef.current?.DOM.input.innerHTML.endsWith('&nbsp;')) {
+    let currentContent = tagifyRef.current?.DOM.input.innerHTML
+
+    if (currentContent.endsWith('{{')) {
+      currentContent = currentContent.slice(0, -2).trim()
+    }
+    if (currentContent.endsWith('$')) {
+      currentContent = currentContent.slice(0, -1).trim()
+    }
+
+    // @ts-ignore
+    tagifyRef.current?.DOM?.input?.innerHTML = currentContent
+
+    if (currentContent !== '' && !currentContent.endsWith('&nbsp;')) {
       addSpace()
     }
 
@@ -99,7 +110,6 @@ export default ({ canAddElements, events, variables, setCanOutsideClickClose, on
         className={style.superInput}
         tagifyRef={tagifyRef}
         settings={{
-          whitelist: currentWhitelist,
           dropdown: {
             classname: 'color-blue',
             enabled: 0,
