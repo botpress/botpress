@@ -517,7 +517,7 @@ declare module 'botpress/sdk' {
       name: string
       value: any
       source: any
-      entity: Entity
+      entity?: Entity
       confidence: number
       start: number
       end: number

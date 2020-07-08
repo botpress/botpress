@@ -464,8 +464,12 @@ async function extractSlots(input: PredictStep, predictors: Predictors): Promise
 }
 
 function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
-  const entitiesMapper = (e: EntityExtractionResult) =>
-    ({
+  const entitiesMapper = (e?: EntityExtractionResult) => {
+    if (!e) {
+      return
+    }
+
+    return {
       name: e.type,
       type: e.metadata.entityId,
       data: {
@@ -479,7 +483,8 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
         source: e.metadata.source,
         start: e.start
       }
-    } as sdk.NLU.Entity)
+    } as sdk.NLU.Entity
+  }
 
   const entities = step.utterance.entities
     .map(e => ({
@@ -499,7 +504,8 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
         confidence: s.confidence,
         name: s.name,
         source: s.source,
-        value: s.value
+        value: s.value,
+        entity: entitiesMapper(s.entity)
       } as sdk.NLU.Slot
     }
   }, {} as sdk.NLU.SlotCollection)
