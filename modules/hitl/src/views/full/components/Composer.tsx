@@ -1,10 +1,13 @@
 import React, { FC, useState } from 'react'
-
+import ReactTextareaAutocomplete from '@webscopeio/react-textarea-autocomplete'
+import '@webscopeio/react-textarea-autocomplete/style.css'
+import { AutoComplete } from '../../../config'
 import { HitlApi } from '../api'
 
 interface Props {
   api: HitlApi
   currentSessionId: string
+  autoCompleteConfig: AutoComplete
 }
 
 const Composer: FC<Props> = props => {
@@ -22,14 +25,28 @@ const Composer: FC<Props> = props => {
       setMessage('')
     }
   }
+  console.log('autoCompleteConfig', props.autoCompleteConfig)
+  const Item = ({ entity: { name, value } }) => <div>{`${name}: ${value}`}</div>
+  const TriggerKey = props.autoCompleteConfig ? props.autoCompleteConfig.trigger : '/'
+  const Shortcuts = props.autoCompleteConfig ? props.autoCompleteConfig.shortcuts : []
 
   return (
     <div className="bph-composer">
-      <textarea
+      <ReactTextareaAutocomplete
+        className="my-textarea"
         value={message}
-        placeholder="Type your message...."
         onChange={event => setMessage(event.target.value)}
         onKeyPress={handleKeyPress}
+        loadingComponent={() => <span>Loading</span>}
+        trigger={{
+          [TriggerKey]: {
+            dataProvider: token => {
+              return Shortcuts
+            },
+            component: Item,
+            output: (item, trigger) => item.value
+          }
+        }}
       />
     </div>
   )

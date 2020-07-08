@@ -6,7 +6,7 @@ import React from 'react'
 
 import '../../../assets/default.css'
 import { HitlSessionOverview, Message as HitlMessage } from '../../backend/typings'
-import { Attribute } from '../../config'
+import { Attribute, AutoComplete } from '../../config'
 
 import { makeApi } from './api'
 import Conversation from './components/messages/Conversation'
@@ -21,6 +21,7 @@ interface State {
   currentSession: HitlSessionOverview
   filterSearchText: string
   attributesConfig: Attribute[]
+  autoCompleteConfig: AutoComplete
 }
 
 export default class HitlModule extends React.Component<{ bp: any }, State> {
@@ -33,7 +34,8 @@ export default class HitlModule extends React.Component<{ bp: any }, State> {
     currentSession: null,
     filterPaused: false,
     filterSearchText: undefined,
-    attributesConfig: undefined
+    attributesConfig: undefined,
+    autoCompleteConfig: undefined
   }
 
   async componentDidMount() {
@@ -45,6 +47,7 @@ export default class HitlModule extends React.Component<{ bp: any }, State> {
     this.props.bp.events.on('hitl.session.changed', this.updateSession)
 
     await this.fetchAttributesConfig()
+    await this.fetchAutoCompleteConfig()
     await this.refreshSessions()
   }
 
@@ -54,6 +57,9 @@ export default class HitlModule extends React.Component<{ bp: any }, State> {
     this.props.bp.events.off('hitl.session.changed', this.updateSession)
   }
 
+  async fetchAutoCompleteConfig() {
+    this.setState({ autoCompleteConfig: await this.api.getautoComplete() })
+  }
   async fetchAttributesConfig() {
     this.setState({ attributesConfig: await this.api.getAttributes() })
   }
@@ -145,7 +151,13 @@ export default class HitlModule extends React.Component<{ bp: any }, State> {
               currentSession={this.state.currentSession}
               currentSessionId={currentSessionId}
             />
-            <Composer api={this.api} currentSessionId={currentSessionId} />
+            {this.state.autoCompleteConfig && (
+              <Composer
+                api={this.api}
+                currentSessionId={currentSessionId}
+                autoCompleteConfig={this.state.autoCompleteConfig}
+              />
+            )}
           </div>
           <div className="bph-layout-profile">
             {this.state.currentSession && (

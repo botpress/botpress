@@ -26,6 +26,7 @@
     "@types/react-bootstrap": "^0.32.19"
   },
   "dependencies": {
+    "@webscopeio/react-textarea-autocomplete": "^4.7.0",
     "bluebird": "^3.5.3",
     "classnames": "^2.2.6",
     "lodash": "^4.17.11",

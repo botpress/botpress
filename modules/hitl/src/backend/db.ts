@@ -332,16 +332,15 @@ export default class HitlDb {
   async searchSessions(searchTerm: string): Promise<string[]> {
     const query = this.knex('hitl_sessions')
       .join('srv_channel_users', this.knex.raw('srv_channel_users.user_id'), 'hitl_sessions.userId')
-      .where('full_name', 'like', `%${searchTerm}%`)
-      .orWhere('srv_channel_users.user_id', 'like', `%${searchTerm}%`)
+      .where('srv_channel_users.user_id', 'like', `%${searchTerm}%`)
 
     if (this.knex.isLite) {
-      query.orWhere('attr_fullName', 'like', `%${searchTerm}%`)
+      query.orWhereRaw(`LOWER(attr_fullName) like '%${searchTerm.toLowerCase()}%'`)
       query.select(
         this.knex.raw(`hitl_sessions.id, json_extract(srv_channel_users.attributes, '$.full_name') as attr_fullName`)
       )
     } else {
-      query.orWhereRaw(`srv_channel_users.attributes ->>'full_name' like '%${searchTerm}%'`)
+      query.orWhereRaw(`LOWER(srv_channel_users.attributes ->>'full_name') like '%${searchTerm.toLowerCase()}%'`)
       query.select(this.knex.raw(`hitl_sessions.id`))
     }
 
