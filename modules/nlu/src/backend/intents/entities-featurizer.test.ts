@@ -5,14 +5,15 @@ import { makeTestUtterance, UtteranceEntity, UtteranceRange } from '../utterance
 import { getEntitiesEncoding } from './entities-featurizer'
 
 type Entity = UtteranceRange & UtteranceEntity
-function buildEntity(type: string, extractor?: 'system' | 'list' | 'pattern'): Entity {
+type ExtractorType = 'system' | 'list' | 'pattern'
+function buildEntity(type: string, extractor: ExtractorType = 'list'): Entity {
   return {
     confidence: 0,
     endPos: 0,
     endTokenIdx: 0,
     metadata: {
       entityId: 'The Mordor',
-      extractor: extractor || 'list',
+      extractor,
       source: 'Bilbo baggins'
     },
     startPos: 0,
