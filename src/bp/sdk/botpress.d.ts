@@ -765,7 +765,7 @@ declare module 'botpress/sdk' {
 
     export interface PromptStatus {
       turn: number
-      readonly configuration: Readonly<PromptConfiguration>
+      readonly config: Readonly<PromptConfiguration>
       status: 'resolved' | 'rejected' | 'pending'
       stage: 'new' | 'prompt' | 'confirm-candidate' | 'confirm-cancel' | 'confirm-jump' | 'disambiguate-candidates'
       rejection?: 'cancelled' | 'timedout' | 'jumped'
@@ -776,6 +776,13 @@ declare module 'botpress/sdk' {
         value?: any
         nextDestination?: { flowName: string; node: string }
       }
+    }
+
+    export interface DialogAction {
+      type: 'say' | 'listen'
+      message?: MultiLangText | string
+      payload?: any
+      eventType?: string
     }
 
     export type PromptConfiguration = { type: string } & PromptNodeParams
@@ -826,7 +833,7 @@ declare module 'botpress/sdk' {
        */
       hasJumped?: boolean
       /** The status of the current active prompt */
-      activePromptStatus?: PromptStatus
+      activePrompt?: PromptStatus
     }
 
     export interface CurrentSession {
@@ -1838,6 +1845,9 @@ declare module 'botpress/sdk' {
   export namespace Content {
     export interface Base {
       metadata?: Metadata
+      extraProps?: {
+        BOT_URL: string
+      }
     }
 
     export interface Metadata {
@@ -1851,12 +1861,8 @@ declare module 'botpress/sdk' {
       __markdown?: boolean
       /** If the channel supports it, it will trim the text to the specified length */
       __trimText?: number
-      /** If a prompt has a picker (for example confirm or date), use this effect to display it with the prompt */
-      __usePicker?: boolean
-      /** Additional properties provided by the CMS */
-      extraProps?: {
-        BOT_URL: string
-      }
+      /** Force usage of a dropdown menu instead of buttons */
+      __useDropdown?: boolean
       /** Any other user-defined properties */
       [customProps: string]: any
     }

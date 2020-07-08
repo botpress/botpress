@@ -10,12 +10,12 @@ module.exports = {
     return {
       ...data,
       type,
+      extraProps: {
+        BOT_URL: data.BOT_URL
+      },
       metadata: {
         ...(data.markdown && { __markdown: true }),
-        ...(data.typing && { __typing: true }),
-        extraProps: {
-          BOT_URL: data.BOT_URL
-        }
+        ...(data.typing && { __typing: true })
       }
     }
   }

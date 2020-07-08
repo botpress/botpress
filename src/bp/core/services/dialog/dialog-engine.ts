@@ -2,9 +2,11 @@ import { Content, IO } from 'botpress/sdk'
 import { createMultiLangObject } from 'common/prompts'
 import { FlowView } from 'common/typings'
 import { createForGlobalHooks } from 'core/api'
+import { ModuleLoader } from 'core/module-loader'
 import { EventRepository } from 'core/repositories'
 import { TYPES } from 'core/types'
-import { inject, injectable } from 'inversify'
+import { inject, injectable, postConstruct } from 'inversify'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 
 import { converseApiEvents } from '../converse'
@@ -35,17 +37,26 @@ export class DialogEngine {
     @inject(TYPES.EventRepository) private eventRepository: EventRepository,
     @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
     @inject(TYPES.PromptManager) private promptManager: PromptManager,
-    @inject(TYPES.ActionStrategy) private actionStrategy: ActionStrategy,
-    @inject(TYPES.EventEngine) private eventEngine: EventEngine
+    @inject(TYPES.EventEngine) private eventEngine: EventEngine,
+    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
   ) {}
+
+  @postConstruct()
+  public async init() {
+    await AppLifecycle.waitFor(AppLifecycleEvents.BOTPRESS_READY)
+    this.promptManager.prompts = await this.moduleLoader.getPrompts()
+  }
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent): Promise<IO.IncomingEvent> {
     const botId = event.botId
     await this._loadFlows(botId)
 
-    const context = _.isEmpty(event.state.context) ? this.initializeContext(event) : event.state.context
-    const currentFlow = this._findFlow(botId, context.currentFlow)
-    const currentNode = this._findNode(botId, currentFlow, context.currentNode)
+    const context: IO.DialogContext = _.isEmpty(event.state.context)
+      ? this.initializeContext(event)
+      : event.state.context
+
+    const currentFlow = this._findFlow(botId, context.currentFlow!)
+    const currentNode = this._findNode(botId, currentFlow, context.currentNode!)
 
     if (event.ndu) {
       const workflowName = currentFlow.name?.replace('.flow.json', '')
@@ -64,86 +75,82 @@ export class DialogEngine {
         workflow.status = 'completed'
       }
 
-      if (
-        currentNode.type === 'prompt' &&
-        !event.state.context.activePromptStatus &&
-        !this._getCurrentNodeValue(event, 'processed')
-      ) {
-        event.state.context.activePromptStatus = {
+      if (currentNode.type === 'prompt' && !context.activePrompt && !this._getCurrentNodeValue(event, 'processed')) {
+        context.activePrompt = {
           stage: 'new',
           status: 'pending',
           state: {},
           turn: 0,
-          configuration: {
+          config: {
             type: currentNode.prompt!.type,
             ...currentNode.prompt!.params
           }
         }
       }
 
-      if (context.activePromptStatus?.status === 'pending') {
-        if (context.activePromptStatus?.stage !== 'new') {
-          context.activePromptStatus.turn++
+      if (context.activePrompt?.status === 'pending') {
+        if (context.activePrompt?.stage !== 'new') {
+          context.activePrompt.turn++
         }
 
         const previousEvents = await this.eventRepository
           .findEvents(
             { direction: 'incoming', target: event.target },
             {
-              count: context.activePromptStatus.configuration.searchBackCount,
+              count: context.activePrompt.config.searchBackCount,
               sortOrder: [{ column: 'createdOn', desc: true }]
             }
           )
           .then(events => events.map(x => <IO.IncomingEvent>x.event))
 
         const { status: promptStatus, actions } = await this.promptManager.processPrompt(event, previousEvents)
-        event.state.context.activePromptStatus = promptStatus
+        context.activePrompt = promptStatus
 
-        for (const action of actions) {
-          if (action.type === 'say') {
-            if (action.payload) {
-              await this.eventEngine.replyContentToEvent(action.payload, event, {
-                incomingEventId: event.id,
-                eventType: 'prompt'
-              })
-            } else {
+        for (const { type, payload, message, eventType } of actions) {
+          if (type === 'say') {
+            const incomingEventId = event.id
+
+            if (payload) {
+              await this.eventEngine.replyContentToEvent(payload, event, { incomingEventId, eventType })
+            } else if (message) {
               const text: Content.Text = {
                 type: 'text',
-                text: action.message
+                text: message
               }
 
-              await this.eventEngine.replyContentToEvent(text, event, { incomingEventId: event.id })
+              await this.eventEngine.replyContentToEvent(text, event, { incomingEventId })
             }
           }
 
-          if (action.type === 'listen') {
+          if (type === 'listen') {
             return event
           }
         }
       }
 
-      if (event.state.context.activePromptStatus?.status === 'resolved') {
-        const promptStatus = event.state.context.activePromptStatus
-        event.state.setVariable(
-          promptStatus.configuration.output,
-          promptStatus.state.value,
-          promptStatus.configuration.type, // TODO:
-          {
-            nbOfTurns: 10, // TODO:
-            specificWorkflow: currentWorkflow
-          }
-        )
-        console.log('ELECTED')
+      if (context.activePrompt?.status === 'resolved') {
+        const { config, state } = context.activePrompt
+
+        event.state.setVariable(config.output, state.value, config.type, {
+          nbOfTurns: 10 // TODO:
+        })
+
         this._setCurrentNodeValue(event, 'extracted', true)
       }
 
-      if (event.state.context.activePromptStatus?.status === 'rejected') {
-        const promptStatus = event.state.context.activePromptStatus
-        this._setCurrentNodeValue(event, promptStatus.rejection!, true)
+      if (context.activePrompt?.status === 'rejected') {
+        this._setCurrentNodeValue(event, context.activePrompt.rejection!, true)
+
+        if (context.activePrompt.rejection === 'jumped') {
+          const { flowName, node } = context.activePrompt.state.nextDestination!
+          await this.jumpTo(sessionId, event, flowName, node)
+
+          return this.processEvent(sessionId, event)
+        }
       }
 
       this._setCurrentNodeValue(event, 'processed', true)
-      delete event.state.context.activePromptStatus
+      delete context.activePrompt
     }
 
     // Property type skill-call means that the node points to a subflow.
@@ -284,8 +291,21 @@ export class DialogEngine {
   }
 
   public async jumpTo(sessionId: string, event: IO.IncomingEvent, targetFlowName: string, targetNodeName?: string) {
-    // TODO: Important: implement this before merging
-    // await this.promptManager.promptJumpTo(event, { flowName, node })
+    const prompt = event.state.context?.activePrompt
+    if (prompt) {
+      if (!prompt.config.cancellable) {
+        return
+      }
+
+      if (prompt.config.confirmCancellation && prompt.stage !== 'confirm-jump') {
+        prompt.stage = 'confirm-jump'
+        prompt.state.nextDestination = { flowName: targetFlowName, node: targetNodeName! }
+
+        return
+      }
+
+      delete event.state.context.activePrompt
+    }
 
     const botId = event.botId
     await this._loadFlows(botId)

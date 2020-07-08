@@ -2,6 +2,8 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 export const convertPayload = (data: sdk.Content.All) => {
+  const botUrl = data.extraProps?.BOT_URL
+
   if (data.type === 'image') {
     return [
       {
@@ -10,7 +12,7 @@ export const convertPayload = (data: sdk.Content.All) => {
           type: 'plain_text',
           text: data.title
         },
-        image_url: `${data.metadata.extraProps.BOT_URL}${data.image}`,
+        image_url: `${botUrl}${data.image}`,
         alt_text: 'image'
       }
     ]
@@ -26,7 +28,7 @@ export const convertPayload = (data: sdk.Content.All) => {
           accessory: card.image?.length
             ? {
                 type: 'image',
-                image_url: `${data.metadata.extraProps.BOT_URL}${card.image}`,
+                image_url: `${botUrl}${card.image}`,
                 alt_text: 'image'
               }
             : undefined
@@ -61,7 +63,7 @@ export const convertPayload = (data: sdk.Content.All) => {
                   type: 'plain_text',
                   text: btn.title
                 },
-                url: btn?.url.replace('BOT_URL', data.metadata.extraProps.BOT_URL)
+                url: btn?.url.replace('BOT_URL', botUrl)
               }
             } else {
               throw new Error(`Slack carousel does not support "${btn['action']}" action-buttons at the moment`)

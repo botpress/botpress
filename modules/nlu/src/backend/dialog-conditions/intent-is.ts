@@ -12,7 +12,8 @@ export default {
     {
       key: 'intentName',
       type: 'overridable',
-      overrideKey: 'intent'
+      overrideKey: 'intent',
+      label: 'intent'
     }
   ],
   evaluate: (event, { intentName, topicName }) => {

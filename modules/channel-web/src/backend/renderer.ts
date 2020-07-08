@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 
 export const convertPayload = (data: sdk.Content.All) => {
-  const botUrl = data.metadata?.extraProps?.BOT_URL
+  const botUrl = data.extraProps?.BOT_URL
 
   if (data.type === 'image') {
     return {

@@ -1,12 +1,8 @@
 import { IO, Prompt, PromptDefinition } from 'botpress/sdk'
+import { MultiLangText } from 'botpress/sdk'
 import lang from 'common/lang'
-import { ModuleLoader } from 'core/module-loader'
-import { TYPES } from 'core/types'
-import { inject, injectable, postConstruct } from 'inversify'
-import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
+import { injectable } from 'inversify'
 import _ from 'lodash'
-
-import { getConfirmPromptPayload } from './prompt-utils'
 
 const debugPrompt = DEBUG('dialog:prompt')
 
@@ -16,12 +12,31 @@ const MIN_CONFIDENCE_VALIDATION = 0.7
 
 type ProcessedStatus = { status: IO.PromptStatus; actions: any[] }
 
+const getConfirmPromptPayload = (messages: MultiLangText | undefined, value: any) => {
+  let question = lang.tr('module.builtin.prompt.confirmValue', { value })
+
+  if (messages) {
+    question = _.mapValues(messages, (q, lang) => (q.length > 0 ? q.replace(`$value`, value) : question[lang]))
+  }
+
+  return { type: 'confirm', question }
+}
+
 const generateCancellation = (actions: any[], status: IO.PromptStatus): ProcessedStatus => {
-  if (status.configuration.confirmCancellation) {
+  if (status.config.confirmCancellation) {
     actions.push({ type: 'say', message: lang.tr('module.builtin.prompt.confirmLeaving') }, { type: 'listen' })
     return { actions, status: { ...status, stage: 'confirm-cancel' } }
   } else {
     return generateRejected(actions, status, 'cancelled')
+  }
+}
+
+const generateJumpTo = (actions: any[], status: IO.PromptStatus): ProcessedStatus => {
+  if (status.config.confirmCancellation) {
+    actions.push({ type: 'say', message: lang.tr('module.builtin.prompt.confirmLeaving') }, { type: 'listen' })
+    return { actions, status: { ...status, stage: 'confirm-jump' } }
+  } else {
+    return generateRejected(actions, status, 'jumped')
   }
 }
 
@@ -37,7 +52,7 @@ const generateResolved = (actions: any[], status: IO.PromptStatus, value: any): 
 }
 
 const generatePrompt = (actions: any[], status: IO.PromptStatus): ProcessedStatus => {
-  actions.push({ type: 'say', payload: status.configuration }, { type: 'listen' })
+  actions.push({ type: 'say', payload: status.config, eventType: 'prompt' }, { type: 'listen' })
 
   return {
     actions,
@@ -76,10 +91,10 @@ const generateDisambiguate = (
       type: 'say',
       payload: {
         type: 'enum',
-        question: status.configuration.question,
-        items: candidates.map(x => ({ label: x.value_string, value: x.value_string })),
-        metadata: { __usePicker: true }
-      }
+        question: status.config.question,
+        items: candidates.map(x => ({ label: x.value_string, value: x.value_string }))
+      },
+      eventType: 'prompt'
     },
     { type: 'listen' }
   )
@@ -98,11 +113,11 @@ const generateDisambiguate = (
 
 const generateCandidate = (actions: any[], status: IO.PromptStatus, candidate: IO.PromptCandidate): ProcessedStatus => {
   if (!status.questionAsked) {
-    actions.push({ type: 'say', message: status.configuration.question })
+    actions.push({ type: 'say', message: status.config.question })
   }
 
   actions.push(
-    { type: 'say', payload: getConfirmPromptPayload(status.configuration.confirm, candidate.value_raw) },
+    { type: 'say', payload: getConfirmPromptPayload(status.config.confirm, candidate.value_raw), eventType: 'prompt' },
     { type: 'listen' }
   )
 
@@ -121,43 +136,24 @@ const generateCandidate = (actions: any[], status: IO.PromptStatus, candidate: I
 
 @injectable()
 export class PromptManager {
-  private _prompts!: PromptDefinition[]
-
-  constructor(@inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader) {}
-
-  @postConstruct()
-  public async init() {
-    // TODO: get rid of this dependency
-    // probably inject the list of possible prompts directly instead (PromptRegistry?)
-    await AppLifecycle.waitFor(AppLifecycleEvents.BOTPRESS_READY)
-    this._prompts = await this.moduleLoader.getPrompts()
-  }
-
-  public async promptJumpTo(event: IO.IncomingEvent, destination: { flowName: string; node: string }) {
-    const prompt = event.state.context.activePromptStatus
-    // look at NDU events
-    if (prompt) {
-      prompt.stage = 'confirm-jump'
-      prompt.state.nextDestination = destination
-    }
-  }
+  public prompts!: PromptDefinition[]
 
   public async processPrompt(
     event: IO.IncomingEvent,
     previousEvents: IO.IncomingEvent[]
-  ): Promise<{ status: IO.PromptStatus; actions: any[] }> {
+  ): Promise<{ status: IO.PromptStatus; actions: IO.DialogAction[] }> {
     const { context } = event.state
-    const status = context.activePromptStatus!
+    const status = context.activePrompt!
 
     const slots = _.omitBy(_.get(event.state.session, 'slots', {}), x => x.elected)
-    const params = status.configuration
+    const params = status.config
     const varName = params.output
 
     debugPrompt('before process prompt %o', { prompt: status })
 
     const candidates: IO.PromptCandidate[] = []
-    const prompt = this.loadPrompt(status.configuration.type, status.configuration)
-    const actions: any[] = []
+    const prompt = this.loadPrompt(status.config.type, status.config)
+    const actions: IO.DialogAction[] = []
 
     const tryElect = (value: any): boolean => {
       const { valid, message } = prompt.validate(value)
@@ -283,6 +279,10 @@ export class PromptManager {
       return generateCancellation(actions, status)
     }
 
+    if (status.stage === 'confirm-jump') {
+      return generateJumpTo(actions, status)
+    }
+
     return generatePrompt(actions, status)
   }
 
@@ -302,8 +302,7 @@ export class PromptManager {
   }
 
   private loadPrompt(type: string, params: any): Prompt {
-    // TODO: move to PromptRegistry
-    const definition = this._prompts.find(x => x.id === type)
+    const definition = this.prompts.find(x => x.id === type)
     if (!definition) {
       throw new Error(`Unknown prompt type ${type}`)
     }

@@ -9,9 +9,10 @@ import PromptEnum from './prompts/enum'
 import PromptNumber from './prompts/number'
 import PromptPattern from './prompts/pattern'
 import PromptString from './prompts/string'
-import { setupMiddleware } from './setup'
+import { setupMiddleware } from './promptHandler'
 import BoxedBoolean from './variables/boolean'
 import BoxedDate from './variables/date'
+import BoxedEnum from './variables/enum'
 import BoxedNumber from './variables/number'
 import BoxedString from './variables/string'
 
@@ -29,7 +30,7 @@ const onServerStarted = async (bp: typeof sdk) => {
 
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
-  variables: [BoxedDate, BoxedBoolean, BoxedNumber, BoxedString],
+  variables: [BoxedDate, BoxedBoolean, BoxedNumber, BoxedString, BoxedEnum],
   botTemplates,
   translations: { en, fr },
   prompts,

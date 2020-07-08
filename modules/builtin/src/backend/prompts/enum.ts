@@ -9,13 +9,9 @@ import common from './common'
 
 class PromptEnum implements Prompt {
   private _entity: string
-  private _question: { [lang: string]: string }
-  private _useDropdown: boolean
 
-  constructor({ entity, question, useDropdown }) {
+  constructor({ entity }) {
     this._entity = entity
-    this._question = question
-    this._useDropdown = useDropdown
   }
 
   extraction(event: IO.IncomingEvent): ExtractionResult[] {
