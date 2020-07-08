@@ -36,8 +36,8 @@ export const getQnaEntryPayloads = async (
   bp: typeof sdk
 ) => {
   let lang = event.state?.user?.language ?? defaultLang
-  if (!qnaEntry.answers[lang] && !qnaEntry.contentAnswers[lang]) {
-    if (!qnaEntry.answers[defaultLang] && !qnaEntry.contentAnswers[defaultLang]) {
+  if (!qnaEntry.answers[lang] && !qnaEntry.contentAnswers) {
+    if (!qnaEntry.answers[defaultLang] && !qnaEntry.contentAnswers) {
       throw new Error(`No answers found for language ${lang} or default language ${defaultLang}`)
     }
     lang = defaultLang
@@ -77,7 +77,7 @@ export const getQnaEntryPayloads = async (
     return payloads
   }
 
-  for (const contentAnswer of qnaEntry.contentAnswers[lang]) {
+  for (const contentAnswer of qnaEntry.contentAnswers) {
     renderer = `#${contentAnswer.contentType}`
     const contentArgs = {
       ...args,

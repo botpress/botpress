@@ -18,11 +18,12 @@ import GroupItemWrapper from '../GroupItemWrapper'
 import style from './style.scss'
 import { FormProps } from './typings'
 
-const printLabel = (field, data) => {
+const printLabel = (field, data, currentLang?) => {
   if (field.label?.startsWith('fields::') && field.fields?.length) {
     const labelField = field.fields?.find(subField => subField.key === field.label.replace('fields::', ''))
+    const fieldData = labelField.translated ? data[labelField.key]?.[currentLang] : data[labelField.key]
 
-    return data[labelField.key] || lang(labelField.label)
+    return fieldData || lang(labelField.label)
   }
 
   return lang(field.label)
@@ -47,8 +48,8 @@ const printMoreInfo = (moreInfo: FormMoreInfo, isCheckbox = false): JSX.Element 
 
 const formReducer = (state, action) => {
   if (action.type === 'add') {
-    const { field, parent } = action.data
-    const newData = createEmptyDataFromSchema([...(field.fields || [])])
+    const { field, parent, currentLang } = action.data
+    const newData = createEmptyDataFromSchema([...(field.fields || [])], currentLang)
 
     if (parent) {
       const { key, index } = parent
@@ -95,10 +96,6 @@ const formReducer = (state, action) => {
       value = Number(value)
     }
 
-    if (lang) {
-      value = { ...state[field], [lang]: value }
-    }
-
     if (parent) {
       const { key, index } = parent
       const getArray = [key, index, field]
@@ -108,12 +105,20 @@ const formReducer = (state, action) => {
         getArray.unshift(parent.parent.key, parent.parent.index)
       }
 
+      if (lang) {
+        value = { ..._.get(state, getArray), [lang]: value }
+      }
+
       _.set(state, getArray, value)
 
       onUpdate?.(state)
       return {
         ...state
       }
+    }
+
+    if (lang) {
+      value = { ...state[field], [lang]: value }
     }
 
     const newState = {
@@ -169,7 +174,7 @@ const Form: FC<FormProps> = ({
   advancedSettings,
   onUpdate
 }) => {
-  const newFormData = createEmptyDataFromSchema([...(fields || []), ...(advancedSettings || [])])
+  const newFormData = createEmptyDataFromSchema([...(fields || []), ...(advancedSettings || [])], currentLang)
   const [state, dispatch] = useReducer(formReducer, formData || newFormData)
 
   const getArrayPlaceholder = (index, placeholder) => {
@@ -204,7 +209,7 @@ const Form: FC<FormProps> = ({
                     data: { deleteIndex: index, onUpdate, field: field.key, parent }
                   })
                 }
-                label={printLabel(field, fieldData)}
+                label={printLabel(field, fieldData, currentLang)}
               >
                 {field.fields.map(groupField => printField(groupField, fieldData, { key: field.key, index, parent }))}
               </GroupItemWrapper>
@@ -216,7 +221,8 @@ const Form: FC<FormProps> = ({
                   type: 'add',
                   data: {
                     field: field.key,
-                    parent
+                    parent,
+                    currentLang
                   }
                 })
               }
@@ -225,7 +231,7 @@ const Form: FC<FormProps> = ({
         )
       case 'select':
         return (
-          <FieldWrapper key={field.key} label={printLabel(field, currentValue)}>
+          <FieldWrapper key={field.key} label={printLabel(field, currentValue, currentLang)}>
             {printMoreInfo(field.moreInfo)}
             <Select
               axios={axios}
@@ -256,14 +262,14 @@ const Form: FC<FormProps> = ({
                 })
               }}
               items={currentValue || ['']}
-              label={printLabel(field, currentValue)}
+              label={printLabel(field, currentValue, currentLang)}
               addBtnLabel={lang(field.group?.addLabel)}
             />
           </Fragment>
         )
       case 'textarea':
         return (
-          <FieldWrapper key={field.key} label={printLabel(field, currentValue)}>
+          <FieldWrapper key={field.key} label={printLabel(field, currentValue, currentLang)}>
             {printMoreInfo(field.moreInfo)}
             <TextArea
               field={field}
@@ -280,7 +286,7 @@ const Form: FC<FormProps> = ({
         )
       case 'upload':
         return (
-          <FieldWrapper key={field.key} label={printLabel(field, currentValue)}>
+          <FieldWrapper key={field.key} label={printLabel(field, currentValue, currentLang)}>
             {printMoreInfo(field.moreInfo)}
             <Upload
               axios={axios}
@@ -302,7 +308,7 @@ const Form: FC<FormProps> = ({
             <Checkbox
               checked={currentValue}
               key={field.key}
-              label={printLabel(field, currentValue)}
+              label={printLabel(field, currentValue, currentLang)}
               onChange={e =>
                 dispatch({
                   type: 'updateField',
@@ -324,7 +330,7 @@ const Form: FC<FormProps> = ({
             {overrideFields?.[field.overrideKey]?.({
               field,
               data,
-              label: printLabel(field, currentValue),
+              label: printLabel(field, currentValue, currentLang),
               onChange: value => {
                 dispatch({
                   type: 'updateOverridableField',
@@ -336,7 +342,7 @@ const Form: FC<FormProps> = ({
         )
       default:
         return (
-          <FieldWrapper key={field.key} label={printLabel(field, currentValue)}>
+          <FieldWrapper key={field.key} label={printLabel(field, currentValue, currentLang)}>
             {printMoreInfo(field.moreInfo)}
             <Text
               placeholder={lang(field.placeholder)}
@@ -364,11 +370,11 @@ const Form: FC<FormProps> = ({
   return (
     <Fragment>
       {fields.map(field => printField(field, state))}
-      {!!advancedSettings?.length && (
+      {/*!!advancedSettings?.length && (
         <GroupItemWrapper defaultCollapsed label={lang('advancedSettings')}>
           {advancedSettings.map(field => printField(field, state))}
         </GroupItemWrapper>
-      )}
+      )*/}
     </Fragment>
   )
 }

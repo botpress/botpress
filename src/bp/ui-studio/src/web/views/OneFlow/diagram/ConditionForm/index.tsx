@@ -96,6 +96,7 @@ const ConditionForm: FC<Props> = ({
         {selectedCondition && (
           <Contents.Form
             axios={axios}
+            currentLang={contentLang}
             overrideFields={{
               intent: props => (
                 <IntentEditor

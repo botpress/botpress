@@ -65,12 +65,14 @@ module.exports = {
       {
         type: 'text',
         key: 'title',
+        translated: true,
         label: 'title',
         placeholder: 'module.builtin.types.card.cardSubject'
       },
       {
         type: 'text',
         key: 'subtitle',
+        translated: true,
         label: 'text',
         placeholder: 'module.builtin.optional'
       },
@@ -92,6 +94,7 @@ module.exports = {
           {
             type: 'text',
             key: 'title',
+            translated: true,
             label: 'module.builtin.types.actionButton.textLabel',
             placeholder: 'module.builtin.types.actionButton.textPlaceholder'
           },
@@ -107,6 +110,7 @@ module.exports = {
                 related: {
                   placeholder: 'module.builtin.types.actionButton.sayPlaceholder',
                   type: 'text',
+                  translated: true,
                   key: 'text',
                   label: 'module.builtin.types.actionButton.sayTextLabel'
                 }
@@ -118,6 +122,7 @@ module.exports = {
                   placeholder: 'module.builtin.types.actionButton.urlPlaceholder',
                   type: 'url',
                   key: 'text',
+                  translated: true,
                   label: 'URL'
                 }
               },
@@ -126,6 +131,7 @@ module.exports = {
                 label: 'module.builtin.types.actionButton.postLabel',
                 related: {
                   type: 'textarea',
+                  translated: true,
                   key: 'text',
                   label: 'module.builtin.types.actionButton.postFieldLabel'
                 }

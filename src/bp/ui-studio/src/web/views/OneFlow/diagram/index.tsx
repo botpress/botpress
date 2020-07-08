@@ -760,13 +760,8 @@ class Diagram extends Component<Props> {
   updateNodeContent(data) {
     const { node, index } = this.state.editingNodeItem
     const newContents = [...node.contents]
-    const currentType = newContents[index][this.state.currentLang]?.contentType
 
-    if (currentType && currentType !== data.contentType) {
-      newContents[index] = { [this.state.currentLang]: data }
-    } else {
-      newContents[index][this.state.currentLang] = data
-    }
+    newContents[index] = data
 
     this.setState({ editingNodeItem: { node: { ...node, contents: newContents }, index } })
 
@@ -916,8 +911,9 @@ class Diagram extends Component<Props> {
                 type.schema.newJson?.displayedIn.includes('sayNode')
               )}
               deleteContent={() => this.deleteNodeContent()}
+              contentLang={this.state.currentLang}
               editingContent={this.state.editingNodeItem.index}
-              formData={editingNodeItem?.[this.state.currentLang] || this.getEmptyContent(editingNodeItem)}
+              formData={editingNodeItem || this.getEmptyContent(editingNodeItem)}
               onUpdate={this.updateNodeContent.bind(this)}
               close={() => {
                 this.timeout = setTimeout(() => {

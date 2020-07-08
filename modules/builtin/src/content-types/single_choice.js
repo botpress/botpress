@@ -187,12 +187,14 @@ module.exports = {
           {
             type: 'text',
             key: 'title',
+            translated: true,
             label: 'module.builtin.types.suggestions.label',
             placeholder: 'module.builtin.types.suggestions.labelPlaceholder'
           },
           {
             type: 'text',
             key: 'value',
+            translated: true,
             label: 'module.builtin.types.suggestions.value',
             placeholder: 'module.builtin.types.suggestions.valuePlaceholder'
           }

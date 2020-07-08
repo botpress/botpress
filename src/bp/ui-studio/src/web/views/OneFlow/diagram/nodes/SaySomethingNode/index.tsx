@@ -84,19 +84,6 @@ const SaySomethingWidget: FC<Props> = ({
 
   const selectedContent = selectedNodeItem()
 
-  const getTranslatedContent = content => {
-    const langArr = Object.keys(content)
-    if (!langArr.length) {
-      return {}
-    }
-
-    if (!langArr.includes(currentLang)) {
-      return { contentType: content[langArr[0]].contentType }
-    }
-
-    return content[currentLang]
-  }
-
   // Prevents moving the node while editing the name so text can be selected
   node.locked = isEditing
 
@@ -123,7 +110,8 @@ const SaySomethingWidget: FC<Props> = ({
               active={selectedContent?.node?.id === node.id && index === selectedContent?.index}
               key={`${index}${currentLang}`}
               onEdit={() => editNodeItem?.(node, index)}
-              content={getTranslatedContent(content)}
+              contentLang={getCurrentLang()}
+              content={content}
             />
           ))}
         </div>
