@@ -6,7 +6,12 @@ export function getEntitiesEncoding(utt: Utterance, customEntities: string[]): n
   const zeros = Array(customEntities.length).fill(0)
   let entityMap: _.Dictionary<number> = _.zipObject(customEntities, zeros)
 
-  const entitiesOccurence = _.countBy(utt.entities.map(e => e.type))
+  const entitiesOccurence = _(utt.entities)
+    .filter(e => e.metadata.extractor !== 'system')
+    .map(e => e.type)
+    .countBy()
+    .value()
+
   entityMap = { ...entityMap, ...entitiesOccurence }
 
   return _.chain(entityMap)
