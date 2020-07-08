@@ -1,8 +1,9 @@
+import _ from 'lodash'
+
 import { BIO, ExtractedEntity, ExtractedSlot, Intent } from '../typings'
 import Utterance, { makeTestUtterance } from '../utterance/utterance'
 
 import { labelizeUtterance, makeExtractedSlots, TagResult } from './slot-tagger'
-import _ from 'lodash'
 
 describe('Slot tagger labels for utterance', () => {
   test('without slots', () => {
@@ -112,7 +113,7 @@ describe('makeExtractedSlots', () => {
     expect(extractedSlots[0].slot.source).toEqual('big AI')
     expect(extractedSlots[0].slot.value).toEqual(value)
 
-    const actualEntity = _.omit(extractedSlots[0].slot.entity, "start", "end")
+    const actualEntity = _.omit(extractedSlots[0].slot.entity, 'start', 'end')
     expect(actualEntity).toEqual(entity)
   })
 

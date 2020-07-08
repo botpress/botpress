@@ -116,7 +116,14 @@ export type ListEntityModel = {
   cache?: EntityCache | EntityCacheDump
 }
 
-export type ExtractedSlot = { confidence: number; name: string; source: string; value: any; entity?: EntityExtractionResult }
+export type ExtractedSlot = {
+  confidence: number
+  name: string
+  source: string
+  value: any
+  entity?: EntityExtractionResult
+}
+
 export type SlotExtractionResult = { slot: ExtractedSlot; start: number; end: number }
 export type ExtractedEntity = {
   confidence: number
