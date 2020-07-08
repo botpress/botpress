@@ -29,6 +29,6 @@ export const getFieldDefaultValue = (field: Partial<FormField>, lang?: string) =
     case 'textarea':
     case 'upload':
     case 'url':
-      return field.translated ? {[lang!]: ''} : ''
+      return field.translated ? { [lang!]: '' } : ''
   }
 }
