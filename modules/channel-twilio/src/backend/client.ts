@@ -65,7 +65,6 @@ export class TwilioClient {
           type: 'text',
           text: text
         },
-        preview: text,
         threadId: to,
         target: from
       })
@@ -97,7 +96,6 @@ export class TwilioClient {
           text: option.label,
           payload: option.value
         },
-        preview: option.label,
         threadId: to,
         target: from
       })
