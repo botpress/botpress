@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { Twilio } from 'twilio'
+import { Twilio, validateRequest } from 'twilio'
 
 import { Config } from '../config'
 
@@ -10,8 +10,15 @@ const MIDDLEWARE_NAME = 'twilio.sendMessage'
 export class TwilioClient {
   private logger: sdk.Logger
   private twilio: Twilio
+  private webhookUrl: string
 
-  constructor(private bp: typeof sdk, private botId: string, private config: Config) {
+  constructor(
+    private bp: typeof sdk,
+    private botId: string,
+    private config: Config,
+    private router: sdk.http.RouterExtension,
+    private route: string
+  ) {
     this.logger = bp.logger.forBot(botId)
   }
 
@@ -20,6 +27,9 @@ export class TwilioClient {
       return this.logger.error(`[${this.botId}] The accountSID and authToken must be configured to use this channel.`)
     }
 
+    const url = (await this.router.getPublicPath()) + this.route
+    this.webhookUrl = url.replace('BOT_ID', this.botId)
+
     this.twilio = new Twilio(this.config.accountSID, this.config.authToken)
 
     this.logger.info(`new twilio client for ${this.botId}`)
@@ -27,8 +37,7 @@ export class TwilioClient {
 
   auth(req): boolean {
     const signature = req.headers['x-twilio-signature']
-    // validating this seems complicated i'll do it later
-    return true
+    return validateRequest(this.config.authToken, signature, this.webhookUrl, req.body)
   }
 
   async handleWebhookRequest(body: any) {

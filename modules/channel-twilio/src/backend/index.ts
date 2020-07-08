@@ -38,7 +38,7 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
   const config = (await bp.config.getModuleConfigForBot('channel-twilio', botId, true)) as Config
 
   if (config.enabled) {
-    const client = new TwilioClient(bp, botId, config)
+    const client = new TwilioClient(bp, botId, config, router, route)
     await client.initialize()
 
     clients[botId] = client
