@@ -333,3 +333,8 @@ video {
 .bph-sidebar-user-current {
   background: var(--sidebar-current-user);
 }
+
+.rta__entity {
+  padding: 5px;
+  font-size: 15px;
+}
