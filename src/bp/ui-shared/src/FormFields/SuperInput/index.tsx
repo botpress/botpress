@@ -1,6 +1,6 @@
 import { Button, Icon } from '@blueprintjs/core'
 import Tags from '@yaireo/tagify/dist/react.tagify'
-import React, { useRef, useState } from 'react'
+import React, { useRef } from 'react'
 import ReactDOMServer from 'react-dom/server'
 
 // TODO move fields and props to FormFields dir
@@ -9,7 +9,7 @@ import Icons from '../../Icons'
 
 import style from './style.scss'
 import { SuperInputProps } from './typings'
-import { convertToString, convertToTags } from './utils'
+import { convertToString, convertToTags, sanitizeName } from './utils'
 
 type Props = FieldProps & SuperInputProps
 
@@ -26,6 +26,8 @@ export default ({ canAddElements, events, variables, setCanOutsideClickClose, on
       const prefix = e.detail.prefix
 
       if (prefix) {
+        sanitizeTagSearch(e.detail.value)
+
         if (prefix == '$') {
           tagifyRef.current.settings.whitelist = variables?.map(({ name }) => name) || []
         }
@@ -50,6 +52,19 @@ export default ({ canAddElements, events, variables, setCanOutsideClickClose, on
     ['dropdown:show']: e => {
       setCanOutsideClickClose?.(false)
     }
+  }
+
+  const sanitizeTagSearch = tag => {
+    const currentContent = tagifyRef.current?.DOM?.input?.innerHTML
+    const currentTag = currentContent.substring(currentContent.length - tag.length)
+    const tagIndex = currentContent.lastIndexOf(currentTag)
+    const newContent =
+      currentContent.substring(0, tagIndex) +
+      sanitizeName(currentTag) +
+      currentContent.substring(tagIndex + currentTag.length)
+    // @ts-ignore
+    tagifyRef.current?.DOM?.input?.innerHTML = newContent
+    moveCarretToEndOfString()
   }
 
   const addPrefix = prefix => {
