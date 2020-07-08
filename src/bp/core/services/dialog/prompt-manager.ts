@@ -6,7 +6,7 @@ import { inject, injectable, postConstruct } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 
-import { getConfirmPromptQuestion } from './prompt-utils'
+import { getConfirmPromptPayload } from './prompt-utils'
 
 const debugPrompt = DEBUG('dialog:prompt')
 
@@ -37,7 +37,7 @@ const generateResolved = (actions: any[], status: IO.PromptStatus, value: any): 
 }
 
 const generatePrompt = (actions: any[], status: IO.PromptStatus): ProcessedStatus => {
-  actions.push({ type: 'say', message: status.configuration.question }, { type: 'listen' })
+  actions.push({ type: 'say', payload: status.configuration }, { type: 'listen' })
 
   return {
     actions,
@@ -73,8 +73,11 @@ const generateDisambiguate = (
   actions.push(
     {
       type: 'say',
-      message: {
-        en: `Please choose (${status.configuration.output}) between ${candidates.map(x => x.value_raw).join(', ')}  `
+      payload: {
+        type: 'enum',
+        question: status.configuration.question,
+        items: candidates.map(x => ({ label: x.value_string, value: x.value_string })),
+        metadata: { __usePicker: true }
       }
     },
     { type: 'listen' }
@@ -93,7 +96,7 @@ const generateDisambiguate = (
 
 const generateCandidate = (actions: any[], status: IO.PromptStatus, candidate: IO.PromptCandidate): ProcessedStatus => {
   actions.push(
-    { type: 'say', message: getConfirmPromptQuestion(status.configuration.confirm, candidate.value_raw) },
+    { type: 'say', payload: getConfirmPromptPayload(status.configuration.confirm, candidate.value_raw) },
     { type: 'listen' }
   )
   return {

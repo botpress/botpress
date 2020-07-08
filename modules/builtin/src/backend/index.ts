@@ -9,6 +9,7 @@ import PromptEnum from './prompts/enum'
 import PromptNumber from './prompts/number'
 import PromptPattern from './prompts/pattern'
 import PromptString from './prompts/string'
+import { setupMiddleware } from './setup'
 import BoxedBoolean from './variables/boolean'
 import BoxedDate from './variables/date'
 import BoxedNumber from './variables/number'
@@ -20,11 +21,18 @@ const botTemplates: sdk.BotTemplate[] = [
   { id: 'empty-bot', name: 'Empty Bot', desc: `Start fresh with a clean flow` }
 ]
 
+const prompts = [PromptConfirm, PromptDate, PromptNumber, PromptString, PromptEnum, PromptPattern]
+
+const onServerStarted = async (bp: typeof sdk) => {
+  await setupMiddleware(bp, prompts)
+}
+
 const entryPoint: sdk.ModuleEntryPoint = {
+  onServerStarted,
   variables: [BoxedDate, BoxedBoolean, BoxedNumber, BoxedString],
   botTemplates,
   translations: { en, fr },
-  prompts: [PromptConfirm, PromptDate, PromptNumber, PromptString, PromptEnum, PromptPattern],
+  prompts,
   definition: {
     name: 'builtin',
     menuIcon: 'fiber_smart_record',

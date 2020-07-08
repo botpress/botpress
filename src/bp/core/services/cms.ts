@@ -1,6 +1,6 @@
 import { FormData, IO, Logger } from 'botpress/sdk'
 import { ContentElement, ContentType, KnexExtended, SearchParams } from 'botpress/sdk'
-import { renderRecursive, renderTemplate } from 'core/misc/templating'
+import { renderRecursive, renderRecursiveTranslated, renderTemplate } from 'core/misc/templating'
 import { ModuleLoader } from 'core/module-loader'
 import { inject, injectable, tagged } from 'inversify'
 import Joi from 'joi'
@@ -609,6 +609,25 @@ export class CMSService implements IDisposeOnExit {
     const message = _.sample([text, ...(variations || [])])
     if (message) {
       args.text = renderTemplate(message, args)
+    }
+  }
+
+  async translatePayload(payload: any, event: IO.Event) {
+    const defaultLang = (await this.configProvider.getBotConfig(event.botId)).defaultLanguage
+    const lang = _.get(event, 'state.user.language')
+
+    payload = renderRecursiveTranslated(payload, { event }, lang, defaultLang)
+
+    if (payload.text) {
+      this._prepareTextAndShuffle(payload)
+    }
+
+    return {
+      ...payload,
+      metadata: {
+        ...payload.metadata,
+        extraProps: this._getAdditionalData()
+      }
     }
   }
 

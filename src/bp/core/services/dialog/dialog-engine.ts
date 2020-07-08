@@ -1,4 +1,4 @@
-import { IO } from 'botpress/sdk'
+import { Content, IO } from 'botpress/sdk'
 import { createMultiLangObject } from 'common/prompts'
 import { FlowView } from 'common/typings'
 import { createForGlobalHooks } from 'core/api'
@@ -9,6 +9,7 @@ import _ from 'lodash'
 
 import { converseApiEvents } from '../converse'
 import { Hooks, HookService } from '../hook/hook-service'
+import { EventEngine } from '../middleware/event-engine'
 
 import { FlowError, ProcessingError, TimeoutNodeNotFound } from './errors'
 import { FlowService } from './flow/service'
@@ -34,7 +35,8 @@ export class DialogEngine {
     @inject(TYPES.EventRepository) private eventRepository: EventRepository,
     @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
     @inject(TYPES.PromptManager) private promptManager: PromptManager,
-    @inject(TYPES.ActionStrategy) private actionStrategy: ActionStrategy
+    @inject(TYPES.ActionStrategy) private actionStrategy: ActionStrategy,
+    @inject(TYPES.EventEngine) private eventEngine: EventEngine
   ) {}
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent): Promise<IO.IncomingEvent> {
@@ -95,11 +97,19 @@ export class DialogEngine {
 
         for (const action of actions) {
           if (action.type === 'say') {
-            await this.actionStrategy.invokeSendMessage(
-              createMultiLangObject(action.message, 'text', { typing: true }),
-              '@builtin_text',
-              event
-            )
+            if (action.payload) {
+              await this.eventEngine.replyContentToEvent(action.payload, event, {
+                incomingEventId: event.id,
+                eventType: 'prompt'
+              })
+            } else {
+              const text: Content.Text = {
+                type: 'text',
+                text: action.message
+              }
+
+              await this.eventEngine.replyContentToEvent(text, event, { incomingEventId: event.id })
+            }
           }
 
           if (action.type === 'listen') {
