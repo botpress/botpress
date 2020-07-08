@@ -32,7 +32,7 @@ export class TwilioClient {
 
     this.twilio = new Twilio(this.config.accountSID, this.config.authToken)
 
-    this.logger.info(`new twilio client for ${this.botId}`)
+    this.logger.info(`Twilio webhook listening at ${this.webhookUrl}`)
   }
 
   auth(req): boolean {
@@ -65,6 +65,8 @@ export class TwilioClient {
   async handleOutgoingEvent(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
     if (event.type === 'text') {
       await this.sendText(event)
+    } else if (event.type === 'file') {
+      await this.sendImage(event)
     }
 
     next(undefined, false)
@@ -73,6 +75,15 @@ export class TwilioClient {
   async sendText(event: sdk.IO.Event) {
     await this.twilio.messages.create({
       body: event.payload.text,
+      from: event.threadId,
+      to: event.target
+    })
+  }
+
+  async sendImage(event: sdk.IO.Event) {
+    await this.twilio.messages.create({
+      body: event.payload.title,
+      mediaUrl: [event.payload.url],
       from: event.threadId,
       to: event.target
     })
