@@ -39,6 +39,14 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
       args.probability = false // not supported
     }
 
+    const vectorsLengths = _(points)
+      .map(p => p.coordinates.length)
+      .uniq()
+      .value()
+    if (vectorsLengths.length > 1) {
+      throw new Error('All vectors must be of the same size')
+    }
+
     this.labels = []
     const dataset: Data[] = points.map(c => [c.coordinates, this.getLabelIdx(c.label)])
 
