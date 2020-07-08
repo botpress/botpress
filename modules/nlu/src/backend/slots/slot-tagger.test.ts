@@ -109,6 +109,7 @@ describe('makeExtractedSlots', () => {
     u.tagEntity(entity, 19, 21)
 
     const extractedSlots = makeExtractedSlots(testIntent, u, tagResults)
+
     expect(extractedSlots.length).toEqual(1)
     expect(extractedSlots[0].slot.source).toEqual('big AI')
     expect(extractedSlots[0].slot.value).toEqual(value)

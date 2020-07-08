@@ -486,6 +486,7 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
     } as sdk.NLU.Entity
   }
 
+  // legacy pre-ndu
   const entities = step.utterance.entities
     .map(e => ({
       ...e,
@@ -506,7 +507,7 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
         source: s.source,
         value: s.value,
         entity: entitiesMapper(s.entity)
-      } as sdk.NLU.Slot
+      }
     }
   }, {} as sdk.NLU.SlotCollection)
 
