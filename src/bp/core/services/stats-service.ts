@@ -10,7 +10,6 @@ import { UserRepository } from 'core/repositories'
 import { TelemetryRepository } from 'core/repositories/telemetry_payload'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
-import { string } from 'joi'
 import ms from 'ms'
 import os from 'os'
 import path from 'path'
@@ -21,8 +20,8 @@ import { GhostService } from './'
 import AuthService from './auth/auth-service'
 import { BotService } from './bot-service'
 import { CMSService } from './cms'
-import { SkillService } from './dialog/skill/service'
 import { JobService } from './job-service'
+import { ActionsStats } from './telemetry/actions'
 import { WorkspaceService } from './workspace-service'
 
 const LEGACY_TELEM_LOCK = 'botpress:legacyTelemetry'
@@ -34,7 +33,6 @@ const TELEMETRY_INTERVAL = ms('1d')
 const DB_REFRESH_INTERVAL = ms('15 minute')
 const LEGACY_TELEM_URL = 'https://telemetry.botpress.io/ingest'
 const TELEMETRY_URL = 'https://telemetry.botpress.dev'
-const DEFAULT_ENTRIES_LIMIT = 1000
 
 type NextNode = {
   condition: string
@@ -69,10 +67,13 @@ export class StatsService {
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.UserRepository) private userRepository: UserRepository,
     @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository,
-    @inject(TYPES.Database) private database: Database
+    @inject(TYPES.Database) private database: Database,
+    @inject(TYPES.ActionStats) private actionStats: ActionsStats
   ) {}
 
   public async start() {
+    console.log(await this.actionStats.start())
+
     await this.run(this.getStats.bind(this), LEGACY_TELEM_LOCK, JOB_INTERVAL, `${LEGACY_TELEM_URL}`)
     await this.run(this.getBuiltinActionsStats.bind(this), TELEMETRY_LOCK, TELEMETRY_INTERVAL, `${TELEMETRY_URL}`)
     await this.refreshDB(DB_REFRESH_INTERVAL)
