@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import { Config } from 'src/config'
 
-import { removeMiddleware, setupMiddleware, TwilioClient } from './client'
+import { removeMiddleware, setupMiddleware, setupRouter, TwilioClient } from './client'
 import { Clients } from './typings'
 
 let router: sdk.http.RouterExtension
@@ -13,25 +13,7 @@ const onServerStarted = async (bp: typeof sdk) => {
 }
 
 const onServerReady = async (bp: typeof sdk) => {
-  router = bp.http.createRouterForBot('channel-twilio', {
-    checkAuthentication: false
-  })
-
-  router.post(route, async (req, res) => {
-    const { botId } = req.params
-    const client = clients[botId]
-
-    if (!client) {
-      res.status(404).send('Bot not a twilio bot')
-    }
-
-    if (client.auth(req)) {
-      await client.handleWebhookRequest(req.body)
-      res.sendStatus(200)
-    } else {
-      res.status(401).send('Auth token invalid')
-    }
-  })
+  router = await setupRouter(bp, clients, route)
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {
