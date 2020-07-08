@@ -43,6 +43,7 @@ declare namespace NodeJS {
     ASSERT_LICENSED: Function
     BOTPRESS_VERSION: string
     TELEMETRY_URL: string
+    SEND_USAGE_STATS: boolean
     core_env: BotpressEnvironmentVariables
     distro: OSDistribution
     BOTPRESS_EVENTS: EventEmitter

@@ -4,7 +4,7 @@
     {
       "type": "node",
       "runtimeVersion": "12.13.0",
-      "request": "",
+      "request": "launch",
       "name": "Debug App",
       "program": "${workspaceFolder}/out/bp/index.js",
       "cwd": "${workspaceFolder}",
@@ -30,7 +30,7 @@
     },
     {
       "type": "node",
-      "request": "",
+      "request": "launch",
       "name": "Debug Jest Tests",
       "cwd": "${workspaceFolder}",
       "env": {
@@ -60,7 +60,7 @@
     },
     {
       "type": "node",
-      "request": "",
+      "request": "launch",
       "name": "Debug Jest Integration Tests",
       "cwd": "${workspaceFolder}",
       "env": {
@@ -88,7 +88,7 @@
     {
       "name": "(lldb) ",
       "type": "lldb",
-      "request": "",
+      "request": "launch",
       "program": "node",
       "args": ["test/start.js"],
       "env": {
@@ -100,7 +100,7 @@
     {
       "name": "(lldb) CRFSuite ",
       "type": "lldb",
-      "request": "",
+      "request": "launch",
       "program": "node",
       "args": ["test/start.js"],
       "cwd": "${workspaceFolder}/src/bp/ml/crfsuite"
@@ -108,7 +108,7 @@
     {
       "name": "(lldb) FastText ",
       "type": "lldb",
-      "request": "",
+      "request": "launch",
       "program": "node",
       "args": ["test/start.js"],
       "cwd": "${workspaceFolder}/src/bp/ml/fasttext"

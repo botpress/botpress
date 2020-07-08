@@ -7,10 +7,20 @@ import uuid from 'uuid'
 
 import store from '../store'
 
-import { EventPackageInfoType, StoreInfoType } from './telemetryType'
+interface StoreInfoType {
+  [key: string]: Function
+}
 
-const telemetryPackageVersion = '1.0.0'
-const dataClusterVersion = '1.0.0'
+interface EventPackageInfoType {
+  [key: string]: {
+    locked: boolean
+    timeout: string
+    getPackage: Function
+  }
+}
+
+const telemetrySchemaVersion = '1.0.0'
+const dataSchemaVersion = '1.0.0'
 
 export const axiosConfig = {
   baseURL: window.TELEMETRY_URL,
@@ -29,7 +39,7 @@ const toggleLock = (eventName: string) => {
   }
 }
 
-const getEventTimeout = (event: string) => {
+const getEventLockTimeout = (event: string) => {
   const item = window.localStorage.getItem(event)
   if (item !== null) {
     const timeout = parseInt(item) - new Date().getTime()
@@ -41,31 +51,30 @@ const getEventTimeout = (event: string) => {
   return 0
 }
 
-const addEventTimeout = (event: string, timeout: number) => {
+const addEventLockTimeout = (event: string, timeout: number) => {
   setTimeout(() => toggleLock(event), timeout)
   window.localStorage.setItem(event, (timeout + moment().valueOf()).toString())
 }
 
-const checkStoreInfoReceived = () => !Object.keys(storeInfos).find(info => !storeInfos[info]())
+const checkStoreInfoReceived = () => !Object.keys(storeInfos).find(info => storeInfos[info]() === undefined)
 
-export const addStoreInfo = (name: string, pathInStore: string, formatter?: Function) => {
+export const trackReduxStoreInfo = (name: string, pathInStore: string) => {
   storeInfos[name] = () => {
-    const value = _.get(store.getState(), pathInStore)
-    return formatter ? formatter(value) : value
+    return _.get(store.getState(), pathInStore)
   }
 }
 
-export const getStoreInfo = (name: string) => {
+export const getTrackedReduxStoreInfo = (name: string) => {
   if (storeInfos[name]) {
     return storeInfos[name]()
   } else {
-    throw `The information "${name}" asked is not tracked by the telemetry module. Maybe it was not added before it's use?`
+    throw `The information "${name}" asked is not tracked by the telemetry module. Consider adding it to the tracked redux store info.`
   }
 }
 
 export const addTelemetryEvent = (name: string, timeout: string, getPackage: Function) => {
   eventPackageInfo[name] = {
-    locked: getEventTimeout(name) >= 0,
+    locked: getEventLockTimeout(name) >= 0,
     timeout,
     getPackage
   }
@@ -76,24 +85,32 @@ const checkTelemetry = async () => {
     if (!eventPackageInfo[eventName].locked) {
       toggleLock(eventName)
 
-      await sendTelemetry(eventPackageInfo[eventName].getPackage(), eventName)
+      try {
+        const pkg = eventPackageInfo[eventName].getPackage()
+
+        if (typeof pkg === 'object') {
+          await sendTelemetryEvent(pkg, eventName)
+        } else {
+          console.error('The package received was incorrect', pkg)
+        }
+      } catch (err) {
+        console.error(`Could not send the telemetry package to the storage server`, err)
+      }
     }
   }
 }
 
 export const startTelemetry = () => {
-  addStoreInfo('email', 'user.profile.email')
+  trackReduxStoreInfo('email', 'user.profile.email')
 
-  addStoreInfo('bp_release', 'version.currentVersion')
+  trackReduxStoreInfo('bp_release', 'version.currentVersion')
 
-  addStoreInfo('bp_license', 'license.licensing.isPro', (info: any) => {
-    return !!info ? 'pro' : 'community'
-  })
+  trackReduxStoreInfo('bp_license', 'license.licensing.isPro')
 
   addTelemetryEvent('ui_language', '8h', () => {
     return {
       user: {
-        email: getStoreInfo('email'),
+        email: getTrackedReduxStoreInfo('email'),
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
       },
       language: lang.getLocale()
@@ -101,13 +118,13 @@ export const startTelemetry = () => {
   })
 
   for (const event in eventPackageInfo) {
-    if (getEventTimeout(event) >= 0) {
-      setTimeout(() => toggleLock(event), getEventTimeout(event))
+    if (getEventLockTimeout(event) >= 0) {
+      setTimeout(() => toggleLock(event), getEventLockTimeout(event))
     }
   }
 
   setInterval(() => {
-    if (checkStoreInfoReceived()) {
+    if (checkStoreInfoReceived() && window.TELEMETRY_URL) {
       checkTelemetry().catch(err => {
         console.error(err)
       })
@@ -115,23 +132,23 @@ export const startTelemetry = () => {
   }, ms('30s'))
 }
 
-const sendTelemetry = async (data: object, event: string) => {
+const sendTelemetryEvent = async (data: object, event: string) => {
   await axios.post(
     '/',
     {
-      schema: telemetryPackageVersion,
+      schema: telemetrySchemaVersion,
       uuid: uuid.v4(),
       timestamp: new Date().toISOString(),
-      bp_release: getStoreInfo('bp_release'),
-      bp_license: getStoreInfo('bp_license'),
+      bp_release: getTrackedReduxStoreInfo('bp_release'),
+      bp_license: getTrackedReduxStoreInfo('bp_license') ? 'pro' : 'community',
       event_type: event,
       source: 'client',
       event_data: {
-        schema: dataClusterVersion,
+        schema: dataSchemaVersion,
         ...data
       }
     },
     axiosConfig
   )
-  addEventTimeout(event, ms(eventPackageInfo[event].timeout))
+  addEventLockTimeout(event, ms(eventPackageInfo[event].timeout))
 }

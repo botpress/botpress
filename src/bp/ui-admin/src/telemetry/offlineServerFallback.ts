@@ -10,14 +10,15 @@ const serverUrlPayloads = '/admin/telemetry-payloads'
 const serverUrlFeedback = '/admin/telemetry-feedback'
 
 const sendServerPackage = async () => {
-  try {
-    while (true) {
+  let continueLoop = true
+  do {
+    try {
       const {
         data: { events }
       } = await api.getSecured().get(serverUrlPayloads)
 
       if (_.isEmpty(events)) {
-        return
+        break
       }
 
       let status
@@ -34,10 +35,11 @@ const sendServerPackage = async () => {
       }
 
       await api.getSecured().post(serverUrlFeedback, { events: events.map(e => e.uuid), status })
+    } catch (err) {
+      console.error('Could not access the botpress server', err)
+      continueLoop = false
     }
-  } catch (err) {
-    console.error('Could not access the botpress server', err)
-  }
+  } while (continueLoop)
 }
 
 export const setupServerPackageLoop = () => {

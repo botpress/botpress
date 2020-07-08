@@ -87,6 +87,5 @@ declare global {
   interface Window {
     BOT_API_PATH: string
     API_PATH: string
-    TELEMETRY_URL: string
   }
 }
