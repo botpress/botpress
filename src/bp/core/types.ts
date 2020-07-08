@@ -80,7 +80,8 @@ const TYPES = {
   WorkspaceUsersRepository: Symbol.for('WorkspaceUsersRepository'),
   WorkspaceInviteCodesRepository: Symbol.for('WorkspaceInviteCodesRepository'),
   LocalActionServer: Symbol.for('LocalActionServer'),
-  TelemetryRepository: Symbol.for('TelemetryRepository')
+  TelemetryRepository: Symbol.for('TelemetryRepository'),
+  ActionStats: Symbol.for('ActionStats')
 }
 
 export { TYPES }
