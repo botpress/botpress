@@ -4,7 +4,7 @@ import { Twilio, validateRequest } from 'twilio'
 
 import { Config } from '../config'
 
-import { Clients, MessageOption } from './typings'
+import { Clients, MessageOption, TwilioRequestBody } from './typings'
 
 const MIDDLEWARE_NAME = 'twilio.sendMessage'
 
@@ -43,7 +43,7 @@ export class TwilioClient {
     return validateRequest(this.config.authToken, signature, this.webhookUrl, req.body)
   }
 
-  async handleWebhookRequest(body: any) {
+  async handleWebhookRequest(body: TwilioRequestBody) {
     const to = body.To
     const from = body.From
     const text = body.Body

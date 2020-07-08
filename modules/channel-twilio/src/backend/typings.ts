@@ -6,3 +6,9 @@ export type MessageOption = {
   label: string
   value: string
 }
+
+export type TwilioRequestBody = {
+  To: string
+  From: string
+  Body: string
+}
