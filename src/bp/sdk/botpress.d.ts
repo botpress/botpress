@@ -769,6 +769,7 @@ declare module 'botpress/sdk' {
       status: 'resolved' | 'rejected' | 'pending'
       stage: 'new' | 'prompt' | 'confirm-candidate' | 'confirm-cancel' | 'confirm-jump' | 'disambiguate-candidates'
       rejection?: 'cancelled' | 'timedout' | 'jumped'
+      questionAsked?: boolean
       state: {
         confirmCandidate?: PromptCandidate
         disambiguateCandidates?: PromptCandidate[]
@@ -1274,6 +1275,8 @@ declare module 'botpress/sdk' {
       component: string
     }
     evaluate: (event: IO.IncomingEvent, params: any) => number
+    /** The onEnter actions that come with this condition when the Trigger node is executed */
+    addOnEnter?: (params: any) => string[]
   }
 
   export interface ConditionParam {

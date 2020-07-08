@@ -43,6 +43,7 @@ const generatePrompt = (actions: any[], status: IO.PromptStatus): ProcessedStatu
     actions,
     status: {
       ...status,
+      questionAsked: true,
       stage: 'prompt',
       state: {}
     }
@@ -86,6 +87,7 @@ const generateDisambiguate = (
     actions,
     status: {
       ...status,
+      questionAsked: true,
       stage: 'disambiguate-candidates',
       state: {
         disambiguateCandidates: candidates
@@ -95,15 +97,21 @@ const generateDisambiguate = (
 }
 
 const generateCandidate = (actions: any[], status: IO.PromptStatus, candidate: IO.PromptCandidate): ProcessedStatus => {
+  if (!status.questionAsked) {
+    actions.push({ type: 'say', message: status.configuration.question })
+  }
+
   actions.push(
     { type: 'say', payload: getConfirmPromptPayload(status.configuration.confirm, candidate.value_raw) },
     { type: 'listen' }
   )
+
   return {
     actions,
     status: {
       ...status,
       stage: 'confirm-candidate',
+      questionAsked: true,
       state: {
         confirmCandidate: candidate
       }
@@ -141,7 +149,7 @@ export class PromptManager {
     const { context } = event.state
     const status = context.activePromptStatus!
 
-    const slots = event.nlu?.slots ?? {}
+    const slots = _.omitBy(_.get(event.state.session, 'slots', {}), x => x.elected)
     const params = status.configuration
     const varName = params.output
 
@@ -151,10 +159,10 @@ export class PromptManager {
     const prompt = this.loadPrompt(status.configuration.type, status.configuration)
     const actions: any[] = []
 
-    const tryElect = (value: string): boolean => {
+    const tryElect = (value: any): boolean => {
       const { valid, message } = prompt.validate(value)
       if (!valid) {
-        actions.push({ type: 'say', message })
+        actions.push({ type: 'say', message: message || 'THIS IS THE BUG' })
       }
       return valid
     }
@@ -175,7 +183,7 @@ export class PromptManager {
 
     if (status.stage === 'confirm-candidate') {
       if (confirmValue?.value === true) {
-        if (tryElect(confirmValue.value)) {
+        if (tryElect(status.state.confirmCandidate?.value_raw)) {
           return generateResolved(actions, status, status.state.confirmCandidate?.value_raw)
         } else {
           return generatePrompt(actions, status)
@@ -211,7 +219,6 @@ export class PromptManager {
 
     const slotCandidate = slots[varName]
     if (slotCandidate?.value !== undefined && slotCandidate?.value !== null) {
-      // TODO: remove slots already elected
       candidates.push({
         confidence: slotCandidate.confidence,
         source: 'slot',
@@ -250,12 +257,16 @@ export class PromptManager {
         ...x,
         confidence: x.confidence * (1 - CONF_CHURN_BY_TURN * x.turns_ago)
       }))
+      .filter(x => x.confidence > 0)
       .orderBy(x => x.confidence, 'desc')
       .take(3)
       .value()
 
     if (shortlisted.length === 1) {
       if (tryElect(shortlisted[0].value_raw)) {
+        if (shortlisted[0].source === 'slot') {
+          this._electSlot(event, varName)
+        }
         return generateResolved(actions, status, shortlisted[0].value_raw)
       }
     } else if (shortlisted.length > 1) {
@@ -278,6 +289,10 @@ export class PromptManager {
   private _setCurrentNodeValue(event: IO.IncomingEvent, variable: string, value: any) {
     // TODO: move to dialog engine
     _.set(event.state.temp, `[${event.state.context.currentNode!}].${variable}`, value)
+  }
+
+  private _electSlot(event: IO.IncomingEvent, slotName: string) {
+    _.set(event.state.session, `slots.${slotName}.elected`, true)
   }
 
   public async processTimeout(event) {

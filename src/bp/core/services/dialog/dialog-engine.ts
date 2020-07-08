@@ -64,7 +64,11 @@ export class DialogEngine {
         workflow.status = 'completed'
       }
 
-      if (currentNode.type === 'prompt' && !event.state.context.activePromptStatus) {
+      if (
+        currentNode.type === 'prompt' &&
+        !event.state.context.activePromptStatus &&
+        !this._getCurrentNodeValue(event, 'processed')
+      ) {
         event.state.context.activePromptStatus = {
           stage: 'new',
           status: 'pending',
@@ -135,12 +139,11 @@ export class DialogEngine {
 
       if (event.state.context.activePromptStatus?.status === 'rejected') {
         const promptStatus = event.state.context.activePromptStatus
-        if (promptStatus.stage === 'confirm-cancel') {
-          this._setCurrentNodeValue(event, 'cancelled', true)
-        }
+        this._setCurrentNodeValue(event, promptStatus.rejection!, true)
       }
 
-      delete event.state.context.activePromptStatus // TODO: ?
+      this._setCurrentNodeValue(event, 'processed', true)
+      delete event.state.context.activePromptStatus
     }
 
     // Property type skill-call means that the node points to a subflow.
@@ -274,6 +277,10 @@ export class DialogEngine {
 
   private _setCurrentNodeValue(event: IO.IncomingEvent, variable: string, value: any) {
     _.set(event.state.temp, `[${event.state.context.currentNode!}].${variable}`, value)
+  }
+
+  private _getCurrentNodeValue(event: IO.IncomingEvent, variable: string): any {
+    return _.get(event.state.temp, `[${event.state.context.currentNode!}].${variable}`)
   }
 
   public async jumpTo(sessionId: string, event: IO.IncomingEvent, targetFlowName: string, targetNodeName?: string) {

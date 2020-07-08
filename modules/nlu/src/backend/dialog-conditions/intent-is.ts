@@ -25,5 +25,6 @@ export default {
       0
     )
     return topicConf * intentConf * (1 - oosConfidence)
-  }
+  },
+  onEnter: ({ intentName, topicName }) => [`nlu/elect-intent {"topic":"$thisTopic","intent":"book-flight"}`]
 } as Condition

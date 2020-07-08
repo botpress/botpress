@@ -51,25 +51,21 @@ export const handlePrompt = async (event: sdk.IO.OutgoingEvent, bp: typeof sdk):
       }
 
     case 'enum':
-      if (__usePicker) {
-        let items = payload.items
+      let items = payload.items
 
-        if (payload.entity) {
-          const { data } = await axios.get(
-            `mod/nlu/entities/${payload.entity}`,
-            await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
-          )
-          items = data.occurrences
-        }
-
-        const field = items.length <= 4 ? '__buttons' : '__dropdown'
-
-        return {
-          ...defaultPayload,
-          metadata: { ...defaultPayload.metadata, [field]: items }
-        }
+      if (payload.entity) {
+        const { data } = await axios.get(
+          `mod/nlu/entities/${payload.entity}`,
+          await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
+        )
+        items = data.occurrences
       }
 
-      return defaultPayload
+      const field = items.length <= 4 ? '__buttons' : '__dropdown'
+
+      return {
+        ...defaultPayload,
+        metadata: { ...defaultPayload.metadata, [field]: items }
+      }
   }
 }
