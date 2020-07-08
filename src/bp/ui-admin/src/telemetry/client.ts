@@ -7,7 +7,7 @@ import uuid from 'uuid'
 
 import store from '../store'
 
-import { EventPackageInfoType, StoreInfoType, TelemetryPackage } from './telemetry_type'
+import { EventPackageInfoType, StoreInfoType } from './telemetryType'
 
 const telemetryPackageVersion = '1.0.0'
 const dataClusterVersion = '1.0.0'
@@ -46,21 +46,18 @@ const addEventTimeout = (event: string, timeout: number) => {
   window.localStorage.setItem(event, (timeout + moment().valueOf()).toString())
 }
 
-const checkStoreInfoReceived = () => !Object.keys(storeInfos).find(info => _.isEmpty(storeInfos[info]))
+const checkStoreInfoReceived = () => !Object.keys(storeInfos).find(info => !storeInfos[info]())
 
 export const addStoreInfo = (name: string, pathInStore: string, formatter?: Function) => {
-  storeInfos[name] = {
-    storedInfo: '',
-    loadInfo: () => {
-      const value = _.get(store.getState(), pathInStore)
-      storeInfos[name].storedInfo = formatter ? formatter(value) : value
-    }
+  storeInfos[name] = () => {
+    const value = _.get(store.getState(), pathInStore)
+    return formatter ? formatter(value) : value
   }
 }
 
 export const getStoreInfo = (name: string) => {
   if (storeInfos[name]) {
-    return storeInfos[name].storedInfo
+    return storeInfos[name]()
   } else {
     throw `The information "${name}" asked is not tracked by the telemetry module. Maybe it was not added before it's use?`
   }
@@ -79,7 +76,7 @@ const checkTelemetry = async () => {
     if (!eventPackageInfo[eventName].locked) {
       toggleLock(eventName)
 
-      await sendTelemetry(getTelemetryPackage(eventName, eventPackageInfo[eventName].getPackage()), eventName)
+      await sendTelemetry(eventPackageInfo[eventName].getPackage(), eventName)
     }
   }
 }
@@ -109,12 +106,6 @@ export const startTelemetry = () => {
     }
   }
 
-  store.subscribe(() => {
-    for (const infoName in storeInfos) {
-      storeInfos[infoName].loadInfo()
-    }
-  })
-
   setInterval(() => {
     if (checkStoreInfoReceived()) {
       checkTelemetry().catch(err => {
@@ -124,23 +115,23 @@ export const startTelemetry = () => {
   }, ms('30s'))
 }
 
-const getTelemetryPackage = (event_type: string, data: object): TelemetryPackage => {
-  return {
-    schema: telemetryPackageVersion,
-    uuid: uuid.v4(),
-    timestamp: new Date().toISOString(),
-    bp_release: getStoreInfo('bp_release'),
-    bp_license: getStoreInfo('bp_license'),
-    event_type: event_type,
-    source: 'client',
-    event_data: {
-      schema: dataClusterVersion,
-      ...data
-    }
-  }
-}
-
-const sendTelemetry = async (data: TelemetryPackage, event: string) => {
-  await axios.post('/', data, axiosConfig)
+const sendTelemetry = async (data: object, event: string) => {
+  await axios.post(
+    '/',
+    {
+      schema: telemetryPackageVersion,
+      uuid: uuid.v4(),
+      timestamp: new Date().toISOString(),
+      bp_release: getStoreInfo('bp_release'),
+      bp_license: getStoreInfo('bp_license'),
+      event_type: event,
+      source: 'client',
+      event_data: {
+        schema: dataClusterVersion,
+        ...data
+      }
+    },
+    axiosConfig
+  )
   addEventTimeout(event, ms(eventPackageInfo[event].timeout))
 }

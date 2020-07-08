@@ -2,7 +2,8 @@ import axios from 'axios'
 import _ from 'lodash'
 import ms from 'ms'
 
-import api from './../api'
+import api from '../api'
+
 import { axiosConfig } from './client'
 
 const serverUrlPayloads = '/admin/telemetry-payloads'
