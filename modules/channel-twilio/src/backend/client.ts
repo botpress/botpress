@@ -67,23 +67,61 @@ export class TwilioClient {
       await this.sendText(event)
     } else if (event.type === 'file') {
       await this.sendImage(event)
+    } else if (event.type === 'carousel') {
+      await this.sendCarousel(event)
+    } else if (event.payload.quick_replies) {
+      await this.sendChoices(event)
+    } else if (event.payload.options) {
+      await this.sendDropdown(event)
     }
 
     next(undefined, false)
   }
 
   async sendText(event: sdk.IO.Event) {
-    await this.twilio.messages.create({
-      body: event.payload.text,
-      from: event.threadId,
-      to: event.target
+    await this.sendMessage(event, {
+      body: event.payload.text
     })
   }
 
   async sendImage(event: sdk.IO.Event) {
-    await this.twilio.messages.create({
+    await this.sendMessage(event, {
       body: event.payload.title,
-      mediaUrl: [event.payload.url],
+      mediaUrl: [event.payload.url]
+    })
+  }
+
+  async sendCarousel(event: sdk.IO.Event) {
+    for (const { description, title, picture } of event.payload.elements) {
+      await this.sendMessage(event, {
+        body: description ? title + '\n' + description : title,
+        mediaUrl: picture ? [picture] : undefined
+      })
+    }
+  }
+
+  async sendChoices(event: sdk.IO.Event) {
+    let body = event.payload.text
+    for (const choice of event.payload.quick_replies) {
+      body += `\n${choice.title}`
+    }
+
+    await this.sendMessage(event, { body })
+  }
+
+  async sendDropdown(event: sdk.IO.Event) {
+    let body = event.payload.message
+    for (const choice of event.payload.options) {
+      body += `\n${choice.label}`
+    }
+
+    await this.sendMessage(event, { body })
+  }
+
+  async sendMessage(event: sdk.IO.Event, args: any) {
+    await this.twilio.messages.create({
+      ...args,
+      provideFeedback: false,
       from: event.threadId,
       to: event.target
     })

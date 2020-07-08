@@ -58,7 +58,7 @@ function renderElement(data, channel) {
     return render(data)
   } else if (channel === 'slack') {
     return renderSlack(data)
-  } else if (channel === 'smooch') {
+  } else {
     return [data]
   }
 
