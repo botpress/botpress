@@ -12,7 +12,7 @@ export class TwilioClient {
   private logger: sdk.Logger
   private twilio: Twilio
   private webhookUrl: string
-  private cache: LRUCache<string, MessageOption[]>
+  private kvs: sdk.KvsService
 
   constructor(
     private bp: typeof sdk,
@@ -33,7 +33,7 @@ export class TwilioClient {
     this.webhookUrl = url.replace('BOT_ID', this.botId)
 
     this.twilio = new Twilio(this.config.accountSID, this.config.authToken)
-    this.cache = new LRUCache()
+    this.kvs = this.bp.kvs.forBot(this.botId)
 
     this.logger.info(`Twilio webhook listening at ${this.webhookUrl}`)
   }
@@ -53,7 +53,7 @@ export class TwilioClient {
       return
     }
 
-    this.cache.del(from)
+    await this.kvs.delete(from)
 
     await this.bp.events.sendEvent(
       this.bp.IO.Event({
@@ -72,11 +72,11 @@ export class TwilioClient {
   }
 
   async handleIndexReponse(index: number, from: string, to: string): Promise<boolean> {
-    if (!this.cache.has(from)) {
+    if (!(await this.kvs.exists(from))) {
       return
     }
 
-    const options = this.cache.get(from)
+    const options = await this.kvs.get(from)
     const option = options[index]
     if (!option) {
       return
@@ -86,7 +86,7 @@ export class TwilioClient {
       return true
     }
 
-    this.cache.del(from)
+    await this.kvs.delete(from)
 
     await this.bp.events.sendEvent(
       this.bp.IO.Event({
@@ -196,7 +196,7 @@ export class TwilioClient {
       body += `\n${i + 1}. ${option.label}`
     }
 
-    this.cache.set(event.target, options)
+    await this.kvs.set(event.target, options)
 
     await this.sendMessage(event, { ...args, body })
   }
