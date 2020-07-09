@@ -1,12 +1,10 @@
 import axios from 'axios'
 import LicensingService from 'common/licensing-service'
-import { machineUUID } from 'common/stats'
 import Database from 'core/database'
 import { TelemetryRepository } from 'core/repositories/telemetry_payload'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import ms from 'ms'
-import os from 'os'
 import yn from 'yn'
 
 import { GhostService } from '..'
@@ -61,23 +59,10 @@ export abstract class TelemetryStats {
     return {
       externalUrl: process.EXTERNAL_URL,
       botpressVersion: process.BOTPRESS_VERSION,
-      fingerprint: await this.getServerFingerprint(),
       clusterEnabled: yn(process.CLUSTER_ENABLED, { default: false }),
-      machineUUID: await machineUUID(),
       os: process.platform,
-      totalMemoryBytes: os.totalmem(),
-      uptime: Math.round(process.uptime()),
       bpfsStorage: process.BPFS_STORAGE,
       dbType: this.database.knex.isLite ? 'sqlite' : 'postgres'
-    }
-  }
-
-  private async getServerFingerprint(): Promise<string | null> {
-    try {
-      return this.licenseService.getFingerprint('cluster_url')
-    } catch (err) {
-      // tslint:disable-next-line: no-null-keyword
-      return null
     }
   }
 }

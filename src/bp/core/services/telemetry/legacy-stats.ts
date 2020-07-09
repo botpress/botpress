@@ -1,4 +1,5 @@
 import LicensingService from 'common/licensing-service'
+import { machineUUID } from 'common/stats'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
 import { UserRepository } from 'core/repositories'
@@ -6,6 +7,7 @@ import { TelemetryRepository } from 'core/repositories/telemetry_payload'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import ms from 'ms'
+import os from 'os'
 import uuid from 'uuid'
 
 import { GhostService } from '..'
@@ -49,7 +51,13 @@ export class LegacyStats extends TelemetryStats {
       schema: '1.0.0',
       timestamp: new Date().toISOString(),
       uuid: uuid.v4(),
-      server: await this.getServerStats(),
+      server: {
+        ...(await this.getServerStats()),
+        machineUUID: await machineUUID(),
+        totalMemoryBytes: os.totalmem(),
+        uptime: Math.round(process.uptime()),
+        fingerprint: await this.getServerFingerprint()
+      },
       license: {
         type: process.IS_PRO_ENABLED ? 'pro' : 'ce',
         status: await this.getLicenseStatus(),
@@ -113,6 +121,15 @@ export class LegacyStats extends TelemetryStats {
           count: Object.keys(config.authStrategies).length
         }
       }
+    }
+  }
+
+  private async getServerFingerprint(): Promise<string | null> {
+    try {
+      return this.licenseService.getFingerprint('cluster_url')
+    } catch (err) {
+      // tslint:disable-next-line: no-null-keyword
+      return null
     }
   }
 
