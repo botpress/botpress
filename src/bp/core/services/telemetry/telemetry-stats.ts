@@ -13,7 +13,7 @@ import { GhostService } from '..'
 import { JobService } from '../job-service'
 
 const debug = DEBUG('stats')
-const TELEMETRY_URL = 'https://telemetry.botpress.dev'
+const TELEMETRY_URL = process.TELEMETRY_URL
 
 @injectable()
 export abstract class TelemetryStats {
