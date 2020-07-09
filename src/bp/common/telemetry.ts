@@ -3,12 +3,12 @@ import uuid from 'uuid'
 export type ServerStats = {
   externalUrl: string
   botpressVersion: string
-  fingerprint: string | null
+  // fingerprint: string | null
   clusterEnabled: boolean
-  machineUUID: string
+  // machineUUID: string
   os: string
-  totalMemoryBytes: number
-  uptime: number
+  // totalMemoryBytes: number
+  // uptime: number
   bpfsStorage: string
   dbType: string
 }
