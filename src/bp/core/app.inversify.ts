@@ -17,6 +17,7 @@ import { DataRetentionJanitor } from './services/retention/janitor'
 import { DataRetentionService } from './services/retention/service'
 import { ServicesContainerModules } from './services/services.inversify'
 import { ActionsStats } from './services/telemetry/actions'
+import { LegacyStats } from './services/telemetry/legacy-stats'
 import { WorkspaceService } from './services/workspace-service'
 import { Statistics } from './stats'
 import { TYPES } from './types'
@@ -124,6 +125,11 @@ container
 container
   .bind<ActionsStats>(TYPES.ActionStats)
   .to(ActionsStats)
+  .inSingletonScope()
+
+container
+  .bind<LegacyStats>(TYPES.LegacyStats)
+  .to(LegacyStats)
   .inSingletonScope()
 
 const isPackaged = !!eval('process.pkg')
