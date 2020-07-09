@@ -182,6 +182,11 @@ const Form: FC<FormProps> = ({
     return index === 0 && placeholder ? lang(placeholder) : ''
   }
 
+  const showSuperInput = (field, data) => {
+    console.log(field.isSuperInput && field.type)
+    return field.isSuperInput && field.type === 'text'
+  }
+
   const printField = (field, data, parent?) => {
     switch (field.type) {
       case 'group':
@@ -311,8 +316,7 @@ const Form: FC<FormProps> = ({
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
             {printMoreInfo(field.moreInfo)}
-            {// TODO apply SuperInput everywhere
-            field.type === 'text' ? (
+            {showSuperInput(field, data) ? (
               <SuperInput
                 placeholder={lang(field.placeholder)}
                 variables={variables || []}

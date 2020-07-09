@@ -16,6 +16,7 @@ export default {
     {
       key: 'ambiguityThreshold',
       label: 'module.nlu.conditions.fields.label.ambiguityThreshold',
+      isSuperInput: true,
       type: 'number',
       defaultValue: 0.1
     }

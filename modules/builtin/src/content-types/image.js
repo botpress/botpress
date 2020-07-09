@@ -190,6 +190,7 @@ module.exports = {
         type: 'text',
         key: 'title',
         label: 'title',
+        isSuperInput: true,
         placeholder: 'module.builtin.optional'
       }
     ]
