@@ -1,7 +1,6 @@
 import axios from 'axios'
 import LicensingService from 'common/licensing-service'
 import { machineUUID } from 'common/stats'
-import { Schema } from 'common/telemetry'
 import Database from 'core/database'
 import { TelemetryRepository } from 'core/repositories/telemetry_payload'
 import { TYPES } from 'core/types'
