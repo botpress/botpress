@@ -90,9 +90,9 @@ export class TwilioClient {
         botId: this.botId,
         channel: 'twilio',
         direction: 'incoming',
-        type: 'quick_reply',
+        type: option.type,
         payload: {
-          type: 'quick_reply',
+          type: option.type,
           text: option.label,
           payload: option.value
         },
@@ -134,27 +134,55 @@ export class TwilioClient {
   }
 
   async sendCarousel(event: sdk.IO.Event) {
-    for (const { description, title, picture } of event.payload.elements) {
-      await this.sendMessage(event, {
-        body: description ? title + '\n' + description : title,
-        mediaUrl: picture ? [picture] : undefined
-      })
+    for (const { subtitle, title, picture, buttons } of event.payload.elements) {
+      let body = `${title}\n\n`
+      if (subtitle) {
+        body += `${subtitle}`
+      }
+
+      const options: MessageOption[] = []
+      for (const button of buttons) {
+        if (button.type === 'open_url') {
+          body += `\n\n${button.title} : ${button.url}`
+        } else if (button.type === 'postback') {
+          options.push({
+            label: button.title,
+            value: button.payload,
+            type: 'postback'
+          })
+        } else if (button.type === 'say_something') {
+          options.push({
+            label: button.title,
+            value: button.text,
+            type: 'text'
+          })
+        }
+      }
+
+      const args = { mediaUrl: picture ? [picture] : undefined }
+      await this.sendOptions(event, body, args, options)
     }
   }
 
   async sendChoices(event: sdk.IO.Event) {
     const options: MessageOption[] = event.payload.quick_replies.map(x => ({
       label: x.title,
-      value: x.payload
+      value: x.payload,
+      type: 'quick_reply'
     }))
-    await this.sendOptions(event, event.payload.text, options)
+    await this.sendOptions(event, event.payload.text, {}, options)
   }
 
   async sendDropdown(event: sdk.IO.Event) {
-    await this.sendOptions(event, event.payload.message, event.payload.options)
+    const options: MessageOption[] = event.payload.options.map(x => ({
+      label: x.label,
+      value: x.value,
+      type: 'quick_reply'
+    }))
+    await this.sendOptions(event, event.payload.message, {}, options)
   }
 
-  async sendOptions(event: sdk.IO.Event, text: string, options: MessageOption[]) {
+  async sendOptions(event: sdk.IO.Event, text: string, args: any, options: MessageOption[]) {
     let body = `${text}\n`
     for (let i = 0; i < options.length; i++) {
       const option = options[i]
@@ -163,7 +191,7 @@ export class TwilioClient {
 
     this.cache.set(event.target, options)
 
-    await this.sendMessage(event, { body })
+    await this.sendMessage(event, { ...args, body })
   }
 
   async sendMessage(event: sdk.IO.Event, args: any) {
