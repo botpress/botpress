@@ -49,7 +49,7 @@ export class ActionsStats extends TelemetryStats {
     @inject(TYPES.TelemetryRepository) telemetryRepo: TelemetryRepository
   ) {
     super(ghostService, database, licenseService, jobService, telemetryRepo)
-    this.url = 'https://telemetry.botpress.dev'
+    this.url = process.TELEMETRY_URL
     this.lock = 'botpress:telemetry-actions'
     this.interval = ms('1d')
   }
