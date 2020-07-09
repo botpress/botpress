@@ -72,25 +72,15 @@ export class StatsService {
   ) {}
 
   public async start() {
-    console.log(await this.actionStats.start())
+    await this.actionStats.start()
 
     await this.run(this.getStats.bind(this), LEGACY_TELEM_LOCK, JOB_INTERVAL, `${LEGACY_TELEM_URL}`)
-    await this.run(this.getBuiltinActionsStats.bind(this), TELEMETRY_LOCK, TELEMETRY_INTERVAL, `${TELEMETRY_URL}`)
+    // await this.run(this.getBuiltinActionsStats.bind(this), TELEMETRY_LOCK, TELEMETRY_INTERVAL, `${TELEMETRY_URL}`)
     await this.refreshDB(DB_REFRESH_INTERVAL)
 
     setInterval(
       this.run.bind(this, this.getStats.bind(this), LEGACY_TELEM_LOCK, JOB_INTERVAL, `${LEGACY_TELEM_URL}`),
       JOB_INTERVAL
-    )
-    setInterval(
-      this.run.bind(
-        this,
-        this.getBuiltinActionsStats.bind(this),
-        TELEMETRY_LOCK,
-        TELEMETRY_INTERVAL,
-        `${TELEMETRY_URL}`
-      ),
-      TELEMETRY_INTERVAL
     )
 
     setInterval(this.refreshDB.bind(this, DB_REFRESH_INTERVAL), DB_REFRESH_INTERVAL)
@@ -271,64 +261,5 @@ export class StatsService {
 
   private async getCollaboratorsCount(): Promise<number> {
     return (await this.authService.getAllUsers()).length
-  }
-
-  private async getBuiltinActionsStats() {
-    return {
-      timestamp: new Date(),
-      uuid: uuid.v4(),
-      schema: '1.0.0',
-      source: 'server',
-      server: await this.getServerStats(),
-      event_type: 'builtin_actions',
-      event_data: { schema: '1.0.0', flows: await this.getFlows() }
-    }
-  }
-
-  private async getFlows() {
-    const paths = await this.ghostService.bots().directoryListing('/', '*/flows/*.flow.json')
-    let flows
-    try {
-      flows = await Promise.mapSeries(paths, async flowPath => {
-        const { dir, base: flowName } = path.parse(flowPath)
-        const botID = dir.split('/')[0]
-        const actions = (await this.ghostService.bots().readFileAsObject<any>(dir, flowName)).nodes
-          .map(node => this.getActionsFromNode(node))
-          .reduce((acc, cur) => [...acc, ...cur])
-        return { flowName, botID, actions }
-      })
-    } catch (error) {
-      return {}
-    }
-    return flows.filter(flow => flow.actions.length > 0).map(flow => this.parseFlow(flow))
-  }
-
-  private getActionsFromNode(node: Node) {
-    const onEnter = node.onEnter ?? []
-    const onReceive = node.onReceive ?? []
-    return [...onEnter, ...onReceive]
-  }
-
-  private parseFlow(flow: Flow) {
-    const actions = flow.actions
-      .map(action => parseActionInstruction(action))
-      .filter(action => BUILTIN_MODULES.includes(action.actionName.split('/')[0]))
-
-    return {
-      actions: actions.map(action => {
-        const actionName = action.actionName.split('/')[1]
-        try {
-          const params = JSON.parse(action.argsStr)
-          for (const key in params) {
-            params[key] = !!params[key] ? 1 : 0
-          }
-          return { actionName, params }
-        } catch (error) {
-          return { actionName, params: {} }
-        }
-      }),
-      flowName: calculateHash(flow.flowName),
-      botID: calculateHash(flow.botID)
-    }
   }
 }
