@@ -21,25 +21,32 @@ const sendServerPackage = async () => {
         break
       }
 
-      let status
-      try {
-        await axios.post(
-          '/',
-          events.map(e => ({ ...e, source: 'client' })),
-          axiosConfig
-        )
-        status = 'ok'
-      } catch (err) {
-        status = 'fail'
-        console.error('Could not send the telemetry packages to the storage server', err)
-      }
+      const status = await postStorageServer(events)
+      continueLoop = status === 'ok'
 
       await api.getSecured().post(serverUrlFeedback, { events: events.map(e => e.uuid), status })
     } catch (err) {
       console.error('Could not access the botpress server', err)
+
       continueLoop = false
     }
   } while (continueLoop)
+}
+
+const postStorageServer = async events => {
+  let status
+  try {
+    await axios.post(
+      '/',
+      events.map(e => ({ ...e, source: 'client' })),
+      axiosConfig
+    )
+    status = 'ok'
+  } catch (err) {
+    status = 'fail'
+    console.error('Could not send the telemetry packages to the storage server', err)
+  }
+  return status
 }
 
 export const setupServerPackageLoop = () => {

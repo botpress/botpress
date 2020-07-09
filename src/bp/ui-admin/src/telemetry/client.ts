@@ -7,10 +7,6 @@ import uuid from 'uuid'
 
 import store from '../store'
 
-interface StoreInfoType {
-  [key: string]: Function
-}
-
 interface EventPackageInfoType {
   [key: string]: {
     locked: boolean
@@ -19,9 +15,6 @@ interface EventPackageInfoType {
   }
 }
 
-const telemetrySchemaVersion = '1.0.0'
-const dataSchemaVersion = '1.0.0'
-
 export const axiosConfig = {
   baseURL: window.TELEMETRY_URL,
   headers: {
@@ -29,7 +22,11 @@ export const axiosConfig = {
   }
 }
 
-const storeInfos: StoreInfoType = {}
+const dataSchemaVersion = '1.0.0'
+
+const telemetrySchemaVersion = '1.0.0'
+
+const storeInfos: Function[] = []
 
 const eventPackageInfo: EventPackageInfoType = {}
 
@@ -56,20 +53,12 @@ const addEventLockTimeout = (event: string, timeout: number) => {
   window.localStorage.setItem(event, (timeout + moment().valueOf()).toString())
 }
 
-const checkStoreInfoReceived = () => !Object.keys(storeInfos).find(info => storeInfos[info]() === undefined)
+const checkStoreInfoReceived = () => !storeInfos.find(info => info() === undefined)
 
-export const trackReduxStoreInfo = (name: string, pathInStore: string) => {
-  storeInfos[name] = () => {
+export const trackReduxStoreInfo = (pathInStore: string) => {
+  storeInfos.push(() => {
     return _.get(store.getState(), pathInStore)
-  }
-}
-
-export const getTrackedReduxStoreInfo = (name: string) => {
-  if (storeInfos[name]) {
-    return storeInfos[name]()
-  } else {
-    throw `The information "${name}" asked is not tracked by the telemetry module. Consider adding it to the tracked redux store info.`
-  }
+  })
 }
 
 export const addTelemetryEvent = (name: string, timeout: string, getPackage: Function) => {
@@ -101,16 +90,16 @@ const checkTelemetry = async () => {
 }
 
 export const startTelemetry = () => {
-  trackReduxStoreInfo('email', 'user.profile.email')
+  trackReduxStoreInfo('user.profile.email')
 
-  trackReduxStoreInfo('bp_release', 'version.currentVersion')
+  trackReduxStoreInfo('version.currentVersion')
 
-  trackReduxStoreInfo('bp_license', 'license.licensing.isPro')
+  trackReduxStoreInfo('license.licensing.isPro')
 
   addTelemetryEvent('ui_language', '8h', () => {
     return {
       user: {
-        email: getTrackedReduxStoreInfo('email'),
+        email: store.getState().user.profile.email,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
       },
       language: lang.getLocale()
@@ -139,8 +128,8 @@ const sendTelemetryEvent = async (data: object, event: string) => {
       schema: telemetrySchemaVersion,
       uuid: uuid.v4(),
       timestamp: new Date().toISOString(),
-      bp_release: getTrackedReduxStoreInfo('bp_release'),
-      bp_license: getTrackedReduxStoreInfo('bp_license') ? 'pro' : 'community',
+      bp_release: store.getState().version.currentVersion,
+      bp_license: store.getState().license.licensing.isPro ? 'pro' : 'community',
       event_type: event,
       source: 'client',
       event_data: {
