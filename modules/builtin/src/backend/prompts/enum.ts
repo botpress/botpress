@@ -1,9 +1,5 @@
-import axios from 'axios'
 import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
-import * as sdk from 'botpress/sdk'
-import { extractEventCommonArgs } from 'common/action'
 import lang from 'common/lang'
-import { createMultiLangObject } from 'common/prompts'
 
 import common from './common'
 

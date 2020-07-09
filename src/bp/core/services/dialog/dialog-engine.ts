@@ -1,8 +1,6 @@
 import { Content, IO } from 'botpress/sdk'
-import { createMultiLangObject } from 'common/prompts'
 import { FlowView } from 'common/typings'
 import { createForGlobalHooks } from 'core/api'
-import { ModuleLoader } from 'core/module-loader'
 import { EventRepository } from 'core/repositories'
 import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct } from 'inversify'
@@ -11,13 +9,13 @@ import _ from 'lodash'
 
 import { converseApiEvents } from '../converse'
 import { Hooks, HookService } from '../hook/hook-service'
+import { DialogStore } from '../middleware/dialog-store'
 import { EventEngine } from '../middleware/event-engine'
 
 import { FlowError, ProcessingError, TimeoutNodeNotFound } from './errors'
 import { FlowService } from './flow/service'
 import { InstructionProcessor } from './instruction/processor'
 import { InstructionQueue } from './instruction/queue'
-import { ActionStrategy } from './instruction/strategy'
 import { PromptManager } from './prompt-manager'
 import { InstructionsQueueBuilder } from './queue-builder'
 
@@ -37,15 +35,8 @@ export class DialogEngine {
     @inject(TYPES.EventRepository) private eventRepository: EventRepository,
     @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
     @inject(TYPES.PromptManager) private promptManager: PromptManager,
-    @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
+    @inject(TYPES.EventEngine) private eventEngine: EventEngine
   ) {}
-
-  @postConstruct()
-  public async init() {
-    await AppLifecycle.waitFor(AppLifecycleEvents.BOTPRESS_READY)
-    this.promptManager.prompts = await this.moduleLoader.getPrompts()
-  }
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent): Promise<IO.IncomingEvent> {
     const botId = event.botId
@@ -131,7 +122,7 @@ export class DialogEngine {
       if (context.activePrompt?.status === 'resolved') {
         const { config, state } = context.activePrompt
 
-        event.state.setVariable(config.output, state.value, config.type, {
+        event.state.createVariable(config.output, state.value, config.type, {
           nbOfTurns: 10 // TODO:
         })
 
