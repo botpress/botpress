@@ -5,6 +5,7 @@ import ms from 'ms'
 
 import { JobService } from './job-service'
 import { ActionsStats } from './telemetry/actions'
+import { HooksLifecycleStats } from './telemetry/hooks'
 import { LegacyStats } from './telemetry/legacy-stats'
 
 const DB_REFRESH_LOCK = 'botpress:telemetryDB'
@@ -16,7 +17,8 @@ export class StatsService {
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository,
     @inject(TYPES.ActionStats) private actionStats: ActionsStats,
-    @inject(TYPES.LegacyStats) private legacyStats: LegacyStats
+    @inject(TYPES.LegacyStats) private legacyStats: LegacyStats,
+    @inject(TYPES.HooksLifecycleStats) private hooksStats: HooksLifecycleStats
   ) {}
 
   public async start() {

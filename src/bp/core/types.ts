@@ -82,7 +82,8 @@ const TYPES = {
   LocalActionServer: Symbol.for('LocalActionServer'),
   TelemetryRepository: Symbol.for('TelemetryRepository'),
   ActionStats: Symbol.for('ActionStats'),
-  LegacyStats: Symbol.for('LegacyStats')
+  LegacyStats: Symbol.for('LegacyStats'),
+  HooksLifecycleStats: Symbol.for('HooksLifecycleStats')
 }
 
 export { TYPES }

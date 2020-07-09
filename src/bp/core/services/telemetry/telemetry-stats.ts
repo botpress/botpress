@@ -35,7 +35,7 @@ export abstract class TelemetryStats {
     setInterval(this.run.bind(this, this.getStats.bind(this), this.lock, this.interval, this.url), this.interval)
   }
 
-  protected abstract getStats()
+  protected abstract async getStats()
 
   protected async run(job: Function, lockResource: string, interval: number, url: string) {
     const lock = await this.jobService.acquireLock(lockResource, interval - ms('1 minute'))

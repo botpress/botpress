@@ -58,7 +58,7 @@ export class ActionsStats extends TelemetryStats {
     return {
       ...getSchema(await this.getServerStats(), 'server'),
       event_type: 'builtin_actions',
-      event_data: { schema: '1.0.0', flows: await this.getFlowsWithActions() }
+      event_data: { schema: '1.0.0', flows: this.getFlowsWithActions() }
     }
   }
 
