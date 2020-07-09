@@ -10,17 +10,18 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: '12.13.0'
-      - name: Copy test script + Check node version
+      - name: Copy test script
         run: |
           cp build/nlu-regression.js .
-          node -v
       - name: Fetch Node Packages
         run: |
           yarn --verbose
       - name: Build core, UI and modules
         run: |
-          NODE_OPTIONS="--max-old-space-size=6000" yarn build
+          NODE_OPTIONS="--max-old-space-size=6000" yarn cmd build:core
+          cd modules/nlu && yarn build && cd ../..
+          cd modules/nlu-testing && yarn build && cd ../..
       - name: Run Regression Test
         run: |
-          NLU_SEED=42 yarn start & sleep 5s &&
+          NLU_SEED=42 yarn start & sleep 10s &&
           node nlu-regression.js
