@@ -1,32 +1,62 @@
 import axios from 'axios'
 import LicensingService from 'common/licensing-service'
 import { machineUUID } from 'common/stats'
+import { Schema } from 'common/telemetry'
 import Database from 'core/database'
 import { TelemetryRepository } from 'core/repositories/telemetry_payload'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import ms from 'ms'
 import os from 'os'
-import path from 'path'
-import uuid from 'uuid'
 import yn from 'yn'
 
 import { GhostService } from '..'
 import { JobService } from '../job-service'
 
 const debug = DEBUG('stats')
-const LEGACY_TELEM_URL = 'https://telemetry.botpress.io/ingest'
 const TELEMETRY_URL = 'https://telemetry.botpress.dev'
 
 @injectable()
-export class TelemetryStats {
+export abstract class TelemetryStats {
+  protected abstract url: string
+  protected abstract lock: string
+  protected abstract interval: number
+
   constructor(
     @inject(TYPES.GhostService) protected ghostService: GhostService,
     @inject(TYPES.Database) private database: Database,
-    @inject(TYPES.LicensingService) private licenseService: LicensingService,
+    @inject(TYPES.LicensingService) protected licenseService: LicensingService,
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository
   ) {}
+
+  public async start() {
+    await this.run(this.getStats.bind(this), this.lock, this.interval, this.url)
+
+    setInterval(this.run.bind(this, this.getStats.bind(this), this.lock, this.interval, this.url), this.interval)
+  }
+
+  protected abstract getStats()
+
+  protected async run(job: Function, lockResource: string, interval: number, url: string) {
+    const lock = await this.jobService.acquireLock(lockResource, interval - ms('1 minute'))
+    if (lock) {
+      debug('Acquired lock')
+      const stats = await job()
+      await this.sendStats(url, stats)
+    }
+  }
+
+  private async sendStats(url: string, stats) {
+    debug('Sending stats: %o', stats)
+    try {
+      await axios.post(url, stats)
+    } catch (err) {
+      if (url === TELEMETRY_URL) {
+        await this.telemetryRepo.insertPayload(stats.uuid, stats)
+      }
+    }
+  }
 
   protected async getServerStats() {
     return {
@@ -49,27 +79,6 @@ export class TelemetryStats {
     } catch (err) {
       // tslint:disable-next-line: no-null-keyword
       return null
-    }
-  }
-
-  protected async run(job: Function, lockResource: string, interval: number, url: string) {
-    const lock = await this.jobService.acquireLock(lockResource, interval - ms('1 minute'))
-    if (lock) {
-      debug('Acquired lock')
-      const stats = await job()
-      console.log(stats)
-      await this.sendStats(url, stats)
-    }
-  }
-
-  private async sendStats(url: string, stats) {
-    debug('Sending stats: %o', stats)
-    try {
-      await axios.post(url, stats)
-    } catch (err) {
-      if (url === TELEMETRY_URL) {
-        await this.telemetryRepo.insertPayload(stats.uuid, stats)
-      }
     }
   }
 }

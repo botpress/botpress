@@ -1,6 +1,7 @@
 import { parseActionInstruction } from 'common/action'
 import { BUILTIN_MODULES } from 'common/defaults'
 import LicensingService from 'common/licensing-service'
+import { getSchema } from 'common/telemetry'
 import Database from 'core/database'
 import { calculateHash } from 'core/misc/utils'
 import { TelemetryRepository } from 'core/repositories/telemetry_payload'
@@ -14,10 +15,6 @@ import { GhostService } from '..'
 import { JobService } from '../job-service'
 
 import { TelemetryStats } from './telemetry-stats'
-
-const TELEMETRY_LOCK = 'botpress:telemetry'
-const TELEMETRY_INTERVAL = ms('1d')
-const TELEMETRY_URL = 'https://telemetry.botpress.dev'
 
 type NextNode = {
   condition: string
@@ -41,6 +38,10 @@ type Flow = {
 
 @injectable()
 export class ActionsStats extends TelemetryStats {
+  protected url: string
+  protected lock: string
+  protected interval: number
+
   constructor(
     @inject(TYPES.GhostService) ghostService: GhostService,
     @inject(TYPES.Database) database: Database,
@@ -49,40 +50,24 @@ export class ActionsStats extends TelemetryStats {
     @inject(TYPES.TelemetryRepository) telemetryRepo: TelemetryRepository
   ) {
     super(ghostService, database, licenseService, jobService, telemetryRepo)
+    this.url = 'https://telemetry.botpress.dev'
+    this.lock = 'botpress:telemetry-actions'
+    this.interval = ms('1d')
   }
 
-  public async start() {
-    await this.run(this.getBuiltinActionsStats.bind(this), TELEMETRY_LOCK, TELEMETRY_INTERVAL, `${TELEMETRY_URL}`)
-
-    setInterval(
-      this.run.bind(
-        this,
-        this.getBuiltinActionsStats.bind(this),
-        TELEMETRY_LOCK,
-        TELEMETRY_INTERVAL,
-        `${TELEMETRY_URL}`
-      ),
-      TELEMETRY_INTERVAL
-    )
-  }
-
-  private async getBuiltinActionsStats() {
+  protected async getStats() {
     return {
-      timestamp: new Date(),
-      uuid: uuid.v4(),
-      schema: '1.0.0',
-      source: 'server',
-      server: await this.getServerStats(),
+      ...getSchema(await this.getServerStats(), 'server'),
       event_type: 'builtin_actions',
-      event_data: { schema: '1.0.0', flows: await this.getFlows() }
+      event_data: { schema: '1.0.0', flows: await this.getFlowsWithActions() }
     }
   }
 
-  private async getFlows() {
+  private async getFlowsWithActions() {
     const paths = await this.ghostService.bots().directoryListing('/', '*/flows/*.flow.json')
     let flows
     try {
-      flows = await Promise.mapSeries(paths, async flowPath => {
+      flows = await Promise.map(paths, async flowPath => {
         const { dir, base: flowName } = path.parse(flowPath)
         const botID = dir.split('/')[0]
         const actions = (await this.ghostService.bots().readFileAsObject<any>(dir, flowName)).nodes
