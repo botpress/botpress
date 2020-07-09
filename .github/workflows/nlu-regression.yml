@@ -18,9 +18,9 @@ jobs:
           yarn --verbose
       - name: Build core, UI and modules
         run: |
-          NODE_OPTIONS="--max-old-space-size=6000" yarn cmd build:core
-          cd modules/nlu && yarn build && cd ../..
-          cd modules/nlu-testing && yarn build && cd ../..
+          NODE_OPTIONS="--max-old-space-size=6000" yarn cmd build:core &&
+          cd ./modules/nlu && yarn build && cd ../../ &&
+          cd ./modules/nlu-testing && yarn build && cd ../../
       - name: Run Regression Test
         run: |
           NLU_SEED=42 yarn start & sleep 10s &&
