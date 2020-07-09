@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import { Raw } from 'knex'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
@@ -6,58 +7,57 @@ import uuid from 'uuid'
 
 import { Config } from '../config'
 
+import { DBMessage } from './typings'
+
 export default class WebchatDb {
-  knex: any
+  knex: sdk.KnexExtended
   users: typeof sdk.users
-  private queued_messages: any[] = []
-  private queued_convos: Dic<any> = {}
-  private message_lock: boolean
-  private convo_lock: boolean
+  private queuedMessages: DBMessage[] = []
+  private queuedConvos: Dic<Raw<any>> = {}
+  private messagePromise: Promise<void | number[]>
+  private convoPromise: Promise<void>
 
   constructor(private bp: typeof sdk) {
     this.users = bp.users
     this.knex = bp['database'] // TODO Fixme
-    setInterval(() => this.flushMessages(), ms('5s'))
-    setInterval(() => this.flushConvoUpdates(), ms('5s'))
+    setInterval(() => this.flush(), ms('5s'))
   }
 
-  async flushMessages() {
-    if (this.message_lock || !this.queued_messages.length) {
-      return
-    }
-    this.message_lock = true
-
-    try {
-      const original = this.queued_messages
-      this.queued_messages = []
-
-      this.knex('web_messages')
-        .insert(original)
-        .catch(() => {
-          this.queued_messages = original.concat(this.queued_messages)
-        })
-    } finally {
-      this.message_lock = false
-    }
+  flush() {
+    this.flushMessages()
+    this.flushConvoUpdates()
   }
 
-  async flushConvoUpdates() {
-    if (this.convo_lock) {
+  flushMessages() {
+    if (this.messagePromise || !this.queuedMessages.length) {
       return
     }
-    this.convo_lock = true
 
-    try {
-      if (Object.keys(this.queued_convos).length === 0) {
-        return
-      }
+    const original = this.queuedMessages
+    this.queuedMessages = []
 
-      await this.knex.transaction(async trx => {
+    this.messagePromise = this.knex('web_messages')
+      .insert(original)
+      .catch(() => {
+        this.queuedMessages = [...original, ...this.queuedMessages]
+      })
+      .finally(() => {
+        this.messagePromise = undefined
+      })
+  }
+
+  flushConvoUpdates() {
+    if (this.convoPromise || !Object.keys(this.queuedConvos).length) {
+      return
+    }
+
+    this.convoPromise = this.knex
+      .transaction(async trx => {
         const queries = []
 
-        for (const key in this.queued_convos) {
+        for (const key in this.queuedConvos) {
           const [conversationId, userId, botId] = key.split('_')
-          const value = this.queued_convos[key]
+          const value = this.queuedConvos[key]
 
           const query = this.knex('web_conversations')
             .where({ id: conversationId, userId: userId, botId: botId })
@@ -67,15 +67,15 @@ export default class WebchatDb {
           queries.push(query)
         }
 
-        this.queued_convos = []
+        this.queuedConvos = {}
 
         await Promise.all(queries)
           .then(trx.commit)
           .catch(trx.rollback)
       })
-    } finally {
-      this.convo_lock = false
-    }
+      .finally(() => {
+        this.convoPromise = undefined
+      })
   }
 
   async getUserInfo(userId, user) {
@@ -132,7 +132,8 @@ export default class WebchatDb {
     const { fullName, avatar_url } = await this.getUserInfo(userId, user)
     const { type, text, raw, data } = payload
 
-    const message = {
+    const now = new Date()
+    const message: DBMessage = {
       id: uuid.v4(),
       conversationId,
       incomingEventId,
@@ -144,15 +145,15 @@ export default class WebchatDb {
       message_raw: this.knex.json.set(raw),
       message_data: this.knex.json.set(data),
       payload: this.knex.json.set(payload),
-      sent_on: new Date().toISOString()
+      sent_on: this.knex.date.format(now)
     }
 
-    this.queued_messages.push(message)
-    this.queued_convos[`${conversationId}_${userId}_${botId}`] = this.knex.date.now()
+    this.queuedMessages.push(message)
+    this.queuedConvos[`${conversationId}_${userId}_${botId}`] = this.knex.date.format(now)
 
     return {
       ...message,
-      sent_on: new Date(),
+      sent_on: now,
       message_raw: raw,
       message_data: data,
       payload: payload
@@ -161,7 +162,9 @@ export default class WebchatDb {
 
   async appendBotMessage(botName, botAvatar, conversationId, payload, incomingEventId) {
     const { type, text, raw, data } = payload
-    const message = {
+
+    const now = new Date()
+    const message: DBMessage = {
       id: uuid.v4(),
       conversationId: conversationId,
       incomingEventId,
@@ -173,14 +176,14 @@ export default class WebchatDb {
       message_raw: this.knex.json.set(raw),
       message_data: this.knex.json.set(data),
       payload: this.knex.json.set(payload),
-      sent_on: new Date().toISOString()
+      sent_on: this.knex.date.format(now)
     }
 
-    this.queued_messages.push(message)
+    this.queuedMessages.push(message)
 
     return {
       ...message,
-      sent_on: new Date(),
+      sent_on: now,
       message_raw: raw,
       message_data: data,
       payload: payload
@@ -246,7 +249,7 @@ export default class WebchatDb {
 
     const conversationIds = conversations.map(c => c.id)
 
-    let lastMessages = this.knex
+    let lastMessages: any = this.knex
       .from('web_messages')
       .distinct(this.knex.raw('ON ("conversationId") *'))
       .orderBy('conversationId')

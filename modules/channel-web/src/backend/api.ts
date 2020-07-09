@@ -252,7 +252,7 @@ export default async (bp: typeof sdk, db: Database) => {
     payload,
     credentials: any,
     useDebugger?: boolean,
-    user: sdk.User = undefined
+    user?: sdk.User
   ) {
     const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
