@@ -370,11 +370,11 @@ const Form: FC<FormProps> = ({
   return (
     <Fragment>
       {fields.map(field => printField(field, state))}
-      {/*!!advancedSettings?.length && (
+      {!!advancedSettings?.length && (
         <GroupItemWrapper defaultCollapsed label={lang('advancedSettings')}>
           {advancedSettings.map(field => printField(field, state))}
         </GroupItemWrapper>
-      )*/}
+      )}
     </Fragment>
   )
 }
