@@ -11,27 +11,33 @@ const convertTests = [
   },
   {
     input: '$variable $variable2 {{event}} {{event2}}',
-    output: '[[{"value": "variable", "prefix": "$"}]] [[{"value": "variable2", "prefix": "$"}]] [[{"value": "event", "prefix": "{{"}]] [[{"value": "event2", "prefix": "{{"}]]'
+    output:
+      '[[{"value": "variable", "prefix": "$"}]] [[{"value": "variable2", "prefix": "$"}]] [[{"value": "event", "prefix": "{{"}]] [[{"value": "event2", "prefix": "{{"}]]'
   },
   {
     input: '$variable $variable2{{event}} {{event2}} $variable',
-    output: '[[{"value": "variable", "prefix": "$"}]] [[{"value": "variable2", "prefix": "$"}]][[{"value": "event", "prefix": "{{"}]] [[{"value": "event2", "prefix": "{{"}]] [[{"value": "variable", "prefix": "$"}]]'
+    output:
+      '[[{"value": "variable", "prefix": "$"}]] [[{"value": "variable2", "prefix": "$"}]][[{"value": "event", "prefix": "{{"}]] [[{"value": "event2", "prefix": "{{"}]] [[{"value": "variable", "prefix": "$"}]]'
   },
   {
     input: '$variable $variable2 {{event}}{{event2}} $variable',
-    output: '[[{"value": "variable", "prefix": "$"}]] [[{"value": "variable2", "prefix": "$"}]] [[{"value": "event", "prefix": "{{"}]][[{"value": "event2", "prefix": "{{"}]] [[{"value": "variable", "prefix": "$"}]]'
+    output:
+      '[[{"value": "variable", "prefix": "$"}]] [[{"value": "variable2", "prefix": "$"}]] [[{"value": "event", "prefix": "{{"}]][[{"value": "event2", "prefix": "{{"}]] [[{"value": "variable", "prefix": "$"}]]'
   },
   {
     input: '$variable $variable2 {{event}} {{event2}}$variable',
-    output: '[[{"value": "variable", "prefix": "$"}]] [[{"value": "variable2", "prefix": "$"}]] [[{"value": "event", "prefix": "{{"}]] [[{"value": "event2", "prefix": "{{"}]][[{"value": "variable", "prefix": "$"}]]'
+    output:
+      '[[{"value": "variable", "prefix": "$"}]] [[{"value": "variable2", "prefix": "$"}]] [[{"value": "event", "prefix": "{{"}]] [[{"value": "event2", "prefix": "{{"}]][[{"value": "variable", "prefix": "$"}]]'
   },
   {
     input: '$variable$variable2 {{event}} {{event2}} $variable',
-    output: '[[{"value": "variable", "prefix": "$"}]][[{"value": "variable2", "prefix": "$"}]] [[{"value": "event", "prefix": "{{"}]] [[{"value": "event2", "prefix": "{{"}]] [[{"value": "variable", "prefix": "$"}]]'
+    output:
+      '[[{"value": "variable", "prefix": "$"}]][[{"value": "variable2", "prefix": "$"}]] [[{"value": "event", "prefix": "{{"}]] [[{"value": "event2", "prefix": "{{"}]] [[{"value": "variable", "prefix": "$"}]]'
   },
   {
     input: '$variable$variable2{{event}}{{event2}}$variable',
-    output: '[[{"value": "variable", "prefix": "$"}]][[{"value": "variable2", "prefix": "$"}]][[{"value": "event", "prefix": "{{"}]][[{"value": "event2", "prefix": "{{"}]][[{"value": "variable", "prefix": "$"}]]'
+    output:
+      '[[{"value": "variable", "prefix": "$"}]][[{"value": "variable2", "prefix": "$"}]][[{"value": "event", "prefix": "{{"}]][[{"value": "event2", "prefix": "{{"}]][[{"value": "variable", "prefix": "$"}]]'
   }
 ]
 
