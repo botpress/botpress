@@ -5,7 +5,7 @@ export type Clients = { [botId: string]: TwilioClient }
 export type MessageOption = {
   label: string
   value: string
-  type: 'text' | 'postback' | 'quick_reply'
+  type: 'say_something' | 'postback' | 'quick_reply' | 'url'
 }
 
 export type TwilioRequestBody = {

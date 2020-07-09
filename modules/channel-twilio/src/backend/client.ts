@@ -77,13 +77,16 @@ export class TwilioClient {
     }
 
     const options = this.cache.get(from)
-    this.cache.del(from)
-
     const option = options[index]
-
     if (!option) {
       return
     }
+
+    if (option.type === 'url') {
+      return true
+    }
+
+    this.cache.del(from)
 
     await this.bp.events.sendEvent(
       this.bp.IO.Event({
@@ -93,7 +96,7 @@ export class TwilioClient {
         type: option.type,
         payload: {
           type: option.type,
-          text: option.label,
+          text: option.type === 'say_something' ? option.value : option.label,
           payload: option.value
         },
         threadId: to,
@@ -143,7 +146,11 @@ export class TwilioClient {
       const options: MessageOption[] = []
       for (const button of buttons) {
         if (button.type === 'open_url') {
-          body += `\n\n${button.title} : ${button.url}`
+          options.push({
+            label: `${button.title} : ${button.url}`,
+            value: undefined,
+            type: 'url'
+          })
         } else if (button.type === 'postback') {
           options.push({
             label: button.title,
@@ -154,7 +161,7 @@ export class TwilioClient {
           options.push({
             label: button.title,
             value: button.text,
-            type: 'text'
+            type: 'say_something'
           })
         }
       }
