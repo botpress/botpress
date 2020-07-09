@@ -9,7 +9,6 @@ import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import ms from 'ms'
 import path from 'path'
-import uuid from 'uuid'
 
 import { GhostService } from '..'
 import { JobService } from '../job-service'
