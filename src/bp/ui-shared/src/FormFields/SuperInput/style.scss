@@ -48,6 +48,10 @@
         color: var(--shark);
         font-size: 8px;
 
+        &.tagify--invalid > div {
+          background: var(--hover-lighthouse-30);
+        }
+
         svg {
           fill: var(--shark);
         }
@@ -67,6 +71,12 @@
 
           .tagify__tag-text {
             margin-left: var(--spacing-x-small);
+
+            &[contenteditable] {
+              margin: 0 0 0 var(--spacing-x-small) !important;
+              padding: 0 !important;
+              max-width: 100%;
+            }
           }
         }
       }

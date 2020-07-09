@@ -1,5 +1,5 @@
 const TAGS_REGEX = /\[\[(.*?)\]\]/gim
-const VARIABLES_REGEX = /(\$[^(\s|\$)]+)/gim
+const VARIABLES_REGEX = /(\$[^(\s|\$|\{{)]+)/gim
 const EVENT_REGEX = /\{\{(.*?)\}\}/gim
 
 export const convertToString = (value: string): string => {

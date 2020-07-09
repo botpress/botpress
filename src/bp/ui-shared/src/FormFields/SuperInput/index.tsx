@@ -26,15 +26,13 @@ export default ({ canAddElements, events, variables, setCanOutsideClickClose, on
       const prefix = e.detail.prefix
 
       if (prefix) {
-        sanitizeTagSearch(e.detail.value)
-
         if (prefix == '$') {
           tagifyRef.current.settings.whitelist = variables?.map(({ name }) => name) || []
         }
 
         if (prefix == '{{') {
           // TODO refactor to use the schema format properly and allow to breakdown into an object type search
-          tagifyRef.current.settings.whitelist = events?.map(event => event.name) || []
+          tagifyRef.current.settings.whitelist = events?.map(({ name }) => name) || []
         }
 
         if (e.detail.value.length > 1) {
@@ -51,20 +49,21 @@ export default ({ canAddElements, events, variables, setCanOutsideClickClose, on
     },
     ['dropdown:show']: e => {
       setCanOutsideClickClose?.(false)
-    }
-  }
+    },
+    ['edit:start']: e => {
+      const prefix = e.detail.data.prefix
 
-  const sanitizeTagSearch = tag => {
-    const currentContent = tagifyRef.current?.DOM?.input?.innerHTML
-    const currentTag = currentContent.substring(currentContent.length - tag.length)
-    const tagIndex = currentContent.lastIndexOf(currentTag)
-    const newContent =
-      currentContent.substring(0, tagIndex) +
-      sanitizeName(currentTag) +
-      currentContent.substring(tagIndex + currentTag.length)
-    // @ts-ignore
-    tagifyRef.current?.DOM?.input?.innerHTML = newContent
-    moveCarretToEndOfString()
+      if (prefix) {
+        if (prefix == '$') {
+          tagifyRef.current.settings.whitelist = variables?.map(({ name }) => name) || []
+        }
+
+        if (prefix == '{{') {
+          // TODO refactor to use the schema format properly and allow to breakdown into an object type search
+          tagifyRef.current.settings.whitelist = events?.map(event => event.name) || []
+        }
+      }
+    }
   }
 
   const addPrefix = prefix => {
@@ -136,12 +135,15 @@ export default ({ canAddElements, events, variables, setCanOutsideClickClose, on
           skipInvalid: !canAddElements,
           templates: {
             tag(tagData, data) {
+              const isValid = !(data.prefix === '$'
+                ? variables?.find(({ name }) => name === tagData)
+                : events?.find(({ name }) => name === tagData))
+
               return `<tag title="${tagData}"
                 contenteditable="false"
                 spellcheck="false"
-                readonly
                 tabIndex="-1"
-                class="tagify__tag">
+                class="tagify__tag${isValid ? ' tagify--invalid' : ''}">
                 <div>
                   ${ReactDOMServer.renderToStaticMarkup(
                     <Icon icon={data.prefix === '$' ? 'dollar' : <Icons.Brackets iconSize={10} />} iconSize={10} />
