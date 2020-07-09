@@ -4,14 +4,14 @@ import lang from 'common/lang'
 import common from './common'
 
 class PromptEnum implements Prompt {
-  private _entity: string
+  private _enumType: string
 
-  constructor({ entity }) {
-    this._entity = entity
+  constructor({ enumType }) {
+    this._enumType = enumType
   }
 
   extraction(event: IO.IncomingEvent): ExtractionResult[] {
-    const entities = event.nlu?.entities?.filter(x => x.type === `custom.list.${this._entity}`) ?? []
+    const entities = event.nlu?.entities?.filter(x => x.type === `custom.list.${this._enumType}`) ?? []
     return entities.map(entity => ({
       value: entity.data.value,
       confidence: entity.meta.confidence
@@ -35,13 +35,13 @@ const config: PromptConfig = {
     ...common.fields,
     {
       type: 'select',
-      key: 'entity',
+      key: 'enumType',
       dynamicOptions: {
         endpoint: 'BOT_API_PATH/mod/nlu/entities?ignoreSystem=true',
         valueField: 'id',
         labelField: 'name'
       },
-      label: 'module.builtin.entity'
+      label: 'module.builtin.enum'
     },
     {
       type: 'checkbox',

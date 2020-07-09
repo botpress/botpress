@@ -752,7 +752,7 @@ declare module 'botpress/sdk' {
         name: string,
         value: any,
         type: string,
-        options?: { nbOfTurns: number; specificWorkflow?: string; enumType?: string }
+        options?: { nbOfTurns: number; specificWorkflow?: string; enumType?: string; config?: any }
       ) => void
       /**
        * EXPERIMENTAL

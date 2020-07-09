@@ -123,7 +123,8 @@ export class DialogEngine {
         const { config, state } = context.activePrompt
 
         event.state.createVariable(config.output, state.value, config.type, {
-          nbOfTurns: 10 // TODO:
+          nbOfTurns: config.duration ?? 10,
+          enumType: config.enumType
         })
 
         this._setCurrentNodeValue(event, 'extracted', true)
