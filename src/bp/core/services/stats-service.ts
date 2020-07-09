@@ -24,6 +24,7 @@ export class StatsService {
     await this.legacyStats.start()
 
     await this.refreshDB(DB_REFRESH_INTERVAL)
+    setInterval(this.refreshDB.bind(this, DB_REFRESH_INTERVAL), DB_REFRESH_INTERVAL)
   }
 
   private async refreshDB(interval: number) {
