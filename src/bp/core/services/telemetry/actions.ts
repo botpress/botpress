@@ -1,17 +1,14 @@
 import { parseActionInstruction } from 'common/action'
 import { BUILTIN_MODULES } from 'common/defaults'
 import LicensingService from 'common/licensing-service'
-import { machineUUID } from 'common/stats'
 import Database from 'core/database'
 import { calculateHash } from 'core/misc/utils'
 import { TelemetryRepository } from 'core/repositories/telemetry_payload'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import ms from 'ms'
-import os from 'os'
 import path from 'path'
 import uuid from 'uuid'
-import yn from 'yn'
 
 import { GhostService } from '..'
 import { JobService } from '../job-service'
@@ -56,6 +53,17 @@ export class ActionsStats extends TelemetryStats {
 
   public async start() {
     await this.run(this.getBuiltinActionsStats.bind(this), TELEMETRY_LOCK, TELEMETRY_INTERVAL, `${TELEMETRY_URL}`)
+
+    setInterval(
+      this.run.bind(
+        this,
+        this.getBuiltinActionsStats.bind(this),
+        TELEMETRY_LOCK,
+        TELEMETRY_INTERVAL,
+        `${TELEMETRY_URL}`
+      ),
+      TELEMETRY_INTERVAL
+    )
   }
 
   private async getBuiltinActionsStats() {
