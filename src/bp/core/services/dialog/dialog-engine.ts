@@ -35,7 +35,8 @@ export class DialogEngine {
     @inject(TYPES.EventRepository) private eventRepository: EventRepository,
     @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
     @inject(TYPES.PromptManager) private promptManager: PromptManager,
-    @inject(TYPES.EventEngine) private eventEngine: EventEngine
+    @inject(TYPES.EventEngine) private eventEngine: EventEngine,
+    @inject(TYPES.DialogStore) private dialogStore: DialogStore
   ) {}
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent): Promise<IO.IncomingEvent> {
@@ -67,14 +68,16 @@ export class DialogEngine {
       }
 
       if (currentNode.type === 'prompt' && !context.activePrompt && !this._getCurrentNodeValue(event, 'processed')) {
+        const { type, params } = currentNode.prompt!
         context.activePrompt = {
           stage: 'new',
           status: 'pending',
           state: {},
           turn: 0,
           config: {
-            type: currentNode.prompt!.type,
-            ...currentNode.prompt!.params
+            type,
+            valueType: this.dialogStore.getPromptConfig(type)?.valueType,
+            ...params
           }
         }
       }
@@ -117,7 +120,7 @@ export class DialogEngine {
       if (context.activePrompt?.status === 'resolved') {
         const { config, state } = context.activePrompt
 
-        event.state.createVariable(config.output, state.value, config.type, {
+        event.state.createVariable(config.output, state.value, config.valueType!, {
           nbOfTurns: config.duration ?? 10,
           enumType: config.enumType
         })
@@ -636,6 +639,10 @@ export class DialogEngine {
   }
 
   private _getPreviousEvents(target: string, searchBackCount: number) {
+    if (!searchBackCount) {
+      return []
+    }
+
     return this.eventRepository
       .findEvents(
         { direction: 'incoming', target },

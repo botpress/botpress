@@ -785,7 +785,7 @@ declare module 'botpress/sdk' {
       eventType?: string
     }
 
-    export type PromptConfiguration = { type: string } & PromptNodeParams
+    export type PromptConfiguration = { type: string; valueType?: string } & PromptNodeParams
 
     export interface PromptCandidate {
       source: 'slot' | 'prompt'
@@ -1619,13 +1619,7 @@ declare module 'botpress/sdk' {
     label?: string
     icon?: string
     /** The ID representing the type of value that is collected by this prompt */
-    valueType?: string
-    /** A list of ID represented by the type of values collected by this prompt */
-    valueTypes?: string[]
-    /** The minimum confidence required for the value to be considered valid */
-    minConfidence?: number
-    /** Whatever happens, the prompt will never ask the user to validate the provided value */
-    noValidation?: boolean
+    valueType: string
   } & FormDefinition
 
   export interface PromptNode {

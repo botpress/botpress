@@ -91,6 +91,10 @@ export class DialogStore {
     return this._wfVariables[botId]?.[wfName]?.find(x => x.name === varName)
   }
 
+  public getPromptConfig(type: string): sdk.PromptConfig | undefined {
+    return this._prompts.find(x => x.id === type)?.config
+  }
+
   private async _reloadEnums(botId: string) {
     const enumFiles = await this.ghost.forBot(botId).directoryListing(ENUMS_DIR, '*.json')
 
