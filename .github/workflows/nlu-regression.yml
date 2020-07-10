@@ -10,6 +10,16 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: '12.13.0'
+      - name: Test12345
+        run: |
+          echo "current dir : \n"
+          pwd
+          echo "build dir : \n"
+          ls -l /home/runner/work/botpress/botpress/build/
+          echo "botpress dir : \n"
+          ls -l /home/runner/work/botpress/botpress
+          echo "current again : \n"
+          ls -l .
       - name: Fetch Node Packages
         run: |
           yarn --verbose
@@ -19,7 +29,6 @@ jobs:
           yarn cmd build:shared
           yarn cmd init:studio
           yarn cmd build:modules --m nlu,nlu-testing
-          node build/enable-modules.js nlu nlu-testing
       - name: Run Regression Test
         run: |
           NLU_SEED=42 yarn start & sleep 20s &&
