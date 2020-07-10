@@ -194,6 +194,8 @@ const Form: FC<FormProps> = ({
     currentValue = field.translated ? currentValue?.[currentLang!] : currentValue
 
     switch (field.type) {
+      case 'hidden':
+        return null
       case 'group':
         return (
           <Fragment key={field.key}>

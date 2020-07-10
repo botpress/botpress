@@ -87,8 +87,7 @@ module.exports = {
           ]
         },
         type: 'group',
-        key: 'items',
-        renderType: 'buttons',
+        key: 'actions',
         label: 'fields::title',
         fields: [
           {

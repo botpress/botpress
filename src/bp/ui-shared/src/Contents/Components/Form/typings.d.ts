@@ -8,6 +8,5 @@ export interface FormProps {
   fields: FormField[]
   advancedSettings?: FormField[]
   formData?: FormData
-  getEmptyData?: (renderType?: string) => FormData
   onUpdate: (data: { [key: string]: string }) => void
 }
