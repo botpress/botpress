@@ -3,6 +3,7 @@ var fs = require('fs')
 const { exit } = require('process')
 
 const repoRootDir = `${__dirname}/..`
+const nluTestingDir = `${repoRootDir}/modules/nlu-testing/`
 
 async function post(path, content, headers) {
   var post_options = {
@@ -105,18 +106,12 @@ async function createBot(botId, token) {
     'Content-Length': Buffer.byteLength(newBot),
     'X-BP-Workspace': 'default'
   })
-
-  // change languages
-  var configFilePath = `${repoRootDir}/out/bp/data/bots/${botId}/bot.config.json`
-  var rawConfig = fs.readFileSync(configFilePath, { encoding: 'utf8' })
-  var config = JSON.parse(rawConfig)
-  config.languages = ['en']
-  fs.writeFileSync(configFilePath, JSON.stringify(config, null, 2), { encoding: 'utf8' })
 }
 
 async function waitForTraining(botId, token) {
   return new Promise(function(resolve) {
-    console.log('training...')
+    var i = 0
+    console.log(`training...`)
     const intervalId = setInterval(async () => {
       const raw = await get(`/api/v1/bots/${botId}/mod/nlu/train`, {
         Authorization: `Bearer ${token}`
@@ -126,7 +121,7 @@ async function waitForTraining(botId, token) {
         clearInterval(intervalId)
         resolve()
       } else {
-        console.log('training...')
+        console.log(`training... ${2 * ++i}s`)
       }
     }, 2000)
   })
@@ -168,11 +163,12 @@ async function runAllTests(botId, token) {
     console.log(`(${i++} /${nTests}) #${test.id}`, 'success: ', testResult.success)
   }
 
-  return round(nPassing / nTests, 1) * 100
+  const acc = (nPassing / nTests) * 100
+  return round(acc, 1)
 }
 
 async function compareScore(score) {
-  const latestResultsFile = `${repoRootDir}/modules/nlu-testing/latest-results.csv`
+  const latestResultsFile = `${nluTestingDir}/latest-results.csv`
   const latestResultsContent = fs.readFileSync(latestResultsFile, { encoding: 'utf8' })
   const previousScoreOccurence = latestResultsContent.match(/summary: ((100|\d{1,2})[.]\d{1})?/gm)
   if (!previousScoreOccurence || !previousScoreOccurence[0]) {
@@ -186,7 +182,15 @@ async function compareScore(score) {
   return score >= previousScore
 }
 
-async function main() {
+function changeBPDSLang() {
+  var configFilePath = `${nluTestingDir}/src/bot-templates/bp-nlu-regression-testing/bot.config.json`
+  var rawConfig = fs.readFileSync(configFilePath, { encoding: 'utf8' })
+  var config = JSON.parse(rawConfig)
+  config.languages = ['en']
+  fs.writeFileSync(configFilePath, JSON.stringify(config, null, 2), { encoding: 'utf8' })
+}
+
+async function nluRegression() {
   let token = await login()
   if (!token) {
     token = await signup()
@@ -214,4 +218,8 @@ async function main() {
   console.log('No regression noted!')
   exit(0)
 }
-main()
+
+module.exports = {
+  changeBPDSLang,
+  nluRegression
+}

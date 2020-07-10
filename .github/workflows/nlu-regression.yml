@@ -10,16 +10,9 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: '12.13.0'
-      - name: Test12345
+      - name: Change BPDS regression's bot language
         run: |
-          echo "current dir : \n"
-          pwd
-          echo "build dir : \n"
-          ls -l /home/runner/work/botpress/botpress/build/
-          echo "botpress dir : \n"
-          ls -l /home/runner/work/botpress/botpress
-          echo "current again : \n"
-          ls -l .
+          node -e "require('./build/nlu-regression').changeBPDSLang()"
       - name: Fetch Node Packages
         run: |
           yarn --verbose
@@ -31,5 +24,6 @@ jobs:
           yarn cmd build:modules --m nlu,nlu-testing
       - name: Run Regression Test
         run: |
-          NLU_SEED=42 yarn start & sleep 20s &&
-          node build/nlu-regression.js
+          export NLU_SEED=42 
+          yarn start & sleep 20s &&
+          node -e "require('./build/nlu-regression').nluRegression()"
