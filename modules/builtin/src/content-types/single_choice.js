@@ -181,7 +181,6 @@ module.exports = {
         },
         type: 'group',
         key: 'choices',
-        renderType: 'suggestions',
         label: 'fields::title',
         fields: [
           {

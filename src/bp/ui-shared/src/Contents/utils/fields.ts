@@ -10,6 +10,8 @@ export const getFieldDefaultValue = (field: Partial<FormField>, lang?: string) =
   }
 
   switch (field.type) {
+    case 'hidden':
+      return
     case 'checkbox':
       return false
     case 'group':

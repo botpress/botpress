@@ -227,7 +227,6 @@ module.exports = {
         },
         type: 'group',
         key: 'items',
-        renderType: 'card',
         label: 'fields::title',
         fields: Card.newSchema.fields
       }

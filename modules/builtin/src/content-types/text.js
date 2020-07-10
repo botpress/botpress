@@ -135,7 +135,13 @@ module.exports = {
         type: 'overridable',
         overrideKey: 'textOverride',
         key: 'text',
+        translated: true,
         label: 'text'
+      },
+      {
+        type: 'hidden',
+        translated: true,
+        key: 'variations'
       }
     ]
   },
