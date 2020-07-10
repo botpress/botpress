@@ -48,25 +48,30 @@ const printMoreInfo = (moreInfo: FormMoreInfo, isCheckbox = false): JSX.Element 
 
 const formReducer = (state, action) => {
   if (action.type === 'add') {
-    const { field, parent, currentLang } = action.data
+    const { field, parent, currentLang, onUpdate } = action.data
     const newData = createEmptyDataFromSchema([...(field.fields || [])], currentLang)
 
     if (parent) {
       const { key, index } = parent
       const updatedItem = state[key]
 
-      updatedItem[index][field] = [...(updatedItem[index][field] || []), newData]
+      updatedItem[index][field.key] = [...(updatedItem[index][field.key] || []), newData]
 
-      return {
+      const newState = {
         ...state,
         [key]: updatedItem
       }
+      onUpdate?.(newState)
+      return newState
     }
 
-    return {
+    const newState = {
       ...state,
-      [field]: [...(state[field] || []), newData]
+      [field.key]: [...(state[field.key] || []), newData]
     }
+
+    onUpdate?.(newState)
+    return newState
   } else if (action.type === 'deleteGroupItem') {
     const { deleteIndex, field, onUpdate, parent } = action.data
 
@@ -222,9 +227,10 @@ const Form: FC<FormProps> = ({
                 dispatch({
                   type: 'add',
                   data: {
-                    field: field.key,
+                    field,
                     parent,
-                    currentLang
+                    currentLang,
+                    onUpdate
                   }
                 })
               }

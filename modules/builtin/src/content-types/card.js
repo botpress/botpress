@@ -99,12 +99,12 @@ module.exports = {
           },
           {
             type: 'select',
-            defaultValue: 'say',
+            defaultValue: 'Say something',
             key: 'action',
             label: 'module.builtin.types.actionButton.actionLabel',
             options: [
               {
-                value: 'say',
+                value: 'Say something',
                 label: 'module.builtin.types.actionButton.sayLabel',
                 related: {
                   placeholder: 'module.builtin.types.actionButton.sayPlaceholder',
@@ -115,7 +115,7 @@ module.exports = {
                 }
               },
               {
-                value: 'openUrl',
+                value: 'Open URL',
                 label: 'module.builtin.types.actionButton.urlLabel',
                 related: {
                   placeholder: 'module.builtin.types.actionButton.urlPlaceholder',
@@ -126,7 +126,7 @@ module.exports = {
                 }
               },
               {
-                value: 'postBack',
+                value: 'Postback',
                 label: 'module.builtin.types.actionButton.postLabel',
                 related: {
                   type: 'textarea',
