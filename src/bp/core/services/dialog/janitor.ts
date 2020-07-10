@@ -80,8 +80,8 @@ export class DialogJanitor extends Janitor {
 
       await this.stateManager.restore(fakeEvent)
 
-      if (fakeEvent.state.session?.prompt) {
-        await this.promptManager.processTimeout(fakeEvent)
+      if (fakeEvent.state.context?.activePrompt) {
+        await this.dialogEngine.processTimeout(sessionId, botId, fakeEvent, true)
       }
 
       await this.sessionRepo.clearPromptTimeoutForSession(sessionId)

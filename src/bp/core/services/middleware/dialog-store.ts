@@ -79,10 +79,6 @@ export class DialogStore {
     }
   }
 
-  public getPrompts(): sdk.PromptDefinition[] {
-    return this._prompts
-  }
-
   public getEnumForBot(botId: string, enumType?: string): sdk.NLU.EntityDefOccurrence[] | undefined {
     return this._enums[botId]?.find(x => x.id === enumType)?.occurrences
   }

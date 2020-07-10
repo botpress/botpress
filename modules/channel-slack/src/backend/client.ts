@@ -265,15 +265,13 @@ export class SlackClient {
               type: 'plain_text',
               text: payload.message || 'empty'
             },
-            options: _.isArray(__dropdown)
-              ? __dropdown
-              : __dropdown.options.map(q => ({
-                  text: {
-                    type: 'plain_text',
-                    text: q.label
-                  },
-                  value: q.value
-                }))
+            options: (_.isArray(__dropdown) ? __dropdown : __dropdown.options).map(q => ({
+              text: {
+                type: 'plain_text',
+                text: q.label
+              },
+              value: q.value
+            }))
           }
         ]
       })

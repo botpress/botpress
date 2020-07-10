@@ -779,7 +779,7 @@ declare module 'botpress/sdk' {
     }
 
     export interface DialogAction {
-      type: 'say' | 'listen'
+      type: 'say' | 'listen' | 'cancel'
       message?: MultiLangText | string
       payload?: any
       eventType?: string

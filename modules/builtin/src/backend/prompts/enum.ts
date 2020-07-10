@@ -42,11 +42,6 @@ const config: PromptConfig = {
         labelField: 'name'
       },
       label: 'module.builtin.enum'
-    },
-    {
-      type: 'checkbox',
-      key: 'useDropdown',
-      label: 'module.builtin.useDropdown'
     }
   ],
   advancedSettings: common.advancedSettings

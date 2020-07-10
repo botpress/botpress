@@ -80,19 +80,10 @@ export class DialogEngine {
       }
 
       if (context.activePrompt?.status === 'pending') {
-        if (context.activePrompt?.stage !== 'new') {
-          context.activePrompt.turn++
-        }
-
-        const previousEvents = await this.eventRepository
-          .findEvents(
-            { direction: 'incoming', target: event.target },
-            {
-              count: context.activePrompt.config.searchBackCount,
-              sortOrder: [{ column: 'createdOn', desc: true }]
-            }
-          )
-          .then(events => events.map(x => <IO.IncomingEvent>x.event))
+        const previousEvents =
+          context.activePrompt.stage === 'new'
+            ? await this._getPreviousEvents(event.target, context.activePrompt.config.searchBackCount)
+            : []
 
         const { status: promptStatus, actions } = await this.promptManager.processPrompt(event, previousEvents)
         context.activePrompt = promptStatus
@@ -115,6 +106,10 @@ export class DialogEngine {
 
           if (type === 'listen') {
             return event
+          }
+
+          if (type === 'cancel') {
+            this._setCurrentNodeValue(event, 'cancelled', true)
           }
         }
       }
@@ -313,8 +308,14 @@ export class DialogEngine {
     event.state.context.hasJumped = true
   }
 
-  public async processTimeout(botId: string, sessionId: string, event: IO.IncomingEvent) {
+  public async processTimeout(botId: string, sessionId: string, event: IO.IncomingEvent, isPrompt?: boolean) {
     this._debug(event.botId, event.target, 'processing timeout')
+
+    if (isPrompt) {
+      this._setCurrentNodeValue(event, 'timeout', true)
+      delete event.state.context.activePrompt
+      return this.processEvent(sessionId, event)
+    }
 
     const api = await createForGlobalHooks()
     await this.hookService.executeHook(new Hooks.BeforeSessionTimeout(api, event))
@@ -632,5 +633,17 @@ export class DialogEngine {
 
   private _logTransition(botId, target, currentFlow, currentNode, transitionTo) {
     this._debug(botId, target, `transit (${currentFlow}) [${currentNode}] -> [${transitionTo}]`)
+  }
+
+  private _getPreviousEvents(target: string, searchBackCount: number) {
+    return this.eventRepository
+      .findEvents(
+        { direction: 'incoming', target },
+        {
+          count: searchBackCount,
+          sortOrder: [{ column: 'createdOn', desc: true }]
+        }
+      )
+      .then(events => events.map(x => <IO.IncomingEvent>x.event))
   }
 }
