@@ -19,7 +19,7 @@ Once you have this module installed, you will be able to:
 
 ## Pausing conversation
 
-There are several ways you can pause the conversation:
+There is a few different ways you can pause a conversation:
 
 - from the admin-panel, toggling the appropriate button
 - by performing an API-request:
@@ -27,6 +27,33 @@ There are several ways you can pause the conversation:
   - POST /mod/hitl/sessions/{$id}/unpause
   - POST /mod/hitl/channel/{$channel}/user/{$userId}/pause
   - POST /mod/hitl/channel/{$channel}/user/{$userId}/unpause
+  
+ Here is some code you can use to make your life simpler.
+  
+  ```
+  function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { user, temp, session } = event.state) {
+  /** Your code starts below */
+
+  const axios = require('axios')
+
+  /**
+   * Pauses the current conversation in HITL
+   * @category HITL
+   */
+  const pauseConversation = async (action = 'pause') => {
+    const config = await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
+    const sessionId = await bp.dialog.createId(event)
+    const { data } = await axios.post(`/mod/hitl/channel/${event.channel}/user/${event.target}/${action}`, {}, config)
+  }
+
+  return pauseConversation(args.action)
+
+  /** Your code ends here */
+  }
+  ```
+  
+  You can then create a node and use that action to pause the conversation if needed.
+  
 
 ## Alerting agents
 
