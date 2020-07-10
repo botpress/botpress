@@ -623,11 +623,8 @@ export class CMSService implements IDisposeOnExit {
     }
 
     return {
-      ...payload,
-      metadata: {
-        ...payload.metadata,
-        extraProps: this._getAdditionalData()
-      }
+      extraProps: this._getAdditionalData(),
+      ...payload
     }
   }
 

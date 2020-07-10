@@ -1,25 +1,17 @@
-import axios from 'axios'
 import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
-import * as sdk from 'botpress/sdk'
-import { extractEventCommonArgs } from 'common/action'
 import lang from 'common/lang'
-import { createMultiLangObject } from 'common/prompts'
 
 import common from './common'
 
 class PromptEnum implements Prompt {
-  private _entity: string
-  private _question: { [lang: string]: string }
-  private _useDropdown: boolean
+  private _enumType: string
 
-  constructor({ entity, question, useDropdown }) {
-    this._entity = entity
-    this._question = question
-    this._useDropdown = useDropdown
+  constructor({ enumType }) {
+    this._enumType = enumType
   }
 
   extraction(event: IO.IncomingEvent): ExtractionResult[] {
-    const entities = event.nlu?.entities?.filter(x => x.type === `custom.list.${this._entity}`) ?? []
+    const entities = event.nlu?.entities?.filter(x => x.type === `custom.list.${this._enumType}`) ?? []
     return entities.map(entity => ({
       value: entity.data.value,
       confidence: entity.meta.confidence
@@ -43,13 +35,13 @@ const config: PromptConfig = {
     ...common.fields,
     {
       type: 'select',
-      key: 'entity',
+      key: 'enumType',
       dynamicOptions: {
         endpoint: 'BOT_API_PATH/mod/nlu/entities?ignoreSystem=true',
         valueField: 'id',
         labelField: 'name'
       },
-      label: 'module.builtin.entity'
+      label: 'module.builtin.enum'
     },
     {
       type: 'checkbox',

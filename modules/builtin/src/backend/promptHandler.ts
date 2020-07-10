@@ -32,7 +32,7 @@ export const handlePrompt = async (event: sdk.IO.OutgoingEvent, bp: typeof sdk):
     metadata: payload.metadata
   }
 
-  const { __usePicker } = payload.metadata ?? ({} as sdk.Content.Metadata)
+  const { __useDropdown } = payload.metadata ?? ({} as sdk.Content.Metadata)
 
   switch (payload.type) {
     default:
@@ -58,10 +58,14 @@ export const handlePrompt = async (event: sdk.IO.OutgoingEvent, bp: typeof sdk):
           `mod/nlu/entities/${payload.entity}`,
           await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
         )
-        items = data.occurrences
+        items = data.occurrences.map(x => ({ label: x.name, value: x.name }))
       }
 
-      const field = items.length <= 4 ? '__buttons' : '__dropdown'
+      if (!items?.length) {
+        return defaultPayload
+      }
+
+      const field = items.length >= 4 || __useDropdown ? '__dropdown' : '__buttons'
 
       return {
         ...defaultPayload,

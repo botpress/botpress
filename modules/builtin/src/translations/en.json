@@ -80,7 +80,7 @@
   "questionToAskUser": "Question to ask user",
   "mustBePast": "Must be in the past",
   "mustBeFuture": "Must be in the future",
-  "entity": "Entity",
+  "enumType": "Enum Type",
   "question": "Question",
   "useDropdown": "Use dropdown",
   "min": "Min",
