@@ -1,7 +1,5 @@
 import { ConfigProvider } from 'core/config/config-loader'
-import { DataRetentionService } from 'core/services/retention/service'
 import { inject, injectable } from 'inversify'
-import Knex from 'knex'
 import _ from 'lodash'
 import moment from 'moment'
 
@@ -10,17 +8,17 @@ import { TYPES } from '../types'
 
 const DEFAULT_ENTRIES_LIMIT = 1000
 
-type TelemetryEntries = {
+interface TelemetryEntries {
   url: string
-  events: Array<JSON>
+  events: any[]
 }
 
-type TelemetryEntry = {
+interface TelemetryEntry {
   uuid: string
-  payload: JSON
-  available: Knex.Bool
-  lastChanged: Knex.Date
-  creationDate: Knex.Date
+  payload: any
+  available: boolean
+  lastChanged: Date
+  creationDate: Date
 }
 
 @injectable()
