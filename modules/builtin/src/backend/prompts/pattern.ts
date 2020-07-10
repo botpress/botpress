@@ -12,17 +12,19 @@ class PromptPattern implements Prompt {
     this._formatInvalidMessage = formatInvalidMessage
   }
 
-  extraction(event: IO.IncomingEvent): ExtractionResult | undefined {
-    const text = event.payload.text
+  extraction(event: IO.IncomingEvent): ExtractionResult[] {
+    const text = event.payload.text // TODO: this isn't implemented
     if (text) {
-      return {
-        value: text,
-        confidence: 1
-      }
+      return [
+        {
+          value: text,
+          confidence: 1
+        }
+      ]
     }
   }
 
-  async validate(value): Promise<ValidationResult> {
+  validate(value): ValidationResult {
     if (value == undefined) {
       return { valid: false, message: lang.tr('module.builtin.prompt.invalid') }
     }

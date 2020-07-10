@@ -90,8 +90,7 @@ const ignoreEvent = (bp: typeof sdk, state: NLUState, event: sdk.IO.IncomingEven
     !state.health.isEnabled ||
     !event.preview ||
     EVENTS_TO_IGNORE.includes(event.type) ||
-    event.hasFlag(bp.IO.WellKnownFlags.SKIP_NATIVE_NLU) ||
-    event.restored
+    event.hasFlag(bp.IO.WellKnownFlags.SKIP_NATIVE_NLU)
   )
 }
 

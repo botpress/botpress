@@ -1,8 +1,6 @@
 import { IO, Prompt, PromptConfig } from 'botpress/sdk'
 import * as sdk from 'botpress/sdk'
-import { extractEventCommonArgs } from 'common/action'
 import lang from 'common/lang'
-import { createMultiLangObject } from 'common/prompts'
 import _ from 'lodash'
 import yn from 'yn'
 
@@ -15,10 +13,10 @@ class PromptConfirm implements Prompt {
     this._question = question
   }
 
-  extraction(event: IO.IncomingEvent) {
+  extraction(event: IO.IncomingEvent): sdk.ExtractionResult[] {
     const yesOrNo = yn(event.payload?.payload || event.preview)
     if (yesOrNo !== undefined) {
-      return { value: yesOrNo, confidence: 1 }
+      return [{ value: yesOrNo, confidence: 1 }]
     }
 
     const topConfirmation = _.chain(event.ndu.triggers)
@@ -29,31 +27,11 @@ class PromptConfirm implements Prompt {
       .first()
       .value()
 
-    return { value: topConfirmation?.name === 'prompt_yes', confidence: topConfirmation?.confidence ?? 0 }
+    return [{ value: topConfirmation?.name === 'prompt_yes', confidence: topConfirmation?.confidence ?? 0 }]
   }
 
-  async validate(value) {
+  validate(value): sdk.ValidationResult {
     return { valid: value === true || value === false, message: lang.tr('module.builtin.prompt.invalid') }
-  }
-
-  customPrompt = async (event: IO.OutgoingEvent, incomingEvent: IO.IncomingEvent, bp: typeof sdk) => {
-    // TODO move translations to ui-shared once they are available for backend
-    const element = createMultiLangObject(this._question, 'text', {
-      choices: [
-        { title: lang.tr('module.builtin.yes'), value: 'yes' },
-        { title: lang.tr('module.builtin.no'), value: 'no' }
-      ]
-    })
-
-    const payloads = await bp.cms.renderElement(
-      '@builtin_single-choice',
-      extractEventCommonArgs(incomingEvent, element),
-      event
-    )
-
-    await bp.events.replyToEvent(incomingEvent, payloads, incomingEvent.id)
-
-    return true
   }
 }
 

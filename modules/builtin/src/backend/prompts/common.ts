@@ -50,7 +50,12 @@ const common: FormDefinition = {
     },
     {
       type: 'checkbox',
-      key: 'confirmBeforeCancel',
+      key: 'cancellable',
+      label: 'Prompt can be cancelled'
+    },
+    {
+      type: 'checkbox',
+      key: 'confirmCancellation',
       moreInfo: { label: 'module.builtin.confirmBeforeCancelMoreInfo' },
       label: 'module.builtin.confirmBeforeCancel'
     }
