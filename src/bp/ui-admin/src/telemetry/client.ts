@@ -26,7 +26,7 @@ const dataSchemaVersion = '1.0.0'
 
 const telemetrySchemaVersion = '1.0.0'
 
-const storeInfos: Function[] = []
+const pathsInReduxTracked: string[] = []
 
 const eventPackageInfo: EventPackageInfoType = {}
 
@@ -53,13 +53,8 @@ const addEventLockTimeout = (event: string, timeout: number) => {
   window.localStorage.setItem(event, (timeout + moment().valueOf()).toString())
 }
 
-const checkStoreInfoReceived = () => !storeInfos.find(info => info() === undefined)
-
-export const trackReduxStoreInfo = (pathInStore: string) => {
-  storeInfos.push(() => {
-    return _.get(store.getState(), pathInStore)
-  })
-}
+const checkStoreInfoReceived = () =>
+  !pathsInReduxTracked.find(pathInRedux => _.get(store.getState(), pathInRedux) === undefined)
 
 export const addTelemetryEvent = (name: string, timeout: string, getPackage: Function) => {
   eventPackageInfo[name] = {
@@ -69,32 +64,30 @@ export const addTelemetryEvent = (name: string, timeout: string, getPackage: Fun
   }
 }
 
-const checkTelemetry = async () => {
-  for (const eventName in eventPackageInfo) {
-    if (!eventPackageInfo[eventName].locked) {
-      toggleLock(eventName)
+const checkTelemetry = async (event_name: string) => {
+  if (!eventPackageInfo[event_name].locked) {
+    toggleLock(event_name)
 
-      try {
-        const pkg = eventPackageInfo[eventName].getPackage()
+    try {
+      const pkg = eventPackageInfo[event_name].getPackage()
 
-        if (typeof pkg === 'object') {
-          await sendTelemetryEvent(pkg, eventName)
-        } else {
-          console.error('The package received was incorrect', pkg)
-        }
-      } catch (err) {
-        console.error(`Could not send the telemetry package to the storage server`, err)
+      if (typeof pkg === 'object') {
+        await sendTelemetryEvent(pkg, event_name)
+      } else {
+        console.error('The package received was incorrect', pkg)
       }
+    } catch (err) {
+      console.error(`Could not send the telemetry package to the storage server`, err)
     }
   }
 }
 
 export const startTelemetry = () => {
-  trackReduxStoreInfo('user.profile.email')
+  pathsInReduxTracked.push('user.profile.email')
 
-  trackReduxStoreInfo('version.currentVersion')
+  pathsInReduxTracked.push('version.currentVersion')
 
-  trackReduxStoreInfo('license.licensing.isPro')
+  pathsInReduxTracked.push('license.licensing.isPro')
 
   addTelemetryEvent('ui_language', '8h', () => {
     return {
@@ -114,30 +107,31 @@ export const startTelemetry = () => {
 
   setInterval(() => {
     if (checkStoreInfoReceived() && window.TELEMETRY_URL) {
-      checkTelemetry().catch(err => {
-        console.error(err)
-      })
+      for (const event_name in eventPackageInfo) {
+        checkTelemetry(event_name).catch(err => {
+          console.error(err)
+        })
+      }
     }
   }, ms('30s'))
 }
 
 const sendTelemetryEvent = async (data: object, event: string) => {
-  await axios.post(
-    '/',
-    {
-      schema: telemetrySchemaVersion,
-      uuid: uuid.v4(),
-      timestamp: new Date().toISOString(),
-      bp_release: store.getState().version.currentVersion,
-      bp_license: store.getState().license.licensing.isPro ? 'pro' : 'community',
-      event_type: event,
-      source: 'client',
-      event_data: {
-        schema: dataSchemaVersion,
-        ...data
-      }
-    },
-    axiosConfig
-  )
+  const pkg = {
+    schema: telemetrySchemaVersion,
+    uuid: uuid.v4(),
+    timestamp: new Date().toISOString(),
+    bp_release: store.getState().version.currentVersion,
+    bp_license: store.getState().license.licensing.isPro ? 'pro' : 'community',
+    event_type: event,
+    source: 'client',
+    event_data: {
+      schema: dataSchemaVersion,
+      ...data
+    }
+  }
+
+  await axios.post('/', pkg, axiosConfig)
+
   addEventLockTimeout(event, ms(eventPackageInfo[event].timeout))
 }
