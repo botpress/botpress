@@ -33,8 +33,7 @@ module.exports = {
     }
   },
 
-  uiSchema: {
-  },
+  uiSchema: {},
 
   newSchema: {
     displayedIn: ['qna', 'sayNode'],
@@ -120,7 +119,7 @@ module.exports = {
                 related: {
                   placeholder: 'module.builtin.types.actionButton.urlPlaceholder',
                   type: 'url',
-                  key: 'text',
+                  key: 'url',
                   translated: true,
                   label: 'URL'
                 }
@@ -131,7 +130,7 @@ module.exports = {
                 related: {
                   type: 'textarea',
                   translated: true,
-                  key: 'text',
+                  key: 'payload',
                   label: 'module.builtin.types.actionButton.postFieldLabel'
                 }
               }

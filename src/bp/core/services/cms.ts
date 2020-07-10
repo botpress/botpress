@@ -598,12 +598,27 @@ export class CMSService implements IDisposeOnExit {
       }
 
       if (field.fields) {
+        let fields = field.fields
+
+        for (const subfield of field.fields) {
+          if (subfield.options) {
+            for (const option of subfield.options) {
+              if (option.related) {
+                if (fields === field.fields) {
+                  fields = [...field.fields]
+                }
+                fields.push(option.related)
+              }
+            }
+          }
+        }
+
         if (field.type === 'group') {
           for (const item of current[field.key]) {
-            this.applyTranslations(item, field.fields, lang, defaultLang)
+            this.applyTranslations(item, fields, lang, defaultLang)
           }
         } else {
-          this.applyTranslations(current[field.key], field.fields, lang, defaultLang)
+          this.applyTranslations(current[field.key], fields, lang, defaultLang)
         }
       }
     }
