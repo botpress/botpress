@@ -17,7 +17,7 @@ const Text: FC<TextProps> = ({
   const [localValue, setLocalValue] = useState(value || getFieldDefaultValue({ type }))
 
   useEffect(() => {
-    setLocalValue(value || getFieldDefaultValue({ type }))
+    setLocalValue(value ?? getFieldDefaultValue({ type }))
   }, [value])
 
   const onKeyDown = e => {
