@@ -4,6 +4,7 @@ interface CssExports {
   'checkboxWrapper': string;
   'isCheckbox': string;
   'moreInfo': string;
+  'superInputBtn': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

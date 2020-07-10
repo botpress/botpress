@@ -24,3 +24,17 @@ a.moreInfo {
   margin-bottom: var(--spacing-medium);
   min-height: 16px;
 }
+
+.superInputBtn {
+  color: var(--ocean) !important;
+  padding: 0 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  transition: color 0.3s;
+
+  &:hover {
+    background: none !important;
+    color: var(--shark) !important;
+  }
+}

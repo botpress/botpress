@@ -1,8 +1,8 @@
-import { Checkbox } from '@blueprintjs/core'
+import { Button, Checkbox } from '@blueprintjs/core'
 import { FormMoreInfo } from 'botpress/sdk'
 import cx from 'classnames'
 import _ from 'lodash'
-import React, { FC, Fragment, useEffect, useReducer, useRef } from 'react'
+import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
 
 import { lang } from '../../../translations'
 import SuperInput from '../../../FormFields/SuperInput'
@@ -19,15 +19,8 @@ import GroupItemWrapper from '../GroupItemWrapper'
 import style from './style.scss'
 import { FormProps } from './typings'
 
-const printLabel = (field, data) => {
-  if (field.label?.startsWith('fields::') && field.fields?.length) {
-    const labelField = field.fields?.find(subField => subField.key === field.label.replace('fields::', ''))
-
-    return data[labelField.key] || lang(labelField.label)
-  }
-
-  return lang(field.label)
-}
+const VARIABLES_REGEX = /(\$[^(\s|\$|\{{)]+)/im
+const EVENT_REGEX = /\{\{(.*?)\}\}/im
 
 const printMoreInfo = (moreInfo: FormMoreInfo, isCheckbox = false): JSX.Element | undefined => {
   if (!moreInfo) {
@@ -150,6 +143,29 @@ const formReducer = (state, action) => {
   }
 }
 
+const loopThroughData = (data, pathKey = '') => {
+  return Object.keys(data).reduce((acc, key) => {
+    const currentPathKey = `${pathKey}${key}`
+    const currentData = data[key]
+
+    if (Array.isArray(currentData)) {
+      return currentData.reduce((acc, item, index) => {
+        return { ...acc, ...loopThroughData(item, `${currentPathKey}${index}`) }
+      }, acc)
+    } else {
+      if (VARIABLES_REGEX.test(currentData) || EVENT_REGEX.test(currentData)) {
+        return { ...acc, [currentPathKey]: true }
+      }
+    }
+
+    return { ...acc }
+  }, {})
+}
+
+const getSuperInputsFromData = data => {
+  return loopThroughData(data)
+}
+
 const Form: FC<FormProps> = ({
   axios,
   mediaPath,
@@ -165,10 +181,39 @@ const Form: FC<FormProps> = ({
   const newFormData = createEmptyDataFromSchema([...(fields || []), ...(advancedSettings || [])])
   const [state, dispatch] = useReducer(formReducer, formData || newFormData)
   const outsideClickTimeout = useRef<any>()
+  const [superInput, setSuperInput] = useState<any>(getSuperInputsFromData(formData))
 
-  useEffect(() => {
-    dispatch({ type: 'setData', data: formData })
-  }, [])
+  const printLabel = (field, data, parent) => {
+    if (field.label?.startsWith('fields::') && field.fields?.length) {
+      const labelField = field.fields?.find(subField => subField.key === field.label.replace('fields::', ''))
+
+      return data[labelField.key] || lang(labelField.label)
+    }
+
+    return field.isSuperInput ? (
+      <Button className={style.superInputBtn} small minimal onClick={() => toggleSuperInput(field, parent)}>
+        {lang(field.label)}
+      </Button>
+    ) : (
+      lang(field.label)
+    )
+  }
+
+  const toggleSuperInput = (field, parent) => {
+    let pathKey = field.key
+
+    if (parent) {
+      const { key, index } = parent
+      pathKey = `${key}${index}${pathKey}`
+
+      if (parent.parent) {
+        // Needs recursion if we end up having more than one level of groups
+        pathKey = `${parent.parent.key}${parent.parent.index}${pathKey}`
+      }
+    }
+
+    setSuperInput({ ...superInput, [field.key]: !superInput[field.key] })
+  }
 
   const getArrayPlaceholder = (index, placeholder) => {
     if (Array.isArray(placeholder)) {
@@ -182,9 +227,8 @@ const Form: FC<FormProps> = ({
     return index === 0 && placeholder ? lang(placeholder) : ''
   }
 
-  const showSuperInput = (field, data) => {
-    console.log(field.isSuperInput && field.type)
-    return field.isSuperInput && field.type === 'text'
+  const showSuperInput = field => {
+    return field.isSuperInput && (field.type === 'text' || superInput[field.key])
   }
 
   const printField = (field, data, parent?) => {
@@ -204,7 +248,7 @@ const Form: FC<FormProps> = ({
                     data: { deleteIndex: index, onUpdate, field: field.key, parent }
                   })
                 }
-                label={printLabel(field, fieldData)}
+                label={printLabel(field, fieldData, parent)}
               >
                 {field.fields.map(groupField => printField(groupField, fieldData, { key: field.key, index, parent }))}
               </GroupItemWrapper>
@@ -225,7 +269,7 @@ const Form: FC<FormProps> = ({
         )
       case 'select':
         return (
-          <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
+          <FieldWrapper key={field.key} label={printLabel(field, data[field.key], parent)}>
             {printMoreInfo(field.moreInfo)}
             <Select
               axios={axios}
@@ -248,14 +292,14 @@ const Form: FC<FormProps> = ({
                 dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
               }}
               items={data[field.key] || ['']}
-              label={printLabel(field, data[field.key])}
+              label={printLabel(field, data[field.key], parent)}
               addBtnLabel={lang(field.group?.addLabel)}
             />
           </Fragment>
         )
       case 'textarea':
         return (
-          <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
+          <FieldWrapper key={field.key} label={printLabel(field, data[field.key], parent)}>
             {printMoreInfo(field.moreInfo)}
             <TextArea
               placeholder={lang(field.placeholder)}
@@ -268,7 +312,7 @@ const Form: FC<FormProps> = ({
         )
       case 'upload':
         return (
-          <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
+          <FieldWrapper key={field.key} label={printLabel(field, data[field.key], parent)}>
             {printMoreInfo(field.moreInfo)}
             <Upload
               axios={axios}
@@ -285,7 +329,7 @@ const Form: FC<FormProps> = ({
             <Checkbox
               checked={data[field.key]}
               key={field.key}
-              label={printLabel(field, data[field.key])}
+              label={printLabel(field, data[field.key], parent)}
               onChange={e =>
                 dispatch({
                   type: 'updateField',
@@ -302,7 +346,7 @@ const Form: FC<FormProps> = ({
             {overrideFields?.[field.overrideKey]?.({
               field,
               data,
-              label: printLabel(field, data[field.key]),
+              label: printLabel(field, data[field.key], parent),
               onChange: value => {
                 dispatch({
                   type: 'updateOverridableField',
@@ -314,13 +358,14 @@ const Form: FC<FormProps> = ({
         )
       default:
         return (
-          <FieldWrapper key={field.key} label={printLabel(field, data[field.key])}>
+          <FieldWrapper key={field.key} label={printLabel(field, data[field.key], parent)}>
             {printMoreInfo(field.moreInfo)}
-            {showSuperInput(field, data) ? (
+            {showSuperInput(field) ? (
               <SuperInput
                 placeholder={lang(field.placeholder)}
                 variables={variables || []}
                 events={events || []}
+                multiple={field.type === 'text'}
                 setCanOutsideClickClose={canClickOuside => {
                   if (outsideClickTimeout.current) {
                     clearTimeout(outsideClickTimeout.current)

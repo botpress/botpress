@@ -9,13 +9,13 @@ import Icons from '../../Icons'
 
 import style from './style.scss'
 import { SuperInputProps } from './typings'
-import { convertToString, convertToTags, sanitizeName } from './utils'
+import { convertToString, convertToTags } from './utils'
 
 type Props = FieldProps & SuperInputProps
 
 // TODO implement canAddElements
 
-export default ({ canAddElements, events, variables, setCanOutsideClickClose, onBlur, value }: Props) => {
+export default ({ canAddElements, events, multiple, variables, setCanOutsideClickClose, onBlur, value }: Props) => {
   const tagifyRef = useRef<any>()
   const eventsDesc = events?.reduce((acc, event) => ({ ...acc, [event.name]: event.description }), {})
 
@@ -24,6 +24,10 @@ export default ({ canAddElements, events, variables, setCanOutsideClickClose, on
   const tagifyCallbacks = {
     input: e => {
       const prefix = e.detail.prefix
+
+      if (!multiple) {
+        cleanupInput(prefix)
+      }
 
       if (prefix) {
         if (prefix == '$') {
@@ -64,6 +68,17 @@ export default ({ canAddElements, events, variables, setCanOutsideClickClose, on
         }
       }
     }
+  }
+
+  const cleanupInput = prefix => {
+    const currentContent = tagifyRef.current?.DOM?.input?.innerHTML
+    // console.log(currentContent, prefix)
+    if ((!prefix || (prefix && currentContent.indexOf(prefix) === -1)) && currentContent !== '{') {
+      // @ts-ignore
+      tagifyRef.current?.DOM?.input?.innerHTML = ''
+    }
+
+    // moveCarretToEndOfString()
   }
 
   const addPrefix = prefix => {
