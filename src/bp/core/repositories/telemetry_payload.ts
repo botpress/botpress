@@ -124,7 +124,7 @@ export class TelemetryRepository {
   async removePayload(uuid: string): Promise<void> {
     await this.database
       .knex(this.tableName)
-      .where({ uuid: uuid })
+      .where({ uuid })
       .del()
   }
 }
