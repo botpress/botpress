@@ -57,7 +57,7 @@ export class InstructionsQueueBuilder {
 
       if (this.currentNode.type === 'say_something' && this.currentNode.contents?.length) {
         this.currentNode.contents.forEach(content => {
-          const { contentType } = content[Object.keys(content)[0]]
+          const { contentType } = content
 
           this._queue.enqueue({
             type: 'on-enter',

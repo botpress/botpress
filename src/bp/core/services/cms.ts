@@ -1,4 +1,4 @@
-import { FormData, IO, Logger } from 'botpress/sdk'
+import { FormDefinition, FormField, IO, Logger } from 'botpress/sdk'
 import { ContentElement, ContentType, KnexExtended, SearchParams } from 'botpress/sdk'
 import { renderRecursive, renderTemplate } from 'core/misc/templating'
 import { ModuleLoader } from 'core/module-loader'
@@ -578,15 +578,34 @@ export class CMSService implements IDisposeOnExit {
 
   // This methods finds the translated property and returns the original properties
   private getOriginalProps(formData: object, contentType: ContentType, lang: string, defaultLang?: string) {
-    const originalProps = Object.keys(_.get(contentType, 'jsonSchema.properties'))
+    const schema = <FormDefinition>contentType.newSchema
+    const fields = [...schema.fields, ...schema.advancedSettings]
+    const result = _.cloneDeep(formData)
 
-    if (originalProps) {
-      return originalProps.reduce((result, key) => {
-        result[key] = formData[key + '$' + lang] || (defaultLang && formData[key + '$' + defaultLang])
-        return result
-      }, {})
-    } else {
-      return formData
+    this.applyTranslations(result, fields, lang, defaultLang)
+
+    return result
+  }
+
+  private applyTranslations(current: any, fields: FormField[], lang: string, defaultLang?: string) {
+    for (const field of fields) {
+      if (!current[field.key]) {
+        continue
+      }
+
+      if (field.translated) {
+        current[field.key] = current[field.key][lang]
+      }
+
+      if (field.fields) {
+        if (field.type === 'group') {
+          for (const item of current[field.key]) {
+            this.applyTranslations(item, field.fields, lang, defaultLang)
+          }
+        } else {
+          this.applyTranslations(current[field.key], field.fields, lang, defaultLang)
+        }
+      }
     }
   }
 
@@ -620,11 +639,6 @@ export class CMSService implements IDisposeOnExit {
     const translateFormData = async (formData: object): Promise<object> => {
       const defaultLang = (await this.configProvider.getBotConfig(eventDestination.botId)).defaultLanguage
       const lang = _.get(args, 'event.state.user.language')
-
-      // Supports the new format for say nodes
-      if (formData?.[lang] || formData?.[defaultLang]) {
-        return formData?.[lang] || formData?.[defaultLang]
-      }
 
       return this.getOriginalProps(formData, contentTypeRenderer, lang, defaultLang)
     }
