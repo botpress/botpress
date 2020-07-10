@@ -70,7 +70,7 @@ export class ActionsStats extends TelemetryStats {
         const { dir, base: flowName } = path.parse(flowPath)
         const botID = dir.split('/')[0]
         const actions = (await this.ghostService.bots().readFileAsObject<any>(dir, flowName)).nodes
-          .map(node => this.getActionsFromNode(node))
+          .map(node => [...(node.onEnter ?? []), ...(node.onReceive ?? [])])
           .reduce((acc, cur) => [...acc, ...cur])
         return { flowName, botID, actions }
       })
@@ -78,12 +78,6 @@ export class ActionsStats extends TelemetryStats {
       return {}
     }
     return flows.filter(flow => flow.actions.length > 0).map(flow => this.parseFlow(flow))
-  }
-
-  private getActionsFromNode(node: Node) {
-    const onEnter = node.onEnter ?? []
-    const onReceive = node.onReceive ?? []
-    return [...onEnter, ...onReceive]
   }
 
   private parseFlow(flow: Flow) {
