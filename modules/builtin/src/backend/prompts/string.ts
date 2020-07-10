@@ -10,17 +10,19 @@ class PromptString implements Prompt {
     this._maxLength = maxLength
   }
 
-  extraction(event: IO.IncomingEvent): ExtractionResult | undefined {
+  extraction(event: IO.IncomingEvent): ExtractionResult[] {
     const text = event.payload.text
     if (text) {
-      return {
-        value: text,
-        confidence: 1
-      }
+      return [
+        {
+          value: text,
+          confidence: 1
+        }
+      ]
     }
   }
 
-  async validate(value): Promise<ValidationResult> {
+  validate(value): ValidationResult {
     if (value == undefined) {
       return { valid: false, message: lang.tr('module.builtin.prompt.invalid') }
     }

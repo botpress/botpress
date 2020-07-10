@@ -12,17 +12,15 @@ class PromptNumber implements Prompt {
     this._max = max
   }
 
-  extraction(event: IO.IncomingEvent): ExtractionResult | undefined {
-    const entity = event.nlu?.entities?.find(x => x.type === 'system.number')
-    if (entity) {
-      return {
-        value: entity.data.value,
-        confidence: entity.meta.confidence
-      }
-    }
+  extraction(event: IO.IncomingEvent): ExtractionResult[] {
+    const entities = event.nlu?.entities?.filter(x => x.type === 'system.number') ?? []
+    return entities.map(entity => ({
+      value: entity.data.value,
+      confidence: entity.meta.confidence
+    }))
   }
 
-  async validate(value): Promise<ValidationResult> {
+  validate(value): ValidationResult {
     const { _min, _max } = this
 
     if (value == undefined) {

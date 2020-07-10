@@ -179,6 +179,7 @@ export class TransitionStrategy implements InstructionStrategy {
     if (instruction.fn === 'true') {
       return true
     } else if (instruction.fn?.startsWith('lastNode')) {
+      // TODO: Fix this so that it's cleaner and more generic
       const stack = sandbox.event.state.__stacktrace
       if (!stack.length) {
         return false
@@ -190,6 +191,7 @@ export class TransitionStrategy implements InstructionStrategy {
     }
 
     if (instruction.fn?.includes('thisNode')) {
+      // TODO: Fix this so that it's cleaner and more generic
       const nodeName = sandbox.event.state.context.currentNode
       instruction.fn = instruction.fn.replace(/thisNode/g, `(event.state.temp['${nodeName}'] || {})`)
     }

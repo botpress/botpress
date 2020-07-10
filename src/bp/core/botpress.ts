@@ -348,10 +348,7 @@ export class Botpress {
     await this.eventCollector.initialize(this.database)
 
     this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
-      if (!event.restored) {
-        await this.stateManager.restore(event)
-      }
-
+      await this.stateManager.restore(event)
       await this.hookService.executeHook(new Hooks.BeforeIncomingMiddleware(this.api, event))
     }
 

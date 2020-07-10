@@ -27,6 +27,7 @@ const TYPES = {
   HintsService: Symbol.for('HintsService'),
   EventEngine: Symbol.for('EventEngine'),
   DialogEngine: Symbol.for('DialogEngine'),
+  DialogStore: Symbol.for('DialogStore'),
   PromptManager: Symbol.for('PromptManager'),
   DecisionEngine: Symbol.for('DecisionEngine'),
   SessionRepository: Symbol.for('SessionRepository'),

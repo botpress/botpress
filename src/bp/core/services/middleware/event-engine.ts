@@ -9,6 +9,7 @@ import yn from 'yn'
 
 import { Event } from '../../sdk/impl'
 import { TYPES } from '../../types'
+import { CMSService } from '../cms'
 import { incrementMetric } from '../monitoring'
 import { Queue } from '../queue'
 
@@ -37,7 +38,6 @@ const eventSchema = {
   credentials: joi.any().optional(),
   incomingEventId: joi.string().optional(),
   ndu: joi.any().optional(),
-  restored: joi.boolean().optional(),
   nlu: joi
     .object({
       intent: joi.object().optional(),
@@ -98,7 +98,8 @@ export class EventEngine {
     @tagged('name', 'EventEngine')
     private logger: sdk.Logger,
     @inject(TYPES.IncomingQueue) private incomingQueue: Queue,
-    @inject(TYPES.OutgoingQueue) private outgoingQueue: Queue
+    @inject(TYPES.OutgoingQueue) private outgoingQueue: Queue,
+    @inject(TYPES.CMSService) private cms: CMSService
   ) {
     this.incomingQueue.subscribe(async event => {
       await this._infoMiddleware(event)
@@ -199,6 +200,27 @@ export class EventEngine {
 
       await this.sendEvent(replyEvent)
     }
+  }
+
+  async replyContentToEvent(
+    payload: sdk.Content.All,
+    event: sdk.IO.Event,
+    options: { incomingEventId?: string; eventType?: string } = {}
+  ) {
+    payload.metadata = {
+      __typing: true,
+      ...(payload.metadata ?? {})
+    }
+
+    const replyEvent = Event({
+      ..._.pick(event, ['botId', 'channel', 'target', 'threadId']),
+      direction: 'outgoing',
+      type: options.eventType ?? payload.type ?? 'default',
+      payload: await this.cms.translatePayload(payload, event),
+      incomingEventId: options.incomingEventId
+    })
+
+    await this.sendEvent(replyEvent)
   }
 
   isIncomingQueueEmpty(event: sdk.IO.Event): boolean {
