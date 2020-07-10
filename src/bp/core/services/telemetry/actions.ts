@@ -15,24 +15,24 @@ import { JobService } from '../job-service'
 
 import { TelemetryStats } from './telemetry-stats'
 
-type NextNode = {
+interface NextNode {
   condition: string
   node: string
 }
 
-type Node = {
+interface Node {
   id: string
   name: string
-  next: Array<NextNode>
-  onEnter: Array<string>
-  onReceive: Array<string>
+  next: NextNode[]
+  onEnter: string[]
+  onReceive: string[]
   type: string
 }
 
-type Flow = {
+interface Flow {
   flowName: string
   botID: string
-  actions: Array<string>
+  actions: string[]
 }
 
 @injectable()
