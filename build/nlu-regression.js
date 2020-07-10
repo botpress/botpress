@@ -1,5 +1,6 @@
 var http = require('http')
 var fs = require('fs')
+const { exit } = require('process')
 
 const repoRootDir = `${__dirname}/..`
 
@@ -70,8 +71,21 @@ async function login() {
     'Content-Length': Buffer.byteLength(data)
   })
   const login = JSON.parse(rawLogin)
-  const token = login.payload.token
-  return token
+
+  const token = login.payload && login.payload.token
+  return login.statusCode ? undefined : token
+}
+
+async function signup() {
+  var data = 'email=admin&password=123456'
+  const rawLogin = await post('/api/v1/auth/register/basic/default', data, {
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'Content-Length': Buffer.byteLength(data)
+  })
+  const login = JSON.parse(rawLogin)
+
+  const token = login.payload && login.payload.token
+  return login.statusCode ? undefined : token
 }
 
 async function createBot(botId, token) {
@@ -173,7 +187,15 @@ async function compareScore(score) {
 }
 
 async function main() {
-  const token = await login()
+  let token = await login()
+  if (!token) {
+    token = await signup()
+  }
+  if (!token) {
+    console.error('Unable to login and sign up...')
+    exit(1)
+  }
+
   const botId = 'testy'
 
   await createBot(botId, token)
@@ -185,9 +207,11 @@ async function main() {
 
   const testPasses = await compareScore(score)
   if (!testPasses) {
-    throw new Error('There seems to be a regression on NLU BPDS...')
-  } else {
-    console.log('No regression noted!')
+    console.error('There seems to be a regression on NLU BPDS...')
+    exit(1)
   }
+
+  console.log('No regression noted!')
+  exit(0)
 }
 main()
