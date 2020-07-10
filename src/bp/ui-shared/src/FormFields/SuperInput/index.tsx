@@ -26,11 +26,11 @@ export default ({ canAddElements, events, variables, setCanOutsideClickClose, on
       const prefix = e.detail.prefix
 
       if (prefix) {
-        if (prefix == '$') {
+        if (prefix === '$') {
           tagifyRef.current.settings.whitelist = variables?.map(({ name }) => name) || []
         }
 
-        if (prefix == '{{') {
+        if (prefix === '{{') {
           // TODO refactor to use the schema format properly and allow to breakdown into an object type search
           tagifyRef.current.settings.whitelist = events?.map(({ name }) => name) || []
         }
@@ -53,15 +53,13 @@ export default ({ canAddElements, events, variables, setCanOutsideClickClose, on
     ['edit:start']: e => {
       const prefix = e.detail.data.prefix
 
-      if (prefix) {
-        if (prefix == '$') {
-          tagifyRef.current.settings.whitelist = variables?.map(({ name }) => name) || []
-        }
+      if (prefix === '$') {
+        tagifyRef.current.settings.whitelist = variables?.map(({ name }) => name) || []
+      }
 
-        if (prefix == '{{') {
-          // TODO refactor to use the schema format properly and allow to breakdown into an object type search
-          tagifyRef.current.settings.whitelist = events?.map(event => event.name) || []
-        }
+      if (prefix === '{{') {
+        // TODO refactor to use the schema format properly and allow to breakdown into an object type search
+        tagifyRef.current.settings.whitelist = events?.map(event => event.name) || []
       }
     }
   }
@@ -135,15 +133,13 @@ export default ({ canAddElements, events, variables, setCanOutsideClickClose, on
           skipInvalid: !canAddElements,
           templates: {
             tag(tagData, data) {
-              const isValid = !(data.prefix === '$'
-                ? variables?.find(({ name }) => name === tagData)
-                : events?.find(({ name }) => name === tagData))
+              const isValid = (data.prefix === '$' ? variables : events)?.find(({ name }) => name === tagData)
 
               return `<tag title="${tagData}"
                 contenteditable="false"
                 spellcheck="false"
                 tabIndex="-1"
-                class="tagify__tag${isValid ? ' tagify--invalid' : ''}">
+                class="tagify__tag${isValid ? '' : ' tagify--invalid'}">
                 <div>
                   ${ReactDOMServer.renderToStaticMarkup(
                     <Icon icon={data.prefix === '$' ? 'dollar' : <Icons.Brackets iconSize={10} />} iconSize={10} />
