@@ -1,8 +1,6 @@
 import { IO, Prompt, PromptConfig } from 'botpress/sdk'
 import * as sdk from 'botpress/sdk'
-import { extractEventCommonArgs } from 'common/action'
 import lang from 'common/lang'
-import { createMultiLangObject } from 'common/prompts'
 import _ from 'lodash'
 import yn from 'yn'
 

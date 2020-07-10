@@ -80,7 +80,7 @@
   "questionToAskUser": "Question pour l'utilisateur",
   "mustBePast": "Doit être dans le passé",
   "mustBeFuture": "Doit être dans le futur",
-  "entity": "Entité",
+  "enumType": "Type d'énumération",
   "question": "Question",
   "useDropdown": "Utiliser dropdown",
   "min": "Minimum",

@@ -748,11 +748,11 @@ declare module 'botpress/sdk' {
       /** This variable points to the currently active workflow */
       workflow: WorkflowHistory
       /** Update or set a new variable */
-      setVariable: (
+      createVariable: (
         name: string,
         value: any,
         type: string,
-        options?: { nbOfTurns: number; specificWorkflow?: string }
+        options?: { nbOfTurns: number; specificWorkflow?: string; enumType?: string; config?: any }
       ) => void
       /**
        * EXPERIMENTAL
@@ -854,7 +854,7 @@ declare module 'botpress/sdk' {
       /** Only one workflow can be active at a time, when a child workflow is active, the parent will be pending */
       status: 'active' | 'pending' | 'completed'
       success?: boolean
-      variables: { [name: string]: BoxedVariable<any> }
+      variables: { [name: string]: BoxedVariable<any, any> }
     }
 
     export type StoredEvent = {
@@ -1687,38 +1687,60 @@ declare module 'botpress/sdk' {
     new (ctor: any): Prompt
   }
 
-  export interface BoxedVarConstructable<T> {
-    new (ctor: BoxedVarContructor<T>): BoxedVariable<T>
+  export interface BoxedVarConstructable<T, V = any> {
+    new (ctor: BoxedVarContructor<T, V>): BoxedVariable<T, V>
   }
 
-  export interface BoxedVariable<T> {
-    value: T
-    trySet(value: T, confidence?: number): void
+  export interface BoxedVariable<T, V = any> {
+    value?: T
+    /** Configuration option that are set directly on the variable (eg: format) */
+    config?: V
+    /** The level of confidence we have for the value */
+    readonly confidence: number
+    readonly type: string
+    /** This method handles the logic to check if the value is valid and update the confidence  */
+    trySet(value: T | undefined, confidence?: number): void
+    /** Set the number of remaining turns before the variable is set to expire */
     setRetentionPolicy(nbOfTurns: number): void
-    toString(): string
+    /** Convert the underlying value to a string. Different variables may have format options */
+    toString(...args: any): string
+    /**
+     * Returns 1 if this value is bigger than compareTo's value
+     * Returns -1 if this value is smaller than compareTo's value
+     * Returns 0 if both values are equal
+     */
+    compare(compareTo: BoxedVariable<T, V>): number
+    getEnumList: () => NLU.EntityDefOccurrence[] | undefined
     unbox(): UnboxedVariable<T>
   }
 
   export interface UnboxedVariable<T> {
     type: string
-    value: T
+    enumType?: string
+    value: T | undefined
     nbTurns: number
     confidence: number
   }
 
-  export interface BoxedVarContructor<T> {
+  export interface BoxedVarContructor<T, V = any> {
+    type: string
+    enumType?: string
     /** The number of turns left until this value is no longer valid */
     nbOfTurns: number
     /** The confidence percentage of the value currently stored */
     confidence?: number
     /** The current value stored in the db */
-    value: T
+    value: T | undefined
+    /** Configuration of the variable on the workflow (ex: date format) */
+    config?: V
+    /** Returns the list of allowed values for the current type of enum */
+    getEnumList: () => NLU.EntityDefOccurrence[]
   }
 
   export interface FlowVariableType {
     id: string
-    config: FlowVariableConfig
-    box: BoxedVarConstructable<any>
+    config?: FlowVariableConfig
+    box: BoxedVarConstructable<any, any>
   }
 
   export type FlowVariableConfig = FormDefinition
