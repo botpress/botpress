@@ -4,25 +4,13 @@ import Mustache from 'mustache'
 const MAX_NESTING_LEVEL = 3
 type TemplateItem = Object | Object[] | string[] | string
 
-export function renderRecursiveTranslated(item: TemplateItem, context: any, lang: string, defaultLang: string): any {
+export function renderRecursive(item: TemplateItem, context: any, lang?: string, defaultLang?: string): any {
   if (_.isArray(item)) {
-    return _.map(item, val => renderRecursiveTranslated(val, context, lang, defaultLang))
+    return _.map(item, val => renderRecursive(val, context, lang, defaultLang))
   } else if (typeof item === 'object') {
     return _.mapValues(item, val =>
-      renderRecursiveTranslated(val?.[lang] ?? val?.[defaultLang] ?? val, context, lang, defaultLang)
+      renderRecursive(val?.[lang!] ?? val?.[defaultLang!] ?? val, context, lang, defaultLang)
     )
-  } else if (typeof item === 'string') {
-    return renderTemplate(item, context)
-  } else {
-    return item
-  }
-}
-
-export function renderRecursive(item: TemplateItem, context: any): any {
-  if (_.isArray(item)) {
-    return _.map(item, val => renderRecursive(val, context))
-  } else if (typeof item === 'object') {
-    return _.mapValues(item, val => renderRecursive(val, context))
   } else if (typeof item === 'string') {
     return renderTemplate(item, context)
   } else {

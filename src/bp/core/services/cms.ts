@@ -1,6 +1,6 @@
-import { FormData, IO, Logger } from 'botpress/sdk'
+import { IO, Logger } from 'botpress/sdk'
 import { ContentElement, ContentType, KnexExtended, SearchParams } from 'botpress/sdk'
-import { renderRecursive, renderRecursiveTranslated, renderTemplate } from 'core/misc/templating'
+import { renderRecursive, renderTemplate } from 'core/misc/templating'
 import { ModuleLoader } from 'core/module-loader'
 import { inject, injectable, tagged } from 'inversify'
 import Joi from 'joi'
@@ -617,7 +617,7 @@ export class CMSService implements IDisposeOnExit {
     const defaultLang = (await this.configProvider.getBotConfig(event.botId)).defaultLanguage
     const lang = _.get(event, 'state.user.language')
 
-    payload = renderRecursiveTranslated(payload, { event }, lang, defaultLang)
+    payload = renderRecursive(payload, { event }, lang, defaultLang)
 
     if (payload.text) {
       this._prepareTextAndShuffle(payload)
@@ -655,7 +655,7 @@ export class CMSService implements IDisposeOnExit {
 
     args = {
       ...args,
-      ...renderRecursiveTranslated(_.omit(args, IGNORED_COMMON_ARGS), args, lang, defaultLang)
+      ...renderRecursive(_.omit(args, IGNORED_COMMON_ARGS), args, lang, defaultLang)
     }
 
     if (args.text) {
