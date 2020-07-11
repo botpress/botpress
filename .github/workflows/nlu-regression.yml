@@ -24,6 +24,7 @@ jobs:
           yarn cmd build:modules --m nlu,nlu-testing
       - name: Run Regression Test
         run: |
-          export NLU_SEED=42 
+          export NLU_SEED=42
+          export ENABLED_BY_DEFAULT='nlu,nlu-testing' 
           yarn start & sleep 20s &&
           node -e "require('./build/nlu-regression').nluRegression()"
