@@ -120,7 +120,6 @@ module.exports = {
                   placeholder: 'module.builtin.types.actionButton.urlPlaceholder',
                   type: 'url',
                   key: 'text',
-                  translated: true,
                   label: 'URL'
                 }
               },
@@ -129,7 +128,6 @@ module.exports = {
                 label: 'module.builtin.types.actionButton.postLabel',
                 related: {
                   type: 'textarea',
-                  translated: true,
                   key: 'text',
                   label: 'module.builtin.types.actionButton.postFieldLabel'
                 }

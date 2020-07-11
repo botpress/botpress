@@ -19,6 +19,7 @@ import { GhostService } from '.'
 import { JobService } from './job-service'
 import MediaService from './media'
 
+const IGNORED_COMMON_ARGS = ['event', 'user', 'session', 'temp', 'workflow', 'bot']
 const UNLIMITED_ELEMENTS = -1
 export const DefaultSearchParams: SearchParams = {
   sortOrder: [{ column: 'createdOn' }],
@@ -631,19 +632,10 @@ export class CMSService implements IDisposeOnExit {
   async renderElement(contentId: string, args: EventCommonArgs, eventDestination: IO.EventDestination) {
     const { botId, channel } = eventDestination
     contentId = contentId.replace(/^#?/i, '')
-    let contentTypeRenderer: ContentType
+    let contentTypeId = contentId
 
-    const translateFormData = async (formData: object): Promise<object> => {
-      const defaultLang = (await this.configProvider.getBotConfig(eventDestination.botId)).defaultLanguage
-      const lang = _.get(args, 'event.state.user.language')
-
-      // Supports the new format for say nodes
-      if (formData?.[lang] || formData?.[defaultLang]) {
-        return formData?.[lang] || formData?.[defaultLang]
-      }
-
-      return this.getOriginalProps(formData, contentTypeRenderer, lang, defaultLang)
-    }
+    const defaultLang = (await this.configProvider.getBotConfig(eventDestination.botId)).defaultLanguage
+    const lang = _.get(args, 'event.state.user.language')
 
     if (contentId.startsWith('!')) {
       const content = await this.getContentElement(botId, contentId.substr(1)) // TODO handle errors
@@ -651,23 +643,19 @@ export class CMSService implements IDisposeOnExit {
         throw new Error(`Content element "${contentId}" not found`)
       }
 
-      contentTypeRenderer = this.getContentType(content.contentType)
-      content.formData = await translateFormData(content.formData)
-
-      _.set(content, 'formData', renderRecursive(content.formData, args))
+      contentTypeId = content.contentType
 
       args = {
         ...args,
-        ...content.formData
+        ...(await this.getOriginalProps(content.formData, this.getContentType(contentTypeId), lang, defaultLang))
       }
     } else if (contentId.startsWith('@')) {
-      contentTypeRenderer = this.getContentType(contentId.substr(1))
-      args = {
-        ...args,
-        ...(await translateFormData(args))
-      }
-    } else {
-      contentTypeRenderer = this.getContentType(contentId)
+      contentTypeId = contentId.substr(1)
+    }
+
+    args = {
+      ...args,
+      ...renderRecursiveTranslated(_.omit(args, IGNORED_COMMON_ARGS), args, lang, defaultLang)
     }
 
     if (args.text) {
@@ -675,6 +663,7 @@ export class CMSService implements IDisposeOnExit {
     }
 
     try {
+      const contentTypeRenderer = this.getContentType(contentTypeId)
       let payloads = contentTypeRenderer.renderElement({ ...this._getAdditionalData(), ...args }, channel)
       if (!_.isArray(payloads)) {
         payloads = [payloads]
