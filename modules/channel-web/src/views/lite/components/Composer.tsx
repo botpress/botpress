@@ -76,6 +76,7 @@ class Composer extends React.Component<ComposerProps> {
               id: 'composer.message',
               defaultMessage: 'Message to send'
             })}
+            disabled={this.props.composer.locked}
           />
           <label htmlFor="input-message" style={{ display: 'none' }}>
             {placeholder}
@@ -83,7 +84,7 @@ class Composer extends React.Component<ComposerProps> {
 
           <button
             className={'bpw-send-button'}
-            disabled={!this.props.message.length}
+            disabled={!this.props.message.length || this.props.composer.locked}
             onClick={this.props.sendMessage.bind(this, undefined)}
             aria-label={this.props.intl.formatMessage({
               id: 'composer.send',
@@ -113,7 +114,8 @@ export default inject(({ store }: { store: RootStore }) => ({
   focusNext: store.view.focusNext,
   enableArrowNavigation: store.config.enableArrowNavigation,
   enableResetSessionShortcut: store.config.enableResetSessionShortcut,
-  resetSession: store.resetSession
+  resetSession: store.resetSession,
+  composer: store.composer
 }))(injectIntl(observer(Composer)))
 
 type ComposerProps = {
@@ -136,4 +138,5 @@ type ComposerProps = {
     | 'enableArrowNavigation'
     | 'resetSession'
     | 'enableResetSessionShortcut'
+    | 'composer'
   >
