@@ -36,14 +36,36 @@ export default class WebchatDb {
     const original = this.queuedMessages
     this.queuedMessages = []
 
-    this.messagePromise = this.knex('web_messages')
-      .insert(original)
-      .catch(() => {
-        this.queuedMessages = [...original, ...this.queuedMessages]
-      })
-      .finally(() => {
-        this.messagePromise = undefined
-      })
+    if (process.env.DATABASE === 'postgress') {
+      this.messagePromise = this.knex('web_messages')
+        .insert(original)
+        .catch(() => {
+          this.queuedMessages = [...original, ...this.queuedMessages]
+        })
+        .finally(() => {
+          this.messagePromise = undefined
+        })
+    } else {
+      this.messagePromise = this.knex
+        .transaction(async trx => {
+          const queries = []
+
+          for (const message of original) {
+            const query = this.knex('web_messages')
+              .insert(message)
+              .transacting(trx)
+
+            queries.push(query)
+          }
+
+          await Promise.all(queries)
+            .then(trx.commit)
+            .catch(trx.rollback)
+        })
+        .finally(() => {
+          this.messagePromise = undefined
+        })
+    }
   }
 
   flushConvoUpdates() {
