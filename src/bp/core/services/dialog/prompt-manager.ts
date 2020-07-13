@@ -158,7 +158,7 @@ export class PromptManager {
     const tryElect = (value: any): boolean => {
       const { valid, message } = prompt.validate(value)
       if (!valid) {
-        actions.push({ type: 'say', message: message || 'THIS IS THE BUG' })
+        actions.push({ type: 'say', message })
       }
       return valid
     }
@@ -272,7 +272,7 @@ export class PromptManager {
     } else if (shortlisted.length > 1) {
       return generateDisambiguate(actions, status, shortlisted)
     } else {
-      if (others.length === 1) {
+      if (others.length === 1 && !this.prompts.find(x => x.id === status.config.type)?.config.noConfirmation) {
         return generateCandidate(actions, status, others[0])
       } else if (others.length > 1) {
         return generateDisambiguate(actions, status, others)

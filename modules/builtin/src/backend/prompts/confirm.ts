@@ -46,6 +46,7 @@ const config: PromptConfig = {
   type: 'confirm',
   label: 'Confirm',
   valueType: 'boolean',
+  noConfirmation: true,
   fields: common.fields,
   advancedSettings: common.advancedSettings
 }

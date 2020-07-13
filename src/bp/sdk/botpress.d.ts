@@ -1612,7 +1612,7 @@ declare module 'botpress/sdk' {
   }
 
   /** The configuration of the prompt which is saved on the flow */
-  export type PromptConfig = {
+  export interface PromptConfig {
     /** An ID used internally to refer to this prompt */
     type: string
     /** The label displayed in the studio */
@@ -1620,7 +1620,12 @@ declare module 'botpress/sdk' {
     icon?: string
     /** The ID representing the type of value that is collected by this prompt */
     valueType: string
-  } & FormDefinition
+    /** Will never trigger a confirmation for a previous value */
+    noConfirmation?: boolean
+    /** Fields to configure the prompt on the studio */
+    fields: FormField[]
+    advancedSettings: FormField[]
+  }
 
   export interface PromptNode {
     type: string
