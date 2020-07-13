@@ -50,7 +50,7 @@ const postStorageServer = async (events: Schema[]) => {
   }
 }
 
-export const setupServerPackageLoop = () => {
+export const setupOfflineTelemetryFallback = () => {
   sendServerPackage().catch()
   setInterval(async () => await sendServerPackage().catch(), ms('1h'))
 }
