@@ -4,32 +4,26 @@ import lang from 'common/lang'
 import common from './common'
 
 class PromptPattern implements Prompt {
-  private _regexPattern: string
   private _formatInvalidMessage: { [lang: string]: string }
+  private regex: RegExp
 
-  constructor({ regexPattern = '', formatInvalidMessage = {} } = {}) {
-    this._regexPattern = regexPattern
+  constructor({ regexPattern = '', formatInvalidMessage }) {
     this._formatInvalidMessage = formatInvalidMessage
+    this.regex = new RegExp(regexPattern, 'g')
   }
 
   extraction(event: IO.IncomingEvent): ExtractionResult[] {
-    const text = event.payload.text // TODO: this isn't implemented
-    if (text) {
-      return [
-        {
-          value: text,
-          confidence: 1
-        }
-      ]
+    const text = event.payload.text
+
+    if (this.regex.test(text)) {
+      return text.match(this.regex).map(x => ({ value: x, confidence: 1 }))
     }
+
+    return []
   }
 
   validate(value): ValidationResult {
-    if (value == undefined) {
-      return { valid: false, message: lang.tr('module.builtin.prompt.invalid') }
-    }
-
-    if (!new RegExp(this._regexPattern).test(value)) {
+    if (value == undefined || !this.regex.test(value)) {
       return { valid: false, message: this._formatInvalidMessage ?? lang.tr('module.builtin.prompt.pattern.invalid') }
     }
 

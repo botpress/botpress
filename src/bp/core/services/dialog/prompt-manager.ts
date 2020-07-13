@@ -158,13 +158,17 @@ export class PromptManager {
     const tryElect = (value: any): boolean => {
       const { valid, message } = prompt.validate(value)
       if (!valid) {
-        actions.push({ type: 'say', message })
+        if (message) {
+          actions.push({ type: 'say', message })
+        } else {
+          console.error(`Prompt ${status.config.type} is missing an error message`)
+        }
       }
       return valid
     }
 
     const confirmPrompt = this.loadPrompt('confirm', {})
-    const confirmValue = _.chain(confirmPrompt.extraction(event))
+    const confirmValue = _.chain(confirmPrompt.extraction(event) ?? [])
       .filter(x => x.confidence >= MIN_CONFIDENCE_VALIDATION)
       .orderBy('confidence', 'desc')
       .first()
@@ -229,7 +233,7 @@ export class PromptManager {
     }
 
     for (const [turn, pastEvent] of eventsToExtractFrom.entries()) {
-      const promptCandidates = prompt.extraction(pastEvent)
+      const promptCandidates = prompt.extraction(pastEvent) ?? []
       for (const candidate of promptCandidates) {
         const candidateValueStr = candidate?.value.toString()
         if (candidates.find(x => x.value_string === candidateValueStr)) {
@@ -283,8 +287,12 @@ export class PromptManager {
       return generateCancellation(actions, status)
     }
 
-    if (status.stage === 'confirm-jump') {
+    if (status.stage === 'confirm-jump' && confirmValue === undefined) {
       return generateJumpTo(actions, status)
+    }
+
+    if (status.stage === 'prompt' && !candidates.length) {
+      tryElect(undefined)
     }
 
     return generatePrompt(actions, status)

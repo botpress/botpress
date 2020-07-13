@@ -12,14 +12,18 @@ class PromptString implements Prompt {
 
   extraction(event: IO.IncomingEvent): ExtractionResult[] {
     const text = event.payload.text
-    if (text) {
-      return [
-        {
-          value: text,
-          confidence: 1
-        }
-      ]
+
+    // Do not extract on the first turn
+    if (!event.state.context.activePrompt?.turn || !text) {
+      return []
     }
+
+    return [
+      {
+        value: text,
+        confidence: 1
+      }
+    ]
   }
 
   validate(value): ValidationResult {
