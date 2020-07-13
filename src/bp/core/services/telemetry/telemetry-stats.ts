@@ -1,5 +1,6 @@
 import axios from 'axios'
 import LicensingService from 'common/licensing-service'
+import { machineUUID } from 'common/stats'
 import Database from 'core/database'
 import { TelemetryRepository } from 'core/repositories/telemetry_payload'
 import { TYPES } from 'core/types'
@@ -21,7 +22,7 @@ export abstract class TelemetryStats {
 
   constructor(
     @inject(TYPES.GhostService) protected ghostService: GhostService,
-    @inject(TYPES.Database) private database: Database,
+    @inject(TYPES.Database) protected database: Database,
     @inject(TYPES.LicensingService) protected licenseService: LicensingService,
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository
@@ -62,7 +63,26 @@ export abstract class TelemetryStats {
       clusterEnabled: yn(process.CLUSTER_ENABLED, { default: false }),
       os: process.platform,
       bpfsStorage: process.BPFS_STORAGE,
-      dbType: this.database.knex.isLite ? 'sqlite' : 'postgres'
+      dbType: this.database.knex.isLite ? 'sqlite' : 'postgres',
+      machineUUID: await machineUUID(),
+      fingerprint: await this.getServerFingerprint(),
+      license: {
+        type: process.IS_PRO_ENABLED ? 'pro' : 'ce',
+        status: await this.getLicenseStatus()
+      }
     }
+  }
+
+  protected async getServerFingerprint(): Promise<string | null> {
+    try {
+      return this.licenseService.getFingerprint('cluster_url')
+    } catch (err) {
+      // tslint:disable-next-line: no-null-keyword
+      return null
+    }
+  }
+
+  protected async getLicenseStatus(): Promise<string> {
+    return (await this.licenseService.getLicenseStatus()).status
   }
 }
