@@ -39,7 +39,7 @@ const getEventLock = (event: string) => {
   return null
 }
 
-const addEventLock = (event: string, timeout?: string) => {
+const setEventLock = (event: string, timeout?: string) => {
   const currentTime = moment().valueOf()
 
   const pkg = eventPackageInfo[event].getPackage()
@@ -88,7 +88,7 @@ export const startTelemetry = () => {
   setTimeout(() => {
     if (checkStoreInfoReceived() && window.TELEMETRY_URL) {
       for (const event in eventPackageInfo) {
-        !getEventLock(event) && addEventLock(event, '0s')
+        !getEventLock(event) && setEventLock(event, '0s')
       }
 
       for (const event_name in eventPackageInfo) {
@@ -117,5 +117,5 @@ const sendTelemetryEvent = async (data: object, event: string) => {
 
   await axios.post('/', pkg, axiosConfig)
 
-  addEventLock(event)
+  setEventLock(event)
 }
