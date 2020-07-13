@@ -11,7 +11,7 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
-import { Icons, lang, MainContent } from 'botpress/shared'
+import { Contents, Icons, lang, MainContent } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
@@ -304,10 +304,16 @@ class Diagram extends Component<Props> {
       })
     },
     say: (point: Point, moreProps) => {
+      const { fields, advancedSettings } =
+        this.props.contentTypes.find(contentType => contentType.id === 'builtin_text')?.schema?.newJson || {}
+      const schemaFields = [...(fields || []), ...(advancedSettings || [])]
+
       this.props.createFlowNode({
         ...point,
         type: 'say_something',
-        contents: [{ [this.state.currentLang]: { contentType: 'builtin_text' } }],
+        contents: [
+          { contentType: 'builtin_text', ...Contents.createEmptyDataFromSchema(schemaFields, this.state.currentLang) }
+        ],
         next: [defaultTransition],
         isNew: true,
         ...moreProps
@@ -760,13 +766,8 @@ class Diagram extends Component<Props> {
   updateNodeContent(data) {
     const { node, index } = this.state.editingNodeItem
     const newContents = [...node.contents]
-    const currentType = newContents[index][this.state.currentLang]?.contentType
 
-    if (currentType && currentType !== data.contentType) {
-      newContents[index] = { [this.state.currentLang]: data }
-    } else {
-      newContents[index][this.state.currentLang] = data
-    }
+    newContents[index] = data
 
     this.setState({ editingNodeItem: { node: { ...node, contents: newContents }, index } })
 
@@ -916,8 +917,9 @@ class Diagram extends Component<Props> {
                 type.schema.newJson?.displayedIn.includes('sayNode')
               )}
               deleteContent={() => this.deleteNodeContent()}
+              contentLang={this.state.currentLang}
               editingContent={this.state.editingNodeItem.index}
-              formData={editingNodeItem?.[this.state.currentLang] || this.getEmptyContent(editingNodeItem)}
+              formData={editingNodeItem || this.getEmptyContent(editingNodeItem)}
               onUpdate={this.updateNodeContent.bind(this)}
               close={() => {
                 this.timeout = setTimeout(() => {

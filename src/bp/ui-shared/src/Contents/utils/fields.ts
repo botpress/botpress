@@ -1,15 +1,17 @@
 import { FormData, FormField } from 'botpress/sdk'
 
-export const createEmptyDataFromSchema = (fields: FormField[]): FormData => {
-  return fields.reduce((acc, field) => ({ ...acc, [field.key]: getFieldDefaultValue(field) }), {})
+export const createEmptyDataFromSchema = (fields: FormField[], lang?: string): FormData => {
+  return fields.reduce((acc, field) => ({ ...acc, [field.key]: getFieldDefaultValue(field, lang) }), {})
 }
 
-export const getFieldDefaultValue = (field: Partial<FormField>) => {
+export const getFieldDefaultValue = (field: Partial<FormField>, lang?: string) => {
   if (field.defaultValue) {
     return field.defaultValue
   }
 
   switch (field.type) {
+    case 'hidden':
+      return
     case 'checkbox':
       return false
     case 'group':
@@ -17,7 +19,7 @@ export const getFieldDefaultValue = (field: Partial<FormField>) => {
         return []
       }
 
-      return [createEmptyDataFromSchema(field.fields)]
+      return [createEmptyDataFromSchema(field.fields, lang)]
     case 'number':
       return
     case 'select':
@@ -29,6 +31,6 @@ export const getFieldDefaultValue = (field: Partial<FormField>) => {
     case 'textarea':
     case 'upload':
     case 'url':
-      return field.translated ? {} : ''
+      return field.translated ? { [lang!]: '' } : ''
   }
 }

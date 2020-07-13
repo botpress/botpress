@@ -1447,6 +1447,7 @@ declare module 'botpress/sdk' {
     | 'textarea'
     | 'upload'
     | 'url'
+    | 'hidden'
 
   export interface FormField {
     type: FormFieldType

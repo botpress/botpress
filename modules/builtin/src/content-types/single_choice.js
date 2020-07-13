@@ -162,18 +162,19 @@ module.exports = {
         },
         type: 'group',
         key: 'choices',
-        renderType: 'suggestions',
         label: 'fields::title',
         fields: [
           {
             type: 'text',
             key: 'title',
+            translated: true,
             label: 'module.builtin.types.suggestions.label',
             placeholder: 'module.builtin.types.suggestions.labelPlaceholder'
           },
           {
             type: 'text',
             key: 'value',
+            translated: true,
             label: 'module.builtin.types.suggestions.value',
             placeholder: 'module.builtin.types.suggestions.valuePlaceholder'
           }
