@@ -23,7 +23,8 @@ function render(data) {
       allowCreation: data.allowCreation,
       allowMultiple: data.allowMultiple,
       width: data.width,
-      collectFeedback: data.collectFeedback
+      collectFeedback: data.collectFeedback,
+      placeholderText: data.placeholderText
     }
   ]
 }
@@ -84,6 +85,11 @@ module.exports = {
         title: 'module.extensions.types.dropdown.buttonText',
         description: 'module.extensions.types.dropdown.buttonDesc',
         default: ''
+      },
+      placeholderText: {
+        type: 'string',
+        title: 'module.extensions.types.dropdown.placeholderText',
+        default: 'Select a choice'
       },
       options: {
         type: 'array',

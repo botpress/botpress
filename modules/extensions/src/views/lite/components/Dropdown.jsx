@@ -45,8 +45,6 @@ export class Dropdown extends React.Component {
   }
 
   renderSelect(inKeyboard) {
-    const placeholder = this.props.intl.locale === 'fr' ? 'Sélectionnez un choix' : 'Select a choice'
-
     return (
       <div className={inKeyboard && 'bpw-keyboard-quick_reply-dropdown'}>
         <div style={{ width: +this.props.width || 210, display: 'inline-block', marginRight: 15 }}>
@@ -55,7 +53,7 @@ export class Dropdown extends React.Component {
               value={this.state.selectedOption}
               onChange={this.handleChange}
               options={this.state.options}
-              placeholder={placeholder}
+              placeholder={this.props.placeholderText}
               isMulti={this.props.allowMultiple}
               menuPlacement={'top'}
             />
@@ -64,7 +62,7 @@ export class Dropdown extends React.Component {
               value={this.state.selectedOption}
               onChange={this.handleChange}
               options={this.state.options}
-              placeholder={placeholder}
+              placeholder={this.props.placeholderText}
               isMulti={this.props.allowMultiple}
               menuPlacement={'top'}
             />
