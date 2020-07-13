@@ -18,7 +18,7 @@ export class BaseVariable<T, V = any> implements BoxedVariable<T, V> {
     this._config = config
     this._getEnumList = getEnumList
 
-    if (value) {
+    if (value !== undefined) {
       this.trySet(value, confidence ?? 1)
     }
   }
