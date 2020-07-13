@@ -11,7 +11,7 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
-import { Icons, lang, MainContent } from 'botpress/shared'
+import { Contents, Icons, lang, MainContent } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
@@ -304,10 +304,16 @@ class Diagram extends Component<Props> {
       })
     },
     say: (point: Point, moreProps) => {
+      const { fields, advancedSettings } =
+        this.props.contentTypes.find(contentType => contentType.id === 'builtin_text')?.schema?.newJson || {}
+      const schemaFields = [...(fields || []), ...(advancedSettings || [])]
+
       this.props.createFlowNode({
         ...point,
         type: 'say_something',
-        contents: [{ [this.state.currentLang]: { contentType: 'builtin_text' } }],
+        contents: [
+          { contentType: 'builtin_text', ...Contents.createEmptyDataFromSchema(schemaFields, this.state.currentLang) }
+        ],
         next: [defaultTransition],
         isNew: true,
         ...moreProps
