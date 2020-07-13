@@ -148,7 +148,6 @@ export const dialogConditions: sdk.Condition[] = [
         label: 'module.ndu.conditions.fields.label.candidate',
         placeholder: 'module.ndu.conditions.fields.placeholder.oneWordPerLine',
         type: 'text_array',
-        translated: true,
         group: {
           addLabel: 'module.ndu.conditions.fields.label.addWord'
         }
@@ -205,7 +204,6 @@ export const dialogConditions: sdk.Condition[] = [
         },
         placeholder: 'module.ndu.conditions.fields.placeholder.workflowName',
         type: 'text_array',
-        translated: true,
         group: {
           addLabel: 'studio.flow.ignoredWorkflows.addLabel'
         }

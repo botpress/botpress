@@ -8,13 +8,15 @@ export const convertPayload = (data: sdk.Content.All) => {
       type: 'file',
       title: data.title,
       url: `${botUrl}${data.image}`,
-      collectFeedback: data.metadata.collectFeedback
+      collectFeedback: data.metadata.collectFeedback,
+      metadata: data.metadata
     }
   } else if (data.type === 'carousel') {
     return {
       text: ' ',
       type: 'carousel',
       collectFeedback: data.metadata.collectFeedback,
+      metadata: data.metadata,
       elements: data.items.map(card => ({
         title: card.title,
         picture: card.image ? `${botUrl}${card.image}` : eval('null'),
