@@ -7,6 +7,12 @@ export type ServerStats = {
   os: string
   bpfsStorage: string
   dbType: string
+  machineUUID: string
+  fingerprint: string | null
+  license: {
+    status: string
+    type: string
+  }
 }
 
 export type Schema = {
