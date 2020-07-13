@@ -182,44 +182,37 @@ async function compareScore(score) {
   return score >= previousScore
 }
 
-function changeBPDSLang() {
-  var configFilePath = `${nluTestingDir}/src/bot-templates/bp-nlu-regression-testing/bot.config.json`
-  var rawConfig = fs.readFileSync(configFilePath, { encoding: 'utf8' })
-  var config = JSON.parse(rawConfig)
-  config.languages = ['en']
-  fs.writeFileSync(configFilePath, JSON.stringify(config, null, 2), { encoding: 'utf8' })
-}
+async function main() {
+  try {
+    let token = await login()
+    if (!token) {
+      token = await signup()
+    }
+    if (!token) {
+      console.error('Unable to login and sign up...')
+      exit(1)
+    }
 
-async function nluRegression() {
-  let token = await login()
-  if (!token) {
-    token = await signup()
-  }
-  if (!token) {
-    console.error('Unable to login and sign up...')
+    const botId = 'testy'
+
+    await createBot(botId, token)
+    await waitForTraining(botId, token)
+    console.log('training done!')
+
+    const score = await runAllTests(botId, token)
+    console.log('score: ', score)
+
+    const testPasses = await compareScore(score)
+    if (!testPasses) {
+      console.error('There seems to be a regression on NLU BPDS...')
+      exit(1)
+    }
+
+    console.log('No regression noted!')
+    exit(0)
+  } catch (err) {
+    console.error(err)
     exit(1)
   }
-
-  const botId = 'testy'
-
-  await createBot(botId, token)
-  await waitForTraining(botId, token)
-  console.log('training done!')
-
-  const score = await runAllTests(botId, token)
-  console.log('score: ', score)
-
-  const testPasses = await compareScore(score)
-  if (!testPasses) {
-    console.error('There seems to be a regression on NLU BPDS...')
-    exit(1)
-  }
-
-  console.log('No regression noted!')
-  exit(0)
 }
-
-module.exports = {
-  changeBPDSLang,
-  nluRegression
-}
+main()
