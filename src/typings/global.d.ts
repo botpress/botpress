@@ -53,7 +53,6 @@ declare namespace NodeJS {
     DISABLE_BOT_SANDBOX: boolean
     DISABLE_TRANSITION_SANDBOX: boolean
     WEB_WORKER: number
-    ML_WORKERS: number[]
   }
 }
 

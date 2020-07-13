@@ -25,6 +25,7 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
   private labels: string[] = []
   private model?: SvmModel
   private report?: any
+  private cb?: sdk.MLToolkit.SVM.TrainProgressCallback
 
   constructor() {}
 
@@ -33,6 +34,15 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
     options: Partial<sdk.MLToolkit.SVM.SVMOptions> = DefaultTrainArgs,
     callback?: sdk.MLToolkit.SVM.TrainProgressCallback | undefined
   ): Promise<string> {
+    let progressCalls = 0
+    this.cb =
+      callback &&
+      (progress => {
+        if (++progressCalls % 10 === 0 || progress === 1) {
+          callback(progress)
+        }
+      })
+
     const args = { ...DefaultTrainArgs, ...options }
 
     if (args.classifier === 'ONE_CLASS') {
@@ -67,7 +77,7 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
       kFold
     })
 
-    await this._train(dataset, callback)
+    await this._train(dataset, this.cb)
     return this.serialize()
   }
 
