@@ -163,7 +163,7 @@ const loopThroughData = (data, pathKey = '') => {
 }
 
 const getSuperInputsFromData = data => {
-  return loopThroughData(data)
+  return (data && loopThroughData(data)) || {}
 }
 
 const Form: FC<FormProps> = ({

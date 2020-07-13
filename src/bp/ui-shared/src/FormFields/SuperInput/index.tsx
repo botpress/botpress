@@ -1,10 +1,10 @@
-import { Button, Icon } from '@blueprintjs/core'
+import { Button, Icon, Menu, MenuItem, Popover, Position } from '@blueprintjs/core'
 import Tags from '@yaireo/tagify/dist/react.tagify'
-import React, { useRef } from 'react'
+import React, { Fragment, useRef, useState } from 'react'
 import ReactDOMServer from 'react-dom/server'
 
-// TODO move fields and props to FormFields dir
 import { FieldProps } from '../../Contents/Components/typings'
+import Dropdown from '../../Dropdown'
 import Icons from '../../Icons'
 
 import style from './style.scss'
@@ -25,11 +25,7 @@ export default ({ canAddElements, events, multiple, variables, setCanOutsideClic
     input: e => {
       const prefix = e.detail.prefix
 
-      if (!multiple) {
-        cleanupInput(prefix)
-      }
-
-      if (prefix) {
+      if (prefix && multiple) {
         if (prefix == '$') {
           tagifyRef.current.settings.whitelist = variables?.map(({ name }) => name) || []
         }
@@ -70,17 +66,6 @@ export default ({ canAddElements, events, multiple, variables, setCanOutsideClic
     }
   }
 
-  const cleanupInput = prefix => {
-    const currentContent = tagifyRef.current?.DOM?.input?.innerHTML
-    // console.log(currentContent, prefix)
-    if ((!prefix || (prefix && currentContent.indexOf(prefix) === -1)) && currentContent !== '{') {
-      // @ts-ignore
-      tagifyRef.current?.DOM?.input?.innerHTML = ''
-    }
-
-    // moveCarretToEndOfString()
-  }
-
   const addPrefix = prefix => {
     let currentContent = tagifyRef.current?.DOM.input.innerHTML
 
@@ -115,6 +100,47 @@ export default ({ canAddElements, events, multiple, variables, setCanOutsideClic
     document.execCommand('selectAll', false)
     document.getSelection()?.collapseToEnd()
     tagifyRef.current?.DOM.input.dispatchEvent(new Event('input', { bubbles: true }))
+  }
+
+  if (!multiple) {
+    const tag =
+      value &&
+      JSON.parse(
+        convertToTags(value)
+          .replace('[[', '')
+          .replace(']]', '')
+      )
+
+    return (
+      <div className={style.superInputWrapper}>
+        <div className={style.singularTagBtnWrapper}>
+          <Dropdown
+            items={events?.map(({ name }) => ({ value: name, label: name })) || []}
+            icon={<Icons.Brackets />}
+            onChange={({ value }) => {
+              onBlur?.(`{{${value}}}`)
+            }}
+          />
+          <Dropdown
+            items={variables?.map(({ name }) => ({ value: name, label: name })) || []}
+            icon="dollar"
+            onChange={({ value }) => {
+              onBlur?.(`$${value}`)
+            }}
+          />
+        </div>
+        <div className={style.superInput}>
+          {tag && (
+            <span title={tag.value} tabIndex={-1} className="tagify__tag">
+              <span>
+                <Icon icon={tag.prefix === '$' ? 'dollar' : <Icons.Brackets iconSize={10} />} iconSize={10} />
+                <span className="tagify__tag-text">{tag.value}</span>
+              </span>
+            </span>
+          )}
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -159,12 +185,12 @@ export default ({ canAddElements, events, multiple, variables, setCanOutsideClic
                 spellcheck="false"
                 tabIndex="-1"
                 class="tagify__tag${isValid ? ' tagify--invalid' : ''}">
-                <div>
+                <span>
                   ${ReactDOMServer.renderToStaticMarkup(
                     <Icon icon={data.prefix === '$' ? 'dollar' : <Icons.Brackets iconSize={10} />} iconSize={10} />
                   )}
                   <span class="tagify__tag-text">${tagData}</span>
-                </div>
+                </span>
               </tag>`
             },
             dropdown(settings) {

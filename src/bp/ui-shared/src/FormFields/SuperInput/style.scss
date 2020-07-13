@@ -2,14 +2,46 @@
   background: #fff !important;
   border: 1px solid var(--seashell) !important;
   border-radius: 3px !important;
+  position: relative;
 
-  .tagBtnWrapper  {
+  .tagBtnWrapper {
     float: right;
     position: relative;
     z-index: 9;
   }
 
-  .tagBtn {
+  .singularTagBtnWrapper {
+    left: 0;
+    position: absolute;
+    right: 0;
+    text-align: right;
+    z-index: 9;
+
+    :global {
+      .bp3-button {
+        .bp3-icon + .bp3-icon, svg + .bp3-icon {
+          display: none;
+        }
+      }
+
+      .bp3-transition-container {
+        right: 0 !important;
+        top: 100% !important;
+        transform: none !important;
+      }
+
+      .bp3-select-popover {
+        width: 100% !important;
+      }
+
+      .bp3-menu {
+        max-height: 150px;
+        overflow: auto;
+      }
+    }
+  }
+
+  .tagBtn, .singularTagBtnWrapper :global(.bp3-button) {
     background: none !important;
     border: none !important;
     box-shadow: none !important;
@@ -33,6 +65,7 @@
     font-size: 12px !important;
     font-weight: 400 !important;
     line-height: 1.85 !important;
+    min-height: 38px;
     padding: var(--spacing-medium) var(--spacing-large) !important;
     resize: none;
     transition: border 0.3s !important;
@@ -47,6 +80,7 @@
       .tagify__tag {
         color: var(--shark);
         font-size: 8px;
+        margin: 0;
 
         &.tagify--invalid > div {
           background: var(--hover-lighthouse-30);
@@ -56,7 +90,7 @@
           fill: var(--shark);
         }
 
-        & > div {
+        & > span {
           align-items: center;
           background: var(--bg);
           border-radius: 3px;
