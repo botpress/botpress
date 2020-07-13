@@ -109,16 +109,11 @@ export class TelemetryRepository {
   }
 
   async getEntry(uuid: string): Promise<TelemetryEntry> {
-    return (await this.database.knex
+    return await this.database.knex
       .from(this.tableName)
       .select('*')
       .where('uuid', uuid)
-      .then(res => {
-        if (!res || !res.length) {
-          throw new Error('Entity not found')
-        }
-        return res[0]
-      })) as TelemetryEntry
+      .first()
   }
 
   async removePayload(uuid: string): Promise<void> {
