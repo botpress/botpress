@@ -1,16 +1,15 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { getSeededLodash, resetSeed } from './tools/seeded-lodash'
 import { getOrCreateCache } from './cache-manager'
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
 import { getCtxFeatures } from './intents/context-featurizer'
 import { getIntentFeatures } from './intents/intent-featurizer'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getStopWordsForLang } from './language/stopWords'
-import { Model } from './model-service'
 import { featurizeInScopeUtterances, featurizeOOSUtterances } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
+import { getSeededLodash, resetSeed } from './tools/seeded-lodash'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import tfidf from './tools/tfidf'
 import { convertToRealSpaces, isSpace, SPACE } from './tools/token-utils'
@@ -23,10 +22,15 @@ import {
   TFIDF,
   Token2Vec,
   Tools,
-  TrainingSession,
-  TrainingCanceledError
+  TrainingSession
 } from './typings'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
+export class TrainingCanceledError extends Error {
+  constructor() {
+    super('Training cancelled')
+    this.name = 'CancelError'
+  }
+}
 
 export type TrainInput = Readonly<{
   botId: string
@@ -39,7 +43,7 @@ export type TrainInput = Readonly<{
   ctxToTrain: string[]
 }>
 
-export type TrainStep = Readonly<{
+type TrainStep = Readonly<{
   botId: string
   languageCode: string
   list_entities: ListEntityModel[]
@@ -452,11 +456,7 @@ const TrainSlotTagger = async (input: TrainStep, tools: Tools, progress: progres
   return slotTagger.serialized
 }
 
-const TrainOutOfScope = async (
-  input: TrainStep,
-  tools: Tools,
-  progress: progressCB
-): Promise<_.Dictionary<string>> => {
+const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<_.Dictionary<string>> => {
   debugTraining.forBot(input.botId, 'Training out of scope classifier')
   const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
     c: [10],
@@ -501,8 +501,6 @@ const TrainOutOfScope = async (
 
 const NB_STEPS = 5 // change this if the training pipeline changes
 export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise<TrainOutput> => {
-
-
   let totalProgress = 0
   let normalizedProgress = 0
   const debouncedProgress = _.debounce(tools.reportTrainingProgress, 75, { maxWait: 750 })
@@ -525,31 +523,39 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     debouncedProgress(input.botId, 'Training', { ...input.trainingSession, progress: normalizedProgress })
   }
 
-  let stepOutput = await PreprocessInput(input, tools)
-  stepOutput = await TfidfTokens(stepOutput)
-  stepOutput = ClusterTokens(stepOutput, tools)
-  stepOutput = await ExtractEntities(stepOutput, tools)
-  stepOutput = await AppendNoneIntent(stepOutput, tools)
-  const exact_match_index = BuildExactMatchIndex(stepOutput)
-  reportProgress()
-  const [oos_model, ctx_model, intent_model_by_ctx, slots_model] = await Promise.all([
-    TrainOutOfScope(stepOutput, tools, reportProgress),
-    TrainContextClassifier(stepOutput, tools, reportProgress),
-    TrainIntentClassifier(stepOutput, tools, reportProgress),
-    TrainSlotTagger(stepOutput, tools, reportProgress)
-  ])
+  try {
+    let step = await PreprocessInput(input, tools)
+    step = await TfidfTokens(step)
+    step = ClusterTokens(step, tools)
+    step = await ExtractEntities(step, tools)
+    step = await AppendNoneIntent(step, tools)
+    const exact_match_index = BuildExactMatchIndex(step)
+    reportProgress()
+    const [oos_model, ctx_model, intent_model_by_ctx, slots_model] = await Promise.all([
+      TrainOutOfScope(step, tools, reportProgress),
+      TrainContextClassifier(step, tools, reportProgress),
+      TrainIntentClassifier(step, tools, reportProgress),
+      TrainSlotTagger(step, tools, reportProgress)
+    ])
 
-  const artefacts: TrainOutput = {
-    list_entities: stepOutput.list_entities,
-    oos_model,
-    tfidf: stepOutput.tfIdf,
-    intents: stepOutput.intents,
-    ctx_model,
-    intent_model_by_ctx,
-    slots_model,
-    vocabVectors: stepOutput.vocabVectors,
-    exact_match_index
-    // kmeans: {} add this when mlKmeans supports loading from serialized data,
+    const artefacts: TrainOutput = {
+      list_entities: step.list_entities,
+      oos_model,
+      tfidf: step.tfIdf,
+      intents: step.intents,
+      ctx_model,
+      intent_model_by_ctx,
+      slots_model,
+      vocabVectors: step.vocabVectors,
+      exact_match_index
+      // kmeans: {} add this when mlKmeans supports loading from serialized data,
+    }
+    return artefacts
+  } catch (err) {
+    if (err instanceof TrainingCanceledError) {
+      debugTraining.forBot(input.botId, 'Training aborted')
+    } else {
+      throw err
+    }
   }
-  return artefacts
 }

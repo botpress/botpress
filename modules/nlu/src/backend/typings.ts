@@ -194,10 +194,3 @@ type SlotDefinition = Readonly<{
   name: string
   entities: string[]
 }>
-
-export class TrainingCanceledError extends Error {
-  constructor() {
-    super('Training cancelled')
-    this.name = 'CancelError'
-  }
-}

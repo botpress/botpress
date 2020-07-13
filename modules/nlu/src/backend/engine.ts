@@ -1,23 +1,22 @@
-import { MLToolkit, NLU } from 'botpress/sdk'
-import _ from 'lodash'
+import { logger, MLToolkit, NLU } from 'botpress/sdk'
 import crypto from 'crypto'
+import _ from 'lodash'
 
 import * as CacheManager from './cache-manager'
 import { computeModelHash, Model } from './model-service'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
-import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainStep, TrainOutput } from './training-pipeline'
+import { computeKmeans, ProcessIntents, Trainer, TrainInput } from './training-pipeline'
 import {
   EntityCacheDump,
+  Intent,
   ListEntity,
   ListEntityModel,
   NLUEngine,
-  Tools,
-  TrainingSession,
   NLUVersionInfo,
-  Intent,
-  TrainingCanceledError
+  Tools,
+  TrainingSession
 } from './typings'
 
 const trainDebug = DEBUG('nlu').sub('training')
@@ -32,7 +31,7 @@ export default class Engine implements NLUEngine {
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<Model> = {}
 
-  constructor(private defaultLanguage: string, private botId: string, private version: NLUVersionInfo) { }
+  constructor(private defaultLanguage: string, private botId: string, private version: NLUVersionInfo) {}
 
   static provideTools(tools: Tools) {
     Engine.tools = tools
@@ -128,12 +127,7 @@ export default class Engine implements NLUEngine {
       _.merge(model, { success: true, data: { artefacts } })
     } catch (err) {
       model.success = false
-
-      if (err instanceof TrainingCanceledError) {
-        trainDebug.forBot(input.botId, 'Training aborted')
-      } else {
-        trainDebug.forBot(input.botId, `Could not finish training NLU model \n ${err}`)
-      }
+      logger.error(`Could not finish training NLU model \n ${err}`)
     } finally {
       model.finishedAt = new Date()
     }

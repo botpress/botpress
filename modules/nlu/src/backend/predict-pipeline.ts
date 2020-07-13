@@ -382,9 +382,9 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
     const intents = !intentPred
       ? []
       : intentPred.map(i => ({
-        ...i,
-        slots: (step.slot_predictions_per_intent[i.label] || []).reduce(slotsCollectionReducer, {})
-      }))
+          ...i,
+          slots: (step.slot_predictions_per_intent[i.label] || []).reduce(slotsCollectionReducer, {})
+        }))
 
     return {
       ...preds,

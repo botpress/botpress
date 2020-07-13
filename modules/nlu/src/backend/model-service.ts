@@ -7,7 +7,7 @@ import { Stream } from 'stream'
 import tar from 'tar'
 import tmp from 'tmp'
 
-import { TrainStep, TrainInput, TrainOutput } from './training-pipeline'
+import { TrainInput, TrainOutput } from './training-pipeline'
 import { EntityCache, NLUVersionInfo } from './typings'
 
 export interface Model {
