@@ -76,13 +76,8 @@ class ComposerStore {
   }
 
   @action.bound
-  lock() {
-    this.locked = true
-  }
-
-  @action.bound
-  unlock() {
-    this.locked = false
+  setLocked(locked: boolean) {
+    this.locked = locked
   }
 }
 

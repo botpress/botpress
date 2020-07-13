@@ -17,7 +17,7 @@ import { Button } from './Button'
 export class QuickReplies extends Component<Renderer.QuickReply> {
 
   componentDidMount() {
-    this.props.disableFreeText ? this.props.store.composer.lock() : this.props.store.composer.unlock()
+    this.props.store.composer.setLocked(this.props.disableFreeText)
   }
 
   handleButtonClicked = (title, payload) => {
@@ -27,7 +27,7 @@ export class QuickReplies extends Component<Renderer.QuickReply> {
       text: title,
       payload
     })
-    this.props.store.composer.unlock()
+    this.props.store.composer.setLocked(false)
   }
 
   renderKeyboard(buttons: Renderer.QuickReplyButton[]) {
