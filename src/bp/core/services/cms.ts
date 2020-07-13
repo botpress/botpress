@@ -653,18 +653,15 @@ export class CMSService implements IDisposeOnExit {
       contentTypeId = contentId.substr(1)
     }
 
-    args = {
-      ...args,
-      ...renderRecursive(_.omit(args, IGNORED_COMMON_ARGS), args, lang, defaultLang)
-    }
+    const rendered = renderRecursive(_.omit(args, IGNORED_COMMON_ARGS), args, lang, defaultLang)
 
-    if (args.text) {
-      this._prepareTextAndShuffle(args)
+    if (rendered.text) {
+      this._prepareTextAndShuffle(rendered)
     }
 
     try {
       const contentTypeRenderer = this.getContentType(contentTypeId)
-      let payloads = contentTypeRenderer.renderElement({ ...this._getAdditionalData(), ...args }, channel)
+      let payloads = contentTypeRenderer.renderElement({ ...this._getAdditionalData(), ...rendered }, channel)
       if (!_.isArray(payloads)) {
         payloads = [payloads]
       }
