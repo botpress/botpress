@@ -95,13 +95,10 @@ class Migrater {
   attachTranslation(root: any, basePath: string, current: any, fields: sdk.FormField[], lang: string) {
     for (const [key, value] of Object.entries<any>(current)) {
       const field = fields.find(x => x.key === key)
-      if (!field) {
-        continue
-      }
 
-      const path: string = field.translated ? `${basePath}.${key}.${lang}` : `${basePath}.${key}`
+      const path: string = field?.translated ? `${basePath}.${key}.${lang}` : `${basePath}.${key}`
 
-      if (field.fields) {
+      if (field?.fields) {
         const fields = this.getFieldsAndOptions(field)
 
         if (field.type === 'group') {
@@ -121,18 +118,19 @@ class Migrater {
     if (!field.fields) {
       return []
     }
-    let fields = field.fields
+    const fields = [...field.fields]
 
-    for (const subfield of field.fields) {
-      if (subfield.options) {
-        for (const option of subfield.options) {
-          if (option.related) {
-            if (fields === field.fields) {
-              fields = [...field.fields]
-            }
-            fields.push(option.related)
-          }
+    for (const { options } of field.fields) {
+      if (!options) {
+        continue
+      }
+
+      for (const option of options) {
+        if (!option.related) {
+          continue
         }
+
+        fields.push(option.related)
       }
     }
 
