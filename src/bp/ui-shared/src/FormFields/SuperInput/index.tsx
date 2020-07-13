@@ -1,6 +1,6 @@
 import { Button, Icon } from '@blueprintjs/core'
 import cx from 'classnames'
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import ReactDOMServer from 'react-dom/server'
 
 import { FieldProps } from '../../Contents/Components/typings'
@@ -28,8 +28,10 @@ export default ({
   const [isSearching, setIsSearching] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
   const inputRef = useRef<any>()
+  const dropdownRef = useRef<any>()
   const prefix = useRef('')
   const eventsDesc = events?.reduce((acc, event) => ({ ...acc, [event.name]: event.description }), {})
+  const dropdownItems = (prefix.current === '$' ? variables : events) || []
 
   // TODO implement the autocomplete selection when event selected is partial
 
@@ -68,20 +70,6 @@ export default ({
       document.execCommand('selectAll', true)
 
       return
-    }
-
-    if (isSearching) {
-      console.log(e.key)
-      switch (e.key) {
-        case 'Arrow Up':
-          e.preventDefault()
-          console.log('up')
-          break
-        case 'Arrow Down':
-          e.preventDefault()
-          console.log('down')
-          break
-      }
     }
   }
 
@@ -204,8 +192,8 @@ export default ({
         {value && convertToHtml(value!, tagTemplate)}
       </div>
       {isSearching && (
-        <div className={style.dropdown}>
-          {(prefix.current === '$' ? variables : events)?.filter(filterDropdown).map(item => (
+        <div className={style.dropdown} ref={dropdownRef}>
+          {dropdownItems?.filter(filterDropdown).map((item, index) => (
             <div key={item.name} className={style.dropdownItem} tabIndex={0} role="option">
               {item.name}
               <span className={style.description}>{eventsDesc?.[item.name] || ''}</span>
