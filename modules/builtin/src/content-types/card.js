@@ -33,8 +33,7 @@ module.exports = {
     }
   },
 
-  uiSchema: {
-  },
+  uiSchema: {},
 
   newSchema: {
     displayedIn: ['qna', 'sayNode'],

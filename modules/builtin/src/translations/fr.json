@@ -80,7 +80,7 @@
   "questionToAskUser": "Question pour l'utilisateur",
   "mustBePast": "Doit être dans le passé",
   "mustBeFuture": "Doit être dans le futur",
-  "entity": "Entité",
+  "enumType": "Type d'énumération",
   "question": "Question",
   "useDropdown": "Utiliser dropdown",
   "min": "Minimum",
@@ -104,7 +104,9 @@
     "confirmLeaving": "Désirez-vous vraiment abandonner?",
     "invalid": "La valeur est invalide",
     "date": {
-      "invalid": "La date ne semble pas valide"
+      "invalid": "La date ne semble pas valide",
+      "mustBePast": "La date doit être dans le passé",
+      "mustBeFuture": "La date doit être dans le futur"
     },
     "number": {
       "lowerThanMin": "La valeur est plus basse que le minimum permis",

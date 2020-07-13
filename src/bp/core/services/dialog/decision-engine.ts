@@ -56,33 +56,28 @@ export class DecisionEngine {
         this.onAfterEventProcessed && (await this.onAfterEventProcessed(event))
       }
     }
-    if (!event.restored) {
-      for (const { action, data } of event.ndu.actions) {
-        if (action === 'send' && data) {
-          const content = data as NDU.SendContent
-          await this._sendContent(content, event)
 
-          BOTPRESS_CORE_EVENT('bp_core_send_content', {
-            botId: event.botId,
-            channel: event.channel,
-            source: content.source,
-            details: content.sourceDetails!
-          })
-        } else if (action === 'redirect' || action === 'startWorkflow' || action === 'goToNode') {
-          const { flow, node } = data as NDU.FlowRedirect
-          const flowName = flow.endsWith('.flow.json') ? flow : `${flow}.flow.json`
+    for (const { action, data } of event.ndu.actions) {
+      if (action === 'send' && data) {
+        const content = data as NDU.SendContent
+        await this._sendContent(content, event)
 
-          if (event.state.session.prompt) {
-            await this.promptManager.promptJumpTo(event, { flowName, node })
-          } else {
-            await this.dialogEngine.jumpTo(sessionId, event, flowName, node)
-          }
-        }
+        BOTPRESS_CORE_EVENT('bp_core_send_content', {
+          botId: event.botId,
+          channel: event.channel,
+          source: content.source,
+          details: content.sourceDetails!
+        })
+      } else if (action === 'redirect' || action === 'startWorkflow' || action === 'goToNode') {
+        const { flow, node } = data as NDU.FlowRedirect
+        const flowName = flow.endsWith('.flow.json') ? flow : `${flow}.flow.json`
+        await this.dialogEngine.jumpTo(sessionId, event, flowName, node)
       }
     }
 
     const hasContinue = event.ndu.actions.find(x => x.action === 'continue')
-    if (!event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE) && hasContinue) {
+    const hasPrompt = event.ndu.actions.find(x => x.action.startsWith('prompt.'))
+    if (!event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE) && (hasContinue || hasPrompt)) {
       const processedEvent = await this.dialogEngine.processEvent(sessionId, event)
 
       // In case there are no unknown errors, remove skills/ flow from the stacktrace

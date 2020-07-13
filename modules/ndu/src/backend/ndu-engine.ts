@@ -318,7 +318,7 @@ export class UnderstandingEngine {
           event.ndu.actions = [...qnaActions]
           break
         case 'node':
-          event.ndu.actions = [{ action: 'continue' }] // TODO: NDU
+          event.ndu.actions = [{ action: trigger.effect }]
           break
       }
     } else {
@@ -453,21 +453,28 @@ export class UnderstandingEngine {
           const ln = node as sdk.ListenNode
 
           if (node.type === 'prompt') {
+            // TODO: Add triggers on the node itself instead of hardcoded here
             ln.triggers = [
               {
-                name: 'prompt_yes',
-                conditions: [{ id: 'user_intent_yes' }]
-              },
-              {
-                name: 'prompt_no',
-                conditions: [{ id: 'user_intent_no' }]
+                name: 'prompt_inform',
+                effect: 'prompt.inform',
+                conditions: [
+                  { id: 'prompt_listening' },
+                  { id: 'custom_confidence', params: { confidence: 0.7 } } // TODO: inform by type of prompt
+                  // { id: 'user_intent_is', params: { intentName: 'inform' } } // TODO: potentially custom intent
+                ]
               },
               {
                 name: 'prompt_cancel',
-                conditions: [{ id: 'user_intent_cancel' }]
-              },
-              { name: 'is_inside_prompt', conditions: [{ id: 'is_inside_prompt' }] }
+                effect: 'prompt.cancel',
+                conditions: [
+                  { id: 'prompt_listening' },
+                  { id: 'prompt_cancellable' },
+                  { id: 'user_intent_is', params: { intentName: 'cancel', topicName: 'global' } } // TODO: potentially custom intent
+                ]
+              }
             ]
+            // TODO: Add temporal listeners that check if the user changes his mind (next version)
           }
 
           triggers.push(
@@ -476,6 +483,7 @@ export class UnderstandingEngine {
                 <sdk.NDU.NodeTrigger>{
                   nodeId: ln.name,
                   name: trigger.name,
+                  effect: trigger.effect,
                   conditions: trigger.conditions.map(x => ({
                     ...x,
                     params: { topicName, wfName: flowName, ...x.params }
@@ -495,8 +503,7 @@ export class UnderstandingEngine {
           topicName: topicName,
           conditions: [
             {
-              id: 'user_intent_is',
-
+              id: 'user_intent_is', // TODO: this should be moved somewhere else
               params: {
                 intentName: faq.name,
                 topicName: topicName

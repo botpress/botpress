@@ -1,19 +1,22 @@
-import { IO } from 'botpress/sdk'
+import { Content, IO } from 'botpress/sdk'
 import { FlowView } from 'common/typings'
 import { createForGlobalHooks } from 'core/api'
+import { EventRepository } from 'core/repositories'
 import { TYPES } from 'core/types'
-import { inject, injectable } from 'inversify'
+import { inject, injectable, postConstruct } from 'inversify'
+import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 
 import { converseApiEvents } from '../converse'
 import { Hooks, HookService } from '../hook/hook-service'
+import { DialogStore } from '../middleware/dialog-store'
+import { EventEngine } from '../middleware/event-engine'
 
 import { FlowError, ProcessingError, TimeoutNodeNotFound } from './errors'
 import { FlowService } from './flow/service'
 import { InstructionProcessor } from './instruction/processor'
 import { InstructionQueue } from './instruction/queue'
 import { PromptManager } from './prompt-manager'
-import { isPromptEvent } from './prompt-utils'
 import { InstructionsQueueBuilder } from './queue-builder'
 
 const debug = DEBUG('dialog')
@@ -29,25 +32,22 @@ export class DialogEngine {
   constructor(
     @inject(TYPES.FlowService) private flowService: FlowService,
     @inject(TYPES.HookService) private hookService: HookService,
+    @inject(TYPES.EventRepository) private eventRepository: EventRepository,
     @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
-    @inject(TYPES.PromptManager) private promptManager: PromptManager
-  ) {
-    // Can't inject the dialog engine in the prompt manager directly (circular reference)
-    this.promptManager.dialogEngine = this
-  }
+    @inject(TYPES.PromptManager) private promptManager: PromptManager,
+    @inject(TYPES.EventEngine) private eventEngine: EventEngine
+  ) {}
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent): Promise<IO.IncomingEvent> {
     const botId = event.botId
     await this._loadFlows(botId)
 
-    if (isPromptEvent(event)) {
-      await this.promptManager.processPrompt(event)
-      return event
-    }
+    const context: IO.DialogContext = _.isEmpty(event.state.context)
+      ? this.initializeContext(event)
+      : event.state.context
 
-    const context = _.isEmpty(event.state.context) ? this.initializeContext(event) : event.state.context
-    const currentFlow = this._findFlow(botId, context.currentFlow)
-    const currentNode = this._findNode(botId, currentFlow, context.currentNode)
+    const currentFlow = this._findFlow(botId, context.currentFlow!)
+    const currentNode = this._findNode(botId, currentFlow, context.currentNode!)
 
     if (event.ndu) {
       const workflowName = currentFlow.name?.replace('.flow.json', '')
@@ -58,7 +58,7 @@ export class DialogEngine {
       if (currentWorkflow !== workflowName || !event.state.session.workflows?.[workflowName]) {
         this.changeWorkflow(event, workflowName)
         event.state.session.currentWorkflow = workflowName
-      }
+      } // TODO: this is weird, check
 
       const workflowEnded = currentNode.type === 'success' || currentNode.type === 'failure'
       if (workflowEnded && workflow) {
@@ -66,10 +66,83 @@ export class DialogEngine {
         workflow.status = 'completed'
       }
 
-      if (currentNode.type === 'prompt' && !this.promptManager.hasCurrentNodeBeenProcessed(event)) {
-        event.prompt = currentNode.prompt
-        return this.processEvent(sessionId, event)
+      if (currentNode.type === 'prompt' && !context.activePrompt && !this._getCurrentNodeValue(event, 'processed')) {
+        context.activePrompt = {
+          stage: 'new',
+          status: 'pending',
+          state: {},
+          turn: 0,
+          config: {
+            type: currentNode.prompt!.type,
+            ...currentNode.prompt!.params
+          }
+        }
       }
+
+      if (context.activePrompt?.status === 'pending') {
+        if (context.activePrompt?.stage !== 'new') {
+          context.activePrompt.turn++
+        }
+
+        const previousEvents = await this.eventRepository
+          .findEvents(
+            { direction: 'incoming', target: event.target },
+            {
+              count: context.activePrompt.config.searchBackCount,
+              sortOrder: [{ column: 'createdOn', desc: true }]
+            }
+          )
+          .then(events => events.map(x => <IO.IncomingEvent>x.event))
+
+        const { status: promptStatus, actions } = await this.promptManager.processPrompt(event, previousEvents)
+        context.activePrompt = promptStatus
+
+        for (const { type, payload, message, eventType } of actions) {
+          if (type === 'say') {
+            const incomingEventId = event.id
+
+            if (payload) {
+              await this.eventEngine.replyContentToEvent(payload, event, { incomingEventId, eventType })
+            } else if (message) {
+              const text: Content.Text = {
+                type: 'text',
+                text: message
+              }
+
+              await this.eventEngine.replyContentToEvent(text, event, { incomingEventId })
+            }
+          }
+
+          if (type === 'listen') {
+            return event
+          }
+        }
+      }
+
+      if (context.activePrompt?.status === 'resolved') {
+        const { config, state } = context.activePrompt
+
+        event.state.createVariable(config.output, state.value, config.type, {
+          nbOfTurns: config.duration ?? 10,
+          enumType: config.enumType
+        })
+
+        this._setCurrentNodeValue(event, 'extracted', true)
+      }
+
+      if (context.activePrompt?.status === 'rejected') {
+        this._setCurrentNodeValue(event, context.activePrompt.rejection!, true)
+
+        if (context.activePrompt.rejection === 'jumped') {
+          const { flowName, node } = context.activePrompt.state.nextDestination!
+          await this.jumpTo(sessionId, event, flowName, node)
+
+          return this.processEvent(sessionId, event)
+        }
+      }
+
+      this._setCurrentNodeValue(event, 'processed', true)
+      delete context.activePrompt
     }
 
     // Property type skill-call means that the node points to a subflow.
@@ -201,7 +274,31 @@ export class DialogEngine {
     }
   }
 
+  private _setCurrentNodeValue(event: IO.IncomingEvent, variable: string, value: any) {
+    _.set(event.state.temp, `[${event.state.context.currentNode!}].${variable}`, value)
+  }
+
+  private _getCurrentNodeValue(event: IO.IncomingEvent, variable: string): any {
+    return _.get(event.state.temp, `[${event.state.context.currentNode!}].${variable}`)
+  }
+
   public async jumpTo(sessionId: string, event: IO.IncomingEvent, targetFlowName: string, targetNodeName?: string) {
+    const prompt = event.state.context?.activePrompt
+    if (prompt) {
+      if (!prompt.config.cancellable) {
+        return
+      }
+
+      if (prompt.config.confirmCancellation && prompt.stage !== 'confirm-jump') {
+        prompt.stage = 'confirm-jump'
+        prompt.state.nextDestination = { flowName: targetFlowName, node: targetNodeName! }
+
+        return
+      }
+
+      delete event.state.context.activePrompt
+    }
+
     const botId = event.botId
     await this._loadFlows(botId)
 

@@ -13,17 +13,15 @@ class PromptDate implements Prompt {
     this._mustBeFuture = mustBeFuture
   }
 
-  extraction(event: IO.IncomingEvent): ExtractionResult | undefined {
-    const entity = event.nlu?.entities?.find(x => x.type === 'system.time')
-    if (entity) {
-      return {
-        value: moment(entity.data.value).format('YYYY-MM-DD'),
-        confidence: entity.meta.confidence
-      }
-    }
+  extraction(event: IO.IncomingEvent): ExtractionResult[] {
+    const entities = event.nlu?.entities?.filter(x => x.type === 'system.time') ?? []
+    return entities.map(entity => ({
+      value: moment(entity.data.value).format('YYYY-MM-DD'),
+      confidence: entity.meta.confidence
+    }))
   }
 
-  async validate(value): Promise<ValidationResult> {
+  validate(value): ValidationResult {
     const { _mustBePast, _mustBeFuture } = this
 
     if (value == undefined) {
