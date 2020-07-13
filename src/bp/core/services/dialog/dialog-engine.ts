@@ -35,7 +35,8 @@ export class DialogEngine {
     @inject(TYPES.EventRepository) private eventRepository: EventRepository,
     @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
     @inject(TYPES.PromptManager) private promptManager: PromptManager,
-    @inject(TYPES.EventEngine) private eventEngine: EventEngine
+    @inject(TYPES.EventEngine) private eventEngine: EventEngine,
+    @inject(TYPES.DialogStore) private dialogStore: DialogStore
   ) {}
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent): Promise<IO.IncomingEvent> {
@@ -67,32 +68,25 @@ export class DialogEngine {
       }
 
       if (currentNode.type === 'prompt' && !context.activePrompt && !this._getCurrentNodeValue(event, 'processed')) {
+        const { type, params } = currentNode.prompt!
         context.activePrompt = {
           stage: 'new',
           status: 'pending',
           state: {},
           turn: 0,
           config: {
-            type: currentNode.prompt!.type,
-            ...currentNode.prompt!.params
+            type,
+            valueType: this.dialogStore.getPromptConfig(type)?.valueType,
+            ...params
           }
         }
       }
 
       if (context.activePrompt?.status === 'pending') {
-        if (context.activePrompt?.stage !== 'new') {
-          context.activePrompt.turn++
-        }
-
-        const previousEvents = await this.eventRepository
-          .findEvents(
-            { direction: 'incoming', target: event.target },
-            {
-              count: context.activePrompt.config.searchBackCount,
-              sortOrder: [{ column: 'createdOn', desc: true }]
-            }
-          )
-          .then(events => events.map(x => <IO.IncomingEvent>x.event))
+        const previousEvents =
+          context.activePrompt.stage === 'new'
+            ? await this._getPreviousEvents(event.target, context.activePrompt.config.searchBackCount)
+            : []
 
         const { status: promptStatus, actions } = await this.promptManager.processPrompt(event, previousEvents)
         context.activePrompt = promptStatus
@@ -116,13 +110,17 @@ export class DialogEngine {
           if (type === 'listen') {
             return event
           }
+
+          if (type === 'cancel') {
+            this._setCurrentNodeValue(event, 'cancelled', true)
+          }
         }
       }
 
       if (context.activePrompt?.status === 'resolved') {
         const { config, state } = context.activePrompt
 
-        event.state.createVariable(config.output, state.value, config.type, {
+        event.state.createVariable(config.output, state.value, config.valueType!, {
           nbOfTurns: config.duration ?? 10,
           enumType: config.enumType
         })
@@ -313,8 +311,14 @@ export class DialogEngine {
     event.state.context.hasJumped = true
   }
 
-  public async processTimeout(botId: string, sessionId: string, event: IO.IncomingEvent) {
+  public async processTimeout(botId: string, sessionId: string, event: IO.IncomingEvent, isPrompt?: boolean) {
     this._debug(event.botId, event.target, 'processing timeout')
+
+    if (isPrompt) {
+      this._setCurrentNodeValue(event, 'timeout', true)
+      delete event.state.context.activePrompt
+      return this.processEvent(sessionId, event)
+    }
 
     const api = await createForGlobalHooks()
     await this.hookService.executeHook(new Hooks.BeforeSessionTimeout(api, event))
@@ -632,5 +636,21 @@ export class DialogEngine {
 
   private _logTransition(botId, target, currentFlow, currentNode, transitionTo) {
     this._debug(botId, target, `transit (${currentFlow}) [${currentNode}] -> [${transitionTo}]`)
+  }
+
+  private _getPreviousEvents(target: string, searchBackCount: number) {
+    if (!searchBackCount) {
+      return []
+    }
+
+    return this.eventRepository
+      .findEvents(
+        { direction: 'incoming', target },
+        {
+          count: searchBackCount,
+          sortOrder: [{ column: 'createdOn', desc: true }]
+        }
+      )
+      .then(events => events.map(x => <IO.IncomingEvent>x.event))
   }
 }

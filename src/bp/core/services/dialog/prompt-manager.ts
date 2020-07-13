@@ -158,7 +158,7 @@ export class PromptManager {
     const tryElect = (value: any): boolean => {
       const { valid, message } = prompt.validate(value)
       if (!valid) {
-        actions.push({ type: 'say', message: message || 'THIS IS THE BUG' })
+        actions.push({ type: 'say', message })
       }
       return valid
     }
@@ -170,9 +170,13 @@ export class PromptManager {
       .first()
       .value()
 
+    if (status.stage !== 'new') {
+      status.turn++
+    }
+
     if (status.stage === 'confirm-cancel') {
       if (event.ndu?.actions?.find(x => x.action === 'prompt.cancel') || confirmValue?.value === true) {
-        this._setCurrentNodeValue(event, 'cancelled', true) // TODO: move this to engine instead
+        actions.push({ type: 'cancel' })
         return generateRejected(actions, status, 'cancelled')
       }
     }
@@ -268,7 +272,7 @@ export class PromptManager {
     } else if (shortlisted.length > 1) {
       return generateDisambiguate(actions, status, shortlisted)
     } else {
-      if (others.length === 1) {
+      if (others.length === 1 && !this.prompts.find(x => x.id === status.config.type)?.config.noConfirmation) {
         return generateCandidate(actions, status, others[0])
       } else if (others.length > 1) {
         return generateDisambiguate(actions, status, others)
@@ -286,19 +290,8 @@ export class PromptManager {
     return generatePrompt(actions, status)
   }
 
-  private _setCurrentNodeValue(event: IO.IncomingEvent, variable: string, value: any) {
-    // TODO: move to dialog engine
-    _.set(event.state.temp, `[${event.state.context.currentNode!}].${variable}`, value)
-  }
-
   private _electSlot(event: IO.IncomingEvent, slotName: string) {
     _.set(event.state.session, `slots.${slotName}.elected`, true)
-  }
-
-  public async processTimeout(event) {
-    // TODO: move to dialog engine
-    this._setCurrentNodeValue(event, 'timeout', true)
-    return event
   }
 
   private loadPrompt(type: string, params: any): Prompt {

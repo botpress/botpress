@@ -4,6 +4,14 @@ const common: FormDefinition = {
   fields: [
     {
       type: 'text',
+      key: 'question',
+      translated: true,
+      maxLength: 150,
+      placeholder: 'module.builtin.messagePlaceholder',
+      label: 'message'
+    },
+    {
+      type: 'text',
       key: 'output',
       label: 'module.builtin.setValueTo',
       placeholder: 'module.builtin.setValueToPlaceholder',
@@ -12,14 +20,6 @@ const common: FormDefinition = {
         modifier: 'gi',
         replaceChar: '_'
       }
-    },
-    {
-      type: 'text',
-      key: 'question',
-      translated: true,
-      maxLength: 150,
-      placeholder: 'module.builtin.messagePlaceholder',
-      label: 'message'
     }
   ],
   advancedSettings: [
@@ -36,7 +36,7 @@ const common: FormDefinition = {
       key: 'duration',
       defaultValue: 5,
       min: 0,
-      moreInfo: { label: 'module.builtin.durationMoreInfo' },
+      // moreInfo: { label: 'module.builtin.durationMoreInfo' },
       label: 'module.builtin.duration'
     },
     {
@@ -45,7 +45,7 @@ const common: FormDefinition = {
       defaultValue: 0,
       min: 0,
       max: 10,
-      moreInfo: { label: 'module.builtin.searchBackCountMoreInfo' },
+      // moreInfo: { label: 'module.builtin.searchBackCountMoreInfo' },
       label: 'module.builtin.searchBackCount'
     },
     {
@@ -56,7 +56,7 @@ const common: FormDefinition = {
     {
       type: 'checkbox',
       key: 'confirmCancellation',
-      moreInfo: { label: 'module.builtin.confirmBeforeCancelMoreInfo' },
+      // moreInfo: { label: 'module.builtin.confirmBeforeCancelMoreInfo' },
       label: 'module.builtin.confirmBeforeCancel'
     }
   ]

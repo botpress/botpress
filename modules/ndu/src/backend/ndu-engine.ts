@@ -456,6 +456,16 @@ export class UnderstandingEngine {
             // TODO: Add triggers on the node itself instead of hardcoded here
             ln.triggers = [
               {
+                name: 'prompt_yes',
+                effect: 'prompt.inform',
+                conditions: [{ id: 'user_intent_yes' }]
+              },
+              {
+                name: 'prompt_no',
+                effect: 'prompt.inform',
+                conditions: [{ id: 'user_intent_no' }]
+              },
+              {
                 name: 'prompt_inform',
                 effect: 'prompt.inform',
                 conditions: [

@@ -779,13 +779,13 @@ declare module 'botpress/sdk' {
     }
 
     export interface DialogAction {
-      type: 'say' | 'listen'
+      type: 'say' | 'listen' | 'cancel'
       message?: MultiLangText | string
       payload?: any
       eventType?: string
     }
 
-    export type PromptConfiguration = { type: string } & PromptNodeParams
+    export type PromptConfiguration = { type: string; valueType?: string } & PromptNodeParams
 
     export interface PromptCandidate {
       source: 'slot' | 'prompt'
@@ -1612,21 +1612,20 @@ declare module 'botpress/sdk' {
   }
 
   /** The configuration of the prompt which is saved on the flow */
-  export type PromptConfig = {
+  export interface PromptConfig {
     /** An ID used internally to refer to this prompt */
     type: string
     /** The label displayed in the studio */
     label?: string
     icon?: string
     /** The ID representing the type of value that is collected by this prompt */
-    valueType?: string
-    /** A list of ID represented by the type of values collected by this prompt */
-    valueTypes?: string[]
-    /** The minimum confidence required for the value to be considered valid */
-    minConfidence?: number
-    /** Whatever happens, the prompt will never ask the user to validate the provided value */
-    noValidation?: boolean
-  } & FormDefinition
+    valueType: string
+    /** Will never trigger a confirmation for a previous value */
+    noConfirmation?: boolean
+    /** Fields to configure the prompt on the studio */
+    fields: FormField[]
+    advancedSettings: FormField[]
+  }
 
   export interface PromptNode {
     type: string

@@ -22,12 +22,19 @@ class PromptConfirm implements Prompt {
     const topConfirmation = _.chain(event.ndu.triggers)
       .values()
       .filter(val => val.trigger.name?.startsWith('prompt_'))
-      .map(x => ({ name: x.trigger.name, confidence: x.result[Object.keys(x.result)[0]] }))
+      .map(x => ({
+        name: x.trigger.name,
+        confidence: Object.values(x.result).reduce((total, conf) => total * conf)
+      }))
       .orderBy(x => x.confidence, 'desc')
       .first()
       .value()
 
-    return [{ value: topConfirmation?.name === 'prompt_yes', confidence: topConfirmation?.confidence ?? 0 }]
+    if (!topConfirmation || !['prompt_yes', 'prompt_no'].includes(topConfirmation.name)) {
+      return []
+    }
+
+    return [{ value: topConfirmation.name === 'prompt_yes', confidence: topConfirmation.confidence ?? 0 }]
   }
 
   validate(value): sdk.ValidationResult {
@@ -39,8 +46,7 @@ const config: PromptConfig = {
   type: 'confirm',
   label: 'Confirm',
   valueType: 'boolean',
-  minConfidence: 0.3,
-  noValidation: true,
+  noConfirmation: true,
   fields: common.fields,
   advancedSettings: common.advancedSettings
 }

@@ -40,6 +40,7 @@ const config: PromptConfig = {
   label: 'String',
   valueType: 'string',
   fields: common.fields,
+  noConfirmation: true,
   advancedSettings: [
     {
       type: 'number',

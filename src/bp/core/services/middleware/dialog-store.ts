@@ -79,10 +79,6 @@ export class DialogStore {
     }
   }
 
-  public getPrompts(): sdk.PromptDefinition[] {
-    return this._prompts
-  }
-
   public getEnumForBot(botId: string, enumType?: string): sdk.NLU.EntityDefOccurrence[] | undefined {
     return this._enums[botId]?.find(x => x.id === enumType)?.occurrences
   }
@@ -93,6 +89,10 @@ export class DialogStore {
 
   public getVariableConfig(botId: string, wfName: string, varName: string): sdk.FlowVariable | undefined {
     return this._wfVariables[botId]?.[wfName]?.find(x => x.name === varName)
+  }
+
+  public getPromptConfig(type: string): sdk.PromptConfig | undefined {
+    return this._prompts.find(x => x.id === type)?.config
   }
 
   private async _reloadEnums(botId: string) {
