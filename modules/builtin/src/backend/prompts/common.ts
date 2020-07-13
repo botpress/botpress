@@ -51,6 +51,7 @@ const common: FormDefinition = {
     {
       type: 'checkbox',
       key: 'cancellable',
+      defaultValue: true,
       label: 'Prompt can be cancelled'
     },
     {
