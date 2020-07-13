@@ -7,7 +7,7 @@ import { computeModelHash, Model } from './model-service'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
-import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
+import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainStep, TrainOutput } from './training-pipeline'
 import {
   EntityCacheDump,
   ListEntity,
@@ -16,7 +16,8 @@ import {
   Tools,
   TrainingSession,
   NLUVersionInfo,
-  Intent
+  Intent,
+  TrainingCanceledError
 } from './typings'
 
 const trainDebug = DEBUG('nlu').sub('training')
@@ -31,7 +32,7 @@ export default class Engine implements NLUEngine {
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<Model> = {}
 
-  constructor(private defaultLanguage: string, private botId: string, private version: NLUVersionInfo) {}
+  constructor(private defaultLanguage: string, private botId: string, private version: NLUVersionInfo) { }
 
   static provideTools(tools: Tools) {
     Engine.tools = tools
@@ -113,11 +114,32 @@ export default class Engine implements NLUEngine {
       ctxToTrain
     }
 
-    // Model should be build here, Trainer should not have any idea of how this is stored
-    // Error handling should be done here
-    let model = await Trainer(input, Engine.tools)
+    let model: Partial<Model> = {
+      startedAt: new Date(),
+      languageCode: input.languageCode,
+      data: {
+        input
+      }
+    }
+
+    try {
+      const artefacts = await Trainer(input, Engine.tools)
+      model.success = true
+      _.merge(model, { success: true, data: { artefacts } })
+    } catch (err) {
+      model.success = false
+
+      if (err instanceof TrainingCanceledError) {
+        trainDebug.forBot(input.botId, 'Training aborted')
+      } else {
+        trainDebug.forBot(input.botId, `Could not finish training NLU model \n ${err}`)
+      }
+    } finally {
+      model.finishedAt = new Date()
+    }
+
     if (!trainAllCtx) {
-      model = this._mergeModels(previousModel, model)
+      model = this._mergeModels(previousModel, model as Model)
     }
 
     model.hash = computeModelHash(intentDefs, entityDefs, this.version, model.languageCode)
@@ -128,11 +150,9 @@ export default class Engine implements NLUEngine {
           progress: 1,
           status: 'done'
         })
-
       trainDebug.forBot(this.botId, `Successfully finished ${languageCode} training`)
     }
-
-    return model
+    return model as Model
   }
 
   private modelAlreadyLoaded(model: Model) {
@@ -158,10 +178,10 @@ export default class Engine implements NLUEngine {
       const intents = await ProcessIntents(
         model.data.input.intents,
         model.languageCode,
-        model.data.artefacts.list_entities,
+        model.data.output.list_entities,
         Engine.tools
       )
-      model.data.output = { intents } as TrainOutput
+      model.data.output.intents = intents
     }
 
     this._warmEntitiesCaches(_.get(model, 'data.artefacts.list_entities', []))
@@ -182,16 +202,16 @@ export default class Engine implements NLUEngine {
   }
 
   private async _makePredictors(model: Model): Promise<Predictors> {
-    const { input, output, artefacts } = model.data
+    const { input, output } = model.data
     const tools = Engine.tools
 
     if (_.flatMap(input.intents, i => i.utterances).length <= 0) {
       // we don't want to return undefined as extraction won't be triggered
       // we want to make it possible to extract entities without having any intents
-      return { ...artefacts, contexts: [], intents: [], pattern_entities: input.pattern_entities } as Predictors
+      return { ...output, contexts: [], intents: [], pattern_entities: input.pattern_entities } as Predictors
     }
 
-    const { ctx_model, intent_model_by_ctx, oos_model } = artefacts
+    const { ctx_model, intent_model_by_ctx, oos_model } = output
     const ctx_classifier = ctx_model ? new tools.mlToolkit.SVM.Predictor(ctx_model) : undefined
     const intent_classifier_per_ctx = _.toPairs(intent_model_by_ctx).reduce(
       (c, [ctx, intentModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(intentModel as string) }),
@@ -202,12 +222,12 @@ export default class Engine implements NLUEngine {
       {} as _.Dictionary<MLToolkit.SVM.Predictor>
     )
     const slot_tagger = new SlotTagger(tools.mlToolkit)
-    slot_tagger.load(artefacts.slots_model)
+    slot_tagger.load(output.slots_model)
 
     const kmeans = computeKmeans(output.intents, tools) // TODO load from artefacts when persisted
 
     return {
-      ...artefacts,
+      ...output,
       ctx_classifier,
       oos_classifier_per_ctx: oos_classifier,
       intent_classifier_per_ctx,
@@ -231,17 +251,17 @@ export default class Engine implements NLUEngine {
   }
 
   private _mergeModels(previousModel: Model, trainingOuput: Model) {
-    const { artefacts: previousArtefacts } = previousModel.data
-    const { artefacts: currentArtefacts } = trainingOuput.data
-    if (!previousArtefacts || !currentArtefacts) {
+    const previousModelDatas = previousModel.data
+    const currentModelDatas = trainingOuput.data
+    if (!previousModelDatas || !currentModelDatas) {
       return previousModel
     }
 
-    const artefacts = _.merge({}, previousArtefacts, currentArtefacts)
+    const artefacts = _.merge({}, previousModelDatas, currentModelDatas)
     const mergedModel = _.merge({}, trainingOuput, { data: { artefacts } })
 
     // lodash merge messes up buffers objects
-    mergedModel.data.artefacts.slots_model = new Buffer(mergedModel.data.artefacts.slots_model)
+    mergedModel.data.output.slots_model = new Buffer(mergedModel.data.output.slots_model)
     return mergedModel
   }
 

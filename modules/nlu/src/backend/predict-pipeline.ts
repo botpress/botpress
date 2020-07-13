@@ -9,13 +9,13 @@ import { isPOSAvailable } from './language/pos-tagger'
 import { getUtteranceFeatures } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import { replaceConsecutiveSpaces } from './tools/strings'
-import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './training-pipeline'
+import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainOutput } from './training-pipeline'
 import { Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
 import Utterance, { buildUtteranceBatch, getAlternateUtterance } from './utterance/utterance'
 
 export type ExactMatchResult = (sdk.MLToolkit.SVM.Prediction & { extractor: 'exact-matcher' }) | undefined
 
-export type Predictors = TrainArtefacts & {
+export type Predictors = TrainOutput & {
   ctx_classifier: sdk.MLToolkit.SVM.Predictor
   intent_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
   oos_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
@@ -382,9 +382,9 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
     const intents = !intentPred
       ? []
       : intentPred.map(i => ({
-          ...i,
-          slots: (step.slot_predictions_per_intent[i.label] || []).reduce(slotsCollectionReducer, {})
-        }))
+        ...i,
+        slots: (step.slot_predictions_per_intent[i.label] || []).reduce(slotsCollectionReducer, {})
+      }))
 
     return {
       ...preds,
