@@ -119,7 +119,7 @@ module.exports = {
                 related: {
                   placeholder: 'module.builtin.types.actionButton.urlPlaceholder',
                   type: 'url',
-                  key: 'text',
+                  key: 'url',
                   label: 'URL'
                 }
               },
@@ -128,7 +128,7 @@ module.exports = {
                 label: 'module.builtin.types.actionButton.postLabel',
                 related: {
                   type: 'textarea',
-                  key: 'text',
+                  key: 'payload',
                   label: 'module.builtin.types.actionButton.postFieldLabel'
                 }
               }
