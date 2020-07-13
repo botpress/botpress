@@ -6,4 +6,5 @@ export interface SuperInputProps {
   events?: BotEvent[]
   multiple?: boolean
   canAddElements?: boolean
+  customClassName?: string
 }
