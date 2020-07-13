@@ -77,9 +77,7 @@ class Bots extends Component<Props> {
       this.props.fetchLicensing()
     }
 
-    if (window.SEND_USAGE_STATS) {
-      setupOfflineTelemetryFallback()
-    }
+    window.SEND_USAGE_STATS && setupOfflineTelemetryFallback()
   }
 
   toggleCreateBotModal = () => {
