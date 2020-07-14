@@ -73,7 +73,7 @@ export class WorkspaceService {
       throw new Error(`Specified workspace "${workspaceId}" doesn't exist`)
     }
 
-    if (!workspace.bots.includes(botId))  {
+    if (!workspace.bots.includes(botId)) {
       workspace.bots.push(botId)
     }
     return this.save(workspaces)
