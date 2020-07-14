@@ -7,32 +7,20 @@ import { calculateHash } from 'core/misc/utils'
 import { TelemetryRepository } from 'core/repositories/telemetry_payload'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
+import _ from 'lodash'
 import ms from 'ms'
-import path from 'path'
 
 import { GhostService } from '..'
+import { BotService } from '../bot-service'
+import { FlowService } from '../dialog/flow/service'
 import { JobService } from '../job-service'
 
 import { TelemetryStats } from './telemetry-stats'
 
-type NextNode = {
-  condition: string
-  node: string
-}
-
-type Node = {
-  id: string
-  name: string
-  next: Array<NextNode>
-  onEnter: Array<string>
-  onReceive: Array<string>
-  type: string
-}
-
-type Flow = {
+interface Flow {
   flowName: string
   botID: string
-  actions: Array<string>
+  actions: string[]
 }
 
 @injectable()
@@ -46,7 +34,9 @@ export class ActionsStats extends TelemetryStats {
     @inject(TYPES.Database) database: Database,
     @inject(TYPES.LicensingService) licenseService: LicensingService,
     @inject(TYPES.JobService) jobService: JobService,
-    @inject(TYPES.TelemetryRepository) telemetryRepo: TelemetryRepository
+    @inject(TYPES.TelemetryRepository) telemetryRepo: TelemetryRepository,
+    @inject(TYPES.FlowService) private flowService: FlowService,
+    @inject(TYPES.BotService) private botService: BotService
   ) {
     super(ghostService, database, licenseService, jobService, telemetryRepo)
     this.url = process.TELEMETRY_URL
@@ -63,27 +53,22 @@ export class ActionsStats extends TelemetryStats {
   }
 
   private async getFlowsWithActions() {
-    const paths = await this.ghostService.bots().directoryListing('/', '*/flows/*.flow.json')
-    let flows
-    try {
-      flows = await Promise.map(paths, async flowPath => {
-        const { dir, base: flowName } = path.parse(flowPath)
-        const botID = dir.split('/')[0]
-        const actions = (await this.ghostService.bots().readFileAsObject<any>(dir, flowName)).nodes
-          .map(node => this.getActionsFromNode(node))
-          .reduce((acc, cur) => [...acc, ...cur])
-        return { flowName, botID, actions }
-      })
-    } catch (error) {
-      return {}
-    }
-    return flows.filter(flow => flow.actions.length > 0).map(flow => this.parseFlow(flow))
-  }
+    const botIds = await this.botService.getBotsIds()
+    const flows = _.flatten(
+      await Promise.map(botIds, async botID => {
+        const flowView = await this.flowService.loadAll(botID)
+        return flowView.map(flow => {
+          const { name } = flow
+          const actions = flow.nodes
+            .map(node => [...((node.onEnter as string[]) ?? []), ...((node.onReceive as string[]) ?? [])])
+            .reduce((acc, cur) => [...acc, ...cur])
 
-  private getActionsFromNode(node: Node) {
-    const onEnter = node.onEnter ?? []
-    const onReceive = node.onReceive ?? []
-    return [...onEnter, ...onReceive]
+          return { flowName: name, botID, actions }
+        })
+      })
+    )
+    console.log(JSON.stringify(flows.filter(flow => flow.actions.length > 0).map(flow => this.parseFlow(flow))))
+    return flows.filter(flow => flow.actions.length > 0).map(flow => this.parseFlow(flow))
   }
 
   private parseFlow(flow: Flow) {

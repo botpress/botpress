@@ -33,6 +33,4 @@ window['BlueprintJsSelect'] = BlueprintJsSelect
 initializeTranslations()
 ReactDOM.render(<div>{routes}</div>, document.getElementById('root'))
 
-if (window.SEND_USAGE_STATS) {
-  startTelemetry()
-}
+window.SEND_USAGE_STATS && startTelemetry()

@@ -9,6 +9,7 @@ import { inject, injectable } from 'inversify'
 import ms from 'ms'
 import os from 'os'
 import uuid from 'uuid'
+import yn from 'yn'
 
 import { GhostService } from '..'
 import AuthService from '../auth/auth-service'
@@ -51,13 +52,7 @@ export class LegacyStats extends TelemetryStats {
       schema: '1.0.0',
       timestamp: new Date().toISOString(),
       uuid: uuid.v4(),
-      server: {
-        ...(await this.getServerStats()),
-        machineUUID: await machineUUID(),
-        totalMemoryBytes: os.totalmem(),
-        uptime: Math.round(process.uptime()),
-        fingerprint: await this.getServerFingerprint()
-      },
+      server: await this.getServerStats(),
       license: {
         type: process.IS_PRO_ENABLED ? 'pro' : 'ce',
         status: await this.getLicenseStatus(),
@@ -124,12 +119,22 @@ export class LegacyStats extends TelemetryStats {
     }
   }
 
-  private async getServerFingerprint(): Promise<string | null> {
-    try {
-      return this.licenseService.getFingerprint('cluster_url')
-    } catch (err) {
-      // tslint:disable-next-line: no-null-keyword
-      return null
+  protected async getServerStats() {
+    return {
+      externalUrl: process.EXTERNAL_URL,
+      botpressVersion: process.BOTPRESS_VERSION,
+      clusterEnabled: yn(process.CLUSTER_ENABLED, { default: false }),
+      os: process.platform,
+      bpfsStorage: process.BPFS_STORAGE,
+      dbType: this.database.knex.isLite ? 'sqlite' : 'postgres',
+      machineUUID: await machineUUID(),
+      fingerprint: await this.getServerFingerprint(),
+      totalMemoryBytes: os.totalmem(),
+      uptime: Math.round(process.uptime()),
+      license: {
+        type: process.IS_PRO_ENABLED ? 'pro' : 'ce',
+        status: await this.getLicenseStatus()
+      }
     }
   }
 
@@ -163,10 +168,6 @@ export class LegacyStats extends TelemetryStats {
 
   private async getQnaCount(): Promise<number> {
     return (await this.ghostService.bots().directoryListing('/', '*/qna/*')).length
-  }
-
-  private async getLicenseStatus(): Promise<string> {
-    return (await this.licenseService.getLicenseStatus()).status
   }
 
   private async getGlobalHooksCount(): Promise<number> {

@@ -1,7 +1,5 @@
 import { ConfigProvider } from 'core/config/config-loader'
-import { DataRetentionService } from 'core/services/retention/service'
 import { inject, injectable } from 'inversify'
-import Knex from 'knex'
 import _ from 'lodash'
 import moment from 'moment'
 
@@ -10,17 +8,17 @@ import { TYPES } from '../types'
 
 const DEFAULT_ENTRIES_LIMIT = 1000
 
-type TelemetryEntries = {
+interface TelemetryEntries {
   url: string
-  events: Array<JSON>
+  events: any[]
 }
 
-type TelemetryEntry = {
+interface TelemetryEntry {
   uuid: string
-  payload: JSON
-  available: Knex.Bool
-  lastChanged: Knex.Date
-  creationDate: Knex.Date
+  payload: any
+  available: boolean
+  lastChanged: Date
+  creationDate: Date
 }
 
 @injectable()
@@ -111,22 +109,17 @@ export class TelemetryRepository {
   }
 
   async getEntry(uuid: string): Promise<TelemetryEntry> {
-    return (await this.database.knex
+    return await this.database.knex
       .from(this.tableName)
       .select('*')
       .where('uuid', uuid)
-      .then(res => {
-        if (!res || !res.length) {
-          throw new Error('Entity not found')
-        }
-        return res[0]
-      })) as TelemetryEntry
+      .first()
   }
 
   async removePayload(uuid: string): Promise<void> {
     await this.database
       .knex(this.tableName)
-      .where({ uuid: uuid })
+      .where({ uuid })
       .del()
   }
 }

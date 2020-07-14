@@ -3,14 +3,16 @@ import uuid from 'uuid'
 export type ServerStats = {
   externalUrl: string
   botpressVersion: string
-  // fingerprint: string | null
   clusterEnabled: boolean
-  // machineUUID: string
   os: string
-  // totalMemoryBytes: number
-  // uptime: number
   bpfsStorage: string
   dbType: string
+  machineUUID: string
+  fingerprint: string | null
+  license: {
+    status: string
+    type: string
+  }
 }
 
 export type Schema = {

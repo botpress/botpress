@@ -19,7 +19,7 @@ import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { generatePath, RouteComponentProps } from 'react-router'
 import { Alert, Col, Row } from 'reactstrap'
-import { setupServerPackageLoop } from '~/telemetry/offlineServerFallback'
+import { setupOfflineTelemetryFallback } from '~/telemetry/offlineServerFallback'
 import { toastSuccess } from '~/utils/toaster'
 import { toastFailure } from '~/utils/toaster'
 import { filterList } from '~/utils/util'
@@ -76,7 +76,8 @@ class Bots extends Component<Props> {
     if (!this.props.licensing) {
       this.props.fetchLicensing()
     }
-    setupServerPackageLoop()
+
+    window.SEND_USAGE_STATS && setupOfflineTelemetryFallback()
   }
 
   toggleCreateBotModal = () => {

@@ -17,7 +17,7 @@ import {
   ChannelUsersTable,
   DataRetentionTable,
   ServerMetadataTable,
-  TelemetryPayloadTable,
+  TelemetryTable,
   WorkspaceInviteCodesTable,
   WorkspaceUsersTable
 } from './server-wide'
@@ -36,7 +36,7 @@ const tables: typeof Table[] = [
   NotificationsTable,
   KeyValueStoreTable,
   DataRetentionTable,
-  TelemetryPayloadTable,
+  TelemetryTable,
   EventsTable,
   TasksTable,
   BotUsersTable

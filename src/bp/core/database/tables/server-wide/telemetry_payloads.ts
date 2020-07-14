@@ -1,6 +1,6 @@
 import { Table } from 'core/database/interfaces'
 
-export class TelemetryPayloadTable extends Table {
+export class TelemetryTable extends Table {
   name: string = 'telemetry'
 
   async bootstrap() {
