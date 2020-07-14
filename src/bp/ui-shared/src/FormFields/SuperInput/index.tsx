@@ -4,12 +4,12 @@ import React, { useEffect, useRef, useState } from 'react'
 import ReactDOMServer from 'react-dom/server'
 
 import { FieldProps } from '../../Contents/Components/typings'
-import Dropdown from '../../Dropdown'
 import Icons from '../../Icons'
 
 import style from './style.scss'
 import { SuperInputProps } from './typings'
 import { convertToHtml, convertToString, convertToTags } from './utils'
+import SuperInputDropdown from './SuperInputDropdown'
 
 type Props = FieldProps & SuperInputProps
 
@@ -22,14 +22,16 @@ export default ({
   variables,
   setCanOutsideClickClose,
   onBlur,
+  multiple,
   value
 }: Props) => {
+  const [localValue, setLocalValue] = useState(value)
   const [searchString, setSearchString] = useState('')
   const [isSearching, setIsSearching] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
   const inputRef = useRef<any>()
-  const dropdownRef = useRef<any>()
   const prefix = useRef('')
+  const lastKnownCaretPosition = useRef<number>()
   const eventsDesc = events?.reduce((acc, event) => ({ ...acc, [event.name]: event.description }), {})
   const dropdownItems = (prefix.current === '$' ? variables : events) || []
 
@@ -62,6 +64,12 @@ export default ({
 
   const addSpace = () => {
     appendNodeToInput(document.createTextNode('\u00A0'))
+  }
+
+  const onInput = e => {
+    updateSearch()
+    console.log(inputRef.current?.innerHTML)
+    setLocalValue(convertToString(inputRef.current?.innerHTML))
   }
 
   const onKeyDown = e => {
@@ -116,10 +124,6 @@ export default ({
     setIsSearching(false)
   }
 
-  const filterDropdown = item => {
-    return item.name.includes(searchString)
-  }
-
   const updateSearch = () => {
     const caret = getCaretPosition()
     const currentContentTxt = inputRef.current?.innerText
@@ -127,6 +131,8 @@ export default ({
     const stringAfterCaret = currentContentTxt.substring(caret)
     let startOfWord = stringBeforeCaret.lastIndexOf(' ')
     startOfWord = startOfWord === -1 ? 0 : startOfWord + 1
+
+    lastKnownCaretPosition.current = caret
 
     let endOfWord = stringAfterCaret.indexOf(' ')
     endOfWord = endOfWord === -1 ? currentContentTxt.length : stringBeforeCaret.length + endOfWord
@@ -157,6 +163,14 @@ export default ({
     }
   }
 
+  const filterDropdown = item => {
+    return item.name.includes(searchString)
+  }
+
+  const addTag = option => {
+    console.log(lastKnownCaretPosition.current)
+  }
+
   return (
     <div className={style.superInputWrapper}>
       <div className={style.tagBtnWrapper}>
@@ -176,7 +190,7 @@ export default ({
         />
       </div>
       <div
-        onInput={updateSearch}
+        onInput={onInput}
         onKeyDown={onKeyDown}
         ref={inputRef}
         className={cx({ [style.superInput]: !customClassName }, customClassName)}
@@ -189,17 +203,16 @@ export default ({
         onSelect={updateSearch}
         onPaste={updateSearch}
       >
-        {value && convertToHtml(value!, tagTemplate)}
+        {value && convertToHtml(localValue!, tagTemplate)}
       </div>
       {isSearching && (
-        <div className={style.dropdown} ref={dropdownRef}>
-          {dropdownItems?.filter(filterDropdown).map((item, index) => (
-            <div key={item.name} className={style.dropdownItem} tabIndex={0} role="option">
-              {item.name}
-              <span className={style.description}>{eventsDesc?.[item.name] || ''}</span>
-            </div>
-          ))}
-        </div>
+        <SuperInputDropdown
+          filterable={false}
+          onClick={addTag}
+          items={dropdownItems
+            ?.filter(filterDropdown)
+            .map(({ name }) => ({ value: name, label: name, description: eventsDesc?.[name] }))}
+        />
       )}
       {/*<Tags
         className={style.superInput}
