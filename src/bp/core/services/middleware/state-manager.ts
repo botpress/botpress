@@ -98,13 +98,12 @@ export class StateManager {
     state.bot = await this.kvs.forBot(event.botId).get(this.BOT_GLOBAL_KEY)
     state.__stacktrace = []
 
-    if (!state.workflow) {
-      Object.defineProperty(state, 'workflow', {
-        get() {
-          return state.session.workflows?.[state.session.currentWorkflow!]
-        }
-      })
-    }
+    Object.defineProperty(state, 'workflow', {
+      get() {
+        return state.session.workflows?.[state.session.currentWorkflow!]
+      },
+      configurable: true
+    })
 
     this.boxWorkflowVariables(state.session.workflows, event.botId)
 

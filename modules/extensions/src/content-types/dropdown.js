@@ -139,6 +139,11 @@ module.exports = {
       'ui:field': 'i18n_array'
     }
   },
+  newSchema: {
+    displayedIn: [],
+    advancedSettings: [],
+    fields: []
+  },
   computePreviewText: formData => formData.message && 'Dropdown: ' + formData.message,
   renderElement
 }

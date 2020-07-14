@@ -458,12 +458,12 @@ export class UnderstandingEngine {
               {
                 name: 'prompt_yes',
                 effect: 'prompt.inform',
-                conditions: [{ id: 'user_intent_yes' }]
+                conditions: [{ id: 'prompt_listening' }, { id: 'user_intent_yes' }]
               },
               {
                 name: 'prompt_no',
                 effect: 'prompt.inform',
-                conditions: [{ id: 'user_intent_no' }]
+                conditions: [{ id: 'prompt_listening' }, { id: 'user_intent_no' }]
               },
               {
                 name: 'prompt_inform',

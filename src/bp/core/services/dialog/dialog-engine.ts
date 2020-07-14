@@ -132,15 +132,22 @@ export class DialogEngine {
         this._setCurrentNodeValue(event, context.activePrompt.rejection!, true)
 
         if (context.activePrompt.rejection === 'jumped') {
-          const { flowName, node } = context.activePrompt.state.nextDestination!
-          await this.jumpTo(sessionId, event, flowName, node)
+          const { nextDestination } = context.activePrompt.state
+          if (nextDestination) {
+            const { flowName, node } = nextDestination
+            await this.jumpTo(sessionId, event, flowName, node)
 
-          return this.processEvent(sessionId, event)
+            return this.processEvent(sessionId, event)
+          } else {
+            throw new FlowError('No destination set for jump to instruction', event.botId, currentFlow.name)
+          }
         }
       }
 
-      this._setCurrentNodeValue(event, 'processed', true)
-      delete context.activePrompt
+      if (context.activePrompt) {
+        this._setCurrentNodeValue(event, 'processed', true)
+        delete context.activePrompt
+      }
     }
 
     // Property type skill-call means that the node points to a subflow.

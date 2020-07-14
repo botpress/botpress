@@ -18,12 +18,7 @@ class PromptString implements Prompt {
       return []
     }
 
-    return [
-      {
-        value: text,
-        confidence: 1
-      }
-    ]
+    return [{ value: text, confidence: 1 }]
   }
 
   validate(value): ValidationResult {
