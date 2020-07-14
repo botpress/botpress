@@ -22,7 +22,7 @@ const TextAreaList: FC<Props> = ({ label, onChange, field, data, currentLang }) 
 
   const handleChange = items => {
     const firstItem = items.shift()
-    console.log(firstItem)
+
     onChange({
       text: { ...data.text, [currentLang]: firstItem },
       variations: { ...data.variations, [currentLang]: items }
