@@ -5,7 +5,7 @@ export const createEmptyDataFromSchema = (fields: FormField[], lang?: string): F
 }
 
 export const getFieldDefaultValue = (field: Partial<FormField>, lang?: string) => {
-  if (field.defaultValue) {
+  if (field.defaultValue !== undefined) {
     return field.defaultValue
   }
 
