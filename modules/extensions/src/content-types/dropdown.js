@@ -34,7 +34,7 @@ function newRenderer(data) {
     ...payload,
     metadata: {
       ...payload.metadata,
-      __dropdown: data.choices
+      __dropdown: data.options
     }
   }
 }
