@@ -11,6 +11,7 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
+import { FlowVariable } from 'botpress/sdk'
 import { lang, MainContent } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -795,6 +796,10 @@ class Diagram extends Component<Props> {
     this.setState({ currentTab: tab })
   }
 
+  addVariable = (variable: FlowVariable) => {
+    this.props.updateFlow({ ...this.props.currentFlow, variables: [...this.props.currentFlow.variables, variable] })
+  }
+
   render() {
     const formType: string = this.state.editingNodeItem?.node?.type
     let editingNodeItem
@@ -819,6 +824,7 @@ class Diagram extends Component<Props> {
               topicName: this.props.selectedTopic,
               languages: this.props.languages,
               defaultLanguage: this.props.defaultLanguage,
+              onUpdateVariables: this.addVariable,
               refreshQnaCount: () => {
                 // So it's processed on the next tick, otherwise it won't update with the latest update
                 setTimeout(() => {
@@ -874,6 +880,7 @@ class Diagram extends Component<Props> {
               editingContent={this.state.editingNodeItem.index}
               formData={editingNodeItem?.[this.state.currentLang] || this.getEmptyContent(editingNodeItem)}
               onUpdate={this.updateNodeContent.bind(this)}
+              onUpdateVariables={this.addVariable}
               close={() => {
                 this.timeout = setTimeout(() => {
                   this.setState({ editingNodeItem: null })
@@ -893,6 +900,7 @@ class Diagram extends Component<Props> {
               formData={editingNodeItem}
               contentLang={this.state.currentLang}
               onUpdate={this.updateNodeCondition.bind(this)}
+              onUpdateVariables={this.addVariable}
               close={() => {
                 this.timeout = setTimeout(() => {
                   this.setState({ editingNodeItem: null })

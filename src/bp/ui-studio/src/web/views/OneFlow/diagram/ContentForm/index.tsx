@@ -17,6 +17,7 @@ interface Props {
   events: BotEvent[]
   close: (closingKey: number) => void
   onUpdate: (data: any) => void
+  onUpdateVariables: (variable: FlowVariable) => void
   formData: FormData
   contentTypes: any
 }
@@ -28,6 +29,7 @@ const ContentForm: FC<Props> = ({
   close,
   formData,
   onUpdate,
+  onUpdateVariables,
   deleteContent,
   variables,
   events
@@ -129,6 +131,7 @@ const ContentForm: FC<Props> = ({
             advancedSettings={contentFields.advancedSettings}
             formData={formData}
             onUpdate={data => onUpdate({ ...data, contentType: contentType.current })}
+            onUpdateVariables={onUpdateVariables}
           />
         )}
       </Fragment>

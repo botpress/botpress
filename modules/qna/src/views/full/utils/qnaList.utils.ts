@@ -1,4 +1,4 @@
-import { FormData } from 'botpress/sdk'
+import { FlowVariable, FormData } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import _uniqueId from 'lodash/uniqueId'
@@ -26,6 +26,7 @@ export interface Props {
   defaultLanguage: string
   refreshQnaCount: () => void
   languages: string[]
+  onUpdateVariables?: (variable: FlowVariable) => void
 }
 
 export interface FormErrors {

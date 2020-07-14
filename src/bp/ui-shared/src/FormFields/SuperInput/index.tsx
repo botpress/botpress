@@ -1,8 +1,9 @@
-import { Button, Icon, Menu, MenuItem, Popover, Position } from '@blueprintjs/core'
+import { Button, Icon } from '@blueprintjs/core'
 import Tags from '@yaireo/tagify/dist/react.tagify'
-import React, { Fragment, useRef, useState } from 'react'
-import ReactDOMServer from 'react-dom/server'
+import cx from 'classnames'
+import React, { Fragment, useEffect, useRef, useState } from 'react'
 
+import { lang } from '../../translations'
 import { FieldProps } from '../../Contents/Components/typings'
 import Dropdown from '../../Dropdown'
 import Icons from '../../Icons'
@@ -13,26 +14,63 @@ import { convertToString, convertToTags } from './utils'
 
 type Props = FieldProps & SuperInputProps
 
-// TODO implement canAddElements
-
-export default ({ canAddElements, events, multiple, variables, setCanOutsideClickClose, onBlur, value }: Props) => {
+export default ({
+  canAddElements = true,
+  canPickEvents = true,
+  defaultVariableType = 'string',
+  events,
+  multiple,
+  variables,
+  addVariable,
+  setCanOutsideClickClose,
+  onBlur,
+  value
+}: Props) => {
+  const currentPrefix = useRef<string>()
   const tagifyRef = useRef<any>()
+  const [localVariables, setLocalVariables] = useState(variables?.map(({ name }) => name) || [])
+  const [localEvents, setLocalEvents] = useState(events?.map(({ name }) => name) || [])
   const eventsDesc = events?.reduce((acc, event) => ({ ...acc, [event.name]: event.description }), {})
-
   // TODO implement the autocomplete selection when event selected is partial
 
+  useEffect(() => {
+    setLocalVariables(variables?.map(({ name }) => name) || [])
+  }, [variables])
+
+  useEffect(() => {
+    setLocalEvents(events?.map(({ name }) => name) || [])
+  }, [events])
+
   const tagifyCallbacks = {
+    add: e => {
+      const value = e.detail.data.value
+      const isAdding = !tagifyRef.current.settings.whitelist.includes(value)
+      console.log(e)
+      if (isAdding) {
+        const newVariable = {
+          type: defaultVariableType,
+          name: value
+        }
+        setLocalVariables([...localVariables, value])
+        console.log(tagifyRef.current.getMixedTagsAsString())
+        addVariable?.(newVariable)
+      }
+    },
+    ['dropdown:select']: e => {
+      console.log(e)
+    },
     input: e => {
       const prefix = e.detail.prefix
+      currentPrefix.current = prefix
 
       if (prefix && multiple) {
         if (prefix === '$') {
-          tagifyRef.current.settings.whitelist = variables?.map(({ name }) => name) || []
+          tagifyRef.current.settings.whitelist = localVariables
         }
 
         if (prefix === '{{') {
           // TODO refactor to use the schema format properly and allow to breakdown into an object type search
-          tagifyRef.current.settings.whitelist = events?.map(({ name }) => name) || []
+          tagifyRef.current.settings.whitelist = localEvents
         }
 
         if (e.detail.value.length > 1) {
@@ -54,12 +92,12 @@ export default ({ canAddElements, events, multiple, variables, setCanOutsideClic
       const prefix = e.detail.data.prefix
 
       if (prefix === '$') {
-        tagifyRef.current.settings.whitelist = variables?.map(({ name }) => name) || []
+        tagifyRef.current.settings.whitelist = localVariables
       }
 
       if (prefix === '{{') {
         // TODO refactor to use the schema format properly and allow to breakdown into an object type search
-        tagifyRef.current.settings.whitelist = events?.map(event => event.name) || []
+        tagifyRef.current.settings.whitelist = localEvents
       }
     }
   }
@@ -100,7 +138,7 @@ export default ({ canAddElements, events, multiple, variables, setCanOutsideClic
     tagifyRef.current?.DOM.input.dispatchEvent(new Event('input', { bubbles: true }))
   }
 
-  if (!multiple) {
+  const getSingleTagHtml = () => {
     const tag =
       value &&
       JSON.parse(
@@ -110,32 +148,48 @@ export default ({ canAddElements, events, multiple, variables, setCanOutsideClic
       )
 
     return (
+      tag && (
+        <span contentEditable={false} title={tag.value} tabIndex={-1} className="tagify__tag">
+          <span>
+            <Icon icon={tag.prefix === '$' ? 'dollar' : <Icons.Brackets iconSize={10} />} iconSize={10} />
+            <span className="tagify__tag-text">{tag.value}</span>
+          </span>
+        </span>
+      )
+    )
+  }
+
+  const singularTagKeyDown = e => {
+    e.preventDefault()
+
+    if (e.key === 'Backspace') {
+      onBlur?.('')
+    }
+  }
+
+  if (!multiple) {
+    return (
       <div className={style.superInputWrapper}>
         <div className={style.singularTagBtnWrapper}>
+          {canPickEvents && (
+            <Dropdown
+              items={localEvents.map(name => ({ value: name, label: name }))}
+              icon={<Icons.Brackets />}
+              onChange={({ value }) => {
+                onBlur?.(`{{${value}}}`)
+              }}
+            />
+          )}
           <Dropdown
-            items={events?.map(({ name }) => ({ value: name, label: name })) || []}
-            icon={<Icons.Brackets />}
-            onChange={({ value }) => {
-              onBlur?.(`{{${value}}}`)
-            }}
-          />
-          <Dropdown
-            items={variables?.map(({ name }) => ({ value: name, label: name })) || []}
+            items={localVariables.map(name => ({ value: name, label: name }))}
             icon="dollar"
             onChange={({ value }) => {
               onBlur?.(`$${value}`)
             }}
           />
         </div>
-        <div className={style.superInput}>
-          {tag && (
-            <span title={tag.value} tabIndex={-1} className="tagify__tag">
-              <span>
-                <Icon icon={tag.prefix === '$' ? 'dollar' : <Icons.Brackets iconSize={10} />} iconSize={10} />
-                <span className="tagify__tag-text">{tag.value}</span>
-              </span>
-            </span>
-          )}
+        <div className={style.superInput} onKeyDown={singularTagKeyDown} contentEditable suppressContentEditableWarning>
+          {getSingleTagHtml()}
         </div>
       </div>
     )
@@ -144,13 +198,15 @@ export default ({ canAddElements, events, multiple, variables, setCanOutsideClic
   return (
     <div className={style.superInputWrapper}>
       <div className={style.tagBtnWrapper}>
-        <Button
-          className={style.tagBtn}
-          onClick={() => {
-            addPrefix('{{')
-          }}
-          icon={<Icons.Brackets />}
-        />
+        {canPickEvents && (
+          <Button
+            className={style.tagBtn}
+            onClick={() => {
+              addPrefix('{{')
+            }}
+            icon={<Icons.Brackets />}
+          />
+        )}
         <Button
           className={style.tagBtn}
           onClick={() => {
@@ -159,7 +215,7 @@ export default ({ canAddElements, events, multiple, variables, setCanOutsideClic
           icon="dollar"
         />
       </div>
-      <Tags
+      {/*<Tags
         className={style.superInput}
         tagifyRef={tagifyRef}
         settings={{
@@ -171,49 +227,87 @@ export default ({ canAddElements, events, multiple, variables, setCanOutsideClic
             closeOnSelect: true,
             highlightFirst: true
           },
-          skipInvalid: !canAddElements,
           templates: {
             tag(tagData, data) {
-              const isValid = (data.prefix === '$' ? variables : events)?.find(({ name }) => name === tagData)
+              const isValid = (data.prefix === '$' ? localVariables : localEvents).find(name => name === tagData)
 
-              return `<tag title="${tagData}"
-                contenteditable="false"
-                spellcheck="false"
-                tabIndex="-1"
-                class="tagify__tag${isValid ? '' : ' tagify--invalid'}">
-                <div>
-                  ${ReactDOMServer.renderToStaticMarkup(
+              return (
+                <span
+                  title="${tagData}"
+                  contentEditable={false}
+                  spellCheck={false}
+                  tabIndex={-1}
+                  className={cx('tagify__tag', { ['tagify--invalid']: isValid })}
+                >
+                  <span>
                     <Icon icon={data.prefix === '$' ? 'dollar' : <Icons.Brackets iconSize={10} />} iconSize={10} />
-                  )}
-                  <span class="tagify__tag-text">${tagData}</span>
+                    <span className="tagify__tag-text">${tagData}</span>
+                  </span>
                 </span>
-              </tag>`
+              )
             },
             dropdown(settings) {
-              return `<div class="${style.dropdown} tagify__dropdown tagify__dropdown--below" role="listbox" aria-labelledby="dropdown">
-                  <div class="tagify__dropdown__wrapper"></div>
-              </div>`
+              return (
+                <div
+                  className={cx(style.dropdown, 'tagify__dropdown tagify__dropdown--below')}
+                  role="listbox"
+                  aria-labelledby="dropdown"
+                >
+                  <div className="tagify__dropdown__wrapper"></div>
+                </div>
+              )
             },
             dropdownItem(item) {
               const isAdding = !tagifyRef.current.settings.whitelist.includes(item.value)
+              const string = isAdding ? `"${item.value}"` : item.value
+
+              if (isAdding && (currentPrefix.current === '{{' || !canAddElements)) {
+                return null
+              }
+
               // TODO add icon when variable supports them and add variables description when they exist
-              return `<div
-                class='tagify__dropdown__item ${isAdding && style.addingItem}'
-                tabindex="0"
-                role="option">
-                ${(isAdding && ReactDOMServer.renderToStaticMarkup(<Icon icon="plus" iconSize={12} />)) || ''}
-                ${item.value}
-                ${`<span class="description">${eventsDesc?.[item.value] || ''}</span>`}
-              </div>`
+              return (
+                <div
+                  className={cx('tagify__dropdown__item', { [style.addingItem]: isAdding })}
+                  tabIndex={0}
+                  role="option"
+                >
+                  {isAdding && (
+                    <Fragment>
+                      <Icon icon="plus" iconSize={12} />
+                      {lang('create')}
+                    </Fragment>
+                  )}
+                  {string}
+                  <span className="description">{eventsDesc?.[item.value] || ''}</span>
+                </div>
+              )
             }
           },
           duplicates: true,
           callbacks: tagifyCallbacks,
           mode: 'mix',
-          pattern: /\$|{{/
+          pattern: canPickEvents ? /\$|{{/ : /\$/
         }}
         value={convertToTags(value!)}
         onChange={e => (e.persist(), onBlur?.(convertToString(e.target.value)))}
+      />*/}
+      <Tags
+        settings={{
+          dropdown: {
+            classname: 'color-blue',
+            enabled: 0,
+            maxItems: 5,
+            position: 'below',
+            closeOnSelect: true,
+            highlightFirst: true
+          },
+          callbacks: tagifyCallbacks,
+          mode: 'mix',
+          pattern: canPickEvents ? /\$|{{/ : /\$/
+        }}
+        className={style.superInput}
+        tagifyRef={tagifyRef}
       />
     </div>
   )

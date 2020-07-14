@@ -72,6 +72,7 @@ const VariableModal: FC<Props> = props => {
           advancedSettings={advancedSettings}
           formData={props.variable?.params}
           onUpdate={x => setParams(x)}
+          onUpdateVariables={variable => {}}
         />
       </Dialog.Body>
       <Dialog.Footer>

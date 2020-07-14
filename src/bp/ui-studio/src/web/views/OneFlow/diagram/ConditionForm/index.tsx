@@ -18,6 +18,7 @@ interface Props {
   contentLang: string
   close: (closingKey: number) => void
   onUpdate: (data: any) => void
+  onUpdateVariables: (variable: FlowVariable) => void
   formData: { id: string; params: FormData }
   variables: FlowVariable[]
   events: BotEvent[]
@@ -33,6 +34,7 @@ const ConditionForm: FC<Props> = ({
   topicName,
   onUpdate,
   deleteCondition,
+  onUpdateVariables,
   variables,
   events
 }) => {
@@ -116,6 +118,7 @@ const ConditionForm: FC<Props> = ({
             advancedSettings={selectedCondition.advancedSettings}
             formData={formData.params}
             onUpdate={data => onUpdate({ params: { ...data }, id: condition.current })}
+            onUpdateVariables={onUpdateVariables}
           />
         )}
       </Fragment>

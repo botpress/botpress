@@ -11,10 +11,7 @@
   }
 
   .singularTagBtnWrapper {
-    left: 0;
-    position: absolute;
-    right: 0;
-    text-align: right;
+    float: right;
     z-index: 9;
 
     :global {
@@ -82,7 +79,7 @@
         font-size: 8px;
         margin: 0;
 
-        &.tagify--invalid > div {
+        &.tagify--invalid > span {
           background: var(--hover-lighthouse-30);
         }
 
@@ -150,13 +147,20 @@
     }
 
     .tagify__dropdown__item {
+      align-items: center;
       background-color: #fff;
       border-radius: 5px;
-      transition: background 0.3s;
-      font-size: 12px;
-      line-height: 1.25;
       color: var(--shark);
+      display: flex;
+      font-size: 12px;
+      line-height: 1;
       padding: var(--spacing-medium) var(--spacing-large);
+      transition: background 0.3s;
+      flex-wrap: wrap;
+
+      .bp3-icon {
+        margin-right: var(--spacing-medium);
+      }
 
       .description {
         display: block;
@@ -168,6 +172,7 @@
         font-size: 8px;
         line-height: 1.25;
         color: var(--shark);
+        width: 100%;
       }
 
       &.tagify__dropdown__item--active {

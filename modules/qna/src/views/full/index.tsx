@@ -33,7 +33,7 @@ const QnAList: FC<Props> = props => {
     expandedItems: {}
   })
   const { items, loading, firstUpdate, page, fetchMore, count, expandedItems, highlighted } = state
-  const { bp, languages, defaultLanguage, isLite, refreshQnaCount } = props
+  const { bp, languages, defaultLanguage, isLite, refreshQnaCount, onUpdateVariables } = props
   const queryParams = new URLSearchParams(window.location.search)
 
   useEffect(() => {
@@ -248,6 +248,7 @@ const QnAList: FC<Props> = props => {
                   })
                 }
                 bp={bp}
+                onUpdateVariables={onUpdateVariables}
                 isLite={isLite}
                 key={highlighted.id}
                 flows={flows}
@@ -295,6 +296,7 @@ const QnAList: FC<Props> = props => {
                   dispatchMiddleware(dispatch, { type: 'toggleEnabledQnA', data: { qnaItem: item, bp } })
                 }
                 contentLang={currentLang}
+                onUpdateVariables={onUpdateVariables}
                 errorMessages={itemHasError(item, currentLang)}
                 setExpanded={isExpanded =>
                   dispatch({ type: 'toggleExpandOne', data: { [item.key || item.id]: isExpanded } })

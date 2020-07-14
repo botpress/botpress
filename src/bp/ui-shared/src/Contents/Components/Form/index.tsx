@@ -175,6 +175,7 @@ const Form: FC<FormProps> = ({
   advancedSettings,
   setCanOutsideClickClose,
   onUpdate,
+  onUpdateVariables,
   variables,
   events
 }) => {
@@ -365,6 +366,7 @@ const Form: FC<FormProps> = ({
                 placeholder={lang(field.placeholder)}
                 variables={variables || []}
                 events={events || []}
+                addVariable={onUpdateVariables}
                 multiple={field.type === 'text'}
                 setCanOutsideClickClose={canClickOuside => {
                   if (outsideClickTimeout.current) {
