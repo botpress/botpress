@@ -52,7 +52,6 @@ export default ({
           name: value
         }
         setLocalVariables([...localVariables, value])
-        console.log(tagifyRef.current.getMixedTagsAsString())
         addVariable?.(newVariable)
       }
     },
@@ -215,7 +214,7 @@ export default ({
           icon="dollar"
         />
       </div>
-      {/*<Tags
+      <Tags
         className={style.superInput}
         tagifyRef={tagifyRef}
         settings={{
@@ -228,24 +227,6 @@ export default ({
             highlightFirst: true
           },
           templates: {
-            tag(tagData, data) {
-              const isValid = (data.prefix === '$' ? localVariables : localEvents).find(name => name === tagData)
-
-              return (
-                <span
-                  title="${tagData}"
-                  contentEditable={false}
-                  spellCheck={false}
-                  tabIndex={-1}
-                  className={cx('tagify__tag', { ['tagify--invalid']: isValid })}
-                >
-                  <span>
-                    <Icon icon={data.prefix === '$' ? 'dollar' : <Icons.Brackets iconSize={10} />} iconSize={10} />
-                    <span className="tagify__tag-text">${tagData}</span>
-                  </span>
-                </span>
-              )
-            },
             dropdown(settings) {
               return (
                 <div
@@ -265,9 +246,9 @@ export default ({
                 return null
               }
 
-              // TODO add icon when variable supports them and add variables description when they exist
               return (
                 <div
+                  {...{ tagifySuggestionIdx: item.tagifySuggestionIdx }}
                   className={cx('tagify__dropdown__item', { [style.addingItem]: isAdding })}
                   tabIndex={0}
                   role="option"
@@ -282,6 +263,24 @@ export default ({
                   <span className="description">{eventsDesc?.[item.value] || ''}</span>
                 </div>
               )
+            },
+            tag(tagData) {
+              const isValid = (tagData.prefix === '$' ? localVariables : localEvents).find(name => name === tagData)
+
+              return (
+                <span
+                  title={tagData.value}
+                  contentEditable={false}
+                  spellCheck={false}
+                  tabIndex={-1}
+                  className={cx('tagify__tag', { ['tagify--invalid']: isValid })}
+                >
+                  <span>
+                    <Icon icon={tagData.prefix === '$' ? 'dollar' : <Icons.Brackets iconSize={10} />} iconSize={10} />
+                    <span className="tagify__tag-text">{tagData.value}</span>
+                  </span>
+                </span>
+              )
             }
           },
           duplicates: true,
@@ -291,23 +290,6 @@ export default ({
         }}
         value={convertToTags(value!)}
         onChange={e => (e.persist(), onBlur?.(convertToString(e.target.value)))}
-      />*/}
-      <Tags
-        settings={{
-          dropdown: {
-            classname: 'color-blue',
-            enabled: 0,
-            maxItems: 5,
-            position: 'below',
-            closeOnSelect: true,
-            highlightFirst: true
-          },
-          callbacks: tagifyCallbacks,
-          mode: 'mix',
-          pattern: canPickEvents ? /\$|{{/ : /\$/
-        }}
-        className={style.superInput}
-        tagifyRef={tagifyRef}
       />
     </div>
   )
