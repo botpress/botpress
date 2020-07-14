@@ -165,7 +165,6 @@ module.exports = {
       {
         type: 'text',
         key: 'title',
-        required: true,
         translated: true,
         label: 'title',
         placeholder: 'module.builtin.optional'
