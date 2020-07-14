@@ -39,7 +39,7 @@ export class HooksLifecycleStats extends TelemetryStats {
   }
 
   private async getHooksLifecycle() {
-    const paths = await this.ghostService.bots().directoryListing('/', '*/flows/*.flow.json')
+    const paths = await this.ghostService.bots().directoryListing('/', '*/hooks/*')
     console.log(paths)
     return {}
   }
