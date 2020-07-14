@@ -128,6 +128,19 @@
   box-shadow: 0 8px 24px 0 rgba(16, 22, 26, 0.2), 0 2px 4px 0 rgba(16, 22, 26, 0.2), 0 0 0 1px rgba(16, 22, 26, 0.1);
   background-color: #fff;
 
+  .addingItem {
+    color: var(--ocean) !important;
+
+    &:global(.tagify__dropdown__item--active) {
+      color: var(--ocean);
+      background-color: var(--hover-ocean) !important;
+    }
+
+    svg {
+      fill: var(--ocean) !important;
+    }
+  }
+
   :global {
     .tagify__dropdown__wrapper {
       border: none;

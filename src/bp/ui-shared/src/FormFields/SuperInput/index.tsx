@@ -26,11 +26,11 @@ export default ({ canAddElements, events, multiple, variables, setCanOutsideClic
       const prefix = e.detail.prefix
 
       if (prefix && multiple) {
-        if (prefix == '$') {
+        if (prefix === '$') {
           tagifyRef.current.settings.whitelist = variables?.map(({ name }) => name) || []
         }
 
-        if (prefix == '{{') {
+        if (prefix === '{{') {
           // TODO refactor to use the schema format properly and allow to breakdown into an object type search
           tagifyRef.current.settings.whitelist = events?.map(({ name }) => name) || []
         }
@@ -53,15 +53,13 @@ export default ({ canAddElements, events, multiple, variables, setCanOutsideClic
     ['edit:start']: e => {
       const prefix = e.detail.data.prefix
 
-      if (prefix) {
-        if (prefix == '$') {
-          tagifyRef.current.settings.whitelist = variables?.map(({ name }) => name) || []
-        }
+      if (prefix === '$') {
+        tagifyRef.current.settings.whitelist = variables?.map(({ name }) => name) || []
+      }
 
-        if (prefix == '{{') {
-          // TODO refactor to use the schema format properly and allow to breakdown into an object type search
-          tagifyRef.current.settings.whitelist = events?.map(event => event.name) || []
-        }
+      if (prefix === '{{') {
+        // TODO refactor to use the schema format properly and allow to breakdown into an object type search
+        tagifyRef.current.settings.whitelist = events?.map(event => event.name) || []
       }
     }
   }
@@ -176,16 +174,14 @@ export default ({ canAddElements, events, multiple, variables, setCanOutsideClic
           skipInvalid: !canAddElements,
           templates: {
             tag(tagData, data) {
-              const isValid = !(data.prefix === '$'
-                ? variables?.find(({ name }) => name === tagData)
-                : events?.find(({ name }) => name === tagData))
+              const isValid = (data.prefix === '$' ? variables : events)?.find(({ name }) => name === tagData)
 
               return `<tag title="${tagData}"
                 contenteditable="false"
                 spellcheck="false"
                 tabIndex="-1"
-                class="tagify__tag${isValid ? ' tagify--invalid' : ''}">
-                <span>
+                class="tagify__tag${isValid ? '' : ' tagify--invalid'}">
+                <div>
                   ${ReactDOMServer.renderToStaticMarkup(
                     <Icon icon={data.prefix === '$' ? 'dollar' : <Icons.Brackets iconSize={10} />} iconSize={10} />
                   )}
@@ -199,11 +195,13 @@ export default ({ canAddElements, events, multiple, variables, setCanOutsideClic
               </div>`
             },
             dropdownItem(item) {
+              const isAdding = !tagifyRef.current.settings.whitelist.includes(item.value)
               // TODO add icon when variable supports them and add variables description when they exist
               return `<div
-                class='tagify__dropdown__item'
+                class='tagify__dropdown__item ${isAdding && style.addingItem}'
                 tabindex="0"
                 role="option">
+                ${(isAdding && ReactDOMServer.renderToStaticMarkup(<Icon icon="plus" iconSize={12} />)) || ''}
                 ${item.value}
                 ${`<span class="description">${eventsDesc?.[item.value] || ''}</span>`}
               </div>`
