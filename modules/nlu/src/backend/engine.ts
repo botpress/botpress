@@ -25,7 +25,7 @@ export type TrainingOptions = {
   forceTrain: boolean
 }
 
-type UntrainedModel = Omit<Partial<Model>, 'data'> & {
+type UntrainedModel = Omit<Model, 'data'> & {
   data: { input: TrainInput }
 }
 
@@ -122,7 +122,7 @@ export default class Engine implements NLUEngine {
       ctxToTrain
     }
 
-    let model: UntrainedModel = {
+    let model: Partial<UntrainedModel> = {
       startedAt: new Date(),
       languageCode: input.languageCode,
       data: {
@@ -132,13 +132,17 @@ export default class Engine implements NLUEngine {
 
     try {
       const output = await Trainer(input, Engine.tools)
-      model.success = true
-      _.merge(model, { success: true, data: { output } })
+      if (!output) {
+        model.success = false
+      } else {
+        _.merge(model, { success: true, data: { output } })
+      }
     } catch (err) {
       model.success = false
-      this.logger.error(`Could not finish training NLU model \n ${err}`)
+      this.logger.error(`Could not finish training NLU model : ${err}`)
     } finally {
       model.finishedAt = new Date()
+      model = model as Model
     }
 
     if (!trainAllCtx) {
@@ -254,14 +258,14 @@ export default class Engine implements NLUEngine {
   }
 
   private _mergeModels(previousModel: Model, trainingOuput: Model) {
-    const previousModelDatas = previousModel.data
-    const currentModelDatas = trainingOuput.data
-    if (!previousModelDatas || !currentModelDatas) {
+    const { output: previousModelOutput } = previousModel.data
+    const { output: currentModelOutput } = trainingOuput.data
+    if (!previousModelOutput || !currentModelOutput) {
       return previousModel
     }
 
-    const artefacts = _.merge({}, previousModelDatas, currentModelDatas)
-    const mergedModel = _.merge({}, trainingOuput, { data: { artefacts } })
+    const output = _.merge({}, previousModelOutput, currentModelOutput)
+    const mergedModel = _.merge({}, trainingOuput, { data: { output } })
 
     // lodash merge messes up buffers objects
     mergedModel.data.output.slots_model = new Buffer(mergedModel.data.output.slots_model)
