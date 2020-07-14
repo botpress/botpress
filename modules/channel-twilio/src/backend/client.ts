@@ -61,6 +61,8 @@ export class TwilioClient {
       }
     }
 
+    await this.kvs.delete(this.getKvsKey(target, threadId))
+
     await this.bp.events.sendEvent(
       this.bp.IO.Event({
         botId: this.botId,
