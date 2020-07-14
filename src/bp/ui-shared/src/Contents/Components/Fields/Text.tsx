@@ -7,12 +7,17 @@ import { FieldProps } from '../typings'
 
 type TextProps = FieldProps & { field: FormField }
 
-const Text: FC<TextProps> = ({ onBlur, onChange, placeholder, field, value }) => {
-  const { valueManipulation, type, min, max, maxLength } = field
-  const [localValue, setLocalValue] = useState(value || getFieldDefaultValue(field))
+const Text: FC<TextProps> = ({
+  onBlur,
+  onChange,
+  placeholder,
+  field: { valueManipulation, type, min, max, maxLength },
+  value
+}) => {
+  const [localValue, setLocalValue] = useState(value || getFieldDefaultValue({ type }))
 
   useEffect(() => {
-    setLocalValue(value ?? getFieldDefaultValue(field))
+    setLocalValue(value ?? getFieldDefaultValue({ type }))
   }, [value])
 
   const onKeyDown = e => {

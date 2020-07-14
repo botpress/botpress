@@ -4,6 +4,7 @@ import React, { FC, Fragment, useReducer } from 'react'
 import { lang } from '../../../translations'
 import TextFieldsArray from '../../../FormFields/TextFieldsArray'
 import { createEmptyDataFromSchema } from '../../utils/fields'
+import { formReducer, printLabel, printMoreInfo } from '../../utils/form.utils'
 import AddButton from '../Fields/AddButton'
 import Select from '../Fields/Select'
 import Text from '../Fields/Text'
@@ -14,7 +15,6 @@ import GroupItemWrapper from '../GroupItemWrapper'
 
 import style from './style.scss'
 import { FormProps } from './typings'
-import { formReducer, printLabel, printMoreInfo } from './utils'
 
 const Form: FC<FormProps> = ({
   currentLang,

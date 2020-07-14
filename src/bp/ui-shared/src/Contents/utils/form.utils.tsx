@@ -3,10 +3,10 @@ import cx from 'classnames'
 import _ from 'lodash'
 import React, { Fragment } from 'react'
 
-import { lang } from '../../../translations'
-import { createEmptyDataFromSchema } from '../../utils/fields'
+import { createEmptyDataFromSchema } from './fields'
 
-import style from './style.scss'
+import style from '../Components/Form/style.scss'
+import { lang } from '../../translations'
 
 export const printLabel = (field, data, currentLang?) => {
   if (field.label?.startsWith('fields::') && field.fields?.length) {
@@ -118,7 +118,7 @@ export const formReducer = (state, action) => {
     let { value } = action.data
 
     if (type === 'number') {
-      value = Number(value)
+      value = value !== '' ? Number(value) : undefined
     }
 
     if (parent) {
