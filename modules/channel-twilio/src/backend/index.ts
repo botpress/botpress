@@ -1,7 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import { Config } from 'src/config'
 
-import { removeMiddleware, setupMiddleware, setupRouter, TwilioClient } from './client'
+import { setupRouter } from './api'
+import { removeMiddleware, setupMiddleware, TwilioClient } from './client'
 import { Clients } from './typings'
 
 let router: sdk.http.RouterExtension

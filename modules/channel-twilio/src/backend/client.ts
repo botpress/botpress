@@ -43,80 +43,69 @@ export class TwilioClient {
     return validateRequest(this.config.authToken, signature, this.webhookUrl, req.body)
   }
 
+  getKvsKey(target: string, threadId: string) {
+    return `${target}_${threadId}`
+  }
+
   async handleWebhookRequest(body: TwilioRequestBody) {
-    const to = body.To
-    const from = body.From
+    const threadId = body.To
+    const target = body.From
     const text = body.Body
 
     const index = Number(text)
-    if (index && (await this.handleIndexReponse(index - 1, from, to))) {
-      return
+    let payload: any = { type: 'text', text: text }
+    if (index) {
+      payload = (await this.handleIndexReponse(index - 1, target, threadId)) ?? payload
+      if (payload.type === 'url') {
+        return
+      }
     }
-
-    await this.kvs.delete(from)
 
     await this.bp.events.sendEvent(
       this.bp.IO.Event({
         botId: this.botId,
         channel: 'twilio',
         direction: 'incoming',
-        type: 'text',
-        payload: {
-          type: 'text',
-          text: text
-        },
-        threadId: to,
-        target: from
+        type: payload.type,
+        payload,
+        threadId,
+        target: target
       })
     )
   }
 
-  async handleIndexReponse(index: number, from: string, to: string): Promise<boolean> {
-    if (!(await this.kvs.exists(from))) {
+  async handleIndexReponse(index: number, target: string, threadId: string): Promise<any> {
+    const key = this.getKvsKey(target, threadId)
+    if (!(await this.kvs.exists(key))) {
       return
     }
 
-    const options = await this.kvs.get(from)
-    const option = options[index]
+    const option = await this.kvs.get(key, `[${index}]`)
     if (!option) {
       return
     }
 
-    if (option.type === 'url') {
-      return true
+    await this.kvs.delete(key)
+
+    const { type, label, value } = option
+    return {
+      type,
+      text: type === 'say_something' ? value : label,
+      payload: value
     }
-
-    await this.kvs.delete(from)
-
-    await this.bp.events.sendEvent(
-      this.bp.IO.Event({
-        botId: this.botId,
-        channel: 'twilio',
-        direction: 'incoming',
-        type: option.type,
-        payload: {
-          type: option.type,
-          text: option.type === 'say_something' ? option.value : option.label,
-          payload: option.value
-        },
-        threadId: to,
-        target: from
-      })
-    )
-
-    return true
   }
 
   async handleOutgoingEvent(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
-    if (event.type === 'text') {
+    const { type, payload } = event
+    if (type === 'text') {
       await this.sendText(event)
-    } else if (event.type === 'file') {
+    } else if (type === 'file') {
       await this.sendImage(event)
-    } else if (event.type === 'carousel') {
+    } else if (type === 'carousel') {
       await this.sendCarousel(event)
-    } else if (event.payload.quick_replies) {
+    } else if (payload.quick_replies) {
       await this.sendChoices(event)
-    } else if (event.payload.options) {
+    } else if (payload.options) {
       await this.sendDropdown(event)
     }
 
@@ -138,31 +127,16 @@ export class TwilioClient {
 
   async sendCarousel(event: sdk.IO.Event) {
     for (const { subtitle, title, picture, buttons } of event.payload.elements) {
-      let body = `${title}\n\n`
-      if (subtitle) {
-        body += `${subtitle}`
-      }
+      const body = `${title}\n\n${subtitle ? subtitle : ''}`
 
       const options: MessageOption[] = []
-      for (const button of buttons) {
-        if (button.type === 'open_url') {
-          options.push({
-            label: `${button.title} : ${button.url}`,
-            value: undefined,
-            type: 'url'
-          })
-        } else if (button.type === 'postback') {
-          options.push({
-            label: button.title,
-            value: button.payload,
-            type: 'postback'
-          })
-        } else if (button.type === 'say_something') {
-          options.push({
-            label: button.title,
-            value: button.text,
-            type: 'say_something'
-          })
+      for (const { type, title, payload, url, text } of buttons) {
+        if (type === 'open_url') {
+          options.push({ label: `${title} : ${url}`, value: undefined, type: 'url' })
+        } else if (type === 'postback') {
+          options.push({ label: title, value: payload, type: 'postback' })
+        } else if (type === 'say_something') {
+          options.push({ label: title, value: text, type: 'say_something' })
         }
       }
 
@@ -190,13 +164,9 @@ export class TwilioClient {
   }
 
   async sendOptions(event: sdk.IO.Event, text: string, args: any, options: MessageOption[]) {
-    let body = `${text}\n`
-    for (let i = 0; i < options.length; i++) {
-      const option = options[i]
-      body += `\n${i + 1}. ${option.label}`
-    }
+    const body = `${text}\n\n${options.map(({ label }, idx) => `${idx + 1}. ${label}`).join('\n')}`
 
-    await this.kvs.set(event.target, options)
+    await this.kvs.set(this.getKvsKey(event.target, event.threadId), options, undefined, '10m')
 
     await this.sendMessage(event, { ...args, body })
   }
@@ -234,30 +204,6 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
 
     return client.handleOutgoingEvent(event, next)
   }
-}
-
-export async function setupRouter(bp: typeof sdk, clients: Clients, route: string): Promise<sdk.http.RouterExtension> {
-  const router = bp.http.createRouterForBot('channel-twilio', {
-    checkAuthentication: false
-  })
-
-  router.post(route, async (req, res) => {
-    const { botId } = req.params
-    const client = clients[botId]
-
-    if (!client) {
-      res.status(404).send('Bot not a twilio bot')
-    }
-
-    if (client.auth(req)) {
-      await client.handleWebhookRequest(req.body)
-      res.sendStatus(200)
-    } else {
-      res.status(401).send('Auth token invalid')
-    }
-  })
-
-  return router
 }
 
 export async function removeMiddleware(bp: typeof sdk) {
