@@ -67,7 +67,6 @@ export class ActionsStats extends TelemetryStats {
         })
       })
     )
-    console.log(JSON.stringify(flows.filter(flow => flow.actions.length > 0).map(flow => this.parseFlow(flow))))
     return flows.filter(flow => flow.actions.length > 0).map(flow => this.parseFlow(flow))
   }
 
