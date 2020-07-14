@@ -9,6 +9,7 @@ import ms from 'ms'
 import yn from 'yn'
 
 import { GhostService } from '..'
+import { BotService } from '../bot-service'
 import { JobService } from '../job-service'
 
 const debug = DEBUG('stats')

@@ -35,8 +35,8 @@ export class ActionsStats extends TelemetryStats {
     @inject(TYPES.LicensingService) licenseService: LicensingService,
     @inject(TYPES.JobService) jobService: JobService,
     @inject(TYPES.TelemetryRepository) telemetryRepo: TelemetryRepository,
-    @inject(TYPES.FlowService) private flowService: FlowService,
-    @inject(TYPES.BotService) private botService: BotService
+    @inject(TYPES.BotService) private botService: BotService,
+    @inject(TYPES.FlowService) private flowService: FlowService
   ) {
     super(ghostService, database, licenseService, jobService, telemetryRepo)
     this.url = process.TELEMETRY_URL
@@ -67,7 +67,6 @@ export class ActionsStats extends TelemetryStats {
         })
       })
     )
-    console.log(JSON.stringify(flows.filter(flow => flow.actions.length > 0).map(flow => this.parseFlow(flow))))
     return flows.filter(flow => flow.actions.length > 0).map(flow => this.parseFlow(flow))
   }
 

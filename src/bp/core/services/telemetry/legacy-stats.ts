@@ -32,11 +32,11 @@ export class LegacyStats extends TelemetryStats {
     @inject(TYPES.LicensingService) licenseService: LicensingService,
     @inject(TYPES.JobService) jobService: JobService,
     @inject(TYPES.TelemetryRepository) telemetryRepo: TelemetryRepository,
+    @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.ConfigProvider) private config: ConfigProvider,
     @inject(TYPES.CMSService) private cmsService: CMSService,
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.UserRepository) private userRepository: UserRepository,
-    @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService
   ) {
     super(ghostService, database, licenseService, jobService, telemetryRepo)
