@@ -1,9 +1,8 @@
 import axios from 'axios'
 import { lang } from 'botpress/shared'
+import { getSchema, ServerStats } from 'common/telemetry'
 import _ from 'lodash'
-import moment from 'moment'
 import ms from 'ms'
-import uuid from 'uuid'
 
 import store from '../store'
 
@@ -14,60 +13,54 @@ interface EventPackageInfoType {
   }
 }
 
-export const axiosConfig = {
-  baseURL: window.TELEMETRY_URL,
-  headers: {
-    withCredentials: false
-  }
-}
+const clientDataSchemaVersion = '1.0.0'
 
-const dataSchemaVersion = '1.0.0'
-
-const telemetrySchemaVersion = '1.0.0'
-
-const pathsInReduxTracked: string[] = ['user.profile.email', 'version.currentVersion', 'license.licensing.isPro']
+const pathsInReduxTracked: string[] = [
+  'user.profile.email',
+  'server.serverConfig.env',
+  'server.serverConfig.live',
+  'server.serverConfig.config',
+  'license.licensing.status',
+  'license.licensing.fingerprints.cluster_url'
+]
 
 const eventPackageInfo: EventPackageInfoType = {}
 
-const getEventLock = (event: string) => {
-  const eventLock = window.localStorage.getItem(event)
+const getEventExpiry = (eventName: string) => {
+  const expiry = window.localStorage.getItem(eventName)
 
-  if (eventLock !== null) {
-    return JSON.parse(eventLock)
+  if (expiry !== null) {
+    return parseInt(expiry)
   }
 
   return null
 }
 
-const setEventLock = (event: string, timeout?: string) => {
-  const currentTime = moment().valueOf()
-
-  const pkg = eventPackageInfo[event].getPackage()
-
-  const lock = {
-    package: pkg,
-    expiresAt: (timeout ? ms(timeout) : ms(eventPackageInfo[event].timeout)) + currentTime
-  }
-
-  window.localStorage.setItem(event, JSON.stringify(lock))
-}
+const setEventExpiry = (eventName: string) =>
+  window.localStorage.setItem(eventName, (ms(eventPackageInfo[eventName].timeout) + Date.now()).toString())
 
 const checkStoreInfoReceived = () =>
   !pathsInReduxTracked.find(pathInRedux => _.get(store.getState(), pathInRedux) === undefined)
 
-export const addTelemetryEvent = (name: string, timeout: string, getPackage: Function) => {
-  eventPackageInfo[name] = {
+export const addTelemetryEvent = (eventName: string, timeout: string, getPackage: Function) => {
+  eventPackageInfo[eventName] = {
     timeout,
     getPackage
   }
 }
 
-const checkTelemetry = async (event_name: string) => {
-  const event_lock = getEventLock(event_name)
+const checkTelemetry = async (eventName: string) => {
+  const expiry = getEventExpiry(eventName)
 
-  if (event_lock && event_lock.expiresAt < moment().valueOf()) {
+  if (!expiry || expiry <= Date.now()) {
     try {
-      await sendTelemetryEvent(event_lock.package, event_name)
+      const pkg = eventPackageInfo[eventName].getPackage()
+
+      const payload = makeTelemetryPayload(eventName, pkg)
+
+      await sendTelemetry([payload])
+
+      setEventExpiry(eventName)
     } catch (err) {
       console.error(`Could not send the telemetry package to the storage server`, err)
     }
@@ -85,37 +78,54 @@ export const startTelemetry = () => {
     }
   })
 
-  setTimeout(() => {
+  const clear = setInterval(() => {
     if (checkStoreInfoReceived() && window.TELEMETRY_URL) {
-      for (const event in eventPackageInfo) {
-        !getEventLock(event) && setEventLock(event, '0s')
-      }
-
       for (const event_name in eventPackageInfo) {
-        checkTelemetry(event_name).catch(err => {
-          console.error(err)
-        })
+        checkTelemetry(event_name).catch()
       }
+      clearInterval(clear)
     }
-  }, ms('5s'))
+  }, ms('1s'))
 }
 
-const sendTelemetryEvent = async (data: object, event: string) => {
+const makeTelemetryPayload = (eventName: string, data: object) => {
+  const state = store.getState()
+
+  const serverStats: ServerStats = {
+    externalUrl: state.server.serverConfig.live.EXTERNAL_URL,
+    botpressVersion: state.server.serverConfig.config.version,
+    clusterEnabled: state.server.serverConfig.env.CLUSTER_ENABLED || false,
+    os: 'TempleOs', // À changer lorsque disponible
+    bpfsStorage: state.server.serverConfig.env.BPFS_STORAGE || '',
+    dbType: state.server.serverConfig.env.DATABASE_URL ? 'postgres' : 'sqlite',
+    machineUUID: 'abcdefg1234567', // À changer lorsque disponible
+    fingerprint: state.license.licensing.fingerprints.cluster_url,
+    license: {
+      type: state.server.serverConfig.env.PRO_ENABLED || false ? 'pro' : 'ce',
+      status: state.license.licensing.status
+    }
+  }
+
   const pkg = {
-    schema: telemetrySchemaVersion,
-    uuid: uuid.v4(),
-    timestamp: new Date().toISOString(),
-    bp_release: store.getState().version.currentVersion,
-    bp_license: store.getState().license.licensing.isPro ? 'pro' : 'community',
-    event_type: event,
-    source: 'client',
+    ...getSchema(serverStats, 'client'),
+    event_type: eventName,
     event_data: {
-      schema: dataSchemaVersion,
+      schema: clientDataSchemaVersion,
       ...data
     }
   }
 
-  await axios.post('/', pkg, axiosConfig)
+  return pkg
+}
 
-  setEventLock(event)
+export const sendTelemetry = async (payload: Array<object>) => {
+  try {
+    await axios.post(window.TELEMETRY_URL, payload)
+
+    return 'ok'
+  } catch (err) {
+    console.error('Could not send the telemetry packages to the storage server', err)
+
+    return 'fail'
+  }
 }
