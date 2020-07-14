@@ -14,6 +14,11 @@ import { GhostService } from '..'
 import { JobService } from '../job-service'
 
 import { TelemetryStats } from './telemetry-stats'
+import { FlowService } from '../dialog/flow/service'
+import { BotService } from '../bot-service'
+import { async } from 'q'
+import _ from 'lodash'
+import { ActionBuilderProps } from 'botpress/sdk'
 
 interface NextNode {
   condition: string
@@ -46,7 +51,9 @@ export class ActionsStats extends TelemetryStats {
     @inject(TYPES.Database) database: Database,
     @inject(TYPES.LicensingService) licenseService: LicensingService,
     @inject(TYPES.JobService) jobService: JobService,
-    @inject(TYPES.TelemetryRepository) telemetryRepo: TelemetryRepository
+    @inject(TYPES.TelemetryRepository) telemetryRepo: TelemetryRepository,
+    @inject(TYPES.FlowService) private flowService: FlowService,
+    @inject(TYPES.BotService) private botService: BotService
   ) {
     super(ghostService, database, licenseService, jobService, telemetryRepo)
     this.url = process.TELEMETRY_URL
@@ -63,20 +70,21 @@ export class ActionsStats extends TelemetryStats {
   }
 
   private async getFlowsWithActions() {
-    const paths = await this.ghostService.bots().directoryListing('/', '*/flows/*.flow.json')
-    let flows
-    try {
-      flows = await Promise.map(paths, async flowPath => {
-        const { dir, base: flowName } = path.parse(flowPath)
-        const botID = dir.split('/')[0]
-        const actions = (await this.ghostService.bots().readFileAsObject<any>(dir, flowName)).nodes
-          .map(node => [...(node.onEnter ?? []), ...(node.onReceive ?? [])])
-          .reduce((acc, cur) => [...acc, ...cur])
-        return { flowName, botID, actions }
+    const botIds = await this.botService.getBotsIds()
+    const flows = _.flatten(
+      await Promise.map(botIds, async botID => {
+        const flowView = await this.flowService.loadAll(botID)
+        return flowView.map(flow => {
+          const { name } = flow
+          const actions = flow.nodes
+            .map(node => [...((node.onEnter as string[]) ?? []), ...((node.onReceive as string[]) ?? [])])
+            .reduce((acc, cur) => [...acc, ...cur])
+
+          return { flowName: name, botID, actions }
+        })
       })
-    } catch (error) {
-      return {}
-    }
+    )
+    console.log(JSON.stringify(flows.filter(flow => flow.actions.length > 0).map(flow => this.parseFlow(flow))))
     return flows.filter(flow => flow.actions.length > 0).map(flow => this.parseFlow(flow))
   }
 
