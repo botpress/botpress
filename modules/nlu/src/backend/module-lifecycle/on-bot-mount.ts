@@ -66,6 +66,12 @@ export function getOnBotMount(state: NLUState) {
                 await engine.loadModel(model)
                 await ModelService.saveModel(ghost, model, hash)
               }
+            } else {
+              Engine.tools.reportTrainingProgress(botId, 'Training not needed', {
+                language: languageCode,
+                progress: 1,
+                status: 'done'
+              })
             }
             try {
               if (model?.success) {

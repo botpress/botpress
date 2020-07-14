@@ -1,9 +1,11 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { getSeededLodash, resetSeed } from './tools/seeded-lodash'
 import { getOrCreateCache } from './cache-manager'
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
-import { getSentenceEmbeddingForCtx } from './intents/context-classifier-featurizer'
+import { getCtxFeatures } from './intents/context-featurizer'
+import { getIntentFeatures } from './intents/intent-featurizer'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getStopWordsForLang } from './language/stopWords'
 import { Model } from './model-service'
@@ -202,12 +204,17 @@ export const BuildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
     .value()
 }
 
+const getCustomEntitiesNames = (input: TrainOutput): string[] => {
+  return [...input.list_entities.map(e => e.entityName), ...input.pattern_entities.map(e => e.name)]
+}
+
 const TrainIntentClassifier = async (
   input: TrainOutput,
   tools: Tools,
   progress: progressCB
 ): Promise<_.Dictionary<string> | undefined> => {
   debugTraining.forBot(input.botId, 'Training intent classifier')
+  const customEntities = getCustomEntitiesNames(input)
   const svmPerCtx: _.Dictionary<string> = {}
 
   const noneUtts = _.chain(input.intents)
@@ -223,12 +230,15 @@ const TrainIntentClassifier = async (
     )
 
     const nAvgUtts = Math.ceil(_.meanBy(trainableIntents, 'utterances.length'))
+
+    const lo = getSeededLodash(process.env.NLU_SEED)
     const points = _.chain(trainableIntents)
       .thru(ints => [
         ...ints,
         {
           name: NONE_INTENT,
-          utterances: _.chain(noneUtts)
+          utterances: lo
+            .chain(noneUtts)
             .shuffle()
             .take(nAvgUtts * 2.5) // undescriptible magic n, no sens to extract constant
             .value()
@@ -237,11 +247,13 @@ const TrainIntentClassifier = async (
       .flatMap(i =>
         i.utterances.map(utt => ({
           label: i.name,
-          coordinates: [...utt.sentenceEmbedding, utt.tokens.length]
+          coordinates: getIntentFeatures(utt, customEntities)
         }))
       )
       .filter(x => !x.coordinates.some(isNaN))
       .value()
+
+    resetSeed()
 
     if (points.length <= 0) {
       progress(1 / input.ctxToTrain.length)
@@ -265,13 +277,14 @@ const TrainContextClassifier = async (
   progress: progressCB
 ): Promise<string | undefined> => {
   debugTraining.forBot(input.botId, 'Training context classifier')
+  const customEntities = getCustomEntitiesNames(input)
   const points = _.flatMapDeep(input.contexts, ctx => {
     return input.intents
       .filter(intent => intent.contexts.includes(ctx) && intent.name !== NONE_INTENT)
       .map(intent =>
         intent.utterances.map(utt => ({
           label: ctx,
-          coordinates: getSentenceEmbeddingForCtx(utt)
+          coordinates: getCtxFeatures(utt, customEntities)
         }))
       )
   }).filter(x => x.coordinates.filter(isNaN).length === 0)
@@ -329,21 +342,10 @@ export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise
     true
   )
 
-  const customReferencedInSlots = _.chain(input.intents)
-    .flatMap('slot_entities')
-    .uniq()
-    .value()
-
-  // only extract list entities referenced in slots
-  // TODO: remove this once we merge in entity encoding
-  const listEntitiesToExtract = input.list_entities.filter(ent => customReferencedInSlots.includes(ent.entityName))
-  const pattenEntitiesToExtract = input.pattern_entities.filter(ent => customReferencedInSlots.includes(ent.name))
-
   _.zip(utterances, allSysEntities)
     .map(([utt, sysEntities]) => {
-      // TODO: remove this slot check once we merge in entity encoding
-      const listEntities = utt.slots.length ? extractListEntities(utt, listEntitiesToExtract) : []
-      const patternEntities = utt.slots.length ? extractPatternEntities(utt, pattenEntitiesToExtract) : []
+      const listEntities = extractListEntities(utt, input.list_entities)
+      const patternEntities = extractPatternEntities(utt, input.pattern_entities)
       return [utt, [...sysEntities, ...listEntities, ...patternEntities]] as [Utterance, EntityExtractionResult[]]
     })
     .forEach(([utt, entities]) => {
@@ -359,21 +361,25 @@ export const AppendNoneIntent = async (input: TrainOutput, tools: Tools): Promis
     return input
   }
 
-  const allUtterances = _.flatten(input.intents.map(x => x.utterances))
-  const vocabWithDupes = _.chain(allUtterances)
+  const lo = getSeededLodash(process.env.NLU_SEED)
+
+  const allUtterances = lo.flatten(input.intents.map(x => x.utterances))
+  const vocabWithDupes = lo
+    .chain(allUtterances)
     .map(x => x.tokens.map(x => x.value))
     .flattenDeep<string>()
     .value()
 
   const junkWords = await tools.generateSimilarJunkWords(Object.keys(input.vocabVectors), input.languageCode)
-  const avgTokens = _.meanBy(allUtterances, x => x.tokens.length)
-  const nbOfNoneUtterances = _.clamp(
+  const avgTokens = lo.meanBy(allUtterances, x => x.tokens.length)
+  const nbOfNoneUtterances = lo.clamp(
     (allUtterances.length * 2) / 3,
     NONE_UTTERANCES_BOUNDS.MIN,
     NONE_UTTERANCES_BOUNDS.MAX
   )
   const stopWords = await getStopWordsForLang(input.languageCode)
-  const vocabWords = _.chain(input.tfIdf)
+  const vocabWords = lo
+    .chain(input.tfIdf)
     .toPairs()
     .filter(([word, tfidf]) => tfidf <= 0.3)
     .map('0')
@@ -382,19 +388,19 @@ export const AppendNoneIntent = async (input: TrainOutput, tools: Tools): Promis
   // If 30% in utterances is a space, language is probably space-separated so we'll join tokens using spaces
   const joinChar = vocabWithDupes.filter(x => isSpace(x)).length >= vocabWithDupes.length * 0.3 ? SPACE : ''
 
-  const vocabUtts = _.range(0, nbOfNoneUtterances).map(() => {
-    const nbWords = Math.round(_.random(1, avgTokens * 2, false))
-    return _.sampleSize(_.uniq([...stopWords, ...vocabWords]), nbWords).join(joinChar)
+  const vocabUtts = lo.range(0, nbOfNoneUtterances).map(() => {
+    const nbWords = Math.round(lo.random(1, avgTokens * 2, false))
+    return lo.sampleSize(lo.uniq([...stopWords, ...vocabWords]), nbWords).join(joinChar)
   })
 
-  const junkWordsUtts = _.range(0, nbOfNoneUtterances).map(() => {
-    const nbWords = Math.round(_.random(1, avgTokens * 2, false))
-    return _.sampleSize(junkWords, nbWords).join(joinChar)
+  const junkWordsUtts = lo.range(0, nbOfNoneUtterances).map(() => {
+    const nbWords = Math.round(lo.random(1, avgTokens * 2, false))
+    return lo.sampleSize(junkWords, nbWords).join(joinChar)
   })
 
-  const mixedUtts = _.range(0, nbOfNoneUtterances).map(() => {
-    const nbWords = Math.round(_.random(1, avgTokens * 2, false))
-    return _.sampleSize([...junkWords, ...stopWords], nbWords).join(joinChar)
+  const mixedUtts = lo.range(0, nbOfNoneUtterances).map(() => {
+    const nbWords = Math.round(lo.random(1, avgTokens * 2, false))
+    return lo.sampleSize([...junkWords, ...stopWords], nbWords).join(joinChar)
   })
 
   const intent: Intent<Utterance> = {
@@ -410,6 +416,7 @@ export const AppendNoneIntent = async (input: TrainOutput, tools: Tools): Promis
     slot_entities: []
   }
 
+  resetSeed()
   return { ...input, intents: [...input.intents, intent] }
 }
 

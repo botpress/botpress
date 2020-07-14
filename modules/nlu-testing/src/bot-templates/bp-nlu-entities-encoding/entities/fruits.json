@@ -1,0 +1,55 @@
+{
+  "id": "fruits",
+  "name": "Fruits",
+  "type": "list",
+  "occurrences": [
+    {
+      "name": "orange",
+      "synonyms": ["oranges"]
+    },
+    {
+      "name": "banana",
+      "synonyms": ["bananas"]
+    },
+    {
+      "name": "grapes",
+      "synonyms": ["grape"]
+    },
+    {
+      "name": "strawberry",
+      "synonyms": ["strawberries"]
+    },
+    {
+      "name": "kiwis",
+      "synonyms": ["kiwi"]
+    },
+    {
+      "name": "berry",
+      "synonyms": ["berries"]
+    },
+    {
+      "name": "apple",
+      "synonyms": ["apples"]
+    },
+    {
+      "name": "lemon",
+      "synonyms": ["lemons"]
+    },
+    {
+      "name": "avocado",
+      "synonyms": ["avocados"]
+    },
+    {
+      "name": "melon",
+      "synonyms": ["melons"]
+    },
+    {
+      "name": "watermelon",
+      "synonyms": ["watermelons", "water melon", "water-melon"]
+    }
+  ],
+  "sensitive": false,
+  "fuzzy": 0.8,
+  "examples": [],
+  "pattern": ""
+}
