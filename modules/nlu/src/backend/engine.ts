@@ -1,4 +1,4 @@
-import { logger, MLToolkit, NLU } from 'botpress/sdk'
+import { Logger, MLToolkit, NLU } from 'botpress/sdk'
 import crypto from 'crypto'
 import _ from 'lodash'
 
@@ -25,13 +25,22 @@ export type TrainingOptions = {
   forceTrain: boolean
 }
 
+type UntrainedModel = Omit<Partial<Model>, 'data'> & {
+  data: { input: TrainInput }
+}
+
 export default class Engine implements NLUEngine {
   // NOTE: removed private in order to prevent important refactor (which will be done later)
   static tools: Tools
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<Model> = {}
 
-  constructor(private defaultLanguage: string, private botId: string, private version: NLUVersionInfo) {}
+  constructor(
+    private defaultLanguage: string,
+    private botId: string,
+    private version: NLUVersionInfo,
+    private logger: Logger
+  ) {}
 
   static provideTools(tools: Tools) {
     Engine.tools = tools
@@ -113,7 +122,7 @@ export default class Engine implements NLUEngine {
       ctxToTrain
     }
 
-    let model: Partial<Model> = {
+    let model: UntrainedModel = {
       startedAt: new Date(),
       languageCode: input.languageCode,
       data: {
@@ -122,12 +131,12 @@ export default class Engine implements NLUEngine {
     }
 
     try {
-      const artefacts = await Trainer(input, Engine.tools)
+      const output = await Trainer(input, Engine.tools)
       model.success = true
-      _.merge(model, { success: true, data: { artefacts } })
+      _.merge(model, { success: true, data: { output } })
     } catch (err) {
       model.success = false
-      logger.error(`Could not finish training NLU model \n ${err}`)
+      this.logger.error(`Could not finish training NLU model \n ${err}`)
     } finally {
       model.finishedAt = new Date()
     }
@@ -168,7 +177,7 @@ export default class Engine implements NLUEngine {
     if (this.modelAlreadyLoaded(model)) {
       return
     }
-    if (!model.data.output) {
+    if (!model.data.output.intents) {
       const intents = await ProcessIntents(
         model.data.input.intents,
         model.languageCode,

@@ -31,7 +31,7 @@ export function getOnBotMount(state: NLUState) {
       bp.logger.warn('Either the nlu version or the lang server version is not set correctly.')
     }
 
-    const engine = new Engine(bot.defaultLanguage, bot.id, state)
+    const engine = new Engine(bot.defaultLanguage, bot.id, state, bp.logger)
     const trainOrLoad = _.debounce(
       async (forceTrain: boolean = false) => {
         // bot got deleted

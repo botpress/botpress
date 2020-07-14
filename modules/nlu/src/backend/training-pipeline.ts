@@ -60,13 +60,13 @@ export interface TrainOutput {
   list_entities: ListEntityModel[]
   tfidf: TFIDF
   vocabVectors: Token2Vec
-  intents: Intent<Utterance>[]
   // kmeans: KmeansResult
   ctx_model: string
   intent_model_by_ctx: Dic<string>
   slots_model: Buffer
   exact_match_index: ExactMatchIndex
   oos_model: _.Dictionary<string>
+  intents?: Intent<Utterance>[]
 }
 
 export type Trainer = (input: TrainInput, tools: Tools) => Promise<TrainOutput>
@@ -538,7 +538,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
       TrainSlotTagger(step, tools, reportProgress)
     ])
 
-    const artefacts: TrainOutput = {
+    const output: TrainOutput = {
       list_entities: step.list_entities,
       oos_model,
       tfidf: step.tfIdf,
@@ -550,7 +550,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
       exact_match_index
       // kmeans: {} add this when mlKmeans supports loading from serialized data,
     }
-    return artefacts
+    return output
   } catch (err) {
     if (err instanceof TrainingCanceledError) {
       debugTraining.forBot(input.botId, 'Training aborted')
