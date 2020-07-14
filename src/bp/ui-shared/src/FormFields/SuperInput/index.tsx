@@ -1,44 +1,73 @@
-import { Button, Icon } from '@blueprintjs/core'
-import cx from 'classnames'
-import React, { useEffect, useRef, useState } from 'react'
+import { Button, Icon, Menu, MenuItem, Popover, Position } from '@blueprintjs/core'
+import Tags from '@yaireo/tagify/dist/react.tagify'
+import React, { Fragment, useRef, useState } from 'react'
 import ReactDOMServer from 'react-dom/server'
 
 import { FieldProps } from '../../Contents/Components/typings'
+import Dropdown from '../../Dropdown'
 import Icons from '../../Icons'
 
 import style from './style.scss'
 import { SuperInputProps } from './typings'
-import { convertToHtml, convertToString, convertToTags } from './utils'
-import SuperInputDropdown from './SuperInputDropdown'
+import { convertToString, convertToTags } from './utils'
 
 type Props = FieldProps & SuperInputProps
 
 // TODO implement canAddElements
 
-export default ({
-  canAddElements,
-  customClassName,
-  events,
-  variables,
-  setCanOutsideClickClose,
-  onBlur,
-  multiple,
-  value
-}: Props) => {
-  const [localValue, setLocalValue] = useState(value)
-  const [searchString, setSearchString] = useState('')
-  const [isSearching, setIsSearching] = useState(false)
-  const [forceUpdate, setForceUpdate] = useState(false)
-  const inputRef = useRef<any>()
-  const prefix = useRef('')
-  const lastKnownCaretPosition = useRef<number>()
+export default ({ canAddElements, events, multiple, variables, setCanOutsideClickClose, onBlur, value }: Props) => {
+  const tagifyRef = useRef<any>()
   const eventsDesc = events?.reduce((acc, event) => ({ ...acc, [event.name]: event.description }), {})
-  const dropdownItems = (prefix.current === '$' ? variables : events) || []
 
   // TODO implement the autocomplete selection when event selected is partial
 
+  const tagifyCallbacks = {
+    input: e => {
+      const prefix = e.detail.prefix
+
+      if (prefix && multiple) {
+        if (prefix == '$') {
+          tagifyRef.current.settings.whitelist = variables?.map(({ name }) => name) || []
+        }
+
+        if (prefix == '{{') {
+          // TODO refactor to use the schema format properly and allow to breakdown into an object type search
+          tagifyRef.current.settings.whitelist = events?.map(({ name }) => name) || []
+        }
+
+        if (e.detail.value.length > 1) {
+          e.detail.tagify.dropdown.show.call(e.detail.tagify, e.detail.value)
+        }
+      }
+    },
+    keydown: e => {
+      const originalEvent = e.detail.originalEvent
+
+      if ((originalEvent.ctrlKey || originalEvent.metaKey) && originalEvent.key === 'a') {
+        document.execCommand('selectAll', true)
+      }
+    },
+    ['dropdown:show']: e => {
+      setCanOutsideClickClose?.(false)
+    },
+    ['edit:start']: e => {
+      const prefix = e.detail.data.prefix
+
+      if (prefix) {
+        if (prefix == '$') {
+          tagifyRef.current.settings.whitelist = variables?.map(({ name }) => name) || []
+        }
+
+        if (prefix == '{{') {
+          // TODO refactor to use the schema format properly and allow to breakdown into an object type search
+          tagifyRef.current.settings.whitelist = events?.map(event => event.name) || []
+        }
+      }
+    }
+  }
+
   const addPrefix = prefix => {
-    let currentContent = inputRef.current?.innerHTML
+    let currentContent = tagifyRef.current?.DOM.input.innerHTML
 
     if (currentContent.endsWith('{{')) {
       currentContent = currentContent.slice(0, -2).trim()
@@ -48,127 +77,70 @@ export default ({
     }
 
     // @ts-ignore
-    inputRef.current?.innerHTML = currentContent
+    tagifyRef.current?.DOM?.input?.innerHTML = currentContent
 
     if (currentContent !== '' && !currentContent.endsWith('&nbsp;')) {
       addSpace()
     }
 
     appendNodeToInput(document.createTextNode(prefix))
-    updateSearch()
+    moveCarretToEndOfString()
   }
 
   const appendNodeToInput = node => {
-    inputRef.current?.appendChild(node)
+    tagifyRef.current?.DOM.input.appendChild(node)
   }
 
   const addSpace = () => {
     appendNodeToInput(document.createTextNode('\u00A0'))
   }
 
-  const onInput = e => {
-    updateSearch()
-    console.log(inputRef.current?.innerHTML)
-    setLocalValue(convertToString(inputRef.current?.innerHTML))
+  const moveCarretToEndOfString = () => {
+    tagifyRef.current?.DOM.input.focus()
+    document.execCommand('selectAll', false)
+    document.getSelection()?.collapseToEnd()
+    tagifyRef.current?.DOM.input.dispatchEvent(new Event('input', { bubbles: true }))
   }
 
-  const onKeyDown = e => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
-      e.preventDefault()
-      document.execCommand('selectAll', true)
+  if (!multiple) {
+    const tag =
+      value &&
+      JSON.parse(
+        convertToTags(value)
+          .replace('[[', '')
+          .replace(']]', '')
+      )
 
-      return
-    }
-  }
-
-  const getCaretPosition = () => {
-    let caretPos = 0,
-      sel,
-      range
-    if (window.getSelection) {
-      sel = window.getSelection()
-      if (sel.rangeCount) {
-        range = sel.getRangeAt(0)
-        if (range.commonAncestorContainer.parentNode == inputRef.current) {
-          caretPos = range.endOffset
-        }
-      }
-    } else if (document['selection'] && document['selection'].createRange) {
-      range = document['selection'].createRange()
-      if (range.parentElement() == inputRef.current) {
-        const tempEl = document.createElement('span')
-        inputRef.current.insertBefore(tempEl, inputRef.current.firstChild)
-        const tempRange = range.duplicate()
-        tempRange.moveToElementText(tempEl)
-        tempRange.setEndPoint('EndToEnd', range)
-        caretPos = tempRange.text.length
-      }
-    }
-    return caretPos
-  }
-
-  const tagTemplate = (value, prefix) => {
-    return ReactDOMServer.renderToStaticMarkup(
-      <span title={value} contentEditable={false} spellCheck={false} tabIndex={-1} className={style.tag}>
-        <span className={style.tagContentWrapper}>
-          <Icon icon={prefix === '$' ? 'dollar' : <Icons.Brackets iconSize={10} />} iconSize={10} />
-          <span className={style.tagValue}>{value}</span>
-        </span>
-      </span>
+    return (
+      <div className={style.superInputWrapper}>
+        <div className={style.singularTagBtnWrapper}>
+          <Dropdown
+            items={events?.map(({ name }) => ({ value: name, label: name })) || []}
+            icon={<Icons.Brackets />}
+            onChange={({ value }) => {
+              onBlur?.(`{{${value}}}`)
+            }}
+          />
+          <Dropdown
+            items={variables?.map(({ name }) => ({ value: name, label: name })) || []}
+            icon="dollar"
+            onChange={({ value }) => {
+              onBlur?.(`$${value}`)
+            }}
+          />
+        </div>
+        <div className={style.superInput}>
+          {tag && (
+            <span title={tag.value} tabIndex={-1} className="tagify__tag">
+              <span>
+                <Icon icon={tag.prefix === '$' ? 'dollar' : <Icons.Brackets iconSize={10} />} iconSize={10} />
+                <span className="tagify__tag-text">{tag.value}</span>
+              </span>
+            </span>
+          )}
+        </div>
+      </div>
     )
-  }
-
-  const stopSearching = () => {
-    prefix.current = ''
-    setSearchString('')
-    setIsSearching(false)
-  }
-
-  const updateSearch = () => {
-    const caret = getCaretPosition()
-    const currentContentTxt = inputRef.current?.innerText
-    const stringBeforeCaret = currentContentTxt.substring(0, caret)
-    const stringAfterCaret = currentContentTxt.substring(caret)
-    let startOfWord = stringBeforeCaret.lastIndexOf(' ')
-    startOfWord = startOfWord === -1 ? 0 : startOfWord + 1
-
-    lastKnownCaretPosition.current = caret
-
-    let endOfWord = stringAfterCaret.indexOf(' ')
-    endOfWord = endOfWord === -1 ? currentContentTxt.length : stringBeforeCaret.length + endOfWord
-
-    const currentWord = currentContentTxt.substring(startOfWord, endOfWord)
-
-    if (currentWord.startsWith('$') || currentWord.startsWith('{{')) {
-      updateSearchString(currentWord)
-    } else if (isSearching) {
-      stopSearching()
-    }
-  }
-
-  const updateSearchString = word => {
-    if (!isSearching) {
-      setIsSearching(true)
-    }
-
-    const newSearchstring = word.replace('$', '').replace('{{', '')
-    const oldPrefix = prefix.current
-    prefix.current = word.startsWith('$') ? '$' : '{{'
-
-    if (searchString === newSearchstring && oldPrefix !== prefix.current) {
-      // Otherwise the state isn't changed if only the prefix changes
-      setForceUpdate(!forceUpdate)
-    } else if (searchString !== newSearchstring) {
-      setSearchString(word.replace('$', '').replace('{{', ''))
-    }
-  }
-
-  const filterDropdown = item => {
-    return item.name.includes(searchString)
-  }
-
-  const addTag = option => {
-    console.log(lastKnownCaretPosition.current)
   }
 
   return (
@@ -189,32 +161,7 @@ export default ({
           icon="dollar"
         />
       </div>
-      <div
-        onInput={onInput}
-        onKeyDown={onKeyDown}
-        ref={inputRef}
-        className={cx({ [style.superInput]: !customClassName }, customClassName)}
-        suppressContentEditableWarning
-        contentEditable
-        onKeyPress={updateSearch}
-        onMouseDown={updateSearch}
-        onTouchStart={updateSearch}
-        onMouseMove={updateSearch}
-        onSelect={updateSearch}
-        onPaste={updateSearch}
-      >
-        {value && convertToHtml(localValue!, tagTemplate)}
-      </div>
-      {isSearching && (
-        <SuperInputDropdown
-          filterable={false}
-          onClick={addTag}
-          items={dropdownItems
-            ?.filter(filterDropdown)
-            .map(({ name }) => ({ value: name, label: name, description: eventsDesc?.[name] }))}
-        />
-      )}
-      {/*<Tags
+      <Tags
         className={style.superInput}
         tagifyRef={tagifyRef}
         settings={{
@@ -269,7 +216,7 @@ export default ({
         }}
         value={convertToTags(value!)}
         onChange={e => (e.persist(), onBlur?.(convertToString(e.target.value)))}
-      />*/}
+      />
     </div>
   )
 }
