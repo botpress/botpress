@@ -51,7 +51,13 @@ const loopThroughData = data => {
     let newValue = currentData === '' ? null : currentData
 
     if (_.isArray(currentData)) {
-      newValue = currentData.map(item => loopThroughData(item))
+      newValue = currentData.map(item => {
+        if (_.isObject(item)) {
+          return loopThroughData(item)
+        } else {
+          return item === '' ? null : item
+        }
+      })
     } else if (_.isObject(currentData)) {
       newValue = loopThroughData(currentData)
     }
