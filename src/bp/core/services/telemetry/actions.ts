@@ -7,32 +7,15 @@ import { calculateHash } from 'core/misc/utils'
 import { TelemetryRepository } from 'core/repositories/telemetry_payload'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
+import _ from 'lodash'
 import ms from 'ms'
-import path from 'path'
 
 import { GhostService } from '..'
+import { BotService } from '../bot-service'
+import { FlowService } from '../dialog/flow/service'
 import { JobService } from '../job-service'
 
 import { TelemetryStats } from './telemetry-stats'
-import { FlowService } from '../dialog/flow/service'
-import { BotService } from '../bot-service'
-import { async } from 'q'
-import _ from 'lodash'
-import { ActionBuilderProps } from 'botpress/sdk'
-
-interface NextNode {
-  condition: string
-  node: string
-}
-
-interface Node {
-  id: string
-  name: string
-  next: NextNode[]
-  onEnter: string[]
-  onReceive: string[]
-  type: string
-}
 
 interface Flow {
   flowName: string
