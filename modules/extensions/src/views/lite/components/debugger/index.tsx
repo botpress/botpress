@@ -1,4 +1,5 @@
 import { Icon, Tab, Tabs } from '@blueprintjs/core'
+import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import ms from 'ms'
@@ -157,6 +158,8 @@ export class Debugger extends React.Component<Props, State> {
       return
     }
 
+    this.setState({ fetching: true })
+
     try {
       const { data: event } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
 
@@ -172,6 +175,7 @@ export class Debugger extends React.Component<Props, State> {
         await this.loadEvent(eventId)
       } else {
         this.currentRetryCount = 0
+        this.setState({ fetching: false })
       }
     }
   }
