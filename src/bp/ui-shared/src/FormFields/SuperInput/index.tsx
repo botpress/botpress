@@ -154,11 +154,13 @@ export default ({ canAddElements, events, variables, setCanOutsideClickClose, on
               </div>`
             },
             dropdownItem(item) {
+              const isAdding = !tagifyRef.current.settings.whitelist.includes(item.value)
               // TODO add icon when variable supports them and add variables description when they exist
               return `<div
-                class='tagify__dropdown__item'
+                class='tagify__dropdown__item ${isAdding && style.addingItem}'
                 tabindex="0"
                 role="option">
+                ${(isAdding && ReactDOMServer.renderToStaticMarkup(<Icon icon="plus" iconSize={12} />)) || ''}
                 ${item.value}
                 ${`<span class="description">${eventsDesc?.[item.value] || ''}</span>`}
               </div>`
