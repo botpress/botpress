@@ -6,6 +6,11 @@
   margin: 0 0 var(--spacing-medium);
 }
 
+.requiredField {
+  color: var(--lighthouse);
+  margin-left: var(--spacing-x-small);
+}
+
 a.moreInfo {
   color: var(--ocean);
   transition: color 0.3s;

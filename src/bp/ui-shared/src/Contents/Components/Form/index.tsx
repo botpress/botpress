@@ -1,7 +1,4 @@
 import { Checkbox } from '@blueprintjs/core'
-import { FormMoreInfo } from 'botpress/sdk'
-import cx from 'classnames'
-import _ from 'lodash'
 import React, { FC, Fragment, useReducer } from 'react'
 
 import { lang } from '../../../translations'
@@ -17,157 +14,7 @@ import GroupItemWrapper from '../GroupItemWrapper'
 
 import style from './style.scss'
 import { FormProps } from './typings'
-
-const printLabel = (field, data, currentLang?) => {
-  if (field.label?.startsWith('fields::') && field.fields?.length) {
-    const labelField = field.fields?.find(subField => subField.key === field.label.replace('fields::', ''))
-    const fieldData = labelField.translated ? data[labelField.key]?.[currentLang] : data[labelField.key]
-
-    return fieldData || lang(labelField.label)
-  }
-
-  return lang(field.label)
-}
-
-const printMoreInfo = (moreInfo: FormMoreInfo, isCheckbox = false): JSX.Element | undefined => {
-  if (!moreInfo) {
-    return
-  }
-
-  const { url, label } = moreInfo
-  if (url) {
-    return (
-      <a className={cx(style.moreInfo, { [style.isCheckbox]: isCheckbox })} href={url} target="_blank">
-        {lang(label)}
-      </a>
-    )
-  }
-
-  return <p className={cx(style.moreInfo, { [style.isCheckbox]: isCheckbox })}>{lang(label)}</p>
-}
-
-const formReducer = (state, action) => {
-  if (action.type === 'add') {
-    const { field, parent, currentLang, onUpdate } = action.data
-    const newData = createEmptyDataFromSchema([...(field.fields || [])], currentLang)
-
-    if (parent) {
-      const { key, index } = parent
-      const updatedItem = state[key]
-
-      updatedItem[index][field.key] = [...(updatedItem[index][field.key] || []), newData]
-
-      const newState = {
-        ...state,
-        [key]: updatedItem
-      }
-      onUpdate?.(newState)
-      return newState
-    }
-
-    const newState = {
-      ...state,
-      [field.key]: [...(state[field.key] || []), newData]
-    }
-
-    onUpdate?.(newState)
-    return newState
-  } else if (action.type === 'deleteGroupItem') {
-    const { deleteIndex, field, onUpdate, parent } = action.data
-
-    if (parent) {
-      const { key, index } = parent
-      const updatedItem = state[key]
-
-      updatedItem[index][field] = [...updatedItem[index][field].filter((item, index) => index !== deleteIndex)]
-
-      return {
-        ...state,
-        [key]: updatedItem
-      }
-    }
-
-    const newState = {
-      ...state,
-      [field]: [...state[field].filter((item, index) => index !== deleteIndex)]
-    }
-    onUpdate?.(newState)
-    return newState
-  } else if (action.type === 'updateField') {
-    const { field, type, parent, onUpdate, lang } = action.data
-    let { value } = action.data
-
-    if (type === 'number') {
-      value = Number(value)
-    }
-
-    if (parent) {
-      const { key, index } = parent
-      const getArray = [key, index, field]
-
-      if (parent.parent) {
-        // Needs recursion if we end up having more than one level of groups
-        getArray.unshift(parent.parent.key, parent.parent.index)
-      }
-
-      if (lang) {
-        value = { ..._.get(state, getArray), [lang]: value }
-      }
-
-      _.set(state, getArray, value)
-
-      onUpdate?.(state)
-      return {
-        ...state
-      }
-    }
-
-    if (lang) {
-      value = { ...state[field], [lang]: value }
-    }
-
-    const newState = {
-      ...state,
-      [field]: value
-    }
-
-    onUpdate?.(newState)
-    return { ...newState }
-  } else if (action.type === 'updateOverridableField') {
-    const { value, field, parent, onUpdate } = action.data
-    if (parent) {
-      const { index } = parent
-      const getArray = [index, field]
-
-      if (parent.parent) {
-        // Needs recursion if we end up having more than one level of groups
-        getArray.unshift(parent.parent.key, parent.parent.index)
-      }
-
-      _.set(state, getArray, value)
-
-      onUpdate?.(state)
-      return {
-        ...state
-      }
-    }
-
-    const newState = {
-      ...state,
-      ...value
-    }
-
-    onUpdate?.(newState)
-    return { ...newState }
-  } else if (action.type === 'setData') {
-    return {
-      ...state,
-      ...action.data
-    }
-  } else {
-    throw new Error(`That action type isn't supported.`)
-  }
-}
+import { formReducer, printLabel, printMoreInfo } from './utils'
 
 const Form: FC<FormProps> = ({
   currentLang,
@@ -251,7 +98,14 @@ const Form: FC<FormProps> = ({
               onChange={value =>
                 dispatch({
                   type: 'updateField',
-                  data: { field: field.key, lang: field.translated && currentLang, parent, value, onUpdate }
+                  data: {
+                    newFormData,
+                    field: field.key,
+                    lang: field.translated && currentLang,
+                    parent,
+                    value,
+                    onUpdate
+                  }
                 })
               }
             />
@@ -266,7 +120,14 @@ const Form: FC<FormProps> = ({
               onChange={value => {
                 dispatch({
                   type: 'updateField',
-                  data: { field: field.key, lang: field.translated && currentLang, parent, value, onUpdate }
+                  data: {
+                    newFormData,
+                    field: field.key,
+                    lang: field.translated && currentLang,
+                    parent,
+                    value,
+                    onUpdate
+                  }
                 })
               }}
               items={currentValue || ['']}
@@ -285,7 +146,14 @@ const Form: FC<FormProps> = ({
               onBlur={value => {
                 dispatch({
                   type: 'updateField',
-                  data: { field: field.key, lang: field.translated && currentLang, parent, value, onUpdate }
+                  data: {
+                    newFormData,
+                    field: field.key,
+                    lang: field.translated && currentLang,
+                    parent,
+                    value,
+                    onUpdate
+                  }
                 })
               }}
               value={currentValue}
@@ -303,7 +171,14 @@ const Form: FC<FormProps> = ({
               onChange={value =>
                 dispatch({
                   type: 'updateField',
-                  data: { field: field.key, lang: field.translated && currentLang, parent, value, onUpdate }
+                  data: {
+                    newFormData,
+                    field: field.key,
+                    lang: field.translated && currentLang,
+                    parent,
+                    value,
+                    onUpdate
+                  }
                 })
               }
               value={currentValue}
@@ -321,6 +196,7 @@ const Form: FC<FormProps> = ({
                 dispatch({
                   type: 'updateField',
                   data: {
+                    newFormData,
                     field: field.key,
                     lang: field.translated && currentLang,
                     value: e.currentTarget.checked,
@@ -342,7 +218,7 @@ const Form: FC<FormProps> = ({
               onChange: value => {
                 dispatch({
                   type: 'updateOverridableField',
-                  data: { field: field.key, onUpdate, value }
+                  data: { newFormData, field: field.key, onUpdate, value }
                 })
               }
             })}
@@ -359,6 +235,7 @@ const Form: FC<FormProps> = ({
                 dispatch({
                   type: 'updateField',
                   data: {
+                    newFormData,
                     field: field.key,
                     type: field.type,
                     lang: field.translated && currentLang,
