@@ -109,7 +109,7 @@ export class TelemetryRepository {
   }
 
   async getEntry(uuid: string): Promise<TelemetryEntry> {
-    return await this.database.knex
+    return this.database.knex
       .from(this.tableName)
       .select('*')
       .where('uuid', uuid)
