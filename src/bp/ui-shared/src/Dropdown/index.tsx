@@ -42,7 +42,8 @@ const Dropdown: FC<DropdownProps> = props => {
     rightIcon,
     spaced,
     className,
-    filterable
+    filterable,
+    filterList
   } = props
   const [activeItem, setActiveItem] = useState<Option | undefined>()
   const SimpleDropdown = Select.ofType<Option>()
@@ -66,6 +67,7 @@ const Dropdown: FC<DropdownProps> = props => {
       popoverProps={{ minimal: true, usePortal: false }}
       itemRenderer={itemRenderer}
       itemPredicate={filterOptions}
+      itemListPredicate={filterList}
       onItemSelect={async option => {
         if (confirmChange) {
           confirmChange.callback?.(false)

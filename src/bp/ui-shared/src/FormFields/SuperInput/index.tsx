@@ -45,16 +45,7 @@ export default ({
 
   const tagifyCallbacks = {
     add: e => {
-      const value = e.detail.data.value
-      const isAdding = !tagifyRef.current.settings.whitelist.includes(value)
-
-      if (isAdding) {
-        const newVariable = {
-          type: defaultVariableType,
-          name: value
-        }
-        addVariable?.(newVariable)
-      }
+      onAddVariable(e.detail.data.value, tagifyRef.current.settings.whitelist)
     },
     ['dropdown:select']: e => {
       const value = e.detail.data.value
@@ -103,6 +94,19 @@ export default ({
         // TODO refactor to use the schema format properly and allow to breakdown into an object type search
         tagifyRef.current.settings.whitelist = localEvents
       }
+    }
+  }
+
+  const onAddVariable = (value, list) => {
+    const isAdding = !list.includes(value)
+
+    if (isAdding) {
+      const newVariable = {
+        type: defaultVariableType,
+        name: value
+      }
+
+      addVariable?.(newVariable)
     }
   }
 
@@ -163,6 +167,31 @@ export default ({
     }
   }
 
+  const filterSingularDropdown = (query, options) => {
+    const addOption = [] as any[]
+    if (
+      query &&
+      !options.find(option => {
+        return query.toLowerCase() === option.label.toLowerCase() || query.toLowerCase() === option.value
+      })
+    ) {
+      addOption.push({
+        label: (
+          <Fragment>
+            <Icon icon="plus" iconSize={12} />
+            {lang('create')} "{query}"
+          </Fragment>
+        ),
+        value: query
+      })
+    }
+
+    return [
+      ...addOption,
+      ...options.filter(option => `${option.label.toLowerCase()} ${option.value}`.indexOf(query.toLowerCase()) > -1)
+    ]
+  }
+
   if (!multiple) {
     return (
       <div className={style.superInputWrapper}>
@@ -179,7 +208,9 @@ export default ({
           <Dropdown
             items={localVariables.map(name => ({ value: name, label: name }))}
             icon="dollar"
+            filterList={filterSingularDropdown}
             onChange={({ value }) => {
+              onAddVariable(value, localVariables)
               onBlur?.(`$${value}`)
             }}
           />

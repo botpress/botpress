@@ -44,7 +44,7 @@
     "dist"
   ],
   "dependencies": {
-    "@yaireo/tagify": "botpress/tagify",
+    "@yaireo/tagify": "botpress/tagify#387690265c4a96d49250e5caae36d2f60d2e9443",
     "react-command-palette": "^0.12.0-0",
     "react-router": "4.3.1"
   }

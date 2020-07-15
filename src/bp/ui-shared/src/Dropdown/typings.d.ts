@@ -1,3 +1,5 @@
+import { ItemListPredicate } from '@blueprintjs/select'
+
 export interface Option {
   label: string
   value: string
@@ -19,4 +21,5 @@ export interface DropdownProps {
   rightIcon?: any
   small?: boolean
   spaced?: boolean
+  filterList?: (query: string, options: Option[]) => Option[]
 }

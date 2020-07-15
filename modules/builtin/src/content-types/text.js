@@ -134,7 +134,6 @@ module.exports = {
       {
         type: 'overridable',
         overrideKey: 'textOverride',
-        isSuperInput: true,
         key: 'text',
         label: 'text'
       }

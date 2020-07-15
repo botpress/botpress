@@ -587,10 +587,9 @@
     "@webassemblyjs/wast-parser" "1.5.12"
     long "^3.2.0"
 
-"@yaireo/tagify@^3.15.3":
+"@yaireo/tagify@botpress/tagify#387690265c4a96d49250e5caae36d2f60d2e9443":
   version "3.15.3"
-  resolved "https://registry.yarnpkg.com/@yaireo/tagify/-/tagify-3.15.3.tgz#0117378991aba7ebe98e273cfa4171d10e1b69ee"
-  integrity sha512-eN0GCqsFsaw2tz6mpZ+PdLwXJ5RVz6cOYtHroGCm+UHRt23cqnIqtafo5P4AlVGk56a912u4IokydLU3ahQHag==
+  resolved "https://codeload.github.com/botpress/tagify/tar.gz/387690265c4a96d49250e5caae36d2f60d2e9443"
 
 abbrev@1:
   version "1.1.1"

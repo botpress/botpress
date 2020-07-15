@@ -191,7 +191,7 @@ const Form: FC<FormProps> = ({
       return data[labelField.key] || lang(labelField.label)
     }
 
-    return field.isSuperInput ? (
+    return field.isSuperInput && field.type !== 'text' ? (
       <Button className={style.superInputBtn} small minimal onClick={() => toggleSuperInput(field, parent)}>
         {lang(field.label)}
       </Button>
