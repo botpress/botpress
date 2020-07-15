@@ -27,7 +27,6 @@ export default ({
   value
 }: Props) => {
   const initialValue = useRef<string>((value && convertToTags(value)) || '')
-  const currentValue = useRef<string>((value && convertToTags(value)) || '')
   const currentPrefix = useRef<string>()
   const tagifyRef = useRef<any>()
   const [localVariables, setLocalVariables] = useState(variables?.map(({ name }) => name) || [])
@@ -36,12 +35,10 @@ export default ({
   // TODO implement the autocomplete selection when event selected is partial
 
   useEffect(() => {
-    initialValue.current = currentValue.current
     setLocalVariables(variables?.map(({ name }) => name) || [])
   }, [variables])
 
   useEffect(() => {
-    initialValue.current = currentValue.current
     setLocalEvents(events?.map(({ name }) => name) || [])
   }, [events])
 
@@ -61,9 +58,6 @@ export default ({
     ['dropdown:select']: e => {
       // const isAdding = !tagifyRef.current.settings.whitelist.includes(value)
       console.log(e)
-    },
-    blur: e => {
-      console.log(convertToString(currentValue.current))
     },
     input: e => {
       const prefix = e.detail.prefix
@@ -295,13 +289,9 @@ export default ({
           mode: 'mix',
           pattern: canPickEvents ? /\$|{{/ : /\$/
         }}
-        value={initialValue.current}
-        onBlur={e => console.log(e)}
+        value={convertToTags(value!)}
         onChange={e => {
-          e.persist()
-          console.log('change', e.currentTarget.value)
-          currentValue.current = e.currentTarget.value
-          // onBlur?.(convertToString(e.currentTarget.value))
+          onBlur?.(convertToString(e.currentTarget.value))
         }}
       />
     </div>
