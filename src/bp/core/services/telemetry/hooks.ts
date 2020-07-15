@@ -74,6 +74,12 @@ export class HooksLifecycleStats extends TelemetryStats {
   }
 
   protected async getStats() {
+    const temp = {
+      ...getSchema(await this.getServerStats(), 'server'),
+      event_type: 'hooks_lifecycle',
+      event_data: { schema: '1.0.0', lifeCycles: await this.getHooksLifecycle() }
+    }
+    console.log(temp)
     return {
       ...getSchema(await this.getServerStats(), 'server'),
       event_type: 'hooks_lifecycle',
@@ -84,14 +90,17 @@ export class HooksLifecycleStats extends TelemetryStats {
   private async getHooksLifecycle() {
     const botIds = await this.botService.getBotsIds()
     const forBots = await Promise.map(botIds, async botId => {
-      const hooksPaths = await this.ghostService.forBot(botId).directoryListing('/hooks', '*.js')
-      const lifecycles = _.countBy(
-        hooksPaths.map(path => path.split('/')[0]).filter(lifecycle => BOT_HOOKS.includes(lifecycle))
-      )
+      const botHooksPaths = await this.ghostService.forBot(botId).directoryListing('/hooks', '*.js')
+      const lifecycles = this.countLifecycles(botHooksPaths)
       return { botId, ...lifecycles }
     })
     const globalHooksPaths = await this.ghostService.global().directoryListing('/hooks', '*.js')
-    console.log(globalHooksPaths)
-    return {}
+    const global = this.countLifecycles(globalHooksPaths)
+
+    return { global, forBots }
+  }
+
+  private countLifecycles(paths: string[]) {
+    return _.countBy(paths.map(path => path.split('/')[0]).filter(lifecycle => BOT_HOOKS.includes(lifecycle)))
   }
 }
