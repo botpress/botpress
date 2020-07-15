@@ -109,7 +109,7 @@ export default ({
   const addPrefix = prefix => {
     const input = tagifyRef.current?.DOM.input
     const lastChildNode = input.lastChild
-    const isTag = lastChildNode.getAttribute ? lastChildNode.getAttribute('class').includes('tagify__tag') : false
+    const isTag = lastChildNode?.getAttribute ? lastChildNode.getAttribute('class').includes('tagify__tag') : false
     let lastChild = lastChildNode?.wholeText || ''
 
     if (lastChild.endsWith('{{') || lastChild.endsWith('$')) {
