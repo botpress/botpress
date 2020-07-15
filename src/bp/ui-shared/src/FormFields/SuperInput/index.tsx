@@ -27,6 +27,7 @@ export default ({
   value
 }: Props) => {
   const initialValue = useRef<string>((value && convertToTags(value)) || '')
+  const newlyAddedVar = useRef<string[]>([])
   const currentPrefix = useRef<string>()
   const tagifyRef = useRef<any>()
   const [localVariables, setLocalVariables] = useState(variables?.map(({ name }) => name) || [])
@@ -56,8 +57,11 @@ export default ({
       }
     },
     ['dropdown:select']: e => {
-      // const isAdding = !tagifyRef.current.settings.whitelist.includes(value)
-      console.log(e)
+      const value = e.detail.data.value
+      const isAdding = !tagifyRef.current.settings.whitelist.includes(value)
+      if (isAdding) {
+        newlyAddedVar.current = [...newlyAddedVar.current, value]
+      }
     },
     input: e => {
       const prefix = e.detail.prefix
@@ -103,32 +107,24 @@ export default ({
   }
 
   const addPrefix = prefix => {
-    let currentContent = tagifyRef.current?.DOM.input.innerHTML
+    const input = tagifyRef.current?.DOM.input
+    const lastChildNode = input.lastChild
+    const isTag = lastChildNode.getAttribute ? lastChildNode.getAttribute('class').includes('tagify__tag') : false
+    let lastChild = lastChildNode?.wholeText || ''
 
-    if (currentContent.endsWith('{{')) {
-      currentContent = currentContent.slice(0, -2).trim()
-    }
-    if (currentContent.endsWith('$')) {
-      currentContent = currentContent.slice(0, -1).trim()
-    }
-
-    // @ts-ignore
-    tagifyRef.current?.DOM?.input?.innerHTML = currentContent
-
-    if (currentContent !== '' && !currentContent.endsWith('&nbsp;')) {
-      addSpace()
+    if (lastChild.endsWith('{{') || lastChild.endsWith('$')) {
+      lastChild = lastChild.replace('{{', '').replace('$', '')
     }
 
-    appendNodeToInput(document.createTextNode(prefix))
+    if (lastChildNode && !isTag) {
+      const addSpace = !(lastChild.endsWith('&nbsp;') || lastChild.endsWith(' ') || input.innerTEXT === '')
+
+      input.replaceChild(document.createTextNode(`${lastChild}${addSpace ? ' ' : ''}${prefix}`), lastChildNode)
+    } else {
+      input.appendChild(document.createTextNode(`${isTag ? ' ' : ''}${prefix}`))
+    }
+
     moveCarretToEndOfString()
-  }
-
-  const appendNodeToInput = node => {
-    tagifyRef.current?.DOM.input.appendChild(node)
-  }
-
-  const addSpace = () => {
-    appendNodeToInput(document.createTextNode('\u00A0'))
   }
 
   const moveCarretToEndOfString = () => {
@@ -197,24 +193,26 @@ export default ({
 
   return (
     <div className={style.superInputWrapper}>
-      {/*<div className={style.tagBtnWrapper}>
-        {canPickEvents && (
+      {
+        <div className={style.tagBtnWrapper}>
+          {canPickEvents && (
+            <Button
+              className={style.tagBtn}
+              onClick={() => {
+                addPrefix('{{')
+              }}
+              icon={<Icons.Brackets />}
+            />
+          )}
           <Button
             className={style.tagBtn}
             onClick={() => {
-              addPrefix('{{')
+              addPrefix('$')
             }}
-            icon={<Icons.Brackets />}
+            icon="dollar"
           />
-        )}
-        <Button
-          className={style.tagBtn}
-          onClick={() => {
-            addPrefix('$')
-          }}
-          icon="dollar"
-        />
-        </div>*/}
+        </div>
+      }
       <Tags
         className={style.superInput}
         tagifyRef={tagifyRef}
@@ -266,7 +264,10 @@ export default ({
               )
             },
             tag({ prefix, value }) {
-              const isInvalid = !(prefix === '$' ? localVariables : localEvents).includes(value)
+              const isInvalid = !(prefix === '$'
+                ? [...localVariables, ...newlyAddedVar.current]
+                : localEvents
+              ).includes(value)
 
               return (
                 <span
