@@ -197,7 +197,7 @@ export default ({
 
   return (
     <div className={style.superInputWrapper}>
-      <div className={style.tagBtnWrapper}>
+      {/*<div className={style.tagBtnWrapper}>
         {canPickEvents && (
           <Button
             className={style.tagBtn}
@@ -214,7 +214,7 @@ export default ({
           }}
           icon="dollar"
         />
-      </div>
+        </div>*/}
       <Tags
         className={style.superInput}
         tagifyRef={tagifyRef}
@@ -289,7 +289,7 @@ export default ({
           mode: 'mix',
           pattern: canPickEvents ? /\$|{{/ : /\$/
         }}
-        value={convertToTags(value!)}
+        defaultValue={initialValue.current}
         onChange={e => {
           onBlur?.(convertToString(e.currentTarget.value))
         }}
