@@ -16,7 +16,7 @@ const getConfirmPromptPayload = (messages: MultiLangText | undefined, value: any
   let question = lang.tr('module.builtin.prompt.confirmValue', { value })
 
   if (messages) {
-    question = _.mapValues(messages, (q, lang) => (q.length > 0 ? q.replace(`$value`, value) : question[lang]))
+    question = _.mapValues(messages, (q, lang) => (q?.length > 0 ? q.replace(`$value`, value) : question[lang]))
   }
 
   return { type: 'confirm', question }
