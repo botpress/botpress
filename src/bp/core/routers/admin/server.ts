@@ -141,7 +141,13 @@ export class ServerRouter extends CustomRouter {
 
         const serverConfig = {
           config: await this.configProvider.getBotpressConfig(),
-          live: _.pick(process, ['EXTERNAL_URL', 'ROOT_PATH', 'PROXY', 'APP_DATA_PATH', 'IS_LICENSED']),
+          live: {
+            ..._.pick(process, ['EXTERNAL_URL', 'ROOT_PATH', 'PROXY', 'APP_DATA_PATH', 'IS_LICENSED']),
+            PRO_ENABLED: !!process.IS_PRO_ENABLED,
+            BPFS_STORAGE: process.BPFS_STORAGE,
+            CLUSTER_ENABLED: !!process.CLUSTER_ENABLED,
+            DATABASE_URL: process.env.DATABASE_URL
+          },
           env: _.pick(process.core_env, [
             'BPFS_STORAGE',
             'PRO_ENABLED',
@@ -152,7 +158,8 @@ export class ServerRouter extends CustomRouter {
             'CLUSTER_ENABLED',
             'AUTO_MIGRATE',
             'BP_LICENSE_KEY'
-          ])
+          ]),
+          os: process.platform
         }
         res.send(serverConfig)
       })

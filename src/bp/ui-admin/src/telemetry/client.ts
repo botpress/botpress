@@ -1,21 +1,20 @@
 import axios from 'axios'
 import { lang } from 'botpress/shared'
-import { getSchema, ServerStats } from 'common/telemetry'
+import { getSchema, ServerStats, TelemetryEvent, TelemetryEventData } from 'common/telemetry'
 import _ from 'lodash'
 import ms from 'ms'
+import { AppState } from '~/reducers'
 
 import store from '../store'
 
-interface EventPackageInfoType {
-  [key: string]: {
-    timeout: string
-    getPackage: Function
-  }
+type DataCollector = () => TelemetryEventData
+
+interface UIEventsCollector {
+  refreshInterval: number
+  collectData: DataCollector
 }
 
-const clientDataSchemaVersion = '1.0.0'
-
-const pathsInReduxTracked: string[] = [
+const REQUIRED_ITEMS_IN_STORE = [
   'user.profile.email',
   'server.serverConfig.env',
   'server.serverConfig.live',
@@ -24,41 +23,40 @@ const pathsInReduxTracked: string[] = [
   'license.licensing.fingerprints.cluster_url'
 ]
 
-const eventPackageInfo: EventPackageInfoType = {}
+const eventCollectorStore: _.Dictionary<UIEventsCollector> = {}
 
 const getEventExpiry = (eventName: string) => {
-  const expiry = window.localStorage.getItem(eventName)
-
-  if (expiry !== null) {
-    return parseInt(expiry)
-  }
-
-  return null
+  const expiryAsString = window.localStorage.getItem(eventName)
+  return expiryAsString ? ms(expiryAsString) : null
 }
 
-const setEventExpiry = (eventName: string) =>
-  window.localStorage.setItem(eventName, (ms(eventPackageInfo[eventName].timeout) + Date.now()).toString())
+const setEventExpiry = (eventName: string) => {
+  const expiry = Date.now() + eventCollectorStore[eventName].refreshInterval
+  window.localStorage.setItem(eventName, expiry.toString())
+}
 
-const checkStoreInfoReceived = () =>
-  !pathsInReduxTracked.find(pathInRedux => _.get(store.getState(), pathInRedux) === undefined)
+const isReadyToSendEvents = (): boolean => {
+  const allItemsInStore = REQUIRED_ITEMS_IN_STORE.every(path => _.get(store.getState(), path) !== undefined)
+  return !!window.TELEMETRY_URL && allItemsInStore
+}
 
-export const addTelemetryEvent = (eventName: string, timeout: string, getPackage: Function) => {
-  eventPackageInfo[eventName] = {
-    timeout,
-    getPackage
+export const addEventCollector = (eventName: string, interval: string, collector: DataCollector) => {
+  eventCollectorStore[eventName] = {
+    refreshInterval: ms(interval),
+    collectData: collector
   }
 }
 
-const checkTelemetry = async (eventName: string) => {
+// TODO refactor this, it does too many things
+const sendEventIfReady = async (eventName: string) => {
   const expiry = getEventExpiry(eventName)
 
-  if (!expiry || expiry <= Date.now()) {
+  if (!expiry || expiry < Date.now()) {
     try {
-      const pkg = eventPackageInfo[eventName].getPackage()
+      const eventData = eventCollectorStore[eventName].collectData()
+      const event = makeTelemetryEvent(eventName, eventData)
 
-      const payload = makeTelemetryPayload(eventName, pkg)
-
-      await sendTelemetry([payload])
+      await sendTelemetryEvents([event])
 
       setEventExpiry(eventName)
     } catch (err) {
@@ -67,29 +65,35 @@ const checkTelemetry = async (eventName: string) => {
   }
 }
 
-export const startTelemetry = () => {
-  addTelemetryEvent('ui_language', '8h', () => {
-    return {
-      user: {
-        email: store.getState().user.profile.email,
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-      },
-      language: lang.getLocale()
-    }
-  })
+const uiLanguageCollector: DataCollector = () => {
+  const state = store.getState() as AppState
+  return {
+    // TODO add schema version
+    user: {
+      email: _.get(state, 'user.profile.email'),
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    },
+    language: lang.getLocale()
+  }
+}
 
-  const clear = setInterval(() => {
-    if (checkStoreInfoReceived() && window.TELEMETRY_URL) {
-      for (const event_name in eventPackageInfo) {
-        checkTelemetry(event_name).catch()
-      }
-      clearInterval(clear)
+export const startTelemetry = () => {
+  addEventCollector('ui_language', '8h', uiLanguageCollector)
+
+  const interval = setInterval(async () => {
+    if (!isReadyToSendEvents()) {
+      return
     }
+
+    const eventNames = Object.keys(eventCollectorStore)
+    await Promise.all(eventNames.map(sendEventIfReady))
+
+    clearInterval(interval)
   }, ms('1s'))
 }
 
-const makeTelemetryPayload = (eventName: string, data: object) => {
-  const state = store.getState()
+const makeTelemetryEvent = (event_type: string, event_data: TelemetryEventData): TelemetryEvent => {
+  const state = store.getState() as AppState
 
   const serverStats: ServerStats = {
     externalUrl: state.server.serverConfig.live.EXTERNAL_URL,
@@ -106,26 +110,19 @@ const makeTelemetryPayload = (eventName: string, data: object) => {
     }
   }
 
-  const pkg = {
+  return {
     ...getSchema(serverStats, 'client'),
-    event_type: eventName,
-    event_data: {
-      schema: clientDataSchemaVersion,
-      ...data
-    }
+    event_type,
+    event_data
   }
-
-  return pkg
 }
 
-export const sendTelemetry = async (payload: Array<object>) => {
+export const sendTelemetryEvents = async (events: TelemetryEvent[]) => {
   try {
-    await axios.post(window.TELEMETRY_URL, payload)
-
+    await axios.post(window.TELEMETRY_URL, events)
     return 'ok'
   } catch (err) {
     console.error('Could not send the telemetry packages to the storage server', err)
-
     return 'fail'
   }
 }

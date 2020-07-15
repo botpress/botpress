@@ -3,7 +3,7 @@ import ms from 'ms'
 
 import api from '../api'
 
-import { sendTelemetry } from './client'
+import { sendTelemetryEvents } from './client'
 
 const serverUrlPayloads = '/admin/telemetry-payloads'
 const serverUrlFeedback = '/admin/telemetry-feedback'
@@ -20,7 +20,7 @@ const sendServerPackage = async () => {
 
     const post = events.map(e => ({ ...e, source: 'client' }))
 
-    const status = await sendTelemetry(post)
+    const status = await sendTelemetryEvents(post)
 
     await api.getSecured().post(serverUrlFeedback, { events: events.map(e => e.uuid), status })
 
