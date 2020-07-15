@@ -1,6 +1,7 @@
 import axios from 'axios'
 import LicensingService from 'common/licensing-service'
 import { machineUUID } from 'common/stats'
+import { ServerStats } from 'common/telemetry'
 import Database from 'core/database'
 import { TelemetryRepository } from 'core/repositories/telemetry_payload'
 import { TYPES } from 'core/types'
@@ -57,7 +58,7 @@ export abstract class TelemetryStats {
     }
   }
 
-  protected async getServerStats() {
+  protected async getServerStats(): Promise<ServerStats> {
     return {
       externalUrl: process.EXTERNAL_URL,
       botpressVersion: process.BOTPRESS_VERSION,

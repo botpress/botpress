@@ -31,6 +31,7 @@ import { Downloader } from '~/Pages/Components/Downloader'
 import api from '../../../api'
 import { fetchBotHealth, fetchBots } from '../../../reducers/bots'
 import { fetchLicensing } from '../../../reducers/license'
+import { fetchServerConfig } from '../../../reducers/server'
 import AccessControl from '../../../App/AccessControl'
 import LoadingSection from '../../Components/LoadingSection'
 
@@ -50,6 +51,8 @@ interface Props extends RouteComponentProps {
   fetchBots: () => void
   fetchLicensing: () => void
   fetchBotHealth: () => void
+  fetchServerConfig: () => void
+  serverConfigLoaded: boolean
   licensing: any
   profile: UserProfile
 }
@@ -75,6 +78,9 @@ class Bots extends Component<Props> {
 
     if (!this.props.licensing) {
       this.props.fetchLicensing()
+    }
+    if (!this.props.serverConfigLoaded) {
+      this.props.fetchServerConfig()
     }
 
     window.SEND_USAGE_STATS && setupOfflineTelemetryFallback()
@@ -425,13 +431,15 @@ const mapStateToProps = state => ({
   workspace: state.bots.workspace,
   loading: state.bots.loadingBots,
   licensing: state.license.licensing,
-  profile: state.user.profile
+  profile: state.user.profile,
+  serverConfigLoaded: state.server.serverConfigLoaded
 })
 
 const mapDispatchToProps = {
   fetchBots,
   fetchLicensing,
-  fetchBotHealth
+  fetchBotHealth,
+  fetchServerConfig
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Bots)

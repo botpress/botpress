@@ -2,6 +2,11 @@ import api from '../api'
 
 export const FETCH_LICENSING_RECEIVED = 'license/FETCH_LICENSING_RECEIVED'
 
+// TODO fill this properly
+export interface LicenseState {
+  licensing: any
+}
+
 const initialState = {
   licensing: null
 }

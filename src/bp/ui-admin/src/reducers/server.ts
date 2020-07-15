@@ -4,7 +4,15 @@ export const FETCH_LANGUAGES_RECEIVED = 'server/FETCH_LANGUAGES_RECEIVED'
 export const FETCH_WORKSPACES_RECEIVED = 'server/FETCH_WORKSPACES_RECEIVED'
 export const FETCH_SERVER_CONFIG_RECEIVED = 'server/FETCH_FEATURE_RECEIVED'
 
-const initialState = {
+// TODO fill this properly
+export interface ServerState {
+  languages: string[] | null
+  workspaces: any[] | null
+  serverConfig: any
+  serverConfigLoaded: boolean
+}
+
+const initialState: ServerState = {
   languages: null,
   workspaces: null,
   serverConfig: null,
