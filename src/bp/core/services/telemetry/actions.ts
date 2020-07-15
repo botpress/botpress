@@ -1,7 +1,7 @@
 import { parseActionInstruction } from 'common/action'
 import { BUILTIN_MODULES } from 'common/defaults'
 import LicensingService from 'common/licensing-service'
-import { getSchema } from 'common/telemetry'
+import { getSchema, TelemetryEvent } from 'common/telemetry'
 import Database from 'core/database'
 import { calculateHash } from 'core/misc/utils'
 import { TelemetryRepository } from 'core/repositories/telemetry_payload'
@@ -44,7 +44,7 @@ export class ActionsStats extends TelemetryStats {
     this.interval = ms('1d')
   }
 
-  protected async getStats() {
+  protected async getStats(): Promise<TelemetryEvent> {
     return {
       ...getSchema(await this.getServerStats(), 'server'),
       event_type: 'builtin_actions',
