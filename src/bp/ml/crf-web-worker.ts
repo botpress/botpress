@@ -1,6 +1,7 @@
 import nanoid from 'nanoid'
 import * as sdk from 'botpress/sdk'
 import crfsuite, { Trainer as CRFTrainer, Options } from './crfsuite'
+import { Message } from './toolkit'
 
 /**
  * This is only a wrapper class over the binding to respect the sdk interface
@@ -28,10 +29,14 @@ export class WebWorkerCrfTrainer implements Omit<CRFTrainer, 'train'>, sdk.MLToo
     return this.crfsuite_addon.set_params(options)
   }
 
-  train(elements: sdk.MLToolkit.CRF.DataPoint[], params: sdk.MLToolkit.CRF.TrainerOptions): Promise<string> {
+  train(
+    elements: sdk.MLToolkit.CRF.DataPoint[],
+    params: sdk.MLToolkit.CRF.TrainerOptions,
+    cb?: sdk.MLToolkit.CRF.TrainerCallback
+  ): Promise<string> {
     const ret: any = Promise.fromCallback(completedCb => {
       const id = nanoid()
-      const messageHandler = msg => {
+      const messageHandler = (msg: Message) => {
         if (msg.id !== id) {
           return
         }
@@ -45,9 +50,14 @@ export class WebWorkerCrfTrainer implements Omit<CRFTrainer, 'train'>, sdk.MLToo
           completedCb(msg.payload.error)
           process.off('message', messageHandler)
         }
+
+        if (msg.type === 'crf_log') {
+          cb && cb(msg.payload?.log)
+        }
       }
 
-      process.send!({ type: 'crf_train', id, payload: { elements, params } })
+      const debug = !!cb
+      process.send!({ type: 'crf_train', id, payload: { elements, params, debug } })
       process.on('message', messageHandler)
     })
     return ret as Promise<string> // Bluebird promise to promise does not build...

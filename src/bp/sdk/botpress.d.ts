@@ -430,7 +430,7 @@ declare module 'botpress/sdk' {
       }
 
       export interface Trainer {
-        train(elements: DataPoint[], options: TrainerOptions): Promise<string>
+        train(elements: DataPoint[], options: TrainerOptions, cb?: TrainerCallback): Promise<string>
       }
 
       export const createTrainer: () => Trainer

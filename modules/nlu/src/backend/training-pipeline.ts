@@ -445,7 +445,12 @@ const TrainSlotTagger = async (input: TrainOutput, tools: Tools, progress: progr
 
   debugTraining.forBot(input.botId, 'Training slot tagger')
   const slotTagger = new SlotTagger(tools.mlToolkit)
-  await slotTagger.train(input.intents.filter(i => i.name !== NONE_INTENT))
+  await slotTagger.train(
+    input.intents.filter(i => i.name !== NONE_INTENT),
+    nIteration => {
+      progress(0)
+    }
+  )
   debugTraining.forBot(input.botId, 'Done training slot tagger')
   progress()
 

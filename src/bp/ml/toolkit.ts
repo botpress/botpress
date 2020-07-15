@@ -14,9 +14,17 @@ import { processor } from './sentencepiece'
 import { Predictor, Trainer as SVMTrainer } from './svm'
 import { WebWorkerCrfTrainer } from './crf-web-worker'
 
-type MsgType = 'svm_train' | 'svm_progress' | 'svm_done' | 'svm_error' | 'crf_train' | 'crf_done' | 'crf_error'
+type MsgType =
+  | 'svm_train'
+  | 'svm_progress'
+  | 'svm_done'
+  | 'svm_error'
+  | 'crf_train'
+  | 'crf_done'
+  | 'crf_error'
+  | 'crf_log'
 
-interface Message {
+export interface Message {
   type: MsgType
   id: string
   payload: any
@@ -107,22 +115,24 @@ if (cluster.isWorker) {
       }
 
       if (msg.type === 'crf_train') {
-        const debugTrain = DEBUG('nlu').sub('training')
-        const trainer = new crfsuite.Trainer()
+        const { elements, params, debug } = msg.payload
+        const trainer = new crfsuite.Trainer({ debug }) // debug means callback function will be called
 
         try {
-          trainer.set_params(msg.payload.params)
+          trainer.set_params(params)
 
-          for (const { features, labels } of msg.payload.elements) {
+          for (const { features, labels } of elements) {
             trainer.append(features, labels)
           }
 
           const crfModelFilename = tmp.fileSync({ postfix: '.bin' }).name
-          await trainer.train_async(crfModelFilename, str => debugTrain('CRFSUITE', str))
+          await trainer.train_async(crfModelFilename, log => {
+            process.send!({ type: 'crf_log', id: msg.id, payload: { log } } as Message)
+          })
 
-          process.send!({ type: 'crf_done', id: msg.id, payload: { crfModelFilename } })
+          process.send!({ type: 'crf_done', id: msg.id, payload: { crfModelFilename } } as Message)
         } catch (error) {
-          process.send!({ type: 'crf_error', id: msg.id, payload: { error } })
+          process.send!({ type: 'crf_error', id: msg.id, payload: { error } } as Message)
         }
       }
     }
@@ -166,6 +176,7 @@ if (cluster.isMaster) {
   registerMsgHandler('crf_train', async (msg: Message) => (await pickMLWorker()).send(msg))
   registerMsgHandler('crf_done', sendToWebWorker)
   registerMsgHandler('crf_error', sendToWebWorker)
+  registerMsgHandler('crf_log', sendToWebWorker)
 }
 
 export default MLToolkit
