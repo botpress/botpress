@@ -1,6 +1,6 @@
 import uuid from 'uuid'
 
-export type ServerStats = {
+export interface ServerStats {
   externalUrl: string
   botpressVersion: string
   clusterEnabled: boolean
@@ -15,7 +15,7 @@ export type ServerStats = {
   }
 }
 
-export type Schema = {
+export interface Schema {
   timestamp: Date
   uuid: string
   schema: string
