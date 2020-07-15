@@ -40,6 +40,7 @@ const config: PromptConfig = {
     {
       type: 'text',
       key: 'regexPattern',
+      required: true,
       placeholder: 'module.builtin.regexPatternPlaceholder',
       label: 'module.builtin.regexPattern'
       // TODO add combo box to select from predefined patterns or custom
