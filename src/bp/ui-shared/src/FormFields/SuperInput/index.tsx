@@ -26,6 +26,8 @@ export default ({
   onBlur,
   value
 }: Props) => {
+  const initialValue = useRef<string>((value && convertToTags(value)) || '')
+  const currentValue = useRef<string>((value && convertToTags(value)) || '')
   const currentPrefix = useRef<string>()
   const tagifyRef = useRef<any>()
   const [localVariables, setLocalVariables] = useState(variables?.map(({ name }) => name) || [])
@@ -34,10 +36,12 @@ export default ({
   // TODO implement the autocomplete selection when event selected is partial
 
   useEffect(() => {
+    initialValue.current = currentValue.current
     setLocalVariables(variables?.map(({ name }) => name) || [])
   }, [variables])
 
   useEffect(() => {
+    initialValue.current = currentValue.current
     setLocalEvents(events?.map(({ name }) => name) || [])
   }, [events])
 
@@ -45,18 +49,21 @@ export default ({
     add: e => {
       const value = e.detail.data.value
       const isAdding = !tagifyRef.current.settings.whitelist.includes(value)
-      console.log(e)
+
       if (isAdding) {
         const newVariable = {
           type: defaultVariableType,
           name: value
         }
-        setLocalVariables([...localVariables, value])
         addVariable?.(newVariable)
       }
     },
     ['dropdown:select']: e => {
+      // const isAdding = !tagifyRef.current.settings.whitelist.includes(value)
       console.log(e)
+    },
+    blur: e => {
+      console.log(convertToString(currentValue.current))
     },
     input: e => {
       const prefix = e.detail.prefix
@@ -238,9 +245,9 @@ export default ({
                 </div>
               )
             },
-            dropdownItem(item) {
-              const isAdding = !tagifyRef.current.settings.whitelist.includes(item.value)
-              const string = isAdding ? `"${item.value}"` : item.value
+            dropdownItem({ value, tagifySuggestionIdx }) {
+              const isAdding = !tagifyRef.current.settings.whitelist.includes(value)
+              const string = isAdding ? `"${value}"` : value
 
               if (isAdding && (currentPrefix.current === '{{' || !canAddElements)) {
                 return null
@@ -248,7 +255,7 @@ export default ({
 
               return (
                 <div
-                  {...{ tagifySuggestionIdx: item.tagifySuggestionIdx }}
+                  {...{ tagifysuggestionidx: tagifySuggestionIdx }}
                   className={cx('tagify__dropdown__item', { [style.addingItem]: isAdding })}
                   tabIndex={0}
                   role="option"
@@ -260,24 +267,24 @@ export default ({
                     </Fragment>
                   )}
                   {string}
-                  <span className="description">{eventsDesc?.[item.value] || ''}</span>
+                  <span className="description">{eventsDesc?.[value] || ''}</span>
                 </div>
               )
             },
-            tag(tagData) {
-              const isValid = (tagData.prefix === '$' ? localVariables : localEvents).find(name => name === tagData)
+            tag({ prefix, value }) {
+              const isInvalid = !(prefix === '$' ? localVariables : localEvents).includes(value)
 
               return (
                 <span
-                  title={tagData.value}
+                  title={value}
                   contentEditable={false}
                   spellCheck={false}
                   tabIndex={-1}
-                  className={cx('tagify__tag', { ['tagify--invalid']: isValid })}
+                  className={cx('tagify__tag', { ['tagify--invalid']: isInvalid })}
                 >
                   <span>
-                    <Icon icon={tagData.prefix === '$' ? 'dollar' : <Icons.Brackets iconSize={10} />} iconSize={10} />
-                    <span className="tagify__tag-text">{tagData.value}</span>
+                    <Icon icon={prefix === '$' ? 'dollar' : <Icons.Brackets iconSize={10} />} iconSize={10} />
+                    <span className="tagify__tag-text">{value}</span>
                   </span>
                 </span>
               )
@@ -288,8 +295,14 @@ export default ({
           mode: 'mix',
           pattern: canPickEvents ? /\$|{{/ : /\$/
         }}
-        value={convertToTags(value!)}
-        onChange={e => (e.persist(), onBlur?.(convertToString(e.target.value)))}
+        value={initialValue.current}
+        onBlur={e => console.log(e)}
+        onChange={e => {
+          e.persist()
+          console.log('change', e.currentTarget.value)
+          currentValue.current = e.currentTarget.value
+          // onBlur?.(convertToString(e.currentTarget.value))
+        }}
       />
     </div>
   )
