@@ -8,7 +8,6 @@ import { TelemetryRepository } from 'core/repositories/telemetry'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
-import ms from 'ms'
 
 import { GhostService } from '..'
 import { BotService } from '../bot-service'
@@ -74,7 +73,7 @@ export class ActionsStats extends TelemetryStats {
         })
       })
     )
-    return flows.filter(flow => flow.actions.length > 0).map(flow => this.parseFlow(flow))
+    return flows.map(flow => this.parseFlow(flow)).filter(flow => flow.actions.length > 0)
   }
 
   private parseFlow(flow: RawFlow): ParsedFlow {
@@ -83,6 +82,8 @@ export class ActionsStats extends TelemetryStats {
       .filter(action => BUILTIN_MODULES.includes(action.actionName.split('/')[0]))
 
     return {
+      flowName: calculateHash(flow.flowName),
+      botID: calculateHash(flow.botID),
       actions: actions.map(action => {
         const actionName = action.actionName.split('/')[1]
         try {
@@ -94,9 +95,7 @@ export class ActionsStats extends TelemetryStats {
         } catch (error) {
           return { actionName, params: {} }
         }
-      }),
-      flowName: calculateHash(flow.flowName),
-      botID: calculateHash(flow.botID)
+      })
     }
   }
 }
