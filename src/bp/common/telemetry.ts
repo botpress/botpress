@@ -9,6 +9,14 @@ export type TelemetryEventData = Dic<any> & {
   schema: string
 }
 
+export interface TelemetryEntry {
+  uuid: string
+  payload: any
+  available: boolean
+  lastChanged: Date
+  creationDate: Date
+}
+
 export interface ServerStats {
   externalUrl: string
   botpressVersion: string
