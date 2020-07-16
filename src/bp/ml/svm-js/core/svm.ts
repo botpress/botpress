@@ -9,7 +9,7 @@ import gridSearch from './grid-search'
 import normalizeDataset from '../util/normalize-dataset'
 import normalizeInput from '../util/normalize-input'
 import reduce from '../util/reduce-dataset'
-import { SvmConfig, Data, SvmModel as Model, SvmModel, Report } from '../typings'
+import { SvmConfig, Data, SvmModel, Report } from '../typings'
 import { configToAddonParams } from '../util/options-mapping'
 
 export class SVM {
@@ -19,14 +19,14 @@ export class SVM {
   private _retainedDimension: number = 0
   private _initialDimension: number = 0
 
-  constructor(config: Partial<SvmConfig>, model?: Model) {
+  constructor(config: Partial<SvmConfig>, model?: SvmModel) {
     this._config = { ...defaultConfig(config) }
     if (model) {
       this._restore(model)
     }
   }
 
-  private _restore = (model: Model) => {
+  private _restore = (model: SvmModel) => {
     const self = this
     this._baseSvm = BaseSVM.restore(model)
     Object.entries(model.param).forEach(([key, val]) => {

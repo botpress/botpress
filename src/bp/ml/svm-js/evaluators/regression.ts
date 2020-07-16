@@ -2,7 +2,7 @@ import { Data } from '../typings'
 import BaseSVM from '../core/base-svm'
 import _ from 'lodash'
 
-const assert = require('assert')
+import assert from 'assert'
 import numeric from 'numeric'
 import average from '../util/average'
 

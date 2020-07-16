@@ -1,4 +1,4 @@
-const assert = require('assert')
+import assert from 'assert'
 
 import numeric from 'numeric'
 import avg from './average'

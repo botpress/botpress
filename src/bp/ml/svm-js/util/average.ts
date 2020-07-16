@@ -1,6 +1,6 @@
 import _ from 'lodash'
 
-const assert = require('assert')
+import assert from 'assert'
 import numeric from 'numeric'
 
 export default function(arr: number[]) {
