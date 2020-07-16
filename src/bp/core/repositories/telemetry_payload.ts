@@ -59,15 +59,21 @@ export class TelemetryRepository {
       })
   }
 
-  async keepTopEntries(n: number) {
+  async pruneEntries() {
+    const config = await this.config.getBotpressConfig()
+    const limit = config.telemetry?.entriesLimit ?? DEFAULT_ENTRIES_LIMIT
+
     const uuIds = await this.database.knex
       .from(this.tableName)
       .select('uuid')
       .orderBy('creationDate', 'desc')
-      .limit(n)
+      .limit(limit)
       .then(rows => rows.map(entry => entry.uuid))
 
-    await this.removeMany(uuIds)
+    await this.database
+      .knex(this.tableName)
+      .whereNotIn('uuid', uuIds)
+      .del()
   }
 
   async removeMany(uuIds: string[]) {
@@ -92,10 +98,7 @@ export class TelemetryRepository {
   }
 
   async insertPayload(uuid: string, payload: JSON) {
-    const config = await this.config.getBotpressConfig()
-    const limit = config.telemetry?.entriesLimit ?? DEFAULT_ENTRIES_LIMIT
-
-    await this.keepTopEntries(limit - 1)
+    await this.pruneEntries()
 
     await this.database.knex(this.tableName).insert({
       uuid: uuid,
