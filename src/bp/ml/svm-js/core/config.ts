@@ -1,6 +1,6 @@
 import _ from 'lodash'
 
-const assert = require('assert')
+import assert from 'assert'
 
 import defaults from './default-config'
 import svmTypes from './svm-types'

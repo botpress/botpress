@@ -1,23 +1,18 @@
-const assert = require('assert')
+import _ from 'lodash'
+import assert from 'assert'
+import numeric from 'numeric'
 
 const _o = require('mout/object')
-
-import numeric from 'numeric'
-import Q from 'q'
 
 import defaultConfig from './config'
 import BaseSVM from './base-svm'
 import gridSearch from './grid-search'
-import svmTypes from './svm-types'
 
-import classification from '../evaluators/classification'
-import regression from '../evaluators/regression'
 import normalizeDataset from '../util/normalize-dataset'
 import normalizeInput from '../util/normalize-input'
 import reduce from '../util/reduce-dataset'
 import { SvmConfig, Data, SvmModel as Model, SvmModel } from '../typings'
 import { configToAddonParams } from '../util/options-mapping'
-import _ from 'lodash'
 
 export class SVM {
   private _config: SvmConfig
@@ -42,8 +37,7 @@ export class SVM {
     })
   }
 
-  train = (dataset: Data[]) => {
-    const deferred = Q.defer()
+  train = async (dataset: Data[], progressCb: (progress: number) => void) => {
     const self = this
     this._training = true
     const dims = numeric.dim(dataset)
@@ -73,82 +67,33 @@ export class SVM {
       dataset = red.dataset
     }
 
-    // evaluate all possible combinations using grid-search and CV
-    gridSearch(dataset, this._config)
-      .progress(function(progress) {
-        deferred.notify(progress.done / (progress.total + 1))
+    try {
+      const { config, report } = await gridSearch(dataset, this._config, progress => {
+        progressCb(progress.done / (progress.total + 1))
       })
-      .spread(function(config: SvmConfig, report) {
-        self._baseSvm = new BaseSVM()
-        // train a new classifier using the entire dataset and the best config
-        const param = configToAddonParams(config)
-        return self._baseSvm.train(dataset, param).then(function(model) {
-          deferred.notify(1)
-          const fullModel: SvmModel = { ...model, param: _o.merge(self._config, model.param) }
 
-          _o.mixIn(report, {
-            reduce: self._config.reduce,
-            retainedVariance: self._retainedVariance,
-            retainedDimension: self._retainedDimension,
-            initialDimension: self._initialDimension
-          })
-          deferred.resolve([fullModel, report])
+      self._baseSvm = new BaseSVM()
+      // train a new classifier using the entire dataset and the best config
+      const param = configToAddonParams(config)
+      return self._baseSvm.train(dataset, param).then(function(model) {
+        progressCb(1)
+        const fullModel: SvmModel = { ...model, param: _o.merge(self._config, model.param) }
+
+        _o.mixIn(report, {
+          reduce: self._config.reduce,
+          retainedVariance: self._retainedVariance,
+          retainedDimension: self._retainedDimension,
+          initialDimension: self._initialDimension
         })
+        return { model: fullModel, report }
       })
-      .fail(function(err) {
-        throw err
-      })
-      .fin(function() {
-        self._training = false
-      })
-    return deferred.promise
-  }
-
-  evaluate = (testset: Data[]) => {
-    assert(this.isTrained(), 'train classifier first')
-    const dims = numeric.dim(testset)
-    assert(dims[0] > 0 && dims[1] === 2 && dims[2] > 0, 'testset must be an list of [X,y] tuples')
-
-    const self = this
-    const predictions = _.map(testset, function(ex) {
-      return [self.predictSync(ex[0]), ex[1]]
-    })
-
-    switch (this._config.svm_type) {
-      case svmTypes.C_SVC:
-      case svmTypes.NU_SVC:
-      case svmTypes.ONE_CLASS:
-        return classification.compute(predictions)
-      case svmTypes.EPSILON_SVR:
-      case svmTypes.NU_SVR:
-        return regression.compute(predictions)
-      default:
-        throw new Error('not supported type: ' + this._config.svm_type)
+    } finally {
+      self._training = false
     }
-  }
-
-  getKernelType = () => {
-    return this._config.kernel_type
-  }
-
-  getSvmType = () => {
-    return this._config.svm_type
-  }
-
-  normalize = () => {
-    return this._config.normalize
-  }
-
-  reduce = () => {
-    return this._config.reduce
   }
 
   isTrained = () => {
     return !!this._baseSvm ? this._baseSvm.isTrained() : false
-  }
-
-  isTraining = () => {
-    return this._training
   }
 
   predict = (x: number[]) => {
@@ -163,7 +108,7 @@ export class SVM {
 
   predictProbabilities = (x: number[]) => {
     assert(this.isTrained())
-    return (this._baseSvm as BaseSVM).predictProbabilities(this._format(x)) // ici
+    return (this._baseSvm as BaseSVM).predictProbabilities(this._format(x))
   }
 
   predictProbabilitiesSync = (x: number[]) => {
