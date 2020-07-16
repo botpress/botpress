@@ -8,9 +8,10 @@ import React, { FC, useEffect, useState } from 'react'
 import { makeApi } from '../api'
 
 import TrainingControl from './common/TrainingControl'
-import EntityEditor from './entities/EntityEditor'
+import { EntityEditor } from './entities/EntityEditor'
 import { EntitySidePanelSection } from './entities/SidePanelSection'
 import { IntentEditor } from './intents/FullEditor'
+import { LiteEditor } from './intents/LiteEditor'
 import { IntentSidePanelSection } from './intents/SidePanelSection'
 import style from './style.scss'
 
@@ -171,4 +172,4 @@ const NLU: FC<Props> = props => {
 
 export default NLU
 
-export { LiteEditor } from './intents/LiteEditor'
+export { LiteEditor, EntityEditor }

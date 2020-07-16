@@ -81,7 +81,9 @@ const TYPES = {
   TasksRepository: Symbol.for('TasksRepository'),
   WorkspaceUsersRepository: Symbol.for('WorkspaceUsersRepository'),
   WorkspaceInviteCodesRepository: Symbol.for('WorkspaceInviteCodesRepository'),
-  LocalActionServer: Symbol.for('LocalActionServer')
+  LocalActionServer: Symbol.for('LocalActionServer'),
+  IntentService: Symbol.for('IntentService'),
+  EntityService: Symbol.for('EntityService')
 }
 
 export { TYPES }
