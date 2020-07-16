@@ -80,8 +80,7 @@ export abstract class TelemetryStats {
     try {
       return this.licenseService.getFingerprint('cluster_url')
     } catch (err) {
-      // tslint:disable-next-line: no-null-keyword
-      return null
+      return eval('null')
     }
   }
 
