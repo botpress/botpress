@@ -36,7 +36,6 @@ interface ParsedFlow {
 export class ActionsStats extends TelemetryStats {
   protected url: string
   protected lock: string
-  protected interval: number
 
   constructor(
     @inject(TYPES.GhostService) ghostService: GhostService,
@@ -50,7 +49,6 @@ export class ActionsStats extends TelemetryStats {
     super(ghostService, database, licenseService, jobService, telemetryRepo)
     this.url = process.TELEMETRY_URL
     this.lock = 'botpress:telemetry-actions'
-    this.interval = ms('1d')
   }
 
   protected async getStats(): Promise<TelemetryEvent> {
