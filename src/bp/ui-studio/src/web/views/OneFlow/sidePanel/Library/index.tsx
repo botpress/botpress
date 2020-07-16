@@ -9,6 +9,7 @@ import { getAllFlows, RootReducer } from '~/reducers'
 
 import style from './style.scss'
 import EntityModal from './Modal'
+import EntityNameModal from './NameModal'
 
 type StateProps = ReturnType<typeof mapStateToProps>
 type DispatchProps = typeof mapDispatchToProps
@@ -20,12 +21,13 @@ type Props = OwnProps & StateProps & DispatchProps
 
 const Library: FC<Props> = props => {
   const [currentEntity, setCurrentEntity] = useState<NLU.EntityDefinition>(undefined)
+  const [currentNamingEntity, setCurrentNamingEntity] = useState<NLU.EntityDefinition>(undefined)
   const [forceUpdate, setForceUpdate] = useState(false)
   const [entities, setEntities] = useState<NLU.EntityDefinition[]>([])
 
   useEffect(() => {
     async function fetchEntities() {
-      const res = await axios.get(`${window.BOT_API_PATH}/content/entities`)
+      const res = await axios.get(`${window.BOT_API_PATH}/nlu/entities`)
       setEntities(res.data)
     }
     // tslint:disable-next-line: no-floating-promises
@@ -48,12 +50,17 @@ const Library: FC<Props> = props => {
       occurrences: []
     }
 
-    await axios.post(`${window.BOT_API_PATH}/content/entities`, entity)
+    await axios.post(`${window.BOT_API_PATH}/nlu/entities`, entity)
+    setForceUpdate(!forceUpdate)
+  }
+
+  const deleteEntity = async (entity: NLU.EntityDefinition) => {
+    await axios.post(`${window.BOT_API_PATH}/nlu/entities/${entity.id}/delete`)
     setForceUpdate(!forceUpdate)
   }
 
   const updateEntity = async (targetEntityId: string, entity: NLU.EntityDefinition) => {
-    await axios.post(`${window.BOT_API_PATH}/content/entities/${targetEntityId}`, entity)
+    await axios.post(`${window.BOT_API_PATH}/nlu/entities/${targetEntityId}`, entity)
     const i = entities.findIndex(ent => ent.name === entity.name)
     setEntities([...entities.slice(0, i), entity, ...entities.slice(i + 1)])
   }
@@ -69,6 +76,8 @@ const Library: FC<Props> = props => {
         <thead>
           <tr>
             <th>{title}</th>
+            <th></th>
+            <th></th>
           </tr>
         </thead>
         <tbody>{renderTableRows(items)}</tbody>
@@ -79,10 +88,16 @@ const Library: FC<Props> = props => {
     return (
       <Fragment>
         {items &&
-          items.map((v, i) => (
+          items.map((item, i) => (
             <tr key={i}>
               <td>
-                <Button text={v.label} onClick={v.click} />
+                <Button text={item.label} onClick={item.click} />
+              </td>
+              <td>
+                <Button icon="edit" onClick={item.edit} />
+              </td>
+              <td>
+                <Button icon="delete" onClick={item.delete} />
               </td>
             </tr>
           ))}
@@ -101,6 +116,12 @@ const Library: FC<Props> = props => {
               label: x.name,
               click: () => {
                 setCurrentEntity(x)
+              },
+              edit: () => {
+                setCurrentNamingEntity(x)
+              },
+              delete: async () => {
+                await deleteEntity(x)
               }
             }))
         )}
@@ -125,11 +146,24 @@ const Library: FC<Props> = props => {
       />
     )
   }
+  const renderNameModal = () => {
+    return (
+      <EntityNameModal
+        entity={currentNamingEntity}
+        isOpen={currentNamingEntity !== undefined}
+        onClose={() => {
+          setForceUpdate(!forceUpdate)
+          setCurrentNamingEntity(undefined)
+        }}
+      />
+    )
+  }
 
   return (
     <div className={style.library}>
       {renderVariableTypes()}
       {renderModal()}
+      {renderNameModal()}
     </div>
   )
 }
