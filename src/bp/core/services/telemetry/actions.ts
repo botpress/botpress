@@ -17,10 +17,19 @@ import { JobService } from '../job-service'
 
 import { TelemetryStats } from './telemetry-stats'
 
-interface Flow {
+interface RawFlow {
   flowName: string
   botID: string
   actions: string[]
+}
+
+interface ParsedFlow {
+  flowName: string
+  botID: string
+  actions: {
+    actionName: string
+    params: any
+  }[]
 }
 
 @injectable()
@@ -52,7 +61,7 @@ export class ActionsStats extends TelemetryStats {
     }
   }
 
-  private async getFlowsWithActions() {
+  private async getFlowsWithActions(): Promise<ParsedFlow[]> {
     const botIds = await this.botService.getBotsIds()
     const flows = _.flatten(
       await Promise.map(botIds, async botID => {
@@ -70,7 +79,7 @@ export class ActionsStats extends TelemetryStats {
     return flows.filter(flow => flow.actions.length > 0).map(flow => this.parseFlow(flow))
   }
 
-  private parseFlow(flow: Flow) {
+  private parseFlow(flow: RawFlow): ParsedFlow {
     const actions = flow.actions
       .map(action => parseActionInstruction(action))
       .filter(action => BUILTIN_MODULES.includes(action.actionName.split('/')[0]))
