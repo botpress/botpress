@@ -1,3 +1,4 @@
+import { TelemetryEntry } from 'common/telemetry'
 import { ConfigProvider } from 'core/config/config-loader'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
@@ -8,23 +9,9 @@ import { TYPES } from '../types'
 
 const DEFAULT_ENTRIES_LIMIT = 1000
 
-interface TelemetryEntries {
-  url: string
-  events: any[]
-}
-
-interface TelemetryEntry {
-  uuid: string
-  payload: any
-  available: boolean
-  lastChanged: Date
-  creationDate: Date
-}
-
 @injectable()
 export class TelemetryRepository {
   private readonly tableName = 'telemetry'
-  private readonly telemetryServerUrl = process.TELEMETRY_URL
 
   constructor(
     @inject(TYPES.Database) private database: Database,
@@ -83,7 +70,7 @@ export class TelemetryRepository {
       .del()
   }
 
-  async getEntries(): Promise<TelemetryEntries> {
+  async getEntries(): Promise<TelemetryEntry[]> {
     const events = await this.database.knex
       .from(this.tableName)
       .select('*')
@@ -94,7 +81,7 @@ export class TelemetryRepository {
       const uuIds = events.map(event => event.uuid)
       await this.updateAvailability(uuIds, this.database.knex.bool.false())
     }
-    return { url: this.telemetryServerUrl, events: events.map(event => this.database.knex.json.get(event.payload)) }
+    return events.map(event => this.database.knex.json.get(event.payload))
   }
 
   async insertPayload(uuid: string, payload: JSON) {
