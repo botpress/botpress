@@ -13,7 +13,6 @@ import { GhostService } from '..'
 import { JobService } from '../job-service'
 
 const debug = DEBUG('stats')
-const TELEMETRY_URL = process.TELEMETRY_URL
 
 @injectable()
 export abstract class TelemetryStats {
@@ -53,7 +52,7 @@ export abstract class TelemetryStats {
     try {
       await axios.post(url, stats)
     } catch (err) {
-      if (url === TELEMETRY_URL) {
+      if (url === process.TELEMETRY_URL) {
         await this.telemetryRepo.insertPayload(stats.uuid, stats)
       }
     }
