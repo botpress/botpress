@@ -307,6 +307,8 @@ export class ModuleLoader {
         this.logger.warn(`Error in module "${name}" 'onServerReady'. Module will still be loaded. Err: ${err.message}`)
       }
     }
+
+    AppLifecycle.setDone(AppLifecycleEvents.MODULES_READY)
   }
 
   public async loadModulesForBot(botId: string) {
