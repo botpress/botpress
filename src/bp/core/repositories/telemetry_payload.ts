@@ -98,8 +98,6 @@ export class TelemetryRepository {
   }
 
   async insertPayload(uuid: string, payload: JSON) {
-    await this.pruneEntries()
-
     await this.database.knex(this.tableName).insert({
       uuid: uuid,
       payload: this.database.knex.json.set(payload),
@@ -107,6 +105,8 @@ export class TelemetryRepository {
       lastChanged: this.database.knex.date.now(),
       creationDate: this.database.knex.date.now()
     })
+
+    await this.pruneEntries()
   }
 
   async getEntry(uuid: string): Promise<TelemetryEntry> {
