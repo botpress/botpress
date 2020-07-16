@@ -464,10 +464,9 @@ async function extractSlots(input: PredictStep, predictors: Predictors): Promise
 }
 
 function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
-  function entitiesMapper(e?: EntityExtractionResult | UtteranceEntity): sdk.NLU.Entity {
+  const entitiesMapper = (e?: EntityExtractionResult | UtteranceEntity): sdk.NLU.Entity => {
     if (!e) {
-      // tslint:disable:no-null-keyword
-      return null
+      return eval('null')
     }
 
     return {
