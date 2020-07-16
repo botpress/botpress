@@ -24,7 +24,7 @@ interface TelemetryEntry {
 @injectable()
 export class TelemetryRepository {
   private readonly tableName = 'telemetry'
-  private readonly telemetryServerUrl = 'https://telemetry.botpress.dev'
+  private readonly telemetryServerUrl = process.TELEMETRY_URL
 
   constructor(
     @inject(TYPES.Database) private database: Database,
