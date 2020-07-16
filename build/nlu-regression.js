@@ -168,7 +168,7 @@ async function runAllTests(botId, token) {
 }
 
 async function compareScore(score) {
-  const latestResultsFile = `${nluTestingDir}/latest-results.csv`
+  const latestResultsFile = `${nluTestingDir}/src/bot-templates/bp-nlu-regression-testing/latest-results.csv`
   const latestResultsContent = fs.readFileSync(latestResultsFile, { encoding: 'utf8' })
   const previousScoreOccurence = latestResultsContent.match(/summary: ((100|\d{1,2})[.]\d{1})?/gm)
   if (!previousScoreOccurence || !previousScoreOccurence[0]) {
