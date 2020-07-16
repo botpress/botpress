@@ -30,6 +30,7 @@ import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
 import { HintsRouter } from './routers/bots/hints'
+import { NLURouter } from './routers/bots/nlu'
 import { isDisabled } from './routers/conditionalMiddleware'
 import { InvalidExternalToken, PaymentRequiredError } from './routers/errors'
 import { SdkApiRouter } from './routers/sdk/router'
@@ -84,6 +85,7 @@ export default class HTTPServer {
   private readonly adminRouter: AdminRouter
   private readonly botsRouter: BotsRouter
   private contentRouter!: ContentRouter
+  private nluRouter!: NLURouter
   private readonly modulesRouter: ModulesRouter
   private readonly shortLinksRouter: ShortLinksRouter
   private converseRouter!: ConverseRouter
@@ -224,7 +226,12 @@ export default class HTTPServer {
       this.authService,
       this.cmsService,
       this.workspaceService,
-      this.ghostService,
+      this.ghostService
+    )
+    this.nluRouter = new NLURouter(
+      this.logger,
+      this.authService,
+      this.workspaceService,
       this.entityService,
       this.intentService
     )
@@ -232,6 +239,7 @@ export default class HTTPServer {
     this.hintsRouter = new HintsRouter(this.logger, this.hintsService, this.authService, this.workspaceService)
     this.botsRouter.router.use('/content', this.contentRouter.router)
     this.botsRouter.router.use('/converse', this.converseRouter.router)
+    this.botsRouter.router.use('/nlu', this.nluRouter.router)
 
     // tslint:disable-next-line: no-floating-promises
     AppLifecycle.waitFor(AppLifecycleEvents.BOTPRESS_READY).then(() => {
