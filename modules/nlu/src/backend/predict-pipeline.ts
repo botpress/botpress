@@ -466,7 +466,7 @@ async function extractSlots(input: PredictStep, predictors: Predictors): Promise
 function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
   const entitiesMapper = (e?: EntityExtractionResult) => {
     if (!e) {
-      return
+      return e
     }
 
     return {
@@ -506,7 +506,7 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
         name: s.name,
         source: s.source,
         value: s.value,
-        entity: entitiesMapper(s.entity)
+        entity: entitiesMapper(s.entity) // TODO: add this mapper to the legacy election pipeline
       }
     }
   }, {} as sdk.NLU.SlotCollection)
