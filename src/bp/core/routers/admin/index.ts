@@ -135,11 +135,8 @@ export class AdminRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { status, events } = req.body
 
-        if (status === 'ok') {
-          await this.telemetryRepo.removeMany(events)
-        } else if (status === 'fail') {
-          await this.telemetryRepo.updateAvailability(events, true)
-        }
+        status ? await this.telemetryRepo.removeMany(events) : await this.telemetryRepo.updateAvailability(events, true)
+
         return sendSuccess(res, 'Updated events')
       })
     )
