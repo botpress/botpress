@@ -1,16 +1,12 @@
 import * as sdk from 'botpress/sdk'
 import { TYPES } from 'core/types'
-import { Container, inject, injectable, tagged } from 'inversify'
-import getDecorators from 'inversify-inject-decorators'
+import { inject, injectable, tagged } from 'inversify'
 
 import { GhostService } from '..'
 
 import * as CacheManager from './cache-manager'
-import { IntentService } from './intent-service'
 
 const ENTITIES_DIR = './entities'
-const container: Container = new Container()
-const { lazyInject } = getDecorators(container, false)
 
 const DUCKLING_ENTITIES = [
   'amountOfMoney',
@@ -29,9 +25,6 @@ const DUCKLING_ENTITIES = [
 
 @injectable()
 export class EntityService {
-  @lazyInject(TYPES.IntentService)
-  private intentService!: IntentService
-
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'EntityService')
@@ -100,8 +93,9 @@ export class EntityService {
       // entity renamed
       CacheManager.copyCache(targetEntityName, entity.name, botId)
       await Promise.all([
-        this.deleteEntity(botId, targetSanitized),
-        this.intentService.updateIntentsSlotsEntities(botId, targetSanitized, nameSanitized)
+        this.deleteEntity(botId, targetSanitized)
+        // TODO find a wait to commuticate with intent service
+        // this.intentService.updateIntentsSlotsEntities(botId, targetSanitized, nameSanitized)
       ])
     } else {
       // entity changed
