@@ -4,10 +4,17 @@ import numeric from 'numeric'
 
 import BaseSVM from './addon'
 import gridSearch from './grid-search'
+import { GridSearchResult } from './grid-search/typings'
 import { normalizeDataset, normalizeInput } from './normalize'
 import reduce from './reduce-dataset'
 import { SvmConfig, Data, SvmModel, Report } from './typings'
 import { defaultConfig, checkConfig } from './config'
+
+class TrainingCanceledError extends Error {
+  constructor(msg: string) {
+    super(msg)
+  }
+}
 
 export class SVM {
   private _config: SvmConfig
@@ -15,6 +22,7 @@ export class SVM {
   private _retainedVariance: number = 0
   private _retainedDimension: number = 0
   private _initialDimension: number = 0
+  private _isCanceled: boolean = false
 
   constructor(config: Partial<SvmConfig>, model?: SvmModel) {
     this._config = { ...checkConfig(defaultConfig(config)) }
@@ -29,6 +37,10 @@ export class SVM {
     Object.entries(model.param).forEach(([key, val]) => {
       self._config[key] = val
     })
+  }
+
+  cancelTraining = () => {
+    this._isCanceled = true
   }
 
   train = async (dataset: Data[], progressCb: (progress: number) => void) => {
@@ -60,10 +72,22 @@ export class SVM {
       dataset = red.dataset
     }
 
-    const { params, report } = await gridSearch(dataset, this._config, progress => {
-      progressCb(progress.done / (progress.total + 1))
-    })
+    let gridSearchResult: GridSearchResult
+    try {
+      gridSearchResult = await gridSearch(dataset, this._config, progress => {
+        if (this._isCanceled) {
+          throw new TrainingCanceledError('Training was canceled')
+        }
+        progressCb(progress.done / (progress.total + 1))
+      })
+    } catch (err) {
+      if (err instanceof TrainingCanceledError) {
+        return
+      }
+      throw err
+    }
 
+    const { params, report } = gridSearchResult
     self._baseSvm = new BaseSVM()
     return self._baseSvm.train(dataset, params).then(function(model) {
       progressCb(1)
