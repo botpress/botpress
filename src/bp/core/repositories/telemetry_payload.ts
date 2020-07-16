@@ -54,8 +54,6 @@ export class TelemetryRepository {
       .knex(this.tableName)
       .whereIn('uuid', uuIds)
       .update({
-        uuid: undefined,
-        payload: undefined,
         available: this.database.knex.bool.parse(status),
         lastChanged: this.database.knex.date.now()
       })
