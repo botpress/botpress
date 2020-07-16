@@ -10,66 +10,59 @@ import { Config } from '../config'
 import { DBMessage } from './typings'
 
 export default class WebchatDb {
-  knex: sdk.KnexExtended
-  users: typeof sdk.users
-  private queuedMessages: DBMessage[] = []
-  private queuedConvos: Dic<Raw<any>> = {}
+  private readonly MAX_RETRY_ATTEMPTS = 3
+  private knex: sdk.KnexExtended
+  private users: typeof sdk.users
+  private batchedMessages: DBMessage[] = []
+  private batchedConvos: Dic<Raw<any>> = {}
   private messagePromise: Promise<void | number[]>
   private convoPromise: Promise<void>
+  private batchSize: number
 
   constructor(private bp: typeof sdk) {
     this.users = bp.users
     this.knex = bp['database'] // TODO Fixme
-    setInterval(() => this.flush(), ms('5s'))
+
+    this.batchSize = process.env.DATABASE === 'postgres' ? 2000 : 40
+
+    setInterval(() => this.flush(), ms('1s'))
   }
 
   flush() {
+    // tslint:disable-next-line: no-floating-promises
     this.flushMessages()
+    // tslint:disable-next-line: no-floating-promises
     this.flushConvoUpdates()
   }
 
-  flushMessages() {
-    if (this.messagePromise || !this.queuedMessages.length) {
+  async flushMessages() {
+    if (this.messagePromise || !this.batchedMessages.length) {
       return
     }
 
-    const original = this.queuedMessages
-    this.queuedMessages = []
+    const batchCount = this.batchedMessages.length >= this.batchSize ? this.batchSize : this.batchedMessages.length
+    const elements = this.batchedMessages.splice(0, batchCount)
 
-    if (process.env.DATABASE === 'postgress') {
-      this.messagePromise = this.knex('web_messages')
-        .insert(original)
-        .catch(() => {
-          this.queuedMessages = [...original, ...this.queuedMessages]
-        })
-        .finally(() => {
-          this.messagePromise = undefined
-        })
-    } else {
-      this.messagePromise = this.knex
-        .transaction(async trx => {
-          const queries = []
-
-          for (const message of original) {
-            const query = this.knex('web_messages')
-              .insert(message)
-              .transacting(trx)
-
-            queries.push(query)
-          }
-
-          await Promise.all(queries)
-            .then(trx.commit)
-            .catch(trx.rollback)
-        })
-        .finally(() => {
-          this.messagePromise = undefined
-        })
-    }
+    this.messagePromise = this.knex
+      .batchInsert(
+        'web_messages',
+        elements.map(x => _.omit(x, 'retry')),
+        this.batchSize
+      )
+      .catch(err => {
+        this.bp.logger.attachError(err).error(`Couldn't store messages to the database. Re-queuing elements`)
+        const elementsToRetry = elements
+          .map(x => ({ ...x, retry: x.retry ? x.retry + 1 : 1 }))
+          .filter(x => x.retry < this.MAX_RETRY_ATTEMPTS)
+        this.batchedMessages.push(...elementsToRetry)
+      })
+      .finally(() => {
+        this.messagePromise = undefined
+      })
   }
 
-  flushConvoUpdates() {
-    if (this.convoPromise || !Object.keys(this.queuedConvos).length) {
+  async flushConvoUpdates() {
+    if (this.convoPromise || !Object.keys(this.batchedConvos).length) {
       return
     }
 
@@ -77,19 +70,19 @@ export default class WebchatDb {
       .transaction(async trx => {
         const queries = []
 
-        for (const key in this.queuedConvos) {
+        for (const key in this.batchedConvos) {
           const [conversationId, userId, botId] = key.split('_')
-          const value = this.queuedConvos[key]
+          const value = this.batchedConvos[key]
 
           const query = this.knex('web_conversations')
-            .where({ id: conversationId, userId: userId, botId: botId })
+            .where({ id: conversationId, userId, botId })
             .update({ last_heard_on: value })
             .transacting(trx)
 
           queries.push(query)
         }
 
-        this.queuedConvos = {}
+        this.batchedConvos = {}
 
         await Promise.all(queries)
           .then(trx.commit)
@@ -100,7 +93,7 @@ export default class WebchatDb {
       })
   }
 
-  async getUserInfo(userId, user) {
+  async getUserInfo(userId: string, user: sdk.User) {
     if (!user) {
       user = await (await this.users.getOrCreateUser('web', userId)).result
     }
@@ -150,7 +143,14 @@ export default class WebchatDb {
       })
   }
 
-  async appendUserMessage(botId, userId, conversationId, payload, incomingEventId, user = undefined) {
+  async appendUserMessage(
+    botId: string,
+    userId: string,
+    conversationId: number,
+    payload: any,
+    incomingEventId: string,
+    user?: sdk.User
+  ) {
     const { fullName, avatar_url } = await this.getUserInfo(userId, user)
     const { type, text, raw, data } = payload
 
@@ -170,8 +170,8 @@ export default class WebchatDb {
       sent_on: this.knex.date.format(now)
     }
 
-    this.queuedMessages.push(message)
-    this.queuedConvos[`${conversationId}_${userId}_${botId}`] = this.knex.date.format(now)
+    this.batchedMessages.push(message)
+    this.batchedConvos[`${conversationId}_${userId}_${botId}`] = this.knex.date.format(now)
 
     return {
       ...message,
@@ -201,7 +201,7 @@ export default class WebchatDb {
       sent_on: this.knex.date.format(now)
     }
 
-    this.queuedMessages.push(message)
+    this.batchedMessages.push(message)
 
     return {
       ...message,

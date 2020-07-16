@@ -5,12 +5,13 @@ export interface DBMessage {
   userId: string
   incomingEventId: string
   conversationId: number
-  avatar_url: string | undefined
+  avatar_url?: string
   full_name: string
-  message_data: any | undefined
-  message_raw: any | undefined
-  message_text: string | undefined
-  message_type: string | undefined
+  message_data?: any
+  message_raw?: any
+  message_text?: string
+  message_type?: string
   payload: any
   sent_on: Raw<any>
+  retry?: number
 }

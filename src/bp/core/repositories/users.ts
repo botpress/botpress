@@ -1,6 +1,7 @@
 import { Paging, User } from 'botpress/sdk'
+import { JobService } from 'core/services/job-service'
 import { DataRetentionService } from 'core/services/retention/service'
-import { inject, injectable } from 'inversify'
+import { inject, injectable, postConstruct } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
 import LRU from 'lru-cache'
@@ -27,13 +28,25 @@ export class KnexUserRepository implements UserRepository {
   private batches: Dic<Row> = {}
   private flushLock: boolean = false
   private userCache = new LRU({ max: 10000, maxAge: ms('1h') })
+  private broadcastDeleteUserCache!: Function
   private readonly flushInterval = ms('10s')
 
   constructor(
     @inject(TYPES.Database) private database: Database,
-    @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService
+    @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService,
+    @inject(TYPES.JobService) private jobService: JobService
   ) {
     setInterval(() => this.flushUsers(), this.flushInterval)
+  }
+
+  @postConstruct()
+  async init() {
+    this.broadcastDeleteUserCache = await this.jobService.broadcast<void>(this._deleteUserCache.bind(this))
+  }
+
+  private async _deleteUserCache(key: string): Promise<boolean> {
+    this.userCache.del(key)
+    return true
   }
 
   async flushUsers() {
@@ -169,7 +182,7 @@ export class KnexUserRepository implements UserRepository {
 
     await req
 
-    this.userCache.del(this.getCacheKey(channel, user_id))
+    this.broadcastDeleteUserCache(this.getCacheKey(channel, user_id))
   }
 
   async updateAttributes(channel: string, user_id: string, attributes: any): Promise<void> {
@@ -183,7 +196,7 @@ export class KnexUserRepository implements UserRepository {
       .update({ attributes: this.database.knex.json.set({ ...originalAttributes, ...attributes }) })
       .where({ channel, user_id })
 
-    this.userCache.del(this.getCacheKey(channel, user_id))
+    this.broadcastDeleteUserCache(this.getCacheKey(channel, user_id))
   }
 
   private async _dataRetentionUpdate(channel: string, user_id: string, attributes: any) {
