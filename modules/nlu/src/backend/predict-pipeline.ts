@@ -464,9 +464,9 @@ async function extractSlots(input: PredictStep, predictors: Predictors): Promise
 }
 
 function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
-  function entitiesMapper(e?: EntityExtractionResult | UtteranceEntity): sdk.NLU.Entity | undefined {
+  function entitiesMapper(e?: EntityExtractionResult | UtteranceEntity): sdk.NLU.Entity {
     if (!e) {
-      return
+      return null
     }
 
     return {
