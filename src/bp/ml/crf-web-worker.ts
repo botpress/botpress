@@ -52,7 +52,12 @@ export class WebWorkerCrfTrainer implements Omit<CRFTrainer, 'train'>, sdk.MLToo
         }
 
         if (msg.type === 'crf_log') {
-          cb && cb(msg.payload?.log)
+          try {
+            cb && cb(msg.payload?.log)
+          } catch (err) {
+            process.off('message', messageHandler)
+            // TODO write back to child process
+          }
         }
       }
 

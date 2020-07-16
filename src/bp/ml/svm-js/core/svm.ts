@@ -3,7 +3,6 @@ const assert = require('assert')
 const _o = require('mout/object')
 
 import numeric from 'numeric'
-import Q from 'q'
 
 import defaultConfig from './config'
 import BaseSVM from './base-svm'
@@ -15,9 +14,18 @@ import regression from '../evaluators/regression'
 import normalizeDataset from '../util/normalize-dataset'
 import normalizeInput from '../util/normalize-input'
 import reduce from '../util/reduce-dataset'
-import { SvmConfig, Data, SvmModel as Model, SvmModel } from '../typings'
+import { SvmConfig, Data, SvmModel as Model, SvmModel, Report } from '../typings'
 import { configToAddonParams } from '../util/options-mapping'
 import _ from 'lodash'
+
+class GridSearchCanceled extends Error {
+  constructor(msg: string) {
+    super(msg)
+  }
+}
+
+type TrainingResult = { model: SvmModel; report: Report }
+type TrainFunction = (dataset: Data[], progressCb: (progress: number) => void) => Promise<TrainingResult>
 
 export class SVM {
   private _config: SvmConfig
@@ -26,6 +34,7 @@ export class SVM {
   private _retainedVariance: number = 0
   private _retainedDimension: number = 0
   private _initialDimension: number = 0
+  private _isKilled = false
 
   constructor(config: Partial<SvmConfig>, model?: Model) {
     this._config = { ...defaultConfig(config) }
@@ -42,8 +51,7 @@ export class SVM {
     })
   }
 
-  train = (dataset: Data[]) => {
-    const deferred = Q.defer()
+  train: TrainFunction = async (dataset: Data[], progressCb: (progress: number) => void) => {
     const self = this
     this._training = true
     const dims = numeric.dim(dataset)
@@ -73,35 +81,43 @@ export class SVM {
       dataset = red.dataset
     }
 
-    // evaluate all possible combinations using grid-search and CV
-    gridSearch(dataset, this._config)
-      .progress(function(progress) {
-        deferred.notify(progress.done / (progress.total + 1))
-      })
-      .spread(function(config: SvmConfig, report) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        console.log('grid search started!')
+        let { config, report } = await gridSearch(dataset, this._config, function(progress) {
+          if (self._isKilled) {
+            throw new GridSearchCanceled('SVM was killed during the current grid search...')
+          }
+          progressCb(progress.done / (progress.total + 1))
+        })
         self._baseSvm = new BaseSVM()
         // train a new classifier using the entire dataset and the best config
         const param = configToAddonParams(config)
         return self._baseSvm.train(dataset, param).then(function(model) {
-          deferred.notify(1)
+          progressCb(1)
           const fullModel: SvmModel = { ...model, param: _o.merge(self._config, model.param) }
 
-          _o.mixIn(report, {
+          report = {
+            ...report,
             reduce: self._config.reduce,
             retainedVariance: self._retainedVariance,
             retainedDimension: self._retainedDimension,
             initialDimension: self._initialDimension
-          })
-          deferred.resolve([fullModel, report])
+          }
+          console.log('grid search done!')
+          resolve({ model: fullModel, report })
         })
-      })
-      .fail(function(err) {
-        throw err
-      })
-      .fin(function() {
+      } catch (err) {
         self._training = false
-      })
-    return deferred.promise
+        if (err instanceof GridSearchCanceled) {
+          console.log('Grid search canceled with success!!')
+          resolve()
+        } else {
+          reject(err)
+        }
+      }
+      self._training = false
+    })
   }
 
   evaluate = (testset: Data[]) => {
@@ -169,6 +185,10 @@ export class SVM {
   predictProbabilitiesSync = (x: number[]) => {
     assert(this.isTrained())
     return (this._baseSvm as BaseSVM).predictProbabilitiesSync(this._format(x))
+  }
+
+  public kill = () => {
+    this._isKilled = true
   }
 
   private _format = (x: number[]) => {

@@ -28,6 +28,10 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
 
   constructor() {}
 
+  cancelTraining() {
+    this.clf?.kill()
+  }
+
   async train(
     points: sdk.MLToolkit.SVM.DataPoint[],
     options: Partial<sdk.MLToolkit.SVM.SVMOptions> = DefaultTrainArgs,
@@ -75,13 +79,12 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
     return new Promise((resolve, reject) => {
       const svm = this.clf as SVM
       svm
-        .train(dataset)
-        .progress(progress => {
+        .train(dataset, progress => {
           if (callback && typeof callback === 'function') {
             callback(progress)
           }
         })
-        .spread((trainedModel, report) => {
+        .then(({ model: trainedModel, report }) => {
           this.model = trainedModel
           this.report = report
           resolve()

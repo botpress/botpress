@@ -2,7 +2,6 @@ import _ from 'lodash'
 
 const assert = require('assert')
 
-import Q from 'q'
 import numeric from 'numeric'
 
 import BaseSVM from './base-svm'
@@ -14,10 +13,15 @@ import splitDataset from '../util/split-dataset'
 import crossCombinations from '../util/cross-combinations'
 import { SvmConfig, Data, Report, ClassificationReport, RegressionReport } from '../typings'
 import { configToAddonParams } from '../util/options-mapping'
-import svmTypes from './svm-types'
 
-export default function(dataset: Data[], config: SvmConfig) {
-  const deferred = Q.defer()
+type Progress = {
+  done: number
+  total: number
+}
+
+type GridsearchResult = { config: SvmConfig; report: Report }
+
+export default async function(dataset: Data[], config: SvmConfig, progressCb: (progress: Progress) => void) {
   // default options
   const dims = numeric.dim(dataset)
 
@@ -45,7 +49,6 @@ export default function(dataset: Data[], config: SvmConfig) {
 
   // perform k-fold cross-validation for
   // each combination of parameters
-  type Res = { config: SvmConfig; report: Report }
   const promises = combs.map(function(comb) {
     const cParams: SvmConfig = {
       ...config,
@@ -66,7 +69,8 @@ export default function(dataset: Data[], config: SvmConfig) {
         .then(function() {
           // predict values for each example of the test set
           done += 1
-          deferred.notify({ done: done, total: total })
+          progressCb({ done: done, total: total })
+
           return _.map(ss.test, function(test) {
             return [clf.predictSync(test[0]), test[1]]
           })
@@ -74,7 +78,7 @@ export default function(dataset: Data[], config: SvmConfig) {
     })
 
     return (
-      Q.all(cPromises)
+      Promise.all(cPromises)
         // group all predictions together and compute configuration's accuracy
         // Note : Due to k-fold CV, each example of the dataset has been used for
         //        both training and evaluation but never at the same time
@@ -86,7 +90,7 @@ export default function(dataset: Data[], config: SvmConfig) {
             return {
               config: cParams,
               report: report
-            } as Res
+            } as GridsearchResult
           },
           err => {
             throw err
@@ -95,23 +99,19 @@ export default function(dataset: Data[], config: SvmConfig) {
     )
   })
 
-  Q.all(promises).then(function(results) {
-    let best: Res | undefined
-    if (evaluator === evaluators.classification) {
-      best = _.maxBy(results, function(r) {
-        return (r.report as ClassificationReport).fscore
-      })
-    } else if (evaluator === evaluators.regression) {
-      best = _.minBy(results, function(r) {
-        return (r.report as RegressionReport).mse
-      })
-    } else {
-      throw new Error('Not implemented')
-    }
+  const results = await Promise.all(promises)
+  let best: GridsearchResult | undefined
+  if (evaluator === evaluators.classification) {
+    best = _.maxBy(results, function(r) {
+      return (r.report as ClassificationReport).fscore
+    })
+  } else if (evaluator === evaluators.regression) {
+    best = _.minBy(results, function(r) {
+      return (r.report as RegressionReport).mse
+    })
+  } else {
+    throw new Error('Not implemented')
+  }
 
-    best = best as Res
-    deferred.resolve([best.config, best.report])
-  })
-
-  return deferred.promise
+  return best as GridsearchResult
 }
