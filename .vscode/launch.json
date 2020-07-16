@@ -39,6 +39,7 @@
       "args": [
         "--inspect-brk",
         "${workspaceFolder}/node_modules/.bin/jest",
+        "svm",
         "--runInBand",
         "--rootDir=${workspaceFolder}",
         "-c=${workspaceFolder}/jest.config.js"
