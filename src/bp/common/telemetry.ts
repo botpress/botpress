@@ -1,5 +1,14 @@
 import uuid from 'uuid'
 
+export type TelemetryEvent = Schema & {
+  event_type: string
+  event_data: TelemetryEventData
+}
+
+export type TelemetryEventData = Dic<any> & {
+  schema: string
+}
+
 export interface ServerStats {
   externalUrl: string
   botpressVersion: string
@@ -23,7 +32,7 @@ export interface Schema {
   server: ServerStats
 }
 
-export const getSchema = (server: ServerStats, source: string) => {
+export const getSchema = (server: ServerStats, source: string): Schema => {
   return {
     timestamp: new Date(),
     uuid: uuid.v4(),
