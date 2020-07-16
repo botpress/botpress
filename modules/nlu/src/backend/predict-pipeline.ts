@@ -11,7 +11,7 @@ import * as math from './tools/math'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './training-pipeline'
 import { Intent, PatternEntity, SlotExtractionResult, Tools, EntityExtractionResult } from './typings'
-import Utterance, { buildUtteranceBatch, getAlternateUtterance } from './utterance/utterance'
+import Utterance, { buildUtteranceBatch, getAlternateUtterance, UtteranceEntity } from './utterance/utterance'
 
 export type ExactMatchResult = (sdk.MLToolkit.SVM.Prediction & { extractor: 'exact-matcher' }) | undefined
 
@@ -464,9 +464,9 @@ async function extractSlots(input: PredictStep, predictors: Predictors): Promise
 }
 
 function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
-  const entitiesMapper = (e?: EntityExtractionResult) => {
+  function entitiesMapper(e?: EntityExtractionResult | UtteranceEntity): sdk.NLU.Entity | undefined {
     if (!e) {
-      return e
+      return
     }
 
     return {
@@ -479,21 +479,15 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
       meta: {
         sensitive: e.sensitive,
         confidence: e.confidence,
-        end: e.end,
+        end: (e as EntityExtractionResult).end ?? (e as UtteranceEntity).endPos,
         source: e.metadata.source,
-        start: e.start
+        start: (e as EntityExtractionResult).start ?? (e as UtteranceEntity).startPos
       }
-    } as sdk.NLU.Entity
+    }
   }
 
   // legacy pre-ndu
-  const entities = step.utterance.entities
-    .map(e => ({
-      ...e,
-      start: e.startPos, // TODO: a translation from 'startPos' to 'start' should not be needed...
-      end: e.endPos
-    }))
-    .map(entitiesMapper)
+  const entities = step.utterance.entities.map(entitiesMapper)
 
   // legacy pre-ndu
   const slots = step.utterance.slots.reduce((slots, s) => {
