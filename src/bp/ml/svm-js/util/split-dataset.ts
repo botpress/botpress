@@ -1,4 +1,4 @@
-const assert = require('assert')
+import assert from 'assert'
 import _ from 'lodash'
 import { Data } from '../typings'
 import { getMostRepresentedClass } from './count-class'

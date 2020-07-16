@@ -2,7 +2,7 @@ import _ from 'lodash'
 import BaseSVM from '../core/base-svm'
 import { Data } from '../typings'
 
-const assert = require('assert')
+import assert from 'assert'
 
 function computeFScore(precision: number, recall: number) {
   if (recall === 0 && precision === 0) {
