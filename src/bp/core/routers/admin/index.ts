@@ -1,7 +1,8 @@
 import axios from 'axios'
-import { Logger } from 'botpress/sdk'
+import { Logger, logger } from 'botpress/sdk'
 import { checkRule } from 'common/auth'
 import LicensingService from 'common/licensing-service'
+import { TelemetryEntry, TelemetryEvent } from 'common/telemetry'
 import { ConfigProvider } from 'core/config/config-loader'
 import { ModuleLoader } from 'core/module-loader'
 import { LogsRepository } from 'core/repositories/logs'
@@ -145,7 +146,12 @@ export class AdminRouter extends CustomRouter {
       '/telemetry-payloads',
       this.checkTokenHeader,
       this.asyncMiddleware(async (req, res) => {
-        res.send(await this.telemetryRepo.getEntries())
+        try {
+          res.send(await this.telemetryRepo.getEntries())
+        } catch (error) {
+          logger.warn('Error extracting entries from Telemetry database')
+          res.send([])
+        }
       })
     )
 
