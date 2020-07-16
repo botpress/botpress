@@ -1,23 +1,15 @@
 import * as sdk from 'botpress/sdk'
 import { FlowView } from 'common/typings'
 import { TYPES } from 'core/types'
-import { Container, inject, injectable, tagged } from 'inversify'
-import getDecorators from 'inversify-inject-decorators'
+import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
 import { GhostService } from '..'
 
-import { EntityService } from './entities-service'
-
 const INTENTS_DIR = './intents'
-const container: Container = new Container()
-const { lazyInject } = getDecorators(container, false)
 
 @injectable()
 export class IntentService {
-  @lazyInject(TYPES.EntityService)
-  private entityService!: EntityService
-
   constructor(
     @inject(TYPES.Logger)
     @tagged('name', 'EntityService')
@@ -59,6 +51,8 @@ export class IntentService {
       throw new Error('Invalid intent name, expected at least one character')
     }
 
+    // TODO find a way to communicate with entity service
+    /*
     const availableEntities = await this.entityService.getEntities(botId)
 
     _.chain(intent.slots)
@@ -69,6 +63,7 @@ export class IntentService {
           throw Error(`"${entity}" is neither a system entity nor a custom entity`)
         }
       })
+    */
 
     await this.ghostService.forBot(botId).upsertFile(INTENTS_DIR, `${name}.json`, JSON.stringify(intent, undefined, 2))
     return intent
