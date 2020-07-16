@@ -129,6 +129,11 @@ class RootStore {
       return
     }
 
+    if (!event.userId) {
+      console.log(`MESSAGE`)
+      console.log(event)
+    }
+
     const message: Message = { ...event, conversationId: +event.conversationId }
     if (this.isBotTyping.get() && !event.userId) {
       this.delayedMessages.push({ message, showAt: this.currentConversation.typingUntil })
@@ -139,13 +144,19 @@ class RootStore {
 
   @action.bound
   async updateTyping(event: Message): Promise<void> {
+    console.log('TYPING')
+    console.log(event)
     if (this.currentConversationId !== Number(event.conversationId)) {
       await this.fetchConversations()
       await this.fetchConversation(Number(event.conversationId))
       return
     }
 
-    this.currentConversation.typingUntil = new Date(Date.now() + event.timeInMs)
+    let start = new Date()
+    if (isBefore(start, this.currentConversation.typingUntil)) {
+      start = this.currentConversation.typingUntil
+    }
+    this.currentConversation.typingUntil = new Date(+start + event.timeInMs)
     this._startTypingTimer()
   }
 
