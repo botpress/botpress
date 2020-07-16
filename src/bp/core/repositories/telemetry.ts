@@ -75,7 +75,7 @@ export class TelemetryRepository {
       .from(this.tableName)
       .select('*')
       .where('available', this.database.knex.bool.true())
-      .limit(1000)
+      .limit(200)
 
     if (events.length > 0) {
       const uuIds = events.map(event => event.uuid)
