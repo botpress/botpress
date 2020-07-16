@@ -2,8 +2,6 @@ import _ from 'lodash'
 import assert from 'assert'
 import numeric from 'numeric'
 
-const _o = require('mout/object')
-
 import defaultConfig from './config'
 import BaseSVM from './base-svm'
 import gridSearch from './grid-search'
@@ -11,13 +9,12 @@ import gridSearch from './grid-search'
 import normalizeDataset from '../util/normalize-dataset'
 import normalizeInput from '../util/normalize-input'
 import reduce from '../util/reduce-dataset'
-import { SvmConfig, Data, SvmModel as Model, SvmModel } from '../typings'
+import { SvmConfig, Data, SvmModel as Model, SvmModel, Report } from '../typings'
 import { configToAddonParams } from '../util/options-mapping'
 
 export class SVM {
   private _config: SvmConfig
   private _baseSvm: BaseSVM | undefined
-  private _training: boolean = false
   private _retainedVariance: number = 0
   private _retainedDimension: number = 0
   private _initialDimension: number = 0
@@ -32,14 +29,13 @@ export class SVM {
   private _restore = (model: Model) => {
     const self = this
     this._baseSvm = BaseSVM.restore(model)
-    _o.forOwn(model.param, function(val, key) {
+    Object.entries(model.param).forEach(([key, val]) => {
       self._config[key] = val
     })
   }
 
   train = async (dataset: Data[], progressCb: (progress: number) => void) => {
     const self = this
-    this._training = true
     const dims = numeric.dim(dataset)
     assert(dims[0] > 0 && dims[1] === 2 && dims[2] > 0, 'dataset must be an list of [X,y] tuples')
 
@@ -67,29 +63,25 @@ export class SVM {
       dataset = red.dataset
     }
 
-    try {
-      const { config, report } = await gridSearch(dataset, this._config, progress => {
-        progressCb(progress.done / (progress.total + 1))
-      })
+    const { config, report } = await gridSearch(dataset, this._config, progress => {
+      progressCb(progress.done / (progress.total + 1))
+    })
 
-      self._baseSvm = new BaseSVM()
-      // train a new classifier using the entire dataset and the best config
-      const param = configToAddonParams(config)
-      return self._baseSvm.train(dataset, param).then(function(model) {
-        progressCb(1)
-        const fullModel: SvmModel = { ...model, param: _o.merge(self._config, model.param) }
+    self._baseSvm = new BaseSVM()
+    const param = configToAddonParams(config)
+    return self._baseSvm.train(dataset, param).then(function(model) {
+      progressCb(1)
+      const fullModel: SvmModel = { ...model, param: { ...self._config, ...model.param } }
 
-        _o.mixIn(report, {
-          reduce: self._config.reduce,
-          retainedVariance: self._retainedVariance,
-          retainedDimension: self._retainedDimension,
-          initialDimension: self._initialDimension
-        })
-        return { model: fullModel, report }
-      })
-    } finally {
-      self._training = false
-    }
+      const fullReport: Report = {
+        ...report,
+        reduce: self._config.reduce,
+        retainedVariance: self._retainedVariance,
+        retainedDimension: self._retainedDimension,
+        initialDimension: self._initialDimension
+      }
+      return { model: fullModel, report: fullReport }
+    })
   }
 
   isTrained = () => {

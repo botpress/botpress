@@ -46,7 +46,14 @@ export interface SvmParameters extends Parameters {
 
 export type Data = [number[], number]
 
-export type Report = ClassificationReport | RegressionReport
+export type Report = (ClassificationReport | RegressionReport) & Partial<ReductionReport>
+
+export interface ReductionReport {
+  reduce: boolean
+  retainedVariance: number
+  retainedDimension: number
+  initialDimension: number
+}
 
 export interface ClassificationReport {
   accuracy: number
