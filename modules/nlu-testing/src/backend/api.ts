@@ -140,7 +140,6 @@ export default async (bp: typeof sdk) => {
 
   router.post('/export', async (req, res) => {
     // TODO add a little validation
-
     const botId = req.params.botId
     const targetPath = await isRunningFromSources(bp, botId)
     if (!targetPath) {
@@ -199,27 +198,30 @@ async function isRunningFromSources(bp: typeof sdk, botId: string): Promise<stri
   try {
     const botConfig = (await bp.bots.getBotById(botId)) as BPDS_BotConfig
     const bpdsId = botConfig.bpdsId
+    if (!bpdsId) {
+      return
+    }
+
     const sourceDirectory = path.resolve(process.PROJECT_LOCATION, '../..')
     const botTemplatesPath = path.resolve(sourceDirectory, `./modules/nlu-testing/src/bot-templates`)
     const childDirs = fs.readdirSync(botTemplatesPath)
 
-    let botTemplateUnderTesting = ''
-    for (const template of childDirs) {
-      const templatePath = path.resolve(botTemplatesPath, template)
-      const configPath = path.resolve(templatePath, 'bot.config.json')
+    const botTemplateUnderTesting = childDirs.find(template => {
+      const configPath = path.resolve(botTemplatesPath, template, 'bot.config.json')
       const configContent = fs.readFileSync(configPath, { encoding: 'utf8' })
       const config = JSON.parse(configContent) as BPDS_BotConfig
-      if (config.bpdsId === bpdsId) {
-        botTemplateUnderTesting = templatePath
-        break
-      }
+      return config.bpdsId === bpdsId
+    })
+    if (!botTemplateUnderTesting) {
+      return
     }
 
-    const latestResultsPath = path.resolve(botTemplateUnderTesting, 'latest-results.csv')
+    const latestResultsPath = path.resolve(botTemplatesPath, botTemplateUnderTesting, 'latest-results.csv')
     const exists = fs.existsSync(latestResultsPath)
+
     return exists ? latestResultsPath : undefined
   } catch {
-    return undefined
+    return
   }
 }
 
