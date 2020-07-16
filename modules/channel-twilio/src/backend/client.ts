@@ -1,12 +1,16 @@
 import * as sdk from 'botpress/sdk'
-import LRUCache from 'lru-cache'
 import { Twilio, validateRequest } from 'twilio'
+import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message'
 
 import { Config } from '../config'
 
 import { Clients, MessageOption, TwilioRequestBody } from './typings'
 
-const MIDDLEWARE_NAME = 'twilio.sendMessage'
+const debug = DEBUG('channel-twilio')
+const debugIncoming = debug.sub('incoming')
+const debugOutgoing = debug.sub('outgoing')
+
+export const MIDDLEWARE_NAME = 'twilio.sendMessage'
 
 export class TwilioClient {
   private logger: sdk.Logger
@@ -48,12 +52,14 @@ export class TwilioClient {
   }
 
   async handleWebhookRequest(body: TwilioRequestBody) {
+    debugIncoming(`Received message %o`, body)
+
     const threadId = body.To
     const target = body.From
     const text = body.Body
 
     const index = Number(text)
-    let payload: any = { type: 'text', text: text }
+    let payload: any = { type: 'text', text }
     if (index) {
       payload = (await this.handleIndexReponse(index - 1, target, threadId)) ?? payload
       if (payload.type === 'url') {
@@ -71,7 +77,7 @@ export class TwilioClient {
         type: payload.type,
         payload,
         threadId,
-        target: target
+        target
       })
     )
   }
@@ -174,12 +180,16 @@ export class TwilioClient {
   }
 
   async sendMessage(event: sdk.IO.Event, args: any) {
-    await this.twilio.messages.create({
+    const message: MessageInstance = {
       ...args,
       provideFeedback: false,
       from: event.threadId,
       to: event.target
-    })
+    }
+
+    debugOutgoing(`Sending message %o`, message)
+
+    await this.twilio.messages.create(message)
   }
 }
 
@@ -206,8 +216,4 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
 
     return client.handleOutgoingEvent(event, next)
   }
-}
-
-export async function removeMiddleware(bp: typeof sdk) {
-  bp.events.removeMiddleware(MIDDLEWARE_NAME)
 }

@@ -12,7 +12,7 @@ export async function setupRouter(bp: typeof sdk, clients: Clients, route: strin
     const client = clients[botId]
 
     if (!client) {
-      res.status(404).send('Bot not a twilio bot')
+      return res.status(404).send('Bot not a twilio bot')
     }
 
     if (client.auth(req)) {

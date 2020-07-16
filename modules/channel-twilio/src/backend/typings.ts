@@ -1,14 +1,16 @@
 import { TwilioClient } from './client'
 
-export type Clients = { [botId: string]: TwilioClient }
+export interface Clients {
+  [botId: string]: TwilioClient
+}
 
-export type MessageOption = {
+export interface MessageOption {
   label: string
   value: string
   type: 'say_something' | 'postback' | 'quick_reply' | 'url'
 }
 
-export type TwilioRequestBody = {
+export interface TwilioRequestBody {
   To: string
   From: string
   Body: string

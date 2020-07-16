@@ -2,7 +2,7 @@ import * as sdk from 'botpress/sdk'
 import { Config } from 'src/config'
 
 import { setupRouter } from './api'
-import { removeMiddleware, setupMiddleware, TwilioClient } from './client'
+import { MIDDLEWARE_NAME, setupMiddleware, TwilioClient } from './client'
 import { Clients } from './typings'
 
 let router: sdk.http.RouterExtension
@@ -38,7 +38,7 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
 }
 
 const onModuleUnmount = async (bp: typeof sdk) => {
-  await removeMiddleware(bp)
+  bp.events.removeMiddleware(MIDDLEWARE_NAME)
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {
