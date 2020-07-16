@@ -16,7 +16,7 @@ import {
 import { KnexLogsRepository, LogsRepository } from './logs'
 import { StrategyUsersRepository } from './strategy_users'
 import { TasksRepository } from './tasks'
-import { TelemetryRepository } from './telemetry_payload'
+import { TelemetryRepository } from './telemetry'
 import { WorkspaceUsersRepository } from './workspace_users'
 
 const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) => {

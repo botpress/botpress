@@ -1,4 +1,4 @@
-import { TelemetryRepository } from 'core/repositories/telemetry_payload'
+import { TelemetryRepository } from 'core/repositories/telemetry'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import ms from 'ms'
