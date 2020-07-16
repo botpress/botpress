@@ -1,4 +1,4 @@
-import { Button, Icon } from '@blueprintjs/core'
+import { Button, Classes, Icon, MenuItem } from '@blueprintjs/core'
 import Tags from '@yaireo/tagify/dist/react.tagify'
 import cx from 'classnames'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
@@ -176,12 +176,8 @@ export default ({
       })
     ) {
       addOption.push({
-        label: (
-          <Fragment>
-            <Icon icon="plus" iconSize={12} />
-            {lang('create')} "{query}"
-          </Fragment>
-        ),
+        label: query,
+        type: 'add',
         value: query
       })
     }
@@ -192,6 +188,37 @@ export default ({
     ]
   }
 
+  const customItemRenderer = (option, { handleClick, modifiers }) => {
+    const isAdding = option.type === 'add'
+
+    if (!modifiers.matchesPredicate) {
+      return null
+    }
+
+    const label = isAdding ? (
+      <Fragment>
+        <Icon icon="plus" iconSize={12} />
+        {lang('create')} "{option.label}"
+      </Fragment>
+    ) : (
+      option.label
+    )
+
+    return (
+      <div
+        key={option.value}
+        onClick={handleClick}
+        className={cx('tagify__dropdown__item', {
+          [style.addingItem]: isAdding,
+          ['tagify__dropdown__item--active']: modifiers.active
+        })}
+      >
+        {label}
+        <span className="description">{eventsDesc?.[option.value] || ''}</span>
+      </div>
+    )
+  }
+
   if (!multiple) {
     return (
       <div className={style.superInputWrapper}>
@@ -200,6 +227,8 @@ export default ({
             <Dropdown
               items={localEvents.map(name => ({ value: name, label: name }))}
               icon={<Icons.Brackets />}
+              filterPlaceholder={lang('search')}
+              customItemRenderer={customItemRenderer}
               onChange={({ value }) => {
                 onBlur?.(`{{${value}}}`)
               }}
@@ -208,7 +237,9 @@ export default ({
           <Dropdown
             items={localVariables.map(name => ({ value: name, label: name }))}
             icon="dollar"
+            filterPlaceholder={lang('search')}
             filterList={filterSingularDropdown}
+            customItemRenderer={customItemRenderer}
             onChange={({ value }) => {
               onAddVariable(value, localVariables)
               onBlur?.(`$${value}`)

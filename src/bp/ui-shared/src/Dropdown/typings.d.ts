@@ -1,4 +1,4 @@
-import { ItemListPredicate } from '@blueprintjs/select'
+import { ItemListPredicate, ItemRenderer } from '@blueprintjs/select'
 
 export interface Option {
   label: string
@@ -12,6 +12,7 @@ export interface DropdownProps {
     callback?: (value?: any) => void
   }
   placeholder?: string
+  filterPlaceholder?: string
   filterable?: boolean
   className?: string
   items: Option[]
@@ -22,4 +23,5 @@ export interface DropdownProps {
   small?: boolean
   spaced?: boolean
   filterList?: (query: string, options: Option[]) => Option[]
+  customItemRenderer?: (item, { handleClick, modifiers }) => JSX.Element | null
 }

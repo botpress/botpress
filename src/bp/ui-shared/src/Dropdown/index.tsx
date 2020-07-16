@@ -4,6 +4,7 @@ import cx from 'classnames'
 import { FC, useEffect, useState } from 'react'
 import React from 'react'
 
+import { lang } from '../translations'
 import confirmDialog from '../ConfirmDialog'
 
 import style from './style.scss'
@@ -33,6 +34,7 @@ const filterOptions: ItemPredicate<Option> = (query, option) => {
 const Dropdown: FC<DropdownProps> = props => {
   const {
     placeholder,
+    filterPlaceholder,
     confirmChange,
     defaultItem,
     items,
@@ -43,7 +45,8 @@ const Dropdown: FC<DropdownProps> = props => {
     spaced,
     className,
     filterable,
-    filterList
+    filterList,
+    customItemRenderer
   } = props
   const [activeItem, setActiveItem] = useState<Option | undefined>()
   const SimpleDropdown = Select.ofType<Option>()
@@ -62,10 +65,11 @@ const Dropdown: FC<DropdownProps> = props => {
     <SimpleDropdown
       filterable={filterable}
       className={className}
+      inputProps={{ placeholder: filterPlaceholder || lang('filter') }}
       items={items}
       activeItem={activeItem}
       popoverProps={{ minimal: true, usePortal: false }}
-      itemRenderer={itemRenderer}
+      itemRenderer={customItemRenderer || itemRenderer}
       itemPredicate={filterOptions}
       itemListPredicate={filterList}
       onItemSelect={async option => {

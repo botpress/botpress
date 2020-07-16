@@ -63,6 +63,7 @@
   "export": "Export",
   "exportToJson": "Export to JSON",
   "failure": "Failure",
+  "filter": "Filter",
   "filterBy": "Filter By",
   "flows": "Flows",
   "general": "General",

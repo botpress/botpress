@@ -21,6 +21,54 @@
         }
       }
 
+      .bp3-input-group {
+        padding: var(--spacing-small) var(--spacing-medium);
+        z-index: 1111;
+
+        .bp3-icon {
+          top: 50%;
+          transform: translate(0, -50%);
+          margin: 0;
+          left: 18px;
+
+          svg {
+            fill: var(--gray);
+          }
+        }
+
+        input {
+          border-radius: 3px;
+          border: solid 1px var(--seashell);
+          box-shadow: none;
+          color: var(--shark);
+          font-size: 12px;
+          height: 35px;
+          line-height: 1.25;
+          transition: border 0.3s;
+
+          &:focus {
+            border-color: var(--ocean);
+          }
+        }
+
+        .bp3-input-action {
+          top: var(--spacing-small);
+
+          .bp3-button {
+            height: 35px;
+            margin: 0;
+            padding: 0;
+          }
+
+          .bp3-icon {
+            left: auto;
+            position: absolute;
+            right: 20px;
+            top: 50%;
+          }
+        }
+      }
+
       .bp3-transition-container {
         right: 0 !important;
         top: 100% !important;
