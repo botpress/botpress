@@ -4,21 +4,20 @@ import _ from 'lodash'
 
 import assert from 'assert'
 import numeric from 'numeric'
-import average from '../util/average'
 
 function compute(predictions: number[][]) {
   const errors = _.map(predictions, function(p) {
       return p[0] - p[1]
     }),
-    avgError = average(errors),
-    constiance = average(
+    avgError = _.mean(errors),
+    constiance = _.mean(
       errors.map(function(e) {
         return Math.pow(e - avgError, 2)
       })
     )
 
   return {
-    mse: average(
+    mse: _.mean(
       errors.map(function(e) {
         return Math.pow(e, 2)
       })

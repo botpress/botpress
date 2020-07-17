@@ -1,8 +1,6 @@
 import assert from 'assert'
 
 import numeric from 'numeric'
-import avg from './average'
-import std from './standard-deviation'
 import normalizeInput from './normalize-input'
 import _ from 'lodash'
 import { Data } from '../typings'
@@ -19,7 +17,7 @@ export default function(dataset: Data[], mu?, sigma?) {
 
   assert(m > 0, 'number of features must be gt 0')
 
-  mu = mu || _.range(m).map(i => avg(X.map(x => x[i] || 0)))
+  mu = mu || _.range(m).map(i => _.mean(X.map(x => x[i] || 0)))
   sigma = sigma || _.range(m).map(i => std(X.map(x => x[i] || 0)))
 
   return {
@@ -27,4 +25,10 @@ export default function(dataset: Data[], mu?, sigma?) {
     mu: mu,
     sigma: sigma
   }
+}
+
+function std(arr: number[]) {
+  const avg = _.mean(arr)
+  const constiance = _.reduce(arr, (sum, v) => sum + Math.pow(v - avg, 2), 0) / arr.length
+  return Math.pow(constiance, 0.5)
 }
