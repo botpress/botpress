@@ -10,7 +10,6 @@ export interface FormProps {
   getEmptyData?: (renderType?: string) => FormData
   onUpdate: (data: { [key: string]: string }) => void
   onUpdateVariables: (variable: FlowVariable ) => void
-  setCanOutsideClickClose?: (canClickOutside: boolean) => void
   variables?: FlowVariable[]
   events?: BotEvent[]
 }

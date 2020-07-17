@@ -122,11 +122,12 @@ const ContentForm: FC<Props> = ({
             axios={axios}
             mediaPath={`${window.BOT_API_PATH}/media`}
             overrideFields={{
-              textOverride: props => <TextField {...props} />
+              textOverride: props => (
+                <TextField {...props} variables={variables} events={events} onUpdateVariables={onUpdateVariables} />
+              )
             }}
             variables={variables}
             events={events}
-            setCanOutsideClickClose={setCanOutsideClickClose}
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
             formData={formData}

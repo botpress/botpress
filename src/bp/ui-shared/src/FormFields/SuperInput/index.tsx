@@ -22,7 +22,6 @@ export default ({
   multiple,
   variables,
   addVariable,
-  setCanOutsideClickClose,
   onChange,
   onBlur,
   className,
@@ -102,9 +101,6 @@ export default ({
       }
     },
     keydown: onKeyDown,
-    ['dropdown:show']: e => {
-      setCanOutsideClickClose?.(false)
-    },
     ['edit:start']: e => {
       const prefix = e.detail.data.prefix
 

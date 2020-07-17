@@ -174,7 +174,6 @@ const Form: FC<FormProps> = ({
   formData,
   fields,
   advancedSettings,
-  setCanOutsideClickClose,
   onUpdate,
   onUpdateVariables,
   variables,
@@ -182,7 +181,6 @@ const Form: FC<FormProps> = ({
 }) => {
   const newFormData = createEmptyDataFromSchema([...(fields || []), ...(advancedSettings || [])])
   const [state, dispatch] = useReducer(formReducer, formData || newFormData)
-  const outsideClickTimeout = useRef<any>()
   const [superInput, setSuperInput] = useState<any>(getSuperInputsFromData(formData))
 
   const printLabel = (field, data, parent) => {
@@ -264,17 +262,7 @@ const Form: FC<FormProps> = ({
         events={events || []}
         addVariable={onUpdateVariables}
         multiple={field.type === 'text'}
-        setCanOutsideClickClose={canClickOuside => {
-          if (outsideClickTimeout.current) {
-            clearTimeout(outsideClickTimeout.current)
-          }
-
-          setCanOutsideClickClose?.(canClickOuside)
-        }}
         onBlur={value => {
-          outsideClickTimeout.current = setTimeout(() => {
-            setCanOutsideClickClose?.(true)
-          }, 200)
           update(value)
         }}
         value={data}
@@ -354,8 +342,6 @@ const Form: FC<FormProps> = ({
                 variables={variables || []}
                 events={events || []}
                 onUpdateVariables={onUpdateVariables}
-                setCanOutsideClickClose={setCanOutsideClickClose}
-                isSuperInput={field.isSuperInput}
                 items={data[field.key] || ['']}
                 label={printLabel(field, data[field.key], parent)}
                 addBtnLabel={lang(field.group?.addLabel)}

@@ -1,4 +1,4 @@
-import { FormData } from 'botpress/sdk'
+import { BotEvent, FlowVariable, FormData } from 'botpress/sdk'
 import { FormFields, lang } from 'botpress/shared'
 import _uniqueId from 'lodash/uniqueId'
 import React, { FC, useEffect, useState } from 'react'
@@ -8,10 +8,13 @@ interface Props {
   data: any
   label: string
   onChange: (value: FormData) => void
+  onUpdateVariables?: (variable: FlowVariable) => void
+  variables?: FlowVariable[]
+  events?: BotEvent[]
 }
 
 const TextAreaList: FC<Props> = props => {
-  const { label, onChange, field, data } = props
+  const { label, onChange, field, data, variables, events, onUpdateVariables } = props
   const [forceUpdateHeight, setForceUpdateHeight] = useState(false)
 
   useEffect(() => {
@@ -26,7 +29,10 @@ const TextAreaList: FC<Props> = props => {
   }
 
   return (
-    <FormFields.TextFieldsArray
+    <FormFields.SuperInputArray
+      variables={variables || []}
+      events={events || []}
+      onUpdateVariables={onUpdateVariables}
       key={`${field.key}${forceUpdateHeight}`}
       label={label}
       items={[data.text, ...(data.variations || [])]}

@@ -7,8 +7,10 @@ import { controlKey } from '../../utils/keyboardShortcuts'
 import AddButton from '../../Contents/Components/Fields/AddButton'
 import ShortcutLabel from '../../ShortcutLabel'
 import SuperInput from '../SuperInput'
+import { convertToString } from '../SuperInput/utils'
 
 import style from './style.scss'
+import { SuperInputArrayProps } from './typings'
 
 const addListenerWithArgs = (el, event, callbackMethod, extraParams) => {
   const method = (function(callbackMethod, extraParams) {
@@ -22,7 +24,7 @@ const addListenerWithArgs = (el, event, callbackMethod, extraParams) => {
   return method
 }
 
-const SuperInputArray: FC<any> = ({
+const SuperInputArray: FC<SuperInputArrayProps> = ({
   addBtnLabel,
   label,
   onChange,
@@ -31,8 +33,7 @@ const SuperInputArray: FC<any> = ({
   getPlaceholder,
   variables,
   events,
-  onUpdateVariables,
-  setCanOutsideClickClose
+  onUpdateVariables
 }) => {
   const [elRefs, setElRefs] = useState({})
   const skipBlur = useRef(false)
@@ -91,7 +92,7 @@ const SuperInputArray: FC<any> = ({
   const updateItems = (e, index): void => {
     if (!skipBlur.current) {
       if (items[index] !== undefined) {
-        items[index] = elRefs[index]?.DOM.originalInput.value
+        items[index] = convertToString(elRefs[index]?.DOM.originalInput.value)
         onChange(items)
       }
     } else {
@@ -128,7 +129,6 @@ const SuperInputArray: FC<any> = ({
             variables={variables || []}
             events={events || []}
             addVariable={onUpdateVariables}
-            setCanOutsideClickClose={setCanOutsideClickClose}
             childRef={(ref: any) => {
               setElRefs(elRefs => ({ ...elRefs, [index]: ref }))
             }}
