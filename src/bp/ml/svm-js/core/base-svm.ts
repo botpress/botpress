@@ -3,16 +3,16 @@ import numeric from 'numeric'
 import _ from 'lodash'
 
 import addon, { NSVM, Parameters, Model } from '../addon'
-import { Data, SvmModel } from '../typings'
+import { Data } from '../typings'
 
-class BaseSVM {
+export default class BaseSVM {
   private _clf: NSVM | undefined
 
   constructor(clf?: NSVM) {
     this._clf = clf
   }
 
-  static restore = (model: SvmModel) => {
+  static restore = (model: Model) => {
     const random_seed = parseInt(process.env.NLU_SEED || '')
     const clf = random_seed ? new addon.NSVM({ random_seed }) : new addon.NSVM()
 
@@ -81,5 +81,3 @@ class BaseSVM {
     return !!this._clf ? this._clf.is_trained() : false
   }
 }
-
-export default BaseSVM

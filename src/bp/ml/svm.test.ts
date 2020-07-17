@@ -20,7 +20,7 @@ describe('SVM', () => {
     ]
 
     const trainer = new Trainer()
-    const mod = await trainer.train(line, { classifier: 'C_SVC', kernel: 'LINEAR', c: 1 })
+    const mod = await trainer.train(line, { classifier: 'C_SVC', kernel: 'LINEAR', c: [1] })
 
     const predictor = new Predictor(mod)
 
@@ -48,7 +48,7 @@ describe('SVM', () => {
 
     let errorThrown = false
     try {
-      await trainer.train(line, { classifier: 'C_SVC', kernel: 'LINEAR', c: 1 })
+      await trainer.train(line, { classifier: 'C_SVC', kernel: 'LINEAR', c: [1] })
     } catch (err) {
       errorThrown = true
     }

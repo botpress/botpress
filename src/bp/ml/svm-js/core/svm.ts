@@ -2,7 +2,6 @@ import _ from 'lodash'
 import assert from 'assert'
 import numeric from 'numeric'
 
-import defaultConfig from './config'
 import BaseSVM from './base-svm'
 import gridSearch from './grid-search'
 
@@ -10,7 +9,7 @@ import normalizeDataset from '../util/normalize-dataset'
 import normalizeInput from '../util/normalize-input'
 import reduce from '../util/reduce-dataset'
 import { SvmConfig, Data, SvmModel, Report } from '../typings'
-import { configToAddonParams } from '../util/options-mapping'
+import { defaultConfig, checkConfig } from './config'
 
 export class SVM {
   private _config: SvmConfig
@@ -20,7 +19,7 @@ export class SVM {
   private _initialDimension: number = 0
 
   constructor(config: Partial<SvmConfig>, model?: SvmModel) {
-    this._config = { ...defaultConfig(config) }
+    this._config = { ...checkConfig(defaultConfig(config)) }
     if (model) {
       this._restore(model)
     }
@@ -63,13 +62,12 @@ export class SVM {
       dataset = red.dataset
     }
 
-    const { config, report } = await gridSearch(dataset, this._config, progress => {
+    const { params, report } = await gridSearch(dataset, this._config, progress => {
       progressCb(progress.done / (progress.total + 1))
     })
 
     self._baseSvm = new BaseSVM()
-    const param = configToAddonParams(config)
-    return self._baseSvm.train(dataset, param).then(function(model) {
+    return self._baseSvm.train(dataset, params).then(function(model) {
       progressCb(1)
       const fullModel: SvmModel = { ...model, param: { ...self._config, ...model.param } }
 

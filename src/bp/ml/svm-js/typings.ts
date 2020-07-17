@@ -1,48 +1,21 @@
-import { Parameters, Model } from './addon'
+import { GridSearchParameters, OtherParameters, Model, Parameters } from './addon'
 
-export interface SvmConfig {
-  C?: number | number[]
-  gamma?: number | number[]
+interface LibConfig {
   kFold: number
   normalize: boolean
-  color: boolean
-  interactive: boolean
-  degree?: number | number[]
-  nu?: number | number[]
-  svm_type: number
-  kernel_type: number
-  cache_size: number
-  eps: number
-  nr_weight: number
-  weight_label: number[]
-  weight: number[]
-  p?: number | number[]
-  shrinking: boolean
-  probability: boolean
-  coef0?: number | number[]
   reduce: boolean
   retainedVariance: number
-
   mu?: number[]
   sigma?: number[]
   u?: number[][]
 }
+export type SvmConfig = Record<GridSearchParameters, number[]> & OtherParameters & LibConfig
 
-export interface SvmModel extends Omit<Model, 'param'> {
+export type SvmModel = Model & {
   param: SvmParameters
 }
 
-export interface SvmParameters extends Parameters {
-  kFold: number
-  normalize: boolean
-  color: boolean
-  interactive: boolean
-  reduce: boolean
-  retainedVariance: number
-  mu?: number[]
-  sigma?: number[]
-  u?: number[][]
-}
+export type SvmParameters = Parameters & LibConfig
 
 export type Data = [number[], number]
 
