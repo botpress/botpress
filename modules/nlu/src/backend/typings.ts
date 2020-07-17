@@ -10,12 +10,6 @@ export const BIO = {
 
 export type Tag = 'o' | 'B' | 'I'
 
-export interface KnownSlot extends sdk.NLU.SlotDefinition {
-  start: number
-  end: number
-  source: string
-}
-
 export type Token2Vec = { [token: string]: number[] }
 
 export interface Gateway {
@@ -122,7 +116,14 @@ export type ListEntityModel = {
   cache?: EntityCache | EntityCacheDump
 }
 
-export type ExtractedSlot = { confidence: number; name: string; source: string; value: any }
+export type ExtractedSlot = {
+  confidence: number
+  name: string
+  source: string
+  value: any
+  entity?: EntityExtractionResult
+}
+
 export type SlotExtractionResult = { slot: ExtractedSlot; start: number; end: number }
 export type ExtractedEntity = {
   confidence: number

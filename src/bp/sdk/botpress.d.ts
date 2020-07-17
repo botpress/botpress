@@ -498,7 +498,7 @@ declare module 'botpress/sdk' {
     }
 
     export interface EntityBody {
-      extras: any
+      extras?: any
       value: any
       unit: string
     }
@@ -506,11 +506,11 @@ declare module 'botpress/sdk' {
     export interface EntityMeta {
       sensitive: boolean
       confidence: number
-      provider: string
+      provider?: string
       source: string
       start: number
       end: number
-      raw: any
+      raw?: any
     }
 
     export interface Slot {
