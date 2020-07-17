@@ -183,6 +183,10 @@
 
       .tagify__input {
         padding: 0;
+
+        &::before {
+          position: absolute !important;
+        }
       }
     }
   }

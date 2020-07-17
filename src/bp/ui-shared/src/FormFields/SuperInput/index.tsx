@@ -28,7 +28,8 @@ export default ({
   className,
   value,
   childRef,
-  isFocused
+  isFocused,
+  placeholder
 }: Props) => {
   const initialValue = useRef<string>((value && convertToTags(value)) || '')
   const newlyAddedVar = useRef<string[]>([])
@@ -215,6 +216,7 @@ export default ({
         </div>
       }
       <Tags
+        placeholder={placeholder}
         className={style.superInput}
         tagifyRef={tagifyRef}
         settings={{

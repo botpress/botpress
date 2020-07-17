@@ -10,13 +10,14 @@ import Icons from '../../Icons'
 import style from './style.scss'
 import { convertToTags } from './utils'
 
-const isValidJson = value =>
-  /^[\],:{}\s]*$/.test(
-    value
-      .replace(/\\["\\\/bfnrtu]/g, '@')
-      .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']')
-      .replace(/(?:^|:|,)(?:\s*\[)+/g, '')
-  )
+const isValidJson = value => {
+  try {
+    JSON.parse(value)
+    return true
+  } catch (err) {
+    return false
+  }
+}
 
 const SingleSuperInput = ({
   canPickEvents,
