@@ -287,6 +287,7 @@ export class Botpress {
 
   @WrapErrorsWith('Error while discovering bots')
   async discoverBots(): Promise<void> {
+    await AppLifecycle.waitFor(AppLifecycleEvents.MODULES_READY)
     const botsRef = await this.workspaceService.getBotRefs()
     const botsIds = await this.botService.getBotsIds()
     const unlinked = _.difference(botsIds, botsRef)
