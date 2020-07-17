@@ -13,8 +13,12 @@ const login = async () => {
     email: 'admin',
     password: '123456'
   })
-  const token = login.payload && login.payload.token
-  return login.statusCode ? undefined : token
+
+  try {
+    return login.payload.token
+  } catch {
+    return
+  }
 }
 
 const signup = async () => {
@@ -22,8 +26,12 @@ const signup = async () => {
     email: 'admin',
     password: '123456'
   })
-  const token = login.payload && login.payload.token
-  return login.statusCode ? undefined : token
+
+  try {
+    return login.payload.token
+  } catch {
+    return
+  }
 }
 
 const createBot = async (botId, token) => {
