@@ -824,7 +824,6 @@ class Diagram extends Component<Props> {
               topicName: this.props.selectedTopic,
               languages: this.props.languages,
               defaultLanguage: this.props.defaultLanguage,
-              onUpdateVariables: this.addVariable,
               refreshQnaCount: () => {
                 // So it's processed on the next tick, otherwise it won't update with the latest update
                 setTimeout(() => {

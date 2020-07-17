@@ -1,5 +1,5 @@
 import { Tab, Tabs } from '@blueprintjs/core'
-import { FlowVariable, FormData } from 'botpress/sdk'
+import { BotEvent, FlowVariable, FormData } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
@@ -12,7 +12,6 @@ interface Props {
   editingContent: number
   close: (closingKey: number) => void
   onUpdate: (data: any) => void
-  onUpdateVariables: (variable: FlowVariable) => void
   formData: FormData
 }
 
@@ -34,15 +33,7 @@ const fetchReducer = (state, action) => {
   }
 }
 
-const ContentAnswerForm: FC<Props> = ({
-  onUpdateVariables,
-  editingContent,
-  bp,
-  close,
-  formData,
-  onUpdate,
-  deleteContent
-}) => {
+const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onUpdate, deleteContent }) => {
   const [state, dispatch] = useReducer(fetchReducer, {
     contentTypes: [],
     contentTypesFields: {}
@@ -109,12 +100,12 @@ const ContentAnswerForm: FC<Props> = ({
         </div>
         {contentFields && (
           <Contents.Form
+            preventSuperInput
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
             axios={bp.axios}
             formData={formData}
             onUpdate={data => onUpdate({ ...data, contentType: contentType.current })}
-            onUpdateVariables={onUpdateVariables}
           />
         )}
       </Fragment>

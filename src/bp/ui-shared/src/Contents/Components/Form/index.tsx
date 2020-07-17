@@ -168,6 +168,7 @@ const getSuperInputsFromData = data => {
 }
 
 const Form: FC<FormProps> = ({
+  preventSuperInput,
   axios,
   mediaPath,
   overrideFields,
@@ -251,7 +252,11 @@ const Form: FC<FormProps> = ({
   }
 
   const showSuperInput = (field, parent) => {
-    return field.isSuperInput && (['text', 'text_array'].includes(field.type) || isSuperInput(field, parent))
+    return (
+      !preventSuperInput &&
+      field.isSuperInput &&
+      (['text', 'text_array'].includes(field.type) || isSuperInput(field, parent))
+    )
   }
 
   const renderSuperInput = (field, data, update) => {

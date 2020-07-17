@@ -1,5 +1,5 @@
 import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
-import { Flow, FlowNode, FlowVariable } from 'botpress/sdk'
+import { BotEvent, Flow, FlowNode, FlowVariable } from 'botpress/sdk'
 import { confirmDialog, Contents, FormFields, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
 import { getFlowLabel } from 'botpress/utils'
 import cx from 'classnames'
@@ -32,7 +32,6 @@ interface Props {
   flows?: Flow[]
   childRef?: (ref: HTMLDivElement | null) => void
   updateQnA: (qnaItem: QnaItem) => void
-  onUpdateVariables: (variable: FlowVariable) => void
   deleteQnA: () => void
   toggleEnabledQnA: () => void
 }
@@ -52,7 +51,6 @@ const QnA: FC<Props> = props => {
     defaultLanguage,
     flows,
     isLite,
-    onUpdateVariables,
     bp
   } = props
   const [showRedirectToFlow, setShowRedirectToFlow] = useState(!!(data.redirectFlow || data.redirectNode))
@@ -336,7 +334,6 @@ const QnA: FC<Props> = props => {
           editingContent={editingContent.current}
           formData={contentAnswers[editingContent.current]}
           onUpdate={data => updateContentAnswers(data)}
-          onUpdateVariables={onUpdateVariables}
           close={closingKey => {
             setTimeout(() => {
               if (closingKey === editingContent.current) {
