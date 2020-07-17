@@ -58,16 +58,13 @@ export default async function(
     const cPromises = subsets.map(function(ss) {
       const clf = new BaseSVM()
 
-      return clf
-        .train(ss.train, params) // train with train set
-        .then(function() {
-          // predict values for each example of the test set
-          done += 1
-          progressCb({ done: done, total: total })
-          return _.map(ss.test, function(test) {
-            return [clf.predictSync(test[0]), test[1]]
-          })
+      return clf.train(ss.train, params).then(() => {
+        done += 1
+        progressCb({ done: done, total: total })
+        return _.map(ss.test, function(test) {
+          return [clf.predictSync(test[0]), test[1]]
         })
+      })
     })
 
     return Promise.all(cPromises).then(
