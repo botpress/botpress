@@ -1,8 +1,8 @@
 import * as sdk from 'botpress/sdk'
 
-import '../import-rewire'
+import '../../import-rewire'
 
-import { Predictor, Trainer } from './svm'
+import { Predictor, Trainer } from '.'
 
 /**
  * WARNING:

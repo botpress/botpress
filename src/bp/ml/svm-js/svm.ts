@@ -2,9 +2,8 @@ import _ from 'lodash'
 import assert from 'assert'
 import numeric from 'numeric'
 
-import BaseSVM from './base-svm'
+import BaseSVM from './addon'
 import gridSearch from './grid-search'
-
 import normalizeDataset from './normalize-dataset'
 import normalizeInput from './normalize-input'
 import reduce from './reduce-dataset'
