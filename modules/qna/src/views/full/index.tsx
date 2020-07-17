@@ -12,7 +12,16 @@ import { ImportModal } from './Components/ImportModal'
 import QnA from './Components/QnA'
 import EmptyStateIcon from './Icons/EmptyStateIcon'
 
-const QnAList: FC<Props> = ({ bp, languages, defaultLanguage, topicName, contentLang, isLite, refreshQnaCount }) => {
+const QnAList: FC<Props> = ({
+  bp,
+  languages,
+  defaultLanguage,
+  topicName,
+  contentLang,
+  isLite,
+  events,
+  refreshQnaCount
+}) => {
   const [flows, setFlows] = useState([])
   const [filterContexts, setFilterContexts] = useState([])
   const [questionSearch, setQuestionSearch] = useState('')
@@ -250,6 +259,7 @@ const QnAList: FC<Props> = ({ bp, languages, defaultLanguage, topicName, content
                 isLite={isLite}
                 key={highlighted.id}
                 flows={flows}
+                events={events}
                 defaultLanguage={defaultLanguage}
                 deleteQnA={() => {
                   dispatch({ type: 'deleteQnA', data: { index: 'highlighted', bp, refreshQnaCount } })
@@ -288,6 +298,7 @@ const QnAList: FC<Props> = ({ bp, languages, defaultLanguage, topicName, content
                 bp={bp}
                 isLite={isLite}
                 flows={flows}
+                events={events}
                 defaultLanguage={defaultLanguage}
                 deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp, refreshQnaCount } })}
                 toggleEnabledQnA={() =>

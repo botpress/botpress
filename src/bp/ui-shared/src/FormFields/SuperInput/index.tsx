@@ -17,6 +17,7 @@ type Props = FieldProps & SuperInputProps
 export default ({
   canAddElements = true,
   canPickEvents = true,
+  canPickVariables = true,
   defaultVariableType,
   events,
   multiple,
@@ -160,6 +161,7 @@ export default ({
     return (
       <SingleSuperInput
         canPickEvents={canPickEvents}
+        canPickVariables={canPickVariables}
         events={localEvents}
         variables={localVariables}
         onAddVariable={onAddVariable}
@@ -168,6 +170,16 @@ export default ({
         onBlur={onBlur}
       />
     )
+  }
+
+  const getPattern = () => {
+    if (canPickVariables && canPickEvents) {
+      return /\$|{{/
+    } else if (canPickVariables) {
+      return /\$/
+    } else if (canPickEvents) {
+      return /{{/
+    }
   }
 
   return (
@@ -189,19 +201,17 @@ export default ({
               />
             </Tooltip>
           )}
-          <Tooltip
-            content={lang('superInput.insertValueFromVariables')}
-            hoverOpenDelay={300}
-            position={Position.TOP_LEFT}
-          >
-            <Button
-              className={style.tagBtn}
-              onClick={() => {
-                addPrefix('$')
-              }}
-              icon="dollar"
-            />
-          </Tooltip>
+          {canPickVariables && (
+            <Tooltip content={lang('superInput.insertVaes')} hoverOpenDelay={300} position={Position.TOP_LEFT}>
+              <Button
+                className={style.tagBtn}
+                onClick={() => {
+                  addPrefix('$')
+                }}
+                icon="dollar"
+              />
+            </Tooltip>
+          )}
         </div>
       }
       <Tags
@@ -279,7 +289,7 @@ export default ({
           duplicates: true,
           callbacks: tagifyCallbacks,
           mode: 'mix',
-          pattern: canPickEvents ? /\$|{{/ : /\$/
+          pattern: getPattern()
         }}
         defaultValue={initialValue.current}
         onChange={e => {

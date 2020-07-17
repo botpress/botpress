@@ -18,7 +18,16 @@ const isValidJson = value =>
       .replace(/(?:^|:|,)(?:\s*\[)+/g, '')
   )
 
-const SingleSuperInput = ({ canPickEvents, events, variables, onAddVariable, eventsDesc, value, onBlur }) => {
+const SingleSuperInput = ({
+  canPickEvents,
+  canPickVariables,
+  events,
+  variables,
+  onAddVariable,
+  eventsDesc,
+  value,
+  onBlur
+}) => {
   const getTagHtml = () => {
     let tag
     const strValue = value?.toString() || ''
@@ -118,31 +127,33 @@ const SingleSuperInput = ({ canPickEvents, events, variables, onAddVariable, eve
           >
             <Tooltip
               content={lang('superInput.insertValueFromEvent')}
-              hoverOpenDelay={500}
+              hoverOpenDelay={300}
               position={Position.TOP_LEFT}
             >
               <Button className={style.btn} icon={<Icons.Brackets />} />
             </Tooltip>
           </Dropdown>
         )}
-        <Dropdown
-          items={variables.map(name => ({ value: name, label: name }))}
-          filterPlaceholder={lang('search')}
-          filterList={filterDropdown}
-          customItemRenderer={customItemRenderer}
-          onChange={({ value }) => {
-            onAddVariable(value, variables)
-            onBlur?.(`$${value}`)
-          }}
-        >
-          <Tooltip
-            content={lang('superInput.insertValueFromVariables')}
-            hoverOpenDelay={500}
-            position={Position.TOP_LEFT}
+        {canPickVariables && (
+          <Dropdown
+            items={variables.map(name => ({ value: name, label: name }))}
+            filterPlaceholder={lang('search')}
+            filterList={filterDropdown}
+            customItemRenderer={customItemRenderer}
+            onChange={({ value }) => {
+              onAddVariable(value, variables)
+              onBlur?.(`$${value}`)
+            }}
           >
-            <Button className={style.btn} icon="dollar" />
-          </Tooltip>
-        </Dropdown>
+            <Tooltip
+              content={lang('superInput.insertValueFromVariables')}
+              hoverOpenDelay={300}
+              position={Position.TOP_LEFT}
+            >
+              <Button className={style.btn} icon="dollar" />
+            </Tooltip>
+          </Dropdown>
+        )}
       </div>
       <div className={style.superInput} onKeyDown={onKeyDown} contentEditable suppressContentEditableWarning>
         {getTagHtml()}

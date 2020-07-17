@@ -9,5 +9,6 @@ export interface SuperInputProps {
   multiple?: boolean
   isFocused?: boolean
   canPickEvents?: boolean
+  canPickVariables?: boolean
   canAddElements?: boolean
 }

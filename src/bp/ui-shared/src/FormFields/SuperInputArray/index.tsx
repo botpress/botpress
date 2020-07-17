@@ -25,6 +25,8 @@ const addListenerWithArgs = (el, event, callbackMethod, extraParams) => {
 }
 
 const SuperInputArray: FC<SuperInputArrayProps> = ({
+  canPickEvents = true,
+  canPickVariables = true,
   addBtnLabel,
   label,
   onChange,
@@ -125,6 +127,8 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
             isFocused={focusedElement.current === index}
             placeholder={getPlaceholder?.(index)}
             className={style.customTextarea}
+            canPickEvents={canPickEvents}
+            canPickVariables={canPickVariables}
             multiple
             variables={variables || []}
             events={events || []}

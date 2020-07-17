@@ -1,4 +1,4 @@
-import { FormData } from 'botpress/sdk'
+import { BotEvent, FormData } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import _uniqueId from 'lodash/uniqueId'
@@ -26,6 +26,7 @@ export interface Props {
   defaultLanguage: string
   refreshQnaCount: () => void
   languages: string[]
+  events?: BotEvent[]
 }
 
 export interface FormErrors {

@@ -178,6 +178,7 @@ const Form: FC<FormProps> = ({
   onUpdate,
   onUpdateVariables,
   variables,
+  superInputOptions,
   events
 }) => {
   const newFormData = createEmptyDataFromSchema([...(fields || []), ...(advancedSettings || [])])
@@ -265,6 +266,8 @@ const Form: FC<FormProps> = ({
         placeholder={lang(field.placeholder)}
         variables={variables || []}
         events={events || []}
+        canPickEvents={!superInputOptions?.variablesOnly}
+        canPickVariables={!superInputOptions?.eventsOnly}
         addVariable={onUpdateVariables}
         multiple={field.type === 'text'}
         onBlur={value => {
@@ -344,6 +347,8 @@ const Form: FC<FormProps> = ({
                 onChange={value => {
                   dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
                 }}
+                canPickEvents={!superInputOptions?.variablesOnly}
+                canPickVariables={!superInputOptions?.eventsOnly}
                 variables={variables || []}
                 events={events || []}
                 onUpdateVariables={onUpdateVariables}

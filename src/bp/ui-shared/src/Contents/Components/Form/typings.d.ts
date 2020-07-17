@@ -12,5 +12,9 @@ export interface FormProps {
   onUpdate: (data: { [key: string]: string }) => void
   onUpdateVariables?: (variable: FlowVariable ) => void
   variables?: FlowVariable[]
+  superInputOptions?: {
+    eventsOnly?: boolean
+    variablesOnly?: boolean
+  }
   events?: BotEvent[]
 }

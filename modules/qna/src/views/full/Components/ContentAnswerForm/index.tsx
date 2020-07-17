@@ -1,5 +1,5 @@
 import { Tab, Tabs } from '@blueprintjs/core'
-import { FormData } from 'botpress/sdk'
+import { BotEvent, FormData } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
@@ -13,6 +13,8 @@ interface Props {
   close: (closingKey: number) => void
   onUpdate: (data: any) => void
   formData: FormData
+  events: BotEvent[]
+  isLite: boolean
 }
 
 const fetchReducer = (state, action) => {
@@ -33,7 +35,16 @@ const fetchReducer = (state, action) => {
   }
 }
 
-const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onUpdate, deleteContent }) => {
+const ContentAnswerForm: FC<Props> = ({
+  isLite,
+  editingContent,
+  bp,
+  close,
+  formData,
+  onUpdate,
+  events,
+  deleteContent
+}) => {
   const [state, dispatch] = useReducer(fetchReducer, {
     contentTypes: [],
     contentTypesFields: {}
@@ -100,10 +111,12 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
         </div>
         {contentFields && (
           <Contents.Form
-            preventSuperInput
+            preventSuperInput={!isLite}
+            superInputOptions={{ eventsOnly: true }}
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
             axios={bp.axios}
+            events={events || []}
             formData={formData}
             onUpdate={data => onUpdate({ ...data, contentType: contentType.current })}
           />
