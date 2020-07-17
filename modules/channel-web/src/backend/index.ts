@@ -27,7 +27,8 @@ const entryPoint: sdk.ModuleEntryPoint = {
     fullName: 'Web Chat',
     homepage: 'https://botpress.com',
     noInterface: true,
-    plugins: [{ entry: 'WebBotpressUIInjection', position: 'overlay' }]
+    plugins: [{ entry: 'WebBotpressUIInjection', position: 'overlay' }],
+    channelEffects: ['__typing', '__buttons', '__dropdown', '__markdown', '__collectFeedback', '__trimText']
   }
 }
 

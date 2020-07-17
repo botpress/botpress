@@ -193,7 +193,7 @@ export class EventEngine {
       const replyEvent = Event({
         ..._.pick(eventDestination, keys),
         direction: 'outgoing',
-        type: _.get(payload, 'type', 'default'),
+        type: payload.type ?? 'text',
         payload,
         incomingEventId: incomingEventId
       })

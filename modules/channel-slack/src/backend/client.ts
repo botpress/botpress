@@ -6,6 +6,7 @@ import { RTMClient } from '@slack/rtm-api'
 import { WebClient } from '@slack/web-api'
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
+import { isValidOutgoingType, parseTyping } from 'common/channels'
 import _ from 'lodash'
 import LRU from 'lru-cache'
 import ms from 'ms'
@@ -18,8 +19,6 @@ import { Clients } from './typings'
 const debug = DEBUG('channel-slack')
 const debugIncoming = debug.sub('incoming')
 const debugOutgoing = debug.sub('outgoing')
-
-const outgoingTypes = ['text', 'image', 'actions', 'typing', 'carousel']
 
 const userCache = new LRU({ max: 1000, maxAge: ms('1h') })
 
@@ -160,17 +159,7 @@ export class SlackClient {
   }
 
   async handleOutgoingEvent(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
-    if (event.type === 'typing') {
-      if (this.rtm) {
-        await this.rtm.sendTyping(event.threadId || event.target)
-        await new Promise(resolve => setTimeout(() => resolve(), 1000))
-      }
-
-      return next(undefined, false)
-    }
-
-    const messageType = event.type === 'default' ? 'text' : event.type
-    if (!_.includes(outgoingTypes, messageType)) {
+    if (!isValidOutgoingType(event.type)) {
       return next(new Error('Unsupported event type: ' + event.type))
     }
 
@@ -188,7 +177,7 @@ export class SlackClient {
       blocks
     }
 
-    if (event.payload.metadata?.__collectFeedback && messageType === 'text') {
+    if (event.payload.metadata?.__collectFeedback && event.type === 'text') {
       message.blocks = [
         {
           type: 'section',
@@ -231,11 +220,9 @@ export class SlackClient {
     const textType = __markdown === true ? 'mrkdwn' : 'plain_text'
     const blocks = []
 
-    if (__typing) {
-      if (this.rtm) {
-        await this.rtm.sendTyping(event.threadId || event.target)
-        await new Promise(resolve => setTimeout(() => resolve(), 1000))
-      }
+    if (__typing && this.rtm) {
+      await this.rtm.sendTyping(event.threadId || event.target)
+      await Promise.delay(parseTyping(__typing))
     }
 
     if (__buttons) {

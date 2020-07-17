@@ -216,6 +216,8 @@ declare module 'botpress/sdk' {
     homepage?: string
     /** Whether or not the module is likely to change */
     experimental?: boolean
+    /** IDs of supported effects for this channel */
+    channelEffects?: string[]
   }
 
   /**
@@ -1877,8 +1879,8 @@ declare module 'botpress/sdk' {
       __buttons?: Option[]
       /** Display a dropdown menu to select an item  */
       __dropdown?: Option[] | Dropdown
-      /** When true, the typing effect will not be used */
-      __typing?: boolean
+      /** Set to true to display typing effect, or set a delay in ms */
+      __typing?: boolean | number
       /** Use markdown for text fields when possible */
       __markdown?: boolean
       /** If the channel supports it, it will trim the text to the specified length */
@@ -1898,26 +1900,26 @@ declare module 'botpress/sdk' {
     export interface Image extends Base {
       type: 'image'
       image: string
-      title?: string | MultiLangText
+      title?: string
     }
 
     export interface Card extends Base {
       type: 'card'
-      title: string | MultiLangText
-      subtitle?: string | MultiLangText
+      title: string
+      subtitle?: string
       image?: string
       actions?: Actions[]
     }
 
     export interface ActionButton {
-      title: string | MultiLangText
+      title: string
     }
 
     export interface ActionSaySomething extends ActionButton {
       type: 'say_something'
       // TODO cleanup legacy
       action: 'Say something'
-      text: string | MultiLangText
+      text: string
     }
 
     export interface ActionOpenURL extends ActionButton {

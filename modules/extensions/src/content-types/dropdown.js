@@ -40,7 +40,7 @@ function newRenderer(data) {
 }
 
 function renderElement(data, channel) {
-  if (channel === 'web' || channel === 'slack') {
+  if (['web', 'slack', 'teams', 'messenger', 'telegram'].includes(channel)) {
     return newRenderer(data)
   } else if (channel === 'api') {
     return render(data)

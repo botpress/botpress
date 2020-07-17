@@ -62,7 +62,8 @@ const entryPoint: sdk.ModuleEntryPoint = {
     fullName: 'Teams',
     homepage: 'https://botpress.com',
     noInterface: true,
-    plugins: []
+    plugins: [],
+    channelEffects: ['__typing', '__buttons']
   }
 }
 
