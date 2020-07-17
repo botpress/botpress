@@ -191,7 +191,7 @@ const Form: FC<FormProps> = ({
       return data[labelField.key] || lang(labelField.label)
     }
 
-    return field.isSuperInput && !['text', 'text_array'].includes(field.type) ? (
+    return field.superInput && !['text', 'text_array'].includes(field.type) ? (
       <Tooltip
         content={lang(
           isSuperInput(field, parent) ? 'superInput.convertToRegularInput' : 'superInput.convertToSmartInput'
@@ -254,7 +254,7 @@ const Form: FC<FormProps> = ({
   const showSuperInput = (field, parent) => {
     return (
       !preventSuperInput &&
-      field.isSuperInput &&
+      field.superInput &&
       (['text', 'text_array'].includes(field.type) || isSuperInput(field, parent))
     )
   }

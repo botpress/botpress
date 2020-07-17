@@ -187,14 +187,14 @@ module.exports = {
           {
             type: 'text',
             key: 'title',
-            isSuperInput: true,
+            superInput: true,
             label: 'module.builtin.types.suggestions.label',
             placeholder: 'module.builtin.types.suggestions.labelPlaceholder'
           },
           {
             type: 'text',
             key: 'value',
-            isSuperInput: true,
+            superInput: true,
             label: 'module.builtin.types.suggestions.value',
             placeholder: 'module.builtin.types.suggestions.valuePlaceholder'
           }

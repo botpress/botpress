@@ -148,7 +148,7 @@ export const dialogConditions: sdk.Condition[] = [
         label: 'module.ndu.conditions.fields.label.candidate',
         placeholder: 'module.ndu.conditions.fields.placeholder.oneWordPerLine',
         type: 'text_array',
-        isSuperInput: true,
+        superInput: true,
         group: {
           addLabel: 'module.ndu.conditions.fields.label.addWord'
         }
