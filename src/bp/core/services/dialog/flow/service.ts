@@ -352,7 +352,7 @@ export class FlowService {
 
     const flowContent = {
       // TODO: NDU Remove triggers
-      ..._.pick(flow, ['version', 'catchAll', 'startNode', 'skillData', 'triggers', 'label', 'description']),
+      ..._.pick(flow, ['version', 'catchAll', 'startNode', 'skillData', 'triggers', 'label', 'description', 'parent']),
       nodes: flow.nodes.map(node => _.omit(node, 'x', 'y', 'lastModified'))
     }
 
