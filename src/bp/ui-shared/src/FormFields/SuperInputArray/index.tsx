@@ -43,7 +43,7 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
   useEffect(() => {
     const keydownEvent = {}
     const blurEvent = {}
-    // If we don't recreate this everytime the refs or items change, the updates will have outdated results
+    // If we don't recreate this everytime the refs or items change, the updates will have outdated states
     Object.keys(elRefs).forEach((key, index) => {
       keydownEvent[key] = addListenerWithArgs(elRefs[key].DOM.input, 'keydown', onKeyDown, index)
       blurEvent[key] = addListenerWithArgs(elRefs[key].DOM.input, 'blur', updateItems, index)

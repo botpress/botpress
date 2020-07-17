@@ -1,5 +1,5 @@
 import { Tab, Tabs } from '@blueprintjs/core'
-import { BotEvent, FlowVariable, FormData } from 'botpress/sdk'
+import { FormData } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'

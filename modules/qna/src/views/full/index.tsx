@@ -12,18 +12,7 @@ import { ImportModal } from './Components/ImportModal'
 import QnA from './Components/QnA'
 import EmptyStateIcon from './Icons/EmptyStateIcon'
 
-const QnAList: FC<Props> = ({
-  bp,
-  languages,
-  defaultLanguage,
-  topicName,
-  contentLang,
-  isLite,
-  refreshQnaCount,
-  onUpdateVariables,
-  variables,
-  events
-}) => {
+const QnAList: FC<Props> = ({ bp, languages, defaultLanguage, topicName, contentLang, isLite, refreshQnaCount }) => {
   const [flows, setFlows] = useState([])
   const [filterContexts, setFilterContexts] = useState([])
   const [questionSearch, setQuestionSearch] = useState('')
