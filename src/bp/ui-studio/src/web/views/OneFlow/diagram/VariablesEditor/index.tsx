@@ -82,6 +82,8 @@ const VariablesEditor: FC<Props> = props => {
           <tr>
             <th>Name</th>
             <th>Type</th>
+            <th>In</th>
+            <th>Out</th>
             <th></th>
             <th></th>
           </tr>
@@ -98,6 +100,8 @@ const VariablesEditor: FC<Props> = props => {
             <tr key={i}>
               <td>{v.name}</td>
               <td>{v.type}</td>
+              <td>{v.isInput ? 'X' : ''}</td>
+              <td>{v.isOutput ? 'X' : ''}</td>
               <td>
                 <Button text="Edit" onClick={() => handleEditClick(v.name)} />
               </td>
