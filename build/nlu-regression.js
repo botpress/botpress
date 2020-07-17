@@ -1,5 +1,6 @@
 const fs = require('fs')
 const axios = require('axios').default
+const _ = require('lodash')
 
 const repoRootDir = `${__dirname}/..`
 const nluTestingDir = `${repoRootDir}/modules/nlu-testing/`
@@ -34,7 +35,7 @@ const signup = async () => {
   }
 }
 
-const createBot = async (botId, token) => {
+const createBot = async (botId, axiosConfig) => {
   const newBot = {
     id: botId,
     name: 'testy',
@@ -46,12 +47,11 @@ const createBot = async (botId, token) => {
   }
 
   try {
-    await axios.post(`${base}/api/v1/admin/bots`, newBot, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'X-BP-Workspace': 'default'
-      }
-    })
+    await axios.post(
+      `${base}/api/v1/admin/bots`,
+      newBot,
+      _.merge(axiosConfig, { headers: { 'X-BP-Workspace': 'default' } })
+    )
   } catch (err) {
     const { status } = err.response
     if (status === 409) {
@@ -62,16 +62,12 @@ const createBot = async (botId, token) => {
   }
 }
 
-const waitForTraining = async (botId, token) => {
+const waitForTraining = async (botId, axiosConfig) => {
   return new Promise(function(resolve) {
     let i = 0
     console.log(`training...`)
     const intervalId = setInterval(async () => {
-      const { data: trainingStatus } = await axios.get(`${base}/api/v1/bots/${botId}/mod/nlu/train`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
+      const { data: trainingStatus } = await axios.get(`${base}/api/v1/bots/${botId}/mod/nlu/train`, axiosConfig)
 
       if (!trainingStatus.isTraining) {
         clearInterval(intervalId)
@@ -83,29 +79,16 @@ const waitForTraining = async (botId, token) => {
   })
 }
 
-const round = (n, acc) => {
-  const num = Math.pow(10, acc)
-  return Math.round(n * num) / num
-}
-
-const runAllTests = async (botId, token) => {
+const runAllTests = async (botId, axiosConfig) => {
   const baseNluTesting = `${base}/api/v1/bots/${botId}/mod/nlu-testing`
-  const { data: allTests } = await axios.get(`${baseNluTesting}/tests`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  })
+  const { data: allTests } = await axios.get(`${baseNluTesting}/tests`, axiosConfig)
   const nTests = allTests.length
   let nPassing = 0
 
   let i = 0
   for (const test of allTests) {
     const retry = async () => {
-      const { data } = await axios.post(`${baseNluTesting}/tests/${test.id}/run`, '', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
+      const { data } = await axios.post(`${baseNluTesting}/tests/${test.id}/run`, '', axiosConfig)
       return data
     }
 
@@ -121,8 +104,7 @@ const runAllTests = async (botId, token) => {
     console.log(`(${i++} /${nTests}) #${test.id}`, 'success: ', testResult.success)
   }
 
-  const acc = (nPassing / nTests) * 100
-  return round(acc, 1)
+  return _.round((nPassing / nTests) * 100, 1)
 }
 
 const compareScore = async score => {
@@ -152,12 +134,17 @@ const main = async () => {
     }
 
     const botId = 'testy'
+    const axiosConfig = {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
 
-    await createBot(botId, token)
-    await waitForTraining(botId, token)
+    await createBot(botId, axiosConfig)
+    await waitForTraining(botId, axiosConfig)
     console.log('Training Done!')
 
-    const score = await runAllTests(botId, token)
+    const score = await runAllTests(botId, axiosConfig)
     console.log('Score: ', score)
 
     const testPasses = await compareScore(score)
