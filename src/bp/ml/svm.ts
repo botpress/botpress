@@ -57,11 +57,12 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
     const minKFold = getMinKFold(dataset)
     const kFold = Math.max(minKFold, 4)
 
+    const arr = (n: number | number[]) => (_.isArray(n) ? n : [n])
     const svm = new SVM({
       svm_type: args.classifier ? svmTypes[args.classifier] : undefined,
       kernel_type: args.kernel ? kernelTypes[args.kernel] : undefined,
-      C: args.c,
-      gamma: args.gamma,
+      C: args.c ? arr(args.c) : undefined,
+      gamma: args.gamma ? arr(args.gamma) : undefined,
       probability: args.probability,
       reduce: args.reduce,
       kFold

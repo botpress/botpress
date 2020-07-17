@@ -358,8 +358,8 @@ declare module 'botpress/sdk' {
       export interface SVMOptions {
         classifier: 'C_SVC' | 'NU_SVC' | 'ONE_CLASS' | 'EPSILON_SVR' | 'NU_SVR'
         kernel: 'LINEAR' | 'POLY' | 'RBF' | 'SIGMOID'
-        c?: number[]
-        gamma?: number[]
+        c?: number | number[]
+        gamma?: number | number[]
         probability?: boolean
         reduce?: boolean
       }
