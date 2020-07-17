@@ -129,23 +129,20 @@ export class ConfigProvider {
   }
 
   public async getModulesListConfig() {
-    let enabledByDefault: string[]
-    if (process.env.TEST_NLU) {
-      enabledByDefault = ['nlu', 'nlu-testing']
-    } else {
-      enabledByDefault = [
-        'analytics',
-        'basic-skills',
-        'builtin',
-        'channel-web',
-        'nlu',
-        'qna',
-        'extensions',
-        'code-editor',
-        'testing',
-        'examples'
-      ]
-    }
+    const enabledByDefault: string[] = process.env.TEST_NLU
+      ? ['nlu', 'nlu-testing']
+      : [
+          'analytics',
+          'basic-skills',
+          'builtin',
+          'channel-web',
+          'nlu',
+          'qna',
+          'extensions',
+          'code-editor',
+          'testing',
+          'examples'
+        ]
 
     // here it's ok to use the module resolver because we are discovering the built-in modules only
     const resolver = new ModuleResolver(this.logger)
