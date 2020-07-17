@@ -22,8 +22,18 @@ const addListenerWithArgs = (el, event, callbackMethod, extraParams) => {
   return method
 }
 
-const SuperInputArray: FC<any> = props => {
-  const { addBtnLabel, label, onChange, items, getPlaceholder } = props
+const SuperInputArray: FC<any> = ({
+  addBtnLabel,
+  label,
+  onChange,
+  moreInfo,
+  items,
+  getPlaceholder,
+  variables,
+  events,
+  onUpdateVariables,
+  setCanOutsideClickClose
+}) => {
   const [elRefs, setElRefs] = useState({})
   const skipBlur = useRef(false)
   const focusedElement = useRef(items.length)
@@ -33,7 +43,6 @@ const SuperInputArray: FC<any> = props => {
     const keydownEvent = {}
     const blurEvent = {}
     // If we don't recreate this everytime the refs or items change, the updates will have outdated results
-    console.log(elRefs)
     Object.keys(elRefs).forEach((key, index) => {
       keydownEvent[key] = addListenerWithArgs(elRefs[key].DOM.input, 'keydown', onKeyDown, index)
       blurEvent[key] = addListenerWithArgs(elRefs[key].DOM.input, 'blur', updateItems, index)
@@ -108,13 +117,17 @@ const SuperInputArray: FC<any> = props => {
   return (
     <div className={style.items}>
       <h2>{label}</h2>
-      {props.moreInfo}
+      {moreInfo}
       {items?.map((item, index) => (
         <div key={itemIds.current[index]} className={style.textareaWrapper}>
           <SuperInput
             isFocused={focusedElement.current === index}
             placeholder={getPlaceholder?.(index)}
             multiple
+            variables={variables || []}
+            events={events || []}
+            addVariable={onUpdateVariables}
+            setCanOutsideClickClose={setCanOutsideClickClose}
             childRef={(ref: any) => {
               setElRefs(elRefs => ({ ...elRefs, [index]: ref }))
             }}
