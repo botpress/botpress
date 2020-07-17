@@ -23,7 +23,7 @@ export default class WebchatDb {
     this.users = bp.users
     this.knex = bp['database'] // TODO Fixme
 
-    this.batchSize = process.env.DATABASE === 'postgres' ? 2000 : 40
+    this.batchSize = this.knex.isLite ? 40 : 2000
 
     setInterval(() => this.flush(), ms('1s'))
   }

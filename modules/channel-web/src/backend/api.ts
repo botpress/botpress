@@ -160,8 +160,15 @@ export default async (bp: typeof sdk, db: Database) => {
         conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
       }
 
-      // tslint:disable-next-line: no-floating-promises
-      sendNewMessage(botId, userId, conversationId, payload, req.credentials, !!req.headers.authorization, user.result)
+      await sendNewMessage(
+        botId,
+        userId,
+        conversationId,
+        payload,
+        req.credentials,
+        !!req.headers.authorization,
+        user.result
+      )
 
       return res.sendStatus(200)
     })
