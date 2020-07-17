@@ -62,10 +62,12 @@ export class TelemetryRepository {
       .then(rows => rows.map(entry => entry.uuid))
 
     if (uuIds.length) {
-      await this.database
-        .knex(this.tableName)
-        .whereIn('uuid', uuIds.slice(0, 500))
-        .del()
+      await Promise.mapSeries(_.chunk(uuIds, 500), async uuIdChunk => {
+        await this.database
+          .knex(this.tableName)
+          .whereIn('uuid', uuIdChunk)
+          .del()
+      })
     }
   }
 
