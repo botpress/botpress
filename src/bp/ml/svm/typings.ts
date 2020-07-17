@@ -43,3 +43,18 @@ export interface RegressionReport {
   mean: any
   size: any
 }
+
+export enum SvmTypes {
+  C_SVC = 0,
+  NU_SVC = 1,
+  ONE_CLASS = 2,
+  EPSILON_SVR = 3,
+  NU_SVR = 4
+}
+
+export enum KernelTypes {
+  LINEAR = 0,
+  POLY = 1,
+  RBF = 2,
+  SIGMOID = 3
+}

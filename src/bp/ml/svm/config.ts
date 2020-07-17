@@ -1,38 +1,36 @@
 import _ from 'lodash'
 import assert from 'assert'
 
-import { SvmConfig, SvmParameters } from './typings'
-import svmTypes from './svm-types'
-import kernelTypes from './kernel-types'
+import { SvmConfig, SvmParameters, SvmTypes, KernelTypes } from './typings'
 
 export function checkConfig(config: SvmConfig) {
   assert(config.kFold > 0, 'k-fold must be >= 1')
 
-  if (config.svm_type === svmTypes.ONE_CLASS) {
+  if (config.svm_type === SvmTypes.ONE_CLASS) {
     config.probability = false // not supported
   }
 
-  if (![svmTypes.C_SVC, svmTypes.EPSILON_SVR, svmTypes.NU_SVR].includes(config.svm_type)) {
+  if (![SvmTypes.C_SVC, SvmTypes.EPSILON_SVR, SvmTypes.NU_SVR].includes(config.svm_type)) {
     config.C = []
   }
 
-  if (![kernelTypes.POLY, kernelTypes.RBF, kernelTypes.SIGMOID].includes(config.kernel_type)) {
+  if (![KernelTypes.POLY, KernelTypes.RBF, KernelTypes.SIGMOID].includes(config.kernel_type)) {
     config.gamma = []
   }
 
-  if (config.svm_type !== svmTypes.EPSILON_SVR) {
+  if (config.svm_type !== SvmTypes.EPSILON_SVR) {
     config.p = []
   }
 
-  if (![svmTypes.NU_SVC, svmTypes.ONE_CLASS, svmTypes.NU_SVR].includes(config.svm_type)) {
+  if (![SvmTypes.NU_SVC, SvmTypes.ONE_CLASS, SvmTypes.NU_SVR].includes(config.svm_type)) {
     config.nu = []
   }
 
-  if (config.kernel_type !== kernelTypes.POLY) {
+  if (config.kernel_type !== KernelTypes.POLY) {
     config.degree = []
   }
 
-  if (![kernelTypes.POLY, kernelTypes.SIGMOID].includes(config.kernel_type)) {
+  if (![KernelTypes.POLY, KernelTypes.SIGMOID].includes(config.kernel_type)) {
     config.coef0 = []
   }
 
@@ -40,8 +38,8 @@ export function checkConfig(config: SvmConfig) {
 }
 
 const defaultConf: SvmConfig = {
-  kernel_type: kernelTypes.LINEAR,
-  svm_type: svmTypes.C_SVC,
+  kernel_type: KernelTypes.LINEAR,
+  svm_type: SvmTypes.C_SVC,
   nr_weight: 0,
   weight_label: [],
   weight: [],

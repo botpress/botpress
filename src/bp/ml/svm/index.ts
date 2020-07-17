@@ -1,10 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { Data, SvmModel, SvmParameters as Parameters } from './typings'
+import { Data, SvmModel, SvmParameters as Parameters, SvmTypes, KernelTypes } from './typings'
 import { SVM } from './svm'
-import svmTypes from './svm-types'
-import kernelTypes from './kernel-types'
 import { getMinKFold } from './grid-search/split-dataset'
 
 type Serialized = SvmModel & {
@@ -46,8 +44,8 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
 
     options = options ?? {}
     const svm = new SVM({
-      svm_type: options.classifier ? svmTypes[options.classifier] : undefined,
-      kernel_type: options.kernel ? kernelTypes[options.kernel] : undefined,
+      svm_type: options.classifier ? SvmTypes[options.classifier] : undefined,
+      kernel_type: options.kernel ? KernelTypes[options.kernel] : undefined,
       C: options.c ? arr(options.c) : undefined,
       gamma: options.gamma ? arr(options.gamma) : undefined,
       probability: options.probability,

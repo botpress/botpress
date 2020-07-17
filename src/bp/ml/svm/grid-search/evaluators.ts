@@ -1,7 +1,6 @@
 import _ from 'lodash'
 
-import svmTypes from '../svm-types'
-import { SvmConfig, ClassificationReport, RegressionReport, Report } from '../typings'
+import { SvmConfig, ClassificationReport, RegressionReport, Report, SvmTypes } from '../typings'
 
 import { GridSearchResult } from './typings'
 
@@ -111,12 +110,12 @@ interface Evaluator {
 
 export default function(config: SvmConfig): Evaluator {
   switch (config.svm_type) {
-    case svmTypes.C_SVC:
-    case svmTypes.NU_SVC:
-    case svmTypes.ONE_CLASS:
+    case SvmTypes.C_SVC:
+    case SvmTypes.NU_SVC:
+    case SvmTypes.ONE_CLASS:
       return new ClassificationEvaluator()
-    case svmTypes.EPSILON_SVR:
-    case svmTypes.NU_SVR:
+    case SvmTypes.EPSILON_SVR:
+    case SvmTypes.NU_SVR:
       return new RegressionEvaluator()
     default:
       throw new Error('No evaluator found for given configuration')
