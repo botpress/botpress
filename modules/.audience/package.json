@@ -23,5 +23,9 @@
   "devDependencies": {
     "module-builder": "../../build/module-builder",
     "classnames": "^2.2.5"
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12",
+    "lodash": ">=4.17.19"
   }
 }
