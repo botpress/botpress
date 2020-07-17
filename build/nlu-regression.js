@@ -147,7 +147,7 @@ const main = async () => {
       token = await signup()
     }
     if (!token) {
-      console.error('Unable to login and sign up...')
+      console.error('Unable To Login And Sign Up...')
       process.exit(1)
     }
 
@@ -155,18 +155,18 @@ const main = async () => {
 
     await createBot(botId, token)
     await waitForTraining(botId, token)
-    console.log('training done!')
+    console.log('Training Done!')
 
     const score = await runAllTests(botId, token)
-    console.log('score: ', score)
+    console.log('Score: ', score)
 
     const testPasses = await compareScore(score)
     if (!testPasses) {
-      console.error('There seems to be a regression on NLU BPDS...')
+      console.error('There Seems To Be A Regression On NLU BPDS...')
       process.exit(1)
     }
 
-    console.log('No regression noted!')
+    console.log('No Regression Noted!')
     process.exit(0)
   } catch (err) {
     console.error(err)
