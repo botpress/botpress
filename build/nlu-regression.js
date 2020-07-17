@@ -1,85 +1,33 @@
-const http = require('http')
 const fs = require('fs')
+const axios = require('axios').default
 
 const repoRootDir = `${__dirname}/..`
 const nluTestingDir = `${repoRootDir}/modules/nlu-testing/`
 
 const host = '127.0.0.1'
 const port = '3000'
-
-const buildRequest = (options, resolve, reject) => {
-  return http.request(options, function(res) {
-    res.setEncoding('utf8')
-
-    let receivedData = ''
-    res.on('data', function(chunk) {
-      receivedData += chunk
-    })
-    res.on('error', function(err) {
-      reject(err)
-    })
-    res.on('end', function() {
-      resolve(receivedData)
-    })
-  })
-}
-
-const post = async (path, content, headers) => {
-  const post_options = {
-    host,
-    port,
-    path,
-    method: 'POST',
-    headers,
-    timeout: 2000
-  }
-  return new Promise(function(resolve, reject) {
-    const post_req = buildRequest(post_options, resolve, reject)
-    post_req.write(content)
-    post_req.end()
-  })
-}
-
-const get = async (path, headers) => {
-  const get_options = {
-    host: '127.0.0.1',
-    port: '3000',
-    path,
-    method: 'GET',
-    headers
-  }
-  return new Promise(function(resolve, reject) {
-    const get_req = buildRequest(get_options, resolve, reject)
-    get_req.end()
-  })
-}
+const base = `http://${host}:${port}`
 
 const login = async () => {
-  const data = 'email=admin&password=123456'
-  const rawLogin = await post('/api/v1/auth/login/basic/default', data, {
-    'Content-Type': 'application/x-www-form-urlencoded',
-    'Content-Length': Buffer.byteLength(data)
+  const { data: login } = await axios.post(`${base}/api/v1/auth/login/basic/default`, {
+    email: 'admin',
+    password: '123456'
   })
-  const login = JSON.parse(rawLogin)
-
   const token = login.payload && login.payload.token
   return login.statusCode ? undefined : token
 }
 
 const signup = async () => {
-  const data = 'email=admin&password=123456'
-  const rawLogin = await post('/api/v1/auth/register/basic/default', data, {
-    'Content-Type': 'application/x-www-form-urlencoded',
-    'Content-Length': Buffer.byteLength(data)
+  const { data: login } = await axios.post(`${base}/api/v1/auth/register/basic/default`, {
+    email: 'admin',
+    password: '123456'
   })
-  const login = JSON.parse(rawLogin)
-
   const token = login.payload && login.payload.token
   return login.statusCode ? undefined : token
 }
 
 const createBot = async (botId, token) => {
-  const newBot = JSON.stringify({
+  const newBot = {
     id: botId,
     name: 'testy',
     template: {
@@ -87,14 +35,23 @@ const createBot = async (botId, token) => {
       moduleId: 'nlu-testing'
     },
     category: undefined
-  })
+  }
 
-  await post('/api/v1/admin/bots', newBot, {
-    Authorization: `Bearer ${token}`,
-    'Content-Type': 'application/json',
-    'Content-Length': Buffer.byteLength(newBot),
-    'X-BP-Workspace': 'default'
-  })
+  try {
+    await axios.post(`${base}/api/v1/admin/bots`, newBot, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'X-BP-Workspace': 'default'
+      }
+    })
+  } catch (err) {
+    const { status } = err.response
+    if (status === 409) {
+      console.log('bot already exists')
+      return
+    }
+    throw err
+  }
 }
 
 const waitForTraining = async (botId, token) => {
@@ -102,10 +59,12 @@ const waitForTraining = async (botId, token) => {
     let i = 0
     console.log(`training...`)
     const intervalId = setInterval(async () => {
-      const raw = await get(`/api/v1/bots/${botId}/mod/nlu/train`, {
-        Authorization: `Bearer ${token}`
+      const { data: trainingStatus } = await axios.get(`${base}/api/v1/bots/${botId}/mod/nlu/train`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       })
-      const trainingStatus = JSON.parse(raw)
+
       if (!trainingStatus.isTraining) {
         clearInterval(intervalId)
         resolve()
@@ -122,32 +81,34 @@ const round = (n, acc) => {
 }
 
 const runAllTests = async (botId, token) => {
-  const baseNluTesting = `/api/v1/bots/${botId}/mod/nlu-testing`
-  const rawTests = await get(`${baseNluTesting}/tests`, {
-    Authorization: `Bearer ${token}`,
-    'Content-Type': 'application/json'
+  const baseNluTesting = `${base}/api/v1/bots/${botId}/mod/nlu-testing`
+  const { data: allTests } = await axios.get(`${baseNluTesting}/tests`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
   })
-  const allTests = JSON.parse(rawTests)
   const nTests = allTests.length
   let nPassing = 0
 
   let i = 0
   for (const test of allTests) {
-    const retry = () =>
-      post(`${baseNluTesting}/tests/${test.id}/run`, '', {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
+    const retry = async () => {
+      const { data } = await axios.post(`${baseNluTesting}/tests/${test.id}/run`, '', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       })
-
-    let rawResult
-    try {
-      rawResult = await retry()
-    } catch (err) {
-      console.error(err, 'retrying')
-      rawResult = await retry()
+      return data
     }
 
-    const testResult = JSON.parse(rawResult)
+    let testResult
+    try {
+      testResult = await retry()
+    } catch (err) {
+      console.error(err, 'retrying')
+      testResult = await retry()
+    }
+
     nPassing += testResult.success ? 1 : 0
     console.log(`(${i++} /${nTests}) #${test.id}`, 'success: ', testResult.success)
   }
