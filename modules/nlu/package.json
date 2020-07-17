@@ -32,7 +32,7 @@
     "https-proxy-agent": "^2.2.3",
     "immutable": "^4.0.0-rc.12",
     "joi": "^13.6.0",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.19",
     "lru-cache": "^5.1.1",
     "mathjs": "^5.9.0",
     "moment": "^2.24.0",
@@ -51,6 +51,6 @@
   },
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.12"
+    "lodash": ">=4.17.19"
   }
 }
