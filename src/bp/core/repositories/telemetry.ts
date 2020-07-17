@@ -37,13 +37,16 @@ export class TelemetryRepository {
     if (!uuIds.length) {
       return
     }
-    await this.database
-      .knex(this.tableName)
-      .whereIn('uuid', uuIds)
-      .update({
-        available: this.database.knex.bool.parse(status),
-        lastChanged: this.database.knex.date.now()
-      })
+
+    await Promise.mapSeries(_.chunk(uuIds, 500), async uuIdChunk => {
+      await this.database
+        .knex(this.tableName)
+        .whereIn('uuid', uuIdChunk)
+        .update({
+          available: this.database.knex.bool.parse(status),
+          lastChanged: this.database.knex.date.now()
+        })
+    })
   }
 
   async pruneEntries() {
@@ -54,20 +57,25 @@ export class TelemetryRepository {
       .from(this.tableName)
       .select('uuid')
       .orderBy('creationDate', 'desc')
-      .limit(limit)
+      .limit(-1)
+      .offset(limit)
       .then(rows => rows.map(entry => entry.uuid))
 
-    await this.database
-      .knex(this.tableName)
-      .whereNotIn('uuid', uuIds)
-      .del()
+    if (uuIds.length) {
+      await this.database
+        .knex(this.tableName)
+        .whereIn('uuid', uuIds.slice(0, 500))
+        .del()
+    }
   }
 
   async removeMany(uuIds: string[]) {
-    await this.database
-      .knex(this.tableName)
-      .whereIn('uuid', uuIds)
-      .del()
+    await Promise.mapSeries(_.chunk(uuIds, 500), async uuIdChunk => {
+      await this.database
+        .knex(this.tableName)
+        .whereIn('uuid', uuIdChunk)
+        .del()
+    })
   }
 
   async getEntries(): Promise<TelemetryEntry[]> {
