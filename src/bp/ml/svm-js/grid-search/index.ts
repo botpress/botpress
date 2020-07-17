@@ -1,28 +1,21 @@
 import _ from 'lodash'
-
 import assert from 'assert'
-
 import numeric from 'numeric'
-import evaluators from '../evaluators'
-import splitDataset from '../util/split-dataset'
-import crossCombinations from '../util/cross-combinations'
-import { SvmConfig, Data, Report, ClassificationReport, RegressionReport, SvmParameters } from '../typings'
 
-import BaseSVM from './base-svm'
-import { defaultParameters } from './config'
+import splitDataset from './split-dataset'
+import crossCombinations from './cross-combinations'
+import { SvmConfig, Data } from '../typings'
+import BaseSVM from '../base-svm'
+import { defaultParameters } from '../config'
 
-type Progress = {
-  done: number
-  total: number
-}
-
-type Res = { params: SvmParameters; report: Report }
+import evaluators from './evaluators'
+import { GridSearchResult, GridSearchProgress } from './typings'
 
 export default async function(
   dataset: Data[],
   config: SvmConfig,
-  progressCb: (progress: Progress) => void
-): Promise<Res> {
+  progressCb: (progress: GridSearchProgress) => void
+): Promise<GridSearchResult> {
   const dims = numeric.dim(dataset)
 
   assert(dims[0] > 0 && dims[1] === 2 && dims[2] > 0, 'dataset must be a list of [X,y] tuples')
@@ -39,7 +32,7 @@ export default async function(
 
   const subsets = splitDataset([...dataset], config.kFold)
 
-  const evaluator = evaluators.getDefault(config)
+  const evaluator = evaluators(config)
 
   const total = combs.length * subsets.length
   let done = 0
@@ -75,7 +68,7 @@ export default async function(
         return {
           params,
           report: report
-        } as Res
+        } as GridSearchResult
       },
       err => {
         throw err
@@ -84,18 +77,5 @@ export default async function(
   })
 
   const results = await Promise.all(promises)
-  let best: Res | undefined
-  if (evaluator === evaluators.classification) {
-    best = _.maxBy(results, function(r) {
-      return (r.report as ClassificationReport).fscore
-    })
-  } else if (evaluator === evaluators.regression) {
-    best = _.minBy(results, function(r) {
-      return (r.report as RegressionReport).mse
-    })
-  } else {
-    throw new Error('Not implemented')
-  }
-
-  return best as Res
+  return evaluator.electBest(results)
 }

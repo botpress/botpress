@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import assert from 'assert'
 
-import { SvmConfig, SvmParameters } from '../typings'
+import { SvmConfig, SvmParameters } from './typings'
 import svmTypes from './svm-types'
 import kernelTypes from './kernel-types'
 
