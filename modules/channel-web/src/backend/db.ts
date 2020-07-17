@@ -95,7 +95,7 @@ export default class WebchatDb {
 
   async getUserInfo(userId: string, user: sdk.User) {
     if (!user) {
-      user = await (await this.users.getOrCreateUser('web', userId)).result
+      user = (await this.users.getOrCreateUser('web', userId)).result
     }
 
     let fullName = 'User'
