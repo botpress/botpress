@@ -1,11 +1,11 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { Data, SvmModel, SvmParameters as Parameters } from './svm-js/typings'
-import { SVM } from './svm-js/svm'
-import svmTypes from './svm-js/svm-types'
-import kernelTypes from './svm-js/kernel-types'
-import { getMinKFold } from './svm-js/grid-search/split-dataset'
+import { Data, SvmModel, SvmParameters as Parameters } from './typings'
+import { SVM } from './svm'
+import svmTypes from './svm-types'
+import kernelTypes from './kernel-types'
+import { getMinKFold } from './grid-search/split-dataset'
 
 export const DefaultTrainArgs: Partial<sdk.MLToolkit.SVM.SVMOptions> = {
   c: [0.1, 1, 2, 5, 10, 20, 100],

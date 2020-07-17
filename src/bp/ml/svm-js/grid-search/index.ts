@@ -5,7 +5,7 @@ import numeric from 'numeric'
 import splitDataset from './split-dataset'
 import crossCombinations from './cross-combinations'
 import { SvmConfig, Data } from '../typings'
-import BaseSVM from '../base-svm'
+import BaseSVM from '../addon'
 import { defaultParameters } from '../config'
 
 import evaluators from './evaluators'
