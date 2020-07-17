@@ -31,7 +31,8 @@ export abstract class TelemetryStats {
   }
 
   public async start() {
-    await this.run(this.lock, this.interval, this.url)
+    // tslint:disable-next-line: no-floating-promises
+    this.run(this.lock, this.interval, this.url)
 
     setInterval(this.run.bind(this, this.lock, this.interval, this.url), this.interval)
   }
