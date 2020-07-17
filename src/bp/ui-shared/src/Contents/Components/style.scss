@@ -66,6 +66,10 @@
 .labelWrapper {
   position: relative;
 
+  & + :global(.checkbox-wrapper) {
+    margin-top: 0 !important;
+  }
+
   :global(.more-options-btn) {
     height: 17px;
     right: 0;

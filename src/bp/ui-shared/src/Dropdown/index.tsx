@@ -42,6 +42,7 @@ const Dropdown: FC<DropdownProps> = props => {
     small,
     icon,
     rightIcon,
+    children,
     spaced,
     className,
     filterable,
@@ -91,13 +92,15 @@ const Dropdown: FC<DropdownProps> = props => {
         }
       }}
     >
-      <Button
-        className={cx(style.btn, { [style.spaced]: spaced, [style.placeholder]: !activeItem })}
-        text={small ? <small>{btnText}</small> : btnText}
-        icon={icon}
-        rightIcon={rightIcon || 'double-caret-vertical'}
-        small={small}
-      />
+      {children || (
+        <Button
+          className={cx(style.btn, { [style.spaced]: spaced, [style.placeholder]: !activeItem })}
+          text={small ? <small>{btnText}</small> : btnText}
+          icon={icon}
+          rightIcon={rightIcon || 'double-caret-vertical'}
+          small={small}
+        />
+      )}
     </SimpleDropdown>
   )
 }

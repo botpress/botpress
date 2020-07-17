@@ -123,6 +123,7 @@ const SuperInputArray: FC<any> = ({
           <SuperInput
             isFocused={focusedElement.current === index}
             placeholder={getPlaceholder?.(index)}
+            className={style.customTextarea}
             multiple
             variables={variables || []}
             events={events || []}

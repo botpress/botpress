@@ -1,19 +1,37 @@
+.btn {
+  margin: 0;
+}
+
 .superInputWrapper {
   background: #fff !important;
   border: 1px solid var(--seashell) !important;
   border-radius: 3px !important;
   position: relative;
+  transition: border 0.3s;
+
+  &:focus-within {
+    border-color: var(--ocean) !important;
+  }
+
+  &:hover .tagBtnWrapper, &:hover .singularTagBtnWrapper {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .tagBtnWrapper, .singularTagBtnWrapper {
+    opacity: 0;
+    visibility: hidden;
+    float: right;
+    z-index: 9;
+    margin-top: 4px;
+    transition: opacity 0.3s, visibility 0.3s;
+  }
 
   .tagBtnWrapper {
-    float: right;
     position: relative;
-    z-index: 9;
   }
 
   .singularTagBtnWrapper {
-    float: right;
-    z-index: 9;
-
     :global {
       .bp3-button {
         .bp3-icon + .bp3-icon, svg + .bp3-icon {
@@ -91,14 +109,17 @@
     border: none !important;
     box-shadow: none !important;
     padding: calc(var(--spacing-large) - 1px) var(--spacing-medium);
+    transition: background 0.3s;
+    height: 29px !important;
+    width: 29px !important;
+    border-radius: 5px !important;
 
     svg {
       fill: var(--reef);
-      transition: fill 0.3s;
     }
 
-    &:hover svg {
-      fill: var(--shark);
+    &:hover {
+      background: var(--bg) !important;
     }
   }
 

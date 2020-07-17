@@ -1,4 +1,4 @@
-import { Button, Icon } from '@blueprintjs/core'
+import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
 import Tags from '@yaireo/tagify/dist/react.tagify'
 import cx from 'classnames'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
@@ -25,6 +25,7 @@ export default ({
   setCanOutsideClickClose,
   onChange,
   onBlur,
+  className,
   value,
   childRef,
   isFocused
@@ -174,25 +175,29 @@ export default ({
   }
 
   return (
-    <div className={style.superInputWrapper}>
+    <div className={cx(style.superInputWrapper, className, 'superinput-wrapper')}>
       {
         <div className={style.tagBtnWrapper}>
           {canPickEvents && (
+            <Tooltip content={lang('superInput.insertValueFromEvent')} position={Position.TOP_LEFT}>
+              <Button
+                className={style.tagBtn}
+                onClick={() => {
+                  addPrefix('{{')
+                }}
+                icon={<Icons.Brackets />}
+              />
+            </Tooltip>
+          )}
+          <Tooltip content={lang('superInput.insertValueFromVariables')} position={Position.TOP_LEFT}>
             <Button
               className={style.tagBtn}
               onClick={() => {
-                addPrefix('{{')
+                addPrefix('$')
               }}
-              icon={<Icons.Brackets />}
+              icon="dollar"
             />
-          )}
-          <Button
-            className={style.tagBtn}
-            onClick={() => {
-              addPrefix('$')
-            }}
-            icon="dollar"
-          />
+          </Tooltip>
         </div>
       }
       <Tags

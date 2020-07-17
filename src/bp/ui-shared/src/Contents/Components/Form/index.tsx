@@ -1,8 +1,8 @@
-import { Button, Checkbox } from '@blueprintjs/core'
+import { Button, Checkbox, Position, Tooltip } from '@blueprintjs/core'
 import { FormMoreInfo } from 'botpress/sdk'
 import cx from 'classnames'
 import _ from 'lodash'
-import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
+import React, { FC, Fragment, useReducer, useRef, useState } from 'react'
 
 import { lang } from '../../../translations'
 import SuperInput from '../../../FormFields/SuperInput'
@@ -193,12 +193,35 @@ const Form: FC<FormProps> = ({
     }
 
     return field.isSuperInput && !['text', 'text_array'].includes(field.type) ? (
-      <Button className={style.superInputBtn} small minimal onClick={() => toggleSuperInput(field, parent)}>
-        {lang(field.label)}
-      </Button>
+      <Tooltip
+        content={lang(
+          isSuperInput(field, parent) ? 'superInput.convertToRegularInput' : 'superInput.convertToSmartInput'
+        )}
+        position={Position.TOP}
+      >
+        <Button className={style.superInputBtn} small minimal onClick={() => toggleSuperInput(field, parent)}>
+          {lang(field.label)}
+        </Button>
+      </Tooltip>
     ) : (
       lang(field.label)
     )
+  }
+
+  const isSuperInput = (field, parent) => {
+    let pathKey = field.key
+
+    if (parent) {
+      const { key, index } = parent
+      pathKey = `${key}${index}${pathKey}`
+
+      if (parent.parent) {
+        // Needs recursion if we end up having more than one level of groups
+        pathKey = `${parent.parent.key}${parent.parent.index}${pathKey}`
+      }
+    }
+
+    return superInput[pathKey]
   }
 
   const toggleSuperInput = (field, parent) => {
@@ -214,7 +237,7 @@ const Form: FC<FormProps> = ({
       }
     }
 
-    setSuperInput({ ...superInput, [field.key]: !superInput[field.key] })
+    setSuperInput({ ...superInput, [pathKey]: !superInput[pathKey] })
   }
 
   const getArrayPlaceholder = (index, placeholder) => {
@@ -229,8 +252,8 @@ const Form: FC<FormProps> = ({
     return index === 0 && placeholder ? lang(placeholder) : ''
   }
 
-  const showSuperInput = field => {
-    return field.isSuperInput && (['text', 'text_array'].includes(field.type) || superInput[field.key])
+  const showSuperInput = (field, parent) => {
+    return field.isSuperInput && (['text', 'text_array'].includes(field.type) || isSuperInput(field, parent))
   }
 
   const renderSuperInput = (field, data, update) => {
@@ -299,7 +322,7 @@ const Form: FC<FormProps> = ({
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key], parent)}>
             {printMoreInfo(field.moreInfo)}
-            {showSuperInput(field) ? (
+            {showSuperInput(field, parent) ? (
               renderSuperInput(field, data[field.key], value => {
                 dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })
               })
@@ -321,7 +344,7 @@ const Form: FC<FormProps> = ({
       case 'text_array':
         return (
           <Fragment key={field.key}>
-            {showSuperInput(field) ? (
+            {showSuperInput(field, parent) ? (
               <SuperInputArray
                 getPlaceholder={index => getArrayPlaceholder(index, field.placeholder)}
                 moreInfo={printMoreInfo(field.moreInfo)}
@@ -355,13 +378,19 @@ const Form: FC<FormProps> = ({
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key], parent)}>
             {printMoreInfo(field.moreInfo)}
-            <TextArea
-              placeholder={lang(field.placeholder)}
-              onBlur={value => {
+            {showSuperInput(field, parent) ? (
+              renderSuperInput(field, data[field.key], value => {
                 dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
-              }}
-              value={data[field.key]}
-            />
+              })
+            ) : (
+              <TextArea
+                placeholder={lang(field.placeholder)}
+                onBlur={value => {
+                  dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
+                }}
+                value={data[field.key]}
+              />
+            )}
           </FieldWrapper>
         )
       case 'upload':
@@ -378,8 +407,15 @@ const Form: FC<FormProps> = ({
           </FieldWrapper>
         )
       case 'checkbox':
-        return (
-          <div key={field.key} className={style.checkboxWrapper}>
+        return showSuperInput(field, parent) ? (
+          <FieldWrapper key={field.key} label={printLabel(field, data[field.key], parent)}>
+            {printMoreInfo(field.moreInfo)}
+            {renderSuperInput(field, data[field.key], value => {
+              dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
+            })}
+          </FieldWrapper>
+        ) : (
+          <div key={field.key} className={cx(style.checkboxWrapper, 'checkbox-wrapper')}>
             <Checkbox
               checked={data[field.key]}
               key={field.key}
@@ -414,7 +450,7 @@ const Form: FC<FormProps> = ({
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key], parent)}>
             {printMoreInfo(field.moreInfo)}
-            {showSuperInput(field) ? (
+            {showSuperInput(field, parent) ? (
               renderSuperInput(field, data[field.key], value => {
                 dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
               })
@@ -428,7 +464,6 @@ const Form: FC<FormProps> = ({
                 value={data[field.key]}
               />
             )}
-            {field.moreInfo && printMoreInfo(field.moreInfo)}
           </FieldWrapper>
         )
     }

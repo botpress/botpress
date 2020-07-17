@@ -1,5 +1,6 @@
-import { Icon } from '@blueprintjs/core'
+import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
 import cx from 'classnames'
+import _ from 'lodash'
 import React, { Fragment } from 'react'
 
 import { lang } from '../../translations'
@@ -20,16 +21,19 @@ const isValidJson = value =>
 const SingleSuperInput = ({ canPickEvents, events, variables, onAddVariable, eventsDesc, value, onBlur }) => {
   const getTagHtml = () => {
     let tag
-    const processedValue = convertToTags(value!)
-      .replace('[[', '')
-      .replace(']]', '')
+    const strValue = value?.toString() || ''
+    const processedValue =
+      strValue &&
+      convertToTags(strValue)
+        .replace('[[', '')
+        .replace(']]', '')
 
     if (isValidJson(processedValue)) {
       tag = value && JSON.parse(processedValue)
     }
 
     return (
-      tag && (
+      tag?.prefix && (
         <span contentEditable={false} title={tag.value} tabIndex={-1} className="tagify__tag">
           <span>
             <Icon icon={tag.prefix === '$' ? 'dollar' : <Icons.Brackets iconSize={10} />} iconSize={10} />
@@ -106,17 +110,19 @@ const SingleSuperInput = ({ canPickEvents, events, variables, onAddVariable, eve
         {canPickEvents && (
           <Dropdown
             items={events.map(name => ({ value: name, label: name }))}
-            icon={<Icons.Brackets />}
             filterPlaceholder={lang('search')}
             customItemRenderer={customItemRenderer}
             onChange={({ value }) => {
               onBlur?.(`{{${value}}}`)
             }}
-          />
+          >
+            <Tooltip content={lang('superInput.insertValueFromEvent')} position={Position.TOP_LEFT}>
+              <Button className={style.btn} icon={<Icons.Brackets />} />
+            </Tooltip>
+          </Dropdown>
         )}
         <Dropdown
           items={variables.map(name => ({ value: name, label: name }))}
-          icon="dollar"
           filterPlaceholder={lang('search')}
           filterList={filterDropdown}
           customItemRenderer={customItemRenderer}
@@ -124,7 +130,11 @@ const SingleSuperInput = ({ canPickEvents, events, variables, onAddVariable, eve
             onAddVariable(value, variables)
             onBlur?.(`$${value}`)
           }}
-        />
+        >
+          <Tooltip content={lang('superInput.insertValueFromVariables')} position={Position.TOP_LEFT}>
+            <Button className={style.btn} icon="dollar" />
+          </Tooltip>
+        </Dropdown>
       </div>
       <div className={style.superInput} onKeyDown={onKeyDown} contentEditable suppressContentEditableWarning>
         {getTagHtml()}

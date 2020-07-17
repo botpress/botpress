@@ -6,6 +6,7 @@ export interface SuperInputProps {
   variables?: FlowVariable[]
   defaultVariableType?: string
   events?: BotEvent[]
+  className?: string
   multiple?: boolean
   isFocused?: boolean
   canPickEvents?: boolean

@@ -11,6 +11,7 @@ export interface DropdownProps {
     acceptLabel?: string
     callback?: (value?: any) => void
   }
+  children?: any
   placeholder?: string
   filterPlaceholder?: string
   filterable?: boolean
