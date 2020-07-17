@@ -1,11 +1,10 @@
 import assert from 'assert'
 
 import numeric from 'numeric'
-import normalizeInput from './normalize-input'
 import _ from 'lodash'
 import { Data } from './typings'
 
-export default function(dataset: Data[], mu?, sigma?) {
+export function normalizeDataset(dataset: Data[], mu?, sigma?) {
   assert(dataset instanceof Array, 'dataset must be an list of [X,y] tuples')
   assert(dataset.length > 0, 'dataset cannot be empty')
 
@@ -25,6 +24,16 @@ export default function(dataset: Data[], mu?, sigma?) {
     mu: mu,
     sigma: sigma
   }
+}
+
+export function normalizeInput(input: number[], mu: number[], sigma: number[]) {
+  assert(input instanceof Array, 'input must be a 1d array')
+  assert(mu instanceof Array, 'mu must be a 1d array')
+  assert(sigma instanceof Array, 'sigma must be a 1d array')
+  const sigmaInv = sigma.map(function(value) {
+    return value === 0 ? 1 : 1 / value
+  })
+  return numeric.mul(numeric.add(input, numeric.neg(mu)), sigmaInv)
 }
 
 function std(arr: number[]) {
