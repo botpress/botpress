@@ -260,9 +260,22 @@ const Form: FC<FormProps> = ({
     )
   }
 
+  const getVariableType = type => {
+    // Can add more if needed, but for now types text, text_array and select will just show all the variables
+    switch (type) {
+      case 'checkbox':
+        return 'boolean'
+      case 'number':
+        return 'number'
+      default:
+        return undefined
+    }
+  }
+
   const renderSuperInput = (field, data, update) => {
     return (
       <SuperInput
+        defaultVariableType={getVariableType(field.type)}
         placeholder={lang(field.placeholder)}
         variables={variables || []}
         events={events || []}

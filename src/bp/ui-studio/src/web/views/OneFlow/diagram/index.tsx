@@ -799,7 +799,7 @@ class Diagram extends Component<Props> {
   addVariable = (variable: FlowVariable) => {
     this.props.updateFlow({
       ...this.props.currentFlow,
-      variables: [...(this.props.currentFlow.variables || []), variable]
+      variables: [...(this.props.currentFlow?.variables || []), variable]
     })
   }
 

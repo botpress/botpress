@@ -31,17 +31,19 @@ export default ({
   isFocused,
   placeholder
 }: Props) => {
+  const typeFilter = ({ type }) => (defaultVariableType ? type === defaultVariableType : true)
+
   const initialValue = useRef<string>((value && convertToTags(value)) || '')
   const newlyAddedVar = useRef<string[]>([])
   const currentPrefix = useRef<string>()
   const tagifyRef = useRef<any>()
-  const [localVariables, setLocalVariables] = useState(variables?.map(({ name }) => name) || [])
+  const [localVariables, setLocalVariables] = useState(variables?.filter(typeFilter).map(({ name }) => name) || [])
   const [localEvents, setLocalEvents] = useState(events?.map(({ name }) => name) || [])
   const eventsDesc = events?.reduce((acc, event) => ({ ...acc, [event.name]: event.description }), {})
   // TODO implement the autocomplete selection when event selected is partial
 
   useEffect(() => {
-    setLocalVariables(variables?.map(({ name }) => name) || [])
+    setLocalVariables(variables?.filter(typeFilter).map(({ name }) => name) || [])
   }, [variables])
 
   useEffect(() => {
