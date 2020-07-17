@@ -10,12 +10,11 @@ const port = '3000'
 const base = `http://${host}:${port}`
 
 const login = async () => {
-  const { data: login } = await axios.post(`${base}/api/v1/auth/login/basic/default`, {
-    email: 'admin',
-    password: '123456'
-  })
-
   try {
+    const { data: login } = await axios.post(`${base}/api/v1/auth/login/basic/default`, {
+      email: 'admin',
+      password: '123456'
+    })
     return login.payload.token
   } catch {
     return
@@ -23,12 +22,11 @@ const login = async () => {
 }
 
 const signup = async () => {
-  const { data: login } = await axios.post(`${base}/api/v1/auth/register/basic/default`, {
-    email: 'admin',
-    password: '123456'
-  })
-
   try {
+    const { data: login } = await axios.post(`${base}/api/v1/auth/register/basic/default`, {
+      email: 'admin',
+      password: '123456'
+    })
     return login.payload.token
   } catch {
     return
