@@ -10,7 +10,11 @@ import { getUtteranceFeatures } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './training-pipeline'
+<<<<<<< HEAD
 import { EntityExtractionResult, Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
+=======
+import { Intent, PatternEntity, SlotExtractionResult, Tools, EntityExtractionResult } from './typings'
+>>>>>>> 5362b7730... fix(nlu): added back extracted entity in slot when there's one (#3559)
 import Utterance, { buildUtteranceBatch, getAlternateUtterance, UtteranceEntity } from './utterance/utterance'
 
 export type ExactMatchResult = (sdk.MLToolkit.SVM.Prediction & { extractor: 'exact-matcher' }) | undefined
@@ -359,24 +363,23 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
   }
 
   // legacy pre-ndu
-  const entities = step.utterance.entities.map(
-    e =>
-      ({
-        name: e.type,
-        type: e.metadata.entityId,
-        data: {
-          unit: e.metadata.unit,
-          value: e.value
-        },
-        meta: {
-          sensitive: e.sensitive,
-          confidence: e.confidence,
-          end: e.endPos,
-          source: e.metadata.source,
-          start: e.startPos
-        }
-      } as sdk.NLU.Entity)
-  )
+  const entities = step.utterance.entities.map(entitiesMapper)
+
+  // legacy pre-ndu
+  const slots = step.utterance.slots.reduce((slots, s) => {
+    return {
+      ...slots,
+      [s.name]: {
+        start: s.startPos,
+        end: s.endPos,
+        confidence: s.confidence,
+        name: s.name,
+        source: s.source,
+        value: s.value,
+        entity: entitiesMapper(s.entity) // TODO: add this mapper to the legacy election pipeline
+      }
+    }
+  }, {} as sdk.NLU.SlotCollection)
 
   const slotsCollectionReducer = (slots: sdk.NLU.SlotCollection, s: SlotExtractionResult): sdk.NLU.SlotCollection => {
     if (slots[s.slot.name] && slots[s.slot.name].confidence > s.slot.confidence) {
