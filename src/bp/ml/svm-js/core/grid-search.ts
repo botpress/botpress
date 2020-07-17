@@ -3,23 +3,20 @@ import _ from 'lodash'
 import assert from 'assert'
 
 import numeric from 'numeric'
-
-import BaseSVM from './base-svm'
-import defaultConfig from './config'
-
 import evaluators from '../evaluators'
-
 import splitDataset from '../util/split-dataset'
 import crossCombinations from '../util/cross-combinations'
-import { SvmConfig, Data, Report, ClassificationReport, RegressionReport } from '../typings'
-import { configToAddonParams } from '../util/options-mapping'
+import { SvmConfig, Data, Report, ClassificationReport, RegressionReport, SvmParameters } from '../typings'
+
+import BaseSVM from './base-svm'
+import { defaultParameters } from './config'
 
 type Progress = {
   done: number
   total: number
 }
 
-type Res = { config: SvmConfig; report: Report }
+type Res = { params: SvmParameters; report: Report }
 
 export default async function(
   dataset: Data[],
@@ -29,8 +26,6 @@ export default async function(
   const dims = numeric.dim(dataset)
 
   assert(dims[0] > 0 && dims[1] === 2 && dims[2] > 0, 'dataset must be a list of [X,y] tuples')
-
-  config = { ...defaultConfig(config) }
 
   const arr = (x?: number | number[]) => (x as number[]) || []
   const combs = crossCombinations([
@@ -50,7 +45,7 @@ export default async function(
   let done = 0
 
   const promises = combs.map(comb => {
-    const cParams: SvmConfig = {
+    const params = defaultParameters({
       ...config,
       C: comb[0],
       gamma: comb[1],
@@ -58,11 +53,10 @@ export default async function(
       nu: comb[3],
       degree: comb[4],
       coef0: comb[5]
-    }
+    })
+
     const cPromises = subsets.map(function(ss) {
       const clf = new BaseSVM()
-
-      const params = configToAddonParams(cParams)
 
       return clf
         .train(ss.train, params) // train with train set
@@ -82,7 +76,7 @@ export default async function(
         const report = evaluator.compute(predictions)
 
         return {
-          config: cParams,
+          params,
           report: report
         } as Res
       },

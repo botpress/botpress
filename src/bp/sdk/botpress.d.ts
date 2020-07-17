@@ -358,8 +358,8 @@ declare module 'botpress/sdk' {
       export interface SVMOptions {
         classifier: 'C_SVC' | 'NU_SVC' | 'ONE_CLASS' | 'EPSILON_SVR' | 'NU_SVR'
         kernel: 'LINEAR' | 'POLY' | 'RBF' | 'SIGMOID'
-        c?: number | number[]
-        gamma?: number | number[]
+        c?: number[]
+        gamma?: number[]
         probability?: boolean
         reduce?: boolean
       }
@@ -1230,7 +1230,7 @@ declare module 'botpress/sdk' {
     /** The description holds placeholders for param values so they can be displayed in the view */
     description?: string
     /** The definition of all parameters used by this condition */
-    fields?: FormField[],
+    fields?: FormField[]
     advancedSettings?: FormField[]
     /** In which order the conditions will be displayed in the dropdown menu. 0 is the first item */
     displayOrder?: number
@@ -1393,7 +1393,17 @@ declare module 'botpress/sdk' {
   }
 
   export interface FormField {
-    type: 'checkbox' | 'group' | 'number' | 'overridable' | 'select' | 'text' | 'text_array' | 'textarea' | 'upload' | 'url'
+    type:
+      | 'checkbox'
+      | 'group'
+      | 'number'
+      | 'overridable'
+      | 'select'
+      | 'text'
+      | 'text_array'
+      | 'textarea'
+      | 'upload'
+      | 'url'
     key: string
     label: string
     overrideKey?: string
