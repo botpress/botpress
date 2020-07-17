@@ -17,7 +17,7 @@
     "@blueprintjs/datetime": "^3.15.2",
     "bluebird": "^3.7.2",
     "bluebird-global": "^1.0.1",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "moment": "^2.24.0",
     "ms": "^2.1.2",
     "recharts": "^2.0.0-beta.1"
