@@ -48,14 +48,17 @@
       "onEnter": [],
       "onReceive": null,
       "type": "say_something",
-      "content": {
-        "contentType": "builtin_text",
-        "formData": {
-          "markdown$en": true,
-          "typing$en": true,
-          "text$en": "Sorry, I didn't understand"
+      "contents": [
+        {
+          "contentType": "builtin_text",
+          "text": { "en": "Sorry, I didn't understand" },
+          "markdown": true,
+          "typing": true,
+          "variations": {
+            "en": []
+          }
         }
-      }
+      ]
     }
   ]
 }

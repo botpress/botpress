@@ -33,13 +33,14 @@ module.exports = {
     }
   },
 
-  uiSchema: {
-  },
+  uiSchema: {},
 
   newSchema: {
+    displayedIn: ['qna', 'sayNode'],
     advancedSettings: [
       {
         key: 'markdown',
+        defaultValue: true,
         label: 'module.builtin.useMarkdown',
         type: 'checkbox',
         moreInfo: {
@@ -48,7 +49,8 @@ module.exports = {
         }
       },
       {
-        key: 'typingIndicator',
+        key: 'typing',
+        defaultValue: true,
         type: 'checkbox',
         label: 'module.builtin.typingIndicator'
       }
@@ -62,12 +64,14 @@ module.exports = {
       {
         type: 'text',
         key: 'title',
+        translated: true,
         label: 'title',
         placeholder: 'module.builtin.types.card.cardSubject'
       },
       {
         type: 'text',
-        key: 'text',
+        key: 'subtitle',
+        translated: true,
         label: 'text',
         placeholder: 'module.builtin.optional'
       },
@@ -82,46 +86,49 @@ module.exports = {
           ]
         },
         type: 'group',
-        key: 'buttons',
-        label: 'fields::buttonText',
+        key: 'actions',
+        label: 'fields::title',
         fields: [
           {
             type: 'text',
-            key: 'buttonText',
+            key: 'title',
+            translated: true,
             label: 'module.builtin.types.actionButton.textLabel',
             placeholder: 'module.builtin.types.actionButton.textPlaceholder'
           },
           {
             type: 'select',
+            defaultValue: 'Say something',
             key: 'action',
             label: 'module.builtin.types.actionButton.actionLabel',
             options: [
               {
-                value: 'say',
+                value: 'Say something',
                 label: 'module.builtin.types.actionButton.sayLabel',
                 related: {
                   placeholder: 'module.builtin.types.actionButton.sayPlaceholder',
                   type: 'text',
+                  translated: true,
                   key: 'text',
                   label: 'module.builtin.types.actionButton.sayTextLabel'
                 }
               },
               {
-                value: 'openUrl',
+                value: 'Open URL',
                 label: 'module.builtin.types.actionButton.urlLabel',
                 related: {
                   placeholder: 'module.builtin.types.actionButton.urlPlaceholder',
                   type: 'url',
-                  key: 'text',
+                  key: 'url',
                   label: 'URL'
                 }
               },
               {
-                value: 'postBack',
+                value: 'Postback',
                 label: 'module.builtin.types.actionButton.postLabel',
                 related: {
                   type: 'textarea',
-                  key: 'text',
+                  key: 'payload',
                   label: 'module.builtin.types.actionButton.postFieldLabel'
                 }
               }

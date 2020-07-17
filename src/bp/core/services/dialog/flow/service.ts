@@ -146,7 +146,7 @@ export class FlowService {
       nodes: nodeViews,
       links: uiEq.links,
       currentMutex,
-      ..._.pick(flow, ['version', 'catchAll', 'startNode', 'skillData', 'label', 'description', 'parent'])
+      ..._.pick(flow, ['version', 'catchAll', 'startNode', 'skillData', 'label', 'description', 'variables', 'parent'])
     }
   }
 
@@ -352,8 +352,18 @@ export class FlowService {
 
     const flowContent = {
       // TODO: NDU Remove triggers
-      ..._.pick(flow, ['version', 'catchAll', 'startNode', 'skillData', 'triggers', 'label', 'description', 'parent']),
-      nodes: flow.nodes.map(node => _.omit(node, 'x', 'y', 'lastModified'))
+      ..._.pick(flow, [
+        'version',
+        'catchAll',
+        'startNode',
+        'skillData',
+        'triggers',
+        'label',
+        'description',
+        'variables',
+        'parent'
+      ]),
+      nodes: flow.nodes.map(node => _.omit(node, 'x', 'y', 'lastModified', 'isNew'))
     }
 
     const flowPath = flow.location

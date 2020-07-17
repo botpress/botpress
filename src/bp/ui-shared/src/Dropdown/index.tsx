@@ -1,8 +1,12 @@
 import { Button, Classes, MenuItem } from '@blueprintjs/core'
 import { ItemPredicate, Select } from '@blueprintjs/select'
+import cx from 'classnames'
 import { FC, useEffect, useState } from 'react'
 import React from 'react'
 
+import confirmDialog from '../ConfirmDialog'
+
+import style from './style.scss'
 import { DropdownProps, Option } from './typings'
 
 const itemRenderer = (option, { modifiers, handleClick }) => {
@@ -27,13 +31,31 @@ const filterOptions: ItemPredicate<Option> = (query, option) => {
 }
 
 const Dropdown: FC<DropdownProps> = props => {
-  const { defaultItem, items, onChange, small, icon, rightIcon, spaced, className, filterable } = props
+  const {
+    placeholder,
+    confirmChange,
+    defaultItem,
+    items,
+    onChange,
+    small,
+    icon,
+    rightIcon,
+    spaced,
+    className,
+    filterable
+  } = props
   const [activeItem, setActiveItem] = useState<Option | undefined>()
   const SimpleDropdown = Select.ofType<Option>()
 
   useEffect(() => {
     setActiveItem(typeof defaultItem === 'string' ? items.find(item => item.value === defaultItem) : defaultItem)
   }, [defaultItem])
+
+  const updateSelectedOption = option => {
+    onChange(option)
+  }
+
+  const btnText = activeItem ? activeItem.label : placeholder
 
   return (
     <SimpleDropdown
@@ -44,17 +66,31 @@ const Dropdown: FC<DropdownProps> = props => {
       popoverProps={{ minimal: true, usePortal: false }}
       itemRenderer={itemRenderer}
       itemPredicate={filterOptions}
-      onItemSelect={option => {
-        onChange(option)
-        setActiveItem(option)
+      onItemSelect={async option => {
+        if (confirmChange) {
+          confirmChange.callback?.(true)
+
+          if (
+            await confirmDialog(confirmChange.message, {
+              acceptLabel: confirmChange.acceptLabel
+            })
+          ) {
+            confirmChange.callback?.(false)
+            updateSelectedOption(option)
+          } else {
+            confirmChange.callback?.(false)
+          }
+        } else {
+          updateSelectedOption(option)
+        }
       }}
     >
       <Button
-        text={small ? <small>{activeItem && activeItem.label}</small> : activeItem && activeItem.label}
+        className={cx(style.btn, { [style.spaced]: spaced, [style.placeholder]: !activeItem })}
+        text={small ? <small>{btnText}</small> : btnText}
         icon={icon}
         rightIcon={rightIcon || 'double-caret-vertical'}
         small={small}
-        style={{ margin: spaced ? '0 5px 0 5px' : 0 }}
       />
     </SimpleDropdown>
   )

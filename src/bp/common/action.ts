@@ -1,4 +1,7 @@
+import { IO } from 'botpress/sdk'
 import _ from 'lodash'
+
+import { EventCommonArgs } from './typings'
 
 export interface ActionInstruction {
   actionName: string
@@ -6,6 +9,7 @@ export interface ActionInstruction {
   actionServerId?: string
 }
 
+// TODO refactor & clean
 export const parseActionInstruction = (actionInstruction: string): ActionInstruction => {
   const chunks = actionInstruction.split(' ')
   const serverAndAction = _.head(chunks)!
@@ -28,5 +32,20 @@ export const parseActionInstruction = (actionInstruction: string): ActionInstruc
     actionName,
     argsStr,
     actionServerId
+  }
+}
+
+export const extractEventCommonArgs = (
+  event: IO.IncomingEvent,
+  args?: { [property: string]: any }
+): EventCommonArgs => {
+  return {
+    ...(args ?? {}),
+    event,
+    user: event.state.user ?? {},
+    session: event.state.session ?? ({} as IO.CurrentSession),
+    temp: event.state.temp ?? {},
+    bot: event.state.bot ?? {},
+    workflow: event.state.workflow ?? ({} as IO.WorkflowHistory)
   }
 }

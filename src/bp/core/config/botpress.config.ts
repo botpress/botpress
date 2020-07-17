@@ -21,7 +21,7 @@ export interface DialogConfig {
    * Interval before a session's context expires.
    * e.g. when the conversation is stale and has not reach the END of the flow.
    * This will reset the position of the user in the flow.
-   * @default 2m
+   * @default 5m
    */
   timeoutInterval: string
   /**
@@ -30,6 +30,11 @@ export interface DialogConfig {
    * @default 30m
    */
   sessionTimeoutInterval: string
+  /**
+   * Interval before a prompt expires. It must be less than the timeout of the context
+   * @default 3m
+   */
+  promptTimeoutInterval: string
 }
 
 export interface LogsConfig {

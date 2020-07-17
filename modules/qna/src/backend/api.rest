@@ -1,0 +1,16 @@
+@api = {{baseUrl}}/api/v1
+@authToken = {{login.response.body.payload.token}}
+@botId = YOUR_BOT
+
+### Login on the Admin UI
+# @name login
+POST {{api}}/auth/login/basic/default
+Content-Type: application/x-www-form-urlencoded
+
+email={{email}}&password={{password}}
+
+### List all qnas
+GET {{api}}/bots/{{botId}}/mod/qna/questions?stateFilter=incomplete&order=asc&lang=fr
+Authorization: Bearer {{authToken}}
+X-BP-Workspace: default
+Content-Type: application/json

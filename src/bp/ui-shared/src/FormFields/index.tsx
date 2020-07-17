@@ -1,3 +1,5 @@
-import AddButton from '../ContentForms/Components/Fields/AddButton'
+import AddButton from '../Contents/Components/Fields/AddButton'
 
-export default { AddButton }
+import TextFieldsArray from './TextFieldsArray'
+
+export default { AddButton, TextFieldsArray }

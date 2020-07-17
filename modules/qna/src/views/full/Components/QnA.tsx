@@ -1,6 +1,6 @@
 import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
 import { Flow, FlowNode } from 'botpress/sdk'
-import { confirmDialog, FormFields, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
+import { confirmDialog, Contents, FormFields, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
 import { getFlowLabel } from 'botpress/utils'
 import cx from 'classnames'
 import _uniqueId from 'lodash/uniqueId'
@@ -8,9 +8,9 @@ import React, { FC, Fragment, useRef, useState } from 'react'
 import Select from 'react-select'
 
 import { QnaItem } from '../../../backend/qna'
+import { isQnaComplete } from '../../../backend/utils'
 import style from '../style.scss'
 
-import ContentAnswer from './ContentAnswer'
 import ContentAnswerForm from './ContentAnswerForm'
 import ContextSelector from './ContextSelector'
 import TextAreaList from './TextAreaList'
@@ -56,7 +56,7 @@ const QnA: FC<Props> = props => {
   const [showRedirectToFlow, setShowRedirectToFlow] = useState(!!(data.redirectFlow || data.redirectNode))
   let questions = data.questions[contentLang]
   let answers = data.answers[contentLang]
-  const contentAnswers = data.contentAnswers?.[contentLang] || []
+  const contentAnswers = data.contentAnswers || []
   const refQuestions = contentLang !== defaultLanguage && data.questions[defaultLanguage]
   const refAnswers = contentLang !== defaultLanguage && data.answers[defaultLanguage]
 
@@ -148,7 +148,7 @@ const QnA: FC<Props> = props => {
 
     updateQnA({
       id,
-      data: { ...data, contentAnswers: { ...data.contentAnswers, [contentLang]: newContentAnswers } }
+      data: { ...data, contentAnswers: newContentAnswers }
     })
   }
 
@@ -163,13 +163,11 @@ const QnA: FC<Props> = props => {
 
     updateQnA({
       id,
-      data: { ...data, contentAnswers: { ...data.contentAnswers, [contentLang]: newContentAnswers } }
+      data: { ...data, contentAnswers: newContentAnswers }
     })
   }
 
-  const showIncomplete =
-    questions?.filter(q => !!q.trim()).length < 3 ||
-    (answers?.filter(q => !!q.trim()).length < 1 && !data.redirectFlow && !data.redirectNode)
+  const showIncomplete = !isQnaComplete(props.qnaItem.data, contentLang)
   const currentFlow = flows ? flows.find(({ name }) => name === data.redirectFlow) || { nodes: [] } : { nodes: [] }
   const nodeList = (currentFlow.nodes as FlowNode[])?.map(({ name }) => ({ label: name, value: name }))
   const flowsList = flows.map(({ name }) => ({ label: getFlowLabel(name), value: name }))
@@ -270,8 +268,9 @@ const QnA: FC<Props> = props => {
             />
             <div className={style.contentAnswerWrapper}>
               {contentAnswers?.map((content, index) => (
-                <ContentAnswer
+                <Contents.Item
                   key={index}
+                  contentLang={contentLang}
                   content={content}
                   active={editingContent.current === index}
                   onEdit={() => {
@@ -336,6 +335,7 @@ const QnA: FC<Props> = props => {
           editingContent={editingContent.current}
           formData={contentAnswers[editingContent.current]}
           onUpdate={data => updateContentAnswers(data)}
+          currentLang={contentLang}
           close={closingKey => {
             setTimeout(() => {
               if (closingKey === editingContent.current) {

@@ -1,4 +1,4 @@
-import { FormData } from 'botpress/common/typings'
+import { FormData } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import _uniqueId from 'lodash/uniqueId'
@@ -24,6 +24,7 @@ export interface Props {
   topicName: string
   contentLang: string
   defaultLanguage: string
+  refreshQnaCount: () => void
   languages: string[]
 }
 
@@ -36,7 +37,7 @@ export const hasPopulatedLang = (data: { [lang: string]: string[] }): boolean =>
   return !!_.flatMap(data).filter(entry => !!entry.trim().length).length
 }
 
-export const hasContentAnswer = (data: { [lang: string]: FormData[] }): boolean => {
+export const hasContentAnswer = (data: FormData[]): boolean => {
   return data && !!_.flatMap(data).length
 }
 
@@ -68,7 +69,7 @@ export const itemHasError = (qnaItem: QnaItem, currentLang: string): string[] =>
 }
 
 export const dispatchMiddleware = async (dispatch, action) => {
-  const { qnaItem, bp } = action.data
+  const { qnaItem, bp, refreshQnaCount } = action.data
   switch (action.type) {
     case 'updateQnA':
       const { currentLang } = action.data
@@ -96,6 +97,7 @@ export const dispatchMiddleware = async (dispatch, action) => {
           try {
             const res = await bp.axios.post('/mod/qna/questions', cleanData)
             itemId = res.data[0]
+            refreshQnaCount?.()
           } catch ({ response: { data } }) {
             saveError = data.message
           }
@@ -206,7 +208,7 @@ export const fetchReducer = (state: State, action): State => {
         enabled: true,
         answers: _.cloneDeep(languageArrays),
         questions: _.cloneDeep(languageArrays),
-        contentAnswers: languages.reduce((acc, lang) => ({ ...acc, [lang]: [] }), {}),
+        contentAnswers: [],
         redirectFlow: '',
         redirectNode: ''
       }
@@ -218,7 +220,7 @@ export const fetchReducer = (state: State, action): State => {
       expandedItems: { ...state.expandedItems, [id]: true }
     }
   } else if (action.type === 'deleteQnA') {
-    const { index, bp } = action.data
+    const { index, bp, refreshQnaCount } = action.data
     const newItems = state.items
 
     if (index === 'highlighted') {
@@ -226,6 +228,7 @@ export const fetchReducer = (state: State, action): State => {
         .post(`/mod/qna/questions/${state.highlighted.id}/delete`)
         .then(() => {})
         .catch(() => {})
+      refreshQnaCount?.()
 
       return {
         ...state,
@@ -241,6 +244,7 @@ export const fetchReducer = (state: State, action): State => {
         .then(() => {})
         .catch(() => {})
     }
+    refreshQnaCount?.()
 
     return {
       ...state,

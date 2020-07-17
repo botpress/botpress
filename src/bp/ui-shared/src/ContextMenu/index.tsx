@@ -1,4 +1,4 @@
-import React, { FC, Fragment, SyntheticEvent, useEffect } from 'react'
+import React, { FC, Fragment, SyntheticEvent, useEffect, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 
 import Overlay from '../Overlay'
@@ -6,22 +6,35 @@ import Overlay from '../Overlay'
 import style from './style.scss'
 
 const ContextMenuWrapper = ({ event, children }) => {
-  const elPos = event.currentTarget.getBoundingClientRect()
+  const [clickPosition, setClickPosition] = useState({ top: `${event.clientY}px`, left: `${event.clientX}px` })
+  const elPos = useRef(event.currentTarget?.getBoundingClientRect())
+  const { top, bottom, right, left } = elPos.current
 
-  const handleToggle = e => {
+  const handleToggle = (e: SyntheticEvent): void => {
     e.stopPropagation()
     removeContextMenu()
   }
 
+  const isWithinBounds = (x: number, y: number): boolean => {
+    return x >= left && x <= right && y >= top && y <= bottom
+  }
+
   return (
     <Fragment>
-      <div
-        style={{ top: `${elPos.top + elPos.height}px`, left: `${elPos.left + elPos.width / 2}px` }}
-        className={style.contextMenuWrapper}
-      >
+      <div style={clickPosition} onClick={removeContextMenu} className={style.contextMenuWrapper}>
         {children}
       </div>
-      <Overlay onClick={handleToggle} />
+      <Overlay
+        onClick={handleToggle}
+        onContextMenu={e => {
+          if (!isWithinBounds(e.clientX, e.clientY)) {
+            handleToggle(e)
+            return
+          }
+
+          setClickPosition({ top: `${e.clientY}px`, left: `${e.clientX}px` })
+        }}
+      />
     </Fragment>
   )
 }

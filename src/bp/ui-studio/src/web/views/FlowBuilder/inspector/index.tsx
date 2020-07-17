@@ -14,8 +14,8 @@ import {
   updateFlowNode
 } from '~/actions'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
+import PromptNode from '~/views/OneFlow/sidePanel/form/PromptNode'
 
-import SaySomethingForm from '../../OneFlow/sidePanel/form/SaySomethingForm'
 import { nodeTypes } from '../diagram/manager'
 import FlowInformation from '../nodeProps/FlowInformation'
 import { SimpleNode } from '../nodeProps/SimpleNode'
@@ -117,19 +117,6 @@ class Inspector extends Component<Props> {
           copyFlowNodeElement={copyFlowNodeElement}
           pasteFlowNodeElement={pasteFlowNodeElement}
           buffer={buffer}
-        />
-      )
-    }
-
-    if (nodeType === 'say_something') {
-      return (
-        <SaySomethingForm
-          onDeleteSelectedElements={onDeleteSelectedElements}
-          contentType={currentFlowNode.content?.contentType}
-          formData={currentFlowNode.content?.formData}
-          updateNode={updateNodeAndRefresh}
-          readOnly={readOnly}
-          subflows={subflows}
         />
       )
     }

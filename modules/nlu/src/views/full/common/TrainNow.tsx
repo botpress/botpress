@@ -2,8 +2,9 @@ import { Button } from '@blueprintjs/core'
 import { NLUApi } from 'api'
 import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
+import { NLUProgressEvent } from '../../../backend/typings'
 
-const TrainNow: FC<{ api: NLUApi; eventBus: any }> = ({ api, eventBus }) => {
+const TrainNow: FC<{ api: NLUApi; eventBus: any; autoTrain: boolean }> = ({ api, eventBus, autoTrain }) => {
   const [loading, setLoading] = useState(true)
   const [training, setTraining] = useState(false)
 
@@ -21,25 +22,33 @@ const TrainNow: FC<{ api: NLUApi; eventBus: any }> = ({ api, eventBus }) => {
 
   useEffect(() => {
     eventBus.on('statusbar.event', event => {
-      if (event.type === 'nlu' && event.message === 'Training complete') {
+      if (event.type === 'nlu' && (event as NLUProgressEvent).trainSession.status === "done") {
         setTraining(false)
       }
     })
   }, [])
 
-  const onClick = async () => {
-    if (training) {
-      await api.cancelTraining()
-      setTraining(false)
-    } else {
-      setTraining(true)
-      await api.train()
-    }
+  const trainNow = async () => {
+    setTraining(true)
+    await api.train()
+  }
+
+  const cancelTraining = async () => {
+    await api.cancelTraining()
+    setTraining(false)
+  }
+
+  if (training) {
+    return (
+      <Button loading={loading} onClick={cancelTraining}>
+        {lang.tr('module.nlu.cancelTraining')}
+      </Button>
+    )
   }
 
   return (
-    <Button loading={loading} onClick={onClick}>
-      {training ? lang.tr('module.nlu.cancelTraining') : lang.tr('module.nlu.trainNow')}
+    <Button loading={loading} onClick={trainNow}>
+      {lang.tr(autoTrain ? 'module.nlu.retrainAll' : 'module.nlu.trainNow')}
     </Button>
   )
 }

@@ -2,8 +2,10 @@ import { FlowView, NodeView } from 'common/typings'
 import _ from 'lodash'
 import { DefaultLinkModel, DiagramEngine, DiagramModel, DiagramWidget, PointModel } from 'storm-react-diagrams'
 import { hashCode } from '~/util'
+import { PromptNodeModel } from '~/views/OneFlow/diagram/nodes/PromptNode'
 
 import { SaySomethingNodeModel } from '../../OneFlow/diagram/nodes/SaySomethingNode'
+import { TriggerNodeModel } from '../../OneFlow/diagram/nodes/TriggerNode'
 
 import { BaseNodeModel } from './nodes/BaseNodeModel'
 import { SkillCallNodeModel } from './nodes/SkillCallNode'
@@ -15,7 +17,6 @@ import { ListenNodeModel } from './nodes_v2/ListenNode'
 import { RouterNodeModel } from './nodes_v2/RouterNode'
 import { SubWorkflowNodeModel } from './nodes_v2/SubWorkflowNode'
 import { SuccessNodeModel } from './nodes_v2/SuccessNode'
-import { TriggerNodeModel } from './nodes_v2/TriggerNode'
 
 const passThroughNodeProps: string[] = [
   'name',
@@ -24,8 +25,9 @@ const passThroughNodeProps: string[] = [
   'next',
   'skill',
   'conditions',
-  'content',
+  'contents',
   'activeWorkflow',
+  'prompt',
   'friendlyName'
 ]
 export const DIAGRAM_PADDING: number = 100
@@ -40,6 +42,7 @@ export const nodeTypes = [
   'listen',
   'router',
   'action',
+  'prompt',
   'sub-workflow'
 ]
 
@@ -64,6 +67,8 @@ const createNodeModel = (node, modelProps) => {
     return new SubWorkflowNodeModel(modelProps)
   } else if (type === 'say_something') {
     return new SaySomethingNodeModel(modelProps)
+  } else if (type === 'prompt') {
+    return new PromptNodeModel(modelProps)
   } else if (type === 'execute') {
     return new ExecuteNodeModel(modelProps)
   } else if (type === 'listen') {
