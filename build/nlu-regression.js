@@ -45,11 +45,7 @@ const createBot = async (botId, axiosConfig) => {
   }
 
   try {
-    await axios.post(
-      `${base}/api/v1/admin/bots`,
-      newBot,
-      _.merge(axiosConfig, { headers: { 'X-BP-Workspace': 'default' } })
-    )
+    await axios.post(`${base}/api/v1/admin/bots`, newBot, axiosConfig)
   } catch (err) {
     const { status } = err.response
     if (status === 409) {
@@ -134,7 +130,8 @@ const main = async () => {
     const botId = 'testy'
     const axiosConfig = {
       headers: {
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
+        'X-BP-Workspace': 'default'
       }
     }
 
