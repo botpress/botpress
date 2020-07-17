@@ -8,6 +8,10 @@ import kernelTypes from './kernel-types'
 export function checkConfig(config: SvmConfig) {
   assert(config.kFold > 0, 'k-fold must be >= 1')
 
+  if (config.svm_type === svmTypes.ONE_CLASS) {
+    config.probability = false // not supported
+  }
+
   if (![svmTypes.C_SVC, svmTypes.EPSILON_SVR, svmTypes.NU_SVR].includes(config.svm_type)) {
     config.C = []
   }
@@ -42,9 +46,9 @@ const defaultConf: SvmConfig = {
   weight_label: [],
   weight: [],
   degree: [2],
-  gamma: [0.001, 0.01, 0.5],
+  gamma: [0.01, 0.1, 0.25, 0.5, 0.75],
   coef0: [0.125, 0.5],
-  C: [1, 2],
+  C: [0.1, 1, 2, 5, 10, 20, 100],
   nu: [0.01, 0.125, 0.5, 1],
   p: [0.01, 0.125, 0.5, 1],
   kFold: 4,
@@ -54,7 +58,7 @@ const defaultConf: SvmConfig = {
   eps: 1e-3,
   cache_size: 200,
   shrinking: true,
-  probability: false
+  probability: true
 }
 
 export function configMapper(config: SvmConfig): SvmParameters {
@@ -83,11 +87,14 @@ export function parametersMapper(params: SvmParameters): SvmConfig {
   }
 }
 
+const isNullOrUndefined = (x: any) => _.isNull(x) || _.isUndefined(x)
 export function defaultConfig(config: Partial<SvmConfig>): SvmConfig {
-  return _.merge({}, defaultConf, config)
+  config = _.omitBy(config, isNullOrUndefined)
+  return { ...defaultConf, ...config }
 }
 
 export function defaultParameters(params: Partial<SvmParameters>): SvmParameters {
+  params = _.omitBy(params, isNullOrUndefined)
   const defaultParams = configMapper(defaultConf)
-  return _.merge({}, defaultParams, params)
+  return { ...defaultParams, ...params }
 }

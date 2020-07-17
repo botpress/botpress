@@ -7,15 +7,6 @@ import svmTypes from './svm-types'
 import kernelTypes from './kernel-types'
 import { getMinKFold } from './grid-search/split-dataset'
 
-export const DefaultTrainArgs: Partial<sdk.MLToolkit.SVM.SVMOptions> = {
-  c: [0.1, 1, 2, 5, 10, 20, 100],
-  classifier: 'C_SVC',
-  gamma: [0.01, 0.1, 0.25, 0.5, 0.75],
-  kernel: 'LINEAR',
-  probability: true,
-  reduce: false
-}
-
 type Serialized = SvmModel & {
   labels_idx: string[]
 }
@@ -27,15 +18,9 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
 
   async train(
     points: sdk.MLToolkit.SVM.DataPoint[],
-    options: Partial<sdk.MLToolkit.SVM.SVMOptions> = DefaultTrainArgs,
+    options?: Partial<sdk.MLToolkit.SVM.SVMOptions>,
     callback?: sdk.MLToolkit.SVM.TrainProgressCallback | undefined
   ): Promise<string> {
-    const args = { ...DefaultTrainArgs, ...options }
-
-    if (args.classifier === 'ONE_CLASS') {
-      args.probability = false // not supported
-    }
-
     const vectorsLengths = _(points)
       .map(p => p.coordinates.length)
       .uniq()
@@ -58,13 +43,15 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
     const kFold = Math.max(minKFold, 4)
 
     const arr = (n: number | number[]) => (_.isArray(n) ? n : [n])
+
+    options = options ?? {}
     const svm = new SVM({
-      svm_type: args.classifier ? svmTypes[args.classifier] : undefined,
-      kernel_type: args.kernel ? kernelTypes[args.kernel] : undefined,
-      C: args.c ? arr(args.c) : undefined,
-      gamma: args.gamma ? arr(args.gamma) : undefined,
-      probability: args.probability,
-      reduce: args.reduce,
+      svm_type: options.classifier ? svmTypes[options.classifier] : undefined,
+      kernel_type: options.kernel ? kernelTypes[options.kernel] : undefined,
+      C: options.c ? arr(options.c) : undefined,
+      gamma: options.gamma ? arr(options.gamma) : undefined,
+      probability: options.probability,
+      reduce: options.reduce,
       kFold
     })
 
