@@ -116,7 +116,11 @@ const SingleSuperInput = ({ canPickEvents, events, variables, onAddVariable, eve
               onBlur?.(`{{${value}}}`)
             }}
           >
-            <Tooltip content={lang('superInput.insertValueFromEvent')} position={Position.TOP_LEFT}>
+            <Tooltip
+              content={lang('superInput.insertValueFromEvent')}
+              hoverOpenDelay={500}
+              position={Position.TOP_LEFT}
+            >
               <Button className={style.btn} icon={<Icons.Brackets />} />
             </Tooltip>
           </Dropdown>
@@ -131,7 +135,11 @@ const SingleSuperInput = ({ canPickEvents, events, variables, onAddVariable, eve
             onBlur?.(`$${value}`)
           }}
         >
-          <Tooltip content={lang('superInput.insertValueFromVariables')} position={Position.TOP_LEFT}>
+          <Tooltip
+            content={lang('superInput.insertValueFromVariables')}
+            hoverOpenDelay={500}
+            position={Position.TOP_LEFT}
+          >
             <Button className={style.btn} icon="dollar" />
           </Tooltip>
         </Dropdown>

@@ -17,7 +17,7 @@ type Props = FieldProps & SuperInputProps
 export default ({
   canAddElements = true,
   canPickEvents = true,
-  defaultVariableType = 'string',
+  defaultVariableType,
   events,
   multiple,
   variables,
@@ -120,7 +120,7 @@ export default ({
 
     if (isAdding) {
       const newVariable = {
-        type: defaultVariableType,
+        type: defaultVariableType || 'string',
         name: value
       }
 
@@ -175,7 +175,11 @@ export default ({
       {
         <div className={style.tagBtnWrapper}>
           {canPickEvents && (
-            <Tooltip content={lang('superInput.insertValueFromEvent')} position={Position.TOP_LEFT}>
+            <Tooltip
+              content={lang('superInput.insertValueFromEvent')}
+              hoverOpenDelay={300}
+              position={Position.TOP_LEFT}
+            >
               <Button
                 className={style.tagBtn}
                 onClick={() => {
@@ -185,7 +189,11 @@ export default ({
               />
             </Tooltip>
           )}
-          <Tooltip content={lang('superInput.insertValueFromVariables')} position={Position.TOP_LEFT}>
+          <Tooltip
+            content={lang('superInput.insertValueFromVariables')}
+            hoverOpenDelay={300}
+            position={Position.TOP_LEFT}
+          >
             <Button
               className={style.tagBtn}
               onClick={() => {

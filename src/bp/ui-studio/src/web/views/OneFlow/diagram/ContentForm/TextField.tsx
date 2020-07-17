@@ -35,7 +35,7 @@ const TextAreaList: FC<Props> = props => {
       onUpdateVariables={onUpdateVariables}
       key={`${field.key}${forceUpdateHeight}`}
       label={label}
-      items={[data.text, ...(data.variations || [])]}
+      items={[data.text || '', ...(data.variations || [])]}
       onChange={handleChange}
       addBtnLabel={lang.tr('module.builtin.types.text.add')}
       getPlaceholder={index => (index === 0 ? lang.tr('module.builtin.types.actionButton.sayPlaceholder') : '')}
