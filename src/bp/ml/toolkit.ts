@@ -11,7 +11,7 @@ import { FastTextModel } from './fasttext'
 import computeJaroWinklerDistance from './homebrew/jaro-winkler'
 import computeLevenshteinDistance from './homebrew/levenshtein'
 import { processor } from './sentencepiece'
-import { Predictor, Trainer as SVMTrainer } from './svm-js'
+import { Predictor, Trainer as SVMTrainer } from './svm'
 import { WebWorkerCrfTrainer } from './crf-web-worker'
 
 type MsgType = 'svm_train' | 'svm_progress' | 'svm_done' | 'svm_error' | 'crf_train' | 'crf_done' | 'crf_error'
