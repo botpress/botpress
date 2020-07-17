@@ -4,62 +4,52 @@ const fs = require('fs')
 const repoRootDir = `${__dirname}/..`
 const nluTestingDir = `${repoRootDir}/modules/nlu-testing/`
 
+const host = '127.0.0.1'
+const port = '3000'
+
+const buildRequest = (options, resolve, reject) => {
+  return http.request(options, function(res) {
+    res.setEncoding('utf8')
+
+    let receivedData = ''
+    res.on('data', function(chunk) {
+      receivedData += chunk
+    })
+    res.on('error', function(err) {
+      reject(err)
+    })
+    res.on('end', function() {
+      resolve(receivedData)
+    })
+  })
+}
+
 const post = async (path, content, headers) => {
   const post_options = {
-    host: '127.0.0.1',
-    port: '3000',
+    host,
+    port,
     path,
     method: 'POST',
     headers,
     timeout: 2000
   }
-
   return new Promise(function(resolve, reject) {
-    const post_req = http.request(post_options, function(res) {
-      res.setEncoding('utf8')
-
-      let receivedData = ''
-      res.on('data', function(chunk) {
-        receivedData += chunk
-      })
-      res.on('error', function(err) {
-        reject(err)
-      })
-      res.on('end', function() {
-        resolve(receivedData)
-      })
-    })
-
-    // post the data
+    const post_req = buildRequest(post_options, resolve, reject)
     post_req.write(content)
     post_req.end()
   })
 }
 
 const get = async (path, headers) => {
-  const post_options = {
+  const get_options = {
     host: '127.0.0.1',
     port: '3000',
     path,
     method: 'GET',
     headers
   }
-
   return new Promise(function(resolve, reject) {
-    const get_req = http.request(post_options, function(res) {
-      res.setEncoding('utf8')
-
-      let receivedData = ''
-      res.on('data', function(chunk) {
-        receivedData += chunk
-      })
-      res.on('error', function(err) {
-        reject(err)
-      })
-      res.on('end', function() {
-        resolve(receivedData)
-      })
-    })
+    const get_req = buildRequest(get_options, resolve, reject)
     get_req.end()
   })
 }
