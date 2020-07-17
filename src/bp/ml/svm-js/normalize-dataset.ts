@@ -3,7 +3,7 @@ import assert from 'assert'
 import numeric from 'numeric'
 import normalizeInput from './normalize-input'
 import _ from 'lodash'
-import { Data } from '../typings'
+import { Data } from './typings'
 
 export default function(dataset: Data[], mu?, sigma?) {
   assert(dataset instanceof Array, 'dataset must be an list of [X,y] tuples')

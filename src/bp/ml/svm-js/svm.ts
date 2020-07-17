@@ -5,10 +5,10 @@ import numeric from 'numeric'
 import BaseSVM from './base-svm'
 import gridSearch from './grid-search'
 
-import normalizeDataset from '../util/normalize-dataset'
-import normalizeInput from '../util/normalize-input'
-import reduce from '../util/reduce-dataset'
-import { SvmConfig, Data, SvmModel, Report } from '../typings'
+import normalizeDataset from './normalize-dataset'
+import normalizeInput from './normalize-input'
+import reduce from './reduce-dataset'
+import { SvmConfig, Data, SvmModel, Report } from './typings'
 import { defaultConfig, checkConfig } from './config'
 
 export class SVM {

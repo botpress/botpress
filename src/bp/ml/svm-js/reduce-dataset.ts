@@ -2,7 +2,7 @@ import assert from 'assert'
 import numeric from 'numeric'
 import _ from 'lodash'
 
-import { Data } from '../typings'
+import { Data } from './typings'
 
 export default function(dataset: Data[], retainedVariance: number) {
   retainedVariance = retainedVariance || 0.99
