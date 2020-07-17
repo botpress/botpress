@@ -223,7 +223,7 @@
         width: 100%;
       }
 
-      &.tagify__dropdown__item--active, &.bp3-active {
+      &.tagify__dropdown__item--active, &.bp3-active, &:hover {
         color: var(--shark);
         background-color: var(--bg);
 

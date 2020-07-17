@@ -7,6 +7,7 @@ export interface SuperInputProps {
   defaultVariableType?: string
   events?: BotEvent[]
   multiple?: boolean
+  isFocused?: boolean
   canPickEvents?: boolean
   canAddElements?: boolean
 }

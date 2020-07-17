@@ -6,6 +6,7 @@ import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 're
 
 import { lang } from '../../../translations'
 import SuperInput from '../../../FormFields/SuperInput'
+import SuperInputArray from '../../../FormFields/SuperInputArray'
 import TextFieldsArray from '../../../FormFields/TextFieldsArray'
 import { createEmptyDataFromSchema } from '../../utils/fields'
 import AddButton from '../Fields/AddButton'
@@ -191,7 +192,7 @@ const Form: FC<FormProps> = ({
       return data[labelField.key] || lang(labelField.label)
     }
 
-    return field.isSuperInput && field.type !== 'text' ? (
+    return field.isSuperInput && !['text', 'text_array'].includes(field.type) ? (
       <Button className={style.superInputBtn} small minimal onClick={() => toggleSuperInput(field, parent)}>
         {lang(field.label)}
       </Button>
@@ -229,7 +230,33 @@ const Form: FC<FormProps> = ({
   }
 
   const showSuperInput = field => {
-    return field.isSuperInput && (field.type === 'text' || superInput[field.key])
+    return field.isSuperInput && (['text', 'text_array'].includes(field.type) || superInput[field.key])
+  }
+
+  const renderSuperInput = (field, data, update) => {
+    return (
+      <SuperInput
+        placeholder={lang(field.placeholder)}
+        variables={variables || []}
+        events={events || []}
+        addVariable={onUpdateVariables}
+        multiple={field.type === 'text'}
+        setCanOutsideClickClose={canClickOuside => {
+          if (outsideClickTimeout.current) {
+            clearTimeout(outsideClickTimeout.current)
+          }
+
+          setCanOutsideClickClose?.(canClickOuside)
+        }}
+        onBlur={value => {
+          outsideClickTimeout.current = setTimeout(() => {
+            setCanOutsideClickClose?.(true)
+          }, 200)
+          update(value)
+        }}
+        value={data}
+      />
+    )
   }
 
   const printField = (field, data, parent?) => {
@@ -251,7 +278,7 @@ const Form: FC<FormProps> = ({
                 }
                 label={printLabel(field, fieldData, parent)}
               >
-                {field.fields.map(groupField => printField(groupField, fieldData, { key: field.key, index, parent }))}
+                {field.fields?.map(groupField => printField(groupField, fieldData, { key: field.key, index, parent }))}
               </GroupItemWrapper>
             ))}
             <AddButton
@@ -272,30 +299,56 @@ const Form: FC<FormProps> = ({
         return (
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key], parent)}>
             {printMoreInfo(field.moreInfo)}
-            <Select
-              axios={axios}
-              parent={parent}
-              printField={printField}
-              data={data}
-              field={field}
-              placeholder={lang(field.placeholder)}
-              onChange={value => dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })}
-            />
+            {showSuperInput(field) ? (
+              renderSuperInput(field, data[field.key], value => {
+                dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })
+              })
+            ) : (
+              <Select
+                axios={axios}
+                parent={parent}
+                printField={printField}
+                data={data}
+                field={field}
+                placeholder={lang(field.placeholder)}
+                onChange={value =>
+                  dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })
+                }
+              />
+            )}
           </FieldWrapper>
         )
       case 'text_array':
         return (
           <Fragment key={field.key}>
-            <TextFieldsArray
-              getPlaceholder={index => getArrayPlaceholder(index, field.placeholder)}
-              moreInfo={printMoreInfo(field.moreInfo)}
-              onChange={value => {
-                dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
-              }}
-              items={data[field.key] || ['']}
-              label={printLabel(field, data[field.key], parent)}
-              addBtnLabel={lang(field.group?.addLabel)}
-            />
+            {showSuperInput(field) ? (
+              <SuperInputArray
+                getPlaceholder={index => getArrayPlaceholder(index, field.placeholder)}
+                moreInfo={printMoreInfo(field.moreInfo)}
+                onChange={value => {
+                  dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
+                }}
+                variables={variables || []}
+                events={events || []}
+                onUpdateVariables={onUpdateVariables}
+                setCanOutsideClickClose={setCanOutsideClickClose}
+                isSuperInput={field.isSuperInput}
+                items={data[field.key] || ['']}
+                label={printLabel(field, data[field.key], parent)}
+                addBtnLabel={lang(field.group?.addLabel)}
+              />
+            ) : (
+              <TextFieldsArray
+                getPlaceholder={index => getArrayPlaceholder(index, field.placeholder)}
+                moreInfo={printMoreInfo(field.moreInfo)}
+                onChange={value => {
+                  dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
+                }}
+                items={data[field.key] || ['']}
+                label={printLabel(field, data[field.key], parent)}
+                addBtnLabel={lang(field.group?.addLabel)}
+              />
+            )}
           </Fragment>
         )
       case 'textarea':
@@ -362,27 +415,9 @@ const Form: FC<FormProps> = ({
           <FieldWrapper key={field.key} label={printLabel(field, data[field.key], parent)}>
             {printMoreInfo(field.moreInfo)}
             {showSuperInput(field) ? (
-              <SuperInput
-                placeholder={lang(field.placeholder)}
-                variables={variables || []}
-                events={events || []}
-                addVariable={onUpdateVariables}
-                multiple={field.type === 'text'}
-                setCanOutsideClickClose={canClickOuside => {
-                  if (outsideClickTimeout.current) {
-                    clearTimeout(outsideClickTimeout.current)
-                  }
-
-                  setCanOutsideClickClose?.(canClickOuside)
-                }}
-                onBlur={value => {
-                  outsideClickTimeout.current = setTimeout(() => {
-                    setCanOutsideClickClose?.(true)
-                  }, 200)
-                  dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
-                }}
-                value={data[field.key]}
-              />
+              renderSuperInput(field, data[field.key], value => {
+                dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
+              })
             ) : (
               <Text
                 placeholder={lang(field.placeholder)}
@@ -401,7 +436,7 @@ const Form: FC<FormProps> = ({
 
   return (
     <Fragment>
-      {fields.map(field => printField(field, state))}
+      {fields?.map(field => printField(field, state))}
       {!!advancedSettings?.length && (
         <GroupItemWrapper defaultCollapsed label={lang('advancedSettings')}>
           {advancedSettings.map(field => printField(field, state))}

@@ -1,16 +1,16 @@
-import { Button, Classes, Icon, MenuItem } from '@blueprintjs/core'
+import { Button, Icon } from '@blueprintjs/core'
 import Tags from '@yaireo/tagify/dist/react.tagify'
 import cx from 'classnames'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
 
 import { lang } from '../../translations'
 import { FieldProps } from '../../Contents/Components/typings'
-import Dropdown from '../../Dropdown'
 import Icons from '../../Icons'
 
 import style from './style.scss'
 import { SuperInputProps } from './typings'
 import { convertToString, convertToTags } from './utils'
+import SingleSuperInput from './SingleSuperInput'
 
 type Props = FieldProps & SuperInputProps
 
@@ -23,8 +23,11 @@ export default ({
   variables,
   addVariable,
   setCanOutsideClickClose,
+  onChange,
   onBlur,
-  value
+  value,
+  childRef,
+  isFocused
 }: Props) => {
   const initialValue = useRef<string>((value && convertToTags(value)) || '')
   const newlyAddedVar = useRef<string[]>([])
@@ -43,9 +46,31 @@ export default ({
     setLocalEvents(events?.map(({ name }) => name) || [])
   }, [events])
 
+  useEffect(() => {
+    childRef?.(tagifyRef.current)
+  }, [tagifyRef.current])
+
+  useEffect(() => {
+    if (tagifyRef.current && isFocused) {
+      moveCarretToEndOfString()
+    }
+  }, [isFocused])
+
+  const onKeyDown = e => {
+    const originalEvent = e.detail.originalEvent
+    const metaKey = originalEvent.ctrlKey || originalEvent.metaKey
+
+    if (metaKey && originalEvent.key === 'a') {
+      document.execCommand('selectAll', true)
+    }
+  }
+
   const tagifyCallbacks = {
     add: e => {
       onAddVariable(e.detail.data.value, tagifyRef.current.settings.whitelist)
+    },
+    blur: e => {
+      onBlur?.(convertToString(tagifyRef.current?.DOM.originalInput.value))
     },
     ['dropdown:select']: e => {
       const value = e.detail.data.value
@@ -57,6 +82,8 @@ export default ({
     input: e => {
       const prefix = e.detail.prefix
       currentPrefix.current = prefix
+
+      onChange?.(tagifyRef.current?.DOM.originalInput.value)
 
       if (prefix && multiple) {
         if (prefix === '$') {
@@ -73,13 +100,7 @@ export default ({
         }
       }
     },
-    keydown: e => {
-      const originalEvent = e.detail.originalEvent
-
-      if ((originalEvent.ctrlKey || originalEvent.metaKey) && originalEvent.key === 'a') {
-        document.execCommand('selectAll', true)
-      }
-    },
+    keydown: onKeyDown,
     ['dropdown:show']: e => {
       setCanOutsideClickClose?.(false)
     },
@@ -138,118 +159,17 @@ export default ({
     tagifyRef.current?.DOM.input.dispatchEvent(new Event('input', { bubbles: true }))
   }
 
-  const getSingleTagHtml = () => {
-    const tag =
-      value &&
-      JSON.parse(
-        convertToTags(value)
-          .replace('[[', '')
-          .replace(']]', '')
-      )
-
-    return (
-      tag && (
-        <span contentEditable={false} title={tag.value} tabIndex={-1} className="tagify__tag">
-          <span>
-            <Icon icon={tag.prefix === '$' ? 'dollar' : <Icons.Brackets iconSize={10} />} iconSize={10} />
-            <span className="tagify__tag-text">{tag.value}</span>
-          </span>
-        </span>
-      )
-    )
-  }
-
-  const singularTagKeyDown = e => {
-    e.preventDefault()
-
-    if (e.key === 'Backspace') {
-      onBlur?.('')
-    }
-  }
-
-  const filterSingularDropdown = (query, options) => {
-    const addOption = [] as any[]
-    if (
-      query &&
-      !options.find(option => {
-        return query.toLowerCase() === option.label.toLowerCase() || query.toLowerCase() === option.value
-      })
-    ) {
-      addOption.push({
-        label: query,
-        type: 'add',
-        value: query
-      })
-    }
-
-    return [
-      ...addOption,
-      ...options.filter(option => `${option.label.toLowerCase()} ${option.value}`.indexOf(query.toLowerCase()) > -1)
-    ]
-  }
-
-  const customItemRenderer = (option, { handleClick, modifiers }) => {
-    const isAdding = option.type === 'add'
-
-    if (!modifiers.matchesPredicate) {
-      return null
-    }
-
-    const label = isAdding ? (
-      <Fragment>
-        <Icon icon="plus" iconSize={12} />
-        {lang('create')} "{option.label}"
-      </Fragment>
-    ) : (
-      option.label
-    )
-
-    return (
-      <div
-        key={option.value}
-        onClick={handleClick}
-        className={cx('tagify__dropdown__item', {
-          [style.addingItem]: isAdding,
-          ['tagify__dropdown__item--active']: modifiers.active
-        })}
-      >
-        {label}
-        <span className="description">{eventsDesc?.[option.value] || ''}</span>
-      </div>
-    )
-  }
-
   if (!multiple) {
     return (
-      <div className={style.superInputWrapper}>
-        <div className={style.singularTagBtnWrapper}>
-          {canPickEvents && (
-            <Dropdown
-              items={localEvents.map(name => ({ value: name, label: name }))}
-              icon={<Icons.Brackets />}
-              filterPlaceholder={lang('search')}
-              customItemRenderer={customItemRenderer}
-              onChange={({ value }) => {
-                onBlur?.(`{{${value}}}`)
-              }}
-            />
-          )}
-          <Dropdown
-            items={localVariables.map(name => ({ value: name, label: name }))}
-            icon="dollar"
-            filterPlaceholder={lang('search')}
-            filterList={filterSingularDropdown}
-            customItemRenderer={customItemRenderer}
-            onChange={({ value }) => {
-              onAddVariable(value, localVariables)
-              onBlur?.(`$${value}`)
-            }}
-          />
-        </div>
-        <div className={style.superInput} onKeyDown={singularTagKeyDown} contentEditable suppressContentEditableWarning>
-          {getSingleTagHtml()}
-        </div>
-      </div>
+      <SingleSuperInput
+        canPickEvents={canPickEvents}
+        events={localEvents}
+        variables={localVariables}
+        onAddVariable={onAddVariable}
+        eventsDesc={eventsDesc}
+        value={value}
+        onBlur={onBlur}
+      />
     )
   }
 
@@ -354,7 +274,7 @@ export default ({
         }}
         defaultValue={initialValue.current}
         onChange={e => {
-          onBlur?.(convertToString(e.currentTarget.value))
+          onChange?.(convertToString(e.currentTarget.value))
         }}
       />
     </div>
