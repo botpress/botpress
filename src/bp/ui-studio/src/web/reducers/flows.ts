@@ -39,7 +39,6 @@ import {
   updateFlowProblems
 } from '~/actions'
 import { hashCode, prettyId } from '~/util'
-import { parseFlowName } from '~/util/workflows'
 
 export interface FlowReducer {
   currentFlow?: string
