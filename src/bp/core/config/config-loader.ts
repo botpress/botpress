@@ -130,8 +130,8 @@ export class ConfigProvider {
 
   public async getModulesListConfig() {
     let enabledByDefault: string[]
-    if (process.env.ENABLED_BY_DEFAULT) {
-      enabledByDefault = process.env.ENABLED_BY_DEFAULT.replace(/\s/g, '').split(',')
+    if (process.env.TEST_NLU) {
+      enabledByDefault = ['nlu', 'nlu-testing']
     } else {
       enabledByDefault = [
         'analytics',
