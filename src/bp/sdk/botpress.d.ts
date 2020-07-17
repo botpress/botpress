@@ -834,6 +834,7 @@ declare module 'botpress/sdk' {
       hasJumped?: boolean
       /** The status of the current active prompt */
       activePrompt?: PromptStatus
+      parameters?: { [name: string]: BoxedVariable<any, any> }
     }
 
     export interface CurrentSession {

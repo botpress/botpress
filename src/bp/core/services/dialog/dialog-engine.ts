@@ -266,7 +266,7 @@ export class DialogEngine {
           eventId: event.id,
           status: 'active',
           parent: currentWorkflow,
-          variables: {}
+          variables: event.state.context.parameters ?? {}
         }
       }
     } else {
@@ -520,7 +520,18 @@ export class DialogEngine {
     const subflow = this._findFlow(botId, subflowName)
     const subflowStartNode = this._findNode(botId, subflow, subflow.startNode)
 
+    const parameters = {}
+    if (subflow.variables) {
+      for (const variable of subflow.variables) {
+        if (!variable.isInput) {
+          continue
+        }
+        parameters[variable.name] = event.state.workflow.variables[variable.name]
+      }
+    }
+
     event.state.context = {
+      parameters,
       currentFlow: subflow.name,
       currentNode: subflowStartNode.name,
       previousFlow: parentFlow.name,
