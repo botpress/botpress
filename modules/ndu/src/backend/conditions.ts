@@ -228,6 +228,7 @@ export const dialogConditions: sdk.Condition[] = [
       return 0
     }
   },
+  // TODO: These two conditions should be hidden from the UI
   {
     id: 'prompt_listening',
     label: 'A prompt is currently active and listening for user input',

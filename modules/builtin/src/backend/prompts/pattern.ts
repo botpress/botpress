@@ -1,10 +1,10 @@
-import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
+import { ExtractionResult, IO, MultiLangText, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
 import lang from 'common/lang'
 
 import common from './common'
 
 class PromptPattern implements Prompt {
-  private _formatInvalidMessage: { [lang: string]: string }
+  private _formatInvalidMessage: MultiLangText
   private regex: RegExp
 
   constructor({ regexPattern = '', formatInvalidMessage }) {
@@ -40,6 +40,7 @@ const config: PromptConfig = {
     {
       type: 'text',
       key: 'regexPattern',
+      required: true,
       placeholder: 'module.builtin.regexPatternPlaceholder',
       label: 'module.builtin.regexPattern'
       // TODO add combo box to select from predefined patterns or custom

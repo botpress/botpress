@@ -7,12 +7,6 @@ import yn from 'yn'
 import common from './common'
 
 class PromptConfirm implements Prompt {
-  private _question: { [lang: string]: string }
-
-  constructor({ question = {} } = {}) {
-    this._question = question
-  }
-
   extraction(event: IO.IncomingEvent): sdk.ExtractionResult[] {
     const yesOrNo = yn(event.payload?.payload || event.preview)
     if (yesOrNo !== undefined) {

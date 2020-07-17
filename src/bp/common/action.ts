@@ -9,15 +9,29 @@ export interface ActionInstruction {
   actionServerId?: string
 }
 
+// TODO refactor & clean
 export const parseActionInstruction = (actionInstruction: string): ActionInstruction => {
   const chunks = actionInstruction.split(' ')
-  const serverAndAction = chunks[0]
-  const actionChunks = serverAndAction.split(':')
+  const serverAndAction = _.head(chunks)!
+  let argsStr = ''
+  if (chunks.length > 1) {
+    argsStr = actionInstruction.replace(serverAndAction + ' ', '')
+  }
+  const serverAndActionChunks = serverAndAction.split(':')
+  let actionName
+  let actionServerId
+
+  if (serverAndActionChunks.length === 1) {
+    actionName = serverAndActionChunks[0]
+  } else {
+    actionServerId = serverAndActionChunks[0]
+    actionName = serverAndActionChunks[1]
+  }
 
   return {
-    actionName: actionChunks.length === 1 ? actionChunks[0] : actionChunks.splice(1).join(':'),
-    argsStr: chunks.slice(1).join(' '),
-    actionServerId: actionChunks.length === 1 ? undefined : actionChunks[0]
+    actionName,
+    argsStr,
+    actionServerId
   }
 }
 

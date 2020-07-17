@@ -18,12 +18,7 @@ class PromptString implements Prompt {
       return []
     }
 
-    return [
-      {
-        value: text,
-        confidence: 1
-      }
-    ]
+    return [{ value: text, confidence: 1 }]
   }
 
   validate(value): ValidationResult {
@@ -31,7 +26,7 @@ class PromptString implements Prompt {
       return { valid: false, message: lang.tr('module.builtin.prompt.invalid') }
     }
 
-    if (this._maxLength !== undefined && value.length > this._maxLength) {
+    if (this._maxLength != undefined && value.length > this._maxLength) {
       return { valid: false, message: lang.tr('module.builtin.prompt.string.tooLong', { maxLength: this._maxLength }) }
     }
 

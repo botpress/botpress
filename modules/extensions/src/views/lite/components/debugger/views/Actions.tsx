@@ -57,7 +57,7 @@ export const Actions: FC<Props> = props => {
               case 'prompt.inform':
                 return (
                   <div>
-                    <Icon icon="eye-on" /> Inform prompt
+                    <Icon icon="eye-on" /> Inform Prompt
                   </div>
                 )
             }

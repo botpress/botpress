@@ -18,6 +18,7 @@ class BoxedEnum extends BaseVariable<string> implements BoxedVariable<string> {
       this._confidence = 0
     }
 
+    // TODO Should we throw instead ? Or use the logger ?
     console.error(`Value ${value} is invalid for enum type ${this._enumType}`)
   }
 }
