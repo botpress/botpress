@@ -10,6 +10,7 @@ import { inject, injectable } from 'inversify'
 import defaultJsonBuilder from 'json-schema-defaults'
 import _, { PartialDeep } from 'lodash'
 import path from 'path'
+import yn from 'yn'
 
 import { BotpressConfig } from './botpress.config'
 
@@ -129,7 +130,7 @@ export class ConfigProvider {
   }
 
   public async getModulesListConfig() {
-    const enabledByDefault: string[] = process.env.TEST_NLU
+    const enabledByDefault: string[] = yn(process.env.TEST_NLU)
       ? ['nlu', 'nlu-testing']
       : [
           'analytics',

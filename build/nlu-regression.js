@@ -5,17 +5,27 @@ const _ = require('lodash')
 const repoRootDir = `${__dirname}/..`
 const nluTestingDir = `${repoRootDir}/modules/nlu-testing/`
 
-const host = '127.0.0.1'
-const port = '3000'
-const base = `http://${host}:${port}`
+const BASE = 'http://localhost:3000'
+
+const BOT_ID = 'testy'
+const BOT_INFO = {
+  id: BOT_ID,
+  name: 'testy',
+  template: {
+    id: 'bp-nlu-regression-testing',
+    moduleId: 'nlu-testing'
+  }
+}
+
+const USER_CREDENTIALS = {
+  email: 'admin',
+  password: '123456'
+}
 
 const login = async () => {
   try {
-    const { data: login } = await axios.post(`${base}/api/v1/auth/login/basic/default`, {
-      email: 'admin',
-      password: '123456'
-    })
-    return login.payload.token
+    const { data } = await axios.post(`${BASE}/api/v1/auth/login/basic/default`, USER_CREDENTIALS)
+    return data.payload.token
   } catch {
     return
   }
@@ -23,29 +33,16 @@ const login = async () => {
 
 const signup = async () => {
   try {
-    const { data: login } = await axios.post(`${base}/api/v1/auth/register/basic/default`, {
-      email: 'admin',
-      password: '123456'
-    })
-    return login.payload.token
+    const { data } = await axios.post(`${BASE}/api/v1/auth/register/basic/default`, USER_CREDENTIALS)
+    return data.payload.token
   } catch {
     return
   }
 }
 
-const createBot = async (botId, axiosConfig) => {
-  const newBot = {
-    id: botId,
-    name: 'testy',
-    template: {
-      id: 'bp-nlu-regression-testing',
-      moduleId: 'nlu-testing'
-    },
-    category: undefined
-  }
-
+const createBot = async axiosConfig => {
   try {
-    await axios.post(`${base}/api/v1/admin/bots`, newBot, axiosConfig)
+    await axios.post(`${BASE}/api/v1/admin/bots`, BOT_INFO, axiosConfig)
   } catch (err) {
     const { status } = err.response
     if (status === 409) {
@@ -56,12 +53,12 @@ const createBot = async (botId, axiosConfig) => {
   }
 }
 
-const waitForTraining = async (botId, axiosConfig) => {
-  return new Promise(function(resolve) {
+const waitForTraining = async axiosConfig => {
+  return new Promise(resolve => {
     let i = 0
     console.log(`training...`)
     const intervalId = setInterval(async () => {
-      const { data: trainingStatus } = await axios.get(`${base}/api/v1/bots/${botId}/mod/nlu/train`, axiosConfig)
+      const { data: trainingStatus } = await axios.get(`${BASE}/api/v1/bots/${BOT_ID}/mod/nlu/train`, axiosConfig)
 
       if (!trainingStatus.isTraining) {
         clearInterval(intervalId)
@@ -73,8 +70,8 @@ const waitForTraining = async (botId, axiosConfig) => {
   })
 }
 
-const runAllTests = async (botId, axiosConfig) => {
-  const baseNluTesting = `${base}/api/v1/bots/${botId}/mod/nlu-testing`
+const runAllTests = async axiosConfig => {
+  const baseNluTesting = `${BASE}/api/v1/bots/${BOT_ID}/mod/nlu-testing`
   const { data: allTests } = await axios.get(`${baseNluTesting}/tests`, axiosConfig)
   const nTests = allTests.length
   let nPassing = 0
@@ -127,7 +124,6 @@ const main = async () => {
       process.exit(1)
     }
 
-    const botId = 'testy'
     const axiosConfig = {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -135,11 +131,11 @@ const main = async () => {
       }
     }
 
-    await createBot(botId, axiosConfig)
-    await waitForTraining(botId, axiosConfig)
+    await createBot(axiosConfig)
+    await waitForTraining(axiosConfig)
     console.log('Training Done!')
 
-    const score = await runAllTests(botId, axiosConfig)
+    const score = await runAllTests(axiosConfig)
     console.log('Score: ', score)
 
     const testPasses = await compareScore(score)
