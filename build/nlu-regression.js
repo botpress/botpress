@@ -73,12 +73,11 @@ const waitForTraining = async axiosConfig => {
 
 const runAllTests = async axiosConfig => {
   const baseNluTesting = `${BASE}/api/v1/bots/${BOT_ID}/mod/nlu-testing`
-  const { data: allTests } = await axios.get(`${baseNluTesting}/tests`, axiosConfig)
-  const nTests = allTests.length
-  let nPassing = 0
+  const { data: tests } = await axios.get(`${baseNluTesting}/tests`, axiosConfig)
 
+  let passedTests = 0
   let i = 0
-  for (const test of allTests) {
+  for (const test of tests) {
     const retry = async () => {
       const { data } = await axios.post(`${baseNluTesting}/tests/${test.id}/run`, '', axiosConfig)
       return data
@@ -92,11 +91,11 @@ const runAllTests = async axiosConfig => {
       testResult = await retry()
     }
 
-    nPassing += testResult.success ? 1 : 0
-    console.log(`(${i++} /${nTests}) #${test.id}`, 'success: ', testResult.success)
+    passedTests += testResult.success ? 1 : 0
+    console.log(`(${i++} /${tests.length}) #${test.id}`, 'success: ', testResult.success)
   }
 
-  return _.round((nPassing / nTests) * 100, 1)
+  return _.round((passedTests / tests.length) * 100, 1)
 }
 
 const compareScore = async score => {
