@@ -1,6 +1,7 @@
 const fs = require('fs')
 const axios = require('axios').default
 const _ = require('lodash')
+const chalk = require('chalk')
 
 const repoRootDir = `${__dirname}/..`
 const nluTestingDir = `${repoRootDir}/modules/nlu-testing/`
@@ -108,7 +109,7 @@ const compareScore = async score => {
 
   const previousScoreString = previousScoreOccurence[0].split(':')[1]
   const previousScore = parseFloat(previousScoreString)
-  console.log('previous score was: ', previousScore)
+  console.log(chalk.yellow('Previous Score Was:'), previousScore)
 
   return score >= previousScore
 }
@@ -120,8 +121,7 @@ const main = async () => {
       token = await signup()
     }
     if (!token) {
-      console.error('Unable To Login And Sign Up...')
-      process.exit(1)
+      console.error(chalk.red(chalk.bold('Unable To Login Or Sign Up...')))
     }
 
     const axiosConfig = {
@@ -133,20 +133,21 @@ const main = async () => {
 
     await createBot(axiosConfig)
     await waitForTraining(axiosConfig)
-    console.log('Training Done!')
+    console.log(chalk.green(chalk.bold('Training Done!')))
 
     const score = await runAllTests(axiosConfig)
-    console.log('Score: ', score)
+    console.log(chalk.yellow('Score:'), score)
 
     const testPasses = await compareScore(score)
     if (!testPasses) {
-      console.error('There Seems To Be A Regression On NLU BPDS...')
+      console.error(chalk.red(chalk.bold('There Seems To Be A Regression On NLU BPDS...')))
       process.exit(1)
     }
 
-    console.log('No Regression Noted!')
+    console.log(chalk.green(chalk.bold('No Regression Noted!')))
     process.exit(0)
   } catch (err) {
+    console.error(chalk.red(chalk.bold('An Error Occured During Test:')))
     console.error(err)
     process.exit(1)
   }
