@@ -40,7 +40,7 @@ describe('Module - Channel Web', () => {
 
   it('Reset conversation', async () => {
     await clickOn('#btn-reset')
-    await expectMatch(`Reset the conversation`)
+    await expectMatch(`Conversation Reset`)
   })
 
   it('Create new conversation', async () => {

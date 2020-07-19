@@ -135,6 +135,7 @@ export type Config = {
   userIdScope?: string
   enableReset: boolean
   stylesheet: string
+  isEmulator?: boolean
   extraStylesheet: string
   showConversationsButton: boolean
   showUserName: boolean

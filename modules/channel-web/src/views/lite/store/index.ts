@@ -89,6 +89,11 @@ class RootStore {
   }
 
   @computed
+  get isEmulator(): boolean {
+    return this.config?.isEmulator || false
+  }
+
+  @computed
   get hasBotInfoDescription(): boolean {
     return !!this.config.botConvoDescription?.length
   }
