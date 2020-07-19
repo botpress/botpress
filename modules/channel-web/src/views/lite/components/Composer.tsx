@@ -58,7 +58,10 @@ class Composer extends React.Component<ComposerProps> {
   render() {
     const placeholder =
       this.props.composerPlaceholder ||
-      this.props.intl.formatMessage({ id: 'composer.placeholder' }, { name: this.props.botName })
+      this.props.intl.formatMessage({
+        id: this.props.currentConversation &&
+            this.props.currentConversation.messages &&
+            this.props.currentConversation.messages.length > 1 ? 'composer.placeholder' : 'composer.placeholderInit' }, { name: this.props.botName })
 
     return (
       <div role="region" className={'bpw-composer'}>
@@ -113,7 +116,8 @@ export default inject(({ store }: { store: RootStore }) => ({
   focusNext: store.view.focusNext,
   enableArrowNavigation: store.config.enableArrowNavigation,
   enableResetSessionShortcut: store.config.enableResetSessionShortcut,
-  resetSession: store.resetSession
+  resetSession: store.resetSession,
+  currentConversation: store.currentConversation,
 }))(injectIntl(observer(Composer)))
 
 type ComposerProps = {
@@ -136,4 +140,5 @@ type ComposerProps = {
     | 'enableArrowNavigation'
     | 'resetSession'
     | 'enableResetSessionShortcut'
+    | 'currentConversation'
   >
