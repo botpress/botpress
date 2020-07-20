@@ -1,5 +1,6 @@
 import { Logger, MLToolkit, NLU } from 'botpress/sdk'
 import crypto from 'crypto'
+import { outputFile } from 'fs-extra'
 import _ from 'lodash'
 
 import * as CacheManager from './cache-manager'
@@ -7,7 +8,7 @@ import { computeModelHash, Model } from './model-service'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
-import { computeKmeans, ProcessIntents, Trainer, TrainInput } from './training-pipeline'
+import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
 import {
   EntityCacheDump,
   Intent,
@@ -26,7 +27,7 @@ export type TrainingOptions = {
 }
 
 type UntrainedModel = Omit<Model, 'data'> & {
-  data: { input: TrainInput }
+  data: { input: TrainInput; output?: TrainOutput }
 }
 
 export default class Engine implements NLUEngine {
@@ -125,6 +126,7 @@ export default class Engine implements NLUEngine {
     let model: Partial<UntrainedModel> = {
       startedAt: new Date(),
       languageCode: input.languageCode,
+      success: false,
       data: {
         input
       }
@@ -132,21 +134,15 @@ export default class Engine implements NLUEngine {
 
     try {
       const output = await Trainer(input, Engine.tools)
-      if (!output) {
-        model.success = false
-      } else {
-        _.merge(model, { success: true, data: { output } })
-      }
+      model.data.output = output
+      model.success = true
     } catch (err) {
-      model.success = false
-      this.logger.error(`Could not finish training NLU model : ${err}`)
+      this.logger.attachError(err).error(`Could not finish training NLU model : ${err}`)
     } finally {
       model.finishedAt = new Date()
-      model = model as Model
-    }
-
-    if (!trainAllCtx) {
-      model = this._mergeModels(previousModel, model as Model)
+      if (!trainAllCtx) {
+        model = this._mergeModels(previousModel, model as Model)
+      }
     }
 
     model.hash = computeModelHash(intentDefs, entityDefs, this.version, model.languageCode)
@@ -265,7 +261,7 @@ export default class Engine implements NLUEngine {
     }
 
     const output = _.merge({}, previousModelOutput, currentModelOutput)
-    const mergedModel = _.merge({}, trainingOuput, { data: { output } })
+    const mergedModel: Model = _.merge({}, trainingOuput, { data: { output } })
 
     // lodash merge messes up buffers objects
     mergedModel.data.output.slots_model = new Buffer(mergedModel.data.output.slots_model)
