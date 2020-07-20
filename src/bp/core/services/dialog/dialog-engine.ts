@@ -1,4 +1,4 @@
-import { Content, IO } from 'botpress/sdk'
+import { BoxedVariable, Content, Flow, FlowNode, IO, SubWorkflowInput, SubWorkflowInputs } from 'botpress/sdk'
 import { FlowView } from 'common/typings'
 import { createForGlobalHooks } from 'core/api'
 import { EventRepository } from 'core/repositories'
@@ -152,8 +152,13 @@ export class DialogEngine {
 
     // Property type skill-call means that the node points to a subflow.
     // We skip this step if we're exiting from a subflow, otherwise it will result in an infinite loop.
-    if (['skill-call', 'sub-workflow'].includes(currentNode.type!) && !this._exitingSubflow(event)) {
-      return this._goToSubflow(botId, event, sessionId, currentFlow, currentNode)
+    if (['skill-call', 'sub-workflow'].includes(currentNode.type!)) {
+      if (!this._exitingSubflow(event)) {
+        return this._goToSubflow(botId, event, sessionId, currentFlow, currentNode)
+      } else {
+        const subFlow = this._findFlow(botId, <string>currentNode.flow)
+        this.copyVarsToParent(subFlow, currentNode, event)
+      }
     }
 
     const queueBuilder = new InstructionsQueueBuilder(currentNode, currentFlow)
@@ -266,9 +271,11 @@ export class DialogEngine {
           eventId: event.id,
           status: 'active',
           parent: currentWorkflow,
-          variables: event.state.context.parameters ?? {}
+          variables: {}
         }
       }
+
+      this.sendVarsToChild(nextFlow, nextFlowName, event, event.state.context.inputs)
     } else {
       workflow.status = 'completed'
 
@@ -277,6 +284,62 @@ export class DialogEngine {
         workflows[nextFlowName].status = 'active'
       }
     }
+  }
+
+  private copyVarsToParent(flow: FlowView, currentNode: FlowNode, event: IO.IncomingEvent) {
+    const { workflows } = event.state.session
+    const { createVariable } = event.state
+
+    const childFlowVars = workflows[currentNode.flow!.replace('.flow.json', '')]?.variables
+    const outputVars = flow.variables?.filter(x => x.isOutput)
+
+    if (!outputVars || !childFlowVars) {
+      return
+    }
+
+    outputVars.forEach(v => {
+      const ouputVariableName = currentNode.subflow?.out?.[v.name]
+      if (!ouputVariableName) {
+        return
+      }
+
+      const cv = childFlowVars[v.name] as BoxedVariable<any>
+      if (cv) {
+        createVariable(ouputVariableName, cv.value, cv.type)
+      }
+    })
+  }
+
+  private sendVarsToChild(flow: FlowView, nextFlowName: string, event: IO.IncomingEvent, inputs?: SubWorkflowInputs) {
+    const { workflow, createVariable } = event.state
+
+    const inputVars = flow.variables?.filter(x => x.isInput)
+
+    if (!inputVars || !workflow.variables) {
+      return
+    }
+
+    inputVars.forEach(v => {
+      const input = inputs?.[v.name]
+      if (!input) {
+        return
+      }
+
+      let value: string
+      if (input.passVariable) {
+        const variable = workflow.variables[input.passVariable]
+        if (!variable) {
+          return
+        }
+        value = variable.value
+      } else if (input.passValue) {
+        value = input.passValue
+      } else {
+        return
+      }
+
+      createVariable(v.name, value, v.type, { nbOfTurns: 10, specificWorkflow: nextFlowName })
+    })
   }
 
   private _setCurrentNodeValue(event: IO.IncomingEvent, variable: string, value: any) {
@@ -515,23 +578,19 @@ export class DialogEngine {
     return this.processEvent(sessionId, event)
   }
 
-  private async _goToSubflow(botId: string, event: IO.IncomingEvent, sessionId: string, parentFlow, parentNode) {
-    const subflowName = parentNode.flow // Name of the subflow to transition to
+  private async _goToSubflow(
+    botId: string,
+    event: IO.IncomingEvent,
+    sessionId: string,
+    parentFlow,
+    parentNode: FlowNode
+  ) {
+    const subflowName = parentNode.flow || '' // Name of the subflow to transition to
     const subflow = this._findFlow(botId, subflowName)
     const subflowStartNode = this._findNode(botId, subflow, subflow.startNode)
 
-    const parameters = {}
-    if (subflow.variables) {
-      for (const variable of subflow.variables) {
-        if (!variable.isInput) {
-          continue
-        }
-        parameters[variable.name] = event.state.workflow.variables[variable.name]
-      }
-    }
-
     event.state.context = {
-      parameters,
+      inputs: parentNode.subflow?.in,
       currentFlow: subflow.name,
       currentNode: subflowStartNode.name,
       previousFlow: parentFlow.name,
