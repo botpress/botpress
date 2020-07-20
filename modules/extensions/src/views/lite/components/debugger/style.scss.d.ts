@@ -5,6 +5,7 @@ interface CssExports {
   'barContainer': string;
   'block': string;
   'collapsibleContainer': string;
+  'confidence': string;
   'container': string;
   'container2': string;
   'content': string;
@@ -13,14 +14,13 @@ interface CssExports {
   'hovering': string;
   'inspector': string;
   'inspectorContainer': string;
-  'language': string;
   'notFound': string;
   'percentBar': string;
+  'section': string;
+  'sectionTitle': string;
   'splash': string;
   'stacktrace': string;
   'subSection': string;
-  'summaryTable': string;
-  'title': string;
   'triggerGroup': string;
   'triggersContainer': string;
   'truncate': string;

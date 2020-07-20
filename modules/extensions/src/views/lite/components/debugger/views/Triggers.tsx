@@ -1,7 +1,7 @@
-import { Colors, H5, HTMLTable, Position, Tooltip } from '@blueprintjs/core'
+import { Position, Tooltip } from '@blueprintjs/core'
 import { NDU } from 'botpress/sdk'
 import _ from 'lodash'
-import React, { FC } from 'react'
+import React, { FC, Fragment } from 'react'
 
 import style from '../style.scss'
 
@@ -32,7 +32,7 @@ export const Triggers: FC<Props> = props => {
   }
 
   return (
-    <div className={style.subSection}>
+    <Fragment>
       <div className={style.triggersContainer}>
         <div className={style.group}>
           <div className={style.triggerGroup}>
@@ -57,6 +57,6 @@ export const Triggers: FC<Props> = props => {
           Node
         </div>
       </div>
-    </div>
+    </Fragment>
   )
 }

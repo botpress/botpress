@@ -1,7 +1,7 @@
-import { Colors, H5, HTMLTable, Icon } from '@blueprintjs/core'
+import { Icon } from '@blueprintjs/core'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import React, { FC } from 'react'
+import React, { FC, Fragment } from 'react'
 
 import style from '../style.scss'
 
@@ -13,7 +13,7 @@ export const Actions: FC<Props> = props => {
   const { actions } = props.ndu
 
   return (
-    <div className={style.subSection}>
+    <Fragment>
       <div style={{ display: 'flex' }}>
         <div>
           {actions.map(({ action, data }) => {
@@ -52,6 +52,6 @@ export const Actions: FC<Props> = props => {
           })}
         </div>
       </div>
-    </div>
+    </Fragment>
   )
 }

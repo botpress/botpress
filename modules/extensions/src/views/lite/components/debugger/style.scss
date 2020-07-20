@@ -7,43 +7,6 @@
 
 .block {
   margin-bottom: var(--spacing-large);
-
-  .title {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .subSection {
-    margin: 15px 5px;
-    h5 {
-      margin-bottom: 5px;
-    }
-    strong {
-      color: #0e5a8a; //blueprint primary
-    }
-    ul {
-      margin: 5px 0;
-      padding-left: 15px;
-      li {
-        line-height: 1.5em;
-      }
-    }
-    .language {
-      > p {
-        margin-bottom: 5px;
-      }
-      strong {
-        color: #5c7080; //blueprint gray-1
-      }
-    }
-  }
-  .summaryTable {
-    width: 100%;
-
-    th {
-      color: #5c7080; //blueprint gray-1
-    }
-  }
 }
 
 .hovering {
@@ -67,11 +30,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: relative;
 
   :global {
     .more-options-btn {
       height: 32px;
       width: 16px;
+      right: var(--spacing-large);
+      cursor: pointer;
 
       span {
         height: 4px;
@@ -89,6 +55,11 @@
           right: -6px;
         }
       }
+    }
+
+    .more-options-more-menu {
+      right: -6px;
+      top: 17px;
     }
 
     .bp3-tab {
@@ -266,5 +237,71 @@
 }
 
 .collapsibleContainer {
-  border: 1px solid #d8e1e8;
+  .sectionTitle {
+    color: var(--shark);
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 1.08;
+    margin: 0 0 var(--spacing-small);
+  }
+
+  .section {
+    margin-top: var(--spacing-large);
+  }
+
+  .subSection {
+    margin-top: var(--spacing-medium);
+  }
+
+  p {
+    color: var(--shark);
+    font-size: 12px;
+    line-height: 1.25;
+    margin: 0;
+  }
+
+  ul {
+    list-style: none;
+    margin: var(--spacing-medium) 0;
+    padding: 0 0 0 var(--spacing-medium);
+    border-left: 1px solid var(--seashell);
+
+    li {
+      color: var(--shark);
+      font-size: 12px;
+      margin-top: var(--spacing-x-small);
+
+      &:first-of-type {
+        margin-top: 0;
+      }
+
+      a {
+        color: var(--ocean);
+      }
+
+      .confidence {
+        margin-left: var(--spacing-small);
+      }
+    }
+  }
+
+  :global {
+    .bp3-button {
+      padding: 0;
+
+      .bp3-icon {
+        margin-right: var(--spacing-large);
+      }
+
+      svg {
+        fill: var(--shark);
+      }
+
+      .bp3-button-text {
+        color: var(--shark);
+        font-size: 12px;
+        line-height: 1.25;
+      }
+    }
+  }
 }

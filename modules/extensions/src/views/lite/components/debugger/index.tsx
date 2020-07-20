@@ -227,22 +227,7 @@ export class Debugger extends React.Component<Props, State> {
 
     return (
       <div className={style.content}>
-        <Tabs id="tabs" onChange={this.handleTabChange} selectedTabId={this.state.selectedTabId}>
-          <Tab id="basic" title="Summary" panel={<Summary event={this.state.event} />} />
-          {ndu && <Tab id="ndu" title="NDU" panel={<NDU ndu={ndu} />} />}
-          <Tab id="advanced" title="Raw JSON" panel={<Inspector data={this.state.event} />} />
-          {eventError && (
-            <Tab
-              id="errors"
-              title={
-                <span>
-                  <Icon icon="error" color="red" /> Error
-                </span>
-              }
-              panel={<Error error={eventError} />}
-            />
-          )}
-        </Tabs>
+        <Summary event={this.state.event} />
       </div>
     )
   }

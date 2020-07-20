@@ -1,7 +1,7 @@
 import { Colors, H4, H5, Icon, Position, Tooltip } from '@blueprintjs/core'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import React, { SFC } from 'react'
+import React, { Fragment, SFC } from 'react'
 
 import { Intent, isQnaItem } from '../components/Intent'
 import style from '../style.scss'
@@ -17,7 +17,7 @@ const Decision: SFC<{ decision: sdk.IO.Suggestion }> = props => {
   const isQnA = isQnaItem(decision)
 
   return (
-    <div className={style.subSection}>
+    <Fragment>
       <H5 color={Colors.DARK_GRAY5}>Decision</H5>
       <div style={{ display: 'flex' }}>
         {isQnA ? <Intent name={decision} /> : <strong>{decision}</strong>}
@@ -26,12 +26,12 @@ const Decision: SFC<{ decision: sdk.IO.Suggestion }> = props => {
           <Icon color={Colors.GRAY3} icon="info-sign" />
         </Tooltip>
       </div>
-    </div>
+    </Fragment>
   )
 }
 
 const Suggestions: SFC<{ suggestions: sdk.IO.Suggestion[] }> = props => (
-  <div className={style.subSection}>
+  <Fragment>
     <H5 color={Colors.DARK_GRAY5}>Suggestions</H5>
     <ul>
       {_.take(props.suggestions, 4).map(sugg => (
@@ -40,7 +40,7 @@ const Suggestions: SFC<{ suggestions: sdk.IO.Suggestion[] }> = props => (
         </li>
       ))}
     </ul>
-  </div>
+  </Fragment>
 )
 
 const highlightNode = (flow: string, node: string) => {
@@ -49,7 +49,7 @@ const highlightNode = (flow: string, node: string) => {
 }
 
 const Flow: SFC<{ stacktrace: sdk.IO.JumpPoint[] }> = props => (
-  <div className={style.subSection}>
+  <Fragment>
     <H5 color={Colors.DARK_GRAY5}>Flow Nodes</H5>
     <ol>
       {props.stacktrace.map(({ flow, node }, idx) => {
@@ -65,7 +65,7 @@ const Flow: SFC<{ stacktrace: sdk.IO.JumpPoint[] }> = props => (
         )
       })}
     </ol>
-  </div>
+  </Fragment>
 )
 
 const Dialog: SFC<Props> = props => {
