@@ -3,7 +3,7 @@ import _ from 'lodash'
 import { Token2Vec } from '../typings'
 
 import { LATIN_CHARSET, SPECIAL_CHARSET } from './chars'
-import vocabTokenizer from './vocab-tokenizer'
+import getVocabTokenizer from './vocab-tokenizer'
 
 export const SPACE = '\u2581'
 
@@ -63,9 +63,9 @@ const mergeLatin = (tokens: string[], vocab: Token2Vec): string[] => {
     return token && !vocab[token.toLowerCase()]
   }
 
-  const fedVocabTokenizer = vocabTokenizer(Object.keys(vocab))
+  const vocabTokenizer = getVocabTokenizer(Object.keys(vocab))
   const vocabTransformer = (prev: string, next: string) => {
-    return fedVocabTokenizer(`${prev}${next}`)
+    return vocabTokenizer(`${prev}${next}`)
   }
   return mergeSimilarCharsetTokens(tokens, LATIN_CHARSET, oovMatcher, vocabTransformer)
 }
