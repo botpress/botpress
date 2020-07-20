@@ -13,17 +13,7 @@ import SlotTagger from './slots/slot-tagger'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import tfidf from './tools/tfidf'
 import { convertToRealSpaces, isSpace, SPACE } from './tools/token-utils'
-import {
-  EntityExtractionResult,
-  Intent,
-  ListEntity,
-  ListEntityModel,
-  PatternEntity,
-  TFIDF,
-  Token2Vec,
-  Tools,
-  TrainingSession
-} from './typings'
+import { EntityExtractionResult, Intent, ListEntityModel, TFIDF, Token2Vec, Tools, TrainingSession } from './typings'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
 
 // TODO make this return artefacts only and move the make model login in E2
@@ -32,8 +22,8 @@ export type Trainer = (input: TrainInput, tools: Tools) => Promise<TrainOutput>
 export type TrainInput = Readonly<{
   botId: string
   languageCode: string
-  pattern_entities: PatternEntity[]
-  list_entities: ListEntity[]
+  pattern_entities: sdk.NLU.Pattern[]
+  list_entities: sdk.NLU.Enum[]
   contexts: string[]
   intents: Intent<string>[]
   trainingSession: TrainingSession
@@ -44,7 +34,7 @@ type TrainStep = Readonly<{
   botId: string
   languageCode: string
   list_entities: ListEntityModel[]
-  pattern_entities: PatternEntity[]
+  pattern_entities: sdk.NLU.Pattern[]
   contexts: string[]
   intents: Intent<Utterance>[]
   vocabVectors: Token2Vec
@@ -108,7 +98,7 @@ const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainSt
   } as TrainStep
 }
 
-const makeListEntityModel = async (entity: ListEntity, botId: string, languageCode: string, tools: Tools) => {
+const makeListEntityModel = async (entity: sdk.NLU.Enum, botId: string, languageCode: string, tools: Tools) => {
   const allValues = _.uniq(Object.keys(entity.synonyms).concat(..._.values(entity.synonyms)))
   const allTokens = (await tools.tokenize_utterances(allValues, languageCode)).map(toks =>
     toks.map(convertToRealSpaces)

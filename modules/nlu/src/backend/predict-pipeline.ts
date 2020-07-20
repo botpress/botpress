@@ -10,7 +10,7 @@ import { getUtteranceFeatures } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainOutput } from './training-pipeline'
-import { EntityExtractionResult, Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
+import { Intent, SlotExtractionResult, Tools, EntityExtractionResult } from './typings'
 import Utterance, { buildUtteranceBatch, getAlternateUtterance, UtteranceEntity } from './utterance/utterance'
 
 export type ExactMatchResult = (sdk.MLToolkit.SVM.Prediction & { extractor: 'exact-matcher' }) | undefined
@@ -21,7 +21,7 @@ export type Predictors = TrainOutput & {
   oos_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
   kmeans: sdk.MLToolkit.KMeans.KmeansResult
   slot_tagger: SlotTagger // TODO replace this by MlToolkit.CRF.Tagger
-  pattern_entities: PatternEntity[]
+  pattern_entities: sdk.NLU.Pattern[]
   intents: Intent<Utterance>[]
   contexts: string[]
 }

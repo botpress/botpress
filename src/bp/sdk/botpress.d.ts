@@ -449,7 +449,50 @@ declare module 'botpress/sdk' {
     }
   }
 
+  export namespace NLUCore {
+    export type TrainInput = {
+      language: string
+      randomSeed: number
+      topics: NLU.TopicDefinition[]
+      enums: NLU.Enum[]
+      patterns: NLU.Pattern[]
+      // synonyms: Synonym[]
+    }
+
+    export type TrainingStatus = 'queued' | 'training' | 'cancelling' | 'cancelled' | 'done'
+
+    export const train: (
+      input: TrainInput,
+      onProgress: (progress: number) => void,
+      onDone: (model: string) => void
+    ) => string // modelId
+    export const load: (model: string, modelId: string) => void
+    export const predict: (modelId: string, userInput: string) => Promise<NLU.Predictions>
+    export const getTrainingStatus: (modelId: string) => TrainingStatus
+    export const cancelTraining: (modelId: string) => Promise<void> // async because takes few seconds
+  }
+
   export namespace NLU {
+    export type TopicDefinition = {
+      name: string
+      intents: NLU.IntentDefinition[]
+    }
+
+    export type Enum = Readonly<{
+      name: string
+      synonyms: { [canonical: string]: string[] }
+      fuzzyTolerance: number
+      sensitive: boolean
+    }>
+
+    export type Pattern = Readonly<{
+      name: string
+      pattern: string
+      examples: string[]
+      matchCase: boolean
+      sensitive: boolean
+    }>
+
     export type EntityType = 'system' | 'pattern' | 'list'
 
     export interface EntityDefOccurrence {
@@ -480,7 +523,6 @@ declare module 'botpress/sdk' {
       utterances: {
         [lang: string]: string[]
       }
-      filename: string
       slots: SlotDefinition[]
       contexts: string[]
     }

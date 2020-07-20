@@ -32,6 +32,7 @@ import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
 import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
+import { NLUCore } from 'nlu-core'
 
 const http = (httpServer: HTTPServer) => (identity: string): typeof sdk.http => {
   return {
@@ -296,6 +297,7 @@ export class BotpressAPIProvider {
         WellKnownFlags: WellKnownFlags
       },
       MLToolkit: this.mlToolkit,
+      NLUCore: new NLUCore(),
       dialog: this.dialog,
       events: this.events,
       http: this.http(owner),

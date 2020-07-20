@@ -9,16 +9,7 @@ import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipe
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
 import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
-import {
-  EntityCacheDump,
-  Intent,
-  ListEntity,
-  ListEntityModel,
-  NLUEngine,
-  Tools,
-  TrainingSession,
-  NLUVersionInfo
-} from './typings'
+import { EntityCacheDump, Intent, ListEntityModel, NLUEngine, NLUVersionInfo, Tools, TrainingSession } from './typings'
 
 const trainDebug = DEBUG('nlu').sub('training')
 
@@ -63,7 +54,7 @@ export default class Engine implements NLUEngine {
             .keyBy('name')
             .mapValues('synonyms')
             .value()
-        } as ListEntity
+        } as NLU.Enum
       })
 
     const pattern_entities = entityDefs

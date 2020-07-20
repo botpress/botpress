@@ -98,21 +98,6 @@ export interface BotState {
 
 export type TFIDF = _.Dictionary<number>
 
-export type PatternEntity = Readonly<{
-  name: string
-  pattern: string
-  examples: string[]
-  matchCase: boolean
-  sensitive: boolean
-}>
-
-export type ListEntity = Readonly<{
-  name: string
-  synonyms: { [canonical: string]: string[] }
-  fuzzyTolerance: number
-  sensitive: boolean
-}>
-
 export type EntityCache = LRUCache<string, EntityExtractionResult[]>
 export type EntityCacheDump = LRUCache.Entry<string, EntityExtractionResult[]>[]
 
