@@ -36,25 +36,23 @@ export default class Summary extends React.Component<Props> {
 
     return (
       <div>
+        <NLU session={this.props.event.state.session} nluData={this.props.event.nlu} />
         <Dialog
           suggestions={this.props.event.suggestions}
           decision={this.props.event.decision}
           stacktrace={this.props.event.state.__stacktrace}
         />
-        <NLU session={this.props.event.state.session} nluData={this.props.event.nlu} />
 
         {this.props.event.ndu && (
           <div className={style.block}>
-            <div className={style.title}>
-              <H4>Dialog Understanding</H4>
-            </div>
+            <Collapsible name="Dialog Understanding">
+              <Collapsible name="Triggers">
+                <Triggers ndu={this.props.event.ndu}></Triggers>
+              </Collapsible>
 
-            <Collapsible name="Triggers">
-              <Triggers ndu={this.props.event.ndu}></Triggers>
-            </Collapsible>
-
-            <Collapsible name="Actions" opened>
-              <Actions ndu={this.props.event.ndu} />
+              <Collapsible name="Actions" opened>
+                <Actions ndu={this.props.event.ndu} />
+              </Collapsible>
             </Collapsible>
           </div>
         )}

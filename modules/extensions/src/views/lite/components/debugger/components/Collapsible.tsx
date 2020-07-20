@@ -21,7 +21,7 @@ export const Collapsible: FC<CollapsibleProps> = props => {
   return (
     <div className={style.collapsibleContainer}>
       <Button
-        icon={isOpen ? 'caret-down' : 'caret-right'}
+        icon={isOpen ? 'chevron-down' : 'chevron-right'}
         minimal={true}
         fill={true}
         alignText={Alignment.LEFT}

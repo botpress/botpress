@@ -18,8 +18,7 @@ const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding; session: any }> = ({ nluDat
 
   return (
     <div className={style.block}>
-      <div className={style.title}>
-        <H4>Language Understanding</H4>
+      <Collapsible name="Language Understanding" hidden={!nluData.entities.length}>
         {nluData.ambiguous && (
           <Tooltip
             position={Position.TOP}
@@ -38,16 +37,16 @@ const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding; session: any }> = ({ nluDat
             </span>
           </Tooltip>
         )}
-      </div>
-      <Language detectedLanguage={nluData.detectedLanguage} usedLanguage={nluData.language} />
-      <Intents intents={nluData.intents} intent={nluData.intent} />
+        <Language detectedLanguage={nluData.detectedLanguage} usedLanguage={nluData.language} />
+        <Intents intents={nluData.intents} intent={nluData.intent} />
 
-      <Collapsible name="Entities" hidden={!nluData.entities.length}>
-        <Entities entities={nluData.entities} />
-      </Collapsible>
+        <Collapsible name="Entities" hidden={!nluData.entities.length}>
+          <Entities entities={nluData.entities} />
+        </Collapsible>
 
-      <Collapsible name="Slots" hidden={_.isEmpty(session.slots) && _.isEmpty(nluData.slots)}>
-        <Slots sessionSlots={session.slots} slots={nluData.slots} />
+        <Collapsible name="Slots" hidden={_.isEmpty(session.slots) && _.isEmpty(nluData.slots)}>
+          <Slots sessionSlots={session.slots} slots={nluData.slots} />
+        </Collapsible>
       </Collapsible>
     </div>
   )
