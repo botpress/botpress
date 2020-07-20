@@ -123,7 +123,7 @@ export default class Engine implements NLUEngine {
       ctxToTrain
     }
 
-    let model: Partial<UntrainedModel> = {
+    const model: Partial<UntrainedModel> = {
       startedAt: new Date(),
       languageCode: input.languageCode,
       success: false,
@@ -134,14 +134,18 @@ export default class Engine implements NLUEngine {
 
     try {
       const output = await Trainer(input, Engine.tools)
-      model.data.output = output
-      model.success = true
+      if (output) {
+        model.data.output = output
+        model.success = true
+      }
     } catch (err) {
       this.logger.attachError(err).error(`Could not finish training NLU model : ${err}`)
     } finally {
       model.finishedAt = new Date()
       if (!trainAllCtx) {
-        model = this._mergeModels(previousModel, model as Model)
+        model.data.output = _.merge({}, previousModel.data.output, model.data.output)
+        // lodash merge messes up buffers objects
+        model.data.output.slots_model = new Buffer(model.data.output.slots_model)
       }
     }
 
@@ -251,21 +255,6 @@ export default class Engine implements NLUEngine {
 
     // error handled a level highr
     return Predict(input, Engine.tools, this.predictorsByLang)
-  }
-
-  private _mergeModels(previousModel: Model, trainingOuput: Model) {
-    const { output: previousModelOutput } = previousModel.data
-    const { output: currentModelOutput } = trainingOuput.data
-    if (!previousModelOutput || !currentModelOutput) {
-      return previousModel
-    }
-
-    const output = _.merge({}, previousModelOutput, currentModelOutput)
-    const mergedModel: Model = _.merge({}, trainingOuput, { data: { output } })
-
-    // lodash merge messes up buffers objects
-    mergedModel.data.output.slots_model = new Buffer(mergedModel.data.output.slots_model)
-    return mergedModel
   }
 
   private _ctxHasChanged = (previousIntents: Intent<string>[], currentIntents: Intent<string>[]) => (ctx: string) => {
