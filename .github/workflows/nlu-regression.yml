@@ -22,6 +22,6 @@ jobs:
       - name: Run Regression Test
         run: |
           export NLU_SEED=42
-          export BP_ENABLED_MODULES=['nlu', 'nlu-testing']
+          export BP_ENABLED_MODULES='["nlu", "nlu-testing"]'
           yarn start & sleep 20s &&
           node ./build/nlu-regression.js
