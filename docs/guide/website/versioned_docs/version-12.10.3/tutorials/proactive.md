@@ -1,6 +1,7 @@
 ---
-id: proactive
+id: version-12.10.3-proactive
 title: Acting Proactively
+original_id: proactive
 ---
 
 ## Overview

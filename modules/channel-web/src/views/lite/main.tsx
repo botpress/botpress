@@ -30,7 +30,7 @@ class Web extends React.Component<MainProps> {
     initializeAnalytics()
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.props.store.setIntlProvider(this.props.intl)
     window.store = this.props.store
 
@@ -42,10 +42,9 @@ class Web extends React.Component<MainProps> {
       }
     })
 
-    // tslint:disable-next-line: no-floating-promises
-    this.initialize()
-    // tslint:disable-next-line: no-floating-promises
-    this.initializeIfChatDisplayed()
+    await this.initialize()
+    await this.initializeIfChatDisplayed()
+
     this.props.setLoadingCompleted()
   }
 

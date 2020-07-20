@@ -5,7 +5,8 @@ export enum AppLifecycleEvents {
   HTTP_SERVER_READY = 'HTTP_SERVER_READY',
   SERVICES_READY = 'SERVICES_READY',
   CONFIGURATION_LOADED = 'CONFIGURATION_LOADED',
-  BOTPRESS_READY = 'BOTPRESS_READY'
+  BOTPRESS_READY = 'BOTPRESS_READY',
+  MODULES_READY = 'MODULES_READY'
 }
 
 type CacheEntry = { promise: Promise<void>; resolve: Function; reject: Function }
