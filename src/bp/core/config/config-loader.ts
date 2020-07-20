@@ -10,7 +10,6 @@ import { inject, injectable } from 'inversify'
 import defaultJsonBuilder from 'json-schema-defaults'
 import _, { PartialDeep } from 'lodash'
 import path from 'path'
-import yn from 'yn'
 
 import { BotpressConfig } from './botpress.config'
 
@@ -130,26 +129,30 @@ export class ConfigProvider {
   }
 
   public async getModulesListConfig() {
-    const enabledByDefault: string[] = yn(process.env.TEST_NLU)
-      ? ['nlu', 'nlu-testing']
-      : [
-          'analytics',
-          'basic-skills',
-          'builtin',
-          'channel-web',
-          'nlu',
-          'qna',
-          'extensions',
-          'code-editor',
-          'testing',
-          'examples'
-        ]
+    const enabledByDefault = this.parseEnabledModules() ?? [
+      'analytics',
+      'basic-skills',
+      'builtin',
+      'channel-web',
+      'nlu',
+      'qna',
+      'extensions',
+      'code-editor',
+      'testing',
+      'examples'
+    ]
 
     // here it's ok to use the module resolver because we are discovering the built-in modules only
     const resolver = new ModuleResolver(this.logger)
     return await resolver.getModulesList().map(module => {
       return { location: `MODULES_ROOT/${module}`, enabled: enabledByDefault.includes(module) }
     })
+  }
+
+  private parseEnabledModules = (): string[] | undefined => {
+    try {
+      return JSON.parse(process.env.BP_ENABLED_MODULES ?? '')
+    } catch {}
   }
 
   private async getConfig<T>(fileName: string, botId?: string): Promise<T> {
