@@ -244,6 +244,13 @@ declare type BotpressEnvironmentVariables = {
    * @default false
    */
   readonly BP_CODE_EDITOR_DISABLE_ADVANCED?: boolean
+
+  /**
+   * Overwrites the modules that are enabled by default.
+   * Has to be formatted as JSON,
+   * ex: ['nlu', 'nlu-testing']
+   */
+  readonly BP_ENABLED_MODULES?: string
 }
 
 interface IDebug {

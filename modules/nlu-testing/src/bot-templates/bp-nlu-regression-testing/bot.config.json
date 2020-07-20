@@ -18,5 +18,5 @@
     "expiration": "1 week"
   },
   "defaultLanguage": "en",
-  "languages": ["en", "ar", "ru", "fr"]
+  "languages": ["en"]
 }
