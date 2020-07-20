@@ -43,6 +43,7 @@ gulp.task('default', cb => {
 gulp.task('build:ui', ui.build())
 gulp.task('build:core', core.build())
 gulp.task('build:shared', ui.buildShared())
+gulp.task('init:studio', ui.initStudio)
 gulp.task('build:modules', gulp.series([modules.build()]))
 
 gulp.task('start:guide', docs.startDevServer)
