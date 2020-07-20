@@ -60,7 +60,7 @@ function renderTeams(data) {
 
 function renderElement(data, channel) {
   if (channel === 'web' || channel === 'slack') {
-    return base.newRenderer(data, 'text')
+    return base.renderer(data, 'text')
   } else if (channel === 'messenger') {
     return renderMessenger(data)
   } else if (channel === 'teams') {

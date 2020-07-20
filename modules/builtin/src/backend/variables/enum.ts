@@ -1,7 +1,7 @@
 import { BoxedVariable, FlowVariableType } from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 
-class BoxedEnum extends BaseVariable<string> implements BoxedVariable<string> {
+class BoxedEnum extends BaseVariable<string> {
   constructor(args) {
     super(args)
   }

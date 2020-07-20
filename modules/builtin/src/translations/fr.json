@@ -72,7 +72,7 @@
   },
   "typingIndicator": "Afficher l'indicateur de frappe",
   "useMarkdown": "Utiliser markdown",
-  "defaultValue": "Default Value",
+  "defaultValue": "Valeur par défaut",
   "duration": "Durée",
   "durationMoreInfo": "Le nombre de tours (échange entre l'assistant et l'utilisateur) avant que la requête ne soit annulée.",
   "searchBackCount": "Nombre de recherche en arrière",

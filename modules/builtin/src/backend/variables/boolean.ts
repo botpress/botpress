@@ -2,7 +2,7 @@ import { BoxedVariable, FlowVariableType } from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 import yn from 'yn'
 
-class BoxedBoolean extends BaseVariable<boolean> implements BoxedVariable<boolean> {
+class BoxedBoolean extends BaseVariable<boolean> {
   constructor(args) {
     super(args)
   }

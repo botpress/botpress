@@ -232,6 +232,7 @@ export class SlackClient {
     const blocks = []
 
     if (__typing) {
+      // @deprecated
       if (this.rtm) {
         await this.rtm.sendTyping(event.threadId || event.target)
         await new Promise(resolve => setTimeout(() => resolve(), 1000))
@@ -244,10 +245,10 @@ export class SlackClient {
         type: 'actions',
         elements: __buttons.map((q, idx) => ({
           type: 'button',
-          action_id: 'replace_buttons' + idx,
+          action_id: `replace_buttons${idx}`,
           text: {
             type: 'plain_text',
-            text: q.label ?? q['title']
+            text: q.label || q['title']
           },
           value: q.value.toString().toUpperCase()
         }))
