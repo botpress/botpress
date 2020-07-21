@@ -363,7 +363,7 @@ export default async (bp: typeof sdk, db: Database) => {
       await bp.users.getOrCreateUser('web', userId, botId)
 
       const payload = {
-        text: `Reset the conversation`,
+        text: `Conversation Reset`,
         type: 'session_reset'
       }
 
