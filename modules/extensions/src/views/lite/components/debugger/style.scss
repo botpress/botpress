@@ -236,24 +236,10 @@
   text-overflow: ellipsis;
 }
 
-.collapsibleContainer {
-  .sectionTitle {
-    color: var(--shark);
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 1.08;
-    margin: 0 0 var(--spacing-small);
-  }
+.section {
+  margin-top: var(--spacing-large);
 
-  .section {
-    margin-top: var(--spacing-large);
-  }
-
-  .subSection {
-    margin-top: var(--spacing-medium);
-  }
-
-  p {
+  p, a {
     color: var(--shark);
     font-size: 12px;
     line-height: 1.25;
@@ -274,15 +260,29 @@
       &:first-of-type {
         margin-top: 0;
       }
-
-      a {
-        color: var(--ocean);
-      }
     }
+  }
+
+  a {
+    color: var(--ocean);
   }
 
   .confidence {
     margin-left: var(--spacing-small);
+  }
+}
+
+.collapsibleContainer {
+  .sectionTitle {
+    color: var(--shark);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.08;
+    margin: 0 0 var(--spacing-small);
+  }
+
+  .subSection {
+    margin-top: var(--spacing-medium);
   }
 
   :global {

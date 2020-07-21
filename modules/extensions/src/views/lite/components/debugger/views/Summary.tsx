@@ -30,7 +30,11 @@ export default class Summary extends React.Component<Props> {
 
   render() {
     if (this.state.hasError) {
-      return <div>Cannot display event summary</div>
+      return (
+        <div className={style.section}>
+          <p>Cannot display event summary</p>
+        </div>
+      )
     }
 
     return (

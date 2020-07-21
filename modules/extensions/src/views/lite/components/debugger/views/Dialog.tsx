@@ -3,6 +3,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import React, { Fragment, SFC } from 'react'
 
+import { Collapsible } from '../components/Collapsible'
 import { Intent, isQnaItem } from '../components/Intent'
 import style from '../style.scss'
 
@@ -17,30 +18,31 @@ const Decision: SFC<{ decision: sdk.IO.Suggestion }> = props => {
   const isQnA = isQnaItem(decision)
 
   return (
-    <Fragment>
-      <H5 color={Colors.DARK_GRAY5}>Decision</H5>
-      <div style={{ display: 'flex' }}>
-        {isQnA ? <Intent name={decision} /> : <strong>{decision}</strong>}
-        &nbsp;
-        <Tooltip content={props.decision.decision.reason} position={Position.RIGHT}>
-          <Icon color={Colors.GRAY3} icon="info-sign" />
-        </Tooltip>
+    <div className={style.section}>
+      <div className={style.sectionTitle}>Decision</div>
+      <div className={style.subSection}>
+        {isQnA ? <Intent name={decision} /> : <p>{decision}</p>}
+        <ul>
+          <li>{props.decision.decision.reason}</li>
+        </ul>
       </div>
-    </Fragment>
+    </div>
   )
 }
 
 const Suggestions: SFC<{ suggestions: sdk.IO.Suggestion[] }> = props => (
-  <Fragment>
-    <H5 color={Colors.DARK_GRAY5}>Suggestions</H5>
-    <ul>
-      {_.take(props.suggestions, 4).map(sugg => (
-        <li key={sugg.sourceDetails}>
-          <Intent name={sugg.sourceDetails} confidence={sugg.confidence} />
-        </li>
-      ))}
-    </ul>
-  </Fragment>
+  <div className={style.section}>
+    <div className={style.sectionTitle}>Suggestions</div>
+    <div className={style.subSection}>
+      <ul>
+        {_.take(props.suggestions, 4).map(sugg => (
+          <li key={sugg.sourceDetails}>
+            <Intent name={sugg.sourceDetails} confidence={sugg.confidence} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
 )
 
 const highlightNode = (flow: string, node: string) => {
@@ -49,23 +51,25 @@ const highlightNode = (flow: string, node: string) => {
 }
 
 const Flow: SFC<{ stacktrace: sdk.IO.JumpPoint[] }> = props => (
-  <Fragment>
-    <H5 color={Colors.DARK_GRAY5}>Flow Nodes</H5>
-    <ol>
-      {props.stacktrace.map(({ flow, node }, idx) => {
-        const flowName = flow && flow.replace(/\.flow\.json$/i, '')
-        return (
-          <li key={`${flow}:${node}:${idx}`}>
-            <span>
-              <a onClick={() => highlightNode(flow, node)}>
-                {flowName} / {node}
-              </a>
-            </span>
-          </li>
-        )
-      })}
-    </ol>
-  </Fragment>
+  <div className={style.section}>
+    <div className={style.sectionTitle}>Flow Nodes</div>
+    <div className={style.subSection}>
+      <ul>
+        {props.stacktrace.map(({ flow, node }, idx) => {
+          const flowName = flow && flow.replace(/\.flow\.json$/i, '')
+          return (
+            <li key={`${flow}:${node}:${idx}`}>
+              <span>
+                <a onClick={() => highlightNode(flow, node)}>
+                  {flowName} / {node}
+                </a>
+              </span>
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  </div>
 )
 
 const Dialog: SFC<Props> = props => {
@@ -74,12 +78,11 @@ const Dialog: SFC<Props> = props => {
   }
 
   return (
-    <Fragment>
-      <H4>Dialog Manager</H4>
+    <Collapsible name="Dialog Manager">
       <Decision decision={props.decision} />
       {props.stacktrace && props.stacktrace.length > 0 && <Flow stacktrace={props.stacktrace} />}
       {props.suggestions && props.suggestions.length > 0 && <Suggestions suggestions={props.suggestions} />}
-    </Fragment>
+    </Collapsible>
   )
 }
 
