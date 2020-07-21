@@ -14,6 +14,7 @@
   "author": "Botpress Team",
   "license": "AGPL-3.0-only",
   "dependencies": {
+    "axios": "^0.19.2",
     "yn": "^4.0.0"
   },
   "resolutions": {
