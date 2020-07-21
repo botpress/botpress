@@ -1,6 +1,5 @@
 import { Logger, MLToolkit, NLU } from 'botpress/sdk'
 import crypto from 'crypto'
-import { outputFile } from 'fs-extra'
 import _ from 'lodash'
 
 import * as CacheManager from './cache-manager'
@@ -26,10 +25,6 @@ export type TrainingOptions = {
   forceTrain: boolean
 }
 
-type UntrainedModel = Omit<Model, 'data'> & {
-  data: { input: TrainInput; output?: TrainOutput }
-}
-
 export default class Engine implements NLUEngine {
   // NOTE: removed private in order to prevent important refactor (which will be done later)
   static tools: Tools
@@ -53,7 +48,7 @@ export default class Engine implements NLUEngine {
     languageCode: string,
     trainingSession?: TrainingSession,
     options?: TrainingOptions
-  ): Promise<Model> {
+  ): Promise<Model | undefined> {
     trainDebug.forBot(this.botId, `Started ${languageCode} training`)
 
     const list_entities = entityDefs
@@ -123,43 +118,52 @@ export default class Engine implements NLUEngine {
       ctxToTrain
     }
 
-    const model: Partial<UntrainedModel> = {
-      startedAt: new Date(),
-      languageCode: input.languageCode,
-      success: false,
-      data: {
-        input
-      }
+    const hash = computeModelHash(intentDefs, entityDefs, this.version, languageCode)
+    const model = await this._trainAndMakeModel(input, hash)
+    if (!model) {
+      return
     }
 
+    if (!trainAllCtx) {
+      model.data.output = _.merge({}, previousModel.data.output, model.data.output)
+      model.data.output.slots_model = new Buffer(model.data.output.slots_model) // lodash merge messes up buffers
+    }
+
+    trainingSession &&
+      Engine.tools.reportTrainingProgress(this.botId, 'Training complete', {
+        ...trainingSession,
+        progress: 1,
+        status: 'done'
+      })
+
+    trainDebug.forBot(this.botId, `Successfully finished ${languageCode} training`)
+    return model
+  }
+
+  private async _trainAndMakeModel(input: TrainInput, hash: string): Promise<Model | undefined> {
+    const startedAt = new Date()
+    let output: TrainOutput
     try {
-      const output = await Trainer(input, Engine.tools)
-      if (output) {
-        model.data.output = output
-        model.success = true
-      }
+      output = await Trainer(input, Engine.tools)
     } catch (err) {
       this.logger.attachError(err).error(`Could not finish training NLU model : ${err}`)
-    } finally {
-      model.finishedAt = new Date()
-      if (!trainAllCtx) {
-        model.data.output = _.merge({}, previousModel.data.output, model.data.output)
-        // lodash merge messes up buffers objects
-        model.data.output.slots_model = new Buffer(model.data.output.slots_model)
-      }
+      return
     }
 
-    model.hash = computeModelHash(intentDefs, entityDefs, this.version, model.languageCode)
-    if (model.success) {
-      trainingSession &&
-        Engine.tools.reportTrainingProgress(this.botId, 'Training complete', {
-          ...trainingSession,
-          progress: 1,
-          status: 'done'
-        })
-      trainDebug.forBot(this.botId, `Successfully finished ${languageCode} training`)
+    if (!output) {
+      return
     }
-    return model as Model
+
+    return {
+      startedAt,
+      finishedAt: new Date(),
+      languageCode: input.languageCode,
+      hash,
+      data: {
+        input,
+        output
+      }
+    }
   }
 
   private modelAlreadyLoaded(model: Model) {
