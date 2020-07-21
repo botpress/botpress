@@ -121,14 +121,15 @@ export default class Engine implements NLUEngine {
 
     const hash = computeModelHash(intentDefs, entityDefs, this.version, languageCode)
     const model = await this._trainAndMakeModel(input, hash)
+    if (!model) {
+      return
+    }
+
     if (!trainAllCtx) {
       model.data.output = _.merge({}, previousModel.data.output, model.data.output)
       model.data.output.slots_model = new Buffer(model.data.output.slots_model) // lodash merge messes up buffers
     }
 
-    if (!model) {
-      return
-    }
     trainingSession &&
       Engine.tools.reportTrainingProgress(this.botId, 'Training complete', {
         ...trainingSession,
@@ -143,15 +144,15 @@ export default class Engine implements NLUEngine {
 
   private async _trainAndMakeModel(input: TrainInput, hash: string): Promise<Model | undefined> {
     const startedAt = new Date()
-    let artefacts: TrainOutput
+    let output: TrainOutput
     try {
-      artefacts = await Trainer(input, Engine.tools)
+      output = await Trainer(input, Engine.tools)
     } catch (err) {
       this.logger.attachError(err).error(`Could not finish training NLU model : ${err}`)
       return
     }
 
-    if (!artefacts) {
+    if (!output) {
       return
     }
 
@@ -162,7 +163,7 @@ export default class Engine implements NLUEngine {
       hash,
       data: {
         input,
-        output: artefacts
+        output
       }
     }
   }
