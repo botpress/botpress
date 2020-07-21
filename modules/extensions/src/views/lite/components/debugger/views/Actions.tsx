@@ -14,44 +14,24 @@ export const Actions: FC<Props> = props => {
 
   return (
     <Fragment>
-      <div style={{ display: 'flex' }}>
-        <div>
+      <ul>
+        <li>
           {actions.map(({ action, data }) => {
             switch (action) {
               case 'send':
-                return (
-                  <div className={style.truncate}>
-                    <Icon icon="chat" /> Say {(data as sdk.NDU.SendContent).sourceDetails}
-                  </div>
-                )
+                return <span className={style.truncate}>Say {(data as sdk.NDU.SendContent).sourceDetails}</span>
               case 'startWorkflow':
-                return (
-                  <div className={style.truncate}>
-                    <Icon icon="flow-linear" /> Start Workflow {(data as sdk.NDU.FlowRedirect).flow}
-                  </div>
-                )
+                return <span className={style.truncate}>Start Workflow {(data as sdk.NDU.FlowRedirect).flow}</span>
               case 'goToNode':
-                return (
-                  <div className={style.truncate}>
-                    <Icon icon="flow-linear" /> Go to node {(data as sdk.NDU.FlowRedirect).node}
-                  </div>
-                )
+                return <span className={style.truncate}>Go to node {(data as sdk.NDU.FlowRedirect).node}</span>
               case 'redirect':
-                return (
-                  <div className={style.truncate}>
-                    <Icon icon="pivot" /> Redirect to {(data as sdk.NDU.FlowRedirect).flow}
-                  </div>
-                )
+                return <span className={style.truncate}>Redirect to {(data as sdk.NDU.FlowRedirect).flow}</span>
               case 'continue':
-                return (
-                  <div>
-                    <Icon icon="play" /> Continue
-                  </div>
-                )
+                return <span>Continue</span>
             }
           })}
-        </div>
-      </div>
+        </li>
+      </ul>
     </Fragment>
   )
 }

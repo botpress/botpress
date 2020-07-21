@@ -1,6 +1,5 @@
-import { H4 } from '@blueprintjs/core'
 import sdk from 'botpress/sdk'
-import React from 'react'
+import React, { Fragment } from 'react'
 
 import { Collapsible } from '../components/Collapsible'
 import style from '../style.scss'
@@ -44,17 +43,19 @@ export default class Summary extends React.Component<Props> {
         />
 
         {this.props.event.ndu && (
-          <div className={style.block}>
+          <Fragment>
             <Collapsible name="Dialog Understanding">
-              <Collapsible name="Triggers">
+              <div className={style.section}>
+                <div className={style.sectionTitle}>Top Triggers</div>
                 <Triggers ndu={this.props.event.ndu}></Triggers>
-              </Collapsible>
+              </div>
 
-              <Collapsible name="Actions" opened>
+              <div className={style.section}>
+                <div className={style.sectionTitle}>Decisions Taken</div>
                 <Actions ndu={this.props.event.ndu} />
-              </Collapsible>
+              </div>
             </Collapsible>
-          </div>
+          </Fragment>
         )}
       </div>
     )

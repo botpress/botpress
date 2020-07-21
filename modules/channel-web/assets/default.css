@@ -165,10 +165,7 @@ body {
   margin-right: 5px;
 }
 
-.bpw-bot-avatar.emulator {
-  height: 16px;
-  width: 16px;
-  min-width: 16px;
+.bpw-bot-avatar.default {
   border-radius: 50%;
   background: var(--shark);
   display: flex;
@@ -176,8 +173,8 @@ body {
   justify-content: center;
 }
 
-.bpw-bot-avatar:not(.emulator) img,
-.bpw-bot-avatar:not(.emulator) svg {
+.bpw-bot-avatar:not(.default) img,
+.bpw-bot-avatar:not(.default) svg {
   border-radius: 50%;
   background: var(--shark);
 }
@@ -810,17 +807,28 @@ body {
   background: none;
   padding: 0;
   margin: 0;
-  color: #bbb;
-  margin-left: 17px;
+  color: var(--shark);
+  line-height: 0;
+  margin-left: var(--spacing-large);
   text-align: right;
   vertical-align: middle;
   cursor: pointer;
-  fill: #bbb;
+  fill: var(--shark);
   width: 15px;
+  transition: fill 0.3s;
 }
 
-.bpw-header-icon :hover {
-  fill: black;
+.bpw-header-icon svg {
+  fill: var(--shark);
+  transition: fill 0.3s;
+}
+
+.bpw-header-icon:hover {
+  fill: var(--reef);
+}
+
+.bpw-header-icon:hover svg {
+  fill: var(--reef);
 }
 
 .bpw-floating-button {
@@ -906,6 +914,11 @@ body {
   margin-top: -32px;
   border-bottom: solid 1px rgba(0, 0, 0, 0.1);
   box-shadow: 0px 4px 5px -5px #ccc;
+  text-align: center;
+}
+
+.bpw-botinfo-summary .bpw-bot-avatar.default {
+  margin: 0 auto var(--spacing-medium);
 }
 
 .bpw-botinfo-description {
@@ -1093,4 +1106,8 @@ body {
   border-top: 2px solid var(--ocean);
   padding: var(--spacing-medium) 0;
   text-transform: uppercase;
+}
+
+.bpw-emulator-header-tab + div {
+  line-height: 0;
 }

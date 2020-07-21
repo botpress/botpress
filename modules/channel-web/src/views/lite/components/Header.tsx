@@ -203,7 +203,10 @@ class Header extends React.Component<HeaderProps> {
       return (
         <div className="bpw-emulator-header">
           <span className="bpw-emulator-header-tab">Emulator</span>
-          {this.props.showResetButton && this.renderResetButton()}
+          <div>
+            {this.props.showResetButton && this.renderResetButton()}
+            {this.props.showBotInfoButton && this.renderBotInfoButton()}
+          </div>
         </div>
       )
     }

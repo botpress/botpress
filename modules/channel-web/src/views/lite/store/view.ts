@@ -71,6 +71,7 @@ class ViewStore {
 
   @computed
   get showBotInfoButton() {
+    console.log(this.rootStore.botInfo.showBotInfoPage)
     return !this.isConversationsDisplayed && this.rootStore.botInfo && this.rootStore.botInfo.showBotInfoPage
   }
 

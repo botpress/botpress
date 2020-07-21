@@ -9,13 +9,11 @@ export default () => (
     <div>
       <MdBugReport />
       <h2>Event not found</h2>
-      <p>
-        The requested event was not found. Possible reasons:
-        <ul>
-          <li>The Event Collector is not enabled in Botpress Config</li>
-          <li>The event was pruned from the database </li>
-        </ul>
-      </p>
+      <p>The requested event was not found. Possible reasons:</p>
+      <ul>
+        <li>The Event Collector is not enabled in Botpress Config</li>
+        <li>The event was pruned from the database </li>
+      </ul>
     </div>
   </div>
 )

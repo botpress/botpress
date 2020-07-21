@@ -5,10 +5,6 @@
   outline: none;
 }
 
-.block {
-  margin-bottom: var(--spacing-large);
-}
-
 .hovering {
   width: 100%;
 
@@ -128,6 +124,10 @@
     ul {
       text-align: left;
       padding: 0 0 0 30px;
+      font-size: 12px;
+      line-height: 1.25;
+      text-align: center;
+      color: var(--shark)
     }
 
     p {
@@ -230,7 +230,7 @@
 }
 
 .truncate {
-  width: 350px;
+  display: block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -240,7 +240,7 @@
   .sectionTitle {
     color: var(--shark);
     font-size: 12px;
-    font-weight: bold;
+    font-weight: 700;
     line-height: 1.08;
     margin: 0 0 var(--spacing-small);
   }
@@ -278,11 +278,11 @@
       a {
         color: var(--ocean);
       }
-
-      .confidence {
-        margin-left: var(--spacing-small);
-      }
     }
+  }
+
+  .confidence {
+    margin-left: var(--spacing-small);
   }
 
   :global {

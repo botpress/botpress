@@ -107,7 +107,7 @@ class MessageList extends React.Component<MessageListProps, State> {
   }
 
   renderAvatar(name, url) {
-    return <Avatar name={name} avatarUrl={url} height={16} width={16} isEmulator={this.props.isEmulator} />
+    return <Avatar name={name} avatarUrl={url} height={16} width={16} />
   }
 
   renderMessageGroups() {

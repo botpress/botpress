@@ -3,7 +3,6 @@
 interface CssExports {
   'bar': string;
   'barContainer': string;
-  'block': string;
   'collapsibleContainer': string;
   'confidence': string;
   'container': string;
