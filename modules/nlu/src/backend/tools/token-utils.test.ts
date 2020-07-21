@@ -92,6 +92,32 @@ describe('Raw token processing', () => {
     expect(processUtteranceTokens(moreToks)).toEqual(['jag', SPACE, 'är', SPACE, 'väldigt', SPACE, 'hungrig'])
   })
 
+  test('processUtteranceTokens with vocab should help tokenization', () => {
+    const toks = [`${SPACE}i`, `'`, `m`, `${SPACE}having`, `${SPACE}some`, `${SPACE}trouble`, `${SPACE}tol`, `ogin`]
+    const vocab = {
+      to: [1, 2, 3, 4],
+      login: [1, 2, 3, 4]
+    }
+
+    expect(processUtteranceTokens(toks, vocab)).toEqual([
+      `i`,
+      `'`,
+      `m`,
+      SPACE,
+      `having`,
+      SPACE,
+      `some`,
+      SPACE,
+      `trouble`,
+      SPACE,
+      `to`,
+      `login`
+    ])
+
+    const moreToks = [`${SPACE}jag`, `${SPACE}ä`, `r`, `${SPACE}väl`, `digt`, `${SPACE}hungrig`]
+    expect(processUtteranceTokens(moreToks)).toEqual(['jag', SPACE, 'är', SPACE, 'väldigt', SPACE, 'hungrig'])
+  })
+
   test('restoreUtteranceTokens', () => {
     const original = 'I left NASA to work at Botpress'
     const tokens = ['i', SPACE, 'left', SPACE, 'nasa', SPACE, 'to', SPACE, 'work', SPACE, 'at', SPACE, 'bot', 'press']
