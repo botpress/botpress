@@ -1,7 +1,6 @@
 import { BotEvent, FlowVariable, FormData, FormField } from 'botpress/sdk'
 
 export interface FormProps {
-  preventSuperInput?: boolean
   axios?: any
   mediaPath?: string
   overrideFields?: {[field: string]: (props: any) => JSX.Element}
@@ -13,6 +12,7 @@ export interface FormProps {
   onUpdateVariables?: (variable: FlowVariable ) => void
   variables?: FlowVariable[]
   superInputOptions?: {
+    enabled?: boolean
     eventsOnly?: boolean
     variablesOnly?: boolean
   }

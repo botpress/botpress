@@ -111,8 +111,7 @@ const ContentAnswerForm: FC<Props> = ({
         </div>
         {contentFields && (
           <Contents.Form
-            preventSuperInput={!isLite}
-            superInputOptions={{ eventsOnly: true }}
+            superInputOptions={{ enabled: !isLite, eventsOnly: true }}
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
             axios={bp.axios}

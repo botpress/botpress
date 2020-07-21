@@ -168,7 +168,6 @@ const getSuperInputsFromData = data => {
 }
 
 const Form: FC<FormProps> = ({
-  preventSuperInput,
   axios,
   mediaPath,
   overrideFields,
@@ -254,7 +253,7 @@ const Form: FC<FormProps> = ({
 
   const showSuperInput = (field, parent) => {
     return (
-      !preventSuperInput &&
+      !superInputOptions?.enabled &&
       field.superInput &&
       (['text', 'text_array'].includes(field.type) || isSuperInput(field, parent))
     )
@@ -276,6 +275,7 @@ const Form: FC<FormProps> = ({
     return (
       <SuperInput
         defaultVariableType={getVariableType(field.type)}
+        variableTypes={field.variableTypes}
         placeholder={lang(field.placeholder)}
         variables={variables || []}
         events={events || []}
@@ -360,6 +360,7 @@ const Form: FC<FormProps> = ({
                 onChange={value => {
                   dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
                 }}
+                variableTypes={field.variableTypes}
                 canPickEvents={!superInputOptions?.variablesOnly}
                 canPickVariables={!superInputOptions?.eventsOnly}
                 variables={variables || []}

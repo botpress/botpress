@@ -19,6 +19,7 @@ export default ({
   canPickEvents = true,
   canPickVariables = true,
   defaultVariableType,
+  variableTypes,
   events,
   multiple,
   variables,
@@ -31,7 +32,15 @@ export default ({
   isFocused,
   placeholder
 }: Props) => {
-  const typeFilter = ({ type }) => (defaultVariableType ? type === defaultVariableType : true)
+  const typeFilter = ({ type }) => {
+    if (variableTypes) {
+      return variableTypes.includes(type)
+    } else if (defaultVariableType) {
+      return type === defaultVariableType
+    }
+
+    return true
+  }
 
   const initialValue = useRef<string>((value && convertToTags(value)) || '')
   const newlyAddedVar = useRef<string[]>([])

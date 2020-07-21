@@ -93,19 +93,18 @@ const VariablesEditor: FC<Props> = props => {
   const renderTableRows = () => {
     return (
       <Fragment>
-        {props.currentFlow?.variables &&
-          props.currentFlow?.variables.map((v, i) => (
-            <tr key={i}>
-              <td>{v.name}</td>
-              <td>{v.type}</td>
-              <td>
-                <Button text="Edit" onClick={() => handleEditClick(v.name)} />
-              </td>
-              <td>
-                <Button text="Delete" onClick={() => handleDeleteClick(v.name)} />
-              </td>
-            </tr>
-          ))}
+        {props.currentFlow?.variables?.map((v, i) => (
+          <tr key={i}>
+            <td>{v.name}</td>
+            <td>{v.type}</td>
+            <td>
+              <Button text="Edit" onClick={() => handleEditClick(v.name)} />
+            </td>
+            <td>
+              <Button text="Delete" onClick={() => handleDeleteClick(v.name)} />
+            </td>
+          </tr>
+        ))}
       </Fragment>
     )
   }
