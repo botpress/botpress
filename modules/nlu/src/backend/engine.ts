@@ -8,7 +8,7 @@ import { computeModelHash, Model } from './model-service'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
-import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainArtefacts } from './training-pipeline'
+import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOuput } from './training-pipeline'
 import {
   EntityCacheDump,
   Intent,
@@ -122,8 +122,8 @@ export default class Engine implements NLUEngine {
     const hash = computeModelHash(intentDefs, entityDefs, this.version, languageCode)
     const model = await this._trainAndMakeModel(input, hash)
     if (!trainAllCtx) {
-      model.data.artefacts = _.merge({}, previousModel.data.artefacts, model.data.artefacts)
-      model.data.artefacts.slots_model = new Buffer(model.data.artefacts.slots_model) // lodash merge messes up buffers
+      model.data.output = _.merge({}, previousModel.data.output, model.data.output)
+      model.data.output.slots_model = new Buffer(model.data.output.slots_model) // lodash merge messes up buffers
     }
 
     if (!model) {
@@ -143,7 +143,7 @@ export default class Engine implements NLUEngine {
 
   private async _trainAndMakeModel(input: TrainInput, hash: string): Promise<Model | undefined> {
     const startedAt = new Date()
-    let artefacts: TrainArtefacts
+    let artefacts: TrainOuput
     try {
       artefacts = await Trainer(input, Engine.tools)
     } catch (err) {
@@ -162,7 +162,7 @@ export default class Engine implements NLUEngine {
       hash,
       data: {
         input,
-        artefacts
+        output: artefacts
       }
     }
   }
@@ -186,14 +186,14 @@ export default class Engine implements NLUEngine {
     if (this.modelAlreadyLoaded(model)) {
       return
     }
-    if (!model.data.artefacts.intents) {
+    if (!model.data.output.intents) {
       const intents = await ProcessIntents(
         model.data.input.intents,
         model.languageCode,
-        model.data.artefacts.list_entities,
+        model.data.output.list_entities,
         Engine.tools
       )
-      model.data.artefacts.intents = intents
+      model.data.output.intents = intents
     }
 
     this._warmEntitiesCaches(_.get(model, 'data.artefacts.list_entities', []))
@@ -214,7 +214,7 @@ export default class Engine implements NLUEngine {
   }
 
   private async _makePredictors(model: Model): Promise<Predictors> {
-    const { input, artefacts } = model.data
+    const { input, output: artefacts } = model.data
     const tools = Engine.tools
 
     if (_.flatMap(input.intents, i => i.utterances).length <= 0) {
