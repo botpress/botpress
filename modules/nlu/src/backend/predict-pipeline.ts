@@ -358,24 +358,7 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
     }
   }
 
-  // legacy pre-ndu
   const entities = step.utterance.entities.map(entitiesMapper)
-
-  // legacy pre-ndu
-  const slots = step.utterance.slots.reduce((slots, s) => {
-    return {
-      ...slots,
-      [s.name]: {
-        start: s.startPos,
-        end: s.endPos,
-        confidence: s.confidence,
-        name: s.name,
-        source: s.source,
-        value: s.value,
-        entity: entitiesMapper(s.entity) // TODO: add this mapper to the legacy election pipeline
-      }
-    }
-  }, {} as sdk.NLU.SlotCollection)
 
   const slotsCollectionReducer = (slots: sdk.NLU.SlotCollection, s: SlotExtractionResult): sdk.NLU.SlotCollection => {
     if (slots[s.slot.name] && slots[s.slot.name].confidence > s.slot.confidence) {
