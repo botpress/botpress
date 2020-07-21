@@ -82,7 +82,7 @@
   "mustBeFuture": "Doit être dans le futur",
   "enumType": "Type d'énumération",
   "question": "Question",
-  "useDropdown": "Utiliser dropdown",
+  "useDropdown": "Utiliser menu déroulant",
   "min": "Minimum",
   "max": "Maximum",
   "yes": "Oui",

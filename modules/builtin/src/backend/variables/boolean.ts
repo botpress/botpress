@@ -22,6 +22,7 @@ class BoxedBoolean extends BaseVariable<boolean> {
   }
 
   toString(customFormat?: string) {
+    // TODO: translations
     if (customFormat === 'y/n') {
       return this._value ? 'Yes' : 'No'
     } else {

@@ -420,6 +420,9 @@ export class Botpress {
       })
     }
 
+    // Avoids circular reference when Redis is enabled
+    this.eventEngine.translatePayload = this.cmsService.translatePayload.bind(this.cmsService)
+
     this.botMonitor.onBotError = async (botId: string, events: sdk.LoggerEntry[]) => {
       await this.hookService.executeHook(new Hooks.OnBotError(this.api, botId, events))
     }

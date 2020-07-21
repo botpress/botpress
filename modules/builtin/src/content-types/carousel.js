@@ -167,7 +167,7 @@ module.exports = {
         type: 'group',
         key: 'items',
         label: 'fields::title',
-        fields: Card.newSchema.fields
+        fields: Card.newSchema && Card.newSchema.fields
       }
     ]
   },
