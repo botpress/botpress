@@ -214,7 +214,11 @@ export default ({
             </Tooltip>
           )}
           {canPickVariables && (
-            <Tooltip content={lang('superInput.insertVaes')} hoverOpenDelay={300} position={Position.TOP_LEFT}>
+            <Tooltip
+              content={lang('superInput.insertValueFromVariables')}
+              hoverOpenDelay={300}
+              position={Position.TOP_LEFT}
+            >
               <Button
                 className={style.tagBtn}
                 onClick={() => {
