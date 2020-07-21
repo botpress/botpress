@@ -7,7 +7,7 @@ import { Stream } from 'stream'
 import tar from 'tar'
 import tmp from 'tmp'
 
-import { TrainArtefacts, TrainInput, TrainOutput } from './training-pipeline'
+import { TrainArtefacts, TrainInput } from './training-pipeline'
 import { EntityCache, NLUVersionInfo } from './typings'
 
 export interface Model {
@@ -15,10 +15,8 @@ export interface Model {
   languageCode: string
   startedAt: Date
   finishedAt: Date
-  success: boolean
   data: {
     input: TrainInput
-    output?: TrainOutput
     artefacts?: TrainArtefacts
   }
 }
