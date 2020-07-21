@@ -10,8 +10,8 @@ import { getUtteranceFeatures } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './training-pipeline'
-import { Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
-import Utterance, { buildUtteranceBatch, getAlternateUtterance } from './utterance/utterance'
+import { EntityExtractionResult, Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
+import Utterance, { buildUtteranceBatch, getAlternateUtterance, UtteranceEntity } from './utterance/utterance'
 
 export type ExactMatchResult = (sdk.MLToolkit.SVM.Prediction & { extractor: 'exact-matcher' }) | undefined
 
@@ -276,7 +276,7 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
 
         if (
           (alternatePreds && alternatePreds.filter(p => p.label !== NONE_INTENT)[0]?.confidence) ??
-          0 >= preds.filter(p => p.label !== NONE_INTENT)[0].confidence
+          0 >= preds.filter(p => p.label !== NONE_INTENT)[0]?.confidence
         ) {
           preds = _.chain([...alternatePreds, ...preds])
             .groupBy('label')
@@ -336,25 +336,46 @@ async function extractSlots(input: PredictStep, predictors: Predictors): Promise
 }
 
 function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
+  const entitiesMapper = (e?: EntityExtractionResult | UtteranceEntity): sdk.NLU.Entity => {
+    if (!e) {
+      return eval('null')
+    }
+
+    return {
+      name: e.type,
+      type: e.metadata.entityId,
+      data: {
+        unit: e.metadata.unit,
+        value: e.value
+      },
+      meta: {
+        sensitive: e.sensitive,
+        confidence: e.confidence,
+        end: (e as EntityExtractionResult).end ?? (e as UtteranceEntity).endPos,
+        source: e.metadata.source,
+        start: (e as EntityExtractionResult).start ?? (e as UtteranceEntity).startPos
+      }
+    }
+  }
+
   // legacy pre-ndu
-  const entities = step.utterance.entities.map(
-    e =>
-      ({
-        name: e.type,
-        type: e.metadata.entityId,
-        data: {
-          unit: e.metadata.unit,
-          value: e.value
-        },
-        meta: {
-          sensitive: e.sensitive,
-          confidence: e.confidence,
-          end: e.endPos,
-          source: e.metadata.source,
-          start: e.startPos
-        }
-      } as sdk.NLU.Entity)
-  )
+  const entities = step.utterance.entities.map(entitiesMapper)
+
+  // legacy pre-ndu
+  const slots = step.utterance.slots.reduce((slots, s) => {
+    return {
+      ...slots,
+      [s.name]: {
+        start: s.startPos,
+        end: s.endPos,
+        confidence: s.confidence,
+        name: s.name,
+        source: s.source,
+        value: s.value,
+        entity: entitiesMapper(s.entity) // TODO: add this mapper to the legacy election pipeline
+      }
+    }
+  }, {} as sdk.NLU.SlotCollection)
 
   const slotsCollectionReducer = (slots: sdk.NLU.SlotCollection, s: SlotExtractionResult): sdk.NLU.SlotCollection => {
     if (slots[s.slot.name] && slots[s.slot.name].confidence > s.slot.confidence) {
@@ -370,8 +391,9 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
         confidence: s.slot.confidence,
         name: s.slot.name,
         source: s.slot.source,
-        value: s.slot.value
-      } as sdk.NLU.Slot
+        value: s.slot.value,
+        entity: entitiesMapper(s.slot.entity)
+      }
     }
   }
 

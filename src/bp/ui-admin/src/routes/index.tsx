@@ -31,8 +31,26 @@ import Modules from '../Pages/Server/Modules'
 
 import PrivateRoute from './PrivateRoute'
 
+const setupBranding = () => {
+  window.document.title = window.APP_NAME || 'Botpress Admin Panel'
+
+  if (window.APP_FAVICON) {
+    const link = document.querySelector('link[rel="icon"]')
+    link && link.setAttribute('href', window.APP_FAVICON)
+  }
+
+  if (window.APP_CUSTOM_CSS) {
+    const sheet = document.createElement('link')
+    sheet.rel = 'stylesheet'
+    sheet.href = window.APP_CUSTOM_CSS
+    sheet.type = 'text/css'
+    document.head.appendChild(sheet)
+  }
+}
+
 export const makeMainRoutes = () => {
   const auth = new Auth()
+  setupBranding()
 
   const ExtractToken = () => {
     const token = extractCookie('userToken')

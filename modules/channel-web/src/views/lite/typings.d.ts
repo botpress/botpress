@@ -252,6 +252,11 @@ export interface Message {
   timeInMs: number
 }
 
+export interface QueuedMessage {
+  message: Message
+  showAt: Date
+}
+
 export interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget
 }
