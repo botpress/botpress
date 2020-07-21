@@ -215,16 +215,16 @@ export default class Engine implements NLUEngine {
   }
 
   private async _makePredictors(model: Model): Promise<Predictors> {
-    const { input, output: artefacts } = model.data
+    const { input, output } = model.data
     const tools = Engine.tools
 
     if (_.flatMap(input.intents, i => i.utterances).length <= 0) {
       // we don't want to return undefined as extraction won't be triggered
       // we want to make it possible to extract entities without having any intents
-      return { ...artefacts, contexts: [], intents: [], pattern_entities: input.pattern_entities } as Predictors
+      return { ...output, contexts: [], intents: [], pattern_entities: input.pattern_entities } as Predictors
     }
 
-    const { ctx_model, intent_model_by_ctx, oos_model } = artefacts
+    const { ctx_model, intent_model_by_ctx, oos_model } = output
     const ctx_classifier = ctx_model ? new tools.mlToolkit.SVM.Predictor(ctx_model) : undefined
     const intent_classifier_per_ctx = _.toPairs(intent_model_by_ctx).reduce(
       (c, [ctx, intentModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(intentModel as string) }),
@@ -235,19 +235,19 @@ export default class Engine implements NLUEngine {
       {} as _.Dictionary<MLToolkit.SVM.Predictor>
     )
     const slot_tagger = new SlotTagger(tools.mlToolkit)
-    slot_tagger.load(artefacts.slots_model)
+    slot_tagger.load(output.slots_model)
 
-    const kmeans = computeKmeans(artefacts.intents, tools) // TODO load from artefacts when persisted
+    const kmeans = computeKmeans(output.intents, tools) // TODO load from artefacts when persisted
 
     return {
-      ...artefacts,
+      ...output,
       ctx_classifier,
       oos_classifier_per_ctx: oos_classifier,
       intent_classifier_per_ctx,
       slot_tagger,
       kmeans,
       pattern_entities: input.pattern_entities,
-      intents: artefacts.intents,
+      intents: output.intents,
       contexts: input.contexts
     }
   }
