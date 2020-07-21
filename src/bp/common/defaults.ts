@@ -132,7 +132,6 @@ export const BUILTIN_MODULES = [
   'analytics',
   'basic-skills',
   'builtin',
-  'builtin',
   'channel-messenger',
   'channel-slack',
   'channel-teams',

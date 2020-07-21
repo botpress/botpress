@@ -125,6 +125,29 @@ try {
           process.env.AUTO_MIGRATE === undefined ? yn(argv.autoMigrate) : yn(process.env.AUTO_MIGRATE)
 
         process.VERBOSITY_LEVEL = argv.verbose ? Number(argv.verbose) : defaultVerbosity
+        process.DISABLE_GLOBAL_SANDBOX = yn(process.env.DISABLE_GLOBAL_SANDBOX)
+        process.DISABLE_BOT_SANDBOX = yn(process.env.DISABLE_BOT_SANDBOX)
+        process.DISABLE_TRANSITION_SANDBOX = yn(process.env.DISABLE_TRANSITION_SANDBOX)
+        process.IS_LICENSED = true
+        process.ASSERT_LICENSED = () => {}
+        process.BOTPRESS_VERSION = metadataContent.version
+        process.TELEMETRY_URL = process.env.TELEMETRY_URL || 'https://telemetry.botpress.cloud/ingest'
+
+        process.IS_PRO_AVAILABLE = fs.existsSync(path.resolve(process.PROJECT_LOCATION, 'pro')) || !!process.pkg
+        const configPath = path.join(process.PROJECT_LOCATION, '/data/global/botpress.config.json')
+
+        if (process.IS_PRO_AVAILABLE) {
+          process.CLUSTER_ENABLED = yn(process.env.CLUSTER_ENABLED)
+
+          if (process.env.PRO_ENABLED === undefined) {
+            if (fs.existsSync(configPath)) {
+              const config = require(configPath)
+              process.IS_PRO_ENABLED = config.pro && config.pro.enabled
+            }
+          } else {
+            process.IS_PRO_ENABLED = yn(process.env.PRO_ENABLED)
+          }
+        }
 
         getos.default().then(distro => {
           process.distro = distro
