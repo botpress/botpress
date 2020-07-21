@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import Joi, { validate } from 'joi'
 import _ from 'lodash'
+import yn from 'yn'
 
 import { isOn as isAutoTrainOn, set as setAutoTrain } from './autoTrain'
 import { EntityDefCreateSchema } from './entities/validation'
@@ -201,8 +202,12 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
   router.get('/entities', async (req, res) => {
     const { botId } = req.params
+    const { ignoreSystem } = req.query
+
     const entities = await state.nluByBot[botId].entityService.getEntities()
-    res.json(entities.map(x => ({ ...x, label: `${x.type}.${x.name}` })))
+    const mapped = entities.map(x => ({ ...x, label: `${x.type}.${x.name}` }))
+
+    res.json(yn(ignoreSystem) ? mapped.filter(x => x.type !== 'system') : mapped)
   })
 
   router.get('/entities/:entityName', async (req, res) => {

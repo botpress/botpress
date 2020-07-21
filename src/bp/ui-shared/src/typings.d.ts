@@ -21,6 +21,7 @@ import { ItemProps } from './Contents/Components/Item/typings'
 import { AddButtonProps } from './Contents/Components/typings'
 import { TextFieldsArrayProps } from './FormFields/TextFieldsArrayProps/typings'
 import { OverlayProps } from './Overlay/typings'
+import { FormField, MultiLangText } from 'botpress/sdk'
 
 declare module 'botpress/shared' {
   export function Commander(props: CommanderProps): JSX.Element
@@ -36,7 +37,7 @@ declare module 'botpress/shared' {
   export const Contents: {
     Form(props: FormProps): JSX.Element
     Item(props: ItemProps): JSX.Element
-    createEmptyDataFromSchema: (fields) => any
+    createEmptyDataFromSchema: (fields: FormField[], lang?: string) => any
   }
   export const FormFields: {
     AddButton(props: AddButtonProps): JSX.Element
@@ -56,7 +57,7 @@ declare module 'botpress/shared' {
   export function contextMenu(event: SyntheticEvent, content: JSX.Element): void
   export function confirmDialog(message: string | JSX.Element, options: ConfirmDialogOptions): Promise<boolean>
   export const lang: {
-    tr(id: string | { [lang: string]: string }, values?: { [variable: string]: any }): string
+    tr(id: string | MultiLangText, values?: { [variable: string]: any }): string
     init()
     extend(langs)
     getLocale(): string

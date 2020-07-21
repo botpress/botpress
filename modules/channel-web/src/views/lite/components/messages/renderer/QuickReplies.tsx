@@ -32,7 +32,7 @@ export class QuickReplies extends Component<Renderer.QuickReply> {
         return (
           <Button
             key={idx}
-            label={btn.label || btn.title}
+            label={(btn.label || btn.title)?.toString()}
             payload={btn.payload}
             preventDoubleClick={!btn.allowMultipleClick}
             onButtonClick={this.handleButtonClicked}

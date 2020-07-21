@@ -134,3 +134,5 @@ export async function spawnMLWorkers(logger?: sdk.Logger) {
 export const startLocalActionServer = (message: StartLocalActionServerMessage) => {
   process.send!({ type: MESSAGE_TYPE_START_LOCAL_ACTION_SERVER, ...message })
 }
+
+export const isWebWorker = cluster.isWorker && cluster.worker?.id === 1

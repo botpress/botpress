@@ -227,5 +227,20 @@ export const dialogConditions: sdk.Condition[] = [
 
       return 0
     }
+  },
+  // TODO: These two conditions should be hidden from the UI
+  {
+    id: 'prompt_listening',
+    label: 'A prompt is currently active and listening for user input',
+    evaluate: (event: sdk.IO.IncomingEvent, _params) => {
+      return event.state.context.activePrompt?.status === 'pending' ? 1 : 0
+    }
+  },
+  {
+    id: 'prompt_cancellable',
+    label: 'A prompt is currently active and is cancellable',
+    evaluate: (event: sdk.IO.IncomingEvent, _params) => {
+      return event.state.context.activePrompt?.config?.cancellable ? 1 : 0
+    }
   }
 ]

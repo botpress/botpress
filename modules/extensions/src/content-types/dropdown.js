@@ -28,36 +28,22 @@ function render(data) {
   ]
 }
 
-function renderSlack(data) {
-  return [
-    {
-      type: 'actions',
-      elements: [
-        {
-          type: 'static_select',
-          action_id: 'option_selected',
-          placeholder: {
-            type: 'plain_text',
-            text: data.message
-          },
-          options: data.options.map(q => ({
-            text: {
-              type: 'plain_text',
-              text: q.label
-            },
-            value: q.value
-          }))
-        }
-      ]
+function renderer(data) {
+  const payload = base.renderer(data, 'text')
+  return {
+    ...payload,
+    metadata: {
+      ...payload.metadata,
+      __dropdown: data.options
     }
-  ]
+  }
 }
 
 function renderElement(data, channel) {
-  if (channel === 'web' || channel === 'api') {
+  if (channel === 'web' || channel === 'slack') {
+    return renderer(data)
+  } else if (channel === 'api') {
     return render(data)
-  } else if (channel === 'slack') {
-    return renderSlack(data)
   } else if (channel === 'smooch') {
     return [data]
   }
@@ -138,6 +124,11 @@ module.exports = {
     options: {
       'ui:field': 'i18n_array'
     }
+  },
+  newSchema: {
+    displayedIn: [],
+    advancedSettings: [],
+    fields: []
   },
   computePreviewText: formData => formData.message && 'Dropdown: ' + formData.message,
   renderElement
