@@ -45,7 +45,7 @@ export default async (bp: typeof sdk, db: Database) => {
       const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.typing', { timeInMs: typing, conversationId })
       // Don't store "typing" in DB
       bp.realtime.sendPayload(payload)
-      await Promise.delay(typing)
+      // await Promise.delay(typing)
     } else if (messageType === 'data') {
       const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.data', event.payload)
       bp.realtime.sendPayload(payload)

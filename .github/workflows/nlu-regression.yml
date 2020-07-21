@@ -1,0 +1,27 @@
+name: NLU Regression
+on: [pull_request]
+jobs:
+  unit:
+    name: BPDS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12.13.0'
+      - name: Fetch Node Packages
+        run: |
+          yarn --verbose
+      - name: Build core, NLU and NLU-Testing
+        run: |
+          NODE_OPTIONS="--max-old-space-size=6000" yarn cmd build:core
+          yarn cmd build:shared
+          yarn cmd init:studio
+          yarn cmd build:modules --m nlu,nlu-testing
+      - name: Run Regression Test
+        run: |
+          export NLU_SEED=42
+          export BP_ENABLED_MODULES='["nlu", "nlu-testing"]'
+          yarn start & sleep 20s &&
+          node ./build/nlu-regression.js
