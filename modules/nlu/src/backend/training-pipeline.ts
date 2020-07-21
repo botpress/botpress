@@ -28,7 +28,7 @@ import {
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
 
 // TODO make this return artefacts only and move the make model login in E2
-export type Trainer = (input: TrainInput, tools: Tools) => Promise<TrainOuput>
+export type Trainer = (input: TrainInput, tools: Tools) => Promise<TrainOutput>
 
 export type TrainInput = Readonly<{
   botId: string
@@ -54,7 +54,7 @@ type TrainStep = Readonly<{
   ctxToTrain: string[]
 }>
 
-export interface TrainOuput {
+export interface TrainOutput {
   list_entities: ListEntityModel[]
   tfidf: TFIDF
   vocabVectors: Token2Vec
@@ -496,7 +496,7 @@ const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progres
 }
 
 const NB_STEPS = 5 // change this if the training pipeline changes
-export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise<TrainOuput> => {
+export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise<TrainOutput> => {
   const model: Partial<Model> = {
     startedAt: new Date(),
     languageCode: input.languageCode,
@@ -541,7 +541,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
       TrainSlotTagger(step, tools, reportProgress)
     ])
 
-    const artefacts: TrainOuput = {
+    const artefacts: TrainOutput = {
       list_entities: step.list_entities,
       oos_model,
       tfidf: step.tfIdf,

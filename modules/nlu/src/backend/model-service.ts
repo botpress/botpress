@@ -7,7 +7,7 @@ import { Stream } from 'stream'
 import tar from 'tar'
 import tmp from 'tmp'
 
-import { TrainOuput, TrainInput } from './training-pipeline'
+import { TrainOutput, TrainInput } from './training-pipeline'
 import { EntityCache, NLUVersionInfo } from './typings'
 
 export interface Model {
@@ -17,7 +17,7 @@ export interface Model {
   finishedAt: Date
   data: {
     input: TrainInput
-    output?: TrainOuput
+    output?: TrainOutput
   }
 }
 

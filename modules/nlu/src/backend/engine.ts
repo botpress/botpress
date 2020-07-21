@@ -8,7 +8,7 @@ import { computeModelHash, Model } from './model-service'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
-import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOuput } from './training-pipeline'
+import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
 import {
   EntityCacheDump,
   Intent,
@@ -143,7 +143,7 @@ export default class Engine implements NLUEngine {
 
   private async _trainAndMakeModel(input: TrainInput, hash: string): Promise<Model | undefined> {
     const startedAt = new Date()
-    let artefacts: TrainOuput
+    let artefacts: TrainOutput
     try {
       artefacts = await Trainer(input, Engine.tools)
     } catch (err) {
