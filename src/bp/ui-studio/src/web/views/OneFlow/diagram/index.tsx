@@ -32,8 +32,8 @@ import {
   insertNewSkillNode,
   openFlowNodeProps,
   pasteFlowNode,
+  refreshCallerFlows,
   refreshFlowsLinks,
-  refreshParentFlow,
   removeFlowNode,
   switchFlow,
   switchFlowNode,
@@ -45,10 +45,10 @@ import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { toastSuccess } from '~/components/Shared/Utils'
 import withLanguage from '~/components/Util/withLanguage'
 import {
+  getCallerFlowsOutcomeUsage,
   getCurrentFlow,
   getCurrentFlowNode,
   getCurrentFlowSubFlows,
-  getParentFlowOutcomeUsage,
   RootReducer
 } from '~/reducers'
 import {
@@ -344,15 +344,15 @@ class Diagram extends Component<Props> {
     actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action' }),
     successNode: (point: Point) => {
       this.props.createFlowNode({ ...point, type: 'success' })
-      this.props.refreshParentFlow()
+      this.props.refreshCallerFlows()
     },
     failureNode: (point: Point) => {
       this.props.createFlowNode({ ...point, type: 'failure' })
-      this.props.refreshParentFlow()
+      this.props.refreshCallerFlows()
     },
     gotoSubWorkflow: (point: Point, flowName: string) => {
       this.props.createFlowNode({ ...point, type: 'sub-workflow', flow: flowName })
-      this.props.refreshParentFlow(flowName)
+      this.props.refreshCallerFlows(flowName)
     },
 
     promptNode: (point: Point, promptType: string) => {
@@ -674,7 +674,7 @@ class Diagram extends Component<Props> {
     if (outcomeNodeTypes.includes(element.type)) {
       if (this.canDeleteOutcome(element.type, element['name'], true)) {
         this.props.removeFlowNode(element)
-        this.props.refreshParentFlow()
+        this.props.refreshCallerFlows()
       }
     } else if (_.includes(nodeTypes, element['nodeType']) || _.includes(nodeTypes, element.type)) {
       this.props.removeFlowNode(element)
@@ -1033,7 +1033,7 @@ class Diagram extends Component<Props> {
 const mapStateToProps = (state: RootReducer) => ({
   currentFlow: getCurrentFlow(state),
   currentFlowSubFlows: getCurrentFlowSubFlows(state),
-  outcomeUsage: getParentFlowOutcomeUsage(state),
+  outcomeUsage: getCallerFlowsOutcomeUsage(state),
   currentFlowNode: getCurrentFlowNode(state),
   currentDiagramAction: state.flows.currentDiagramAction,
   canPasteNode: Boolean(state.flows.nodeInBuffer),
@@ -1052,7 +1052,7 @@ const mapDispatchToProps = {
   closeFlowNodeProps,
   createFlowNode,
   removeFlowNode,
-  refreshParentFlow,
+  refreshCallerFlows: refreshCallerFlows,
   createFlow,
   updateFlowNode,
   switchFlow,

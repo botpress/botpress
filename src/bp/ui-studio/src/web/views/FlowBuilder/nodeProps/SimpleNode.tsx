@@ -19,7 +19,7 @@ export const SimpleNode = props => {
 
   const changeFriendlyName = text => {
     props.updateNode({ friendlyName: text || '' })
-    props.refreshParentFlow()
+    props.refreshCallerFlows()
   }
 
   const { node, readOnly } = props

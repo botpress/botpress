@@ -170,9 +170,9 @@ export const duplicateFlow: (flow: { flowNameToDuplicate: string; name: string }
   }
 )
 
-export const requestRefreshParentFlow = createAction('FLOWS/REFRESH_PARENT_FLOW')
+export const requestRefreshCallerFlows = createAction('FLOWS/REFRESH_PARENT_FLOW')
 
-const updateParentFlow = async (_payload, state) => {
+const updateCallerFlows = async (_payload, state) => {
   const flows = <FlowReducer>state.flows
   const callerFlows = Object.values(flows.flowsByName).filter(x => x.nodes.find(n => n.flow === flows.currentFlow))
 
@@ -180,7 +180,10 @@ const updateParentFlow = async (_payload, state) => {
   return Promise.all(promises)
 }
 
-export const refreshParentFlow: (currentFlow?: string) => void = wrapAction(requestRefreshParentFlow, updateParentFlow)
+export const refreshCallerFlows: (currentFlow?: string) => void = wrapAction(
+  requestRefreshCallerFlows,
+  updateCallerFlows
+)
 
 type AllPartialNode = (Partial<sdk.FlowNode> | Partial<sdk.TriggerNode> | Partial<sdk.ListenNode>) & Partial<FlowPoint>
 

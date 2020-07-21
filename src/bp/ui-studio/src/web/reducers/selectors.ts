@@ -53,7 +53,7 @@ export const getCurrentFlowSubFlows = createSelector(
   }
 )
 
-export const getParentFlowOutcomeUsage = createSelector(
+export const getCallerFlowsOutcomeUsage = createSelector(
   [_getFlowsByName, _getCurrentFlow],
   (flowsByName, currentFlow: string): any => {
     let nodes = []

@@ -27,7 +27,7 @@ import {
   requestInsertNewSkillNode,
   requestPasteFlowNode,
   requestPasteFlowNodeElement,
-  requestRefreshParentFlow,
+  requestRefreshCallerFlows,
   requestRemoveFlowNode,
   requestRenameFlow,
   requestUpdateFlow,
@@ -528,7 +528,7 @@ reducer = reduceReducers(
         flowsByName: doDeleteFlow({ name, flowsByName: state.flowsByName })
       }),
 
-      [requestRefreshParentFlow]: (state: FlowReducer, { payload }) => {
+      [requestRefreshCallerFlows]: (state: FlowReducer, { payload }) => {
         const activeFlow = payload || state.currentFlow
         const currentFlow = state.flowsByName[activeFlow]
 
