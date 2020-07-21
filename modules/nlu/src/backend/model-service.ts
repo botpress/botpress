@@ -15,7 +15,6 @@ export interface Model {
   languageCode: string
   startedAt: Date
   finishedAt: Date
-  success: boolean
   data: {
     input: TrainInput
     output: TrainOutput

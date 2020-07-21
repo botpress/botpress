@@ -69,7 +69,7 @@ export interface TrainOutput {
   intents?: Intent<Utterance>[]
 }
 
-export type Trainer = (input: TrainInput, tools: Tools) => Promise<TrainOutput>
+export type Trainer = (input: TrainInput, tools: Tools) => Promise<TrainOutput | undefined>
 
 export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] }>
 
