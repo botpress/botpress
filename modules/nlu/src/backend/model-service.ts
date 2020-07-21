@@ -17,7 +17,7 @@ export interface Model {
   finishedAt: Date
   data: {
     input: TrainInput
-    output?: TrainOutput
+    output: TrainOutput
   }
 }
 
@@ -50,7 +50,7 @@ function serializeModel(ref: Model): string {
   for (const entity of model.data.output.list_entities) {
     entity.cache = (<EntityCache>entity.cache)?.dump() ?? []
   }
-  return JSON.stringify(_.omit(model, ['data.output', 'data.input.trainingSession']))
+  return JSON.stringify(_.omit(model, ['data.output.intents', 'data.input.trainingSession']))
 }
 
 function deserializeModel(str: string): Model {

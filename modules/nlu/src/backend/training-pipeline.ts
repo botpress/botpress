@@ -8,7 +8,6 @@ import { getCtxFeatures } from './intents/context-featurizer'
 import { getIntentFeatures } from './intents/intent-featurizer'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getStopWordsForLang } from './language/stopWords'
-import { Model } from './model-service'
 import { featurizeInScopeUtterances, featurizeOOSUtterances } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import { replaceConsecutiveSpaces } from './tools/strings'
@@ -497,14 +496,6 @@ const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progres
 
 const NB_STEPS = 5 // change this if the training pipeline changes
 export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise<TrainOutput> => {
-  const model: Partial<Model> = {
-    startedAt: new Date(),
-    languageCode: input.languageCode,
-    data: {
-      input
-    }
-  }
-
   let totalProgress = 0
   let normalizedProgress = 0
   const debouncedProgress = _.debounce(tools.reportTrainingProgress, 75, { maxWait: 750 })
