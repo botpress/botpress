@@ -1,4 +1,4 @@
-import { NLU } from 'botpress/sdk'
+import { NLU, Logger } from 'botpress/sdk'
 import _ from 'lodash'
 
 import Engine from '../engine'
@@ -83,13 +83,14 @@ export async function crossValidate(
   botId: string,
   intents: NLU.IntentDefinition[],
   entities: NLU.EntityDefinition[],
-  language: string
+  language: string,
+  logger: Logger
 ): Promise<CrossValidationResults> {
   const [trainSet, testSet] = await splitSet(language, intents)
 
   const langServerInfo = { version: '', domain: '', dim: 0 }
   const dummyVersion = { nluVersion: '', langServerInfo } // we don't really care about the model hash here...
-  const engine = new Engine(language, botId, dummyVersion)
+  const engine = new Engine(language, botId, dummyVersion, logger)
   const model = await engine.train(trainSet, entities, language)
   await engine.loadModel(model)
 
