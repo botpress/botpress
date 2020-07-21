@@ -48,7 +48,7 @@ export const getCurrentFlowSubFlows = createSelector(
   [_getFlowsByName, _getCurrentFlow],
   (flowsByName, currentFlow: string): ParsedFlowDefinition[] => {
     return Object.keys(flowsByName)
-      .filter(name => flowsByName[name].parent === currentFlow && !isSkillFlow(name))
+      .filter(name => flowsByName[name].type === 'reusable' && !isSkillFlow(name))
       .map(name => parseFlowName(name, true))
   }
 )
@@ -56,12 +56,10 @@ export const getCurrentFlowSubFlows = createSelector(
 export const getParentFlowOutcomeUsage = createSelector(
   [_getFlowsByName, _getCurrentFlow],
   (flowsByName, currentFlow: string): any => {
-    const parentName = flowsByName[currentFlow]?.parent
-    if (!parentName) {
-      return []
-    }
-
-    const nodes = flowsByName[parentName].nodes.filter(x => x.flow === currentFlow)
+    let nodes = []
+    Object.values(flowsByName).forEach(flow => {
+      nodes = [...nodes, ...flow.nodes.filter(x => x.flow === currentFlow)]
+    })
 
     return _.uniqBy(
       _.flatMap(nodes, x => x.next.filter(n => n.node != '')),

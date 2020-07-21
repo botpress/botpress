@@ -21,13 +21,11 @@ import { InstructionsQueueBuilder } from './queue-builder'
 
 const debug = DEBUG('dialog')
 
-type FlowWithParent = FlowView & { parent?: string }
-
 @injectable()
 export class DialogEngine {
   public onProcessingError: ((err: ProcessingError, hideStack: boolean) => void) | undefined
 
-  private _flowsByBot: Map<string, FlowWithParent[]> = new Map()
+  private _flowsByBot: Map<string, FlowView[]> = new Map()
 
   constructor(
     @inject(TYPES.FlowService) private flowService: FlowService,
@@ -231,8 +229,7 @@ export class DialogEngine {
     const { workflow } = event.state
 
     const nextFlow = this._findFlow(event.botId, `${nextFlowName}.flow.json`)
-    const parentFlow = nextFlow.parent
-    const isSubFlow = !!currentWorkflow && nextFlowName.startsWith(currentWorkflow)
+    const isSubFlow = !!currentWorkflow && nextFlow.type === 'reusable'
 
     // This workflow doesn't already exist, so we add it
     if (!workflow) {
@@ -247,7 +244,6 @@ export class DialogEngine {
         [nextFlowName]: {
           eventId: event.id,
           status: 'active',
-          parent: parentFlow,
           variables: {}
         }
       }
@@ -566,7 +562,7 @@ export class DialogEngine {
       event.state.__stacktrace.push({ flow: context.currentFlow!, node: transitionTo })
       // When we're in a sub flow, we must remember the location of the parent node for when we will exit
       const flowInfo = this._findFlow(event.botId, context.currentFlow!)
-      const isInSubFlow = context.currentFlow?.startsWith('skills/') || !!flowInfo.parent
+      const isInSubFlow = context.currentFlow?.startsWith('skills/') || flowInfo.type === 'reusable'
       if (isInSubFlow) {
         context = { ...context, currentNode: transitionTo }
       } else {
@@ -609,18 +605,7 @@ export class DialogEngine {
 
   protected async _loadFlows(botId: string) {
     const flows = await this.flowService.loadAll(botId)
-
-    const flowsWithParents = flows.map(flow => {
-      const flowName = flow.name.replace('.flow.json', '')
-      const parentFlow = flows.find(x => x.name !== flow.name && flowName.startsWith(x.name.replace('.flow.json', '')))
-
-      return {
-        ...flow,
-        parent: parentFlow?.name.replace('.flow.json', '')
-      }
-    })
-
-    this._flowsByBot.set(botId, flowsWithParents)
+    this._flowsByBot.set(botId, flows)
   }
 
   private _detectInfiniteLoop(stacktrace: IO.JumpPoint[], botId: string) {

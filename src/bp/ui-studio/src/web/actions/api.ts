@@ -101,8 +101,8 @@ export namespace FlowsAPI {
         'triggers', // TODO: NDU Remove
         'description',
         'label',
-        'parent',
-        'variables'
+        'variables',
+        'type'
       ])
     }
   }
