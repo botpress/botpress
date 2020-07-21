@@ -129,7 +129,7 @@ export class ConfigProvider {
   }
 
   public async getModulesListConfig() {
-    const enabledByDefault = [
+    const enabledModules = this.parseEnabledModules() ?? [
       'analytics',
       'basic-skills',
       'builtin',
@@ -145,8 +145,22 @@ export class ConfigProvider {
     // here it's ok to use the module resolver because we are discovering the built-in modules only
     const resolver = new ModuleResolver(this.logger)
     return await resolver.getModulesList().map(module => {
-      return { location: `MODULES_ROOT/${module}`, enabled: enabledByDefault.includes(module) }
+      return { location: `MODULES_ROOT/${module}`, enabled: enabledModules.includes(module) }
     })
+  }
+
+  private parseEnabledModules = (): string[] | undefined => {
+    if (!process.env.BP_ENABLED_MODULES) {
+      return
+    }
+
+    try {
+      return JSON.parse(process.env.BP_ENABLED_MODULES)
+    } catch (err) {
+      this.logger
+        .attachError(err)
+        .warn(`Error parsing BP_ENABLED_MODULES environment variable. Falling back to default modules`)
+    }
   }
 
   private async getConfig<T>(fileName: string, botId?: string): Promise<T> {

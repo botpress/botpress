@@ -28,7 +28,7 @@ import {
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
 
 // TODO make this return artefacts only and move the make model login in E2
-export type Trainer = (input: TrainInput, tools: Tools) => Promise<Model>
+export type Trainer = (input: TrainInput, tools: Tools) => Promise<TrainOutput>
 
 export type TrainInput = Readonly<{
   botId: string
@@ -41,8 +41,7 @@ export type TrainInput = Readonly<{
   ctxToTrain: string[]
 }>
 
-// TODO: this should be named TrainStep and should not be returned by the pipeline
-export type TrainOutput = Readonly<{
+type TrainStep = Readonly<{
   botId: string
   languageCode: string
   list_entities: ListEntityModel[]
@@ -55,7 +54,7 @@ export type TrainOutput = Readonly<{
   ctxToTrain: string[]
 }>
 
-export interface TrainArtefacts {
+export interface TrainOutput {
   list_entities: ListEntityModel[]
   tfidf: TFIDF
   vocabVectors: Token2Vec
@@ -65,6 +64,7 @@ export interface TrainArtefacts {
   slots_model: Buffer
   exact_match_index: ExactMatchIndex
   oos_model: _.Dictionary<string>
+  intents?: Intent<Utterance>[]
 }
 
 export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] }>
@@ -91,7 +91,7 @@ const KMEANS_OPTIONS = {
   seed: 666 // so training is consistent
 } as sdk.MLToolkit.KMeans.KMeansOptions
 
-const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainOutput> => {
+const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainStep> => {
   debugTraining.forBot(input.botId, 'Preprocessing intents')
   input = _.cloneDeep(input)
   const list_entities = await Promise.map(input.list_entities, list =>
@@ -106,7 +106,7 @@ const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainOu
     list_entities,
     intents,
     vocabVectors
-  } as TrainOutput
+  } as TrainStep
 }
 
 const makeListEntityModel = async (entity: ListEntity, botId: string, languageCode: string, tools: Tools) => {
@@ -150,7 +150,7 @@ export const computeKmeans = (intents: Intent<Utterance>[], tools: Tools): sdk.M
   return tools.mlToolkit.KMeans.kmeans(data, k, KMEANS_OPTIONS)
 }
 
-const ClusterTokens = (input: TrainOutput, tools: Tools): TrainOutput => {
+const ClusterTokens = (input: TrainStep, tools: Tools): TrainStep => {
   const kmeans = computeKmeans(input.intents, tools)
   const copy = { ...input, kmeans }
   copy.intents.forEach(x => x.utterances.forEach(u => u.setKmeans(kmeans)))
@@ -186,7 +186,7 @@ const buildVectorsVocab = (intents: Intent<Utterance>[]): _.Dictionary<number[]>
   )
 }
 
-export const BuildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
+export const BuildExactMatchIndex = (input: TrainStep): ExactMatchIndex => {
   return _.chain(input.intents)
     .filter(i => i.name !== NONE_INTENT)
     .flatMap(i =>
@@ -204,12 +204,12 @@ export const BuildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
     .value()
 }
 
-const getCustomEntitiesNames = (input: TrainOutput): string[] => {
+const getCustomEntitiesNames = (input: TrainStep): string[] => {
   return [...input.list_entities.map(e => e.entityName), ...input.pattern_entities.map(e => e.name)]
 }
 
 const TrainIntentClassifier = async (
-  input: TrainOutput,
+  input: TrainStep,
   tools: Tools,
   progress: progressCB
 ): Promise<_.Dictionary<string> | undefined> => {
@@ -272,7 +272,7 @@ const TrainIntentClassifier = async (
 }
 
 const TrainContextClassifier = async (
-  input: TrainOutput,
+  input: TrainStep,
   tools: Tools,
   progress: progressCB
 ): Promise<string | undefined> => {
@@ -329,7 +329,7 @@ export const ProcessIntents = async (
   })
 }
 
-export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
+export const ExtractEntities = async (input: TrainStep, tools: Tools): Promise<TrainStep> => {
   const utterances: Utterance[] = _.chain(input.intents)
     .filter(i => i.name !== NONE_INTENT)
     .flatMap('utterances')
@@ -356,7 +356,7 @@ export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise
   return input
 }
 
-export const AppendNoneIntent = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
+export const AppendNoneIntent = async (input: TrainStep, tools: Tools): Promise<TrainStep> => {
   if (input.intents.length === 0) {
     return input
   }
@@ -420,7 +420,7 @@ export const AppendNoneIntent = async (input: TrainOutput, tools: Tools): Promis
   return { ...input, intents: [...input.intents, intent] }
 }
 
-export const TfidfTokens = async (input: TrainOutput): Promise<TrainOutput> => {
+export const TfidfTokens = async (input: TrainStep): Promise<TrainStep> => {
   const tfidfInput = input.intents.reduce(
     (tfidfInput, intent) => ({
       ...tfidfInput,
@@ -435,7 +435,7 @@ export const TfidfTokens = async (input: TrainOutput): Promise<TrainOutput> => {
   return copy
 }
 
-const TrainSlotTagger = async (input: TrainOutput, tools: Tools, progress: progressCB): Promise<Buffer> => {
+const TrainSlotTagger = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<Buffer> => {
   const hasSlots = _.flatMap(input.intents, i => i.slot_definitions).length > 0
 
   if (!hasSlots) {
@@ -452,11 +452,7 @@ const TrainSlotTagger = async (input: TrainOutput, tools: Tools, progress: progr
   return slotTagger.serialized
 }
 
-const TrainOutOfScope = async (
-  input: TrainOutput,
-  tools: Tools,
-  progress: progressCB
-): Promise<_.Dictionary<string>> => {
+const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<_.Dictionary<string>> => {
   debugTraining.forBot(input.botId, 'Training out of scope classifier')
   const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
     c: [10],
@@ -500,7 +496,7 @@ const TrainOutOfScope = async (
 }
 
 const NB_STEPS = 5 // change this if the training pipeline changes
-export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise<Model> => {
+export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise<TrainOutput> => {
   const model: Partial<Model> = {
     startedAt: new Date(),
     languageCode: input.languageCode,
@@ -531,44 +527,40 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     debouncedProgress(input.botId, 'Training', { ...input.trainingSession, progress: normalizedProgress })
   }
   try {
-    let output = await PreprocessInput(input, tools)
-    output = await TfidfTokens(output)
-    output = ClusterTokens(output, tools)
-    output = await ExtractEntities(output, tools)
-    output = await AppendNoneIntent(output, tools)
-    const exact_match_index = BuildExactMatchIndex(output)
+    let step = await PreprocessInput(input, tools)
+    step = await TfidfTokens(step)
+    step = ClusterTokens(step, tools)
+    step = await ExtractEntities(step, tools)
+    step = await AppendNoneIntent(step, tools)
+    const exact_match_index = BuildExactMatchIndex(step)
     reportProgress()
     const [oos_model, ctx_model, intent_model_by_ctx, slots_model] = await Promise.all([
-      TrainOutOfScope(output, tools, reportProgress),
-      TrainContextClassifier(output, tools, reportProgress),
-      TrainIntentClassifier(output, tools, reportProgress),
-      TrainSlotTagger(output, tools, reportProgress)
+      TrainOutOfScope(step, tools, reportProgress),
+      TrainContextClassifier(step, tools, reportProgress),
+      TrainIntentClassifier(step, tools, reportProgress),
+      TrainSlotTagger(step, tools, reportProgress)
     ])
 
-    const artefacts: TrainArtefacts = {
-      list_entities: output.list_entities,
+    const output: TrainOutput = {
+      list_entities: step.list_entities,
       oos_model,
-      tfidf: output.tfIdf,
+      tfidf: step.tfIdf,
+      intents: step.intents,
       ctx_model,
       intent_model_by_ctx,
       slots_model,
-      vocabVectors: output.vocabVectors,
+      vocabVectors: step.vocabVectors,
       exact_match_index
       // kmeans: {} add this when mlKmeans supports loading from serialized data,
     }
 
-    _.merge(model, { success: true, data: { artefacts, output } })
+    return output
   } catch (err) {
     if (err instanceof TrainingCanceledError) {
       debugTraining.forBot(input.botId, 'Training aborted')
-    } else {
-      // TODO use bp.logger once this is moved in Engine2
-      console.log('Could not finish training NLU model', err)
+      return
     }
-    model.success = false
-  } finally {
-    model.finishedAt = new Date()
-    return model as Model
+    throw err
   }
 }
 

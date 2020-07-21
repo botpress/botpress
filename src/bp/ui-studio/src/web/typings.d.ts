@@ -34,6 +34,7 @@ declare global {
     botpress: {
       [moduleName: string]: any
     }
+    TELEMETRY_URL: string
     toggleSidePanel: () => void
   }
 }

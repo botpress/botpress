@@ -1,8 +1,10 @@
 import { Paging, User } from 'botpress/sdk'
+import { JobService } from 'core/services/job-service'
 import { DataRetentionService } from 'core/services/retention/service'
-import { inject, injectable } from 'inversify'
+import { inject, injectable, postConstruct } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
+import LRU from 'lru-cache'
 import ms from 'ms'
 
 import Database from '../database'
@@ -25,13 +27,26 @@ export class KnexUserRepository implements UserRepository {
 
   private batches: Dic<Row> = {}
   private flushLock: boolean = false
+  private userCache = new LRU({ max: 10000, maxAge: ms('1h') })
+  private broadcastDeleteUserCache!: Function
   private readonly flushInterval = ms('10s')
 
   constructor(
     @inject(TYPES.Database) private database: Database,
-    @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService
+    @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService,
+    @inject(TYPES.JobService) private jobService: JobService
   ) {
     setInterval(() => this.flushUsers(), this.flushInterval)
+  }
+
+  @postConstruct()
+  async init() {
+    this.broadcastDeleteUserCache = await this.jobService.broadcast<void>(this._deleteUserCache.bind(this))
+  }
+
+  private async _deleteUserCache(key: string): Promise<boolean> {
+    this.userCache.del(key)
+    return true
   }
 
   async flushUsers() {
@@ -75,8 +90,17 @@ export class KnexUserRepository implements UserRepository {
     }
   }
 
+  private getCacheKey(channel: string, userId: string): string {
+    return `${channel}_${userId}`
+  }
+
   async getOrCreate(channel: string, id: string, botId?: string): Knex.GetOrCreateResult<User> {
     channel = channel.toLowerCase()
+    const cacheKey = this.getCacheKey(channel, id)
+
+    if (this.userCache.has(cacheKey)) {
+      return { result: <User>this.userCache.get(cacheKey), created: false }
+    }
 
     const ug = await this.database
       .knex(this.tableName)
@@ -104,6 +128,7 @@ export class KnexUserRepository implements UserRepository {
         otherChannels: []
       }
 
+      this.userCache.set(cacheKey, user)
       return { result: user, created: false }
     }
 
@@ -127,6 +152,7 @@ export class KnexUserRepository implements UserRepository {
         }
       })
 
+    this.userCache.set(cacheKey, newUser)
     return { result: newUser, created: true }
   }
 
@@ -155,6 +181,8 @@ export class KnexUserRepository implements UserRepository {
     }
 
     await req
+
+    this.broadcastDeleteUserCache(this.getCacheKey(channel, user_id))
   }
 
   async updateAttributes(channel: string, user_id: string, attributes: any): Promise<void> {
@@ -167,6 +195,8 @@ export class KnexUserRepository implements UserRepository {
       .knex(this.tableName)
       .update({ attributes: this.database.knex.json.set({ ...originalAttributes, ...attributes }) })
       .where({ channel, user_id })
+
+    this.broadcastDeleteUserCache(this.getCacheKey(channel, user_id))
   }
 
   private async _dataRetentionUpdate(channel: string, user_id: string, attributes: any) {

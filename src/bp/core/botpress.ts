@@ -148,7 +148,7 @@ export class Botpress {
     await this.maybeStartLocalActionServer()
 
     if (this.config.sendUsageStats) {
-      this.statsService.start()
+      await this.statsService.start()
     }
 
     AppLifecycle.setDone(AppLifecycleEvents.BOTPRESS_READY)
@@ -288,6 +288,7 @@ export class Botpress {
 
   @WrapErrorsWith('Error while discovering bots')
   async discoverBots(): Promise<void> {
+    await AppLifecycle.waitFor(AppLifecycleEvents.MODULES_READY)
     const botsRef = await this.workspaceService.getBotRefs()
     const botsIds = await this.botService.getBotsIds()
     const unlinked = _.difference(botsIds, botsRef)
