@@ -13,7 +13,6 @@ import {
   updateFlowNode
 } from '~/actions'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
-import PromptNode from '~/views/OneFlow/sidePanel/form/PromptNode'
 
 import { nodeTypes } from '../diagram/manager'
 import FlowInformation from '../nodeProps/FlowInformation'
