@@ -317,12 +317,12 @@ export default class HitlDb {
 
   async getSessionMessages(sessionId: string): Promise<Message[]> {
     return this.knex
-      .orderBy('id', 'asc')
+      .orderBy('ts', 'asc')
       .select('*')
       .from(function() {
         this.from('hitl_messages')
           .where({ session_id: sessionId })
-          .orderBy('id', 'desc')
+          .orderBy('ts', 'desc')
           .limit(100)
           .select('*')
           .as('q1')
