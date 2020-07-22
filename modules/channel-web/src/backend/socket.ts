@@ -77,7 +77,7 @@ export default async (bp: typeof sdk, db: Database) => {
     const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.typing', { timeInMs: typing, conversationId })
     // Don't store "typing" in DB
     bp.realtime.sendPayload(payload)
-    await Promise.delay(typing)
+    // await Promise.delay(typing)
   }
 
   const applyChannelEffects = async (event: sdk.IO.OutgoingEvent, userId, conversationId) => {

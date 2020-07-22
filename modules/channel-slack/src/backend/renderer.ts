@@ -39,7 +39,7 @@ export const convertPayload = (data: sdk.Content.All) => {
             if (btn.action === 'Say something') {
               return {
                 type: 'button',
-                action_id: 'button_clicked' + cardIdx + btnIdx,
+                action_id: `button_clicked${cardIdx}${btnIdx}`,
                 text: {
                   type: 'plain_text',
                   text: btn.title
@@ -48,7 +48,7 @@ export const convertPayload = (data: sdk.Content.All) => {
             } else if (btn.action === 'Postback') {
               return {
                 type: 'button',
-                action_id: 'button_clicked' + cardIdx + btnIdx,
+                action_id: `button_clicked${cardIdx}${btnIdx}`,
                 text: {
                   type: 'plain_text',
                   text: btn.title
@@ -58,12 +58,12 @@ export const convertPayload = (data: sdk.Content.All) => {
             } else if (btn.action === 'Open URL') {
               return {
                 type: 'button',
-                action_id: 'discard_action' + cardIdx + btnIdx,
+                action_id: `discard_action${cardIdx}${btnIdx}`,
                 text: {
                   type: 'plain_text',
                   text: btn.title
                 },
-                url: btn?.url.replace('BOT_URL', botUrl)
+                url: btn.url?.replace('BOT_URL', botUrl) ?? ''
               }
             } else {
               throw new Error(`Slack carousel does not support "${btn['action']}" action-buttons at the moment`)

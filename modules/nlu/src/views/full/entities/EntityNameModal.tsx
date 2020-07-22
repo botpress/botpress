@@ -94,10 +94,10 @@ export const EntityNameModal: FC<Props> = props => {
   let dialog: { icon: any; title: string } = { icon: 'add', title: lang.tr('create') }
   let submitText = lang.tr('create')
   if (props.action === 'duplicate') {
-    dialog = { icon: 'duplicate', title: 'module.nlu.entities.duplicate' }
+    dialog = { icon: 'duplicate', title: lang.tr('module.nlu.entities.duplicate') }
     submitText = lang.tr('duplicate')
   } else if (props.action === 'rename') {
-    dialog = { icon: 'edit', title: 'module.nlu.entities.rename' }
+    dialog = { icon: 'edit', title: lang.tr('module.nlu.entities.rename') }
     submitText = lang.tr('rename')
   }
 

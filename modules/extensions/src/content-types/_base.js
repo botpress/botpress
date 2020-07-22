@@ -6,7 +6,7 @@ module.exports = {
       default: true
     }
   },
-  newRenderer: (data, type) => {
+  renderer: (data, type) => {
     return {
       ...data,
       type,

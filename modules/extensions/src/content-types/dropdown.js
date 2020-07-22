@@ -28,8 +28,8 @@ function render(data) {
   ]
 }
 
-function newRenderer(data) {
-  const payload = base.newRenderer(data, 'text')
+function renderer(data) {
+  const payload = base.renderer(data, 'text')
   return {
     ...payload,
     metadata: {
@@ -41,7 +41,7 @@ function newRenderer(data) {
 
 function renderElement(data, channel) {
   if (channel === 'web' || channel === 'slack') {
-    return newRenderer(data)
+    return renderer(data)
   } else if (channel === 'api') {
     return render(data)
   } else if (channel === 'smooch') {
