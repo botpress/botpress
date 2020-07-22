@@ -134,7 +134,7 @@ export default class HTTPServer {
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.LogsRepository) private logsRepo: LogsRepository,
     @inject(TYPES.EntityService) private entityService: EntityService,
-    @inject(TYPES.IntentService) private intentService: IntentService
+    @inject(TYPES.IntentService) private intentService: IntentService,
     @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository
   ) {
     this.app = express()
