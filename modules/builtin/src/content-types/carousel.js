@@ -104,72 +104,11 @@ function renderMessenger(data) {
   ]
 }
 
-function renderSlack(data) {
-  const events = []
-
-  if (data.typing) {
-    events.push({
-      type: 'typing',
-      value: data.typing
-    })
-  }
-
-  return [
-    ...events,
-    {
-      text: ' ',
-      type: 'carousel',
-      cards: data.items.map((card, cardIdx) => [
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: `*${card.title}*\n${card.subtitle}`
-          },
-          accessory: card.image && {
-            type: 'image',
-            image_url: `${data.BOT_URL}${card.image}`,
-            alt_text: 'image'
-          }
-        },
-        {
-          type: 'actions',
-          elements: (card.actions || []).map((btn, btnIdx) => {
-            if (btn.action === 'Say something' || btn.action === 'Postback') {
-              return {
-                type: 'button',
-                action_id: 'button_clicked' + cardIdx + btnIdx,
-                text: {
-                  type: 'plain_text',
-                  text: btn.title
-                },
-                value: btn.payload
-              }
-            } else if (btn.action === 'Open URL') {
-              return {
-                type: 'button',
-                action_id: 'discard_action' + cardIdx + btnIdx,
-                text: {
-                  type: 'plain_text',
-                  text: btn.title
-                },
-                url: btn.url && btn.url.replace('BOT_URL', data.BOT_URL)
-              }
-            } else {
-              throw new Error(`Slack carousel does not support "${btn.action}" action-buttons at the moment`)
-            }
-          })
-        }
-      ])
-    }
-  ]
-}
-
 function renderElement(data, channel) {
-  if (channel === 'messenger') {
+  if (channel === 'web' || channel === 'slack') {
+    return base.renderer(data, 'carousel')
+  } else if (channel === 'messenger') {
     return renderMessenger(data)
-  } else if (channel === 'slack') {
-    return renderSlack(data)
   } else {
     return render(data)
   }
@@ -193,7 +132,7 @@ module.exports = {
       ...base.typingIndicators
     }
   },
-  newSchema:{
+  newSchema: {
     displayedIn: ['qna', 'sayNode'],
     advancedSettings: [
       {
@@ -227,9 +166,8 @@ module.exports = {
         },
         type: 'group',
         key: 'items',
-        renderType: 'card',
         label: 'fields::title',
-        fields: Card.newSchema.fields
+        fields: Card.newSchema && Card.newSchema.fields
       }
     ]
   },

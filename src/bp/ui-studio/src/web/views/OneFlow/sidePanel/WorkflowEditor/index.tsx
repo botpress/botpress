@@ -8,7 +8,7 @@ import { createFlow, renameFlow, updateFlow } from '~/actions'
 import { RootReducer } from '~/reducers'
 import { sanitizeName } from '~/util'
 
-import { buildFlowName, parseFlowName } from './utils'
+import { buildFlowName, parseFlowName } from '../../../../util/workflows'
 
 interface OwnProps {
   isOpen: boolean

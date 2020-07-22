@@ -60,13 +60,13 @@ class Header extends React.Component<HeaderProps> {
       : this.props.botName
 
     return (
-      <div className={'bpw-header-title'}>
-        <div className={'bpw-header-name'}>
+      <div className="bpw-header-title">
+        <div className="bpw-header-name">
           {title}
-          {this.props.hasUnreadMessages && <span className={'bpw-header-unread'}>{this.props.unreadCount}</span>}
+          {this.props.hasUnreadMessages && <span className="bpw-header-unread">{this.props.unreadCount}</span>}
         </div>
         {this.props.hasBotInfoDescription && (
-          <div className={'bpw-header-subtitle'}>{this.props.botConvoDescription}</div>
+          <div className="bpw-header-subtitle">{this.props.botConvoDescription}</div>
         )}
       </div>
     )
@@ -79,7 +79,7 @@ class Header extends React.Component<HeaderProps> {
         tabIndex={-1}
         id="btn-reset"
         ref={el => (this.btnEls[0] = el)}
-        className={'bpw-header-icon bpw-header-icon-reset'}
+        className="bpw-header-icon bpw-header-icon-reset"
         onClick={this.props.resetSession}
         onKeyDown={this.handleKeyDown.bind(this, this.props.resetSession)}
         onBlur={this.onBlur}
@@ -96,7 +96,7 @@ class Header extends React.Component<HeaderProps> {
         tabIndex={-1}
         id="btn-download"
         ref={el => (this.btnEls[1] = el)}
-        className={'bpw-header-icon bpw-header-icon-download'}
+        className="bpw-header-icon bpw-header-icon-download"
         onClick={this.props.downloadConversation}
         onKeyDown={this.handleKeyDown.bind(this, this.props.downloadConversation)}
         onBlur={this.onBlur}
@@ -113,7 +113,7 @@ class Header extends React.Component<HeaderProps> {
         tabIndex={-1}
         id="btn-conversations"
         ref={el => (this.btnEls[2] = el)}
-        className={'bpw-header-icon bpw-header-icon-convo'}
+        className="bpw-header-icon bpw-header-icon-convo"
         onClick={this.props.toggleConversations}
         onKeyDown={this.handleKeyDown.bind(this, this.props.toggleConversations)}
         onBlur={this.onBlur}
@@ -130,7 +130,7 @@ class Header extends React.Component<HeaderProps> {
         tabIndex={-1}
         id="btn-botinfo"
         ref={el => (this.btnEls[3] = el)}
-        className={'bpw-header-icon bpw-header-icon-botinfo'}
+        className="bpw-header-icon bpw-header-icon-botinfo"
         onClick={this.props.toggleBotInfo}
         onKeyDown={this.handleKeyDown.bind(this, this.props.toggleBotInfo)}
         onBlur={this.onBlur}
@@ -150,7 +150,7 @@ class Header extends React.Component<HeaderProps> {
           defaultMessage: 'Hide the chat window'
         })}
         ref={el => (this.btnEls[4] = el)}
-        className={'bpw-header-icon bpw-header-icon-close'}
+        className="bpw-header-icon bpw-header-icon-close"
         onClick={this.props.hideChat}
         onKeyDown={this.handleKeyDown.bind(this, this.props.hideChat)}
         onBlur={this.onBlur}
@@ -169,7 +169,7 @@ class Header extends React.Component<HeaderProps> {
           key={btn.id}
           id={`btn-${btn.id}`}
           tabIndex={-1}
-          className={'bpw-header-icon'}
+          className="bpw-header-icon"
           onClick={btn.onClick.bind(this, btn.id, this)}
           title={btn.label || ''}
         >
@@ -199,10 +199,18 @@ class Header extends React.Component<HeaderProps> {
   }
 
   render() {
+    if (this.props.isEmulator) {
+      return (
+        <div className="bpw-emulator-header">
+          <span className="bpw-emulator-header-tab">Emulator</span>
+          {this.props.showResetButton && this.renderResetButton()}
+        </div>
+      )
+    }
     return (
-      <div className={'bpw-header-container'}>
-        <div className={'bpw-header-title-flexbox'}>
-          <div className={'bpw-header-title-container'}>
+      <div className="bpw-header-container">
+        <div className="bpw-header-title-flexbox">
+          <div className="bpw-header-title-container">
             <Avatar name={this.props.botName} avatarUrl={this.props.botAvatarUrl} height={40} width={40} />
             {this.renderTitle()}
           </div>
@@ -239,6 +247,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   resetSession: store.resetSession,
   downloadConversation: store.downloadConversation,
   botName: store.botName,
+  isEmulator: store.isEmulator,
   botAvatarUrl: store.botAvatarUrl,
   hasBotInfoDescription: store.hasBotInfoDescription,
 
@@ -255,6 +264,7 @@ type HeaderProps = Pick<
   | 'focusedArea'
   | 'isConversationsDisplayed'
   | 'botName'
+  | 'isEmulator'
   | 'hasUnreadMessages'
   | 'unreadCount'
   | 'hasBotInfoDescription'

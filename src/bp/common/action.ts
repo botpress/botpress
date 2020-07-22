@@ -9,6 +9,7 @@ export interface ActionInstruction {
   actionServerId?: string
 }
 
+// TODO refactor & clean
 export const parseActionInstruction = (actionInstruction: string): ActionInstruction => {
   const chunks = actionInstruction.split(' ')
   const serverAndAction = _.head(chunks)!
@@ -42,9 +43,9 @@ export const extractEventCommonArgs = (
     ...(args ?? {}),
     event,
     user: event.state.user ?? {},
-    session: event.state.session ?? {},
+    session: event.state.session ?? ({} as IO.CurrentSession),
     temp: event.state.temp ?? {},
     bot: event.state.bot ?? {},
-    workflow: event.state.workflow ?? {}
+    workflow: event.state.workflow ?? ({} as IO.WorkflowHistory)
   }
 }

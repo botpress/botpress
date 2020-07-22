@@ -1,24 +1,9 @@
-import { BoxedVarContructor, BoxedVariable } from 'botpress/sdk'
-import { FlowVariableConfig, FlowVariableType } from 'common/typings'
+import { BoxedVariable, FlowVariableType } from 'botpress/sdk'
+import { BaseVariable } from 'common/variables'
 
-class BoxedString implements BoxedVariable<string> {
-  private _confidence?: number
-  private _value?: string
-  private _nbTurns?: number
-
-  constructor({ nbOfTurns, value, confidence }: BoxedVarContructor<string>) {
-    if (value) {
-      this._nbTurns = nbOfTurns
-      this.trySet(value, confidence)
-    }
-  }
-
-  get value(): string {
-    return this._nbTurns !== 0 ? this._value : undefined
-  }
-
-  set value(newValue: string) {
-    this.trySet(newValue, 1)
+class BoxedString extends BaseVariable<string> {
+  constructor(args) {
+    super(args)
   }
 
   trySet(value: string, confidence: number) {
@@ -35,31 +20,25 @@ class BoxedString implements BoxedVariable<string> {
     }
   }
 
-  setRetentionPolicy(nbOfTurns: number) {
-    this._nbTurns = nbOfTurns
-  }
+  compare(compareTo: BoxedVariable<string>) {
+    if (this.type !== compareTo.type) {
+      throw new Error('You can only compare variables of the same type')
+    }
 
-  getConfidence() {
-    return this._confidence
+    return this.value.localeCompare(compareTo.value)
   }
 
   toString() {
     return this._value
   }
-
-  unbox() {
-    return { value: this._value, nbTurns: this._nbTurns, confidence: this._confidence, type: StringVariableType.id }
-  }
-}
-
-const StringVariableConfig: FlowVariableConfig = {
-  fields: [],
-  advancedSettings: []
 }
 
 const StringVariableType: FlowVariableType = {
   id: 'string',
-  config: StringVariableConfig,
+  config: {
+    fields: [],
+    advancedSettings: []
+  },
   box: BoxedString
 }
 

@@ -13,6 +13,10 @@ import path from 'path'
 import { Condition, CSVTest, Test, TestResult, TestResultDetails } from '../shared/typings'
 import { computeSummary } from '../shared/utils'
 
+type BPDS_BotConfig = sdk.BotConfig & {
+  bpdsId: string
+}
+
 const NONE = 'none'
 
 const TestsSchema = Joi.array().items(
@@ -136,7 +140,8 @@ export default async (bp: typeof sdk) => {
 
   router.post('/export', async (req, res) => {
     // TODO add a little validation
-    const targetPath = isRunningFromSources()
+    const botId = req.params.botId
+    const targetPath = await isRunningFromSources(bp, botId)
     if (!targetPath) {
       return res.status(400).send('Not in a git repository`')
     }
@@ -170,7 +175,15 @@ export default async (bp: typeof sdk) => {
 function results2CSV(tests: Test[], results: _.Dictionary<TestResult>) {
   const summary = computeSummary(tests, results)
   const records = [
-    ['utterance', 'context', 'conditions', 'status', `date: ${new Date().toLocaleDateString()}`, `summary: ${summary}`],
+    [
+      'utterance',
+      'context',
+      'conditions',
+      'status',
+      `date: ${new Date().toLocaleDateString()}`,
+      `summary: ${summary}`,
+      `nlu seed: ${process.env.NLU_SEED}`
+    ],
     ...tests.map(t => [
       t.utterance,
       t.context,
@@ -181,14 +194,34 @@ function results2CSV(tests: Test[], results: _.Dictionary<TestResult>) {
   return stringify(records)
 }
 
-function isRunningFromSources(): string | undefined {
+async function isRunningFromSources(bp: typeof sdk, botId: string): Promise<string | undefined> {
   try {
+    const botConfig = (await bp.bots.getBotById(botId)) as BPDS_BotConfig
+    const bpdsId = botConfig.bpdsId
+    if (!bpdsId) {
+      return
+    }
+
     const sourceDirectory = path.resolve(process.PROJECT_LOCATION, '../..')
-    const latestResultsPath = path.resolve(sourceDirectory, `./modules/nlu-testing/latest-results.csv`)
+    const botTemplatesPath = path.resolve(sourceDirectory, `./modules/nlu-testing/src/bot-templates`)
+    const childDirs = fs.readdirSync(botTemplatesPath)
+
+    const botTemplateUnderTesting = childDirs.find(template => {
+      const configPath = path.resolve(botTemplatesPath, template, 'bot.config.json')
+      const configContent = fs.readFileSync(configPath, { encoding: 'utf8' })
+      const config = JSON.parse(configContent) as BPDS_BotConfig
+      return config.bpdsId === bpdsId
+    })
+    if (!botTemplateUnderTesting) {
+      return
+    }
+
+    const latestResultsPath = path.resolve(botTemplatesPath, botTemplateUnderTesting, 'latest-results.csv')
     const exists = fs.existsSync(latestResultsPath)
+
     return exists ? latestResultsPath : undefined
   } catch {
-    return undefined
+    return
   }
 }
 

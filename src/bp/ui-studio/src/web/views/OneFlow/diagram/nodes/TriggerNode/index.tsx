@@ -104,6 +104,7 @@ const TriggerWidget: FC<Props> = ({
         saveName={saveName}
         defaultLabel={lang.tr('studio.flow.node.triggeredBy')}
         name={node.name}
+        type={node.type}
         error={error}
       >
         <StandardPortWidget name="in" node={node} className={style.in} />

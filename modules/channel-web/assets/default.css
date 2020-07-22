@@ -1,10 +1,36 @@
 @import url('/assets/ui-studio/public/external/font-roboto.css');
 
 :root {
-  --main-bg-color: #ffffff;
-  --main-bg-color-hover: rgba(255, 255, 255, 0.9);
-  --main-fg-color: #000000;
-  --main-fg-color-hover: rgba(0, 0, 0, 0.07);
+  --font-family: Roboto;
+  --white: #ffffff;
+  --bg: #f5f6f8;
+  --seashell: #e2e2e2;
+  --gray: #bec5c9;
+  --reef: #5c7080;
+  --shark: #1a1e22;
+  --overlay: rgba(26, 30, 34, 0.8);
+  --say: #a4ded0;
+  --trigger: #ffe5b4;
+  --execute: #b0c4de;
+  --prompt: #e2c7e0;
+  --color-fill-if-else: #febbad;
+  --lighthouse: #f66f48;
+  --focus-lighthouse: #e06542;
+  --hover-lighthouse: #f39c82;
+  --hover-lighthouse-30: #f9ddd5;
+  --ocean: #3276ea;
+  --hover-ocean: #cad7f5;
+
+  --spacing-x-small: 2px;
+  --spacing-small: 4px;
+  --spacing-medium: 8px;
+  --spacing-large: 12px;
+  --spacing-x-large: 16px;
+  --spacing-xx-large: 20px;
+  --spacing-xxx-large: 24px;
+  --spacing-xxxx-large: 28px;
+
+  --right-sidebar-width: 240px;
 }
 
 body {
@@ -23,14 +49,61 @@ body {
   height: 0 !important;
 }
 
+.bpw-chat-bubble-content {
+  border: solid 1px var(--seashell);
+  font-size: 12px;
+  line-height: 1.25;
+  border-radius: 15px;
+  color: var(--shark);
+  padding: var(--spacing-medium);
+  transition: border 0.3s, background 0.3s, color 0.3s;
+}
+
+.bpw-from-user .bpw-chat-bubble:last-of-type .bpw-chat-bubble-content {
+  border-bottom-right-radius: 0;
+}
+
+.bpw-from-bot .bpw-chat-bubble:last-of-type .bpw-chat-bubble-content {
+  border-bottom-left-radius: 0;
+}
+
 .bpw-from-user .bpw-chat-bubble .bpw-chat-bubble-content {
-  background-color: #000000;
-  color: #ffffff;
+  border-color: var(--hover-ocean);
+  background-color: var(--hover-ocean);
+  color: var(--shark);
 }
 
 .bpw-from-bot .bpw-chat-bubble .bpw-chat-bubble-content {
-  background-color: #ffffff;
-  color: #000000;
+  background-color: var(--white);
+}
+
+.bpw-from-bot .bpw-bubble-highlight .bpw-chat-bubble-content {
+  border-color: var(--ocean);
+}
+
+.bpw-from-user .bpw-bubble-highlight .bpw-chat-bubble-content {
+  border-color: var(--ocean);
+  background-color: var(--ocean);
+  color: #fff;
+}
+
+.bpw-bubble-session_reset {
+  background: var(--bg);
+  max-width: calc(100% + 60px) !important;
+  width: calc(100% + 60px) !important;
+  font-size: 8px;
+  line-height: 1.25;
+  margin: var(--spacing-xx-large) 0 !important;
+}
+
+.bpw-bubble-session_reset .bpw-chat-bubble-content {
+  color: var(--shark);
+  background: none !important;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  text-align: center;
+  padding: var(--spacing-small) 0;
 }
 
 .bp-emulator-history .bpw-chat-bubble {
@@ -98,11 +171,21 @@ body {
   margin-right: 5px;
 }
 
-.bpw-bot-avatar img,
-.bpw-bot-avatar svg {
-  border: solid 3px white;
+.bpw-bot-avatar.emulator {
+  height: 16px;
+  width: 16px;
+  min-width: 16px;
   border-radius: 50%;
-  background: #ccc;
+  background: var(--shark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bpw-bot-avatar:not(.emulator) img,
+.bpw-bot-avatar:not(.emulator) svg {
+  border-radius: 50%;
+  background: var(--shark);
 }
 
 .bpw-button {
@@ -153,7 +236,7 @@ body {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  margin: 1rem 0;
+  margin: var(--spacing-medium) 0;
   -webkit-box-align: end;
   -ms-flex-align: end;
   align-items: flex-end;
@@ -256,21 +339,19 @@ body {
   overflow-y: auto;
   -ms-flex-positive: 1;
   flex-grow: 1;
-  padding: 0 0.5rem 0.5rem 0.5rem;
+  padding: 0 var(--spacing-large);
 }
 
 .bpw-date-container {
-  color: #666;
+  font-size: 8px;
+  line-height: 1.25;
+  margin: var(--spacing-large) 0 var(--spacing-x-large);
+  color: var(--shark);
   text-align: center;
-  font-size: 12px;
-  margin: 40px 0 20px;
 }
 
-.bpw-date-container .bpw-small-line {
-  border-bottom: solid 1px #555;
-  margin: auto;
-  width: 80px;
-  margin-top: 5px;
+.bpw-date-container + .bpw-message-big-container .bpw-bubble-session_reset {
+  margin-top: 0 !important;
 }
 
 .bpw-new-messages-indicator {
@@ -304,11 +385,6 @@ body {
 
   white-space: pre-wrap;
   word-break: break-word;
-}
-
-.bpw-chat-bubble-content {
-  border: 1px solid #f1f1f1;
-  padding: 0.5rem 0.75rem;
 }
 
 .bpw-message-feedback {
@@ -346,28 +422,6 @@ body {
 
   display: flex;
   justify-content: space-evenly;
-}
-
-.bpw-from-bot .bpw-bubble-highlight .bpw-chat-bubble-content {
-  background-color: rgba(255, 192, 114, 0.25);
-}
-
-.bpw-from-user .bpw-bubble-highlight .bpw-chat-bubble-content {
-  background-color: #ffa73a;
-}
-
-.bpw-bubble-session_reset {
-  color: red !important;
-  border: none;
-  border-top: 1px solid red;
-  border-bottom: 1px solid red;
-}
-
-.bpw-bubble-session_reset .bpw-chat-bubble-content {
-  color: red !important;
-  background: none !important;
-  padding: 0;
-  margin: 5px 0;
 }
 
 .bpw-bubble-carousel {
@@ -602,29 +656,33 @@ body {
 }
 
 .bpw-composer {
-  border-top-width: 1px;
-  border-top-style: solid;
-  border-top-color: #aaaaaa;
   position: relative;
-  padding: 0.5rem 0 0;
-  background: rgba(255, 255, 255, 0.9);
-  transition: border 0.3s ease;
   outline: none;
-  padding-bottom: 0.5rem;
+  padding: var(--spacing-x-large) 40px var(--spacing-x-large) var(--spacing-large);
+}
+
+.bpw-composer-inner {
+  line-height: 0;
+  position: relative;
 }
 
 .bpw-composer textarea {
-  font: inherit;
-  background-color: transparent;
-  width: 100%;
+  background: var(--white);
+  border-radius: 15px;
+  border: solid 1px var(--seashell);
+  color: var(--shark);
+  font-family: inherit;
+  font-size: 12px;
+  height: 37px;
+  line-height: 1.25;
+  padding: 10px var(--spacing-medium);
   resize: none;
-  line-height: 1.2;
-  height: 50px;
-  border: none;
-  font-size: 1rem;
-  padding: 0.75rem 1rem;
-  padding-right: 60px;
-  margin-bottom: 0.5rem;
+  transition: border 0.3s;
+  width: 100%;
+}
+
+.bpw-composer textarea:focus {
+  border-color: var(--ocean);
 }
 
 .bpw-powered {
@@ -635,8 +693,9 @@ body {
 
 .bpw-send-button {
   position: absolute;
-  right: 25px;
-  bottom: 28px;
+  right: -30px;
+  top: 50%;
+  transform: translate(0, -50%);
   border: none;
   border-radius: 5px;
   background: #fff;
@@ -646,9 +705,14 @@ body {
   cursor: pointer;
 }
 
-.bpw-send-button:hover,
-.bpw-send-button:focus {
-  background: #d8d8d8;
+.bpw-send-button path {
+  fill: var(--shark);
+  transition: fill 0.3s;
+}
+
+.bpw-send-button:hover path,
+.bpw-send-button:focus path {
+  fill: var(--ocean);
 }
 
 /** HEADER STUFF */
@@ -1016,4 +1080,23 @@ body {
 
 .bpw-mobx-tools {
   visibility: hidden;
+}
+
+/* Emulator specific stuff */
+
+.bpw-emulator-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--spacing-large);
+}
+
+.bpw-emulator-header-tab {
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 1.25;
+  color: var(--shark);
+  border-top: 2px solid var(--ocean);
+  padding: var(--spacing-medium) 0;
+  text-transform: uppercase;
 }

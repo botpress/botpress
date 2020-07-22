@@ -87,14 +87,14 @@ export class Dropdown extends React.Component {
 
       return (
         <Keyboard.Prepend keyboard={this.renderSelect(true)} visible={shouldDisplay}>
-          {this.props.message}
+          {this.props.children || this.props.message}
         </Keyboard.Prepend>
       )
     }
 
     return (
       <div>
-        {this.props.message}
+        {this.props.children || this.props.message}
         {shouldDisplay && this.renderSelect()}
       </div>
     )

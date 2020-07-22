@@ -1,29 +1,14 @@
-import { BoxedVarContructor, BoxedVariable } from 'botpress/sdk'
-import { FlowVariableConfig, FlowVariableType } from 'common/typings'
+import { BoxedVariable, FlowVariableType } from 'botpress/sdk'
+import { BaseVariable } from 'common/variables'
 
-class BoxedNumber implements BoxedVariable<number> {
-  private _confidence?: number
-  private _value?: number
-  private _nbTurns?: number
-
-  constructor({ nbOfTurns, value, confidence }: BoxedVarContructor<number>) {
-    if (value) {
-      this._nbTurns = nbOfTurns
-      this.trySet(value, confidence)
-    }
-  }
-
-  get value(): number | undefined {
-    return this._nbTurns !== 0 ? this._value : undefined
-  }
-
-  set value(newValue: number) {
-    this.trySet(newValue, 1)
+class BoxedNumber extends BaseVariable<number> {
+  constructor(args) {
+    super(args)
   }
 
   trySet(value: number, confidence: number) {
     if (typeof value === 'number') {
-      this.value = value
+      this._value = value
       this._confidence = confidence
     } else if (typeof value === 'string') {
       const extracted = (<string>value).replace(/^\D+/g, '')
@@ -39,26 +24,17 @@ class BoxedNumber implements BoxedVariable<number> {
     }
   }
 
-  setRetentionPolicy(nbOfTurns: number) {
-    this._nbTurns = nbOfTurns
-  }
-
-  getConfidence() {
-    return this._confidence
-  }
-
   toString(customFormat?: string) {
     return this._value.toString()
-  }
-
-  unbox() {
-    return { value: this._value, nbTurns: this._nbTurns, confidence: this._confidence, type: NumberVariableType.id }
   }
 }
 
 const NumberVariableType: FlowVariableType = {
   id: 'number',
-  config: undefined,
+  config: {
+    fields: [],
+    advancedSettings: []
+  },
   box: BoxedNumber
 }
 

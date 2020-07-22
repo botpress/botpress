@@ -30,7 +30,7 @@ class Web extends React.Component<MainProps> {
     initializeAnalytics()
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.props.store.setIntlProvider(this.props.intl)
     window.store = this.props.store
 
@@ -42,10 +42,9 @@ class Web extends React.Component<MainProps> {
       }
     })
 
-    // tslint:disable-next-line: no-floating-promises
-    this.initialize()
-    // tslint:disable-next-line: no-floating-promises
-    this.initializeIfChatDisplayed()
+    await this.initialize()
+    await this.initializeIfChatDisplayed()
+
     this.props.setLoadingCompleted()
   }
 
@@ -246,7 +245,8 @@ class Web extends React.Component<MainProps> {
       return null
     }
 
-    const parentClass = classnames(`bp-widget-web bp-widget-${this.props.activeView}`, {
+    const emulatorClass = this.props.isEmulator ? ' emulator' : ''
+    const parentClass = classnames(`bp-widget-web bp-widget-${this.props.activeView}${emulatorClass}`, {
       'bp-widget-hidden': !this.props.showWidgetButton && this.props.displayWidgetView
     })
 
@@ -286,6 +286,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   updateTyping: store.updateTyping,
   sendMessage: store.sendMessage,
   setReference: store.setReference,
+  isEmulator: store.isEmulator,
   updateBotUILanguage: store.updateBotUILanguage,
   isWebchatReady: store.view.isWebchatReady,
   showWidgetButton: store.view.showWidgetButton,
@@ -315,6 +316,7 @@ type MainProps = { store: RootStore } & Pick<
   | 'setUserId'
   | 'sendData'
   | 'intl'
+  | 'isEmulator'
   | 'updateTyping'
   | 'setReference'
   | 'updateBotUILanguage'
