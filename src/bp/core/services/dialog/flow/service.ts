@@ -1,4 +1,5 @@
 import { Flow, Logger } from 'botpress/sdk'
+import { parseFlowName } from 'common/flow'
 import { ObjectCache } from 'common/object-cache'
 import { FlowMutex, FlowView, NodeView } from 'common/typings'
 import { ModuleLoader } from 'core/module-loader'
@@ -138,7 +139,7 @@ export class FlowService {
       nodes: nodeViews,
       links: uiEq.links,
       currentMutex,
-      ..._.pick(flow, ['version', 'catchAll', 'startNode', 'skillData', 'label', 'description', 'variables'])
+      ..._.pick(flow, ['version', 'catchAll', 'startNode', 'skillData', 'label', 'description', 'variables', 'type'])
     }
   }
 
@@ -352,7 +353,8 @@ export class FlowService {
         'triggers',
         'label',
         'description',
-        'variables'
+        'variables',
+        'type'
       ]),
       nodes: flow.nodes.map(node => _.omit(node, 'x', 'y', 'lastModified', 'isNew'))
     }

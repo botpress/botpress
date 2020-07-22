@@ -7,6 +7,7 @@ import {
   closeFlowNodeProps,
   copyFlowNodeElement,
   pasteFlowNodeElement,
+  refreshCallerFlows,
   refreshFlowsLinks,
   requestEditSkill,
   updateFlow,
@@ -16,6 +17,7 @@ import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
 import { nodeTypes } from '../diagram/manager'
 import FlowInformation from '../nodeProps/FlowInformation'
+import { SimpleNode } from '../nodeProps/SimpleNode'
 import SkillCallNode from '../nodeProps/SkillCallNode'
 import StandardNode from '../nodeProps/StandardNode'
 
@@ -87,6 +89,19 @@ class Inspector extends Component<Props> {
       refreshFlowsLinks()
     }
 
+    if (['success', 'failure', 'sub-workflow'].includes(nodeType)) {
+      return (
+        <SimpleNode
+          user={this.props.user}
+          flow={this.props.currentFlow}
+          node={this.props.currentFlowNode}
+          updateNode={updateNodeAndRefresh}
+          updateFlow={this.props.updateFlow}
+          refreshCallerFlows={this.props.refreshCallerFlows}
+        />
+      )
+    }
+
     if (nodeType === 'skill-call') {
       return (
         <SkillCallNode
@@ -141,7 +156,8 @@ const mapDispatchToProps = {
   pasteFlowNodeElement,
   closeFlowNodeProps,
   updateFlowNode,
-  refreshFlowsLinks
+  refreshFlowsLinks,
+  refreshCallerFlows: refreshCallerFlows
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Inspector)

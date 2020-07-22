@@ -3,6 +3,7 @@ import * as sdk from 'botpress/sdk'
 import { FlowPoint, FlowView, NodeProblem } from 'common/typings'
 import _ from 'lodash'
 import { createAction } from 'redux-actions'
+import { FlowReducer } from '~/reducers/flows'
 
 import { getDeletedFlows, getDirtyFlows, getModifiedFlows, getNewFlows } from '../reducers/selectors'
 
@@ -167,6 +168,21 @@ export const duplicateFlow: (flow: { flowNameToDuplicate: string; name: string }
     const flowState = state.flows
     await FlowsAPI.createFlow(flowState, name)
   }
+)
+
+export const requestRefreshCallerFlows = createAction('FLOWS/REFRESH_PARENT_FLOW')
+
+const updateCallerFlows = async (_payload, state) => {
+  const flows = <FlowReducer>state.flows
+  const callerFlows = Object.values(flows.flowsByName).filter(x => x.nodes.find(n => n.flow === flows.currentFlow))
+
+  const promises = callerFlows.map(x => FlowsAPI.updateFlow(flows, x.name))
+  return Promise.all(promises)
+}
+
+export const refreshCallerFlows: (currentFlow?: string) => void = wrapAction(
+  requestRefreshCallerFlows,
+  updateCallerFlows
 )
 
 type AllPartialNode = (Partial<sdk.FlowNode> | Partial<sdk.TriggerNode> | Partial<sdk.ListenNode>) & Partial<FlowPoint>

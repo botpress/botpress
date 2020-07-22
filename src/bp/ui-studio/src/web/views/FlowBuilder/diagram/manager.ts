@@ -15,6 +15,7 @@ import { ExecuteNodeModel } from './nodes_v2/ExecuteNode'
 import { FailureNodeModel } from './nodes_v2/FailureNode'
 import { ListenNodeModel } from './nodes_v2/ListenNode'
 import { RouterNodeModel } from './nodes_v2/RouterNode'
+import { SubWorkflowNodeModel } from './nodes_v2/SubWorkflowNode'
 import { SuccessNodeModel } from './nodes_v2/SuccessNode'
 
 const passThroughNodeProps: string[] = [
@@ -26,7 +27,8 @@ const passThroughNodeProps: string[] = [
   'conditions',
   'contents',
   'activeWorkflow',
-  'prompt'
+  'prompt',
+  'friendlyName'
 ]
 export const DIAGRAM_PADDING: number = 100
 
@@ -40,8 +42,11 @@ export const nodeTypes = [
   'listen',
   'router',
   'action',
-  'prompt'
+  'prompt',
+  'sub-workflow'
 ]
+
+export const outcomeNodeTypes = ['success', 'failure']
 
 // Using the new node types to prevent displaying start port
 export const newNodeTypes = ['say_something', 'execute', 'listen', 'router']
@@ -58,6 +63,8 @@ const createNodeModel = (node, modelProps) => {
   const { type } = node
   if (type === 'skill-call') {
     return new SkillCallNodeModel(modelProps)
+  } else if (type === 'sub-workflow') {
+    return new SubWorkflowNodeModel(modelProps)
   } else if (type === 'say_something') {
     return new SaySomethingNodeModel(modelProps)
   } else if (type === 'prompt') {

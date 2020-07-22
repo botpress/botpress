@@ -1,4 +1,4 @@
-import { Button, FormGroup, IDialogProps, InputGroup } from '@blueprintjs/core'
+import { Button, Checkbox, FormGroup, IDialogProps, InputGroup } from '@blueprintjs/core'
 import axios from 'axios'
 import { FlowVariable, FlowVariableType, FormData } from 'botpress/sdk'
 import { Contents, Dialog, Dropdown, lang, Option } from 'botpress/shared'
@@ -19,6 +19,8 @@ const VariableModal: FC<Props> = props => {
   const [variableConfigs, setVariableConfigs] = useState<FlowVariableType[]>()
   const [name, setName] = useState<string>()
   const [type, setType] = useState<string>()
+  const [isInput, setIsInput] = useState<boolean>(true)
+  const [isOutput, setIsOutput] = useState<boolean>(true)
   const [params, setParams] = useState<FormData>()
 
   const configsOptions = (variableConfigs || []).map<Option>(c => new Option(lang.tr(c.id), c.id))
@@ -39,14 +41,20 @@ const VariableModal: FC<Props> = props => {
   useEffect(() => {
     setName(props.variable?.name)
     setType(props.variable?.type)
+    setIsInput(props.variable?.isInput)
+    setIsOutput(props.variable?.isOutput)
     setParams(props.variable?.params || {})
   }, [props.variable])
 
   const handleSaveClick = () => {
-    const variable = props.variable
-    variable.name = name
-    variable.type = type
-    variable.params = params
+    const variable = {
+      ...props.variable,
+      name,
+      type,
+      params,
+      isInput,
+      isOutput
+    }
     props.saveChanges(variable)
     props.onClose()
   }
@@ -61,6 +69,24 @@ const VariableModal: FC<Props> = props => {
           <InputGroup
             value={name || ''}
             onChange={x => setName(sanitizeName(x.currentTarget.value))}
+            onSubmit={e => {
+              e.preventDefault()
+            }}
+          />
+        </FormGroup>
+        <FormGroup label="Is Input">
+          <Checkbox
+            checked={isInput}
+            onChange={x => setIsInput(x.currentTarget.checked)}
+            onSubmit={e => {
+              e.preventDefault()
+            }}
+          />
+        </FormGroup>
+        <FormGroup label="Is Output">
+          <Checkbox
+            checked={isOutput}
+            onChange={x => setIsOutput(x.currentTarget.checked)}
             onSubmit={e => {
               e.preventDefault()
             }}
