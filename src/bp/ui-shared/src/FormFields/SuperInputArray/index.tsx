@@ -75,8 +75,8 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
     itemIds.current = itemIds.current.filter((item, i) => i !== index)
     focusedElement.current = index - 1
     skipBlur.current = true
-    removeRefandRearrange(index)
     setLocalItems([...newItems])
+    removeRefandRearrange(index)
     onChange([...newItems])
   }
 
