@@ -2,19 +2,20 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
-import { getSentenceEmbeddingForCtx } from './intents/context-classifier-featurizer'
+import { getCtxFeatures } from './intents/context-featurizer'
+import { getIntentFeatures } from './intents/intent-featurizer'
 import LanguageIdentifierProvider, { NA_LANG } from './language/language-identifier'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getUtteranceFeatures } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import { replaceConsecutiveSpaces } from './tools/strings'
-import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './training-pipeline'
-import { Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
-import Utterance, { buildUtteranceBatch, getAlternateUtterance } from './utterance/utterance'
+import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainOutput } from './training-pipeline'
+import { EntityExtractionResult, Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
+import Utterance, { buildUtteranceBatch, getAlternateUtterance, UtteranceEntity } from './utterance/utterance'
 
 export type ExactMatchResult = (sdk.MLToolkit.SVM.Prediction & { extractor: 'exact-matcher' }) | undefined
 
-export type Predictors = TrainArtefacts & {
+export type Predictors = TrainOutput & {
   ctx_classifier: sdk.MLToolkit.SVM.Predictor
   intent_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
   oos_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
@@ -190,7 +191,14 @@ async function extractEntities(input: PredictStep, predictors: Predictors, tools
   return { ...input }
 }
 
+const getCustomEntitiesNames = (predictors: Predictors): string[] => [
+  ...predictors.list_entities.map(e => e.entityName),
+  ...predictors.pattern_entities.map(e => e.name)
+]
+
 async function predictContext(input: PredictStep, predictors: Predictors): Promise<PredictStep> {
+  const customEntities = getCustomEntitiesNames(predictors)
+
   const classifier = predictors.ctx_classifier
   if (!classifier) {
     return {
@@ -201,11 +209,11 @@ async function predictContext(input: PredictStep, predictors: Predictors): Promi
     }
   }
 
-  const features = getSentenceEmbeddingForCtx(input.utterance)
+  const features = getCtxFeatures(input.utterance, customEntities)
   let ctx_predictions = await classifier.predict(features)
 
   if (input.alternateUtterance) {
-    const alternateFeats = getSentenceEmbeddingForCtx(input.alternateUtterance)
+    const alternateFeats = getCtxFeatures(input.alternateUtterance, customEntities)
     const alternatePreds = await classifier.predict(alternateFeats)
 
     // we might want to do this in intent election intead or in NDU
@@ -231,6 +239,7 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
     return { ...input, intent_predictions: { per_ctx: { [DEFAULT_CTX]: [{ label: NONE_INTENT, confidence: 1 }] } } }
   }
 
+  const customEntities = getCustomEntitiesNames(predictors)
   const ctxToPredict = input.ctx_predictions.map(p => p.label)
   const predictions = (
     await Promise.map(ctxToPredict, async ctx => {
@@ -238,11 +247,10 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
 
       const predictor = predictors.intent_classifier_per_ctx[ctx]
       if (predictor) {
-        const features = [...input.utterance.sentenceEmbedding, input.utterance.tokens.length] // TODO: extract this logic 'getIntentFeatures()' in a place for intent featurizing
-        const tmp = await predictor.predict(features)
-        preds.push(...tmp)
+        const features = getIntentFeatures(input.utterance, customEntities)
+        const prediction = await predictor.predict(features)
+        preds.push(...prediction)
       }
-
       const exactPred = findExactIntentForCtx(predictors.exact_match_index, input.utterance, ctx)
       if (exactPred) {
         const idxToRemove = preds.findIndex(p => p.label === exactPred.label)
@@ -251,12 +259,12 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
       }
 
       if (input.alternateUtterance) {
-        const alternateFeats = [...input.alternateUtterance.sentenceEmbedding, input.alternateUtterance.tokens.length]
+        const alternateFeats = getIntentFeatures(input.alternateUtterance, customEntities)
 
         const alternatePreds: sdk.MLToolkit.SVM.Prediction[] = []
         if (predictor) {
-          const tmp = await predictor.predict(alternateFeats)
-          alternatePreds.push(...tmp)
+          const prediction = await predictor.predict(alternateFeats)
+          alternatePreds.push(...prediction)
         }
 
         const exactPred = findExactIntentForCtx(predictors.exact_match_index, input.alternateUtterance, ctx)
@@ -268,7 +276,7 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
 
         if (
           (alternatePreds && alternatePreds.filter(p => p.label !== NONE_INTENT)[0]?.confidence) ??
-          0 >= preds.filter(p => p.label !== NONE_INTENT)[0].confidence
+          0 >= preds.filter(p => p.label !== NONE_INTENT)[0]?.confidence
         ) {
           preds = _.chain([...alternatePreds, ...preds])
             .groupBy('label')
@@ -328,25 +336,29 @@ async function extractSlots(input: PredictStep, predictors: Predictors): Promise
 }
 
 function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
-  // legacy pre-ndu
-  const entities = step.utterance.entities.map(
-    e =>
-      ({
-        name: e.type,
-        type: e.metadata.entityId,
-        data: {
-          unit: e.metadata.unit,
-          value: e.value
-        },
-        meta: {
-          sensitive: e.sensitive,
-          confidence: e.confidence,
-          end: e.endPos,
-          source: e.metadata.source,
-          start: e.startPos
-        }
-      } as sdk.NLU.Entity)
-  )
+  const entitiesMapper = (e?: EntityExtractionResult | UtteranceEntity): sdk.NLU.Entity => {
+    if (!e) {
+      return eval('null')
+    }
+
+    return {
+      name: e.type,
+      type: e.metadata.entityId,
+      data: {
+        unit: e.metadata.unit,
+        value: e.value
+      },
+      meta: {
+        sensitive: e.sensitive,
+        confidence: e.confidence,
+        end: (e as EntityExtractionResult).end ?? (e as UtteranceEntity).endPos,
+        source: e.metadata.source,
+        start: (e as EntityExtractionResult).start ?? (e as UtteranceEntity).startPos
+      }
+    }
+  }
+
+  const entities = step.utterance.entities.map(entitiesMapper)
 
   const slotsCollectionReducer = (slots: sdk.NLU.SlotCollection, s: SlotExtractionResult): sdk.NLU.SlotCollection => {
     if (slots[s.slot.name] && slots[s.slot.name].confidence > s.slot.confidence) {
@@ -362,8 +374,9 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
         confidence: s.slot.confidence,
         name: s.slot.name,
         source: s.slot.source,
-        value: s.slot.value
-      } as sdk.NLU.Slot
+        value: s.slot.value,
+        entity: entitiesMapper(s.slot.entity)
+      }
     }
   }
 

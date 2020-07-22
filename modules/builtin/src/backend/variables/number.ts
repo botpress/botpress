@@ -1,7 +1,7 @@
 import { BoxedVariable, FlowVariableType } from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 
-class BoxedNumber extends BaseVariable<number> implements BoxedVariable<number> {
+class BoxedNumber extends BaseVariable<number> {
   constructor(args) {
     super(args)
   }

@@ -13,7 +13,7 @@ import legacyElectionPipeline from '../legacy-election'
 import { getLatestModel } from '../model-service'
 import { InvalidLanguagePredictorError } from '../predict-pipeline'
 import { removeTrainingSession, setTrainingSession } from '../train-session-service'
-import { NLUState, Token2Vec, Tools, TrainingSession } from '../typings'
+import { NLUState, Token2Vec, Tools, TrainingSession, NLUProgressEvent } from '../typings'
 
 export const initializeLanguageProvider = async (bp: typeof sdk, state: NLUState) => {
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
@@ -61,7 +61,7 @@ function initializeEngine(bp: typeof sdk, state: NLUState) {
     reportTrainingProgress: async (botId: string, message: string, trainSession: TrainingSession) => {
       await setTrainingSession(bp, botId, trainSession)
 
-      const ev = {
+      const ev: NLUProgressEvent = {
         type: 'nlu',
         working: trainSession.status === 'training',
         botId,

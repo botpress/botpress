@@ -1,14 +1,14 @@
-import { NLU } from 'botpress/sdk'
+import { NLU, Logger } from 'botpress/sdk'
 import _ from 'lodash'
 
 import Engine from '../engine'
 import { MIN_NB_UTTERANCES } from '../training-pipeline'
 import { BIO } from '../typings'
 import Utterance, { buildUtteranceBatch } from '../utterance/utterance'
-
-import MultiClassF1Scorer, { F1 } from './f1-scorer'
 import legacyElectionPipeline from '../legacy-election'
-const seedrandom = require('seedrandom')
+
+import { getSeededLodash, resetSeed } from './seeded-lodash'
+import MultiClassF1Scorer, { F1 } from './f1-scorer'
 
 interface CrossValidationResults {
   intents: Dic<F1> //
@@ -36,7 +36,8 @@ async function makeIntentTestSet(rawUtts: string[], ctxs: string[], intent: stri
 }
 
 async function splitSet(language: string, intents: TrainSet): Promise<[TrainSet, TestSet]> {
-  const lo = _.runInContext() // so seed is applied
+  const lo = getSeededLodash(process.env.NLU_SEED)
+
   let testSet: TestSet = []
   const trainSet = (
     await Promise.map(intents, async i => {
@@ -47,6 +48,8 @@ async function splitSet(language: string, intents: TrainSet): Promise<[TrainSet,
       }
 
       const utterances = lo.shuffle(i.utterances[language])
+      resetSeed()
+
       const trainUtts = utterances.slice(0, nTrain)
       const iTestSet = await makeIntentTestSet(utterances.slice(nTrain), i.contexts, i.name, language)
       testSet = [...testSet, ...iTestSet]
@@ -80,15 +83,14 @@ export async function crossValidate(
   botId: string,
   intents: NLU.IntentDefinition[],
   entities: NLU.EntityDefinition[],
-  language: string
+  language: string,
+  logger: Logger
 ): Promise<CrossValidationResults> {
-  seedrandom('confusion', { global: true })
-
   const [trainSet, testSet] = await splitSet(language, intents)
 
   const langServerInfo = { version: '', domain: '', dim: 0 }
   const dummyVersion = { nluVersion: '', langServerInfo } // we don't really care about the model hash here...
-  const engine = new Engine(language, botId, dummyVersion)
+  const engine = new Engine(language, botId, dummyVersion, logger)
   const model = await engine.train(trainSet, entities, language)
   await engine.loadModel(model)
 
@@ -122,7 +124,6 @@ export async function crossValidate(
     }
   }
 
-  seedrandom()
   return {
     intents: _.fromPairs(_.toPairs(intentF1Scorers).map(([ctx, scorer]) => [ctx, scorer.getResults()])),
     slots: slotsF1Scorer.getResults()
