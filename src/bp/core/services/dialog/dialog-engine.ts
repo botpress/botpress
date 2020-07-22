@@ -1,4 +1,5 @@
 import { BoxedVariable, Content, FlowNode, IO, SubWorkflowInput } from 'botpress/sdk'
+import { parseFlowName } from 'common/flow'
 import { FlowView } from 'common/typings'
 import { createForGlobalHooks } from 'core/api'
 import { EventRepository } from 'core/repositories'
@@ -288,11 +289,20 @@ export class DialogEngine {
   }
 
   private _setCurrentNodeValue(event: IO.IncomingEvent, variable: string, value: any) {
-    _.set(event.state.temp, `[${event.state.context.currentNode!}].${variable}`, value)
+    _.set(
+      event.state.temp,
+      `[${parseFlowName(event.state.context.currentFlow!, false).workflowPath}/${event.state.context
+        .currentNode!}].${variable}`,
+      value
+    )
   }
 
   private _getCurrentNodeValue(event: IO.IncomingEvent, variable: string): any {
-    return _.get(event.state.temp, `[${event.state.context.currentNode!}].${variable}`)
+    return _.get(
+      event.state.temp,
+      `[${parseFlowName(event.state.context.currentFlow!, false).workflowPath}/${event.state.context
+        .currentNode!}].${variable}`
+    )
   }
 
   public async jumpTo(sessionId: string, event: IO.IncomingEvent, targetFlowName: string, targetNodeName?: string) {

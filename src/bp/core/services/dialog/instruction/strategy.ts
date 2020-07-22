@@ -1,5 +1,6 @@
 import { IO, Logger } from 'botpress/sdk'
 import { extractEventCommonArgs, parseActionInstruction } from 'common/action'
+import { parseFlowName } from 'common/flow'
 import { ActionServer } from 'common/typings'
 import ActionServersService from 'core/services/action/action-servers-service'
 import ActionService from 'core/services/action/action-service'
@@ -193,7 +194,8 @@ export class TransitionStrategy implements InstructionStrategy {
     if (instruction.fn?.includes('thisNode')) {
       // TODO: Fix this so that it's cleaner and more generic
       const nodeName = sandbox.event.state.context.currentNode
-      instruction.fn = instruction.fn.replace(/thisNode/g, `(event.state.temp['${nodeName}'] || {})`)
+      const flowName = parseFlowName(sandbox.event.state.context.currentFlow!, false).workflowPath
+      instruction.fn = instruction.fn.replace(/thisNode/g, `(event.state.temp['${flowName}/${nodeName}'] || {})`)
     }
 
     const variables = instruction.fn?.match(/\$[a-zA-Z][a-zA-Z0-9_-]*/g) ?? []
