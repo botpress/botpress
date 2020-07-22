@@ -22,6 +22,7 @@ const TextAreaList: FC<Props> = ({ label, onChange, field, data, currentLang }) 
 
   const handleChange = items => {
     const firstItem = items.shift()
+
     onChange({
       text: { ...data.text, [currentLang]: firstItem },
       variations: { ...data.variations, [currentLang]: items }
@@ -32,7 +33,7 @@ const TextAreaList: FC<Props> = ({ label, onChange, field, data, currentLang }) 
     <FormFields.TextFieldsArray
       key={`${field.key}${forceUpdateHeight}`}
       label={label}
-      items={[data.text?.[currentLang] || [], ...(data.variations?.[currentLang] || [])]}
+      items={[...([data.text?.[currentLang]] || []), ...(data.variations?.[currentLang] || [])]}
       onChange={handleChange}
       addBtnLabel={lang.tr('module.builtin.types.text.add')}
       getPlaceholder={index => (index === 0 ? lang.tr('module.builtin.types.actionButton.sayPlaceholder') : '')}

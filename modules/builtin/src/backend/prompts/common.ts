@@ -6,6 +6,7 @@ const common: FormDefinition = {
       type: 'text',
       key: 'question',
       translated: true,
+      required: true,
       maxLength: 150,
       placeholder: 'module.builtin.messagePlaceholder',
       label: 'message'
@@ -13,6 +14,7 @@ const common: FormDefinition = {
     {
       type: 'text',
       key: 'output',
+      required: true,
       label: 'module.builtin.setValueTo',
       placeholder: 'module.builtin.setValueToPlaceholder',
       valueManipulation: {

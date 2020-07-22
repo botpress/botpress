@@ -1,8 +1,9 @@
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
-import { FormattedMessage, InjectedIntlProps, injectIntl } from 'react-intl'
+import { InjectedIntlProps, injectIntl } from 'react-intl'
 
+import Send from '../icons/Send'
 import { RootStore, StoreDef } from '../store'
 
 class Composer extends React.Component<ComposerProps> {
@@ -91,7 +92,7 @@ class Composer extends React.Component<ComposerProps> {
             })}
             id="btn-send"
           >
-            <FormattedMessage id={'composer.send'} />
+            <Send />
           </button>
         </div>
       </div>

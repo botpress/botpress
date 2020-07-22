@@ -47,8 +47,8 @@ function renderMessenger(data) {
   ]
 }
 
-function newRenderer(data) {
-  const payload = base.newRenderer(data, 'text')
+function renderer(data) {
+  const payload = base.renderer(data, 'text')
   return {
     ...payload,
     metadata: {
@@ -60,7 +60,7 @@ function newRenderer(data) {
 
 function renderElement(data, channel) {
   if (channel === 'web' || channel === 'slack') {
-    return newRenderer(data)
+    return renderer(data)
   } else if (channel === 'messenger') {
     return renderMessenger(data)
   } else {

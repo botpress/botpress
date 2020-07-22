@@ -500,7 +500,7 @@ declare module 'botpress/sdk' {
     }
 
     export interface EntityBody {
-      extras: any
+      extras?: any
       value: any
       unit: string
     }
@@ -508,11 +508,11 @@ declare module 'botpress/sdk' {
     export interface EntityMeta {
       sensitive: boolean
       confidence: number
-      provider: string
+      provider?: string
       source: string
       start: number
       end: number
-      raw: any
+      raw?: any
     }
 
     export interface Slot {
@@ -1898,26 +1898,26 @@ declare module 'botpress/sdk' {
     export interface Image extends Base {
       type: 'image'
       image: string
-      title?: string
+      title?: string | MultiLangText
     }
 
     export interface Card extends Base {
       type: 'card'
-      title: string
-      subtitle?: string
+      title: string | MultiLangText
+      subtitle?: string | MultiLangText
       image?: string
       actions?: Actions[]
     }
 
     export interface ActionButton {
-      title: string
+      title: string | MultiLangText
     }
 
     export interface ActionSaySomething extends ActionButton {
       type: 'say_something'
       // TODO cleanup legacy
       action: 'Say something'
-      text: string
+      text: string | MultiLangText
     }
 
     export interface ActionOpenURL extends ActionButton {
@@ -1944,7 +1944,7 @@ declare module 'botpress/sdk' {
       [prop: string]: any
     }
 
-    export type All = Text | Image | Carousel | Custom
+    export type All = Text | Image | Carousel | Card | Custom
     export type Actions = ActionSaySomething | ActionOpenURL | ActionPostback
 
     export interface Dropdown {

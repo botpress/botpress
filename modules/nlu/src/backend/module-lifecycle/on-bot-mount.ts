@@ -31,7 +31,7 @@ export function getOnBotMount(state: NLUState) {
       bp.logger.warn('Either the nlu version or the lang server version is not set correctly.')
     }
 
-    const engine = new Engine(bot.defaultLanguage, bot.id, state)
+    const engine = new Engine(bot.defaultLanguage, bot.id, state, bp.logger)
     const trainOrLoad = _.debounce(
       async (forceTrain: boolean = false) => {
         // bot got deleted
@@ -62,13 +62,19 @@ export function getOnBotMount(state: NLUState) {
               state.nluByBot[botId].trainSessions[languageCode] = trainSession
 
               model = await engine.train(intentDefs, entityDefs, languageCode, trainSession, { forceTrain })
-              if (model.success) {
+              if (model) {
                 await engine.loadModel(model)
                 await ModelService.saveModel(ghost, model, hash)
               }
+            } else {
+              Engine.tools.reportTrainingProgress(botId, 'Training not needed', {
+                language: languageCode,
+                progress: 1,
+                status: 'done'
+              })
             }
             try {
-              if (model?.success) {
+              if (model) {
                 await state.broadcastLoadModel(botId, hash, languageCode)
               }
             } finally {

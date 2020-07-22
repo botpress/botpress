@@ -30,7 +30,6 @@ const App: FC<Props> = props => {
   const [tokenInterval, setTokenInterval] = useState()
 
   useEffect(() => {
-    setupBranding()
 
     props.fetchLicensing()
     props.fetchProfile()
@@ -41,23 +40,6 @@ const App: FC<Props> = props => {
       }, REFRESH_INTERVAL)
     )
   }, [])
-
-  const setupBranding = () => {
-    window.document.title = window.APP_NAME || 'Botpress Admin Panel'
-
-    if (window.APP_FAVICON) {
-      const link = document.querySelector('link[rel="icon"]')
-      link && link.setAttribute('href', window.APP_FAVICON)
-    }
-
-    if (window.APP_CUSTOM_CSS) {
-      const sheet = document.createElement('link')
-      sheet.rel = 'stylesheet'
-      sheet.href = window.APP_CUSTOM_CSS
-      sheet.type = 'text/css'
-      document.head.appendChild(sheet)
-    }
-  }
 
   const tryRefreshToken = async () => {
     try {

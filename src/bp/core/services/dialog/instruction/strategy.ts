@@ -196,6 +196,12 @@ export class TransitionStrategy implements InstructionStrategy {
       instruction.fn = instruction.fn.replace(/thisNode/g, `(event.state.temp['${nodeName}'] || {})`)
     }
 
+    const variables = instruction.fn?.match(/\$[a-zA-Z][a-zA-Z0-9_-]*/g) ?? []
+    for (const match of variables) {
+      const name = match.replace('$', '')
+      instruction.fn = instruction.fn!.replace(match, `event.state.workflow.variables.${name}`)
+    }
+
     const code = `
     try {
       return ${instruction.fn};
