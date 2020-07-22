@@ -102,13 +102,12 @@ class MessageList extends React.Component<MessageListProps, State> {
           hour: 'numeric',
           minute: 'numeric'
         })}
-        <div className={'bpw-small-line'} />
       </div>
     )
   }
 
   renderAvatar(name, url) {
-    return <Avatar name={name} avatarUrl={url} height={40} width={40} />
+    return <Avatar name={name} avatarUrl={url} height={16} width={16} isEmulator={this.props.isEmulator} />
   }
 
   renderMessageGroups() {
@@ -230,6 +229,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   intl: store.intl,
   botName: store.botName,
   isBotTyping: store.isBotTyping,
+  isEmulator: store.isEmulator,
   botAvatarUrl: store.botAvatarUrl,
   currentMessages: store.currentMessages,
   focusPrevious: store.view.focusPrevious,
@@ -243,6 +243,7 @@ type MessageListProps = InjectedIntlProps &
   Pick<
     StoreDef,
     | 'intl'
+    | 'isEmulator'
     | 'isBotTyping'
     | 'focusedArea'
     | 'focusPrevious'

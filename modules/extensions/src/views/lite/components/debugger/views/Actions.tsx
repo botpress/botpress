@@ -48,6 +48,18 @@ export const Actions: FC<Props> = props => {
                     <Icon icon="play" /> Continue
                   </div>
                 )
+              case 'prompt.cancel':
+                return (
+                  <div>
+                    <Icon icon="ban-circle" /> Cancel Prompt
+                  </div>
+                )
+              case 'prompt.inform':
+                return (
+                  <div>
+                    <Icon icon="eye-on" /> Inform Prompt
+                  </div>
+                )
             }
           })}
         </div>

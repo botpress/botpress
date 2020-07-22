@@ -72,5 +72,51 @@
   },
   "typingIndicator": "Display typing indicators",
   "useMarkdown": "Use markdown",
-  "defaultValue": "Default Value"
+  "defaultValue": "Default Value",
+  "duration": "Duration",
+  "durationMoreInfo": "The number of turns (exchange between bot and user) before the prompt is cancelled automatically",
+  "searchBackCount": "Search back count",
+  "searchBackCountMoreInfo": "The number of previous events to analyze to try extracting the information",
+  "questionToAskUser": "Question to ask user",
+  "mustBePast": "Must be in the past",
+  "mustBeFuture": "Must be in the future",
+  "enumType": "Enum Type",
+  "question": "Question",
+  "useDropdown": "Use dropdown",
+  "min": "Min",
+  "max": "Max",
+  "yes": "Yes",
+  "no": "No",
+  "regexPattern": "Regex pattern",
+  "regexPatternPlaceholder": "Ex: [a-zA-Z0-9]* for alphanumeric",
+  "messagePlaceholder": "Question asked to the user",
+  "customConfirm": "Custom confirmation message",
+  "customConfirmPlaceholder": "Use $value to display the value",
+  "setValueTo": "Set value to",
+  "setValueToPlaceholder": "Name of the variable",
+  "formatInvalidMessage": "Message when format is invalid",
+  "formatInvalidMessagePlaceholder": "Customize the error message",
+  "maxLength": "Max length",
+  "confirmBeforeCancel": "Confirm before cancel",
+  "confirmBeforeCancelMoreInfo": "Ask a confirmation to the user before cancelling or moving to another flow",
+  "prompt": {
+    "confirmValue": "Is the value '{value}' correct?",
+    "confirmLeaving": "Do you really want to abandon this prompt?",
+    "invalid": "Provided value is invalid",
+    "date": {
+      "invalid": "The provided date is not valid",
+      "mustBePast": "The provided date must be in the past",
+      "mustBeFuture": "The provided date must be in the future"
+    },
+    "number": {
+      "lowerThanMin": "Value is lower than minimum",
+      "higherThanMax": "Value is higher than maximum"
+    },
+    "pattern": {
+      "invalid": "The provided value doesn't match the expected pattern"
+    },
+    "string": {
+      "tooLong": "The maximum length is {maxLength} {maxLength, plural, one {character} other {characters}}."
+    }
+  }
 }

@@ -135,6 +135,7 @@ export type Config = {
   userIdScope?: string
   enableReset: boolean
   stylesheet: string
+  isEmulator?: boolean
   extraStylesheet: string
   showConversationsButton: boolean
   showUserName: boolean
@@ -249,6 +250,11 @@ export interface Message {
   sent_on: Date
   // The typing delay in ms
   timeInMs: number
+}
+
+export interface QueuedMessage {
+  message: Message
+  showAt: Date
 }
 
 export interface HTMLInputEvent extends Event {

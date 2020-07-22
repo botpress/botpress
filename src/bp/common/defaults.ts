@@ -10,7 +10,11 @@ export const defaultRoles: AuthRole[] = [
     rules: [
       { res: '*', op: '+r+w' },
       {
-        res: 'module.code-editor.global.configs',
+        res: 'module.code-editor.global.main_config',
+        op: '-r-w'
+      },
+      {
+        res: 'module.code-editor.global.module_config',
         op: '-r-w'
       }
     ]
@@ -28,7 +32,11 @@ export const defaultRoles: AuthRole[] = [
         op: '+r-w'
       },
       {
-        res: 'module.code-editor.global.configs',
+        res: 'module.code-editor.global.main_config',
+        op: '-r-w'
+      },
+      {
+        res: 'module.code-editor.global.module_config',
         op: '-r-w'
       }
     ]

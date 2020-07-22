@@ -19,6 +19,10 @@
     display: flex;
     align-items: center;
 
+    &.progress {
+      color: #BEC5C9;
+    }
+
     > *:not(:first-child) {
       margin-left: 20px
     }

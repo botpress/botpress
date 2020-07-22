@@ -58,7 +58,7 @@ const QnA: FC<Props> = props => {
   const [showRedirectToFlow, setShowRedirectToFlow] = useState(!!(data.redirectFlow || data.redirectNode))
   let questions = data.questions[contentLang]
   let answers = data.answers[contentLang]
-  const contentAnswers = data.contentAnswers?.[contentLang] || []
+  const contentAnswers = data.contentAnswers || []
   const refQuestions = contentLang !== defaultLanguage && data.questions[defaultLanguage]
   const refAnswers = contentLang !== defaultLanguage && data.answers[defaultLanguage]
 
@@ -150,7 +150,7 @@ const QnA: FC<Props> = props => {
 
     updateQnA({
       id,
-      data: { ...data, contentAnswers: { ...data.contentAnswers, [contentLang]: newContentAnswers } }
+      data: { ...data, contentAnswers: newContentAnswers }
     })
   }
 
@@ -165,7 +165,7 @@ const QnA: FC<Props> = props => {
 
     updateQnA({
       id,
-      data: { ...data, contentAnswers: { ...data.contentAnswers, [contentLang]: newContentAnswers } }
+      data: { ...data, contentAnswers: newContentAnswers }
     })
   }
 
@@ -272,6 +272,7 @@ const QnA: FC<Props> = props => {
               {contentAnswers?.map((content, index) => (
                 <Contents.Item
                   key={index}
+                  contentLang={contentLang}
                   content={content}
                   active={editingContent.current === index}
                   onEdit={() => {
@@ -338,6 +339,7 @@ const QnA: FC<Props> = props => {
           formData={contentAnswers[editingContent.current]}
           onUpdate={data => updateContentAnswers(data)}
           events={events}
+          currentLang={contentLang}
           close={closingKey => {
             setTimeout(() => {
               if (closingKey === editingContent.current) {

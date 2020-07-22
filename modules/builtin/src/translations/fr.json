@@ -72,5 +72,51 @@
   },
   "typingIndicator": "Afficher l'indicateur de frappe",
   "useMarkdown": "Utiliser markdown",
-  "defaultValue": "Default Value"
+  "defaultValue": "Valeur par défaut",
+  "duration": "Durée",
+  "durationMoreInfo": "Le nombre de tours (échange entre l'assistant et l'utilisateur) avant que la requête ne soit annulée.",
+  "searchBackCount": "Nombre de recherche en arrière",
+  "searchBackCountMoreInfo": "Le nombre d'événements précédents à analyser pour extraire l'information",
+  "questionToAskUser": "Question pour l'utilisateur",
+  "mustBePast": "Doit être dans le passé",
+  "mustBeFuture": "Doit être dans le futur",
+  "enumType": "Type d'énumération",
+  "question": "Question",
+  "useDropdown": "Utiliser menu déroulant",
+  "min": "Minimum",
+  "max": "Maximum",
+  "yes": "Oui",
+  "no": "Non",
+  "regexPattern": "Expression régulière",
+  "regexPatternPlaceholder": "Ex: [a-zA-Z0-9]* pour alphanumérique",
+  "messagePlaceholder": "Question posée à l'utilisateur",
+  "customConfirm": "Message de confirmation",
+  "customConfirmPlaceholder": "Utiliser $value pour afficher la valeur",
+  "setValueTo": "Définir la valeur à",
+  "setValueToPlaceholder": "Nom de la variable",
+  "formatInvalidMessage": "Message pour format invalide",
+  "formatInvalidMessagePlaceholder": "Personnaliser le message de format invalide",
+  "maxLength": "Longeur maximale",
+  "confirmBeforeCancel": "Confirmer avant d'annuler",
+  "confirmBeforeCancelMoreInfo": "Demander une confirmation à l'utilisateur avant d'annuler ou d'aller vers un autre workflow",
+  "prompt": {
+    "confirmValue": "Est-ce que la valeur '{value}' est correcte?",
+    "confirmLeaving": "Désirez-vous vraiment abandonner?",
+    "invalid": "La valeur est invalide",
+    "date": {
+      "invalid": "La date ne semble pas valide",
+      "mustBePast": "La date doit être dans le passé",
+      "mustBeFuture": "La date doit être dans le futur"
+    },
+    "number": {
+      "lowerThanMin": "La valeur est plus basse que le minimum permis",
+      "higherThanMax": "La valeur est plus haute que la limite permise"
+    },
+    "pattern": {
+      "invalid": "La valeur fournie ne correspond pas au format exigé"
+    },
+    "string": {
+      "tooLong": "La longueur maximale est de {maxLength} {maxLength, plural, one {caractère} other {caractères}}."
+    }
+  }
 }

@@ -21,6 +21,7 @@ export class DialogSession {
   modified_on?: Date
   context_expiry?: Date
   session_expiry?: Date
+  prompt_expiry?: Date
 }
 
 export interface SessionRepository {
@@ -28,7 +29,9 @@ export interface SessionRepository {
   getOrCreateSession(sessionId: string, botId: string, trx?: Knex.Transaction): Promise<DialogSession>
   get(id: string): Promise<DialogSession>
   getExpiredContextSessionIds(botId: string): Promise<string[]>
+  getExpiredPromptsSessionIds(botId: string): Promise<string[]>
   deleteExpiredSessions(botId: string)
+  clearPromptTimeoutForSession(sessionId: string): Promise<void>
   delete(id: string)
   update(session: DialogSession, trx?: Knex.Transaction)
 }
@@ -73,7 +76,8 @@ export class KnexSessionRepository implements SessionRepository {
         modified_on: this.database.knex.date.now(),
         created_on: this.database.knex.date.now(),
         context_expiry: session.context_expiry ? this.database.knex.date.format(session.context_expiry) : eval('null'),
-        session_expiry: session.session_expiry ? this.database.knex.date.format(session.session_expiry) : eval('null')
+        session_expiry: session.session_expiry ? this.database.knex.date.format(session.session_expiry) : eval('null'),
+        prompt_expiry: session.prompt_expiry ? this.database.knex.date.format(session.prompt_expiry) : eval('null')
       },
       ['id', 'botId', 'context', 'temp_data', 'session_data', 'modified_on', 'created_on'],
       undefined,
@@ -126,12 +130,30 @@ export class KnexSessionRepository implements SessionRepository {
       })) as string[]
   }
 
+  async getExpiredPromptsSessionIds(botId: string): Promise<string[]> {
+    return this.database
+      .knex(this.tableName)
+      .where('botId', botId)
+      .andWhere(this.database.knex.date.isBefore('prompt_expiry', new Date()))
+      .select('id')
+      .limit(250)
+      .orderBy('modified_on')
+      .then(rows => rows.map(r => r.id))
+  }
+
   async deleteExpiredSessions(botId: string): Promise<void> {
     await this.database
       .knex(this.tableName)
       .where('botId', botId)
       .andWhere(this.database.knex.date.isBefore('session_expiry', new Date()))
       .del()
+  }
+
+  async clearPromptTimeoutForSession(sessionId: string): Promise<void> {
+    return this.database
+      .knex(this.tableName)
+      .where('id', sessionId)
+      .update({ prompt_expiry: eval('null') })
   }
 
   async update(session: DialogSession, trx?: Knex.Transaction): Promise<void> {
@@ -144,6 +166,7 @@ export class KnexSessionRepository implements SessionRepository {
         session_data: this.database.knex.json.set(session.session_data),
         context_expiry: session.context_expiry ? this.database.knex.date.format(session.context_expiry) : eval('null'),
         session_expiry: session.session_expiry ? this.database.knex.date.format(session.session_expiry) : eval('null'),
+        prompt_expiry: session.prompt_expiry ? this.database.knex.date.format(session.prompt_expiry) : eval('null'),
         modified_on: this.database.knex.date.now()
       })
 

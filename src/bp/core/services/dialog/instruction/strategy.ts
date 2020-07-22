@@ -45,6 +45,14 @@ export class ActionStrategy implements InstructionStrategy {
     }
   }
 
+  public async invokeSendMessage(args: any, contentType: string, event: IO.IncomingEvent) {
+    const eventDestination = _.pick(event, ['channel', 'target', 'botId', 'threadId'])
+    const commonArgs = extractEventCommonArgs(event, args)
+    const renderedElements = await this.cms.renderElement(contentType, commonArgs, eventDestination)
+
+    await this.eventEngine.replyToEvent(eventDestination, renderedElements, event.id)
+  }
+
   private async invokeOutputProcessor(botId, instruction, event: IO.IncomingEvent): Promise<ProcessingResult> {
     const chunks = instruction.fn.split(' ')
     const params = _.slice(chunks, 2).join(' ')
@@ -85,11 +93,7 @@ export class ActionStrategy implements InstructionStrategy {
       event.state.session.lastMessages.push(message)
     }
 
-    const commonArgs = extractEventCommonArgs(event, args)
-
-    const eventDestination = _.pick(event, ['channel', 'target', 'botId', 'threadId'])
-    const renderedElements = await this.cms.renderElement(outputType, commonArgs, eventDestination)
-    await this.eventEngine.replyToEvent(eventDestination, renderedElements, event.id)
+    await this.invokeSendMessage(args, outputType, event)
 
     return ProcessingResult.none()
   }
@@ -175,6 +179,7 @@ export class TransitionStrategy implements InstructionStrategy {
     if (instruction.fn === 'true') {
       return true
     } else if (instruction.fn?.startsWith('lastNode')) {
+      // TODO: Fix this so that it's cleaner and more generic
       const stack = sandbox.event.state.__stacktrace
       if (!stack.length) {
         return false
@@ -183,6 +188,18 @@ export class TransitionStrategy implements InstructionStrategy {
       const lastEntry = stack.length === 1 ? stack[0] : stack[stack.length - 2] // -2 because we want the previous node (not the current one)
 
       return instruction.fn === `lastNode=${lastEntry.node}`
+    }
+
+    if (instruction.fn?.includes('thisNode')) {
+      // TODO: Fix this so that it's cleaner and more generic
+      const nodeName = sandbox.event.state.context.currentNode
+      instruction.fn = instruction.fn.replace(/thisNode/g, `(event.state.temp['${nodeName}'] || {})`)
+    }
+
+    const variables = instruction.fn?.match(/\$[a-zA-Z][a-zA-Z0-9_-]*/g) ?? []
+    for (const match of variables) {
+      const name = match.replace('$', '')
+      instruction.fn = instruction.fn!.replace(match, `event.state.workflow.variables.${name}`)
     }
 
     const code = `

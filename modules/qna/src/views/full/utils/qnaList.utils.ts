@@ -38,7 +38,7 @@ export const hasPopulatedLang = (data: { [lang: string]: string[] }): boolean =>
   return !!_.flatMap(data).filter(entry => !!entry.trim().length).length
 }
 
-export const hasContentAnswer = (data: { [lang: string]: FormData[] }): boolean => {
+export const hasContentAnswer = (data: FormData[]): boolean => {
   return data && !!_.flatMap(data).length
 }
 
@@ -209,7 +209,7 @@ export const fetchReducer = (state: State, action): State => {
         enabled: true,
         answers: _.cloneDeep(languageArrays),
         questions: _.cloneDeep(languageArrays),
-        contentAnswers: languages.reduce((acc, lang) => ({ ...acc, [lang]: [] }), {}),
+        contentAnswers: [],
         redirectFlow: '',
         redirectNode: ''
       }

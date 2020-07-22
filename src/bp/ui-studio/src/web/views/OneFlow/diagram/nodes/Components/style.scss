@@ -1,5 +1,5 @@
 .secondaryText {
-  color: #5C7080;
+  color: #5c7080;
   display: block;
 }
 
@@ -58,8 +58,10 @@
           margin-top: 0 !important;
         }
 
-        &.active, &:hover {
-          .content, &:after {
+        &.active,
+        &:hover {
+          .content,
+          &:after {
             background: #fff !important;
           }
         }
@@ -89,6 +91,10 @@
       border-color: var(--trigger);
     }
 
+    &.prompt {
+      border-color: var(--prompt);
+    }
+
     &:hover {
       background: #fff;
       border: none;
@@ -97,6 +103,10 @@
 
       &.trigger {
         border-color: var(--trigger);
+      }
+
+      &.prompt {
+        border-color: var(--prompt);
       }
     }
 
@@ -176,9 +186,11 @@
     transform: translate(50%, 0);
   }
   .outRouting {
+    background-color: var(--prompt) !important;
     position: absolute;
-    right: 0;
-    transform: translate(50%, 25%);
+    top: 50%;
+    right: calc(var(--spacing-small) * -1);
+    transform: translate(65%, -50%);
   }
 }
 
@@ -208,20 +220,25 @@
   border: none;
   color: var(--shark);
   font-size: 8px;
+  height: 40px;
   line-height: 1.25;
   margin: var(--spacing-medium) var(--spacing-medium) 0 0;
-  height: 40px;
   padding: 0;
   position: relative;
   width: 135px;
   z-index: 1;
 
+  &:first-of-type {
+    margin-top: 0;
+  }
+
   &.hasJoinLabel {
     margin-top: 0;
   }
 
-  &:hover, &.active {
-    .content {
+  &:hover,
+  &.active {
+    .content:not(.promptPortContent) {
       border: solid 1px var(--ocean);
     }
   }
@@ -230,8 +247,8 @@
 .content {
   align-items: center;
   background: #fff;
-  border: 1px solid var(--gray);
   border-radius: 5px;
+  border: 1px solid var(--gray);
   display: flex;
   flex-wrap: wrap;
   height: 100%;
@@ -239,4 +256,8 @@
   transition: background 0.3s, border 0.3s;
   width: 100%;
   word-break: break-all;
+
+  &.promptPortContent {
+    position: relative;
+  }
 }

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, useEffect } from 'react'
 import { connect } from 'react-redux'
@@ -106,7 +107,7 @@ const StatusBar: FC<Props> = props => {
       progressLabel = `${progress}%`
     }
 
-    return <div className={style.item}>{`${message} ${progressLabel}`}</div>
+    return <div className={cx(style.item, style.progress)}>{`${message} ${progressLabel}`}</div>
   }
 
   return (

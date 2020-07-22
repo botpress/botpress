@@ -11,10 +11,19 @@ interface Props {
   onUpdateVariables?: (variable: FlowVariable) => void
   variables?: FlowVariable[]
   events?: BotEvent[]
+  currentLang
 }
 
-const TextAreaList: FC<Props> = props => {
-  const { label, onChange, field, data, variables, events, onUpdateVariables } = props
+const TextAreaList: FC<Props> = ({
+  label,
+  onChange,
+  field,
+  data,
+  variables,
+  events,
+  onUpdateVariables,
+  currentLang
+}) => {
   const [forceUpdateHeight, setForceUpdateHeight] = useState(false)
 
   useEffect(() => {
@@ -25,7 +34,11 @@ const TextAreaList: FC<Props> = props => {
 
   const handleChange = items => {
     const firstItem = items.shift()
-    onChange({ text: firstItem, variations: items })
+
+    onChange({
+      text: { ...data.text, [currentLang]: firstItem },
+      variations: { ...data.variations, [currentLang]: items }
+    })
   }
 
   return (
@@ -35,7 +48,7 @@ const TextAreaList: FC<Props> = props => {
       onUpdateVariables={onUpdateVariables}
       key={`${field.key}${forceUpdateHeight}`}
       label={label}
-      items={[data.text || '', ...(data.variations || [])]}
+      items={[...([data.text?.[currentLang]] || []), ...(data.variations?.[currentLang] || [])]}
       onChange={handleChange}
       addBtnLabel={lang.tr('module.builtin.types.text.add')}
       getPlaceholder={index => (index === 0 ? lang.tr('module.builtin.types.actionButton.sayPlaceholder') : '')}
