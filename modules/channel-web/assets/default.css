@@ -1082,60 +1082,33 @@
   .bpw-mobx-tools {
     visibility: hidden;
   }
+}
 
-  /* Emulator specific stuff */
+/* Emulator specific stuff */
+.bpw-emulator-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--spacing-large);
+}
 
-  .bpw-emulator-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 var(--spacing-large);
-  }
-
-  .bpw-emulator-header-tab {
-    font-size: 12px;
-    font-weight: bold;
-    line-height: 1.25;
-    color: var(--shark);
-    border-top: 2px solid var(--ocean);
-    padding: var(--spacing-medium) 0;
-    text-transform: uppercase;
-  }
+.bpw-emulator-header-tab {
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 1.25;
+  color: var(--shark);
+  border-top: 2px solid var(--ocean);
+  padding: var(--spacing-medium) 0;
+  text-transform: uppercase;
 }
 
 /* Old version IE 10 and 11 only */
 @media all and (-ms-high-contrast: none) {
   :root {
-    --font-family: Roboto;
-    --white: #ffffff;
-    --bg: #f5f6f8;
-    --seashell: #e2e2e2;
-    --gray: #bec5c9;
-    --reef: #5c7080;
-    --shark: #1a1e22;
-    --overlay: rgba(26, 30, 34, 0.8);
-    --say: #a4ded0;
-    --trigger: #ffe5b4;
-    --execute: #b0c4de;
-    --prompt: #e2c7e0;
-    --color-fill-if-else: #febbad;
-    --lighthouse: #f66f48;
-    --focus-lighthouse: #e06542;
-    --hover-lighthouse: #f39c82;
-    --hover-lighthouse-30: #f9ddd5;
-    --ocean: #3276ea;
-    --hover-ocean: #cad7f5;
-
-    --spacing-x-small: 2px;
-    --spacing-small: 4px;
-    --spacing-medium: 8px;
-    --spacing-large: 12px;
-    --spacing-x-large: 16px;
-    --spacing-xx-large: 20px;
-    --spacing-xxx-large: 24px;
-    --spacing-xxxx-large: 28px;
-
-    --right-sidebar-width: 240px;
+    --main-bg-color: #ffffff;
+    --main-bg-color-hover: rgba(255, 255, 255, 0.9);
+    --main-fg-color: #000000;
+    --main-fg-color-hover: rgba(0, 0, 0, 0.07);
   }
 
   body {
@@ -1154,61 +1127,14 @@
     height: 0 !important;
   }
 
-  .bpw-chat-bubble-content {
-    border: solid 1px var(--seashell);
-    font-size: 12px;
-    line-height: 1.25;
-    border-radius: 15px;
-    color: var(--shark);
-    padding: var(--spacing-medium);
-    transition: border 0.3s, background 0.3s, color 0.3s;
-  }
-
-  .bpw-from-user .bpw-chat-bubble:last-of-type .bpw-chat-bubble-content {
-    border-bottom-right-radius: 0;
-  }
-
-  .bpw-from-bot .bpw-chat-bubble:last-of-type .bpw-chat-bubble-content {
-    border-bottom-left-radius: 0;
-  }
-
   .bpw-from-user .bpw-chat-bubble .bpw-chat-bubble-content {
-    border-color: var(--hover-ocean);
-    background-color: var(--hover-ocean);
-    color: var(--shark);
+    background-color: #000000;
+    color: #ffffff;
   }
 
   .bpw-from-bot .bpw-chat-bubble .bpw-chat-bubble-content {
-    background-color: var(--white);
-  }
-
-  .bpw-from-bot .bpw-bubble-highlight .bpw-chat-bubble-content {
-    border-color: var(--ocean);
-  }
-
-  .bpw-from-user .bpw-bubble-highlight .bpw-chat-bubble-content {
-    border-color: var(--ocean);
-    background-color: var(--ocean);
-    color: #fff;
-  }
-
-  .bpw-bubble-session_reset {
-    background: var(--bg);
-    max-width: calc(100% + 60px) !important;
-    width: calc(100% + 60px) !important;
-    font-size: 8px;
-    line-height: 1.25;
-    margin: var(--spacing-xx-large) 0 !important;
-  }
-
-  .bpw-bubble-session_reset .bpw-chat-bubble-content {
-    color: var(--shark);
-    background: none !important;
-    border: none;
-    border-radius: 0;
-    padding: 0;
-    text-align: center;
-    padding: var(--spacing-small) 0;
+    background-color: #ffffff;
+    color: #000000;
   }
 
   .bp-emulator-history .bpw-chat-bubble {
@@ -1276,21 +1202,11 @@
     margin-right: 5px;
   }
 
-  .bpw-bot-avatar.emulator {
-    height: 16px;
-    width: 16px;
-    min-width: 16px;
+  .bpw-bot-avatar img,
+  .bpw-bot-avatar svg {
+    border: solid 3px white;
     border-radius: 50%;
-    background: var(--shark);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .bpw-bot-avatar:not(.emulator) img,
-  .bpw-bot-avatar:not(.emulator) svg {
-    border-radius: 50%;
-    background: var(--shark);
+    background: #ccc;
   }
 
   .bpw-button {
@@ -1341,7 +1257,7 @@
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
-    margin: var(--spacing-medium) 0;
+    margin: 1rem 0;
     -webkit-box-align: end;
     -ms-flex-align: end;
     align-items: flex-end;
@@ -1444,19 +1360,21 @@
     overflow-y: auto;
     -ms-flex-positive: 1;
     flex-grow: 1;
-    padding: 0 var(--spacing-large);
+    padding: 0 0.5rem 0.5rem 0.5rem;
   }
 
   .bpw-date-container {
-    font-size: 8px;
-    line-height: 1.25;
-    margin: var(--spacing-large) 0 var(--spacing-x-large);
-    color: var(--shark);
+    color: #666;
     text-align: center;
+    font-size: 12px;
+    margin: 40px 0 20px;
   }
 
-  .bpw-date-container + .bpw-message-big-container .bpw-bubble-session_reset {
-    margin-top: 0 !important;
+  .bpw-date-container .bpw-small-line {
+    border-bottom: solid 1px #555;
+    margin: auto;
+    width: 80px;
+    margin-top: 5px;
   }
 
   .bpw-new-messages-indicator {
@@ -1490,6 +1408,11 @@
 
     white-space: pre-wrap;
     word-break: break-word;
+  }
+
+  .bpw-chat-bubble-content {
+    border: 1px solid #f1f1f1;
+    padding: 0.5rem 0.75rem;
   }
 
   .bpw-message-feedback {
@@ -1527,6 +1450,28 @@
 
     display: flex;
     justify-content: space-evenly;
+  }
+
+  .bpw-from-bot .bpw-bubble-highlight .bpw-chat-bubble-content {
+    background-color: rgba(255, 192, 114, 0.25);
+  }
+
+  .bpw-from-user .bpw-bubble-highlight .bpw-chat-bubble-content {
+    background-color: #ffa73a;
+  }
+
+  .bpw-bubble-session_reset {
+    color: red !important;
+    border: none;
+    border-top: 1px solid red;
+    border-bottom: 1px solid red;
+  }
+
+  .bpw-bubble-session_reset .bpw-chat-bubble-content {
+    color: red !important;
+    background: none !important;
+    padding: 0;
+    margin: 5px 0;
   }
 
   .bpw-bubble-carousel {
@@ -1761,33 +1706,29 @@
   }
 
   .bpw-composer {
+    border-top-width: 1px;
+    border-top-style: solid;
+    border-top-color: #aaaaaa;
     position: relative;
+    padding: 0.5rem 0 0;
+    background: rgba(255, 255, 255, 0.9);
+    transition: border 0.3s ease;
     outline: none;
-    padding: var(--spacing-x-large) 40px var(--spacing-x-large) var(--spacing-large);
-  }
-
-  .bpw-composer-inner {
-    line-height: 0;
-    position: relative;
+    padding-bottom: 0.5rem;
   }
 
   .bpw-composer textarea {
-    background: var(--white);
-    border-radius: 15px;
-    border: solid 1px var(--seashell);
-    color: var(--shark);
-    font-family: inherit;
-    font-size: 12px;
-    height: 37px;
-    line-height: 1.25;
-    padding: 10px var(--spacing-medium);
-    resize: none;
-    transition: border 0.3s;
+    font: inherit;
+    background-color: transparent;
     width: 100%;
-  }
-
-  .bpw-composer textarea:focus {
-    border-color: var(--ocean);
+    resize: none;
+    line-height: 1.2;
+    height: 50px;
+    border: none;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    padding-right: 60px;
+    margin-bottom: 0.5rem;
   }
 
   .bpw-powered {
@@ -1798,9 +1739,8 @@
 
   .bpw-send-button {
     position: absolute;
-    right: -30px;
-    top: 50%;
-    transform: translate(0, -50%);
+    right: 25px;
+    bottom: 28px;
     border: none;
     border-radius: 5px;
     background: #fff;
@@ -1810,14 +1750,9 @@
     cursor: pointer;
   }
 
-  .bpw-send-button path {
-    fill: var(--shark);
-    transition: fill 0.3s;
-  }
-
-  .bpw-send-button:hover path,
-  .bpw-send-button:focus path {
-    fill: var(--ocean);
+  .bpw-send-button:hover,
+  .bpw-send-button:focus {
+    background: #d8d8d8;
   }
 
   /** HEADER STUFF */
@@ -2185,24 +2120,5 @@
 
   .bpw-mobx-tools {
     visibility: hidden;
-  }
-
-  /* Emulator specific stuff */
-
-  .bpw-emulator-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 var(--spacing-large);
-  }
-
-  .bpw-emulator-header-tab {
-    font-size: 12px;
-    font-weight: bold;
-    line-height: 1.25;
-    color: var(--shark);
-    border-top: 2px solid var(--ocean);
-    padding: var(--spacing-medium) 0;
-    text-transform: uppercase;
   }
 }
