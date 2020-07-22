@@ -106,7 +106,7 @@ function renderMessenger(data) {
 
 function renderElement(data, channel) {
   if (channel === 'web' || channel === 'slack') {
-    return base.newRenderer(data, 'carousel')
+    return base.renderer(data, 'carousel')
   } else if (channel === 'messenger') {
     return renderMessenger(data)
   } else {
@@ -167,7 +167,7 @@ module.exports = {
         type: 'group',
         key: 'items',
         label: 'fields::title',
-        fields: Card.newSchema.fields
+        fields: Card.newSchema && Card.newSchema.fields
       }
     ]
   },

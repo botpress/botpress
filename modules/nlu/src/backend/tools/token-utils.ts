@@ -3,6 +3,7 @@ import _ from 'lodash'
 import { Token2Vec } from '../typings'
 
 import { LATIN_CHARSET, SPECIAL_CHARSET } from './chars'
+import getVocabTokenizer from './vocab-tokenizer'
 
 export const SPACE = '\u2581'
 
@@ -27,6 +28,7 @@ export function tokenizeLatinTextForTests(text: string): string[] {
 }
 
 type CustomMatcher = (tok: string) => boolean
+type CustomTransformer = (prevTok: string, nextTok: string) => string[]
 
 /**
  * Merges consecutive tokens that all respect the provided regex
@@ -39,13 +41,14 @@ type CustomMatcher = (tok: string) => boolean
 export const mergeSimilarCharsetTokens = (
   tokens: string[],
   charPatterns: string[],
-  matcher: CustomMatcher = () => true
+  matcher: CustomMatcher = () => true,
+  transformer: CustomTransformer = (prev: string, next: string) => [`${prev}${next}`]
 ): string[] => {
   const charMatcher = new RegExp(`^(${charPatterns.join('|')})+$`, 'i')
   return tokens.reduce((mergedToks: string[], nextTok: string) => {
     const prev = _.last(mergedToks)
     if (prev && charMatcher.test(prev) && charMatcher.test(nextTok) && (matcher(prev) || matcher(nextTok))) {
-      return [...mergedToks.slice(0, mergedToks.length - 1), `${_.last(mergedToks) || ''}${nextTok}`]
+      return [...mergedToks.slice(0, mergedToks.length - 1), ...transformer(prev, nextTok)]
     } else {
       return [...mergedToks, nextTok]
     }
@@ -59,7 +62,12 @@ const mergeLatin = (tokens: string[], vocab: Token2Vec): string[] => {
   const oovMatcher = (token: string) => {
     return token && !vocab[token.toLowerCase()]
   }
-  return mergeSimilarCharsetTokens(tokens, LATIN_CHARSET, oovMatcher)
+
+  const vocabTokenizer = getVocabTokenizer(Object.keys(vocab))
+  const vocabTransformer = (prev: string, next: string) => {
+    return vocabTokenizer(`${prev}${next}`)
+  }
+  return mergeSimilarCharsetTokens(tokens, LATIN_CHARSET, oovMatcher, vocabTransformer)
 }
 
 export const processUtteranceTokens = (tokens: string[], vocab: Token2Vec = {}): string[] => {

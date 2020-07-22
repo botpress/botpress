@@ -64,7 +64,7 @@ class Migrater {
         this.bp.logger
           .forBot(botId)
           .attachError(err)
-          .error('Could not migrate say node data')
+          .error(`Could not migrate say node data for bot ${botId}`)
       }
     }
   }
