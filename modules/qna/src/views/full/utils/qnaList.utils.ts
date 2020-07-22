@@ -68,9 +68,20 @@ export const dispatchMiddleware = async (dispatch, action) => {
       let saveError = null
 
       if (!itemHasError(qnaItem, currentLang).length) {
-        const { answers, questions } = qnaItem.data
+        const { answers, questions, redirectFlow, redirectNode } = qnaItem.data
+        const hasAnswers = hasPopulatedLang(answers)
+        const hasRedirect = redirectFlow || redirectNode
+        let action = 'text'
+
+        if (hasAnswers && hasRedirect) {
+          action = 'text_redirect'
+        } else if (hasRedirect) {
+          action = 'redirect'
+        }
+
         const cleanData = {
           ...qnaItem.data,
+          action,
           answers: {
             ...Object.keys(answers).reduce(
               (acc, lang) => ({ ...acc, [lang]: [...answers[lang].filter(entry => !!entry.trim().length)] }),
