@@ -49,7 +49,7 @@ export class TelemetryRepository {
     })
   }
 
-  async pruneEntries() {
+  async pruneEntries(): Promise<void> {
     const config = await this.config.getBotpressConfig()
     const limit = config.telemetry?.entriesLimit ?? DEFAULT_ENTRIES_LIMIT
 
@@ -57,18 +57,10 @@ export class TelemetryRepository {
       .from(this.tableName)
       .select('uuid')
       .orderBy('creationDate', 'desc')
-      .limit(-1)
       .offset(limit)
       .then(rows => rows.map(entry => entry.uuid))
 
-    if (uuIds.length) {
-      await Promise.mapSeries(_.chunk(uuIds, 500), async uuIdChunk => {
-        await this.database
-          .knex(this.tableName)
-          .whereIn('uuid', uuIdChunk)
-          .del()
-      })
-    }
+    return this.removeMany(uuIds)
   }
 
   async removeMany(uuIds: string[]) {
