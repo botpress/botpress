@@ -17,6 +17,7 @@ interface Props {
   onUpdate: (data: any) => void
   formData: FormData
   contentTypes: any
+  contentLang: string
 }
 
 const ContentForm: FC<Props> = ({
@@ -26,7 +27,8 @@ const ContentForm: FC<Props> = ({
   close,
   formData,
   onUpdate,
-  deleteContent
+  deleteContent,
+  contentLang
 }) => {
   const [isConfirming, setIsConfirming] = useState(false)
   const contentType = useRef(formData?.contentType || 'builtin_text')
@@ -52,7 +54,7 @@ const ContentForm: FC<Props> = ({
     const schemaFields = [...(fields || []), ...(advancedSettings || [])]
     contentType.current = value
     onUpdate({
-      ...Contents.createEmptyDataFromSchema(schemaFields),
+      ...Contents.createEmptyDataFromSchema(schemaFields, contentLang),
       contentType: value,
       id: formData?.id
     })
@@ -66,11 +68,11 @@ const ContentForm: FC<Props> = ({
   const hasChanged = !(
     _.isEqual(formData, { contentType: contentType.current }) ||
     _.isEqual(formData, {
-      ...Contents.createEmptyDataFromSchema(schemaFields),
+      ...Contents.createEmptyDataFromSchema(schemaFields, contentLang),
       contentType: contentType.current
     }) ||
     _.isEqual(formData, {
-      ...Contents.createEmptyDataFromSchema(schemaFields),
+      ...Contents.createEmptyDataFromSchema(schemaFields, contentLang),
       contentType: contentType.current,
       id: formData?.id
     })
@@ -110,9 +112,10 @@ const ContentForm: FC<Props> = ({
         {!!contentFields && (
           <Contents.Form
             axios={axios}
+            currentLang={contentLang}
             mediaPath={`${window.BOT_API_PATH}/media`}
             overrideFields={{
-              textOverride: props => <TextField {...props} />
+              textOverride: props => <TextField currentLang={contentLang} {...props} />
             }}
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}

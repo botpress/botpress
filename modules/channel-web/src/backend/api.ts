@@ -19,6 +19,15 @@ const ERR_CONV_ID_REQ = '`conversationId` is required and must be valid'
 const ERR_BAD_LANGUAGE = '`language` is required and must be valid'
 
 const USER_ID_MAX_LENGTH = 40
+const SUPPORTED_MESSAGES = [
+  'text',
+  'quick_reply',
+  'form',
+  'login_prompt',
+  'visit',
+  'request_start_conversation',
+  'postback'
+]
 
 export default async (bp: typeof sdk, db: Database) => {
   const asyncMiddleware = asyncMw(bp.logger)
@@ -127,11 +136,7 @@ export default async (bp: typeof sdk, db: Database) => {
       let { conversationId = undefined } = req.query || {}
       conversationId = conversationId && parseInt(conversationId)
 
-      if (
-        !['text', 'quick_reply', 'form', 'login_prompt', 'visit', 'request_start_conversation', 'postback'].includes(
-          payload.type
-        )
-      ) {
+      if (!SUPPORTED_MESSAGES.includes(payload.type)) {
         // TODO: Support files
         return res.status(400).send(ERR_MSG_TYPE)
       }
@@ -155,7 +160,15 @@ export default async (bp: typeof sdk, db: Database) => {
         conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
       }
 
-      await sendNewMessage(botId, userId, conversationId, payload, req.credentials, !!req.headers.authorization)
+      await sendNewMessage(
+        botId,
+        userId,
+        conversationId,
+        payload,
+        req.credentials,
+        !!req.headers.authorization,
+        user.result
+      )
 
       return res.sendStatus(200)
     })
@@ -245,7 +258,8 @@ export default async (bp: typeof sdk, db: Database) => {
     conversationId,
     payload,
     credentials: any,
-    useDebugger?: boolean
+    useDebugger?: boolean,
+    user?: sdk.User
   ) {
     const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
@@ -277,10 +291,10 @@ export default async (bp: typeof sdk, db: Database) => {
       event.debugger = true
     }
 
-    const message = await db.appendUserMessage(botId, userId, conversationId, sanitizedPayload, event.id)
-
+    const message = await db.appendUserMessage(botId, userId, conversationId, sanitizedPayload, event.id, user)
     bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
-    return bp.events.sendEvent(event)
+
+    await bp.events.sendEvent(event)
   }
 
   router.post(

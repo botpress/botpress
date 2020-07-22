@@ -15,7 +15,7 @@ const Toolbar: FC = () => {
     <div className={style.toolbar} onContextMenu={e => e.stopPropagation()}>
       <ToolItem label={lang.tr('trigger')} type="node" id="trigger" icon="send-to-graph" />
       <ToolItem label={lang.tr('say')} type="node" id="say_something" icon={<Icons.Say />} />
-      {/*<ToolItem label={lang.tr('prompt')} type="node" id="prompt" icon="citation" />*/}
+      {<ToolItem label={lang.tr('prompt')} type="node" id="prompt" icon="citation" />}
       <ToolItem label={lang.tr('execute')} type="node" id="execute" icon="code" />
     </div>
   )

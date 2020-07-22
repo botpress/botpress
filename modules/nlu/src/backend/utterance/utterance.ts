@@ -47,8 +47,8 @@ export type UtteranceToken = Readonly<{
 export const DefaultTokenToStringOptions: TokenToStringOptions = { lowerCase: false, realSpaces: true, trim: false }
 
 export default class Utterance {
-  public slots: ReadonlyArray<UtteranceRange & UtteranceSlot> = []
-  public entities: ReadonlyArray<UtteranceRange & UtteranceEntity> = []
+  public slots: ReadonlyArray<UtteranceSlot> = []
+  public entities: ReadonlyArray<UtteranceEntity> = []
   private _tokens: ReadonlyArray<UtteranceToken> = []
   private _globalTfidf?: TFIDF
   private _kmeans?: sdk.MLToolkit.KMeans.KmeansResult

@@ -41,7 +41,7 @@ export default class Summary extends React.Component<Props> {
         <Dialog
           suggestions={this.props.event.suggestions}
           decision={this.props.event.decision}
-          stacktrace={this.props.event.state.__stacktrace}
+          stacktrace={this.props.event.state?.__stacktrace}
         />
 
         <NDUSection nduData={this.props.event.ndu} />

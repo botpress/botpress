@@ -136,7 +136,8 @@ declare module 'botpress/sdk' {
     translations?: { [lang: string]: object }
     /** List of new conditions that the module can register */
     dialogConditions?: Condition[]
-    variables?: any
+    prompts?: PromptDefinition[]
+    variables?: FlowVariableType[]
     /** Called once the core is initialized. Usually for middlewares / database init */
     onServerStarted?: (bp: typeof import('botpress/sdk')) => Promise<void>
     /** This is called once all modules are initialized, usually for routing and logic */
@@ -499,7 +500,7 @@ declare module 'botpress/sdk' {
     }
 
     export interface EntityBody {
-      extras: any
+      extras?: any
       value: any
       unit: string
     }
@@ -507,11 +508,11 @@ declare module 'botpress/sdk' {
     export interface EntityMeta {
       sensitive: boolean
       confidence: number
-      provider: string
+      provider?: string
       source: string
       start: number
       end: number
-      raw: any
+      raw?: any
     }
 
     export interface Slot {
@@ -537,6 +538,7 @@ declare module 'botpress/sdk' {
 
   export namespace NDU {
     interface GenericTrigger {
+      name?: string
       conditions: DecisionTriggerCondition[]
     }
 
@@ -558,6 +560,7 @@ declare module 'botpress/sdk' {
       type: 'node'
       workflowId: string
       nodeId: string
+      effect?: 'prompt.cancel' | 'prompt.inform'
     }
 
     export type Trigger = NodeTrigger | FaqTrigger | WorkflowTrigger
@@ -574,7 +577,7 @@ declare module 'botpress/sdk' {
     }
 
     export interface Actions {
-      action: 'send' | 'startWorkflow' | 'redirect' | 'continue' | 'goToNode'
+      action: 'send' | 'startWorkflow' | 'redirect' | 'continue' | 'goToNode' | 'prompt.inform' | 'prompt.cancel'
       data?: SendContent | FlowRedirect
     }
 
@@ -615,7 +618,9 @@ declare module 'botpress/sdk' {
       suggestions?: Suggestion[]
       credentials?: any
       nlu?: Partial<EventUnderstanding>
+      ndu?: NDU.DialogUnderstanding
       incomingEventId?: string
+      debugger?: boolean
     }
 
     /**
@@ -627,11 +632,11 @@ declare module 'botpress/sdk' {
       /** A sortable unique identifier for that event (time-based) */
       readonly id: string
       /** The type of the event, i.e. image, text, timeout, etc */
-      readonly type: string
+      type: string
       /** Is it (in)coming from the user to the bot or (out)going from the bot to the user? */
       readonly direction: EventDirection
       /** The channel-specific raw payload */
-      readonly payload: any
+      payload: any
       /** A textual representation of the event */
       readonly preview: string
       /** The date the event was created */
@@ -743,11 +748,11 @@ declare module 'botpress/sdk' {
       /** This variable points to the currently active workflow */
       workflow: WorkflowHistory
       /** Update or set a new variable */
-      setVariable: (
+      createVariable: (
         name: string,
         value: any,
         type: string,
-        options?: { nbOfTurns: number; specificWorkflow?: string }
+        options?: { nbOfTurns: number; specificWorkflow?: string; enumType?: string; config?: any }
       ) => void
       /**
        * EXPERIMENTAL
@@ -756,6 +761,38 @@ declare module 'botpress/sdk' {
       __stacktrace: JumpPoint[]
       /** Contains details about an error that occurred while processing the event */
       __error?: EventError
+    }
+
+    export interface PromptStatus {
+      turn: number
+      readonly config: Readonly<PromptConfiguration>
+      status: 'resolved' | 'rejected' | 'pending'
+      stage: 'new' | 'prompt' | 'confirm-candidate' | 'confirm-cancel' | 'confirm-jump' | 'disambiguate-candidates'
+      rejection?: 'cancelled' | 'timedout' | 'jumped'
+      questionAsked?: boolean
+      state: {
+        confirmCandidate?: PromptCandidate
+        disambiguateCandidates?: PromptCandidate[]
+        value?: any
+        nextDestination?: { flowName: string; node: string }
+      }
+    }
+
+    export interface DialogAction {
+      type: 'say' | 'listen' | 'cancel'
+      message?: MultiLangText | string
+      payload?: any
+      eventType?: string
+    }
+
+    export type PromptConfiguration = { type: string; valueType?: string } & PromptNodeParams
+
+    export interface PromptCandidate {
+      source: 'slot' | 'prompt'
+      value_raw: any
+      value_string: string
+      turns_ago: number
+      confidence: number
     }
 
     export interface EventError {
@@ -795,6 +832,8 @@ declare module 'botpress/sdk' {
        * This is used to execute the target flow catchAll transitions.
        */
       hasJumped?: boolean
+      /** The status of the current active prompt */
+      activePrompt?: PromptStatus
     }
 
     export interface CurrentSession {
@@ -815,7 +854,7 @@ declare module 'botpress/sdk' {
       /** Only one workflow can be active at a time, when a child workflow is active, the parent will be pending */
       status: 'active' | 'pending' | 'completed'
       success?: boolean
-      variables: { [name: string]: BoxedVariable<any> | UnboxedVariable<any> }
+      variables: { [name: string]: BoxedVariable<any, any> }
     }
 
     export type StoredEvent = {
@@ -1109,6 +1148,7 @@ declare module 'botpress/sdk' {
     timeoutInterval: string
     /** The interval until a session expires */
     sessionTimeoutInterval: string
+    promptTimeoutInterval: string
   }
 
   /**
@@ -1230,7 +1270,7 @@ declare module 'botpress/sdk' {
     /** The description holds placeholders for param values so they can be displayed in the view */
     description?: string
     /** The definition of all parameters used by this condition */
-    fields?: FormField[],
+    fields?: FormField[]
     advancedSettings?: FormField[]
     /** In which order the conditions will be displayed in the dropdown menu. 0 is the first item */
     displayOrder?: number
@@ -1242,6 +1282,8 @@ declare module 'botpress/sdk' {
       component: string
     }
     evaluate: (event: IO.IncomingEvent, params: any) => number
+    /** The onEnter actions that come with this condition when the Trigger node is executed */
+    addOnEnter?: (params: any) => string[]
   }
 
   export interface ConditionParam {
@@ -1319,6 +1361,7 @@ declare module 'botpress/sdk' {
     | 'execute'
     | 'router'
     | 'action'
+    | 'prompt'
 
   export type FlowNode = {
     id?: string
@@ -1326,6 +1369,7 @@ declare module 'botpress/sdk' {
     type?: FlowNodeType
     timeoutNode?: string
     flow?: string
+    prompt?: PromptNode
     isNew?: boolean
     /** Used internally by the flow editor */
     readonly lastModified?: Date
@@ -1337,7 +1381,7 @@ declare module 'botpress/sdk' {
   }
 
   export type ListenNode = FlowNode & {
-    triggers: { conditions: DecisionTriggerCondition[] }[]
+    triggers: { name?: string; effect?: 'prompt.inform' | 'prompt.cancel'; conditions: DecisionTriggerCondition[] }[]
   }
 
   export type SkillFlowNode = Partial<ListenNode> & Pick<Required<ListenNode>, 'name'> & Partial<TriggerNode>
@@ -1392,8 +1436,21 @@ declare module 'botpress/sdk' {
     labelField: string
   }
 
+  export type FormFieldType =
+    | 'checkbox'
+    | 'group'
+    | 'number'
+    | 'overridable'
+    | 'select'
+    | 'text'
+    | 'text_array'
+    | 'textarea'
+    | 'upload'
+    | 'url'
+    | 'hidden'
+
   export interface FormField {
-    type: 'checkbox' | 'group' | 'number' | 'overridable' | 'select' | 'text' | 'text_array' | 'textarea' | 'upload' | 'url'
+    type: FormFieldType
     key: string
     label: string
     overrideKey?: string
@@ -1401,6 +1458,15 @@ declare module 'botpress/sdk' {
     options?: FormOption[]
     defaultValue?: FormDataField
     required?: boolean
+    max?: number
+    min?: number
+    maxLength?: number
+    valueManipulation?: {
+      regex: string
+      modifier: string
+      replaceChar: string
+    }
+    translated?: boolean
     dynamicOptions?: FormDynamicOptions
     fields?: FormField[]
     moreInfo?: FormMoreInfo
@@ -1540,32 +1606,158 @@ declare module 'botpress/sdk' {
     asChatUser?: boolean
   }
 
-  export interface BoxedVarConstructable<T> {
-    new (ctor: BoxedVarContructor<T>): BoxedVariable<T>
+  export interface PromptDefinition {
+    id: string
+    config: PromptConfig
+    prompt: PromptConstructable
   }
 
-  export interface BoxedVariable<T> {
-    value: T
-    trySet(value: T, confidence?: number): void
+  /** The configuration of the prompt which is saved on the flow */
+  export interface PromptConfig {
+    /** An ID used internally to refer to this prompt */
+    type: string
+    /** The label displayed in the studio */
+    label?: string
+    icon?: string
+    /** The ID representing the type of value that is collected by this prompt */
+    valueType: string
+    /** Will never trigger a confirmation for a previous value */
+    noConfirmation?: boolean
+    /** Fields to configure the prompt on the studio */
+    fields: FormField[]
+    advancedSettings: FormField[]
+  }
+
+  export interface PromptNode {
+    type: string
+    /** The list of custom parameters of the prompt with their associated values */
+    params: PromptNodeParams
+  }
+
+  export interface PromptNodeParams {
+    cancellable?: boolean
+    confirmCancellation?: boolean
+    /** The name of the variable that will be filled with the value extracted */
+    output: string
+    /** The question to ask to the user for this prompt */
+    question: MultiLangText
+    /** Confirmation message to send to ask the user if the provided value is correct */
+    confirm?: MultiLangText
+    /** Additional param for prompts */
+    [paramName: string]: any
+  }
+
+  export interface MultiLangText {
+    [lang: string]: string
+  }
+
+  export interface Prompt {
+    /**
+     * This method will receive multiple
+     * @param event
+     */
+    extraction(event: IO.IncomingEvent): ExtractionResult[]
+    /**
+     * This method
+     * @param value
+     */
+    validate(value): ValidationResult
+    /**
+     * When the prompt is sent to the user, an event of type "prompt" is sent to the corresponding channel.
+     * You can customize the event that will be sent to the user
+     * */
+    customPrompt?(
+      event: IO.OutgoingEvent,
+      incomingEvent: IO.IncomingEvent,
+      bp: typeof import('botpress/sdk')
+    ): Promise<boolean>
+  }
+
+  export interface ExtractionResult {
+    value: any
+    confidence: number
+  }
+
+  export interface ValidationResult {
+    valid: boolean
+    message?: MultiLangText
+  }
+
+  export interface PromptConstructable {
+    new (ctor: any): Prompt
+  }
+
+  export interface BoxedVarConstructable<T, V = any> {
+    new (ctor: BoxedVarContructor<T, V>): BoxedVariable<T, V>
+  }
+
+  export interface BoxedVariable<T, V = any> {
+    value?: T
+    /** Configuration option that are set directly on the variable (eg: format) */
+    config?: V
+    /** The level of confidence we have for the value */
+    readonly confidence: number
+    readonly type: string
+    /** This method handles the logic to check if the value is valid and update the confidence  */
+    trySet(value: T | undefined, confidence?: number): void
+    /** Set the number of remaining turns before the variable is set to expire */
     setRetentionPolicy(nbOfTurns: number): void
-    toString(): string
+    /** Convert the underlying value to a string. Different variables may have format options */
+    toString(...args: any): string
+    /**
+     * Returns 1 if this value is bigger than compareTo's value
+     * Returns -1 if this value is smaller than compareTo's value
+     * Returns 0 if both values are equal
+     */
+    compare(compareTo: BoxedVariable<T, V>): number
+    getEnumList: () => NLU.EntityDefOccurrence[] | undefined
     unbox(): UnboxedVariable<T>
   }
 
   export interface UnboxedVariable<T> {
     type: string
-    value: T
+    enumType?: string
+    value: T | undefined
     nbTurns: number
     confidence: number
   }
 
-  export interface BoxedVarContructor<T> {
+  export interface BoxedVarContructor<T, V = any> {
+    type: string
+    enumType?: string
     /** The number of turns left until this value is no longer valid */
     nbOfTurns: number
     /** The confidence percentage of the value currently stored */
     confidence?: number
     /** The current value stored in the db */
-    value: T
+    value: T | undefined
+    /** Configuration of the variable on the workflow (ex: date format) */
+    config?: V
+    /** Returns the list of allowed values for the current type of enum */
+    getEnumList: () => NLU.EntityDefOccurrence[]
+  }
+
+  export interface FlowVariableType {
+    id: string
+    config?: FlowVariableConfig
+    box: BoxedVarConstructable<any, any>
+  }
+
+  export type FlowVariableConfig = FormDefinition
+
+  export interface FormMoreInfo {
+    label: string
+    url?: string
+  }
+
+  export interface FormContextMenu {
+    type: string
+    label: string
+  }
+
+  export interface FormDefinition {
+    advancedSettings: FormField[]
+    fields: FormField[]
   }
 
   ////////////////
@@ -1672,6 +1864,100 @@ declare module 'botpress/sdk' {
     content: string | Buffer
   }
 
+  export namespace Content {
+    export interface Base {
+      metadata?: Metadata
+      extraProps?: {
+        BOT_URL: string
+      }
+    }
+
+    export interface Metadata {
+      /** Display quick reply buttons */
+      __buttons?: Option[]
+      /** Display a dropdown menu to select an item  */
+      __dropdown?: Option[] | Dropdown
+      /** When true, the typing effect will not be used */
+      __typing?: boolean
+      /** Use markdown for text fields when possible */
+      __markdown?: boolean
+      /** If the channel supports it, it will trim the text to the specified length */
+      __trimText?: number
+      /** Force usage of a dropdown menu instead of buttons */
+      __useDropdown?: boolean
+      /** Any other user-defined properties */
+      [customProps: string]: any
+    }
+
+    export interface Text extends Base {
+      type: 'text'
+      text: string | MultiLangText
+      variations?: string[]
+    }
+
+    export interface Image extends Base {
+      type: 'image'
+      image: string
+      title?: string | MultiLangText
+    }
+
+    export interface Card extends Base {
+      type: 'card'
+      title: string | MultiLangText
+      subtitle?: string | MultiLangText
+      image?: string
+      actions?: Actions[]
+    }
+
+    export interface ActionButton {
+      title: string | MultiLangText
+    }
+
+    export interface ActionSaySomething extends ActionButton {
+      type: 'say_something'
+      // TODO cleanup legacy
+      action: 'Say something'
+      text: string | MultiLangText
+    }
+
+    export interface ActionOpenURL extends ActionButton {
+      type: 'open_url'
+      // TODO cleanup legacy
+      action: 'Open URL'
+      url: string
+    }
+
+    export interface ActionPostback extends ActionButton {
+      type: 'postback'
+      // TODO cleanup legacy
+      action: 'Postback'
+      payload: string
+    }
+
+    export interface Carousel extends Base {
+      type: 'carousel'
+      items: Card[]
+    }
+
+    export interface Custom extends Base {
+      type: 'custom'
+      [prop: string]: any
+    }
+
+    export type All = Text | Image | Carousel | Card | Custom
+    export type Actions = ActionSaySomething | ActionOpenURL | ActionPostback
+
+    export interface Dropdown {
+      buttonText?: string
+      options: Option[]
+      /** Below options are for channel-web only */
+      width?: number
+      displayInKeyboard?: boolean
+      allowCreation?: boolean
+      allowMultiple?: boolean
+    }
+  }
+
   export namespace http {
     /**
      * Create a shortlink to any destination
@@ -1770,6 +2056,12 @@ declare module 'botpress/sdk' {
      * @param payloads - One or multiple payloads to send
      */
     export function replyToEvent(eventDestination: IO.EventDestination, payloads: any[], incomingEventId?: string): void
+
+    export function replyContentToEvent(
+      payload: Content.All,
+      event: IO.Event,
+      options: { incomingEventId?: string; eventType?: string }
+    ): Promise<void>
 
     /**
      * Return the state of the incoming queue. True if there are any events(messages)

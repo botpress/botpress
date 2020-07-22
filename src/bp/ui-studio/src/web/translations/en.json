@@ -148,6 +148,7 @@
         "addCondition": "Add Condition",
         "cantSeeActions": "Can't see your action?",
         "chatbotSays": "Chatbot Says",
+        "chatbotPromptsUser": "Chatbot Prompts User",
         "confirmOverwriteParameters": "Do you want to overwrite existing parameters?",
         "contentPaste": "content_paste",
         "couldNotRetrieveActionServer": "Could not retrieve action servers",
@@ -214,6 +215,7 @@
         "execute": "Execute",
         "executeAction": "Execute Action",
         "listen": "Listen",
+        "prompt": "Prompt",
         "router": "Router",
         "say": "Say",
         "sendMessage": "Send Message",
@@ -320,6 +322,13 @@
         "labelHelp": "The label is a friendly name that can replace the name in the topic list",
         "name": "Workflow name"
       }
+    },
+    "prompt": {
+      "label": "Type",
+      "pickType": "Pick a type",
+      "userAnswersCorrectly": "User answers correctly",
+      "userCancels": "User Cancels",
+      "userDoesNotAnswer": "User does not answer"
     },
     "sideBar": {
       "config": "Config",

@@ -37,6 +37,7 @@ import {
   updateFlowProblems
 } from '~/actions'
 import { hashCode, prettyId } from '~/util'
+import { parseFlowName } from '~/util/workflows'
 
 export interface FlowReducer {
   currentFlow?: string
@@ -236,7 +237,8 @@ const doCreateNewFlow = name => {
     }
   ]
 
-  if (window.USE_ONEFLOW) {
+  const isSubWorkflow = window.USE_ONEFLOW && parseFlowName(name).folders?.length
+  if (isSubWorkflow) {
     nodes.push(
       {
         id: prettyId(),
@@ -291,6 +293,15 @@ function isActualDelete(state, modification): boolean {
 
 function isActualRename(state, modification): boolean {
   return modification.newName && !_.keys(state.flowsByName).includes(modification.newName)
+}
+
+const getNextNodeName = (type: string, nodes) => {
+  const filteredNodes = nodes
+    .filter(x => x.type === type && x.name.startsWith(`${type}-`))
+    .map(x => Number(x.name.replace(`${type}-`, '')))
+
+  const highest: number = _.max(filteredNodes) ?? 0
+  return `${type}-${highest + 1}`
 }
 
 // *****
@@ -779,7 +790,7 @@ reducer = reduceReducers(
               _.merge(
                 {
                   id: prettyId(),
-                  name: `node-${prettyId(4)}`,
+                  name: getNextNodeName(payload.type, state.flowsByName[state.currentFlow].nodes),
                   x: 0,
                   y: 0,
                   next: [],

@@ -59,7 +59,9 @@ function renderTeams(data) {
 }
 
 function renderElement(data, channel) {
-  if (channel === 'messenger') {
+  if (channel === 'web' || channel === 'slack') {
+    return base.renderer(data, 'text')
+  } else if (channel === 'messenger') {
     return renderMessenger(data)
   } else if (channel === 'teams') {
     return renderTeams(data)
@@ -135,7 +137,13 @@ module.exports = {
         type: 'overridable',
         overrideKey: 'textOverride',
         key: 'text',
+        translated: true,
         label: 'text'
+      },
+      {
+        type: 'hidden',
+        translated: true,
+        key: 'variations'
       }
     ]
   },

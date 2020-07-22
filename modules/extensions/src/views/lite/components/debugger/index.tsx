@@ -1,4 +1,5 @@
 import { Icon, Tab, Tabs } from '@blueprintjs/core'
+import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import ms from 'ms'
@@ -54,7 +55,6 @@ export class Debugger extends React.Component<Props, State> {
   }
   allowedRetryCount = 0
   currentRetryCount = 0
-  retryTimer: number
   loadEventDebounced = _.debounce(m => this.loadEvent(m), DEBOUNCE_DELAY)
   lastMessage = undefined
 
@@ -153,43 +153,30 @@ export class Debugger extends React.Component<Props, State> {
     }
   }
 
-  loadEvent = async eventId => {
+  loadEvent = async (eventId: string) => {
     if (this.state.unauthorized) {
       return
     }
 
-    clearInterval(this.retryTimer)
-    const event = await this.fetchEvent(eventId)
-    if (!event) {
-      this.setState({ fetching: true })
+    this.setState({ fetching: true })
 
-      this.retryTimer = window.setInterval(async () => {
-        await this.retryLoadEvent(eventId)
-      }, RETRY_PERIOD)
-    }
-    this.setState({ event })
-    this.props.store.view.setHighlightedMessages(eventId)
-  }
-
-  retryLoadEvent = async eventId => {
-    const event = await this.fetchEvent(eventId)
-    this.currentRetryCount++
-
-    if (!event && this.currentRetryCount < this.allowedRetryCount) {
-      return
-    }
-
-    clearInterval(this.retryTimer)
-    this.currentRetryCount = 0
-    this.setState({ event, showEventNotFound: !event, fetching: false })
-  }
-
-  fetchEvent = async eventId => {
     try {
-      const { data } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
-      return data
+      const { data: event } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
+
+      this.setState({ event, showEventNotFound: !event, fetching: false })
+
+      this.props.store.view.setHighlightedMessages(eventId)
+      this.currentRetryCount = 0
     } catch (err) {
-      return
+      if (this.currentRetryCount < this.allowedRetryCount) {
+        this.currentRetryCount++
+
+        await Promise.delay(RETRY_PERIOD)
+        await this.loadEvent(eventId)
+      } else {
+        this.currentRetryCount = 0
+        this.setState({ fetching: false })
+      }
     }
   }
 

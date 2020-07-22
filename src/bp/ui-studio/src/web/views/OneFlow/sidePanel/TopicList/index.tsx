@@ -11,7 +11,7 @@ import { AccessControl } from '~/components/Shared/Utils'
 import { getCurrentFlow, getFlowNamesList, RootReducer } from '~/reducers'
 import { sanitizeName } from '~/util'
 
-import { buildFlowName } from '..//WorkflowEditor/utils'
+import { buildFlowName } from '../../../../util/workflows'
 
 import style from './style.scss'
 import EmptyStateIcon from './EmptyStateIcon'

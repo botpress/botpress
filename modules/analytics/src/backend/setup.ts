@@ -68,7 +68,7 @@ export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[
     name: 'analytics.outgoing',
     direction: 'outgoing',
     handler: outgoingMiddleware,
-    order: 5,
+    order: 45,
     description: 'Tracks outgoing messages for Analytics purposes'
   })
 

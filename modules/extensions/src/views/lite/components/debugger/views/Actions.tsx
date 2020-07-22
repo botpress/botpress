@@ -44,6 +44,10 @@ export const Actions: FC<Props> = props => {
                 )
               case 'continue':
                 return <span key={index}>Continue</span>
+              case 'prompt.cancel':
+                return <span key={index}>Cancel Prompt</span>
+              case 'prompt.inform':
+                return <span key={index}>Inform Prompt</span>
             }
           })}
         </li>
