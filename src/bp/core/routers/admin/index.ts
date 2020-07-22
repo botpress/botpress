@@ -159,6 +159,24 @@ export class AdminRouter extends CustomRouter {
       })
     )
 
+    router.post(
+      '/telemetry',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req, res) => {
+        try {
+          if (req.body.status === 'ok') {
+            await this.telemetryRepo.removeMany(req.body.events)
+          } else if (req.body.status === 'fail') {
+            await this.telemetryRepo.updateAvailability(req.body.events, true)
+          }
+          return sendSuccess(res, 'Updated events')
+        } catch (err) {
+          logger.warn('Error updating telemetry events')
+          res.status(500).send('Error updating telemetry events') // do we want to swallow and stay silent here ?
+        }
+      })
+    )
+
     router.use('/bots', this.checkTokenHeader, this.botsRouter.router)
     router.use('/roles', this.checkTokenHeader, this.rolesRouter.router)
     router.use('/users', this.checkTokenHeader, this.loadUser, this.usersRouter.router)
