@@ -587,9 +587,9 @@
     "@webassemblyjs/wast-parser" "1.5.12"
     long "^3.2.0"
 
-"@yaireo/tagify@botpress/tagify#387690265c4a96d49250e5caae36d2f60d2e9443":
+"@yaireo/tagify@botpress/tagify#5e1ade0dd3e1087693a21a4220ea2aab2f845b02":
   version "3.15.3"
-  resolved "https://codeload.github.com/botpress/tagify/tar.gz/387690265c4a96d49250e5caae36d2f60d2e9443"
+  resolved "https://codeload.github.com/botpress/tagify/tar.gz/5e1ade0dd3e1087693a21a4220ea2aab2f845b02"
 
 abbrev@1:
   version "1.1.1"

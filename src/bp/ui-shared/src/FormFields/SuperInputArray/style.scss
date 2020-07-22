@@ -56,4 +56,11 @@
   resize: none !important;
   transition: border 0.3s !important;
   width: 100% !important;
+
+  :global {
+    .tags-input .tagify {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+  }
 }

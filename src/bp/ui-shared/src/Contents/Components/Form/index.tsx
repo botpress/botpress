@@ -192,10 +192,10 @@ const Form: FC<FormProps> = ({
         )
       case 'select':
         return (
-          <FieldWrapper key={field.key} label={printLabel(field, data[field.key], parent, currentLang)}>
+          <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)}>
             {printMoreInfo(field.moreInfo)}
             {showSuperInput(field, parent) ? (
-              renderSuperInput(field, data[field.key], value => {
+              renderSuperInput(field, currentValue, value => {
                 dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })
               })
             ) : (
@@ -249,8 +249,8 @@ const Form: FC<FormProps> = ({
                 variables={variables || []}
                 events={events || []}
                 onUpdateVariables={onUpdateVariables}
-                items={data[field.key] || ['']}
-                label={printLabel(field, data[field.key], parent, currentLang)}
+                items={currentValue || ['']}
+                label={printLabel(field, currentValue, parent, currentLang)}
                 addBtnLabel={lang(field.group?.addLabel)}
               />
             ) : (
@@ -270,8 +270,8 @@ const Form: FC<FormProps> = ({
                     }
                   })
                 }}
-                items={data[field.key] || ['']}
-                label={printLabel(field, data[field.key], parent, currentLang)}
+                items={currentValue || ['']}
+                label={printLabel(field, currentValue, parent, currentLang)}
                 addBtnLabel={lang(field.group?.addLabel)}
               />
             )}
@@ -279,10 +279,10 @@ const Form: FC<FormProps> = ({
         )
       case 'textarea':
         return (
-          <FieldWrapper key={field.key} label={printLabel(field, data[field.key], parent, currentLang)}>
+          <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)}>
             {printMoreInfo(field.moreInfo)}
             {showSuperInput(field, parent) ? (
-              renderSuperInput(field, data[field.key], value => {
+              renderSuperInput(field, currentValue, value => {
                 dispatch({
                   type: 'updateField',
                   data: {
@@ -312,14 +312,14 @@ const Form: FC<FormProps> = ({
                     }
                   })
                 }}
-                value={data[field.key]}
+                value={currentValue}
               />
             )}
           </FieldWrapper>
         )
       case 'upload':
         return (
-          <FieldWrapper key={field.key} label={printLabel(field, data[field.key], parent, currentLang)}>
+          <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)}>
             {printMoreInfo(field.moreInfo)}
             <Upload
               axios={axios}
@@ -344,9 +344,9 @@ const Form: FC<FormProps> = ({
         )
       case 'checkbox':
         return showSuperInput(field, parent) ? (
-          <FieldWrapper key={field.key} label={printLabel(field, data[field.key], parent)}>
+          <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent)}>
             {printMoreInfo(field.moreInfo)}
-            {renderSuperInput(field, data[field.key], value => {
+            {renderSuperInput(field, currentValue, value => {
               dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
             })}
           </FieldWrapper>
@@ -355,7 +355,7 @@ const Form: FC<FormProps> = ({
             <Checkbox
               checked={currentValue}
               key={field.key}
-              label={printLabel(field, data[field.key], parent, currentLang)}
+              label={printLabel(field, currentValue, parent, currentLang)}
               onChange={e =>
                 dispatch({
                   type: 'updateField',
@@ -378,7 +378,7 @@ const Form: FC<FormProps> = ({
             {overrideFields?.[field.overrideKey]?.({
               field,
               data,
-              label: printLabel(field, data[field.key], parent, currentLang),
+              label: printLabel(field, currentValue, currentLang),
               onChange: value => {
                 dispatch({
                   type: 'updateOverridableField',
@@ -390,10 +390,10 @@ const Form: FC<FormProps> = ({
         )
       default:
         return (
-          <FieldWrapper key={field.key} label={printLabel(field, data[field.key], parent, currentLang)}>
+          <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)}>
             {printMoreInfo(field.moreInfo)}
             {showSuperInput(field, parent) ? (
-              renderSuperInput(field, data[field.key], value => {
+              renderSuperInput(field, currentValue, value => {
                 dispatch({
                   type: 'updateField',
                   data: {
@@ -425,7 +425,7 @@ const Form: FC<FormProps> = ({
                   })
                 }}
                 field={field}
-                value={data[field.key]}
+                value={currentValue}
               />
             )}
           </FieldWrapper>

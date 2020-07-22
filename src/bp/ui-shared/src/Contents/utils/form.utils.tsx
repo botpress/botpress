@@ -66,13 +66,17 @@ const extractSuperInputFromObject = (data, pathKey = '') => {
         return { ...acc, ...extractSuperInputFromObject(item, `${currentPathKey}${index}`) }
       }, acc)
     } else {
-      if (VARIABLES_REGEX.test(currentData) || EVENT_REGEX.test(currentData)) {
+      if (containsSuperInputData(currentData)) {
         return { ...acc, [currentPathKey]: true }
       }
     }
 
     return { ...acc }
   }, {})
+}
+
+const containsSuperInputData = data => {
+  return VARIABLES_REGEX.test(data) || EVENT_REGEX.test(data)
 }
 
 export const formReducer = (state, action) => {
@@ -126,7 +130,7 @@ export const formReducer = (state, action) => {
     const { field, type, parent, onUpdate, lang, newFormData } = action.data
     let { value } = action.data
 
-    if (type === 'number') {
+    if (type === 'number' && !containsSuperInputData(value)) {
       value = value !== '' ? Number(value) : undefined
     }
 

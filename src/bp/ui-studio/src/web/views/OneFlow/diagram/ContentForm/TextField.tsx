@@ -46,7 +46,6 @@ const TextAreaList: FC<Props> = ({
       variables={variables || []}
       events={events || []}
       onUpdateVariables={onUpdateVariables}
-      key={`${field.key}${forceUpdateHeight}`}
       label={label}
       items={[...([data.text?.[currentLang]] || []), ...(data.variations?.[currentLang] || [])]}
       onChange={handleChange}

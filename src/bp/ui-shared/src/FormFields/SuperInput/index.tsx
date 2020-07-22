@@ -65,7 +65,7 @@ export default ({
 
   useEffect(() => {
     if (tagifyRef.current && isFocused) {
-      moveCarretToEndOfString()
+      setTimeout(() => moveCarretToEndOfString())
     }
   }, [isFocused])
 

@@ -39,6 +39,7 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
   onUpdateVariables
 }) => {
   const [elRefs, setElRefs] = useState({})
+  const [localItems, setLocalItems] = useState([...items])
   const skipBlur = useRef(false)
   const focusedElement = useRef(items.length)
   const itemIds = useRef(items.map(i => _uniqueId()))
@@ -57,24 +58,26 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
         elRefs[key].DOM.input.removeEventListener('keydown', keydownEvent[key])
         elRefs[key].DOM.input.removeEventListener('blur', blurEvent[key])
       })
-  }, [elRefs, items])
+  }, [elRefs, localItems])
 
-  const addItem = (value = ''): void => {
-    focusedElement.current = items.length
+  const addItem = (): void => {
+    focusedElement.current = localItems.length
     skipBlur.current = true
     itemIds.current = [...itemIds.current, _uniqueId()]
-    onChange([...items, ''])
+    const newItems = [...localItems, '']
+
+    setLocalItems(newItems)
   }
 
   const deleteItem = (index: number): void => {
-    const newItems = items.filter((item, i) => i !== index)
+    const newItems = localItems.filter((item, i) => i !== index)
 
     itemIds.current = itemIds.current.filter((item, i) => i !== index)
     focusedElement.current = index - 1
     skipBlur.current = true
-
     removeRefandRearrange(index)
-    onChange(newItems)
+    setLocalItems([...newItems])
+    onChange([...newItems])
   }
 
   const removeRefandRearrange = index => {
@@ -94,9 +97,10 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
 
   const updateItems = (e, index): void => {
     if (!skipBlur.current) {
-      if (items[index] !== undefined) {
-        items[index] = convertToString(elRefs[index]?.DOM.originalInput.value)
-        onChange(items)
+      if (localItems[index] !== undefined) {
+        localItems[index] = convertToString(elRefs[index]?.DOM.originalInput.value)
+        setLocalItems([...localItems])
+        onChange([...localItems])
       }
     } else {
       skipBlur.current = false
@@ -109,7 +113,7 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
       addItem()
     }
 
-    const shouldDelete = !elRefs[index]?.DOM.originalInput.value.length && items.length > 1
+    const shouldDelete = !elRefs[index]?.DOM.originalInput.value.length && localItems.length > 1
 
     if (e.key === 'Backspace' && shouldDelete) {
       e.preventDefault()
@@ -122,7 +126,7 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
     <div className={style.items}>
       <h2>{label}</h2>
       {moreInfo}
-      {items?.map((item, index) => (
+      {localItems?.map((item, index) => (
         <div key={itemIds.current[index]} className={style.textareaWrapper}>
           <SuperInput
             isFocused={focusedElement.current === index}
