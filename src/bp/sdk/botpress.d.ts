@@ -834,7 +834,7 @@ declare module 'botpress/sdk' {
       hasJumped?: boolean
       /** The status of the current active prompt */
       activePrompt?: PromptStatus
-      inputs?: SubWorkflowInputs
+      inputs?: { [variable: string]: SubWorkflowInput }
     }
 
     export interface CurrentSession {
@@ -1383,25 +1383,13 @@ declare module 'botpress/sdk' {
   } & NodeActions
 
   export interface SubWorkflowNode {
-    in: SubWorkflowInputs
-    out: SubWorfklowOutputs
+    in: { [variable: string]: SubWorkflowInput }
+    out: { [variable: string]: string }
   }
 
   export interface SubWorkflowInput {
-    /** Take the value of a variable present in the caller flow */
-    passVariable: string
-    /** Hardcode a value to be passed to the sub-workflow */
-    passValue: string
-  }
-
-  export interface SubWorkflowInputs {
-    /** Sub-workflow input variable -> Caller flow statement to pass */
-    [variable: string]: SubWorkflowInput
-  }
-
-  export interface SubWorfklowOutputs {
-    /** Sub-workflow output variable -> Caller flow variable to assign */
-    [variable: string]: string
+    source: 'variable' | 'hardcoded'
+    value: any
   }
 
   export type TriggerNode = FlowNode & {
