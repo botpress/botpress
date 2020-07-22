@@ -57,18 +57,10 @@ export class TelemetryRepository {
       .from(this.tableName)
       .select('uuid')
       .orderBy('creationDate', 'desc')
-      .limit(-1)
       .offset(limit)
       .then(rows => rows.map(entry => entry.uuid))
 
-    if (uuIds.length) {
-      await Promise.mapSeries(_.chunk(uuIds, 500), async uuIdChunk => {
-        await this.database
-          .knex(this.tableName)
-          .whereIn('uuid', uuIdChunk)
-          .del()
-      })
-    }
+    await this.removeMany(uuIds)
   }
 
   async removeMany(uuIds: string[]) {
