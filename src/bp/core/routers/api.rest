@@ -21,7 +21,7 @@ X-BP-Workspace: default
 ###
 
 
-@botId = YOUR_BOT
+@botId = ggg
 
 
 # List all flows
@@ -65,4 +65,20 @@ Content-Type: application/json
     ]
   }
 }
+###
+
+
+# List all intents
+# @name listFlows
+GET {{api}}/bots/{{botId}}/nlu/intents
+Authorization: Bearer {{authToken}}
+X-BP-Workspace: default
+###
+
+
+# List all entities
+# @name listFlows
+GET {{api}}/bots/{{botId}}/nlu/entities
+Authorization: Bearer {{authToken}}
+X-BP-Workspace: default
 ###
