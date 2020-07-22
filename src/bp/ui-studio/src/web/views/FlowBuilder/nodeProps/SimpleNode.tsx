@@ -1,6 +1,6 @@
 import { FormGroup, InputGroup } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
-import React, { Component, Fragment } from 'react'
+import { FlowView } from 'common/typings'
+import React from 'react'
 import { Panel } from 'react-bootstrap'
 
 import EditableInput from '../common/EditableInput'
@@ -24,6 +24,51 @@ export const SimpleNode = props => {
 
   const { node, readOnly } = props
 
+  const setParam = (type: 'in' | 'out', param, value) => {
+    props.updateNode({
+      subflow: {
+        ...node.subflow,
+        [type]: {
+          ...node.sublofw?.[type],
+          [param]: {
+            source: 'variable',
+            value
+          }
+        }
+      }
+    })
+  }
+
+  const getSubFlow = () => {
+    const subflow = props.flows.find(x => x.name === node.flow) as FlowView
+    const inputs = subflow.variables.filter(v => v.isInput)
+    const outputs = subflow.variables.filter(v => v.isOutput)
+
+    return (
+      <div>
+        <p>Inputs</p>
+        {renderParams('in', inputs)}
+        <p>Outputs</p>
+        {renderParams('out', outputs)}
+      </div>
+    )
+  }
+
+  const renderParams = (type, params) => {
+    return (
+      <div>
+        {params.map(input => (
+          <FormGroup label={input.name}>
+            <InputGroup
+              value={node.subflow?.[type]?.[input.name]?.value || ''}
+              onChange={e => setParam(type, input.name, e.currentTarget.value)}
+            />
+          </FormGroup>
+        ))}
+      </div>
+    )
+  }
+
   return (
     <div className={style.node}>
       <Panel>
@@ -41,6 +86,7 @@ export const SimpleNode = props => {
           <InputGroup value={node.friendlyName || ''} onChange={e => changeFriendlyName(e.currentTarget.value)} />
         </FormGroup>
       )}
+      {node.type === 'sub-workflow' && getSubFlow()}
     </div>
   )
 }

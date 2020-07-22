@@ -2,6 +2,8 @@ import { Button } from '@blueprintjs/core'
 import axios from 'axios'
 import { NLU } from 'botpress/sdk'
 import cx from 'classnames'
+import { buildFlowName, parseFlowName } from 'common/flow'
+import { FlowView } from 'common/typings'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { createFlow, updateFlow } from '~/actions'
@@ -33,6 +35,21 @@ const Library: FC<Props> = props => {
     // tslint:disable-next-line: no-floating-promises
     fetchEntities()
   }, [forceUpdate])
+
+  const createFlow = () => {
+    const originalName = 'subworkflow'
+    let name = undefined
+    let fullName = undefined
+    let index = 0
+    do {
+      name = `${originalName}${index ? `-${index}` : ''}`
+      fullName = buildFlowName({ topic: '__reusable', workflow: name }, true).workflowPath
+      index++
+    } while (props.flows.find(f => f.name === fullName))
+
+    console.log(fullName)
+    props.createFlow(fullName)
+  }
 
   const createEntity = async (type: string) => {
     const originalName = `${type}-entity`
@@ -105,6 +122,39 @@ const Library: FC<Props> = props => {
     )
   }
 
+  const renderFlowsTable = (title: string, items: FlowView[]) => {
+    return renderTable(
+      title,
+      items.map(x => ({
+        label: parseFlowName(x.name, false).workflow,
+        click: () => props.goToFlow(x.name)
+      }))
+    )
+  }
+
+  const renderBlocksTable = () => {
+    return (
+      <section>
+        {renderFlowsTable(
+          'Saved Blocks',
+          props.flows.filter(x => x.type === 'block')
+        )}
+      </section>
+    )
+  }
+  const renderWorflowsTable = () => {
+    return (
+      <section>
+        {renderFlowsTable(
+          'Saved Workflows',
+          props.flows.filter(x => x.type === 'reusable')
+        )}
+        <p>
+          <Button text="Add Workflow" onClick={createFlow} />
+        </p>
+      </section>
+    )
+  }
   const renderVariableTypes = () => {
     return (
       <section>
@@ -161,6 +211,8 @@ const Library: FC<Props> = props => {
 
   return (
     <div className={style.library}>
+      {renderBlocksTable()}
+      {renderWorflowsTable()}
       {renderVariableTypes()}
       {renderModal()}
       {renderNameModal()}

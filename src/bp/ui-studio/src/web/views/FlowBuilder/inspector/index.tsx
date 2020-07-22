@@ -95,6 +95,7 @@ class Inspector extends Component<Props> {
           user={this.props.user}
           flow={this.props.currentFlow}
           node={this.props.currentFlowNode}
+          flows={this.props.flows}
           updateNode={updateNodeAndRefresh}
           updateFlow={this.props.updateFlow}
           refreshCallerFlows={this.props.refreshCallerFlows}

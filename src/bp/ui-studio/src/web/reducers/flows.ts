@@ -239,8 +239,8 @@ const doCreateNewFlow = name => {
     }
   ]
 
-  const isSubWorkflow = window.USE_ONEFLOW && parseFlowName(name).parentWorkflowPath
-  if (isSubWorkflow) {
+  const isReusable = window.USE_ONEFLOW && name.startsWith('__reusable')
+  if (isReusable) {
     nodes.push(
       {
         id: prettyId(),
@@ -267,6 +267,7 @@ const doCreateNewFlow = name => {
 
   return {
     version: '0.1',
+    type: isReusable ? 'reusable' : 'standard',
     name: name,
     location: name,
     label: undefined,
