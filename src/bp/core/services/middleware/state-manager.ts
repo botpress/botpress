@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { FlowVariableType } from 'common/typings'
+import { FlowVariableType } from 'botpress/sdk'
 import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
@@ -19,6 +19,8 @@ import { SessionIdFactory } from '../dialog/session/id-factory'
 import { JobService } from '../job-service'
 import { KeyValueStore } from '../kvs'
 
+import { DialogStore } from './dialog-store'
+
 const getRedisSessionKey = sessionId => `sessionstate_${sessionId}`
 const BATCH_SIZE = 100
 const MEMORY_PERSIST_INTERVAL = ms('5s')
@@ -31,7 +33,6 @@ export class StateManager {
   private knex!: sdk.KnexExtended
   private currentPromise
   private useRedis
-  private _variables!: FlowVariableType[]
 
   constructor(
     @inject(TYPES.Logger)
@@ -43,17 +44,13 @@ export class StateManager {
     @inject(TYPES.KeyValueStore) private kvs: KeyValueStore,
     @inject(TYPES.Database) private database: Database,
     @inject(TYPES.JobService) private jobService: JobService,
-    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
+    @inject(TYPES.DialogStore) private dialogStore: DialogStore
   ) {
     // Temporarily opt-in until thoroughly tested
     this.useRedis = process.CLUSTER_ENABLED && yn(process.env.USE_REDIS_STATE)
   }
 
   public async initialize() {
-    if (!this._variables) {
-      this._variables = await this.moduleLoader.getVariables()
-    }
-
     if (!this.useRedis) {
       return
     }
@@ -101,51 +98,61 @@ export class StateManager {
     state.bot = await this.kvs.forBot(event.botId).get(this.BOT_GLOBAL_KEY)
     state.__stacktrace = []
 
-    if (!state.workflow) {
-      Object.defineProperty(state, 'workflow', {
-        get() {
-          return state.session.workflows[state.session.currentWorkflow!]
-        }
-      })
-    }
+    Object.defineProperty(state, 'workflow', {
+      get() {
+        return state.session.workflows?.[state.session.currentWorkflow!]
+      },
+      configurable: true
+    })
 
-    this.boxWorkflowVariables(state.session.workflows)
+    this.boxWorkflowVariables(state.session.workflows, event.botId)
 
     // This can be used to set a variable on the current workflow, or on a specific workflow
-    state.setVariable = (
+    state.createVariable = (
       name: string,
       value: any,
       type: string,
-      options?: { nbOfTurns: number; specificWorkflow?: string }
+      options?: { nbOfTurns: number; specificWorkflow?: string; enumType?: string; config?: any }
     ) => {
-      const wf = options?.specificWorkflow ? state.session.workflows[options?.specificWorkflow] : state.workflow
+      const workflowName = options?.specificWorkflow ?? state.session.currentWorkflow!
+      const wf = state.session.workflows[workflowName]
       if (!wf) {
         return
       }
 
-      const BoxedVar = this._variables?.find(x => x.id === type)?.box
-      if (BoxedVar) {
-        wf.variables[name] = new BoxedVar({
-          nbOfTurns: options?.nbOfTurns ?? 10,
-          value
-        })
-      } else {
-        console.log('Unknown variable type')
-      }
+      const { enumType, nbOfTurns, config } = options ?? {}
+      const data = { type, enumType, value, nbOfTurns: nbOfTurns ?? 10, config }
+
+      wf.variables[name] = this._getBoxedVar(data, event.botId, workflowName, name)!
     }
   }
 
-  private boxWorkflowVariables(workflows: { [name: string]: sdk.IO.WorkflowHistory }) {
+  private _getBoxedVar(
+    data: Omit<sdk.BoxedVarContructor<any>, 'getEnumList'>,
+    botId: string,
+    workflowName: string,
+    variableName: string
+  ) {
+    const { type, enumType, value, nbOfTurns, config: optConfig } = data
+
+    const BoxedVar = this.dialogStore.getVariable(type)?.box
+    if (BoxedVar) {
+      const config = optConfig ?? this.dialogStore.getVariableConfig(botId, workflowName, variableName)?.params
+
+      const getEnumList = () => this.dialogStore.getEnumForBot(botId, enumType) ?? []
+      return new BoxedVar({ type, enumType, nbOfTurns, value, config, getEnumList })
+    }
+  }
+
+  private boxWorkflowVariables(workflows: { [name: string]: sdk.IO.WorkflowHistory }, botId: string) {
     for (const wf in workflows) {
       const variables = workflows[wf].variables
 
       workflows[wf].variables = Object.keys(variables).reduce((acc, id) => {
-        const unboxed = variables[id] as sdk.UnboxedVariable<any>
-        const BoxedVar = this._variables.find(x => x.id === unboxed.type)?.box
+        const { type, enumType, value, nbTurns } = (variables[id] as any) as sdk.UnboxedVariable<any>
 
-        if (BoxedVar) {
-          acc[id] = new BoxedVar({ nbOfTurns: unboxed.nbTurns - 1, value: unboxed.value })
-        }
+        const data = { type, enumType, value, nbOfTurns: nbTurns - 1 }
+        acc[id] = this._getBoxedVar(data, botId, wf, id)
 
         return acc
       }, {})
@@ -199,6 +206,10 @@ export class StateManager {
 
     const dialogSession = await this.sessionRepo.getOrCreateSession(sessionId, event.botId, trx)
     const expiry = createExpiry(botConfig, botpressConfig)
+
+    if (context?.activePrompt?.turn === 0) {
+      dialogSession.prompt_expiry = expiry.prompt
+    }
 
     dialogSession.session_data = session || {}
     dialogSession.session_expiry = expiry.session

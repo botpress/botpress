@@ -1,6 +1,6 @@
 import { renderRecursive } from './templating'
 
-test('renderRecursive', () => {
+test('Render recursive template', () => {
   const ctx = {
     en: 'hello',
     sv: 'hejhej',
@@ -34,4 +34,64 @@ test('renderRecursive', () => {
   expect(renderRecursive(case3, ctx)[0].nested.key).toEqual(ctx.es)
   expect(renderRecursive(case4, ctx).notSoNested).toEqual(ctx.fr)
   expect(renderRecursive(case5, ctx)[0]).toEqual(ctx.nested.de)
+})
+
+const ctx = {
+  event: {
+    id: 123456
+  }
+}
+
+const case1 = {
+  text: {
+    en: 'Hey there {{event.id}}',
+    fr: 'Salut {{event.id}}'
+  },
+  typing: true
+}
+
+test('Rendering with a specific language', () => {
+  expect(renderRecursive(case1, ctx, 'en', 'fr')).toEqual({ text: 'Hey there 123456', typing: true })
+  expect(renderRecursive(case1, ctx, '', 'fr')).toEqual({ text: 'Salut 123456', typing: true })
+})
+
+test('Rendering without any language', () => {
+  expect(renderRecursive(case1, ctx, '', '')).toEqual({
+    text: { en: 'Hey there 123456', fr: 'Salut 123456' },
+    typing: true
+  })
+  expect(renderRecursive(case1, ctx)).toEqual({
+    text: { en: 'Hey there 123456', fr: 'Salut 123456' },
+    typing: true
+  })
+})
+
+test('Rendering a nested & translated template', () => {
+  const nested = {
+    items: [
+      {
+        title: {
+          fr: 'un titre',
+          en: 'one title'
+        },
+        actions: [
+          {
+            title: {
+              fr: 'dire',
+              en: 'say'
+            },
+            action: 'Say something',
+            text: {
+              fr: 'salut {{event.id}}',
+              en: 'hey {{event.id}}'
+            }
+          }
+        ]
+      }
+    ]
+  }
+
+  expect(renderRecursive(nested, ctx, 'en', 'fr')).toEqual({
+    items: [{ title: 'one title', actions: [{ title: 'say', action: 'Say something', text: 'hey 123456' }] }]
+  })
 })

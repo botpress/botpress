@@ -12,7 +12,8 @@ export default {
     {
       key: 'intentName',
       type: 'overridable',
-      overrideKey: 'intent'
+      overrideKey: 'intent',
+      label: 'intent'
     }
   ],
   evaluate: (event, { intentName, topicName }) => {
@@ -25,5 +26,6 @@ export default {
       0
     )
     return topicConf * intentConf * (1 - oosConfidence)
-  }
+  },
+  onEnter: ({ intentName, topicName }) => [`nlu/elect-intent {"topic":"$thisTopic","intent":"book-flight"}`]
 } as Condition

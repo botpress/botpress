@@ -12,6 +12,7 @@ import ms from 'ms'
 
 import { Config } from '../config'
 
+import { convertPayload } from './renderer'
 import { Clients } from './typings'
 
 const debug = DEBUG('channel-slack')
@@ -132,6 +133,8 @@ export class SlackClient {
         })
       }
     })
+
+    com.on('error', err => this.bp.logger.attachError(err).error(`An error occurred`))
   }
 
   private async _getUserInfo(userId: string) {
@@ -174,24 +177,20 @@ export class SlackClient {
     }
 
     const blocks = []
-    if (messageType === 'image' || messageType === 'actions') {
-      blocks.push(event.payload)
-    } else if (messageType === 'carousel') {
-      event.payload.cards.forEach(card => blocks.push(...card))
-    }
 
-    if (event.payload.quick_replies) {
-      blocks.push({ type: 'section', text: { type: 'mrkdwn', text: event.payload.text } })
-      blocks.push(event.payload.quick_replies)
+    blocks.push(...convertPayload(event.payload))
+
+    if (event.payload.metadata) {
+      blocks.push(...(await this.applyChannelEffects(event)))
     }
 
     const message = {
-      text: event.payload.text,
+      text: event.payload.text ?? '',
       channel: event.threadId || event.target,
       blocks
     }
 
-    if (event.payload.collectFeedback && messageType === 'text') {
+    if (event.payload.metadata?.__collectFeedback && messageType === 'text') {
       message.blocks = [
         {
           type: 'section',
@@ -225,6 +224,63 @@ export class SlackClient {
     await this.client.chat.postMessage(message)
 
     next(undefined, false)
+  }
+
+  private async applyChannelEffects(event: sdk.IO.OutgoingEvent) {
+    const { payload } = event
+    const { __buttons, __typing, __markdown, __dropdown } = payload.metadata as sdk.Content.Metadata
+
+    const textType = __markdown === true ? 'mrkdwn' : 'plain_text'
+    const blocks = []
+
+    if (__typing) {
+      // @deprecated
+      if (this.rtm) {
+        await this.rtm.sendTyping(event.threadId || event.target)
+        await new Promise(resolve => setTimeout(() => resolve(), 1000))
+      }
+    }
+
+    if (__buttons) {
+      blocks.push({ type: 'section', text: { type: textType, text: payload.text } })
+      blocks.push({
+        type: 'actions',
+        elements: __buttons.map((q, idx) => ({
+          type: 'button',
+          action_id: `replace_buttons${idx}`,
+          text: {
+            type: 'plain_text',
+            text: q.label || q['title']
+          },
+          value: q.value.toString().toUpperCase()
+        }))
+      })
+    }
+
+    if (__dropdown) {
+      blocks.push({
+        type: 'actions',
+        elements: [
+          {
+            type: 'static_select',
+            action_id: 'option_selected',
+            placeholder: {
+              type: 'plain_text',
+              text: payload.message || 'empty'
+            },
+            options: (_.isArray(__dropdown) ? __dropdown : __dropdown.options).map(q => ({
+              text: {
+                type: 'plain_text',
+                text: q.label
+              },
+              value: q.value
+            }))
+          }
+        ]
+      })
+    }
+
+    return blocks
   }
 
   private async sendEvent(ctx: any, payload: any) {

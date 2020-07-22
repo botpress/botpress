@@ -13,11 +13,12 @@
   },
   "author": "Botpress Team",
   "license": "AGPL-3.0-only",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "yn": "^4.0.0"
+  },
   "resolutions": {
     "fstream": ">=1.0.12",
     "lodash": ">=4.17.12"
-  },
-  "dependencies": {
-    "yn": "^4.0.0"
   }
 }

@@ -19,6 +19,7 @@ import {
 import { history } from '~/components/Routes'
 import { getAllFlows, getFlowNamesList, RootReducer } from '~/reducers'
 
+import { buildFlowName } from '../../../util/workflows'
 import Inspector from '../../FlowBuilder/inspector'
 
 import style from './style.scss'
@@ -29,7 +30,6 @@ import EditTopicModal from './TopicEditor/EditTopicModal'
 import ImportModal from './TopicEditor/ImportModal'
 import TopicList from './TopicList'
 import WorkflowEditor from './WorkflowEditor'
-import { buildFlowName } from './WorkflowEditor/utils'
 
 export type PanelPermissions = 'create' | 'rename' | 'delete'
 

@@ -8,10 +8,10 @@ interface Props {
   data: any
   label: string
   onChange: (value: FormData) => void
+  currentLang
 }
 
-const TextAreaList: FC<Props> = props => {
-  const { label, onChange, field, data } = props
+const TextAreaList: FC<Props> = ({ label, onChange, field, data, currentLang }) => {
   const [forceUpdateHeight, setForceUpdateHeight] = useState(false)
 
   useEffect(() => {
@@ -22,14 +22,18 @@ const TextAreaList: FC<Props> = props => {
 
   const handleChange = items => {
     const firstItem = items.shift()
-    onChange({ text: firstItem, variations: items })
+
+    onChange({
+      text: { ...data.text, [currentLang]: firstItem },
+      variations: { ...data.variations, [currentLang]: items }
+    })
   }
 
   return (
     <FormFields.TextFieldsArray
       key={`${field.key}${forceUpdateHeight}`}
       label={label}
-      items={[data.text, ...(data.variations || [])]}
+      items={[...([data.text?.[currentLang]] || []), ...(data.variations?.[currentLang] || [])]}
       onChange={handleChange}
       addBtnLabel={lang.tr('module.builtin.types.text.add')}
       getPlaceholder={index => (index === 0 ? lang.tr('module.builtin.types.actionButton.sayPlaceholder') : '')}

@@ -13,6 +13,7 @@ interface Props {
   close: (closingKey: number) => void
   onUpdate: (data: any) => void
   formData: FormData
+  currentLang: string
 }
 
 const fetchReducer = (state, action) => {
@@ -33,7 +34,15 @@ const fetchReducer = (state, action) => {
   }
 }
 
-const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onUpdate, deleteContent }) => {
+const ContentAnswerForm: FC<Props> = ({
+  currentLang,
+  editingContent,
+  bp,
+  close,
+  formData,
+  onUpdate,
+  deleteContent
+}) => {
   const [state, dispatch] = useReducer(fetchReducer, {
     contentTypes: [],
     contentTypesFields: {}
@@ -100,6 +109,7 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
         </div>
         {contentFields && (
           <Contents.Form
+            currentLang={currentLang}
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
             axios={bp.axios}

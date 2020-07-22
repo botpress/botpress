@@ -28,7 +28,7 @@ const addTriggersToListenNodes = (flow: sdk.Flow, flowPath: string) => {
       const listenNode = (node as unknown) as sdk.ListenNode
       if (!listenNode.triggers?.length) {
         debug(`Add triggers property to node %o`, { flow: flowPath, node: node.name })
-        listenNode.triggers = [{ conditions: [{ id: 'always' }] }]
+        listenNode.triggers = [{ conditions: [{ id: 'always' }], effect: 'prompt.inform' }]
       }
     }
   }

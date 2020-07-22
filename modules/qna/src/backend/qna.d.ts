@@ -14,9 +14,7 @@ export interface QnaEntry {
   answers: {
     [lang: string]: string[]
   }
-  contentAnswers: {
-    [lang: string]: sdk.FormData[]
-  }
+  contentAnswers: sdk.FormData[]
   redirectFlow: string
   redirectNode: string
   lastModified?: Date

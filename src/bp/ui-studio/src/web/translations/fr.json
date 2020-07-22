@@ -147,6 +147,7 @@
         "addCondition": "Ajouter une condition",
         "cantSeeActions": "Vous ne voyez pas votre action?",
         "chatbotSays": "L'assistant virtuel dit",
+        "chatbotPromptsUser": "L'agent conversationnel questionne l'utilisateur",
         "confirmOverwriteParameters": "Voulez-vous remplacer les paramètres existants?",
         "couldNotRetrieveActionServer": "Impossible de récupérer les serveurs d'actions",
         "editAction": "Modifier l'action",
@@ -212,6 +213,7 @@
         "execute": "Exécuter",
         "executeAction": "Exécuter Action",
         "listen": "Écouter",
+        "prompt": "Questionne",
         "router": "Routeur",
         "say": "Dire",
         "sendMessage": "Envoyer Message",
@@ -318,6 +320,13 @@
         "labelHelp": "L'étiquette est un nom convivial qui remplace le nom dans la liste des sujets",
         "name": "Nom du workflow"
       }
+    },
+    "prompt": {
+      "label": "Type",
+      "pickType": "Sélectionnez un type",
+      "userAnswersCorrectly": "L'utilisateur réponds correctement",
+      "userCancels": "L'utilisateur annule",
+      "userDoesNotAnswer": "L'utilisateur ne réponds pas"
     },
     "sideBar": {
       "config": "Configuration",
