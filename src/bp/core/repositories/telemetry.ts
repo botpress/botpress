@@ -49,7 +49,7 @@ export class TelemetryRepository {
     })
   }
 
-  async pruneEntries(): Promise<void> {
+  async pruneEntries() {
     const config = await this.config.getBotpressConfig()
     const limit = config.telemetry?.entriesLimit ?? DEFAULT_ENTRIES_LIMIT
 
@@ -60,7 +60,7 @@ export class TelemetryRepository {
       .offset(limit)
       .then(rows => rows.map(entry => entry.uuid))
 
-    return this.removeMany(uuIds)
+    await this.removeMany(uuIds)
   }
 
   async removeMany(uuIds: string[]) {
