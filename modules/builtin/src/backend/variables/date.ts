@@ -8,7 +8,7 @@ interface DateConfig {
   format: string
 }
 
-class BoxedDate extends BaseVariable<BoxedDateType, DateConfig> implements BoxedVariable<BoxedDateType, DateConfig> {
+class BoxedDate extends BaseVariable<BoxedDateType, DateConfig> {
   constructor(args) {
     super(args)
   }
