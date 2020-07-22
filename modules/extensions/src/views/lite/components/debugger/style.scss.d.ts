@@ -20,6 +20,7 @@ interface CssExports {
   'splash': string;
   'stacktrace': string;
   'subSection': string;
+  'switchViewBtn': string;
   'triggerGroup': string;
   'triggersContainer': string;
   'truncate': string;

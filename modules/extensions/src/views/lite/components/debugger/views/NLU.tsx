@@ -1,23 +1,35 @@
-import { Colors, Icon, Position, Tooltip } from '@blueprintjs/core'
+import { Button, Colors, Icon, Position, Tooltip } from '@blueprintjs/core'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import React, { Fragment, SFC } from 'react'
+import React, { Fragment, SFC, useState } from 'react'
 
 import { Collapsible } from '../components/Collapsible'
 import { Intents } from '../components/Intents'
+import style from '../style.scss'
 
 import { Entities } from './Entities'
 import { Language } from './Language'
 import { Slots } from './Slots'
+import { Inspector } from './Inspector'
 
 const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding; session: any }> = ({ nluData, session }) => {
+  const [viewJSON, setViewJSON] = useState(false)
+
   if (!nluData) {
     return null
   }
 
-  return (
-    <Fragment>
-      <Collapsible name="Language Understanding" hidden={!nluData.entities.length}>
+  const toggleView = () => {
+    setViewJSON(!viewJSON)
+  }
+
+  const renderContent = () => {
+    if (viewJSON) {
+      return <Inspector data={nluData} />
+    }
+
+    return (
+      <Fragment>
         {nluData.ambiguous && (
           <Tooltip
             position={Position.TOP}
@@ -39,14 +51,25 @@ const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding; session: any }> = ({ nluDat
         <Language detectedLanguage={nluData.detectedLanguage} usedLanguage={nluData.language} />
         <Intents intents={nluData.intents} intent={nluData.intent} />
         {/* TODO re-add Entities and Slots when design is made for them
-          <Collapsible name="Entities" hidden={!nluData.entities.length}>
-            <Entities entities={nluData.entities} />
-          </Collapsible>
+        <Collapsible name="Entities" hidden={!nluData.entities.length}>
+          <Entities entities={nluData.entities} />
+        </Collapsible>
 
-          <Collapsible name="Slots" hidden={_.isEmpty(session.slots) && _.isEmpty(nluData.slots)}>
-            <Slots sessionSlots={session.slots} slots={nluData.slots} />
-          </Collapsible>
-        */}
+        <Collapsible name="Slots" hidden={_.isEmpty(session.slots) && _.isEmpty(nluData.slots)}>
+          <Slots sessionSlots={session.slots} slots={nluData.slots} />
+        </Collapsible>
+      */}
+      </Fragment>
+    )
+  }
+
+  return (
+    <Fragment>
+      <Collapsible name="Language Understanding" hidden={!nluData.entities.length}>
+        {renderContent()}
+        <Button minimal className={style.switchViewBtn} icon="eye-open" onClick={toggleView}>
+          {viewJSON ? 'View as Summary' : 'View as JSON'}
+        </Button>
       </Collapsible>
     </Fragment>
   )

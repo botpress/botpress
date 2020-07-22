@@ -1,11 +1,13 @@
-import { Colors, H4, H5, Icon, Position, Tooltip } from '@blueprintjs/core'
+import { Button } from '@blueprintjs/core'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import React, { Fragment, SFC } from 'react'
+import React, { Fragment, SFC, useState } from 'react'
 
 import { Collapsible } from '../components/Collapsible'
 import { Intent, isQnaItem } from '../components/Intent'
 import style from '../style.scss'
+
+import { Inspector } from './Inspector'
 
 interface Props {
   suggestions: sdk.IO.Suggestion[]
@@ -72,16 +74,37 @@ const Flow: SFC<{ stacktrace: sdk.IO.JumpPoint[] }> = props => (
   </div>
 )
 
-const Dialog: SFC<Props> = props => {
-  if (!props.decision) {
+const Dialog: SFC<Props> = ({ decision, suggestions, stacktrace }) => {
+  const [viewJSON, setViewJSON] = useState(false)
+
+  if (!decision) {
     return null
+  }
+
+  const toggleView = () => {
+    setViewJSON(!viewJSON)
+  }
+
+  const renderContent = () => {
+    if (viewJSON) {
+      return <Inspector data={{ decision, suggestions, stacktrace }} />
+    }
+
+    return (
+      <Fragment>
+        <Decision decision={decision} />
+        {stacktrace?.length > 0 && <Flow stacktrace={stacktrace} />}
+        {suggestions?.length > 0 && <Suggestions suggestions={suggestions} />}
+      </Fragment>
+    )
   }
 
   return (
     <Collapsible name="Dialog Manager">
-      <Decision decision={props.decision} />
-      {props.stacktrace && props.stacktrace.length > 0 && <Flow stacktrace={props.stacktrace} />}
-      {props.suggestions && props.suggestions.length > 0 && <Suggestions suggestions={props.suggestions} />}
+      {renderContent()}
+      <Button minimal className={style.switchViewBtn} icon="eye-open" onClick={toggleView}>
+        {viewJSON ? 'View as Summary' : 'View as JSON'}
+      </Button>
     </Collapsible>
   )
 }

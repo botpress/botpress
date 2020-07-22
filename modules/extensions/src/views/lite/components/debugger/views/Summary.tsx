@@ -1,13 +1,11 @@
 import sdk from 'botpress/sdk'
-import React, { Fragment } from 'react'
+import React from 'react'
 
-import { Collapsible } from '../components/Collapsible'
 import style from '../style.scss'
 
-import { Actions } from './Actions'
 import Dialog from './Dialog'
+import NDUSection from './NDUSection'
 import NLU from './NLU'
-import { Triggers } from './Triggers'
 
 interface Props {
   event: sdk.IO.IncomingEvent
@@ -46,21 +44,7 @@ export default class Summary extends React.Component<Props> {
           stacktrace={this.props.event.state.__stacktrace}
         />
 
-        {this.props.event.ndu && (
-          <Fragment>
-            <Collapsible name="Dialog Understanding">
-              <div className={style.section}>
-                <div className={style.sectionTitle}>Top Triggers</div>
-                <Triggers ndu={this.props.event.ndu}></Triggers>
-              </div>
-
-              <div className={style.section}>
-                <div className={style.sectionTitle}>Decisions Taken</div>
-                <Actions ndu={this.props.event.ndu} />
-              </div>
-            </Collapsible>
-          </Fragment>
-        )}
+        <NDUSection nduData={this.props.event.ndu} />
       </div>
     )
   }

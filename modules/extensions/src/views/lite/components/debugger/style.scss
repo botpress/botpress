@@ -153,13 +153,19 @@
 
 .inspectorContainer {
   height: 100%;
+  padding: var(--spacing-medium) var(--spacing-large);
+  margin: var(--spacing-medium) 0 var(--spacing-small);
 }
 
 .inspector {
-  overflow-x: hidden;
+  overflow-x: auto;
   background-color: var(--c-background-dark-2);
   height: 100%;
   width: 100%;
+
+  li:first-child {
+    padding-top: 0 !important;
+  }
 
   & > ul {
     margin: none;
@@ -225,6 +231,32 @@
       background-color: blue;
       width: 10px;
       margin-top: auto;
+    }
+  }
+}
+
+.switchViewBtn {
+  margin: var(--spacing-small) 0 var(--spacing-medium);
+
+  :global(.bp3-button-text) {
+    color: var(--ocean) !important;
+    transition: color 0.3s;
+  }
+
+  svg {
+    fill: var(--ocean) !important;
+    transition: fill 0.3s;
+  }
+
+  &:hover {
+    background: #fff !important;
+
+    :global(.bp3-button-text) {
+      color: var(--hover-ocean) !important;
+    }
+
+    svg {
+      fill: var(--hover-ocean) !important;
     }
   }
 }

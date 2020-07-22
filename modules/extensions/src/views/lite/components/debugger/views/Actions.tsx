@@ -16,18 +16,34 @@ export const Actions: FC<Props> = props => {
     <Fragment>
       <ul>
         <li>
-          {actions.map(({ action, data }) => {
+          {actions.map(({ action, data }, index) => {
             switch (action) {
               case 'send':
-                return <span className={style.truncate}>Say {(data as sdk.NDU.SendContent).sourceDetails}</span>
+                return (
+                  <span key={index} className={style.truncate}>
+                    Say {(data as sdk.NDU.SendContent).sourceDetails}
+                  </span>
+                )
               case 'startWorkflow':
-                return <span className={style.truncate}>Start Workflow {(data as sdk.NDU.FlowRedirect).flow}</span>
+                return (
+                  <span key={index} className={style.truncate}>
+                    Start Workflow {(data as sdk.NDU.FlowRedirect).flow}
+                  </span>
+                )
               case 'goToNode':
-                return <span className={style.truncate}>Go to node {(data as sdk.NDU.FlowRedirect).node}</span>
+                return (
+                  <span key={index} className={style.truncate}>
+                    Go to node {(data as sdk.NDU.FlowRedirect).node}
+                  </span>
+                )
               case 'redirect':
-                return <span className={style.truncate}>Redirect to {(data as sdk.NDU.FlowRedirect).flow}</span>
+                return (
+                  <span key={index} className={style.truncate}>
+                    Redirect to {(data as sdk.NDU.FlowRedirect).flow}
+                  </span>
+                )
               case 'continue':
-                return <span>Continue</span>
+                return <span key={index}>Continue</span>
             }
           })}
         </li>
