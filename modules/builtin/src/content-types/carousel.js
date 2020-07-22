@@ -51,7 +51,7 @@ function render(data) {
 
 function renderElement(data, channel) {
   if (['web', 'slack', 'teams', 'messenger', 'telegram'].includes(channel)) {
-    return base.newRenderer(data, 'carousel')
+    return base.renderer(data, 'carousel')
   } else {
     return render(data)
   }
@@ -110,7 +110,7 @@ module.exports = {
         type: 'group',
         key: 'items',
         label: 'fields::title',
-        fields: Card.newSchema.fields
+        fields: Card.newSchema && Card.newSchema.fields
       }
     ]
   },

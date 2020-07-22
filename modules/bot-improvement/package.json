@@ -21,12 +21,12 @@
     "bluebird": "^3.5.3",
     "classnames": "^2.2.6",
     "joi": "^13.6.0",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.19",
     "mime": "^2.4.4",
     "moment": "^2.24.0"
   },
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.12"
+    "lodash": ">=4.17.19"
   }
 }

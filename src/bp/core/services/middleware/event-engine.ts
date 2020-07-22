@@ -9,7 +9,6 @@ import yn from 'yn'
 
 import { Event } from '../../sdk/impl'
 import { TYPES } from '../../types'
-import { CMSService } from '../cms'
 import { incrementMetric } from '../monitoring'
 import { Queue } from '../queue'
 
@@ -86,6 +85,7 @@ export class EventEngine {
   public onBeforeIncomingMiddleware?: (event) => Promise<void>
   public onAfterIncomingMiddleware?: (event) => Promise<void>
   public onBeforeOutgoingMiddleware?: (event) => Promise<void>
+  public translatePayload?: (payload: sdk.Content.All, event: sdk.IO.Event) => Promise<any>
 
   private readonly _incomingPerf = new TimedPerfCounter('mw_incoming')
   private readonly _outgoingPerf = new TimedPerfCounter('mw_outgoing')
@@ -98,8 +98,7 @@ export class EventEngine {
     @tagged('name', 'EventEngine')
     private logger: sdk.Logger,
     @inject(TYPES.IncomingQueue) private incomingQueue: Queue,
-    @inject(TYPES.OutgoingQueue) private outgoingQueue: Queue,
-    @inject(TYPES.CMSService) private cms: CMSService
+    @inject(TYPES.OutgoingQueue) private outgoingQueue: Queue
   ) {
     this.incomingQueue.subscribe(async event => {
       await this._infoMiddleware(event)
@@ -216,7 +215,7 @@ export class EventEngine {
       ..._.pick(event, ['botId', 'channel', 'target', 'threadId']),
       direction: 'outgoing',
       type: options.eventType ?? payload.type ?? 'default',
-      payload: await this.cms.translatePayload(payload, event),
+      payload: await this.translatePayload!(payload, event),
       incomingEventId: options.incomingEventId
     })
 

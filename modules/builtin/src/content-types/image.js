@@ -26,7 +26,7 @@ function render(data) {
 
 function renderElement(data, channel) {
   if (['web', 'slack', 'teams', 'messenger', 'telegram'].includes(channel)) {
-    return base.newRenderer(data, 'image')
+    return base.renderer(data, 'image')
   } else {
     return render(data)
   }

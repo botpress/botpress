@@ -132,6 +132,8 @@ export class SlackClient {
         })
       }
     })
+
+    com.on('error', err => this.bp.logger.attachError(err).error(`An error occurred`))
   }
 
   private async _getUserInfo(userId: string) {
@@ -220,6 +222,7 @@ export class SlackClient {
     const textType = __markdown === true ? 'mrkdwn' : 'plain_text'
     const blocks = []
 
+    // @deprecated
     if (__typing && this.rtm) {
       await this.rtm.sendTyping(event.threadId || event.target)
       await Promise.delay(parseTyping(__typing))
@@ -231,10 +234,10 @@ export class SlackClient {
         type: 'actions',
         elements: __buttons.map((q, idx) => ({
           type: 'button',
-          action_id: 'replace_buttons' + idx,
+          action_id: `replace_buttons${idx}`,
           text: {
             type: 'plain_text',
-            text: q.label ?? q['title']
+            text: q.label || q['title']
           },
           value: q.value.toString().toUpperCase()
         }))

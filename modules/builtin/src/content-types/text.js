@@ -23,7 +23,7 @@ function render(data) {
 
 function renderElement(data, channel) {
   if (['web', 'slack', 'teams', 'messenger', 'telegram'].includes(channel)) {
-    return base.newRenderer(data, 'text')
+    return base.renderer(data, 'text')
   } else {
     return render(data)
   }

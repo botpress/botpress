@@ -201,7 +201,7 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
       return await retry(async () => {
         const { data } = await DucklingEntityExtractor.client.post(
           '/parse',
-          `lang=${lang}&text=${text}&reftime=${refTime}&tz=${tz}`
+          `lang=${lang}&text=${encodeURI(text)}&reftime=${refTime}&tz=${tz}`
         )
 
         if (!_.isArray(data)) {
