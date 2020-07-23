@@ -10,6 +10,8 @@ export const getOverridedComponent = (overrides, componentName) => {
   }
 }
 
+export const isIE = window.navigator.userAgent.match(/MSIE|Trident/) !== null
+
 export const asyncDebounce = async timeMs => {
   let lastClickInMs = undefined
 

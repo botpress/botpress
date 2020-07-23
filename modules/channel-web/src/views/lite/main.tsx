@@ -10,7 +10,7 @@ import constants from './core/constants'
 import BpSocket from './core/socket'
 import ChatIcon from './icons/Chat'
 import { RootStore, StoreDef } from './store'
-import { checkLocationOrigin, initializeAnalytics, trackMessage, trackWebchatState } from './utils'
+import { checkLocationOrigin, initializeAnalytics, isIE, trackMessage, trackWebchatState } from './utils'
 
 const _values = obj => Object.keys(obj).map(x => obj[x])
 
@@ -256,8 +256,6 @@ class Web extends React.Component<MainProps> {
     }
 
     const { stylesheet, extraStylesheet } = this.props.config
-
-    const isIE = window.navigator.userAgent.match(/MSIE|Trident/) !== null
 
     return (
       <div onFocus={this.handleResetUnreadCount}>
