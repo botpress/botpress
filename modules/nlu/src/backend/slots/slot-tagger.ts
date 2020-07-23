@@ -44,11 +44,15 @@ export function labelizeUtterance(utterance: Utterance): string[] {
 }
 
 export function predictionLabelToTagResult(prediction: { [label: string]: number }): TagResult {
-  const [label, probability] = _.chain(prediction)
+  const pairedPreds = _.chain(prediction)
     .mapValues((value, key) => value + (prediction[key + '/any'] || 0))
     .toPairs()
-    .maxBy('1')
     .value()
+
+  if (!pairedPreds.length) {
+    throw new Error('there should be at least one prediction when converting predictions to tag result')
+  }
+  const [label, probability] = _.maxBy(pairedPreds, x => x[1])!
 
   return {
     tag: label[0],
@@ -80,16 +84,17 @@ export function makeExtractedSlots(
   utterance: Utterance,
   slotTagResults: TagResult[]
 ): SlotExtractionResult[] {
-  return _.zip(
+  return _.zipWith(
     utterance.tokens.filter(t => !t.isSpace),
-    slotTagResults
+    slotTagResults,
+    (token, tagRes) => ({ token, tagRes })
   )
-    .filter(([token, tagRes]) => tagRes.tag !== BIO.OUT)
-    .reduce((combined, [token, tagRes]) => {
+    .filter(({ tagRes }) => tagRes.tag !== BIO.OUT)
+    .reduce((combined, { token, tagRes }) => {
       const last = _.last(combined)
       const shouldConcatWithPrev = tagRes.tag === BIO.INSIDE && _.get(last, 'slot.name') === tagRes.name
 
-      if (shouldConcatWithPrev) {
+      if (shouldConcatWithPrev && last) {
         const newEnd = token.offset + token.value.length
         const newSource = utterance.toString({ entities: 'keep-default' }).slice(last.start, newEnd) // we use slice in case tokens are space split
         last.slot.source = newSource
@@ -234,8 +239,8 @@ export default class SlotTagger {
       featurizer.getSpecialChars(token),
       featurizer.getWordFeat(token, isPredict),
       featurizer.getPOSFeat(token),
-      ...featurizer.getEntitiesFeats(token, intent.slot_entities, isPredict)
-    ].filter(_.identity) // some features can be undefined
+      ...featurizer.getEntitiesFeats(token, intent.slot_entities ?? [], isPredict)
+    ].filter(_.identity) as featurizer.CRFFeature[] // some features can be undefined
   }
 
   getSequenceFeatures(intent: Intent<Utterance>, utterance: Utterance, isPredict: boolean): string[][] {

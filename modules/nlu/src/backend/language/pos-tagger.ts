@@ -121,8 +121,8 @@ export function tagSentence(tagger: sdk.MLToolkit.CRF.Tagger, tokens: string[]):
         return [[...words, token], spaceIdx]
       }
     },
-    [[], []]
-  ) as [string[], number[]]
+    [[], []] as [string[], number[]]
+  )
 
   const feats: string[][] = []
   for (let i = 0; i < words.length; i++) {

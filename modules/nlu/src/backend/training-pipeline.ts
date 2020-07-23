@@ -26,7 +26,7 @@ import {
 } from './typings'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
 
-export type Trainer = (input: TrainInput, tools: Tools) => Promise<TrainOutput>
+export type Trainer = (input: TrainInput, tools: Tools) => Promise<TrainOutput | undefined>
 
 export type TrainInput = Readonly<{
   botId: string
@@ -35,11 +35,11 @@ export type TrainInput = Readonly<{
   list_entities: ListEntity[]
   contexts: string[]
   intents: Intent<string>[]
-  trainingSession: TrainingSession
+  trainingSession?: TrainingSession
   ctxToTrain: string[]
 }>
 
-type TrainStep = Readonly<{
+export type TrainStep = Readonly<{
   botId: string
   languageCode: string
   list_entities: ListEntityModel[]
@@ -57,12 +57,13 @@ export interface TrainOutput {
   tfidf: TFIDF
   vocabVectors: Token2Vec
   // kmeans: KmeansResult
+  contexts: string[]
   ctx_model: string
   intent_model_by_ctx: Dic<string>
   slots_model: Buffer
   exact_match_index: ExactMatchIndex
   oos_model: _.Dictionary<string>
-  intents?: Intent<Utterance>[]
+  intents: Intent<Utterance>[]
 }
 
 export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] }>
@@ -130,11 +131,14 @@ const makeListEntityModel = async (entity: ListEntity, botId: string, languageCo
   }
 }
 
-export const computeKmeans = (intents: Intent<Utterance>[], tools: Tools): sdk.MLToolkit.KMeans.KmeansResult => {
+export const computeKmeans = (
+  intents: Intent<Utterance>[],
+  tools: Tools
+): sdk.MLToolkit.KMeans.KmeansResult | undefined => {
   const data = _.chain(intents)
     .filter(i => i.name !== NONE_INTENT)
-    .flatMapDeep(i => i.utterances.map(u => u.tokens))
-    // @ts-ignore
+    .flatMap(i => i.utterances)
+    .flatMap(u => u.tokens)
     .uniqBy((t: UtteranceToken) => t.value)
     .map((t: UtteranceToken) => t.vector)
     .value() as number[][]
@@ -171,17 +175,15 @@ export const buildIntentVocab = (utterances: Utterance[], intentEntities: ListEn
 }
 
 const buildVectorsVocab = (intents: Intent<Utterance>[]): _.Dictionary<number[]> => {
-  return (
-    _.chain(intents)
-      .filter(i => i.name !== NONE_INTENT)
-      .flatMapDeep((intent: Intent<Utterance>) => intent.utterances.map(u => u.tokens))
-      // @ts-ignore
-      .reduce((vocab, tok: UtteranceToken) => {
-        vocab[tok.toString({ lowerCase: true })] = <number[]>tok.vector
-        return vocab
-      }, {})
-      .value() as Token2Vec
-  )
+  return _.chain(intents)
+    .filter(i => i.name !== NONE_INTENT)
+    .flatMap((intent: Intent<Utterance>) => intent.utterances)
+    .flatMap((utt: Utterance) => utt.tokens)
+    .reduce((vocab, tok: UtteranceToken) => {
+      vocab[tok.toString({ lowerCase: true })] = <number[]>tok.vector
+      return vocab
+    }, {} as Token2Vec)
+    .value()
 }
 
 export const BuildExactMatchIndex = (input: TrainStep): ExactMatchIndex => {
@@ -340,8 +342,8 @@ export const ExtractEntities = async (input: TrainStep, tools: Tools): Promise<T
     true
   )
 
-  _.zip(utterances, allSysEntities)
-    .map(([utt, sysEntities]) => {
+  _.zipWith(utterances, allSysEntities, (utt, sysEntities) => ({ utt, sysEntities }))
+    .map(({ utt, sysEntities }) => {
       const listEntities = extractListEntities(utt, input.list_entities)
       const patternEntities = extractPatternEntities(utt, input.pattern_entities)
       return [utt, [...sysEntities, ...listEntities, ...patternEntities]] as [Utterance, EntityExtractionResult[]]
@@ -490,11 +492,11 @@ const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progres
   return ctxModels.reduce((acc, [ctx, model]) => {
     acc[ctx] = model
     return acc
-  }, {})
+  }, {} as _.Dictionary<string>)
 }
 
 const NB_STEPS = 5 // change this if the training pipeline changes
-export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise<TrainOutput> => {
+export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise<TrainOutput | undefined> => {
   let totalProgress = 0
   let normalizedProgress = 0
   const debouncedProgress = _.debounce(tools.reportTrainingProgress, 75, { maxWait: 750 })
@@ -534,14 +536,15 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     const output: TrainOutput = {
       list_entities: step.list_entities,
       oos_model,
-      tfidf: step.tfIdf,
+      tfidf: step.tfIdf!,
       intents: step.intents,
-      ctx_model,
-      intent_model_by_ctx,
+      ctx_model: ctx_model!,
+      intent_model_by_ctx: intent_model_by_ctx!,
       slots_model,
       vocabVectors: step.vocabVectors,
-      exact_match_index
+      exact_match_index,
       // kmeans: {} add this when mlKmeans supports loading from serialized data,
+      contexts: input.contexts
     }
 
     return output

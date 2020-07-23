@@ -1,5 +1,6 @@
 import { SPACE } from '../tools/token-utils'
-import { UtteranceToken } from '../utterance/utterance'
+import { Intent } from '../typings'
+import Utterance, { UtteranceEntity, UtteranceToken } from '../utterance/utterance'
 
 import * as featurizer from './slot-featurizer'
 
@@ -135,34 +136,45 @@ describe('CRF Featurizer 2', () => {
       Object.defineProperty(tok, 'toString', { value: () => tok.value, enumerable: true })
     )
 
-    const anIntent = {
+    const anIntent: Partial<Intent<Utterance>> = {
       name: 'find flight',
       vocab: {
         fly: true
       }
     }
 
-    expect(featurizer.getInVocabFeat({ ...tokens[0], slots: ['lol.A.W'] }, anIntent).value).toBeTruthy()
-    expect(featurizer.getInVocabFeat(tokens[0], anIntent).value).toBeTruthy()
-    expect(featurizer.getInVocabFeat({ ...tokens[1], slots: ['lol.A.W'] }, anIntent).value).toBeFalsy()
-    expect(featurizer.getInVocabFeat(tokens[1], anIntent).value).toBeFalsy()
-    expect(featurizer.getInVocabFeat({ ...tokens[2], slots: ['lol.A.W'] }, anIntent).value).toBeFalsy()
-    expect(featurizer.getInVocabFeat(tokens[2], anIntent).value).toBeFalsy()
+    expect(
+      featurizer.getInVocabFeat({ ...tokens[0], slots: ['lol.A.W'] }, anIntent as Intent<Utterance>).value
+    ).toBeTruthy()
+    expect(featurizer.getInVocabFeat(tokens[0], anIntent as Intent<Utterance>).value).toBeTruthy()
+    expect(
+      featurizer.getInVocabFeat({ ...tokens[1], slots: ['lol.A.W'] }, anIntent as Intent<Utterance>).value
+    ).toBeFalsy()
+    expect(featurizer.getInVocabFeat(tokens[1], anIntent as Intent<Utterance>).value).toBeFalsy()
+    expect(
+      featurizer.getInVocabFeat({ ...tokens[2], slots: ['lol.A.W'] }, anIntent as Intent<Utterance>).value
+    ).toBeFalsy()
+    expect(featurizer.getInVocabFeat(tokens[2], anIntent as Intent<Utterance>).value).toBeFalsy()
   })
 
   test('getEntitiesFeats', () => {
     const allowedEntities = ['person', 'number', 'fruit']
-    const token = { entities: [{ type: 'person' }] }
-    const token1 = { entities: ['animal'] }
-    const token2 = { entities: [] }
-    const token3 = { entities: [{ type: 'fruit' }, { type: 'person' }] }
 
-    const feats0 = featurizer.getEntitiesFeats(token, allowedEntities, true)
-    const feats1 = featurizer.getEntitiesFeats(token, allowedEntities, false)
-    const feats2 = featurizer.getEntitiesFeats(token, [], false)
-    const feats3 = featurizer.getEntitiesFeats(token1, allowedEntities, false)
-    const feats4 = featurizer.getEntitiesFeats(token2, allowedEntities, false)
-    const feats5 = featurizer.getEntitiesFeats(token3, allowedEntities, false)
+    const entity: Partial<UtteranceEntity> = { type: 'person' }
+    const token: Partial<UtteranceToken> = { entities: [entity as UtteranceEntity] }
+
+    const token1: Partial<UtteranceToken> = { entities: ['animal' as any] }
+    const token2: Partial<UtteranceToken> = { entities: [] }
+
+    const entity3: Partial<UtteranceEntity> = { type: 'fruit' }
+    const token3: Partial<UtteranceToken> = { entities: [entity3 as UtteranceEntity, entity as UtteranceEntity] }
+
+    const feats0 = featurizer.getEntitiesFeats(token as UtteranceToken, allowedEntities, true)
+    const feats1 = featurizer.getEntitiesFeats(token as UtteranceToken, allowedEntities, false)
+    const feats2 = featurizer.getEntitiesFeats(token as UtteranceToken, [], false)
+    const feats3 = featurizer.getEntitiesFeats(token1 as UtteranceToken, allowedEntities, false)
+    const feats4 = featurizer.getEntitiesFeats(token2 as UtteranceToken, allowedEntities, false)
+    const feats5 = featurizer.getEntitiesFeats(token3 as UtteranceToken, allowedEntities, false)
 
     expect(feats0.length).toEqual(1)
     expect(feats0[0].value).toEqual('person')
@@ -187,23 +199,29 @@ describe('CRF Featurizer 2', () => {
   })
 
   test('getIntentFeature', () => {
-    const anIntent = {
+    const anIntent: Partial<Intent<Utterance>> = {
       name: 'give-me-money'
     }
-    const feat = featurizer.getIntentFeature(anIntent)
+    const feat = featurizer.getIntentFeature(anIntent as Intent<Utterance>)
 
     expect(feat.value).toEqual(anIntent.name)
     expect(feat.boost).toEqual(100)
   })
 
   test('getTokenQuartile', () => {
-    const anUtterance = {
-      tokens: ['a', 'b', 'c', 'd']
+    const anUtterance: Partial<Utterance> = {
+      tokens: ['a', 'b', 'c', 'd'] as any
     }
+
+    const makeToken = (index: number): UtteranceToken => {
+      const token: Partial<UtteranceToken> = { index }
+      return token as UtteranceToken
+    }
+
     // here
-    expect(featurizer.getTokenQuartile(anUtterance, { index: 0 }).value).toEqual(1)
-    expect(featurizer.getTokenQuartile(anUtterance, { index: 1 }).value).toEqual(2)
-    expect(featurizer.getTokenQuartile(anUtterance, { index: 2 }).value).toEqual(3)
-    expect(featurizer.getTokenQuartile(anUtterance, { index: 3 }).value).toEqual(4)
+    expect(featurizer.getTokenQuartile(anUtterance as Utterance, makeToken(0)).value).toEqual(1)
+    expect(featurizer.getTokenQuartile(anUtterance as Utterance, makeToken(1)).value).toEqual(2)
+    expect(featurizer.getTokenQuartile(anUtterance as Utterance, makeToken(2)).value).toEqual(3)
+    expect(featurizer.getTokenQuartile(anUtterance as Utterance, makeToken(3)).value).toEqual(4)
   })
 })

@@ -92,6 +92,9 @@ export async function crossValidate(
   const dummyVersion = { nluVersion: '', langServerInfo } // we don't really care about the model hash here...
   const engine = new Engine(language, botId, dummyVersion, logger)
   const model = await engine.train(trainSet, entities, language)
+  if (!model) {
+    throw new Error('training could not finish during cross-valisation')
+  }
   await engine.loadModel(model)
 
   const allCtx = _.chain(intents)
