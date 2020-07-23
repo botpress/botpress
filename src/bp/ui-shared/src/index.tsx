@@ -19,6 +19,7 @@ import Overlay from './Overlay'
 import ShortcutLabel from './ShortcutLabel'
 import Textarea from './Textarea'
 import { toast } from './Toaster'
+import ToolTip from './ToolTip'
 import TreeView from './TreeView'
 
 exports.Commander = Commander
@@ -35,6 +36,7 @@ exports.MoreOptions = MoreOptions
 exports.Overlay = Overlay
 exports.ShortcutLabel = ShortcutLabel
 exports.Textarea = Textarea
+exports.ToolTip = ToolTip
 exports.TreeView = TreeView
 exports.Icons = Icons
 

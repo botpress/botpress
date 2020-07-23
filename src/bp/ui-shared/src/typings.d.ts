@@ -22,6 +22,7 @@ import { AddButtonProps } from './Contents/Components/typings'
 import { TextFieldsArrayProps } from './FormFields/TextFieldsArrayProps/typings'
 import { OverlayProps } from './Overlay/typings'
 import { FormField, MultiLangText } from 'botpress/sdk'
+import { ToolTipProps } from './ToolTip/typings'
 
 declare module 'botpress/shared' {
   export function Commander(props: CommanderProps): JSX.Element
@@ -52,6 +53,7 @@ declare module 'botpress/shared' {
   export function Overlay(props: OverlayProps): JSX.Element
   export function ShortcutLabel(props: ShortcutLabelProps): JSX.Element
   export function Textarea<T>(props: TextareaProps<T>): JSX.Element
+  export function ToolTip<T>(props: ToolTipProps<T>): JSX.Element
   export function TreeView<T>(props: TreeViewProps<T>): JSX.Element
 
   export function contextMenu(event: SyntheticEvent, content: JSX.Element): void

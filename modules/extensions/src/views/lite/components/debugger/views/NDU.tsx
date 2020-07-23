@@ -42,9 +42,9 @@ const NDU: FC<{ ndu: sdk.NDU.DialogUnderstanding }> = ({ ndu }) => {
       <Fragment>
         <div className={style.section}>
           <div className={style.sectionTitle}>Top Triggers</div>
-          {sorted.map(trigger => {
+          {sorted.map((trigger, index) => {
             return (
-              <div className={style.subSection}>
+              <div key={index} className={style.subSection}>
                 <p
                   className={cx(style.canShowFull, { [style.truncate]: !showFullId[trigger.id] })}
                   onClick={e => setShowFullId({ ...showFullId, [trigger.id]: !showFullId[trigger.id] })}
@@ -59,22 +59,22 @@ const NDU: FC<{ ndu: sdk.NDU.DialogUnderstanding }> = ({ ndu }) => {
         <div className={style.section}>
           <div className={style.sectionTitle}>Decisions Taken</div>
           <ul>
-            {ndu.actions.map(({ action, data }) => {
+            {ndu.actions.map(({ action, data }, index) => {
               switch (action) {
                 case 'send':
-                  return <li>Send knowledge {(data as sdk.NDU.SendContent).sourceDetails}</li>
+                  return <li key={index}>Send knowledge {(data as sdk.NDU.SendContent).sourceDetails}</li>
                 case 'startWorkflow':
-                  return <li>Start Workflow {(data as sdk.NDU.FlowRedirect).flow}</li>
+                  return <li key={index}>Start Workflow {(data as sdk.NDU.FlowRedirect).flow}</li>
                 case 'goToNode':
-                  return <li>Go to node {(data as sdk.NDU.FlowRedirect).node}</li>
+                  return <li key={index}>Go to node {(data as sdk.NDU.FlowRedirect).node}</li>
                 case 'redirect':
-                  return <li>Redirect to {(data as sdk.NDU.FlowRedirect).flow}</li>
+                  return <li key={index}>Redirect to {(data as sdk.NDU.FlowRedirect).flow}</li>
                 case 'continue':
-                  return <li>Continue flow execution</li>
+                  return <li key={index}>Continue flow execution</li>
                 case 'prompt.inform':
-                  return <li>Inform current prompt</li>
+                  return <li key={index}>Inform current prompt</li>
                 case 'prompt.cancel':
-                  return <li>Cancel current prompt</li>
+                  return <li key={index}>Cancel current prompt</li>
               }
             })}
           </ul>
@@ -96,7 +96,7 @@ const NDU: FC<{ ndu: sdk.NDU.DialogUnderstanding }> = ({ ndu }) => {
     }
 
     return keys.map(id => (
-      <li>
+      <li key={id}>
         {id}: {getPercentage(results[id])}%
       </li>
     ))

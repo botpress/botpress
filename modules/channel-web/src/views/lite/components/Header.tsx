@@ -2,6 +2,7 @@ import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
 
+import ToolTip from '../../../../../../src/bp/ui-shared/src/ToolTip'
 import Close from '../icons/Close'
 import Download from '../icons/Download'
 import Information from '../icons/Information'
@@ -74,18 +75,20 @@ class Header extends React.Component<HeaderProps> {
 
   renderResetButton() {
     return (
-      <button
-        type="button"
-        tabIndex={-1}
-        id="btn-reset"
-        ref={el => (this.btnEls[0] = el)}
-        className="bpw-header-icon bpw-header-icon-reset"
-        onClick={this.props.resetSession}
-        onKeyDown={this.handleKeyDown.bind(this, this.props.resetSession)}
-        onBlur={this.onBlur}
-      >
-        <Reload />
-      </button>
+      <ToolTip content="Resets conversation">
+        <button
+          type="button"
+          tabIndex={-1}
+          id="btn-reset"
+          ref={el => (this.btnEls[0] = el)}
+          className="bpw-header-icon bpw-header-icon-reset"
+          onClick={this.props.resetSession}
+          onKeyDown={this.handleKeyDown.bind(this, this.props.resetSession)}
+          onBlur={this.onBlur}
+        >
+          <Reload />
+        </button>
+      </ToolTip>
     )
   }
 

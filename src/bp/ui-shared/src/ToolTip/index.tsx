@@ -1,125 +1,208 @@
-import React, { FC, useReducer } from 'react'
+import cx from 'classnames'
+import React, { Children, cloneElement, FC, Fragment, useEffect, useReducer, useRef } from 'react'
+
+import style from './style.scss'
+import { ToolTipProps } from './typings'
 
 export const stateReducer = (state, action) => {
   if (action.type === 'show') {
     return { ...state, visible: true }
   } else if (action.type === 'hide') {
-    return { ...state, visible: false }
+    return { ...state, visible: false, showing: false }
+  } else if (action.type === 'updatePosition') {
+    return { ...state, ...action.data }
   } else {
     throw new Error(`That action type isn't supported.`)
   }
 }
 
-const ToolTip: FC<any> = props => {
-  const [state, dispatch] = useReducer(stateReducer, { visible: false, x: 0, y: 0, type: 'none' })
+const ToolTip: FC<ToolTipProps> = ({ children, content, position = 'top' }) => {
+  const [state, dispatch] = useReducer(stateReducer, {
+    visible: false,
+    showing: false,
+    xClass: '',
+    yClass: 'top'
+  })
+  const elRef = useRef<any>(null)
+  const tooltipRef = useRef<HTMLDivElement>(null)
+  const { xClass, yClass, showing, visible } = state
 
-  const visibility = state.visible == true ? 'on' : 'off'
+  useEffect(() => {
+    elRef.current.addEventListener('mouseover', show)
+    elRef.current.addEventListener('mouseleave', hide)
 
-  const style = {
-    left: state.x + window.scrollX + 'px',
-    top: state.y + window.scrollY + 'px'
+    return () => {
+      elRef.current.removeEventListener('mouseover', show)
+      elRef.current.removeEventListener('mouseleave', hide)
+    }
+  }, [elRef.current])
+
+  useEffect(() => {
+    pastShow()
+  }, [visible])
+
+  const visibility = showing ? style.visible : style.hidden
+
+  const elementRect = elRef.current?.getBoundingClientRect()
+  const tooltipRect = tooltipRef.current?.getBoundingClientRect()
+  const elLeft = elementRect?.left || 0
+  const elWidth = elementRect?.width || 0
+  const elTop = elementRect?.top || 0
+  const elHeight = elementRect?.height || 0
+  const tooltipWidth = tooltipRect?.width || 0
+  const tooltipHeight = tooltipRect?.height || 0
+
+  console.log(elementRect)
+
+  let left = elLeft + elWidth / 2 - tooltipWidth / 2
+
+  if (xClass === 'left') {
+    left = elLeft - tooltipWidth
+
+    if (yClass === 'top' || yClass === 'bottom') {
+      left = left + elWidth
+    }
+  } else if (xClass === 'right') {
+    left = elLeft + elWidth
+
+    if (yClass !== 'top' && yClass !== 'bottom') {
+      left = left + tooltipWidth
+    }
+  }
+
+  let top = elTop + elHeight / 2 - tooltipWidth / 2
+
+  if (yClass === 'top') {
+    top = elTop - tooltipHeight
+  } else if (yClass === 'bottom') {
+    top = elTop + elHeight
+  }
+
+  console.log(yClass, top, xClass, left)
+
+  const inlineStyle = {
+    left: left + 'px',
+    top: top + 'px'
   }
 
   const classNames = {}
 
-  if (state.type != null && state.type != 'none') {
-    classNames[state.type] = true
-  }
-
   classNames[visibility] = true
 
-  return (
-    <div id="tooltip" className={Object.keys(classNames).join(' ')} style={style}>
-      <div className="tooltip-arrow"></div>
-      <div className="tooltip-inner">ToolTip Component</div>
-    </div>
-  )
+  const pastShow = () => {
+    const elementRect = elRef.current?.getBoundingClientRect()
+    const tooltipRect = tooltipRef.current?.getBoundingClientRect()
 
-  /*const pastShow = (hoverRect) => {
-    // position the tooltip after showing it
-
-    const ttNode = ReactDOM.findDOMNode(this)
-
-    if (ttNode != null) {
-      let x = 0,
-        y = 0
-
+    if (tooltipRect) {
       const docWidth = document.documentElement.clientWidth,
         docHeight = document.documentElement.clientHeight
 
-      const rx = hoverRect.x + hoverRect.width, // most right x
-        lx = hoverRect.x, // most left x
-        ty = hoverRect.y, // most top y
-        by = hoverRect.y + hoverRect.height // most bottom y
+      const rx = elementRect.x + elementRect.width // most right x
+      const lx = elementRect.x // most left x
+      const ty = elementRect.y // most top y
+      const by = elementRect.y + elementRect.height // most bottom y
+      const overflowYMiddle = (tooltipRect.height - elementRect.height) / 2
 
-      // tool tip rectange
-      const ttRect = ttNode.getBoundingClientRect()
+      let overflowXMiddle = (tooltipRect.width - elementRect.width) / 2
+      overflowXMiddle = overflowXMiddle < 0 ? 0 : overflowXMiddle
 
-      const bRight = rx + ttRect.width <= window.scrollX + docWidth
-      const bLeft = lx - ttRect.width >= 0
+      const canBeXMiddle = rx + overflowXMiddle <= docWidth && lx - overflowXMiddle >= 0
+      const canBeRight = rx + tooltipRect.width <= docWidth
+      const canBeLeft = lx - tooltipRect.width >= 0
+      const canBeYMiddle = ty - overflowYMiddle >= 0 && by + overflowYMiddle <= docHeight
+      const canBeAbove = ty - tooltipRect.height >= 0
+      const canBeBellow = by + tooltipRect.height <= docHeight
 
-      const bAbove = ty - ttRect.height >= 0
-      const bBellow = by + ttRect.height <= window.scrollY + docHeight
+      let xClass
+      let yClass
 
-      let newState = {}
-
-      // the tooltip doesn't fit to the right
-      if (bRight) {
-        x = rx
-
-        y = ty + (hoverRect.height - ttRect.height)
-
-        if (y < 0) {
-          y = ty
+      const checkXPosition = () => {
+        if (!canBeXMiddle) {
+          if (canBeLeft) {
+            return 'left'
+          } else {
+            return 'right'
+          }
         }
 
-        newState.type = 'right'
-      } else if (bBellow) {
-        y = by
-
-        x = lx + (hoverRect.width - ttRect.width)
-
-        if (x < 0) {
-          x = lx
-        }
-
-        newState.type = 'bottom'
-      } else if (bLeft) {
-        x = lx - ttRect.width
-
-        y = ty + (hoverRect.height - ttRect.height)
-
-        if (y < 0) {
-          y = ty
-        }
-
-        newState.type = 'left'
-      } else if (bAbove) {
-        y = ty - ttRect.height
-
-        x = lx + (hoverRect.width - ttRect.width)
-
-        if (x < 0) {
-          x = lx
-        }
-
-        newState.type = 'top'
+        return ''
       }
 
-      newState = { ...newState, x: x, y: y }
+      const checkYPosition = () => {
+        if (!canBeYMiddle) {
+          if (canBeAbove) {
+            return 'top'
+          } else {
+            return 'bottom'
+          }
+        }
 
-      this.setState(newState)
+        return ''
+      }
+
+      switch (position) {
+        case 'top':
+          yClass = 'top'
+
+          if (!canBeAbove) {
+            yClass = 'bottom'
+          }
+          xClass = checkXPosition()
+          break
+        case 'bottom':
+          yClass = 'bottom'
+
+          if (!canBeBellow) {
+            yClass = 'top'
+          }
+          xClass = checkXPosition()
+          break
+        case 'left':
+          xClass = 'left'
+
+          if (!canBeLeft) {
+            xClass = 'right'
+          }
+          yClass = checkYPosition()
+          break
+        case 'right':
+          xClass = 'right'
+
+          if (!canBeRight) {
+            xClass = 'left'
+          }
+          yClass = checkYPosition()
+          break
+      }
+
+      dispatch({ type: 'updatePosition', data: { xClass, yClass, showing: true } })
     }
   }
-  const show = (hoverRect) => {
-    const { pastShow } = this
 
-    // setState will execute the pastShow with hoverRect as the tool tip becomes visible
-    this.setState({ visible: true }, pastShow.bind(this, hoverRect))
+  const show = () => {
+    dispatch({ type: 'show' })
   }
   const hide = () => {
-    this.setState({ visible: false })
-  }*/
+    dispatch({ type: 'hide' })
+  }
+
+  return (
+    <Fragment>
+      {cloneElement(Children.only(children), { ref: el => (elRef.current = el) })}
+
+      {visible && (
+        <div
+          ref={tooltipRef}
+          id="botpress-tooltip"
+          className={cx(style.tooltip, classNames, xClass, yClass)}
+          style={inlineStyle}
+        >
+          <div className="tooltipArrow"></div>
+          <div className="tooltipInner">{content}</div>
+        </div>
+      )}
+    </Fragment>
+  )
 }
 
 export default ToolTip
