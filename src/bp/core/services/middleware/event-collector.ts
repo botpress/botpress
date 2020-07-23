@@ -132,7 +132,6 @@ export class EventCollector {
   private buildQuery = (elements: BatchEvent[]) => {
     const values = elements
       .map(entry => {
-        // tslint:disable-next-line: no-null-keyword
         const mappedValues = eventsFields.map(x => (x === 'event' ? JSON.stringify(entry[x]) : entry[x]) ?? null)
         return this.knex.raw(`(${eventsFields.map(() => '?').join(',')})`, mappedValues).toQuery()
       })

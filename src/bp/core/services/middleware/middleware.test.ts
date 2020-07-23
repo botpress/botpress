@@ -1,11 +1,12 @@
 import 'bluebird-global'
-import { IO } from 'botpress/sdk'
+import { EventDirection, IO } from 'botpress/sdk'
 import { createSpyObject, MockObject } from 'core/misc/utils'
 import 'jest-extended'
 import 'reflect-metadata'
 
 import { MiddlewareChain } from './middleware'
 
+const base = { description: 'test', order: 1, direction: <EventDirection>'incoming' }
 describe('Middleware', () => {
   let middleware: MiddlewareChain
   let event: MockObject<IO.Event>
@@ -29,8 +30,8 @@ describe('Middleware', () => {
       next()
     }
 
-    middleware.use({ handler: fn1, name: 'fn1' })
-    middleware.use({ handler: fn2, name: 'fn2' })
+    middleware.use({ handler: fn1, name: 'fn1', ...base })
+    middleware.use({ handler: fn2, name: 'fn2', ...base })
 
     await middleware.run(event.T)
 
@@ -46,8 +47,8 @@ describe('Middleware', () => {
       next(undefined, true) // We swallow the event
     }
 
-    middleware.use({ handler: fn1, name: 'fn1' })
-    middleware.use({ handler: mock2, name: 'mock2' })
+    middleware.use({ handler: fn1, name: 'fn1', ...base })
+    middleware.use({ handler: mock2, name: 'mock2', ...base })
 
     await middleware.run(event.T)
 
@@ -64,8 +65,8 @@ describe('Middleware', () => {
       next(undefined, false, true) // Mark the first mw as skipped
     }
 
-    middleware.use({ handler: fn1, name: 'fn1' })
-    middleware.use({ handler: mock2, name: 'mock2' })
+    middleware.use({ handler: fn1, name: 'fn1', ...base })
+    middleware.use({ handler: mock2, name: 'mock2', ...base })
 
     await middleware.run(event.T)
 
@@ -83,7 +84,8 @@ describe('Middleware', () => {
         mock(event)
         cb(undefined, true)
       },
-      name: 'event'
+      name: 'event',
+      ...base
     })
 
     await middleware.run(event.T)
@@ -97,7 +99,8 @@ describe('Middleware', () => {
       handler: event => {
         throw err
       },
-      name: 'throw'
+      name: 'throw',
+      ...base
     })
 
     // tslint:disable-next-line: no-floating-promises

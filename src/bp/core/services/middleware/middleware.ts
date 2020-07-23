@@ -39,9 +39,7 @@ export class MiddlewareChain {
         if (swallow) {
           event.addStep(`mw:${name}:swallowed`)
           break
-        }
-
-        if (skipped) {
+        } else if (skipped) {
           event.addStep(`mw:${name}:skipped`)
         } else {
           event.addStep(`mw:${name}:completed`)
