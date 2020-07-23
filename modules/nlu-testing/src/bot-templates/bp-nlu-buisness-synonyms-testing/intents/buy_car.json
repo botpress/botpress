@@ -1,0 +1,14 @@
+{
+  "name": "buy_car",
+  "utterances": {
+    "en": [
+      "I want to buy a car",
+      "I want to buy an automobile",
+      "What price is a car ?",
+      "What price is an auto ?",
+      "How much for a car ?"
+    ]
+  },
+  "slots": [],
+  "contexts": ["global"]
+}

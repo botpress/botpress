@@ -1,7 +1,7 @@
-import { MLToolkit, NLU, Logger } from 'botpress/sdk'
-
+import { Logger, MLToolkit, NLU } from 'botpress/sdk'
 import crypto from 'crypto'
 import _ from 'lodash'
+import LRUCache from 'lru-cache'
 
 import * as CacheManager from './cache-manager'
 import { computeModelHash, Model } from './model-service'
@@ -15,9 +15,9 @@ import {
   ListEntity,
   ListEntityModel,
   NLUEngine,
+  NLUVersionInfo,
   Tools,
-  TrainingSession,
-  NLUVersionInfo
+  TrainingSession
 } from './typings'
 
 const trainDebug = DEBUG('nlu').sub('training')
@@ -197,7 +197,7 @@ export default class Engine implements NLUEngine {
       model.data.output.intents = intents
     }
 
-    this._warmEntitiesCaches(_.get(model, 'data.artefacts.list_entities', []))
+    this._warmEntitiesCaches(model.data.output.list_entities ?? [])
     this.predictorsByLang[model.languageCode] = await this._makePredictors(model)
     this.modelsByLang[model.languageCode] = model
   }

@@ -1,0 +1,31 @@
+{
+    "name": "no",
+    "utterances": {
+        "en": [
+            "no, that's incorrect",
+            "that's not true",
+            "that is not true, it's false",
+            "no way",
+            "not really",
+            "naw",
+            "nay",
+            "i must say no",
+            "i think not",
+            "that is actually false",
+            "i gotta say no",
+            "no thanks",
+            "no is the answer",
+            "i don't think so",
+            "it's a no",
+            "i think it is false",
+            "not true",
+            "that is not true",
+            "not at all",
+            "that turns out to be false"
+        ]
+    },
+    "slots": [],
+    "contexts": [
+        "global"
+    ]
+}

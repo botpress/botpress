@@ -1,0 +1,31 @@
+{
+    "name": "order_checks",
+    "utterances": {
+        "en": [
+            "what is the process to get some more checkbooks mailed to me",
+            "how do i get more checkbooks mailed to me",
+            "if i need more checkbooks maild to me what should i do",
+            "can you mail more checkbooks to me please",
+            "can you explain to me how to get some more checkbooks mailed to me",
+            "can i get more checks",
+            "order more checks",
+            "i don't have any checks left; please order some",
+            "i need new checks",
+            "can you order me more checks, please",
+            "i need more checkbooks for my chase account",
+            "i'm in need of checks for bank of america",
+            "can you order me more checks at wells fargo",
+            "my key bank checks have run out",
+            "i don't have anymore checks for chase and need some",
+            "i would like to request that more checkbooks be mailed to me",
+            "i would like to order additional checkbooks to me mailed to my home address",
+            "would it be possible for you to mail me new checkbooks",
+            "i would like to place an order for more checkbooks to me mailed to me",
+            "could you please mail me some checkbooks"
+        ]
+    },
+    "slots": [],
+    "contexts": [
+        "global"
+    ]
+}

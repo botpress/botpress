@@ -1,0 +1,31 @@
+{
+    "name": "travel_alert",
+    "utterances": {
+        "en": [
+            "does ireland have any travel alerts i should be aware of",
+            "does north korea have any travel alerts i should be aware of",
+            "are there any travel alerts for russia",
+            "does spain have any travel alerts i should be aware of",
+            "are there any travel alerts for north korea",
+            "does macedonia have any travel alerts i should be aware of",
+            "are there any travel alerts for syria",
+            "are there any travel alerts for ukraine",
+            "does myanmar have any travel alerts i should be aware of",
+            "are there any travel alerts for china",
+            "is there a travel alert for russia",
+            "is there a travel alert for scotland",
+            "does russia have any travel alerts i should be aware of",
+            "is it safe to travel to iceland",
+            "is it safe to travel to russia",
+            "does italy have any travel alerts i should be aware of",
+            "does germany have any travel alerts i should be aware of",
+            "is there a travel alert for north korea",
+            "does china have any travel alerts i should be aware of",
+            "is there a travel alert for canada"
+        ]
+    },
+    "slots": [],
+    "contexts": [
+        "global"
+    ]
+}

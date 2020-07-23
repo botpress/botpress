@@ -1,0 +1,31 @@
+{
+    "name": "user_name",
+    "utterances": {
+        "en": [
+            "you refer to me as what",
+            "by what name do you refer to me",
+            "what name do you use when addressing me",
+            "is there a name that you call me",
+            "how do you usually refer to me",
+            "what is the name you call me saved as",
+            "regarding my name, whats it saved as",
+            "what name do you have saved for me",
+            "whats my name saved under",
+            "what is my first name saved as",
+            "do you know my name",
+            "say my name if you know it",
+            "can you guess my name",
+            "i want you to guess my name",
+            "by what name people call me",
+            "do you remember my name",
+            "say what you think my name is",
+            "show me what you think my name is",
+            "tell me what you think my name is",
+            "what can you call me"
+        ]
+    },
+    "slots": [],
+    "contexts": [
+        "global"
+    ]
+}

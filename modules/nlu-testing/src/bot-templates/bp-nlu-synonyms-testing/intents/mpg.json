@@ -1,0 +1,31 @@
+{
+    "name": "mpg",
+    "utterances": {
+        "en": [
+            "what kind of mileage do i get out of gas",
+            "what's the fuel economy of my car",
+            "how many miles per gallon do i get in my car",
+            "tell me my car's fuel economy",
+            "what kind of gas mileage do i get",
+            "what gas mileage does my car get",
+            "in my car, what's the fuel economy",
+            "how many miles per gallon do i get",
+            "what's my car's gas mileage",
+            "how many miles per gallon does my car get",
+            "look up the gas mileage for my vehicle",
+            "can you tell me the miles per gallon rate of my car",
+            "tell me my car's gas mileage please",
+            "what is the gas mileage for the car that i drive",
+            "how many miles can i drive on 1 gallon of gas",
+            "how many miles does my car get per gallon",
+            "what\u2019s my gas mileage",
+            "retrieve my current mpg on my car",
+            "tell me the gas mileage on my car",
+            "tell me my miles per gallon on my car"
+        ]
+    },
+    "slots": [],
+    "contexts": [
+        "global"
+    ]
+}

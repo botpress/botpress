@@ -1,0 +1,31 @@
+{
+    "name": "routing",
+    "utterances": {
+        "en": [
+            "where can i see the routing number for bmo",
+            "i need to know what my wife's account's routing number is",
+            "how do i locate my routing number for tax reasons",
+            "where can i look up x's routing number",
+            "please give my routing number for my national account",
+            "where do i go to find my routing number for southpoint",
+            "tell me my first national account's routing number",
+            "how can i find my routing number for el dorado",
+            "i need you to tell my what my routing number is for my first county account",
+            "i need the routing number for my woodlawn account",
+            "where do i find the routing number for sunflower bank",
+            "can i get the routing number for sunflower bank",
+            "where do i find the routing number for nfcu",
+            "what's bank of america's routing number",
+            "i need to know nfcu's routing number",
+            "can you tell me the routing number of wells fargo",
+            "where do i find the routing number for great western bank",
+            "how do i find axos bank's routing number",
+            "ai, routing number for my b of a checking account",
+            "ai, what is my chase checking routing number"
+        ]
+    },
+    "slots": [],
+    "contexts": [
+        "global"
+    ]
+}

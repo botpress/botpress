@@ -76,6 +76,7 @@ function computeStructuralScore(a: string[], b: string[]): number {
 
 // returns list entities having cached results in one array and those without results in another
 function splitModels(listModels: ListEntityModel[], cacheKey: string): [ListEntityModel[], ListEntityModel[]] {
+  debugger
   return listModels.reduce(
     ([withCached, withoutCached], nextModel) => {
       if ((<EntityCache>nextModel.cache)?.has(cacheKey) ?? false) {
@@ -169,6 +170,7 @@ export const extractListEntities = (
   useCache: boolean = false
 ): EntityExtractionResult[] => {
   const cacheKey = utterance.toString({ lowerCase: true })
+  debugger
   const [listModelsWithCachedRes, listModelsToExtract] = useCache
     ? splitModels(list_entities, cacheKey)
     : [[], list_entities]
