@@ -8,7 +8,7 @@ export function normalizeDataset(dataset: Data[], mu?, sigma?) {
   assert(dataset instanceof Array, 'dataset must be an list of [X,y] tuples')
   assert(dataset.length > 0, 'dataset cannot be empty')
 
-  const X = dataset.map(function(ex) {
+  const X = dataset.map(ex => {
       return ex[0]
     }),
     n = numeric.dim(X)[0] || 0,

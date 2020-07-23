@@ -18,7 +18,7 @@ class ClassificationEvaluator implements Evaluator {
 
     const classScores = _.reduce(
       predictions,
-      function(res, arr) {
+      (res, arr) => {
         const predicted = arr[0],
           expected = arr[1]
 
@@ -49,15 +49,9 @@ class ClassificationEvaluator implements Evaluator {
     const nbGood = _.reduce(classScores, (sum, scores, label) => sum + (scores[label] || 0), 0)
     return {
       accuracy: nbGood / predictions.length,
-      fscore: _.minBy(classReports, function(report) {
-        return report.fscore
-      })?.fscore,
-      recall: _.minBy(classReports, function(report) {
-        return report.recall
-      })?.recall,
-      precision: _.minBy(classReports, function(report) {
-        return report.precision
-      })?.precision,
+      fscore: _.minBy(classReports, 'fscore')?.fscore,
+      recall: _.minBy(classReports, 'recall')?.recall,
+      precision: _.minBy(classReports, 'precision')?.precision,
       class: classReports,
       size: predictions.length
     }
@@ -80,19 +74,19 @@ class RegressionEvaluator implements Evaluator {
   }
 
   public compute(predictions: number[][]): RegressionReport {
-    const errors = _.map(predictions, function(p) {
+    const errors = _.map(predictions, p => {
         return p[0] - p[1]
       }),
       avgError = _.mean(errors),
       constiance = _.mean(
-        errors.map(function(e) {
+        errors.map(e => {
           return Math.pow(e - avgError, 2)
         })
       )
 
     return {
       mse: _.mean(
-        errors.map(function(e) {
+        errors.map(e => {
           return Math.pow(e, 2)
         })
       ),
@@ -108,7 +102,7 @@ interface Evaluator {
   electBest(results: GridSearchResult[]): GridSearchResult
 }
 
-export default function(config: SvmConfig): Evaluator {
+export default (config: SvmConfig): Evaluator => {
   switch (config.svm_type) {
     case SvmTypes.C_SVC:
     case SvmTypes.NU_SVC:
