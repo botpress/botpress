@@ -257,14 +257,12 @@ class Web extends React.Component<MainProps> {
 
     const { stylesheet, extraStylesheet } = this.props.config
 
-    const isIE = () => {
-      return window.navigator.userAgent.match(/MSIE|Trident/) !== null
-    }
+    const isIE = window.navigator.userAgent.match(/MSIE|Trident/) !== null
 
     return (
       <div onFocus={this.handleResetUnreadCount}>
         {!!stylesheet?.length && <link rel="stylesheet" type="text/css" href={stylesheet} />}
-        {!!isIE && <link rel="stylesheet" type="text/css" href="assets/modules/channel-web/default_ie.css" />}
+        {isIE && <link rel="stylesheet" type="text/css" href="assets/modules/channel-web/default_ie.css" />}
         {!!extraStylesheet?.length && <link rel="stylesheet" type="text/css" href={extraStylesheet} />}
         <h1 id="tchat-label" className="sr-only" tabIndex={-1}>
           {this.props.intl.formatMessage({
