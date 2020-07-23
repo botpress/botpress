@@ -409,7 +409,7 @@ declare module 'botpress/sdk' {
     }
 
     export namespace CRF {
-      export interface Tagger {
+      export class Tagger {
         tag(xseq: Array<string[]>): { probability: number; result: string[] }
         open(model_filename: string): boolean
         marginal(xseq: Array<string[]>): { [label: string]: number }[]
@@ -428,12 +428,9 @@ declare module 'botpress/sdk' {
         labels: string[]
       }
 
-      export interface Trainer {
-        train(elements: DataPoint[], options: TrainerOptions): Promise<string>
+      export class Trainer {
+        train(elements: DataPoint[], options: TrainerOptions, debugCallback?: (msg: string) => void): Promise<string>
       }
-
-      export const createTrainer: () => Trainer
-      export const createTagger: () => Tagger
     }
 
     export namespace SentencePiece {
