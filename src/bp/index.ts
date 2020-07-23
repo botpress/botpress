@@ -108,6 +108,7 @@ try {
         process.IS_LICENSED = true
         process.ASSERT_LICENSED = () => {}
         process.BOTPRESS_VERSION = metadataContent.version
+        process.TELEMETRY_URL = process.env.TELEMETRY_URL || 'https://telemetry.botpress.cloud/ingest'
 
         process.IS_PRO_AVAILABLE = fs.existsSync(path.resolve(process.PROJECT_LOCATION, 'pro')) || !!process.pkg
         const configPath = path.join(process.PROJECT_LOCATION, '/data/global/botpress.config.json')
@@ -329,6 +330,10 @@ try {
     .option('verbose', {
       alias: 'v',
       description: 'verbosity level'
+    })
+    .command('version', `Display the server's version`, {}, () => {
+      console.log(`Botpress: v${metadataContent.version}`)
+      console.log(`NodeJS: ${process.version}`)
     })
     .count('verbose')
     .help().argv

@@ -12,6 +12,7 @@ import { EventEngine } from '../middleware/event-engine'
 import { StateManager } from '../middleware/state-manager'
 
 import { DialogEngine } from './dialog-engine'
+import { PromptManager } from './prompt-manager'
 
 type SendSuggestionResult = { executeFlows: boolean }
 
@@ -29,7 +30,8 @@ export class DecisionEngine {
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.StateManager) private stateManager: StateManager
+    @inject(TYPES.StateManager) private stateManager: StateManager,
+    @inject(TYPES.PromptManager) private promptManager: PromptManager
   ) {}
 
   private readonly MIN_CONFIDENCE = process.env.BP_DECISION_MIN_CONFIENCE || 0.5
@@ -69,13 +71,13 @@ export class DecisionEngine {
       } else if (action === 'redirect' || action === 'startWorkflow' || action === 'goToNode') {
         const { flow, node } = data as NDU.FlowRedirect
         const flowName = flow.endsWith('.flow.json') ? flow : `${flow}.flow.json`
-
         await this.dialogEngine.jumpTo(sessionId, event, flowName, node)
       }
     }
 
     const hasContinue = event.ndu.actions.find(x => x.action === 'continue')
-    if (!event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE) && hasContinue) {
+    const hasPrompt = event.ndu.actions.find(x => x.action.startsWith('prompt.'))
+    if (!event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE) && (hasContinue || hasPrompt)) {
       const processedEvent = await this.dialogEngine.processEvent(sessionId, event)
 
       // In case there are no unknown errors, remove skills/ flow from the stacktrace

@@ -2,8 +2,10 @@ import { FlowView, NodeView } from 'common/typings'
 import _ from 'lodash'
 import { DefaultLinkModel, DiagramEngine, DiagramModel, DiagramWidget, PointModel } from 'storm-react-diagrams'
 import { hashCode } from '~/util'
+import { PromptNodeModel } from '~/views/OneFlow/diagram/nodes/PromptNode'
 
 import { SaySomethingNodeModel } from '../../OneFlow/diagram/nodes/SaySomethingNode'
+import { TriggerNodeModel } from '../../OneFlow/diagram/nodes/TriggerNode'
 
 import { BaseNodeModel } from './nodes/BaseNodeModel'
 import { SkillCallNodeModel } from './nodes/SkillCallNode'
@@ -14,7 +16,6 @@ import { FailureNodeModel } from './nodes_v2/FailureNode'
 import { ListenNodeModel } from './nodes_v2/ListenNode'
 import { RouterNodeModel } from './nodes_v2/RouterNode'
 import { SuccessNodeModel } from './nodes_v2/SuccessNode'
-import { TriggerNodeModel } from './nodes_v2/TriggerNode'
 
 const passThroughNodeProps: string[] = [
   'name',
@@ -23,13 +24,24 @@ const passThroughNodeProps: string[] = [
   'next',
   'skill',
   'conditions',
-  'content',
-  'activeWorkflow'
+  'contents',
+  'activeWorkflow',
+  'prompt'
 ]
 export const DIAGRAM_PADDING: number = 100
 
 // Must be identified by the deleteSelectedElement logic to know it needs to delete something
-export const nodeTypes = ['standard', 'trigger', 'skill-call', 'say_something', 'execute', 'listen', 'router', 'action']
+export const nodeTypes = [
+  'standard',
+  'trigger',
+  'skill-call',
+  'say_something',
+  'execute',
+  'listen',
+  'router',
+  'action',
+  'prompt'
+]
 
 // Using the new node types to prevent displaying start port
 export const newNodeTypes = ['say_something', 'execute', 'listen', 'router']
@@ -48,6 +60,8 @@ const createNodeModel = (node, modelProps) => {
     return new SkillCallNodeModel(modelProps)
   } else if (type === 'say_something') {
     return new SaySomethingNodeModel(modelProps)
+  } else if (type === 'prompt') {
+    return new PromptNodeModel(modelProps)
   } else if (type === 'execute') {
     return new ExecuteNodeModel(modelProps)
   } else if (type === 'listen') {

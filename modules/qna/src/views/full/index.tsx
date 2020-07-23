@@ -1,6 +1,6 @@
 import { Spinner } from '@blueprintjs/core'
 import { EmptyState, HeaderButtonProps, lang, MainContent } from 'botpress/shared'
-import { Downloader, reorderFlows } from 'botpress/utils'
+import { AccessControl, Downloader, reorderFlows } from 'botpress/utils'
 import cx from 'classnames'
 import { debounce } from 'lodash'
 import React, { FC, useCallback, useEffect, useReducer, useRef, useState } from 'react'
@@ -12,27 +12,37 @@ import { ImportModal } from './Components/ImportModal'
 import QnA from './Components/QnA'
 import EmptyStateIcon from './Icons/EmptyStateIcon'
 
-const QnAList: FC<Props> = props => {
+const QnAList: FC<Props> = ({
+  bp,
+  languages,
+  defaultLanguage,
+  topicName,
+  contentLang,
+  isLite,
+  events,
+  refreshQnaCount
+}) => {
   const [flows, setFlows] = useState([])
   const [filterContexts, setFilterContexts] = useState([])
   const [questionSearch, setQuestionSearch] = useState('')
   const [showImportModal, setShowImportModal] = useState(false)
   const [currentTab, setCurrentTab] = useState('qna')
-  const [currentLang, setCurrentLang] = useState(props.contentLang)
+  const [currentLang, setCurrentLang] = useState(contentLang)
   const [url, setUrl] = useState('')
   const debounceDispatchMiddleware = useCallback(debounce(dispatchMiddleware, 300), [])
   const wrapperRef = useRef<HTMLDivElement>()
   const [state, dispatch] = useReducer(fetchReducer, {
     count: 0,
     items: [],
+    highlighted: undefined,
     loading: true,
     firstUpdate: true,
     page: 1,
     fetchMore: false,
     expandedItems: {}
   })
-  const { items, loading, firstUpdate, page, fetchMore, count, expandedItems } = state
-  const { bp, languages, defaultLanguage, isLite } = props
+  const { items, loading, firstUpdate, page, fetchMore, count, expandedItems, highlighted } = state
+  const queryParams = new URLSearchParams(window.location.search)
 
   useEffect(() => {
     wrapperRef.current.addEventListener('scroll', handleScroll)
@@ -50,6 +60,16 @@ const QnAList: FC<Props> = props => {
       setQuestionSearch('')
     }
   }, [])
+
+  useEffect(() => {
+    if (queryParams.get('id')) {
+      fetchHighlightedQna(queryParams.get('id'))
+        .then(() => {})
+        .catch(() => {})
+    } else {
+      dispatch({ type: 'resetHighlighted' })
+    }
+  }, [queryParams.get('id')])
 
   useEffect(() => {
     if (!firstUpdate) {
@@ -91,7 +111,7 @@ const QnAList: FC<Props> = props => {
 
   const getQueryParams = () => {
     return {
-      filteredContexts: [props.topicName]
+      filteredContexts: [topicName]
     }
   }
 
@@ -104,7 +124,7 @@ const QnAList: FC<Props> = props => {
   }
 
   const tabs = [
-    !isLite && {
+    {
       id: 'qna',
       title: lang.tr('module.qna.fullName')
     }
@@ -113,7 +133,7 @@ const QnAList: FC<Props> = props => {
   const allExpanded = Object.keys(expandedItems).filter(itemId => expandedItems[itemId]).length === items.length
 
   let noItemsTooltip
-  let languesTooltip = lang.tr('module.qna.form.translate')
+  let languesTooltip = lang.tr('translate')
 
   if (!items.length) {
     noItemsTooltip = lang.tr('module.qna.form.addOneItemTooltip')
@@ -175,7 +195,7 @@ const QnAList: FC<Props> = props => {
   buttons.push({
     icon: 'plus',
     onClick: () => {
-      dispatch({ type: 'addQnA', data: { languages, contexts: [props.topicName || 'global'] } })
+      dispatch({ type: 'addQnA', data: { languages, contexts: [topicName || 'global'] } })
     },
     tooltip: lang.tr('module.qna.form.addQuestion')
   })
@@ -193,85 +213,134 @@ const QnAList: FC<Props> = props => {
     dispatch({ type: 'dataSuccess', data: { ...data, page } })
   }
 
+  const fetchHighlightedQna = async id => {
+    const { data } = await bp.axios.get(`/mod/qna/questions/${id}`)
+
+    dispatch({ type: 'highlightedSuccess', data })
+  }
+
   const hasFilteredResults = questionSearch.length || filterContexts.length
 
   return (
-    <MainContent.Wrapper childRef={ref => (wrapperRef.current = ref)}>
-      <MainContent.Header className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
+    <AccessControl resource="module.qna" operation="write">
+      <MainContent.Wrapper childRef={ref => (wrapperRef.current = ref)}>
+        <MainContent.Header className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
 
-      <div className={style.searchWrapper}>
-        <input
-          className={style.input}
-          type="text"
-          value={questionSearch}
-          onChange={e => setQuestionSearch(e.currentTarget.value)}
-          placeholder={lang.tr('module.qna.search')}
+        <div className={style.searchWrapper}>
+          <input
+            className={style.input}
+            type="text"
+            value={questionSearch}
+            onChange={e => setQuestionSearch(e.currentTarget.value)}
+            placeholder={lang.tr('module.qna.search')}
+          />
+
+          {!isLite && (
+            <ContextSelector
+              className={style.contextInput}
+              contexts={filterContexts}
+              saveContexts={contexts => setFilterContexts(contexts)}
+              bp={bp}
+              isSearch
+            />
+          )}
+        </div>
+        <div className={cx(style.content, { [style.empty]: !items.length && !highlighted })}>
+          {highlighted && (
+            <div className={style.highlightedQna}>
+              <QnA
+                updateQnA={data =>
+                  debounceDispatchMiddleware(dispatch, {
+                    type: 'updateQnA',
+                    data: { qnaItem: data, index: 'highlighted', bp, currentLang, refreshQnaCount }
+                  })
+                }
+                bp={bp}
+                isLite={isLite}
+                key={highlighted.id}
+                flows={flows}
+                events={events}
+                defaultLanguage={defaultLanguage}
+                deleteQnA={() => {
+                  dispatch({ type: 'deleteQnA', data: { index: 'highlighted', bp, refreshQnaCount } })
+
+                  window.history.pushState(
+                    window.history.state,
+                    '',
+                    window.location.href.replace(window.location.search, '')
+                  )
+                }}
+                toggleEnabledQnA={() =>
+                  dispatchMiddleware(dispatch, {
+                    type: 'toggleEnabledQnA',
+                    data: { qnaItem: highlighted, bp }
+                  })
+                }
+                contentLang={currentLang}
+                errorMessages={itemHasError(highlighted, currentLang)}
+                setExpanded={isExpanded => dispatch({ type: 'toggleExpandOne', data: { highlighted: isExpanded } })}
+                expanded={expandedItems['highlighted']}
+                qnaItem={highlighted}
+              />
+            </div>
+          )}
+          {items
+            .filter(item => highlighted?.id !== item.id)
+            .map((item, index) => (
+              <QnA
+                updateQnA={data =>
+                  debounceDispatchMiddleware(dispatch, {
+                    type: 'updateQnA',
+                    data: { qnaItem: data, index, bp, currentLang, refreshQnaCount }
+                  })
+                }
+                key={item.key || item.id}
+                bp={bp}
+                isLite={isLite}
+                flows={flows}
+                events={events}
+                defaultLanguage={defaultLanguage}
+                deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp, refreshQnaCount } })}
+                toggleEnabledQnA={() =>
+                  dispatchMiddleware(dispatch, { type: 'toggleEnabledQnA', data: { qnaItem: item, bp } })
+                }
+                contentLang={currentLang}
+                errorMessages={itemHasError(item, currentLang)}
+                setExpanded={isExpanded =>
+                  dispatch({ type: 'toggleExpandOne', data: { [item.key || item.id]: isExpanded } })
+                }
+                expanded={expandedItems[item.key || item.id]}
+                qnaItem={item}
+              />
+            ))}
+          {!items.length && !loading && (
+            <EmptyState
+              icon={<EmptyStateIcon />}
+              text={
+                hasFilteredResults
+                  ? lang.tr('module.qna.form.noResultsFromFilters')
+                  : lang.tr('module.qna.form.emptyState')
+              }
+            />
+          )}
+          {loading && (
+            <Spinner
+              className={cx({ [style.initialLoading]: !fetchMore, [style.loading]: fetchMore })}
+              size={fetchMore ? 20 : 50}
+            />
+          )}
+        </div>
+
+        <Downloader url={url} />
+
+        <ImportModal
+          axios={bp.axios}
+          onImportCompleted={() => fetchData()}
+          isOpen={showImportModal}
+          toggle={() => setShowImportModal(!showImportModal)}
         />
-
-        {!isLite && (
-          <ContextSelector
-            className={style.contextInput}
-            contexts={filterContexts}
-            saveContexts={contexts => setFilterContexts(contexts)}
-            bp={bp}
-            isSearch
-          />
-        )}
-      </div>
-      <div className={cx(style.content, { [style.empty]: !items.length })}>
-        {items.map((item, index) => (
-          <QnA
-            updateQnA={data =>
-              debounceDispatchMiddleware(dispatch, {
-                type: 'updateQnA',
-                data: { qnaItem: data, index, bp, currentLang }
-              })
-            }
-            bp={bp}
-            isLite={isLite}
-            key={item.key || item.id}
-            flows={flows}
-            defaultLanguage={defaultLanguage}
-            deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp } })}
-            toggleEnabledQnA={() =>
-              dispatchMiddleware(dispatch, { type: 'toggleEnabledQnA', data: { qnaItem: item, index, bp } })
-            }
-            contentLang={currentLang}
-            errorMessages={itemHasError(item, currentLang)}
-            setExpanded={isExpanded =>
-              dispatch({ type: 'toggleExpandOne', data: { [item.key || item.id]: isExpanded } })
-            }
-            expanded={expandedItems[item.key || item.id]}
-            qnaItem={item}
-          />
-        ))}
-        {!items.length && !loading && (
-          <EmptyState
-            icon={<EmptyStateIcon />}
-            text={
-              hasFilteredResults
-                ? lang.tr('module.qna.form.noResultsFromFilters')
-                : lang.tr('module.qna.form.emptyState')
-            }
-          />
-        )}
-        {loading && (
-          <Spinner
-            className={cx({ [style.initialLoading]: !fetchMore, [style.loading]: fetchMore })}
-            size={fetchMore ? 20 : 50}
-          />
-        )}
-      </div>
-
-      <Downloader url={url} />
-
-      <ImportModal
-        axios={bp.axios}
-        onImportCompleted={() => fetchData()}
-        isOpen={showImportModal}
-        toggle={() => setShowImportModal(!showImportModal)}
-      />
-    </MainContent.Wrapper>
+      </MainContent.Wrapper>
+    </AccessControl>
   )
 }
 

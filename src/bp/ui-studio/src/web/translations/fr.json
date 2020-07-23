@@ -47,8 +47,13 @@
     "switchLang": "Modifier la langue du contenu. Langue courante: {currentLang}"
   },
   "studio": {
+    "condition": {
+      "label": "Condition",
+      "pickCondition": "Sélectionnez une condition"
+    },
     "content": {
       "cloneElements": "Cloner les éléments sélectionnés",
+      "confirmChangeContentType": "Souhaitez-vous vraiment changer le type de ce contenu ? Tous les champs seront effacés.",
       "confirmDeleteItem": "Voulez-vous vraiment supprimer {count, number} {count, plural, one {item} other {items}}?",
       "contentType": "Type de contenu",
       "createNew": "Créer un nouveau {title}",
@@ -116,6 +121,9 @@
       "flowWideOnReceives": "{count, plural, one {réception} other {réceptions}} à l'échelle du flow",
       "flowWideTransitions": "{count, plural, one {transition} other {transitions}} à l'échelle du flow",
       "highlightByName": "Tapez le nom d'un élément",
+      "ignoredWorkflows": {
+        "addLabel": "Ajouter un workflow"
+      },
       "logs": {
         "autoRefresh": "Actualisation automatique",
         "downloadArchives": "Télécharger l'archive du journal",
@@ -136,7 +144,10 @@
         "actionsRegisteredOnServer": "Les actions sont enregistrées côté serveur. Découvrez comment enregistrer de nouvelles actions en recherchant `bp.registerActions ()`.",
         "add": "ajouter",
         "addAction": "Ajouter une nouvelle action",
+        "addCondition": "Ajouter une condition",
         "cantSeeActions": "Vous ne voyez pas votre action?",
+        "chatbotSays": "L'assistant virtuel dit",
+        "chatbotPromptsUser": "L'agent conversationnel questionne l'utilisateur",
         "confirmOverwriteParameters": "Voulez-vous remplacer les paramètres existants?",
         "couldNotRetrieveActionServer": "Impossible de récupérer les serveurs d'actions",
         "editAction": "Modifier l'action",
@@ -153,11 +164,13 @@
         "message": "Message",
         "messageToSend": "Message à envoyer",
         "missingLink": "Lien manquant",
+        "nameAlreadyExists": "Ce nom existe déjà",
         "noActionsFound": "Aucune action trouvée sur ce serveur d'actions",
         "noDescription": "Pas de description",
         "nodeName": "Nom du node",
         "onEnter": "Sur Entrée",
         "onReceive": "Sur réception",
+        "renameBlock": "Renommer le block",
         "return": "Revenir",
         "saySomething": "Écrire quelque chose",
         "theBotWill": "Le bot va",
@@ -189,6 +202,7 @@
           "whenMetDo": "Lorsque la condition est remplie, faire"
         },
         "transitions": "Transitions",
+        "triggeredBy": "Le workflow est is déclenché par",
         "unknownParameterType": "⚠️ Type de paramètre inconnu ({type}). Ce paramètre sera ignoré.",
         "valuePlaceholder": "Valeur",
         "waitForUserMessage": "Attendre le message de l'utilisateur",
@@ -199,6 +213,7 @@
         "execute": "Exécuter",
         "executeAction": "Exécuter Action",
         "listen": "Écouter",
+        "prompt": "Questionne",
         "router": "Routeur",
         "say": "Dire",
         "sendMessage": "Envoyer Message",
@@ -281,9 +296,10 @@
       },
       "topicList": {
         "bigWarning": "ATTENTION:",
-        "confirmDeleteFlow": "Voulez-vous vraiment supprimer le flow {name}?",
-        "confirmDeleteTopic": "Voulez-vous vraiment supprimer le sujet {name}?",
+        "confirmDeleteFlow": "Souhaitez-vous vraiment supprimer ce workflow?",
+        "confirmDeleteTopic": "Souhaitez-vous vraiment supprimer ce sujet? Ses questions-réponses et ses workflows seront également supprimés.",
         "createNewWorkflow": "Créer un nouveau workflow",
+        "defaultWorkflows": "Workflows par défaut",
         "deleteTopic": "Supprimer le sujet",
         "deleteWorkflow": "Supprimer le workflow",
         "editQna": "Modifier Q&R",
@@ -304,6 +320,13 @@
         "labelHelp": "L'étiquette est un nom convivial qui remplace le nom dans la liste des sujets",
         "name": "Nom du workflow"
       }
+    },
+    "prompt": {
+      "label": "Type",
+      "pickType": "Sélectionnez un type",
+      "userAnswersCorrectly": "L'utilisateur réponds correctement",
+      "userCancels": "L'utilisateur annule",
+      "userDoesNotAnswer": "L'utilisateur ne réponds pas"
     },
     "sideBar": {
       "config": "Configuration",

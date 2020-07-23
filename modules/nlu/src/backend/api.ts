@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import Joi, { validate } from 'joi'
 import _ from 'lodash'
+import yn from 'yn'
 
 import { isOn as isAutoTrainOn, set as setAutoTrain } from './autoTrain'
 import { EntityDefCreateSchema } from './entities/validation'
@@ -14,6 +15,7 @@ import {
 } from './intents/intent-service'
 import recommendations from './intents/recommendations'
 import { IntentDefCreateSchema } from './intents/validation'
+import legacyElectionPipeline from './legacy-election'
 import { initializeLanguageProvider } from './module-lifecycle/on-server-started'
 import { crossValidate } from './tools/cross-validation'
 import { getTrainingSession } from './train-session-service'
@@ -53,7 +55,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
     const entityDefs = await state.nluByBot[botId].entityService.getCustomEntities()
 
     bp.logger.forBot(botId).info('Started cross validation')
-    const xValidationRes = await crossValidate(botId, intentDefs, entityDefs, lang)
+    const xValidationRes = await crossValidate(botId, intentDefs, entityDefs, lang, bp.logger)
     bp.logger.forBot(botId).info('Finished cross validation', xValidationRes)
 
     res.send(xValidationRes)
@@ -76,7 +78,8 @@ export default async (bp: typeof sdk, state: NLUState) => {
     }
 
     try {
-      const nlu = await state.nluByBot[botId].engine.predict(value.text, value.contexts)
+      let nlu = await state.nluByBot[botId].engine.predict(value.text, value.contexts)
+      nlu = legacyElectionPipeline(nlu)
       res.send({ nlu })
     } catch (err) {
       res.status(500).send('Could not extract nlu data')
@@ -156,7 +159,9 @@ export default async (bp: typeof sdk, state: NLUState) => {
       try {
         const ghost = bp.ghost.forBot(botId)
 
-        await updateContextsFromTopics(ghost, state.nluByBot[botId].entityService, [condition.params.intentName])
+        await updateContextsFromTopics(ghost, state.nluByBot[botId].entityService, [
+          condition.params.intentName as string
+        ])
         return res.sendStatus(200)
       } catch (err) {
         return res.status(400).send(err.message)
@@ -197,8 +202,12 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
   router.get('/entities', async (req, res) => {
     const { botId } = req.params
+    const { ignoreSystem } = req.query
+
     const entities = await state.nluByBot[botId].entityService.getEntities()
-    res.json(entities.map(x => ({ ...x, label: `${x.type}.${x.name}` })))
+    const mapped = entities.map(x => ({ ...x, label: `${x.type}.${x.name}` }))
+
+    res.json(yn(ignoreSystem) ? mapped.filter(x => x.type !== 'system') : mapped)
   })
 
   router.get('/entities/:entityName', async (req, res) => {
@@ -303,7 +312,8 @@ export default async (bp: typeof sdk, state: NLUState) => {
   router.post('/train', async (req, res) => {
     try {
       const { botId } = req.params
-      await state.nluByBot[botId].trainOrLoad(true)
+      const isAuto = await isAutoTrainOn(bp, botId)
+      await state.nluByBot[botId].trainOrLoad(isAuto)
       res.sendStatus(200)
     } catch {
       res.sendStatus(500)

@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { IO, Logger } from 'botpress/sdk'
+import { extractEventCommonArgs } from 'common/action'
 import { ObjectCache } from 'common/object-cache'
 import { ActionScope, ActionServer, LocalActionDefinition } from 'common/typings'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
@@ -289,15 +290,11 @@ export class ScopedActionService {
 
     const { code, _require, dirPath, action } = await this.loadLocalAction(actionName)
 
-    const args = {
-      event: incomingEvent,
-      user: incomingEvent.state.user,
-      temp: incomingEvent.state.temp,
-      session: incomingEvent.state.session,
+    const args = extractEventCommonArgs(incomingEvent, {
       args: actionArgs,
       printObject,
       process: UntrustedSandbox.getSandboxProcessArgs()
-    }
+    })
 
     switch (runType) {
       case 'trusted': {

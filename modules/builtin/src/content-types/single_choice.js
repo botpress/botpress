@@ -47,41 +47,22 @@ function renderMessenger(data) {
   ]
 }
 
-function renderSlack(data) {
-  const events = []
-
-  if (data.typing) {
-    events.push({
-      type: 'typing',
-      value: data.typing
-    })
-  }
-
-  return [
-    ...events,
-    {
-      text: data.text,
-      quick_replies: {
-        type: 'actions',
-        elements: data.choices.map((q, idx) => ({
-          type: 'button',
-          action_id: 'replace_buttons' + idx,
-          text: {
-            type: 'plain_text',
-            text: q.title
-          },
-          value: q.value.toUpperCase()
-        }))
-      }
+function renderer(data) {
+  const payload = base.renderer(data, 'text')
+  return {
+    ...payload,
+    metadata: {
+      ...payload.metadata,
+      __buttons: data.choices
     }
-  ]
+  }
 }
 
 function renderElement(data, channel) {
-  if (channel === 'messenger') {
+  if (channel === 'web' || channel === 'slack') {
+    return renderer(data)
+  } else if (channel === 'messenger') {
     return renderMessenger(data)
-  } else if (channel === 'slack') {
-    return renderSlack(data)
   } else {
     return render(data)
   }
@@ -90,7 +71,7 @@ function renderElement(data, channel) {
 module.exports = {
   id: 'builtin_single-choice',
   group: 'Built-in Messages',
-  title: 'module.builtin.types.singleChoice.title',
+  title: 'module.builtin.types.suggestions.title',
 
   jsonSchema: {
     description: 'module.builtin.types.singleChoice.description',
@@ -142,14 +123,17 @@ module.exports = {
   },
 
   newSchema: {
+    displayedIn: [],
     advancedSettings: [
       {
         key: 'onTopOfKeyboard',
+        defaultValue: true,
         type: 'checkbox',
         label: 'module.builtin.types.suggestions.displayOnTop'
       },
       {
-        key: 'typingIndicator',
+        key: 'typing',
+        defaultValue: true,
         type: 'checkbox',
         label: 'module.builtin.typingIndicator'
       },
@@ -177,18 +161,22 @@ module.exports = {
           ]
         },
         type: 'group',
-        key: 'suggestions',
-        label: 'fields::label',
+        key: 'choices',
+        label: 'fields::title',
         fields: [
           {
             type: 'text',
-            key: 'label',
+            key: 'title',
+            superInput: true,
+            translated: true,
             label: 'module.builtin.types.suggestions.label',
             placeholder: 'module.builtin.types.suggestions.labelPlaceholder'
           },
           {
             type: 'text',
             key: 'value',
+            superInput: true,
+            translated: true,
             label: 'module.builtin.types.suggestions.value',
             placeholder: 'module.builtin.types.suggestions.valuePlaceholder'
           }

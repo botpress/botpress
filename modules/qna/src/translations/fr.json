@@ -2,9 +2,6 @@
   "addNew": "Ajouter un élément",
   "answer": "Réponse",
   "confirmDelete": "Voulez-vous supprimer la question?",
-  "contentForm": {
-    "deleteContent": "Supprimer le contenu"
-  },
   "context": {
     "canTypeToCreate": "Vous pouvez taper dans la barre de sélection pour créer de nouveaux contextes.",
     "create": "Créer \"{query}\"",
@@ -62,7 +59,6 @@
     "pickNode": "Choisissez un nœud",
     "pickWorkflow": "Choisissez un flux de travail",
     "q": "Q",
-    "quickAddAlternative": "Appuyez sur {shortcut} lorsque dans le champ pour ajouter rapidement une nouvelle alternative",
     "redirectQuestionTo": "Rediriger la question vers",
     "redirectToWorkflow": "Rediriger vers un flux de travail",
     "translate": "Traduire",

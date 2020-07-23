@@ -9,6 +9,7 @@ import { InjectedIntlProps, injectIntl } from 'react-intl'
 import constants from '../../core/constants'
 import { RootStore, StoreDef } from '../../store'
 import { Message } from '../../typings'
+import { isIE } from '../../utils'
 import Avatar from '../common/Avatar'
 
 import MessageGroup from './MessageGroup'
@@ -102,13 +103,13 @@ class MessageList extends React.Component<MessageListProps, State> {
           hour: 'numeric',
           minute: 'numeric'
         })}
-        <div className={'bpw-small-line'} />
       </div>
     )
   }
 
   renderAvatar(name, url) {
-    return <Avatar name={name} avatarUrl={url} height={40} width={40} />
+    const size = isIE ? 40 : 16
+    return <Avatar name={name} avatarUrl={url} height={size} width={size} isEmulator={this.props.isEmulator} />
   }
 
   renderMessageGroups() {
@@ -230,6 +231,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   intl: store.intl,
   botName: store.botName,
   isBotTyping: store.isBotTyping,
+  isEmulator: store.isEmulator,
   botAvatarUrl: store.botAvatarUrl,
   currentMessages: store.currentMessages,
   focusPrevious: store.view.focusPrevious,
@@ -243,6 +245,7 @@ type MessageListProps = InjectedIntlProps &
   Pick<
     StoreDef,
     | 'intl'
+    | 'isEmulator'
     | 'isBotTyping'
     | 'focusedArea'
     | 'focusPrevious'

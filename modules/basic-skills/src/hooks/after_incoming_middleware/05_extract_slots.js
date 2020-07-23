@@ -5,6 +5,8 @@ event.state.session.slots = event.state.session.slots || {}
 handleSlotsExpiry()
 extractIntentSlots()
 
+// TODO: Move this hook to be native / come with prompts
+
 function extractIntentSlots() {
   let slots = _.flatten(_.values(event.nlu.slots)).filter(x => !!x.value) // only non-null slots
   // this hook comes after ndu as passed so last_topic is the current topic

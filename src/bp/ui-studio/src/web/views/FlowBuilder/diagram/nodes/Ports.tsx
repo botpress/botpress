@@ -59,7 +59,7 @@ export class StandardPortWidgetDisconnected extends React.PureComponent<Props> {
         {isInvalid ? (
           <Tooltip content="The destination for this transition is invalid">{subflow}</Tooltip>
         ) : (
-          <Link to={`/flows/${subflow}`}>{subflow}</Link>
+          <Link to={`/${window.USE_ONEFLOW ? 'oneflow' : 'flows'}/${subflow}`}>{subflow}</Link>
         )}
       </div>
     )

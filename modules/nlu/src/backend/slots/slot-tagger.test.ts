@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 import { BIO, ExtractedEntity, ExtractedSlot, Intent } from '../typings'
 import Utterance, { makeTestUtterance } from '../utterance/utterance'
 
@@ -103,13 +105,17 @@ describe('makeExtractedSlots', () => {
       { name: 'threath', probability: 1, tag: BIO.INSIDE }
     )
     const value = 'Artificial Intelligence'
-    u.tagEntity({ type: 'CS_Field', value } as ExtractedEntity, 19, 21)
+    const entity = { type: 'CS_Field', value, confidence: 0.42, sensitive: false, metadata: {} } as ExtractedEntity
+    u.tagEntity(entity, 19, 21)
 
     const extractedSlots = makeExtractedSlots(testIntent, u, tagResults)
 
     expect(extractedSlots.length).toEqual(1)
     expect(extractedSlots[0].slot.source).toEqual('big AI')
     expect(extractedSlots[0].slot.value).toEqual(value)
+
+    const actualEntity = _.omit(extractedSlots[0].slot.entity, 'start', 'end')
+    expect(actualEntity).toEqual(entity)
   })
 
   test('slot with entities but not set in intent def keeps source as value', () => {
@@ -124,6 +130,7 @@ describe('makeExtractedSlots', () => {
     const extractedSlots = makeExtractedSlots(testIntent, u, tagResults)
 
     expect(extractedSlots.length).toEqual(1)
+    expect(extractedSlots[0].slot.entity).toBeUndefined()
     expect(extractedSlots[0].slot.source).toEqual('is watching')
     expect(extractedSlots[0].slot.value).toEqual('is watching')
   })

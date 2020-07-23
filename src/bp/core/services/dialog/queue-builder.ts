@@ -55,11 +55,13 @@ export class InstructionsQueueBuilder {
         this._queue.enqueue(...onReceive)
       }
 
-      if (this.currentNode.type === 'say_something' && this.currentNode.content) {
-        this._queue.enqueue({
-          type: 'on-enter',
-          fn: `say @${this.currentNode.content.contentType}`,
-          args: this.currentNode.content.formData
+      if (this.currentNode.type === 'say_something' && this.currentNode.contents?.length) {
+        this.currentNode.contents.forEach(content => {
+          this._queue.enqueue({
+            type: 'on-enter',
+            fn: `say @${content.contentType}`,
+            args: content
+          })
         })
       }
     }

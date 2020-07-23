@@ -46,7 +46,7 @@ You can download the binaries [here](https://botpress.com/download?utm_source=gi
 
 ## Building from source
 
-**Prerequisites**: Node 10.11 (you can use [nvm](https://github.com/creationix/nvm)) and Yarn.
+**Prerequisites**: Node 12.13 (you can use [nvm](https://github.com/creationix/nvm)) and Yarn.
 
 1. Run `yarn` to fetch node packages.
 1. Run `yarn build` to build the core, the UI and the modules.
@@ -98,5 +98,7 @@ Botpress Partners is a list of agencies who can help you build your next convers
 | [Creative Melon](https://creativemelon.co.za) | Johannesburg, South Africa          |
 | [PaperGo](https://www.papergo.io)             | Patras, Greece                      |
 | [BotArtisanz](http://botartisanz.com/)        | Kerala, India                       |
+| [DevSamurai](https://www.devsamurai.com/)     | Tokyo, Japan                        |
+| [Teplar Solutions](https://www.teplar.com)    | Coimbatore, Tamil Nadu, India       |
 
 _If you are an agency and would like to be on this list, please clone the repository & add your agency to the list in the README.md. Then, you can create a pull request on the repository and we'll make sure to review and merge your PR swiftly._

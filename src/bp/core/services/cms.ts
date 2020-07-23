@@ -9,7 +9,7 @@ import nanoid from 'nanoid'
 import path from 'path'
 import { VError } from 'verror'
 
-import { IDisposeOnExit } from '../../common/typings'
+import { EventCommonArgs, IDisposeOnExit } from '../../common/typings'
 import { ConfigProvider } from '../config/config-loader'
 import { LoggerProvider } from '../logger/logger'
 import { CodeFile, SafeCodeSandbox } from '../misc/code-sandbox'
@@ -19,6 +19,7 @@ import { GhostService } from '.'
 import { JobService } from './job-service'
 import MediaService from './media'
 
+const IGNORED_COMMON_ARGS = ['event', 'user', 'session', 'temp', 'workflow', 'bot']
 const UNLIMITED_ELEMENTS = -1
 export const DefaultSearchParams: SearchParams = {
   sortOrder: [{ column: 'createdOn' }],
@@ -603,17 +604,38 @@ export class CMSService implements IDisposeOnExit {
     return { BOT_URL: process.EXTERNAL_URL }
   }
 
-  async renderElement(contentId: string, args, eventDestination: IO.EventDestination) {
+  private _prepareTextAndShuffle(args: EventCommonArgs) {
+    const { text, variations } = args
+
+    const message = _.sample([text, ...(variations || [])])
+    if (message) {
+      args.text = renderTemplate(message, args)
+    }
+  }
+
+  async translatePayload(payload: any, event: IO.Event) {
+    const defaultLang = (await this.configProvider.getBotConfig(event.botId)).defaultLanguage
+    const lang = _.get(event, 'state.user.language')
+
+    payload = renderRecursive(payload, { event }, lang, defaultLang)
+
+    if (payload.text) {
+      this._prepareTextAndShuffle(payload)
+    }
+
+    return {
+      extraProps: this._getAdditionalData(),
+      ...payload
+    }
+  }
+
+  async renderElement(contentId: string, args: EventCommonArgs, eventDestination: IO.EventDestination) {
     const { botId, channel } = eventDestination
     contentId = contentId.replace(/^#?/i, '')
-    let contentTypeRenderer: ContentType
+    let contentTypeId = contentId
 
-    const translateFormData = async (formData: object): Promise<object> => {
-      const defaultLang = (await this.configProvider.getBotConfig(eventDestination.botId)).defaultLanguage
-      const lang = _.get(args, 'event.state.user.language')
-
-      return this.getOriginalProps(formData, contentTypeRenderer, lang, defaultLang)
-    }
+    const defaultLang = (await this.configProvider.getBotConfig(eventDestination.botId)).defaultLanguage
+    const lang = _.get(args, 'event.state.user.language')
 
     if (contentId.startsWith('!')) {
       const content = await this.getContentElement(botId, contentId.substr(1)) // TODO handle errors
@@ -621,45 +643,34 @@ export class CMSService implements IDisposeOnExit {
         throw new Error(`Content element "${contentId}" not found`)
       }
 
-      contentTypeRenderer = this.getContentType(content.contentType)
-      content.formData = await translateFormData(content.formData)
-
-      _.set(content, 'formData', renderRecursive(content.formData, args))
-
-      const text = _.get(content.formData, 'text')
-      const variations = _.get(content.formData, 'variations')
-
-      const message = _.sample([text, ...(variations || [])])
-      if (message) {
-        _.set(content, 'formData.text', renderTemplate(message, args))
-      }
+      contentTypeId = content.contentType
 
       args = {
         ...args,
-        ...content.formData
+        ...(await this.getOriginalProps(content.formData, this.getContentType(contentTypeId), lang, defaultLang))
       }
     } else if (contentId.startsWith('@')) {
-      contentTypeRenderer = this.getContentType(contentId.substr(1))
-      args = {
-        ...args,
-        ...(await translateFormData(args))
-      }
-    } else {
-      contentTypeRenderer = this.getContentType(contentId)
-      if (args.text) {
-        args = {
-          ...args,
-          text: renderTemplate(args.text, args)
-        }
-      }
+      contentTypeId = contentId.substr(1)
     }
 
-    let payloads = contentTypeRenderer.renderElement({ ...this._getAdditionalData(), ...args }, channel)
-    if (!_.isArray(payloads)) {
-      payloads = [payloads]
+    const rendered = renderRecursive(_.omit(args, IGNORED_COMMON_ARGS), args, lang, defaultLang)
+
+    if (rendered.text) {
+      this._prepareTextAndShuffle(rendered)
     }
 
-    return payloads
+    try {
+      const contentTypeRenderer = this.getContentType(contentTypeId)
+      let payloads = contentTypeRenderer.renderElement({ ...this._getAdditionalData(), ...rendered }, channel)
+      if (!_.isArray(payloads)) {
+        payloads = [payloads]
+      }
+
+      return payloads
+    } catch (err) {
+      this.logger.attachError(err).warn(`Could not render element ${contentId}`)
+      return []
+    }
   }
 
   /**

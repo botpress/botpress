@@ -16,29 +16,34 @@ import { WrapperProps } from './MainContent/Wrapper/typings'
 import { EmptyStateProps } from './EmptyState/typings'
 import { TextareaProps } from './Textarea/typings'
 import { RightSidebarProps } from './MainContent/RightSidebar/typings'
-import { FormProps } from './ContentForms/Components/Form/typings'
-import { AddButtonProps } from './ContentForms/Components/typings'
-import { FormDefinition } from './ContentForms/utils/typings'
+import { FormProps } from './Contents/Components/Form/typings'
+import { ItemProps } from './Contents/Components/Item/typings'
+import { AddButtonProps } from './Contents/Components/typings'
+import { TextFieldsArrayProps } from './FormFields/TextFieldsArray/typings'
+import { SuperInputArrayProps } from './FormFields/SuperInputArray/typings'
 import { OverlayProps } from './Overlay/typings'
+import { FormField, MultiLangText } from 'botpress/sdk'
 
 declare module 'botpress/shared' {
   export function Commander(props: CommanderProps): JSX.Element
   export const Dialog: {
     Wrapper(props: DialogProps): JSX.Element
-    Body(props: { children: any, className?: string }): JSX.Element
+    Body(props: { children: any; className?: string }): JSX.Element
     Footer(props: { children: any }): JSX.Element
   }
   export const MainContent: {
     Header(props: HeaderProps): JSX.Element
     Wrapper(props: WrapperProps): JSX.Element
   }
-  export const ContentForms: {
+  export const Contents: {
     Form(props: FormProps): JSX.Element
-    contentTypesFields: any
-    getEmptyFormData: (contentType: string, isPartOfGroup?: boolean) => any
+    Item(props: ItemProps): JSX.Element
+    createEmptyDataFromSchema: (fields: FormField[], lang?: string) => any
   }
   export const FormFields: {
     AddButton(props: AddButtonProps): JSX.Element
+    TextFieldsArray(props: TextFieldsArrayProps): JSX.Element
+    SuperInputArray(props: SuperInputArrayProps): JSX.Element
   }
   export function Dropdown(props: DropdownProps): JSX.Element
   export function EmptyState(props: EmptyStateProps): JSX.Element
@@ -54,11 +59,15 @@ declare module 'botpress/shared' {
   export function contextMenu(event: SyntheticEvent, content: JSX.Element): void
   export function confirmDialog(message: string | JSX.Element, options: ConfirmDialogOptions): Promise<boolean>
   export const lang: {
-    tr(id: string | { [lang: string]: string }, values?: { [variable: string]: any }): string
+    tr(id: string | MultiLangText, values?: { [variable: string]: any }): string
     init()
     extend(langs)
     getLocale(): string
     getAvailable(): string[]
+  }
+
+  export const Icons: {
+    Say(): JSX.Element
   }
 
   export const toast: {
@@ -74,11 +83,13 @@ declare module 'botpress/shared' {
     isInputFocused(): boolean
   }
 
-  export { Option, MoreOptionsItems, HeaderButtonProps, QuickShortcut, FormDefinition }
+  export { Option, MoreOptionsItems, HeaderButtonProps, QuickShortcut }
 }
 
 declare global {
   interface Window {
     BOT_API_PATH: string
+    API_PATH: string
+    TELEMETRY_URL: string
   }
 }

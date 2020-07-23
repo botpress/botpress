@@ -47,8 +47,13 @@
     "switchLang": "Change the bot content language. Currently editing: {currentLang}"
   },
   "studio": {
+    "condition": {
+      "label": "Condition",
+      "pickCondition": "Pick a condition"
+    },
     "content": {
       "cloneElements": "Clone selected elements",
+      "confirmChangeContentType": "Are you sure you want to change this content type? All fields will be erased.",
       "confirmDeleteItem": "Do you really want to delete {count, number} {count, plural, one {item} other {items}}?",
       "contentType": "Content Type",
       "createNew": "Create new {title}",
@@ -117,6 +122,9 @@
       "flowWideOnReceives": "flow-wide on {count, plural, one {receive} other {receives}}",
       "flowWideTransitions": "flow-wide {count, plural, one {transition} other {transitions}}",
       "highlightByName": "Highlight nodes by name",
+      "ignoredWorkflows": {
+        "addLabel": "Add Workflow"
+      },
       "logs": {
         "autoRefresh": "Auto-refresh",
         "downloadArchives": "Download log archive",
@@ -137,7 +145,10 @@
         "actionsRegisteredOnServer": "Actions are registered on the server-side. Read about how to register new actions by searching for `bp.registerActions()`.",
         "add": "add",
         "addAction": "Add new action",
+        "addCondition": "Add Condition",
         "cantSeeActions": "Can't see your action?",
+        "chatbotSays": "Chatbot Says",
+        "chatbotPromptsUser": "Chatbot Prompts User",
         "confirmOverwriteParameters": "Do you want to overwrite existing parameters?",
         "contentPaste": "content_paste",
         "couldNotRetrieveActionServer": "Could not retrieve action servers",
@@ -157,9 +168,11 @@
         "missingLink": "Missing Link",
         "noActionsFound": "No actions found on this action server",
         "noDescription": "No description",
+        "nameAlreadyExists": "This name already exists",
         "nodeName": "Node Name",
         "onEnter": "On Enter",
         "onReceive": "On Receive",
+        "renameBlock": "Rename Block",
         "return": "Return",
         "saySomething": "Say Something",
         "theBotWill": "The bot will",
@@ -191,6 +204,7 @@
           "whenMetDo": "When condition is met, do"
         },
         "transitions": "Transitions",
+        "triggeredBy": "Workflow is Triggered by",
         "unknownParameterType": "⚠️ Unknown parameter type ({type}). This parameter will be ignored.",
         "valuePlaceholder": "Value",
         "waitForUserMessage": "Wait for user message",
@@ -201,6 +215,7 @@
         "execute": "Execute",
         "executeAction": "Execute Action",
         "listen": "Listen",
+        "prompt": "Prompt",
         "router": "Router",
         "say": "Say",
         "sendMessage": "Send Message",
@@ -283,15 +298,16 @@
       },
       "topicList": {
         "bigWarning": "WARNING:",
-        "confirmDeleteFlow": "Are you sure you want to delete the flow {name}?",
-        "confirmDeleteTopic": "Are you sure you want to delete the topic {name}?",
+        "confirmDeleteFlow": "Are you sure you want to delete this workflow?",
+        "confirmDeleteTopic": "Are you sure you want to delete this topic? Its Q&A and workflows will be deleted as well.",
         "createNewWorkflow": "Create new workflow",
+        "defaultWorkflows": "Default Workflows",
         "deleteTopic": "Delete Topic",
         "deleteWorkflow": "Delete Workflow",
         "editQna": "Edit Q&A",
         "editTopic": "Edit topic",
         "editWorkflow": "Edit Workflow",
-        "exportTopic": "Export topic",
+        "exportTopic": "Export Topic",
         "flowsAssociatedDelete": "{warning} {count} flows associated with the topic will be deleted",
         "importExisting": "Import existing workflow",
         "nbQuestionsInTopic": "Number of questions in that topic",
@@ -306,6 +322,13 @@
         "labelHelp": "The label is a friendly name that can replace the name in the topic list",
         "name": "Workflow name"
       }
+    },
+    "prompt": {
+      "label": "Type",
+      "pickType": "Pick a type",
+      "userAnswersCorrectly": "User answers correctly",
+      "userCancels": "User Cancels",
+      "userDoesNotAnswer": "User does not answer"
     },
     "sideBar": {
       "config": "Config",

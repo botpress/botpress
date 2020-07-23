@@ -9,13 +9,25 @@ interface Params {
 
 export default {
   id: 'intent_is_ambiguous',
-  label: 'Intent is ambiguous within topic',
+  label: 'module.nlu.conditions.ambiguousIntentInTopic',
   description: `The users's intention is can be interpreted as multiple intents within the same topic`,
   displayOrder: 1,
-  params: {
-    ambiguityThreshold: { label: 'Ambiguity threshold', type: 'number', defaultValue: 0.1 },
-    onlyIfActive: { label: 'Only if topic is already active', type: 'boolean', defaultValue: false }
-  },
+  fields: [
+    {
+      key: 'ambiguityThreshold',
+      label: 'module.nlu.conditions.fields.label.ambiguityThreshold',
+      superInput: true,
+      type: 'number',
+      defaultValue: 0.1
+    }
+  ],
+  advancedSettings: [
+    {
+      key: 'onlyIfActive',
+      label: 'module.nlu.conditions.fields.label.activeWorkflowOnly',
+      type: 'checkbox'
+    }
+  ],
   evaluate: (event: IO.IncomingEvent, { ambiguityThreshold, onlyIfActive, topicName }: Params) => {
     const currentTopic = _.get(event.state.session, 'nduContext.last_topic')
 

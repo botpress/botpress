@@ -11,6 +11,7 @@ import { InstructionFactory } from './instruction/factory'
 import { InstructionProcessor } from './instruction/processor'
 import { ActionStrategy, TransitionStrategy } from './instruction/strategy'
 import { DialogJanitor } from './janitor'
+import { PromptManager } from './prompt-manager'
 
 export const DialogContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<DialogEngine>(TYPES.DialogEngine)
@@ -42,5 +43,8 @@ export const DialogContainerModule = new ContainerModule((bind: interfaces.Bind)
     .inSingletonScope()
   bind<StateManager>(TYPES.StateManager)
     .to(StateManager)
+    .inSingletonScope()
+  bind<PromptManager>(TYPES.PromptManager)
+    .to(PromptManager)
     .inSingletonScope()
 })

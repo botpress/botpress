@@ -53,6 +53,10 @@ export const NDU: FC<{ ndu: sdk.NDU.DialogUnderstanding }> = ({ ndu }) => {
               return <li>Redirect to {(data as sdk.NDU.FlowRedirect).flow}</li>
             case 'continue':
               return <li>Continue flow execution</li>
+            case 'prompt.inform':
+              return <li>Inform current prompt</li>
+            case 'prompt.cancel':
+              return <li>Cancel current prompt</li>
           }
         })}
       </ul>

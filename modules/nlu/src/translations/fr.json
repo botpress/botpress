@@ -1,6 +1,32 @@
 {
   "autoTrain": "Entraînement automatique",
   "cancelTraining": "Arrêter l'entraînement",
+  "conditions": {
+    "ambiguousIntentInTopic": "L'intention est ambiguë à l'intérieur du sujet",
+    "ambiguousTopics": "Les sujets détectés sont ambigus",
+    "fields": {
+      "label": {
+        "activeWorkflowOnly": "Activer l'action uniquement dans le flux de travail actif",
+        "ambiguityThreshold": "Seuil d'ambiguïté",
+        "biggerThan": "Plus grand que",
+        "comparisonMethod": "Méthode de comparaison",
+        "equal": "Est égal",
+        "expectedValue": "Valeur attendue",
+        "lessThan": "Moins de",
+        "maxConfidence": "Confiance maximale atteignable (%)",
+        "none": "Aucune",
+        "notEqual": "N'est pas égal",
+        "variableType": "Type de variable"
+      },
+      "placeholder": {
+        "pickComparisonMethod": "Choisissez une méthode de comparaison",
+        "pickVariableType": "Choisissez un type de variable"
+      }
+    },
+    "saySomethingMisunderstood": "L'utilisateur dit quelque chose qui est mal compris (intention)",
+    "userWantsTo": "L'utilisateur veut {intentName}",
+    "variableExtractedFromMessage": "Une variable été extraite du message de l'utilisateur"
+  },
   "description": "Utilisez la compréhension du langage de Botpress pour rendre votre agent plus intelligent.",
   "entities": {
     "deleteMessage": "Êtes-vous sûr de vouloir supprimer l'entité \"{entityName}\" ?",
@@ -9,7 +35,7 @@
     "examplesPlaceholder": "Ajoutez des exemples qui respectent votre expression (un exemple par ligne)",
     "filterPlaceholder": "Filtrer les entités",
     "fuzzyLabel": "Options de correspondance",
-    "fuzzyTooltip": "Les options de correspondance déterminent la tolérance au niveau de l’orthographe (ex: erreur de frappe) dans les mots de 4 caractères ou plus. Stricte signifie qu'aucune erreur n'est permise.",
+    "fuzzyTooltip": "Les options de correspondance déterminent la tolérance au niveau de l'orthographe (ex: erreur de frappe) dans les mots de 4 caractères ou plus. Stricte signifie qu'aucune erreur n'est permise.",
     "loose": "Indulgent",
     "matchCaseLabel": "Sensible à la casse",
     "matchCaseTooltip": "Est-ce que votre expression doit respecter la casse?",
@@ -38,6 +64,7 @@
   "fullName": "NLU",
   "intents": {
     "actionErrorMessage": "Impossible de {action} cet intention",
+    "addBtn": "Ajouter une intention alternative",
     "chooseContainerLabel": "Choisissez une intention différente pour cette condition",
     "contextSelectorCreateMissing": "Créer \"{query}\"",
     "contextSelectorPlaceholder": "Sélectionnez un contexte",
@@ -74,5 +101,6 @@
     "tagSelectionMessage": "Sélectionnez un paramètre ou utilisez les chiffres pour choisir un élément"
   },
   "title": "Compréhension du langage",
-  "trainNow": "Entraîner maintenant"
+  "trainNow": "Entraîner maintenant",
+  "retrainAll": "Forcer un entraînement"
 }

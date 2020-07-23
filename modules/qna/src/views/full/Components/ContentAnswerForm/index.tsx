@@ -1,6 +1,6 @@
 import { Tab, Tabs } from '@blueprintjs/core'
-import { FormData } from 'botpress/common/typings'
-import { ContentForms, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
+import { BotEvent, FormData } from 'botpress/sdk'
+import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
 
@@ -13,6 +13,9 @@ interface Props {
   close: (closingKey: number) => void
   onUpdate: (data: any) => void
   formData: FormData
+  events: BotEvent[]
+  isLite: boolean
+  currentLang: string
 }
 
 const fetchReducer = (state, action) => {
@@ -24,7 +27,7 @@ const fetchReducer = (state, action) => {
         ...state,
         contentTypes: data.map(type => ({
           value: type.id,
-          label: lang.tr(type.id === 'builtin_single-choice' ? 'module.builtin.types.suggestions.title' : type.title)
+          label: lang.tr(type.title)
         })),
         contentTypesFields: data.reduce((acc, type) => ({ ...acc, [type.id]: type.schema.newJson }), {})
       }
@@ -33,7 +36,17 @@ const fetchReducer = (state, action) => {
   }
 }
 
-const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onUpdate, deleteContent }) => {
+const ContentAnswerForm: FC<Props> = ({
+  isLite,
+  currentLang,
+  editingContent,
+  bp,
+  close,
+  formData,
+  onUpdate,
+  events,
+  deleteContent
+}) => {
   const [state, dispatch] = useReducer(fetchReducer, {
     contentTypes: [],
     contentTypesFields: {}
@@ -41,12 +54,11 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
   const contentType = useRef(formData?.contentType || 'builtin_image')
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
-  const shownCategories = ['builtin_image', 'builtin_carousel', 'builtin_card', 'builtin_single-choice']
   const { contentTypes, contentTypesFields } = state
 
   useEffect(() => {
     bp.axios.get('/content/types').then(({ data }) => {
-      dispatch({ type: 'fetchSuccess', data: data.filter(type => shownCategories.includes(type.id)) })
+      dispatch({ type: 'fetchSuccess', data: data.filter(type => type.schema.newJson?.displayedIn.includes('qna')) })
     })
   }, [])
 
@@ -57,16 +69,20 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
-      icon: 'trash',
-      label: lang.tr('module.qna.contentForm.deleteContent'),
+      label: lang.tr('deleteContent'),
       action: deleteContent,
       type: 'delete'
     }
   ]
 
   const handleContentTypeChange = value => {
+    const { fields, advancedSettings } = contentTypesFields?.[value] || {}
     contentType.current = value
-    onUpdate({ ...ContentForms.getEmptyFormData(value), contentType: value, id: formData?.id })
+    onUpdate({
+      ...Contents.createEmptyDataFromSchema([...fields, ...(advancedSettings || [])]),
+      contentType: value,
+      id: formData?.id
+    })
   }
 
   const contentFields = contentTypesFields?.[contentType.current]
@@ -96,12 +112,14 @@ const ContentAnswerForm: FC<Props> = ({ editingContent, bp, close, formData, onU
           )}
         </div>
         {contentFields && (
-          <ContentForms.Form
+          <Contents.Form
+            superInputOptions={{ enabled: !isLite, eventsOnly: true }}
+            currentLang={currentLang}
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
-            bp={bp}
+            axios={bp.axios}
+            events={events || []}
             formData={formData}
-            contentType={contentType.current}
             onUpdate={data => onUpdate({ ...data, contentType: contentType.current })}
           />
         )}

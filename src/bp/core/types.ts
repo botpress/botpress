@@ -27,6 +27,8 @@ const TYPES = {
   HintsService: Symbol.for('HintsService'),
   EventEngine: Symbol.for('EventEngine'),
   DialogEngine: Symbol.for('DialogEngine'),
+  DialogStore: Symbol.for('DialogStore'),
+  PromptManager: Symbol.for('PromptManager'),
   DecisionEngine: Symbol.for('DecisionEngine'),
   SessionRepository: Symbol.for('SessionRepository'),
   BotpressAPIProvider: Symbol.for('BotpressAPIProvider'),
@@ -79,7 +81,10 @@ const TYPES = {
   TasksRepository: Symbol.for('TasksRepository'),
   WorkspaceUsersRepository: Symbol.for('WorkspaceUsersRepository'),
   WorkspaceInviteCodesRepository: Symbol.for('WorkspaceInviteCodesRepository'),
-  LocalActionServer: Symbol.for('LocalActionServer')
+  LocalActionServer: Symbol.for('LocalActionServer'),
+  TelemetryRepository: Symbol.for('TelemetryRepository'),
+  ActionStats: Symbol.for('ActionStats'),
+  LegacyStats: Symbol.for('LegacyStats')
 }
 
 export { TYPES }

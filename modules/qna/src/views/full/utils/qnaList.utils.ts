@@ -1,15 +1,16 @@
-import { FormData } from 'botpress/common/typings'
+import { BotEvent, FormData } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import _uniqueId from 'lodash/uniqueId'
 
 import { QnaItem } from '../../../backend/qna'
 
-export const ITEMS_PER_PAGE = 20
+export const ITEMS_PER_PAGE = 50
 
 export interface State {
   count: number
   items: QnaItem[]
+  highlighted?: QnaItem
   loading: boolean
   firstUpdate: boolean
   page: number
@@ -23,7 +24,9 @@ export interface Props {
   topicName: string
   contentLang: string
   defaultLanguage: string
+  refreshQnaCount: () => void
   languages: string[]
+  events?: BotEvent[]
 }
 
 export interface FormErrors {
@@ -35,7 +38,7 @@ export const hasPopulatedLang = (data: { [lang: string]: string[] }): boolean =>
   return !!_.flatMap(data).filter(entry => !!entry.trim().length).length
 }
 
-export const hasContentAnswer = (data: { [lang: string]: FormData[] }): boolean => {
+export const hasContentAnswer = (data: FormData[]): boolean => {
   return data && !!_.flatMap(data).length
 }
 
@@ -67,7 +70,7 @@ export const itemHasError = (qnaItem: QnaItem, currentLang: string): string[] =>
 }
 
 export const dispatchMiddleware = async (dispatch, action) => {
-  const { qnaItem, bp } = action.data
+  const { qnaItem, bp, refreshQnaCount } = action.data
   switch (action.type) {
     case 'updateQnA':
       const { currentLang } = action.data
@@ -95,6 +98,7 @@ export const dispatchMiddleware = async (dispatch, action) => {
           try {
             const res = await bp.axios.post('/mod/qna/questions', cleanData)
             itemId = res.data[0]
+            refreshQnaCount?.()
           } catch ({ response: { data } }) {
             saveError = data.message
           }
@@ -144,6 +148,17 @@ export const fetchReducer = (state: State, action): State => {
       page,
       fetchMore: false
     }
+  } else if (action.type === 'highlightedSuccess') {
+    return {
+      ...state,
+      highlighted: action.data,
+      expandedItems: { ...state.expandedItems, highlighted: true }
+    }
+  } else if (action.type === 'resetHighlighted') {
+    return {
+      ...state,
+      highlighted: undefined
+    }
   } else if (action.type === 'resetData') {
     return {
       ...state,
@@ -162,6 +177,15 @@ export const fetchReducer = (state: State, action): State => {
   } else if (action.type === 'updateQnA') {
     const { qnaItem, index } = action.data
     const newItems = state.items
+
+    if (index === 'highlighted') {
+      const newHighlighted = { ...state.highlighted, saveError: qnaItem.saveError, id: qnaItem.id, data: qnaItem.data }
+
+      return {
+        ...state,
+        highlighted: newHighlighted
+      }
+    }
 
     newItems[index] = { ...newItems[index], saveError: qnaItem.saveError, id: qnaItem.id, data: qnaItem.data }
 
@@ -185,7 +209,7 @@ export const fetchReducer = (state: State, action): State => {
         enabled: true,
         answers: _.cloneDeep(languageArrays),
         questions: _.cloneDeep(languageArrays),
-        contentAnswers: languages.reduce((acc, lang) => ({ ...acc, [lang]: [] }), {}),
+        contentAnswers: [],
         redirectFlow: '',
         redirectNode: ''
       }
@@ -197,8 +221,21 @@ export const fetchReducer = (state: State, action): State => {
       expandedItems: { ...state.expandedItems, [id]: true }
     }
   } else if (action.type === 'deleteQnA') {
-    const { index, bp } = action.data
+    const { index, bp, refreshQnaCount } = action.data
     const newItems = state.items
+
+    if (index === 'highlighted') {
+      bp.axios
+        .post(`/mod/qna/questions/${state.highlighted.id}/delete`)
+        .then(() => {})
+        .catch(() => {})
+      refreshQnaCount?.()
+
+      return {
+        ...state,
+        highlighted: undefined
+      }
+    }
 
     const [deletedItem] = newItems.splice(index, 1)
 
@@ -208,6 +245,7 @@ export const fetchReducer = (state: State, action): State => {
         .then(() => {})
         .catch(() => {})
     }
+    refreshQnaCount?.()
 
     return {
       ...state,

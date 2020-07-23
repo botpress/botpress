@@ -3,6 +3,7 @@ import _ from 'lodash'
 import path from 'path'
 
 import Database from './db'
+import { convertPayload } from './renderer'
 
 const outgoingTypes = ['text', 'typing', 'login_prompt', 'file', 'carousel', 'custom', 'data']
 
@@ -25,9 +26,18 @@ export default async (bp: typeof sdk, db: Database) => {
       return next()
     }
 
-    const messageType = event.type === 'default' ? 'text' : event.type
     const userId = event.target
     const conversationId = event.threadId || (await db.getOrCreateRecentConversation(event.botId, userId))
+
+    event.payload = convertPayload(event.payload)
+
+    if (event.payload.metadata) {
+      event.payload = await applyChannelEffects(event, userId, conversationId)
+    }
+
+    event.type = event.payload.type
+
+    const messageType = event.type === 'default' ? 'text' : event.type
 
     if (!_.includes(outgoingTypes, messageType)) {
       bp.logger.warn(`Unsupported event type: ${event.type}`)
@@ -41,11 +51,7 @@ export default async (bp: typeof sdk, db: Database) => {
     }
 
     if (messageType === 'typing') {
-      const typing = parseTyping(event.payload.value)
-      const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.typing', { timeInMs: typing, conversationId })
-      // Don't store "typing" in DB
-      bp.realtime.sendPayload(payload)
-      await Promise.delay(typing)
+      await sendTyping(event, userId, conversationId)
     } else if (messageType === 'data') {
       const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.data', event.payload)
       bp.realtime.sendPayload(payload)
@@ -65,11 +71,76 @@ export default async (bp: typeof sdk, db: Database) => {
     next(undefined, false)
     // TODO Make official API (BotpressAPI.events.updateStatus(event.id, 'done'))
   }
+
+  const sendTyping = async (event, userId, conversationId) => {
+    const typing = parseTyping(event.payload.value)
+    const payload = bp.RealTimePayload.forVisitor(userId, 'webchat.typing', { timeInMs: typing, conversationId })
+    // Don't store "typing" in DB
+    bp.realtime.sendPayload(payload)
+    // await Promise.delay(typing)
+  }
+
+  const applyChannelEffects = async (event: sdk.IO.OutgoingEvent, userId, conversationId) => {
+    let payload = event.payload
+
+    const {
+      __buttons,
+      __typing,
+      __trimText,
+      __markdown,
+      __dropdown,
+      __collectFeedback
+    } = payload.metadata as sdk.Content.Metadata
+
+    if (__typing) {
+      await sendTyping(event, userId, conversationId)
+    }
+
+    if (__trimText && !isNaN(__trimText)) {
+      payload.trimLength = __trimText
+    }
+
+    if (__markdown) {
+      payload.markdown = true
+    }
+
+    if (__collectFeedback) {
+      payload.collectFeedback = true
+    }
+
+    if (__buttons) {
+      payload = {
+        type: 'custom',
+        module: 'channel-web',
+        component: 'QuickReplies',
+        quick_replies: __buttons,
+        wrapped: {
+          type: event.type,
+          ..._.omit(event.payload, 'quick_replies')
+        }
+      }
+    }
+
+    if (__dropdown) {
+      payload = {
+        type: 'custom',
+        module: 'extensions',
+        component: 'Dropdown',
+        ...(_.isArray(__dropdown) ? { options: __dropdown } : __dropdown),
+        wrapped: {
+          type: event.type,
+          ..._.omit(event.payload, 'options')
+        }
+      }
+    }
+
+    return payload
+  }
 }
 
 function parseTyping(typing) {
   if (isNaN(typing)) {
-    return 1000
+    return 500
   }
 
   return Math.max(typing, 500)

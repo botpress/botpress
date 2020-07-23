@@ -42,6 +42,7 @@ declare namespace NodeJS {
     CLUSTER_ENABLED: boolean
     ASSERT_LICENSED: Function
     BOTPRESS_VERSION: string
+    TELEMETRY_URL: string
     core_env: BotpressEnvironmentVariables
     distro: OSDistribution
     BOTPRESS_EVENTS: EventEmitter
@@ -238,6 +239,13 @@ declare type BotpressEnvironmentVariables = {
    * @default false
    */
   readonly BP_CODE_EDITOR_DISABLE_ADVANCED?: boolean
+
+  /**
+   * Overwrites the modules that are enabled by default.
+   * Has to be formatted as JSON,
+   * ex: ['nlu', 'nlu-testing']
+   */
+  readonly BP_ENABLED_MODULES?: string
 }
 
 interface IDebug {

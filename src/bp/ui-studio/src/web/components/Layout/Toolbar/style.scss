@@ -11,7 +11,6 @@
 
 .toolbar {
   background: #fff;
-  border-bottom: 1px solid var(--c-neutral--light-2);
   color: var(--c-text--light);
   font-family: Roboto;
   height: 50px;
@@ -35,6 +34,7 @@
     }
 
     .item {
+      background: none;
       border: none;
       border-radius: 5px;
       color: var(--c-content-color-darker);

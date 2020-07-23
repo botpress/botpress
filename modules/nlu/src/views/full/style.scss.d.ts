@@ -4,8 +4,10 @@ interface CssExports {
   'active': string;
   'checkboxContainer': string;
   'chooseContainer': string;
+  'chooseLabel': string;
   'container': string;
   'create': string;
+  'createBtn': string;
   'deleteEntity': string;
   'deleteIntent': string;
   'entity': string;

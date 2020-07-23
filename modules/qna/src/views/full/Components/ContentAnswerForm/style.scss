@@ -69,7 +69,7 @@ input[type="checkbox"], input[type="radio"] {
       line-height: 1.25;
 
       &:not(.bp3-active):hover {
-        background: var(--seashell) !important;
+        background: var(--bg) !important;
       }
     }
 
@@ -98,7 +98,7 @@ input[type="checkbox"], input[type="radio"] {
   }
 
   button {
-    border: 1px solid var(--gray) !important;
+    border: 1px solid var(--seashell) !important;
     border-radius: 3px !important;
     box-shadow: none !important;
     color: var(--shark) !important;
@@ -132,7 +132,7 @@ input[type="checkbox"], input[type="radio"] {
 }
 
 .advancedSettingsBtn {
-  border-top: 1px solid var(--gray);
+  border-top: 1px solid var(--seashell);
   color: var(--shark);
   font-size: 18px;
   font-weight: 500;
@@ -223,7 +223,7 @@ input[type="checkbox"], input[type="radio"] {
 
 .textInput, .textarea, :global(.form-control) {
   background: #fff !important;
-  border: 1px solid var(--gray) !important;
+  border: 1px solid var(--seashell) !important;
   border-radius: 3px !important;
   color: var(--shark) !important;
   font-size: 16px !important;
@@ -252,7 +252,7 @@ select:global(.form-control) {
   margin-bottom: var(--spacing-medium);
   position: relative;
   background: #fff;
-  border: 1px solid var(--gray);
+  border: 1px solid var(--seashell);
   border-radius: 3px;
   color: var(--shark);
   font-size: 16px;
@@ -276,7 +276,7 @@ select:global(.form-control) {
 }
 
 .addContentBtn {
-  border: 1px solid var(--gray) !important;
+  border: 1px solid var(--seashell) !important;
   box-shadow: none !important;
   cursor: pointer;
   line-height: 1.25;
@@ -332,7 +332,25 @@ select:global(.form-control) {
 
 :global {
   .more-options-btn {
-    height: 34px;
+    height: 32px;
+    width: 16px;
+
+    span {
+      height: 4px;
+      width: 4px;
+
+      &:before {
+        height: 4px;
+        width: 4px;
+        left: -6px;
+      }
+
+      &:after {
+        height: 4px;
+        width: 4px;
+        right: -6px;
+      }
+    }
   }
 
   .bp3-tab {

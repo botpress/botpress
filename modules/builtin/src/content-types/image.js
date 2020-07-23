@@ -67,30 +67,6 @@ function renderTelegram(data) {
   ]
 }
 
-function renderSlack(data) {
-  const events = []
-
-  if (data.typing) {
-    events.push({
-      type: 'typing',
-      value: data.typing
-    })
-  }
-
-  return [
-    ...events,
-    {
-      type: 'image',
-      title: data.title && {
-        type: 'plain_text',
-        text: data.title
-      },
-      image_url: `${data.BOT_URL}${data.image}`,
-      alt_text: 'image'
-    }
-  ]
-}
-
 function renderTeams(data) {
   const events = []
 
@@ -116,12 +92,12 @@ function renderTeams(data) {
 }
 
 function renderElement(data, channel) {
-  if (channel === 'messenger') {
+  if (channel === 'web' || channel === 'slack') {
+    return base.renderer(data, 'image')
+  } else if (channel === 'messenger') {
     return renderMessenger(data)
   } else if (channel === 'telegram') {
     return renderTelegram(data)
-  } else if (channel === 'slack') {
-    return renderSlack(data)
   } else if (channel === 'teams') {
     return renderTeams(data)
   } else {
@@ -161,10 +137,12 @@ module.exports = {
   },
 
   newSchema: {
+    displayedIn: ['qna', 'sayNode'],
     advancedSettings: [
       {
         key: 'markdown',
         label: 'module.builtin.useMarkdown',
+        defaultValue: true,
         type: 'checkbox',
         moreInfo: {
           label: 'learnMore',
@@ -172,7 +150,8 @@ module.exports = {
         }
       },
       {
-        key: 'typingIndicator',
+        key: 'typing',
+        defaultValue: true,
         type: 'checkbox',
         label: 'module.builtin.typingIndicator'
       }
@@ -186,7 +165,9 @@ module.exports = {
       {
         type: 'text',
         key: 'title',
+        translated: true,
         label: 'title',
+        superInput: true,
         placeholder: 'module.builtin.optional'
       }
     ]

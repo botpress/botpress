@@ -37,9 +37,11 @@ const eventSchema = {
   debugger: joi.bool().optional(),
   credentials: joi.any().optional(),
   incomingEventId: joi.string().optional(),
+  ndu: joi.any().optional(),
   nlu: joi
     .object({
       intent: joi.object().optional(),
+      predictions: joi.object().optional(),
       intents: joi
         .array()
         .items(joi.object())
@@ -84,6 +86,7 @@ export class EventEngine {
   public onBeforeIncomingMiddleware?: (event) => Promise<void>
   public onAfterIncomingMiddleware?: (event) => Promise<void>
   public onBeforeOutgoingMiddleware?: (event) => Promise<void>
+  public translatePayload?: (payload: sdk.Content.All, event: sdk.IO.Event) => Promise<any>
 
   private readonly _incomingPerf = new TimedPerfCounter('mw_incoming')
   private readonly _outgoingPerf = new TimedPerfCounter('mw_outgoing')
@@ -203,6 +206,27 @@ export class EventEngine {
 
       await this.sendEvent(replyEvent)
     }
+  }
+
+  async replyContentToEvent(
+    payload: sdk.Content.All,
+    event: sdk.IO.Event,
+    options: { incomingEventId?: string; eventType?: string } = {}
+  ) {
+    payload.metadata = {
+      __typing: true,
+      ...(payload.metadata ?? {})
+    }
+
+    const replyEvent = Event({
+      ..._.pick(event, ['botId', 'channel', 'target', 'threadId']),
+      direction: 'outgoing',
+      type: options.eventType ?? payload.type ?? 'default',
+      payload: await this.translatePayload!(payload, event),
+      incomingEventId: options.incomingEventId
+    })
+
+    await this.sendEvent(replyEvent)
   }
 
   isIncomingQueueEmpty(event: sdk.IO.Event): boolean {
