@@ -85,7 +85,7 @@ function overloadTrainers() {
     elements: sdk.MLToolkit.CRF.DataPoint[],
     params: sdk.MLToolkit.CRF.TrainerOptions
   ): Promise<string> => {
-    const ret: any = Promise.fromCallback(completedCb => {
+    return Promise.fromCallback(completedCb => {
       const id = nanoid()
       const messageHandler = (msg: Message) => {
         if (msg.id !== id) {
@@ -105,8 +105,7 @@ function overloadTrainers() {
 
       process.send!({ type: 'crf_train', id, payload: { elements, params } })
       process.on('message', messageHandler)
-    })
-    return ret
+    }) as any
   }
 }
 
