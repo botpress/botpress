@@ -167,6 +167,7 @@ module.exports = {
         key: 'title',
         translated: true,
         label: 'title',
+        superInput: true,
         placeholder: 'module.builtin.optional'
       }
     ]

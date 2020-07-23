@@ -34,6 +34,10 @@ declare module 'botpress/sdk' {
     triggerValue: number
   }
 
+  export interface BotEvent {
+    [key: string]: any
+  }
+
   export type StrategyUser = {
     id?: number
     password?: string
@@ -1458,6 +1462,8 @@ declare module 'botpress/sdk' {
     options?: FormOption[]
     defaultValue?: FormDataField
     required?: boolean
+    variableTypes?: string[]
+    superInput?: boolean
     max?: number
     min?: number
     maxLength?: number

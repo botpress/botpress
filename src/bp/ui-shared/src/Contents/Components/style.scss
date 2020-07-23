@@ -14,7 +14,7 @@
       line-height: 1.25;
 
       &:not(.bp3-active):hover {
-        background: var(--seashell) !important;
+        background: var(--bg) !important;
       }
     }
 
@@ -65,6 +65,10 @@
 
 .labelWrapper {
   position: relative;
+
+  & + :global(.checkbox-wrapper) {
+    margin-top: 0 !important;
+  }
 
   :global(.more-options-btn) {
     height: 17px;

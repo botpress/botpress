@@ -68,6 +68,7 @@
   "expandAll": "Tout développer",
   "export": "Exporter",
   "failure": "Échec",
+  "filter": "Filtrer",
   "filterBy": "Filtrer par",
   "flows": "Flows",
   "general": "Général",
@@ -143,6 +144,12 @@
   "submit": "Soumettre",
   "subtitle": "Sous-titre",
   "success": "Succès",
+  "superInput": {
+    "convertToRegularInput": "Convertir en champ normal",
+    "convertToSmartInput": "Convertir en champ intelligent",
+    "insertValueFromEvent": "Insérer une valeur à partir des événements",
+    "insertValueFromVariables": "Insérer une valeur à partir des variables"
+  },
   "text": "Texte",
   "title": "Titre",
   "tools": "Outils",
