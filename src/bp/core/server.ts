@@ -35,6 +35,7 @@ import { isDisabled } from './routers/conditionalMiddleware'
 import { InvalidExternalToken, PaymentRequiredError } from './routers/errors'
 import { SdkApiRouter } from './routers/sdk/router'
 import { ShortLinksRouter } from './routers/shortlinks'
+import { TelemetryRouter } from './routers/telemetry'
 import { hasPermissions, monitoringMiddleware, needPermissions } from './routers/util'
 import { GhostService } from './services'
 import ActionServersService from './services/action/action-servers-service'
@@ -87,6 +88,7 @@ export default class HTTPServer {
   private readonly shortLinksRouter: ShortLinksRouter
   private converseRouter!: ConverseRouter
   private hintsRouter!: HintsRouter
+  private telemetryRouter!: TelemetryRouter
   private readonly sdkApiRouter!: SdkApiRouter
   private _needPermissions: (
     operation: string,
@@ -170,8 +172,7 @@ export default class HTTPServer {
       this.alertingService,
       moduleLoader,
       this.jobService,
-      this.logsRepo,
-      this.telemetryRepo
+      this.logsRepo
     )
     this.shortLinksRouter = new ShortLinksRouter(this.logger)
     this.botsRouter = new BotsRouter({
@@ -191,6 +192,7 @@ export default class HTTPServer {
       logger: this.logger
     })
     this.sdkApiRouter = new SdkApiRouter(this.logger)
+    this.telemetryRouter = new TelemetryRouter(this.logger, this.authService, this.telemetryRepo)
 
     this._needPermissions = needPermissions(this.workspaceService)
     this._hasPermissions = hasPermissions(this.workspaceService)
@@ -326,6 +328,7 @@ export default class HTTPServer {
     this.app.use(`${BASE_API_PATH}/modules`, this.modulesRouter.router)
     this.app.use(`${BASE_API_PATH}/bots/:botId`, this.botsRouter.router)
     this.app.use(`${BASE_API_PATH}/sdk`, this.sdkApiRouter.router)
+    this.app.use(`${BASE_API_PATH}/telemetry`, this.telemetryRouter.router)
     this.app.use(`/s`, this.shortLinksRouter.router)
 
     this.app.use((err, _req, _res, next) => {
