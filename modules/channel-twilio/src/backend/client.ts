@@ -110,7 +110,6 @@ export class TwilioClient {
     if (__buttons) {
       await this.sendChoices(event)
     } else if (__dropdown) {
-      ;``
       await this.sendDropdown(event)
     } else if (type === 'text') {
       await this.sendText(event)
