@@ -1,8 +1,8 @@
 import * as sdk from 'botpress/sdk'
 
-import '../import-rewire'
+import '../../import-rewire'
 
-import { Predictor, Trainer } from './svm'
+import { Predictor, Trainer } from '.'
 
 /**
  * WARNING:
@@ -48,7 +48,7 @@ describe('SVM', () => {
 
     let errorThrown = false
     try {
-      await trainer.train(line, { classifier: 'C_SVC', kernel: 'LINEAR', c: 1 })
+      await trainer.train(line, { classifier: 'C_SVC', kernel: 'LINEAR', c: [1] })
     } catch (err) {
       errorThrown = true
     }

@@ -1,9 +1,8 @@
-import { Data } from '../typings'
-
-const assert = require('assert')
-const _a = require('mout/array')
+import assert from 'assert'
 import numeric from 'numeric'
 import _ from 'lodash'
+
+import { Data } from './typings'
 
 export default function(dataset: Data[], retainedVariance: number) {
   retainedVariance = retainedVariance || 0.99
@@ -17,11 +16,9 @@ export default function(dataset: Data[], retainedVariance: number) {
   covMatrix = numeric.mul(covMatrix, numeric.rep(numeric.dim(covMatrix), 1 / inputs.length)) as number[][]
   const usv = numeric.svd(covMatrix)
 
-  const getFirstColumns = function(matrix, nbColumns) {
-    return matrix.map(function(line) {
-      return _a.take(nbColumns, function(i) {
-        return line[i]
-      })
+  const getFirstColumns = (matrix: number[][], nbColumns: number) => {
+    return matrix.map((line: number[]) => {
+      return _.take(line, nbColumns)
     })
   }
   const n = dims[2]
