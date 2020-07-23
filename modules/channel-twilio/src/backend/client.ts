@@ -104,76 +104,63 @@ export class TwilioClient {
   }
 
   async handleOutgoingEvent(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
-    const { type, payload } = event
-    const { __buttons, __dropdown } = payload.metadata as sdk.Content.Metadata
+    const payload = event.payload as sdk.Content.All
+    const { __buttons, __dropdown } = payload.metadata
 
-    if (__buttons) {
-      await this.sendChoices(event)
-    } else if (__dropdown) {
-      await this.sendDropdown(event)
-    } else if (type === 'text') {
-      await this.sendText(event)
-    } else if (type === 'image') {
-      await this.sendImage(event)
-    } else if (type === 'carousel') {
-      await this.sendCarousel(event)
+    if (__buttons || __dropdown) {
+      await this.sendChoices(event, __buttons || <sdk.Option[]>__dropdown)
+    } else if (payload.type === 'text') {
+      await this.sendMessage(event, {
+        body: payload.text
+      })
+    } else if (payload.type === 'image') {
+      await this.sendMessage(event, {
+        body: event.payload.title,
+        mediaUrl: [`${payload.extraProps.BOT_URL}${payload.image}`]
+      })
+    } else if (payload.type === 'carousel') {
+      await this.sendCarousel(event, payload)
     }
     next(undefined, false)
   }
 
-  async sendText(event: sdk.IO.Event) {
-    await this.sendMessage(event, {
-      body: event.payload.text
-    })
-  }
-
-  async sendImage(event: sdk.IO.Event) {
-    await this.sendMessage(event, {
-      body: event.payload.title,
-      mediaUrl: [`${event.payload.BOT_URL}${event.payload.image}`]
-    })
-  }
-
-  async sendCarousel(event: sdk.IO.Event) {
-    for (const { subtitle, title, image, actions } of event.payload.items) {
-      const body = `${title}\n\n${subtitle ? subtitle : ''}`
-
-      const options: MessageOption[] = []
-      for (const { action, title, payload, url, text } of actions) {
-        if (action === 'Open URL') {
-          options.push({ label: `${title} : ${url}`, value: undefined, type: 'url' })
-        } else if (action === 'Postback') {
-          options.push({ label: title, value: payload, type: 'postback' })
-        } else if (action === 'Say something') {
-          options.push({ label: title, value: text, type: 'say_something' })
-        }
-      }
-
-      const args = { mediaUrl: image ? [`${event.payload.BOT_URL}${image}`] : undefined }
-      await this.sendOptions(event, body, args, options)
-    }
-  }
-
-  async sendChoices(event: sdk.IO.Event) {
-    const options: MessageOption[] = event.payload.metadata.__buttons.map(x => ({
-      label: x.title,
-      value: x.payload,
+  async sendChoices(event: sdk.IO.Event, choices: sdk.Option[]) {
+    console.log(choices)
+    const options: MessageOption[] = choices.map(x => ({
+      label: x.label,
+      value: x.value,
       type: 'quick_reply'
     }))
     await this.sendOptions(event, event.payload.text, {}, options)
   }
 
-  async sendDropdown(event: sdk.IO.Event) {
-    const options: MessageOption[] = event.payload.metadata.__dropdown.map(x => ({
-      label: x.label,
-      value: x.value,
-      type: 'quick_reply'
-    }))
-    await this.sendOptions(event, event.payload.message, {}, options)
+  async sendCarousel(event: sdk.IO.Event, payload: sdk.Content.Carousel) {
+    for (const { subtitle, title, image, actions } of payload.items) {
+      const body = `${title}\n\n${subtitle ? subtitle : ''}`
+
+      const options: MessageOption[] = []
+      for (const action of actions || []) {
+        const title = action.title as string
+
+        if (action.action === 'Open URL') {
+          options.push({ label: `${title} : ${action.url}`, value: undefined, type: 'url' })
+        } else if (action.action === 'Postback') {
+          options.push({ label: title, value: action.payload, type: 'postback' })
+        } else if (action.action === 'Say something') {
+          options.push({ label: title, value: action.text as string, type: 'say_something' })
+        }
+      }
+
+      const args = { mediaUrl: image ? [`${payload.extraProps.BOT_URL}${image}`] : undefined }
+      await this.sendOptions(event, body, args, options)
+    }
   }
 
   async sendOptions(event: sdk.IO.Event, text: string, args: any, options: MessageOption[]) {
-    const body = `${text}\n\n${options.map(({ label }, idx) => `${idx + 1}. ${label}`).join('\n')}`
+    let body = text
+    if (options.length) {
+      body = `${text}\n\n${options.map(({ label }, idx) => `${idx + 1}. ${label}`).join('\n')}`
+    }
 
     await this.kvs.set(this.getKvsKey(event.target, event.threadId), options, undefined, '10m')
 
