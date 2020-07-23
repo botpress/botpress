@@ -107,7 +107,8 @@ class MessageList extends React.Component<MessageListProps, State> {
   }
 
   renderAvatar(name, url) {
-    return <Avatar name={name} avatarUrl={url} height={16} width={16} isEmulator={this.props.isEmulator} />
+    const size = window.navigator.userAgent.match(/MSIE|Trident/) !== null ? 40 : 16
+    return <Avatar name={name} avatarUrl={url} height={size} width={size} isEmulator={this.props.isEmulator} />
   }
 
   renderMessageGroups() {
