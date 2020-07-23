@@ -1,7 +1,6 @@
-const assert = require('assert')
+import assert from 'assert'
 import _ from 'lodash'
 import { Data } from '../typings'
-import { getMostRepresentedClass } from './count-class'
 import seedrandom from 'seedrandom'
 
 export default function(dataset: Data[], k = 5): SplittedDataSet[] {
@@ -55,6 +54,29 @@ export function getMinKFold(dataset: Data[]) {
 
   const nTestSample = Math.ceil((n + 1) / (n - occurence))
   return nTestSample
+}
+
+function getMostRepresentedClass(dataset: Data[]) {
+  const uniqLabels = _(dataset)
+    .map(s => s[1])
+    .uniq()
+    .value()
+
+  const nSamplesPerLabel = uniqLabels.reduce((o, l) => ({ ...o, [l]: 0 }), {} as { [key: number]: number })
+  for (const s of dataset) {
+    nSamplesPerLabel[s[1]]++
+  }
+
+  const mostRepresentedClass = _(nSamplesPerLabel)
+    .toPairs()
+    .maxBy(p => p[1])
+
+  const [label, occurence] = mostRepresentedClass as [string, number]
+
+  return {
+    label,
+    occurence
+  }
 }
 
 class SplitDataSetError extends Error {

@@ -1,44 +1,24 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { Data, SvmModel, SvmParameters as Parameters } from './svm-js/typings'
-import { SVM } from './svm-js/core/svm'
-import svmTypes from './svm-js/core/svm-types'
-import kernelTypes from './svm-js/core/kernel-types'
-import { getMinKFold } from './svm-js/util/split-dataset'
-
-export const DefaultTrainArgs: Partial<sdk.MLToolkit.SVM.SVMOptions> = {
-  c: [0.1, 1, 2, 5, 10, 20, 100],
-  classifier: 'C_SVC',
-  gamma: [0.01, 0.1, 0.25, 0.5, 0.75],
-  kernel: 'LINEAR',
-  probability: true,
-  reduce: false
-}
+import { Data, SvmModel, SvmParameters as Parameters, SvmTypes, KernelTypes } from './typings'
+import { SVM } from './svm'
+import { getMinKFold } from './grid-search/split-dataset'
 
 type Serialized = SvmModel & {
   labels_idx: string[]
 }
 
 export class Trainer implements sdk.MLToolkit.SVM.Trainer {
-  private clf: SVM | undefined
-  private labels: string[] = []
   private model?: SvmModel
-  private report?: any
 
   constructor() {}
 
   async train(
     points: sdk.MLToolkit.SVM.DataPoint[],
-    options: Partial<sdk.MLToolkit.SVM.SVMOptions> = DefaultTrainArgs,
+    options?: Partial<sdk.MLToolkit.SVM.SVMOptions>,
     callback?: sdk.MLToolkit.SVM.TrainProgressCallback | undefined
   ): Promise<string> {
-    const args = { ...DefaultTrainArgs, ...options }
-
-    if (args.classifier === 'ONE_CLASS') {
-      args.probability = false // not supported
-    }
-
     const vectorsLengths = _(points)
       .map(p => p.coordinates.length)
       .uniq()
@@ -47,66 +27,45 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
       throw new Error('All vectors must be of the same size')
     }
 
-    this.labels = []
-    const dataset: Data[] = points.map(c => [c.coordinates, this.getLabelIdx(c.label)])
+    const labels = _(points)
+      .map(p => p.label)
+      .uniq()
+      .value()
+    const dataset: Data[] = points.map(p => [p.coordinates, labels.indexOf(p.label)])
 
-    if (this.labels.length < 2) {
+    if (labels.length < 2) {
       throw new Error("SVM can't train on a dataset of only one class")
     }
 
     const minKFold = getMinKFold(dataset)
     const kFold = Math.max(minKFold, 4)
 
-    this.clf = new SVM({
-      svm_type: args.classifier ? svmTypes[args.classifier] : undefined,
-      kernel_type: args.kernel ? kernelTypes[args.kernel] : undefined,
-      C: args.c,
-      gamma: args.gamma,
-      probability: args.probability,
-      reduce: args.reduce,
+    const arr = (n: number | number[]) => (_.isArray(n) ? n : [n])
+
+    options = options ?? {}
+    const svm = new SVM({
+      svm_type: options.classifier ? SvmTypes[options.classifier] : undefined,
+      kernel_type: options.kernel ? KernelTypes[options.kernel] : undefined,
+      C: options.c ? arr(options.c) : undefined,
+      gamma: options.gamma ? arr(options.gamma) : undefined,
+      probability: options.probability,
+      reduce: options.reduce,
       kFold
     })
 
-    await this._train(dataset, callback)
-    return this.serialize()
-  }
-
-  private async _train(dataset: Data[], callback?: sdk.MLToolkit.SVM.TrainProgressCallback | undefined): Promise<any> {
-    return new Promise((resolve, reject) => {
-      const svm = this.clf as SVM
-      svm
-        .train(dataset)
-        .progress(progress => {
-          if (callback && typeof callback === 'function') {
-            callback(progress)
-          }
-        })
-        .spread((trainedModel, report) => {
-          this.model = trainedModel
-          this.report = report
-          resolve()
-        })
-        .catch(err => reject(new Error(err)))
+    const { model: trainedModel } = await svm.train(dataset, progress => {
+      if (callback && typeof callback === 'function') {
+        callback(progress)
+      }
     })
-  }
+    this.model = trainedModel
 
-  private getLabelIdx(label: string) {
-    const idx = this.labels.indexOf(label)
-    if (idx === -1) {
-      this.labels.push(label)
-      return this.labels.indexOf(label)
-    }
-    return idx
+    const serialized: Serialized = { ...trainedModel, labels_idx: labels }
+    return JSON.stringify(serialized)
   }
 
   isTrained(): boolean {
     return !!this.model
-  }
-
-  private serialize(): string {
-    const model = this.model as SvmModel // model was trained
-    const serialized: Serialized = { ...model, labels_idx: this.labels }
-    return JSON.stringify(serialized)
   }
 }
 

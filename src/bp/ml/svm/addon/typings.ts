@@ -45,20 +45,16 @@ interface AugmentedParameters extends Parameters {
   mute: number
 }
 
-export interface Parameters {
+export type GridSearchParameters = 'C' | 'gamma' | 'degree' | 'nu' | 'p' | 'coef0'
+export type OtherParameters = {
   svm_type: number
   kernel_type: number
-  degree: number
-  gamma: number
-  coef0: number
   cache_size: number
   eps: number
-  C: number
   nr_weight: number
   weight_label: number[]
   weight: number[]
-  nu: number
-  p: number
   shrinking: boolean
   probability: boolean
 }
+export type Parameters = Record<GridSearchParameters, number> & OtherParameters
