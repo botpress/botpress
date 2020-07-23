@@ -13,22 +13,44 @@ interface ExpandedPath {
 }
 
 export const Inspector = props => {
-  const handleContextMenu = (e, joinedPaths) => {
+  const [expanded, setExpanded] = useState<ExpandedPath[]>([])
+
+  const handleContextMenu = (e: React.MouseEvent, path: string, currentLevel: number) => {
     e.preventDefault()
 
     ContextMenu.show(
       <Menu>
         <MenuItem
-          text="Copy event path"
+          text="Copy Event Path"
           onClick={() => {
-            console.log('test')
-            copy(`{{${joinedPaths}}}`)
+            copy(`{{${path}}}`)
           }}
           icon="clipboard"
+        />
+        <MenuItem
+          text="Expand All"
+          onClick={() => {
+            path = path.replace('event.', '')
+
+            const entries = [
+              ...expanded.filter(x => x.path !== path),
+              { path, level: (expanded.find(x => x.path === path)?.level ?? currentLevel) + 1 }
+            ]
+
+            setExpanded(_.orderBy(entries, x => x.path.length, ['desc']))
+          }}
+          icon="expand-all"
         />
       </Menu>,
       { left: e.clientX, top: e.clientY }
     )
+  }
+
+  const shouldExpand = (key: string[], data, level: number) => {
+    const path = [...key].reverse().join('.')
+    const found = expanded.find(x => path.startsWith(x.path))
+
+    return level <= (found?.level ?? 0)
   }
 
   return (
@@ -45,10 +67,11 @@ export const Inspector = props => {
                 .map(x => x.toString())
                 .join('.')
 
-              return <span onContextMenu={e => handleContextMenu(e, joinedPaths)}>{key}:</span>
+              return <span onContextMenu={e => handleContextMenu(e, joinedPaths, paths.length)}>{key}:</span>
             }}
             invertTheme={false}
             hideRoot={true}
+            shouldExpandNode={shouldExpand}
           />
         </div>
       </Pre>

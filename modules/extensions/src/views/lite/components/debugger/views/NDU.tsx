@@ -1,9 +1,13 @@
-import { H5, Pre } from '@blueprintjs/core'
+import { Button } from '@blueprintjs/core'
 import * as sdk from 'botpress/sdk'
+import cx from 'classnames'
 import _ from 'lodash'
-import React, { FC } from 'react'
+import React, { FC, Fragment, useState } from 'react'
 
+import { Collapsible } from '../components/Collapsible'
 import style from '../style.scss'
+
+import { Inspector } from './Inspector'
 
 const sortTriggersByScore = triggers => {
   const result = Object.keys(triggers).map(id => {
@@ -17,7 +21,68 @@ const sortTriggersByScore = triggers => {
   return _.orderBy(result, 'score', 'desc')
 }
 
-export const NDU: FC<{ ndu: sdk.NDU.DialogUnderstanding }> = ({ ndu }) => {
+const NDU: FC<{ ndu: sdk.NDU.DialogUnderstanding }> = ({ ndu }) => {
+  const [viewJSON, setViewJSON] = useState(false)
+  const [showFullId, setShowFullId] = useState<any>({})
+
+  const toggleView = () => {
+    setViewJSON(!viewJSON)
+  }
+
+  const getPercentage = (number: number) => {
+    return _.round(number * 100, 3)
+  }
+
+  const renderContent = () => {
+    if (viewJSON) {
+      return <Inspector data={ndu} />
+    }
+
+    return (
+      <Fragment>
+        <div className={style.section}>
+          <div className={style.sectionTitle}>Top Triggers</div>
+          {sorted.map(trigger => {
+            return (
+              <div className={style.subSection}>
+                <p
+                  className={cx(style.canShowFull, { [style.truncate]: !showFullId[trigger.id] })}
+                  onClick={e => setShowFullId({ ...showFullId, [trigger.id]: !showFullId[trigger.id] })}
+                >
+                  {trigger.id}
+                </p>
+                <ul>{listResults(trigger.result)}</ul>
+              </div>
+            )
+          })}
+        </div>
+        <div className={style.section}>
+          <div className={style.sectionTitle}>Decisions Taken</div>
+          <ul>
+            {ndu.actions.map(({ action, data }) => {
+              switch (action) {
+                case 'send':
+                  return <li>Send knowledge {(data as sdk.NDU.SendContent).sourceDetails}</li>
+                case 'startWorkflow':
+                  return <li>Start Workflow {(data as sdk.NDU.FlowRedirect).flow}</li>
+                case 'goToNode':
+                  return <li>Go to node {(data as sdk.NDU.FlowRedirect).node}</li>
+                case 'redirect':
+                  return <li>Redirect to {(data as sdk.NDU.FlowRedirect).flow}</li>
+                case 'continue':
+                  return <li>Continue flow execution</li>
+                case 'prompt.inform':
+                  return <li>Inform current prompt</li>
+                case 'prompt.cancel':
+                  return <li>Cancel current prompt</li>
+              }
+            })}
+          </ul>
+        </div>
+      </Fragment>
+    )
+  }
+
   if (!ndu || !ndu.triggers) {
     return null
   }
@@ -32,43 +97,21 @@ export const NDU: FC<{ ndu: sdk.NDU.DialogUnderstanding }> = ({ ndu }) => {
 
     return keys.map(id => (
       <li>
-        {id}: {_.round(results[id], 3)}
+        {id}: {getPercentage(results[id])}%
       </li>
     ))
   }
 
   return (
-    <Pre className={style.inspectorContainer}>
-      <H5>Actions</H5>
-      <ul>
-        {ndu.actions.map(({ action, data }) => {
-          switch (action) {
-            case 'send':
-              return <li>Send knowledge {(data as sdk.NDU.SendContent).sourceDetails}</li>
-            case 'startWorkflow':
-              return <li>Start Workflow {(data as sdk.NDU.FlowRedirect).flow}</li>
-            case 'goToNode':
-              return <li>Go to node {(data as sdk.NDU.FlowRedirect).node}</li>
-            case 'redirect':
-              return <li>Redirect to {(data as sdk.NDU.FlowRedirect).flow}</li>
-            case 'continue':
-              return <li>Continue flow execution</li>
-            case 'prompt.inform':
-              return <li>Inform current prompt</li>
-            case 'prompt.cancel':
-              return <li>Cancel current prompt</li>
-          }
-        })}
-      </ul>
-      <H5>Triggers</H5>
-      {sorted.map(trigger => {
-        return (
-          <div style={{ paddingBottom: 10 }}>
-            <small> ({trigger.id}) </small>
-            <ul>{listResults(trigger.result)}</ul>
-          </div>
-        )
-      })}
-    </Pre>
+    <Fragment>
+      <Collapsible name="Dialog Understanding">
+        {renderContent()}
+        <Button minimal className={style.switchViewBtn} icon="eye-open" onClick={toggleView}>
+          {viewJSON ? 'View as Summary' : 'View as JSON'}
+        </Button>
+      </Collapsible>
+    </Fragment>
   )
 }
+
+export default NDU

@@ -1,10 +1,12 @@
 import sdk from 'botpress/sdk'
 import React from 'react'
 
+import { Collapsible } from '../components/Collapsible'
 import style from '../style.scss'
 
 import Dialog from './Dialog'
-import NDUSection from './NDUSection'
+import { Inspector } from './Inspector'
+import NDU from './NDU'
 import NLU from './NLU'
 
 interface Props {
@@ -44,7 +46,11 @@ export default class Summary extends React.Component<Props> {
           stacktrace={this.props.event.state?.__stacktrace}
         />
 
-        <NDUSection nduData={this.props.event.ndu} />
+        <NDU ndu={this.props.event.ndu} />
+
+        <Collapsible name="State">
+          <Inspector data={this.props.event.state} />
+        </Collapsible>
       </div>
     )
   }

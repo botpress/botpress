@@ -1,7 +1,6 @@
-import { Button, Navbar, NavbarGroup, Tab, Tabs, Tooltip } from '@blueprintjs/core'
+import { Tab, Tabs } from '@blueprintjs/core'
 import React, { useState } from 'react'
 
-// import { MoreOptions, MoreOptionsItems } from 'botpress/shared'
 import MoreOptions from '../../../../../../../src/bp/ui-shared/src/MoreOptions'
 import { MoreOptionsItems } from '../../../../../../../src/bp/ui-shared/src/MoreOptions/typings'
 
