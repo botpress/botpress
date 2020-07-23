@@ -59,7 +59,7 @@ function renderer(data) {
 }
 
 function renderElement(data, channel) {
-  if (channel === 'web' || channel === 'slack') {
+  if (channel === 'web' || channel === 'slack' || channel === 'twilio') {
     return renderer(data)
   } else if (channel === 'messenger') {
     return renderMessenger(data)

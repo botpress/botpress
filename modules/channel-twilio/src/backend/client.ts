@@ -105,18 +105,20 @@ export class TwilioClient {
 
   async handleOutgoingEvent(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
     const { type, payload } = event
-    if (type === 'text') {
+    const { __buttons, __dropdown } = payload.metadata as sdk.Content.Metadata
+
+    if (__buttons) {
+      await this.sendChoices(event)
+    } else if (__dropdown) {
+      ;``
+      await this.sendDropdown(event)
+    } else if (type === 'text') {
       await this.sendText(event)
-    } else if (type === 'file') {
+    } else if (type === 'image') {
       await this.sendImage(event)
     } else if (type === 'carousel') {
       await this.sendCarousel(event)
-    } else if (payload.quick_replies) {
-      await this.sendChoices(event)
-    } else if (payload.options) {
-      await this.sendDropdown(event)
     }
-
     next(undefined, false)
   }
 
@@ -129,32 +131,32 @@ export class TwilioClient {
   async sendImage(event: sdk.IO.Event) {
     await this.sendMessage(event, {
       body: event.payload.title,
-      mediaUrl: [event.payload.url]
+      mediaUrl: [`${event.payload.BOT_URL}${event.payload.image}`]
     })
   }
 
   async sendCarousel(event: sdk.IO.Event) {
-    for (const { subtitle, title, picture, buttons } of event.payload.elements) {
+    for (const { subtitle, title, image, actions } of event.payload.items) {
       const body = `${title}\n\n${subtitle ? subtitle : ''}`
 
       const options: MessageOption[] = []
-      for (const { type, title, payload, url, text } of buttons) {
-        if (type === 'open_url') {
+      for (const { action, title, payload, url, text } of actions) {
+        if (action === 'Open URL') {
           options.push({ label: `${title} : ${url}`, value: undefined, type: 'url' })
-        } else if (type === 'postback') {
+        } else if (action === 'Postback') {
           options.push({ label: title, value: payload, type: 'postback' })
-        } else if (type === 'say_something') {
+        } else if (action === 'Say something') {
           options.push({ label: title, value: text, type: 'say_something' })
         }
       }
 
-      const args = { mediaUrl: picture ? [picture] : undefined }
+      const args = { mediaUrl: image ? [`${event.payload.BOT_URL}${image}`] : undefined }
       await this.sendOptions(event, body, args, options)
     }
   }
 
   async sendChoices(event: sdk.IO.Event) {
-    const options: MessageOption[] = event.payload.quick_replies.map(x => ({
+    const options: MessageOption[] = event.payload.metadata.__buttons.map(x => ({
       label: x.title,
       value: x.payload,
       type: 'quick_reply'
@@ -163,7 +165,7 @@ export class TwilioClient {
   }
 
   async sendDropdown(event: sdk.IO.Event) {
-    const options: MessageOption[] = event.payload.options.map(x => ({
+    const options: MessageOption[] = event.payload.metadata.__dropdown.map(x => ({
       label: x.label,
       value: x.value,
       type: 'quick_reply'

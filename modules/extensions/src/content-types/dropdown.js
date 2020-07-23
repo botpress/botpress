@@ -40,7 +40,7 @@ function renderer(data) {
 }
 
 function renderElement(data, channel) {
-  if (channel === 'web' || channel === 'slack') {
+  if (channel === 'web' || channel === 'slack' || channel === 'twilio') {
     return renderer(data)
   } else if (channel === 'api') {
     return render(data)
@@ -128,6 +128,6 @@ module.exports = {
     advancedSettings: [],
     fields: []
   },
-  computePreviewText: (formData) => formData.message && 'Dropdown: ' + formData.message,
+  computePreviewText: formData => formData.message && 'Dropdown: ' + formData.message,
   renderElement
 }
