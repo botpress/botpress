@@ -9,6 +9,7 @@ import { InjectedIntlProps, injectIntl } from 'react-intl'
 import constants from '../../core/constants'
 import { RootStore, StoreDef } from '../../store'
 import { Message } from '../../typings'
+import { isIE } from '../../utils'
 import Avatar from '../common/Avatar'
 
 import MessageGroup from './MessageGroup'
@@ -107,7 +108,8 @@ class MessageList extends React.Component<MessageListProps, State> {
   }
 
   renderAvatar(name, url) {
-    return <Avatar name={name} avatarUrl={url} height={16} width={16} isEmulator={this.props.isEmulator} />
+    const size = isIE ? 40 : 16
+    return <Avatar name={name} avatarUrl={url} height={size} width={size} isEmulator={this.props.isEmulator} />
   }
 
   renderMessageGroups() {
