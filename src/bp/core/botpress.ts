@@ -41,7 +41,7 @@ import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { HintsService } from './services/hints'
 import { Hooks, HookService } from './services/hook/hook-service'
 import { LogsJanitor } from './services/logs/janitor'
-import { EventCollector, LAST_EVENT_STEP } from './services/middleware/event-collector'
+import { addStepToEvent, EventCollector, LAST_EVENT_STEP } from './services/middleware/event-collector'
 import { EventEngine } from './services/middleware/event-engine'
 import { StateManager } from './services/middleware/state-manager'
 import { MigrationService } from './services/migration'
@@ -350,7 +350,7 @@ export class Botpress {
 
     this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       await this.stateManager.restore(event)
-      event.addStep('stateLoaded')
+      addStepToEvent('stateLoaded', event)
       await this.hookService.executeHook(new Hooks.BeforeIncomingMiddleware(this.api, event))
     }
 
@@ -372,11 +372,11 @@ export class Botpress {
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
       const sessionId = SessionIdFactory.createIdFromEvent(event)
 
-      event.addStep('dialog:start')
+      addStepToEvent('dialog:start', event)
       this.eventCollector.storeEvent(event)
 
       await this.decisionEngine.processEvent(sessionId, event)
-      event.addStep(LAST_EVENT_STEP)
+      addStepToEvent(LAST_EVENT_STEP, event)
       this.eventCollector.storeEvent(event)
 
       await converseApiEvents.emitAsync(`done.${event.target}`, event)

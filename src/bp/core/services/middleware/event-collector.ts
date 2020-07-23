@@ -14,6 +14,10 @@ import { SessionIdFactory } from '../dialog/session/id-factory'
 type BatchEvent = sdk.IO.StoredEvent & { retry?: number }
 export const LAST_EVENT_STEP = 'completed'
 
+export const addStepToEvent = (step: string, event: sdk.IO.Event) => {
+  event.processing = { ...(event.processing || {}), [step]: new Date() }
+}
+
 const eventsFields = [
   'id',
   'botId',

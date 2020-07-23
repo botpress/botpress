@@ -2,6 +2,8 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import ms from 'ms'
 
+import { addStepToEvent } from './event-collector'
+
 type MiddlewareChainOptions = {
   timeoutInMs: number
 }
@@ -31,18 +33,18 @@ export class MiddlewareChain {
       const result = await Promise.race<Boolean[]>([timePromise, mwPromise])
 
       if (timedOut) {
-        event.addStep(`mw:${name}:timedOut`)
+        addStepToEvent(`mw:${name}:timedOut`, event)
         continue
       } else if (typeof result !== 'undefined') {
         const [swallow, skipped] = result as Boolean[]
 
         if (swallow) {
-          event.addStep(`mw:${name}:swallowed`)
+          addStepToEvent(`mw:${name}:swallowed`, event)
           break
         } else if (skipped) {
-          event.addStep(`mw:${name}:skipped`)
+          addStepToEvent(`mw:${name}:skipped`, event)
         } else {
-          event.addStep(`mw:${name}:completed`)
+          addStepToEvent(`mw:${name}:completed`, event)
         }
       }
     }

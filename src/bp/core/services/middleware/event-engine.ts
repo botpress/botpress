@@ -12,7 +12,7 @@ import { TYPES } from '../../types'
 import { incrementMetric } from '../monitoring'
 import { Queue } from '../queue'
 
-import { EventCollector, LAST_EVENT_STEP } from './event-collector'
+import { addStepToEvent, EventCollector, LAST_EVENT_STEP } from './event-collector'
 import { MiddlewareChain } from './middleware'
 
 const directionRegex = /^(incoming|outgoing)$/
@@ -117,7 +117,7 @@ export class EventEngine {
       await outgoing.run(event)
       this._outgoingPerf.record()
 
-      event.addStep(LAST_EVENT_STEP)
+      addStepToEvent(LAST_EVENT_STEP, event)
       this.eventCollector.storeEvent(event)
     })
 
@@ -177,7 +177,7 @@ export class EventEngine {
 
   async sendEvent(event: sdk.IO.Event): Promise<void> {
     this.validateEvent(event)
-    event.addStep('received')
+    addStepToEvent('received', event)
     this.eventCollector.storeEvent(event)
 
     if (event.direction === 'incoming') {

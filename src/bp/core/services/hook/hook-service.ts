@@ -17,6 +17,7 @@ import { clearRequireCache, requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
 import { filterDisabled, runOutsideVm } from '../action/utils'
 import { VmRunner } from '../action/vm'
+import { addStepToEvent } from '../middleware/event-collector'
 
 const debug = DEBUG('hooks')
 const DEBOUNCE_DELAY = ms('2s')
@@ -286,7 +287,7 @@ export class HookService {
   private addEventStep = (hookName: string, status: 'completed' | 'error', hook: Hooks.BaseHook) => {
     if (hook.args?.event?.addStep) {
       const event = hook.args.event as IO.Event
-      event.addStep(`hook:${hookName}:${status}`)
+      addStepToEvent(`hook:${hookName}:${status}`, event)
     }
   }
 
