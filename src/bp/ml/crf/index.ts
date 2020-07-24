@@ -7,7 +7,8 @@ export class Trainer implements MLToolkit.CRF.Trainer {
   private trainer: AddonTrainer
 
   constructor() {
-    this.trainer = new crfsuite.Trainer({ debug: true })
+    // debugging should be enabled but, this slows down crf training... TODO: find a solution
+    this.trainer = new crfsuite.Trainer({ debug: false })
   }
 
   async train(
