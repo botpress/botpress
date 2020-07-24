@@ -99,7 +99,8 @@ export class ConfigsStats extends TelemetryStats {
 
       const blackListedValues = {}
       for (const config of modulesConfigsBlacklist[module]) {
-        blackListedValues[config] = defaultValue[config] == runtimeValue[config] ? 'default' : 'redacted'
+        const defaultOrRedacted = _.get(defaultValue, config) == _.get(runtimeValue, config) ? 'default' : 'redacted'
+        _.set(blackListedValues, config, defaultOrRedacted)
       }
       return { botId, module, configs: { ...runtimeValue, ...blackListedValues } }
     }
