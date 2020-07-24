@@ -264,6 +264,11 @@ const TrainIntentClassifier = async (
       const completion = (i + p) / input.ctxToTrain.length
       progress(completion)
     })
+    if ((model as any) instanceof Error || model === '') {
+      console.log('TrainIntentClassifier done with error!')
+      return {}
+    }
+
     svmPerCtx[ctx] = model
   }
 
@@ -299,6 +304,12 @@ const TrainContextClassifier = async (
   const model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
     progress(_.round(p, 1))
   })
+
+  if ((model as any) instanceof Error || model === '') {
+    console.log('TrainContextClassifier done with error!')
+    return ''
+  }
+
   debugTraining.forBot(input.botId, 'Done training context classifier')
   return model
 }
@@ -474,7 +485,8 @@ const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progres
 
   const oos_points = featurizeOOSUtterances(noneUtts, input.vocabVectors, tools)
   let combinedProgress = 0
-  const ctxModels: [string, string][] = await Promise.map(input.ctxToTrain, async ctx => {
+  const ctxModels: [string, string][] = []
+  for (const ctx of input.ctxToTrain) {
     const in_ctx_scope_points = _.chain(input.intents)
       .filter(i => i.name !== NONE_INTENT && i.contexts.includes(ctx))
       .flatMap(i => featurizeInScopeUtterances(i.utterances, i.name))
@@ -485,8 +497,14 @@ const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progres
       combinedProgress += p / input.ctxToTrain.length
       progress(combinedProgress)
     })
-    return [ctx, model] as [string, string]
-  })
+
+    if ((model as any) instanceof Error || model === '') {
+      console.log('TrainOutOfScope done with error!')
+      return {}
+    }
+
+    ctxModels.push([ctx, model])
+  }
 
   debugTraining.forBot(input.botId, 'Done training out of scope')
   progress(1)
@@ -506,8 +524,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
       return
     }
     if (input.trainingSession.status === 'canceled') {
-      // Note that we don't use debouncedProgress here as we want the side effects probagated now
-      tools.reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession)
+      tools.reportTrainingProgress(input.botId, 'Currently cancelling...', input.trainingSession)
       throw new TrainingCanceledError()
     }
 
@@ -534,6 +551,11 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
       TrainSlotTagger(step, tools, reportProgress)
     ])
 
+    if (!Object.keys(oos_model).length || !ctx_model.length || !Object.keys(intent_model_by_ctx).length) {
+      console.log('Training done after cancellation ! ')
+      throw new TrainingCanceledError()
+    }
+
     const output: TrainOutput = {
       list_entities: step.list_entities,
       oos_model,
@@ -551,7 +573,9 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     return output
   } catch (err) {
     if (err instanceof TrainingCanceledError) {
-      debugTraining.forBot(input.botId, 'Training aborted')
+      // Note that we don't use debouncedProgress here as we want the side effects probagated now
+      tools.reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession)
+      console.log(input.botId, 'Training aborted')
       return
     }
     throw err
