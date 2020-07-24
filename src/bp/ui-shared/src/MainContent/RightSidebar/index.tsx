@@ -23,7 +23,7 @@ const RightSidebar: FC<RightSidebarProps> = ({ className, canOutsideClickClose, 
   }, [children])
 
   const handleClickOutside = event => {
-    if (!container?.contains(event.target) && canOutsideClickClose) {
+    if (!container?.contains(event.target) && !event.target?.closest('.tagify__dropdown') && canOutsideClickClose) {
       close?.()
     }
   }
