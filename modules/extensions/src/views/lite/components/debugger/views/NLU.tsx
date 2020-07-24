@@ -5,12 +5,13 @@ import React, { Fragment, SFC, useState } from 'react'
 
 import { Collapsible } from '../components/Collapsible'
 import { Intents } from '../components/Intents'
+import Predictions from '../components/Predictions'
 import style from '../style.scss'
 
 import { Entities } from './Entities'
+import { Inspector } from './Inspector'
 import { Language } from './Language'
 import { Slots } from './Slots'
-import { Inspector } from './Inspector'
 
 const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding; session: any }> = ({ nluData, session }) => {
   const [viewJSON, setViewJSON] = useState(false)
@@ -49,7 +50,8 @@ const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding; session: any }> = ({ nluDat
           </Tooltip>
         )}
         <Language detectedLanguage={nluData.detectedLanguage} usedLanguage={nluData.language} />
-        <Intents intents={nluData.intents} intent={nluData.intent} />
+        <Predictions predictions={nluData.predictions} />
+        <Intents intent={nluData.intent} intents={nluData.intents} />
         {/* TODO re-add Entities and Slots when design is made for them
         <Collapsible name="Entities" hidden={!nluData.entities.length}>
           <Entities entities={nluData.entities} />
