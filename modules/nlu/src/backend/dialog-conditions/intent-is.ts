@@ -7,13 +7,26 @@ export default {
   description: `The user's intention is {intentName}`,
   callback: '/mod/nlu/condition/intentChanged',
   displayOrder: 0,
-  fields: [
-    // Tagging for slots will come in a future PR
+  advancedSettings: [
     {
-      key: 'intentName',
-      type: 'overridable',
-      overrideKey: 'intent',
-      label: 'intent'
+      defaultValue: true,
+      key: 'activeWorkflowOnly',
+      type: 'checkbox',
+      label: 'module.nlu.conditions.fields.label.activeWorkflowOnly'
+    }
+  ],
+  fields: [
+    {
+      key: 'utterances',
+      type: 'text_array',
+      superInput: true,
+      customPlaceholder: true,
+      translated: true,
+      variablesOnly: true,
+      label: 'intent',
+      group: {
+        addLabel: 'module.nlu.intents.addBtn'
+      }
     }
   ],
   evaluate: (event, { intentName, topicName }) => {

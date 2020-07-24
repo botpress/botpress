@@ -39,7 +39,7 @@ const loopThroughData = data => {
         if (_.isObject(item)) {
           return loopThroughData(item)
         } else {
-          return item === '' ? null : item
+          return item
         }
       })
     } else if (_.isObject(currentData)) {

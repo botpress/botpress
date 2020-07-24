@@ -185,7 +185,10 @@
         padding: 0;
 
         &::before {
+          overflow: hidden;
           position: absolute !important;
+          text-overflow: ellipsis;
+          width: 100%;
         }
       }
     }

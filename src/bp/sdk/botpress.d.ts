@@ -1461,6 +1461,8 @@ declare module 'botpress/sdk' {
     required?: boolean
     variableTypes?: string[]
     superInput?: boolean
+    customPlaceholder?: boolean
+    variablesOnly?: boolean
     max?: number
     min?: number
     maxLength?: number

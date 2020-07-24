@@ -7,7 +7,6 @@ import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
 
 import style from './style.scss'
-import IntentEditor from './IntentEditor'
 
 interface Props {
   deleteCondition: () => void
@@ -74,6 +73,34 @@ const ConditionForm: FC<Props> = ({
   const selectedCondition = conditions.find(cond => cond.id === condition.current)
   const selectedOption = options.find(cond => cond.value === condition.current)
 
+  const getCustomPlaceholder = (field, index) => {
+    if (field === 'utterances') {
+      console.log(index)
+      switch (index) {
+        case 0:
+          return 'Write at least 3 sentences that your users could write to invoke their intent'
+        case 1:
+          return 'Write at least 2 more sentences that your users could write to invoke their intent'
+        case 2:
+          return 'Write at least 1 more sentence that your users could write to invoke their intent'
+        case 3:
+          return 'Write at least 6 other sentences to make your chatbot more resilient'
+        case 4:
+          return 'Write at least 5 other sentences to make your chatbot more resilient'
+        case 5:
+          return 'Write at least 4 other sentences to make your chatbot more resilient'
+        case 6:
+          return 'Write at least 3 other sentences to make your chatbot more resilient'
+        case 7:
+          return 'Write at least 2 other sentences to make your chatbot more resilient'
+        case 8:
+          return 'Write at least 1 other sentence to make your chatbot more resilient'
+      }
+    }
+
+    return ''
+  }
+
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={!isConfirming} close={() => close(editingCondition)}>
       <Fragment key={`${condition.current}-${customKey || editingCondition}`}>
@@ -103,16 +130,7 @@ const ConditionForm: FC<Props> = ({
           <Contents.Form
             axios={axios}
             currentLang={contentLang}
-            overrideFields={{
-              intent: props => (
-                <IntentEditor
-                  contentLang={contentLang}
-                  topicName={topicName}
-                  setKeepSidebarOpen={setIsConfirming}
-                  {...props}
-                />
-              )
-            }}
+            getCustomPlaceholder={getCustomPlaceholder}
             variables={variables}
             events={events}
             fields={selectedCondition.fields}
