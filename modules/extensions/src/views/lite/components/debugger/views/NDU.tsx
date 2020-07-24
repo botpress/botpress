@@ -4,6 +4,7 @@ import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useState } from 'react'
 
+import ToolTip from '../../../../../../../../src/bp/ui-shared-lite/ToolTip'
 import { Collapsible } from '../components/Collapsible'
 import style from '../style.scss'
 
@@ -42,15 +43,12 @@ const NDU: FC<{ ndu: sdk.NDU.DialogUnderstanding }> = ({ ndu }) => {
       <Fragment>
         <div className={style.section}>
           <div className={style.sectionTitle}>Top Triggers</div>
-          {sorted.map((trigger, index) => {
+          {_.take(sorted, 5).map((trigger, index) => {
             return (
               <div key={index} className={style.subSection}>
-                <p
-                  className={cx(style.canShowFull, { [style.truncate]: !showFullId[trigger.id] })}
-                  onClick={e => setShowFullId({ ...showFullId, [trigger.id]: !showFullId[trigger.id] })}
-                >
-                  {trigger.id}
-                </p>
+                <ToolTip content={trigger.id}>
+                  <p className={cx(style.canShowFull, style.truncate)}>{trigger.id}</p>
+                </ToolTip>
                 <ul>{listResults(trigger.result)}</ul>
               </div>
             )

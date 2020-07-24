@@ -206,9 +206,6 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   renderEvent() {
-    const eventError = _.get(this.state, 'event.state.__error')
-    const ndu = _.get(this.state, 'event.ndu')
-
     return (
       <div className={style.content}>
         <Summary event={this.state.event} />

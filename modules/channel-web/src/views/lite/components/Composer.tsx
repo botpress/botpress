@@ -3,6 +3,7 @@ import { inject, observer } from 'mobx-react'
 import React from 'react'
 import { InjectedIntlProps, injectIntl } from 'react-intl'
 
+import ToolTip from '../../../../../../src/bp/ui-shared-lite/ToolTip'
 import Send from '../icons/Send'
 import { RootStore, StoreDef } from '../store'
 
@@ -82,18 +83,20 @@ class Composer extends React.Component<ComposerProps> {
             {placeholder}
           </label>
 
-          <button
-            className={'bpw-send-button'}
-            disabled={!this.props.message.length}
-            onClick={this.props.sendMessage.bind(this, undefined)}
-            aria-label={this.props.intl.formatMessage({
-              id: 'composer.send',
-              defaultMessage: 'Send'
-            })}
-            id="btn-send"
-          >
-            <Send />
-          </button>
+          <ToolTip content="Send Message">
+            <button
+              className={'bpw-send-button'}
+              disabled={!this.props.message.length}
+              onClick={this.props.sendMessage.bind(this, undefined)}
+              aria-label={this.props.intl.formatMessage({
+                id: 'composer.send',
+                defaultMessage: 'Send'
+              })}
+              id="btn-send"
+            >
+              <Send />
+            </button>
+          </ToolTip>
         </div>
       </div>
     )

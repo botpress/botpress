@@ -1,7 +1,7 @@
 import React, { FC, Fragment, SyntheticEvent, useEffect, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 
-import Overlay from '../Overlay'
+import Overlay from '../../../ui-shared-lite/Overlay'
 
 import style from './style.scss'
 

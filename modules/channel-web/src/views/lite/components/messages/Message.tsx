@@ -4,7 +4,6 @@ import { inject, observer } from 'mobx-react'
 import React, { Component, Fragment } from 'react'
 import { InjectedIntlProps, injectIntl } from 'react-intl'
 
-import ToolTip from '../../../../../../../src/bp/ui-shared/src/ToolTip'
 import { RootStore, StoreDef } from '../../store'
 import { Renderer } from '../../typings'
 import * as Keyboard from '../Keyboard'
@@ -156,32 +155,30 @@ class Message extends Component<MessageProps> {
     }
 
     return (
-      <ToolTip content="Resets conversation">
+      <div
+        className={classnames(this.props.className, wrappedClass, 'bpw-chat-bubble', 'bpw-bubble-' + type, {
+          'bpw-bubble-highlight': this.props.isHighlighted
+        })}
+        data-from={this.props.fromLabel}
+        tabIndex={-1}
+        style={additionalStyle}
+      >
         <div
-          className={classnames(this.props.className, wrappedClass, 'bpw-chat-bubble', 'bpw-bubble-' + type, {
-            'bpw-bubble-highlight': this.props.isHighlighted
-          })}
-          data-from={this.props.fromLabel}
           tabIndex={-1}
-          style={additionalStyle}
+          className="bpw-chat-bubble-content"
+          onContextMenu={type !== 'session_reset' ? this.handleContextMenu : () => {}}
         >
-          <div
-            tabIndex={-1}
-            className="bpw-chat-bubble-content"
-            onContextMenu={type !== 'session_reset' ? this.handleContextMenu : () => {}}
-          >
-            <span className="sr-only">
-              {this.props.store.intl.formatMessage({
-                id: this.props.isBotMessage ? 'message.botSaid' : 'message.iSaid',
-                defaultMessage: this.props.isBotMessage ? 'Virtual assistant said : ' : 'I said : '
-              })}
-            </span>
-            {rendered}
-            {this.props.store.config.showTimestamp && this.renderTimestamp()}
-          </div>
-          {this.props.inlineFeedback}
+          <span className="sr-only">
+            {this.props.store.intl.formatMessage({
+              id: this.props.isBotMessage ? 'message.botSaid' : 'message.iSaid',
+              defaultMessage: this.props.isBotMessage ? 'Virtual assistant said : ' : 'I said : '
+            })}
+          </span>
+          {rendered}
+          {this.props.store.config.showTimestamp && this.renderTimestamp()}
         </div>
-      </ToolTip>
+        {this.props.inlineFeedback}
+      </div>
     )
   }
 }

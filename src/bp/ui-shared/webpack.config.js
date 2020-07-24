@@ -48,7 +48,9 @@ const config = {
               localIdentName: '[name]__[local]___[hash:base64:5]'
             }
           },
-          { loader: 'postcss-loader' },
+          { loader: 'postcss-loader', options: {
+            options: {},
+          } },
           { loader: 'sass-loader' }
         ]
       },

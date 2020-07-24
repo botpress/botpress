@@ -695,14 +695,18 @@ body {
   font-weight: 500;
   cursor: pointer;
 }
+.bpw-send-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
 
 .bpw-send-button path {
   fill: var(--shark);
   transition: fill 0.3s;
 }
 
-.bpw-send-button:hover path,
-.bpw-send-button:focus path {
+.bpw-send-button:not(:disabled):hover path,
+.bpw-send-button:not(:disabled):focus path {
   fill: var(--ocean);
 }
 

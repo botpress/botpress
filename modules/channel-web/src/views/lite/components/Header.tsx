@@ -2,7 +2,7 @@ import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
 
-import ToolTip from '../../../../../../src/bp/ui-shared/src/ToolTip'
+import ToolTip from '../../../../../../src/bp/ui-shared-lite/ToolTip'
 import Close from '../icons/Close'
 import Download from '../icons/Download'
 import Information from '../icons/Information'
@@ -75,7 +75,7 @@ class Header extends React.Component<HeaderProps> {
 
   renderResetButton() {
     return (
-      <ToolTip content="Resets conversation">
+      <ToolTip content="Reset Conversation">
         <button
           type="button"
           tabIndex={-1}
@@ -128,18 +128,20 @@ class Header extends React.Component<HeaderProps> {
 
   renderBotInfoButton() {
     return (
-      <button
-        type="button"
-        tabIndex={-1}
-        id="btn-botinfo"
-        ref={el => (this.btnEls[3] = el)}
-        className="bpw-header-icon bpw-header-icon-botinfo"
-        onClick={this.props.toggleBotInfo}
-        onKeyDown={this.handleKeyDown.bind(this, this.props.toggleBotInfo)}
-        onBlur={this.onBlur}
-      >
-        <Information />
-      </button>
+      <ToolTip content="Bot Info">
+        <button
+          type="button"
+          tabIndex={-1}
+          id="btn-botinfo"
+          ref={el => (this.btnEls[3] = el)}
+          className="bpw-header-icon bpw-header-icon-botinfo"
+          onClick={this.props.toggleBotInfo}
+          onKeyDown={this.handleKeyDown.bind(this, this.props.toggleBotInfo)}
+          onBlur={this.onBlur}
+        >
+          <Information />
+        </button>
+      </ToolTip>
     )
   }
 

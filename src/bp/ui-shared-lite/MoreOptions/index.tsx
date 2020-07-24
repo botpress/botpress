@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Button, Icon } from '@blueprintjs/core'
 import cx from 'classnames'
 import React, { FC, Fragment } from 'react'

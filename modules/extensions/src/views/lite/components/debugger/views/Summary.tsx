@@ -1,4 +1,5 @@
 import sdk from 'botpress/sdk'
+import _ from 'lodash'
 import React from 'react'
 
 import { Collapsible } from '../components/Collapsible'
@@ -29,6 +30,8 @@ export default class Summary extends React.Component<Props> {
   }
 
   render() {
+    const eventError = _.get(this.props, 'event.state.__error')
+
     if (this.state.hasError) {
       return (
         <div className={style.section}>
@@ -51,6 +54,11 @@ export default class Summary extends React.Component<Props> {
         <Collapsible name="State">
           <Inspector data={this.props.event.state} />
         </Collapsible>
+        {eventError && (
+          <Collapsible name="Errors">
+            <Inspector data={eventError} />
+          </Collapsible>
+        )}
       </div>
     )
   }

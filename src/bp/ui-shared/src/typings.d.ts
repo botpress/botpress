@@ -6,7 +6,6 @@ import { CommanderProps, QuickShortcut } from './Commander/typings'
 import { DropdownProps, Option } from './Dropdown/typings'
 import { MainContainerProps } from './MainContainer/typings'
 import { MarkdownContentProps } from './MarkdownContent/typings'
-import { MoreOptionsProps } from './MoreOptions/typings'
 import { TreeViewProps } from './TreeView/typings'
 
 import { ToastOptions } from './Toaster'
@@ -20,9 +19,10 @@ import { FormProps } from './Contents/Components/Form/typings'
 import { ItemProps } from './Contents/Components/Item/typings'
 import { AddButtonProps } from './Contents/Components/typings'
 import { TextFieldsArrayProps } from './FormFields/TextFieldsArrayProps/typings'
-import { OverlayProps } from './Overlay/typings'
 import { FormField, MultiLangText } from 'botpress/sdk'
-import { ToolTipProps } from './ToolTip/typings'
+import { MoreOptionsProps } from '../../ui-shared-lite/MoreOptions/typings'
+import { OverlayProps } from '../../ui-shared-lite/Overlay/typings'
+import { ToolTipProps } from '../../ui-shared-lite/ToolTip/typings'
 
 declare module 'botpress/shared' {
   export function Commander(props: CommanderProps): JSX.Element
