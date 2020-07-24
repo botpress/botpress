@@ -24,12 +24,12 @@ export class StatsService {
   ) {}
 
   public async start() {
-    await this.actionStats.start()
-    await this.legacyStats.start()
-    await this.hooksStats.start()
-    await this.configStats.start()
+    this.actionStats.start()
+    this.legacyStats.start()
+    this.hooksStats.start()
+    this.configStats.start()
 
-    await this.refreshDB(DB_REFRESH_INTERVAL)
+    this.refreshDB(DB_REFRESH_INTERVAL)
     setInterval(this.refreshDB.bind(this, DB_REFRESH_INTERVAL), DB_REFRESH_INTERVAL)
   }
 
