@@ -29,7 +29,7 @@ interface Message {
   type: MsgType
   id: string
   payload: any
-  workerPid?: number
+  workerPid: number
 }
 
 // assuming 10 bots, 10 ctx * (oos, intent) + ndu + ctx cls + slot tagger
@@ -71,12 +71,10 @@ function overloadTrainers() {
           try {
             progressCb(msg.payload.progress)
           } catch (err) {
-            completedCb(err)
+            completedCb(undefined, err)
 
             const { workerPid } = msg
-            if (workerPid) {
-              process.send!({ type: 'svm_kill', id: msg.id, payload: {}, workerPid })
-            }
+            process.send!({ type: 'svm_kill', id: msg.id, payload: {}, workerPid })
 
             process.off('message', messageHandler)
           }
