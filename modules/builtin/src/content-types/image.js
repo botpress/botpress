@@ -92,7 +92,7 @@ function renderTeams(data) {
 }
 
 function renderElement(data, channel) {
-  if (channel === 'web' || channel === 'slack') {
+  if (channel === 'web' || channel === 'slack' || channel === 'twilio') {
     return base.renderer(data, 'image')
   } else if (channel === 'messenger') {
     return renderMessenger(data)
