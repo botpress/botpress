@@ -1,24 +1,51 @@
 import { BotDetails } from 'botpress/sdk'
+import { BUILTIN_MODULES } from 'common/defaults'
 import LicensingService from 'common/licensing-service'
 import { buildSchema } from 'common/telemetry'
 import { BotConfig } from 'core/config/bot.config'
 import Database from 'core/database'
 import { calculateHash } from 'core/misc/utils'
+import { ModuleLoader } from 'core/module-loader'
 import { TelemetryRepository } from 'core/repositories/telemetry'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
-import { config } from 'process'
 
 import { GhostService } from '..'
 import { BotService } from '../bot-service'
 import { JobService } from '../job-service'
+import { Config } from '../module/config-reader'
 
 import { TelemetryStats } from './telemetry-stats'
+
+const modulesConfigsBlacklist = {
+  analytics: [],
+  'basic-skills': ['transportConnectionString'],
+  builtin: [],
+  'channel-messenger': ['accessToken', 'appSecret', 'verifyToken', 'greeting', 'getStarted'],
+  'channel-slack': ['botToken', 'signingSecret'],
+  'channel-teams': ['appId', 'appPassword', 'tenantId'],
+  'channel-telegram': ['botToken'],
+  'channel-web': ['uploadsS3Bucket', 'uploadsS3AWSAccessKey', 'uploadsS3AWSAccessSecret'],
+  'code-editor': [],
+  examples: [],
+  extensions: [],
+  history: [],
+  hitl: [],
+  nlu: [],
+  qna: [],
+  testing: []
+}
 
 interface BotConfigEvent {
   botId: string
   botConfigs: BotConfig
+}
+
+interface ModuleConfigEvent {
+  botId: string
+  module: string
+  configs: Config
 }
 
 @injectable()
@@ -32,7 +59,8 @@ export class ConfigsStats extends TelemetryStats {
     @inject(TYPES.LicensingService) licenseService: LicensingService,
     @inject(TYPES.JobService) jobService: JobService,
     @inject(TYPES.TelemetryRepository) telemetryRepo: TelemetryRepository,
-    @inject(TYPES.BotService) private botService: BotService
+    @inject(TYPES.BotService) private botService: BotService,
+    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
   ) {
     super(ghostService, database, licenseService, jobService, telemetryRepo)
     this.url = process.TELEMETRY_URL
@@ -51,11 +79,28 @@ export class ConfigsStats extends TelemetryStats {
     }
   }
 
-  private async getModulesConfigs() {
-    return {}
+  private async getModulesConfigs(): Promise<ModuleConfigEvent[]> {
+    const bots = await this.botService.getBots()
+    const configs: ModuleConfigEvent[] = []
+    const modules = _.intersection(BUILTIN_MODULES, _.keys(process.LOADED_MODULES))
+
+    for (const module of modules) {
+      const defaultValue = await this.moduleLoader.configReader.loadFromDefaultValues(module)
+      for (const botId of [...bots.keys()]) {
+        const runtimeValue = await this.moduleLoader.configReader.getForBot(module, botId)
+
+        const blackListedValues = {}
+        for (const config of modulesConfigsBlacklist[module]) {
+          blackListedValues[config] = defaultValue[config] == runtimeValue[config] ? 'default' : 'redacted'
+        }
+        configs.push({ botId, module, configs: { ...runtimeValue, ...blackListedValues } })
+      }
+    }
+
+    return configs
   }
 
-  private async getBotsConfigs() {
+  private async getBotsConfigs(): Promise<BotConfigEvent[]> {
     const bots = await this.botService.getBots()
     const configs: BotConfigEvent[] = []
     for (const [key, value] of bots) {
@@ -71,7 +116,7 @@ export class ConfigsStats extends TelemetryStats {
     return {
       ...configs,
       details: this.formatBotDetails(configs.details),
-      description: configs.description ? 'modified' : 'default',
+      description: configs.description ? 'redacted' : 'default',
       id: calculateHash(configs.id),
       name: calculateHash(configs.name),
       pipeline_status: this.formatPipelineStatus(configs.pipeline_status)
@@ -92,7 +137,7 @@ export class ConfigsStats extends TelemetryStats {
     } else {
       const botDetails = {}
       for (const [key, value] of Object.entries(details)) {
-        botDetails[key] = value ? 'modified' : 'default'
+        botDetails[key] = value ? 'redacted' : 'default'
       }
       return botDetails
     }
