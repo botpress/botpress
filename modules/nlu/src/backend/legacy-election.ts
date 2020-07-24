@@ -12,7 +12,7 @@ const NONE_INTENT = 'none' // should extract in comon code
 
 // @deprecated > 13
 export default function legacyElectionPipeline(input: sdk.IO.EventUnderstanding) {
-  if (!input.intent) {
+  if (!input.predictions) {
     return input
   }
   let step: PredictOutput = input as PredictOutput
