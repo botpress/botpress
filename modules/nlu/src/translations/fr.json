@@ -20,7 +20,14 @@
       },
       "placeholder": {
         "pickComparisonMethod": "Choisissez une méthode de comparaison",
-        "pickVariableType": "Choisissez un type de variable"
+        "pickVariableType": "Choisissez un type de variable",
+        "intents": {
+          "empty": "Écrivez au moins 3 phrases que vos utilisateurs pourraient écrire pour invoquer leur intention",
+          "one": "Écrivez au moins 2 autres phrases que vos utilisateurs pourraient écrire pour invoquer leur intention",
+          "two": "Écrivez au moins 1 autre phrase que vos utilisateurs pourraient écrire pour invoquer leur intention",
+          "morePlural": "Écrivez au moins {count} autres phrases pour rendre votre assistant virtuel plus résilient",
+          "moreSingular": "Écrivez au moins 1 autre phrase pour rendre votre assistant virtuel plus résilient"
+        }
       }
     },
     "saySomethingMisunderstood": "L'utilisateur dit quelque chose qui est mal compris (intention)",

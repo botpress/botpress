@@ -75,26 +75,25 @@ const ConditionForm: FC<Props> = ({
 
   const getCustomPlaceholder = (field, index) => {
     if (field === 'utterances') {
-      console.log(index)
       switch (index) {
         case 0:
-          return 'Write at least 3 sentences that your users could write to invoke their intent'
+          return lang.tr('module.nlu.conditions.fields.placeholder.intents.empty')
         case 1:
-          return 'Write at least 2 more sentences that your users could write to invoke their intent'
+          return lang.tr('module.nlu.conditions.fields.placeholder.intents.one')
         case 2:
-          return 'Write at least 1 more sentence that your users could write to invoke their intent'
+          return lang.tr('module.nlu.conditions.fields.placeholder.intents.two')
         case 3:
-          return 'Write at least 6 other sentences to make your chatbot more resilient'
+          return lang.tr('module.nlu.conditions.fields.placeholder.intents.morePlural', { count: 6 })
         case 4:
-          return 'Write at least 5 other sentences to make your chatbot more resilient'
+          return lang.tr('module.nlu.conditions.fields.placeholder.intents.morePlural', { count: 5 })
         case 5:
-          return 'Write at least 4 other sentences to make your chatbot more resilient'
+          return lang.tr('module.nlu.conditions.fields.placeholder.intents.morePlural', { count: 4 })
         case 6:
-          return 'Write at least 3 other sentences to make your chatbot more resilient'
+          return lang.tr('module.nlu.conditions.fields.placeholder.intents.morePlural', { count: 3 })
         case 7:
-          return 'Write at least 2 other sentences to make your chatbot more resilient'
+          return lang.tr('module.nlu.conditions.fields.placeholder.intents.morePlural', { count: 2 })
         case 8:
-          return 'Write at least 1 other sentence to make your chatbot more resilient'
+          return lang.tr('module.nlu.conditions.fields.placeholder.intents.moreSingular')
       }
     }
 

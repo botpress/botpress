@@ -3,10 +3,10 @@ import cx from 'classnames'
 import _ from 'lodash'
 import React, { Fragment } from 'react'
 
-import { createEmptyDataFromSchema } from './fields'
-
-import style from '../Components/Form/style.scss'
 import { lang } from '../../translations'
+import style from '../Components/Form/style.scss'
+
+import { createEmptyDataFromSchema } from './fields'
 
 export const printMoreInfo = (moreInfo: FormMoreInfo, isCheckbox = false): JSX.Element | undefined => {
   if (!moreInfo) {
