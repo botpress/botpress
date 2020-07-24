@@ -196,8 +196,8 @@ const ToolTip: FC<ToolTipProps> = ({ children, content, position = 'top' }) => {
 
     ReactDOM.render(
       <div ref={tooltipRef} className={cx(style.tooltip, classNames)} style={inlineStyle}>
-        <div ref={tipRef} className='tooltipArrow' style={tipPos}></div>
-        <div className='tooltipInner'>{content}</div>
+        <div ref={tipRef} className="tooltipArrow" style={tipPos}></div>
+        <div className="tooltipInner">{content}</div>
       </div>,
       div
     )
