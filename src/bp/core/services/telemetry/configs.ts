@@ -80,24 +80,29 @@ export class ConfigsStats extends TelemetryStats {
   }
 
   private async getModulesConfigs(): Promise<ModuleConfigEvent[]> {
-    const bots = await this.botService.getBots()
-    const configs: ModuleConfigEvent[] = []
+    const bots = Array.from((await this.botService.getBots()).keys())
     const modules = _.intersection(BUILTIN_MODULES, _.keys(process.LOADED_MODULES))
 
-    for (const module of modules) {
+    return (await Promise.map(modules, this.getConfigsByModule(bots))).reduce((acc, cur) => [...acc, ...cur])
+  }
+
+  private getConfigsByModule(bots: string[]): (module: string) => Promise<ModuleConfigEvent[]> {
+    return async module => {
       const defaultValue = await this.moduleLoader.configReader.loadFromDefaultValues(module)
-      for (const botId of [...bots.keys()]) {
-        const runtimeValue = await this.moduleLoader.configReader.getForBot(module, botId)
-
-        const blackListedValues = {}
-        for (const config of modulesConfigsBlacklist[module]) {
-          blackListedValues[config] = defaultValue[config] == runtimeValue[config] ? 'default' : 'redacted'
-        }
-        configs.push({ botId, module, configs: { ...runtimeValue, ...blackListedValues } })
-      }
+      return await Promise.map(bots, this.getModuleConfigPerBot(module, defaultValue))
     }
+  }
 
-    return configs
+  private getModuleConfigPerBot(module: string, defaultValue: any): (botId: any) => Promise<ModuleConfigEvent> {
+    return async botId => {
+      const runtimeValue = await this.moduleLoader.configReader.getForBot(module, botId)
+
+      const blackListedValues = {}
+      for (const config of modulesConfigsBlacklist[module]) {
+        blackListedValues[config] = defaultValue[config] == runtimeValue[config] ? 'default' : 'redacted'
+      }
+      return { botId, module, configs: { ...runtimeValue, ...blackListedValues } }
+    }
   }
 
   private async getBotsConfigs(): Promise<BotConfigEvent[]> {
