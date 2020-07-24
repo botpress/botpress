@@ -25,7 +25,7 @@ const onModuleUnmount = async (bp: typeof sdk) => {
 const botTemplates: sdk.BotTemplate[] = [
   {
     id: 'bp-nlu-buisness-synonyms-testing',
-    name: 'BPDS - NLU synonyms testing',
+    name: 'BPDS - NLU  buisness synonyms testing',
     desc: 'BP Dataset with acronyms not seen at training time (e.g Can I talk to the CEO => manager)'
   },
   {
@@ -40,7 +40,7 @@ const botTemplates: sdk.BotTemplate[] = [
   },
   {
     id: 'bp-nlu-oos-testing',
-    name: 'BPDS - NLU intents testing',
+    name: 'BPDS - NLU oos testing',
     desc: 'BP Dataset with 150 intents plus out of scope sentences'
   },
   {
@@ -51,7 +51,7 @@ const botTemplates: sdk.BotTemplate[] = [
   },
   {
     id: 'bp-nlu-synonyms-testing',
-    name: 'BPDS - NLU intents testing',
+    name: 'BPDS - NLU synonyms testing',
     desc:
       'BP Dataset training sentences replaced with wordNet synonyms (e.g I would treat you with love => I should manage you with passion)'
   }
