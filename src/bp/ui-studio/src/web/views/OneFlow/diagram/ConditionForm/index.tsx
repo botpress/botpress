@@ -1,4 +1,4 @@
-import { Tab, Tabs } from '@blueprintjs/core'
+import { Button, Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
 import { BotEvent, Condition, FlowVariable, FormData } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
@@ -37,6 +37,7 @@ const ConditionForm: FC<Props> = ({
   variables,
   events
 }) => {
+  const [maximized, setMaximized] = useState(false)
   const [isConfirming, setIsConfirming] = useState(false)
   const condition = useRef(formData?.id)
   const [showOptions, setShowOptions] = useState(false)
@@ -100,6 +101,11 @@ const ConditionForm: FC<Props> = ({
     return ''
   }
 
+  const toggleSize = () => {
+    document.documentElement.style.setProperty('--right-sidebar-width', maximized ? '240px' : '580px')
+    setMaximized(!maximized)
+  }
+
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={!isConfirming} close={() => close(editingCondition)}>
       <Fragment key={`${condition.current}-${customKey || editingCondition}`}>
@@ -107,7 +113,18 @@ const ConditionForm: FC<Props> = ({
           <Tabs id="contentFormTabs">
             <Tab id="content" title={lang.tr('studio.flow.nodeType.trigger')} />
           </Tabs>
-          <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
+          <div>
+            <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
+            {['user_intent_is', 'raw_js'].includes(selectedOption?.value) && (
+              <Button
+                className={style.expandBtn}
+                small
+                minimal
+                icon={maximized ? 'minimize' : 'maximize'}
+                onClick={toggleSize}
+              />
+            )}
+          </div>
         </div>
         <div className={cx(style.fieldWrapper, style.contentTypeField)}>
           <span className={style.formLabel}>{lang.tr('studio.condition.label')}</span>

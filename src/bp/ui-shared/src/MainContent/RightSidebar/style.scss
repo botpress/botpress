@@ -1,5 +1,6 @@
 .wRightSidebar {
   padding-right: calc(var(--spacing-x-large) + var(--right-sidebar-width));
+  transition: padding-right 0.3s;
 }
 
 .rightSidebar {
@@ -10,7 +11,7 @@
   bottom: 28px;
   overflow: auto;
   transform: translateX(100%);
-  transition: transform 0.3s;
+  transition: transform 0.3s, width 0.3s;
 
   &.show {
     transform: translateX(0);

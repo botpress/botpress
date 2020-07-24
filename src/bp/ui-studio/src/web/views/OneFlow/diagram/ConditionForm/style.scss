@@ -1,11 +1,31 @@
 .formHeader {
   position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
 
   h4 {
     font-size: 22px;
     font-weight: 500;
     color: var(--shark);
     margin: 0 0 var(--spacing-small);
+  }
+
+  .expandBtn {
+    margin-right: var(--spacing-xx-large);
+
+    svg {
+      fill: var(--shark);
+      transition: fill 0.3s;
+    }
+
+    &:hover {
+      background: none;
+
+      svg {
+        fill: var(--reef);
+      }
+    }
   }
 }
 
