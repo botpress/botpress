@@ -76,6 +76,30 @@ try {
     defaultVerbosity = Number(process.env.VERBOSITY_LEVEL)
   }
 
+  process.IS_PRO_AVAILABLE = fs.existsSync(path.resolve(process.PROJECT_LOCATION, 'pro')) || !!process.pkg
+  process.DISABLE_GLOBAL_SANDBOX = yn(process.env.DISABLE_GLOBAL_SANDBOX)
+  process.DISABLE_BOT_SANDBOX = yn(process.env.DISABLE_BOT_SANDBOX)
+  process.DISABLE_TRANSITION_SANDBOX = yn(process.env.DISABLE_TRANSITION_SANDBOX)
+  process.IS_LICENSED = true
+  process.ASSERT_LICENSED = () => {}
+  process.BOTPRESS_VERSION = metadataContent.version
+  process.BPFS_STORAGE = process.core_env.BPFS_STORAGE || 'disk'
+
+  const configPath = path.join(process.PROJECT_LOCATION, '/data/global/botpress.config.json')
+
+  if (process.IS_PRO_AVAILABLE) {
+    process.CLUSTER_ENABLED = yn(process.env.CLUSTER_ENABLED)
+
+    if (process.env.PRO_ENABLED === undefined) {
+      if (fs.existsSync(configPath)) {
+        const config = require(configPath)
+        process.IS_PRO_ENABLED = config.pro && config.pro.enabled
+      }
+    } else {
+      process.IS_PRO_ENABLED = yn(process.env.PRO_ENABLED)
+    }
+  }
+
   require('yargs')
     .command(
       ['serve', '$0'],
@@ -96,34 +120,11 @@ try {
       },
       argv => {
         process.IS_PRODUCTION = argv.production || yn(process.env.BP_PRODUCTION) || yn(process.env.CLUSTER_ENABLED)
-        process.BPFS_STORAGE = process.core_env.BPFS_STORAGE || 'disk'
 
         process.AUTO_MIGRATE =
           process.env.AUTO_MIGRATE === undefined ? yn(argv.autoMigrate) : yn(process.env.AUTO_MIGRATE)
 
         process.VERBOSITY_LEVEL = argv.verbose ? Number(argv.verbose) : defaultVerbosity
-        process.DISABLE_GLOBAL_SANDBOX = yn(process.env.DISABLE_GLOBAL_SANDBOX)
-        process.DISABLE_BOT_SANDBOX = yn(process.env.DISABLE_BOT_SANDBOX)
-        process.DISABLE_TRANSITION_SANDBOX = yn(process.env.DISABLE_TRANSITION_SANDBOX)
-        process.IS_LICENSED = true
-        process.ASSERT_LICENSED = () => {}
-        process.BOTPRESS_VERSION = metadataContent.version
-
-        process.IS_PRO_AVAILABLE = fs.existsSync(path.resolve(process.PROJECT_LOCATION, 'pro')) || !!process.pkg
-        const configPath = path.join(process.PROJECT_LOCATION, '/data/global/botpress.config.json')
-
-        if (process.IS_PRO_AVAILABLE) {
-          process.CLUSTER_ENABLED = yn(process.env.CLUSTER_ENABLED)
-
-          if (process.env.PRO_ENABLED === undefined) {
-            if (fs.existsSync(configPath)) {
-              const config = require(configPath)
-              process.IS_PRO_ENABLED = config.pro && config.pro.enabled
-            }
-          } else {
-            process.IS_PRO_ENABLED = yn(process.env.PRO_ENABLED)
-          }
-        }
 
         getos.default().then(distro => {
           process.distro = distro
@@ -317,6 +318,31 @@ try {
         getos.default().then(distro => {
           process.distro = distro
           require('./lang-server').default(argv)
+        })
+      }
+    )
+    .command(
+      'diag',
+      'Generate a diagnostic report',
+      {
+        config: {
+          alias: 'c',
+          description: 'Include all configuration files',
+          default: false
+        },
+        includePasswords: {
+          description: 'Passwords will not be obfuscated in the output',
+          default: false
+        },
+        outputFile: {
+          alias: 'o',
+          description: 'Send the output to the specified filename'
+        }
+      },
+      argv => {
+        getos.default().then(distro => {
+          process.distro = distro
+          require('./diag').default(argv)
         })
       }
     )
