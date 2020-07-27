@@ -76,7 +76,7 @@ class Bots extends Component<Props> {
       this.props.fetchLicensing()
     }
 
-    telemetry.startOfflineTelemetryFallback(api.getSecured())
+    telemetry.startWatcher(api.getSecured())
   }
 
   toggleCreateBotModal = () => {

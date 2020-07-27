@@ -51,6 +51,6 @@ exports.lang = {
 exports.toast = toast
 exports.utils = { controlKey, keyMap, isInputFocused }
 exports.telemetry = {
-  startOfflineTelemetryFallback,
-  sendEventsToTelemetryServer
+  startWatcher: startOfflineTelemetryFallback,
+  sendTelemetry: sendEventsToTelemetryServer
 }
