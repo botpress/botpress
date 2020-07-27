@@ -9,6 +9,7 @@ interface CssExports {
   'container': string;
   'container2': string;
   'content': string;
+  'debuggerIcon': string;
   'group': string;
   'header': string;
   'hovering': string;

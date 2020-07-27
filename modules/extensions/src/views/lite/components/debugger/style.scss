@@ -114,11 +114,11 @@
   > div {
     text-align: center;
     margin: auto;
-    padding: var(--spacing-medium);
+    padding: var(--spacing-medium) var(--spacing-large);
 
-    svg {
-      font-size: 80px;
-      color: var(--ocean);
+    .debuggerIcon {
+      display: block;
+      margin-bottom: var(--spacing-x-large);
     }
 
     ul {

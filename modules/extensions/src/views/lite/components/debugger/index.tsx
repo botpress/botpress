@@ -60,12 +60,6 @@ export class Debugger extends React.Component<Props, State> {
 
     this.props.store.view.setLayoutWidth(WEBCHAT_WIDTH)
     this.props.store.view.setContainerWidth(WEBCHAT_WIDTH)
-    this.props.store.view.addHeaderButton({
-      id: 'toggleDev',
-      label: 'Show Debugger',
-      icon: <MdBugReport size={18} />,
-      onClick: this.toggleDebugger
-    })
 
     this.props.store.view.addCustomAction({
       id: 'actionDebug',
