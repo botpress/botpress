@@ -260,6 +260,21 @@
   }
 }
 
+:global(.portContainer).outRouting {
+  background: none !important;
+  right: 0;
+  transform: none;
+  top: 0;
+  position: static;
+
+  :global(.label) {
+    position: absolute;
+    top: 50%;
+    right: calc(var(--spacing-large) * -1);
+    transform: translate(100%, -50%);
+  }
+}
+
 .content {
   align-items: center;
   background: #fff;

@@ -140,7 +140,9 @@ const ActionWidget: FC<Props> = ({
       </NodeHeader>
       {expanded && (
         <div className={style.contentsWrapper}>
-          <ActionNodeContent action={parseActionString(node.onEnter[0])} onSave={onSave} />
+          <div className={style.contentWrapper}>
+            <ActionNodeContent action={parseActionString(node.onEnter[0])} onSave={onSave} />
+          </div>
         </div>
       )}
     </NodeWrapper>

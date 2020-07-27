@@ -102,8 +102,10 @@ const ExecuteWidget: FC<Props> = ({
       </NodeHeader>
       {expanded && (
         <div className={style.contentsWrapper}>
-          <div className={style.content}>
-            <ActionModalSmall text={actionText} onChange={handleItemChanged} layoutv2 />
+          <div className={style.contentWrapper}>
+            <div className={style.content}>
+              <ActionModalSmall text={actionText} onChange={handleItemChanged} layoutv2 />
+            </div>
           </div>
         </div>
       )}

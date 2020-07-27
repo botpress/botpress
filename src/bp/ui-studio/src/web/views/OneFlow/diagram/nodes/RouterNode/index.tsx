@@ -1,7 +1,8 @@
 import { Intent, Menu, MenuItem } from '@blueprintjs/core'
 import { contextMenu, lang, ShortcutLabel } from 'botpress/shared'
+import cx from 'classnames'
 import _ from 'lodash'
-import React, { FC, Fragment, useState } from 'react'
+import React, { FC, useState } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
 import RoutingItem from '~/views/FlowBuilder/common/routing'
 import { BaseNodeModel } from '~/views/FlowBuilder/diagram/nodes/BaseNodeModel'
@@ -86,17 +87,18 @@ const RouterWidget: FC<Props> = ({
         error={error}
       >
         <StandardPortWidget name="in" node={node} className={style.in} />
-        <StandardPortWidget name="out0" node={node} className={style.out} />
       </NodeHeader>
       {!!node.next?.length && (
         <div className={style.contentsWrapper}>
           {node.next.map((item, i) => {
             const outputPortName = `out${i}`
             return (
-              <Fragment key={`${i}.${item}`}>
-                <RoutingItem condition={item} position={i} />
-                <StandardPortWidget name={outputPortName} node={node} className={style.outRouting} />
-              </Fragment>
+              <div className={style.contentWrapper} key={`${i}.${item}`}>
+                <div className={cx(style.content, style.promptPortContent)}>
+                  <RoutingItem condition={item} position={i} />
+                  <StandardPortWidget name={outputPortName} node={node} className={style.outRouting} />
+                </div>
+              </div>
             )
           })}
         </div>
