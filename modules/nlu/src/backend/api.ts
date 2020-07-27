@@ -2,7 +2,6 @@ import * as sdk from 'botpress/sdk'
 import Joi, { validate } from 'joi'
 import _ from 'lodash'
 import yn from 'yn'
-
 import { isOn as isAutoTrainOn, set as setAutoTrain } from './autoTrain'
 import { EntityDefCreateSchema } from './entities/validation'
 import {
@@ -15,11 +14,13 @@ import {
 } from './intents/intent-service'
 import recommendations from './intents/recommendations'
 import { IntentDefCreateSchema } from './intents/validation'
+import { getPOSTagger, tagSentence } from './language/pos-tagger'
 import legacyElectionPipeline from './legacy-election'
 import { initializeLanguageProvider } from './module-lifecycle/on-server-started'
 import { crossValidate } from './tools/cross-validation'
 import { getTrainingSession } from './train-session-service'
-import { NLUState } from './typings'
+import { NLUState, Token2Vec, Tools } from './typings'
+import { buildUtteranceBatch } from './utterance/utterance'
 
 export const PredictSchema = Joi.object().keys({
   contexts: Joi.array()
@@ -39,12 +40,37 @@ const removeSlotsFromUtterances = (utterances: { [key: string]: any }, slotNames
 export default async (bp: typeof sdk, state: NLUState) => {
   const router = bp.http.createRouterForBot('nlu')
 
+  const tools: Tools = {
+    partOfSpeechUtterances: (tokenUtterances: string[][], lang: string) => {
+      const tagger = getPOSTagger(lang, bp.MLToolkit)
+      return tokenUtterances.map(tagSentence.bind(this, tagger))
+    },
+    tokenize_utterances: (utterances: string[], lang: string, vocab?: Token2Vec) =>
+      state.languageProvider.tokenize(utterances, lang, vocab),
+    vectorize_tokens: async (tokens, lang) => {
+      const a = await state.languageProvider.vectorize(tokens, lang)
+      return a.map(x => Array.from(x.values()))
+    },
+    generateSimilarJunkWords: undefined,
+    mlToolkit: bp.MLToolkit,
+    duckling: undefined,
+    reportTrainingProgress: undefined
+  }
+
   router.get('/health', async (req, res) => {
     // When the health is bad, we'll refresh the status in case it changed (eg: user added languages)
     if (!state.health.isEnabled) {
       await initializeLanguageProvider(bp, state)
     }
     res.send(state.health)
+  })
+
+  router.post('/embed', async (req, res) => {
+    // console.log('Computing : ', req.body.utterances)
+    const utterances = await buildUtteranceBatch(req.body.utterances, 'fr', tools)
+    const utt_embs = utterances.map(u => u.sentenceEmbedding)
+    // console.log('Done', req.body.utterances)
+    res.send(utt_embs)
   })
 
   router.post('/cross-validation/:lang', async (req, res) => {

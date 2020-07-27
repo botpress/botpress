@@ -444,20 +444,19 @@ export const Predict = async (
     const t0 = Date.now()
     // tslint:disable-next-line
     let { stepOutput, predictors } = await preprocessInput(input, tools, predictorsByLang)
-
     stepOutput = await makePredictionUtterance(stepOutput, predictors, tools)
     stepOutput = await extractEntities(stepOutput, predictors, tools)
-    debugger
-    if (stepOutput.utterance.entities) {
-      for (const entitie of stepOutput.utterance.entities) {
-        console.log('Old ', stepOutput.rawText)
-        // @ts-ignore
-        stepOutput.rawText = stepOutput.rawText.replace(entitie.metadata.source, entitie.type)
-        console.log('New ', stepOutput.rawText)
-      }
-      stepOutput = await makePredictionUtterance(stepOutput, predictors, tools)
-      stepOutput = await extractEntities(stepOutput, predictors, tools)
-    }
+    // debugger
+    // if (stepOutput.utterance.entities) {
+    //   for (const entitie of stepOutput.utterance.entities) {
+    //     console.log('Old ', stepOutput.rawText)
+    //     // @ts-ignore
+    //     stepOutput.rawText = stepOutput.rawText.replace(entitie.metadata.source, entitie.type)
+    //     console.log('New ', stepOutput.rawText)
+    //   }
+    //   stepOutput = await makePredictionUtterance(stepOutput, predictors, tools)
+    //   stepOutput = await extractEntities(stepOutput, predictors, tools)
+    // }
     stepOutput = await predictOutOfScope(stepOutput, predictors)
     stepOutput = await predictContext(stepOutput, predictors)
     stepOutput = await predictIntent(stepOutput, predictors)
