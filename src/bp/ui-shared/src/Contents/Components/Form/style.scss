@@ -1,0 +1,76 @@
+.moreInfo {
+  color: var(--reef);
+  display: block;
+  font-size: 8px;
+  line-height: 1.25;
+  margin: 0 0 var(--spacing-medium);
+}
+
+.requiredField {
+  color: var(--lighthouse);
+  margin-left: var(--spacing-x-small);
+}
+
+a.moreInfo {
+  color: var(--ocean);
+  transition: color 0.3s;
+
+  &:hover, &:focus, &:active {
+    color: var(--hover-ocean);
+    text-decoration: none;
+  }
+}
+
+.moreInfo.isCheckbox {
+  margin-left: 26px;
+}
+
+.checkboxWrapper {
+  margin-top: var(--spacing-medium);
+  min-height: 16px;
+
+  &:first-of-type {
+    margin-top: 0;
+  }
+
+  :global {
+    .bp3-control input:checked ~ .bp3-control-indicator {
+      background: var(--ocean) !important;
+      box-shadow: none !important;
+      border: none !important;
+    }
+
+    .bp3-checkbox {
+      color: var(--shark);
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 1.25;
+      margin: 0;
+
+      .bp3-control-indicator {
+        box-shadow: none !important;
+        background: #fff !important;
+        border: 1px solid var(--seashell) !important;
+        font-size: 15px !important;
+        height: 15px !important;
+        width: 15px !important;
+      }
+    }
+  }
+}
+
+.superInputBtn {
+  color: var(--ocean) !important;
+  padding: 0 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  font-size: 12px !important;
+  line-height: 1.25 !important;
+  margin: 0 !important;
+  transition: color 0.3s;
+
+  &:hover {
+    background: none !important;
+    color: var(--shark) !important;
+  }
+}

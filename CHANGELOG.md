@@ -1,3 +1,22 @@
+## [12.10.3](https://github.com/botpress/botpress/compare/v12.10.2...v12.10.3) (2020-07-17)
+
+
+### Bug Fixes
+
+* **channel-web:** actually wait until chat is loaded ([#3587](https://github.com/botpress/botpress/issues/3587)) ([772e2a9](https://github.com/botpress/botpress/commit/772e2a9))
+* **core:** allowoverride import generates duplicate bots in workspace ([#3584](https://github.com/botpress/botpress/issues/3584)) ([ac8f6fc](https://github.com/botpress/botpress/commit/ac8f6fc))
+* **core:** default permissions for new workspaces ([#3530](https://github.com/botpress/botpress/issues/3530)) ([3474474](https://github.com/botpress/botpress/commit/3474474))
+* **core:** small fixes for debugger & lifecycle ([#3586](https://github.com/botpress/botpress/issues/3586)) ([b50cfae](https://github.com/botpress/botpress/commit/b50cfae))
+* **nlu:** added back extracted entity in slot when there's one ([#3559](https://github.com/botpress/botpress/issues/3559)) ([5362b77](https://github.com/botpress/botpress/commit/5362b77))
+* **nlu:** encode URI before calling duckling ([a96372d](https://github.com/botpress/botpress/commit/a96372d))
+
+
+### Features
+
+* **channel-web:** more req per sec on master ([#3590](https://github.com/botpress/botpress/issues/3590)) ([1b12efc](https://github.com/botpress/botpress/commit/1b12efc))
+
+
+
 ## [12.10.2](https://github.com/botpress/botpress/compare/v12.10.1...v12.10.2) (2020-06-24)
 
 

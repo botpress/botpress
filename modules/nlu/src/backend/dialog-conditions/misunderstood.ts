@@ -3,17 +3,18 @@ import _ from 'lodash'
 
 export default {
   id: 'user_intent_misunderstood',
-  label: 'Users says something misunderstood (intent)',
+  label: 'module.nlu.conditions.saySomethingMisunderstood',
   description: `The user's intention is misunderstood`,
   displayOrder: 3,
-  params: {
-    maxConfidence: {
-      label: 'Maximum reachable confidence (%)',
+  fields: [
+    {
+      key: 'maxConfidence',
+      label: 'module.nlu.conditions.fields.label.maxConfidence',
       type: 'number',
       defaultValue: 100,
       required: true
     }
-  },
+  ],
   evaluate: (event, params) => {
     const highestCtx = _.chain(event?.nlu?.predictions ?? {})
       .toPairs()

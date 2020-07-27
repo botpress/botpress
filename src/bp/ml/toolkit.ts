@@ -3,10 +3,9 @@ import cluster, { Worker } from 'cluster'
 import _ from 'lodash'
 import kmeans from 'ml-kmeans'
 import nanoid from 'nanoid'
-import tmp from 'tmp'
 
 import { registerMsgHandler, spawnMLWorkers, WORKER_TYPES } from '../cluster'
-const { Tagger, Trainer: CRFTrainer } = require('./crfsuite')
+import { Tagger, Trainer as CRFTrainer } from './crf'
 import { FastTextModel } from './fasttext'
 import computeJaroWinklerDistance from './homebrew/jaro-winkler'
 import computeLevenshteinDistance from './homebrew/levenshtein'
@@ -30,8 +29,8 @@ const MLToolkit: typeof sdk.MLToolkit = {
     kmeans
   },
   CRF: {
-    createTagger: Tagger,
-    createTrainer: CRFTrainer
+    Tagger: Tagger,
+    Trainer: CRFTrainer
   },
   SVM: {
     Predictor,
@@ -82,7 +81,10 @@ function overloadTrainers() {
     })
   }
 
-  MLToolkit.CRF.createTrainer.prototype.train = (elements: any, params?: any): any => {
+  MLToolkit.CRF.Trainer.prototype.train = (
+    elements: sdk.MLToolkit.CRF.DataPoint[],
+    params: sdk.MLToolkit.CRF.TrainerOptions
+  ): Promise<string> => {
     return Promise.fromCallback(completedCb => {
       const id = nanoid()
       const messageHandler = (msg: Message) => {
@@ -103,7 +105,7 @@ function overloadTrainers() {
 
       process.send!({ type: 'crf_train', id, payload: { elements, params } })
       process.on('message', messageHandler)
-    })
+    }) as any
   }
 }
 
@@ -131,19 +133,11 @@ if (cluster.isWorker) {
 
       if (msg.type === 'crf_train') {
         const debugTrain = DEBUG('nlu').sub('training')
-        const trainer = new CRFTrainer()
 
         try {
-          trainer.set_params(msg.payload.params)
-          trainer.set_callback(str => debugTrain('CRFSUITE', str))
-
-          for (const { features, labels } of msg.payload.elements) {
-            trainer.append(features, labels)
-          }
-
-          const crfModelFilename = tmp.fileSync({ postfix: '.bin' }).name
-          trainer.train(crfModelFilename)
-
+          const { elements, params } = msg.payload
+          const trainer = new CRFTrainer()
+          const crfModelFilename = await trainer.train(elements, params, str => debugTrain('CRFSUITE', str))
           process.send!({ type: 'crf_done', id: msg.id, payload: { crfModelFilename } })
         } catch (error) {
           process.send!({ type: 'crf_error', id: msg.id, payload: { error } })

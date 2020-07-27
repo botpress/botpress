@@ -112,15 +112,20 @@ export function makeExtractedSlots(
           }
         ]
       }
-    }, [])
+    }, [] as SlotExtractionResult[])
     .map((extracted: SlotExtractionResult) => {
       const associatedEntityInRange = utterance.entities.find(
         e =>
-          ((e.startPos <= extracted.start && e.endPos >= extracted.end) || // entity is fully within the tagged slot
-            (e.startPos >= extracted.start && e.endPos <= extracted.end)) && // slot is fully contained by an entity
+          ((e.startPos <= extracted.start && e.endPos >= extracted.end) || // slot is fully contained by an entity
+            (e.startPos >= extracted.start && e.endPos <= extracted.end)) && // entity is fully within the tagged slot
           _.includes(intent.slot_entities, e.type) // entity is part of the possible entities
       )
       if (associatedEntityInRange) {
+        extracted.slot.entity = {
+          ..._.omit(associatedEntityInRange, 'startPos', 'endPos', 'startTokenIdx', 'endTokenIdx'),
+          start: associatedEntityInRange.startPos,
+          end: associatedEntityInRange.endPos
+        }
         extracted.slot.value = associatedEntityInRange.value
       }
       return extracted
@@ -140,7 +145,7 @@ export default class SlotTagger {
   }
 
   private _readTagger() {
-    this._crfTagger = this.mlToolkit.CRF.createTagger()
+    this._crfTagger = new this.mlToolkit.CRF.Tagger()
     this._crfTagger.open(this._crfModelFn)
   }
 
@@ -158,7 +163,7 @@ export default class SlotTagger {
       }
     }
 
-    const trainer = this.mlToolkit.CRF.createTrainer()
+    const trainer = new this.mlToolkit.CRF.Trainer()
     this._crfModelFn = await trainer.train(elements, CRF_TRAINER_PARAMS)
   }
 

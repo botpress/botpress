@@ -3,12 +3,13 @@ import _ from 'lodash'
 
 import { getOrCreateCache } from './cache-manager'
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
-import { getSentenceEmbeddingForCtx } from './intents/context-classifier-featurizer'
+import { getCtxFeatures } from './intents/context-featurizer'
+import { getIntentFeatures } from './intents/intent-featurizer'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getStopWordsForLang } from './language/stopWords'
-import { Model } from './model-service'
 import { featurizeInScopeUtterances, featurizeOOSUtterances } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
+import { getSeededLodash, resetSeed } from './tools/seeded-lodash'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import tfidf from './tools/tfidf'
 import { convertToRealSpaces, isSpace, SPACE } from './tools/token-utils'
@@ -25,8 +26,7 @@ import {
 } from './typings'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
 
-// TODO make this return artefacts only and move the make model login in E2
-export type Trainer = (input: TrainInput, tools: Tools) => Promise<Model>
+export type Trainer = (input: TrainInput, tools: Tools) => Promise<TrainOutput>
 
 export type TrainInput = Readonly<{
   botId: string
@@ -36,9 +36,10 @@ export type TrainInput = Readonly<{
   contexts: string[]
   intents: Intent<string>[]
   trainingSession: TrainingSession
+  ctxToTrain: string[]
 }>
 
-export type TrainOutput = Readonly<{
+type TrainStep = Readonly<{
   botId: string
   languageCode: string
   list_entities: ListEntityModel[]
@@ -48,9 +49,10 @@ export type TrainOutput = Readonly<{
   vocabVectors: Token2Vec
   tfIdf?: TFIDF
   kmeans?: sdk.MLToolkit.KMeans.KmeansResult
+  ctxToTrain: string[]
 }>
 
-export interface TrainArtefacts {
+export interface TrainOutput {
   list_entities: ListEntityModel[]
   tfidf: TFIDF
   vocabVectors: Token2Vec
@@ -60,6 +62,7 @@ export interface TrainArtefacts {
   slots_model: Buffer
   exact_match_index: ExactMatchIndex
   oos_model: _.Dictionary<string>
+  intents?: Intent<Utterance>[]
 }
 
 export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] }>
@@ -86,7 +89,7 @@ const KMEANS_OPTIONS = {
   seed: 666 // so training is consistent
 } as sdk.MLToolkit.KMeans.KMeansOptions
 
-const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainOutput> => {
+const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainStep> => {
   debugTraining.forBot(input.botId, 'Preprocessing intents')
   input = _.cloneDeep(input)
   const list_entities = await Promise.map(input.list_entities, list =>
@@ -101,7 +104,7 @@ const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainOu
     list_entities,
     intents,
     vocabVectors
-  } as TrainOutput
+  } as TrainStep
 }
 
 const makeListEntityModel = async (entity: ListEntity, botId: string, languageCode: string, tools: Tools) => {
@@ -145,7 +148,7 @@ export const computeKmeans = (intents: Intent<Utterance>[], tools: Tools): sdk.M
   return tools.mlToolkit.KMeans.kmeans(data, k, KMEANS_OPTIONS)
 }
 
-const ClusterTokens = (input: TrainOutput, tools: Tools): TrainOutput => {
+const ClusterTokens = (input: TrainStep, tools: Tools): TrainStep => {
   const kmeans = computeKmeans(input.intents, tools)
   const copy = { ...input, kmeans }
   copy.intents.forEach(x => x.utterances.forEach(u => u.setKmeans(kmeans)))
@@ -181,7 +184,7 @@ const buildVectorsVocab = (intents: Intent<Utterance>[]): _.Dictionary<number[]>
   )
 }
 
-export const BuildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
+export const BuildExactMatchIndex = (input: TrainStep): ExactMatchIndex => {
   return _.chain(input.intents)
     .filter(i => i.name !== NONE_INTENT)
     .flatMap(i =>
@@ -199,12 +202,17 @@ export const BuildExactMatchIndex = (input: TrainOutput): ExactMatchIndex => {
     .value()
 }
 
+const getCustomEntitiesNames = (input: TrainStep): string[] => {
+  return [...input.list_entities.map(e => e.entityName), ...input.pattern_entities.map(e => e.name)]
+}
+
 const TrainIntentClassifier = async (
-  input: TrainOutput,
+  input: TrainStep,
   tools: Tools,
   progress: progressCB
 ): Promise<_.Dictionary<string> | undefined> => {
   debugTraining.forBot(input.botId, 'Training intent classifier')
+  const customEntities = getCustomEntitiesNames(input)
   const svmPerCtx: _.Dictionary<string> = {}
 
   const noneUtts = _.chain(input.intents)
@@ -213,19 +221,22 @@ const TrainIntentClassifier = async (
     .filter(u => u.tokens.filter(t => t.isWord).length >= 3)
     .value()
 
-  for (let i = 0; i < input.contexts.length; i++) {
-    const ctx = input.contexts[i]
+  for (let i = 0; i < input.ctxToTrain.length; i++) {
+    const ctx = input.ctxToTrain[i]
     const trainableIntents = input.intents.filter(
       i => i.name !== NONE_INTENT && i.contexts.includes(ctx) && i.utterances.length >= MIN_NB_UTTERANCES
     )
 
     const nAvgUtts = Math.ceil(_.meanBy(trainableIntents, 'utterances.length'))
+
+    const lo = getSeededLodash(process.env.NLU_SEED)
     const points = _.chain(trainableIntents)
       .thru(ints => [
         ...ints,
         {
           name: NONE_INTENT,
-          utterances: _.chain(noneUtts)
+          utterances: lo
+            .chain(noneUtts)
             .shuffle()
             .take(nAvgUtts * 2.5) // undescriptible magic n, no sens to extract constant
             .value()
@@ -234,19 +245,21 @@ const TrainIntentClassifier = async (
       .flatMap(i =>
         i.utterances.map(utt => ({
           label: i.name,
-          coordinates: [...utt.sentenceEmbedding, utt.tokens.length]
+          coordinates: getIntentFeatures(utt, customEntities)
         }))
       )
       .filter(x => !x.coordinates.some(isNaN))
       .value()
 
+    resetSeed()
+
     if (points.length <= 0) {
-      progress(1 / input.contexts.length)
+      progress(1 / input.ctxToTrain.length)
       continue
     }
     const svm = new tools.mlToolkit.SVM.Trainer()
     const model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
-      const completion = (i + p) / input.contexts.length
+      const completion = (i + p) / input.ctxToTrain.length
       progress(completion)
     })
     svmPerCtx[ctx] = model
@@ -257,18 +270,19 @@ const TrainIntentClassifier = async (
 }
 
 const TrainContextClassifier = async (
-  input: TrainOutput,
+  input: TrainStep,
   tools: Tools,
   progress: progressCB
 ): Promise<string | undefined> => {
   debugTraining.forBot(input.botId, 'Training context classifier')
+  const customEntities = getCustomEntitiesNames(input)
   const points = _.flatMapDeep(input.contexts, ctx => {
     return input.intents
       .filter(intent => intent.contexts.includes(ctx) && intent.name !== NONE_INTENT)
       .map(intent =>
         intent.utterances.map(utt => ({
           label: ctx,
-          coordinates: getSentenceEmbeddingForCtx(utt)
+          coordinates: getCtxFeatures(utt, customEntities)
         }))
       )
   }).filter(x => x.coordinates.filter(isNaN).length === 0)
@@ -313,7 +327,7 @@ export const ProcessIntents = async (
   })
 }
 
-export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
+export const ExtractEntities = async (input: TrainStep, tools: Tools): Promise<TrainStep> => {
   const utterances: Utterance[] = _.chain(input.intents)
     .filter(i => i.name !== NONE_INTENT)
     .flatMap('utterances')
@@ -326,21 +340,10 @@ export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise
     true
   )
 
-  const customReferencedInSlots = _.chain(input.intents)
-    .flatMap('slot_entities')
-    .uniq()
-    .value()
-
-  // only extract list entities referenced in slots
-  // TODO: remove this once we merge in entity encoding
-  const listEntitiesToExtract = input.list_entities.filter(ent => customReferencedInSlots.includes(ent.entityName))
-  const pattenEntitiesToExtract = input.pattern_entities.filter(ent => customReferencedInSlots.includes(ent.name))
-
   _.zip(utterances, allSysEntities)
     .map(([utt, sysEntities]) => {
-      // TODO: remove this slot check once we merge in entity encoding
-      const listEntities = utt.slots.length ? extractListEntities(utt, listEntitiesToExtract) : []
-      const patternEntities = utt.slots.length ? extractPatternEntities(utt, pattenEntitiesToExtract) : []
+      const listEntities = extractListEntities(utt, input.list_entities)
+      const patternEntities = extractPatternEntities(utt, input.pattern_entities)
       return [utt, [...sysEntities, ...listEntities, ...patternEntities]] as [Utterance, EntityExtractionResult[]]
     })
     .forEach(([utt, entities]) => {
@@ -351,26 +354,30 @@ export const ExtractEntities = async (input: TrainOutput, tools: Tools): Promise
   return input
 }
 
-export const AppendNoneIntent = async (input: TrainOutput, tools: Tools): Promise<TrainOutput> => {
+export const AppendNoneIntent = async (input: TrainStep, tools: Tools): Promise<TrainStep> => {
   if (input.intents.length === 0) {
     return input
   }
 
-  const allUtterances = _.flatten(input.intents.map(x => x.utterances))
-  const vocabWithDupes = _.chain(allUtterances)
+  const lo = getSeededLodash(process.env.NLU_SEED)
+
+  const allUtterances = lo.flatten(input.intents.map(x => x.utterances))
+  const vocabWithDupes = lo
+    .chain(allUtterances)
     .map(x => x.tokens.map(x => x.value))
     .flattenDeep<string>()
     .value()
 
   const junkWords = await tools.generateSimilarJunkWords(Object.keys(input.vocabVectors), input.languageCode)
-  const avgTokens = _.meanBy(allUtterances, x => x.tokens.length)
-  const nbOfNoneUtterances = _.clamp(
+  const avgTokens = lo.meanBy(allUtterances, x => x.tokens.length)
+  const nbOfNoneUtterances = lo.clamp(
     (allUtterances.length * 2) / 3,
     NONE_UTTERANCES_BOUNDS.MIN,
     NONE_UTTERANCES_BOUNDS.MAX
   )
   const stopWords = await getStopWordsForLang(input.languageCode)
-  const vocabWords = _.chain(input.tfIdf)
+  const vocabWords = lo
+    .chain(input.tfIdf)
     .toPairs()
     .filter(([word, tfidf]) => tfidf <= 0.3)
     .map('0')
@@ -379,19 +386,19 @@ export const AppendNoneIntent = async (input: TrainOutput, tools: Tools): Promis
   // If 30% in utterances is a space, language is probably space-separated so we'll join tokens using spaces
   const joinChar = vocabWithDupes.filter(x => isSpace(x)).length >= vocabWithDupes.length * 0.3 ? SPACE : ''
 
-  const vocabUtts = _.range(0, nbOfNoneUtterances).map(() => {
-    const nbWords = Math.round(_.random(1, avgTokens * 2, false))
-    return _.sampleSize(_.uniq([...stopWords, ...vocabWords]), nbWords).join(joinChar)
+  const vocabUtts = lo.range(0, nbOfNoneUtterances).map(() => {
+    const nbWords = Math.round(lo.random(1, avgTokens * 2, false))
+    return lo.sampleSize(lo.uniq([...stopWords, ...vocabWords]), nbWords).join(joinChar)
   })
 
-  const junkWordsUtts = _.range(0, nbOfNoneUtterances).map(() => {
-    const nbWords = Math.round(_.random(1, avgTokens * 2, false))
-    return _.sampleSize(junkWords, nbWords).join(joinChar)
+  const junkWordsUtts = lo.range(0, nbOfNoneUtterances).map(() => {
+    const nbWords = Math.round(lo.random(1, avgTokens * 2, false))
+    return lo.sampleSize(junkWords, nbWords).join(joinChar)
   })
 
-  const mixedUtts = _.range(0, nbOfNoneUtterances).map(() => {
-    const nbWords = Math.round(_.random(1, avgTokens * 2, false))
-    return _.sampleSize([...junkWords, ...stopWords], nbWords).join(joinChar)
+  const mixedUtts = lo.range(0, nbOfNoneUtterances).map(() => {
+    const nbWords = Math.round(lo.random(1, avgTokens * 2, false))
+    return lo.sampleSize([...junkWords, ...stopWords], nbWords).join(joinChar)
   })
 
   const intent: Intent<Utterance> = {
@@ -407,10 +414,11 @@ export const AppendNoneIntent = async (input: TrainOutput, tools: Tools): Promis
     slot_entities: []
   }
 
+  resetSeed()
   return { ...input, intents: [...input.intents, intent] }
 }
 
-export const TfidfTokens = async (input: TrainOutput): Promise<TrainOutput> => {
+export const TfidfTokens = async (input: TrainStep): Promise<TrainStep> => {
   const tfidfInput = input.intents.reduce(
     (tfidfInput, intent) => ({
       ...tfidfInput,
@@ -425,7 +433,7 @@ export const TfidfTokens = async (input: TrainOutput): Promise<TrainOutput> => {
   return copy
 }
 
-const TrainSlotTagger = async (input: TrainOutput, tools: Tools, progress: progressCB): Promise<Buffer> => {
+const TrainSlotTagger = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<Buffer> => {
   const hasSlots = _.flatMap(input.intents, i => i.slot_definitions).length > 0
 
   if (!hasSlots) {
@@ -442,11 +450,7 @@ const TrainSlotTagger = async (input: TrainOutput, tools: Tools, progress: progr
   return slotTagger.serialized
 }
 
-const TrainOutOfScope = async (
-  input: TrainOutput,
-  tools: Tools,
-  progress: progressCB
-): Promise<_.Dictionary<string>> => {
+const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<_.Dictionary<string>> => {
   debugTraining.forBot(input.botId, 'Training out of scope classifier')
   const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
     c: [10],
@@ -467,7 +471,7 @@ const TrainOutOfScope = async (
 
   const oos_points = featurizeOOSUtterances(noneUtts, input.vocabVectors, tools)
   let combinedProgress = 0
-  const ctxModels: [string, string][] = await Promise.map(input.contexts, async ctx => {
+  const ctxModels: [string, string][] = await Promise.map(input.ctxToTrain, async ctx => {
     const in_ctx_scope_points = _.chain(input.intents)
       .filter(i => i.name !== NONE_INTENT && i.contexts.includes(ctx))
       .flatMap(i => featurizeInScopeUtterances(i.utterances, i.name))
@@ -475,7 +479,7 @@ const TrainOutOfScope = async (
 
     const svm = new tools.mlToolkit.SVM.Trainer()
     const model = await svm.train([...in_ctx_scope_points, ...oos_points], trainingOptions, p => {
-      combinedProgress += p / input.contexts.length
+      combinedProgress += p / input.ctxToTrain.length
       progress(combinedProgress)
     })
     return [ctx, model] as [string, string]
@@ -490,15 +494,7 @@ const TrainOutOfScope = async (
 }
 
 const NB_STEPS = 5 // change this if the training pipeline changes
-export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise<Model> => {
-  const model: Partial<Model> = {
-    startedAt: new Date(),
-    languageCode: input.languageCode,
-    data: {
-      input
-    }
-  }
-
+export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise<TrainOutput> => {
   let totalProgress = 0
   let normalizedProgress = 0
   const debouncedProgress = _.debounce(tools.reportTrainingProgress, 75, { maxWait: 750 })
@@ -521,44 +517,40 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     debouncedProgress(input.botId, 'Training', { ...input.trainingSession, progress: normalizedProgress })
   }
   try {
-    let output = await PreprocessInput(input, tools)
-    output = await TfidfTokens(output)
-    output = ClusterTokens(output, tools)
-    output = await ExtractEntities(output, tools)
-    output = await AppendNoneIntent(output, tools)
-    const exact_match_index = BuildExactMatchIndex(output)
+    let step = await PreprocessInput(input, tools)
+    step = await TfidfTokens(step)
+    step = ClusterTokens(step, tools)
+    step = await ExtractEntities(step, tools)
+    step = await AppendNoneIntent(step, tools)
+    const exact_match_index = BuildExactMatchIndex(step)
     reportProgress()
     const [oos_model, ctx_model, intent_model_by_ctx, slots_model] = await Promise.all([
-      TrainOutOfScope(output, tools, reportProgress),
-      TrainContextClassifier(output, tools, reportProgress),
-      TrainIntentClassifier(output, tools, reportProgress),
-      TrainSlotTagger(output, tools, reportProgress)
+      TrainOutOfScope(step, tools, reportProgress),
+      TrainContextClassifier(step, tools, reportProgress),
+      TrainIntentClassifier(step, tools, reportProgress),
+      TrainSlotTagger(step, tools, reportProgress)
     ])
 
-    const artefacts: TrainArtefacts = {
-      list_entities: output.list_entities,
+    const output: TrainOutput = {
+      list_entities: step.list_entities,
       oos_model,
-      tfidf: output.tfIdf,
+      tfidf: step.tfIdf,
+      intents: step.intents,
       ctx_model,
       intent_model_by_ctx,
       slots_model,
-      vocabVectors: output.vocabVectors,
+      vocabVectors: step.vocabVectors,
       exact_match_index
       // kmeans: {} add this when mlKmeans supports loading from serialized data,
     }
 
-    _.merge(model, { success: true, data: { artefacts, output } })
+    return output
   } catch (err) {
     if (err instanceof TrainingCanceledError) {
       debugTraining.forBot(input.botId, 'Training aborted')
-    } else {
-      // TODO use bp.logger once this is moved in Engine2
-      console.log('Could not finish training NLU model', err)
+      return
     }
-    model.success = false
-  } finally {
-    model.finishedAt = new Date()
-    return model as Model
+    throw err
   }
 }
 

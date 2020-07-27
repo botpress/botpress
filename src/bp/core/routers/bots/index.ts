@@ -231,6 +231,7 @@ export class BotsRouter extends CustomRouter {
         const totalEnv = `
           (function(window) {
               // Common
+              window.TELEMETRY_URL = "${process.TELEMETRY_URL}";
               window.SEND_USAGE_STATS = ${data.sendUsageStats};
               window.UUID = "${data.uuid}"
               window.ANALYTICS_ID = "${data.gaId}";

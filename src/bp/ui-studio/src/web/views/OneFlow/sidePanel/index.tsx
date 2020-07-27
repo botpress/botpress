@@ -19,6 +19,7 @@ import {
 import { history } from '~/components/Routes'
 import { getAllFlows, getFlowNamesList, RootReducer } from '~/reducers'
 
+import { buildFlowName } from '../../../util/workflows'
 import Inspector from '../../FlowBuilder/inspector'
 
 import style from './style.scss'
@@ -28,9 +29,7 @@ import CreateTopicModal from './TopicEditor/CreateTopicModal'
 import EditTopicModal from './TopicEditor/EditTopicModal'
 import ImportModal from './TopicEditor/ImportModal'
 import TopicList from './TopicList'
-import EditTopicQnAModal from './TopicQnAEditor/EditTopicQnAModal'
 import WorkflowEditor from './WorkflowEditor'
-import { buildFlowName } from './WorkflowEditor/utils'
 
 export type PanelPermissions = 'create' | 'rename' | 'delete'
 
@@ -52,6 +51,8 @@ interface OwnProps {
   permissions: PanelPermissions[]
   readOnly: boolean
   mutexInfo: any
+  selectedTopic: string
+  selectedWorkflow: string
 }
 
 type StateProps = ReturnType<typeof mapStateToProps>
@@ -61,16 +62,9 @@ type Props = StateProps & DispatchProps & OwnProps
 
 const SidePanelContent: FC<Props> = props => {
   const [createTopicOpen, setCreateTopicOpen] = useState(false)
-  const [topicModalOpen, setTopicModalOpen] = useState(false)
-  const [topicQnAModalOpen, setTopicQnAModalOpen] = useState(false)
-  const [editWorkflowModalOpen, setEditWorkflowModalOpen] = useState(false)
-  const [importWorkflowModalOpen, setImportWorkflowModalOpen] = useState(false)
   const [importModalOpen, setImportModalOpen] = useState(false)
   const [editing, setEditing] = useState<string>()
   const [isEditingNew, setIsEditingNew] = useState(false)
-
-  const [selectedWorkflow, setSelectedWorkflow] = useState<string>('')
-  const [selectedTopic, setSelectedTopic] = useState<string>('')
 
   const [libraryFilter, setLibraryFilter] = useState('')
 
@@ -84,10 +78,6 @@ const SidePanelContent: FC<Props> = props => {
 
   const goToFlow = flow => history.push(`/oneflow/${flow.replace(/\.flow\.json/, '')}`)
 
-  const editQnA = (topicName: string) => {
-    setSelectedTopic(topicName)
-    setTopicQnAModalOpen(true)
-  }
   const createWorkflow = (topicName: string) => {
     const originalName = 'Workflow'
     let name = originalName
@@ -139,15 +129,6 @@ const SidePanelContent: FC<Props> = props => {
     props.fetchTopics()
   }
 
-  const toggleQnaModal = () => {
-    // TODO: only update when dirty
-    if (topicQnAModalOpen) {
-      props.getQnaCountByTopic()
-    }
-
-    setTopicQnAModalOpen(!topicQnAModalOpen)
-  }
-
   const canDelete = props.permissions.includes('delete')
 
   const onTabChanged = tabId => {
@@ -188,9 +169,10 @@ const SidePanelContent: FC<Props> = props => {
               qnaCountByTopic={props.qnaCountByTopic}
               goToFlow={goToFlow}
               createWorkflow={createWorkflow}
-              editQnA={editQnA}
               exportTopic={exportTopic}
               canDelete={canDelete}
+              selectedTopic={props.selectedTopic}
+              selectedWorkflow={props.selectedWorkflow}
               editing={editing}
               setEditing={setEditing}
               isEditingNew={isEditingNew}
@@ -202,34 +184,16 @@ const SidePanelContent: FC<Props> = props => {
         </React.Fragment>
       )}
 
-      <EditTopicModal
-        selectedTopic={selectedTopic}
-        isOpen={topicModalOpen}
-        toggle={() => setTopicModalOpen(!topicModalOpen)}
-      />
-
-      <EditTopicQnAModal selectedTopic={selectedTopic} isOpen={topicQnAModalOpen} toggle={toggleQnaModal} />
-
       <CreateTopicModal
         isOpen={createTopicOpen}
         toggle={() => setCreateTopicOpen(!createTopicOpen)}
         onCreateFlow={props.onCreateFlow}
       />
 
-      <WorkflowEditor
-        isOpen={editWorkflowModalOpen}
-        toggle={() => setEditWorkflowModalOpen(!editWorkflowModalOpen)}
-        selectedWorkflow={selectedWorkflow}
-        selectedTopic={selectedTopic}
-        readOnly={props.readOnly}
-        canRename={props.permissions.includes('rename')}
-      />
-
       <ImportModal
         isOpen={importModalOpen}
         toggle={() => setImportModalOpen(!importModalOpen)}
         onImportCompleted={onImportCompleted}
-        selectedTopic={selectedTopic}
         flows={props.flows}
         topics={props.topics}
       />

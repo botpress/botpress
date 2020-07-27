@@ -104,72 +104,11 @@ function renderMessenger(data) {
   ]
 }
 
-function renderSlack(data) {
-  const events = []
-
-  if (data.typing) {
-    events.push({
-      type: 'typing',
-      value: data.typing
-    })
-  }
-
-  return [
-    ...events,
-    {
-      text: ' ',
-      type: 'carousel',
-      cards: data.items.map((card, cardIdx) => [
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: `*${card.title}*\n${card.subtitle}`
-          },
-          accessory: card.image && {
-            type: 'image',
-            image_url: `${data.BOT_URL}${card.image}`,
-            alt_text: 'image'
-          }
-        },
-        {
-          type: 'actions',
-          elements: (card.actions || []).map((btn, btnIdx) => {
-            if (btn.action === 'Say something' || btn.action === 'Postback') {
-              return {
-                type: 'button',
-                action_id: 'button_clicked' + cardIdx + btnIdx,
-                text: {
-                  type: 'plain_text',
-                  text: btn.title
-                },
-                value: btn.payload
-              }
-            } else if (btn.action === 'Open URL') {
-              return {
-                type: 'button',
-                action_id: 'discard_action' + cardIdx + btnIdx,
-                text: {
-                  type: 'plain_text',
-                  text: btn.title
-                },
-                url: btn.url && btn.url.replace('BOT_URL', data.BOT_URL)
-              }
-            } else {
-              throw new Error(`Slack carousel does not support "${btn.action}" action-buttons at the moment`)
-            }
-          })
-        }
-      ])
-    }
-  ]
-}
-
 function renderElement(data, channel) {
-  if (channel === 'messenger') {
+  if (channel === 'web' || channel === 'slack' || channel === 'twilio') {
+    return base.renderer(data, 'carousel')
+  } else if (channel === 'messenger') {
     return renderMessenger(data)
-  } else if (channel === 'slack') {
-    return renderSlack(data)
   } else {
     return render(data)
   }
@@ -192,6 +131,45 @@ module.exports = {
       },
       ...base.typingIndicators
     }
+  },
+  newSchema: {
+    displayedIn: ['qna', 'sayNode'],
+    advancedSettings: [
+      {
+        key: 'markdown',
+        label: 'module.builtin.useMarkdown',
+        defaultValue: true,
+        type: 'checkbox',
+        moreInfo: {
+          label: 'learnMore',
+          url: 'https://daringfireball.net/projects/markdown/'
+        }
+      },
+      {
+        key: 'typing',
+        defaultValue: true,
+        type: 'checkbox',
+        label: 'module.builtin.typingIndicator'
+      }
+    ],
+    fields: [
+      {
+        group: {
+          addLabel: 'module.builtin.types.card.add',
+          minimum: 1,
+          contextMenu: [
+            {
+              type: 'delete',
+              label: 'module.builtin.types.card.delete'
+            }
+          ]
+        },
+        type: 'group',
+        key: 'items',
+        label: 'fields::title',
+        fields: Card.newSchema && Card.newSchema.fields
+      }
+    ]
   },
   computePreviewText: formData => formData.items && `Carousel: (${formData.items.length}) ${formData.items[0].title}`,
   renderElement: renderElement

@@ -39,9 +39,9 @@ export default class Summary extends React.Component<Props> {
         <Dialog
           suggestions={this.props.event.suggestions}
           decision={this.props.event.decision}
-          stacktrace={this.props.event.state.__stacktrace}
+          stacktrace={this.props.event.state?.__stacktrace}
         />
-        <NLU session={this.props.event.state.session} nluData={this.props.event.nlu} />
+        <NLU session={this.props.event.state?.session} nluData={this.props.event.nlu} />
 
         {this.props.event.ndu && (
           <div className={style.block}>

@@ -33,7 +33,116 @@ module.exports = {
     }
   },
 
-  uiSchema: {
+  uiSchema: {},
+
+  newSchema: {
+    displayedIn: ['qna', 'sayNode'],
+    advancedSettings: [
+      {
+        key: 'markdown',
+        defaultValue: true,
+        label: 'module.builtin.useMarkdown',
+        type: 'checkbox',
+        moreInfo: {
+          label: 'learnMore',
+          url: 'https://daringfireball.net/projects/markdown/'
+        }
+      },
+      {
+        key: 'typing',
+        defaultValue: true,
+        type: 'checkbox',
+        label: 'module.builtin.typingIndicator'
+      }
+    ],
+    fields: [
+      {
+        type: 'upload',
+        key: 'image',
+        label: 'module.builtin.types.image.uploadImage'
+      },
+      {
+        type: 'text',
+        key: 'title',
+        translated: true,
+        label: 'title',
+        superInput: true,
+        placeholder: 'module.builtin.types.card.cardSubject'
+      },
+      {
+        type: 'text',
+        key: 'subtitle',
+        translated: true,
+        label: 'text',
+        superInput: true,
+        placeholder: 'module.builtin.optional'
+      },
+      {
+        group: {
+          addLabel: 'module.builtin.actionButton',
+          contextMenu: [
+            {
+              type: 'delete',
+              label: 'module.builtin.types.actionButton.delete'
+            }
+          ]
+        },
+        type: 'group',
+        key: 'actions',
+        label: 'fields::title',
+        fields: [
+          {
+            type: 'text',
+            key: 'title',
+            superInput: true,
+            translated: true,
+            label: 'module.builtin.types.actionButton.textLabel',
+            placeholder: 'module.builtin.types.actionButton.textPlaceholder'
+          },
+          {
+            type: 'select',
+            defaultValue: 'Say something',
+            key: 'action',
+            label: 'module.builtin.types.actionButton.actionLabel',
+            options: [
+              {
+                value: 'Say something',
+                label: 'module.builtin.types.actionButton.sayLabel',
+                related: {
+                  placeholder: 'module.builtin.types.actionButton.sayPlaceholder',
+                  type: 'text',
+                  translated: true,
+                  key: 'text',
+                  superInput: true,
+                  label: 'module.builtin.types.actionButton.sayTextLabel'
+                }
+              },
+              {
+                value: 'Open URL',
+                label: 'module.builtin.types.actionButton.urlLabel',
+                related: {
+                  placeholder: 'module.builtin.types.actionButton.urlPlaceholder',
+                  type: 'url',
+                  superInput: true,
+                  key: 'url',
+                  label: 'URL'
+                }
+              },
+              {
+                value: 'Postback',
+                label: 'module.builtin.types.actionButton.postLabel',
+                related: {
+                  type: 'textarea',
+                  superInput: true,
+                  key: 'payload',
+                  label: 'module.builtin.types.actionButton.postFieldLabel'
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
 
   computePreviewText: formData => formData.title && `Card: ${formData.title}`,

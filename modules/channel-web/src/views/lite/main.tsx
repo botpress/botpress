@@ -10,7 +10,7 @@ import constants from './core/constants'
 import BpSocket from './core/socket'
 import ChatIcon from './icons/Chat'
 import { RootStore, StoreDef } from './store'
-import { checkLocationOrigin, initializeAnalytics, trackMessage, trackWebchatState } from './utils'
+import { checkLocationOrigin, initializeAnalytics, isIE, trackMessage, trackWebchatState } from './utils'
 
 const _values = obj => Object.keys(obj).map(x => obj[x])
 
@@ -30,7 +30,7 @@ class Web extends React.Component<MainProps> {
     initializeAnalytics()
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.props.store.setIntlProvider(this.props.intl)
     window.store = this.props.store
 
@@ -42,10 +42,9 @@ class Web extends React.Component<MainProps> {
       }
     })
 
-    // tslint:disable-next-line: no-floating-promises
-    this.initialize()
-    // tslint:disable-next-line: no-floating-promises
-    this.initializeIfChatDisplayed()
+    await this.initialize()
+    await this.initializeIfChatDisplayed()
+
     this.props.setLoadingCompleted()
   }
 
@@ -246,7 +245,8 @@ class Web extends React.Component<MainProps> {
       return null
     }
 
-    const parentClass = classnames(`bp-widget-web bp-widget-${this.props.activeView}`, {
+    const emulatorClass = this.props.isEmulator ? ' emulator' : ''
+    const parentClass = classnames(`bp-widget-web bp-widget-${this.props.activeView}${emulatorClass}`, {
       'bp-widget-hidden': !this.props.showWidgetButton && this.props.displayWidgetView
     })
 
@@ -260,6 +260,7 @@ class Web extends React.Component<MainProps> {
     return (
       <div onFocus={this.handleResetUnreadCount}>
         {!!stylesheet?.length && <link rel="stylesheet" type="text/css" href={stylesheet} />}
+        {isIE && <link rel="stylesheet" type="text/css" href="assets/modules/channel-web/default_ie.css" />}
         {!!extraStylesheet?.length && <link rel="stylesheet" type="text/css" href={extraStylesheet} />}
         <h1 id="tchat-label" className="sr-only" tabIndex={-1}>
           {this.props.intl.formatMessage({
@@ -286,6 +287,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   updateTyping: store.updateTyping,
   sendMessage: store.sendMessage,
   setReference: store.setReference,
+  isEmulator: store.isEmulator,
   updateBotUILanguage: store.updateBotUILanguage,
   isWebchatReady: store.view.isWebchatReady,
   showWidgetButton: store.view.showWidgetButton,
@@ -315,6 +317,7 @@ type MainProps = { store: RootStore } & Pick<
   | 'setUserId'
   | 'sendData'
   | 'intl'
+  | 'isEmulator'
   | 'updateTyping'
   | 'setReference'
   | 'updateBotUILanguage'

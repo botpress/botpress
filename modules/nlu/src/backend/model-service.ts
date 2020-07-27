@@ -7,19 +7,17 @@ import { Stream } from 'stream'
 import tar from 'tar'
 import tmp from 'tmp'
 
-import { TrainArtefacts, TrainInput, TrainOutput } from './training-pipeline'
-import { EntityCache } from './typings'
+import { TrainOutput, TrainInput } from './training-pipeline'
+import { EntityCache, NLUVersionInfo } from './typings'
 
 export interface Model {
   hash: string
   languageCode: string
   startedAt: Date
   finishedAt: Date
-  success: boolean
   data: {
     input: TrainInput
-    output?: TrainOutput
-    artefacts?: TrainArtefacts
+    output: TrainOutput
   }
 }
 
@@ -31,24 +29,33 @@ function makeFileName(hash: string, lang: string): string {
 }
 
 // we might want to make this language specific
-export function computeModelHash(intents: any, entities: any): string {
+export function computeModelHash(
+  intents: sdk.NLU.IntentDefinition[],
+  entities: sdk.NLU.EntityDefinition[],
+  version: NLUVersionInfo,
+  lang: string
+): string {
+  const { nluVersion, langServerInfo } = version
+
+  const singleLangIntents = intents.map(i => ({ ...i, utterances: i.utterances[lang] }))
+
   return crypto
     .createHash('md5')
-    .update(JSON.stringify({ intents, entities }))
+    .update(JSON.stringify({ singleLangIntents, entities, nluVersion, langServerInfo }))
     .digest('hex')
 }
 
 function serializeModel(ref: Model): string {
   const model = _.cloneDeep(ref)
-  for (const entity of model.data.artefacts.list_entities) {
+  for (const entity of model.data.output.list_entities) {
     entity.cache = (<EntityCache>entity.cache)?.dump() ?? []
   }
-  return JSON.stringify(_.omit(model, ['data.output', 'data.input.trainingSession']))
+  return JSON.stringify(_.omit(model, ['data.output.intents', 'data.input.trainingSession']))
 }
 
 function deserializeModel(str: string): Model {
   const model = JSON.parse(str) as Model
-  model.data.artefacts.slots_model = Buffer.from(model.data.artefacts.slots_model)
+  model.data.output.slots_model = Buffer.from(model.data.output.slots_model)
   return model
 }
 

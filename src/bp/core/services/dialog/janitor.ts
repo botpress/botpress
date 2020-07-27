@@ -1,6 +1,6 @@
 import { BotConfig, IO, Logger } from 'botpress/sdk'
 import { createExpiry } from 'core/misc/expiry'
-import { SessionRepository, UserRepository } from 'core/repositories'
+import { SessionRepository } from 'core/repositories'
 import { Event } from 'core/sdk/impl'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
@@ -11,9 +11,11 @@ import { ConfigProvider } from '../../config/config-loader'
 import { TYPES } from '../../types'
 import { BotService } from '../bot-service'
 import { Janitor } from '../janitor'
+import { StateManager } from '../middleware/state-manager'
 
 import { DialogEngine } from './dialog-engine'
 import { TimeoutNodeNotFound } from './errors'
+import { PromptManager } from './prompt-manager'
 import { SessionIdFactory } from './session/id-factory'
 
 const debug = DEBUG('janitor')
@@ -29,7 +31,8 @@ export class DialogJanitor extends Janitor {
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.SessionRepository) private sessionRepo: SessionRepository,
-    @inject(TYPES.UserRepository) private userRepo: UserRepository
+    @inject(TYPES.PromptManager) private promptManager: PromptManager,
+    @inject(TYPES.StateManager) private stateManager: StateManager
   ) {
     super(logger)
   }
@@ -58,6 +61,7 @@ export class DialogJanitor extends Janitor {
     for (const botId of botsIds) {
       await this.sessionRepo.deleteExpiredSessions(botId)
       const sessionsIds = await this.sessionRepo.getExpiredContextSessionIds(botId)
+      const promptIds = await this.sessionRepo.getExpiredPromptsSessionIds(botId)
 
       if (sessionsIds.length > 0) {
         dialogDebug.forBot(botId, 'Found stale sessions', sessionsIds)
@@ -65,6 +69,24 @@ export class DialogJanitor extends Janitor {
           await this._processSessionTimeout(sessionId, botId, botsConfigs.get(botId)!)
         }
       }
+
+      await Promise.mapSeries(promptIds, sessionId => this._processPromptTimeout(sessionId, botId))
+    }
+  }
+
+  private async _processPromptTimeout(sessionId: string, botId: string) {
+    try {
+      const fakeEvent = this._buildFakeEvent(sessionId, botId)
+
+      await this.stateManager.restore(fakeEvent)
+
+      if (fakeEvent.state.context?.activePrompt) {
+        await this.dialogEngine.processTimeout(sessionId, botId, fakeEvent, true)
+      }
+
+      await this.sessionRepo.clearPromptTimeoutForSession(sessionId)
+    } catch (err) {
+      this._handleError(err, botId)
     }
   }
 
@@ -73,28 +95,11 @@ export class DialogJanitor extends Janitor {
     let resetSession = true
 
     try {
-      const { channel, target, threadId } = SessionIdFactory.extractDestinationFromId(sessionId)
-      const session = await this.sessionRepo.get(sessionId)
+      const fakeEvent = this._buildFakeEvent(sessionId, botId)
 
-      // This event only exists so that processTimeout can call processEvent
-      const fakeEvent = Event({
-        type: 'timeout',
-        channel: channel,
-        target: target,
-        threadId: threadId,
-        direction: 'incoming',
-        payload: '',
-        botId: botId
-      }) as IO.IncomingEvent
-
-      const { result: user } = await this.userRepo.getOrCreate(channel, target, botId)
-
-      fakeEvent.state.context = session.context as IO.DialogContext
-      fakeEvent.state.session = session.session_data as IO.CurrentSession
-      fakeEvent.state.user = user.attributes
-      fakeEvent.state.temp = session.temp_data
-
+      await this.stateManager.restore(fakeEvent)
       const after = await this.dialogEngine.processTimeout(botId, sessionId, fakeEvent)
+
       if (_.get(after, 'state.context.queue.instructions.length', 0) > 0) {
         // if after processing the timeout handling we still have instructions queued, we're not clearing the context
         resetSession = false
@@ -112,6 +117,16 @@ export class DialogJanitor extends Janitor {
     } else {
       this.logger.forBot(botId).error(`Could not process the timeout event. ${error.message}`)
     }
+  }
+
+  private _buildFakeEvent(sessionId: string, botId: string) {
+    return Event({
+      ...SessionIdFactory.extractDestinationFromId(sessionId),
+      type: 'timeout',
+      direction: 'incoming',
+      payload: '',
+      botId
+    }) as IO.IncomingEvent
   }
 
   private async _resetContext(botId, botConfig, sessionId, resetContext: boolean) {

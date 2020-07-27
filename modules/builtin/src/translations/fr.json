@@ -1,15 +1,31 @@
 {
   "fullName": "Intégré",
   "actionButton": "Bouton d'action",
+  "optional": "optionnel",
   "types": {
     "actionButton": {
+      "add": "Add Button",
+      "actionLabel": "Action du bouton",
       "buttonTitle": "Titre du bouton",
+      "delete": "Supprimer le bouton",
       "description": "Un bouton qui déclenche une action, souvent utilisé dans les cartes",
+      "sayLabel": "Dire",
+      "sayTextLabel": "Texte",
+      "sayPlaceholder": "Qu'est-ce que l'assitant virtuel dit?",
+      "postLabel": "Publier sur le serveur",
+      "postFieldLabel": "Information",
       "textTitle": "Entrez le text ou le ID d'un élément de contenu (ex: #!builtin_text-myid)",
-      "title": "Bouton d'action"
+      "textLabel": "Texte du bouton",
+      "textPlaceholder": "Qu'est-il écrit sur le bouton?",
+      "title": "Bouton d'action",
+      "urlLabel": "Ouvrir l'URL",
+      "urlPlaceholder": "Écrivez un URL valide"
     },
     "card": {
-      "description": "Une carte est un message avec un titre, sous-titre optionel, une image et des boutons d'actions."
+      "add": "Ajouter une carte",
+      "delete": "Supprimer cette carte",
+      "description": "Une carte est un message avec un titre, sous-titre optionel, une image et des boutons d'actions.",
+      "cardSubject": "Quel est le sujet de votre carte?"
     },
     "carousel": {
       "cards": "Cartes de carrousel",
@@ -31,12 +47,76 @@
       "itemValue": "La valeur que recevra le bot lorsque l'utilisateur choisi cet item (habituellement caché de l'utilisateur)",
       "title": "Choix Unique"
     },
+    "suggestions": {
+      "add": "Ajouter une suggestion",
+      "allowMultiplePick": "Permettre à l'utilisateur de sélectionner plusieurs suggestions",
+      "allowToAdd": "Permettre à l'utilisateur d'ajouter des suggestions",
+      "delete": "Supprimer la suggestion",
+      "displayOnTop": "Affichage au-dessus du clavier",
+      "label": "Étiquette de suggestion",
+      "labelPlaceholder": "Quelle est la suggestion affichée?",
+      "title": "Suggestions",
+      "value": "Valeur",
+      "valuePlaceholder": "Que recevra votre agent conversationnel?"
+    },
     "text": {
-      "alternatives": "Alternatives",
+      "add": "Ajouter une alternative",
+      "alternative": "Alternative",
+      "alternative_plural": "Alternatives",
+      "alternativeLabel": "Texte",
+      "delete": "Supprimer l'alternative",
       "description": "Un texte régulier",
+      "text": "Texte",
       "message": "Message"
     }
   },
   "typingIndicator": "Afficher l'indicateur de frappe",
-  "useMarkdown": "Utiliser markdown"
+  "useMarkdown": "Utiliser markdown",
+  "defaultValue": "Valeur par défaut",
+  "duration": "Durée",
+  "durationMoreInfo": "Le nombre de tours (échange entre l'assistant et l'utilisateur) avant que la requête ne soit annulée.",
+  "searchBackCount": "Nombre de recherche en arrière",
+  "searchBackCountMoreInfo": "Le nombre d'événements précédents à analyser pour extraire l'information",
+  "questionToAskUser": "Question pour l'utilisateur",
+  "mustBePast": "Doit être dans le passé",
+  "mustBeFuture": "Doit être dans le futur",
+  "enumType": "Type d'énumération",
+  "question": "Question",
+  "useDropdown": "Utiliser menu déroulant",
+  "min": "Minimum",
+  "max": "Maximum",
+  "yes": "Oui",
+  "no": "Non",
+  "regexPattern": "Expression régulière",
+  "regexPatternPlaceholder": "Ex: [a-zA-Z0-9]* pour alphanumérique",
+  "messagePlaceholder": "Question posée à l'utilisateur",
+  "customConfirm": "Message de confirmation",
+  "customConfirmPlaceholder": "Utiliser $value pour afficher la valeur",
+  "setValueTo": "Définir la valeur à",
+  "setValueToPlaceholder": "Nom de la variable",
+  "formatInvalidMessage": "Message pour format invalide",
+  "formatInvalidMessagePlaceholder": "Personnaliser le message de format invalide",
+  "maxLength": "Longeur maximale",
+  "confirmBeforeCancel": "Confirmer avant d'annuler",
+  "confirmBeforeCancelMoreInfo": "Demander une confirmation à l'utilisateur avant d'annuler ou d'aller vers un autre workflow",
+  "prompt": {
+    "confirmValue": "Est-ce que la valeur '{value}' est correcte?",
+    "confirmLeaving": "Désirez-vous vraiment abandonner?",
+    "invalid": "La valeur est invalide",
+    "date": {
+      "invalid": "La date ne semble pas valide",
+      "mustBePast": "La date doit être dans le passé",
+      "mustBeFuture": "La date doit être dans le futur"
+    },
+    "number": {
+      "lowerThanMin": "La valeur est plus basse que le minimum permis",
+      "higherThanMax": "La valeur est plus haute que la limite permise"
+    },
+    "pattern": {
+      "invalid": "La valeur fournie ne correspond pas au format exigé"
+    },
+    "string": {
+      "tooLong": "La longueur maximale est de {maxLength} {maxLength, plural, one {caractère} other {caractères}}."
+    }
+  }
 }

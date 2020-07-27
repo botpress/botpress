@@ -1,9 +1,7 @@
 import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
 // @ts-ignore
 import BotpressContentPicker from 'botpress/content-picker'
-// @ts-ignore
-import BotpressContentTypePicker from 'botpress/content-type-picker'
-import { lang, ShortcutLabel, Textarea, utils } from 'botpress/shared'
+import { FormFields, lang, ShortcutLabel, Textarea, utils } from 'botpress/shared'
 import cx from 'classnames'
 import _uniqueId from 'lodash/uniqueId'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
@@ -22,15 +20,14 @@ interface Props {
   showPicker?: boolean
   initialFocus?: string
   duplicateMsg?: string
-  canAddContent?: boolean
+  children?: any
 }
 
 const TextAreaList: FC<Props> = props => {
-  const [showPicker, setShowPicker] = useState(false)
   const [localItems, setLocalItems] = useState(props.items)
   // Generating unique keys so we don't need to rerender all the list as soon as we add or delete one element
   const [keys, setKeys] = useState(localItems.map(x => _uniqueId(keyPrefix)))
-  const { duplicateMsg, updateItems, keyPrefix, canAddContent, addItemLabel, label, refItems, placeholder } = props
+  const { duplicateMsg, updateItems, keyPrefix, addItemLabel, label, refItems, placeholder } = props
   const focusedElement = useRef(props.initialFocus || '')
 
   useEffect(() => {
@@ -79,7 +76,7 @@ const TextAreaList: FC<Props> = props => {
       <div className={style.items}>
         <h2>{label}</h2>
         {localItems?.map((item, index) =>
-          canAddContent && item.startsWith('#!') ? (
+          item.startsWith('#!') ? (
             <div key={keys[index]} className={style.contentAnswer}>
               <BotpressContentPicker
                 itemId={item.replace('#!', '')}
@@ -110,30 +107,15 @@ const TextAreaList: FC<Props> = props => {
           )
         )}
         <Tooltip
-          content={lang.tr('module.qna.form.quickAddAlternative', {
+          content={lang.tr('quickAddAlternative', {
             shortcut: <ShortcutLabel light keys={[utils.controlKey, 'enter']} />
           })}
           position={Position.BOTTOM}
         >
-          <Button className={style.addBtn} minimal icon="plus" onClick={() => addItem()}>
-            {addItemLabel}
-          </Button>
+          <FormFields.AddButton text={addItemLabel} onClick={() => addItem()} />
         </Tooltip>
-
-        {canAddContent && (
-          <Button className={style.addBtn} minimal icon="plus" onClick={() => setShowPicker(true)}>
-            {lang.tr('module.qna.form.addContent')}
-          </Button>
-        )}
+        {props.children}
       </div>
-      {showPicker && canAddContent && (
-        <BotpressContentTypePicker
-          show={showPicker}
-          onClose={() => setShowPicker(false)}
-          onSelect={item => addItem(`#!${item.id}`)}
-          container={document.getElementsByTagName('body')[0]}
-        />
-      )}
     </Fragment>
   )
 }

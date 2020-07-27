@@ -28,6 +28,11 @@ const botTemplates: sdk.BotTemplate[] = [
     name: 'BPDS - NLU regression testing ',
     desc:
       'BPDS are handcrafted datasets. Intents in each contexts are built with a specific distribution in mind, making intent classification hard to achieve.'
+  },
+  {
+    id: 'bp-nlu-entities-encoding',
+    name: 'BPDS - NLU entities encoding ',
+    desc: 'BP Dataset with really closed intents that differs almost only from their slots.'
   }
 ]
 

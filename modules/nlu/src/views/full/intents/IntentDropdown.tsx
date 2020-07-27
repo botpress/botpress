@@ -35,7 +35,7 @@ const IntentDropdown: FC<Props> = props => {
       itemPredicate={filterOptions}
       itemRenderer={renderOption}
       activeItem={selected}
-      popoverProps={{ minimal: true }}
+      popoverProps={{ minimal: true, usePortal: false }}
       noResults={<MenuItem disabled={true} text={lang.tr('module.nlu.intents.selectIntentNoResults')} />}
       onItemSelect={option => selectItem(option)}
       onActiveItemChange={option => selectItem(option)}
