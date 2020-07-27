@@ -5,16 +5,17 @@ import crfsuite, { Trainer as AddonTrainer, Tagger as AddonTagger } from './addo
 
 export class Trainer implements MLToolkit.CRF.Trainer {
   private trainer: AddonTrainer
+  private _cancelTraining = false
 
   constructor() {
     // debugging should be enabled but, this slows down crf training... TODO: find a solution
     this.trainer = new crfsuite.Trainer({ debug: false })
   }
 
-  async train(
+  public async train(
     elements: MLToolkit.CRF.DataPoint[],
     options: MLToolkit.CRF.TrainerOptions,
-    debugCallback?: (msg: string) => void
+    progressCallback?: (iteration: number) => number
   ): Promise<string> {
     this.trainer.set_params(options)
 
@@ -24,10 +25,20 @@ export class Trainer implements MLToolkit.CRF.Trainer {
 
     const crfModelFilename = tmp.fileSync({ postfix: '.bin' }).name
 
-    const emptyCallback = () => {}
-    await this.trainer.train_async(crfModelFilename, debugCallback ?? emptyCallback)
+    const statusCode = await this.trainer.train_async(crfModelFilename, iteration => {
+      progressCallback && progressCallback(iteration)
+      return this._cancelTraining ? 1 : 0
+    })
+
+    if (statusCode !== 0) {
+      throw new Error(`CRF training exited with status code : ${statusCode}`)
+    }
 
     return crfModelFilename
+  }
+
+  public cancelTraining() {
+    this._cancelTraining = true
   }
 }
 

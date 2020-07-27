@@ -429,7 +429,11 @@ declare module 'botpress/sdk' {
       }
 
       export class Trainer {
-        train(elements: DataPoint[], options: TrainerOptions, debugCallback?: (msg: string) => void): Promise<string>
+        train(
+          elements: DataPoint[],
+          options: TrainerOptions,
+          progressCallback?: (iteration: number) => number
+        ): Promise<string>
       }
     }
 

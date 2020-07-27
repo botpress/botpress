@@ -15,6 +15,7 @@ import tfidf from './tools/tfidf'
 import { convertToRealSpaces, isSpace, SPACE } from './tools/token-utils'
 import {
   EntityExtractionResult,
+  ExtractedEntity,
   Intent,
   ListEntity,
   ListEntityModel,
@@ -457,7 +458,19 @@ const TrainSlotTagger = async (input: TrainStep, tools: Tools, progress: progres
 
   debugTraining.forBot(input.botId, 'Training slot tagger')
   const slotTagger = new SlotTagger(tools.mlToolkit)
-  await slotTagger.train(input.intents.filter(i => i.name !== NONE_INTENT))
+  const trainingSuccessfull = await slotTagger.train(
+    input.intents.filter(i => i.name !== NONE_INTENT),
+    () => {
+      progress(0) // not increasing actual progress but checking if training was cancelled
+      return 0
+    }
+  )
+
+  if (!trainingSuccessfull) {
+    console.log('TrainSlotTagger done with error!')
+    return undefined
+  }
+
   debugTraining.forBot(input.botId, 'Done training slot tagger')
   progress()
 
@@ -536,50 +549,42 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     normalizedProgress = scaledProgress
     debouncedProgress(input.botId, 'Training', { ...input.trainingSession, progress: normalizedProgress })
   }
-  try {
-    let step = await PreprocessInput(input, tools)
-    step = await TfidfTokens(step)
-    step = ClusterTokens(step, tools)
-    step = await ExtractEntities(step, tools)
-    step = await AppendNoneIntent(step, tools)
-    const exact_match_index = BuildExactMatchIndex(step)
-    reportProgress()
-    const [oos_model, ctx_model, intent_model_by_ctx, slots_model] = await Promise.all([
-      TrainOutOfScope(step, tools, reportProgress),
-      TrainContextClassifier(step, tools, reportProgress),
-      TrainIntentClassifier(step, tools, reportProgress),
-      TrainSlotTagger(step, tools, reportProgress)
-    ])
 
-    if (!Object.keys(oos_model).length || !ctx_model.length || !Object.keys(intent_model_by_ctx).length) {
-      console.log('Training done after cancellation ! ')
-      throw new TrainingCanceledError()
-    }
+  let step = await PreprocessInput(input, tools)
+  step = await TfidfTokens(step)
+  step = ClusterTokens(step, tools)
+  step = await ExtractEntities(step, tools)
+  step = await AppendNoneIntent(step, tools)
+  const exact_match_index = BuildExactMatchIndex(step)
+  reportProgress()
+  const [oos_model, ctx_model, intent_model_by_ctx, slots_model] = await Promise.all([
+    TrainOutOfScope(step, tools, reportProgress),
+    TrainContextClassifier(step, tools, reportProgress),
+    TrainIntentClassifier(step, tools, reportProgress),
+    TrainSlotTagger(step, tools, reportProgress)
+  ])
 
-    const output: TrainOutput = {
-      list_entities: step.list_entities,
-      oos_model,
-      tfidf: step.tfIdf!,
-      intents: step.intents,
-      ctx_model: ctx_model!,
-      intent_model_by_ctx: intent_model_by_ctx!,
-      slots_model,
-      vocabVectors: step.vocabVectors,
-      exact_match_index,
-      // kmeans: {} add this when mlKmeans supports loading from serialized data,
-      contexts: input.contexts
-    }
-
-    return output
-  } catch (err) {
-    if (err instanceof TrainingCanceledError) {
-      // Note that we don't use debouncedProgress here as we want the side effects probagated now
-      tools.reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession)
-      console.log(input.botId, 'Training aborted')
-      return
-    }
-    throw err
+  if (!Object.keys(oos_model).length || !ctx_model.length || !Object.keys(intent_model_by_ctx).length || !slots_model) {
+    tools.reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession)
+    console.log(input.botId, 'Training aborted')
+    return
   }
+
+  const output: TrainOutput = {
+    list_entities: step.list_entities,
+    oos_model,
+    tfidf: step.tfIdf,
+    intents: step.intents,
+    ctx_model,
+    intent_model_by_ctx,
+    slots_model,
+    vocabVectors: step.vocabVectors,
+    exact_match_index,
+    // kmeans: {} add this when mlKmeans supports loading from serialized data,
+    contexts: input.contexts
+  }
+
+  return output
 }
 
 class TrainingCanceledError extends Error {
