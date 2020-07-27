@@ -57,16 +57,16 @@ import { DeletableLinkFactory } from '~/views/FlowBuilder/diagram/nodes/LinkWidg
 import { SkillCallNodeModel, SkillCallWidgetFactory } from '~/views/FlowBuilder/diagram/nodes/SkillCallNode'
 import { StandardNodeModel, StandardWidgetFactory } from '~/views/FlowBuilder/diagram/nodes/StandardNode'
 import { textToItemId } from '~/views/FlowBuilder/diagram/nodes_v2/utils'
-import { ActionWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ActionNode'
-import { ExecuteNodeModel, ExecuteWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ExecuteNode'
-import { FailureNodeModel, FailureWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/FailureNode'
-import { ListenWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ListenNode'
-import { RouterNodeModel, RouterWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/RouterNode'
-import { SuccessNodeModel, SuccessWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SuccessNode'
 import style from '~/views/FlowBuilder/diagram/style.scss'
 
+import { ActionWidgetFactory } from './nodes/ActionNode'
+import { ExecuteNodeModel, ExecuteWidgetFactory } from './nodes/ExecuteNode'
+import { FailureNodeModel, FailureWidgetFactory } from './nodes/FailureNode'
+import { ListenWidgetFactory } from './nodes/ListenNode'
 import { PromptNodeModel, PromptWidgetFactory } from './nodes/PromptNode'
+import { RouterNodeModel, RouterWidgetFactory } from './nodes/RouterNode'
 import { SaySomethingNodeModel, SaySomethingWidgetFactory } from './nodes/SaySomethingNode'
+import { SuccessNodeModel, SuccessWidgetFactory } from './nodes/SuccessNode'
 import { TriggerWidgetFactory } from './nodes/TriggerNode'
 import menuStyle from './style.scss'
 import ConditionForm from './ConditionForm'
@@ -140,10 +140,10 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory(this.props.skills))
     this.diagramEngine.registerNodeFactory(new SaySomethingWidgetFactory(commonProps))
-    this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
-    this.diagramEngine.registerNodeFactory(new ListenWidgetFactory())
-    this.diagramEngine.registerNodeFactory(new RouterWidgetFactory())
-    this.diagramEngine.registerNodeFactory(new ActionWidgetFactory())
+    this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory(commonProps))
+    this.diagramEngine.registerNodeFactory(new ListenWidgetFactory(commonProps))
+    this.diagramEngine.registerNodeFactory(new RouterWidgetFactory(commonProps))
+    this.diagramEngine.registerNodeFactory(new ActionWidgetFactory(commonProps))
     this.diagramEngine.registerNodeFactory(new SuccessWidgetFactory())
     this.diagramEngine.registerNodeFactory(
       new TriggerWidgetFactory({

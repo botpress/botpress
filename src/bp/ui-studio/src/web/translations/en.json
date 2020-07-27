@@ -147,6 +147,7 @@
         "addAction": "Add new action",
         "addCondition": "Add Condition",
         "cantSeeActions": "Can't see your action?",
+        "chatbotExecutes": "Chatbot Executes",
         "chatbotSays": "Chatbot Says",
         "chatbotPromptsUser": "Chatbot Prompts User",
         "confirmOverwriteParameters": "Do you want to overwrite existing parameters?",
@@ -208,6 +209,8 @@
         "unknownParameterType": "⚠️ Unknown parameter type ({type}). This parameter will be ignored.",
         "valuePlaceholder": "Value",
         "waitForUserMessage": "Wait for user message",
+        "workflowFails": "Workflow Fails",
+        "workflowSucceeds": "Workflow Succeeds",
         "youCanChangeActions": "You can change how the Action is executed by providing it parameters. Some parameters are required, some are optional."
       },
       "nodeType": {

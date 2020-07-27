@@ -87,27 +87,43 @@
     position: relative;
     width: 100%;
 
-    &.trigger {
-      border-color: var(--trigger);
-    }
-
-    &.prompt {
-      border-color: var(--prompt);
-    }
-
     &:hover {
       background: #fff;
       border: none;
       border-top: 2px solid var(--say);
       box-shadow: none;
+    }
 
-      &.trigger {
-        border-color: var(--trigger);
-      }
+    &.action, &:hover.action {
+      border-color: var(--action);
+    }
 
-      &.prompt {
-        border-color: var(--prompt);
-      }
+    &.listen, &:hover.listen {
+      border-color: var(--listen);
+    }
+
+    &.trigger, &:hover.trigger {
+      border-color: var(--trigger);
+    }
+
+    &.execute, &:hover.execute {
+      border-color: var(--execute);
+    }
+
+    &.failure, &:hover.failure {
+      border-color: var(--lighthouse);
+    }
+
+    &.router, &:hover.router {
+      border-color: var(--if-else);
+    }
+
+    &.success, &:hover.success {
+      border-color: var(--success);
+    }
+
+    &.prompt, &:hover.prompt {
+      border-color: var(--prompt);
     }
 
     .button {
