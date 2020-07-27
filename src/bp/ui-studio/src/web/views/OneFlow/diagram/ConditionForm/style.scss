@@ -13,6 +13,7 @@
 
   .expandBtn {
     margin-right: var(--spacing-xx-large);
+    width: 24px;
 
     svg {
       fill: var(--shark);
@@ -404,7 +405,7 @@ select:global(.form-control) {
 
 :global {
   .more-options-btn {
-    height: 32px;
+    height: 24px;
     width: 16px;
 
     span {

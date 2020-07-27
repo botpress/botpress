@@ -13,7 +13,7 @@
     border-color: var(--ocean) !important;
   }
 
-  &:hover .tagBtnWrapper, &:hover .singularTagBtnWrapper {
+  &:hover .tagBtnWrapper, &:hover .singularTagBtnWrapper, &:focus-within .tagBtnWrapper, &:focus-within .singularTagBtnWrapper {
     opacity: 1;
     visibility: visible;
   }
