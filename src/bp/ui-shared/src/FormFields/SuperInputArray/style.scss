@@ -1,0 +1,66 @@
+.items {
+  line-height: 0;
+
+  h2 {
+    font-size: 12px;
+    line-height: 1.25;
+    color: var(--shark);
+    margin: var(--spacing-medium) 0 var(--spacing-small);
+  }
+}
+
+.textareaWrapper {
+  position: relative;
+
+  &:first-of-type {
+    margin-top: var(--spacing-small);
+  }
+
+  &:focus-within {
+    & + .textareaWrapper {
+      :global(.superinput-wrapper).customTextarea {
+        border-top-color: transparent !important;
+      }
+    }
+
+    :global(.superinput-wrapper).customTextarea {
+      border-top-color: var(--ocean) !important;
+      border-bottom-color: var(--ocean) !important;
+
+      &.hasError {
+        border-bottom-color: var(--lighthouse) !important;
+
+        &:focus-within {
+          border-top-color: var(--lighthouse) !important;
+
+          & + :global(.superinput-wrapper).customTextarea {
+            border-top-color: transparent !important;
+          }
+        }
+      }
+    }
+  }
+}
+
+:global(.superinput-wrapper).customTextarea {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  border-bottom: 1px solid var(--gray) !important;
+  border-top: 1px solid var(--gray) !important;
+  color: var(--shark) !important;
+  font-size: 12px !important;
+  min-height: 39px !important;
+  line-height: 1.25 !important;
+  margin: -1px 0 0 !important;
+  resize: none !important;
+  transition: border 0.3s !important;
+  width: 100% !important;
+
+  :global {
+    .tags-input .tagify {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+  }
+}

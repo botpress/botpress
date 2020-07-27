@@ -11,6 +11,7 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
+import { FlowVariable } from 'botpress/sdk'
 import { Contents, Icons, lang, MainContent } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -33,6 +34,7 @@ import {
   openFlowNodeProps,
   pasteFlowNode,
   refreshFlowsLinks,
+  refreshHints,
   removeFlowNode,
   switchFlow,
   switchFlowNode,
@@ -843,6 +845,13 @@ class Diagram extends Component<Props> {
     this.setState({ currentTab: tab })
   }
 
+  addVariable = (variable: FlowVariable) => {
+    this.props.updateFlow({
+      ...this.props.currentFlow,
+      variables: [...(this.props.currentFlow?.variables || []), variable]
+    })
+  }
+
   render() {
     const formType: string = this.state.editingNodeItem?.node?.type
     let editingNodeItem
@@ -867,6 +876,7 @@ class Diagram extends Component<Props> {
               topicName: this.props.selectedTopic,
               languages: this.props.languages,
               defaultLanguage: this.props.defaultLanguage,
+              events: this.props.hints || [],
               refreshQnaCount: () => {
                 // So it's processed on the next tick, otherwise it won't update with the latest update
                 setTimeout(() => {
@@ -917,10 +927,13 @@ class Diagram extends Component<Props> {
                 type.schema.newJson?.displayedIn.includes('sayNode')
               )}
               deleteContent={() => this.deleteNodeContent()}
+              variables={this.props.currentFlow?.variables || []}
+              events={this.props.hints || []}
               contentLang={this.state.currentLang}
               editingContent={this.state.editingNodeItem.index}
               formData={editingNodeItem || this.getEmptyContent(editingNodeItem)}
               onUpdate={this.updateNodeContent.bind(this)}
+              onUpdateVariables={this.addVariable}
               close={() => {
                 this.timeout = setTimeout(() => {
                   this.setState({ editingNodeItem: null })
@@ -935,9 +948,12 @@ class Diagram extends Component<Props> {
               deleteCondition={() => this.deleteNodeCondition()}
               editingCondition={this.state.editingNodeItem.index}
               topicName={this.props.selectedTopic}
+              variables={this.props.currentFlow?.variables}
+              events={this.props.hints}
               formData={editingNodeItem}
               contentLang={this.state.currentLang}
               onUpdate={this.updateNodeCondition.bind(this)}
+              onUpdateVariables={this.addVariable}
               close={() => {
                 this.timeout = setTimeout(() => {
                   this.setState({ editingNodeItem: null })
@@ -975,7 +991,8 @@ const mapStateToProps = (state: RootReducer) => ({
   library: state.content.library,
   prompts: state.ndu.prompts,
   contentTypes: state.content.categories,
-  conditions: state.ndu.conditions
+  conditions: state.ndu.conditions,
+  hints: state.hints.inputs
 })
 
 const mapDispatchToProps = {
@@ -998,7 +1015,8 @@ const mapDispatchToProps = {
   addElementToLibrary,
   refreshFlowsLinks,
   fetchContentCategories,
-  getQnaCountByTopic
+  getQnaCountByTopic,
+  refreshHints
 }
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps, null, {

@@ -43,7 +43,7 @@ const VariablesEditor: FC<Props> = props => {
   const handleCreateClick = async () => {
     const newVariable: FlowVariable = {
       type: 'string',
-      name: `new-variable-${props.currentFlow.variables?.length ?? 0}`
+      name: `new-variable-${props.currentFlow?.variables?.length ?? 0}`
     }
     const flow = props.currentFlow
     computeCreateVariable(flow, newVariable)
@@ -57,7 +57,7 @@ const VariablesEditor: FC<Props> = props => {
   }
 
   const handleEditClick = (variableName: string) => {
-    setEditingVariable(props.currentFlow.variables.find(v => v.name === variableName))
+    setEditingVariable(props.currentFlow?.variables.find(v => v.name === variableName))
   }
 
   const handleModalSaveClick = async (newValues: FlowVariable) => {
@@ -93,19 +93,18 @@ const VariablesEditor: FC<Props> = props => {
   const renderTableRows = () => {
     return (
       <Fragment>
-        {props.currentFlow.variables &&
-          props.currentFlow.variables.map((v, i) => (
-            <tr key={i}>
-              <td>{v.name}</td>
-              <td>{v.type}</td>
-              <td>
-                <Button text="Edit" onClick={() => handleEditClick(v.name)} />
-              </td>
-              <td>
-                <Button text="Delete" onClick={() => handleDeleteClick(v.name)} />
-              </td>
-            </tr>
-          ))}
+        {props.currentFlow?.variables?.map((v, i) => (
+          <tr key={i}>
+            <td>{v.name}</td>
+            <td>{v.type}</td>
+            <td>
+              <Button text="Edit" onClick={() => handleEditClick(v.name)} />
+            </td>
+            <td>
+              <Button text="Delete" onClick={() => handleDeleteClick(v.name)} />
+            </td>
+          </tr>
+        ))}
       </Fragment>
     )
   }
