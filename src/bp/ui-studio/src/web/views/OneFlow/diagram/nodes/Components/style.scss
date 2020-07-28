@@ -94,14 +94,6 @@
       box-shadow: none;
     }
 
-    &.action, &:hover.action {
-      border-color: var(--action);
-    }
-
-    &.listen, &:hover.listen {
-      border-color: var(--listen);
-    }
-
     &.trigger, &:hover.trigger {
       border-color: var(--trigger);
     }
