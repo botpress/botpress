@@ -8,22 +8,6 @@ import { createEmptyDataFromSchema } from './fields'
 import style from '../Components/Form/style.scss'
 import { lang } from '../../translations'
 
-export const printLabel = (field, data, currentLang?) => {
-  if (field.label?.startsWith('fields::') && field.fields?.length) {
-    const labelField = field.fields?.find(subField => subField.key === field.label.replace('fields::', ''))
-    const fieldData = labelField.translated ? data[labelField.key]?.[currentLang] : data[labelField.key]
-
-    return fieldData || lang(labelField.label)
-  }
-
-  return (
-    <Fragment>
-      {lang(field.label)}
-      {field.required && <span className={style.requiredField}>*</span>}
-    </Fragment>
-  )
-}
-
 export const printMoreInfo = (moreInfo: FormMoreInfo, isCheckbox = false): JSX.Element | undefined => {
   if (!moreInfo) {
     return
@@ -38,7 +22,7 @@ export const printMoreInfo = (moreInfo: FormMoreInfo, isCheckbox = false): JSX.E
     )
   }
 
-  return <p className={cx(style.moreInfo, { [style.isCheckbox]: isCheckbox })}> {lang(label)} </p>
+  return <p className={cx(style.moreInfo, { [style.isCheckbox]: isCheckbox })}>{lang(label)}</p>
 }
 
 export const changeEmptyStrToNull = data => {
@@ -64,6 +48,35 @@ const loopThroughData = data => {
 
     return { ...acc, [key]: newValue }
   }, {})
+}
+
+const VARIABLES_REGEX = /(\$[^(\s|\$|\{{)]+)/im
+const EVENT_REGEX = /\{\{(.*?)\}\}/im
+
+export const getSuperInputsFromData = data => {
+  return (data && extractSuperInputFromObject(data)) || {}
+}
+const extractSuperInputFromObject = (data, pathKey = '') => {
+  return Object.keys(data).reduce((acc, key) => {
+    const currentPathKey = `${pathKey}${key}`
+    const currentData = data[key]
+
+    if (Array.isArray(currentData)) {
+      return currentData.reduce((acc, item, index) => {
+        return { ...acc, ...extractSuperInputFromObject(item, `${currentPathKey}${index}`) }
+      }, acc)
+    } else {
+      if (containsSuperInputData(currentData)) {
+        return { ...acc, [currentPathKey]: true }
+      }
+    }
+
+    return { ...acc }
+  }, {})
+}
+
+const containsSuperInputData = data => {
+  return VARIABLES_REGEX.test(data) || EVENT_REGEX.test(data)
 }
 
 export const formReducer = (state, action) => {
@@ -117,7 +130,7 @@ export const formReducer = (state, action) => {
     const { field, type, parent, onUpdate, lang, newFormData } = action.data
     let { value } = action.data
 
-    if (type === 'number') {
+    if (type === 'number' && !containsSuperInputData(value)) {
       value = value !== '' ? Number(value) : undefined
     }
 

@@ -40,15 +40,13 @@ function renderer(data) {
 }
 
 function renderElement(data, channel) {
-  if (channel === 'web' || channel === 'slack') {
+  if (channel === 'web' || channel === 'slack' || channel === 'twilio') {
     return renderer(data)
   } else if (channel === 'api') {
     return render(data)
-  } else if (channel === 'smooch') {
+  } else {
     return [data]
   }
-
-  return []
 }
 
 module.exports = {
