@@ -15,7 +15,7 @@ export class Trainer implements MLToolkit.CRF.Trainer {
   public async train(
     elements: MLToolkit.CRF.DataPoint[],
     options: MLToolkit.CRF.TrainerOptions,
-    progressCallback?: (iteration: number) => number
+    progressCallback?: (iteration: number) => void
   ): Promise<string> {
     this.trainer.set_params(options)
 
@@ -25,14 +25,10 @@ export class Trainer implements MLToolkit.CRF.Trainer {
 
     const crfModelFilename = tmp.fileSync({ postfix: '.bin' }).name
 
-    const statusCode = await this.trainer.train_async(crfModelFilename, iteration => {
+    await this.trainer.train_async(crfModelFilename, iteration => {
       progressCallback && progressCallback(iteration)
       return this._cancelTraining ? 1 : 0
     })
-
-    if (statusCode !== 0) {
-      throw new Error(`CRF training exited with status code : ${statusCode}`)
-    }
 
     return crfModelFilename
   }
