@@ -13,7 +13,7 @@ import { JobService } from '../job-service'
 
 import { TelemetryStats } from './telemetry-stats'
 
-interface botHooks {
+interface BotHooks {
   botId: string
   after_bot_mount?: number
   after_bot_unmount?: number
@@ -27,15 +27,15 @@ interface botHooks {
   on_bot_error?: number
 }
 
-interface globalHooks {
+interface GlobalHooks {
   after_server_start?: number
   after_stage_changed?: number
   on_incident_status_changed?: number
   on_stage_request?: number
 }
-interface hookPayload {
-  perBots: botHooks[]
-  global: globalHooks
+interface HookPayload {
+  perBots: BotHooks[]
+  global: GlobalHooks
 }
 
 const BOT_HOOKS = [
@@ -79,7 +79,7 @@ export class HooksLifecycleStats extends TelemetryStats {
     }
   }
 
-  private async getHooksLifecycle(): Promise<hookPayload> {
+  private async getHooksLifecycle(): Promise<HookPayload> {
     const botIds = await this.botService.getBotsIds()
     const perBots = await Promise.map(botIds, async ID => {
       const botHooksPaths = await this.ghostService.forBot(ID).directoryListing('/hooks', '*.js')
