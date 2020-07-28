@@ -114,11 +114,11 @@
   > div {
     text-align: center;
     margin: auto;
-    padding: var(--spacing-medium);
+    padding: var(--spacing-medium) var(--spacing-large);
 
-    svg {
-      font-size: 80px;
-      color: var(--ocean);
+    .debuggerIcon {
+      display: block;
+      margin-bottom: var(--spacing-x-large);
     }
 
     ul {
@@ -266,6 +266,11 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.canShowFull {
+  cursor: pointer;
+  padding-right: var(--spacing-medium);
 }
 
 .section {

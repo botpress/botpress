@@ -3,11 +3,13 @@
 interface CssExports {
   'bar': string;
   'barContainer': string;
+  'canShowFull': string;
   'collapsibleContainer': string;
   'confidence': string;
   'container': string;
   'container2': string;
   'content': string;
+  'debuggerIcon': string;
   'group': string;
   'header': string;
   'hovering': string;

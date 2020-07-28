@@ -77,7 +77,7 @@ const Flow: SFC<{ stacktrace: sdk.IO.JumpPoint[] }> = props => (
 const Dialog: SFC<Props> = ({ decision, suggestions, stacktrace }) => {
   const [viewJSON, setViewJSON] = useState(false)
 
-  if (!decision) {
+  if (!decision && !suggestions?.length && !stacktrace?.length) {
     return null
   }
 
@@ -92,7 +92,7 @@ const Dialog: SFC<Props> = ({ decision, suggestions, stacktrace }) => {
 
     return (
       <Fragment>
-        <Decision decision={decision} />
+        {decision && <Decision decision={decision} />}
         {stacktrace?.length > 0 && <Flow stacktrace={stacktrace} />}
         {suggestions?.length > 0 && <Suggestions suggestions={suggestions} />}
       </Fragment>

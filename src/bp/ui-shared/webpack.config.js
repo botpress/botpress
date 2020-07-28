@@ -48,13 +48,15 @@ const config = {
               localIdentName: '[name]__[local]___[hash:base64:5]'
             }
           },
-          { loader: 'postcss-loader' },
+          { loader: 'postcss-loader', options: {
+            options: {},
+          } },
           { loader: 'sass-loader' }
         ]
       },
       {
         test: /\.css$/,
-        exclude: /node_modules/,
+        exclude: /node_modules\/(?!@yaireo).*/,
         use: ['style-loader', 'css-loader']
       }
     ]

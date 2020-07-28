@@ -5,6 +5,7 @@ import React, { Fragment, SFC, useState } from 'react'
 
 import { Collapsible } from '../components/Collapsible'
 import { Intents } from '../components/Intents'
+import Predictions from '../components/Predictions'
 import style from '../style.scss'
 
 import { Entities } from './Entities'
@@ -53,6 +54,7 @@ const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding; isNDU: boolean; session: an
           </Tooltip>
         )}
         <Language detectedLanguage={nluData.detectedLanguage} usedLanguage={nluData.language} />
+        <Predictions predictions={nluData.predictions} />
         {!isNDU && <Intents intents={nluData.intents} intent={nluData.intent} />}
         {/* TODO re-add Entities and Slots when design is made for them
         <Collapsible name="Entities" hidden={!nluData.entities.length}>
@@ -69,7 +71,7 @@ const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding; isNDU: boolean; session: an
 
   return (
     <Fragment>
-      <Collapsible name="Language Understanding" hidden={!nluData.entities.length}>
+      <Collapsible name="Language Understanding">
         {renderContent()}
         <Button minimal className={style.switchViewBtn} icon="eye-open" onClick={toggleView}>
           {viewJSON ? 'View as Summary' : 'View as JSON'}

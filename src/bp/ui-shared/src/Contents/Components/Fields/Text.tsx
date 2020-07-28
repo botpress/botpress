@@ -12,7 +12,8 @@ const Text: FC<TextProps> = ({
   onChange,
   placeholder,
   field: { valueManipulation, type, min, max, maxLength },
-  value
+  value,
+  childRef
 }) => {
   const [localValue, setLocalValue] = useState(value || getFieldDefaultValue({ type }))
 
@@ -48,6 +49,7 @@ const Text: FC<TextProps> = ({
 
   return (
     <input
+      ref={ref => childRef?.(ref)}
       className={style.input}
       type={type}
       maxLength={maxLength}

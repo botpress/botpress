@@ -1,10 +1,13 @@
 import sdk from 'botpress/sdk'
+import _ from 'lodash'
 import React from 'react'
 
+import { Collapsible } from '../components/Collapsible'
 import style from '../style.scss'
 
 import Dialog from './Dialog'
-import NDUSection from './NDUSection'
+import { Inspector } from './Inspector'
+import NDU from './NDU'
 import NLU from './NLU'
 
 interface Props {
@@ -27,6 +30,8 @@ export default class Summary extends React.Component<Props> {
   }
 
   render() {
+    const eventError = _.get(this.props, 'event.state.__error')
+
     if (this.state.hasError) {
       return (
         <div className={style.section}>
@@ -44,7 +49,16 @@ export default class Summary extends React.Component<Props> {
           stacktrace={this.props.event.state?.__stacktrace}
         />
 
-        <NDUSection nduData={this.props.event.ndu} />
+        <NDU ndu={this.props.event.ndu} />
+
+        <Collapsible name="State">
+          <Inspector data={this.props.event.state} />
+        </Collapsible>
+        {eventError && (
+          <Collapsible name="Errors">
+            <Inspector data={eventError} />
+          </Collapsible>
+        )}
       </div>
     )
   }

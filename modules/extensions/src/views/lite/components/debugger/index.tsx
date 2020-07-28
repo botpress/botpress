@@ -11,9 +11,6 @@ import 'ui-shared/dist/theme.css'
 import Settings from './settings'
 import style from './style.scss'
 import { loadSettings } from './utils'
-import { Error } from './views/Error'
-import { Inspector } from './views/Inspector'
-import { NDU } from './views/NDU'
 import Summary from './views/Summary'
 import EventNotFound from './EventNotFound'
 import FetchingEvent from './FetchingEvent'
@@ -63,12 +60,6 @@ export class Debugger extends React.Component<Props, State> {
 
     this.props.store.view.setLayoutWidth(WEBCHAT_WIDTH)
     this.props.store.view.setContainerWidth(WEBCHAT_WIDTH)
-    this.props.store.view.addHeaderButton({
-      id: 'toggleDev',
-      label: 'Show Debugger',
-      icon: <MdBugReport size={18} />,
-      onClick: this.toggleDebugger
-    })
 
     this.props.store.view.addCustomAction({
       id: 'actionDebug',
@@ -209,9 +200,6 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   renderEvent() {
-    const eventError = _.get(this.state, 'event.state.__error')
-    const ndu = _.get(this.state, 'event.ndu')
-
     return (
       <div className={style.content}>
         <Summary event={this.state.event} />

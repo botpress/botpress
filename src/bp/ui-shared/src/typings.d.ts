@@ -6,7 +6,6 @@ import { CommanderProps, QuickShortcut } from './Commander/typings'
 import { DropdownProps, Option } from './Dropdown/typings'
 import { MainContainerProps } from './MainContainer/typings'
 import { MarkdownContentProps } from './MarkdownContent/typings'
-import { MoreOptionsProps } from './MoreOptions/typings'
 import { TreeViewProps } from './TreeView/typings'
 
 import { ToastOptions } from './Toaster'
@@ -19,9 +18,13 @@ import { RightSidebarProps } from './MainContent/RightSidebar/typings'
 import { FormProps } from './Contents/Components/Form/typings'
 import { ItemProps } from './Contents/Components/Item/typings'
 import { AddButtonProps } from './Contents/Components/typings'
-import { TextFieldsArrayProps } from './FormFields/TextFieldsArrayProps/typings'
+import { TextFieldsArrayProps } from './FormFields/TextFieldsArray/typings'
+import { SuperInputArrayProps } from './FormFields/SuperInputArray/typings'
 import { OverlayProps } from './Overlay/typings'
 import { FormField, MultiLangText } from 'botpress/sdk'
+import { MoreOptionsProps } from '../../ui-shared-lite/MoreOptions/typings'
+import { OverlayProps } from '../../ui-shared-lite/Overlay/typings'
+import { ToolTipProps } from '../../ui-shared-lite/ToolTip/typings'
 
 declare module 'botpress/shared' {
   export function Commander(props: CommanderProps): JSX.Element
@@ -42,6 +45,7 @@ declare module 'botpress/shared' {
   export const FormFields: {
     AddButton(props: AddButtonProps): JSX.Element
     TextFieldsArray(props: TextFieldsArrayProps): JSX.Element
+    SuperInputArray(props: SuperInputArrayProps): JSX.Element
   }
   export function Dropdown(props: DropdownProps): JSX.Element
   export function EmptyState(props: EmptyStateProps): JSX.Element
@@ -52,6 +56,7 @@ declare module 'botpress/shared' {
   export function Overlay(props: OverlayProps): JSX.Element
   export function ShortcutLabel(props: ShortcutLabelProps): JSX.Element
   export function Textarea<T>(props: TextareaProps<T>): JSX.Element
+  export function ToolTip<T>(props: ToolTipProps<T>): JSX.Element
   export function TreeView<T>(props: TreeViewProps<T>): JSX.Element
 
   export function contextMenu(event: SyntheticEvent, content: JSX.Element): void
