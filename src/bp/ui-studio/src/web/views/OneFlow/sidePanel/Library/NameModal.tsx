@@ -29,13 +29,7 @@ const EntityNameModal: FC<Props> = props => {
     <Dialog.Wrapper title="Rename" {...props}>
       <Dialog.Body>
         <FormGroup label="Name">
-          <InputGroup
-            value={name || ''}
-            onChange={x => setName(x.currentTarget.value)}
-            onSubmit={e => {
-              e.preventDefault()
-            }}
-          />
+          <InputGroup value={name || ''} onChange={x => setName(x.currentTarget.value)} />
         </FormGroup>
       </Dialog.Body>
       <Dialog.Footer>
