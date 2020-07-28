@@ -3,6 +3,7 @@ import { BUILTIN_MODULES } from 'common/defaults'
 import LicensingService from 'common/licensing-service'
 import { buildSchema } from 'common/telemetry'
 import { BotConfig } from 'core/config/bot.config'
+import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
 import { calculateHash } from 'core/misc/utils'
 import { ModuleLoader } from 'core/module-loader'
@@ -37,6 +38,8 @@ const modulesConfigsBlacklist = {
   testing: []
 }
 
+const botpressConfigsBlacklist = ['pro.licenseKey', 'pro.externalAuth.publicKey', 'superAdmins', 'appSecret']
+
 interface BotConfigEvent {
   botId: string
   botConfigs: BotConfig
@@ -60,7 +63,8 @@ export class ConfigsStats extends TelemetryStats {
     @inject(TYPES.JobService) jobService: JobService,
     @inject(TYPES.TelemetryRepository) telemetryRepo: TelemetryRepository,
     @inject(TYPES.BotService) private botService: BotService,
-    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader
+    @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
+    @inject(TYPES.ConfigProvider) private config: ConfigProvider
   ) {
     super(ghostService, database, licenseService, jobService, telemetryRepo)
     this.url = process.TELEMETRY_URL
@@ -74,9 +78,27 @@ export class ConfigsStats extends TelemetryStats {
       event_data: {
         schema: '1.0.0',
         botConfigs: await this.getBotsConfigs(),
-        modulesConfigs: await this.getModulesConfigs()
+        modulesConfigs: await this.getModulesConfigs(),
+        globalConfigs: await this.getGlobalConfigs()
       }
     }
+  }
+  private async getGlobalConfigs() {
+    const globalConfigs = await this.config.getBotpressConfig()
+    const defaultConfigs = await this.ghostService
+      .root()
+      .readFileAsObject('/', 'botpress.config.schema.json')
+      .catch(_err => this.ghostService.root().readFileAsObject('/', 'botpress.config.schema.json'))
+
+    for (const config of botpressConfigsBlacklist) {
+      const value =
+        _.get(globalConfigs, config) == _.get(defaultConfigs, 'properties.' + config + '.default')
+          ? 'default'
+          : 'redacted'
+      _.set(globalConfigs, config, value)
+    }
+
+    return globalConfigs
   }
 
   private async getModulesConfigs(): Promise<ModuleConfigEvent[]> {
