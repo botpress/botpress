@@ -31,7 +31,7 @@ export function getOnServerReady(state: NLUState) {
         if (trainSession.lock) {
           trainSession.lock.unlock()
         }
-        trainSession.status = 'cancelling'
+        trainSession.status = 'canceled'
         await setTrainingSession(bp, botId, trainSession)
       }
     }

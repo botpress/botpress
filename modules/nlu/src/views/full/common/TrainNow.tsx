@@ -7,7 +7,6 @@ import { NLUProgressEvent } from '../../../backend/typings'
 const TrainNow: FC<{ api: NLUApi; eventBus: any; autoTrain: boolean }> = ({ api, eventBus, autoTrain }) => {
   const [loading, setLoading] = useState(true)
   const [training, setTraining] = useState(false)
-  const [cancelling, setCancelling] = useState(false)
 
   useEffect(() => {
     const fetchIsTraining = async () => {
@@ -25,7 +24,6 @@ const TrainNow: FC<{ api: NLUApi; eventBus: any; autoTrain: boolean }> = ({ api,
     eventBus.on('statusbar.event', event => {
       if (event.type === 'nlu' && (event as NLUProgressEvent).trainSession.status === "done") {
         setTraining(false)
-        setCancelling(false)
       }
     })
   }, [])
@@ -37,12 +35,12 @@ const TrainNow: FC<{ api: NLUApi; eventBus: any; autoTrain: boolean }> = ({ api,
 
   const cancelTraining = async () => {
     await api.cancelTraining()
-    setCancelling(true)
+    setTraining(false)
   }
 
   if (training) {
     return (
-      <Button disabled={cancelling} loading={loading} onClick={cancelTraining}>
+      <Button loading={loading} onClick={cancelTraining}>
         {lang.tr('module.nlu.cancelTraining')}
       </Button>
     )
