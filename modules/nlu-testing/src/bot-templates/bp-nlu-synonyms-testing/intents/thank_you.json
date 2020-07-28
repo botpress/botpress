@@ -1,0 +1,31 @@
+{
+    "name": "thank_you",
+    "utterances": {
+        "en": [
+            "you have been a big help, thank you so much",
+            "i appreciate your help, thank you",
+            "i really appreciate your help, thank you",
+            "i am very grateful",
+            "i appreciate the assistance",
+            "i want to thank you for helping",
+            "much obliged",
+            "your help is appreciated",
+            "gracias",
+            "i appreciate that",
+            "thanks so much!",
+            "many thanks",
+            "appreciate it",
+            "thanks!",
+            "i thank you",
+            "thank you kindly",
+            "thank you so very much",
+            "thank you for helping me",
+            "i'm grateful to you",
+            "you did a good job thank you"
+        ]
+    },
+    "slots": [],
+    "contexts": [
+        "global"
+    ]
+}

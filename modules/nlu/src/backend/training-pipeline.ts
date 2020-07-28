@@ -530,6 +530,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
       TrainIntentClassifier(step, tools, reportProgress),
       TrainSlotTagger(step, tools, reportProgress)
     ])
+    debugger
 
     const output: TrainOutput = {
       list_entities: step.list_entities,

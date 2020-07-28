@@ -1,0 +1,7 @@
+[
+  { "root": "boss", "synonyms": ["CAO", "CEO", "CFO", "CIO", "CMO", "COO", "CPA", "CTO"] },
+  {
+    "root": "guns",
+    "synonyms": ["M16", "G36", "M13", "MP5", "AK47", "SA87", "P90", "M1", "M2", "M3", "M4", "M5", "M6", "M7"]
+  }
+]

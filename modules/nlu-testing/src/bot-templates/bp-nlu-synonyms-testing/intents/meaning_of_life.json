@@ -1,0 +1,31 @@
+{
+    "name": "meaning_of_life",
+    "utterances": {
+        "en": [
+            "does life have meaning",
+            "is being alive the meaning of life",
+            "what is the real meaning of life",
+            "what is the answer to the meaning of life",
+            "is there really an answer to the meaning of life",
+            "does life have a meaning",
+            "who can tell me if there's any meaning to life",
+            "what makes life have any meaning",
+            "why do you think we're here",
+            "what's the answer to existence",
+            "what's the point of sentience",
+            "what's the purpose of existence",
+            "what's the purpose of life",
+            "what's the point of this dumpster fire known as life",
+            "what is life's meaning",
+            "is there a greater purpose in life",
+            "what is our purpose in life",
+            "how is life in existence",
+            "what's lifes meaning",
+            "what exactly is the meaning of life"
+        ]
+    },
+    "slots": [],
+    "contexts": [
+        "global"
+    ]
+}

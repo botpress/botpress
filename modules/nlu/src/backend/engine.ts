@@ -1,6 +1,7 @@
 import { Logger, MLToolkit, NLU } from 'botpress/sdk'
 import crypto from 'crypto'
 import _ from 'lodash'
+import LRUCache from 'lru-cache'
 
 import * as CacheManager from './cache-manager'
 import { computeModelHash, Model } from './model-service'

@@ -163,7 +163,7 @@ async function makePredictionUtterance(input: PredictStep, predictors: Predictor
 
 async function extractEntities(input: PredictStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
   const { utterance, alternateUtterance } = input
-
+  debugger
   _.forEach(
     [
       ...extractListEntities(input.utterance, predictors.list_entities, true),

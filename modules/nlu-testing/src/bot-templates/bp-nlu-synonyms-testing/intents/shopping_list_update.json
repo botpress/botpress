@@ -1,0 +1,31 @@
+{
+    "name": "shopping_list_update",
+    "utterances": {
+        "en": [
+            "delete fries from shopping list",
+            "take off fries from the shopping list",
+            "please take away the fries from the shopping list",
+            "remove fries from my shopping list",
+            "we no longer need fries on the shopping lisr",
+            "cross out bananas from my shopping list and put papayas on it, please",
+            "i need to delete tomatoes from my shopping list and add onions instead",
+            "can you add carrots to my shopping list and delete potatoes",
+            "please remove ginger ale from my shopping list and add root beer",
+            "go ahead and erase cashews from my list, and add walnuts to it, please",
+            "add eggs to my shopping list and remove cheese",
+            "add corn to my shopping list and remove wine",
+            "add flour to my shopping list if it's not already on it",
+            "take bread off my shopping list and add milk",
+            "please add sugar to my shopping list if it's not on it",
+            "remove wine and add beer to my shopping list",
+            "is paprika listed on my shopping list, please add it",
+            "is bacon on my shopping list, add if it's not",
+            "delete soda from my shopping list and add water to it",
+            "do i have pepper my shopping list, if not add it"
+        ]
+    },
+    "slots": [],
+    "contexts": [
+        "global"
+    ]
+}

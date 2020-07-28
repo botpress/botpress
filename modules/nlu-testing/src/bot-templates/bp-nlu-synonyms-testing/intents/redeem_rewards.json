@@ -1,0 +1,31 @@
+{
+    "name": "redeem_rewards",
+    "utterances": {
+        "en": [
+            "i am ready now to cash in on the many credit card points i have saved up",
+            "i have credit card points but don't know how to use them",
+            "walk me through the best ways to use my credit card points",
+            "i am ready now to use some of the credit card points i have saved",
+            "i want to hear more about how i can use my credit card points",
+            "how can i cash in the rewards i earned with my visa card",
+            "walk me through the process of cashing in on credit card points",
+            "i would like to use my credit card points",
+            "do i have enough credit card points to redeem a new appliance",
+            "i would love to redeem some smart speakers with my credit card points",
+            "how can i redeem rewards earned through my amex card",
+            "how can i cash in on the rewards i earned through my american express card",
+            "could i redeem my credit card points on a new tv",
+            "can you help me figure out how to utilize my credit card points",
+            "can you explain to me how i ought to use my credit card points",
+            "i would like to use my credit card points to acquire a new laptop",
+            "i would like to redeem my credit card reward points",
+            "have i got enough credit card points to get a new tablet device",
+            "i have a lot of credit card points saved up and would like to start redeeming them",
+            "walk me through reward redemption from my barclay's card"
+        ]
+    },
+    "slots": [],
+    "contexts": [
+        "global"
+    ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "talk_to_chief",
+  "utterances": {
+    "en": [
+      "Can I talk to your boss ?",
+      "I want to speak to the manager",
+      "Would you let me see your chief ?",
+      "Let me see your boss",
+      "Is your manager here ?"
+    ]
+  },
+  "slots": [],
+  "contexts": ["global"]
+}
