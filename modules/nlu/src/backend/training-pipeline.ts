@@ -304,7 +304,7 @@ const TrainContextClassifier = async (
   if (points.length === 0 || input.contexts.length <= 1) {
     progress()
     debugTraining.forBot(input.botId, 'No context to train')
-    return
+    return ''
   }
 
   const svm = new tools.mlToolkit.SVM.Trainer()
@@ -560,7 +560,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     if (!input.trainingSession) {
       return
     }
-    if (input.trainingSession.status === 'cancelling') {
+    if (input.trainingSession.status === 'canceled') {
       tools.reportTrainingProgress(input.botId, 'Currently cancelling...', input.trainingSession)
       throw new TrainingCanceledError()
     }
@@ -588,8 +588,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     TrainSlotTagger(step, tools, reportProgress)
   ])
 
-  if (models.some(m => !m)) {
-    input.trainingSession.status = 'canceled'
+  if (models.some(_.isUndefined)) {
     tools.reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession)
     console.log(input.botId, 'Training aborted')
     return
