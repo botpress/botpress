@@ -3,16 +3,14 @@ import cluster, { Worker } from 'cluster'
 import _ from 'lodash'
 import kmeans from 'ml-kmeans'
 import nanoid from 'nanoid'
-import tmp from 'tmp'
 
 import { registerMsgHandler, spawnMLWorkers, WORKER_TYPES } from '../cluster'
-import crfsuite from './crfsuite'
+import { Tagger, Trainer as CRFTrainer } from './crf'
 import { FastTextModel } from './fasttext'
 import computeJaroWinklerDistance from './homebrew/jaro-winkler'
 import computeLevenshteinDistance from './homebrew/levenshtein'
 import { processor } from './sentencepiece'
 import { Predictor, Trainer as SVMTrainer } from './svm'
-import { WebWorkerCrfTrainer } from './crf-web-worker'
 
 type MsgType = 'svm_train' | 'svm_progress' | 'svm_done' | 'svm_error' | 'crf_train' | 'crf_done' | 'crf_error'
 
@@ -31,8 +29,8 @@ const MLToolkit: typeof sdk.MLToolkit = {
     kmeans
   },
   CRF: {
-    createTagger: () => new crfsuite.Tagger(),
-    createTrainer: () => new WebWorkerCrfTrainer()
+    Tagger: Tagger,
+    Trainer: CRFTrainer
   },
   SVM: {
     Predictor,
@@ -82,6 +80,33 @@ function overloadTrainers() {
       process.on('message', messageHandler)
     })
   }
+
+  MLToolkit.CRF.Trainer.prototype.train = (
+    elements: sdk.MLToolkit.CRF.DataPoint[],
+    params: sdk.MLToolkit.CRF.TrainerOptions
+  ): Promise<string> => {
+    return Promise.fromCallback(completedCb => {
+      const id = nanoid()
+      const messageHandler = (msg: Message) => {
+        if (msg.id !== id) {
+          return
+        }
+
+        if (msg.type === 'crf_done') {
+          completedCb(undefined, msg.payload.crfModelFilename)
+          process.off('message', messageHandler)
+        }
+
+        if (msg.type === 'crf_error') {
+          completedCb(msg.payload.error)
+          process.off('message', messageHandler)
+        }
+      }
+
+      process.send!({ type: 'crf_train', id, payload: { elements, params } })
+      process.on('message', messageHandler)
+    }) as any
+  }
 }
 
 if (cluster.isWorker) {
@@ -108,18 +133,11 @@ if (cluster.isWorker) {
 
       if (msg.type === 'crf_train') {
         const debugTrain = DEBUG('nlu').sub('training')
-        const trainer = new crfsuite.Trainer()
 
         try {
-          trainer.set_params(msg.payload.params)
-
-          for (const { features, labels } of msg.payload.elements) {
-            trainer.append(features, labels)
-          }
-
-          const crfModelFilename = tmp.fileSync({ postfix: '.bin' }).name
-          await trainer.train_async(crfModelFilename, str => debugTrain('CRFSUITE', str))
-
+          const { elements, params } = msg.payload
+          const trainer = new CRFTrainer()
+          const crfModelFilename = await trainer.train(elements, params, str => debugTrain('CRFSUITE', str))
           process.send!({ type: 'crf_done', id: msg.id, payload: { crfModelFilename } })
         } catch (error) {
           process.send!({ type: 'crf_error', id: msg.id, payload: { error } })

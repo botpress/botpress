@@ -51,11 +51,12 @@
       "contents": [
         {
           "contentType": "builtin_text",
-          "text": { "en": "Sorry, I didn't understand" },
+          "text": { "en": "Sorry, I didn't understand", "fr": "Désolé je n'ai pas compris" },
           "markdown": true,
           "typing": true,
           "variations": {
-            "en": []
+            "en": [],
+            "fr": []
           }
         }
       ]

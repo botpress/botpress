@@ -13,10 +13,23 @@
           "value": "no"
         }
       ],
-      "typing$en": true
+      "typing$en": true,
+      "choices$fr": [
+        {
+          "title": "Oui 👍",
+          "value": "yes"
+        },
+        {
+          "title": "Non 👎",
+          "value": "no"
+        }
+      ],
+      "markdown$fr": true,
+      "typing$fr": true,
+      "text$fr": "Est-ce que cela a été utile?"
     },
     "createdBy": "admin",
     "createdOn": "2020-01-15T16:48:38.141Z",
-    "modifiedOn": "2020-01-15T16:48:38.141Z"
+    "modifiedOn": "2020-07-24T17:43:42.329Z"
   }
 ]
