@@ -15,6 +15,7 @@ interface Props {
 }
 
 const ExecuteForm: FC<Props> = ({ close, node, onUpdate, diagramEngine, deleteNode }) => {
+  const [showModal, setShowModal] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
 
   const moreOptionsItems: MoreOptionsItems[] = [
@@ -31,19 +32,28 @@ const ExecuteForm: FC<Props> = ({ close, node, onUpdate, diagramEngine, deleteNo
     flowBuilder.updateFlowNode({ onEnter: [actionText] })
   }
 
-  const actionText = (node.onEnter && node.onEnter.length && node.onEnter[0]) || ''
+  const actionText = (node?.onEnter?.length && node?.onEnter[0]) || ''
 
   return (
-    <RightSidebar key={`${node.id}`} className={style.wrapper} close={() => close()}>
-      <div className={style.formHeader}>
-        <Tabs id="contentFormTabs">
-          <Tab id="content" title={lang.tr('studio.flow.nodeType.execute')} />
-        </Tabs>
-        <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
-      </div>
-      <div className={style.actionModal}>
-        <ActionModalSmall text={actionText} onChange={handleItemChanged} layoutv2 />
-      </div>
+    <RightSidebar className={style.wrapper} canOutsideClickClose={!showModal} close={() => close()}>
+      <Fragment key={`${node?.id}`}>
+        <div className={style.formHeader}>
+          <Tabs id="contentFormTabs">
+            <Tab id="content" title={lang.tr('studio.flow.nodeType.execute')} />
+          </Tabs>
+          <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
+        </div>
+        <div className={style.actionModal}>
+          <ActionModalSmall
+            text={actionText}
+            showingModal={showModal}
+            showModal={() => setShowModal(true)}
+            hideModal={() => setShowModal(false)}
+            onChange={handleItemChanged}
+            layoutv2
+          />
+        </div>
+      </Fragment>
     </RightSidebar>
   )
 }

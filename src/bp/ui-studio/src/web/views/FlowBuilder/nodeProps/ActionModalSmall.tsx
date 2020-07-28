@@ -42,12 +42,12 @@ export default class ActionModalSmall extends React.Component<any> {
   render() {
     return (
       <Fragment>
-        <Button onClick={() => this.setState({ showActionModalForm: true })}>
+        <Button onClick={this.props.showModal}>
           <ActionItem text={this.props.text} layoutv2 />
         </Button>
         <ActionModalForm
-          show={this.state.showActionModalForm}
-          onClose={() => this.setState({ showActionModalForm: false, itemToEditIndex: null })}
+          show={this.props.showingModal}
+          onClose={this.props.hideModal}
           onSubmit={this.onSubmitAction}
           item={this.itemToOptions(this.props.text)}
           layoutv2
