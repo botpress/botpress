@@ -18,10 +18,16 @@ interface OwnProps {
 }
 
 type Props = OwnProps & StateProps & DispatchProps
+interface TableItem {
+  label: string
+  click: () => void
+  edit: () => void
+  delete: () => void
+}
 
 const Library: FC<Props> = props => {
-  const [currentEntity, setCurrentEntity] = useState<NLU.EntityDefinition>(undefined)
-  const [currentNamingEntity, setCurrentNamingEntity] = useState<NLU.EntityDefinition>(undefined)
+  const [currentEntity, setCurrentEntity] = useState<NLU.EntityDefinition>()
+  const [currentNamingEntity, setCurrentNamingEntity] = useState<NLU.EntityDefinition>()
   const [forceUpdate, setForceUpdate] = useState(false)
   const [entities, setEntities] = useState<NLU.EntityDefinition[]>([])
 
@@ -36,7 +42,7 @@ const Library: FC<Props> = props => {
 
   const createEntity = async (type: string) => {
     const originalName = `${type}-entity`
-    let name = undefined
+    let name
     let index = 0
     do {
       name = `${originalName}${index ? `-${index}` : ''}`
@@ -45,8 +51,8 @@ const Library: FC<Props> = props => {
 
     const entity = {
       id: name,
-      name: name,
-      type: type,
+      name,
+      type,
       occurrences: []
     }
 
@@ -61,11 +67,11 @@ const Library: FC<Props> = props => {
 
   const updateEntity = async (targetEntityId: string, entity: NLU.EntityDefinition) => {
     await axios.post(`${window.BOT_API_PATH}/nlu/entities/${targetEntityId}`, entity)
-    const i = entities.findIndex(ent => ent.name === entity.name)
-    setEntities([...entities.slice(0, i), entity, ...entities.slice(i + 1)])
+    const idx = entities.findIndex(ent => ent.name === entity.name)
+    setEntities([...entities.slice(0, idx), entity, ...entities.slice(idx + 1)])
   }
 
-  const renderTable = (title: string, items: any[]) => {
+  const renderTable = (title: string, items: TableItem[]) => {
     return (
       <table
         className={cx(
@@ -84,11 +90,11 @@ const Library: FC<Props> = props => {
       </table>
     )
   }
-  const renderTableRows = (items: any[]) => {
+  const renderTableRows = (items: TableItem[]) => {
     return (
       <Fragment>
         {items &&
-          items.map((item, i) => (
+          items?.map((item, i) => (
             <tr key={i}>
               <td>
                 <Button text={item.label} onClick={item.click} />
@@ -112,7 +118,7 @@ const Library: FC<Props> = props => {
           'Variable Types',
           entities
             .filter(x => x.type !== 'system')
-            .map(x => ({
+            .map<TableItem>(x => ({
               label: x.name,
               click: () => {
                 setCurrentEntity(x)
