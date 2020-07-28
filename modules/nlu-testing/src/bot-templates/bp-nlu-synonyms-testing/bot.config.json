@@ -1,6 +1,7 @@
 {
   "$schema": "../../bot.config.schema.json",
-  "description": "BPDS are handcrafted datasets. Intents in each contexts are built with a specific distribution in mind, making intent classification hard to achieve. This one is for synonyms",
+  "bpdsId": "entities-encoding",
+  "description": "BPDS are handcrafted datasets. Intents in each contexts are built with a specific distribution in mind, making intent classification hard to achieve.",
   "active": true,
   "version": "1.0.0",
   "author": "Botpress, Inc.",

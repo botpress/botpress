@@ -1,0 +1,23 @@
+{
+  "id": "cars",
+  "name": "cars",
+  "type": "list",
+  "occurrences": [
+    { "name": "car", "synonyms": [] },
+    { "name": "Pickup", "synonyms": [] },
+    { "name": "Rav4", "synonyms": [] },
+    { "name": "Tesla", "synonyms": [] },
+    { "name": "Electric Vehicule", "synonyms": [] },
+    { "name": "GMC", "synonyms": [] },
+    { "name": "Fiat", "synonyms": [] },
+    { "name": "Ferrari", "synonyms": [] },
+    { "name": "Bentley", "synonyms": [] },
+    { "name": "Corolla", "synonyms": [] },
+    { "name": "Nissan", "synonyms": [] },
+    { "name": "The 4 ring brand ", "synonyms": [] }
+  ],
+  "sensitive": false,
+  "fuzzy": 1,
+  "exemples": [],
+  "pattern": ""
+}

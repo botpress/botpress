@@ -1,0 +1,18 @@
+{
+  "id": "guns",
+  "name": "guns",
+  "type": "list",
+  "occurrences": [
+    { "name": "guns", "synonyms": [] },
+    { "name": "P90", "synonyms": [] },
+    { "name": "BM25", "synonyms": [] },
+    { "name": "G36", "synonyms": [] },
+    { "name": "M16", "synonyms": [] },
+    { "name": "Glock", "synonyms": [] },
+    { "name": "Magnum", "synonyms": [] }
+  ],
+  "sensitive": false,
+  "fuzzy": 1,
+  "exemples": [],
+  "pattern": ""
+}

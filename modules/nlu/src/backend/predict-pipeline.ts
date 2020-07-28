@@ -444,7 +444,8 @@ export const Predict = async (
     const t0 = Date.now()
     // tslint:disable-next-line
     let { stepOutput, predictors } = await preprocessInput(input, tools, predictorsByLang)
-
+    // @ts-ignore
+    stepOutput.rawText = stepOutput.rawText.toLowerCase()
     stepOutput = await makePredictionUtterance(stepOutput, predictors, tools)
     stepOutput = await extractEntities(stepOutput, predictors, tools)
     debugger

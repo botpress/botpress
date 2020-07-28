@@ -1,662 +1,354 @@
 [
   {
-    "id": "9e87cc59a0b7087c86920c73aa7e3348",
-    "utterance": "i need to rat for green coverage plans",
-    "context": "*",
-    "conditions": [["intent", "is", "insurance_change"]]
+    "utterance": "Where is paris center town",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "travel"]
+    ]
+  },
+
+  {
+    "utterance": "What can I see in the city of lights",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "travel"]
+    ]
+  },
+
+  {
+    "utterance": "Is downtown a nice place to spend the evening ?",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "travel"]
+    ]
+  },
+
+  {
+    "utterance": "Which is the most romantic ? Downtown or The Louvre",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "travel"]
+    ]
+  },
+
+  {
+    "utterance": "Are the paris suburbs representatives of the french capital ?",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "travel"]
+    ]
+  },
+
+  {
+    "utterance": "Have you visited the city of paris suburbs ?",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "travel"]
+    ]
+  },
+
+  {
+    "utterance": "Where is the city of paris airport ?",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "travel"]
+    ]
+  },
+
+  {
+    "utterance": "Can I bring my M16 in the city of lights ?",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "travel"]
+    ]
+  },
+  {
+    "utterance": "Is Sylvain here ? ",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "talk_to_boss"]
+    ]
+  },
+  {
+    "utterance": "Where is Sly ?",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "talk_to_boss"]
+    ]
+  },
+  {
+    "utterance": "I will only speak with your chief",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "talk_to_boss"]
+    ]
+  },
+  {
+    "utterance": "Can I talk with either the CEO or the CFO ?",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "talk_to_boss"]
+    ]
   },
   {
-    "id": "cc38c95fce78dcc7c9a9c9f71687b361",
-    "utterance": "i desire facilitate fashioning a pto bespeak for february 22 - 27",
-    "context": "*",
-    "conditions": [["intent", "is", "pto_request"]]
+    "utterance": "I want to see Sylvain the CEO",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "talk_to_boss"]
+    ]
   },
   {
-    "id": "e05563a29c222ac67f79823cf052ac10",
-    "utterance": "i 'd wish to do my recognition account better",
-    "context": "*",
-    "conditions": [["intent", "is", "improve_credit_score"]]
+    "utterance": "I have a meeting with your responsable, I guess his name is Sylvain",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "talk_to_boss"]
+    ]
   },
   {
-    "id": "cab2a883984a6503186cf78e72927380",
-    "utterance": "i ought to love when to ask my close paycheck",
-    "context": "*",
-    "conditions": [["intent", "is", "payday"]]
+    "utterance": "Appointment with CEO Sylvain Perron",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "talk_to_boss"]
+    ]
   },
   {
-    "id": "cfd49e449304f8e7291a67acf94226b0",
-    "utterance": "what 's the likely clip to have a taken mention board replaced",
-    "context": "*",
-    "conditions": [["intent", "is", "replacement_card_duration"]]
+    "utterance": "Is your CTO in the french capital suburbs right now ?",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "talk_to_boss"]
+    ]
   },
+
   {
-    "id": "32f9ace624e1f9a4c161a153e21b5197",
-    "utterance": "do a virtual mint pass and order me if i profits as tails",
-    "context": "*",
-    "conditions": [["intent", "is", "flip_coin"]]
+    "utterance": "I want to eat a poutine",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_salty"]
+    ]
   },
   {
-    "id": "37a91bfe05e34dcdcae222ff3262c021",
-    "utterance": "how do i exchange the call you employ to deal me",
-    "context": "*",
-    "conditions": [["intent", "is", "change_user_name"]]
+    "utterance": "Poutine is what I want to put in my mouth right now",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_salty"]
+    ]
   },
   {
-    "id": "9ff8731cd8b359a9dda824ae7b17010c",
-    "utterance": "i need employment what form of anele and get you facilitate me switch it",
-    "context": "*",
-    "conditions": [["intent", "is", "oil_change_how"]]
+    "utterance": "Do you have some smoked meat ?",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_salty"]
+    ]
   },
   {
-    "id": "abed76d3238a91f261433fd212c18999",
-    "utterance": "i need to do a booking for 8 premier at red robin for 3",
-    "context": "*",
-    "conditions": [["intent", "is", "restaurant_reservation"]]
+    "utterance": "If you would be kind enough to bring me a smoked meat poutine it would be perfect",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_salty"]
+    ]
   },
   {
-    "id": "d1ea8e92d39df5e4ffd36ff7091990e2",
-    "utterance": "will the money in my cap one score address a young wash machine",
-    "context": "*",
-    "conditions": [["intent", "is", "balance"]]
+    "utterance": "May I know if you have some strogonoff beef or a caesar salad on your menu ? I would be pleased",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_salty"]
+    ]
   },
   {
-    "id": "7183c9c30c41b857532cb5c5d4164d18",
-    "utterance": "will the total in my chase bank story right now back the be of a green dryer",
-    "context": "*",
-    "conditions": [["intent", "is", "balance"]]
+    "utterance": "The best is a dark chocolate ice cream, but if you don't have it it's okay",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_salty"]
+    ]
   },
   {
-    "id": "8c4934f3072593d47fe490bf8e95cd97",
-    "utterance": "i ought to do certain there is a qualification for george at connor oneil 's",
-    "context": "*",
-    "conditions": [["intent", "is", "confirm_reservation"]]
+    "utterance": "If I can come to the place with my Tesla, I will buy a bagel. ",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_salty"]
+    ]
   },
   {
-    "id": "584fcea95943193de9368bdfa7bb966b",
-    "utterance": "i would equal to hear and affirm that i have a reserve at chili \u2019s for melinda",
-    "context": "*",
-    "conditions": [["intent", "is", "confirm_reservation"]]
+    "utterance": "I want to eat a cake",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_sweet"]
+    ]
   },
   {
-    "id": "fd4b513e1d9536dd1012f051c2d7ceb9",
-    "utterance": "i would similar to hear and sustain that i have a reserve at la palapa for bolding",
-    "context": "*",
-    "conditions": [["intent", "is", "confirm_reservation"]]
+    "utterance": "Lemon pie is why I want to put in my mouth right now",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_sweet"]
+    ]
   },
   {
-    "id": "1fe1ad966487eea9bb589de24d7ee0af",
-    "utterance": "does it get a pine clip to get to the airdrome in la",
-    "context": "*",
-    "conditions": [["intent", "is", "distance"]]
+    "utterance": "Do you have some pouding ?",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_sweet"]
+    ]
   },
   {
-    "id": "40e648391bdb1485c85620ba02b66fbc",
-    "utterance": "if i give now , how long testament it ask me to run to cape hatteras",
-    "context": "*",
-    "conditions": [["intent", "is", "distance"]]
+    "utterance": "If you would be kind enough to bring me a mapple sirup brownie it would be perfect",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_sweet"]
+    ]
   },
   {
-    "id": "8fd8c54d948e301fa6f9824293a3475f",
-    "utterance": "i would similar to try all minutes successful on my amex for the latter ten days",
-    "context": "*",
-    "conditions": [["intent", "is", "transactions"]]
+    "utterance": "May I know if you have some peach melba or a banana split on your menu ? I would be pleased",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_sweet"]
+    ]
   },
   {
-    "id": "c7a63840094a1aafe830b05b18087208",
-    "utterance": "let me look the lean of tranaction on my breakthrough mention card",
-    "context": "*",
-    "conditions": [["intent", "is", "transactions"]]
+    "utterance": "The best is a dark chocolate ice cream, but if you don't have it it's okay",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_sweet"]
+    ]
   },
   {
-    "id": "579242cbe1c37c0460854403c9c120a7",
-    "utterance": "i would equal to meet the minutes i ready-made end week",
-    "context": "*",
-    "conditions": [["intent", "is", "transactions"]]
+    "utterance": "If I can come to the place with my Tesla, I will buy a tarte tatin. ",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_sweet"]
+    ]
   },
   {
-    "id": "20e6acfaabe92b063d66d29dfedddf12",
-    "utterance": "use my ballpark cant bill to give my tense bill",
-    "context": "*",
-    "conditions": [["intent", "is", "pay_bill"]]
-  },
-  {
-    "id": "df876fc34141321bb57eeda8c6fc887b",
-    "utterance": "i ought to hold for a cant of america travel rewards mention card",
-    "context": "*",
-    "conditions": [["intent", "is", "new_card"]]
-  },
-  {
-    "id": "ee161b764524ccd047973436cbe833db",
-    "utterance": "my luggage is forfeit and i would care aid difficult to settle it",
-    "context": "*",
-    "conditions": [["intent", "is", "lost_luggage"]]
-  },
-  {
-    "id": "98bb3264759198e80a57ee224b4dbbb4",
-    "utterance": "how umpteen miles behind i run before needing the close anele change",
-    "context": "*",
-    "conditions": [["intent", "is", "oil_change_when"]]
-  },
-  {
-    "id": "a9d807e45d88e9469757a823e3d569e6",
-    "utterance": "what 's a good point to see a aesthetic beach",
-    "context": "*",
-    "conditions": [["intent", "is", "travel_suggestion"]]
-  },
-  {
-    "id": "1d4da52feb839be25b6cad91427acf81",
-    "utterance": "i desire to experience how nutrient an chromatic typically is",
-    "context": "*",
-    "conditions": [["intent", "is", "nutrition_info"]]
-  },
-  {
-    "id": "17590521f5fb91d0871f8ea47910df6d",
-    "utterance": "i desire to hold uber for 3 live to marriage station",
-    "context": "*",
-    "conditions": [["intent", "is", "uber"]]
-  },
-  {
-    "id": "6f7ee2d2b18e0f81b5c2e1f95b15b107",
-    "utterance": "tell me how umpteen bear ons i might have on a trajectory with southwest airlines to dallas",
-    "context": "*",
-    "conditions": [["intent", "is", "carry_on"]]
-  },
-  {
-    "id": "4b34a04e7cd0ce351c60f27808be2344",
-    "utterance": "how great get a take - on grip be",
-    "context": "*",
-    "conditions": [["intent", "is", "carry_on"]]
-  },
-  {
-    "id": "b75b7cdba726ae118883404e921f916a",
-    "utterance": "i take some act through on my machine so ought to docket car grease monkey for maintenance",
-    "context": "*",
-    "conditions": [["intent", "is", "schedule_maintenance"]]
-  },
-  {
-    "id": "1538fdb106ee1e8ed38e8b45be0779f7",
-    "utterance": "my mark locomotive loose is on and i want to get a see at it",
-    "context": "*",
-    "conditions": [["intent", "is", "schedule_maintenance"]]
-  },
-  {
-    "id": "be75048353908a016300a2e82ea37f03",
-    "utterance": "i ought to leave my cant bed i am road to la",
-    "context": "*",
-    "conditions": [["intent", "is", "travel_notification"]]
-  },
-  {
-    "id": "31f648cb5c9a98e3592cc8d143df9c3c",
-    "utterance": "i wish be itinerant to rome from february 1 to march 1 , please take this redolent to my bank",
-    "context": "*",
-    "conditions": [["intent", "is", "travel_notification"]]
-  },
-  {
-    "id": "b5179f02e0848f7edb5bf4b7d25acdbf",
-    "utterance": "please say my cant i leave be in israel from the ordinal to the 23rd",
-    "context": "*",
-    "conditions": [["intent", "is", "travel_notification"]]
-  },
-  {
-    "id": "44f0bf58d52df9decabb44b5dae090b9",
-    "utterance": "alert my cant and have them bed i 'm travel to japan",
-    "context": "*",
-    "conditions": [["intent", "is", "travel_notification"]]
-  },
-  {
-    "id": "618288d3c68cbcbe4e8f18546cbb3e4f",
-    "utterance": "alert my deposit and have them experience that i 'm traveling to oslo",
-    "context": "*",
-    "conditions": [["intent", "is", "travel_notification"]]
-  },
-  {
-    "id": "4327c43abb91e84bc6edf58360db671c",
-    "utterance": "will it be sanction for me to feed my left dud from monday that 's been in my fridge",
-    "context": "*",
-    "conditions": [["intent", "is", "food_last"]]
-  },
-  {
-    "id": "2b9fd34233f1cf056973feff50523e2a",
-    "utterance": "what is the duration of sentence i might lead porc in the fridge",
-    "context": "*",
-    "conditions": [["intent", "is", "food_last"]]
-  },
-  {
-    "id": "9879489e41086c1e27a7c93c30aec82f",
-    "utterance": "i forfeit my name card , i wish to account it",
-    "context": "*",
-    "conditions": [["intent", "is", "report_lost_card"]]
-  },
-  {
-    "id": "9a5dca828fd6fff68d6bd16339271d14",
-    "utterance": "i want you to shift your idiom to the virile the british one",
-    "context": "*",
-    "conditions": [["intent", "is", "change_accent"]]
-  },
-  {
-    "id": "c9ecbb04f5e87f1fb72af349312f3d4d",
-    "utterance": "you have to shift your idiom to the phallic british people one",
-    "context": "*",
-    "conditions": [["intent", "is", "change_accent"]]
-  },
-  {
-    "id": "e7bb4cdace3f2d67f6d6cbd9590c4f87",
-    "utterance": "where get i get the work text file that i ought to do my taxes , please",
-    "context": "*",
-    "conditions": [["intent", "is", "w2"]]
-  },
-  {
-    "id": "9209035cce68bdba0b45bf99de02815c",
-    "utterance": "what is the frigorie happy of a best of cocoa frosting cream",
-    "context": "*",
-    "conditions": [["intent", "is", "calories"]]
-  },
-  {
-    "id": "6542a83132696b98e0ecd26192f12aad",
-    "utterance": "let my mention board party experience that my bill part in half",
-    "context": "*",
-    "conditions": [["intent", "is", "damaged_card"]]
-  },
-  {
-    "id": "875835c6a743ce7983f5b8c5c457e7ef",
-    "utterance": "my board 's attractive bare is not operative and i desire to apprize them",
-    "context": "*",
-    "conditions": [["intent", "is", "damaged_card"]]
-  },
-  {
-    "id": "60ce2ef3b31fd28a730fc516ae9567a8",
-    "utterance": "i wish to live if you are a sick or chase person",
-    "context": "*",
-    "conditions": [["intent", "is", "do_you_have_pets"]]
-  },
-  {
-    "id": "a4a5d454ecedabf4ffc5966ae625c99d",
-    "utterance": "does it issue what form of tout i take up my auto with",
-    "context": "*",
-    "conditions": [["intent", "is", "gas_type"]]
-  },
-  {
-    "id": "d5fd0540b975064139e41533488df925",
-    "utterance": "how umpteen additional days until my adjacent prepaid sidereal day off",
-    "context": "*",
-    "conditions": [["intent", "is", "next_holiday"]]
-  },
-  {
-    "id": "e666ad84c6644705dc4a8c54f0a14ef0",
-    "utterance": "when fire i bear my close daytime off",
-    "context": "*",
-    "conditions": [["intent", "is", "next_holiday"]]
-  },
-  {
-    "id": "773fd5a962aed3e0a9e1084ce5d6509a",
-    "utterance": "how long wish i have to look before being seated at the malva sylvestris coat factory",
-    "context": "*",
-    "conditions": [["intent", "is", "how_busy"]]
-  },
-  {
-    "id": "1ce15021eba7df16e713ffe769a40386",
-    "utterance": "what 's the exemplary sentence to consume at ruddy lobster",
-    "context": "*",
-    "conditions": [["intent", "is", "how_busy"]]
-  },
-  {
-    "id": "d3075b131577251962cd44fe7ec6cf4d",
-    "utterance": "set up a young fall come on my college store accounting and do it be 1234",
-    "context": "*",
-    "conditions": [["intent", "is", "pin_change"]]
-  },
-  {
-    "id": "2716bd2edac38f01058f5b777f360748",
-    "utterance": "help me switch my flag count for my money commercialize account",
-    "context": "*",
-    "conditions": [["intent", "is", "pin_change"]]
-  },
-  {
-    "id": "bfb327fb865e6aa95dd05e537882547c",
-    "utterance": "i have to exchange my stick issue for my savings account",
-    "context": "*",
-    "conditions": [["intent", "is", "pin_change"]]
-  },
-  {
-    "id": "7cb8e852a1515a940c47f2babd26abc0",
-    "utterance": "how get i shift the stick on my wells fargo score to 9982",
-    "context": "*",
-    "conditions": [["intent", "is", "pin_change"]]
-  },
-  {
-    "id": "d97cc175066d47d13426a0c9d07c4b31",
-    "utterance": "i 'd similar to shift my flag list for my wells fargo account",
-    "context": "*",
-    "conditions": [["intent", "is", "pin_change"]]
-  },
-  {
-    "id": "7cb58a9a7f148fe2ce36c16986210c20",
-    "utterance": "i would wish to exchange my flag list for my track account",
-    "context": "*",
-    "conditions": [["intent", "is", "pin_change"]]
-  },
-  {
-    "id": "2c3892e26a685ce682bd7e64fed463cd",
-    "utterance": "is there a sign up related with role of my board in burkina faso",
-    "context": "*",
-    "conditions": [["intent", "is", "international_fees"]]
-  },
-  {
-    "id": "dbc4f73ad815bf08bd0f347a71bde38d",
-    "utterance": "please state me the end sentence i took my machine to the shop",
-    "context": "*",
-    "conditions": [["intent", "is", "last_maintenance"]]
-  },
-  {
-    "id": "32fc79e409dcccbe80b58fadb42451f3",
-    "utterance": "i retrieve my track score has been compromised and fake committed",
-    "context": "*",
-    "conditions": [["intent", "is", "report_fraud"]]
-  },
-  {
-    "id": "dc3bc989c4f8b6f67f5a29ca2af09e57",
-    "utterance": "i should cover dishonest activeness on my debit",
-    "context": "*",
-    "conditions": [["intent", "is", "report_fraud"]]
-  },
-  {
-    "id": "41d4009d8c8a8b5d2efe1417a77d55e7",
-    "utterance": "i got to paper dishonest activeness on my mention card",
-    "context": "*",
-    "conditions": [["intent", "is", "report_fraud"]]
-  },
-  {
-    "id": "32d05ae5e768f560f88a9ab15aba40be",
-    "utterance": "i need a hotel engaged in salem near the concert vestibule from the top to the second",
-    "context": "*",
-    "conditions": [["intent", "is", "book_hotel"]]
-  },
-  {
-    "id": "4896905b39959a3db226c6170cb56779",
-    "utterance": "i would similar to live how a lot i bear in taxes",
-    "context": "*",
-    "conditions": [["intent", "is", "taxes"]]
-  },
-  {
-    "id": "dc917b52695cd81fbacdd0714038526f",
-    "utterance": "what 's the small i get yield on the checkup payments for february",
-    "context": "*",
-    "conditions": [["intent", "is", "min_payment"]]
-  },
-  {
-    "id": "294d9cd03054decc0414d2c0bd64e8db",
-    "utterance": "let me experience the least i might bear on my line bill",
-    "context": "*",
-    "conditions": [["intent", "is", "min_payment"]]
-  },
-  {
-    "id": "9c2c98d20c11032d6ff50cc1fd577cad",
-    "utterance": "what are the staircase for scene up lead fix for my paycheck",
-    "context": "*",
-    "conditions": [["intent", "is", "direct_deposit"]]
-  },
-  {
-    "id": "f1e6694f4a844a3dfcd11683d03eb112",
-    "utterance": "i ought to put up a place bank for my paycheck",
-    "context": "*",
-    "conditions": [["intent", "is", "direct_deposit"]]
-  },
-  {
-    "id": "f402da1b730a82653c31e1c54cbb248f",
-    "utterance": "what sake place leave i get from urban center national",
-    "context": "*",
-    "conditions": [["intent", "is", "interest_rate"]]
-  },
-  {
-    "id": "12285b02e10a14cabab8890c9b5732b2",
-    "utterance": "what sake value leave regions have me",
-    "context": "*",
-    "conditions": [["intent", "is", "interest_rate"]]
-  },
-  {
-    "id": "d2f0382654e72efe4cb51e7c9f3cf50b",
-    "utterance": "can you please say me the concern order for cash in advances on my visa",
-    "context": "*",
-    "conditions": [["intent", "is", "interest_rate"]]
-  },
-  {
-    "id": "cac0d16e484378f4e6de1ac9abe719c0",
-    "utterance": "i wish to purchase a airplane ticket to trip from miami to honolulu on the ordinal of february i have a take escape on march 5th",
-    "context": "*",
-    "conditions": [["intent", "is", "book_flight"]]
-  },
-  {
-    "id": "a68319a16b1f3c5d1c6b7b5f7389f884",
-    "utterance": "i ought to bring the birdsong that goes like hey jude do n't take it bad",
-    "context": "*",
-    "conditions": [["intent", "is", "play_music"]]
-  },
-  {
-    "id": "ffc0be33274751e69eb5dff12735e756",
-    "utterance": "can you switch the see of the fix 's assignment event in my calendar from april 1 to april 3rd",
-    "context": "*",
-    "conditions": [["intent", "is", "calendar_update"]]
-  },
-  {
-    "id": "feb79f702da35a70b0953883f9ca8429",
-    "utterance": "please lend an detail to my calendar that i have to clear the kitchen on thursday",
-    "context": "*",
-    "conditions": [["intent", "is", "calendar_update"]]
-  },
-  {
-    "id": "0aa4cc3582e75d39f8fb534d2879ff95",
-    "utterance": "are you a phallus or the man speed or are you a calculator program",
-    "context": "*",
-    "conditions": [["intent", "is", "are_you_a_bot"]]
-  },
-  {
-    "id": "ef19a32f378eb62103ed3f5baf2642ae",
-    "utterance": "how practically sentence do i have before my mention board expires",
-    "context": "*",
-    "conditions": [["intent", "is", "expiration_date"]]
-  },
-  {
-    "id": "fca425609a375b9a68b862e34aa8e4e8",
-    "utterance": "where fire i get my recognition bill 's expiry date",
-    "context": "*",
-    "conditions": [["intent", "is", "expiration_date"]]
-  },
-  {
-    "id": "417f8fe66ad939054db6e0656ae4b7d2",
-    "utterance": "i regard to bring this strain to my definitive playlist now",
-    "context": "*",
-    "conditions": [["intent", "is", "update_playlist"]]
-  },
-  {
-    "id": "8a334a4bff6303d1f9f191db2e9ae9ba",
-    "utterance": "this call ought be supply this on my sway playlist",
-    "context": "*",
-    "conditions": [["intent", "is", "update_playlist"]]
-  },
-  {
-    "id": "81706baeca3e299bff80d1347ccfcaa3",
-    "utterance": "i would wish to switch your call to a disparate one",
-    "context": "*",
-    "conditions": [["intent", "is", "change_ai_name"]]
-  },
-  {
-    "id": "849f5e7e0eefc9f9df1e4134b289ac28",
-    "utterance": "i need to switch the key i ring you to juan",
-    "context": "*",
-    "conditions": [["intent", "is", "change_ai_name"]]
-  },
-  {
-    "id": "db189c296c07f10b3d4a8e8deb8b28da",
-    "utterance": "i 'd equal to let a vehicle from nov first to nov fifteenth in san antonio and i demand a 15 passenger van",
-    "context": "*",
-    "conditions": [["intent", "is", "car_rental"]]
-  },
-  {
-    "id": "eb098668c73890b771e1a485c0d20393",
-    "utterance": "help me get a lease machine for march 2 to sixth in dallas and i would favour a bmw suv",
-    "context": "*",
-    "conditions": [["intent", "is", "car_rental"]]
-  },
-  {
-    "id": "7e1513e7211bc77b7d2568b2622e66b9",
-    "utterance": "i 'd equal to determine a point that rents flash sports cars in tampa",
-    "context": "*",
-    "conditions": [["intent", "is", "car_rental"]]
-  },
-  {
-    "id": "3249694175e7b4b303d3b75bf1b8ffad",
-    "utterance": "what places in chicago wish let me to let a auto from monday to friday",
-    "context": "*",
-    "conditions": [["intent", "is", "car_rental"]]
-  },
-  {
-    "id": "8e810403cd9c56e8f99cbe6c0f0263b5",
-    "utterance": "my barrage died in my car , how might i rise offset a battery",
-    "context": "*",
-    "conditions": [["intent", "is", "jump_start"]]
-  },
-  {
-    "id": "d4421bf770c743873f02c1ad7c1503d3",
-    "utterance": "please service me number out how to rise offset my car",
-    "context": "*",
-    "conditions": [["intent", "is", "jump_start"]]
-  },
-  {
-    "id": "2f6d36d723149fe0c1db8739b6f126fe",
-    "utterance": "read me a tread by tread take on spring opening cars",
-    "context": "*",
-    "conditions": [["intent", "is", "jump_start"]]
-  },
-  {
-    "id": "adcd7e5904fd7ac21e5146f5e5cb74f7",
-    "utterance": "my assault is short so how get i get it exit again",
-    "context": "*",
-    "conditions": [["intent", "is", "jump_start"]]
-  },
-  {
-    "id": "e06e7ae1e4e46b9c8395bd7cd6b893f3",
-    "utterance": "how might i level my machine barrage when it 's dead",
-    "context": "*",
-    "conditions": [["intent", "is", "jump_start"]]
-  },
-  {
-    "id": "726b1e3c35256f564b1babd6b53de490",
-    "utterance": "what are the staircase i ought to come to have elastic rice krispies treats",
-    "context": "*",
-    "conditions": [["intent", "is", "recipe"]]
-  },
-  {
-    "id": "9a4c906e9bf2ba64c4c3936e4bdc118c",
-    "utterance": "i do n't have frappe skim so testament you tell me some more",
-    "context": "*",
-    "conditions": [["intent", "is", "order"]]
-  },
-  {
-    "id": "e3a9dbd429f8b05e07871da908c381c4",
-    "utterance": "what see is the close sidereal day i have paid",
-    "context": "*",
-    "conditions": [["intent", "is", "payday"]]
-  },
-  {
-    "id": "195a01a3a5f9b0cf3d2eb488b07441a7",
-    "utterance": "what is the duration of clock it takes a radical wit to get mail-clad to me",
-    "context": "*",
-    "conditions": [["intent", "is", "replacement_card_duration"]]
-  },
-  {
-    "id": "0111489fe204fa77349e5b7bd5a21209",
-    "utterance": "i want to love how long it leave have me to get to the bank",
-    "context": "*",
-    "conditions": [["intent", "is", "distance"]]
-  },
-  {
-    "id": "e79a47ecb864316a09ddeb06777515a2",
-    "utterance": "show me some options for radical recognition cards that i may give for , please",
-    "context": "*",
-    "conditions": [["intent", "is", "new_card"]]
-  },
-  {
-    "id": "4c9fb5269999cd500725b8752341985a",
-    "utterance": "i would wish to see a lean of great things advisable for tourists in copenhagen , denmark",
-    "context": "*",
-    "conditions": [["intent", "is", "travel_suggestion"]]
-  },
-  {
-    "id": "2e284aab38b97c047cdc999da48762e8",
-    "utterance": "i would similar to experience bear - on entropy for delta",
-    "context": "*",
-    "conditions": [["intent", "is", "carry_on"]]
-  },
-  {
-    "id": "b906ca94211985407fe96a1417efe579",
-    "utterance": "how numerous of my away days have i go through for the yr thus far",
-    "context": "*",
-    "conditions": [["intent", "is", "pto_used"]]
-  },
-  {
-    "id": "ad45aace317176356ee04fb480b93738",
-    "utterance": "i 'd equal to take an date to get my lube changed",
-    "context": "*",
-    "conditions": [["intent", "is", "schedule_maintenance"]]
-  },
-  {
-    "id": "42cdd2f360b40fc015bbf68e31b32751",
-    "utterance": "my machine 's tires are cod to be looked at , can you facilitate me get an assignment for that",
-    "context": "*",
-    "conditions": [["intent", "is", "schedule_maintenance"]]
-  },
-  {
-    "id": "fafdc5ddeda0da661be85dfe2edee787",
-    "utterance": "alert my financial foundation that i leave be road to bangkok on april 2 and reversive on april 7",
-    "context": "*",
-    "conditions": [["intent", "is", "travel_notification"]]
-  },
-  {
-    "id": "79951df00de5e287643548a62673f003",
-    "utterance": "what appointment do i have to yield the ring note on",
-    "context": "*",
-    "conditions": [["intent", "is", "bill_due"]]
-  },
-  {
-    "id": "f65374c3f9654ee79f3519b30d52fd71",
-    "utterance": "i 'd equal to love if my great one mention board have outside dealing fees",
-    "context": "*",
-    "conditions": [["intent", "is", "international_fees"]]
-  },
-  {
-    "id": "95e2c89d5731149c06ba09f163a84236",
-    "utterance": "what 's the minimal measure i may give on this bill",
-    "context": "*",
-    "conditions": [["intent", "is", "min_payment"]]
-  },
-  {
-    "id": "1394fb0c457402ddeefd2a6a6c8e969b",
-    "utterance": "please employment your whisper representative ; i demand quiet",
-    "context": "*",
-    "conditions": [["intent", "is", "whisper_mode"]]
-  },
-  {
-    "id": "cd97a1626edf445a87b97ce7d96f0084",
-    "utterance": "what 's the list i need employ to mouth to you",
-    "context": "*",
-    "conditions": [["intent", "is", "what_is_your_name"]]
-  },
-  {
-    "id": "929ce315cc1f5a52987caf4a6882475d",
-    "utterance": "where do i belong to get secret guest score 's stake rate",
-    "context": "*",
-    "conditions": [["intent", "is", "interest_rate"]]
-  },
-  {
-    "id": "c520c03e8d77b394a30b80720f2ffcbb",
-    "utterance": "could you say me the total outstanding on tout and electric",
-    "context": "*",
-    "conditions": [["intent", "is", "bill_balance"]]
-  },
-  {
-    "id": "f2481c10f94dee185d9c1165ccb66551",
-    "utterance": "what do i have in range to bound go my car",
-    "context": "*",
-    "conditions": [["intent", "is", "jump_start"]]
+    "utterance": "I would like to buy an Audi",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_car"]
+    ]
+  },
+  {
+    "utterance": "How much is a Tesla",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_car"]
+    ]
+  },
+  {
+    "utterance": "I want a car with a Nissan with a powerful motor",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_car"]
+    ]
+  },
+  {
+    "utterance": "I would like to sell my GMC to buy another pickup",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_car"]
+    ]
+  },
+  {
+    "utterance": "Can you advise me between a Fiat and a Ferrari",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_car"]
+    ]
+  },
+  {
+    "utterance": "Is Bentley expensive ?",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_car"]
+    ]
+  },
+  {
+    "utterance": "I need a RAV4",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_car"]
+    ]
+  },
+  {
+    "utterance": "Do you have any M16 ? ",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_gun"]
+    ]
+  },
+  {
+    "utterance": "I want to buy a glock",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_gun"]
+    ]
+  },
+  {
+    "utterance": "Do you sell any BM25 ?",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_gun"]
+    ]
+  },
+  {
+    "utterance": "what is the best between a P90 and a Magnum ?",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_gun"]
+    ]
+  },
+  {
+    "utterance": "Do you have a M16 but in purple ? ",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_gun"]
+    ]
+  },
+  {
+    "utterance": "price G36",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_gun"]
+    ]
   }
 ]

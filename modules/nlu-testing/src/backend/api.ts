@@ -1,6 +1,7 @@
 import Axios, { AxiosRequestConfig } from 'axios'
 import P from 'bluebird'
 import * as sdk from 'botpress/sdk'
+import crypto from 'crypto'
 import parse from 'csv-parse'
 import stringify from 'csv-stringify/lib/sync'
 import fs from 'fs'
@@ -38,7 +39,18 @@ export default async (bp: typeof sdk) => {
 
   const getAllTests = async (botId: string) => {
     try {
-      const content = await bp.ghost.forBot(botId).readFileAsObject<Test[]>('./', 'nlu-tests.json')
+      const rawContent = await bp.ghost.forBot(botId).readFileAsObject<Test[]>('./', 'nlu-tests.json')
+      const content = rawContent.map(test => {
+        if (!test.id) {
+          return {
+            ...test,
+            id: crypto
+              .createHash('md5')
+              .update(test.utterance)
+              .digest('hex')
+          }
+        }
+      })
       const { error } = Joi.validate(content, TestsSchema)
       if (error) {
         bp.logger.attachError(error).error('Error parsing tests: invalid tests')
