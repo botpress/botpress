@@ -31,7 +31,7 @@ const NDU: FC<{ ndu: sdk.NDU.DialogUnderstanding }> = ({ ndu }) => {
   }
 
   const getPercentage = (number: number) => {
-    return _.round(number * 100, 3)
+    return _.round(number * 100, 2)
   }
 
   const renderContent = () => {
