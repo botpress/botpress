@@ -57,18 +57,19 @@ import { DeletableLinkFactory } from '~/views/FlowBuilder/diagram/nodes/LinkWidg
 import { SkillCallNodeModel, SkillCallWidgetFactory } from '~/views/FlowBuilder/diagram/nodes/SkillCallNode'
 import { StandardNodeModel, StandardWidgetFactory } from '~/views/FlowBuilder/diagram/nodes/StandardNode'
 import { textToItemId } from '~/views/FlowBuilder/diagram/nodes_v2/utils'
-import { ActionWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ActionNode'
-import { ListenWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ListenNode'
 import style from '~/views/FlowBuilder/diagram/style.scss'
 
+import { ActionWidgetFactory } from './nodes/ActionNode'
 import { ExecuteNodeModel, ExecuteWidgetFactory } from './nodes/ExecuteNode'
 import { FailureNodeModel, FailureWidgetFactory } from './nodes/FailureNode'
+import { ListenWidgetFactory } from './nodes/ListenNode'
 import { PromptNodeModel, PromptWidgetFactory } from './nodes/PromptNode'
 import { RouterNodeModel, RouterWidgetFactory } from './nodes/RouterNode'
 import { SaySomethingNodeModel, SaySomethingWidgetFactory } from './nodes/SaySomethingNode'
 import { SuccessNodeModel, SuccessWidgetFactory } from './nodes/SuccessNode'
 import { TriggerWidgetFactory } from './nodes/TriggerNode'
 import menuStyle from './style.scss'
+import ActionForm from './ActionForm'
 import ConditionForm from './ConditionForm'
 import ContentForm from './ContentForm'
 import ExecuteForm from './ExecuteForm'
@@ -142,9 +143,9 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory(this.props.skills))
     this.diagramEngine.registerNodeFactory(new SaySomethingWidgetFactory(commonProps))
     this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory(commonProps))
-    this.diagramEngine.registerNodeFactory(new ListenWidgetFactory())
+    this.diagramEngine.registerNodeFactory(new ListenWidgetFactory(commonProps))
     this.diagramEngine.registerNodeFactory(new RouterWidgetFactory(commonProps))
-    this.diagramEngine.registerNodeFactory(new ActionWidgetFactory())
+    this.diagramEngine.registerNodeFactory(new ActionWidgetFactory(commonProps))
     this.diagramEngine.registerNodeFactory(new SuccessWidgetFactory())
     this.diagramEngine.registerNodeFactory(
       new TriggerWidgetFactory({
@@ -324,7 +325,16 @@ class Diagram extends Component<Props> {
     },
     executeNode: (point: Point, moreProps) =>
       this.props.createFlowNode({ ...point, type: 'execute', next: [defaultTransition], ...moreProps }),
+    listenNode: (point: Point) =>
+      this.props.createFlowNode({
+        ...point,
+        type: 'listen',
+        onReceive: [],
+        next: [defaultTransition],
+        triggers: [{ conditions: [{ id: 'always' }] }]
+      }),
     routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' }),
+    actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action' }),
     promptNode: (point: Point, promptType: string) => {
       this.props.createFlowNode({
         ...point,
@@ -397,7 +407,9 @@ class Diagram extends Component<Props> {
           ))}
         </MenuItem>
         <MenuItem text={lang.tr('execute')} onClick={wrap(this.add.executeNode, point)} icon="code" />
+        <MenuItem text={lang.tr('listen')} onClick={wrap(this.add.listenNode, point)} icon="hand" />
         <MenuItem text={lang.tr('split')} onClick={wrap(this.add.routerNode, point)} icon="flow-branch" />
+        <MenuItem text={lang.tr('action')} onClick={wrap(this.add.actionNode, point)} icon="offline" />
 
         <MenuItem tagName="button" text={lang.tr('skills')} icon="add">
           {this.props.skills.map(skill => (
@@ -725,8 +737,14 @@ class Diagram extends Component<Props> {
         case 'execute':
           this.add.executeNode(point, data.contentId ? { onReceive: [`${data.contentId}`] } : {})
           break
+        case 'listen':
+          this.add.listenNode(point)
+          break
         case 'router':
           this.add.routerNode(point)
+          break
+        case 'action':
+          this.add.actionNode(point)
           break
         default:
           this.add.flowNode(point)
@@ -962,7 +980,18 @@ class Diagram extends Component<Props> {
           {formType === 'execute' && (
             <ExecuteForm
               node={this.props.currentFlowNode}
-              onUpdate={this.updatePromptNode.bind(this)}
+              deleteNode={this.deleteSelectedElements.bind(this)}
+              diagramEngine={this.diagramEngine}
+              close={() => {
+                this.timeout = setTimeout(() => {
+                  this.setState({ editingNodeItem: null })
+                }, 200)
+              }}
+            />
+          )}
+          {formType === 'action' && (
+            <ActionForm
+              node={this.props.currentFlowNode}
               deleteNode={this.deleteSelectedElements.bind(this)}
               diagramEngine={this.diagramEngine}
               close={() => {

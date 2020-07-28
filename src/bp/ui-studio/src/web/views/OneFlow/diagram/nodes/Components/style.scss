@@ -98,6 +98,10 @@
       border-color: var(--trigger);
     }
 
+    &.listen, &:hover.listen {
+      border-color: var(--listen);
+    }
+
     &.execute, &:hover.execute {
       border-color: var(--execute);
     }

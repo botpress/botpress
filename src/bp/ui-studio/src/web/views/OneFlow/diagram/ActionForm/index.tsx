@@ -1,8 +1,10 @@
-import { Tab, Tabs } from '@blueprintjs/core'
+import { Button, Tab, Tabs } from '@blueprintjs/core'
 import { FlowNode } from 'botpress/sdk'
 import { lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import React, { FC, Fragment, useState } from 'react'
-import ActionModalSmall from '~/views/FlowBuilder/nodeProps/ActionModalSmall'
+import ActionDialog from '~/views/FlowBuilder/nodeProps/ActionDialog'
+
+import { Action, ActionInfo, ActionNodeModel, parseActionString } from '../nodes/ActionNode'
 
 import style from './style.scss'
 
@@ -13,7 +15,12 @@ interface Props {
   diagramEngine: any
 }
 
-const ExecuteForm: FC<Props> = ({ close, node, diagramEngine, deleteNode }) => {
+const serializeAction = (action: Action): string => {
+  const firstPart = action.actionServerId ? `${action.actionServerId}:${action.name}` : action.name
+  return [firstPart, JSON.stringify(action.parameters)].join(' ')
+}
+
+const ActionForm: FC<Props> = ({ close, node, diagramEngine, deleteNode }) => {
   const [showModal, setShowModal] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
 
@@ -25,13 +32,13 @@ const ExecuteForm: FC<Props> = ({ close, node, diagramEngine, deleteNode }) => {
     }
   ]
 
-  const handleItemChanged = actionText => {
+  const onSave = action => {
     const flowBuilder = diagramEngine.flowBuilder.props
     flowBuilder.switchFlowNode(node.id)
-    flowBuilder.updateFlowNode({ onEnter: [actionText] })
+    flowBuilder.updateFlowNode({ onEnter: [serializeAction(action)] })
   }
 
-  const actionText = (node?.onEnter?.length && node?.onEnter[0]) || ''
+  const action = parseActionString((node as ActionNodeModel)?.onEnter?.[0])
 
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={!showModal} close={() => close()}>
@@ -43,13 +50,21 @@ const ExecuteForm: FC<Props> = ({ close, node, diagramEngine, deleteNode }) => {
           <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
         </div>
         <div className={style.actionModal}>
-          <ActionModalSmall
-            text={actionText}
-            showingModal={showModal}
-            showModal={() => setShowModal(true)}
-            hideModal={() => setShowModal(false)}
-            onChange={handleItemChanged}
-            layoutv2
+          <Button onClick={() => setShowModal(true)}>
+            <ActionInfo action={action} />
+          </Button>
+          <ActionDialog
+            name={action.name}
+            parameters={action.parameters}
+            actionServerId={action.actionServerId}
+            isOpen={showModal}
+            onClose={() => {
+              setShowModal(false)
+            }}
+            onSave={action => {
+              setShowModal(false)
+              onSave(action)
+            }}
           />
         </div>
       </Fragment>
@@ -57,4 +72,4 @@ const ExecuteForm: FC<Props> = ({ close, node, diagramEngine, deleteNode }) => {
   )
 }
 
-export default ExecuteForm
+export default ActionForm

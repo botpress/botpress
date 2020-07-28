@@ -1,0 +1,19 @@
+.formHeader {
+  position: relative;
+
+  h4 {
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--shark);
+    margin: 0 0 var(--spacing-small);
+  }
+}
+
+.wrapper {
+  background: #fff;
+  padding: 0 var(--spacing-xx-large) var(--spacing-xx-large) var(--spacing-large);
+}
+
+.actionModal {
+  margin-top: var(--spacing-xxxx-large);
+}
