@@ -1,7 +1,39 @@
 [
-  { "root": "boss", "synonyms": ["CAO", "CEO", "CFO", "CIO", "CMO", "COO", "CPA", "CTO"] },
+  {
+    "root": "boss",
+    "synonyms": ["CAO", "CEO", "CFO", "CIO", "CMO", "COO", "CPA", "CTO", "patron", "chef", "responsable", "manager"]
+  },
   {
     "root": "guns",
-    "synonyms": ["M16", "G36", "M13", "MP5", "AK47", "SA87", "P90", "M1", "M2", "M3", "M4", "M5", "M6", "M7"]
+    "synonyms": [
+      "M16",
+      "G36",
+      "M13",
+      "MP5",
+      "AK47",
+      "SA87",
+      "P90",
+      "M1",
+      "M2",
+      "M3",
+      "M4",
+      "M5",
+      "M6",
+      "M7",
+      "pistol",
+      "riffle"
+    ]
+  },
+  {
+    "root": "Sylvain",
+    "synonyms": ["sly", "sylou", "sylv"]
+  },
+  {
+    "root": "Mercedes",
+    "synonyms": ["benz", "merco"]
+  },
+  {
+    "root": "Botpress",
+    "synonyms": ["bp", "bootpress", "entreprise de chatbots", "meilleure entreprise", "boutpress", "presse a robot"]
   }
 ]

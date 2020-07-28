@@ -1,0 +1,39 @@
+{
+  "id": "guns",
+  "name": "guns",
+  "type": "list",
+  "occurrences": [
+    {
+      "name": "MG45",
+      "synonyms": []
+    },
+    {
+      "name": "P90",
+      "synonyms": []
+    },
+    {
+      "name": "BM25",
+      "synonyms": []
+    },
+    {
+      "name": "G36",
+      "synonyms": []
+    },
+    {
+      "name": "M2",
+      "synonyms": []
+    },
+    {
+      "name": "AK47",
+      "synonyms": []
+    },
+    {
+      "name": "M16",
+      "synonyms": []
+    }
+  ],
+  "sensitive": false,
+  "fuzzy": 0.8,
+  "examples": [],
+  "pattern": ""
+}

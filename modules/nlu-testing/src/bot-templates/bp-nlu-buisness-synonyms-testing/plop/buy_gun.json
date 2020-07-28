@@ -1,0 +1,19 @@
+{
+  "name": "buy_gun",
+  "utterances": {
+    "en": [
+      "I want something to kill aliens",
+      "I need some firepower",
+      "I'm going to do a hold up",
+      "I need something from the ammunation store!",
+      "I need a gun",
+      "Daddy, will you get me a pistol as a birthday present...",
+      "I want you to by me a colossal and shinny riffle",
+      "Leave right now and never come back unless you bring back an M16 with you.",
+      "Take few G36 with you, just in case...",
+      "Tell mom not to forget the M16 at the local hillbilly market!"
+    ]
+  },
+  "slots": [],
+  "contexts": ["global"]
+}
