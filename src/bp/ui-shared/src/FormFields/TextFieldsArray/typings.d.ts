@@ -1,4 +1,4 @@
-interface TextFieldsArrayProps {
+export interface TextFieldsArrayProps {
   addBtnLabel: string
   items: string[]
   moreInfo?: JSX.Element

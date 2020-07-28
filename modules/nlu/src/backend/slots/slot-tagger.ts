@@ -145,7 +145,7 @@ export default class SlotTagger {
   }
 
   private _readTagger() {
-    this._crfTagger = this.mlToolkit.CRF.createTagger()
+    this._crfTagger = new this.mlToolkit.CRF.Tagger()
     this._crfTagger.open(this._crfModelFn)
   }
 
@@ -163,7 +163,7 @@ export default class SlotTagger {
       }
     }
 
-    const trainer = this.mlToolkit.CRF.createTrainer()
+    const trainer = new this.mlToolkit.CRF.Trainer()
     this._crfModelFn = await trainer.train(elements, CRF_TRAINER_PARAMS)
   }
 
