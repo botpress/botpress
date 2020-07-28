@@ -72,7 +72,7 @@ function overloadTrainers() {
           try {
             progressCb(msg.payload.progress)
           } catch (err) {
-            completedCb(undefined, err)
+            completedCb(err)
 
             const { workerPid } = msg
             process.send!({ type: 'svm_kill', id: msg.id, payload: {}, workerPid })
@@ -113,7 +113,7 @@ function overloadTrainers() {
           try {
             progressCb(msg.payload.progress)
           } catch (err) {
-            completedCb(undefined, err)
+            completedCb(err)
 
             const { workerPid } = msg
             process.send!({ type: 'crf_kill', id: msg.id, payload: {}, workerPid })
