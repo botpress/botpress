@@ -23,6 +23,8 @@ export class SVMTrainingPool {
       complete(result)
     } catch (err) {
       error(err)
+    } finally {
+      delete this.currentSvms[trainingId]
     }
   }
 

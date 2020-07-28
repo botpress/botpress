@@ -22,6 +22,8 @@ export class CRFTrainingPool {
       complete(result)
     } catch (err) {
       error(err)
+    } finally {
+      delete this.currentCrfs[trainingId]
     }
   }
 
