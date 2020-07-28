@@ -98,11 +98,11 @@ export class ConfigsStats extends TelemetryStats {
 
   private formatDefaultOrRedactedConfigs(runtimeConfigs, defaultConfigs, configsBlacklist) {
     for (const config of configsBlacklist) {
-      const value =
+      const defaultOrRedacted =
         _.get(runtimeConfigs, config) == _.get(defaultConfigs, 'properties.' + config + '.default')
           ? 'default'
           : 'redacted'
-      _.set(runtimeConfigs, config, value)
+      _.set(runtimeConfigs, config, defaultOrRedacted)
     }
     return runtimeConfigs
   }
@@ -142,9 +142,9 @@ export class ConfigsStats extends TelemetryStats {
     const bots = await this.botService.getBots()
     const configs: BotConfigEvent[] = []
 
-    for (const [key, value] of bots) {
-      const botId = calculateHash(key)
-      const botConfigs = this.formatBotConfigs(value, defaultConfigs)
+    for (const [id, config] of bots) {
+      const botId = calculateHash(id)
+      const botConfigs = this.formatBotConfigs(config, defaultConfigs)
       configs.push({ botId, botConfigs })
     }
 
