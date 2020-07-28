@@ -148,13 +148,18 @@ if (cluster.isWorker) {
     const crfPool = new CRFTrainingPool()
     async function messageHandler(msg: Message) {
       if (msg.type === 'svm_train') {
+        let svmProgressCalls = 0
+
         // tslint:disable-next-line: no-floating-promises
         await svmPool.startTraining(
           msg.id,
           msg.payload.points,
           msg.payload.options,
-          progress =>
-            process.send!({ type: 'svm_progress', id: msg.id, payload: { progress }, workerPid: process.pid }),
+          progress => {
+            if (++svmProgressCalls % 10 === 0 || progress === 1) {
+              process.send!({ type: 'svm_progress', id: msg.id, payload: { progress }, workerPid: process.pid })
+            }
+          },
           result => process.send!({ type: 'svm_done', id: msg.id, payload: { result } }),
           error => process.send!({ type: 'svm_error', id: msg.id, payload: { error } })
         )
