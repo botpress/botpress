@@ -58,3 +58,19 @@ a.moreInfo {
     }
   }
 }
+
+.superInputBtn {
+  color: var(--ocean) !important;
+  padding: 0 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  font-size: 12px !important;
+  line-height: 1.25 !important;
+  margin: 0 !important;
+  transition: color 0.3s;
+
+  &:hover {
+    background: none !important;
+    color: var(--shark) !important;
+  }
+}

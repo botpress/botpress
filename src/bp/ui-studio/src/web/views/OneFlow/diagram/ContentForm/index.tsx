@@ -1,6 +1,6 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
-import { FormData } from 'botpress/sdk'
+import { BotEvent, FlowVariable, FormData } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -13,8 +13,11 @@ interface Props {
   deleteContent: () => void
   editingContent: number
   customKey: string
+  variables: FlowVariable[]
+  events: BotEvent[]
   close: (closingKey: number) => void
   onUpdate: (data: any) => void
+  onUpdateVariables: (variable: FlowVariable) => void
   formData: FormData
   contentTypes: any
   contentLang: string
@@ -27,10 +30,13 @@ const ContentForm: FC<Props> = ({
   close,
   formData,
   onUpdate,
+  onUpdateVariables,
   deleteContent,
+  variables,
+  events,
   contentLang
 }) => {
-  const [isConfirming, setIsConfirming] = useState(false)
+  const [canOutsideClickClose, setCanOutsideClickClose] = useState(true)
   const contentType = useRef(formData?.contentType || 'builtin_text')
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
@@ -79,7 +85,11 @@ const ContentForm: FC<Props> = ({
   )
 
   return (
-    <RightSidebar className={style.wrapper} canOutsideClickClose={!isConfirming} close={() => close(editingContent)}>
+    <RightSidebar
+      className={style.wrapper}
+      canOutsideClickClose={canOutsideClickClose}
+      close={() => close(editingContent)}
+    >
       <Fragment key={`${contentType.current}-${customKey || editingContent}`}>
         <div className={style.formHeader}>
           <Tabs id="contentFormTabs">
@@ -100,7 +110,7 @@ const ContentForm: FC<Props> = ({
                 hasChanged && {
                   message: lang.tr('studio.content.confirmChangeContentType'),
                   acceptLabel: lang.tr('change'),
-                  callback: setIsConfirming
+                  callback: setCanOutsideClickClose
                 }
               }
               onChange={option => {
@@ -115,12 +125,23 @@ const ContentForm: FC<Props> = ({
             currentLang={contentLang}
             mediaPath={`${window.BOT_API_PATH}/media`}
             overrideFields={{
-              textOverride: props => <TextField currentLang={contentLang} {...props} />
+              textOverride: props => (
+                <TextField
+                  {...props}
+                  currentLang={contentLang}
+                  variables={variables}
+                  events={events}
+                  onUpdateVariables={onUpdateVariables}
+                />
+              )
             }}
+            variables={variables}
+            events={events}
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
             formData={formData}
             onUpdate={data => onUpdate({ ...data, contentType: contentType.current })}
+            onUpdateVariables={onUpdateVariables}
           />
         )}
       </Fragment>
