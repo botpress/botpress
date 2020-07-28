@@ -159,7 +159,7 @@ export const formReducer = (state, action) => {
     }
 
     if (lang) {
-      value = { ...state[field], [lang]: value }
+      value = { ...(state[field] || {}), [lang]: value }
     }
 
     const newState = {
