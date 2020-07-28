@@ -7,10 +7,6 @@ import ActionItem from '../common/action'
 import ActionModalForm from './ActionModalForm'
 
 export default class ActionModalSmall extends React.Component<any> {
-  state = {
-    showActionModalForm: false
-  }
-
   itemToOptions(item) {
     if (item && item.startsWith('say ')) {
       const chunks = item.split(' ')
@@ -36,7 +32,7 @@ export default class ActionModalSmall extends React.Component<any> {
 
   onSubmitAction = content => {
     this.props.onChange(this.optionsToItem(content))
-    this.setState({ showActionModalForm: false })
+    this.props.hideModal()
   }
 
   render() {
