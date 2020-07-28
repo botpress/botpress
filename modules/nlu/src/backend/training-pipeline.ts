@@ -561,7 +561,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     if (!input.trainingSession) {
       return
     }
-    if (input.trainingSession.status === 'canceled') {
+    if (input.trainingSession.status === 'cancelling') {
       tools.reportTrainingProgress(input.botId, 'Currently cancelling...', input.trainingSession)
       throw new TrainingCanceledError()
     }
@@ -581,7 +581,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
   step = await ExtractEntities(step, tools)
   step = await AppendNoneIntent(step, tools)
   const exact_match_index = BuildExactMatchIndex(step)
-  reportProgress()
+  reportProgress() // 20% done...
   const models = await Promise.all([
     TrainOutOfScope(step, tools, reportProgress),
     TrainContextClassifier(step, tools, reportProgress),
@@ -590,6 +590,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
   ])
 
   if (models.some(m => !m)) {
+    input.trainingSession.status = 'canceled'
     tools.reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession)
     console.log(input.botId, 'Training aborted')
     return
