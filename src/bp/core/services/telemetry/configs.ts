@@ -12,6 +12,7 @@ import { TelemetryRepository } from 'core/repositories/telemetry'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
+import ms from 'ms'
 
 import { GhostService } from '..'
 import { BotService } from '../bot-service'
@@ -55,6 +56,7 @@ interface ModuleConfigEvent {
 
 @injectable()
 export class ConfigsStats extends TelemetryStats {
+  protected interval: number
   protected url: string
   protected lock: string
 
@@ -71,6 +73,7 @@ export class ConfigsStats extends TelemetryStats {
     super(ghostService, database, licenseService, jobService, telemetryRepo)
     this.url = process.TELEMETRY_URL
     this.lock = 'botpress:telemetry-configs'
+    this.interval = ms('7d')
   }
 
   protected async getStats() {

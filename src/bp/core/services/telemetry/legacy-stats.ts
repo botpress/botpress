@@ -22,6 +22,7 @@ import { TelemetryStats } from './telemetry-stats'
 
 @injectable()
 export class LegacyStats extends TelemetryStats {
+  protected interval: number
   protected url: string
   protected lock: string
 
@@ -41,6 +42,7 @@ export class LegacyStats extends TelemetryStats {
     super(ghostService, database, licenseService, jobService, telemetryRepo)
     this.url = 'https://telemetry.botpress.io/ingest'
     this.lock = 'botpress:telemetry-legacyStats'
+    this.interval = ms('1d')
   }
 
   protected async getStats() {

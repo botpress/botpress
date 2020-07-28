@@ -6,6 +6,7 @@ import { TelemetryRepository } from 'core/repositories/telemetry'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
+import ms from 'ms'
 
 import { GhostService } from '..'
 import { BotService } from '../bot-service'
@@ -55,6 +56,7 @@ const GLOBAL_HOOKS = ['after_server_start', 'after_stage_changed', 'on_incident_
 
 @injectable()
 export class HooksLifecycleStats extends TelemetryStats {
+  protected interval: number
   protected url: string
   protected lock: string
 
@@ -69,6 +71,7 @@ export class HooksLifecycleStats extends TelemetryStats {
     super(ghostService, database, licenseService, jobService, telemetryRepo)
     this.url = process.TELEMETRY_URL
     this.lock = 'botpress:telemetry-hooks'
+    this.interval = ms('1d')
   }
 
   protected async getStats() {
