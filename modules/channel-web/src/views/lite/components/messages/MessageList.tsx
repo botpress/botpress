@@ -38,7 +38,7 @@ class MessageList extends React.Component<MessageListProps, State> {
         }
         return
       }
-      this.tryScrollToBottom()
+      this.tryScrollToBottom(true)
     })
 
     // this should account for keyboard rendering as it triggers a resize of the messagesDiv

@@ -62,7 +62,6 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
 
   const addItem = (): void => {
     focusedElement.current = localItems.length
-    skipBlur.current = true
     itemIds.current = [...itemIds.current, _uniqueId()]
     const newItems = [...localItems, '']
 
@@ -110,6 +109,7 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
   const onKeyDown = (e, index): void => {
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault()
+      skipBlur.current = true
       addItem()
     }
 
