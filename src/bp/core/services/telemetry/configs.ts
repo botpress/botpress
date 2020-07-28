@@ -85,6 +85,7 @@ export class ConfigsStats extends TelemetryStats {
       }
     }
   }
+
   private async getGlobalConfigs(): Promise<BotpressConfig> {
     const globalConfigs = await this.config.getBotpressConfig()
     const defaultConfigs = await this.ghostService
@@ -140,6 +141,7 @@ export class ConfigsStats extends TelemetryStats {
 
     const bots = await this.botService.getBots()
     const configs: BotConfigEvent[] = []
+
     for (const [key, value] of bots) {
       const botId = calculateHash(key)
       const botConfigs = this.formatBotConfigs(value, defaultConfigs)
