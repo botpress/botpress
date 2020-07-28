@@ -67,7 +67,7 @@ const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding; session: any }> = ({ nluDat
 
   return (
     <Fragment>
-      <Collapsible name="Language Understanding" hidden={!nluData.entities.length}>
+      <Collapsible name="Language Understanding">
         {renderContent()}
         <Button minimal className={style.switchViewBtn} icon="eye-open" onClick={toggleView}>
           {viewJSON ? 'View as Summary' : 'View as JSON'}
