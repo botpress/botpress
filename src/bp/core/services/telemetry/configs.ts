@@ -3,6 +3,7 @@ import { BUILTIN_MODULES } from 'common/defaults'
 import LicensingService from 'common/licensing-service'
 import { buildSchema } from 'common/telemetry'
 import { BotConfig } from 'core/config/bot.config'
+import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
 import { calculateHash } from 'core/misc/utils'
@@ -39,6 +40,7 @@ const modulesConfigsBlacklist = {
 }
 
 const botpressConfigsBlacklist = ['pro.licenseKey', 'pro.externalAuth.publicKey', 'superAdmins', 'appSecret']
+const botConfigsBlacklist = ['pipeline_status.current_stage.promoted_by', 'description']
 
 interface BotConfigEvent {
   botId: string
@@ -83,22 +85,25 @@ export class ConfigsStats extends TelemetryStats {
       }
     }
   }
-  private async getGlobalConfigs() {
+  private async getGlobalConfigs(): Promise<BotpressConfig> {
     const globalConfigs = await this.config.getBotpressConfig()
     const defaultConfigs = await this.ghostService
       .root()
       .readFileAsObject('/', 'botpress.config.schema.json')
       .catch(_err => this.ghostService.root().readFileAsObject('/', 'botpress.config.schema.json'))
 
-    for (const config of botpressConfigsBlacklist) {
+    return this.formatDefaultOrRedactedConfigs(globalConfigs, defaultConfigs, botpressConfigsBlacklist)
+  }
+
+  private formatDefaultOrRedactedConfigs(runtimeConfigs, defaultConfigs, configsBlacklist) {
+    for (const config of configsBlacklist) {
       const value =
-        _.get(globalConfigs, config) == _.get(defaultConfigs, 'properties.' + config + '.default')
+        _.get(runtimeConfigs, config) == _.get(defaultConfigs, 'properties.' + config + '.default')
           ? 'default'
           : 'redacted'
-      _.set(globalConfigs, config, value)
+      _.set(runtimeConfigs, config, value)
     }
-
-    return globalConfigs
+    return runtimeConfigs
   }
 
   private async getModulesConfigs(): Promise<ModuleConfigEvent[]> {
@@ -119,35 +124,37 @@ export class ConfigsStats extends TelemetryStats {
     return async botId => {
       const runtimeValue = await this.moduleLoader.configReader.getForBot(module, botId)
 
-      const blackListedValues = {}
       for (const config of modulesConfigsBlacklist[module]) {
         const defaultOrRedacted = _.get(defaultValue, config) == _.get(runtimeValue, config) ? 'default' : 'redacted'
-        _.set(blackListedValues, config, defaultOrRedacted)
+        _.set(runtimeValue, config, defaultOrRedacted)
       }
-      return { botId, module, configs: { ...runtimeValue, ...blackListedValues } }
+      return { botId, module, configs: runtimeValue }
     }
   }
 
   private async getBotsConfigs(): Promise<BotConfigEvent[]> {
+    const defaultConfigs = await this.ghostService
+      .root()
+      .readFileAsObject('/', 'bot.config.schema.json')
+      .catch(_err => this.ghostService.root().readFileAsObject('/', 'bot.config.schema.json'))
+
     const bots = await this.botService.getBots()
     const configs: BotConfigEvent[] = []
     for (const [key, value] of bots) {
       const botId = calculateHash(key)
-      const botConfigs = this.formatBotConfigs(value)
+      const botConfigs = this.formatBotConfigs(value, defaultConfigs)
       configs.push({ botId, botConfigs })
     }
 
     return configs
   }
 
-  private formatBotConfigs(configs: BotConfig) {
+  private formatBotConfigs(configs: BotConfig, defaultConfigs) {
     return {
-      ...configs,
+      ...this.formatDefaultOrRedactedConfigs(configs, defaultConfigs, botConfigsBlacklist),
       details: this.formatBotDetails(configs.details),
-      description: configs.description ? 'redacted' : 'default',
       id: calculateHash(configs.id),
-      name: calculateHash(configs.name),
-      pipeline_status: this.formatPipelineStatus(configs.pipeline_status)
+      name: calculateHash(configs.name)
     }
   }
 
@@ -168,17 +175,6 @@ export class ConfigsStats extends TelemetryStats {
         botDetails[key] = value ? 'redacted' : 'default'
       }
       return botDetails
-    }
-  }
-
-  // TODO: Ask eff about this config so I can clean it up
-  private formatPipelineStatus(pipelineStatus) {
-    return {
-      ...pipelineStatus,
-      current_stage: {
-        ...pipelineStatus.current_stage,
-        promoted_by: calculateHash(pipelineStatus.current_stage.promoted_by)
-      }
     }
   }
 }
