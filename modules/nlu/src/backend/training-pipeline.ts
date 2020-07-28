@@ -575,13 +575,28 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     debouncedProgress(input.botId, 'Training', { ...input.trainingSession, progress: normalizedProgress })
   }
 
+  const handleCancellation = () => {
+    tools.reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession)
+    console.log(input.botId, 'Training aborted')
+  }
+
   let step = await PreprocessInput(input, tools)
   step = await TfidfTokens(step)
   step = ClusterTokens(step, tools)
   step = await ExtractEntities(step, tools)
   step = await AppendNoneIntent(step, tools)
   const exact_match_index = BuildExactMatchIndex(step)
-  reportProgress() // 20% done...
+
+  try {
+    reportProgress() // 20% done...
+  } catch (err) {
+    if (err instanceof TrainingCanceledError) {
+      handleCancellation()
+      return
+    }
+    throw err
+  }
+
   const models = await Promise.all([
     TrainOutOfScope(step, tools, reportProgress),
     TrainContextClassifier(step, tools, reportProgress),
@@ -590,8 +605,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
   ])
 
   if (models.some(_.isUndefined)) {
-    tools.reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession)
-    console.log(input.botId, 'Training aborted')
+    handleCancellation()
     return
   }
 
