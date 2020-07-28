@@ -5,6 +5,7 @@ import ms from 'ms'
 
 import { JobService } from './job-service'
 import { ActionsStats } from './telemetry/actions'
+import { RolesStats } from './telemetry/custom-roles'
 import { LegacyStats } from './telemetry/legacy-stats'
 
 const DB_REFRESH_LOCK = 'botpress:telemetryDB'
@@ -16,12 +17,14 @@ export class StatsService {
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository,
     @inject(TYPES.ActionStats) private actionStats: ActionsStats,
-    @inject(TYPES.LegacyStats) private legacyStats: LegacyStats
+    @inject(TYPES.LegacyStats) private legacyStats: LegacyStats,
+    @inject(TYPES.RolesStats) private rolesStats: RolesStats
   ) {}
 
   public async start() {
     await this.actionStats.start()
     await this.legacyStats.start()
+    await this.rolesStats.start()
 
     await this.refreshDB(DB_REFRESH_INTERVAL)
     setInterval(this.refreshDB.bind(this, DB_REFRESH_INTERVAL), DB_REFRESH_INTERVAL)

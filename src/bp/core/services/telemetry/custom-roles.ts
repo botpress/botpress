@@ -33,7 +33,18 @@ export class RolesStats extends TelemetryStats {
     this.lock = 'botpress:telemetry-custom-roles'
   }
 
-  protected getStats() {
-    throw new Error('Method not implemented.')
+  protected async getStats() {
+    console.log('got stats')
+    return {
+      ...buildSchema(await this.getServerStats(), 'server'),
+      event_type: 'builtin_actions',
+      event_data: { schema: '1.0.0', roles: await this.getRolesConfigs() }
+    }
+  }
+
+  private async getRolesConfigs() {
+    const workspaces = await this.ghostService.global().readFileAsObject('/', 'workspaces.json')
+    console.log()
+    return {}
   }
 }
