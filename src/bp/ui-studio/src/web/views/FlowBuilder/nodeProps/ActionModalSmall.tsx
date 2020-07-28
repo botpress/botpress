@@ -1,5 +1,6 @@
+import { Button } from '@blueprintjs/core'
 import _ from 'lodash'
-import React from 'react'
+import React, { Fragment } from 'react'
 
 import ActionItem from '../common/action'
 
@@ -40,8 +41,10 @@ export default class ActionModalSmall extends React.Component<any> {
 
   render() {
     return (
-      <div onDoubleClick={() => this.setState({ showActionModalForm: true })}>
-        <ActionItem text={this.props.text} layoutv2 />
+      <Fragment>
+        <Button onClick={() => this.setState({ showActionModalForm: true })}>
+          <ActionItem text={this.props.text} layoutv2 />
+        </Button>
         <ActionModalForm
           show={this.state.showActionModalForm}
           onClose={() => this.setState({ showActionModalForm: false, itemToEditIndex: null })}
@@ -49,7 +52,7 @@ export default class ActionModalSmall extends React.Component<any> {
           item={this.itemToOptions(this.props.text)}
           layoutv2
         />
-      </div>
+      </Fragment>
     )
   }
 }

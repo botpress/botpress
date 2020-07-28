@@ -51,6 +51,7 @@
   "delete": "Delete",
   "deleteCondition": "Delete Condition",
   "deleteContent": "Delete Content",
+  "deleteNode": "Delete Node",
   "deletePrompt": "Delete Prompt",
   "description": "Description",
   "details": "Details",

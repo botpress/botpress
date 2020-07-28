@@ -2,9 +2,9 @@ import { Intent, Menu, MenuItem } from '@blueprintjs/core'
 import { contextMenu, lang, ShortcutLabel } from 'botpress/shared'
 import React, { FC, useState } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
+import ActionItem from '~/views/FlowBuilder/common/action'
 import { BaseNodeModel } from '~/views/FlowBuilder/diagram/nodes/BaseNodeModel'
 import { StandardPortWidget } from '~/views/FlowBuilder/diagram/nodes/Ports'
-import ActionModalSmall from '~/views/FlowBuilder/nodeProps/ActionModalSmall'
 
 import style from '../Components/style.scss'
 import NodeHeader from '../Components/NodeHeader'
@@ -17,6 +17,7 @@ interface Props {
   updateFlowNode: any
   onDeleteSelectedElements: () => void
   switchFlowNode: (id: string) => void
+  editNodeItem: (node: ExecuteNodeModel, index: number) => void
 }
 
 const ExecuteWidget: FC<Props> = ({
@@ -25,7 +26,8 @@ const ExecuteWidget: FC<Props> = ({
   onDeleteSelectedElements,
   updateFlowNode,
   switchFlowNode,
-  diagramEngine
+  diagramEngine,
+  editNodeItem
 }) => {
   const [expanded, setExpanded] = useState(node.isNew)
   const [error, setError] = useState(null)
@@ -75,12 +77,6 @@ const ExecuteWidget: FC<Props> = ({
     setIsEditing(false)
   }
 
-  const handleItemChanged = actionText => {
-    const flowBuilder = diagramEngine.flowBuilder.props
-    flowBuilder.switchFlowNode(node.id)
-    flowBuilder.updateFlowNode({ onEnter: [actionText] })
-  }
-
   const actionText = (node.onEnter && node.onEnter.length && node.onEnter[0]) || ''
 
   return (
@@ -103,8 +99,8 @@ const ExecuteWidget: FC<Props> = ({
       {expanded && (
         <div className={style.contentsWrapper}>
           <div className={style.contentWrapper}>
-            <div className={style.content}>
-              <ActionModalSmall text={actionText} onChange={handleItemChanged} layoutv2 />
+            <div className={style.content} onClick={() => editNodeItem(node, 0)}>
+              <ActionItem text={actionText} layoutv2 />
             </div>
           </div>
         </div>
@@ -136,6 +132,7 @@ export class ExecuteWidgetFactory extends AbstractNodeFactory {
   private getCurrentFlow: any
   private updateFlowNode: any
   private switchFlowNode: (id: string) => void
+  private editNodeItem: (node: ExecuteNodeModel, index: number) => void
 
   constructor(methods) {
     super('execute')
@@ -144,6 +141,7 @@ export class ExecuteWidgetFactory extends AbstractNodeFactory {
     this.getCurrentFlow = methods.getCurrentFlow
     this.updateFlowNode = methods.updateFlowNode
     this.switchFlowNode = methods.switchFlowNode
+    this.editNodeItem = methods.editNodeItem
   }
 
   generateReactWidget(diagramEngine: DiagramEngine, node: ExecuteNodeModel) {
@@ -155,6 +153,7 @@ export class ExecuteWidgetFactory extends AbstractNodeFactory {
         onDeleteSelectedElements={this.deleteSelectedElements}
         updateFlowNode={this.updateFlowNode}
         switchFlowNode={this.switchFlowNode}
+        editNodeItem={this.editNodeItem}
       />
     )
   }

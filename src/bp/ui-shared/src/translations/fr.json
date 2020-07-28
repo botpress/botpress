@@ -54,6 +54,7 @@
   "delete": "Supprimer",
   "deleteCondition": "Supprimer la condition",
   "deleteContent": "Supprimer le contenu",
+  "deleteNode": "Supprimer le bloque",
   "deletePrompt": "Supprimer le prompt",
   "description": "Description",
   "details": "Détails",

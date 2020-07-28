@@ -71,6 +71,7 @@ import { TriggerWidgetFactory } from './nodes/TriggerNode'
 import menuStyle from './style.scss'
 import ConditionForm from './ConditionForm'
 import ContentForm from './ContentForm'
+import ExecuteForm from './ExecuteForm'
 import PromptForm from './PromptForm'
 import Toolbar from './Toolbar'
 import VariablesEditor from './VariablesEditor'
@@ -969,6 +970,19 @@ class Diagram extends Component<Props> {
               onUpdate={this.updatePromptNode.bind(this)}
               deletePrompt={this.deleteSelectedElements.bind(this)}
               contentLang={this.state.currentLang}
+              close={() => {
+                this.timeout = setTimeout(() => {
+                  this.setState({ editingNodeItem: null })
+                }, 200)
+              }}
+            />
+          )}
+          {formType === 'execute' && (
+            <ExecuteForm
+              node={this.props.currentFlowNode}
+              onUpdate={this.updatePromptNode.bind(this)}
+              deleteNode={this.deleteSelectedElements.bind(this)}
+              diagramEngine={this.diagramEngine}
               close={() => {
                 this.timeout = setTimeout(() => {
                   this.setState({ editingNodeItem: null })
