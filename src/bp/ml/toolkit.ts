@@ -100,7 +100,7 @@ function overloadTrainers() {
   MLToolkit.CRF.Trainer.prototype.train = (
     elements: sdk.MLToolkit.CRF.DataPoint[],
     params: sdk.MLToolkit.CRF.TrainerOptions,
-    progressCb?: (iteration: number) => number
+    progressCb?: (iteration: number) => void
   ): Promise<string> => {
     return Promise.fromCallback(completedCb => {
       const id = nanoid()

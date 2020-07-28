@@ -432,7 +432,7 @@ declare module 'botpress/sdk' {
         train(
           elements: DataPoint[],
           options: TrainerOptions,
-          progressCallback?: (iteration: number) => number | void
+          progressCallback?: (iteration: number) => void
         ): Promise<string>
       }
     }

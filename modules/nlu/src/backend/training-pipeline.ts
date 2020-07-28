@@ -514,8 +514,9 @@ const TrainOutOfScope = async (
 
   const oos_points = featurizeOOSUtterances(noneUtts, input.vocabVectors, tools)
   let combinedProgress = 0
-  const ctxModels: [string, string][] = []
-  for (const ctx of input.ctxToTrain) {
+
+  type ContextModel = [string, string] | undefined
+  const ctxModels: ContextModel[] = await Promise.map(input.ctxToTrain, async ctx => {
     const in_ctx_scope_points = _.chain(input.intents)
       .filter(i => i.name !== NONE_INTENT && i.contexts.includes(ctx))
       .flatMap(i => featurizeInScopeUtterances(i.utterances, i.name))
@@ -530,13 +531,17 @@ const TrainOutOfScope = async (
       })
     } catch (err) {
       if (err instanceof TrainingCanceledError) {
-        console.log('TrainOutOfScope training is canceled')
         return
       }
       throw err
     }
 
-    ctxModels.push([ctx, model])
+    return [ctx, model] as [string, string]
+  })
+
+  if (ctxModels.some(m => !m)) {
+    console.log('TrainOutOfScope training is canceled')
+    return
   }
 
   debugTraining.forBot(input.botId, 'Done training out of scope')

@@ -154,7 +154,7 @@ export default class SlotTagger {
     this._crfTagger.open(this._crfModelFn)
   }
 
-  async train(intents: Intent<Utterance>[], progressCb: (iteration: number) => number | void): Promise<void> {
+  async train(intents: Intent<Utterance>[], progressCb: (iteration: number) => void): Promise<void> {
     const elements: sdk.MLToolkit.CRF.DataPoint[] = []
 
     for (const intent of intents) {

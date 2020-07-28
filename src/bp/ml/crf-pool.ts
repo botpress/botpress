@@ -8,7 +8,7 @@ export class CRFTrainingPool {
     trainingId: string,
     elements: sdk.MLToolkit.CRF.DataPoint[],
     options: sdk.MLToolkit.CRF.TrainerOptions,
-    progress: (iteration: number) => number,
+    progress: (iteration: number) => void,
     complete: (modelFilePath: string) => void,
     error: (error: Error) => void
   ) {

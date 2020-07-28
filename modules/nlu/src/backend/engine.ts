@@ -149,7 +149,7 @@ export default class Engine implements NLUEngine {
     try {
       output = await Trainer(input, Engine.tools)
     } catch (err) {
-      this.logger.attachError(err).error(`Could not finish training NLU model : ${err}`)
+      this.logger.attachError(err).error(`Could not finish training NLU model`)
       return
     }
 
