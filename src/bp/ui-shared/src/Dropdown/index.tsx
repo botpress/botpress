@@ -4,6 +4,7 @@ import cx from 'classnames'
 import { FC, useEffect, useState } from 'react'
 import React from 'react'
 
+import { lang } from '../translations'
 import confirmDialog from '../ConfirmDialog'
 
 import style from './style.scss'
@@ -33,6 +34,7 @@ const filterOptions: ItemPredicate<Option> = (query, option) => {
 const Dropdown: FC<DropdownProps> = props => {
   const {
     placeholder,
+    filterPlaceholder,
     confirmChange,
     defaultItem,
     items,
@@ -40,9 +42,12 @@ const Dropdown: FC<DropdownProps> = props => {
     small,
     icon,
     rightIcon,
+    children,
     spaced,
     className,
-    filterable
+    filterable,
+    filterList,
+    customItemRenderer
   } = props
   const [activeItem, setActiveItem] = useState<Option | undefined>()
   const SimpleDropdown = Select.ofType<Option>()
@@ -61,37 +66,41 @@ const Dropdown: FC<DropdownProps> = props => {
     <SimpleDropdown
       filterable={filterable}
       className={className}
+      inputProps={{ placeholder: filterPlaceholder || lang('filter') }}
       items={items}
       activeItem={activeItem}
       popoverProps={{ minimal: true, usePortal: false }}
-      itemRenderer={itemRenderer}
+      itemRenderer={customItemRenderer || itemRenderer}
       itemPredicate={filterOptions}
+      itemListPredicate={filterList}
       onItemSelect={async option => {
         if (confirmChange) {
-          confirmChange.callback?.(true)
+          confirmChange.callback?.(false)
 
           if (
             await confirmDialog(confirmChange.message, {
               acceptLabel: confirmChange.acceptLabel
             })
           ) {
-            confirmChange.callback?.(false)
+            confirmChange.callback?.(true)
             updateSelectedOption(option)
           } else {
-            confirmChange.callback?.(false)
+            confirmChange.callback?.(true)
           }
         } else {
           updateSelectedOption(option)
         }
       }}
     >
-      <Button
-        className={cx(style.btn, { [style.spaced]: spaced, [style.placeholder]: !activeItem })}
-        text={small ? <small>{btnText}</small> : btnText}
-        icon={icon}
-        rightIcon={rightIcon || 'double-caret-vertical'}
-        small={small}
-      />
+      {children || (
+        <Button
+          className={cx(style.btn, { [style.spaced]: spaced, [style.placeholder]: !activeItem })}
+          text={small ? <small>{btnText}</small> : btnText}
+          icon={icon}
+          rightIcon={rightIcon || 'double-caret-vertical'}
+          small={small}
+        />
+      )}
     </SimpleDropdown>
   )
 }
