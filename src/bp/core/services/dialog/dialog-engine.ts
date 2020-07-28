@@ -1,4 +1,5 @@
 import { BoxedVariable, Content, FlowNode, IO, SubWorkflowInput } from 'botpress/sdk'
+import { parseFlowName } from 'common/flow'
 import { FlowView } from 'common/typings'
 import { createForGlobalHooks } from 'core/api'
 import { EventRepository } from 'core/repositories'
@@ -100,7 +101,7 @@ export class DialogEngine {
       if (!this._exitingSubflow(event)) {
         return this._goToSubflow(botId, event, sessionId, currentFlow, currentNode)
       } else {
-        const subFlow = this._findFlow(botId, <string>currentNode.flow)
+        const subFlow = this._findFlow(botId, currentNode.flow!)
         this.copyVarsToParent(subFlow, currentNode, event)
       }
     }
@@ -219,7 +220,7 @@ export class DialogEngine {
         }
       }
 
-      this.sendVarsToChild(nextFlow, nextFlowName, event, event.state.context.inputs)
+      this.sendVarsToChild(nextFlow, event)
     } else {
       workflow.status = 'completed'
 
@@ -230,64 +231,54 @@ export class DialogEngine {
     }
   }
 
-  private copyVarsToParent(flow: FlowView, currentNode: FlowNode, event: IO.IncomingEvent) {
+  private copyVarsToParent(childFlow: FlowView, callerNode: FlowNode, event: IO.IncomingEvent) {
     const { workflows } = event.state.session
     const { createVariable } = event.state
 
-    const childFlowVars = workflows[currentNode.flow!.replace('.flow.json', '')]?.variables
-    const outputVars = flow.variables?.filter(x => x.isOutput)
+    const outputs = callerNode.subflow?.out
+    const childOutputVars = childFlow.variables?.filter(x => x.isOutput)
+    const childBoxedVars = workflows[parseFlowName(childFlow.name).workflowPath!]?.variables
 
-    if (!outputVars || !childFlowVars) {
+    if (!outputs || !childOutputVars || !childBoxedVars) {
       return
     }
 
-    outputVars.forEach(v => {
-      const ouputVariableName = currentNode.subflow?.out?.[v.name]
-      if (!ouputVariableName) {
-        return
-      }
+    childOutputVars.forEach(v => {
+      const ouputVarName = outputs[v.name]
+      const childBoxedVar = childBoxedVars[v.name] as BoxedVariable<any>
 
-      const cv = childFlowVars[v.name] as BoxedVariable<any>
-      if (cv) {
-        createVariable(ouputVariableName, cv.value, cv.type)
+      if (ouputVarName && childBoxedVar) {
+        createVariable(ouputVarName, childBoxedVar.value, childBoxedVar.type)
       }
     })
   }
 
-  private sendVarsToChild(
-    flow: FlowView,
-    nextFlowName: string,
-    event: IO.IncomingEvent,
-    inputs?: { [variable: string]: SubWorkflowInput }
-  ) {
+  private sendVarsToChild(childFlow: FlowView, event: IO.IncomingEvent) {
     const { workflow, createVariable } = event.state
 
-    const inputVars = flow.variables?.filter(x => x.isInput)
+    const inputs = event.state.context.inputs
+    const childInputVars = childFlow.variables?.filter(x => x.isInput)
+    const currentBoxedVars = workflow.variables
 
-    if (!inputVars || !workflow.variables) {
+    if (!inputs || !childInputVars || !currentBoxedVars) {
       return
     }
 
-    inputVars.forEach(v => {
-      const input = inputs?.[v.name]
+    childInputVars.forEach(v => {
+      const input = inputs[v.name]
       if (!input) {
         return
       }
 
-      let value: string
+      let value = input.value
       if (input.source === 'variable') {
-        const variable = workflow.variables[input.value]
-        if (!variable) {
-          return
-        }
-        value = variable.value
-      } else if (input.source === 'hardcoded') {
-        value = input.value
-      } else {
-        return
+        value = currentBoxedVars[input.value]?.value
       }
 
-      createVariable(v.name, value, v.type, { nbOfTurns: 10, specificWorkflow: nextFlowName })
+      if (value !== undefined) {
+        const flowName = parseFlowName(childFlow.name).workflowPath
+        createVariable(v.name, value, v.type, { nbOfTurns: 10, specificWorkflow: flowName })
+      }
     })
   }
 

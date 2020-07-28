@@ -66,31 +66,13 @@ const VariableModal: FC<Props> = props => {
           <Dropdown items={configsOptions} defaultItem={currentConfigOption} onChange={x => setType(x.value)} />
         </FormGroup>
         <FormGroup label="Name">
-          <InputGroup
-            value={name || ''}
-            onChange={x => setName(sanitizeName(x.currentTarget.value))}
-            onSubmit={e => {
-              e.preventDefault()
-            }}
-          />
+          <InputGroup value={name || ''} onChange={x => setName(sanitizeName(x.currentTarget.value))} />
         </FormGroup>
         <FormGroup label="Is Input">
-          <Checkbox
-            checked={isInput}
-            onChange={x => setIsInput(x.currentTarget.checked)}
-            onSubmit={e => {
-              e.preventDefault()
-            }}
-          />
+          <Checkbox checked={isInput} onChange={x => setIsInput(x.currentTarget.checked)} />
         </FormGroup>
         <FormGroup label="Is Output">
-          <Checkbox
-            checked={isOutput}
-            onChange={x => setIsOutput(x.currentTarget.checked)}
-            onSubmit={e => {
-              e.preventDefault()
-            }}
-          />
+          <Checkbox checked={isOutput} onChange={x => setIsOutput(x.currentTarget.checked)} />
         </FormGroup>
         <Contents.Form
           fields={fields}
