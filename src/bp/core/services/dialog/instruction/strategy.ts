@@ -192,9 +192,8 @@ export class TransitionStrategy implements InstructionStrategy {
 
     if (instruction.fn?.includes('thisNode')) {
       // TODO: Fix this so that it's cleaner and more generic
-      const nodeName = sandbox.event.state.context.currentNode
-      const flowName = sandbox.event.state.context.currentFlow
-      instruction.fn = instruction.fn.replace(/thisNode/g, `(event.state.temp['${flowName}/${nodeName}'] || {})`)
+      const { currentFlow, currentNode } = sandbox.event.state.context
+      instruction.fn = instruction.fn.replace(/thisNode/g, `(event.state.temp['${currentFlow}/${currentNode}'] || {})`)
     }
 
     const variables = instruction.fn?.match(/\$[a-zA-Z][a-zA-Z0-9_-]*/g) ?? []

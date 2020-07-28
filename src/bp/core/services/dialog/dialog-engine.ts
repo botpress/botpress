@@ -224,15 +224,13 @@ export class DialogEngine {
   }
 
   private _setCurrentNodeValue(event: IO.IncomingEvent, variable: string, value: any) {
-    const flowName = event.state.context.currentFlow!
-    const nodeName = event.state.context.currentNode!
-    _.set(event.state.temp, `[${flowName}/${nodeName}].${variable}`, value)
+    const { currentFlow, currentNode } = event.state.context
+    _.set(event.state.temp, `[${currentFlow}/${currentNode}].${variable}`, value)
   }
 
   private _getCurrentNodeValue(event: IO.IncomingEvent, variable: string): any {
-    const flowName = event.state.context.currentFlow!
-    const nodeName = event.state.context.currentNode!
-    return _.get(event.state.temp, `[${flowName}/${nodeName}].${variable}`)
+    const { currentFlow, currentNode } = event.state.context
+    return _.get(event.state.temp, `[${currentFlow}/${currentNode}].${variable}`)
   }
 
   public async jumpTo(sessionId: string, event: IO.IncomingEvent, targetFlowName: string, targetNodeName?: string) {
