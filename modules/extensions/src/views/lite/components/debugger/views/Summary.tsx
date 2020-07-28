@@ -37,7 +37,7 @@ export default class Summary extends React.Component<Props> {
 
     return (
       <div>
-        <NLU session={this.props.event.state.session} nluData={this.props.event.nlu} />
+        <NLU session={this.props.event.state.session} isNDU={!!this.props.event.ndu} nluData={this.props.event.nlu} />
         <Dialog
           suggestions={this.props.event.suggestions}
           decision={this.props.event.decision}

@@ -8,11 +8,15 @@ import { Intents } from '../components/Intents'
 import style from '../style.scss'
 
 import { Entities } from './Entities'
+import { Inspector } from './Inspector'
 import { Language } from './Language'
 import { Slots } from './Slots'
-import { Inspector } from './Inspector'
 
-const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding; session: any }> = ({ nluData, session }) => {
+const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding; isNDU: boolean; session: any }> = ({
+  nluData,
+  isNDU,
+  session
+}) => {
   const [viewJSON, setViewJSON] = useState(false)
 
   if (!nluData) {
@@ -30,7 +34,7 @@ const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding; session: any }> = ({ nluDat
 
     return (
       <Fragment>
-        {nluData.ambiguous && (
+        {!isNDU && nluData.ambiguous && (
           <Tooltip
             position={Position.TOP}
             content={
@@ -49,7 +53,7 @@ const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding; session: any }> = ({ nluDat
           </Tooltip>
         )}
         <Language detectedLanguage={nluData.detectedLanguage} usedLanguage={nluData.language} />
-        <Intents intents={nluData.intents} intent={nluData.intent} />
+        {!isNDU && <Intents intents={nluData.intents} intent={nluData.intent} />}
         {/* TODO re-add Entities and Slots when design is made for them
         <Collapsible name="Entities" hidden={!nluData.entities.length}>
           <Entities entities={nluData.entities} />
