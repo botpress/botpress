@@ -229,13 +229,7 @@ export default class HTTPServer {
       this.workspaceService,
       this.ghostService
     )
-    this.nluRouter = new NLURouter(
-      this.logger,
-      this.authService,
-      this.workspaceService,
-      this.nluService.entityService,
-      this.nluService.intentService
-    )
+    this.nluRouter = new NLURouter(this.logger, this.authService, this.workspaceService, this.nluService)
     this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService, this)
     this.hintsRouter = new HintsRouter(this.logger, this.hintsService, this.authService, this.workspaceService)
     this.botsRouter.router.use('/content', this.contentRouter.router)

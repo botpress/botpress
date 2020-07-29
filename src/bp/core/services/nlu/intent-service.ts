@@ -1,28 +1,16 @@
 import * as sdk from 'botpress/sdk'
 import { FlowView } from 'common/typings'
+import { sanitizeFileName } from 'core/misc/utils'
 import _ from 'lodash'
 
 import { GhostService } from '..'
 
-import { EntityService } from './entities-service'
+import { NLUService } from './nlu-service'
 
 const INTENTS_DIR = './intents'
 
 export class IntentService {
-  private entityService!: EntityService
-
-  constructor(private ghostService: GhostService) {}
-
-  public load(entityService: EntityService) {
-    this.entityService = entityService
-  }
-
-  private sanitizeFileName(name: string): string {
-    return name
-      .toLowerCase()
-      .replace(/\.json$/i, '')
-      .replace(/[\t\s]/gi, '-')
-  }
+  constructor(private ghostService: GhostService, private nluService: NLUService) {}
 
   private async intentExists(botId: string, intentName: string): Promise<boolean> {
     return this.ghostService.forBot(botId).fileExists(INTENTS_DIR, `${intentName}.json`)
@@ -34,7 +22,7 @@ export class IntentService {
   }
 
   public async getIntent(botId: string, intentName: string): Promise<sdk.NLU.IntentDefinition> {
-    intentName = this.sanitizeFileName(intentName)
+    intentName = sanitizeFileName(intentName)
     if (intentName.length < 1) {
       throw new Error('Invalid intent name, expected at least one character')
     }
@@ -46,12 +34,12 @@ export class IntentService {
   }
 
   public async saveIntent(botId: string, intent: sdk.NLU.IntentDefinition): Promise<sdk.NLU.IntentDefinition> {
-    const name = this.sanitizeFileName(intent.name)
+    const name = sanitizeFileName(intent.name)
     if (name.length < 1) {
       throw new Error('Invalid intent name, expected at least one character')
     }
 
-    const availableEntities = await this.entityService.getEntities(botId)
+    const availableEntities = await this.nluService.entities.getEntities(botId)
 
     _.chain(intent.slots)
       .flatMap('entities')
@@ -81,7 +69,7 @@ export class IntentService {
   }
 
   public async deleteIntent(botId: string, intentName: string): Promise<void> {
-    intentName = this.sanitizeFileName(intentName)
+    intentName = sanitizeFileName(intentName)
 
     if (!(await this.intentExists(botId, intentName))) {
       throw new Error('Intent does not exist')

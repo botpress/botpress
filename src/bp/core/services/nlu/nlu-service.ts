@@ -10,8 +10,8 @@ import { IntentService } from './intent-service'
 
 @injectable()
 export class NLUService {
-  public entityService: EntityService
-  public intentService: IntentService
+  public entities: EntityService
+  public intents: IntentService
 
   constructor(
     @inject(TYPES.Logger)
@@ -20,9 +20,7 @@ export class NLUService {
     @inject(TYPES.GhostService)
     private ghostService: GhostService
   ) {
-    this.entityService = new EntityService(this.ghostService)
-    this.intentService = new IntentService(this.ghostService)
-    this.entityService.load(this.intentService)
-    this.intentService.load(this.entityService)
+    this.entities = new EntityService(this.ghostService, this)
+    this.intents = new IntentService(this.ghostService, this)
   }
 }

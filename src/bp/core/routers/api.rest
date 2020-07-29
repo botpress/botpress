@@ -69,7 +69,6 @@ Content-Type: application/json
 
 
 # List all intents
-# @name listFlows
 GET {{api}}/bots/{{botId}}/nlu/intents
 Authorization: Bearer {{authToken}}
 X-BP-Workspace: default
@@ -77,8 +76,13 @@ X-BP-Workspace: default
 
 
 # List all entities
-# @name listFlows
 GET {{api}}/bots/{{botId}}/nlu/entities
+Authorization: Bearer {{authToken}}
+X-BP-Workspace: default
+###
+
+# List all contexts
+GET {{api}}/bots/{{botId}}/nlu/contexts
 Authorization: Bearer {{authToken}}
 X-BP-Workspace: default
 ###

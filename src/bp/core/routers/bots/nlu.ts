@@ -2,8 +2,7 @@ import { Logger } from 'botpress/sdk'
 import * as sdk from 'botpress/sdk'
 import { EntityDefCreateSchema, IntentDefCreateSchema } from 'common/validation'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
-import { EntityService } from 'core/services/nlu/entities-service'
-import { IntentService } from 'core/services/nlu/intent-service'
+import { NLUService } from 'core/services/nlu/nlu-service'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { RequestHandler, Router } from 'express'
 import { validate } from 'joi'
@@ -29,8 +28,7 @@ export class NLURouter extends CustomRouter {
     private logger: Logger,
     private authService: AuthService,
     private workspaceService: WorkspaceService,
-    private entityService: EntityService,
-    private intentService: IntentService
+    private nluService: NLUService
   ) {
     super('NLU', logger, Router({ mergeParams: true }))
     this._needPermissions = needPermissions(this.workspaceService)
@@ -45,7 +43,7 @@ export class NLURouter extends CustomRouter {
       this._needPermissions('read', 'bot.content'),
       this.asyncMiddleware(async (req, res) => {
         const { botId } = req.params
-        const intentDefs = await this.intentService.getIntents(botId)
+        const intentDefs = await this.nluService.intents.getIntents(botId)
         res.send(intentDefs)
       })
     )
@@ -56,7 +54,7 @@ export class NLURouter extends CustomRouter {
       this._needPermissions('read', 'bot.content'),
       this.asyncMiddleware(async (req, res) => {
         const { botId, intent } = req.params
-        const intentDef = await this.intentService.getIntent(botId, intent)
+        const intentDef = await this.nluService.intents.getIntent(botId, intent)
         res.send(intentDef)
       })
     )
@@ -68,7 +66,7 @@ export class NLURouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { botId, intent } = req.params
         try {
-          await this.intentService.deleteIntent(botId, intent)
+          await this.nluService.intents.deleteIntent(botId, intent)
           res.sendStatus(204)
         } catch (err) {
           this.logger
@@ -91,7 +89,7 @@ export class NLURouter extends CustomRouter {
             stripUnknown: true
           })
 
-          await this.intentService.saveIntent(botId, intentDef)
+          await this.nluService.intents.saveIntent(botId, intentDef)
 
           res.sendStatus(200)
         } catch (err) {
@@ -111,7 +109,7 @@ export class NLURouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { botId, intentName } = req.params
         try {
-          await this.intentService.updateIntent(botId, intentName, req.body)
+          await this.nluService.intents.updateIntent(botId, intentName, req.body)
           res.sendStatus(200)
         } catch (err) {
           this.logger
@@ -123,6 +121,65 @@ export class NLURouter extends CustomRouter {
       })
     )
 
+    this.router.post(
+      '/condition/intentChanged',
+      this._checkTokenHeader,
+      this._needPermissions('write', 'bot.content'),
+      this.asyncMiddleware(async (req, res) => {
+        const { botId } = req.params
+        const { action } = req.body
+        const condition = req.body.condition as sdk.DecisionTriggerCondition
+
+        if (action === 'delete' || action === 'create') {
+          try {
+            await this.nluService.intents.updateContextsFromTopics(botId, [condition!.params!.intentName])
+            return res.sendStatus(200)
+          } catch (err) {
+            return res.status(400).send(err.message)
+          }
+        }
+
+        res.sendStatus(200)
+      })
+    )
+
+    this.router.post(
+      '/sync/intents/topics',
+      this._checkTokenHeader,
+      this._needPermissions('write', 'bot.content'),
+      this.asyncMiddleware(async (req, res) => {
+        const { botId } = req.params
+        const { intentNames } = req.body
+
+        try {
+          await this.nluService.intents.updateContextsFromTopics(botId, intentNames)
+          res.sendStatus(200)
+        } catch (err) {
+          this.logger
+            .forBot(botId)
+            .attachError(err)
+            .error('Could not update intent topics')
+          res.status(400).send(err.message)
+        }
+      })
+    )
+
+    this.router.get(
+      '/contexts',
+      this._checkTokenHeader,
+      this._needPermissions('read', 'bot.content'),
+      this.asyncMiddleware(async (req, res) => {
+        const botId = req.params.botId
+        const intents = await this.nluService.intents.getIntents(botId)
+        const ctxs = _.chain(intents)
+          .flatMap(i => i.contexts)
+          .uniq()
+          .value()
+
+        res.send(ctxs)
+      })
+    )
+
     this.router.get(
       '/entities',
       this._checkTokenHeader,
@@ -131,7 +188,7 @@ export class NLURouter extends CustomRouter {
         const { botId } = req.params
         const { ignoreSystem } = req.query
 
-        const entities = await this.entityService.getEntities(botId)
+        const entities = await this.nluService.entities.getEntities(botId)
         const mapped = entities.map(x => ({ ...x, label: `${x.type}.${x.name}` }))
 
         res.json(yn(ignoreSystem) ? mapped.filter(x => x.type !== 'system') : mapped)
@@ -145,7 +202,7 @@ export class NLURouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { botId, entityName } = req.params
         try {
-          const entity = await this.entityService.getEntity(botId, entityName)
+          const entity = await this.nluService.entities.getEntity(botId, entityName)
           res.send(entity)
         } catch (err) {
           this.logger
@@ -168,7 +225,7 @@ export class NLURouter extends CustomRouter {
             stripUnknown: true
           })) as sdk.NLU.EntityDefinition
 
-          await this.entityService.saveEntity(botId, entityDef)
+          await this.nluService.entities.saveEntity(botId, entityDef)
 
           res.sendStatus(200)
         } catch (err) {
@@ -192,7 +249,7 @@ export class NLURouter extends CustomRouter {
             stripUnknown: true
           })) as sdk.NLU.EntityDefinition
 
-          await this.entityService.updateEntity(botId, id, entityDef)
+          await this.nluService.entities.updateEntity(botId, id, entityDef)
           res.sendStatus(200)
         } catch (err) {
           this.logger
@@ -211,9 +268,9 @@ export class NLURouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { botId, id } = req.params
         try {
-          await this.entityService.deleteEntity(botId, id)
+          await this.nluService.entities.deleteEntity(botId, id)
 
-          const affectedIntents = (await this.intentService.getIntents(botId)).filter(intent =>
+          const affectedIntents = (await this.nluService.intents.getIntents(botId)).filter(intent =>
             intent.slots.some(slot => slot.entities.includes(id))
           )
 
@@ -231,7 +288,7 @@ export class NLURouter extends CustomRouter {
                 slotsToDelete.map(slot => slot.name)
               )
             }
-            return this.intentService.saveIntent(botId, updatedIntent)
+            return this.nluService.intents.saveIntent(botId, updatedIntent)
           })
 
           res.sendStatus(204)
