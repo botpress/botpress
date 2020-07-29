@@ -57,20 +57,22 @@ import { DeletableLinkFactory } from '~/views/FlowBuilder/diagram/nodes/LinkWidg
 import { SkillCallNodeModel, SkillCallWidgetFactory } from '~/views/FlowBuilder/diagram/nodes/SkillCallNode'
 import { StandardNodeModel, StandardWidgetFactory } from '~/views/FlowBuilder/diagram/nodes/StandardNode'
 import { textToItemId } from '~/views/FlowBuilder/diagram/nodes_v2/utils'
-import { ActionWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ActionNode'
-import { ExecuteNodeModel, ExecuteWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ExecuteNode'
-import { FailureNodeModel, FailureWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/FailureNode'
-import { ListenWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ListenNode'
-import { RouterNodeModel, RouterWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/RouterNode'
-import { SuccessNodeModel, SuccessWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SuccessNode'
 import style from '~/views/FlowBuilder/diagram/style.scss'
 
+import { ActionWidgetFactory } from './nodes/ActionNode'
+import { ExecuteNodeModel, ExecuteWidgetFactory } from './nodes/ExecuteNode'
+import { FailureNodeModel, FailureWidgetFactory } from './nodes/FailureNode'
+import { ListenWidgetFactory } from './nodes/ListenNode'
 import { PromptNodeModel, PromptWidgetFactory } from './nodes/PromptNode'
+import { RouterNodeModel, RouterWidgetFactory } from './nodes/RouterNode'
 import { SaySomethingNodeModel, SaySomethingWidgetFactory } from './nodes/SaySomethingNode'
+import { SuccessNodeModel, SuccessWidgetFactory } from './nodes/SuccessNode'
 import { TriggerWidgetFactory } from './nodes/TriggerNode'
 import menuStyle from './style.scss'
+import ActionForm from './ActionForm'
 import ConditionForm from './ConditionForm'
 import ContentForm from './ContentForm'
+import ExecuteForm from './ExecuteForm'
 import PromptForm from './PromptForm'
 import Toolbar from './Toolbar'
 import VariablesEditor from './VariablesEditor'
@@ -140,10 +142,10 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory(this.props.skills))
     this.diagramEngine.registerNodeFactory(new SaySomethingWidgetFactory(commonProps))
-    this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
-    this.diagramEngine.registerNodeFactory(new ListenWidgetFactory())
-    this.diagramEngine.registerNodeFactory(new RouterWidgetFactory())
-    this.diagramEngine.registerNodeFactory(new ActionWidgetFactory())
+    this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory(commonProps))
+    this.diagramEngine.registerNodeFactory(new ListenWidgetFactory(commonProps))
+    this.diagramEngine.registerNodeFactory(new RouterWidgetFactory(commonProps))
+    this.diagramEngine.registerNodeFactory(new ActionWidgetFactory(commonProps))
     this.diagramEngine.registerNodeFactory(new SuccessWidgetFactory())
     this.diagramEngine.registerNodeFactory(
       new TriggerWidgetFactory({
@@ -333,7 +335,6 @@ class Diagram extends Component<Props> {
       }),
     routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' }),
     actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action' }),
-
     promptNode: (point: Point, promptType: string) => {
       this.props.createFlowNode({
         ...point,
@@ -771,6 +772,7 @@ class Diagram extends Component<Props> {
 
     newContents[index] = data
 
+    this.props.switchFlowNode(node.id)
     this.setState({ editingNodeItem: { node: { ...node, contents: newContents }, index } })
 
     this.props.updateFlowNode({ contents: newContents })
@@ -782,12 +784,16 @@ class Diagram extends Component<Props> {
 
     newConditions[index] = data
 
+    this.props.switchFlowNode(node.id)
     this.setState({ editingNodeItem: { node: { ...node, conditions: newConditions }, index } })
 
     this.props.updateFlowNode({ conditions: newConditions })
   }
 
   updatePromptNode(args) {
+    const { node } = this.state.editingNodeItem
+
+    this.props.switchFlowNode(node.id)
     this.props.updateFlowNode({ prompt: { ...args } })
   }
 
@@ -965,10 +971,34 @@ class Diagram extends Component<Props> {
             <PromptForm
               prompts={this.props.prompts}
               customKey={`${this.state.editingNodeItem?.node?.id}${this.state.editingNodeItem?.node?.prompt?.type}`}
-              formData={this.props.currentFlowNode?.prompt}
+              formData={this.state.editingNodeItem?.node?.prompt}
               onUpdate={this.updatePromptNode.bind(this)}
               deletePrompt={this.deleteSelectedElements.bind(this)}
               contentLang={this.state.currentLang}
+              close={() => {
+                this.timeout = setTimeout(() => {
+                  this.setState({ editingNodeItem: null })
+                }, 200)
+              }}
+            />
+          )}
+          {formType === 'execute' && (
+            <ExecuteForm
+              node={this.props.currentFlowNode}
+              deleteNode={this.deleteSelectedElements.bind(this)}
+              diagramEngine={this.diagramEngine}
+              close={() => {
+                this.timeout = setTimeout(() => {
+                  this.setState({ editingNodeItem: null })
+                }, 200)
+              }}
+            />
+          )}
+          {formType === 'action' && (
+            <ActionForm
+              node={this.props.currentFlowNode}
+              deleteNode={this.deleteSelectedElements.bind(this)}
+              diagramEngine={this.diagramEngine}
               close={() => {
                 this.timeout = setTimeout(() => {
                   this.setState({ editingNodeItem: null })

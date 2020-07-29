@@ -85,7 +85,7 @@ function splitModels(listModels: ListEntityModel[], cacheKey: string): [ListEnti
       }
       return [withCached, withoutCached]
     },
-    [[], []]
+    [[], []] as [ListEntityModel[], ListEntityModel[]]
   )
 }
 
@@ -173,7 +173,10 @@ export const extractListEntities = (
     ? splitModels(list_entities, cacheKey)
     : [[], list_entities]
 
-  let matches = _.flatMap(listModelsWithCachedRes, listModel => (listModel.cache as EntityCache)?.get(cacheKey))
+  let matches: EntityExtractionResult[] = _.flatMap(
+    listModelsWithCachedRes,
+    listModel => (listModel.cache as EntityCache)?.get(cacheKey) ?? []
+  )
 
   for (const listModel of listModelsToExtract) {
     const extracted = extractForListModel(utterance, listModel)
