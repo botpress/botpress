@@ -146,7 +146,7 @@
 }
 
 .content {
-  padding: 10px;
+  padding: 10px var(--spacing-large);
   height: calc(100% - 50px);
   overflow-y: auto;
 }
