@@ -163,6 +163,18 @@ async function makePredictionUtterance(input: PredictStep, predictors: Predictor
 
 async function extractEntities(input: PredictStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
   const { utterance, alternateUtterance } = input
+  // @ts-ignore
+  const debug_utt = utterance._tokens
+    .map(t => t.value)
+    .join('')
+    .replace(/▁/gi, ' ')
+  if (alternateUtterance) {
+    // @ts-ignore
+    const debug_alt_utt = alternateUtterance._tokens.map(t => t.value).join('')
+    console.log('Utt: ', debug_utt, 'Alt : ', debug_alt_utt)
+  } else {
+    console.log('Utt : ', debug_utt)
+  }
   _.forEach(
     [
       ...extractListEntities(input.utterance, predictors.list_entities, true),
@@ -170,6 +182,7 @@ async function extractEntities(input: PredictStep, predictors: Predictors, tools
       ...(await tools.duckling.extract(utterance.toString(), utterance.languageCode))
     ],
     entityRes => {
+      debugger
       input.utterance.tagEntity(_.omit(entityRes, ['start, end']), entityRes.start, entityRes.end)
     }
   )
@@ -445,20 +458,20 @@ export const Predict = async (
     // tslint:disable-next-line
     let { stepOutput, predictors } = await preprocessInput(input, tools, predictorsByLang)
     // @ts-ignore
-    stepOutput.rawText = stepOutput.rawText.toLowerCase()
+    // stepOutput.rawText = stepOutput.rawText.toLowerCase()
     stepOutput = await makePredictionUtterance(stepOutput, predictors, tools)
     stepOutput = await extractEntities(stepOutput, predictors, tools)
     debugger
+    const old_text = stepOutput.rawText
     if (stepOutput.utterance.entities) {
       for (const entitie of stepOutput.utterance.entities) {
-        console.log('Old ', stepOutput.rawText)
         // @ts-ignore
         stepOutput.rawText = stepOutput.rawText.replace(entitie.metadata.source, entitie.type)
-        console.log('New ', stepOutput.rawText)
       }
       stepOutput = await makePredictionUtterance(stepOutput, predictors, tools)
       stepOutput = await extractEntities(stepOutput, predictors, tools)
     }
+    console.log('Old : ', old_text, '\nNew : ', stepOutput.rawText)
     stepOutput = await predictOutOfScope(stepOutput, predictors)
     stepOutput = await predictContext(stepOutput, predictors)
     stepOutput = await predictIntent(stepOutput, predictors)

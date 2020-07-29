@@ -172,7 +172,7 @@ export const extractListEntities = (
   const [listModelsWithCachedRes, listModelsToExtract] = useCache
     ? splitModels(list_entities, cacheKey)
     : [[], list_entities]
-
+  debugger
   let matches = _.flatMap(listModelsWithCachedRes, listModel => (listModel.cache as EntityCache)?.get(cacheKey))
 
   for (const listModel of listModelsToExtract) {

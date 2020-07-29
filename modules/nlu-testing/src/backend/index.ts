@@ -59,3 +59,6 @@ const entryPoint: sdk.ModuleEntryPoint = {
 }
 
 export default entryPoint
+// TODO Check test on new dataset
+// TODO Fix to get better score with .replace()
+// TODO Fix Entity extraction

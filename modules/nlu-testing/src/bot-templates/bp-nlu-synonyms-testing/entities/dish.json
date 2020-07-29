@@ -3,8 +3,8 @@
   "name": "dish",
   "type": "list",
   "occurrences": [
-    { "name": "Poutine", "synonyms": [] },
-    { "name": "Bagel", "synonyms": [] },
+    { "name": "poutine", "synonyms": [] },
+    { "name": "bagel", "synonyms": [] },
     { "name": "smoked meat", "synonyms": [] },
     { "name": "strogonoff beef", "synonyms": [] },
     { "name": "caesar salad", "synonyms": [] }

@@ -24,7 +24,8 @@
         "${workspaceFolder}/private-modules/*/dist",
         "!${workspaceFolder}/**/node_modules"
       ],
-      "console": "integratedTerminal",
+      // "console": "integratedTerminal",
+      "console": "internalConsole",
       "sourceMaps": true,
       "autoAttachChildProcesses": true
     },
