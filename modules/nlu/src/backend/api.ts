@@ -41,10 +41,12 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
   router.get('/health', async (req, res) => {
     // When the health is bad, we'll refresh the status in case it changed (eg: user added languages)
+    let providerhealth
     if (!state.health?.isEnabled) {
-      await initializeLanguageProvider(bp, state)
+      const { health } = await initializeLanguageProvider(bp, state)
+      providerhealth = health
     }
-    res.send(state.health)
+    res.send(providerhealth)
   })
 
   router.post('/cross-validation/:lang', async (req, res) => {

@@ -77,7 +77,7 @@ export interface EntityService {
 
 export type NLUState = {
   nluByBot: _.Dictionary<BotState>
-  languageProvider?: LanguageProvider
+  languages: string[]
   health?: NLUHealth
   broadcastLoadModel?: (botId: string, hash: string, language: string) => Promise<void>
   broadcastCancelTraining?: (botId: string, language: string) => Promise<void>

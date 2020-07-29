@@ -13,14 +13,21 @@ import legacyElectionPipeline from '../legacy-election'
 import { getLatestModel } from '../model-service'
 import { InvalidLanguagePredictorError } from '../predict-pipeline'
 import { removeTrainingSession, setTrainingSession } from '../train-session-service'
-import { NLUProgressEvent, NLUState, Token2Vec, Tools, TrainingSession } from '../typings'
+import {
+  LanguageProvider,
+  NLUProgressEvent,
+  NLUState,
+  NLUVersionInfo,
+  Token2Vec,
+  Tools,
+  TrainingSession
+} from '../typings'
 
-export const initializeLanguageProvider = async (bp: typeof sdk, state: NLUState) => {
+export const initializeLanguageProvider = async (bp: typeof sdk, version: NLUVersionInfo) => {
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
 
   try {
-    const languageProvider = await LangProvider.initialize(globalConfig.languageSources, bp.logger, state)
-    state.langServerInfo = languageProvider.langServerInfo
+    const languageProvider = await LangProvider.initialize(globalConfig.languageSources, bp.logger, version)
 
     const { validProvidersCount, validLanguages } = languageProvider.getHealth()
     const health = {
@@ -29,8 +36,7 @@ export const initializeLanguageProvider = async (bp: typeof sdk, state: NLUState
       validLanguages
     }
 
-    state.languageProvider = languageProvider
-    state.health = health
+    return { languageProvider, health }
   } catch (e) {
     if (e.failure && e.failure.code === 'ECONNREFUSED') {
       bp.logger.error(`Language server can't be reached at address ${e.failure.address}:${e.failure.port}`)
@@ -42,23 +48,12 @@ export const initializeLanguageProvider = async (bp: typeof sdk, state: NLUState
   }
 }
 
-function initializeEngine(bp: typeof sdk, state: NLUState) {
-  state.tools = {
-    partOfSpeechUtterances: (tokenUtterances: string[][], lang: string) => {
-      const tagger = getPOSTagger(lang, bp.MLToolkit)
-      return tokenUtterances.map(tagSentence.bind(this, tagger))
-    },
-    tokenize_utterances: (utterances: string[], lang: string, vocab?: Token2Vec) =>
-      state.languageProvider.tokenize(utterances, lang, vocab),
-    vectorize_tokens: async (tokens, lang) => {
-      const a = await state.languageProvider.vectorize(tokens, lang)
-      return a.map(x => Array.from(x.values()))
-    },
-    generateSimilarJunkWords: (vocab: string[], lang: string) =>
-      state.languageProvider.generateSimilarJunkWords(vocab, lang),
-    mlToolkit: bp.MLToolkit,
-    duckling: new DucklingEntityExtractor(bp.logger)
-  }
+async function initializeTools(bp: typeof sdk, state: NLUState) {
+  // this work should be done inside engine
+  const { languageProvider } = await initializeLanguageProvider(bp, state)
+  state.langServerInfo = languageProvider.langServerInfo
+  state.languages = languageProvider.languages
+  state.tools = makeTools(bp.MLToolkit, bp.logger, languageProvider)
 
   state.reportTrainingProgress = async (botId: string, message: string, trainSession: TrainingSession) => {
     await setTrainingSession(bp, botId, trainSession)
@@ -74,6 +69,24 @@ function initializeEngine(bp: typeof sdk, state: NLUState) {
     if (trainSession.status === 'done') {
       setTimeout(() => removeTrainingSession(bp, botId, trainSession), 5000)
     }
+  }
+}
+
+function makeTools(mlToolkit: typeof sdk.MLToolkit, logger: sdk.Logger, languageProvider: LanguageProvider): Tools {
+  return {
+    partOfSpeechUtterances: (tokenUtterances: string[][], lang: string) => {
+      const tagger = getPOSTagger(lang, mlToolkit)
+      return tokenUtterances.map(tagSentence.bind(this, tagger))
+    },
+    tokenize_utterances: (utterances: string[], lang: string, vocab?: Token2Vec) =>
+      languageProvider.tokenize(utterances, lang, vocab),
+    vectorize_tokens: async (tokens, lang) => {
+      const a = await languageProvider.vectorize(tokens, lang)
+      return a.map(x => Array.from(x.values()))
+    },
+    generateSimilarJunkWords: (vocab: string[], lang: string) => languageProvider.generateSimilarJunkWords(vocab, lang),
+    mlToolkit: mlToolkit,
+    duckling: new DucklingEntityExtractor(logger)
   }
 }
 
@@ -186,8 +199,7 @@ export function getOnSeverStarted(state: NLUState) {
   return async (bp: typeof sdk) => {
     setNluVersion(bp, state)
     await initDucklingExtractor(bp)
-    await initializeLanguageProvider(bp, state)
-    initializeEngine(bp, state)
+    initializeTools(bp, state)
     await registerMiddleware(bp, state)
   }
 }

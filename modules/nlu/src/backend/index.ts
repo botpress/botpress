@@ -19,6 +19,7 @@ const state: NLUState = {
   nluByBot: {},
   nluVersion: '',
   langServerInfo,
+  languages: [],
   tools: undefined,
   reportTrainingProgress: undefined
 }
