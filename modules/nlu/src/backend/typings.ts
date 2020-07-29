@@ -144,7 +144,7 @@ export type ExtractedSlot = {
 
 export type SlotExtractionResult = { slot: ExtractedSlot; start: number; end: number }
 export type EntityExtractor = 'system' | 'list' | 'pattern'
-export type ExtractedEntity = {
+export interface ExtractedEntity {
   confidence: number
   type: string
   metadata: {

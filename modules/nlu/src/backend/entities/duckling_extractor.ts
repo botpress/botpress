@@ -12,7 +12,6 @@ import path from 'path'
 import { extractPattern } from '../tools/patterns-utils'
 import { SPACE } from '../tools/token-utils'
 import { EntityExtractionResult, SystemEntityExtractor } from '../typings'
-import { string } from 'joi'
 
 interface DucklingParams {
   tz: string

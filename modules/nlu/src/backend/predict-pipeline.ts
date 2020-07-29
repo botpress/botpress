@@ -25,7 +25,7 @@ export type Predictors = TrainOutput &
     slot_tagger: SlotTagger // TODO replace this by MlToolkit.CRF.Tagger
   }>
 
-export type EntityPredictor = {
+export interface EntityPredictor {
   pattern_entities: PatternEntity[]
 }
 
@@ -35,7 +35,7 @@ export interface PredictInput {
   sentence: string
 }
 
-type InitialStep = {
+interface InitialStep {
   readonly rawText: string
   includedContexts: string[]
   detectedLanguage: string
@@ -154,11 +154,8 @@ async function makePredictionUtterance(input: InitialStep, predictors: Predictor
   const alternateUtterance = getAlternateUtterance(utterance, vocabVectors)
 
   Array(utterance, alternateUtterance).forEach(u => {
-    if (!u) {
-      return
-    }
-    u.setGlobalTfidf(tfidf)
-    u.setKmeans(kmeans)
+    u?.setGlobalTfidf(tfidf)
+    u?.setKmeans(kmeans)
   })
 
   return {

@@ -2,7 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import * as math from './tools/math'
 
-export type PredictOutput = Omit<sdk.IO.EventUnderstanding, 'predictions'> & {
+type PredictOutput = Omit<sdk.IO.EventUnderstanding, 'predictions'> & {
   predictions: sdk.NLU.Predictions
 }
 
