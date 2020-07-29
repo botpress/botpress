@@ -80,17 +80,17 @@ export class ConfigsStats extends TelemetryStats {
   }
 
   private async getBotpressConfigs(): Promise<BotpressConfig> {
-    const botpressConfigs = await this.config.getBotpressConfig()
-    const defaultConfigs = await this.ghostService
+    const botpressConfig = await this.config.getBotpressConfig()
+    const defaultConfig = await this.ghostService
       .root()
       .readFileAsObject('/', 'botpress.config.schema.json')
       .catch(_err => this.ghostService.root().readFileAsObject('/', 'botpress.config.schema.json'))
 
-    return this.replaceBlacklistedConfigs(botpressConfigs, defaultConfigs, botpressConfigsBlacklist)
+    return this.obfuscateConfigs(botpressConfig, defaultConfig, botpressConfigsBlacklist)
   }
 
-  private replaceBlacklistedConfigs(runtimeConfigs, defaultConfigs, configsBlacklist) {
-    for (const config of configsBlacklist) {
+  private obfuscateConfigs(runtimeConfigs, defaultConfigs, blacklist): Promise<any> {
+    for (const config of blacklist) {
       const defaultOrRedacted =
         _.get(runtimeConfigs, config) == _.get(defaultConfigs, 'properties.' + config + '.default')
           ? 'default'
@@ -146,7 +146,7 @@ export class ConfigsStats extends TelemetryStats {
 
   private formatBotConfigs(configs: BotConfig, defaultConfigs) {
     return {
-      ...this.replaceBlacklistedConfigs(configs, defaultConfigs, botConfigsBlacklist),
+      ...this.obfuscateConfigs(configs, defaultConfigs, botConfigsBlacklist),
       details: this.formatBotDetails(configs.details),
       id: calculateHash(configs.id),
       name: calculateHash(configs.name)
