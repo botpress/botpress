@@ -87,27 +87,39 @@
     position: relative;
     width: 100%;
 
-    &.trigger {
-      border-color: var(--trigger);
-    }
-
-    &.prompt {
-      border-color: var(--prompt);
-    }
-
     &:hover {
       background: #fff;
       border: none;
       border-top: 2px solid var(--say);
       box-shadow: none;
+    }
 
-      &.trigger {
-        border-color: var(--trigger);
-      }
+    &.trigger, &:hover.trigger {
+      border-color: var(--trigger);
+    }
 
-      &.prompt {
-        border-color: var(--prompt);
-      }
+    &.listen, &:hover.listen {
+      border-color: var(--listen);
+    }
+
+    &.execute, &:hover.execute {
+      border-color: var(--execute);
+    }
+
+    &.failure, &:hover.failure {
+      border-color: var(--lighthouse);
+    }
+
+    &.router, &:hover.router {
+      border-color: var(--if-else);
+    }
+
+    &.success, &:hover.success {
+      border-color: var(--success);
+    }
+
+    &.prompt, &:hover.prompt {
+      border-color: var(--prompt);
     }
 
     .button {
@@ -241,6 +253,21 @@
     .content:not(.promptPortContent) {
       border: solid 1px var(--ocean);
     }
+  }
+}
+
+:global(.portContainer).outRouting {
+  background: none !important;
+  right: 0;
+  transform: none;
+  top: 0;
+  position: static;
+
+  :global(.label) {
+    position: absolute;
+    top: 50%;
+    right: calc(var(--spacing-large) * -1);
+    transform: translate(100%, -50%);
   }
 }
 

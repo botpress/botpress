@@ -29,16 +29,18 @@ export function getFeatPairs(feats0: CRFFeature[], feats1: CRFFeature[], featNam
     .map(targetFeat => {
       const f0 = feats0.find(f => f.name === targetFeat)
       const f1 = feats1.find(f => f.name === targetFeat)
-
-      if (f0 || f1) {
-        return {
-          name: targetFeat,
-          value: `${valueOf(f0)}|${valueOf(f1)}`,
-          boost: Math.max(boostOf(f0), boostOf(f1))
-        }
+      return {
+        f0,
+        f1,
+        targetFeat
       }
     })
-    .filter(_.identity)
+    .filter(({ f0, f1 }) => f0 || f1)
+    .map(({ f0, f1, targetFeat }) => ({
+      name: targetFeat,
+      value: `${valueOf(f0)}|${valueOf(f1)}`,
+      boost: Math.max(boostOf(f0), boostOf(f1))
+    }))
 }
 
 export function getWordWeight(token: UtteranceToken): CRFFeature {
@@ -71,6 +73,9 @@ export function getWordFeat(token: UtteranceToken, isPredict: boolean): CRFFeatu
 }
 
 export function getInVocabFeat(token: UtteranceToken, intent: Intent<Utterance>): CRFFeature {
+  if (!intent.vocab) {
+    throw new Error('getInVocabFeat requires a vocab')
+  }
   const inVocab = !!intent.vocab[token.toString({ lowerCase: true })]
   return {
     name: 'inVocab',
@@ -96,7 +101,7 @@ export function getEntitiesFeats(token: UtteranceToken, allowedEntities: string[
 export function getSpaceFeat(token: UtteranceToken | undefined): CRFFeature {
   return {
     name: 'space',
-    value: token && token.isSpace
+    value: token?.isSpace
   }
 }
 
