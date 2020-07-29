@@ -1,4 +1,4 @@
-import { FormData, FormField } from 'botpress/sdk'
+import { BotEvent, FlowVariable, FormData, FormField } from 'botpress/sdk'
 
 export interface FormProps {
   axios?: any
@@ -9,4 +9,12 @@ export interface FormProps {
   advancedSettings?: FormField[]
   formData?: FormData
   onUpdate: (data: { [key: string]: string }) => void
+  onUpdateVariables?: (variable: FlowVariable ) => void
+  variables?: FlowVariable[]
+  superInputOptions?: {
+    enabled?: boolean
+    eventsOnly?: boolean
+    variablesOnly?: boolean
+  }
+  events?: BotEvent[]
 }

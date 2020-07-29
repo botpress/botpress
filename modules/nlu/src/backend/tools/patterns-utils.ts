@@ -3,7 +3,11 @@ interface ExtractedPattern {
   sourceIndex: number
 }
 
-export function isPatternValid(pattern: string): boolean {
+export function isPatternValid(pattern?: string): boolean {
+  if (!pattern) {
+    return false
+  }
+
   try {
     new RegExp(pattern)
     return pattern !== ''

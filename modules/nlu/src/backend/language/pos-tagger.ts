@@ -104,7 +104,7 @@ export function getPOSTagger(languageCode: string, toolkit: typeof sdk.MLToolkit
   }
 
   if (!taggersByLang[languageCode]) {
-    const tagger = toolkit.CRF.createTagger()
+    const tagger = new toolkit.CRF.Tagger()
     tagger.open(getPretrainedModelFilePath(languageCode))
     taggersByLang[languageCode] = tagger
   }
@@ -121,8 +121,8 @@ export function tagSentence(tagger: sdk.MLToolkit.CRF.Tagger, tokens: string[]):
         return [[...words, token], spaceIdx]
       }
     },
-    [[], []]
-  ) as [string[], number[]]
+    [[], []] as [string[], number[]]
+  )
 
   const feats: string[][] = []
   for (let i = 0; i < words.length; i++) {

@@ -11,6 +11,7 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
+import { FlowVariable } from 'botpress/sdk'
 import { Contents, Icons, lang, MainContent } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -33,6 +34,7 @@ import {
   openFlowNodeProps,
   pasteFlowNode,
   refreshFlowsLinks,
+  refreshHints,
   removeFlowNode,
   switchFlow,
   switchFlowNode,
@@ -55,20 +57,22 @@ import { DeletableLinkFactory } from '~/views/FlowBuilder/diagram/nodes/LinkWidg
 import { SkillCallNodeModel, SkillCallWidgetFactory } from '~/views/FlowBuilder/diagram/nodes/SkillCallNode'
 import { StandardNodeModel, StandardWidgetFactory } from '~/views/FlowBuilder/diagram/nodes/StandardNode'
 import { textToItemId } from '~/views/FlowBuilder/diagram/nodes_v2/utils'
-import { ActionWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ActionNode'
-import { ExecuteNodeModel, ExecuteWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ExecuteNode'
-import { FailureNodeModel, FailureWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/FailureNode'
-import { ListenWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/ListenNode'
-import { RouterNodeModel, RouterWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/RouterNode'
-import { SuccessNodeModel, SuccessWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SuccessNode'
 import style from '~/views/FlowBuilder/diagram/style.scss'
 
+import { ActionWidgetFactory } from './nodes/ActionNode'
+import { ExecuteNodeModel, ExecuteWidgetFactory } from './nodes/ExecuteNode'
+import { FailureNodeModel, FailureWidgetFactory } from './nodes/FailureNode'
+import { ListenWidgetFactory } from './nodes/ListenNode'
 import { PromptNodeModel, PromptWidgetFactory } from './nodes/PromptNode'
+import { RouterNodeModel, RouterWidgetFactory } from './nodes/RouterNode'
 import { SaySomethingNodeModel, SaySomethingWidgetFactory } from './nodes/SaySomethingNode'
+import { SuccessNodeModel, SuccessWidgetFactory } from './nodes/SuccessNode'
 import { TriggerWidgetFactory } from './nodes/TriggerNode'
 import menuStyle from './style.scss'
+import ActionForm from './ActionForm'
 import ConditionForm from './ConditionForm'
 import ContentForm from './ContentForm'
+import ExecuteForm from './ExecuteForm'
 import PromptForm from './PromptForm'
 import Toolbar from './Toolbar'
 import VariablesEditor from './VariablesEditor'
@@ -138,10 +142,10 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory(this.props.skills))
     this.diagramEngine.registerNodeFactory(new SaySomethingWidgetFactory(commonProps))
-    this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
-    this.diagramEngine.registerNodeFactory(new ListenWidgetFactory())
-    this.diagramEngine.registerNodeFactory(new RouterWidgetFactory())
-    this.diagramEngine.registerNodeFactory(new ActionWidgetFactory())
+    this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory(commonProps))
+    this.diagramEngine.registerNodeFactory(new ListenWidgetFactory(commonProps))
+    this.diagramEngine.registerNodeFactory(new RouterWidgetFactory(commonProps))
+    this.diagramEngine.registerNodeFactory(new ActionWidgetFactory(commonProps))
     this.diagramEngine.registerNodeFactory(new SuccessWidgetFactory())
     this.diagramEngine.registerNodeFactory(
       new TriggerWidgetFactory({
@@ -331,7 +335,6 @@ class Diagram extends Component<Props> {
       }),
     routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' }),
     actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action' }),
-
     promptNode: (point: Point, promptType: string) => {
       this.props.createFlowNode({
         ...point,
@@ -843,6 +846,13 @@ class Diagram extends Component<Props> {
     this.setState({ currentTab: tab })
   }
 
+  addVariable = (variable: FlowVariable) => {
+    this.props.updateFlow({
+      ...this.props.currentFlow,
+      variables: [...(this.props.currentFlow?.variables || []), variable]
+    })
+  }
+
   render() {
     const formType: string = this.state.editingNodeItem?.node?.type
     let editingNodeItem
@@ -867,6 +877,7 @@ class Diagram extends Component<Props> {
               topicName: this.props.selectedTopic,
               languages: this.props.languages,
               defaultLanguage: this.props.defaultLanguage,
+              events: this.props.hints || [],
               refreshQnaCount: () => {
                 // So it's processed on the next tick, otherwise it won't update with the latest update
                 setTimeout(() => {
@@ -917,10 +928,13 @@ class Diagram extends Component<Props> {
                 type.schema.newJson?.displayedIn.includes('sayNode')
               )}
               deleteContent={() => this.deleteNodeContent()}
+              variables={this.props.currentFlow?.variables || []}
+              events={this.props.hints || []}
               contentLang={this.state.currentLang}
               editingContent={this.state.editingNodeItem.index}
               formData={editingNodeItem || this.getEmptyContent(editingNodeItem)}
               onUpdate={this.updateNodeContent.bind(this)}
+              onUpdateVariables={this.addVariable}
               close={() => {
                 this.timeout = setTimeout(() => {
                   this.setState({ editingNodeItem: null })
@@ -935,9 +949,12 @@ class Diagram extends Component<Props> {
               deleteCondition={() => this.deleteNodeCondition()}
               editingCondition={this.state.editingNodeItem.index}
               topicName={this.props.selectedTopic}
+              variables={this.props.currentFlow?.variables}
+              events={this.props.hints}
               formData={editingNodeItem}
               contentLang={this.state.currentLang}
               onUpdate={this.updateNodeCondition.bind(this)}
+              onUpdateVariables={this.addVariable}
               close={() => {
                 this.timeout = setTimeout(() => {
                   this.setState({ editingNodeItem: null })
@@ -960,6 +977,30 @@ class Diagram extends Component<Props> {
               }}
             />
           )}
+          {formType === 'execute' && (
+            <ExecuteForm
+              node={this.props.currentFlowNode}
+              deleteNode={this.deleteSelectedElements.bind(this)}
+              diagramEngine={this.diagramEngine}
+              close={() => {
+                this.timeout = setTimeout(() => {
+                  this.setState({ editingNodeItem: null })
+                }, 200)
+              }}
+            />
+          )}
+          {formType === 'action' && (
+            <ActionForm
+              node={this.props.currentFlowNode}
+              deleteNode={this.deleteSelectedElements.bind(this)}
+              diagramEngine={this.diagramEngine}
+              close={() => {
+                this.timeout = setTimeout(() => {
+                  this.setState({ editingNodeItem: null })
+                }, 200)
+              }}
+            />
+          )}
         </MainContent.Wrapper>
       </Fragment>
     )
@@ -975,7 +1016,8 @@ const mapStateToProps = (state: RootReducer) => ({
   library: state.content.library,
   prompts: state.ndu.prompts,
   contentTypes: state.content.categories,
-  conditions: state.ndu.conditions
+  conditions: state.ndu.conditions,
+  hints: state.hints.inputs
 })
 
 const mapDispatchToProps = {
@@ -998,7 +1040,8 @@ const mapDispatchToProps = {
   addElementToLibrary,
   refreshFlowsLinks,
   fetchContentCategories,
-  getQnaCountByTopic
+  getQnaCountByTopic,
+  refreshHints
 }
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps, null, {

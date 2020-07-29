@@ -9,6 +9,7 @@ import ShortcutLabel from '../../ShortcutLabel'
 import Textarea from '../../Textarea'
 
 import style from './style.scss'
+import { TextFieldsArrayProps } from './typings'
 
 const TextFieldsArray: FC<TextFieldsArrayProps> = props => {
   const { addBtnLabel, label, onChange, items, getPlaceholder } = props

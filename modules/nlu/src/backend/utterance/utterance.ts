@@ -39,8 +39,8 @@ export type UtteranceToken = Readonly<{
   tfidf: number
   cluster: number
   offset: number
-  entities: ReadonlyArray<UtteranceRange & ExtractedEntity>
-  slots: ReadonlyArray<UtteranceRange & ExtractedSlot>
+  entities: ReadonlyArray<UtteranceEntity>
+  slots: ReadonlyArray<UtteranceSlot>
   toString(options?: TokenToStringOptions): string
 }>
 
@@ -144,13 +144,13 @@ export default class Utterance {
     this._globalTfidf = tfidf
   }
 
-  setKmeans(kmeans: sdk.MLToolkit.KMeans.KmeansResult) {
+  setKmeans(kmeans?: sdk.MLToolkit.KMeans.KmeansResult) {
     this._kmeans = kmeans
   }
 
   // TODO memoize this for better perf
-  toString(options?: UtteranceToStringOptions): string {
-    options = _.defaultsDeep({}, options, { lowerCase: false, slots: 'keep-value' })
+  toString(opt?: UtteranceToStringOptions): string {
+    const options: UtteranceToStringOptions = _.defaultsDeep({}, opt, { lowerCase: false, slots: 'keep-value' })
 
     let final = ''
     let ret = [...this.tokens]
@@ -224,8 +224,8 @@ export default class Utterance {
       ...entity,
       startPos: start,
       endPos: end,
-      startTokenIdx: _.first(range).index,
-      endTokenIdx: _.last(range).index
+      startTokenIdx: _.first(range)!.index,
+      endTokenIdx: _.last(range)!.index
     }
 
     this.entities = [...this.entities, entityWithPos]
@@ -242,8 +242,8 @@ export default class Utterance {
       ...slot,
       startPos: start,
       endPos: end,
-      startTokenIdx: _.first(range).index,
-      endTokenIdx: _.last(range).index
+      startTokenIdx: _.first(range)!.index,
+      endTokenIdx: _.last(range)!.index
     }
 
     this.slots = [...this.slots, taggedSlot]
@@ -267,11 +267,10 @@ export async function buildUtteranceBatch(
   const vectors = await tools.vectorize_tokens(uniqTokens, language)
   const vectorMap = _.zipObject(uniqTokens, vectors)
 
-  return _.zip(tokenUtterances, POSUtterances, parsed)
-    .map(([tokUtt, POSUtt, { utterance: utt, parsedSlots }]) => {
-      if (tokUtt.length === 0) {
-        return
-      }
+  return _.zipWith(tokenUtterances, POSUtterances, parsed, (tokUtt, POSUtt, parsed) => ({ tokUtt, POSUtt, parsed }))
+    .filter(({ tokUtt }) => tokUtt.length)
+    .map(({ tokUtt, POSUtt, parsed }) => {
+      const { utterance: utt, parsedSlots } = parsed
       const vectors = tokUtt.map(t => vectorMap[t])
       const utterance = new Utterance(tokUtt, vectors, POSUtt, language)
 
@@ -290,7 +289,6 @@ export async function buildUtteranceBatch(
 
       return utterance
     })
-    .filter(Boolean)
 }
 
 interface AlternateToken {

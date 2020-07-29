@@ -12,13 +12,22 @@ import { ImportModal } from './Components/ImportModal'
 import QnA from './Components/QnA'
 import EmptyStateIcon from './Icons/EmptyStateIcon'
 
-const QnAList: FC<Props> = props => {
+const QnAList: FC<Props> = ({
+  bp,
+  languages,
+  defaultLanguage,
+  topicName,
+  contentLang,
+  isLite,
+  events,
+  refreshQnaCount
+}) => {
   const [flows, setFlows] = useState([])
   const [filterContexts, setFilterContexts] = useState([])
   const [questionSearch, setQuestionSearch] = useState('')
   const [showImportModal, setShowImportModal] = useState(false)
   const [currentTab, setCurrentTab] = useState('qna')
-  const [currentLang, setCurrentLang] = useState(props.contentLang)
+  const [currentLang, setCurrentLang] = useState(contentLang)
   const [url, setUrl] = useState('')
   const debounceDispatchMiddleware = useCallback(debounce(dispatchMiddleware, 300), [])
   const wrapperRef = useRef<HTMLDivElement>()
@@ -33,7 +42,6 @@ const QnAList: FC<Props> = props => {
     expandedItems: {}
   })
   const { items, loading, firstUpdate, page, fetchMore, count, expandedItems, highlighted } = state
-  const { bp, languages, defaultLanguage, isLite, refreshQnaCount } = props
   const queryParams = new URLSearchParams(window.location.search)
 
   useEffect(() => {
@@ -103,7 +111,7 @@ const QnAList: FC<Props> = props => {
 
   const getQueryParams = () => {
     return {
-      filteredContexts: [props.topicName]
+      filteredContexts: [topicName]
     }
   }
 
@@ -187,7 +195,7 @@ const QnAList: FC<Props> = props => {
   buttons.push({
     icon: 'plus',
     onClick: () => {
-      dispatch({ type: 'addQnA', data: { languages, contexts: [props.topicName || 'global'] } })
+      dispatch({ type: 'addQnA', data: { languages, contexts: [topicName || 'global'] } })
     },
     tooltip: lang.tr('module.qna.form.addQuestion')
   })
@@ -251,6 +259,7 @@ const QnAList: FC<Props> = props => {
                 isLite={isLite}
                 key={highlighted.id}
                 flows={flows}
+                events={events}
                 defaultLanguage={defaultLanguage}
                 deleteQnA={() => {
                   dispatch({ type: 'deleteQnA', data: { index: 'highlighted', bp, refreshQnaCount } })
@@ -289,6 +298,7 @@ const QnAList: FC<Props> = props => {
                 bp={bp}
                 isLite={isLite}
                 flows={flows}
+                events={events}
                 defaultLanguage={defaultLanguage}
                 deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp, refreshQnaCount } })}
                 toggleEnabledQnA={() =>
