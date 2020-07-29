@@ -89,13 +89,10 @@ export class ConfigsStats extends TelemetryStats {
     return this.obfuscateConfigs(botpressConfig, defaultConfig, botpressConfigsBlacklist)
   }
 
-  private obfuscateConfigs(runtimeConfigs, defaultConfigs, blacklist): Promise<any> {
+  private obfuscateConfigs(runtimeConfigs, defaultConfigs, blacklist): any {
     for (const config of blacklist) {
-      const defaultOrRedacted =
-        _.get(runtimeConfigs, config) == _.get(defaultConfigs, 'properties.' + config + '.default')
-          ? 'default'
-          : 'redacted'
-      _.set(runtimeConfigs, config, defaultOrRedacted)
+      const isChanged = _.get(runtimeConfigs, config) === _.get(defaultConfigs, `properties.${config}.default`)
+      _.set(runtimeConfigs, config, isChanged ? 'default' : 'redacted')
     }
     return runtimeConfigs
   }
