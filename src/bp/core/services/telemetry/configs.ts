@@ -22,22 +22,12 @@ import { Config } from '../module/config-reader'
 import { TelemetryStats } from './telemetry-stats'
 
 const modulesConfigsBlacklist = {
-  analytics: [],
   'basic-skills': ['transportConnectionString'],
-  builtin: [],
   'channel-messenger': ['accessToken', 'appSecret', 'verifyToken', 'greeting', 'getStarted'],
   'channel-slack': ['botToken', 'signingSecret'],
   'channel-teams': ['appId', 'appPassword', 'tenantId'],
   'channel-telegram': ['botToken'],
-  'channel-web': ['uploadsS3Bucket', 'uploadsS3AWSAccessKey', 'uploadsS3AWSAccessSecret'],
-  'code-editor': [],
-  examples: [],
-  extensions: [],
-  history: [],
-  hitl: [],
-  nlu: [],
-  qna: [],
-  testing: []
+  'channel-web': ['uploadsS3Bucket', 'uploadsS3AWSAccessKey', 'uploadsS3AWSAccessSecret']
 }
 
 const botpressConfigsBlacklist = ['pro.licenseKey', 'pro.externalAuth.publicKey', 'superAdmins', 'appSecret']
