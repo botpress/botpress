@@ -5,7 +5,6 @@ import { BotState, Data, RawData, Test } from '../backend/typings'
 
 export async function splitTrainToTrainAndTest(state: BotState) {
   // Backup the real intent folder
-  debugger
   if (!(await state.ghost.fileExists('./', 'raw_intents'))) {
     const intentsFiles = await state.ghost.directoryListing('./intents', '*.json')
     for (const file of intentsFiles) {
@@ -45,7 +44,6 @@ export async function splitTrainToTrainAndTest(state: BotState) {
   await state.ghost.upsertFile('./', 'nlu-tests.json', JSON.stringify(tests, undefined, 2))
 }
 export async function getTrainTestDatas(state: BotState) {
-  debugger
   if (
     (await state.ghost.fileExists(`./datas/${state.embedder.model_name}`, 'test_set.json')) &&
     (await state.ghost.fileExists(`./datas/${state.embedder.model_name}`, 'train_set.json'))
