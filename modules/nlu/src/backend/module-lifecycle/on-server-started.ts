@@ -57,21 +57,22 @@ function initializeEngine(bp: typeof sdk, state: NLUState) {
     generateSimilarJunkWords: (vocab: string[], lang: string) =>
       state.languageProvider.generateSimilarJunkWords(vocab, lang),
     mlToolkit: bp.MLToolkit,
-    duckling: new DucklingEntityExtractor(bp.logger),
-    reportTrainingProgress: async (botId: string, message: string, trainSession: TrainingSession) => {
-      await setTrainingSession(bp, botId, trainSession)
+    duckling: new DucklingEntityExtractor(bp.logger)
+  }
 
-      const ev: NLUProgressEvent = {
-        type: 'nlu',
-        working: trainSession.status === 'training',
-        botId,
-        message,
-        trainSession: _.omit(trainSession, 'lock')
-      }
-      bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', ev))
-      if (trainSession.status === 'done') {
-        setTimeout(() => removeTrainingSession(bp, botId, trainSession), 5000)
-      }
+  state.reportTrainingProgress = async (botId: string, message: string, trainSession: TrainingSession) => {
+    await setTrainingSession(bp, botId, trainSession)
+
+    const ev: NLUProgressEvent = {
+      type: 'nlu',
+      working: trainSession.status === 'training',
+      botId,
+      message,
+      trainSession: _.omit(trainSession, 'lock')
+    }
+    bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', ev))
+    if (trainSession.status === 'done') {
+      setTimeout(() => removeTrainingSession(bp, botId, trainSession), 5000)
     }
   }
 }

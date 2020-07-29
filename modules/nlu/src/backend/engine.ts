@@ -16,6 +16,7 @@ import {
   NLUEngine,
   NLUVersionInfo,
   PatternEntity,
+  ProgressReport,
   Tools,
   TrainingSession
 } from './typings'
@@ -60,6 +61,7 @@ export default class Engine implements NLUEngine {
     intentDefs: NLU.IntentDefinition[],
     entityDefs: NLU.EntityDefinition[],
     languageCode: string,
+    reportTrainingProgress?: ProgressReport,
     trainingSession?: TrainingSession,
     options?: TrainingOptions
   ): Promise<Model | undefined> {
@@ -133,7 +135,7 @@ export default class Engine implements NLUEngine {
     }
 
     const hash = this.computeModelHash(intentDefs, entityDefs, this.version, languageCode)
-    const model = await this._trainAndMakeModel(input, hash)
+    const model = await this._trainAndMakeModel(input, hash, reportTrainingProgress)
     if (!model) {
       return
     }
@@ -144,7 +146,7 @@ export default class Engine implements NLUEngine {
     }
 
     trainingSession &&
-      this.tools.reportTrainingProgress(this.botId, 'Training complete', {
+      reportTrainingProgress(this.botId, 'Training complete', {
         ...trainingSession,
         progress: 1,
         status: 'done'
@@ -155,11 +157,15 @@ export default class Engine implements NLUEngine {
     return model
   }
 
-  private async _trainAndMakeModel(input: TrainInput, hash: string): Promise<Model | undefined> {
+  private async _trainAndMakeModel(
+    input: TrainInput,
+    hash: string,
+    reportTrainingProgress?: ProgressReport
+  ): Promise<Model | undefined> {
     const startedAt = new Date()
     let output: TrainOutput | undefined
     try {
-      output = await Trainer(input, this.tools)
+      output = await Trainer(input, this.tools, reportTrainingProgress)
     } catch (err) {
       this.logger.attachError(err).error('Could not finish training NLU model')
       return

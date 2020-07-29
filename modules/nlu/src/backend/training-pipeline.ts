@@ -20,14 +20,13 @@ import {
   ListEntity,
   ListEntityModel,
   PatternEntity,
+  ProgressReport,
   TFIDF,
   Token2Vec,
   Tools,
   TrainingSession
 } from './typings'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
-
-export type Trainer = (input: TrainInput, tools: Tools) => Promise<TrainOutput | undefined>
 
 export type TrainInput = Readonly<{
   botId: string
@@ -548,16 +547,32 @@ const TrainOutOfScope = async (
 }
 
 const NB_STEPS = 5 // change this if the training pipeline changes
-export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise<TrainOutput | undefined> => {
+
+export type Trainer = (
+  input: TrainInput,
+  tools: Tools,
+  reportTrainingProgress?: ProgressReport
+) => Promise<TrainOutput | undefined>
+
+export const Trainer: Trainer = async (
+  input: TrainInput,
+  tools: Tools,
+  progress?: ProgressReport
+): Promise<TrainOutput | undefined> => {
   let totalProgress = 0
   let normalizedProgress = 0
-  const debouncedProgress = _.debounce(tools.reportTrainingProgress, 75, { maxWait: 750 })
+
+  const emptyProgress = () => {}
+  const reportTrainingProgress = progress ?? emptyProgress
+
+  const debouncedProgress = _.debounce(reportTrainingProgress, 75, { maxWait: 750 })
   const reportProgress: progressCB = (stepProgress = 1) => {
     if (!input.trainingSession) {
       return
     }
     if (input.trainingSession.status === 'canceled') {
-      tools.reportTrainingProgress(input.botId, 'Currently cancelling...', input.trainingSession)
+      // Note that we don't use debouncedProgress here as we want the side effects probagated now
+      reportTrainingProgress(input.botId, 'Currently cancelling...', input.trainingSession)
       throw new TrainingCanceledError()
     }
 
@@ -571,7 +586,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
   }
 
   const handleCancellation = () => {
-    tools.reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession)
+    reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession)
     console.info(input.botId, 'Training aborted')
   }
 
