@@ -16,27 +16,12 @@ import { TelemetryStats } from './telemetry-stats'
 
 interface BotHooks {
   botId: string
-  after_bot_mount?: number
-  after_bot_unmount?: number
-  after_event_processed?: number
-  after_incoming_middleware?: number
-  before_bot_import?: number
-  before_incoming_middleware?: number
-  before_outgoing_middleware?: number
-  before_session_timeout?: number
-  before_suggestions_election?: number
-  on_bot_error?: number
+  [hookName: string]: any
 }
 
-interface GlobalHooks {
-  after_server_start?: number
-  after_stage_changed?: number
-  on_incident_status_changed?: number
-  on_stage_request?: number
-}
 interface HookPayload {
   perBots: BotHooks[]
-  global: GlobalHooks
+  global: { [hookName: string]: number }
 }
 
 const BOT_HOOKS = [
@@ -84,11 +69,10 @@ export class HooksLifecycleStats extends TelemetryStats {
 
   private async getHooksLifecycle(): Promise<HookPayload> {
     const botIds = await this.botService.getBotsIds()
-    const perBots = await Promise.map(botIds, async ID => {
-      const botHooksPaths = await this.ghostService.forBot(ID).directoryListing('/hooks', '*.js')
+    const perBots = await Promise.map(botIds, async id => {
+      const botHooksPaths = await this.ghostService.forBot(id).directoryListing('/hooks', '*.js')
       const lifecycles = this.countLifecycles(botHooksPaths, BOT_HOOKS)
-      const botId = calculateHash(ID)
-      return { botId, ...lifecycles }
+      return { botId: calculateHash(id), ...lifecycles }
     })
     const globalHooksPaths = await this.ghostService.global().directoryListing('/hooks', '*.js')
     const global = this.countLifecycles(globalHooksPaths, GLOBAL_HOOKS)
