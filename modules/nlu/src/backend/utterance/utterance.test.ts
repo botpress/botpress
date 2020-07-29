@@ -281,7 +281,7 @@ describe('UtteranceClass', () => {
     //           0123456789012345678901234567
     const tokens = tokenizeLatinTextForTests(str)
     const fakeVectors = tokens.map(t => [])
-    const fakePOS = tokens.map(t => 'ADJ') as POSClass[]
+    const fakePOS = tokens.map(t => 'POS') as POSClass[]
     const defaultOptions = {
       entities: 'keep-default',
       slots: 'keep-value',
