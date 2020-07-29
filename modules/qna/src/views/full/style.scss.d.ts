@@ -8,6 +8,7 @@ interface CssExports {
   'contentAnswerWrapper': string;
   'contextInput': string;
   'contextSelector': string;
+  'embededInFlow': string;
   'empty': string;
   'errorIcon': string;
   'errorsList': string;

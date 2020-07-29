@@ -32,6 +32,10 @@
   width: 30px;
 }
 
+:global(.srd-node):active {
+  cursor: grabbing;
+}
+
 .nodeWrapper {
   background: #fff;
   width: 150px;
@@ -138,6 +142,10 @@
       width: 100%;
       align-items: center;
       position: relative;
+
+      &:active {
+        cursor: grabbing;
+      }
 
       svg {
         fill: var(--shark) !important;
@@ -246,6 +254,10 @@
 
   &.hasJoinLabel {
     margin-top: 0;
+  }
+
+  &:active {
+    cursor: grabbing;
   }
 
   &:hover,
