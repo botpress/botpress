@@ -292,8 +292,7 @@ function computeOutliers(state) {
   //     .filter(elt => elt.dist > 3 * deviationToCenterPerIntent[k])
   // )
   // return { out: outliersPerIntent, dev: deviationToCenterPerIntent }
-  const intentsData = _lodash.default.groupBy(state.trainDatas, 'intent'); // console.log('PLop')
-
+  const intentsData = _lodash.default.groupBy(state.trainDatas, 'intent');
 
   const dbPerIntent = _lodash.default.mapValues(intentsData, o => {
     const embedArray = o.map(e => e.utt_emb);
@@ -303,19 +302,16 @@ function computeOutliers(state) {
       }
 
       return sum / o.length;
-    }, 0); // console.log(meanDist)
-
+    }, 0);
     const dbscan = new clustering.DBSCAN(); // parameters: 5 - neighborhood radius, 2 - number of points in neighborhood to form a cluster
 
-    const clusters = dbscan.run(embedArray, meanDist + 0.5 * meanDist, _lodash.default.floor(o.length / 3)); // console.log('Clusters', clusters, 'Noise', dbscan.noise)
-
+    const clusters = dbscan.run(embedArray, meanDist + 0.5 * meanDist, _lodash.default.floor(o.length / 3));
     return {
       outliers: dbscan.noise.map(i => o[i].utt),
       clusters: clusters.map(indexList => indexList.map(i => o[i].utt))
     };
   });
 
-  console.log(dbPerIntent);
   return dbPerIntent;
 }
 //# sourceMappingURL=visualisation.js.map

@@ -22,14 +22,15 @@ export default async (bp: typeof sdk, state: VisuState) => {
   const glob_res = []
 
   router.get('/confusionMatrix', async (req, res) => {
-    const newAxiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, { localUrl: true })
-    state.predictor.axiosConfig = newAxiosConfig
-    state.axiosConfig = newAxiosConfig
+    const botId = req.params.botId
+    const newAxiosConfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
+    state[botId].predictor.axiosConfig = newAxiosConfig
+    state[botId].axiosConfig = newAxiosConfig
     const jobId = nanoid()
     res.send(jobId)
     longJobsPool[jobId] = { status: 'computing', data: undefined, error: undefined, cm: true }
     try {
-      longJobsPool[jobId].data = await computeConfusionMatrix(state, glob_res)
+      longJobsPool[jobId].data = await computeConfusionMatrix(state[botId], glob_res)
       longJobsPool[jobId].status = 'done'
     } catch (e) {
       console.log('Erreur test paris: ', e)
@@ -38,33 +39,33 @@ export default async (bp: typeof sdk, state: VisuState) => {
     }
   })
   router.get('/loadDatas', async (req, res) => {
-    res.send(await getTrainTestDatas(state))
+    res.send(await getTrainTestDatas(state[req.params.botId]))
   })
 
   router.get('/similarityEmbeddings', async (req, res) => {
-    res.send(await computeEmbeddingSimilarity(state))
+    res.send(await computeEmbeddingSimilarity(state[req.params.botId]))
   })
 
   router.get('/similarityIntents', async (req, res) => {
-    res.send(await computeIntentSimilarity(state))
+    res.send(await computeIntentSimilarity(state[req.params.botId]))
   })
 
   router.get('/scatterTsneEmbeddings', async (req, res) => {
-    res.send(await computeTsneScatterEmbeddings(state))
+    res.send(await computeTsneScatterEmbeddings(state[req.params.botId]))
   })
 
   router.get('/scatterEmbeddings', async (req, res) => {
-    res.send(await computeScatterEmbeddings(state))
+    res.send(await computeScatterEmbeddings(state[req.params.botId]))
   })
 
   router.get('/computeOutliers', async (req, res) => {
-    res.send(computeOutliers(state))
+    res.send(computeOutliers(state[req.params.botId]))
   })
 
   router.get('/long-jobs-status/:jobId', async (req, res) => {
     const newAxiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, { localUrl: true })
-    state.predictor.axiosConfig = newAxiosConfig
-    state.axiosConfig = newAxiosConfig
+    state[req.params.botId].predictor.axiosConfig = newAxiosConfig
+    state[req.params.botId].axiosConfig = newAxiosConfig
     if (longJobsPool[req.params.jobId].cm) {
       const CM2 = ConfusionMatrix.fromLabels(
         glob_res.map(o => o.gt),

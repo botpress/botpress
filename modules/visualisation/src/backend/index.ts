@@ -9,16 +9,7 @@ import fr from '../translations/fr.json'
 import api from './api'
 import { VisuState } from './typings'
 
-const state: VisuState = {
-  embedder: undefined,
-  axiosConfig: undefined,
-  predictor: undefined,
-  botId: undefined,
-  ghost: undefined,
-  trainDatas: undefined,
-  testDatas: undefined,
-  language: undefined
-}
+const state = {}
 
 const onServerStarted = async (bp_sdk: typeof sdk) => {
   bp_sdk.logger.warn(

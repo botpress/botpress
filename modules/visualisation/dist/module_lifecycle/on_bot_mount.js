@@ -11,20 +11,16 @@ var _embedder = require("../models/embedder");
 
 function getOnBotMount(state) {
   return async (bp, botId) => {
-    state.botId = botId;
-    state.ghost = bp.ghost.forBot(botId);
-    const emb = new _embedder.BotpressEmbedder(botId, state.ghost); // const emb = new PythonEmbedder(state.ghost)
+    state[botId] = {};
+    state[botId].ghost = bp.ghost.forBot(botId);
+    const emb = new _embedder.BotpressEmbedder(botId, state[botId].ghost); // const emb = new PythonEmbedder(state.ghost)
 
-    state.embedder = emb;
+    state[botId].embedder = emb;
     const axiosConfig = await bp.http.getAxiosConfigForBot(botId);
-    state.axiosConfig = axiosConfig;
+    state[botId].axiosConfig = axiosConfig;
     const predictor = new _botpress_predictor.BotpressPredictor(axiosConfig, botId);
-    state.predictor = predictor;
-    await state.embedder.load(axiosConfig); // bp.logger.info('Embedding intents in train and test set')
-    // const { train, test } = await getTrainTestDatas(state)
-    // bp.logger.info('Done loading datas')
-    // state.trainDatas = train
-    // state.testDatas = test
+    state[botId].predictor = predictor;
+    await state[botId].embedder.load(axiosConfig);
   };
 }
 //# sourceMappingURL=on_bot_mount.js.map

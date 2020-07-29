@@ -24,11 +24,12 @@ var _default = async (bp, state) => {
   const router = bp.http.createRouterForBot('new_qna');
   const glob_res = [];
   router.get('/confusionMatrix', async (req, res) => {
-    const newAxiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, {
+    const botId = req.params.botId;
+    const newAxiosConfig = await bp.http.getAxiosConfigForBot(botId, {
       localUrl: true
     });
-    state.predictor.axiosConfig = newAxiosConfig;
-    state.axiosConfig = newAxiosConfig;
+    state[botId].predictor.axiosConfig = newAxiosConfig;
+    state[botId].axiosConfig = newAxiosConfig;
     const jobId = (0, _nanoid.default)();
     res.send(jobId);
     longJobsPool[jobId] = {
@@ -39,7 +40,7 @@ var _default = async (bp, state) => {
     };
 
     try {
-      longJobsPool[jobId].data = await (0, _visualisation.computeConfusionMatrix)(state, glob_res);
+      longJobsPool[jobId].data = await (0, _visualisation.computeConfusionMatrix)(state[botId], glob_res);
       longJobsPool[jobId].status = 'done';
     } catch (e) {
       console.log('Erreur test paris: ', e);
@@ -48,29 +49,29 @@ var _default = async (bp, state) => {
     }
   });
   router.get('/loadDatas', async (req, res) => {
-    res.send((await (0, _data_loader.getTrainTestDatas)(state)));
+    res.send((await (0, _data_loader.getTrainTestDatas)(state[req.params.botId])));
   });
   router.get('/similarityEmbeddings', async (req, res) => {
-    res.send((await (0, _visualisation.computeEmbeddingSimilarity)(state)));
+    res.send((await (0, _visualisation.computeEmbeddingSimilarity)(state[req.params.botId])));
   });
   router.get('/similarityIntents', async (req, res) => {
-    res.send((await (0, _visualisation.computeIntentSimilarity)(state)));
+    res.send((await (0, _visualisation.computeIntentSimilarity)(state[req.params.botId])));
   });
   router.get('/scatterTsneEmbeddings', async (req, res) => {
-    res.send((await (0, _visualisation.computeTsneScatterEmbeddings)(state)));
+    res.send((await (0, _visualisation.computeTsneScatterEmbeddings)(state[req.params.botId])));
   });
   router.get('/scatterEmbeddings', async (req, res) => {
-    res.send((await (0, _visualisation.computeScatterEmbeddings)(state)));
+    res.send((await (0, _visualisation.computeScatterEmbeddings)(state[req.params.botId])));
   });
   router.get('/computeOutliers', async (req, res) => {
-    res.send((0, _visualisation.computeOutliers)(state));
+    res.send((0, _visualisation.computeOutliers)(state[req.params.botId]));
   });
   router.get('/long-jobs-status/:jobId', async (req, res) => {
     const newAxiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, {
       localUrl: true
     });
-    state.predictor.axiosConfig = newAxiosConfig;
-    state.axiosConfig = newAxiosConfig;
+    state[req.params.botId].predictor.axiosConfig = newAxiosConfig;
+    state[req.params.botId].axiosConfig = newAxiosConfig;
 
     if (longJobsPool[req.params.jobId].cm) {
       const CM2 = _mlConfusionMatrix.default.fromLabels(glob_res.map(o => o.gt), glob_res.map(o => o.pred)); // Normalize the confusion matrix

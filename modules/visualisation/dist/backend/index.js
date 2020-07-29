@@ -17,16 +17,7 @@ var _api = _interopRequireDefault(require("./api"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const state = {
-  embedder: undefined,
-  axiosConfig: undefined,
-  predictor: undefined,
-  botId: undefined,
-  ghost: undefined,
-  trainDatas: undefined,
-  testDatas: undefined,
-  language: undefined
-};
+const state = {};
 
 const onServerStarted = async bp_sdk => {
   bp_sdk.logger.warn('You are using Botpress New QNA module which is meant to be tested and released only by the botpress team');

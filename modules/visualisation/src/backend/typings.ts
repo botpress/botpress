@@ -3,7 +3,7 @@ import * as sdk from 'botpress/sdk'
 import { BotpressPredictor } from '../models/botpress_predictor'
 import { BotpressEmbedder, PythonEmbedder } from '../models/embedder'
 
-export type VisuState = {
+export type BotState = {
   embedder: BotpressEmbedder | PythonEmbedder
   axiosConfig: sdk.AxiosBotConfig
   predictor: BotpressPredictor
@@ -12,6 +12,10 @@ export type VisuState = {
   trainDatas: Data[]
   testDatas: Data[]
   language: string
+}
+
+export type VisuState = {
+  [botId: string]: BotState
 }
 
 export type Data = {

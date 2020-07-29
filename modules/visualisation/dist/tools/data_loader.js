@@ -14,18 +14,20 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 async function splitTrainToTrainAndTest(state) {
   // Backup the real intent folder
+  debugger;
+
   if (!(await state.ghost.fileExists('./', 'raw_intents'))) {
     const intentsFiles = await state.ghost.directoryListing('./intents', '*.json');
 
     for (const file of intentsFiles) {
       const intentData = await state.ghost.readFileAsObject('./intents', file);
-      await state.ghost.upsertFile('./raw_intents', file, JSON.stringify(intentData));
+      await state.ghost.upsertFile('./raw_intents', file, JSON.stringify(intentData, undefined, 2));
     }
   } // In the new
 
 
   const intentsFiles = await state.ghost.directoryListing('./raw_intents', '*.json');
-  const tests = [];
+  let tests = [];
 
   for (const file of intentsFiles) {
     const intentDatas = await state.ghost.readFileAsObject('./raw_intents', file);
@@ -36,7 +38,7 @@ async function splitTrainToTrainAndTest(state) {
 
       const train_utts = intentDatas.utterances[lang].filter(s => !test_utts.includes(s));
       intentDatas.utterances[lang] = train_utts;
-      tests.concat(test_utts.map(s => {
+      tests = tests.concat(test_utts.map(s => {
         return {
           id: _crypto.default.createHash('md5').update(s).digest('hex'),
           conditions: [['context', 'is', intentDatas.contexts[0]], ['intent', 'is', intentDatas.name]],
@@ -46,14 +48,16 @@ async function splitTrainToTrainAndTest(state) {
       }));
     }
 
-    await state.ghost.upsertFile('./intents', file, JSON.stringify(intentDatas));
+    await state.ghost.upsertFile('./intents', file, JSON.stringify(intentDatas, undefined, 2));
   }
 
-  await state.ghost.upsertFile('./', 'nlu-tests.json', JSON.stringify(tests));
+  await state.ghost.upsertFile('./', 'nlu-tests.json', JSON.stringify(tests, undefined, 2));
 }
 
 async function getTrainTestDatas(state) {
-  if ((await state.ghost.fileExists(`. / datas / ${state.embedder.model_name}`, 'test_set.json')) && (await state.ghost.fileExists(`. / datas / ${state.embedder.model_name}`, 'train_set.json'))) {
+  debugger;
+
+  if ((await state.ghost.fileExists(`./datas/${state.embedder.model_name}`, 'test_set.json')) && (await state.ghost.fileExists(`./datas/${state.embedder.model_name}`, 'train_set.json'))) {
     const vectorized_train = await state.ghost.readFileAsObject(`./datas/${state.embedder.model_name}`, 'train_set.json');
     const vectorized_test = await state.ghost.readFileAsObject(`./datas/${state.embedder.model_name}`, 'test_set.json');
     state.trainDatas = vectorized_train;
@@ -123,9 +127,9 @@ async function getTrainTestDatas(state) {
   }
 
   console.log('going to write');
-  await state.ghost.upsertFile(`. / datas / ${state.embedder.model_name}`, 'test_set.json', JSON.stringify(vectorized_test, undefined, 2));
+  await state.ghost.upsertFile(`./datas/${state.embedder.model_name}`, 'test_set.json', JSON.stringify(vectorized_test, undefined, 2));
   console.log('written test');
-  await state.ghost.upsertFile(`. / datas / ${state.embedder.model_name}`, 'train_set.json', JSON.stringify(vectorized_train, undefined, 2));
+  await state.ghost.upsertFile(`./datas/${state.embedder.model_name}`, 'train_set.json', JSON.stringify(vectorized_train, undefined, 2));
   console.log('written train');
   state.trainDatas = vectorized_train;
   state.testDatas = vectorized_test;

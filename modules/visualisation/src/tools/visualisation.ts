@@ -6,11 +6,11 @@ import { Matrix } from 'ml-matrix'
 import { PCA } from 'ml-pca'
 import TSNE from 'tsne-js'
 
-import { VisuState } from '../backend/typings'
+import { BotState } from '../backend/typings'
 const clustering = require('density-clustering')
 
 export async function computeConfusionMatrix(
-  state: VisuState,
+  state: BotState,
   glob_res: { utt: string; acc: boolean; conf: number; pred: string; gt: string }[]
 ) {
   const results = []
@@ -51,7 +51,7 @@ export async function computeConfusionMatrix(
   return CM2
 }
 
-export async function computeEmbeddingSimilarity(state: VisuState) {
+export async function computeEmbeddingSimilarity(state: BotState) {
   const intentDatas = _.groupBy(state.trainDatas, 'intent')
 
   const intentEmb = {}
@@ -100,7 +100,7 @@ export async function computeEmbeddingSimilarity(state: VisuState) {
   return plotlyMatrixData
 }
 
-export async function computeScatterEmbeddings(state: VisuState) {
+export async function computeScatterEmbeddings(state: BotState) {
   const pca = new PCA(state.trainDatas.map(o => o.utt_emb))
   const variance = pca.getExplainedVariance()
   console.log(`Top 3 variance ${variance.slice(0, 3).map(o => _.round(o, 2))}`)
@@ -122,7 +122,7 @@ export async function computeScatterEmbeddings(state: VisuState) {
   return traces
 }
 
-export async function computeTsneScatterEmbeddings(state: VisuState) {
+export async function computeTsneScatterEmbeddings(state: BotState) {
   let output = []
   if (await state.ghost.fileExists('./datas', 'tsne.json')) {
     const outputString = await state.ghost.readFileAsString('./datas', 'tsne.json')
@@ -175,7 +175,7 @@ export async function computeTsneScatterEmbeddings(state: VisuState) {
   return traces
 }
 
-export async function computeIntentSimilarity(state: VisuState) {
+export async function computeIntentSimilarity(state: BotState) {
   const grouped_intents = _.groupBy(state.trainDatas, 'intent')
   const simMat = { matrix: [], labels: [], text: [] }
   debugger
@@ -252,7 +252,7 @@ function closest(a: number[], b: number[][], index: number): number {
   return minDistance
 }
 
-export function computeOutliers(state: VisuState) {
+export function computeOutliers(state: BotState) {
   // const embedLen = state.trainDatas[0].utt_emb.length
   // const intentsData = _.groupBy(state.trainDatas, 'intent')
   // // const embedPerIntent = _.mapValues(intentsData, o => o.map(p => p.utt_emb))
@@ -277,7 +277,6 @@ export function computeOutliers(state: VisuState) {
 
   // return { out: outliersPerIntent, dev: deviationToCenterPerIntent }
   const intentsData = _.groupBy(state.trainDatas, 'intent')
-  // console.log('PLop')
   const dbPerIntent = _.mapValues(intentsData, o => {
     const embedArray = o.map(e => e.utt_emb)
     const meanDist = o.reduce((sum, curr, index) => {
@@ -286,16 +285,15 @@ export function computeOutliers(state: VisuState) {
       }
       return sum / o.length
     }, 0)
-    // console.log(meanDist)
+
     const dbscan = new clustering.DBSCAN()
     // parameters: 5 - neighborhood radius, 2 - number of points in neighborhood to form a cluster
     const clusters = dbscan.run(embedArray, meanDist + 0.5 * meanDist, _.floor(o.length / 3))
-    // console.log('Clusters', clusters, 'Noise', dbscan.noise)
+
     return {
       outliers: dbscan.noise.map(i => o[i].utt),
       clusters: clusters.map(indexList => indexList.map(i => o[i].utt))
     }
   })
-  console.log(dbPerIntent)
   return dbPerIntent
 }
