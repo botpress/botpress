@@ -772,6 +772,7 @@ class Diagram extends Component<Props> {
 
     newContents[index] = data
 
+    this.props.switchFlowNode(node.id)
     this.setState({ editingNodeItem: { node: { ...node, contents: newContents }, index } })
 
     this.props.updateFlowNode({ contents: newContents })
@@ -783,12 +784,16 @@ class Diagram extends Component<Props> {
 
     newConditions[index] = data
 
+    this.props.switchFlowNode(node.id)
     this.setState({ editingNodeItem: { node: { ...node, conditions: newConditions }, index } })
 
     this.props.updateFlowNode({ conditions: newConditions })
   }
 
   updatePromptNode(args) {
+    const { node } = this.state.editingNodeItem
+
+    this.props.switchFlowNode(node.id)
     this.props.updateFlowNode({ prompt: { ...args } })
   }
 
@@ -966,7 +971,7 @@ class Diagram extends Component<Props> {
             <PromptForm
               prompts={this.props.prompts}
               customKey={`${this.state.editingNodeItem?.node?.id}${this.state.editingNodeItem?.node?.prompt?.type}`}
-              formData={this.props.currentFlowNode?.prompt}
+              formData={this.state.editingNodeItem?.node?.prompt}
               onUpdate={this.updatePromptNode.bind(this)}
               deletePrompt={this.deleteSelectedElements.bind(this)}
               contentLang={this.state.currentLang}
