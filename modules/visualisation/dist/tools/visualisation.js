@@ -55,7 +55,7 @@ async function computeConfusionMatrix(state, glob_res) {
 }
 
 async function computeEmbeddingSimilarity(state) {
-  const intentDatas = _lodash.default.groupBy(_lodash.default.concat(state.trainDatas, state.testDatas), 'intent');
+  const intentDatas = _lodash.default.groupBy(state.trainDatas, 'intent');
 
   const intentEmb = {};
 

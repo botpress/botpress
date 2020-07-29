@@ -12,9 +12,9 @@ var _embedder = require("../models/embedder");
 function getOnBotMount(state) {
   return async (bp, botId) => {
     state.botId = botId;
-    state.ghost = bp.ghost.forBot(botId); // const emb = new BotpressEmbedder(botId, state.ghost)
+    state.ghost = bp.ghost.forBot(botId);
+    const emb = new _embedder.BotpressEmbedder(botId, state.ghost); // const emb = new PythonEmbedder(state.ghost)
 
-    const emb = new _embedder.PythonEmbedder(state.ghost);
     state.embedder = emb;
     const axiosConfig = await bp.http.getAxiosConfigForBot(botId);
     state.axiosConfig = axiosConfig;

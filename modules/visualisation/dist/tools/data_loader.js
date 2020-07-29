@@ -3,14 +3,57 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.splitTrainToTrainAndTest = splitTrainToTrainAndTest;
 exports.getTrainTestDatas = getTrainTestDatas;
+
+var _crypto = _interopRequireDefault(require("crypto"));
 
 var _lodash = _interopRequireDefault(require("lodash"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+async function splitTrainToTrainAndTest(state) {
+  // Backup the real intent folder
+  if (!(await state.ghost.fileExists('./', 'raw_intents'))) {
+    const intentsFiles = await state.ghost.directoryListing('./intents', '*.json');
+
+    for (const file of intentsFiles) {
+      const intentData = await state.ghost.readFileAsObject('./intents', file);
+      await state.ghost.upsertFile('./raw_intents', file, JSON.stringify(intentData));
+    }
+  } // In the new
+
+
+  const intentsFiles = await state.ghost.directoryListing('./raw_intents', '*.json');
+  const tests = [];
+
+  for (const file of intentsFiles) {
+    const intentDatas = await state.ghost.readFileAsObject('./raw_intents', file);
+    const languages = Object.keys(intentDatas.utterances);
+
+    for (const lang of languages) {
+      const test_utts = _lodash.default.sampleSize(intentDatas.utterances[lang], _lodash.default.floor(intentDatas.utterances[lang].length / 4));
+
+      const train_utts = intentDatas.utterances[lang].filter(s => !test_utts.includes(s));
+      intentDatas.utterances[lang] = train_utts;
+      tests.concat(test_utts.map(s => {
+        return {
+          id: _crypto.default.createHash('md5').update(s).digest('hex'),
+          conditions: [['context', 'is', intentDatas.contexts[0]], ['intent', 'is', intentDatas.name]],
+          utterance: s,
+          context: intentDatas.contexts[0]
+        };
+      }));
+    }
+
+    await state.ghost.upsertFile('./intents', file, JSON.stringify(intentDatas));
+  }
+
+  await state.ghost.upsertFile('./', 'nlu-tests.json', JSON.stringify(tests));
+}
+
 async function getTrainTestDatas(state) {
-  if ((await state.ghost.fileExists(`./datas/${state.embedder.model_name}`, 'test_set.json')) && (await state.ghost.fileExists(`./datas/${state.embedder.model_name}`, 'train_set.json'))) {
+  if ((await state.ghost.fileExists(`. / datas / ${state.embedder.model_name}`, 'test_set.json')) && (await state.ghost.fileExists(`. / datas / ${state.embedder.model_name}`, 'train_set.json'))) {
     const vectorized_train = await state.ghost.readFileAsObject(`./datas/${state.embedder.model_name}`, 'train_set.json');
     const vectorized_test = await state.ghost.readFileAsObject(`./datas/${state.embedder.model_name}`, 'test_set.json');
     state.trainDatas = vectorized_train;
@@ -36,6 +79,9 @@ async function getTrainTestDatas(state) {
     rawTest = await state.ghost.readFileAsObject('./', 'nlu-tests.json');
   } else {
     console.log('No test file found : You need a test file to run confusion matrix !');
+    console.log('Running a splitter to create 1/4 of training datas to test');
+    await splitTrainToTrainAndTest(state);
+    rawTest = await state.ghost.readFileAsObject('./', 'nlu-tests.json');
   }
 
   const intents = _lodash.default.uniqBy(rawTrain, 'name').map(o => o.name);
@@ -77,9 +123,9 @@ async function getTrainTestDatas(state) {
   }
 
   console.log('going to write');
-  await state.ghost.upsertFile(`./datas/${state.embedder.model_name}`, 'test_set.json', JSON.stringify(vectorized_test, undefined, 2));
+  await state.ghost.upsertFile(`. / datas / ${state.embedder.model_name}`, 'test_set.json', JSON.stringify(vectorized_test, undefined, 2));
   console.log('written test');
-  await state.ghost.upsertFile(`./datas/${state.embedder.model_name}`, 'train_set.json', JSON.stringify(vectorized_train, undefined, 2));
+  await state.ghost.upsertFile(`. / datas / ${state.embedder.model_name}`, 'train_set.json', JSON.stringify(vectorized_train, undefined, 2));
   console.log('written train');
   state.trainDatas = vectorized_train;
   state.testDatas = vectorized_test;

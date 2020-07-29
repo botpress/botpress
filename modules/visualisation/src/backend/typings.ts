@@ -24,7 +24,7 @@ export type Data = {
 export type RawData = {
   name: string
   contexts: string[]
-  utterances: { fr: string[] }
+  utterances: { [lang: string]: string[] }
   slots: any[]
 }
 
@@ -39,6 +39,7 @@ export type PlotData = {
   marker: { size: number }
 }
 
+export type Test = { id: string; utterance: string; context: string; conditions: [string, string, string][] }
 export const BadMessages = [
   'N/A',
   'Yes. I speak English and French.',

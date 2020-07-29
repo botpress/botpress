@@ -52,7 +52,7 @@ export async function computeConfusionMatrix(
 }
 
 export async function computeEmbeddingSimilarity(state: VisuState) {
-  const intentDatas = _.groupBy(_.concat(state.trainDatas, state.testDatas), 'intent')
+  const intentDatas = _.groupBy(state.trainDatas, 'intent')
 
   const intentEmb = {}
   for (const key in intentDatas) {

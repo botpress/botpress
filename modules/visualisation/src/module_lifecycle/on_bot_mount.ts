@@ -10,8 +10,8 @@ export function getOnBotMount(state: VisuState) {
     state.botId = botId
     state.ghost = bp.ghost.forBot(botId)
 
-    // const emb = new BotpressEmbedder(botId, state.ghost)
-    const emb = new PythonEmbedder(state.ghost)
+    const emb = new BotpressEmbedder(botId, state.ghost)
+    // const emb = new PythonEmbedder(state.ghost)
     state.embedder = emb
 
     const axiosConfig = await bp.http.getAxiosConfigForBot(botId)

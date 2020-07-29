@@ -1,14 +1,52 @@
+import crypto from 'crypto'
 import _ from 'lodash'
 
-import { Data, RawData } from '../backend/typings'
-import { VisuState } from '../backend/typings'
+import { Data, RawData, Test, VisuState } from '../backend/typings'
 
-export type Test = { id: string; utterance: string; context: string; conditions: [string, string, string][] }
-
+export async function splitTrainToTrainAndTest(state: VisuState) {
+  // Backup the real intent folder
+  if (!(await state.ghost.fileExists('./', 'raw_intents'))) {
+    const intentsFiles = await state.ghost.directoryListing('./intents', '*.json')
+    for (const file of intentsFiles) {
+      const intentData = await state.ghost.readFileAsObject<RawData>('./intents', file)
+      await state.ghost.upsertFile('./raw_intents', file, JSON.stringify(intentData))
+    }
+  }
+  // In the new
+  const intentsFiles = await state.ghost.directoryListing('./raw_intents', '*.json')
+  const tests: Test[] = []
+  for (const file of intentsFiles) {
+    const intentDatas = await state.ghost.readFileAsObject<RawData>('./raw_intents', file)
+    const languages = Object.keys(intentDatas.utterances)
+    for (const lang of languages) {
+      const test_utts = _.sampleSize(intentDatas.utterances[lang], _.floor(intentDatas.utterances[lang].length / 4))
+      const train_utts = intentDatas.utterances[lang].filter(s => !test_utts.includes(s))
+      intentDatas.utterances[lang] = train_utts
+      tests.concat(
+        test_utts.map(s => {
+          return {
+            id: crypto
+              .createHash('md5')
+              .update(s)
+              .digest('hex'),
+            conditions: [
+              ['context', 'is', intentDatas.contexts[0]],
+              ['intent', 'is', intentDatas.name]
+            ],
+            utterance: s,
+            context: intentDatas.contexts[0]
+          } as Test
+        })
+      )
+    }
+    await state.ghost.upsertFile('./intents', file, JSON.stringify(intentDatas))
+  }
+  await state.ghost.upsertFile('./', 'nlu-tests.json', JSON.stringify(tests))
+}
 export async function getTrainTestDatas(state: VisuState) {
   if (
-    (await state.ghost.fileExists(`./datas/${state.embedder.model_name}`, 'test_set.json')) &&
-    (await state.ghost.fileExists(`./datas/${state.embedder.model_name}`, 'train_set.json'))
+    (await state.ghost.fileExists(`. / datas / ${state.embedder.model_name}`, 'test_set.json')) &&
+    (await state.ghost.fileExists(`. / datas / ${state.embedder.model_name}`, 'train_set.json'))
   ) {
     const vectorized_train: Data[] = await state.ghost.readFileAsObject<Data[]>(
       `./datas/${state.embedder.model_name}`,
@@ -36,6 +74,9 @@ export async function getTrainTestDatas(state: VisuState) {
     rawTest = await state.ghost.readFileAsObject<Test[]>('./', 'nlu-tests.json')
   } else {
     console.log('No test file found : You need a test file to run confusion matrix !')
+    console.log('Running a splitter to create 1/4 of training datas to test')
+    await splitTrainToTrainAndTest(state)
+    rawTest = await state.ghost.readFileAsObject<Test[]>('./', 'nlu-tests.json')
   }
 
   const intents = _.uniqBy(rawTrain, 'name').map(o => o.name)
@@ -73,13 +114,13 @@ export async function getTrainTestDatas(state: VisuState) {
   }
   console.log('going to write')
   await state.ghost.upsertFile(
-    `./datas/${state.embedder.model_name}`,
+    `. / datas / ${state.embedder.model_name}`,
     'test_set.json',
     JSON.stringify(vectorized_test, undefined, 2)
   )
   console.log('written test')
   await state.ghost.upsertFile(
-    `./datas/${state.embedder.model_name}`,
+    `. / datas / ${state.embedder.model_name}`,
     'train_set.json',
     JSON.stringify(vectorized_train, undefined, 2)
   )
