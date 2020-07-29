@@ -1,4 +1,4 @@
-import { Button, Icon } from '@blueprintjs/core'
+import { Button, Icon, IconName } from '@blueprintjs/core'
 import cx from 'classnames'
 import React, { FC, Fragment } from 'react'
 
@@ -42,7 +42,7 @@ const MoreOptions: FC<MoreOptionsProps> = props => {
               <li key={index}>
                 {action && (
                   <Button
-                    icon={icon}
+                    icon={icon as IconName}
                     minimal
                     className={cx(style.moreMenuItem, {
                       [style.delete]: type === 'delete',
@@ -56,7 +56,7 @@ const MoreOptions: FC<MoreOptionsProps> = props => {
                 )}
                 {!action && (
                   <span className={cx(style.moreMenuItem, style.noHover, { [style.delete]: type === 'delete' })}>
-                    <Icon icon={icon} iconSize={16} />
+                    <Icon icon={icon as IconName} iconSize={16} />
                     {label}
                   </span>
                 )}
