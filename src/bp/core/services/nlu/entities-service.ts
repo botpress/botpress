@@ -1,10 +1,9 @@
 import * as sdk from 'botpress/sdk'
-import { TYPES } from 'core/types'
-import { inject, injectable, tagged } from 'inversify'
 
 import { GhostService } from '..'
 
 import * as CacheManager from './cache-manager'
+import { IntentService } from './intent-service'
 
 const ENTITIES_DIR = './entities'
 
@@ -23,14 +22,14 @@ const DUCKLING_ENTITIES = [
   'volume'
 ]
 
-@injectable()
 export class EntityService {
-  constructor(
-    @inject(TYPES.Logger)
-    @tagged('name', 'EntityService')
-    private logger: sdk.Logger,
-    @inject(TYPES.GhostService) private ghostService: GhostService
-  ) {}
+  private intentService!: IntentService
+
+  constructor(private ghostService: GhostService) {}
+
+  public load(intentService: IntentService) {
+    this.intentService = intentService
+  }
 
   private sanitizeFileName(name: string): string {
     return name
@@ -93,9 +92,8 @@ export class EntityService {
       // entity renamed
       CacheManager.copyCache(targetEntityName, entity.name, botId)
       await Promise.all([
-        this.deleteEntity(botId, targetSanitized)
-        // TODO find a wait to commuticate with intent service
-        // this.intentService.updateIntentsSlotsEntities(botId, targetSanitized, nameSanitized)
+        this.deleteEntity(botId, targetSanitized),
+        this.intentService.updateIntentsSlotsEntities(botId, targetSanitized, nameSanitized)
       ])
     } else {
       // entity changed
