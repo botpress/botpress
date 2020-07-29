@@ -11,6 +11,7 @@ import { ModuleLoader } from 'core/module-loader'
 import { TelemetryRepository } from 'core/repositories/telemetry'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
+import defaultJsonBuilder from 'json-schema-defaults'
 import _ from 'lodash'
 import ms from 'ms'
 
@@ -32,6 +33,10 @@ const modulesConfigsBlacklist = {
 
 const botpressConfigsBlacklist = ['pro.licenseKey', 'pro.externalAuth.publicKey', 'superAdmins', 'appSecret']
 const botConfigsBlacklist = ['pipeline_status.current_stage.promoted_by', 'description']
+
+const DEFAULT = '***default***'
+const REDACTED = '***redacted***'
+const SECRET_KEYS = ['secret', 'pw', 'password', 'token', 'key', 'promoted_by', 'description', 'Admins']
 
 interface BotConfigEvent {
   botId: string
@@ -84,6 +89,23 @@ export class ConfigsStats extends TelemetryStats {
     const defaultConfig = await this.fetchSchema('botpress.config.schema.json')
 
     return this.obfuscateConfigs(botpressConfig, defaultConfig, botpressConfigsBlacklist)
+  }
+
+  private obfuscateSecrets(config, defaultConfig) {
+    return _.reduce(
+      config,
+      (res, value, key) => {
+        if (SECRET_KEYS.find(x => key.toLowerCase().includes(x))) {
+          res[key] = _.isEqual(config[key], defaultConfig[key]) ? DEFAULT : REDACTED
+        } else if (!_.isArray(value) && _.isObject(value)) {
+          res[key] = this.obfuscateSecrets(value, defaultConfig)
+        } else {
+          res[key] = value
+        }
+        return res
+      },
+      {}
+    )
   }
 
   private obfuscateConfigs(runtimeConfigs, defaultConfigs, blacklist): any {
