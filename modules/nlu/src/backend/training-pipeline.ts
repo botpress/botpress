@@ -39,7 +39,7 @@ export type TrainInput = Readonly<{
   ctxToTrain: string[]
 }>
 
-export type TrainStep = Readonly<{
+type TrainStep = Readonly<{
   botId: string
   languageCode: string
   list_entities: ListEntityModel[]
