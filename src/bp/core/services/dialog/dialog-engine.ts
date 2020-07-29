@@ -525,7 +525,7 @@ export class DialogEngine {
     parentFlow,
     parentNode: FlowNode
   ) {
-    const subflowName = parentNode.flow || '' // Name of the subflow to transition to
+    const subflowName = parentNode.flow!
     const subflow = this._findFlow(botId, subflowName)
     const subflowStartNode = this._findNode(botId, subflow, subflow.startNode)
 
