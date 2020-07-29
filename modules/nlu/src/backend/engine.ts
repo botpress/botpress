@@ -3,7 +3,7 @@ import crypto from 'crypto'
 import _ from 'lodash'
 
 import * as CacheManager from './cache-manager'
-import { computeModelHash, Model } from './model-service'
+import { Model } from './model-service'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
@@ -41,6 +41,23 @@ export default class Engine implements NLUEngine {
 
   static provideTools(tools: Tools) {
     Engine.tools = tools
+  }
+
+  // we might want to make this language specific
+  public computeModelHash(
+    intents: NLU.IntentDefinition[],
+    entities: NLU.EntityDefinition[],
+    version: NLUVersionInfo,
+    lang: string
+  ): string {
+    const { nluVersion, langServerInfo } = version
+
+    const singleLangIntents = intents.map(i => ({ ...i, utterances: i.utterances[lang] }))
+
+    return crypto
+      .createHash('md5')
+      .update(JSON.stringify({ singleLangIntents, entities, nluVersion, langServerInfo }))
+      .digest('hex')
   }
 
   async train(
@@ -119,7 +136,7 @@ export default class Engine implements NLUEngine {
       ctxToTrain
     }
 
-    const hash = computeModelHash(intentDefs, entityDefs, this.version, languageCode)
+    const hash = this.computeModelHash(intentDefs, entityDefs, this.version, languageCode)
     const model = await this._trainAndMakeModel(input, hash)
     if (!model) {
       return
