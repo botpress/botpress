@@ -43,7 +43,7 @@ export const initializeLanguageProvider = async (bp: typeof sdk, state: NLUState
 }
 
 function initializeEngine(bp: typeof sdk, state: NLUState) {
-  const tools: Tools = {
+  state.tools = {
     partOfSpeechUtterances: (tokenUtterances: string[][], lang: string) => {
       const tagger = getPOSTagger(lang, bp.MLToolkit)
       return tokenUtterances.map(tagSentence.bind(this, tagger))
@@ -74,7 +74,6 @@ function initializeEngine(bp: typeof sdk, state: NLUState) {
       }
     }
   }
-  Engine.provideTools(tools)
 }
 
 async function initDucklingExtractor(bp: typeof sdk): Promise<void> {

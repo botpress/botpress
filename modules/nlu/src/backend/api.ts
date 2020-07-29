@@ -55,7 +55,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
     const entityDefs = await state.nluByBot[botId].entityService.getCustomEntities()
 
     bp.logger.forBot(botId).info('Started cross validation')
-    const xValidationRes = await crossValidate(botId, intentDefs, entityDefs, lang, bp.logger)
+    const xValidationRes = await crossValidate(botId, intentDefs, entityDefs, lang, bp.logger, state.tools)
     bp.logger.forBot(botId).info('Finished cross validation', xValidationRes)
 
     res.send(xValidationRes)

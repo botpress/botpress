@@ -80,6 +80,7 @@ export type NLUState = {
   health?: NLUHealth
   broadcastLoadModel?: (botId: string, hash: string, language: string) => Promise<void>
   broadcastCancelTraining?: (botId: string, language: string) => Promise<void>
+  tools: Tools
 } & NLUVersionInfo
 
 export interface NLUVersionInfo {

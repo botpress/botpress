@@ -4,7 +4,7 @@ import _ from 'lodash'
 import Engine from '../engine'
 import legacyElectionPipeline from '../legacy-election'
 import { MIN_NB_UTTERANCES } from '../training-pipeline'
-import { BIO } from '../typings'
+import { BIO, Tools } from '../typings'
 import Utterance, { buildUtteranceBatch } from '../utterance/utterance'
 
 import MultiClassF1Scorer, { F1 } from './f1-scorer'
@@ -26,8 +26,14 @@ type TrainSet = NLU.IntentDefinition[]
 
 const TRAIN_SET_SIZE = 0.8
 
-async function makeIntentTestSet(rawUtts: string[], ctxs: string[], intent: string, lang: string): Promise<TestSet> {
-  const utterances = await buildUtteranceBatch(rawUtts, lang, Engine.tools)
+async function makeIntentTestSet(
+  rawUtts: string[],
+  ctxs: string[],
+  intent: string,
+  lang: string,
+  tools: Tools
+): Promise<TestSet> {
+  const utterances = await buildUtteranceBatch(rawUtts, lang, tools)
   return utterances.map(utterance => ({
     utterance,
     ctxs,
@@ -35,7 +41,7 @@ async function makeIntentTestSet(rawUtts: string[], ctxs: string[], intent: stri
   }))
 }
 
-async function splitSet(language: string, intents: TrainSet): Promise<[TrainSet, TestSet]> {
+async function splitSet(language: string, intents: TrainSet, tools: Tools): Promise<[TrainSet, TestSet]> {
   const lo = getSeededLodash(process.env.NLU_SEED)
 
   let testSet: TestSet = []
@@ -51,7 +57,7 @@ async function splitSet(language: string, intents: TrainSet): Promise<[TrainSet,
       resetSeed()
 
       const trainUtts = utterances.slice(0, nTrain)
-      const iTestSet = await makeIntentTestSet(utterances.slice(nTrain), i.contexts, i.name, language)
+      const iTestSet = await makeIntentTestSet(utterances.slice(nTrain), i.contexts, i.name, language, tools)
       testSet = [...testSet, ...iTestSet]
 
       return {
@@ -84,13 +90,14 @@ export async function crossValidate(
   intents: NLU.IntentDefinition[],
   entities: NLU.EntityDefinition[],
   language: string,
-  logger: Logger
+  logger: Logger,
+  tools: Tools
 ): Promise<CrossValidationResults> {
-  const [trainSet, testSet] = await splitSet(language, intents)
+  const [trainSet, testSet] = await splitSet(language, intents, tools)
 
   const langServerInfo = { version: '', domain: '', dim: 0 }
   const dummyVersion = { nluVersion: '', langServerInfo } // we don't really care about the model hash here...
-  const engine = new Engine(language, botId, dummyVersion, logger)
+  const engine = new Engine(language, botId, dummyVersion, logger, tools)
   const model = await engine.train(trainSet, entities, language)
   if (!model) {
     throw new Error('training could not finish during cross-valisation')
