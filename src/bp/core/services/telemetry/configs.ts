@@ -80,7 +80,7 @@ export class ConfigsStats extends TelemetryStats {
   }
 
   private async getBotpressConfigs(): Promise<BotpressConfig> {
-    const botpressConfig = await this.config.getBotpressConfig()
+    const botpressConfig = _.cloneDeep(await this.config.getBotpressConfig())
     const defaultConfig = await this.ghostService
       .root()
       .readFileAsObject('/', 'botpress.config.schema.json')
@@ -98,8 +98,8 @@ export class ConfigsStats extends TelemetryStats {
   }
 
   private async getModulesConfigs(): Promise<ModuleConfigEvent[]> {
-    const bots = Array.from((await this.botService.getBots()).keys())
-    const modules = _.intersection(BUILTIN_MODULES, _.keys(process.LOADED_MODULES))
+    const bots = await this.botService.getBotsIds()
+    const modules = _.intersection(BUILTIN_MODULES, Object.keys(process.LOADED_MODULES))
 
     return (await Promise.map(modules, this.getConfigsByModule(bots))).reduce((acc, cur) => [...acc, ...cur])
   }
@@ -107,17 +107,19 @@ export class ConfigsStats extends TelemetryStats {
   private getConfigsByModule(bots: string[]): (module: string) => Promise<ModuleConfigEvent[]> {
     return async module => {
       const defaultValue = await this.moduleLoader.configReader.loadFromDefaultValues(module)
-      return await Promise.map(bots, this.getModuleConfigPerBot(module, defaultValue))
+      return Promise.map(bots, this.getModuleConfigPerBot(module, defaultValue))
     }
   }
 
   private getModuleConfigPerBot(module: string, defaultValue: any): (botId: any) => Promise<ModuleConfigEvent> {
     return async botId => {
-      const runtimeValue = await this.moduleLoader.configReader.getForBot(module, botId)
+      const runtimeValue = _.cloneDeep(await this.moduleLoader.configReader.getForBot(module, botId))
 
-      for (const config of modulesConfigsBlacklist[module]) {
-        const defaultOrRedacted = _.get(defaultValue, config) == _.get(runtimeValue, config) ? 'default' : 'redacted'
-        _.set(runtimeValue, config, defaultOrRedacted)
+      if (_.isArray(modulesConfigsBlacklist[module])) {
+        for (const config of modulesConfigsBlacklist[module]) {
+          const defaultOrRedacted = _.get(defaultValue, config) == _.get(runtimeValue, config) ? 'default' : 'redacted'
+          _.set(runtimeValue, config, defaultOrRedacted)
+        }
       }
       return { botId, module, configs: runtimeValue }
     }
@@ -134,7 +136,7 @@ export class ConfigsStats extends TelemetryStats {
 
     for (const [id, config] of bots) {
       const botId = calculateHash(id)
-      const botConfigs = this.formatBotConfigs(config, defaultConfigs)
+      const botConfigs = this.formatBotConfigs(_.cloneDeep(config), defaultConfigs)
       configs.push({ botId, botConfigs })
     }
 
@@ -151,22 +153,15 @@ export class ConfigsStats extends TelemetryStats {
   }
 
   private formatBotDetails(details: BotDetails) {
-    if (_.isEmpty(details)) {
-      return {
-        website: 'default',
-        phoneNumber: 'default',
-        termsConditions: 'default',
-        emailAddress: 'default',
-        avatarUrl: 'default',
-        coverPictureUrl: 'default',
-        privacyPolicy: 'default'
-      }
-    } else {
-      const botDetails = {}
-      for (const [key, value] of Object.entries(details)) {
-        botDetails[key] = value ? 'redacted' : 'default'
-      }
-      return botDetails
-    }
+    const detailKeys = [
+      'website',
+      'phoneNumber',
+      'termsConditions',
+      'emailAddress',
+      'avatarUrl',
+      'coverPictureUrl',
+      'privacyPolicy'
+    ]
+    return detailKeys.reduce((acc, key) => ({ ...acc, [key]: details[key] ? 'redacted' : 'default' }), {})
   }
 }
