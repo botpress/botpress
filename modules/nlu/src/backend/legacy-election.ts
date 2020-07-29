@@ -2,18 +2,24 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import * as math from './tools/math'
 
-export type PredictOutput = sdk.IO.EventUnderstanding
+type PredictOutput = Omit<sdk.IO.EventUnderstanding, 'predictions'> & {
+  predictions: sdk.NLU.Predictions
+}
 
 const OOS_AS_NONE_TRESH = 0.4
 const LOW_INTENT_CONFIDENCE_TRESH = 0.4
 const NONE_INTENT = 'none' // should extract in comon code
 
 // @deprecated > 13
-export default function legacyElectionPipeline(predictOutput: PredictOutput) {
-  predictOutput = electIntent(predictOutput)
-  predictOutput = detectAmbiguity(predictOutput)
-  predictOutput = extractElectedIntentSlot(predictOutput)
-  return predictOutput
+export default function legacyElectionPipeline(input: sdk.IO.EventUnderstanding) {
+  if (!input.predictions) {
+    return input
+  }
+  let step: PredictOutput = input as PredictOutput
+  step = electIntent(step)
+  step = detectAmbiguity(step)
+  step = extractElectedIntentSlot(step)
+  return step
 }
 
 function electIntent(input: PredictOutput): PredictOutput {
@@ -120,7 +126,7 @@ function electIntent(input: PredictOutput): PredictOutput {
 
 function detectAmbiguity(input: PredictOutput): PredictOutput {
   // +- 10% away from perfect median leads to ambiguity
-  const preds = input.intents
+  const preds = input.intents!
   const perfectConfusion = 1 / preds.length
   const low = perfectConfusion - 0.1
   const up = perfectConfusion + 0.1
@@ -141,8 +147,9 @@ function extractElectedIntentSlot(input: PredictOutput): PredictOutput {
     return input
   }
 
-  const electedIntent = input.predictions[input.intent.context].intents.find(i => i.label === input.intent.name)
-  return { ...input, slots: electedIntent.slots }
+  const elected = input.intent!
+  const electedIntent = input.predictions[elected.context].intents.find(i => i.label === elected.name)
+  return { ...input, slots: electedIntent!.slots }
 }
 
 // taken from svm classifier #295

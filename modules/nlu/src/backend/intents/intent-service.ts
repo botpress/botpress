@@ -69,7 +69,6 @@ export async function updateIntent(
   const merged = _.merge(intentDef, content) as sdk.NLU.IntentDefinition
   if (content?.name !== name) {
     await deleteIntent(ghost, name)
-    name = content.name
   }
   return saveIntent(ghost, merged, entityService)
 }
@@ -117,10 +116,10 @@ export async function updateContextsFromTopics(
   intentNames?: string[]
 ): Promise<void> {
   const flowsPaths = await ghost.directoryListing('flows', '*.flow.json')
-  const flows: sdk.Flow[] = await Promise.map(flowsPaths, async (flowPath: string) => ({
-    name: flowPath,
-    ...(await ghost.readFileAsObject<FlowView>('flows', flowPath))
-  }))
+  const flows: sdk.Flow[] = await Promise.map(
+    flowsPaths,
+    async (flowPath: string) => await ghost.readFileAsObject<FlowView>('flows', flowPath)
+  )
 
   const intents: { [intentName: string]: string[] } = {}
 

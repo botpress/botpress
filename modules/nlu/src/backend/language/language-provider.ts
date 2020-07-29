@@ -114,7 +114,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     })
 
     await Promise.mapSeries(sources, async source => {
-      const headers = {}
+      const headers: _.Dictionary<string> = {}
 
       if (source.authToken) {
         headers['authorization'] = 'bearer ' + source.authToken
