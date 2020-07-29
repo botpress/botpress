@@ -1,3 +1,4 @@
+import * as sdk from 'botpress/sdk'
 import { Logger, MLToolkit, NLU } from 'botpress/sdk'
 import crypto from 'crypto'
 import _ from 'lodash'
@@ -11,15 +12,20 @@ import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from 
 import {
   EntityCacheDump,
   Intent,
+  LanguageProvider,
   ListEntity,
   ListEntityModel,
   NLUEngine,
   NLUVersionInfo,
   PatternEntity,
   ProgressReport,
+  Token2Vec,
   Tools,
   TrainingSession
 } from './typings'
+import { initializeLanguageProvider } from './module-lifecycle/on-server-started'
+import { getPOSTagger, tagSentence } from './language/pos-tagger'
+import { DucklingEntityExtractor } from './entities/duckling_extractor'
 
 const trainDebug = DEBUG('nlu').sub('training')
 
@@ -31,14 +37,44 @@ export default class Engine implements NLUEngine {
   // NOTE: removed private in order to prevent important refactor (which will be done later)
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<Model> = {}
+  private _tools: Tools
 
   constructor(
     private defaultLanguage: string,
     private botId: string,
     private version: NLUVersionInfo,
-    private logger: Logger,
-    private tools: Tools
+    private logger: Logger
   ) {}
+
+  public get tools() {
+    return this._tools
+  }
+
+  public async initialize(bp: typeof sdk): Promise<string[]> {
+    const { languageProvider } = await initializeLanguageProvider(bp, this.version)
+    const languages = languageProvider.languages
+    this._tools = this.makeTools(bp.MLToolkit, bp.logger, languageProvider)
+    return languages
+  }
+
+  private makeTools(mlToolkit: typeof sdk.MLToolkit, logger: sdk.Logger, languageProvider: LanguageProvider): Tools {
+    return {
+      partOfSpeechUtterances: (tokenUtterances: string[][], lang: string) => {
+        const tagger = getPOSTagger(lang, mlToolkit)
+        return tokenUtterances.map(tagSentence.bind(this, tagger))
+      },
+      tokenize_utterances: (utterances: string[], lang: string, vocab?: Token2Vec) =>
+        languageProvider.tokenize(utterances, lang, vocab),
+      vectorize_tokens: async (tokens, lang) => {
+        const a = await languageProvider.vectorize(tokens, lang)
+        return a.map(x => Array.from(x.values()))
+      },
+      generateSimilarJunkWords: (vocab: string[], lang: string) =>
+        languageProvider.generateSimilarJunkWords(vocab, lang),
+      mlToolkit: mlToolkit,
+      duckling: new DucklingEntityExtractor(logger)
+    }
+  }
 
   // we might want to make this language specific
   public computeModelHash(
@@ -165,7 +201,7 @@ export default class Engine implements NLUEngine {
     const startedAt = new Date()
     let output: TrainOutput | undefined
     try {
-      output = await Trainer(input, this.tools, reportTrainingProgress)
+      output = await Trainer(input, this._tools, reportTrainingProgress)
     } catch (err) {
       this.logger.attachError(err).error('Could not finish training NLU model')
       return
@@ -209,7 +245,7 @@ export default class Engine implements NLUEngine {
 
     const { input, output } = model.data
     if (!output.intents) {
-      const intents = await ProcessIntents(input.intents, model.languageCode, output.list_entities, this.tools)
+      const intents = await ProcessIntents(input.intents, model.languageCode, output.list_entities, this._tools)
       output.intents = intents
     }
     const trainOutput = output as TrainOutput
@@ -232,7 +268,7 @@ export default class Engine implements NLUEngine {
   }
 
   private async _makePredictors(input: TrainInput, output: TrainOutput): Promise<Predictors> {
-    const tools = this.tools
+    const tools = this._tools
 
     if (_.flatMap(input.intents, i => i.utterances).length <= 0) {
       // we don't want to return undefined as extraction won't be triggered
@@ -277,7 +313,7 @@ export default class Engine implements NLUEngine {
     }
 
     // error handled a level highr
-    return Predict(input, this.tools, this.predictorsByLang)
+    return Predict(input, this._tools, this.predictorsByLang)
   }
 
   private _ctxHasChanged = (previousIntents: Intent<string>[], currentIntents: Intent<string>[]) => (ctx: string) => {

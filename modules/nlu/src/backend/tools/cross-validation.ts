@@ -90,14 +90,14 @@ export async function crossValidate(
   intents: NLU.IntentDefinition[],
   entities: NLU.EntityDefinition[],
   language: string,
-  logger: Logger,
-  tools: Tools
+  logger: Logger
 ): Promise<CrossValidationResults> {
-  const [trainSet, testSet] = await splitSet(language, intents, tools)
-
   const langServerInfo = { version: '', domain: '', dim: 0 }
   const dummyVersion = { nluVersion: '', langServerInfo } // we don't really care about the model hash here...
-  const engine = new Engine(language, botId, dummyVersion, logger, tools)
+  const engine = new Engine(language, botId, dummyVersion, logger)
+
+  const [trainSet, testSet] = await splitSet(language, intents, engine.tools)
+
   const model = await engine.train(trainSet, entities, language)
   if (!model) {
     throw new Error('training could not finish during cross-valisation')

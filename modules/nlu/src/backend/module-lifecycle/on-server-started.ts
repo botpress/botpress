@@ -5,23 +5,13 @@ import semver from 'semver'
 
 import nluInfo from '../../../package.json'
 import { Config } from '../../config'
-import Engine from '../engine'
 import { DucklingEntityExtractor } from '../entities/duckling_extractor'
 import LangProvider from '../language/language-provider'
-import { getPOSTagger, tagSentence } from '../language/pos-tagger'
 import legacyElectionPipeline from '../legacy-election'
 import { getLatestModel } from '../model-service'
 import { InvalidLanguagePredictorError } from '../predict-pipeline'
 import { removeTrainingSession, setTrainingSession } from '../train-session-service'
-import {
-  LanguageProvider,
-  NLUProgressEvent,
-  NLUState,
-  NLUVersionInfo,
-  Token2Vec,
-  Tools,
-  TrainingSession
-} from '../typings'
+import { NLUProgressEvent, NLUState, NLUVersionInfo, TrainingSession } from '../typings'
 
 export const initializeLanguageProvider = async (bp: typeof sdk, version: NLUVersionInfo) => {
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
@@ -49,12 +39,6 @@ export const initializeLanguageProvider = async (bp: typeof sdk, version: NLUVer
 }
 
 async function initializeTools(bp: typeof sdk, state: NLUState) {
-  // this work should be done inside engine
-  const { languageProvider } = await initializeLanguageProvider(bp, state)
-  state.langServerInfo = languageProvider.langServerInfo
-  state.languages = languageProvider.languages
-  state.tools = makeTools(bp.MLToolkit, bp.logger, languageProvider)
-
   state.reportTrainingProgress = async (botId: string, message: string, trainSession: TrainingSession) => {
     await setTrainingSession(bp, botId, trainSession)
 
@@ -69,24 +53,6 @@ async function initializeTools(bp: typeof sdk, state: NLUState) {
     if (trainSession.status === 'done') {
       setTimeout(() => removeTrainingSession(bp, botId, trainSession), 5000)
     }
-  }
-}
-
-function makeTools(mlToolkit: typeof sdk.MLToolkit, logger: sdk.Logger, languageProvider: LanguageProvider): Tools {
-  return {
-    partOfSpeechUtterances: (tokenUtterances: string[][], lang: string) => {
-      const tagger = getPOSTagger(lang, mlToolkit)
-      return tokenUtterances.map(tagSentence.bind(this, tagger))
-    },
-    tokenize_utterances: (utterances: string[], lang: string, vocab?: Token2Vec) =>
-      languageProvider.tokenize(utterances, lang, vocab),
-    vectorize_tokens: async (tokens, lang) => {
-      const a = await languageProvider.vectorize(tokens, lang)
-      return a.map(x => Array.from(x.values()))
-    },
-    generateSimilarJunkWords: (vocab: string[], lang: string) => languageProvider.generateSimilarJunkWords(vocab, lang),
-    mlToolkit: mlToolkit,
-    duckling: new DucklingEntityExtractor(logger)
   }
 }
 
