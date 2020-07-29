@@ -21,7 +21,7 @@ X-BP-Workspace: default
 ###
 
 
-@botId = ggg
+@botId = YOUR_BOT
 
 
 # List all flows
