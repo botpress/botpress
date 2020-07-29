@@ -109,7 +109,6 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
   const onKeyDown = (e, index): void => {
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault()
-      skipBlur.current = true
       addItem()
     }
 
