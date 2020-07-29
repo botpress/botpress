@@ -16,7 +16,7 @@ import {
 import recommendations from './intents/recommendations'
 import { IntentDefCreateSchema } from './intents/validation'
 import legacyElectionPipeline from './legacy-election'
-import { initializeLanguageProvider } from './module-lifecycle/on-server-started'
+import { initializeLanguageProvider } from './initialize'
 import { crossValidate } from './tools/cross-validation'
 import { getTrainingSession } from './train-session-service'
 import { NLUState } from './typings'

@@ -19,13 +19,11 @@ import {
   NLUVersionInfo,
   PatternEntity,
   ProgressReport,
-  Token2Vec,
   Tools,
   TrainingSession
 } from './typings'
-import { initializeLanguageProvider } from './module-lifecycle/on-server-started'
-import { getPOSTagger, tagSentence } from './language/pos-tagger'
-import { DucklingEntityExtractor } from './entities/duckling_extractor'
+
+import { initializeLanguageProvider, makeTools, initDucklingExtractor } from './initialize'
 
 const trainDebug = DEBUG('nlu').sub('training')
 
@@ -51,29 +49,11 @@ export default class Engine implements NLUEngine {
   }
 
   public async initialize(bp: typeof sdk): Promise<string[]> {
+    await initDucklingExtractor(bp)
     const { languageProvider } = await initializeLanguageProvider(bp, this.version)
     const languages = languageProvider.languages
-    this._tools = this.makeTools(bp.MLToolkit, bp.logger, languageProvider)
+    this._tools = makeTools(bp.MLToolkit, bp.logger, languageProvider)
     return languages
-  }
-
-  private makeTools(mlToolkit: typeof sdk.MLToolkit, logger: sdk.Logger, languageProvider: LanguageProvider): Tools {
-    return {
-      partOfSpeechUtterances: (tokenUtterances: string[][], lang: string) => {
-        const tagger = getPOSTagger(lang, mlToolkit)
-        return tokenUtterances.map(tagSentence.bind(this, tagger))
-      },
-      tokenize_utterances: (utterances: string[], lang: string, vocab?: Token2Vec) =>
-        languageProvider.tokenize(utterances, lang, vocab),
-      vectorize_tokens: async (tokens, lang) => {
-        const a = await languageProvider.vectorize(tokens, lang)
-        return a.map(x => Array.from(x.values()))
-      },
-      generateSimilarJunkWords: (vocab: string[], lang: string) =>
-        languageProvider.generateSimilarJunkWords(vocab, lang),
-      mlToolkit: mlToolkit,
-      duckling: new DucklingEntityExtractor(logger)
-    }
   }
 
   // we might want to make this language specific

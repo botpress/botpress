@@ -4,39 +4,11 @@ import _ from 'lodash'
 import semver from 'semver'
 
 import nluInfo from '../../../package.json'
-import { Config } from '../../config'
-import { DucklingEntityExtractor } from '../entities/duckling_extractor'
-import LangProvider from '../language/language-provider'
 import legacyElectionPipeline from '../legacy-election'
 import { getLatestModel } from '../model-service'
 import { InvalidLanguagePredictorError } from '../predict-pipeline'
 import { removeTrainingSession, setTrainingSession } from '../train-session-service'
 import { NLUProgressEvent, NLUState, NLUVersionInfo, TrainingSession } from '../typings'
-
-export const initializeLanguageProvider = async (bp: typeof sdk, version: NLUVersionInfo) => {
-  const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
-
-  try {
-    const languageProvider = await LangProvider.initialize(globalConfig.languageSources, bp.logger, version)
-
-    const { validProvidersCount, validLanguages } = languageProvider.getHealth()
-    const health = {
-      isEnabled: validProvidersCount > 0 && validLanguages.length > 0,
-      validProvidersCount,
-      validLanguages
-    }
-
-    return { languageProvider, health }
-  } catch (e) {
-    if (e.failure && e.failure.code === 'ECONNREFUSED') {
-      bp.logger.error(`Language server can't be reached at address ${e.failure.address}:${e.failure.port}`)
-      if (!process.IS_FAILSAFE) {
-        process.exit()
-      }
-    }
-    throw e
-  }
-}
 
 async function initializeTools(bp: typeof sdk, state: NLUState) {
   state.reportTrainingProgress = async (botId: string, message: string, trainSession: TrainingSession) => {
@@ -54,11 +26,6 @@ async function initializeTools(bp: typeof sdk, state: NLUState) {
       setTimeout(() => removeTrainingSession(bp, botId, trainSession), 5000)
     }
   }
-}
-
-async function initDucklingExtractor(bp: typeof sdk): Promise<void> {
-  const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
-  await DucklingEntityExtractor.configure(globalConfig.ducklingEnabled, globalConfig.ducklingURL, bp.logger)
 }
 
 const EVENTS_TO_IGNORE = ['session_reference', 'session_reset', 'bp_dialog_timeout', 'visit', 'say_something', '']
@@ -164,7 +131,6 @@ function setNluVersion(bp: typeof sdk, state: NLUState) {
 export function getOnSeverStarted(state: NLUState) {
   return async (bp: typeof sdk) => {
     setNluVersion(bp, state)
-    await initDucklingExtractor(bp)
     initializeTools(bp, state)
     await registerMiddleware(bp, state)
   }
