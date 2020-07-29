@@ -1,15 +1,12 @@
+import { Button } from '@blueprintjs/core'
 import _ from 'lodash'
-import React from 'react'
+import React, { Fragment } from 'react'
 
 import ActionItem from '../common/action'
 
 import ActionModalForm from './ActionModalForm'
 
 export default class ActionModalSmall extends React.Component<any> {
-  state = {
-    showActionModalForm: false
-  }
-
   itemToOptions(item) {
     if (item && item.startsWith('say ')) {
       const chunks = item.split(' ')
@@ -35,21 +32,23 @@ export default class ActionModalSmall extends React.Component<any> {
 
   onSubmitAction = content => {
     this.props.onChange(this.optionsToItem(content))
-    this.setState({ showActionModalForm: false })
+    this.props.hideModal()
   }
 
   render() {
     return (
-      <div onDoubleClick={() => this.setState({ showActionModalForm: true })}>
-        <ActionItem text={this.props.text} layoutv2 />
+      <Fragment>
+        <Button onClick={this.props.showModal}>
+          <ActionItem text={this.props.text} layoutv2 />
+        </Button>
         <ActionModalForm
-          show={this.state.showActionModalForm}
-          onClose={() => this.setState({ showActionModalForm: false, itemToEditIndex: null })}
+          show={this.props.showingModal}
+          onClose={this.props.hideModal}
           onSubmit={this.onSubmitAction}
           item={this.itemToOptions(this.props.text)}
           layoutv2
         />
-      </div>
+      </Fragment>
     )
   }
 }

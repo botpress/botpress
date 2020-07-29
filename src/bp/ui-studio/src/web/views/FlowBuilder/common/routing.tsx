@@ -36,7 +36,7 @@ const parseCondition = condition => {
   } else if (availableProps.some(props => condition.indexOf(props.value + '.') === 0)) {
     return { type: 'props', value: extractProps() }
   } else {
-    return { type: 'raw' }
+    return { type: 'raw', value: condition }
   }
 }
 
@@ -79,7 +79,6 @@ export default class RoutingItem extends Component<Props> {
 
     let raw = null
     const renderer = caption ? this.renderOverlay : this.renderNormal
-
     if (caption) {
       const vars = {}
 
