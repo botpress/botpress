@@ -22,23 +22,23 @@ export interface NLUApi {
 }
 
 export const makeApi = (bp: { axios: AxiosInstance }): NLUApi => ({
-  fetchContexts: () => bp.axios.get(`/mod/nlu/contexts`).then(res => res.data),
+  fetchContexts: () => bp.axios.get(`/nlu/contexts`).then(res => res.data),
   fetchIntents: async () => {
-    const { data } = await bp.axios.get('/mod/nlu/intents')
+    const { data } = await bp.axios.get('/nlu/intents')
     return data.filter(x => !x.name.startsWith('__qna__'))
   },
-  fetchIntent: (intentName: string) => bp.axios.get(`/mod/nlu/intents/${intentName}`).then(res => res.data),
-  createIntent: (intent: Partial<NLU.IntentDefinition>) => bp.axios.post(`/mod/nlu/intents`, intent),
+  fetchIntent: (intentName: string) => bp.axios.get(`/nlu/intents/${intentName}`).then(res => res.data),
+  createIntent: (intent: Partial<NLU.IntentDefinition>) => bp.axios.post(`/nlu/intents`, intent),
   updateIntent: (targetIntent: string, intent: Partial<NLU.IntentDefinition>) =>
-    bp.axios.post(`/mod/nlu/intents/${targetIntent}`, intent),
-  deleteIntent: (name: string) => bp.axios.post(`/mod/nlu/intents/${name}/delete`),
-  syncIntentTopics: (intentNames?: string[]) => bp.axios.post(`/mod/nlu/sync/intents/topics`, { intentNames }),
-  fetchEntities: () => bp.axios.get('/mod/nlu/entities').then(res => res.data),
-  fetchEntity: (entityName: string) => bp.axios.get(`/mod/nlu/entities/${entityName}`).then(res => res.data),
-  createEntity: (entity: NLU.EntityDefinition) => bp.axios.post(`/mod/nlu/entities/`, entity),
+    bp.axios.post(`/nlu/intents/${targetIntent}`, intent),
+  deleteIntent: (name: string) => bp.axios.post(`/nlu/intents/${name}/delete`),
+  syncIntentTopics: (intentNames?: string[]) => bp.axios.post(`/nlu/sync/intents/topics`, { intentNames }),
+  fetchEntities: () => bp.axios.get('/nlu/entities').then(res => res.data),
+  fetchEntity: (entityName: string) => bp.axios.get(`/nlu/entities/${entityName}`).then(res => res.data),
+  createEntity: (entity: NLU.EntityDefinition) => bp.axios.post(`/nlu/entities/`, entity),
   updateEntity: (targetEntityId: string, entity: NLU.EntityDefinition) =>
-    bp.axios.post(`/mod/nlu/entities/${targetEntityId}`, entity),
-  deleteEntity: (entityId: string) => bp.axios.post(`/mod/nlu/entities/${entityId}/delete`),
+    bp.axios.post(`/nlu/entities/${targetEntityId}`, entity),
+  deleteEntity: (entityId: string) => bp.axios.post(`/nlu/entities/${entityId}/delete`),
   isAutoTrainOn: () => bp.axios.get(`/mod/nlu/autoTrain`).then(res => res.data.isOn),
   setAutoTrain: (autoTrain: boolean) => bp.axios.post(`/mod/nlu/autoTrain`, { autoTrain: autoTrain }),
   isTraining: () => bp.axios.get(`/mod/nlu/train`).then(res => res.data.isTraining),

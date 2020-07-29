@@ -17,7 +17,7 @@ const ContextSelector: FC<Props> = props => {
   const contexts = props.contexts || []
 
   useEffect(() => {
-    props.bp.axios.get(`/mod/nlu/contexts`).then(({ data }) => setContexts(data))
+    props.bp.axios.get(`/nlu/contexts`).then(({ data }) => setContexts(data))
   }, [])
 
   const removeCtx = (_, idx: number) => {
