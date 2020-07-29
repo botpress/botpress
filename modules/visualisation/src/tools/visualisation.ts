@@ -69,9 +69,7 @@ export async function computeEmbeddingSimilarity(state: BotState) {
 
   const indexAndIntent = Array.from(Object.keys(intentEmb).entries())
   const simMat = { matrix: [], labels: [] }
-  debugger
   for (const [index, key] of indexAndIntent) {
-    debugger
     const row = []
     for (const [indexTodo, keyTodo] of indexAndIntent) {
       if (index === indexTodo) {
@@ -178,7 +176,6 @@ export async function computeTsneScatterEmbeddings(state: BotState) {
 export async function computeIntentSimilarity(state: BotState) {
   const grouped_intents = _.groupBy(state.trainDatas, 'intent')
   const simMat = { matrix: [], labels: [], text: [] }
-  debugger
   for (const [intent, o] of Object.entries(grouped_intents)) {
     const rowMat = []
     const rowText = []
@@ -196,7 +193,6 @@ export async function computeIntentSimilarity(state: BotState) {
             2
           )
           const clusterO = _.mean(cluster1) < _.mean(cluster2) ? cluster1 : cluster2
-          // debugger
           const badUttsText = []
           let badUttsNb = 0
           o.map((p, i) => {
