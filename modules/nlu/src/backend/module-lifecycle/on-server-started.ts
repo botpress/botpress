@@ -10,7 +10,7 @@ import { InvalidLanguagePredictorError } from '../predict-pipeline'
 import { removeTrainingSession, setTrainingSession } from '../train-session-service'
 import { NLUProgressEvent, NLUState, NLUVersionInfo, TrainingSession } from '../typings'
 
-async function initializeTools(bp: typeof sdk, state: NLUState) {
+async function initializeReportingTool(bp: typeof sdk, state: NLUState) {
   state.reportTrainingProgress = async (botId: string, message: string, trainSession: TrainingSession) => {
     await setTrainingSession(bp, botId, trainSession)
 
@@ -131,7 +131,7 @@ function setNluVersion(bp: typeof sdk, state: NLUState) {
 export function getOnSeverStarted(state: NLUState) {
   return async (bp: typeof sdk) => {
     setNluVersion(bp, state)
-    initializeTools(bp, state)
+    await initializeReportingTool(bp, state)
     await registerMiddleware(bp, state)
   }
 }
