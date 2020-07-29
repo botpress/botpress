@@ -81,10 +81,7 @@ export class ConfigsStats extends TelemetryStats {
 
   private async getBotpressConfigs(): Promise<BotpressConfig> {
     const botpressConfig = _.cloneDeep(await this.config.getBotpressConfig())
-    const defaultConfig = await this.ghostService
-      .root()
-      .readFileAsObject('/', 'botpress.config.schema.json')
-      .catch(_err => this.ghostService.root().readFileAsObject('/', 'botpress.config.schema.json'))
+    const defaultConfig = await this.fetchSchema('botpress.config.schema.json')
 
     return this.obfuscateConfigs(botpressConfig, defaultConfig, botpressConfigsBlacklist)
   }
@@ -126,10 +123,7 @@ export class ConfigsStats extends TelemetryStats {
   }
 
   private async getBotsConfigs(): Promise<BotConfigEvent[]> {
-    const defaultConfigs = await this.ghostService
-      .root()
-      .readFileAsObject('/', 'bot.config.schema.json')
-      .catch(_err => this.ghostService.root().readFileAsObject('/', 'bot.config.schema.json'))
+    const defaultConfigs = await this.fetchSchema('bot.config.schema.json')
 
     const bots = await this.botService.getBots()
     const configs: BotConfigEvent[] = []
@@ -163,5 +157,13 @@ export class ConfigsStats extends TelemetryStats {
       'privacyPolicy'
     ]
     return detailKeys.reduce((acc, key) => ({ ...acc, [key]: details[key] ? 'redacted' : 'default' }), {})
+  }
+
+  private async fetchSchema(schemaName: string) {
+    try {
+      return await this.ghostService.root().readFileAsObject('/', schemaName)
+    } catch (error) {
+      return {}
+    }
   }
 }
