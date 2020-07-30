@@ -31,14 +31,10 @@ jobs:
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           plaintext: true
-      - name: Echo file changes
-        run: |
-          echo Changed files: ${{ steps.get_file_changes.outputs.files }}
-      - name: Filter non ts files
+      - name: Filter files
         id: filtered_files
         run: |
-          echo ::set-output name=files::$(node build/filter-files.js ${{ steps.get_file_changes.outputs.files }})
+          echo ::set-output name=files::$(node build/tslint-filter-files.js ${{ steps.get_file_changes.outputs.files }})
       - name: Run TSLint (new rules)
         run: |
-          echo files1: ${{ steps.filtered_files.outputs.files }}
           yarn run tslint -c tslint.newrules.json ${{ steps.filtered_files.outputs.files }}
