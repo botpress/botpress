@@ -33,13 +33,11 @@ jobs:
       - name: Echo file changes
         run: |
           echo Changed files: ${{ steps.get_file_changes.outputs.files }}
-          echo Changed files test: ${{ steps.get_file_changes.outputs }}
       - name: Filter non ts files
         id: filtered_files
         run: |
           node build/filter-files.js ${{ steps.get_file_changes.outputs.files }}
           echo ${{ steps.filtered_files.outputs }}
-          echo ${{ steps.filtered_files.outputs.files }}
           echo ${{ fromJSON(steps.filtered_files.outputs) }}
       - name: Run TSLint (new rules)
         run: |
