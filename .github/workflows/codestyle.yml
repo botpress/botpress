@@ -30,10 +30,15 @@ jobs:
         uses: dorner/file-changes-action@v1.2.0
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          plaintext: true
       - name: Echo file changes
         run: |
           echo Changed files: ${{ steps.get_file_changes.outputs.files }}
+          echo Changed files test: ${{ steps.get_file_changes.outputs }}
+      - name: Filter non ts files
+        id: filtered_files
+        run: |
+          echo ${{ steps.filtered_files.outputs }}
+          node build/filter-files.js ${{ steps.get_file_changes.outputs.files }}
       - name: Run TSLint (new rules)
         run: |
-          yarn run tslint -c tslint.newrules.json ${{ steps.get_file_changes.outputs.files}}
+          yarn run tslint -c tslint.newrules.json ${{ steps.filtered_files.outputs }}
