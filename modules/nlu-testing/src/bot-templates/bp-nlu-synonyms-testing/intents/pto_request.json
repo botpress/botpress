@@ -1,0 +1,31 @@
+{
+    "name": "pto_request",
+    "utterances": {
+        "en": [
+            "how do i put in a pto request for the first to the ninth",
+            "am i allowed to put in a pto request for now to april",
+            "is there a time i can put in a pto request for dec 2 to new years",
+            "when can i put a pto request in for feb 22 to march 1",
+            "i need a pto request on march 1 to 2",
+            "on march 1-2 i want a pto request made for me",
+            "schedule a pto request for me on march 1-2",
+            "for march 1 to 2 make a pto request for me",
+            "i want to schedule a pto request on march 1-2",
+            "between october 7th and october 10th, i'd like for there to be a pto request for me",
+            "i need a pto request for the dates jan 15th to jan 20th",
+            "let's do a personal pto request for the dates may 12th to may 15th",
+            "can you set up a pto request for me for march 20th to april 12th",
+            "i'd like for their to be a pto request for me made for the dates june 4th to june 8th",
+            "i'd like to go on vacation",
+            "create a pto request for march 21st to march 26th",
+            "i need to put in a pto request from the 8th to the 17th of january",
+            "can you put in a pto request for the 5th of june to june 8th",
+            "from december 22nd to the 25th, make me a pto request",
+            "i need a pto request put in for the weekend of june 1st to june 2nd"
+        ]
+    },
+    "slots": [],
+    "contexts": [
+        "global"
+    ]
+}

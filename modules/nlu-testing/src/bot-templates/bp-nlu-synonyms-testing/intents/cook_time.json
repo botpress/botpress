@@ -1,0 +1,31 @@
+{
+    "name": "cook_time",
+    "utterances": {
+        "en": [
+            "how long will the turkey take to cook",
+            "so how long do you think the chicken will take",
+            "how long does pizza take to cook",
+            "how long is the chicken gonna take",
+            "how long will the chicken take to cook",
+            "how long does it take to cook roast beef",
+            "how long does it take to boil an egg",
+            "how long does it take to bake a pork loin",
+            "how long does it take to make roast chicken",
+            "how long does it take to cook a pork chop",
+            "how much time do i need to make the chicken",
+            "what's the prep and cooking time on pizza dough",
+            "how long does it take to make lasagna",
+            "how long will it take to make the wings",
+            "what's the cooking time for the cake",
+            "the steak must go under the broiler for how long",
+            "how long do i put the casserole in",
+            "if i cook the pizza at 400 degrees how long must it be in for",
+            "how long do you need to put the cuish in for",
+            "the sauce must simmer then go in the oven but for how long"
+        ]
+    },
+    "slots": [],
+    "contexts": [
+        "global"
+    ]
+}

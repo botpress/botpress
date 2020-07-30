@@ -1,0 +1,31 @@
+{
+    "name": "food_last",
+    "utterances": {
+        "en": [
+            "jello should stay in the fridge for how long",
+            "when will my milk be no good",
+            "when will my eggs go bad",
+            "how long will my eggs be good for",
+            "what date does my apple juice expire",
+            "how long until my cereal is ruined",
+            "what's the max time i can leave a green pepper in the fridge",
+            "what's the time frame for hamburger stored in the freezer to go bad",
+            "how long can i keep deer meat in the freezer before it's unedible",
+            "has the leftover hamburger from last saturday gone bad",
+            "is there a limit to how long you can store bread in the freezer",
+            "i've had eggs in the fridge since monday, are they still safe",
+            "how long can you keep chicken in the freeze before it goes bad",
+            "is the tofu i put in the fridge tuesday still edible today",
+            "how long does cottage cheese keep in the fridge",
+            "what's the shelf life of guacamole in the fridge",
+            "how long does it take for dough in the freezer to go off",
+            "will i get sick if i eat the tuna salad from friday",
+            "i put some leftover stew in the fridge and want to know how long it'll last",
+            "how long can i leave tuna casserole in the fridge"
+        ]
+    },
+    "slots": [],
+    "contexts": [
+        "global"
+    ]
+}

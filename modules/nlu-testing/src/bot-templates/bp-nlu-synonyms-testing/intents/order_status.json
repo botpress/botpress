@@ -1,0 +1,31 @@
+{
+    "name": "order_status",
+    "utterances": {
+        "en": [
+            "can you find my package in transit",
+            "track my package please",
+            "help me find my package",
+            "i need to track my package",
+            "what's going on with my order",
+            "can you see where my package is",
+            "do you know anything about the status of my order",
+            "can you check if my order has been delivered",
+            "are you able to figure out where my package is",
+            "order status",
+            "is my order being delivered soon",
+            "where's my package",
+            "do you know where my package is",
+            "check status on my deliver, has it been delivered",
+            "is my order shown as delivered",
+            "did my order ship",
+            "can you tell where my package is",
+            "is my package able to be tracked by you",
+            "can you find my package",
+            "can you locate my package"
+        ]
+    },
+    "slots": [],
+    "contexts": [
+        "global"
+    ]
+}

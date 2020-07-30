@@ -1,0 +1,79 @@
+{
+  "id": "vagina",
+  "name": "vagina",
+  "type": "list",
+  "occurrences": [
+    {
+      "name": "vulva",
+      "synonyms": []
+    },
+    {
+      "name": "front bottom",
+      "synonyms": []
+    },
+    {
+      "name": "lady parts",
+      "synonyms": []
+    },
+    {
+      "name": "cunt",
+      "synonyms": []
+    },
+    {
+      "name": "pussy",
+      "synonyms": []
+    },
+    {
+      "name": "twat",
+      "synonyms": []
+    },
+    {
+      "name": "snatch",
+      "synonyms": []
+    },
+    {
+      "name": "honeypot",
+      "synonyms": []
+    },
+    {
+      "name": "fanny",
+      "synonyms": []
+    },
+    {
+      "name": "minge",
+      "synonyms": []
+    },
+    {
+      "name": "pum-pum",
+      "synonyms": []
+    },
+    {
+      "name": " clitoris",
+      "synonyms": []
+    },
+    {
+      "name": "hymen",
+      "synonyms": []
+    },
+    {
+      "name": "labia",
+      "synonyms": []
+    },
+    {
+      "name": "box",
+      "synonyms": []
+    },
+    {
+      "name": "muff",
+      "synonyms": []
+    },
+    {
+      "name": "beaver",
+      "synonyms": []
+    }
+  ],
+  "sensitive": false,
+  "fuzzy": 0.8,
+  "examples": [],
+  "pattern": ""
+}

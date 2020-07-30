@@ -1,0 +1,31 @@
+{
+    "name": "improve_credit_score",
+    "utterances": {
+        "en": [
+            "what steps should i take to improve my credit score",
+            "give me a recommendation to improve my credit score",
+            "what can i do to raise my credit score",
+            "steps to raise my credit score",
+            "is there a quick way to improve my credit score",
+            "what are ways to improve my credit",
+            "how to keep my credit score from going down",
+            "what are some ways to increase my credit",
+            "what can i do to keep my score from dropping",
+            "how do i build my credit score",
+            "how can i build my credit",
+            "what are ways to improve my credit score",
+            "i want to keep my credit score from going down, how do i do that",
+            "what can i do to improve my credit score",
+            "how can i keep my credit score from going down",
+            "how can i improve my credit score",
+            "how do i keep my credit score from dropping",
+            "how to improve my credit score",
+            "what are some way s i can do to improe my credit score",
+            "how to keep my credit up"
+        ]
+    },
+    "slots": [],
+    "contexts": [
+        "global"
+    ]
+}

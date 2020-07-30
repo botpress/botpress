@@ -1,0 +1,21 @@
+{
+  "name": "buy-car",
+  "utterances": {
+    "en": [
+      "buy car",
+      "I want to buy a car",
+      "I want to buy an automobile",
+      "What price is a car ?",
+      "What price is an auto ?",
+      "How much for a car ?",
+      "I need a car",
+      "Give me the price of a vehicle",
+      "What is the price of a car ?",
+      "Is Renault expensive ?"
+    ]
+  },
+  "slots": [],
+  "contexts": [
+    "global"
+  ]
+}

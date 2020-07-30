@@ -1,0 +1,58 @@
+{
+  "id": "cars",
+  "name": "cars",
+  "type": "list",
+  "occurrences": [
+    {
+      "name": "Fiat",
+      "synonyms": []
+    },
+    {
+      "name": "Mercedes",
+      "synonyms": [
+        "merco",
+        "benz"
+      ]
+    },
+    {
+      "name": "Range Rover",
+      "synonyms": []
+    },
+    {
+      "name": "Toyota",
+      "synonyms": []
+    },
+    {
+      "name": "GMC",
+      "synonyms": []
+    },
+    {
+      "name": "RAV4",
+      "synonyms": []
+    },
+    {
+      "name": "BMW",
+      "synonyms": []
+    },
+    {
+      "name": "R8",
+      "synonyms": []
+    },
+    {
+      "name": "Audi",
+      "synonyms": []
+    },
+    {
+      "name": "Telsa",
+      "synonyms": []
+    },
+    {
+      "name": "4x4",
+      "synonyms": []
+    }
+  ],
+  "sensitive": false,
+  "fuzzy": 0.8,
+  "examples": [],
+  "pattern": ""
+}

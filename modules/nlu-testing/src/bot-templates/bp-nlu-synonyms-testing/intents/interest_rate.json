@@ -1,0 +1,31 @@
+{
+    "name": "interest_rate",
+    "utterances": {
+        "en": [
+            "i want to know my interest rate",
+            "tell me my interest rate",
+            "what interest rate am i paying",
+            "my interest rate please",
+            "how do i know the interest rate for my signature account",
+            "how can i figure out my interest rate for my umpqua account",
+            "how can i find my interest rate for my alliance account",
+            "how can i figure out the interest rate for my columbia account",
+            "how can i find the interest rate for my red river account",
+            "what is the rate of interest on my savings account",
+            "how much interest am i getting on my savings",
+            "check the interest rate on my savings account",
+            "tell me my current savings account's interest rate",
+            "what's the interest rate on my savings",
+            "what is my interest rate payment",
+            "how do i figure out my intetest rate",
+            "how to calculate my interest rate",
+            "what is my intetest rate",
+            "i must find the interest rate for my checking account",
+            "i gotta find the interest rate for my checking account"
+        ]
+    },
+    "slots": [],
+    "contexts": [
+        "global"
+    ]
+}

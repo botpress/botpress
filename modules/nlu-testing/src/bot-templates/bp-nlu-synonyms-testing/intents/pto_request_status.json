@@ -1,0 +1,31 @@
+{
+    "name": "pto_request_status",
+    "utterances": {
+        "en": [
+            "have they approved my vacation request yet",
+            "give me the status of my vacation request",
+            "am i going to be able to get my vacation request",
+            "i want to check on my vacation request",
+            "is my vacation approved yet",
+            "my vacation, has it been approved yet",
+            "have i been approved for vacation yet",
+            "am i approved for vacation yet",
+            "did they approve my day off request",
+            "is my day off approved",
+            "did they say yes to my day off request",
+            "did i get my day off",
+            "is my day off request approved",
+            "update on vacation request",
+            "what is the current status of my vacation request",
+            "i need status on that vacation request",
+            "how is my vacation request looking",
+            "please inform me on my current vacation request status",
+            "have they recieved my vacation request and approved it",
+            "will my vacation be approved soon"
+        ]
+    },
+    "slots": [],
+    "contexts": [
+        "global"
+    ]
+}
