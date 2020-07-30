@@ -11,9 +11,9 @@ import { Db, Ghost } from 'core/app'
 import fse from 'fs-extra'
 import _ from 'lodash'
 
+import { getOrCreate as redisFactory } from 'core/services/redis'
 import os from 'os'
 import path from 'path'
-import { getOrCreate as redisFactory } from 'pro/services/async-redis'
 import stripAnsi from 'strip-ansi'
 
 import {
