@@ -56,27 +56,6 @@ const createNodeModel = (node, modelProps) => {
   else {
     return new StandardNodeModel(modelProps)
   }
-  /*} else if (type === 'say_something') {
-    return new SaySomethingNodeModel(modelProps)
-  } else if (type === 'prompt') {
-    return new PromptNodeModel(modelProps)
-  } else if (type === 'execute') {
-    return new ExecuteNodeModel(modelProps)
-  } else if (type === 'listen') {
-    return new ListenNodeModel(modelProps)
-  } else if (type === 'router') {
-    return new RouterNodeModel(modelProps)
-  } else if (type === 'action') {
-    return new ActionNodeModel(modelProps)
-  } else if (type === 'success') {
-    return new SuccessNodeModel(modelProps)
-  } else if (type === 'trigger') {
-    return new TriggerNodeModel(modelProps)
-  } else if (type === 'failure') {
-    return new FailureNodeModel(modelProps)
-  } else {
-    return new StandardNodeModel(modelProps)
-  }*/
 }
 
 export class DiagramManager {
