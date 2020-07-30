@@ -37,8 +37,7 @@ jobs:
         id: filtered_files
         run: |
           node build/filter-files.js ${{ steps.get_file_changes.outputs.files }}
-          echo ${{ steps.filtered_files.outputs }}
-          echo ${{ fromJSON(steps.filtered_files.outputs) }}
+          echo ${{ steps.filtered_files.outputs.files }}
       - name: Run TSLint (new rules)
         run: |
-          yarn run tslint -c tslint.newrules.json ${{ steps.filtered_files.outputs }}
+          yarn run tslint -c tslint.newrules.json ${{ steps.filtered_files.outputs.files }}
