@@ -25,3 +25,10 @@ jobs:
       - name: Run TSLint
         run: |
           yarn run tslint
+      - name: Get changed files
+        uses: lots0logs/gh-action-get-changed-files@2.1.4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run TSLint (new rules)
+        run: |
+          yarn run tslint -c tslint.newrules.json ${{ steps.get_file_changes.outputs.all}}
