@@ -19,6 +19,7 @@ import { ServicesContainerModules } from './services/services.inversify'
 import { ActionsStats } from './services/telemetry/actions'
 import { RolesStats } from './services/telemetry/custom-roles'
 import { LegacyStats } from './services/telemetry/legacy-stats'
+import { SDKStats } from './services/telemetry/sdk-methods'
 import { WorkspaceService } from './services/workspace-service'
 import { Statistics } from './stats'
 import { TYPES } from './types'
@@ -136,6 +137,11 @@ container
 container
   .bind<RolesStats>(TYPES.RolesStats)
   .to(RolesStats)
+  .inSingletonScope()
+
+container
+  .bind<SDKStats>(TYPES.SDKStats)
+  .to(SDKStats)
   .inSingletonScope()
 
 const isPackaged = !!eval('process.pkg')
