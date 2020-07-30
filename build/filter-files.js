@@ -3,4 +3,4 @@ const files = process.argv
   .filter(file => /\.tsx?$/.test(file))
   .join(' ')
 
-console.log('::set-output name=files::' + files)
+console.log(files)
