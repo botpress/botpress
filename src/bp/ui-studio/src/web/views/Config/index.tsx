@@ -14,7 +14,6 @@ import { Container, SidePanel, SidePanelSection } from '~/components/Shared/Inte
 import { Item } from '~/components/Shared/Interface/typings'
 import { toastFailure, toastSuccess } from '~/components/Shared/Utils/Toaster'
 
-// test
 import { ItemList } from '../../components/Shared/Interface'
 
 import style from './style.scss'
