@@ -37,11 +37,8 @@ jobs:
       - name: Filter non ts files
         id: filtered_files
         run: |
-          node build/filter-files.js ${{ steps.get_file_changes.outputs.files }}
-          echo ::set-output name=files::lol hey
-          echo ::set-output name=files2::$(node build/filter-files.js ${{ steps.get_file_changes.outputs.files }})
-          echo Changed files1: ${{ steps.filtered_files.outputs.files }}
-          echo Changed files2: ${{ steps.filtered_files.outputs.files2 }}
+          echo ::set-output name=files::$(node build/filter-files.js ${{ steps.get_file_changes.outputs.files }})
       - name: Run TSLint (new rules)
         run: |
+          echo files1: ${{ steps.filtered_files.outputs.files }}
           yarn run tslint -c tslint.newrules.json ${{ steps.filtered_files.outputs.files }}
