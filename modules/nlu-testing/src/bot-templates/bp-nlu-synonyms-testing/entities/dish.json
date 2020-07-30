@@ -1,0 +1,16 @@
+{
+  "id": "dish",
+  "name": "dish",
+  "type": "list",
+  "occurrences": [
+    { "name": "poutine", "synonyms": [] },
+    { "name": "bagel", "synonyms": [] },
+    { "name": "smoked meat", "synonyms": [] },
+    { "name": "strogonoff beef", "synonyms": [] },
+    { "name": "caesar salad", "synonyms": [] }
+  ],
+  "sensitive": false,
+  "fuzzy": 1,
+  "exemples": [],
+  "pattern": ""
+}

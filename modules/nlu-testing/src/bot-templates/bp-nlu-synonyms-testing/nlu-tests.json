@@ -1,0 +1,354 @@
+[
+  {
+    "utterance": "Where is paris center town",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "travel"]
+    ]
+  },
+
+  {
+    "utterance": "What can I see in the city of lights",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "travel"]
+    ]
+  },
+
+  {
+    "utterance": "Is downtown a nice place to spend the evening ?",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "travel"]
+    ]
+  },
+
+  {
+    "utterance": "Which is the most romantic ? Downtown or The Louvre",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "travel"]
+    ]
+  },
+
+  {
+    "utterance": "Are the paris suburbs representatives of the french capital ?",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "travel"]
+    ]
+  },
+
+  {
+    "utterance": "Have you visited the city of paris suburbs ?",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "travel"]
+    ]
+  },
+
+  {
+    "utterance": "Where is the city of paris airport ?",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "travel"]
+    ]
+  },
+
+  {
+    "utterance": "Can I bring my M16 in the city of lights ?",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "travel"]
+    ]
+  },
+  {
+    "utterance": "Is Sylvain here ? ",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "talk_to_boss"]
+    ]
+  },
+  {
+    "utterance": "Where is Sly ?",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "talk_to_boss"]
+    ]
+  },
+  {
+    "utterance": "I will only speak with your chief",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "talk_to_boss"]
+    ]
+  },
+  {
+    "utterance": "Can I talk with either the CEO or the CFO ?",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "talk_to_boss"]
+    ]
+  },
+  {
+    "utterance": "I want to see Sylvain the CEO",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "talk_to_boss"]
+    ]
+  },
+  {
+    "utterance": "I have a meeting with your responsable, I guess his name is Sylvain",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "talk_to_boss"]
+    ]
+  },
+  {
+    "utterance": "Appointment with CEO Sylvain Perron",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "talk_to_boss"]
+    ]
+  },
+  {
+    "utterance": "Is your CTO in the french capital suburbs right now ?",
+    "context": "splitable",
+    "conditions": [
+      ["context", "is", "splitable"],
+      ["intent", "is", "talk_to_boss"]
+    ]
+  },
+
+  {
+    "utterance": "I want to eat a poutine",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_salty"]
+    ]
+  },
+  {
+    "utterance": "Poutine is what I want to put in my mouth right now",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_salty"]
+    ]
+  },
+  {
+    "utterance": "Do you have some smoked meat ?",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_salty"]
+    ]
+  },
+  {
+    "utterance": "If you would be kind enough to bring me a smoked meat poutine it would be perfect",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_salty"]
+    ]
+  },
+  {
+    "utterance": "May I know if you have some strogonoff beef or a caesar salad on your menu ? I would be pleased",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_salty"]
+    ]
+  },
+  {
+    "utterance": "The best is a dark chocolate ice cream, but if you don't have it it's okay",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_salty"]
+    ]
+  },
+  {
+    "utterance": "If I can come to the place with my Tesla, I will buy a bagel. ",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_salty"]
+    ]
+  },
+  {
+    "utterance": "I want to eat a cake",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_sweet"]
+    ]
+  },
+  {
+    "utterance": "Lemon pie is why I want to put in my mouth right now",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_sweet"]
+    ]
+  },
+  {
+    "utterance": "Do you have some pouding ?",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_sweet"]
+    ]
+  },
+  {
+    "utterance": "If you would be kind enough to bring me a mapple sirup brownie it would be perfect",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_sweet"]
+    ]
+  },
+  {
+    "utterance": "May I know if you have some peach melba or a banana split on your menu ? I would be pleased",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_sweet"]
+    ]
+  },
+  {
+    "utterance": "The best is a dark chocolate ice cream, but if you don't have it it's okay",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_sweet"]
+    ]
+  },
+  {
+    "utterance": "If I can come to the place with my Tesla, I will buy a tarte tatin. ",
+    "context": "intersection",
+    "conditions": [
+      ["context", "is", "intersection"],
+      ["intent", "is", "eat_sweet"]
+    ]
+  },
+  {
+    "utterance": "I would like to buy an Audi",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_car"]
+    ]
+  },
+  {
+    "utterance": "How much is a Tesla",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_car"]
+    ]
+  },
+  {
+    "utterance": "I want a car with a Nissan with a powerful motor",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_car"]
+    ]
+  },
+  {
+    "utterance": "I would like to sell my GMC to buy another pickup",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_car"]
+    ]
+  },
+  {
+    "utterance": "Can you advise me between a Fiat and a Ferrari",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_car"]
+    ]
+  },
+  {
+    "utterance": "Is Bentley expensive ?",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_car"]
+    ]
+  },
+  {
+    "utterance": "I need a RAV4",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_car"]
+    ]
+  },
+  {
+    "utterance": "Do you have any M16 ? ",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_gun"]
+    ]
+  },
+  {
+    "utterance": "I want to buy a glock",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_gun"]
+    ]
+  },
+  {
+    "utterance": "Do you sell any BM25 ?",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_gun"]
+    ]
+  },
+  {
+    "utterance": "what is the best between a P90 and a Magnum ?",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_gun"]
+    ]
+  },
+  {
+    "utterance": "Do you have a M16 but in purple ? ",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_gun"]
+    ]
+  },
+  {
+    "utterance": "price G36",
+    "context": "unbalanced",
+    "conditions": [
+      ["context", "is", "unbalanced"],
+      ["intent", "is", "buy_gun"]
+    ]
+  }
+]

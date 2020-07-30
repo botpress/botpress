@@ -1,0 +1,8 @@
+{
+  "name": "buy_gun",
+  "utterances": {
+    "en": ["Do you have a pistol", "I need a gun", "buy riffle"]
+  },
+  "slots": [],
+  "contexts": ["unbalanced"]
+}
