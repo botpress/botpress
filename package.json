@@ -166,12 +166,11 @@
   "husky": {
     "hooks": {
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged --no-stash"
     }
   },
   "lint-staged": {
-    "**/*.{ts,tsx}": [
-      "tslint  -c tslint.newrules.json"
-    ]
+    "**/*.{ts,tsx}": "tslint -c tslint.newrules.json",
+    "*": "node ./build/lint-staged-filesize.js"
   }
 }
