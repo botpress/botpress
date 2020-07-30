@@ -25,10 +25,14 @@ jobs:
       - name: Run TSLint
         run: |
           yarn run tslint
-      - name: Get changed files
-        uses: lots0logs/gh-action-get-changed-files@2.1.4
+      - name: Get file changes
+        id: get_file_changes
+        uses: dorner/file-changes-action@v1.2.0
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Echo file changes
+        run: |
+          echo Changed files: ${{ steps.get_file_changes.outputs.files }}
       - name: Run TSLint (new rules)
         run: |
-          yarn run tslint -c tslint.newrules.json ${{ steps.get_file_changes.outputs.all}}
+          yarn run tslint -c tslint.newrules.json ${{ steps.get_file_changes.outputs.files}}
