@@ -6,14 +6,14 @@ import { Matrix } from 'ml-matrix'
 import { PCA } from 'ml-pca'
 import TSNE from 'tsne-js'
 
-import { BotState } from '../backend/typings'
+import { BotState, PredRes } from '../backend/typings'
 const clustering = require('density-clustering')
 
 export async function computeConfusionMatrix(
   state: BotState,
   glob_res: { utt: string; acc: boolean; conf: number; pred: string; gt: string }[]
 ) {
-  const results = []
+  const results: PredRes[] = []
   for (const entry of state.testDatas) {
     const pred = await state.predictor.predict(entry.utt)
     results.push({
@@ -33,22 +33,16 @@ export async function computeConfusionMatrix(
     })
   }
 
-  const CM2 = ConfusionMatrix.fromLabels(
-    results.map(o => o.gt),
-    results.map(o => o.pred)
-  )
-
   console.log(
-    'sdffsdfsdfsdfsd',
-    `\n\n ${results.filter(o => o.acc).length}/${results.length} : ${results.filter(o => o.acc).length /
-      results.length}  \n\n`
+    'Total Accuracy : ',
+    `${results.filter(o => o.acc).length}/${results.length} : ${results.filter(o => o.acc).length / results.length}`
   )
   await state.ghost.upsertFile(
     `./datas/${state.embedder.model_name}/results`,
     'confusion_matrix.json',
     JSON.stringify(results, undefined, 2)
   )
-  return CM2
+  return results
 }
 
 export async function computeEmbeddingSimilarity(state: BotState) {
@@ -108,72 +102,84 @@ export async function computeScatterEmbeddings(state: BotState) {
   const grouped_intents = _.groupBy(state.trainDatas, 'intent')
   const traces = []
   Object.entries(grouped_intents).map(([k, v]: [string, any[]], i) =>
-    traces.push({
-      x: v.map(o => pca.predict([o.utt_emb]).get(0, 0)),
-      y: v.map(o => pca.predict([o.utt_emb]).get(0, 1)),
-      z: v.map(o => pca.predict([o.utt_emb]).get(0, 2)),
-      mode: 'markers',
-      type: 'scatter3d',
-      name: k,
-      text: v.map(o => o.utt),
-      marker: { size: 8, color: i }
-    })
+    traces.push(
+      {
+        x: v.map(o => pca.predict([o.utt_emb]).get(0, 0)),
+        y: v.map(o => pca.predict([o.utt_emb]).get(0, 1)),
+        z: v.map(o => pca.predict([o.utt_emb]).get(0, 2)),
+        mode: 'markers',
+        type: 'scatter3d',
+        name: k,
+        text: v.map(o => o.utt),
+        marker: { size: 8, color: i }
+      }
+      // {
+      //   alphahull: 0,
+      //   opacity: 0.05,
+      //   type: 'mesh3d',
+      //   color: i,
+      //   name: k,
+      //   x: v.map(o => pca.predict([o.utt_emb]).get(0, 0)),
+      //   y: v.map(o => pca.predict([o.utt_emb]).get(0, 1)),
+      //   z: v.map(o => pca.predict([o.utt_emb]).get(0, 2))
+      // }
+    )
   )
   return traces
 }
 
-export async function computeTsneScatterEmbeddings(state: BotState) {
-  let output = []
-  if (await state.ghost.fileExists('./datas', 'tsne.json')) {
-    const outputString = await state.ghost.readFileAsString('./datas', 'tsne.json')
-    output = JSON.parse(outputString)
-  } else {
-    const model = new TSNE({
-      dim: 3,
-      perplexity: 10.0,
-      earlyExaggeration: 4.0,
-      learningRate: 100.0,
-      nIter: 1000,
-      metric: 'euclidean'
-    })
-    model.init({
-      data: state.trainDatas.map(o => o.utt_emb),
-      type: 'dense'
-    })
+// export async function computeTsneScatterEmbeddings(state: BotState) {
+//   let output = []
+//   if (await state.ghost.fileExists('./datas', 'tsne.json')) {
+//     const outputString = await state.ghost.readFileAsString('./datas', 'tsne.json')
+//     output = JSON.parse(outputString)
+//   } else {
+//     const model = new TSNE({
+//       dim: 3,
+//       perplexity: 10.0,
+//       earlyExaggeration: 4.0,
+//       learningRate: 100.0,
+//       nIter: 1000,
+//       metric: 'euclidean'
+//     })
+//     model.init({
+//       data: state.trainDatas.map(o => o.utt_emb),
+//       type: 'dense'
+//     })
 
-    const [error, iter] = model.run()
-    output = model.getOutput()
-    await state.ghost.upsertFile('./datas', 'tsne.json', JSON.stringify(output, undefined, 2))
-  }
-  const traces = []
-  let c = 0
-  for (const intent of Object.keys(_.groupBy(state.trainDatas, 'intent'))) {
-    traces.push({
-      x: state.trainDatas.map((o, i) => {
-        if (o.intent === intent) {
-          return output[i][0]
-        }
-      }),
-      y: state.trainDatas.map((o, i) => {
-        if (o.intent === intent) {
-          return output[i][1]
-        }
-      }),
-      z: state.trainDatas.map((o, i) => {
-        if (o.intent === intent) {
-          return output[i][2]
-        }
-      }),
-      mode: 'markers',
-      type: 'scatter3d',
-      name: intent,
-      text: state.trainDatas.filter(o => o.intent === intent).map(o => o.utt),
-      marker: { size: 8, color: c }
-    })
-    c += 1
-  }
-  return traces
-}
+//     const [error, iter] = model.run()
+//     output = model.getOutput()
+//     await state.ghost.upsertFile('./datas', 'tsne.json', JSON.stringify(output, undefined, 2))
+//   }
+//   const traces = []
+//   let c = 0
+//   for (const intent of Object.keys(_.groupBy(state.trainDatas, 'intent'))) {
+//     traces.push({
+//       x: state.trainDatas.map((o, i) => {
+//         if (o.intent === intent) {
+//           return output[i][0]
+//         }
+//       }),
+//       y: state.trainDatas.map((o, i) => {
+//         if (o.intent === intent) {
+//           return output[i][1]
+//         }
+//       }),
+//       z: state.trainDatas.map((o, i) => {
+//         if (o.intent === intent) {
+//           return output[i][2]
+//         }
+//       }),
+//       mode: 'markers',
+//       type: 'scatter3d',
+//       name: intent,
+//       text: state.trainDatas.filter(o => o.intent === intent).map(o => o.utt),
+//       marker: { size: 8, color: c }
+//     })
+//     c += 1
+//   }
+//   return traces
+// }
 
 export async function computeIntentSimilarity(state: BotState) {
   const grouped_intents = _.groupBy(state.trainDatas, 'intent')
@@ -297,3 +303,56 @@ export function computeOutliers(state: BotState) {
   })
   return dbPerIntent
 }
+
+// const CM2 = ConfusionMatrix.fromLabels(
+//   glob_res.map(o => o.gt),
+//   glob_res.map(o => o.pred)
+// )
+// // Normalize the confusion matrix
+// const CM = new Matrix(CM2.matrix)
+// CM2.matrix = CM.divColumnVector(CM2.matrix.map(row => _.sum(row) + 0.01)).to2DArray()
+
+// const plotlyMatrixData = [
+//   {
+//     x: CM2.labels,
+//     y: CM2.labels,
+//     z: CM2.matrix,
+//     type: 'heatmap'
+//   }
+// ]
+
+// const layout = {
+//   title: 'ConfusionMatrix',
+//   annotations: [],
+//   xaxis: {
+//     ticks: '',
+//     side: 'top'
+//   },
+//   yaxis: {
+//     tickangle: -90,
+//     ticks: '',
+//     ticksuffix: ' ',
+//     width: 700,
+//     height: 700,
+//     autosize: false
+//   }
+// }
+
+// for (let i = 0; i < CM2.labels.length; i++) {
+//   for (let j = 0; j < CM2.labels.length; j++) {
+//     const result = {
+//       xref: 'x1',
+//       yref: 'y1',
+//       x: CM2.labels[j],
+//       y: CM2.labels[i],
+//       text: CM2.matrix[i][j],
+//       font: {
+//         family: 'Arial',
+//         size: 12,
+//         color: 'rgb(50, 171, 96)'
+//       },
+//       showarrow: false
+//     }
+//     layout.annotations.push(result)
+//   }
+// }

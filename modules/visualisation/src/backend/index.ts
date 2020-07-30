@@ -44,5 +44,4 @@ const entryPoint: sdk.ModuleEntryPoint = {
   }
 }
 export default entryPoint
-
-// TODO add a kmean like pairwise intent
+// TODO Get the sentence for the confusion matrix

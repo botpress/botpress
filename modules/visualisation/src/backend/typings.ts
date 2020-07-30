@@ -14,6 +14,14 @@ export type BotState = {
   language: string
 }
 
+export type PredRes = {
+  utt: string
+  acc: boolean
+  conf: number
+  pred: string
+  gt: string
+}
+
 export type VisuState = {
   [botId: string]: BotState
 }

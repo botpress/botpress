@@ -144,7 +144,7 @@ export default class Engine implements NLUEngine {
   }
 
   private async _trainAndMakeModel(input: TrainInput, hash: string): Promise<Model | undefined> {
-    const startedAt = new Date()
+    const startedAt = new Date() // console.log('Computing : ', req.body.utterances)
     let output: TrainOutput | undefined
     try {
       output = await Trainer(input, Engine.tools)

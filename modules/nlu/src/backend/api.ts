@@ -2,7 +2,10 @@ import * as sdk from 'botpress/sdk'
 import Joi, { validate } from 'joi'
 import _ from 'lodash'
 import yn from 'yn'
+
 import { isOn as isAutoTrainOn, set as setAutoTrain } from './autoTrain'
+import {} from './engine'
+import Engine from './engine'
 import { EntityDefCreateSchema } from './entities/validation'
 import {
   deleteIntent,
@@ -40,23 +43,6 @@ const removeSlotsFromUtterances = (utterances: { [key: string]: any }, slotNames
 export default async (bp: typeof sdk, state: NLUState) => {
   const router = bp.http.createRouterForBot('nlu')
 
-  const tools: Tools = {
-    partOfSpeechUtterances: (tokenUtterances: string[][], lang: string) => {
-      const tagger = getPOSTagger(lang, bp.MLToolkit)
-      return tokenUtterances.map(tagSentence.bind(this, tagger))
-    },
-    tokenize_utterances: (utterances: string[], lang: string, vocab?: Token2Vec) =>
-      state.languageProvider.tokenize(utterances, lang, vocab),
-    vectorize_tokens: async (tokens, lang) => {
-      const a = await state.languageProvider.vectorize(tokens, lang)
-      return a.map(x => Array.from(x.values()))
-    },
-    generateSimilarJunkWords: undefined,
-    mlToolkit: bp.MLToolkit,
-    duckling: undefined,
-    reportTrainingProgress: undefined
-  }
-
   router.get('/health', async (req, res) => {
     // When the health is bad, we'll refresh the status in case it changed (eg: user added languages)
     if (!state.health?.isEnabled) {
@@ -66,10 +52,8 @@ export default async (bp: typeof sdk, state: NLUState) => {
   })
 
   router.post('/embed', async (req, res) => {
-    // console.log('Computing : ', req.body.utterances)
-    const utterances = await buildUtteranceBatch(req.body.utterances, 'fr', tools)
+    const utterances = await buildUtteranceBatch(req.body.utterances, 'fr', Engine.tools)
     const utt_embs = utterances.map(u => u.sentenceEmbedding)
-    // console.log('Done', req.body.utterances)
     res.send(utt_embs)
   })
 
