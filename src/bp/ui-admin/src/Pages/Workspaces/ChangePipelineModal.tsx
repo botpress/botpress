@@ -15,7 +15,7 @@ interface Props {
 
 const ChangePipelineModal: FC<Props> = props => {
   const [pipelineId, setPipelineId] = useState('none')
-  const [custom, setCustom] = useState()
+  const [custom, setCustom] = useState<string[]>()
   const [resetStage, setResetStage] = useState(false)
 
   useEffect(() => {
@@ -47,7 +47,7 @@ const ChangePipelineModal: FC<Props> = props => {
     try {
       await api.getSecured().post(`/admin/workspaces/${props.workspace.id}/pipeline`, { pipelineId, resetStage })
 
-      toastSuccess(`Pipeline updated successfully`)
+      toastSuccess('Pipeline updated successfully')
       props.toggle()
     } catch (err) {
       toastFailure(err.message)

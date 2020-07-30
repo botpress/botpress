@@ -156,7 +156,7 @@
     "ts-jest": "^24.3.0",
     "tslint": "^6.1.2",
     "typedoc": "^0.13.0",
-    "typescript": "^3.7.4",
+    "typescript": "^3.9.7",
     "typescript-json-schema": "^0.32.0"
   },
   "optionalDependencies": {

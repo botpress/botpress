@@ -12,15 +12,15 @@ interface Props {
 }
 
 const EditWorkspaceModal: FC<Props> = props => {
-  const [name, setName] = useState()
-  const [description, setDescription] = useState()
+  const [name, setName] = useState<string>('')
+  const [description, setDescription] = useState<string>('')
 
   useEffect(() => {
     if (props.workspace) {
       const { name, description } = props.workspace
 
       setName(name)
-      setDescription(description)
+      setDescription(description || '')
     }
   }, [props.workspace, props.isOpen])
 
@@ -29,7 +29,7 @@ const EditWorkspaceModal: FC<Props> = props => {
       await api.getSecured().post(`/admin/workspaces/${props.workspace.id}`, { name, description })
       props.refreshWorkspaces()
 
-      toastSuccess(`Workspace saved successfully`)
+      toastSuccess('Workspace saved successfully')
       closeModal()
     } catch (err) {
       toastFailure(err.message)
