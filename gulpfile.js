@@ -103,7 +103,9 @@ gulp.task('changelog', () => {
 
 gulp.task('lint', cb => {
   const command =
-    process.argv[3] === '--fix' ? 'yarn run lint-staged -c build/lint-staged.fix.config.js' : 'yarn run lint-staged'
+    process.argv[3] === '--fix'
+      ? 'yarn run lint-staged --no-stash -c build/lint-staged.fix.config.js'
+      : 'yarn run lint-staged --no-stash'
 
   spawnSync(command, { shell: true, stdio: 'inherit' }, err => cb(err))
   cb()
