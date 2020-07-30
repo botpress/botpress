@@ -30,7 +30,7 @@ const getActions = async (actionNames: string[]) => {
 const getIntents = async (intentNames: string[]) => {
   try {
     const getIntent = async (intentName: string) => {
-      const { data } = await axios.get(`${window.BOT_API_PATH}/mod/nlu/intents/${intentName}`)
+      const { data } = await axios.get(`${window.BOT_API_PATH}/nlu/intents/${intentName}`)
       return data
     }
 
