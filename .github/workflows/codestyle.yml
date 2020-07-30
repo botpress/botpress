@@ -30,6 +30,7 @@ jobs:
         uses: dorner/file-changes-action@v1.2.0
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
+          plaintext: true
       - name: Echo file changes
         run: |
           echo Changed files: ${{ steps.get_file_changes.outputs.files }}
