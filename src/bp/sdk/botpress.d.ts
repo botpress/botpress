@@ -1368,6 +1368,7 @@ declare module 'botpress/sdk' {
     id?: string
     name: string
     type?: FlowNodeType
+    nodeType?: FlowNodeType
     timeoutNode?: string
     flow?: string
     prompt?: PromptNode

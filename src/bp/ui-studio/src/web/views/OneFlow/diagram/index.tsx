@@ -12,7 +12,7 @@ import {
   Toaster
 } from '@blueprintjs/core'
 import { FlowVariable } from 'botpress/sdk'
-import { Contents, Icons, lang, MainContent } from 'botpress/shared'
+import { Contents, contextMenu, Icons, lang, MainContent } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
@@ -59,15 +59,7 @@ import { StandardNodeModel, StandardWidgetFactory } from '~/views/FlowBuilder/di
 import { textToItemId } from '~/views/FlowBuilder/diagram/nodes_v2/utils'
 import style from '~/views/FlowBuilder/diagram/style.scss'
 
-import { ActionWidgetFactory } from './nodes/ActionNode'
-import { ExecuteNodeModel, ExecuteWidgetFactory } from './nodes/ExecuteNode'
-import { FailureNodeModel, FailureWidgetFactory } from './nodes/FailureNode'
-import { ListenWidgetFactory } from './nodes/ListenNode'
-import { PromptNodeModel, PromptWidgetFactory } from './nodes/PromptNode'
-import { RouterNodeModel, RouterWidgetFactory } from './nodes/RouterNode'
-import { SaySomethingNodeModel, SaySomethingWidgetFactory } from './nodes/SaySomethingNode'
-import { SuccessNodeModel, SuccessWidgetFactory } from './nodes/SuccessNode'
-import { TriggerWidgetFactory } from './nodes/TriggerNode'
+import { BlockModel, BlockWidgetFactory } from './nodes/Block'
 import menuStyle from './style.scss'
 import ActionForm from './ActionForm'
 import ConditionForm from './ConditionForm'
@@ -135,28 +127,16 @@ class Diagram extends Component<Props> {
       getCurrentFlow: () => this.getPropsProperty('currentFlow'),
       updateFlowNode: this.updateNodeAndRefresh.bind(this),
       switchFlowNode: this.switchFlowNode.bind(this),
-      getCurrentLang: () => this.getStateProperty('currentLang')
+      getCurrentLang: () => this.getStateProperty('currentLang'),
+      getConditions: () => this.getPropsProperty('conditions'),
+      addCondition: this.addCondition.bind(this)
     }
 
     this.diagramEngine = new DiagramEngine()
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory(this.props.skills))
-    this.diagramEngine.registerNodeFactory(new SaySomethingWidgetFactory(commonProps))
-    this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory(commonProps))
-    this.diagramEngine.registerNodeFactory(new ListenWidgetFactory(commonProps))
-    this.diagramEngine.registerNodeFactory(new RouterWidgetFactory(commonProps))
-    this.diagramEngine.registerNodeFactory(new ActionWidgetFactory(commonProps))
-    this.diagramEngine.registerNodeFactory(new SuccessWidgetFactory())
-    this.diagramEngine.registerNodeFactory(
-      new TriggerWidgetFactory({
-        ...commonProps,
-        getConditions: () => this.getPropsProperty('conditions'),
-        addCondition: this.addCondition.bind(this)
-      })
-    )
-    this.diagramEngine.registerNodeFactory(new FailureWidgetFactory())
+    this.diagramEngine.registerNodeFactory(new BlockWidgetFactory(commonProps))
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
-    this.diagramEngine.registerNodeFactory(new PromptWidgetFactory(commonProps))
 
     // This reference allows us to update flow nodes from widgets
     this.diagramEngine.flowBuilder = this
@@ -380,7 +360,8 @@ class Diagram extends Component<Props> {
       addNodeMethod(...args)
     }
 
-    ContextMenu.show(
+    contextMenu(
+      event,
       <Menu>
         {this.props.canPasteNode && (
           <MenuItem icon="clipboard" text={lang.tr('paste')} onClick={() => this.pasteElementFromBuffer(point)} />
@@ -423,7 +404,6 @@ class Diagram extends Component<Props> {
           ))}
         </MenuItem>
       </Menu>,
-      { left: event.clientX, top: event.clientY },
       () => {
         if (clearStartPortOnClose) {
           this.dragPortSource = undefined
@@ -442,14 +422,11 @@ class Diagram extends Component<Props> {
     }
 
     const targetModel = target && target.model
+    const { nodeType } = targetModel as BlockModel
     const point = this.manager.getRealPosition(event)
 
     const isNodeTargeted = targetModel instanceof NodeModel
-    const isLibraryNode = targetModel instanceof SaySomethingNodeModel || targetModel instanceof ExecuteNodeModel
-
-    const isSuccessNode = targetModel instanceof SuccessNodeModel
-    const isFailureNode = targetModel instanceof FailureNodeModel
-    const canDeleteNode = !(isSuccessNode || isFailureNode)
+    const isLibraryNode = nodeType === 'say_something' || nodeType === 'execute'
 
     // Prevents displaying an empty menu
     if ((!isNodeTargeted && !this.props.canPasteNode) || this.props.readOnly) {
@@ -469,12 +446,7 @@ class Diagram extends Component<Props> {
         )}
         {isNodeTargeted && (
           <Fragment>
-            <MenuItem
-              icon="trash"
-              text={lang.tr('delete')}
-              disabled={!canDeleteNode}
-              onClick={() => this.deleteSelectedElements()}
-            />
+            <MenuItem icon="trash" text={lang.tr('delete')} onClick={() => this.deleteSelectedElements()} />
             <MenuItem
               icon="duplicate"
               text={lang.tr('copy')}
@@ -488,7 +460,7 @@ class Diagram extends Component<Props> {
                 icon="book"
                 text={lang.tr('studio.flow.addToLibrary')}
                 onClick={() => {
-                  const elementId = textToItemId((targetModel as SaySomethingNodeModel).onEnter?.[0])
+                  const elementId = textToItemId((targetModel as BlockModel).onEnter?.[0])
                   this.props.addElementToLibrary(elementId)
                   toastSuccess(`Added to library`)
                 }}
@@ -523,10 +495,10 @@ class Diagram extends Component<Props> {
     }
 
     const targetModel = target.model
+    const { nodeType } = targetModel
+
     return (
-      targetModel instanceof StandardNodeModel ||
-      targetModel instanceof SkillCallNodeModel ||
-      targetModel instanceof RouterNodeModel
+      targetModel instanceof StandardNodeModel || targetModel instanceof SkillCallNodeModel || nodeType === 'router'
     )
   }
 
@@ -560,7 +532,7 @@ class Diagram extends Component<Props> {
 
     this.checkForLinksUpdate()
 
-    if (target?.model instanceof PromptNodeModel) {
+    if ((target?.model as BlockModel)?.nodeType === 'prompt') {
       this.editNodeItem(selectedNode, 0)
     }
   }
@@ -763,7 +735,7 @@ class Diagram extends Component<Props> {
       return false
     }
 
-    return target && target.model instanceof RouterNodeModel
+    return target?.model?.nodeType === 'router'
   }
 
   updateNodeContent(data) {
@@ -859,7 +831,8 @@ class Diagram extends Component<Props> {
   }
 
   render() {
-    const formType: string = this.state.editingNodeItem?.node?.type
+    const formType: string = this.state.editingNodeItem?.node?.nodeType || this.state.editingNodeItem?.node?.type
+
     let editingNodeItem
     if (formType === 'say_something') {
       editingNodeItem = this.state.editingNodeItem?.node?.contents?.[this.state.editingNodeItem.index]

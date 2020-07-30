@@ -4,7 +4,8 @@ import { lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shar
 import React, { FC, Fragment, useState } from 'react'
 import ActionDialog from '~/views/FlowBuilder/nodeProps/ActionDialog'
 
-import { Action, ActionInfo, ActionNodeModel, parseActionString } from '../nodes/ActionNode'
+import { Action, ActionInfo, parseActionString } from '../nodes/ActionContents'
+import { BlockModel } from '../nodes/Block'
 
 import style from './style.scss'
 
@@ -38,7 +39,7 @@ const ActionForm: FC<Props> = ({ close, node, diagramEngine, deleteNode }) => {
     flowBuilder.updateFlowNode({ onEnter: [serializeAction(action)] })
   }
 
-  const action = parseActionString((node as ActionNodeModel)?.onEnter?.[0])
+  const action = parseActionString((node as BlockModel)?.onEnter?.[0])
 
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={!showModal} close={() => close()}>
