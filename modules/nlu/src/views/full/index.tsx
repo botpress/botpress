@@ -5,7 +5,7 @@ import { Container, SidePanel, SplashScreen } from 'botpress/ui'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
-import { makeApi } from '../api'
+import { makeApi } from '../../api'
 
 import TrainingControl from './common/TrainingControl'
 import { EntityEditor } from './entities/EntityEditor'
