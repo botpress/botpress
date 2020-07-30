@@ -50,10 +50,11 @@ const createNodeModel = (node, modelProps) => {
   const { type } = node
   if (type === 'skill-call') {
     return new SkillCallNodeModel(modelProps)
-  } else if (['say_something', 'prompt', 'execute', 'listen', 'router', 'action', 'success', 'trigger', 'failure'].includes(type)) {
+  } else if (
+    ['say_something', 'prompt', 'execute', 'listen', 'router', 'action', 'success', 'trigger', 'failure'].includes(type)
+  ) {
     return new BlockModel(modelProps)
-  }
-  else {
+  } else {
     return new StandardNodeModel(modelProps)
   }
 }
