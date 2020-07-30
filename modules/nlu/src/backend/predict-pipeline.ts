@@ -453,7 +453,6 @@ export const Predict = async (
     let stepOutput: PredictStep
     stepOutput = await makePredictionUtterance(step, predictors, tools)
     stepOutput = await extractEntities(stepOutput, predictors, tools)
-    // debugger
     // if (stepOutput.utterance.entities) {
     //   for (const entitie of stepOutput.utterance.entities) {
     //     console.log('Old ', stepOutput.rawText)
