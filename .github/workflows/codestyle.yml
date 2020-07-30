@@ -25,3 +25,6 @@ jobs:
       - name: Run TSLint
         run: |
           yarn run tslint
+      - name: Run TSLint (new rules)
+        run: |
+          yarn run tslint -c tslint.newrules.json

@@ -166,8 +166,7 @@
   "husky": {
     "hooks": {
       "commit-msg": "commitlint --config ./config/commitlint.config.js -E HUSKY_GIT_PARAMS",
-      "pre-commit": "lint-staged --config ./config/lint-staged.commit.config.js --no-stash",
-      "pre-push": "lint-staged --config ./config/lint-staged.push.config.js --no-stash"
+      "pre-commit": "lint-staged --config ./config/lint-staged.commit.config.js --no-stash"
     }
   }
 }
