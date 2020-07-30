@@ -142,16 +142,16 @@ export class ConfigsStats extends TelemetryStats {
     const bots = Array.from(await this.botService.getBots())
 
     return bots.reduce((acc: any[], bot) => {
-      return [...acc, { botId: calculateHash(bot[0]), botConfigs: this.formatBotConfigs(bot[1], defaultConfig) }]
+      return [...acc, { botId: calculateHash(bot[0]), botConfigs: this.formatBotConfig(bot[1], defaultConfig) }]
     }, [])
   }
 
-  private formatBotConfigs(configs: BotConfig, defaultConfigs): BotConfig {
+  private formatBotConfig(botConfig: BotConfig, defaultConfig): BotConfig {
     return {
-      ...this.obfuscateSecrets(configs, defaultConfigs),
-      details: this.formatBotDetails(configs.details),
-      id: calculateHash(configs.id),
-      name: calculateHash(configs.name)
+      ...this.obfuscateSecrets(botConfig, defaultConfig),
+      details: this.formatBotDetails(botConfig.details),
+      id: calculateHash(botConfig.id),
+      name: calculateHash(botConfig.name)
     }
   }
 
