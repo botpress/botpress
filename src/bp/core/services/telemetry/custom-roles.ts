@@ -33,7 +33,7 @@ export class RolesStats extends TelemetryStats {
   protected async getStats() {
     return {
       ...buildSchema(await this.getServerStats(), 'server'),
-      event_type: 'builtin_actions',
+      event_type: 'custom_roles',
       event_data: { schema: '1.0.0', roles: await this.getRoles() }
     }
   }
