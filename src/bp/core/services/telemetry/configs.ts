@@ -71,17 +71,16 @@ export class ConfigsStats extends TelemetryStats {
   }
 
   protected async getStats(): Promise<TelemetryEvent> {
-    const stats = {
+    return {
       ...buildSchema(await this.getServerStats(), 'server'),
       event_type: 'configs',
       event_data: {
         schema: '1.0.0',
         botConfigs: await this.getBotsConfigs(),
         modulesConfigs: await this.getModulesConfigs(),
-        globalConfigs: await this.getBotpressConfigs()
+        botpressConfig: await this.getBotpressConfigs()
       }
     }
-    return stats
   }
 
   private obfuscateSecrets(config, defaultConfig): any {
@@ -91,7 +90,7 @@ export class ConfigsStats extends TelemetryStats {
         if (SECRET_KEYS.find(x => key.toLowerCase().includes(x))) {
           res[key] = _.isEqual(config[key], defaultConfig[key]) ? DEFAULT : REDACTED
         } else if (!_.isArray(value) && _.isObject(value)) {
-          res[key] = this.obfuscateSecrets(value, defaultConfig)
+          res[key] = this.obfuscateSecrets(value, defaultConfig[key])
         } else {
           res[key] = value
         }
@@ -103,7 +102,7 @@ export class ConfigsStats extends TelemetryStats {
 
   private async fetchSchema(schemaName: string): Promise<any> {
     try {
-      return await this.ghostService.root().readFileAsObject('/', schemaName)
+      return this.ghostService.root().readFileAsObject('/', schemaName)
     } catch (error) {
       return {}
     }
@@ -111,7 +110,7 @@ export class ConfigsStats extends TelemetryStats {
 
   private async getBotpressConfigs(): Promise<BotpressConfig> {
     const botpressConfig = await this.config.getBotpressConfig()
-    const defaultConfig = await this.fetchSchema('botpress.config.schema.json')
+    const defaultConfig = defaultJsonBuilder(await this.fetchSchema('botpress.config.schema.json'))
 
     return this.obfuscateSecrets(botpressConfig, defaultConfig)
   }
@@ -165,6 +164,6 @@ export class ConfigsStats extends TelemetryStats {
       'coverPictureUrl',
       'privacyPolicy'
     ]
-    return detailKeys.reduce((acc, key) => ({ ...acc, [key]: details[key] ? 'redacted' : 'default' }), {})
+    return detailKeys.reduce((acc, key) => ({ ...acc, [key]: details[key] ? REDACTED : DEFAULT }), {})
   }
 }

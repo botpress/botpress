@@ -28,7 +28,7 @@ export abstract class TelemetryStats {
     @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository
   ) {}
 
-  public async start() {
+  public start() {
     // tslint:disable-next-line: no-floating-promises
     this.run(this.lock, this.interval, this.url)
 

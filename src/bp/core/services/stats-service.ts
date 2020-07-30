@@ -24,14 +24,13 @@ export class StatsService {
   ) {}
 
   public async start() {
-    /* tslint:disable */
     this.actionStats.start()
     this.legacyStats.start()
     this.hooksStats.start()
     this.configStats.start()
-
+    // tslint:disable-next-line: no-floating-promises
     this.refreshDB(DB_REFRESH_INTERVAL)
-    /* tslint:enable */
+
     setInterval(this.refreshDB.bind(this, DB_REFRESH_INTERVAL), DB_REFRESH_INTERVAL)
   }
 
