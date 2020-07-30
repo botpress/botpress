@@ -1,7 +1,7 @@
 import { BotDetails } from 'botpress/sdk'
 import { BUILTIN_MODULES } from 'common/defaults'
 import LicensingService from 'common/licensing-service'
-import { buildSchema } from 'common/telemetry'
+import { buildSchema, TelemetryEvent } from 'common/telemetry'
 import { BotConfig } from 'core/config/bot.config'
 import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
@@ -22,21 +22,20 @@ import { Config } from '../module/config-reader'
 
 import { TelemetryStats } from './telemetry-stats'
 
-const modulesConfigsBlacklist = {
-  'basic-skills': ['transportConnectionString'],
-  'channel-messenger': ['accessToken', 'appSecret', 'verifyToken', 'greeting', 'getStarted'],
-  'channel-slack': ['botToken', 'signingSecret'],
-  'channel-teams': ['appId', 'appPassword', 'tenantId'],
-  'channel-telegram': ['botToken'],
-  'channel-web': ['uploadsS3Bucket', 'uploadsS3AWSAccessKey', 'uploadsS3AWSAccessSecret']
-}
-
-const botpressConfigsBlacklist = ['pro.licenseKey', 'pro.externalAuth.publicKey', 'superAdmins', 'appSecret']
-const botConfigsBlacklist = ['pipeline_status.current_stage.promoted_by', 'description']
-
 const DEFAULT = '***default***'
 const REDACTED = '***redacted***'
-const SECRET_KEYS = ['secret', 'pw', 'password', 'token', 'key', 'promoted_by', 'description', 'Admins']
+const SECRET_KEYS = [
+  'secret',
+  'pw',
+  'password',
+  'token',
+  'key',
+  'promoted_by',
+  'description',
+  'admins',
+  'email',
+  'connection'
+]
 
 interface BotConfigEvent {
   botId: string
@@ -71,8 +70,8 @@ export class ConfigsStats extends TelemetryStats {
     this.interval = ms('7d')
   }
 
-  protected async getStats() {
-    return {
+  protected async getStats(): Promise<TelemetryEvent> {
+    const stats = {
       ...buildSchema(await this.getServerStats(), 'server'),
       event_type: 'configs',
       event_data: {
@@ -82,16 +81,10 @@ export class ConfigsStats extends TelemetryStats {
         globalConfigs: await this.getBotpressConfigs()
       }
     }
+    return stats
   }
 
-  private async getBotpressConfigs(): Promise<BotpressConfig> {
-    const botpressConfig = _.cloneDeep(await this.config.getBotpressConfig())
-    const defaultConfig = await this.fetchSchema('botpress.config.schema.json')
-
-    return this.obfuscateConfigs(botpressConfig, defaultConfig, botpressConfigsBlacklist)
-  }
-
-  private obfuscateSecrets(config, defaultConfig) {
+  private obfuscateSecrets(config, defaultConfig): any {
     return _.reduce(
       config,
       (res, value, key) => {
@@ -108,12 +101,19 @@ export class ConfigsStats extends TelemetryStats {
     )
   }
 
-  private obfuscateConfigs(runtimeConfigs, defaultConfigs, blacklist): any {
-    for (const config of blacklist) {
-      const isChanged = _.get(runtimeConfigs, config) === _.get(defaultConfigs, `properties.${config}.default`)
-      _.set(runtimeConfigs, config, isChanged ? 'default' : 'redacted')
+  private async fetchSchema(schemaName: string): Promise<any> {
+    try {
+      return await this.ghostService.root().readFileAsObject('/', schemaName)
+    } catch (error) {
+      return {}
     }
-    return runtimeConfigs
+  }
+
+  private async getBotpressConfigs(): Promise<BotpressConfig> {
+    const botpressConfig = await this.config.getBotpressConfig()
+    const defaultConfig = await this.fetchSchema('botpress.config.schema.json')
+
+    return this.obfuscateSecrets(botpressConfig, defaultConfig)
   }
 
   private async getModulesConfigs(): Promise<ModuleConfigEvent[]> {
@@ -132,43 +132,30 @@ export class ConfigsStats extends TelemetryStats {
 
   private getModuleConfigPerBot(module: string, defaultValue: any): (botId: any) => Promise<ModuleConfigEvent> {
     return async botId => {
-      const runtimeValue = _.cloneDeep(await this.moduleLoader.configReader.getForBot(module, botId))
-
-      if (_.isArray(modulesConfigsBlacklist[module])) {
-        for (const config of modulesConfigsBlacklist[module]) {
-          const defaultOrRedacted = _.get(defaultValue, config) == _.get(runtimeValue, config) ? 'default' : 'redacted'
-          _.set(runtimeValue, config, defaultOrRedacted)
-        }
-      }
-      return { botId, module, configs: runtimeValue }
+      const runtimeValue = await this.moduleLoader.configReader.getForBot(module, botId)
+      return { botId, module, configs: this.obfuscateSecrets(runtimeValue, defaultValue) }
     }
   }
 
   private async getBotsConfigs(): Promise<BotConfigEvent[]> {
-    const defaultConfigs = await this.fetchSchema('bot.config.schema.json')
+    const defaultConfig = defaultJsonBuilder(await this.fetchSchema('bot.config.schema.json'))
+    const bots = Array.from(await this.botService.getBots())
 
-    const bots = await this.botService.getBots()
-    const configs: BotConfigEvent[] = []
-
-    for (const [id, config] of bots) {
-      const botId = calculateHash(id)
-      const botConfigs = this.formatBotConfigs(_.cloneDeep(config), defaultConfigs)
-      configs.push({ botId, botConfigs })
-    }
-
-    return configs
+    return bots.reduce((acc: any[], bot) => {
+      return [...acc, { botId: calculateHash(bot[0]), botConfigs: this.formatBotConfigs(bot[1], defaultConfig) }]
+    }, [])
   }
 
-  private formatBotConfigs(configs: BotConfig, defaultConfigs) {
+  private formatBotConfigs(configs: BotConfig, defaultConfigs): BotConfig {
     return {
-      ...this.obfuscateConfigs(configs, defaultConfigs, botConfigsBlacklist),
+      ...this.obfuscateSecrets(configs, defaultConfigs),
       details: this.formatBotDetails(configs.details),
       id: calculateHash(configs.id),
       name: calculateHash(configs.name)
     }
   }
 
-  private formatBotDetails(details: BotDetails) {
+  private formatBotDetails(details: BotDetails): BotDetails {
     const detailKeys = [
       'website',
       'phoneNumber',
@@ -179,13 +166,5 @@ export class ConfigsStats extends TelemetryStats {
       'privacyPolicy'
     ]
     return detailKeys.reduce((acc, key) => ({ ...acc, [key]: details[key] ? 'redacted' : 'default' }), {})
-  }
-
-  private async fetchSchema(schemaName: string) {
-    try {
-      return await this.ghostService.root().readFileAsObject('/', schemaName)
-    } catch (error) {
-      return {}
-    }
   }
 }
