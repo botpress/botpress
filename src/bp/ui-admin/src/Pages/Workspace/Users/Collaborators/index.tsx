@@ -35,9 +35,9 @@ const List: FC<Props> = props => {
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [infoModalOpen, setInfoModalOpen] = useState(false)
-  const [email, setEmail] = useState()
-  const [password, setPassword] = useState()
-  const [messageId, setMessageId] = useState()
+  const [email, setEmail] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
+  const [messageId, setMessageId] = useState<any>()
 
   const reloadUsers = () => {
     const filteredRoles = props.roles.map(x => x.id).join(',')

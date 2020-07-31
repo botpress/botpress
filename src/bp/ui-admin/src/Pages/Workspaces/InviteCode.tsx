@@ -6,7 +6,7 @@ import { toastFailure, toastSuccess } from '~/utils/toaster'
 
 interface Props {
   workspaceId: string
-  inviteCode: string
+  inviteCode?: string
   allowedUsages: number
   onUpdate: () => void
 }
@@ -19,7 +19,7 @@ const InviteCode: FC<Props> = props => {
     try {
       await api.getSecured().post(`/admin/workspaces/${props.workspaceId}/resetInvite`, { inviteLimit })
 
-      toastSuccess(`Invite code updated successfully`)
+      toastSuccess('Invite code updated successfully')
       props.onUpdate()
       setTab('current')
     } catch (err) {

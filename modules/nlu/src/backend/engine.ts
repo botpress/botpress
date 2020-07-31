@@ -15,9 +15,9 @@ import {
   ListEntityModel,
   NLUEngine,
   NLUVersionInfo,
+  PatternEntity,
   Tools,
-  TrainingSession,
-  PatternEntity
+  TrainingSession
 } from './typings'
 
 const trainDebug = DEBUG('nlu').sub('training')

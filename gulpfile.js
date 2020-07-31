@@ -7,6 +7,7 @@ const docs = require('./build/gulp.docs')
 const rimraf = require('rimraf')
 const changelog = require('gulp-conventional-changelog')
 const yn = require('yn')
+const { spawnSync } = require('child_process')
 
 process.on('uncaughtException', err => {
   console.error('An error occurred in your gulpfile: ', err)
@@ -36,6 +37,8 @@ gulp.task('default', cb => {
                                         Here m1 is the module name like nlu
                                         Modules are separated with a comma (,) and no spaces
     yarn cmd build:modules --a m1       Builds all modules that matches *m1*
+    yarn run lint                       Runs the linter on staged files
+    yarn run lint --fix                 Runs the linter and try to fix rules which are fixable, then stages fixes
   `)
   cb()
 })
@@ -96,4 +99,14 @@ gulp.task('changelog', () => {
     .src('CHANGELOG.md')
     .pipe(changelog(changelogOts, context, gitRawCommitsOpts, commitsParserOpts, changelogWriterOpts))
     .pipe(gulp.dest('./'))
+})
+
+gulp.task('lint', cb => {
+  const command =
+    process.argv[3] === '--fix'
+      ? 'yarn run lint-staged --no-stash -c build/lint-staged.fix.config.js'
+      : 'yarn run lint-staged --no-stash'
+
+  spawnSync(command, { shell: true, stdio: 'inherit' }, err => cb(err))
+  cb()
 })

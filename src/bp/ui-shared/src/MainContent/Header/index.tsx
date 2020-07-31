@@ -1,6 +1,6 @@
 import { Alignment, AnchorButton, Navbar, NavbarGroup, Position, Tab, Tabs, Tooltip } from '@blueprintjs/core'
 import cx from 'classnames'
-import React, { FC, Fragment, useState } from 'react'
+import React, { FC, Fragment, SetStateAction, useState } from 'react'
 
 import MoreOptions from '../../MoreOptions'
 
@@ -8,7 +8,7 @@ import style from './style.scss'
 import { HeaderProps } from './typings'
 
 const Header: FC<HeaderProps> = props => {
-  const [showingOption, setShowingOption] = useState()
+  const [showingOption, setShowingOption] = useState<SetStateAction<number>>()
   return (
     <Navbar className={cx(style.header, props.className)}>
       {!!props.tabs?.length && (
@@ -48,7 +48,7 @@ const Header: FC<HeaderProps> = props => {
                         />
                       }
                       show={showingOption === index}
-                      onToggle={() => setShowingOption(null)}
+                      onToggle={() => setShowingOption(undefined)}
                       items={button.optionsItems}
                     />
                   )}

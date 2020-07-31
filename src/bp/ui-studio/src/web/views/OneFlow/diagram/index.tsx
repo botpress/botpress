@@ -48,8 +48,8 @@ import withLanguage from '~/components/Util/withLanguage'
 import { getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/reducers'
 import {
   defaultTransition,
-  DIAGRAM_PADDING,
   DiagramManager,
+  DIAGRAM_PADDING,
   nodeTypes,
   Point
 } from '~/views/FlowBuilder/diagram/manager'
