@@ -48,8 +48,8 @@ import withLanguage from '~/components/Util/withLanguage'
 import { getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/reducers'
 import {
   defaultTransition,
-  DiagramManager,
   DIAGRAM_PADDING,
+  DiagramManager,
   nodeTypes,
   Point
 } from '~/views/FlowBuilder/diagram/manager'
@@ -376,7 +376,7 @@ class Diagram extends Component<Props> {
           onClick={wrap(this.add.say, point)}
           icon={<Icons.Say />}
         />
-        <MenuItem tagName="button" text={lang.tr('prompt')} icon="citation">
+        <MenuItem tagName="span" text={lang.tr('prompt')} icon="citation">
           {this.props.prompts.map(({ id, config }) => (
             <MenuItem
               key={id}
