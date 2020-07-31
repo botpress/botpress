@@ -9,7 +9,7 @@ import { isPOSAvailable } from './language/pos-tagger'
 import { getUtteranceFeatures } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import { replaceConsecutiveSpaces } from './tools/strings'
-import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainOutput } from './training-pipeline'
+import { ExactMatchIndex, EXACT_MATCH_STR_OPTIONS, TrainOutput } from './training-pipeline'
 import { EntityExtractionResult, Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
 import Utterance, { buildUtteranceBatch, getAlternateUtterance, UtteranceEntity } from './utterance/utterance'
 
