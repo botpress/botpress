@@ -1,6 +1,7 @@
 import axios, { AxiosInstance } from 'axios'
 import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
+import crypto from 'crypto'
 import fse from 'fs-extra'
 import httpsProxyAgent from 'https-proxy-agent'
 import _, { debounce, sumBy } from 'lodash'
@@ -8,7 +9,6 @@ import lru from 'lru-cache'
 import moment from 'moment'
 import ms from 'ms'
 import path from 'path'
-import crypto from 'crypto'
 import semver from 'semver'
 
 import { getSeededLodash, resetSeed } from '../tools/seeded-lodash'
@@ -16,13 +16,13 @@ import { setSimilarity, vocabNGram } from '../tools/strings'
 import { isSpace, processUtteranceTokens, restoreOriginalUtteranceCasing } from '../tools/token-utils'
 import {
   Gateway,
+  LangServerInfo,
   LangsGateway,
   LanguageProvider,
   LanguageSource,
   NLUHealth,
-  Token2Vec,
   NLUVersionInfo,
-  LangServerInfo
+  Token2Vec
 } from '../typings'
 
 const debug = DEBUG('nlu').sub('lang')
@@ -114,7 +114,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     })
 
     await Promise.mapSeries(sources, async source => {
-      const headers = {}
+      const headers: _.Dictionary<string> = {}
 
       if (source.authToken) {
         headers['authorization'] = 'bearer ' + source.authToken

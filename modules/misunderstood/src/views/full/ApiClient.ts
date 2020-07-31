@@ -1,6 +1,6 @@
 import { AxiosRequestConfig, AxiosStatic } from 'axios'
 
-import { FLAGGED_MESSAGE_STATUS, RESOLUTION_TYPE, ResolutionData } from '../../types'
+import { FLAGGED_MESSAGE_STATUS, ResolutionData, RESOLUTION_TYPE } from '../../types'
 
 const MODULE_URL_PREFIX = '/mod/misunderstood'
 

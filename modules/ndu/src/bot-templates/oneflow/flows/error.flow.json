@@ -6,11 +6,32 @@
   "description": "Users are redirected here when they encounter errors during their discussions",
   "nodes": [
     {
-      "id": "3rr0r",
+      "id": "3d466ba64a",
       "name": "entry",
-      "onEnter": ["say #!builtin_text-error"],
+      "next": [
+        {
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": [],
       "onReceive": null,
-      "next": []
+      "type": "say_something",
+      "contents": [
+        {
+          "text": {
+            "en": "😯 Oops! We've got a problem. Please try something else while we're fixing it 🔨",
+            "fr": "😯 Oups! Nous avons un problème. Veuillez essayer autre chose pendant que nous le réglons 🔨"
+          },
+          "variations": {
+            "en": [],
+            "fr": []
+          },
+          "markdown": true,
+          "typing": true,
+          "contentType": "builtin_text"
+        }
+      ]
     }
   ]
 }

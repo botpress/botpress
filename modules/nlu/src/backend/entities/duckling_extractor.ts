@@ -25,6 +25,26 @@ interface KeyedItem {
   entities?: EntityExtractionResult[]
 }
 
+interface DucklingEntity {
+  start: number
+  end: number
+  dim: string
+  body: string
+  value: DucklingRawValue
+}
+
+interface DucklingRawValue {
+  normalized: ValueUnit
+  value: string
+  grain: string
+  unit: string
+}
+
+interface ValueUnit {
+  value: string
+  unit: string
+}
+
 export const JOIN_CHAR = `::${SPACE}::`
 const BATCH_SIZE = 10
 const DISABLED_MSG = `, so it will be disabled.
@@ -138,8 +158,8 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
           return [cached, [...toFetch, { input, idx }]]
         }
       },
-      [[], []]
-    ) as [KeyedItem[], KeyedItem[]]
+      [[], []] as [KeyedItem[], KeyedItem[]]
+    )
 
     const chunks = _.chunk(toFetch, BATCH_SIZE)
     const batchedRes = await Promise.mapSeries(chunks, c => this._extractBatch(c, options))
@@ -148,7 +168,7 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
       .flatten()
       .concat(cached)
       .orderBy('idx')
-      .map('entities')
+      .map(x => x.entities!)
       .value()
   }
 
@@ -161,7 +181,7 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
       await ensureFile(CACHE_PATH)
       await writeJson(CACHE_PATH, DucklingEntityExtractor._cache.dump())
     } catch (err) {
-      this.logger.error('could not persist system entities cache, error' + err.message)
+      this.logger?.error('could not persist system entities cache, error' + err.message)
       this._cacheDumpEnabled = false
     }
   }
@@ -218,7 +238,7 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
   }
 
   private async _cacheBatchResults(inputs: string[], results: EntityExtractionResult[][]) {
-    _.zip(inputs, results).forEach(([input, entities]) => {
+    _.zipWith(inputs, results, (input, entities) => ({ input, entities })).forEach(({ input, entities }) => {
       DucklingEntityExtractor._cache.set(input, entities)
     })
 
@@ -229,7 +249,7 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
     return Intl.DateTimeFormat().resolvedOptions().timeZone
   }
 
-  private _mapDuckToEntity(duckEnt): EntityExtractionResult {
+  private _mapDuckToEntity(duckEnt: DucklingEntity): EntityExtractionResult {
     const dimensionData = this._getUnitAndValue(duckEnt.dim, duckEnt.value)
     return {
       confidence: 1,
@@ -246,7 +266,7 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
     } as EntityExtractionResult
   }
 
-  private _getUnitAndValue(dimension, rawVal) {
+  private _getUnitAndValue(dimension: string, rawVal: DucklingRawValue): ValueUnit {
     switch (dimension) {
       case 'duration':
         return rawVal.normalized

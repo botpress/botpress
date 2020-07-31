@@ -56,7 +56,7 @@ declare module 'botpress/shared' {
   export function Textarea<T>(props: TextareaProps<T>): JSX.Element
   export function TreeView<T>(props: TreeViewProps<T>): JSX.Element
 
-  export function contextMenu(event: SyntheticEvent, content: JSX.Element): void
+  export function contextMenu(event: SyntheticEvent, content: JSX.Element, onClose?: () => void): void
   export function confirmDialog(message: string | JSX.Element, options: ConfirmDialogOptions): Promise<boolean>
   export const lang: {
     tr(id: string | MultiLangText, values?: { [variable: string]: any }): string
