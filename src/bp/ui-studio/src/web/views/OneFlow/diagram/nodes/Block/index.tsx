@@ -30,6 +30,8 @@ interface Props {
   switchFlowNode: (id: string) => void
   addCondition: () => void
   getCurrentLang: () => string
+  getExpandedNodes: () => string[]
+  setExpanded: (id: string, expanded: boolean) => void
 }
 
 const defaultLabels = {
@@ -44,8 +46,6 @@ const defaultLabels = {
   trigger: 'studio.flow.node.triggeredBy'
 }
 
-const EXPANDED_NODES_KEY = `bp::${window.BOT_ID}::expandedNodes`
-
 const BlockWidget: FC<Props> = ({
   node,
   getCurrentFlow,
@@ -56,23 +56,13 @@ const BlockWidget: FC<Props> = ({
   getConditions,
   switchFlowNode,
   addCondition,
-  getCurrentLang
+  getCurrentLang,
+  getExpandedNodes,
+  setExpanded
 }) => {
-  let expandedNodes = JSON.parse(storage.get(EXPANDED_NODES_KEY) || '[]')
-  const [expanded, setExpanded] = useState(node.isNew || expandedNodes?.includes(node.id))
   const [error, setError] = useState(null)
   const [isEditing, setIsEditing] = useState(false)
   const { nodeType } = node
-
-  useEffect(() => {
-    expandedNodes = expandedNodes.filter(id => id !== node.id)
-
-    if (expanded) {
-      expandedNodes.push(node.id)
-    }
-
-    storage.set(EXPANDED_NODES_KEY, JSON.stringify(expandedNodes))
-  }, [expanded])
 
   const handleContextMenu = e => {
     e.stopPropagation()
@@ -163,6 +153,12 @@ const BlockWidget: FC<Props> = ({
     }
   }
 
+  const handleExpanded = expanded => {
+    setExpanded(node.id, expanded)
+  }
+
+  const expanded = getExpandedNodes().includes(node.id)
+
   // Prevents moving the node while editing the name so text can be selected
   node.locked = isEditing
 
@@ -170,7 +166,7 @@ const BlockWidget: FC<Props> = ({
     <NodeWrapper>
       <NodeHeader
         className={style[nodeType]}
-        setExpanded={canCollapse && setExpanded}
+        setExpanded={canCollapse && handleExpanded}
         expanded={canCollapse && expanded}
         handleContextMenu={hasContextMenu && handleContextMenu}
         isEditing={isEditing}
@@ -254,6 +250,8 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
   private switchFlowNode: (id: string) => void
   private addCondition: () => void
   private getCurrentLang: () => string
+  private getExpandedNodes: () => string[]
+  private setExpandedNodes: (id: string, expanded: boolean) => void
 
   constructor(methods) {
     super('block')
@@ -267,6 +265,8 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
     this.switchFlowNode = methods.switchFlowNode
     this.addCondition = methods.addCondition
     this.getCurrentLang = methods.getCurrentLang
+    this.getExpandedNodes = methods.getExpandedNodes
+    this.setExpandedNodes = methods.setExpandedNodes
   }
 
   generateReactWidget(diagramEngine: DiagramEngine, node: BlockModel) {
@@ -282,6 +282,8 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
         getConditions={this.getConditions}
         switchFlowNode={this.switchFlowNode}
         addCondition={this.addCondition}
+        getExpandedNodes={this.getExpandedNodes}
+        setExpanded={this.setExpandedNodes}
       />
     )
   }

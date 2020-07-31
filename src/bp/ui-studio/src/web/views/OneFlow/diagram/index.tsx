@@ -46,6 +46,7 @@ import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { toastSuccess } from '~/components/Shared/Utils'
 import withLanguage from '~/components/Util/withLanguage'
 import { getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/reducers'
+import storage from '~/util/storage'
 import {
   defaultTransition,
   DiagramManager,
@@ -101,6 +102,8 @@ type ExtendedDiagramEngine = {
   flowBuilder?: any
 } & DiagramEngine
 
+const EXPANDED_NODES_KEY = `bp::${window.BOT_ID}::expandedNodes`
+
 const isContentEmpty = content => {
   return !_.flatMap(content).length
 }
@@ -124,7 +127,8 @@ class Diagram extends Component<Props> {
     highlightFilter: '',
     editingNodeItem: null,
     currentLang: '',
-    currentTab: 'workflow'
+    currentTab: 'workflow',
+    expandedNodes: []
   }
 
   constructor(props) {
@@ -139,7 +143,9 @@ class Diagram extends Component<Props> {
       switchFlowNode: this.switchFlowNode.bind(this),
       getCurrentLang: () => this.getStateProperty('currentLang'),
       getConditions: () => this.getPropsProperty('conditions'),
-      addCondition: this.addCondition.bind(this)
+      addCondition: this.addCondition.bind(this),
+      getExpandedNodes: () => this.getStateProperty('expandedNodes'),
+      setExpandedNodes: this.updateExpandedNodes.bind(this)
     }
 
     this.diagramEngine = new DiagramEngine()
@@ -181,10 +187,17 @@ class Diagram extends Component<Props> {
   componentDidMount() {
     this.props.fetchFlows()
     this.props.fetchPrompts()
-    this.setState({ currentLang: this.props.contentLang })
     this.props.fetchContentCategories()
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
+
+    let expandedNodes
+    try {
+      expandedNodes = JSON.parse(storage.get(EXPANDED_NODES_KEY) || '[]')
+    } catch (error) {
+      expandedNodes = []
+    }
+    this.setState({ currentLang: this.props.contentLang, expandedNodes })
     this.props.childRef({
       deleteSelectedElements: this.deleteSelectedElements.bind(this),
       createFlow: this.createFlow.bind(this)
@@ -576,6 +589,17 @@ class Diagram extends Component<Props> {
   updateNodeAndRefresh(args) {
     this.props.updateFlowNode({ ...args })
     this.props.refreshFlowsLinks()
+  }
+
+  updateExpandedNodes(nodeId: string, expanded: boolean): void {
+    const expandedNodes = this.state.expandedNodes.filter(id => id !== nodeId)
+
+    if (expanded) {
+      expandedNodes.push(nodeId)
+    }
+
+    storage.set(EXPANDED_NODES_KEY, JSON.stringify(expandedNodes))
+    this.setState({ expandedNodes })
   }
 
   getStateProperty(propertyName) {
