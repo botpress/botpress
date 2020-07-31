@@ -169,7 +169,8 @@ export const duplicateFlow: (flow: { flowNameToDuplicate: string; name: string }
   }
 )
 
-type AllPartialNode = (Partial<sdk.FlowNode> | Partial<sdk.TriggerNode> | Partial<sdk.ListenNode>) & Partial<FlowPoint>
+export type AllPartialNode = (Partial<sdk.FlowNode> | Partial<sdk.TriggerNode> | Partial<sdk.ListenNode>) &
+  Partial<FlowPoint>
 
 export const updateFlowNode: (props: AllPartialNode) => void = wrapAction(requestUpdateFlowNode, updateCurrentFlow)
 

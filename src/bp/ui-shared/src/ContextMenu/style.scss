@@ -20,7 +20,18 @@
     .bp3-menu-item {
       color: var(--shark);
       font-size: 12px;
-      line-height: 1.25;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+
+      .bp3-icon {
+        margin-top: 0 !important;
+      }
+
+      svg {
+        height: 12px;
+        width: auto;
+      }
 
       &.bp3-intent-danger {
         color: var(--lighthouse);
