@@ -101,6 +101,16 @@ type ExtendedDiagramEngine = {
   flowBuilder?: any
 } & DiagramEngine
 
+const isContentEmpty = content => {
+  return !_.flatMap(content).length
+}
+
+const getEmptyContent = content => {
+  return {
+    contentType: content[Object.keys(content)[0]]?.contentType
+  }
+}
+
 class Diagram extends Component<Props> {
   private diagramEngine: ExtendedDiagramEngine
   private diagramWidget: DiagramWidget
@@ -486,7 +496,7 @@ class Diagram extends Component<Props> {
   }, 500)
 
   createFlow(name: string) {
-    this.props.createFlow(name + '.flow.json')
+    this.props.createFlow(`${name}.flow.json`)
   }
 
   canTargetOpenInspector = target => {
@@ -784,7 +794,7 @@ class Diagram extends Component<Props> {
       return acc
     }, {})
 
-    if (this.isContentEmpty(newContents[index])) {
+    if (isContentEmpty(newContents[index])) {
       this.deleteSelectedElements()
     } else {
       this.props.updateFlowNode({ contents: newContents })
@@ -807,16 +817,6 @@ class Diagram extends Component<Props> {
     }
 
     this.setState({ editingNodeItem: null })
-  }
-
-  isContentEmpty(content) {
-    return !_.flatMap(content).length
-  }
-
-  getEmptyContent(content) {
-    return {
-      contentType: content[Object.keys(content)[0]]?.contentType
-    }
   }
 
   handleTabChanged = (tab: string) => {
@@ -911,7 +911,7 @@ class Diagram extends Component<Props> {
               events={this.props.hints || []}
               contentLang={this.state.currentLang}
               editingContent={index}
-              formData={editingNodeItem || this.getEmptyContent(editingNodeItem)}
+              formData={editingNodeItem || getEmptyContent(editingNodeItem)}
               onUpdate={this.updateNodeContent.bind(this)}
               onUpdateVariables={this.addVariable}
               close={() => {
