@@ -44,6 +44,8 @@ const defaultLabels = {
   trigger: 'studio.flow.node.triggeredBy'
 }
 
+const EXPANDED_NODES_KEY = `bp::${window.BOT_ID}::expandedNodes`
+
 const BlockWidget: FC<Props> = ({
   node,
   getCurrentFlow,
@@ -56,13 +58,20 @@ const BlockWidget: FC<Props> = ({
   addCondition,
   getCurrentLang
 }) => {
-  const [expanded, setExpanded] = useState(node.isNew || storage.get(`expandedNode-${node.id}`) === 'true')
+  let expandedNodes = JSON.parse(storage.get(EXPANDED_NODES_KEY) || '[]')
+  const [expanded, setExpanded] = useState(node.isNew || expandedNodes?.includes(node.id))
   const [error, setError] = useState(null)
   const [isEditing, setIsEditing] = useState(false)
   const { nodeType } = node
 
   useEffect(() => {
-    storage.set(`expandedNode-${node.id}`, `${expanded}`)
+    expandedNodes = expandedNodes.filter(id => id !== node.id)
+
+    if (expanded) {
+      expandedNodes.push(node.id)
+    }
+
+    storage.set(EXPANDED_NODES_KEY, JSON.stringify(expandedNodes))
   }, [expanded])
 
   const handleContextMenu = e => {
