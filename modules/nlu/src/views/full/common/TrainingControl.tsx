@@ -2,8 +2,8 @@ import { NLUApi } from 'api'
 import React, { FC, useEffect, useState } from 'react'
 
 import style from './style.scss'
-import TrainNow from './TrainNow'
 import AutoTrainToggle from './AutoTrainToggle'
+import TrainNow from './TrainNow'
 
 const TrainingControl: FC<{ api: NLUApi; eventBus: any }> = ({ api, eventBus }) => {
 

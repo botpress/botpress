@@ -19,6 +19,7 @@ export type AccessControlProps = {
 } & PermissionAllowedProps
 
 export const isOperationAllowed = (params: PermissionAllowedProps) => {
+  // @ts-ignore
   const profile = store.getState().user.profile
   if (!profile) {
     return false
@@ -44,6 +45,7 @@ export const isOperationAllowed = (params: PermissionAllowedProps) => {
 }
 
 export const isChatUser = (): boolean => {
+  // @ts-ignore
   const permissions = store.getState().user.permissions
   return permissions && !!permissions.find(p => p.res.startsWith('user.bots'))
 }
@@ -55,7 +57,4 @@ const PermissionsChecker = (props: AccessControlProps) => {
 
 const mapStateToProps = state => ({ permissions: state.user.permissions })
 
-export default connect(
-  mapStateToProps,
-  undefined
-)(PermissionsChecker)
+export default connect(mapStateToProps, undefined)(PermissionsChecker)

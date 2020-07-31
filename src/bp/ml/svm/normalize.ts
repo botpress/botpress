@@ -1,7 +1,7 @@
 import assert from 'assert'
-
-import numeric from 'numeric'
 import _ from 'lodash'
+import numeric from 'numeric'
+
 import { Data } from './typings'
 
 export function normalizeDataset(dataset: Data[], mu?, sigma?) {

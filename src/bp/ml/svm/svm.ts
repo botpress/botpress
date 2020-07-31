@@ -1,13 +1,13 @@
-import _ from 'lodash'
 import assert from 'assert'
+import _ from 'lodash'
 import numeric from 'numeric'
 
 import BaseSVM from './addon'
+import { checkConfig, defaultConfig } from './config'
 import gridSearch from './grid-search'
 import { normalizeDataset, normalizeInput } from './normalize'
 import reduce from './reduce-dataset'
-import { SvmConfig, Data, SvmModel, Report } from './typings'
-import { defaultConfig, checkConfig } from './config'
+import { Data, Report, SvmConfig, SvmModel } from './typings'
 
 export class SVM {
   private _config: SvmConfig

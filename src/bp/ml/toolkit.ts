@@ -5,6 +5,7 @@ import kmeans from 'ml-kmeans'
 import nanoid from 'nanoid'
 
 import { registerMsgHandler, spawnMLWorkers, WORKER_TYPES } from '../cluster'
+
 import { Tagger, Trainer as CRFTrainer } from './crf'
 import { FastTextModel } from './fasttext'
 import computeJaroWinklerDistance from './homebrew/jaro-winkler'

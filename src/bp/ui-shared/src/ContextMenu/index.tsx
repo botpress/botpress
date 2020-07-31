@@ -5,13 +5,14 @@ import Overlay from '../Overlay'
 
 import style from './style.scss'
 
-const ContextMenuWrapper = ({ event, children }) => {
+const ContextMenuWrapper = ({ event, onClose, children }) => {
   const [clickPosition, setClickPosition] = useState({ top: `${event.clientY}px`, left: `${event.clientX}px` })
   const elPos = useRef(event.currentTarget?.getBoundingClientRect())
   const { top, bottom, right, left } = elPos.current
 
   const handleToggle = (e: SyntheticEvent): void => {
     e.stopPropagation()
+    onClose?.()
     removeContextMenu()
   }
 
@@ -21,7 +22,7 @@ const ContextMenuWrapper = ({ event, children }) => {
 
   return (
     <Fragment>
-      <div style={clickPosition} onClick={removeContextMenu} className={style.contextMenuWrapper}>
+      <div style={clickPosition} onClick={handleToggle} className={style.contextMenuWrapper}>
         {children}
       </div>
       <Overlay
@@ -38,7 +39,7 @@ const ContextMenuWrapper = ({ event, children }) => {
     </Fragment>
   )
 }
-const contextMenu = (e: SyntheticEvent, content: JSX.Element) => {
+const contextMenu = (e: SyntheticEvent, content: JSX.Element, onClose?: () => void) => {
   e.preventDefault()
   e.stopPropagation()
 
@@ -48,7 +49,12 @@ const contextMenu = (e: SyntheticEvent, content: JSX.Element) => {
   div.setAttribute('id', 'context-menu-container')
   body.appendChild(div)
 
-  ReactDOM.render(<ContextMenuWrapper event={e}>{content}</ContextMenuWrapper>, div)
+  ReactDOM.render(
+    <ContextMenuWrapper event={e} onClose={onClose}>
+      {content}
+    </ContextMenuWrapper>,
+    div
+  )
 }
 
 function removeContextMenu() {
