@@ -462,7 +462,7 @@ class Diagram extends Component<Props> {
                 onClick={() => {
                   const elementId = textToItemId((targetModel as BlockModel).onEnter?.[0])
                   this.props.addElementToLibrary(elementId)
-                  toastSuccess(`Added to library`)
+                  toastSuccess('Added to library')
                 }}
               />
             )}
