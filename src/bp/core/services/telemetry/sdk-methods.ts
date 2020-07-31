@@ -5,7 +5,7 @@ import { calculateHash } from 'core/misc/utils'
 import { TelemetryRepository } from 'core/repositories/telemetry'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
-import _, { toSafeInteger } from 'lodash'
+import _ from 'lodash'
 
 import { GhostService } from '..'
 import { BotService } from '../bot-service'
@@ -13,8 +13,12 @@ import { JobService } from '../job-service'
 
 import { TelemetryStats } from './telemetry-stats'
 
-const { Parser } = require('typescript')
+import { parse } from '@babel/parser'
+import traverse from '@babel/traverse'
+import generate from '@babel/generator'
 
+const ACTION_LEGACY_SIGNATURE =
+  'function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { user, temp, session } = event.state)'
 @injectable()
 export class SDKStats extends TelemetryStats {
   protected url: string
@@ -34,7 +38,6 @@ export class SDKStats extends TelemetryStats {
   }
 
   protected async getStats() {
-    console.log('test')
     return {
       ...buildSchema(await this.getServerStats(), 'server'),
       event_type: 'custom_roles',
@@ -49,7 +52,10 @@ export class SDKStats extends TelemetryStats {
       const actions = await this.ghostService.forBot(botId).directoryListing('/actions', '*.js')
 
       for (const action of actions) {
-        const ast = Parser.parse(await this.ghostService.forBot(botId).readFileAsString('/actions', action))
+        const stringAction = await this.ghostService.forBot(botId).readFileAsString('/actions', action)
+        const wrappedAction = `${ACTION_LEGACY_SIGNATURE} { \n ${stringAction} \n }`
+        console.log(wrappedAction)
+        const ast = parse(wrappedAction)
         console.log(ast)
       }
     }
