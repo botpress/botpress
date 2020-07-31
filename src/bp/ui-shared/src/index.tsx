@@ -1,4 +1,4 @@
-import { sendEventsToTelemetryServer, startOfflineTelemetryFallback } from './telemetry/offlineServerFallback'
+import { sendTelemetry, startFallback } from './telemetry/offlineServerFallback'
 import { lang, langAvaibale, langExtend, langInit, langLocale } from './translations'
 import { isInputFocused } from './utils/inputs'
 import { controlKey, keyMap } from './utils/keyboardShortcuts'
@@ -51,6 +51,6 @@ exports.lang = {
 exports.toast = toast
 exports.utils = { controlKey, keyMap, isInputFocused }
 exports.telemetry = {
-  startWatcher: startOfflineTelemetryFallback,
-  sendTelemetry: sendEventsToTelemetryServer
+  startFallback,
+  sendTelemetry
 }

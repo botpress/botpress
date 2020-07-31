@@ -67,7 +67,7 @@ declare module 'botpress/shared' {
   }
 
   export const telemetry: {
-    startWatcher(api: AxiosInstance): void
+    startFallback(api: AxiosInstance): Promise<void>
     sendTelemetry(events: TelemetryEvent[]): boolean
   }
 

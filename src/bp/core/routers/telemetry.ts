@@ -26,10 +26,16 @@ export class TelemetryRouter extends CustomRouter {
       this.checkTokenHeader,
       this.asyncMiddleware(async (req, res) => {
         const { success, events } = req.body
+
+        if (!events.length || !!events.filter(e => typeof e !== 'string').length) {
+          res.sendStatus(500)
+          return
+        }
+
         success
           ? await this.telemetryRepo.removeMany(events)
           : await this.telemetryRepo.updateAvailability(events, true)
-        res.end()
+        res.sendStatus(200)
       })
     )
 
@@ -38,8 +44,8 @@ export class TelemetryRouter extends CustomRouter {
       this.checkTokenHeader,
       this.asyncMiddleware(async (req, res) => {
         try {
-          const eventPayloads = (await this.telemetryRepo.getEntries()).map(e => e.payload)
-          res.send(eventPayloads)
+          const events = await this.telemetryRepo.getEntries()
+          res.send(events.map(e => e.payload))
         } catch (error) {
           this.logger.warn('Error extracting entries from Telemetry database')
           res.send([])
