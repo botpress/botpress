@@ -1,9 +1,9 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { Data, SvmModel, SvmParameters as Parameters, SvmTypes, KernelTypes } from './typings'
-import { SVM } from './svm'
 import { getMinKFold } from './grid-search/split-dataset'
+import { SVM } from './svm'
+import { Data, KernelTypes, SvmModel, SvmParameters as Parameters, SvmTypes } from './typings'
 
 type Serialized = SvmModel & {
   labels_idx: string[]

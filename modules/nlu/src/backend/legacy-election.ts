@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
+
 import * as math from './tools/math'
 
 type PredictOutput = Omit<sdk.IO.EventUnderstanding, 'predictions'> & {

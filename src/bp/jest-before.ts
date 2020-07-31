@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events'
+
 import { Distro } from './common/getos'
 
 const { Debug: _Debug } = require('./debug.ts')

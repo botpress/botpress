@@ -6,7 +6,7 @@ import React, { FC, useEffect, useState } from 'react'
 import { Condition, Test } from '../../shared/typings'
 
 import { TestingAPI } from './api'
-import { DEFAULT_TEST_STATE, NONE_CTX, NONE_INTENT, TEST_ALL_CTX, TestModalReducer } from './test-reducer'
+import { DEFAULT_TEST_STATE, NONE_CTX, NONE_INTENT, TestModalReducer, TEST_ALL_CTX } from './test-reducer'
 
 interface Props {
   test?: Test

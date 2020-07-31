@@ -1,6 +1,6 @@
 import _ from 'lodash'
 
-import { SvmConfig, ClassificationReport, RegressionReport, Report, SvmTypes } from '../typings'
+import { ClassificationReport, RegressionReport, Report, SvmConfig, SvmTypes } from '../typings'
 
 import { GridSearchResult } from './typings'
 
