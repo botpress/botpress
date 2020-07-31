@@ -2,9 +2,10 @@ import { Intent, Menu, MenuItem } from '@blueprintjs/core'
 import { DecisionTriggerCondition, FormData } from 'botpress/sdk'
 import { contextMenu, lang, ShortcutLabel } from 'botpress/shared'
 import { FlowView } from 'common/typings'
-import React, { FC, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
 import { AllPartialNode } from '~/actions'
+import storage from '~/util/storage'
 import { BaseNodeModel } from '~/views/FlowBuilder/diagram/nodes/BaseNodeModel'
 import { StandardPortWidget } from '~/views/FlowBuilder/diagram/nodes/Ports'
 
@@ -55,10 +56,14 @@ const BlockWidget: FC<Props> = ({
   addCondition,
   getCurrentLang
 }) => {
-  const [expanded, setExpanded] = useState(node.isNew)
+  const [expanded, setExpanded] = useState(node.isNew || storage.get(`expandedNode-${node.id}`) === 'true')
   const [error, setError] = useState(null)
   const [isEditing, setIsEditing] = useState(false)
   const { nodeType } = node
+
+  useEffect(() => {
+    storage.set(`expandedNode-${node.id}`, `${expanded}`)
+  }, [expanded])
 
   const handleContextMenu = e => {
     e.stopPropagation()
