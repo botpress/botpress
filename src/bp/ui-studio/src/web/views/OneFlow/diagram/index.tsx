@@ -831,13 +831,14 @@ class Diagram extends Component<Props> {
   }
 
   render() {
-    const formType: string = this.state.editingNodeItem?.node?.nodeType || this.state.editingNodeItem?.node?.type
+    const { node, index } = this.state.editingNodeItem || {}
+    const formType: string = node?.nodeType || node?.type
 
     let editingNodeItem
     if (formType === 'say_something') {
-      editingNodeItem = this.state.editingNodeItem?.node?.contents?.[this.state.editingNodeItem.index]
+      editingNodeItem = node?.contents?.[index]
     } else if (formType === 'trigger') {
-      editingNodeItem = this.state.editingNodeItem?.node?.conditions?.[this.state.editingNodeItem.index]
+      editingNodeItem = node?.conditions?.[index]
     }
 
     const isQnA = this.props.selectedWorkflow === 'qna'
@@ -901,7 +902,7 @@ class Diagram extends Component<Props> {
 
           {formType === 'say_something' && (
             <ContentForm
-              customKey={`${this.state.editingNodeItem.node.id}${this.state.editingNodeItem.index}`}
+              customKey={`${node.id}${index}`}
               contentTypes={this.props.contentTypes.filter(type =>
                 type.schema.newJson?.displayedIn.includes('sayNode')
               )}
@@ -909,7 +910,7 @@ class Diagram extends Component<Props> {
               variables={this.props.currentFlow?.variables || []}
               events={this.props.hints || []}
               contentLang={this.state.currentLang}
-              editingContent={this.state.editingNodeItem.index}
+              editingContent={index}
               formData={editingNodeItem || this.getEmptyContent(editingNodeItem)}
               onUpdate={this.updateNodeContent.bind(this)}
               onUpdateVariables={this.addVariable}
@@ -922,10 +923,10 @@ class Diagram extends Component<Props> {
           )}
           {formType === 'trigger' && (
             <ConditionForm
-              customKey={`${this.state.editingNodeItem.node.id}${this.state.editingNodeItem.index}`}
+              customKey={`${node.id}${index}`}
               conditions={this.props.conditions}
               deleteCondition={() => this.deleteNodeCondition()}
-              editingCondition={this.state.editingNodeItem.index}
+              editingCondition={index}
               topicName={this.props.selectedTopic}
               variables={this.props.currentFlow?.variables}
               events={this.props.hints}
@@ -943,8 +944,8 @@ class Diagram extends Component<Props> {
           {formType === 'prompt' && (
             <PromptForm
               prompts={this.props.prompts}
-              customKey={`${this.state.editingNodeItem?.node?.id}${this.state.editingNodeItem?.node?.prompt?.type}`}
-              formData={this.state.editingNodeItem?.node?.prompt}
+              customKey={`${node?.id}${node?.prompt?.type}`}
+              formData={node?.prompt}
               onUpdate={this.updatePromptNode.bind(this)}
               deletePrompt={this.deleteSelectedElements.bind(this)}
               contentLang={this.state.currentLang}

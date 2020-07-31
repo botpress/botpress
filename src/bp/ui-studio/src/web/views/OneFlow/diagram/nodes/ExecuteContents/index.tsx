@@ -9,18 +9,14 @@ interface Props {
   editNodeItem: (node: BlockModel, index: number) => void
 }
 
-const ExecuteContents: FC<Props> = ({ node, editNodeItem }) => {
-  const actionText = (node.onEnter && node.onEnter.length && node.onEnter[0]) || ''
-
-  return (
-    <div className={style.contentsWrapper}>
-      <div className={style.contentWrapper}>
-        <div className={style.content} onClick={() => editNodeItem(node, 0)}>
-          <ActionItem text={actionText} layoutv2 />
-        </div>
+const ExecuteContents: FC<Props> = ({ node, editNodeItem }) => (
+  <div className={style.contentsWrapper}>
+    <div className={style.contentWrapper}>
+      <div className={style.content} onClick={() => editNodeItem(node, 0)}>
+        <ActionItem text={node.onEnter?.[0] ?? ''} layoutv2 />
       </div>
     </div>
-  )
-}
+  </div>
+)
 
 export default ExecuteContents

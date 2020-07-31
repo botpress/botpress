@@ -1,8 +1,10 @@
 import { Intent, Menu, MenuItem } from '@blueprintjs/core'
-import { FormData } from 'botpress/sdk'
+import { DecisionTriggerCondition, FormData } from 'botpress/sdk'
 import { contextMenu, lang, ShortcutLabel } from 'botpress/shared'
+import { FlowView } from 'common/typings'
 import React, { FC, useState } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
+import { AllPartialNode } from '~/actions'
 import { BaseNodeModel } from '~/views/FlowBuilder/diagram/nodes/BaseNodeModel'
 import { StandardPortWidget } from '~/views/FlowBuilder/diagram/nodes/Ports'
 
@@ -18,12 +20,12 @@ import TriggerContents from '../TriggerContents'
 
 interface Props {
   node: BlockModel
-  getCurrentFlow: any
-  updateFlowNode: any
+  getCurrentFlow: () => FlowView
+  updateFlowNode: (props: AllPartialNode) => void
   onDeleteSelectedElements: () => void
   editNodeItem: (node: BlockModel, index: number) => void
   selectedNodeItem: () => { node: BlockModel; index: number }
-  getConditions: () => any
+  getConditions: () => DecisionTriggerCondition[]
   switchFlowNode: (id: string) => void
   addCondition: () => void
   getCurrentLang: () => string
@@ -173,7 +175,7 @@ const BlockWidget: FC<Props> = ({
 }
 
 export class BlockModel extends BaseNodeModel {
-  public conditions = []
+  public conditions: DecisionTriggerCondition[] = []
   public activeWorkflow: boolean
   public isNew: boolean
   public nodeType: string
@@ -232,9 +234,9 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
   private editNodeItem: (node: BlockModel, index: number) => void
   private selectedNodeItem: () => { node: BlockModel; index: number }
   private deleteSelectedElements: () => void
-  private getConditions: () => string
-  private getCurrentFlow: any
-  private updateFlowNode: any
+  private getConditions: () => DecisionTriggerCondition[]
+  private getCurrentFlow: () => FlowView
+  private updateFlowNode: (props: AllPartialNode) => void
   private switchFlowNode: (id: string) => void
   private addCondition: () => void
   private getCurrentLang: () => string
