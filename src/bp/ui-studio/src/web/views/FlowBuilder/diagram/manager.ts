@@ -6,6 +6,7 @@ import { ActionNodeModel } from '~/views/OneFlow/diagram/nodes/ActionNode'
 import { ExecuteNodeModel } from '~/views/OneFlow/diagram/nodes/ExecuteNode'
 import { FailureNodeModel } from '~/views/OneFlow/diagram/nodes/FailureNode'
 import { ListenNodeModel } from '~/views/OneFlow/diagram/nodes/ListenNode'
+import { MapNodeModel } from '~/views/OneFlow/diagram/nodes/MapNode'
 import { PromptNodeModel } from '~/views/OneFlow/diagram/nodes/PromptNode'
 import { RouterNodeModel } from '~/views/OneFlow/diagram/nodes/RouterNode'
 import { SuccessNodeModel } from '~/views/OneFlow/diagram/nodes/SuccessNode'
@@ -76,6 +77,8 @@ const createNodeModel = (node, modelProps) => {
     return new TriggerNodeModel(modelProps)
   } else if (type === 'failure') {
     return new FailureNodeModel(modelProps)
+  } else if (type === 'map') {
+    return new MapNodeModel(modelProps)
   } else {
     return new StandardNodeModel(modelProps)
   }

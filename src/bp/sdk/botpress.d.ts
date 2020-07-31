@@ -1363,6 +1363,7 @@ declare module 'botpress/sdk' {
     | 'router'
     | 'action'
     | 'prompt'
+    | 'map'
 
   export type FlowNode = {
     id?: string
@@ -1384,6 +1385,11 @@ declare module 'botpress/sdk' {
   export type ListenNode = FlowNode & {
     triggers: { name?: string; effect?: 'prompt.inform' | 'prompt.cancel'; conditions: DecisionTriggerCondition[] }[]
   }
+
+  export type MapNode = FlowNode &
+    PromptNode & {
+      mapped: string
+    }
 
   export type SkillFlowNode = Partial<ListenNode> & Pick<Required<ListenNode>, 'name'> & Partial<TriggerNode>
 

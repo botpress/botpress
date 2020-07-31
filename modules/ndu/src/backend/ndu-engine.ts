@@ -449,10 +449,10 @@ export class UnderstandingEngine {
             activeWorkflow: tn.activeWorkflow,
             nodeId: tn.name
           })
-        } else if ((<sdk.ListenNode>node)?.triggers?.length || node.type === 'prompt') {
+        } else if ((<sdk.ListenNode>node)?.triggers?.length || node.prompt) {
           const ln = node as sdk.ListenNode
 
-          if (node.type === 'prompt') {
+          if (node.prompt) {
             // TODO: Add triggers on the node itself instead of hardcoded here
             ln.triggers = [
               {

@@ -243,5 +243,22 @@ export const dialogConditions: sdk.Condition[] = [
     evaluate: (event: sdk.IO.IncomingEvent, _params) => {
       return event.state.context.activePrompt?.config?.cancellable ? 1 : 0
     }
+  },
+  {
+    id: 'mapped_choice_made',
+    label: 'module.ndu.conditions.mappedChoiceMade',
+    description: `A user decided on a mapped choice`,
+    fields: [
+      {
+        type: 'text',
+        key: 'choiceEntity',
+        label: 'choiceEntity',
+        placeholder: ''
+      }
+    ],
+    evaluate: (event, params) => {
+      console.log(params.choiceEntity)
+      return 0
+    }
   }
 ]

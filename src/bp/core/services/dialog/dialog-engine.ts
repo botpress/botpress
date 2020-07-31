@@ -66,7 +66,7 @@ export class DialogEngine {
         workflow.status = 'completed'
       }
 
-      if (currentNode.type === 'prompt' && !context.activePrompt && !this._getCurrentNodeValue(event, 'processed')) {
+      if (currentNode.prompt && !context.activePrompt && !this._getCurrentNodeValue(event, 'processed')) {
         this._appendActivePromptToContext(currentNode, context)
       }
 

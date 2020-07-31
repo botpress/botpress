@@ -63,6 +63,7 @@ import { ActionWidgetFactory } from './nodes/ActionNode'
 import { ExecuteNodeModel, ExecuteWidgetFactory } from './nodes/ExecuteNode'
 import { FailureNodeModel, FailureWidgetFactory } from './nodes/FailureNode'
 import { ListenWidgetFactory } from './nodes/ListenNode'
+import { MapWidgetFactory } from './nodes/MapNode'
 import { PromptNodeModel, PromptWidgetFactory } from './nodes/PromptNode'
 import { RouterNodeModel, RouterWidgetFactory } from './nodes/RouterNode'
 import { SaySomethingNodeModel, SaySomethingWidgetFactory } from './nodes/SaySomethingNode'
@@ -73,6 +74,7 @@ import ActionForm from './ActionForm'
 import ConditionForm from './ConditionForm'
 import ContentForm from './ContentForm'
 import ExecuteForm from './ExecuteForm'
+import MapForm from './MapForm'
 import PromptForm from './PromptForm'
 import Toolbar from './Toolbar'
 import VariablesEditor from './VariablesEditor'
@@ -157,6 +159,7 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(new FailureWidgetFactory())
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
     this.diagramEngine.registerNodeFactory(new PromptWidgetFactory(commonProps))
+    this.diagramEngine.registerNodeFactory(new MapWidgetFactory(commonProps))
 
     // This reference allows us to update flow nodes from widgets
     this.diagramEngine.flowBuilder = this
@@ -365,7 +368,8 @@ class Diagram extends Component<Props> {
           }
         ]
       })
-    }
+    },
+    mapNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'map' })
   }
 
   handleContextMenuNoElement = (event: React.MouseEvent) => {
@@ -409,6 +413,7 @@ class Diagram extends Component<Props> {
         <MenuItem text={lang.tr('execute')} onClick={wrap(this.add.executeNode, point)} icon="code" />
         <MenuItem text={lang.tr('listen')} onClick={wrap(this.add.listenNode, point)} icon="hand" />
         <MenuItem text={lang.tr('split')} onClick={wrap(this.add.routerNode, point)} icon="flow-branch" />
+        <MenuItem text={lang.tr('map')} onClick={wrap(this.add.mapNode, point)} icon="flow-branch" />
         <MenuItem text={lang.tr('action')} onClick={wrap(this.add.actionNode, point)} icon="offline" />
 
         <MenuItem tagName="button" text={lang.tr('skills')} icon="add">
@@ -797,6 +802,13 @@ class Diagram extends Component<Props> {
     this.props.updateFlowNode({ prompt: { ...args } })
   }
 
+  updateMapNode(data) {
+    const { node } = this.state.editingNodeItem
+
+    this.props.switchFlowNode(node.id)
+    this.props.updateFlowNode({ mapped: data })
+  }
+
   deleteNodeContent() {
     const {
       node: { contents },
@@ -998,6 +1010,19 @@ class Diagram extends Component<Props> {
             <ActionForm
               node={this.props.currentFlowNode}
               deleteNode={this.deleteSelectedElements.bind(this)}
+              diagramEngine={this.diagramEngine}
+              close={() => {
+                this.timeout = setTimeout(() => {
+                  this.setState({ editingNodeItem: null })
+                }, 200)
+              }}
+            />
+          )}
+          {formType === 'map' && (
+            <MapForm
+              node={this.props.currentFlowNode}
+              deleteNode={this.deleteSelectedElements.bind(this)}
+              onUpdate={this.updateMapNode.bind(this)}
               diagramEngine={this.diagramEngine}
               close={() => {
                 this.timeout = setTimeout(() => {
