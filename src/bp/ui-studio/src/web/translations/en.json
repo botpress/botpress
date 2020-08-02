@@ -330,5 +330,8 @@
       "closePanel": "Close Panel",
       "endOfLogs": "End of logs"
     }
+  },
+  "contentForm": {
+    "invalidBraces": "Unclosed braces"
   }
 }

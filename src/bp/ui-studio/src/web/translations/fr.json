@@ -328,5 +328,8 @@
       "closePanel": "Fermer le panneau",
       "endOfLogs": "Fin des journaux"
     }
+  },
+  "contentForm": {
+    "invalidBraces": "Accolades non fermées"
   }
 }

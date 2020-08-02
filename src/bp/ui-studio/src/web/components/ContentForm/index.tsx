@@ -15,6 +15,7 @@ import FlowPickWidget from './FlowPickWidget'
 import RefWidget from './RefWidget'
 import Text from './Text'
 import UploadWidget from './UploadWidget'
+import { validateForm } from './FormValidation'
 
 interface Props {
   contentLang: string
@@ -106,6 +107,7 @@ const ContentForm: FC<Props> = props => {
       ArrayFieldTemplate={ArrayFieldTemplate}
       onChange={handleOnChange}
       schema={translatePropsRecursive(schema)}
+      validate={validateForm}
     >
       {props.children}
     </Form>
