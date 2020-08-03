@@ -454,29 +454,6 @@ export const Predict = async (
     let stepOutput: PredictStep
     stepOutput = await makePredictionUtterance(step, predictors, tools)
     stepOutput = await extractEntities(stepOutput, predictors, tools)
-    console.log('Old utt : ', stepOutput.rawText)
-    if (stepOutput.utterance.entities) {
-      for (const ent of stepOutput.utterance.entities) {
-        console.log(`${stepOutput.rawText} : type [${ent.type}] <- root ${ent.value} <- from ${ent.metadata.source}`)
-        // @ts-ignore
-        stepOutput.rawText = stepOutput.rawText.replace(ent.metadata.source, ent.type)
-      }
-      console.log('\n')
-      debugger
-    }
-
-    stepOutput = await makePredictionUtterance(
-      {
-        rawText: stepOutput.rawText,
-        includedContexts: stepOutput.includedContexts,
-        detectedLanguage: stepOutput.detectedLanguage,
-        languageCode: stepOutput.languageCode
-      } as InitialStep,
-      predictors,
-      tools
-    )
-    stepOutput = await extractEntities(stepOutput, predictors, tools)
-    console.log('New utt : ', stepOutput.rawText)
     stepOutput = await predictOutOfScope(stepOutput, predictors)
     stepOutput = await predictContext(stepOutput, predictors)
     stepOutput = await predictIntent(stepOutput, predictors)

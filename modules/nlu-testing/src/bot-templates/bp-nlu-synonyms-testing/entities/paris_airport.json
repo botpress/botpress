@@ -1,0 +1,15 @@
+{
+  "id": "paris_airport",
+  "name": "paris airport",
+  "type": "list",
+  "occurrences": [
+    {
+      "name": "paris airport",
+      "synonyms": ["CDG", "international airport", "Paris airport", "airport of paris", "north airport", "plane garage"]
+    }
+  ],
+  "sensitive": false,
+  "fuzzy": 1,
+  "exemples": [],
+  "pattern": ""
+}
