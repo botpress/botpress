@@ -7,8 +7,8 @@ import {
   closeFlowNodeProps,
   copyFlowNodeElement,
   pasteFlowNodeElement,
+  refreshCallerFlows,
   refreshFlowsLinks,
-  refreshParentFlow,
   requestEditSkill,
   updateFlow,
   updateFlowNode
@@ -97,7 +97,7 @@ class Inspector extends Component<Props> {
           node={this.props.currentFlowNode}
           updateNode={updateNodeAndRefresh}
           updateFlow={this.props.updateFlow}
-          refreshParentFlow={this.props.refreshParentFlow}
+          refreshCallerFlows={this.props.refreshCallerFlows}
         />
       )
     }
@@ -157,7 +157,7 @@ const mapDispatchToProps = {
   closeFlowNodeProps,
   updateFlowNode,
   refreshFlowsLinks,
-  refreshParentFlow
+  refreshCallerFlows: refreshCallerFlows
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Inspector)

@@ -27,7 +27,7 @@ import {
   requestInsertNewSkillNode,
   requestPasteFlowNode,
   requestPasteFlowNodeElement,
-  requestRefreshParentFlow,
+  requestRefreshCallerFlows,
   requestRemoveFlowNode,
   requestRenameFlow,
   requestUpdateFlow,
@@ -239,7 +239,7 @@ const doCreateNewFlow = name => {
     }
   ]
 
-  const isSubWorkflow = window.USE_ONEFLOW && parseFlowName(name).folders?.length
+  const isSubWorkflow = window.USE_ONEFLOW && parseFlowName(name).parentWorkflowPath
   if (isSubWorkflow) {
     nodes.push(
       {
@@ -265,8 +265,6 @@ const doCreateNewFlow = name => {
     )
   }
 
-  const { parentWorkflowPath } = parseFlowName(name, true)
-
   return {
     version: '0.1',
     name: name,
@@ -276,8 +274,7 @@ const doCreateNewFlow = name => {
     startNode: 'entry',
     catchAll: {},
     links: [],
-    nodes,
-    parent: parentWorkflowPath
+    nodes
   }
 }
 
@@ -531,14 +528,9 @@ reducer = reduceReducers(
         flowsByName: doDeleteFlow({ name, flowsByName: state.flowsByName })
       }),
 
-      [requestRefreshParentFlow]: (state: FlowReducer, { payload }) => {
+      [requestRefreshCallerFlows]: (state: FlowReducer, { payload }) => {
         const activeFlow = payload || state.currentFlow
         const currentFlow = state.flowsByName[activeFlow]
-        const parentFlowName = state.flowsByName[activeFlow].parent
-
-        if (!parentFlowName) {
-          return state
-        }
 
         const outcomeNodes = currentFlow.nodes.filter(x => ['success', 'failure'].includes(x.type))
         const outcomes = _.orderBy(outcomeNodes, 'type', 'desc').map(x => ({
@@ -547,25 +539,36 @@ reducer = reduceReducers(
           node: ''
         }))
 
-        const updatedNodes = state.flowsByName[parentFlowName].nodes.map(node => {
-          if (node.flow !== activeFlow) {
-            return node
+        const updatedFlows = {}
+        for (const [name, flow] of Object.entries(state.flowsByName)) {
+          if (!flow.nodes.find(n => n.flow === activeFlow)) {
+            continue
           }
 
-          return {
-            ...node,
-            next: outcomes.map(o => ({ ...o, node: node.next.find(n => n.condition === o.condition)?.node || '' }))
+          const updatedFlow = {
+            ...flow,
+            nodes: flow.nodes.map(node => {
+              if (node.flow !== activeFlow) {
+                return node
+              }
+
+              return {
+                ...node,
+                next: outcomes.map(o => ({ ...o, node: node.next.find(n => n.condition === o.condition)?.node || '' }))
+              }
+            })
           }
-        })
+
+          updatedFlows[name] = updatedFlow
+        }
+
+        console.log(updatedFlows)
 
         return {
           ...state,
           flowsByName: {
             ...state.flowsByName,
-            [parentFlowName]: {
-              ...state.flowsByName[parentFlowName],
-              nodes: updatedNodes
-            }
+            ...updatedFlows
           }
         }
       },

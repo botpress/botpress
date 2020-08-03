@@ -2,7 +2,7 @@ import { Icon, Tooltip } from '@blueprintjs/core'
 import _ from 'lodash'
 import React, { FC } from 'react'
 import { connect } from 'react-redux'
-import { getParentFlowOutcomeUsage } from '~/reducers'
+import { getCallerFlowsOutcomeUsage } from '~/reducers'
 
 import style from './style.scss'
 
@@ -32,5 +32,5 @@ const OutcomeUsage: FC<OutcomeProps> = props => {
   )
 }
 
-const mapStateToProps = state => ({ outcomes: getParentFlowOutcomeUsage(state) })
+const mapStateToProps = state => ({ outcomes: getCallerFlowsOutcomeUsage(state) })
 export default connect(mapStateToProps)(OutcomeUsage)

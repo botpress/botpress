@@ -90,15 +90,8 @@ export class FlowService {
         return this.parseFlow(botId, flowPath)
       })
 
-      const flowsWithParent = flows.map(flow => {
-        const { parentWorkflowPath } = parseFlowName(flow.name, true)
-        const isParentValid = parentWorkflowPath && !!flows.find(x => x.name === parentWorkflowPath)
-
-        return { ...flow, parent: isParentValid ? parentWorkflowPath : undefined }
-      })
-
-      this._allFlows.set(botId, flowsWithParent)
-      return flowsWithParent
+      this._allFlows.set(botId, flows)
+      return flows
     } catch (err) {
       this.logger
         .forBot(botId)
@@ -146,7 +139,7 @@ export class FlowService {
       nodes: nodeViews,
       links: uiEq.links,
       currentMutex,
-      ..._.pick(flow, ['version', 'catchAll', 'startNode', 'skillData', 'label', 'description', 'variables', 'parent'])
+      ..._.pick(flow, ['version', 'catchAll', 'startNode', 'skillData', 'label', 'description', 'variables', 'type'])
     }
   }
 
@@ -361,7 +354,7 @@ export class FlowService {
         'label',
         'description',
         'variables',
-        'parent'
+        'type'
       ]),
       nodes: flow.nodes.map(node => _.omit(node, 'x', 'y', 'lastModified', 'isNew', 'nodeType'))
     }

@@ -6,7 +6,6 @@ export interface ParsedFlowDefinition {
   workflow: string
   /** The full path of the workflow, including topic */
   workflowPath?: string
-  parentWorkflowPath?: string
 }
 
 const getName = (name: string, includeExt?: boolean) => (includeExt ? `${name}.flow.json` : name)
@@ -20,18 +19,11 @@ export const parseFlowName = (flowName: string, includeExt?: boolean): ParsedFlo
       workflow: chunks[0],
       workflowPath
     }
-  } else if (chunks.length === 2) {
+  } else {
     return {
       topic: chunks[0],
       workflow: chunks[1],
       workflowPath
-    }
-  } else {
-    return {
-      topic: chunks[0],
-      workflow: chunks[chunks.length - 1],
-      workflowPath,
-      parentWorkflowPath: getName(chunks.slice(0, chunks.length - 1).join('/'), includeExt)
     }
   }
 }
