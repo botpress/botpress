@@ -1,6 +1,7 @@
 import { Intent as BpIntent, Tag } from '@blueprintjs/core'
 import React, { Fragment } from 'react'
 
+import style from '../style.scss'
 import { formatConfidence } from '../utils'
 
 const QNA_IDENTIFIER = '__qna__'
@@ -11,16 +12,10 @@ export const Intent = (props: { name: string; confidence?: number; elected?: boo
 
   const displayName = isQnA ? formatQnaName(name) : name
 
-  const textContent: string = confidence ? `${displayName}: ${formatConfidence(confidence)} %` : displayName
-  const content = elected ? <strong>{textContent}</strong> : <span>{textContent}</span>
-
   return (
     <Fragment>
-      <Tag intent={isQnA ? BpIntent.SUCCESS : BpIntent.PRIMARY} minimal>
-        {isQnA ? 'Q&A' : 'NLU'}
-      </Tag>
-      &nbsp;
-      <a onClick={navigateToIntentDefinition(name, isQnA)}>{content}</a>
+      <a onClick={navigateToIntentDefinition(name, isQnA)}>{displayName}</a>
+      {confidence && <span className={style.confidence}>{formatConfidence(confidence)}%</span>}
     </Fragment>
   )
 }

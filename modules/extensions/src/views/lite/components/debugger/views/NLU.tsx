@@ -1,26 +1,54 @@
-import { Colors, H4, Icon, Position, Tooltip } from '@blueprintjs/core'
+import { Button, Colors, Icon, Position, Tooltip } from '@blueprintjs/core'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import React, { SFC } from 'react'
+import React, { Fragment, SFC, useEffect, useState } from 'react'
 
 import { Collapsible } from '../components/Collapsible'
 import { Intents } from '../components/Intents'
+import Predictions from '../components/Predictions'
 import style from '../style.scss'
 
 import { Entities } from './Entities'
+import { Inspector } from './Inspector'
 import { Language } from './Language'
 import { Slots } from './Slots'
 
-const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding; session: any }> = ({ nluData, session }) => {
+interface Props {
+  nluData: sdk.IO.EventUnderstanding
+  isNDU: boolean
+  session: any
+  isExpanded: (key: string) => boolean
+  toggleExpand: (section: string, expanded: boolean) => void
+}
+
+const NLU_JSON = 'json::nlu'
+const NLU_PANEL = 'panel::nlu'
+
+const NLU: SFC<Props> = ({ nluData, isNDU, isExpanded, toggleExpand, session }) => {
+  const [viewJSON, setViewJSON] = useState(isExpanded(NLU_JSON))
+
+  useEffect(() => {
+    setViewJSON(isExpanded(NLU_JSON))
+  }, [isExpanded(NLU_JSON)])
+
   if (!nluData) {
     return null
   }
 
-  return (
-    <div className={style.block}>
-      <div className={style.title}>
-        <H4>Language Understanding</H4>
-        {nluData.ambiguous && (
+  const toggleView = () => {
+    const newValue = !viewJSON
+    toggleExpand(NLU_JSON, newValue)
+    setViewJSON(newValue)
+  }
+
+  const renderContent = () => {
+    if (viewJSON) {
+      return <Inspector data={nluData} />
+    }
+
+    return (
+      <Fragment>
+        {!isNDU && nluData.ambiguous && (
           <Tooltip
             position={Position.TOP}
             content={
@@ -38,18 +66,35 @@ const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding; session: any }> = ({ nluDat
             </span>
           </Tooltip>
         )}
-      </div>
-      <Language detectedLanguage={nluData.detectedLanguage} usedLanguage={nluData.language} />
-      <Intents intents={nluData.intents} intent={nluData.intent} />
+        <Language detectedLanguage={nluData.detectedLanguage} usedLanguage={nluData.language} />
+        <Predictions predictions={nluData.predictions} />
+        {!isNDU && <Intents intents={nluData.intents} intent={nluData.intent} />}
+        {/* TODO re-add Entities and Slots when design is made for them
+        <Collapsible name="Entities" hidden={!nluData.entities.length}>
+          <Entities entities={nluData.entities} />
+        </Collapsible>
 
-      <Collapsible name="Entities" hidden={!nluData.entities.length}>
-        <Entities entities={nluData.entities} />
-      </Collapsible>
+        <Collapsible name="Slots" hidden={_.isEmpty(session.slots) && _.isEmpty(nluData.slots)}>
+          <Slots sessionSlots={session.slots} slots={nluData.slots} />
+        </Collapsible>
+      */}
+      </Fragment>
+    )
+  }
 
-      <Collapsible name="Slots" hidden={_.isEmpty(session.slots) && _.isEmpty(nluData.slots)}>
-        <Slots sessionSlots={session.slots} slots={nluData.slots} />
+  return (
+    <Fragment>
+      <Collapsible
+        opened={isExpanded(NLU_PANEL)}
+        toggleExpand={expanded => toggleExpand(NLU_PANEL, expanded)}
+        name="Language Understanding"
+      >
+        {renderContent()}
+        <Button minimal className={style.switchViewBtn} icon="eye-open" onClick={toggleView}>
+          {viewJSON ? 'View as Summary' : 'View as JSON'}
+        </Button>
       </Collapsible>
-    </div>
+    </Fragment>
   )
 }
 
