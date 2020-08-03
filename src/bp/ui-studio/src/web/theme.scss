@@ -186,3 +186,7 @@ b {
 :global(.bp3-tooltip .bp3-popover-content) {
   padding: 5px 8px !important;
 }
+
+:global(.bp3-overlay.bp3-overlay-scroll-container) {
+  z-index: 9999999999999999999999;
+}

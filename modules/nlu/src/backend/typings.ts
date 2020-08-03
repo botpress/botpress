@@ -52,7 +52,13 @@ export interface NluMlRecommendations {
 
 export interface NLUEngine {
   loadModel: (m: any) => Promise<void>
-  train: (...args) => Promise<any>
+  train: (
+    intentDefs: sdk.NLU.IntentDefinition[],
+    entityDefs: sdk.NLU.EntityDefinition[],
+    languageCode: string,
+    trainingSession?: TrainingSession,
+    options?: any
+  ) => Promise<any>
   predict: (t: string, ctx: string[]) => Promise<sdk.IO.EventUnderstanding>
 }
 
@@ -137,13 +143,14 @@ export type ExtractedSlot = {
 }
 
 export type SlotExtractionResult = { slot: ExtractedSlot; start: number; end: number }
-export type ExtractedEntity = {
+export type EntityExtractor = 'system' | 'list' | 'pattern'
+export interface ExtractedEntity {
   confidence: number
   type: string
   metadata: {
     source: string
     entityId: string
-    extractor: 'system' | 'list' | 'pattern'
+    extractor: EntityExtractor
     unit?: string
     occurrence?: string
   }
