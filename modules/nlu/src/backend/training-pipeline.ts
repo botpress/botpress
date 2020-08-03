@@ -270,7 +270,6 @@ const TrainIntentClassifier = async (
       })
     } catch (err) {
       if (err instanceof TrainingCanceledError) {
-        // TrainIntentClassifier: training is canceled
         return
       }
       throw err
@@ -316,7 +315,6 @@ const TrainContextClassifier = async (
     })
   } catch (err) {
     if (err instanceof TrainingCanceledError) {
-      // TrainContextClassifier: training is canceled
       return
     }
     throw err
@@ -476,7 +474,6 @@ const TrainSlotTagger = async (input: TrainStep, tools: Tools, progress: progres
     )
   } catch (err) {
     if (err instanceof TrainingCanceledError) {
-      // TrainSlotTagger: training is canceled
       return
     }
     throw err
@@ -539,7 +536,6 @@ const TrainOutOfScope = async (
   })
 
   if (ctxModels.some(m => !m)) {
-    // TrainOutOfScope: training is canceled
     return
   }
 
