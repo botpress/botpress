@@ -88,9 +88,7 @@ export async function crossValidate(
 ): Promise<CrossValidationResults> {
   const [trainSet, testSet] = await splitSet(language, intents)
 
-  const langServerInfo = { version: '', domain: '', dim: 0 }
-  const dummyVersion = { nluVersion: '', langServerInfo } // we don't really care about the model hash here...
-  const engine = new Engine(language, botId, dummyVersion, logger)
+  const engine = new Engine(language, botId, logger)
   const model = await engine.train(trainSet, entities, language)
   if (!model) {
     throw new Error('training could not finish during cross-valisation')
