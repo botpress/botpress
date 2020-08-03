@@ -3,92 +3,39 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import semver from 'semver'
 
-import { Config } from '../../config'
+import nluInfo from '../../../package.json'
 import Engine from '../engine'
 import legacyElectionPipeline from '../legacy-election'
-import { DucklingEntityExtractor } from '../entities/duckling_extractor'
-import LangProvider from '../language/language-provider'
-import { getPOSTagger, tagSentence } from '../language/pos-tagger'
 import { getLatestModel } from '../model-service'
 import { InvalidLanguagePredictorError } from '../predict-pipeline'
 import { removeTrainingSession, setTrainingSession } from '../train-session-service'
-import { NLUState, Token2Vec, Tools, TrainingSession, NLUProgressEvent } from '../typings'
+import { NLUProgressEvent, NLUState, NLUVersionInfo, TrainingSession } from '../typings'
 
-import nluInfo from '../../../package.json'
+async function initializeReportingTool(bp: typeof sdk, state: NLUState) {
+  state.reportTrainingProgress = async (botId: string, message: string, trainSession: TrainingSession) => {
+    await setTrainingSession(bp, botId, trainSession)
 
-export const initializeLanguageProvider = async (bp: typeof sdk, state: NLUState) => {
-  const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
-
-  try {
-    const languageProvider = await LangProvider.initialize(globalConfig.languageSources, bp.logger, state)
-    state.langServerInfo = languageProvider.langServerInfo
-
-    const { validProvidersCount, validLanguages } = languageProvider.getHealth()
-    const health = {
-      isEnabled: validProvidersCount > 0 && validLanguages.length > 0,
-      validProvidersCount,
-      validLanguages
+    const ev: NLUProgressEvent = {
+      type: 'nlu',
+      working: trainSession.status === 'training',
+      botId,
+      message,
+      trainSession: _.omit(trainSession, 'lock')
     }
-
-    state.languageProvider = languageProvider
-    state.health = health
-  } catch (e) {
-    if (e.failure && e.failure.code === 'ECONNREFUSED') {
-      bp.logger.error(`Language server can't be reached at address ${e.failure.address}:${e.failure.port}`)
-      if (!process.IS_FAILSAFE) {
-        process.exit()
-      }
-    }
-    throw e
-  }
-}
-
-function initializeEngine(bp: typeof sdk, state: NLUState) {
-  const tools: Tools = {
-    partOfSpeechUtterances: (tokenUtterances: string[][], lang: string) => {
-      const tagger = getPOSTagger(lang, bp.MLToolkit)
-      return tokenUtterances.map(tagSentence.bind(this, tagger))
-    },
-    tokenize_utterances: (utterances: string[], lang: string, vocab?: Token2Vec) =>
-      state.languageProvider.tokenize(utterances, lang, vocab),
-    vectorize_tokens: async (tokens, lang) => {
-      const a = await state.languageProvider.vectorize(tokens, lang)
-      return a.map(x => Array.from(x.values()))
-    },
-    generateSimilarJunkWords: (vocab: string[], lang: string) =>
-      state.languageProvider.generateSimilarJunkWords(vocab, lang),
-    mlToolkit: bp.MLToolkit,
-    duckling: new DucklingEntityExtractor(bp.logger),
-    reportTrainingProgress: async (botId: string, message: string, trainSession: TrainingSession) => {
-      await setTrainingSession(bp, botId, trainSession)
-
-      const ev: NLUProgressEvent = {
-        type: 'nlu',
-        working: trainSession.status === 'training',
-        botId,
-        message,
-        trainSession: _.omit(trainSession, 'lock')
-      }
-      bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', ev))
-      if (trainSession.status === 'done') {
-        setTimeout(() => removeTrainingSession(bp, botId, trainSession), 5000)
-      }
+    bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', ev))
+    if (trainSession.status === 'done') {
+      setTimeout(() => removeTrainingSession(bp, botId, trainSession), 5000)
     }
   }
-  Engine.provideTools(tools)
-}
-
-async function initDucklingExtractor(bp: typeof sdk): Promise<void> {
-  const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
-  await DucklingEntityExtractor.configure(globalConfig.ducklingEnabled, globalConfig.ducklingURL, bp.logger)
 }
 
 const EVENTS_TO_IGNORE = ['session_reference', 'session_reset', 'bp_dialog_timeout', 'visit', 'say_something', '']
 
 const ignoreEvent = (bp: typeof sdk, state: NLUState, event: sdk.IO.IncomingEvent) => {
+  const health = Engine.tools.getHealth()
   return (
     !state.nluByBot[event.botId] ||
-    !state.health.isEnabled ||
+    !health.isEnabled ||
     !event.preview ||
     EVENTS_TO_IGNORE.includes(event.type) ||
     event.hasFlag(bp.IO.WellKnownFlags.SKIP_NATIVE_NLU)
@@ -186,9 +133,8 @@ function setNluVersion(bp: typeof sdk, state: NLUState) {
 export function getOnSeverStarted(state: NLUState) {
   return async (bp: typeof sdk) => {
     setNluVersion(bp, state)
-    await initDucklingExtractor(bp)
-    await initializeLanguageProvider(bp, state)
-    initializeEngine(bp, state)
+    await initializeReportingTool(bp, state)
+    await Engine.initialize(bp, state)
     await registerMiddleware(bp, state)
   }
 }

@@ -10,7 +10,7 @@ import { getUtteranceFeatures } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainOutput } from './training-pipeline'
-import { EntityExtractionResult, Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
+import { EntityExtractionResult, ExtractedEntity, Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
 import Utterance, { buildUtteranceBatch, getAlternateUtterance, UtteranceEntity } from './utterance/utterance'
 
 export type ExactMatchResult = (sdk.MLToolkit.SVM.Prediction & { extractor: 'exact-matcher' }) | undefined
@@ -175,7 +175,7 @@ async function extractEntities(input: PredictStep, predictors: Predictors, tools
       ...(await tools.duckling.extract(utterance.toString(), utterance.languageCode))
     ],
     entityRes => {
-      utterance.tagEntity(_.omit(entityRes, ['start, end']), entityRes.start, entityRes.end)
+      utterance.tagEntity(_.omit(entityRes, ['start, end']) as ExtractedEntity, entityRes.start, entityRes.end)
     }
   )
 
@@ -187,7 +187,11 @@ async function extractEntities(input: PredictStep, predictors: Predictors, tools
         ...(await tools.duckling.extract(alternateUtterance.toString(), utterance.languageCode))
       ],
       entityRes => {
-        alternateUtterance.tagEntity(_.omit(entityRes, ['start, end']), entityRes.start, entityRes.end)
+        alternateUtterance.tagEntity(
+          _.omit(entityRes, ['start, end']) as ExtractedEntity,
+          entityRes.start,
+          entityRes.end
+        )
       }
     )
   }
