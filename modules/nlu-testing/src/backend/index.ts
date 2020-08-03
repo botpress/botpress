@@ -33,6 +33,11 @@ const botTemplates: sdk.BotTemplate[] = [
     id: 'bp-nlu-entities-encoding',
     name: 'BPDS - NLU entities encoding ',
     desc: 'BP Dataset with really closed intents that differs almost only from their slots.'
+  },
+  {
+    id: 'bp-nlu-synonyms-testing',
+    name: 'BPDS - NLU synonyms testing ',
+    desc: 'BP Dataset to test synonyms in utterances and improve generalisation'
   }
 ]
 
