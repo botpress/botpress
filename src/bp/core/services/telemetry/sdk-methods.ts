@@ -47,6 +47,7 @@ export class SDKStats extends TelemetryStats {
 
   private async SDKMethodsUsage() {
     const bots = await this.botService.getBotsIds()
+    const methods: any[] = []
 
     for (const botId of bots) {
       const actions = await this.ghostService.forBot(botId).directoryListing('/actions', '*.js')
@@ -56,14 +57,26 @@ export class SDKStats extends TelemetryStats {
 
         const ast = parse(stringAction, { allowReturnOutsideFunction: true })
 
+        const that = this
         traverse(ast, {
           enter(path) {
             if (path.node.type == 'CallExpression') {
-              console.log(path.node)
+              const callee = that.findCallee(path.node.callee)
+              methods.push(callee)
             }
           }
         })
       }
+    }
+    const sdkMethods = methods.filter(method => method.split('.')[0] === 'bp')
+    return _.countBy(sdkMethods)
+  }
+
+  private findCallee(node) {
+    if (node.type === 'MemberExpression') {
+      return `${this.findCallee(node.object)}.${node.property.name}`
+    } else {
+      return node.name // breaks recursion
     }
   }
 }
