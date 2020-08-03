@@ -45,7 +45,7 @@ export function labelizeUtterance(utterance: Utterance): string[] {
 
 export function predictionLabelToTagResult(prediction: { [label: string]: number }): TagResult {
   const pairedPreds = _.chain(prediction)
-    .mapValues((value, key) => value + (prediction[key + '/any'] || 0))
+    .mapValues((value, key) => value + (prediction[`${key}/any`] || 0))
     .toPairs()
     .value()
 
@@ -173,7 +173,7 @@ export default class SlotTagger {
   }
 
   get serialized(): Promise<Buffer> {
-    return (async () => await Promise.fromCallback(cb => fs.readFile(this._crfModelFn, cb)))() as Promise<Buffer>
+    return (async () => Promise.fromCallback(cb => fs.readFile(this._crfModelFn, cb)))() as Promise<Buffer>
   }
 
   private tokenSliceFeatures(

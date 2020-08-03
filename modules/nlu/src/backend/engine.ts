@@ -23,7 +23,7 @@ import {
 
 const trainDebug = DEBUG('nlu').sub('training')
 
-export type TrainingOptions = {
+export interface TrainingOptions {
   forceTrain: boolean
 }
 
@@ -149,7 +149,7 @@ export default class Engine implements NLUEngine {
     try {
       output = await Trainer(input, Engine.tools)
     } catch (err) {
-      this.logger.attachError(err).error(`Could not finish training NLU model`)
+      this.logger.attachError(err).error('Could not finish training NLU model')
       return
     }
 

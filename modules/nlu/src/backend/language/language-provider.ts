@@ -117,7 +117,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
       const headers: _.Dictionary<string> = {}
 
       if (source.authToken) {
-        headers['authorization'] = 'bearer ' + source.authToken
+        headers['authorization'] = `bearer ${source.authToken}`
       }
 
       const proxyConfig = process.PROXY ? { httpsAgent: new httpsProxyAgent(process.PROXY) } : {}

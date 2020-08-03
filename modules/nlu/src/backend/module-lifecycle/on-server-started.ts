@@ -128,7 +128,7 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
         _.merge(event, { nlu: nluResults })
         removeSensitiveText(event)
       } catch (err) {
-        bp.logger.warn('Error extracting metadata for incoming text: ' + err.message)
+        bp.logger.warn(`Error extracting metadata for incoming text: ${err.message}`)
       } finally {
         next()
       }
@@ -147,7 +147,7 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
         event.payload.text = event.payload.text.replace(entity.data.value, stars)
       }
     } catch (err) {
-      bp.logger.warn('Error removing sensitive information: ' + err.message)
+      bp.logger.warn(`Error removing sensitive information: ${err.message}`)
     }
   }
 
@@ -166,7 +166,7 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
         const nlu = legacyElectionPipeline(event.nlu)
         _.merge(event, { nlu })
       } catch (err) {
-        bp.logger.warn('Error making nlu election for incoming text: ' + err.message)
+        bp.logger.warn(`Error making nlu election for incoming text: ${err.message}`)
       } finally {
         next()
       }

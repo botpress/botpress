@@ -291,7 +291,7 @@ export class UtterancesEditor extends React.Component<Props> {
           // need the setTimeout for tagging with click
           setTimeout(this.hideSlotPopover, 200)
         }
-      } else if (from == to && this.state.showSlotMenu) {
+      } else if (from === to && this.state.showSlotMenu) {
         this.hideSlotPopover()
       }
     } else {

@@ -59,7 +59,7 @@ export type PredictStep = InitialStep & {
 export type PredictOutput = sdk.IO.EventUnderstanding
 
 // only to comply with E1
-type E1IntentPred = {
+interface E1IntentPred {
   name: string
   context: string
   confidence: number
@@ -415,7 +415,7 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
     return {
       ...preds,
       [label]: {
-        confidence: confidence,
+        confidence,
         oos: step.oos_predictions![label] || 0,
         intents
       }
@@ -481,6 +481,7 @@ export const Predict = async (
     if (err instanceof InvalidLanguagePredictorError) {
       throw err
     }
+    // tslint:disable-next-line: no-console
     console.log('Could not perform predict data', err)
     return { errored: true } as sdk.IO.EventUnderstanding
   }

@@ -311,7 +311,7 @@ describe('UtteranceClass', () => {
 
       expect(u.toString(defaultOptions)).toEqual(str)
       expect(u.toString({ ...defaultOptions, slots: 'keep-name' })).toEqual(`This IS a ${slot.name} withFire`)
-      expect(u.toString({ ...defaultOptions, slots: 'ignore' })).toEqual(`This IS a  withFire`)
+      expect(u.toString({ ...defaultOptions, slots: 'ignore' })).toEqual('This IS a  withFire')
     })
 
     test('entities options', () => {
@@ -327,7 +327,7 @@ describe('UtteranceClass', () => {
       expect(u.toString(defaultOptions)).toEqual(str)
       expect(u.toString({ ...defaultOptions, entities: 'keep-value' })).toEqual(`This IS a ${entity.value} withFire`)
       expect(u.toString({ ...defaultOptions, entities: 'keep-name' })).toEqual(`This IS a ${entity.type} withFire`)
-      expect(u.toString({ ...defaultOptions, entities: 'ignore' })).toEqual(`This IS a  withFire`)
+      expect(u.toString({ ...defaultOptions, entities: 'ignore' })).toEqual('This IS a  withFire')
     })
 
     test('entities and slots options', () => {
@@ -357,7 +357,7 @@ describe('UtteranceClass', () => {
       expect(u.toString({ ...defaultOptions, slots: 'ignore', entities: 'keep-name' })).toEqual(
         `This IS a ${entity.type} withFire`
       )
-      expect(u.toString({ ...defaultOptions, slots: 'ignore', entities: 'ignore' })).toEqual(`This IS a  withFire`)
+      expect(u.toString({ ...defaultOptions, slots: 'ignore', entities: 'ignore' })).toEqual('This IS a  withFire')
     })
   })
 
