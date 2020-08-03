@@ -30,26 +30,29 @@ export interface TrainingOptions {
 }
 
 export default class Engine implements NLUEngine {
+  private static _tools: Tools
+  private static _version: NLUVersionInfo
+  private static _languages: string[]
+
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<Model> = {}
-  private _tools: Tools
 
-  constructor(
-    private defaultLanguage: string,
-    private botId: string,
-    private version: NLUVersionInfo,
-    private logger: Logger
-  ) {}
+  constructor(private defaultLanguage: string, private botId: string, private logger: Logger) {}
 
-  public get tools() {
+  public static get tools() {
     return this._tools
   }
 
-  public async initialize(bp: typeof sdk): Promise<string[]> {
+  public static get languages() {
+    return this.languages
+  }
+
+  public static async initialize(bp: typeof sdk, version: NLUVersionInfo): Promise<void> {
     await initDucklingExtractor(bp)
-    const { languageProvider } = await initializeLanguageProvider(bp, this.version)
+    const { languageProvider } = await initializeLanguageProvider(bp, version)
     this._tools = makeTools(bp.MLToolkit, bp.logger, languageProvider)
-    return languageProvider.languages
+    this._version = version
+    this._languages = languageProvider.languages
   }
 
   // we might want to make this language specific
@@ -146,7 +149,7 @@ export default class Engine implements NLUEngine {
       ctxToTrain
     }
 
-    const hash = this.computeModelHash(intentDefs, entityDefs, this.version, languageCode)
+    const hash = this.computeModelHash(intentDefs, entityDefs, Engine._version, languageCode)
     const model = await this._trainAndMakeModel(input, hash, reportTrainingProgress)
     if (!model) {
       return
@@ -177,7 +180,7 @@ export default class Engine implements NLUEngine {
     const startedAt = new Date()
     let output: TrainOutput | undefined
     try {
-      output = await Trainer(input, this._tools, reportTrainingProgress)
+      output = await Trainer(input, Engine._tools, reportTrainingProgress)
     } catch (err) {
       this.logger.attachError(err).error('Could not finish training NLU model')
       return
@@ -221,7 +224,7 @@ export default class Engine implements NLUEngine {
 
     const { input, output } = model.data
     if (!output.intents) {
-      const intents = await ProcessIntents(input.intents, model.languageCode, output.list_entities, this._tools)
+      const intents = await ProcessIntents(input.intents, model.languageCode, output.list_entities, Engine._tools)
       output.intents = intents
     }
     const trainOutput = output as TrainOutput
@@ -244,7 +247,7 @@ export default class Engine implements NLUEngine {
   }
 
   private async _makePredictors(input: TrainInput, output: TrainOutput): Promise<Predictors> {
-    const tools = this._tools
+    const tools = Engine._tools
 
     if (_.flatMap(input.intents, i => i.utterances).length <= 0) {
       // we don't want to return undefined as extraction won't be triggered
@@ -289,7 +292,7 @@ export default class Engine implements NLUEngine {
     }
 
     // error handled a level highr
-    return Predict(input, this._tools, this.predictorsByLang)
+    return Predict(input, Engine._tools, this.predictorsByLang)
   }
 
   private _ctxHasChanged = (previousIntents: Intent<string>[], currentIntents: Intent<string>[]) => (ctx: string) => {

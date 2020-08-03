@@ -22,8 +22,8 @@ export function getOnBotMount(state: NLUState) {
     const ghost = bp.ghost.forBot(botId)
     const entityService = new EntityService(ghost, botId)
 
-    const engine = new Engine(bot.defaultLanguage, bot.id, state, bp.logger)
-    const langProviderlanguages = await engine.initialize(bp)
+    const engine = new Engine(bot.defaultLanguage, bot.id, bp.logger)
+    const langProviderlanguages = Engine.languages
     const languages = _.intersection(bot.languages, langProviderlanguages)
     if (bot.languages.length !== languages.length) {
       bp.logger.warn(missingLangMsg(botId), { notSupported: _.difference(bot.languages, languages) })

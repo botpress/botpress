@@ -4,6 +4,7 @@ import _ from 'lodash'
 import semver from 'semver'
 
 import nluInfo from '../../../package.json'
+import Engine from '../engine'
 import legacyElectionPipeline from '../legacy-election'
 import { getLatestModel } from '../model-service'
 import { InvalidLanguagePredictorError } from '../predict-pipeline'
@@ -132,6 +133,7 @@ export function getOnSeverStarted(state: NLUState) {
   return async (bp: typeof sdk) => {
     setNluVersion(bp, state)
     await initializeReportingTool(bp, state)
+    await Engine.initialize(bp, state)
     await registerMiddleware(bp, state)
   }
 }
