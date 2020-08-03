@@ -13,7 +13,6 @@ export function getEntitiesEncoding(utt: Utterance, customEntities: string[]): n
     .value()
 
   entityMap = { ...entityMap, ...entitiesOccurence }
-
   return _.chain(entityMap)
     .toPairs()
     .orderBy('0')

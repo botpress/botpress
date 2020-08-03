@@ -12,7 +12,7 @@ import {
   Toaster
 } from '@blueprintjs/core'
 import { FlowVariable } from 'botpress/sdk'
-import { Contents, contextMenu, Icons, lang, MainContent } from 'botpress/shared'
+import { Contents, Icons, lang, MainContent } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
@@ -48,8 +48,8 @@ import withLanguage from '~/components/Util/withLanguage'
 import { getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/reducers'
 import {
   defaultTransition,
-  DiagramManager,
   DIAGRAM_PADDING,
+  DiagramManager,
   nodeTypes,
   Point
 } from '~/views/FlowBuilder/diagram/manager'
@@ -59,7 +59,15 @@ import { StandardNodeModel, StandardWidgetFactory } from '~/views/FlowBuilder/di
 import { textToItemId } from '~/views/FlowBuilder/diagram/nodes_v2/utils'
 import style from '~/views/FlowBuilder/diagram/style.scss'
 
-import { BlockModel, BlockWidgetFactory } from './nodes/Block'
+import { ActionWidgetFactory } from './nodes/ActionNode'
+import { ExecuteNodeModel, ExecuteWidgetFactory } from './nodes/ExecuteNode'
+import { FailureNodeModel, FailureWidgetFactory } from './nodes/FailureNode'
+import { ListenWidgetFactory } from './nodes/ListenNode'
+import { PromptNodeModel, PromptWidgetFactory } from './nodes/PromptNode'
+import { RouterNodeModel, RouterWidgetFactory } from './nodes/RouterNode'
+import { SaySomethingNodeModel, SaySomethingWidgetFactory } from './nodes/SaySomethingNode'
+import { SuccessNodeModel, SuccessWidgetFactory } from './nodes/SuccessNode'
+import { TriggerWidgetFactory } from './nodes/TriggerNode'
 import menuStyle from './style.scss'
 import ActionForm from './ActionForm'
 import ConditionForm from './ConditionForm'
@@ -135,7 +143,20 @@ class Diagram extends Component<Props> {
     this.diagramEngine = new DiagramEngine()
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory(this.props.skills))
-    this.diagramEngine.registerNodeFactory(new BlockWidgetFactory(commonProps))
+    this.diagramEngine.registerNodeFactory(new SaySomethingWidgetFactory(commonProps))
+    this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory(commonProps))
+    this.diagramEngine.registerNodeFactory(new ListenWidgetFactory(commonProps))
+    this.diagramEngine.registerNodeFactory(new RouterWidgetFactory(commonProps))
+    this.diagramEngine.registerNodeFactory(new ActionWidgetFactory(commonProps))
+    this.diagramEngine.registerNodeFactory(new SuccessWidgetFactory())
+    this.diagramEngine.registerNodeFactory(
+      new TriggerWidgetFactory({
+        ...commonProps,
+        getConditions: () => this.getPropsProperty('conditions'),
+        addCondition: this.addCondition.bind(this)
+      })
+    )
+    this.diagramEngine.registerNodeFactory(new FailureWidgetFactory())
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
 
     // This reference allows us to update flow nodes from widgets

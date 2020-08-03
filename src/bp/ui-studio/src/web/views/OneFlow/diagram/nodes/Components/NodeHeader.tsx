@@ -62,7 +62,7 @@ const NodeHeader: FC<Props> = ({
           icon={setExpanded ? icon : null}
           onClick={() => setExpanded && setExpanded(!expanded)}
           className={style.button}
-          onContextMenu={e => handleContextMenu && handleContextMenu(e)}
+          onContextMenu={e => handleContextMenu?.(e)}
         >
           {isDefaultName ? defaultLabel : name}
         </Button>

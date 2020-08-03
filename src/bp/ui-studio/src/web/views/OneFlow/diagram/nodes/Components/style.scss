@@ -47,7 +47,7 @@
       width: 25px;
 
       &:before {
-        content: "";
+        content: '';
         border-radius: 100%;
         height: 6px;
         width: 6px;
@@ -114,31 +114,38 @@
       box-shadow: none;
     }
 
-    &.trigger, &:hover.trigger {
+    &.trigger,
+    &:hover.trigger {
       border-color: var(--trigger);
     }
 
-    &.listen, &:hover.listen {
+    &.listen,
+    &:hover.listen {
       border-color: var(--listen);
     }
 
-    &.execute, &:hover.execute, &.action, &:hover.action {
+    &.execute,
+    &:hover.execute {
       border-color: var(--execute);
     }
 
-    &.failure, &:hover.failure {
+    &.failure,
+    &:hover.failure {
       border-color: var(--lighthouse);
     }
 
-    &.router, &:hover.router {
+    &.router,
+    &:hover.router {
       border-color: var(--if-else);
     }
 
-    &.success, &:hover.success {
+    &.success,
+    &:hover.success {
       border-color: var(--success);
     }
 
-    &.prompt, &:hover.prompt {
+    &.prompt,
+    &:hover.prompt {
       border-color: var(--prompt);
     }
 

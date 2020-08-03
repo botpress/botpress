@@ -1,0 +1,68 @@
+{
+  "type": "object",
+  "properties": {
+    "ducklingURL": {
+      "description": "If you want a fully on-prem installation, you can host\nFacebook's Duckling on your own infrastructure and change this URL\nOnly relevant if @see ducklingEnabled is true",
+      "default": "https://duckling.botpress.io",
+      "type": "string"
+    },
+    "ducklingEnabled": {
+      "default": true,
+      "type": "boolean"
+    },
+    "autoTrainInterval": {
+      "description": "The interval at which to automatically sync the models in the background\nSet this value to \"false\" to disable background sync",
+      "default": "30s",
+      "type": "string"
+    },
+    "preloadModels": {
+      "description": "Whether or not you want your models to be trained and loaded on bot mounts",
+      "default": true,
+      "type": "boolean"
+    },
+    "languageSources": {
+      "description": "The list of sources to load languages from",
+      "default": [
+        {
+          "endpoint": "https://lang-01.botpress.io"
+        }
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/LanguageSource"
+      }
+    },
+    "$schema": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "autoTrainInterval",
+    "ducklingEnabled",
+    "ducklingURL",
+    "languageSources",
+    "preloadModels"
+  ],
+  "definitions": {
+    "LanguageSource": {
+      "type": "object",
+      "properties": {
+        "endpoint": {
+          "description": "The endpoint URL of the source",
+          "type": "string"
+        },
+        "authToken": {
+          "description": "The authentication token, if required by the source",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "endpoint"
+      ]
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
+

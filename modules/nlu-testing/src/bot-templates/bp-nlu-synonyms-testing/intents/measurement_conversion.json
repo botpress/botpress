@@ -1,0 +1,31 @@
+{
+    "name": "measurement_conversion",
+    "utterances": {
+        "en": [
+            "how many centimeters are in an inch",
+            "whats 5 feet in inches",
+            "what's 32 degrees fahrenheit in celsisus",
+            "what amount of millimeters are in 50 kilometers",
+            "how many crows are in 10 murders",
+            "what amount of miles are in a hundred kilometers",
+            "how many weeks are in 3 months",
+            "how many meters are in 50 feet",
+            "what's 8 ounces in cups",
+            "how many kilos are in 150 pounds",
+            "how do you convert pounds to grams",
+            "how many kilos are in 10 pounds",
+            "what is 15 ounces in grams, please",
+            "what is 20 ounces in grams, please",
+            "what is 10 ounces in grams, please",
+            "how do you convert ounces to pounds",
+            "how many kilos are in 25 pounds",
+            "what is 10 ounces in grams",
+            "how many kilos are in 20 pounds",
+            "how do you convert ounces to grams"
+        ]
+    },
+    "slots": [],
+    "contexts": [
+        "global"
+    ]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "visualisation",
+  "fullName": "Visualisation",
+  "version": "1.0.0",
+  "status": "stable",
+  "main": "dist/backend/index.js",
+  "description": "Provides tools to do visualisation of nlu datas",
+  "private": true,
+  "scripts": {
+    "build": "node ../../build/module-builder/bin/entry build",
+    "watch": "node ../../build/module-builder/bin/entry watch",
+    "package": "node ../../build/module-builder/bin/entry package",
+    "postinstall": "./node_modules/.bin/rimraf **/bmp-stuff.png"
+  },
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0-only",
+  "dependencies": {
+    "density-clustering": "^1.3.0",
+    "ml-confusion-matrix": "^0.4.0",
+    "ml-distance": "^3.0.0",
+    "ml-pca": "^4.0.1",
+    "plotly.js": "^1.54.7",
+    "react-plotly.js": "^2.4.0",
+    "rimraf": "^3.0.2",
+    "tsne-js": "^1.0.3"
+  }
+}

@@ -1,0 +1,31 @@
+{
+    "name": "pay_bill",
+    "utterances": {
+        "en": [
+            "i want to pay my bill, please",
+            "pay my water bill with my charles schwab account",
+            "i'd like to pay my bill",
+            "pay my internet bill with my discover account",
+            "can you help me pay a bill",
+            "i need to pay my bill",
+            "can i pay a bill",
+            "use my capital one account to pay for my gas bill",
+            "pay my electric bill from my amex account",
+            "i want to pay my house bill",
+            "i want to pay my car bill",
+            "i want to pay my insurance bill",
+            "i want to pay my tax bill",
+            "i need help paying my auto insurance bill",
+            "i need help paying my hoa bill",
+            "i need help paying my tuition bill",
+            "i need help paying my phone bill",
+            "my water bill is due, pay it immediately",
+            "i need to pay my water bill",
+            "please go ahead and make my student loan payment"
+        ]
+    },
+    "slots": [],
+    "contexts": [
+        "global"
+    ]
+}

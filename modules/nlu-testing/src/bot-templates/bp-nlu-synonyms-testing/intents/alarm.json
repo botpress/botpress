@@ -1,0 +1,31 @@
+{
+    "name": "alarm",
+    "utterances": {
+        "en": [
+            "wake me up at noon tomorrow",
+            "set my alarm for getting up",
+            "make sure my alarm is set for three thirty in the morning",
+            "please set an alarm for mid day",
+            "have an alarm set for three in the morning",
+            "you need to set alarm for me",
+            "i need you to set alarm for me",
+            "set the alarm for me",
+            "can you set alarm for me",
+            "please set alarm for me",
+            "make a new alarm for 6 in the morning",
+            "make a new alarm",
+            "create an alarm",
+            "i need an alarm for 6am",
+            "can you alert me at 6 in the morning",
+            "i'd like a new alarm set for 6am",
+            "set an alarm for 6am, please",
+            "initiate a new alarm please",
+            "set up an alarm",
+            "make up a new alarm"
+        ]
+    },
+    "slots": [],
+    "contexts": [
+        "global"
+    ]
+}

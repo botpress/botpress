@@ -1,0 +1,31 @@
+{
+    "name": "tire_change",
+    "utterances": {
+        "en": [
+            "tell me the status of my tires and when i need to replace them",
+            "how many more miles can i drive before changing my tires",
+            "how many miles can i drive before changing my tires",
+            "when will my tires need to be replaced",
+            "how is the tread on my tires",
+            "when should i replace my tires next if i last replaced them on july 15th",
+            "when are my tires due to be changed",
+            "what date should i get my tires changed",
+            "my tires need to be changed when",
+            "how often do tires need changing",
+            "when should i try to change my tires",
+            "when is it imperative that i get my tires changed",
+            "when do my tires need some changing",
+            "when do my tires need changing",
+            "when do i have to get my tires changed",
+            "when should i replace my tires next if i last replaced them on the 1st",
+            "tell when should i get my tires changed next",
+            "tell me when should i get my tires changed next",
+            "i need to know when should i get my tires changed next",
+            "let me know when should i get my tires changed next"
+        ]
+    },
+    "slots": [],
+    "contexts": [
+        "global"
+    ]
+}

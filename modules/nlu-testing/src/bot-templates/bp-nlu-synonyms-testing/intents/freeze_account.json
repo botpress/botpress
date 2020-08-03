@@ -1,0 +1,31 @@
+{
+    "name": "freeze_account",
+    "utterances": {
+        "en": [
+            "can you block my chase account right away please",
+            "i want my chase account blocked immediately",
+            "i need you to block my chase account immediately",
+            "can you put a block on my chase account right away",
+            "please block my chase account right away",
+            "what do i do to freeze my account",
+            "place a hold on my bank account",
+            "how can i stop transactions on my account",
+            "freeze my account immediately",
+            "block my monkey market right now",
+            "put a stop on my deposit account",
+            "stop any future processing on my savings account",
+            "put a hault on my savings account",
+            "could you put a stop on my bank account, please",
+            "can you put a stop on my bank account now",
+            "can you put a stop on my bank account, please",
+            "could you freeze my account",
+            "could you freeze my account, please",
+            "can you put a stop on my bank account",
+            "can you freeze my account, please"
+        ]
+    },
+    "slots": [],
+    "contexts": [
+        "global"
+    ]
+}

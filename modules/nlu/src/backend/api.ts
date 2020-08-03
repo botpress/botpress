@@ -4,6 +4,8 @@ import _ from 'lodash'
 import yn from 'yn'
 
 import { isOn as isAutoTrainOn, set as setAutoTrain } from './autoTrain'
+import {} from './engine'
+import Engine from './engine'
 import { EntityDefCreateSchema } from './entities/validation'
 import {
   deleteIntent,
@@ -15,11 +17,13 @@ import {
 } from './intents/intent-service'
 import recommendations from './intents/recommendations'
 import { IntentDefCreateSchema } from './intents/validation'
+import { getPOSTagger, tagSentence } from './language/pos-tagger'
 import legacyElectionPipeline from './legacy-election'
 import { initializeLanguageProvider } from './module-lifecycle/on-server-started'
 import { crossValidate } from './tools/cross-validation'
 import { getTrainingSession } from './train-session-service'
-import { NLUState } from './typings'
+import { NLUState, Token2Vec, Tools } from './typings'
+import { buildUtteranceBatch } from './utterance/utterance'
 
 export const PredictSchema = Joi.object().keys({
   contexts: Joi.array()
@@ -45,6 +49,12 @@ export default async (bp: typeof sdk, state: NLUState) => {
       await initializeLanguageProvider(bp, state)
     }
     res.send(state.health)
+  })
+
+  router.post('/embed', async (req, res) => {
+    const utterances = await buildUtteranceBatch(req.body.utterances, 'fr', Engine.tools)
+    const utt_embs = utterances.map(u => u.sentenceEmbedding)
+    res.send(utt_embs)
   })
 
   router.post('/cross-validation/:lang', async (req, res) => {

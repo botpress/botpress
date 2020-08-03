@@ -1,0 +1,31 @@
+{
+    "name": "vaccines",
+    "utterances": {
+        "en": [
+            "are there any specific shots i should get before traveling to england",
+            "what are the recommended shots to get before i travel to south korea",
+            "what are the recommended shots to get before i travel to england",
+            "are there recommendations to get any specific shots before i travel to germany",
+            "do i need certain shots before flying to eithiopia",
+            "what type of specific shots should i get before flying to south korea",
+            "are there specific shots i need before traveling to japan",
+            "is it recommended to get specific shots before i travel to japan",
+            "do i need specific shots before traveling to germany",
+            "is it recommended to get any shots before i travel to africa",
+            "how many vaccinations will i need to travel to asia",
+            "which countries require vaccinations before entering for travel",
+            "which types of vaccinations are required when leaving the united states",
+            "what are common illnesses i should be vaccinated against when leaving the united states",
+            "what are common vaccinations for someone travelling internationally",
+            "does travel to africa require any shots",
+            "do i need to protect myself with some shots for a trip to vietnam",
+            "do i need any shots if i travel to africa",
+            "would i need any immunization if i go to thailand",
+            "will i need immunization for a trip to turkey"
+        ]
+    },
+    "slots": [],
+    "contexts": [
+        "global"
+    ]
+}

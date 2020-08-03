@@ -1,0 +1,16 @@
+{
+  "name": "gun_problem",
+  "utterances": {
+    "en": [
+      "I need to repair my gun",
+      "My gun is broken",
+      "My gun doesn't work",
+      "Something went wrong with my pistol",
+      "I cannot shoot with my riffle",
+      "It doesn't shoot as usual",
+      "It is not precise anymore"
+    ]
+  },
+  "slots": [],
+  "contexts": ["global"]
+}

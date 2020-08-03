@@ -1,0 +1,31 @@
+{
+    "name": "change_user_name",
+    "utterances": {
+        "en": [
+            "please change the name you refer to me by",
+            "how do i change the name you use to address me",
+            "is there a way i can change the name you use to address me",
+            "i need to change my name to something else for you to call me",
+            "can i have you call me something else",
+            "i go by brad",
+            "usually people refer to me as brad",
+            "i prefer to go by brad",
+            "people call me brad",
+            "my name is brad",
+            "call me carrie",
+            "my names carrie",
+            "my friends call me carrie",
+            "you can call me carrie",
+            "call me dad",
+            "you can call me stevie",
+            "you can call me sarah",
+            "you can call me james",
+            "call me jake",
+            "call me stevie"
+        ]
+    },
+    "slots": [],
+    "contexts": [
+        "global"
+    ]
+}
