@@ -2,10 +2,10 @@ import * as sdk from 'botpress/sdk'
 
 import { Config } from '../config'
 
-import LangProvider from './language/language-provider'
-import { NLUVersionInfo, LanguageProvider, Tools, Token2Vec } from './typings'
 import { DucklingEntityExtractor } from './entities/duckling_extractor'
+import LangProvider from './language/language-provider'
 import { getPOSTagger, tagSentence } from './language/pos-tagger'
+import { LanguageProvider, NLUVersionInfo, Token2Vec, Tools } from './typings'
 
 export const initializeLanguageProvider = async (bp: typeof sdk, version: NLUVersionInfo) => {
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
@@ -54,7 +54,7 @@ export function makeTools(
       return a.map(x => Array.from(x.values()))
     },
     generateSimilarJunkWords: (vocab: string[], lang: string) => languageProvider.generateSimilarJunkWords(vocab, lang),
-    mlToolkit: mlToolkit,
+    mlToolkit,
     duckling: new DucklingEntityExtractor(logger)
   }
 }

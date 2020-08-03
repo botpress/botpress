@@ -4,6 +4,7 @@ import crypto from 'crypto'
 import _ from 'lodash'
 
 import * as CacheManager from './cache-manager'
+import { initDucklingExtractor, initializeLanguageProvider, makeTools } from './initialize'
 import { Model } from './model-service'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
@@ -12,7 +13,6 @@ import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from 
 import {
   EntityCacheDump,
   Intent,
-  LanguageProvider,
   ListEntity,
   ListEntityModel,
   NLUEngine,
@@ -22,8 +22,6 @@ import {
   Tools,
   TrainingSession
 } from './typings'
-
-import { initializeLanguageProvider, makeTools, initDucklingExtractor } from './initialize'
 
 const trainDebug = DEBUG('nlu').sub('training')
 

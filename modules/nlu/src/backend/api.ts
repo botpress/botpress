@@ -5,6 +5,7 @@ import yn from 'yn'
 
 import { isOn as isAutoTrainOn, set as setAutoTrain } from './autoTrain'
 import { EntityDefCreateSchema } from './entities/validation'
+import { initializeLanguageProvider } from './initialize'
 import {
   deleteIntent,
   getIntent,
@@ -16,7 +17,6 @@ import {
 import recommendations from './intents/recommendations'
 import { IntentDefCreateSchema } from './intents/validation'
 import legacyElectionPipeline from './legacy-election'
-import { initializeLanguageProvider } from './initialize'
 import { crossValidate } from './tools/cross-validation'
 import { getTrainingSession } from './train-session-service'
 import { NLUState } from './typings'
