@@ -18,7 +18,8 @@ const passThroughNodeProps: string[] = [
   'type',
   'contents',
   'activeWorkflow',
-  'prompt'
+  'prompt',
+  'friendlyName'
 ]
 export const DIAGRAM_PADDING: number = 100
 
@@ -32,8 +33,11 @@ export const nodeTypes = [
   'listen',
   'router',
   'action',
-  'prompt'
+  'prompt',
+  'sub-workflow'
 ]
+
+export const outcomeNodeTypes = ['success', 'failure']
 
 // Using the new node types to prevent displaying start port
 export const newNodeTypes = ['say_something', 'execute', 'listen', 'router']

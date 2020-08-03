@@ -49,8 +49,8 @@ import { getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/reducers'
 import storage from '~/util/storage'
 import {
   defaultTransition,
-  DiagramManager,
   DIAGRAM_PADDING,
+  DiagramManager,
   nodeTypes,
   Point
 } from '~/views/FlowBuilder/diagram/manager'

@@ -7,7 +7,7 @@ import { BaseNodeModel } from '../nodes/BaseNodeModel'
 import { StandardPortWidget } from '../nodes/Ports'
 
 import style from './style.scss'
-import { showHeader } from './utils'
+import OutcomeUsage from './OutcomeUsage'
 
 export class SuccessWidget extends Component<{ node: SuccessNodeModel; diagramEngine: any }> {
   render() {
@@ -15,7 +15,7 @@ export class SuccessWidget extends Component<{ node: SuccessNodeModel; diagramEn
 
     return (
       <div className={classnames(style.baseNode, style.nodeSuccess, { [style.highlightedNode]: node.isHighlighted })}>
-        {showHeader({ nodeType: 'Success', nodeName: node.name, isStartNode: false })}
+        <OutcomeUsage nodeName={node.name} nodeLabel={node.friendlyName} />
         <div className={style.ports}>
           <StandardPortWidget name="in" node={node} className={style.in} />
         </div>

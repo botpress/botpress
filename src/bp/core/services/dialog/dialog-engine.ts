@@ -96,7 +96,7 @@ export class DialogEngine {
 
     // Property type skill-call means that the node points to a subflow.
     // We skip this step if we're exiting from a subflow, otherwise it will result in an infinite loop.
-    if (_.get(currentNode, 'type') === 'skill-call' && !this._exitingSubflow(event)) {
+    if (['skill-call', 'sub-workflow'].includes(currentNode.type!) && !this._exitingSubflow(event)) {
       return this._goToSubflow(botId, event, sessionId, currentFlow, currentNode)
     }
 

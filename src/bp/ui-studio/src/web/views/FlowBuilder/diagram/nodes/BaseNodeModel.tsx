@@ -14,6 +14,7 @@ export class BaseNodeModel extends NodeModel {
   public oldY?: number
   public lastModified?: Date
   public name: string
+  public friendlyName?: string
 
   serialize() {
     return _.merge(super.serialize(), {
@@ -29,7 +30,7 @@ export class BaseNodeModel extends NodeModel {
     this.setData(data)
   }
 
-  setData({ name, onEnter = [], onReceive = [], next = [], isStartNode, isHighlighted }) {
+  setData({ name, friendlyName = '', onEnter = [], onReceive = [], next = [], isStartNode, isHighlighted }) {
     const deprecatedFeature = window.USE_ONEFLOW // TODO: remove in 13+
 
     this.isStartNode = !deprecatedFeature && isStartNode
@@ -70,6 +71,7 @@ export class BaseNodeModel extends NodeModel {
     this.waitOnReceive = waitOnReceive
     this.next = next
     this.name = name
+    this.friendlyName = friendlyName
   }
 
   getOutPorts() {

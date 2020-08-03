@@ -1254,6 +1254,8 @@ declare module 'botpress/sdk' {
     timeoutNode?: string
     type?: string
     timeout?: { name: string; flow: string; node: string }[]
+    /** The name of the parent flow. It will be generated automatically */
+    readonly parent?: string
     variables?: FlowVariable[]
   }
 
@@ -1363,6 +1365,7 @@ declare module 'botpress/sdk' {
     | 'skill-call'
     | 'listen'
     | 'say_something'
+    | 'sub-workflow'
     | 'success'
     | 'failure'
     | 'trigger'
@@ -1372,8 +1375,11 @@ declare module 'botpress/sdk' {
     | 'prompt'
 
   export type FlowNode = {
+    /** An auto-generated ID used internally for the flow builder */
     id?: string
+    /** The name used by the dialog engine to link to other nodes */
     name: string
+    friendlyName?: string
     type?: FlowNodeType
     timeoutNode?: string
     flow?: string
