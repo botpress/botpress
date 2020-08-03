@@ -376,7 +376,7 @@ class Diagram extends Component<Props> {
           onClick={wrap(this.add.say, point)}
           icon={<Icons.Say />}
         />
-        <MenuItem tagName="button" text={lang.tr('prompt')} icon="citation">
+        <MenuItem tagName="span" text={lang.tr('prompt')} icon="citation">
           {this.props.prompts.map(({ id, config }) => (
             <MenuItem
               key={id}
@@ -392,7 +392,7 @@ class Diagram extends Component<Props> {
         <MenuItem text={lang.tr('split')} onClick={wrap(this.add.routerNode, point)} icon="flow-branch" />
         <MenuItem text={lang.tr('action')} onClick={wrap(this.add.actionNode, point)} icon="offline" />
 
-        <MenuItem tagName="button" text={lang.tr('skills')} icon="add">
+        <MenuItem tagName="span" text={lang.tr('skills')} icon="add">
           {this.props.skills.map(skill => (
             <MenuItem
               key={skill.id}

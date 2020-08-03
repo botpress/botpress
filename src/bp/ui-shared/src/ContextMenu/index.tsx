@@ -10,10 +10,16 @@ const ContextMenuWrapper = ({ event, onClose, children }) => {
   const elPos = useRef(event.currentTarget?.getBoundingClientRect())
   const { top, bottom, right, left } = elPos.current
 
-  const handleToggle = (e: SyntheticEvent): void => {
+  const handleToggle = e => {
     e.stopPropagation()
     onClose?.()
     removeContextMenu()
+  }
+
+  const handleWrapperClick = e => {
+    if (['button', 'a'].includes(e.target?.closest('.bp3-menu-item').tagName.toLowerCase())) {
+      handleToggle(e)
+    }
   }
 
   const isWithinBounds = (x: number, y: number): boolean => {
@@ -22,7 +28,7 @@ const ContextMenuWrapper = ({ event, onClose, children }) => {
 
   return (
     <Fragment>
-      <div style={clickPosition} onClick={handleToggle} className={style.contextMenuWrapper}>
+      <div style={clickPosition} onClick={handleWrapperClick} className={style.contextMenuWrapper}>
         {children}
       </div>
       <Overlay
