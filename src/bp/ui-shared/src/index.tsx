@@ -1,3 +1,7 @@
+import MoreOptions from '../../ui-shared-lite/MoreOptions'
+import Overlay from '../../ui-shared-lite/Overlay'
+import ToolTip from '../../ui-shared-lite/ToolTip'
+
 import { lang, langAvaibale, langExtend, langInit, langLocale } from './translations'
 import { isInputFocused } from './utils/inputs'
 import { controlKey, keyMap } from './utils/keyboardShortcuts'
@@ -14,8 +18,6 @@ import MainContainer from './MainContainer'
 import MainContent from './MainContent'
 import RightSidebar from './MainContent/RightSidebar'
 import MarkdownContent from './MarkdownContent'
-import MoreOptions from './MoreOptions'
-import Overlay from './Overlay'
 import ShortcutLabel from './ShortcutLabel'
 import Textarea from './Textarea'
 import { toast } from './Toaster'
@@ -35,6 +37,7 @@ exports.MoreOptions = MoreOptions
 exports.Overlay = Overlay
 exports.ShortcutLabel = ShortcutLabel
 exports.Textarea = Textarea
+exports.ToolTip = ToolTip
 exports.TreeView = TreeView
 exports.Icons = Icons
 

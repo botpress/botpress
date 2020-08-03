@@ -1,0 +1,8 @@
+{
+  "name": "studio-ui0lite",
+  "version": "1.0.0",
+  "author": "Botpress",
+  "dependencies": {
+    "classnames": "^2.2.6"
+  }
+}

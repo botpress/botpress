@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { IconName } from "@blueprintjs/icons"
 
 export interface MoreOptionsProps {
