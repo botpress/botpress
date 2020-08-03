@@ -6,13 +6,7 @@ import { Stream } from 'stream'
 import tar from 'tar'
 import tmp from 'tmp'
 
-import { TrainInput, TrainOutput } from './training-pipeline'
-import { EntityCache, Intent, NLUVersionInfo } from './typings'
-import Utterance from './utterance/utterance'
-
-type PersistedOutput = Omit<TrainOutput, 'intents'> & {
-  intents?: Intent<Utterance>[]
-}
+import { EntityCache } from './typings'
 
 export interface Model {
   hash: string
@@ -20,8 +14,8 @@ export interface Model {
   startedAt: Date
   finishedAt: Date
   data: {
-    input: TrainInput
-    output: PersistedOutput
+    input: any
+    output: any
   }
 }
 

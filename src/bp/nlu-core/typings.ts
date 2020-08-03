@@ -27,11 +27,11 @@ export interface LangsGateway {
 
 export interface LanguageProvider {
   languages: string[]
-  langServerInfo: LangServerInfo
+  langServerInfo: sdk.NLUCore.LangServerInfo
   vectorize(tokens: string[], lang: string): Promise<Float32Array[]>
   tokenize(utterances: string[], lang: string, vocab?: Token2Vec): Promise<string[][]>
   generateSimilarJunkWords(subsetVocab: string[], lang: string): Promise<string[]>
-  getHealth(): Partial<NLUHealth>
+  getHealth(): Partial<sdk.NLUCore.NLUHealth>
 }
 
 export interface LanguageSource {
@@ -39,12 +39,6 @@ export interface LanguageSource {
   endpoint: string
   /** The authentication token, if required by the source */
   authToken?: string
-}
-
-export interface NLUHealth {
-  isEnabled: boolean
-  validProvidersCount: number
-  validLanguages: string[]
 }
 
 export interface NluMlRecommendations {
@@ -67,18 +61,7 @@ export type NLUState = {
   broadcastLoadModel?: (botId: string, hash: string, language: string) => Promise<void>
   broadcastCancelTraining?: (botId: string, language: string) => Promise<void>
   reportTrainingProgress: sdk.NLUCore.ProgressReporter
-} & NLUVersionInfo
-
-export interface NLUVersionInfo {
-  nluVersion: string
-  langServerInfo: LangServerInfo
-}
-
-export interface LangServerInfo {
-  version: string
-  domain: string
-  dim: number
-}
+} & sdk.NLUCore.NLUVersionInfo
 
 export interface BotState {
   botId: string
@@ -157,7 +140,7 @@ export interface Tools {
   vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
   partOfSpeechUtterances(utterances: string[][], languageCode: string): string[][]
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
-  getHealth(): NLUHealth
+  getHealth(): sdk.NLUCore.NLUHealth
   getLanguages(): string[]
   duckling: SystemEntityExtractor
   mlToolkit: typeof sdk.MLToolkit

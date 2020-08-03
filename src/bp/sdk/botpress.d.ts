@@ -455,8 +455,21 @@ declare module 'botpress/sdk' {
   }
 
   export namespace NLUCore {
+    export class InvalidLanguagePredictorError extends Error {
+      constructor(languageCode: string)
+      languageCode: string
+    }
     export class NLUEngine {
+      static initialize: (bp: any, version: NLUVersionInfo) => Promise<void>
+      static getHealth: () => NLUHealth
+      static getLanguages: () => string[]
       constructor(defaultLanguage: string, botId: string, logger: Logger)
+      computeModelHash(
+        intents: NLU.IntentDefinition[],
+        entities: NLU.EntityDefinition[],
+        version: NLUCore.NLUVersionInfo,
+        lang: string
+      ): string
       loadModel: (m: any) => Promise<void>
       train: (
         intentDefs: NLU.IntentDefinition[],
@@ -467,6 +480,23 @@ declare module 'botpress/sdk' {
         options?: any
       ) => Promise<any>
       predict: (t: string, ctx: string[]) => Promise<IO.EventUnderstanding>
+    }
+
+    export interface NLUVersionInfo {
+      nluVersion: string
+      langServerInfo: LangServerInfo
+    }
+
+    export interface LangServerInfo {
+      version: string
+      domain: string
+      dim: number
+    }
+
+    export interface NLUHealth {
+      isEnabled: boolean
+      validProvidersCount: number
+      validLanguages: string[]
     }
 
     export interface TrainingSession {

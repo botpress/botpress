@@ -438,7 +438,7 @@ export function findExactIntentForCtx(
   }
 }
 
-export class InvalidLanguagePredictorError extends Error {
+export class InvalidLanguagePredictorError extends sdk.NLUCore.InvalidLanguagePredictorError {
   constructor(public languageCode: string) {
     super(`Predictor for language: ${languageCode} is not valid`)
     this.name = 'PredictorError'

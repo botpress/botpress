@@ -4,12 +4,10 @@ import _ from 'lodash'
 import semver from 'semver'
 
 import nluInfo from '../../../package.json'
-import Engine from '../engine'
 import legacyElectionPipeline from '../legacy-election'
 import { getLatestModel } from '../model-service'
-import { InvalidLanguagePredictorError } from '../predict-pipeline'
 import { removeTrainingSession, setTrainingSession } from '../train-session-service'
-import { NLUProgressEvent, NLUState, NLUVersionInfo, TrainingSession } from '../typings'
+import { NLUProgressEvent, NLUState, TrainingSession } from '../typings'
 
 async function initializeReportingTool(bp: typeof sdk, state: NLUState) {
   state.reportTrainingProgress = async (botId: string, message: string, trainSession: TrainingSession) => {
@@ -32,7 +30,7 @@ async function initializeReportingTool(bp: typeof sdk, state: NLUState) {
 const EVENTS_TO_IGNORE = ['session_reference', 'session_reset', 'bp_dialog_timeout', 'visit', 'say_something', '']
 
 const ignoreEvent = (bp: typeof sdk, state: NLUState, event: sdk.IO.IncomingEvent) => {
-  const health = Engine.tools.getHealth()
+  const health = bp.NLUCore.NLUEngine.getHealth()
   return (
     !state.nluByBot[event.botId] ||
     !health.isEnabled ||
@@ -61,7 +59,7 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
           // eventually if model not loaded for bot languages ==> train or load
           nluResults = await engine.predict(event.preview, event.nlu.includedContexts)
         } catch (err) {
-          if (err instanceof InvalidLanguagePredictorError) {
+          if (err instanceof sdk.NLUCore.InvalidLanguagePredictorError) {
             const model = await getLatestModel(bp.ghost.forBot(event.botId), err.languageCode)
             await engine.loadModel(model)
             // might throw again, thus usage of bluebird retry
@@ -134,7 +132,7 @@ export function getOnSeverStarted(state: NLUState) {
   return async (bp: typeof sdk) => {
     setNluVersion(bp, state)
     await initializeReportingTool(bp, state)
-    await Engine.initialize(bp, state)
+    await bp.NLUCore.NLUEngine.initialize(bp, state)
     await registerMiddleware(bp, state)
   }
 }

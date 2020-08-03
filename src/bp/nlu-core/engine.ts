@@ -10,7 +10,7 @@ import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipe
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
 import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
-import { EntityCacheDump, Intent, ListEntity, ListEntityModel, NLUVersionInfo, PatternEntity, Tools } from './typings'
+import { EntityCacheDump, Intent, ListEntity, ListEntityModel, PatternEntity, Tools } from './typings'
 
 const trainDebug = DEBUG('nlu').sub('training')
 
@@ -20,7 +20,7 @@ export interface TrainingOptions {
 
 export default class Engine implements sdk.NLUCore.NLUEngine {
   private static _tools: Tools
-  private static _version: NLUVersionInfo
+  private static _version: sdk.NLUCore.NLUVersionInfo
 
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<Model> = {}
@@ -32,7 +32,15 @@ export default class Engine implements sdk.NLUCore.NLUEngine {
     return this._tools
   }
 
-  public static async initialize(bp: typeof sdk, version: NLUVersionInfo): Promise<void> {
+  public static getHealth() {
+    return this._tools.getHealth()
+  }
+
+  public static getLanguages() {
+    return this._tools.getLanguages()
+  }
+
+  public static async initialize(bp: typeof sdk, version: sdk.NLUCore.NLUVersionInfo): Promise<void> {
     this._tools = await initializeTools(bp, version)
     this._version = version
   }
@@ -41,7 +49,7 @@ export default class Engine implements sdk.NLUCore.NLUEngine {
   public computeModelHash(
     intents: NLU.IntentDefinition[],
     entities: NLU.EntityDefinition[],
-    version: NLUVersionInfo,
+    version: sdk.NLUCore.NLUVersionInfo,
     lang: string
   ): string {
     const { nluVersion, langServerInfo } = version

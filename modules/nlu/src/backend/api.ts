@@ -4,7 +4,6 @@ import _ from 'lodash'
 import yn from 'yn'
 
 import { isOn as isAutoTrainOn, set as setAutoTrain } from './autoTrain'
-import Engine from './engine'
 import { EntityDefCreateSchema } from './entities/validation'
 import {
   deleteIntent,
@@ -17,7 +16,7 @@ import {
 import recommendations from './intents/recommendations'
 import { IntentDefCreateSchema } from './intents/validation'
 import legacyElectionPipeline from './legacy-election'
-import { crossValidate } from './tools/cross-validation'
+//  import { crossValidate } from './tools/cross-validation'
 import { getTrainingSession } from './train-session-service'
 import { NLUState } from './typings'
 
@@ -41,23 +40,23 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
   router.get('/health', async (req, res) => {
     // When the health is bad, we'll refresh the status in case it changed (eg: user added languages)
-    const health = Engine.tools.getHealth()
+    const health = bp.NLUCore.NLUEngine.getHealth()
     res.send(health)
   })
 
-  router.post('/cross-validation/:lang', async (req, res) => {
-    const { botId, lang } = req.params
-    const ghost = bp.ghost.forBot(botId)
+  // router.post('/cross-validation/:lang', async (req, res) => {
+  //   const { botId, lang } = req.params
+  //   const ghost = bp.ghost.forBot(botId)
 
-    const intentDefs = await getIntents(ghost)
-    const entityDefs = await state.nluByBot[botId].entityService.getCustomEntities()
+  //   const intentDefs = await getIntents(ghost)
+  //   const entityDefs = await state.nluByBot[botId].entityService.getCustomEntities()
 
-    bp.logger.forBot(botId).info('Started cross validation')
-    const xValidationRes = await crossValidate(botId, intentDefs, entityDefs, lang, bp.logger)
-    bp.logger.forBot(botId).info('Finished cross validation', xValidationRes)
+  //   bp.logger.forBot(botId).info('Started cross validation')
+  //   const xValidationRes = await crossValidate(botId, intentDefs, entityDefs, lang, bp.logger)
+  //   bp.logger.forBot(botId).info('Finished cross validation', xValidationRes)
 
-    res.send(xValidationRes)
-  })
+  //   res.send(xValidationRes)
+  // })
 
   router.get('/training/:language', async (req, res) => {
     const { language, botId } = req.params

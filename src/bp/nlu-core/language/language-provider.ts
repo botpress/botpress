@@ -14,16 +14,7 @@ import semver from 'semver'
 import { getSeededLodash, resetSeed } from '../tools/seeded-lodash'
 import { setSimilarity, vocabNGram } from '../tools/strings'
 import { isSpace, processUtteranceTokens, restoreOriginalUtteranceCasing } from '../tools/token-utils'
-import {
-  Gateway,
-  LangServerInfo,
-  LangsGateway,
-  LanguageProvider,
-  LanguageSource,
-  NLUHealth,
-  NLUVersionInfo,
-  Token2Vec
-} from '../typings'
+import { Gateway, LangsGateway, LanguageProvider, LanguageSource, Token2Vec } from '../typings'
 
 const debug = DEBUG('nlu').sub('lang')
 
@@ -50,7 +41,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
   private _validProvidersCount!: number
   private _languageDims!: number
 
-  private _version!: NLUVersionInfo
+  private _version!: sdk.NLUCore.NLUVersionInfo
 
   private discoveryRetryPolicy = {
     interval: 1000,
@@ -73,7 +64,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
   async initialize(
     sources: LanguageSource[],
     logger: typeof sdk.logger,
-    version: NLUVersionInfo
+    version: sdk.NLUCore.NLUVersionInfo
   ): Promise<LanguageProvider> {
     this._version = version
     this._validProvidersCount = 0
@@ -165,7 +156,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     return this as LanguageProvider
   }
 
-  public get langServerInfo(): LangServerInfo {
+  public get langServerInfo(): sdk.NLUCore.LangServerInfo {
     return this._version.langServerInfo
   }
 
@@ -323,7 +314,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     }
   }
 
-  getHealth(): Partial<NLUHealth> {
+  getHealth(): Partial<sdk.NLUCore.NLUHealth> {
     return { validProvidersCount: this._validProvidersCount, validLanguages: Object.keys(this.langs) }
   }
 

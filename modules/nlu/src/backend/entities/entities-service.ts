@@ -4,9 +4,22 @@ import * as CacheManager from '../cache-manager'
 import { updateIntentsSlotsEntities } from '../intents/intent-service'
 import { EntityService } from '../typings'
 
-import { DucklingEntityExtractor } from './duckling_extractor'
-
 const ENTITIES_DIR = './entities'
+
+const DUCKLING_ENTITIES = [
+  'amountOfMoney',
+  'distance',
+  'duration',
+  'email',
+  'number',
+  'ordinal',
+  'phoneNumber',
+  'quantity',
+  'temperature',
+  'time',
+  'url',
+  'volume'
+]
 
 export default class EntitiesService implements EntityService {
   constructor(private ghost: sdk.ScopedGhostService, private botId: string) {}
@@ -23,7 +36,7 @@ export default class EntitiesService implements EntityService {
   }
 
   public getSystemEntities(): sdk.NLU.EntityDefinition[] {
-    return [...DucklingEntityExtractor.entityTypes, 'any'].map(e => ({
+    return [...DUCKLING_ENTITIES, 'any'].map(e => ({
       name: e,
       type: 'system'
     })) as sdk.NLU.EntityDefinition[]

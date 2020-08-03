@@ -3,9 +3,9 @@ import * as sdk from 'botpress/sdk'
 import { DucklingEntityExtractor } from './entities/duckling_extractor'
 import LangProvider from './language/language-provider'
 import { getPOSTagger, tagSentence } from './language/pos-tagger'
-import { LanguageProvider, NLUHealth, NLUVersionInfo, Token2Vec, Tools } from './typings'
+import { LanguageProvider, Token2Vec, Tools } from './typings'
 
-const healthGetter = (languageProvider: LanguageProvider) => (): NLUHealth => {
+const healthGetter = (languageProvider: LanguageProvider) => (): sdk.NLUCore.NLUHealth => {
   const { validProvidersCount, validLanguages } = languageProvider.getHealth()
   return {
     isEnabled: validProvidersCount! > 0 && validLanguages!.length > 0,
@@ -14,7 +14,7 @@ const healthGetter = (languageProvider: LanguageProvider) => (): NLUHealth => {
   }
 }
 
-const initializeLanguageProvider = async (bp: typeof sdk, version: NLUVersionInfo) => {
+const initializeLanguageProvider = async (bp: typeof sdk, version: sdk.NLUCore.NLUVersionInfo) => {
   const globalConfig = await bp.config.getModuleConfig('nlu')
 
   try {
@@ -37,7 +37,7 @@ const initDucklingExtractor = async (bp: typeof sdk): Promise<void> => {
   await DucklingEntityExtractor.configure(globalConfig.ducklingEnabled, globalConfig.ducklingURL, bp.logger)
 }
 
-export async function initializeTools(bp: typeof sdk, version: NLUVersionInfo): Promise<Tools> {
+export async function initializeTools(bp: typeof sdk, version: sdk.NLUCore.NLUVersionInfo): Promise<Tools> {
   await initDucklingExtractor(bp)
   const { languageProvider } = await initializeLanguageProvider(bp, version)
   const { MLToolkit: mlToolkit, logger } = bp
