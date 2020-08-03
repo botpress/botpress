@@ -12,7 +12,7 @@
     { "name": "Magnum", "synonyms": [] }
   ],
   "sensitive": false,
-  "fuzzy": 1,
+  "fuzzy": 0.8,
   "exemples": [],
   "pattern": ""
 }

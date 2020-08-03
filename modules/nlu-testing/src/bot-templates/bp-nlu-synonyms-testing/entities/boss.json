@@ -25,7 +25,7 @@
     }
   ],
   "sensitive": false,
-  "fuzzy": 1,
+  "fuzzy": 0.8,
   "examples": [],
   "pattern": ""
 }
