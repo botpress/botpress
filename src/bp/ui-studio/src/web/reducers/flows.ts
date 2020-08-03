@@ -239,7 +239,7 @@ const doCreateNewFlow = name => {
     }
   ]
 
-  const isSubWorkflow = window.USE_ONEFLOW && parseFlowName(name).parentWorkflowPath
+  const isSubWorkflow = false // TODO window.USE_ONEFLOW && parseFlowName(name)
   if (isSubWorkflow) {
     nodes.push(
       {
