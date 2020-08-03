@@ -1,7 +1,7 @@
 import { Button } from '@blueprintjs/core'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import React, { Fragment, SFC, useState } from 'react'
+import React, { Fragment, SFC, useEffect, useState } from 'react'
 
 import { Collapsible } from '../components/Collapsible'
 import { Intent, isQnaItem } from '../components/Intent'
@@ -13,6 +13,10 @@ interface Props {
   suggestions: sdk.IO.Suggestion[]
   decision: sdk.IO.Suggestion
   stacktrace: sdk.IO.JumpPoint[]
+  expandedSections: string[]
+  updateExpandedSections: (section: string, expanded: boolean) => void
+  jsonSections: string[]
+  updateJsonSections: (section: string, isJson: boolean) => void
 }
 
 const Decision: SFC<{ decision: sdk.IO.Suggestion }> = props => {
@@ -74,15 +78,29 @@ const Flow: SFC<{ stacktrace: sdk.IO.JumpPoint[] }> = props => (
   </div>
 )
 
-const Dialog: SFC<Props> = ({ decision, suggestions, stacktrace }) => {
-  const [viewJSON, setViewJSON] = useState(false)
+const Dialog: SFC<Props> = ({
+  decision,
+  suggestions,
+  stacktrace,
+  expandedSections,
+  updateExpandedSections,
+  jsonSections,
+  updateJsonSections
+}) => {
+  const [viewJSON, setViewJSON] = useState(jsonSections.includes('dialog'))
+
+  useEffect(() => {
+    setViewJSON(jsonSections.includes('dialog'))
+  }, [jsonSections])
 
   if (!decision && !suggestions?.length && !stacktrace?.length) {
     return null
   }
 
   const toggleView = () => {
-    setViewJSON(!viewJSON)
+    const newValue = !viewJSON
+    updateJsonSections('dialog', newValue)
+    setViewJSON(newValue)
   }
 
   const renderContent = () => {
@@ -100,7 +118,11 @@ const Dialog: SFC<Props> = ({ decision, suggestions, stacktrace }) => {
   }
 
   return (
-    <Collapsible name="Dialog Manager">
+    <Collapsible
+      opened={expandedSections.includes('dialog')}
+      updateExpandedSections={expanded => updateExpandedSections('dialog', expanded)}
+      name="Dialog Manager"
+    >
       {renderContent()}
       <Button minimal className={style.switchViewBtn} icon="eye-open" onClick={toggleView}>
         {viewJSON ? 'View as Summary' : 'View as JSON'}

@@ -1,7 +1,7 @@
 import { Button, Colors, Icon, Position, Tooltip } from '@blueprintjs/core'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import React, { Fragment, SFC, useState } from 'react'
+import React, { Fragment, SFC, useEffect, useState } from 'react'
 
 import { Collapsible } from '../components/Collapsible'
 import { Intents } from '../components/Intents'
@@ -13,19 +13,39 @@ import { Inspector } from './Inspector'
 import { Language } from './Language'
 import { Slots } from './Slots'
 
-const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding; isNDU: boolean; session: any }> = ({
+interface Props {
+  nluData: sdk.IO.EventUnderstanding
+  isNDU: boolean
+  session: any
+  expandedSections: string[]
+  updateExpandedSections: (section: string, expanded: boolean) => void
+  jsonSections: string[]
+  updateJsonSections: (section: string, isJson: boolean) => void
+}
+
+const NLU: SFC<Props> = ({
   nluData,
   isNDU,
+  expandedSections,
+  updateExpandedSections,
+  jsonSections,
+  updateJsonSections,
   session
 }) => {
-  const [viewJSON, setViewJSON] = useState(false)
+  const [viewJSON, setViewJSON] = useState(jsonSections.includes('nlu'))
+
+  useEffect(() => {
+    setViewJSON(jsonSections.includes('nlu'))
+  }, [jsonSections])
 
   if (!nluData) {
     return null
   }
 
   const toggleView = () => {
-    setViewJSON(!viewJSON)
+    const newValue = !viewJSON
+    updateJsonSections('nlu', newValue)
+    setViewJSON(newValue)
   }
 
   const renderContent = () => {
@@ -71,7 +91,11 @@ const NLU: SFC<{ nluData: sdk.IO.EventUnderstanding; isNDU: boolean; session: an
 
   return (
     <Fragment>
-      <Collapsible name="Language Understanding">
+      <Collapsible
+        opened={expandedSections.includes('nlu')}
+        updateExpandedSections={expanded => updateExpandedSections('nlu', expanded)}
+        name="Language Understanding"
+      >
         {renderContent()}
         <Button minimal className={style.switchViewBtn} icon="eye-open" onClick={toggleView}>
           {viewJSON ? 'View as Summary' : 'View as JSON'}

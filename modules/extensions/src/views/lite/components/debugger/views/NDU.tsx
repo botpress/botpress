@@ -2,7 +2,7 @@ import { Button } from '@blueprintjs/core'
 import * as sdk from 'botpress/sdk'
 import cx from 'classnames'
 import _ from 'lodash'
-import React, { FC, Fragment, useState } from 'react'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 
 import ToolTip from '../../../../../../../../src/bp/ui-shared-lite/ToolTip'
 import { Collapsible } from '../components/Collapsible'
@@ -22,12 +22,25 @@ const sortTriggersByScore = triggers => {
   return _.orderBy(result, 'score', 'desc')
 }
 
-const NDU: FC<{ ndu: sdk.NDU.DialogUnderstanding }> = ({ ndu }) => {
-  const [viewJSON, setViewJSON] = useState(false)
-  const [showFullId, setShowFullId] = useState<any>({})
+interface Props {
+  ndu: sdk.NDU.DialogUnderstanding
+  expandedSections: string[]
+  updateExpandedSections: (section: string, expanded: boolean) => void
+  jsonSections: string[]
+  updateJsonSections: (section: string, isJson: boolean) => void
+}
+
+const NDU: FC<Props> = ({ ndu, expandedSections, updateExpandedSections, jsonSections, updateJsonSections }) => {
+  const [viewJSON, setViewJSON] = useState(jsonSections.includes('ndu'))
+
+  useEffect(() => {
+    setViewJSON(jsonSections.includes('ndu'))
+  }, [jsonSections])
 
   const toggleView = () => {
-    setViewJSON(!viewJSON)
+    const newValue = !viewJSON
+    updateJsonSections('ndu', newValue)
+    setViewJSON(newValue)
   }
 
   const getPercentage = (number: number) => {
@@ -102,7 +115,11 @@ const NDU: FC<{ ndu: sdk.NDU.DialogUnderstanding }> = ({ ndu }) => {
 
   return (
     <Fragment>
-      <Collapsible name="Dialog Understanding">
+      <Collapsible
+        opened={expandedSections.includes('ndu')}
+        updateExpandedSections={expanded => updateExpandedSections('ndu', expanded)}
+        name="Dialog Understanding"
+      >
         {renderContent()}
         <Button minimal className={style.switchViewBtn} icon="eye-open" onClick={toggleView}>
           {viewJSON ? 'View as Summary' : 'View as JSON'}

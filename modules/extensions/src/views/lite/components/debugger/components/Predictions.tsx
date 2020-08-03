@@ -13,7 +13,7 @@ interface Props {
 
 const Predictions = (props: Props) => {
   const { predictions } = props
-  console.log(predictions)
+
   if (!predictions) {
     return null
   }

@@ -1,6 +1,6 @@
 import { Alignment, Button, Collapse, Icon, Position, Tooltip } from '@blueprintjs/core'
 import _ from 'lodash'
-import React, { FC, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 
 import style from '../style.scss'
 
@@ -8,14 +8,25 @@ interface CollapsibleProps {
   name: string
   children: any
   opened?: boolean
+  updateExpandedSections?: (expanded: boolean) => void
   hidden?: boolean
 }
 
 export const Collapsible: FC<CollapsibleProps> = props => {
   const [isOpen, setOpen] = useState(props.opened)
 
+  useEffect(() => {
+    setOpen(props.opened)
+  }, [props.opened])
+
   if (props.hidden) {
     return null
+  }
+
+  const handleToggle = () => {
+    const newValue = !isOpen
+    setOpen(newValue)
+    props.updateExpandedSections(newValue)
   }
 
   return (
@@ -26,7 +37,7 @@ export const Collapsible: FC<CollapsibleProps> = props => {
         fill={true}
         alignText={Alignment.LEFT}
         text={props.name}
-        onClick={() => setOpen(!isOpen)}
+        onClick={handleToggle}
       />
       <Collapse isOpen={isOpen}>{props.children}</Collapse>
     </div>

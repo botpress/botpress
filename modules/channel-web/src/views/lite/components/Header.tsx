@@ -94,35 +94,39 @@ class Header extends React.Component<HeaderProps> {
 
   renderDownloadButton() {
     return (
-      <button
-        type="button"
-        tabIndex={-1}
-        id="btn-download"
-        ref={el => (this.btnEls[1] = el)}
-        className="bpw-header-icon bpw-header-icon-download"
-        onClick={this.props.downloadConversation}
-        onKeyDown={this.handleKeyDown.bind(this, this.props.downloadConversation)}
-        onBlur={this.onBlur}
-      >
-        <Download />
-      </button>
+      <ToolTip content="Download Conversation">
+        <button
+          type="button"
+          tabIndex={-1}
+          id="btn-download"
+          ref={el => (this.btnEls[1] = el)}
+          className="bpw-header-icon bpw-header-icon-download"
+          onClick={this.props.downloadConversation}
+          onKeyDown={this.handleKeyDown.bind(this, this.props.downloadConversation)}
+          onBlur={this.onBlur}
+        >
+          <Download />
+        </button>
+      </ToolTip>
     )
   }
 
   renderConvoButton() {
     return (
-      <button
-        type="button"
-        tabIndex={-1}
-        id="btn-conversations"
-        ref={el => (this.btnEls[2] = el)}
-        className="bpw-header-icon bpw-header-icon-convo"
-        onClick={this.props.toggleConversations}
-        onKeyDown={this.handleKeyDown.bind(this, this.props.toggleConversations)}
-        onBlur={this.onBlur}
-      >
-        <List />
-      </button>
+      <ToolTip content="Conversations">
+        <button
+          type="button"
+          tabIndex={-1}
+          id="btn-conversations"
+          ref={el => (this.btnEls[2] = el)}
+          className="bpw-header-icon bpw-header-icon-convo"
+          onClick={this.props.toggleConversations}
+          onKeyDown={this.handleKeyDown.bind(this, this.props.toggleConversations)}
+          onBlur={this.onBlur}
+        >
+          <List />
+        </button>
+      </ToolTip>
     )
   }
 
