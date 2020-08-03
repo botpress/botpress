@@ -27,7 +27,7 @@ import {
 } from './utils'
 
 export const OBFUSCATED = '***obfuscated***'
-export const SECRET_KEYS = ['secret', 'pw', 'password', 'token', 'key']
+export const SECRET_KEYS = ['secret', 'pw', 'password', 'token', 'key', 'cert']
 export const ENV_VARS = [
   'PORT',
   'DATABASE_URL',
