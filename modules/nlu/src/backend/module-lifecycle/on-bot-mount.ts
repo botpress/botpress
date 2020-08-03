@@ -22,9 +22,7 @@ export function getOnBotMount(state: NLUState) {
     const ghost = bp.ghost.forBot(botId)
     const entityService = new EntityService(ghost, botId)
 
-    const engine = new Engine(bot.defaultLanguage, bot.id, bp.logger)
-    const langProviderlanguages = Engine.languages
-    const languages = _.intersection(bot.languages, langProviderlanguages)
+    const languages = _.intersection(bot.languages, Engine.languages)
     if (bot.languages.length !== languages.length) {
       bp.logger.warn(missingLangMsg(botId), { notSupported: _.difference(bot.languages, languages) })
     }
@@ -33,6 +31,7 @@ export function getOnBotMount(state: NLUState) {
       bp.logger.warn('Either the nlu version or the lang server version is not set correctly.')
     }
 
+    const engine = new Engine(bot.defaultLanguage, bot.id, bp.logger)
     const trainOrLoad = _.debounce(
       async (forceTrain: boolean = false) => {
         // bot got deleted

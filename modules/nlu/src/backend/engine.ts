@@ -39,12 +39,13 @@ export default class Engine implements NLUEngine {
 
   constructor(private defaultLanguage: string, private botId: string, private logger: Logger) {}
 
+  // NOTE: removed private in order to prevent important refactor (which will be done later)
   public static get tools() {
     return this._tools
   }
 
   public static get languages() {
-    return this.languages
+    return this._languages
   }
 
   public static async initialize(bp: typeof sdk, version: NLUVersionInfo): Promise<void> {

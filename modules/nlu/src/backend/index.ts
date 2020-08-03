@@ -19,7 +19,7 @@ const state: NLUState = {
   nluByBot: {},
   nluVersion: '',
   langServerInfo,
-  reportTrainingProgress: undefined
+  reportTrainingProgress: () => {}
 }
 
 const onServerStarted = getOnSeverStarted(state)
