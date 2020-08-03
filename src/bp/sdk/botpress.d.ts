@@ -841,6 +841,7 @@ declare module 'botpress/sdk' {
       hasJumped?: boolean
       /** The status of the current active prompt */
       activePrompt?: PromptStatus
+      inputs?: { [variable: string]: SubWorkflowInput }
     }
 
     export interface CurrentSession {
@@ -1384,10 +1385,21 @@ declare module 'botpress/sdk' {
     timeoutNode?: string
     flow?: string
     prompt?: PromptNode
+    subflow?: SubWorkflowNode
     isNew?: boolean
     /** Used internally by the flow editor */
     readonly lastModified?: Date
   } & NodeActions
+
+  export interface SubWorkflowNode {
+    in: { [variable: string]: SubWorkflowInput }
+    out: { [variable: string]: string }
+  }
+
+  export interface SubWorkflowInput {
+    source: 'variable' | 'hardcoded'
+    value: any
+  }
 
   export type TriggerNode = FlowNode & {
     conditions: DecisionTriggerCondition[]
