@@ -76,12 +76,15 @@ const Flow: SFC<{ stacktrace: sdk.IO.JumpPoint[] }> = props => (
   </div>
 )
 
+const DIALOG_JSON = 'json::dialog'
+const DIALOG_PANEL = 'panel::dialog'
+
 const Dialog: SFC<Props> = ({ decision, suggestions, stacktrace, isExpanded, toggleExpand }) => {
-  const [viewJSON, setViewJSON] = useState(isExpanded('json::dialog'))
+  const [viewJSON, setViewJSON] = useState(isExpanded(DIALOG_JSON))
 
   useEffect(() => {
-    setViewJSON(isExpanded('json::dialog'))
-  }, [isExpanded('json::dialog')])
+    setViewJSON(isExpanded(DIALOG_JSON))
+  }, [isExpanded(DIALOG_JSON)])
 
   if (!decision && !suggestions?.length && !stacktrace?.length) {
     return null
@@ -89,7 +92,7 @@ const Dialog: SFC<Props> = ({ decision, suggestions, stacktrace, isExpanded, tog
 
   const toggleView = () => {
     const newValue = !viewJSON
-    toggleExpand('json::dialog', newValue)
+    toggleExpand(DIALOG_JSON, newValue)
     setViewJSON(newValue)
   }
 
@@ -109,8 +112,8 @@ const Dialog: SFC<Props> = ({ decision, suggestions, stacktrace, isExpanded, tog
 
   return (
     <Collapsible
-      opened={isExpanded('panel::dialog')}
-      toggleExpand={expanded => toggleExpand('json::dialog', expanded)}
+      opened={isExpanded(DIALOG_PANEL)}
+      toggleExpand={expanded => toggleExpand(DIALOG_PANEL, expanded)}
       name="Dialog Manager"
     >
       {renderContent()}

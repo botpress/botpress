@@ -28,16 +28,19 @@ interface Props {
   toggleExpand: (section: string, expanded: boolean) => void
 }
 
+const NDU_JSON = 'json::ndu'
+const NDU_PANEL = 'panel::ndu'
+
 const NDU: FC<Props> = ({ ndu, isExpanded, toggleExpand }) => {
-  const [viewJSON, setViewJSON] = useState(isExpanded('json::ndu'))
+  const [viewJSON, setViewJSON] = useState(isExpanded(NDU_JSON))
 
   useEffect(() => {
-    setViewJSON(isExpanded('json::ndu'))
-  }, [isExpanded('json::ndu')])
+    setViewJSON(isExpanded(NDU_JSON))
+  }, [isExpanded(NDU_JSON)])
 
   const toggleView = () => {
     const newValue = !viewJSON
-    toggleExpand('json::ndu', newValue)
+    toggleExpand(NDU_JSON, newValue)
     setViewJSON(newValue)
   }
 
@@ -114,8 +117,8 @@ const NDU: FC<Props> = ({ ndu, isExpanded, toggleExpand }) => {
   return (
     <Fragment>
       <Collapsible
-        opened={isExpanded('panel::ndu')}
-        toggleExpand={expanded => toggleExpand('panel::ndu', expanded)}
+        opened={isExpanded(NDU_PANEL)}
+        toggleExpand={expanded => toggleExpand(NDU_PANEL, expanded)}
         name="Dialog Understanding"
       >
         {renderContent()}

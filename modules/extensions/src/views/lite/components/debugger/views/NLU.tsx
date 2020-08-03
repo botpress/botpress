@@ -21,12 +21,15 @@ interface Props {
   toggleExpand: (section: string, expanded: boolean) => void
 }
 
+const NLU_JSON = 'json::nlu'
+const NLU_PANEL = 'panel::nlu'
+
 const NLU: SFC<Props> = ({ nluData, isNDU, isExpanded, toggleExpand, session }) => {
-  const [viewJSON, setViewJSON] = useState(isExpanded('json::nlu'))
+  const [viewJSON, setViewJSON] = useState(isExpanded(NLU_JSON))
 
   useEffect(() => {
-    setViewJSON(isExpanded('json::nlu'))
-  }, [isExpanded('json::nlu')])
+    setViewJSON(isExpanded(NLU_JSON))
+  }, [isExpanded(NLU_JSON)])
 
   if (!nluData) {
     return null
@@ -34,7 +37,7 @@ const NLU: SFC<Props> = ({ nluData, isNDU, isExpanded, toggleExpand, session }) 
 
   const toggleView = () => {
     const newValue = !viewJSON
-    toggleExpand('json::nlu', newValue)
+    toggleExpand(NLU_JSON, newValue)
     setViewJSON(newValue)
   }
 
@@ -82,8 +85,8 @@ const NLU: SFC<Props> = ({ nluData, isNDU, isExpanded, toggleExpand, session }) 
   return (
     <Fragment>
       <Collapsible
-        opened={isExpanded('panel::nlu')}
-        toggleExpand={expanded => toggleExpand('panel::nlu', expanded)}
+        opened={isExpanded(NLU_PANEL)}
+        toggleExpand={expanded => toggleExpand(NLU_PANEL, expanded)}
         name="Language Understanding"
       >
         {renderContent()}

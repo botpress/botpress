@@ -14,7 +14,9 @@ interface Props {
   event: sdk.IO.IncomingEvent
 }
 
-const DEBUGGER_STATE_KEY = `debuggerState`
+const DEBUGGER_STATE_KEY = 'debuggerState'
+const ERROR_PANEL = 'panel::errors'
+const STATE_PANEL = 'panel::state'
 
 const getDebuggerState = () => {
   try {
@@ -98,16 +100,16 @@ export default class Summary extends React.Component<Props> {
         />
 
         <Collapsible
-          opened={this.isExpanded('panel::state')}
-          toggleExpand={expanded => this.toggleExpand('panel::state', expanded)}
+          opened={this.isExpanded(STATE_PANEL)}
+          toggleExpand={expanded => this.toggleExpand(STATE_PANEL, expanded)}
           name="State"
         >
           <Inspector data={this.props.event.state} />
         </Collapsible>
         {eventError && (
           <Collapsible
-            opened={this.isExpanded('panel-errors')}
-            toggleExpand={expanded => this.toggleExpand('panel::errors', expanded)}
+            opened={this.isExpanded(ERROR_PANEL)}
+            toggleExpand={expanded => this.toggleExpand(ERROR_PANEL, expanded)}
             name="Errors"
           >
             <Inspector data={eventError} />
