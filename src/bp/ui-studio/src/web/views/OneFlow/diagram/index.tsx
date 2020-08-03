@@ -114,6 +114,14 @@ const getEmptyContent = content => {
   }
 }
 
+const getExpandedNodes = () => {
+  try {
+    return JSON.parse(storage.get(EXPANDED_NODES_KEY) || '[]')
+  } catch (error) {
+    return []
+  }
+}
+
 class Diagram extends Component<Props> {
   private diagramEngine: ExtendedDiagramEngine
   private diagramWidget: DiagramWidget
@@ -191,13 +199,7 @@ class Diagram extends Component<Props> {
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
 
-    let expandedNodes
-    try {
-      expandedNodes = JSON.parse(storage.get(EXPANDED_NODES_KEY) || '[]')
-    } catch (error) {
-      expandedNodes = []
-    }
-    this.setState({ currentLang: this.props.contentLang, expandedNodes })
+    this.setState({ currentLang: this.props.contentLang, expandedNodes: getExpandedNodes() })
     this.props.childRef({
       deleteSelectedElements: this.deleteSelectedElements.bind(this),
       createFlow: this.createFlow.bind(this)
