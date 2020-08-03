@@ -32,7 +32,7 @@ const NodeHeader: FC<Props> = ({
   children,
   className
 }) => {
-  const isDefaultName = !name || name.startsWith(`${type}-`) || name.startsWith(`node-`)
+  const isDefaultName = !name || name.startsWith(`${type}-`) || name.startsWith('node-')
   const getInitialInputValue = () => {
     return isDefaultName ? '' : name
   }

@@ -46,6 +46,7 @@ import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { toastSuccess } from '~/components/Shared/Utils'
 import withLanguage from '~/components/Util/withLanguage'
 import { getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/reducers'
+import storage from '~/util/storage'
 import {
   defaultTransition,
   DIAGRAM_PADDING,
@@ -109,6 +110,26 @@ type ExtendedDiagramEngine = {
   flowBuilder?: any
 } & DiagramEngine
 
+const EXPANDED_NODES_KEY = `bp::${window.BOT_ID}::expandedNodes`
+
+const isContentEmpty = content => {
+  return !_.flatMap(content).length
+}
+
+const getEmptyContent = content => {
+  return {
+    contentType: content[Object.keys(content)[0]]?.contentType
+  }
+}
+
+const getExpandedNodes = () => {
+  try {
+    return JSON.parse(storage.get(EXPANDED_NODES_KEY) || '[]')
+  } catch (error) {
+    return []
+  }
+}
+
 class Diagram extends Component<Props> {
   private diagramEngine: ExtendedDiagramEngine
   private diagramWidget: DiagramWidget
@@ -122,7 +143,8 @@ class Diagram extends Component<Props> {
     highlightFilter: '',
     editingNodeItem: null,
     currentLang: '',
-    currentTab: 'workflow'
+    currentTab: 'workflow',
+    expandedNodes: []
   }
 
   constructor(props) {
@@ -137,7 +159,9 @@ class Diagram extends Component<Props> {
       switchFlowNode: this.switchFlowNode.bind(this),
       getCurrentLang: () => this.getStateProperty('currentLang'),
       getConditions: () => this.getPropsProperty('conditions'),
-      addCondition: this.addCondition.bind(this)
+      addCondition: this.addCondition.bind(this),
+      getExpandedNodes: () => this.getStateProperty('expandedNodes'),
+      setExpandedNodes: this.updateExpandedNodes.bind(this)
     }
 
     this.diagramEngine = new DiagramEngine()
@@ -192,10 +216,11 @@ class Diagram extends Component<Props> {
   componentDidMount() {
     this.props.fetchFlows()
     this.props.fetchPrompts()
-    this.setState({ currentLang: this.props.contentLang })
     this.props.fetchContentCategories()
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
+
+    this.setState({ currentLang: this.props.contentLang, expandedNodes: getExpandedNodes() })
     this.props.childRef({
       deleteSelectedElements: this.deleteSelectedElements.bind(this),
       createFlow: this.createFlow.bind(this)
@@ -397,7 +422,7 @@ class Diagram extends Component<Props> {
           onClick={wrap(this.add.say, point)}
           icon={<Icons.Say />}
         />
-        <MenuItem tagName="button" text={lang.tr('prompt')} icon="citation">
+        <MenuItem tagName="span" text={lang.tr('prompt')} icon="citation">
           {this.props.prompts.map(({ id, config }) => (
             <MenuItem
               key={id}
@@ -413,7 +438,7 @@ class Diagram extends Component<Props> {
         <MenuItem text={lang.tr('split')} onClick={wrap(this.add.routerNode, point)} icon="flow-branch" />
         <MenuItem text={lang.tr('action')} onClick={wrap(this.add.actionNode, point)} icon="offline" />
 
-        <MenuItem tagName="button" text={lang.tr('skills')} icon="add">
+        <MenuItem tagName="span" text={lang.tr('skills')} icon="add">
           {this.props.skills.map(skill => (
             <MenuItem
               key={skill.id}
@@ -483,7 +508,7 @@ class Diagram extends Component<Props> {
                 onClick={() => {
                   const elementId = textToItemId((targetModel as BlockModel).onEnter?.[0])
                   this.props.addElementToLibrary(elementId)
-                  toastSuccess(`Added to library`)
+                  toastSuccess('Added to library')
                 }}
               />
             )}
@@ -507,7 +532,7 @@ class Diagram extends Component<Props> {
   }, 500)
 
   createFlow(name: string) {
-    this.props.createFlow(name + '.flow.json')
+    this.props.createFlow(`${name}.flow.json`)
   }
 
   canTargetOpenInspector = target => {
@@ -587,6 +612,17 @@ class Diagram extends Component<Props> {
   updateNodeAndRefresh(args) {
     this.props.updateFlowNode({ ...args })
     this.props.refreshFlowsLinks()
+  }
+
+  updateExpandedNodes(nodeId: string, expanded: boolean): void {
+    const expandedNodes = this.state.expandedNodes.filter(id => id !== nodeId)
+
+    if (expanded) {
+      expandedNodes.push(nodeId)
+    }
+
+    storage.set(EXPANDED_NODES_KEY, JSON.stringify(expandedNodes))
+    this.setState({ expandedNodes })
   }
 
   getStateProperty(propertyName) {
@@ -805,7 +841,7 @@ class Diagram extends Component<Props> {
       return acc
     }, {})
 
-    if (this.isContentEmpty(newContents[index])) {
+    if (isContentEmpty(newContents[index])) {
       this.deleteSelectedElements()
     } else {
       this.props.updateFlowNode({ contents: newContents })
@@ -828,16 +864,6 @@ class Diagram extends Component<Props> {
     }
 
     this.setState({ editingNodeItem: null })
-  }
-
-  isContentEmpty(content) {
-    return !_.flatMap(content).length
-  }
-
-  getEmptyContent(content) {
-    return {
-      contentType: content[Object.keys(content)[0]]?.contentType
-    }
   }
 
   handleTabChanged = (tab: string) => {
@@ -932,7 +958,7 @@ class Diagram extends Component<Props> {
               events={this.props.hints || []}
               contentLang={this.state.currentLang}
               editingContent={index}
-              formData={editingNodeItem || this.getEmptyContent(editingNodeItem)}
+              formData={editingNodeItem || getEmptyContent(editingNodeItem)}
               onUpdate={this.updateNodeContent.bind(this)}
               onUpdateVariables={this.addVariable}
               close={() => {

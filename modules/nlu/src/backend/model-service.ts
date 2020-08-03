@@ -73,7 +73,7 @@ export async function pruneModels(ghost: sdk.ScopedGhostService, languageCode: s
 
 export async function listModelsForLang(ghost: sdk.ScopedGhostService, languageCode: string): Promise<string[]> {
   const endingPattern = makeFileName('*', languageCode)
-  return await ghost.directoryListing(MODELS_DIR, endingPattern, undefined, undefined, {
+  return ghost.directoryListing(MODELS_DIR, endingPattern, undefined, undefined, {
     sortOrder: { column: 'modifiedOn', desc: true }
   })
 }
