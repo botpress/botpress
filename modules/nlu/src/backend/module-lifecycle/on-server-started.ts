@@ -32,9 +32,10 @@ async function initializeReportingTool(bp: typeof sdk, state: NLUState) {
 const EVENTS_TO_IGNORE = ['session_reference', 'session_reset', 'bp_dialog_timeout', 'visit', 'say_something', '']
 
 const ignoreEvent = (bp: typeof sdk, state: NLUState, event: sdk.IO.IncomingEvent) => {
+  const health = Engine.tools.getHealth()
   return (
     !state.nluByBot[event.botId] ||
-    !state.health.isEnabled ||
+    !health.isEnabled ||
     !event.preview ||
     EVENTS_TO_IGNORE.includes(event.type) ||
     event.hasFlag(bp.IO.WellKnownFlags.SKIP_NATIVE_NLU)
