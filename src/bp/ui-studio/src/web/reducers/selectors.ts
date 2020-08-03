@@ -44,12 +44,16 @@ export const getCurrentFlow = createSelector(
   }
 )
 
-export const getCurrentFlowSubFlows = createSelector(
+export const getReusableWorkflows = createSelector([_getFlowsByName], (flowsByName): ParsedFlowDefinition[] => {
+  return Object.keys(flowsByName)
+    .filter(name => flowsByName[name].type === 'reusable' && !isSkillFlow(name))
+    .map(name => parseFlowName(name, true))
+})
+
+export const getCallerFlows = createSelector(
   [_getFlowsByName, _getCurrentFlow],
-  (flowsByName, currentFlow: string): ParsedFlowDefinition[] => {
-    return Object.keys(flowsByName)
-      .filter(name => flowsByName[name].type === 'reusable' && !isSkillFlow(name))
-      .map(name => parseFlowName(name, true))
+  (flowsByName, currentFlow: string): FlowView[] => {
+    return Object.values(flowsByName).filter(x => x.nodes.find(n => n.flow === currentFlow))
   }
 )
 

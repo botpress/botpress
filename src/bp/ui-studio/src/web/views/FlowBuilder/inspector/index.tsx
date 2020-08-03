@@ -157,7 +157,7 @@ const mapDispatchToProps = {
   closeFlowNodeProps,
   updateFlowNode,
   refreshFlowsLinks,
-  refreshCallerFlows: refreshCallerFlows
+  refreshCallerFlows
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Inspector)

@@ -562,8 +562,6 @@ reducer = reduceReducers(
           updatedFlows[name] = updatedFlow
         }
 
-        console.log(updatedFlows)
-
         return {
           ...state,
           flowsByName: {

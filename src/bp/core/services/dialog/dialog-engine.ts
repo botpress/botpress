@@ -174,7 +174,7 @@ export class DialogEngine {
     const { workflow } = event.state
 
     const nextFlow = this._findFlow(event.botId, `${nextFlowName}.flow.json`)
-    const isSubFlow = !!currentWorkflow && nextFlow.type === 'reusable'
+    const isSubFlow = nextFlow.type === 'reusable'
 
     // This workflow doesn't already exist, so we add it
     if (!workflow) {

@@ -5,7 +5,7 @@ import _ from 'lodash'
 import { createAction } from 'redux-actions'
 import { FlowReducer } from '~/reducers/flows'
 
-import { getDeletedFlows, getDirtyFlows, getModifiedFlows, getNewFlows } from '../reducers/selectors'
+import { getCallerFlows, getDeletedFlows, getDirtyFlows, getModifiedFlows, getNewFlows } from '../reducers/selectors'
 
 import { FlowsAPI } from './api'
 import BatchRunner from './BatchRunner'
@@ -174,7 +174,8 @@ export const requestRefreshCallerFlows = createAction('FLOWS/REFRESH_PARENT_FLOW
 
 const updateCallerFlows = async (_payload, state) => {
   const flows = <FlowReducer>state.flows
-  const callerFlows = Object.values(flows.flowsByName).filter(x => x.nodes.find(n => n.flow === flows.currentFlow))
+  const callerFlows = getCallerFlows(state)
+  console.log(callerFlows)
 
   const promises = callerFlows.map(x => FlowsAPI.updateFlow(flows, x.name))
   return Promise.all(promises)

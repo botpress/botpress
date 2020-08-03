@@ -50,7 +50,7 @@ import {
   getCallerFlowsOutcomeUsage,
   getCurrentFlow,
   getCurrentFlowNode,
-  getCurrentFlowSubFlows,
+  getReusableWorkflows,
   RootReducer
 } from '~/reducers'
 import storage from '~/util/storage'
@@ -409,7 +409,7 @@ class Diagram extends Component<Props> {
       addNodeMethod(...args)
     }
 
-    const hasSubFlows = !!this.props.currentFlowSubFlows?.length
+    const hasSubFlows = !!this.props.reusableFlows?.length
 
     contextMenu(
       event,
@@ -448,8 +448,8 @@ class Diagram extends Component<Props> {
           <MenuItem text="Failure" onClick={wrap(this.add.failureNode, point)} icon="cross" />
         </MenuItem>
 
-        <MenuItem text="Go to Sub Workflow" icon="pivot" disabled={!hasSubFlows}>
-          {this.props.currentFlowSubFlows?.map(flow => (
+        <MenuItem text="Go to Reusable Workflow" icon="pivot" disabled={!hasSubFlows}>
+          {this.props.reusableFlows?.map(flow => (
             <MenuItem text={flow.workflow} onClick={wrap(this.add.gotoSubWorkflow, point, flow.workflowPath)} />
           ))}
         </MenuItem>
@@ -1084,7 +1084,7 @@ class Diagram extends Component<Props> {
 
 const mapStateToProps = (state: RootReducer) => ({
   currentFlow: getCurrentFlow(state),
-  currentFlowSubFlows: getCurrentFlowSubFlows(state),
+  reusableFlows: getReusableWorkflows(state),
   outcomeUsage: getCallerFlowsOutcomeUsage(state),
   currentFlowNode: getCurrentFlowNode(state),
   currentDiagramAction: state.flows.currentDiagramAction,
