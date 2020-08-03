@@ -8,6 +8,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 
+import { addStepToEvent } from '../middleware/event-collector'
 import { EventEngine } from '../middleware/event-engine'
 import { StateManager } from '../middleware/state-manager'
 
@@ -148,6 +149,8 @@ export class DecisionEngine {
           }
         })
         const processedEvent = await this.dialogEngine.processEvent(sessionId, event)
+        addStepToEvent('dialog:completed', event)
+
         // In case there are no unknown errors, remove skills/ flow from the stacktrace
         processedEvent.state.__stacktrace = processedEvent.state.__stacktrace.filter(x => !x.flow.startsWith('skills/'))
         this.onAfterEventProcessed && (await this.onAfterEventProcessed(processedEvent))
@@ -159,6 +162,8 @@ export class DecisionEngine {
           .forBot(event.botId)
           .attachError(err)
           .error('An unexpected error occurred.')
+
+        addStepToEvent('dialog:error', event)
 
         await this._processErrorFlow(sessionId, event)
       }
