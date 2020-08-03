@@ -8,7 +8,7 @@ import { getTrainTestDatas } from '../tools/data_loader'
 import {
   computeConfusionMatrix,
   computeEmbeddingSimilarity,
-  computeIntentSimilarity,
+  computeKmeansPairwiseIntent,
   computeOutliers,
   computeScatterEmbeddings
   // computeTsneScatterEmbeddings
@@ -49,12 +49,8 @@ export default async (bp: typeof sdk, state: VisuState) => {
   })
 
   router.get('/similarityIntents', async (req, res) => {
-    res.send(await computeIntentSimilarity(state[req.params.botId]))
+    res.send(await computeKmeansPairwiseIntent(state[req.params.botId]))
   })
-
-  // router.get('/scatterTsneEmbeddings', async (req, res) => {
-  //   res.send(await computeTsneScatterEmbeddings(state[req.params.botId]))
-  // })
 
   router.get('/scatterEmbeddings', async (req, res) => {
     res.send(await computeScatterEmbeddings(state[req.params.botId]))

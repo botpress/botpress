@@ -10,40 +10,32 @@ import { PredRes } from '../../backend/typings'
 import style from './style.scss'
 
 const NewQnA = props => {
-  const [resEmb, setResEmb] = useState([])
+  const [simEmb, setSimEmb] = useState([])
   const [scatEmb, setScatEmb] = useState([])
-  // const [scatTsneEmb, setScatTsneEmb] = useState([])
   const [CF, setCF] = useState([])
   const [intentCF, setIntentCF] = useState([])
   const [clusterScore, setClusterScore] = useState({})
 
   const computeOutliers = async () => {
     const { data } = await props.bp.axios.get('/mod/new_qna/computeOutliers')
-    // console.log(data)
     setClusterScore(data)
   }
 
   const similarityEmbeddings = async () => {
-    console.log('testing embeddings')
     const { data } = await props.bp.axios.get('/mod/new_qna/similarityEmbeddings', { timeout: 0 })
-    console.log(data)
-    setResEmb(data)
+    setSimEmb(data)
   }
 
   const computeIntentsSimilarity = async () => {
-    console.log('testing intents')
     const { data } = await props.bp.axios.get('/mod/new_qna/similarityIntents', { timeout: 0 })
     setIntentCF(data)
   }
 
   const loadDatas = async () => {
-    console.log('Loading Datas')
     const { data } = await props.bp.axios.get('/mod/new_qna/loadDatas', { timeout: 0 })
-    console.log('Done')
   }
 
   const scatterEmbeddings = async () => {
-    console.log('scaterring embeddings')
     const { data } = await props.bp.axios.get('/mod/new_qna/scatterEmbeddings', { timeout: 0 })
     setScatEmb(data)
   }
@@ -127,13 +119,12 @@ const NewQnA = props => {
     <Container sidePanelHidden>
       <div />
       <div className={style.main}>
+        <button onClick={loadDatas}>Load Datas</button>
         <button onClick={confusionMatrix}>Compute confusion Matrix</button>
         <button onClick={similarityEmbeddings}>Similarity Embeddings</button>
         <button onClick={scatterEmbeddings}>Scatter Embeddings</button>
-        {/* <button onClick={scatterTsneEmbeddings}>Scatter Tsne Embeddings</button> */}
         <button onClick={computeOutliers}>Compute Outliers</button>
-        <button onClick={loadDatas}>Load Datas</button>
-        <button onClick={computeIntentsSimilarity}>Compute Intents Similarity</button>
+        <button onClick={computeIntentsSimilarity}>Intents Kmeans Pairwise</button>
         <h2> Scatter</h2>
         <Plot
           data={scatEmb}
@@ -210,7 +201,7 @@ const NewQnA = props => {
 
         <div>
           <Plot
-            data={resEmb}
+            data={simEmb}
             layout={{
               title: {
                 text: 'Cosine similarity for the mean of the embeddings per intent',
