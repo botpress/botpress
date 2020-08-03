@@ -1,13 +1,13 @@
+import axios from 'axios'
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { makeApi } from '../api'
 import en from '../translations/en.json'
 import fr from '../translations/fr.json'
 
 import dialogConditions from './dialog-conditions'
-import EntityService from './entities/entities-service'
-import { getIntents, updateIntent } from './intents/intent-service'
 import { getOnBotMount } from './module-lifecycle/on-bot-mount'
 import { getOnBotUnmount } from './module-lifecycle/on-bot-unmount'
 import { getOnServerReady } from './module-lifecycle/on-server-ready'
@@ -36,9 +36,9 @@ const onTopicChanged = async (bp: typeof sdk, botId: string, oldName?: string, n
     return
   }
 
-  const ghost = bp.ghost.forBot(botId)
-  const entityService = new EntityService(ghost, botId)
-  const intentDefs = await getIntents(ghost)
+  const axiosForBot = axios.create(await bp.http.getAxiosConfigForBot(botId))
+  const api = makeApi({ axios: axiosForBot })
+  const intentDefs = await api.fetchIntents()
 
   for (const intentDef of intentDefs) {
     const ctxIdx = intentDef.contexts.indexOf(oldName as string)
@@ -49,7 +49,7 @@ const onTopicChanged = async (bp: typeof sdk, botId: string, oldName?: string, n
         intentDef.contexts.push(newName!)
       }
 
-      await updateIntent(ghost, intentDef.name, intentDef, entityService)
+      await api.updateIntent(intentDef.name, intentDef)
     }
   }
 }
