@@ -5,6 +5,7 @@ import _ from 'lodash'
 
 import * as CacheManager from './cache-manager'
 import { initDucklingExtractor, initializeLanguageProvider, makeTools } from './initialize'
+import { computeModelHash } from './model-hash'
 import { Model } from './model-service'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
@@ -54,23 +55,6 @@ export default class Engine implements NLUEngine {
     this._tools = makeTools(bp.MLToolkit, bp.logger, languageProvider)
     this._version = version
     this._languages = languageProvider.languages
-  }
-
-  // we might want to make this language specific
-  public computeModelHash(
-    intents: NLU.IntentDefinition[],
-    entities: NLU.EntityDefinition[],
-    version: NLUVersionInfo,
-    lang: string
-  ): string {
-    const { nluVersion, langServerInfo } = version
-
-    const singleLangIntents = intents.map(i => ({ ...i, utterances: i.utterances[lang] }))
-
-    return crypto
-      .createHash('md5')
-      .update(JSON.stringify({ singleLangIntents, entities, nluVersion, langServerInfo }))
-      .digest('hex')
   }
 
   async train(
@@ -150,7 +134,7 @@ export default class Engine implements NLUEngine {
       ctxToTrain
     }
 
-    const hash = this.computeModelHash(intentDefs, entityDefs, Engine._version, languageCode)
+    const hash = computeModelHash(intentDefs, entityDefs, Engine._version, languageCode)
     const model = await this._trainAndMakeModel(input, hash, reportTrainingProgress)
     if (!model) {
       return

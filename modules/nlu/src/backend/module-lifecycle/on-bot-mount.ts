@@ -7,6 +7,7 @@ import { isOn as isAutoTrainOn } from '../autoTrain'
 import Engine from '../engine'
 import EntityService from '../entities/entities-service'
 import { getIntents } from '../intents/intent-service'
+import { computeModelHash } from '../model-hash'
 import * as ModelService from '../model-service'
 import { makeTrainingSession, makeTrainSessionKey } from '../train-session-service'
 import { NLUState } from '../typings'
@@ -53,7 +54,7 @@ export function getOnBotMount(state: NLUState) {
               return
             }
 
-            const hash = engine.computeModelHash(intentDefs, entityDefs, state, languageCode)
+            const hash = computeModelHash(intentDefs, entityDefs, state, languageCode)
             await ModelService.pruneModels(ghost, languageCode)
             let model = await ModelService.getModel(ghost, hash, languageCode)
 
