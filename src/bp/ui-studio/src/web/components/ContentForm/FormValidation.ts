@@ -1,18 +1,22 @@
 import { lang } from 'botpress/shared'
 
-const isValidBraces = (str) => {
+const isValidBraces = str => {
   let depth = 0
   const arr = str.split('')
   for (let i = 0; i < arr.length - 1; i++) {
     const value = str[i] + str[i + 1]
-    if (value == '{{') {
-      depth ++
-    } else if (value == '}}') {
-      depth --
+    if (value === '{{') {
+      depth++
+    } else if (value === '}}') {
+      depth--
     }
-    if (depth < 0) { return false }
+    if (depth < 0) {
+      return false
+    }
   }
-  if (depth > 0) { return false }
+  if (depth > 0) {
+    return false
+  }
   return true
 }
 
@@ -25,7 +29,7 @@ const validateBraces = (formData, errors) => {
         errors[property].addError(lang.tr('contentForm.invalidBraces'))
       }
     } else if (Array.isArray(value)) {
-      value.forEach( (entry, index) => {
+      value.forEach((entry, index) => {
         const subProperties = Object.keys(entry)
         for (const subProperty of subProperties) {
           const subValue = entry[subProperty]
