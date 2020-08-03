@@ -53,10 +53,16 @@ export class SDKStats extends TelemetryStats {
 
       for (const action of actions) {
         const stringAction = await this.ghostService.forBot(botId).readFileAsString('/actions', action)
-        const wrappedAction = `${ACTION_LEGACY_SIGNATURE} { \n ${stringAction} \n }`
-        console.log(wrappedAction)
-        const ast = parse(wrappedAction)
-        console.log(ast)
+
+        const ast = parse(stringAction, { allowReturnOutsideFunction: true })
+
+        traverse(ast, {
+          enter(path) {
+            if (path.node.type == 'CallExpression') {
+              console.log(path.node)
+            }
+          }
+        })
       }
     }
   }
