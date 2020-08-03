@@ -257,8 +257,8 @@ export const dialogConditions: sdk.Condition[] = [
       }
     ],
     evaluate: (event, params) => {
-      console.log(params.choiceEntity)
-      return 0
+      const match = event.nlu.entities.find(x => x.name === params.choiceEntity)
+      return match ? 1 : 0
     }
   }
 ]
