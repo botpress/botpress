@@ -24,7 +24,7 @@ jobs:
           yarn
       - name: Run TSLint
         run: |
-          yarn run tslint
+          yarn run tslint-old
       - name: Get file changes
         id: get_file_changes
         uses: dorner/file-changes-action@v1.2.0
@@ -36,5 +36,6 @@ jobs:
         run: |
           echo ::set-output name=files::$(node build/tslint-filter-files.js ${{ steps.get_file_changes.outputs.files }})
       - name: Run TSLint (new rules)
+        if: ${{ steps.filtered_files.outputs.files > 0 }}
         run: |
           yarn run tslint -c tslint.newrules.json ${{ steps.filtered_files.outputs.files }}

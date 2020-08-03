@@ -8,6 +8,8 @@ const rimraf = require('rimraf')
 const changelog = require('gulp-conventional-changelog')
 const yn = require('yn')
 const { spawnSync } = require('child_process')
+const { argv } = require('yargs')
+const _ = require('lodash')
 
 process.on('uncaughtException', err => {
   console.error('An error occurred in your gulpfile: ', err)
@@ -37,8 +39,9 @@ gulp.task('default', cb => {
                                         Here m1 is the module name like nlu
                                         Modules are separated with a comma (,) and no spaces
     yarn cmd build:modules --a m1       Builds all modules that matches *m1*
-    yarn run lint                       Runs the linter on staged files
-    yarn run lint --fix                 Runs the linter and try to fix rules which are fixable, then stages fixes
+    yarn cmd lint --baseBranch=dev      Runs the linter on file difference between base and current branch
+    yarn cmd lint --staged              Runs the linter on staged files
+    yarn cmd lint --fix                 Runs the linter and try to fix rules which are fixable, then stages fixes
   `)
   cb()
 })
@@ -103,11 +106,24 @@ gulp.task('changelog', () => {
 })
 
 gulp.task('lint', cb => {
-  const command =
-    process.argv[3] === '--fix'
-      ? 'yarn run lint-staged --no-stash -c build/lint-staged.fix.config.js'
-      : 'yarn run lint-staged --no-stash'
+  if (argv.staged) {
+    const command = `yarn run lint-staged --no-stash -c config/lint-staged${argv.fix ? '.fix' : ''}.config.js`
+    spawnSync(command, { shell: true, stdio: 'inherit' }, err => cb(err))
+    cb()
+    return
+  }
 
-  spawnSync(command, { shell: true, stdio: 'inherit' }, err => cb(err))
+  const baseBranch = argv.baseBranch || 'dev'
+  const gitResult = spawnSync('git', ['--no-pager', 'diff', `${baseBranch}..`, '--name-only'], { stdio: 'pipe' })
+
+  const files = String(gitResult.output)
+    .split('\n')
+    .filter(file => /\.tsx?$/.test(file))
+
+  for (const batch of _.chunk(files, 100)) {
+    const command = `yarn run tslint -c tslint.newrules.json ${argv.fix ? '--fix' : ''}`
+    spawnSync(command, [batch.join(' ')], { shell: true, stdio: 'inherit' }, err => cb(err))
+  }
+
   cb()
 })
