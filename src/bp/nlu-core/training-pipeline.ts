@@ -20,11 +20,9 @@ import {
   ListEntity,
   ListEntityModel,
   PatternEntity,
-  ProgressReporter,
   TFIDF,
   Token2Vec,
-  Tools,
-  TrainingSession
+  Tools
 } from './typings'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
 
@@ -35,7 +33,7 @@ export type TrainInput = Readonly<{
   list_entities: ListEntity[]
   contexts: string[]
   intents: Intent<string>[]
-  trainingSession?: TrainingSession
+  trainingSession?: sdk.NLUCore.TrainingSession
   ctxToTrain: string[]
 }>
 
@@ -552,13 +550,13 @@ const NB_STEPS = 5 // change this if the training pipeline changes
 export type Trainer = (
   input: TrainInput,
   tools: Tools,
-  reportTrainingProgress?: ProgressReporter
+  reportTrainingProgress?: sdk.NLUCore.ProgressReporter
 ) => Promise<TrainOutput | undefined>
 
 export const Trainer: Trainer = async (
   input: TrainInput,
   tools: Tools,
-  progress?: ProgressReporter
+  progress?: sdk.NLUCore.ProgressReporter
 ): Promise<TrainOutput | undefined> => {
   let totalProgress = 0
   let normalizedProgress = 0

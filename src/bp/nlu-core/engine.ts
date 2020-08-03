@@ -10,18 +10,7 @@ import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipe
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
 import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
-import {
-  EntityCacheDump,
-  Intent,
-  ListEntity,
-  ListEntityModel,
-  NLUEngine,
-  NLUVersionInfo,
-  PatternEntity,
-  ProgressReporter,
-  Tools,
-  TrainingSession
-} from './typings'
+import { EntityCacheDump, Intent, ListEntity, ListEntityModel, NLUVersionInfo, PatternEntity, Tools } from './typings'
 
 const trainDebug = DEBUG('nlu').sub('training')
 
@@ -29,7 +18,7 @@ export interface TrainingOptions {
   forceTrain: boolean
 }
 
-export default class Engine implements NLUEngine {
+export default class Engine implements sdk.NLUCore.NLUEngine {
   private static _tools: Tools
   private static _version: NLUVersionInfo
 
@@ -69,8 +58,8 @@ export default class Engine implements NLUEngine {
     intentDefs: NLU.IntentDefinition[],
     entityDefs: NLU.EntityDefinition[],
     languageCode: string,
-    reportTrainingProgress?: ProgressReporter,
-    trainingSession?: TrainingSession,
+    reportTrainingProgress?: sdk.NLUCore.ProgressReporter,
+    trainingSession?: sdk.NLUCore.TrainingSession,
     options?: TrainingOptions
   ): Promise<Model | undefined> {
     trainDebug.forBot(this.botId, `Started ${languageCode} training`)
@@ -169,7 +158,7 @@ export default class Engine implements NLUEngine {
   private async _trainAndMakeModel(
     input: TrainInput,
     hash: string,
-    reportTrainingProgress?: ProgressReporter
+    reportTrainingProgress?: sdk.NLUCore.ProgressReporter
   ): Promise<Model | undefined> {
     const startedAt = new Date()
     let output: TrainOutput | undefined

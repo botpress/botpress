@@ -454,6 +454,31 @@ declare module 'botpress/sdk' {
     }
   }
 
+  export namespace NLUCore {
+    export class NLUEngine {
+      constructor(defaultLanguage: string, botId: string, logger: Logger)
+      loadModel: (m: any) => Promise<void>
+      train: (
+        intentDefs: NLU.IntentDefinition[],
+        entityDefs: NLU.EntityDefinition[],
+        languageCode: string,
+        reportTrainingProgress: ProgressReporter,
+        trainingSession?: TrainingSession,
+        options?: any
+      ) => Promise<any>
+      predict: (t: string, ctx: string[]) => Promise<IO.EventUnderstanding>
+    }
+
+    export interface TrainingSession {
+      status: 'training' | 'canceled' | 'done' | 'idle'
+      language: string
+      progress: number
+      lock?: RedisLock
+    }
+
+    export type ProgressReporter = (botId: string, message: string, trainSession: TrainingSession) => void
+  }
+
   export namespace NLU {
     export type EntityType = 'system' | 'pattern' | 'list'
 

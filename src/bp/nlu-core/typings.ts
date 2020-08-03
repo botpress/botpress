@@ -52,19 +52,6 @@ export interface NluMlRecommendations {
   goodUtterancesForML: number
 }
 
-export interface NLUEngine {
-  loadModel: (m: any) => Promise<void>
-  train: (
-    intentDefs: sdk.NLU.IntentDefinition[],
-    entityDefs: sdk.NLU.EntityDefinition[],
-    languageCode: string,
-    reportTrainingProgress: ProgressReporter,
-    trainingSession?: TrainingSession,
-    options?: any
-  ) => Promise<any>
-  predict: (t: string, ctx: string[]) => Promise<sdk.IO.EventUnderstanding>
-}
-
 export interface EntityService {
   getSystemEntities(): sdk.NLU.EntityDefinition[]
   getCustomEntities(): Promise<sdk.NLU.EntityDefinition[]>
@@ -79,7 +66,7 @@ export type NLUState = {
   nluByBot: _.Dictionary<BotState>
   broadcastLoadModel?: (botId: string, hash: string, language: string) => Promise<void>
   broadcastCancelTraining?: (botId: string, language: string) => Promise<void>
-  reportTrainingProgress: ProgressReporter
+  reportTrainingProgress: sdk.NLUCore.ProgressReporter
 } & NLUVersionInfo
 
 export interface NLUVersionInfo {
@@ -95,10 +82,10 @@ export interface LangServerInfo {
 
 export interface BotState {
   botId: string
-  engine: NLUEngine
+  engine: sdk.NLUCore.NLUEngine
   trainWatcher: sdk.ListenHandle
   trainOrLoad: (forceTrain: boolean) => Promise<void>
-  trainSessions: _.Dictionary<TrainingSession>
+  trainSessions: _.Dictionary<sdk.NLUCore.TrainingSession>
   cancelTraining: () => Promise<void>
   isTraining: () => Promise<boolean>
   entityService: EntityService
@@ -165,13 +152,6 @@ export interface ExtractedEntity {
 }
 export type EntityExtractionResult = ExtractedEntity & { start: number; end: number }
 
-export interface TrainingSession {
-  status: 'training' | 'canceled' | 'done' | 'idle'
-  language: string
-  progress: number
-  lock?: sdk.RedisLock
-}
-
 export interface Tools {
   tokenize_utterances(utterances: string[], languageCode: string, vocab?: Token2Vec): Promise<string[][]>
   vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
@@ -183,14 +163,12 @@ export interface Tools {
   mlToolkit: typeof sdk.MLToolkit
 }
 
-export type ProgressReporter = (botId: string, message: string, trainSession: TrainingSession) => void
-
 export interface NLUProgressEvent {
   type: 'nlu'
   working: boolean
   botId: string
   message: string
-  trainSession: TrainingSession
+  trainSession: sdk.NLUCore.TrainingSession
 }
 
 export interface SystemEntityExtractor {
