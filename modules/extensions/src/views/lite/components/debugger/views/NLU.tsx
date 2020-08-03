@@ -17,26 +17,16 @@ interface Props {
   nluData: sdk.IO.EventUnderstanding
   isNDU: boolean
   session: any
-  expandedSections: string[]
-  updateExpandedSections: (section: string, expanded: boolean) => void
-  jsonSections: string[]
-  updateJsonSections: (section: string, isJson: boolean) => void
+  isExpanded: (key: string) => boolean
+  toggleExpand: (section: string, expanded: boolean) => void
 }
 
-const NLU: SFC<Props> = ({
-  nluData,
-  isNDU,
-  expandedSections,
-  updateExpandedSections,
-  jsonSections,
-  updateJsonSections,
-  session
-}) => {
-  const [viewJSON, setViewJSON] = useState(jsonSections.includes('nlu'))
+const NLU: SFC<Props> = ({ nluData, isNDU, isExpanded, toggleExpand, session }) => {
+  const [viewJSON, setViewJSON] = useState(isExpanded('json::nlu'))
 
   useEffect(() => {
-    setViewJSON(jsonSections.includes('nlu'))
-  }, [jsonSections])
+    setViewJSON(isExpanded('json::nlu'))
+  }, [isExpanded('json::nlu')])
 
   if (!nluData) {
     return null
@@ -44,7 +34,7 @@ const NLU: SFC<Props> = ({
 
   const toggleView = () => {
     const newValue = !viewJSON
-    updateJsonSections('nlu', newValue)
+    toggleExpand('json::nlu', newValue)
     setViewJSON(newValue)
   }
 
@@ -92,8 +82,8 @@ const NLU: SFC<Props> = ({
   return (
     <Fragment>
       <Collapsible
-        opened={expandedSections.includes('nlu')}
-        updateExpandedSections={expanded => updateExpandedSections('nlu', expanded)}
+        opened={isExpanded('panel::nlu')}
+        toggleExpand={expanded => toggleExpand('panel::nlu', expanded)}
         name="Language Understanding"
       >
         {renderContent()}

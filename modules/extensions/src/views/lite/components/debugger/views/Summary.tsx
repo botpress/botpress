@@ -18,25 +18,23 @@ const DEBUGGER_STATE_KEY = `debuggerState`
 
 const getDebuggerState = () => {
   try {
-    return JSON.parse(window['BP_STORAGE'].get(DEBUGGER_STATE_KEY) || '{}')
+    return JSON.parse(window['BP_STORAGE'].get(DEBUGGER_STATE_KEY) || '[]')
   } catch (error) {
-    return {}
+    return []
   }
 }
 
 export default class Summary extends React.Component<Props> {
   state = {
     hasError: false,
-    expandedSections: [],
-    jsonSections: []
+    toggledSection: []
   }
 
   componentDidMount() {
-    const { expandedSections, jsonSections } = getDebuggerState()
+    const toggledSection = getDebuggerState()
 
     this.setState({
-      expandedSections: expandedSections || [],
-      jsonSections: jsonSections || []
+      toggledSection
     })
   }
 
@@ -50,30 +48,19 @@ export default class Summary extends React.Component<Props> {
     return { hasError: true }
   }
 
-  handleUpdateExpandedSections(section: string, expanded: boolean): void {
-    const expandedSections = this.state.expandedSections.filter(item => item !== section)
+  toggleExpand(section: string, expanded: boolean): void {
+    const toggledSection = this.state.toggledSection.filter(item => item !== section)
 
     if (expanded) {
-      expandedSections.push(section)
+      toggledSection.push(section)
     }
 
-    this.updateLocalStorage({ expandedSections })
-    this.setState({ expandedSections })
+    window['BP_STORAGE'].set(DEBUGGER_STATE_KEY, JSON.stringify(toggledSection))
+    this.setState({ toggledSection })
   }
 
-  handleUpdateJsonSections(section: string, isJson: boolean): void {
-    const jsonSections = this.state.jsonSections.filter(item => item !== section)
-
-    if (isJson) {
-      jsonSections.push(section)
-    }
-
-    this.updateLocalStorage({ jsonSections })
-    this.setState({ jsonSections })
-  }
-
-  updateLocalStorage(data: { [key: string]: string[] }) {
-    window['BP_STORAGE'].set(DEBUGGER_STATE_KEY, JSON.stringify({ ...getDebuggerState(), ...data }))
+  isExpanded(key) {
+    return this.state.toggledSection.includes(key)
   }
 
   render() {
@@ -90,43 +77,37 @@ export default class Summary extends React.Component<Props> {
     return (
       <div>
         <NLU
-          expandedSections={this.state.expandedSections}
-          updateExpandedSections={this.handleUpdateExpandedSections.bind(this)}
-          jsonSections={this.state.jsonSections}
-          updateJsonSections={this.handleUpdateJsonSections.bind(this)}
+          isExpanded={this.isExpanded.bind(this)}
+          toggleExpand={this.toggleExpand.bind(this)}
           session={this.props.event.state.session}
           isNDU={!!this.props.event.ndu}
           nluData={this.props.event.nlu}
         />
         <Dialog
-          expandedSections={this.state.expandedSections}
-          updateExpandedSections={this.handleUpdateExpandedSections.bind(this)}
-          jsonSections={this.state.jsonSections}
-          updateJsonSections={this.handleUpdateJsonSections.bind(this)}
+          isExpanded={this.isExpanded.bind(this)}
+          toggleExpand={this.toggleExpand.bind(this)}
           suggestions={this.props.event.suggestions}
           decision={this.props.event.decision}
           stacktrace={this.props.event.state?.__stacktrace}
         />
 
         <NDU
-          expandedSections={this.state.expandedSections}
-          updateExpandedSections={this.handleUpdateExpandedSections.bind(this)}
-          jsonSections={this.state.jsonSections}
-          updateJsonSections={this.handleUpdateJsonSections.bind(this)}
+          isExpanded={this.isExpanded.bind(this)}
+          toggleExpand={this.toggleExpand.bind(this)}
           ndu={this.props.event.ndu}
         />
 
         <Collapsible
-          opened={this.state.expandedSections.includes('state')}
-          updateExpandedSections={expanded => this.handleUpdateExpandedSections('state', expanded)}
+          opened={this.isExpanded('panel::state')}
+          toggleExpand={expanded => this.toggleExpand('panel::state', expanded)}
           name="State"
         >
           <Inspector data={this.props.event.state} />
         </Collapsible>
         {eventError && (
           <Collapsible
-            opened={this.state.expandedSections.includes('errors')}
-            updateExpandedSections={expanded => this.handleUpdateExpandedSections('errors', expanded)}
+            opened={this.isExpanded('panel-errors')}
+            toggleExpand={expanded => this.toggleExpand('panel::errors', expanded)}
             name="Errors"
           >
             <Inspector data={eventError} />

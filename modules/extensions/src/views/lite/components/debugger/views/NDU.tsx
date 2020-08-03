@@ -24,22 +24,20 @@ const sortTriggersByScore = triggers => {
 
 interface Props {
   ndu: sdk.NDU.DialogUnderstanding
-  expandedSections: string[]
-  updateExpandedSections: (section: string, expanded: boolean) => void
-  jsonSections: string[]
-  updateJsonSections: (section: string, isJson: boolean) => void
+  isExpanded: (key: string) => boolean
+  toggleExpand: (section: string, expanded: boolean) => void
 }
 
-const NDU: FC<Props> = ({ ndu, expandedSections, updateExpandedSections, jsonSections, updateJsonSections }) => {
-  const [viewJSON, setViewJSON] = useState(jsonSections.includes('ndu'))
+const NDU: FC<Props> = ({ ndu, isExpanded, toggleExpand }) => {
+  const [viewJSON, setViewJSON] = useState(isExpanded('json::ndu'))
 
   useEffect(() => {
-    setViewJSON(jsonSections.includes('ndu'))
-  }, [jsonSections])
+    setViewJSON(isExpanded('json::ndu'))
+  }, [isExpanded('json::ndu')])
 
   const toggleView = () => {
     const newValue = !viewJSON
-    updateJsonSections('ndu', newValue)
+    toggleExpand('json::ndu', newValue)
     setViewJSON(newValue)
   }
 
@@ -116,8 +114,8 @@ const NDU: FC<Props> = ({ ndu, expandedSections, updateExpandedSections, jsonSec
   return (
     <Fragment>
       <Collapsible
-        opened={expandedSections.includes('ndu')}
-        updateExpandedSections={expanded => updateExpandedSections('ndu', expanded)}
+        opened={isExpanded('panel::ndu')}
+        toggleExpand={expanded => toggleExpand('panel::ndu', expanded)}
         name="Dialog Understanding"
       >
         {renderContent()}

@@ -8,7 +8,7 @@ interface CollapsibleProps {
   name: string
   children: any
   opened?: boolean
-  updateExpandedSections?: (expanded: boolean) => void
+  toggleExpand?: (expanded: boolean) => void
   hidden?: boolean
 }
 
@@ -26,7 +26,7 @@ export const Collapsible: FC<CollapsibleProps> = props => {
   const handleToggle = () => {
     const newValue = !isOpen
     setOpen(newValue)
-    props.updateExpandedSections(newValue)
+    props.toggleExpand(newValue)
   }
 
   return (

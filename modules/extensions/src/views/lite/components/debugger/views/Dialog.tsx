@@ -13,10 +13,8 @@ interface Props {
   suggestions: sdk.IO.Suggestion[]
   decision: sdk.IO.Suggestion
   stacktrace: sdk.IO.JumpPoint[]
-  expandedSections: string[]
-  updateExpandedSections: (section: string, expanded: boolean) => void
-  jsonSections: string[]
-  updateJsonSections: (section: string, isJson: boolean) => void
+  isExpanded: (key: string) => boolean
+  toggleExpand: (section: string, expanded: boolean) => void
 }
 
 const Decision: SFC<{ decision: sdk.IO.Suggestion }> = props => {
@@ -78,20 +76,12 @@ const Flow: SFC<{ stacktrace: sdk.IO.JumpPoint[] }> = props => (
   </div>
 )
 
-const Dialog: SFC<Props> = ({
-  decision,
-  suggestions,
-  stacktrace,
-  expandedSections,
-  updateExpandedSections,
-  jsonSections,
-  updateJsonSections
-}) => {
-  const [viewJSON, setViewJSON] = useState(jsonSections.includes('dialog'))
+const Dialog: SFC<Props> = ({ decision, suggestions, stacktrace, isExpanded, toggleExpand }) => {
+  const [viewJSON, setViewJSON] = useState(isExpanded('json::dialog'))
 
   useEffect(() => {
-    setViewJSON(jsonSections.includes('dialog'))
-  }, [jsonSections])
+    setViewJSON(isExpanded('json::dialog'))
+  }, [isExpanded('json::dialog')])
 
   if (!decision && !suggestions?.length && !stacktrace?.length) {
     return null
@@ -99,7 +89,7 @@ const Dialog: SFC<Props> = ({
 
   const toggleView = () => {
     const newValue = !viewJSON
-    updateJsonSections('dialog', newValue)
+    toggleExpand('json::dialog', newValue)
     setViewJSON(newValue)
   }
 
@@ -119,8 +109,8 @@ const Dialog: SFC<Props> = ({
 
   return (
     <Collapsible
-      opened={expandedSections.includes('dialog')}
-      updateExpandedSections={expanded => updateExpandedSections('dialog', expanded)}
+      opened={isExpanded('panel::dialog')}
+      toggleExpand={expanded => toggleExpand('json::dialog', expanded)}
       name="Dialog Manager"
     >
       {renderContent()}
