@@ -20,7 +20,7 @@ import {
   ListEntity,
   ListEntityModel,
   PatternEntity,
-  ProgressReport,
+  ProgressReporter,
   TFIDF,
   Token2Vec,
   Tools,
@@ -551,13 +551,13 @@ const NB_STEPS = 5 // change this if the training pipeline changes
 export type Trainer = (
   input: TrainInput,
   tools: Tools,
-  reportTrainingProgress?: ProgressReport
+  reportTrainingProgress?: ProgressReporter
 ) => Promise<TrainOutput | undefined>
 
 export const Trainer: Trainer = async (
   input: TrainInput,
   tools: Tools,
-  progress?: ProgressReport
+  progress?: ProgressReporter
 ): Promise<TrainOutput | undefined> => {
   let totalProgress = 0
   let normalizedProgress = 0

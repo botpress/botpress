@@ -58,7 +58,7 @@ export interface NLUEngine {
     intentDefs: sdk.NLU.IntentDefinition[],
     entityDefs: sdk.NLU.EntityDefinition[],
     languageCode: string,
-    reportTrainingProgress: ProgressReport,
+    reportTrainingProgress: ProgressReporter,
     trainingSession?: TrainingSession,
     options?: any
   ) => Promise<any>
@@ -80,7 +80,7 @@ export type NLUState = {
   health?: NLUHealth
   broadcastLoadModel?: (botId: string, hash: string, language: string) => Promise<void>
   broadcastCancelTraining?: (botId: string, language: string) => Promise<void>
-  reportTrainingProgress: ProgressReport
+  reportTrainingProgress: ProgressReporter
 } & NLUVersionInfo
 
 export interface NLUVersionInfo {
@@ -182,7 +182,7 @@ export interface Tools {
   mlToolkit: typeof sdk.MLToolkit
 }
 
-export type ProgressReport = (botId: string, message: string, trainSession: TrainingSession) => void
+export type ProgressReporter = (botId: string, message: string, trainSession: TrainingSession) => void
 
 export interface NLUProgressEvent {
   type: 'nlu'

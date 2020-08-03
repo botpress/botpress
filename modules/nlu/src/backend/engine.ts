@@ -18,7 +18,7 @@ import {
   NLUEngine,
   NLUVersionInfo,
   PatternEntity,
-  ProgressReport,
+  ProgressReporter,
   Tools,
   TrainingSession
 } from './typings'
@@ -30,7 +30,6 @@ export interface TrainingOptions {
 }
 
 export default class Engine implements NLUEngine {
-  // NOTE: removed private in order to prevent important refactor (which will be done later)
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<Model> = {}
   private _tools: Tools
@@ -49,9 +48,8 @@ export default class Engine implements NLUEngine {
   public async initialize(bp: typeof sdk): Promise<string[]> {
     await initDucklingExtractor(bp)
     const { languageProvider } = await initializeLanguageProvider(bp, this.version)
-    const languages = languageProvider.languages
     this._tools = makeTools(bp.MLToolkit, bp.logger, languageProvider)
-    return languages
+    return languageProvider.languages
   }
 
   // we might want to make this language specific
@@ -75,7 +73,7 @@ export default class Engine implements NLUEngine {
     intentDefs: NLU.IntentDefinition[],
     entityDefs: NLU.EntityDefinition[],
     languageCode: string,
-    reportTrainingProgress?: ProgressReport,
+    reportTrainingProgress?: ProgressReporter,
     trainingSession?: TrainingSession,
     options?: TrainingOptions
   ): Promise<Model | undefined> {
@@ -174,7 +172,7 @@ export default class Engine implements NLUEngine {
   private async _trainAndMakeModel(
     input: TrainInput,
     hash: string,
-    reportTrainingProgress?: ProgressReport
+    reportTrainingProgress?: ProgressReporter
   ): Promise<Model | undefined> {
     const startedAt = new Date()
     let output: TrainOutput | undefined
