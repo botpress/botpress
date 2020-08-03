@@ -5,22 +5,24 @@ import { Config } from '../config'
 import { DucklingEntityExtractor } from './entities/duckling_extractor'
 import LangProvider from './language/language-provider'
 import { getPOSTagger, tagSentence } from './language/pos-tagger'
-import { LanguageProvider, NLUVersionInfo, Token2Vec, Tools } from './typings'
+import { LanguageProvider, NLUHealth, NLUVersionInfo, Token2Vec, Tools } from './typings'
 
-export const initializeLanguageProvider = async (bp: typeof sdk, version: NLUVersionInfo) => {
+const healthGetter = (languageProvider: LanguageProvider) => (): NLUHealth => {
+  const { validProvidersCount, validLanguages } = languageProvider.getHealth()
+  return {
+    isEnabled: validProvidersCount > 0 && validLanguages.length > 0,
+    validProvidersCount,
+    validLanguages
+  }
+}
+
+const initializeLanguageProvider = async (bp: typeof sdk, version: NLUVersionInfo) => {
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
 
   try {
     const languageProvider = await LangProvider.initialize(globalConfig.languageSources, bp.logger, version)
-
-    const { validProvidersCount, validLanguages } = languageProvider.getHealth()
-    const health = {
-      isEnabled: validProvidersCount > 0 && validLanguages.length > 0,
-      validProvidersCount,
-      validLanguages
-    }
-
-    return { languageProvider, health }
+    const getHealth = healthGetter(languageProvider)
+    return { languageProvider, health: getHealth() }
   } catch (e) {
     if (e.failure && e.failure.code === 'ECONNREFUSED') {
       bp.logger.error(`Language server can't be reached at address ${e.failure.address}:${e.failure.port}`)
@@ -32,16 +34,16 @@ export const initializeLanguageProvider = async (bp: typeof sdk, version: NLUVer
   }
 }
 
-export async function initDucklingExtractor(bp: typeof sdk): Promise<void> {
+const initDucklingExtractor = async (bp: typeof sdk): Promise<void> => {
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
   await DucklingEntityExtractor.configure(globalConfig.ducklingEnabled, globalConfig.ducklingURL, bp.logger)
 }
 
-export function makeTools(
-  mlToolkit: typeof sdk.MLToolkit,
-  logger: sdk.Logger,
-  languageProvider: LanguageProvider
-): Tools {
+export async function initializeTools(bp: typeof sdk, version: NLUVersionInfo): Promise<Tools> {
+  await initDucklingExtractor(bp)
+  const { languageProvider } = await initializeLanguageProvider(bp, version)
+  const { MLToolkit: mlToolkit, logger } = bp
+
   return {
     partOfSpeechUtterances: (tokenUtterances: string[][], lang: string) => {
       const tagger = getPOSTagger(lang, mlToolkit)
@@ -54,6 +56,8 @@ export function makeTools(
       return a.map(x => Array.from(x.values()))
     },
     generateSimilarJunkWords: (vocab: string[], lang: string) => languageProvider.generateSimilarJunkWords(vocab, lang),
+    getHealth: healthGetter(languageProvider),
+    getLanguages: () => languageProvider.languages,
     mlToolkit,
     duckling: new DucklingEntityExtractor(logger)
   }

@@ -4,7 +4,7 @@ import crypto from 'crypto'
 import _ from 'lodash'
 
 import * as CacheManager from './cache-manager'
-import { initDucklingExtractor, initializeLanguageProvider, makeTools } from './initialize'
+import { initializeTools } from './initialize-tools'
 import { computeModelHash } from './model-hash'
 import { Model } from './model-service'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
@@ -33,7 +33,6 @@ export interface TrainingOptions {
 export default class Engine implements NLUEngine {
   private static _tools: Tools
   private static _version: NLUVersionInfo
-  private static _languages: string[]
 
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<Model> = {}
@@ -45,16 +44,9 @@ export default class Engine implements NLUEngine {
     return this._tools
   }
 
-  public static get languages() {
-    return this._languages
-  }
-
   public static async initialize(bp: typeof sdk, version: NLUVersionInfo): Promise<void> {
-    await initDucklingExtractor(bp)
-    const { languageProvider } = await initializeLanguageProvider(bp, version)
-    this._tools = makeTools(bp.MLToolkit, bp.logger, languageProvider)
+    this._tools = await initializeTools(bp, version)
     this._version = version
-    this._languages = languageProvider.languages
   }
 
   async train(

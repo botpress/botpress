@@ -4,8 +4,8 @@ import _ from 'lodash'
 import yn from 'yn'
 
 import { isOn as isAutoTrainOn, set as setAutoTrain } from './autoTrain'
+import Engine from './engine'
 import { EntityDefCreateSchema } from './entities/validation'
-import { initializeLanguageProvider } from './initialize'
 import {
   deleteIntent,
   getIntent,
@@ -41,12 +41,8 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
   router.get('/health', async (req, res) => {
     // When the health is bad, we'll refresh the status in case it changed (eg: user added languages)
-    let providerhealth
-    if (!state.health?.isEnabled) {
-      const { health } = await initializeLanguageProvider(bp, state)
-      providerhealth = health
-    }
-    res.send(providerhealth)
+    const health = Engine.tools.getHealth()
+    res.send(health)
   })
 
   router.post('/cross-validation/:lang', async (req, res) => {

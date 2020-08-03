@@ -178,6 +178,8 @@ export interface Tools {
   vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
   partOfSpeechUtterances(utterances: string[][], languageCode: string): string[][]
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
+  getHealth(): NLUHealth
+  getLanguages(): string[]
   duckling: SystemEntityExtractor
   mlToolkit: typeof sdk.MLToolkit
 }
