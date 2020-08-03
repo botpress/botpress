@@ -9,11 +9,11 @@ interface Props {
   setExpanded?: (expanded: boolean) => void
   expanded?: boolean
   defaultLabel: string
-  name: string
-  type: string
-  handleContextMenu: (e: SyntheticEvent) => void
-  isEditing: boolean
-  saveName: (value: string) => void
+  name?: string
+  type?: string
+  handleContextMenu?: (e: SyntheticEvent) => void
+  isEditing?: boolean
+  saveName?: (value: string) => void
   error?: string
   children?: any
   className?: string
@@ -32,7 +32,7 @@ const NodeHeader: FC<Props> = ({
   children,
   className
 }) => {
-  const isDefaultName = name.startsWith(`${type}-`) || name.startsWith(`node-`)
+  const isDefaultName = !name || name.startsWith(`${type}-`) || name.startsWith('node-')
   const getInitialInputValue = () => {
     return isDefaultName ? '' : name
   }
@@ -60,9 +60,9 @@ const NodeHeader: FC<Props> = ({
       {!isEditing ? (
         <Button
           icon={setExpanded ? icon : null}
-          onClick={() => setExpanded?.(!expanded)}
+          onClick={() => setExpanded && setExpanded(!expanded)}
           className={style.button}
-          onContextMenu={handleContextMenu}
+          onContextMenu={e => handleContextMenu && handleContextMenu(e)}
         >
           {isDefaultName ? defaultLabel : name}
         </Button>

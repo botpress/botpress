@@ -14,8 +14,8 @@ interface Props {
 }
 
 const RollbackBotModal: FC<Props> = props => {
-  const [revisions, setRevisions] = useState()
-  const [selected, setSelected] = useState()
+  const [revisions, setRevisions] = useState<any>()
+  const [selected, setSelected] = useState<any>()
   const [isConfirmed, setConfirmed] = useState(false)
   const [isProcessing, setProcessing] = useState(false)
 

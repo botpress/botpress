@@ -13,7 +13,7 @@ import legacyElectionPipeline from '../legacy-election'
 import { getLatestModel } from '../model-service'
 import { InvalidLanguagePredictorError } from '../predict-pipeline'
 import { removeTrainingSession, setTrainingSession } from '../train-session-service'
-import { NLUState, Token2Vec, Tools, TrainingSession, NLUProgressEvent } from '../typings'
+import { NLUProgressEvent, NLUState, Token2Vec, Tools, TrainingSession } from '../typings'
 
 export const initializeLanguageProvider = async (bp: typeof sdk, state: NLUState) => {
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
@@ -103,7 +103,7 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
       'Process natural language in the form of text. Structured data with an action and parameters for that action is injected in the incoming message event.',
     handler: async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
       if (ignoreEvent(bp, state, event)) {
-        return next()
+        return next(undefined, false, true)
       }
 
       let nluResults = {}

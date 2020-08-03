@@ -36,7 +36,7 @@ function renderer(data) {
 }
 
 function renderElement(data, channel) {
-  if (['web', 'slack', 'teams', 'messenger', 'telegram'].includes(channel)) {
+  if (['web', 'slack', 'teams', 'messenger', 'telegram', 'twilio'].includes(channel)) {
     return renderer(data)
   } else {
     return render(data)
@@ -142,6 +142,7 @@ module.exports = {
           {
             type: 'text',
             key: 'title',
+            superInput: true,
             translated: true,
             label: 'module.builtin.types.suggestions.label',
             placeholder: 'module.builtin.types.suggestions.labelPlaceholder'
@@ -149,6 +150,7 @@ module.exports = {
           {
             type: 'text',
             key: 'value',
+            superInput: true,
             translated: true,
             label: 'module.builtin.types.suggestions.value',
             placeholder: 'module.builtin.types.suggestions.valuePlaceholder'

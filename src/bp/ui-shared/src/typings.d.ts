@@ -19,7 +19,8 @@ import { RightSidebarProps } from './MainContent/RightSidebar/typings'
 import { FormProps } from './Contents/Components/Form/typings'
 import { ItemProps } from './Contents/Components/Item/typings'
 import { AddButtonProps } from './Contents/Components/typings'
-import { TextFieldsArrayProps } from './FormFields/TextFieldsArrayProps/typings'
+import { TextFieldsArrayProps } from './FormFields/TextFieldsArray/typings'
+import { SuperInputArrayProps } from './FormFields/SuperInputArray/typings'
 import { OverlayProps } from './Overlay/typings'
 import { FormField, MultiLangText } from 'botpress/sdk'
 
@@ -42,6 +43,7 @@ declare module 'botpress/shared' {
   export const FormFields: {
     AddButton(props: AddButtonProps): JSX.Element
     TextFieldsArray(props: TextFieldsArrayProps): JSX.Element
+    SuperInputArray(props: SuperInputArrayProps): JSX.Element
   }
   export function Dropdown(props: DropdownProps): JSX.Element
   export function EmptyState(props: EmptyStateProps): JSX.Element
@@ -54,7 +56,7 @@ declare module 'botpress/shared' {
   export function Textarea<T>(props: TextareaProps<T>): JSX.Element
   export function TreeView<T>(props: TreeViewProps<T>): JSX.Element
 
-  export function contextMenu(event: SyntheticEvent, content: JSX.Element): void
+  export function contextMenu(event: SyntheticEvent, content: JSX.Element, onClose?: () => void): void
   export function confirmDialog(message: string | JSX.Element, options: ConfirmDialogOptions): Promise<boolean>
   export const lang: {
     tr(id: string | MultiLangText, values?: { [variable: string]: any }): string

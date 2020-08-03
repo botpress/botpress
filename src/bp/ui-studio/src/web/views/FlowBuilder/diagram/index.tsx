@@ -39,7 +39,7 @@ import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
 import { SkillDefinition } from '../sidePanel/FlowTools'
 
-import { defaultTransition, DIAGRAM_PADDING, DiagramManager, nodeTypes, Point } from './manager'
+import { defaultTransition, DiagramManager, DIAGRAM_PADDING, nodeTypes, Point } from './manager'
 import { DeletableLinkFactory } from './nodes/LinkWidget'
 import { SkillCallNodeModel, SkillCallWidgetFactory } from './nodes/SkillCallNode'
 import { StandardNodeModel, StandardWidgetFactory } from './nodes/StandardNode'

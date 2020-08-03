@@ -50,7 +50,7 @@ function render(data) {
 }
 
 function renderElement(data, channel) {
-  if (['web', 'slack', 'teams', 'messenger', 'telegram'].includes(channel)) {
+  if (['web', 'slack', 'teams', 'messenger', 'telegram', 'twilio'].includes(channel)) {
     return base.renderer(data, 'carousel')
   } else {
     return render(data)

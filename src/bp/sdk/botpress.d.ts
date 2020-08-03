@@ -34,6 +34,10 @@ declare module 'botpress/sdk' {
     triggerValue: number
   }
 
+  export interface BotEvent {
+    [key: string]: any
+  }
+
   export type StrategyUser = {
     id?: number
     password?: string
@@ -413,7 +417,7 @@ declare module 'botpress/sdk' {
     }
 
     export namespace CRF {
-      export interface Tagger {
+      export class Tagger {
         tag(xseq: Array<string[]>): { probability: number; result: string[] }
         open(model_filename: string): boolean
         marginal(xseq: Array<string[]>): { [label: string]: number }[]
@@ -432,12 +436,9 @@ declare module 'botpress/sdk' {
         labels: string[]
       }
 
-      export interface Trainer {
-        train(elements: DataPoint[], options: TrainerOptions): Promise<string>
+      export class Trainer {
+        train(elements: DataPoint[], options: TrainerOptions, debugCallback?: (msg: string) => void): Promise<string>
       }
-
-      export const createTrainer: () => Trainer
-      export const createTagger: () => Tagger
     }
 
     export namespace SentencePiece {
@@ -646,6 +647,10 @@ declare module 'botpress/sdk' {
       readonly credentials?: any
       /** When false, some properties used by the debugger are stripped from the event before storing */
       debugger?: boolean
+      /** Track processing steps during the lifetime of the event  */
+      processing?: {
+        [activity: string]: Date
+      }
       /**
        * Check if the event has a specific flag
        * @param flag The flag symbol to verify. {@link IO.WellKnownFlags} to know more about existing flags
@@ -660,6 +665,8 @@ declare module 'botpress/sdk' {
        * @example event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
        */
       setFlag(flag: symbol, value: boolean): void
+      /** Add a new step to the processing of this event (with timestamp) */
+      addStep(step: string): void
     }
 
     /**
@@ -861,7 +868,7 @@ declare module 'botpress/sdk' {
 
     export type StoredEvent = {
       /** This ID is automatically generated when inserted in the DB  */
-      readonly id?: number
+      readonly id: string
       direction: EventDirection
       /** Outgoing events will have the incoming event ID, if they were triggered by one */
       incomingEventId?: string
@@ -908,8 +915,9 @@ declare module 'botpress/sdk' {
      * Call next with an error as first argument to throw an error
      * Call next with true as second argument to swallow the event (i.e. stop the processing chain)
      * Call next with no parameters or false as second argument to continue processing to next middleware
+     * Call next with the last parameter as true to mark the middleware as "skipped" in the event processing
      */
-    export type MiddlewareNextCallback = (error?: Error, swallow?: boolean) => void
+    export type MiddlewareNextCallback = (error?: Error, swallow?: boolean, skipped?: boolean) => void
 
     /**
      * The actual middleware function that gets executed. It receives an event and expects to call next()
@@ -1460,6 +1468,8 @@ declare module 'botpress/sdk' {
     options?: FormOption[]
     defaultValue?: FormDataField
     required?: boolean
+    variableTypes?: string[]
+    superInput?: boolean
     max?: number
     min?: number
     maxLength?: number
@@ -2091,7 +2101,7 @@ declare module 'botpress/sdk' {
      * @param id - The ID of the event to update
      * @param fields - Fields to update on the event
      */
-    export function updateEvent(id: number, fields: Partial<IO.StoredEvent>): Promise<void>
+    export function updateEvent(id: string, fields: Partial<IO.StoredEvent>): Promise<void>
 
     /**
      * Register the user feedback for a specific event. The type property is used to increment associated metrics

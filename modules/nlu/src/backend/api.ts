@@ -32,7 +32,7 @@ const removeSlotsFromUtterances = (utterances: { [key: string]: any }, slotNames
   _.fromPairs(
     Object.entries(utterances).map(([key, val]) => {
       const regex = new RegExp(`\\[([^\\[\\]\\(\\)]+?)\\]\\((${slotNames.join('|')})\\)`, 'gi')
-      return [key, val.map(u => u.replace(regex, '$1'))]
+      return [key, val.map((u: string) => u.replace(regex, '$1'))]
     })
   )
 
@@ -41,7 +41,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
   router.get('/health', async (req, res) => {
     // When the health is bad, we'll refresh the status in case it changed (eg: user added languages)
-    if (!state.health.isEnabled) {
+    if (!state.health?.isEnabled) {
       await initializeLanguageProvider(bp, state)
     }
     res.send(state.health)
@@ -160,7 +160,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
         const ghost = bp.ghost.forBot(botId)
 
         await updateContextsFromTopics(ghost, state.nluByBot[botId].entityService, [
-          condition.params.intentName as string
+          condition.params?.intentName as string
         ])
         return res.sendStatus(200)
       } catch (err) {

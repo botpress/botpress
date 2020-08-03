@@ -25,7 +25,7 @@ function render(data) {
 }
 
 function renderElement(data, channel) {
-  if (['web', 'slack', 'teams', 'messenger', 'telegram'].includes(channel)) {
+  if (['web', 'slack', 'teams', 'messenger', 'telegram', 'twilio'].includes(channel)) {
     return base.renderer(data, 'image')
   } else {
     return render(data)
@@ -94,6 +94,7 @@ module.exports = {
         key: 'title',
         translated: true,
         label: 'title',
+        superInput: true,
         placeholder: 'module.builtin.optional'
       }
     ]

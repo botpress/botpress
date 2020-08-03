@@ -16,6 +16,7 @@ export default {
     {
       key: 'ambiguityThreshold',
       label: 'module.nlu.conditions.fields.label.ambiguityThreshold',
+      superInput: true,
       type: 'number',
       defaultValue: 0.1
     }
@@ -46,7 +47,7 @@ export default {
       return 0
     }
 
-    const higestIntents = _.chain(topicPreds.intents)
+    const higestIntents = _.chain(topicPreds?.intents ?? [])
       .filter(i => i.label !== 'none')
       .orderBy('confidence', 'desc')
       .map('confidence')

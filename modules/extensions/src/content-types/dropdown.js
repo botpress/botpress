@@ -40,15 +40,13 @@ function renderer(data) {
 }
 
 function renderElement(data, channel) {
-  if (['web', 'slack', 'teams', 'messenger', 'telegram'].includes(channel)) {
+  if (['web', 'slack', 'teams', 'messenger', 'telegram', 'twilio'].includes(channel)) {
     return renderer(data)
   } else if (channel === 'api') {
     return render(data)
-  } else if (channel === 'smooch') {
+  } else {
     return [data]
   }
-
-  return []
 }
 
 module.exports = {

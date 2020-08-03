@@ -60,7 +60,6 @@
     "mime-types": "^2.1.27",
     "ml-kmeans": "^5.0.0",
     "moment": "^2.24.0",
-    "mout": "^1.1.0",
     "ms": "^2.1.1",
     "multer": "^1.4.1",
     "mustache": "^3.0.1",
@@ -75,7 +74,6 @@
     "pg": "^7.8.0",
     "plur": "^3.0.1",
     "portfinder": "^1.0.20",
-    "q": "^1.5.1",
     "querystring": "^0.2.0",
     "redlock": "^3.1.2",
     "reflect-metadata": "^0.1.13",
@@ -118,7 +116,6 @@
     "@types/numeric": "^1.2.1",
     "@types/passport": "^1.0.0",
     "@types/puppeteer": "^2.0.0",
-    "@types/q": "^1.5.4",
     "@types/redis": "^2.8.10",
     "@types/redlock": "^4.0.0",
     "@types/seedrandom": "^2.4.28",
@@ -143,13 +140,13 @@
     "gulp-sourcemaps": "^2.6.4",
     "gulp-typedoc": "^2.2.1",
     "gulp-typescript": "^6.0.0-alpha.1",
-    "husky": "^1.1.2",
+    "husky": "^4.2.5",
     "jest": "^24.9.0",
     "jest-circus": "^24.9.0",
     "jest-extended": "^0.11.4",
     "jest-html-reporter": "^2.8.0",
     "jest-puppeteer": "^4.4.0",
-    "lint-staged": "^8.1.5",
+    "lint-staged": "^10.2.11",
     "pkg": "^4.4.8",
     "prettier": "^1.19.1",
     "puppeteer": "^2.0.0",
@@ -157,10 +154,9 @@
     "showdown": "^1.9.0",
     "stylus": "^0.54.5",
     "ts-jest": "^24.3.0",
-    "tslint": "^5.11.0",
-    "tslint-gitstaged": "^0.4.0",
+    "tslint": "^6.1.2",
     "typedoc": "^0.13.0",
-    "typescript": "^3.7.4",
+    "typescript": "^3.9.7",
     "typescript-json-schema": "^0.32.0"
   },
   "optionalDependencies": {
@@ -169,15 +165,8 @@
   },
   "husky": {
     "hooks": {
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+      "commit-msg": "commitlint --config ./config/commitlint.config.js -E HUSKY_GIT_PARAMS",
+      "pre-commit": "lint-staged --config ./config/lint-staged.commit.config.js --no-stash"
     }
-  },
-  "lint-staged": {
-    "linters": {
-      "*.{ts,scss,js}": "tslintgs"
-    },
-    "ignore": [
-      "*.styl.d.ts"
-    ]
   }
 }
