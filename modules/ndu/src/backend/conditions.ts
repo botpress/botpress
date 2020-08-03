@@ -263,6 +263,10 @@ export const dialogConditions: sdk.Condition[] = [
       }
     ],
     evaluate: (event, params) => {
+      if (!event.state.context['activeMap']) {
+        return 0
+      }
+
       const match = event.nlu.entities.find(x => x.name === params.choiceEntity)
       if (params.value && match?.data.value === params.value) {
         return 1

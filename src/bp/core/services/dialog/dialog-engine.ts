@@ -620,6 +620,9 @@ export class DialogEngine {
         ...params
       }
     }
+    if (currentNode.type === 'map') {
+      context['activeMap'] = true
+    }
   }
 
   private async _processPendingPrompt(
