@@ -1,7 +1,5 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import ConfusionMatrix from 'ml-confusion-matrix'
-import { Matrix } from 'ml-matrix'
 import nanoid from 'nanoid'
 
 import { getTrainTestDatas } from '../tools/data_loader'
@@ -11,7 +9,6 @@ import {
   computeKmeansPairwiseIntent,
   computeOutliers,
   computeScatterEmbeddings
-  // computeTsneScatterEmbeddings
 } from '../tools/visualisation'
 
 import { VisuState } from './typings'
@@ -41,7 +38,22 @@ export default async (bp: typeof sdk, state: VisuState) => {
   })
 
   router.get('/loadDatas', async (req, res) => {
-    res.send(await getTrainTestDatas(state[req.params.botId]))
+    const botId = req.params.botId
+    const newAxiosConfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
+    state[botId].predictor.axiosConfig = newAxiosConfig
+    state[botId].axiosConfig = newAxiosConfig
+    const jobId = nanoid()
+    res.send(jobId)
+    longJobsPool[jobId] = { status: 'computing', data: undefined, error: undefined, cm: false }
+    try {
+      await getTrainTestDatas(state[req.params.botId])
+      longJobsPool[jobId].status = 'done'
+      console.log('\n\n Done Loading Datas \n\n')
+    } catch (e) {
+      console.log('Error while trying to load datas : ', e)
+      longJobsPool[jobId].status = 'crashed'
+      longJobsPool[jobId].error = e.data
+    }
   })
 
   router.get('/similarityEmbeddings', async (req, res) => {

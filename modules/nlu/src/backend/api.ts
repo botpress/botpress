@@ -17,12 +17,11 @@ import {
 } from './intents/intent-service'
 import recommendations from './intents/recommendations'
 import { IntentDefCreateSchema } from './intents/validation'
-import { getPOSTagger, tagSentence } from './language/pos-tagger'
 import legacyElectionPipeline from './legacy-election'
 import { initializeLanguageProvider } from './module-lifecycle/on-server-started'
 import { crossValidate } from './tools/cross-validation'
 import { getTrainingSession } from './train-session-service'
-import { NLUState, Token2Vec, Tools } from './typings'
+import { NLUState } from './typings'
 import { buildUtteranceBatch } from './utterance/utterance'
 
 export const PredictSchema = Joi.object().keys({

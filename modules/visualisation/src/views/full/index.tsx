@@ -1,9 +1,11 @@
-import { Checkbox } from '@blueprintjs/core'
 import { Container } from 'botpress/ui'
 import _ from 'lodash'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
+import { FaSkullCrossbones } from 'react-icons/fa'
+import { GiLoad } from 'react-icons/gi'
+import { IoMdCloudDone } from 'react-icons/io'
+import { RiLoader2Line } from 'react-icons/ri'
 import Plot from 'react-plotly.js'
-import { createInterface } from 'readline'
 
 import { PredRes } from '../../backend/typings'
 
@@ -12,6 +14,7 @@ import style from './style.scss'
 const NewQnA = props => {
   const [simEmb, setSimEmb] = useState([])
   const [scatEmb, setScatEmb] = useState([])
+  const [loadingDatasIcon, setLoadingDatasIcon] = useState(<GiLoad />)
   const [CF, setCF] = useState([])
   const [intentCF, setIntentCF] = useState([])
   const [clusterScore, setClusterScore] = useState({})
@@ -33,6 +36,24 @@ const NewQnA = props => {
 
   const loadDatas = async () => {
     const { data } = await props.bp.axios.get('/mod/new_qna/loadDatas', { timeout: 0 })
+    const jobId = data
+    console.log('Job ID : ', jobId)
+    setLoadingDatasIcon(<RiLoader2Line />)
+    const interval = setInterval(async () => {
+      const { data } = await props.bp.axios.get(`/mod/new_qna/long-jobs-status/${jobId}`)
+      if (data.status === 'done') {
+        console.log('Loading datas done')
+        setLoadingDatasIcon(<IoMdCloudDone />)
+        clearInterval(interval)
+      } else if (data.status === 'crashed') {
+        console.error(`Loading datas crashed : ${data.error}`)
+        setLoadingDatasIcon(<FaSkullCrossbones />)
+        clearInterval(interval)
+      } else {
+        setLoadingDatasIcon(<RiLoader2Line />)
+        console.log('Loading Datas ')
+      }
+    }, 1000)
   }
 
   const scatterEmbeddings = async () => {
@@ -76,7 +97,7 @@ const NewQnA = props => {
       const sumRow = _.sum(row)
       return row.map(elt => _.round(elt / (sumRow + Number.EPSILON), 2))
     })
-    setCF([
+    const matrix = [
       {
         x: allIntents,
         y: allIntents,
@@ -84,7 +105,8 @@ const NewQnA = props => {
         text: textTranspose,
         type: 'heatmap'
       }
-    ])
+    ]
+    setCF([...matrix])
   }
 
   const confusionMatrix = async () => {
@@ -96,33 +118,25 @@ const NewQnA = props => {
       if (data.status === 'done') {
         console.log('Confusion Matrix done')
         clearInterval(interval)
-        try {
-          createCM(data.data)
-        } catch (e) {
-          console.log(e)
-        }
+        createCM(data.data)
       } else if (data.status === 'crashed') {
         console.error(`Confusion Matrix crashed : ${data.error}`)
         clearInterval(interval)
       } else {
         console.log('Computing Confusion Matrix ')
-        try {
-          createCM(data.data)
-        } catch (e) {
-          console.log(e)
-        }
+        createCM(data.data)
       }
-    }, 5000)
+    }, 20000)
   }
 
   return (
     <Container sidePanelHidden>
       <div />
       <div className={style.main}>
-        <button onClick={loadDatas}>Load Datas</button>
+        <button onClick={loadDatas}>Load Datas {loadingDatasIcon}</button>
         <button onClick={confusionMatrix}>Compute confusion Matrix</button>
-        <button onClick={similarityEmbeddings}>Similarity Embeddings</button>
         <button onClick={scatterEmbeddings}>Scatter Embeddings</button>
+        <button onClick={similarityEmbeddings}>Similarity Embeddings</button>
         <button onClick={computeOutliers}>Compute Outliers</button>
         <button onClick={computeIntentsSimilarity}>Intents Kmeans Pairwise</button>
         <h2> Scatter</h2>
@@ -252,8 +266,7 @@ const NewQnA = props => {
               yaxis: {
                 title: { text: 'Actual', font: { family: 'Courier New, monospace', size: 18, color: '#7f7f7f' } },
                 automargin: true,
-                autosize: true,
-                tickangle: -90
+                autosize: true
               }
             }}
             config={{ responsive: true }}

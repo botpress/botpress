@@ -1,10 +1,7 @@
-import { text } from 'body-parser'
 import _ from 'lodash'
-import ConfusionMatrix from 'ml-confusion-matrix'
 import { distance, similarity } from 'ml-distance'
 import { Matrix } from 'ml-matrix'
 import { PCA } from 'ml-pca'
-import TSNE from 'tsne-js'
 
 import { BotState, PredRes } from '../backend/typings'
 const clustering = require('density-clustering')

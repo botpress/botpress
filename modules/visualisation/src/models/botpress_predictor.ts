@@ -12,18 +12,6 @@ export class BotpressPredictor {
     this.userId = _.uniqueId('user_')
   }
   async predict(question) {
-    // const {
-    //   data: { nlu }
-    // } = await axios.post(
-    //   // 'mod/nlu/predict',
-    //   `/converse/${this.userId}/secured?include=decision,nlu`,
-    //   {
-    //     type: 'text',
-    //     text: question
-    //   },
-    //   this.axiosConfig
-    // )
-
     let tries = 1
     const maxTries = 5
     let success = false
@@ -58,22 +46,6 @@ export class BotpressPredictor {
       }
     } = response as AxiosResponse
 
-    // const pred = _.chain(nlu.predictions)
-    //   .toPairs()
-    //   .flatMap(([ctx, ctxPredObj]) => {
-    //     return ctxPredObj.intents.map(intentPred => {
-    //       const oosFactor = 1 - ctxPredObj.oos
-    //       return {
-    //         contexts: [ctx],
-    //         feedbacks: [],
-    //         label: intentPred.label,
-    //         confidence: intentPred.confidence * oosFactor * ctxPredObj.confidence
-    //       }
-    //     })
-    //   })
-    //   .maxBy('confidence')
-    //   .value()
-    // return { label: pred.label, confidence: pred.confidence }
     return { label: name.replace('__qna__', '').replace('",', ''), confidence }
   }
 }

@@ -12,16 +12,18 @@ export async function splitTrainToTrainAndTest(state: BotState) {
       await state.ghost.upsertFile('./raw_intents', file, JSON.stringify(intentData, undefined, 2))
     }
   }
-  // In the new
+
   const intentsFiles = await state.ghost.directoryListing('./raw_intents', '*.json')
   let tests: Test[] = []
   for (const file of intentsFiles) {
     const intentDatas = await state.ghost.readFileAsObject<RawData>('./raw_intents', file)
     const languages = Object.keys(intentDatas.utterances)
+
     for (const lang of languages) {
       const test_utts = _.sampleSize(intentDatas.utterances[lang], _.floor(intentDatas.utterances[lang].length / 4))
       const train_utts = intentDatas.utterances[lang].filter(s => !test_utts.includes(s))
       intentDatas.utterances[lang] = train_utts
+
       tests = tests.concat(
         test_utts.map(s => {
           return {
@@ -39,10 +41,12 @@ export async function splitTrainToTrainAndTest(state: BotState) {
         })
       )
     }
+
     await state.ghost.upsertFile('./intents', file, JSON.stringify(intentDatas, undefined, 2))
   }
   await state.ghost.upsertFile('./', 'nlu-tests.json', JSON.stringify(tests, undefined, 2))
 }
+
 export async function getTrainTestDatas(state: BotState) {
   if (
     (await state.ghost.fileExists(`./datas/${state.embedder.model_name}`, 'test_set.json')) &&
@@ -52,14 +56,17 @@ export async function getTrainTestDatas(state: BotState) {
       `./datas/${state.embedder.model_name}`,
       'train_set.json'
     )
+
     const vectorized_test: Data[] = await state.ghost.readFileAsObject<Data[]>(
       `./datas/${state.embedder.model_name}`,
       'test_set.json'
     )
+
     state.trainDatas = vectorized_train
     state.testDatas = vectorized_test
     return { train: vectorized_train, test: vectorized_test }
   }
+
   const rawTrain: RawData[] = []
   let rawTest: Test[] = []
 
@@ -98,10 +105,8 @@ export async function getTrainTestDatas(state: BotState) {
 
   const config = await state.ghost.readFileAsString('./', 'bot.config.json')
   const lang = JSON.parse(config).languages[0]
-  console.log('LANG', JSON.parse(config).id, lang)
+
   for (const entry of rawTrain) {
-    // console.log(entry.utterances)
-    // console.log(entry.utterances[lang])
     for (const utt of entry.utterances[lang]) {
       const utt_emb = await state.embedder.embed(utt)
       vectorized_train.push({
@@ -112,19 +117,19 @@ export async function getTrainTestDatas(state: BotState) {
       } as Data)
     }
   }
-  console.log('going to write')
+
   await state.ghost.upsertFile(
     `./datas/${state.embedder.model_name}`,
     'test_set.json',
     JSON.stringify(vectorized_test, undefined, 2)
   )
-  console.log('written test')
+
   await state.ghost.upsertFile(
     `./datas/${state.embedder.model_name}`,
     'train_set.json',
     JSON.stringify(vectorized_train, undefined, 2)
   )
-  console.log('written train')
+
   state.trainDatas = vectorized_train
   state.testDatas = vectorized_test
   return { train: vectorized_train, test: vectorized_test }
