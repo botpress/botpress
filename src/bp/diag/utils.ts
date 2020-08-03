@@ -49,10 +49,13 @@ export const testWriteAccess = (label: string, folder: string) => {
   }
 }
 
-export const dnsLookup = (hostname: string) => {
-  return new Promise((resolve, reject) => {
+export const dnsLookup = async (hostname: string) => {
+  const timePromise = new Promise(() => {}).timeout(5000)
+  const lookupPromise = new Promise((resolve, reject) => {
     dns.lookup(hostname, (err, res) => (err ? reject(err) : resolve(res)))
   })
+
+  return Promise.race([timePromise, lookupPromise])
 }
 
 export const testWebsiteAccess = async (label: string, url: string) => {

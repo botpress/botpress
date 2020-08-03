@@ -113,6 +113,7 @@ const testConnectivity = async () => {
 
   await wrapMethodCall('Connecting to Database', async () => {
     await Db.initialize()
+    printRow('Database Type', Db.knex.isLite ? 'SQLite' : 'Postgres')
 
     if ((await Db.knex.raw('select 1+1 as result')) === undefined) {
       throw new Error('Database error')
