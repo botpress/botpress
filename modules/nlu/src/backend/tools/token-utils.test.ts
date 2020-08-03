@@ -46,7 +46,11 @@ describe('Raw token processing', () => {
 
   test('mergeSimilarTokens with custom matcher', () => {
     expect(
-      mergeSimilarCharsetTokens(['ce', 'ci', 'est', 'très', 'vanil', 'lé'], LATIN_CHARSET, t => t == 'ci' || t == 'lé')
+      mergeSimilarCharsetTokens(
+        ['ce', 'ci', 'est', 'très', 'vanil', 'lé'],
+        LATIN_CHARSET,
+        t => t === 'ci' || t === 'lé'
+      )
     ).toEqual(['ceci', 'est', 'très', 'vanillé'])
 
     const notInVocab = t => !{ ce: 1, ci: 1, est: 1 }[t]
@@ -69,8 +73,8 @@ describe('Raw token processing', () => {
       `${SPACE}Hei`,
       'Sen',
       'berg',
-      `!&$`,
-      `!¿}{@~`
+      '!&$',
+      '!¿}{@~'
     ]
 
     expect(processUtteranceTokens(toks)).toEqual([
@@ -88,33 +92,33 @@ describe('Raw token processing', () => {
       '!&$!¿}{@~'
     ])
 
-    const moreToks = [`${SPACE}jag`, `${SPACE}ä`, `r`, `${SPACE}väl`, `digt`, `${SPACE}hungrig`]
+    const moreToks = [`${SPACE}jag`, `${SPACE}ä`, 'r', `${SPACE}väl`, 'digt', `${SPACE}hungrig`]
     expect(processUtteranceTokens(moreToks)).toEqual(['jag', SPACE, 'är', SPACE, 'väldigt', SPACE, 'hungrig'])
   })
 
   test('processUtteranceTokens with vocab should help tokenization', () => {
-    const toks = [`${SPACE}i`, `'`, `m`, `${SPACE}having`, `${SPACE}some`, `${SPACE}trouble`, `${SPACE}tol`, `ogin`]
+    const toks = [`${SPACE}i`, "'", 'm', `${SPACE}having`, `${SPACE}some`, `${SPACE}trouble`, `${SPACE}tol`, 'ogin']
     const vocab = {
       to: [1, 2, 3, 4],
       login: [1, 2, 3, 4]
     }
 
     expect(processUtteranceTokens(toks, vocab)).toEqual([
-      `i`,
-      `'`,
-      `m`,
+      'i',
+      "'",
+      'm',
       SPACE,
-      `having`,
+      'having',
       SPACE,
-      `some`,
+      'some',
       SPACE,
-      `trouble`,
+      'trouble',
       SPACE,
-      `to`,
-      `login`
+      'to',
+      'login'
     ])
 
-    const moreToks = [`${SPACE}jag`, `${SPACE}ä`, `r`, `${SPACE}väl`, `digt`, `${SPACE}hungrig`]
+    const moreToks = [`${SPACE}jag`, `${SPACE}ä`, 'r', `${SPACE}väl`, 'digt', `${SPACE}hungrig`]
     expect(processUtteranceTokens(moreToks)).toEqual(['jag', SPACE, 'är', SPACE, 'väldigt', SPACE, 'hungrig'])
   })
 
