@@ -15,6 +15,7 @@ import tfidf from './tools/tfidf'
 import { convertToRealSpaces, isSpace, SPACE } from './tools/token-utils'
 import {
   EntityExtractionResult,
+  ExtractedEntity,
   Intent,
   ListEntity,
   ListEntityModel,
@@ -22,8 +23,7 @@ import {
   TFIDF,
   Token2Vec,
   Tools,
-  TrainingSession,
-  ExtractedEntity
+  TrainingSession
 } from './typings'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
 
@@ -118,7 +118,7 @@ const makeListEntityModel = async (entity: ListEntity, botId: string, languageCo
   return <ListEntityModel>{
     type: 'custom.list',
     id: `custom.list.${entity.name}`,
-    languageCode: languageCode,
+    languageCode,
     entityName: entity.name,
     fuzzyTolerance: entity.fuzzyTolerance,
     sensitive: entity.sensitive,
@@ -270,7 +270,7 @@ const TrainIntentClassifier = async (
       })
     } catch (err) {
       if (err instanceof TrainingCanceledError) {
-        console.log('TrainIntentClassifier training is canceled')
+        // TrainIntentClassifier: training is canceled
         return
       }
       throw err
@@ -316,7 +316,7 @@ const TrainContextClassifier = async (
     })
   } catch (err) {
     if (err instanceof TrainingCanceledError) {
-      console.log('TrainContextClassifier training is canceled')
+      // TrainContextClassifier: training is canceled
       return
     }
     throw err
@@ -348,7 +348,7 @@ export const ProcessIntents = async (
 
     const vocab = buildIntentVocab(utterances, entityModels)
 
-    return { ...intent, utterances: utterances, vocab, slot_entities: allowedEntities }
+    return { ...intent, utterances, vocab, slot_entities: allowedEntities }
   })
 }
 
@@ -476,7 +476,7 @@ const TrainSlotTagger = async (input: TrainStep, tools: Tools, progress: progres
     )
   } catch (err) {
     if (err instanceof TrainingCanceledError) {
-      console.log('TrainSlotTagger training is canceled')
+      // TrainSlotTagger: training is canceled
       return
     }
     throw err
@@ -539,7 +539,7 @@ const TrainOutOfScope = async (
   })
 
   if (ctxModels.some(m => !m)) {
-    console.log('TrainOutOfScope training is canceled')
+    // TrainOutOfScope: training is canceled
     return
   }
 
@@ -576,6 +576,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
 
   const handleCancellation = () => {
     tools.reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession)
+    // tslint:disable-next-line: no-console
     console.log(input.botId, 'Training aborted')
   }
 
