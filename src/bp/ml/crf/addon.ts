@@ -26,8 +26,8 @@ export interface TrainerOptions {
 
 export interface Trainer {
   append(xseq: Array<string[]>, yseq: string[]): void
-  train(model_filename: string): number
-  train_async(model_filename: string, cb: (s: string) => void): Promise<number>
+  train(model_filename: string, progress?: (iteration: number) => number | undefined): number
+  train_async(model_filename: string, progress?: (iteration: number) => number | undefined): Promise<number>
   get_params(options: Options): any
   set_params(options: Options): void
 }
