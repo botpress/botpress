@@ -131,8 +131,7 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
         }
       }
     } catch (err) {
-      // tslint:disable-next-line: no-console
-      console.log('could not load duckling cache')
+      console.error('could not load duckling cache')
     }
   }
 

@@ -572,8 +572,7 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
 
   const handleCancellation = () => {
     tools.reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession)
-    // tslint:disable-next-line: no-console
-    console.log(input.botId, 'Training aborted')
+    console.info(input.botId, 'Training aborted')
   }
 
   let step = await PreprocessInput(input, tools)
