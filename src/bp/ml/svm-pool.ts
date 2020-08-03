@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
+
 import { Trainer } from './svm'
 
 export class SVMTrainingPool {
@@ -15,6 +16,7 @@ export class SVMTrainingPool {
   ) {
     if (!!this.currentSvms[trainingId]) {
       error(new Error('this exact training was already started'))
+      return
     }
 
     this.currentSvms[trainingId] = new Trainer()
