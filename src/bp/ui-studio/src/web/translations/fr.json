@@ -102,6 +102,8 @@
       "cantDeleteSuccess": "Vous ne pouvez pas supprimer le nœud de réussite.",
       "cantDeleteOutcome": "Impossible de supprimer un résultat actuellement utilisé dans le flux parent",
       "mustHaveOutcomes": "Les flux de travail doivent avoir au moins un succès et un échec",
+      "referenceCount": "{count} {count, plural, one {référence} other {références}}",
+      "noReferences": "Non utilisé",
       "chips": "Chips",
       "condition": {
         "addCondition": "Ajouter condition",

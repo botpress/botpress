@@ -14,6 +14,7 @@ import style from '../Components/style.scss'
 import NodeHeader from '../Components/NodeHeader'
 import NodeWrapper from '../Components/NodeWrapper'
 import ExecuteContents from '../ExecuteContents'
+import OutcomeContents from '../OutcomeContents'
 import PromptContents from '../PromptContents'
 import RouterContents from '../RouterContents'
 import SaySomethingContents from '../SaySomethingContents'
@@ -132,6 +133,10 @@ const BlockWidget: FC<Props> = ({
         return <PromptContents node={node} selectedNodeItem={selectedNodeItem} getCurrentLang={getCurrentLang} />
       case 'router':
         return <RouterContents node={node} />
+      case 'success':
+        return <OutcomeContents node={node} selectedNodeItem={selectedNodeItem} getCurrentLang={getCurrentLang} />
+      case 'failure':
+        return <OutcomeContents node={node} selectedNodeItem={selectedNodeItem} getCurrentLang={getCurrentLang} />
       case 'say_something':
         return (
           <SaySomethingContents
