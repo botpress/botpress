@@ -1,10 +1,16 @@
 import _ from 'lodash'
 
+import { POSClass } from '../language/pos-tagger'
 import { SPACE, tokenizeLatinTextForTests } from '../tools/token-utils'
-import { ExtractedEntity, ExtractedSlot } from '../typings'
+import { EntityExtractor, ExtractedEntity, ExtractedSlot } from '../typings'
 
 import Utterance, { UtteranceToStringOptions } from './utterance'
 
+const METADATA = {
+  source: '',
+  entityId: '',
+  extractor: <EntityExtractor>'system'
+}
 const TOKENS = tokenizeLatinTextForTests('You might want to behave like if you are not like one of us , But you are !') // split punct by space to simplify tokenization
 const VECTORS = TOKENS.map(() => Array.from({ length: 5 }, () => _.random(0, 1, true)))
 const POS_TAGS = [
@@ -30,17 +36,19 @@ const POS_TAGS = [
 ]
   .map(a => [a, '_'])
   .reduce((tags, next) => tags.concat(next))
-  .slice(0, -1)
+  .slice(0, -1) as POSClass[]
 
 describe('UtteranceClass', () => {
   describe('tokens', () => {
     test('Array is readonly', () => {
       const utterance = new Utterance(TOKENS, VECTORS, POS_TAGS, 'en')
+      // @ts-ignore
       expect(() => (utterance.tokens = [])).toThrow()
     })
 
     test('Token object is readonly', () => {
       const utterance = new Utterance(TOKENS, VECTORS, POS_TAGS, 'en')
+      // @ts-ignore
       expect(() => (utterance.tokens[0].index = 25)).toThrow()
     })
 
@@ -72,7 +80,7 @@ describe('UtteranceClass', () => {
       const utterance = new Utterance(TOKENS, VECTORS, POS_TAGS, 'en')
 
       expect(utterance.tokens[0].slots).toEqual([])
-      utterance.tagSlot({ name: 'person', confidence: 0.45, source: 'anything' }, 0, 3)
+      utterance.tagSlot({ name: 'person', confidence: 0.45, source: 'anything' } as ExtractedSlot, 0, 3)
 
       expect(utterance.tokens[0].slots.length).toEqual(1)
       expect(utterance.tokens[1].slots.length).toEqual(0)
@@ -83,7 +91,7 @@ describe('UtteranceClass', () => {
       const utterance = new Utterance(TOKENS, VECTORS, POS_TAGS, 'en')
       expect(utterance.tokens[0].entities).toEqual([])
       expect(utterance.tokens[3].entities).toEqual([])
-      utterance.tagEntity({ type: 'car', confidence: 0.45, value: 'mercedes', metadata: {} }, 5, 10)
+      utterance.tagEntity({ type: 'car', confidence: 0.45, value: 'mercedes', metadata: METADATA }, 5, 10)
 
       expect(utterance.tokens[0].entities.length).toEqual(0)
       expect(utterance.tokens[1].entities.length).toEqual(0)
@@ -124,7 +132,7 @@ describe('UtteranceClass', () => {
   })
 
   describe('slots', () => {
-    const slot: ExtractedSlot = {
+    const slot: Partial<ExtractedSlot> = {
       name: 'person',
       confidence: 1,
       source: 'a source'
@@ -132,13 +140,13 @@ describe('UtteranceClass', () => {
 
     test('tagSlots out of range', () => {
       const utterance = new Utterance(TOKENS, VECTORS, POS_TAGS, 'en')
-      expect(() => utterance.tagSlot(slot, 500, 800)).toThrow()
+      expect(() => utterance.tagSlot(slot as ExtractedSlot, 500, 800)).toThrow()
       expect(utterance.slots).toEqual([])
     })
 
     test('tagSlots single token', () => {
       const utterance = new Utterance(TOKENS, VECTORS, POS_TAGS, 'en')
-      utterance.tagSlot(slot, 0, 3)
+      utterance.tagSlot(slot as ExtractedSlot, 0, 3)
       expect(utterance.slots[0].startPos).toEqual(0)
       expect(utterance.slots[0].startTokenIdx).toEqual(0)
       expect(utterance.slots[0].endPos).toEqual(3)
@@ -147,7 +155,7 @@ describe('UtteranceClass', () => {
 
     test('tagSlots multiple tokens', () => {
       const utterance = new Utterance(TOKENS, VECTORS, POS_TAGS, 'en')
-      utterance.tagSlot(slot, 3, 9)
+      utterance.tagSlot(slot as ExtractedSlot, 3, 9)
 
       expect(utterance.slots[0].startPos).toEqual(3)
       expect(utterance.slots[0].startTokenIdx).toEqual(1)
@@ -170,9 +178,7 @@ describe('UtteranceClass', () => {
       type: 'number',
       confidence: 1,
       value: 'one',
-      metadata: {
-        value: 1
-      }
+      metadata: METADATA
     }
 
     test('tagEntity out of range', () => {
@@ -222,8 +228,8 @@ describe('UtteranceClass', () => {
       return tfidf
     }, {})
     utterance.setGlobalTfidf(tfidf)
-    utterance.tagSlot({ name: 'slot', confidence: 1, source: 'hey' }, 2, 15)
-    utterance.tagEntity({ type: 'dist', value: 'entity', confidence: 1, metadata: {} }, 22, 28)
+    utterance.tagSlot({ name: 'slot', confidence: 1, source: 'hey', value: 69 }, 2, 15)
+    utterance.tagEntity({ type: 'dist', value: 'entity', confidence: 1, metadata: METADATA }, 22, 28)
 
     test('clone only', () => {
       const u2 = utterance.clone(false, false)
@@ -275,7 +281,7 @@ describe('UtteranceClass', () => {
     //           0123456789012345678901234567
     const tokens = tokenizeLatinTextForTests(str)
     const fakeVectors = tokens.map(t => [])
-    const fakePOS = tokens.map(t => 'POS')
+    const fakePOS = tokens.map(t => 'POS') as POSClass[]
     const defaultOptions = {
       entities: 'keep-default',
       slots: 'keep-value',
@@ -296,12 +302,12 @@ describe('UtteranceClass', () => {
 
     test('slot options', () => {
       const u = new Utterance(tokens, fakeVectors, fakePOS, 'en')
-      const slot: ExtractedSlot = {
+      const slot: Partial<ExtractedSlot> = {
         name: 'Tiger',
         confidence: 1,
         source: 'supertest'
       }
-      u.tagSlot(slot, 10, 19)
+      u.tagSlot(slot as ExtractedSlot, 10, 19)
 
       expect(u.toString(defaultOptions)).toEqual(str)
       expect(u.toString({ ...defaultOptions, slots: 'keep-name' })).toEqual(`This IS a ${slot.name} withFire`)
@@ -314,7 +320,7 @@ describe('UtteranceClass', () => {
         type: 'Woods',
         confidence: 1,
         value: '123',
-        metadata: {}
+        metadata: METADATA
       }
       u.tagEntity(entity, 10, 19)
 
@@ -326,17 +332,17 @@ describe('UtteranceClass', () => {
 
     test('entities and slots options', () => {
       const u = new Utterance(tokens, fakeVectors, fakePOS, 'en')
-      const slot: ExtractedSlot = {
+      const slot: Partial<ExtractedSlot> = {
         name: 'Tiger',
         confidence: 1,
         source: 'supertest'
       }
-      u.tagSlot(slot, 10, 19)
+      u.tagSlot(slot as ExtractedSlot, 10, 19)
       const entity: ExtractedEntity = {
         type: 'Woods',
         confidence: 1,
         value: '123',
-        metadata: {}
+        metadata: METADATA
       }
       u.tagEntity(entity, 10, 19)
 
@@ -356,7 +362,7 @@ describe('UtteranceClass', () => {
   })
 
   test('sentence embeddeing', () => {
-    const fakePOS = testTokens.map(_ => 'POS')
+    const fakePOS = testTokens.map(_ => 'ADJ') as POSClass[]
     const u = new Utterance(testTokens, vecs, fakePOS, 'en')
     u.setGlobalTfidf(globalTFIDF)
     u.sentenceEmbedding.forEach((actual, idx) => {
