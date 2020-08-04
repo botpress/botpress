@@ -34,7 +34,9 @@ const SECRET_KEYS = [
   'description',
   'admins',
   'email',
-  'connection'
+  'connection',
+  'appId',
+  's3'
 ]
 
 interface BotConfigEvent {
@@ -132,15 +134,16 @@ export class ConfigsStats extends TelemetryStats {
   private getModuleConfigPerBot(module: string, defaultValue: any): (botId: any) => Promise<ModuleConfigEvent> {
     return async botId => {
       const runtimeValue = await this.moduleLoader.configReader.getForBot(module, botId)
-      return { botId, module, configs: this.obfuscateSecrets(runtimeValue, defaultValue) }
+
+      return { module, botId: calculateHash(botId), configs: this.obfuscateSecrets(runtimeValue, defaultValue) }
     }
   }
 
   private async getBotsConfigs(): Promise<BotConfigEvent[]> {
     const defaultConfig = defaultJsonBuilder(await this.fetchSchema('bot.config.schema.json'))
-    const bots = Array.from(await this.botService.getBots())
+    const bots = await this.botService.getBots()
 
-    return bots.reduce((acc: any[], bot) => {
+    return [...bots].reduce((acc: any[], bot) => {
       const [botId, botConfig] = bot
       return [...acc, { botId: calculateHash(botId), botConfigs: this.formatBotConfig(botConfig, defaultConfig) }]
     }, [])

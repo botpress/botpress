@@ -63,7 +63,7 @@ export class HooksLifecycleStats extends TelemetryStats {
     return {
       ...buildSchema(await this.getServerStats(), 'server'),
       event_type: 'hooks_lifecycle',
-      event_data: { schema: '1.0.0', lifeCycles: this.getHooksLifecycle() }
+      event_data: { schema: '1.0.0', lifeCycles: await this.getHooksLifecycle() }
     }
   }
 
