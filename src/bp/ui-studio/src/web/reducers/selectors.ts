@@ -65,10 +65,7 @@ export const getCallerFlowsOutcomeUsage = createSelector(
       nodes = [...nodes, ...flow.nodes.filter(x => x.flow === currentFlow)]
     })
 
-    return _.uniqBy(
-      _.flatMap(nodes, x => x.next.filter(n => n.node != '')),
-      'condition'
-    )
+    return _.flatMap(nodes, x => x.next.filter(n => n.node != ''))
   }
 )
 
