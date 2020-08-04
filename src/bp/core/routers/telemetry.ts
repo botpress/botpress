@@ -45,7 +45,7 @@ export class TelemetryRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         try {
           const events = await this.telemetryRepo.getEntries()
-          res.send(events.map(e => e.payload))
+          res.send(events)
         } catch (error) {
           this.logger.warn('Error extracting entries from Telemetry database')
           res.send([])
