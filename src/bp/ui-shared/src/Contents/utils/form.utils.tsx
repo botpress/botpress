@@ -57,6 +57,10 @@ export const getSuperInputsFromData = data => {
   return (data && extractSuperInputFromObject(data)) || {}
 }
 const extractSuperInputFromObject = (data, pathKey = '') => {
+  if (!data) {
+    return {}
+  }
+
   return Object.keys(data).reduce((acc, key) => {
     const currentPathKey = `${pathKey}${key}`
     const currentData = data[key]

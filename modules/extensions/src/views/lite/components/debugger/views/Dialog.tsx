@@ -1,15 +1,20 @@
-import { Colors, H4, H5, Icon, Position, Tooltip } from '@blueprintjs/core'
+import { Button } from '@blueprintjs/core'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import React, { SFC } from 'react'
+import React, { Fragment, SFC, useEffect, useState } from 'react'
 
+import { Collapsible } from '../components/Collapsible'
 import { Intent, isQnaItem } from '../components/Intent'
 import style from '../style.scss'
+
+import { Inspector } from './Inspector'
 
 interface Props {
   suggestions: sdk.IO.Suggestion[]
   decision: sdk.IO.Suggestion
   stacktrace: sdk.IO.JumpPoint[]
+  isExpanded: (key: string) => boolean
+  toggleExpand: (section: string, expanded: boolean) => void
 }
 
 const Decision: SFC<{ decision: sdk.IO.Suggestion }> = props => {
@@ -17,29 +22,30 @@ const Decision: SFC<{ decision: sdk.IO.Suggestion }> = props => {
   const isQnA = isQnaItem(decision)
 
   return (
-    <div className={style.subSection}>
-      <H5 color={Colors.DARK_GRAY5}>Decision</H5>
-      <div style={{ display: 'flex' }}>
-        {isQnA ? <Intent name={decision} /> : <strong>{decision}</strong>}
-        &nbsp;
-        <Tooltip content={props.decision.decision.reason} position={Position.RIGHT}>
-          <Icon color={Colors.GRAY3} icon="info-sign" />
-        </Tooltip>
+    <div className={style.section}>
+      <div className={style.sectionTitle}>Decision</div>
+      <div className={style.subSection}>
+        {isQnA ? <Intent name={decision} /> : <p>{decision}</p>}
+        <ul>
+          <li>{props.decision.decision.reason}</li>
+        </ul>
       </div>
     </div>
   )
 }
 
 const Suggestions: SFC<{ suggestions: sdk.IO.Suggestion[] }> = props => (
-  <div className={style.subSection}>
-    <H5 color={Colors.DARK_GRAY5}>Suggestions</H5>
-    <ul>
-      {_.take(props.suggestions, 4).map(sugg => (
-        <li key={sugg.sourceDetails}>
-          <Intent name={sugg.sourceDetails} confidence={sugg.confidence} />
-        </li>
-      ))}
-    </ul>
+  <div className={style.section}>
+    <div className={style.sectionTitle}>Suggestions</div>
+    <div className={style.subSection}>
+      <ul>
+        {_.take(props.suggestions, 4).map(sugg => (
+          <li key={sugg.sourceDetails}>
+            <Intent name={sugg.sourceDetails} confidence={sugg.confidence} />
+          </li>
+        ))}
+      </ul>
+    </div>
   </div>
 )
 
@@ -49,37 +55,72 @@ const highlightNode = (flow: string, node: string) => {
 }
 
 const Flow: SFC<{ stacktrace: sdk.IO.JumpPoint[] }> = props => (
-  <div className={style.subSection}>
-    <H5 color={Colors.DARK_GRAY5}>Flow Nodes</H5>
-    <ol>
-      {props.stacktrace.map(({ flow, node }, idx) => {
-        const flowName = flow && flow.replace(/\.flow\.json$/i, '')
-        return (
-          <li key={`${flow}:${node}:${idx}`}>
-            <span>
-              <a onClick={() => highlightNode(flow, node)}>
-                {flowName} / {node}
-              </a>
-            </span>
-          </li>
-        )
-      })}
-    </ol>
+  <div className={style.section}>
+    <div className={style.sectionTitle}>Flow Nodes</div>
+    <div className={style.subSection}>
+      <ul>
+        {props.stacktrace.map(({ flow, node }, idx) => {
+          const flowName = flow && flow.replace(/\.flow\.json$/i, '')
+          return (
+            <li key={`${flow}:${node}:${idx}`}>
+              <span>
+                <a onClick={() => highlightNode(flow, node)}>
+                  {flowName} / {node}
+                </a>
+              </span>
+            </li>
+          )
+        })}
+      </ul>
+    </div>
   </div>
 )
 
-const Dialog: SFC<Props> = props => {
-  if (!props.decision) {
+const DIALOG_JSON = 'json::dialog'
+const DIALOG_PANEL = 'panel::dialog'
+
+const Dialog: SFC<Props> = ({ decision, suggestions, stacktrace, isExpanded, toggleExpand }) => {
+  const [viewJSON, setViewJSON] = useState(isExpanded(DIALOG_JSON))
+
+  useEffect(() => {
+    setViewJSON(isExpanded(DIALOG_JSON))
+  }, [isExpanded(DIALOG_JSON)])
+
+  if (!decision && !suggestions?.length && !stacktrace?.length) {
     return null
   }
 
+  const toggleView = () => {
+    const newValue = !viewJSON
+    toggleExpand(DIALOG_JSON, newValue)
+    setViewJSON(newValue)
+  }
+
+  const renderContent = () => {
+    if (viewJSON) {
+      return <Inspector data={{ decision, suggestions, stacktrace }} />
+    }
+
+    return (
+      <Fragment>
+        {decision && <Decision decision={decision} />}
+        {stacktrace?.length > 0 && <Flow stacktrace={stacktrace} />}
+        {suggestions?.length > 0 && <Suggestions suggestions={suggestions} />}
+      </Fragment>
+    )
+  }
+
   return (
-    <div className={style.block}>
-      <H4>Dialog Manager</H4>
-      <Decision decision={props.decision} />
-      {props.stacktrace && props.stacktrace.length > 0 && <Flow stacktrace={props.stacktrace} />}
-      {props.suggestions && props.suggestions.length > 0 && <Suggestions suggestions={props.suggestions} />}
-    </div>
+    <Collapsible
+      opened={isExpanded(DIALOG_PANEL)}
+      toggleExpand={expanded => toggleExpand(DIALOG_PANEL, expanded)}
+      name="Dialog Manager"
+    >
+      {renderContent()}
+      <Button minimal className={style.switchViewBtn} icon="eye-open" onClick={toggleView}>
+        {viewJSON ? 'View as Summary' : 'View as JSON'}
+      </Button>
+    </Collapsible>
   )
 }
 

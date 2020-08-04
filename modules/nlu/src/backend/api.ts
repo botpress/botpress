@@ -4,6 +4,7 @@ import _ from 'lodash'
 import yn from 'yn'
 
 import { isOn as isAutoTrainOn, set as setAutoTrain } from './autoTrain'
+import Engine from './engine'
 import { EntityDefCreateSchema } from './entities/validation'
 import {
   deleteIntent,
@@ -16,7 +17,6 @@ import {
 import recommendations from './intents/recommendations'
 import { IntentDefCreateSchema } from './intents/validation'
 import legacyElectionPipeline from './legacy-election'
-import { initializeLanguageProvider } from './module-lifecycle/on-server-started'
 import { crossValidate } from './tools/cross-validation'
 import { getTrainingSession } from './train-session-service'
 import { NLUState } from './typings'
@@ -32,7 +32,7 @@ const removeSlotsFromUtterances = (utterances: { [key: string]: any }, slotNames
   _.fromPairs(
     Object.entries(utterances).map(([key, val]) => {
       const regex = new RegExp(`\\[([^\\[\\]\\(\\)]+?)\\]\\((${slotNames.join('|')})\\)`, 'gi')
-      return [key, val.map(u => u.replace(regex, '$1'))]
+      return [key, val.map((u: string) => u.replace(regex, '$1'))]
     })
   )
 
@@ -41,10 +41,8 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
   router.get('/health', async (req, res) => {
     // When the health is bad, we'll refresh the status in case it changed (eg: user added languages)
-    if (!state.health.isEnabled) {
-      await initializeLanguageProvider(bp, state)
-    }
-    res.send(state.health)
+    const health = Engine.tools.getHealth()
+    res.send(health)
   })
 
   router.post('/cross-validation/:lang', async (req, res) => {
@@ -160,7 +158,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
         const ghost = bp.ghost.forBot(botId)
 
         await updateContextsFromTopics(ghost, state.nluByBot[botId].entityService, [
-          condition.params.intentName as string
+          condition.params?.intentName as string
         ])
         return res.sendStatus(200)
       } catch (err) {

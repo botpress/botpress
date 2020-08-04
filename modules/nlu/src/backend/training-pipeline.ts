@@ -15,18 +15,18 @@ import tfidf from './tools/tfidf'
 import { convertToRealSpaces, isSpace, SPACE } from './tools/token-utils'
 import {
   EntityExtractionResult,
+  ExtractedEntity,
   Intent,
   ListEntity,
   ListEntityModel,
   PatternEntity,
+  ProgressReporter,
   TFIDF,
   Token2Vec,
   Tools,
   TrainingSession
 } from './typings'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
-
-export type Trainer = (input: TrainInput, tools: Tools) => Promise<TrainOutput>
 
 export type TrainInput = Readonly<{
   botId: string
@@ -35,7 +35,7 @@ export type TrainInput = Readonly<{
   list_entities: ListEntity[]
   contexts: string[]
   intents: Intent<string>[]
-  trainingSession: TrainingSession
+  trainingSession?: TrainingSession
   ctxToTrain: string[]
 }>
 
@@ -57,12 +57,13 @@ export interface TrainOutput {
   tfidf: TFIDF
   vocabVectors: Token2Vec
   // kmeans: KmeansResult
+  contexts: string[]
   ctx_model: string
   intent_model_by_ctx: Dic<string>
   slots_model: Buffer
   exact_match_index: ExactMatchIndex
   oos_model: _.Dictionary<string>
-  intents?: Intent<Utterance>[]
+  intents: Intent<Utterance>[]
 }
 
 export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] }>
@@ -116,7 +117,7 @@ const makeListEntityModel = async (entity: ListEntity, botId: string, languageCo
   return <ListEntityModel>{
     type: 'custom.list',
     id: `custom.list.${entity.name}`,
-    languageCode: languageCode,
+    languageCode,
     entityName: entity.name,
     fuzzyTolerance: entity.fuzzyTolerance,
     sensitive: entity.sensitive,
@@ -130,11 +131,14 @@ const makeListEntityModel = async (entity: ListEntity, botId: string, languageCo
   }
 }
 
-export const computeKmeans = (intents: Intent<Utterance>[], tools: Tools): sdk.MLToolkit.KMeans.KmeansResult => {
+export const computeKmeans = (
+  intents: Intent<Utterance>[],
+  tools: Tools
+): sdk.MLToolkit.KMeans.KmeansResult | undefined => {
   const data = _.chain(intents)
     .filter(i => i.name !== NONE_INTENT)
-    .flatMapDeep(i => i.utterances.map(u => u.tokens))
-    // @ts-ignore
+    .flatMap(i => i.utterances)
+    .flatMap(u => u.tokens)
     .uniqBy((t: UtteranceToken) => t.value)
     .map((t: UtteranceToken) => t.vector)
     .value() as number[][]
@@ -171,17 +175,15 @@ export const buildIntentVocab = (utterances: Utterance[], intentEntities: ListEn
 }
 
 const buildVectorsVocab = (intents: Intent<Utterance>[]): _.Dictionary<number[]> => {
-  return (
-    _.chain(intents)
-      .filter(i => i.name !== NONE_INTENT)
-      .flatMapDeep((intent: Intent<Utterance>) => intent.utterances.map(u => u.tokens))
-      // @ts-ignore
-      .reduce((vocab, tok: UtteranceToken) => {
-        vocab[tok.toString({ lowerCase: true })] = <number[]>tok.vector
-        return vocab
-      }, {})
-      .value() as Token2Vec
-  )
+  return _.chain(intents)
+    .filter(i => i.name !== NONE_INTENT)
+    .flatMap((intent: Intent<Utterance>) => intent.utterances)
+    .flatMap((utt: Utterance) => utt.tokens)
+    .reduce((vocab, tok: UtteranceToken) => {
+      vocab[tok.toString({ lowerCase: true })] = <number[]>tok.vector
+      return vocab
+    }, {} as Token2Vec)
+    .value()
 }
 
 export const BuildExactMatchIndex = (input: TrainStep): ExactMatchIndex => {
@@ -258,10 +260,20 @@ const TrainIntentClassifier = async (
       continue
     }
     const svm = new tools.mlToolkit.SVM.Trainer()
-    const model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
-      const completion = (i + p) / input.ctxToTrain.length
-      progress(completion)
-    })
+
+    let model: string
+    try {
+      model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
+        const completion = (i + p) / input.ctxToTrain.length
+        progress(completion)
+      })
+    } catch (err) {
+      if (err instanceof TrainingCanceledError) {
+        return
+      }
+      throw err
+    }
+
     svmPerCtx[ctx] = model
   }
 
@@ -290,13 +302,23 @@ const TrainContextClassifier = async (
   if (points.length === 0 || input.contexts.length <= 1) {
     progress()
     debugTraining.forBot(input.botId, 'No context to train')
-    return
+    return ''
   }
 
   const svm = new tools.mlToolkit.SVM.Trainer()
-  const model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
-    progress(_.round(p, 1))
-  })
+
+  let model: string
+  try {
+    model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
+      progress(_.round(p, 1))
+    })
+  } catch (err) {
+    if (err instanceof TrainingCanceledError) {
+      return
+    }
+    throw err
+  }
+
   debugTraining.forBot(input.botId, 'Done training context classifier')
   return model
 }
@@ -323,7 +345,7 @@ export const ProcessIntents = async (
 
     const vocab = buildIntentVocab(utterances, entityModels)
 
-    return { ...intent, utterances: utterances, vocab, slot_entities: allowedEntities }
+    return { ...intent, utterances, vocab, slot_entities: allowedEntities }
   })
 }
 
@@ -340,15 +362,15 @@ export const ExtractEntities = async (input: TrainStep, tools: Tools): Promise<T
     true
   )
 
-  _.zip(utterances, allSysEntities)
-    .map(([utt, sysEntities]) => {
+  _.zipWith(utterances, allSysEntities, (utt, sysEntities) => ({ utt, sysEntities }))
+    .map(({ utt, sysEntities }) => {
       const listEntities = extractListEntities(utt, input.list_entities)
       const patternEntities = extractPatternEntities(utt, input.pattern_entities)
       return [utt, [...sysEntities, ...listEntities, ...patternEntities]] as [Utterance, EntityExtractionResult[]]
     })
     .forEach(([utt, entities]) => {
       entities.forEach(ent => {
-        utt.tagEntity(_.omit(ent, ['start, end']), ent.start, ent.end)
+        utt.tagEntity(_.omit(ent, ['start, end']) as ExtractedEntity, ent.start, ent.end)
       })
     })
   return input
@@ -433,7 +455,7 @@ export const TfidfTokens = async (input: TrainStep): Promise<TrainStep> => {
   return copy
 }
 
-const TrainSlotTagger = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<Buffer> => {
+const TrainSlotTagger = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<Buffer | undefined> => {
   const hasSlots = _.flatMap(input.intents, i => i.slot_definitions).length > 0
 
   if (!hasSlots) {
@@ -443,14 +465,30 @@ const TrainSlotTagger = async (input: TrainStep, tools: Tools, progress: progres
 
   debugTraining.forBot(input.botId, 'Training slot tagger')
   const slotTagger = new SlotTagger(tools.mlToolkit)
-  await slotTagger.train(input.intents.filter(i => i.name !== NONE_INTENT))
+
+  try {
+    await slotTagger.train(
+      input.intents.filter(i => i.name !== NONE_INTENT),
+      () => progress(0) // not increasing actual progress but checking if training was cancelled
+    )
+  } catch (err) {
+    if (err instanceof TrainingCanceledError) {
+      return
+    }
+    throw err
+  }
+
   debugTraining.forBot(input.botId, 'Done training slot tagger')
   progress()
 
   return slotTagger.serialized
 }
 
-const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<_.Dictionary<string>> => {
+const TrainOutOfScope = async (
+  input: TrainStep,
+  tools: Tools,
+  progress: progressCB
+): Promise<_.Dictionary<string> | undefined> => {
   debugTraining.forBot(input.botId, 'Training out of scope classifier')
   const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
     c: [10],
@@ -471,40 +509,70 @@ const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progres
 
   const oos_points = featurizeOOSUtterances(noneUtts, input.vocabVectors, tools)
   let combinedProgress = 0
-  const ctxModels: [string, string][] = await Promise.map(input.ctxToTrain, async ctx => {
+
+  type ContextModel = [string, string] | undefined
+  const ctxModels: ContextModel[] = await Promise.map(input.ctxToTrain, async ctx => {
     const in_ctx_scope_points = _.chain(input.intents)
       .filter(i => i.name !== NONE_INTENT && i.contexts.includes(ctx))
       .flatMap(i => featurizeInScopeUtterances(i.utterances, i.name))
       .value()
 
     const svm = new tools.mlToolkit.SVM.Trainer()
-    const model = await svm.train([...in_ctx_scope_points, ...oos_points], trainingOptions, p => {
-      combinedProgress += p / input.ctxToTrain.length
-      progress(combinedProgress)
-    })
+    let model: string
+    try {
+      model = await svm.train([...in_ctx_scope_points, ...oos_points], trainingOptions, p => {
+        combinedProgress += p / input.ctxToTrain.length
+        progress(combinedProgress)
+      })
+    } catch (err) {
+      if (err instanceof TrainingCanceledError) {
+        return
+      }
+      throw err
+    }
+
     return [ctx, model] as [string, string]
   })
+
+  if (ctxModels.some(m => !m)) {
+    return
+  }
 
   debugTraining.forBot(input.botId, 'Done training out of scope')
   progress(1)
   return ctxModels.reduce((acc, [ctx, model]) => {
     acc[ctx] = model
     return acc
-  }, {})
+  }, {} as _.Dictionary<string>)
 }
 
 const NB_STEPS = 5 // change this if the training pipeline changes
-export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise<TrainOutput> => {
+
+export type Trainer = (
+  input: TrainInput,
+  tools: Tools,
+  reportTrainingProgress?: ProgressReporter
+) => Promise<TrainOutput | undefined>
+
+export const Trainer: Trainer = async (
+  input: TrainInput,
+  tools: Tools,
+  progress?: ProgressReporter
+): Promise<TrainOutput | undefined> => {
   let totalProgress = 0
   let normalizedProgress = 0
-  const debouncedProgress = _.debounce(tools.reportTrainingProgress, 75, { maxWait: 750 })
+
+  const emptyProgress = () => {}
+  const reportTrainingProgress = progress ?? emptyProgress
+
+  const debouncedProgress = _.debounce(reportTrainingProgress, 75, { maxWait: 750 })
   const reportProgress: progressCB = (stepProgress = 1) => {
     if (!input.trainingSession) {
       return
     }
     if (input.trainingSession.status === 'canceled') {
       // Note that we don't use debouncedProgress here as we want the side effects probagated now
-      tools.reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession)
+      reportTrainingProgress(input.botId, 'Currently cancelling...', input.trainingSession)
       throw new TrainingCanceledError()
     }
 
@@ -516,42 +584,58 @@ export const Trainer: Trainer = async (input: TrainInput, tools: Tools): Promise
     normalizedProgress = scaledProgress
     debouncedProgress(input.botId, 'Training', { ...input.trainingSession, progress: normalizedProgress })
   }
+
+  const handleCancellation = () => {
+    reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession)
+    console.info(input.botId, 'Training aborted')
+  }
+
+  let step = await PreprocessInput(input, tools)
+  step = await TfidfTokens(step)
+  step = ClusterTokens(step, tools)
+  step = await ExtractEntities(step, tools)
+  step = await AppendNoneIntent(step, tools)
+  const exact_match_index = BuildExactMatchIndex(step)
+
   try {
-    let step = await PreprocessInput(input, tools)
-    step = await TfidfTokens(step)
-    step = ClusterTokens(step, tools)
-    step = await ExtractEntities(step, tools)
-    step = await AppendNoneIntent(step, tools)
-    const exact_match_index = BuildExactMatchIndex(step)
-    reportProgress()
-    const [oos_model, ctx_model, intent_model_by_ctx, slots_model] = await Promise.all([
-      TrainOutOfScope(step, tools, reportProgress),
-      TrainContextClassifier(step, tools, reportProgress),
-      TrainIntentClassifier(step, tools, reportProgress),
-      TrainSlotTagger(step, tools, reportProgress)
-    ])
-
-    const output: TrainOutput = {
-      list_entities: step.list_entities,
-      oos_model,
-      tfidf: step.tfIdf,
-      intents: step.intents,
-      ctx_model,
-      intent_model_by_ctx,
-      slots_model,
-      vocabVectors: step.vocabVectors,
-      exact_match_index
-      // kmeans: {} add this when mlKmeans supports loading from serialized data,
-    }
-
-    return output
+    reportProgress() // 20% done...
   } catch (err) {
     if (err instanceof TrainingCanceledError) {
-      debugTraining.forBot(input.botId, 'Training aborted')
+      handleCancellation()
       return
     }
     throw err
   }
+
+  const models = await Promise.all([
+    TrainOutOfScope(step, tools, reportProgress),
+    TrainContextClassifier(step, tools, reportProgress),
+    TrainIntentClassifier(step, tools, reportProgress),
+    TrainSlotTagger(step, tools, reportProgress)
+  ])
+
+  if (models.some(_.isUndefined)) {
+    handleCancellation()
+    return
+  }
+
+  const [oos_model, ctx_model, intent_model_by_ctx, slots_model] = models
+
+  const output: TrainOutput = {
+    list_entities: step.list_entities,
+    oos_model,
+    tfidf: step.tfIdf,
+    intents: step.intents,
+    ctx_model,
+    intent_model_by_ctx,
+    slots_model,
+    vocabVectors: step.vocabVectors,
+    exact_match_index,
+    // kmeans: {} add this when mlKmeans supports loading from serialized data,
+    contexts: input.contexts
+  }
+
+  return output
 }
 
 class TrainingCanceledError extends Error {

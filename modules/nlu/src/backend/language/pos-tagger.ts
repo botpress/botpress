@@ -30,7 +30,7 @@ export const POS_CLASSES = [
 
 export function isPOSAvailable(lang: string): boolean {
   // TODO check that language is part of supported languages once we support more
-  return lang === 'en' || lang == 'fr'
+  return lang === 'en' || lang === 'fr'
 }
 
 function getPretrainedModelFilePath(languageCode: string): string {
@@ -59,7 +59,7 @@ function wordFeatures(seq: string[], idx: number): string[] {
   const a = n_alpha(word)
   const d = n_digits(word)
   const bos = idx === 0
-  const eos = idx == seq.length - 1
+  const eos = idx === seq.length - 1
   const feats = {
     BOS: bos,
     EOS: eos,
@@ -75,7 +75,7 @@ function wordFeatures(seq: string[], idx: number): string[] {
     alpha: a,
     contains_num: d > 0,
     contains_special: word.length - a - d > 0,
-    word: word,
+    word,
     prev_word: bos ? '' : seq[idx - 1].toLowerCase(),
     next_word: eos ? '' : seq[idx + 1].toLowerCase()
   }
@@ -121,8 +121,8 @@ export function tagSentence(tagger: sdk.MLToolkit.CRF.Tagger, tokens: string[]):
         return [[...words, token], spaceIdx]
       }
     },
-    [[], []]
-  ) as [string[], number[]]
+    [[], []] as [string[], number[]]
+  )
 
   const feats: string[][] = []
   for (let i = 0; i < words.length; i++) {

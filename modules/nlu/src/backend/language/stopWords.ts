@@ -13,7 +13,7 @@ async function loadStopWords(language: string): Promise<string[]> {
   }
 
   return new Promise((resolve, reject) => {
-    const stopWords = []
+    const stopWords: string[] = []
     const stream = createReadStream(filePath)
     const rl = readline.createInterface({ input: stream, crlfDelay: Infinity })
 

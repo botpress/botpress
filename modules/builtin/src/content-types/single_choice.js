@@ -24,29 +24,6 @@ function render(data) {
   ]
 }
 
-function renderMessenger(data) {
-  const events = []
-
-  if (data.typing) {
-    events.push({
-      type: 'typing',
-      value: data.typing
-    })
-  }
-
-  return [
-    ...events,
-    {
-      text: data.text,
-      quick_replies: data.choices.map(c => ({
-        content_type: 'text',
-        title: c.title,
-        payload: c.value.toUpperCase()
-      }))
-    }
-  ]
-}
-
 function renderer(data) {
   const payload = base.renderer(data, 'text')
   return {
@@ -59,10 +36,8 @@ function renderer(data) {
 }
 
 function renderElement(data, channel) {
-  if (channel === 'web' || channel === 'slack' || channel === 'twilio') {
+  if (['web', 'slack', 'teams', 'messenger', 'telegram', 'twilio'].includes(channel)) {
     return renderer(data)
-  } else if (channel === 'messenger') {
-    return renderMessenger(data)
   } else {
     return render(data)
   }

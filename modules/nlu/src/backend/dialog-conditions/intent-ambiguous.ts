@@ -10,7 +10,7 @@ interface Params {
 export default {
   id: 'intent_is_ambiguous',
   label: 'module.nlu.conditions.ambiguousIntentInTopic',
-  description: `The users's intention is can be interpreted as multiple intents within the same topic`,
+  description: "The users's intention is can be interpreted as multiple intents within the same topic",
   displayOrder: 1,
   fields: [
     {
@@ -47,7 +47,7 @@ export default {
       return 0
     }
 
-    const higestIntents = _.chain(topicPreds.intents)
+    const higestIntents = _.chain(topicPreds?.intents ?? [])
       .filter(i => i.label !== 'none')
       .orderBy('confidence', 'desc')
       .map('confidence')

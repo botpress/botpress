@@ -1,9 +1,9 @@
 import { Button } from '@blueprintjs/core'
 import React, { FC, useState } from 'react'
 
+import MoreOptions from '../../../../ui-shared-lite/MoreOptions'
+import { MoreOptionsItems } from '../../../../ui-shared-lite/MoreOptions/typings'
 import { lang } from '../../translations'
-import MoreOptions from '../../MoreOptions'
-import { MoreOptionsItems } from '../../MoreOptions/typings'
 
 import style from './style.scss'
 import { GroupItemWrapperProps } from './typings'

@@ -10,7 +10,9 @@ export const BIO = {
 
 export type Tag = 'o' | 'B' | 'I'
 
-export type Token2Vec = { [token: string]: number[] }
+export interface Token2Vec {
+  [token: string]: number[]
+}
 
 export interface Gateway {
   source: LanguageSource
@@ -52,7 +54,14 @@ export interface NluMlRecommendations {
 
 export interface NLUEngine {
   loadModel: (m: any) => Promise<void>
-  train: (...args) => Promise<any>
+  train: (
+    intentDefs: sdk.NLU.IntentDefinition[],
+    entityDefs: sdk.NLU.EntityDefinition[],
+    languageCode: string,
+    reportTrainingProgress: ProgressReporter,
+    trainingSession?: TrainingSession,
+    options?: any
+  ) => Promise<any>
   predict: (t: string, ctx: string[]) => Promise<sdk.IO.EventUnderstanding>
 }
 
@@ -68,11 +77,10 @@ export interface EntityService {
 
 export type NLUState = {
   nluByBot: _.Dictionary<BotState>
-  languageProvider?: LanguageProvider
-  health?: NLUHealth
   broadcastLoadModel?: (botId: string, hash: string, language: string) => Promise<void>
   broadcastCancelTraining?: (botId: string, language: string) => Promise<void>
-} & NLUVersionInfo
+  reportTrainingProgress: ProgressReporter
+}
 
 export interface NLUVersionInfo {
   nluVersion: string
@@ -116,7 +124,7 @@ export type ListEntity = Readonly<{
 export type EntityCache = LRUCache<string, EntityExtractionResult[]>
 export type EntityCacheDump = LRUCache.Entry<string, EntityExtractionResult[]>[]
 
-export type ListEntityModel = {
+export interface ListEntityModel {
   type: 'custom.list'
   id: string
   languageCode: string
@@ -128,7 +136,7 @@ export type ListEntityModel = {
   cache?: EntityCache | EntityCacheDump
 }
 
-export type ExtractedSlot = {
+export interface ExtractedSlot {
   confidence: number
   name: string
   source: string
@@ -136,14 +144,19 @@ export type ExtractedSlot = {
   entity?: EntityExtractionResult
 }
 
-export type SlotExtractionResult = { slot: ExtractedSlot; start: number; end: number }
-export type ExtractedEntity = {
+export interface SlotExtractionResult {
+  slot: ExtractedSlot
+  start: number
+  end: number
+}
+export type EntityExtractor = 'system' | 'list' | 'pattern'
+export interface ExtractedEntity {
   confidence: number
   type: string
   metadata: {
     source: string
     entityId: string
-    extractor: 'system' | 'list' | 'pattern'
+    extractor: EntityExtractor
     unit?: string
     occurrence?: string
   }
@@ -164,10 +177,14 @@ export interface Tools {
   vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
   partOfSpeechUtterances(utterances: string[][], languageCode: string): string[][]
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
-  reportTrainingProgress(botId: string, message: string, trainSession: TrainingSession): void
+  getHealth(): NLUHealth
+  getLanguages(): string[]
+  getVersionInfo(): NLUVersionInfo
   duckling: SystemEntityExtractor
   mlToolkit: typeof sdk.MLToolkit
 }
+
+export type ProgressReporter = (botId: string, message: string, trainSession: TrainingSession) => void
 
 export interface NLUProgressEvent {
   type: 'nlu'

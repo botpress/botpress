@@ -39,10 +39,10 @@ export const PatternEntityEditor: React.FC<Props> = props => {
   const validateExamples = _.debounce(() => {
     let p = pattern
     if (!p.startsWith('^')) {
-      p = '^' + p
+      p = `^${p}`
     }
     if (!p.endsWith('$')) {
-      p = p + '$'
+      p = `${p}$`
     }
     const rx = new RegExp(p, matchCase ? '' : 'i')
     const allMatching = examplesStr

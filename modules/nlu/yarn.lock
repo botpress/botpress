@@ -2,6 +2,18 @@
 # yarn lockfile v1
 
 
+"@types/bluebird-retry@^0.11.4":
+  version "0.11.4"
+  resolved "https://registry.yarnpkg.com/@types/bluebird-retry/-/bluebird-retry-0.11.4.tgz#26aabd880371878d484613f70959c8bf17ade81b"
+  integrity sha512-A7ZCQmNlwXLhDhsoLapARTWKFdP+xmRAhONVMiVk3SNcT9l54f20R5ogRJ75A6oDN/EgoBRx2W45oeN2DppARQ==
+  dependencies:
+    "@types/bluebird" "*"
+
+"@types/bluebird@*":
+  version "3.5.32"
+  resolved "https://registry.yarnpkg.com/@types/bluebird/-/bluebird-3.5.32.tgz#381e7b59e39f010d20bbf7e044e48f5caf1ab620"
+  integrity sha512-dIOxFfI0C+jz89g6lQ+TqhGgPQ0MxSnh/E4xuC0blhFtyW269+mPG5QeLgbdwst/LvdP8o1y0o/Gz5EHXLec/g==
+
 "@types/jest@^23.3.9":
   version "23.3.14"
   resolved "https://registry.yarnpkg.com/@types/jest/-/jest-23.3.14.tgz#37daaf78069e7948520474c87b80092ea912520a"
