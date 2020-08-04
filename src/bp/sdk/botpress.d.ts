@@ -471,7 +471,7 @@ declare module 'botpress/sdk' {
         intentDefs: NLU.IntentDefinition[],
         entityDefs: NLU.EntityDefinition[],
         languageCode: string,
-        reportTrainingProgress: ProgressReporter,
+        reportTrainingProgress?: ProgressReporter,
         trainingSession?: TrainingSession,
         options?: any
       ) => Promise<any>

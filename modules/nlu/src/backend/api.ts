@@ -16,7 +16,6 @@ import {
 import recommendations from './intents/recommendations'
 import { IntentDefCreateSchema } from './intents/validation'
 import legacyElectionPipeline from './legacy-election'
-//  import { crossValidate } from './tools/cross-validation'
 import { getTrainingSession } from './train-session-service'
 import { NLUState } from './typings'
 
@@ -44,19 +43,12 @@ export default async (bp: typeof sdk, state: NLUState) => {
     res.send(health)
   })
 
-  // router.post('/cross-validation/:lang', async (req, res) => {
-  //   const { botId, lang } = req.params
-  //   const ghost = bp.ghost.forBot(botId)
-
-  //   const intentDefs = await getIntents(ghost)
-  //   const entityDefs = await state.nluByBot[botId].entityService.getCustomEntities()
-
-  //   bp.logger.forBot(botId).info('Started cross validation')
-  //   const xValidationRes = await crossValidate(botId, intentDefs, entityDefs, lang, bp.logger)
-  //   bp.logger.forBot(botId).info('Finished cross validation', xValidationRes)
-
-  //   res.send(xValidationRes)
-  // })
+  router.post('/cross-validation/:lang', async (req, res) => {
+    // there used to be a cross validation tool but I got rid of it when extracting standalone nlu
+    // the code is somewhere in the source control
+    // to find it back, juste git blame this comment
+    res.sendStatus(410)
+  })
 
   router.get('/training/:language', async (req, res) => {
     const { language, botId } = req.params
