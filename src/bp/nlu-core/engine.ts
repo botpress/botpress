@@ -148,8 +148,7 @@ export default class Engine implements sdk.NLU.Engine {
     }
 
     trainingSession &&
-      reportTrainingProgress &&
-      reportTrainingProgress(this.botId, 'Training complete', {
+      reportTrainingProgress?.(this.botId, 'Training complete', {
         ...trainingSession,
         progress: 1,
         status: 'done'
