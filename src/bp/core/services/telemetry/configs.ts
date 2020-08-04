@@ -141,7 +141,8 @@ export class ConfigsStats extends TelemetryStats {
     const bots = Array.from(await this.botService.getBots())
 
     return bots.reduce((acc: any[], bot) => {
-      return [...acc, { botId: calculateHash(bot[0]), botConfigs: this.formatBotConfig(bot[1], defaultConfig) }]
+      const [botId, botConfig] = bot
+      return [...acc, { botId: calculateHash(botId), botConfigs: this.formatBotConfig(botConfig, defaultConfig) }]
     }, [])
   }
 
