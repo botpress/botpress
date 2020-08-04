@@ -454,7 +454,7 @@ declare module 'botpress/sdk' {
     }
   }
 
-  export namespace NLUCore {
+  export namespace NLU {
     export class Engine {
       static initialize: (bp: any) => Promise<void>
       static getHealth: () => Health
@@ -502,9 +502,7 @@ declare module 'botpress/sdk' {
     }
 
     export type ProgressReporter = (botId: string, message: string, trainSession: TrainingSession) => void
-  }
 
-  export namespace NLU {
     export type EntityType = 'system' | 'pattern' | 'list'
 
     export interface EntityDefOccurrence {

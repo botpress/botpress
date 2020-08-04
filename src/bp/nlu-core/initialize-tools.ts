@@ -7,7 +7,7 @@ import { LanguageProvider, NLUVersionInfo, Token2Vec, Tools } from './typings'
 
 const NLU_VERSION = '1.2.2'
 
-const healthGetter = (languageProvider: LanguageProvider) => (): sdk.NLUCore.Health => {
+const healthGetter = (languageProvider: LanguageProvider) => (): sdk.NLU.Health => {
   const { validProvidersCount, validLanguages } = languageProvider.getHealth()
   return {
     isEnabled: validProvidersCount! > 0 && validLanguages!.length > 0,

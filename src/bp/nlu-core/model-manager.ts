@@ -4,17 +4,17 @@ import _ from 'lodash'
 import { TrainInput, TrainOutput } from './training-pipeline'
 import { EntityCache } from './typings'
 
-export type Model = Omit<sdk.NLUCore.Model, 'data'> & {
+export type Model = Omit<sdk.NLU.Model, 'data'> & {
   data: {
     input: TrainInput
     output: TrainOutput
   }
 }
 
-export function serializeModel(model: Model): sdk.NLUCore.Model {
+export function serializeModel(model: Model): sdk.NLU.Model {
   const { hash, languageCode, startedAt, finishedAt, data } = model
 
-  const serialized: sdk.NLUCore.Model = {
+  const serialized: sdk.NLU.Model = {
     hash,
     languageCode,
     startedAt,
@@ -35,7 +35,7 @@ export function serializeModel(model: Model): sdk.NLUCore.Model {
   return serialized
 }
 
-export function deserializeModel(serialized: sdk.NLUCore.Model): Model {
+export function deserializeModel(serialized: sdk.NLU.Model): Model {
   const { hash, languageCode, startedAt, finishedAt, data } = serialized
 
   const model: Model = {

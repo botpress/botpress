@@ -14,7 +14,7 @@ import { EntityCacheDump, Intent, ListEntity, ListEntityModel, PatternEntity, To
 
 const trainDebug = DEBUG('nlu').sub('training')
 
-export default class Engine implements sdk.NLUCore.Engine {
+export default class Engine implements sdk.NLU.Engine {
   private static _tools: Tools
 
   private predictorsByLang: _.Dictionary<Predictors> = {}
@@ -63,10 +63,10 @@ export default class Engine implements sdk.NLUCore.Engine {
     intentDefs: NLU.IntentDefinition[],
     entityDefs: NLU.EntityDefinition[],
     languageCode: string,
-    reportTrainingProgress?: sdk.NLUCore.ProgressReporter,
-    trainingSession?: sdk.NLUCore.TrainingSession,
-    options?: sdk.NLUCore.TrainingOptions
-  ): Promise<sdk.NLUCore.Model | undefined> {
+    reportTrainingProgress?: sdk.NLU.ProgressReporter,
+    trainingSession?: sdk.NLU.TrainingSession,
+    options?: sdk.NLU.TrainingOptions
+  ): Promise<sdk.NLU.Model | undefined> {
     trainDebug.forBot(this.botId, `Started ${languageCode} training`)
 
     const list_entities = entityDefs
@@ -163,7 +163,7 @@ export default class Engine implements sdk.NLUCore.Engine {
   private async _trainAndMakeModel(
     input: TrainInput,
     hash: string,
-    reportTrainingProgress?: sdk.NLUCore.ProgressReporter
+    reportTrainingProgress?: sdk.NLU.ProgressReporter
   ): Promise<Model | undefined> {
     const startedAt = new Date()
     let output: TrainOutput | undefined
@@ -190,7 +190,7 @@ export default class Engine implements sdk.NLUCore.Engine {
     }
   }
 
-  private modelAlreadyLoaded(model: sdk.NLUCore.Model) {
+  private modelAlreadyLoaded(model: sdk.NLU.Model) {
     if (!model?.languageCode) {
       return false
     }
@@ -205,7 +205,7 @@ export default class Engine implements sdk.NLUCore.Engine {
     )
   }
 
-  async loadModel(serialized: sdk.NLUCore.Model) {
+  async loadModel(serialized: sdk.NLU.Model) {
     if (this.modelAlreadyLoaded(serialized)) {
       return
     }

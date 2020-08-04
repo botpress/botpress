@@ -27,7 +27,7 @@ export async function listModelsForLang(ghost: sdk.ScopedGhostService, languageC
   })
 }
 
-export async function getModel(ghost: sdk.ScopedGhostService, hash: string, lang: string): Promise<sdk.NLUCore.Model> {
+export async function getModel(ghost: sdk.ScopedGhostService, hash: string, lang: string): Promise<sdk.NLU.Model> {
   const fname = makeFileName(hash, lang)
   if (!(await ghost.fileExists(MODELS_DIR, fname))) {
     return
@@ -52,7 +52,7 @@ export async function getModel(ghost: sdk.ScopedGhostService, hash: string, lang
   }
 }
 
-export async function getLatestModel(ghost: sdk.ScopedGhostService, lang: string): Promise<sdk.NLUCore.Model> {
+export async function getLatestModel(ghost: sdk.ScopedGhostService, lang: string): Promise<sdk.NLU.Model> {
   const availableModels = await listModelsForLang(ghost, lang)
   if (availableModels.length === 0) {
     return
@@ -62,7 +62,7 @@ export async function getLatestModel(ghost: sdk.ScopedGhostService, lang: string
 
 export async function saveModel(
   ghost: sdk.ScopedGhostService,
-  model: sdk.NLUCore.Model,
+  model: sdk.NLU.Model,
   hash: string
 ): Promise<void | void[]> {
   const serialized = JSON.stringify(model)

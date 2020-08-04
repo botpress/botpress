@@ -27,7 +27,7 @@ export type NLUState = {
   nluByBot: _.Dictionary<BotState>
   broadcastLoadModel?: (botId: string, hash: string, language: string) => Promise<void>
   broadcastCancelTraining?: (botId: string, language: string) => Promise<void>
-  reportTrainingProgress: sdk.NLUCore.ProgressReporter
+  reportTrainingProgress: sdk.NLU.ProgressReporter
 }
 
 export interface NLUVersionInfo {
@@ -43,7 +43,7 @@ export interface LangServerInfo {
 
 export interface BotState {
   botId: string
-  engine: sdk.NLUCore.Engine
+  engine: sdk.NLU.Engine
   trainWatcher: sdk.ListenHandle
   trainOrLoad: (forceTrain: boolean) => Promise<void>
   trainSessions: _.Dictionary<TrainingSession>

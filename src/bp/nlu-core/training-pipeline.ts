@@ -33,7 +33,7 @@ export type TrainInput = Readonly<{
   list_entities: ListEntity[]
   contexts: string[]
   intents: Intent<string>[]
-  trainingSession?: sdk.NLUCore.TrainingSession
+  trainingSession?: sdk.NLU.TrainingSession
   ctxToTrain: string[]
 }>
 
@@ -550,13 +550,13 @@ const NB_STEPS = 5 // change this if the training pipeline changes
 export type Trainer = (
   input: TrainInput,
   tools: Tools,
-  reportTrainingProgress?: sdk.NLUCore.ProgressReporter
+  reportTrainingProgress?: sdk.NLU.ProgressReporter
 ) => Promise<TrainOutput | undefined>
 
 export const Trainer: Trainer = async (
   input: TrainInput,
   tools: Tools,
-  progress?: sdk.NLUCore.ProgressReporter
+  progress?: sdk.NLU.ProgressReporter
 ): Promise<TrainOutput | undefined> => {
   let totalProgress = 0
   let normalizedProgress = 0
