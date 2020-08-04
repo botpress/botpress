@@ -33,7 +33,6 @@ import { NotificationsService } from './services/notification/service'
 import RealtimeService from './services/realtime'
 import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
-import { InvalidLanguagePredictorError } from 'nlu-core/predict-pipeline'
 
 const http = (httpServer: HTTPServer) => (identity: string): typeof sdk.http => {
   return {
@@ -316,8 +315,7 @@ export class BotpressAPIProvider {
       workspaces: this.workspaces,
       distributed: this.distributed,
       NLUCore: {
-        NLUEngine: Engine,
-        InvalidLanguagePredictorError: InvalidLanguagePredictorError
+        NLUEngine: Engine
       }
     }
   }

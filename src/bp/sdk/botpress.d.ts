@@ -455,10 +455,6 @@ declare module 'botpress/sdk' {
   }
 
   export namespace NLUCore {
-    export class InvalidLanguagePredictorError extends Error {
-      constructor(languageCode: string)
-      languageCode: string
-    }
     export class NLUEngine {
       static initialize: (bp: any) => Promise<void>
       static getHealth: () => NLUHealth
@@ -751,6 +747,7 @@ declare module 'botpress/sdk' {
       readonly includedContexts: string[]
       readonly predictions?: NLU.Predictions
       readonly ms: number
+      readonly suggestedLanguage?: string
     }
 
     export interface IncomingEvent extends Event {

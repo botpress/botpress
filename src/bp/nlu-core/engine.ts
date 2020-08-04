@@ -289,7 +289,7 @@ export default class Engine implements sdk.NLUCore.NLUEngine {
       includedContexts
     }
 
-    // error handled a level highr
+    // error handled a level higher
     return Predict(input, Engine._tools, this.predictorsByLang)
   }
 

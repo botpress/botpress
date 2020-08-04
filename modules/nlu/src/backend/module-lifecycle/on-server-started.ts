@@ -52,25 +52,22 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
         return next(undefined, false, true)
       }
 
-      let nluResults = {}
+      let nluResults: sdk.IO.EventUnderstanding
       const { engine } = state.nluByBot[event.botId]
       const extractEngine2 = async () => {
-        try {
-          // eventually if model not loaded for bot languages ==> train or load
+        // eventually if model not loaded for bot languages ==> train or load
+        nluResults = await engine.predict(event.preview, event.nlu.includedContexts)
+        if (nluResults.errored && nluResults.suggestedLanguage) {
+          const model = await getLatestModel(bp.ghost.forBot(event.botId), nluResults.suggestedLanguage)
+          await engine.loadModel(model)
+          // might throw again, thus usage of bluebird retry
           nluResults = await engine.predict(event.preview, event.nlu.includedContexts)
-        } catch (err) {
-          if (err instanceof sdk.NLUCore.InvalidLanguagePredictorError) {
-            const model = await getLatestModel(bp.ghost.forBot(event.botId), err.languageCode)
-            await engine.loadModel(model)
-            // might throw again, thus usage of bluebird retry
-            nluResults = await engine.predict(event.preview, event.nlu.includedContexts)
-          }
         }
       }
 
       try {
         await retry(extractEngine2, { max_tries: 2, throw_original: true })
-        _.merge(event, { nlu: nluResults })
+        _.merge(event, { nlu: nluResults ?? {} })
         removeSensitiveText(event)
       } catch (err) {
         bp.logger.warn(`Error extracting metadata for incoming text: ${err.message}`)
