@@ -52,21 +52,6 @@ export interface BotState {
   entityService: EntityService
 }
 
-export type EntityCache = LRUCache<string, EntityExtractionResult[]>
-export type EntityCacheDump = LRUCache.Entry<string, EntityExtractionResult[]>[]
-
-export interface ListEntityModel {
-  type: 'custom.list'
-  id: string
-  languageCode: string
-  entityName: string
-  fuzzyTolerance: number
-  sensitive: boolean
-  /** @example { 'Air Canada': [ ['Air', '_Canada'], ['air', 'can'] ] } */
-  mappingsTokens: _.Dictionary<string[][]>
-  cache?: EntityCache | EntityCacheDump
-}
-
 export type EntityExtractor = 'system' | 'list' | 'pattern'
 export interface ExtractedEntity {
   confidence: number

@@ -6,27 +6,11 @@ import { Stream } from 'stream'
 import tar from 'tar'
 import tmp from 'tmp'
 
-import { EntityCache } from './typings'
-
 export const MODELS_DIR = './models'
 const MAX_MODELS_TO_KEEP = 2
 
 function makeFileName(hash: string, lang: string): string {
   return `${hash}.${lang}.model`
-}
-
-function serializeModel(ref: sdk.NLUCore.Model): string {
-  const model = _.cloneDeep(ref)
-  for (const entity of model.data.output.list_entities) {
-    entity.cache = (<EntityCache>entity.cache)?.dump() ?? []
-  }
-  return JSON.stringify(_.omit(model, ['data.output.intents', 'data.input.trainingSession']))
-}
-
-function deserializeModel(str: string) {
-  const model = JSON.parse(str)
-  model.data.output.slots_model = Buffer.from(model.data.output.slots_model)
-  return model
 }
 
 export async function pruneModels(ghost: sdk.ScopedGhostService, languageCode: string): Promise<void | void[]> {
@@ -59,7 +43,7 @@ export async function getModel(ghost: sdk.ScopedGhostService, hash: string, lang
   const modelBuff = await fse.readFile(path.join(tmpDir.name, 'model'))
   let mod
   try {
-    mod = deserializeModel(modelBuff.toString())
+    mod = JSON.parse(modelBuff.toString())
   } catch (err) {
     await ghost.deleteFile(MODELS_DIR, fname)
   } finally {
@@ -81,7 +65,7 @@ export async function saveModel(
   model: sdk.NLUCore.Model,
   hash: string
 ): Promise<void | void[]> {
-  const serialized = serializeModel(model)
+  const serialized = JSON.stringify(model)
   const modelName = makeFileName(hash, model.languageCode)
   const tmpDir = tmp.dirSync({ unsafeCleanup: true })
   const tmpFileName = path.join(tmpDir.name, 'model')

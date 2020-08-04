@@ -483,8 +483,8 @@ declare module 'botpress/sdk' {
       startedAt: Date
       finishedAt: Date
       data: {
-        input: any
-        output: any
+        input: string
+        output: string
       }
     }
 

@@ -5,6 +5,7 @@ import _ from 'lodash'
 
 import * as CacheManager from './cache-manager'
 import { initializeTools } from './initialize-tools'
+import { deserializeModel, Model, serializeModel } from './model-manager'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
@@ -17,7 +18,7 @@ export default class Engine implements sdk.NLUCore.Engine {
   private static _tools: Tools
 
   private predictorsByLang: _.Dictionary<Predictors> = {}
-  private modelsByLang: _.Dictionary<sdk.NLUCore.Model> = {}
+  private modelsByLang: _.Dictionary<Model> = {}
 
   constructor(private defaultLanguage: string, private botId: string, private logger: Logger) {}
 
@@ -156,14 +157,14 @@ export default class Engine implements sdk.NLUCore.Engine {
 
     trainDebug.forBot(this.botId, `Successfully finished ${languageCode} training`)
 
-    return model
+    return serializeModel(model)
   }
 
   private async _trainAndMakeModel(
     input: TrainInput,
     hash: string,
     reportTrainingProgress?: sdk.NLUCore.ProgressReporter
-  ): Promise<sdk.NLUCore.Model | undefined> {
+  ): Promise<Model | undefined> {
     const startedAt = new Date()
     let output: TrainOutput | undefined
     try {
@@ -204,12 +205,15 @@ export default class Engine implements sdk.NLUCore.Engine {
     )
   }
 
-  async loadModel(model: sdk.NLUCore.Model) {
-    if (this.modelAlreadyLoaded(model)) {
+  async loadModel(serialized: sdk.NLUCore.Model) {
+    if (this.modelAlreadyLoaded(serialized)) {
       return
     }
 
+    const model = deserializeModel(serialized)
+
     const { input, output } = model.data
+
     if (!output.intents) {
       const intents = await ProcessIntents(input.intents, model.languageCode, output.list_entities, Engine._tools)
       output.intents = intents

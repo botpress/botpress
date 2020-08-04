@@ -19,7 +19,7 @@ const migration: sdk.ModuleMigration = {
 
         return Promise.map(modNames, async mod => {
           try {
-            const model: any = await ghost.readFileAsObject(MODELS_DIR, mod)
+            const model: sdk.NLUCore.Model = await ghost.readFileAsObject(MODELS_DIR, mod)
             if (!model.hash) {
               return ghost.deleteFile(MODELS_DIR, mod) // model is really outdated
             }
