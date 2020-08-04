@@ -583,8 +583,7 @@ reducer = reduceReducers(
         const skillId = payload.skillId
         const flowRandomId = prettyId(6)
 
-        const flowPrefix = window.USE_ONEFLOW ? `${parseFlowName(state.currentFlow).workflowPath}/` : ''
-        const flowName = `${flowPrefix}skills-${skillId}-${flowRandomId}.flow.json`
+        const flowName = `skills/${skillId}-${flowRandomId}.flow.json`
 
         const newFlow = Object.assign({}, payload.generatedFlow, {
           skillData: payload.data,
