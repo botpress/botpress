@@ -6,6 +6,7 @@ import { RTMClient } from '@slack/rtm-api'
 import { WebClient } from '@slack/web-api'
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
+import { isValidOutgoingType, parseTyping } from 'common/channels'
 import _ from 'lodash'
 import LRU from 'lru-cache'
 import ms from 'ms'
@@ -18,8 +19,6 @@ import { Clients } from './typings'
 const debug = DEBUG('channel-slack')
 const debugIncoming = debug.sub('incoming')
 const debugOutgoing = debug.sub('outgoing')
-
-const outgoingTypes = ['text', 'image', 'actions', 'typing', 'carousel']
 
 const userCache = new LRU({ max: 1000, maxAge: ms('1h') })
 
@@ -62,7 +61,7 @@ export class SlackClient {
 
   private async _setupInteractiveListener() {
     this.interactive.action({ type: 'button' }, async payload => {
-      debugIncoming(`Received interactive message %o`, payload)
+      debugIncoming('Received interactive message %o', payload)
 
       const actionId = _.get(payload, 'actions[0].action_id', '')
       const label = _.get(payload, 'actions[0].text.text', '')
@@ -90,7 +89,7 @@ export class SlackClient {
     })
 
     this.interactive.action({ actionId: 'feedback-overflow' }, async payload => {
-      debugIncoming(`Received feedback %o`, payload)
+      debugIncoming('Received feedback %o', payload)
 
       const action = payload.actions[0]
       const blockId = action.block_id
@@ -124,7 +123,7 @@ export class SlackClient {
     const discardedSubtypes = ['bot_message', 'message_deleted', 'message_changed']
 
     com.on('message', async payload => {
-      debugIncoming(`Received real time payload %o`, payload)
+      debugIncoming('Received real time payload %o', payload)
 
       if (!discardedSubtypes.includes(payload.subtype) && !payload.bot_id) {
         await this.sendEvent(payload, {
@@ -134,7 +133,7 @@ export class SlackClient {
       }
     })
 
-    com.on('error', err => this.bp.logger.attachError(err).error(`An error occurred`))
+    com.on('error', err => this.bp.logger.attachError(err).error('An error occurred'))
   }
 
   private async _getUserInfo(userId: string) {
@@ -162,18 +161,8 @@ export class SlackClient {
   }
 
   async handleOutgoingEvent(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
-    if (event.type === 'typing') {
-      if (this.rtm) {
-        await this.rtm.sendTyping(event.threadId || event.target)
-        await new Promise(resolve => setTimeout(() => resolve(), 1000))
-      }
-
-      return next(undefined, false)
-    }
-
-    const messageType = event.type === 'default' ? 'text' : event.type
-    if (!_.includes(outgoingTypes, messageType)) {
-      return next(new Error('Unsupported event type: ' + event.type))
+    if (!isValidOutgoingType(event.type)) {
+      return next(new Error(`Unsupported event type: ${event.type}`))
     }
 
     const blocks = []
@@ -190,7 +179,7 @@ export class SlackClient {
       blocks
     }
 
-    if (event.payload.metadata?.__collectFeedback && messageType === 'text') {
+    if (event.payload.metadata?.__collectFeedback && event.type === 'text') {
       message.blocks = [
         {
           type: 'section',
@@ -220,7 +209,7 @@ export class SlackClient {
       ]
     }
 
-    debugOutgoing(`Sending message %o`, message)
+    debugOutgoing('Sending message %o', message)
     await this.client.chat.postMessage(message)
 
     next(undefined, false)
@@ -233,12 +222,10 @@ export class SlackClient {
     const textType = __markdown === true ? 'mrkdwn' : 'plain_text'
     const blocks = []
 
-    if (__typing) {
-      // @deprecated
-      if (this.rtm) {
-        await this.rtm.sendTyping(event.threadId || event.target)
-        await new Promise(resolve => setTimeout(() => resolve(), 1000))
-      }
+    // @deprecated
+    if (__typing && this.rtm) {
+      await this.rtm.sendTyping(event.threadId || event.target)
+      await Promise.delay(parseTyping(__typing))
     }
 
     if (__buttons) {
