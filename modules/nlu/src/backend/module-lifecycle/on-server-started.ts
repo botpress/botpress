@@ -119,20 +119,10 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
   })
 }
 
-function setNluVersion(bp: typeof sdk, state: NLUState) {
-  if (!semver.valid(nluInfo.version)) {
-    bp.logger.error('nlu package.json file has an incorrect version format')
-    return
-  }
-
-  state.nluVersion = semver.clean(nluInfo.version)
-}
-
 export function getOnSeverStarted(state: NLUState) {
   return async (bp: typeof sdk) => {
-    setNluVersion(bp, state)
     await initializeReportingTool(bp, state)
-    await bp.NLUCore.NLUEngine.initialize(bp, state)
+    await bp.NLUCore.NLUEngine.initialize(bp)
     await registerMiddleware(bp, state)
   }
 }

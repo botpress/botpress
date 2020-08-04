@@ -41,7 +41,8 @@ export class RemoteLanguageProvider implements LanguageProvider {
   private _validProvidersCount!: number
   private _languageDims!: number
 
-  private _version!: sdk.NLUCore.NLUVersionInfo
+  private _nluVersion!: string
+  private _langServerInfo!: sdk.NLUCore.LangServerInfo
 
   private discoveryRetryPolicy = {
     interval: 1000,
@@ -64,9 +65,9 @@ export class RemoteLanguageProvider implements LanguageProvider {
   async initialize(
     sources: LanguageSource[],
     logger: typeof sdk.logger,
-    version: sdk.NLUCore.NLUVersionInfo
+    nluVersion: string
   ): Promise<LanguageProvider> {
-    this._version = version
+    this._nluVersion = nluVersion
     this._validProvidersCount = 0
 
     this._vectorsCache = new lru<string, Float32Array>({
@@ -157,7 +158,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
   }
 
   public get langServerInfo(): sdk.NLUCore.LangServerInfo {
-    return this._version.langServerInfo
+    return this._langServerInfo
   }
 
   private extractLangServerInfo(data) {
@@ -166,13 +167,11 @@ export class RemoteLanguageProvider implements LanguageProvider {
     if (!version) {
       throw new Error('Lang server has an invalid version')
     }
-    const langServerInfo = {
+    this._langServerInfo = {
       version: semver.clean(version),
       dim: data.dimentions,
       domain: data.domain
     }
-
-    this._version = { ...this._version, langServerInfo }
   }
 
   private computeCacheFilesPaths = () => {
@@ -519,11 +518,11 @@ export class RemoteLanguageProvider implements LanguageProvider {
   }
 
   private computeVersionHash = () => {
-    const { nluVersion, langServerInfo } = this._version
-    const { dim, domain, version: langServerVersion } = langServerInfo
+    const { _nluVersion, _langServerInfo } = this
+    const { dim, domain, version: langServerVersion } = _langServerInfo
 
     const omitPatchNumber = (v: string) => `${semver.major(v)}.${semver.minor(v)}.0`
-    const hashContent = `${omitPatchNumber(nluVersion)}:${omitPatchNumber(langServerVersion)}:${dim}:${domain}`
+    const hashContent = `${omitPatchNumber(_nluVersion)}:${omitPatchNumber(langServerVersion)}:${dim}:${domain}`
     return crypto
       .createHash('md5')
       .update(hashContent)

@@ -460,16 +460,12 @@ declare module 'botpress/sdk' {
       languageCode: string
     }
     export class NLUEngine {
-      static initialize: (bp: any, version: NLUVersionInfo) => Promise<void>
+      static initialize: (bp: any) => Promise<void>
       static getHealth: () => NLUHealth
       static getLanguages: () => string[]
+      static getVersionInfo: () => NLUVersionInfo
       constructor(defaultLanguage: string, botId: string, logger: Logger)
-      computeModelHash(
-        intents: NLU.IntentDefinition[],
-        entities: NLU.EntityDefinition[],
-        version: NLUCore.NLUVersionInfo,
-        lang: string
-      ): string
+      computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string
       loadModel: (m: any) => Promise<void>
       train: (
         intentDefs: NLU.IntentDefinition[],

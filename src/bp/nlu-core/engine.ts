@@ -20,7 +20,6 @@ export interface TrainingOptions {
 
 export default class Engine implements sdk.NLUCore.NLUEngine {
   private static _tools: Tools
-  private static _version: sdk.NLUCore.NLUVersionInfo
 
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<Model> = {}
@@ -40,19 +39,17 @@ export default class Engine implements sdk.NLUCore.NLUEngine {
     return this._tools.getLanguages()
   }
 
-  public static async initialize(bp: typeof sdk, version: sdk.NLUCore.NLUVersionInfo): Promise<void> {
-    this._tools = await initializeTools(bp, version)
-    this._version = version
+  public static getVersionInfo() {
+    return this._tools.getVersionInfo()
+  }
+
+  public static async initialize(bp: typeof sdk): Promise<void> {
+    this._tools = await initializeTools(bp)
   }
 
   // we might want to make this language specific
-  public computeModelHash(
-    intents: NLU.IntentDefinition[],
-    entities: NLU.EntityDefinition[],
-    version: sdk.NLUCore.NLUVersionInfo,
-    lang: string
-  ): string {
-    const { nluVersion, langServerInfo } = version
+  public computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string {
+    const { nluVersion, langServerInfo } = Engine._tools.getVersionInfo()
 
     const singleLangIntents = intents.map(i => ({ ...i, utterances: i.utterances[lang] }))
 
@@ -139,7 +136,7 @@ export default class Engine implements sdk.NLUCore.NLUEngine {
       ctxToTrain
     }
 
-    const hash = this.computeModelHash(intentDefs, entityDefs, Engine._version, languageCode)
+    const hash = this.computeModelHash(intentDefs, entityDefs, languageCode)
     const model = await this._trainAndMakeModel(input, hash, reportTrainingProgress)
     if (!model) {
       return

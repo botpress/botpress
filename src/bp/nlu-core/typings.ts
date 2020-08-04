@@ -142,6 +142,7 @@ export interface Tools {
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
   getHealth(): sdk.NLUCore.NLUHealth
   getLanguages(): string[]
+  getVersionInfo(): sdk.NLUCore.NLUVersionInfo
   duckling: SystemEntityExtractor
   mlToolkit: typeof sdk.MLToolkit
 }
