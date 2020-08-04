@@ -1,7 +1,7 @@
-import { Colors, H5, HTMLTable, Tooltip } from '@blueprintjs/core'
+import { HTMLTable, Tooltip } from '@blueprintjs/core'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import React, { SFC } from 'react'
+import React, { Fragment, SFC } from 'react'
 
 import style from '../style.scss'
 
@@ -47,8 +47,8 @@ export const Slots: SFC<Props> = props => {
   }
 
   return (
-    <div className={style.subSection}>
-      <HTMLTable condensed className={style.summaryTable}>
+    <Fragment>
+      <HTMLTable condensed>
         <thead>
           <tr>
             <th>Slot</th>
@@ -66,6 +66,6 @@ export const Slots: SFC<Props> = props => {
               .value()}
         </tbody>
       </HTMLTable>
-    </div>
+    </Fragment>
   )
 }

@@ -1,14 +1,15 @@
-import { Colors, H5 } from '@blueprintjs/core'
 import _ from 'lodash'
-import React from 'react'
+import React, { Fragment } from 'react'
 
 import style from '../style.scss'
+import { formatConfidence } from '../utils'
 
 import { Intent } from './Intent'
 
 interface IntentDef {
   name: string
   confidence: number
+  context: string
 }
 
 interface Props {
@@ -22,19 +23,38 @@ export const Intents = (props: Props) => {
     return null
   }
 
+  const intentsByContext: {
+    [key: string]: { name: string; confidence: number; intents: IntentDef[] }
+  } = intents.reduce((acc, intent) => {
+    const context = acc[intent.context]
+    const intentsArray = [...(context?.intents || []), intent]
+    const totalConfidence = (context?.confidence || 0) + intent.confidence
+
+    return { ...acc, [intent.context]: { name: intent.context, confidence: totalConfidence, intents: intentsArray } }
+  }, {})
+
   return (
-    <div className={style.subSection}>
-      <H5 color={Colors.DARK_GRAY5}>Intents</H5>
-      {intents.length > 1 && (
-        <ul>
-          {_.take(intents, 4).map(i => (
-            <li key={i.name}>
-              <Intent name={i.name} confidence={i.confidence} elected={i.name === intent.name} />
-            </li>
-          ))}
-        </ul>
-      )}
-      {intents.length === 1 && <Intent name={intent.name} confidence={intent.confidence} elected />}
+    <div className={style.section}>
+      <div className={style.sectionTitle}>Top Intents</div>
+      {Object.keys(intentsByContext).map((key, index) => {
+        const { name, confidence, intents } = intentsByContext[key]
+        return (
+          <div className={style.subSection} key={index}>
+            <p>
+              {name} {formatConfidence(confidence)}%
+            </p>
+            <ul>
+              {_.take(intents, 4).map(i => {
+                return (
+                  <li key={i.name}>
+                    <Intent name={i.name} confidence={i.confidence} elected={i.name === intent.name} />
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        )
+      })}
     </div>
   )
 }
