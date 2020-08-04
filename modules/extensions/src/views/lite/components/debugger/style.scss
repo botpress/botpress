@@ -90,7 +90,7 @@
       font-size: 12px;
       font-weight: bold;
       line-height: 1.25;
-      margin: 0;
+      margin: 0 var(--spacing-x-large) 0 0;
       padding: 0;
       padding-top: var(--spacing-medium);
       transition: border 0.3s;
@@ -273,6 +273,10 @@
   padding-right: var(--spacing-medium);
 }
 
+.content > .section {
+  margin-top: 0;
+}
+
 .section {
   margin-top: var(--spacing-large);
 
@@ -292,11 +296,95 @@
     li {
       color: var(--shark);
       font-size: 12px;
-      margin-top: var(--spacing-x-small);
+      line-height: 1;
+      margin-top: var(--spacing-small);
 
       &:first-of-type {
         margin-top: 0;
       }
+    }
+  }
+
+  .processingItem {
+    &.processingSection {
+      margin-bottom: var(--spacing-medium);
+
+      & + ul {
+        margin-top: 0;
+      }
+    }
+
+    &.error {
+      color: var(--lighthouse);
+
+      .error {
+        margin: 0 0 0 var(--spacing-small);
+        svg {
+          fill: var(--lighthouse);
+        }
+      }
+    }
+
+    svg {
+      fill: var(--gray);
+    }
+
+    :global(.bp3-icon) {
+      margin-right: var(--spacing-medium);
+    }
+
+    :global(.bp3-icon-small-cross) {
+      svg {
+        fill: var(--lighthouse);
+      }
+    }
+
+    .itemButton {
+      background: none;
+      border: none;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      margin: 0;
+      color: var(--shark);
+      transition: color 0.3s;
+      text-align: left;
+
+      svg {
+        transition: fill 0.3s;
+      }
+
+      &:hover {
+        color: var(--ocean);
+
+        svg {
+          fill: var(--ocean);
+        }
+      }
+    }
+
+    .expanded {
+      display: block;
+      width: 100%;
+    }
+
+    .infoBox {
+      display: block;
+      padding: var(--spacing-medium);
+      border-radius: 3px;
+      margin-top: var(--spacing-medium);
+      border: 1px solid var(--seashell);
+      font-size: 10px;
+      font-weight: 400;
+      line-height: 1.5;
+      color: var(--shark);
+    }
+
+    .time {
+      color: var(--gray);
+      font-size: 10px;
+      line-height: 1.5;
     }
   }
 
@@ -309,15 +397,19 @@
   }
 }
 
-.collapsibleContainer {
-  .sectionTitle {
-    color: var(--shark);
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 1.08;
-    margin: 0 0 var(--spacing-small);
-  }
+.sectionTitle {
+  color: var(--shark);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.08;
+  margin: 0 0 var(--spacing-small);
 
+  &.processingSection {
+    font-weight: 400;
+  }
+}
+
+.collapsibleContainer {
   .subSection {
     margin-top: var(--spacing-medium);
   }
