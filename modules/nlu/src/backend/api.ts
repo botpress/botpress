@@ -4,7 +4,6 @@ import _ from 'lodash'
 import yn from 'yn'
 
 import { isOn as isAutoTrainOn, set as setAutoTrain } from './autoTrain'
-import {} from './engine'
 import Engine from './engine'
 import { EntityDefCreateSchema } from './entities/validation'
 import {

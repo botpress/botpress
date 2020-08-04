@@ -1,3 +1,4 @@
+import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import { distance, similarity } from 'ml-distance'
 import { Matrix } from 'ml-matrix'
@@ -30,10 +31,6 @@ export async function computeConfusionMatrix(
     })
   }
 
-  console.log(
-    'Total Accuracy : ',
-    `${results.filter(o => o.acc).length}/${results.length} : ${results.filter(o => o.acc).length / results.length}`
-  )
   await state.ghost.upsertFile(
     `./datas/${state.embedder.model_name}/results`,
     'confusion_matrix.json',
@@ -89,11 +86,15 @@ export async function computeEmbeddingSimilarity(state: BotState) {
   return plotlyMatrixData
 }
 
-export async function computeScatterEmbeddings(state: BotState) {
+export async function computeScatterEmbeddings(state: BotState, logger: sdk.Logger) {
   const pca = new PCA(state.trainDatas.map(o => o.utt_emb))
   const variance = pca.getExplainedVariance()
-  console.log(`Top 3 variance ${variance.slice(0, 3).map(o => _.round(o, 2))}`)
-  console.log(`Accounting for ${_.round(_.sum(variance.slice(0, 3)), 2)}%`)
+  logger.info(
+    `Top 3 variance ${variance.slice(0, 3).map(o => _.round(o, 2))} Accounting for ${_.round(
+      _.sum(variance.slice(0, 3)),
+      2
+    )}%`
+  )
   const grouped_intents = _.groupBy(state.trainDatas, 'intent')
   const traces = []
   Object.entries(grouped_intents).map(([k, v]: [string, any[]], i) =>

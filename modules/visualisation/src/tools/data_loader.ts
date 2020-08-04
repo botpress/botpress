@@ -1,3 +1,4 @@
+import * as sdk from 'botpress/sdk'
 import crypto from 'crypto'
 import _ from 'lodash'
 
@@ -47,7 +48,7 @@ export async function splitTrainToTrainAndTest(state: BotState) {
   await state.ghost.upsertFile('./', 'nlu-tests.json', JSON.stringify(tests, undefined, 2))
 }
 
-export async function getTrainTestDatas(state: BotState) {
+export async function getTrainTestDatas(state: BotState, logger: sdk.Logger) {
   if (
     (await state.ghost.fileExists(`./datas/${state.embedder.model_name}`, 'test_set.json')) &&
     (await state.ghost.fileExists(`./datas/${state.embedder.model_name}`, 'train_set.json'))
@@ -80,8 +81,9 @@ export async function getTrainTestDatas(state: BotState) {
   if (testFileExist) {
     rawTest = await state.ghost.readFileAsObject<Test[]>('./', 'nlu-tests.json')
   } else {
-    console.log('No test file found : You need a test file to run confusion matrix !')
-    console.log('Running a splitter to create 1/4 of training datas to test')
+    logger.info(
+      'No test file found : You need a test file to run confusion matrix !\n => Running a splitter to create 1/4 of training datas to test'
+    )
     await splitTrainToTrainAndTest(state)
     rawTest = await state.ghost.readFileAsObject<Test[]>('./', 'nlu-tests.json')
   }

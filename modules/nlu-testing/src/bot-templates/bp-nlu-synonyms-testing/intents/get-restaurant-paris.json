@@ -1,0 +1,19 @@
+{
+  "name": "get-restaurant-paris",
+  "utterances": {
+    "en": [
+      "Is there any indian food close to the center ?",
+      "What kind of restaurant can I find in Paris ?",
+      "I want to eat close to the center of paris",
+      "I'm searching a romantic bar to spend the evening",
+      "Which places are luxuous for a meal ?",
+      "Is it expensive to eat in paris ?",
+      "I'm looking for suhsis",
+      "Which restaurants allows animals ?"
+    ]
+  },
+  "slots": [],
+  "contexts": [
+    "splitable"
+  ]
+}

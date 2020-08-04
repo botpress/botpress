@@ -1,16 +1,18 @@
 {
-  "name": "eat_salty",
+  "name": "eat-salty",
   "utterances": {
     "en": [
       "I'm craving for a salty dish",
-      "Please feed me with good meals",
-      "A lunch is all I want",
-      "I would die for a salad",
-      "Is there pasta on the menu ? ",
+      "Please feed me with good dish",
+      "A dish is all I want",
+      "I would die for a dish",
+      "Is there dish on the menu ?",
       "I would be really happy if you have some shrimps",
       "Oh please, give me some chicken, it's my favourite"
     ]
   },
   "slots": [],
-  "contexts": ["intersection"]
+  "contexts": [
+    "intersection"
+  ]
 }

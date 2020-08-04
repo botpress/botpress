@@ -29,9 +29,9 @@ export default async (bp: typeof sdk, state: VisuState) => {
     try {
       longJobsPool[jobId].data = await computeConfusionMatrix(state[botId], glob_res)
       longJobsPool[jobId].status = 'done'
-      console.log('\n\n Done CM \n\n')
+      bp.logger.info('Done computing Confusion Matrix')
     } catch (e) {
-      console.log('Error while trying to compute confusion matrix : ', e)
+      bp.logger.error('Error while trying to compute confusion matrix : ', e)
       longJobsPool[jobId].status = 'crashed'
       longJobsPool[jobId].error = e.data
     }
@@ -46,11 +46,11 @@ export default async (bp: typeof sdk, state: VisuState) => {
     res.send(jobId)
     longJobsPool[jobId] = { status: 'computing', data: undefined, error: undefined, cm: false }
     try {
-      await getTrainTestDatas(state[req.params.botId])
+      await getTrainTestDatas(state[req.params.botId], bp.logger)
       longJobsPool[jobId].status = 'done'
-      console.log('\n\n Done Loading Datas \n\n')
+      bp.logger.info('Done loading train and test datas')
     } catch (e) {
-      console.log('Error while trying to load datas : ', e)
+      bp.logger.error('Error while trying to load datas : ', e)
       longJobsPool[jobId].status = 'crashed'
       longJobsPool[jobId].error = e.data
     }
@@ -65,7 +65,7 @@ export default async (bp: typeof sdk, state: VisuState) => {
   })
 
   router.get('/scatterEmbeddings', async (req, res) => {
-    res.send(await computeScatterEmbeddings(state[req.params.botId]))
+    res.send(await computeScatterEmbeddings(state[req.params.botId], bp.logger))
   })
 
   router.get('/computeOutliers', async (req, res) => {

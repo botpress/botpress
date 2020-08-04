@@ -1,277 +1,5 @@
 [
   {
-    "utterance": "Where is paris center town",
-    "context": "splitable",
-    "conditions": [
-      [
-        "context",
-        "is",
-        "splitable"
-      ],
-      [
-        "intent",
-        "is",
-        "travel"
-      ]
-    ],
-    "id": "57275abc60718a3607b4dbde785a2fdc"
-  },
-  {
-    "utterance": "What can I see in the city of lights",
-    "context": "splitable",
-    "conditions": [
-      [
-        "context",
-        "is",
-        "splitable"
-      ],
-      [
-        "intent",
-        "is",
-        "travel"
-      ]
-    ],
-    "id": "ddcf0bc0326e0926155407488186e7a5"
-  },
-  {
-    "utterance": "Is downtown a nice place to spend the evening ?",
-    "context": "splitable",
-    "conditions": [
-      [
-        "context",
-        "is",
-        "splitable"
-      ],
-      [
-        "intent",
-        "is",
-        "travel"
-      ]
-    ],
-    "id": "d5ab6d639e578b94e32739d7d3381142"
-  },
-  {
-    "utterance": "Which is the most romantic ? Downtown or The Louvre",
-    "context": "splitable",
-    "conditions": [
-      [
-        "context",
-        "is",
-        "splitable"
-      ],
-      [
-        "intent",
-        "is",
-        "travel"
-      ]
-    ],
-    "id": "3c80926c6adef6f78786da1be2029f06"
-  },
-  {
-    "utterance": "Are the paris suburbs representatives of the french capital ?",
-    "context": "splitable",
-    "conditions": [
-      [
-        "context",
-        "is",
-        "splitable"
-      ],
-      [
-        "intent",
-        "is",
-        "travel"
-      ]
-    ],
-    "id": "cf199cbc166f4bb77bf100934fbeb3a3"
-  },
-  {
-    "utterance": "Have you visited the city of paris suburbs ?",
-    "context": "splitable",
-    "conditions": [
-      [
-        "context",
-        "is",
-        "splitable"
-      ],
-      [
-        "intent",
-        "is",
-        "travel"
-      ]
-    ],
-    "id": "462ab3f36ffcf21fcb6fb80cd5d23131"
-  },
-  {
-    "utterance": "Where is the city of paris airport ?",
-    "context": "splitable",
-    "conditions": [
-      [
-        "context",
-        "is",
-        "splitable"
-      ],
-      [
-        "intent",
-        "is",
-        "travel"
-      ]
-    ],
-    "id": "0e389c5240e5d344fc59b6ba2343b079"
-  },
-  {
-    "utterance": "Can I bring my M16 in the city of lights ?",
-    "context": "splitable",
-    "conditions": [
-      [
-        "context",
-        "is",
-        "splitable"
-      ],
-      [
-        "intent",
-        "is",
-        "travel"
-      ]
-    ],
-    "id": "8a6edfa241868b117826a364034afad9"
-  },
-  {
-    "utterance": "Is Sylvain here ? ",
-    "context": "splitable",
-    "conditions": [
-      [
-        "context",
-        "is",
-        "splitable"
-      ],
-      [
-        "intent",
-        "is",
-        "talk_to_boss"
-      ]
-    ],
-    "id": "7f1e9500e2cb81e3d23167fa3364f63e"
-  },
-  {
-    "utterance": "Where is Sly ?",
-    "context": "splitable",
-    "conditions": [
-      [
-        "context",
-        "is",
-        "splitable"
-      ],
-      [
-        "intent",
-        "is",
-        "talk_to_boss"
-      ]
-    ],
-    "id": "947661affb0d432473709cba8952305e"
-  },
-  {
-    "utterance": "I will only speak with your chief",
-    "context": "splitable",
-    "conditions": [
-      [
-        "context",
-        "is",
-        "splitable"
-      ],
-      [
-        "intent",
-        "is",
-        "talk_to_boss"
-      ]
-    ],
-    "id": "efb826f881d77e59826a8ed3489664fa"
-  },
-  {
-    "utterance": "Can I talk with either the CEO or the CFO ?",
-    "context": "splitable",
-    "conditions": [
-      [
-        "context",
-        "is",
-        "splitable"
-      ],
-      [
-        "intent",
-        "is",
-        "talk_to_boss"
-      ]
-    ],
-    "id": "c293921698d32965901dfbc1a6c80a8a"
-  },
-  {
-    "utterance": "I want to see Sylvain the CEO",
-    "context": "splitable",
-    "conditions": [
-      [
-        "context",
-        "is",
-        "splitable"
-      ],
-      [
-        "intent",
-        "is",
-        "talk_to_boss"
-      ]
-    ],
-    "id": "ffb9829a9df615e5909b63075a281315"
-  },
-  {
-    "utterance": "I have a meeting with your responsable, I guess his name is Sylvain",
-    "context": "splitable",
-    "conditions": [
-      [
-        "context",
-        "is",
-        "splitable"
-      ],
-      [
-        "intent",
-        "is",
-        "talk_to_boss"
-      ]
-    ],
-    "id": "3f007c8d63f85eb73528a45aba80f704"
-  },
-  {
-    "utterance": "Appointment with CEO Sylvain Perron",
-    "context": "splitable",
-    "conditions": [
-      [
-        "context",
-        "is",
-        "splitable"
-      ],
-      [
-        "intent",
-        "is",
-        "talk_to_boss"
-      ]
-    ],
-    "id": "4d9f044072e2edf620914d8d739990b2"
-  },
-  {
-    "utterance": "Is your CTO in the french capital suburbs right now ?",
-    "context": "splitable",
-    "conditions": [
-      [
-        "context",
-        "is",
-        "splitable"
-      ],
-      [
-        "intent",
-        "is",
-        "talk_to_boss"
-      ]
-    ],
-    "id": "2615c58b484b24f260fe17090929041a"
-  },
-  {
     "utterance": "I want to eat a poutine",
     "context": "intersection",
     "conditions": [
@@ -283,7 +11,7 @@
       [
         "intent",
         "is",
-        "eat_salty"
+        "eat-salty"
       ]
     ],
     "id": "bc758bac4c8be6b74b3fc49ebcc0cf19"
@@ -300,7 +28,7 @@
       [
         "intent",
         "is",
-        "eat_salty"
+        "eat-salty"
       ]
     ],
     "id": "f32cb52d00a625c15498883b35ad0a1d"
@@ -317,7 +45,7 @@
       [
         "intent",
         "is",
-        "eat_salty"
+        "eat-salty"
       ]
     ],
     "id": "d4b0073e765a0602d0ad6966622f87b6"
@@ -334,7 +62,7 @@
       [
         "intent",
         "is",
-        "eat_salty"
+        "eat-salty"
       ]
     ],
     "id": "4da576a5bfa59c5b5dd50fb0c65049ca"
@@ -351,7 +79,7 @@
       [
         "intent",
         "is",
-        "eat_salty"
+        "eat-salty"
       ]
     ],
     "id": "0663056f2d35e0249450dee3b71b28eb"
@@ -368,7 +96,7 @@
       [
         "intent",
         "is",
-        "eat_salty"
+        "eat-salty"
       ]
     ],
     "id": "4a9fadd32f42c55f6ab4932c04a1dce5"
@@ -385,7 +113,7 @@
       [
         "intent",
         "is",
-        "eat_salty"
+        "eat-salty"
       ]
     ],
     "id": "58941dd7de9591a0d668f06a69dceaca"
@@ -402,7 +130,7 @@
       [
         "intent",
         "is",
-        "eat_sweet"
+        "eat-sweet"
       ]
     ],
     "id": "754ce3c3a8149c7d9b3436635662295d"
@@ -419,7 +147,7 @@
       [
         "intent",
         "is",
-        "eat_sweet"
+        "eat-sweet"
       ]
     ],
     "id": "6cd13413b066acd3392fd1db93cb2baa"
@@ -436,7 +164,7 @@
       [
         "intent",
         "is",
-        "eat_sweet"
+        "eat-sweet"
       ]
     ],
     "id": "2c3091047684efcdc7410b228e3b0b29"
@@ -453,7 +181,7 @@
       [
         "intent",
         "is",
-        "eat_sweet"
+        "eat-sweet"
       ]
     ],
     "id": "bd59da47f34a8c0308db5e4e7286062e"
@@ -470,7 +198,7 @@
       [
         "intent",
         "is",
-        "eat_sweet"
+        "eat-sweet"
       ]
     ],
     "id": "e277637b6bd77bfd248b427858e63c60"
@@ -487,7 +215,7 @@
       [
         "intent",
         "is",
-        "eat_sweet"
+        "eat-sweet"
       ]
     ],
     "id": "4a9fadd32f42c55f6ab4932c04a1dce5"
@@ -504,7 +232,7 @@
       [
         "intent",
         "is",
-        "eat_sweet"
+        "eat-sweet"
       ]
     ],
     "id": "eaed94474a2647546d30fa511a2601df"
@@ -521,7 +249,7 @@
       [
         "intent",
         "is",
-        "buy_car"
+        "buy-car"
       ]
     ],
     "id": "e1521980d4dc0dbda800f07df384b0db"
@@ -538,13 +266,13 @@
       [
         "intent",
         "is",
-        "buy_car"
+        "buy-car"
       ]
     ],
     "id": "3018eaf158273fc664ea66dd08bb0c79"
   },
   {
-    "utterance": "I want a car with a Nissan with a powerful motor",
+    "utterance": "I want Nissan with a powerful motor",
     "context": "unbalanced",
     "conditions": [
       [
@@ -555,7 +283,7 @@
       [
         "intent",
         "is",
-        "buy_car"
+        "buy-car"
       ]
     ],
     "id": "54b86b08b88451977ca7e7bfaa18b8c8"
@@ -572,7 +300,7 @@
       [
         "intent",
         "is",
-        "buy_car"
+        "buy-car"
       ]
     ],
     "id": "d718c654d9882dae050e181bff585acc"
@@ -589,7 +317,7 @@
       [
         "intent",
         "is",
-        "buy_car"
+        "buy-car"
       ]
     ],
     "id": "2be7bb9daaf7109c51acb09c679e277f"
@@ -606,7 +334,7 @@
       [
         "intent",
         "is",
-        "buy_car"
+        "buy-car"
       ]
     ],
     "id": "655d3b67d1a4b65e5ff7373d8a8273b7"
@@ -623,7 +351,7 @@
       [
         "intent",
         "is",
-        "buy_car"
+        "buy-car"
       ]
     ],
     "id": "4cb21f135abfc9233bfe27111adfe2ef"
@@ -640,7 +368,7 @@
       [
         "intent",
         "is",
-        "buy_gun"
+        "buy-gun"
       ]
     ],
     "id": "9645ab6d55421a645472301e17d269b1"
@@ -657,7 +385,7 @@
       [
         "intent",
         "is",
-        "buy_gun"
+        "buy-gun"
       ]
     ],
     "id": "0c6f5d7ca408539733b64da42ce6be47"
@@ -674,7 +402,7 @@
       [
         "intent",
         "is",
-        "buy_gun"
+        "buy-gun"
       ]
     ],
     "id": "81c537f0ab978034bac7895fc20d0f47"
@@ -691,7 +419,7 @@
       [
         "intent",
         "is",
-        "buy_gun"
+        "buy-gun"
       ]
     ],
     "id": "5bd70f11a2f56f389a2ac1922540dab6"
@@ -708,7 +436,7 @@
       [
         "intent",
         "is",
-        "buy_gun"
+        "buy-gun"
       ]
     ],
     "id": "ec987c3753c095b2db42c37edbdc91a7"
@@ -725,9 +453,859 @@
       [
         "intent",
         "is",
-        "buy_gun"
+        "buy-gun"
       ]
     ],
     "id": "0100e613c34fc6298736bb1fac16e1b8"
+  },
+  {
+    "id": "1596548140270",
+    "utterance": "Haha hello there !",
+    "context": "*",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "none"
+      ],
+      [
+        "intent",
+        "is",
+        "none"
+      ]
+    ]
+  },
+  {
+    "id": "1596548148852",
+    "utterance": "plop",
+    "context": "*",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "none"
+      ],
+      [
+        "intent",
+        "is",
+        "none"
+      ]
+    ]
+  },
+  {
+    "id": "1596548154916",
+    "utterance": "botpress is the best chatbot enterprise",
+    "context": "*",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "none"
+      ],
+      [
+        "intent",
+        "is",
+        "none"
+      ]
+    ]
+  },
+  {
+    "id": "1596548160090",
+    "utterance": "I have a blue car",
+    "context": "*",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "none"
+      ],
+      [
+        "intent",
+        "is",
+        "none"
+      ]
+    ]
+  },
+  {
+    "id": "1596548166330",
+    "utterance": "My car is driving really fast I like it !",
+    "context": "*",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "none"
+      ],
+      [
+        "intent",
+        "is",
+        "none"
+      ]
+    ]
+  },
+  {
+    "id": "1596548171589",
+    "utterance": "I have a big blue gun and it shoots good",
+    "context": "*",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "none"
+      ],
+      [
+        "intent",
+        "is",
+        "none"
+      ]
+    ]
+  },
+  {
+    "id": "1596548177640",
+    "utterance": "At home I have a riffle a pistol and 10 M16 to protect my freedom !",
+    "context": "*",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "none"
+      ],
+      [
+        "intent",
+        "is",
+        "none"
+      ]
+    ]
+  },
+  {
+    "id": "1596548184727",
+    "utterance": "I'm really angry when I'm hungry",
+    "context": "*",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "none"
+      ],
+      [
+        "intent",
+        "is",
+        "none"
+      ]
+    ]
+  },
+  {
+    "id": "1596548189596",
+    "utterance": "I love to eat",
+    "context": "*",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "none"
+      ],
+      [
+        "intent",
+        "is",
+        "none"
+      ]
+    ]
+  },
+  {
+    "id": "1596548195339",
+    "utterance": "I need to go to the dentist I ate too much sugar",
+    "context": "*",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "none"
+      ],
+      [
+        "intent",
+        "is",
+        "none"
+      ]
+    ]
+  },
+  {
+    "id": "1596548200163",
+    "utterance": "My aunt is cooking really good tarts",
+    "context": "*",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "none"
+      ],
+      [
+        "intent",
+        "is",
+        "none"
+      ]
+    ]
+  },
+  {
+    "id": "1596548206690",
+    "utterance": "My cousins lives in Paris, I like them.",
+    "context": "*",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "none"
+      ],
+      [
+        "intent",
+        "is",
+        "none"
+      ]
+    ]
+  },
+  {
+    "id": "1596550263833",
+    "utterance": "I come from Paris, It's a beautiful town but peoples are sometimes a bit crazy",
+    "context": "*",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "none"
+      ],
+      [
+        "intent",
+        "is",
+        "none"
+      ]
+    ]
+  },
+  {
+    "id": "1596550271957",
+    "utterance": "My boss have a bike and likes to ride it.",
+    "context": "*",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "none"
+      ],
+      [
+        "intent",
+        "is",
+        "none"
+      ]
+    ]
+  },
+  {
+    "id": "1596550279103",
+    "utterance": "When he will get 40, my manager will be millionaire",
+    "context": "*",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "none"
+      ],
+      [
+        "intent",
+        "is",
+        "none"
+      ]
+    ]
+  },
+  {
+    "id": "1596550286813",
+    "utterance": "I think my bank is the best one and helps people in their life",
+    "context": "*",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "none"
+      ],
+      [
+        "intent",
+        "is",
+        "none"
+      ]
+    ]
+  },
+  {
+    "id": "1596550292311",
+    "utterance": "Maybe if I save enough money I will be able to buy a house",
+    "context": "*",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "none"
+      ],
+      [
+        "intent",
+        "is",
+        "none"
+      ]
+    ]
+  },
+  {
+    "id": "1596550305624",
+    "utterance": "last time I took a flight I almost puke in the plane",
+    "context": "*",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "none"
+      ],
+      [
+        "intent",
+        "is",
+        "none"
+      ]
+    ]
+  },
+  {
+    "id": "1596551634634",
+    "utterance": "I'm looking for a Subway in which I can bring my M16",
+    "context": "splitable",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "splitable"
+      ],
+      [
+        "intent",
+        "is",
+        "get-restaurant-paris"
+      ]
+    ]
+  },
+  {
+    "id": "1596551638363",
+    "utterance": "I'm looking for a Subway",
+    "context": "splitable",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "splitable"
+      ],
+      [
+        "intent",
+        "is",
+        "get-restaurant-paris"
+      ]
+    ]
+  },
+  {
+    "id": "1596551096381",
+    "utterance": "I'm looking for restaurants in the city of lights",
+    "context": "splitable",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "splitable"
+      ],
+      [
+        "intent",
+        "is",
+        "get-restaurant-paris"
+      ]
+    ]
+  },
+  {
+    "id": "1596551288820",
+    "utterance": "Where is the closest McDo ? ",
+    "context": "splitable",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "splitable"
+      ],
+      [
+        "intent",
+        "is",
+        "get-restaurant-paris"
+      ]
+    ]
+  },
+  {
+    "id": "1596551128546",
+    "utterance": "Is downtown a good place to eat KFC ?",
+    "context": "splitable",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "splitable"
+      ],
+      [
+        "intent",
+        "is",
+        "get-restaurant-paris"
+      ]
+    ]
+  },
+  {
+    "id": "1596551143900",
+    "utterance": "Any burger kings downtown ? ",
+    "context": "splitable",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "splitable"
+      ],
+      [
+        "intent",
+        "is",
+        "get-restaurant-paris"
+      ]
+    ]
+  },
+  {
+    "id": "1596551205435",
+    "utterance": "I'm looking for a thai zone or a tim hortons close to the Louvre",
+    "context": "splitable",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "splitable"
+      ],
+      [
+        "intent",
+        "is",
+        "get-restaurant-paris"
+      ]
+    ]
+  },
+  {
+    "id": "1596551387045",
+    "utterance": "I'm craving for a good starbuck coffee in paris, is there some ?",
+    "context": "splitable",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "splitable"
+      ],
+      [
+        "intent",
+        "is",
+        "get-restaurant-paris"
+      ]
+    ]
+  },
+  {
+    "id": "1596551905247",
+    "utterance": "I want to speak with Sylvain Perron the CEO",
+    "context": "splitable",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "splitable"
+      ],
+      [
+        "intent",
+        "is",
+        "schedule-apointement-boss"
+      ]
+    ]
+  },
+  {
+    "id": "1596551959148",
+    "utterance": "Can I talk with either the CEO or the CFO ?",
+    "context": "splitable",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "splitable"
+      ],
+      [
+        "intent",
+        "is",
+        "schedule-apointement-boss"
+      ]
+    ]
+  },
+  {
+    "id": "1596551987359",
+    "utterance": "I have a meeting with your responsable, I guess his name is Sylvain",
+    "context": "splitable",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "splitable"
+      ],
+      [
+        "intent",
+        "is",
+        "schedule-apointement-boss"
+      ]
+    ]
+  },
+  {
+    "id": "1596551996986",
+    "utterance": "Appointment with CEO",
+    "context": "splitable",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "splitable"
+      ],
+      [
+        "intent",
+        "is",
+        "schedule-apointement-boss"
+      ]
+    ]
+  },
+  {
+    "id": "1596552023362",
+    "utterance": "I want to schedule a meeting with your CTO",
+    "context": "splitable",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "splitable"
+      ],
+      [
+        "intent",
+        "is",
+        "schedule-apointement-boss"
+      ]
+    ]
+  },
+  {
+    "id": "1596552201247",
+    "utterance": "I have an appointment with Sly",
+    "context": "splitable",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "splitable"
+      ],
+      [
+        "intent",
+        "is",
+        "schedule-apointement-boss"
+      ]
+    ]
+  },
+  {
+    "id": "1596552295768",
+    "utterance": "Interview with the CFO for 2pm the 4 of june ",
+    "context": "splitable",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "splitable"
+      ],
+      [
+        "intent",
+        "is",
+        "schedule-apointement-boss"
+      ]
+    ]
+  },
+  {
+    "id": "1596552559076",
+    "utterance": "can I get the status of my flight",
+    "context": "switched",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "switched"
+      ],
+      [
+        "intent",
+        "is",
+        "status-flight"
+      ]
+    ]
+  },
+  {
+    "id": "1596552783064",
+    "utterance": "I would like to know my flight status",
+    "context": "switched",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "switched"
+      ],
+      [
+        "intent",
+        "is",
+        "status-flight"
+      ]
+    ]
+  },
+  {
+    "id": "1596552797108",
+    "utterance": "Can I check my plane ?",
+    "context": "switched",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "switched"
+      ],
+      [
+        "intent",
+        "is",
+        "status-flight"
+      ]
+    ]
+  },
+  {
+    "id": "1596552849121",
+    "utterance": "look up my trip",
+    "context": "switched",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "switched"
+      ],
+      [
+        "intent",
+        "is",
+        "status-flight"
+      ]
+    ]
+  },
+  {
+    "id": "1596552867300",
+    "utterance": "report status of arrival time",
+    "context": "switched",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "switched"
+      ],
+      [
+        "intent",
+        "is",
+        "status-flight"
+      ]
+    ]
+  },
+  {
+    "id": "1596552913427",
+    "utterance": "look up R-854",
+    "context": "switched",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "switched"
+      ],
+      [
+        "intent",
+        "is",
+        "status-flight"
+      ]
+    ]
+  },
+  {
+    "id": "1596552770378",
+    "utterance": "can I get the status of B-873",
+    "context": "switched",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "switched"
+      ],
+      [
+        "intent",
+        "is",
+        "status-flight"
+      ]
+    ]
+  },
+  {
+    "id": "1596553001005",
+    "utterance": "I would like to know  K8765 status",
+    "context": "switched",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "switched"
+      ],
+      [
+        "intent",
+        "is",
+        "status-flight"
+      ]
+    ]
+  },
+  {
+    "id": "1596552881933",
+    "utterance": "state AC458",
+    "context": "switched",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "switched"
+      ],
+      [
+        "intent",
+        "is",
+        "status-flight"
+      ]
+    ]
+  },
+  {
+    "id": "1596553966582",
+    "utterance": "RER status",
+    "context": "switched",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "switched"
+      ],
+      [
+        "intent",
+        "is",
+        "status-bank"
+      ]
+    ]
+  },
+  {
+    "id": "1596553980390",
+    "utterance": "get informations on CELI",
+    "context": "switched",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "switched"
+      ],
+      [
+        "intent",
+        "is",
+        "status-bank"
+      ]
+    ]
+  },
+  {
+    "id": "1596554002325",
+    "utterance": "is my PLS canceled ? ",
+    "context": "switched",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "switched"
+      ],
+      [
+        "intent",
+        "is",
+        "status-bank"
+      ]
+    ]
+  },
+  {
+    "id": "1596554019357",
+    "utterance": "when will my ROI take-off ? ",
+    "context": "switched",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "switched"
+      ],
+      [
+        "intent",
+        "is",
+        "status-bank"
+      ]
+    ]
+  },
+  {
+    "id": "1596554032580",
+    "utterance": "what is the status of my DR",
+    "context": "switched",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "switched"
+      ],
+      [
+        "intent",
+        "is",
+        "status-bank"
+      ]
+    ]
+  },
+  {
+    "id": "1596554046597",
+    "utterance": "report progress NI",
+    "context": "switched",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "switched"
+      ],
+      [
+        "intent",
+        "is",
+        "status-bank"
+      ]
+    ]
+  },
+  {
+    "id": "1596554058909",
+    "utterance": "can I have informations about my IRA",
+    "context": "switched",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "switched"
+      ],
+      [
+        "intent",
+        "is",
+        "status-bank"
+      ]
+    ]
+  },
+  {
+    "id": "1596554139606",
+    "utterance": "My nephew really loves planes",
+    "context": "switched",
+    "conditions": [
+      [
+        "context",
+        "is",
+        "switched"
+      ],
+      [
+        "intent",
+        "is",
+        "status-bank"
+      ]
+    ]
   }
 ]

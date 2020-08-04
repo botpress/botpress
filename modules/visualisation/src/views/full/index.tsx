@@ -139,7 +139,6 @@ const NewQnA = props => {
         <button onClick={similarityEmbeddings}>Similarity Embeddings</button>
         <button onClick={computeOutliers}>Compute Outliers</button>
         <button onClick={computeIntentsSimilarity}>Intents Kmeans Pairwise</button>
-        <h2> Scatter</h2>
         <Plot
           data={scatEmb}
           layout={{

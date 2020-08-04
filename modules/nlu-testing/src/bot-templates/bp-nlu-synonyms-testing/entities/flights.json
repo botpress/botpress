@@ -1,0 +1,18 @@
+{
+  "id": "flights",
+  "name": "flights",
+  "type": "pattern",
+  "occurrences": [],
+  "sensitive": false,
+  "fuzzy": 0.8,
+  "examples": [
+    "DY4652",
+    "D894",
+    "T-89465",
+    "B-873",
+    "K8765",
+    "R-854",
+    "AC458"
+  ],
+  "pattern": "\\w{1,2}-?\\d{3,5}"
+}

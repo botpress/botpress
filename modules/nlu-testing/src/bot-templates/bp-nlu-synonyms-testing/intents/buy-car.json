@@ -1,5 +1,5 @@
 {
-  "name": "buy_car",
+  "name": "buy-car",
   "utterances": {
     "en": [
       "I want to buy a car",
@@ -13,5 +13,7 @@
     ]
   },
   "slots": [],
-  "contexts": ["unbalanced"]
+  "contexts": [
+    "unbalanced"
+  ]
 }

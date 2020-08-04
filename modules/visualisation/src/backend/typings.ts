@@ -3,7 +3,7 @@ import * as sdk from 'botpress/sdk'
 import { BotpressPredictor } from '../models/botpress_predictor'
 import { BotpressEmbedder, PythonEmbedder } from '../models/embedder'
 
-export type BotState = {
+export interface BotState {
   embedder: BotpressEmbedder | PythonEmbedder
   axiosConfig: sdk.AxiosBotConfig
   predictor: BotpressPredictor
@@ -14,7 +14,7 @@ export type BotState = {
   language: string
 }
 
-export type PredRes = {
+export interface PredRes {
   utt: string
   acc: boolean
   conf: number
@@ -22,25 +22,25 @@ export type PredRes = {
   gt: string
 }
 
-export type VisuState = {
+export interface VisuState {
   [botId: string]: BotState
 }
 
-export type Data = {
+export interface Data {
   utt: string
   utt_emb: number[]
   label?: number
   intent: string
 }
 
-export type RawData = {
+export interface RawData {
   name: string
   contexts: string[]
   utterances: { [lang: string]: string[] }
   slots: any[]
 }
 
-export type PlotData = {
+export interface PlotData {
   x: number[]
   y: number[]
   z?: number[]
@@ -51,7 +51,12 @@ export type PlotData = {
   marker: { size: number }
 }
 
-export type Test = { id: string; utterance: string; context: string; conditions: [string, string, string][] }
+export interface Test {
+  id: string
+  utterance: string
+  context: string
+  conditions: [string, string, string][]
+}
 export const BadMessages = [
   'N/A',
   'Yes. I speak English and French.',

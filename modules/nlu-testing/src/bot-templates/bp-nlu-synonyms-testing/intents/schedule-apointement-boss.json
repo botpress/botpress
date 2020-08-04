@@ -1,16 +1,18 @@
 {
-  "name": "talk_to_boss",
+  "name": "schedule-apointement-boss",
   "utterances": {
     "en": [
-      "Can I speak to your bos ?",
+      "Can I speak to your boss ?",
       "I'm looking for the manager",
       "I will only speak with your boss",
-      "I have an apointment with Jean-Bernard",
-      "Need to meet the chief",
+      "I have an appointment with your chief",
+      "Need to meet the responsable",
       "Talk boss now",
       "We scheduled an interview with one of the executive"
     ]
   },
   "slots": [],
-  "contexts": ["splitable"]
+  "contexts": [
+    "splitable"
+  ]
 }
