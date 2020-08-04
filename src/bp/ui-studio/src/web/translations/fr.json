@@ -146,6 +146,7 @@
         "addAction": "Ajouter une nouvelle action",
         "addCondition": "Ajouter une condition",
         "cantSeeActions": "Vous ne voyez pas votre action?",
+        "chatbotExecutes": "L'assistant virtuel exécute",
         "chatbotSays": "L'assistant virtuel dit",
         "chatbotPromptsUser": "L'agent conversationnel questionne l'utilisateur",
         "confirmOverwriteParameters": "Voulez-vous remplacer les paramètres existants?",
@@ -206,6 +207,8 @@
         "unknownParameterType": "⚠️ Type de paramètre inconnu ({type}). Ce paramètre sera ignoré.",
         "valuePlaceholder": "Valeur",
         "waitForUserMessage": "Attendre le message de l'utilisateur",
+        "workflowFails": "Échec du flux de travail",
+        "workflowSucceeds": "Réussite du flux de travail",
         "youCanChangeActions": "Vous pouvez modifier la façon dont l'action est exécutée en lui fournissant des paramètres. Certains paramètres sont obligatoires, d'autres sont facultatifs."
       },
       "nodeType": {

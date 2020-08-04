@@ -99,7 +99,9 @@ const PromptWidget: FC<Props> = ({
         defaultLabel={lang.tr('studio.flow.node.chatbotPromptsUser')}
         name={name}
         error={error}
-      />
+      >
+        <StandardPortWidget name="in" node={node} className={style.in} />
+      </NodeHeader>
       <div className={style.contentsWrapper}>
         <div
           className={cx(style.contentWrapper, {
@@ -108,7 +110,6 @@ const PromptWidget: FC<Props> = ({
         >
           <span className={style.content}>{params?.question?.[currentLang]}</span>
         </div>
-        <StandardPortWidget name="in" node={node} className={style.in} />
         {next?.map((item, i) => {
           const outputPortName = `out${i}`
           return (
