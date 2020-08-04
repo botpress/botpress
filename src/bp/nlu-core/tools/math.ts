@@ -18,34 +18,6 @@ export function ndistance(a: number[], b: number[]): number {
   return Math.sqrt(total)
 }
 
-export function GetZPercent(z: number) {
-  if (z < -6.5) {
-    return 0.0
-  }
-
-  if (z > 6.5) {
-    return 1.0
-  }
-
-  let factK = 1
-  let sum = 0
-  let term = 1
-  let k = 0
-  const loopStop = Math.exp(-23)
-
-  while (Math.abs(term) > loopStop) {
-    term =
-      (((0.3989422804 * Math.pow(-1, k) * Math.pow(z, k)) / (2 * k + 1) / Math.pow(2, k)) * Math.pow(z, k + 1)) / factK
-    sum += term
-    k++
-    factK *= k
-  }
-
-  sum += 0.5
-
-  return sum
-}
-
 export function computeNorm(vec: number[]): number {
   return Math.sqrt(vec.reduce((acc, next) => acc + Math.pow(next, 2), 0))
 }
@@ -92,10 +64,6 @@ export function scalarDivide(vec: number[], divider: number): number[] {
   return scalarMultiply(vec, 1 / divider)
 }
 
-export function allInRange(vec: number[], lower: number, upper: number): boolean {
-  return vec.map(v => _.inRange(v, lower, upper)).every(_.identity)
-}
-
 export function zeroes(len: number): number[] {
   return Array(len).fill(0)
 }
@@ -109,13 +77,6 @@ export function zeroes(len: number): number[] {
  */
 export function computeQuantile(quantile: number, target: number, upperBound: number, lowerBound: number = 0): number {
   return Math.min(quantile, Math.max(Math.ceil(quantile * ((target - lowerBound) / (upperBound - lowerBound))), 1))
-}
-
-/**
- * @returns relative standard dev
- */
-export function relativeStd(vec: number[]): number {
-  return std(vec) / mean(vec)
 }
 
 export { log, std, mean }
