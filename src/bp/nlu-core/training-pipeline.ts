@@ -1,7 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { getOrCreateCache } from './cache-manager'
+import { getOrCreateCache } from '../core/services/nlu/cache-manager'
+
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
 import { getCtxFeatures } from './intents/context-featurizer'
 import { getIntentFeatures } from './intents/intent-featurizer'
