@@ -18,8 +18,7 @@ const passThroughNodeProps: string[] = [
   'type',
   'contents',
   'activeWorkflow',
-  'prompt',
-  'friendlyName'
+  'prompt'
 ]
 export const DIAGRAM_PADDING: number = 100
 

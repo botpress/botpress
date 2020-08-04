@@ -1378,7 +1378,6 @@ declare module 'botpress/sdk' {
     id?: string
     /** The name used by the dialog engine to link to other nodes */
     name: string
-    friendlyName?: string
     type?: FlowNodeType
     timeoutNode?: string
     flow?: string

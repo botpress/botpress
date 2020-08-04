@@ -9,7 +9,6 @@ import style from './style.scss'
 interface OutcomeProps {
   outcomes?: { condition: string; caption: string; node: string }[]
   nodeName: string
-  nodeLabel?: string
 }
 
 const OutcomeUsage: FC<OutcomeProps> = props => {
@@ -17,7 +16,7 @@ const OutcomeUsage: FC<OutcomeProps> = props => {
 
   return (
     <div className={style.header}>
-      <span className={style.fullSize}>{props.nodeLabel || props.nodeName}</span>
+      <span className={style.fullSize}>{props.nodeName}</span>
       <div>
         {isUsed && (
           <Tooltip content="This outcome is in use and cannot be deleted" position="top">

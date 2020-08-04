@@ -535,7 +535,7 @@ reducer = reduceReducers(
         const outcomeNodes = currentFlow.nodes.filter(x => ['success', 'failure'].includes(x.type))
         const outcomes = _.orderBy(outcomeNodes, 'type', 'desc').map(x => ({
           condition: `lastNode=${x.name}`,
-          caption: x.friendlyName || x.name,
+          caption: x.name,
           node: ''
         }))
 

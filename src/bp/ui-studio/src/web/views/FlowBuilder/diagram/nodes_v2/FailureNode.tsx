@@ -16,7 +16,7 @@ export class FailureWidget extends Component<{ node: FailureNodeModel; diagramEn
 
     return (
       <div className={classnames(style.baseNode, style.nodeFailure, { [style.highlightedNode]: node.isHighlighted })}>
-        <OutcomeUsage nodeName={node.name} nodeLabel={node.friendlyName} />
+        <OutcomeUsage nodeName={node.name} />
         <div className={style.ports}>
           <StandardPortWidget name="in" node={node} className={style.in} />
         </div>

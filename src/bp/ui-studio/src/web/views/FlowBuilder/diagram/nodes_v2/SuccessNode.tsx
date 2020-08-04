@@ -15,7 +15,7 @@ export class SuccessWidget extends Component<{ node: SuccessNodeModel; diagramEn
 
     return (
       <div className={classnames(style.baseNode, style.nodeSuccess, { [style.highlightedNode]: node.isHighlighted })}>
-        <OutcomeUsage nodeName={node.name} nodeLabel={node.friendlyName} />
+        <OutcomeUsage nodeName={node.name} />
         <div className={style.ports}>
           <StandardPortWidget name="in" node={node} className={style.in} />
         </div>
