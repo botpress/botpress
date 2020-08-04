@@ -313,7 +313,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     }
   }
 
-  getHealth(): Partial<sdk.NLUCore.NLUHealth> {
+  getHealth(): Partial<sdk.NLUCore.Health> {
     return { validProvidersCount: this._validProvidersCount, validLanguages: Object.keys(this.langs) }
   }
 

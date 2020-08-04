@@ -42,7 +42,7 @@ export interface LanguageProvider {
   vectorize(tokens: string[], lang: string): Promise<Float32Array[]>
   tokenize(utterances: string[], lang: string, vocab?: Token2Vec): Promise<string[][]>
   generateSimilarJunkWords(subsetVocab: string[], lang: string): Promise<string[]>
-  getHealth(): Partial<sdk.NLUCore.NLUHealth>
+  getHealth(): Partial<sdk.NLUCore.Health>
 }
 
 export interface LanguageSource {
@@ -118,7 +118,7 @@ export interface Tools {
   vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
   partOfSpeechUtterances(utterances: string[][], languageCode: string): string[][]
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
-  getHealth(): sdk.NLUCore.NLUHealth
+  getHealth(): sdk.NLUCore.Health
   getLanguages(): string[]
   getVersionInfo(): NLUVersionInfo
   duckling: SystemEntityExtractor

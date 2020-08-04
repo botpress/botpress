@@ -457,7 +457,7 @@ declare module 'botpress/sdk' {
   export namespace NLUCore {
     export class Engine {
       static initialize: (bp: any) => Promise<void>
-      static getHealth: () => NLUHealth
+      static getHealth: () => Health
       static getLanguages: () => string[]
       constructor(defaultLanguage: string, botId: string, logger: Logger)
       computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string
@@ -488,7 +488,7 @@ declare module 'botpress/sdk' {
       }
     }
 
-    export interface NLUHealth {
+    export interface Health {
       isEnabled: boolean
       validProvidersCount: number
       validLanguages: string[]
