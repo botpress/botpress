@@ -1,38 +1,5 @@
-import { AxiosInstance } from 'axios'
 import sdk from 'botpress/sdk'
 import LRUCache from 'lru-cache'
-
-export const BIO = {
-  INSIDE: 'I',
-  BEGINNING: 'B',
-  OUT: 'o'
-} as _.Dictionary<Tag>
-
-export type Tag = 'o' | 'B' | 'I'
-
-export interface Token2Vec {
-  [token: string]: number[]
-}
-
-export interface Gateway {
-  source: LanguageSource
-  client: AxiosInstance
-  errors: number
-  disabledUntil?: Date
-}
-
-export interface LangsGateway {
-  [lang: string]: Gateway[]
-}
-
-export interface LanguageProvider {
-  languages: string[]
-  langServerInfo: LangServerInfo
-  vectorize(tokens: string[], lang: string): Promise<Float32Array[]>
-  tokenize(utterances: string[], lang: string, vocab?: Token2Vec): Promise<string[][]>
-  generateSimilarJunkWords(subsetVocab: string[], lang: string): Promise<string[]>
-  getHealth(): Partial<NLUHealth>
-}
 
 export interface LanguageSource {
   /** The endpoint URL of the source */
@@ -41,28 +8,9 @@ export interface LanguageSource {
   authToken?: string
 }
 
-export interface NLUHealth {
-  isEnabled: boolean
-  validProvidersCount: number
-  validLanguages: string[]
-}
-
 export interface NluMlRecommendations {
   minUtterancesForML: number
   goodUtterancesForML: number
-}
-
-export interface NLUEngine {
-  loadModel: (m: any) => Promise<void>
-  train: (
-    intentDefs: sdk.NLU.IntentDefinition[],
-    entityDefs: sdk.NLU.EntityDefinition[],
-    languageCode: string,
-    reportTrainingProgress: ProgressReporter,
-    trainingSession?: TrainingSession,
-    options?: any
-  ) => Promise<any>
-  predict: (t: string, ctx: string[]) => Promise<sdk.IO.EventUnderstanding>
 }
 
 export interface EntityService {
@@ -79,7 +27,7 @@ export type NLUState = {
   nluByBot: _.Dictionary<BotState>
   broadcastLoadModel?: (botId: string, hash: string, language: string) => Promise<void>
   broadcastCancelTraining?: (botId: string, language: string) => Promise<void>
-  reportTrainingProgress: ProgressReporter
+  reportTrainingProgress: sdk.NLUCore.ProgressReporter
 }
 
 export interface NLUVersionInfo {
@@ -95,7 +43,7 @@ export interface LangServerInfo {
 
 export interface BotState {
   botId: string
-  engine: NLUEngine
+  engine: sdk.NLUCore.NLUEngine
   trainWatcher: sdk.ListenHandle
   trainOrLoad: (forceTrain: boolean) => Promise<void>
   trainSessions: _.Dictionary<TrainingSession>
@@ -103,23 +51,6 @@ export interface BotState {
   isTraining: () => Promise<boolean>
   entityService: EntityService
 }
-
-export type TFIDF = _.Dictionary<number>
-
-export type PatternEntity = Readonly<{
-  name: string
-  pattern: string
-  examples: string[]
-  matchCase: boolean
-  sensitive: boolean
-}>
-
-export type ListEntity = Readonly<{
-  name: string
-  synonyms: { [canonical: string]: string[] }
-  fuzzyTolerance: number
-  sensitive: boolean
-}>
 
 export type EntityCache = LRUCache<string, EntityExtractionResult[]>
 export type EntityCacheDump = LRUCache.Entry<string, EntityExtractionResult[]>[]
@@ -136,19 +67,6 @@ export interface ListEntityModel {
   cache?: EntityCache | EntityCacheDump
 }
 
-export interface ExtractedSlot {
-  confidence: number
-  name: string
-  source: string
-  value: any
-  entity?: EntityExtractionResult
-}
-
-export interface SlotExtractionResult {
-  slot: ExtractedSlot
-  start: number
-  end: number
-}
 export type EntityExtractor = 'system' | 'list' | 'pattern'
 export interface ExtractedEntity {
   confidence: number
@@ -172,20 +90,6 @@ export interface TrainingSession {
   lock?: sdk.RedisLock
 }
 
-export interface Tools {
-  tokenize_utterances(utterances: string[], languageCode: string, vocab?: Token2Vec): Promise<string[][]>
-  vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
-  partOfSpeechUtterances(utterances: string[][], languageCode: string): string[][]
-  generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
-  getHealth(): NLUHealth
-  getLanguages(): string[]
-  getVersionInfo(): NLUVersionInfo
-  duckling: SystemEntityExtractor
-  mlToolkit: typeof sdk.MLToolkit
-}
-
-export type ProgressReporter = (botId: string, message: string, trainSession: TrainingSession) => void
-
 export interface NLUProgressEvent {
   type: 'nlu'
   working: boolean
@@ -193,22 +97,3 @@ export interface NLUProgressEvent {
   message: string
   trainSession: TrainingSession
 }
-
-export interface SystemEntityExtractor {
-  extractMultiple(input: string[], lang: string, useCache?: Boolean): Promise<EntityExtractionResult[][]>
-  extract(input: string, lang: string): Promise<EntityExtractionResult[]>
-}
-
-export type Intent<T> = Readonly<{
-  name: string
-  contexts: string[]
-  slot_definitions: SlotDefinition[]
-  utterances: T[]
-  vocab?: _.Dictionary<boolean>
-  slot_entities?: string[]
-}>
-
-type SlotDefinition = Readonly<{
-  name: string
-  entities: string[]
-}>

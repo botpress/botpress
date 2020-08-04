@@ -41,39 +41,6 @@ export interface LanguageSource {
   authToken?: string
 }
 
-export interface NluMlRecommendations {
-  minUtterancesForML: number
-  goodUtterancesForML: number
-}
-
-export interface EntityService {
-  getSystemEntities(): sdk.NLU.EntityDefinition[]
-  getCustomEntities(): Promise<sdk.NLU.EntityDefinition[]>
-  getEntities(): Promise<sdk.NLU.EntityDefinition[]>
-  getEntity(x: string): Promise<sdk.NLU.EntityDefinition>
-  deleteEntity(x: string): Promise<void>
-  saveEntity(x: sdk.NLU.EntityDefinition): Promise<void>
-  updateEntity(x: string, y: sdk.NLU.EntityDefinition): Promise<void>
-}
-
-export type NLUState = {
-  nluByBot: _.Dictionary<BotState>
-  broadcastLoadModel?: (botId: string, hash: string, language: string) => Promise<void>
-  broadcastCancelTraining?: (botId: string, language: string) => Promise<void>
-  reportTrainingProgress: sdk.NLUCore.ProgressReporter
-} & sdk.NLUCore.NLUVersionInfo
-
-export interface BotState {
-  botId: string
-  engine: sdk.NLUCore.NLUEngine
-  trainWatcher: sdk.ListenHandle
-  trainOrLoad: (forceTrain: boolean) => Promise<void>
-  trainSessions: _.Dictionary<sdk.NLUCore.TrainingSession>
-  cancelTraining: () => Promise<void>
-  isTraining: () => Promise<boolean>
-  entityService: EntityService
-}
-
 export type TFIDF = _.Dictionary<number>
 
 export type PatternEntity = Readonly<{
@@ -145,14 +112,6 @@ export interface Tools {
   getVersionInfo(): sdk.NLUCore.NLUVersionInfo
   duckling: SystemEntityExtractor
   mlToolkit: typeof sdk.MLToolkit
-}
-
-export interface NLUProgressEvent {
-  type: 'nlu'
-  working: boolean
-  botId: string
-  message: string
-  trainSession: sdk.NLUCore.TrainingSession
 }
 
 export interface SystemEntityExtractor {
