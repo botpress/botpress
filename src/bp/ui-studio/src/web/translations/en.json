@@ -101,6 +101,8 @@
       "cantDeleteFailure": "You can't delete the failure node.",
       "cantDeleteStart": "You can't delete the start node.",
       "cantDeleteSuccess": "You can't delete the success node.",
+      "cantDeleteOutcome": "Cannot delete an outcome which is currently used in the parent flow",
+      "mustHaveOutcomes": "Workflows must have at least one success and one failure outcome",
       "chips": "Chips",
       "condition": {
         "addCondition": "Add condition",

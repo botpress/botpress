@@ -660,12 +660,12 @@ class Diagram extends Component<Props> {
       nodeName === undefined ? false : !!this.props.outcomeUsage?.find(x => x.condition === `lastNode=${nodeName}`)
 
     if (isUsed) {
-      toastReason && toast.failure(`Cannot delete an outcome which is currently used in the parent flow`)
+      toastReason && toast.failure(lang.tr('studio.flow.cantDeleteOutcome'))
       return false
     }
 
     if ((type === 'success' && successCount === 1) || (type === 'failure' && failureCount === 1)) {
-      toastReason && toast.failure(`Workflows must have at least one success and one failure outcome`)
+      toastReason && toast.failure(lang.tr('studio.flow.mustHaveOutcomes'))
       return false
     }
 

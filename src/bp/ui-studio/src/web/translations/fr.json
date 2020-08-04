@@ -100,6 +100,8 @@
       "cantDeleteFailure": "Vous ne pouvez pas supprimer le nœud d'échec.",
       "cantDeleteStart": "Vous ne pouvez pas supprimer le point d'entrée.",
       "cantDeleteSuccess": "Vous ne pouvez pas supprimer le nœud de réussite.",
+      "cantDeleteOutcome": "Impossible de supprimer un résultat actuellement utilisé dans le flux parent",
+      "mustHaveOutcomes": "Les flux de travail doivent avoir au moins un succès et un échec",
       "chips": "Chips",
       "condition": {
         "addCondition": "Ajouter condition",
