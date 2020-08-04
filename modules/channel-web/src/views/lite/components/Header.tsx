@@ -2,6 +2,7 @@ import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
 
+import ToolTip from '../../../../../../src/bp/ui-shared-lite/ToolTip'
 import Close from '../icons/Close'
 import Download from '../icons/Download'
 import Information from '../icons/Information'
@@ -74,69 +75,77 @@ class Header extends React.Component<HeaderProps> {
 
   renderResetButton() {
     return (
-      <button
-        type="button"
-        tabIndex={-1}
-        id="btn-reset"
-        ref={el => (this.btnEls[0] = el)}
-        className="bpw-header-icon bpw-header-icon-reset"
-        onClick={this.props.resetSession}
-        onKeyDown={this.handleKeyDown.bind(this, this.props.resetSession)}
-        onBlur={this.onBlur}
-      >
-        <Reload />
-      </button>
+      <ToolTip content="Reset Conversation">
+        <button
+          type="button"
+          tabIndex={-1}
+          id="btn-reset"
+          ref={el => (this.btnEls[0] = el)}
+          className="bpw-header-icon bpw-header-icon-reset"
+          onClick={this.props.resetSession}
+          onKeyDown={this.handleKeyDown.bind(this, this.props.resetSession)}
+          onBlur={this.onBlur}
+        >
+          <Reload />
+        </button>
+      </ToolTip>
     )
   }
 
   renderDownloadButton() {
     return (
-      <button
-        type="button"
-        tabIndex={-1}
-        id="btn-download"
-        ref={el => (this.btnEls[1] = el)}
-        className="bpw-header-icon bpw-header-icon-download"
-        onClick={this.props.downloadConversation}
-        onKeyDown={this.handleKeyDown.bind(this, this.props.downloadConversation)}
-        onBlur={this.onBlur}
-      >
-        <Download />
-      </button>
+      <ToolTip content="Download Conversation">
+        <button
+          type="button"
+          tabIndex={-1}
+          id="btn-download"
+          ref={el => (this.btnEls[1] = el)}
+          className="bpw-header-icon bpw-header-icon-download"
+          onClick={this.props.downloadConversation}
+          onKeyDown={this.handleKeyDown.bind(this, this.props.downloadConversation)}
+          onBlur={this.onBlur}
+        >
+          <Download />
+        </button>
+      </ToolTip>
     )
   }
 
   renderConvoButton() {
     return (
-      <button
-        type="button"
-        tabIndex={-1}
-        id="btn-conversations"
-        ref={el => (this.btnEls[2] = el)}
-        className="bpw-header-icon bpw-header-icon-convo"
-        onClick={this.props.toggleConversations}
-        onKeyDown={this.handleKeyDown.bind(this, this.props.toggleConversations)}
-        onBlur={this.onBlur}
-      >
-        <List />
-      </button>
+      <ToolTip content="Conversations">
+        <button
+          type="button"
+          tabIndex={-1}
+          id="btn-conversations"
+          ref={el => (this.btnEls[2] = el)}
+          className="bpw-header-icon bpw-header-icon-convo"
+          onClick={this.props.toggleConversations}
+          onKeyDown={this.handleKeyDown.bind(this, this.props.toggleConversations)}
+          onBlur={this.onBlur}
+        >
+          <List />
+        </button>
+      </ToolTip>
     )
   }
 
   renderBotInfoButton() {
     return (
-      <button
-        type="button"
-        tabIndex={-1}
-        id="btn-botinfo"
-        ref={el => (this.btnEls[3] = el)}
-        className="bpw-header-icon bpw-header-icon-botinfo"
-        onClick={this.props.toggleBotInfo}
-        onKeyDown={this.handleKeyDown.bind(this, this.props.toggleBotInfo)}
-        onBlur={this.onBlur}
-      >
-        <Information />
-      </button>
+      <ToolTip content="Bot Info">
+        <button
+          type="button"
+          tabIndex={-1}
+          id="btn-botinfo"
+          ref={el => (this.btnEls[3] = el)}
+          className="bpw-header-icon bpw-header-icon-botinfo"
+          onClick={this.props.toggleBotInfo}
+          onKeyDown={this.handleKeyDown.bind(this, this.props.toggleBotInfo)}
+          onBlur={this.onBlur}
+        >
+          <Information />
+        </button>
+      </ToolTip>
     )
   }
 
@@ -203,7 +212,10 @@ class Header extends React.Component<HeaderProps> {
       return (
         <div className="bpw-emulator-header">
           <span className="bpw-emulator-header-tab">Emulator</span>
-          {this.props.showResetButton && this.renderResetButton()}
+          <div>
+            {this.props.showResetButton && this.renderResetButton()}
+            {this.props.showBotInfoButton && this.renderBotInfoButton()}
+          </div>
         </div>
       )
     }

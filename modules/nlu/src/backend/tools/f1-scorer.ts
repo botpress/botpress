@@ -6,15 +6,23 @@ export interface Scorer<T> {
   // TODO add evaluate with X[] and Y[]?
 }
 
-export type F1 = { precision: number; recall: number; f1: number }
-type classRecords = { tp: number; fp: number; fn: number }
+export interface F1 {
+  precision: number
+  recall: number
+  f1: number
+}
+interface ClassRecords {
+  tp: number
+  fp: number
+  fn: number
+}
 type Comparator = (actual: any, expected: any) => boolean
 
 const defaultCompare: Comparator = (a, b) => a === b
 
 // TODO add loads of test cases for this if this is to stay in the product
 export default class MultiClassF1Scorer implements Scorer<F1> {
-  private recordsMap: Dic<classRecords>
+  private recordsMap: Dic<ClassRecords>
 
   constructor(private compare: Comparator = defaultCompare) {
     this.recordsMap = {}

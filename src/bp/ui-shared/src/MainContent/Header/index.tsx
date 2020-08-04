@@ -2,7 +2,7 @@ import { Alignment, AnchorButton, Navbar, NavbarGroup, Position, Tab, Tabs, Tool
 import cx from 'classnames'
 import React, { FC, Fragment, SetStateAction, useState } from 'react'
 
-import MoreOptions from '../../MoreOptions'
+import MoreOptions from '../../../../ui-shared-lite/MoreOptions'
 
 import style from './style.scss'
 import { HeaderProps } from './typings'
