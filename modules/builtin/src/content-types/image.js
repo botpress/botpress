@@ -24,82 +24,9 @@ function render(data) {
   ]
 }
 
-function renderMessenger(data) {
-  const events = []
-
-  if (data.typing) {
-    events.push({
-      type: 'typing',
-      value: data.typing
-    })
-  }
-
-  return [
-    ...events,
-    {
-      attachment: {
-        type: 'image',
-        payload: {
-          is_reusable: true,
-          url: `${data.BOT_URL}${data.image}`
-        }
-      }
-    }
-  ]
-}
-
-function renderTelegram(data) {
-  const events = []
-
-  if (data.typing) {
-    events.push({
-      type: 'typing',
-      value: data.typing
-    })
-  }
-
-  return [
-    ...events,
-    {
-      type: 'image',
-      url: `${data.BOT_URL}${data.image}`
-    }
-  ]
-}
-
-function renderTeams(data) {
-  const events = []
-
-  if (data.typing) {
-    events.push({
-      type: 'typing'
-    })
-  }
-
-  return [
-    ...events,
-    {
-      type: 'message',
-      attachments: [
-        {
-          name: data.title,
-          contentType: 'image/png',
-          contentUrl: `${data.BOT_URL}${data.image}`
-        }
-      ]
-    }
-  ]
-}
-
 function renderElement(data, channel) {
-  if (channel === 'web' || channel === 'slack' || channel === 'twilio') {
+  if (['web', 'slack', 'teams', 'messenger', 'telegram', 'twilio'].includes(channel)) {
     return base.renderer(data, 'image')
-  } else if (channel === 'messenger') {
-    return renderMessenger(data)
-  } else if (channel === 'telegram') {
-    return renderTelegram(data)
-  } else if (channel === 'teams') {
-    return renderTeams(data)
   } else {
     return render(data)
   }

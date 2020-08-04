@@ -1,10 +1,13 @@
 import axios, { AxiosInstance } from 'axios'
 import * as sdk from 'botpress/sdk'
+import { getPayloadOptions, isValidOutgoingType, parseTyping } from 'common/channels'
 import crypto from 'crypto'
 import { json as expressJson, Router } from 'express'
 import _ from 'lodash'
 
 import { Config } from '../config'
+
+import { convertPayload } from './renderer'
 
 const debug = DEBUG('channel-messenger')
 const debugMessages = debug.sub('messages')
@@ -12,10 +15,13 @@ const debugHttp = debug.sub('http')
 const debugWebhook = debugHttp.sub('webhook')
 const debugHttpOut = debugHttp.sub('out')
 
-const outgoingTypes = ['text', 'typing', 'login_prompt', 'carousel']
 type MessengerAction = 'typing_on' | 'typing_off' | 'mark_seen'
 
-type MountedBot = { pageId: string; botId: string; client: MessengerClient }
+interface MountedBot {
+  pageId: string
+  botId: string
+  client: MessengerClient
+}
 
 export class MessengerService {
   private readonly http = axios.create({ baseURL: 'https://graph.facebook.com/v3.2/me' })
@@ -33,7 +39,7 @@ export class MessengerService {
     }
 
     if (!config.appSecret?.length || config.appSecret === 'app_secret') {
-      throw new Error(`You need to set a valid value for "appSecret" in data/global/config/channel-messenger.json`)
+      throw new Error('You need to set a valid value for "appSecret" in data/global/config/channel-messenger.json')
     }
 
     this.appSecret = config.appSecret
@@ -88,7 +94,7 @@ export class MessengerService {
 
       const pageId = data.id
       const client = new MessengerClient(botId, this.bp, this.http)
-      this.mountedBots.push({ botId: botId, client, pageId })
+      this.mountedBots.push({ botId, client, pageId })
 
       await client.setupGreeting()
       await client.setupGetStarted()
@@ -171,7 +177,7 @@ export class MessengerService {
         await bot.client.sendAction(senderId, 'mark_seen')
 
         if (webhookEvent.message) {
-          await this._sendEvent(bot.botId, senderId, webhookEvent.message, { type: 'message' })
+          await this._sendEvent(bot.botId, senderId, webhookEvent.message, { type: 'text' })
         } else if (webhookEvent.postback) {
           await this._sendEvent(bot.botId, senderId, { text: webhookEvent.postback.payload }, { type: 'callback' })
         }
@@ -213,24 +219,33 @@ export class MessengerService {
       return next()
     }
 
-    const messageType = event.type === 'default' ? 'text' : event.type
     const messenger = this.getMessengerClientByBotId(event.botId)
 
-    if (!_.includes(outgoingTypes, messageType)) {
-      return next(new Error('Unsupported event type: ' + event.type))
+    if (!isValidOutgoingType(event.type)) {
+      return next(new Error(`Unsupported event type: ${event.type}`))
     }
 
-    if (messageType === 'typing') {
-      const typing = parseTyping(event.payload.value)
+    let payload: any = convertPayload(event.payload)
+    const { __typing } = event.payload.metadata as sdk.Content.Metadata
+
+    if (__typing) {
       await messenger.sendAction(event.target, 'typing_on')
-      await Promise.delay(typing)
-      await messenger.sendAction(event.target, 'typing_off')
-    } else if (messageType === 'text' || messageType === 'carousel') {
-      await messenger.sendTextMessage(event.target, event.payload)
-    } else {
-      // TODO We don't support sending files, location requests (and probably more) yet
-      throw new Error(`Message type "${messageType}" not implemented yet`)
+      await Promise.delay(parseTyping(__typing))
     }
+
+    const options = getPayloadOptions(event.payload)
+    if (options) {
+      payload = {
+        ...payload,
+        quick_replies: options.map(c => ({
+          content_type: 'text',
+          title: c.label,
+          payload: c.value.toUpperCase()
+        }))
+      }
+    }
+
+    await messenger.sendTextMessage(event.target, payload)
 
     next(undefined, false)
   }
@@ -335,12 +350,4 @@ export class MessengerClient {
     debugHttpOut(endpoint, body)
     await this.http.post(endpoint, body, { params: { access_token: config.accessToken } })
   }
-}
-
-function parseTyping(typing) {
-  if (isNaN(typing)) {
-    return 1000
-  }
-
-  return Math.max(typing, 500)
 }

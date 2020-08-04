@@ -3,8 +3,8 @@ import _ from 'lodash'
 
 export default {
   id: 'extracted_entity',
-  label: `module.nlu.conditions.variableExtractedFromMessage`,
-  description: `Entity {type} {comparison} {value}`,
+  label: 'module.nlu.conditions.variableExtractedFromMessage',
+  description: 'Entity {type} {comparison} {value}',
   fields: [
     {
       key: 'type',

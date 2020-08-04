@@ -1,12 +1,10 @@
-import { Colors, H5, HTMLTable } from '@blueprintjs/core'
+import { HTMLTable } from '@blueprintjs/core'
 import * as sdk from 'botpress/sdk'
-import React, { SFC } from 'react'
-
-import style from '../style.scss'
+import React, { Fragment, SFC } from 'react'
 
 export const Entities: SFC<{ entities: sdk.NLU.Entity[] }> = props => (
-  <div className={style.subSection}>
-    <HTMLTable condensed className={style.summaryTable}>
+  <Fragment>
+    <HTMLTable condensed>
       <thead>
         <tr>
           <th>Type</th>
@@ -29,5 +27,5 @@ export const Entities: SFC<{ entities: sdk.NLU.Entity[] }> = props => (
         ))}
       </tbody>
     </HTMLTable>
-  </div>
+  </Fragment>
 )

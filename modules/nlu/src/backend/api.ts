@@ -5,9 +5,9 @@ import _ from 'lodash'
 import { createApi } from '../api'
 
 import { isOn as isAutoTrainOn, set as setAutoTrain } from './autoTrain'
+import Engine from './engine'
 import recommendations from './intents/recommendations'
 import legacyElectionPipeline from './legacy-election'
-import { initializeLanguageProvider } from './module-lifecycle/on-server-started'
 import { crossValidate } from './tools/cross-validation'
 import { getTrainingSession } from './train-session-service'
 import { NLUState } from './typings'
@@ -24,10 +24,8 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
   router.get('/health', async (req, res) => {
     // When the health is bad, we'll refresh the status in case it changed (eg: user added languages)
-    if (!state.health?.isEnabled) {
-      await initializeLanguageProvider(bp, state)
-    }
-    res.send(state.health)
+    const health = Engine.tools.getHealth()
+    res.send(health)
   })
 
   router.post('/cross-validation/:lang', async (req, res) => {

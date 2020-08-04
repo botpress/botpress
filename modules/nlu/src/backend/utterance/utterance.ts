@@ -11,20 +11,25 @@ import { ExtractedEntity, ExtractedSlot, TFIDF, Token2Vec, Tools } from '../typi
 
 import { parseUtterance } from './utterance-parser'
 
-export type UtteranceToStringOptions = {
+export interface UtteranceToStringOptions {
   lowerCase?: boolean
   onlyWords?: boolean
   slots?: 'keep-value' | 'keep-name' | 'ignore'
   entities?: 'keep-default' | 'keep-value' | 'keep-name' | 'ignore'
 }
 
-export type TokenToStringOptions = {
+export interface TokenToStringOptions {
   lowerCase?: boolean
   trim?: boolean
   realSpaces?: boolean
 }
 
-export type UtteranceRange = { startTokenIdx: number; endTokenIdx: number; startPos: number; endPos: number }
+export interface UtteranceRange {
+  startTokenIdx: number
+  endTokenIdx: number
+  startPos: number
+  endPos: number
+}
 export type UtteranceEntity = Readonly<UtteranceRange & ExtractedEntity>
 export type UtteranceSlot = Readonly<UtteranceRange & ExtractedSlot>
 export type UtteranceToken = Readonly<{
@@ -57,7 +62,7 @@ export default class Utterance {
   constructor(tokens: string[], vectors: number[][], posTags: POSClass[], public languageCode: Readonly<string>) {
     const allSameLength = [tokens, vectors, posTags].every(arr => arr.length === tokens.length)
     if (!allSameLength) {
-      throw Error(`Tokens, vectors and postTags dimensions must match`)
+      throw Error('Tokens, vectors and postTags dimensions must match')
     }
 
     const arr = []
@@ -70,7 +75,7 @@ export default class Utterance {
           isBOS: i === 0,
           isEOS: i === tokens.length - 1,
           isWord: isWord(value),
-          offset: offset,
+          offset,
           isSpace: isSpace(value),
           get slots(): ReadonlyArray<UtteranceRange & ExtractedSlot> {
             return that.slots.filter(x => x.startTokenIdx <= i && x.endTokenIdx >= i)
@@ -85,7 +90,7 @@ export default class Utterance {
             const wordVec = vectors[i]
             return (that._kmeans && that._kmeans.nearest([wordVec])[0]) || 1
           },
-          value: value,
+          value,
           vector: vectors[i],
           POS: posTags[i],
           toString: (opts: TokenToStringOptions = {}) => {
