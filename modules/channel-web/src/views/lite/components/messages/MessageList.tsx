@@ -109,6 +109,7 @@ class MessageList extends React.Component<MessageListProps, State> {
 
   renderAvatar(name, url) {
     const size = isIE ? 40 : 16
+
     return <Avatar name={name} avatarUrl={url} height={size} width={size} isEmulator={this.props.isEmulator} />
   }
 

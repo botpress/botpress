@@ -1,5 +1,4 @@
 import * as sdk from 'botpress/sdk'
-import crypto from 'crypto'
 import fse, { WriteStream } from 'fs-extra'
 import _ from 'lodash'
 import path from 'path'
@@ -33,23 +32,6 @@ function makeFileName(hash: string, lang: string): string {
   return `${hash}.${lang}.model`
 }
 
-// we might want to make this language specific
-export function computeModelHash(
-  intents: sdk.NLU.IntentDefinition[],
-  entities: sdk.NLU.EntityDefinition[],
-  version: NLUVersionInfo,
-  lang: string
-): string {
-  const { nluVersion, langServerInfo } = version
-
-  const singleLangIntents = intents.map(i => ({ ...i, utterances: i.utterances[lang] }))
-
-  return crypto
-    .createHash('md5')
-    .update(JSON.stringify({ singleLangIntents, entities, nluVersion, langServerInfo }))
-    .digest('hex')
-}
-
 function serializeModel(ref: Model): string {
   const model = _.cloneDeep(ref)
   for (const entity of model.data.output.list_entities) {
@@ -73,7 +55,7 @@ export async function pruneModels(ghost: sdk.ScopedGhostService, languageCode: s
 
 export async function listModelsForLang(ghost: sdk.ScopedGhostService, languageCode: string): Promise<string[]> {
   const endingPattern = makeFileName('*', languageCode)
-  return await ghost.directoryListing(MODELS_DIR, endingPattern, undefined, undefined, {
+  return ghost.directoryListing(MODELS_DIR, endingPattern, undefined, undefined, {
     sortOrder: { column: 'modifiedOn', desc: true }
   })
 }

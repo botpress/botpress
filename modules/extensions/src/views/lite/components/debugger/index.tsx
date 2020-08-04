@@ -11,9 +11,6 @@ import 'ui-shared/dist/theme.css'
 import Settings from './settings'
 import style from './style.scss'
 import { loadSettings } from './utils'
-import { Error } from './views/Error'
-import { Inspector } from './views/Inspector'
-import { NDU } from './views/NDU'
 import Summary from './views/Summary'
 import EventNotFound from './EventNotFound'
 import FetchingEvent from './FetchingEvent'
@@ -23,8 +20,8 @@ import Unauthorized from './Unauthorized'
 
 export const updater = { callback: undefined }
 
-const WEBCHAT_WIDTH = 400
-const DEV_TOOLS_WIDTH = 450
+const WEBCHAT_WIDTH = 240
+const DEV_TOOLS_WIDTH = 240
 const RETRY_PERIOD = 500 // Delay (ms) between each call to the backend to fetch a desired event
 const RETRY_SECURITY_FACTOR = 3
 const DEBOUNCE_DELAY = 100
@@ -63,12 +60,6 @@ export class Debugger extends React.Component<Props, State> {
 
     this.props.store.view.setLayoutWidth(WEBCHAT_WIDTH)
     this.props.store.view.setContainerWidth(WEBCHAT_WIDTH)
-    this.props.store.view.addHeaderButton({
-      id: 'toggleDev',
-      label: 'Show Debugger',
-      icon: <MdBugReport size={18} />,
-      onClick: this.toggleDebugger
-    })
 
     this.props.store.view.addCustomAction({
       id: 'actionDebug',
@@ -209,27 +200,9 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   renderEvent() {
-    const eventError = _.get(this.state, 'event.state.__error')
-    const ndu = _.get(this.state, 'event.ndu')
-
     return (
       <div className={style.content}>
-        <Tabs id="tabs" onChange={this.handleTabChange} selectedTabId={this.state.selectedTabId}>
-          <Tab id="basic" title="Summary" panel={<Summary event={this.state.event} />} />
-          {ndu && <Tab id="ndu" title="NDU" panel={<NDU ndu={ndu} />} />}
-          <Tab id="advanced" title="Raw JSON" panel={<Inspector data={this.state.event} />} />
-          {eventError && (
-            <Tab
-              id="errors"
-              title={
-                <span>
-                  <Icon icon="error" color="red" /> Error
-                </span>
-              }
-              panel={<Error error={eventError} />}
-            />
-          )}
-        </Tabs>
+        <Summary event={this.state.event} />
       </div>
     )
   }

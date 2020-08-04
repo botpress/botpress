@@ -1,4 +1,3 @@
-import { Colors, H5 } from '@blueprintjs/core'
 import React from 'react'
 
 import style from '../style.scss'
@@ -11,8 +10,8 @@ export const Intents = props => {
   }
 
   return (
-    <div className={style.subSection}>
-      <H5 color={Colors.DARK_GRAY5}>Intents</H5>
+    <div className={style.section}>
+      <h2 className={style.sectionTitle}>Intents</h2>
       {intents.length > 1 && (
         <ul>
           {intents.map(i => {

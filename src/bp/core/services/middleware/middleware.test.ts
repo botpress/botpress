@@ -72,8 +72,8 @@ describe('Middleware', () => {
 
     expect(mock1).toHaveBeenCalled()
     expect(mock2).toHaveBeenCalled()
-    expect(event.addStep).toHaveBeenNthCalledWith(1, 'mw:fn1:skipped')
-    expect(event.addStep).toHaveBeenNthCalledWith(2, 'mw:mock2:timedOut')
+    expect(event.processing).toContainKey('mw:fn1:skipped')
+    expect(event.processing).toContainKey('mw:mock2:timedOut')
   })
 
   it('should pass event to middleware', async () => {

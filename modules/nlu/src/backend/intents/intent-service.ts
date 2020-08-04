@@ -116,9 +116,8 @@ export async function updateContextsFromTopics(
   intentNames?: string[]
 ): Promise<void> {
   const flowsPaths = await ghost.directoryListing('flows', '*.flow.json')
-  const flows: sdk.Flow[] = await Promise.map(
-    flowsPaths,
-    async (flowPath: string) => await ghost.readFileAsObject<FlowView>('flows', flowPath)
+  const flows: sdk.Flow[] = await Promise.map(flowsPaths, async (flowPath: string) =>
+    ghost.readFileAsObject<FlowView>('flows', flowPath)
   )
 
   const intents: { [intentName: string]: string[] } = {}
