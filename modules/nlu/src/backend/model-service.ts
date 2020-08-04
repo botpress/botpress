@@ -15,7 +15,7 @@ function makeFileName(hash: string, lang: string): string {
   return `${hash}.${lang}.model`
 }
 
-function serializeModel(ref: any): string {
+function serializeModel(ref: sdk.NLUCore.Model): string {
   const model = _.cloneDeep(ref)
   for (const entity of model.data.output.list_entities) {
     entity.cache = (<EntityCache>entity.cache)?.dump() ?? []
@@ -43,7 +43,7 @@ export async function listModelsForLang(ghost: sdk.ScopedGhostService, languageC
   })
 }
 
-export async function getModel(ghost: sdk.ScopedGhostService, hash: string, lang: string): Promise<any> {
+export async function getModel(ghost: sdk.ScopedGhostService, hash: string, lang: string): Promise<sdk.NLUCore.Model> {
   const fname = makeFileName(hash, lang)
   if (!(await ghost.fileExists(MODELS_DIR, fname))) {
     return
@@ -68,7 +68,7 @@ export async function getModel(ghost: sdk.ScopedGhostService, hash: string, lang
   }
 }
 
-export async function getLatestModel(ghost: sdk.ScopedGhostService, lang: string): Promise<any> {
+export async function getLatestModel(ghost: sdk.ScopedGhostService, lang: string): Promise<sdk.NLUCore.Model> {
   const availableModels = await listModelsForLang(ghost, lang)
   if (availableModels.length === 0) {
     return
@@ -76,7 +76,11 @@ export async function getLatestModel(ghost: sdk.ScopedGhostService, lang: string
   return getModel(ghost, availableModels[0].split('.')[0], lang)
 }
 
-export async function saveModel(ghost: sdk.ScopedGhostService, model: any, hash: string): Promise<void | void[]> {
+export async function saveModel(
+  ghost: sdk.ScopedGhostService,
+  model: sdk.NLUCore.Model,
+  hash: string
+): Promise<void | void[]> {
   const serialized = serializeModel(model)
   const modelName = makeFileName(hash, model.languageCode)
   const tmpDir = tmp.dirSync({ unsafeCleanup: true })

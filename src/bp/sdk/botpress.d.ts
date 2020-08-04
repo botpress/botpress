@@ -455,23 +455,38 @@ declare module 'botpress/sdk' {
   }
 
   export namespace NLUCore {
-    export class NLUEngine {
+    export class Engine {
       static initialize: (bp: any) => Promise<void>
       static getHealth: () => NLUHealth
       static getLanguages: () => string[]
       static getVersionInfo: () => NLUVersionInfo
       constructor(defaultLanguage: string, botId: string, logger: Logger)
       computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string
-      loadModel: (m: any) => Promise<void>
+      loadModel: (m: Model) => Promise<void>
       train: (
         intentDefs: NLU.IntentDefinition[],
         entityDefs: NLU.EntityDefinition[],
         languageCode: string,
         reportTrainingProgress?: ProgressReporter,
         trainingSession?: TrainingSession,
-        options?: any
-      ) => Promise<any>
+        options?: TrainingOptions
+      ) => Promise<Model | undefined>
       predict: (t: string, ctx: string[]) => Promise<IO.EventUnderstanding>
+    }
+
+    export interface TrainingOptions {
+      forceTrain: boolean
+    }
+
+    export interface Model {
+      hash: string
+      languageCode: string
+      startedAt: Date
+      finishedAt: Date
+      data: {
+        input: any
+        output: any
+      }
     }
 
     export interface NLUVersionInfo {

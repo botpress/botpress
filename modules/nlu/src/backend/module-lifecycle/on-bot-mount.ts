@@ -21,17 +21,17 @@ export function getOnBotMount(state: NLUState) {
     const ghost = bp.ghost.forBot(botId)
     const entityService = new EntityService(ghost, botId)
 
-    const languages = _.intersection(bot.languages, bp.NLUCore.NLUEngine.getLanguages())
+    const languages = _.intersection(bot.languages, bp.NLUCore.Engine.getLanguages())
     if (bot.languages.length !== languages.length) {
       bp.logger.warn(missingLangMsg(botId), { notSupported: _.difference(bot.languages, languages) })
     }
 
-    const version = bp.NLUCore.NLUEngine.getVersionInfo()
+    const version = bp.NLUCore.Engine.getVersionInfo()
     if (!version.nluVersion.length || !version.langServerInfo.version.length) {
       bp.logger.warn('Either the nlu version or the lang server version is not set correctly.')
     }
 
-    const engine = new bp.NLUCore.NLUEngine(bot.defaultLanguage, bot.id, bp.logger)
+    const engine = new bp.NLUCore.Engine(bot.defaultLanguage, bot.id, bp.logger)
     const trainOrLoad = _.debounce(
       async (forceTrain: boolean = false) => {
         // bot got deleted

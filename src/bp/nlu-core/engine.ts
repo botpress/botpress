@@ -13,26 +13,11 @@ import { EntityCacheDump, Intent, ListEntity, ListEntityModel, PatternEntity, To
 
 const trainDebug = DEBUG('nlu').sub('training')
 
-export interface TrainingOptions {
-  forceTrain: boolean
-}
-
-export interface Model {
-  hash: string
-  languageCode: string
-  startedAt: Date
-  finishedAt: Date
-  data: {
-    input: TrainInput
-    output: TrainOutput
-  }
-}
-
-export default class Engine implements sdk.NLUCore.NLUEngine {
+export default class Engine implements sdk.NLUCore.Engine {
   private static _tools: Tools
 
   private predictorsByLang: _.Dictionary<Predictors> = {}
-  private modelsByLang: _.Dictionary<Model> = {}
+  private modelsByLang: _.Dictionary<sdk.NLUCore.Model> = {}
 
   constructor(private defaultLanguage: string, private botId: string, private logger: Logger) {}
 
@@ -75,8 +60,8 @@ export default class Engine implements sdk.NLUCore.NLUEngine {
     languageCode: string,
     reportTrainingProgress?: sdk.NLUCore.ProgressReporter,
     trainingSession?: sdk.NLUCore.TrainingSession,
-    options?: TrainingOptions
-  ): Promise<Model | undefined> {
+    options?: sdk.NLUCore.TrainingOptions
+  ): Promise<sdk.NLUCore.Model | undefined> {
     trainDebug.forBot(this.botId, `Started ${languageCode} training`)
 
     const list_entities = entityDefs
@@ -174,7 +159,7 @@ export default class Engine implements sdk.NLUCore.NLUEngine {
     input: TrainInput,
     hash: string,
     reportTrainingProgress?: sdk.NLUCore.ProgressReporter
-  ): Promise<Model | undefined> {
+  ): Promise<sdk.NLUCore.Model | undefined> {
     const startedAt = new Date()
     let output: TrainOutput | undefined
     try {
@@ -200,7 +185,7 @@ export default class Engine implements sdk.NLUCore.NLUEngine {
     }
   }
 
-  private modelAlreadyLoaded(model: Model) {
+  private modelAlreadyLoaded(model: sdk.NLUCore.Model) {
     if (!model?.languageCode) {
       return false
     }
@@ -215,7 +200,7 @@ export default class Engine implements sdk.NLUCore.NLUEngine {
     )
   }
 
-  async loadModel(model: Model) {
+  async loadModel(model: sdk.NLUCore.Model) {
     if (this.modelAlreadyLoaded(model)) {
       return
     }

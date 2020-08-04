@@ -39,7 +39,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
   router.get('/health', async (req, res) => {
     // When the health is bad, we'll refresh the status in case it changed (eg: user added languages)
-    const health = bp.NLUCore.NLUEngine.getHealth()
+    const health = bp.NLUCore.Engine.getHealth()
     res.send(health)
   })
 

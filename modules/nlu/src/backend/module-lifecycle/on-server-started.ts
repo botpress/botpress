@@ -30,7 +30,7 @@ async function initializeReportingTool(bp: typeof sdk, state: NLUState) {
 const EVENTS_TO_IGNORE = ['session_reference', 'session_reset', 'bp_dialog_timeout', 'visit', 'say_something', '']
 
 const ignoreEvent = (bp: typeof sdk, state: NLUState, event: sdk.IO.IncomingEvent) => {
-  const health = bp.NLUCore.NLUEngine.getHealth()
+  const health = bp.NLUCore.Engine.getHealth()
   return (
     !state.nluByBot[event.botId] ||
     !health.isEnabled ||
@@ -119,7 +119,7 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
 export function getOnSeverStarted(state: NLUState) {
   return async (bp: typeof sdk) => {
     await initializeReportingTool(bp, state)
-    await bp.NLUCore.NLUEngine.initialize(bp)
+    await bp.NLUCore.Engine.initialize(bp)
     await registerMiddleware(bp, state)
   }
 }

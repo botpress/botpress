@@ -315,7 +315,7 @@ export class BotpressAPIProvider {
       workspaces: this.workspaces,
       distributed: this.distributed,
       NLUCore: {
-        NLUEngine: Engine
+        Engine
       }
     }
   }

@@ -43,7 +43,7 @@ export interface LangServerInfo {
 
 export interface BotState {
   botId: string
-  engine: sdk.NLUCore.NLUEngine
+  engine: sdk.NLUCore.Engine
   trainWatcher: sdk.ListenHandle
   trainOrLoad: (forceTrain: boolean) => Promise<void>
   trainSessions: _.Dictionary<TrainingSession>
