@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
 import { TelemetryEvent } from 'common/telemetry'
+import _ from 'lodash'
 import ms from 'ms'
 
 export const sendTelemetry = async (events: TelemetryEvent[]) => {
@@ -34,7 +35,7 @@ const sendSavedEvents = async (api: AxiosInstance) => {
 const getSavedEvents = async (api: AxiosInstance): Promise<TelemetryEvent[]> => {
   try {
     const { data } = await api.get(`/telemetry/events`)
-    return data
+    return _.compact(data)
   } catch (err) {
     return []
   }
