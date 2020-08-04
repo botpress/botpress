@@ -66,9 +66,6 @@ import { DeletableLinkFactory } from '~/views/FlowBuilder/diagram/nodes/LinkWidg
 import { SkillCallNodeModel, SkillCallWidgetFactory } from '~/views/FlowBuilder/diagram/nodes/SkillCallNode'
 import { StandardNodeModel, StandardWidgetFactory } from '~/views/FlowBuilder/diagram/nodes/StandardNode'
 import { textToItemId } from '~/views/FlowBuilder/diagram/nodes_v2/utils'
-import { FailureNodeModel } from '~/views/FlowBuilder/diagram/nodes_v2/FailureNode'
-import { SubWorkflowNodeModel, SubWorkflowWidgetFactory } from '~/views/FlowBuilder/diagram/nodes_v2/SubWorkflowNode'
-import { SuccessNodeModel } from '~/views/FlowBuilder/diagram/nodes_v2/SuccessNode'
 import style from '~/views/FlowBuilder/diagram/style.scss'
 
 import { BlockModel, BlockWidgetFactory } from './nodes/Block'
@@ -172,7 +169,6 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory(this.props.skills))
     this.diagramEngine.registerNodeFactory(new BlockWidgetFactory(commonProps))
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
-    this.diagramEngine.registerNodeFactory(new SubWorkflowWidgetFactory())
 
     // This reference allows us to update flow nodes from widgets
     this.diagramEngine.flowBuilder = this
@@ -410,6 +406,8 @@ class Diagram extends Component<Props> {
     }
 
     const hasSubFlows = !!this.props.reusableFlows?.length
+    console.log('yayay')
+    console.log(this.props.reusableFlows)
 
     contextMenu(
       event,
@@ -560,12 +558,7 @@ class Diagram extends Component<Props> {
     const { nodeType } = targetModel
 
     return (
-      targetModel instanceof StandardNodeModel ||
-      targetModel instanceof SkillCallNodeModel ||
-      targetModel instanceof SuccessNodeModel ||
-      targetModel instanceof FailureNodeModel ||
-      targetModel instanceof SubWorkflowNodeModel ||
-      nodeType === 'router'
+      targetModel instanceof StandardNodeModel || targetModel instanceof SkillCallNodeModel || nodeType === 'router'
     )
   }
 

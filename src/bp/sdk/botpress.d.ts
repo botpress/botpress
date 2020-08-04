@@ -1255,7 +1255,6 @@ declare module 'botpress/sdk' {
     timeoutNode?: string
     type?: string
     timeout?: { name: string; flow: string; node: string }[]
-    /** The name of the parent flow. It will be generated automatically */
     variables?: FlowVariable[]
   }
 

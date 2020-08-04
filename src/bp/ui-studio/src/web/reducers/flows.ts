@@ -539,27 +539,31 @@ reducer = reduceReducers(
           node: ''
         }))
 
-        const updatedFlows = {}
+        let updatedFlows = {}
         for (const [name, flow] of Object.entries(state.flowsByName)) {
           if (!flow.nodes.find(n => n.flow === activeFlow)) {
             continue
           }
 
-          const updatedFlow = {
-            ...flow,
-            nodes: flow.nodes.map(node => {
-              if (node.flow !== activeFlow) {
-                return node
-              }
+          updatedFlows = {
+            ...updatedFlows,
+            [name]: {
+              ...flow,
+              nodes: flow.nodes.map(node => {
+                if (node.flow !== activeFlow) {
+                  return node
+                }
 
-              return {
-                ...node,
-                next: outcomes.map(o => ({ ...o, node: node.next.find(n => n.condition === o.condition)?.node || '' }))
-              }
-            })
+                return {
+                  ...node,
+                  next: outcomes.map(o => ({
+                    ...o,
+                    node: node.next.find(n => n.condition === o.condition)?.node || ''
+                  }))
+                }
+              })
+            }
           }
-
-          updatedFlows[name] = updatedFlow
         }
 
         return {

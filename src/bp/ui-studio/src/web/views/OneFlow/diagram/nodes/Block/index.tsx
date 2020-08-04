@@ -17,6 +17,7 @@ import ExecuteContents from '../ExecuteContents'
 import PromptContents from '../PromptContents'
 import RouterContents from '../RouterContents'
 import SaySomethingContents from '../SaySomethingContents'
+import SubworkflowContents from '../SubworkflowContents'
 import TriggerContents from '../TriggerContents'
 
 interface Props {
@@ -43,7 +44,8 @@ const defaultLabels = {
   router: 'if',
   say_something: 'studio.flow.node.chatbotSays',
   success: 'studio.flow.node.workflowSucceeds',
-  trigger: 'studio.flow.node.triggeredBy'
+  trigger: 'studio.flow.node.triggeredBy',
+  'sub-workflow': 'subworkflow'
 }
 
 const BlockWidget: FC<Props> = ({
@@ -116,8 +118,8 @@ const BlockWidget: FC<Props> = ({
     setIsEditing(false)
   }
 
-  const outPortInHeader = !['failure', 'prompt', 'router', 'success'].includes(nodeType)
-  const canCollapse = !['failure', 'prompt', 'router', 'success', 'listen'].includes(nodeType)
+  const outPortInHeader = !['failure', 'prompt', 'router', 'success', 'sub-workflow'].includes(nodeType)
+  const canCollapse = !['failure', 'prompt', 'router', 'success', 'listen', 'sub-workflow'].includes(nodeType)
   const hasContextMenu = !['failure', 'success'].includes(nodeType)
 
   const renderContents = () => {
@@ -148,6 +150,8 @@ const BlockWidget: FC<Props> = ({
             getConditions={getConditions}
           />
         )
+      case 'sub-workflow':
+        return <SubworkflowContents node={node} selectedNodeItem={selectedNodeItem} getCurrentLang={getCurrentLang} />
       default:
         return null
     }

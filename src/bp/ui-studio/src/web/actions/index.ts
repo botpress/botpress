@@ -175,7 +175,6 @@ export const requestRefreshCallerFlows = createAction('FLOWS/REFRESH_PARENT_FLOW
 const updateCallerFlows = async (_payload, state) => {
   const flows = <FlowReducer>state.flows
   const callerFlows = getCallerFlows(state)
-  console.log(callerFlows)
 
   const promises = callerFlows.map(x => FlowsAPI.updateFlow(flows, x.name))
   return Promise.all(promises)

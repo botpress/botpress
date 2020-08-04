@@ -7,7 +7,6 @@ import { BlockModel } from '~/views/OneFlow/diagram/nodes/Block'
 import { BaseNodeModel } from './nodes/BaseNodeModel'
 import { SkillCallNodeModel } from './nodes/SkillCallNode'
 import { StandardNodeModel } from './nodes/StandardNode'
-import { SubWorkflowNodeModel } from './nodes_v2/SubWorkflowNode'
 
 const passThroughNodeProps: string[] = [
   'name',
@@ -55,10 +54,19 @@ const createNodeModel = (node, modelProps) => {
   const { type } = node
   if (type === 'skill-call') {
     return new SkillCallNodeModel(modelProps)
-  } else if (type === 'sub-workflow') {
-    return new SubWorkflowNodeModel(modelProps)
   } else if (
-    ['say_something', 'prompt', 'execute', 'listen', 'router', 'action', 'success', 'trigger', 'failure'].includes(type)
+    [
+      'say_something',
+      'prompt',
+      'execute',
+      'listen',
+      'router',
+      'action',
+      'success',
+      'trigger',
+      'failure',
+      'sub-workflow'
+    ].includes(type)
   ) {
     return new BlockModel(modelProps)
   } else {
