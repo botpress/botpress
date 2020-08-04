@@ -8,13 +8,17 @@ import {
 } from 'botbuilder'
 import { MicrosoftAppCredentials } from 'botframework-connector'
 import * as sdk from 'botpress/sdk'
+import { getPayloadOptions, isValidOutgoingType, parseTyping } from 'common/channels'
 import _ from 'lodash'
 
 import { Config } from '../config'
 
+import { convertPayload } from './renderer'
 import { Clients } from './typings'
 
-const outgoingTypes = ['message', 'typing', 'carousel', 'text']
+const debug = DEBUG('channel-teams')
+const debugIncoming = debug.sub('incoming')
+const debugOutgoing = debug.sub('outgoing')
 
 export class TeamsClient {
   private inMemoryConversationRefs: _.Dictionary<Partial<ConversationReference>> = {}
@@ -59,8 +63,10 @@ If you have a restricted app, you may need to specify the tenantId also.`
     await this.adapter.processActivity(req, res, async turnContext => {
       const { activity } = turnContext
 
+      debugIncoming('Received message %o', activity)
+
       const conversationReference = TurnContext.getConversationReference(activity)
-      if (!activity.text) {
+      if (!activity.text && !activity.value) {
         // To prevent from emojis reactions to launch actual events
         return
       }
@@ -104,27 +110,32 @@ If you have a restricted app, you may need to specify the tenantId also.`
   }
 
   private _sendIncomingEvent = async (activity: Activity, threadId: string) => {
-    const { text, from, type } = activity
+    const { text, from, channelData } = activity
+
+    let payload: any = { type: 'text', text }
+
+    if (channelData.postBack) {
+      payload = { type: 'quick_reply', text, payload: text }
+    }
 
     await this.bp.events.sendEvent(
       this.bp.IO.Event({
         botId: this.botId,
         channel: 'teams',
         direction: 'incoming',
-        payload: { text },
-        preview: text,
+        payload,
         threadId,
         target: from.id,
-        type
+        type: payload.type
       })
     )
   }
 
   public async sendOutgoingEvent(event: sdk.IO.Event): Promise<void> {
-    const messageType = event.type === 'default' ? 'text' : event.type
+    debugOutgoing('Sending message %o', event)
 
-    if (!_.includes(outgoingTypes, messageType)) {
-      throw new Error('Unsupported event type: ' + event.type)
+    if (!isValidOutgoingType(event.type)) {
+      throw new Error(`Unsupported event type: ${event.type}`)
     }
 
     const ref = await this._getConversationRef(event.threadId)
@@ -135,87 +146,48 @@ If you have a restricted app, you may need to specify the tenantId also.`
       return
     }
 
-    let msg: any = event.payload // TODO: place this logic in builtin with content-types
-    if (msg.type === 'typing') {
-      msg = {
-        type: 'typing'
-      }
-    } else if (msg.type === 'carousel') {
-      msg = this._prepareCarouselPayload(event)
-    } else if (msg.quick_replies && msg.quick_replies.length) {
-      msg = this._prepareChoicePayload(event)
+    const { __typing } = event.payload.metadata as sdk.Content.Metadata
+    let payload: any = convertPayload(event.payload)
+
+    if (__typing) {
+      await this.sendActivity(ref, { type: 'typing' })
+      await Promise.delay(parseTyping(__typing))
     }
 
+    const options = getPayloadOptions(event.payload)
+    if (options) {
+      payload = {
+        ...payload,
+        attachments: [
+          CardFactory.heroCard(
+            '',
+            CardFactory.images([]),
+            CardFactory.actions(
+              options.map(reply => {
+                return {
+                  title: reply.label,
+                  type: 'postBack',
+                  value: reply.value,
+                  text: reply.value,
+                  displayText: reply.label
+                }
+              })
+            )
+          )
+        ]
+      }
+    }
+
+    await this.sendActivity(ref, payload)
+  }
+
+  private async sendActivity(ref, payload: any) {
     try {
       await this.adapter.continueConversation(ref, async (turnContext: TurnContext) => {
-        await turnContext.sendActivity(msg)
+        await turnContext.sendActivity(payload)
       })
     } catch (err) {
-      this.logger.attachError(err).error(`Error while sending payload of type "${msg.type}" `)
-    }
-  }
-
-  private _prepareChoicePayload(event: sdk.IO.Event) {
-    return {
-      text: event.payload.text,
-      attachments: [
-        CardFactory.heroCard(
-          '',
-          CardFactory.images([]),
-          CardFactory.actions(
-            event.payload.quick_replies.map(reply => {
-              return {
-                title: reply.title,
-                type: 'messageBack',
-                value: reply.payload,
-                text: reply.payload,
-                displayText: reply.title
-              }
-            })
-          )
-        )
-      ]
-    }
-  }
-
-  private _prepareCarouselPayload(event: sdk.IO.Event) {
-    return {
-      type: 'message',
-      attachments: event.payload.elements.map(card => {
-        const contentUrl = card.picture
-
-        return CardFactory.heroCard(
-          card.title,
-          CardFactory.images([contentUrl]),
-          CardFactory.actions(
-            card.buttons.map(button => {
-              if (button.type === 'open_url') {
-                return {
-                  type: 'openUrl',
-                  value: button.url,
-                  title: button.title
-                }
-              } else if (button.type === 'say_something') {
-                return {
-                  type: 'messageBack',
-                  title: button.title,
-                  value: button.text,
-                  text: button.text,
-                  displayText: button.text
-                }
-              } else if (button.type === 'postback') {
-                return {
-                  type: 'messageBack',
-                  title: button.title,
-                  value: button.payload,
-                  text: button.payload
-                }
-              }
-            })
-          )
-        )
-      }),
-      attachmentLayout: AttachmentLayoutTypes.Carousel
+      this.logger.attachError(err).error(`Error while sending payload of type "${payload.type}" `)
     }
   }
 }

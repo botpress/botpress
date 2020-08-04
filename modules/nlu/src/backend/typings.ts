@@ -58,6 +58,7 @@ export interface NLUEngine {
     intentDefs: sdk.NLU.IntentDefinition[],
     entityDefs: sdk.NLU.EntityDefinition[],
     languageCode: string,
+    reportTrainingProgress: ProgressReporter,
     trainingSession?: TrainingSession,
     options?: any
   ) => Promise<any>
@@ -76,10 +77,9 @@ export interface EntityService {
 
 export type NLUState = {
   nluByBot: _.Dictionary<BotState>
-  languageProvider?: LanguageProvider
-  health?: NLUHealth
   broadcastLoadModel?: (botId: string, hash: string, language: string) => Promise<void>
   broadcastCancelTraining?: (botId: string, language: string) => Promise<void>
+  reportTrainingProgress: ProgressReporter
 } & NLUVersionInfo
 
 export interface NLUVersionInfo {
@@ -177,10 +177,13 @@ export interface Tools {
   vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
   partOfSpeechUtterances(utterances: string[][], languageCode: string): string[][]
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
-  reportTrainingProgress(botId: string, message: string, trainSession: TrainingSession): void
+  getHealth(): NLUHealth
+  getLanguages(): string[]
   duckling: SystemEntityExtractor
   mlToolkit: typeof sdk.MLToolkit
 }
+
+export type ProgressReporter = (botId: string, message: string, trainSession: TrainingSession) => void
 
 export interface NLUProgressEvent {
   type: 'nlu'
