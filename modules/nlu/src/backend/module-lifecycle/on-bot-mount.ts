@@ -27,7 +27,8 @@ export function getOnBotMount(state: NLUState) {
       bp.logger.warn(missingLangMsg(botId), { notSupported: _.difference(bot.languages, languages) })
     }
 
-    if (!state.nluVersion.length || !state.langServerInfo.version.length) {
+    const version = Engine.tools.getVersionInfo()
+    if (!version.nluVersion.length || !version.langServerInfo.version.length) {
       bp.logger.warn('Either the nlu version or the lang server version is not set correctly.')
     }
 
@@ -53,7 +54,7 @@ export function getOnBotMount(state: NLUState) {
               return
             }
 
-            const hash = engine.computeModelHash(intentDefs, entityDefs, state, languageCode)
+            const hash = engine.computeModelHash(intentDefs, entityDefs, languageCode)
             await ModelService.pruneModels(ghost, languageCode)
             let model = await ModelService.getModel(ghost, hash, languageCode)
 
