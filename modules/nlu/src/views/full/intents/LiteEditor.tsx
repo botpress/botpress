@@ -4,7 +4,7 @@ import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
-import { makeApi } from '../../api'
+import { makeApi } from '../../../api'
 import style from '../style.scss'
 
 import { IntentEditor } from './FullEditor'
