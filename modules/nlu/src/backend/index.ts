@@ -1,9 +1,8 @@
-import axios from 'axios'
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { makeApi } from '../api'
+import { createApi } from '../api'
 import en from '../translations/en.json'
 import fr from '../translations/fr.json'
 
@@ -36,8 +35,7 @@ const onTopicChanged = async (bp: typeof sdk, botId: string, oldName?: string, n
     return
   }
 
-  const axiosForBot = axios.create(await bp.http.getAxiosConfigForBot(botId))
-  const api = makeApi({ axios: axiosForBot })
+  const api = await createApi(bp, botId)
   const intentDefs = await api.fetchIntents()
 
   for (const intentDef of intentDefs) {

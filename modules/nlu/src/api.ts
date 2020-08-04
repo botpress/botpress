@@ -1,5 +1,7 @@
 import { AxiosInstance } from 'axios'
+import axios from 'axios'
 import { NLU } from 'botpress/sdk'
+import * as sdk from 'botpress/sdk'
 
 export interface NLUApi {
   fetchContexts: () => Promise<string[]>
@@ -45,3 +47,9 @@ export const makeApi = (bp: { axios: AxiosInstance }): NLUApi => ({
   train: () => bp.axios.post(`/mod/nlu/train`),
   cancelTraining: () => bp.axios.post(`/mod/nlu/train/delete`)
 })
+
+export const createApi = async (bp: typeof sdk, botId: string) => {
+  const axiosForBot = axios.create(await bp.http.getAxiosConfigForBot(botId, { localUrl: true }))
+  const api = makeApi({ axios: axiosForBot })
+  return api
+}

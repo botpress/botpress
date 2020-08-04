@@ -1,10 +1,8 @@
-import axios, { AxiosInstance } from 'axios'
 import * as sdk from 'botpress/sdk'
-import { NLU } from 'botpress/sdk'
 import Joi from 'joi'
 import _ from 'lodash'
 
-import { makeApi } from '../api'
+import { createApi } from '../api'
 
 import { isOn as isAutoTrainOn, set as setAutoTrain } from './autoTrain'
 import recommendations from './intents/recommendations'
@@ -35,8 +33,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
   router.post('/cross-validation/:lang', async (req, res) => {
     const { botId, lang } = req.params
 
-    const axiosForBot = axios.create(await bp.http.getAxiosConfigForBot(botId))
-    const api = makeApi({ axios: axiosForBot })
+    const api = await createApi(bp, botId)
     const intentDefs = await api.fetchIntents()
     const entityDefs = await api.fetchEntities()
 

@@ -1,10 +1,9 @@
-import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import ms from 'ms'
 import yn from 'yn'
 
-import { makeApi } from '../../api'
+import { createApi } from '../../api'
 import { isOn as isAutoTrainOn } from '../autoTrain'
 import Engine from '../engine'
 import * as ModelService from '../model-service'
@@ -20,7 +19,6 @@ export function getOnBotMount(state: NLUState) {
   return async (bp: typeof sdk, botId: string) => {
     const bot = await bp.bots.getBotById(botId)
     const ghost = bp.ghost.forBot(botId)
-    const axiosForBot = axios.create(await bp.http.getAxiosConfigForBot(botId))
 
     const languages = _.intersection(bot.languages, state.languageProvider.languages)
     if (bot.languages.length !== languages.length) {
@@ -39,7 +37,7 @@ export function getOnBotMount(state: NLUState) {
           return
         }
 
-        const api = makeApi({ axios: axiosForBot })
+        const api = await createApi(bp, botId)
         const intentDefs = await api.fetchIntents()
         const entityDefs = await api.fetchEntities()
 
