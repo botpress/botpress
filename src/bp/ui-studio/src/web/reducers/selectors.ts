@@ -45,7 +45,6 @@ export const getCurrentFlow = createSelector(
 )
 
 export const getReusableWorkflows = createSelector([_getFlowsByName], (flowsByName): ParsedFlowDefinition[] => {
-  console.log(flowsByName)
   return Object.keys(flowsByName)
     .filter(name => flowsByName[name].type === 'reusable' && !isSkillFlow(name))
     .map(name => parseFlowName(name, true))
