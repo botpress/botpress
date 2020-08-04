@@ -5,8 +5,8 @@
  * Please let us know in our official Github Repo!
  */
 declare module 'botpress/sdk' {
+  import { NextFunction, Request, Response, Router } from 'express'
   import Knex from 'knex'
-  import { Router, Request, Response, NextFunction } from 'express'
 
   export interface KnexExtension {
     isLite: boolean
@@ -220,6 +220,8 @@ declare module 'botpress/sdk' {
     homepage?: string
     /** Whether or not the module is likely to change */
     experimental?: boolean
+    /** IDs of supported effects for this channel */
+    channelEffects?: string[]
   }
 
   /**
@@ -272,7 +274,7 @@ declare module 'botpress/sdk' {
       export type TrainCommand = 'supervised' | 'quantize' | 'skipgram' | 'cbow'
       export type Loss = 'hs' | 'softmax'
 
-      export type TrainArgs = {
+      export interface TrainArgs {
         lr: number
         dim: number
         ws: number
@@ -299,7 +301,7 @@ declare module 'botpress/sdk' {
         dsub: number
       }
 
-      export type PredictResult = {
+      export interface PredictResult {
         label: string
         value: number
       }
@@ -369,12 +371,12 @@ declare module 'botpress/sdk' {
         reduce?: boolean
       }
 
-      export type DataPoint = {
+      export interface DataPoint {
         label: string
         coordinates: number[]
       }
 
-      export type Prediction = {
+      export interface Prediction {
         label: string
         confidence: number
       }
@@ -983,7 +985,7 @@ declare module 'botpress/sdk' {
      * Incoming chain is executed when the bot receives an event.
      * Outgoing chain is executed when an event is sent to a user
      */
-    export type MiddlewareDefinition = {
+    export interface MiddlewareDefinition {
       /** The internal name used to identify the middleware in configuration files */
       name: string
       description: string
@@ -1002,7 +1004,7 @@ declare module 'botpress/sdk' {
     export const Event: EventConstructor
   }
 
-  export type User = {
+  export interface User {
     id: string
     channel: string
     createdOn: Date
@@ -1018,7 +1020,7 @@ declare module 'botpress/sdk' {
    */
   export type EventDirection = 'incoming' | 'outgoing'
 
-  export type Notification = {
+  export interface Notification {
     botId: string
     message: string
     /** Can be info, error, success */
@@ -1130,7 +1132,7 @@ declare module 'botpress/sdk' {
   /**
    * The configuration definition of a bot.
    */
-  export type BotConfig = {
+  export interface BotConfig {
     $schema?: string
     id: string
     name: string
@@ -1215,7 +1217,7 @@ declare module 'botpress/sdk' {
   /**
    * Configuration file definition for the Converse API
    */
-  export type ConverseConfig = {
+  export interface ConverseConfig {
     /**
      * The timeout of the converse API requests
      * @default 5s
@@ -1252,7 +1254,7 @@ declare module 'botpress/sdk' {
    * They can describe anything and everything – they most often are domain-specific to your bot. They also
    * tells botpress how to display the content on various channels
    */
-  export type ContentType = {
+  export interface ContentType {
     id: string
     title: string
     description: string
@@ -1364,7 +1366,7 @@ declare module 'botpress/sdk' {
   export interface ConditionListOptions {
     /** List of options displayed in the dropdown menu */
     items?: Option[]
-    /**Alternatively, set an endpoint where the list will be queried (eg: intents) */
+    /** Alternatively, set an endpoint where the list will be queried (eg: intents) */
     endpoint?: string
     /** The path to the list of elements (eg: language.available) */
     path?: string
@@ -1728,7 +1730,7 @@ declare module 'botpress/sdk' {
     /**
      * When the prompt is sent to the user, an event of type "prompt" is sent to the corresponding channel.
      * You can customize the event that will be sent to the user
-     * */
+     */
     customPrompt?(
       event: IO.OutgoingEvent,
       incomingEvent: IO.IncomingEvent,
@@ -1844,7 +1846,7 @@ declare module 'botpress/sdk' {
   /**
    * Those are possible options you may enable when creating new routers
    */
-  export type RouterOptions = {
+  export interface RouterOptions {
     /**
      * Check if user is authenticated before granting access
      * @default true
@@ -1874,7 +1876,7 @@ declare module 'botpress/sdk' {
   /**
    * Search parameters when querying content elements
    */
-  export type SearchParams = {
+  export interface SearchParams {
     /** Search in elements id and form data */
     searchTerm?: string
     /** Returns the amount of elements from the starting position  */
@@ -1888,7 +1890,7 @@ declare module 'botpress/sdk' {
     filters?: Filter[]
   }
 
-  export type EventSearchParams = {
+  export interface EventSearchParams {
     /** Returns the amount of elements from the starting position  */
     from?: number
     count?: number
@@ -1940,8 +1942,8 @@ declare module 'botpress/sdk' {
       __buttons?: Option[]
       /** Display a dropdown menu to select an item  */
       __dropdown?: Option[] | Dropdown
-      /** When true, the typing effect will not be used */
-      __typing?: boolean
+      /** Set to true to display typing effect, or set a delay in ms */
+      __typing?: boolean | number
       /** Use markdown for text fields when possible */
       __markdown?: boolean
       /** If the channel supports it, it will trim the text to the specified length */
@@ -1961,26 +1963,26 @@ declare module 'botpress/sdk' {
     export interface Image extends Base {
       type: 'image'
       image: string
-      title?: string | MultiLangText
+      title?: string
     }
 
     export interface Card extends Base {
       type: 'card'
-      title: string | MultiLangText
-      subtitle?: string | MultiLangText
+      title: string
+      subtitle?: string
       image?: string
       actions?: Actions[]
     }
 
     export interface ActionButton {
-      title: string | MultiLangText
+      title: string
     }
 
     export interface ActionSaySomething extends ActionButton {
       type: 'say_something'
       // TODO cleanup legacy
       action: 'Say something'
-      text: string | MultiLangText
+      text: string
     }
 
     export interface ActionOpenURL extends ActionButton {

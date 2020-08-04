@@ -67,7 +67,8 @@ const MODULE_SCHEMA = joi.object().keys({
     menuIcon: joi.string().optional(),
     menuText: joi.string().optional(),
     homepage: joi.string().optional(),
-    experimental: joi.boolean().optional()
+    experimental: joi.boolean().optional(),
+    channelEffects: joi.array().optional()
   })
 })
 
@@ -137,7 +138,7 @@ export class ModuleLoader {
     const ret = MODULE_SCHEMA.validate(module, { abortEarly: false })
 
     if (ret.error) {
-      const message = (name.length ? `Module "${name}" has` : '') + 'invalid configuration'
+      const message = `${name.length ? `Module "${name}" has` : ''}invalid configuration`
       throw new ValidationError(ret.error, message)
     }
 
@@ -440,7 +441,7 @@ export class ModuleLoader {
       const resolver = new ModuleResolver(this.logger)
       return await extractModuleInfo({ location: tmpFolder, enabled: false }, resolver)
     } catch (err) {
-      this.logger.attachError(err).warn(`Invalid module archive`)
+      this.logger.attachError(err).warn('Invalid module archive')
     } finally {
       tmpDir.removeCallback()
     }
