@@ -5,7 +5,6 @@ import _ from 'lodash'
 
 import * as CacheManager from './cache-manager'
 import { initializeTools } from './initialize-tools'
-import { Model } from './model-service'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
@@ -16,6 +15,17 @@ const trainDebug = DEBUG('nlu').sub('training')
 
 export interface TrainingOptions {
   forceTrain: boolean
+}
+
+export interface Model {
+  hash: string
+  languageCode: string
+  startedAt: Date
+  finishedAt: Date
+  data: {
+    input: TrainInput
+    output: TrainOutput
+  }
 }
 
 export default class Engine implements sdk.NLUCore.NLUEngine {
