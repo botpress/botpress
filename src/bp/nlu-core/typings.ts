@@ -14,6 +14,17 @@ export interface Token2Vec {
   [token: string]: number[]
 }
 
+export interface NLUVersionInfo {
+  nluVersion: string
+  langServerInfo: LangServerInfo
+}
+
+export interface LangServerInfo {
+  version: string
+  domain: string
+  dim: number
+}
+
 export interface Gateway {
   source: LanguageSource
   client: AxiosInstance
@@ -27,7 +38,7 @@ export interface LangsGateway {
 
 export interface LanguageProvider {
   languages: string[]
-  langServerInfo: sdk.NLUCore.LangServerInfo
+  langServerInfo: LangServerInfo
   vectorize(tokens: string[], lang: string): Promise<Float32Array[]>
   tokenize(utterances: string[], lang: string, vocab?: Token2Vec): Promise<string[][]>
   generateSimilarJunkWords(subsetVocab: string[], lang: string): Promise<string[]>
@@ -109,7 +120,7 @@ export interface Tools {
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
   getHealth(): sdk.NLUCore.NLUHealth
   getLanguages(): string[]
-  getVersionInfo(): sdk.NLUCore.NLUVersionInfo
+  getVersionInfo(): NLUVersionInfo
   duckling: SystemEntityExtractor
   mlToolkit: typeof sdk.MLToolkit
 }

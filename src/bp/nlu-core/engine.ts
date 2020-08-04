@@ -40,6 +40,10 @@ export default class Engine implements sdk.NLUCore.Engine {
 
   public static async initialize(bp: typeof sdk): Promise<void> {
     this._tools = await initializeTools(bp)
+    const version = this._tools.getVersionInfo()
+    if (!version.nluVersion.length || !version.langServerInfo.version.length) {
+      bp.logger.warn('Either the nlu version or the lang server version is not set correctly.')
+    }
   }
 
   // we might want to make this language specific

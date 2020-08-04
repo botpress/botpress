@@ -3,7 +3,7 @@ import * as sdk from 'botpress/sdk'
 import { DucklingEntityExtractor } from './entities/duckling_extractor'
 import LangProvider from './language/language-provider'
 import { getPOSTagger, tagSentence } from './language/pos-tagger'
-import { LanguageProvider, Token2Vec, Tools } from './typings'
+import { LanguageProvider, NLUVersionInfo, Token2Vec, Tools } from './typings'
 
 const NLU_VERSION = '1.2.2'
 
@@ -16,7 +16,7 @@ const healthGetter = (languageProvider: LanguageProvider) => (): sdk.NLUCore.NLU
   }
 }
 
-const versionGetter = (languageProvider: LanguageProvider) => (): sdk.NLUCore.NLUVersionInfo => {
+const versionGetter = (languageProvider: LanguageProvider) => (): NLUVersionInfo => {
   return {
     nluVersion: NLU_VERSION,
     langServerInfo: languageProvider.langServerInfo

@@ -14,7 +14,7 @@ import semver from 'semver'
 import { getSeededLodash, resetSeed } from '../tools/seeded-lodash'
 import { setSimilarity, vocabNGram } from '../tools/strings'
 import { isSpace, processUtteranceTokens, restoreOriginalUtteranceCasing } from '../tools/token-utils'
-import { Gateway, LangsGateway, LanguageProvider, LanguageSource, Token2Vec } from '../typings'
+import { Gateway, LangServerInfo, LangsGateway, LanguageProvider, LanguageSource, Token2Vec } from '../typings'
 
 const debug = DEBUG('nlu').sub('lang')
 
@@ -42,7 +42,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
   private _languageDims!: number
 
   private _nluVersion!: string
-  private _langServerInfo!: sdk.NLUCore.LangServerInfo
+  private _langServerInfo!: LangServerInfo
 
   private discoveryRetryPolicy = {
     interval: 1000,
@@ -157,7 +157,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     return this as LanguageProvider
   }
 
-  public get langServerInfo(): sdk.NLUCore.LangServerInfo {
+  public get langServerInfo(): LangServerInfo {
     return this._langServerInfo
   }
 

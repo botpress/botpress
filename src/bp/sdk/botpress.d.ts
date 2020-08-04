@@ -459,7 +459,6 @@ declare module 'botpress/sdk' {
       static initialize: (bp: any) => Promise<void>
       static getHealth: () => NLUHealth
       static getLanguages: () => string[]
-      static getVersionInfo: () => NLUVersionInfo
       constructor(defaultLanguage: string, botId: string, logger: Logger)
       computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string
       loadModel: (m: Model) => Promise<void>
@@ -487,17 +486,6 @@ declare module 'botpress/sdk' {
         input: any
         output: any
       }
-    }
-
-    export interface NLUVersionInfo {
-      nluVersion: string
-      langServerInfo: LangServerInfo
-    }
-
-    export interface LangServerInfo {
-      version: string
-      domain: string
-      dim: number
     }
 
     export interface NLUHealth {
