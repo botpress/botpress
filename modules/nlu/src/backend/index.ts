@@ -14,11 +14,8 @@ import { getOnServerReady } from './module-lifecycle/on-server-ready'
 import { getOnSeverStarted } from './module-lifecycle/on-server-started'
 import { NLUState } from './typings'
 
-const langServerInfo = { version: '', domain: '', dim: 0 }
 const state: NLUState = {
   nluByBot: {},
-  nluVersion: '',
-  langServerInfo,
   reportTrainingProgress: () => {}
 }
 

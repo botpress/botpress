@@ -9,7 +9,7 @@ import legacyElectionPipeline from '../legacy-election'
 import { getLatestModel } from '../model-service'
 import { InvalidLanguagePredictorError } from '../predict-pipeline'
 import { removeTrainingSession, setTrainingSession } from '../train-session-service'
-import { NLUProgressEvent, NLUState, NLUVersionInfo, TrainingSession } from '../typings'
+import { NLUProgressEvent, NLUState, TrainingSession } from '../typings'
 
 async function initializeReportingTool(bp: typeof sdk, state: NLUState) {
   state.reportTrainingProgress = async (botId: string, message: string, trainSession: TrainingSession) => {
@@ -121,20 +121,10 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
   })
 }
 
-function setNluVersion(bp: typeof sdk, state: NLUState) {
-  if (!semver.valid(nluInfo.version)) {
-    bp.logger.error('nlu package.json file has an incorrect version format')
-    return
-  }
-
-  state.nluVersion = semver.clean(nluInfo.version)
-}
-
 export function getOnSeverStarted(state: NLUState) {
   return async (bp: typeof sdk) => {
-    setNluVersion(bp, state)
     await initializeReportingTool(bp, state)
-    await Engine.initialize(bp, state)
+    await Engine.initialize(bp)
     await registerMiddleware(bp, state)
   }
 }

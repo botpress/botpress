@@ -7,7 +7,7 @@ import tar from 'tar'
 import tmp from 'tmp'
 
 import { TrainInput, TrainOutput } from './training-pipeline'
-import { EntityCache, Intent, NLUVersionInfo } from './typings'
+import { EntityCache, Intent } from './typings'
 import Utterance from './utterance/utterance'
 
 type PersistedOutput = Omit<TrainOutput, 'intents'> & {

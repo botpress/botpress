@@ -80,7 +80,7 @@ export type NLUState = {
   broadcastLoadModel?: (botId: string, hash: string, language: string) => Promise<void>
   broadcastCancelTraining?: (botId: string, language: string) => Promise<void>
   reportTrainingProgress: ProgressReporter
-} & NLUVersionInfo
+}
 
 export interface NLUVersionInfo {
   nluVersion: string
@@ -179,6 +179,7 @@ export interface Tools {
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
   getHealth(): NLUHealth
   getLanguages(): string[]
+  getVersionInfo(): NLUVersionInfo
   duckling: SystemEntityExtractor
   mlToolkit: typeof sdk.MLToolkit
 }
