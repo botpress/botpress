@@ -406,8 +406,6 @@ class Diagram extends Component<Props> {
     }
 
     const hasSubFlows = !!this.props.reusableFlows?.length
-    console.log('yayay')
-    console.log(this.props.reusableFlows)
 
     contextMenu(
       event,
