@@ -13,6 +13,12 @@ const translations = { fr, en }
 export const Processing: FC<{ processing: { [activity: string]: Date }; lang: string }> = props => {
   const [expanded, setExpanded] = useState({})
   const { processing } = props
+  let isBeforeMW = true
+
+  // TODO: Better translation implementation for "lite" modules
+  const lang = {
+    tr: (item: string) => _.get(translations[props.lang], item) || _.get(translations['en'], item)
+  }
 
   const processed = Object.keys(processing)
     .map(key => {
@@ -22,6 +28,7 @@ export const Processing: FC<{ processing: { [activity: string]: Date }; lang: st
     .map((curr, idx, array) => {
       return { ...curr, execTime: idx === 0 ? 0 : curr.completed.diff(array[idx - 1].completed) }
     })
+    .filter(x => x.status !== 'skipped')
     .reduce((acc, item) => {
       const lastItem = acc.pop()
       if (lastItem?.type === item.type) {
@@ -31,18 +38,22 @@ export const Processing: FC<{ processing: { [activity: string]: Date }; lang: st
         if (lastItem) {
           acc = acc.concat(lastItem)
         }
-        acc = acc.concat({ type: item.type, subItems: [item] })
+        if (isBeforeMW && item.type === 'mw') {
+          isBeforeMW = false
+        }
+        let name = lang.tr(`processing.${item.type}`)
+
+        if (isBeforeMW && item.type === 'hook') {
+          name = lang.tr('processing.beforeMW')
+        } else if (!isBeforeMW && item.type === 'hook') {
+          name = lang.tr('processing.afterMW')
+        }
+        acc = acc.concat({ type: item.type, name, subItems: [item] })
       }
       return acc
     }, [])
 
-  const withoutSkipped = processed.filter(x => x.status !== 'skipped')
-  const totalExec = _.sumBy(withoutSkipped, x => x.execTime)
-
-  // TODO: Better translation implementation for "lite" modules
-  const lang = {
-    tr: (item: string) => _.get(translations[props.lang], item) || _.get(translations['en'], item)
-  }
+  const totalExec = _.sumBy(processed, x => x.execTime)
 
   const renderToggleItem = (item, key) => {
     const isExpanded = expanded[key]
@@ -51,7 +62,7 @@ export const Processing: FC<{ processing: { [activity: string]: Date }; lang: st
       <Fragment>
         <button className={style.itemButton} onClick={() => setExpanded({ ...expanded, [key]: !isExpanded })}>
           <Icon icon={isExpanded ? 'eye-off' : 'eye-open'} iconSize={10} />
-          {lang.tr(`processing.${item.type}`)} {item.name}
+          {item.name}
           {item.status === 'error' && <Icon className={style.error} icon="error" iconSize={10} />}
         </button>
         {isExpanded && (
@@ -70,12 +81,13 @@ export const Processing: FC<{ processing: { [activity: string]: Date }; lang: st
     <div className={style.section}>
       {processed.map((item, index) => {
         const hasChildren = item.subItems?.filter(x => x.name).length
+
         return (
           <Fragment key={index}>
             {!item.subItems}
             <div className={cx(style.processingItem, style.processingSection)}>
-              {!hasChildren && renderToggleItem({ ...item.subItems?.[0], name: item.type }, index)}
-              {!!hasChildren && item.type}
+              {!hasChildren && renderToggleItem({ ...item.subItems?.[0], name: item.name }, index)}
+              {!!hasChildren && item.name}
             </div>
             {!!hasChildren && (
               <ul>
