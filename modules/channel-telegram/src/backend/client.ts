@@ -12,7 +12,7 @@ const debugIncoming = debug.sub('incoming')
 const debugOutgoing = debug.sub('outgoing')
 
 export const sendEvent = async (bp: typeof sdk, botId: string, ctx: ContextMessageUpdate, args: { type: string }) => {
-  debugIncoming(`Received incoming event %o`, ctx)
+  debugIncoming('Received incoming event %o', ctx)
   // NOTE: getUpdate and setWebhook dot not return the same context mapping
   const threadId = _.get(ctx, 'chat.id') || _.get(ctx, 'message.chat.id')
   const target = _.get(ctx, 'from.id') || _.get(ctx, 'message.from.id')
@@ -46,10 +46,10 @@ export const registerMiddleware = (bp: typeof sdk, outgoingHandler) => {
 export async function setupBot(bp: typeof sdk, botId: string, clients: Clients) {
   const client = clients[botId]
 
-  client.start(async ctx => await sendEvent(bp, botId, ctx, { type: 'start' }))
-  client.help(async ctx => await sendEvent(bp, botId, ctx, { type: 'help' }))
-  client.on('message', async ctx => await sendEvent(bp, botId, ctx, { type: 'text' }))
-  client.on('callback_query', async ctx => await sendEvent(bp, botId, ctx, { type: 'callback' }))
+  client.start(async ctx => sendEvent(bp, botId, ctx, { type: 'start' }))
+  client.help(async ctx => sendEvent(bp, botId, ctx, { type: 'help' }))
+  client.on('message', async ctx => sendEvent(bp, botId, ctx, { type: 'text' }))
+  client.on('callback_query', async ctx => sendEvent(bp, botId, ctx, { type: 'callback' }))
   // TODO We don't support understanding and accepting more complex stuff from users such as files, audio etc
 }
 
@@ -72,7 +72,7 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
     const chatId = threadId ?? target
 
     if (!isValidOutgoingType(type)) {
-      return next(new Error('Unsupported event type: ' + type))
+      return next(new Error(`Unsupported event type: ${event.type}`))
     }
 
     if (__typing) {

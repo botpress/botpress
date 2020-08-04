@@ -63,7 +63,7 @@ If you have a restricted app, you may need to specify the tenantId also.`
     await this.adapter.processActivity(req, res, async turnContext => {
       const { activity } = turnContext
 
-      debugIncoming(`Received message %o`, activity)
+      debugIncoming('Received message %o', activity)
 
       const conversationReference = TurnContext.getConversationReference(activity)
       if (!activity.text && !activity.value) {
@@ -132,10 +132,10 @@ If you have a restricted app, you may need to specify the tenantId also.`
   }
 
   public async sendOutgoingEvent(event: sdk.IO.Event): Promise<void> {
-    debugOutgoing(`Sending message %o`, event)
+    debugOutgoing('Sending message %o', event)
 
     if (!isValidOutgoingType(event.type)) {
-      throw new Error('Unsupported event type: ' + event.type)
+      throw new Error(`Unsupported event type: ${event.type}`)
     }
 
     const ref = await this._getConversationRef(event.threadId)

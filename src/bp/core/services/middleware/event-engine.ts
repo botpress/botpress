@@ -201,7 +201,7 @@ export class EventEngine {
         direction: 'outgoing',
         type: payload.type ?? 'text',
         payload,
-        incomingEventId: incomingEventId
+        incomingEventId
       })
 
       await this.sendEvent(replyEvent)
