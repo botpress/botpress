@@ -41,7 +41,7 @@ const onTopicChanged = async (bp: typeof sdk, botId: string, oldName?: string, n
   }
 
   const api = await createApi(bp, botId)
-  const intentDefs = await api.fetchIntents()
+  const intentDefs = await api.fetchIntentsWithQNAs()
 
   for (const intentDef of intentDefs) {
     const ctxIdx = intentDef.contexts.indexOf(oldName as string)

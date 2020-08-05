@@ -38,7 +38,7 @@ export function getOnBotMount(state: NLUState) {
         }
 
         const api = await createApi(bp, botId)
-        const intentDefs = await api.fetchIntents()
+        const intentDefs = await api.fetchIntentsWithQNAs()
         const entityDefs = await api.fetchEntities()
 
         const kvs = bp.kvs.forBot(botId)
