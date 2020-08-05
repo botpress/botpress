@@ -29,8 +29,10 @@ export class TelemetryRouter extends CustomRouter {
         const { success, events } = req.body
 
         const schema = Joi.object({
-          success: Joi.boolean(),
-          events: Joi.array().items(Joi.string())
+          success: Joi.boolean().required(),
+          events: Joi.array()
+            .items(Joi.string())
+            .required()
         })
 
         if (schema.validate({ success, events })) {
