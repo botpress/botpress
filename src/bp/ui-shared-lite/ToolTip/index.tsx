@@ -1,6 +1,6 @@
 // @ts-nocheck
 import cx from 'classnames'
-import { div } from 'numeric'
+import _uniqueId from 'lodash/uniqueId'
 import React, { Children, cloneElement, FC, useEffect, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 
@@ -69,6 +69,8 @@ const ToolTip: FC<ToolTipProps> = ({ children, content, position = 'top', hoverO
     return children
   }
 
+  const id = useRef(`botpress-tooltip-${_uniqueId()}`)
+  const timeout = useRef(null)
   const tooltipRef = useRef<HTMLDivElement>(null)
   const tipRef = useRef<HTMLDivElement>(null)
 
@@ -183,16 +185,17 @@ const ToolTip: FC<ToolTipProps> = ({ children, content, position = 'top', hoverO
   }
 
   const show = e => {
+    clearTimeout(timeout.current)
     handleHtmlRendering()
     pastShow(e.currentTarget)
   }
 
   const handleHtmlRendering = (classNames = '', inlineStyle = {}, tipPos = {}) => {
     const body = document.getElementsByTagName('body')[0]
-    const toolTip = document.getElementById('botpress-tooltip') as HTMLElement
+    const toolTip = document.getElementById(id.current) as HTMLElement
     const div = document.createElement('div')
 
-    div.setAttribute('id', 'botpress-tooltip')
+    div.setAttribute('id', id.current)
 
     if (toolTip) {
       body.replaceChild(div, toolTip)
@@ -213,8 +216,9 @@ const ToolTip: FC<ToolTipProps> = ({ children, content, position = 'top', hoverO
     tooltipRef.current.classList.remove(style.visible)
     const body = document.getElementsByTagName('body')[0]
 
-    setTimeout(() => {
-      const div = document.getElementById('botpress-tooltip') as HTMLElement
+    clearTimeout(timeout.current)
+    timeout.current = setTimeout(() => {
+      const div = document.getElementById(id.current) as HTMLElement
       if (div) {
         body.removeChild(div)
       }
