@@ -36,7 +36,7 @@ const SECRET_KEYS = [
   'appId',
   's3',
   'cert',
-  'authStrategies',
+  'authstrategies',
   'ducklingurl',
   'languagesources'
 ]
