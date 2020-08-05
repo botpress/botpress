@@ -9,15 +9,16 @@ interface Props {
   node: BlockModel
   selectedNodeItem: () => { node: BlockModel; index: number }
   getCurrentLang: () => string
+  editNodeItem: (node: BlockModel, index: number) => void
 }
 
-const SubworkflowContents: FC<Props> = ({ node, selectedNodeItem, getCurrentLang }) => {
+const SubworkflowContents: FC<Props> = ({ node, selectedNodeItem, editNodeItem }) => {
   const { next } = node || {}
   const selectedContent = selectedNodeItem()
 
   return (
     <Fragment>
-      <div className={style.contentsWrapper}>
+      <div className={style.contentsWrapper} onClick={() => editNodeItem(node, 0)}>
         <div
           className={cx(style.contentWrapper, {
             [style.active]: selectedContent?.node?.id === node.id

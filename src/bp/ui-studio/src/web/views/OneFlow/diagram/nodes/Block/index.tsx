@@ -156,7 +156,14 @@ const BlockWidget: FC<Props> = ({
           />
         )
       case 'sub-workflow':
-        return <SubworkflowContents node={node} selectedNodeItem={selectedNodeItem} getCurrentLang={getCurrentLang} />
+        return (
+          <SubworkflowContents
+            node={node}
+            selectedNodeItem={selectedNodeItem}
+            getCurrentLang={getCurrentLang}
+            editNodeItem={editNodeItem}
+          />
+        )
       default:
         return null
     }
