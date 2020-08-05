@@ -36,7 +36,9 @@ const SECRET_KEYS = [
   'appId',
   's3',
   'cert',
-  'authStrategies'
+  'authStrategies',
+  'ducklingurl',
+  'languagesources'
 ]
 
 interface BotConfigEvent {
@@ -73,7 +75,7 @@ export class ConfigsStats extends TelemetryStats {
   }
 
   protected async getStats(): Promise<TelemetryEvent> {
-    return {
+    const temp = {
       ...buildSchema(await this.getServerStats(), 'server'),
       event_type: 'configs',
       event_data: {
@@ -83,6 +85,7 @@ export class ConfigsStats extends TelemetryStats {
         botpressConfig: await this.getBotpressConfig()
       }
     }
+    return temp
   }
 
   private obfuscateSecrets(config, defaultConfig): any {
