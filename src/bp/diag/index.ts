@@ -7,15 +7,17 @@ import { BotConfig } from 'botpress/sdk'
 
 import { Workspace } from 'common/typings'
 import { Db, Ghost } from 'core/app'
-
 import fse from 'fs-extra'
 import _ from 'lodash'
+import yn from 'yn'
 
 import { getOrCreate as redisFactory } from 'core/services/redis'
 import os from 'os'
 import path from 'path'
 import stripAnsi from 'strip-ansi'
 
+import IORedis from 'ioredis'
+import { startMonitor } from './monitor'
 import {
   printHeader,
   printObject,
@@ -68,7 +70,10 @@ export const ENV_VARS = [
 ]
 
 const PASSWORD_REGEX = new RegExp(/(.*):(.*)@(.*)/)
+const REDIS_TEST_KEY = 'botpress_redis_test_key'
+const REDIS_TEST_VALUE = 'bp123'
 
+let redisClient: IORedis.Redis
 let includePasswords = false
 let botpressConfig = undefined
 let outputFile = undefined
@@ -125,10 +130,20 @@ const testConnectivity = async () => {
 
   if (process.env.CLUSTER_ENABLED && redisFactory) {
     await wrapMethodCall('Connecting to Redis', async () => {
-      const client = redisFactory('commands')
+      redisClient = redisFactory('commands')
 
-      if ((await client.ping().timeout(1000)) !== 'PONG') {
-        throw new Error('Server down')
+      if ((await redisClient.ping().timeout(3000)) !== 'PONG') {
+        throw new Error("The server didn't answer our ping request after 3 seconds")
+      }
+    })
+
+    await wrapMethodCall('Test Redis', async () => {
+      await redisClient.set(REDIS_TEST_KEY, REDIS_TEST_VALUE)
+      const fetchValue = await redisClient.get(REDIS_TEST_KEY)
+      await redisClient.del(REDIS_TEST_KEY)
+
+      if (fetchValue !== REDIS_TEST_VALUE) {
+        throw new Error('Could not complete a basic operation on Redis')
       }
     })
   }
@@ -226,8 +241,8 @@ const printBotsList = async () => {
 }
 
 export default async function(options) {
-  includePasswords = options.includePasswords
-  outputFile = options.outputFile
+  includePasswords = options.includePasswords || yn(process.env.BP_DIAG_INCLUDE_PASSWORDS)
+  outputFile = options.outputFile || yn(process.env.BP_DIAG_OUTPUT)
 
   printGeneralInfos()
   listEnvironmentVariables()
@@ -240,11 +255,15 @@ export default async function(options) {
 
   await testNetworkConnections()
 
-  if (options.config) {
+  if (options.config || yn(process.env.BP_DIAG_CONFIG)) {
     await printConfig()
     await printBotsList()
     await printDatabaseTables()
   }
 
-  process.exit(0)
+  if (options.monitor || yn(process.env.BP_DIAG_MONITOR)) {
+    await startMonitor(botpressConfig!, redisClient)
+  } else {
+    process.exit(0)
+  }
 }
