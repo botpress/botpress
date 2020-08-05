@@ -86,15 +86,6 @@ export const Checklist: FC<Props> = props => {
     setAuditTrail(_.some(audit, Boolean))
   }
 
-  const getDiagReport = async () => {
-    const { data } = await api.getSecured().get('/admin/server/diag')
-
-    const link = document.createElement('a')
-    link.href = URL.createObjectURL(new Blob([data]))
-    link.download = `diagnostic.txt`
-    link.click()
-  }
-
   const checkStickySessions = async () => {
     const results: string[] = await Promise.all(
       _.times(NB_PING_FOR_STICKY_SESSIONS, async () => {

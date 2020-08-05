@@ -4,10 +4,10 @@ import api from '~/api'
 import { toastFailure } from '~/utils/toaster'
 
 export const DiagReport = () => {
-  const [busy, setBusy] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const getDiagReport = async () => {
-    setBusy(true)
+    setLoading(true)
 
     try {
       const { data } = await api.getSecured().get('/admin/server/diag')
@@ -19,9 +19,11 @@ export const DiagReport = () => {
     } catch (err) {
       toastFailure(`Couldn't generate diagnostic report: ${err}`)
     } finally {
-      setBusy(false)
+      setLoading(false)
     }
   }
 
-  return <Button onClick={getDiagReport} text={busy ? 'Please wait...' : 'Generate report'} disabled={busy}></Button>
+  return (
+    <Button onClick={getDiagReport} text={loading ? 'Please wait...' : 'Generate report'} disabled={loading}></Button>
+  )
 }
