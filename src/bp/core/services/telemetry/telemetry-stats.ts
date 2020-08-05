@@ -14,6 +14,9 @@ import { JobService } from '../job-service'
 
 const debug = DEBUG('stats')
 
+export const DEFAULT = '***default***'
+export const REDACTED = '***redacted***'
+
 @injectable()
 export abstract class TelemetryStats {
   protected abstract url: string

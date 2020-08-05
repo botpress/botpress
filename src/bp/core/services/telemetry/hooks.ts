@@ -13,7 +13,7 @@ import { GhostService } from '..'
 import { BotService } from '../bot-service'
 import { JobService } from '../job-service'
 
-import { TelemetryStats } from './telemetry-stats'
+import { REDACTED, TelemetryStats } from './telemetry-stats'
 
 interface BotHooks {
   botId: string
@@ -77,19 +77,20 @@ export class HooksLifecycleStats extends TelemetryStats {
     return paths.reduce((acc, curr) => {
       const path = curr.split('/')
       const lifecycle = path.shift() || ''
-      const [name, enabled] = this.parseHookName(path.pop())
+      const hookName = path.pop()
       const module = path.pop()
-      const type = module && BUILTIN_MODULES.includes(module) ? 'built-in' : 'custom'
+      const isBuiltIn = !!(module && BUILTIN_MODULES.includes(module))
+      const [name, enabled] = this.parseHookName(hookName || '', isBuiltIn)
 
-      return [...acc, { name, type, lifecycle, enabled }]
+      return [...acc, { name, lifecycle, enabled, type: isBuiltIn ? 'built-in' : 'custom' }]
     }, [] as Hook[])
   }
 
-  private parseHookName(name): [string, boolean] {
+  private parseHookName(name: string, isBuiltIn: boolean): [string, boolean] {
     if (name.charAt(0) === '.') {
-      return [name.substr(1), false]
+      return [isBuiltIn ? name.substr(1) : REDACTED, false]
     } else {
-      return [name, true]
+      return [isBuiltIn ? name : REDACTED, true]
     }
   }
 }

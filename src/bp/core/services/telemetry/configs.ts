@@ -20,10 +20,8 @@ import { BotService } from '../bot-service'
 import { JobService } from '../job-service'
 import { Config } from '../module/config-reader'
 
-import { TelemetryStats } from './telemetry-stats'
+import { DEFAULT, REDACTED, TelemetryStats } from './telemetry-stats'
 
-const DEFAULT = '***default***'
-const REDACTED = '***redacted***'
 const SECRET_KEYS = [
   'secret',
   'pw',
