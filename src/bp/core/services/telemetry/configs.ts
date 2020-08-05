@@ -119,7 +119,9 @@ export class ConfigsStats extends TelemetryStats {
     const bots = await this.botService.getBotsIds()
     const modules = _.intersection(BUILTIN_MODULES, Object.keys(process.LOADED_MODULES))
 
-    return (await Promise.map(modules, this.getConfigsByModule(bots))).reduce((acc, cur) => [...acc, ...cur])
+    return (await Promise.map(modules, this.getConfigsByModule(bots)))
+      .reduce((acc, cur) => [...acc, ...cur])
+      .filter(moduleConfig => _.size(moduleConfig.configs) > 0)
   }
 
   private getConfigsByModule(bots: string[]): (module: string) => Promise<ModuleConfigEvent[]> {
@@ -131,7 +133,7 @@ export class ConfigsStats extends TelemetryStats {
 
   private getModuleConfigPerBot(module: string, defaultValue: any): (botId: any) => Promise<ModuleConfigEvent> {
     return async botId => {
-      const runtimeValue = await this.moduleLoader.configReader.getForBot(module, botId)
+      const runtimeValue = _.omit(await this.moduleLoader.configReader.getForBot(module, botId), '$schema')
 
       return { module, botId: calculateHash(botId), configs: this.obfuscateSecrets(runtimeValue, defaultValue) }
     }
