@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import MLToolkit from 'ml/toolkit'
 
 import { DucklingEntityExtractor } from './entities/duckling_extractor'
 import LangProvider from './language/language-provider'
@@ -49,11 +50,11 @@ const initDucklingExtractor = async (bp: typeof sdk): Promise<void> => {
 export async function initializeTools(bp: typeof sdk): Promise<Tools> {
   await initDucklingExtractor(bp)
   const { languageProvider } = await initializeLanguageProvider(bp)
-  const { MLToolkit: mlToolkit, logger } = bp
+  const { logger } = bp
 
   return {
     partOfSpeechUtterances: (tokenUtterances: string[][], lang: string) => {
-      const tagger = getPOSTagger(lang, mlToolkit)
+      const tagger = getPOSTagger(lang, MLToolkit)
       // @ts-ignore
       return tokenUtterances.map(tagSentence.bind(this, tagger))
     },
@@ -67,7 +68,7 @@ export async function initializeTools(bp: typeof sdk): Promise<Tools> {
     getHealth: healthGetter(languageProvider),
     getLanguages: () => languageProvider.languages,
     getVersionInfo: versionGetter(languageProvider),
-    mlToolkit,
+    mlToolkit: MLToolkit,
     duckling: new DucklingEntityExtractor(logger)
   }
 }
