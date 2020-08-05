@@ -205,8 +205,8 @@ export default class Engine implements sdk.NLU.Engine {
     )
   }
 
-  async loadModel(serialized: sdk.NLU.Model) {
-    if (this.modelAlreadyLoaded(serialized)) {
+  async loadModel(serialized: sdk.NLU.Model | undefined) {
+    if (!serialized || this.modelAlreadyLoaded(serialized)) {
       return
     }
 
