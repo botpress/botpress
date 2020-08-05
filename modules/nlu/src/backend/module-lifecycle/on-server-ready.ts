@@ -29,6 +29,7 @@ export function getOnServerReady(state: NLUState) {
 
       if (trainSession && trainSession.status === 'training') {
         if (trainSession.lock) {
+          // tslint:disable-next-line: no-floating-promises
           trainSession.lock.unlock()
         }
         trainSession.status = 'canceled'
