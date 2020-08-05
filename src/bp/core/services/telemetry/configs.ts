@@ -35,7 +35,8 @@ const SECRET_KEYS = [
   'connection',
   'appId',
   's3',
-  'cert'
+  'cert',
+  'authStrategies'
 ]
 
 interface BotConfigEvent {
@@ -110,10 +111,21 @@ export class ConfigsStats extends TelemetryStats {
   }
 
   private async getBotpressConfig(): Promise<BotpressConfig> {
-    const botpressConfig = await this.config.getBotpressConfig()
+    const botpressConfig = this.obfuscateModulesLocation(await this.config.getBotpressConfig())
     const defaultConfig = defaultJsonBuilder(await this.fetchSchema('botpress.config.schema.json'))
 
     return this.obfuscateSecrets(botpressConfig, defaultConfig)
+  }
+
+  private obfuscateModulesLocation(botpressConfig: BotpressConfig) {
+    const modules = botpressConfig.modules.map(module => {
+      if (BUILTIN_MODULES.includes(module.location.split('/').pop() || '')) {
+        return module
+      } else {
+        return { location: REDACTED, enabled: module.enabled }
+      }
+    })
+    return { ...botpressConfig, modules }
   }
 
   private async getModulesConfigs(): Promise<ModuleConfigEvent[]> {
