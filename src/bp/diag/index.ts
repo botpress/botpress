@@ -7,14 +7,14 @@ import { BotConfig } from 'botpress/sdk'
 
 import { Workspace } from 'common/typings'
 import { Db, Ghost } from 'core/app'
+import { getOrCreate as redisFactory } from 'core/services/redis'
 import fse from 'fs-extra'
 import _ from 'lodash'
-import yn from 'yn'
-
-import { getOrCreate as redisFactory } from 'core/services/redis'
+import nanoid from 'nanoid'
 import os from 'os'
 import path from 'path'
 import stripAnsi from 'strip-ansi'
+import yn from 'yn'
 
 import IORedis from 'ioredis'
 import { startMonitor } from './monitor'
@@ -71,7 +71,7 @@ export const ENV_VARS = [
 
 const PASSWORD_REGEX = new RegExp(/(.*):(.*)@(.*)/)
 const REDIS_TEST_KEY = 'botpress_redis_test_key'
-const REDIS_TEST_VALUE = 'bp123'
+const REDIS_TEST_VALUE = nanoid()
 
 let redisClient: IORedis.Redis
 let includePasswords = false
