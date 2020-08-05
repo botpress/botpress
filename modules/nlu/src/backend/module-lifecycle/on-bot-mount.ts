@@ -22,7 +22,7 @@ export function getOnBotMount(state: NLUState) {
     const ghost = bp.ghost.forBot(botId)
     const entityService = new EntityService(ghost, botId)
 
-    const languages = _.intersection(bot.languages, state.languageProvider.languages)
+    const languages = _.intersection(bot.languages, Engine.tools.getLanguages())
     if (bot.languages.length !== languages.length) {
       bp.logger.warn(missingLangMsg(botId), { notSupported: _.difference(bot.languages, languages) })
     }
@@ -31,7 +31,7 @@ export function getOnBotMount(state: NLUState) {
       bp.logger.warn('Either the nlu version or the lang server version is not set correctly.')
     }
 
-    const engine = new Engine(bot.defaultLanguage, bot.id, state, bp.logger)
+    const engine = new Engine(bot.defaultLanguage, bot.id, bp.logger)
     const trainOrLoad = _.debounce(
       async (forceTrain: boolean = false) => {
         // bot got deleted
@@ -53,7 +53,7 @@ export function getOnBotMount(state: NLUState) {
               return
             }
 
-            const hash = ModelService.computeModelHash(intentDefs, entityDefs, state, languageCode)
+            const hash = engine.computeModelHash(intentDefs, entityDefs, state, languageCode)
             await ModelService.pruneModels(ghost, languageCode)
             let model = await ModelService.getModel(ghost, hash, languageCode)
 
@@ -61,13 +61,20 @@ export function getOnBotMount(state: NLUState) {
               const trainSession = makeTrainingSession(languageCode, lock)
               state.nluByBot[botId].trainSessions[languageCode] = trainSession
 
-              model = await engine.train(intentDefs, entityDefs, languageCode, trainSession, { forceTrain })
+              model = await engine.train(
+                intentDefs,
+                entityDefs,
+                languageCode,
+                state.reportTrainingProgress,
+                trainSession,
+                { forceTrain }
+              )
               if (model) {
                 await engine.loadModel(model)
                 await ModelService.saveModel(ghost, model, hash)
               }
             } else {
-              Engine.tools.reportTrainingProgress(botId, 'Training not needed', {
+              state.reportTrainingProgress(botId, 'Training not needed', {
                 language: languageCode,
                 progress: 1,
                 status: 'done'
