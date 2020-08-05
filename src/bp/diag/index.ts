@@ -28,6 +28,14 @@ import {
   wrapMethodCall
 } from './utils'
 
+interface Options {
+  config?: boolean
+  includePasswords?: boolean
+  outputFile?: string
+  noExit?: boolean
+  monitor?: boolean
+}
+
 export const OBFUSCATED = '***obfuscated***'
 export const SECRET_KEYS = ['secret', 'pw', 'password', 'token', 'key', 'cert']
 export const ENV_VARS = [
@@ -76,13 +84,13 @@ const REDIS_TEST_VALUE = nanoid()
 let redisClient: IORedis.Redis
 let includePasswords = false
 let botpressConfig = undefined
-let outputFile = undefined
+let outputFile: string | undefined = undefined
 
 export const print = (text: string) => {
-  console.log(text)
-
   if (outputFile) {
     fse.appendFileSync(outputFile!, stripAnsi(text) + os.EOL, 'utf8')
+  } else {
+    console.log(text)
   }
 }
 
@@ -137,7 +145,7 @@ const testConnectivity = async () => {
       }
     })
 
-    await wrapMethodCall('Test Redis', async () => {
+    await wrapMethodCall('Basic test of Redis', async () => {
       await redisClient.set(REDIS_TEST_KEY, REDIS_TEST_VALUE)
       const fetchValue = await redisClient.get(REDIS_TEST_KEY)
       await redisClient.del(REDIS_TEST_KEY)
@@ -146,6 +154,12 @@ const testConnectivity = async () => {
         throw new Error('Could not complete a basic operation on Redis')
       }
     })
+
+    try {
+      // @ts-ignore typing missing for that method
+      const reply = await redisClient.pubsub(['NUMSUB', 'job_done'])
+      printRow('Botpress nodes listening on Redis', reply[1])
+    } catch (err) {}
   }
 }
 
@@ -240,7 +254,7 @@ const printBotsList = async () => {
   })
 }
 
-export default async function(options) {
+export default async function(options: Options) {
   includePasswords = options.includePasswords || yn(process.env.BP_DIAG_INCLUDE_PASSWORDS)
   outputFile = options.outputFile || yn(process.env.BP_DIAG_OUTPUT)
 
@@ -263,7 +277,7 @@ export default async function(options) {
 
   if (options.monitor || yn(process.env.BP_DIAG_MONITOR)) {
     await startMonitor(botpressConfig!, redisClient)
-  } else {
+  } else if (!options.noExit) {
     process.exit(0)
   }
 }

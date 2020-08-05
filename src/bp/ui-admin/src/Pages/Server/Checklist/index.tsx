@@ -1,4 +1,4 @@
-import { Callout, Intent, Tag } from '@blueprintjs/core'
+import { Button, Callout, Intent, Tag } from '@blueprintjs/core'
 import { ServerConfig } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
@@ -83,6 +83,15 @@ export const Checklist: FC<Props> = props => {
       .map(x => debug[x])
 
     setAuditTrail(_.some(audit, Boolean))
+  }
+
+  const getDiagReport = async () => {
+    const { data } = await api.getSecured().get('/admin/server/diag')
+
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(new Blob([data]))
+    link.download = `diagnostic.txt`
+    link.click()
   }
 
   const checkStickySessions = async () => {
@@ -305,6 +314,17 @@ export const Checklist: FC<Props> = props => {
           status="none"
         >
           Check the documentation for more information
+        </Item>
+
+        <Item title="Generate a diagnostic report" status="none">
+          This tool will generate a report which can help diagnose problems. It will test the connectivity to various
+          components, ensure that proper folders are writable, and will also include the various configuration files.
+          <br />
+          <br />
+          Passwords and secrets will be obfuscated
+          <br />
+          <br />
+          <Button onClick={getDiagReport} text="Generate report"></Button>
         </Item>
       </div>
     </Container>
