@@ -32,7 +32,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
     const { botId, lang } = req.params
 
     const api = await createApi(bp, botId)
-    const intentDefs = await api.fetchIntents()
+    const intentDefs = await api.fetchIntentsWithQNAs()
     const entityDefs = await api.fetchEntities()
 
     bp.logger.forBot(botId).info('Started cross validation')

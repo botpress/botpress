@@ -5,6 +5,7 @@ import * as sdk from 'botpress/sdk'
 
 export interface NLUApi {
   fetchContexts: () => Promise<string[]>
+  fetchIntentsWithQNAs: () => Promise<NLU.IntentDefinition[]>
   fetchIntents: () => Promise<NLU.IntentDefinition[]>
   fetchIntent: (x: string) => Promise<NLU.IntentDefinition>
   createIntent: (x: Partial<NLU.IntentDefinition>) => Promise<any>
@@ -25,6 +26,7 @@ export interface NLUApi {
 
 export const makeApi = (bp: { axios: AxiosInstance }): NLUApi => ({
   fetchContexts: () => bp.axios.get('/nlu/contexts').then(res => res.data),
+  fetchIntentsWithQNAs: () => bp.axios.get('/nlu/intents').then(res => res.data),
   fetchIntents: async () => {
     const { data } = await bp.axios.get('/nlu/intents')
     return data.filter(x => !x.name.startsWith('__qna__'))
