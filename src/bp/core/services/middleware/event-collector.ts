@@ -15,14 +15,14 @@ type BatchEvent = sdk.IO.StoredEvent & { retry?: number }
 export const LAST_EVENT_STEP = 'completed'
 
 export const addStepToEvent = (step: string, event: sdk.IO.Event) => {
-  if (!event.debugger) {
+  if (!event?.debugger) {
     return
   }
 
   event.processing = {
     ...(event.processing || {}),
     [step]: {
-      ...(event.activeProcessing || {}),
+      ...(event?.activeProcessing || {}),
       date: new Date()
     }
   }
@@ -31,14 +31,14 @@ export const addStepToEvent = (step: string, event: sdk.IO.Event) => {
 }
 
 export const addLogToEvent = (logEntry: string, event: sdk.IO.Event) => {
-  if (event.debugger) {
-    event.activeProcessing!.logs = [...(event.activeProcessing!.logs ?? []), logEntry]
+  if (event?.debugger && event?.activeProcessing) {
+    event.activeProcessing.logs = [...(event.activeProcessing.logs ?? []), logEntry]
   }
 }
 
 export const addErrorToEvent = (eventError: sdk.IO.EventError, event: sdk.IO.Event) => {
-  if (event.debugger) {
-    event.activeProcessing!.errors = [...(event.activeProcessing!.errors ?? []), eventError]
+  if (event?.debugger && event?.activeProcessing) {
+    event.activeProcessing.errors = [...(event.activeProcessing.errors ?? []), eventError]
   }
 }
 

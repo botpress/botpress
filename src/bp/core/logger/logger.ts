@@ -225,6 +225,7 @@ export class PersistedConsoleLogger implements Logger {
     this.botId = undefined
     this.attachedError = undefined
     this.emitLogStream = true
+    this.event = undefined
   }
 
   debug(message: string, metadata?: any): void {
