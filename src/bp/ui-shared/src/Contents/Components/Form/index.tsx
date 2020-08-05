@@ -1,9 +1,9 @@
-import { Button, Checkbox, Position, Tooltip } from '@blueprintjs/core'
-import { FormMoreInfo } from 'botpress/sdk'
+import { Button, Checkbox } from '@blueprintjs/core'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useReducer, useState } from 'react'
 
+import ToolTip from '../../../../../ui-shared-lite/ToolTip'
 import { lang } from '../../../translations'
 import SuperInput from '../../../FormFields/SuperInput'
 import SuperInputArray from '../../../FormFields/SuperInputArray'
@@ -48,16 +48,15 @@ const Form: FC<FormProps> = ({
     }
 
     return field.superInput && !['text', 'text_array'].includes(field.type) ? (
-      <Tooltip
+      <ToolTip
         content={lang(
           isSuperInput(field, parent) ? 'superInput.convertToRegularInput' : 'superInput.convertToSmartInput'
         )}
-        position={Position.TOP}
       >
         <Button className={style.superInputBtn} small minimal onClick={() => toggleSuperInput(field, parent)}>
           {lang(field.label)}
         </Button>
-      </Tooltip>
+      </ToolTip>
     ) : (
       lang(field.label)
     )

@@ -1,6 +1,7 @@
 // @ts-nocheck
 import cx from 'classnames'
-import React, { Children, cloneElement, FC, useEffect, useRef } from 'react'
+import { div } from 'numeric'
+import React, { Children, cloneElement, FC, useEffect, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 
 import style from './style.scss'
@@ -63,23 +64,16 @@ const tipPosition = (positionClasses, el) => {
   return { left, right }
 }
 
-const ToolTip: FC<ToolTipProps> = ({ children, content, position = 'top' }) => {
-  const elRef = useRef<any>(null)
+const ToolTip: FC<ToolTipProps> = ({ children, content, position = 'top', hoverOpenDelay }) => {
+  if (!content) {
+    return children
+  }
+
   const tooltipRef = useRef<HTMLDivElement>(null)
   const tipRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    elRef.current.addEventListener('mouseenter', show)
-    elRef.current.addEventListener('mouseleave', hide)
-
-    return () => {
-      elRef.current.removeEventListener('mouseenter', show)
-      elRef.current.removeEventListener('mouseleave', hide)
-    }
-  }, [elRef.current])
-
-  const pastShow = () => {
-    const elementRect = elRef.current?.getBoundingClientRect()
+  const pastShow = el => {
+    const elementRect = el?.getBoundingClientRect()
     const tooltipRect = tooltipRef.current?.getBoundingClientRect()
 
     if (tooltipRect) {
@@ -164,21 +158,34 @@ const ToolTip: FC<ToolTipProps> = ({ children, content, position = 'top' }) => {
           break
       }
 
-      const { left, top } = getPositions({ xClass, yClass }, elRef.current, tooltipRef.current)
-      const tipPos = tipPosition({ xClass, yClass }, elRef.current)
+      const { left, top } = getPositions({ xClass, yClass }, el, tooltipRef.current)
+      const tipPos = tipPosition({ xClass, yClass }, el)
 
       const inlineStyle = {
         left: left + 'px',
         top: top + 'px'
       }
 
-      handleHtmlRendering(cx(style.visible, xClass, yClass), inlineStyle, tipPos)
+      setTimeout(() => {
+        tooltipRef.current.classList.add(style.visible)
+        if (xClass) {
+          tooltipRef.current.classList.add(xClass)
+        }
+        if (yClass) {
+          tooltipRef.current.classList.add(yClass)
+        }
+        tooltipRef.current.style.left = inlineStyle.left
+        tooltipRef.current.style.top = inlineStyle.top
+        tipRef.current.style.left = tipPos.left
+        tipRef.current.style.right = tipPos.right
+      }, hoverOpenDelay || 0)
     }
   }
 
-  const show = () => {
+  const show = e => {
+    console.log(e.currentTarget)
     handleHtmlRendering()
-    pastShow()
+    pastShow(e.currentTarget)
   }
 
   const handleHtmlRendering = (classNames = '', inlineStyle = {}, tipPos = {}) => {
@@ -204,13 +211,21 @@ const ToolTip: FC<ToolTipProps> = ({ children, content, position = 'top' }) => {
   }
 
   const hide = () => {
-    const div = document.getElementById('botpress-tooltip') as HTMLElement
+    tooltipRef.current.classList.remove(style.visible)
     const body = document.getElementsByTagName('body')[0]
 
-    body.removeChild(div)
+    setTimeout(() => {
+      const div = document.getElementById('botpress-tooltip') as HTMLElement
+      if (div) {
+        body.removeChild(div)
+      }
+    }, 300)
   }
 
-  return cloneElement(Children.only(children), { ref: el => (elRef.current = el) })
+  return cloneElement(Children.only(children), {
+    onMouseEnter: show,
+    onMouseLeave: hide
+  })
 }
 
 export default ToolTip
