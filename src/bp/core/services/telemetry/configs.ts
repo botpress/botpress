@@ -34,18 +34,19 @@ const SECRET_KEYS = [
   'email',
   'connection',
   'appId',
-  's3'
+  's3',
+  'cert'
 ]
 
 interface BotConfigEvent {
   botId: string
-  botConfigs: BotConfig
+  botConfig: BotConfig
 }
 
 interface ModuleConfigEvent {
   botId: string
   module: string
-  configs: Config
+  config: Config
 }
 
 @injectable()
@@ -78,7 +79,7 @@ export class ConfigsStats extends TelemetryStats {
         schema: '1.0.0',
         botConfigs: await this.getBotsConfigs(),
         modulesConfigs: await this.getModulesConfigs(),
-        botpressConfig: await this.getBotpressConfigs()
+        botpressConfig: await this.getBotpressConfig()
       }
     }
   }
@@ -108,7 +109,7 @@ export class ConfigsStats extends TelemetryStats {
     }
   }
 
-  private async getBotpressConfigs(): Promise<BotpressConfig> {
+  private async getBotpressConfig(): Promise<BotpressConfig> {
     const botpressConfig = await this.config.getBotpressConfig()
     const defaultConfig = defaultJsonBuilder(await this.fetchSchema('botpress.config.schema.json'))
 
@@ -121,7 +122,7 @@ export class ConfigsStats extends TelemetryStats {
 
     return (await Promise.map(modules, this.getConfigsByModule(bots)))
       .reduce((acc, cur) => [...acc, ...cur])
-      .filter(moduleConfig => _.size(moduleConfig.configs) > 0)
+      .filter(moduleConfig => _.size(moduleConfig.config) > 0)
   }
 
   private getConfigsByModule(bots: string[]): (module: string) => Promise<ModuleConfigEvent[]> {
@@ -135,7 +136,7 @@ export class ConfigsStats extends TelemetryStats {
     return async botId => {
       const runtimeValue = _.omit(await this.moduleLoader.configReader.getForBot(module, botId), '$schema')
 
-      return { module, botId: calculateHash(botId), configs: this.obfuscateSecrets(runtimeValue, defaultValue) }
+      return { module, botId: calculateHash(botId), config: this.obfuscateSecrets(runtimeValue, defaultValue) }
     }
   }
 
@@ -145,7 +146,7 @@ export class ConfigsStats extends TelemetryStats {
 
     return [...bots].reduce((acc: any[], bot) => {
       const [botId, botConfig] = bot
-      return [...acc, { botId: calculateHash(botId), botConfigs: this.formatBotConfig(botConfig, defaultConfig) }]
+      return [...acc, { botId: calculateHash(botId), botConfig: this.formatBotConfig(botConfig, defaultConfig) }]
     }, [])
   }
 
