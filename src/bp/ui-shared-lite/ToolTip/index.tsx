@@ -183,7 +183,6 @@ const ToolTip: FC<ToolTipProps> = ({ children, content, position = 'top', hoverO
   }
 
   const show = e => {
-    console.log(e.currentTarget)
     handleHtmlRendering()
     pastShow(e.currentTarget)
   }
