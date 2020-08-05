@@ -163,6 +163,10 @@ export class ServerRouter extends CustomRouter {
     router.get(
       '/diag',
       this.asyncMiddleware(async (req, res) => {
+        if (yn(process.core_env.BP_DISABLE_SERVER_DIAG)) {
+          return res.send('Diagnostic report is disabled by the system administrator (BP_DISABLE_SERVER_DIAG)')
+        }
+
         const tmpFile = tmpNameSync()
         await diag({ outputFile: tmpFile, noExit: true, config: true })
         res.send(await fse.readFile(tmpFile, 'utf-8'))

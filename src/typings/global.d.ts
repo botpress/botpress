@@ -171,6 +171,12 @@ declare type BotpressEnvironmentVariables = {
   readonly BP_DISABLE_SERVER_CONFIG?: boolean
 
   /**
+   * Disable API call to generate a diagnostic report. Command line/environment variables will still work
+   * @default false
+   */
+  readonly BP_DISABLE_SERVER_DIAG?: boolean
+
+  /**
    * Prevents Botpress from closing cleanly when an error is encountered.
    * This only affects fatal errors, it will not affect business rules checks (eg: licensing)
    */
