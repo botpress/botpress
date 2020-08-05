@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import { TelemetryRepository } from 'core/repositories/telemetry'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
 import { RequestHandler, Router } from 'express'
+import Joi from 'joi'
 
 import { CustomRouter } from './customRouter'
 import { checkTokenHeader } from './util'
@@ -27,8 +28,13 @@ export class TelemetryRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { success, events } = req.body
 
-        if (!events.length || !!events.filter(e => typeof e !== 'string').length) {
-          res.sendStatus(500)
+        const schema = Joi.object({
+          success: Joi.boolean(),
+          events: Joi.array().items(Joi.string())
+        })
+
+        if (schema.validate({ success, events })) {
+          res.sendStatus(400)
           return
         }
 
