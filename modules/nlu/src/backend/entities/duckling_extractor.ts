@@ -131,7 +131,7 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
         }
       }
     } catch (err) {
-      console.log('could not load duckling cache')
+      console.error('could not load duckling cache')
     }
   }
 
@@ -181,7 +181,7 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
       await ensureFile(CACHE_PATH)
       await writeJson(CACHE_PATH, DucklingEntityExtractor._cache.dump())
     } catch (err) {
-      this.logger?.error('could not persist system entities cache, error' + err.message)
+      this.logger?.error(`could not persist system entities cache, error ${err.message}`)
       this._cacheDumpEnabled = false
     }
   }

@@ -11,8 +11,13 @@ type Serialized = SvmModel & {
 
 export class Trainer implements sdk.MLToolkit.SVM.Trainer {
   private model?: SvmModel
+  private svm?: SVM
 
   constructor() {}
+
+  cancelTraining() {
+    this.svm?.cancelTraining()
+  }
 
   async train(
     points: sdk.MLToolkit.SVM.DataPoint[],
@@ -43,7 +48,7 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
     const arr = (n: number | number[]) => (_.isArray(n) ? n : [n])
 
     options = options ?? {}
-    const svm = new SVM({
+    this.svm = new SVM({
       svm_type: options.classifier ? SvmTypes[options.classifier] : undefined,
       kernel_type: options.kernel ? KernelTypes[options.kernel] : undefined,
       C: options.c ? arr(options.c) : undefined,
@@ -53,14 +58,18 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
       kFold
     })
 
-    const { model: trainedModel } = await svm.train(dataset, progress => {
+    const trainResult = await this.svm.train(dataset, progress => {
       if (callback && typeof callback === 'function') {
         callback(progress)
       }
     })
-    this.model = trainedModel
+    if (!trainResult) {
+      return ''
+    }
 
-    const serialized: Serialized = { ...trainedModel, labels_idx: labels }
+    const { model } = trainResult
+    this.model = model
+    const serialized: Serialized = { ...model, labels_idx: labels }
     return JSON.stringify(serialized)
   }
 

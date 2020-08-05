@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Button, Icon } from '@blueprintjs/core'
 import cx from 'classnames'
 import React, { FC, Fragment } from 'react'
@@ -26,7 +27,7 @@ const MoreOptions: FC<MoreOptionsProps> = props => {
       {!element && (
         <button
           onClick={handleToggle}
-          type="button"
+          type='button'
           className={cx(style.moreBtn, 'more-options-btn', { [style.active]: show })}
         >
           <span className={style.moreBtnDots}></span>
@@ -51,7 +52,7 @@ const MoreOptions: FC<MoreOptionsProps> = props => {
                     onClick={e => onAction(e, action)}
                   >
                     {label}
-                    {selected && <Icon icon="tick" iconSize={12} />}
+                    {selected && <Icon icon='tick' iconSize={12} />}
                   </Button>
                 )}
                 {!action && (

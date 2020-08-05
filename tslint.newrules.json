@@ -6,7 +6,6 @@
     "interface-over-type-literal": true,
     "prefer-template": true,
     "quotemark": [true, "single", "jsx-double", "avoid-escape", "avoid-template"],
-    "prefer-function-over-method": true,
     "no-console": [true, "log"],
     "no-return-await": true,
     "triple-equals": [true, "allow-null-check", "allow-undefined-check"],

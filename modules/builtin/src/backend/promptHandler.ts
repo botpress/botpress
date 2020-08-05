@@ -55,7 +55,7 @@ export const handlePrompt = async (event: sdk.IO.OutgoingEvent, bp: typeof sdk):
 
       if (payload.enumType) {
         const { data } = await axios.get(
-          `mod/nlu/entities/${payload.enumType}`,
+          `nlu/entities/${payload.enumType}`,
           await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
         )
         items = data.occurrences.map(x => ({ label: x.name, value: x.name }))

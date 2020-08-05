@@ -35,7 +35,8 @@ const entryPoint: sdk.ModuleEntryPoint = {
   definition: {
     name: 'channel-messenger',
     noInterface: true,
-    fullName: 'Messenger Channel'
+    fullName: 'Messenger Channel',
+    channelEffects: ['__typing', '__buttons']
   }
 }
 

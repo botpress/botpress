@@ -3,10 +3,9 @@ import _ from 'lodash'
 import ms from 'ms'
 import yn from 'yn'
 
+import { createApi } from '../../api'
 import { isOn as isAutoTrainOn } from '../autoTrain'
 import Engine from '../engine'
-import EntityService from '../entities/entities-service'
-import { getIntents } from '../intents/intent-service'
 import * as ModelService from '../model-service'
 import { makeTrainingSession, makeTrainSessionKey } from '../train-session-service'
 import { NLUState } from '../typings'
@@ -20,18 +19,18 @@ export function getOnBotMount(state: NLUState) {
   return async (bp: typeof sdk, botId: string) => {
     const bot = await bp.bots.getBotById(botId)
     const ghost = bp.ghost.forBot(botId)
-    const entityService = new EntityService(ghost, botId)
 
-    const languages = _.intersection(bot.languages, state.languageProvider.languages)
+    const languages = _.intersection(bot.languages, Engine.tools.getLanguages())
     if (bot.languages.length !== languages.length) {
       bp.logger.warn(missingLangMsg(botId), { notSupported: _.difference(bot.languages, languages) })
     }
 
-    if (!state.nluVersion.length || !state.langServerInfo.version.length) {
+    const version = Engine.tools.getVersionInfo()
+    if (!version.nluVersion.length || !version.langServerInfo.version.length) {
       bp.logger.warn('Either the nlu version or the lang server version is not set correctly.')
     }
 
-    const engine = new Engine(bot.defaultLanguage, bot.id, state, bp.logger)
+    const engine = new Engine(bot.defaultLanguage, bot.id, bp.logger)
     const trainOrLoad = _.debounce(
       async (forceTrain: boolean = false) => {
         // bot got deleted
@@ -39,8 +38,9 @@ export function getOnBotMount(state: NLUState) {
           return
         }
 
-        const intentDefs = await getIntents(ghost)
-        const entityDefs = await entityService.getCustomEntities()
+        const api = await createApi(bp, botId)
+        const intentDefs = await api.fetchIntentsWithQNAs()
+        const entityDefs = await api.fetchEntities()
 
         const kvs = bp.kvs.forBot(botId)
         await kvs.set(KVS_TRAINING_STATUS_KEY, 'training')
@@ -53,7 +53,7 @@ export function getOnBotMount(state: NLUState) {
               return
             }
 
-            const hash = ModelService.computeModelHash(intentDefs, entityDefs, state, languageCode)
+            const hash = engine.computeModelHash(intentDefs, entityDefs, languageCode)
             await ModelService.pruneModels(ghost, languageCode)
             let model = await ModelService.getModel(ghost, hash, languageCode)
 
@@ -61,13 +61,20 @@ export function getOnBotMount(state: NLUState) {
               const trainSession = makeTrainingSession(languageCode, lock)
               state.nluByBot[botId].trainSessions[languageCode] = trainSession
 
-              model = await engine.train(intentDefs, entityDefs, languageCode, trainSession, { forceTrain })
+              model = await engine.train(
+                intentDefs,
+                entityDefs,
+                languageCode,
+                state.reportTrainingProgress,
+                trainSession,
+                { forceTrain }
+              )
               if (model) {
                 await engine.loadModel(model)
                 await ModelService.saveModel(ghost, model, hash)
               }
             } else {
-              Engine.tools.reportTrainingProgress(botId, 'Training not needed', {
+              state.reportTrainingProgress(botId, 'Training not needed', {
                 language: languageCode,
                 progress: 1,
                 status: 'done'
@@ -119,8 +126,7 @@ export function getOnBotMount(state: NLUState) {
       trainOrLoad,
       trainSessions: {},
       cancelTraining,
-      isTraining,
-      entityService
+      isTraining
     }
 
     trainOrLoad(yn(process.env.FORCE_TRAIN_ON_MOUNT)) // floating promise on purpose
