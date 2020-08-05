@@ -2,8 +2,6 @@ import * as sdk from 'botpress/sdk'
 import Joi from 'joi'
 import _ from 'lodash'
 
-import { createApi } from '../api'
-
 import { isOn as isAutoTrainOn, set as setAutoTrain } from './autoTrain'
 import recommendations from './intents/recommendations'
 import legacyElectionPipeline from './legacy-election'

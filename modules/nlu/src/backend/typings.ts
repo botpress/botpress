@@ -13,48 +13,14 @@ export type NLUState = {
   reportTrainingProgress: sdk.NLU.ProgressReporter
 }
 
-export interface NLUVersionInfo {
-  nluVersion: string
-  langServerInfo: LangServerInfo
-}
-
-export interface LangServerInfo {
-  version: string
-  domain: string
-  dim: number
-}
-
 export interface BotState {
   botId: string
   engine: sdk.NLU.Engine
   trainWatcher: sdk.ListenHandle
   trainOrLoad: (forceTrain: boolean) => Promise<void>
-  trainSessions: _.Dictionary<TrainingSession>
+  trainSessions: _.Dictionary<sdk.NLU.TrainingSession>
   cancelTraining: () => Promise<void>
   isTraining: () => Promise<boolean>
-}
-
-export type EntityExtractor = 'system' | 'list' | 'pattern'
-export interface ExtractedEntity {
-  confidence: number
-  type: string
-  metadata: {
-    source: string
-    entityId: string
-    extractor: EntityExtractor
-    unit?: string
-    occurrence?: string
-  }
-  sensitive?: boolean
-  value: string
-}
-export type EntityExtractionResult = ExtractedEntity & { start: number; end: number }
-
-export interface TrainingSession {
-  status: 'training' | 'canceled' | 'done' | 'idle'
-  language: string
-  progress: number
-  lock?: sdk.RedisLock
 }
 
 export interface NLUProgressEvent {
@@ -62,5 +28,5 @@ export interface NLUProgressEvent {
   working: boolean
   botId: string
   message: string
-  trainSession: TrainingSession
+  trainSession: sdk.NLU.TrainingSession
 }

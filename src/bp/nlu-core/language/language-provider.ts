@@ -14,7 +14,7 @@ import semver from 'semver'
 import { getSeededLodash, resetSeed } from '../tools/seeded-lodash'
 import { setSimilarity, vocabNGram } from '../tools/strings'
 import { isSpace, processUtteranceTokens, restoreOriginalUtteranceCasing } from '../tools/token-utils'
-import { Gateway, LangServerInfo, LangsGateway, LanguageProvider, LanguageSource, Token2Vec } from '../typings'
+import { Gateway, LangServerInfo, LangsGateway, LanguageProvider, Token2Vec } from '../typings'
 
 const debug = DEBUG('nlu').sub('lang')
 
@@ -57,12 +57,12 @@ export class RemoteLanguageProvider implements LanguageProvider {
     return Object.keys(this.langs)
   }
 
-  private addProvider(lang: string, source: LanguageSource, client: AxiosInstance) {
+  private addProvider(lang: string, source: NLU.LanguageSource, client: AxiosInstance) {
     this.langs[lang] = [...(this.langs[lang] || []), { source, client, errors: 0, disabledUntil: undefined }]
     debug(`[${lang.toUpperCase()}] Language Provider added %o`, source)
   }
 
-  async initialize(sources: LanguageSource[], logger: NLU.Logger, nluVersion: string): Promise<LanguageProvider> {
+  async initialize(sources: NLU.LanguageSource[], logger: NLU.Logger, nluVersion: string): Promise<LanguageProvider> {
     this._nluVersion = nluVersion
     this._validProvidersCount = 0
 

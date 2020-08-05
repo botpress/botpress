@@ -26,7 +26,7 @@ export interface LangServerInfo {
 }
 
 export interface Gateway {
-  source: LanguageSource
+  source: sdk.NLU.LanguageSource
   client: AxiosInstance
   errors: number
   disabledUntil?: Date
@@ -43,13 +43,6 @@ export interface LanguageProvider {
   tokenize(utterances: string[], lang: string, vocab?: Token2Vec): Promise<string[][]>
   generateSimilarJunkWords(subsetVocab: string[], lang: string): Promise<string[]>
   getHealth(): Partial<sdk.NLU.Health>
-}
-
-export interface LanguageSource {
-  /** The endpoint URL of the source */
-  endpoint: string
-  /** The authentication token, if required by the source */
-  authToken?: string
 }
 
 export type TFIDF = _.Dictionary<number>
