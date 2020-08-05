@@ -1,12 +1,4 @@
-import sdk from 'botpress/sdk'
-import LRUCache from 'lru-cache'
-
-export interface LanguageSource {
-  /** The endpoint URL of the source */
-  endpoint: string
-  /** The authentication token, if required by the source */
-  authToken?: string
-}
+import sdk, { NLU } from 'botpress/sdk'
 
 export interface NluMlRecommendations {
   minUtterancesForML: number
@@ -15,6 +7,7 @@ export interface NluMlRecommendations {
 
 export type NLUState = {
   nluByBot: _.Dictionary<BotState>
+  logger: NLU.Logger
   broadcastLoadModel?: (botId: string, hash: string, language: string) => Promise<void>
   broadcastCancelTraining?: (botId: string, language: string) => Promise<void>
   reportTrainingProgress: sdk.NLU.ProgressReporter

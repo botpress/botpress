@@ -458,7 +458,7 @@ declare module 'botpress/sdk' {
 
   export namespace NLU {
     export class Engine {
-      static initialize: (bp: any) => Promise<void>
+      static initialize: (config: Config, logger: NLU.Logger) => Promise<void>
       static getHealth: () => Health
       static getLanguages: () => string[]
       constructor(defaultLanguage: string, botId: string, logger: Logger)
@@ -473,6 +473,23 @@ declare module 'botpress/sdk' {
         options?: TrainingOptions
       ) => Promise<Model | undefined>
       predict: (t: string, ctx: string[]) => Promise<IO.EventUnderstanding>
+    }
+
+    export interface Config {
+      ducklingURL: string
+      ducklingEnabled: boolean
+      languageSources: LanguageSource[]
+    }
+
+    export interface LanguageSource {
+      endpoint: string
+      authToken?: string
+    }
+
+    export interface Logger {
+      info: (msg: string) => void
+      warning: (msg: string, err?: Error) => void
+      error: (msg: string, err?: Error) => void
     }
 
     export interface TrainingOptions {

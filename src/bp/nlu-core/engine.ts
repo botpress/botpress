@@ -1,5 +1,4 @@
-import * as sdk from 'botpress/sdk'
-import { Logger, MLToolkit, NLU } from 'botpress/sdk'
+import { MLToolkit, NLU } from 'botpress/sdk'
 import crypto from 'crypto'
 import _ from 'lodash'
 
@@ -15,13 +14,13 @@ import { EntityCacheDump, Intent, ListEntity, ListEntityModel, PatternEntity, To
 
 const trainDebug = DEBUG('nlu').sub('training')
 
-export default class Engine implements sdk.NLU.Engine {
+export default class Engine implements NLU.Engine {
   private static _tools: Tools
 
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<Model> = {}
 
-  constructor(private defaultLanguage: string, private botId: string, private logger: Logger) {}
+  constructor(private defaultLanguage: string, private botId: string, private logger: NLU.Logger) {}
 
   // NOTE: removed private in order to prevent important refactor (which will be done later)
   public static get tools() {
@@ -40,11 +39,11 @@ export default class Engine implements sdk.NLU.Engine {
     return this._tools.getVersionInfo()
   }
 
-  public static async initialize(bp: typeof sdk): Promise<void> {
-    this._tools = await initializeTools(bp)
+  public static async initialize(config: NLU.Config, logger: NLU.Logger): Promise<void> {
+    this._tools = await initializeTools(config, logger)
     const version = this._tools.getVersionInfo()
     if (!version.nluVersion.length || !version.langServerInfo.version.length) {
-      bp.logger.warn('Either the nlu version or the lang server version is not set correctly.')
+      logger.warning('Either the nlu version or the lang server version is not set correctly.')
     }
   }
 
@@ -64,10 +63,10 @@ export default class Engine implements sdk.NLU.Engine {
     intentDefs: NLU.IntentDefinition[],
     entityDefs: NLU.EntityDefinition[],
     languageCode: string,
-    reportTrainingProgress?: sdk.NLU.ProgressReporter,
-    trainingSession?: sdk.NLU.TrainingSession,
-    options?: sdk.NLU.TrainingOptions
-  ): Promise<sdk.NLU.Model | undefined> {
+    reportTrainingProgress?: NLU.ProgressReporter,
+    trainingSession?: NLU.TrainingSession,
+    options?: NLU.TrainingOptions
+  ): Promise<NLU.Model | undefined> {
     trainDebug.forBot(this.botId, `Started ${languageCode} training`)
 
     const list_entities = entityDefs
@@ -163,14 +162,14 @@ export default class Engine implements sdk.NLU.Engine {
   private async _trainAndMakeModel(
     input: TrainInput,
     hash: string,
-    reportTrainingProgress?: sdk.NLU.ProgressReporter
+    reportTrainingProgress?: NLU.ProgressReporter
   ): Promise<Model | undefined> {
     const startedAt = new Date()
     let output: TrainOutput | undefined
     try {
       output = await Trainer(input, Engine._tools, reportTrainingProgress)
     } catch (err) {
-      this.logger.attachError(err).error('Could not finish training NLU model')
+      this.logger.error('Could not finish training NLU model', err)
       return
     }
 
@@ -190,7 +189,7 @@ export default class Engine implements sdk.NLU.Engine {
     }
   }
 
-  private modelAlreadyLoaded(model: sdk.NLU.Model) {
+  private modelAlreadyLoaded(model: NLU.Model) {
     if (!model?.languageCode) {
       return false
     }
@@ -205,7 +204,7 @@ export default class Engine implements sdk.NLU.Engine {
     )
   }
 
-  async loadModel(serialized: sdk.NLU.Model | undefined) {
+  async loadModel(serialized: NLU.Model | undefined) {
     if (!serialized || this.modelAlreadyLoaded(serialized)) {
       return
     }

@@ -1,9 +1,7 @@
 import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import semver from 'semver'
 
-import nluInfo from '../../../package.json'
 import legacyElectionPipeline from '../legacy-election'
 import { getLatestModel } from '../model-service'
 import { removeTrainingSession, setTrainingSession } from '../train-session-service'
@@ -25,6 +23,15 @@ async function initializeReportingTool(bp: typeof sdk, state: NLUState) {
       setTimeout(() => removeTrainingSession(bp, botId, trainSession), 5000)
     }
   }
+}
+
+function initializeLogger(bp: typeof sdk, state: NLUState) {
+  const logger: sdk.NLU.Logger = {
+    info: (msg: string) => bp.logger.info(msg),
+    warning: (msg: string, err?: Error) => (err ? bp.logger.attachError(err).warn(msg) : bp.logger.warn(msg)),
+    error: (msg: string, err?: Error) => (err ? bp.logger.attachError(err).error(msg) : bp.logger.error(msg))
+  }
+  state.logger = logger
 }
 
 const EVENTS_TO_IGNORE = ['session_reference', 'session_reset', 'bp_dialog_timeout', 'visit', 'say_something', '']
@@ -119,7 +126,9 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
 export function getOnSeverStarted(state: NLUState) {
   return async (bp: typeof sdk) => {
     await initializeReportingTool(bp, state)
-    await bp.NLU.Engine.initialize(bp)
+    initializeLogger(bp, state)
+    const globalConfig = await bp.config.getModuleConfig('nlu')
+    await bp.NLU.Engine.initialize(globalConfig, state.logger)
     await registerMiddleware(bp, state)
   }
 }

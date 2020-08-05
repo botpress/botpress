@@ -24,7 +24,7 @@ export function getOnBotMount(state: NLUState) {
       bp.logger.warn(missingLangMsg(botId), { notSupported: _.difference(bot.languages, languages) })
     }
 
-    const engine = new bp.NLU.Engine(bot.defaultLanguage, bot.id, bp.logger)
+    const engine = new bp.NLU.Engine(bot.defaultLanguage, bot.id, state.logger)
     const trainOrLoad = _.debounce(
       async (forceTrain: boolean = false) => {
         // bot got deleted

@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
 import retry from 'bluebird-retry'
-import * as sdk from 'botpress/sdk'
+import { NLU } from 'botpress/sdk'
 import crypto from 'crypto'
 import fse from 'fs-extra'
 import httpsProxyAgent from 'https-proxy-agent'
@@ -62,11 +62,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     debug(`[${lang.toUpperCase()}] Language Provider added %o`, source)
   }
 
-  async initialize(
-    sources: LanguageSource[],
-    logger: typeof sdk.logger,
-    nluVersion: string
-  ): Promise<LanguageProvider> {
+  async initialize(sources: LanguageSource[], logger: NLU.Logger, nluVersion: string): Promise<LanguageProvider> {
     this._nluVersion = nluVersion
     this._validProvidersCount = 0
 
@@ -211,7 +207,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     }
   }
 
-  private handleLanguageServerError = (err, endpoint: string, logger) => {
+  private handleLanguageServerError = (err, endpoint: string, logger: NLU.Logger) => {
     const status = _.get(err, 'failure.response.status')
     const details = _.get(err, 'failure.response.message')
 
@@ -222,7 +218,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     } else if (status === 401) {
       logger.error(`You must provide a valid authentication token for the endpoint ${endpoint}`)
     } else {
-      logger.attachError(err).error(`Could not load Language Provider at ${endpoint}: ${err.code}`)
+      logger.error(`Could not load Language Provider at ${endpoint}: ${err.code}`, err)
     }
   }
 
@@ -313,7 +309,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     }
   }
 
-  getHealth(): Partial<sdk.NLU.Health> {
+  getHealth(): Partial<NLU.Health> {
     return { validProvidersCount: this._validProvidersCount, validLanguages: Object.keys(this.langs) }
   }
 
