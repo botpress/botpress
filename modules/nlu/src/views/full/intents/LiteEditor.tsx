@@ -57,7 +57,7 @@ export const LiteEditor: FC<Props> = props => {
   }, [isModalOpen])
 
   const loadIntents = async () => {
-    setIntents(await api.fetchIntents())
+    setIntents(await api.fetchIntentsOnly())
   }
 
   const createIntent = async (sanitizedName: string, rawName: string) => {

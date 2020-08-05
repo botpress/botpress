@@ -36,7 +36,7 @@ const NLU: FC<Props> = props => {
 
   const loadIntents = () =>
     api
-      .fetchIntents()
+      .fetchIntentsOnly()
       .then(setIntents)
       .then(x => setCurrentItem(undefined))
       .then(x => setCurrentItem(currentItem)) // this is little hack to trigger update for IntentEditor->Slots->SlotModal
