@@ -8,6 +8,7 @@ import PageContainer from '~/App/PageContainer'
 
 import { fetchServerConfig } from '../../../reducers/server'
 
+import { DiagReport } from './DiagReport'
 import Item from './Item'
 
 const NOT_SET = 'Not set'
@@ -324,7 +325,7 @@ export const Checklist: FC<Props> = props => {
           Passwords and secrets will be obfuscated
           <br />
           <br />
-          <Button onClick={getDiagReport} text="Generate report"></Button>
+          <DiagReport />
         </Item>
       </div>
     </Container>
