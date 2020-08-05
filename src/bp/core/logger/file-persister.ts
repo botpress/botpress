@@ -17,6 +17,7 @@ export class LoggerFilePersister {
   private maxFileSize!: number
   private outputFolder!: string
   private logger!: Logger
+  private enabled = false
 
   constructor() {}
 
@@ -29,6 +30,7 @@ export class LoggerFilePersister {
     this.logger = logger
     this.outputFolder = logsConfig.folder
     this.maxFileSize = 1024 * logsConfig.maxFileSize
+    this.enabled = true
 
     if (process.env.DEBUG_LOGGER) {
       this.logger.debug(`Saving logs to ${this.outputFolder}, keeping file size under ${logsConfig.maxFileSize} kb`)
@@ -40,6 +42,10 @@ export class LoggerFilePersister {
   }
 
   appendLog(entry: LoggerEntry) {
+    if (!this.enabled) {
+      return
+    }
+
     const bot = entry.botId ? `(bot: ${entry.botId})` : ''
     this.batch.push(`${entry.timestamp} ${entry.scope} (${entry.level}) ${bot} ${entry.message}${entry.metadata}\n`)
   }
