@@ -1,3 +1,4 @@
+import { BUILTIN_MODULES } from 'common/defaults'
 import LicensingService from 'common/licensing-service'
 import { buildSchema } from 'common/telemetry'
 import Database from 'core/database'
@@ -16,28 +17,20 @@ import { TelemetryStats } from './telemetry-stats'
 
 interface BotHooks {
   botId: string
-  [hookName: string]: any
+  hooks: Hook[]
+}
+
+interface Hook {
+  name: string
+  type: string
+  enabled: boolean
+  lifecycle: string
 }
 
 interface HookPayload {
   perBots: BotHooks[]
-  global: { [hookName: string]: number }
+  global: Hook[]
 }
-
-const BOT_HOOKS = [
-  'after_bot_mount',
-  'after_bot_unmount',
-  'after_event_processed',
-  'after_incoming_middleware',
-  'before_bot_import',
-  'before_incoming_middleware',
-  'before_outgoing_middleware',
-  'before_session_timeout',
-  'before_suggestions_election',
-  'on_bot_error'
-]
-
-const GLOBAL_HOOKS = ['after_server_start', 'after_stage_changed', 'on_incident_status_changed', 'on_stage_request']
 
 @injectable()
 export class HooksLifecycleStats extends TelemetryStats {
@@ -71,16 +64,32 @@ export class HooksLifecycleStats extends TelemetryStats {
     const botIds = await this.botService.getBotsIds()
     const perBots = await Promise.map(botIds, async id => {
       const botHooksPaths = await this.ghostService.forBot(id).directoryListing('/hooks', '*.js')
-      const lifecycles = this.countLifecycles(botHooksPaths, BOT_HOOKS)
-      return { botId: calculateHash(id), ...lifecycles }
+      const lifecycles = this.parsePaths(botHooksPaths)
+      return { botId: calculateHash(id), hooks: lifecycles }
     })
     const globalHooksPaths = await this.ghostService.global().directoryListing('/hooks', '*.js')
-    const global = this.countLifecycles(globalHooksPaths, GLOBAL_HOOKS)
+    const global = this.parsePaths(globalHooksPaths)
 
     return { global, perBots }
   }
 
-  private countLifecycles(paths: string[], hooksFilter: string[]) {
-    return _.countBy(paths.map(path => path.split('/')[0]).filter(lifecycle => hooksFilter.includes(lifecycle)))
+  private parsePaths(paths: string[]) {
+    return paths.reduce((acc, curr) => {
+      const path = curr.split('/')
+      const lifecycle = path.shift() || ''
+      const [name, enabled] = this.parseHookName(path.pop())
+      const module = path.pop()
+      const type = module && BUILTIN_MODULES.includes(module) ? 'built-in' : 'custom'
+
+      return [...acc, { name, type, lifecycle, enabled }]
+    }, [] as Hook[])
+  }
+
+  private parseHookName(name): [string, boolean] {
+    if (name.charAt(0) === '.') {
+      return [name.substr(1), false]
+    } else {
+      return [name, true]
+    }
   }
 }
