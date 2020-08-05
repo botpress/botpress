@@ -13,11 +13,15 @@ export const startMonitor = async (config: BotpressConfig, redisClient: IORedis.
   printHeader('Realtime Test')
 
   if (redisClient) {
-    await wrapMethodCall('Start Redis Monitor', async () => {
-      redisClient.monitor(async (err, monitor) => {
+    await wrapMethodCall('Start Redis Monitor', () => {
+      redisClient.monitor((err, monitor) => {
         monitor.on('monitor', (time, args, source, database) => {
           print(`[Redis] ${args} - ${source} ${database}`)
         })
+
+        if (err) {
+          print(`Redis monitor error: ${err}`)
+        }
       })
     })
   }
@@ -33,10 +37,10 @@ const infoMw = (req: Request, res) => {
   const { method, ip, originalUrl } = req
   print(`[HTTP] ${method} ${ip} ${originalUrl}`)
 
-  const summary = `Method: ${method}\nIP: ${ip}\nURL: ${originalUrl}`
+  const summary = `Method: ${method}\nIP: ${ip}\nURL: ${originalUrl}\n\n`
   const headers = `Headers:\n${JSON.stringify(req.headers, undefined, 2)}`
 
-  res.send(`<pre>Received: ${summary} ${headers}</pre>`)
+  res.send(`<pre>Received:\n${summary} ${headers}</pre>`)
 }
 
 export const startServer = async (config: BotpressConfig) => {
