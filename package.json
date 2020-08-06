@@ -22,7 +22,8 @@
     "commitmsg": "commitlint -e $GIT_PARAMS"
   },
   "dependencies": {
-    "@babel/core": "^7.11.0",
+    "@babel/parser": "^7.11.2",
+    "@babel/traverse": "^7.11.0",
     "axios": "^0.19.0",
     "bluebird-global": "^1.0.1",
     "body-parser": "^1.18.3",

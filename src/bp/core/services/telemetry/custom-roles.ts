@@ -6,6 +6,7 @@ import { TelemetryRepository } from 'core/repositories/telemetry'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
+import ms from 'ms'
 
 import { GhostService } from '..'
 import { JobService } from '../job-service'
@@ -15,6 +16,7 @@ import { TelemetryStats } from './telemetry-stats'
 const DEFAULT_ROLES = ['dev', 'admin', 'editor']
 @injectable()
 export class RolesStats extends TelemetryStats {
+  protected interval: number
   protected url: string
   protected lock: string
 
@@ -28,6 +30,7 @@ export class RolesStats extends TelemetryStats {
     super(ghostService, database, licenseService, jobService, telemetryRepo)
     this.url = process.TELEMETRY_URL
     this.lock = 'botpress:telemetry-custom-roles'
+    this.interval = ms('1d')
   }
 
   protected async getStats() {
