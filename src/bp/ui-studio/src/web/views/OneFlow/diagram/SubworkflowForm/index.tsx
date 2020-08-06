@@ -16,19 +16,19 @@ interface Props {
 }
 
 const SubworkflowForm: FC<Props> = ({ close, node, diagramEngine, flows }) => {
-  if (!node?.subflow) {
+  if (!node) {
     return null
   }
 
   const formatInitialData = () => {
     const formData: any = {}
-    for (const [key, value] of Object.entries(node.subflow.in)) {
+
+    for (const [key, value] of Object.entries(node?.subflow?.in || {})) {
       formData[key] = `${value.source === 'hardcoded' ? '' : '$'}${value.value}`
     }
-    for (const [key, value] of Object.entries(node.subflow.out)) {
+    for (const [key, value] of Object.entries(node.subflow?.out || {})) {
       formData[key] = `$${value}`
     }
-    ;``
 
     return formData
   }
@@ -38,7 +38,7 @@ const SubworkflowForm: FC<Props> = ({ close, node, diagramEngine, flows }) => {
   const setParam = (type: 'in' | 'out', param, value: string) => {
     setFormData({ ...formData, [param]: value })
 
-    let serialized: any = value
+    let serialized: any = value || ''
     let isVariable = false
 
     if (serialized?.startsWith('$')) {
@@ -75,6 +75,7 @@ const SubworkflowForm: FC<Props> = ({ close, node, diagramEngine, flows }) => {
 
     return (
       <Contents.Form
+        superInputOptions={{ variablesOnly: type === 'out' }}
         fields={fields}
         advancedSettings={[]}
         axios={axios}
