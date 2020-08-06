@@ -53,7 +53,7 @@ export default class ConfigReader {
     return {}
   }
 
-  private async loadFromDefaultValues(moduleId) {
+  public async loadFromDefaultValues(moduleId) {
     return defaultJsonBuilder(await this.getModuleConfigSchema(moduleId))
   }
 
@@ -84,7 +84,7 @@ export default class ConfigReader {
 
     /* START DEPRECATED */
     // TODO: Remove support for those old env variables in BP 12 (we need to add those to 11 -> 12 migration guide)
-    for (const option of Object.keys(schema.properties)) {
+    for (const option of Object.keys(schema.properties || {})) {
       const keyOld = `BP_${moduleId}_${option}`.toUpperCase()
       if (keyOld in process.env) {
         debugConfig('(deprecated) setting env variable', { variable: option, env: keyOld, module: moduleId })
