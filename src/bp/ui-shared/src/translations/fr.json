@@ -168,5 +168,7 @@
   "number": "Nombre",
   "boolean": "Booléen",
   "string": "Texte",
-  "format": "Format"
+  "format": "Format",
+  "input": "Entrée",
+  "output": "Sortie"
 }

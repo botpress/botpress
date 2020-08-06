@@ -928,6 +928,8 @@ class Diagram extends Component<Props> {
       editingNodeItem = node?.contents?.[index]
     } else if (formType === 'trigger') {
       editingNodeItem = node?.conditions?.[index]
+    } else if (formType === 'sub-workflow') {
+      editingNodeItem = index ? 'out' : 'in'
     }
 
     const isQnA = this.props.selectedWorkflow === 'qna'
@@ -1074,6 +1076,7 @@ class Diagram extends Component<Props> {
               node={this.props.currentFlowNode}
               diagramEngine={this.diagramEngine}
               flows={this.props.flows}
+              type={editingNodeItem}
               close={() => {
                 this.timeout = setTimeout(() => {
                   this.setState({ editingNodeItem: null })

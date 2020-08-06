@@ -1,10 +1,8 @@
-import { FormGroup, InputGroup } from '@blueprintjs/core'
 import axios from 'axios'
-import { FlowNode, FlowVariable, FormField } from 'botpress/sdk'
-import { Contents, RightSidebar } from 'botpress/shared'
+import { FlowNode, FormField } from 'botpress/sdk'
+import { Contents, lang, MainContent, RightSidebar } from 'botpress/shared'
 import { FlowView } from 'common/typings'
-import { string } from 'joi'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useState } from 'react'
 
 import style from './style.scss'
 
@@ -13,9 +11,10 @@ interface Props {
   node: FlowNode
   diagramEngine: any
   flows: FlowView[]
+  type: 'in' | 'out'
 }
 
-const SubworkflowForm: FC<Props> = ({ close, node, diagramEngine, flows }) => {
+const SubworkflowForm: FC<Props> = ({ type, close, node, diagramEngine, flows }) => {
   if (!node) {
     return null
   }
@@ -35,13 +34,13 @@ const SubworkflowForm: FC<Props> = ({ close, node, diagramEngine, flows }) => {
 
   const [formData, setFormData] = useState<FormData>(formatInitialData())
 
-  const setParam = (type: 'in' | 'out', param, value: string) => {
+  const setParam = (param, value: string) => {
     setFormData({ ...formData, [param]: value })
 
     let serialized: any = value || ''
     let isVariable = false
 
-    if (serialized?.startsWith('$')) {
+    if (serialized.startsWith('$')) {
       serialized = serialized.substr(1, serialized.length - 1)
       isVariable = true
     }
@@ -65,15 +64,19 @@ const SubworkflowForm: FC<Props> = ({ close, node, diagramEngine, flows }) => {
     })
   }
 
-  const renderParams = (type, params: FlowVariable[]) => {
-    const fields = params.map<FormField>(x => ({
+  const subflow = flows.find(x => x.name === node?.flow)
+  const fields = (subflow?.variables || [])
+    .filter(v => (type === 'in' ? v.isInput : v.isOutput))
+    .map<FormField>(x => ({
       type: 'text',
       key: x.name,
       label: x.name,
       superInput: true
     }))
 
-    return (
+  return (
+    <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={() => close()}>
+      <MainContent.Header tabs={[{ id: '0', title: lang.tr(type === 'in' ? 'input' : 'output') }]} />
       <Contents.Form
         superInputOptions={{ variablesOnly: type === 'out' }}
         fields={fields}
@@ -81,28 +84,8 @@ const SubworkflowForm: FC<Props> = ({ close, node, diagramEngine, flows }) => {
         axios={axios}
         events={[]}
         formData={formData}
-        onUpdate={data => params.forEach(k => setParam(type, k.name, data[k.name]))}
+        onUpdate={data => fields.forEach(k => setParam(k.key, data[k.key]))}
       />
-    )
-  }
-
-  const subflow = flows.find(x => x.name === node?.flow)
-
-  if (!subflow?.variables) {
-    return <div></div>
-  }
-
-  const inputs = subflow.variables.filter(v => v.isInput)
-  const outputs = subflow.variables.filter(v => v.isOutput)
-
-  return (
-    <RightSidebar className={style.wrapper} close={() => close()}>
-      <div>
-        <p>Inputs</p>
-        {renderParams('in', inputs)}
-        <p>Outputs</p>
-        {renderParams('out', outputs)}
-      </div>
     </RightSidebar>
   )
 }

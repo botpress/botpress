@@ -18,17 +18,19 @@ const SubworkflowContents: FC<Props> = ({ node, selectedNodeItem, editNodeItem }
 
   return (
     <Fragment>
-      <div className={style.contentsWrapper} onClick={() => editNodeItem(node, 0)}>
+      <div className={style.contentsWrapper}>
         <div
+          onClick={() => editNodeItem(node, 0)}
           className={cx(style.contentWrapper, {
-            [style.active]: selectedContent?.node?.id === node.id
+            [style.active]: selectedContent?.node?.id === node.id && selectedContent.index === 0
           })}
         >
           <span className={style.content}>{'Input'}</span>
         </div>
         <div
+          onClick={() => editNodeItem(node, 1)}
           className={cx(style.contentWrapper, {
-            [style.active]: selectedContent?.node?.id === node.id
+            [style.active]: selectedContent?.node?.id === node.id && selectedContent.index === 1
           })}
         >
           <span className={style.content}>{'Output'}</span>

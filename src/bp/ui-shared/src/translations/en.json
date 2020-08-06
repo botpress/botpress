@@ -217,5 +217,7 @@
   "number": "Number",
   "boolean": "Boolean",
   "string": "String",
-  "format": "Format"
+  "format": "Format",
+  "input": "Input",
+  "output": "Output"
 }
