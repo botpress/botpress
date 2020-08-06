@@ -28,17 +28,15 @@ export class TelemetryRouter extends CustomRouter {
       this.asyncMiddleware(async (req, res) => {
         const { success, events } = req.body
 
-        const schema = Joi.object({
-          success: Joi.boolean().required(),
-          events: Joi.array()
-            .items(Joi.string())
-            .required()
-        })
-
-        if (schema.validate({ success, events })) {
-          res.sendStatus(400)
-          return
-        }
+        await Joi.validate(
+          req.body,
+          Joi.object().keys({
+            success: Joi.boolean().required(),
+            events: Joi.array()
+              .items(Joi.string())
+              .required()
+          })
+        )
 
         success
           ? await this.telemetryRepo.removeMany(events)
