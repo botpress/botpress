@@ -96,12 +96,21 @@ export async function getTrainTestDatas(state: BotState, logger: sdk.Logger) {
   const vectorized_train: Data[] = []
 
   for (const entry of rawTest) {
+    const context = _.get(
+      entry.conditions.find(elt => elt[0] === 'context'),
+      ['2']
+    )
+    const intent = _.get(
+      entry.conditions.find(elt => elt[0] === 'intent'),
+      ['2']
+    )
     const utt_emb = await state.embedder.embed(entry.utterance)
     vectorized_test.push({
       utt: entry.utterance,
       utt_emb,
-      label: parseInt(intent2number[entry.conditions[0][2]]),
-      intent: entry.conditions[1][2]
+      label: parseInt(intent2number[intent]) ?? undefined,
+      intent: intent,
+      ctx: context
     } as Data)
   }
 

@@ -27,6 +27,7 @@ export interface VisuState {
 }
 
 export interface Data {
+  ctx: string
   utt: string
   utt_emb: number[]
   label?: number

@@ -1,0 +1,78 @@
+utterance,context,conditions,status,date: 8/6/2020,summary: 42.9,nlu seed: undefined
+I want to eat a poutine,*,"-context,is,intersection-intent,is,eat-salty",pass
+Poutine is what I want to put in my mouth right now,*,"-context,is,intersection-intent,is,eat-salty",fail
+Do you have some smoked meat ?,*,"-context,is,intersection-intent,is,eat-salty",pass
+If you would be kind enough to bring me a smoked meat poutine it would be perfect,*,"-context,is,intersection-intent,is,eat-salty",pass
+May I know if you have some strogonoff beef or a caesar salad on your menu ? I would be pleased,*,"-context,is,intersection-intent,is,eat-salty",pass
+"The best is a dark chocolate ice cream, but if you don't have it it's okay",*,"-context,is,intersection-intent,is,eat-salty",fail
+"If I can come to the place with my Tesla, I will buy a bagel. ",*,"-context,is,intersection-intent,is,eat-salty",fail
+I want to eat a cake,*,"-context,is,intersection-intent,is,eat-sweet",fail
+Lemon pie is why I want to put in my mouth right now,*,"-context,is,intersection-intent,is,eat-sweet",fail
+Do you have some pouding ?,*,"-context,is,intersection-intent,is,eat-sweet",fail
+If you would be kind enough to bring me a mapple sirup brownie it would be perfect,*,"-context,is,intersection-intent,is,eat-sweet",fail
+May I know if you have some peach melba or a banana split on your menu ? I would be pleased,*,"-context,is,intersection-intent,is,eat-sweet",fail
+"The best is a dark chocolate ice cream, but if you don't have it it's okay",*,"-context,is,intersection-intent,is,eat-sweet",fail
+"If I can come to the place with my Tesla, I will buy a tarte tatin. ",*,"-context,is,intersection-intent,is,eat-sweet",fail
+I would like to buy an Audi,*,"-context,is,unbalanced-intent,is,buy-car",pass
+How much is a Tesla,*,"-context,is,unbalanced-intent,is,buy-car",pass
+I want Nissan with a powerful motor,*,"-context,is,unbalanced-intent,is,buy-car",pass
+I would like to sell my GMC to buy another pickup,*,"-context,is,unbalanced-intent,is,buy-car",pass
+Can you advise me between a Fiat and a Ferrari,*,"-context,is,unbalanced-intent,is,buy-car",pass
+Is Bentley expensive ?,*,"-context,is,unbalanced-intent,is,buy-car",pass
+I need a RAV4,*,"-context,is,unbalanced-intent,is,buy-car",pass
+Do you have any M16 ? ,*,"-context,is,unbalanced-intent,is,buy-gun",fail
+I want to buy a glock,*,"-context,is,unbalanced-intent,is,buy-gun",fail
+Do you sell any BM25 ?,*,"-context,is,unbalanced-intent,is,buy-gun",fail
+what is the best between a P90 and a Magnum ?,*,"-context,is,unbalanced-intent,is,buy-gun",fail
+Do you have a M16 but in purple ? ,*,"-context,is,unbalanced-intent,is,buy-gun",fail
+price G36,*,"-context,is,unbalanced-intent,is,buy-gun",fail
+Haha hello there !,*,"-context,is,none-intent,is,none",pass
+plop,*,"-context,is,none-intent,is,none",pass
+botpress is the best chatbot enterprise,*,"-context,is,none-intent,is,none",fail
+I have a blue car,*,"-context,is,none-intent,is,none",fail
+My car is driving really fast I like it !,*,"-context,is,none-intent,is,none",fail
+I have a big blue gun and it shoots good,*,"-context,is,none-intent,is,none",fail
+At home I have a riffle a pistol and 10 M16 to protect my freedom !,*,"-context,is,none-intent,is,none",fail
+I'm really angry when I'm hungry,*,"-context,is,none-intent,is,none",pass
+I love to eat,*,"-context,is,none-intent,is,none",fail
+I need to go to the dentist I ate too much sugar,*,"-context,is,none-intent,is,none",fail
+My aunt is cooking really good tarts,*,"-context,is,none-intent,is,none",fail
+"My cousins lives in Paris, I like them.",*,"-context,is,none-intent,is,none",fail
+"I come from Paris, It's a beautiful town but peoples are sometimes a bit crazy",*,"-context,is,none-intent,is,none",pass
+My boss have a bike and likes to ride it.,*,"-context,is,none-intent,is,none",fail
+"When he will get 40, my manager will be millionaire",*,"-context,is,none-intent,is,none",fail
+I think my bank is the best one and helps people in their life,*,"-context,is,none-intent,is,none",fail
+Maybe if I save enough money I will be able to buy a house,*,"-context,is,none-intent,is,none",fail
+last time I took a flight I almost puke in the plane,*,"-context,is,none-intent,is,none",fail
+I'm looking for a Subway in which I can bring my M16,*,"-context,is,splitable-intent,is,get-restaurant-paris",pass
+I'm looking for a Subway,*,"-context,is,splitable-intent,is,get-restaurant-paris",pass
+I'm looking for restaurants in the city of lights,*,"-context,is,splitable-intent,is,get-restaurant-paris",pass
+Where is the closest McDo ? ,*,"-context,is,splitable-intent,is,get-restaurant-paris",fail
+Is downtown a good place to eat KFC ?,*,"-context,is,splitable-intent,is,get-restaurant-paris",pass
+Any burger kings downtown ? ,*,"-context,is,splitable-intent,is,get-restaurant-paris",pass
+I'm looking for a thai zone or a tim hortons close to the Louvre,*,"-context,is,splitable-intent,is,get-restaurant-paris",pass
+"I'm craving for a good starbuck coffee in paris, is there some ?",*,"-context,is,splitable-intent,is,get-restaurant-paris",pass
+I want to speak with Sylvain Perron the CEO,*,"-context,is,splitable-intent,is,schedule-apointement-boss",pass
+Can I talk with either the CEO or the CFO ?,*,"-context,is,splitable-intent,is,schedule-apointement-boss",pass
+"I have a meeting with your responsable, I guess his name is Sylvain",*,"-context,is,splitable-intent,is,schedule-apointement-boss",pass
+Appointment with CEO,*,"-context,is,splitable-intent,is,schedule-apointement-boss",pass
+I want to schedule a meeting with your CTO,*,"-context,is,splitable-intent,is,schedule-apointement-boss",pass
+I have an appointment with Sly,*,"-context,is,splitable-intent,is,schedule-apointement-boss",pass
+Interview with the CFO for 2pm the 4 of june ,*,"-context,is,splitable-intent,is,schedule-apointement-boss",pass
+can I get the status of my flight,*,"-context,is,switched-intent,is,status-flight",fail
+I would like to know my flight status,*,"-context,is,switched-intent,is,status-flight",fail
+Can I check my plane ?,*,"-context,is,switched-intent,is,status-flight",pass
+look up my trip,*,"-context,is,switched-intent,is,status-flight",pass
+report status of arrival time,*,"-context,is,switched-intent,is,status-flight",pass
+look up R-854,*,"-context,is,switched-intent,is,status-flight",fail
+can I get the status of B-873,*,"-context,is,switched-intent,is,status-flight",fail
+I would like to know  K8765 status,*,"-context,is,switched-intent,is,status-flight",fail
+state AC458,*,"-context,is,switched-intent,is,status-flight",fail
+RER status,*,"-context,is,switched-intent,is,status-bank",pass
+get informations on CELI,*,"-context,is,switched-intent,is,status-bank",fail
+is my PLS canceled ? ,*,"-context,is,switched-intent,is,status-bank",fail
+when will my ROI take-off ? ,*,"-context,is,switched-intent,is,status-bank",fail
+what is the status of my DR,*,"-context,is,switched-intent,is,status-bank",fail
+report progress NI,*,"-context,is,switched-intent,is,status-bank",fail
+can I have informations about my IRA,*,"-context,is,switched-intent,is,status-bank",fail
+My nephew really loves planes,*,"-context,is,switched-intent,is,status-bank",fail
