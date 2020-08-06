@@ -1,8 +1,10 @@
 import { FormGroup, InputGroup } from '@blueprintjs/core'
-import { FlowNode } from 'botpress/sdk'
-import { RightSidebar } from 'botpress/shared'
+import axios from 'axios'
+import { FlowNode, FlowVariable, FormField } from 'botpress/sdk'
+import { Contents, RightSidebar } from 'botpress/shared'
 import { FlowView } from 'common/typings'
-import React, { FC } from 'react'
+import { string } from 'joi'
+import React, { FC, useEffect, useState } from 'react'
 
 import style from './style.scss'
 
@@ -14,7 +16,41 @@ interface Props {
 }
 
 const SubworkflowForm: FC<Props> = ({ close, node, diagramEngine, flows }) => {
-  const setParam = (type: 'in' | 'out', param, value) => {
+  const [formData, setFormData] = useState<FormData>()
+
+  useEffect(() => {
+    if (!node?.subflow) {
+      return
+    }
+
+    const formData: any = {}
+    for (const [key, value] of Object.entries(node.subflow.in)) {
+      formData[key] = `${value.source === 'hardcoded' ? '' : '$'}${value.value}`
+    }
+    for (const [key, value] of Object.entries(node.subflow.out)) {
+      formData[key] = `$${value}`
+    }
+
+    setFormData(formData)
+  }, [])
+
+  const setParam = (type: 'in' | 'out', param, value: string) => {
+    setFormData({ ...formData, [param]: value })
+
+    let serialized: any = value
+    let isVariable = false
+
+    if (serialized?.startsWith('$')) {
+      serialized = serialized.substr(1, serialized.length - 1)
+      isVariable = true
+    }
+    if (type === 'in') {
+      serialized = {
+        source: isVariable ? 'variable' : 'hardcoded',
+        value: serialized
+      }
+    }
+
     const flowBuilder = diagramEngine.flowBuilder.props
     flowBuilder.switchFlowNode(node.id)
     flowBuilder.updateFlowNode({
@@ -22,27 +58,29 @@ const SubworkflowForm: FC<Props> = ({ close, node, diagramEngine, flows }) => {
         ...node.subflow,
         [type]: {
           ...node.subflow?.[type],
-          [param]: {
-            source: 'variable',
-            value
-          }
+          [param]: serialized
         }
       }
     })
   }
 
-  const renderParams = (type, params) => {
+  const renderParams = (type, params: FlowVariable[]) => {
+    const fields = params.map<FormField>(x => ({
+      type: 'text',
+      key: x.name,
+      label: x.name,
+      superInput: true
+    }))
+
     return (
-      <div>
-        {params.map((input, i) => (
-          <FormGroup key={i} label={input.name}>
-            <InputGroup
-              value={node.subflow?.[type]?.[input.name]?.value || ''}
-              onChange={e => setParam(type, input.name, e.currentTarget.value)}
-            />
-          </FormGroup>
-        ))}
-      </div>
+      <Contents.Form
+        fields={fields}
+        advancedSettings={[]}
+        axios={axios}
+        events={[]}
+        formData={formData}
+        onUpdate={data => params.forEach(k => setParam(type, k.name, data[k.name]))}
+      />
     )
   }
 
