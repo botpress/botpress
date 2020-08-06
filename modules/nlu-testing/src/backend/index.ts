@@ -35,10 +35,28 @@ const botTemplates: sdk.BotTemplate[] = [
       'BPDS are handcrafted datasets. Intents in each contexts are built with a specific distribution in mind, making intent classification hard to achieve.'
   },
   {
-    id: 'bp-nlu-synonyms-testing',
+    id: 'bp-nlu-synonyms-intent-testing',
     name: 'BPDS - NLU synonyms testing ',
     desc:
-      'BP Dataset filled with synonyms in utterances that language models are unaware of to test and improve generalisation'
+      'BP Dataset filled with synonyms in utterances that language models are unaware of to test and improve generalisation. Tests on intents'
+  },
+  {
+    id: 'bp-nlu-synonyms-context-testing',
+    name: 'BPDS - NLU synonyms testing ',
+    desc:
+      'BP Dataset filled with synonyms in utterances that language models are unaware of to test and improve generalisation. Tests on contexts'
+  },
+  {
+    id: 'bp-nlu-synonyms-baseline-context',
+    name: 'BPDS - NLU synonyms testing ',
+    desc:
+      'BP Dataset filled with synonyms in utterances that language models are unaware of to test and improve generalisation. Baseline without synonyms for contexts'
+  },
+  {
+    id: 'bp-nlu-synonyms-baseline-intent',
+    name: 'BPDS - NLU synonyms testing ',
+    desc:
+      'BP Dataset filled with synonyms in utterances that language models are unaware of to test and improve generalisation. Baseline without synonyms for intents'
   }
 ]
 

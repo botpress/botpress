@@ -1,0 +1,17 @@
+{
+  "name": "status-flight",
+  "utterances": {
+    "en": [
+      "flight status",
+      "get informations on flight",
+      "is my flight canceled ?",
+      "arrival time of flight",
+      "when will my flight take-off ?",
+      "what is the status of my plane ?",
+      "report progress plane",
+      "Can I have informations about my trip ?"
+    ]
+  },
+  "slots": [],
+  "contexts": ["switched"]
+}

@@ -1,0 +1,20 @@
+{
+  "id": "paris",
+  "name": "paris",
+  "type": "list",
+  "occurrences": [
+    { "name": "Paris city", "synonyms": [] },
+    { "name": "Paris suburbs", "synonyms": [] },
+    { "name": "Paris neighborhood", "synonyms": [] },
+    { "name": "Paris centertown", "synonyms": [] },
+    { "name": "downtown", "synonyms": [] },
+    { "name": "City of paris", "synonyms": [] },
+    { "name": "city of light", "synonyms": [] },
+    { "name": "The Louvre", "synonyms": [] },
+    { "name": "french capital", "synonyms": [] }
+  ],
+  "sensitive": false,
+  "fuzzy": 0.8,
+  "exemples": [],
+  "pattern": ""
+}

@@ -1,0 +1,20 @@
+{
+  "id": "cake",
+  "name": "cake",
+  "type": "list",
+  "occurrences": [
+    { "name": "cake", "synonyms": [] },
+    { "name": "lemon pie", "synonyms": [] },
+    { "name": "brownie", "synonyms": [] },
+    { "name": "chocolate ice cream", "synonyms": [] },
+    { "name": "mapple sirup", "synonyms": [] },
+    { "name": "pouding", "synonyms": [] },
+    { "name": "peach melba", "synonyms": [] },
+    { "name": "dark chocolate", "synonyms": [] },
+    { "name": "tarte tatin", "synonyms": [] }
+  ],
+  "sensitive": false,
+  "fuzzy": 0.8,
+  "exemples": [],
+  "pattern": ""
+}

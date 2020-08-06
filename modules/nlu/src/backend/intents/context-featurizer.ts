@@ -13,10 +13,9 @@ function shouldConsiderToken(token: UtteranceToken): boolean {
 }
 
 export function getCtxFeatures(utt: Utterance, customEntities: string[]): number[] {
-  const entitiesOH = getEntitiesEncoding(utt, customEntities)
   const toks = utt.tokens.filter(shouldConsiderToken)
   if (_.isEmpty(toks)) {
-    return zeroes(utt.tokens[0].vector.length + entitiesOH.length)
+    return zeroes(utt.tokens[0].vector.length)
   }
 
   const totalWeight = toks.reduce((sum, t) => sum + Math.min(1, t.tfidf), 0) || 1
@@ -27,5 +26,5 @@ export function getCtxFeatures(utt: Utterance, customEntities: string[]): number
   }, zeroes(utt.tokens[0].vector.length))
 
   const sentenceEmbedding = scalarDivide(weightedSum, totalWeight)
-  return [...sentenceEmbedding, ...entitiesOH]
+  return [...sentenceEmbedding]
 }

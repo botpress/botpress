@@ -1,0 +1,17 @@
+{
+  "name": "buy-car",
+  "utterances": {
+    "en": [
+      "I want to buy a car",
+      "I don't know if I can afford a luxuous car",
+      "What is the price of this model ? ",
+      "Could you advice me between this two brands ? ",
+      "Is Audi really expensive for what it is ?",
+      "Which automobile is the best amoung the one you have ?",
+      "Is there any cheaper model ? ",
+      "Do you have it in blue ?"
+    ]
+  },
+  "slots": [],
+  "contexts": ["unbalanced"]
+}
