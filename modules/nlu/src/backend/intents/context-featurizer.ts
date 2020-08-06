@@ -2,6 +2,7 @@ import _ from 'lodash'
 
 import { computeNorm, scalarDivide, vectorAdd, zeroes } from '../tools/math'
 import Utterance, { UtteranceToken } from '../utterance/utterance'
+
 import { getEntitiesEncoding } from './entities-featurizer'
 
 function shouldConsiderToken(token: UtteranceToken): boolean {

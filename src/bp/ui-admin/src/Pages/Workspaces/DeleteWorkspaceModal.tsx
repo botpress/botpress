@@ -12,14 +12,14 @@ interface Props {
 }
 
 const DeleteWorkspaceModal: FC<Props> = props => {
-  const [name, setName] = useState()
+  const [name, setName] = useState<string>('')
 
   const submit = async () => {
     try {
       await api.getSecured().post(`/admin/workspaces/${props.workspace.id}/delete`)
       props.refreshWorkspaces()
 
-      toastSuccess(`Workspace deleted successfully`)
+      toastSuccess('Workspace deleted successfully')
       closeModal()
     } catch (err) {
       toastFailure(err.message)

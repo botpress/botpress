@@ -1,7 +1,7 @@
-import { Button, Collapse, Colors, H5, H6, Pre } from '@blueprintjs/core'
+import { Button, Collapse, Colors, H5, Pre } from '@blueprintjs/core'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import React, { FC, useState } from 'react'
+import React, { FC, Fragment, useState } from 'react'
 import JSONTree from 'react-json-tree'
 
 import inspectorTheme from '../inspectorTheme'
@@ -14,7 +14,7 @@ export const Error: FC<{ error: sdk.IO.EventError }> = ({ error }) => {
   return (
     <div>
       {error.type === 'action-execution' && (
-        <div className={style.subSection}>
+        <Fragment>
           <H5 color={Colors.DARK_GRAY5}>Error executing action "{error.actionName}"</H5>
           <p style={{ margin: 15 }}>{message}</p>
           <H5 color={Colors.DARK_GRAY5}>Arguments</H5>
@@ -29,12 +29,10 @@ export const Error: FC<{ error: sdk.IO.EventError }> = ({ error }) => {
               />
             </div>
           </Pre>
-        </div>
+        </Fragment>
       )}
       {error.type === 'dialog-transition' && (
-        <div className={style.subSection}>
-          <H5 color={Colors.DARK_GRAY5}>Error during transition to "{error.destination}"</H5>
-        </div>
+        <H5 color={Colors.DARK_GRAY5}>Error during transition to "{error.destination}"</H5>
       )}
       <br />
       {error.stacktrace && (

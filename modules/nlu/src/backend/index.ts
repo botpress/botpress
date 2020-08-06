@@ -14,8 +14,10 @@ import { getOnServerReady } from './module-lifecycle/on-server-ready'
 import { getOnSeverStarted } from './module-lifecycle/on-server-started'
 import { NLUState } from './typings'
 
-const langServerInfo = { version: '', domain: '', dim: 0 }
-const state: NLUState = { nluByBot: {}, nluVersion: '', langServerInfo }
+const state: NLUState = {
+  nluByBot: {},
+  reportTrainingProgress: () => {}
+}
 
 const onServerStarted = getOnSeverStarted(state)
 const onServerReady = getOnServerReady(state)
@@ -41,12 +43,12 @@ const onTopicChanged = async (bp: typeof sdk, botId: string, oldName?: string, n
   const intentDefs = await getIntents(ghost)
 
   for (const intentDef of intentDefs) {
-    const ctxIdx = intentDef.contexts.indexOf(oldName)
+    const ctxIdx = intentDef.contexts.indexOf(oldName as string)
     if (ctxIdx !== -1) {
       intentDef.contexts.splice(ctxIdx, 1)
 
       if (isRenaming) {
-        intentDef.contexts.push(newName)
+        intentDef.contexts.push(newName!)
       }
 
       await updateIntent(ghost, intentDef.name, intentDef, entityService)

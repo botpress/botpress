@@ -18,7 +18,7 @@ const onServerReady = async (bp: typeof sdk) => {
     checkAuthentication: false
   })
 
-  router.post(`/api/messages`, async (req, res) => {
+  router.post('/api/messages', async (req, res) => {
     const client = clients[req.params.botId]
     client && (await client.receiveIncomingEvent(req, res))
   })
@@ -62,7 +62,8 @@ const entryPoint: sdk.ModuleEntryPoint = {
     fullName: 'Teams',
     homepage: 'https://botpress.com',
     noInterface: true,
-    plugins: []
+    plugins: [],
+    channelEffects: ['__typing', '__buttons']
   }
 }
 

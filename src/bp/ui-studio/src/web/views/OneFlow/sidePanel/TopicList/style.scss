@@ -101,10 +101,7 @@
     .default {
       border-top: 1px solid var(--gray);
       padding: var(--spacing-medium) 0;
-
-      &:not(.empty) {
-        margin-top: auto;
-      }
+      margin-top: auto;
     }
   }
 }

@@ -1,14 +1,14 @@
-import { NLU, Logger } from 'botpress/sdk'
+import { Logger, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
 import Engine from '../engine'
+import legacyElectionPipeline from '../legacy-election'
 import { MIN_NB_UTTERANCES } from '../training-pipeline'
 import { BIO } from '../typings'
 import Utterance, { buildUtteranceBatch } from '../utterance/utterance'
-import legacyElectionPipeline from '../legacy-election'
 
-import { getSeededLodash, resetSeed } from './seeded-lodash'
 import MultiClassF1Scorer, { F1 } from './f1-scorer'
+import { getSeededLodash, resetSeed } from './seeded-lodash'
 
 interface CrossValidationResults {
   intents: Dic<F1> //
@@ -88,10 +88,11 @@ export async function crossValidate(
 ): Promise<CrossValidationResults> {
   const [trainSet, testSet] = await splitSet(language, intents)
 
-  const langServerInfo = { version: '', domain: '', dim: 0 }
-  const dummyVersion = { nluVersion: '', langServerInfo } // we don't really care about the model hash here...
-  const engine = new Engine(language, botId, dummyVersion, logger)
+  const engine = new Engine(language, botId, logger)
   const model = await engine.train(trainSet, entities, language)
+  if (!model) {
+    throw new Error('training could not finish during cross-valisation')
+  }
   await engine.loadModel(model)
 
   const allCtx = _.chain(intents)
