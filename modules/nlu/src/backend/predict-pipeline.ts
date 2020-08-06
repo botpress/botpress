@@ -9,8 +9,8 @@ import { isPOSAvailable } from './language/pos-tagger'
 import { getUtteranceFeatures } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import { replaceConsecutiveSpaces } from './tools/strings'
-import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainOutput } from './training-pipeline'
-import { EntityExtractionResult, Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
+import { ExactMatchIndex, EXACT_MATCH_STR_OPTIONS, TrainOutput } from './training-pipeline'
+import { EntityExtractionResult, ExtractedEntity, Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
 import Utterance, { buildUtteranceBatch, getAlternateUtterance, UtteranceEntity } from './utterance/utterance'
 
 export type ExactMatchResult = (sdk.MLToolkit.SVM.Prediction & { extractor: 'exact-matcher' }) | undefined
@@ -59,7 +59,7 @@ export type PredictStep = InitialStep & {
 export type PredictOutput = sdk.IO.EventUnderstanding
 
 // only to comply with E1
-type E1IntentPred = {
+interface E1IntentPred {
   name: string
   context: string
   confidence: number
@@ -175,7 +175,7 @@ async function extractEntities(input: PredictStep, predictors: Predictors, tools
       ...(await tools.duckling.extract(utterance.toString(), utterance.languageCode))
     ],
     entityRes => {
-      utterance.tagEntity(_.omit(entityRes, ['start, end']), entityRes.start, entityRes.end)
+      utterance.tagEntity(_.omit(entityRes, ['start, end']) as ExtractedEntity, entityRes.start, entityRes.end)
     }
   )
 
@@ -187,7 +187,11 @@ async function extractEntities(input: PredictStep, predictors: Predictors, tools
         ...(await tools.duckling.extract(alternateUtterance.toString(), utterance.languageCode))
       ],
       entityRes => {
-        alternateUtterance.tagEntity(_.omit(entityRes, ['start, end']), entityRes.start, entityRes.end)
+        alternateUtterance.tagEntity(
+          _.omit(entityRes, ['start, end']) as ExtractedEntity,
+          entityRes.start,
+          entityRes.end
+        )
       }
     )
   }
@@ -398,7 +402,7 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
     return {
       ...preds,
       [label]: {
-        confidence: confidence,
+        confidence,
         oos: step.oos_predictions![label] || 0,
         intents
       }
@@ -464,6 +468,7 @@ export const Predict = async (
     if (err instanceof InvalidLanguagePredictorError) {
       throw err
     }
+    // tslint:disable-next-line: no-console
     console.log('Could not perform predict data', err)
     return { errored: true } as sdk.IO.EventUnderstanding
   }

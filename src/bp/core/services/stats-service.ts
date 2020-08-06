@@ -5,7 +5,9 @@ import ms from 'ms'
 
 import { JobService } from './job-service'
 import { ActionsStats } from './telemetry/actions'
+import { ConfigsStats } from './telemetry/configs'
 import { RolesStats } from './telemetry/custom-roles'
+import { HooksLifecycleStats } from './telemetry/hooks'
 import { LegacyStats } from './telemetry/legacy-stats'
 import { SDKStats } from './telemetry/sdk-methods'
 
@@ -20,16 +22,21 @@ export class StatsService {
     @inject(TYPES.ActionStats) private actionStats: ActionsStats,
     @inject(TYPES.LegacyStats) private legacyStats: LegacyStats,
     @inject(TYPES.RolesStats) private rolesStats: RolesStats,
-    @inject(TYPES.SDKStats) private sdkStats: SDKStats
+    @inject(TYPES.SDKStats) private sdkStats: SDKStats,
+    @inject(TYPES.HooksStats) private hooksStats: HooksLifecycleStats,
+    @inject(TYPES.ConfigsStats) private configStats: ConfigsStats
   ) {}
 
   public async start() {
-    await this.actionStats.start()
-    await this.legacyStats.start()
-    await this.rolesStats.start()
-    await this.sdkStats.start()
+    this.actionStats.start()
+    this.legacyStats.start()
+    this.hooksStats.start()
+    this.configStats.start()
+    this.rolesStats.start()
+    this.sdkStats.start()
+    // tslint:disable-next-line: no-floating-promises
+    this.refreshDB(DB_REFRESH_INTERVAL)
 
-    await this.refreshDB(DB_REFRESH_INTERVAL)
     setInterval(this.refreshDB.bind(this, DB_REFRESH_INTERVAL), DB_REFRESH_INTERVAL)
   }
 

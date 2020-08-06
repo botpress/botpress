@@ -145,10 +145,7 @@ const SidePanelContent: FC<Props> = props => {
             <NavbarGroup>
               <Tabs onChange={onTabChanged}>
                 <Tab id="topics" title={lang.tr('topics')} />
-                {/*
-                  TODO add Library once we have something display
-                  <Tab id="library" title={lang.tr('library')} />
-                */}
+                <Tab id="library" title={lang.tr('library')} />
               </Tabs>
             </NavbarGroup>
             {props.permissions.includes('create') && currentTab === 'topics' && (
@@ -180,7 +177,7 @@ const SidePanelContent: FC<Props> = props => {
             />
           )}
 
-          {currentTab === 'library' && <Library filter={libraryFilter} />}
+          {currentTab === 'library' && <Library goToFlow={goToFlow} />}
         </React.Fragment>
       )}
 

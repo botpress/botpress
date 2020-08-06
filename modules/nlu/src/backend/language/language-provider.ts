@@ -1,6 +1,7 @@
 import axios, { AxiosInstance } from 'axios'
 import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
+import crypto from 'crypto'
 import fse from 'fs-extra'
 import httpsProxyAgent from 'https-proxy-agent'
 import _, { debounce, sumBy } from 'lodash'
@@ -8,7 +9,6 @@ import lru from 'lru-cache'
 import moment from 'moment'
 import ms from 'ms'
 import path from 'path'
-import crypto from 'crypto'
 import semver from 'semver'
 
 import { getSeededLodash, resetSeed } from '../tools/seeded-lodash'
@@ -16,13 +16,12 @@ import { setSimilarity, vocabNGram } from '../tools/strings'
 import { isSpace, processUtteranceTokens, restoreOriginalUtteranceCasing } from '../tools/token-utils'
 import {
   Gateway,
+  LangServerInfo,
   LangsGateway,
   LanguageProvider,
   LanguageSource,
   NLUHealth,
-  Token2Vec,
-  NLUVersionInfo,
-  LangServerInfo
+  Token2Vec
 } from '../typings'
 
 const debug = DEBUG('nlu').sub('lang')
@@ -50,7 +49,8 @@ export class RemoteLanguageProvider implements LanguageProvider {
   private _validProvidersCount: number
   private _languageDims: number
 
-  private _version: NLUVersionInfo
+  private _nluVersion: string
+  private _langServerInfo: LangServerInfo
 
   private discoveryRetryPolicy = {
     interval: 1000,
@@ -73,9 +73,9 @@ export class RemoteLanguageProvider implements LanguageProvider {
   async initialize(
     sources: LanguageSource[],
     logger: typeof sdk.logger,
-    version: NLUVersionInfo
+    nluVersion: string
   ): Promise<LanguageProvider> {
-    this._version = version
+    this._nluVersion = nluVersion
     this._validProvidersCount = 0
 
     this._vectorsCache = new lru<string, Float32Array>({
@@ -117,7 +117,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
       const headers: _.Dictionary<string> = {}
 
       if (source.authToken) {
-        headers['authorization'] = 'bearer ' + source.authToken
+        headers['authorization'] = `bearer ${source.authToken}`
       }
 
       const proxyConfig = process.PROXY ? { httpsAgent: new httpsProxyAgent(process.PROXY) } : {}
@@ -166,7 +166,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
   }
 
   public get langServerInfo(): LangServerInfo {
-    return this._version.langServerInfo
+    return this._langServerInfo
   }
 
   private extractLangServerInfo(data) {
@@ -175,13 +175,11 @@ export class RemoteLanguageProvider implements LanguageProvider {
     if (!version) {
       throw new Error('Lang server has an invalid version')
     }
-    const langServerInfo = {
+    this._langServerInfo = {
       version: semver.clean(version),
       dim: data.dimentions,
       domain: data.domain
     }
-
-    this._version = { ...this._version, langServerInfo }
   }
 
   private computeCacheFilesPaths = () => {
@@ -528,11 +526,11 @@ export class RemoteLanguageProvider implements LanguageProvider {
   }
 
   private computeVersionHash = () => {
-    const { nluVersion, langServerInfo } = this._version
-    const { dim, domain, version: langServerVersion } = langServerInfo
+    const { _nluVersion, _langServerInfo } = this
+    const { dim, domain, version: langServerVersion } = _langServerInfo
 
     const omitPatchNumber = (v: string) => `${semver.major(v)}.${semver.minor(v)}.0`
-    const hashContent = `${omitPatchNumber(nluVersion)}:${omitPatchNumber(langServerVersion)}:${dim}:${domain}`
+    const hashContent = `${omitPatchNumber(_nluVersion)}:${omitPatchNumber(langServerVersion)}:${dim}:${domain}`
     return crypto
       .createHash('md5')
       .update(hashContent)

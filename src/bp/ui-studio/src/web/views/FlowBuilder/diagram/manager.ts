@@ -2,16 +2,7 @@ import { FlowView, NodeView } from 'common/typings'
 import _ from 'lodash'
 import { DefaultLinkModel, DiagramEngine, DiagramModel, DiagramWidget, PointModel } from 'storm-react-diagrams'
 import { hashCode } from '~/util'
-import { ActionNodeModel } from '~/views/OneFlow/diagram/nodes/ActionNode'
-import { ExecuteNodeModel } from '~/views/OneFlow/diagram/nodes/ExecuteNode'
-import { FailureNodeModel } from '~/views/OneFlow/diagram/nodes/FailureNode'
-import { ListenNodeModel } from '~/views/OneFlow/diagram/nodes/ListenNode'
-import { PromptNodeModel } from '~/views/OneFlow/diagram/nodes/PromptNode'
-import { RouterNodeModel } from '~/views/OneFlow/diagram/nodes/RouterNode'
-import { SuccessNodeModel } from '~/views/OneFlow/diagram/nodes/SuccessNode'
-
-import { SaySomethingNodeModel } from '../../OneFlow/diagram/nodes/SaySomethingNode'
-import { TriggerNodeModel } from '../../OneFlow/diagram/nodes/TriggerNode'
+import { BlockModel } from '~/views/OneFlow/diagram/nodes/Block'
 
 import { BaseNodeModel } from './nodes/BaseNodeModel'
 import { SkillCallNodeModel } from './nodes/SkillCallNode'
@@ -24,6 +15,7 @@ const passThroughNodeProps: string[] = [
   'next',
   'skill',
   'conditions',
+  'type',
   'contents',
   'activeWorkflow',
   'prompt'
@@ -58,24 +50,10 @@ const createNodeModel = (node, modelProps) => {
   const { type } = node
   if (type === 'skill-call') {
     return new SkillCallNodeModel(modelProps)
-  } else if (type === 'say_something') {
-    return new SaySomethingNodeModel(modelProps)
-  } else if (type === 'prompt') {
-    return new PromptNodeModel(modelProps)
-  } else if (type === 'execute') {
-    return new ExecuteNodeModel(modelProps)
-  } else if (type === 'listen') {
-    return new ListenNodeModel(modelProps)
-  } else if (type === 'router') {
-    return new RouterNodeModel(modelProps)
-  } else if (type === 'action') {
-    return new ActionNodeModel(modelProps)
-  } else if (type === 'success') {
-    return new SuccessNodeModel(modelProps)
-  } else if (type === 'trigger') {
-    return new TriggerNodeModel(modelProps)
-  } else if (type === 'failure') {
-    return new FailureNodeModel(modelProps)
+  } else if (
+    ['say_something', 'prompt', 'execute', 'listen', 'router', 'action', 'success', 'trigger', 'failure'].includes(type)
+  ) {
+    return new BlockModel(modelProps)
   } else {
     return new StandardNodeModel(modelProps)
   }

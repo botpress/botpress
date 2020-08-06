@@ -45,7 +45,7 @@ export function labelizeUtterance(utterance: Utterance): string[] {
 
 export function predictionLabelToTagResult(prediction: { [label: string]: number }): TagResult {
   const pairedPreds = _.chain(prediction)
-    .mapValues((value, key) => value + (prediction[key + '/any'] || 0))
+    .mapValues((value, key) => value + (prediction[`${key}/any`] || 0))
     .toPairs()
     .value()
 
@@ -154,7 +154,7 @@ export default class SlotTagger {
     this._crfTagger.open(this._crfModelFn)
   }
 
-  async train(intents: Intent<Utterance>[]): Promise<void> {
+  async train(intents: Intent<Utterance>[], progressCb: (iteration: number) => void): Promise<void> {
     const elements: sdk.MLToolkit.CRF.DataPoint[] = []
 
     for (const intent of intents) {
@@ -169,11 +169,11 @@ export default class SlotTagger {
     }
 
     const trainer = new this.mlToolkit.CRF.Trainer()
-    this._crfModelFn = await trainer.train(elements, CRF_TRAINER_PARAMS)
+    this._crfModelFn = await trainer.train(elements, CRF_TRAINER_PARAMS, progressCb)
   }
 
   get serialized(): Promise<Buffer> {
-    return (async () => await Promise.fromCallback(cb => fs.readFile(this._crfModelFn, cb)))() as Promise<Buffer>
+    return (async () => Promise.fromCallback(cb => fs.readFile(this._crfModelFn, cb)))() as Promise<Buffer>
   }
 
   private tokenSliceFeatures(

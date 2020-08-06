@@ -38,7 +38,7 @@ const config: PromptConfig = {
       key: 'enumType',
       required: true,
       dynamicOptions: {
-        endpoint: 'BOT_API_PATH/mod/nlu/entities?ignoreSystem=true',
+        endpoint: 'BOT_API_PATH/nlu/entities?ignoreSystem=true',
         valueField: 'id',
         labelField: 'name'
       },

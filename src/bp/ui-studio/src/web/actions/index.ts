@@ -169,7 +169,8 @@ export const duplicateFlow: (flow: { flowNameToDuplicate: string; name: string }
   }
 )
 
-type AllPartialNode = (Partial<sdk.FlowNode> | Partial<sdk.TriggerNode> | Partial<sdk.ListenNode>) & Partial<FlowPoint>
+export type AllPartialNode = (Partial<sdk.FlowNode> | Partial<sdk.TriggerNode> | Partial<sdk.ListenNode>) &
+  Partial<FlowPoint>
 
 export const updateFlowNode: (props: AllPartialNode) => void = wrapAction(requestUpdateFlowNode, updateCurrentFlow)
 
@@ -422,7 +423,7 @@ export const refreshActions = () => dispatch => {
 export const intentsReceived = createAction('INTENTS/RECEIVED')
 export const refreshIntents = () => dispatch => {
   // tslint:disable-next-line: no-floating-promises
-  axios.get(`${window.BOT_API_PATH}/mod/nlu/intents`).then(({ data }) => {
+  axios.get(`${window.BOT_API_PATH}/nlu/intents`).then(({ data }) => {
     dispatch(intentsReceived(data))
   })
 }

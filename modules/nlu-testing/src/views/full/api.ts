@@ -22,7 +22,7 @@ export const makeApi = (bp: { axios: AxiosInstance }): TestingAPI => {
     },
 
     fetchIntents: async () => {
-      const { data } = await bp.axios.get('/mod/nlu/intents')
+      const { data } = await bp.axios.get('/nlu/intents')
       return data
     },
 
