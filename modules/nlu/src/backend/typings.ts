@@ -65,22 +65,12 @@ export interface NLUEngine {
   predict: (t: string, ctx: string[]) => Promise<sdk.IO.EventUnderstanding>
 }
 
-export interface EntityService {
-  getSystemEntities(): sdk.NLU.EntityDefinition[]
-  getCustomEntities(): Promise<sdk.NLU.EntityDefinition[]>
-  getEntities(): Promise<sdk.NLU.EntityDefinition[]>
-  getEntity(x: string): Promise<sdk.NLU.EntityDefinition>
-  deleteEntity(x: string): Promise<void>
-  saveEntity(x: sdk.NLU.EntityDefinition): Promise<void>
-  updateEntity(x: string, y: sdk.NLU.EntityDefinition): Promise<void>
-}
-
 export type NLUState = {
   nluByBot: _.Dictionary<BotState>
   broadcastLoadModel?: (botId: string, hash: string, language: string) => Promise<void>
   broadcastCancelTraining?: (botId: string, language: string) => Promise<void>
   reportTrainingProgress: ProgressReporter
-} & NLUVersionInfo
+}
 
 export interface NLUVersionInfo {
   nluVersion: string
@@ -101,7 +91,6 @@ export interface BotState {
   trainSessions: _.Dictionary<TrainingSession>
   cancelTraining: () => Promise<void>
   isTraining: () => Promise<boolean>
-  entityService: EntityService
 }
 
 export type TFIDF = _.Dictionary<number>
@@ -179,6 +168,7 @@ export interface Tools {
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
   getHealth(): NLUHealth
   getLanguages(): string[]
+  getVersionInfo(): NLUVersionInfo
   duckling: SystemEntityExtractor
   mlToolkit: typeof sdk.MLToolkit
 }

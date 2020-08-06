@@ -6,7 +6,7 @@ import { MoreOptionsItems } from '../../../../../../../src/bp/ui-shared-lite/Mor
 
 import style from './style.scss'
 
-export default ({ newSession, toggleSettings }) => {
+export default ({ newSession, toggleSettings, hasProcessing, updateCurrentTab, selectedTab }) => {
   const [showOptions, setShowOptions] = useState(false)
 
   const moreOptionsItems: MoreOptionsItems[] = [
@@ -24,8 +24,9 @@ export default ({ newSession, toggleSettings }) => {
 
   return (
     <div className={style.header}>
-      <Tabs id="contentFormTabs">
+      <Tabs id="contentFormTabs" onChange={updateCurrentTab} defaultSelectedTabId={selectedTab}>
         <Tab id="content" title="Debugger" />
+        {hasProcessing && <Tab id="processing" title="Processing" />}
       </Tabs>
       {<MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />}
     </div>

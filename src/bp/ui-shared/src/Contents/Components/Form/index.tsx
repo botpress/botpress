@@ -2,14 +2,16 @@ import { Button, Checkbox, Position, Tooltip } from '@blueprintjs/core'
 import { FormMoreInfo } from 'botpress/sdk'
 import cx from 'classnames'
 import _ from 'lodash'
-import React, { FC, Fragment, useReducer, useState } from 'react'
+import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
 
 import { lang } from '../../../translations'
 import SuperInput from '../../../FormFields/SuperInput'
+import superInputStyle from '../../../FormFields/SuperInput/style.scss'
 import SuperInputArray from '../../../FormFields/SuperInputArray'
 import TextFieldsArray from '../../../FormFields/TextFieldsArray'
 import { createEmptyDataFromSchema } from '../../utils/fields'
 import { formReducer, getSuperInputsFromData, printMoreInfo } from '../../utils/form.utils'
+import parentStyle from '../style.scss'
 import AddButton from '../Fields/AddButton'
 import Select from '../Fields/Select'
 import Text from '../Fields/Text'
@@ -38,6 +40,38 @@ const Form: FC<FormProps> = ({
   const newFormData = createEmptyDataFromSchema([...(fields || []), ...(advancedSettings || [])], currentLang)
   const [state, dispatch] = useReducer(formReducer, formData || newFormData)
   const [superInput, setSuperInput] = useState<any>(getSuperInputsFromData(formData))
+  const fieldWrapperRef = useRef<HTMLDivElement>(null)
+  const groupRef = useRef<{ [key: string]: HTMLDivElement }>({})
+  const isFirst = useRef(true)
+  const moveFocusTo = useRef<string>()
+
+  useEffect(() => {
+    if (isFirst.current) {
+      focusFirstElement(fieldWrapperRef.current)
+      isFirst.current = false
+    }
+  }, [fieldWrapperRef.current])
+
+  useEffect(() => {
+    if (moveFocusTo.current) {
+      const nodeWrappers = groupRef.current[moveFocusTo.current].querySelectorAll(
+        `:scope > .${parentStyle.fieldWrapper}`
+      )
+
+      focusFirstElement(nodeWrappers[nodeWrappers.length - 1])
+      moveFocusTo.current = undefined
+    }
+  }, [formData])
+
+  const focusFirstElement = parent => {
+    const firstFocusableElement = parent?.querySelector(
+      `input, select, textarea, [contenteditable], button:not(.${style.superInputBtn}):not(.${superInputStyle.btn}):not(.${superInputStyle.tagBtn}):not(.${parentStyle.groupLabel}):not(.more-options-btn)`
+    ) as HTMLElement
+
+    if (firstFocusableElement) {
+      firstFocusableElement.focus()
+    }
+  }
 
   const printLabel = (field, data, parent, currentLang?) => {
     if (field.label?.startsWith('fields::') && field.fields?.length) {
@@ -157,26 +191,35 @@ const Form: FC<FormProps> = ({
       case 'group':
         return (
           <Fragment key={field.key}>
-            {currentValue?.map((fieldData, index) => (
-              <GroupItemWrapper
-                key={`${field.key}${index}`}
-                contextMenu={
-                  (!field.group?.minimum || currentValue?.length > field.group?.minimum) && field.group?.contextMenu
-                }
-                onDelete={() =>
-                  dispatch({
-                    type: 'deleteGroupItem',
-                    data: { deleteIndex: index, onUpdate, field: field.key, parent }
-                  })
-                }
-                label={printLabel(field, fieldData, parent, currentLang)}
-              >
-                {field.fields?.map(groupField => printField(groupField, fieldData, { key: field.key, index, parent }))}
-              </GroupItemWrapper>
-            ))}
+            <div
+              ref={ref => {
+                groupRef.current[field.key] = ref!
+              }}
+            >
+              {currentValue?.map((fieldData, index) => (
+                <GroupItemWrapper
+                  key={`${field.key}${index}`}
+                  contextMenu={
+                    (!field.group?.minimum || currentValue?.length > field.group?.minimum) && field.group?.contextMenu
+                  }
+                  onDelete={() =>
+                    dispatch({
+                      type: 'deleteGroupItem',
+                      data: { deleteIndex: index, onUpdate, field: field.key, parent }
+                    })
+                  }
+                  label={printLabel(field, fieldData, parent, currentLang)}
+                >
+                  {field.fields?.map(groupField =>
+                    printField(groupField, fieldData, { key: field.key, index, parent })
+                  )}
+                </GroupItemWrapper>
+              ))}
+            </div>
             <AddButton
               text={lang(field.group?.addLabel)}
-              onClick={() =>
+              onClick={() => {
+                moveFocusTo.current = field.key
                 dispatch({
                   type: 'add',
                   data: {
@@ -186,7 +229,7 @@ const Form: FC<FormProps> = ({
                     onUpdate
                   }
                 })
-              }
+              }}
             />
           </Fragment>
         )
@@ -435,7 +478,7 @@ const Form: FC<FormProps> = ({
 
   return (
     <Fragment>
-      {fields?.map(field => printField(field, state))}
+      <div ref={fieldWrapperRef}>{fields?.map(field => printField(field, state))}</div>
       {!!advancedSettings?.length && (
         <GroupItemWrapper defaultCollapsed label={lang('advancedSettings')}>
           {advancedSettings.map(field => printField(field, state))}
