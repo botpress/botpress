@@ -128,7 +128,11 @@ try {
 
         getos.default().then(distro => {
           process.distro = distro
-          require('./bootstrap')
+          if (yn(process.env.BP_DIAG)) {
+            require('./diag').default(argv)
+          } else {
+            require('./bootstrap')
+          }
         })
       }
     )
@@ -323,20 +327,25 @@ try {
     )
     .command(
       'diag',
-      'Generate a diagnostic report',
+      'Generate a diagnostic report\nAlternative: set BP_DIAG=true',
       {
         config: {
           alias: 'c',
-          description: 'Include all configuration files',
+          description: 'Include all configuration files\nAlternative: set BP_DIAG_CONFIG=true',
           default: false
         },
         includePasswords: {
-          description: 'Passwords will not be obfuscated in the output',
+          description: 'Passwords will not be obfuscated in the output\nAlternative: set BP_DIAG_INCLUDE_PASWORDS=true',
           default: false
         },
         outputFile: {
           alias: 'o',
-          description: 'Send the output to the specified filename'
+          description: 'Send the output to the specified filename\nAlternative: set BP_DIAG_OUTPUT=filename'
+        },
+        monitor: {
+          alias: 'm',
+          description:
+            'Starts an HTTP server and a Redis client, then outputs traces in real time\nAlternative: set BP_DIAG_MONITOR=true'
         }
       },
       argv => {
