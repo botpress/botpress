@@ -12,7 +12,7 @@ import {
   Position
 } from '@blueprintjs/core'
 import { BotConfig } from 'botpress/sdk'
-import { confirmDialog, lang } from 'botpress/shared'
+import { confirmDialog, lang, telemetry } from 'botpress/shared'
 import { ServerHealth, UserProfile } from 'common/typings'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
@@ -75,6 +75,8 @@ class Bots extends Component<Props> {
     if (!this.props.licensing) {
       this.props.fetchLicensing()
     }
+
+    telemetry.startFallback(api.getSecured()).catch()
   }
 
   toggleCreateBotModal = () => {
