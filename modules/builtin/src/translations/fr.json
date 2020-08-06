@@ -99,6 +99,7 @@
   "maxLength": "Longeur maximale",
   "confirmBeforeCancel": "Confirmer avant d'annuler",
   "confirmBeforeCancelMoreInfo": "Demander une confirmation à l'utilisateur avant d'annuler ou d'aller vers un autre workflow",
+  "confirmVariableFilled": "Confirmer la variable si elle est déjà remplie",
   "prompt": {
     "confirmValue": "Est-ce que la valeur '{value}' est correcte?",
     "confirmLeaving": "Désirez-vous vraiment abandonner?",
