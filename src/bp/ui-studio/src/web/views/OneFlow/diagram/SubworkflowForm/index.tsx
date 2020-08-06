@@ -16,13 +16,11 @@ interface Props {
 }
 
 const SubworkflowForm: FC<Props> = ({ close, node, diagramEngine, flows }) => {
-  const [formData, setFormData] = useState<FormData>()
+  if (!node?.subflow) {
+    return null
+  }
 
-  useEffect(() => {
-    if (!node?.subflow) {
-      return
-    }
-
+  const formatInitialData = () => {
     const formData: any = {}
     for (const [key, value] of Object.entries(node.subflow.in)) {
       formData[key] = `${value.source === 'hardcoded' ? '' : '$'}${value.value}`
@@ -30,9 +28,12 @@ const SubworkflowForm: FC<Props> = ({ close, node, diagramEngine, flows }) => {
     for (const [key, value] of Object.entries(node.subflow.out)) {
       formData[key] = `$${value}`
     }
+    ;``
 
-    setFormData(formData)
-  }, [])
+    return formData
+  }
+
+  const [formData, setFormData] = useState<FormData>(formatInitialData())
 
   const setParam = (type: 'in' | 'out', param, value: string) => {
     setFormData({ ...formData, [param]: value })
