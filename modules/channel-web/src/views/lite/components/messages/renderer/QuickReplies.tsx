@@ -1,4 +1,5 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
+import { FormattedMessage } from 'react-intl'
 
 import { Renderer } from '../../../typings'
 import * as Keyboard from '../../Keyboard'
@@ -45,7 +46,18 @@ export class QuickReplies extends Component<Renderer.QuickReply> {
 
   render() {
     const buttons = this.props.buttons || this.props.quick_replies
-    const kbd = <div className={'bpw-keyboard-quick_reply'}>{buttons && this.renderKeyboard(buttons)}</div>
+    const kbd = (
+      <div className={'bpw-keyboard-quick_reply'}>
+        {buttons && (
+          <Fragment>
+            <span className="bpw-keyboard-label">
+              <FormattedMessage id={'composer.quickReplyLabel'} />
+            </span>
+            {this.renderKeyboard(buttons)}
+          </Fragment>
+        )}
+      </div>
+    )
 
     return (
       <Keyboard.Prepend keyboard={kbd} visible={this.props.isLastGroup && this.props.isLastOfGroup}>
