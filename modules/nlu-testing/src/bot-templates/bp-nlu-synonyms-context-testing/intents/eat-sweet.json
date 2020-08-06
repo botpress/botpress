@@ -2,17 +2,15 @@
   "name": "eat-sweet",
   "utterances": {
     "en": [
-      "I'm craving for a sweet",
-      "Please feed me with good sweet",
-      "A sweet is all I want",
-      "I would die for a sweet",
-      "Is there sweet on the menu ?",
-      "I would be really happy if you have some sweet",
-      "Oh please, give me some sweet, it's my favourite"
+      "I'm craving for a dessert",
+      "Please feed me with good dessert",
+      "A dessert is all I want",
+      "I would die for a dessert",
+      "Is there dessert on the menu ?",
+      "I would be really happy if you have some dessert",
+      "Oh please, give me some dessert, it's my favourite"
     ]
   },
   "slots": [],
-  "contexts": [
-    "intersection"
-  ]
+  "contexts": ["intersection"]
 }

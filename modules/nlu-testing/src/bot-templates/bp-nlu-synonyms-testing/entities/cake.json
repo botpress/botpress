@@ -1,6 +1,6 @@
 {
-  "id": "cake",
-  "name": "cake",
+  "id": "dessert",
+  "name": "dessert",
   "type": "list",
   "occurrences": [
     { "name": "cake", "synonyms": [] },

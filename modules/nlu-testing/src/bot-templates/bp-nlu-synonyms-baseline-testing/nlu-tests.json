@@ -1,6 +1,6 @@
 [
   {
-    "utterance": "I want to eat a poutine",
+    "utterance": "I want to eat a dish",
     "context": "*",
     "conditions": [
       ["context", "is", "intersection"],
@@ -9,7 +9,7 @@
     "id": "bc758bac4c8be6b74b3fc49ebcc0cf19"
   },
   {
-    "utterance": "Poutine is what I want to put in my mouth right now",
+    "utterance": "dish is what I want to put in my mouth right now",
     "context": "*",
     "conditions": [
       ["context", "is", "intersection"],
@@ -18,7 +18,7 @@
     "id": "f32cb52d00a625c15498883b35ad0a1d"
   },
   {
-    "utterance": "Do you have some smoked meat ?",
+    "utterance": "Do you have some dish ?",
     "context": "*",
     "conditions": [
       ["context", "is", "intersection"],
@@ -27,7 +27,7 @@
     "id": "d4b0073e765a0602d0ad6966622f87b6"
   },
   {
-    "utterance": "If you would be kind enough to bring me a smoked meat poutine it would be perfect",
+    "utterance": "If you would be kind enough to bring me a dish it would be perfect",
     "context": "*",
     "conditions": [
       ["context", "is", "intersection"],
@@ -36,7 +36,7 @@
     "id": "4da576a5bfa59c5b5dd50fb0c65049ca"
   },
   {
-    "utterance": "May I know if you have some strogonoff beef or a caesar salad on your menu ? I would be pleased",
+    "utterance": "May I know if you have some dish or a dish on your menu ? I would be pleased",
     "context": "*",
     "conditions": [
       ["context", "is", "intersection"],
@@ -45,7 +45,7 @@
     "id": "0663056f2d35e0249450dee3b71b28eb"
   },
   {
-    "utterance": "The best is a dark chocolate ice cream, but if you don't have it it's okay",
+    "utterance": "The best is dish, but if you don't have it it's okay",
     "context": "*",
     "conditions": [
       ["context", "is", "intersection"],
@@ -54,7 +54,7 @@
     "id": "4a9fadd32f42c55f6ab4932c04a1dce5"
   },
   {
-    "utterance": "If I can come to the place with my Tesla, I will buy a bagel. ",
+    "utterance": "If I can come to the place with my car, I will buy a dish. ",
     "context": "*",
     "conditions": [
       ["context", "is", "intersection"],
@@ -63,7 +63,7 @@
     "id": "58941dd7de9591a0d668f06a69dceaca"
   },
   {
-    "utterance": "I want to eat a cake",
+    "utterance": "I want to eat a dessert",
     "context": "*",
     "conditions": [
       ["context", "is", "intersection"],
@@ -72,7 +72,7 @@
     "id": "754ce3c3a8149c7d9b3436635662295d"
   },
   {
-    "utterance": "Lemon pie is why I want to put in my mouth right now",
+    "utterance": "dessert is why I want to put in my mouth right now",
     "context": "*",
     "conditions": [
       ["context", "is", "intersection"],
@@ -81,7 +81,7 @@
     "id": "6cd13413b066acd3392fd1db93cb2baa"
   },
   {
-    "utterance": "Do you have some pouding ?",
+    "utterance": "Do you have some dessert ?",
     "context": "*",
     "conditions": [
       ["context", "is", "intersection"],
@@ -90,7 +90,7 @@
     "id": "2c3091047684efcdc7410b228e3b0b29"
   },
   {
-    "utterance": "If you would be kind enough to bring me a mapple sirup brownie it would be perfect",
+    "utterance": "If you would be kind enough to bring me a dessert it would be perfect",
     "context": "*",
     "conditions": [
       ["context", "is", "intersection"],
@@ -99,7 +99,7 @@
     "id": "bd59da47f34a8c0308db5e4e7286062e"
   },
   {
-    "utterance": "May I know if you have some peach melba or a banana split on your menu ? I would be pleased",
+    "utterance": "May I know if you have some dessert or a dessert on your menu ? I would be pleased",
     "context": "*",
     "conditions": [
       ["context", "is", "intersection"],
@@ -108,7 +108,7 @@
     "id": "e277637b6bd77bfd248b427858e63c60"
   },
   {
-    "utterance": "The best is a dark chocolate ice cream, but if you don't have it it's okay",
+    "utterance": "The best is a dessert, but if you don't have it it's okay",
     "context": "*",
     "conditions": [
       ["context", "is", "intersection"],
@@ -117,7 +117,7 @@
     "id": "4a9fadd32f42c55f6ab4932c04a1dce5"
   },
   {
-    "utterance": "If I can come to the place with my Tesla, I will buy a tarte tatin. ",
+    "utterance": "If I can come to the place with my car, I will buy a dessert. ",
     "context": "*",
     "conditions": [
       ["context", "is", "intersection"],
@@ -126,7 +126,7 @@
     "id": "eaed94474a2647546d30fa511a2601df"
   },
   {
-    "utterance": "I would like to buy an Audi",
+    "utterance": "I would like to buy an car",
     "context": "*",
     "conditions": [
       ["context", "is", "unbalanced"],
@@ -135,7 +135,7 @@
     "id": "e1521980d4dc0dbda800f07df384b0db"
   },
   {
-    "utterance": "How much is a Tesla",
+    "utterance": "How much is a car",
     "context": "*",
     "conditions": [
       ["context", "is", "unbalanced"],
@@ -144,7 +144,7 @@
     "id": "3018eaf158273fc664ea66dd08bb0c79"
   },
   {
-    "utterance": "I want Nissan with a powerful motor",
+    "utterance": "I want car with a powerful motor",
     "context": "*",
     "conditions": [
       ["context", "is", "unbalanced"],
@@ -153,7 +153,7 @@
     "id": "54b86b08b88451977ca7e7bfaa18b8c8"
   },
   {
-    "utterance": "I would like to sell my GMC to buy another pickup",
+    "utterance": "I would like to sell my car to buy another car",
     "context": "*",
     "conditions": [
       ["context", "is", "unbalanced"],
@@ -162,7 +162,7 @@
     "id": "d718c654d9882dae050e181bff585acc"
   },
   {
-    "utterance": "Can you advise me between a Fiat and a Ferrari",
+    "utterance": "Can you advise me between a car and a car",
     "context": "*",
     "conditions": [
       ["context", "is", "unbalanced"],
@@ -171,7 +171,7 @@
     "id": "2be7bb9daaf7109c51acb09c679e277f"
   },
   {
-    "utterance": "Is Bentley expensive ?",
+    "utterance": "Is car expensive ?",
     "context": "*",
     "conditions": [
       ["context", "is", "unbalanced"],
@@ -180,7 +180,7 @@
     "id": "655d3b67d1a4b65e5ff7373d8a8273b7"
   },
   {
-    "utterance": "I need a RAV4",
+    "utterance": "I need a car",
     "context": "*",
     "conditions": [
       ["context", "is", "unbalanced"],
@@ -189,7 +189,7 @@
     "id": "4cb21f135abfc9233bfe27111adfe2ef"
   },
   {
-    "utterance": "Do you have any M16 ? ",
+    "utterance": "Do you have any gun ? ",
     "context": "*",
     "conditions": [
       ["context", "is", "unbalanced"],
@@ -198,7 +198,7 @@
     "id": "9645ab6d55421a645472301e17d269b1"
   },
   {
-    "utterance": "I want to buy a glock",
+    "utterance": "I want to buy a gun",
     "context": "*",
     "conditions": [
       ["context", "is", "unbalanced"],
@@ -207,7 +207,7 @@
     "id": "0c6f5d7ca408539733b64da42ce6be47"
   },
   {
-    "utterance": "Do you sell any BM25 ?",
+    "utterance": "Do you sell any gun ?",
     "context": "*",
     "conditions": [
       ["context", "is", "unbalanced"],
@@ -216,7 +216,7 @@
     "id": "81c537f0ab978034bac7895fc20d0f47"
   },
   {
-    "utterance": "what is the best between a P90 and a Magnum ?",
+    "utterance": "what is the best between a gun and a gun ?",
     "context": "*",
     "conditions": [
       ["context", "is", "unbalanced"],
@@ -225,7 +225,7 @@
     "id": "5bd70f11a2f56f389a2ac1922540dab6"
   },
   {
-    "utterance": "Do you have a M16 but in purple ? ",
+    "utterance": "Do you have a gun but in purple ? ",
     "context": "*",
     "conditions": [
       ["context", "is", "unbalanced"],
@@ -234,7 +234,7 @@
     "id": "ec987c3753c095b2db42c37edbdc91a7"
   },
   {
-    "utterance": "price G36",
+    "utterance": "price gun",
     "context": "*",
     "conditions": [
       ["context", "is", "unbalanced"],
@@ -406,7 +406,7 @@
   },
   {
     "id": "1596551634634",
-    "utterance": "I'm looking for a Subway in which I can bring my M16",
+    "utterance": "I'm looking for a restaurant in which I can bring my gun",
     "context": "*",
     "conditions": [
       ["context", "is", "splitable"],
@@ -415,7 +415,7 @@
   },
   {
     "id": "1596551638363",
-    "utterance": "I'm looking for a Subway",
+    "utterance": "I'm looking for a restaurant",
     "context": "*",
     "conditions": [
       ["context", "is", "splitable"],
@@ -424,7 +424,7 @@
   },
   {
     "id": "1596551096381",
-    "utterance": "I'm looking for restaurants in the city of lights",
+    "utterance": "I'm looking for restaurants in paris",
     "context": "*",
     "conditions": [
       ["context", "is", "splitable"],
@@ -433,7 +433,7 @@
   },
   {
     "id": "1596551288820",
-    "utterance": "Where is the closest McDo ? ",
+    "utterance": "Where is the closest restaurant ? ",
     "context": "*",
     "conditions": [
       ["context", "is", "splitable"],
@@ -442,7 +442,7 @@
   },
   {
     "id": "1596551128546",
-    "utterance": "Is downtown a good place to eat KFC ?",
+    "utterance": "Is paris a good place to eat in a restaurant ?",
     "context": "*",
     "conditions": [
       ["context", "is", "splitable"],
@@ -451,7 +451,7 @@
   },
   {
     "id": "1596551143900",
-    "utterance": "Any burger kings downtown ? ",
+    "utterance": "Any restaurant in paris ? ",
     "context": "*",
     "conditions": [
       ["context", "is", "splitable"],
@@ -460,7 +460,7 @@
   },
   {
     "id": "1596551205435",
-    "utterance": "I'm looking for a thai zone or a tim hortons close to the Louvre",
+    "utterance": "I'm looking for a restaurant or a restaurant close to paris",
     "context": "*",
     "conditions": [
       ["context", "is", "splitable"],
@@ -469,7 +469,7 @@
   },
   {
     "id": "1596551387045",
-    "utterance": "I'm craving for a good starbuck coffee in paris, is there some ?",
+    "utterance": "I'm craving for a good restaurant in paris, is there some ?",
     "context": "*",
     "conditions": [
       ["context", "is", "splitable"],
@@ -478,7 +478,7 @@
   },
   {
     "id": "1596551905247",
-    "utterance": "I want to speak with Sylvain Perron the CEO",
+    "utterance": "I want to speak with boss the boss ",
     "context": "*",
     "conditions": [
       ["context", "is", "splitable"],
@@ -487,7 +487,7 @@
   },
   {
     "id": "1596551959148",
-    "utterance": "Can I talk with either the CEO or the CFO ?",
+    "utterance": "Can I talk with either the boss or the boss  ?",
     "context": "*",
     "conditions": [
       ["context", "is", "splitable"],
@@ -496,7 +496,7 @@
   },
   {
     "id": "1596551987359",
-    "utterance": "I have a meeting with your responsable, I guess his name is Sylvain",
+    "utterance": "I have a meeting with your boss, I guess his name is boss ",
     "context": "*",
     "conditions": [
       ["context", "is", "splitable"],
@@ -505,7 +505,7 @@
   },
   {
     "id": "1596551996986",
-    "utterance": "Appointment with CEO",
+    "utterance": "Appointment with boss ",
     "context": "*",
     "conditions": [
       ["context", "is", "splitable"],
@@ -514,7 +514,7 @@
   },
   {
     "id": "1596552023362",
-    "utterance": "I want to schedule a meeting with your CTO",
+    "utterance": "I want to schedule a meeting with your boss ",
     "context": "*",
     "conditions": [
       ["context", "is", "splitable"],
@@ -523,7 +523,7 @@
   },
   {
     "id": "1596552201247",
-    "utterance": "I have an appointment with Sly",
+    "utterance": "I have an appointment with boss ",
     "context": "*",
     "conditions": [
       ["context", "is", "splitable"],
@@ -532,7 +532,7 @@
   },
   {
     "id": "1596552295768",
-    "utterance": "Interview with the CFO for 2pm the 4 of june ",
+    "utterance": "Interview with the boss for 2pm the 4 of june ",
     "context": "*",
     "conditions": [
       ["context", "is", "splitable"],
@@ -559,7 +559,7 @@
   },
   {
     "id": "1596552797108",
-    "utterance": "Can I check my plane ?",
+    "utterance": "Can I check my flight ?",
     "context": "*",
     "conditions": [
       ["context", "is", "switched"],
@@ -568,7 +568,7 @@
   },
   {
     "id": "1596552849121",
-    "utterance": "look up my trip",
+    "utterance": "look up my flight",
     "context": "*",
     "conditions": [
       ["context", "is", "switched"],
@@ -577,7 +577,7 @@
   },
   {
     "id": "1596552867300",
-    "utterance": "report status of arrival time",
+    "utterance": "report status of flight",
     "context": "*",
     "conditions": [
       ["context", "is", "switched"],
@@ -586,7 +586,7 @@
   },
   {
     "id": "1596552913427",
-    "utterance": "look up R-854",
+    "utterance": "look up flight",
     "context": "*",
     "conditions": [
       ["context", "is", "switched"],
@@ -595,7 +595,7 @@
   },
   {
     "id": "1596552770378",
-    "utterance": "can I get the status of B-873",
+    "utterance": "can I get the status of flight",
     "context": "*",
     "conditions": [
       ["context", "is", "switched"],
@@ -604,7 +604,7 @@
   },
   {
     "id": "1596553001005",
-    "utterance": "I would like to know  K8765 status",
+    "utterance": "I would like to know  flight status",
     "context": "*",
     "conditions": [
       ["context", "is", "switched"],
@@ -613,7 +613,7 @@
   },
   {
     "id": "1596552881933",
-    "utterance": "state AC458",
+    "utterance": "state flight",
     "context": "*",
     "conditions": [
       ["context", "is", "switched"],
@@ -622,7 +622,7 @@
   },
   {
     "id": "1596553966582",
-    "utterance": "RER status",
+    "utterance": "account status",
     "context": "*",
     "conditions": [
       ["context", "is", "switched"],
@@ -631,7 +631,7 @@
   },
   {
     "id": "1596553980390",
-    "utterance": "get informations on CELI",
+    "utterance": "get informations on account",
     "context": "*",
     "conditions": [
       ["context", "is", "switched"],
@@ -640,7 +640,7 @@
   },
   {
     "id": "1596554002325",
-    "utterance": "is my PLS canceled ? ",
+    "utterance": "is my account canceled ? ",
     "context": "*",
     "conditions": [
       ["context", "is", "switched"],
@@ -649,7 +649,7 @@
   },
   {
     "id": "1596554019357",
-    "utterance": "when will my ROI take-off ? ",
+    "utterance": "when will my account take-off ? ",
     "context": "*",
     "conditions": [
       ["context", "is", "switched"],
@@ -658,7 +658,7 @@
   },
   {
     "id": "1596554032580",
-    "utterance": "what is the status of my DR",
+    "utterance": "what is the status of my account",
     "context": "*",
     "conditions": [
       ["context", "is", "switched"],
@@ -667,7 +667,7 @@
   },
   {
     "id": "1596554046597",
-    "utterance": "report progress NI",
+    "utterance": "report progress account",
     "context": "*",
     "conditions": [
       ["context", "is", "switched"],
@@ -676,7 +676,7 @@
   },
   {
     "id": "1596554058909",
-    "utterance": "can I have informations about my IRA",
+    "utterance": "can I have informations about my account",
     "context": "*",
     "conditions": [
       ["context", "is", "switched"],
@@ -688,8 +688,8 @@
     "utterance": "My nephew really loves planes",
     "context": "*",
     "conditions": [
-      ["context", "is", "switched"],
-      ["intent", "is", "status-bank"]
+      ["context", "is", "none"],
+      ["intent", "is", "none"]
     ]
   }
 ]

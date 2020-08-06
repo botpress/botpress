@@ -3,38 +3,13 @@
   "name": "restaurants",
   "type": "list",
   "occurrences": [
-    {
-      "name": "Subway",
-      "synonyms": []
-    },
-    {
-      "name": "KFC",
-      "synonyms": []
-    },
-    {
-      "name": "Mac donalds",
-      "synonyms": [
-        "McDo"
-      ]
-    },
-    {
-      "name": "Thai zone",
-      "synonyms": []
-    },
-    {
-      "name": "Tim Hortons",
-      "synonyms": []
-    },
-    {
-      "name": "Burger King",
-      "synonyms": [
-        "Bk"
-      ]
-    },
-    {
-      "name": "Starbucks",
-      "synonyms": []
-    }
+    { "name": "Subway", "synonyms": [] },
+    { "name": "KFC", "synonyms": [] },
+    { "name": "Mac donalds", "synonyms": ["McDo"] },
+    { "name": "Thai zone", "synonyms": [] },
+    { "name": "Tim Hortons", "synonyms": [] },
+    { "name": "Burger King", "synonyms": ["Bk"] },
+    { "name": "Starbucks", "synonyms": [] }
   ],
   "sensitive": false,
   "fuzzy": 0.8,

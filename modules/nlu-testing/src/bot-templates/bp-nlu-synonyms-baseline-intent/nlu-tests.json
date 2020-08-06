@@ -36,7 +36,7 @@
     "id": "4a9fadd32f42c55f6ab4932c04a1dce5"
   },
   {
-    "utterance": "If I can come to the place with my Tesla, I will buy a dish. ",
+    "utterance": "If I can come to the place with my car, I will buy a dish. ",
     "context": "intersection",
     "conditions": [["intent", "is", "eat-salty"]],
     "id": "58941dd7de9591a0d668f06a69dceaca"
@@ -78,7 +78,7 @@
     "id": "4a9fadd32f42c55f6ab4932c04a1dce5"
   },
   {
-    "utterance": "If I can come to the place with my Tesla, I will buy a dessert. ",
+    "utterance": "If I can come to the place with my car, I will buy a dessert. ",
     "context": "intersection",
     "conditions": [["intent", "is", "eat-sweet"]],
     "id": "eaed94474a2647546d30fa511a2601df"
@@ -199,7 +199,7 @@
   },
   {
     "id": "1596548177640",
-    "utterance": "At home I have a riffle a pistol and 10 M16 to protect my freedom !",
+    "utterance": "At home I have a riffle a pistol and 10 guns to protect my freedom !",
     "context": "*",
     "conditions": [["intent", "is", "none"]]
   },
@@ -247,7 +247,7 @@
   },
   {
     "id": "1596550279103",
-    "utterance": "When he will get 40, my manager will be millionaire",
+    "utterance": "When he will get 40, my boss will be millionaire",
     "context": "*",
     "conditions": [["intent", "is", "none"]]
   },

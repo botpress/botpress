@@ -36,7 +36,7 @@
     "id": "4a9fadd32f42c55f6ab4932c04a1dce5"
   },
   {
-    "utterance": "If I can come to the place with my Tesla, I will buy a dish. ",
+    "utterance": "If I can come to the place with my car, I will buy a dish. ",
     "context": "*",
     "conditions": [["context", "is", "intersection"]],
     "id": "58941dd7de9591a0d668f06a69dceaca"
@@ -271,7 +271,7 @@
   },
   {
     "id": "1596551634634",
-    "utterance": "I'm looking for a restaurant in which I can bring my M16",
+    "utterance": "I'm looking for a restaurant in which I can bring my gun",
     "context": "*",
     "conditions": [["context", "is", "splitable"]]
   },
@@ -403,7 +403,7 @@
   },
   {
     "id": "1596553001005",
-    "utterance": "I would like to know  flight status",
+    "utterance": "I would like to know flight status",
     "context": "*",
     "conditions": [["context", "is", "switched"]]
   },

@@ -1,0 +1,31 @@
+{
+  "id": "boss",
+  "name": "boss",
+  "type": "list",
+  "occurrences": [
+    {
+      "name": "CTO",
+      "synonyms": []
+    },
+    {
+      "name": "CEO",
+      "synonyms": []
+    },
+    {
+      "name": "Sylvain",
+      "synonyms": ["Sly", "sly", "Sylvain Perron"]
+    },
+    {
+      "name": "responsable",
+      "synonyms": []
+    },
+    {
+      "name": "CFO",
+      "synonyms": []
+    }
+  ],
+  "sensitive": false,
+  "fuzzy": 0.8,
+  "examples": [],
+  "pattern": ""
+}

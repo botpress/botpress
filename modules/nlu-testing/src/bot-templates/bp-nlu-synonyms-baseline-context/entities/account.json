@@ -3,46 +3,16 @@
   "name": "account",
   "type": "list",
   "occurrences": [
-    {
-      "name": "RER",
-      "synonyms": []
-    },
-    {
-      "name": "CELI",
-      "synonyms": []
-    },
-    {
-      "name": "CAP",
-      "synonyms": []
-    },
-    {
-      "name": "CF",
-      "synonyms": []
-    },
-    {
-      "name": "CR",
-      "synonyms": []
-    },
-    {
-      "name": "DR",
-      "synonyms": []
-    },
-    {
-      "name": "NI",
-      "synonyms": []
-    },
-    {
-      "name": "PLS",
-      "synonyms": []
-    },
-    {
-      "name": "ROI",
-      "synonyms": []
-    },
-    {
-      "name": "IRA",
-      "synonyms": []
-    }
+    { "name": "RER", "synonyms": [] },
+    { "name": "CELI", "synonyms": [] },
+    { "name": "CAP", "synonyms": [] },
+    { "name": "CF", "synonyms": [] },
+    { "name": "CR", "synonyms": [] },
+    { "name": "DR", "synonyms": [] },
+    { "name": "NI", "synonyms": [] },
+    { "name": "PLS", "synonyms": [] },
+    { "name": "ROI", "synonyms": [] },
+    { "name": "IRA", "synonyms": [] }
   ],
   "sensitive": false,
   "fuzzy": 0.8,

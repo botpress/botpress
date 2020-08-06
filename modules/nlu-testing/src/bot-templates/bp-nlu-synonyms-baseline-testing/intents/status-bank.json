@@ -1,0 +1,19 @@
+{
+  "name": "status-bank",
+  "utterances": {
+    "en": [
+      "can I get the status of my account",
+      "I would like to know my financial status",
+      "How much money have I left ?",
+      "How are my savings ?",
+      "Can I check my incomes ?",
+      "look up my account",
+      "report status of financial record",
+      "state funds"
+    ]
+  },
+  "slots": [],
+  "contexts": [
+    "switched"
+  ]
+}
