@@ -1,3 +1,4 @@
+import { BUILTIN_MODULES } from 'common/defaults'
 import jsonlintMod from 'jsonlint-mod'
 import _ from 'lodash'
 
@@ -7,27 +8,6 @@ import { EditorError } from './editorError'
 import { EditableFile, FilePermissions, FileType } from './typings'
 
 export const RAW_TYPE: FileType = 'raw'
-
-export const BUILTIN_MODULES = [
-  'analytics',
-  'basic-skills',
-  'bot-improvement',
-  'builtin',
-  'channel-messenger',
-  'channel-slack',
-  'channel-teams',
-  'channel-telegram',
-  'channel-web',
-  'code-editor',
-  'examples',
-  'extensions',
-  'misunderstood',
-  'history',
-  'hitl',
-  'nlu',
-  'qna',
-  'testing'
-]
 
 export const getBuiltinExclusion = () => {
   return _.flatMap(BUILTIN_MODULES, mod => [`${mod}/*`, `*/${mod}/*`])

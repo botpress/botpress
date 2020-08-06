@@ -26,6 +26,7 @@ import MediaService from './media'
 import { DialogStore } from './middleware/dialog-store'
 import { EventEngine } from './middleware/event-engine'
 import { CEMonitoringService, MonitoringService } from './monitoring'
+import { NLUService } from './nlu/nlu-service'
 import { NotificationsService } from './notification/service'
 import { Queue } from './queue'
 import MemoryQueue from './queue/memory-queue'
@@ -35,6 +36,10 @@ import { StatsService } from './stats-service'
 const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
   bind<CMSService>(TYPES.CMSService)
     .to(CMSService)
+    .inSingletonScope()
+
+  bind<NLUService>(TYPES.NLUService)
+    .to(NLUService)
     .inSingletonScope()
 
   bind<MediaService>(TYPES.MediaService)

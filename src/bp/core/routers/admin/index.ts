@@ -1,12 +1,10 @@
 import axios from 'axios'
-import { Logger, logger } from 'botpress/sdk'
+import { Logger } from 'botpress/sdk'
 import { checkRule } from 'common/auth'
 import LicensingService from 'common/licensing-service'
-import { TelemetryEntry, TelemetryEvent } from 'common/telemetry'
 import { ConfigProvider } from 'core/config/config-loader'
 import { ModuleLoader } from 'core/module-loader'
 import { LogsRepository } from 'core/repositories/logs'
-import { TelemetryRepository } from 'core/repositories/telemetry'
 import { GhostService } from 'core/services'
 import { AlertingService } from 'core/services/alerting-service'
 import AuthService, { TOKEN_AUDIENCE } from 'core/services/auth/auth-service'
@@ -22,7 +20,6 @@ import yn from 'yn'
 
 import { CustomRouter } from '../customRouter'
 import { assertSuperAdmin, checkTokenHeader, loadUser, needPermissions } from '../util'
-import { success as sendSuccess } from '../util'
 
 import { BotsRouter } from './bots'
 import { LanguagesRouter } from './languages'
@@ -58,8 +55,7 @@ export class AdminRouter extends CustomRouter {
     alertingService: AlertingService,
     moduleLoader: ModuleLoader,
     jobService: JobService,
-    private logsRepository: LogsRepository,
-    private telemetryRepo: TelemetryRepository
+    private logsRepository: LogsRepository
   ) {
     super('Admin', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
@@ -127,31 +123,6 @@ export class AdminRouter extends CustomRouter {
         )
 
         res.send(data)
-      })
-    )
-
-    router.post(
-      '/telemetry-feedback',
-      this.checkTokenHeader,
-      this.asyncMiddleware(async (req, res) => {
-        const { status, events } = req.body
-
-        status ? await this.telemetryRepo.removeMany(events) : await this.telemetryRepo.updateAvailability(events, true)
-
-        return sendSuccess(res, 'Updated events')
-      })
-    )
-
-    router.get(
-      '/telemetry-payloads',
-      this.checkTokenHeader,
-      this.asyncMiddleware(async (req, res) => {
-        try {
-          res.send(await this.telemetryRepo.getEntries())
-        } catch (error) {
-          logger.warn('Error extracting entries from Telemetry database')
-          res.send([])
-        }
       })
     )
 

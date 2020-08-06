@@ -14,11 +14,14 @@ import { JobService } from '../job-service'
 
 const debug = DEBUG('stats')
 
+export const DEFAULT = '***default***'
+export const REDACTED = '***redacted***'
+
 @injectable()
 export abstract class TelemetryStats {
   protected abstract url: string
   protected abstract lock: string
-  private interval: number
+  protected abstract interval: number
 
   constructor(
     @inject(TYPES.GhostService) protected ghostService: GhostService,
@@ -26,11 +29,9 @@ export abstract class TelemetryStats {
     @inject(TYPES.LicensingService) protected licenseService: LicensingService,
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository
-  ) {
-    this.interval = ms('1d')
-  }
+  ) {}
 
-  public async start() {
+  public start() {
     // tslint:disable-next-line: no-floating-promises
     this.run(this.lock, this.interval, this.url)
 
