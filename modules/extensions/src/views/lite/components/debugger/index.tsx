@@ -5,12 +5,12 @@ import _ from 'lodash'
 import ms from 'ms'
 import nanoid from 'nanoid'
 import React from 'react'
-import { MdBugReport } from 'react-icons/md'
 import 'ui-shared/dist/theme.css'
 
 import Settings from './settings'
 import style from './style.scss'
 import { loadSettings } from './utils'
+import { Processing } from './views/Processing'
 import Summary from './views/Summary'
 import EventNotFound from './EventNotFound'
 import FetchingEvent from './FetchingEvent'
@@ -38,7 +38,9 @@ interface State {
   showEventNotFound: boolean
   fetching: boolean
   unauthorized: boolean
+  tab: string
 }
+const DEBUGGER_TAB_KEY = 'debuggerTab'
 
 export class Debugger extends React.Component<Props, State> {
   state = {
@@ -48,7 +50,8 @@ export class Debugger extends React.Component<Props, State> {
     selectedTabId: 'basic',
     showSettings: false,
     fetching: false,
-    unauthorized: false
+    unauthorized: false,
+    tab: window['BP_STORAGE'].get(DEBUGGER_TAB_KEY) || 'content'
   }
   allowedRetryCount = 0
   currentRetryCount = 0
@@ -200,24 +203,40 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   renderEvent() {
+    const lang = this.props.store?.botUILanguage || 'en'
+    const { tab, event } = this.state
+
     return (
       <div className={style.content}>
-        <Summary event={this.state.event} />
+        {tab === 'content' && <Summary event={event} />}
+        {tab === 'processing' && <Processing processing={event?.processing} lang={lang} />}
       </div>
     )
+  }
+
+  updateTab(tab) {
+    window['BP_STORAGE'].set(DEBUGGER_TAB_KEY, tab)
+    this.setState({ tab })
   }
 
   render() {
     if (!this.state.visible) {
       return null
     }
+    const { tab, event, showSettings } = this.state
 
     return (
       <div className={style.container2}>
-        <Settings store={this.props.store} isOpen={this.state.showSettings} toggle={this.toggleSettings} />
-        <Header newSession={this.handleNewSession} toggleSettings={this.toggleSettings} />
-        {!this.state.event && this.renderWhenNoEvent()}
-        {this.state.event && this.renderEvent()}
+        <Settings store={this.props.store} isOpen={showSettings} toggle={this.toggleSettings} />
+        <Header
+          updateCurrentTab={this.updateTab.bind(this)}
+          selectedTab={tab}
+          newSession={this.handleNewSession}
+          toggleSettings={this.toggleSettings}
+          hasProcessing={!!event?.processing}
+        />
+        {!event && this.renderWhenNoEvent()}
+        {event && this.renderEvent()}
       </div>
     )
   }

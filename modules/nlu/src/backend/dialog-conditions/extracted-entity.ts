@@ -12,7 +12,7 @@ export default {
       label: 'module.nlu.conditions.fields.label.variableType',
       placeholder: 'module.nlu.conditions.fields.placeholder.pickVariableType',
       dynamicOptions: {
-        endpoint: 'BOT_API_PATH/mod/nlu/entities',
+        endpoint: 'BOT_API_PATH/nlu/entities',
         valueField: 'label',
         labelField: 'label'
       }

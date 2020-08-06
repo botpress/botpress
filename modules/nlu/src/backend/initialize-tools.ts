@@ -7,6 +7,8 @@ import LangProvider from './language/language-provider'
 import { getPOSTagger, tagSentence } from './language/pos-tagger'
 import { LanguageProvider, NLUHealth, NLUVersionInfo, Token2Vec, Tools } from './typings'
 
+const NLU_VERSION = '1.2.2'
+
 const healthGetter = (languageProvider: LanguageProvider) => (): NLUHealth => {
   const { validProvidersCount, validLanguages } = languageProvider.getHealth()
   return {
@@ -16,11 +18,18 @@ const healthGetter = (languageProvider: LanguageProvider) => (): NLUHealth => {
   }
 }
 
-const initializeLanguageProvider = async (bp: typeof sdk, version: NLUVersionInfo) => {
+const versionGetter = (languageProvider: LanguageProvider) => (): NLUVersionInfo => {
+  return {
+    nluVersion: NLU_VERSION,
+    langServerInfo: languageProvider.langServerInfo
+  }
+}
+
+const initializeLanguageProvider = async (bp: typeof sdk) => {
   const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
 
   try {
-    const languageProvider = await LangProvider.initialize(globalConfig.languageSources, bp.logger, version)
+    const languageProvider = await LangProvider.initialize(globalConfig.languageSources, bp.logger, NLU_VERSION)
     const getHealth = healthGetter(languageProvider)
     return { languageProvider, health: getHealth() }
   } catch (e) {
@@ -39,9 +48,9 @@ const initDucklingExtractor = async (bp: typeof sdk): Promise<void> => {
   await DucklingEntityExtractor.configure(globalConfig.ducklingEnabled, globalConfig.ducklingURL, bp.logger)
 }
 
-export async function initializeTools(bp: typeof sdk, version: NLUVersionInfo): Promise<Tools> {
+export async function initializeTools(bp: typeof sdk): Promise<Tools> {
   await initDucklingExtractor(bp)
-  const { languageProvider } = await initializeLanguageProvider(bp, version)
+  const { languageProvider } = await initializeLanguageProvider(bp)
   const { MLToolkit: mlToolkit, logger } = bp
 
   return {
@@ -58,6 +67,7 @@ export async function initializeTools(bp: typeof sdk, version: NLUVersionInfo): 
     generateSimilarJunkWords: (vocab: string[], lang: string) => languageProvider.generateSimilarJunkWords(vocab, lang),
     getHealth: healthGetter(languageProvider),
     getLanguages: () => languageProvider.languages,
+    getVersionInfo: versionGetter(languageProvider),
     mlToolkit,
     duckling: new DucklingEntityExtractor(logger)
   }
