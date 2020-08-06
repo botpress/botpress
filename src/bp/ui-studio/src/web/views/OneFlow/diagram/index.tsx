@@ -683,37 +683,6 @@ class Diagram extends Component<Props> {
     this.setState({ highlightFilter: event.target.value })
   }
 
-  renderCatchAllInfo() {
-    const nbNext = _.get(this.props.currentFlow, 'catchAll.next.length', 0)
-    const nbReceive = _.get(this.props.currentFlow, 'catchAll.onReceive.length', 0)
-
-    return (
-      <div style={{ display: 'flex', marginTop: 5 }}>
-        <Button onClick={this.handleFlowWideClicked} minimal={true}>
-          <Tag intent={nbNext > 0 ? Intent.PRIMARY : Intent.NONE}>{nbNext}</Tag>
-          {lang.tr('studio.flow.flowWideTransitions', { count: nbNext })}
-        </Button>
-        <Button onClick={this.handleFlowWideClicked} minimal={true}>
-          <Tag intent={nbReceive > 0 ? Intent.PRIMARY : Intent.NONE}>{nbReceive}</Tag>
-          {lang.tr('studio.flow.flowWideOnReceives', { count: nbReceive })}
-        </Button>
-        {this.props.showSearch && (
-          <ControlGroup>
-            <InputGroup
-              id="input-highlight-name"
-              tabIndex={1}
-              placeholder={lang.tr('studio.flow.highlightByName')}
-              value={this.props.highlightFilter}
-              onChange={this.props.handleFilterChanged}
-              autoFocus={true}
-            />
-            <Button icon="small-cross" onClick={this.props.hideSearch} />
-          </ControlGroup>
-        )}
-      </div>
-    )
-  }
-
   handleToolDropped = async (event: React.DragEvent) => {
     if (this.props.readOnly) {
       return
@@ -913,8 +882,6 @@ class Diagram extends Component<Props> {
               onDrop={this.handleToolDropped}
               onDragOver={event => event.preventDefault()}
             >
-              <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
-
               <DiagramWidget
                 ref={w => (this.diagramWidget = w)}
                 deleteKeys={[]}
