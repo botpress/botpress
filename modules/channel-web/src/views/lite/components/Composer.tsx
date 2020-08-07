@@ -17,7 +17,7 @@ class Composer extends React.Component<ComposerProps> {
   componentDidMount() {
     setTimeout(() => {
       this.textInput.current.focus()
-    }, 0)
+    }, 50)
 
     observe(this.props.focusedArea, focus => {
       focus.newValue === 'input' && this.textInput.current.focus()

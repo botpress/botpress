@@ -286,7 +286,7 @@ export default class BroadcastModule extends React.Component {
         return lang.tr('module.broadcast.noFilter')
       }
 
-      return <Tag>{filters.length + ' ' + lang.tr('module.broadcast.filters')}</Tag>
+      return <Tag>{filters.length + ' ' + lang.tr('module.broadcast.selectionFilters')}</Tag>
     }
 
     return _.mapValues(broadcasts, value => {

@@ -89,6 +89,10 @@
     color: #fff;
   }
 
+  .bpw-from-user .bpw-bubble-highlight .bpw-chat-bubble-content a {
+    color: #fff;
+  }
+
   .bpw-bubble-session_reset {
     background: var(--bg);
     max-width: calc(100% + 60px) !important;
