@@ -11,6 +11,7 @@ import legacyElectionPipeline from './legacy-election'
 import { crossValidate } from './tools/cross-validation'
 import { getTrainingSession } from './train-session-service'
 import { NLUState } from './typings'
+import { buildUtteranceBatch } from './utterance/utterance'
 
 export const PredictSchema = Joi.object().keys({
   contexts: Joi.array()
@@ -26,6 +27,12 @@ export default async (bp: typeof sdk, state: NLUState) => {
     // When the health is bad, we'll refresh the status in case it changed (eg: user added languages)
     const health = Engine.tools.getHealth()
     res.send(health)
+  })
+
+  router.post('/embed', async (req, res) => {
+    const utterances = await buildUtteranceBatch(req.body.utterances, 'fr', Engine.tools)
+    const utt_embs = utterances.map(u => u.sentenceEmbedding)
+    res.send(utt_embs)
   })
 
   router.post('/cross-validation/:lang', async (req, res) => {
