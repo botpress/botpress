@@ -1,0 +1,16 @@
+{
+  "name": "critic",
+  "utterances": {
+    "en": [
+      "You're incompetent",
+      "You're not a nice person",
+      "I find you kind",
+      "They're uncapable of doing things",
+      "With you eveyrhing is impossible",
+      "It's such a misfortune to live by yourside",
+      "I'm so unhappy you're here"
+    ]
+  },
+  "slots": [],
+  "contexts": ["antonyms"]
+}
