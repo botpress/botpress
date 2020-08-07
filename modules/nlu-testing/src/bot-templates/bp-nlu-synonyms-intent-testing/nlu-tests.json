@@ -460,5 +460,53 @@
     "utterance": "My nephew really loves planes",
     "context": "switched",
     "conditions": [["intent", "is", "status-bank"]]
+  },
+  {
+    "id": "1596825746508",
+    "utterance": "Wow, it's really pleasant to be with you",
+    "context": "antonyms",
+    "conditions": [["intent", "is", "compliment"]]
+  },
+  {
+    "id": "1596825755279",
+    "utterance": "Wow, it's really unpleasant to be with you",
+    "context": "antonyms",
+    "conditions": [["intent", "is", "critic"]]
+  },
+  {
+    "id": "1596825862553",
+    "utterance": "They really like your shirt !",
+    "context": "antonyms",
+    "conditions": [["intent", "is", "compliment"]]
+  },
+  {
+    "id": "1596825870061",
+    "utterance": "They really dislike your shirt !",
+    "context": "antonyms",
+    "conditions": [["intent", "is", "critic"]]
+  },
+  {
+    "id": "1596826192446",
+    "utterance": "She thinks you're loyal, it's wise",
+    "context": "antonyms",
+    "conditions": [["intent", "is", "compliment"]]
+  },
+  {
+    "id": "1596826210912",
+    "utterance": "She thinks you're disloyal, it's unwise",
+    "context": "antonyms",
+    "conditions": [["intent", "is", "critic"]]
+  },
+  {
+    "id": "1596829007046",
+    "utterance": "Your child is so kind, he is really pleasant",
+    "context": "antonyms",
+    "conditions": [["intent", "is", "compliment"]]
+  },
+  {
+    "id": "1596829029299",
+    "utterance": "Your child is so unkind, he is really unpleasant",
+    "context": "antonyms",
+    "conditions": [["intent", "is", "critic"]]
   }
 ]
