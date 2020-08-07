@@ -97,7 +97,7 @@ const convertToStringTests = [
   },
   {
     input:
-    '[[{"value": "variable", "prefix": "$"}]]"[[{"value": "variable2", "prefix": "$"}]]"[[{"value": "event", "prefix": "{{"}]]"[[{"value": "event2", "prefix": "{{"}]]"[[{"value": "variable", "prefix": "$"}]]"\'[[{"value": "test", "prefix": "$"}]]\'',
+      '[[{"value": "variable", "prefix": "$"}]]"[[{"value": "variable2", "prefix": "$"}]]"[[{"value": "event", "prefix": "{{"}]]"[[{"value": "event2", "prefix": "{{"}]]"[[{"value": "variable", "prefix": "$"}]]"\'[[{"value": "test", "prefix": "$"}]]\'',
     output: '$variable"$variable2"{{event}}"{{event2}}"$variable"\'$test\''
   }
 ]

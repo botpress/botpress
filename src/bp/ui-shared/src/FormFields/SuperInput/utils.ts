@@ -18,7 +18,7 @@ export const convertToString = (value: string): string => {
 
     const index = newString.indexOf(tag) + tag.length
     const string = newString.substring(index)
-    if (![' ', '"', '\''].includes(string[0]) && index !== newString.length) {
+    if (![' ', '"', "'"].includes(string[0]) && index !== newString.length) {
       suffix += ' '
     }
     const newValue = `${data.prefix}${data.value}${suffix}`
