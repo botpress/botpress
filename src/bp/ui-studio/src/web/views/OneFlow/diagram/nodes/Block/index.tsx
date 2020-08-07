@@ -116,6 +116,7 @@ const BlockWidget: FC<Props> = ({
     setIsEditing(false)
   }
 
+  const inputPortInHeader = !['trigger'].includes(nodeType)
   const outPortInHeader = !['failure', 'prompt', 'router', 'success'].includes(nodeType)
   const canCollapse = !['failure', 'prompt', 'router', 'success', 'listen'].includes(nodeType)
   const hasContextMenu = !['failure', 'success'].includes(nodeType)
@@ -176,7 +177,7 @@ const BlockWidget: FC<Props> = ({
         type={nodeType}
         error={error}
       >
-        <StandardPortWidget name="in" node={node} className={style.in} />
+        {inputPortInHeader && <StandardPortWidget name="in" node={node} className={style.in} />}
         {outPortInHeader && <StandardPortWidget name="out0" node={node} className={style.out} />}
       </NodeHeader>
       {(!canCollapse || expanded) && renderContents()}
