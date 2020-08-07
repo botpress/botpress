@@ -1,0 +1,16 @@
+{
+  "name": "compliment",
+  "utterances": {
+    "en": [
+      "You're competent",
+      "You're a nice person",
+      "I find you cruel",
+      "They're capable of doing things",
+      "With you eveyrhing is possible",
+      "It's such a fortune to live by yourside",
+      "I'm so happy you're here"
+    ]
+  },
+  "slots": [],
+  "contexts": ["antonyms"]
+}

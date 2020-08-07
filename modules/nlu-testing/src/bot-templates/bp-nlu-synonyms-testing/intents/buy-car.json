@@ -13,7 +13,5 @@
     ]
   },
   "slots": [],
-  "contexts": [
-    "unbalanced"
-  ]
+  "contexts": ["unbalanced"]
 }

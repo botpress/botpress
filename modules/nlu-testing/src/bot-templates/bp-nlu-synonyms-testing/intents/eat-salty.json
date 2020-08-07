@@ -12,7 +12,5 @@
     ]
   },
   "slots": [],
-  "contexts": [
-    "intersection"
-  ]
+  "contexts": ["intersection"]
 }

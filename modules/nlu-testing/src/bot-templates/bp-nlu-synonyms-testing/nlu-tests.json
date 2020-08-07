@@ -45,7 +45,7 @@
     "id": "0663056f2d35e0249450dee3b71b28eb"
   },
   {
-    "utterance": "The best is a dark chocolate ice cream, but if you don't have it it's okay",
+    "utterance": "The best is a strogonoff beef poutine salad, but if you don't have it it's okay",
     "context": "*",
     "conditions": [
       ["context", "is", "intersection"],
@@ -677,6 +677,15 @@
   {
     "id": "1596554058909",
     "utterance": "can I have informations about my IRA",
+    "context": "*",
+    "conditions": [
+      ["context", "is", "switched"],
+      ["intent", "is", "status-bank"]
+    ]
+  },
+  {
+    "id": "1596554139606",
+    "utterance": "My nephew really loves planes",
     "context": "*",
     "conditions": [
       ["context", "is", "switched"],

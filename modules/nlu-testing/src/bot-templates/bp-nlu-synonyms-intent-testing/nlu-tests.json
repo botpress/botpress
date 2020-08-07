@@ -30,7 +30,7 @@
     "id": "0663056f2d35e0249450dee3b71b28eb"
   },
   {
-    "utterance": "The best is a dark chocolate ice cream, but if you don't have it it's okay",
+    "utterance": "The best is a strogonoff beef poutine salad, but if you don't have it it's okay",
     "context": "intersection",
     "conditions": [["intent", "is", "eat-salty"]],
     "id": "4a9fadd32f42c55f6ab4932c04a1dce5"
