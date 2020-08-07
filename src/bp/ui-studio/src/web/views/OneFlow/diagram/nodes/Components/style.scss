@@ -40,6 +40,38 @@
   background: #fff;
   width: 150px;
 
+  .prompt :global(.port):before {
+    background: var(--prompt);
+  }
+
+  .trigger :global(.port):before {
+    background: var(--trigger);
+  }
+
+  .listen :global(.port):before {
+    background: var(--listen);
+  }
+
+  .execute :global(.port):before, .action :global(.port):before {
+    background: var(--execute);
+  }
+
+  .failure :global(.port):before {
+    background: var(--lighthouse);
+  }
+
+  .router :global(.port):before {
+    background: var(--if-else);
+  }
+
+  .success :global(.port):before {
+    background: var(--success);
+  }
+
+  .prompt :global(.port):before {
+    background: var(--prompt);
+  }
+
   :global {
     .port {
       background: none !important;

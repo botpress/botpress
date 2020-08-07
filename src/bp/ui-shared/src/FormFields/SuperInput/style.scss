@@ -13,7 +13,7 @@
     border-color: var(--ocean) !important;
   }
 
-  &:hover .tagBtnWrapper, &:hover .singularTagBtnWrapper {
+  &:focus-within .tagBtnWrapper, &:focus-within .singularTagBtnWrapper {
     opacity: 1;
     visibility: visible;
   }
@@ -110,12 +110,15 @@
     box-shadow: none !important;
     padding: calc(var(--spacing-large) - 1px) var(--spacing-medium);
     transition: background 0.3s;
-    height: 29px !important;
-    width: 29px !important;
+    height: 24px !important;
+    width: 24px !important;
+    min-height: 24px !important;
+    min-width: 24px !important;
     border-radius: 5px !important;
 
     svg {
-      fill: var(--reef);
+      fill: var(--reef) !important;
+      height: 13px !important;
     }
 
     &:hover {
