@@ -3,14 +3,14 @@
   border-radius: 4px;
   padding: var(--spacing-small);
   position: absolute;
-  right: var(--spacing-large);
+  left: var(--spacing-large);
   top: 50%;
   transform: translate(0, -50%);
 }
 
 .toolItem {
   align-items: center;
-  background: var(--seashell);
+  background: var(--bg);
   border: 1px solid transparent;
   border-radius: 5px;
   color: var(--shark);
