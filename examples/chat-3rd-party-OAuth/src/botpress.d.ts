@@ -680,7 +680,7 @@ declare module 'botpress/sdk' {
     type?: any
     timeoutNode?: string
     flow?: string
-  } & (NodeActions)
+  } & NodeActions
 
   export type SkillFlowNode = Partial<FlowNode> & Pick<Required<FlowNode>, 'name'>
 

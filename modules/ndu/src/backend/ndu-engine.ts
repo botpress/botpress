@@ -344,6 +344,7 @@ export class UnderstandingEngine {
     if (!this._allTriggers.has(event.botId)) {
       await this._loadBotWorkflows(event.botId)
     }
+
     const triggers = this._allTriggers.get(event.botId)
 
     event.ndu.triggers = {}

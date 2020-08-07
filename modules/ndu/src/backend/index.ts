@@ -44,6 +44,12 @@ const onFlowChanged = async (bp: typeof sdk, botId: string, flow: sdk.Flow) => {
   }
 }
 
+const onQnAChanged = async (bp: typeof sdk, botId: string, action: sdk.QnAChangedAction, qnaId: string) => {
+  if (bots[botId]) {
+    await bots[botId].invalidateWorkflows(botId)
+  }
+}
+
 const onModuleUnmount = async (bp: typeof sdk) => {
   bp.events.removeMiddleware('ndu.incoming')
   bp.http.deleteRouterForBot('ndu')
@@ -56,6 +62,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onBotUnmount,
   onModuleUnmount,
   onFlowChanged,
+  onQnAChanged,
   botTemplates,
   dialogConditions,
   translations: { en, fr },

@@ -125,6 +125,7 @@ declare module 'botpress/sdk' {
   }
 
   export type ElementChangedAction = 'create' | 'update' | 'delete'
+  export type QnAChangedAction = 'update_or_create' | 'delete'
 
   /**
    * The Module Entry Point is used by the module loader to bootstrap the module. It must be present in the index.js file
@@ -174,6 +175,7 @@ declare module 'botpress/sdk' {
     /**
      * This method is called whenever a content element is created, updated or deleted.
      * Modules can act on these events if they need to update references, for example.
+     * @deprecated: content elements will dissapear and instead "onFlowChanged" will be triggered
      */
     onElementChanged?: (
       bp: typeof import('botpress/sdk'),
@@ -181,6 +183,16 @@ declare module 'botpress/sdk' {
       action: ElementChangedAction,
       element: ContentElement,
       oldElement?: ContentElement
+    ) => Promise<void>
+    /**
+     * This method is called whenever a QnA is created, updated or deleted.
+     * Modules can act on these events if they need to know a QnA changed. (NDU for example)
+     */
+    onQnAChanged?: (
+      bp: typeof import('botpress/sdk'),
+      botId: string,
+      action: QnAChangedAction,
+      qnaId: string
     ) => Promise<void>
   }
 

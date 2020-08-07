@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import { FlowView } from 'common/typings'
 import { sanitizeFileName } from 'core/misc/utils'
+import { ModuleLoader } from 'core/module-loader'
 import _ from 'lodash'
 
 import { GhostService } from '..'
@@ -10,7 +11,7 @@ import { NLUService } from './nlu-service'
 const INTENTS_DIR = './intents'
 
 export class IntentService {
-  constructor(private ghostService: GhostService, private nluService: NLUService) {}
+  constructor(private ghostService: GhostService, private moduleLoader: ModuleLoader, private nluService: NLUService) {}
 
   private async intentExists(botId: string, intentName: string): Promise<boolean> {
     return this.ghostService.forBot(botId).fileExists(INTENTS_DIR, `${intentName}.json`)
@@ -51,6 +52,11 @@ export class IntentService {
       })
 
     await this.ghostService.forBot(botId).upsertFile(INTENTS_DIR, `${name}.json`, JSON.stringify(intent, undefined, 2))
+
+    if (name.startsWith('__qna')) {
+      await this.moduleLoader.onQnAChanged(botId, 'update_or_create', name)
+    }
+
     return intent
   }
 
@@ -63,6 +69,9 @@ export class IntentService {
     const merged = _.merge(intentDef, content) as sdk.NLU.IntentDefinition
     if (content?.name !== name) {
       await this.deleteIntent(botId, name)
+      if (name.startsWith('__qna')) {
+        await this.moduleLoader.onQnAChanged(botId, 'delete', name)
+      }
       name = <string>content.name
     }
     return this.saveIntent(botId, merged)
@@ -75,7 +84,11 @@ export class IntentService {
       throw new Error('Intent does not exist')
     }
 
-    return this.ghostService.forBot(botId).deleteFile(INTENTS_DIR, `${intentName}.json`)
+    await this.ghostService.forBot(botId).deleteFile(INTENTS_DIR, `${intentName}.json`)
+
+    if (intentName.startsWith('__qna')) {
+      await this.moduleLoader.onQnAChanged(botId, 'delete', intentName)
+    }
   }
 
   // ideally this would be a filewatcher

@@ -9,6 +9,7 @@ import {
   ModuleDefinition,
   ModuleEntryPoint,
   PromptDefinition,
+  QnAChangedAction,
   Skill
 } from 'botpress/sdk'
 import { ModuleInfo } from 'common/typings'
@@ -41,6 +42,7 @@ const MODULE_SCHEMA = joi.object().keys({
   onFlowChanged: joi.func().optional(),
   onFlowRenamed: joi.func().optional(),
   onElementChanged: joi.func().optional(),
+  onQnAChanged: joi.func().optional(),
   skills: joi.array().optional(),
   translations: joi.object().optional(),
   prompts: joi.array().optional(),
@@ -290,6 +292,15 @@ export class ModuleLoader {
       const entryPoint = this.getModule(module.name)
       const api = await createForModule(module.name)
       await entryPoint.onElementChanged?.(api, botId, action, element, oldElement)
+    }
+  }
+
+  public async onQnAChanged(botId: string, action: QnAChangedAction, qnaId: string) {
+    const modules = this.getLoadedModules()
+    for (const module of modules) {
+      const entryPoint = this.getModule(module.name)
+      const api = await createForModule(module.name)
+      await entryPoint.onQnAChanged?.(api, botId, action, qnaId)
     }
   }
 
