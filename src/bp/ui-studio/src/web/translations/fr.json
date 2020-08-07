@@ -332,6 +332,7 @@
       "userDoesNotAnswer": "L'utilisateur ne réponds pas"
     },
     "sideBar": {
+      "flowBuilder": "Éditeur de workflow",
       "config": "Configuration",
       "content": "Contenu",
       "flows": "Flows"
