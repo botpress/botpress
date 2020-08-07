@@ -16,6 +16,11 @@ class TrainingCanceledError extends Error {
   }
 }
 
+interface TrainOutput {
+  model: SvmModel
+  report?: Report
+}
+
 export class SVM {
   private _config: SvmConfig
   private _baseSvm: BaseSVM | undefined
@@ -43,7 +48,7 @@ export class SVM {
     this._isCanceled = true
   }
 
-  train = async (dataset: Data[], progressCb: (progress: number) => void) => {
+  train = async (dataset: Data[], progressCb: (progress: number) => void): Promise<TrainOutput | undefined> => {
     const self = this
     const dims = numeric.dim(dataset)
     assert(dims[0] > 0 && dims[1] === 2 && dims[2] > 0, 'dataset must be an list of [X,y] tuples')
@@ -93,14 +98,17 @@ export class SVM {
       progressCb(1)
       const fullModel: SvmModel = { ...model, param: { ...self._config, ...model.param } }
 
-      const fullReport: Report = {
-        ...report,
-        reduce: self._config.reduce,
-        retainedVariance: self._retainedVariance,
-        retainedDimension: self._retainedDimension,
-        initialDimension: self._initialDimension
+      if (report) {
+        const fullReport: Report = {
+          ...report,
+          reduce: self._config.reduce,
+          retainedVariance: self._retainedVariance,
+          retainedDimension: self._retainedDimension,
+          initialDimension: self._initialDimension
+        }
+        return { model: fullModel, report: fullReport }
       }
-      return { model: fullModel, report: fullReport }
+      return { model: fullModel }
     })
   }
 

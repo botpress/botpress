@@ -44,11 +44,11 @@ const defaultConf: SvmConfig = {
   weight_label: [],
   weight: [],
   degree: [2],
-  gamma: [0.01, 0.1, 0.25, 0.5, 0.75],
-  coef0: [0.125, 0.5],
+  gamma: [0.01, 0.1, 0.25, 0.5, 0.75], // not for linear svc
+  coef0: [0.125, 0.5], // not for linear svc
   C: [0.1, 1, 2, 5, 10, 20, 100],
-  nu: [0.01, 0.125, 0.5, 1],
-  p: [0.01, 0.125, 0.5, 1],
+  nu: [0.01, 0.125, 0.5, 1], // not for linear svc
+  p: [0.01, 0.125, 0.5, 1], // not for linear svc
   kFold: 4,
   normalize: true,
   reduce: false,
