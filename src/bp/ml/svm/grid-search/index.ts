@@ -34,6 +34,21 @@ export default async function(
 
   const evaluator = evaluators(config)
 
+  if (combs.length === 1) {
+    progressCb({ done: 1, total: 1 })
+    const comb = combs[0]
+    const params = defaultParameters({
+      ...config,
+      C: comb[0],
+      gamma: comb[1],
+      p: comb[2],
+      nu: comb[3],
+      degree: comb[4],
+      coef0: comb[5]
+    })
+    return { params }
+  }
+
   const total = combs.length * subsets.length
   let done = 0
 
