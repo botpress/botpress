@@ -353,5 +353,8 @@
       "closePanel": "Fermer le panneau",
       "endOfLogs": "Fin des journaux"
     }
+  },
+  "variable": {
+    "emptyState": "Appuyez sur + dans la barre d'outils pour ajouter votre première variable"
   }
 }

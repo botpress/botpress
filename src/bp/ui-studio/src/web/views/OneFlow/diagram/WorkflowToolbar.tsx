@@ -26,6 +26,29 @@ const WorkflowToolbar = props => {
     languesTooltip = lang.tr('module.qna.form.onlyOneLanguage')
   }
 
+  const flowButtons: HeaderButtonProps[] = [
+    {
+      icon: 'undo',
+      disabled: !props.canUndo,
+      tooltip: lang.tr('undo'),
+      onClick: props.undo
+    },
+    {
+      icon: 'redo',
+      disabled: !props.canRedo,
+      tooltip: lang.tr('redo'),
+      onClick: props.redo
+    }
+  ]
+
+  const variableButtons: HeaderButtonProps[] = [
+    {
+      icon: 'plus',
+      tooltip: lang.tr('add'),
+      onClick: () => props.addVariable()
+    }
+  ]
+
   const buttons: HeaderButtonProps[] = [
     {
       icon: 'translate',
@@ -39,18 +62,7 @@ const WorkflowToolbar = props => {
       disabled: languages?.length <= 1,
       tooltip: languesTooltip
     },
-    {
-      icon: 'undo',
-      disabled: !props.canUndo,
-      tooltip: lang.tr('undo'),
-      onClick: props.undo
-    },
-    {
-      icon: 'redo',
-      disabled: !props.canRedo,
-      tooltip: lang.tr('redo'),
-      onClick: props.redo
-    }
+    ...(props.currentTab === 'variables' ? variableButtons : flowButtons)
   ]
 
   return <MainContent.Header className={style.header} tabs={tabs} buttons={buttons} tabChange={props.tabChange} />

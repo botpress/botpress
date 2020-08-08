@@ -506,3 +506,11 @@ export const fetchPrompts = () => dispatch => {
     dispatch(promptsReceived(data))
   })
 }
+
+export const variablesReceived = createAction('VARIABLES/RECEIVED')
+export const fetchVariables = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.get(`${window.API_PATH}/modules/variables`).then(({ data }) => {
+    dispatch(variablesReceived(data))
+  })
+}

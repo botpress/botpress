@@ -355,5 +355,8 @@
       "closePanel": "Close Panel",
       "endOfLogs": "End of logs"
     }
+  },
+  "variable": {
+    "emptyState": "Tap + in the toolbar to add your first variable"
   }
 }
