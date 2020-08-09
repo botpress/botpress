@@ -491,8 +491,7 @@ const TrainOutOfScope = async (
 ): Promise<_.Dictionary<string> | undefined> => {
   debugTraining.forBot(input.botId, 'Training out of scope classifier')
   const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
-    c: [10],
-    gamma: [0.1],
+    c: [10], // so there's no grid search
     kernel: 'LINEAR',
     classifier: 'C_SVC'
   }

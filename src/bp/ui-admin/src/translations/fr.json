@@ -59,7 +59,7 @@
       },
       "status": {
         "allowedNodes": "Noeuds autorisés",
-        "areYouSure": "Êtes-vous sûr ?",
+        "areYouSure": "Êtes-vous sûr?",
         "clusterFingerprint": "Empreinte digitale du cluster",
         "copyToClipboard": "Copier dans le presse-papier",
         "enableMethod1": "Vous pouvez activer Botpress Pro en modifiant manuellement le fichier {file} et en définissant la valeur {field} à true.",
@@ -80,10 +80,10 @@
         "support": "Support",
         "thisIsSupport": "Ceci est le support offert par Botpress",
         "underLimits": "Les limites ne sont pas atteintes.",
-        "unlicensed": "Aucun licence valide",
-        "unofficialBuild": "Build non officiel de Botpress",
+        "unlicensed": "Aucune licence valide",
+        "unofficialBuild": "Compilation non officielle de Botpress",
         "unofficialBuildText": "Nous avons remarqué que vous exécutez une version personnalisée de Botpress, qui ne contient pas les extensions Botpress Professional. Vous devez utiliser le {officiel}. Sinon, vous ne pourrez pas activer {pro}.",
-        "useOfficial": "Vous devez utilisez le {officialBinary}, vous ne pourrez pas activer pro autrement.",
+        "useOfficial": "Vous devez utiliser le {officialBinary}, vous ne pourrez pas activer pro autrement.",
         "waitWhileReboot": "Veuillez patienter pendant le redémarrage du serveur, cela peut prendre quelques secondes."
       },
       "validateChange": "Valider et modifier"
