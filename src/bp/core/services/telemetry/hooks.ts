@@ -20,11 +20,12 @@ interface BotHooks {
   hooks: Hook[]
 }
 
-interface Hook {
+export interface Hook {
   name: string
   type: string
   enabled: boolean
   lifecycle: string
+  path?: string
 }
 
 export interface HookPayload {

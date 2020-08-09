@@ -9,11 +9,13 @@ import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 import ms from 'ms'
+import { name } from 'mustache'
 
 import { GhostService } from '..'
 import { BotService } from '../bot-service'
 import { JobService } from '../job-service'
 
+import { getHooksLifecycle, Hook, HookPayload } from './hooks'
 import { TelemetryStats } from './telemetry-stats'
 
 @injectable()
@@ -61,16 +63,44 @@ export class SDKStats extends TelemetryStats {
       return botActions
     })
 
-    return {}
+    return { globalActions, perBotActions, ...(await this.getHooksUsages()) }
+  }
+
+  private async getHooksUsages() {
+    const hooksPayload = await getHooksLifecycle(this.botService, this.ghostService)
+
+    const globalHooks = await this.usagesFromHooks(hooksPayload.global)
+
+    const perBotHooks = await Promise.map(hooksPayload.perBots, async bot => {
+      const { botId, hooks } = bot
+      const parsedHooks = await this.usagesFromHooks(hooks)
+      return _.isEmpty(parsedHooks) ? {} : { botId, ...parsedHooks }
+    }).filter(usage => !_.isEmpty(usage))
+
+    return { globalHooks, perBotHooks }
+  }
+
+  private async usagesFromHooks(hooks: Hook[]) {
+    const parseConfigs = { allowReturnOutsideFunction: true }
+    return Promise.map(hooks, async hook => {
+      const { name, lifecycle, enabled, type, path } = hook
+      if (type === 'built-in') {
+        return {}
+      }
+      const file = await this.readFileAsString('/hooks', path!)
+      const functions = this.extractFunctions(parse(file, parseConfigs))
+      const usage = { name, lifecycle, enabled, usages: this.parseFunctions(functions) }
+      return usage
+    }).filter(usage => !_.isEmpty(usage))
   }
 
   private async buildUsages(globalActionsNames: string[], botId?: string) {
     const parseConfigs = { allowReturnOutsideFunction: true }
 
-    return await Promise.map(globalActionsNames, async fileName => {
-      const file = await this.readFileAsString('/actions', fileName, botId)
+    return Promise.map(globalActionsNames, async name => {
+      const file = await this.readFileAsString('/actions', name, botId)
       const functions = this.extractFunctions(parse(file, parseConfigs))
-      const usage = { fileName, usages: this.parseFunctions(functions) }
+      const usage = { name, usages: this.parseFunctions(functions) }
       return botId ? { ...usage, botId } : usage
     })
   }
