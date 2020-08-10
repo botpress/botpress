@@ -68,31 +68,38 @@ interface E1IntentPred {
 const DEFAULT_CTX = 'global'
 const NONE_INTENT = 'none'
 
+// Gives detected language if found one
+// If language is in bot languages give it to predict
+// Else give default one
 async function DetectLanguage(
   input: PredictInput,
   predictorsByLang: _.Dictionary<Predictors>,
   tools: Tools
 ): Promise<{ detectedLanguage: string; usedLanguage: string }> {
   const supportedLanguages = Object.keys(predictorsByLang)
+  // Need to train before predicting language
+  if (!supportedLanguages) {
+    return { detectedLanguage: 'n/a', usedLanguage: 'n/a' }
+  }
 
   const langIdentifier = LanguageIdentifierProvider.getLanguageIdentifier(tools.mlToolkit)
-  const lidRes = await langIdentifier.identify(input.sentence)
-  const elected = lidRes.filter(pred => supportedLanguages.includes(pred.label))[0]
-  let score = elected?.value ?? 0
+  const possibleMlLangs = await langIdentifier.identify(input.sentence)
+  // const elected = lidRes.filter(pred => supportedLanguages.includes(pred.label))[0]
+  const bestMlLangMatch = possibleMlLangs[0]
+  const mlDetectedLanguage = _.get(bestMlLangMatch, 'label', NA_LANG)
+  let scoreDetectedLang = bestMlLangMatch?.value ?? 0
 
   // because with single-worded sentences, confidence is always very low
   // we assume that a input of 20 chars is more than a single word
   const threshold = input.sentence.length > 20 ? 0.5 : 0.3
 
-  let detectedLanguage = _.get(elected, 'label', NA_LANG)
-  if (detectedLanguage !== NA_LANG && !supportedLanguages.includes(detectedLanguage)) {
-    detectedLanguage = NA_LANG
-  }
-
-  // if ML-based language identifier didn't find a match
-  // we proceed with a custom vocabulary matching algorithm
-  // ie. the % of the sentence comprised of tokens in the training vocabulary
-  if (detectedLanguage === NA_LANG) {
+  let detectedLanguage = ''
+  if (scoreDetectedLang > threshold) {
+    detectedLanguage = mlDetectedLanguage
+  } else {
+    // if ML-based language identifier didn't find a match
+    // we proceed with a custom vocabulary matching algorithm
+    // ie. the % of the sentence comprised of tokens in the training vocabulary
     try {
       const match = _.chain(supportedLanguages)
         .map(lang => ({
@@ -113,16 +120,21 @@ async function DetectLanguage(
 
       if (match) {
         detectedLanguage = match.lang
-        score = match.confidence
+        scoreDetectedLang = match.confidence
       }
     } finally {
     }
   }
 
-  const usedLanguage = detectedLanguage !== NA_LANG && score > threshold ? detectedLanguage : input.defaultLanguage
+  // if (detectedLanguage !== NA_LANG && !supportedLanguages.includes(detectedLanguage)) {
+  //   detectedLanguage = NA_LANG
+  // }
+
+  const usedLanguage = !supportedLanguages.includes(detectedLanguage) ? detectedLanguage : input.defaultLanguage
 
   return { usedLanguage, detectedLanguage }
 }
+
 async function preprocessInput(
   input: PredictInput,
   tools: Tools,
