@@ -3,50 +3,46 @@ import traverse from '@babel/traverse'
 import LicensingService from 'common/licensing-service'
 import { buildSchema } from 'common/telemetry'
 import Database from 'core/database'
-import { calculateHash } from 'core/misc/utils'
 import { TelemetryRepository } from 'core/repositories/telemetry'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 import ms from 'ms'
-import { name } from 'mustache'
-import { any } from 'numeric'
 
 import { GhostService } from '..'
 import { BotService } from '../bot-service'
 import { JobService } from '../job-service'
 
-import { BotHooks, getHooksLifecycle, Hook, HookPayload } from './hooks'
+import { BotHooks, getHooksLifecycle, Hook } from './hooks'
 import { TelemetryStats } from './telemetry-stats'
 
 const PARSE_CONFIG = { allowReturnOutsideFunction: true }
 
-interface usageParams {
+interface UsageParams {
   botId?: string
   lifecycle?: string
   enabled?: Boolean
 }
 
-interface usage {
+interface Usage {
   module: string
   function: string
   count: number
 }
 
-interface parsedFile extends usageParams {
+interface ParsedFile extends UsageParams {
   fileName: string
-  usages: usage[]
+  usages: Usage[]
+}
+
+interface SDKUsageEvent {
+  actions: SDKUsage
+  hooks: SDKUsage
 }
 
 interface SDKUsage {
-  actions: {
-    global: parsedFile[]
-    perBots: parsedFile[]
-  }
-  hooks: {
-    global: parsedFile[]
-    perBots: parsedFile[]
-  }
+  global: ParsedFile[]
+  perBots: ParsedFile[]
 }
 
 @injectable()
@@ -73,18 +69,18 @@ export class SDKStats extends TelemetryStats {
     const temp = {
       ...buildSchema(await this.getServerStats(), 'server'),
       event_type: 'custom_roles',
-      event_data: { schema: '1.0.0', SDKMethods: await this.SDKMethodsUsage() }
+      event_data: { schema: '1.0.0', SDKMethods: await this.SDKUsage() }
     }
     return temp
   }
 
-  private async SDKMethodsUsage(): Promise<SDKUsage> {
+  private async SDKUsage(): Promise<SDKUsageEvent> {
     const bots = await this.botService.getBotsIds()
 
     return { actions: await this.getActionUsages(bots), hooks: await this.getHooksUsages() }
   }
 
-  private async getActionUsages(bots: string[]) {
+  private async getActionUsages(bots: string[]): Promise<SDKUsage> {
     const globalActionsNames = await this.ghostService
       .global()
       .directoryListing('/', 'actions/*.js')
@@ -99,17 +95,17 @@ export class SDKStats extends TelemetryStats {
         const parsedFiles = await this.buildUsageArray('/actions', botActionsNames, { botId })
         return [...acc, ...parsedFiles]
       },
-      [] as parsedFile[]
+      [] as ParsedFile[]
     )
 
     return { global, perBots }
   }
 
-  private async buildUsageArray(rootFolder: string, fileNames: string[], extras?: usageParams): Promise<parsedFile[]> {
+  private async buildUsageArray(rootFolder: string, fileNames: string[], extras?: UsageParams): Promise<ParsedFile[]> {
     return Promise.map(fileNames, this.parseFile(rootFolder, extras))
   }
 
-  private async getHooksUsages() {
+  private async getHooksUsages(): Promise<SDKUsage> {
     const hooksPayload = await getHooksLifecycle(this.botService, this.ghostService)
 
     const global = await this.parseHooks(hooksPayload.global.filter(hook => hook.type === 'custom'))
@@ -124,25 +120,26 @@ export class SDKStats extends TelemetryStats {
         )
         return [...acc, ...parsedFiles]
       },
-      [] as parsedFile[]
+      [] as ParsedFile[]
     )
 
     return { global, perBots }
   }
 
-  private async parseHooks(hooks: Hook[], botId?: string) {
+  private async parseHooks(hooks: Hook[], botId?: string): Promise<ParsedFile[]> {
     return Promise.map(hooks, async hook => {
-      const { name, lifecycle, enabled, path } = hook
+      const { lifecycle, enabled, path } = hook
       const usageParams = { lifecycle, enabled }
 
-      // if (botId) {
-      //   usageParams.botId = botId
-      // }
+      if (botId) {
+        _.set(usageParams, 'botId', botId)
+      }
 
       return this.parseFile('/hooks', usageParams)(path!)
     })
   }
-  private parseFile(rootFolder: string, usageParams?): (name: string) => Promise<parsedFile> {
+
+  private parseFile(rootFolder: string, usageParams?): (name: string) => Promise<ParsedFile> {
     return async (name: string) => {
       const file = await this.readFileAsString(rootFolder, name, _.get(usageParams, 'botId'))
       const functions = this.extractFunctions(parse(file, PARSE_CONFIG))
@@ -151,16 +148,16 @@ export class SDKStats extends TelemetryStats {
     }
   }
 
-  private parseFunctions(functions) {
+  private parseFunctions(functions: string[]): Usage[] {
     const sdkFunctions = _.countBy(functions.filter(method => method.split('.')[0] === 'bp'))
     return _.map(sdkFunctions, (count, fn) => {
-      const [, moduleName, functionName] = fn.split('.')
-      return { moduleName, functionName, count }
+      const [, module, functionName] = fn.split('.')
+      return { module, function: functionName, count }
     })
   }
 
-  private extractFunctions(ast) {
-    const methods: string[] = []
+  private extractFunctions(ast): string[] {
+    const functions: string[] = []
 
     const findCallee = function(node) {
       if (node.type === 'MemberExpression') {
@@ -173,16 +170,16 @@ export class SDKStats extends TelemetryStats {
     const enter = function(path) {
       if (path.node.type === 'CallExpression') {
         const callee = findCallee(path.node.callee)
-        methods.push(callee)
+        functions.push(callee)
       }
     }
 
     traverse(ast, { enter })
 
-    return methods
+    return functions
   }
 
-  private async readFileAsString(rootFolder: string, fileName: string, botId?: string) {
+  private async readFileAsString(rootFolder: string, fileName: string, botId?: string): Promise<string> {
     try {
       if (botId) {
         return await this.ghostService.forBot(botId).readFileAsString(rootFolder, fileName)

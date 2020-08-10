@@ -46,7 +46,7 @@ export async function getHooksLifecycle(botService: BotService, ghostService: Gh
   return { global, perBots }
 }
 
-function parsePaths(paths: string[]) {
+function parsePaths(paths: string[]): Hook[] {
   return paths.reduce((acc, curr) => {
     const path = curr.split('/')
     const lifecycle = path.shift() || ''
