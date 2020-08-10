@@ -84,7 +84,6 @@ async function DetectLanguage(
 
   const langIdentifier = LanguageIdentifierProvider.getLanguageIdentifier(tools.mlToolkit)
   const possibleMlLangs = await langIdentifier.identify(input.sentence)
-  // const elected = lidRes.filter(pred => supportedLanguages.includes(pred.label))[0]
   const bestMlLangMatch = possibleMlLangs[0]
   const mlDetectedLanguage = _.get(bestMlLangMatch, 'label', NA_LANG)
   let scoreDetectedLang = bestMlLangMatch?.value ?? 0
@@ -93,7 +92,7 @@ async function DetectLanguage(
   // we assume that a input of 20 chars is more than a single word
   const threshold = input.sentence.length > 20 ? 0.5 : 0.3
 
-  let detectedLanguage = ''
+  let detectedLanguage: string = 'n/a'
   if (scoreDetectedLang > threshold) {
     detectedLanguage = mlDetectedLanguage
   } else {
@@ -126,11 +125,7 @@ async function DetectLanguage(
     }
   }
 
-  // if (detectedLanguage !== NA_LANG && !supportedLanguages.includes(detectedLanguage)) {
-  //   detectedLanguage = NA_LANG
-  // }
-
-  const usedLanguage = !supportedLanguages.includes(detectedLanguage) ? detectedLanguage : input.defaultLanguage
+  const usedLanguage = supportedLanguages.includes(detectedLanguage) ? detectedLanguage : input.defaultLanguage
 
   return { usedLanguage, detectedLanguage }
 }
