@@ -66,17 +66,15 @@ export class SDKStats extends TelemetryStats {
   }
 
   protected async getStats() {
-    const temp = {
+    return {
       ...buildSchema(await this.getServerStats(), 'server'),
       event_type: 'custom_roles',
       event_data: { schema: '1.0.0', SDKMethods: await this.SDKUsage() }
     }
-    return temp
   }
 
   private async SDKUsage(): Promise<SDKUsageEvent> {
     const bots = await this.botService.getBotsIds()
-
     return { actions: await this.getActionUsages(bots), hooks: await this.getHooksUsages() }
   }
 
@@ -88,7 +86,6 @@ export class SDKStats extends TelemetryStats {
       .map(path => path.split('/').pop() || '')
 
     const global = await Promise.map(globalActionsNames, this.parseFile(`/${rootFolder}`))
-
     const perBots = await Promise.reduce(bots, this.botActionsReducer(rootFolder), [] as ParsedFile[])
 
     return { global, perBots }
@@ -104,9 +101,7 @@ export class SDKStats extends TelemetryStats {
 
   private async getHooksUsages(): Promise<SDKUsage> {
     const hooksPayload = await getHooksLifecycle(this.botService, this.ghostService)
-
     const global = await this.parseHooks(hooksPayload.global.filter(hook => hook.type === 'custom'))
-
     const perBots = await Promise.reduce(hooksPayload.perBots, this.botHooksReducer(), [] as ParsedFile[])
 
     return { global, perBots }
