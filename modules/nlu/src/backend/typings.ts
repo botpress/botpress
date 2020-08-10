@@ -15,6 +15,7 @@ export type NLUState = {
 
 export interface BotState {
   botId: string
+  defaultLanguage: string
   engine: sdk.NLU.Engine
   trainWatcher: sdk.ListenHandle
   trainOrLoad: (forceTrain: boolean) => Promise<void>

@@ -43,12 +43,14 @@ export default async (bp: typeof sdk, state: NLUState) => {
     if (error) {
       return res.status(400).send('Predict body is invalid')
     }
-    if (!state.nluByBot[botId]) {
+
+    const botNLU = state.nluByBot[botId]
+    if (!botNLU) {
       return res.status(404).send(`Bot ${botId} doesn't exist`)
     }
 
     try {
-      let nlu = await state.nluByBot[botId].engine.predict(value.text, value.contexts)
+      let nlu = await botNLU.engine.predict(value.text, value.contexts, botNLU.defaultLanguage)
       nlu = legacyElectionPipeline(nlu)
       res.send({ nlu })
     } catch (err) {

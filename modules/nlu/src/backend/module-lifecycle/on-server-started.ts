@@ -60,15 +60,15 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
       }
 
       let nluResults: sdk.IO.EventUnderstanding
-      const { engine } = state.nluByBot[event.botId]
+      const { engine, defaultLanguage } = state.nluByBot[event.botId]
       const extractEngine2 = async () => {
         // eventually if model not loaded for bot languages ==> train or load
-        nluResults = await engine.predict(event.preview, event.nlu.includedContexts)
+        nluResults = await engine.predict(event.preview, event.nlu.includedContexts, defaultLanguage)
         if (nluResults.errored && nluResults.suggestedLanguage) {
           const model = await getLatestModel(bp.ghost.forBot(event.botId), nluResults.suggestedLanguage)
           await engine.loadModel(model)
           // might throw again, thus usage of bluebird retry
-          nluResults = await engine.predict(event.preview, event.nlu.includedContexts)
+          nluResults = await engine.predict(event.preview, event.nlu.includedContexts, nluResults.suggestedLanguage)
         }
       }
 

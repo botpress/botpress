@@ -20,7 +20,7 @@ export default class Engine implements NLU.Engine {
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<Model> = {}
 
-  constructor(private defaultLanguage: string, private botId: string, private logger: NLU.Logger) {}
+  constructor(private botId: string, private logger: NLU.Logger) {}
 
   // NOTE: removed private in order to prevent important refactor (which will be done later)
   public static get tools() {
@@ -274,9 +274,9 @@ export default class Engine implements NLU.Engine {
     }
   }
 
-  async predict(sentence: string, includedContexts: string[]): Promise<PredictOutput> {
+  async predict(sentence: string, includedContexts: string[], anticipatedLanguage: string): Promise<PredictOutput> {
     const input: PredictInput = {
-      defaultLanguage: this.defaultLanguage,
+      defaultLanguage: anticipatedLanguage,
       sentence,
       includedContexts
     }
