@@ -5,7 +5,7 @@ export default {
   id: 'user_intent_is',
   label: 'module.nlu.conditions.userWantsTo',
   description: "The user's intention is {intentName}",
-  callback: '/mod/nlu/condition/intentChanged',
+  callback: '/mod/nlu/condition/intentChanged', // TODO: change this for a more obvious name
   displayOrder: 0,
   advancedSettings: [
     {

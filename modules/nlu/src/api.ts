@@ -4,14 +4,14 @@ import { NLU } from 'botpress/sdk'
 import * as sdk from 'botpress/sdk'
 
 export interface NLUApi {
-  fetchContexts: () => Promise<string[]>
+  fetchContexts: () => Promise<string[]> // TODO: remove this
   fetchIntentsWithQNAs: () => Promise<NLU.IntentDefinition[]>
   fetchIntents: () => Promise<NLU.IntentDefinition[]>
-  fetchIntent: (x: string) => Promise<NLU.IntentDefinition>
-  createIntent: (x: Partial<NLU.IntentDefinition>) => Promise<any>
-  updateIntent: (targetIntent: string, intent: Partial<NLU.IntentDefinition>, updateTopics?: boolean) => Promise<any>
-  syncIntentTopics: (intentNames?: string[]) => Promise<void>
-  deleteIntent: (x: string) => Promise<any>
+  fetchIntent: (x: string) => Promise<NLU.IntentDefinition> // TODO: remove this
+  createIntent: (x: Partial<NLU.IntentDefinition>) => Promise<any> // TODO: remove this
+  updateIntent: (targetIntent: string, intent: Partial<NLU.IntentDefinition>, updateTopics?: boolean) => Promise<any> // TODO: remove this
+  syncIntentTopics: (intentNames?: string[]) => Promise<void> // TODO: remove this
+  deleteIntent: (x: string) => Promise<any> // TODO: remove this
   fetchEntities: () => Promise<NLU.EntityDefinition[]>
   fetchEntity: (x: string) => Promise<NLU.EntityDefinition>
   createEntity: (x: NLU.EntityDefinition) => Promise<any>
