@@ -327,6 +327,57 @@ try {
       }
     )
     .command(
+      'nlu',
+      'Launch a local stand-alone nlu server',
+      {
+        port: {
+          description: 'The port to listen to',
+          default: 3200
+        },
+        host: {
+          description: 'Binds the language server to a specific hostname',
+          default: 'localhost'
+        },
+        modelDir: {
+          description: 'Directory where models will be saved'
+        },
+        authToken: {
+          description: 'When enabled, this token is required for clients to query your language server'
+        },
+        adminToken: {
+          description: 'This token is required to access the server as admin and manage language.'
+        },
+        limit: {
+          description: 'Maximum number of requests per IP per "limitWindow" interval (0 means unlimited)',
+          default: 0
+        },
+        limitWindow: {
+          description: 'Time window on which the limit is applied (use standard notation, ex: 25m or 1h)',
+          default: '1h'
+        },
+        ducklingURL: {
+          description: 'URL of duckling server',
+          default: 'https://duckling.botpress.io'
+        },
+        ducklingEnabled: {
+          description: 'Weither or not to enable duckling',
+          default: true
+        },
+        languageSources: {
+          description: 'The list of sources to load languages from',
+          default: [{ endpoint: 'https://lang-01.botpress.io' }]
+        }
+      },
+      argv => {
+        process.VERBOSITY_LEVEL = argv.verbose ? Number(argv.verbose) : defaultVerbosity
+
+        getos.default().then(distro => {
+          process.distro = distro
+          require('./nlu-server').default(argv)
+        })
+      }
+    )
+    .command(
       'diag',
       'Generate a diagnostic report\nAlternative: set BP_DIAG=true',
       {
