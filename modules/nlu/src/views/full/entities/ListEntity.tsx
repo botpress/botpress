@@ -89,8 +89,7 @@ export const ListEntityEditor: React.FC<Props> = props => {
   }
 
   const editOccurrence = (idx: number, occurrence: NLU.EntityDefOccurrence) => {
-    const newSynonym = _.last(occurrence.synonyms)
-    if (!isUnique(newSynonym)) {
+    if (_.uniq(occurrence.synonyms).length !== occurrence.synonyms.length) {
       return toastFailure('Synonyms duplication is not allowed')
     }
 
