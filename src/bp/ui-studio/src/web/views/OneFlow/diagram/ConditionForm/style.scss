@@ -132,6 +132,10 @@ input[type="checkbox"], input[type="radio"] {
       color: var(--shark);
       font-size: 12px;
       line-height: 1.65;
+      min-height: 30px;
+      display: flex;
+      align-items: center;
+
 
       &:not(.bp3-active):hover {
         background: var(--bg) !important;

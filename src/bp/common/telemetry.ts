@@ -11,7 +11,7 @@ export type TelemetryEventData = Dic<any> & {
 
 export interface TelemetryEntry {
   uuid: string
-  payload: any
+  payload: TelemetryEvent
   available: boolean
   lastChanged: Date
   creationDate: Date

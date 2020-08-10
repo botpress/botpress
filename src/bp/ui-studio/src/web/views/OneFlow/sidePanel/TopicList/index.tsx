@@ -106,22 +106,7 @@ const TopicList: FC<Props> = props => {
 
     if (
       skipDialog ||
-      (await confirmDialog(
-        <span>
-          {lang.tr('studio.flow.topicList.confirmDeleteTopic')}
-          <br />
-          <br />
-          {!!flowsToDelete.length && (
-            <Fragment>
-              {lang.tr('studio.flow.topicList.flowsAssociatedDelete', {
-                warning: <strong>{lang.tr('studio.flow.topicList.bigWarning')}</strong>,
-                count: flowsToDelete.length
-              })}
-            </Fragment>
-          )}
-        </span>,
-        { acceptLabel: lang.tr('delete') }
-      ))
+      (await confirmDialog(lang.tr('studio.flow.topicList.confirmDeleteTopic'), { acceptLabel: lang.tr('delete') }))
     ) {
       await axios.post(`${window.BOT_API_PATH}/deleteTopic/${name}`)
       flowsToDelete.forEach(flow => props.deleteFlow(flow.name))
