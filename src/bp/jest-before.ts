@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events'
 
 import { Distro } from './common/getos'
+import { getAppDataPath } from './core/misc/app_data'
 
 const { Debug: _Debug } = require('./debug.ts')
 
@@ -12,6 +13,12 @@ if (!process.core_env) {
 
 if (!process.BOTPRESS_EVENTS) {
   process.BOTPRESS_EVENTS = new EventEmitter()
+}
+
+if (process.env.APP_DATA_PATH) {
+  process.APP_DATA_PATH = process.env.APP_DATA_PATH
+} else {
+  process.APP_DATA_PATH = getAppDataPath()
 }
 
 const os = require('os').platform()
