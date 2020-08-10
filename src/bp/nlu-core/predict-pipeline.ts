@@ -68,37 +68,27 @@ interface E1IntentPred {
 const DEFAULT_CTX = 'global'
 const NONE_INTENT = 'none'
 
-// Gives detected language if found one
-// If language is in bot languages give it to predict
-// Else give default one
 async function DetectLanguage(
   input: PredictInput,
   predictorsByLang: _.Dictionary<Predictors>,
   tools: Tools
 ): Promise<{ detectedLanguage: string; usedLanguage: string }> {
   const supportedLanguages = Object.keys(predictorsByLang)
-  // Need to train before predicting language
-  if (!supportedLanguages) {
-    return { detectedLanguage: 'n/a', usedLanguage: 'n/a' }
-  }
 
   const langIdentifier = LanguageIdentifierProvider.getLanguageIdentifier(tools.mlToolkit)
   const possibleMlLangs = await langIdentifier.identify(input.sentence)
   const bestMlLangMatch = possibleMlLangs[0]
-  const mlDetectedLanguage = _.get(bestMlLangMatch, 'label', NA_LANG)
+  let detectedLanguage = bestMlLangMatch?.label ?? NA_LANG
   let scoreDetectedLang = bestMlLangMatch?.value ?? 0
 
   // because with single-worded sentences, confidence is always very low
   // we assume that a input of 20 chars is more than a single word
   const threshold = input.sentence.length > 20 ? 0.5 : 0.3
 
-  let detectedLanguage: string = 'n/a'
-  if (scoreDetectedLang > threshold) {
-    detectedLanguage = mlDetectedLanguage
-  } else {
-    // if ML-based language identifier didn't find a match
-    // we proceed with a custom vocabulary matching algorithm
-    // ie. the % of the sentence comprised of tokens in the training vocabulary
+  // if ML-based language identifier didn't find a match
+  // we proceed with a custom vocabulary matching algorithm
+  // ie. the % of the sentence comprised of tokens in the training vocabulary
+  if (scoreDetectedLang <= threshold) {
     try {
       const match = _.chain(supportedLanguages)
         .map(lang => ({
