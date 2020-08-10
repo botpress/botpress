@@ -10,3 +10,12 @@
 .library * {
   font-size: 12px !important;
 }
+
+.addBtn {
+  color: var(--ocean) !important;
+
+  svg {
+    fill: var(--ocean) !important;
+    width: 12px !important;
+  }
+}

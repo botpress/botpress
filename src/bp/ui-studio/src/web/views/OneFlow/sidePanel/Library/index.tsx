@@ -2,12 +2,15 @@ import { Button } from '@blueprintjs/core'
 import axios from 'axios'
 import { NLU } from 'botpress/sdk'
 import cx from 'classnames'
+import { buildFlowName, parseFlowName } from 'common/flow'
+import { FlowView } from 'common/typings'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { createFlow, updateFlow } from '~/actions'
 import { getAllFlows, RootReducer } from '~/reducers'
 
 import style from './style.scss'
+import LibrarySection, { LibrarySectionItem } from './LibrarySection'
 import EntityModal from './Modal'
 import EntityNameModal from './NameModal'
 
@@ -30,6 +33,7 @@ const Library: FC<Props> = props => {
   const [currentNamingEntity, setCurrentNamingEntity] = useState<NLU.EntityDefinition>()
   const [forceUpdate, setForceUpdate] = useState(false)
   const [entities, setEntities] = useState<NLU.EntityDefinition[]>([])
+  const [expanded, setExpanded] = useState<any>({})
 
   useEffect(() => {
     async function fetchEntities() {
@@ -60,6 +64,21 @@ const Library: FC<Props> = props => {
     setForceUpdate(!forceUpdate)
   }
 
+  const createFlow = () => {
+    const originalName = 'subworkflow'
+    let name = undefined
+    let fullName = undefined
+    let index = 0
+    do {
+      name = `${originalName}${index ? `-${index}` : ''}`
+      fullName = buildFlowName({ topic: '__reusable', workflow: name }, true).workflowPath
+      index++
+    } while (props.flows.find(f => f.name === fullName))
+
+    console.log(fullName)
+    props.createFlow(fullName)
+  }
+
   const deleteEntity = async (entity: NLU.EntityDefinition) => {
     await axios.post(`${window.BOT_API_PATH}/nlu/entities/${entity.id}/delete`)
     setForceUpdate(!forceUpdate)
@@ -71,73 +90,78 @@ const Library: FC<Props> = props => {
     setEntities([...entities.slice(0, idx), entity, ...entities.slice(idx + 1)])
   }
 
-  const renderTable = (title: string, items: TableItem[]) => {
+  const toggleExpanded = (id: string) => {
+    setExpanded({ ...expanded, [id]: !expanded[id] })
+  }
+
+  const renderBlocksTable = () => {
+    const items = props.flows
+      .filter(x => x.type === 'block')
+      .map<LibrarySectionItem>(w => ({ title: w.name }))
+
     return (
-      <table
-        className={cx(
-          style.table,
-          'bp3-html-table bp3-html-table-striped bp3-html-table-bordered .bp3-html-table-condensed'
-        )}
-      >
-        <thead>
-          <tr>
-            <th>{title}</th>
-            <th></th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>{renderTableRows(items)}</tbody>
-      </table>
+      <LibrarySection
+        id="blocks"
+        title="Saved Blocks"
+        items={items}
+        getIsExpanded={x => expanded[x]}
+        toggleExpanded={toggleExpanded}
+      />
     )
   }
-  const renderTableRows = (items: TableItem[]) => {
+  const renderWorflowsTable = () => {
+    const items = [
+      ...props.flows
+        .filter(x => x.type === 'reusable')
+        .map<LibrarySectionItem>(w => ({
+          title: w.name
+        })),
+      {
+        title: 'Add Workflow',
+        action: () => {
+          createFlow()
+        }
+      }
+    ]
+
     return (
-      <Fragment>
-        {items &&
-          items?.map((item, i) => (
-            <tr key={i}>
-              <td>
-                <Button text={item.label} onClick={item.click} />
-              </td>
-              <td>
-                <Button icon="edit" onClick={item.edit} />
-              </td>
-              <td>
-                <Button icon="delete" onClick={item.delete} />
-              </td>
-            </tr>
-          ))}
-      </Fragment>
+      <LibrarySection
+        id="workflows"
+        title="Saved Workflows"
+        items={items}
+        getIsExpanded={x => expanded[x]}
+        toggleExpanded={toggleExpanded}
+      />
     )
   }
 
   const renderVariableTypes = () => {
+    const items = [
+      ...entities
+        .filter(x => x.type !== 'system')
+        .map<LibrarySectionItem>(w => ({ title: w.name, isAdd: false })),
+      {
+        title: 'Add Enumeration',
+        action: async () => {
+          await createEntity('list')
+        }
+      },
+      {
+        title: 'Add Pattern',
+        action: async () => {
+          await createEntity('pattern')
+        }
+      }
+    ]
+
     return (
-      <section>
-        {renderTable(
-          'Variable Types',
-          entities
-            .filter(x => x.type !== 'system')
-            .map<TableItem>(x => ({
-              label: x.name,
-              click: () => {
-                setCurrentEntity(x)
-              },
-              edit: () => {
-                setCurrentNamingEntity(x)
-              },
-              delete: async () => {
-                await deleteEntity(x)
-              }
-            }))
-        )}
-        <p>
-          <Button text="Add Enumeration" onClick={() => createEntity('list')} />
-        </p>
-        <p>
-          <Button text="Add Pattern" onClick={() => createEntity('pattern')} />
-        </p>
-      </section>
+      <LibrarySection
+        id="variables"
+        title="Variable Types"
+        items={items}
+        getIsExpanded={x => expanded[x]}
+        toggleExpanded={toggleExpanded}
+      />
     )
   }
 
@@ -167,6 +191,8 @@ const Library: FC<Props> = props => {
 
   return (
     <div className={style.library}>
+      {renderBlocksTable()}
+      {renderWorflowsTable()}
       {renderVariableTypes()}
       {renderModal()}
       {renderNameModal()}
