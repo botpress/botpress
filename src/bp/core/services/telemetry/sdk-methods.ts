@@ -81,28 +81,25 @@ export class SDKStats extends TelemetryStats {
   }
 
   private async getActionUsages(bots: string[]): Promise<SDKUsage> {
+    const rootFolder = 'actions'
     const globalActionsNames = await this.ghostService
       .global()
-      .directoryListing('/', 'actions/*.js')
+      .directoryListing('/', `${rootFolder}/*.js`)
       .map(path => path.split('/').pop() || '')
 
-    const global = await this.buildUsageArray('/actions', globalActionsNames)
+    const global = await Promise.map(globalActionsNames, this.parseFile(`/${rootFolder}`))
 
-    const perBots = await Promise.reduce(
-      bots,
-      async (acc, botId) => {
-        const botActionsNames = await this.ghostService.forBot(botId).directoryListing('/actions', '*.js')
-        const parsedFiles = await this.buildUsageArray('/actions', botActionsNames, { botId })
-        return [...acc, ...parsedFiles]
-      },
-      [] as ParsedFile[]
-    )
+    const perBots = await Promise.reduce(bots, this.botActionsReducer(rootFolder), [] as ParsedFile[])
 
     return { global, perBots }
   }
 
-  private async buildUsageArray(rootFolder: string, fileNames: string[], extras?: UsageParams): Promise<ParsedFile[]> {
-    return Promise.map(fileNames, this.parseFile(rootFolder, extras))
+  private botActionsReducer(rootFolder: string): (acc: any, botId: any) => Promise<ParsedFile[]> {
+    return async (acc, botId) => {
+      const botActionsNames = await this.ghostService.forBot(botId).directoryListing(`/${rootFolder}`, '*.js')
+      const parsedFiles = await Promise.map(botActionsNames, this.parseFile(`/${rootFolder}`, { botId }))
+      return [...acc, ...parsedFiles]
+    }
   }
 
   private async getHooksUsages(): Promise<SDKUsage> {
@@ -110,20 +107,20 @@ export class SDKStats extends TelemetryStats {
 
     const global = await this.parseHooks(hooksPayload.global.filter(hook => hook.type === 'custom'))
 
-    const perBots = await Promise.reduce(
-      hooksPayload.perBots,
-      async (acc, botHooks: BotHooks) => {
-        const { botId, hooks } = botHooks
-        const parsedFiles = await this.parseHooks(
-          hooks.filter(hook => hook.type === 'custom'),
-          botId
-        )
-        return [...acc, ...parsedFiles]
-      },
-      [] as ParsedFile[]
-    )
+    const perBots = await Promise.reduce(hooksPayload.perBots, this.botHooksReducer(), [] as ParsedFile[])
 
     return { global, perBots }
+  }
+
+  private botHooksReducer(): (acc: any, botHooks: BotHooks) => Promise<ParsedFile[]> {
+    return async (acc, botHooks: BotHooks) => {
+      const { botId, hooks } = botHooks
+      const parsedFiles = await this.parseHooks(
+        hooks.filter(hook => hook.type === 'custom'),
+        botId
+      )
+      return [...acc, ...parsedFiles]
+    }
   }
 
   private async parseHooks(hooks: Hook[], botId?: string): Promise<ParsedFile[]> {
