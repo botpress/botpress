@@ -24,7 +24,7 @@ export function getOnBotMount(state: NLUState) {
       bp.logger.warn(missingLangMsg(botId), { notSupported: _.difference(bot.languages, languages) })
     }
 
-    const engine = new bp.NLU.Engine(bot.defaultLanguage, bot.id, state.logger)
+    const engine = new bp.NLU.Engine(botId, state.logger)
     const trainOrLoad = _.debounce(
       async (forceTrain: boolean = false) => {
         // bot got deleted
@@ -113,9 +113,11 @@ export function getOnBotMount(state: NLUState) {
       return bp.kvs.forBot(botId).exists(KVS_TRAINING_STATUS_KEY)
     }
 
+    const { defaultLanguage } = bot
     state.nluByBot[botId] = {
       botId,
       engine,
+      defaultLanguage,
       trainWatcher,
       trainOrLoad,
       trainSessions: {},

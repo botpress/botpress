@@ -462,7 +462,7 @@ declare module 'botpress/sdk' {
       static initialize: (config: Config, logger: NLU.Logger) => Promise<void>
       static getHealth: () => Health
       static getLanguages: () => string[]
-      constructor(defaultLanguage: string, botId: string, logger: Logger)
+      constructor(botId: string, logger: Logger)
       computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string
       loadModel: (m: Model) => Promise<void>
       train: (
@@ -473,7 +473,7 @@ declare module 'botpress/sdk' {
         trainingSession?: TrainingSession,
         options?: TrainingOptions
       ) => Promise<Model | undefined>
-      predict: (t: string, ctx: string[]) => Promise<IO.EventUnderstanding>
+      predict: (t: string, ctx: string[], anticipatedLanguage: string) => Promise<IO.EventUnderstanding>
     }
 
     export interface Config {
