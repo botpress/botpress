@@ -21,18 +21,19 @@ interface Option {
 }
 
 const variableTypeToIcon = type => {
-  if (type === 'boolean') {
-    return <Icon icon="segmented-control" iconSize={10} />
-  } else if (type === 'number') {
-    return <Icon icon="numerical" iconSize={10} />
-  } else if (type === 'date') {
-    return <Icon icon="calendar" iconSize={10} />
-  } else if (type === 'string') {
-    return <Icon icon="font" iconSize={10} />
-  } else if (type === 'enum') {
-    return <Icon icon="properties" iconSize={10} />
-  } else if (type === 'pattern') {
-    return <Icon icon="comparison" iconSize={10} />
+  switch (type) {
+    case 'boolean':
+      return <Icon icon="segmented-control" iconSize={10} />
+    case 'number':
+      return <Icon icon="numerical" iconSize={10} />
+    case 'date':
+      return <Icon icon="calendar" iconSize={10} />
+    case 'string':
+      return <Icon icon="font" iconSize={10} />
+    case 'enum':
+      return <Icon icon="properties" iconSize={10} />
+    case 'pattern':
+      return <Icon icon="comparison" iconSize={10} />
   }
 
   return null
@@ -75,12 +76,9 @@ const VariablePicker: FC<Props> = ({
 
   const SimpleDropdown = Select.ofType<Option>()
 
-  let btnText = activeItem ? activeItem.value : placeholder
-
-  const value = data[field.key] || field.defaultValue || (!field.placeholder && options?.[0]?.value)
-  const currentOption = options?.find(option => option.value === value)
-  if (currentOption) {
-    btnText = currentOption?.label
+  const getCurrentOption = () => {
+    const value = data[field.key] || field.defaultValue || (!field.placeholder && options?.[0]?.value)
+    return options?.find(option => option.value === value)
   }
 
   useEffect(() => {
@@ -96,8 +94,7 @@ const VariablePicker: FC<Props> = ({
   }, [variables, variableTypes])
 
   useEffect(() => {
-    const value = data[field.key] || field.defaultValue || (!field.placeholder && options?.[0]?.value)
-    const currentOption = options?.find(option => option.value === value)
+    const currentOption = getCurrentOption()
     setActiveItem(options?.find(item => item.value === currentOption?.value) ?? currentOption)
   }, [])
 
@@ -140,6 +137,11 @@ const VariablePicker: FC<Props> = ({
   const updateSelectedOption = option => {
     onAddVariable(option.value, variables?.map(x => x.name) ?? [])
     onChange?.(option.value)
+  }
+
+  let btnText = activeItem ? activeItem.value : placeholder
+  if (getCurrentOption()) {
+    btnText = getCurrentOption()?.label
   }
 
   return (
