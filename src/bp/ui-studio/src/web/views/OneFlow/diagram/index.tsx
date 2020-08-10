@@ -974,6 +974,8 @@ class Diagram extends Component<Props> {
               formData={node?.prompt}
               onUpdate={this.updatePromptNode.bind(this)}
               deletePrompt={this.deleteSelectedElements.bind(this)}
+              variables={this.props.currentFlow?.variables}
+              onUpdateVariables={this.addVariable}
               contentLang={this.state.currentLang}
               close={() => {
                 this.timeout = setTimeout(() => {

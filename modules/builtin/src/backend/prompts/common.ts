@@ -10,18 +10,6 @@ const common: FormDefinition = {
       maxLength: 150,
       placeholder: 'module.builtin.messagePlaceholder',
       label: 'message'
-    },
-    {
-      type: 'text',
-      key: 'output',
-      required: true,
-      label: 'module.builtin.setValueTo',
-      placeholder: 'module.builtin.setValueToPlaceholder',
-      valueManipulation: {
-        regex: '[^a-z0-9-_.]',
-        modifier: 'gi',
-        replaceChar: '_'
-      }
     }
   ],
   advancedSettings: [
