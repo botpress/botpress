@@ -6,15 +6,17 @@ import { AlertingService } from 'core/services/alerting-service'
 import { JobService } from 'core/services/job-service'
 import { MonitoringService } from 'core/services/monitoring'
 import { WorkspaceService } from 'core/services/workspace-service'
+import diag from 'diag'
 import { Router } from 'express'
+import fse from 'fs-extra'
 import _ from 'lodash'
 import multer from 'multer'
 import os from 'os'
+import { tmpNameSync } from 'tmp'
 import yn from 'yn'
 
 import { getDebugScopes, setDebugScopes } from '../../../debug'
 import { CustomRouter } from '../customRouter'
-
 export class ServerRouter extends CustomRouter {
   private _rebootServer!: Function
 
@@ -155,6 +157,19 @@ export class ServerRouter extends CustomRouter {
           ])
         }
         res.send(serverConfig)
+      })
+    )
+
+    router.get(
+      '/diag',
+      this.asyncMiddleware(async (req, res) => {
+        if (yn(process.core_env.BP_DISABLE_SERVER_DIAG)) {
+          return res.send('Diagnostic report is disabled by the system administrator (BP_DISABLE_SERVER_DIAG)')
+        }
+
+        const tmpFile = tmpNameSync()
+        await diag({ outputFile: tmpFile, noExit: true, config: true })
+        res.send(await fse.readFile(tmpFile, 'utf-8'))
       })
     )
 

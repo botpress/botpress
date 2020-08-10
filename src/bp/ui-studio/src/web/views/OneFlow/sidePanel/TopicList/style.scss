@@ -13,7 +13,7 @@
     color: var(--shark);
     font-size: 12px;
     line-height: 1.25;
-    padding: 8px 6px 5px;
+    padding: 6px 6px 5px;
     transition: border 0.3s;
     width: 100%;
 
@@ -78,7 +78,7 @@
 }
 
 .tag {
-  background: var(--seashell);
+  background: var(--bg);
   border-radius: 3px;
   color: var(--shark);
   flex-shrink: 0;
@@ -145,6 +145,15 @@
   box-shadow: 0 8px 24px 0 rgba(16, 22, 26, 0.4);
 
   :global {
+    .bp3-menu-item {
+      padding: var(--spacing-medium) var(--spacing-medium);
+      border-radius: 5px;
+    }
+
+    .bp3-menu-item-label {
+      color: var(--shark);
+    }
+
     .bp3-text-overflow-ellipsis {
       display: none;
     }

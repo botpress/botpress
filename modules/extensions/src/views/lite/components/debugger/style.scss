@@ -306,6 +306,9 @@
   }
 
   .processingItem {
+    font-size: 12px;
+    color: var(--shark);
+
     &.processingSection {
       margin-bottom: var(--spacing-medium);
 
@@ -346,6 +349,7 @@
       display: flex;
       align-items: center;
       cursor: pointer;
+      font-size: 12px;
       margin: 0;
       color: var(--shark);
       transition: color 0.3s;
