@@ -15,7 +15,7 @@ import { JobService } from '../job-service'
 
 import { TelemetryStats } from './telemetry-stats'
 
-interface BotHooks {
+export interface BotHooks {
   botId: string
   hooks: Hook[]
 }
