@@ -457,7 +457,7 @@ declare module 'botpress/sdk' {
   }
 
   export namespace NLU {
-    export type EntityType = 'system' | 'pattern' | 'list'
+    export type EntityType = 'system' | 'pattern' | 'list' | 'complex'
 
     export interface EntityDefOccurrence {
       name: string
@@ -474,12 +474,13 @@ declare module 'botpress/sdk' {
       fuzzy?: number
       occurrences?: EntityDefOccurrence[]
       pattern?: string
+      list_entities: string[]
+      pattern_entities: string[]
     }
 
     export interface SlotDefinition {
       name: string
-      entities: string[]
-      color: number
+      entity: string
     }
 
     export interface IntentDefinition {

@@ -11,6 +11,7 @@ import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
 import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
 import {
+  ComplexEntity,
   EntityCacheDump,
   Intent,
   ListEntity,
@@ -92,12 +93,23 @@ export default class Engine implements NLUEngine {
         sensitive: !!ent.sensitive
       }))
 
+    const complex_entities = entityDefs
+      .filter(ent => ent.type === 'complex')
+      .map(e => {
+        return {
+          name: e.name,
+          examples: e.examples || [],
+          list_entities: e.list_entities ?? [],
+          pattern_entities: e.pattern_entities ?? []
+        } as ComplexEntity
+      })
+
     const contexts = _.chain(intentDefs)
       .flatMap(i => i.contexts)
       .uniq()
       .value()
 
-    const intents = intentDefs
+    const intents: Intent<string>[] = intentDefs
       .filter(x => !!x.utterances[languageCode])
       .map(x => ({
         name: x.name,
@@ -130,6 +142,7 @@ export default class Engine implements NLUEngine {
       languageCode,
       list_entities,
       pattern_entities,
+      complex_entities,
       contexts,
       intents,
       ctxToTrain
@@ -210,7 +223,15 @@ export default class Engine implements NLUEngine {
 
     const { input, output } = model.data
     if (!output.intents) {
-      const intents = await ProcessIntents(input.intents, model.languageCode, output.list_entities, Engine._tools)
+      const intents = await ProcessIntents(
+        input.intents,
+        model.languageCode,
+        output.list_entities,
+        input.list_entities,
+        input.pattern_entities,
+        input.complex_entities,
+        Engine._tools
+      )
       output.intents = intents
     }
     const trainOutput = output as TrainOutput

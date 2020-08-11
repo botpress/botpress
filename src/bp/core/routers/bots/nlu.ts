@@ -277,28 +277,6 @@ export class NLURouter extends CustomRouter {
         const { botId, id } = req.params
         try {
           await this.nluService.entities.deleteEntity(botId, id)
-
-          const affectedIntents = (await this.nluService.intents.getIntents(botId)).filter(intent =>
-            intent.slots.some(slot => slot.entities.includes(id))
-          )
-
-          await Promise.map(affectedIntents, intent => {
-            const [affectedSlots, unaffectedSlots] = _.partition(intent.slots, slot => slot.entities.includes(id))
-            const [slotsToDelete, slotsToKeep] = _.partition(affectedSlots, slot => slot.entities.length === 1)
-            const updatedIntent = {
-              ...intent,
-              slots: [
-                ...unaffectedSlots,
-                ...slotsToKeep.map(slot => ({ ...slot, entities: _.without(slot.entities, id) }))
-              ],
-              utterances: removeSlotsFromUtterances(
-                intent.utterances,
-                slotsToDelete.map(slot => slot.name)
-              )
-            }
-            return this.nluService.intents.saveIntent(botId, updatedIntent)
-          })
-
           res.sendStatus(204)
         } catch (err) {
           this.logger

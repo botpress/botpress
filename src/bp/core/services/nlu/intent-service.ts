@@ -50,7 +50,7 @@ export class IntentService {
             contexts: [topicName],
             filename: flow.name,
             name: intentName,
-            slots: [], // TODO:
+            slots: flow.variables?.map(x => ({ name: x.name, entity: x.type })) ?? [], // TODO: sub-type (type of list entity and type of pattern is not included in variables yet)
             utterances: conditions[i]?.params?.utterances ?? {}
           }
         }
@@ -122,12 +122,10 @@ export class IntentService {
     _.each(await this.getIntents(botId), async intent => {
       let modified = false
       _.each(intent.slots, slot => {
-        _.forEach(slot.entities, (e, index, arr) => {
-          if (e === prevEntityName) {
-            arr[index] = newEntityName
-            modified = true
-          }
-        })
+        if (slot.entity === prevEntityName) {
+          slot.entity = newEntityName
+          modified = true
+        }
       })
       if (modified) {
         await this.updateIntent(botId, intent.name, intent)
