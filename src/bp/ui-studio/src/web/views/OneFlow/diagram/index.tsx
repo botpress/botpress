@@ -923,7 +923,7 @@ class Diagram extends Component<Props> {
               />
             </div>
 
-            <Toolbar />
+            {this.state.currentTab === 'workflow' && <Toolbar />}
           </Fragment>
 
           {formType === 'say_something' && (
