@@ -38,6 +38,7 @@ const NodeHeader: FC<Props> = ({
   }
 
   const [inputValue, setInputValue] = useState(getInitialInputValue())
+  const [startMouse, setStartMouse] = useState({ x: 0, y: 0 })
 
   useEffect(() => {
     setInputValue(getInitialInputValue())
@@ -60,7 +61,12 @@ const NodeHeader: FC<Props> = ({
       {!isEditing ? (
         <Button
           icon={setExpanded ? icon : null}
-          onClick={() => setExpanded && setExpanded(!expanded)}
+          onClick={e => {
+            if (e.screenX - startMouse.x == 0 && e.screenY - startMouse.y == 0) {
+              setExpanded && setExpanded(!expanded)
+            }
+          }}
+          onMouseDown={e => setStartMouse({ x: e.screenX, y: e.screenY })}
           className={style.button}
           onContextMenu={e => handleContextMenu && handleContextMenu(e)}
         >
