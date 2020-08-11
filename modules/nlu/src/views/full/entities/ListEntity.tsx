@@ -2,10 +2,11 @@ import { Button, Colors, FormGroup, Icon, InputGroup, Position, Radio, RadioGrou
 import { NLU } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import { toastFailure } from 'botpress/utils'
+import { entity, synonym } from 'full/style.scss'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 
-import style from './style.scss'
+import style, { occurrence } from './style.scss'
 import { Occurrence } from './ListEntityOccurrence'
 
 interface Props {
@@ -68,19 +69,24 @@ export const ListEntityEditor: React.FC<Props> = props => {
 
   const isNewOccurrenceEmpty = () => newOccurrence.trim().length === 0
 
-  const isUnique = newElement =>
-    !props.entities
-      .filter(entity => entity.type === 'list')
-      .some(({ occurrences }) =>
-        [...state.occurrences, ...occurrences].some(({ name, synonyms }) => [name, ...synonyms].includes(newElement))
-      )
+  const checkUniq = newElement => {
+    const listEntities = props.entities.filter(entity => entity.type === 'list')
+    for (const entity of listEntities) {
+      for (const occurence of _.uniq([...entity.occurrences, ...state.occurrences])) {
+        if ([occurence.name, ...occurence.synonyms].includes(newElement)) {
+          return { entityName: entity.name, occurenceName: occurence.name, synonymName: newElement }
+        }
+      }
+    }
+  }
 
   const addOccurrence = () => {
     if (isNewOccurrenceEmpty()) {
       return
     }
-    if (!isUnique(newOccurrence)) {
-      return toastFailure('Occurrences duplication is not allowed')
+    const uniqInfos = checkUniq(newOccurrence)
+    if (uniqInfos) {
+      return toastFailure(`Occurrence ${newOccurrence} already exists in ${uniqInfos.entityName}`)
     }
 
     dispatch({
@@ -91,12 +97,11 @@ export const ListEntityEditor: React.FC<Props> = props => {
   }
 
   const editOccurrence = (idx: number, occurrence: NLU.EntityDefOccurrence) => {
-    console.log('Occ', occurrence.synonyms)
-    console.log('State', state.occurrences[idx].synonyms)
-    if (occurrence.synonyms.length > state.occurrences[idx].synonyms.length) {
-      if (!isUnique(_.last(occurrence.synonyms))) {
-        return toastFailure('Synonyms duplication is not allowed')
-      }
+    const uniqInfo = checkUniq(_.last(occurrence.synonyms))
+    if (occurrence.synonyms.length > state.occurrences[idx].synonyms.length && uniqInfo) {
+      return toastFailure(
+        `${uniqInfo.synonymName} already exist in entity ${uniqInfo.entityName} occurence ${uniqInfo.occurenceName}`
+      )
     }
 
     const occurrences = [...state.occurrences.slice(0, idx), occurrence, ...state.occurrences.slice(idx + 1)]
