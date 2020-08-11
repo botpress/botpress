@@ -1433,7 +1433,7 @@ declare module 'botpress/sdk' {
   }
 
   interface FormOption {
-    value: string
+    value: any
     label: string
     related?: FormField
   }
@@ -1467,6 +1467,7 @@ declare module 'botpress/sdk' {
     | 'upload'
     | 'url'
     | 'hidden'
+    | 'tag-input'
 
   export interface FormField {
     type: FormFieldType
@@ -1491,6 +1492,8 @@ declare module 'botpress/sdk' {
     dynamicOptions?: FormDynamicOptions
     fields?: FormField[]
     moreInfo?: FormMoreInfo
+    /** When specified, indicate if array elements match the provided pattern */
+    validationPattern?: RegExp
     group?: {
       /** You have to specify the add button label */
       addLabel?: string

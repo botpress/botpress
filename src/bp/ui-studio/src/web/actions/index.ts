@@ -428,6 +428,14 @@ export const refreshIntents = () => dispatch => {
   })
 }
 
+export const entitiesReceived = createAction('ENTITIES/RECEIVED')
+export const refreshEntities = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.get(`${window.BOT_API_PATH}/nlu/entities`).then(({ data }) => {
+    dispatch(entitiesReceived(data))
+  })
+}
+
 export const conditionsReceived = createAction('CONDITIONS/RECEIVED')
 export const refreshConditions = () => dispatch => {
   // tslint:disable-next-line: no-floating-promises
@@ -506,3 +514,8 @@ export const fetchPrompts = () => dispatch => {
     dispatch(promptsReceived(data))
   })
 }
+
+export const setActiveFormItem = createAction('FLOWS/ACTIVE_FORM_ITEM')
+
+export const deleteEntity = entityId => () =>
+  axios.post(`${window.BOT_API_PATH}/nlu/entities/${entityId}/delete`, entityId)

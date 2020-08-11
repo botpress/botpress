@@ -36,6 +36,7 @@ import {
   refreshFlowsLinks,
   refreshHints,
   removeFlowNode,
+  setActiveFormItem,
   switchFlow,
   switchFlowNode,
   updateFlow,
@@ -69,6 +70,7 @@ import ExecuteForm from './ExecuteForm'
 import PromptForm from './PromptForm'
 import Toolbar from './Toolbar'
 import VariablesEditor from './VariablesEditor'
+import VariableTypesForm from './VariableTypesForm'
 import WorkflowToolbar from './WorkflowToolbar'
 
 interface OwnProps {
@@ -221,6 +223,11 @@ class Diagram extends Component<Props> {
       ['say_something', 'trigger', 'prompt'].includes(this.props.currentFlowNode?.type)
     ) {
       this.editNodeItem(this.props.currentFlowNode, 0)
+    }
+
+    if (this.props.activeFormItem !== undefined && prevProps.activeFormItem !== this.props.activeFormItem) {
+      clearTimeout(this.timeout)
+      this.setState({ editingNodeItem: this.props.activeFormItem })
     }
 
     if (this.diagramContainer) {
@@ -857,14 +864,16 @@ class Diagram extends Component<Props> {
   }
 
   render() {
-    const { node, index } = this.state.editingNodeItem || {}
-    const formType: string = node?.nodeType || node?.type
+    const { node, index, data } = this.state.editingNodeItem || {}
+    const formType: string = node?.nodeType || node?.type || this.state.editingNodeItem?.type
 
     let editingNodeItem
     if (formType === 'say_something') {
       editingNodeItem = node?.contents?.[index]
     } else if (formType === 'trigger') {
       editingNodeItem = node?.conditions?.[index]
+    } else if (formType === 'entity') {
+      editingNodeItem = data
     }
 
     const isQnA = this.props.selectedWorkflow === 'qna'
@@ -1006,6 +1015,18 @@ class Diagram extends Component<Props> {
               }}
             />
           )}
+          {formType === 'entity' && (
+            <VariableTypesForm
+              contentLang={this.state.currentLang}
+              customKey={data.id}
+              formData={editingNodeItem}
+              close={() => {
+                this.timeout = setTimeout(() => {
+                  this.setState({ editingNodeItem: null })
+                }, 200)
+              }}
+            />
+          )}
         </MainContent.Wrapper>
       </Fragment>
     )
@@ -1022,7 +1043,8 @@ const mapStateToProps = (state: RootReducer) => ({
   prompts: state.ndu.prompts,
   contentTypes: state.content.categories,
   conditions: state.ndu.conditions,
-  hints: state.hints.inputs
+  hints: state.hints.inputs,
+  activeFormItem: state.flows.activeFormItem
 })
 
 const mapDispatchToProps = {
@@ -1046,7 +1068,8 @@ const mapDispatchToProps = {
   refreshFlowsLinks,
   fetchContentCategories,
   getQnaCountByTopic,
-  refreshHints
+  refreshHints,
+  setActiveFormItem
 }
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps, null, {

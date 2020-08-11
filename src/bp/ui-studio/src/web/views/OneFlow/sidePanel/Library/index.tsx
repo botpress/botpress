@@ -1,186 +1,220 @@
-import { Button } from '@blueprintjs/core'
+import { Button, Intent, MenuItem } from '@blueprintjs/core'
 import axios from 'axios'
-import { NLU } from 'botpress/sdk'
+import sdk from 'botpress/sdk'
+import { confirmDialog, lang } from 'botpress/shared'
 import cx from 'classnames'
+import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { createFlow, updateFlow } from '~/actions'
-import { getAllFlows, RootReducer } from '~/reducers'
+import { deleteEntity, refreshEntities, setActiveFormItem } from '~/actions'
+import { SearchBar } from '~/components/Shared/Interface'
+import { RootReducer } from '~/reducers'
 
-import style from './style.scss'
-import EntityModal from './Modal'
-import EntityNameModal from './NameModal'
+import style from '../TopicList/style.scss'
+
+import TreeItem from './TreeItem'
+
+interface OwnProps {
+  readOnly: boolean
+  editing: string
+  isEditingNew: boolean
+  selectedWorkflow: string
+  entities: sdk.NLU.EntityDefinition[]
+  createWorkflow: (topicId: string) => void
+  refreshEntities: () => void
+}
 
 type StateProps = ReturnType<typeof mapStateToProps>
 type DispatchProps = typeof mapDispatchToProps
-interface OwnProps {
-  goToFlow: (flow: any) => void
+
+type Props = StateProps & DispatchProps & OwnProps
+
+export interface NodeData {
+  id: string
+  name?: string
+  type?: NodeType
+  label?: string
+  icon?: string
+  children?: any[]
 }
 
-type Props = OwnProps & StateProps & DispatchProps
-interface TableItem {
-  label: string
-  click: () => void
-  edit: () => void
-  delete: () => void
+type NodeType = 'workflow' | 'block' | 'variable'
+
+const getNextName = (originalName: string, list: any[]) => {
+  let index = 0
+  let name = originalName
+
+  while (list.find(f => f.name === name)) {
+    index++
+    name = `${originalName}-${index}`
+  }
+  return name
 }
 
 const Library: FC<Props> = props => {
-  const [currentEntity, setCurrentEntity] = useState<NLU.EntityDefinition>()
-  const [currentNamingEntity, setCurrentNamingEntity] = useState<NLU.EntityDefinition>()
-  const [forceUpdate, setForceUpdate] = useState(false)
-  const [entities, setEntities] = useState<NLU.EntityDefinition[]>([])
+  const { editing, isEditingNew } = props
+  const [filter, setFilter] = useState('')
+  const [items, setItems] = useState<NodeData[]>([])
+  const [expanded, setExpanded] = useState<any>({})
 
   useEffect(() => {
-    async function fetchEntities() {
-      const res = await axios.get(`${window.BOT_API_PATH}/nlu/entities`)
-      setEntities(res.data)
+    props.refreshEntities()
+  }, [])
+
+  useEffect(() => {
+    const entities = props.entities
+      ?.filter(x => x.type !== 'system' && x.name?.toLowerCase()?.includes(filter.toLowerCase()))
+      .map(x => ({
+        id: x.id,
+        type: 'variable',
+        label: x.name,
+        icon: x.type === 'pattern' ? 'comparison' : 'properties'
+      }))
+
+    const items = [
+      { id: 'block', type: 'block' as NodeType, label: lang.tr('studio.library.savedBlocks'), children: [] },
+      {
+        id: 'workflow',
+        type: 'workflow' as NodeType,
+        label: lang.tr('studio.library.savedWorkflows'),
+        children: []
+      },
+      {
+        id: 'variable',
+        type: 'variable' as NodeType,
+        label: lang.tr('studio.library.variableTypes'),
+        children: entities
+      }
+    ]
+
+    setItems(items)
+  }, [props.entities, filter])
+
+  const handleClick = ({ path, item, level }): void => {
+    if (item.children?.length || level === 0) {
+      setExpanded({ ...expanded, [path]: !expanded[path] })
     }
-    // tslint:disable-next-line: no-floating-promises
-    fetchEntities()
-  }, [forceUpdate])
 
-  const createEntity = async (type: string) => {
-    const originalName = `${type}-entity`
-    let name
-    let index = 0
-    do {
-      name = `${originalName}${index ? `-${index}` : ''}`
-      index++
-    } while (entities.find(x => x.name === name))
-
-    const entity = {
-      id: name,
-      name,
-      type,
-      occurrences: []
+    if (item.type === 'variable' && level !== 0) {
+      props.setActiveFormItem({ type: 'entity', data: props.entities.find(x => x.id === item.id) })
     }
+  }
 
+  const newEntity = async (type: 'pattern' | 'list') => {
+    const name = getNextName(`${type}-entity`, props.entities)
+    await createEntity({ id: name, name, type, occurrences: [] })
+  }
+
+  const duplicateEntity = async (entityId: string) => {
+    const original = props.entities.find(x => x.id === entityId)
+    const name = getNextName(entityId, props.entities)
+
+    await createEntity({ ...original, id: name, name })
+  }
+
+  const createEntity = async entity => {
     await axios.post(`${window.BOT_API_PATH}/nlu/entities`, entity)
-    setForceUpdate(!forceUpdate)
+    props.refreshEntities()
+    props.setActiveFormItem({ type: 'entity', data: entity })
   }
 
-  const deleteEntity = async (entity: NLU.EntityDefinition) => {
-    await axios.post(`${window.BOT_API_PATH}/nlu/entities/${entity.id}/delete`)
-    setForceUpdate(!forceUpdate)
+  const deleteEntity = async (entityId: string) => {
+    if (await confirmDialog(lang.tr('studio.library.confirmDeleteEntity'), { acceptLabel: lang.tr('delete') })) {
+      props.deleteEntity(entityId)
+      props.refreshEntities()
+    }
   }
 
-  const updateEntity = async (targetEntityId: string, entity: NLU.EntityDefinition) => {
-    await axios.post(`${window.BOT_API_PATH}/nlu/entities/${targetEntityId}`, entity)
-    const idx = entities.findIndex(ent => ent.name === entity.name)
-    setEntities([...entities.slice(0, idx), entity, ...entities.slice(idx + 1)])
-  }
+  const handleContextMenu = (element: NodeData) => {
+    const { id, type } = element as NodeData
 
-  const renderTable = (title: string, items: TableItem[]) => {
-    return (
-      <table
-        className={cx(
-          style.table,
-          'bp3-html-table bp3-html-table-striped bp3-html-table-bordered .bp3-html-table-condensed'
-        )}
-      >
-        <thead>
-          <tr>
-            <th>{title}</th>
-            <th></th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>{renderTableRows(items)}</tbody>
-      </table>
-    )
-  }
-  const renderTableRows = (items: TableItem[]) => {
+    if (id === type) {
+      return
+    }
+
     return (
       <Fragment>
-        {items &&
-          items?.map((item, i) => (
-            <tr key={i}>
-              <td>
-                <Button text={item.label} onClick={item.click} />
-              </td>
-              <td>
-                <Button icon="edit" onClick={item.edit} />
-              </td>
-              <td>
-                <Button icon="delete" onClick={item.delete} />
-              </td>
-            </tr>
-          ))}
+        <MenuItem id="btn-duplicate" label={lang.tr('duplicate')} onClick={() => duplicateEntity(id)} />
+        <MenuItem id="btn-delete" label={lang.tr('delete')} intent={Intent.DANGER} onClick={() => deleteEntity(id)} />
       </Fragment>
     )
   }
 
-  const renderVariableTypes = () => {
-    return (
-      <section>
-        {renderTable(
-          'Variable Types',
-          entities
-            .filter(x => x.type !== 'system')
-            .map<TableItem>(x => ({
-              label: x.name,
-              click: () => {
-                setCurrentEntity(x)
-              },
-              edit: () => {
-                setCurrentNamingEntity(x)
-              },
-              delete: async () => {
-                await deleteEntity(x)
-              }
-            }))
-        )}
-        <p>
-          <Button text="Add Enumeration" onClick={() => createEntity('list')} />
-        </p>
-        <p>
-          <Button text="Add Pattern" onClick={() => createEntity('pattern')} />
-        </p>
-      </section>
-    )
-  }
+  const printTree = (item: NodeData, level, parentId = '') => {
+    const hasChildren = !!item.children?.length
+    const path = `${parentId}${parentId && '/'}${item.id}`
+    const isTopLevel = level === 0
 
-  const renderModal = () => {
-    return (
-      <EntityModal
-        entity={currentEntity}
-        entities={entities}
-        updateEntity={updateEntity}
-        isOpen={currentEntity !== undefined}
-        onClose={() => setCurrentEntity(undefined)}
-      />
+    const treeItem = (
+      <div className={cx(item.type)} key={path}>
+        <TreeItem
+          className={cx(style.treeItem, { [style.isTopic]: isTopLevel })}
+          isExpanded={expanded[path]}
+          item={item}
+          level={level}
+          contextMenuContent={handleContextMenu(item)}
+          onClick={() => handleClick({ item, path, level })}
+        />
+
+        {expanded[path] && (
+          <Fragment>
+            {hasChildren && item.children.map(child => printTree(child, level + 1, path))}
+
+            {item.type === 'workflow' && (
+              <Button
+                minimal
+                onClick={() => props.createWorkflow(item.id)}
+                icon="plus"
+                className={style.addBtn}
+                text={lang.tr('studio.flow.sidePanel.addWorkflow')}
+              />
+            )}
+
+            {item.type === 'variable' && (
+              <Fragment>
+                <Button
+                  minimal
+                  onClick={async () => await newEntity('list')}
+                  icon="plus"
+                  className={style.addBtn}
+                  text={lang.tr('Add Enumeration')}
+                />
+                <Button
+                  minimal
+                  onClick={async () => await newEntity('pattern')}
+                  icon="plus"
+                  className={style.addBtn}
+                  text={lang.tr('Add Pattern')}
+                />
+              </Fragment>
+            )}
+          </Fragment>
+        )}
+      </div>
     )
-  }
-  const renderNameModal = () => {
-    return (
-      <EntityNameModal
-        entity={currentNamingEntity}
-        isOpen={currentNamingEntity !== undefined}
-        onClose={() => {
-          setForceUpdate(!forceUpdate)
-          setCurrentNamingEntity(undefined)
-        }}
-      />
-    )
+
+    return treeItem
   }
 
   return (
-    <div className={style.library}>
-      {renderVariableTypes()}
-      {renderModal()}
-      {renderNameModal()}
+    <div className={cx(style.tree)}>
+      <SearchBar
+        className={style.searchBar}
+        placeholder={lang.tr('Filter blocks, workflows and variables')}
+        onChange={setFilter}
+      />
+      {items.map(item => printTree(item, 0))}
+      <div />
     </div>
   )
 }
 
-const mapStateToProps = (state: RootReducer) => ({
-  flows: getAllFlows(state)
-})
+const mapStateToProps = (state: RootReducer) => ({ entities: state.nlu.entities })
 
 const mapDispatchToProps = {
-  createFlow,
-  updateFlow
+  refreshEntities,
+  setActiveFormItem,
+  deleteEntity
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Library)
+export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(Library)
