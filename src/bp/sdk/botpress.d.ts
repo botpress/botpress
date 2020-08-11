@@ -530,7 +530,12 @@ declare module 'botpress/sdk' {
       [context: string]: {
         confidence: number
         oos: number
-        intents: { label: string; confidence: number; slots: SlotCollection }[]
+        intents: {
+          label: string
+          confidence: number
+          slots: SlotCollection
+          extractor: 'exact-matcher' | 'classifier'
+        }[]
       }
     }
   }

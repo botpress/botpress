@@ -212,7 +212,10 @@ async function predictContext(input: PredictStep, predictors: Predictors): Promi
     return {
       ...input,
       ctx_predictions: [
-        { label: input.includedContexts.length ? input.includedContexts[0] : DEFAULT_CTX, confidence: 1 }
+        {
+          label: input.includedContexts.length ? input.includedContexts[0] : DEFAULT_CTX,
+          confidence: 1
+        }
       ]
     }
   }
@@ -231,7 +234,7 @@ async function predictContext(input: PredictStep, predictors: Predictors): Promi
         .groupBy('label')
         .mapValues(gr => _.meanBy(gr, 'confidence'))
         .toPairs()
-        .map(([label, confidence]) => ({ label, confidence }))
+        .map(([label, confidence]) => ({ label, confidence, extractor: 'classifier' }))
         .value()
     }
   }
@@ -412,15 +415,18 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
     const intents = !intentPred
       ? []
       : intentPred.map(i => ({
+          extractor: 'classifier', // exact-matcher overwrites this field in line below
           ...i,
           slots: (step.slot_predictions_per_intent![i.label] || []).reduce(slotsCollectionReducer, {})
         }))
+
+    const includeOOS = !intents.filter(x => x.extractor === 'exact-matcher').length
 
     return {
       ...preds,
       [label]: {
         confidence,
-        oos: step.oos_predictions![label] || 0,
+        oos: includeOOS ? step.oos_predictions![label] || 0 : 0,
         intents
       }
     }
