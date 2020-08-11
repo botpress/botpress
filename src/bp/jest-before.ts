@@ -1,7 +1,6 @@
 import { EventEmitter } from 'events'
 
 import { Distro } from './common/getos'
-import { getAppDataPath } from './core/misc/app_data'
 
 const { Debug: _Debug } = require('./debug.ts')
 
