@@ -36,8 +36,8 @@ export const getQnaEntryPayloads = async (
   bp: typeof sdk
 ) => {
   let lang = event.state?.user?.language ?? defaultLang
-  if (!qnaEntry.answers[lang] && !qnaEntry.contentAnswers) {
-    if (!qnaEntry.answers[defaultLang] && !qnaEntry.contentAnswers) {
+  if (!qnaEntry.answers[lang] && !qnaEntry.contentAnswers?.length) {
+    if (!qnaEntry.answers[defaultLang] && !qnaEntry.contentAnswers?.length) {
       throw new Error(`No answers found for language ${lang} or default language ${defaultLang}`)
     }
     lang = defaultLang
