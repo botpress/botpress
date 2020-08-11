@@ -15,12 +15,6 @@ if (!process.BOTPRESS_EVENTS) {
   process.BOTPRESS_EVENTS = new EventEmitter()
 }
 
-if (process.env.APP_DATA_PATH) {
-  process.APP_DATA_PATH = process.env.APP_DATA_PATH
-} else {
-  process.APP_DATA_PATH = getAppDataPath()
-}
-
 const os = require('os').platform()
 
 const distribution =

@@ -68,7 +68,7 @@ interface E1IntentPred {
 const DEFAULT_CTX = 'global'
 const NONE_INTENT = 'none'
 
-export async function DetectLanguage(
+async function DetectLanguage(
   input: PredictInput,
   predictorsByLang: _.Dictionary<Predictors>,
   tools: Tools
