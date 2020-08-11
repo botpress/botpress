@@ -49,11 +49,7 @@ const VariableForm: FC<Props> = props => {
   const allProps = { ...props, updateEntity, deleteEntity, updateFormItem }
   const Form = props.formData?.type === 'pattern' ? PatternForm : EnumForm
 
-  return (
-    <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={close}>
-      <Form {...allProps}></Form>
-    </RightSidebar>
-  )
+  return <Form {...allProps}></Form>
 }
 
 export default connect(undefined, { refreshEntities, deleteEntity, setActiveFormItem })(VariableForm)
