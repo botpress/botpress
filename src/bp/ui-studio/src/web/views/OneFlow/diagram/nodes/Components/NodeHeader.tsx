@@ -62,8 +62,8 @@ const NodeHeader: FC<Props> = ({
         <Button
           icon={setExpanded ? icon : null}
           onClick={e => {
-            if (e.screenX - startMouse.x == 0 && e.screenY - startMouse.y == 0) {
-              setExpanded && setExpanded(!expanded)
+            if (e.screenX - startMouse.x === 0 && e.screenY - startMouse.y == 0) {
+              setExpanded?.(!expanded)
             }
           }}
           onMouseDown={e => setStartMouse({ x: e.screenX, y: e.screenY })}
