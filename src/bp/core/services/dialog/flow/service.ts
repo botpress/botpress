@@ -89,8 +89,20 @@ export class FlowService {
         return this.parseFlow(botId, flowPath)
       })
 
-      this._allFlows.set(botId, flows)
-      return flows
+      const flowsWithParents = flows.map(flow => {
+        const flowName = flow.name.replace('.flow.json', '')
+        const parentFlow = flows.find(
+          x => x.name !== flow.name && flowName.startsWith(x.name.replace('.flow.json', ''))
+        )
+
+        return {
+          ...flow,
+          parent: parentFlow?.name.replace('.flow.json', '')
+        }
+      })
+
+      this._allFlows.set(botId, flowsWithParents)
+      return flowsWithParents
     } catch (err) {
       this.logger
         .forBot(botId)
