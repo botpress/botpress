@@ -25,7 +25,7 @@ interface UsageParams {
 }
 
 interface Usage {
-  module: string
+  namespace: string
   function: string
   count: number
 }
@@ -91,7 +91,7 @@ export class SDKStats extends TelemetryStats {
     return { global, perBots }
   }
 
-  private botActionsReducer(rootFolder: string): (acc: any, botId: any) => Promise<ParsedFile[]> {
+  private botActionsReducer(rootFolder: string): (acc: ParsedFile[], botId: string) => Promise<ParsedFile[]> {
     return async (acc, botId) => {
       const botActionsNames = await this.ghostService.forBot(botId).directoryListing(`/${rootFolder}`, '*.js')
       const parsedFiles = await Promise.map(botActionsNames, this.parseFile(`/${rootFolder}`, { botId }))
@@ -107,7 +107,7 @@ export class SDKStats extends TelemetryStats {
     return { global, perBots }
   }
 
-  private botHooksReducer(): (acc: any, botHooks: BotHooks) => Promise<ParsedFile[]> {
+  private botHooksReducer(): (acc: ParsedFile[], botHooks: BotHooks) => Promise<ParsedFile[]> {
     return async (acc, botHooks: BotHooks) => {
       const { botId, hooks } = botHooks
       const parsedFiles = await this.parseHooks(
@@ -131,11 +131,11 @@ export class SDKStats extends TelemetryStats {
     })
   }
 
-  private parseFile(rootFolder: string, usageParams?): (name: string) => Promise<ParsedFile> {
+  private parseFile(rootFolder: string, usageParams?: UsageParams): (name: string) => Promise<ParsedFile> {
     return async (name: string) => {
       const file = await this.readFileAsString(rootFolder, name, _.get(usageParams, 'botId'))
       const functions = this.extractFunctions(parse(file, PARSE_CONFIG))
-      const usage = { fileName: name.split('/').pop(), usages: this.parseFunctions(functions) }
+      const usage: ParsedFile = { fileName: name.split('/').pop() || '', usages: this.parseFunctions(functions) }
       return { ...usage, ...usageParams }
     }
   }
@@ -143,8 +143,8 @@ export class SDKStats extends TelemetryStats {
   private parseFunctions(functions: string[]): Usage[] {
     const sdkFunctions = _.countBy(functions.filter(method => method.split('.')[0] === 'bp'))
     return _.map(sdkFunctions, (count, fn) => {
-      const [, module, functionName] = fn.split('.')
-      return { module, function: functionName, count }
+      const [, namespace, functionName] = fn.split('.')
+      return { namespace, function: functionName, count }
     })
   }
 
