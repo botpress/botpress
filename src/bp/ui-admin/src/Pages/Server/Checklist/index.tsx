@@ -1,4 +1,4 @@
-import { Callout, Intent, Tag } from '@blueprintjs/core'
+import { Button, Callout, Intent, Tag } from '@blueprintjs/core'
 import { ServerConfig } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
@@ -8,6 +8,7 @@ import PageContainer from '~/App/PageContainer'
 
 import { fetchServerConfig } from '../../../reducers/server'
 
+import { DiagReport } from './DiagReport'
 import Item from './Item'
 
 const NOT_SET = 'Not set'
@@ -305,6 +306,17 @@ export const Checklist: FC<Props> = props => {
           status="none"
         >
           Check the documentation for more information
+        </Item>
+
+        <Item title="Generate a diagnostic report" status="none">
+          This tool will generate a report which can help diagnose problems. It will test the connectivity to various
+          components, ensure that proper folders are writable, and will also include the various configuration files.
+          <br />
+          <br />
+          Passwords and secrets will be obfuscated
+          <br />
+          <br />
+          <DiagReport />
         </Item>
       </div>
     </Container>
