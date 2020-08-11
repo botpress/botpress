@@ -25,6 +25,7 @@
     "mw": "Middleware",
     "dialog": "Exécution du dialogue",
     "action": "Action",
-    "completed": "Traitement complété"
+    "completed": "Traitement complété",
+    "executedIn": "Exécuté en {n} ms"
   }
 }

@@ -7,6 +7,8 @@ import nanoid from 'nanoid'
 import React from 'react'
 import 'ui-shared/dist/theme.css'
 
+import { lang } from '../../../lang'
+
 import Settings from './settings'
 import style from './style.scss'
 import { loadSettings } from './utils'
@@ -59,6 +61,7 @@ export class Debugger extends React.Component<Props, State> {
   lastMessage = undefined
 
   async componentDidMount() {
+    lang.set(this.props.store)
     updater.callback = this.loadEvent
 
     this.props.store.view.setLayoutWidth(WEBCHAT_WIDTH)

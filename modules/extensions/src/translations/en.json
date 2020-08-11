@@ -25,6 +25,7 @@
     "mw": "Middleware",
     "dialog": "Processing Dialog",
     "action": "Action",
-    "completed": "Event Processing Completed"
+    "completed": "Event Processing Completed",
+    "executedIn": "Executed in {n} ms"
   }
 }
