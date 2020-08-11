@@ -1,11 +1,11 @@
-import { Icon } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { EmptyState, lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC } from 'react'
 import { connect } from 'react-redux'
 import { getCurrentFlow, RootReducer } from '~/reducers'
 
 import style from './style.scss'
+import NoVariableIcon from './NoVariableIcon'
 
 interface OwnProps {
   editVariable: (variable) => void
@@ -15,15 +15,13 @@ type StateProps = ReturnType<typeof mapStateToProps>
 type Props = StateProps & OwnProps
 
 const VariablesEditor: FC<Props> = props => {
-  const grouped = _.groupBy(props.currentFlow?.variables, 'type')
+  const variables = props.currentFlow?.variables
+  const grouped = _.groupBy(variables, 'type')
 
-  if (!props.currentFlow.variables?.length) {
+  if (!variables?.length) {
     return (
       <div className={style.emptyState}>
-        {/** TODO: replace with real icon */}
-        <Icon icon="add"></Icon>
-        <br></br>
-        {lang.tr('variable.emptyState')}
+        <EmptyState icon={<NoVariableIcon />} text={lang.tr('variable.emptyState')} />
       </div>
     )
   }
