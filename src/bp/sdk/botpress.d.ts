@@ -922,6 +922,7 @@ declare module 'botpress/sdk' {
       hasJumped?: boolean
       /** The status of the current active prompt */
       activePrompt?: PromptStatus
+      inputs?: { [variable: string]: SubWorkflowInput }
     }
 
     export interface CurrentSession {
@@ -1440,6 +1441,7 @@ declare module 'botpress/sdk' {
     | 'skill-call'
     | 'listen'
     | 'say_something'
+    | 'sub-workflow'
     | 'success'
     | 'failure'
     | 'trigger'
@@ -1449,16 +1451,29 @@ declare module 'botpress/sdk' {
     | 'prompt'
 
   export type FlowNode = {
+    /** An auto-generated ID used internally for the flow builder */
     id?: string
+    /** The name used by the dialog engine to link to other nodes */
     name: string
     type?: FlowNodeType
     timeoutNode?: string
     flow?: string
     prompt?: PromptNode
+    subflow?: SubWorkflowNode
     isNew?: boolean
     /** Used internally by the flow editor */
     readonly lastModified?: Date
   } & NodeActions
+
+  export interface SubWorkflowNode {
+    in: { [variable: string]: SubWorkflowInput }
+    out: { [variable: string]: string }
+  }
+
+  export interface SubWorkflowInput {
+    source: 'variable' | 'hardcoded'
+    value: any
+  }
 
   export type TriggerNode = FlowNode & {
     conditions: DecisionTriggerCondition[]

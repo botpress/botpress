@@ -1,4 +1,5 @@
-import { Content, FlowNode, IO } from 'botpress/sdk'
+import { BoxedVariable, Content, FlowNode, IO, SubWorkflowInput } from 'botpress/sdk'
+import { parseFlowName } from 'common/flow'
 import { FlowView } from 'common/typings'
 import { createForGlobalHooks } from 'core/api'
 import { EventRepository } from 'core/repositories'
@@ -21,13 +22,11 @@ import { InstructionsQueueBuilder } from './queue-builder'
 
 const debug = DEBUG('dialog')
 
-type FlowWithParent = FlowView & { parent?: string }
-
 @injectable()
 export class DialogEngine {
   public onProcessingError: ((err: ProcessingError, hideStack: boolean) => void) | undefined
 
-  private _flowsByBot: Map<string, FlowWithParent[]> = new Map()
+  private _flowsByBot: Map<string, FlowView[]> = new Map()
 
   constructor(
     @inject(TYPES.FlowService) private flowService: FlowService,
@@ -97,8 +96,15 @@ export class DialogEngine {
 
     // Property type skill-call means that the node points to a subflow.
     // We skip this step if we're exiting from a subflow, otherwise it will result in an infinite loop.
-    if (_.get(currentNode, 'type') === 'skill-call' && !this._exitingSubflow(event)) {
-      return this._goToSubflow(botId, event, sessionId, currentFlow, currentNode)
+    if (['skill-call', 'sub-workflow'].includes(currentNode.type!)) {
+      if (!this._exitingSubflow(event)) {
+        return this._goToSubflow(botId, event, sessionId, currentFlow, currentNode)
+      } else {
+        const subFlow = this._findFlow(botId, currentNode.flow!)
+        this.copyVarsToParent(subFlow, currentNode, event)
+        // TODO remove this hack
+        event.state.session.nduContext!.last_topic = parseFlowName(context.currentFlow!).topic!
+      }
     }
 
     const queueBuilder = new InstructionsQueueBuilder(currentNode, currentFlow)
@@ -174,8 +180,7 @@ export class DialogEngine {
     const { workflow } = event.state
 
     const nextFlow = this._findFlow(event.botId, `${nextFlowName}.flow.json`)
-    const parentFlow = nextFlow.parent
-    const isSubFlow = !!currentWorkflow && nextFlowName.startsWith(currentWorkflow)
+    const isSubFlow = nextFlow.type === 'reusable'
 
     // This workflow doesn't already exist, so we add it
     if (!workflow) {
@@ -190,7 +195,6 @@ export class DialogEngine {
         [nextFlowName]: {
           eventId: event.id,
           status: 'active',
-          parent: parentFlow,
           variables: {}
         }
       }
@@ -217,6 +221,8 @@ export class DialogEngine {
           variables: {}
         }
       }
+
+      this.sendVarsToChild(nextFlow, event)
     } else {
       workflow.status = 'completed'
 
@@ -225,6 +231,58 @@ export class DialogEngine {
         workflows[nextFlowName].status = 'active'
       }
     }
+  }
+
+  private copyVarsToParent(childFlow: FlowView, callerNode: FlowNode, event: IO.IncomingEvent) {
+    const { workflows } = event.state.session
+    // TODO : move create variable to helper
+    const { createVariable } = event.state
+
+    const outputs = callerNode.subflow?.out
+    const childOutputVars = childFlow.variables?.filter(x => x.params.isOutput)
+    const childBoxedVars = workflows[parseFlowName(childFlow.name).workflowPath!]?.variables
+
+    if (!outputs || !childOutputVars || !childBoxedVars) {
+      return
+    }
+
+    childOutputVars.forEach(v => {
+      const ouputVarName = outputs[v.params.name]
+      const childBoxedVar = childBoxedVars[v.params.name] as BoxedVariable<any>
+
+      if (ouputVarName && childBoxedVar) {
+        createVariable(ouputVarName, childBoxedVar.value, childBoxedVar.type)
+      }
+    })
+  }
+
+  private sendVarsToChild(childFlow: FlowView, event: IO.IncomingEvent) {
+    const { workflow, createVariable } = event.state
+
+    const inputs = event.state.context.inputs
+    const childInputVars = childFlow.variables?.filter(x => x.params.isInput)
+    const currentBoxedVars = workflow.variables
+
+    if (!inputs || !childInputVars || !currentBoxedVars) {
+      return
+    }
+
+    childInputVars.forEach(v => {
+      const input = inputs[v.params.name]
+      if (!input) {
+        return
+      }
+
+      let value = input.value
+      if (input.source === 'variable') {
+        value = currentBoxedVars[input.value]?.value
+      }
+
+      if (value !== undefined) {
+        const flowName = parseFlowName(childFlow.name).workflowPath
+        createVariable(v.params.name, value, v.type, { nbOfTurns: 10, specificWorkflow: flowName })
+      }
+    })
   }
 
   private _setCurrentNodeValue(event: IO.IncomingEvent, variable: string, value: any) {
@@ -453,7 +511,7 @@ export class DialogEngine {
       event.state.__stacktrace.push({ flow: context.currentFlow!, node: transitionTo })
       // When we're in a sub flow, we must remember the location of the parent node for when we will exit
       const flowInfo = this._findFlow(event.botId, context.currentFlow!)
-      const isInSubFlow = context.currentFlow?.startsWith('skills/') || !!flowInfo.parent
+      const isInSubFlow = context.currentFlow?.startsWith('skills/') || flowInfo.type === 'reusable'
       if (isInSubFlow) {
         context = { ...context, currentNode: transitionTo }
       } else {
@@ -465,12 +523,22 @@ export class DialogEngine {
     return this.processEvent(sessionId, event)
   }
 
-  private async _goToSubflow(botId: string, event: IO.IncomingEvent, sessionId: string, parentFlow, parentNode) {
-    const subflowName = parentNode.flow // Name of the subflow to transition to
+  private async _goToSubflow(
+    botId: string,
+    event: IO.IncomingEvent,
+    sessionId: string,
+    parentFlow,
+    parentNode: FlowNode
+  ) {
+    const subflowName = parentNode.flow!
     const subflow = this._findFlow(botId, subflowName)
     const subflowStartNode = this._findNode(botId, subflow, subflow.startNode)
 
+    // TODO remove this hack
+    event.state.session.nduContext!.last_topic = parseFlowName(subflowName).topic!
+
     event.state.context = {
+      inputs: parentNode.subflow?.in,
       currentFlow: subflow.name,
       currentNode: subflowStartNode.name,
       previousFlow: parentFlow.name,
@@ -489,18 +557,7 @@ export class DialogEngine {
 
   protected async _loadFlows(botId: string) {
     const flows = await this.flowService.loadAll(botId)
-
-    const flowsWithParents = flows.map(flow => {
-      const flowName = flow.name.replace('.flow.json', '')
-      const parentFlow = flows.find(x => x.name !== flow.name && flowName.startsWith(x.name.replace('.flow.json', '')))
-
-      return {
-        ...flow,
-        parent: parentFlow?.name.replace('.flow.json', '')
-      }
-    })
-
-    this._flowsByBot.set(botId, flowsWithParents)
+    this._flowsByBot.set(botId, flows)
   }
 
   private _detectInfiniteLoop(stacktrace: IO.JumpPoint[], botId: string) {

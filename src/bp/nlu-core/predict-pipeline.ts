@@ -10,7 +10,7 @@ import { getUtteranceFeatures } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import { ExactMatchIndex, EXACT_MATCH_STR_OPTIONS, TrainOutput } from './training-pipeline'
-import { EntityExtractionResult, ExtractedEntity, Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
+import { EntityExtractionResult, ExtractedEntity, PatternEntity, SlotExtractionResult, Tools } from './typings'
 import Utterance, { buildUtteranceBatch, getAlternateUtterance, UtteranceEntity } from './utterance/utterance'
 
 export type ExactMatchResult = (sdk.MLToolkit.SVM.Prediction & { extractor: 'exact-matcher' }) | undefined

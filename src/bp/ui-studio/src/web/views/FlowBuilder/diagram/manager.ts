@@ -23,7 +23,19 @@ const passThroughNodeProps: string[] = [
 export const DIAGRAM_PADDING: number = 100
 
 // Must be identified by the deleteSelectedElement logic to know it needs to delete something
-export const nodeTypes = ['standard', 'trigger', 'skill-call', 'say_something', 'execute', 'router', 'action', 'prompt']
+export const nodeTypes = [
+  'standard',
+  'trigger',
+  'skill-call',
+  'say_something',
+  'execute',
+  'router',
+  'action',
+  'prompt',
+  'sub-workflow'
+]
+
+export const outcomeNodeTypes = ['success', 'failure']
 
 // Using the new node types to prevent displaying start port
 export const newNodeTypes = ['say_something', 'execute', 'router']
@@ -41,7 +53,17 @@ const createNodeModel = (node, modelProps) => {
   if (type === 'skill-call') {
     return new SkillCallNodeModel(modelProps)
   } else if (
-    ['say_something', 'prompt', 'execute', 'router', 'action', 'success', 'trigger', 'failure'].includes(type)
+    [
+      'say_something',
+      'prompt',
+      'execute',
+      'router',
+      'action',
+      'success',
+      'trigger',
+      'failure',
+      'sub-workflow'
+    ].includes(type)
   ) {
     return new BlockModel(modelProps)
   } else {

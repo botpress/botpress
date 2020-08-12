@@ -221,6 +221,8 @@
   "boolean": "Boolean",
   "string": "String",
   "format": "Format",
+  "input": "Input",
+  "output": "Output",
   "tolerance": "Tolerance",
   "enumeration": "Enumeration",
   "values": "Values",
