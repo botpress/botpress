@@ -102,6 +102,7 @@ export class DialogEngine {
       } else {
         const subFlow = this._findFlow(botId, currentNode.flow!)
         this.copyVarsToParent(subFlow, currentNode, event)
+        // TODO remove this hack
         event.state.session.nduContext!.last_topic = parseFlowName(context.currentFlow!).topic!
       }
     }
@@ -234,6 +235,7 @@ export class DialogEngine {
 
   private copyVarsToParent(childFlow: FlowView, callerNode: FlowNode, event: IO.IncomingEvent) {
     const { workflows } = event.state.session
+    // TODO : move create variable to helper
     const { createVariable } = event.state
 
     const outputs = callerNode.subflow?.out
@@ -532,7 +534,9 @@ export class DialogEngine {
     const subflow = this._findFlow(botId, subflowName)
     const subflowStartNode = this._findNode(botId, subflow, subflow.startNode)
 
+    // TODO remove this hack
     event.state.session.nduContext!.last_topic = parseFlowName(subflowName).topic!
+
     event.state.context = {
       inputs: parentNode.subflow?.in,
       currentFlow: subflow.name,
