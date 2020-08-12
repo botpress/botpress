@@ -538,7 +538,12 @@ declare module 'botpress/sdk' {
       [context: string]: {
         confidence: number
         oos: number
-        intents: { label: string; confidence: number; slots: SlotCollection }[]
+        intents: {
+          label: string
+          confidence: number
+          slots: SlotCollection
+          extractor: 'exact-matcher' | 'classifier'
+        }[]
       }
     }
   }
@@ -1265,10 +1270,6 @@ declare module 'botpress/sdk' {
 
   export interface FlowVariable {
     type: string
-    name: string
-    isInput?: boolean
-    isOutput?: boolean
-    description?: string
     params?: any
   }
 
@@ -1462,6 +1463,7 @@ declare module 'botpress/sdk' {
     | 'upload'
     | 'url'
     | 'hidden'
+    | 'variable'
 
   export interface FormField {
     type: FormFieldType
@@ -1473,7 +1475,12 @@ declare module 'botpress/sdk' {
     defaultValue?: FormDataField
     required?: boolean
     variableTypes?: string[]
+    defaultVariableType?: string
     superInput?: boolean
+    superInputOptions?: {
+      canPickEvents?: boolean
+      canPickVariables?: boolean
+    }
     max?: number
     min?: number
     maxLength?: number
