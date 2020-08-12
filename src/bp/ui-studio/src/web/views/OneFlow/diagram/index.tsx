@@ -1116,6 +1116,11 @@ class Diagram extends Component<Props> {
               diagramEngine={this.diagramEngine}
               flows={this.props.flows}
               type={currentItem}
+              close={() => {
+                this.timeout = setTimeout(() => {
+                  this.setState({ editingNodeItem: null })
+                }, 200)
+              }}
             />
           )}
           {formType === 'variableType' && (

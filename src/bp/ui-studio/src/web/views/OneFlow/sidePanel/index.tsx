@@ -177,7 +177,9 @@ const SidePanelContent: FC<Props> = props => {
             />
           )}
 
-          {currentTab === 'library' && <Library goToFlow={goToFlow} />}
+          {currentTab === 'library' && (
+            <Library goToFlow={goToFlow} createWorkflow={createWorkflow} flows={props.flows} />
+          )}
         </React.Fragment>
       )}
 

@@ -177,7 +177,9 @@ const popHistory = stackName => state => {
   }
   const currentSnapshot = state[stackName][0]
   // Going back to the QnA flow after ctrl + z will create weird behaviors since it's not a real flow
-  const currentFlow = currentSnapshot.currentFlow.endsWith('qna.flow.json') ? state.currentFlow : currentSnapshot.currentFlow
+  const currentFlow = currentSnapshot.currentFlow.endsWith('qna.flow.json')
+    ? state.currentFlow
+    : currentSnapshot.currentFlow
 
   const newState = {
     ...state,
@@ -254,9 +256,19 @@ const doCreateNewFlow = name => {
         }
       ]
 
-  const isSubWorkflow = false // TODO window.USE_ONEFLOW && parseFlowName(name)
-  if (isSubWorkflow) {
+  const isReusable = window.USE_ONEFLOW && name.startsWith('__reusable')
+  if (isReusable) {
     nodes.push(
+      {
+        id: prettyId(),
+        name: 'entry',
+        onEnter: [],
+        onReceive: null,
+        next: [],
+        type: 'standard',
+        x: 100,
+        y: 100
+      },
       {
         id: prettyId(),
         name: 'success',
@@ -282,6 +294,7 @@ const doCreateNewFlow = name => {
 
   return {
     version: '0.1',
+    type: isReusable ? 'reusable' : 'standard',
     name,
     location: name,
     label: undefined,

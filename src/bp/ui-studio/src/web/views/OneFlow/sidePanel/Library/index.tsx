@@ -3,10 +3,12 @@ import axios from 'axios'
 import sdk from 'botpress/sdk'
 import { confirmDialog, lang } from 'botpress/shared'
 import cx from 'classnames'
+import { buildFlowName, parseFlowName } from 'common/flow'
+import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { deleteEntity, refreshEntities, setActiveFormItem } from '~/actions'
+import { createFlow, deleteEntity, refreshEntities, setActiveFormItem } from '~/actions'
 import { SearchBar } from '~/components/Shared/Interface'
 import { RootReducer } from '~/reducers'
 
@@ -15,11 +17,13 @@ import style from '../TopicList/style.scss'
 import TreeItem from './TreeItem'
 
 interface OwnProps {
+  goToFlow: (flow: any) => void
   readOnly: boolean
   editing: string
   isEditingNew: boolean
   selectedWorkflow: string
   entities: sdk.NLU.EntityDefinition[]
+  flows: FlowView[]
   createWorkflow: (topicId: string) => void
   refreshEntities: () => void
 }
@@ -63,11 +67,20 @@ const Library: FC<Props> = props => {
   useEffect(() => {
     const entities = props.entities
       ?.filter(x => x.type !== 'system' && x.name?.toLowerCase()?.includes(filter.toLowerCase()))
-      .map(x => ({
+      .map<NodeData>(x => ({
         id: x.id,
         type: 'variableType',
         label: x.name,
         icon: x.type === 'pattern' ? 'comparison' : 'properties'
+      }))
+
+    const reusables = props.flows
+      .filter(x => x.type === 'reusable')
+      .map<NodeData>(x => ({
+        id: x.name,
+        type: 'workflow',
+        label: parseFlowName(x.name).workflow,
+        icon: 'data-lineage'
       }))
 
     const items = [
@@ -76,7 +89,7 @@ const Library: FC<Props> = props => {
         id: 'workflow',
         type: 'workflow' as NodeType,
         label: lang.tr('studio.library.savedWorkflows'),
-        children: []
+        children: reusables
       },
       {
         id: 'variableType',
@@ -87,7 +100,7 @@ const Library: FC<Props> = props => {
     ]
 
     setItems(items)
-  }, [props.entities, filter])
+  }, [props.entities, props.flows, filter])
 
   const handleClick = ({ path, item, level }): void => {
     if (item.children?.length || level === 0) {
@@ -96,6 +109,8 @@ const Library: FC<Props> = props => {
 
     if (item.type === 'variableType' && level !== 0) {
       props.setActiveFormItem({ type: 'variableType', data: props.entities.find(x => x.id === item.id) })
+    } else if (item.type === 'workflow') {
+      props.goToFlow(item.id)
     }
   }
 
@@ -122,6 +137,20 @@ const Library: FC<Props> = props => {
       props.deleteEntity(entityId)
       props.refreshEntities()
     }
+  }
+
+  const newFlow = async () => {
+    const originalName = 'subworkflow'
+    let name = undefined
+    let fullName = undefined
+    let index = 0
+    do {
+      name = `${originalName}${index ? `-${index}` : ''}`
+      fullName = buildFlowName({ topic: '__reusable', workflow: name }, true).workflowPath
+      index++
+    } while (props.flows.find(f => f.name === fullName))
+
+    props.createFlow(fullName)
   }
 
   const handleContextMenu = (element: NodeData) => {
@@ -162,7 +191,7 @@ const Library: FC<Props> = props => {
             {item.type === 'workflow' && (
               <Button
                 minimal
-                onClick={() => props.createWorkflow(item.id)}
+                onClick={() => newFlow()}
                 icon="plus"
                 className={style.addBtn}
                 text={lang.tr('studio.flow.sidePanel.addWorkflow')}
@@ -211,6 +240,7 @@ const Library: FC<Props> = props => {
 const mapStateToProps = (state: RootReducer) => ({ entities: state.nlu.entities })
 
 const mapDispatchToProps = {
+  createFlow,
   refreshEntities,
   setActiveFormItem,
   deleteEntity
