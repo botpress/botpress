@@ -1,6 +1,7 @@
 import axios, { AxiosInstance } from 'axios'
 import retry from 'bluebird-retry'
-import * as sdk from 'botpress/sdk'
+import { NLU } from 'botpress/sdk'
+import crypto from 'crypto'
 import fse from 'fs-extra'
 import httpsProxyAgent from 'https-proxy-agent'
 import _, { debounce, sumBy } from 'lodash'
@@ -8,22 +9,12 @@ import lru from 'lru-cache'
 import moment from 'moment'
 import ms from 'ms'
 import path from 'path'
-import crypto from 'crypto'
 import semver from 'semver'
 
 import { getSeededLodash, resetSeed } from '../tools/seeded-lodash'
 import { setSimilarity, vocabNGram } from '../tools/strings'
 import { isSpace, processUtteranceTokens, restoreOriginalUtteranceCasing } from '../tools/token-utils'
-import {
-  Gateway,
-  LangsGateway,
-  LanguageProvider,
-  LanguageSource,
-  NLUHealth,
-  Token2Vec,
-  NLUVersionInfo,
-  LangServerInfo
-} from '../typings'
+import { Gateway, LangServerInfo, LangsGateway, LanguageProvider, Token2Vec } from '../typings'
 
 const debug = DEBUG('nlu').sub('lang')
 
@@ -38,19 +29,20 @@ const JUNK_FILE_PREFIX = 'junk_words'
 
 export class RemoteLanguageProvider implements LanguageProvider {
   private _cacheDir = path.join(process.APP_DATA_PATH, 'cache')
-  private _vectorsCachePath: string
-  private _junkwordsCachePath: string
-  private _tokensCachePath: string
+  private _vectorsCachePath!: string
+  private _junkwordsCachePath!: string
+  private _tokensCachePath!: string
 
-  private _vectorsCache: lru<string, Float32Array>
-  private _tokensCache: lru<string, string[]>
-  private _junkwordsCache: lru<string[], string[]>
+  private _vectorsCache!: lru<string, Float32Array>
+  private _tokensCache!: lru<string, string[]>
+  private _junkwordsCache!: lru<string[], string[]>
 
   private _cacheDumpDisabled: boolean = false
-  private _validProvidersCount: number
-  private _languageDims: number
+  private _validProvidersCount!: number
+  private _languageDims!: number
 
-  private _version: NLUVersionInfo
+  private _nluVersion!: string
+  private _langServerInfo!: LangServerInfo
 
   private discoveryRetryPolicy = {
     interval: 1000,
@@ -65,17 +57,13 @@ export class RemoteLanguageProvider implements LanguageProvider {
     return Object.keys(this.langs)
   }
 
-  private addProvider(lang: string, source: LanguageSource, client: AxiosInstance) {
+  private addProvider(lang: string, source: NLU.LanguageSource, client: AxiosInstance) {
     this.langs[lang] = [...(this.langs[lang] || []), { source, client, errors: 0, disabledUntil: undefined }]
     debug(`[${lang.toUpperCase()}] Language Provider added %o`, source)
   }
 
-  async initialize(
-    sources: LanguageSource[],
-    logger: typeof sdk.logger,
-    version: NLUVersionInfo
-  ): Promise<LanguageProvider> {
-    this._version = version
+  async initialize(sources: NLU.LanguageSource[], logger: NLU.Logger, nluVersion: string): Promise<LanguageProvider> {
+    this._nluVersion = nluVersion
     this._validProvidersCount = 0
 
     this._vectorsCache = new lru<string, Float32Array>({
@@ -162,7 +150,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     await this.restoreJunkWordsCache()
     await this.restoreTokensCache()
 
-    return this
+    return this as LanguageProvider
   }
 
   public get langServerInfo(): LangServerInfo {
@@ -221,7 +209,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     }
   }
 
-  private handleLanguageServerError = (err, endpoint: string, logger) => {
+  private handleLanguageServerError = (err, endpoint: string, logger: NLU.Logger) => {
     const status = _.get(err, 'failure.response.status')
     const details = _.get(err, 'failure.response.message')
 
@@ -232,7 +220,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     } else if (status === 401) {
       logger.error(`You must provide a valid authentication token for the endpoint ${endpoint}`)
     } else {
-      logger.attachError(err).error(`Could not load Language Provider at ${endpoint}: ${err.code}`)
+      logger.error(`Could not load Language Provider at ${endpoint}: ${err.code}`, err)
     }
   }
 
@@ -323,7 +311,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
     }
   }
 
-  getHealth(): Partial<NLUHealth> {
+  getHealth(): Partial<NLU.Health> {
     return { validProvidersCount: this._validProvidersCount, validLanguages: Object.keys(this.langs) }
   }
 
@@ -430,7 +418,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
       if (isSpace(token)) {
         vectors[i] = new Float32Array(this._languageDims) // float 32 Arrays are initialized with 0s
       } else if (this._vectorsCache.has(getCacheKey(token))) {
-        vectors[i] = this._vectorsCache.get(getCacheKey(token))
+        vectors[i] = this._vectorsCache.get(getCacheKey(token))!
       } else {
         idxToFetch.push(i)
       }
@@ -478,7 +466,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
 
     utterances.forEach((utterance, idx) => {
       if (this._tokensCache.has(getCacheKey(utterance))) {
-        tokenUtterances[idx] = this._tokensCache.get(getCacheKey(utterance))
+        tokenUtterances[idx] = this._tokensCache.get(getCacheKey(utterance))!
       } else {
         idxToFetch.push(idx)
       }

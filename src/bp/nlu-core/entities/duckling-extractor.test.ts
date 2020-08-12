@@ -31,6 +31,7 @@ describe('Extract Multiple', () => {
   let mockedFetch: jest.SpyInstance
   beforeAll(() => {
     duck = new DucklingEntityExtractor()
+    // @ts-ignore
     mockedFetch = jest.spyOn(duck, '_fetchDuckling')
   })
 

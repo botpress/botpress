@@ -60,7 +60,7 @@ const mergeNumeral = (tokens: string[]): string[] => mergeSimilarCharsetTokens(t
 const mergeSpecialChars = (tokens: string[]): string[] => mergeSimilarCharsetTokens(tokens, SPECIAL_CHARSET)
 const mergeLatin = (tokens: string[], vocab: Token2Vec): string[] => {
   const oovMatcher = (token: string) => {
-    return token && !vocab[token.toLowerCase()]
+    return !!token && !vocab[token.toLowerCase()]
   }
 
   const vocabTokenizer = getVocabTokenizer(Object.keys(vocab))

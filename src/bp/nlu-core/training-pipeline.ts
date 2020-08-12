@@ -1,7 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { getOrCreateCache } from './cache-manager'
+import { getOrCreateCache } from '../core/services/nlu/cache-manager'
+
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
 import { getCtxFeatures } from './intents/context-featurizer'
 import { getIntentFeatures } from './intents/intent-featurizer'
@@ -20,11 +21,9 @@ import {
   ListEntity,
   ListEntityModel,
   PatternEntity,
-  ProgressReporter,
   TFIDF,
   Token2Vec,
-  Tools,
-  TrainingSession
+  Tools
 } from './typings'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
 
@@ -35,11 +34,11 @@ export type TrainInput = Readonly<{
   list_entities: ListEntity[]
   contexts: string[]
   intents: Intent<string>[]
-  trainingSession?: TrainingSession
+  trainingSession?: sdk.NLU.TrainingSession
   ctxToTrain: string[]
 }>
 
-type TrainStep = Readonly<{
+export type TrainStep = Readonly<{
   botId: string
   languageCode: string
   list_entities: ListEntityModel[]
@@ -540,7 +539,8 @@ const TrainOutOfScope = async (
 
   debugTraining.forBot(input.botId, 'Done training out of scope')
   progress(1)
-  return ctxModels.reduce((acc, [ctx, model]) => {
+  return ctxModels.reduce((acc, cur) => {
+    const [ctx, model] = cur!
     acc[ctx] = model
     return acc
   }, {} as _.Dictionary<string>)
@@ -551,13 +551,13 @@ const NB_STEPS = 5 // change this if the training pipeline changes
 export type Trainer = (
   input: TrainInput,
   tools: Tools,
-  reportTrainingProgress?: ProgressReporter
+  reportTrainingProgress?: sdk.NLU.ProgressReporter
 ) => Promise<TrainOutput | undefined>
 
 export const Trainer: Trainer = async (
   input: TrainInput,
   tools: Tools,
-  progress?: ProgressReporter
+  progress?: sdk.NLU.ProgressReporter
 ): Promise<TrainOutput | undefined> => {
   let totalProgress = 0
   let normalizedProgress = 0
@@ -586,7 +586,7 @@ export const Trainer: Trainer = async (
   }
 
   const handleCancellation = () => {
-    reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession)
+    reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession!)
     console.info(input.botId, 'Training aborted')
   }
 
@@ -623,12 +623,12 @@ export const Trainer: Trainer = async (
 
   const output: TrainOutput = {
     list_entities: step.list_entities,
-    oos_model,
-    tfidf: step.tfIdf,
+    oos_model: oos_model!,
+    tfidf: step.tfIdf!,
     intents: step.intents,
-    ctx_model,
-    intent_model_by_ctx,
-    slots_model,
+    ctx_model: ctx_model!,
+    intent_model_by_ctx: intent_model_by_ctx!,
+    slots_model: slots_model!,
     vocabVectors: step.vocabVectors,
     exact_match_index,
     // kmeans: {} add this when mlKmeans supports loading from serialized data,

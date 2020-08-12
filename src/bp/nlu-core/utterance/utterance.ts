@@ -65,7 +65,7 @@ export default class Utterance {
       throw Error('Tokens, vectors and postTags dimensions must match')
     }
 
-    const arr = []
+    const arr: UtteranceToken[] = []
     for (let i = 0, offset = 0; i < tokens.length; i++) {
       const that = this
       const value = tokens[i]

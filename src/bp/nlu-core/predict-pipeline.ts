@@ -461,7 +461,7 @@ export function findExactIntentForCtx(
   }
 }
 
-export class InvalidLanguagePredictorError extends Error {
+class InvalidLanguagePredictorError extends Error {
   constructor(public languageCode: string) {
     super(`Predictor for language: ${languageCode} is not valid`)
     this.name = 'PredictorError'
@@ -489,7 +489,7 @@ export const Predict = async (
     return MapStepToOutput(stepOutput, t0)
   } catch (err) {
     if (err instanceof InvalidLanguagePredictorError) {
-      throw err
+      return { errored: true, suggestedLanguage: err.languageCode } as sdk.IO.EventUnderstanding
     }
     // tslint:disable-next-line: no-console
     console.log('Could not perform predict data', err)

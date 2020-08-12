@@ -5,7 +5,6 @@ import yn from 'yn'
 
 import { createApi } from '../../api'
 import { isOn as isAutoTrainOn } from '../autoTrain'
-import Engine from '../engine'
 import * as ModelService from '../model-service'
 import { makeTrainingSession, makeTrainSessionKey } from '../train-session-service'
 import { NLUState } from '../typings'
@@ -20,16 +19,12 @@ export function getOnBotMount(state: NLUState) {
     const bot = await bp.bots.getBotById(botId)
     const ghost = bp.ghost.forBot(botId)
 
-    const languages = _.intersection(bot.languages, Engine.tools.getLanguages())
+    const languages = _.intersection(bot.languages, bp.NLU.Engine.getLanguages())
     if (bot.languages.length !== languages.length) {
       bp.logger.warn(missingLangMsg(botId), { notSupported: _.difference(bot.languages, languages) })
     }
 
-    if (!state.nluVersion.length || !state.langServerInfo.version.length) {
-      bp.logger.warn('Either the nlu version or the lang server version is not set correctly.')
-    }
-
-    const engine = new Engine(bot.defaultLanguage, bot.id, bp.logger)
+    const engine = new bp.NLU.Engine(bot.defaultLanguage, bot.id, state.logger)
     const trainOrLoad = _.debounce(
       async (forceTrain: boolean = false) => {
         // bot got deleted

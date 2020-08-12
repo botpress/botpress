@@ -6,44 +6,11 @@ import { Stream } from 'stream'
 import tar from 'tar'
 import tmp from 'tmp'
 
-import { TrainOutput, TrainInput } from './training-pipeline'
-import { EntityCache, NLUVersionInfo, Intent } from './typings'
-import Utterance from './utterance/utterance'
-
-type PersistedOutput = Omit<TrainOutput, 'intents'> & {
-  intents?: Intent<Utterance>[]
-}
-
-export interface Model {
-  hash: string
-  languageCode: string
-  startedAt: Date
-  finishedAt: Date
-  data: {
-    input: TrainInput
-    output: PersistedOutput
-  }
-}
-
 export const MODELS_DIR = './models'
 const MAX_MODELS_TO_KEEP = 2
 
 function makeFileName(hash: string, lang: string): string {
   return `${hash}.${lang}.model`
-}
-
-function serializeModel(ref: Model): string {
-  const model = _.cloneDeep(ref)
-  for (const entity of model.data.output.list_entities) {
-    entity.cache = (<EntityCache>entity.cache)?.dump() ?? []
-  }
-  return JSON.stringify(_.omit(model, ['data.output.intents', 'data.input.trainingSession']))
-}
-
-function deserializeModel(str: string): Model {
-  const model = JSON.parse(str) as Model
-  model.data.output.slots_model = Buffer.from(model.data.output.slots_model)
-  return model
 }
 
 export async function pruneModels(ghost: sdk.ScopedGhostService, languageCode: string): Promise<void | void[]> {
@@ -60,7 +27,11 @@ export async function listModelsForLang(ghost: sdk.ScopedGhostService, languageC
   })
 }
 
-export async function getModel(ghost: sdk.ScopedGhostService, hash: string, lang: string): Promise<Model | undefined> {
+export async function getModel(
+  ghost: sdk.ScopedGhostService,
+  hash: string,
+  lang: string
+): Promise<sdk.NLU.Model | undefined> {
   const fname = makeFileName(hash, lang)
   if (!(await ghost.fileExists(MODELS_DIR, fname))) {
     return
@@ -76,7 +47,7 @@ export async function getModel(ghost: sdk.ScopedGhostService, hash: string, lang
   const modelBuff = await fse.readFile(path.join(tmpDir.name, 'model'))
   let mod
   try {
-    mod = deserializeModel(modelBuff.toString())
+    mod = JSON.parse(modelBuff.toString())
   } catch (err) {
     await ghost.deleteFile(MODELS_DIR, fname)
   } finally {
@@ -85,7 +56,7 @@ export async function getModel(ghost: sdk.ScopedGhostService, hash: string, lang
   }
 }
 
-export async function getLatestModel(ghost: sdk.ScopedGhostService, lang: string): Promise<Model | void> {
+export async function getLatestModel(ghost: sdk.ScopedGhostService, lang: string): Promise<sdk.NLU.Model | undefined> {
   const availableModels = await listModelsForLang(ghost, lang)
   if (availableModels.length === 0) {
     return
@@ -93,8 +64,12 @@ export async function getLatestModel(ghost: sdk.ScopedGhostService, lang: string
   return getModel(ghost, availableModels[0].split('.')[0], lang)
 }
 
-export async function saveModel(ghost: sdk.ScopedGhostService, model: Model, hash: string): Promise<void | void[]> {
-  const serialized = serializeModel(model)
+export async function saveModel(
+  ghost: sdk.ScopedGhostService,
+  model: sdk.NLU.Model,
+  hash: string
+): Promise<void | void[]> {
+  const serialized = JSON.stringify(model)
   const modelName = makeFileName(hash, model.languageCode)
   const tmpDir = tmp.dirSync({ unsafeCleanup: true })
   const tmpFileName = path.join(tmpDir.name, 'model')

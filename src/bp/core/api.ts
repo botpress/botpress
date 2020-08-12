@@ -6,6 +6,7 @@ import Knex from 'knex'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import MLToolkit from 'ml/toolkit'
+import Engine from 'nlu-core/engine'
 
 import { container } from './app.inversify'
 import { ConfigProvider } from './config/config-loader'
@@ -310,7 +311,10 @@ export class BotpressAPIProvider {
       security: this.security,
       experimental: this.experimental,
       workspaces: this.workspaces,
-      distributed: this.distributed
+      distributed: this.distributed,
+      NLU: {
+        Engine // TODO: expose only instance of engine instead of class
+      }
     }
   }
 }

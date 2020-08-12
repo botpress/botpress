@@ -449,6 +449,71 @@ declare module 'botpress/sdk' {
   }
 
   export namespace NLU {
+    export class Engine {
+      static initialize: (config: Config, logger: NLU.Logger) => Promise<void>
+      static getHealth: () => Health
+      static getLanguages: () => string[]
+      constructor(defaultLanguage: string, botId: string, logger: Logger)
+      computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string
+      loadModel: (m: Model) => Promise<void>
+      train: (
+        intentDefs: NLU.IntentDefinition[],
+        entityDefs: NLU.EntityDefinition[],
+        languageCode: string,
+        reportTrainingProgress?: ProgressReporter,
+        trainingSession?: TrainingSession,
+        options?: TrainingOptions
+      ) => Promise<Model | undefined>
+      predict: (t: string, ctx: string[]) => Promise<IO.EventUnderstanding>
+    }
+
+    export interface Config {
+      ducklingURL: string
+      ducklingEnabled: boolean
+      languageSources: LanguageSource[]
+    }
+
+    export interface LanguageSource {
+      endpoint: string
+      authToken?: string
+    }
+
+    export interface Logger {
+      info: (msg: string) => void
+      warning: (msg: string, err?: Error) => void
+      error: (msg: string, err?: Error) => void
+    }
+
+    export interface TrainingOptions {
+      forceTrain: boolean
+    }
+
+    export interface Model {
+      hash: string
+      languageCode: string
+      startedAt: Date
+      finishedAt: Date
+      data: {
+        input: string
+        output: string
+      }
+    }
+
+    export interface Health {
+      isEnabled: boolean
+      validProvidersCount: number
+      validLanguages: string[]
+    }
+
+    export interface TrainingSession {
+      status: 'training' | 'canceled' | 'done' | 'idle'
+      language: string
+      progress: number
+      lock?: RedisLock
+    }
+
+    export type ProgressReporter = (botId: string, message: string, trainSession: TrainingSession) => void
+
     export type EntityType = 'system' | 'pattern' | 'list'
 
     export interface EntityDefOccurrence {
@@ -689,6 +754,7 @@ declare module 'botpress/sdk' {
       readonly includedContexts: string[]
       readonly predictions?: NLU.Predictions
       readonly ms: number
+      readonly suggestedLanguage?: string
     }
 
     export interface IncomingEvent extends Event {

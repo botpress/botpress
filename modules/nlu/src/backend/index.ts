@@ -16,9 +16,8 @@ import { NLUState } from './typings'
 const langServerInfo = { version: '', domain: '', dim: 0 }
 const state: NLUState = {
   nluByBot: {},
-  nluVersion: '',
-  langServerInfo,
-  reportTrainingProgress: () => {}
+  reportTrainingProgress: () => {},
+  logger: {} as sdk.NLU.Logger
 }
 
 const onServerStarted = getOnSeverStarted(state)

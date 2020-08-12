@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import * as math from './tools/math'
+
+import { allInRange, GetZPercent, std } from './tools/math'
 
 type PredictOutput = Omit<sdk.IO.EventUnderstanding, 'predictions'> & {
   predictions: sdk.NLU.Predictions
@@ -78,8 +79,8 @@ function electIntent(input: PredictOutput): PredictOutput {
         intentPreds.unshift(noneIntent)
       }
 
-      const lnstd = math.std(intentPreds.filter(x => x.confidence !== 0).map(x => Math.log(x.confidence))) // because we want a lognormal distribution
-      let p1Conf = math.GetZPercent((Math.log(intentPreds[0].confidence) - Math.log(intentPreds[1].confidence)) / lnstd)
+      const lnstd = std(intentPreds.filter(x => x.confidence !== 0).map(x => Math.log(x.confidence))) // because we want a lognormal distribution
+      let p1Conf = GetZPercent((Math.log(intentPreds[0].confidence) - Math.log(intentPreds[1].confidence)) / lnstd)
       if (isNaN(p1Conf)) {
         p1Conf = 0.5
       }
@@ -134,8 +135,8 @@ function detectAmbiguity(input: PredictOutput): PredictOutput {
 
   const ambiguous =
     preds.length > 1 &&
-    (math.allInRange(confidenceVec, low, up) ||
-      (preds[0].name === NONE_INTENT && math.allInRange(confidenceVec.slice(1), low, up)))
+    (allInRange(confidenceVec, low, up) ||
+      (preds[0].name === NONE_INTENT && allInRange(confidenceVec.slice(1), low, up)))
 
   return { ...input, ambiguous }
 }
@@ -159,12 +160,12 @@ function predictionsReallyConfused(predictions: sdk.MLToolkit.SVM.Prediction[]):
     return false
   }
 
-  const std = math.std(predictions.map(p => p.confidence))
-  const diff = (predictions[0].confidence - predictions[1].confidence) / std
+  const stdev = std(predictions.map(p => p.confidence))
+  const diff = (predictions[0].confidence - predictions[1].confidence) / stdev
   if (diff >= 2.5) {
     return false
   }
 
-  const bestOf3STD = math.std(predictions.slice(0, 3).map(p => p.confidence))
+  const bestOf3STD = std(predictions.slice(0, 3).map(p => p.confidence))
   return bestOf3STD <= 0.03
 }
