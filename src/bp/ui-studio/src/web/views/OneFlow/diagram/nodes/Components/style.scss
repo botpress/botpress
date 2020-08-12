@@ -40,6 +40,10 @@
   background: #fff;
   width: 150px;
 
+  &.highlighted {
+    outline: 5px solid #ffde33 !important;
+  }
+
   .prompt :global(.port):before {
     background: var(--prompt);
   }

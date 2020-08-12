@@ -46,22 +46,6 @@ const Toolbar: FC<Props> = props => {
             <span className={style.divider}></span>
           </Fragment>
         )}
-        <AccessControl resource="bot.logs" operation="read">
-          <ToolTip
-            content={
-              <div className={style.tooltip}>
-                {lang.tr('toolbar.logsPanel')}
-                <div className={style.shortcutLabel}>
-                  <ShortcutLabel light shortcut="bottom-bar" />
-                </div>
-              </div>
-            }
-          >
-            <button className={style.item} onClick={toggleBottomPanel}>
-              <Icon color="#1a1e22" icon="console" iconSize={16} />
-            </button>
-          </ToolTip>
-        </AccessControl>
         {window.IS_BOT_MOUNTED && (
           <ToolTip content={<ShortcutLabel light shortcut="emulator-focus" />}>
             <button

@@ -114,7 +114,8 @@ const entryPoint: sdk.ModuleEntryPoint = {
     menuIcon: 'chat',
     menuText: 'Q&A',
     fullName: 'QNA',
-    homepage: 'https://botpress.com'
+    homepage: 'https://botpress.com',
+    noInterface: true
   }
 }
 

@@ -351,6 +351,7 @@
       "userDoesNotAnswer": "User does not answer"
     },
     "sideBar": {
+      "flowBuilder": "Workflow Builder",
       "config": "Config",
       "content": "Content",
       "flows": "Flows"
