@@ -38,7 +38,7 @@ export interface NodeData {
   children?: any[]
 }
 
-type NodeType = 'workflow' | 'block' | 'variable'
+type NodeType = 'workflow' | 'block' | 'variableType'
 
 const getNextName = (originalName: string, list: any[]) => {
   let index = 0
@@ -52,7 +52,6 @@ const getNextName = (originalName: string, list: any[]) => {
 }
 
 const Library: FC<Props> = props => {
-  const { editing, isEditingNew } = props
   const [filter, setFilter] = useState('')
   const [items, setItems] = useState<NodeData[]>([])
   const [expanded, setExpanded] = useState<any>({})
@@ -66,7 +65,7 @@ const Library: FC<Props> = props => {
       ?.filter(x => x.type !== 'system' && x.name?.toLowerCase()?.includes(filter.toLowerCase()))
       .map(x => ({
         id: x.id,
-        type: 'variable',
+        type: 'variableType',
         label: x.name,
         icon: x.type === 'pattern' ? 'comparison' : 'properties'
       }))
@@ -80,8 +79,8 @@ const Library: FC<Props> = props => {
         children: []
       },
       {
-        id: 'variable',
-        type: 'variable' as NodeType,
+        id: 'variableType',
+        type: 'variableType' as NodeType,
         label: lang.tr('studio.library.variableTypes'),
         children: entities
       }
@@ -95,27 +94,27 @@ const Library: FC<Props> = props => {
       setExpanded({ ...expanded, [path]: !expanded[path] })
     }
 
-    if (item.type === 'variable' && level !== 0) {
-      props.setActiveFormItem({ type: 'entity', data: props.entities.find(x => x.id === item.id) })
+    if (item.type === 'variableType' && level !== 0) {
+      props.setActiveFormItem({ type: 'variableType', data: props.entities.find(x => x.id === item.id) })
     }
   }
 
-  const newEntity = async (type: 'pattern' | 'list') => {
+  const newVarType = async (type: 'pattern' | 'list') => {
     const name = getNextName(`${type}-entity`, props.entities)
-    await createEntity({ id: name, name, type, occurrences: [] })
+    await createVarType({ id: name, name, type, occurrences: [] })
   }
 
-  const duplicateEntity = async (entityId: string) => {
+  const duplicateVarType = async (entityId: string) => {
     const original = props.entities.find(x => x.id === entityId)
     const name = getNextName(entityId, props.entities)
 
-    await createEntity({ ...original, id: name, name })
+    await createVarType({ ...original, id: name, name })
   }
 
-  const createEntity = async entity => {
+  const createVarType = async entity => {
     await axios.post(`${window.BOT_API_PATH}/nlu/entities`, entity)
     props.refreshEntities()
-    props.setActiveFormItem({ type: 'entity', data: entity })
+    props.setActiveFormItem({ type: 'variableType', data: entity })
   }
 
   const deleteEntity = async (entityId: string) => {
@@ -134,7 +133,7 @@ const Library: FC<Props> = props => {
 
     return (
       <Fragment>
-        <MenuItem id="btn-duplicate" label={lang.tr('duplicate')} onClick={() => duplicateEntity(id)} />
+        <MenuItem id="btn-duplicate" label={lang.tr('duplicate')} onClick={() => duplicateVarType(id)} />
         <MenuItem id="btn-delete" label={lang.tr('delete')} intent={Intent.DANGER} onClick={() => deleteEntity(id)} />
       </Fragment>
     )
@@ -170,21 +169,21 @@ const Library: FC<Props> = props => {
               />
             )}
 
-            {item.type === 'variable' && (
+            {item.type === 'variableType' && (
               <Fragment>
                 <Button
                   minimal
-                  onClick={async () => await newEntity('list')}
+                  onClick={async () => await newVarType('list')}
                   icon="plus"
                   className={style.addBtn}
-                  text={lang.tr('Add Enumeration')}
+                  text={lang.tr('studio.library.addEnum')}
                 />
                 <Button
                   minimal
-                  onClick={async () => await newEntity('pattern')}
+                  onClick={async () => await newVarType('pattern')}
                   icon="plus"
                   className={style.addBtn}
-                  text={lang.tr('Add Pattern')}
+                  text={lang.tr('studio.library.addPattern')}
                 />
               </Fragment>
             )}

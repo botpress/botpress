@@ -6,11 +6,11 @@ import ShortcutLabel from '~/ShortcutLabel'
 
 import AddButton from '../../Contents/Components/Fields/AddButton'
 
-import { SingleTag } from './SingleTag'
+import TagInputItem from './TagInputItem'
 
 export interface Item {
   name: string
-  synonyms: string[]
+  tags: string[]
 }
 
 const TagInputList = ({ onChange, placeholder, items, addBtnLabel }) => {
@@ -21,19 +21,20 @@ const TagInputList = ({ onChange, placeholder, items, addBtnLabel }) => {
     setLocalItems(items ?? [])
   }, [items])
 
-  const updateLocalItem = (index: number, item): void => {
-    if (item.name === '' && item.synonyms.length === 1) {
-      localItems[index] = { name: item.synonyms[0], synonyms: [] }
+  const updateLocalItem = (index: number, item: Item): void => {
+    const newItems = [...localItems]
+    if (item.name === '' && item.tags.length === 1) {
+      newItems[index] = { name: item.tags[0], tags: [] }
     } else {
-      localItems[index] = item
+      newItems[index] = item
     }
 
-    setLocalItems([...localItems])
+    setLocalItems(newItems)
   }
 
   const addItem = (): void => {
     focusedElement.current = localItems.length
-    setLocalItems([...localItems, { name: '', synonyms: [] }])
+    setLocalItems([...localItems, { name: '', tags: [] }])
   }
 
   const deleteItem = (index: number): void => {
@@ -49,7 +50,7 @@ const TagInputList = ({ onChange, placeholder, items, addBtnLabel }) => {
       addItem()
     }
 
-    const isLast = localItems?.[index]?.synonyms?.length === 0
+    const isLast = localItems?.[index]?.tags?.length === 0
     if (e.key === 'Backspace' && shouldDelete && isLast) {
       e.preventDefault()
       deleteItem(index)
@@ -59,8 +60,9 @@ const TagInputList = ({ onChange, placeholder, items, addBtnLabel }) => {
   return (
     <div>
       {localItems?.map((item, index) => (
-        <SingleTag
+        <TagInputItem
           item={item}
+          key={item.name}
           isFocused={focusedElement.current === index}
           onChange={item => updateLocalItem(index, item)}
           placeholder={placeholder}

@@ -43,7 +43,7 @@ const VariableForm: FC<Props> = props => {
   }
 
   const updateFormItem = (data: sdk.NLU.EntityDefinition) => {
-    props.setActiveFormItem({ type: 'entity', data })
+    props.setActiveFormItem({ type: 'variableType', data })
   }
 
   const allProps = { ...props, updateEntity, deleteEntity, updateFormItem }

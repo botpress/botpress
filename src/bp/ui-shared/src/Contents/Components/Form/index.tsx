@@ -325,6 +325,7 @@ const Form: FC<FormProps> = ({
           </Fragment>
         )
 
+      // TODO: Max's magic touch
       case 'tag-input':
         return (
           <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)} invalid={invalid}>

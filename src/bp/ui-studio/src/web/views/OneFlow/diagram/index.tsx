@@ -50,8 +50,8 @@ import { getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/reducers'
 import storage from '~/util/storage'
 import {
   defaultTransition,
-  DiagramManager,
   DIAGRAM_PADDING,
+  DiagramManager,
   nodeTypes,
   Point
 } from '~/views/FlowBuilder/diagram/manager'
@@ -867,13 +867,13 @@ class Diagram extends Component<Props> {
     const { node, index, data } = this.state.editingNodeItem || {}
     const formType: string = node?.nodeType || node?.type || this.state.editingNodeItem?.type
 
-    let editingNodeItem
+    let currentItem
     if (formType === 'say_something') {
-      editingNodeItem = node?.contents?.[index]
+      currentItem = node?.contents?.[index]
     } else if (formType === 'trigger') {
-      editingNodeItem = node?.conditions?.[index]
-    } else if (formType === 'entity') {
-      editingNodeItem = data
+      currentItem = node?.conditions?.[index]
+    } else if (formType === 'variableType') {
+      currentItem = data
     }
 
     const isQnA = this.props.selectedWorkflow === 'qna'
@@ -946,7 +946,7 @@ class Diagram extends Component<Props> {
               events={this.props.hints || []}
               contentLang={this.state.currentLang}
               editingContent={index}
-              formData={editingNodeItem || getEmptyContent(editingNodeItem)}
+              formData={currentItem || getEmptyContent(currentItem)}
               onUpdate={this.updateNodeContent.bind(this)}
               onUpdateVariables={this.addVariable}
               close={() => {
@@ -965,7 +965,7 @@ class Diagram extends Component<Props> {
               topicName={this.props.selectedTopic}
               variables={this.props.currentFlow?.variables}
               events={this.props.hints}
-              formData={editingNodeItem}
+              formData={currentItem}
               contentLang={this.state.currentLang}
               onUpdate={this.updateNodeCondition.bind(this)}
               onUpdateVariables={this.addVariable}
@@ -1015,11 +1015,11 @@ class Diagram extends Component<Props> {
               }}
             />
           )}
-          {formType === 'entity' && (
+          {formType === 'variableType' && (
             <VariableTypesForm
               contentLang={this.state.currentLang}
               customKey={data.id}
-              formData={editingNodeItem}
+              formData={currentItem}
               close={() => {
                 this.timeout = setTimeout(() => {
                   this.setState({ editingNodeItem: null })

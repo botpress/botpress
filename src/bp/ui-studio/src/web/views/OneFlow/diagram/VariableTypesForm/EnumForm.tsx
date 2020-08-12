@@ -57,6 +57,24 @@ const EnumForm: FC<Props> = ({
     }
   ]
 
+  const convertToTags = data => {
+    return {
+      ...data,
+      occurrences: data.occurrences.map(({ name, synonyms }) => ({ name, tags: synonyms }))
+    }
+  }
+
+  const convertFromTags = data => {
+    return {
+      ...data,
+      occurrences: data.occurrences.map(({ name, tags }) => ({ name, synonyms: tags }))
+    }
+  }
+
+  const onUpdate = data => {
+    updateFormItem(convertFromTags(data))
+  }
+
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={close}>
       <Fragment key={customKey}>
@@ -102,8 +120,8 @@ const EnumForm: FC<Props> = ({
               ]
             }
           ]}
-          formData={formData}
-          onUpdate={updateFormItem}
+          formData={convertToTags(formData)}
+          onUpdate={onUpdate}
         />
       </Fragment>
     </RightSidebar>

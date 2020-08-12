@@ -73,7 +73,7 @@ const PatternForm: FC<Props> = ({
     } catch (e) {
       setPatternValid(false)
     }
-  }, [pattern, matchCase, examples])
+  }, [pattern])
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {

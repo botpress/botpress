@@ -13,7 +13,7 @@ export interface FormProps {
   fields: FormField[]
   advancedSettings?: FormField[]
   formData?: FormData
-  onUpdate: (data: { [key: string]: string }) => void
+  onUpdate: (data: { [key: string]: any }) => void
   onUpdateVariables?: (variable: FlowVariable) => void
   variables?: FlowVariable[]
   invalidFields?: InvalidField[]
