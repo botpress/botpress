@@ -1,5 +1,6 @@
 import IntlMessageFormat from 'intl-messageformat'
-import { get, merge } from 'lodash'
+import get from 'lodash/get'
+import merge from 'lodash/merge'
 
 const defaultLocale = 'en'
 const translations = {}
