@@ -9,6 +9,7 @@ import _ from 'lodash'
 import { converseApiEvents } from '../converse'
 import { Hooks, HookService } from '../hook/hook-service'
 import { DialogStore } from '../middleware/dialog-store'
+import { addErrorToEvent } from '../middleware/event-collector'
 import { EventEngine } from '../middleware/event-engine'
 
 import { FlowError, ProcessingError, TimeoutNodeNotFound } from './errors'
@@ -143,11 +144,14 @@ export class DialogEngine {
         context.queue = undefined
 
         return this._transition(sessionId, event, destination).catch(err => {
-          event.state.__error = {
-            type: 'dialog-transition',
-            stacktrace: err.stacktrace || err.stack,
-            destination: destination
-          }
+          addErrorToEvent(
+            {
+              type: 'dialog-transition',
+              stacktrace: err.stacktrace || err.stack,
+              destination: destination
+            },
+            event
+          )
 
           const { onErrorFlowTo } = event.state.temp
           const errorFlow =
@@ -357,7 +361,7 @@ export class DialogEngine {
 
   protected async _transition(sessionId: string, event: IO.IncomingEvent, transitionTo: string) {
     let context: IO.DialogContext = event.state.context
-    if (!event.state.__error) {
+    if (!event.activeProcessing?.errors?.length) {
       this._detectInfiniteLoop(event.state.__stacktrace, event.botId)
     }
 
