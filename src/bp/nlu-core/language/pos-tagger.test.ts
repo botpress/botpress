@@ -33,6 +33,7 @@ describe('POS Tagger', () => {
       )
       const n_space = xseq.filter(t => isSpace(t)).length
 
+      // @ts-ignore
       const tags = tagSentence(mockedTagger as sdk.MLToolkit.CRF.Tagger, xseq)
       expect(mockedTagger.tag.mock.calls[0][0].length).toEqual(xseq.length - n_space)
       expect(tags.filter(t => isSpace(t)).length).toEqual(n_space)

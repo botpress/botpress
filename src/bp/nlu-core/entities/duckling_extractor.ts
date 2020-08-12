@@ -1,6 +1,6 @@
 import Axios, { AxiosInstance } from 'axios'
 import retry from 'bluebird-retry'
-import * as sdk from 'botpress/sdk'
+import { NLU } from 'botpress/sdk'
 import { ensureFile, pathExists, readJSON, writeJson } from 'fs-extra'
 import httpsProxyAgent from 'https-proxy-agent'
 import _ from 'lodash'
@@ -80,13 +80,13 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
   private static _cache: lru<string, EntityExtractionResult[]>
   private _cacheDumpEnabled = true
 
-  constructor(private readonly logger?: sdk.Logger) {}
+  constructor(private readonly logger?: NLU.Logger) {}
 
   public static get entityTypes(): string[] {
     return DucklingEntityExtractor.enabled ? DUCKLING_ENTITIES : []
   }
 
-  public static async configure(enabled: boolean, url: string, logger?: sdk.Logger) {
+  public static async configure(enabled: boolean, url: string, logger?: NLU.Logger) {
     if (enabled) {
       const proxyConfig = process.PROXY ? { httpsAgent: new httpsProxyAgent(process.PROXY) } : {}
       this.client = Axios.create({
@@ -99,12 +99,12 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
         await retry(async () => {
           const { data } = await this.client.get('/')
           if (data !== 'quack!') {
-            return logger && logger.warn(`Bad response from Duckling server ${DISABLED_MSG}`)
+            return logger && logger.warning(`Bad response from Duckling server ${DISABLED_MSG}`)
           }
           this.enabled = true
         }, RETRY_POLICY)
       } catch (err) {
-        logger && logger.attachError(err).warn(`Couldn't reach the Duckling server ${DISABLED_MSG}`)
+        logger && logger.warning(`Couldn't reach the Duckling server ${DISABLED_MSG}`, err)
       }
 
       this._cache = new lru<string, EntityExtractionResult[]>({
@@ -181,7 +181,7 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
       await ensureFile(CACHE_PATH)
       await writeJson(CACHE_PATH, DucklingEntityExtractor._cache.dump())
     } catch (err) {
-      this.logger?.error(`could not persist system entities cache, error ${err.message}`)
+      this.logger?.error(`could not persist system entities cache, error ${err.message}`, err)
       this._cacheDumpEnabled = false
     }
   }
@@ -232,7 +232,7 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
       }, RETRY_POLICY)
     } catch (err) {
       const error = err.response ? err.response.data : err
-      this.logger && this.logger.attachError(error).warn('Error extracting duckling entities')
+      this.logger && this.logger.warning('Error extracting duckling entities', error)
       return []
     }
   }

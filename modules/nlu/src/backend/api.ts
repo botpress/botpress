@@ -2,13 +2,9 @@ import * as sdk from 'botpress/sdk'
 import Joi from 'joi'
 import _ from 'lodash'
 
-import { createApi } from '../api'
-
 import { isOn as isAutoTrainOn, set as setAutoTrain } from './autoTrain'
-import Engine from './engine'
 import recommendations from './intents/recommendations'
 import legacyElectionPipeline from './legacy-election'
-import { crossValidate } from './tools/cross-validation'
 import { getTrainingSession } from './train-session-service'
 import { NLUState } from './typings'
 
@@ -24,22 +20,15 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
   router.get('/health', async (req, res) => {
     // When the health is bad, we'll refresh the status in case it changed (eg: user added languages)
-    const health = Engine.tools.getHealth()
+    const health = bp.NLU.Engine.getHealth()
     res.send(health)
   })
 
   router.post('/cross-validation/:lang', async (req, res) => {
-    const { botId, lang } = req.params
-
-    const api = await createApi(bp, botId)
-    const intentDefs = await api.fetchIntentsWithQNAs()
-    const entityDefs = await api.fetchEntities()
-
-    bp.logger.forBot(botId).info('Started cross validation')
-    const xValidationRes = await crossValidate(botId, intentDefs, entityDefs, lang, bp.logger)
-    bp.logger.forBot(botId).info('Finished cross validation', xValidationRes)
-
-    res.send(xValidationRes)
+    // there used to be a cross validation tool but I got rid of it when extracting standalone nlu
+    // the code is somewhere in the source control
+    // to find it back, juste git blame this comment
+    res.sendStatus(410)
   })
 
   router.get('/training/:language', async (req, res) => {

@@ -1,20 +1,19 @@
-import * as sdk from 'botpress/sdk'
-
-import { Config } from '../config'
+import { NLU } from 'botpress/sdk'
+import MLToolkit from 'ml/toolkit'
 
 import { DucklingEntityExtractor } from './entities/duckling_extractor'
 import LangProvider from './language/language-provider'
 import { getPOSTagger, tagSentence } from './language/pos-tagger'
-import { LanguageProvider, NLUHealth, NLUVersionInfo, Token2Vec, Tools } from './typings'
+import { LanguageProvider, NLUVersionInfo, Token2Vec, Tools } from './typings'
 
-const NLU_VERSION = '1.2.2'
+const NLU_VERSION = '1.3.0'
 
-const healthGetter = (languageProvider: LanguageProvider) => (): NLUHealth => {
+const healthGetter = (languageProvider: LanguageProvider) => (): NLU.Health => {
   const { validProvidersCount, validLanguages } = languageProvider.getHealth()
   return {
-    isEnabled: validProvidersCount > 0 && validLanguages.length > 0,
-    validProvidersCount,
-    validLanguages
+    isEnabled: validProvidersCount! > 0 && validLanguages!.length > 0,
+    validProvidersCount: validProvidersCount!,
+    validLanguages: validLanguages!
   }
 }
 
@@ -25,16 +24,14 @@ const versionGetter = (languageProvider: LanguageProvider) => (): NLUVersionInfo
   }
 }
 
-const initializeLanguageProvider = async (bp: typeof sdk) => {
-  const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
-
+const initializeLanguageProvider = async (config: NLU.Config, logger: NLU.Logger) => {
   try {
-    const languageProvider = await LangProvider.initialize(globalConfig.languageSources, bp.logger, NLU_VERSION)
+    const languageProvider = await LangProvider.initialize(config.languageSources, logger, NLU_VERSION)
     const getHealth = healthGetter(languageProvider)
     return { languageProvider, health: getHealth() }
   } catch (e) {
     if (e.failure && e.failure.code === 'ECONNREFUSED') {
-      bp.logger.error(`Language server can't be reached at address ${e.failure.address}:${e.failure.port}`)
+      logger.error(`Language server can't be reached at address ${e.failure.address}:${e.failure.port}`)
       if (!process.IS_FAILSAFE) {
         process.exit()
       }
@@ -43,19 +40,18 @@ const initializeLanguageProvider = async (bp: typeof sdk) => {
   }
 }
 
-const initDucklingExtractor = async (bp: typeof sdk): Promise<void> => {
-  const globalConfig = (await bp.config.getModuleConfig('nlu')) as Config
-  await DucklingEntityExtractor.configure(globalConfig.ducklingEnabled, globalConfig.ducklingURL, bp.logger)
+const initDucklingExtractor = async (config: NLU.Config, logger: NLU.Logger): Promise<void> => {
+  await DucklingEntityExtractor.configure(config.ducklingEnabled, config.ducklingURL, logger)
 }
 
-export async function initializeTools(bp: typeof sdk): Promise<Tools> {
-  await initDucklingExtractor(bp)
-  const { languageProvider } = await initializeLanguageProvider(bp)
-  const { MLToolkit: mlToolkit, logger } = bp
+export async function initializeTools(config: NLU.Config, logger: NLU.Logger): Promise<Tools> {
+  await initDucklingExtractor(config, logger)
+  const { languageProvider } = await initializeLanguageProvider(config, logger)
 
   return {
     partOfSpeechUtterances: (tokenUtterances: string[][], lang: string) => {
-      const tagger = getPOSTagger(lang, mlToolkit)
+      const tagger = getPOSTagger(lang, MLToolkit)
+      // @ts-ignore
       return tokenUtterances.map(tagSentence.bind(this, tagger))
     },
     tokenize_utterances: (utterances: string[], lang: string, vocab?: Token2Vec) =>
@@ -68,7 +64,7 @@ export async function initializeTools(bp: typeof sdk): Promise<Tools> {
     getHealth: healthGetter(languageProvider),
     getLanguages: () => languageProvider.languages,
     getVersionInfo: versionGetter(languageProvider),
-    mlToolkit,
+    mlToolkit: MLToolkit,
     duckling: new DucklingEntityExtractor(logger)
   }
 }

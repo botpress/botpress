@@ -96,6 +96,14 @@ const copyBinaries = () => {
   return gulp.src('src/bp/ml/bin/*.*').pipe(gulp.dest('./out/bp/ml/bin'))
 }
 
+const copyPreTrained = () => {
+  return gulp.src('src/bp/nlu-core/language/pre-trained/*').pipe(gulp.dest('./out/bp/nlu-core/language/pre-trained'))
+}
+
+const copyStopWords = () => {
+  return gulp.src('src/bp/nlu-core/language/stop-words/*').pipe(gulp.dest('./out/bp/nlu-core/language/stop-words'))
+}
+
 const checkTranslations = cb => {
   const reorder = process.argv.find(x => x.toLowerCase() === '--reorder')
   exec(`node build/check-translations.js ${reorder && '--reorder'}`, (err, stdout, stderr) => {
@@ -111,7 +119,9 @@ const build = () => {
     compileTypescript,
     buildSchemas,
     createOutputDirs,
-    copyBinaries
+    copyBinaries,
+    copyPreTrained,
+    copyStopWords
   ])
 }
 

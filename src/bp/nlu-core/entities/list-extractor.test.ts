@@ -5,7 +5,12 @@ import { makeTestUtterance } from '../utterance/utterance'
 import { parseUtterance } from '../utterance/utterance-parser'
 
 import { extractListEntities } from './custom-entity-extractor'
-import { FuzzyTolerance } from './validation'
+
+const FuzzyTolerance = {
+  Loose: 0.65,
+  Medium: 0.8,
+  Strict: 1
+}
 
 const T = (utterance: string): string[] => utterance.split(/( )/g)
 
@@ -53,8 +58,8 @@ describe('list entity extractor', () => {
   test('Sensitivity flag', () => {
     const utt = makeTestUtterance('YQB is as bad as that poisonous blueberry')
     const res = extractListEntities(utt, list_entities, false)
-    expect(res.find(e => e.type === 'fruit').sensitive).toBeTruthy()
-    expect(res.find(e => e.type === 'airport').sensitive).not.toBeTruthy()
+    expect(res.find(e => e.type === 'fruit')!.sensitive).toBeTruthy()
+    expect(res.find(e => e.type === 'airport')!.sensitive).not.toBeTruthy()
   })
 
   test('Data structure test', async () => {
@@ -177,8 +182,8 @@ function assertEntity(expression: string) {
 
     const conditions = strConds.name.split(' ')
 
-    const cases = []
-    let t: EntityExtractionResult = undefined
+    const cases: [string, number | string, number | string][] = []
+    let t: EntityExtractionResult | undefined = undefined
 
     for (const [name, value] of conditions.map(x => x.split(':'))) {
       if (name === 'qty') {

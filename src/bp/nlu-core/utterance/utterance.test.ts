@@ -1,3 +1,4 @@
+import { MLToolkit } from 'botpress/sdk'
 import _ from 'lodash'
 
 import { POSClass } from '../language/pos-tagger'
@@ -116,6 +117,7 @@ describe('UtteranceClass', () => {
       const utterance = new Utterance(TOKENS, VECTORS, POS_TAGS, 'en')
 
       expect(utterance.tokens[0].cluster).toEqual(1)
+
       const mockedKmeans = {
         nearest: jest
           .fn()
@@ -123,7 +125,8 @@ describe('UtteranceClass', () => {
           .mockReturnValue([2])
       }
 
-      utterance.setKmeans(mockedKmeans)
+      // @ts-ignore
+      utterance.setKmeans(mockedKmeans as MLToolkit.KMeans.KmeansResult)
       expect(utterance.tokens[0].cluster).toEqual(4)
       expect(mockedKmeans.nearest.mock.calls[0][0][0]).toEqual(VECTORS[0])
       expect(utterance.tokens[3].cluster).toEqual(2)
@@ -238,7 +241,7 @@ describe('UtteranceClass', () => {
       expect(u2.slots).toEqual([])
       expect(u2.entities).toEqual([])
       _.zip(utterance.tokens, u2.tokens).forEach(([t1, t2]) => {
-        Object.entries(_.omit(t1, 'slots', 'entities', 'toString')).forEach(([k, v]) => expect(v).toEqual(t2[k]))
+        Object.entries(_.omit(t1, 'slots', 'entities', 'toString')).forEach(([k, v]) => expect(v).toEqual(t2![k]))
       })
     })
 
@@ -249,7 +252,7 @@ describe('UtteranceClass', () => {
       expect(u2.entities).toEqual(utterance.entities)
       expect(u2.slots).toEqual([])
       _.zip(utterance.tokens, u2.tokens).forEach(([t1, t2]) => {
-        Object.entries(_.omit(t1, 'slots', 'toString')).forEach(([k, v]) => expect(v).toEqual(t2[k]))
+        Object.entries(_.omit(t1, 'slots', 'toString')).forEach(([k, v]) => expect(v).toEqual(t2![k]))
       })
     })
 
@@ -260,7 +263,7 @@ describe('UtteranceClass', () => {
       expect(u2.entities).toEqual([])
       expect(u2.slots).toEqual(utterance.slots)
       _.zip(utterance.tokens, u2.tokens).forEach(([t1, t2]) => {
-        Object.entries(_.omit(t1, 'entities', 'toString')).forEach(([k, v]) => expect(v).toEqual(t2[k]))
+        Object.entries(_.omit(t1, 'entities', 'toString')).forEach(([k, v]) => expect(v).toEqual(t2![k]))
       })
     })
 
@@ -271,7 +274,7 @@ describe('UtteranceClass', () => {
       expect(u2.entities).toEqual(utterance.entities)
       expect(u2.slots).toEqual(utterance.slots)
       _.zip(utterance.tokens, u2.tokens).forEach(([t1, t2]) => {
-        Object.entries(_.omit(t1, 'toString')).forEach(([k, v]) => expect(v).toEqual(t2[k]))
+        Object.entries(_.omit(t1, 'toString')).forEach(([k, v]) => expect(v).toEqual(t2![k]))
       })
     })
   })
@@ -281,6 +284,8 @@ describe('UtteranceClass', () => {
     //           0123456789012345678901234567
     const tokens = tokenizeLatinTextForTests(str)
     const fakeVectors = tokens.map(t => [])
+
+    // @ts-ignore
     const fakePOS = tokens.map(t => 'POS') as POSClass[]
     const defaultOptions = {
       entities: 'keep-default',

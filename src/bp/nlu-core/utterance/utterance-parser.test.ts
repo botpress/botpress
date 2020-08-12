@@ -50,7 +50,7 @@ describe('parse utterance', () => {
     expect(res.parts[0].slot).not.toBeDefined()
     expect(res.parts[1].text).toEqual('Alex')
     expect(res.parts[1].slot).toBeDefined()
-    expect(res.parts[1].slot.name).toEqual('you')
+    expect(res.parts[1].slot!.name).toEqual('you')
     expect(res.parts[2].text).toEqual(', big stuff coming.')
     expect(res.parts[2].slot).not.toBeDefined()
   })
