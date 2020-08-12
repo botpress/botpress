@@ -1,38 +1,45 @@
-import { MultiLangText } from 'botpress/sdk'
-import { get } from 'lodash'
-import { createIntl, createIntlCache, IntlShape } from 'react-intl'
+import IntlMessageFormat from 'intl-messageformat'
 
 import en from '../translations/en.json'
 import fr from '../translations/fr.json'
 
 const defaultLocale = 'en'
 const translations = { fr, en }
-
+let isDev: boolean
 let store: any
-let intl: IntlShape
-const cache = createIntlCache()
-let currentLocale = ''
 
-const langInit = () => {
-  const messages = squash(translations[currentLocale])
-  const defaultLang = squash(translations[defaultLocale])
-  for (const key in defaultLang) {
-    if (!messages[key]) {
-      messages[key] = defaultLang[key]
-    }
-  }
-
-  intl = createIntl(
-    {
-      locale: currentLocale,
-      messages,
-      defaultLocale
-    },
-    cache
-  )
+const track = (target: any) => {
+  store = target
+  init(translations, 'module.extensions.')
+  isDev = localStorage.getItem('langdebug') === 'true'
 }
 
-const squash = (space, root = {}, path = '') => {
+const init = (langs: { [lang: string]: any }, prefix?: string) => {
+  const defaultLang = squash(langs[defaultLocale], {}, prefix ?? '')
+
+  Object.keys(langs).map(lang => {
+    const messages = squash(langs[lang], {}, prefix ?? '')
+
+    for (const key in defaultLang) {
+      if (!messages[key]) {
+        messages[key] = defaultLang[key]
+      }
+    }
+
+    translations[lang] = messages
+  })
+}
+
+const tr = (key: string, values?: { [variable: string]: any }) => {
+  if (isDev) {
+    return key
+  }
+
+  const text = translations[store.botUILanguage]?.[key] || translations[defaultLocale][key]
+  return values ? new IntlMessageFormat(text, []).format(values) : text
+}
+
+const squash = (space, root = {}, path = ''): { [key: string]: string } => {
   for (const [key, value] of Object.entries(space)) {
     if (typeof value === 'object' && value !== null) {
       squash(value, root, path + key + '.')
@@ -43,24 +50,4 @@ const squash = (space, root = {}, path = '') => {
   return root
 }
 
-export const lang = {
-  tr: (id: string | MultiLangText, values?: { [variable: string]: any }): string => {
-    if (currentLocale != store.botUILanguage) {
-      currentLocale = store.botUILanguage
-      langInit()
-    }
-
-    if (!id) {
-      return ''
-    }
-
-    if (typeof id === 'object') {
-      return id[currentLocale] || id[defaultLocale] || ''
-    }
-
-    return intl.formatMessage({ id }, values)
-  },
-  set: (thestore: any) => {
-    store = thestore
-  }
-}
+export default { init, tr, track }

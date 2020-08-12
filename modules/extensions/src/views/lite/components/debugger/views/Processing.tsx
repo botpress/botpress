@@ -4,7 +4,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import React, { FC, Fragment, useState } from 'react'
 
-import { lang } from '../../../../lang'
+import lang from '../../../../lang'
 import style from '../style.scss'
 
 export const Processing: FC<{ processing: { [activity: string]: Date }; lang: string }> = props => {
@@ -33,12 +33,12 @@ export const Processing: FC<{ processing: { [activity: string]: Date }; lang: st
         if (isBeforeMW && item.type === 'mw') {
           isBeforeMW = false
         }
-        let name = lang.tr(`processing.${item.type}`)
+        let name = lang.tr(`module.extensions.processing.${item.type}`)
 
         if (isBeforeMW && item.type === 'hook') {
-          name = lang.tr('processing.beforeMW')
+          name = lang.tr('module.extensions.processing.beforeMW')
         } else if (!isBeforeMW && item.type === 'hook') {
-          name = lang.tr('processing.afterMW')
+          name = lang.tr('module.extensions.processing.afterMW')
         }
         acc = acc.concat({ type: item.type, name, subItems: [item] })
       }
@@ -62,7 +62,9 @@ export const Processing: FC<{ processing: { [activity: string]: Date }; lang: st
             {/* TODO implement info box https://zpl.io/aMAOxZr
             <span className={style.infoBox}></span>
           */}
-            <span className={style.time}>{lang.tr('processing.executedIn', { n: item.execTime || 0 })}</span>
+            <span className={style.time}>
+              {lang.tr('module.extensions.processing.executedIn', { n: item.execTime || 0 })}
+            </span>
           </span>
         )}
       </Fragment>
