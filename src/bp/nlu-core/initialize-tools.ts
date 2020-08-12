@@ -1,0 +1,69 @@
+import { NLU } from 'botpress/sdk'
+import MLToolkit from 'ml/toolkit'
+
+import { DucklingEntityExtractor } from './entities/duckling_extractor'
+import LangProvider from './language/language-provider'
+import { getPOSTagger, tagSentence } from './language/pos-tagger'
+import { LanguageProvider, NLUVersionInfo, Token2Vec, Tools } from './typings'
+
+const NLU_VERSION = '1.3.0'
+
+const healthGetter = (languageProvider: LanguageProvider) => (): NLU.Health => {
+  const { validProvidersCount, validLanguages } = languageProvider.getHealth()
+  return {
+    isEnabled: validProvidersCount! > 0 && validLanguages!.length > 0,
+    validProvidersCount: validProvidersCount!,
+    validLanguages: validLanguages!
+  }
+}
+
+const versionGetter = (languageProvider: LanguageProvider) => (): NLUVersionInfo => {
+  return {
+    nluVersion: NLU_VERSION,
+    langServerInfo: languageProvider.langServerInfo
+  }
+}
+
+const initializeLanguageProvider = async (config: NLU.Config, logger: NLU.Logger) => {
+  try {
+    const languageProvider = await LangProvider.initialize(config.languageSources, logger, NLU_VERSION)
+    const getHealth = healthGetter(languageProvider)
+    return { languageProvider, health: getHealth() }
+  } catch (e) {
+    if (e.failure && e.failure.code === 'ECONNREFUSED') {
+      logger.error(`Language server can't be reached at address ${e.failure.address}:${e.failure.port}`)
+      if (!process.IS_FAILSAFE) {
+        process.exit()
+      }
+    }
+    throw e
+  }
+}
+
+const initDucklingExtractor = async (config: NLU.Config, logger: NLU.Logger): Promise<void> => {
+  await DucklingEntityExtractor.configure(config.ducklingEnabled, config.ducklingURL, logger)
+}
+
+export async function initializeTools(config: NLU.Config, logger: NLU.Logger): Promise<Tools> {
+  await initDucklingExtractor(config, logger)
+  const { languageProvider } = await initializeLanguageProvider(config, logger)
+
+  return {
+    partOfSpeechUtterances: (tokenUtterances: string[][], lang: string) => {
+      const tagger = getPOSTagger(lang, MLToolkit)
+      return tokenUtterances.map(u => tagSentence(tagger, u))
+    },
+    tokenize_utterances: (utterances: string[], lang: string, vocab?: Token2Vec) =>
+      languageProvider.tokenize(utterances, lang, vocab),
+    vectorize_tokens: async (tokens, lang) => {
+      const a = await languageProvider.vectorize(tokens, lang)
+      return a.map(x => Array.from(x.values()))
+    },
+    generateSimilarJunkWords: (vocab: string[], lang: string) => languageProvider.generateSimilarJunkWords(vocab, lang),
+    getHealth: healthGetter(languageProvider),
+    getLanguages: () => languageProvider.languages,
+    getVersionInfo: versionGetter(languageProvider),
+    mlToolkit: MLToolkit,
+    duckling: new DucklingEntityExtractor(logger)
+  }
+}

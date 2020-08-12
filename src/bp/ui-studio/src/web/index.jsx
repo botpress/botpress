@@ -62,4 +62,9 @@ if (!window.BOT_ID) {
   )
 }
 
-telemetry.startFallback(axios.create({ baseURL: window.API_PATH })).catch()
+if (window.SEND_USAGE_STATS) {
+  telemetry
+    .startFallback(axios.create({ baseURL: window.API_PATH }))
+    .then(res => {})
+    .catch(err => {})
+}

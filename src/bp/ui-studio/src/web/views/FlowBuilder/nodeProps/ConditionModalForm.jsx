@@ -426,7 +426,7 @@ class ConditionModalForm extends Component {
 }
 
 const mapStateToProps = state => ({
-  intents: state.skills.intents
+  intents: state.nlu.intents
 })
 
 export default connect(mapStateToProps, undefined)(ConditionModalForm)

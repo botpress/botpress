@@ -8,6 +8,7 @@ declare global {
     APP_FAVICON: string
     APP_CUSTOM_CSS: string
     ROOT_PATH: string
+    SEND_USAGE_STATS: boolean
     TELEMETRY_URL: string
   }
 }

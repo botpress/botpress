@@ -1,9 +1,10 @@
 import { AxiosError } from 'axios'
-import { Logger, LoggerEntry, LoggerLevel, LoggerListener, LogLevel } from 'botpress/sdk'
+import { IO, Logger, LoggerEntry, LoggerLevel, LoggerListener, LogLevel } from 'botpress/sdk'
 import chalk from 'chalk'
 import { Metric } from 'common/monitoring'
 import { IDisposable } from 'core/misc/disposable'
 import { BotService } from 'core/services/bot-service'
+import { addLogToEvent } from 'core/services/middleware/event-collector'
 import { incrementMetric } from 'core/services/monitoring'
 import { InvalidParameterError } from 'errors'
 import { EventEmitter2 } from 'eventemitter2'
@@ -46,6 +47,7 @@ export class PersistedConsoleLogger implements Logger {
   private willPersistMessage: boolean = true
   private emitLogStream = true
   private serverHostname: string = ''
+  private event?: IO.Event
 
   private static LogStreamEmitter: EventEmitter2 = new EventEmitter2({
     delimiter: '::',
@@ -90,6 +92,11 @@ export class PersistedConsoleLogger implements Logger {
 
   level(level: LogLevel): this {
     this.currentMessageLevel = level
+    return this
+  }
+
+  attachEvent(event: IO.Event): this {
+    this.event = event
     return this
   }
 
@@ -202,6 +209,10 @@ export class PersistedConsoleLogger implements Logger {
       this.willPersistMessage = true
     }
 
+    if (this.event) {
+      addLogToEvent(`[${level}] ${indentedMessage}`, this.event)
+    }
+
     if (this.displayLevel >= this.currentMessageLevel!) {
       console.log(
         chalk`{grey ${time}} {${this.colors[level]}.bold ${displayName}} ${indentedMessage}${serializedMetadata}`
@@ -214,6 +225,7 @@ export class PersistedConsoleLogger implements Logger {
     this.botId = undefined
     this.attachedError = undefined
     this.emitLogStream = true
+    this.event = undefined
   }
 
   debug(message: string, metadata?: any): void {
