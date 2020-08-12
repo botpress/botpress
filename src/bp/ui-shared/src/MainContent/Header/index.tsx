@@ -1,8 +1,9 @@
-import { Alignment, AnchorButton, Navbar, NavbarGroup, Position, Tab, Tabs, Tooltip } from '@blueprintjs/core'
+import { Alignment, AnchorButton, Navbar, NavbarGroup, Position, Tab, Tabs } from '@blueprintjs/core'
 import cx from 'classnames'
 import React, { FC, Fragment, SetStateAction, useState } from 'react'
 
 import MoreOptions from '../../../../ui-shared-lite/MoreOptions'
+import ToolTip from '../../../../ui-shared-lite/ToolTip'
 
 import style from './style.scss'
 import { HeaderProps } from './typings'
@@ -24,9 +25,9 @@ const Header: FC<HeaderProps> = props => {
         <NavbarGroup className={style.buttons} align={Alignment.RIGHT}>
           {props.buttons.map((button, index) => (
             <div key={index} className={style.btnWrapper}>
-              <Tooltip position={Position.BOTTOM} content={button.tooltip}>
-                <Fragment>
-                  {!button.optionsItems?.length && (
+              <Fragment>
+                {!button.optionsItems?.length && (
+                  <ToolTip position="bottom" content={button.tooltip}>
                     <AnchorButton
                       minimal
                       small
@@ -34,10 +35,12 @@ const Header: FC<HeaderProps> = props => {
                       icon={button.icon}
                       disabled={button.disabled}
                     />
-                  )}
-                  {!!button.optionsItems?.length && (
-                    <MoreOptions
-                      element={
+                  </ToolTip>
+                )}
+                {!!button.optionsItems?.length && (
+                  <MoreOptions
+                    element={
+                      <ToolTip position="bottom" content={button.tooltip}>
                         <AnchorButton
                           minimal
                           small
@@ -46,14 +49,14 @@ const Header: FC<HeaderProps> = props => {
                           icon={button.icon}
                           disabled={button.disabled}
                         />
-                      }
-                      show={showingOption === index}
-                      onToggle={() => setShowingOption(undefined)}
-                      items={button.optionsItems}
-                    />
-                  )}
-                </Fragment>
-              </Tooltip>
+                      </ToolTip>
+                    }
+                    show={showingOption === index}
+                    onToggle={() => setShowingOption(undefined)}
+                    items={button.optionsItems}
+                  />
+                )}
+              </Fragment>
             </div>
           ))}
         </NavbarGroup>

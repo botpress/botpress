@@ -103,6 +103,7 @@ declare module 'botpress/sdk' {
   export interface Logger {
     forBot(botId: string): this
     attachError(error: Error): this
+    attachEvent(event: IO.Event): this
     persist(shouldPersist: boolean): this
     level(level: LogLevel): this
     noEmit(): this
@@ -603,7 +604,12 @@ declare module 'botpress/sdk' {
       [context: string]: {
         confidence: number
         oos: number
-        intents: { label: string; confidence: number; slots: SlotCollection }[]
+        intents: {
+          label: string
+          confidence: number
+          slots: SlotCollection
+          extractor: 'exact-matcher' | 'classifier'
+        }[]
       }
     }
   }
@@ -716,9 +722,10 @@ declare module 'botpress/sdk' {
       readonly credentials?: any
       /** When false, some properties used by the debugger are stripped from the event before storing */
       debugger?: boolean
+      activeProcessing?: ProcessingEntry
       /** Track processing steps during the lifetime of the event  */
       processing?: {
-        [activity: string]: Date
+        [activity: string]: ProcessingEntry
       }
       /**
        * Check if the event has a specific flag
@@ -734,8 +741,12 @@ declare module 'botpress/sdk' {
        * @example event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
        */
       setFlag(flag: symbol, value: boolean): void
-      /** Add a new step to the processing of this event (with timestamp) */
-      addStep(step: string): void
+    }
+
+    interface ProcessingEntry {
+      logs?: string[]
+      errors?: EventError[]
+      date?: Date
     }
 
     /**
@@ -838,8 +849,6 @@ declare module 'botpress/sdk' {
        * This includes all the flow/nodes which were traversed for the current event
        */
       __stacktrace: JumpPoint[]
-      /** Contains details about an error that occurred while processing the event */
-      __error?: EventError
     }
 
     export interface PromptStatus {
@@ -913,6 +922,7 @@ declare module 'botpress/sdk' {
       hasJumped?: boolean
       /** The status of the current active prompt */
       activePrompt?: PromptStatus
+      inputs?: { [variable: string]: SubWorkflowInput }
     }
 
     export interface CurrentSession {
@@ -1331,10 +1341,6 @@ declare module 'botpress/sdk' {
 
   export interface FlowVariable {
     type: string
-    name: string
-    isInput?: boolean
-    isOutput?: boolean
-    description?: string
     params?: any
   }
 
@@ -1435,6 +1441,7 @@ declare module 'botpress/sdk' {
     | 'skill-call'
     | 'listen'
     | 'say_something'
+    | 'sub-workflow'
     | 'success'
     | 'failure'
     | 'trigger'
@@ -1444,16 +1451,29 @@ declare module 'botpress/sdk' {
     | 'prompt'
 
   export type FlowNode = {
+    /** An auto-generated ID used internally for the flow builder */
     id?: string
+    /** The name used by the dialog engine to link to other nodes */
     name: string
     type?: FlowNodeType
     timeoutNode?: string
     flow?: string
     prompt?: PromptNode
+    subflow?: SubWorkflowNode
     isNew?: boolean
     /** Used internally by the flow editor */
     readonly lastModified?: Date
   } & NodeActions
+
+  export interface SubWorkflowNode {
+    in: { [variable: string]: SubWorkflowInput }
+    out: { [variable: string]: string }
+  }
+
+  export interface SubWorkflowInput {
+    source: 'variable' | 'hardcoded'
+    value: any
+  }
 
   export type TriggerNode = FlowNode & {
     conditions: DecisionTriggerCondition[]
@@ -1494,7 +1514,7 @@ declare module 'botpress/sdk' {
   }
 
   interface FormOption {
-    value: string
+    value: any
     label: string
     related?: FormField
   }
@@ -1528,6 +1548,8 @@ declare module 'botpress/sdk' {
     | 'upload'
     | 'url'
     | 'hidden'
+    | 'tag-input'
+    | 'variable'
 
   export interface FormField {
     type: FormFieldType
@@ -1539,7 +1561,12 @@ declare module 'botpress/sdk' {
     defaultValue?: FormDataField
     required?: boolean
     variableTypes?: string[]
+    defaultVariableType?: string
     superInput?: boolean
+    superInputOptions?: {
+      canPickEvents?: boolean
+      canPickVariables?: boolean
+    }
     max?: number
     min?: number
     maxLength?: number
@@ -1552,6 +1579,8 @@ declare module 'botpress/sdk' {
     dynamicOptions?: FormDynamicOptions
     fields?: FormField[]
     moreInfo?: FormMoreInfo
+    /** When specified, indicate if array elements match the provided pattern */
+    validationPattern?: RegExp
     group?: {
       /** You have to specify the add button label */
       addLabel?: string

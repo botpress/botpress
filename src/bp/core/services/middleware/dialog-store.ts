@@ -88,7 +88,7 @@ export class DialogStore {
   }
 
   public getVariableConfig(botId: string, wfName: string, varName: string): sdk.FlowVariable | undefined {
-    return this._wfVariables[botId]?.[wfName]?.find(x => x.name === varName)
+    return this._wfVariables[botId]?.[wfName]?.find(x => x.params?.name === varName)
   }
 
   public getPromptConfig(type: string): sdk.PromptConfig | undefined {

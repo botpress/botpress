@@ -203,7 +203,7 @@ async function isRunningFromSources(bp: typeof sdk, botId: string): Promise<stri
     }
 
     const sourceDirectory = path.resolve(process.PROJECT_LOCATION, '../..')
-    const botTemplatesPath = path.resolve(sourceDirectory, `./modules/nlu-testing/src/bot-templates`)
+    const botTemplatesPath = path.resolve(sourceDirectory, './modules/nlu-testing/src/bot-templates')
     const childDirs = fs.readdirSync(botTemplatesPath)
 
     const botTemplateUnderTesting = childDirs.find(template => {
@@ -235,7 +235,8 @@ async function runTest(test: Test, axiosConfig: AxiosRequestConfig): Promise<Tes
   )
 
   const conditionMatcher = test.context === '*' ? conditionMatchNDU : conditionMatch
-  const details = test.conditions.map(c => conditionMatcher(nlu, c, test.context))
+  let details = test.conditions.map(c => conditionMatcher(nlu, c, test.context))
+  details = [...details, checkSlotsCount(nlu, test.conditions)] // assert exactly N slots where extracted
 
   return {
     nlu,
@@ -315,7 +316,7 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
       reason: success
         ? ''
         : `Context doesn't match. \nexpected: ${expected} \nreceived: ${received} \nconfidence: ${conf}`,
-      received: received,
+      received,
       expected
     }
   }
@@ -358,6 +359,21 @@ function checkSlotMatch(nlu, slotName, expected) {
   return {
     success,
     reason: success ? '' : `Slot ${slotName} doesn't match. \nexpected: ${expected} \nreceived: ${received}`,
+    received,
+    expected
+  }
+}
+
+function checkSlotsCount(nlu: sdk.IO.EventUnderstanding, conditions: Condition[]): TestResultDetails {
+  const expectedCount = conditions.filter(c => c[0].includes('slot')).length
+  const receivedCount = Object.keys(nlu.slots ?? {}).length
+  const success = expectedCount === receivedCount
+
+  const expected = `${expectedCount}`
+  const received = `${receivedCount}`
+  return {
+    success,
+    reason: success ? '' : `Slot count doesn't match. \nexpected: ${expected} \nreceived: ${received}`,
     received,
     expected
   }

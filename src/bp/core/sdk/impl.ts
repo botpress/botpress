@@ -49,7 +49,8 @@ export class IOEvent implements sdk.IO.Event {
   public readonly debugger?: boolean
   private readonly flags: any
   private readonly nlu?: sdk.IO.EventUnderstanding
-  public processing?: { [activity: string]: Date }
+  public readonly activeProcessing?: sdk.IO.ProcessingEntry
+  public processing?: { [activity: string]: sdk.IO.ProcessingEntry }
   private readonly ndu?: sdk.NDU.DialogUnderstanding
 
   constructor(args: sdk.IO.EventCtorArgs) {
@@ -78,6 +79,8 @@ export class IOEvent implements sdk.IO.Event {
     if (this.direction === 'outgoing') {
       this.incomingEventId = args.incomingEventId
     }
+
+    this.activeProcessing = {}
 
     this.nlu = {
       entities: [],
@@ -108,10 +111,6 @@ export class IOEvent implements sdk.IO.Event {
     }
 
     return this.payload.__preview || this.payload.preview || this.payload.text
-  }
-
-  public addStep(step: string) {
-    this.processing = { ...(this.processing || {}), [step]: new Date() }
   }
 }
 

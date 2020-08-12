@@ -57,7 +57,7 @@ export const TestModal: FC<Props> = props => {
     const { expectedCtx, expectedIntent, slotConditions: slotsConds, testingCtx: context, utterance } = state
 
     const conditions = [
-      ['context', 'is', expectedCtx],
+      expectedCtx ? ['context', 'is', expectedCtx] : [],
       expectedIntent?.name ? ['intent', 'is', expectedIntent.name] : [],
       ..._.toPairs(slotsConds)
         .filter(([_, value]) => !!value)

@@ -28,7 +28,6 @@ const FlowTools: FC<{ skills: SkillDefinition[] }> = props => {
         <ToolItem label={lang.tr('studio.flow.sidePanel.node')} type="node" id="standard" icon="chat" />
         <ToolItem label={lang.tr('say')} type="node" id="say_something" icon="comment" />
         <ToolItem label={lang.tr('execute')} type="node" id="execute" icon="code-block" />
-        <ToolItem label={lang.tr('listen')} type="node" id="listen" icon="hand" />
         <ToolItem label={lang.tr('router')} type="node" id="router" icon="search-around" />
         <ToolItem label={lang.tr('action')} type="node" id="action" icon="offline" />
         <AccessControl resource="bot.skills" operation="write">

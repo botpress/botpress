@@ -113,6 +113,12 @@ const FlowBuilder = (props: Props) => {
   }, [props.flowsByName, props.currentFlow])
 
   const pushFlowState = flow => props.history.push(`/oneflow/${flow.replace(/\.flow\.json/i, '')}`)
+  const pathName = window.location.pathname.split('/')
+  const currentWorkflow = pathName.pop()
+  let currentTopic = pathName.pop()
+  const isQna = currentWorkflow === 'qna'
+
+  currentTopic = currentTopic === 'oneflow' ? '' : currentTopic
 
   const keyHandlers = {
     add: e => {
@@ -121,11 +127,15 @@ const FlowBuilder = (props: Props) => {
     },
     undo: e => {
       e.preventDefault()
-      props.flowEditorUndo()
+      if (!isQna) {
+        props.flowEditorUndo()
+      }
     },
     redo: e => {
       e.preventDefault()
-      props.flowEditorRedo()
+      if (!isQna) {
+        props.flowEditorRedo()
+      }
     },
     find: e => {
       e.preventDefault()
@@ -162,12 +172,6 @@ const FlowBuilder = (props: Props) => {
     diagram.current.createFlow(name)
     props.switchFlow(`${name}.flow.json`)
   }
-
-  const pathName = window.location.pathname.split('/')
-  const currentWorkflow = pathName.pop()
-  let currentTopic = pathName.pop()
-
-  currentTopic = currentTopic === 'oneflow' ? '' : currentTopic
 
   return (
     <MainContainer keyHandlers={keyHandlers}>

@@ -10,7 +10,7 @@ import { getUtteranceFeatures } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import { ExactMatchIndex, EXACT_MATCH_STR_OPTIONS, TrainOutput } from './training-pipeline'
-import { EntityExtractionResult, ExtractedEntity, Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
+import { EntityExtractionResult, ExtractedEntity, PatternEntity, SlotExtractionResult, Tools } from './typings'
 import Utterance, { buildUtteranceBatch, getAlternateUtterance, UtteranceEntity } from './utterance/utterance'
 
 export type ExactMatchResult = (sdk.MLToolkit.SVM.Prediction & { extractor: 'exact-matcher' }) | undefined
@@ -212,7 +212,10 @@ async function predictContext(input: PredictStep, predictors: Predictors): Promi
     return {
       ...input,
       ctx_predictions: [
-        { label: input.includedContexts.length ? input.includedContexts[0] : DEFAULT_CTX, confidence: 1 }
+        {
+          label: input.includedContexts.length ? input.includedContexts[0] : DEFAULT_CTX,
+          confidence: 1
+        }
       ]
     }
   }
@@ -231,7 +234,7 @@ async function predictContext(input: PredictStep, predictors: Predictors): Promi
         .groupBy('label')
         .mapValues(gr => _.meanBy(gr, 'confidence'))
         .toPairs()
-        .map(([label, confidence]) => ({ label, confidence }))
+        .map(([label, confidence]) => ({ label, confidence, extractor: 'classifier' }))
         .value()
     }
   }
@@ -395,15 +398,18 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
     const intents = !intentPred
       ? []
       : intentPred.map(i => ({
+          extractor: 'classifier', // exact-matcher overwrites this field in line below
           ...i,
           slots: (step.slot_predictions_per_intent![i.label] || []).reduce(slotsCollectionReducer, {})
         }))
+
+    const includeOOS = !intents.filter(x => x.extractor === 'exact-matcher').length
 
     return {
       ...preds,
       [label]: {
         confidence,
-        oos: step.oos_predictions![label] || 0,
+        oos: includeOOS ? step.oos_predictions![label] || 0 : 0,
         intents
       }
     }

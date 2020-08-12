@@ -13,18 +13,42 @@
 .textareaWrapper {
   position: relative;
 
+  .icon {
+    position: absolute;
+    right: 0;
+    top: 15px;
+
+    svg {
+      height: 10px;
+    }
+  }
+
+  .error {
+    svg {
+      fill: var(--lighthouse) !important;
+    }
+  }
+
+  .success {
+    svg {
+      fill: var(--success) !important;
+    }
+  }
+
   &:first-of-type {
     margin-top: var(--spacing-small);
   }
 
   &:focus-within {
     & + .textareaWrapper {
-      .textarea, .contentAnswer {
+      .textarea,
+      .contentAnswer {
         border-top-color: transparent;
       }
     }
 
-    .textarea, .contentAnswer {
+    .textarea,
+    .contentAnswer {
       border-top-color: var(--ocean);
       border-bottom-color: var(--ocean);
 

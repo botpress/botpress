@@ -1,6 +1,7 @@
 {
   "composer.dropdownPlaceholder": "Select a choice",
   "composer.placeholder": "Reply to {name}",
+  "composer.quickReplyLabel": "Select one of these options",
   "composer.message": "Message to send",
   "composer.send": "Send",
   "footer.poweredBy": "We're {icon} by {link}",

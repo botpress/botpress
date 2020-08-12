@@ -3,8 +3,9 @@ import * as sdk from 'botpress/sdk'
 import { FlowPoint, FlowView, NodeProblem } from 'common/typings'
 import _ from 'lodash'
 import { createAction } from 'redux-actions'
+import { FlowReducer } from '~/reducers/flows'
 
-import { getDeletedFlows, getDirtyFlows, getModifiedFlows, getNewFlows } from '../reducers/selectors'
+import { getCallerFlows, getDeletedFlows, getDirtyFlows, getModifiedFlows, getNewFlows } from '../reducers/selectors'
 
 import { FlowsAPI } from './api'
 import BatchRunner from './BatchRunner'
@@ -169,6 +170,21 @@ export const duplicateFlow: (flow: { flowNameToDuplicate: string; name: string }
   }
 )
 
+export const requestRefreshCallerFlows = createAction('FLOWS/REFRESH_PARENT_FLOW')
+
+const updateCallerFlows = async (_payload, state) => {
+  const flows = <FlowReducer>state.flows
+  const callerFlows = getCallerFlows(state)
+
+  const promises = callerFlows.map(x => FlowsAPI.updateFlow(flows, x.name))
+  return Promise.all(promises)
+}
+
+export const refreshCallerFlows: (currentFlow?: string) => void = wrapAction(
+  requestRefreshCallerFlows,
+  updateCallerFlows
+)
+
 export type AllPartialNode = (Partial<sdk.FlowNode> | Partial<sdk.TriggerNode> | Partial<sdk.ListenNode>) &
   Partial<FlowPoint>
 
@@ -240,7 +256,7 @@ export const fetchContentCategories = () => dispatch =>
 
 export const receiveContentItems = createAction('CONTENT/ITEMS/RECEIVE')
 export const fetchContentItems = ({ contentType, ...query }) => dispatch => {
-  const type = contentType && contentType != 'all' ? `${contentType}/` : ''
+  const type = contentType && contentType !== 'all' ? `${contentType}/` : ''
 
   return axios
     .post(`${window.BOT_API_PATH}/content/${type}elements`, query)
@@ -387,7 +403,7 @@ export const requestEditSkill = nodeId => (dispatch, getState) => {
       editSkill({
         skillId: node.skill,
         flowName: node.flow,
-        nodeId: nodeId,
+        nodeId,
         data: flow.skillData
       })
     )
@@ -425,6 +441,14 @@ export const refreshIntents = () => dispatch => {
   // tslint:disable-next-line: no-floating-promises
   axios.get(`${window.BOT_API_PATH}/nlu/intents`).then(({ data }) => {
     dispatch(intentsReceived(data))
+  })
+}
+
+export const entitiesReceived = createAction('ENTITIES/RECEIVED')
+export const refreshEntities = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.get(`${window.BOT_API_PATH}/nlu/entities`).then(({ data }) => {
+    dispatch(entitiesReceived(data))
   })
 }
 
@@ -504,5 +528,18 @@ export const fetchPrompts = () => dispatch => {
   // tslint:disable-next-line: no-floating-promises
   axios.get(`${window.API_PATH}/modules/prompts`).then(({ data }) => {
     dispatch(promptsReceived(data))
+  })
+}
+
+export const setActiveFormItem = createAction('FLOWS/ACTIVE_FORM_ITEM')
+
+export const deleteEntity = entityId => () =>
+  axios.post(`${window.BOT_API_PATH}/nlu/entities/${entityId}/delete`, entityId)
+
+export const variablesReceived = createAction('VARIABLES/RECEIVED')
+export const fetchVariables = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.get(`${window.API_PATH}/modules/variables`).then(({ data }) => {
+    dispatch(variablesReceived(data))
   })
 }
