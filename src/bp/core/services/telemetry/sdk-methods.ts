@@ -91,11 +91,13 @@ export class SDKStats extends TelemetryStats {
     return { global, perBots }
   }
 
-  private botActionsReducer(rootFolder: string): (acc: ParsedFile[], botId: string) => Promise<ParsedFile[]> {
-    return async (acc, botId) => {
+  private botActionsReducer(
+    rootFolder: string
+  ): (parsedFilesAcc: ParsedFile[], botId: string) => Promise<ParsedFile[]> {
+    return async (parsedFilesAcc, botId) => {
       const botActionsNames = await this.ghostService.forBot(botId).directoryListing(`/${rootFolder}`, '*.js')
       const parsedFiles = await Promise.map(botActionsNames, this.parseFile(`/${rootFolder}`, { botId }))
-      return [...acc, ...parsedFiles]
+      return [...parsedFilesAcc, ...parsedFiles]
     }
   }
 
@@ -107,14 +109,14 @@ export class SDKStats extends TelemetryStats {
     return { global, perBots }
   }
 
-  private botHooksReducer(): (acc: ParsedFile[], botHooks: BotHooks) => Promise<ParsedFile[]> {
-    return async (acc, botHooks: BotHooks) => {
+  private botHooksReducer(): (parsedFilesAcc: ParsedFile[], botHooks: BotHooks) => Promise<ParsedFile[]> {
+    return async (parsedFilesAcc, botHooks: BotHooks) => {
       const { botId, hooks } = botHooks
       const parsedFiles = await this.parseHooks(
         hooks.filter(hook => hook.type === 'custom'),
         botId
       )
-      return [...acc, ...parsedFiles]
+      return [...parsedFilesAcc, ...parsedFiles]
     }
   }
 
@@ -145,7 +147,7 @@ export class SDKStats extends TelemetryStats {
     return _.map(sdkFunctions, (count, fn) => {
       const [, ...namespace] = fn.split('.')
       const functionName = namespace.pop() || ''
-      return { namespace: namespace.join('.'), function: functionName, count }
+      return { namespace: namespace.join('.') || '', function: functionName, count }
     })
   }
 
