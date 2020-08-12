@@ -47,6 +47,7 @@ import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { toastSuccess } from '~/components/Shared/Utils'
 import withLanguage from '~/components/Util/withLanguage'
 import {
+  getAllFlows,
   getCallerFlowsOutcomeUsage,
   getCurrentFlow,
   getCurrentFlowNode,
@@ -75,6 +76,7 @@ import ConditionForm from './ConditionForm'
 import ContentForm from './ContentForm'
 import ExecuteForm from './ExecuteForm'
 import PromptForm from './PromptForm'
+import SubworkflowForm from './SubworkflowForm'
 import Toolbar from './Toolbar'
 import VariablesEditor from './VariablesEditor'
 import WorkflowToolbar from './WorkflowToolbar'
@@ -926,6 +928,8 @@ class Diagram extends Component<Props> {
       editingNodeItem = node?.contents?.[index]
     } else if (formType === 'trigger') {
       editingNodeItem = node?.conditions?.[index]
+    } else if (formType === 'sub-workflow') {
+      editingNodeItem = index ? 'out' : 'in'
     }
 
     const isQnA = this.props.selectedWorkflow === 'qna'
@@ -1067,6 +1071,19 @@ class Diagram extends Component<Props> {
               }}
             />
           )}
+          {formType === 'sub-workflow' && (
+            <SubworkflowForm
+              node={this.props.currentFlowNode}
+              diagramEngine={this.diagramEngine}
+              flows={this.props.flows}
+              type={editingNodeItem}
+              close={() => {
+                this.timeout = setTimeout(() => {
+                  this.setState({ editingNodeItem: null })
+                }, 200)
+              }}
+            />
+          )}
         </MainContent.Wrapper>
       </Fragment>
     )
@@ -1075,6 +1092,7 @@ class Diagram extends Component<Props> {
 
 const mapStateToProps = (state: RootReducer) => ({
   currentFlow: getCurrentFlow(state),
+  flows: getAllFlows(state),
   reusableFlows: getReusableWorkflows(state),
   outcomeUsage: getCallerFlowsOutcomeUsage(state),
   currentFlowNode: getCurrentFlowNode(state),
