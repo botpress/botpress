@@ -73,6 +73,7 @@ const EnumForm: FC<Props> = ({
   }
 
   const onUpdate = data => {
+    console.log('DATA', data)
     const allSynonymsForEntity = _.flatMapDeep(data.occurrences, occ => [occ.name, occ.tags])
     if (_.uniq(allSynonymsForEntity).length !== allSynonymsForEntity.length) {
       toastFailure('Cannot have dupplicate')
@@ -80,6 +81,8 @@ const EnumForm: FC<Props> = ({
       updateFormItem(convertFromTags(data))
     }
   }
+
+  const itemValidator = data => console.log('PlipPloup', data)
 
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={close}>
@@ -110,7 +113,9 @@ const EnumForm: FC<Props> = ({
               placeholder: 'studio.library.addSynonyms',
               group: {
                 addLabel: 'studio.library.addValueAlternative'
-              }
+              },
+              // @ts-ignore
+              itemValidator: itemValidator
             }
           ]}
           advancedSettings={[

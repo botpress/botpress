@@ -13,7 +13,7 @@ export interface Item {
   tags: string[]
 }
 
-const TagInputList = ({ onChange, placeholder, items, addBtnLabel }) => {
+const TagInputList = ({ itemValidator, onChange, placeholder, items, addBtnLabel }) => {
   const [localItems, setLocalItems] = useState(items || [])
   const focusedElement = useRef(items.length)
 
@@ -22,6 +22,7 @@ const TagInputList = ({ onChange, placeholder, items, addBtnLabel }) => {
   }, [items])
 
   const updateLocalItem = (index: number, item: Item): void => {
+    itemValidator()
     const newItems = [...localItems]
     if (item.name === '' && item.tags.length === 1) {
       newItems[index] = { name: item.tags[0], tags: [] }
