@@ -50,7 +50,7 @@ const TextAreaList: FC<Props> = ({
       items={[...[data.text?.[currentLang] || ''], ...(data.variations?.[currentLang] || [])]}
       onChange={handleChange}
       addBtnLabel={lang.tr('module.builtin.types.text.add')}
-      getPlaceholder={index => (index === 0 ? lang.tr('module.builtin.types.actionButton.sayPlaceholder') : '')}
+      getPlaceholder={index => lang.tr('module.builtin.types.actionButton.sayPlaceholder')}
     />
   )
 }

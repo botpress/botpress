@@ -1,6 +1,8 @@
 import _ from 'lodash'
 import { log, mean, std } from 'mathjs'
 
+// TODO: remove all theses functions and use mathjs instead
+
 /**
  * Vectorial distance between two N-dimentional points
  * a[] and b[] must be of same dimention

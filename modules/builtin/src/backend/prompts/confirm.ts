@@ -41,7 +41,18 @@ const config: PromptConfig = {
   label: 'Confirm',
   valueType: 'boolean',
   noConfirmation: true,
-  fields: common.fields,
+  fields: [
+    ...common.fields,
+    {
+      type: 'variable',
+      key: 'output',
+      required: true,
+      label: 'module.builtin.setValueTo',
+      placeholder: 'module.builtin.setValueToPlaceholder',
+      variableTypes: ['boolean'],
+      defaultVariableType: 'boolean'
+    }
+  ],
   advancedSettings: common.advancedSettings
 }
 

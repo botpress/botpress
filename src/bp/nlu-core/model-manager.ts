@@ -4,14 +4,14 @@ import _ from 'lodash'
 import { TrainInput, TrainOutput } from './training-pipeline'
 import { EntityCache } from './typings'
 
-export type Model = Omit<sdk.NLU.Model, 'data'> & {
+export type PredictableModel = Omit<sdk.NLU.Model, 'data'> & {
   data: {
     input: TrainInput
     output: TrainOutput
   }
 }
 
-export function serializeModel(model: Model): sdk.NLU.Model {
+export function serializeModel(model: PredictableModel): sdk.NLU.Model {
   const { hash, languageCode, startedAt, finishedAt, data } = model
 
   const serialized: sdk.NLU.Model = {
@@ -35,10 +35,10 @@ export function serializeModel(model: Model): sdk.NLU.Model {
   return serialized
 }
 
-export function deserializeModel(serialized: sdk.NLU.Model): Model {
+export function deserializeModel(serialized: sdk.NLU.Model): PredictableModel {
   const { hash, languageCode, startedAt, finishedAt, data } = serialized
 
-  const model: Model = {
+  const model: PredictableModel = {
     hash,
     languageCode,
     startedAt,

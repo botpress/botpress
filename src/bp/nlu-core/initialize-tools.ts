@@ -51,8 +51,7 @@ export async function initializeTools(config: NLU.Config, logger: NLU.Logger): P
   return {
     partOfSpeechUtterances: (tokenUtterances: string[][], lang: string) => {
       const tagger = getPOSTagger(lang, MLToolkit)
-      // @ts-ignore
-      return tokenUtterances.map(tagSentence.bind(this, tagger))
+      return tokenUtterances.map(u => tagSentence(tagger, u))
     },
     tokenize_utterances: (utterances: string[], lang: string, vocab?: Token2Vec) =>
       languageProvider.tokenize(utterances, lang, vocab),

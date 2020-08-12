@@ -315,7 +315,7 @@ export class BotpressAPIProvider {
       workspaces: this.workspaces,
       distributed: this.distributed,
       NLU: {
-        Engine
+        Engine // TODO: expose only instance of engine instead of class
       }
     }
   }

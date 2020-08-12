@@ -99,6 +99,7 @@
   "maxLength": "Max length",
   "confirmBeforeCancel": "Confirm before cancel",
   "confirmBeforeCancelMoreInfo": "Ask a confirmation to the user before cancelling or moving to another flow",
+  "confirmVariableFilled": "Confirm variable if already filled",
   "prompt": {
     "confirmValue": "Is the value '{value}' correct?",
     "confirmLeaving": "Do you really want to abandon this prompt?",

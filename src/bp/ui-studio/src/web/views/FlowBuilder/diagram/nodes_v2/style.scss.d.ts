@@ -11,7 +11,6 @@ interface CssExports {
   'nodeAction': string;
   'nodeExecute': string;
   'nodeFailure': string;
-  'nodeListen': string;
   'nodeRouter': string;
   'nodeSaySomething': string;
   'nodeSuccess': string;
