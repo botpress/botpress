@@ -61,3 +61,6 @@ build/tests/e2e/screenshots/*
 
 # tests output
 cache
+
+modules/*/dist/*
+modules/*/assets/web/*

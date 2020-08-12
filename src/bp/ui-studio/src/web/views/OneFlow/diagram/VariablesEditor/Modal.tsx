@@ -52,7 +52,7 @@ const VariableModal: FC<Props> = props => {
   }
 
   return (
-    <Dialog.Wrapper title="Edit" {...props}>
+    <Dialog.Wrapper title="Edit" {...(props as any)}>
       <Dialog.Body>
         <FormGroup label="Type">
           <Dropdown items={configsOptions} defaultItem={currentConfigOption} onChange={x => setType(x.value)} />

@@ -26,7 +26,7 @@ const EntityNameModal: FC<Props> = props => {
   }
 
   return (
-    <Dialog.Wrapper title="Rename" {...props}>
+    <Dialog.Wrapper title="Rename" {...(props as any)}>
       <Dialog.Body>
         <FormGroup label="Name">
           <InputGroup value={name || ''} onChange={x => setName(x.currentTarget.value)} />

@@ -14,6 +14,7 @@ export class BaseNodeModel extends NodeModel {
   public oldY?: number
   public lastModified?: Date
   public name: string
+  public nodeType?: string
 
   serialize() {
     return _.merge(super.serialize(), {
@@ -37,7 +38,8 @@ export class BaseNodeModel extends NodeModel {
     const inNodeType = isStartNode ? 'start' : 'normal'
     const waitOnReceive = !_.isNil(onReceive)
 
-    if (!this.ports['in'] && this.type !== 'trigger') {
+    const isNotTrigger = this.type === 'block' && this.nodeType !== undefined && this.nodeType !== 'trigger'
+    if (!this.ports['in'] && isNotTrigger) {
       // TODO: refactor thisfor Trigger
       this.addPort(new StandardIncomingPortModel('in', inNodeType))
     }

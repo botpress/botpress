@@ -82,8 +82,8 @@
         "underLimits": "Under Limits",
         "unlicensed": "Unlicensed",
         "unofficialBuild": "Unofficial Botpress Build",
-        "unofficialBuildText": "We noticed that you are running a custom build of Botpress, which doesn't contain the Botpress Professional extensions. Make you use an {official}. You won't be able to activate {pro} otherwise.",
-        "useOfficial": "Make you use an {officialBinary}, you won't be able to activate pro otherwise.",
+        "unofficialBuildText": "We noticed that you are running a custom build of Botpress, which doesn't contain the Botpress Professional extensions. Make sure you use an {official}. You won't be able to activate {pro} otherwise.",
+        "useOfficial": "Make sure you use an {officialBinary}, you won't be able to activate pro otherwise.",
         "waitWhileReboot": "Please wait while the server reboots, this may take a couple of seconds."
       },
       "validateChange": "Validate & Change"

@@ -23,7 +23,7 @@ const BASIC_MENU_ITEMS = [
     icon: 'description'
   },
   {
-    name: lang.tr('flows'),
+    name: lang.tr('builder'),
     path: window.USE_ONEFLOW ? '/oneflow' : '/flows',
     rule: { res: 'bot.flows', op: 'read' },
     icon: 'page-layout'

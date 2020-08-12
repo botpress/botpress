@@ -69,6 +69,11 @@ declare module 'botpress/shared' {
     getAvailable(): string[]
   }
 
+  export const telemetry: {
+    startFallback(api: AxiosInstance): Promise<void>
+    sendTelemetry(events: TelemetryEvent[]): boolean
+  }
+
   export const Icons: {
     Say(): JSX.Element
   }

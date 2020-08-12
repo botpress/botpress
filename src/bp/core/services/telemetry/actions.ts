@@ -8,6 +8,7 @@ import { TelemetryRepository } from 'core/repositories/telemetry'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
+import ms from 'ms'
 
 import { GhostService } from '..'
 import { BotService } from '../bot-service'
@@ -33,6 +34,7 @@ interface ParsedFlow {
 
 @injectable()
 export class ActionsStats extends TelemetryStats {
+  protected interval: number
   protected url: string
   protected lock: string
 
@@ -48,6 +50,7 @@ export class ActionsStats extends TelemetryStats {
     super(ghostService, database, licenseService, jobService, telemetryRepo)
     this.url = process.TELEMETRY_URL
     this.lock = 'botpress:telemetry-actions'
+    this.interval = ms('1d')
   }
 
   protected async getStats(): Promise<TelemetryEvent> {
@@ -67,7 +70,7 @@ export class ActionsStats extends TelemetryStats {
           const { name } = flow
           const actions = flow.nodes
             .map(node => [...((node.onEnter as string[]) ?? []), ...((node.onReceive as string[]) ?? [])])
-            .reduce((acc, cur) => [...acc, ...cur])
+            .reduce((acc, cur) => [...acc, ...cur], [])
 
           return { flowName: name, botID, actions }
         })
