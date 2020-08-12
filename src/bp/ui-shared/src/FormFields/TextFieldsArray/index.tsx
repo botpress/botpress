@@ -59,7 +59,7 @@ const TextFieldsArray: FC<TextFieldsArrayProps> = props => {
   }
 
   const validateItem = (item: string) => {
-    if (!validationPattern?.test) {
+    if (!validationPattern?.test || !item) {
       return null
     }
 
