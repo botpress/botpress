@@ -394,10 +394,12 @@ export class UnderstandingEngine {
         if (node.type === 'trigger') {
           const tn = node as sdk.TriggerNode
           triggers.push(<sdk.NDU.WorkflowTrigger>{
-            conditions: tn.conditions.map(x => ({
-              ...x,
-              params: { ...x.params, topicName, wfName: flowName }
-            })),
+            conditions: tn.conditions
+              .filter(x => x.id !== undefined)
+              .map(x => ({
+                ...x,
+                params: { ...x.params, topicName, wfName: flowName }
+              })),
             type: 'workflow',
             workflowId: flowName,
             activeWorkflow: tn.activeWorkflow,
