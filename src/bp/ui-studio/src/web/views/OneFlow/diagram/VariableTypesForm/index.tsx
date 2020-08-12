@@ -45,11 +45,21 @@ const VariableForm: FC<Props> = props => {
   const updateFormItem = (data: sdk.NLU.EntityDefinition) => {
     props.setActiveFormItem({ type: 'variableType', data })
   }
-
-  const allProps = { ...props, updateEntity, deleteEntity, updateFormItem }
-  const Form = props.formData?.type === 'pattern' ? PatternForm : EnumForm
-
-  return <Form {...allProps}></Form>
+  const defaultProps = { updateEntity, deleteEntity, updateFormItem }
+  if (props.formData.type === 'pattern') {
+    const patternProps = { ...props, ...defaultProps }
+    return <PatternForm {...patternProps} />
+  } else {
+    // @ts-ignore
+    const listEntities = props.entities.filter(e => e.type === 'list')
+    const enumProps = { ...props, ...defaultProps }
+    // @ts-ignore
+    return <EnumForm allEntities={listEntities} {...enumProps} />
+  }
 }
 
-export default connect(undefined, { refreshEntities, deleteEntity, setActiveFormItem })(VariableForm)
+const mapStateToProps = state => ({
+  entities: state.nlu.entities
+})
+
+export default connect(mapStateToProps, { refreshEntities, deleteEntity, setActiveFormItem })(VariableForm)

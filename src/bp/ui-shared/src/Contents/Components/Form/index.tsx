@@ -340,9 +340,6 @@ const Form: FC<FormProps> = ({
               items={currentValue || []}
               addBtnLabel={lang(field.group?.addLabel)}
               onChange={value => {
-                console.log('av val')
-
-                console.log('ap val')
                 dispatch({
                   type: 'updateField',
                   data: {

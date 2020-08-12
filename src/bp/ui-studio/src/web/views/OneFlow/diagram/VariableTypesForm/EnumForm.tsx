@@ -24,6 +24,8 @@ const EnumForm: FC<Props> = ({
   customKey,
   contentLang,
   formData,
+  // @ts-ignore
+  allEntities,
   close,
   updateEntity,
   updateFormItem,
@@ -73,16 +75,21 @@ const EnumForm: FC<Props> = ({
   }
 
   const onUpdate = data => {
-    console.log('DATA', data)
-    const allSynonymsForEntity = _.flatMapDeep(data.occurrences, occ => [occ.name, occ.tags])
-    if (_.uniq(allSynonymsForEntity).length !== allSynonymsForEntity.length) {
-      toastFailure('Cannot have dupplicate')
-    } else {
-      updateFormItem(convertFromTags(data))
-    }
+    updateFormItem(convertFromTags(data))
   }
 
-  const itemValidator = data => console.log('PlipPloup', data)
+  const isDupplicate = newItem => {
+    const lastAdded = [newItem.name].concat(newItem.tags).slice(-1)[0]
+    for (const entity of allEntities) {
+      for (const occurence of entity.occurrences) {
+        if (_.flattenDeep([occurence.synonyms, occurence.name]).includes(lastAdded)) {
+          toastFailure(`${lastAdded} already exists in ${occurence.name} (${entity.name})`)
+          return false
+        }
+      }
+    }
+    return true
+  }
 
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={close}>
@@ -115,7 +122,7 @@ const EnumForm: FC<Props> = ({
                 addLabel: 'studio.library.addValueAlternative'
               },
               // @ts-ignore
-              itemValidator: itemValidator
+              itemValidator: isDupplicate
             }
           ]}
           advancedSettings={[
