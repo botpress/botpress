@@ -10,6 +10,7 @@ import 'ui-shared/dist/theme.css'
 import Settings from './settings'
 import style from './style.scss'
 import { loadSettings } from './utils'
+import { Inspector } from './views/Inspector'
 import { Processing } from './views/Processing'
 import Summary from './views/Summary'
 import EventNotFound from './EventNotFound'
@@ -36,6 +37,7 @@ interface State {
   visible: boolean
   showSettings: boolean
   showEventNotFound: boolean
+  showInspector: boolean
   fetching: boolean
   unauthorized: boolean
   tab: string
@@ -51,6 +53,7 @@ export class Debugger extends React.Component<Props, State> {
     showSettings: false,
     fetching: false,
     unauthorized: false,
+    showInspector: false,
     tab: window['BP_STORAGE'].get(DEBUGGER_TAB_KEY) || 'content'
   }
   allowedRetryCount = 0
@@ -141,9 +144,15 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   hotkeyListener = (e: KeyboardEvent) => {
-    if (e.ctrlKey && e.key === 'd') {
-      e.preventDefault()
+    if (!e.ctrlKey) {
+      return
+    }
+    e.preventDefault()
+
+    if (e.key === 'd') {
       this.toggleDebugger()
+    } else if (e.key === 'i') {
+      this.setState({ showInspector: !this.state.showInspector })
     }
   }
 
@@ -203,13 +212,20 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   renderEvent() {
-    const lang = this.props.store?.botUILanguage || 'en'
     const { tab, event } = this.state
+
+    if (this.state.showInspector) {
+      return (
+        <div className={style.content}>
+          <Inspector data={event} />
+        </div>
+      )
+    }
 
     return (
       <div className={style.content}>
         {tab === 'content' && <Summary event={event} />}
-        {tab === 'processing' && <Processing processing={event?.processing} lang={lang} />}
+        {tab === 'processing' && <Processing processing={event?.processing} />}
       </div>
     )
   }

@@ -37,6 +37,8 @@ const eventSchema = {
   debugger: joi.bool().optional(),
   credentials: joi.any().optional(),
   incomingEventId: joi.string().optional(),
+  activeProcessing: joi.object().optional(),
+  processing: joi.object().optional(),
   ndu: joi.any().optional(),
   nlu: joi
     .object({

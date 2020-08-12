@@ -15,7 +15,7 @@ interface TemplateFile {
   buffer: string | Buffer
 }
 
-type FlowNodeView = {
+interface FlowNodeView {
   nodes: {
     id: string
     position: { x: number; y: number }
@@ -27,7 +27,7 @@ const addTriggersToListenNodes = (flow: sdk.Flow, flowPath: string) => {
     if (node.onReceive != undefined) {
       const listenNode = (node as unknown) as sdk.ListenNode
       if (!listenNode.triggers?.length) {
-        debug(`Add triggers property to node %o`, { flow: flowPath, node: node.name })
+        debug('Add triggers property to node %o', { flow: flowPath, node: node.name })
         listenNode.triggers = [{ conditions: [{ id: 'always' }], effect: 'prompt.inform' }]
       }
     }
@@ -72,7 +72,7 @@ const updateAllFlows = async (ghost: sdk.ScopedGhostService) => {
     const flowUi = await ghost.readFileAsObject<FlowNodeView>('flows', flowUiPath)
 
     addTriggersToListenNodes(flow, flowPath)
-    addSuccessFailureNodes(flow, flowPath, flowUi)
+    // addSuccessFailureNodes(flow, flowPath, flowUi)
 
     await ghost.upsertFile('flows', flowPath, JSON.stringify(flow, undefined, 2))
     await ghost.upsertFile('flows', flowUiPath, JSON.stringify(flowUi, undefined, 2))
@@ -83,11 +83,11 @@ const upsertNewFlows = async (ghost: sdk.ScopedGhostService, files: TemplateFile
   const flows = files.filter(x => x.fileName.startsWith('flows/'))
 
   for (const flow of flows) {
-    const [topic, flowName] = flow.fileName.replace('flows/', '').split('/')
+    const flowName = flow.fileName.replace('flows/', '')
 
-    if (!(await ghost.fileExists(`flows/${topic}`, flowName))) {
-      await ghost.upsertFile(`flows/${topic}`, flowName, flow.buffer)
-      debug(`Flow file missing, creating %o`, { topic, flow: flowName })
+    if (!(await ghost.fileExists('flows', flowName))) {
+      await ghost.upsertFile('flows', flowName, flow.buffer)
+      debug('Flow file missing, creating %o', { flowName })
     }
   }
 }
@@ -100,7 +100,7 @@ const createMissingElements = async (bp: typeof sdk, botId, files: TemplateFile[
 
     for (const element of content) {
       if (!(await bp.cms.getContentElement(botId, element.id))) {
-        debug(`Missing content element, creating... %o`, { element: element.id, type: contentType })
+        debug('Missing content element, creating... %o', { element: element.id, type: contentType })
         await bp.cms.createOrUpdateContentElement(botId, contentType, element.formData, element.id)
       }
     }
@@ -146,7 +146,7 @@ const createTopicsFromContexts = async (bp: typeof sdk, ghost: sdk.ScopedGhostSe
     bp.logger
       .forBot(botId)
       .attachError(err)
-      .warn(`Couldn't create topics from context.`)
+      .warn("Couldn't create topics from context.")
   }
 }
 
@@ -165,7 +165,7 @@ const migrateBot = async (bp: typeof sdk, botId: string) => {
   await bp.config.mergeBotConfig(botId, { oneflow: true })
 
   // Ensure the NDU will process events for that bot
-  mountedBots[botId] = new UnderstandingEngine(bp, conditions, { minimumConfidence: DEFAULT_MIN_CONFIDENCE })
+  mountedBots[botId] = new UnderstandingEngine(bp, botId, conditions, { minimumConfidence: DEFAULT_MIN_CONFIDENCE })
 }
 
 export default migrateBot

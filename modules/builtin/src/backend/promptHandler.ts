@@ -13,13 +13,13 @@ export async function setupMiddleware(bp: typeof sdk, prompts: { id; config: sdk
 
   async function outgoingHandler(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
     if (event.type !== 'prompt' || !prompts.find(x => x.id === event.payload.type)) {
-      return next()
+      return next(undefined, false, true)
     }
 
     const payload = await handlePrompt(event, bp)
     await bp.events.replyContentToEvent(payload, event, { incomingEventId: event.incomingEventId })
 
-    return next(undefined, false)
+    return next(undefined, true)
   }
 }
 

@@ -5,7 +5,6 @@ import React from 'react'
 import { Collapsible } from '../components/Collapsible'
 import style from '../style.scss'
 
-import Dialog from './Dialog'
 import { Inspector } from './Inspector'
 import NDU from './NDU'
 import NLU from './NLU'
@@ -85,14 +84,6 @@ export default class Summary extends React.Component<Props> {
           isNDU={!!this.props.event.ndu}
           nluData={this.props.event.nlu}
         />
-        <Dialog
-          isExpanded={this.isExpanded.bind(this)}
-          toggleExpand={this.toggleExpand.bind(this)}
-          suggestions={this.props.event.suggestions}
-          decision={this.props.event.decision}
-          stacktrace={this.props.event.state?.__stacktrace}
-        />
-
         <NDU
           isExpanded={this.isExpanded.bind(this)}
           toggleExpand={this.toggleExpand.bind(this)}

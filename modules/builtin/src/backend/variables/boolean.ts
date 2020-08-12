@@ -2,6 +2,8 @@ import { BoxedVariable, FlowVariableType } from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 import yn from 'yn'
 
+import common from './common'
+
 class BoxedBoolean extends BaseVariable<boolean> {
   constructor(args) {
     super(args)
@@ -35,13 +37,14 @@ const BooleanVariableType: FlowVariableType = {
   id: 'boolean',
   config: {
     fields: [
+      ...common.fields,
       {
         type: 'checkbox',
         key: 'defaultValue',
         label: 'module.builtin.defaultValue'
       }
     ],
-    advancedSettings: []
+    advancedSettings: common.advancedSettings
   },
   box: BoxedBoolean
 }

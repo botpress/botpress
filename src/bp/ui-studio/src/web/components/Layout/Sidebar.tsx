@@ -17,13 +17,7 @@ type Props = StateProps & RouteComponentProps
 
 const BASIC_MENU_ITEMS = [
   {
-    name: lang.tr('content'),
-    path: '/content',
-    rule: { res: 'bot.content', op: 'read' },
-    icon: 'description'
-  },
-  {
-    name: lang.tr('builder'),
+    name: lang.tr('studio.sideBar.flowBuilder'),
     path: window.USE_ONEFLOW ? '/oneflow' : '/flows',
     rule: { res: 'bot.flows', op: 'read' },
     icon: 'page-layout'

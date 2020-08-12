@@ -3,14 +3,18 @@
 interface CssExports {
   'addBtn': string;
   'deleteImg': string;
+  'errorIcon': string;
+  'errorMessage': string;
   'fieldError': string;
   'fieldWrapper': string;
+  'fieldWrapperHeader': string;
   'formSelect': string;
   'groupLabel': string;
   'imgWrapper': string;
   'imgWrapperActions': string;
   'input': string;
   'label': string;
+  'labelError': string;
   'labelWrapper': string;
   'textarea': string;
 }

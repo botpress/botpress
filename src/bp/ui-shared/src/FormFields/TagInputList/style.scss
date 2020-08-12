@@ -1,0 +1,13 @@
+.wrapper {
+  margin-bottom: 10px;
+}
+
+.wrapper :global(.bp3-input-ghost) {
+  font-size: 12px;
+}
+
+.title {
+  background-color: var(--seashell);
+  height: 20px;
+  margin: 5px;
+}

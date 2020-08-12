@@ -45,7 +45,6 @@ import { SkillCallNodeModel, SkillCallWidgetFactory } from './nodes/SkillCallNod
 import { StandardNodeModel, StandardWidgetFactory } from './nodes/StandardNode'
 import { ActionWidgetFactory } from './nodes_v2/ActionNode'
 import { ExecuteWidgetFactory } from './nodes_v2/ExecuteNode'
-import { ListenWidgetFactory } from './nodes_v2/ListenNode'
 import { RouterNodeModel, RouterWidgetFactory } from './nodes_v2/RouterNode'
 import style from './style.scss'
 
@@ -64,7 +63,6 @@ class Diagram extends Component<Props> {
     this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
     this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory(this.props.skills))
     this.diagramEngine.registerNodeFactory(new ExecuteWidgetFactory())
-    this.diagramEngine.registerNodeFactory(new ListenWidgetFactory())
     this.diagramEngine.registerNodeFactory(new RouterWidgetFactory())
     this.diagramEngine.registerNodeFactory(new ActionWidgetFactory())
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
@@ -196,8 +194,6 @@ class Diagram extends Component<Props> {
     sayNode: (point: Point) =>
       this.props.createFlowNode({ ...point, type: 'say_something', next: [defaultTransition] }),
     executeNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'execute', next: [defaultTransition] }),
-    listenNode: (point: Point) =>
-      this.props.createFlowNode({ ...point, type: 'listen', onReceive: [], next: [defaultTransition] }),
     routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' }),
     actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action', next: [defaultTransition] })
   }
@@ -228,7 +224,6 @@ class Diagram extends Component<Props> {
           <Fragment>
             <MenuItem text={lang.tr('say')} onClick={wrap(this.add.sayNode, point)} icon="comment" />
             <MenuItem text={lang.tr('execute')} onClick={wrap(this.add.executeNode, point)} icon="code-block" />
-            <MenuItem text={lang.tr('listen')} onClick={wrap(this.add.listenNode, point)} icon="hand" />
             <MenuItem text={lang.tr('router')} onClick={wrap(this.add.routerNode, point)} icon="search-around" />
             <MenuItem text={lang.tr('action')} onClick={wrap(this.add.actionNode, point)} icon="offline" />
           </Fragment>
@@ -343,7 +338,7 @@ class Diagram extends Component<Props> {
   }, 500)
 
   createFlow(name: string) {
-    this.props.createFlow(name + '.flow.json')
+    this.props.createFlow(`${name}.flow.json`)
   }
 
   canTargetOpenInspector = target => {
@@ -522,9 +517,6 @@ class Diagram extends Component<Props> {
           break
         case 'execute':
           this.add.executeNode(point)
-          break
-        case 'listen':
-          this.add.listenNode(point)
           break
         case 'router':
           this.add.routerNode(point)

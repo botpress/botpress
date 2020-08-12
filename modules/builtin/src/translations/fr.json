@@ -83,6 +83,12 @@
   "enumType": "Type d'énumération",
   "question": "Question",
   "useDropdown": "Utiliser menu déroulant",
+  "variable": {
+    "namePlaceholder": "Quel est cette variable?",
+    "descPlaceholder": "Optionnel",
+    "input": "Variable d'entrée",
+    "output": "Variable de sortie"
+  },
   "min": "Minimum",
   "max": "Maximum",
   "yes": "Oui",
