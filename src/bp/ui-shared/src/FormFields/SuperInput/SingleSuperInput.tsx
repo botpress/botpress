@@ -1,8 +1,9 @@
-import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
+import { Button, Icon } from '@blueprintjs/core'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { Fragment } from 'react'
 
+import ToolTip from '../../../../ui-shared-lite/ToolTip'
 import { lang } from '../../translations'
 import Dropdown from '../../Dropdown'
 import Icons from '../../Icons'
@@ -126,13 +127,9 @@ const SingleSuperInput = ({
               onBlur?.(`{{${value}}}`)
             }}
           >
-            <Tooltip
-              content={lang('superInput.insertValueFromEvent')}
-              hoverOpenDelay={300}
-              position={Position.TOP_LEFT}
-            >
+            <ToolTip content={lang('superInput.insertValueFromEvent')} hoverOpenDelay={300}>
               <Button className={style.btn} icon={<Icons.Brackets />} />
-            </Tooltip>
+            </ToolTip>
           </Dropdown>
         )}
         {canPickVariables && (
@@ -146,13 +143,9 @@ const SingleSuperInput = ({
               onBlur?.(`$${value}`)
             }}
           >
-            <Tooltip
-              content={lang('superInput.insertValueFromVariables')}
-              hoverOpenDelay={300}
-              position={Position.TOP_LEFT}
-            >
+            <ToolTip content={lang('superInput.insertValueFromVariables')} hoverOpenDelay={300}>
               <Button className={style.btn} icon="dollar" />
-            </Tooltip>
+            </ToolTip>
           </Dropdown>
         )}
       </div>

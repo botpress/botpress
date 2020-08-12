@@ -83,6 +83,12 @@
   "enumType": "Enum Type",
   "question": "Question",
   "useDropdown": "Use dropdown",
+  "variable": {
+    "namePlaceholder": "What is this variable?",
+    "descPlaceholder": "Optional",
+    "input": "Input Variable",
+    "output": "Output Variable"
+  },
   "min": "Min",
   "max": "Max",
   "yes": "Yes",

@@ -103,6 +103,7 @@ declare module 'botpress/sdk' {
   export interface Logger {
     forBot(botId: string): this
     attachError(error: Error): this
+    attachEvent(event: IO.Event): this
     persist(shouldPersist: boolean): this
     level(level: LogLevel): this
     noEmit(): this
@@ -457,6 +458,71 @@ declare module 'botpress/sdk' {
   }
 
   export namespace NLU {
+    export class Engine {
+      static initialize: (config: Config, logger: NLU.Logger) => Promise<void>
+      static getHealth: () => Health
+      static getLanguages: () => string[]
+      constructor(defaultLanguage: string, botId: string, logger: Logger)
+      computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string
+      loadModel: (m: Model) => Promise<void>
+      train: (
+        intentDefs: NLU.IntentDefinition[],
+        entityDefs: NLU.EntityDefinition[],
+        languageCode: string,
+        reportTrainingProgress?: ProgressReporter,
+        trainingSession?: TrainingSession,
+        options?: TrainingOptions
+      ) => Promise<Model | undefined>
+      predict: (t: string, ctx: string[]) => Promise<IO.EventUnderstanding>
+    }
+
+    export interface Config {
+      ducklingURL: string
+      ducklingEnabled: boolean
+      languageSources: LanguageSource[]
+    }
+
+    export interface LanguageSource {
+      endpoint: string
+      authToken?: string
+    }
+
+    export interface Logger {
+      info: (msg: string) => void
+      warning: (msg: string, err?: Error) => void
+      error: (msg: string, err?: Error) => void
+    }
+
+    export interface TrainingOptions {
+      forceTrain: boolean
+    }
+
+    export interface Model {
+      hash: string
+      languageCode: string
+      startedAt: Date
+      finishedAt: Date
+      data: {
+        input: string
+        output: string
+      }
+    }
+
+    export interface Health {
+      isEnabled: boolean
+      validProvidersCount: number
+      validLanguages: string[]
+    }
+
+    export interface TrainingSession {
+      status: 'training' | 'canceled' | 'done' | 'idle'
+      language: string
+      progress: number
+      lock?: RedisLock
+    }
+
+    export type ProgressReporter = (botId: string, message: string, trainSession: TrainingSession) => void
+
     export type EntityType = 'system' | 'pattern' | 'list' | 'complex' // TODO: Add the notion of Utterance Placeholder instead of adding "Complex" as an entity type here (synonyms and variables)
 
     export interface EntityDefOccurrence {
@@ -539,7 +605,12 @@ declare module 'botpress/sdk' {
       [context: string]: {
         confidence: number
         oos: number
-        intents: { label: string; confidence: number; slots: SlotCollection }[]
+        intents: {
+          label: string
+          confidence: number
+          slots: SlotCollection
+          extractor: 'exact-matcher' | 'classifier'
+        }[]
       }
     }
   }
@@ -652,9 +723,10 @@ declare module 'botpress/sdk' {
       readonly credentials?: any
       /** When false, some properties used by the debugger are stripped from the event before storing */
       debugger?: boolean
+      activeProcessing?: ProcessingEntry
       /** Track processing steps during the lifetime of the event  */
       processing?: {
-        [activity: string]: Date
+        [activity: string]: ProcessingEntry
       }
       /**
        * Check if the event has a specific flag
@@ -670,8 +742,12 @@ declare module 'botpress/sdk' {
        * @example event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
        */
       setFlag(flag: symbol, value: boolean): void
-      /** Add a new step to the processing of this event (with timestamp) */
-      addStep(step: string): void
+    }
+
+    interface ProcessingEntry {
+      logs?: string[]
+      errors?: EventError[]
+      date?: Date
     }
 
     /**
@@ -703,6 +779,7 @@ declare module 'botpress/sdk' {
       readonly includedContexts: string[]
       readonly predictions?: NLU.Predictions
       readonly ms: number
+      readonly suggestedLanguage?: string
     }
 
     export interface IncomingEvent extends Event {
@@ -773,8 +850,6 @@ declare module 'botpress/sdk' {
        * This includes all the flow/nodes which were traversed for the current event
        */
       __stacktrace: JumpPoint[]
-      /** Contains details about an error that occurred while processing the event */
-      __error?: EventError
     }
 
     export interface PromptStatus {
@@ -1266,10 +1341,6 @@ declare module 'botpress/sdk' {
 
   export interface FlowVariable {
     type: string
-    name: string
-    isInput?: boolean
-    isOutput?: boolean
-    description?: string
     params?: any
   }
 
@@ -1429,7 +1500,7 @@ declare module 'botpress/sdk' {
   }
 
   interface FormOption {
-    value: string
+    value: any
     label: string
     related?: FormField
   }
@@ -1463,6 +1534,8 @@ declare module 'botpress/sdk' {
     | 'upload'
     | 'url'
     | 'hidden'
+    | 'tag-input'
+    | 'variable'
 
   export interface FormField {
     type: FormFieldType
@@ -1474,9 +1547,14 @@ declare module 'botpress/sdk' {
     defaultValue?: FormDataField
     required?: boolean
     variableTypes?: string[]
+    defaultVariableType?: string
     superInput?: boolean
     customPlaceholder?: boolean
     variablesOnly?: boolean
+    superInputOptions?: {
+      canPickEvents?: boolean
+      canPickVariables?: boolean
+    }
     max?: number
     min?: number
     maxLength?: number
@@ -1489,6 +1567,8 @@ declare module 'botpress/sdk' {
     dynamicOptions?: FormDynamicOptions
     fields?: FormField[]
     moreInfo?: FormMoreInfo
+    /** When specified, indicate if array elements match the provided pattern */
+    validationPattern?: RegExp
     group?: {
       /** You have to specify the add button label */
       addLabel?: string

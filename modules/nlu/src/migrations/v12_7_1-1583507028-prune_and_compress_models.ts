@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 
-import { listModelsForLang, Model, MODELS_DIR, pruneModels, saveModel } from '../backend/model-service'
+import { listModelsForLang, MODELS_DIR, pruneModels, saveModel } from '../backend/model-service'
 
 const migration: sdk.ModuleMigration = {
   info: {
@@ -19,7 +19,7 @@ const migration: sdk.ModuleMigration = {
 
         return Promise.map(modNames, async mod => {
           try {
-            const model: Model = await ghost.readFileAsObject(MODELS_DIR, mod)
+            const model: sdk.NLU.Model = await ghost.readFileAsObject(MODELS_DIR, mod)
             if (!model.hash) {
               return ghost.deleteFile(MODELS_DIR, mod) // model is really outdated
             }

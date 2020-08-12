@@ -70,7 +70,7 @@ export class ActionsStats extends TelemetryStats {
           const { name } = flow
           const actions = flow.nodes
             .map(node => [...((node.onEnter as string[]) ?? []), ...((node.onReceive as string[]) ?? [])])
-            .reduce((acc, cur) => [...acc, ...cur])
+            .reduce((acc, cur) => [...acc, ...cur], [])
 
           return { flowName: name, botID, actions }
         })

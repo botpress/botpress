@@ -222,5 +222,12 @@
   "number": "Number",
   "boolean": "Boolean",
   "string": "String",
-  "format": "Format"
+  "format": "Format",
+  "tolerance": "Tolerance",
+  "enumeration": "Enumeration",
+  "values": "Values",
+  "strict": "Strict",
+  "medium": "Medium",
+  "loose": "Loose",
+  "examples": "Examples"
 }

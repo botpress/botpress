@@ -208,20 +208,26 @@
     background: var(--shark);
   }
 
+  .bpw-keyboard-label {
+    display: block;
+    width: 100%;
+    font-size: 12px;
+    line-height: 1.25;
+    color: var(--shark);
+    margin-bottom: 4px;
+  }
+
   .bpw-button {
-    background-color: var(--main-bg-color);
-    font-size: 1rem;
-    padding: 0.4rem 0.8rem;
-    min-width: 5rem;
-    min-height: 40px;
-    text-align: center;
-    border: 1px solid currentColor;
-    border-radius: 0px;
+    border-radius: 15px;
+    border: dashed 1px var(--seashell);
+    background: none;
+    font-size: 12px;
+    line-height: 40px;
+    color: var(--shark);
+    margin-right: 12px;
     cursor: pointer;
-    margin: 3px 2px;
-    text-transform: none;
-    overflow: visible;
-    align-items: flex-start;
+    min-height: 40px;
+    transition: border 0.3s, background 0.3s, color 0.3s;
   }
 
   .bpw-button-alt {
@@ -233,7 +239,9 @@
   }
 
   .bpw-button:hover {
-    background-color: rgba(0, 0, 0, 0.07);
+    color: var(--ocean);
+    border: solid 1px var(--ocean);
+    background-color: var(--hover-ocean);
   }
 
   .bpw-input {
@@ -260,7 +268,7 @@
     -webkit-box-align: end;
     -ms-flex-align: end;
     align-items: flex-end;
-    padding-right: 18px;
+    padding-right: 0;
     padding-left: 0;
   }
 
@@ -328,7 +336,7 @@
   }
 
   .bpw-from-user .bpw-message-group {
-    padding-left: 60px;
+    padding-left: 22px;
     -webkit-box-pack: end;
     -ms-flex-pack: end;
     justify-content: flex-end;
@@ -491,10 +499,12 @@
   }
 
   .bpw-keyboard-quick_reply {
-    background-color: #fbfbfb;
-    padding: 15px 20px;
+    overflow-y: auto;
+    white-space: nowrap;
+    background-color: var(--bg);
+    padding: 12px 8px;
     text-align: left;
-    border-top: 1px solid #dcdcdc;
+    border-radius: 3px;
   }
 
   /* CAROUSEL  */

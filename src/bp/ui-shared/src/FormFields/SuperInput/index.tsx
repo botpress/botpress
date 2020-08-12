@@ -1,4 +1,4 @@
-import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
+import { Button, Icon, IconName } from '@blueprintjs/core'
 import Tags from '@yaireo/tagify/dist/react.tagify'
 import cx from 'classnames'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
@@ -11,6 +11,7 @@ import style from './style.scss'
 import { SuperInputProps } from './typings'
 import { convertToString, convertToTags } from './utils'
 import SingleSuperInput from './SingleSuperInput'
+import ToolTip from '../../../../ui-shared-lite/ToolTip'
 
 type Props = FieldProps & SuperInputProps
 
@@ -46,13 +47,15 @@ export default ({
   const newlyAddedVar = useRef<string[]>([])
   const currentPrefix = useRef<string>()
   const tagifyRef = useRef<any>()
-  const [localVariables, setLocalVariables] = useState(variables?.filter(typeFilter).map(({ name }) => name) || [])
+  const [localVariables, setLocalVariables] = useState(
+    variables?.filter(typeFilter).map(({ params }) => params?.name) || []
+  )
   const [localEvents, setLocalEvents] = useState(events?.map(({ name }) => name) || [])
   const eventsDesc = events?.reduce((acc, event) => ({ ...acc, [event.name]: event.description }), {})
   // TODO implement the autocomplete selection when event selected is partial
 
   useEffect(() => {
-    setLocalVariables(variables?.filter(typeFilter).map(({ name }) => name) || [])
+    setLocalVariables(variables?.filter(typeFilter).map(({ params }) => params.name) || [])
   }, [variables])
 
   useEffect(() => {
@@ -199,11 +202,7 @@ export default ({
       {
         <div className={style.tagBtnWrapper}>
           {canPickEvents && (
-            <Tooltip
-              content={lang('superInput.insertValueFromEvent')}
-              hoverOpenDelay={300}
-              position={Position.TOP_LEFT}
-            >
+            <ToolTip content={lang('superInput.insertValueFromEvent')} hoverOpenDelay={300} position="top">
               <Button
                 className={style.tagBtn}
                 onClick={() => {
@@ -211,14 +210,10 @@ export default ({
                 }}
                 icon={<Icons.Brackets />}
               />
-            </Tooltip>
+            </ToolTip>
           )}
           {canPickVariables && (
-            <Tooltip
-              content={lang('superInput.insertValueFromVariables')}
-              hoverOpenDelay={300}
-              position={Position.TOP_LEFT}
-            >
+            <ToolTip content={lang('superInput.insertValueFromVariables')} hoverOpenDelay={300} position="top">
               <Button
                 className={style.tagBtn}
                 onClick={() => {
@@ -226,7 +221,7 @@ export default ({
                 }}
                 icon="dollar"
               />
-            </Tooltip>
+            </ToolTip>
           )}
         </div>
       }
@@ -234,6 +229,7 @@ export default ({
         placeholder={placeholder}
         className={style.superInput}
         tagifyRef={tagifyRef}
+        InputMode="textarea"
         settings={{
           dropdown: {
             classname: 'color-blue',
@@ -287,6 +283,14 @@ export default ({
                 : localEvents
               ).includes(value)
 
+              let icon: IconName | JSX.Element = <Icons.Brackets iconSize={10} />
+
+              if (isInvalid) {
+                icon = 'error'
+              } else if (prefix === '$') {
+                icon = 'dollar'
+              }
+
               return (
                 <span
                   title={value}
@@ -296,7 +300,7 @@ export default ({
                   className={cx('tagify__tag', { ['tagify--invalid']: isInvalid })}
                 >
                   <span>
-                    <Icon icon={prefix === '$' ? 'dollar' : <Icons.Brackets iconSize={10} />} iconSize={10} />
+                    <Icon icon={icon} iconSize={10} />
                     <span className="tagify__tag-text">{value}</span>
                   </span>
                 </span>
