@@ -4,6 +4,7 @@ import sdk from 'botpress/sdk'
 import { Contents, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
+import { toastFailure } from '~/components/Shared/Utils'
 
 import style from '../PromptForm/style.scss'
 
@@ -72,7 +73,12 @@ const EnumForm: FC<Props> = ({
   }
 
   const onUpdate = data => {
-    updateFormItem(convertFromTags(data))
+    const allSynonymsForEntity = _.flatMapDeep(data.occurrences, occ => [occ.name, occ.tags])
+    if (_.uniq(allSynonymsForEntity).length !== allSynonymsForEntity.length) {
+      toastFailure('Cannot have dupplicate')
+    } else {
+      updateFormItem(convertFromTags(data))
+    }
   }
 
   return (
