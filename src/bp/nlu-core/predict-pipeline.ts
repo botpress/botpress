@@ -76,23 +76,19 @@ async function DetectLanguage(
   const supportedLanguages = Object.keys(predictorsByLang)
 
   const langIdentifier = LanguageIdentifierProvider.getLanguageIdentifier(tools.mlToolkit)
-  const lidRes = await langIdentifier.identify(input.sentence)
-  const elected = lidRes.filter(pred => supportedLanguages.includes(pred.label))[0]
-  let score = elected?.value ?? 0
+  const possibleMlLangs = await langIdentifier.identify(input.sentence)
+  const bestMlLangMatch = possibleMlLangs[0]
+  let detectedLanguage = bestMlLangMatch?.label ?? NA_LANG
+  let scoreDetectedLang = bestMlLangMatch?.value ?? 0
 
   // because with single-worded sentences, confidence is always very low
   // we assume that a input of 20 chars is more than a single word
   const threshold = input.sentence.length > 20 ? 0.5 : 0.3
 
-  let detectedLanguage = _.get(elected, 'label', NA_LANG)
-  if (detectedLanguage !== NA_LANG && !supportedLanguages.includes(detectedLanguage)) {
-    detectedLanguage = NA_LANG
-  }
-
   // if ML-based language identifier didn't find a match
   // we proceed with a custom vocabulary matching algorithm
   // ie. the % of the sentence comprised of tokens in the training vocabulary
-  if (detectedLanguage === NA_LANG) {
+  if (scoreDetectedLang <= threshold) {
     try {
       const match = _.chain(supportedLanguages)
         .map(lang => ({
@@ -113,16 +109,17 @@ async function DetectLanguage(
 
       if (match) {
         detectedLanguage = match.lang
-        score = match.confidence
+        scoreDetectedLang = match.confidence
       }
     } finally {
     }
   }
 
-  const usedLanguage = detectedLanguage !== NA_LANG && score > threshold ? detectedLanguage : input.defaultLanguage
+  const usedLanguage = supportedLanguages.includes(detectedLanguage) ? detectedLanguage : input.defaultLanguage
 
   return { usedLanguage, detectedLanguage }
 }
+
 async function preprocessInput(
   input: PredictInput,
   tools: Tools,
