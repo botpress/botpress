@@ -1,5 +1,6 @@
 import LicensingService from 'common/licensing-service'
 import { buildSchema } from 'common/telemetry'
+import { AuthRule, Workspace } from 'common/typings'
 import Database from 'core/database'
 import { calculateHash } from 'core/misc/utils'
 import { TelemetryRepository } from 'core/repositories/telemetry'
@@ -14,6 +15,16 @@ import { JobService } from '../job-service'
 import { TelemetryStats } from './telemetry-stats'
 
 const DEFAULT_ROLES = ['dev', 'admin', 'editor']
+
+interface Role {
+  id: string
+  rules: AuthRule[]
+}
+
+interface WorkspacePayload {
+  id: string
+  roles: Role[]
+}
 @injectable()
 export class RolesStats extends TelemetryStats {
   protected interval: number
@@ -37,11 +48,11 @@ export class RolesStats extends TelemetryStats {
     return {
       ...buildSchema(await this.getServerStats(), 'server'),
       event_type: 'custom_roles',
-      event_data: { schema: '1.0.0', roles: await this.getRoles() }
+      event_data: { schema: '1.0.0', roles: await this.getWorkspacePayloads() }
     }
   }
 
-  private async getRoles() {
+  private async getWorkspacePayloads(): Promise<WorkspacePayload[]> {
     const workspaces = await this.getWorkspaceConfig()
 
     return workspaces.reduce((acc, workspace) => {
@@ -50,12 +61,12 @@ export class RolesStats extends TelemetryStats {
         rules: role.rules
       }))
       return [...acc, { id: calculateHash(workspace.id), roles }]
-    }, [])
+    }, [] as WorkspacePayload[])
   }
 
-  private async getWorkspaceConfig() {
+  private async getWorkspaceConfig(): Promise<Workspace[]> {
     try {
-      return (await this.ghostService.global().readFileAsObject('/', 'workspaces.json')) as any[]
+      return await this.ghostService.global().readFileAsObject<Workspace[]>('/', 'workspaces.json')
     } catch (error) {
       return []
     }
