@@ -85,8 +85,8 @@ const VariablePicker: FC<Props> = ({
     const vars = variables
       ?.filter(x => variableTypes?.includes(x.type))
       .map(x => ({
-        label: x.name,
-        value: x.name,
+        label: x.params?.name,
+        value: x.params?.name,
         variableType: x.type
       }))
 
@@ -104,7 +104,7 @@ const VariablePicker: FC<Props> = ({
     const newVarName = query?.replace(/[^A-Z_0-9-]/gi, '')
     const canCreate =
       newVarName?.length &&
-      !variables?.find(x => x.name.toLowerCase() === newVarName.toLowerCase()) &&
+      !variables?.find(x => x.params?.name?.toLowerCase() === newVarName.toLowerCase()) &&
       !options?.find(x => query.toLowerCase() === x.label.toLowerCase() || query.toLowerCase() === x.value)
 
     if (canCreate) {
@@ -127,7 +127,9 @@ const VariablePicker: FC<Props> = ({
     if (isAdding) {
       const newVariable = {
         type: defaultVariableType || 'string',
-        name: value
+        params: {
+          name: value
+        }
       }
 
       addVariable?.(newVariable)
@@ -135,7 +137,7 @@ const VariablePicker: FC<Props> = ({
   }
 
   const updateSelectedOption = option => {
-    onAddVariable(option.value, variables?.map(x => x.name) ?? [])
+    onAddVariable(option.value, variables?.map(x => x.params.name) ?? [])
     onChange?.(option.value)
   }
 

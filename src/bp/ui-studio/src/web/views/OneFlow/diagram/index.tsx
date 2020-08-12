@@ -37,6 +37,7 @@ import {
   refreshFlowsLinks,
   refreshHints,
   removeFlowNode,
+  setActiveFormItem,
   switchFlow,
   switchFlowNode,
   updateFlow,
@@ -50,8 +51,8 @@ import { getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/reducers'
 import storage from '~/util/storage'
 import {
   defaultTransition,
-  DiagramManager,
   DIAGRAM_PADDING,
+  DiagramManager,
   nodeTypes,
   Point
 } from '~/views/FlowBuilder/diagram/manager'
@@ -71,6 +72,7 @@ import PromptForm from './PromptForm'
 import Toolbar from './Toolbar'
 import VariablesEditor from './VariablesEditor'
 import VariableForm from './VariableForm'
+import VariableTypesForm from './VariableTypesForm'
 import WorkflowToolbar from './WorkflowToolbar'
 
 interface OwnProps {
@@ -224,6 +226,11 @@ class Diagram extends Component<Props> {
       ['say_something', 'trigger', 'prompt'].includes(this.props.currentFlowNode?.type)
     ) {
       this.editNodeItem(this.props.currentFlowNode, 0)
+    }
+
+    if (this.props.activeFormItem !== undefined && prevProps.activeFormItem !== this.props.activeFormItem) {
+      clearTimeout(this.timeout)
+      this.setState({ editingNodeItem: this.props.activeFormItem })
     }
 
     if (this.diagramContainer) {
@@ -893,16 +900,18 @@ class Diagram extends Component<Props> {
   }
 
   render() {
-    const { node, index } = this.state.editingNodeItem || {}
-    const formType: string = node?.nodeType || node?.type
+    const { node, index, data } = this.state.editingNodeItem || {}
+    const formType: string = node?.nodeType || node?.type || this.state.editingNodeItem?.type
 
-    let editingNodeItem
+    let currentItem
     if (formType === 'say_something') {
-      editingNodeItem = node?.contents?.[index]
+      currentItem = node?.contents?.[index]
     } else if (formType === 'trigger') {
-      editingNodeItem = node?.conditions?.[index]
+      currentItem = node?.conditions?.[index]
+    } else if (formType === 'variableType') {
+      currentItem = data
     } else if (formType === 'variable') {
-      editingNodeItem = node?.variable
+      currentItem = node?.variable
     }
 
     const isQnA = this.props.selectedWorkflow === 'qna'
@@ -978,7 +987,7 @@ class Diagram extends Component<Props> {
               events={this.props.hints || []}
               contentLang={this.state.currentLang}
               editingContent={index}
-              formData={editingNodeItem || getEmptyContent(editingNodeItem)}
+              formData={currentItem || getEmptyContent(currentItem)}
               onUpdate={this.updateNodeContent.bind(this)}
               onUpdateVariables={this.addVariable}
               close={() => {
@@ -997,7 +1006,7 @@ class Diagram extends Component<Props> {
               topicName={this.props.selectedTopic}
               variables={this.props.currentFlow?.variables}
               events={this.props.hints}
-              formData={editingNodeItem}
+              formData={currentItem}
               contentLang={this.state.currentLang}
               onUpdate={this.updateNodeCondition.bind(this)}
               onUpdateVariables={this.addVariable}
@@ -1049,13 +1058,26 @@ class Diagram extends Component<Props> {
               }}
             />
           )}
+          {formType === 'variableType' && (
+            <VariableTypesForm
+              contentLang={this.state.currentLang}
+              customKey={data.id}
+              formData={currentItem}
+              close={() => {
+                this.timeout = setTimeout(() => {
+                  this.setState({ editingNodeItem: null })
+                }, 200)
+              }}
+            />
+          )}
+
           {formType === 'variable' && (
             <VariableForm
               variables={this.props.variables}
               contentLang={this.state.currentLang}
               customKey={`${node?.id}${node?.prompt?.type}`}
               deleteVariable={this.deleteVariable.bind(this)}
-              formData={editingNodeItem}
+              formData={currentItem}
               onUpdate={this.updateFlowVariable.bind(this)}
               close={() => {
                 this.timeout = setTimeout(() => {
@@ -1081,7 +1103,8 @@ const mapStateToProps = (state: RootReducer) => ({
   variables: state.ndu.variables,
   contentTypes: state.content.categories,
   conditions: state.ndu.conditions,
-  hints: state.hints.inputs
+  hints: state.hints.inputs,
+  activeFormItem: state.flows.activeFormItem
 })
 
 const mapDispatchToProps = {
@@ -1106,7 +1129,8 @@ const mapDispatchToProps = {
   refreshFlowsLinks,
   fetchContentCategories,
   getQnaCountByTopic,
-  refreshHints
+  refreshHints,
+  setActiveFormItem
 }
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps, null, {
