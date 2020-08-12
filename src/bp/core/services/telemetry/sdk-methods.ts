@@ -143,8 +143,9 @@ export class SDKStats extends TelemetryStats {
   private parseFunctions(functions: string[]): Usage[] {
     const sdkFunctions = _.countBy(functions.filter(method => method.split('.')[0] === 'bp'))
     return _.map(sdkFunctions, (count, fn) => {
-      const [, namespace, functionName] = fn.split('.')
-      return { namespace, function: functionName, count }
+      const [, ...namespace] = fn.split('.')
+      const functionName = namespace.pop() || ''
+      return { namespace: namespace.join('.'), function: functionName, count }
     })
   }
 
