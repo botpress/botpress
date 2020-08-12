@@ -174,11 +174,13 @@ const popHistory = stackName => state => {
     return state
   }
   const currentSnapshot = state[stackName][0]
+  // Going back to the QnA flow after ctrl + z will create weird behaviors since it's not a real flow
+  const currentFlow = currentSnapshot.currentFlow.endsWith('qna.flow.json') ? state.currentFlow : currentSnapshot.currentFlow
 
   const newState = {
     ...state,
     currentSnapshot,
-    currentFlow: currentSnapshot.currentFlow,
+    currentFlow,
     currentFlowNode: currentSnapshot.currentFlowNode,
     flowsByName: currentSnapshot.flowsByName,
     [stackName]: state[stackName].slice(1),
