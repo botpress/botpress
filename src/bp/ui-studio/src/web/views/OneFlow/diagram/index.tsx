@@ -34,6 +34,7 @@ import {
   openFlowNodeProps,
   pasteFlowNode,
   refreshCallerFlows,
+  refreshEntities,
   refreshFlowsLinks,
   refreshHints,
   removeFlowNode,
@@ -52,6 +53,8 @@ import {
   getCallerFlowsOutcomeUsage,
   getCurrentFlow,
   getCurrentFlowNode,
+  getDisplayPrompts,
+  getDisplayVariables,
   getReusableWorkflows,
   RootReducer
 } from '~/reducers'
@@ -209,6 +212,7 @@ class Diagram extends Component<Props> {
     this.props.fetchFlows()
     this.props.fetchPrompts()
     this.props.fetchVariables()
+    this.props.refreshEntities()
     this.props.fetchContentCategories()
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
@@ -351,7 +355,7 @@ class Diagram extends Component<Props> {
       this.props.createFlowNode({ ...point, type: 'execute', next: [defaultTransition], ...moreProps }),
     routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' }),
     actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action' }),
-    promptNode: (point: Point, promptType: string) => {
+    promptNode: (point: Point, promptType: string, subType?: string) => {
       this.props.createFlowNode({
         ...point,
         type: 'prompt',
@@ -360,7 +364,8 @@ class Diagram extends Component<Props> {
           type: promptType,
           params: {
             output: '',
-            question: {}
+            question: {},
+            subType
           }
         },
         next: [
@@ -427,13 +432,13 @@ class Diagram extends Component<Props> {
           icon={<Icons.Say />}
         />
         <MenuItem tagName="span" text={lang.tr('prompt')} icon="citation">
-          {this.props.prompts.map(({ id, config }) => (
+          {this.props.allPrompts.map(({ type, subType, label, icon }) => (
             <MenuItem
-              key={id}
-              text={lang.tr(config.label)}
+              key={type}
+              text={lang.tr(label)}
               tagName="button"
-              onClick={wrap(this.add.promptNode, point, id)}
-              icon={config.icon as any}
+              onClick={wrap(this.add.promptNode, point, type, subType)}
+              icon={icon as any}
             />
           ))}
         </MenuItem>
@@ -1072,6 +1077,7 @@ class Diagram extends Component<Props> {
           {formType === 'prompt' && (
             <PromptForm
               prompts={this.props.prompts}
+              allPrompts={this.props.allPrompts}
               customKey={`${node?.id}${node?.prompt?.type}`}
               formData={node?.prompt}
               onUpdate={this.updatePromptNode.bind(this)}
@@ -1116,6 +1122,11 @@ class Diagram extends Component<Props> {
               diagramEngine={this.diagramEngine}
               flows={this.props.flows}
               type={currentItem}
+              close={() => {
+                this.timeout = setTimeout(() => {
+                  this.setState({ editingNodeItem: null })
+                }, 200)
+              }}
             />
           )}
           {formType === 'variableType' && (
@@ -1134,6 +1145,7 @@ class Diagram extends Component<Props> {
           {formType === 'variable' && (
             <VariableForm
               variables={this.props.variables}
+              allVariables={this.props.allVariables}
               contentLang={this.state.currentLang}
               customKey={`${node?.id}${node?.prompt?.type}`}
               deleteVariable={this.deleteVariable.bind(this)}
@@ -1164,6 +1176,8 @@ const mapStateToProps = (state: RootReducer) => ({
   library: state.content.library,
   prompts: state.ndu.prompts,
   variables: state.ndu.variables,
+  allPrompts: getDisplayPrompts(state),
+  allVariables: getDisplayVariables(state),
   contentTypes: state.content.categories,
   conditions: state.ndu.conditions,
   hints: state.hints.inputs,
@@ -1174,6 +1188,7 @@ const mapDispatchToProps = {
   fetchFlows,
   fetchPrompts,
   fetchVariables,
+  refreshEntities,
   switchFlowNode,
   openFlowNodeProps,
   closeFlowNodeProps,

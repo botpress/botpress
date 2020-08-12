@@ -842,7 +842,7 @@ declare module 'botpress/sdk' {
         name: string,
         value: any,
         type: string,
-        options?: { nbOfTurns: number; specificWorkflow?: string; enumType?: string; config?: any }
+        options?: { nbOfTurns: number; specificWorkflow?: string; subType?: string; config?: any }
       ) => void
       /**
        * EXPERIMENTAL
@@ -1827,7 +1827,7 @@ declare module 'botpress/sdk' {
 
   export interface UnboxedVariable<T> {
     type: string
-    enumType?: string
+    subType?: string
     value: T | undefined
     nbTurns: number
     confidence: number
@@ -1835,7 +1835,8 @@ declare module 'botpress/sdk' {
 
   export interface BoxedVarContructor<T, V = any> {
     type: string
-    enumType?: string
+    /** Represent the user's variable type for generic types */
+    subType?: string
     /** The number of turns left until this value is no longer valid */
     nbOfTurns: number
     /** The confidence percentage of the value currently stored */
@@ -1854,7 +1855,10 @@ declare module 'botpress/sdk' {
     box: BoxedVarConstructable<any, any>
   }
 
-  export type FlowVariableConfig = FormDefinition
+  export type FlowVariableConfig = {
+    label: string
+    icon?: any
+  } & FormDefinition
 
   export interface FormMoreInfo {
     label: string

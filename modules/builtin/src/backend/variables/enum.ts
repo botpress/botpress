@@ -21,14 +21,23 @@ class BoxedEnum extends BaseVariable<string> {
     }
 
     // TODO Should we throw instead ? Or use the logger ?
-    console.error(`Value ${value} is invalid for enum type ${this._enumType}`)
+    console.error(`Value ${value} is invalid for enum type ${this._subType}`)
   }
 }
 
 const EnumVariableType: FlowVariableType = {
   id: 'enum',
   config: {
-    fields: common.fields,
+    label: 'enum',
+    icon: 'properties',
+    fields: [
+      ...common.fields,
+      {
+        type: 'hidden',
+        key: 'subType',
+        label: 'subType'
+      }
+    ],
     advancedSettings: common.advancedSettings
   },
   box: BoxedEnum

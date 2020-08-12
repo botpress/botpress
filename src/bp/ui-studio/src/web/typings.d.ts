@@ -38,3 +38,14 @@ declare global {
     toggleSidePanel: () => void
   }
 }
+
+/** Represent prompts and variables including the user's custom elements */
+export interface CustomItems {
+  /** The base type of the variable or the prompt */
+  type: string
+  /** Represent the custom type when using a generic type */
+  subType?: string
+  icon?: any
+  /** What is actually displayed on the UI */
+  label: string
+}

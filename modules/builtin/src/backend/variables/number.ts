@@ -34,6 +34,8 @@ class BoxedNumber extends BaseVariable<number> {
 const NumberVariableType: FlowVariableType = {
   id: 'number',
   config: {
+    label: 'number',
+    icon: 'numerical',
     fields: common.fields,
     advancedSettings: common.advancedSettings
   },

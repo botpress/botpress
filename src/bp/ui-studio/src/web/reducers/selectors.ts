@@ -1,8 +1,9 @@
-import { FlowNode } from 'botpress/sdk'
+import { FlowNode, FlowVariableType, NLU, PromptDefinition } from 'botpress/sdk'
 import { isSkillFlow, ParsedFlowDefinition, parseFlowName } from 'common/flow'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import { createSelector } from 'reselect'
+import { CustomItems } from '~/typings'
 
 import { RootReducer } from '.'
 
@@ -11,6 +12,41 @@ const _getCurrentFlow = (state: RootReducer) => state.flows?.currentFlow
 const _getCurrentFlowNode = state => state.flows?.currentFlowNode
 const _getCurrentHashes = state => state.flows.currentHashes
 const _getInitialHashes = state => state.flows.initialHashes
+const _getVariableTypes = (state: RootReducer) => state.nlu.entities
+const _getVariables = (state: RootReducer) => state.ndu.variables
+const _getPrompts = (state: RootReducer) => state.ndu.prompts
+
+const prepareForDisplay = (
+  variableTypes: NLU.EntityDefinition[],
+  baseItems: PromptDefinition[] | FlowVariableType[]
+): CustomItems[] => {
+  const userVarTypes = variableTypes
+    .filter(x => x.type !== 'system')
+    .map(x => ({ type: x.type.replace('list', 'enum'), subType: x.id, label: x.name }))
+
+  const withoutGenerics = (baseItems as any)
+    .filter(x => !['enum', 'pattern'].includes(x.id))
+    .map(x => ({ type: x.id, label: x.config?.label }))
+
+  return [...withoutGenerics, ...userVarTypes].map(x => ({
+    ...x,
+    icon: (baseItems as any).find(v => v.id === x.type)?.config?.icon
+  }))
+}
+
+export const getDisplayVariables = createSelector(
+  [_getVariableTypes, _getVariables],
+  (variableTypes = [], variables = []): CustomItems[] => {
+    return prepareForDisplay(variableTypes, variables)
+  }
+)
+
+export const getDisplayPrompts = createSelector(
+  [_getVariableTypes, _getPrompts],
+  (variableTypes = [], prompts = []): CustomItems[] => {
+    return prepareForDisplay(variableTypes, prompts)
+  }
+)
 
 export const getAllFlows = createSelector([_getFlowsByName], (flowsByName): FlowView[] => {
   return _.values(flowsByName)

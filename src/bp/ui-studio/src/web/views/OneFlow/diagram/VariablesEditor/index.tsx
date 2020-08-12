@@ -2,7 +2,7 @@ import { EmptyState, lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC } from 'react'
 import { connect } from 'react-redux'
-import { getCurrentFlow, RootReducer } from '~/reducers'
+import { getCurrentFlow, getDisplayVariables, RootReducer } from '~/reducers'
 
 import style from './style.scss'
 import NoVariableIcon from './NoVariableIcon'
@@ -16,7 +16,6 @@ type Props = StateProps & OwnProps
 
 const VariablesEditor: FC<Props> = props => {
   const variables = props.currentFlow?.variables
-  const grouped = _.groupBy(variables, 'type')
 
   if (!variables?.length) {
     return (
@@ -26,15 +25,27 @@ const VariablesEditor: FC<Props> = props => {
     )
   }
 
+  const subTypes = _.sortBy(
+    _.uniqWith(
+      variables.map(x => ({ type: x.type, subType: x.params.subType })),
+      (a, b) => a.type === b.type && a.subType === b.subType
+    ),
+    'type'
+  )
+
   return (
     <div className={style.wrapper}>
-      {Object.keys(grouped).map(group => {
+      {subTypes.map(({ type, subType }) => {
+        const filtered = variables.filter(x => x.type === type && x.params.subType === subType)
+
         return (
-          <div>
+          <div key={`${type}-${subType}`}>
             <div className={style.group}>
-              <div className={style.label}>{group}</div>
+              <div className={style.label}>
+                {lang.tr(type)} {subType ? `(${subType})` : ''}
+              </div>
               <div>
-                {grouped[group]?.map(item => (
+                {filtered.map(item => (
                   <button className={style.button} onClick={() => props.editVariable(item)}>
                     <span className={style.label}>{item.params?.name}</span>
                   </button>
@@ -49,6 +60,9 @@ const VariablesEditor: FC<Props> = props => {
   )
 }
 
-const mapStateToProps = (state: RootReducer) => ({ currentFlow: getCurrentFlow(state) })
+const mapStateToProps = (state: RootReducer) => ({
+  currentFlow: getCurrentFlow(state),
+  variables: getDisplayVariables(state)
+})
 
 export default connect<StateProps, OwnProps>(mapStateToProps)(VariablesEditor)

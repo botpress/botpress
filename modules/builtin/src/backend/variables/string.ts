@@ -38,6 +38,8 @@ class BoxedString extends BaseVariable<string> {
 const StringVariableType: FlowVariableType = {
   id: 'string',
   config: {
+    label: 'string',
+    icon: 'font',
     fields: common.fields,
     advancedSettings: common.advancedSettings
   },

@@ -36,6 +36,8 @@ class BoxedBoolean extends BaseVariable<boolean> {
 const BooleanVariableType: FlowVariableType = {
   id: 'boolean',
   config: {
+    label: 'boolean',
+    icon: 'segmented-control',
     fields: [
       ...common.fields,
       {

@@ -11,6 +11,7 @@ import style from './style.scss'
 interface Props {
   deletePrompt: () => void
   prompts: any[]
+  allPrompts: any[]
   customKey: string
   contentLang: string
   close: () => void
@@ -23,6 +24,7 @@ interface Props {
 const PromptForm: FC<Props> = ({
   customKey,
   prompts,
+  allPrompts,
   contentLang,
   close,
   formData,
@@ -57,9 +59,13 @@ const PromptForm: FC<Props> = ({
     })
   }
 
-  const options = prompts.map(x => ({ label: x.config.label, value: x.id }))
   const selectedPromptType = prompts.find(x => x.id === promptType.current)
-  const selectedOption = options.find(x => x.value === promptType.current)
+
+  const options = allPrompts.map(x => ({ label: lang.tr(x.label), icon: x.icon, value: x }))
+  const selectedOption = options.find(
+    ({ value }) =>
+      value.type === promptType.current && (!formData.params.subType || value.subType === formData.params.subType)
+  )
 
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={!isConfirming} close={close}>
@@ -80,8 +86,12 @@ const PromptForm: FC<Props> = ({
               items={options}
               defaultItem={selectedOption}
               rightIcon="chevron-down"
-              onChange={option => {
-                handleTypeChange(option.value)
+              onChange={({ value }) => {
+                handleTypeChange(value.type)
+
+                if (value.subType) {
+                  onUpdate({ ...formData, params: { ...formData.params, subType: value.subType } })
+                }
               }}
             />
           )}

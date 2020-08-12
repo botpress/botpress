@@ -1,4 +1,4 @@
-import { Condition, PromptDefinition, Topic } from 'botpress/sdk'
+import { Condition, FlowVariableType, PromptDefinition, Topic } from 'botpress/sdk'
 import _ from 'lodash'
 import { handleActions } from 'redux-actions'
 import {
@@ -15,7 +15,7 @@ export interface NduReducer {
   topics: Topic[]
   qnaCountByTopic?: CountByTopic[]
   prompts: PromptDefinition[]
-  variables: any[]
+  variables: FlowVariableType[]
 }
 
 const defaultState: NduReducer = {

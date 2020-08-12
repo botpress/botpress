@@ -1,16 +1,18 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
-import { Condition, FormData, PromptNode } from 'botpress/sdk'
+import { FlowVariableType, PromptNode } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
+import { CustomItems } from '~/typings'
 
 import style from './style.scss'
 
 interface Props {
   deleteVariable: () => void
-  variables: any[]
+  variables: FlowVariableType[]
+  allVariables: CustomItems[]
   customKey: string
   contentLang: string
   close: () => void
@@ -18,7 +20,16 @@ interface Props {
   formData: PromptNode
 }
 
-const VariableForm: FC<Props> = ({ customKey, variables, contentLang, close, formData, onUpdate, deleteVariable }) => {
+const VariableForm: FC<Props> = ({
+  customKey,
+  variables,
+  allVariables,
+  contentLang,
+  close,
+  formData,
+  onUpdate,
+  deleteVariable
+}) => {
   const variableType = useRef(formData?.type)
   const [isConfirming, setIsConfirming] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
@@ -42,9 +53,13 @@ const VariableForm: FC<Props> = ({ customKey, variables, contentLang, close, for
     onUpdate({ type: value, params: _.pick(formData.params, ['name', 'description', 'isInput', 'isOutput']) })
   }
 
-  const options = variables.map(x => ({ label: x.id, value: x.id }))
   const selectedVariableType = variables.find(x => x.id === variableType.current)
-  const selectedOption = options.find(x => x.value === variableType.current)
+
+  const options = allVariables.map(x => ({ label: lang.tr(x.label), icon: x.icon, value: x }))
+  const selectedOption = options.find(
+    ({ value }) =>
+      value.type === variableType.current && (!formData.params.subType || value.subType === formData.params.subType)
+  )
 
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={!isConfirming} close={close}>
@@ -64,8 +79,12 @@ const VariableForm: FC<Props> = ({ customKey, variables, contentLang, close, for
               items={options}
               defaultItem={selectedOption}
               rightIcon="chevron-down"
-              onChange={option => {
-                handleTypeChange(option.value)
+              onChange={({ value }) => {
+                handleTypeChange(value.type)
+
+                if (value.subType) {
+                  onUpdate({ ...formData, params: { ...formData.params, subType: value.subType } })
+                }
               }}
             />
           )}

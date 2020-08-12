@@ -35,6 +35,7 @@ const config: PromptConfig = {
   type: 'pattern',
   label: 'Pattern',
   valueType: 'string',
+  icon: 'comparison',
   fields: [
     ...common.fields,
     {
@@ -47,12 +48,9 @@ const config: PromptConfig = {
       defaultVariableType: 'pattern'
     },
     {
-      type: 'text',
-      key: 'regexPattern',
-      required: true,
-      placeholder: 'module.builtin.regexPatternPlaceholder',
-      label: 'module.builtin.regexPattern'
-      // TODO add combo box to select from predefined patterns or custom
+      type: 'hidden',
+      key: 'subType',
+      label: 'subType'
     },
     {
       type: 'text',

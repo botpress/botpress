@@ -45,6 +45,8 @@ class BoxedDate extends BaseVariable<BoxedDateType, DateConfig> {
 const DateVariableType: FlowVariableType = {
   id: 'date',
   config: {
+    label: 'date',
+    icon: 'calendar',
     fields: [
       ...common.fields,
       {
