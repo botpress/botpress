@@ -10,7 +10,7 @@ import { getUtteranceFeatures } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import { ExactMatchIndex, EXACT_MATCH_STR_OPTIONS, TrainOutput } from './training-pipeline'
-import { EntityExtractionResult, ExtractedEntity, PatternEntity, SlotExtractionResult, Tools } from './typings'
+import { EntityExtractionResult, ExtractedEntity, Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
 import Utterance, { buildUtteranceBatch, getAlternateUtterance, UtteranceEntity } from './utterance/utterance'
 
 export type ExactMatchResult = (sdk.MLToolkit.SVM.Prediction & { extractor: 'exact-matcher' }) | undefined
@@ -76,23 +76,19 @@ async function DetectLanguage(
   const supportedLanguages = Object.keys(predictorsByLang)
 
   const langIdentifier = LanguageIdentifierProvider.getLanguageIdentifier(tools.mlToolkit)
-  const lidRes = await langIdentifier.identify(input.sentence)
-  const elected = lidRes.filter(pred => supportedLanguages.includes(pred.label))[0]
-  let score = elected?.value ?? 0
+  const possibleMlLangs = await langIdentifier.identify(input.sentence)
+  const bestMlLangMatch = possibleMlLangs[0]
+  let detectedLanguage = bestMlLangMatch?.label ?? NA_LANG
+  let scoreDetectedLang = bestMlLangMatch?.value ?? 0
 
   // because with single-worded sentences, confidence is always very low
   // we assume that a input of 20 chars is more than a single word
   const threshold = input.sentence.length > 20 ? 0.5 : 0.3
 
-  let detectedLanguage = _.get(elected, 'label', NA_LANG)
-  if (detectedLanguage !== NA_LANG && !supportedLanguages.includes(detectedLanguage)) {
-    detectedLanguage = NA_LANG
-  }
-
   // if ML-based language identifier didn't find a match
   // we proceed with a custom vocabulary matching algorithm
   // ie. the % of the sentence comprised of tokens in the training vocabulary
-  if (detectedLanguage === NA_LANG) {
+  if (scoreDetectedLang <= threshold) {
     try {
       const match = _.chain(supportedLanguages)
         .map(lang => ({
@@ -113,16 +109,17 @@ async function DetectLanguage(
 
       if (match) {
         detectedLanguage = match.lang
-        score = match.confidence
+        scoreDetectedLang = match.confidence
       }
     } finally {
     }
   }
 
-  const usedLanguage = detectedLanguage !== NA_LANG && score > threshold ? detectedLanguage : input.defaultLanguage
+  const usedLanguage = supportedLanguages.includes(detectedLanguage) ? detectedLanguage : input.defaultLanguage
 
   return { usedLanguage, detectedLanguage }
 }
+
 async function preprocessInput(
   input: PredictInput,
   tools: Tools,
@@ -212,10 +209,7 @@ async function predictContext(input: PredictStep, predictors: Predictors): Promi
     return {
       ...input,
       ctx_predictions: [
-        {
-          label: input.includedContexts.length ? input.includedContexts[0] : DEFAULT_CTX,
-          confidence: 1
-        }
+        { label: input.includedContexts.length ? input.includedContexts[0] : DEFAULT_CTX, confidence: 1 }
       ]
     }
   }
@@ -234,7 +228,7 @@ async function predictContext(input: PredictStep, predictors: Predictors): Promi
         .groupBy('label')
         .mapValues(gr => _.meanBy(gr, 'confidence'))
         .toPairs()
-        .map(([label, confidence]) => ({ label, confidence, extractor: 'classifier' }))
+        .map(([label, confidence]) => ({ label, confidence }))
         .value()
     }
   }
@@ -398,18 +392,15 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
     const intents = !intentPred
       ? []
       : intentPred.map(i => ({
-          extractor: 'classifier', // exact-matcher overwrites this field in line below
           ...i,
           slots: (step.slot_predictions_per_intent![i.label] || []).reduce(slotsCollectionReducer, {})
         }))
-
-    const includeOOS = !intents.filter(x => x.extractor === 'exact-matcher').length
 
     return {
       ...preds,
       [label]: {
         confidence,
-        oos: includeOOS ? step.oos_predictions![label] || 0 : 0,
+        oos: step.oos_predictions![label] || 0,
         intents
       }
     }
