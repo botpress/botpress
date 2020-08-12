@@ -27,14 +27,3 @@ export interface TestResult {
   details: TestResultDetails[]
   nlu: IO.EventUnderstanding
 }
-
-export interface F1 {
-  precision: number
-  recall: number
-  f1: number
-}
-
-export type XValidationResults = {
-  intents: _.Dictionary<F1>
-  slots: F1
-}

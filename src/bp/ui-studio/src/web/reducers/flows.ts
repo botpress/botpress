@@ -31,6 +31,7 @@ import {
   requestUpdateFlow,
   requestUpdateFlowNode,
   requestUpdateSkill,
+  setActiveFormItem,
   setDiagramAction,
   switchFlow,
   switchFlowNode,
@@ -38,6 +39,14 @@ import {
 } from '~/actions'
 import { hashCode, prettyId } from '~/util'
 import { parseFlowName } from '~/util/workflows'
+
+export interface ActiveFormItem {
+  type: string
+  /** Used when editing nodes on the flow */
+  node?: any
+  /** Any other kind of item which requires the inspector */
+  data?: any
+}
 
 export interface FlowReducer {
   currentFlow?: string
@@ -47,6 +56,8 @@ export interface FlowReducer {
   flowsByName: _.Dictionary<FlowView>
   currentDiagramAction: string
   nodeInBuffer?: FlowNode
+  /** The element currently being edited on the right inspector form */
+  activeFormItem?: ActiveFormItem
 }
 
 const MAX_UNDO_STACK_SIZE = 25
@@ -224,18 +235,20 @@ const doDeleteFlow = ({ name, flowsByName }) => {
 }
 
 const doCreateNewFlow = name => {
-  const nodes = [
-    {
-      id: prettyId(),
-      name: 'entry',
-      onEnter: [],
-      onReceive: null,
-      next: [],
-      type: 'standard',
-      x: 100,
-      y: 100
-    }
-  ]
+  const nodes = window.USE_ONEFLOW
+    ? []
+    : [
+        {
+          id: prettyId(),
+          name: 'entry',
+          onEnter: [],
+          onReceive: null,
+          next: [],
+          type: 'standard',
+          x: 100,
+          y: 100
+        }
+      ]
 
   const isSubWorkflow = window.USE_ONEFLOW && parseFlowName(name).folders?.length
   if (isSubWorkflow) {
@@ -265,14 +278,13 @@ const doCreateNewFlow = name => {
 
   return {
     version: '0.1',
-    name: name,
+    name,
     location: name,
     label: undefined,
     description: '',
     startNode: 'entry',
     catchAll: {},
     links: [],
-    triggers: [], // TODO: NDU Change to be a node instead
     nodes
   }
 }
@@ -376,6 +388,11 @@ let reducer = handleActions(
     [requestFlows]: state => ({
       ...state,
       fetchingFlows: true
+    }),
+
+    [setActiveFormItem]: (state, { payload }) => ({
+      ...state,
+      activeFormItem: payload
     }),
 
     [receiveFlows]: (state, { payload }) => {
@@ -538,7 +555,7 @@ reducer = reduceReducers(
         })
 
         const newNode = {
-          id: 'skill-' + flowRandomId,
+          id: `skill-${flowRandomId}`,
           type: 'skill-call',
           skill: skillId,
           name: `${skillId}-${flowRandomId}`,
@@ -602,7 +619,7 @@ reducer = reduceReducers(
             [payload.editFlowName]: modifiedFlow,
             [state.currentFlow]: {
               ...state.flowsByName[state.currentFlow],
-              nodes: nodes
+              nodes
             }
           }
         }

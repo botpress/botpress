@@ -1,3 +1,5 @@
+import { InvalidField } from './Form/typings'
+
 export interface FieldProps {
   placeholder?: string
   onChange?: (value: null | number | string) => void
@@ -14,6 +16,7 @@ export interface AddButtonProps {
 export interface FieldWrapperProps {
   children: any
   label?: string
+  invalid?: InvalidField
 }
 
 export interface GroupItemWrapperProps {

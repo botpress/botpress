@@ -95,6 +95,23 @@
         "node": "Node"
       }
     },
+    "library": {
+      "savedBlocks": "Saved Blocks",
+      "savedWorkflows": "Saved Workflows",
+      "variableTypes": "Variable Types",
+      "addEnum": "Add Enumeration",
+      "addPattern": "Add Pattern",
+      "filter": "Filter blocks, workflows and variable types",
+      "variableName": "What is the name of this variable",
+      "addSynonyms": "Add synonyms by separating values with commas",
+      "addValueAlternative": "Add Value Alternative",
+      "deleteEnumeration": "Delete Enumeration",
+      "confirmDeleteEntity": "Do you really want to delete this variable type ?",
+      "examplePlaceholder": "Add examples that match your pattern (one per line)",
+      "addExample": "Add Example",
+      "deletePattern": "Delete Pattern",
+      "patternInvalid": "Pattern is invalid"
+    },
     "flow": {
       "addNode": "Add Node",
       "addToLibrary": "Add to library",
@@ -356,5 +373,8 @@
       "closePanel": "Close Panel",
       "endOfLogs": "End of logs"
     }
+  },
+  "variable": {
+    "emptyState": "Tap + in the toolbar to add your first variable"
   }
 }

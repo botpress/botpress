@@ -9,7 +9,7 @@ const verbose = process.argv.includes('--verbose')
 const build = () => {
   gulp.task('build:shared', gulp.series([cleanShared, sharedBuild]))
   gulp.task('build:studio', gulp.series([buildStudio, cleanStudio, cleanStudioAssets, copyStudio]))
-  gulp.task('build:admin', gulp.series([buildAdmin, copyAdmin]))
+  gulp.task('build:admin', gulp.series([buildAdmin, cleanAdmin, copyAdmin]))
 
   if (yn(process.env.GULP_PARALLEL)) {
     return gulp.series(['build:shared', gulp.parallel(['build:studio', 'build:admin'])])
@@ -59,6 +59,10 @@ const copyAdmin = () => {
 
 const cleanStudio = () => {
   return gulp.src('./out/bp/ui-studio/public', { allowEmpty: true }).pipe(rimraf())
+}
+
+const cleanAdmin = () => {
+  return gulp.src('./out/bp/ui-admin/public', { allowEmpty: true }).pipe(rimraf())
 }
 
 const cleanStudioAssets = () => {

@@ -52,10 +52,6 @@
     background: var(--trigger);
   }
 
-  .listen :global(.port):before {
-    background: var(--listen);
-  }
-
   .execute :global(.port):before,
   .action :global(.port):before {
     background: var(--execute);
@@ -154,11 +150,6 @@
     &.trigger,
     &:hover.trigger {
       border-color: var(--trigger);
-    }
-
-    &.listen,
-    &:hover.listen {
-      border-color: var(--listen);
     }
 
     &.execute,

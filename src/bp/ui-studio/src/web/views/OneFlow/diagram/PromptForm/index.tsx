@@ -1,6 +1,6 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
-import { Condition, FormData, PromptNode } from 'botpress/sdk'
+import { Condition, FlowVariable, FormData, PromptNode } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -16,9 +16,21 @@ interface Props {
   close: () => void
   onUpdate: (data: any) => void
   formData: PromptNode
+  onUpdateVariables: (variable: FlowVariable) => void
+  variables: FlowVariable[]
 }
 
-const PromptForm: FC<Props> = ({ customKey, prompts, contentLang, close, formData, onUpdate, deletePrompt }) => {
+const PromptForm: FC<Props> = ({
+  customKey,
+  prompts,
+  contentLang,
+  close,
+  formData,
+  onUpdate,
+  deletePrompt,
+  onUpdateVariables,
+  variables
+}) => {
   const promptType = useRef(formData?.type)
   const [isConfirming, setIsConfirming] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
@@ -75,14 +87,18 @@ const PromptForm: FC<Props> = ({ customKey, prompts, contentLang, close, formDat
           )}
         </div>
         {selectedPromptType && (
-          <Contents.Form
-            currentLang={contentLang}
-            axios={axios}
-            fields={selectedPromptType.config?.fields || []}
-            advancedSettings={selectedPromptType.config?.advancedSettings || []}
-            formData={formData?.params || {}}
-            onUpdate={data => onUpdate({ params: { ...data }, type: promptType.current })}
-          />
+          <div className={cx(style.fieldWrapper, style.contentTypeField)}>
+            <Contents.Form
+              currentLang={contentLang}
+              axios={axios}
+              onUpdateVariables={onUpdateVariables}
+              variables={variables}
+              fields={selectedPromptType.config?.fields || []}
+              advancedSettings={selectedPromptType.config?.advancedSettings || []}
+              formData={formData?.params || {}}
+              onUpdate={data => onUpdate({ params: { ...data }, type: promptType.current })}
+            />
+          </div>
         )}
       </Fragment>
     </RightSidebar>

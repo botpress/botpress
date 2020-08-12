@@ -24,7 +24,7 @@ import { clearRequireCache, requireFromString } from '../../modules/require'
 import { TYPES } from '../../types'
 import { BotService } from '../bot-service'
 import { ActionExecutionError } from '../dialog/errors'
-import { addStepToEvent } from '../middleware/event-collector'
+import { addErrorToEvent, addStepToEvent } from '../middleware/event-collector'
 import { WorkspaceService } from '../workspace-service'
 
 import { extractMetadata } from './metadata'
@@ -185,6 +185,17 @@ export class ScopedActionService {
         .forBot(this.botId)
         .attachError(err)
         .error(`An error occurred while executing the action "${actionName}`)
+
+      addErrorToEvent(
+        {
+          type: 'action-execution',
+          stacktrace: err.stacktrace || err.stack,
+          actionName: actionName,
+          actionArgs: _.omit(actionArgs, ['event'])
+        },
+        incomingEvent
+      )
+
       addStepToEvent(`action:${actionName}:error`, incomingEvent)
       throw new ActionExecutionError(err.message, actionName, err.stack)
     }
