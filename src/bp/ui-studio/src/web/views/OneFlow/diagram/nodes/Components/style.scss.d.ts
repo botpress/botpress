@@ -15,6 +15,7 @@ interface CssExports {
   'failure': string;
   'hasJoinLabel': string;
   'headerWrapper': string;
+  'highlighted': string;
   'img': string;
   'in': string;
   'joinLabel': string;

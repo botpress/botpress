@@ -3,7 +3,6 @@ import {
   ContextMenu,
   ControlGroup,
   InputGroup,
-  Intent,
   Menu,
   MenuDivider,
   MenuItem,
@@ -825,6 +824,26 @@ class Diagram extends Component<Props> {
     })
   }
 
+  renderSearch = () => {
+    return (
+      this.props.showSearch && (
+        <div className={style.floatingInfo}>
+          <ControlGroup>
+            <InputGroup
+              id="input-highlight-name"
+              tabIndex={1}
+              placeholder={lang.tr('studio.flow.highlightByName')}
+              value={this.props.highlightFilter}
+              onChange={this.props.handleFilterChanged}
+              autoFocus={true}
+            />
+            <Button icon="small-cross" onClick={this.props.hideSearch} />
+          </ControlGroup>
+        </div>
+      )
+    )
+  }
+
   render() {
     const { node, index } = this.state.editingNodeItem || {}
     const formType: string = node?.nodeType || node?.type
@@ -882,6 +901,7 @@ class Diagram extends Component<Props> {
               onDrop={this.handleToolDropped}
               onDragOver={event => event.preventDefault()}
             >
+              {this.renderSearch()}
               <DiagramWidget
                 ref={w => (this.diagramWidget = w)}
                 deleteKeys={[]}

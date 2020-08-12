@@ -40,6 +40,10 @@
   background: #fff;
   width: 150px;
 
+  &.highlighted {
+    outline: 5px solid #ffde33 !important;
+  }
+
   .prompt :global(.port):before {
     background: var(--prompt);
   }
@@ -52,7 +56,8 @@
     background: var(--listen);
   }
 
-  .execute :global(.port):before, .action :global(.port):before {
+  .execute :global(.port):before,
+  .action :global(.port):before {
     background: var(--execute);
   }
 
@@ -79,7 +84,7 @@
       width: 25px;
 
       &:before {
-        content: "";
+        content: '';
         border-radius: 100%;
         height: 6px;
         width: 6px;
@@ -146,31 +151,40 @@
       box-shadow: none;
     }
 
-    &.trigger, &:hover.trigger {
+    &.trigger,
+    &:hover.trigger {
       border-color: var(--trigger);
     }
 
-    &.listen, &:hover.listen {
+    &.listen,
+    &:hover.listen {
       border-color: var(--listen);
     }
 
-    &.execute, &:hover.execute, &.action, &:hover.action {
+    &.execute,
+    &:hover.execute,
+    &.action,
+    &:hover.action {
       border-color: var(--execute);
     }
 
-    &.failure, &:hover.failure {
+    &.failure,
+    &:hover.failure {
       border-color: var(--lighthouse);
     }
 
-    &.router, &:hover.router {
+    &.router,
+    &:hover.router {
       border-color: var(--if-else);
     }
 
-    &.success, &:hover.success {
+    &.success,
+    &:hover.success {
       border-color: var(--success);
     }
 
-    &.prompt, &:hover.prompt {
+    &.prompt,
+    &:hover.prompt {
       border-color: var(--prompt);
     }
 

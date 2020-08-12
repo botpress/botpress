@@ -5,7 +5,6 @@ import { FlowView } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
 import { AllPartialNode } from '~/actions'
-import storage from '~/util/storage'
 import { BaseNodeModel } from '~/views/FlowBuilder/diagram/nodes/BaseNodeModel'
 import { StandardPortWidget } from '~/views/FlowBuilder/diagram/nodes/Ports'
 
@@ -164,7 +163,7 @@ const BlockWidget: FC<Props> = ({
   node.locked = isEditing
 
   return (
-    <NodeWrapper>
+    <NodeWrapper isHighlighed={node.isHighlighted}>
       <NodeHeader
         className={style[nodeType]}
         setExpanded={canCollapse && handleExpanded}
