@@ -5,7 +5,7 @@ import _ from 'lodash'
 import * as CacheManager from '../core/services/nlu/cache-manager'
 
 import { initializeTools } from './initialize-tools'
-import { deserializeModel, Model, serializeModel } from './model-manager'
+import { deserializeModel, PredictableModel, serializeModel } from './model-manager'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
@@ -18,7 +18,7 @@ export default class Engine implements NLU.Engine {
   private static _tools: Tools
 
   private predictorsByLang: _.Dictionary<Predictors> = {}
-  private modelsByLang: _.Dictionary<Model> = {}
+  private modelsByLang: _.Dictionary<PredictableModel> = {}
 
   constructor(private defaultLanguage: string, private botId: string, private logger: NLU.Logger) {}
 
@@ -163,7 +163,7 @@ export default class Engine implements NLU.Engine {
     input: TrainInput,
     hash: string,
     reportTrainingProgress?: NLU.ProgressReporter
-  ): Promise<Model | undefined> {
+  ): Promise<PredictableModel | undefined> {
     const startedAt = new Date()
     let output: TrainOutput | undefined
     try {
