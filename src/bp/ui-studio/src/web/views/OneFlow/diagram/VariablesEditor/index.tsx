@@ -32,11 +32,11 @@ const VariablesEditor: FC<Props> = props => {
   }
 
   const computeDeleteVariable = (flow: FlowView, variableName: string) => {
-    flow.variables = flow.variables.filter(v => v.name != variableName)
+    flow.variables = flow.variables.filter(v => v.name !== variableName)
   }
 
   const computeEditVariable = (flow: FlowView, variableName: string, newValues: FlowVariable) => {
-    const index = flow.variables.findIndex(v => v.name == variableName)
+    const index = flow.variables.findIndex(v => v.name === variableName)
     flow.variables[index] = newValues
   }
 

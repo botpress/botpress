@@ -173,14 +173,14 @@ const Library: FC<Props> = props => {
               <Fragment>
                 <Button
                   minimal
-                  onClick={async () => await newVarType('list')}
+                  onClick={async () => newVarType('list')}
                   icon="plus"
                   className={style.addBtn}
                   text={lang.tr('studio.library.addEnum')}
                 />
                 <Button
                   minimal
-                  onClick={async () => await newVarType('pattern')}
+                  onClick={async () => newVarType('pattern')}
                   icon="plus"
                   className={style.addBtn}
                   text={lang.tr('studio.library.addPattern')}

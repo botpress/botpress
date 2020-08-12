@@ -50,8 +50,8 @@ import { getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/reducers'
 import storage from '~/util/storage'
 import {
   defaultTransition,
-  DIAGRAM_PADDING,
   DiagramManager,
+  DIAGRAM_PADDING,
   nodeTypes,
   Point
 } from '~/views/FlowBuilder/diagram/manager'
