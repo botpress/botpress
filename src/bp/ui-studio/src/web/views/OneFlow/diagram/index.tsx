@@ -573,6 +573,7 @@ class Diagram extends Component<Props> {
   editNodeItem(node, index) {
     clearTimeout(this.timeout)
     if (node.isNew) {
+      this.updateExpandedNodes(node.id, true)
       this.props.updateFlowNode({ isNew: false })
     }
 
