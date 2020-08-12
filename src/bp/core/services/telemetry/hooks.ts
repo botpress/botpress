@@ -53,18 +53,17 @@ const parsePaths = (paths: string[]): Hook[] => {
     const hookName = path.pop()
     const module = path.pop()
     const isBuiltIn = !!(module && BUILTIN_MODULES.includes(module))
-    const [name, enabled] = parseHookName(hookName || '', isBuiltIn)
+    const { name, enabled } = parseHookName(hookName || '', isBuiltIn)
 
     return [...acc, { name, lifecycle, enabled, type: isBuiltIn ? 'built-in' : 'custom', path: curr }]
   }, [] as Hook[])
 }
 
-const parseHookName = (name: string, isBuiltIn: boolean): [string, boolean] => {
-  if (name.charAt(0) === '.') {
-    return [isBuiltIn ? name.substr(1) : calculateHash(name.substr(1)), false]
-  } else {
-    return [isBuiltIn ? name : calculateHash(name), true]
-  }
+const parseHookName = (hookName: string, isBuiltIn: boolean) => {
+  const enabled = !hookName.startsWith('.')
+  const name = enabled ? hookName : hookName.substr(1)
+
+  return { name: isBuiltIn ? name : calculateHash(name), enabled }
 }
 
 @injectable()
