@@ -236,6 +236,7 @@ export default ({
         placeholder={placeholder}
         className={style.superInput}
         tagifyRef={tagifyRef}
+        InputMode="textarea"
         settings={{
           dropdown: {
             classname: 'color-blue',

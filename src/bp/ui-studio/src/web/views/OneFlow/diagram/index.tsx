@@ -333,14 +333,6 @@ class Diagram extends Component<Props> {
     },
     executeNode: (point: Point, moreProps) =>
       this.props.createFlowNode({ ...point, type: 'execute', next: [defaultTransition], ...moreProps }),
-    listenNode: (point: Point) =>
-      this.props.createFlowNode({
-        ...point,
-        type: 'listen',
-        onReceive: [],
-        next: [defaultTransition],
-        triggers: [{ conditions: [{ id: 'always' }] }]
-      }),
     routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' }),
     actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action' }),
     promptNode: (point: Point, promptType: string) => {
@@ -416,7 +408,6 @@ class Diagram extends Component<Props> {
           ))}
         </MenuItem>
         <MenuItem text={lang.tr('execute')} onClick={wrap(this.add.executeNode, point)} icon="code" />
-        <MenuItem text={lang.tr('listen')} onClick={wrap(this.add.listenNode, point)} icon="hand" />
         <MenuItem text={lang.tr('ifElse')} onClick={wrap(this.add.routerNode, point)} icon="fork" />
         <MenuItem text={lang.tr('action')} onClick={wrap(this.add.actionNode, point)} icon="offline" />
 
@@ -748,9 +739,6 @@ class Diagram extends Component<Props> {
         case 'execute':
           this.add.executeNode(point, data.contentId ? { onReceive: [`${data.contentId}`] } : {})
           break
-        case 'listen':
-          this.add.listenNode(point)
-          break
         case 'router':
           this.add.routerNode(point)
           break
@@ -1026,6 +1014,8 @@ class Diagram extends Component<Props> {
               formData={node?.prompt}
               onUpdate={this.updatePromptNode.bind(this)}
               deletePrompt={this.deleteSelectedElements.bind(this)}
+              variables={this.props.currentFlow?.variables}
+              onUpdateVariables={this.addVariable}
               contentLang={this.state.currentLang}
               close={() => {
                 this.timeout = setTimeout(() => {
