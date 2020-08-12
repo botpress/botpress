@@ -38,16 +38,17 @@ export class BaseNodeModel extends NodeModel {
     const inNodeType = isStartNode ? 'start' : 'normal'
     const waitOnReceive = !_.isNil(onReceive)
 
+    // TODO: fix this logic
     const isNotTrigger = this.type === 'block' && this.nodeType !== undefined && this.nodeType !== 'trigger'
-    if (!this.ports['in'] && isNotTrigger) {
-      // TODO: refactor thisfor Trigger
+    if (!this.ports['in']) {
+      // TODO: refactor this for Trigger
       this.addPort(new StandardIncomingPortModel('in', inNodeType))
     }
 
     // We create as many output port as needed
     for (let i = 0; i < next.length; i++) {
-      if (!this.ports['out' + i]) {
-        this.addPort(new StandardOutgoingPortModel('out' + i))
+      if (!this.ports[`out${i}`]) {
+        this.addPort(new StandardOutgoingPortModel(`out${i}`))
       }
     }
 

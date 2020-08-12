@@ -1,4 +1,5 @@
-import { Position, Tooltip } from '@blueprintjs/core'
+import { Icon, Position, Tooltip } from '@blueprintjs/core'
+import cx from 'classnames'
 import _uniqueId from 'lodash/uniqueId'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
@@ -12,7 +13,7 @@ import style from './style.scss'
 import { TextFieldsArrayProps } from './typings'
 
 const TextFieldsArray: FC<TextFieldsArrayProps> = props => {
-  const { addBtnLabel, label, onChange, items, getPlaceholder } = props
+  const { addBtnLabel, label, onChange, items, getPlaceholder, validationPattern } = props
   const [localItems, setLocalItems] = useState(items || [])
   const focusedElement = useRef(items.length)
 
@@ -57,6 +58,18 @@ const TextFieldsArray: FC<TextFieldsArrayProps> = props => {
     onChange([...newItems])
   }
 
+  const validateItem = (item: string) => {
+    if (!validationPattern?.test || !item) {
+      return null
+    }
+
+    return validationPattern.test(item) ? (
+      <Icon icon="tick-circle" className={cx(style.icon, style.success)}></Icon>
+    ) : (
+      <Icon icon="error" className={cx(style.icon, style.error)}></Icon>
+    )
+  }
+
   return (
     <div className={style.items}>
       <h2>{label}</h2>
@@ -72,6 +85,7 @@ const TextFieldsArray: FC<TextFieldsArrayProps> = props => {
             onKeyDown={e => onKeyDown(e, index)}
             value={item}
           />
+          {validateItem(item)}
         </div>
       ))}
       <Tooltip

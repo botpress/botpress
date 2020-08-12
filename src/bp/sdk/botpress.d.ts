@@ -103,6 +103,7 @@ declare module 'botpress/sdk' {
   export interface Logger {
     forBot(botId: string): this
     attachError(error: Error): this
+    attachEvent(event: IO.Event): this
     persist(shouldPersist: boolean): this
     level(level: LogLevel): this
     noEmit(): this
@@ -721,9 +722,10 @@ declare module 'botpress/sdk' {
       readonly credentials?: any
       /** When false, some properties used by the debugger are stripped from the event before storing */
       debugger?: boolean
+      activeProcessing?: ProcessingEntry
       /** Track processing steps during the lifetime of the event  */
       processing?: {
-        [activity: string]: Date
+        [activity: string]: ProcessingEntry
       }
       /**
        * Check if the event has a specific flag
@@ -739,8 +741,12 @@ declare module 'botpress/sdk' {
        * @example event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
        */
       setFlag(flag: symbol, value: boolean): void
-      /** Add a new step to the processing of this event (with timestamp) */
-      addStep(step: string): void
+    }
+
+    interface ProcessingEntry {
+      logs?: string[]
+      errors?: EventError[]
+      date?: Date
     }
 
     /**
@@ -843,8 +849,6 @@ declare module 'botpress/sdk' {
        * This includes all the flow/nodes which were traversed for the current event
        */
       __stacktrace: JumpPoint[]
-      /** Contains details about an error that occurred while processing the event */
-      __error?: EventError
     }
 
     export interface PromptStatus {
@@ -1336,10 +1340,6 @@ declare module 'botpress/sdk' {
 
   export interface FlowVariable {
     type: string
-    name: string
-    isInput?: boolean
-    isOutput?: boolean
-    description?: string
     params?: any
   }
 
@@ -1499,7 +1499,7 @@ declare module 'botpress/sdk' {
   }
 
   interface FormOption {
-    value: string
+    value: any
     label: string
     related?: FormField
   }
@@ -1533,6 +1533,7 @@ declare module 'botpress/sdk' {
     | 'upload'
     | 'url'
     | 'hidden'
+    | 'tag-input'
     | 'variable'
 
   export interface FormField {
@@ -1563,6 +1564,8 @@ declare module 'botpress/sdk' {
     dynamicOptions?: FormDynamicOptions
     fields?: FormField[]
     moreInfo?: FormMoreInfo
+    /** When specified, indicate if array elements match the provided pattern */
+    validationPattern?: RegExp
     group?: {
       /** You have to specify the add button label */
       addLabel?: string

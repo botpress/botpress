@@ -360,7 +360,7 @@ export class DiagramManager {
       } else if (/\.flow/i.test(target)) {
         // Handle subflow connection
       } else {
-        const sourcePort = node.ports['out' + index]
+        const sourcePort = node.ports[`out${index}`]
         const targetNode = _.find(allNodes, { name: next.node })
 
         if (!targetNode) {

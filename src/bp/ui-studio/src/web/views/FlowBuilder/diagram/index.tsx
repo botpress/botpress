@@ -338,7 +338,7 @@ class Diagram extends Component<Props> {
   }, 500)
 
   createFlow(name: string) {
-    this.props.createFlow(name + '.flow.json')
+    this.props.createFlow(`${name}.flow.json`)
   }
 
   canTargetOpenInspector = target => {

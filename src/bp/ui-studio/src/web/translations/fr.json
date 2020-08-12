@@ -94,6 +94,23 @@
         "node": "Node"
       }
     },
+    "library": {
+      "savedBlocks": "Blocs Enregistrés",
+      "savedWorkflows": "Workflows Enregistrés",
+      "variableTypes": "Types de Variables",
+      "addEnum": "Ajouter Énumération",
+      "addPattern": "Ajouter Expression Régulière",
+      "filter": "Filtrer les blocs, workflows et type de variables",
+      "variableName": "Quel est le nom de cette variable?",
+      "addSynonyms": "Ajoutez des synomymes en séparant les valeurs par des virgules",
+      "addValueAlternative": "Ajouter Valeur Alternative",
+      "deleteEnumeration": "Supprimer l'énumération",
+      "confirmDeleteEntity": "Voulez-vous réellement supprimer ce type de variable?",
+      "examplePlaceholder": "Ajoutez des exemples qui correspondent à votre expression régulière (un par ligne)",
+      "addExample": "Ajouter un exemple",
+      "deletePattern": "Supprimer l'expression régulière",
+      "patternInvalid": "L'expression est invalide"
+    },
     "flow": {
       "addNode": "Ajouter une node",
       "addToLibrary": "Ajouter dans la librairie",
@@ -353,5 +370,8 @@
       "closePanel": "Fermer le panneau",
       "endOfLogs": "Fin des journaux"
     }
+  },
+  "variable": {
+    "emptyState": "Appuyez sur + dans la barre d'outils pour ajouter votre première variable"
   }
 }
