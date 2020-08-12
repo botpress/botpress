@@ -1,7 +1,7 @@
 import _ from 'lodash'
 
-interface Augmentation {
-  variableName: string
+export interface Augmentation {
+  slotName: string
   examples: string[]
 }
 
@@ -10,10 +10,10 @@ export const createAugmenter = (vars: Augmentation[]) => {
   const indexes: { [key: string]: number } = {}
   return function(phrase: string): string {
     return vars.reduce((acc, curr) => {
-      return acc.replace(new RegExp('\\$' + curr.variableName, 'g'), function() {
-        indexes[curr.variableName] = (indexes[curr.variableName] ?? -1) + 1
-        const occ = curr.examples[indexes[curr.variableName] % curr.examples.length]
-        return `[${occ}](${curr.variableName})`
+      return acc.replace(new RegExp('\\$' + curr.slotName, 'g'), function() {
+        indexes[curr.slotName] = (indexes[curr.slotName] ?? -1) + 1
+        const occ = curr.examples[indexes[curr.slotName] % curr.examples.length]
+        return `[${occ}](${curr.slotName})`
       })
     }, phrase)
   }

@@ -27,7 +27,7 @@ import {
   Tools,
   TrainingSession
 } from './typings'
-import { createAugmenter, interleave } from './utterance/augmenter'
+import { Augmentation, createAugmenter, interleave } from './utterance/augmenter'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
 
 export type TrainInput = Readonly<{
@@ -105,7 +105,7 @@ const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainSt
     input.intents,
     input.languageCode,
     list_entities,
-    input.list_entities,
+    input.list_entities, // because output list_entities (line above) doesn't contain raw synonyms
     input.pattern_entities,
     input.complex_entities,
     tools
@@ -676,35 +676,13 @@ class TrainingCanceledError extends Error {
     this.name = 'CancelError'
   }
 }
+
 function extractAugmentations(
-  intent: Readonly<{
-    name: string
-    contexts: string[]
-    slot_definitions: Readonly<{ name: string; entity: string }>[]
-    utterances: string[]
-    vocab?: _.Dictionary<boolean>
-    slot_entities?: string[]
-  }>,
-  complex_entities: Readonly<{
-    name: string
-    pattern_entities: string[]
-    list_entities: string[]
-    examples: string[]
-  }>[],
-  list_entities: Readonly<{
-    name: string
-    synonyms: { [canonical: string]: string[] }
-    fuzzyTolerance: number
-    sensitive: boolean
-  }>[],
-  pattern_entities: Readonly<{
-    name: string
-    pattern: string
-    examples: string[]
-    matchCase: boolean
-    sensitive: boolean
-  }>[]
-) {
+  intent: Intent<string>,
+  complex_entities: ComplexEntity[],
+  list_entities: ListEntity[],
+  pattern_entities: PatternEntity[]
+): Augmentation[] {
   return intent.slot_definitions
     .map(slot => {
       const complexEntity = complex_entities.find(x => x.name === slot.entity)
@@ -726,7 +704,7 @@ function extractAugmentations(
       const complexExamples = complexEntity?.examples ?? []
 
       return {
-        variableName: slot.name,
+        slotName: slot.name,
         examples: interleave(complexExamples, listExamples, patternExamples)
       }
     })

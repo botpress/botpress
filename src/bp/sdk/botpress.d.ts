@@ -457,7 +457,7 @@ declare module 'botpress/sdk' {
   }
 
   export namespace NLU {
-    export type EntityType = 'system' | 'pattern' | 'list' | 'complex'
+    export type EntityType = 'system' | 'pattern' | 'list' | 'complex' // TODO: Add the notion of Utterance Placeholder instead of adding "Complex" as an entity type here (synonyms and variables)
 
     export interface EntityDefOccurrence {
       name: string

@@ -42,7 +42,7 @@ export class IntentService {
         const conditions = tn?.conditions.filter(x => x?.id === 'user_intent_is')
 
         for (let i = 0; i < conditions.length; i++) {
-          const intentName = `${topicName}/${flow.name}/${tn?.name}/${i}`
+          const intentName = sanitizeFileName(`${topicName}/${flow.name}/${tn?.name}/${i}`)
           if (intentsByName[intentName]) {
             throw new Error(`Duplicated intent with name "${intentName}"`)
           }
@@ -59,7 +59,7 @@ export class IntentService {
 
     return Object.values(intentsByName)
   }
-
+  // TODO: move the built-in "Yes", "No", "Cancel" in /library/built-in.intents.json then get rid of thisfunction
   public async getIntent(botId: string, intentName: string): Promise<sdk.NLU.IntentDefinition> {
     intentName = sanitizeFileName(intentName)
     if (intentName.length < 1) {
