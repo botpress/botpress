@@ -19,10 +19,10 @@ export default (vocab: string[]) => (token: string) => {
     })
     .filter(x => !!x)
     .map(match => {
-      const start = match.index
-      const src = match[0]
+      const start = match!.index
+      const src = match![0]
       const length = src.length
-      const end = start + length
+      const end = start! + length
       return {
         start,
         end,

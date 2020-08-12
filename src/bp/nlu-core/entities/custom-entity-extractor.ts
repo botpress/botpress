@@ -89,8 +89,18 @@ function splitModels(listModels: ListEntityModel[], cacheKey: string): [ListEnti
   )
 }
 
+interface Candidate {
+  score: number
+  canonical: string
+  start: number
+  end: number
+  source: string
+  occurrence: string
+  eliminated: boolean
+}
+
 function extractForListModel(utterance: Utterance, listModel: ListEntityModel): EntityExtractionResult[] {
-  const candidates = []
+  const candidates: Candidate[] = []
   let longestCandidate = 0
 
   for (const [canonical, occurrences] of _.toPairs(listModel.mappingsTokens)) {
