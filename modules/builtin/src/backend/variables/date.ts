@@ -2,6 +2,8 @@ import { BoxedVariable, FlowVariableType } from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 import moment from 'moment'
 
+import common from './common'
+
 type BoxedDateType = string | Date | moment.Moment
 
 interface DateConfig {
@@ -44,13 +46,14 @@ const DateVariableType: FlowVariableType = {
   id: 'date',
   config: {
     fields: [
+      ...common.fields,
       {
         type: 'text',
         key: 'format',
         label: 'format'
       }
     ],
-    advancedSettings: []
+    advancedSettings: common.advancedSettings
   },
   box: BoxedDate
 }

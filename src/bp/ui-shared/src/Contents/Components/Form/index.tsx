@@ -10,6 +10,7 @@ import superInputStyle from '../../../FormFields/SuperInput/style.scss'
 import SuperInputArray from '../../../FormFields/SuperInputArray'
 import TagInputList from '../../../FormFields/TagInputList'
 import TextFieldsArray from '../../../FormFields/TextFieldsArray'
+import VariablePicker from '../../../FormFields/VariablePicker'
 import { createEmptyDataFromSchema } from '../../utils/fields'
 import { formReducer, getSuperInputsFromData, printMoreInfo } from '../../utils/form.utils'
 import parentStyle from '../style.scss'
@@ -171,8 +172,8 @@ const Form: FC<FormProps> = ({
         placeholder={lang(field.placeholder)}
         variables={variables || []}
         events={events || []}
-        canPickEvents={!superInputOptions?.variablesOnly}
-        canPickVariables={!superInputOptions?.eventsOnly}
+        canPickEvents={superInputOptions?.variablesOnly !== true && field.superInputOptions?.canPickEvents !== false}
+        canPickVariables={superInputOptions?.eventsOnly !== true && field.superInputOptions?.canPickVariables !== false}
         addVariable={onUpdateVariables}
         multiple={field.type === 'text'}
         onBlur={value => {
@@ -290,8 +291,12 @@ const Form: FC<FormProps> = ({
                   })
                 }}
                 variableTypes={field.variableTypes}
-                canPickEvents={!superInputOptions?.variablesOnly}
-                canPickVariables={!superInputOptions?.eventsOnly}
+                canPickEvents={
+                  superInputOptions?.variablesOnly !== true && field.superInputOptions?.canPickEvents !== false
+                }
+                canPickVariables={
+                  superInputOptions?.eventsOnly !== true && field.superInputOptions?.canPickVariables !== false
+                }
                 variables={variables || []}
                 events={events || []}
                 onUpdateVariables={onUpdateVariables}
@@ -460,6 +465,34 @@ const Form: FC<FormProps> = ({
               }
             })}
           </Fragment>
+        )
+      case 'variable':
+        return (
+          <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)}>
+            {printMoreInfo(field.moreInfo)}
+            <VariablePicker
+              data={data}
+              variables={variables || []}
+              variableTypes={field.variableTypes}
+              defaultVariableType={field.defaultVariableType}
+              field={field}
+              addVariable={onUpdateVariables!}
+              placeholder={lang(field.placeholder)}
+              onChange={value =>
+                dispatch({
+                  type: 'updateField',
+                  data: {
+                    newFormData,
+                    field: field.key,
+                    lang: field.translated && currentLang,
+                    parent,
+                    value,
+                    onUpdate
+                  }
+                })
+              }
+            />
+          </FieldWrapper>
         )
       default:
         return (

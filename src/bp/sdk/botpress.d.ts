@@ -1270,10 +1270,6 @@ declare module 'botpress/sdk' {
 
   export interface FlowVariable {
     type: string
-    name: string
-    isInput?: boolean
-    isOutput?: boolean
-    description?: string
     params?: any
   }
 
@@ -1468,6 +1464,7 @@ declare module 'botpress/sdk' {
     | 'url'
     | 'hidden'
     | 'tag-input'
+    | 'variable'
 
   export interface FormField {
     type: FormFieldType
@@ -1479,7 +1476,12 @@ declare module 'botpress/sdk' {
     defaultValue?: FormDataField
     required?: boolean
     variableTypes?: string[]
+    defaultVariableType?: string
     superInput?: boolean
+    superInputOptions?: {
+      canPickEvents?: boolean
+      canPickVariables?: boolean
+    }
     max?: number
     min?: number
     maxLength?: number

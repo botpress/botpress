@@ -3,7 +3,7 @@ import { TelemetryEvent } from 'common/telemetry'
 import _ from 'lodash'
 import ms from 'ms'
 
-export const sendTelemetry = async (events: TelemetryEvent[]) => {
+export const sendTelemetry = async (events: TelemetryEvent[]): Promise<boolean> => {
   try {
     await axios.post(
       window.TELEMETRY_URL,
@@ -16,12 +16,12 @@ export const sendTelemetry = async (events: TelemetryEvent[]) => {
   }
 }
 
-export const startFallback = async (api: AxiosInstance) => {
+export const startFallback = async (api: AxiosInstance): Promise<void> => {
   await sendSavedEvents(api)
   setInterval(async () => sendSavedEvents(api), ms('30m'))
 }
 
-const sendSavedEvents = async (api: AxiosInstance) => {
+const sendSavedEvents = async (api: AxiosInstance): Promise<void> => {
   const events = await getSavedEvents(api)
   if (!events.length) {
     return // break recursivity

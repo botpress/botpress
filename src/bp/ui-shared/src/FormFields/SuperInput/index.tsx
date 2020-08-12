@@ -46,13 +46,15 @@ export default ({
   const newlyAddedVar = useRef<string[]>([])
   const currentPrefix = useRef<string>()
   const tagifyRef = useRef<any>()
-  const [localVariables, setLocalVariables] = useState(variables?.filter(typeFilter).map(({ name }) => name) || [])
+  const [localVariables, setLocalVariables] = useState(
+    variables?.filter(typeFilter).map(({ params }) => params?.name) || []
+  )
   const [localEvents, setLocalEvents] = useState(events?.map(({ name }) => name) || [])
   const eventsDesc = events?.reduce((acc, event) => ({ ...acc, [event.name]: event.description }), {})
   // TODO implement the autocomplete selection when event selected is partial
 
   useEffect(() => {
-    setLocalVariables(variables?.filter(typeFilter).map(({ name }) => name) || [])
+    setLocalVariables(variables?.filter(typeFilter).map(({ params }) => params.name) || [])
   }, [variables])
 
   useEffect(() => {
@@ -234,6 +236,7 @@ export default ({
         placeholder={placeholder}
         className={style.superInput}
         tagifyRef={tagifyRef}
+        InputMode="textarea"
         settings={{
           dropdown: {
             classname: 'color-blue',

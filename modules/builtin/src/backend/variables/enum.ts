@@ -1,6 +1,8 @@
 import { BoxedVariable, FlowVariableType } from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 
+import common from './common'
+
 class BoxedEnum extends BaseVariable<string> {
   constructor(args) {
     super(args)
@@ -26,8 +28,8 @@ class BoxedEnum extends BaseVariable<string> {
 const EnumVariableType: FlowVariableType = {
   id: 'enum',
   config: {
-    fields: [],
-    advancedSettings: []
+    fields: common.fields,
+    advancedSettings: common.advancedSettings
   },
   box: BoxedEnum
 }

@@ -519,3 +519,11 @@ export const setActiveFormItem = createAction('FLOWS/ACTIVE_FORM_ITEM')
 
 export const deleteEntity = entityId => () =>
   axios.post(`${window.BOT_API_PATH}/nlu/entities/${entityId}/delete`, entityId)
+
+export const variablesReceived = createAction('VARIABLES/RECEIVED')
+export const fetchVariables = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.get(`${window.API_PATH}/modules/variables`).then(({ data }) => {
+    dispatch(variablesReceived(data))
+  })
+}
