@@ -40,7 +40,6 @@ const defaultLabels = {
   action: 'studio.flow.node.chatbotExecutes',
   execute: 'studio.flow.node.chatbotExecutes',
   failure: 'studio.flow.node.workflowFails',
-  listen: 'listen',
   prompt: 'studio.flow.node.chatbotPromptsUser',
   router: 'if',
   say_something: 'studio.flow.node.chatbotSays',
@@ -121,7 +120,7 @@ const BlockWidget: FC<Props> = ({
 
   const inputPortInHeader = !['trigger'].includes(nodeType)
   const outPortInHeader = !['failure', 'prompt', 'router', 'success', 'sub-workflow'].includes(nodeType)
-  const canCollapse = !['failure', 'prompt', 'router', 'success', 'listen', 'sub-workflow'].includes(nodeType)
+  const canCollapse = !['failure', 'prompt', 'router', 'success', 'sub-workflow'].includes(nodeType)
   const hasContextMenu = !['failure', 'success'].includes(nodeType)
 
   const renderContents = () => {

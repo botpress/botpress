@@ -173,5 +173,12 @@
   "string": "Texte",
   "format": "Format",
   "input": "Entrée",
-  "output": "Sortie"
+  "output": "Sortie",
+  "tolerance": "Tolérance",
+  "enumeration": "Énumération",
+  "values": "Valeurs",
+  "strict": "Stricte",
+  "medium": "Médium",
+  "loose": "Indulgent",
+  "examples": "Exemples"
 }

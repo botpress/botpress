@@ -33,12 +33,21 @@ import {
   requestUpdateFlow,
   requestUpdateFlowNode,
   requestUpdateSkill,
+  setActiveFormItem,
   setDiagramAction,
   switchFlow,
   switchFlowNode,
   updateFlowProblems
 } from '~/actions'
 import { hashCode, prettyId } from '~/util'
+
+export interface ActiveFormItem {
+  type: string
+  /** Used when editing nodes on the flow */
+  node?: any
+  /** Any other kind of item which requires the inspector */
+  data?: any
+}
 
 export interface FlowReducer {
   currentFlow?: string
@@ -49,6 +58,8 @@ export interface FlowReducer {
   currentDiagramAction: string
   nodeInBuffer?: FlowNode
   currentHashes: { [flowName: string]: string }
+  /** The element currently being edited on the right inspector form */
+  activeFormItem?: ActiveFormItem
 }
 
 const MAX_UNDO_STACK_SIZE = 25
@@ -226,18 +237,20 @@ const doDeleteFlow = ({ name, flowsByName }) => {
 }
 
 const doCreateNewFlow = name => {
-  const nodes = [
-    {
-      id: prettyId(),
-      name: 'entry',
-      onEnter: [],
-      onReceive: null,
-      next: [],
-      type: 'standard',
-      x: 100,
-      y: 100
-    }
-  ]
+  const nodes = window.USE_ONEFLOW
+    ? []
+    : [
+        {
+          id: prettyId(),
+          name: 'entry',
+          onEnter: [],
+          onReceive: null,
+          next: [],
+          type: 'standard',
+          x: 100,
+          y: 100
+        }
+      ]
 
   const isSubWorkflow = false // TODO window.USE_ONEFLOW && parseFlowName(name)
   if (isSubWorkflow) {
@@ -267,7 +280,7 @@ const doCreateNewFlow = name => {
 
   return {
     version: '0.1',
-    name: name,
+    name,
     location: name,
     label: undefined,
     description: '',
@@ -377,6 +390,11 @@ let reducer = handleActions(
     [requestFlows]: state => ({
       ...state,
       fetchingFlows: true
+    }),
+
+    [setActiveFormItem]: (state, { payload }) => ({
+      ...state,
+      activeFormItem: payload
     }),
 
     [receiveFlows]: (state, { payload }) => {
@@ -592,7 +610,7 @@ reducer = reduceReducers(
         })
 
         const newNode = {
-          id: 'skill-' + flowRandomId,
+          id: `skill-${flowRandomId}`,
           type: 'skill-call',
           skill: skillId,
           name: `${skillId}-${flowRandomId}`,
@@ -656,7 +674,7 @@ reducer = reduceReducers(
             [payload.editFlowName]: modifiedFlow,
             [state.currentFlow]: {
               ...state.flowsByName[state.currentFlow],
-              nodes: nodes
+              nodes
             }
           }
         }

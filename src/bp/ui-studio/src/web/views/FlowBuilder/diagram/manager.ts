@@ -29,7 +29,6 @@ export const nodeTypes = [
   'skill-call',
   'say_something',
   'execute',
-  'listen',
   'router',
   'action',
   'prompt',
@@ -39,7 +38,7 @@ export const nodeTypes = [
 export const outcomeNodeTypes = ['success', 'failure']
 
 // Using the new node types to prevent displaying start port
-export const newNodeTypes = ['say_something', 'execute', 'listen', 'router']
+export const newNodeTypes = ['say_something', 'execute', 'router']
 
 // Default transition applied for new nodes 1.5
 export const defaultTransition = { condition: 'true', node: '' }
@@ -58,7 +57,6 @@ const createNodeModel = (node, modelProps) => {
       'say_something',
       'prompt',
       'execute',
-      'listen',
       'router',
       'action',
       'success',
@@ -384,7 +382,7 @@ export class DiagramManager {
       } else if (/\.flow/i.test(target)) {
         // Handle subflow connection
       } else {
-        const sourcePort = node.ports['out' + index]
+        const sourcePort = node.ports[`out${index}`]
         const targetNode = _.find(allNodes, { name: next.node })
 
         if (!targetNode) {
