@@ -62,7 +62,7 @@ const createExpressApp = (options: APIOptions): Application => {
     )
   }
 
-  if (options.authToken && options.authToken.length) {
+  if (options.authToken?.length) {
     // Both tokens can be used to query the language server
     app.use(authMiddleware(options.authToken, options.adminToken))
   }
@@ -78,12 +78,31 @@ export default async function(options: APIOptions) {
     warning: (msg: string, err?: Error) => (err ? logger.attachError(err).warn(msg) : logger.warn(msg)),
     error: (msg: string, err?: Error) => (err ? logger.attachError(err).error(msg) : logger.error(msg))
   }
-  const engine = new Engine('nlu-server', loggerWrapper)
-  const nluGhost = new NLUServerGhost()
-  const modelService = new ModelService(nluGhost, options.modelDir)
-  await modelService.createModelDirIfNotExist()
 
-  const adminTokenMw = authMiddleware(options.adminToken)
+  let engine: Engine
+  let nluGhost: NLUServerGhost
+  let modelService: ModelService
+  try {
+    engine = new Engine('nlu-server', loggerWrapper)
+    nluGhost = new NLUServerGhost()
+    modelService = new ModelService(nluGhost, options.modelDir)
+    await modelService.createModelDirIfNotExist()
+  } catch (err) {
+    logger.attachError(err).error('an error occured while initializing the server')
+    process.exit(1)
+  }
+
+  const doTraining = async (intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], language: string) => {
+    try {
+      const model = await engine.train(intents, entities, language)
+      if (!model) {
+        throw new Error('training could not finish')
+      }
+      await modelService.saveModel(model!)
+    } catch (err) {
+      logger.attachError(err).error('an error occured during training')
+    }
+  }
 
   app.get('/info', (req, res) => {
     res.send({
@@ -93,33 +112,67 @@ export default async function(options: APIOptions) {
 
   const router = express.Router({ mergeParams: true })
   router.post('/train', async (req, res) => {
-    const input: TrainInput = await validate(req.body, TrainInputCreateSchema, {
-      stripUnknown: true
-    })
+    try {
+      const input: TrainInput = await validate(req.body, TrainInputCreateSchema, {
+        stripUnknown: true
+      })
+      const intents = _.flatMap(Object.values(input.topics))
+      const modelHash = engine.computeModelHash(intents, input.entities, input.language)
+      const modelId = modelService.makeModelId(modelHash, input.language)
 
-    const intents = _.flatMap(Object.values(input.topics))
-    const model = await engine.train(intents, input.entities, input.language)
+      // return the modelId as fast as possible
+      // tslint:disable-next-line: no-floating-promises
+      doTraining(intents, input.entities, input.language)
 
-    if (!model) {
-      res.sendStatus(500) // an error occured
+      return res.send({
+        success: true,
+        modelId
+      })
+    } catch (err) {
+      res.status(500).send({
+        success: false,
+        error: err.message
+      })
     }
-    const modelId = await modelService.saveModel(model!)
-    return res.send({
-      modelId
+  })
+
+  router.get('/train/:modelId', async (req, res) => {
+    const { modelId } = req.params
+    const model = await modelService.getModel(modelId)
+
+    // TODO: add a more robust check of weither or not the training has ever started;
+    //       like we do in NLU wrapper module with the training session service
+    const trainingStatus = model ? 'done' : 'training'
+    res.send({
+      success: true,
+      trainingStatus
     })
   })
 
   router.post('/predict/:modelId', async (req, res) => {
-    const { modelId } = req.params
-    const model = await modelService.getModel(modelId)
-    if (model) {
-      await engine.loadModel(model) // TODO: think about some way of unloading models
+    try {
+      const { modelId } = req.params
+      const model = await modelService.getModel(modelId)
+      if (model) {
+        await engine.loadModel(model) // TODO: think about some way of unloading models
 
-      const { sentence } = req.body
-      const prediction = await engine.predict(sentence, [], model?.languageCode!)
-      return res.send(prediction)
+        const { sentence } = req.body
+        const prediction = await engine.predict(sentence, [], model?.languageCode!)
+        return res.send({
+          success: true,
+          prediction
+        })
+      }
+      res.status(404).send({
+        success: false,
+        error: `modelId ${modelId} can't be found`
+      })
+    } catch (err) {
+      res.status(404).send({
+        success: false,
+        error: err.message
+      })
     }
-    res.sendStatus(404) // modelId does not exist
   })
 
   app.use('/', router)
