@@ -75,8 +75,8 @@ const NONE_UTTERANCES_BOUNDS = {
 export const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
   lowerCase: true,
   onlyWords: true,
-  slots: 'ignore',
-  entities: 'ignore'
+  slots: 'keep-value', // slot extraction is done in || with intent prediction
+  entities: 'keep-name'
 }
 export const MIN_NB_UTTERANCES = 3
 const NUM_CLUSTERS = 8
