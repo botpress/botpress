@@ -103,6 +103,7 @@ export class UnderstandingEngine {
     }
 
     const currentFlow = event.state?.context?.currentFlow ?? 'n/a'
+    // TODO : sync this with transitionTo and jumpTo
     const currentTopic = event.state?.session?.nduContext?.last_topic ?? 'n/a'
     const currentNode = event.state?.context?.currentNode ?? 'n/a'
     const isInMiddleOfFlow = currentFlow !== 'n/a'

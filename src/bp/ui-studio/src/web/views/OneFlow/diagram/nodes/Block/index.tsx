@@ -13,9 +13,11 @@ import style from '../Components/style.scss'
 import NodeHeader from '../Components/NodeHeader'
 import NodeWrapper from '../Components/NodeWrapper'
 import ExecuteContents from '../ExecuteContents'
+import OutcomeContents from '../OutcomeContents'
 import PromptContents from '../PromptContents'
 import RouterContents from '../RouterContents'
 import SaySomethingContents from '../SaySomethingContents'
+import SubworkflowContents from '../SubworkflowContents'
 import TriggerContents from '../TriggerContents'
 
 interface Props {
@@ -41,7 +43,8 @@ const defaultLabels = {
   router: 'if',
   say_something: 'studio.flow.node.chatbotSays',
   success: 'studio.flow.node.workflowSucceeds',
-  trigger: 'studio.flow.node.triggeredBy'
+  trigger: 'studio.flow.node.triggeredBy',
+  'sub-workflow': 'subworkflow'
 }
 
 const BlockWidget: FC<Props> = ({
@@ -115,8 +118,8 @@ const BlockWidget: FC<Props> = ({
   }
 
   const inputPortInHeader = !['trigger'].includes(nodeType)
-  const outPortInHeader = !['failure', 'prompt', 'router', 'success'].includes(nodeType)
-  const canCollapse = !['failure', 'prompt', 'router', 'success'].includes(nodeType)
+  const outPortInHeader = !['failure', 'prompt', 'router', 'success', 'sub-workflow'].includes(nodeType)
+  const canCollapse = !['failure', 'prompt', 'router', 'success', 'sub-workflow'].includes(nodeType)
   const hasContextMenu = !['failure', 'success'].includes(nodeType)
 
   const renderContents = () => {
@@ -129,6 +132,10 @@ const BlockWidget: FC<Props> = ({
         return <PromptContents node={node} selectedNodeItem={selectedNodeItem} getCurrentLang={getCurrentLang} />
       case 'router':
         return <RouterContents node={node} />
+      case 'success':
+        return <OutcomeContents node={node} selectedNodeItem={selectedNodeItem} getCurrentLang={getCurrentLang} />
+      case 'failure':
+        return <OutcomeContents node={node} selectedNodeItem={selectedNodeItem} getCurrentLang={getCurrentLang} />
       case 'say_something':
         return (
           <SaySomethingContents
@@ -145,6 +152,15 @@ const BlockWidget: FC<Props> = ({
             editNodeItem={editNodeItem}
             selectedNodeItem={selectedNodeItem}
             getConditions={getConditions}
+          />
+        )
+      case 'sub-workflow':
+        return (
+          <SubworkflowContents
+            node={node}
+            selectedNodeItem={selectedNodeItem}
+            getCurrentLang={getCurrentLang}
+            editNodeItem={editNodeItem}
           />
         )
       default:

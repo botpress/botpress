@@ -172,6 +172,8 @@
   "boolean": "Booléen",
   "string": "Texte",
   "format": "Format",
+  "input": "Entrée",
+  "output": "Sortie",
   "tolerance": "Tolérance",
   "enumeration": "Énumération",
   "values": "Valeurs",
