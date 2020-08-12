@@ -59,6 +59,7 @@ const Library: FC<Props> = props => {
   const [filter, setFilter] = useState('')
   const [items, setItems] = useState<NodeData[]>([])
   const [expanded, setExpanded] = useState<any>({})
+  const [editing, setEditing] = useState('')
 
   useEffect(() => {
     props.refreshEntities()
@@ -189,6 +190,7 @@ const Library: FC<Props> = props => {
     } else if (type == 'workflow') {
       return (
         <Fragment>
+          <MenuItem id="btn-rename" label={lang.tr('rename')} onClick={() => setEditing(id)} />
           <MenuItem id="btn-duplicate" label={lang.tr('duplicate')} onClick={() => duplicateWorkflow(id)} />
           <MenuItem
             id="btn-delete"
@@ -213,6 +215,8 @@ const Library: FC<Props> = props => {
           isExpanded={expanded[path]}
           item={item}
           level={level}
+          isEditing={editing === item.id}
+          isEditingNew={false}
           contextMenuContent={handleContextMenu(item)}
           onClick={() => handleClick({ item, path, level })}
         />
