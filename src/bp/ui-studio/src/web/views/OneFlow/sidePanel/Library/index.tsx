@@ -8,7 +8,7 @@ import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { createFlow, deleteEntity, refreshEntities, setActiveFormItem } from '~/actions'
+import { createFlow, deleteEntity, deleteFlow, duplicateFlow, refreshEntities, setActiveFormItem } from '~/actions'
 import { SearchBar } from '~/components/Shared/Interface'
 import { RootReducer } from '~/reducers'
 
@@ -139,18 +139,37 @@ const Library: FC<Props> = props => {
     }
   }
 
-  const newFlow = async () => {
-    const originalName = 'subworkflow'
+  const deleteWorkflow = async (workflow: string) => {
+    if (await confirmDialog(lang.tr('studio.flow.topicList.confirmDeleteFlow'), { acceptLabel: lang.tr('delete') })) {
+      props.deleteFlow(workflow)
+    }
+  }
+
+  const nextFlowName = (topic: string, originalName: string): string => {
     let name = undefined
     let fullName = undefined
     let index = 0
     do {
       name = `${originalName}${index ? `-${index}` : ''}`
-      fullName = buildFlowName({ topic: '__reusable', workflow: name }, true).workflowPath
+      fullName = buildFlowName({ topic, workflow: name }, true).workflowPath
       index++
     } while (props.flows.find(f => f.name === fullName))
 
-    props.createFlow(fullName)
+    return fullName
+  }
+
+  const duplicateWorkflow = async (workflow: string) => {
+    const parsedName = parseFlowName(workflow)
+    const copyName = nextFlowName(parsedName.topic, parsedName.workflow)
+    props.duplicateFlow({
+      flowNameToDuplicate: workflow,
+      name: copyName
+    })
+  }
+
+  const newFlow = async () => {
+    const name = nextFlowName('__reusable', 'subworkflow')
+    props.createFlow(name)
   }
 
   const handleContextMenu = (element: NodeData) => {
@@ -160,12 +179,26 @@ const Library: FC<Props> = props => {
       return
     }
 
-    return (
-      <Fragment>
-        <MenuItem id="btn-duplicate" label={lang.tr('duplicate')} onClick={() => duplicateVarType(id)} />
-        <MenuItem id="btn-delete" label={lang.tr('delete')} intent={Intent.DANGER} onClick={() => deleteEntity(id)} />
-      </Fragment>
-    )
+    if (type == 'variableType') {
+      return (
+        <Fragment>
+          <MenuItem id="btn-duplicate" label={lang.tr('duplicate')} onClick={() => duplicateVarType(id)} />
+          <MenuItem id="btn-delete" label={lang.tr('delete')} intent={Intent.DANGER} onClick={() => deleteEntity(id)} />
+        </Fragment>
+      )
+    } else if (type == 'workflow') {
+      return (
+        <Fragment>
+          <MenuItem id="btn-duplicate" label={lang.tr('duplicate')} onClick={() => duplicateWorkflow(id)} />
+          <MenuItem
+            id="btn-delete"
+            label={lang.tr('delete')}
+            intent={Intent.DANGER}
+            onClick={() => deleteWorkflow(id)}
+          />
+        </Fragment>
+      )
+    }
   }
 
   const printTree = (item: NodeData, level, parentId = '') => {
@@ -240,10 +273,12 @@ const Library: FC<Props> = props => {
 const mapStateToProps = (state: RootReducer) => ({ entities: state.nlu.entities })
 
 const mapDispatchToProps = {
+  duplicateFlow,
   createFlow,
   refreshEntities,
   setActiveFormItem,
-  deleteEntity
+  deleteEntity,
+  deleteFlow
 }
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(Library)
