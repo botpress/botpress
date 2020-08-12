@@ -66,11 +66,11 @@ const SubworkflowForm: FC<Props> = ({ type, close, node, diagramEngine, flows })
 
   const subflow = flows.find(x => x.name === node?.flow)
   const fields = (subflow?.variables || [])
-    .filter(v => (type === 'in' ? v.isInput : v.isOutput))
+    .filter(v => (type === 'in' ? v.params.isInput : v.params.isOutput))
     .map<FormField>(x => ({
       type: 'text',
-      key: x.name,
-      label: x.name,
+      key: x.params.name,
+      label: x.params.name,
       superInput: true
     }))
 

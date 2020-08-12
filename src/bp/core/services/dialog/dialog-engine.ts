@@ -237,7 +237,7 @@ export class DialogEngine {
     const { createVariable } = event.state
 
     const outputs = callerNode.subflow?.out
-    const childOutputVars = childFlow.variables?.filter(x => x.isOutput)
+    const childOutputVars = childFlow.variables?.filter(x => x.params.isOutput)
     const childBoxedVars = workflows[parseFlowName(childFlow.name).workflowPath!]?.variables
 
     if (!outputs || !childOutputVars || !childBoxedVars) {
@@ -245,8 +245,8 @@ export class DialogEngine {
     }
 
     childOutputVars.forEach(v => {
-      const ouputVarName = outputs[v.name]
-      const childBoxedVar = childBoxedVars[v.name] as BoxedVariable<any>
+      const ouputVarName = outputs[v.params.name]
+      const childBoxedVar = childBoxedVars[v.params.name] as BoxedVariable<any>
 
       if (ouputVarName && childBoxedVar) {
         createVariable(ouputVarName, childBoxedVar.value, childBoxedVar.type)
@@ -258,7 +258,7 @@ export class DialogEngine {
     const { workflow, createVariable } = event.state
 
     const inputs = event.state.context.inputs
-    const childInputVars = childFlow.variables?.filter(x => x.isInput)
+    const childInputVars = childFlow.variables?.filter(x => x.params.isInput)
     const currentBoxedVars = workflow.variables
 
     if (!inputs || !childInputVars || !currentBoxedVars) {
@@ -266,7 +266,7 @@ export class DialogEngine {
     }
 
     childInputVars.forEach(v => {
-      const input = inputs[v.name]
+      const input = inputs[v.params.name]
       if (!input) {
         return
       }
@@ -278,7 +278,7 @@ export class DialogEngine {
 
       if (value !== undefined) {
         const flowName = parseFlowName(childFlow.name).workflowPath
-        createVariable(v.name, value, v.type, { nbOfTurns: 10, specificWorkflow: flowName })
+        createVariable(v.params.name, value, v.type, { nbOfTurns: 10, specificWorkflow: flowName })
       }
     })
   }
