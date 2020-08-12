@@ -45,12 +45,12 @@ export default class ModelService {
     }
   }
 
-  public async saveModel(model: NLU.Model): Promise<string> {
+  public async saveModel(model: NLU.Model): Promise<void> {
     const { ghost, modelDir } = this
 
     const serialized = JSON.stringify(model)
 
-    const modelId = this.makeModelId(model)
+    const modelId = this.makeModelId(model.hash, model.languageCode)
     const modelName = this.makeFileName(modelId)
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
     const tmpFileName = path.join(tmpDir.name, 'model')
@@ -69,12 +69,10 @@ export default class ModelService {
     const buffer = await fse.readFile(archiveName)
     await ghost.upsertFile(modelDir, modelName, buffer)
     tmpDir.removeCallback()
-
-    return modelId
   }
 
-  private makeModelId(model: NLU.Model) {
-    return `${model.hash}.${model.languageCode}`
+  public makeModelId(hash: string, languageCode: string) {
+    return `${hash}.${languageCode}`
   }
 
   private makeFileName(modelId: string): string {
