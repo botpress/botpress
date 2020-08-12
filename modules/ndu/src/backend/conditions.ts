@@ -77,19 +77,12 @@ export const dialogConditions: sdk.Condition[] = [
       label: { label: 'Custom label', type: 'string', defaultValue: 'Raw JS expression' }
     },
     evaluate: (event, params) => {
-      const code = `
       try {
-        return ${params.expression};
+        const fn = new Function('event', `return ${params.expression};`)
+        return fn(event) ? 1 : 0
       } catch (err) {
-        if (err instanceof TypeError) {
-          console.log(err)
-          return false
-        }
-        throw err
-      }`
-
-      const fn = new Function('event', code)
-      return fn(event) ? 1 : 0
+        throw new Error(`\n\n${err}\nExpression "${params.expression}" in workflow ${params.wfName}`)
+      }
     }
   },
   {

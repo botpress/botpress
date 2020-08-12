@@ -132,6 +132,8 @@ export class SlackClient {
         })
       }
     })
+
+    com.on('error', err => this.bp.logger.attachError(err).error(`An error occurred`))
   }
 
   private async _getUserInfo(userId: string) {
