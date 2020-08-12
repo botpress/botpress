@@ -33,7 +33,7 @@ export interface HookPayload {
   global: Hook[]
 }
 
-export async function getHooksLifecycle(botService: BotService, ghostService: GhostService): Promise<HookPayload> {
+export const getHooksLifecycle = async (botService: BotService, ghostService: GhostService): Promise<HookPayload> => {
   const botIds = await botService.getBotsIds()
   const perBots = await Promise.map(botIds, async id => {
     const botHooksPaths = await ghostService.forBot(id).directoryListing('/hooks', '*.js')
@@ -46,7 +46,7 @@ export async function getHooksLifecycle(botService: BotService, ghostService: Gh
   return { global, perBots }
 }
 
-function parsePaths(paths: string[]): Hook[] {
+const parsePaths = (paths: string[]): Hook[] => {
   return paths.reduce((acc, curr) => {
     const path = curr.split('/')
     const lifecycle = path.shift() || ''
@@ -59,7 +59,7 @@ function parsePaths(paths: string[]): Hook[] {
   }, [] as Hook[])
 }
 
-function parseHookName(name: string, isBuiltIn: boolean): [string, boolean] {
+const parseHookName = (name: string, isBuiltIn: boolean): [string, boolean] => {
   if (name.charAt(0) === '.') {
     return [isBuiltIn ? name.substr(1) : calculateHash(name.substr(1)), false]
   } else {
