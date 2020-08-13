@@ -1,3 +1,4 @@
+import { BUILTIN_MODULES } from 'common/defaults'
 import LicensingService from 'common/licensing-service'
 import { buildSchema } from 'common/telemetry'
 import { AuthRule, Workspace } from 'common/typings'
@@ -12,7 +13,7 @@ import ms from 'ms'
 import { GhostService } from '..'
 import { JobService } from '../job-service'
 
-import { TelemetryStats } from './telemetry-stats'
+import { REDACTED, TelemetryStats } from './telemetry-stats'
 
 const DEFAULT_ROLES = ['dev', 'admin', 'editor']
 
@@ -25,6 +26,25 @@ interface WorkspacePayload {
   id: string
   roles: Role[]
 }
+
+const obsfuscateModule = rules => {
+  return rules.reduce((acc, rule) => {
+    const res = obfuscateRule(rule.res)
+    return [...acc, { ...rule, res }]
+  }, [])
+}
+
+const obfuscateRule = res => {
+  const regex = /^module\.([\w-]+)\.?/
+  const result = regex.exec(res)
+
+  if (!result) {
+    return res
+  }
+
+  return BUILTIN_MODULES.includes(result[1]) ? res : res.replace(result[1], REDACTED)
+}
+
 @injectable()
 export class RolesStats extends TelemetryStats {
   protected interval: number
@@ -58,7 +78,7 @@ export class RolesStats extends TelemetryStats {
     return workspaces.reduce((acc, workspace) => {
       const roles = workspace.roles.map(role => ({
         id: _.includes(DEFAULT_ROLES, role.id) ? role.id : calculateHash(role.id),
-        rules: role.rules
+        rules: obsfuscateModule(role.rules)
       }))
       return [...acc, { id: calculateHash(workspace.id), roles }]
     }, [] as WorkspacePayload[])
