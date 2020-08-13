@@ -27,7 +27,7 @@ const VariablesEditor: FC<Props> = ({ variables, editVariable }) => {
 
   const allTypes = _.sortBy(
     _.uniqWith(
-      currentFlowVars.map(x => ({ type: x.type, subType: x.params.subType })),
+      currentFlowVars.map(x => ({ type: x.type, subType: x.params?.subType })),
       (a, b) => a.type === b.type && a.subType === b.subType
     ),
     'type'
@@ -36,7 +36,7 @@ const VariablesEditor: FC<Props> = ({ variables, editVariable }) => {
   return (
     <div className={style.wrapper}>
       {allTypes.map(({ type, subType }) => {
-        const filtered = currentFlowVars.filter(x => x.type === type && x.params.subType === subType)
+        const filtered = currentFlowVars.filter(x => x.type === type && x.params?.subType === subType)
         const icon = variables.primitive.find(x => x.id === type)?.config?.icon
 
         return (

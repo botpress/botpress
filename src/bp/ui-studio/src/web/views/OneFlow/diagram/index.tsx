@@ -885,7 +885,7 @@ class Diagram extends Component<Props> {
   }
 
   addVariable = (variable?: FlowVariable & { isNew?: boolean }) => {
-    const vars = this.props.currentFlow?.variables ?? []
+    const vars = this.props.variables.currentFlow ?? []
 
     if (!variable) {
       variable = {
@@ -915,7 +915,7 @@ class Diagram extends Component<Props> {
 
   updateFlowVariable = data => {
     const { node, index } = this.state.editingNodeItem
-    const vars = this.props.currentFlow.variables ?? []
+    const vars = this.props.variables.currentFlow ?? []
 
     this.setState({ editingNodeItem: { node: { ...node, variable: data }, index } })
 
@@ -927,7 +927,7 @@ class Diagram extends Component<Props> {
 
   deleteVariable = () => {
     const { index } = this.state.editingNodeItem
-    const vars = this.props.currentFlow.variables ?? []
+    const vars = this.props.variables.currentFlow ?? []
 
     this.props.updateFlow({
       ...this.props.currentFlow,

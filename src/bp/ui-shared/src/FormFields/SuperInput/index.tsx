@@ -2,6 +2,7 @@ import { Button, Icon, IconName } from '@blueprintjs/core'
 import Tags from '@yaireo/tagify/dist/react.tagify'
 import cx from 'classnames'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
+import { Variables } from '~/../../common/typings'
 
 import ToolTip from '../../../../ui-shared-lite/ToolTip'
 import { lang } from '../../translations'
@@ -43,19 +44,23 @@ export default ({
     return true
   }
 
+  const filterVariables = (variables?: Variables) =>
+    variables?.currentFlow
+      ?.filter(typeFilter)
+      .map(({ params }) => params?.name)
+      .filter(Boolean) || []
+
   const initialValue = useRef<string>((value && convertToTags(value)) || '')
   const newlyAddedVar = useRef<string[]>([])
   const currentPrefix = useRef<string>()
   const tagifyRef = useRef<any>()
-  const [localVariables, setLocalVariables] = useState(
-    variables?.currentFlow?.filter(typeFilter).map(({ params }) => params?.name) || []
-  )
+  const [localVariables, setLocalVariables] = useState(filterVariables(variables))
   const [localEvents, setLocalEvents] = useState(events?.map(({ name }) => name) || [])
   const eventsDesc = events?.reduce((acc, event) => ({ ...acc, [event.name]: event.description }), {})
   // TODO implement the autocomplete selection when event selected is partial
 
   useEffect(() => {
-    setLocalVariables(variables?.currentFlow?.filter(typeFilter).map(({ params }) => params.name) || [])
+    setLocalVariables(filterVariables(variables))
   }, [variables])
 
   useEffect(() => {
@@ -137,7 +142,9 @@ export default ({
     if (isAdding) {
       const newVariable = {
         type: defaultVariableType || 'string',
-        name: value
+        params: {
+          name: value
+        }
       }
 
       addVariable?.(newVariable)
