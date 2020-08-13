@@ -63,15 +63,12 @@ export default class Engine implements NLU.Engine {
       .digest('hex')
   }
 
-  // @ts-ignore
   async train(
     intentDefs: NLU.IntentDefinition[],
     entityDefs: NLU.EntityDefinition[],
     languageCode: string,
-    reportTrainingProgress?: NLU.ProgressReporter,
     trainingSession?: NLU.TrainingSession,
-    options?: NLU.TrainingOptions,
-    cancelCallback?
+    options?: NLU.TrainingOptions
   ): Promise<NLU.Model | undefined> {
     trainDebug.forBot(this.botId, `Started ${languageCode} training`)
 
@@ -143,7 +140,7 @@ export default class Engine implements NLU.Engine {
     }
 
     const hash = this.computeModelHash(intentDefs, entityDefs, languageCode)
-    const model = await this._trainAndMakeModel(input, hash, reportTrainingProgress, cancelCallback)
+    const model = await this._trainAndMakeModel(input, hash, options?.progressCallback, options?.cancelCallback)
     if (!model) {
       return
     }
@@ -153,13 +150,6 @@ export default class Engine implements NLU.Engine {
       model.data.output.slots_model = new Buffer(model.data.output.slots_model) // lodash merge messes up buffers
     }
 
-    trainingSession &&
-      reportTrainingProgress?.(this.botId, 'Training complete', {
-        ...trainingSession,
-        progress: 1,
-        status: 'done'
-      })
-
     trainDebug.forBot(this.botId, `Successfully finished ${languageCode} training`)
 
     return serializeModel(model)
@@ -168,15 +158,14 @@ export default class Engine implements NLU.Engine {
   private async _trainAndMakeModel(
     input: TrainInput,
     hash: string,
-    reportTrainingProgress?: NLU.ProgressReporter,
+    progressCallback?,
     cancelCallback?
   ): Promise<PredictableModel | undefined> {
     const startedAt = new Date()
     let output: TrainOutput | undefined
 
     try {
-      // @ts-ignore
-      output = await Trainer(input, Engine._tools, reportTrainingProgress, cancelCallback)
+      output = await Trainer(input, Engine._tools, progressCallback, cancelCallback)
     } catch (err) {
       this.logger.error('Could not finish training NLU model', err)
       return

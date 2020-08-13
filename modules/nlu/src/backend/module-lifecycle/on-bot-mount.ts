@@ -55,37 +55,28 @@ export function getOnBotMount(state: NLUState) {
               await setTrainingSession(bp, botId, trainSession)
               state.nluByBot[botId].trainSessions[languageCode] = trainSession
 
-              const canceledCallback = async () => {
-                trainSession.status = 'needs-training'
-                await setTrainingSession(bp, botId, trainSession)
-                const ev = {
-                  type: 'nlu',
-                  botId,
-                  trainSession: _.omit(trainSession, 'lock')
-                }
-                bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', ev))
+              const progressCallback = async (progress: number) => {
+                trainSession.progress = progress
+                await state.sendNLUStatusEvent(botId, trainSession)
               }
 
-              model = await engine.train(
-                intentDefs,
-                entityDefs,
-                languageCode,
-                state.reportTrainingProgress,
-                trainSession,
-                { forceTrain },
-                // @ts-ignore
-                canceledCallback
-              )
+              const cancelCallback = async () => {
+                trainSession.status = 'needs-training'
+                state.sendNLUStatusEvent(botId, trainSession)
+                await state.sendNLUStatusEvent(botId, trainSession)
+                bp.logger.forBot(botId).info('Training cancelled')
+              }
+
+              const options = { forceTrain, progressCallback, cancelCallback }
+              model = await engine.train(intentDefs, entityDefs, languageCode, trainSession, options)
+              trainSession.status = 'done'
+              state.sendNLUStatusEvent(botId, trainSession)
               if (model) {
                 await engine.loadModel(model)
                 await ModelService.saveModel(ghost, model, hash)
               }
             } else {
-              state.reportTrainingProgress(botId, 'Training not needed', {
-                language: languageCode,
-                progress: 1,
-                status: 'done'
-              })
+              await state.sendNLUStatusEvent(botId, { language: languageCode, progress: 1, status: 'done' })
             }
             try {
               if (model) {
@@ -111,23 +102,14 @@ export function getOnBotMount(state: NLUState) {
       })
     }
 
-    // TODO remove this
-    const isTraining = async (): Promise<boolean> => {
-      return bp.kvs.forBot(botId).exists(KVS_TRAINING_STATUS_KEY)
-    }
-
-    // @ts-ignore
     state.nluByBot[botId] = {
       botId,
       engine,
       trainOrLoad,
       trainSessions: {},
-      cancelTraining,
-      isTraining
+      cancelTraining
     }
 
-    if (yn(process.env.FORCE_TRAIN_ON_MOUNT)) {
-      trainOrLoad(true) // floating on purpose
-    }
+    trainOrLoad(yn(process.env.FORCE_TRAIN_ON_MOUNT)) // floating on purpose
   }
 }

@@ -14,11 +14,7 @@ interface Props {
 const BASE_NLU_URL = `${window.BOT_API_PATH}/mod/nlu`
 
 // TODOs
-
 // - move calls to core api
-
-// - MOVE progress & cancell CB in engine options
-// - remove autotrain
 // - add translations in ui
 // - styling
 
@@ -111,7 +107,7 @@ export const TrainingStatusComponent: FC<Props> = props => {
         {message}
 
         {/* TODO translations for this */}
-        {status === 'needs-training' && <button onClick={onTrainClicked}>Train</button>}
+        {status === 'needs-training' && <button onClick={onTrainClicked}> Train</button>}
         {status === 'training' && <button onClick={onCancelClicked}>Cancel</button>}
       </div>
     )
