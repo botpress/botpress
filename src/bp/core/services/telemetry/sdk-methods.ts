@@ -85,20 +85,16 @@ export class SDKStats extends TelemetryStats {
       .directoryListing('/', `${rootFolder}/*.js`)
       .map(path => path.split('/').pop() || '')
 
-    const global = await Promise.map(globalActionsNames, this.parseFile(`/${rootFolder}`))
-    const perBots = await Promise.reduce(bots, this.botActionsReducer(rootFolder), [] as ParsedFile[])
-
-    return { global, perBots }
-  }
-
-  private botActionsReducer(
-    rootFolder: string
-  ): (parsedFilesAcc: ParsedFile[], botId: string) => Promise<ParsedFile[]> {
-    return async (parsedFilesAcc, botId) => {
+    const reducer = async (parsedFilesAcc, botId) => {
       const botActionsNames = await this.ghostService.forBot(botId).directoryListing(`/${rootFolder}`, '*.js')
-      const parsedFiles = await Promise.map(botActionsNames, this.parseFile(`/${rootFolder}`, { botId }))
+      const parsedFiles = await Promise.map(botActionsNames, name => this.parseFile(name, `/${rootFolder}`, { botId }))
       return [...parsedFilesAcc, ...parsedFiles]
     }
+
+    const global = await Promise.map(globalActionsNames, name => this.parseFile(name, `/${rootFolder}`))
+    const perBots = await Promise.reduce(bots, reducer, [] as ParsedFile[])
+
+    return { global, perBots }
   }
 
   private async getHooksUsages(): Promise<SDKUsage> {
@@ -129,17 +125,15 @@ export class SDKStats extends TelemetryStats {
         usageParams.botId = botId
       }
 
-      return this.parseFile('/hooks', usageParams)(path!)
+      return this.parseFile(path!, '/hooks', usageParams)
     })
   }
 
-  private parseFile(rootFolder: string, usageParams?: UsageParams): (name: string) => Promise<ParsedFile> {
-    return async (name: string) => {
-      const file = await this.readFileAsString(rootFolder, name, usageParams?.botId)
-      const functions = this.extractFunctions(parse(file, PARSE_CONFIG))
-      const usage: ParsedFile = { fileName: name.split('/').pop() || '', usages: this.parseMethods(functions) }
-      return { ...usage, ...usageParams }
-    }
+  private async parseFile(name: string, rootFolder: string, usageParams?: UsageParams): Promise<ParsedFile> {
+    const file = await this.readFileAsString(rootFolder, name, usageParams?.botId)
+    const functions = this.extractFunctions(parse(file, PARSE_CONFIG))
+    const usage: ParsedFile = { fileName: name.split('/').pop() || '', usages: this.parseMethods(functions) }
+    return { ...usage, ...usageParams }
   }
 
   private parseMethods(methods: string[]): Usage[] {
