@@ -545,7 +545,7 @@ const TrainOutOfScope = async (
   }, {} as _.Dictionary<string>)
 }
 
-const NB_STEPS = 5 // change this if the training pipeline changes
+const NB_STEPS = 6 // change this if the training pipeline changes
 
 export type Trainer = (
   input: TrainInput,
@@ -556,7 +556,8 @@ export type Trainer = (
 export const Trainer: Trainer = async (
   input: TrainInput,
   tools: Tools,
-  progress?: sdk.NLU.ProgressReporter
+  progress?: sdk.NLU.ProgressReporter,
+  cancelCallback?: () => void
 ): Promise<TrainOutput | undefined> => {
   let totalProgress = 0
   let normalizedProgress = 0
@@ -571,7 +572,7 @@ export const Trainer: Trainer = async (
     }
     if (input.trainingSession.status === 'canceled') {
       // Note that we don't use debouncedProgress here as we want the side effects probagated now
-      reportTrainingProgress(input.botId, 'Currently cancelling...', input.trainingSession)
+      // reportTrainingProgress(input.botId, 'Currently cancelling...', input.trainingSession)
       throw new TrainingCanceledError()
     }
 
@@ -585,19 +586,28 @@ export const Trainer: Trainer = async (
   }
 
   const handleCancellation = () => {
-    reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession!)
+    cancelCallback?.()
     console.info(input.botId, 'Training aborted')
   }
 
   let step = await PreprocessInput(input, tools)
+  try {
+    console.log('early exit')
+    reportProgress() // 10%
+  } catch (err) {
+    if (err instanceof TrainingCanceledError) {
+      handleCancellation()
+      return
+    }
+    throw err
+  }
   step = await TfidfTokens(step)
   step = ClusterTokens(step, tools)
   step = await ExtractEntities(step, tools)
   step = await AppendNoneIntent(step, tools)
   const exact_match_index = BuildExactMatchIndex(step)
-
   try {
-    reportProgress() // 20% done...
+    reportProgress() // 20%
   } catch (err) {
     if (err instanceof TrainingCanceledError) {
       handleCancellation()

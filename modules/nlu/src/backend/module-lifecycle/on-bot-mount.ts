@@ -4,9 +4,8 @@ import ms from 'ms'
 import yn from 'yn'
 
 import { createApi } from '../../api'
-import { isOn as isAutoTrainOn } from '../autoTrain'
 import * as ModelService from '../model-service'
-import { makeTrainingSession, makeTrainSessionKey } from '../train-session-service'
+import { makeTrainingSession, makeTrainSessionKey, setTrainingSession } from '../train-session-service'
 import { NLUState } from '../typings'
 
 const missingLangMsg = botId =>
@@ -53,7 +52,19 @@ export function getOnBotMount(state: NLUState) {
 
             if ((forceTrain || !model) && !yn(process.env.BP_NLU_DISABLE_TRAINING)) {
               const trainSession = makeTrainingSession(languageCode, lock)
+              await setTrainingSession(bp, botId, trainSession)
               state.nluByBot[botId].trainSessions[languageCode] = trainSession
+
+              const canceledCallback = async () => {
+                trainSession.status = 'needs-training'
+                await setTrainingSession(bp, botId, trainSession)
+                const ev = {
+                  type: 'nlu',
+                  botId,
+                  trainSession: _.omit(trainSession, 'lock')
+                }
+                bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', ev))
+              }
 
               model = await engine.train(
                 intentDefs,
@@ -61,7 +72,9 @@ export function getOnBotMount(state: NLUState) {
                 languageCode,
                 state.reportTrainingProgress,
                 trainSession,
-                { forceTrain }
+                { forceTrain },
+                // @ts-ignore
+                canceledCallback
               )
               if (model) {
                 await engine.loadModel(model)
@@ -89,17 +102,6 @@ export function getOnBotMount(state: NLUState) {
       10000,
       { leading: true }
     )
-    // register trainOrLoad with ghost file watcher
-    // we use local events so training occurs on the same node where the request for changes enters
-    const trainWatcher = bp.ghost.forBot(botId).onFileChanged(async f => {
-      if (f.includes('intents') || f.includes('entities')) {
-        if (await isAutoTrainOn(bp, botId)) {
-          // eventually cancel & restart training only for given language
-          await cancelTraining()
-          trainOrLoad()
-        }
-      }
-    })
 
     const cancelTraining = async () => {
       await Promise.map(languages, async lang => {
@@ -109,20 +111,23 @@ export function getOnBotMount(state: NLUState) {
       })
     }
 
+    // TODO remove this
     const isTraining = async (): Promise<boolean> => {
       return bp.kvs.forBot(botId).exists(KVS_TRAINING_STATUS_KEY)
     }
 
+    // @ts-ignore
     state.nluByBot[botId] = {
       botId,
       engine,
-      trainWatcher,
       trainOrLoad,
       trainSessions: {},
       cancelTraining,
       isTraining
     }
 
-    trainOrLoad(yn(process.env.FORCE_TRAIN_ON_MOUNT)) // floating promise on purpose
+    if (yn(process.env.FORCE_TRAIN_ON_MOUNT)) {
+      trainOrLoad(true) // floating on purpose
+    }
   }
 }
