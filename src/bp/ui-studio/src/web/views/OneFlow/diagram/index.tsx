@@ -3,7 +3,6 @@ import {
   ContextMenu,
   ControlGroup,
   InputGroup,
-  Intent,
   Menu,
   MenuDivider,
   MenuItem,
@@ -12,7 +11,7 @@ import {
   Toaster
 } from '@blueprintjs/core'
 import { FlowVariable } from 'botpress/sdk'
-import { Contents, contextMenu, Icons, lang, MainContent } from 'botpress/shared'
+import { Contents, contextMenu, Icons, lang, MainContent, toast } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
@@ -34,9 +33,11 @@ import {
   insertNewSkillNode,
   openFlowNodeProps,
   pasteFlowNode,
+  refreshCallerFlows,
   refreshFlowsLinks,
   refreshHints,
   removeFlowNode,
+  setActiveFormItem,
   switchFlow,
   switchFlowNode,
   updateFlow,
@@ -46,13 +47,21 @@ import {
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { toastSuccess } from '~/components/Shared/Utils'
 import withLanguage from '~/components/Util/withLanguage'
-import { getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/reducers'
+import {
+  getAllFlows,
+  getCallerFlowsOutcomeUsage,
+  getCurrentFlow,
+  getCurrentFlowNode,
+  getReusableWorkflows,
+  RootReducer
+} from '~/reducers'
 import storage from '~/util/storage'
 import {
   defaultTransition,
   DiagramManager,
   DIAGRAM_PADDING,
   nodeTypes,
+  outcomeNodeTypes,
   Point
 } from '~/views/FlowBuilder/diagram/manager'
 import { DeletableLinkFactory } from '~/views/FlowBuilder/diagram/nodes/LinkWidget'
@@ -68,9 +77,11 @@ import ConditionForm from './ConditionForm'
 import ContentForm from './ContentForm'
 import ExecuteForm from './ExecuteForm'
 import PromptForm from './PromptForm'
+import SubworkflowForm from './SubworkflowForm'
 import Toolbar from './Toolbar'
 import VariablesEditor from './VariablesEditor'
 import VariableForm from './VariableForm'
+import VariableTypesForm from './VariableTypesForm'
 import WorkflowToolbar from './WorkflowToolbar'
 
 interface OwnProps {
@@ -226,6 +237,11 @@ class Diagram extends Component<Props> {
       this.editNodeItem(this.props.currentFlowNode, 0)
     }
 
+    if (this.props.activeFormItem !== undefined && prevProps.activeFormItem !== this.props.activeFormItem) {
+      clearTimeout(this.timeout)
+      this.setState({ editingNodeItem: this.props.activeFormItem })
+    }
+
     if (this.diagramContainer) {
       this.manager.setDiagramContainer(this.diagramWidget, {
         width: this.diagramContainer.offsetWidth,
@@ -365,6 +381,18 @@ class Diagram extends Component<Props> {
           }
         ]
       })
+    },
+    successNode: (point: Point) => {
+      this.props.createFlowNode({ ...point, type: 'success' })
+      this.props.refreshCallerFlows()
+    },
+    failureNode: (point: Point) => {
+      this.props.createFlowNode({ ...point, type: 'failure' })
+      this.props.refreshCallerFlows()
+    },
+    gotoSubWorkflow: (point: Point, flowName: string) => {
+      this.props.createFlowNode({ ...point, type: 'sub-workflow', flow: flowName })
+      this.props.refreshCallerFlows(flowName)
     }
   }
 
@@ -379,6 +407,8 @@ class Diagram extends Component<Props> {
       clearStartPortOnClose = false
       addNodeMethod(...args)
     }
+
+    const hasSubFlows = !!this.props.reusableFlows?.length
 
     contextMenu(
       event,
@@ -410,6 +440,17 @@ class Diagram extends Component<Props> {
         <MenuItem text={lang.tr('execute')} onClick={wrap(this.add.executeNode, point)} icon="code" />
         <MenuItem text={lang.tr('ifElse')} onClick={wrap(this.add.routerNode, point)} icon="fork" />
         <MenuItem text={lang.tr('action')} onClick={wrap(this.add.actionNode, point)} icon="offline" />
+
+        <MenuItem text="Outcome" icon="take-action">
+          <MenuItem text="Success" onClick={wrap(this.add.successNode, point)} icon="tick" />
+          <MenuItem text="Failure" onClick={wrap(this.add.failureNode, point)} icon="cross" />
+        </MenuItem>
+
+        <MenuItem text="Go to Reusable Workflow" icon="pivot" disabled={!hasSubFlows}>
+          {this.props.reusableFlows?.map(flow => (
+            <MenuItem text={flow.workflow} onClick={wrap(this.add.gotoSubWorkflow, point, flow.workflowPath)} />
+          ))}
+        </MenuItem>
 
         <MenuItem tagName="span" text={lang.tr('skills')} icon="add">
           {this.props.skills.map(skill => (
@@ -615,26 +656,54 @@ class Diagram extends Component<Props> {
     this.props.switchFlowNode(nodeId)
   }
 
+  canDeleteOutcome(type: string, nodeName?: string, toastReason?: boolean) {
+    const successCount = this.props.currentFlow.nodes.filter(x => x.type === 'success').length
+    const failureCount = this.props.currentFlow.nodes.filter(x => x.type === 'failure').length
+    const isUsed =
+      nodeName === undefined ? false : !!this.props.outcomeUsage?.find(x => x.condition === `lastNode=${nodeName}`)
+
+    if (isUsed) {
+      toastReason && toast.failure(lang.tr('studio.flow.cantDeleteOutcome'))
+      return false
+    }
+
+    if ((type === 'success' && successCount === 1) || (type === 'failure' && failureCount === 1)) {
+      toastReason && toast.failure(lang.tr('studio.flow.mustHaveOutcomes'))
+      return false
+    }
+
+    return true
+  }
+
+  deleteElement(element) {
+    if (this.diagramEngine.isModelLocked(element)) {
+      return
+    }
+
+    const type = element['nodeType']
+
+    if (outcomeNodeTypes.includes(type)) {
+      if (this.canDeleteOutcome(type, element['name'], true)) {
+        this.props.removeFlowNode(element)
+        this.props.refreshCallerFlows()
+      }
+    } else if (_.includes(nodeTypes, type) || _.includes(nodeTypes, element.type)) {
+      this.props.removeFlowNode(element)
+    } else if (element.type === 'default') {
+      element.remove()
+      this.checkForLinksUpdate()
+    } else {
+      element.remove() // it's a point or something else
+    }
+  }
+
   deleteSelectedElements() {
     const elements = _.sortBy(this.diagramEngine.getDiagramModel().getSelectedItems(), 'nodeType')
     this.setState({ editingNodeItem: null })
 
     // Use sorting to make the nodes first in the array, deleting the node before the links
     for (const element of elements) {
-      if (!this.diagramEngine.isModelLocked(element)) {
-        if (element.type === 'success') {
-          return alert(lang.tr('studio.flow.cantDeleteSuccess'))
-        } else if (element.type === 'failure') {
-          return alert(lang.tr('studio.flow.cantDeleteFailure'))
-        } else if (_.includes(nodeTypes, element['nodeType']) || _.includes(nodeTypes, element.type)) {
-          this.props.removeFlowNode(element)
-        } else if (element.type === 'default') {
-          element.remove()
-          this.checkForLinksUpdate()
-        } else {
-          element.remove() // it's a point or something else
-        }
-      }
+      this.deleteElement(element)
     }
 
     this.props.closeFlowNodeProps()
@@ -676,37 +745,6 @@ class Diagram extends Component<Props> {
 
   handleFilterChanged = event => {
     this.setState({ highlightFilter: event.target.value })
-  }
-
-  renderCatchAllInfo() {
-    const nbNext = _.get(this.props.currentFlow, 'catchAll.next.length', 0)
-    const nbReceive = _.get(this.props.currentFlow, 'catchAll.onReceive.length', 0)
-
-    return (
-      <div style={{ display: 'flex', marginTop: 5 }}>
-        <Button onClick={this.handleFlowWideClicked} minimal={true}>
-          <Tag intent={nbNext > 0 ? Intent.PRIMARY : Intent.NONE}>{nbNext}</Tag>
-          {lang.tr('studio.flow.flowWideTransitions', { count: nbNext })}
-        </Button>
-        <Button onClick={this.handleFlowWideClicked} minimal={true}>
-          <Tag intent={nbReceive > 0 ? Intent.PRIMARY : Intent.NONE}>{nbReceive}</Tag>
-          {lang.tr('studio.flow.flowWideOnReceives', { count: nbReceive })}
-        </Button>
-        {this.props.showSearch && (
-          <ControlGroup>
-            <InputGroup
-              id="input-highlight-name"
-              tabIndex={1}
-              placeholder={lang.tr('studio.flow.highlightByName')}
-              value={this.props.highlightFilter}
-              onChange={this.props.handleFilterChanged}
-              autoFocus={true}
-            />
-            <Button icon="small-cross" onClick={this.props.hideSearch} />
-          </ControlGroup>
-        )}
-      </div>
-    )
   }
 
   handleToolDropped = async (event: React.DragEvent) => {
@@ -892,17 +930,41 @@ class Diagram extends Component<Props> {
     })
   }
 
-  render() {
-    const { node, index } = this.state.editingNodeItem || {}
-    const formType: string = node?.nodeType || node?.type
+  renderSearch = () => {
+    return (
+      this.props.showSearch && (
+        <div className={style.floatingInfo}>
+          <ControlGroup>
+            <InputGroup
+              id="input-highlight-name"
+              tabIndex={1}
+              placeholder={lang.tr('studio.flow.highlightByName')}
+              value={this.props.highlightFilter}
+              onChange={this.props.handleFilterChanged}
+              autoFocus={true}
+            />
+            <Button icon="small-cross" onClick={this.props.hideSearch} />
+          </ControlGroup>
+        </div>
+      )
+    )
+  }
 
-    let editingNodeItem
+  render() {
+    const { node, index, data } = this.state.editingNodeItem || {}
+    const formType: string = node?.nodeType || node?.type || this.state.editingNodeItem?.type
+
+    let currentItem
     if (formType === 'say_something') {
-      editingNodeItem = node?.contents?.[index]
+      currentItem = node?.contents?.[index]
     } else if (formType === 'trigger') {
-      editingNodeItem = node?.conditions?.[index]
+      currentItem = node?.conditions?.[index]
+    } else if (formType === 'sub-workflow') {
+      currentItem = index ? 'out' : 'in'
+    } else if (formType === 'variableType') {
+      currentItem = data
     } else if (formType === 'variable') {
-      editingNodeItem = node?.variable
+      currentItem = node?.variable
     }
 
     const isQnA = this.props.selectedWorkflow === 'qna'
@@ -954,8 +1016,7 @@ class Diagram extends Component<Props> {
               onDrop={this.handleToolDropped}
               onDragOver={event => event.preventDefault()}
             >
-              <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
-
+              {this.renderSearch()}
               <DiagramWidget
                 ref={w => (this.diagramWidget = w)}
                 deleteKeys={[]}
@@ -978,7 +1039,7 @@ class Diagram extends Component<Props> {
               events={this.props.hints || []}
               contentLang={this.state.currentLang}
               editingContent={index}
-              formData={editingNodeItem || getEmptyContent(editingNodeItem)}
+              formData={currentItem || getEmptyContent(currentItem)}
               onUpdate={this.updateNodeContent.bind(this)}
               onUpdateVariables={this.addVariable}
               close={() => {
@@ -997,7 +1058,7 @@ class Diagram extends Component<Props> {
               topicName={this.props.selectedTopic}
               variables={this.props.currentFlow?.variables}
               events={this.props.hints}
-              formData={editingNodeItem}
+              formData={currentItem}
               contentLang={this.state.currentLang}
               onUpdate={this.updateNodeCondition.bind(this)}
               onUpdateVariables={this.addVariable}
@@ -1049,13 +1110,34 @@ class Diagram extends Component<Props> {
               }}
             />
           )}
+          {formType === 'sub-workflow' && (
+            <SubworkflowForm
+              node={this.props.currentFlowNode}
+              diagramEngine={this.diagramEngine}
+              flows={this.props.flows}
+              type={currentItem}
+            />
+          )}
+          {formType === 'variableType' && (
+            <VariableTypesForm
+              contentLang={this.state.currentLang}
+              customKey={data.id}
+              formData={currentItem}
+              close={() => {
+                this.timeout = setTimeout(() => {
+                  this.setState({ editingNodeItem: null })
+                }, 200)
+              }}
+            />
+          )}
+
           {formType === 'variable' && (
             <VariableForm
               variables={this.props.variables}
               contentLang={this.state.currentLang}
               customKey={`${node?.id}${node?.prompt?.type}`}
               deleteVariable={this.deleteVariable.bind(this)}
-              formData={editingNodeItem}
+              formData={currentItem}
               onUpdate={this.updateFlowVariable.bind(this)}
               close={() => {
                 this.timeout = setTimeout(() => {
@@ -1072,6 +1154,9 @@ class Diagram extends Component<Props> {
 
 const mapStateToProps = (state: RootReducer) => ({
   currentFlow: getCurrentFlow(state),
+  flows: getAllFlows(state),
+  reusableFlows: getReusableWorkflows(state),
+  outcomeUsage: getCallerFlowsOutcomeUsage(state),
   currentFlowNode: getCurrentFlowNode(state),
   currentDiagramAction: state.flows.currentDiagramAction,
   canPasteNode: Boolean(state.flows.nodeInBuffer),
@@ -1081,7 +1166,8 @@ const mapStateToProps = (state: RootReducer) => ({
   variables: state.ndu.variables,
   contentTypes: state.content.categories,
   conditions: state.ndu.conditions,
-  hints: state.hints.inputs
+  hints: state.hints.inputs,
+  activeFormItem: state.flows.activeFormItem
 })
 
 const mapDispatchToProps = {
@@ -1093,6 +1179,7 @@ const mapDispatchToProps = {
   closeFlowNodeProps,
   createFlowNode,
   removeFlowNode,
+  refreshCallerFlows,
   createFlow,
   updateFlowNode,
   switchFlow,
@@ -1106,7 +1193,8 @@ const mapDispatchToProps = {
   refreshFlowsLinks,
   fetchContentCategories,
   getQnaCountByTopic,
-  refreshHints
+  refreshHints,
+  setActiveFormItem
 }
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps, null, {

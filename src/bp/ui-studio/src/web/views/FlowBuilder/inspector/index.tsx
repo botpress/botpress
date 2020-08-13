@@ -7,6 +7,7 @@ import {
   closeFlowNodeProps,
   copyFlowNodeElement,
   pasteFlowNodeElement,
+  refreshCallerFlows,
   refreshFlowsLinks,
   requestEditSkill,
   updateFlow,
@@ -141,7 +142,8 @@ const mapDispatchToProps = {
   pasteFlowNodeElement,
   closeFlowNodeProps,
   updateFlowNode,
-  refreshFlowsLinks
+  refreshFlowsLinks,
+  refreshCallerFlows
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Inspector)

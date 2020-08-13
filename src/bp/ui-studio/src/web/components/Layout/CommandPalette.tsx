@@ -78,7 +78,7 @@ const CommandPalette: FC<Props> = props => {
         url: window.location.origin + '/studio/' + bot.id
       })),
       ...props.modules
-        .filter(module => !module.noInterface)
+        .filter(module => !module.noInterface || module.name === 'nlu' || module.name === 'qna')
         .map(module => ({
           label: `${lang.tr(`module.${module.name}.fullName`)}`,
           type: 'goto',

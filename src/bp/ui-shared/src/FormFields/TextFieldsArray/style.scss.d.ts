@@ -3,8 +3,11 @@
 interface CssExports {
   'contentAnswer': string;
   'customTextarea': string;
+  'error': string;
   'hasError': string;
+  'icon': string;
   'items': string;
+  'success': string;
   'textarea': string;
   'textareaWrapper': string;
 }

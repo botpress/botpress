@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import * as math from './tools/math'
+import { allInRange, GetZPercent, std } from './tools/math'
 
 type PredictOutput = Omit<sdk.IO.EventUnderstanding, 'predictions'> & {
   predictions: sdk.NLU.Predictions
@@ -45,60 +45,69 @@ function electIntent(input: PredictOutput): PredictOutput {
   const ctxPreds = ctx_predictions.map(x => ({ ...x, confidence: x.confidence / totalConfidence }))
 
   // taken from svm classifier #349
-  let predictions = _.chain(ctxPreds)
-    .flatMap(({ label: ctx, confidence: ctxConf }) => {
-      const intentPreds = _.chain(perCtxIntentPrediction[ctx] || [])
-        .thru(preds => {
-          if (oos_predictions[ctx] >= OOS_AS_NONE_TRESH) {
-            return [
-              ...preds,
-              {
-                label: NONE_INTENT,
-                confidence: oos_predictions[ctx],
-                context: ctx,
-                l0Confidence: ctxConf
-              }
-            ]
-          } else {
-            return preds
-          }
-        })
-        .map(p => ({ ...p, confidence: _.round(p.confidence, 2) }))
-        .orderBy('confidence', 'desc')
-        .value() as (sdk.MLToolkit.SVM.Prediction & { context: string })[]
+  interface RawPrediction {
+    label: string
+    context: string
+    confidence: number
+    l0Confidence: number
+  }
 
-      const noneIntent = { label: NONE_INTENT, context: ctx, confidence: 1 }
-      if (!intentPreds.length) {
-        return [noneIntent]
-      } else if (intentPreds[0].confidence === 1 || intentPreds.length === 1) {
-        return [{ label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: 1 }]
-      }
-      // else, there is at least two intentPreds
-
-      if (predictionsReallyConfused(intentPreds)) {
-        intentPreds.unshift(noneIntent)
-      }
-
-      const lnstd = math.std(intentPreds.filter(x => x.confidence !== 0).map(x => Math.log(x.confidence))) // because we want a lognormal distribution
-      let p1Conf = math.GetZPercent((Math.log(intentPreds[0].confidence) - Math.log(intentPreds[1].confidence)) / lnstd)
-      if (isNaN(p1Conf)) {
-        p1Conf = 0.5
-      }
-
-      return [
-        { label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: _.round(ctxConf * p1Conf, 3) },
-        {
-          label: intentPreds[1].label,
-          l0Confidence: ctxConf,
-          context: ctx,
-          confidence: _.round(ctxConf * (1 - p1Conf), 3)
+  const rawPredictions: RawPrediction[] = _.flatMap(ctxPreds, ({ label: ctx, confidence: ctxConf }) => {
+    const intentPreds = _.chain(perCtxIntentPrediction[ctx] || [])
+      .thru(preds => {
+        if (oos_predictions[ctx] >= OOS_AS_NONE_TRESH) {
+          return [
+            ...preds,
+            {
+              label: NONE_INTENT,
+              confidence: oos_predictions[ctx],
+              context: ctx,
+              l0Confidence: ctxConf
+            }
+          ]
+        } else {
+          return preds
         }
-      ]
-    })
-    .orderBy('confidence', 'desc')
+      })
+      .map(p => ({ ...p, confidence: _.round(p.confidence, 2) }))
+      .orderBy('confidence', 'desc')
+      .value() as (sdk.MLToolkit.SVM.Prediction & { context: string })[]
+
+    const noneIntent = { label: NONE_INTENT, l0Confidence: ctxConf, context: ctx, confidence: 1 }
+    if (!intentPreds.length) {
+      return [noneIntent]
+    } else if (intentPreds[0].confidence === 1 || intentPreds.length === 1) {
+      return [{ label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: 1 }]
+    }
+    // else, there is at least two intentPreds
+
+    if (predictionsReallyConfused(intentPreds)) {
+      intentPreds.unshift(noneIntent)
+    }
+
+    const lnstd = std(intentPreds.filter(x => x.confidence !== 0).map(x => Math.log(x.confidence))) // because we want a lognormal distribution
+    let p1Conf = GetZPercent((Math.log(intentPreds[0].confidence) - Math.log(intentPreds[1].confidence)) / lnstd)
+    if (isNaN(p1Conf)) {
+      p1Conf = 0.5
+    }
+
+    return [
+      { label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: p1Conf },
+      {
+        label: intentPreds[1].label,
+        l0Confidence: ctxConf,
+        context: ctx,
+        confidence: 1 - p1Conf
+      }
+    ]
+  })
+
+  const computeTotalPrediction = (rawPred: RawPrediction) => _.round(rawPred.confidence * rawPred.l0Confidence, 3)
+  let predictions = _.chain(rawPredictions)
+    .orderBy(computeTotalPrediction, 'desc')
     .filter(p => input.includedContexts.includes(p.context))
     .uniqBy(p => p.label)
-    .map(p => ({ name: p.label, context: p.context, confidence: p.confidence }))
+    .map(p => ({ name: p.label, context: p.context, confidence: computeTotalPrediction(p) }))
     .value()
 
   const ctx = _.get(predictions, '0.context', 'global')
@@ -135,8 +144,8 @@ function detectAmbiguity(input: PredictOutput): PredictOutput {
 
   const ambiguous =
     preds.length > 1 &&
-    (math.allInRange(confidenceVec, low, up) ||
-      (preds[0].name === NONE_INTENT && math.allInRange(confidenceVec.slice(1), low, up)))
+    (allInRange(confidenceVec, low, up) ||
+      (preds[0].name === NONE_INTENT && allInRange(confidenceVec.slice(1), low, up)))
 
   return { ...input, ambiguous }
 }
@@ -160,12 +169,12 @@ function predictionsReallyConfused(predictions: sdk.MLToolkit.SVM.Prediction[]):
     return false
   }
 
-  const std = math.std(predictions.map(p => p.confidence))
-  const diff = (predictions[0].confidence - predictions[1].confidence) / std
+  const stdev = std(predictions.map(p => p.confidence))
+  const diff = (predictions[0].confidence - predictions[1].confidence) / stdev
   if (diff >= 2.5) {
     return false
   }
 
-  const bestOf3STD = math.std(predictions.slice(0, 3).map(p => p.confidence))
+  const bestOf3STD = std(predictions.slice(0, 3).map(p => p.confidence))
   return bestOf3STD <= 0.03
 }

@@ -94,12 +94,33 @@
         "node": "Node"
       }
     },
+    "library": {
+      "savedBlocks": "Blocs Enregistrés",
+      "savedWorkflows": "Workflows Enregistrés",
+      "variableTypes": "Types de Variables",
+      "addEnum": "Ajouter Énumération",
+      "addPattern": "Ajouter Expression Régulière",
+      "filter": "Filtrer les blocs, workflows et type de variables",
+      "variableName": "Quel est le nom de cette variable?",
+      "addSynonyms": "Ajoutez des synomymes en séparant les valeurs par des virgules",
+      "addValueAlternative": "Ajouter Valeur Alternative",
+      "deleteEnumeration": "Supprimer l'énumération",
+      "confirmDeleteEntity": "Voulez-vous réellement supprimer ce type de variable?",
+      "examplePlaceholder": "Ajoutez des exemples qui correspondent à votre expression régulière (un par ligne)",
+      "addExample": "Ajouter un exemple",
+      "deletePattern": "Supprimer l'expression régulière",
+      "patternInvalid": "L'expression est invalide"
+    },
     "flow": {
       "addNode": "Ajouter une node",
       "addToLibrary": "Ajouter dans la librairie",
       "cantDeleteFailure": "Vous ne pouvez pas supprimer le nœud d'échec.",
       "cantDeleteStart": "Vous ne pouvez pas supprimer le point d'entrée.",
       "cantDeleteSuccess": "Vous ne pouvez pas supprimer le nœud de réussite.",
+      "cantDeleteOutcome": "Impossible de supprimer un résultat actuellement utilisé dans le flux parent",
+      "mustHaveOutcomes": "Les flux de travail doivent avoir au moins un succès et un échec",
+      "referenceCount": "{count} {count, plural, one {référence} other {références}}",
+      "noReferences": "Non utilisé",
       "chips": "Chips",
       "condition": {
         "addCondition": "Ajouter condition",
@@ -332,6 +353,7 @@
       "userDoesNotAnswer": "L'utilisateur ne réponds pas"
     },
     "sideBar": {
+      "flowBuilder": "Éditeur de workflow",
       "config": "Configuration",
       "content": "Contenu",
       "flows": "Flows"
