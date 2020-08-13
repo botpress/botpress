@@ -1580,7 +1580,11 @@ declare module 'botpress/sdk' {
     fields?: FormField[]
     moreInfo?: FormMoreInfo
     /** When specified, indicate if array elements match the provided pattern */
-    validationPattern?: RegExp
+    validation?: {
+      regex?: RegExp
+      list?: any[]
+      validator?: (items: any[], newItem: any) => boolean
+    }
     group?: {
       /** You have to specify the add button label */
       addLabel?: string
@@ -1589,7 +1593,6 @@ declare module 'botpress/sdk' {
       /** You can add a contextual menu to add extra options */
       contextMenu?: FormContextMenu[]
     }
-    itemValidator?: any
   }
 
   export interface FormMoreInfo {

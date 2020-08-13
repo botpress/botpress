@@ -1,15 +1,18 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
 import sdk from 'botpress/sdk'
-import { Contents, Item, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
+import { Contents, lang, MoreOptions, MoreOptionsItems, RightSidebar, toast } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
-import { toastFailure } from '~/components/Shared/Utils'
 
 import style from '../PromptForm/style.scss'
 
 import { getEntityId } from '.'
 
+interface Item {
+  name: string
+  tags: string[]
+}
 interface Props {
   customKey: string
   contentLang: string
@@ -78,21 +81,21 @@ const EnumForm: FC<Props> = ({
     updateFormItem(convertFromTags(data))
   }
 
-  const isDupplicate = (localItem: Item[], newItem: Item) => {
-    const lastAdded: string = [newItem.name].concat(newItem.tags).slice(-1)[0]
-    for (const occurence of localItem) {
-      if ([occurence.name].concat(occurence.tags).includes(lastAdded)) {
-        toastFailure(`${lastAdded} already exists in ${occurence.name}`)
+  const isDuplicate = (localItems: Item[], newItem: Item) => {
+    const lastAdded: string = [newItem.name, ...newItem.tags].slice(-1)[0]
+    for (const occurence of localItems) {
+      if ([...[occurence.name], ...occurence.tags].includes(lastAdded)) {
+        toast.failure(`${lastAdded} already exists in ${occurence.name}`)
         return false
       }
     }
 
-    const localItemNames = localItem.map(i => i.name)
+    const localItemNames = localItems.map(i => i.name)
     for (const entity of allEntities) {
       const noLocalEntity = entity.occurrences.filter(o => !localItemNames.includes(o.name))
       for (const occurence of noLocalEntity) {
-        if ([occurence.name].concat(occurence.synonyms).includes(lastAdded)) {
-          toastFailure(`${lastAdded} already exists in ${occurence.name} (${entity.name})`)
+        if ([...[occurence.name], ...occurence.synonyms].includes(lastAdded)) {
+          toast.failure(`${lastAdded} already exists in ${occurence.name} (${entity.name})`)
           return false
         }
       }
@@ -130,7 +133,7 @@ const EnumForm: FC<Props> = ({
               group: {
                 addLabel: 'studio.library.addValueAlternative'
               },
-              itemValidator: isDupplicate
+              validation: { validator: isDuplicate }
             }
           ]}
           advancedSettings={[

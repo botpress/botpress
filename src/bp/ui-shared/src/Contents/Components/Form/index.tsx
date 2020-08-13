@@ -2,7 +2,6 @@ import { Button, Checkbox } from '@blueprintjs/core'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
-import { fileSync } from 'tmp'
 
 import ToolTip from '../../../../../ui-shared-lite/ToolTip'
 import { lang } from '../../../translations'
@@ -308,7 +307,7 @@ const Form: FC<FormProps> = ({
               <TextFieldsArray
                 getPlaceholder={index => getArrayPlaceholder(index, field.placeholder)}
                 moreInfo={printMoreInfo(field.moreInfo)}
-                validationPattern={field.validationPattern}
+                validation={field.validation}
                 onChange={value => {
                   dispatch({
                     type: 'updateField',
@@ -335,7 +334,7 @@ const Form: FC<FormProps> = ({
         return (
           <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)} invalid={invalid}>
             <TagInputList
-              itemValidator={field.itemValidator}
+              validation={field.validation}
               placeholder={lang(field.placeholder)}
               items={currentValue || []}
               addBtnLabel={lang(field.group?.addLabel)}

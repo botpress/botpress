@@ -7,8 +7,6 @@ import { connect } from 'react-redux'
 import { deleteEntity, refreshEntities, setActiveFormItem } from '~/actions'
 import { ActiveFormItem } from '~/reducers/flows'
 
-import style from '../PromptForm/style.scss'
-
 import EnumForm from './EnumForm'
 import PatternForm from './PatternForm'
 
@@ -46,14 +44,12 @@ const VariableForm: FC<Props> = props => {
   const updateFormItem = (data: sdk.NLU.EntityDefinition) => {
     props.setActiveFormItem({ type: 'variableType', data })
   }
-  const defaultProps = { updateEntity, deleteEntity, updateFormItem }
+  const defaultProps = { ...props, updateEntity, deleteEntity, updateFormItem }
   if (props.formData.type === 'pattern') {
-    const patternProps = { ...props, ...defaultProps }
-    return <PatternForm {...patternProps} />
+    return <PatternForm {...defaultProps} />
   } else {
     const listEntities = props.entities.filter(e => e.type === 'list')
-    const enumProps = { ...props, ...defaultProps }
-    return <EnumForm allEntities={listEntities} {...enumProps} />
+    return <EnumForm allEntities={listEntities} {...defaultProps} />
   }
 }
 

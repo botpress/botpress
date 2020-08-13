@@ -1,4 +1,5 @@
 import { Position, Tooltip } from '@blueprintjs/core'
+import { checkPropTypes } from 'prop-types'
 import React, { useEffect, useRef, useState } from 'react'
 import { lang } from '~/translations'
 import { controlKey } from '~/utils/keyboardShortcuts'
@@ -13,7 +14,7 @@ export interface Item {
   tags: string[]
 }
 
-const TagInputList = ({ itemValidator, onChange, placeholder, items, addBtnLabel }) => {
+const TagInputList = ({ validation, onChange, placeholder, items, addBtnLabel }) => {
   const [localItems, setLocalItems] = useState(items || [])
   const focusedElement = useRef(items.length)
 
@@ -28,7 +29,8 @@ const TagInputList = ({ itemValidator, onChange, placeholder, items, addBtnLabel
     } else {
       newItems[index] = item
     }
-    if (itemValidator(localItems, item)) {
+
+    if (validation.validator(localItems, item)) {
       setLocalItems(newItems)
     }
   }
