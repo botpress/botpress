@@ -26,20 +26,22 @@ const Predictions = (props: Props) => {
         const { confidence, intents } = predictions[key]
         return (
           <div className={style.subSection} key={index}>
-            {!workflow && (
+            {workflow && key !== 'global' && (
               <p>
                 {key} {formatConfidence(confidence)}%
               </p>
             )}
-            <ul>
-              {intents.slice(0, 4).map(i => {
-                return (
-                  <li key={i.label}>
-                    <Intent name={i.label} confidence={i.confidence} />
-                  </li>
-                )
-              })}
-            </ul>
+            {workflow && key !== 'global' && (
+              <ul>
+                {intents.slice(0, 4).map(i => {
+                  return (
+                    <li key={i.label}>
+                      <Intent name={i.label} confidence={i.confidence} />
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
           </div>
         )
       })}
