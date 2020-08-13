@@ -26,14 +26,14 @@ interface UsageParams {
 
 interface Usage {
   namespace: string
-  function: string
+  method: string
   count: number
 }
 
-interface ParsedFile extends UsageParams {
+type ParsedFile = {
   fileName: string
   usages: Usage[]
-}
+} & UsageParams
 
 interface SDKUsageEvent {
   actions: SDKUsage
@@ -69,11 +69,11 @@ export class SDKStats extends TelemetryStats {
     return {
       ...buildSchema(await this.getServerStats(), 'server'),
       event_type: 'custom_roles',
-      event_data: { schema: '1.0.0', SDKMethods: await this.SDKUsage() }
+      event_data: { schema: '1.0.0', SDKMethods: await this.getSDKUsage() }
     }
   }
 
-  private async SDKUsage(): Promise<SDKUsageEvent> {
+  private async getSDKUsage(): Promise<SDKUsageEvent> {
     const bots = await this.botService.getBotsIds()
     return { actions: await this.getActionUsages(bots), hooks: await this.getHooksUsages() }
   }
@@ -123,10 +123,10 @@ export class SDKStats extends TelemetryStats {
   private async parseHooks(hooks: Hook[], botId?: string): Promise<ParsedFile[]> {
     return Promise.map(hooks, async hook => {
       const { lifecycle, enabled, path } = hook
-      const usageParams = { lifecycle, enabled }
+      const usageParams: UsageParams = { lifecycle, enabled }
 
       if (botId) {
-        _.set(usageParams, 'botId', botId)
+        usageParams.botId = botId
       }
 
       return this.parseFile('/hooks', usageParams)(path!)
@@ -135,19 +135,19 @@ export class SDKStats extends TelemetryStats {
 
   private parseFile(rootFolder: string, usageParams?: UsageParams): (name: string) => Promise<ParsedFile> {
     return async (name: string) => {
-      const file = await this.readFileAsString(rootFolder, name, _.get(usageParams, 'botId'))
+      const file = await this.readFileAsString(rootFolder, name, usageParams?.botId)
       const functions = this.extractFunctions(parse(file, PARSE_CONFIG))
-      const usage: ParsedFile = { fileName: name.split('/').pop() || '', usages: this.parseFunctions(functions) }
+      const usage: ParsedFile = { fileName: name.split('/').pop() || '', usages: this.parseMethods(functions) }
       return { ...usage, ...usageParams }
     }
   }
 
-  private parseFunctions(functions: string[]): Usage[] {
-    const sdkFunctions = _.countBy(functions.filter(method => method.split('.')[0] === 'bp'))
-    return _.map(sdkFunctions, (count, fn) => {
-      const [, ...namespace] = fn.split('.')
-      const functionName = namespace.pop() || ''
-      return { namespace: namespace.join('.') || '', function: functionName, count }
+  private parseMethods(methods: string[]): Usage[] {
+    const sdkMethods = _.countBy(methods.filter(method => method.split('.')[0] === 'bp'))
+    return _.map(sdkMethods, (count, methodChain) => {
+      const [, ...namespace] = methodChain.split('.')
+      const method = namespace.pop() || ''
+      return { namespace: namespace.join('.') || '', method, count }
     })
   }
 
@@ -176,11 +176,8 @@ export class SDKStats extends TelemetryStats {
 
   private async readFileAsString(rootFolder: string, fileName: string, botId?: string): Promise<string> {
     try {
-      if (botId) {
-        return await this.ghostService.forBot(botId).readFileAsString(rootFolder, fileName)
-      } else {
-        return await this.ghostService.global().readFileAsString(rootFolder, fileName)
-      }
+      const ghost = botId ? this.ghostService.forBot(botId) : this.ghostService.global()
+      return await ghost.readFileAsString(rootFolder, fileName)
     } catch (error) {
       return ''
     }
