@@ -69,7 +69,7 @@ export class SDKStats extends TelemetryStats {
   protected async getStats() {
     return {
       ...buildSchema(await this.getServerStats(), 'server'),
-      event_type: 'custom_roles',
+      event_type: 'SDK_Usage',
       event_data: { schema: '1.0.0', SDKMethods: await this.getSDKUsage() }
     }
   }
@@ -94,7 +94,7 @@ export class SDKStats extends TelemetryStats {
         )
         return [...parsedFilesAcc, ...parsedFiles]
       } catch (error) {
-        return []
+        return [...parsedFilesAcc]
       }
     }
 
