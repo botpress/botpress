@@ -734,9 +734,9 @@ export class DialogEngine {
         name: config.output,
         value: state.value,
         type: config.valueType!,
+        subType: config.subType,
         options: {
-          nbOfTurns: config.duration ?? 10,
-          subType: config.subType
+          nbOfTurns: config.duration ?? 10
         }
       },
       event
@@ -767,14 +767,14 @@ export class DialogEngine {
     return false
   }
 
-  public createVariable({ name, value, type, options }: VariableParams, event: IO.IncomingEvent) {
+  public createVariable({ name, value, type, subType, options }: VariableParams, event: IO.IncomingEvent) {
     const workflowName = options?.specificWorkflow ?? event.state.session.currentWorkflow!
     const wf = event.state.session.workflows[workflowName]
     if (!wf) {
       return
     }
 
-    const { subType, nbOfTurns, config } = options ?? {}
+    const { nbOfTurns, config } = options ?? {}
     const data = { type, subType, value, nbOfTurns: nbOfTurns ?? 10, config }
 
     wf.variables[name] = this.dialogStore.getBoxedVar(data, event.botId, workflowName, name)!

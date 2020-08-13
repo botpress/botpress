@@ -1815,8 +1815,14 @@ declare module 'botpress/sdk' {
      * Returns 0 if both values are equal
      */
     compare(compareTo: BoxedVariable<T, V>): number
-    getEnumList: () => NLU.EntityDefOccurrence[] | undefined
+    getValidationData: () => ValidationData | undefined
     unbox(): UnboxedVariable<T>
+  }
+
+  export interface ValidationData {
+    /** List of allowed patterns */
+    patterns?: RegExp[]
+    elements: NLU.EntityDefOccurrence[]
   }
 
   export interface UnboxedVariable<T> {
@@ -1839,8 +1845,8 @@ declare module 'botpress/sdk' {
     value: T | undefined
     /** Configuration of the variable on the workflow (ex: date format) */
     config?: V
-    /** Returns the list of allowed values for the current type of enum */
-    getEnumList: () => NLU.EntityDefOccurrence[]
+    /** Returns the list of allowed patterns and elements for the variable */
+    getValidationData: () => ValidationData | undefined
   }
 
   export interface PrimitiveVarType {
@@ -2071,7 +2077,8 @@ declare module 'botpress/sdk' {
     name: string
     value: any
     type: string
-    options?: { nbOfTurns: number; specificWorkflow?: string; subType?: string; config?: any }
+    subType?: string
+    options?: { nbOfTurns: number; specificWorkflow?: string; config?: any }
   }
 
   export namespace http {

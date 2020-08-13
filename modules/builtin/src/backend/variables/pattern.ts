@@ -9,8 +9,19 @@ class BoxedPattern extends BaseVariable<string> {
   }
 
   trySet(value: string, confidence: number) {
-    this._value = value
-    this._confidence = confidence
+    try {
+      for (const regex of this.getValidationData().patterns) {
+        if (regex.test(value)) {
+          this._value = value
+          this._confidence = confidence
+          return
+        }
+      }
+
+      this._confidence = 0
+    } catch (err) {
+      console.error("Value doesn't match pattern")
+    }
   }
 }
 

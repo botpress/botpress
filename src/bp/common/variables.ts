@@ -1,4 +1,4 @@
-import { BoxedVarContructor, BoxedVariable, NLU } from 'botpress/sdk'
+import { BoxedVarContructor, BoxedVariable, ValidationData } from 'botpress/sdk'
 
 export class BaseVariable<T, V = any> implements BoxedVariable<T, V> {
   protected _type: string
@@ -8,15 +8,15 @@ export class BaseVariable<T, V = any> implements BoxedVariable<T, V> {
   protected _nbTurns: number
   protected _config?: V
 
-  protected _getEnumList: () => NLU.EntityDefOccurrence[]
+  protected _getValidationData: () => ValidationData | undefined
 
-  constructor({ type, subType, nbOfTurns, value, confidence, config, getEnumList }: BoxedVarContructor<T, V>) {
+  constructor({ type, subType, nbOfTurns, value, confidence, config, getValidationData }: BoxedVarContructor<T, V>) {
     this._type = type
     this._subType = subType
     this._confidence = confidence
     this._nbTurns = nbOfTurns
     this._config = config
-    this._getEnumList = getEnumList
+    this._getValidationData = getValidationData
 
     if (value !== undefined) {
       this.trySet(value, confidence ?? 1)
@@ -48,8 +48,8 @@ export class BaseVariable<T, V = any> implements BoxedVariable<T, V> {
     this._nbTurns = nbOfTurns
   }
 
-  getEnumList(): NLU.EntityDefOccurrence[] | undefined {
-    return this._getEnumList()
+  getValidationData(): ValidationData | undefined {
+    return this._getValidationData()
   }
 
   toString(...args: any): string {
