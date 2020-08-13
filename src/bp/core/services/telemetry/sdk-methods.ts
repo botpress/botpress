@@ -142,7 +142,8 @@ export class SDKStats extends TelemetryStats {
   private async parseFile(name: string, rootFolder: string, usageParams?: UsageParams): Promise<ParsedFile> {
     const file = await this.readFileAsString(rootFolder, name, usageParams?.botId)
     const functions = this.extractFunctions(parse(file, PARSE_CONFIG))
-    const usage: ParsedFile = { fileName: name.split('/').pop() || '', usages: this.parseMethods(functions) }
+    const fileName = calculateHash(name.split('/').pop() || '')
+    const usage: ParsedFile = { fileName, usages: this.parseMethods(functions) }
 
     if (usageParams?.botId) {
       usageParams.botId = calculateHash(usageParams.botId)
