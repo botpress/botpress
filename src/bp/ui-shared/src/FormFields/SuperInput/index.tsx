@@ -186,6 +186,7 @@ export default ({
         canPickVariables={canPickVariables}
         events={localEvents}
         variables={localVariables}
+        allVariables={variables}
         onAddVariable={onAddVariable}
         eventsDesc={eventsDesc}
         value={value}
