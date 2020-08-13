@@ -86,9 +86,15 @@ export class SDKStats extends TelemetryStats {
       .map(path => path.split('/').pop() || '')
 
     const reducer = async (parsedFilesAcc, botId) => {
-      const botActionsNames = await this.ghostService.forBot(botId).directoryListing(`/${rootFolder}`, '*.js')
-      const parsedFiles = await Promise.map(botActionsNames, name => this.parseFile(name, `/${rootFolder}`, { botId }))
-      return [...parsedFilesAcc, ...parsedFiles]
+      try {
+        const botActionsNames = await this.ghostService.forBot(botId).directoryListing(`/${rootFolder}`, '*.js')
+        const parsedFiles = await Promise.map(botActionsNames, name =>
+          this.parseFile(name, `/${rootFolder}`, { botId })
+        )
+        return [...parsedFilesAcc, ...parsedFiles]
+      } catch (error) {
+        return []
+      }
     }
 
     const global = await Promise.map(globalActionsNames, name => this.parseFile(name, `/${rootFolder}`))
@@ -98,22 +104,25 @@ export class SDKStats extends TelemetryStats {
   }
 
   private async getHooksUsages(): Promise<SDKUsage> {
+    const reducer = async (parsedFilesAcc, botHooks: BotHooks) => {
+      const { botId, hooks } = botHooks
+
+      try {
+        const parsedFiles = await this.parseHooks(
+          hooks.filter(hook => hook.type === 'custom'),
+          botId
+        )
+        return [...parsedFilesAcc, ...parsedFiles]
+      } catch (err) {
+        return []
+      }
+    }
+
     const hooksPayload = await getHooksLifecycle(this.botService, this.ghostService)
     const global = await this.parseHooks(hooksPayload.global.filter(hook => hook.type === 'custom'))
-    const perBots = await Promise.reduce(hooksPayload.perBots, this.botHooksReducer(), [] as ParsedFile[])
+    const perBots = await Promise.reduce(hooksPayload.perBots, reducer, [] as ParsedFile[])
 
     return { global, perBots }
-  }
-
-  private botHooksReducer(): (parsedFilesAcc: ParsedFile[], botHooks: BotHooks) => Promise<ParsedFile[]> {
-    return async (parsedFilesAcc, botHooks: BotHooks) => {
-      const { botId, hooks } = botHooks
-      const parsedFiles = await this.parseHooks(
-        hooks.filter(hook => hook.type === 'custom'),
-        botId
-      )
-      return [...parsedFilesAcc, ...parsedFiles]
-    }
   }
 
   private async parseHooks(hooks: Hook[], botId?: string): Promise<ParsedFile[]> {
