@@ -47,7 +47,9 @@
     "dialog": "Processing Dialog",
     "action": "Action",
     "completed": "Event Processing Completed",
-    "executedIn": "Executed in {n} ms"
+    "executedIn": "Executed in {n} ms",
+    "type": "Type",
+    "stacktrace": "Stacktrace"
   },
   "settings": {
     "confUpdated": "Configuration updated successfully!",

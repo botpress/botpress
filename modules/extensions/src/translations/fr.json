@@ -18,7 +18,7 @@
     "newSession": "Créer une nouvelle session",
     "confSettings": "Configurer les paramètres",
     "debugger": "Débogueur",
-    "processing": "En traitement"
+    "processing": "Traitement"
   },
   "types": {
     "dropdown": {
@@ -47,7 +47,9 @@
     "dialog": "Exécution du dialogue",
     "action": "Action",
     "completed": "Traitement complété",
-    "executedIn": "Exécuté en {n} ms"
+    "executedIn": "Exécuté en {n} ms",
+    "type": "Type",
+    "stacktrace": "Stacktrace"
   },
   "settings": {
     "confUpdated": "Configuration mise à jour avec succès!",
