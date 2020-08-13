@@ -95,6 +95,23 @@ export class DialogStore {
     return this._prompts.find(x => x.id === type)?.config
   }
 
+  public getBoxedVar(
+    data: Omit<sdk.BoxedVarContructor<any>, 'getEnumList'>,
+    botId: string,
+    workflowName: string,
+    variableName: string
+  ) {
+    const { type, subType, value, nbOfTurns, config: optConfig } = data
+
+    const BoxedVar = this.getVariable(type)?.box
+    if (BoxedVar) {
+      const config = optConfig ?? this.getVariableConfig(botId, workflowName, variableName)?.params
+
+      const getEnumList = () => this.getEnumForBot(botId, subType) ?? []
+      return new BoxedVar({ type, subType, nbOfTurns, value, config, getEnumList })
+    }
+  }
+
   private async _reloadEnums(botId: string) {
     const enumFiles = await this.ghost.forBot(botId).directoryListing(ENUMS_DIR, '*.json')
 

@@ -2,7 +2,7 @@ import { BoxedVarContructor, BoxedVariable, NLU } from 'botpress/sdk'
 
 export class BaseVariable<T, V = any> implements BoxedVariable<T, V> {
   protected _type: string
-  protected _enumType?: string
+  protected _subType?: string
   protected _value?: T
   protected _confidence?: number
   protected _nbTurns: number
@@ -10,9 +10,9 @@ export class BaseVariable<T, V = any> implements BoxedVariable<T, V> {
 
   protected _getEnumList: () => NLU.EntityDefOccurrence[]
 
-  constructor({ type, enumType, nbOfTurns, value, confidence, config, getEnumList }: BoxedVarContructor<T, V>) {
+  constructor({ type, subType, nbOfTurns, value, confidence, config, getEnumList }: BoxedVarContructor<T, V>) {
     this._type = type
-    this._enumType = enumType
+    this._subType = subType
     this._confidence = confidence
     this._nbTurns = nbOfTurns
     this._config = config
@@ -71,7 +71,7 @@ export class BaseVariable<T, V = any> implements BoxedVariable<T, V> {
   unbox() {
     return {
       type: this._type,
-      enumType: this._enumType,
+      subType: this._subType,
       value: this._value,
       nbTurns: this._nbTurns,
       confidence: this._confidence!

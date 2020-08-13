@@ -837,13 +837,7 @@ declare module 'botpress/sdk' {
       context: DialogContext
       /** This variable points to the currently active workflow */
       workflow: WorkflowHistory
-      /** Update or set a new variable */
-      createVariable: (
-        name: string,
-        value: any,
-        type: string,
-        options?: { nbOfTurns: number; specificWorkflow?: string; subType?: string; config?: any }
-      ) => void
+
       /**
        * EXPERIMENTAL
        * This includes all the flow/nodes which were traversed for the current event
@@ -2073,6 +2067,13 @@ declare module 'botpress/sdk' {
     }
   }
 
+  export interface VariableParams {
+    name: string
+    value: any
+    type: string
+    options?: { nbOfTurns: number; specificWorkflow?: string; subType?: string; config?: any }
+  }
+
   export namespace http {
     /**
      * Create a shortlink to any destination
@@ -2294,6 +2295,8 @@ declare module 'botpress/sdk' {
     export function getConditions(): Condition[]
 
     export function getVariables(): any[]
+
+    export function createVariable(variable: VariableParams, event: IO.IncomingEvent)
   }
 
   export namespace config {
