@@ -1148,6 +1148,7 @@ class Diagram extends Component<Props> {
               customKey={`${node?.id}${node?.prompt?.type}`}
               deleteVariable={this.deleteVariable.bind(this)}
               formData={currentItem}
+              currentFlow={this.props.currentFlow}
               onUpdate={this.updateFlowVariable.bind(this)}
               close={() => {
                 this.timeout = setTimeout(() => {
