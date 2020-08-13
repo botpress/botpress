@@ -434,7 +434,7 @@ class Diagram extends Component<Props> {
         <MenuItem tagName="span" text={lang.tr('prompt')} icon="citation">
           {this.props.prompts.display.map(({ type, subType, label, icon }) => (
             <MenuItem
-              key={type}
+              key={`${type}-${subType}`}
               text={lang.tr(label)}
               tagName="button"
               onClick={wrap(this.add.promptNode, point, type, subType)}

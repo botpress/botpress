@@ -1,3 +1,4 @@
+import { Icon } from '@blueprintjs/core'
 import { EmptyState, lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC } from 'react'
@@ -14,10 +15,9 @@ type StateProps = ReturnType<typeof mapStateToProps>
 
 type Props = StateProps & OwnProps
 
-const VariablesEditor: FC<Props> = props => {
-  const variables = props.currentFlow?.variables
-
-  if (!variables?.length) {
+const VariablesEditor: FC<Props> = ({ variables, editVariable }) => {
+  const currentFlowVars = variables.currentFlow
+  if (!currentFlowVars?.length) {
     return (
       <div className={style.emptyState}>
         <EmptyState icon={<NoVariableIcon />} text={lang.tr('variable.emptyState')} />
@@ -25,9 +25,9 @@ const VariablesEditor: FC<Props> = props => {
     )
   }
 
-  const subTypes = _.sortBy(
+  const allTypes = _.sortBy(
     _.uniqWith(
-      variables.map(x => ({ type: x.type, subType: x.params.subType })),
+      currentFlowVars.map(x => ({ type: x.type, subType: x.params.subType })),
       (a, b) => a.type === b.type && a.subType === b.subType
     ),
     'type'
@@ -35,18 +35,19 @@ const VariablesEditor: FC<Props> = props => {
 
   return (
     <div className={style.wrapper}>
-      {subTypes.map(({ type, subType }) => {
-        const filtered = variables.filter(x => x.type === type && x.params.subType === subType)
+      {allTypes.map(({ type, subType }) => {
+        const filtered = currentFlowVars.filter(x => x.type === type && x.params.subType === subType)
+        const icon = variables.primitive.find(x => x.id === type)?.config?.icon
 
         return (
           <div key={`${type}-${subType}`}>
             <div className={style.group}>
               <div className={style.label}>
-                {lang.tr(type)} {subType ? `(${subType})` : ''}
+                <Icon icon={icon} /> {lang.tr(type)} {subType ? `(${subType})` : ''}
               </div>
               <div>
                 {filtered.map(item => (
-                  <button key={item.params?.name} className={style.button} onClick={() => props.editVariable(item)}>
+                  <button key={item.params?.name} className={style.button} onClick={() => editVariable(item)}>
                     <span className={style.label}>{item.params?.name}</span>
                   </button>
                 ))}
