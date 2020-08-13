@@ -1,4 +1,5 @@
 import { Icon } from '@blueprintjs/core'
+import sdk from 'botpress/sdk'
 import cx from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
@@ -7,7 +8,7 @@ import React, { FC, Fragment, useState } from 'react'
 import lang from '../../../../lang'
 import style from '../style.scss'
 
-export const Processing: FC<{ processing: { [activity: string]: Date }; lang: string }> = props => {
+export const Processing: FC<{ processing: { [activity: string]: sdk.IO.ProcessingEntry } }> = props => {
   const [expanded, setExpanded] = useState({})
   const { processing } = props
   let isBeforeMW = true
@@ -15,7 +16,7 @@ export const Processing: FC<{ processing: { [activity: string]: Date }; lang: st
   const processed = Object.keys(processing)
     .map(key => {
       const [type, name, status] = key.split(':')
-      return { type, name, status, completed: moment(processing[key]) }
+      return { type, name, status, completed: moment(processing[key].date), ...processing[key] }
     })
     .map((curr, idx, array) => {
       return { ...curr, execTime: idx === 0 ? 0 : curr.completed.diff(array[idx - 1].completed) }
@@ -59,9 +60,25 @@ export const Processing: FC<{ processing: { [activity: string]: Date }; lang: st
         </button>
         {isExpanded && (
           <span className={style.expanded}>
-            {/* TODO implement info box https://zpl.io/aMAOxZr
-            <span className={style.infoBox}></span>
-          */}
+            {item.logs?.length && (
+              <span className={style.infoBox}>
+                {item.logs.map(log => (
+                  <div>{log}</div>
+                ))}
+              </span>
+            )}
+
+            {item.errors?.length && (
+              <span className={style.infoBox}>
+                {item.errors.map(entry => (
+                  <div>
+                    <b>{lang.tr('module.extensions.processing.type')}:</b> {entry.type}
+                    <br />
+                    <b>{lang.tr('module.extensions.processing.stacktrace')}:</b> {entry.stacktrace}
+                  </div>
+                ))}
+              </span>
+            )}
             <span className={style.time}>
               {lang.tr('module.extensions.processing.executedIn', { n: item.execTime || 0 })}
             </span>

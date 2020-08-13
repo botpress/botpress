@@ -171,5 +171,14 @@
   "number": "Nombre",
   "boolean": "Booléen",
   "string": "Texte",
-  "format": "Format"
+  "format": "Format",
+  "input": "Entrée",
+  "output": "Sortie",
+  "tolerance": "Tolérance",
+  "enumeration": "Énumération",
+  "values": "Valeurs",
+  "strict": "Stricte",
+  "medium": "Médium",
+  "loose": "Indulgent",
+  "examples": "Exemples"
 }

@@ -1,6 +1,8 @@
-import { BoxedVariable, FlowVariableType } from 'botpress/sdk'
+import { BoxedVariable, PrimitiveVarType } from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 import moment from 'moment'
+
+import common from './common'
 
 type BoxedDateType = string | Date | moment.Moment
 
@@ -40,17 +42,20 @@ class BoxedDate extends BaseVariable<BoxedDateType, DateConfig> {
   }
 }
 
-const DateVariableType: FlowVariableType = {
+const DateVariableType: PrimitiveVarType = {
   id: 'date',
   config: {
+    label: 'date',
+    icon: 'calendar',
     fields: [
+      ...common.fields,
       {
         type: 'text',
         key: 'format',
         label: 'format'
       }
     ],
-    advancedSettings: []
+    advancedSettings: common.advancedSettings
   },
   box: BoxedDate
 }

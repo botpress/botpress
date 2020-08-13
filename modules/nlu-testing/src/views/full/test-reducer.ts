@@ -20,7 +20,7 @@ export const NONE_INTENT = {
 export const DEFAULT_TEST_STATE: TestState = {
   utterance: '',
   testingCtx: TEST_ALL_CTX,
-  expectedCtx: NONE_CTX,
+  expectedCtx: undefined,
   expectedIntent: NONE_INTENT,
   slotConditions: {}
 }

@@ -1,6 +1,8 @@
-import { BoxedVariable, FlowVariableType } from 'botpress/sdk'
+import { PrimitiveVarType } from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 import yn from 'yn'
+
+import common from './common'
 
 class BoxedBoolean extends BaseVariable<boolean> {
   constructor(args) {
@@ -31,17 +33,20 @@ class BoxedBoolean extends BaseVariable<boolean> {
   }
 }
 
-const BooleanVariableType: FlowVariableType = {
+const BooleanVariableType: PrimitiveVarType = {
   id: 'boolean',
   config: {
+    label: 'boolean',
+    icon: 'segmented-control',
     fields: [
+      ...common.fields,
       {
         type: 'checkbox',
         key: 'defaultValue',
         label: 'module.builtin.defaultValue'
       }
     ],
-    advancedSettings: []
+    advancedSettings: common.advancedSettings
   },
   box: BoxedBoolean
 }

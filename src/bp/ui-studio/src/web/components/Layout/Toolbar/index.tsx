@@ -1,5 +1,5 @@
-import { Icon, Tooltip } from '@blueprintjs/core'
-import { lang, ShortcutLabel } from 'botpress/shared'
+import { Icon } from '@blueprintjs/core'
+import { lang, ShortcutLabel, ToolTip } from 'botpress/shared'
 import classNames from 'classnames'
 import React, { FC, Fragment } from 'react'
 import { connect } from 'react-redux'
@@ -29,7 +29,7 @@ const Toolbar: FC<Props> = props => {
       <div className={style.list}>
         {!!hasDoc && (
           <Fragment>
-            <Tooltip
+            <ToolTip
               content={
                 <div className={style.tooltip}>
                   {lang.tr('toolbar.help')}
@@ -42,28 +42,12 @@ const Toolbar: FC<Props> = props => {
               <button className={style.item} onClick={toggleDocs}>
                 <Icon color="#1a1e22" icon="help" iconSize={16} />
               </button>
-            </Tooltip>
+            </ToolTip>
             <span className={style.divider}></span>
           </Fragment>
         )}
-        <AccessControl resource="bot.logs" operation="read">
-          <Tooltip
-            content={
-              <div className={style.tooltip}>
-                {lang.tr('toolbar.logsPanel')}
-                <div className={style.shortcutLabel}>
-                  <ShortcutLabel light shortcut="bottom-bar" />
-                </div>
-              </div>
-            }
-          >
-            <button className={style.item} onClick={toggleBottomPanel}>
-              <Icon color="#1a1e22" icon="console" iconSize={16} />
-            </button>
-          </Tooltip>
-        </AccessControl>
         {window.IS_BOT_MOUNTED && (
-          <Tooltip content={<ShortcutLabel light shortcut="emulator-focus" />}>
+          <ToolTip content={<ShortcutLabel light shortcut="emulator-focus" />}>
             <button
               className={classNames(style.item, style.itemSpacing, { [style.active]: isEmulatorOpen })}
               onClick={onToggleEmulator}
@@ -71,7 +55,7 @@ const Toolbar: FC<Props> = props => {
               <Icon color="#1a1e22" icon="chat" iconSize={16} />
               <span className={style.label}>{lang.tr('toolbar.emulator')}</span>
             </button>
-          </Tooltip>
+          </ToolTip>
         )}
       </div>
     </header>

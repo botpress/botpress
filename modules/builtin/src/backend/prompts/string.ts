@@ -38,7 +38,19 @@ const config: PromptConfig = {
   type: 'string',
   label: 'String',
   valueType: 'string',
-  fields: common.fields,
+  icon: 'font',
+  fields: [
+    ...common.fields,
+    {
+      type: 'variable',
+      key: 'output',
+      required: true,
+      label: 'module.builtin.setValueTo',
+      placeholder: 'module.builtin.setValueToPlaceholder',
+      variableTypes: ['string'],
+      defaultVariableType: 'string'
+    }
+  ],
   noConfirmation: true,
   advancedSettings: [
     {
