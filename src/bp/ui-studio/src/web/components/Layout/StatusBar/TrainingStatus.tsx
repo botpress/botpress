@@ -1,5 +1,7 @@
+import { Button } from '@blueprintjs/core'
 import axios from 'axios'
 import { NLU } from 'botpress/sdk'
+import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
@@ -12,11 +14,6 @@ interface Props {
 }
 
 const BASE_NLU_URL = `${window.BOT_API_PATH}/mod/nlu`
-
-// TODOs
-// - move calls to core api
-// - add translations in ui
-// - styling
 
 export const TrainingStatusComponent: FC<Props> = props => {
   // TODO change this for a reducer ?
@@ -69,12 +66,12 @@ export const TrainingStatusComponent: FC<Props> = props => {
   }
 
   const onTrainingNeeded = () => setMessage('')
-  const onTraingDone = () => setMessage('Ready') // TODO need translation for this
-  const onCanceling = () => setMessage('Canceling') // TODO translate this
-  const onError = () => setMessage('Cannot train chatbot')
+  const onTraingDone = () => setMessage(lang.tr('statusBar.ready'))
+  const onCanceling = () => setMessage(lang.tr('statusBar.canceling'))
+  const onError = () => setMessage(lang.tr('statusBar.trainingError'))
   const onTrainingProgress = (progress: number) => {
     const p = Math.floor(progress * 100)
-    setMessage(`Training ${p}%`)
+    setMessage(`${lang.tr('statusBar.training')} ${p}%`)
   }
 
   const onTrainClicked = async (e: React.SyntheticEvent) => {
@@ -103,12 +100,19 @@ export const TrainingStatusComponent: FC<Props> = props => {
     return null
   } else {
     return (
-      <div className={cx(style.item, style.progress)}>
-        {message}
+      <div className={style.item}>
+        <span className={style.message}>{message}</span>
 
-        {/* TODO translations for this */}
-        {status === 'needs-training' && <button onClick={onTrainClicked}> Train</button>}
-        {status === 'training' && <button onClick={onCancelClicked}>Cancel</button>}
+        {status === 'needs-training' && (
+          <Button className={style.button} onClick={onTrainClicked}>
+            {lang.tr('statusBar.trainChatbot')}
+          </Button>
+        )}
+        {status === 'training' && (
+          <Button className={cx(style.button, style.danger)} onClick={onCancelClicked}>
+            {lang.tr('statusBar.cancelTraining')}
+          </Button>
+        )}
       </div>
     )
   }
