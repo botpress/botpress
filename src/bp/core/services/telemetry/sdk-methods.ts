@@ -3,6 +3,7 @@ import traverse from '@babel/traverse'
 import LicensingService from 'common/licensing-service'
 import { buildSchema } from 'common/telemetry'
 import Database from 'core/database'
+import { calculateHash } from 'core/misc/utils'
 import { TelemetryRepository } from 'core/repositories/telemetry'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
@@ -118,7 +119,7 @@ export class SDKStats extends TelemetryStats {
       }
     }
 
-    const hooksPayload = await getHooksLifecycle(this.botService, this.ghostService)
+    const hooksPayload = await getHooksLifecycle(this.botService, this.ghostService, false)
     const global = await this.parseHooks(hooksPayload.global.filter(hook => hook.type === 'custom'))
     const perBots = await Promise.reduce(hooksPayload.perBots, reducer, [] as ParsedFile[])
 
@@ -142,6 +143,11 @@ export class SDKStats extends TelemetryStats {
     const file = await this.readFileAsString(rootFolder, name, usageParams?.botId)
     const functions = this.extractFunctions(parse(file, PARSE_CONFIG))
     const usage: ParsedFile = { fileName: name.split('/').pop() || '', usages: this.parseMethods(functions) }
+
+    if (usageParams?.botId) {
+      usageParams.botId = calculateHash(usageParams.botId)
+    }
+
     return { ...usage, ...usageParams }
   }
 

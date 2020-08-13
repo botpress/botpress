@@ -33,12 +33,16 @@ export interface HookPayload {
   global: Hook[]
 }
 
-export const getHooksLifecycle = async (botService: BotService, ghostService: GhostService): Promise<HookPayload> => {
+export const getHooksLifecycle = async (
+  botService: BotService,
+  ghostService: GhostService,
+  hashBotId: boolean
+): Promise<HookPayload> => {
   const botIds = await botService.getBotsIds()
   const perBots = await Promise.map(botIds, async id => {
     const botHooksPaths = await ghostService.forBot(id).directoryListing('/hooks', '*.js')
     const lifecycles = parsePaths(botHooksPaths)
-    return { botId: calculateHash(id), hooks: lifecycles }
+    return { botId: hashBotId ? calculateHash(id) : id, hooks: lifecycles }
   })
   const globalHooksPaths = await ghostService.global().directoryListing('/hooks', '*.js')
   const global = parsePaths(globalHooksPaths)
@@ -92,7 +96,7 @@ export class HooksLifecycleStats extends TelemetryStats {
       event_type: 'hooks_lifecycle',
       event_data: {
         schema: '1.0.0',
-        lifeCycles: _.omit(await getHooksLifecycle(this.botService, this.ghostService), 'path')
+        lifeCycles: _.omit(await getHooksLifecycle(this.botService, this.ghostService, true), 'path')
       }
     }
   }
