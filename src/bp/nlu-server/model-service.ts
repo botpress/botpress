@@ -1,6 +1,7 @@
 import { NLU } from 'botpress/sdk'
 import fse, { WriteStream } from 'fs-extra'
 import _ from 'lodash'
+import nanoid from 'nanoid'
 import path from 'path'
 import { Stream } from 'stream'
 import tar from 'tar'
@@ -11,7 +12,7 @@ import NLUServerGhost from './ghost'
 export default class ModelService {
   constructor(private ghost: NLUServerGhost, private modelDir: string) {}
 
-  public async createModelDirIfNotExist() {
+  public async init() {
     const modelDirExists = await this.ghost.dirExists(this.modelDir)
     if (!modelDirExists) {
       await this.ghost.createDir(this.modelDir)
@@ -45,12 +46,11 @@ export default class ModelService {
     }
   }
 
-  public async saveModel(model: NLU.Model): Promise<void> {
+  public async saveModel(model: NLU.Model, modelId: string): Promise<void> {
     const { ghost, modelDir } = this
 
     const serialized = JSON.stringify(model)
 
-    const modelId = this.makeModelId(model.hash, model.languageCode)
     const modelName = this.makeFileName(modelId)
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
     const tmpFileName = path.join(tmpDir.name, 'model')
@@ -72,7 +72,8 @@ export default class ModelService {
   }
 
   public makeModelId(hash: string, languageCode: string) {
-    return `${hash}.${languageCode}`
+    const trainingId = nanoid() // so two time the same training doesnt collide
+    return `${hash}.${languageCode}.${trainingId}`
   }
 
   private makeFileName(modelId: string): string {

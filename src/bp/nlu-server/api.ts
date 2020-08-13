@@ -10,9 +10,12 @@ import ms from 'ms'
 import Engine from 'nlu-core/engine'
 
 import NLUServerGhost from './ghost'
+import NLUServerKeyValueStore from './kvs'
 import { NLUServerLogger } from './logger'
 import ModelService from './model-service'
 import { monitoringMiddleware, startMonitoring } from './monitoring'
+import TrainService from './train'
+import TrainSessionService from './train-session-service'
 import { authMiddleware, handleErrorLogging, handleUnexpectedError } from './util'
 import { TrainInput, TrainInputCreateSchema } from './validation'
 
@@ -82,26 +85,21 @@ export default async function(options: APIOptions) {
   let engine: Engine
   let nluGhost: NLUServerGhost
   let modelService: ModelService
+  let kvs: NLUServerKeyValueStore
+  let trainSessionService: TrainSessionService
+  let trainService: TrainService
   try {
     engine = new Engine('nlu-server', loggerWrapper)
     nluGhost = new NLUServerGhost()
     modelService = new ModelService(nluGhost, options.modelDir)
-    await modelService.createModelDirIfNotExist()
+    await modelService.init()
+    kvs = new NLUServerKeyValueStore(nluGhost, options.modelDir)
+    await kvs.init()
+    trainSessionService = new TrainSessionService(kvs)
+    trainService = new TrainService(logger, engine, modelService, trainSessionService)
   } catch (err) {
     logger.attachError(err).error('an error occured while initializing the server')
     process.exit(1)
-  }
-
-  const doTraining = async (intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], language: string) => {
-    try {
-      const model = await engine.train(intents, entities, language)
-      if (!model) {
-        throw new Error('training could not finish')
-      }
-      await modelService.saveModel(model!)
-    } catch (err) {
-      logger.attachError(err).error('an error occured during training')
-    }
   }
 
   app.get('/info', (req, res) => {
@@ -122,7 +120,7 @@ export default async function(options: APIOptions) {
 
       // return the modelId as fast as possible
       // tslint:disable-next-line: no-floating-promises
-      doTraining(intents, input.entities, input.language)
+      trainService.train(modelId, intents, input.entities, input.language)
 
       return res.send({
         success: true,
@@ -138,15 +136,8 @@ export default async function(options: APIOptions) {
 
   router.get('/train/:modelId', async (req, res) => {
     const { modelId } = req.params
-    const model = await modelService.getModel(modelId)
-
-    // TODO: add a more robust check of weither or not the training has ever started;
-    //       like we do in NLU wrapper module with the training session service
-    const trainingStatus = model ? 'done' : 'training'
-    res.send({
-      success: true,
-      trainingStatus
-    })
+    const session = await trainSessionService.getTrainingSession(modelId)
+    res.send(session)
   })
 
   router.post('/predict/:modelId', async (req, res) => {
