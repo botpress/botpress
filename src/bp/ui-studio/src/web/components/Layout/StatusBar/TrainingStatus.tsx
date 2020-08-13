@@ -13,10 +13,10 @@ interface Props {
   currentLanguage: string
 }
 
+// TODO change this url for core ?
 const BASE_NLU_URL = `${window.BOT_API_PATH}/mod/nlu`
 
 export const TrainingStatusComponent: FC<Props> = props => {
-  // TODO change this for a reducer ?
   const [status, setStatus] = useState<NLU.TrainingStatus>(null)
   const [message, setMessage] = useState('')
 
@@ -77,21 +77,18 @@ export const TrainingStatusComponent: FC<Props> = props => {
   const onTrainClicked = async (e: React.SyntheticEvent) => {
     e.preventDefault()
     try {
-      // TODO change this url for core ?
       await axios.post(`${BASE_NLU_URL}/train`)
     } catch (err) {
       onError()
     }
   }
 
-  // TODO change this for /training/cancel
   const onCancelClicked = async (e: React.SyntheticEvent) => {
     e.preventDefault()
     onCanceling()
     try {
       await axios.post(`${BASE_NLU_URL}/train/delete`)
     } catch (err) {
-      // TODO better handle this, show error message with toast
       console.log('cannot cancel training')
     }
   }

@@ -82,9 +82,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
   })
 
   // TODO make this language based
-  // TODO change this for /training/:language/cancel
   router.post('/train/delete', async (req, res) => {
-    // TODO make this language based
     try {
       const { botId } = req.params
       await state.nluByBot[botId].cancelTraining()

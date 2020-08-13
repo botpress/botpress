@@ -15,34 +15,7 @@ interface Props {
   toggleLangSwitcher: (e: any) => void
 }
 
-const DEFAULT_STATE = {
-  progress: 0,
-  working: false,
-  message: ''
-}
-
 const StatusBar: FC<Props> = props => {
-  // const progressReducer = (state, action) => {
-  //   if (action.type === 'updateData') {
-  //     const { message, working, progress, status } = action.data
-
-  //     // if (status === 'done') {
-  //     //   setTimeout(() => {
-  //     //     dispatch({ type: 'updateData', data: { message: '', working: false } })
-  //     //   }, 2000)
-  //     // }
-
-  //     return {
-  //       ...state,
-  //       message: message || '',
-  //       working: working || false,
-  //       progress: progress ? Math.floor(progress * 100) : state.progress
-  //     }
-  //   } else {
-  //     throw new Error(`That action type isn't supported.`)
-  //   }
-  // }
-
   return (
     <footer className={style.statusBar}>
       <div className={style.item}>

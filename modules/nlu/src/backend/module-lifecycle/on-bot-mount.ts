@@ -110,6 +110,6 @@ export function getOnBotMount(state: NLUState) {
       cancelTraining
     }
 
-    trainOrLoad(yn(process.env.FORCE_TRAIN_ON_MOUNT)) // floating on purpose
+    trainOrLoad(yn(process.env.FORCE_TRAIN_ON_MOUNT)) // floating promise on purpose
   }
 }
