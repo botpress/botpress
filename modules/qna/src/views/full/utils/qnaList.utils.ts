@@ -3,9 +3,35 @@ import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import _uniqueId from 'lodash/uniqueId'
 
-import { QnaItem } from '../../../backend/qna'
-
 export const ITEMS_PER_PAGE = 50
+
+export type Action = 'text' | 'redirect' | 'text_redirect'
+
+export interface QnaEntry {
+  // TODO: temporary until we refactor the views to match new data structure
+  action: Action
+  contexts: string[]
+  enabled: boolean
+  questions: {
+    [lang: string]: string[]
+  }
+  answers: {
+    [lang: string]: string[]
+  }
+  contentAnswers: any
+  redirectFlow: string
+  redirectNode: string
+  lastModified?: Date
+}
+
+export interface QnaItem {
+  // TODO: temporary until we refactor the views to match new data structure
+  id: string
+  key?: string
+  isNew?: boolean
+  saveError?: string
+  data: QnaEntry
+}
 
 export interface State {
   count: number

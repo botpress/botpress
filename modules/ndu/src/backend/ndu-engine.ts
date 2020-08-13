@@ -78,13 +78,7 @@ export class UnderstandingEngine {
         { userLanguage: event?.state?.user?.language },
         axiosConfig
       )
-
-      return [
-        {
-          action: 'send',
-          data: { confidence: 1, payloads: data, source: 'qna', sourceDetails: 'ndu/' + qnaId }
-        }
-      ]
+      return data
     } catch (err) {
       this.bp.logger.warn('Could not query qna', err)
       return []
@@ -116,10 +110,6 @@ export class UnderstandingEngine {
     const isInMiddleOfFlow = currentFlow !== 'n/a'
 
     debug('Processing %o', { currentFlow, currentNode, isInMiddleOfFlow })
-
-    // // Overwrite the NLU detected intents
-    // event.nlu.intent = bestIntents?.[0]
-    // event.nlu.intents = bestIntents
 
     // Then process triggers on what the NDU decided
     await this._processTriggers(event)

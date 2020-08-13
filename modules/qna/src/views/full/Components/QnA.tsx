@@ -3,11 +3,11 @@ import { BotEvent, Flow, FlowNode } from 'botpress/sdk'
 import { confirmDialog, Contents, FormFields, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
 import { getFlowLabel } from 'botpress/utils'
 import cx from 'classnames'
+import { QnaItem } from 'full/utils/qnaList.utils'
 import _uniqueId from 'lodash/uniqueId'
 import React, { FC, Fragment, useRef, useState } from 'react'
 import Select from 'react-select'
 
-import { QnaItem } from '../../../backend/qna'
 import { isQnaComplete } from '../../../backend/utils'
 import style from '../style.scss'
 
@@ -169,7 +169,7 @@ const QnA: FC<Props> = props => {
     })
   }
 
-  const showIncomplete = !isQnaComplete(props.qnaItem.data, contentLang)
+  const showIncomplete = !isQnaComplete(props.qnaItem.data as any, contentLang)
   const currentFlow = flows ? flows.find(({ name }) => name === data.redirectFlow) || { nodes: [] } : { nodes: [] }
   const nodeList = (currentFlow.nodes as FlowNode[])?.map(({ name }) => ({ label: name, value: name }))
   const flowsList = flows.map(({ name }) => ({ label: getFlowLabel(name), value: name }))

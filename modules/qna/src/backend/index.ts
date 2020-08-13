@@ -6,13 +6,11 @@ import fr from '../translations/fr.json'
 
 import api from './api'
 import { ScopedBots } from './qna'
-import { initBot, initModule } from './setup'
+import { initBot } from './setup'
 
 const bots: ScopedBots = {}
 
-const onServerStarted = async (bp: typeof sdk) => {
-  await initModule(bp, bots)
-}
+const onServerStarted = async (bp: typeof sdk) => {}
 
 const onServerReady = async (bp: typeof sdk) => {
   await api(bp, bots)
@@ -27,7 +25,6 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
 }
 
 const onModuleUnmount = async (bp: typeof sdk) => {
-  // bp.events.removeMiddleware('qna.incoming')
   bp.http.deleteRouterForBot('qna')
 }
 
