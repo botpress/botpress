@@ -1,19 +1,11 @@
 import axios from 'axios'
+import { NLU } from 'botpress/sdk'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import EventBus from '~/util/EventBus'
 
 import style from './style.scss'
-
-type TrainingStatus = 'idle' | 'done' | 'needs-training' | 'training' | 'canceled' | 'errored' | null
-
-// TODO use NLU typings
-interface TrainingSession {
-  status: TrainingStatus
-  language: string
-  progress: number
-}
 
 interface Props {
   currentLanguage: string
@@ -32,7 +24,7 @@ const BASE_NLU_URL = `${window.BOT_API_PATH}/mod/nlu`
 
 export const TrainingStatusComponent: FC<Props> = props => {
   // TODO change this for a reducer ?
-  const [status, setStatus] = useState<TrainingStatus>(null)
+  const [status, setStatus] = useState<NLU.TrainingStatus>(null)
   const [message, setMessage] = useState('')
 
   useEffect(() => {
@@ -49,20 +41,20 @@ export const TrainingStatusComponent: FC<Props> = props => {
   const onStatusBarEvent = async event => {
     const isNLUEvent = event.botId === window.BOT_ID && event.trainSession?.language === props.currentLanguage
     if (isNLUEvent) {
-      updateState(event.trainSession as TrainingSession, false)
+      updateState(event.trainSession as NLU.TrainingSession, false)
     }
   }
 
   const fetchTrainingStatus = async () => {
     try {
       const { data: session } = await axios.get(`${window.BOT_API_PATH}/mod/nlu/training/${props.currentLanguage}`)
-      updateState(session as TrainingSession, true)
+      updateState(session as NLU.TrainingSession, true)
     } catch (err) {
       status !== 'needs-training' && onTrainingNeeded()
     }
   }
 
-  const updateState = (session: TrainingSession, fromWS: boolean) => {
+  const updateState = (session: NLU.TrainingSession, fromWS: boolean) => {
     setStatus(session.status)
 
     if (session.status === 'training') {
