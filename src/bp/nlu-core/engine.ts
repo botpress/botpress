@@ -204,7 +204,7 @@ export default class Engine implements NLU.Engine {
     )
   }
 
-  async loadModel(serialized: NLU.Model | undefined) {
+  async loadModel(serialized: NLU.Model) {
     if (!serialized || this.modelAlreadyLoaded(serialized)) {
       return
     }
@@ -274,9 +274,9 @@ export default class Engine implements NLU.Engine {
     }
   }
 
-  async predict(sentence: string, includedContexts: string[], anticipatedLanguage: string): Promise<PredictOutput> {
+  async predict(sentence: string, includedContexts: string[], language: string): Promise<PredictOutput> {
     const input: PredictInput = {
-      defaultLanguage: anticipatedLanguage,
+      language,
       sentence,
       includedContexts
     }

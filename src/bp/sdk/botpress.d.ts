@@ -473,8 +473,10 @@ declare module 'botpress/sdk' {
         trainingSession?: TrainingSession,
         options?: TrainingOptions
       ) => Promise<Model | undefined>
-      predict: (t: string, ctx: string[], anticipatedLanguage: string) => Promise<IO.EventUnderstanding>
+      predict: (t: string, ctx: string[], language: string) => Promise<IO.EventUnderstanding>
     }
+
+    export type PredictErrorStatus = 'invalid_predictor' | 'other'
 
     export interface Config {
       ducklingURL: string
@@ -774,11 +776,10 @@ declare module 'botpress/sdk' {
       readonly detectedLanguage: string
       readonly entities: NLU.Entity[]
       readonly slots?: NLU.SlotCollection
-      readonly errored: boolean
+      readonly error?: NLU.PredictErrorStatus
       readonly includedContexts: string[]
       readonly predictions?: NLU.Predictions
       readonly ms: number
-      readonly suggestedLanguage?: string
     }
 
     export interface IncomingEvent extends Event {

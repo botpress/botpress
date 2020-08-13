@@ -59,21 +59,25 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
         return next(undefined, false, true)
       }
 
-      let nluResults: sdk.IO.EventUnderstanding
-      const { engine, defaultLanguage } = state.nluByBot[event.botId]
-      const extractEngine2 = async () => {
-        // eventually if model not loaded for bot languages ==> train or load
-        nluResults = await engine.predict(event.preview, event.nlu.includedContexts, defaultLanguage)
-        if (nluResults.errored && nluResults.suggestedLanguage) {
-          const model = await getLatestModel(bp.ghost.forBot(event.botId), nluResults.suggestedLanguage)
-          await engine.loadModel(model)
-          // might throw again, thus usage of bluebird retry
-          nluResults = await engine.predict(event.preview, event.nlu.includedContexts, nluResults.suggestedLanguage)
-        }
-      }
-
       try {
-        await retry(extractEngine2, { max_tries: 2, throw_original: true })
+        const { engine, defaultLanguage } = state.nluByBot[event.botId]
+        let language = defaultLanguage
+        let nluResults = await engine.predict(event.preview, event.nlu.includedContexts, language)
+
+        if (nluResults.detectedLanguage && nluResults.detectedLanguage !== language) {
+          language = nluResults.detectedLanguage
+          nluResults = await engine.predict(event.preview, event.nlu.includedContexts, language)
+        }
+
+        if (nluResults.error && nluResults.error === 'invalid_predictor') {
+          const model = await getLatestModel(bp.ghost.forBot(event.botId), language)
+          if (!model) {
+            throw new Error(`no model found for language ${language}, training needed.`)
+          }
+          await engine.loadModel(model)
+          nluResults = await engine.predict(event.preview, event.nlu.includedContexts, language)
+        }
+
         _.merge(event, { nlu: nluResults ?? {} })
         removeSensitiveText(event)
       } catch (err) {
