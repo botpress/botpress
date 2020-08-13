@@ -14,6 +14,7 @@ import BoxedBoolean from './variables/boolean'
 import BoxedDate from './variables/date'
 import BoxedEnum from './variables/enum'
 import BoxedNumber from './variables/number'
+import BoxedPattern from './variables/pattern'
 import BoxedString from './variables/string'
 
 const botTemplates: sdk.BotTemplate[] = [
@@ -30,7 +31,7 @@ const onServerStarted = async (bp: typeof sdk) => {
 
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
-  variables: [BoxedDate, BoxedBoolean, BoxedNumber, BoxedString, BoxedEnum],
+  variables: [BoxedDate, BoxedBoolean, BoxedNumber, BoxedString, BoxedEnum, BoxedPattern],
   botTemplates,
   translations: { en, fr },
   prompts,

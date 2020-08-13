@@ -25,6 +25,7 @@ const SingleSuperInput = ({
   canPickVariables,
   events,
   variables,
+  allVariables,
   onAddVariable,
   eventsDesc,
   value,
@@ -91,13 +92,19 @@ const SingleSuperInput = ({
       return null
     }
 
+    const type = allVariables.currentFlow?.find(x => x.params?.name === option.value)?.type
+    const icon = allVariables.primitive?.find(x => x.id === type)?.config?.icon
+
     const label = isAdding ? (
       <Fragment>
         <Icon icon="plus" iconSize={12} />
         {lang('create')} "{option.label}"
       </Fragment>
     ) : (
-      option.label
+      <Fragment>
+        <Icon icon={icon} iconSize={12} />
+        {option.label}
+      </Fragment>
     )
 
     return (

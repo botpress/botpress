@@ -23,6 +23,7 @@ const itemRenderer = (option, { modifiers, handleClick }) => {
       key={option.label || option}
       onClick={handleClick}
       text={option.label || option}
+      icon={option.icon}
     />
   )
 }
@@ -96,7 +97,7 @@ const Dropdown: FC<DropdownProps> = props => {
         <Button
           className={cx(style.btn, { [style.spaced]: spaced, [style.placeholder]: !activeItem })}
           text={small ? <small>{btnText}</small> : btnText}
-          icon={icon}
+          icon={activeItem?.icon ?? icon}
           rightIcon={rightIcon || 'double-caret-vertical'}
           small={small}
         />

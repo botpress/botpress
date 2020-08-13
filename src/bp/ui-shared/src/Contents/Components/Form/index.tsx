@@ -169,7 +169,7 @@ const Form: FC<FormProps> = ({
         defaultVariableType={getVariableType(field.type)}
         variableTypes={field.variableTypes}
         placeholder={lang(field.placeholder)}
-        variables={variables || []}
+        variables={variables}
         events={events || []}
         canPickEvents={superInputOptions?.variablesOnly !== true && field.superInputOptions?.canPickEvents !== false}
         canPickVariables={superInputOptions?.eventsOnly !== true && field.superInputOptions?.canPickVariables !== false}
@@ -296,7 +296,7 @@ const Form: FC<FormProps> = ({
                 canPickVariables={
                   superInputOptions?.eventsOnly !== true && field.superInputOptions?.canPickVariables !== false
                 }
-                variables={variables || []}
+                variables={variables}
                 events={events || []}
                 onUpdateVariables={onUpdateVariables}
                 items={currentValue || ['']}
@@ -471,9 +471,10 @@ const Form: FC<FormProps> = ({
             {printMoreInfo(field.moreInfo)}
             <VariablePicker
               data={data}
-              variables={variables || []}
+              variables={variables!}
               variableTypes={field.variableTypes}
               defaultVariableType={field.defaultVariableType}
+              variableSubType={formData?.subType}
               field={field}
               addVariable={onUpdateVariables!}
               placeholder={lang(field.placeholder)}

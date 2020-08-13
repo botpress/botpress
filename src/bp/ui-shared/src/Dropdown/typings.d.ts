@@ -1,8 +1,10 @@
 import { ItemListPredicate, ItemRenderer } from '@blueprintjs/select'
+import { IconName } from '@blueprintjs/core'
 
 export interface Option {
   label: string
-  value: string
+  value: any
+  icon?: IconName | JSX.Element
 }
 
 export interface DropdownProps {

@@ -21,10 +21,25 @@ interface WorkflowVariables {
 const DEBOUNCE_DELAY = 2000
 const ENUMS_DIR = './entities'
 
+const preparePattern = (pattern: string, matchCase?: boolean) => {
+  try {
+    let p = pattern || ''
+    if (!p.startsWith('^')) {
+      p = `^${p}`
+    }
+    if (!p.endsWith('$')) {
+      p = `${p}$`
+    }
+    return new RegExp(p, matchCase ? '' : 'i')
+  } catch (err) {
+    console.error('Pattern invalid', err)
+  }
+}
+
 @injectable()
 export class DialogStore {
   private _prompts!: sdk.PromptDefinition[]
-  private _variables!: sdk.FlowVariableType[]
+  private _variables!: sdk.PrimitiveVarType[]
 
   private _enums: { [botId: string]: sdk.NLU.EntityDefinition[] } = {}
   private _wfVariables: WorkflowVariables = {}
@@ -79,11 +94,18 @@ export class DialogStore {
     }
   }
 
-  public getEnumForBot(botId: string, enumType?: string): sdk.NLU.EntityDefOccurrence[] | undefined {
-    return this._enums[botId]?.find(x => x.id === enumType)?.occurrences
+  private _getValidationData(botId: string, enumType?: string): sdk.ValidationData | undefined {
+    const entity = this._enums[botId]?.find(x => x.id === enumType)
+
+    // TODO: future optimization, parse & keep in memory
+    const pattern = !!entity?.pattern && preparePattern(entity.pattern, entity.matchCase)
+    return {
+      patterns: pattern ? [pattern] : [],
+      elements: entity?.occurrences ?? []
+    }
   }
 
-  public getVariable(type: string): sdk.FlowVariableType | undefined {
+  public getVariable(type: string): sdk.PrimitiveVarType | undefined {
     return this._variables.find(x => x.id === type)
   }
 
@@ -93,6 +115,23 @@ export class DialogStore {
 
   public getPromptConfig(type: string): sdk.PromptConfig | undefined {
     return this._prompts.find(x => x.id === type)?.config
+  }
+
+  public getBoxedVar(
+    data: Omit<sdk.BoxedVarContructor<any>, 'getValidationData'>,
+    botId: string,
+    workflowName: string,
+    variableName: string
+  ) {
+    const { type, subType, value, nbOfTurns, config: optConfig } = data
+
+    const BoxedVar = this.getVariable(type)?.box
+    if (BoxedVar) {
+      const config = optConfig ?? this.getVariableConfig(botId, workflowName, variableName)?.params
+
+      const getValidationData = () => this._getValidationData(botId, subType)
+      return new BoxedVar({ type, subType, nbOfTurns, value, config, getValidationData })
+    }
   }
 
   private async _reloadEnums(botId: string) {

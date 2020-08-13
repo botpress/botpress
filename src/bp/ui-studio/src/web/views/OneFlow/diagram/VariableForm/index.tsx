@@ -1,8 +1,9 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
-import { Condition, FormData, PromptNode } from 'botpress/sdk'
+import { PromptNode } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
+import { Variables } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
@@ -10,7 +11,7 @@ import style from './style.scss'
 
 interface Props {
   deleteVariable: () => void
-  variables: any[]
+  variables: Variables
   customKey: string
   contentLang: string
   close: () => void
@@ -20,7 +21,6 @@ interface Props {
 
 const VariableForm: FC<Props> = ({ customKey, variables, contentLang, close, formData, onUpdate, deleteVariable }) => {
   const variableType = useRef(formData?.type)
-  const [isConfirming, setIsConfirming] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
 
@@ -42,12 +42,16 @@ const VariableForm: FC<Props> = ({ customKey, variables, contentLang, close, for
     onUpdate({ type: value, params: _.pick(formData.params, ['name', 'description', 'isInput', 'isOutput']) })
   }
 
-  const options = variables.map(x => ({ label: x.id, value: x.id }))
-  const selectedVariableType = variables.find(x => x.id === variableType.current)
-  const selectedOption = options.find(x => x.value === variableType.current)
+  const selectedVariableType = variables.primitive.find(x => x.id === variableType.current)
+
+  const options = variables.display.map(x => ({ label: lang.tr(x.label), icon: x.icon, value: x }))
+  const selectedOption = options.find(
+    ({ value }) =>
+      value.type === variableType.current && (!formData.params?.subType || value.subType === formData.params?.subType)
+  )
 
   return (
-    <RightSidebar className={style.wrapper} canOutsideClickClose={!isConfirming} close={close}>
+    <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={close}>
       <Fragment key={`${variableType.current}-${customKey}`}>
         <div className={style.formHeader}>
           <Tabs id="contentFormTabs">
@@ -57,15 +61,19 @@ const VariableForm: FC<Props> = ({ customKey, variables, contentLang, close, for
         </div>
         <div className={cx(style.fieldWrapper, style.contentTypeField)}>
           <span className={style.formLabel}>{lang.tr('type')}</span>
-          {!!variables.length && (
+          {!!variables.primitive.length && (
             <Dropdown
               filterable
               className={style.formSelect}
               items={options}
               defaultItem={selectedOption}
               rightIcon="chevron-down"
-              onChange={option => {
-                handleTypeChange(option.value)
+              onChange={({ value }) => {
+                handleTypeChange(value.type)
+
+                if (value.subType) {
+                  onUpdate({ ...formData, params: { ...formData.params, subType: value.subType } })
+                }
               }}
             />
           )}

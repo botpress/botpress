@@ -40,6 +40,7 @@ const config: PromptConfig = {
   type: 'confirm',
   label: 'Confirm',
   valueType: 'boolean',
+  icon: 'segmented-control',
   noConfirmation: true,
   fields: [
     ...common.fields,
