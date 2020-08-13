@@ -1,4 +1,4 @@
-import { NLU } from 'botpress/sdk'
+import { IO, NLU } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { Fragment } from 'react'
 
@@ -9,10 +9,11 @@ import { Intent } from './Intent'
 
 interface Props {
   predictions: NLU.Predictions
+  workflow: any
 }
 
 const Predictions = (props: Props) => {
-  const { predictions } = props
+  const { predictions, workflow } = props
 
   if (!predictions) {
     return null
@@ -25,9 +26,11 @@ const Predictions = (props: Props) => {
         const { confidence, intents } = predictions[key]
         return (
           <div className={style.subSection} key={index}>
-            <p>
-              {key} {formatConfidence(confidence)}%
-            </p>
+            {!workflow && (
+              <p>
+                {key} {formatConfidence(confidence)}%
+              </p>
+            )}
             <ul>
               {intents.slice(0, 4).map(i => {
                 return (

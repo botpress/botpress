@@ -67,7 +67,7 @@ const NLU: SFC<Props> = ({ nluData, isNDU, isExpanded, toggleExpand, session }) 
           </Tooltip>
         )}
         <Language detectedLanguage={nluData.detectedLanguage} usedLanguage={nluData.language} />
-        <Predictions predictions={nluData.predictions} />
+        <Predictions predictions={nluData.predictions} workflow={session.currentWorkflow} />
         {!isNDU && <Intents intents={nluData.intents} intent={nluData.intent} />}
         {/* TODO re-add Entities and Slots when design is made for them
         <Collapsible name="Entities" hidden={!nluData.entities.length}>
