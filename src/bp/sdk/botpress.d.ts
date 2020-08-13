@@ -1803,7 +1803,7 @@ declare module 'botpress/sdk' {
     /** The level of confidence we have for the value */
     readonly confidence: number
     readonly type: string
-    readonly subType: string
+    readonly subType?: string
     /** This method handles the logic to check if the value is valid and update the confidence  */
     trySet(value: T | undefined, confidence?: number): void
     /** Set the number of remaining turns before the variable is set to expire */
