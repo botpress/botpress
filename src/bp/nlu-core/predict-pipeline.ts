@@ -76,8 +76,7 @@ async function DetectLanguage(
   const supportedLanguages = Object.keys(predictorsByLang)
 
   const langIdentifier = LanguageIdentifierProvider.getLanguageIdentifier(tools.mlToolkit)
-  const possibleMlLangs = await langIdentifier.identify(input.sentence)
-  const bestMlLangMatch = possibleMlLangs[0]
+  const bestMlLangMatch = (await langIdentifier.identify(input.sentence))[0]
   let detectedLanguage = bestMlLangMatch?.label ?? NA_LANG
   let scoreDetectedLang = bestMlLangMatch?.value ?? 0
 
