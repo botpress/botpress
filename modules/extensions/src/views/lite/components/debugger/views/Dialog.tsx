@@ -3,6 +3,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import React, { Fragment, SFC, useEffect, useState } from 'react'
 
+import lang from '../../../../lang'
 import { Collapsible } from '../components/Collapsible'
 import { Intent, isQnaItem } from '../components/Intent'
 import style from '../style.scss'
@@ -23,7 +24,7 @@ const Decision: SFC<{ decision: sdk.IO.Suggestion }> = props => {
 
   return (
     <div className={style.section}>
-      <div className={style.sectionTitle}>Decision</div>
+      <div className={style.sectionTitle}>{lang.tr('module.extensions.dialog.decision')}</div>
       <div className={style.subSection}>
         {isQnA ? <Intent name={decision} /> : <p>{decision}</p>}
         <ul>
@@ -36,7 +37,7 @@ const Decision: SFC<{ decision: sdk.IO.Suggestion }> = props => {
 
 const Suggestions: SFC<{ suggestions: sdk.IO.Suggestion[] }> = props => (
   <div className={style.section}>
-    <div className={style.sectionTitle}>Suggestions</div>
+    <div className={style.sectionTitle}>{lang.tr('module.extensions.dialog.suggestions')}</div>
     <div className={style.subSection}>
       <ul>
         {_.take(props.suggestions, 4).map(sugg => (
@@ -56,7 +57,7 @@ const highlightNode = (flow: string, node: string) => {
 
 const Flow: SFC<{ stacktrace: sdk.IO.JumpPoint[] }> = props => (
   <div className={style.section}>
-    <div className={style.sectionTitle}>Flow Nodes</div>
+    <div className={style.sectionTitle}>{lang.tr('module.extensions.dialog.flowNodes')}</div>
     <div className={style.subSection}>
       <ul>
         {props.stacktrace.map(({ flow, node }, idx) => {
@@ -114,11 +115,11 @@ const Dialog: SFC<Props> = ({ decision, suggestions, stacktrace, isExpanded, tog
     <Collapsible
       opened={isExpanded(DIALOG_PANEL)}
       toggleExpand={expanded => toggleExpand(DIALOG_PANEL, expanded)}
-      name="Dialog Manager"
+      name={lang.tr('module.extensions.dialog.dialogManager')}
     >
       {renderContent()}
       <Button minimal className={style.switchViewBtn} icon="eye-open" onClick={toggleView}>
-        {viewJSON ? 'View as Summary' : 'View as JSON'}
+        {viewJSON ? lang.tr('module.extensions.viewAsSummary') : lang.tr('module.extensions.viewAsJson')}
       </Button>
     </Collapsible>
   )

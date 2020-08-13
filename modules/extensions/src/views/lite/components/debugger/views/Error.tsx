@@ -4,6 +4,7 @@ import _ from 'lodash'
 import React, { FC, Fragment, useState } from 'react'
 import JSONTree from 'react-json-tree'
 
+import lang from '../../../../lang'
 import inspectorTheme from '../inspectorTheme'
 import style from '../style.scss'
 
@@ -15,7 +16,7 @@ export const Error: FC<{ error: sdk.IO.EventError }> = ({ error }) => {
     <div>
       {error.type === 'action-execution' && (
         <Fragment>
-          <H5 color={Colors.DARK_GRAY5}>Error executing action "{error.actionName}"</H5>
+          <H5 color={Colors.DARK_GRAY5}>{lang.tr('module.extensions.errorExecuting', { name: error.actionName })}</H5>
           <p style={{ margin: 15 }}>{message}</p>
           <H5 color={Colors.DARK_GRAY5}>Arguments</H5>
           <Pre className={style.inspectorContainer}>
@@ -32,7 +33,7 @@ export const Error: FC<{ error: sdk.IO.EventError }> = ({ error }) => {
         </Fragment>
       )}
       {error.type === 'dialog-transition' && (
-        <H5 color={Colors.DARK_GRAY5}>Error during transition to "{error.destination}"</H5>
+        <H5 color={Colors.DARK_GRAY5}>{lang.tr('module.extensions.errorTransition', { name: error.destination })}</H5>
       )}
       <br />
       {error.stacktrace && (

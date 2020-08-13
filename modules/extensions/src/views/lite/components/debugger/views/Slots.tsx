@@ -3,6 +3,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import React, { Fragment, SFC } from 'react'
 
+import lang from '../../../../lang'
 import style from '../style.scss'
 
 const renderSlotItem = (name: string, slot: any) => {
@@ -13,7 +14,11 @@ const renderSlotItem = (name: string, slot: any) => {
         <td>
           <ul>
             {slot.map(s => (
-              <Tooltip key={s.value} content={`Value: ${s.value}`} position={'top'}>
+              <Tooltip
+                key={s.value}
+                content={lang.tr('module.extensions.slots.value', { x: s.value })}
+                position={'top'}
+              >
                 <li style={{ textDecoration: 'underline' }}>{s.source}</li>
               </Tooltip>
             ))}
@@ -27,11 +32,15 @@ const renderSlotItem = (name: string, slot: any) => {
     <tr>
       <td>{name}</td>
       <td>
-        <Tooltip content={`Value: ${slot.value}`}>
+        <Tooltip content={lang.tr('module.extensions.slots.value', { x: slot.value })}>
           <span style={{ textDecoration: 'underline' }}>{slot.source}</span>
         </Tooltip>
       </td>
-      <td>{slot.turns ? `${slot.turns} turns ago` : 'This turn'} </td>
+      <td>
+        {slot.turns
+          ? lang.tr('module.extensions.slots.turnsAgo', { x: slot.value })
+          : lang.tr('module.extensions.slots.thisTurn')}
+      </td>
     </tr>
   )
 }
@@ -51,9 +60,9 @@ export const Slots: SFC<Props> = props => {
       <HTMLTable condensed>
         <thead>
           <tr>
-            <th>Slot</th>
-            <th>Source</th>
-            <th>Extracted</th>
+            <th>{lang.tr('module.extensions.slots.slot')}</th>
+            <th>{lang.tr('module.extensions.slots.source')}</th>
+            <th>{lang.tr('module.extensions.slots.extracted')}</th>
           </tr>
         </thead>
         <tbody>

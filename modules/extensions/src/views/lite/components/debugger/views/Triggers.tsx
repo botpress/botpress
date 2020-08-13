@@ -2,6 +2,7 @@ import { NDU } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { FC, Fragment } from 'react'
 
+import lang from '../../../../lang'
 import style from '../style.scss'
 
 interface Props {
@@ -28,49 +29,52 @@ export const Triggers: FC<Props> = props => {
     <Fragment>
       <div className={style.subSection}>
         <p>
-          QnA<span className={style.confidence}>{totalQnA}%</span>
+          {lang.tr('module.extensions.triggers.qna')}
+          <span className={style.confidence}>{totalQnA}%</span>
         </p>
         <ul>
           <li>
-            Inside Topic
+            {lang.tr('module.extensions.triggers.insideTopic')}
             <span className={style.confidence}>{getConfidence('faq_trigger_inside_topic')}%</span>
           </li>
           <li>
-            Outside Topic
+            {lang.tr('module.extensions.triggers.outsideTopic')}
             <span className={style.confidence}>{getConfidence('faq_trigger_outside_topic')}%</span>
           </li>
           <li>
-            Inside Workflow
+            {lang.tr('module.extensions.triggers.insideWorkflow')}
             <span className={style.confidence}>{getConfidence('faq_trigger_inside_wf')}%</span>
           </li>
         </ul>
       </div>
       <div className={style.subSection}>
         <p>
-          WF<span className={style.confidence}>{totalWF}%</span>
+          {lang.tr('module.extensions.triggers.wf')}
+          <span className={style.confidence}>{totalWF}%</span>
         </p>
         <ul>
           <li>
-            Inside Topic
+            {lang.tr('module.extensions.triggers.insideTopic')}
             <span className={style.confidence}>{getConfidence('wf_trigger_inside_topic')}%</span>
           </li>
           <li>
-            Outside Topic
+            {lang.tr('module.extensions.triggers.outsideTopic')}
             <span className={style.confidence}>{getConfidence('wf_trigger_outside_topic')}%</span>
           </li>
           <li>
-            Inside Workflow
+            {lang.tr('module.extensions.triggers.insideWorkflow')}
             <span className={style.confidence}>{getConfidence('wf_trigger_inside_wf')}%</span>
           </li>
         </ul>
       </div>
       <div className={style.subSection}>
         <p>
-          Node<span className={style.confidence}>{getConfidence('node_trigger_inside_wf')}%</span>
+          {lang.tr('module.extensions.triggers.node')}
+          <span className={style.confidence}>{getConfidence('node_trigger_inside_wf')}%</span>
         </p>
         <ul>
           <li>
-            Inside Workflow
+            {lang.tr('module.extensions.triggers.insideWorkflow')}
             <span className={style.confidence}>{getConfidence('node_trigger_inside_wf')}%</span>
           </li>
         </ul>
