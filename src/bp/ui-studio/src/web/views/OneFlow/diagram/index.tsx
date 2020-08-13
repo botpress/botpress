@@ -391,6 +391,7 @@ class Diagram extends Component<Props> {
       this.props.refreshCallerFlows()
     },
     gotoSubWorkflow: (point: Point, flowName: string) => {
+      // @ts-ignore
       this.props.createFlowNode({ ...point, type: 'sub-workflow', flow: flowName })
       this.props.refreshCallerFlows(flowName)
     }
@@ -883,6 +884,7 @@ class Diagram extends Component<Props> {
     const vars = this.props.currentFlow?.variables ?? []
 
     if (!variable) {
+      // @ts-ignore
       variable = {
         type: 'string',
         params: { name: `new-variable-${vars.length ?? 0}` },
@@ -1111,6 +1113,7 @@ class Diagram extends Component<Props> {
             />
           )}
           {formType === 'sub-workflow' && (
+            // @ts-ignore
             <SubworkflowForm
               node={this.props.currentFlowNode}
               diagramEngine={this.diagramEngine}

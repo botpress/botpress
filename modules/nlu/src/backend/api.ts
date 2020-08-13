@@ -2,6 +2,8 @@ import * as sdk from 'botpress/sdk'
 import Joi from 'joi'
 import _ from 'lodash'
 
+import { createApi } from '../api'
+
 import { isOn as isAutoTrainOn, set as setAutoTrain } from './autoTrain'
 import recommendations from './intents/recommendations'
 import legacyElectionPipeline from './legacy-election'
@@ -24,6 +26,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
     res.send(health)
   })
 
+  // TODO remove this
   router.post('/cross-validation/:lang', async (req, res) => {
     // there used to be a cross validation tool but I got rid of it when extracting standalone nlu
     // the code is somewhere in the source control
@@ -34,6 +37,20 @@ export default async (bp: typeof sdk, state: NLUState) => {
   router.get('/training/:language', async (req, res) => {
     const { language, botId } = req.params
     const session = await getTrainingSession(bp, botId, language)
+    //  temp hack
+    if (session.status === 'idle' || session.status === 'done') {
+      const engine = state.nluByBot[botId].engine
+      const client = await createApi(bp, botId)
+      const intentDefs = await client.fetchIntentsWithQNAs()
+      const entityDefs = await client.fetchEntities()
+
+      const hash = engine.computeModelHash(intentDefs, entityDefs, language)
+      // @ts-ignore
+      const hasModel = engine.hasModel(language, hash)
+      if (!hasModel) {
+        session.status = 'needs-training'
+      }
+    }
     res.send(session)
   })
 
@@ -56,6 +73,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
     }
   })
 
+  // TODO remove this
   router.get('/train', async (req, res) => {
     try {
       const { botId } = req.params
@@ -69,15 +87,17 @@ export default async (bp: typeof sdk, state: NLUState) => {
   router.post('/train', async (req, res) => {
     try {
       const { botId } = req.params
-      const isAuto = await isAutoTrainOn(bp, botId)
-      await state.nluByBot[botId].trainOrLoad(isAuto)
+      await state.nluByBot[botId].trainOrLoad(false)
       res.sendStatus(200)
     } catch {
       res.sendStatus(500)
     }
   })
 
+  // TODO make this language based
+  // TODO change this for /training/:language/cancel
   router.post('/train/delete', async (req, res) => {
+    // TODO make this language based
     try {
       const { botId } = req.params
       await state.nluByBot[botId].cancelTraining()
@@ -90,21 +110,3 @@ export default async (bp: typeof sdk, state: NLUState) => {
   router.get('/ml-recommendations', async (req, res) => {
     res.send(recommendations)
   })
-
-  router.post('/autoTrain', async (req, res) => {
-    const { botId } = req.params
-    const { autoTrain } = req.body
-
-    await setAutoTrain(bp, botId, autoTrain)
-
-    res.sendStatus(200)
-  })
-
-  router.get('/autoTrain', async (req, res) => {
-    const { botId } = req.params
-
-    const isOn = await isAutoTrainOn(bp, botId)
-
-    res.send({ isOn })
-  })
-}

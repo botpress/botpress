@@ -515,7 +515,7 @@ declare module 'botpress/sdk' {
     }
 
     export interface TrainingSession {
-      status: 'training' | 'canceled' | 'done' | 'idle'
+      status: 'training' | 'canceled' | 'done' | 'idle' | 'needs-training'
       language: string
       progress: number
       lock?: RedisLock
