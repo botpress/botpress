@@ -9,4 +9,6 @@ export interface VariablePickerProps {
   defaultVariableType?: string
   className?: string
   variableTypes: string[]
+  /** Custom type for generic variable types */
+  variableSubType?: string
 }

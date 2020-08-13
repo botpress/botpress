@@ -474,6 +474,7 @@ const Form: FC<FormProps> = ({
               variables={variables!}
               variableTypes={field.variableTypes}
               defaultVariableType={field.defaultVariableType}
+              variableSubType={formData?.subType}
               field={field}
               addVariable={onUpdateVariables!}
               placeholder={lang(field.placeholder)}

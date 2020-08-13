@@ -50,7 +50,8 @@ const VariablePicker: FC<Props> = ({
   variables,
   addVariable,
   defaultVariableType,
-  variableTypes
+  variableTypes,
+  variableSubType
 }) => {
   const [options, setOptions] = useState<Option[]>([])
   const [activeItem, setActiveItem] = useState<Option | undefined>()
@@ -63,9 +64,13 @@ const VariablePicker: FC<Props> = ({
   }
 
   useEffect(() => {
-    const vars = variables.display
-      ?.filter(x => variableTypes?.includes(x.type))
-      .map(({ label, icon }) => ({ label, value: label, icon }))
+    const vars = variables.currentFlow
+      ?.filter(x => variableTypes?.includes(x.type) && (!variableSubType || variableSubType === x.params?.subType))
+      .map(({ type, params: { name } }) => ({
+        label: name,
+        value: name,
+        icon: variables.primitive.find(x => x.id === type)?.config?.icon
+      }))
 
     setOptions(vars ?? [])
   }, [variables, variableTypes])
@@ -105,7 +110,8 @@ const VariablePicker: FC<Props> = ({
       const newVariable = {
         type: defaultVariableType || 'string',
         params: {
-          name: value
+          name: value,
+          subType: variableSubType
         }
       }
 
@@ -114,7 +120,7 @@ const VariablePicker: FC<Props> = ({
   }
 
   const updateSelectedOption = option => {
-    onAddVariable(option.value, variables?.currentFlow?.map(x => x.params.name) ?? [])
+    onAddVariable(option.value, variables?.currentFlow?.map(x => x.params?.name) ?? [])
     onChange?.(option.value)
   }
 

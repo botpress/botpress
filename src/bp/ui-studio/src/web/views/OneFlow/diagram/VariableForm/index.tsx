@@ -21,7 +21,6 @@ interface Props {
 
 const VariableForm: FC<Props> = ({ customKey, variables, contentLang, close, formData, onUpdate, deleteVariable }) => {
   const variableType = useRef(formData?.type)
-  const [isConfirming, setIsConfirming] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
 
@@ -48,11 +47,11 @@ const VariableForm: FC<Props> = ({ customKey, variables, contentLang, close, for
   const options = variables.display.map(x => ({ label: lang.tr(x.label), icon: x.icon, value: x }))
   const selectedOption = options.find(
     ({ value }) =>
-      value.type === variableType.current && (!formData.params.subType || value.subType === formData.params.subType)
+      value.type === variableType.current && (!formData.params?.subType || value.subType === formData.params?.subType)
   )
 
   return (
-    <RightSidebar className={style.wrapper} canOutsideClickClose={!isConfirming} close={close}>
+    <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={close}>
       <Fragment key={`${variableType.current}-${customKey}`}>
         <div className={style.formHeader}>
           <Tabs id="contentFormTabs">
