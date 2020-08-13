@@ -1,8 +1,9 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
-import { Condition, FlowVariable, FormData, PromptNode } from 'botpress/sdk'
+import { FlowVariable, PromptNode } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
+import { Prompts, Variables } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
@@ -10,21 +11,19 @@ import style from './style.scss'
 
 interface Props {
   deletePrompt: () => void
-  prompts: any[]
-  allPrompts: any[]
+  prompts: Prompts
+  variables: Variables
   customKey: string
   contentLang: string
   close: () => void
   onUpdate: (data: any) => void
   formData: PromptNode
   onUpdateVariables: (variable: FlowVariable) => void
-  variables: FlowVariable[]
 }
 
 const PromptForm: FC<Props> = ({
   customKey,
   prompts,
-  allPrompts,
   contentLang,
   close,
   formData,
@@ -59,9 +58,9 @@ const PromptForm: FC<Props> = ({
     })
   }
 
-  const selectedPromptType = prompts.find(x => x.id === promptType.current)
+  const selectedPromptType = prompts.primitive.find(x => x.id === promptType.current)
 
-  const options = allPrompts.map(x => ({ label: lang.tr(x.label), icon: x.icon, value: x }))
+  const options = prompts.display.map(x => ({ label: lang.tr(x.label), icon: x.icon, value: x }))
   const selectedOption = options.find(
     ({ value }) =>
       value.type === promptType.current && (!formData.params.subType || value.subType === formData.params.subType)
@@ -78,7 +77,7 @@ const PromptForm: FC<Props> = ({
         </div>
         <div className={cx(style.fieldWrapper, style.contentTypeField)}>
           <span className={style.formLabel}>{lang.tr('studio.prompt.label')}</span>
-          {!!prompts.length && (
+          {!!prompts.primitive.length && (
             <Dropdown
               filterable
               className={style.formSelect}

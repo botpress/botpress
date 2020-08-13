@@ -1,18 +1,17 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
-import { FlowVariableType, PromptNode } from 'botpress/sdk'
+import { PromptNode } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
+import { Variables } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
-import { CustomItems } from '~/typings'
 
 import style from './style.scss'
 
 interface Props {
   deleteVariable: () => void
-  variables: FlowVariableType[]
-  allVariables: CustomItems[]
+  variables: Variables
   customKey: string
   contentLang: string
   close: () => void
@@ -20,16 +19,7 @@ interface Props {
   formData: PromptNode
 }
 
-const VariableForm: FC<Props> = ({
-  customKey,
-  variables,
-  allVariables,
-  contentLang,
-  close,
-  formData,
-  onUpdate,
-  deleteVariable
-}) => {
+const VariableForm: FC<Props> = ({ customKey, variables, contentLang, close, formData, onUpdate, deleteVariable }) => {
   const variableType = useRef(formData?.type)
   const [isConfirming, setIsConfirming] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
@@ -53,9 +43,9 @@ const VariableForm: FC<Props> = ({
     onUpdate({ type: value, params: _.pick(formData.params, ['name', 'description', 'isInput', 'isOutput']) })
   }
 
-  const selectedVariableType = variables.find(x => x.id === variableType.current)
+  const selectedVariableType = variables.primitive.find(x => x.id === variableType.current)
 
-  const options = allVariables.map(x => ({ label: lang.tr(x.label), icon: x.icon, value: x }))
+  const options = variables.display.map(x => ({ label: lang.tr(x.label), icon: x.icon, value: x }))
   const selectedOption = options.find(
     ({ value }) =>
       value.type === variableType.current && (!formData.params.subType || value.subType === formData.params.subType)
@@ -72,7 +62,7 @@ const VariableForm: FC<Props> = ({
         </div>
         <div className={cx(style.fieldWrapper, style.contentTypeField)}>
           <span className={style.formLabel}>{lang.tr('type')}</span>
-          {!!variables.length && (
+          {!!variables.primitive.length && (
             <Dropdown
               filterable
               className={style.formSelect}

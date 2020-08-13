@@ -1,9 +1,8 @@
-import { FlowNode, FlowVariableType, NLU, PromptDefinition } from 'botpress/sdk'
+import { FlowNode, NLU } from 'botpress/sdk'
 import { isSkillFlow, ParsedFlowDefinition, parseFlowName } from 'common/flow'
-import { FlowView } from 'common/typings'
+import { FlowView, Prompts, Variables } from 'common/typings'
 import _ from 'lodash'
 import { createSelector } from 'reselect'
-import { CustomItems } from '~/typings'
 
 import { RootReducer } from '.'
 
@@ -13,40 +12,18 @@ const _getCurrentFlowNode = state => state.flows?.currentFlowNode
 const _getCurrentHashes = state => state.flows.currentHashes
 const _getInitialHashes = state => state.flows.initialHashes
 const _getVariableTypes = (state: RootReducer) => state.nlu.entities
-const _getVariables = (state: RootReducer) => state.ndu.variables
+const _getPrimitiveVariables = (state: RootReducer) => state.ndu.primitiveVariables
 const _getPrompts = (state: RootReducer) => state.ndu.prompts
 
-const prepareForDisplay = (
-  variableTypes: NLU.EntityDefinition[],
-  baseItems: PromptDefinition[] | FlowVariableType[]
-): CustomItems[] => {
-  const userVarTypes = variableTypes
+const prepareUserVarTypes = (variableTypes: NLU.EntityDefinition[]) => {
+  return variableTypes
     .filter(x => x.type !== 'system')
     .map(x => ({ type: x.type.replace('list', 'enum'), subType: x.id, label: x.name }))
-
-  const withoutGenerics = (baseItems as any)
-    .filter(x => !['enum', 'pattern'].includes(x.id))
-    .map(x => ({ type: x.id, label: x.config?.label }))
-
-  return [...withoutGenerics, ...userVarTypes].map(x => ({
-    ...x,
-    icon: (baseItems as any).find(v => v.id === x.type)?.config?.icon
-  }))
 }
 
-export const getDisplayVariables = createSelector(
-  [_getVariableTypes, _getVariables],
-  (variableTypes = [], variables = []): CustomItems[] => {
-    return prepareForDisplay(variableTypes, variables)
-  }
-)
-
-export const getDisplayPrompts = createSelector(
-  [_getVariableTypes, _getPrompts],
-  (variableTypes = [], prompts = []): CustomItems[] => {
-    return prepareForDisplay(variableTypes, prompts)
-  }
-)
+const filterGenerics = items => {
+  return items.filter(x => !['enum', 'pattern'].includes(x.id)).map(x => ({ type: x.id, label: x.config?.label }))
+}
 
 export const getAllFlows = createSelector([_getFlowsByName], (flowsByName): FlowView[] => {
   return _.values(flowsByName)
@@ -77,6 +54,33 @@ export const getCurrentFlow = createSelector(
   [_getFlowsByName, _getCurrentFlow],
   (flowsByName, currFlow): FlowView => {
     return flowsByName[currFlow]
+  }
+)
+
+export const getPrompts = createSelector(
+  [_getVariableTypes, _getPrompts],
+  (variableTypes = [], prompts = []): Prompts => {
+    return {
+      primitive: prompts,
+      display: [...filterGenerics(prompts), ...prepareUserVarTypes(variableTypes)].map(x => ({
+        ...x,
+        icon: prompts.find(v => v.id === x.type)?.config?.icon
+      }))
+    }
+  }
+)
+
+export const getVariables = createSelector(
+  [_getVariableTypes, _getPrimitiveVariables, getCurrentFlow],
+  (variableTypes = [], variables = [], currentFlow): Variables => {
+    return {
+      currentFlow: currentFlow?.variables,
+      primitive: variables,
+      display: [...filterGenerics(variables), ...prepareUserVarTypes(variableTypes)].map(x => ({
+        ...x,
+        icon: variables.find(v => v.id === x.type)?.config?.icon
+      }))
+    }
   }
 )
 

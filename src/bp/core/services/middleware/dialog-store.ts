@@ -24,7 +24,7 @@ const ENUMS_DIR = './entities'
 @injectable()
 export class DialogStore {
   private _prompts!: sdk.PromptDefinition[]
-  private _variables!: sdk.FlowVariableType[]
+  private _variables!: sdk.PrimitiveVarType[]
 
   private _enums: { [botId: string]: sdk.NLU.EntityDefinition[] } = {}
   private _wfVariables: WorkflowVariables = {}
@@ -83,7 +83,7 @@ export class DialogStore {
     return this._enums[botId]?.find(x => x.id === enumType)?.occurrences
   }
 
-  public getVariable(type: string): sdk.FlowVariableType | undefined {
+  public getVariable(type: string): sdk.PrimitiveVarType | undefined {
     return this._variables.find(x => x.id === type)
   }
 

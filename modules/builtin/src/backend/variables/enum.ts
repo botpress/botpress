@@ -1,4 +1,4 @@
-import { BoxedVariable, FlowVariableType } from 'botpress/sdk'
+import { PrimitiveVarType } from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 
 import common from './common'
@@ -25,7 +25,7 @@ class BoxedEnum extends BaseVariable<string> {
   }
 }
 
-const EnumVariableType: FlowVariableType = {
+const EnumVariableType: PrimitiveVarType = {
   id: 'enum',
   config: {
     label: 'enum',

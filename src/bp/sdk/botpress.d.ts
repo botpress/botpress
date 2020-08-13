@@ -142,7 +142,7 @@ declare module 'botpress/sdk' {
     /** List of new conditions that the module can register */
     dialogConditions?: Condition[]
     prompts?: PromptDefinition[]
-    variables?: FlowVariableType[]
+    variables?: PrimitiveVarType[]
     /** Called once the core is initialized. Usually for middlewares / database init */
     onServerStarted?: (bp: typeof import('botpress/sdk')) => Promise<void>
     /** This is called once all modules are initialized, usually for routing and logic */
@@ -1843,7 +1843,7 @@ declare module 'botpress/sdk' {
     getEnumList: () => NLU.EntityDefOccurrence[]
   }
 
-  export interface FlowVariableType {
+  export interface PrimitiveVarType {
     id: string
     config?: FlowVariableConfig
     box: BoxedVarConstructable<any, any>

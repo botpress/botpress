@@ -1,4 +1,4 @@
-import { BoxedVariable, FlowVariableType } from 'botpress/sdk'
+import { PrimitiveVarType } from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 import yn from 'yn'
 
@@ -33,7 +33,7 @@ class BoxedBoolean extends BaseVariable<boolean> {
   }
 }
 
-const BooleanVariableType: FlowVariableType = {
+const BooleanVariableType: PrimitiveVarType = {
   id: 'boolean',
   config: {
     label: 'boolean',

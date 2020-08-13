@@ -1,4 +1,4 @@
-import { BoxedVariable, FlowVariableType } from 'botpress/sdk'
+import { BoxedVariable, PrimitiveVarType } from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 
 import common from './common'
@@ -14,7 +14,7 @@ class BoxedPattern extends BaseVariable<string> {
   }
 }
 
-const PatternVariableType: FlowVariableType = {
+const PatternVariableType: PrimitiveVarType = {
   id: 'pattern',
   config: {
     label: 'pattern',

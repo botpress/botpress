@@ -3,6 +3,7 @@ import Tags from '@yaireo/tagify/dist/react.tagify'
 import cx from 'classnames'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
 
+import ToolTip from '../../../../ui-shared-lite/ToolTip'
 import { lang } from '../../translations'
 import { FieldProps } from '../../Contents/Components/typings'
 import Icons from '../../Icons'
@@ -11,7 +12,6 @@ import style from './style.scss'
 import { SuperInputProps } from './typings'
 import { convertToString, convertToTags } from './utils'
 import SingleSuperInput from './SingleSuperInput'
-import ToolTip from '../../../../ui-shared-lite/ToolTip'
 
 type Props = FieldProps & SuperInputProps
 
@@ -48,14 +48,14 @@ export default ({
   const currentPrefix = useRef<string>()
   const tagifyRef = useRef<any>()
   const [localVariables, setLocalVariables] = useState(
-    variables?.filter(typeFilter).map(({ params }) => params?.name) || []
+    variables?.currentFlow?.filter(typeFilter).map(({ params }) => params?.name) || []
   )
   const [localEvents, setLocalEvents] = useState(events?.map(({ name }) => name) || [])
   const eventsDesc = events?.reduce((acc, event) => ({ ...acc, [event.name]: event.description }), {})
   // TODO implement the autocomplete selection when event selected is partial
 
   useEffect(() => {
-    setLocalVariables(variables?.filter(typeFilter).map(({ params }) => params.name) || [])
+    setLocalVariables(variables?.currentFlow?.filter(typeFilter).map(({ params }) => params.name) || [])
   }, [variables])
 
   useEffect(() => {
@@ -252,6 +252,9 @@ export default ({
               )
             },
             dropdownItem({ value, tagifySuggestionIdx }) {
+              const type = variables?.currentFlow?.find(x => x.params?.name === value)?.type
+              const icon = variables?.primitive.find(x => x.id === type)?.config?.icon
+
               const isAdding = !tagifyRef.current.settings.whitelist.includes(value)
               const string = isAdding ? `"${value}"` : value
 
@@ -272,7 +275,7 @@ export default ({
                       {lang('create')}
                     </Fragment>
                   )}
-                  {string}
+                  <Icon icon={icon} iconSize={10} /> {string}
                   <span className="description">{eventsDesc?.[value] || ''}</span>
                 </div>
               )

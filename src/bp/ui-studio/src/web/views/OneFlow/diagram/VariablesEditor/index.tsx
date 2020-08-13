@@ -2,7 +2,7 @@ import { EmptyState, lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC } from 'react'
 import { connect } from 'react-redux'
-import { getCurrentFlow, getDisplayVariables, RootReducer } from '~/reducers'
+import { getCurrentFlow, getVariables, RootReducer } from '~/reducers'
 
 import style from './style.scss'
 import NoVariableIcon from './NoVariableIcon'
@@ -46,7 +46,7 @@ const VariablesEditor: FC<Props> = props => {
               </div>
               <div>
                 {filtered.map(item => (
-                  <button className={style.button} onClick={() => props.editVariable(item)}>
+                  <button key={item.params?.name} className={style.button} onClick={() => props.editVariable(item)}>
                     <span className={style.label}>{item.params?.name}</span>
                   </button>
                 ))}
@@ -62,7 +62,7 @@ const VariablesEditor: FC<Props> = props => {
 
 const mapStateToProps = (state: RootReducer) => ({
   currentFlow: getCurrentFlow(state),
-  variables: getDisplayVariables(state)
+  variables: getVariables(state)
 })
 
 export default connect<StateProps, OwnProps>(mapStateToProps)(VariablesEditor)
