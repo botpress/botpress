@@ -1,4 +1,4 @@
-import { BoxedVariable, Content, FlowNode, IO, SubWorkflowInput } from 'botpress/sdk'
+import { BoxedVariable, Content, FlowNode, IO, VariableParams } from 'botpress/sdk'
 import { parseFlowName } from 'common/flow'
 import { FlowView } from 'common/typings'
 import { createForGlobalHooks } from 'core/api'
@@ -235,8 +235,6 @@ export class DialogEngine {
 
   private copyVarsToParent(childFlow: FlowView, callerNode: FlowNode, event: IO.IncomingEvent) {
     const { workflows } = event.state.session
-    // TODO : move create variable to helper
-    const { createVariable } = event.state
 
     const outputs = callerNode.subflow?.out
     const childOutputVars = childFlow.variables?.filter(x => x.params.isOutput)
@@ -251,13 +249,15 @@ export class DialogEngine {
       const childBoxedVar = childBoxedVars[v.params.name] as BoxedVariable<any>
 
       if (ouputVarName && childBoxedVar) {
-        createVariable(ouputVarName, childBoxedVar.value, childBoxedVar.type)
+        const { value, type, subType } = childBoxedVar
+        const params = { name: ouputVarName, value, type, subType }
+        this.createVariable(params, event)
       }
     })
   }
 
   private sendVarsToChild(childFlow: FlowView, event: IO.IncomingEvent) {
-    const { workflow, createVariable } = event.state
+    const { workflow } = event.state
 
     const inputs = event.state.context.inputs
     const childInputVars = childFlow.variables?.filter(x => x.params.isInput)
@@ -280,7 +280,13 @@ export class DialogEngine {
 
       if (value !== undefined) {
         const flowName = parseFlowName(childFlow.name).workflowPath
-        createVariable(v.params.name, value, v.type, { nbOfTurns: 10, specificWorkflow: flowName })
+        const params = {
+          name: v.params.name,
+          value,
+          type: v.type,
+          options: { nbOfTurns: 10, specificWorkflow: flowName }
+        }
+        this.createVariable(params, event)
       }
     })
   }
@@ -724,10 +730,18 @@ export class DialogEngine {
   private _processResolvedPrompt(event: IO.IncomingEvent, context: IO.DialogContext) {
     const { config, state } = context.activePrompt!
 
-    event.state.createVariable(config.output, state.value, config.valueType!, {
-      nbOfTurns: config.duration ?? 10,
-      enumType: config.enumType
-    })
+    this.createVariable(
+      {
+        name: config.output,
+        value: state.value,
+        type: config.valueType!,
+        subType: config.subType,
+        options: {
+          nbOfTurns: config.duration ?? 10
+        }
+      },
+      event
+    )
 
     this._setCurrentNodeValue(event, 'extracted', true)
   }
@@ -752,5 +766,18 @@ export class DialogEngine {
       }
     }
     return false
+  }
+
+  public createVariable({ name, value, type, subType, options }: VariableParams, event: IO.IncomingEvent) {
+    const workflowName = options?.specificWorkflow ?? event.state.session.currentWorkflow!
+    const wf = event.state.session.workflows[workflowName]
+    if (!wf) {
+      return
+    }
+
+    const { nbOfTurns, config } = options ?? {}
+    const data = { type, subType, value, nbOfTurns: nbOfTurns ?? 10, config }
+
+    wf.variables[name] = this.dialogStore.getBoxedVar(data, event.botId, workflowName, name)!
   }
 }

@@ -17,7 +17,7 @@ const ContextMenuWrapper = ({ event, onClose, children }) => {
   }
 
   const handleWrapperClick = e => {
-    if (['button', 'a'].includes(e.target?.closest('.bp3-menu-item').tagName.toLowerCase())) {
+    if (['button', 'a'].includes(e.target?.closest('.bp3-menu-item')?.tagName?.toLowerCase())) {
       handleToggle(e)
     }
   }

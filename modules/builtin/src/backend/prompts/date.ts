@@ -46,6 +46,7 @@ const config: PromptConfig = {
   type: 'date',
   label: 'Date',
   valueType: 'date',
+  icon: 'calendar',
   fields: [
     ...common.fields,
     {
