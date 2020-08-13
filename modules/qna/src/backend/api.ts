@@ -7,6 +7,7 @@ import _ from 'lodash'
 // import nanoid from 'nanoid'
 
 import { QnaEntry, ScopedBots } from './qna'
+import { getQnaEntryPayloads } from './utils'
 // import { importQuestions, prepareExport, prepareImport } from './transfer'
 // import { getIntentActions } from './utils'
 import { QnaDefSchema } from './validation'
@@ -50,7 +51,6 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
     try {
       const { storage } = bots[req.params.botId]
       const items = await storage.fetchItems(req.params.topicName)
-      // const question = await storage.getQnaItem(req.params.id)
       const item = items.find(x => x.id === req.params.id)
       if (!item) {
         throw new Error(`QnA "${req.params.id}" Not found`)
@@ -164,16 +164,23 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
   //   res.end(jsonUploadStatuses[req.params.uploadStatusId])
   // })
 
-  // router.post('/intentActions', async (req: Request, res: Response) => {
-  //   const { intentName, event } = req.body
-
-  //   try {
-  //     res.send(await getIntentActions(intentName, event, { bp, ...bots[req.params.botId] }))
-  //   } catch (err) {
-  //     bp.logger.attachError(err).error(err.message)
-  //     res.status(200).send([])
-  //   }
-  // })
+  router.post('/:topicName/actions/:id', async (req: Request, res: Response) => {
+    try {
+      const { storage } = bots[req.params.botId]
+      const items = await storage.fetchItems(req.params.topicName, req.params.id)
+      const item = items.find(x => x.id === req.params.id)
+      const payloads = await getQnaEntryPayloads(item, req.body.userLanguage, bots[req.params.botId].defaultLang)
+      const actions = []
+      actions.push({
+        action: 'send',
+        data: { payloads, source: 'qna', sourceDetails: `${req.params.topicName}/${req.params.id}` }
+      })
+      res.send(payloads)
+    } catch (err) {
+      bp.logger.attachError(err).error(err.message)
+      res.status(200).send([])
+    }
+  })
 
   // TODO: delete front-end code that calls this
   // router.get('/questionsByTopic', async (req: Request, res: Response) => {

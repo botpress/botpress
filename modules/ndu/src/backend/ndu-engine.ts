@@ -70,13 +70,21 @@ export class UnderstandingEngine {
     return [...triggerId, ...nodeId, ...wfId, ...actionName, ...other]
   }
 
-  queryQna = async (intentName: string, event): Promise<sdk.NDU.Actions[]> => {
+  queryQna = async (topicName: string, qnaId: string, event: sdk.IO.IncomingEvent): Promise<sdk.NDU.Actions[]> => {
     try {
       const axiosConfig = await this.bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
-      const { data } = await axios.post('/mod/qna/intentActions', { intentName, event }, axiosConfig)
-      const redirect: sdk.NDU.Actions[] = data.filter(a => a.action !== 'redirect')
-      // TODO: Warn that REDIRECTS should be migrated over to flow nodes triggers
-      return redirect
+      const { data } = await axios.post(
+        `/mod/qna/${topicName}/actions/${qnaId}`,
+        { userLanguage: event?.state?.user?.language },
+        axiosConfig
+      )
+
+      return [
+        {
+          action: 'send',
+          data: { confidence: 1, payloads: data, source: 'qna', sourceDetails: 'ndu/' + qnaId }
+        }
+      ]
     } catch (err) {
       this.bp.logger.warn('Could not query qna', err)
       return []
@@ -278,7 +286,7 @@ export class UnderstandingEngine {
 
           break
         case 'faq':
-          const qnaActions = await this.queryQna(trigger.faqId, event)
+          const qnaActions = await this.queryQna(trigger.topicName, trigger.faqId, event)
           event.ndu.actions = [...qnaActions]
           break
         case 'node':
@@ -372,10 +380,11 @@ export class UnderstandingEngine {
       ...(await this.bp.ghost.forBot(this.botId).readFileAsObject<FlowView>('flows', flowPath))
     }))
 
-    const intentsPath = await this.bp.ghost.forBot(this.botId).directoryListing('intents', '*.json')
-    const qnaPaths = intentsPath.filter(x => x.includes('__qna__')) // TODO: change this
-    const faqs: sdk.NLU.IntentDefinition[] = await Promise.map(qnaPaths, (qnaPath: string) =>
-      this.bp.ghost.forBot(this.botId).readFileAsObject<sdk.NLU.IntentDefinition>('intents', qnaPath)
+    const qnaPaths = await this.bp.ghost.forBot(this.botId).directoryListing('flows', '*/qna.intents.json')
+    const faqs: sdk.NLU.IntentDefinition[] = _.flatten(
+      await Promise.map(qnaPaths, (qnaPath: string) =>
+        this.bp.ghost.forBot(this.botId).readFileAsObject<sdk.NLU.IntentDefinition>('flows', qnaPath)
+      )
     )
 
     const triggers: sdk.NDU.Trigger[] = []

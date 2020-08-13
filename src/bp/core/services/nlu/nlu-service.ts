@@ -20,7 +20,7 @@ export class NLUService {
     @inject(TYPES.GhostService)
     private ghostService: GhostService
   ) {
-    this.entities = new EntityService(this.ghostService, this)
-    this.intents = new IntentService(this.ghostService, this)
+    this.entities = new EntityService(this.ghostService)
+    this.intents = new IntentService(this.ghostService)
   }
 }

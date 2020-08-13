@@ -247,8 +247,9 @@ export const fetchReducer = (state: State, action): State => {
     const newItems = state.items
 
     if (index === 'highlighted') {
+      const topicName = state.highlighted.data.contexts?.[0]
       bp.axios
-        .post(`/mod/qna/questions/${state.highlighted.id}/delete`)
+        .post(`/mod/qna/${topicName}/questions/${state.highlighted.id}/delete`)
         .then(() => {})
         .catch(() => {})
       refreshQnaCount?.()
@@ -260,10 +261,11 @@ export const fetchReducer = (state: State, action): State => {
     }
 
     const [deletedItem] = newItems.splice(index, 1)
+    const topicName = deletedItem.data.contexts?.[0]
 
     if (!deletedItem.id.startsWith('qna-')) {
       bp.axios
-        .post(`/mod/qna/questions/${deletedItem.id}/delete`)
+        .post(`/mod/qna/${topicName}/questions/${deletedItem.id}/delete`)
         .then(() => {})
         .catch(() => {})
     }

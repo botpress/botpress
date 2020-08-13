@@ -27,7 +27,7 @@ const normalizeQuestions = (questions: string[]) =>
     )
     .filter(Boolean)
 
-type Item = {
+export type Item = {
   id: string
   questions: Dic<string[]>
   answers: Dic<string[]>
