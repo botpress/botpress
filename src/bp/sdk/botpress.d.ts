@@ -1589,6 +1589,7 @@ declare module 'botpress/sdk' {
       /** You can add a contextual menu to add extra options */
       contextMenu?: FormContextMenu[]
     }
+    itemValidator?: any
   }
 
   export interface FormMoreInfo {

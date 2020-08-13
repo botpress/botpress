@@ -16,6 +16,7 @@ interface Props {
   customKey: string
   contentLang: string
   formData: sdk.NLU.EntityDefinition
+  entities: sdk.NLU.EntityDefinition[]
   close: () => void
   deleteEntity: (entityId: string) => void
   refreshEntities: () => void
@@ -50,10 +51,8 @@ const VariableForm: FC<Props> = props => {
     const patternProps = { ...props, ...defaultProps }
     return <PatternForm {...patternProps} />
   } else {
-    // @ts-ignore
     const listEntities = props.entities.filter(e => e.type === 'list')
     const enumProps = { ...props, ...defaultProps }
-    // @ts-ignore
     return <EnumForm allEntities={listEntities} {...enumProps} />
   }
 }

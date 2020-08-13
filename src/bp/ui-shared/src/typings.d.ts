@@ -25,7 +25,7 @@ import { FormField, MultiLangText } from 'botpress/sdk'
 import { MoreOptionsProps } from '../../ui-shared-lite/MoreOptions/typings'
 import { OverlayProps } from '../../ui-shared-lite/Overlay/typings'
 import { ToolTipProps } from '../../ui-shared-lite/ToolTip/typings'
-
+import { Item } from './FormFields/TagInputList/index'
 declare module 'botpress/shared' {
   export function Commander(props: CommanderProps): JSX.Element
   export const Dialog: {
@@ -91,7 +91,7 @@ declare module 'botpress/shared' {
     isInputFocused(): boolean
   }
 
-  export { Option, MoreOptionsItems, HeaderButtonProps, QuickShortcut }
+  export { Option, MoreOptionsItems, HeaderButtonProps, QuickShortcut, Item }
 }
 
 declare global {

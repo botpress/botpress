@@ -1,7 +1,7 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
 import sdk from 'botpress/sdk'
-import { Contents, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
+import { Contents, Item, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { toastFailure } from '~/components/Shared/Utils'
@@ -14,6 +14,7 @@ interface Props {
   customKey: string
   contentLang: string
   formData: sdk.NLU.EntityDefinition
+  allEntities: sdk.NLU.EntityDefinition[]
   close: () => void
   deleteEntity: (entityId: string) => void
   updateEntity: (originalId: string, entity: sdk.NLU.EntityDefinition) => void
@@ -24,7 +25,6 @@ const EnumForm: FC<Props> = ({
   customKey,
   contentLang,
   formData,
-  // @ts-ignore
   allEntities,
   close,
   updateEntity,
@@ -78,11 +78,20 @@ const EnumForm: FC<Props> = ({
     updateFormItem(convertFromTags(data))
   }
 
-  const isDupplicate = newItem => {
-    const lastAdded = [newItem.name].concat(newItem.tags).slice(-1)[0]
+  const isDupplicate = (localItem: Item[], newItem: Item) => {
+    const lastAdded: string = [newItem.name].concat(newItem.tags).slice(-1)[0]
+    for (const occurence of localItem) {
+      if ([occurence.name].concat(occurence.tags).includes(lastAdded)) {
+        toastFailure(`${lastAdded} already exists in ${occurence.name}`)
+        return false
+      }
+    }
+
+    const localItemNames = localItem.map(i => i.name)
     for (const entity of allEntities) {
-      for (const occurence of entity.occurrences) {
-        if (_.flattenDeep([occurence.synonyms, occurence.name]).includes(lastAdded)) {
+      const noLocalEntity = entity.occurrences.filter(o => !localItemNames.includes(o.name))
+      for (const occurence of noLocalEntity) {
+        if ([occurence.name].concat(occurence.synonyms).includes(lastAdded)) {
           toastFailure(`${lastAdded} already exists in ${occurence.name} (${entity.name})`)
           return false
         }
@@ -121,7 +130,6 @@ const EnumForm: FC<Props> = ({
               group: {
                 addLabel: 'studio.library.addValueAlternative'
               },
-              // @ts-ignore
               itemValidator: isDupplicate
             }
           ]}
