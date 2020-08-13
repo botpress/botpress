@@ -41,6 +41,7 @@ const config: PromptConfig = {
   type: 'number',
   label: 'Number',
   valueType: 'number',
+  icon: 'numerical',
   fields: [
     ...common.fields,
     {

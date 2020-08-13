@@ -3,8 +3,9 @@ import axios from 'axios'
 import { BotEvent, Condition, FlowVariable, FormData } from 'botpress/sdk'
 import { Contents, Dropdown, Icons, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
+import { Variables } from 'common/typings'
 import _ from 'lodash'
-import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
+import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
 import style from './style.scss'
 
@@ -19,7 +20,7 @@ interface Props {
   onUpdate: (data: any) => void
   onUpdateVariables: (variable: FlowVariable) => void
   formData: { id: string; params: FormData }
-  variables: FlowVariable[]
+  variables: Variables
   events: BotEvent[]
 }
 

@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import { file } from 'tmp'
 
 import { Config } from '../config'
 import en from '../translations/en.json'
@@ -46,6 +47,13 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
   if (botConfig.oneflow) {
     const config = (await bp.config.getModuleConfigForBot('ndu', botId)) as Config
     bots[botId] = new UnderstandingEngine(bp, botId, conditions, config)
+
+    // when QnA changes we invalidate
+    bp.ghost.forBot(botId).onFileChanged(async filePath => {
+      if (/\/__qna__[A-Z0-9_-]+\.json$/i.test(filePath)) {
+        await bots[botId].invalidateWorkflows()
+      }
+    })
   }
 }
 
