@@ -249,7 +249,8 @@ export class DialogEngine {
       const childBoxedVar = childBoxedVars[v.params.name] as BoxedVariable<any>
 
       if (ouputVarName && childBoxedVar) {
-        const params = { name: ouputVarName, value: childBoxedVar.value, type: childBoxedVar.type }
+        const { value, type, subType } = childBoxedVar
+        const params = { name: ouputVarName, value, type, subType }
         this.createVariable(params, event)
       }
     })

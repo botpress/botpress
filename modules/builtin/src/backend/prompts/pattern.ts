@@ -13,7 +13,7 @@ class PromptPattern implements Prompt {
   }
 
   extraction(event: IO.IncomingEvent): ExtractionResult[] {
-    const entities = event.nlu?.entities?.filter(x => x.type === `custom.list.${this._subType}`) ?? []
+    const entities = event.nlu?.entities?.filter(x => x.type === `custom.pattern.${this._subType}`) ?? []
     return entities.map(entity => ({
       value: entity.data.value,
       confidence: entity.meta.confidence
