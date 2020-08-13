@@ -514,8 +514,10 @@ declare module 'botpress/sdk' {
       validLanguages: string[]
     }
 
+    export type TrainingStatus = 'idle' | 'done' | 'needs-training' | 'training' | 'canceled' | 'errored' | null
+
     export interface TrainingSession {
-      status: 'training' | 'canceled' | 'done' | 'idle' | 'needs-training'
+      status: TrainingStatus
       language: string
       progress: number
       lock?: RedisLock
