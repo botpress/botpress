@@ -44,7 +44,6 @@ export default async (bp: typeof sdk, state: NLUState) => {
       const entityDefs = await client.fetchEntities()
 
       const hash = engine.computeModelHash(intentDefs, entityDefs, language)
-      // @ts-ignore
       const hasModel = engine.hasModel(language, hash)
       if (!hasModel) {
         session.status = 'needs-training'
@@ -69,17 +68,6 @@ export default async (bp: typeof sdk, state: NLUState) => {
       res.send({ nlu })
     } catch (err) {
       res.status(500).send('Could not extract nlu data')
-    }
-  })
-
-  // TODO remove this
-  router.get('/train', async (req, res) => {
-    try {
-      const { botId } = req.params
-      const isTraining = await state.nluByBot[botId].isTraining()
-      res.send({ isTraining })
-    } catch {
-      res.sendStatus(500)
     }
   })
 
