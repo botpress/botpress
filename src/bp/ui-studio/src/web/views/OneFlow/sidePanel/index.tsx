@@ -66,8 +66,6 @@ const SidePanelContent: FC<Props> = props => {
   const [editing, setEditing] = useState<string>()
   const [isEditingNew, setIsEditingNew] = useState(false)
 
-  const [libraryFilter, setLibraryFilter] = useState('')
-
   const [currentTab, setCurrentTab] = useState('topics')
 
   useEffect(() => {
@@ -178,7 +176,12 @@ const SidePanelContent: FC<Props> = props => {
           )}
 
           {currentTab === 'library' && (
-            <Library goToFlow={goToFlow} createWorkflow={createWorkflow} flows={props.flows} />
+            <Library
+              goToFlow={goToFlow}
+              createWorkflow={createWorkflow}
+              flows={props.flows}
+              selectedWorkflow={props.selectedWorkflow}
+            />
           )}
         </React.Fragment>
       )}

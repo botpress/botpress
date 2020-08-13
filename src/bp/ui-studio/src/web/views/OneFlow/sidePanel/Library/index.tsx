@@ -8,9 +8,19 @@ import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { createFlow, deleteEntity, deleteFlow, duplicateFlow, refreshEntities, setActiveFormItem } from '~/actions'
+import {
+  createFlow,
+  deleteEntity,
+  deleteFlow,
+  duplicateFlow,
+  refreshEntities,
+  renameFlow,
+  setActiveFormItem,
+  updateFlow
+} from '~/actions'
 import { SearchBar } from '~/components/Shared/Interface'
 import { RootReducer } from '~/reducers'
+import { sanitizeName } from '~/util'
 
 import style from '../TopicList/style.scss'
 
@@ -22,7 +32,6 @@ interface OwnProps {
   editing: string
   isEditingNew: boolean
   selectedWorkflow: string
-  entities: sdk.NLU.EntityDefinition[]
   flows: FlowView[]
   createWorkflow: (topicId: string) => void
   refreshEntities: () => void
@@ -55,6 +64,10 @@ const getNextName = (originalName: string, list: any[]) => {
   return name
 }
 
+const sanitize = (name: string) => {
+  return sanitizeName(name).replace(/\//g, '-')
+}
+
 const Library: FC<Props> = props => {
   const [filter, setFilter] = useState('')
   const [items, setItems] = useState<NodeData[]>([])
@@ -76,7 +89,7 @@ const Library: FC<Props> = props => {
       }))
 
     const reusables = props.flows
-      .filter(x => x.type === 'reusable')
+      .filter(x => x.type === 'reusable' && x.name?.toLowerCase()?.includes(filter.toLowerCase()))
       .map<NodeData>(x => ({
         id: x.name,
         type: 'workflow',
@@ -101,7 +114,7 @@ const Library: FC<Props> = props => {
     ]
 
     setItems(items)
-  }, [props.entities, props.flows, filter])
+  }, [props.entities, props.flows, filter, props.selectedWorkflow, editing])
 
   const handleClick = ({ path, item, level }): void => {
     if (item.children?.length || level === 0) {
@@ -173,6 +186,16 @@ const Library: FC<Props> = props => {
     props.createFlow(name)
   }
 
+  const renameFlow = async (value: string) => {
+    const fullName = buildFlowName({ topic: parseFlowName(editing).topic, workflow: sanitize(value) }, true)
+      .workflowPath
+
+    if (!props.flows.find(x => x.name === fullName)) {
+      props.renameFlow({ targetFlow: editing, name: fullName })
+      props.updateFlow({ name: fullName })
+    }
+  }
+
   const handleContextMenu = (element: NodeData) => {
     const { id, type } = element as NodeData
 
@@ -211,7 +234,10 @@ const Library: FC<Props> = props => {
     const treeItem = (
       <div className={cx(item.type)} key={path}>
         <TreeItem
-          className={cx(style.treeItem, { [style.isTopic]: isTopLevel })}
+          className={cx(style.treeItem, {
+            [style.isTopic]: isTopLevel,
+            [style.active]: item.label === props.selectedWorkflow
+          })}
           isExpanded={expanded[path]}
           item={item}
           level={level}
@@ -219,6 +245,7 @@ const Library: FC<Props> = props => {
           isEditingNew={false}
           contextMenuContent={handleContextMenu(item)}
           onClick={() => handleClick({ item, path, level })}
+          onSave={value => renameFlow(value)}
         />
 
         {expanded[path] && (
@@ -282,7 +309,9 @@ const mapDispatchToProps = {
   refreshEntities,
   setActiveFormItem,
   deleteEntity,
-  deleteFlow
+  deleteFlow,
+  updateFlow,
+  renameFlow
 }
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(Library)
