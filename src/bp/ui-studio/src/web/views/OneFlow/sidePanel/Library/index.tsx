@@ -230,13 +230,17 @@ const Library: FC<Props> = props => {
     const hasChildren = !!item.children?.length
     const path = `${parentId}${parentId && '/'}${item.id}`
     const isTopLevel = level === 0
+    const isSelected = item.label === props.selectedWorkflow
 
     const treeItem = (
-      <div className={cx(item.type)} key={path}>
+      <div
+        className={cx(item.type, { [style.larger]: parentId === 'workflow', [style.largerSelected]: isSelected })}
+        key={path}
+      >
         <TreeItem
           className={cx(style.treeItem, {
             [style.isTopic]: isTopLevel,
-            [style.active]: item.label === props.selectedWorkflow
+            [style.active]: isSelected
           })}
           isExpanded={expanded[path]}
           item={item}

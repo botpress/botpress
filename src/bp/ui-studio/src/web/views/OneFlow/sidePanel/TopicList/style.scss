@@ -107,7 +107,6 @@
 }
 
 .inlineEditing {
-
   :global(.bp3-icon) {
     margin-right: 7px;
   }
@@ -118,7 +117,8 @@
     }
   }
 
-  &:hover, &.active {
+  &:hover,
+  &.active {
     background: #fff !important;
   }
 
@@ -189,12 +189,12 @@
 
   &:focus {
     color: var(--ocean) !important;
-    background:  #fff !important;
+    background: #fff !important;
   }
 
   &:hover {
     color: var(--ocean) !important;
-    background:  var(--hover-ocean) !important;
+    background: var(--hover-ocean) !important;
   }
 }
 
@@ -211,4 +211,28 @@
   overflow: hidden;
   visibility: hidden;
   width: 0;
+}
+
+.larger {
+  margin: 5px 0px;
+  :global {
+    .bp3-icon {
+      width: 30px !important;
+      height: 30px !important;
+      border-radius: 5px !important;
+      background-color: var(--seashell) !important;
+
+      svg {
+        margin: 7px 7px;
+      }
+    }
+  }
+}
+
+.largerSelected {
+  :global {
+    .bp3-icon {
+      background-color: transparent !important;
+    }
+  }
 }
