@@ -206,15 +206,18 @@ const QnAList: FC<Props> = ({
       ? { limit: ITEMS_PER_PAGE, offset: (page - 1) * ITEMS_PER_PAGE, filteredContexts: filterContexts }
       : getQueryParams()
 
-    const { data } = await bp.axios.get('/mod/qna/questions', {
+    const { data } = await bp.axios.get(`/mod/qna/${topicName}/questions`, {
       params: { ...params, question: questionSearch }
     })
 
-    dispatch({ type: 'dataSuccess', data: { ...data, page } })
+    dispatch({
+      type: 'dataSuccess',
+      data: { ...data, items: data.items.map(x => ({ id: x.id, data: { ...x, contexts: [topicName] } })), page } // TODO: contexts --> topicName
+    })
   }
 
   const fetchHighlightedQna = async id => {
-    const { data } = await bp.axios.get(`/mod/qna/questions/${id}`)
+    const { data } = await bp.axios.get(`/mod/qna/${topicName}/questions/${id}`)
 
     dispatch({ type: 'highlightedSuccess', data })
   }

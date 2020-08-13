@@ -38,14 +38,14 @@ export const QnaDefSchema = Joi.object().keys({
   lastModified: Joi.date().optional()
 })
 
-const QnaItemSchema = Joi.object().keys({
-  id: Joi.string().required(),
-  data: QnaDefSchema
-})
+// const QnaItemSchema = Joi.object().keys({
+//   id: Joi.string().required(),
+//   data: QnaDefSchema
+// })
 
-export const QnaItemArraySchema = Joi.array().items(QnaItemSchema)
+// export const QnaItemArraySchema = Joi.array().items(QnaItemSchema)
 
-export const QnaItemCmsArraySchema = Joi.object().keys({
-  qnas: Joi.array().items(QnaItemSchema),
-  contentElements: Joi.array().items(Joi.object())
-})
+// export const QnaItemCmsArraySchema = Joi.object().keys({
+//   qnas: Joi.array().items(QnaItemSchema),
+//   contentElements: Joi.array().items(Joi.object())
+// })

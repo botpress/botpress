@@ -37,3 +37,7 @@ export interface BotParams {
   storage: Storage
   defaultLang: string
 }
+
+export interface Dic<T> {
+  [Key: string]: T
+}

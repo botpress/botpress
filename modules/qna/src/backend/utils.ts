@@ -2,7 +2,6 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { QnaEntry } from './qna'
-import Storage, { NLU_PREFIX } from './storage'
 
 export const QNA_MIN_QUESTIONS = 3
 export const QNA_MIN_ANSWERS = 1
@@ -16,12 +15,12 @@ export const isQnaComplete = (qnaEntry: QnaEntry, lang: string): boolean => {
   )
 }
 
-export const getQuestionForIntent = async (storage: Storage, intentName) => {
-  if (intentName && intentName.startsWith(NLU_PREFIX)) {
-    const qnaId = intentName.substring(NLU_PREFIX.length)
-    return (await storage.getQnaItem(qnaId)).data
-  }
-}
+// export const getQuestionForIntent = async (storage: Storage, intentName) => {
+//   if (intentName && intentName.startsWith(NLU_PREFIX)) {
+//     const qnaId = intentName.substring(NLU_PREFIX.length)
+//     return (await storage.getQnaItem(qnaId)).data
+//   }
+// }
 
 export const getRandomAnswer = (answers: string[]): string => {
   const randomIndex = Math.floor(Math.random() * answers.length)
@@ -98,25 +97,25 @@ export const getQnaEntryPayloads = async (
   return payloads
 }
 
-export const getIntentActions = async (
-  intentName: string,
-  event: sdk.IO.IncomingEvent,
-  { bp, storage, config, defaultLang }
-): Promise<sdk.NDU.Actions[]> => {
-  const actions = []
+// export const getIntentActions = async (
+//   intentName: string,
+//   event: sdk.IO.IncomingEvent,
+//   { bp, storage, config, defaultLang }
+// ): Promise<sdk.NDU.Actions[]> => {
+//   const actions = []
 
-  const qnaEntry = await getQuestionForIntent(storage, intentName)
+//   const qnaEntry = await getQuestionForIntent(storage, intentName)
 
-  if (qnaEntry?.enabled) {
-    if (qnaEntry.action.includes('text')) {
-      const payloads = await getQnaEntryPayloads(qnaEntry, event, config.textRenderer, defaultLang, bp)
-      actions.push({ action: 'send', data: { payloads, source: 'qna', sourceDetails: intentName } })
-    }
+//   if (qnaEntry?.enabled) {
+//     if (qnaEntry.action.includes('text')) {
+//       const payloads = await getQnaEntryPayloads(qnaEntry, event, config.textRenderer, defaultLang, bp)
+//       actions.push({ action: 'send', data: { payloads, source: 'qna', sourceDetails: intentName } })
+//     }
 
-    if (qnaEntry.action.includes('redirect')) {
-      actions.push({ action: 'redirect', data: { flow: qnaEntry.redirectFlow, node: qnaEntry.redirectNode } })
-    }
-  }
+//     if (qnaEntry.action.includes('redirect')) {
+//       actions.push({ action: 'redirect', data: { flow: qnaEntry.redirectFlow, node: qnaEntry.redirectNode } })
+//     }
+//   }
 
-  return actions
-}
+//   return actions
+// }

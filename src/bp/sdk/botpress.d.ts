@@ -554,9 +554,10 @@ declare module 'botpress/sdk' {
       utterances: {
         [lang: string]: string[]
       }
-      filename: string
-      slots: SlotDefinition[]
-      contexts: string[]
+      filename: string // TODO: remove, not used anymore
+      slots: SlotDefinition[] // TODO: rename to "placeholders" when we introduce this concept (synonyms, variables)
+      contexts: string[] // TODO: remove contexts, now a single 'topic'
+      metadata?: any
     }
 
     export interface Intent {

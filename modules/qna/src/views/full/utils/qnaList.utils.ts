@@ -71,6 +71,8 @@ export const itemHasError = (qnaItem: QnaItem, currentLang: string): string[] =>
 
 export const dispatchMiddleware = async (dispatch, action) => {
   const { qnaItem, bp, refreshQnaCount } = action.data
+  const topicName = qnaItem.data?.contexts?.[0]
+
   switch (action.type) {
     case 'updateQnA':
       const { currentLang } = action.data
@@ -89,25 +91,34 @@ export const dispatchMiddleware = async (dispatch, action) => {
           action = 'redirect'
         }
 
-        const cleanData = {
-          ...qnaItem.data,
-          action,
-          answers: {
-            ...Object.keys(answers).reduce(
-              (acc, lang) => ({ ...acc, [lang]: [...answers[lang].filter(entry => !!entry.trim().length)] }),
-              {}
-            )
+        const cleanData = _.omit(
+          {
+            ...qnaItem.data,
+            action,
+            answers: {
+              ...Object.keys(answers).reduce(
+                (acc, lang) => ({ ...acc, [lang]: [...answers[lang].filter(entry => !!entry.trim().length)] }),
+                {}
+              )
+            },
+            questions: {
+              ...Object.keys(questions).reduce(
+                (acc, lang) => ({ ...acc, [lang]: [...questions[lang].filter(entry => !!entry.trim().length)] }),
+                {}
+              )
+            }
           },
-          questions: {
-            ...Object.keys(questions).reduce(
-              (acc, lang) => ({ ...acc, [lang]: [...questions[lang].filter(entry => !!entry.trim().length)] }),
-              {}
-            )
-          }
-        }
+          'contexts',
+          'redirectFlow',
+          'redirectNode',
+          'action',
+          'lastModified'
+        )
+
         if (qnaItem.id.startsWith('qna-')) {
           try {
-            const res = await bp.axios.post('/mod/qna/questions', cleanData)
+            console.log('==>', qnaItem, action)
+            const res = await bp.axios.post(`/mod/qna/${topicName}/questions`, cleanData)
             itemId = res.data[0]
             refreshQnaCount?.()
           } catch ({ response: { data } }) {
@@ -115,7 +126,7 @@ export const dispatchMiddleware = async (dispatch, action) => {
           }
         } else {
           try {
-            await bp.axios.post(`/mod/qna/questions/${qnaItem.id}`, cleanData)
+            await bp.axios.post(`/mod/qna/${topicName}/questions/${qnaItem.id}`, cleanData)
           } catch ({ response: { data } }) {
             saveError = data.message
           }
