@@ -6,13 +6,13 @@ import nanoid from 'nanoid'
 
 import { registerMsgHandler, spawnMLWorkers, WORKER_TYPES } from '../cluster'
 import { Tagger, Trainer as CRFTrainer } from './crf'
+import { CRFTrainingPool } from './crf-pool'
 import { FastTextModel } from './fasttext'
 import computeJaroWinklerDistance from './homebrew/jaro-winkler'
 import computeLevenshteinDistance from './homebrew/levenshtein'
 import { processor } from './sentencepiece'
 import { Predictor, Trainer as SVMTrainer } from './svm'
 import { SVMTrainingPool } from './svm-pool'
-import { CRFTrainingPool } from './crf-pool'
 
 type MsgType =
   | 'svm_train'
@@ -161,7 +161,7 @@ if (cluster.isWorker) {
             }
           },
           result => process.send!({ type: 'svm_done', id: msg.id, payload: { result } }),
-          error => process.send!({ type: 'svm_error', id: msg.id, payload: { error } })
+          error => process.send!({ type: 'svm_error', id: msg.id, payload: { error: error.message } })
         )
       }
 
@@ -181,7 +181,7 @@ if (cluster.isWorker) {
             return 0
           },
           model => process.send!({ type: 'crf_done', id: msg.id, payload: { crfModelFilename: model } }),
-          error => process.send!({ type: 'crf_error', id: msg.id, payload: { error } })
+          error => process.send!({ type: 'crf_error', id: msg.id, payload: { error: error.message } })
         )
       }
 
