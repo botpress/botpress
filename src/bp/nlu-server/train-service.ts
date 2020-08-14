@@ -27,6 +27,10 @@ export default class TrainService {
       const reportTrainingProgress = (_botId: string, message: string, trainSession: NLU.TrainingSession) => {
         this.trainSessionService.setTrainingSession(modelId, trainSession)
         this.logger.info(`${modelId} : ${message}`)
+
+        if (trainSession.status === 'done') {
+          setTimeout(() => this.trainSessionService.removeTrainingSession(modelId), 30000)
+        }
       }
 
       const model = await this.engine.train(intents, entities, language, reportTrainingProgress, ts, {

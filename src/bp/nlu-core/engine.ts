@@ -228,6 +228,13 @@ export default class Engine implements NLU.Engine {
     this.modelsByLang[model.languageCode] = model
   }
 
+  unloadModel(lang: string) {
+    if (this.modelsByLang[lang]) {
+      delete this.modelsByLang[lang]
+      delete this.predictorsByLang[lang]
+    }
+  }
+
   private _warmEntitiesCaches(listEntities: ListEntityModel[]) {
     for (const entity of listEntities) {
       if (!entity.cache) {

@@ -25,8 +25,8 @@ export default class TrainSessionService {
     return this.kvs.set(key, _.omit(trainSession, 'lock'))
   }
 
-  removeTrainingSession(kvs: NLUServerKeyValueStore, modelId: string): void {
+  removeTrainingSession(modelId: string): void {
     const key = this.makeTrainSessionKey(modelId)
-    kvs.remove(key)
+    this.kvs.remove(key)
   }
 }

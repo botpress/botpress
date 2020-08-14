@@ -135,9 +135,37 @@ export default async function(options: APIOptions) {
   })
 
   router.get('/train/:modelId', async (req, res) => {
-    const { modelId } = req.params
-    const session = await trainSessionService.getTrainingSession(modelId)
-    res.send(session)
+    try {
+      const { modelId } = req.params
+      let session = trainSessionService.getTrainingSession(modelId)
+      if (!session) {
+        const { modelId } = req.params
+        const model = await modelService.getModel(modelId)
+
+        if (!model) {
+          return res.status(404).send({
+            success: false,
+            error: `no model or training could be found for modelId: ${modelId}`
+          })
+        }
+
+        session = {
+          status: 'done',
+          progress: 1,
+          language: model!.languageCode
+        }
+      }
+
+      res.send({
+        success: true,
+        session
+      })
+    } catch (err) {
+      res.status(500).send({
+        success: false,
+        error: err.message
+      })
+    }
   })
 
   router.post('/predict/:modelId', async (req, res) => {
@@ -145,10 +173,12 @@ export default async function(options: APIOptions) {
       const { modelId } = req.params
       const model = await modelService.getModel(modelId)
       if (model) {
-        await engine.loadModel(model) // TODO: think about some way of unloading models
+        await engine.loadModel(model)
 
         const { sentence } = req.body
         const prediction = await engine.predict(sentence, [], model?.languageCode!)
+        engine.unloadModel(model.languageCode)
+
         return res.send({
           success: true,
           prediction
