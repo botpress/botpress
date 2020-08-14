@@ -5,7 +5,7 @@ export type TelemetryEvent = Schema & {
   event_data: TelemetryEventData
 }
 
-export type TelemetryEventData = Dic<any> & {
+export type TelemetryEventData = { [key: string]: any } & {
   schema: string
 }
 
