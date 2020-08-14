@@ -1,4 +1,4 @@
-utterance,context,conditions,status,date: 7/7/2020,summary: 69.3,nlu seed: 42
+utterance,context,conditions,status,date: 8/12/2020,summary: 69.4,nlu seed: 42
 What is the contact number?,A,"-intent,is,a-contact-details",pass
 WHAT IS THE CONTACT NUMBER?,A,"-intent,is,a-contact-details",pass
 WHAT is THE contact NUMBER,A,"-intent,is,a-contact-details",pass
@@ -160,11 +160,11 @@ contactnumber,C,"-intent,is,c-contact-details",pass
 contactnumber,D,"-intent,is,d-contact-details",pass
 contactnumber,E,"-intent,is,e-contact-details",pass
 contactnumber,F,"-intent,is,f-contact-details",pass
-I'm having some trouble tologin,A,"-intent,is,a-problem",fail
-I'm having some trouble tologin,C,"-intent,is,c-problem",fail
-I'm having some trouble tologin,D,"-intent,is,d-problem",fail
+I'm having some trouble tologin,A,"-intent,is,a-problem",pass
+I'm having some trouble tologin,C,"-intent,is,c-problem",pass
+I'm having some trouble tologin,D,"-intent,is,d-problem",pass
 I'm having some trouble tologin,E,"-intent,is,e-problem",fail
-I'm having some trouble tologin,F,"-intent,is,f-problem",fail
+I'm having some trouble tologin,F,"-intent,is,f-problem",pass
 trouble tologin,A,"-intent,is,a-problem",fail
 trouble tologin,C,"-intent,is,c-problem",fail
 trouble tologin,D,"-intent,is,d-problem",fail
@@ -219,11 +219,11 @@ I want to amend my statements,A,"-intent,is,a-bill-inquiry",pass
 I want to amend my statements,C,"-intent,is,c-bill-inquiry",pass
 I want to amend my statements,D,"-intent,is,d-bill-inquiry",fail
 I want to amend my statements,E,"-intent,is,e-bill-inquiry",pass
-how do I go about cancellings,A,"-intent,is,a-cancellation",pass
+how do I go about cancellings,A,"-intent,is,a-cancellation",fail
 how do I go about cancellings,C,"-intent,is,c-cancellation",pass
-how do I go about cancellings,D,"-intent,is,d-cancellation",pass
+how do I go about cancellings,D,"-intent,is,d-cancellation",fail
 how do I go about cancellings,E,"-intent,is,e-cancellation",pass
-how do I go about cancellings,F,"-intent,is,f-cancellation",pass
+how do I go about cancellings,F,"-intent,is,f-cancellation",fail
 I've got a problems with logins,A,"-intent,is,a-problem",pass
 I've got a problems with logins,C,"-intent,is,c-problem",pass
 I've got a problems with logins,D,"-intent,is,d-problem",pass

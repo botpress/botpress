@@ -1,6 +1,6 @@
 import { FlowNode } from 'botpress/sdk'
 import { parseFlowName } from 'common/flow'
-import { FlowView } from 'common/typings'
+import { FlowView, NodeView } from 'common/typings'
 import _ from 'lodash'
 import reduceReducers from 'reduce-reducers'
 import { handleActions } from 'redux-actions'
@@ -241,7 +241,7 @@ const doDeleteFlow = ({ name, flowsByName }) => {
 }
 
 const doCreateNewFlow = name => {
-  const nodes = window.USE_ONEFLOW
+  const nodes: NodeView[] = window.USE_ONEFLOW
     ? []
     : [
         {
@@ -256,9 +256,19 @@ const doCreateNewFlow = name => {
         }
       ]
 
-  const isSubWorkflow = false // TODO window.USE_ONEFLOW && parseFlowName(name)
-  if (isSubWorkflow) {
+  const isReusable = window.USE_ONEFLOW && name.startsWith('__reusable')
+  if (isReusable) {
     nodes.push(
+      {
+        id: prettyId(),
+        name: 'entry',
+        onEnter: [],
+        onReceive: null,
+        next: [],
+        type: 'standard',
+        x: 100,
+        y: 100
+      },
       {
         id: prettyId(),
         name: 'success',
@@ -284,6 +294,7 @@ const doCreateNewFlow = name => {
 
   return {
     version: '0.1',
+    type: isReusable ? 'reusable' : 'standard',
     name,
     location: name,
     label: undefined,

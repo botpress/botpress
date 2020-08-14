@@ -118,6 +118,7 @@
       "cantDeleteStart": "Vous ne pouvez pas supprimer le point d'entrée.",
       "cantDeleteSuccess": "Vous ne pouvez pas supprimer le nœud de réussite.",
       "cantDeleteOutcome": "Impossible de supprimer un résultat actuellement utilisé dans le flux parent",
+      "cantDeleteStartReusable": "Vous ne pouvez pas supprimer le point d'entrée d'un workflow réutilisable",
       "mustHaveOutcomes": "Les flux de travail doivent avoir au moins un succès et un échec",
       "referenceCount": "{count} {count, plural, one {référence} other {références}}",
       "noReferences": "Non utilisé",

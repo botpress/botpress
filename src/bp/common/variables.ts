@@ -28,7 +28,7 @@ export class BaseVariable<T, V = any> implements BoxedVariable<T, V> {
   }
 
   get subType() {
-    return this._subType! // TODO: yann
+    return this._subType
   }
 
   get confidence(): number {

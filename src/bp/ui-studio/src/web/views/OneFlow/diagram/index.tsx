@@ -692,6 +692,8 @@ class Diagram extends Component<Props> {
         this.props.removeFlowNode(element)
         this.props.refreshCallerFlows()
       }
+    } else if (this.props.currentFlow.type === 'reusable' && this.props.currentFlow.startNode === element['name']) {
+      toast.failure(lang.tr('studio.flow.cantDeleteStartReusable'))
     } else if (_.includes(nodeTypes, type) || _.includes(nodeTypes, element.type)) {
       this.props.removeFlowNode(element)
     } else if (element.type === 'default') {
@@ -1148,6 +1150,7 @@ class Diagram extends Component<Props> {
               customKey={`${node?.id}${node?.prompt?.type}`}
               deleteVariable={this.deleteVariable.bind(this)}
               formData={currentItem}
+              currentFlow={this.props.currentFlow}
               onUpdate={this.updateFlowVariable.bind(this)}
               close={() => {
                 this.timeout = setTimeout(() => {
