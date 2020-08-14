@@ -692,6 +692,8 @@ class Diagram extends Component<Props> {
         this.props.removeFlowNode(element)
         this.props.refreshCallerFlows()
       }
+    } else if (this.props.currentFlow.type === 'reusable' && this.props.currentFlow.startNode === element['name']) {
+      toast.failure(lang.tr('studio.flow.cantDeleteStartReusable'))
     } else if (_.includes(nodeTypes, type) || _.includes(nodeTypes, element.type)) {
       this.props.removeFlowNode(element)
     } else if (element.type === 'default') {
