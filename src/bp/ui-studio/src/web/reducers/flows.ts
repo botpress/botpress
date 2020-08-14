@@ -264,8 +264,19 @@ const doCreateNewFlow = name => {
         name: 'entry',
         onEnter: [],
         onReceive: null,
-        next: [],
-        type: 'standard',
+        next: [
+          {
+            condition: 'true',
+            node: ''
+          }
+        ],
+        type: 'trigger',
+        conditions: [
+          {
+            id: 'workflow_called',
+            params: {}
+          }
+        ],
         x: 100,
         y: 100
       },
