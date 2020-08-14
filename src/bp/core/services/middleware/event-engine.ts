@@ -88,7 +88,7 @@ export class EventEngine {
   public onBeforeIncomingMiddleware?: (event) => Promise<void>
   public onAfterIncomingMiddleware?: (event) => Promise<void>
   public onBeforeOutgoingMiddleware?: (event) => Promise<void>
-  public translatePayload?: (payload: sdk.Content.All, event: sdk.IO.Event) => Promise<any>
+  public translatePayload?: (payload: sdk.Content.All, event: sdk.IO.IncomingEvent) => Promise<any>
 
   private readonly _incomingPerf = new TimedPerfCounter('mw_incoming')
   private readonly _outgoingPerf = new TimedPerfCounter('mw_outgoing')
@@ -212,7 +212,7 @@ export class EventEngine {
 
   async replyContentToEvent(
     payload: sdk.Content.All,
-    event: sdk.IO.Event,
+    event: sdk.IO.IncomingEvent,
     options: { incomingEventId?: string; eventType?: string } = {}
   ) {
     payload.metadata = {
