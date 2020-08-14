@@ -1,6 +1,6 @@
 import { FlowNode } from 'botpress/sdk'
 import { parseFlowName } from 'common/flow'
-import { FlowView } from 'common/typings'
+import { FlowView, NodeView } from 'common/typings'
 import _ from 'lodash'
 import reduceReducers from 'reduce-reducers'
 import { handleActions } from 'redux-actions'
@@ -241,7 +241,7 @@ const doDeleteFlow = ({ name, flowsByName }) => {
 }
 
 const doCreateNewFlow = name => {
-  const nodes = window.USE_ONEFLOW
+  const nodes: NodeView[] = window.USE_ONEFLOW
     ? []
     : [
         {

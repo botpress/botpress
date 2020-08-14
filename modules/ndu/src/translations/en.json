@@ -22,6 +22,7 @@
         "workflowName": "Workflow Name"
       }
     },
+    "workflowCalled": "Workflow is Triggered by Another Workflow",
     "userAlreadySpoke": "User has already spoke with the bot",
     "userAuthenticated": "User is authenticated",
     "userComingFromTopic": "User is coming from {topicName}",
