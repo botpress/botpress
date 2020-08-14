@@ -685,14 +685,18 @@ function extractAugmentations(
 ): Augmentation[] {
   return intent.slot_definitions
     .map(slot => {
-      const complexEntity = complex_entities.find(x => x.name === slot.entity)
+      const complexEntity = complex_entities.find(x => x.name.toLowerCase() === slot.entity.toLowerCase())
 
       const listEntities = list_entities.filter(
-        x => x.name === slot.entity || complexEntity?.list_entities.includes(slot.entity)
+        x =>
+          x.name.toLowerCase() === slot.entity.toLowerCase() ||
+          complexEntity?.list_entities.map(x => x.toLowerCase()).includes(slot.entity.toLowerCase())
       )
 
       const patternEntities = pattern_entities.filter(
-        x => x.name === slot.entity || complexEntity?.list_entities.includes(slot.entity)
+        x =>
+          x.name.toLowerCase() === slot.entity.toLowerCase() ||
+          complexEntity?.list_entities.map(x => x.toLowerCase()).includes(slot.entity.toLowerCase())
       )
 
       const listExamples = interleave(
@@ -704,7 +708,7 @@ function extractAugmentations(
       const complexExamples = complexEntity?.examples ?? []
 
       return {
-        slotName: slot.name,
+        slotName: slot.name.toLowerCase(),
         examples: interleave(complexExamples, listExamples, patternExamples)
       }
     })

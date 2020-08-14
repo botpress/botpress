@@ -42,7 +42,7 @@ export class IntentService {
         const conditions = tn?.conditions.filter(x => x?.id === 'user_intent_is')
 
         for (let i = 0; i < conditions.length; i++) {
-          const intentName = sanitizeFileName(`${topicName}/${flow.name}/${tn?.name}/${i}`)
+          const intentName = sanitizeFileName(`${flow.name}/${tn?.name}/${i}`) // TODO: remove this, move name generation to front-end
           if (intentsByName[intentName]) {
             throw new Error(`Duplicated intent with name "${intentName}"`)
           }
@@ -50,7 +50,7 @@ export class IntentService {
             contexts: [topicName],
             filename: flow.name,
             name: intentName,
-            slots: flow.variables?.map(x => ({ name: x.params?.name, entity: x.type })) ?? [], // TODO: sub-type (type of list entity and type of pattern is not included in variables yet)
+            slots: flow.variables?.map(x => ({ name: x.params?.name, entity: x?.params?.subType ?? x.type })) ?? [],
             utterances: conditions[i]?.params?.utterances ?? {}
           }
         }

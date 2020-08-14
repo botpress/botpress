@@ -29,7 +29,9 @@ export default {
       }
     }
   ],
-  evaluate: (event, { intentName, topicName }) => {
+  evaluate: (event, params) => {
+    const { topicName } = params
+    const intentName = `${params.wfName}/${params.nodeName}/${params.conditionIndex}`
     const topicConf = _.get(event, `nlu.predictions.${topicName}.confidence`, 0)
     const oosConfidence = _.get(event, `nlu.predictions.${topicName}.oos`, 0)
     const topicIntents = _.get(event, `nlu.predictions.${topicName}.intents`, [])
