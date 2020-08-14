@@ -23,14 +23,6 @@ const common: FormDefinition = {
     },
     {
       type: 'number',
-      key: 'duration',
-      defaultValue: 5,
-      min: 0,
-      // moreInfo: { label: 'module.builtin.durationMoreInfo' },
-      label: 'module.builtin.duration'
-    },
-    {
-      type: 'number',
       key: 'searchBackCount',
       defaultValue: 0,
       min: 0,
