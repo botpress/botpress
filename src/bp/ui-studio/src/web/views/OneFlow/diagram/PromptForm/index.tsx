@@ -103,7 +103,7 @@ const PromptForm: FC<Props> = ({
               onUpdateVariables={onUpdateVariables}
               variables={variables}
               fields={selectedPromptType.config?.fields || []}
-              advancedSettings={selectedPromptType.config?.advancedSettings || []}
+              advancedSettings={selectedPromptType.config?.advancedSettings.filter(o => o.key !== 'duration') || []}
               formData={formData?.params || {}}
               onUpdate={data => onUpdate({ params: { ...data }, type: promptType.current })}
             />
