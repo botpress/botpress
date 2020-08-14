@@ -34,6 +34,7 @@ import {
   openFlowNodeProps,
   pasteFlowNode,
   refreshCallerFlows,
+  refreshEntities,
   refreshFlowsLinks,
   refreshHints,
   removeFlowNode,
@@ -52,7 +53,9 @@ import {
   getCallerFlowsOutcomeUsage,
   getCurrentFlow,
   getCurrentFlowNode,
+  getPrompts,
   getReusableWorkflows,
+  getVariables,
   RootReducer
 } from '~/reducers'
 import storage from '~/util/storage'
@@ -209,6 +212,7 @@ class Diagram extends Component<Props> {
     this.props.fetchFlows()
     this.props.fetchPrompts()
     this.props.fetchVariables()
+    this.props.refreshEntities()
     this.props.fetchContentCategories()
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
@@ -351,7 +355,7 @@ class Diagram extends Component<Props> {
       this.props.createFlowNode({ ...point, type: 'execute', next: [defaultTransition], ...moreProps }),
     routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' }),
     actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action' }),
-    promptNode: (point: Point, promptType: string) => {
+    promptNode: (point: Point, promptType: string, subType?: string) => {
       this.props.createFlowNode({
         ...point,
         type: 'prompt',
@@ -360,7 +364,8 @@ class Diagram extends Component<Props> {
           type: promptType,
           params: {
             output: '',
-            question: {}
+            question: {},
+            subType
           }
         },
         next: [
@@ -427,13 +432,13 @@ class Diagram extends Component<Props> {
           icon={<Icons.Say />}
         />
         <MenuItem tagName="span" text={lang.tr('prompt')} icon="citation">
-          {this.props.prompts.map(({ id, config }) => (
+          {this.props.prompts.display.map(({ type, subType, label, icon }) => (
             <MenuItem
-              key={id}
-              text={lang.tr(config.label)}
+              key={`${type}-${subType}`}
+              text={lang.tr(label)}
               tagName="button"
-              onClick={wrap(this.add.promptNode, point, id)}
-              icon={config.icon as any}
+              onClick={wrap(this.add.promptNode, point, type, subType)}
+              icon={icon as any}
             />
           ))}
         </MenuItem>
@@ -882,7 +887,7 @@ class Diagram extends Component<Props> {
   }
 
   addVariable = (variable?: FlowVariable & { isNew?: boolean }) => {
-    const vars = this.props.currentFlow?.variables ?? []
+    const vars = this.props.variables.currentFlow ?? []
 
     if (!variable) {
       variable = {
@@ -912,7 +917,7 @@ class Diagram extends Component<Props> {
 
   updateFlowVariable = data => {
     const { node, index } = this.state.editingNodeItem
-    const vars = this.props.currentFlow.variables ?? []
+    const vars = this.props.variables.currentFlow ?? []
 
     this.setState({ editingNodeItem: { node: { ...node, variable: data }, index } })
 
@@ -924,7 +929,7 @@ class Diagram extends Component<Props> {
 
   deleteVariable = () => {
     const { index } = this.state.editingNodeItem
-    const vars = this.props.currentFlow.variables ?? []
+    const vars = this.props.variables.currentFlow ?? []
 
     this.props.updateFlow({
       ...this.props.currentFlow,
@@ -1037,7 +1042,7 @@ class Diagram extends Component<Props> {
                 type.schema.newJson?.displayedIn.includes('sayNode')
               )}
               deleteContent={() => this.deleteNodeContent()}
-              variables={this.props.currentFlow?.variables || []}
+              variables={this.props.variables}
               events={this.props.hints || []}
               contentLang={this.state.currentLang}
               editingContent={index}
@@ -1058,7 +1063,7 @@ class Diagram extends Component<Props> {
               deleteCondition={() => this.deleteNodeCondition()}
               editingCondition={index}
               topicName={this.props.selectedTopic}
-              variables={this.props.currentFlow?.variables}
+              variables={this.props.variables}
               events={this.props.hints}
               formData={currentItem}
               contentLang={this.state.currentLang}
@@ -1078,7 +1083,7 @@ class Diagram extends Component<Props> {
               formData={node?.prompt}
               onUpdate={this.updatePromptNode.bind(this)}
               deletePrompt={this.deleteSelectedElements.bind(this)}
-              variables={this.props.currentFlow?.variables}
+              variables={this.props.variables}
               onUpdateVariables={this.addVariable}
               contentLang={this.state.currentLang}
               close={() => {
@@ -1145,6 +1150,7 @@ class Diagram extends Component<Props> {
               customKey={`${node?.id}${node?.prompt?.type}`}
               deleteVariable={this.deleteVariable.bind(this)}
               formData={currentItem}
+              currentFlow={this.props.currentFlow}
               onUpdate={this.updateFlowVariable.bind(this)}
               close={() => {
                 this.timeout = setTimeout(() => {
@@ -1169,8 +1175,8 @@ const mapStateToProps = (state: RootReducer) => ({
   canPasteNode: Boolean(state.flows.nodeInBuffer),
   skills: state.skills.installed,
   library: state.content.library,
-  prompts: state.ndu.prompts,
-  variables: state.ndu.variables,
+  prompts: getPrompts(state),
+  variables: getVariables(state),
   contentTypes: state.content.categories,
   conditions: state.ndu.conditions,
   hints: state.hints.inputs,
@@ -1181,6 +1187,7 @@ const mapDispatchToProps = {
   fetchFlows,
   fetchPrompts,
   fetchVariables,
+  refreshEntities,
   switchFlowNode,
   openFlowNodeProps,
   closeFlowNodeProps,

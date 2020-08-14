@@ -136,7 +136,7 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
             canPickEvents={canPickEvents}
             canPickVariables={canPickVariables}
             multiple
-            variables={variables || []}
+            variables={variables}
             events={events || []}
             addVariable={onUpdateVariables}
             childRef={(ref: any) => {

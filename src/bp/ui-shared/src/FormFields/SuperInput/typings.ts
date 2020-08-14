@@ -1,8 +1,9 @@
 import { BotEvent, FlowVariable } from 'botpress/sdk'
+import { Variables } from 'common/typings'
 
 export interface SuperInputProps {
   addVariable?: (variable: FlowVariable) => void
-  variables?: FlowVariable[]
+  variables?: Variables
   defaultVariableType?: string
   events?: BotEvent[]
   className?: string

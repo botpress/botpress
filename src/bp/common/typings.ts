@@ -1,10 +1,12 @@
 import {
   BotDetails,
-  BoxedVarConstructable,
   Flow,
   FlowNode,
+  FlowVariable,
   FormField,
   IO,
+  PrimitiveVarType,
+  PromptDefinition,
   RolloutStrategy,
   StageRequestApprovers,
   StrategyUser
@@ -271,14 +273,6 @@ export type ActionServerWithActions = ActionServer & {
   actions: ActionDefinition[] | undefined
 }
 
-export interface FlowVariableType {
-  id: string
-  config: FlowVariableConfig
-  box: BoxedVarConstructable<any>
-}
-
-export type FlowVariableConfig = FormDefinition
-
 export interface FormMoreInfo {
   label: string
   url?: string
@@ -298,4 +292,34 @@ export interface FormContextMenu {
 export interface FormDefinition {
   advancedSettings: FormField[]
   fields: FormField[]
+}
+
+export interface DisplayVariableType {
+  /** The base type of the variable  */
+  type: string
+  /** Represent the custom type when using a generic type */
+  subType?: string
+  icon?: any
+  label: string
+}
+
+export interface DisplayPromptType {
+  type: string
+  subType?: string
+  icon?: any
+  label: string
+}
+
+export interface Variables {
+  /** List of variables configured on the current flow */
+  currentFlow?: FlowVariable[]
+  /** Configuration for the primitive variable types */
+  primitive: PrimitiveVarType[]
+  /** The list of primitives & custom variables ready to be displayed */
+  display: DisplayVariableType[]
+}
+
+export interface Prompts {
+  primitive: PromptDefinition[]
+  display: DisplayPromptType[]
 }

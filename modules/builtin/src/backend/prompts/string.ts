@@ -38,6 +38,7 @@ const config: PromptConfig = {
   type: 'string',
   label: 'String',
   valueType: 'string',
+  icon: 'font',
   fields: [
     ...common.fields,
     {

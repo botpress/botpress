@@ -1,4 +1,5 @@
 import { BotEvent, FlowVariable, FormData, FormField } from 'botpress/sdk'
+import { Variables } from 'common/typings'
 
 export interface InvalidField {
   field: string
@@ -15,7 +16,7 @@ export interface FormProps {
   formData?: FormData
   onUpdate: (data: { [key: string]: any }) => void
   onUpdateVariables?: (variable: FlowVariable) => void
-  variables?: FlowVariable[]
+  variables?: Variables
   invalidFields?: InvalidField[]
   superInputOptions?: {
     enabled?: boolean
