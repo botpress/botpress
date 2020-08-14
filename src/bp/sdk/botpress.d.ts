@@ -1549,7 +1549,7 @@ declare module 'botpress/sdk' {
   export interface FormField {
     type: FormFieldType
     key: string
-    label: string
+    label?: string
     overrideKey?: string
     placeholder?: string | string[]
     options?: FormOption[]

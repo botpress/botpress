@@ -100,6 +100,8 @@
       "variableTypes": "Types de Variables",
       "addEnum": "Ajouter Énumération",
       "addPattern": "Ajouter Expression Régulière",
+      "addComplex": "Ajouter Complexe",
+      "addType": "Ajouter un type",
       "filter": "Filtrer les blocs, workflows et type de variables",
       "variableName": "Quel est le nom de cette variable?",
       "addSynonyms": "Ajoutez des synomymes en séparant les valeurs par des virgules",
@@ -109,7 +111,8 @@
       "examplePlaceholder": "Ajoutez des exemples qui correspondent à votre expression régulière (un par ligne)",
       "addExample": "Ajouter un exemple",
       "deletePattern": "Supprimer l'expression régulière",
-      "patternInvalid": "L'expression est invalide"
+      "patternInvalid": "L'expression est invalide",
+      "possibleVarTypes": "Type de variable possible"
     },
     "flow": {
       "addNode": "Ajouter une node",

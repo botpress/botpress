@@ -1135,6 +1135,7 @@ class Diagram extends Component<Props> {
               contentLang={this.state.currentLang}
               customKey={data.id}
               formData={currentItem}
+              variables={this.props.variables}
               close={() => {
                 this.timeout = setTimeout(() => {
                   this.setState({ editingNodeItem: null })
