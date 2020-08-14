@@ -15,6 +15,7 @@ export default class TrainService {
 
   train = async (
     modelId: string,
+    password: string,
     intents: NLU.IntentDefinition[],
     entities: NLU.EntityDefinition[],
     language: string,
@@ -40,7 +41,7 @@ export default class TrainService {
       if (!model) {
         throw new Error('training could not finish')
       }
-      await this.modelService.saveModel(model!, modelId)
+      await this.modelService.saveModel(model!, modelId, password)
     } catch (err) {
       this.logger.attachError(err).error('an error occured during training')
     }

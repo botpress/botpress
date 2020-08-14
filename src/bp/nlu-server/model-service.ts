@@ -1,4 +1,5 @@
 import { NLU } from 'botpress/sdk'
+import crypto from 'crypto'
 import fse, { WriteStream } from 'fs-extra'
 import _ from 'lodash'
 import path from 'path'
@@ -18,10 +19,10 @@ export default class ModelService {
     }
   }
 
-  public async getModel(modelId: string): Promise<NLU.Model | undefined> {
+  public async getModel(modelId: string, password: string): Promise<NLU.Model | undefined> {
     const { ghost, modelDir } = this
 
-    const fname = this.makeFileName(modelId)
+    const fname = this.makeFileName(modelId, password)
     if (!(await ghost.fileExists(modelDir, fname))) {
       return
     }
@@ -45,12 +46,12 @@ export default class ModelService {
     }
   }
 
-  public async saveModel(model: NLU.Model, modelId: string): Promise<void> {
+  public async saveModel(model: NLU.Model, modelId: string, password: string): Promise<void> {
     const { ghost, modelDir } = this
 
     const serialized = JSON.stringify(model)
 
-    const modelName = this.makeFileName(modelId)
+    const modelName = this.makeFileName(modelId, password)
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
     const tmpFileName = path.join(tmpDir.name, 'model')
     await fse.writeFile(tmpFileName, serialized)
@@ -74,7 +75,12 @@ export default class ModelService {
     return seed ? `${hash}.${languageCode}.${seed}` : `${hash}.${languageCode}`
   }
 
-  private makeFileName(modelId: string): string {
-    return `${modelId}.model`
+  private makeFileName(modelId: string, password: string): string {
+    const fname = crypto
+      .createHash('md5')
+      .update(JSON.stringify({ modelId, password }))
+      .digest('hex')
+
+    return `${fname}.model`
   }
 }

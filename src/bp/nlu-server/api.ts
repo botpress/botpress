@@ -114,13 +114,15 @@ export default async function(options: APIOptions) {
       const input: TrainInput = await validate(req.body, TrainInputCreateSchema, {
         stripUnknown: true
       })
-      const intents = _.flatMap(Object.values(input.topics))
+
+      const { topics, entities, language, password } = input
+      const intents = _.flatMap(Object.values(topics))
       const modelHash = engine.computeModelHash(intents, input.entities, input.language)
       const modelId = modelService.makeModelId(modelHash, input.language, input.seed)
 
       // return the modelId as fast as possible
       // tslint:disable-next-line: no-floating-promises
-      trainService.train(modelId, intents, input.entities, input.language)
+      trainService.train(modelId, password, intents, entities, language)
 
       return res.send({
         success: true,
@@ -137,10 +139,10 @@ export default async function(options: APIOptions) {
   router.get('/train/:modelId', async (req, res) => {
     try {
       const { modelId } = req.params
+      const { password } = req.body
       let session = trainSessionService.getTrainingSession(modelId)
       if (!session) {
-        const { modelId } = req.params
-        const model = await modelService.getModel(modelId)
+        const model = await modelService.getModel(modelId, password ?? '')
 
         if (!model) {
           return res.status(404).send({
@@ -171,11 +173,12 @@ export default async function(options: APIOptions) {
   router.post('/predict/:modelId', async (req, res) => {
     try {
       const { modelId } = req.params
-      const model = await modelService.getModel(modelId)
+      const { sentence, password } = req.body
+
+      const model = await modelService.getModel(modelId, password ?? '')
       if (model) {
         await engine.loadModel(model)
 
-        const { sentence } = req.body
         const prediction = await engine.predict(sentence, [], model?.languageCode!)
         engine.unloadModel(model.languageCode)
 
