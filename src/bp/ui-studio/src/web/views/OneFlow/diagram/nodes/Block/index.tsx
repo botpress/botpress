@@ -191,7 +191,7 @@ const BlockWidget: FC<Props> = ({
         type={nodeType}
         error={error}
       >
-        {inputPortInHeader && <StandardPortWidget name="in" node={node} className={style.in} />}
+        <StandardPortWidget hidden={!inputPortInHeader} name="in" node={node} className={style.in} />
         {outPortInHeader && <StandardPortWidget name="out0" node={node} className={style.out} />}
       </NodeHeader>
       {(!canCollapse || expanded) && renderContents()}
