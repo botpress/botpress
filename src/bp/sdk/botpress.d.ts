@@ -370,6 +370,7 @@ declare module 'botpress/sdk' {
         gamma?: number | number[]
         probability?: boolean
         reduce?: boolean
+        seed?: number
       }
 
       export interface DataPoint {
@@ -471,7 +472,7 @@ declare module 'botpress/sdk' {
         languageCode: string,
         reportTrainingProgress?: ProgressReporter,
         trainingSession?: TrainingSession,
-        options?: TrainingOptions
+        options?: Partial<TrainingOptions>
       ) => Promise<Model | undefined>
       predict: (t: string, ctx: string[], language: string) => Promise<IO.EventUnderstanding>
     }
@@ -497,6 +498,7 @@ declare module 'botpress/sdk' {
 
     export interface TrainingOptions {
       forceTrain: boolean
+      seed: number
     }
 
     export interface Model {

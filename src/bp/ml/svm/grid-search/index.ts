@@ -4,7 +4,7 @@ import numeric from 'numeric'
 
 import BaseSVM from '../addon'
 import { defaultParameters } from '../config'
-import { Data, SvmConfig } from '../typings'
+import { Data, SeededConfig } from '../typings'
 
 import crossCombinations from './cross-combinations'
 import evaluators from './evaluators'
@@ -13,7 +13,7 @@ import { GridSearchProgress, GridSearchResult } from './typings'
 
 export default async function(
   dataset: Data[],
-  config: SvmConfig,
+  config: SeededConfig,
   progressCb: (progress: GridSearchProgress) => void
 ): Promise<GridSearchResult> {
   const dims = numeric.dim(dataset)
@@ -30,7 +30,7 @@ export default async function(
     arr(config.coef0)
   ])
 
-  const subsets = splitDataset([...dataset], config.kFold)
+  const subsets = splitDataset([...dataset], config.kFold, config.seed)
 
   const evaluator = evaluators(config)
 
@@ -66,7 +66,7 @@ export default async function(
     const cPromises = subsets.map(function(ss) {
       const clf = new BaseSVM()
 
-      return clf.train(ss.train, params).then(() => {
+      return clf.train(ss.train, params, config.seed).then(() => {
         done += 1
         progressCb({ done: done, total: total })
         return _.map(ss.test, function(test) {

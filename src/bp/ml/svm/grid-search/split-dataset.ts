@@ -4,7 +4,7 @@ import seedrandom from 'seedrandom'
 
 import { Data } from '../typings'
 
-export default function(dataset: Data[], k = 5): SplittedDataSet[] {
+export default function(dataset: Data[], k = 5, randomSeed: number): SplittedDataSet[] {
   const kFold = Math.min(dataset.length, k)
   const n = dataset.length
   assert(n >= kFold, 'kFold parameter must be <= n')
@@ -21,7 +21,6 @@ export default function(dataset: Data[], k = 5): SplittedDataSet[] {
   const res: SplittedDataSet[] = []
 
   let lo = _
-  const randomSeed = parseInt(process.env.NLU_SEED || '')
   if (randomSeed) {
     seedrandom(`${randomSeed}`, { global: true })
     lo = _.runInContext()

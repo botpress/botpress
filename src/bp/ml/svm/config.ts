@@ -1,9 +1,9 @@
 import assert from 'assert'
 import _ from 'lodash'
 
-import { KernelTypes, SvmConfig, SvmParameters, SvmTypes } from './typings'
+import { KernelTypes, SeededConfig, SvmConfig, SvmParameters, SvmTypes } from './typings'
 
-export function checkConfig(config: SvmConfig) {
+export function checkConfig(config: SvmConfig): SeededConfig {
   assert(config.kFold > 0, 'k-fold must be >= 1')
 
   if (config.svm_type === SvmTypes.ONE_CLASS) {
@@ -34,7 +34,8 @@ export function checkConfig(config: SvmConfig) {
     config.coef0 = []
   }
 
-  return config
+  const seed = config.seed ?? new Date().getTime()
+  return { ...config, seed }
 }
 
 const defaultConf: SvmConfig = {

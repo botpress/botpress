@@ -65,7 +65,7 @@ export default class Engine implements NLU.Engine {
     languageCode: string,
     reportTrainingProgress?: NLU.ProgressReporter,
     trainingSession?: NLU.TrainingSession,
-    options?: NLU.TrainingOptions
+    options?: Partial<NLU.TrainingOptions>
   ): Promise<NLU.Model | undefined> {
     trainDebug.forBot(this.botId, `Started ${languageCode} training`)
 
@@ -125,6 +125,7 @@ export default class Engine implements NLU.Engine {
       : `Retraining only contexts: [${ctxToTrain}] for language: ${languageCode}`
     trainDebug.forBot(this.botId, debugMsg)
 
+    const seed = options?.seed
     const input: TrainInput = {
       botId: this.botId,
       trainingSession,
@@ -133,7 +134,8 @@ export default class Engine implements NLU.Engine {
       pattern_entities,
       contexts,
       intents,
-      ctxToTrain
+      ctxToTrain,
+      seed
     }
 
     const hash = this.computeModelHash(intentDefs, entityDefs, languageCode)

@@ -8,8 +8,10 @@ interface LibConfig {
   mu?: number[]
   sigma?: number[]
   u?: number[][]
+  seed?: number
 }
 export type SvmConfig = Record<GridSearchParameters, number[]> & OtherParameters & LibConfig
+export type SeededConfig = SvmConfig & { seed: number }
 
 export type SvmModel = Model & {
   param: SvmParameters

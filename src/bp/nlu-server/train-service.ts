@@ -17,7 +17,8 @@ export default class TrainService {
     modelId: string,
     intents: NLU.IntentDefinition[],
     entities: NLU.EntityDefinition[],
-    language: string
+    language: string,
+    seed?: number
   ) => {
     try {
       const ts = this.trainSessionService.makeTrainingSession(language)
@@ -29,12 +30,13 @@ export default class TrainService {
       }
 
       const model = await this.engine.train(intents, entities, language, reportTrainingProgress, ts, {
-        forceTrain: true
+        forceTrain: true,
+        seed
       })
       if (!model) {
         throw new Error('training could not finish')
       }
-      await this.modelService.saveModel(model!)
+      await this.modelService.saveModel(model!, modelId)
     } catch (err) {
       this.logger.attachError(err).error('an error occured during training')
     }

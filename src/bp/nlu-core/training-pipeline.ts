@@ -36,6 +36,7 @@ export type TrainInput = Readonly<{
   intents: Intent<string>[]
   trainingSession?: sdk.NLU.TrainingSession
   ctxToTrain: string[]
+  seed?: number
 }>
 
 export type TrainStep = Readonly<{
@@ -49,6 +50,7 @@ export type TrainStep = Readonly<{
   tfIdf?: TFIDF
   kmeans?: sdk.MLToolkit.KMeans.KmeansResult
   ctxToTrain: string[]
+  seed?: number
 }>
 
 export interface TrainOutput {
@@ -103,7 +105,8 @@ const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainSt
     ..._.omit(input, 'list_entities', 'intents'),
     list_entities,
     intents,
-    vocabVectors
+    vocabVectors,
+    seed: input.seed
   } as TrainStep
 }
 
@@ -230,7 +233,8 @@ const TrainIntentClassifier = async (
 
     const nAvgUtts = Math.ceil(_.meanBy(trainableIntents, 'utterances.length'))
 
-    const lo = getSeededLodash(process.env.NLU_SEED)
+    const { seed } = input
+    const lo = getSeededLodash(seed)
     const points = _.chain(trainableIntents)
       .thru(ints => [
         ...ints,
@@ -262,7 +266,7 @@ const TrainIntentClassifier = async (
 
     let model: string
     try {
-      model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
+      model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC', seed }, p => {
         const completion = (i + p) / input.ctxToTrain.length
         progress(completion)
       })
@@ -308,7 +312,7 @@ const TrainContextClassifier = async (
 
   let model: string
   try {
-    model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
+    model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC', seed: input.seed }, p => {
       progress(_.round(p, 1))
     })
   } catch (err) {
@@ -380,7 +384,7 @@ export const AppendNoneIntent = async (input: TrainStep, tools: Tools): Promise<
     return input
   }
 
-  const lo = getSeededLodash(process.env.NLU_SEED)
+  const lo = getSeededLodash(input.seed)
 
   const allUtterances = lo.flatten(input.intents.map(x => x.utterances))
   const vocabWithDupes = lo
@@ -492,7 +496,8 @@ const TrainOutOfScope = async (
   const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
     c: [10], // so there's no grid search
     kernel: 'LINEAR',
-    classifier: 'C_SVC'
+    classifier: 'C_SVC',
+    seed: input.seed
   }
 
   const noneUtts = _.chain(input.intents)

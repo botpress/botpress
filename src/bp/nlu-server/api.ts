@@ -116,7 +116,7 @@ export default async function(options: APIOptions) {
       })
       const intents = _.flatMap(Object.values(input.topics))
       const modelHash = engine.computeModelHash(intents, input.entities, input.language)
-      const modelId = modelService.makeModelId(modelHash, input.language)
+      const modelId = modelService.makeModelId(modelHash, input.language, input.seed)
 
       // return the modelId as fast as possible
       // tslint:disable-next-line: no-floating-promises

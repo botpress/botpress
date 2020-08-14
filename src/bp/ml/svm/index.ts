@@ -55,7 +55,8 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
       gamma: options.gamma ? arr(options.gamma) : undefined,
       probability: options.probability,
       reduce: options.reduce,
-      kFold
+      kFold,
+      seed: options.seed
     })
 
     const trainResult = await this.svm.train(dataset, progress => {

@@ -8,7 +8,7 @@ import gridSearch from './grid-search'
 import { GridSearchResult } from './grid-search/typings'
 import { normalizeDataset, normalizeInput } from './normalize'
 import reduce from './reduce-dataset'
-import { Data, Report, SvmConfig, SvmModel } from './typings'
+import { Data, Report, SeededConfig, SvmConfig, SvmModel } from './typings'
 
 class TrainingCanceledError extends Error {
   constructor(msg: string) {
@@ -22,7 +22,7 @@ interface TrainOutput {
 }
 
 export class SVM {
-  private _config: SvmConfig
+  private _config: SeededConfig
   private _baseSvm: BaseSVM | undefined
   private _retainedVariance: number = 0
   private _retainedDimension: number = 0
@@ -32,13 +32,13 @@ export class SVM {
   constructor(config: Partial<SvmConfig>, model?: SvmModel) {
     this._config = { ...checkConfig(defaultConfig(config)) }
     if (model) {
-      this._restore(model)
+      this._restore(model, this._config.seed)
     }
   }
 
-  private _restore = (model: SvmModel) => {
+  private _restore = (model: SvmModel, seed: number) => {
     const self = this
-    this._baseSvm = BaseSVM.restore(model)
+    this._baseSvm = BaseSVM.restore(model, seed)
     Object.entries(model.param).forEach(([key, val]) => {
       self._config[key] = val
     })
@@ -94,7 +94,7 @@ export class SVM {
 
     const { params, report } = gridSearchResult
     self._baseSvm = new BaseSVM()
-    return self._baseSvm.train(dataset, params).then(function(model) {
+    return self._baseSvm.train(dataset, params, self._config.seed).then(function(model) {
       progressCb(1)
       const fullModel: SvmModel = { ...model, param: { ...self._config, ...model.param } }
 

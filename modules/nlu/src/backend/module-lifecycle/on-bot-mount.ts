@@ -55,13 +55,14 @@ export function getOnBotMount(state: NLUState) {
               const trainSession = makeTrainingSession(languageCode, lock)
               state.nluByBot[botId].trainSessions[languageCode] = trainSession
 
+              const seed = parseInt(process.env.NLU_SEED) || undefined // to prevent from NaN's
               model = await engine.train(
                 intentDefs,
                 entityDefs,
                 languageCode,
                 state.reportTrainingProgress,
                 trainSession,
-                { forceTrain }
+                { forceTrain, seed }
               )
               if (model) {
                 await engine.loadModel(model)

@@ -21,7 +21,8 @@ describe('split-dataset', () => {
     const kfold = 4
 
     // act
-    const res = split(dataset, kfold)
+    const seed = new Date().getTime()
+    const res = split(dataset, kfold, seed)
 
     // assert
     const expectedNbOfSplit = 4
@@ -51,7 +52,8 @@ describe('split-dataset', () => {
     const kfold = 4
 
     // act
-    const res = split(dataset, kfold)
+    const seed = new Date().getTime()
+    const res = split(dataset, kfold, seed)
 
     // assert
     const expectedNbOfSplit = 4
@@ -91,7 +93,8 @@ describe('split-dataset', () => {
     const kfold = 16
 
     // act
-    const res = split(dataset, kfold)
+    const seed = new Date().getTime()
+    const res = split(dataset, kfold, seed)
 
     // assert
     for (const ss of res) {

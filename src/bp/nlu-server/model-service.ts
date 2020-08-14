@@ -45,12 +45,11 @@ export default class ModelService {
     }
   }
 
-  public async saveModel(model: NLU.Model): Promise<void> {
+  public async saveModel(model: NLU.Model, modelId: string): Promise<void> {
     const { ghost, modelDir } = this
 
     const serialized = JSON.stringify(model)
 
-    const modelId = this.makeModelId(model.hash, model.languageCode)
     const modelName = this.makeFileName(modelId)
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
     const tmpFileName = path.join(tmpDir.name, 'model')
@@ -71,8 +70,8 @@ export default class ModelService {
     tmpDir.removeCallback()
   }
 
-  public makeModelId(hash: string, languageCode: string) {
-    return `${hash}.${languageCode}`
+  public makeModelId(hash: string, languageCode: string, seed: number | undefined) {
+    return seed ? `${hash}.${languageCode}.${seed}` : `${hash}.${languageCode}`
   }
 
   private makeFileName(modelId: string): string {
