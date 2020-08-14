@@ -1,11 +1,11 @@
-utterance,context,conditions,status,date: 8/12/2020,summary: 52.8
+utterance,context,conditions,status,date: 8/12/2020,summary: 46.1,nlu seed: 42
 A MP34 I WHAT I WISH FOR LOL,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,MP34",pass
 I wanto by a AKP447,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,AKP447",fail
 I wish to get my hands on a Ak-47,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,Ak-47",pass
 I really want an m16 right now,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,m16",pass
 please give me an AB12,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,AB12",pass
 How can I get an cd-42?,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,cd-42",pass
-buy G36,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,G36",pass
+buy G36,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,G36",fail
 Can I get my hands on a gun?,patterns,"-intent,is,buy-guns",pass
 buy pinaple,list,"-intent,is,buy-fruits-slot:fruit-to-buy,is,pinaple",fail
 I'm looking for some tesguino to buy,list,"-intent,is,buy-fruits-slot:fruit-to-buy,is,tesguino",pass
@@ -35,15 +35,15 @@ Harvey's,any,"-intent,is,vote-restaurant-slot:restaurant,is,Harvey's",fail
 Cherry-pick your way to your favorite grape,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,grape",pass
 I'm going banana about the tought of eating this orange,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,orange",pass
 Apple computer's make me wanna eat some cherries!!!,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,cherries",pass
-I really want to eat a banana in the big apple,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,banana",fail
+I really want to eat a banana in the big apple,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,banana",pass
 In the big apple I wanna eat cherries,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,cherries",pass
-I'm going banana about eating this orange in the big apple tonight,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,orange",fail
-I'm going banana about eating this chile pepper in the big apple tonight,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,chile pepper",fail
-about to eat my lemon at the big apple right now,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,lemon",fail
+I'm going banana about eating this orange in the big apple tonight,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,orange",pass
+I'm going banana about eating this chile pepper in the big apple tonight,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,chile pepper",pass
+about to eat my lemon at the big apple right now,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,lemon",pass
 I want a flight which leaves Prague and land in Tataouine,1-entity,"-intent,is,book-flight-slot:to_city,is,Tataouine-slot:from_city,is,Prague",pass
 Sofia to Tokyo,1-entity,"-intent,is,book-flight-slot:to_city,is,Tokyo-slot:from_city,is,Sofia",fail
-flight to Tokyo,1-entity,"-intent,is,book-flight-slot:to_city,is,Tokyo",pass
-flight from Vaduz,1-entity,"-intent,is,book-flight-slot:from_city,is,Vaduz",pass
+flight to Tokyo,1-entity,"-intent,is,book-flight-slot:to_city,is,Tokyo",fail
+flight from Vaduz,1-entity,"-intent,is,book-flight-slot:from_city,is,Vaduz",fail
 register a flight to Stockholm leaving Tripolis,1-entity,"-intent,is,book-flight-slot:to_city,is,Stockholm-slot:from_city,is,Tripolis",pass
 I want to fly high and reach Teheran by leaving Tallinn,1-entity,"-intent,is,book-flight-slot:to_city,is,Teheran-slot:from_city,is,Tallinn",fail
 I'm heading to montreal to fire cherries on buildings,multi-slot-multi-entity,"-intent,is,fire-something-slot:thing_to_fire,is,cherries-slot:time_or_place,is,montreal",fail
@@ -53,27 +53,27 @@ fire melons in new-york,multi-slot-multi-entity,"-intent,is,fire-something-slot:
 let's go fire melons in montreal,multi-slot-multi-entity,"-intent,is,fire-something-slot:thing_to_fire,is,melons-slot:time_or_place,is,montreal",fail
 fire employe #426661,multi-entity,"-intent,is,fire-employe-slot:employe_to_fire,is,426661",pass
 "Jean-Bernard, you're fired!",multi-entity,"-intent,is,fire-employe-slot:employe_to_fire,is,Jean-Bernard",fail
-fire employe from email: jean-bernard@botpress.com,multi-entity,"-intent,is,fire-employe-slot:employe_to_fire,is,jean-bernard@botpress.com",pass
+fire employe from email: jean-bernard@botpress.com,multi-entity,"-intent,is,fire-employe-slot:employe_to_fire,is,jean-bernard@botpress.com",fail
 get rid of JB right now,multi-entity,"-intent,is,fire-employe-slot:employe_to_fire,is,JB",fail
 fire employe Sylvain next monday,multi-entity,"-intent,is,fire-employe-slot:employe_to_fire,is,Sylvain",fail
 Can I take vacations the 3rd of june for approximately five weeks ?,built-in,"-intent,is,ask_holidays-slot:holiday_start,is,3rd of june-slot:holiday_duration,is,approximately five weeks",fail
 Can I take vacations the 3 of june for about five weeks ?,built-in,"-intent,is,ask_holidays-slot:holiday_start,is,3rd of june-slot:holiday_duration,is,five weeks",fail
 I want to take my weekend next week,built-in,"-intent,is,ask_holidays-slot:holiday_start,is,next week-slot:holiday_duration,is,weekend",fail
-Can I take a week on the 8 of may ? ,built-in,"-intent,is,ask_holidays-slot:holiday_start,is,8 of may-slot:holiday_duration,is,a week",pass
-Can I take vacations the 3 of june for five weeks ?,built-in,"-intent,is,ask_holidays-slot:holiday_start,is,3 of june-slot:holiday_duration,is,five weeks",pass
-Can I take vacations the 3rd of june for five weeks ?,built-in,"-intent,is,ask_holidays-slot:holiday_start,is,3rd of june-slot:holiday_duration,is,five weeks",pass
-I would like to take 4 days after new year eve,built-in,"-intent,is,ask_holidays-slot:holiday_duration,is,4 days-slot:holiday_start,is,new year eve",pass
-I would like to leave for 4 days after new year eve,built-in,"-intent,is,ask_holidays-slot:holiday_duration,is,4 days-slot:holiday_start,is,new year eve",pass
+Can I take a week on the 8 of may ? ,built-in,"-intent,is,ask_holidays-slot:holiday_start,is,8 of may-slot:holiday_duration,is,a week",fail
+Can I take vacations the 3 of june for five weeks ?,built-in,"-intent,is,ask_holidays-slot:holiday_start,is,3 of june-slot:holiday_duration,is,five weeks",fail
+Can I take vacations the 3rd of june for five weeks ?,built-in,"-intent,is,ask_holidays-slot:holiday_start,is,3rd of june-slot:holiday_duration,is,five weeks",fail
+I would like to take 4 days after new year eve,built-in,"-intent,is,ask_holidays-slot:holiday_duration,is,4 days-slot:holiday_start,is,new year eve",fail
+I would like to leave for 4 days after new year eve,built-in,"-intent,is,ask_holidays-slot:holiday_duration,is,4 days-slot:holiday_start,is,new year eve",fail
 I'm going to fire cherries on buildings,multi-slot-multi-entity,"-intent,is,fire-something-slot:thing_to_fire,is,cherries",pass
-I'm going to fire things at 8am!,multi-slot-multi-entity,"-intent,is,fire-something-slot:time_or_place,is,8am",pass
+I'm going to fire things at 8am!,multi-slot-multi-entity,"-intent,is,fire-something-slot:time_or_place,is,8am",fail
 Let shoot on London!,multi-slot-multi-entity,"-intent,is,fire-something-slot:time_or_place,is,London",fail
 how can I fire someone?,multi-entity,"-intent,is,fire-employe",pass
 buy an aple,list,"-intent,is,buy-fruits-slot:fruit-to-buy,is,aple",fail
 I wana buy ornage,list,"-intent,is,buy-fruits-slot:fruit-to-buy,is,ornage",pass
-Please give em abanana,list,"-intent,is,buy-fruits-slot:fruit-to-buy,is,banana",fail
+Please give em abanana,list,"-intent,is,buy-fruits-slot:fruit-to-buy,is,banana",pass
 eating na aple at banana republic,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,aple",fail
 On my trip to lemon cove I ate anorange,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,orange",pass
-eat an Orange Vale's lemon,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,lemon",pass
+eat an Orange Vale's lemon,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,lemon",fail
 I want to reach Teheran by leaving Tallinn,1-entity,"-intent,is,book-flight-slot:from_city,is,Tallinn-slot:to_city,is,Teheran",fail
 fly from montrael to quebec,1-entity,"-intent,is,book-flight-slot:from_city,is,montrael-slot:to_city,is,quebc",fail
 fly from montreal to quebc,1-entity,"-intent,is,book-flight-slot:from_city,is,montreal-slot:to_city,is,quebec",fail
