@@ -34,7 +34,7 @@ export default class TrainService {
       if (!model) {
         throw new Error('training could not finish')
       }
-      await this.modelService.saveModel(model!, modelId)
+      await this.modelService.saveModel(model!)
     } catch (err) {
       this.logger.attachError(err).error('an error occured during training')
     }
