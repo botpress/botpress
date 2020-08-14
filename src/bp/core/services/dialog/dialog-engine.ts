@@ -404,18 +404,7 @@ export class DialogEngine {
 
   protected async _loadFlows(botId: string) {
     const flows = await this.flowService.loadAll(botId)
-
-    const flowsWithParents = flows.map(flow => {
-      const flowName = flow.name.replace('.flow.json', '')
-      const parentFlow = flows.find(x => x.name !== flow.name && flowName.startsWith(x.name.replace('.flow.json', '')))
-
-      return {
-        ...flow,
-        parent: parentFlow?.name.replace('.flow.json', '')
-      }
-    })
-
-    this._flowsByBot.set(botId, flowsWithParents)
+    this._flowsByBot.set(botId, flows)
   }
 
   private _detectInfiniteLoop(stacktrace: IO.JumpPoint[], botId: string) {
