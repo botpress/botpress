@@ -3,9 +3,9 @@ import { ContainerModule, interfaces } from 'inversify'
 
 import { ActionsStats } from './actions'
 import { ConfigsStats } from './configs'
-import { RolesStats } from './custom-roles'
 import { HooksLifecycleStats } from './hooks'
 import { LegacyStats } from './legacy-stats'
+import { RolesStats } from './roles-stats'
 import { SDKStats } from './sdk-methods'
 
 const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
