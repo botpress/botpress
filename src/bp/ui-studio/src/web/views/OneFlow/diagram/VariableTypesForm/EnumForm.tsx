@@ -90,10 +90,8 @@ const EnumForm: FC<Props> = ({
       }
     }
 
-    const localItemNames = localItems.map(i => i.name)
-    for (const entity of allEntities) {
-      const noLocalEntity = entity.occurrences.filter(o => !localItemNames.includes(o.name))
-      for (const occurence of noLocalEntity) {
+    for (const entity of allEntities.filter(x => x.name !== formData.name)) {
+      for (const occurence of entity.occurrences) {
         if ([...[occurence.name], ...occurence.synonyms].includes(lastAdded)) {
           toast.failure(`${lastAdded} already exists in ${occurence.name} (${entity.name})`)
           return false

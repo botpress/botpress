@@ -1,5 +1,4 @@
 import { Position, Tooltip } from '@blueprintjs/core'
-import { checkPropTypes } from 'prop-types'
 import React, { useEffect, useRef, useState } from 'react'
 import { lang } from '~/translations'
 import { controlKey } from '~/utils/keyboardShortcuts'
@@ -29,8 +28,11 @@ const TagInputList = ({ validation, onChange, placeholder, items, addBtnLabel })
     } else {
       newItems[index] = item
     }
-
-    if (validation.validator(localItems, item)) {
+    if (validation?.validator) {
+      if (validation.validator(localItems, item)) {
+        setLocalItems(newItems)
+      }
+    } else {
       setLocalItems(newItems)
     }
   }
