@@ -67,7 +67,7 @@ export default class ModelService {
       ['model']
     )
     const buffer = await fse.readFile(archiveName)
-    await ghost.upsertFile(modelDir, modelName, buffer)
+    ghost.upsertFile(modelDir, modelName, buffer)
     tmpDir.removeCallback()
   }
 

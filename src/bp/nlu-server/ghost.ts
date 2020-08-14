@@ -4,14 +4,19 @@ import _ from 'lodash'
 import path from 'path'
 
 export default class NLUServerGhost {
-  async upsertFile(directory: string, fname: string, buffer: Buffer): Promise<void> {
+  upsertFile(directory: string, fname: string, content: Buffer | string): void {
     const path = this.getPath(directory, fname)
-    return fse.writeFile(path, buffer)
+    return fse.writeFileSync(path, content)
   }
 
   async readFileAsBuffer(directory: string, fname: string): Promise<Buffer> {
     const path = this.getPath(directory, fname)
     return fse.readFile(path)
+  }
+
+  readSync(directory: string, fname: string) {
+    const path = this.getPath(directory, fname)
+    return fse.readFileSync(path, { encoding: 'utf8' })
   }
 
   async dirExists(directory: string) {

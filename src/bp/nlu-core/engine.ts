@@ -147,6 +147,8 @@ export default class Engine implements NLU.Engine {
       model.data.output.slots_model = new Buffer(model.data.output.slots_model) // lodash merge messes up buffers
     }
 
+    // TODO: report training is done when model is successfully saved.
+    //       currently, clients have to wait few seconds after training is done before calling predict()
     trainingSession &&
       reportTrainingProgress?.(this.botId, 'Training complete', {
         ...trainingSession,

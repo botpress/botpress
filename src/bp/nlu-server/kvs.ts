@@ -13,36 +13,40 @@ export default class NLUServerKeyValueStore {
     const kvsExists = await this.ghost.fileExists(this.directory, KVS_FILE_NAME)
     if (!kvsExists) {
       const emptyKvs = JSON.stringify({})
-      await this.ghost.upsertFile(this.directory, KVS_FILE_NAME, new Buffer(emptyKvs))
+      this.ghost.upsertFile(this.directory, KVS_FILE_NAME, emptyKvs)
     }
   }
 
-  async get(key: string) {
-    const kvs = await this.readKvs()
+  get(key: string) {
+    const kvs = this.readKvs()
     return kvs[key]
   }
 
-  async set(key: string, value): Promise<void> {
+  set(key: string, value) {
     // TODO: mutex lock between the reading operation and writing operation
-    const kvs = await this.readKvs()
+    const kvs = this.readKvs()
     kvs[key] = value
     return this.writeKvs(kvs)
   }
 
-  async remove(key: string) {
+  remove(key: string) {
     // TODO: mutex lock between the reading operation and writing operation
-    const kvs = await this.readKvs()
+    const kvs = this.readKvs()
     delete kvs[key]
     return this.writeKvs(kvs)
   }
 
-  private async readKvs(): Promise<KVS> {
-    const rawFileContent = (await this.ghost.readFileAsBuffer(this.directory, KVS_FILE_NAME)).toLocaleString()
-    return JSON.parse(rawFileContent)
+  private readKvs(): KVS {
+    try {
+      const rawFileContent = this.ghost.readSync(this.directory, KVS_FILE_NAME)
+      return JSON.parse(rawFileContent)
+    } catch (err) {
+      throw err
+    }
   }
 
-  private async writeKvs(kvs: KVS): Promise<void> {
-    const rawFileContent = JSON.stringify(kvs)
-    await this.ghost.upsertFile(this.directory, KVS_FILE_NAME, new Buffer(rawFileContent))
+  private writeKvs(kvs: KVS): void {
+    const rawFileContent = JSON.stringify(kvs, undefined, 2)
+    this.ghost.upsertFile(this.directory, KVS_FILE_NAME, rawFileContent)
   }
 }

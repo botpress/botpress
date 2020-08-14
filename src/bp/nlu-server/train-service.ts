@@ -21,11 +21,11 @@ export default class TrainService {
   ) => {
     try {
       const ts = this.trainSessionService.makeTrainingSession(language)
-      await this.trainSessionService.setTrainingSession(modelId, ts)
+      this.trainSessionService.setTrainingSession(modelId, ts)
 
-      const reportTrainingProgress = async (_botId: string, message: string, trainSession: NLU.TrainingSession) => {
-        await this.trainSessionService.setTrainingSession(modelId, trainSession)
-        this.logger.info(message)
+      const reportTrainingProgress = (_botId: string, message: string, trainSession: NLU.TrainingSession) => {
+        this.trainSessionService.setTrainingSession(modelId, trainSession)
+        this.logger.info(`${modelId} : ${message}`)
       }
 
       const model = await this.engine.train(intents, entities, language, reportTrainingProgress, ts, {

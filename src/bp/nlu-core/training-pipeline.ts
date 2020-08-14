@@ -634,6 +634,7 @@ export const Trainer: Trainer = async (
     contexts: input.contexts
   }
 
+  debouncedProgress.flush()
   return output
 }
 

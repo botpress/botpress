@@ -14,19 +14,19 @@ export default class TrainSessionService {
     language
   })
 
-  async getTrainingSession(modelId: string): Promise<sdk.NLU.TrainingSession | undefined> {
+  getTrainingSession(modelId: string): sdk.NLU.TrainingSession | undefined {
     const key = this.makeTrainSessionKey(modelId)
-    const trainSession = await this.kvs.get(key)
+    const trainSession = this.kvs.get(key)
     return trainSession
   }
 
-  setTrainingSession(modelId: string, trainSession: sdk.NLU.TrainingSession): Promise<any> {
+  setTrainingSession(modelId: string, trainSession: sdk.NLU.TrainingSession) {
     const key = this.makeTrainSessionKey(modelId)
     return this.kvs.set(key, _.omit(trainSession, 'lock'))
   }
 
-  async removeTrainingSession(kvs: NLUServerKeyValueStore, modelId: string): Promise<void> {
+  removeTrainingSession(kvs: NLUServerKeyValueStore, modelId: string): void {
     const key = this.makeTrainSessionKey(modelId)
-    await kvs.remove(key)
+    kvs.remove(key)
   }
 }
