@@ -12,9 +12,14 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
     try {
       const { storage } = bots[req.params.botId]
       const items = await storage.fetchItems(req.params.topicName)
-      const filteredItems = items.filter(qna =>
+      const searchTerm = req.query.question.toLowerCase()
+      const filteredItems = items.filter(qna => {
         // @ts-ignore
-        [...Object.values(qna.questions).flat(), ...Object.values(qna.answers).flat()].filter(q => q.includes(req.query.question)).length > 0
+        const questions = Object.values(qna.questions).flat().map(q => q.toLowerCase())
+        // @ts-ignore
+        const answers = Object.values(qna.answers).flat().map(q => q.toLowerCase())
+        return [...questions, ...answers].filter(q => q.includes(searchTerm)).length > 0
+      }
       )
 
       const data = { count: items.length, items: filteredItems }
