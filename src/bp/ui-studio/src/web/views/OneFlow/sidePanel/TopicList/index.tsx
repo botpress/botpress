@@ -71,7 +71,8 @@ const TopicList: FC<Props> = props => {
   const [forcedSelect, setForcedSelect] = useState(false)
   const [expanded, setExpanded] = useState<any>({})
 
-  const filterByText = item => item.name?.toLowerCase()?.includes(filter.toLowerCase())
+  const filterByText = item =>
+    item.name?.toLowerCase()?.includes(filter.toLowerCase()) && !item.name.startsWith('__reusable')
 
   useEffect(() => {
     const qna = props.topics.filter(filterByText).map(topic => ({

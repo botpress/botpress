@@ -46,6 +46,7 @@ type Props = {
   node: any
   next?: sdk.NodeTransition[]
   flowsName: any
+  hidden?: boolean
 } & RouteComponentProps
 
 export class StandardPortWidgetDisconnected extends React.PureComponent<Props> {
@@ -114,7 +115,8 @@ export class StandardPortWidgetDisconnected extends React.PureComponent<Props> {
       [style.endPort]: type === 'end',
       [style.returnPort]: type === 'return',
       [style.portLabel]: /end|subflow|start|return/i.test(type),
-      [style.missingConnection]: missingConnection
+      [style.missingConnection]: missingConnection,
+      [style.hiddenPort]: this.props.hidden
     })
 
     const isNewNodeType = newNodeTypes.includes(this.props.node.type)
