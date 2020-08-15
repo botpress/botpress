@@ -1028,6 +1028,7 @@ class Diagram extends Component<Props> {
                 ref={w => (this.diagramWidget = w)}
                 deleteKeys={[]}
                 diagramEngine={this.diagramEngine}
+                maxNumberPointsPerLink={0}
                 inverseZoom={true}
               />
             </div>
