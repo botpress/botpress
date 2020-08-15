@@ -38,6 +38,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
     const session = await getTrainingSession(bp, botId, language)
     //  temp hack
     if (session.status === 'idle' || session.status === 'done') {
+      // TODO: get rid of training status 'idle' which is alway replaced by 'needs-training' anyway
       const engine = state.nluByBot[botId].engine
       const client = await createApi(bp, botId)
       const intentDefs = await client.fetchIntentsWithQNAs()

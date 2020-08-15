@@ -103,7 +103,12 @@ export const TrainingStatusComponent: FC<Props> = props => {
       <div className={style.item}>
         <span className={style.message}>{message}</span>
 
-        {status === 'needs-training' && (
+        {/*
+            Button is displayed even when training is being cancelled because
+            1. Sometimes training seems stuck and cancel is uneffective
+            2. Training Cancelation is currently a long and unreliable process
+            */}
+        {['needs-training', 'canceled'].includes(status) && (
           <Button minimal className={style.button} onClick={onTrainClicked}>
             {lang.tr('statusBar.trainChatbot')}
           </Button>
