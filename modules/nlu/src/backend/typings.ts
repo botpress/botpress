@@ -10,7 +10,7 @@ export type NLUState = {
   logger: NLU.Logger
   broadcastLoadModel?: (botId: string, hash: string, language: string) => Promise<void>
   broadcastCancelTraining?: (botId: string, language: string) => Promise<void>
-  sendNLUStatusEvent?: (botId: string, trainSession: NLU.TrainingSession) => Promise<void>
+  sendNLUStatusEvent: (botId: string, trainSession: NLU.TrainingSession) => Promise<void>
 }
 
 export interface BotState {

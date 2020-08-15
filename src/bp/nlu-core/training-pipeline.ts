@@ -618,6 +618,7 @@ export const Trainer: Trainer = async (
     TrainSlotTagger(step, tools, reportProgress)
   ])
 
+  debouncedProgress.flush()
   if (models.some(_.isUndefined)) {
     cancelCallback?.()
     return
