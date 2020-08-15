@@ -21,6 +21,7 @@ export const TrainingStatusComponent: FC<Props> = props => {
   const [message, setMessage] = useState('')
 
   useEffect(() => {
+    // tslint:disable-next-line: no-floating-promises
     fetchTrainingStatus()
 
     EventBus.default.on('statusbar.event', onStatusBarEvent)
