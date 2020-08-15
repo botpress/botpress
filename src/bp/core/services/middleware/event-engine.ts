@@ -212,7 +212,7 @@ export class EventEngine {
 
   async replyContentToEvent(
     payload: sdk.Content.All,
-    event: sdk.IO.IncomingEvent,
+    event: sdk.IO.Event,
     options: { incomingEventId?: string; eventType?: string } = {}
   ) {
     payload.metadata = {
@@ -220,11 +220,15 @@ export class EventEngine {
       ...(payload.metadata ?? {})
     }
 
+    payload = !(event as sdk.IO.IncomingEvent).state
+      ? payload
+      : await this.translatePayload!(payload, event as sdk.IO.IncomingEvent)
+
     const replyEvent = Event({
       ..._.pick(event, ['botId', 'channel', 'target', 'threadId']),
       direction: 'outgoing',
       type: options.eventType ?? payload.type ?? 'default',
-      payload: await this.translatePayload!(payload, event),
+      payload,
       incomingEventId: options.incomingEventId
     })
 

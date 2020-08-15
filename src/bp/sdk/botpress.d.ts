@@ -2183,7 +2183,7 @@ declare module 'botpress/sdk' {
 
     export function replyContentToEvent(
       payload: Content.All,
-      event: IO.IncomingEvent,
+      event: IO.Event,
       options: { incomingEventId?: string; eventType?: string }
     ): Promise<void>
 
