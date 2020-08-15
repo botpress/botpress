@@ -12,9 +12,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
     try {
       const { storage } = bots[req.params.botId]
       const items = await storage.fetchItems(req.params.topicName)
-      // TODO implement filtering
       const filteredItems = items.filter(qna =>
-        // Flat allow to get the search in all the languages
         // @ts-ignore
         [...Object.values(qna.questions).flat(), ...Object.values(qna.answers).flat()].filter(q => q.includes(req.query.question)).length > 0
       )
@@ -57,7 +55,6 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
       const { storage } = bots[req.params.botId]
       await storage.updateSingleItem(req.params.topicName, { ...req.body, id: req.params.id })
       const items = await storage.fetchItems(req.params.topicName)
-      // TODO: implement filtering
       const item = items.find(x => x.id === req.params.id)
       if (!item) {
         throw new Error(`QnA "${req.params.id}" Not found`)
@@ -93,6 +90,17 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
           data: { payloads, source: 'qna', sourceDetails: `${req.params.topicName}/${req.params.id}` }
         }
       ])
+    } catch (err) {
+      bp.logger.attachError(err).error(err.message)
+      res.status(200).send([])
+    }
+  })
+
+
+  router.get('/questionsByTopic', async (req: Request, res: Response) => {
+    try {
+      const { storage } = bots[req.params.botId]
+      res.send(await storage.getCountPerTopic())
     } catch (err) {
       bp.logger.attachError(err).error(err.message)
       res.status(200).send([])

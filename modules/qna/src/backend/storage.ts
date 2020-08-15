@@ -3,6 +3,7 @@ import { Paging } from 'botpress/sdk'
 import Joi from 'joi'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
+import path from 'path'
 
 import { Dic, Item } from './qna'
 
@@ -140,6 +141,16 @@ export default class Storage {
 
     await this.ghost.upsertFile(ROOT_FOLDER, toQnaFile(topicName), serialize(intents))
     return item.id
+  }
+
+  async getCountPerTopic() {
+    // TODO Make this parallel
+    const qnaFilesPerTopic = await this.ghost.directoryListing(ROOT_FOLDER, 'qna.intents.json')
+    const qnaPerTopic = {}
+    for (const qnaFile of qnaFilesPerTopic) {
+      qnaPerTopic[qnaFile.split('/')[0]] = (await this.ghost.readFileAsObject<Intent[]>(ROOT_FOLDER, qnaFile)).length
+    }
+    return qnaPerTopic
   }
 
   async deleteSingleItem(topicName: string, itemId: string) {

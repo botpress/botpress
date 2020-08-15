@@ -198,7 +198,7 @@ const QnAList: FC<Props> = ({
 
     dispatch({
       type: 'dataSuccess',
-      data: { ...data, items: data.items.map(x => ({ id: x.id, data: { ...x, topicName } })), page } // TODO: contexts --> topicName
+      data: { ...data, items: data.items.map(x => ({ id: x.id, data: { ...x, topicName } })), page }
     })
   }
 
