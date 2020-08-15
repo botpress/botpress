@@ -12,7 +12,7 @@ import { isQnaComplete } from '../../../backend/utils'
 import style from '../style.scss'
 
 import ContentAnswerForm from './ContentAnswerForm'
-import ContextSelector from './ContextSelector'
+// import ContextSelector from './ContextSelector'
 import TextAreaList from './TextAreaList'
 
 interface RedirectItem {
@@ -219,20 +219,20 @@ const QnA: FC<Props> = props => {
       </div>
       {expanded && (
         <div key={contentLang} className={style.collapsibleWrapper}>
-          {!isLite && (
+          {/* {!isLite && (
             <ContextSelector
               className={cx(style.contextSelector)}
-              contexts={data.contexts}
+              contexts={data.topicName}
               customIdSuffix={id}
               saveContexts={contexts =>
                 updateQnA({
                   id,
-                  data: { ...data, contexts }
+                  data: { ...data, topicName }
                 })
               }
               bp={bp}
             />
-          )}
+          )} */}
           <TextAreaList
             key="questions"
             items={questions || ['']}

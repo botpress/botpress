@@ -12,10 +12,17 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
     try {
       const { storage } = bots[req.params.botId]
       const items = await storage.fetchItems(req.params.topicName)
-      // TODO: implement filtering
-      const data = { count: items.length, items }
+      // TODO implement filtering
+      const filteredItems = items.filter(qna =>
+        // Flat allow to get the search in all the languages
+        // @ts-ignore
+        [...Object.values(qna.questions).flat(), ...Object.values(qna.answers).flat()].filter(q => q.includes(req.query.question)).length > 0
+      )
+
+      const data = { count: items.length, items: filteredItems }
       res.send(data)
     } catch (e) {
+      console.log(e)
       bp.logger.attachError(e).error('Error listing questions')
       res.status(500).send(e.message || 'Error')
     }
@@ -51,7 +58,11 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
       await storage.updateSingleItem(req.params.topicName, { ...req.body, id: req.params.id })
       const items = await storage.fetchItems(req.params.topicName)
       // TODO: implement filtering
-      res.send(items)
+      const item = items.find(x => x.id === req.params.id)
+      if (!item) {
+        throw new Error(`QnA "${req.params.id}" Not found`)
+      }
+      res.send({ items: item })
     } catch (e) {
       next(new Error(e.message))
     }
@@ -62,7 +73,6 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
       const { storage } = bots[req.params.botId]
       await storage.deleteSingleItem(req.params.topicName, req.params.id)
       const items = await storage.fetchItems(req.params.topicName)
-      // TODO: implement filtering
       res.send(items)
     } catch (e) {
       bp.logger.attachError(e).error(`Could not delete QnA #${req.params.id}`)
