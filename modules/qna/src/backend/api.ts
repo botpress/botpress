@@ -20,7 +20,6 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
       const data = { count: items.length, items: filteredItems }
       res.send(data)
     } catch (e) {
-      console.log(e)
       bp.logger.attachError(e).error('Error listing questions')
       res.status(500).send(e.message || 'Error')
     }
