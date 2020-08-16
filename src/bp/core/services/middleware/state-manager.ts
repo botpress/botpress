@@ -113,7 +113,8 @@ export class StateManager {
       workflows[wf].variables = Object.keys(variables).reduce((acc, id) => {
         const { type, subType, value, nbTurns } = (variables[id] as any) as sdk.UnboxedVariable<any>
 
-        const data = { type, subType, value, nbOfTurns: nbTurns - 1 }
+        const nbOfTurns = Math.max(0, nbTurns - 1)
+        const data = { type, subType, value, nbOfTurns }
         acc[id] = this.dialogStore.getBoxedVar(data, botId, wf, id)
 
         return acc

@@ -730,18 +730,25 @@ export class DialogEngine {
   private _processResolvedPrompt(event: IO.IncomingEvent, context: IO.DialogContext) {
     const { config, state } = context.activePrompt!
 
-    this.createVariable(
-      {
-        name: config.output,
-        value: state.value,
-        type: config.valueType!,
-        subType: config.subType,
-        options: {
-          nbOfTurns: config.duration ?? 10
-        }
-      },
-      event
-    )
+    const workflowName = event.state.session.currentWorkflow!
+    const wf = event.state.session.workflows[workflowName]
+    const name = config.output
+
+    const varValue = wf?.variables[name]?.value
+    if (varValue === null || varValue === undefined) {
+      this.createVariable(
+        {
+          name,
+          value: state.value,
+          type: config.valueType!,
+          subType: config.subType,
+          options: {
+            nbOfTurns: config.duration ?? 10
+          }
+        },
+        event
+      )
+    }
 
     this._setCurrentNodeValue(event, 'extracted', true)
   }
