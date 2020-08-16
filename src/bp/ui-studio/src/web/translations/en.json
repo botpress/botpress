@@ -107,6 +107,8 @@
       "variableTypes": "Variable Types",
       "addEnum": "Add Enumeration",
       "addPattern": "Add Pattern",
+      "addComplex": "Add Complex",
+      "addType": "Add Type",
       "filter": "Filter blocks, workflows and variable types",
       "variableName": "What is the name of this variable",
       "addSynonyms": "Add synonyms by separating values with commas",
@@ -116,7 +118,8 @@
       "examplePlaceholder": "Add examples that match your pattern (one per line)",
       "addExample": "Add Example",
       "deletePattern": "Delete Pattern",
-      "patternInvalid": "Pattern is invalid"
+      "patternInvalid": "Pattern is invalid",
+      "possibleVarTypes": "Possible Variable Types"
     },
     "flow": {
       "addNode": "Add Node",

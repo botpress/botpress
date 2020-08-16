@@ -68,6 +68,17 @@ const sanitize = (name: string) => {
   return sanitizeName(name).replace(/\//g, '-')
 }
 
+const getVarTypeIcon = type => {
+  switch (type) {
+    case 'pattern':
+      return 'comparison'
+    case 'list':
+      return 'properties'
+    case 'complex':
+      return 'list-columns'
+  }
+}
+
 const Library: FC<Props> = props => {
   const [filter, setFilter] = useState('')
   const [items, setItems] = useState<NodeData[]>([])
@@ -85,7 +96,7 @@ const Library: FC<Props> = props => {
         id: x.id,
         type: 'variableType',
         label: x.name,
-        icon: x.type === 'pattern' ? 'comparison' : 'properties'
+        icon: getVarTypeIcon(x.type)
       }))
 
     const reusables = props.flows
@@ -128,7 +139,7 @@ const Library: FC<Props> = props => {
     }
   }
 
-  const newVarType = async (type: 'pattern' | 'list') => {
+  const newVarType = async (type: 'pattern' | 'list' | 'complex') => {
     const name = getNextName(`${type}-entity`, props.entities)
     await createVarType({ id: name, name, type, occurrences: [] })
   }
@@ -281,6 +292,13 @@ const Library: FC<Props> = props => {
                   icon="plus"
                   className={style.addBtn}
                   text={lang.tr('studio.library.addPattern')}
+                />
+                <Button
+                  minimal
+                  onClick={async () => newVarType('complex')}
+                  icon="plus"
+                  className={style.addBtn}
+                  text={lang.tr('studio.library.addComplex')}
                 />
               </Fragment>
             )}
