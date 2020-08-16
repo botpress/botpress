@@ -456,11 +456,11 @@ declare module 'botpress/sdk' {
       constructor(defaultLanguage: string, botId: string, logger: Logger)
       computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string
       loadModel: (m: Model) => Promise<void>
+      hasModel: (lang: string, hash: string) => boolean
       train: (
         intentDefs: NLU.IntentDefinition[],
         entityDefs: NLU.EntityDefinition[],
         languageCode: string,
-        reportTrainingProgress?: ProgressReporter,
         trainingSession?: TrainingSession,
         options?: TrainingOptions
       ) => Promise<Model | undefined>
@@ -486,6 +486,8 @@ declare module 'botpress/sdk' {
 
     export interface TrainingOptions {
       forceTrain: boolean
+      progressCallback: (x: number) => void
+      cancelCallback: () => void
     }
 
     export interface Model {
@@ -505,8 +507,10 @@ declare module 'botpress/sdk' {
       validLanguages: string[]
     }
 
+    export type TrainingStatus = 'idle' | 'done' | 'needs-training' | 'training' | 'canceled' | 'errored' | null
+
     export interface TrainingSession {
-      status: 'training' | 'canceled' | 'done' | 'idle'
+      status: TrainingStatus
       language: string
       progress: number
       lock?: RedisLock

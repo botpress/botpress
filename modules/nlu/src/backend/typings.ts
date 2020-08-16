@@ -10,17 +10,15 @@ export type NLUState = {
   logger: NLU.Logger
   broadcastLoadModel?: (botId: string, hash: string, language: string) => Promise<void>
   broadcastCancelTraining?: (botId: string, language: string) => Promise<void>
-  reportTrainingProgress: sdk.NLU.ProgressReporter
+  sendNLUStatusEvent: (botId: string, trainSession: NLU.TrainingSession) => Promise<void>
 }
 
 export interface BotState {
   botId: string
   engine: sdk.NLU.Engine
-  trainWatcher: sdk.ListenHandle
   trainOrLoad: (forceTrain: boolean) => Promise<void>
   trainSessions: _.Dictionary<sdk.NLU.TrainingSession>
   cancelTraining: () => Promise<void>
-  isTraining: () => Promise<boolean>
 }
 
 export interface NLUProgressEvent {

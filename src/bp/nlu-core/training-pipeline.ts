@@ -546,18 +546,20 @@ const TrainOutOfScope = async (
   }, {} as _.Dictionary<string>)
 }
 
-const NB_STEPS = 5 // change this if the training pipeline changes
+const NB_STEPS = 6 // change this if the training pipeline changes
 
 export type Trainer = (
   input: TrainInput,
   tools: Tools,
-  reportTrainingProgress?: sdk.NLU.ProgressReporter
+  progress?: (x: number) => void,
+  cancelCallback?: () => void
 ) => Promise<TrainOutput | undefined>
 
 export const Trainer: Trainer = async (
   input: TrainInput,
   tools: Tools,
-  progress?: sdk.NLU.ProgressReporter
+  progress?: (x: number) => void,
+  cancelCallback?: () => void
 ): Promise<TrainOutput | undefined> => {
   let totalProgress = 0
   let normalizedProgress = 0
@@ -572,7 +574,7 @@ export const Trainer: Trainer = async (
     }
     if (input.trainingSession.status === 'canceled') {
       // Note that we don't use debouncedProgress here as we want the side effects probagated now
-      reportTrainingProgress(input.botId, 'Currently cancelling...', input.trainingSession)
+      debugTraining.forBot(input.botId, 'Canceling')
       throw new TrainingCanceledError()
     }
 
@@ -582,26 +584,29 @@ export const Trainer: Trainer = async (
       return
     }
     normalizedProgress = scaledProgress
-    debouncedProgress(input.botId, 'Training', { ...input.trainingSession, progress: normalizedProgress })
-  }
-
-  const handleCancellation = () => {
-    reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession!)
-    console.info(input.botId, 'Training aborted')
+    debouncedProgress(normalizedProgress)
   }
 
   let step = await PreprocessInput(input, tools)
+  try {
+    reportProgress() // 10%
+  } catch (err) {
+    if (err instanceof TrainingCanceledError) {
+      cancelCallback?.()
+      return
+    }
+    throw err
+  }
   step = await TfidfTokens(step)
   step = ClusterTokens(step, tools)
   step = await ExtractEntities(step, tools)
   step = await AppendNoneIntent(step, tools)
   const exact_match_index = BuildExactMatchIndex(step)
-
   try {
-    reportProgress() // 20% done...
+    reportProgress() // 20%
   } catch (err) {
     if (err instanceof TrainingCanceledError) {
-      handleCancellation()
+      cancelCallback?.()
       return
     }
     throw err
@@ -614,8 +619,9 @@ export const Trainer: Trainer = async (
     TrainSlotTagger(step, tools, reportProgress)
   ])
 
+  debouncedProgress.flush()
   if (models.some(_.isUndefined)) {
-    handleCancellation()
+    cancelCallback?.()
     return
   }
 

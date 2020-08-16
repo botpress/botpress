@@ -44,7 +44,13 @@
   },
   "statusBar": {
     "contentLanguage": "Langue du contenu",
-    "switchLang": "Modifier la langue du contenu. Langue courante: {currentLang}"
+    "switchLang": "Modifier la langue du contenu. Langue courante: {currentLang}",
+    "trainChatbot": "Entraîner l'agent",
+    "training": "Entraînement en cours",
+    "ready": "Prêt",
+    "cancelTraining": "Annuler l'entraînement",
+    "canceling": "Annulation en cours",
+    "trainingError": "L'agent ne peut pas être entraîné"
   },
   "studio": {
     "content": {

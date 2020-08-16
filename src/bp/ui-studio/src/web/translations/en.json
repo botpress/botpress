@@ -44,7 +44,13 @@
   },
   "statusBar": {
     "contentLanguage": "Content Language",
-    "switchLang": "Change the bot content language. Currently editing: {currentLang}"
+    "switchLang": "Change the bot content language. Currently editing: {currentLang}",
+    "trainChatbot": "Train Chatbot",
+    "training": "Training",
+    "ready": "Ready",
+    "cancelTraining": "Cancel Training",
+    "canceling": "Canceling",
+    "trainingError": "Cannot train Chatbot"
   },
   "studio": {
     "content": {
