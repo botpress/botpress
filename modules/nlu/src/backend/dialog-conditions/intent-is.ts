@@ -36,7 +36,7 @@ export default {
     const oosConfidence = _.get(event, `nlu.predictions.${topicName}.oos`, 0)
     const topicIntents = _.get(event, `nlu.predictions.${topicName}.intents`, [])
     const intentConf = _.get(
-      topicIntents.find((x: any) => x.label === intentName),
+      topicIntents.find((x: any) => x.label.toLowerCase() === intentName.toLowerCase()),
       'confidence',
       0
     )
