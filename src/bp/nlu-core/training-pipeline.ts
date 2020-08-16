@@ -363,7 +363,10 @@ export const ProcessIntents = async (
     utterances.slice(original.length).forEach(x => (x.augmented = true))
 
     const allowedEntities = _.chain(intent.slot_definitions)
-      .flatMap(s => complex_entities?.find(x => x.name === s.name)?.list_entities ?? [s.name])
+      .flatMap(s => {
+        const complex = complex_entities?.find(x => x.name === s.entity)
+        return complex ? [...(complex.list_entities ?? []), ...(complex.pattern_entities ?? [])] : [s.entity]
+      })
       .uniq()
       .value() as string[]
 
