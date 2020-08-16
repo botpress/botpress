@@ -20,7 +20,6 @@ export function getOnBotUnmount(state: NLUState) {
       await removeTrainingSession(bp, botId, ts)
     })
 
-    state.nluByBot[botId].trainWatcher.remove()
     delete state.nluByBot[botId]
   }
 }

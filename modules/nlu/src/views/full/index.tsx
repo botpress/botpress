@@ -7,7 +7,6 @@ import React, { FC, useEffect, useState } from 'react'
 
 import { makeApi } from '../../api'
 
-import TrainingControl from './common/TrainingControl'
 import { EntityEditor } from './entities/EntityEditor'
 import { EntitySidePanelSection } from './entities/SidePanelSection'
 import { IntentEditor } from './intents/FullEditor'
@@ -139,9 +138,6 @@ const NLU: FC<Props> = props => {
         </Tabs>
       </SidePanel>
       <div className={style.container}>
-        <div className={style.trainingControlContainer}>
-          <TrainingControl api={api} eventBus={props.bp.events} />
-        </div>
         {!currentItemExists() && (
           <SplashScreen
             icon={<Icon iconSize={80} icon="translate" style={{ marginBottom: '3em' }} />}
