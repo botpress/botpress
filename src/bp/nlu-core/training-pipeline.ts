@@ -596,7 +596,7 @@ export const Trainer: Trainer = async (
   let totalProgress = 0
   let normalizedProgress = 0
 
-  const emptyProgress = () => {}
+  const emptyProgress = () => { }
   const reportTrainingProgress = progress ?? emptyProgress
 
   const debouncedProgress = _.debounce(reportTrainingProgress, 75, { maxWait: 750 })
@@ -696,13 +696,13 @@ function extractAugmentations(
       const listEntities = list_entities.filter(
         x =>
           x.name.toLowerCase() === slot.entity.toLowerCase() ||
-          complexEntity?.list_entities.map(x => x.toLowerCase()).includes(slot.entity.toLowerCase())
+          complexEntity?.list_entities.map(l => l.toLowerCase()).includes(x.name.toLowerCase())
       )
 
       const patternEntities = pattern_entities.filter(
         x =>
           x.name.toLowerCase() === slot.entity.toLowerCase() ||
-          complexEntity?.list_entities.map(x => x.toLowerCase()).includes(slot.entity.toLowerCase())
+          complexEntity?.pattern_entities.map(l => l.toLowerCase()).includes(x.name.toLowerCase())
       )
 
       const listExamples = interleave(
