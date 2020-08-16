@@ -95,13 +95,7 @@ const QnAList: FC<Props> = ({
   }
 
   const startDownload = () => {
-    setUrl(`${window['BOT_API_PATH']}/mod/qna/export`)
-  }
-
-  const getQueryParams = () => {
-    return {
-      filteredContexts: [topicName]
-    }
+    setUrl(`${window['BOT_API_PATH']}/mod/qna/${topicName}/export`)
   }
 
   const handleScroll = () => {
@@ -311,6 +305,7 @@ const QnAList: FC<Props> = ({
 
         <ImportModal
           axios={bp.axios}
+          topicName={topicName}
           onImportCompleted={() => fetchData()}
           isOpen={showImportModal}
           toggle={() => setShowImportModal(!showImportModal)}
