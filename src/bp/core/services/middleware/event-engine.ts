@@ -88,7 +88,7 @@ export class EventEngine {
   public onBeforeIncomingMiddleware?: (event) => Promise<void>
   public onAfterIncomingMiddleware?: (event) => Promise<void>
   public onBeforeOutgoingMiddleware?: (event) => Promise<void>
-  public translatePayload?: (payload: sdk.Content.All, event: sdk.IO.Event) => Promise<any>
+  public translatePayload?: (payload: sdk.Content.All, event: sdk.IO.IncomingEvent) => Promise<any>
 
   private readonly _incomingPerf = new TimedPerfCounter('mw_incoming')
   private readonly _outgoingPerf = new TimedPerfCounter('mw_outgoing')
@@ -220,11 +220,15 @@ export class EventEngine {
       ...(payload.metadata ?? {})
     }
 
+    payload = !(event as sdk.IO.IncomingEvent).state
+      ? payload
+      : await this.translatePayload!(payload, event as sdk.IO.IncomingEvent)
+
     const replyEvent = Event({
       ..._.pick(event, ['botId', 'channel', 'target', 'threadId']),
       direction: 'outgoing',
       type: options.eventType ?? payload.type ?? 'default',
-      payload: await this.translatePayload!(payload, event),
+      payload,
       incomingEventId: options.incomingEventId
     })
 

@@ -5,7 +5,7 @@ export type TelemetryEvent = Schema & {
   event_data: TelemetryEventData
 }
 
-export interface TelemetryEventData {
+export type TelemetryEventData = { [key: string]: any } & {
   schema: string
   [key: string]: any
 }
