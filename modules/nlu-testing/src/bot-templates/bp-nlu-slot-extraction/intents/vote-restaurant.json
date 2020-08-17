@@ -3,13 +3,13 @@
   "utterances": {
     "en": [
       "I'm ready to vote for a restaurant",
-      "I'm ready to vote for [subway](restaurant)",
-      "I vote for [Pizza Hut](restaurant)",
-      "vote [east side marios](restaurant)",
-      "I'd like to eat at [mc'donalds](restaurant)",
-      "[normandin](restaurant)",
-      "[east side mario's](restaurant)",
-      "Choose [Burger King](restaurant)"
+      "I'm ready to vote for $restaurant",
+      "I vote for $restaurant",
+      "vote $restaurant",
+      "I'd like to eat at $restaurant",
+      "$restaurant",
+      "$restaurant",
+      "Choose $restaurant"
     ]
   },
   "slots": [
