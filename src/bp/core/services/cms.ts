@@ -617,7 +617,7 @@ export class CMSService implements IDisposeOnExit {
     const defaultLang = (await this.configProvider.getBotConfig(args.event.botId)).defaultLanguage
     const lang = _.get(args.event, 'state.user.language')
 
-    payload = renderRecursive(payload, args.event, lang, defaultLang)
+    payload = renderRecursive(payload, args, lang, defaultLang)
 
     if (payload.text) {
       this._prepareTextAndShuffle(payload)
