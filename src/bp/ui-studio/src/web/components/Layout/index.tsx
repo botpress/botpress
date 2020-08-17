@@ -79,6 +79,7 @@ const Layout: FC<ILayoutProps> = props => {
 
   const toggleEmulator = () => {
     window.botpressWebChat.sendEvent({ type: 'toggle' })
+    document.getElementById('main-content-wrapper').classList.toggle('emulator-open')
   }
 
   const toggleGuidedTour = () => {

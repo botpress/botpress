@@ -10,7 +10,7 @@ import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipe
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
 import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
-import { EntityCacheDump, Intent, ListEntity, ListEntityModel, PatternEntity, Tools } from './typings'
+import { ComplexEntity, EntityCacheDump, Intent, ListEntity, ListEntityModel, PatternEntity, Tools } from './typings'
 
 const trainDebug = DEBUG('nlu').sub('training')
 
@@ -20,7 +20,7 @@ export default class Engine implements NLU.Engine {
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<PredictableModel> = {}
 
-  constructor(private defaultLanguage: string, private botId: string, private logger: NLU.Logger) {}
+  constructor(private defaultLanguage: string, private botId: string, private logger: NLU.Logger) { }
 
   // NOTE: removed private in order to prevent important refactor (which will be done later)
   public static get tools() {
@@ -91,17 +91,28 @@ export default class Engine implements NLU.Engine {
       .map(ent => ({
         name: ent.name,
         pattern: ent.pattern!,
-        examples: [], // TODO add this to entityDef
+        examples: ent.examples ?? [],
         matchCase: !!ent.matchCase,
         sensitive: !!ent.sensitive
       }))
+
+    const complex_entities = entityDefs
+      .filter(ent => ent.type === 'complex')
+      .map(e => {
+        return {
+          name: e.name,
+          examples: e.examples || [],
+          list_entities: e.list_entities ?? [],
+          pattern_entities: e.pattern_entities ?? []
+        } as ComplexEntity
+      })
 
     const contexts = _.chain(intentDefs)
       .flatMap(i => i.contexts)
       .uniq()
       .value()
 
-    const intents = intentDefs
+    const intents: Intent<string>[] = intentDefs
       .filter(x => !!x.utterances[languageCode])
       .map(x => ({
         name: x.name,
@@ -134,6 +145,7 @@ export default class Engine implements NLU.Engine {
       languageCode,
       list_entities,
       pattern_entities,
+      complex_entities,
       contexts,
       intents,
       ctxToTrain
@@ -212,7 +224,15 @@ export default class Engine implements NLU.Engine {
     const { input, output } = model.data
 
     if (!output.intents) {
-      const intents = await ProcessIntents(input.intents, model.languageCode, output.list_entities, Engine._tools)
+      const intents = await ProcessIntents(
+        input.intents,
+        model.languageCode,
+        output.list_entities,
+        input.list_entities,
+        input.pattern_entities,
+        input.complex_entities,
+        Engine._tools
+      )
       output.intents = intents
     }
     const trainOutput = output as TrainOutput

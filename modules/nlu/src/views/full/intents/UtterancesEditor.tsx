@@ -202,7 +202,7 @@ export class UtterancesEditor extends React.Component<Props> {
     switch (props.mark.type) {
       case 'slot':
         const slotMark = props.mark.data.toJS()
-        const color = this.props.slots.find(s => s.name === slotMark.slotName).color
+        const color = (this.props.slots.find(s => s.name === slotMark.slotName) as any).color // changed typings but since we get rid of this GUI I didn't update the code
         const cn = cx(style.slotMark, style[`label-colors-${color}`])
         const remove = () => editor.moveToRangeOfNode(props.node).removeMark(props.mark)
 

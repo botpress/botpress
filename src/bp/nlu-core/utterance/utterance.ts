@@ -54,6 +54,8 @@ export const DefaultTokenToStringOptions: TokenToStringOptions = { lowerCase: fa
 export default class Utterance {
   public slots: ReadonlyArray<UtteranceSlot> = []
   public entities: ReadonlyArray<UtteranceEntity> = []
+  public augmented: boolean = false
+
   private _tokens: ReadonlyArray<UtteranceToken> = []
   private _globalTfidf?: TFIDF
   private _kmeans?: sdk.MLToolkit.KMeans.KmeansResult
@@ -206,6 +208,8 @@ export default class Utterance {
     if (copySlots) {
       this.slots.forEach(slot => utterance.tagSlot(slot, slot.startPos, slot.endPos))
     }
+
+    utterance.augmented = this.augmented
 
     return utterance
   }

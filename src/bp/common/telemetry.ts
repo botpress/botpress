@@ -7,6 +7,7 @@ export type TelemetryEvent = Schema & {
 
 export type TelemetryEventData = { [key: string]: any } & {
   schema: string
+  [key: string]: any
 }
 
 export interface TelemetryEntry {

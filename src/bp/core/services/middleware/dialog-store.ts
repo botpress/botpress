@@ -41,7 +41,7 @@ export class DialogStore {
   private _prompts!: sdk.PromptDefinition[]
   private _variables!: sdk.PrimitiveVarType[]
 
-  private _enums: { [botId: string]: sdk.NLU.EntityDefinition[] } = {}
+  private _customTypes: { [botId: string]: sdk.NLU.EntityDefinition[] } = {}
   private _wfVariables: WorkflowVariables = {}
 
   constructor(
@@ -94,14 +94,41 @@ export class DialogStore {
     }
   }
 
-  private _getValidationData(botId: string, enumType?: string): sdk.ValidationData | undefined {
-    const entity = this._enums[botId]?.find(x => x.id === enumType)
+  private _getValidationData(botId: string, subType?: string): sdk.ValidationData | undefined {
+    const entity = this._customTypes[botId]?.find(x => x.id === subType)
+    if (!entity) {
+      return
+    }
+    const patterns: any = []
+    const elements: any = []
 
-    // TODO: future optimization, parse & keep in memory
-    const pattern = !!entity?.pattern && preparePattern(entity.pattern, entity.matchCase)
+    if (entity.pattern) {
+      patterns.push(preparePattern(entity.pattern, entity.matchCase))
+    }
+
+    if (entity.occurrences?.length) {
+      elements.push(entity.occurrences)
+    }
+
+    if (entity.type === 'complex') {
+      if (entity.pattern_entities?.length) {
+        patterns.push(
+          ...entity.pattern_entities.map(name => {
+            const item = this._customTypes[botId].find(x => x.id === name)
+            return item && !!item.pattern && preparePattern(item.pattern!, item.matchCase)
+          })
+        )
+      }
+      if (entity.list_entities?.length) {
+        elements.push(
+          ...entity.list_entities.map(name => this._customTypes[botId].find(x => x.id === name)?.occurrences)
+        )
+      }
+    }
+
     return {
-      patterns: pattern ? [pattern] : [],
-      elements: entity?.occurrences ?? []
+      patterns: patterns.filter(Boolean),
+      elements: _.flatten<sdk.NLU.EntityDefOccurrence>(elements).filter(Boolean)
     }
   }
 
@@ -137,7 +164,7 @@ export class DialogStore {
   private async _reloadEnums(botId: string) {
     const enumFiles = await this.ghost.forBot(botId).directoryListing(ENUMS_DIR, '*.json')
 
-    this._enums[botId] = await Promise.mapSeries(enumFiles, name =>
+    this._customTypes[botId] = await Promise.mapSeries(enumFiles, name =>
       this.ghost.forBot(botId).readFileAsObject<sdk.NLU.EntityDefinition>(ENUMS_DIR, name)
     )
   }

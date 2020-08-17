@@ -35,6 +35,7 @@ const Form: FC<FormProps> = ({
   advancedSettings,
   onUpdate,
   onUpdateVariables,
+  getCustomPlaceholder,
   variables,
   invalidFields,
   superInputOptions,
@@ -131,13 +132,10 @@ const Form: FC<FormProps> = ({
     setSuperInput({ ...superInput, [pathKey]: !superInput[pathKey] })
   }
 
-  const getArrayPlaceholder = (index, placeholder) => {
-    if (Array.isArray(placeholder)) {
-      if (index < placeholder.length) {
-        return lang(placeholder[index], { count: index })
-      } else {
-        return ''
-      }
+  const getArrayPlaceholder = (index, field) => {
+    const { placeholder, customPlaceholder, key } = field
+    if (customPlaceholder && getCustomPlaceholder) {
+      return getCustomPlaceholder(key, index)
     }
 
     return index === 0 && placeholder ? lang(placeholder) : ''
@@ -274,7 +272,7 @@ const Form: FC<FormProps> = ({
           <Fragment key={field.key}>
             {showSuperInput(field, parent) ? (
               <SuperInputArray
-                getPlaceholder={index => getArrayPlaceholder(index, field.placeholder)}
+                getPlaceholder={index => getArrayPlaceholder(index, field)}
                 moreInfo={printMoreInfo(field.moreInfo)}
                 onChange={value => {
                   dispatch({
@@ -305,7 +303,7 @@ const Form: FC<FormProps> = ({
               />
             ) : (
               <TextFieldsArray
-                getPlaceholder={index => getArrayPlaceholder(index, field.placeholder)}
+                getPlaceholder={index => getArrayPlaceholder(index, field)}
                 moreInfo={printMoreInfo(field.moreInfo)}
                 validationPattern={field.validationPattern}
                 onChange={value => {

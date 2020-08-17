@@ -1028,6 +1028,7 @@ class Diagram extends Component<Props> {
                 ref={w => (this.diagramWidget = w)}
                 deleteKeys={[]}
                 diagramEngine={this.diagramEngine}
+                maxNumberPointsPerLink={0}
                 inverseZoom={true}
               />
             </div>
@@ -1135,6 +1136,7 @@ class Diagram extends Component<Props> {
               contentLang={this.state.currentLang}
               customKey={data.id}
               formData={currentItem}
+              variables={this.props.variables}
               close={() => {
                 this.timeout = setTimeout(() => {
                   this.setState({ editingNodeItem: null })

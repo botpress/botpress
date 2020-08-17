@@ -389,6 +389,7 @@ export class UnderstandingEngine {
 
       for (const node of flow.nodes) {
         if (node.type === ('listener' as sdk.FlowNodeType)) {
+          // TODO: remove this (deprecated)
           this._allNodeIds.add(node.id)
         }
 
@@ -397,9 +398,9 @@ export class UnderstandingEngine {
           triggers.push(<sdk.NDU.WorkflowTrigger>{
             conditions: tn.conditions
               .filter(x => x.id !== undefined)
-              .map(x => ({
+              .map((x, idx) => ({
                 ...x,
-                params: { ...x.params, topicName, wfName: flowName }
+                params: { ...x.params, topicName, wfName: flowName, nodeName: tn.name, conditionIndex: idx }
               })),
             type: 'workflow',
             workflowId: flowName,
@@ -446,14 +447,14 @@ export class UnderstandingEngine {
 
           triggers.push(
             ...ln.triggers.map(
-              trigger =>
+              (trigger, idx) =>
                 <sdk.NDU.NodeTrigger>{
                   nodeId: ln.name,
                   name: trigger.name,
                   effect: trigger.effect,
                   conditions: trigger.conditions.map(x => ({
                     ...x,
-                    params: { topicName, wfName: flowName, ...x.params }
+                    params: { topicName, wfName: flowName, nodeName: ln.name, conditionIndex: idx, ...x.params }
                   })),
                   type: 'node',
                   workflowId: flowName

@@ -527,7 +527,7 @@ declare module 'botpress/sdk' {
 
     export type ProgressReporter = (botId: string, message: string, trainSession: TrainingSession) => void
 
-    export type EntityType = 'system' | 'pattern' | 'list'
+    export type EntityType = 'system' | 'pattern' | 'list' | 'complex' // TODO: Add the notion of Utterance Placeholder instead of adding "Complex" as an entity type here (synonyms and variables)
 
     export interface EntityDefOccurrence {
       name: string
@@ -544,12 +544,13 @@ declare module 'botpress/sdk' {
       fuzzy?: number
       occurrences?: EntityDefOccurrence[]
       pattern?: string
+      list_entities: string[]
+      pattern_entities: string[]
     }
 
     export interface SlotDefinition {
       name: string
-      entities: string[]
-      color: number
+      entity: string
     }
 
     export interface IntentDefinition {
@@ -1552,7 +1553,7 @@ declare module 'botpress/sdk' {
   export interface FormField {
     type: FormFieldType
     key: string
-    label: string
+    label?: string
     overrideKey?: string
     placeholder?: string | string[]
     options?: FormOption[]
@@ -1561,6 +1562,8 @@ declare module 'botpress/sdk' {
     variableTypes?: string[]
     defaultVariableType?: string
     superInput?: boolean
+    customPlaceholder?: boolean
+    variablesOnly?: boolean
     superInputOptions?: {
       canPickEvents?: boolean
       canPickVariables?: boolean

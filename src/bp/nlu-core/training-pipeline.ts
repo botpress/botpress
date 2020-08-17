@@ -15,6 +15,7 @@ import { replaceConsecutiveSpaces } from './tools/strings'
 import tfidf from './tools/tfidf'
 import { convertToRealSpaces, isSpace, SPACE } from './tools/token-utils'
 import {
+  ComplexEntity,
   EntityExtractionResult,
   ExtractedEntity,
   Intent,
@@ -25,12 +26,14 @@ import {
   Token2Vec,
   Tools
 } from './typings'
+import { Augmentation, createAugmenter, interleave } from './utterance/augmenter'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
 
 export type TrainInput = Readonly<{
   botId: string
   languageCode: string
   pattern_entities: PatternEntity[]
+  complex_entities: ComplexEntity[]
   list_entities: ListEntity[]
   contexts: string[]
   intents: Intent<string>[]
@@ -43,6 +46,7 @@ export type TrainStep = Readonly<{
   languageCode: string
   list_entities: ListEntityModel[]
   pattern_entities: PatternEntity[]
+  complex_entities: ComplexEntity[]
   contexts: string[]
   intents: Intent<Utterance>[]
   vocabVectors: Token2Vec
@@ -96,7 +100,16 @@ const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainSt
     makeListEntityModel(list, input.botId, input.languageCode, tools)
   )
 
-  const intents = await ProcessIntents(input.intents, input.languageCode, list_entities, tools)
+  const intents = await ProcessIntents(
+    input.intents,
+    input.languageCode,
+    list_entities,
+    input.list_entities, // because output list_entities (line above) doesn't contain raw synonyms
+    input.pattern_entities,
+    input.complex_entities,
+    tools
+  )
+
   const vocabVectors = buildVectorsVocab(intents)
 
   return {
@@ -244,10 +257,12 @@ const TrainIntentClassifier = async (
         }
       ])
       .flatMap(i =>
-        i.utterances.map(utt => ({
-          label: i.name,
-          coordinates: getIntentFeatures(utt, customEntities)
-        }))
+        i.utterances
+          .filter(u => !u.augmented) // we don't want to train on augmented utterances as it would slow down training too much
+          .map(utt => ({
+            label: i.name,
+            coordinates: getIntentFeatures(utt, customEntities)
+          }))
       )
       .filter(x => !x.coordinates.some(isNaN))
       .value()
@@ -291,10 +306,12 @@ const TrainContextClassifier = async (
     return input.intents
       .filter(intent => intent.contexts.includes(ctx) && intent.name !== NONE_INTENT)
       .map(intent =>
-        intent.utterances.map(utt => ({
-          label: ctx,
-          coordinates: getCtxFeatures(utt, customEntities)
-        }))
+        intent.utterances
+          .filter(u => !u.augmented) // we don't want to train on augmented utterances as it would slow down training too much
+          .map(utt => ({
+            label: ctx,
+            coordinates: getCtxFeatures(utt, customEntities)
+          }))
       )
   }).filter(x => x.coordinates.filter(isNaN).length === 0)
 
@@ -325,20 +342,35 @@ const TrainContextClassifier = async (
 export const ProcessIntents = async (
   intents: Intent<string>[],
   languageCode: string,
-  list_entities: ListEntityModel[],
+  list_entities_model: ListEntityModel[],
+  list_entities: ListEntity[],
+  pattern_entities: PatternEntity[],
+  complex_entities: ComplexEntity[],
   tools: Tools
 ): Promise<Intent<Utterance>[]> => {
   return Promise.map(intents, async intent => {
-    const cleaned = intent.utterances.map(_.flow([_.trim, replaceConsecutiveSpaces]))
-    const utterances = await buildUtteranceBatch(cleaned, languageCode, tools)
+    const cleaned: string[] = intent.utterances.map(_.flow([_.trim, replaceConsecutiveSpaces]))
+
+    const augmentations = extractAugmentations(intent, complex_entities, list_entities, pattern_entities)
+    const augmenter = createAugmenter(augmentations)
+
+    const original: string[] = _.uniq(cleaned.map(augmenter))
+    // TODO: (sly) we probably want to have a different logic than a hardcoded "5" here
+    // although this doesn't impact anything but the slot extractor at the moment
+    const augmented: string[] = _.flatMap(cleaned, phrase => _.times(5, () => augmenter(phrase)))
+
+    const utterances = await buildUtteranceBatch(_.uniq([...original, ...augmented]), languageCode, tools)
+    utterances.slice(original.length).forEach(x => (x.augmented = true))
 
     const allowedEntities = _.chain(intent.slot_definitions)
-      .flatMap(s => s.entities)
-      .filter(e => e !== 'any')
+      .flatMap(s => {
+        const complex = complex_entities?.find(x => x.name === s.entity)
+        return complex ? [...(complex.list_entities ?? []), ...(complex.pattern_entities ?? [])] : [s.entity]
+      })
       .uniq()
       .value() as string[]
 
-    const entityModels = _.intersectionWith(list_entities, allowedEntities, (entity, name) => {
+    const entityModels = _.intersectionWith(list_entities_model, allowedEntities, (entity, name) => {
       return entity.entityName === name
     })
 
@@ -443,7 +475,11 @@ export const TfidfTokens = async (input: TrainStep): Promise<TrainStep> => {
   const tfidfInput = input.intents.reduce(
     (tfidfInput, intent) => ({
       ...tfidfInput,
-      [intent.name]: _.flatMapDeep(intent.utterances.map(u => u.tokens.map(t => t.toString({ lowerCase: true }))))
+      [intent.name]: _.flatMapDeep(
+        intent.utterances
+          .filter(u => !u.augmented) // we don't want auto-generated phrases to impact TFIDF
+          .map(u => u.tokens.map(t => t.toString({ lowerCase: true })))
+      )
     }),
     {} as _.Dictionary<string[]>
   )
@@ -563,7 +599,7 @@ export const Trainer: Trainer = async (
   let totalProgress = 0
   let normalizedProgress = 0
 
-  const emptyProgress = () => {}
+  const emptyProgress = () => { }
   const reportTrainingProgress = progress ?? emptyProgress
 
   const debouncedProgress = _.debounce(reportTrainingProgress, 75, { maxWait: 750 })
@@ -648,4 +684,42 @@ class TrainingCanceledError extends Error {
     super('Training cancelled')
     this.name = 'CancelError'
   }
+}
+
+function extractAugmentations(
+  intent: Intent<string>,
+  complex_entities: ComplexEntity[],
+  list_entities: ListEntity[],
+  pattern_entities: PatternEntity[]
+): Augmentation[] {
+  return intent.slot_definitions
+    .map(slot => {
+      const complexEntity = complex_entities.find(x => x.name.toLowerCase() === slot.entity.toLowerCase())
+
+      const listEntities = list_entities.filter(
+        x =>
+          x.name.toLowerCase() === slot.entity.toLowerCase() ||
+          complexEntity?.list_entities.map(l => l.toLowerCase()).includes(x.name.toLowerCase())
+      )
+
+      const patternEntities = pattern_entities.filter(
+        x =>
+          x.name.toLowerCase() === slot.entity.toLowerCase() ||
+          complexEntity?.pattern_entities.map(l => l.toLowerCase()).includes(x.name.toLowerCase())
+      )
+
+      const listExamples = interleave(
+        ...listEntities.map(x => interleave(...Object.keys(x.synonyms).map(key => [key, ...x.synonyms[key]])))
+      )
+
+      const patternExamples = interleave(...patternEntities.map(x => x.examples))
+
+      const complexExamples = complexEntity?.examples ?? []
+
+      return {
+        slotName: slot.name.toLowerCase(),
+        examples: interleave(complexExamples, listExamples, patternExamples)
+      }
+    })
+    .filter(x => x.examples.length)
 }

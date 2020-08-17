@@ -22,7 +22,7 @@ const Header: FC<HeaderProps> = props => {
         </NavbarGroup>
       )}
       {!!props.buttons?.length && (
-        <NavbarGroup className={style.buttons} align={Alignment.RIGHT}>
+        <NavbarGroup className={cx(style.buttons, 'toolbar-buttons')} align={Alignment.RIGHT}>
           {props.buttons.map((button, index) => (
             <div key={index} className={style.btnWrapper}>
               <Fragment>
