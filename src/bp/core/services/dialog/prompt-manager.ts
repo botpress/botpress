@@ -181,6 +181,10 @@ export class PromptManager {
       status.turn++
     }
 
+    if (event.ndu?.actions.find(x => x.action === 'prompt.repeat')) {
+      return generatePrompt(actions, status)
+    }
+
     if (status.stage === 'confirm-cancel') {
       if (event.ndu?.actions?.find(x => x.action === 'prompt.cancel') || confirmValue?.value === true) {
         actions.push({ type: 'cancel' })
