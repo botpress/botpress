@@ -76,7 +76,7 @@ export class UnderstandingEngine {
       const { data } = await axios.post('/mod/qna/intentActions', { intentName, event }, axiosConfig)
       const actions: sdk.NDU.Actions[] = data.filter(a => a.action !== 'redirect')
       // TODO: Warn that REDIRECTS should be migrated over to flow nodes triggers
-      if (event?.state?.context?.activePrompt?.status === 'pending') {
+      if (event.state.context?.activePrompt.status === 'pending') {
         actions.push({ action: 'prompt.repeat' })
       }
       return actions
