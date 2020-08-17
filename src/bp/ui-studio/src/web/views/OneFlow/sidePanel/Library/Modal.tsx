@@ -16,7 +16,7 @@ const EntityModal: FC<Props> = props => {
   }
 
   return (
-    <Dialog.Wrapper title="Edit" size="lg" {...props}>
+    <Dialog.Wrapper title="Edit" size="lg" {...(props as any)}>
       <Dialog.Body>
         <InjectedModuleView moduleName="nlu" componentName="EntityEditor" extraProps={{ ...props }} />
       </Dialog.Body>
