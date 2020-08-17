@@ -252,7 +252,7 @@ const TrainIntentClassifier = async (
           utterances: lo
             .chain(noneUtts)
             .shuffle()
-            .take(nAvgUtts * 2.5) // undescriptible magic n, no sens to extract constant
+            .take(nAvgUtts * 2) // undescriptible magic n, no sens to extract constant
             .value()
         }
       ])
@@ -599,7 +599,7 @@ export const Trainer: Trainer = async (
   let totalProgress = 0
   let normalizedProgress = 0
 
-  const emptyProgress = () => { }
+  const emptyProgress = () => {}
   const reportTrainingProgress = progress ?? emptyProgress
 
   const debouncedProgress = _.debounce(reportTrainingProgress, 75, { maxWait: 750 })
