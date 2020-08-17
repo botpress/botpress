@@ -1,17 +1,17 @@
 import { createAugmenter, interleave } from './augmenter'
 
 const a = {
-  variableName: 'a',
+  slotName: 'a',
   examples: ['A1', 'A2', 'A3', 'A4', 'A5']
 }
 
 const b = {
-  variableName: 'b',
+  slotName: 'b',
   examples: ['B1', 'B2']
 }
 
 const c = {
-  variableName: 'c',
+  slotName: 'c',
   examples: ['C1']
 }
 
