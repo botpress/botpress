@@ -144,14 +144,11 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   hotkeyListener = (e: KeyboardEvent) => {
-    if (!e.ctrlKey) {
-      return
-    }
-    e.preventDefault()
-
-    if (e.key === 'd') {
+    if (e.ctrlKey && e.key === 'd') {
+      e.preventDefault()
       this.toggleDebugger()
-    } else if (e.key === 'i') {
+    } else if (e.ctrlKey && e.key === 'i') {
+      e.preventDefault()
       this.setState({ showInspector: !this.state.showInspector })
     }
   }
