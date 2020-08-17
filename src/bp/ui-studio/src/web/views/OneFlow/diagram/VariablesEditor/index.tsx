@@ -35,7 +35,7 @@ const VariablesEditor: FC<Props> = ({ variables, editVariable }) => {
 
   return (
     <div className={style.wrapper}>
-      {allTypes.map(({ type, subType }) => {
+      {allTypes.map(({ type, subType }, i) => {
         const filtered = currentFlowVars.filter(x => x.type === type && x.params?.subType === subType)
         const icon = variables.primitive.find(x => x.id === type)?.config?.icon
 
@@ -43,17 +43,17 @@ const VariablesEditor: FC<Props> = ({ variables, editVariable }) => {
           <div key={`${type}-${subType}`}>
             <div className={style.group}>
               <div className={style.label}>
-                <Icon icon={icon} /> {lang.tr(type)} {subType ? `(${subType})` : ''}
+                {lang.tr(type)} {subType ? `(${subType})` : ''}
               </div>
               <div>
                 {filtered.map(item => (
                   <button key={item.params?.name} className={style.button} onClick={() => editVariable(item)}>
-                    <span className={style.label}>{item.params?.name}</span>
+                    <Icon icon={icon} /> <span className={style.label}>{item.params?.name}</span>
                   </button>
                 ))}
               </div>
             </div>
-            <div className={style.divider} />
+            {i < allTypes.length - 1 && <div className={style.divider} />}
           </div>
         )
       })}
