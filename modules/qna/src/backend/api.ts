@@ -1,19 +1,30 @@
 import * as sdk from 'botpress/sdk'
 import { Request, Response } from 'express'
-import _ from 'lodash'
+import moment from 'moment'
+import multer from 'multer'
+import nanoid from 'nanoid'
 
-import { ScopedBots } from './qna'
+import { Item, ScopedBots } from './qna'
 import { getQnaEntryPayloads } from './utils'
 
 export default async (bp: typeof sdk, bots: ScopedBots) => {
   const router = bp.http.createRouterForBot('qna')
-
+  const jsonRequestStatuses = {}
   router.get('/:topicName/questions', async (req: Request, res: Response) => {
     try {
       const { storage } = bots[req.params.botId]
       const items = await storage.fetchItems(req.params.topicName)
-      // TODO: implement filtering
-      const data = { count: items.length, items }
+      const searchTerm = req.query.question.toLowerCase()
+      const filteredItems = items.filter(qna => {
+        // @ts-ignore
+        const questions = Object.values(qna.questions).flat().map(q => q.toLowerCase())
+        // @ts-ignore
+        const answers = Object.values(qna.answers).flat().map(q => q.toLowerCase())
+        return [...questions, ...answers].filter(q => q.includes(searchTerm)).length > 0
+      }
+      )
+
+      const data = { count: items.length, items: filteredItems }
       res.send(data)
     } catch (e) {
       bp.logger.attachError(e).error('Error listing questions')
@@ -50,8 +61,11 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
       const { storage } = bots[req.params.botId]
       await storage.updateSingleItem(req.params.topicName, { ...req.body, id: req.params.id })
       const items = await storage.fetchItems(req.params.topicName)
-      // TODO: implement filtering
-      res.send(items)
+      const item = items.find(x => x.id === req.params.id)
+      if (!item) {
+        throw new Error(`QnA "${req.params.id}" Not found`)
+      }
+      res.send({ items: item })
     } catch (e) {
       next(new Error(e.message))
     }
@@ -62,7 +76,6 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
       const { storage } = bots[req.params.botId]
       await storage.deleteSingleItem(req.params.topicName, req.params.id)
       const items = await storage.fetchItems(req.params.topicName)
-      // TODO: implement filtering
       res.send(items)
     } catch (e) {
       bp.logger.attachError(e).error(`Could not delete QnA #${req.params.id}`)
@@ -87,6 +100,53 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
       bp.logger.attachError(err).error(err.message)
       res.status(200).send([])
     }
+  })
+
+
+
+  router.get('/:topicName/export', async (req: Request, res: Response) => {
+    const { storage } = bots[req.params.botId]
+
+    res.setHeader('Content-Type', 'application/json')
+    res.setHeader('Content-disposition', `attachment; filename=qna_${req.params.topicName}_${moment().format('DD-MM-YYYY')}.json`)
+    res.end(JSON.stringify(storage.fetchItems(req.params.topicName)))
+  })
+
+  router.post('/:topicName/import', multer().single('file'), async (req: any, res: Response) => {
+    const statusId = nanoid()
+    res.send(statusId)
+
+    const { storage } = bots[req.params.botId]
+
+    if (req.body.action === 'clear_insert') {
+      jsonRequestStatuses[statusId] = 'Deleting existing questions'
+      const questions = await storage.fetchItems(req.query.topicName)
+      await Promise.map(questions, q => storage.deleteSingleItem(req.query.topicName, q.id))
+      jsonRequestStatuses[statusId] = 'Deleted existing questions'
+    }
+
+    try {
+      const importData: Item[] = JSON.parse(req.file.buffer)
+      await Promise.map(importData, q => storage.updateSingleItem(req.query.topicName, q))
+      jsonRequestStatuses[statusId] = 'Completed'
+    } catch (e) {
+      bp.logger.attachError(e).error('JSON Import Failure')
+      jsonRequestStatuses[statusId] = `Error: ${e.message}`
+    }
+  })
+
+  router.get('/questionsByTopic', async (req: Request, res: Response) => {
+    try {
+      const { storage } = bots[req.params.botId]
+      res.send(await storage.getCountPerTopic())
+    } catch (err) {
+      bp.logger.attachError(err).error(err.message)
+      res.status(200).send([])
+    }
+  })
+
+  router.get('/json-upload-status/:uploadStatusId', async (req: Request, res: Response) => {
+    res.end(jsonRequestStatuses[req.params.uploadStatusId])
   })
 
   const sendToastError = (action: string, error: string) => {

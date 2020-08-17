@@ -7,7 +7,6 @@ import React, { FC, useCallback, useEffect, useReducer, useRef, useState } from 
 
 import style from './style.scss'
 import { dispatchMiddleware, fetchReducer, itemHasError, ITEMS_PER_PAGE, Props } from './utils/qnaList.utils'
-import ContextSelector from './Components/ContextSelector'
 import { ImportModal } from './Components/ImportModal'
 import QnA from './Components/QnA'
 import EmptyStateIcon from './Icons/EmptyStateIcon'
@@ -23,7 +22,6 @@ const QnAList: FC<Props> = ({
   refreshQnaCount
 }) => {
   const [flows, setFlows] = useState([])
-  const [filterContexts, setFilterContexts] = useState([])
   const [questionSearch, setQuestionSearch] = useState('')
   const [showImportModal, setShowImportModal] = useState(false)
   const [currentTab, setCurrentTab] = useState('qna')
@@ -56,7 +54,6 @@ const QnAList: FC<Props> = ({
     return () => {
       wrapperRef.current.removeEventListener('scroll', handleScroll)
       dispatch({ type: 'resetData' })
-      setFilterContexts([])
       setQuestionSearch('')
     }
   }, [])
@@ -70,14 +67,6 @@ const QnAList: FC<Props> = ({
       dispatch({ type: 'resetHighlighted' })
     }
   }, [queryParams.get('id')])
-
-  useEffect(() => {
-    if (!firstUpdate) {
-      fetchData()
-        .then(() => {})
-        .catch(() => {})
-    }
-  }, [filterContexts])
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -106,13 +95,7 @@ const QnAList: FC<Props> = ({
   }
 
   const startDownload = () => {
-    setUrl(`${window['BOT_API_PATH']}/mod/qna/export`)
-  }
-
-  const getQueryParams = () => {
-    return {
-      filteredContexts: [topicName]
-    }
+    setUrl(`${window['BOT_API_PATH']}/mod/qna/${topicName}/export`)
   }
 
   const handleScroll = () => {
@@ -195,34 +178,28 @@ const QnAList: FC<Props> = ({
   buttons.push({
     icon: 'plus',
     onClick: () => {
-      dispatch({ type: 'addQnA', data: { languages, contexts: [topicName || 'global'] } })
+      dispatch({ type: 'addQnA', data: { languages, topicName: topicName || 'global' } })
     },
     tooltip: lang.tr('module.qna.form.addQuestion')
   })
 
   const fetchData = async (page = 1) => {
     dispatch({ type: 'loading' })
-    const params = !isLite
-      ? { limit: ITEMS_PER_PAGE, offset: (page - 1) * ITEMS_PER_PAGE, filteredContexts: filterContexts }
-      : getQueryParams()
-
+    const params = !isLite ? { limit: ITEMS_PER_PAGE, offset: (page - 1) * ITEMS_PER_PAGE } : {}
     const { data } = await bp.axios.get(`/mod/qna/${topicName}/questions`, {
       params: { ...params, question: questionSearch }
     })
 
     dispatch({
       type: 'dataSuccess',
-      data: { ...data, items: data.items.map(x => ({ id: x.id, data: { ...x, contexts: [topicName] } })), page } // TODO: contexts --> topicName
+      data: { ...data, items: data.items.map(x => ({ id: x.id, data: { ...x, topicName } })), page }
     })
   }
 
   const fetchHighlightedQna = async id => {
     const { data } = await bp.axios.get(`/mod/qna/${topicName}/questions/${id}`)
-
     dispatch({ type: 'highlightedSuccess', data })
   }
-
-  const hasFilteredResults = questionSearch.length || filterContexts.length
 
   return (
     <AccessControl resource="module.qna" operation="write">
@@ -237,16 +214,6 @@ const QnAList: FC<Props> = ({
             onChange={e => setQuestionSearch(e.currentTarget.value)}
             placeholder={lang.tr('module.qna.search')}
           />
-
-          {!isLite && (
-            <ContextSelector
-              className={style.contextInput}
-              contexts={filterContexts}
-              saveContexts={contexts => setFilterContexts(contexts)}
-              bp={bp}
-              isSearch
-            />
-          )}
         </div>
         <div className={cx(style.content, { [style.empty]: !items.length && !highlighted })}>
           {highlighted && (
@@ -320,7 +287,7 @@ const QnAList: FC<Props> = ({
             <EmptyState
               icon={<EmptyStateIcon />}
               text={
-                hasFilteredResults
+                questionSearch.length
                   ? lang.tr('module.qna.form.noResultsFromFilters')
                   : lang.tr('module.qna.form.emptyState')
               }
@@ -338,6 +305,7 @@ const QnAList: FC<Props> = ({
 
         <ImportModal
           axios={bp.axios}
+          topicName={topicName}
           onImportCompleted={() => fetchData()}
           isOpen={showImportModal}
           toggle={() => setShowImportModal(!showImportModal)}

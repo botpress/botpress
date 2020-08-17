@@ -3,6 +3,7 @@ import { Paging } from 'botpress/sdk'
 import Joi from 'joi'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
+import path from 'path'
 
 import { Dic, Item } from './qna'
 
@@ -67,30 +68,30 @@ const ItemSchema = Joi.object().keys({
   contentAnswers: Joi.array()
     .items(QnaItemContentAnswerSchema)
     .default([]),
-  enabled: Joi.bool().required()
+  enabled: Joi.bool().required(),
 })
 
 type Intent = Omit<sdk.NLU.IntentDefinition, 'metadata'> & { metadata?: Metadata }
 
 const ROOT_FOLDER = 'flows'
-const fn = topicName => `${topicName}/qna.intents.json`
+const toQnaFile = topicName => `${topicName}/qna.intents.json`
 
 const serialize = (intents: Intent[]) => JSON.stringify(intents, undefined, 2)
 
 export default class Storage {
-  constructor(private ghost: sdk.ScopedGhostService) {}
+  constructor(private ghost: sdk.ScopedGhostService) { }
 
   // TODO: validate no dupes
 
   private async ensureIntentsFileExists(topicName: string) {
-    if (!(await this.ghost.fileExists(ROOT_FOLDER, fn(topicName)))) {
-      await this.ghost.upsertFile(ROOT_FOLDER, fn(topicName), serialize([]))
+    if (!(await this.ghost.fileExists(ROOT_FOLDER, toQnaFile(topicName)))) {
+      await this.ghost.upsertFile(ROOT_FOLDER, toQnaFile(topicName), serialize([]))
     }
   }
 
   async fetchItems(topicName: string, opts?: Paging): Promise<Item[]> {
     await this.ensureIntentsFileExists(topicName)
-    const intents = await this.ghost.readFileAsObject<Intent[]>(ROOT_FOLDER, fn(topicName))
+    const intents = await this.ghost.readFileAsObject<Intent[]>(ROOT_FOLDER, toQnaFile(topicName))
 
     const items = intents.map<Item>(intent => ({
       id: intent.name,
@@ -127,7 +128,7 @@ export default class Storage {
     const intents = newItems.map<Intent>(i => ({
       name: i.id,
       contexts: [topicName],
-      filename: fn(topicName),
+      filename: toQnaFile(topicName),
       slots: [],
       utterances: _.mapValues(i.questions, q => normalizeQuestions(q)),
       metadata: {
@@ -138,15 +139,25 @@ export default class Storage {
       }
     }))
 
-    await this.ghost.upsertFile(ROOT_FOLDER, fn(topicName), serialize(intents))
+    await this.ghost.upsertFile(ROOT_FOLDER, toQnaFile(topicName), serialize(intents))
     return item.id
+  }
+
+  async getCountPerTopic() {
+    // TODO Make this parallel
+    const qnaFilesPerTopic = await this.ghost.directoryListing(ROOT_FOLDER, 'qna.intents.json')
+    const qnaPerTopic = {}
+    for (const qnaFile of qnaFilesPerTopic) {
+      qnaPerTopic[qnaFile.split('/')[0]] = (await this.ghost.readFileAsObject<Intent[]>(ROOT_FOLDER, qnaFile)).length
+    }
+    return qnaPerTopic
   }
 
   async deleteSingleItem(topicName: string, itemId: string) {
     await this.ensureIntentsFileExists(topicName)
-    const intents = await this.ghost.readFileAsObject<Intent[]>(ROOT_FOLDER, fn(topicName))
+    const intents = await this.ghost.readFileAsObject<Intent[]>(ROOT_FOLDER, toQnaFile(topicName))
     const newIntents = intents.filter(x => x.name !== itemId)
-    await this.ghost.upsertFile(ROOT_FOLDER, fn(topicName), serialize(newIntents))
+    await this.ghost.upsertFile(ROOT_FOLDER, toQnaFile(topicName), serialize(newIntents))
   }
 
   async count(topicName: string) {
