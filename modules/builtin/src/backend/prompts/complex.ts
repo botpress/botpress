@@ -1,17 +1,25 @@
-import { ExtractionResult, IO, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
+import { ExtractionResult, IO, NLU, Prompt, PromptConfig, ValidationResult } from 'botpress/sdk'
 import lang from 'common/lang'
 
 import common from './common'
 
 class PromptComplex implements Prompt {
   private _subType: string
+  private _getCustomTypes: () => NLU.EntityDefinition[]
 
-  constructor({ subType }) {
+  constructor({ subType, getCustomTypes }) {
     this._subType = subType
+    this._getCustomTypes = getCustomTypes
   }
 
   extraction(event: IO.IncomingEvent): ExtractionResult[] {
-    const entities = event.nlu?.entities?.filter(x => x.type === `custom.complex.${this._subType}`) ?? []
+    const varDefinition = this._getCustomTypes().find(x => x.id === this._subType)
+    const subtypes = [
+      varDefinition.id,
+      ...(varDefinition.list_entities ?? []),
+      ...(varDefinition.pattern_entities ?? [])
+    ]
+    const entities = event.nlu?.entities?.filter(x => subtypes.includes(x.name)) ?? []
     return entities.map(entity => ({
       value: entity.data.value,
       confidence: entity.meta.confidence

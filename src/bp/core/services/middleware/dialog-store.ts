@@ -19,7 +19,7 @@ interface WorkflowVariables {
 }
 
 const DEBOUNCE_DELAY = 2000
-const ENUMS_DIR = './entities'
+const ENTITIES_DIR = './entities'
 
 const preparePattern = (pattern: string, matchCase?: boolean) => {
   try {
@@ -65,11 +65,12 @@ export class DialogStore {
     this._variables = await this.moduleLoader.getVariables()
 
     this.promptManager.prompts = this._prompts
+    this.promptManager.getCustomTypes = (botId: string) => this._customTypes[botId]
 
     // Preloading content so we can keep all methods sync for the boxed variable
     const bots = await this.botService.getBotsIds()
     bots.forEach(async botId => {
-      await this._reloadEnums(botId)
+      await this._reloadEntities(botId)
       await this._reloadWorkflowVariables(botId)
     })
   }
@@ -88,7 +89,7 @@ export class DialogStore {
 
   reloadContent = async (botId: string, type: string) => {
     if (type === 'entities') {
-      await this._reloadEnums(botId)
+      await this._reloadEntities(botId)
     } else if (type === 'flows') {
       await this._reloadWorkflowVariables(botId)
     }
@@ -161,11 +162,11 @@ export class DialogStore {
     }
   }
 
-  private async _reloadEnums(botId: string) {
-    const enumFiles = await this.ghost.forBot(botId).directoryListing(ENUMS_DIR, '*.json')
+  private async _reloadEntities(botId: string) {
+    const enumFiles = await this.ghost.forBot(botId).directoryListing(ENTITIES_DIR, '*.json')
 
     this._customTypes[botId] = await Promise.mapSeries(enumFiles, name =>
-      this.ghost.forBot(botId).readFileAsObject<sdk.NLU.EntityDefinition>(ENUMS_DIR, name)
+      this.ghost.forBot(botId).readFileAsObject<sdk.NLU.EntityDefinition>(ENTITIES_DIR, name)
     )
   }
 
