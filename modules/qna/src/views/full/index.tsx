@@ -159,21 +159,21 @@ const QnAList: FC<Props> = ({
     }
   ]
 
-  if (!isLite) {
-    buttons.push(
-      {
-        icon: 'export',
-        disabled: !items.length,
-        onClick: startDownload,
-        tooltip: noItemsTooltip || lang.tr('exportToJson')
-      },
-      {
-        icon: 'import',
-        onClick: () => setShowImportModal(true),
-        tooltip: lang.tr('importJson')
-      }
-    )
-  }
+  // if (!isLite) {
+  buttons.push(
+    {
+      icon: 'export',
+      disabled: !items.length,
+      onClick: startDownload,
+      tooltip: noItemsTooltip || lang.tr('exportToJson')
+    },
+    {
+      icon: 'import',
+      onClick: () => setShowImportModal(true),
+      tooltip: lang.tr('importJson')
+    }
+  )
+  // }
 
   buttons.push({
     icon: 'plus',

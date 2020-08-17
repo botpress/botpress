@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { Request, Response } from 'express'
+import { zip } from 'lodash'
 import moment from 'moment'
 import multer from 'multer'
 import nanoid from 'nanoid'
@@ -87,7 +88,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
   router.post('/:topicName/actions/:id', async (req: Request, res: Response) => {
     try {
       const { storage } = bots[req.params.botId]
-      const items = await storage.fetchItems(req.params.topicName, req.params.id)
+      const items = await storage.fetchItems(req.params.topicName)
       const item = items.find(x => x.id === req.params.id)
       const payloads = await getQnaEntryPayloads(item, req.body.userLanguage, bots[req.params.botId].defaultLang)
       res.send([
@@ -102,32 +103,29 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
     }
   })
 
-
-
   router.get('/:topicName/export', async (req: Request, res: Response) => {
-    const { storage } = bots[req.params.botId]
+    try {
+      const { storage } = bots[req.params.botId]
+      const zipName = `qna_${req.params.topicName}_${moment().format('DD-MM-YYYY')}.zip`
+      res.setHeader('Content-Type', 'application/zip')
+      res.setHeader('Content-disposition', `attachment; filename=${zipName}`)
+      const zippedFiles = storage.exportPerTopic(req.params.topicName)
+      res.end(zippedFiles)
+    } catch (e) {
+      bp.logger.attachError(e).error('Zip export failure')
+      res.status(500).send(e.message || 'Error')
+    }
 
-    res.setHeader('Content-Type', 'application/json')
-    res.setHeader('Content-disposition', `attachment; filename=qna_${req.params.topicName}_${moment().format('DD-MM-YYYY')}.json`)
-    res.end(JSON.stringify(storage.fetchItems(req.params.topicName)))
   })
 
   router.post('/:topicName/import', multer().single('file'), async (req: any, res: Response) => {
     const statusId = nanoid()
+    jsonRequestStatuses[statusId] = 'Uploading'
     res.send(statusId)
 
     const { storage } = bots[req.params.botId]
-
-    if (req.body.action === 'clear_insert') {
-      jsonRequestStatuses[statusId] = 'Deleting existing questions'
-      const questions = await storage.fetchItems(req.query.topicName)
-      await Promise.map(questions, q => storage.deleteSingleItem(req.query.topicName, q.id))
-      jsonRequestStatuses[statusId] = 'Deleted existing questions'
-    }
-
     try {
-      const importData: Item[] = JSON.parse(req.file.buffer)
-      await Promise.map(importData, q => storage.updateSingleItem(req.query.topicName, q))
+      await storage.importPerTopic(req.params.topicName, req.file.buffer, false, req.body.action === 'clear_insert')
       jsonRequestStatuses[statusId] = 'Completed'
     } catch (e) {
       bp.logger.attachError(e).error('JSON Import Failure')

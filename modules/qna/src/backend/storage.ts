@@ -1,11 +1,28 @@
 import * as sdk from 'botpress/sdk'
 import { Paging } from 'botpress/sdk'
+import fse from 'fs-extra'
 import Joi from 'joi'
 import _ from 'lodash'
+import mkdirp from 'mkdirp'
 import nanoid from 'nanoid/generate'
 import path from 'path'
+import tar from 'tar'
+import tmp from 'tmp'
 
 import { Dic, Item } from './qna'
+
+const isZip = buf => {
+  if (!buf || buf.length < 4) {
+    return false
+  }
+
+  return (
+    buf[0] === 0x50 &&
+    buf[1] === 0x4b &&
+    (buf[2] === 0x03 || buf[2] === 0x05 || buf[2] === 0x07) &&
+    (buf[3] === 0x04 || buf[3] === 0x06 || buf[3] === 0x08)
+  )
+}
 
 const safeId = (length = 10) => nanoid('1234567890abcdefghijklmnopqrsuvwxyz', length)
 const slugify = s => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '_')
@@ -160,8 +177,37 @@ export default class Storage {
     await this.ghost.upsertFile(ROOT_FOLDER, toQnaFile(topicName), serialize(newIntents))
   }
 
-  async count(topicName: string) {
-    const questions = await this.fetchItems(topicName)
-    return questions.length
+  async exportPerTopic(topicName: string) {
+    // const tmpDir = tmp.dirSync({ unsafeCleanup: true })
+    // await mkdirp.sync(path.join(tmpDir.name, 'media'))
+
+    const jsonQna = await this.ghost.readFileAsObject<Intent[]>(ROOT_FOLDER, toQnaFile(topicName))
+    const contentToExport: sdk.FormData[] = jsonQna.map(i => i.metadata.contentAnswers)
+    const mediaToExport = _.flatMapDeep(contentToExport.map(c =>
+      c.items ? c.items.map(i => i.image.split('/').slice(-2).join('/')) : c.image.split('/').slice(-2).join('/')
+    ))
+
+    const filesToZip = [path.join(topicName, 'qna.intents.json'), ...mediaToExport]
+    const zip = await tar.create(
+      {
+        cwd: path.join(process.cwd()),
+        portable: true,
+        gzip: true
+      },
+      filesToZip
+    )
+    return zip
+  }
+
+  async importPerTopic(topicName: string, file, override: boolean, append: boolean) {
+    if (!append) {
+      const questions = await this.fetchItems(topicName)
+      await Promise.map(questions, q => this.deleteSingleItem(topicName, q.id))
+    }
   }
 }
+
+
+
+
+
