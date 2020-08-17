@@ -12,6 +12,7 @@
       "./pro/**/*.js",
       "./common/**/*.js",
       "./ml/**/*.js",
+      "./nlu-core/**/*.js",
       "./migrations/**/*.js"
     ],
     "assets": [
