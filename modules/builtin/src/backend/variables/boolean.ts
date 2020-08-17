@@ -2,7 +2,7 @@ import { PrimitiveVarType } from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 import yn from 'yn'
 
-import common from './common'
+import { common, getCommonOperators } from './common'
 
 class BoxedBoolean extends BaseVariable<boolean> {
   constructor(args) {

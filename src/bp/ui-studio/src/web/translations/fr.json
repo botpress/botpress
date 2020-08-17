@@ -53,6 +53,10 @@
     "trainingError": "L'agent ne peut pas être entraîné"
   },
   "studio": {
+    "router": {
+      "variable": "Variable",
+      "condition": "Condition"
+    },
     "condition": {
       "label": "Condition",
       "pickCondition": "Sélectionnez une condition"
@@ -248,7 +252,7 @@
         "executeAction": "Exécuter Action",
         "listen": "Écouter",
         "prompt": "Questionne",
-        "router": "Routeur",
+        "router": "Si Sinon",
         "say": "Dire",
         "sendMessage": "Envoyer Message",
         "split": "Diviser",

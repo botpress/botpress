@@ -80,6 +80,7 @@ import ConditionForm from './ConditionForm'
 import ContentForm from './ContentForm'
 import ExecuteForm from './ExecuteForm'
 import PromptForm from './PromptForm'
+import RouterForm from './RouterForm'
 import SubworkflowForm from './SubworkflowForm'
 import Toolbar from './Toolbar'
 import VariablesEditor from './VariablesEditor'
@@ -353,7 +354,15 @@ class Diagram extends Component<Props> {
     },
     executeNode: (point: Point, moreProps) =>
       this.props.createFlowNode({ ...point, type: 'execute', next: [defaultTransition], ...moreProps }),
-    routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' }),
+    routerNode: (point: Point) =>
+      this.props.createFlowNode({
+        ...point,
+        type: 'router',
+        next: [
+          { condition: 'false', node: '' },
+          { condition: 'true', node: '' }
+        ]
+      }),
     actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action' }),
     promptNode: (point: Point, promptType: string, subType?: string) => {
       this.props.createFlowNode({
@@ -562,9 +571,7 @@ class Diagram extends Component<Props> {
     const targetModel = target.model
     const { nodeType } = targetModel
 
-    return (
-      targetModel instanceof StandardNodeModel || targetModel instanceof SkillCallNodeModel || nodeType === 'router'
-    )
+    return targetModel instanceof StandardNodeModel || targetModel instanceof SkillCallNodeModel
   }
 
   onDiagramClick = (event: MouseEvent) => {
@@ -1137,6 +1144,22 @@ class Diagram extends Component<Props> {
               customKey={data.id}
               formData={currentItem}
               variables={this.props.variables}
+              close={() => {
+                this.timeout = setTimeout(() => {
+                  this.setState({ editingNodeItem: null })
+                }, 200)
+              }}
+            />
+          )}
+          {formType === 'router' && (
+            <RouterForm
+              node={this.props.currentFlowNode}
+              deleteNode={this.deleteSelectedElements.bind(this)}
+              diagramEngine={this.diagramEngine}
+              variables={this.props.variables}
+              editingCondition={index}
+              onUpdateVariables={this.addVariable}
+              contentLang={this.state.currentLang}
               close={() => {
                 this.timeout = setTimeout(() => {
                   this.setState({ editingNodeItem: null })

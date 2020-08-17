@@ -1825,6 +1825,7 @@ declare module 'botpress/sdk' {
     compare(compareTo: BoxedVariable<T, V>): number
     getValidationData: () => ValidationData | undefined
     unbox(): UnboxedVariable<T>
+    parseForOperator(text: string): T
   }
 
   export interface ValidationData {
@@ -1866,6 +1867,13 @@ declare module 'botpress/sdk' {
   export type FlowVariableConfig = {
     label: string
     icon?: any
+    operators?: FlowVariableOperator[]
+  } & FormDefinition
+
+  export type FlowVariableOperator = {
+    func: string
+    label: string
+    caption: string
   } & FormDefinition
 
   export interface FormMoreInfo {

@@ -1,11 +1,31 @@
 import { PrimitiveVarType } from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 
-import common from './common'
+import { common, createOperator, getCommonOperators } from './common'
 
 class BoxedNumber extends BaseVariable<number> {
   constructor(args) {
     super(args)
+  }
+
+  parseForOperator(text: string): number {
+    return +text
+  }
+
+  smallerThan({ other }: { other: number }) {
+    return this.value < other
+  }
+
+  smallerOrEqualTo({ other }: { other: number }) {
+    return this.value <= other
+  }
+
+  largerThan({ other }: { other: number }) {
+    return this.value > other
+  }
+
+  largerOrEqualTo({ other }: { other: number }) {
+    return this.value >= other
   }
 
   trySet(value: number, confidence: number) {
@@ -36,6 +56,13 @@ const NumberVariableType: PrimitiveVarType = {
   config: {
     label: 'number',
     icon: 'numerical',
+    operators: [
+      ...getCommonOperators('number'),
+      createOperator('number', 'smallerThan'),
+      createOperator('number', 'largerThan'),
+      createOperator('number', 'smallerOrEqualTo'),
+      createOperator('number', 'largerOrEqualTo')
+    ],
     fields: common.fields,
     advancedSettings: common.advancedSettings
   },

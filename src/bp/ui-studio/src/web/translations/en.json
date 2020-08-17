@@ -53,6 +53,10 @@
     "trainingError": "Cannot train Chatbot"
   },
   "studio": {
+    "router": {
+      "variable": "Variable",
+      "condition": "Condition"
+    },
     "condition": {
       "label": "Condition",
       "pickCondition": "Pick a condition"
@@ -250,7 +254,7 @@
         "executeAction": "Execute Action",
         "listen": "Listen",
         "prompt": "Prompt",
-        "router": "Router",
+        "router": "If Else",
         "say": "Say",
         "sendMessage": "Send Message",
         "split": "Split",

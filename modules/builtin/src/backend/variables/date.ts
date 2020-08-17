@@ -2,7 +2,7 @@ import { BoxedVariable, PrimitiveVarType } from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 import moment from 'moment'
 
-import common from './common'
+import { common } from './common'
 
 type BoxedDateType = string | Date | moment.Moment
 

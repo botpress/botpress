@@ -89,6 +89,8 @@
     "input": "Input Variable",
     "output": "Output Variable"
   },
+  "enterValue": "Enter a value",
+  "value": "Value",
   "min": "Min",
   "max": "Max",
   "yes": "Yes",
@@ -125,5 +127,15 @@
     "string": {
       "tooLong": "The maximum length is {maxLength} {maxLength, plural, one {character} other {characters}}."
     }
+  },
+  "operator": {
+    "equals": "Equals",
+    "smallerThan": "Smaller than",
+    "largerThan": "Larger than",
+    "smallerOrEqualTo": "Smaller or Equal to",
+    "largerOrEqualTo": "Larger or Equal to"
+  },
+  "operations": {
+    "standard": "{var} {op} {other}"
   }
 }
