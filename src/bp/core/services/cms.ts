@@ -9,7 +9,7 @@ import nanoid from 'nanoid'
 import path from 'path'
 import { VError } from 'verror'
 
-import { EventCommonArgs, IDisposeOnExit } from '../../common/typings'
+import { EventCommonArgs, IDisposeOnExit, OutgoingEventCommonArgs } from '../../common/typings'
 import { ConfigProvider } from '../config/config-loader'
 import { LoggerProvider } from '../logger/logger'
 import { CodeFile, SafeCodeSandbox } from '../misc/code-sandbox'
@@ -613,11 +613,11 @@ export class CMSService implements IDisposeOnExit {
     }
   }
 
-  async translatePayload(payload: any, event: IO.IncomingEvent) {
-    const defaultLang = (await this.configProvider.getBotConfig(event.botId)).defaultLanguage
-    const lang = _.get(event, 'state.user.language')
+  async translatePayload(payload: any, args: EventCommonArgs | OutgoingEventCommonArgs) {
+    const defaultLang = (await this.configProvider.getBotConfig(args.event.botId)).defaultLanguage
+    const lang = _.get(args.event, 'state.user.language')
 
-    payload = renderRecursive(payload, event.state, lang, defaultLang)
+    payload = renderRecursive(payload, args, lang, defaultLang)
 
     if (payload.text) {
       this._prepareTextAndShuffle(payload)
