@@ -660,7 +660,7 @@ declare module 'botpress/sdk' {
     }
 
     export interface Actions {
-      action: 'send' | 'startWorkflow' | 'redirect' | 'continue' | 'goToNode' | 'prompt.inform' | 'prompt.cancel'
+      action: 'send' | 'startWorkflow' | 'redirect' | 'continue' | 'goToNode' | 'prompt.repeat' | 'prompt.inform' | 'prompt.cancel'
       data?: SendContent | FlowRedirect
     }
 

@@ -32,7 +32,7 @@ const common: FormDefinition = {
     {
       type: 'number',
       key: 'searchBackCount',
-      defaultValue: 0,
+      defaultValue: 2,
       min: 0,
       max: 10,
       // moreInfo: { label: 'module.builtin.searchBackCountMoreInfo' },

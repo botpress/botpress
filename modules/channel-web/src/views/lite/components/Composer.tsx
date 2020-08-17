@@ -28,6 +28,7 @@ class Composer extends React.Component<ComposerProps> {
     if (this.props.enableResetSessionShortcut && e.ctrlKey && e.key === 'Enter') {
       e.preventDefault()
       await this.props.resetSession()
+      await new Promise(resolve => setTimeout(resolve, 500))
       await this.props.sendMessage()
       return
     }

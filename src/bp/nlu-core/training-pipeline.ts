@@ -241,7 +241,7 @@ const TrainIntentClassifier = async (
       i => i.name !== NONE_INTENT && i.contexts.includes(ctx) && i.utterances.length >= MIN_NB_UTTERANCES
     )
 
-    const nAvgUtts = Math.ceil(_.meanBy(trainableIntents, 'utterances.length'))
+    const nAvgUtts = Math.ceil(_.meanBy(trainableIntents, i => i.utterances.filter(u => !u.augmented).length))
 
     const lo = getSeededLodash(process.env.NLU_SEED)
     const points = _.chain(trainableIntents)
@@ -599,7 +599,7 @@ export const Trainer: Trainer = async (
   let totalProgress = 0
   let normalizedProgress = 0
 
-  const emptyProgress = () => { }
+  const emptyProgress = () => {}
   const reportTrainingProgress = progress ?? emptyProgress
 
   const debouncedProgress = _.debounce(reportTrainingProgress, 75, { maxWait: 750 })

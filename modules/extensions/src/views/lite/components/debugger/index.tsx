@@ -115,7 +115,7 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   handleNewMessage = async (m: Partial<sdk.IO.IncomingEvent>) => {
-    if (m.payload.type !== 'session_reset') {
+    if (!['session_reset', 'visit'].includes(m.payload.type)) {
       // @ts-ignore
       await this.updateLastMessage(m.incomingEventId)
     }
@@ -144,14 +144,11 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   hotkeyListener = (e: KeyboardEvent) => {
-    if (!e.ctrlKey) {
-      return
-    }
-    e.preventDefault()
-
-    if (e.key === 'd') {
+    if (e.ctrlKey && e.key === 'd') {
+      e.preventDefault()
       this.toggleDebugger()
-    } else if (e.key === 'i') {
+    } else if (e.ctrlKey && e.key === 'i') {
+      e.preventDefault()
       this.setState({ showInspector: !this.state.showInspector })
     }
   }
@@ -161,16 +158,23 @@ export class Debugger extends React.Component<Props, State> {
       return
     }
 
+    let keepRetrying = false
     this.setState({ fetching: true })
 
     try {
       const { data: event } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
 
-      this.setState({ event, showEventNotFound: !event, fetching: false })
-
+      this.setState({ event, showEventNotFound: !event })
       this.props.store.view.setHighlightedMessages(eventId)
-      this.currentRetryCount = 0
+
+      if (!event.processing?.['completed']) {
+        keepRetrying = true
+      }
     } catch (err) {
+      keepRetrying = true
+    }
+
+    if (keepRetrying) {
       if (this.currentRetryCount < this.allowedRetryCount) {
         this.currentRetryCount++
 
@@ -180,6 +184,9 @@ export class Debugger extends React.Component<Props, State> {
         this.currentRetryCount = 0
         this.setState({ fetching: false })
       }
+    } else {
+      this.setState({ fetching: false })
+      this.currentRetryCount = 0
     }
   }
 
