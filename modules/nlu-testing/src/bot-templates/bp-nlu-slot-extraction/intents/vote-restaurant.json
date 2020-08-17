@@ -16,9 +16,11 @@
     {
       "id": "PZnpR5-AZVXMzZ7iv5yIP",
       "name": "restaurant",
-      "entities": ["any"],
-      "color": 1
+      "color": 1,
+      "entity": "any"
     }
   ],
-  "contexts": ["any"]
+  "contexts": [
+    "any"
+  ]
 }

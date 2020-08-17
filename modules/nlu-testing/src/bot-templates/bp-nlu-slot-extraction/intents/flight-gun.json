@@ -14,18 +14,14 @@
     {
       "id": "FeqnkmkJKyx10LD4n6NGx",
       "name": "gun",
-      "entities": [
-        "gun"
-      ],
-      "color": 1
+      "color": 1,
+      "entity": "gun"
     },
     {
       "id": "VGB19o16lksAcmVixyL9d",
       "name": "flight",
-      "entities": [
-        "flight-number"
-      ],
-      "color": 2
+      "color": 2,
+      "entity": "flight-number"
     }
   ],
   "contexts": [

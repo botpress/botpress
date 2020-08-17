@@ -1,0 +1,9 @@
+{
+  "id": "time_city",
+  "name": "time_city",
+  "type": "complex",
+  "examples": [],
+  "list_entities": ["city"],
+  "pattern_entities": [],
+  "system_entities": ["time"]
+}

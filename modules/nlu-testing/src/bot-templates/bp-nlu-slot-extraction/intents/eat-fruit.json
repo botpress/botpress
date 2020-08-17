@@ -15,10 +15,8 @@
     {
       "id": "N0F7p4WcfJ9Ey9MgOXJwI",
       "name": "fruit_to_eat",
-      "entities": [
-        "fruits"
-      ],
-      "color": 1
+      "color": 1,
+      "entity": "fruits"
     }
   ],
   "contexts": [

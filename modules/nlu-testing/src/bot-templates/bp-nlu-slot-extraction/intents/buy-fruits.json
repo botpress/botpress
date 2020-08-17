@@ -18,9 +18,11 @@
     {
       "id": "J9z8AMnK6FcgFpgUc_ieQ",
       "name": "fruit-to-buy",
-      "entities": ["fruits"],
-      "color": 1
+      "color": 1,
+      "entity": "fruits"
     }
   ],
-  "contexts": ["list"]
+  "contexts": [
+    "list"
+  ]
 }

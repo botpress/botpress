@@ -15,10 +15,8 @@
     {
       "id": "BsyEn8-KSMQ0RG5tuuYb6",
       "name": "gun_to_buy",
-      "entities": [
-        "gun"
-      ],
-      "color": 1
+      "color": 1,
+      "entity": "gun"
     }
   ],
   "contexts": [

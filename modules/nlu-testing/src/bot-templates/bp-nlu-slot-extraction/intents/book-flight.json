@@ -17,18 +17,14 @@
     {
       "id": "QlWeACIMoyUjs7P0Pvew4",
       "name": "from_city",
-      "entities": [
-        "city"
-      ],
-      "color": 1
+      "color": 1,
+      "entity": "city"
     },
     {
       "id": "_7l5Unv5Oc6yI5Qo-337g",
       "name": "to_city",
-      "entities": [
-        "city"
-      ],
-      "color": 2
+      "color": 2,
+      "entity": "city"
     }
   ],
   "contexts": [

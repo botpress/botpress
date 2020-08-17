@@ -17,9 +17,11 @@
     {
       "id": "RaeD5-Sigmlm1bbssELcX",
       "name": "employe_to_fire",
-      "entities": ["email", "employe-number", "any"],
-      "color": 1
+      "color": 1,
+      "entity": "email_employe-number_any"
     }
   ],
-  "contexts": ["multi-entity"]
+  "contexts": [
+    "multi-entity"
+  ]
 }

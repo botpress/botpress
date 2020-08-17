@@ -16,18 +16,14 @@
     {
       "id": "6rNer5eB8083OEYKkVtNA",
       "name": "holiday_start",
-      "entities": [
-        "time"
-      ],
-      "color": 1
+      "color": 1,
+      "entity": "time"
     },
     {
       "id": "Iqe5muTIqRqUsvdm0Hf2l",
       "name": "holiday_duration",
-      "entities": [
-        "duration"
-      ],
-      "color": 2
+      "color": 2,
+      "entity": "duration"
     }
   ],
   "contexts": [

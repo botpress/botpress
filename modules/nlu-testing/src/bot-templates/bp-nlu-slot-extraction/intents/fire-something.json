@@ -17,15 +17,17 @@
     {
       "id": "tr6LhqpNT_hRF8VSeyXBE",
       "name": "thing_to_fire",
-      "entities": ["fruits", "gun"],
-      "color": 1
+      "color": 1,
+      "entity": "fruits_gun"
     },
     {
       "id": "vlqdXhPbpb5R_u3-7qEJ7",
       "name": "time_or_place",
-      "entities": ["time", "city"],
-      "color": 2
+      "color": 2,
+      "entity": "time_city"
     }
   ],
-  "contexts": ["multi-slot-multi-entity"]
+  "contexts": [
+    "multi-slot-multi-entity"
+  ]
 }

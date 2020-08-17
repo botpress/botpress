@@ -17,18 +17,14 @@
     {
       "id": "-Q9oYuup66K2wkXsEbSoM",
       "name": "arrival-city",
-      "entities": [
-        "city"
-      ],
-      "color": 1
+      "color": 1,
+      "entity": "city"
     },
     {
       "id": "Xf3oT1n7JcIk9PDJTbh8p",
       "name": "flight-number",
-      "entities": [
-        "flight-number"
-      ],
-      "color": 3
+      "color": 3,
+      "entity": "flight-number"
     }
   ],
   "contexts": [
