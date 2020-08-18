@@ -8,6 +8,16 @@ import nanoid from 'nanoid'
 import { Item, ScopedBots } from './qna'
 import { getQnaEntryPayloads } from './utils'
 
+export interface ImportArgs {
+  topicName: string
+  botId: string,
+  zipFile: Buffer
+  bpCms: typeof sdk.cms
+  override: boolean,
+  clean: boolean
+
+}
+
 export default async (bp: typeof sdk, bots: ScopedBots) => {
   const router = bp.http.createRouterForBot('qna')
   const jsonRequestStatuses = {}
@@ -106,11 +116,10 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
   router.get('/:topicName/export', async (req: Request, res: Response) => {
     try {
       const { storage } = bots[req.params.botId]
-      const zipName = `qna_${req.params.topicName}_${moment().format('DD-MM-YYYY')}.zip`
-      res.setHeader('Content-Type', 'application/zip')
-      res.setHeader('Content-disposition', `attachment; filename=${zipName}`)
-      const zippedFiles = storage.exportPerTopic(req.params.topicName)
-      res.end(zippedFiles)
+      res.setHeader('Content-Type', 'application/gzip')
+      res.setHeader('Content-disposition', `attachment; filename=qna_${req.params.topicName}_${moment().format('DD-MM-YYYY')}.tar.gz`)
+      const zipBuffer = await storage.exportPerTopic(req.params.topicName)
+      res.send(zipBuffer)
     } catch (e) {
       bp.logger.attachError(e).error('Zip export failure')
       res.status(500).send(e.message || 'Error')
@@ -125,7 +134,15 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
 
     const { storage } = bots[req.params.botId]
     try {
-      await storage.importPerTopic(req.params.topicName, req.file.buffer, false, req.body.action === 'clear_insert')
+      const importArgs: ImportArgs = {
+        topicName: req.params.topicName,
+        botId: req.params.botId,
+        zipFile: req.file.buffer,
+        bpCms: bp.cms,
+        override: false,
+        clean: req.body.action === 'clear_insert'
+      }
+      await storage.importPerTopic(importArgs)
       jsonRequestStatuses[statusId] = 'Completed'
     } catch (e) {
       bp.logger.attachError(e).error('JSON Import Failure')
@@ -137,6 +154,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
     try {
       const { storage } = bots[req.params.botId]
       res.send(await storage.getCountPerTopic())
+
     } catch (err) {
       bp.logger.attachError(err).error(err.message)
       res.status(200).send([])
