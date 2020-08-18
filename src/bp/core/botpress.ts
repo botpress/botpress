@@ -138,7 +138,10 @@ export class Botpress {
     await this.makeDirIfNotExist(destDirPath)
     const srcFiles = await fse.readdir(srcDirPath)
     for (const file of srcFiles) {
-      await fse.copyFile(path.resolve(srcDirPath, file), path.resolve(destDirPath, file))
+      const srcFile = path.resolve(srcDirPath, file)
+      const destFile = path.resolve(destDirPath, file)
+      const content = await fse.readFile(srcFile) // TODO: find out why fse.copy not working in binary
+      await fse.writeFile(destFile, content)
     }
   }
 
