@@ -121,11 +121,11 @@ export class Botpress {
   }
 
   private async _copyPretrainedAndStopWords() {
-    const languageDir = path.join(__dirname, '../nlu-core/language')
+    const languageDir = path.resolve(__dirname, '../nlu-core/language')
     const preTrainedDir = './pre-trained'
     const stopWordsDir = './stop-words'
-    await this._copyDir(path.join(languageDir, preTrainedDir), path.join(process.APP_DATA_PATH, preTrainedDir))
-    await this._copyDir(path.join(languageDir, stopWordsDir), path.join(process.APP_DATA_PATH, stopWordsDir))
+    await this._copyDir(path.resolve(languageDir, preTrainedDir), path.resolve(process.APP_DATA_PATH, preTrainedDir))
+    await this._copyDir(path.resolve(languageDir, stopWordsDir), path.resolve(process.APP_DATA_PATH, stopWordsDir))
   }
 
   private async makeDirIfNotExist(dirPath: string) {
@@ -138,7 +138,7 @@ export class Botpress {
     await this.makeDirIfNotExist(destDirPath)
     const srcFiles = await fse.readdir(srcDirPath)
     for (const file of srcFiles) {
-      await fse.copyFile(path.join(srcDirPath, file), path.join(destDirPath, file))
+      await fse.copyFile(path.resolve(srcDirPath, file), path.resolve(destDirPath, file))
     }
   }
 
