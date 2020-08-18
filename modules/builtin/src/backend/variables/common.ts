@@ -20,9 +20,8 @@ export const common: FormDefinition = {
       key: 'description',
       placeholder: 'module.builtin.variable.descPlaceholder',
       label: 'description'
-    }
-  ],
-  advancedSettings: [
+    },
+
     {
       type: 'checkbox',
       key: 'isInput',
@@ -33,7 +32,8 @@ export const common: FormDefinition = {
       key: 'isOutput',
       label: 'module.builtin.variable.output'
     }
-  ]
+  ],
+  advancedSettings: []
 }
 
 export const getCommonOperators = (variableType: string): FlowVariableOperator[] => {

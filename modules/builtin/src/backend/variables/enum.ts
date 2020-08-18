@@ -9,7 +9,7 @@ class BoxedEnum extends BaseVariable<string> {
   }
 
   trySet(value: string, confidence: number) {
-    const valid = this.getValidationData().elements.find(x => x.name === value || x.synonyms.find(s => s === value))
+    const valid = this.getValidationData?.()?.elements.find(x => x.name === value || x.synonyms.find(s => s === value))
     if (valid) {
       this._value = valid.name
       this._confidence = confidence

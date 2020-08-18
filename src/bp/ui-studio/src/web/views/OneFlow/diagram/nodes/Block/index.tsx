@@ -1,5 +1,5 @@
 import { Intent, Menu, MenuItem } from '@blueprintjs/core'
-import { DecisionTriggerCondition, FormData } from 'botpress/sdk'
+import { DecisionTriggerCondition, FormData, SubWorkflowNode } from 'botpress/sdk'
 import { contextMenu, lang, ShortcutLabel } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
@@ -44,7 +44,7 @@ const defaultLabels = {
   say_something: 'studio.flow.node.chatbotSays',
   success: 'studio.flow.node.workflowSucceeds',
   trigger: 'studio.flow.node.triggeredBy',
-  'sub-workflow': 'subworkflow'
+  'sub-workflow': 'studio.flow.node.subworkflow'
 }
 
 const BlockWidget: FC<Props> = ({
@@ -206,6 +206,7 @@ export class BlockModel extends BaseNodeModel {
   public nodeType: string
   public prompt?
   public contents?: { [lang: string]: FormData }[] = []
+  public subflow: SubWorkflowNode
 
   constructor({
     id,
@@ -218,6 +219,7 @@ export class BlockModel extends BaseNodeModel {
     onEnter = [],
     next = [],
     conditions = [],
+    subflow = {},
     activeWorkflow = false,
     isNew = false,
     isStartNode = false,
@@ -235,6 +237,7 @@ export class BlockModel extends BaseNodeModel {
       isStartNode,
       isHighlighted,
       conditions,
+      subflow,
       activeWorkflow,
       isNew
     })
@@ -252,6 +255,7 @@ export class BlockModel extends BaseNodeModel {
     this.nodeType = data.type
     this.prompt = data.prompt
     this.contents = data.contents
+    this.subflow = data.subflow
   }
 }
 

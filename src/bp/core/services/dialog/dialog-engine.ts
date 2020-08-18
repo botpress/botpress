@@ -283,10 +283,15 @@ export class DialogEngine {
         const params = {
           name: v.params.name,
           value,
+          subType: v.params.subType,
           type: v.type,
           options: { nbOfTurns: 10, specificWorkflow: flowName }
         }
-        this.createVariable(params, event)
+        try {
+          this.createVariable(params, event)
+        } catch (e) {
+          // TODO: handle error gracefully here
+        }
       }
     })
   }
