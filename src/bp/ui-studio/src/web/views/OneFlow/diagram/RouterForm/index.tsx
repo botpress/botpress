@@ -51,6 +51,18 @@ const RouterForm: FC<Props> = ({
   const operator = variableConfig?.operators?.find(x => x.func === operation.operator)
 
   useEffect(() => {
+    setOperation(parseInitialOperation())
+  }, [node?.id])
+
+  useEffect(() => {
+    if (!node) {
+      return
+    }
+
+    if (!operation?.operator) {
+      operation.operator = variableConfig?.operators[0].func
+    }
+
     let caption = undefined
     let condition = 'false'
     if (operator) {
