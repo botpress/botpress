@@ -28,10 +28,6 @@ export default class TrainService {
       const progressCallback = (progress: number) => {
         ts.progress = progress
         this.trainSessionService.setTrainingSession(modelId, ts)
-
-        if (ts.status === 'done') {
-          setTimeout(() => this.trainSessionService.removeTrainingSession(modelId), 30000)
-        }
       }
 
       const model = await this.engine.train(intents, entities, language, ts, {
@@ -43,6 +39,10 @@ export default class TrainService {
         throw new Error('training could not finish')
       }
       await this.modelService.saveModel(model!, modelId, password)
+
+      ts.status = 'done'
+      this.trainSessionService.setTrainingSession(modelId, ts)
+      setTimeout(() => this.trainSessionService.removeTrainingSession(modelId), 30000)
     } catch (err) {
       this.logger.attachError(err).error('an error occured during training')
     }
