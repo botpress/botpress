@@ -1,4 +1,4 @@
-import { Operation, OperationArgs } from './Operation'
+import { Operation } from './Operation'
 
 export class OperationParser {
   parse(expression: string): Operation {
@@ -24,7 +24,7 @@ export class OperationParser {
     return match.replace('.', '').replace('(', '')
   }
 
-  parseArgs(expression: string): OperationArgs {
+  parseArgs(expression: string): { [key: string]: any } {
     // Matches ({ something : something })
     //         X-------------------------X
     let argsSection = expression.match(/\(.*\)/gs)[0]
@@ -65,7 +65,7 @@ export class OperationParser {
       argsSection = argsSection.replace(statement, `"${escaped}"`)
     }
 
-    const args = JSON.parse(argsSection) as OperationArgs
+    const args = JSON.parse(argsSection) as { [key: string]: any }
 
     for (let [key, value] of Object.entries(args)) {
       // Matches operator('val')

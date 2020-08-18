@@ -1,4 +1,4 @@
-import { Operation, OperationArgs } from './Operation'
+import { Operation } from './Operation'
 
 export class OperationSerializer {
   serialize(operation: Operation): string {

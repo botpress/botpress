@@ -1,8 +1,6 @@
 export interface Operation {
   variable: string
   operator: string
-  args: OperationArgs
+  args: { [key: string]: any }
   negate: boolean
 }
-
-export type OperationArgs = { [key: string]: any }
