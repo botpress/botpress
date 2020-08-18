@@ -55,6 +55,7 @@
   "studio": {
     "router": {
       "variable": "Variable",
+      "pickVariable": "Choisissez une variable",
       "condition": "Condition",
       "negate": "Rendre cette condition négative"
     },

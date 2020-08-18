@@ -10,7 +10,7 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
-import { FlowVariable } from 'botpress/sdk'
+import { FlowVariable, NodeTransition } from 'botpress/sdk'
 import { Contents, contextMenu, Icons, lang, MainContent, toast } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -955,6 +955,15 @@ class Diagram extends Component<Props> {
     this.props.updateFlowNode({ subflow: data })
   }
 
+  updateRouter = (transitions: NodeTransition[]) => {
+    const { node, index } = this.state.editingNodeItem
+
+    this.props.switchFlowNode(node.id)
+    this.setState({ editingNodeItem: { node: { ...node, next: transitions }, index } })
+
+    this.props.updateFlowNode({ next: transitions })
+  }
+
   renderSearch = () => {
     return (
       this.props.showSearch && (
@@ -1174,6 +1183,8 @@ class Diagram extends Component<Props> {
               variables={this.props.variables}
               editingCondition={index}
               onUpdateVariables={this.addVariable}
+              customKey={`${node?.id}${node?.type}`}
+              updateRouter={this.updateRouter}
               contentLang={this.state.currentLang}
               close={() => {
                 this.timeout = setTimeout(() => {

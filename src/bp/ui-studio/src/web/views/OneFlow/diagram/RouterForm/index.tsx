@@ -1,6 +1,6 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
-import { FlowNode, FlowVariable, FlowVariableOperator } from 'botpress/sdk'
+import { FlowNode, FlowVariable, FlowVariableOperator, NodeTransition } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, Option, RightSidebar } from 'botpress/shared'
 import { Variables } from 'common/typings'
 import React, { FC, Fragment, useEffect, useState } from 'react'
@@ -20,6 +20,8 @@ interface Props {
   editingCondition: number
   contentLang: string
   onUpdateVariables: (variable: FlowVariable) => void
+  customKey: string
+  updateRouter: (transitions: NodeTransition[]) => void
 }
 
 const RouterForm: FC<Props> = ({
@@ -30,12 +32,14 @@ const RouterForm: FC<Props> = ({
   variables,
   editingCondition,
   contentLang,
-  onUpdateVariables
+  onUpdateVariables,
+  customKey,
+  updateRouter
 }) => {
-  const transition = node?.next?.[editingCondition]
   const [showOptions, setShowOptions] = useState(false)
 
   const parseInitialOperation = (): Operation => {
+    const transition = node?.next?.[editingCondition]
     if (!transition?.condition?.length) {
       return { args: {} } as Operation
     }
@@ -44,44 +48,52 @@ const RouterForm: FC<Props> = ({
     try {
       return parser.parse(transition.condition)
     } catch {
-      return { args: {} } as Operation
+      return { args: {}, operator: '', variable: '', negate: false } as Operation
     }
   }
 
+  const getMeta = (operation: Operation) => {
+    const variableType = variables?.currentFlow?.find(x => x.params.name === operation.variable)?.type
+    const variableConfig = variables?.primitive?.find(x => x.id === variableType)?.config
+    const operatorOptions = variableConfig?.operators?.map<Option>(x => ({ label: lang.tr(x.label), value: x.func }))
+    const operator = variableConfig?.operators?.find(x => x.func === operation.operator)
+
+    return { variableType, variableConfig, operatorOptions, operator }
+  }
+
   const [operation, setOperation] = useState<Operation>(parseInitialOperation())
-  const variableType = variables?.currentFlow?.find(x => x.params.name === operation.variable)?.type
-  const variableConfig = variables?.primitive?.find(x => x.id === variableType)?.config
-  const operatorOptions = variableConfig?.operators?.map<Option>(x => ({ label: lang.tr(x.label), value: x.func }))
-  const operator = variableConfig?.operators?.find(x => x.func === operation.operator)
+  const meta = getMeta(operation)
 
   useEffect(() => {
     setOperation(parseInitialOperation())
-  }, [node?.id])
+  }, [customKey])
 
-  useEffect(() => {
+  const save = (newOperation: Operation) => {
     if (!node) {
       return
     }
 
-    if (!operation?.operator) {
-      operation.operator = variableConfig?.operators[0].func
+    const newMeta = getMeta(newOperation)
+
+    if (newOperation?.variable && !newOperation.operator) {
+      newOperation.operator = newMeta.variableConfig?.operators?.[0].func
     }
 
     let caption = undefined
     let condition = 'false'
-    if (operator) {
+    if (newMeta.operator) {
       const serializer = new OperationSerializer()
-      condition = serializer.serialize(operation)
+      condition = serializer.serialize(newOperation)
 
       const friendlyArgs: any = {}
-      for (const [key, value] of Object.entries(operation.args)) {
+      for (const [key, value] of Object.entries(newOperation.args)) {
         friendlyArgs[key] =
           typeof value === 'string' && value.startsWith('$') ? value.substr(1, value.length - 1) : value
       }
 
-      caption = lang.tr(operator.caption, {
-        var: operation.variable,
-        op: lang.tr(operator.label).toLowerCase(),
+      caption = lang.tr(newMeta.operator.caption, {
+        var: newOperation.variable,
+        op: lang.tr(newMeta.operator.label).toLowerCase(),
         ...friendlyArgs
       })
     }
@@ -93,14 +105,13 @@ const RouterForm: FC<Props> = ({
       caption
     }
 
-    const flowBuilder = diagramEngine.flowBuilder.props
-    flowBuilder.switchFlowNode(node.id)
-    flowBuilder.updateFlowNode({ next })
-  }, [operation])
+    updateRouter(next)
+    setOperation(newOperation)
+  }
 
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={() => close()}>
-      <Fragment key={`${node?.id}`}>
+      <Fragment key={customKey}>
         <div className={style.formHeader}>
           <Tabs id="contentFormTabs">
             <Tab id="content" title={lang.tr('studio.flow.nodeType.router')} />
@@ -128,15 +139,18 @@ const RouterForm: FC<Props> = ({
                   type: 'variable',
                   key: 'value',
                   label: lang.tr('studio.router.variable'),
+                  placeholder: lang.tr('studio.router.pickVariable'),
                   variableTypes: variables.primitive.map(x => x.id)
                 }
               ]}
               advancedSettings={[]}
-              formData={{ x: operation.variable }}
-              onUpdate={x => setOperation({ ...operation, variable: x.value })}
+              formData={{ value: operation.variable }}
+              onUpdate={x => {
+                save({ ...operation, variable: x.value })
+              }}
             />
           </div>
-          {operatorOptions && (
+          {meta.operatorOptions && (
             <Fragment>
               <Contents.Form
                 currentLang={contentLang}
@@ -148,7 +162,7 @@ const RouterForm: FC<Props> = ({
                     type: 'select',
                     key: 'operator',
                     label: lang.tr('studio.router.condition'),
-                    options: operatorOptions,
+                    options: meta.operatorOptions,
                     defaultValue: operation.operator
                   },
                   {
@@ -159,17 +173,21 @@ const RouterForm: FC<Props> = ({
                 ]}
                 advancedSettings={[]}
                 formData={operation}
-                onUpdate={x => setOperation({ ...operation, ...x })}
+                onUpdate={x => {
+                  save({ ...operation, ...x })
+                }}
               />
               <Contents.Form
                 currentLang={contentLang}
                 axios={axios}
                 onUpdateVariables={onUpdateVariables}
                 variables={variables}
-                fields={operator?.fields || []}
-                advancedSettings={operator?.advancedSettings || []}
+                fields={meta.operator?.fields || []}
+                advancedSettings={meta.operator?.advancedSettings || []}
                 formData={operation.args}
-                onUpdate={x => setOperation({ ...operation, args: x })}
+                onUpdate={x => {
+                  save({ ...operation, args: x })
+                }}
               />
             </Fragment>
           )}
