@@ -8,6 +8,11 @@ class BoxedPattern extends BaseVariable<string> {
     super(args)
   }
 
+  parse(text: string): string {
+    // We replace escaped '
+    return text.replace(/\\'/gs, "'")
+  }
+
   trySet(value: string, confidence: number) {
     try {
       for (const regex of this.getValidationData().patterns) {
