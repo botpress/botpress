@@ -9,7 +9,7 @@ export class OperationSerializer {
       if (typeof value === 'string' && /^\$[a-zA-Z][a-zA-Z0-9_-]*$/g.test(value)) {
         expr = `${value}.value`
       } else {
-        expr = `$${operation.variable}.parseForOperator('${value.replace(/'/gs, "\\'")}')`
+        expr = `$${operation.variable}.parseForOperator('${value?.replace(/'/gs, "\\'")}')`
       }
 
       args = `${args}${isFirst ? '' : ','}${key}:${expr}`

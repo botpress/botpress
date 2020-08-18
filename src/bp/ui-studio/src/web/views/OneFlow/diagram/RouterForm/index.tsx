@@ -56,6 +56,7 @@ const RouterForm: FC<Props> = ({
     if (operator) {
       const serializer = new OperationSerializer()
       condition = serializer.serialize(operation)
+
       const friendlyArgs: any = {}
       for (const [key, value] of Object.entries(operation.args)) {
         friendlyArgs[key] =
