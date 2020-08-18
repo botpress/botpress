@@ -3,6 +3,7 @@ import * as sdk from 'botpress/sdk'
 import en from '../translations/en.json'
 import fr from '../translations/fr.json'
 
+import PromptComplex from './prompts/complex'
 import PromptConfirm from './prompts/confirm'
 import PromptDate from './prompts/date'
 import PromptEnum from './prompts/enum'
@@ -11,6 +12,7 @@ import PromptPattern from './prompts/pattern'
 import PromptString from './prompts/string'
 import { setupMiddleware } from './promptHandler'
 import BoxedBoolean from './variables/boolean'
+import BoxedComplex from './variables/complex'
 import BoxedDate from './variables/date'
 import BoxedEnum from './variables/enum'
 import BoxedNumber from './variables/number'
@@ -23,7 +25,7 @@ const botTemplates: sdk.BotTemplate[] = [
   { id: 'empty-bot', name: 'Empty Bot', desc: `Start fresh with a clean flow` }
 ]
 
-const prompts = [PromptConfirm, PromptDate, PromptNumber, PromptString, PromptEnum, PromptPattern]
+const prompts = [PromptConfirm, PromptDate, PromptNumber, PromptString, PromptEnum, PromptPattern, PromptComplex]
 
 const onServerStarted = async (bp: typeof sdk) => {
   await setupMiddleware(bp, prompts)
@@ -31,7 +33,7 @@ const onServerStarted = async (bp: typeof sdk) => {
 
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
-  variables: [BoxedDate, BoxedBoolean, BoxedNumber, BoxedString, BoxedEnum, BoxedPattern],
+  variables: [BoxedDate, BoxedBoolean, BoxedNumber, BoxedString, BoxedEnum, BoxedPattern, BoxedComplex],
   botTemplates,
   translations: { en, fr },
   prompts,

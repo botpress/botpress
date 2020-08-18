@@ -44,7 +44,13 @@
   },
   "statusBar": {
     "contentLanguage": "Content Language",
-    "switchLang": "Change the bot content language. Currently editing: {currentLang}"
+    "switchLang": "Change the bot content language. Currently editing: {currentLang}",
+    "trainChatbot": "Train Chatbot",
+    "training": "Training",
+    "ready": "Ready",
+    "cancelTraining": "Cancel Training",
+    "canceling": "Canceling",
+    "trainingError": "Cannot train Chatbot"
   },
   "studio": {
     "condition": {
@@ -101,6 +107,8 @@
       "variableTypes": "Variable Types",
       "addEnum": "Add Enumeration",
       "addPattern": "Add Pattern",
+      "addComplex": "Add Complex",
+      "addType": "Add Type",
       "filter": "Filter blocks, workflows and variable types",
       "variableName": "What is the name of this variable",
       "addSynonyms": "Add synonyms by separating values with commas",
@@ -110,7 +118,8 @@
       "examplePlaceholder": "Add examples that match your pattern (one per line)",
       "addExample": "Add Example",
       "deletePattern": "Delete Pattern",
-      "patternInvalid": "Pattern is invalid"
+      "patternInvalid": "Pattern is invalid",
+      "possibleVarTypes": "Possible Variable Types"
     },
     "flow": {
       "addNode": "Add Node",
@@ -199,6 +208,7 @@
         "return": "Return",
         "saySomething": "Say Something",
         "theBotWill": "The bot will",
+        "subworkflow": "Go to Sub Workflow",
         "transition": {
           "action": {
             "endFlow": "End flow",

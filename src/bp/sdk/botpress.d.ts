@@ -466,11 +466,11 @@ declare module 'botpress/sdk' {
       constructor(botId: string, logger: Logger)
       computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string
       loadModel: (m: Model) => Promise<void>
+      hasModel: (lang: string, hash: string) => boolean
       train: (
         intentDefs: NLU.IntentDefinition[],
         entityDefs: NLU.EntityDefinition[],
         languageCode: string,
-        reportTrainingProgress?: ProgressReporter,
         trainingSession?: TrainingSession,
         options?: Partial<TrainingOptions>
       ) => Promise<Model | undefined>
@@ -499,6 +499,8 @@ declare module 'botpress/sdk' {
     export interface TrainingOptions {
       forceTrain: boolean
       seed: number
+      progressCallback: (x: number) => void
+      cancelCallback: () => void
     }
 
     export interface Model {
@@ -518,8 +520,10 @@ declare module 'botpress/sdk' {
       validLanguages: string[]
     }
 
+    export type TrainingStatus = 'idle' | 'done' | 'needs-training' | 'training' | 'canceled' | 'errored' | null
+
     export interface TrainingSession {
-      status: 'training' | 'canceled' | 'done' | 'idle'
+      status: TrainingStatus
       language: string
       progress: number
       lock?: RedisLock
@@ -527,7 +531,7 @@ declare module 'botpress/sdk' {
 
     export type ProgressReporter = (botId: string, message: string, trainSession: TrainingSession) => void
 
-    export type EntityType = 'system' | 'pattern' | 'list'
+    export type EntityType = 'system' | 'pattern' | 'list' | 'complex' // TODO: Add the notion of Utterance Placeholder instead of adding "Complex" as an entity type here (synonyms and variables)
 
     export interface EntityDefOccurrence {
       name: string
@@ -544,12 +548,13 @@ declare module 'botpress/sdk' {
       fuzzy?: number
       occurrences?: EntityDefOccurrence[]
       pattern?: string
+      list_entities: string[]
+      pattern_entities: string[]
     }
 
     export interface SlotDefinition {
       name: string
-      entities: string[]
-      color: number
+      entity: string
     }
 
     export interface IntentDefinition {
@@ -659,7 +664,15 @@ declare module 'botpress/sdk' {
     }
 
     export interface Actions {
-      action: 'send' | 'startWorkflow' | 'redirect' | 'continue' | 'goToNode' | 'prompt.inform' | 'prompt.cancel'
+      action:
+        | 'send'
+        | 'startWorkflow'
+        | 'redirect'
+        | 'continue'
+        | 'goToNode'
+        | 'prompt.repeat'
+        | 'prompt.inform'
+        | 'prompt.cancel'
       data?: SendContent | FlowRedirect
     }
 
@@ -1551,7 +1564,7 @@ declare module 'botpress/sdk' {
   export interface FormField {
     type: FormFieldType
     key: string
-    label: string
+    label?: string
     overrideKey?: string
     placeholder?: string | string[]
     options?: FormOption[]
@@ -1560,6 +1573,8 @@ declare module 'botpress/sdk' {
     variableTypes?: string[]
     defaultVariableType?: string
     superInput?: boolean
+    customPlaceholder?: boolean
+    variablesOnly?: boolean
     superInputOptions?: {
       canPickEvents?: boolean
       canPickVariables?: boolean

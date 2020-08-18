@@ -44,7 +44,13 @@
   },
   "statusBar": {
     "contentLanguage": "Langue du contenu",
-    "switchLang": "Modifier la langue du contenu. Langue courante: {currentLang}"
+    "switchLang": "Modifier la langue du contenu. Langue courante: {currentLang}",
+    "trainChatbot": "Entraîner l'agent",
+    "training": "Entraînement en cours",
+    "ready": "Prêt",
+    "cancelTraining": "Annuler l'entraînement",
+    "canceling": "Annulation en cours",
+    "trainingError": "L'agent ne peut pas être entraîné"
   },
   "studio": {
     "condition": {
@@ -100,6 +106,8 @@
       "variableTypes": "Types de Variables",
       "addEnum": "Ajouter Énumération",
       "addPattern": "Ajouter Expression Régulière",
+      "addComplex": "Ajouter Complexe",
+      "addType": "Ajouter un type",
       "filter": "Filtrer les blocs, workflows et type de variables",
       "variableName": "Quel est le nom de cette variable?",
       "addSynonyms": "Ajoutez des synomymes en séparant les valeurs par des virgules",
@@ -109,7 +117,8 @@
       "examplePlaceholder": "Ajoutez des exemples qui correspondent à votre expression régulière (un par ligne)",
       "addExample": "Ajouter un exemple",
       "deletePattern": "Supprimer l'expression régulière",
-      "patternInvalid": "L'expression est invalide"
+      "patternInvalid": "L'expression est invalide",
+      "possibleVarTypes": "Type de variable possible"
     },
     "flow": {
       "addNode": "Ajouter une node",
@@ -197,6 +206,7 @@
         "return": "Revenir",
         "saySomething": "Écrire quelque chose",
         "theBotWill": "Le bot va",
+        "subworkflow": "Aller au Sub Workflow",
         "transition": {
           "action": {
             "endFlow": "Finir Flow",

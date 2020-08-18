@@ -75,6 +75,8 @@ declare module 'botpress/shared' {
   }
 
   export const Icons: {
+    Brackets(): JSX.Element
+    Minimize(): JSX.Element
     Say(): JSX.Element
   }
 

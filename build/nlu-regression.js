@@ -59,13 +59,19 @@ const waitForTraining = async axiosConfig => {
     let i = 0
     console.log(`training...`)
     const intervalId = setInterval(async () => {
-      const { data: trainingStatus } = await axios.get(`${BASE}/api/v1/bots/${BOT_ID}/mod/nlu/train`, axiosConfig)
+      const { data: trainingSession } = await axios.get(
+        `${BASE}/api/v1/bots/${BOT_ID}/mod/nlu/training/en`,
+        axiosConfig
+      )
 
-      if (!trainingStatus.isTraining) {
+      const { status } = trainingSession
+      if (status === 'done') {
         clearInterval(intervalId)
         resolve()
-      } else {
+      } else if (status === 'training') {
         console.log(`training... ${2 * ++i}s`)
+      } else {
+        throw new Error(`An error occured while training. Training status is: ${status}`)
       }
     }, 2000)
   })

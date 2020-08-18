@@ -1,0 +1,8 @@
+{
+  "id": "fruits_gun",
+  "name": "fruits_gun",
+  "type": "complex",
+  "examples": [],
+  "list_entities": ["fruits"],
+  "pattern_entities": ["gun"]
+}

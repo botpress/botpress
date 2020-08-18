@@ -4,24 +4,15 @@ import _ from 'lodash'
 
 import legacyElectionPipeline from '../legacy-election'
 import { getLatestModel } from '../model-service'
-import { removeTrainingSession, setTrainingSession } from '../train-session-service'
-import { NLUProgressEvent, NLUState } from '../typings'
+import { setTrainingSession } from '../train-session-service'
+import { NLUState } from '../typings'
 
 async function initializeReportingTool(bp: typeof sdk, state: NLUState) {
-  state.reportTrainingProgress = async (botId: string, message: string, trainSession: sdk.NLU.TrainingSession) => {
+  state.sendNLUStatusEvent = async (botId: string, trainSession: sdk.NLU.TrainingSession) => {
     await setTrainingSession(bp, botId, trainSession)
 
-    const ev: NLUProgressEvent = {
-      type: 'nlu',
-      working: trainSession.status === 'training',
-      botId,
-      message,
-      trainSession: _.omit(trainSession, 'lock')
-    }
+    const ev = { type: 'nlu', botId, trainSession: _.omit(trainSession, 'lock') }
     bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', ev))
-    if (trainSession.status === 'done') {
-      setTimeout(() => removeTrainingSession(bp, botId, trainSession), 5000)
-    }
   }
 }
 

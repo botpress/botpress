@@ -45,15 +45,14 @@ type Props = {
   name: string
   node: any
   next?: sdk.NodeTransition[]
-  flowsName: any
   hidden?: boolean
-} & RouteComponentProps
+}
 
 export class StandardPortWidgetDisconnected extends React.PureComponent<Props> {
   renderSubflowNode() {
     const index = Number(this.props.name.replace('out', ''))
     const subflow = this.props.node.next[index].node.replace(/\.flow\.json$/i, '')
-    const isInvalid = !this.props.flowsName.find(x => x === this.props.node.next[index].node)
+    const isInvalid = false
 
     return (
       <div className={cx(style.label, 'label', { [style.invalidFlow]: isInvalid })}>
@@ -132,6 +131,4 @@ export class StandardPortWidgetDisconnected extends React.PureComponent<Props> {
   }
 }
 
-const mapStateToProps = state => ({ flowsName: getFlowNames(state) })
-
-export const StandardPortWidget = connect(mapStateToProps)(withRouter(StandardPortWidgetDisconnected))
+export const StandardPortWidget = StandardPortWidgetDisconnected

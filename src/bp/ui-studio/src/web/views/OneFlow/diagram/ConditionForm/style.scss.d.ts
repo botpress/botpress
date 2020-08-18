@@ -16,6 +16,7 @@ interface CssExports {
   'deleteBtn': string;
   'description': string;
   'emptyState': string;
+  'expandBtn': string;
   'fieldError': string;
   'fieldWrapper': string;
   'formHeader': string;

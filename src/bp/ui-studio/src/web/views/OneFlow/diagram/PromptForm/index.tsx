@@ -68,7 +68,7 @@ const PromptForm: FC<Props> = ({
 
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={!isConfirming} close={close}>
-      <Fragment key={`${promptType.current}-${customKey}`}>
+      <Fragment key={`${promptType.current}-${contentLang}-${customKey}`}>
         <div className={style.formHeader}>
           <Tabs id="contentFormTabs">
             <Tab id="content" title={lang.tr('studio.flow.nodeType.prompt')} />

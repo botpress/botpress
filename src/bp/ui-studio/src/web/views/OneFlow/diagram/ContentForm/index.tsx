@@ -91,7 +91,7 @@ const ContentForm: FC<Props> = ({
       canOutsideClickClose={canOutsideClickClose}
       close={() => close(editingContent)}
     >
-      <Fragment key={`${contentType.current}-${customKey || editingContent}`}>
+      <Fragment key={`${contentType.current}-${contentLang}-${customKey || editingContent}`}>
         <div className={style.formHeader}>
           <Tabs id="contentFormTabs">
             <Tab id="content" title={lang.tr('studio.flow.nodeType.say')} />
