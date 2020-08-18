@@ -9,6 +9,18 @@ class BoxedBoolean extends BaseVariable<boolean> {
     super(args)
   }
 
+  parseForOperator(text: string): boolean {
+    return yn(text)
+  }
+
+  isTrue(args: any) {
+    return this.value
+  }
+
+  isFalse(args: any) {
+    return !this.value
+  }
+
   trySet(value: boolean, confidence: number) {
     if (typeof value === 'boolean') {
       this._value = value
@@ -38,6 +50,23 @@ const BooleanVariableType: PrimitiveVarType = {
   config: {
     label: 'boolean',
     icon: 'segmented-control',
+    operators: [
+      ...getCommonOperators('boolean'),
+      {
+        func: 'isTrue',
+        label: `module.builtin.operator.isTrue`,
+        caption: 'module.builtin.operations.selfOperation',
+        fields: [],
+        advancedSettings: []
+      },
+      {
+        func: 'isFalse',
+        label: `module.builtin.operator.isFalse`,
+        caption: 'module.builtin.operations.selfOperation',
+        fields: [],
+        advancedSettings: []
+      }
+    ],
     fields: [
       ...common.fields,
       {

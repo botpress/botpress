@@ -1,11 +1,28 @@
 import { BoxedVariable, PrimitiveVarType } from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 
-import { common } from './common'
+import { common, createOperator, getCommonOperators } from './common'
 
 class BoxedString extends BaseVariable<string> {
   constructor(args) {
     super(args)
+  }
+
+  parseForOperator(text: string): string {
+    // We replace escaped '
+    return text.replace(/\\'/gs, "'")
+  }
+
+  contains({ other }: { other: string }) {
+    return this.value.includes(other)
+  }
+
+  startsWith({ other }: { other: string }) {
+    return this.value.startsWith(other)
+  }
+
+  endsWith({ other }: { other: string }) {
+    return this.value.endsWith(other)
   }
 
   trySet(value: string, confidence: number) {
@@ -40,6 +57,12 @@ const StringVariableType: PrimitiveVarType = {
   config: {
     label: 'string',
     icon: 'font',
+    operators: [
+      ...getCommonOperators('string'),
+      createOperator('string', 'contains'),
+      createOperator('string', 'startsWith'),
+      createOperator('string', 'endsWith')
+    ],
     fields: common.fields,
     advancedSettings: common.advancedSettings
   },
