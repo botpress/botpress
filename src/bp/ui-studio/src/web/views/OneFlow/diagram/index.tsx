@@ -662,8 +662,18 @@ class Diagram extends Component<Props> {
     return this.props[propertyName]
   }
 
-  addCondition(nodeId) {
-    this.props.updateFlowNode({ conditions: [...this.props.currentFlowNode.conditions, { params: {} }] })
+  addCondition(nodeType) {
+    if (nodeType === 'trigger') {
+      this.props.updateFlowNode({ conditions: [...this.props.currentFlowNode.conditions, { params: {} }] })
+    } else if (nodeType === 'router') {
+      const next = this.props.currentFlowNode.next
+      const lastItem = next.length - 1
+
+      // Inserting before the last element to keep "otherwise" at the end
+      this.props.updateFlowNode({
+        next: [...next.slice(0, lastItem), { condition: '', node: '' }, ...next.slice(lastItem)]
+      })
+    }
   }
 
   switchFlowNode(nodeId) {
@@ -955,13 +965,23 @@ class Diagram extends Component<Props> {
     this.props.updateFlowNode({ subflow: data })
   }
 
-  updateRouter = (transitions: NodeTransition[]) => {
+  deleteTransition = () => {
+    const { node, index } = this.state.editingNodeItem
+    const next = this.props.currentFlowNode.next
+
+    this.props.switchFlowNode(node.id)
+    this.props.updateFlowNode({ next: [...next.slice(0, index), ...next.slice(index + 1)] })
+  }
+
+  updateRouter = (data: NodeTransition) => {
     const { node, index } = this.state.editingNodeItem
 
     this.props.switchFlowNode(node.id)
-    this.setState({ editingNodeItem: { node: { ...node, next: transitions }, index } })
 
-    this.props.updateFlowNode({ next: transitions })
+    const newTransitions = [...node.next.slice(0, index), data, ...node.next.slice(index + 1)]
+
+    this.setState({ editingNodeItem: { node: { ...node, next: newTransitions }, index } })
+    this.props.updateFlowNode({ next: newTransitions })
   }
 
   renderSearch = () => {
@@ -999,6 +1019,8 @@ class Diagram extends Component<Props> {
       currentItem = data
     } else if (formType === 'variable') {
       currentItem = node?.variable
+    } else if (formType === 'router') {
+      currentItem = node?.next
     }
 
     const isQnA = this.props.selectedWorkflow === 'qna'
@@ -1177,13 +1199,11 @@ class Diagram extends Component<Props> {
           )}
           {formType === 'router' && (
             <RouterForm
-              node={this.props.currentFlowNode}
-              deleteNode={this.deleteSelectedElements.bind(this)}
-              diagramEngine={this.diagramEngine}
+              transition={currentItem?.[index]}
+              deleteTransition={this.deleteTransition.bind(this)}
               variables={this.props.variables}
-              editingCondition={index}
               onUpdateVariables={this.addVariable}
-              customKey={`${node?.id}${node?.type}`}
+              customKey={`${node?.type}${node?.id}${index}`}
               updateRouter={this.updateRouter}
               contentLang={this.state.currentLang}
               close={() => {

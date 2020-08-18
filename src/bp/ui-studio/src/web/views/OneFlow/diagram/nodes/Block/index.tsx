@@ -29,7 +29,7 @@ interface Props {
   selectedNodeItem: () => { node: BlockModel; index: number }
   getConditions: () => DecisionTriggerCondition[]
   switchFlowNode: (id: string) => void
-  addCondition: () => void
+  addCondition: (nodeType: string) => void
   getCurrentLang: () => string
   getExpandedNodes: () => string[]
   setExpanded: (id: string, expanded: boolean) => void
@@ -78,11 +78,11 @@ const BlockWidget: FC<Props> = ({
             setIsEditing(true)
           }}
         />
-        {nodeType === 'trigger' && (
+        {(nodeType === 'trigger' || nodeType === 'router') && (
           <MenuItem
             text={lang.tr('studio.flow.node.addCondition')}
             onClick={() => {
-              addCondition()
+              addCondition(nodeType)
             }}
           />
         )}
