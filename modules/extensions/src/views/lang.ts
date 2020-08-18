@@ -5,13 +5,21 @@ import fr from '../translations/fr.json'
 
 const defaultLocale = 'en'
 const translations = { fr, en }
+let locale = ''
 let isDev: boolean
-let store: any
 
-const track = (target: any) => {
-  store = target
+const init = () => {
   lang.init(translations, 'module.extensions.')
+  locale = getUserLocale()
   isDev = localStorage.getItem('langdebug') === 'true'
+}
+
+const getUserLocale = () => {
+  const code = str => str.split('-')[0]
+  const browserLocale = code(navigator.language || navigator['userLanguage'] || '')
+  const storageLocale = code(localStorage.getItem('uiLanguage') || '')
+
+  return translations[storageLocale] ? storageLocale : translations[browserLocale] ? browserLocale : defaultLocale
 }
 
 const tr = (key: string, values?: { [variable: string]: any }) => {
@@ -19,7 +27,7 @@ const tr = (key: string, values?: { [variable: string]: any }) => {
     return key
   }
 
-  return lang.tr(key, values, store?.botUILanguage || defaultLocale)
+  return lang.tr(key, values, locale || defaultLocale)
 }
 
-export default { tr, track }
+export default { tr, init }
