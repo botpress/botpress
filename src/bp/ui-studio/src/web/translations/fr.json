@@ -206,6 +206,7 @@
         "return": "Revenir",
         "saySomething": "Écrire quelque chose",
         "theBotWill": "Le bot va",
+        "subworkflow": "Aller au Sub Workflow",
         "transition": {
           "action": {
             "endFlow": "Finir Flow",
