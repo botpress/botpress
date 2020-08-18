@@ -82,8 +82,6 @@ export class OperationParser {
       args[key] = value
     }
 
-    console.log(args)
-
     return args
   }
 }
