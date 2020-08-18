@@ -42,8 +42,14 @@ export class OperationParser {
     for (let [key, value] of Object.entries(args)) {
       // Matches operator('val')
       //                  X---X
-      value = (value as string).match(/'.+'/g)[0]
-      value = value.substr(1, value.length - 2)
+      const harcodedMatch = value.match(/'.+'/g)?.[0]
+      if (harcodedMatch) {
+        value = harcodedMatch.substr(1, harcodedMatch.length - 2)
+      } else {
+        // Matches $something
+        //         ----------
+        value = value.match(/\$[a-zA-Z][a-zA-Z0-9_-]*/g)[0]
+      }
 
       args[key] = value
     }
