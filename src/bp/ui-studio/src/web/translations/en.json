@@ -214,7 +214,7 @@
         "return": "Return",
         "saySomething": "Say Something",
         "theBotWill": "The bot will",
-        "subworkflow": "Go To Sub Worfklow",
+        "subworkflow": "Go to Sub Workflow",
         "transition": {
           "action": {
             "endFlow": "End flow",
