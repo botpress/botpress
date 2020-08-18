@@ -89,7 +89,7 @@ const RouterForm: FC<Props> = ({
     const operator = meta.varConfig?.operators?.find(x => x.func === operation.operator)
 
     if (!operation.operator || !operator) {
-      return { condition: 'false', node: transition.node }
+      return { condition: '', node: transition.node }
     }
 
     const condition = serializeOperation(operation)

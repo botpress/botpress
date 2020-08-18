@@ -359,7 +359,7 @@ class Diagram extends Component<Props> {
         ...point,
         type: 'router',
         next: [
-          { condition: 'false', node: '' },
+          { condition: '', node: '' },
           { condition: 'true', node: '' }
         ]
       }),
