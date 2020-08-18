@@ -4,6 +4,7 @@ import _ from 'lodash'
 import { getOrCreateCache } from '../core/services/nlu/cache-manager'
 
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
+import { DucklingEntityExtractor } from './entities/duckling_extractor'
 import { getCtxFeatures } from './intents/context-featurizer'
 import { getIntentFeatures } from './intents/intent-featurizer'
 import { isPOSAvailable } from './language/pos-tagger'
@@ -339,6 +340,22 @@ const TrainContextClassifier = async (
   return model
 }
 
+// this is a temporary fix so we can extract extract tag system entities slots
+// only fixes date and number for english only
+// ex: Remind me to eat a sandwich $time ==> Remind me to eat a sandwich in 3 hours
+function convertSysEntitiesSlotsToComplex(intents: Intent<string>[]): ComplexEntity[] {
+  const examplesByType = {
+    time: ['in three hours', 'tomorrow night', 'now', 'today', 'jan 22nd 2021', '2021-06-07', 'june 7th'], // should be time
+    number: ['zero', '0', 'tenty-five', '25', 'one hundred sixty-five', '165']
+  }
+  return _.chain(intents)
+    .flatMap(i => i.slot_definitions.map(s => (s.entity === 'date' ? 'time' : s.entity))) // highly hardcoded, date is in fact a system time
+    .filter(ent => !!examplesByType[ent])
+    .uniq()
+    .map(ent => ({ name: ent, examples: examplesByType[ent], list_entities: [], pattern_entities: [] }))
+    .value()
+}
+
 export const ProcessIntents = async (
   intents: Intent<string>[],
   languageCode: string,
@@ -348,12 +365,18 @@ export const ProcessIntents = async (
   complex_entities: ComplexEntity[],
   tools: Tools
 ): Promise<Intent<Utterance>[]> => {
+  const sysComplexes = convertSysEntitiesSlotsToComplex(intents)
+
   return Promise.map(intents, async intent => {
     const cleaned: string[] = intent.utterances.map(_.flow([_.trim, replaceConsecutiveSpaces]))
 
-    const augmentations = extractAugmentations(intent, complex_entities, list_entities, pattern_entities)
+    const augmentations = extractAugmentations(
+      intent,
+      [...sysComplexes, ...complex_entities],
+      list_entities,
+      pattern_entities
+    )
     const augmenter = createAugmenter(augmentations)
-
     const original: string[] = _.uniq(cleaned.map(augmenter))
     // TODO: (sly) we probably want to have a different logic than a hardcoded "5" here
     // although this doesn't impact anything but the slot extractor at the moment
@@ -364,8 +387,16 @@ export const ProcessIntents = async (
 
     const allowedEntities = _.chain(intent.slot_definitions)
       .flatMap(s => {
-        const complex = complex_entities?.find(x => x.name === s.entity)
-        return complex ? [...(complex.list_entities ?? []), ...(complex.pattern_entities ?? [])] : [s.entity]
+        const slotEntity = s.entity === 'date' ? 'time' : s.entity // highly hardcoded, date is in fact a system time
+        const sysComplex = sysComplexes.find(c => c.name === slotEntity)
+        const complex = complex_entities?.find(x => x.name === slotEntity)
+        if (sysComplex) {
+          return sysComplex.name
+        } else if (complex) {
+          return [...(complex.list_entities ?? []), ...(complex.pattern_entities ?? [])]
+        } else {
+          slotEntity
+        }
       })
       .uniq()
       .value() as string[]
@@ -694,17 +725,18 @@ function extractAugmentations(
 ): Augmentation[] {
   return intent.slot_definitions
     .map(slot => {
-      const complexEntity = complex_entities.find(x => x.name.toLowerCase() === slot.entity.toLowerCase())
+      const slotEntity = (slot.entity === 'date' ? 'time' : slot.entity).toLowerCase()
+      const complexEntity = complex_entities.find(x => x.name.toLowerCase() === slotEntity)
 
       const listEntities = list_entities.filter(
         x =>
-          x.name.toLowerCase() === slot.entity.toLowerCase() ||
+          x.name.toLowerCase() === slotEntity ||
           complexEntity?.list_entities.map(l => l.toLowerCase()).includes(x.name.toLowerCase())
       )
 
       const patternEntities = pattern_entities.filter(
         x =>
-          x.name.toLowerCase() === slot.entity.toLowerCase() ||
+          x.name.toLowerCase() === slotEntity ||
           complexEntity?.pattern_entities.map(l => l.toLowerCase()).includes(x.name.toLowerCase())
       )
 
