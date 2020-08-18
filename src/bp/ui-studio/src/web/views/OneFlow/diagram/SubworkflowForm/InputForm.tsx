@@ -39,6 +39,7 @@ const InputForm: FC<Props> = ({
     variableTypes: [type],
     placeholder: 'module.builtin.setValueToPlaceholder',
     defaultVariableType: type,
+    // TODO: Use the variable default type instead of text (ex: number, date)
     onClick: field => setFieldTypes({ ...fieldTypes, [field.key]: field.type === 'variable' ? 'text' : 'variable' })
   }))
 
