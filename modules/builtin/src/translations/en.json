@@ -136,6 +136,6 @@
     "largerOrEqualTo": "Larger or Equal to"
   },
   "operations": {
-    "standard": "{var} {op} {other}"
+    "standard": "If {var} {op} {other}"
   }
 }

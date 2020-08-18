@@ -38,7 +38,7 @@ const RouterForm: FC<Props> = ({
   const parseInitialOperation = (): Operation => {
     const parser = new OperationParser()
     try {
-      return parser.parse(transition.condition)
+      return parser.parse(transition?.condition)
     } catch {
       return { args: {} } as Operation
     }
@@ -56,7 +56,17 @@ const RouterForm: FC<Props> = ({
     if (operator) {
       const serializer = new OperationSerializer()
       condition = serializer.serialize(operation)
-      caption = lang.tr(operator.caption, { var: operation.variable, op: lang.tr(operator.label), ...operation.args })
+      const friendlyArgs: any = {}
+      for (const [key, value] of Object.entries(operation.args)) {
+        friendlyArgs[key] =
+          typeof value === 'string' && value.startsWith('$') ? value.substr(1, value.length - 1) : value
+      }
+
+      caption = lang.tr(operator.caption, {
+        var: operation.variable,
+        op: lang.tr(operator.label).toLowerCase(),
+        ...friendlyArgs
+      })
     }
 
     const next = [...node.next]

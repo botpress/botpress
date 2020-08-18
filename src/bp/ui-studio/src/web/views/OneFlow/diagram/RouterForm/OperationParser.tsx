@@ -26,15 +26,42 @@ export class OperationParser {
   parseArgs(expression: string): OperationArgs {
     // Matches ({ something : something })
     //         X-------------------------X
-    let argsSection = expression.match(/\(.*\)/g)[0]
+    let argsSection = expression.match(/\(.*\)/gs)[0]
     argsSection = argsSection.substr(1, argsSection.length - 2)
+
+    const statementsStart = argsSection.indexOf('{')
+    const statementsEnd = argsSection.lastIndexOf('}')
+    const statementsSection = argsSection.substring(statementsStart + 1, statementsEnd)
 
     // Matches { something: something, something: something }
     //           ---------  ---------  ---------  ---------
-    const statementMatches = argsSection.match(/[^:{}, ]+/g) || []
-    for (const statement of statementMatches) {
-      // Puts " around statements to allow JSON parsing
-      argsSection = argsSection.replace(statement, `"${statement}"`)
+    const statements = []
+    let startIndex = 0
+    let inString = false
+    let escaping = false
+
+    const pushStatement = (i: number) => {
+      if (i - startIndex > 0) {
+        statements.push(statementsSection.substr(startIndex, i - startIndex).trim())
+      }
+      startIndex = i + 1
+    }
+
+    for (let i = 0; i < statementsSection.length; i++) {
+      const c = statementsSection[i]
+      if (c === "'" && !escaping) {
+        inString = !inString
+      } else if (!inString && (c === ',' || c === ':')) {
+        pushStatement(i)
+      }
+      escaping = c === '\\'
+    }
+    pushStatement(statementsSection.length)
+
+    for (const statement of statements) {
+      let escaped = JSON.stringify([statement])
+      escaped = escaped.substr(2, escaped.length - 4)
+      argsSection = argsSection.replace(statement, `"${escaped}"`)
     }
 
     const args = JSON.parse(argsSection) as OperationArgs
@@ -42,9 +69,9 @@ export class OperationParser {
     for (let [key, value] of Object.entries(args)) {
       // Matches operator('val')
       //                  X---X
-      const harcodedMatch = value.match(/'.+'/g)?.[0]
+      const harcodedMatch = value.match(/'.+'/gs)?.[0]
       if (harcodedMatch) {
-        value = harcodedMatch.substr(1, harcodedMatch.length - 2)
+        value = harcodedMatch.substr(1, harcodedMatch.length - 2).replace(/\\'/gs, "'")
       } else {
         // Matches $something
         //         ----------

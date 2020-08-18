@@ -129,13 +129,13 @@
     }
   },
   "operator": {
-    "equals": "Égal",
+    "equals": "Égal à",
     "smallerThan": "Plus petit que",
     "largerThan": "Plus grand que",
     "smallerOrEqualTo": "Plus petit ou égal à",
     "largerOrEqualTo": "Plus grand ou égal à"
   },
   "operations": {
-    "standard": "{var} {op} {other}"
+    "standard": "Si {var} {op} {other}"
   }
 }
