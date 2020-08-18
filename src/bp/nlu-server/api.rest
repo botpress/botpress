@@ -20,17 +20,17 @@ Content-Type: application/json
           "en": [
             "fruit is moldy",
             "this fruit is moldy",
-            "this [banana](moldy_fruit) is not good to eat",
-            "theses [oranges](moldy_fruit) have passed",
-            "theses [grapes](moldy_fruit) look bad",
-            "theses [cherries](moldy_fruit) look moldy af"
+            "this $moldy_fruit is not good to eat",
+            "theses $moldy_fruit have passed",
+            "theses $moldy_fruit look bad",
+            "theses $moldy_fruit look soo moldy"
           ]
         },
         "slots": [
           {
             "id": "hxr9f-c7FmkQaZsXqdTvc",
             "name": "moldy_fruit",
-            "entities": ["fruits"],
+            "entity": "fruits",
             "color": 1
           }
         ],
@@ -77,19 +77,19 @@ Content-Type: application/json
         "name": "where-is",
         "utterances": {
           "en": [
-            "where is [the milk](thing_to_search) ?",
-            "where are [fruits](thing_to_search) ?",
-            "can you help me find [oranges](thing_to_search) ?",
-            "I'm searching for[grapes](thing_to_search) ?",
-            "where is the [apple juice](thing_to_search) ?",
-            "where are the [apples](thing_to_search) ?"
+            "where is $thing_to_search ?",
+            "where are $thing_to_search ?",
+            "can you help me find $thing_to_search ?",
+            "I'm searching for $thing_to_search ?",
+            "where is the $thing_to_search ?",
+            "where are the $thing_to_search ?"
           ]
         },
         "slots": [
           {
             "id": "CHXyZ20FCsaagRJ7OO_3Y",
             "name": "thing_to_search",
-            "entities": ["fruits", "any"],
+            "entity": "fruits",
             "color": 1
           }
         ],
