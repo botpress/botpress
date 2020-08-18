@@ -99,7 +99,7 @@ const RouterForm: FC<Props> = ({
       return typeof value === 'string' && value.startsWith('$') ? value.substr(1, value.length - 1) : value || ''
     })
 
-    const caption = lang.tr(operator.caption, {
+    const caption = lang.tr(`${operator.caption}${operation.negate ? 'Not' : ''}`, {
       var: operation.variable,
       op: lang.tr(operator.label).toLowerCase(),
       ...friendlyArgs

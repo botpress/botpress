@@ -144,6 +144,8 @@
   },
   "operations": {
     "selfOperation": "If {var} {op}",
-    "standard": "If {var} {op} {other}"
+    "standard": "If {var} {op} {other}",
+    "selfOperationNot": "If Not {var} {op}",
+    "standardNot": "If Not {var} {op} {other}"
   }
 }

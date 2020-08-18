@@ -143,7 +143,9 @@
     "isAfter": "Est après"
   },
   "operations": {
-    "selfOperation": "If {var} {op}",
-    "standard": "Si {var} {op} {other}"
+    "selfOperation": "Si {var} {op}",
+    "standard": "Si {var} {op} {other}",
+    "selfOperationNot": "Si {var} n'est pas {op}",
+    "standardNot": "Si {var} n'est pas {op} {other}"
   }
 }
