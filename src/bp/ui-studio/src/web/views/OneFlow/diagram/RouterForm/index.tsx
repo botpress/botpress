@@ -11,7 +11,7 @@ import style from '../PromptForm/style.scss'
 
 import { Operation } from './Operation'
 import { OperationParser } from './OperationParser'
-import { OperationSerializer } from './OperationSerializer'
+import { serializeOperation } from './OperationSerializer'
 
 interface Props {
   deleteTransition: () => void
@@ -92,8 +92,7 @@ const RouterForm: FC<Props> = ({
       return { condition: 'false', node: transition.node }
     }
 
-    const serializer = new OperationSerializer()
-    const condition = serializer.serialize(operation)
+    const condition = serializeOperation(operation)
 
     const friendlyArgs = _.mapValues(operation.args, value => {
       return typeof value === 'string' && value.startsWith('$') ? value.substr(1, value.length - 1) : value || ''
