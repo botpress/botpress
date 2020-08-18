@@ -20,7 +20,9 @@
       "./ui-admin/**",
       "./ui-studio/**",
       "./core/config/schemas/**",
-      "./ml/bin/**"
+      "./ml/bin/**",
+      "./nlu-core/language/pre-trained/**",
+      "./nlu-core/language/stop-words/**"
     ]
   }
 }
