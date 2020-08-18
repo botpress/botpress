@@ -4,6 +4,7 @@ import _ from 'lodash'
 
 const INTENT_DIR = 'intents'
 const ENTITIES_DIR = 'entities'
+const ALL_SLOTS_REGEX = /\[(.+?)\]\(([\w_\. :-]+)\)/gi // taken from 'nlu-core/utterance/utterance-parser.ts'
 
 type OldSlotDefinition = sdk.NLU.SlotDefinition & {
   entities: string[]
@@ -11,6 +12,54 @@ type OldSlotDefinition = sdk.NLU.SlotDefinition & {
 
 type OldIntent = Omit<sdk.NLU.IntentDefinition, 'slots'> & {
   slots: OldSlotDefinition[]
+}
+
+const migration: Migration = {
+  info: {
+    description: 'Migrate slots to new Albert variables',
+    target: 'bot',
+    type: 'content'
+  },
+  up: async ({ bp, metadata }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
+    try {
+      if (metadata.botId) {
+        await updateBot(bp, metadata.botId)
+      } else {
+        const bots = await bp.bots.getAllBots()
+        for (const botId of Array.from(bots.keys())) {
+          await updateBot(bp, botId)
+        }
+      }
+      return { success: true, message: 'Slots updated successfully' }
+    } catch (err) {
+      return { success: false, message: `Slot migration could not finish due to error: ${err.message}` }
+    }
+  }
+}
+export default migration
+
+async function updateBot(bp: typeof sdk, botId: string): Promise<void> {
+  const scopedGhost = bp.ghost.forBot(botId!)
+  const intentFiles = await scopedGhost.directoryListing(INTENT_DIR, '*.json')
+
+  const allEntities = await getEntities(scopedGhost)
+  const complexCreator = new ComplexEntityCreator(allEntities)
+
+  const intentUpdater = migrateOneIntent(complexCreator)
+  for (const intentFile of intentFiles) {
+    const rawContent = await scopedGhost.readFileAsString(INTENT_DIR, intentFile)
+    const intent: OldIntent = JSON.parse(rawContent)
+    const updatedIntent = await intentUpdater(intent)
+
+    const newContent = JSON.stringify(updatedIntent, undefined, 2)
+    await scopedGhost.upsertFile(INTENT_DIR, intentFile, newContent)
+  }
+
+  for (const newComplex of complexCreator.getNewComplexs()) {
+    const rawContent = JSON.stringify(newComplex, undefined, 2)
+    const fName = `${newComplex.name}.json`
+    await scopedGhost.upsertFile(ENTITIES_DIR, fName, rawContent)
+  }
 }
 
 async function getEntities(scopedGhost: sdk.ScopedGhostService): Promise<sdk.NLU.EntityDefinition[]> {
@@ -93,83 +142,38 @@ class ComplexEntityCreator {
   }
 }
 
-const migration: Migration = {
-  info: {
-    description: 'Migrate slots to new Albert variables',
-    target: 'bot',
-    type: 'content'
-  },
-  up: async ({ bp, metadata }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
-    async function updateBot(botId: string): Promise<void> {
-      const scopedGhost = bp.ghost.forBot(botId!)
-      const intentFiles = await scopedGhost.directoryListing(INTENT_DIR, '*.json')
-
-      const allEntities = await getEntities(scopedGhost)
-      const complexCreator = new ComplexEntityCreator(allEntities)
-
-      for (const intentFile of intentFiles) {
-        const rawContent = await scopedGhost.readFileAsString(INTENT_DIR, intentFile)
-        const intent: OldIntent = JSON.parse(rawContent)
-        for (const slot of intent.slots) {
-          let entity: string
-          if (slot.entities.length === 1 && slot.entities[0] === 'any') {
-            entity = complexCreator.buildNewComplexFromSlotAny(slot.name) // build entity from slot name
-          } else if (slot.entities.length > 1) {
-            entity = complexCreator.buildNewComplex(slot.entities)
-          } else {
-            entity = slot.entities[0]
-          }
-          slot.entity = entity
-        }
-
-        const findEntities = function(slotName: string): string[] | undefined {
-          return intent.slots.find(s => s.name === slotName)?.entities
-        }
-
-        const ALL_SLOTS_REGEX = /\[(.+?)\]\(([\w_\. :-]+)\)/gi // taken from 'nlu-core/utterance/utterance-parser.ts'
-        const migrateOneUtterance = (utt: string) =>
-          utt.replace(ALL_SLOTS_REGEX, function(_wholeMatch, slotExample: string, slotName: string) {
-            const slotEntities = findEntities(slotName)
-
-            if (slotEntities) {
-              const isOnlyAny = slotEntities.length === 1 && slotEntities[0] === 'any'
-              const newComplex = isOnlyAny ? slotName : complexCreator.makeName(slotEntities.filter(e => e !== 'any'))
-              complexCreator.appendExample(newComplex, slotExample)
-            }
-
-            return `$${slotName}`
-          })
-        intent.utterances = _.mapValues(intent.utterances, utts => utts.map(migrateOneUtterance))
-
-        for (const slot of intent.slots) {
-          delete slot.entities
-        }
-
-        for (const newComplex of complexCreator.getNewComplexs()) {
-          const rawContent = JSON.stringify(newComplex, undefined, 2)
-          const fName = `${newComplex.name}.json`
-          await scopedGhost.upsertFile(ENTITIES_DIR, fName, rawContent)
-        }
-
-        const newContent = JSON.stringify(intent, undefined, 2)
-        await scopedGhost.upsertFile(INTENT_DIR, intentFile, newContent)
-      }
+const migrateOneIntent = (complexCreator: ComplexEntityCreator) => async (intent: OldIntent) => {
+  for (const slot of intent.slots) {
+    let entity: string
+    if (slot.entities.length === 1 && slot.entities[0] === 'any') {
+      entity = complexCreator.buildNewComplexFromSlotAny(slot.name) // build entity from slot name
+    } else if (slot.entities.length > 1) {
+      entity = complexCreator.buildNewComplex(slot.entities)
+    } else {
+      entity = slot.entities[0]
     }
-
-    try {
-      if (metadata.botId) {
-        await updateBot(metadata.botId)
-      } else {
-        const bots = await bp.bots.getAllBots()
-        for (const botId of Array.from(bots.keys())) {
-          await updateBot(botId)
-        }
-      }
-      return { success: true, message: 'Slots updated successfully' }
-    } catch (err) {
-      return { success: false, message: `Slot migration could not finish due to error: ${err.message}` }
-    }
+    slot.entity = entity
   }
+
+  const utteranceUpdater = migrateOneUtterance(complexCreator, intent)
+  intent.utterances = _.mapValues(intent.utterances, utts => utts.map(utteranceUpdater))
+
+  for (const slot of intent.slots) {
+    delete slot.entities
+  }
+
+  return intent
 }
 
-export default migration
+const migrateOneUtterance = (complexCreator: ComplexEntityCreator, intent: OldIntent) => (utt: string) =>
+  utt.replace(ALL_SLOTS_REGEX, (_wholeMatch: string, slotExample: string, slotName: string) => {
+    const slotEntities = intent.slots.find(s => s.name === slotName)?.entities
+
+    if (slotEntities) {
+      const isOnlyAny = slotEntities.length === 1 && slotEntities[0] === 'any'
+      const newComplex = isOnlyAny ? slotName : complexCreator.makeName(slotEntities.filter(e => e !== 'any'))
+      complexCreator.appendExample(newComplex, slotExample)
+    }
+
+    return `$${slotName}`
+  })
