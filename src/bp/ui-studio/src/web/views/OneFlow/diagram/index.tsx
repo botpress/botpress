@@ -80,7 +80,7 @@ import ConditionForm from './ConditionForm'
 import ContentForm from './ContentForm'
 import ExecuteForm from './ExecuteForm'
 import PromptForm from './PromptForm'
-import SubworkflowForm from './SubworkflowForm'
+import SubWorkflowForm from './SubWorkflowForm'
 import Toolbar from './Toolbar'
 import VariablesEditor from './VariablesEditor'
 import VariableForm from './VariableForm'
@@ -937,6 +937,15 @@ class Diagram extends Component<Props> {
     })
   }
 
+  updateSubWorkflow = data => {
+    const { node, index } = this.state.editingNodeItem
+
+    this.props.switchFlowNode(node.id)
+    this.setState({ editingNodeItem: { node: { ...node, subflow: { ...node.subflow, ...data } }, index } })
+
+    this.props.updateFlowNode({ subflow: data })
+  }
+
   renderSearch = () => {
     return (
       this.props.showSearch && (
@@ -967,7 +976,7 @@ class Diagram extends Component<Props> {
     } else if (formType === 'trigger') {
       currentItem = node?.conditions?.[index]
     } else if (formType === 'sub-workflow') {
-      currentItem = index ? 'out' : 'in'
+      currentItem = node.subflow
     } else if (formType === 'variableType') {
       currentItem = data
     } else if (formType === 'variable') {
@@ -1119,11 +1128,15 @@ class Diagram extends Component<Props> {
             />
           )}
           {formType === 'sub-workflow' && (
-            <SubworkflowForm
+            <SubWorkflowForm
+              variables={this.props.variables}
               node={this.props.currentFlowNode}
-              diagramEngine={this.diagramEngine}
+              customKey={`${node?.id}${node?.type}`}
+              updateSubWorkflow={this.updateSubWorkflow}
+              onUpdateVariables={this.addVariable}
+              formData={currentItem}
               flows={this.props.flows}
-              type={currentItem}
+              type={index === 0 ? 'in' : 'out'}
               close={() => {
                 this.timeout = setTimeout(() => {
                   this.setState({ editingNodeItem: null })
