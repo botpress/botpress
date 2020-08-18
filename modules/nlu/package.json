@@ -25,6 +25,8 @@
     "rimraf": "^3.0.2"
   },
   "dependencies": {
+    "fs-extra": "^7.0.1",
+    "tmp": "^0.0.33",
     "axios": "^0.19.0",
     "bluebird": "^3.5.3",
     "bluebird-global": "^1.0.1",
