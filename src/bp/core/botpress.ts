@@ -120,10 +120,34 @@ export class Botpress {
     process.exit()
   }
 
+  private async _copyPretrainedAndStopWords() {
+    const languageDir = path.join(__dirname, '../nlu-core/language')
+    const preTrainedDir = './pre-trained'
+    const stopWordsDir = './stop-words'
+    await this._copyDir(path.join(languageDir, preTrainedDir), path.join(process.APP_DATA_PATH, preTrainedDir))
+    await this._copyDir(path.join(languageDir, stopWordsDir), path.join(process.APP_DATA_PATH, stopWordsDir))
+  }
+
+  private async makeDirIfNotExist(dirPath: string) {
+    if (!fse.existsSync(dirPath)) {
+      await fse.mkdir(dirPath)
+    }
+  }
+
+  private async _copyDir(srcDirPath: string, destDirPath: string) {
+    await this.makeDirIfNotExist(destDirPath)
+    const srcFiles = await fse.readdir(srcDirPath)
+    for (const file of srcFiles) {
+      await fse.copyFile(path.join(srcDirPath, file), path.join(destDirPath, file))
+    }
+  }
+
   private async initialize(options: StartOptions) {
     if (!process.IS_PRODUCTION) {
       this.logger.info(`Running in DEVELOPMENT MODE`)
     }
+
+    await this._copyPretrainedAndStopWords()
 
     this.config = await this.configProvider.getBotpressConfig()
 
