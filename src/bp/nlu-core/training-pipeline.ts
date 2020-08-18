@@ -395,7 +395,7 @@ export const ProcessIntents = async (
         } else if (complex) {
           return [...(complex.list_entities ?? []), ...(complex.pattern_entities ?? [])]
         } else {
-          slotEntity
+          return slotEntity
         }
       })
       .uniq()
@@ -406,7 +406,6 @@ export const ProcessIntents = async (
     })
 
     const vocab = buildIntentVocab(utterances, entityModels)
-
     return { ...intent, utterances, vocab, slot_entities: allowedEntities }
   })
 }
