@@ -1,11 +1,10 @@
 import * as sdk from 'botpress/sdk'
 import { Request, Response } from 'express'
-import { zip } from 'lodash'
 import moment from 'moment'
 import multer from 'multer'
 import nanoid from 'nanoid'
 
-import { Item, ScopedBots } from './qna'
+import { ScopedBots } from './qna'
 import { getQnaEntryPayloads } from './utils'
 
 export interface ImportArgs {
@@ -74,7 +73,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
       const items = await storage.fetchItems(req.params.topicName)
       const item = items.find(x => x.id === req.params.id)
       if (!item) {
-        throw new Error(`QnA "${req.params.id}" Not found`)
+        throw new Error(`Failed to update QnA "${req.params.id}"`)
       }
       res.send({ items: item })
     } catch (e) {

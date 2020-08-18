@@ -108,13 +108,8 @@ export default class Storage {
       enabled: intent.metadata?.enabled,
       lastModified: intent.metadata?.lastModifiedOn
     }))
+    return items
 
-    if (opts?.start !== undefined && opts?.count > -1) {
-      // TODO: move filtering & search to API layer
-      return items.slice(opts.start, opts.start + opts.count)
-    } else {
-      return items
-    }
   }
 
   async updateSingleItem(topicName: string, item: Item): Promise<string> {
@@ -151,7 +146,6 @@ export default class Storage {
   }
 
   async getCountPerTopic() {
-    // TODO Make this parallel
     const qnaFilesPerTopic = await this.ghost.directoryListing(FLOW_FOLDER, 'qna.intents.json')
     const qnaPerTopic = {}
     for (const qnaFile of qnaFilesPerTopic) {
