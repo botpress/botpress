@@ -36,9 +36,13 @@ const RouterForm: FC<Props> = ({
   const [showOptions, setShowOptions] = useState(false)
 
   const parseInitialOperation = (): Operation => {
+    if (!transition?.condition?.length) {
+      return { args: {} } as Operation
+    }
+
     const parser = new OperationParser()
     try {
-      return parser.parse(transition?.condition)
+      return parser.parse(transition.condition)
     } catch {
       return { args: {} } as Operation
     }
@@ -142,15 +146,20 @@ const RouterForm: FC<Props> = ({
                 fields={[
                   {
                     type: 'select',
-                    key: 'value',
+                    key: 'operator',
                     label: lang.tr('studio.router.condition'),
                     options: operatorOptions,
                     defaultValue: operation.operator
+                  },
+                  {
+                    type: 'checkbox',
+                    key: 'negate',
+                    label: lang.tr('studio.router.negate')
                   }
                 ]}
                 advancedSettings={[]}
-                formData={{ x: operation.operator }}
-                onUpdate={x => setOperation({ ...operation, operator: x.value })}
+                formData={operation}
+                onUpdate={x => setOperation({ ...operation, ...x })}
               />
               <Contents.Form
                 currentLang={contentLang}

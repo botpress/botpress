@@ -55,7 +55,8 @@
   "studio": {
     "router": {
       "variable": "Variable",
-      "condition": "Condition"
+      "condition": "Condition",
+      "negate": "Rendre cette condition négative"
     },
     "condition": {
       "label": "Condition",

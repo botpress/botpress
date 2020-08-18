@@ -5,7 +5,8 @@ export class OperationParser {
     return {
       variable: this.parseVariable(expression),
       operator: this.parseOperator(expression),
-      args: this.parseArgs(expression)
+      args: this.parseArgs(expression),
+      negate: expression.startsWith('!')
     }
   }
 
