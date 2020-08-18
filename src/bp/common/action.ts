@@ -1,7 +1,7 @@
 import { IO } from 'botpress/sdk'
 import _ from 'lodash'
 
-import { EventCommonArgs } from './typings'
+import { EventCommonArgs, OutgoingEventCommonArgs } from './typings'
 
 export interface ActionInstruction {
   actionName: string
@@ -36,16 +36,24 @@ export const parseActionInstruction = (actionInstruction: string): ActionInstruc
 }
 
 export const extractEventCommonArgs = (
-  event: IO.IncomingEvent,
+  event: IO.Event | IO.IncomingEvent,
   args?: { [property: string]: any }
-): EventCommonArgs => {
+): EventCommonArgs | OutgoingEventCommonArgs => {
+  if (event.direction === 'outgoing') {
+    return {
+      ...(args ?? {}),
+      event
+    }
+  }
+  const incomingEvent = event as IO.IncomingEvent
+
   return {
     ...(args ?? {}),
-    event,
-    user: event.state.user ?? {},
-    session: event.state.session ?? ({} as IO.CurrentSession),
-    temp: event.state.temp ?? {},
-    bot: event.state.bot ?? {},
-    workflow: event.state.workflow ?? ({} as IO.WorkflowHistory)
+    event: incomingEvent,
+    user: incomingEvent.state.user ?? {},
+    session: incomingEvent.state.session ?? ({} as IO.CurrentSession),
+    temp: incomingEvent.state.temp ?? {},
+    bot: incomingEvent.state.bot ?? {},
+    workflow: incomingEvent.state.workflow ?? ({} as IO.WorkflowHistory)
   }
 }

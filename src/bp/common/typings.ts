@@ -215,6 +215,12 @@ export interface LibraryElement {
   path: string
 }
 
+export interface OutgoingEventCommonArgs {
+  event: IO.Event
+  // Any other additional property
+  [property: string]: any
+}
+
 export interface EventCommonArgs {
   event: IO.IncomingEvent
   user: { [attribute: string]: any }

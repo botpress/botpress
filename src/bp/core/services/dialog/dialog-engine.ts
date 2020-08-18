@@ -408,6 +408,10 @@ export class DialogEngine {
   private _endFlow(event: IO.IncomingEvent) {
     event.state.context = {}
     event.state.temp = {}
+
+    if (event.state.workflow) {
+      event.state.workflow.status = 'completed'
+    }
   }
 
   private initializeContext(event) {

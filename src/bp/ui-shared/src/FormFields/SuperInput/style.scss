@@ -179,6 +179,7 @@
 
           .tagify__tag-text {
             margin-left: var(--spacing-x-small);
+            font-size: 10px;
 
             &[contenteditable] {
               margin: 0 0 0 var(--spacing-x-small) !important;

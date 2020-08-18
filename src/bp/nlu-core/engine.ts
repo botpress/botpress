@@ -20,7 +20,7 @@ export default class Engine implements NLU.Engine {
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<PredictableModel> = {}
 
-  constructor(private defaultLanguage: string, private botId: string, private logger: NLU.Logger) { }
+  constructor(private defaultLanguage: string, private botId: string, private logger: NLU.Logger) {}
 
   // NOTE: removed private in order to prevent important refactor (which will be done later)
   public static get tools() {

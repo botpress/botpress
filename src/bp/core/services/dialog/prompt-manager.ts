@@ -1,4 +1,4 @@
-import { IO, Prompt, PromptDefinition } from 'botpress/sdk'
+import { IO, NLU, Prompt, PromptDefinition } from 'botpress/sdk'
 import { MultiLangText } from 'botpress/sdk'
 import lang from 'common/lang'
 import { injectable } from 'inversify'
@@ -137,6 +137,7 @@ const generateCandidate = (actions: any[], status: IO.PromptStatus, candidate: I
 @injectable()
 export class PromptManager {
   public prompts!: PromptDefinition[]
+  public getCustomTypes?: (botId: string) => NLU.EntityDefinition[]
 
   public async processPrompt(
     event: IO.IncomingEvent,
@@ -152,7 +153,9 @@ export class PromptManager {
     debugPrompt('before process prompt %o', { prompt: status })
 
     const candidates: IO.PromptCandidate[] = []
-    const prompt = this.loadPrompt(status.config.type, status.config)
+
+    const prompt = this.loadPrompt(status.config.type, status.config, () => this.getCustomTypes!(event.botId))
+
     const actions: IO.DialogAction[] = []
 
     const tryElect = (value: any): boolean => {
@@ -167,7 +170,7 @@ export class PromptManager {
       return valid
     }
 
-    const confirmPrompt = this.loadPrompt('confirm', {})
+    const confirmPrompt = this.loadPrompt('confirm', {}, () => this.getCustomTypes!(event.botId))
     const confirmValue = _.chain(confirmPrompt.extraction(event) ?? [])
       .filter(x => x.confidence >= MIN_CONFIDENCE_VALIDATION)
       .orderBy('confidence', 'desc')
@@ -176,6 +179,10 @@ export class PromptManager {
 
     if (status.stage !== 'new') {
       status.turn++
+    }
+
+    if (event.ndu?.actions.find(x => x.action === 'prompt.repeat')) {
+      return generatePrompt(actions, status)
     }
 
     if (status.stage === 'confirm-cancel') {
@@ -302,11 +309,11 @@ export class PromptManager {
     _.set(event.state.session, `slots.${slotName}.elected`, true)
   }
 
-  private loadPrompt(type: string, params: any): Prompt {
+  private loadPrompt(type: string, params: any, getCustomTypes: () => NLU.EntityDefinition[]): Prompt {
     const definition = this.prompts.find(x => x.id === type)
     if (!definition) {
       throw new Error(`Unknown prompt type ${type}`)
     }
-    return new definition.prompt(params)
+    return new definition.prompt({ ...params, getCustomTypes })
   }
 }

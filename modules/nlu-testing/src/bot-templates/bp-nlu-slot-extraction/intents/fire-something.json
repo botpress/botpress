@@ -2,14 +2,14 @@
   "name": "fire-something",
   "utterances": {
     "en": [
-      "I'm gonna fire my [AK47](thing_to_fire) at [8pm](time_or_place)",
-      "I'm going to fire [apples](thing_to_fire) in quebec city [tonight](time_or_place)",
-      "There's an [orange](thing_to_fire) shooting planned [next tuesday](time_or_place)",
-      "I'm heading to [quebec city](time_or_place) shooting lane to test my [M16](thing_to_fire)",
-      "let's shoot some [G36](thing_to_fire) at [christmas](time_or_place)",
-      "at [5pm](time_or_place) is the time I will fire [apples](thing_to_fire)",
-      "Go to [paris](thing_to_fire) to shoot some fruits!",
-      "Fire your [AK47](time_or_place) at some place or time!",
+      "I'm gonna fire my $thing_to_fire at $time_or_place",
+      "I'm going to fire $thing_to_fire in quebec city $time_or_place",
+      "There's an $thing_to_fire shooting planned $time_or_place",
+      "I'm heading to $time_or_place shooting lane to test my $thing_to_fire",
+      "let's shoot some $thing_to_fire at $time_or_place",
+      "at $time_or_place is the time I will fire $thing_to_fire",
+      "Go to $thing_to_fire to shoot some fruits!",
+      "Fire your $time_or_place at some place or time!",
       "I'm going to fire fruits ora gun at some place or time"
     ]
   },
@@ -17,15 +17,17 @@
     {
       "id": "tr6LhqpNT_hRF8VSeyXBE",
       "name": "thing_to_fire",
-      "entities": ["fruits", "gun"],
-      "color": 1
+      "color": 1,
+      "entity": "fruits_gun"
     },
     {
       "id": "vlqdXhPbpb5R_u3-7qEJ7",
       "name": "time_or_place",
-      "entities": ["time", "city"],
-      "color": 2
+      "color": 2,
+      "entity": "time_city"
     }
   ],
-  "contexts": ["multi-slot-multi-entity"]
+  "contexts": [
+    "multi-slot-multi-entity"
+  ]
 }
