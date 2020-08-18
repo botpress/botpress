@@ -1026,10 +1026,7 @@ class Diagram extends Component<Props> {
               id="diagramContainer"
               ref={ref => (this.diagramContainer = ref)}
               tabIndex={1}
-              className={style.diagramContainer}
-              style={{
-                display: currentTab === 'workflow' ? 'inherit' : 'none'
-              }}
+              className={cx(style.diagramContainer, { [style.hidden]: currentTab !== 'workflow' })}
               onContextMenu={this.handleContextMenu}
               onDrop={this.handleToolDropped}
               onDragOver={event => event.preventDefault()}
