@@ -446,10 +446,12 @@ class Diagram extends Component<Props> {
         <MenuItem text={lang.tr('ifElse')} onClick={wrap(this.add.routerNode, point)} icon="fork" />
         <MenuItem text={lang.tr('action')} onClick={wrap(this.add.actionNode, point)} icon="offline" />
 
-        <MenuItem text="Outcome" icon="take-action">
-          <MenuItem text="Success" onClick={wrap(this.add.successNode, point)} icon="tick" />
-          <MenuItem text="Failure" onClick={wrap(this.add.failureNode, point)} icon="cross" />
-        </MenuItem>
+        {this.props.currentFlow?.type === 'reusable' && (
+          <MenuItem text="Outcome" icon="take-action">
+            <MenuItem text="Success" onClick={wrap(this.add.successNode, point)} icon="tick" />
+            <MenuItem text="Failure" onClick={wrap(this.add.failureNode, point)} icon="cross" />
+          </MenuItem>
+        )}
 
         <MenuItem text="Go to Reusable Workflow" icon="pivot" disabled={!hasSubFlows}>
           {this.props.reusableFlows?.map(flow => (
