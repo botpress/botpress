@@ -5,21 +5,13 @@ import _ from 'lodash'
 import moment from 'moment'
 import React, { FC, Fragment, useState } from 'react'
 
-import en from '../../../../../translations/en.json'
-import fr from '../../../../../translations/fr.json'
+import lang from '../../../../lang'
 import style from '../style.scss'
-
-const translations = { fr, en }
 
 export const Processing: FC<{ processing: { [activity: string]: sdk.IO.ProcessingEntry } }> = props => {
   const [expanded, setExpanded] = useState({})
   const { processing } = props
   let isBeforeMW = true
-
-  // TODO: Better translation implementation for "lite" modules
-  const lang = {
-    tr: (item: string) => _.get(translations['en'], item)
-  }
 
   const processed = Object.keys(processing)
     .map(key => {
@@ -42,12 +34,12 @@ export const Processing: FC<{ processing: { [activity: string]: sdk.IO.Processin
         if (isBeforeMW && item.type === 'mw') {
           isBeforeMW = false
         }
-        let name = lang.tr(`processing.${item.type}`)
+        let name = lang.tr(`module.extensions.processing.${item.type}`)
 
         if (isBeforeMW && item.type === 'hook') {
-          name = lang.tr('processing.beforeMW')
+          name = lang.tr('module.extensions.processing.beforeMW')
         } else if (!isBeforeMW && item.type === 'hook') {
-          name = lang.tr('processing.afterMW')
+          name = lang.tr('module.extensions.processing.afterMW')
         }
         acc = acc.concat({ type: item.type, name, subItems: [item] })
       }
@@ -62,7 +54,7 @@ export const Processing: FC<{ processing: { [activity: string]: sdk.IO.Processin
     return (
       <Fragment>
         <button className={style.itemButton} onClick={() => setExpanded({ ...expanded, [key]: !isExpanded })}>
-          <Icon icon={isExpanded ? 'eye-off' : 'eye-open'} iconSize={10} />
+          <Icon icon={isExpanded ? 'chevron-down' : 'chevron-right'} iconSize={10} />
           {item.name}
           {item.status === 'error' && <Icon className={style.error} icon="error" iconSize={10} />}
         </button>
@@ -80,14 +72,16 @@ export const Processing: FC<{ processing: { [activity: string]: sdk.IO.Processin
               <span className={style.infoBox}>
                 {item.errors.map(entry => (
                   <div>
-                    <b>Type:</b> {entry.type}
+                    <b>{lang.tr('module.extensions.processing.type')}:</b> {entry.type}
                     <br />
-                    <b>Stacktrace:</b> {entry.stacktrace}
+                    <b>{lang.tr('module.extensions.processing.stacktrace')}:</b> {entry.stacktrace}
                   </div>
                 ))}
               </span>
             )}
-            <span className={style.time}>Executed in {item.execTime || 0} ms</span>
+            <span className={style.time}>
+              {lang.tr('module.extensions.processing.executedIn', { n: item.execTime || 0 })}
+            </span>
           </span>
         )}
       </Fragment>

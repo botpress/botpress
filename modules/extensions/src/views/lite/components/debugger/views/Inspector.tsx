@@ -4,6 +4,7 @@ import _ from 'lodash'
 import React, { useState } from 'react'
 import JSONTree from 'react-json-tree'
 
+import lang from '../../../../lang'
 import inspectorTheme from '../inspectorTheme'
 import style from '../style.scss'
 
@@ -21,14 +22,14 @@ export const Inspector = props => {
     ContextMenu.show(
       <Menu>
         <MenuItem
-          text="Copy Event Path"
+          text={lang.tr('module.extensions.inspector.copyEventPath')}
           onClick={() => {
             copy(`{{${path}}}`)
           }}
           icon="clipboard"
         />
         <MenuItem
-          text="Expand All"
+          text={lang.tr('module.extensions.inspector.expandAll')}
           onClick={() => {
             path = path.replace('event.', '')
 
