@@ -3,23 +3,36 @@ import axios from 'axios'
 import sdk from 'botpress/sdk'
 import { confirmDialog, lang } from 'botpress/shared'
 import cx from 'classnames'
+import { buildFlowName, parseFlowName } from 'common/flow'
+import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { deleteEntity, refreshEntities, setActiveFormItem } from '~/actions'
+import {
+  createFlow,
+  deleteEntity,
+  deleteFlow,
+  duplicateFlow,
+  refreshEntities,
+  renameFlow,
+  setActiveFormItem,
+  updateFlow
+} from '~/actions'
 import { SearchBar } from '~/components/Shared/Interface'
 import { RootReducer } from '~/reducers'
+import { sanitizeName } from '~/util'
 
 import style from '../TopicList/style.scss'
 
 import TreeItem from './TreeItem'
 
 interface OwnProps {
+  goToFlow: (flow: any) => void
   readOnly: boolean
   editing: string
   isEditingNew: boolean
   selectedWorkflow: string
-  entities: sdk.NLU.EntityDefinition[]
+  flows: FlowView[]
   createWorkflow: (topicId: string) => void
   refreshEntities: () => void
 }
@@ -51,10 +64,26 @@ const getNextName = (originalName: string, list: any[]) => {
   return name
 }
 
+const sanitize = (name: string) => {
+  return sanitizeName(name).replace(/\//g, '-')
+}
+
+const getVarTypeIcon = type => {
+  switch (type) {
+    case 'pattern':
+      return 'comparison'
+    case 'list':
+      return 'properties'
+    case 'complex':
+      return 'list-columns'
+  }
+}
+
 const Library: FC<Props> = props => {
   const [filter, setFilter] = useState('')
   const [items, setItems] = useState<NodeData[]>([])
   const [expanded, setExpanded] = useState<any>({})
+  const [editing, setEditing] = useState('')
 
   useEffect(() => {
     props.refreshEntities()
@@ -63,11 +92,20 @@ const Library: FC<Props> = props => {
   useEffect(() => {
     const entities = props.entities
       ?.filter(x => x.type !== 'system' && x.name?.toLowerCase()?.includes(filter.toLowerCase()))
-      .map(x => ({
+      .map<NodeData>(x => ({
         id: x.id,
         type: 'variableType',
         label: x.name,
-        icon: x.type === 'pattern' ? 'comparison' : 'properties'
+        icon: getVarTypeIcon(x.type)
+      }))
+
+    const reusables = props.flows
+      .filter(x => x.type === 'reusable' && x.name?.toLowerCase()?.includes(filter.toLowerCase()))
+      .map<NodeData>(x => ({
+        id: x.name,
+        type: 'workflow',
+        label: parseFlowName(x.name).workflow,
+        icon: 'data-lineage'
       }))
 
     const items = [
@@ -76,7 +114,7 @@ const Library: FC<Props> = props => {
         id: 'workflow',
         type: 'workflow' as NodeType,
         label: lang.tr('studio.library.savedWorkflows'),
-        children: []
+        children: reusables
       },
       {
         id: 'variableType',
@@ -87,7 +125,7 @@ const Library: FC<Props> = props => {
     ]
 
     setItems(items)
-  }, [props.entities, filter])
+  }, [props.entities, props.flows, filter, props.selectedWorkflow, editing])
 
   const handleClick = ({ path, item, level }): void => {
     if (item.children?.length || level === 0) {
@@ -96,10 +134,12 @@ const Library: FC<Props> = props => {
 
     if (item.type === 'variableType' && level !== 0) {
       props.setActiveFormItem({ type: 'variableType', data: props.entities.find(x => x.id === item.id) })
+    } else if (item.type === 'workflow') {
+      props.goToFlow(item.id)
     }
   }
 
-  const newVarType = async (type: 'pattern' | 'list') => {
+  const newVarType = async (type: 'pattern' | 'list' | 'complex') => {
     const name = getNextName(`${type}-entity`, props.entities)
     await createVarType({ id: name, name, type, occurrences: [] })
   }
@@ -124,6 +164,49 @@ const Library: FC<Props> = props => {
     }
   }
 
+  const deleteWorkflow = async (workflow: string) => {
+    if (await confirmDialog(lang.tr('studio.flow.topicList.confirmDeleteFlow'), { acceptLabel: lang.tr('delete') })) {
+      props.deleteFlow(workflow)
+    }
+  }
+
+  const nextFlowName = (topic: string, originalName: string): string => {
+    let name = undefined
+    let fullName = undefined
+    let index = 0
+    do {
+      name = `${originalName}${index ? `-${index}` : ''}`
+      fullName = buildFlowName({ topic, workflow: name }, true).workflowPath
+      index++
+    } while (props.flows.find(f => f.name === fullName))
+
+    return fullName
+  }
+
+  const duplicateWorkflow = async (workflow: string) => {
+    const parsedName = parseFlowName(workflow)
+    const copyName = nextFlowName(parsedName.topic, parsedName.workflow)
+    props.duplicateFlow({
+      flowNameToDuplicate: workflow,
+      name: copyName
+    })
+  }
+
+  const newFlow = async () => {
+    const name = nextFlowName('__reusable', 'subworkflow')
+    props.createFlow(name)
+  }
+
+  const renameFlow = async (value: string) => {
+    const fullName = buildFlowName({ topic: parseFlowName(editing).topic, workflow: sanitize(value) }, true)
+      .workflowPath
+
+    if (!props.flows.find(x => x.name === fullName)) {
+      props.renameFlow({ targetFlow: editing, name: fullName })
+      props.updateFlow({ name: fullName })
+    }
+  }
+
   const handleContextMenu = (element: NodeData) => {
     const { id, type } = element as NodeData
 
@@ -131,28 +214,53 @@ const Library: FC<Props> = props => {
       return
     }
 
-    return (
-      <Fragment>
-        <MenuItem id="btn-duplicate" label={lang.tr('duplicate')} onClick={() => duplicateVarType(id)} />
-        <MenuItem id="btn-delete" label={lang.tr('delete')} intent={Intent.DANGER} onClick={() => deleteEntity(id)} />
-      </Fragment>
-    )
+    if (type == 'variableType') {
+      return (
+        <Fragment>
+          <MenuItem id="btn-duplicate" label={lang.tr('duplicate')} onClick={() => duplicateVarType(id)} />
+          <MenuItem id="btn-delete" label={lang.tr('delete')} intent={Intent.DANGER} onClick={() => deleteEntity(id)} />
+        </Fragment>
+      )
+    } else if (type == 'workflow') {
+      return (
+        <Fragment>
+          <MenuItem id="btn-rename" label={lang.tr('rename')} onClick={() => setEditing(id)} />
+          <MenuItem id="btn-duplicate" label={lang.tr('duplicate')} onClick={() => duplicateWorkflow(id)} />
+          <MenuItem
+            id="btn-delete"
+            label={lang.tr('delete')}
+            intent={Intent.DANGER}
+            onClick={() => deleteWorkflow(id)}
+          />
+        </Fragment>
+      )
+    }
   }
 
   const printTree = (item: NodeData, level, parentId = '') => {
     const hasChildren = !!item.children?.length
     const path = `${parentId}${parentId && '/'}${item.id}`
     const isTopLevel = level === 0
+    const isSelected = item.label === props.selectedWorkflow
 
     const treeItem = (
-      <div className={cx(item.type)} key={path}>
+      <div
+        className={cx(item.type, { [style.larger]: parentId === 'workflow', [style.largerSelected]: isSelected })}
+        key={path}
+      >
         <TreeItem
-          className={cx(style.treeItem, { [style.isTopic]: isTopLevel })}
+          className={cx(style.treeItem, {
+            [style.isTopic]: isTopLevel,
+            [style.active]: isSelected
+          })}
           isExpanded={expanded[path]}
           item={item}
           level={level}
+          isEditing={editing === item.id}
+          isEditingNew={false}
           contextMenuContent={handleContextMenu(item)}
           onClick={() => handleClick({ item, path, level })}
+          onSave={value => renameFlow(value)}
         />
 
         {expanded[path] && (
@@ -162,7 +270,7 @@ const Library: FC<Props> = props => {
             {item.type === 'workflow' && (
               <Button
                 minimal
-                onClick={() => props.createWorkflow(item.id)}
+                onClick={() => newFlow()}
                 icon="plus"
                 className={style.addBtn}
                 text={lang.tr('studio.flow.sidePanel.addWorkflow')}
@@ -184,6 +292,13 @@ const Library: FC<Props> = props => {
                   icon="plus"
                   className={style.addBtn}
                   text={lang.tr('studio.library.addPattern')}
+                />
+                <Button
+                  minimal
+                  onClick={async () => newVarType('complex')}
+                  icon="plus"
+                  className={style.addBtn}
+                  text={lang.tr('studio.library.addComplex')}
                 />
               </Fragment>
             )}
@@ -211,9 +326,14 @@ const Library: FC<Props> = props => {
 const mapStateToProps = (state: RootReducer) => ({ entities: state.nlu.entities })
 
 const mapDispatchToProps = {
+  duplicateFlow,
+  createFlow,
   refreshEntities,
   setActiveFormItem,
-  deleteEntity
+  deleteEntity,
+  deleteFlow,
+  updateFlow,
+  renameFlow
 }
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(Library)

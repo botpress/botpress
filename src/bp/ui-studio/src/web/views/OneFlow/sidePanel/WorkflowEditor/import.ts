@@ -99,8 +99,9 @@ export const executeWorkflowActions = async (actions: ImportAction[]) => {
   }
 
   try {
-    await Promise.each(getActionsForType('intent'), ({ data }) =>
-      axios.post(`${window.BOT_API_PATH}/nlu/intents`, data)
+    await Promise.each(
+      getActionsForType('intent'),
+      ({ data }) => axios.post(`${window.BOT_API_PATH}/nlu/intents`, data) // TODO: remove this (can't import intents anymore, they are part of files)
     )
   } catch (err) {
     console.error(`Can't import intents: ${err}`)

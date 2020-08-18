@@ -85,8 +85,7 @@
 
   .bpw-from-user .bpw-bubble-highlight .bpw-chat-bubble-content {
     border-color: var(--ocean);
-    background-color: var(--ocean);
-    color: #fff;
+    background-color: var(--hover-ocean);
   }
 
   .bpw-from-user .bpw-bubble-highlight .bpw-chat-bubble-content a {
@@ -1153,4 +1152,9 @@
 
 .bpw-emulator-header-tab + div {
   line-height: 0;
+}
+
+.bpw-emulator .bpw-chat-quick_reply-dropdown {
+  margin-top: 5px;
+  zoom: 0.8 !important;
 }

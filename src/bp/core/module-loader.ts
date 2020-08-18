@@ -4,10 +4,10 @@ import {
   ContentElement,
   ElementChangedAction,
   Flow,
-  FlowVariableType,
   Logger,
   ModuleDefinition,
   ModuleEntryPoint,
+  PrimitiveVarType,
   PromptDefinition,
   Skill
 } from 'botpress/sdk'
@@ -357,7 +357,7 @@ export class ModuleLoader {
     return this._getModuleElements('prompts')
   }
 
-  public getVariables(): FlowVariableType[] {
+  public getVariables(): PrimitiveVarType[] {
     return this._getModuleElements('variables')
   }
 

@@ -1,6 +1,6 @@
 import { IO, Logger } from 'botpress/sdk'
 import { extractEventCommonArgs, parseActionInstruction } from 'common/action'
-import { ActionServer } from 'common/typings'
+import { ActionServer, EventCommonArgs } from 'common/typings'
 import ActionServersService from 'core/services/action/action-servers-service'
 import ActionService from 'core/services/action/action-service'
 import { CMSService } from 'core/services/cms'
@@ -48,7 +48,7 @@ export class ActionStrategy implements InstructionStrategy {
   public async invokeSendMessage(args: any, contentType: string, event: IO.IncomingEvent) {
     const eventDestination = _.pick(event, ['channel', 'target', 'botId', 'threadId'])
     const commonArgs = extractEventCommonArgs(event, args)
-    const renderedElements = await this.cms.renderElement(contentType, commonArgs, eventDestination)
+    const renderedElements = await this.cms.renderElement(contentType, commonArgs as EventCommonArgs, eventDestination)
 
     await this.eventEngine.replyToEvent(eventDestination, renderedElements, event.id)
   }

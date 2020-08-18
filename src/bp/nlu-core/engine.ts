@@ -10,7 +10,7 @@ import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipe
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
 import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
-import { EntityCacheDump, Intent, ListEntity, ListEntityModel, PatternEntity, Tools } from './typings'
+import { ComplexEntity, EntityCacheDump, Intent, ListEntity, ListEntityModel, PatternEntity, Tools } from './typings'
 
 const trainDebug = DEBUG('nlu').sub('training')
 
@@ -47,6 +47,10 @@ export default class Engine implements NLU.Engine {
     }
   }
 
+  public hasModel(language: string, hash: string) {
+    return this.modelsByLang[language]?.hash === hash
+  }
+
   // we might want to make this language specific
   public computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string {
     const { nluVersion, langServerInfo } = Engine._tools.getVersionInfo()
@@ -63,7 +67,6 @@ export default class Engine implements NLU.Engine {
     intentDefs: NLU.IntentDefinition[],
     entityDefs: NLU.EntityDefinition[],
     languageCode: string,
-    reportTrainingProgress?: NLU.ProgressReporter,
     trainingSession?: NLU.TrainingSession,
     options?: NLU.TrainingOptions
   ): Promise<NLU.Model | undefined> {
@@ -88,17 +91,28 @@ export default class Engine implements NLU.Engine {
       .map(ent => ({
         name: ent.name,
         pattern: ent.pattern!,
-        examples: [], // TODO add this to entityDef
+        examples: ent.examples ?? [],
         matchCase: !!ent.matchCase,
         sensitive: !!ent.sensitive
       }))
+
+    const complex_entities = entityDefs
+      .filter(ent => ent.type === 'complex')
+      .map(e => {
+        return {
+          name: e.name,
+          examples: e.examples || [],
+          list_entities: e.list_entities ?? [],
+          pattern_entities: e.pattern_entities ?? []
+        } as ComplexEntity
+      })
 
     const contexts = _.chain(intentDefs)
       .flatMap(i => i.contexts)
       .uniq()
       .value()
 
-    const intents = intentDefs
+    const intents: Intent<string>[] = intentDefs
       .filter(x => !!x.utterances[languageCode])
       .map(x => ({
         name: x.name,
@@ -131,13 +145,14 @@ export default class Engine implements NLU.Engine {
       languageCode,
       list_entities,
       pattern_entities,
+      complex_entities,
       contexts,
       intents,
       ctxToTrain
     }
 
     const hash = this.computeModelHash(intentDefs, entityDefs, languageCode)
-    const model = await this._trainAndMakeModel(input, hash, reportTrainingProgress)
+    const model = await this._trainAndMakeModel(input, hash, options?.progressCallback, options?.cancelCallback)
     if (!model) {
       return
     }
@@ -147,13 +162,6 @@ export default class Engine implements NLU.Engine {
       model.data.output.slots_model = new Buffer(model.data.output.slots_model) // lodash merge messes up buffers
     }
 
-    trainingSession &&
-      reportTrainingProgress?.(this.botId, 'Training complete', {
-        ...trainingSession,
-        progress: 1,
-        status: 'done'
-      })
-
     trainDebug.forBot(this.botId, `Successfully finished ${languageCode} training`)
 
     return serializeModel(model)
@@ -162,12 +170,14 @@ export default class Engine implements NLU.Engine {
   private async _trainAndMakeModel(
     input: TrainInput,
     hash: string,
-    reportTrainingProgress?: NLU.ProgressReporter
+    progressCallback?,
+    cancelCallback?
   ): Promise<PredictableModel | undefined> {
     const startedAt = new Date()
     let output: TrainOutput | undefined
+
     try {
-      output = await Trainer(input, Engine._tools, reportTrainingProgress)
+      output = await Trainer(input, Engine._tools, progressCallback, cancelCallback)
     } catch (err) {
       this.logger.error('Could not finish training NLU model', err)
       return
@@ -214,7 +224,15 @@ export default class Engine implements NLU.Engine {
     const { input, output } = model.data
 
     if (!output.intents) {
-      const intents = await ProcessIntents(input.intents, model.languageCode, output.list_entities, Engine._tools)
+      const intents = await ProcessIntents(
+        input.intents,
+        model.languageCode,
+        output.list_entities,
+        input.list_entities,
+        input.pattern_entities,
+        input.complex_entities,
+        Engine._tools
+      )
       output.intents = intents
     }
     const trainOutput = output as TrainOutput

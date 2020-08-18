@@ -7,7 +7,7 @@
     "coverPictureUrl": ""
   },
   "$schema": "../../bot.config.schema.json",
-  "description": "Test Bot",
+  "description": "Empty",
   "active": true,
   "version": "12.4.0",
   "author": "Botpress, Inc.",

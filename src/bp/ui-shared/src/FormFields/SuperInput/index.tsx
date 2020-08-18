@@ -2,7 +2,9 @@ import { Button, Icon, IconName } from '@blueprintjs/core'
 import Tags from '@yaireo/tagify/dist/react.tagify'
 import cx from 'classnames'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
+import { Variables } from '~/../../common/typings'
 
+import ToolTip from '../../../../ui-shared-lite/ToolTip'
 import { lang } from '../../translations'
 import { FieldProps } from '../../Contents/Components/typings'
 import Icons from '../../Icons'
@@ -11,7 +13,6 @@ import style from './style.scss'
 import { SuperInputProps } from './typings'
 import { convertToString, convertToTags } from './utils'
 import SingleSuperInput from './SingleSuperInput'
-import ToolTip from '../../../../ui-shared-lite/ToolTip'
 
 type Props = FieldProps & SuperInputProps
 
@@ -43,19 +44,23 @@ export default ({
     return true
   }
 
+  const filterVariables = (variables?: Variables) =>
+    variables?.currentFlow
+      ?.filter(typeFilter)
+      .map(({ params }) => params?.name)
+      .filter(Boolean) || []
+
   const initialValue = useRef<string>((value && convertToTags(value)) || '')
   const newlyAddedVar = useRef<string[]>([])
   const currentPrefix = useRef<string>()
   const tagifyRef = useRef<any>()
-  const [localVariables, setLocalVariables] = useState(
-    variables?.filter(typeFilter).map(({ params }) => params?.name) || []
-  )
+  const [localVariables, setLocalVariables] = useState(filterVariables(variables))
   const [localEvents, setLocalEvents] = useState(events?.map(({ name }) => name) || [])
   const eventsDesc = events?.reduce((acc, event) => ({ ...acc, [event.name]: event.description }), {})
   // TODO implement the autocomplete selection when event selected is partial
 
   useEffect(() => {
-    setLocalVariables(variables?.filter(typeFilter).map(({ params }) => params.name) || [])
+    setLocalVariables(filterVariables(variables))
   }, [variables])
 
   useEffect(() => {
@@ -137,7 +142,9 @@ export default ({
     if (isAdding) {
       const newVariable = {
         type: defaultVariableType || 'string',
-        name: value
+        params: {
+          name: value
+        }
       }
 
       addVariable?.(newVariable)
@@ -179,6 +186,7 @@ export default ({
         canPickVariables={canPickVariables}
         events={localEvents}
         variables={localVariables}
+        allVariables={variables}
         onAddVariable={onAddVariable}
         eventsDesc={eventsDesc}
         value={value}
@@ -252,6 +260,9 @@ export default ({
               )
             },
             dropdownItem({ value, tagifySuggestionIdx }) {
+              const type = variables?.currentFlow?.find(x => x.params?.name === value)?.type
+              const icon = variables?.primitive.find(x => x.id === type)?.config?.icon
+
               const isAdding = !tagifyRef.current.settings.whitelist.includes(value)
               const string = isAdding ? `"${value}"` : value
 
@@ -272,7 +283,7 @@ export default ({
                       {lang('create')}
                     </Fragment>
                   )}
-                  {string}
+                  <Icon icon={icon} iconSize={10} /> {string}
                   <span className="description">{eventsDesc?.[value] || ''}</span>
                 </div>
               )

@@ -55,6 +55,13 @@ export type PatternEntity = Readonly<{
   sensitive: boolean
 }>
 
+export type ComplexEntity = Readonly<{
+  name: string
+  pattern_entities: string[]
+  list_entities: string[]
+  examples: string[]
+}>
+
 export type ListEntity = Readonly<{
   name: string
   synonyms: { [canonical: string]: string[] }
@@ -134,5 +141,5 @@ export type Intent<T> = Readonly<{
 
 type SlotDefinition = Readonly<{
   name: string
-  entities: string[]
+  entity: string
 }>

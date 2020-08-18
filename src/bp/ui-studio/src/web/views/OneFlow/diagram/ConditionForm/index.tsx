@@ -1,13 +1,13 @@
-import { Tab, Tabs } from '@blueprintjs/core'
+import { Button, Tab, Tabs, Tooltip } from '@blueprintjs/core'
 import axios from 'axios'
 import { BotEvent, Condition, FlowVariable, FormData } from 'botpress/sdk'
-import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
+import { Contents, Dropdown, Icons, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
+import { Variables } from 'common/typings'
 import _ from 'lodash'
-import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
+import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
 import style from './style.scss'
-import IntentEditor from './IntentEditor'
 
 interface Props {
   deleteCondition: () => void
@@ -20,7 +20,7 @@ interface Props {
   onUpdate: (data: any) => void
   onUpdateVariables: (variable: FlowVariable) => void
   formData: { id: string; params: FormData }
-  variables: FlowVariable[]
+  variables: Variables
   events: BotEvent[]
 }
 
@@ -38,6 +38,7 @@ const ConditionForm: FC<Props> = ({
   variables,
   events
 }) => {
+  const [maximized, setMaximized] = useState(false)
   const [isConfirming, setIsConfirming] = useState(false)
   const condition = useRef(formData?.id)
   const [showOptions, setShowOptions] = useState(false)
@@ -74,14 +75,59 @@ const ConditionForm: FC<Props> = ({
   const selectedCondition = conditions.find(cond => cond.id === condition.current)
   const selectedOption = options.find(cond => cond.value === condition.current)
 
+  const getCustomPlaceholder = (field, index) => {
+    if (field === 'utterances') {
+      switch (index) {
+        case 0:
+          return lang.tr('module.nlu.conditions.fields.placeholder.intents.empty')
+        case 1:
+          return lang.tr('module.nlu.conditions.fields.placeholder.intents.one')
+        case 2:
+          return lang.tr('module.nlu.conditions.fields.placeholder.intents.two')
+        case 3:
+          return lang.tr('module.nlu.conditions.fields.placeholder.intents.morePlural', { count: 6 })
+        case 4:
+          return lang.tr('module.nlu.conditions.fields.placeholder.intents.morePlural', { count: 5 })
+        case 5:
+          return lang.tr('module.nlu.conditions.fields.placeholder.intents.morePlural', { count: 4 })
+        case 6:
+          return lang.tr('module.nlu.conditions.fields.placeholder.intents.morePlural', { count: 3 })
+        case 7:
+          return lang.tr('module.nlu.conditions.fields.placeholder.intents.morePlural', { count: 2 })
+        case 8:
+          return lang.tr('module.nlu.conditions.fields.placeholder.intents.moreSingular')
+      }
+    }
+
+    return ''
+  }
+
+  const toggleSize = () => {
+    document.documentElement.style.setProperty('--right-sidebar-width', maximized ? '240px' : '580px')
+    setMaximized(!maximized)
+  }
+
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={!isConfirming} close={() => close(editingCondition)}>
-      <Fragment key={`${condition.current}-${customKey || editingCondition}`}>
+      <Fragment key={`${condition.current}-${contentLang}-${customKey || editingCondition}`}>
         <div className={style.formHeader}>
           <Tabs id="contentFormTabs">
             <Tab id="content" title={lang.tr('studio.flow.nodeType.trigger')} />
           </Tabs>
-          <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
+          <div>
+            <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
+            {['user_intent_is', 'raw_js'].includes(selectedOption?.value) && (
+              <Tooltip content={lang.tr(maximized ? 'minimizeInspector' : 'maximizeInspector')}>
+                <Button
+                  className={style.expandBtn}
+                  small
+                  minimal
+                  icon={maximized ? <Icons.Minimize /> : 'fullscreen'}
+                  onClick={toggleSize}
+                />
+              </Tooltip>
+            )}
+          </div>
         </div>
         <div className={cx(style.fieldWrapper, style.contentTypeField)}>
           <span className={style.formLabel}>{lang.tr('studio.condition.label')}</span>
@@ -103,16 +149,7 @@ const ConditionForm: FC<Props> = ({
           <Contents.Form
             axios={axios}
             currentLang={contentLang}
-            overrideFields={{
-              intent: props => (
-                <IntentEditor
-                  contentLang={contentLang}
-                  topicName={topicName}
-                  setKeepSidebarOpen={setIsConfirming}
-                  {...props}
-                />
-              )
-            }}
+            getCustomPlaceholder={getCustomPlaceholder}
             variables={variables}
             events={events}
             fields={selectedCondition.fields}

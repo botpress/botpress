@@ -135,6 +135,7 @@ export class ConfigProvider {
       'builtin',
       'channel-web',
       'nlu',
+      'ndu',
       'qna',
       'extensions',
       'code-editor',

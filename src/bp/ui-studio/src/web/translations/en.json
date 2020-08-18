@@ -44,7 +44,13 @@
   },
   "statusBar": {
     "contentLanguage": "Content Language",
-    "switchLang": "Change the bot content language. Currently editing: {currentLang}"
+    "switchLang": "Change the bot content language. Currently editing: {currentLang}",
+    "trainChatbot": "Train Chatbot",
+    "training": "Training",
+    "ready": "Ready",
+    "cancelTraining": "Cancel Training",
+    "canceling": "Canceling",
+    "trainingError": "Cannot train Chatbot"
   },
   "studio": {
     "condition": {
@@ -101,6 +107,8 @@
       "variableTypes": "Variable Types",
       "addEnum": "Add Enumeration",
       "addPattern": "Add Pattern",
+      "addComplex": "Add Complex",
+      "addType": "Add Type",
       "filter": "Filter blocks, workflows and variable types",
       "variableName": "What is the name of this variable",
       "addSynonyms": "Add synonyms by separating values with commas",
@@ -110,7 +118,8 @@
       "examplePlaceholder": "Add examples that match your pattern (one per line)",
       "addExample": "Add Example",
       "deletePattern": "Delete Pattern",
-      "patternInvalid": "Pattern is invalid"
+      "patternInvalid": "Pattern is invalid",
+      "possibleVarTypes": "Possible Variable Types"
     },
     "flow": {
       "addNode": "Add Node",
@@ -119,6 +128,7 @@
       "cantDeleteStart": "You can't delete the start node.",
       "cantDeleteSuccess": "You can't delete the success node.",
       "cantDeleteOutcome": "Cannot delete an outcome which is currently used in the parent flow",
+      "cantDeleteStartReusable": "You can't delete the start node of a reusable workflow",
       "mustHaveOutcomes": "Workflows must have at least one success and one failure outcome",
       "referenceCount": "{count} {count, plural, one {reference} other {references}}",
       "noReferences": "Not used",
@@ -198,6 +208,7 @@
         "return": "Return",
         "saySomething": "Say Something",
         "theBotWill": "The bot will",
+        "subworkflow": "Go to Sub Workflow",
         "transition": {
           "action": {
             "endFlow": "End flow",
