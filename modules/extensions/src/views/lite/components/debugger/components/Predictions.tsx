@@ -9,7 +9,7 @@ import { Intent } from './Intent'
 
 interface Props {
   predictions: NLU.Predictions
-  activePrompt: any
+  activePrompt: IO.PromptStatus
 }
 
 const Predictions = (props: Props) => {
