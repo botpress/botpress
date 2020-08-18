@@ -47,7 +47,7 @@ const RouterForm: FC<Props> = ({
   customKey,
   updateRouter
 }) => {
-  const currentVarName = useRef('')
+  const currentVarName = useRef<string>()
 
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
@@ -56,7 +56,7 @@ const RouterForm: FC<Props> = ({
 
   useEffect(() => {
     setForceUpdate(!forceUpdate)
-  }, [customKey, transition, currentVarName.current])
+  }, [customKey, transition, currentVarName.current, currentItem.operator])
 
   useEffect(() => {
     currentVarName.current = currentItem.variable
@@ -97,7 +97,7 @@ const RouterForm: FC<Props> = ({
   const onUpdate = data => {
     const args = operator?.fields.map(x => x.key).reduce((acc, curr) => ({ ...acc, [curr]: data[curr] }), {})
 
-    updateRouter(convertToTransition({ ...data, variable: currentVarName.current, args: args ?? {} }))
+    updateRouter(convertToTransition({ ...data, variable: data.variable ?? currentVarName.current, args: args ?? {} }))
   }
 
   const fields: FormField[] = [
@@ -147,8 +147,8 @@ const RouterForm: FC<Props> = ({
             addVariable={onUpdateVariables}
             variableTypes={variables.primitive.map(x => x.id)}
             onChange={value => {
-              onUpdate({ ...currentItem, variable: value })
               currentVarName.current = value
+              onUpdate({ ...currentItem, variable: value })
             }}
           />
         </div>
