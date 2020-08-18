@@ -226,6 +226,7 @@
     margin-right: 12px;
     cursor: pointer;
     min-height: 40px;
+    padding: 2px 12px;
     transition: border 0.3s, background 0.3s, color 0.3s;
   }
 
@@ -504,6 +505,7 @@
     padding: 12px 8px;
     text-align: left;
     border-radius: 3px;
+    margin: 12px 12px 0px 12px;
   }
 
   /* CAROUSEL  */
