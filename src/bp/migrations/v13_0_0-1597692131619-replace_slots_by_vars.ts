@@ -26,7 +26,11 @@ class ComplexEntityCreator {
 
   constructor(private entities: sdk.NLU.EntityDefinition[]) {}
 
-  buildAny(name: string) {
+  buildNewComplexFromSlotAny(name: string) {
+    if (!!this.newComplexs[name]) {
+      return name // here there is collision with two slots sharing the same name in different intents...
+    }
+
     this.newComplexs[name] = {
       id: name,
       name,
@@ -35,6 +39,8 @@ class ComplexEntityCreator {
       pattern_entities: [],
       examples: []
     }
+
+    return name
   }
 
   buildNewComplex(allEntities: string[]) {
@@ -105,16 +111,15 @@ const migration: Migration = {
         const rawContent = await scopedGhost.readFileAsString(INTENT_DIR, intentFile)
         const intent: OldIntent = JSON.parse(rawContent)
         for (const slot of intent.slots) {
+          let entity: string
           if (slot.entities.length === 1 && slot.entities[0] === 'any') {
-            const entityName = slot.name
-            complexCreator.buildAny(entityName) // build entity from slot name
-            slot.entity = entityName
+            entity = complexCreator.buildNewComplexFromSlotAny(slot.name) // build entity from slot name
           } else if (slot.entities.length > 1) {
-            const newName = complexCreator.buildNewComplex(slot.entities)
-            slot.entity = newName
+            entity = complexCreator.buildNewComplex(slot.entities)
           } else {
-            slot.entity = slot.entities[0]
+            entity = slot.entities[0]
           }
+          slot.entity = entity
         }
 
         const findEntities = function(slotName: string): string[] | undefined {
@@ -122,20 +127,19 @@ const migration: Migration = {
         }
 
         const ALL_SLOTS_REGEX = /\[(.+?)\]\(([\w_\. :-]+)\)/gi // taken from 'nlu-core/utterance/utterance-parser.ts'
-        for (const lang of Object.keys(intent.utterances)) {
-          intent.utterances[lang] = intent.utterances[lang].map((utt: string) =>
-            utt.replace(ALL_SLOTS_REGEX, function(_wholeMatch, slotExample: string, slotName: string) {
-              const slotEntities = findEntities(slotName)
-              if (slotEntities) {
-                const isOnlyAny = slotEntities.length === 1 && slotEntities[0] === 'any'
-                const newComplex = isOnlyAny ? slotName : complexCreator.makeName(slotEntities.filter(e => e !== 'any'))
-                complexCreator.appendExample(newComplex, slotExample)
-              }
+        const migrateOneUtterance = (utt: string) =>
+          utt.replace(ALL_SLOTS_REGEX, function(_wholeMatch, slotExample: string, slotName: string) {
+            const slotEntities = findEntities(slotName)
 
-              return `$${slotName}`
-            })
-          )
-        }
+            if (slotEntities) {
+              const isOnlyAny = slotEntities.length === 1 && slotEntities[0] === 'any'
+              const newComplex = isOnlyAny ? slotName : complexCreator.makeName(slotEntities.filter(e => e !== 'any'))
+              complexCreator.appendExample(newComplex, slotExample)
+            }
+
+            return `$${slotName}`
+          })
+        intent.utterances = _.mapValues(intent.utterances, utts => utts.map(migrateOneUtterance))
 
         for (const slot of intent.slots) {
           delete slot.entities
