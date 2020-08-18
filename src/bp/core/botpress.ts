@@ -120,37 +120,10 @@ export class Botpress {
     process.exit()
   }
 
-  private async _copyPretrainedAndStopWords() {
-    const languageDir = path.resolve(__dirname, '../nlu-core/language')
-    const preTrainedDir = './pre-trained'
-    const stopWordsDir = './stop-words'
-    await this._copyDir(path.resolve(languageDir, preTrainedDir), path.resolve(process.APP_DATA_PATH, preTrainedDir))
-    await this._copyDir(path.resolve(languageDir, stopWordsDir), path.resolve(process.APP_DATA_PATH, stopWordsDir))
-  }
-
-  private async makeDirIfNotExist(dirPath: string) {
-    if (!fse.existsSync(dirPath)) {
-      await fse.mkdir(dirPath)
-    }
-  }
-
-  private async _copyDir(srcDirPath: string, destDirPath: string) {
-    await this.makeDirIfNotExist(destDirPath)
-    const srcFiles = await fse.readdir(srcDirPath)
-    for (const file of srcFiles) {
-      const srcFile = path.resolve(srcDirPath, file)
-      const destFile = path.resolve(destDirPath, file)
-      const content = await fse.readFile(srcFile) // TODO: find out why fse.copy not working in binary
-      await fse.writeFile(destFile, content)
-    }
-  }
-
   private async initialize(options: StartOptions) {
     if (!process.IS_PRODUCTION) {
       this.logger.info(`Running in DEVELOPMENT MODE`)
     }
-
-    await this._copyPretrainedAndStopWords()
 
     this.config = await this.configProvider.getBotpressConfig()
 
@@ -296,6 +269,10 @@ export class Botpress {
 
   async deployAssets() {
     try {
+      for (const dir of ['./pre-trained', './stop-words']) {
+        await copyDir(path.resolve(__dirname, '../nlu-core/language', dir), path.resolve(process.APP_DATA_PATH, dir))
+      }
+
       const assets = path.resolve(process.PROJECT_LOCATION, 'data/assets')
       await copyDir(path.join(__dirname, '../ui-admin'), `${assets}/ui-admin`)
 
