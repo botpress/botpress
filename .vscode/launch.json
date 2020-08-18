@@ -15,8 +15,7 @@
         "NODE_PATH": "${workspaceFolder}/out/bp",
         "DEBUG": "bp:none",
         "BLUEBIRD_DEBUG": "1",
-        "TELEMETRY_URL": "https://telemetry.botpress.dev/ingest",
-        "TESTMIG_BP_VERSION": "13.0.0"
+        "TELEMETRY_URL": "https://telemetry.botpress.dev/ingest"
       },
       "smartStep": true,
       "outFiles": [
