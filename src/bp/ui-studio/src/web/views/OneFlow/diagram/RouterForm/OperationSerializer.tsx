@@ -13,7 +13,7 @@ export class OperationSerializer {
         expr = `${strValue}.value`
       } else {
         const escapedValue = strValue?.replace(/'/gs, "\\'") || ''
-        expr = `$${operation.variable}.parseForOperator('${escapedValue}')`
+        expr = `$${operation.variable}.parse('${escapedValue}')`
       }
 
       args = `${args}${isFirst ? '' : ','}${key}:${expr}`

@@ -8,7 +8,7 @@ class BoxedString extends BaseVariable<string> {
     super(args)
   }
 
-  parseForOperator(text: string): string {
+  parse(text: string): string {
     // We replace escaped '
     return text.replace(/\\'/gs, "'")
   }

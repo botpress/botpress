@@ -15,7 +15,7 @@ class BoxedDate extends BaseVariable<BoxedDateType, DateConfig> {
     super(args)
   }
 
-  parseForOperator(text: string): BoxedDateType {
+  parse(text: string): BoxedDateType {
     return moment(text).toDate()
   }
 

@@ -86,7 +86,7 @@ export class BaseVariable<T, V = any> implements BoxedVariable<T, V> {
     }
   }
 
-  parseForOperator(text: string): T {
+  parse(text: string): T {
     return <any>text
   }
 }

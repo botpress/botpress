@@ -9,7 +9,7 @@ class BoxedBoolean extends BaseVariable<boolean> {
     super(args)
   }
 
-  parseForOperator(text: string): boolean {
+  parse(text: string): boolean {
     return yn(text)
   }
 

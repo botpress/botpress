@@ -660,7 +660,15 @@ declare module 'botpress/sdk' {
     }
 
     export interface Actions {
-      action: 'send' | 'startWorkflow' | 'redirect' | 'continue' | 'goToNode' | 'prompt.repeat' | 'prompt.inform' | 'prompt.cancel'
+      action:
+        | 'send'
+        | 'startWorkflow'
+        | 'redirect'
+        | 'continue'
+        | 'goToNode'
+        | 'prompt.repeat'
+        | 'prompt.inform'
+        | 'prompt.cancel'
       data?: SendContent | FlowRedirect
     }
 
@@ -1825,7 +1833,7 @@ declare module 'botpress/sdk' {
     compare(compareTo: BoxedVariable<T, V>): number
     getValidationData: () => ValidationData | undefined
     unbox(): UnboxedVariable<T>
-    parseForOperator(text: string): T
+    parse(text: string): T
   }
 
   export interface ValidationData {

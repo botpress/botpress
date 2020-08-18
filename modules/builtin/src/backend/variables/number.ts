@@ -8,7 +8,7 @@ class BoxedNumber extends BaseVariable<number> {
     super(args)
   }
 
-  parseForOperator(text: string): number {
+  parse(text: string): number {
     return +text
   }
 
