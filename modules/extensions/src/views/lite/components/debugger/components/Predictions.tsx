@@ -9,11 +9,11 @@ import { Intent } from './Intent'
 
 interface Props {
   predictions: NLU.Predictions
-  workflow: any
+  activePrompt: any
 }
 
 const Predictions = (props: Props) => {
-  const { predictions, workflow } = props
+  const { predictions, activePrompt } = props
 
   if (!predictions) {
     return null
@@ -24,9 +24,9 @@ const Predictions = (props: Props) => {
       <div className={style.sectionTitle}>Top Predictions</div>
       {Object.keys(predictions).map((key, index) => {
         const { confidence, intents } = predictions[key]
-        return (
-          <div className={style.subSection} key={index}>
-            {workflow && key !== 'global' && (
+        if ((key === 'global' && activePrompt) || key !== 'global') {
+          return (
+            <div className={style.subSection} key={index}>
               <div>
                 <p>
                   {key} {formatConfidence(confidence)}%
@@ -41,9 +41,9 @@ const Predictions = (props: Props) => {
                   })}
                 </ul>
               </div>
-            )}
-          </div>
-        )
+            </div>
+          )
+        }
       })}
     </div>
   )
