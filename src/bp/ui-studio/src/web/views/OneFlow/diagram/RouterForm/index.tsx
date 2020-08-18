@@ -1,6 +1,6 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
-import { FlowVariable, FormField, NodeTransition } from 'botpress/sdk'
+import { FlowVariable, FlowVariableConfig, FlowVariableOperator, FormField, NodeTransition, Option } from 'botpress/sdk'
 import { Contents, FormFields, lang, MoreOptions, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import { Variables } from 'common/typings'
@@ -22,6 +22,13 @@ interface Props {
   onUpdateVariables: (variable: FlowVariable) => void
   customKey: string
   updateRouter: (transition: NodeTransition) => void
+}
+
+type OperationMeta = {
+  currentVarType: string
+  varConfig: FlowVariableConfig
+  operators: Option[]
+  operator: FlowVariableOperator
 }
 
 const parseCondition = (condition: string): Operation => {
@@ -62,17 +69,24 @@ const RouterForm: FC<Props> = ({
     currentVarName.current = currentItem.variable
   }, [customKey])
 
-  const currentVarType = variables.currentFlow?.find(x => x.params.name === currentVarName.current)?.type
-  const varConfig = variables.primitive.find(x => x.id === currentVarType)?.config
-  const operators = varConfig?.operators?.map(x => ({ label: lang.tr(x.label), value: x.func }))
-  const operator = varConfig?.operators?.find(x => x.func === currentItem.operator)
+  const getMeta = (varName: string): OperationMeta => {
+    const currentVarType = variables.currentFlow?.find(x => x.params.name === varName)?.type
+    const varConfig = variables.primitive.find(x => x.id === currentVarType)?.config
+    const operators = varConfig?.operators?.map(x => ({ label: lang.tr(x.label), value: x.func }))
+    const operator = varConfig?.operators?.find(x => x.func === currentItem.operator)
 
-  const convertToTransition = (operation: Operation): NodeTransition => {
-    const operator = varConfig?.operators?.find(x => x.func === operation.operator)
+    return { currentVarType, varConfig, operators, operator }
+  }
 
+  const meta = getMeta(currentVarName.current)
+
+  const convertToTransition = (meta: OperationMeta, operation: Operation): NodeTransition => {
     if (operation.variable && !operation.operator) {
-      operation.operator = operators?.[0].value
+      operation.operator = meta.operators?.[0].value
+      meta = getMeta(operation.variable)
     }
+
+    const operator = meta.varConfig?.operators?.find(x => x.func === operation.operator)
 
     if (!operation.operator || !operator) {
       return { condition: 'false', node: transition.node }
@@ -82,7 +96,7 @@ const RouterForm: FC<Props> = ({
     const condition = serializer.serialize(operation)
 
     const friendlyArgs = _.mapValues(operation.args, value => {
-      return typeof value === 'string' && value.startsWith('$') ? value.substr(1, value.length - 1) : value
+      return typeof value === 'string' && value.startsWith('$') ? value.substr(1, value.length - 1) : value || ''
     })
 
     const caption = lang.tr(operator.caption, {
@@ -95,9 +109,11 @@ const RouterForm: FC<Props> = ({
   }
 
   const onUpdate = data => {
-    const args = operator?.fields.map(x => x.key).reduce((acc, curr) => ({ ...acc, [curr]: data[curr] }), {})
+    const varName = data.variable ?? currentVarName.current
+    const meta = getMeta(varName)
+    const args = meta.operator?.fields.map(x => x.key).reduce((acc, curr) => ({ ...acc, [curr]: data[curr] }), {})
 
-    updateRouter(convertToTransition({ ...data, variable: data.variable ?? currentVarName.current, args: args ?? {} }))
+    updateRouter(convertToTransition(meta, { ...data, variable: varName, args: args ?? {} }))
   }
 
   const fields: FormField[] = [
@@ -105,7 +121,7 @@ const RouterForm: FC<Props> = ({
       type: 'select',
       key: 'operator',
       label: lang.tr('studio.router.condition'),
-      options: operators ?? [],
+      options: meta.operators ?? [],
       defaultValue: currentItem.operator
     },
     {
@@ -113,10 +129,10 @@ const RouterForm: FC<Props> = ({
       key: 'negate',
       label: lang.tr('studio.router.negate')
     },
-    ...(operator?.fields ?? [])
+    ...(meta.operator?.fields ?? [])
   ]
 
-  const advancedSettings = operator?.advancedSettings ?? []
+  const advancedSettings = meta.operator?.advancedSettings ?? []
 
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={close}>
@@ -153,7 +169,7 @@ const RouterForm: FC<Props> = ({
           />
         </div>
 
-        {currentItem && operators && (
+        {currentItem && meta.operators && (
           <Contents.Form
             currentLang={contentLang}
             axios={axios}
