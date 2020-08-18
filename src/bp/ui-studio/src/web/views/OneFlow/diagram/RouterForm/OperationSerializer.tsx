@@ -7,7 +7,7 @@ export class OperationSerializer {
 
     for (const [key, value] of Object.entries(operation.args)) {
       let expr: string = ''
-      const strValue = `${value}`
+      const strValue = `${value || ''}`
 
       if (/^\$[a-zA-Z][a-zA-Z0-9_-]*$/g.test(strValue)) {
         expr = `${strValue}.value`

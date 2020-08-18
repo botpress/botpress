@@ -70,7 +70,7 @@ export class OperationParser {
     for (let [key, value] of Object.entries(args)) {
       // Matches operator('val')
       //                  X---X
-      const harcodedMatch = value.match(/'.+'/gs)?.[0]
+      const harcodedMatch = value.match(/'.*'/gs)?.[0]
       if (harcodedMatch) {
         value = harcodedMatch.substr(1, harcodedMatch.length - 2).replace(/\\'/gs, "'")
       } else {
@@ -81,6 +81,8 @@ export class OperationParser {
 
       args[key] = value
     }
+
+    console.log(args)
 
     return args
   }
