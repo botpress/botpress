@@ -8,7 +8,6 @@ import yn from 'yn'
 
 export enum WORKER_TYPES {
   WEB = 'WEB_WORKER',
-  ML = 'ML_WORKER',
   LOCAL_ACTION_SERVER = 'LOCAL_ACTION_SERVER'
 }
 
@@ -65,16 +64,6 @@ export const setupMasterNode = (logger: sdk.Logger) => {
       process.exit(0)
     }
 
-    const workerIdx = process.ML_WORKERS?.indexOf(worker.id)
-    if (workerIdx > -1) {
-      debug(`Machine learning worker ${worker.id} died`)
-      process.ML_WORKERS.splice(workerIdx, 1)
-      if (process.ML_WORKERS.length === 0) {
-        await spawnMLWorkers(logger)
-      }
-      return
-    }
-
     if (!yn(process.core_env.BP_DISABLE_AUTO_RESTART)) {
       if (webServerRebootCount >= maxServerReebots) {
         logger.error(
@@ -107,28 +96,6 @@ function spawnWebWorker() {
   const { id } = cluster.fork({ SERVER_ID: process.SERVER_ID, WORKER_TYPE: WORKER_TYPES.WEB })
   process.WEB_WORKER = id
   debug(`Spawned Web Worker`)
-}
-
-let spawnMLWorkersCount = 0
-const MAX_ML_WORKER_REBOOT = 2
-setTimeout(() => {
-  spawnMLWorkersCount = 0
-}, ms('2m'))
-
-export async function spawnMLWorkers(logger?: sdk.Logger) {
-  if (spawnMLWorkersCount > MAX_ML_WORKER_REBOOT) {
-    logger?.error(`Exceeded the number of automatic ml worker reboot`)
-    process.exit(0)
-  }
-  const maxMLWorkers = Math.max(os.cpus().length - 1, 1) // ncpus - webworker
-  const numMLWorkers = Math.min(maxMLWorkers, process.core_env.BP_NUM_ML_WORKERS || 4)
-
-  process.ML_WORKERS = await Promise.map(_.range(numMLWorkers), () => {
-    const worker = cluster.fork({ WORKER_TYPE: WORKER_TYPES.ML })
-    return Promise.fromCallback(cb => worker.on('online', () => cb(undefined, worker.id)))
-  })
-  spawnMLWorkersCount++
-  debug(`Spawned ${numMLWorkers} machine learning workers`)
 }
 
 export const startLocalActionServer = (message: StartLocalActionServerMessage) => {
