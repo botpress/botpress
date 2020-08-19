@@ -80,8 +80,9 @@ const ConditionForm: FC<Props> = ({
     })
 
     try {
-      setConditionUsage({ ...conditionUsage, [value]: (conditionUsage[value] ?? 0) + 1 })
-      storage.set(CONDITIONS_USAGE_KEY, JSON.stringify(conditionUsage))
+      const newConditions = { ...conditionUsage, [value]: (conditionUsage[value] ?? 0) + 1 }
+      setConditionUsage(newConditions)
+      storage.set(CONDITIONS_USAGE_KEY, JSON.stringify(newConditions))
     } catch (err) {}
   }
 
