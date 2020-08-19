@@ -142,11 +142,11 @@ async function preprocessInput(
   return { step, predictors }
 }
 
-async function makePredictionUtterance(input: InitialStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
+async function makePredictionUtterance(input: InitialStep, predictors: Predictors, tools: Tools, entities?: sdk.NLU.EntityDefinition[]): Promise<PredictStep> {
   const { tfidf, vocabVectors, kmeans } = predictors
 
   const text = replaceConsecutiveSpaces(input.rawText.trim())
-  const [utterance] = await buildUtteranceBatch([text], input.languageCode, tools, vocabVectors)
+  const [utterance] = await buildUtteranceBatch([text], input.languageCode, tools, entities, vocabVectors)
   const alternateUtterance = getAlternateUtterance(utterance, vocabVectors)
 
   Array(utterance, alternateUtterance).forEach(u => {
@@ -394,10 +394,10 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
     const intents = !intentPred
       ? []
       : intentPred.map(i => ({
-          extractor: 'classifier', // exact-matcher overwrites this field in line below
-          ...i,
-          slots: (step.slot_predictions_per_intent![i.label] || []).reduce(slotsCollectionReducer, {})
-        }))
+        extractor: 'classifier', // exact-matcher overwrites this field in line below
+        ...i,
+        slots: (step.slot_predictions_per_intent![i.label] || []).reduce(slotsCollectionReducer, {})
+      }))
 
     const includeOOS = !intents.filter(x => x.extractor === 'exact-matcher').length
 
@@ -450,17 +450,41 @@ class InvalidLanguagePredictorError extends Error {
 export const Predict = async (
   input: PredictInput,
   tools: Tools,
-  predictorsByLang: _.Dictionary<Predictors>
+  predictorsByLang: _.Dictionary<Predictors>,
+  entities?: sdk.NLU.EntityDefinition[]
 ): Promise<PredictOutput> => {
+  const STRING_REPLACE = true
   try {
     const t0 = Date.now()
     // tslint:disable-next-line
     let { step, predictors } = await preprocessInput(input, tools, predictorsByLang)
 
     let stepOutput: PredictStep
-    stepOutput = await makePredictionUtterance(step, predictors, tools)
+    stepOutput = await makePredictionUtterance(step, predictors, tools, entities)
     stepOutput = await extractEntities(stepOutput, predictors, tools)
-    stepOutput = await predictOutOfScope(stepOutput, predictors)
+
+    if (STRING_REPLACE) {
+      if (stepOutput.utterance.entities) {
+        for (const ent of stepOutput.utterance.entities) {
+          // @ts-ignore
+          stepOutput.rawText = stepOutput.rawText.replace(ent.metadata.source, ent.type)
+        }
+      }
+
+      stepOutput = await makePredictionUtterance(
+        {
+          rawText: stepOutput.rawText,
+          includedContexts: stepOutput.includedContexts,
+          detectedLanguage: stepOutput.detectedLanguage,
+          languageCode: stepOutput.languageCode,
+        } as InitialStep,
+        predictors,
+        tools,
+        entities
+      )
+      stepOutput = await extractEntities(stepOutput, predictors, tools)
+      stepOutput = await predictOutOfScope(stepOutput, predictors)
+    }
     stepOutput = await predictContext(stepOutput, predictors)
     stepOutput = await predictIntent(stepOutput, predictors)
     stepOutput = await extractSlots(stepOutput, predictors)

@@ -8,7 +8,6 @@ import recommendations from './intents/recommendations'
 import legacyElectionPipeline from './legacy-election'
 import { getTrainingSession } from './train-session-service'
 import { NLUState } from './typings'
-import { buildUtteranceBatch } from './utterance/utterance'
 
 export const PredictSchema = Joi.object().keys({
   contexts: Joi.array()
@@ -24,12 +23,6 @@ export default async (bp: typeof sdk, state: NLUState) => {
     // When the health is bad, we'll refresh the status in case it changed (eg: user added languages)
     const health = bp.NLU.Engine.getHealth()
     res.send(health)
-  })
-
-  router.post('/embed', async (req, res) => {
-    const utterances = await buildUtteranceBatch(req.body.utterances, 'fr', Engine.tools)
-    const utt_embs = utterances.map(u => u.sentenceEmbedding)
-    res.send(utt_embs)
   })
 
   router.post('/cross-validation/:lang', async (req, res) => {
@@ -70,7 +63,9 @@ export default async (bp: typeof sdk, state: NLUState) => {
     }
 
     try {
-      let nlu = await state.nluByBot[botId].engine.predict(value.text, value.contexts)
+      const client = await createApi(bp, botId)
+      const entityDefs = await client.fetchEntities()
+      let nlu = await state.nluByBot[botId].engine.predict(value.text, value.contexts, entityDefs)
       nlu = legacyElectionPipeline(nlu)
       res.send({ nlu })
     } catch (err) {

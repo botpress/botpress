@@ -317,8 +317,8 @@ declare module 'botpress/sdk' {
       }
 
       export interface ModelConstructor {
-        new (): Model
-        new (lazy: boolean, keepInMemory: boolean, queryOnly: boolean): Model
+        new(): Model
+        new(lazy: boolean, keepInMemory: boolean, queryOnly: boolean): Model
       }
 
       export const Model: ModelConstructor
@@ -473,7 +473,7 @@ declare module 'botpress/sdk' {
         trainingSession?: TrainingSession,
         options?: TrainingOptions
       ) => Promise<Model | undefined>
-      predict: (t: string, ctx: string[]) => Promise<IO.EventUnderstanding>
+      predict: (t: string, ctx: string[], entities?: NLU.EntityDefinition[]) => Promise<IO.EventUnderstanding>
     }
 
     export interface Config {
@@ -1796,11 +1796,11 @@ declare module 'botpress/sdk' {
   }
 
   export interface PromptConstructable {
-    new (ctor: any): Prompt
+    new(ctor: any): Prompt
   }
 
   export interface BoxedVarConstructable<T, V = any> {
-    new (ctor: BoxedVarContructor<T, V>): BoxedVariable<T, V>
+    new(ctor: BoxedVarContructor<T, V>): BoxedVariable<T, V>
   }
 
   export interface BoxedVariable<T, V = any> {

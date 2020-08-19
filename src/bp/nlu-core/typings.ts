@@ -39,7 +39,7 @@ export interface LangsGateway {
 export interface LanguageProvider {
   languages: string[]
   langServerInfo: LangServerInfo
-  vectorize(tokens: string[], lang: string): Promise<Float32Array[]>
+  vectorize(tokens: string[], lang: string, entities?: sdk.NLU.EntityDefinition[]): Promise<Float32Array[]>
   tokenize(utterances: string[], lang: string, vocab?: Token2Vec): Promise<string[][]>
   generateSimilarJunkWords(subsetVocab: string[], lang: string): Promise<string[]>
   getHealth(): Partial<sdk.NLU.Health>
@@ -115,7 +115,7 @@ export type EntityExtractionResult = ExtractedEntity & { start: number; end: num
 
 export interface Tools {
   tokenize_utterances(utterances: string[], languageCode: string, vocab?: Token2Vec): Promise<string[][]>
-  vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
+  vectorize_tokens(tokens: string[], languageCode: string, entities?: sdk.NLU.EntityDefinition[]): Promise<number[][]>
   partOfSpeechUtterances(utterances: string[][], languageCode: string): string[][]
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>
   getHealth(): sdk.NLU.Health

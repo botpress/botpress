@@ -263,7 +263,8 @@ export async function buildUtteranceBatch(
   raw_utterances: string[],
   language: string,
   tools: Tools,
-  vocab?: Token2Vec
+  entities?: sdk.NLU.EntityDefinition[],
+  vocab?: Token2Vec,
 ): Promise<Utterance[]> {
   const parsed = raw_utterances.map(u => parseUtterance(replaceConsecutiveSpaces(u)))
   const tokenUtterances = await tools.tokenize_utterances(
@@ -273,7 +274,7 @@ export async function buildUtteranceBatch(
   )
   const POSUtterances = tools.partOfSpeechUtterances(tokenUtterances, language) as POSClass[][]
   const uniqTokens = _.uniq(_.flatten(tokenUtterances))
-  const vectors = await tools.vectorize_tokens(uniqTokens, language)
+  const vectors = await tools.vectorize_tokens(uniqTokens, language, entities)
   const vectorMap = _.zipObject(uniqTokens, vectors)
 
   return _.zipWith(tokenUtterances, POSUtterances, parsed, (tokUtt, POSUtt, parsed) => ({ tokUtt, POSUtt, parsed }))

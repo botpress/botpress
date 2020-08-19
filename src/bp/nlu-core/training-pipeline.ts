@@ -94,7 +94,7 @@ const KMEANS_OPTIONS = {
   seed: 666 // so training is consistent
 } as sdk.MLToolkit.KMeans.KMeansOptions
 
-const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainStep> => {
+const PreprocessInput = async (input: TrainInput, tools: Tools, entityDef: sdk.NLU.EntityDefinition[]): Promise<TrainStep> => {
   debugTraining.forBot(input.botId, 'Preprocessing intents')
   input = _.cloneDeep(input)
   const list_entities = await Promise.map(input.list_entities, list =>
@@ -108,7 +108,8 @@ const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainSt
     input.list_entities, // because output list_entities (line above) doesn't contain raw synonyms
     input.pattern_entities,
     input.complex_entities,
-    tools
+    tools,
+    entityDef
   )
 
   const vocabVectors = buildVectorsVocab(intents)
@@ -363,44 +364,53 @@ export const ProcessIntents = async (
   list_entities: ListEntity[],
   pattern_entities: PatternEntity[],
   complex_entities: ComplexEntity[],
-  tools: Tools
+  tools: Tools,
+  entityDef?: sdk.NLU.EntityDefinition[]
 ): Promise<Intent<Utterance>[]> => {
   const sysComplexes = convertSysEntitiesSlotsToComplex(intents)
 
   return Promise.map(intents, async intent => {
     const cleaned: string[] = intent.utterances.map(_.flow([_.trim, replaceConsecutiveSpaces]))
 
-    const augmentations = extractAugmentations(
-      intent,
-      [...sysComplexes, ...complex_entities],
-      list_entities,
-      pattern_entities
-    )
-    const augmenter = createAugmenter(augmentations)
-    const original: string[] = _.uniq(cleaned.map(augmenter))
-    // TODO: (sly) we probably want to have a different logic than a hardcoded "5" here
-    // although this doesn't impact anything but the slot extractor at the moment
-    const augmented: string[] = _.flatMap(cleaned, phrase => _.times(5, () => augmenter(phrase)))
+    // const augmentations = extractAugmentations(
+    //   intent,
+    //   [...sysComplexes, ...complex_entities],
+    //   list_entities,
+    //   pattern_entities
+    // )
+    // const augmenter = createAugmenter(augmentations)
+    // const original: string[] = _.uniq(cleaned.map(augmenter))
+    // // TODO: (sly) we probably want to have a different logic than a hardcoded "5" here
+    // // although this doesn't impact anything but the slot extractor at the moment
+    // const augmented: string[] = _.flatMap(cleaned, phrase => _.times(5, () => augmenter(phrase)))
 
-    const utterances = await buildUtteranceBatch(_.uniq([...original, ...augmented]), languageCode, tools)
-    utterances.slice(original.length).forEach(x => (x.augmented = true))
+    // const utterances = await buildUtteranceBatch(_.uniq([...original, ...augmented]), languageCode, tools)
+    const utterances = await buildUtteranceBatch(cleaned, languageCode, tools, entityDef)
+    // utterances.slice(original.length).forEach(x => (x.augmented = true))
 
     const allowedEntities = _.chain(intent.slot_definitions)
-      .flatMap(s => {
-        const slotEntity = s.entity === 'date' ? 'time' : s.entity // highly hardcoded, date is in fact a system time
-        const sysComplex = sysComplexes.find(c => c.name === slotEntity)
-        const complex = complex_entities?.find(x => x.name === slotEntity)
-        if (sysComplex) {
-          return sysComplex.name
-        } else if (complex) {
-          return [...(complex.list_entities ?? []), ...(complex.pattern_entities ?? [])]
-        } else {
-          return slotEntity
-        }
-      })
+      .flatMap(s => s.entity)
+      .filter(e => e !== 'any')
       .uniq()
       .value() as string[]
 
+    // const allowedEntities = _.chain(intent.slot_definitions)
+    //   .flatMap(s => {
+    //     const slotEntity = s.entity === 'date' ? 'time' : s.entity // highly hardcoded, date is in fact a system time
+    //     const sysComplex = sysComplexes.find(c => c.name === slotEntity)
+    //     const complex = complex_entities?.find(x => x.name === slotEntity)
+    //     if (sysComplex) {
+    //       return sysComplex.name
+    //     } else if (complex) {
+    //       return [...(complex.list_entities ?? []), ...(complex.pattern_entities ?? [])]
+    //     } else {
+    //       return slotEntity
+    //     }
+    //   })
+    //   .uniq()
+    //   .value() as string[]
+
+    // const entityModels = _.intersectionWith(list_entities_model, allowedEntities, (entity, name) => {
     const entityModels = _.intersectionWith(list_entities_model, allowedEntities, (entity, name) => {
       return entity.entityName === name
     })
@@ -507,7 +517,7 @@ export const TfidfTokens = async (input: TrainStep): Promise<TrainStep> => {
       ...tfidfInput,
       [intent.name]: _.flatMapDeep(
         intent.utterances
-          .filter(u => !u.augmented) // we don't want auto-generated phrases to impact TFIDF
+          // .filter(u => !u.augmented) // we don't want auto-generated phrases to impact TFIDF
           .map(u => u.tokens.map(t => t.toString({ lowerCase: true })))
       )
     }),
@@ -616,6 +626,7 @@ const NB_STEPS = 6 // change this if the training pipeline changes
 export type Trainer = (
   input: TrainInput,
   tools: Tools,
+  entityDef: sdk.NLU.EntityDefinition[],
   progress?: (x: number) => void,
   cancelCallback?: () => void
 ) => Promise<TrainOutput | undefined>
@@ -623,13 +634,14 @@ export type Trainer = (
 export const Trainer: Trainer = async (
   input: TrainInput,
   tools: Tools,
+  entityDef: sdk.NLU.EntityDefinition[],
   progress?: (x: number) => void,
   cancelCallback?: () => void
 ): Promise<TrainOutput | undefined> => {
   let totalProgress = 0
   let normalizedProgress = 0
 
-  const emptyProgress = () => {}
+  const emptyProgress = () => { }
   const reportTrainingProgress = progress ?? emptyProgress
 
   const debouncedProgress = _.debounce(reportTrainingProgress, 75, { maxWait: 750 })
@@ -652,7 +664,7 @@ export const Trainer: Trainer = async (
     debouncedProgress(normalizedProgress)
   }
 
-  let step = await PreprocessInput(input, tools)
+  let step = await PreprocessInput(input, tools, entityDef)
   try {
     reportProgress() // 10%
   } catch (err) {

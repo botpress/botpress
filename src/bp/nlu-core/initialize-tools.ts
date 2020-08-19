@@ -55,8 +55,8 @@ export async function initializeTools(config: NLU.Config, logger: NLU.Logger): P
     },
     tokenize_utterances: (utterances: string[], lang: string, vocab?: Token2Vec) =>
       languageProvider.tokenize(utterances, lang, vocab),
-    vectorize_tokens: async (tokens, lang) => {
-      const a = await languageProvider.vectorize(tokens, lang)
+    vectorize_tokens: async (tokens, lang, entities) => {
+      const a = await languageProvider.vectorize(tokens, lang, entities)
       return a.map(x => Array.from(x.values()))
     },
     generateSimilarJunkWords: (vocab: string[], lang: string) => languageProvider.generateSimilarJunkWords(vocab, lang),

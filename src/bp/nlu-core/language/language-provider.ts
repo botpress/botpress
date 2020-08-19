@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
 import retry from 'bluebird-retry'
+import { SdkApiPayload } from 'botpress/apiSdk'
 import { NLU } from 'botpress/sdk'
 import crypto from 'crypto'
 import fse from 'fs-extra'
@@ -403,11 +404,12 @@ export class RemoteLanguageProvider implements LanguageProvider {
     }) // randomly generated words
   }
 
-  async vectorize(tokens: string[], lang: string): Promise<Float32Array[]> {
+  async vectorize(tokens: string[], lang: string, entities?: NLU.EntityDefinition[]): Promise<Float32Array[]> {
     if (!tokens.length) {
       return []
     }
 
+    console.log('Enitities >> ', entities)
     const vectors: Float32Array[] = Array(tokens.length)
     const idxToFetch: number[] = [] // the tokens we need to fetch remotely
     const getCacheKey = (t: string) => `${lang}_${encodeURI(t)}`
