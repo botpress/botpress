@@ -1,4 +1,25 @@
 {
+  "topIntents": "Top Intents",
+  "topPredictions": "Top Predictions",
+  "viewAsSummary": "View as Summary",
+  "viewAsJson": "View as JSON",
+  "errorExecuting": "Error executing action \"{name}\"",
+  "errorTransition": "Error during transition to \"{name}\"",
+  "intents": "Intents",
+  "detectedLanguage": "Detected language",
+  "usedLanguage": "Used language",
+  "fetchingEvent": "Fetching event...",
+  "inspectIn": "Inspect in Debugger",
+  "splashMessage": "Engage conversation with your chatbot and click on any message to inspect its behaviors.",
+  "unauthorized": "Unauthorized",
+  "unauthorizedMessage": "You lack sufficient permissions to inspect events.",
+  "unauthorizedMessage2": "Permission required: write access on \"module.extensions\"",
+  "header": {
+    "newSession": "Create a new session",
+    "confSettings": "Configure settings",
+    "debugger": "Debugger",
+    "processing": "Processing"
+  },
   "types": {
     "dropdown": {
       "allowCreate": "Allow creation of new options",
@@ -25,6 +46,105 @@
     "mw": "Middleware",
     "dialog": "Processing Dialog",
     "action": "Action",
-    "completed": "Event Processing Completed"
+    "completed": "Event Processing Completed",
+    "executedIn": "Executed in {n} ms",
+    "type": "Type",
+    "stacktrace": "Stacktrace"
+  },
+  "settings": {
+    "confUpdated": "Configuration updated successfully!",
+    "confUpdatedError": "There was an error parsing your configuration. Please validate the syntax",
+    "payloadSent": "Payload sent successfully!",
+    "payloadSentError": "There was an error parsing your payload. Please validate the syntax",
+    "editConf": "Edit Configuration",
+    "editConfHelper": "Test temporary configuration changes. Refresh the page to reset.",
+    "editConfPlaceholder": "Change Webchat Settings (must be valid json)",
+    "saveConf": "Save Configuration",
+    "sendRawPayloads": "Send Raw Payloads",
+    "sendRawPayloadsHelper": "Send any valid JSON message, to test custom events, for example",
+    "sendRawPayloadsPlaceholder": "Valid JSON Payload",
+    "saveRawPayloads": "Send Payload",
+    "alwaysShowDebugger": "Always show Debugger",
+    "updateDebuggerOnNew": "Update debugger on new message",
+    "userId": "User ID",
+    "userIdHelper": "Changes the User ID stored on your browser",
+    "userIdPlaceholder": "Your User ID",
+    "authToken": "External Auth Token",
+    "authTokenHelper": "It must be a valid JWT Token",
+    "authTokenPlaceholder": "Token generated from your system",
+    "save": "Save",
+    "settings": "Settings",
+    "basic": "Basic",
+    "advanced": "Advanced"
+  },
+  "actions": {
+    "say": "Say {x}",
+    "startWorkflow": "Start Workflow {x}",
+    "goToNode": "Go to node {x}",
+    "redirectTo": "Redirect to {x}",
+    "continue": "Continue",
+    "cancelPrompt": "Cancel Prompt",
+    "informPrompt": "Inform Prompt"
+  },
+  "dialog": {
+    "decision": "Decision",
+    "suggestions": "Suggestions",
+    "flowNodes": "Flow Nodes",
+    "dialogManager": "Dialog Manager"
+  },
+  "entities": {
+    "type": "Type",
+    "source": "Source",
+    "normalizedValue": "Normalized Value"
+  },
+  "inspector": {
+    "copyEventPath": "Copy Event Path",
+    "expandAll": "Expand All"
+  },
+  "ndu": {
+    "topTriggers": "Top Triggers",
+    "decisionsTaken": "Decisions Taken",
+    "sendKnowledge": "Send knowledge {x}",
+    "startWorkflow": "Start Workflow {x}",
+    "goToNode": "Go to node {x}",
+    "redirectTo": "Redirect to {x}",
+    "continueFlowExecution": "Continue flow execution",
+    "informCurrentPrompt": "Inform current prompt",
+    "cancelCurrentPrompt": "Cancel current prompt",
+    "noResults": "No results",
+    "dialogUnderstanding": "Dialog Understanding"
+  },
+  "nlu": {
+    "intentsVeryClose": "Predicted intents are very close.",
+    "youCanAccountForIt": "You can account for it checking the variable : ",
+    "ambiguous": "Ambiguous",
+    "languageUnderstanding": "Language Understanding"
+  },
+  "slots": {
+    "slot": "Slot",
+    "source": "Source",
+    "extracted": "Extracted",
+    "value": "Value: {x}",
+    "turnsAgo": "{x} turns ago",
+    "thisTurn": "This turn"
+  },
+  "summary": {
+    "cannotDisplay": "Cannot display event summary",
+    "state": "State",
+    "errors": "Errors"
+  },
+  "triggers": {
+    "insideTopic": "Inside Topic",
+    "outsideTopic": "Outside Topic",
+    "insideWorkflow": "Inside Workflow",
+    "qna": "QnA",
+    "wf": "WF",
+    "node": "Node"
+  },
+  "eventNotFound": {
+    "title": "Event not found",
+    "message": "The requested event was not found. Possible reasons:",
+    "message2": "The Event Collector is not enabled in Botpress Config",
+    "message3": "The event was pruned from the database"
   }
 }

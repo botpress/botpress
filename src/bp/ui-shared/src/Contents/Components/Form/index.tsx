@@ -1,14 +1,16 @@
-import { Button, Checkbox, Position, Tooltip } from '@blueprintjs/core'
-import { FormMoreInfo } from 'botpress/sdk'
+import { Button, Checkbox } from '@blueprintjs/core'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
 
+import ToolTip from '../../../../../ui-shared-lite/ToolTip'
 import { lang } from '../../../translations'
 import SuperInput from '../../../FormFields/SuperInput'
 import superInputStyle from '../../../FormFields/SuperInput/style.scss'
 import SuperInputArray from '../../../FormFields/SuperInputArray'
+import TagInputList from '../../../FormFields/TagInputList'
 import TextFieldsArray from '../../../FormFields/TextFieldsArray'
+import VariablePicker from '../../../FormFields/VariablePicker'
 import { createEmptyDataFromSchema } from '../../utils/fields'
 import { formReducer, getSuperInputsFromData, printMoreInfo } from '../../utils/form.utils'
 import parentStyle from '../style.scss'
@@ -33,7 +35,9 @@ const Form: FC<FormProps> = ({
   advancedSettings,
   onUpdate,
   onUpdateVariables,
+  getCustomPlaceholder,
   variables,
+  invalidFields,
   superInputOptions,
   events
 }) => {
@@ -82,16 +86,19 @@ const Form: FC<FormProps> = ({
     }
 
     return field.superInput && !['text', 'text_array'].includes(field.type) ? (
-      <Tooltip
+      <ToolTip
         content={lang(
           isSuperInput(field, parent) ? 'superInput.convertToRegularInput' : 'superInput.convertToSmartInput'
         )}
-        position={Position.TOP}
       >
         <Button className={style.superInputBtn} small minimal onClick={() => toggleSuperInput(field, parent)}>
           {lang(field.label)}
         </Button>
-      </Tooltip>
+      </ToolTip>
+    ) : field.onClick ? (
+      <Button className={style.superInputBtn} small minimal onClick={() => field.onClick(field, parent)}>
+        {lang(field.label)}
+      </Button>
     ) : (
       lang(field.label)
     )
@@ -129,13 +136,10 @@ const Form: FC<FormProps> = ({
     setSuperInput({ ...superInput, [pathKey]: !superInput[pathKey] })
   }
 
-  const getArrayPlaceholder = (index, placeholder) => {
-    if (Array.isArray(placeholder)) {
-      if (index < placeholder.length) {
-        return lang(placeholder[index], { count: index })
-      } else {
-        return ''
-      }
+  const getArrayPlaceholder = (index, field) => {
+    const { placeholder, customPlaceholder, key } = field
+    if (customPlaceholder && getCustomPlaceholder) {
+      return getCustomPlaceholder(key, index)
     }
 
     return index === 0 && placeholder ? lang(placeholder) : ''
@@ -167,10 +171,10 @@ const Form: FC<FormProps> = ({
         defaultVariableType={getVariableType(field.type)}
         variableTypes={field.variableTypes}
         placeholder={lang(field.placeholder)}
-        variables={variables || []}
+        variables={variables}
         events={events || []}
-        canPickEvents={!superInputOptions?.variablesOnly}
-        canPickVariables={!superInputOptions?.eventsOnly}
+        canPickEvents={superInputOptions?.variablesOnly !== true && field.superInputOptions?.canPickEvents !== false}
+        canPickVariables={superInputOptions?.eventsOnly !== true && field.superInputOptions?.canPickVariables !== false}
         addVariable={onUpdateVariables}
         multiple={field.type === 'text'}
         onBlur={value => {
@@ -184,6 +188,7 @@ const Form: FC<FormProps> = ({
   const printField = (field, data, parent?) => {
     let currentValue = data[field.key] ?? newFormData[field.key]
     currentValue = field.translated ? currentValue?.[currentLang!] : currentValue
+    const invalid = invalidFields?.find(x => x.field === field.key)
 
     switch (field.type) {
       case 'hidden':
@@ -235,7 +240,7 @@ const Form: FC<FormProps> = ({
         )
       case 'select':
         return (
-          <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)}>
+          <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)} invalid={invalid}>
             {printMoreInfo(field.moreInfo)}
             {showSuperInput(field, parent) ? (
               renderSuperInput(field, currentValue, value => {
@@ -271,7 +276,7 @@ const Form: FC<FormProps> = ({
           <Fragment key={field.key}>
             {showSuperInput(field, parent) ? (
               <SuperInputArray
-                getPlaceholder={index => getArrayPlaceholder(index, field.placeholder)}
+                getPlaceholder={index => getArrayPlaceholder(index, field)}
                 moreInfo={printMoreInfo(field.moreInfo)}
                 onChange={value => {
                   dispatch({
@@ -287,9 +292,13 @@ const Form: FC<FormProps> = ({
                   })
                 }}
                 variableTypes={field.variableTypes}
-                canPickEvents={!superInputOptions?.variablesOnly}
-                canPickVariables={!superInputOptions?.eventsOnly}
-                variables={variables || []}
+                canPickEvents={
+                  superInputOptions?.variablesOnly !== true && field.superInputOptions?.canPickEvents !== false
+                }
+                canPickVariables={
+                  superInputOptions?.eventsOnly !== true && field.superInputOptions?.canPickVariables !== false
+                }
+                variables={variables}
                 events={events || []}
                 onUpdateVariables={onUpdateVariables}
                 items={currentValue || ['']}
@@ -298,8 +307,9 @@ const Form: FC<FormProps> = ({
               />
             ) : (
               <TextFieldsArray
-                getPlaceholder={index => getArrayPlaceholder(index, field.placeholder)}
+                getPlaceholder={index => getArrayPlaceholder(index, field)}
                 moreInfo={printMoreInfo(field.moreInfo)}
+                validationPattern={field.validationPattern}
                 onChange={value => {
                   dispatch({
                     type: 'updateField',
@@ -320,9 +330,35 @@ const Form: FC<FormProps> = ({
             )}
           </Fragment>
         )
+
+      // TODO: Max's magic touch
+      case 'tag-input':
+        return (
+          <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)} invalid={invalid}>
+            <TagInputList
+              placeholder={lang(field.placeholder)}
+              items={currentValue || []}
+              addBtnLabel={lang(field.group?.addLabel)}
+              onChange={value => {
+                dispatch({
+                  type: 'updateField',
+                  data: {
+                    newFormData,
+                    field: field.key,
+                    lang: field.translated && currentLang,
+                    parent,
+                    value,
+                    onUpdate
+                  }
+                })
+              }}
+            />
+          </FieldWrapper>
+        )
+
       case 'textarea':
         return (
-          <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)}>
+          <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)} invalid={invalid}>
             {printMoreInfo(field.moreInfo)}
             {showSuperInput(field, parent) ? (
               renderSuperInput(field, currentValue, value => {
@@ -362,7 +398,7 @@ const Form: FC<FormProps> = ({
         )
       case 'upload':
         return (
-          <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)}>
+          <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)} invalid={invalid}>
             {printMoreInfo(field.moreInfo)}
             <Upload
               axios={axios}
@@ -431,9 +467,38 @@ const Form: FC<FormProps> = ({
             })}
           </Fragment>
         )
-      default:
+      case 'variable':
         return (
           <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)}>
+            {printMoreInfo(field.moreInfo)}
+            <VariablePicker
+              data={data}
+              variables={variables!}
+              variableTypes={field.variableTypes}
+              defaultVariableType={field.defaultVariableType}
+              variableSubType={formData?.subType}
+              field={field}
+              addVariable={onUpdateVariables!}
+              placeholder={lang(field.placeholder)}
+              onChange={value =>
+                dispatch({
+                  type: 'updateField',
+                  data: {
+                    newFormData,
+                    field: field.key,
+                    lang: field.translated && currentLang,
+                    parent,
+                    value,
+                    onUpdate
+                  }
+                })
+              }
+            />
+          </FieldWrapper>
+        )
+      default:
+        return (
+          <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)} invalid={invalid}>
             {printMoreInfo(field.moreInfo)}
             {showSuperInput(field, parent) ? (
               renderSuperInput(field, currentValue, value => {

@@ -89,7 +89,9 @@
   "list": "Liste",
   "listen": "Écouter",
   "logs": "Journalisation",
+  "maximizeInspector": "Maximiser l'inspecteur",
   "message": "Message",
+  "minimizeInspector": "Minimiser l'inspecteur",
   "modifiedOn": "Modifié le",
   "move": "Déplacer",
   "moveDown": "Déplacer vers le bas",
@@ -171,5 +173,14 @@
   "number": "Nombre",
   "boolean": "Booléen",
   "string": "Texte",
-  "format": "Format"
+  "format": "Format",
+  "input": "Entrée",
+  "output": "Sortie",
+  "tolerance": "Tolérance",
+  "enumeration": "Énumération",
+  "values": "Valeurs",
+  "strict": "Stricte",
+  "medium": "Médium",
+  "loose": "Indulgent",
+  "examples": "Exemples"
 }

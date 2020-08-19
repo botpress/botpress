@@ -1,6 +1,6 @@
-import { LanguageSource } from './backend/typings'
+import { NLU } from 'botpress/sdk'
 
-export interface Config {
+export interface Config extends NLU.Config {
   /**
    * If you want a fully on-prem installation, you can host
    * Facebook's Duckling on your own infrastructure and change this URL
@@ -25,5 +25,5 @@ export interface Config {
    * The list of sources to load languages from
    * @default [{ "endpoint": "https://lang-01.botpress.io" }]
    */
-  languageSources: LanguageSource[]
+  languageSources: NLU.LanguageSource[]
 }

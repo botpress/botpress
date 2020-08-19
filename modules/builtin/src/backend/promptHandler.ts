@@ -13,13 +13,13 @@ export async function setupMiddleware(bp: typeof sdk, prompts: { id; config: sdk
 
   async function outgoingHandler(event: sdk.IO.OutgoingEvent, next: sdk.IO.MiddlewareNextCallback) {
     if (event.type !== 'prompt' || !prompts.find(x => x.id === event.payload.type)) {
-      return next()
+      return next(undefined, false, true)
     }
 
     const payload = await handlePrompt(event, bp)
     await bp.events.replyContentToEvent(payload, event, { incomingEventId: event.incomingEventId })
 
-    return next(undefined, false)
+    return next(undefined, true)
   }
 }
 
@@ -53,9 +53,9 @@ export const handlePrompt = async (event: sdk.IO.OutgoingEvent, bp: typeof sdk):
     case 'enum':
       let items = payload.items
 
-      if (payload.enumType) {
+      if (payload.subType) {
         const { data } = await axios.get(
-          `nlu/entities/${payload.enumType}`,
+          `nlu/entities/${payload.subType}`,
           await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
         )
         items = data.occurrences.map(x => ({ label: x.name, value: x.name }))

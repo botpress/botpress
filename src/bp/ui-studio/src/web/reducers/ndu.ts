@@ -1,7 +1,13 @@
-import { Condition, PromptDefinition, Topic } from 'botpress/sdk'
+import { Condition, PrimitiveVarType, PromptDefinition, Topic } from 'botpress/sdk'
 import _ from 'lodash'
 import { handleActions } from 'redux-actions'
-import { conditionsReceived, promptsReceived, receiveQNACountByTopic, topicsReceived } from '~/actions'
+import {
+  conditionsReceived,
+  promptsReceived,
+  receiveQNACountByTopic,
+  topicsReceived,
+  variablesReceived
+} from '~/actions'
 import { CountByTopic } from '~/views/OneFlow/sidePanel/TopicList'
 
 export interface NduReducer {
@@ -9,13 +15,15 @@ export interface NduReducer {
   topics: Topic[]
   qnaCountByTopic?: CountByTopic[]
   prompts: PromptDefinition[]
+  primitiveVariables: PrimitiveVarType[]
 }
 
 const defaultState: NduReducer = {
   conditions: [],
   topics: [],
   qnaCountByTopic: undefined,
-  prompts: []
+  prompts: [],
+  primitiveVariables: []
 }
 
 export default handleActions(
@@ -35,6 +43,10 @@ export default handleActions(
     [promptsReceived]: (state, { payload }) => ({
       ...state,
       prompts: payload
+    }),
+    [variablesReceived]: (state, { payload }) => ({
+      ...state,
+      primitiveVariables: payload
     })
   },
   defaultState

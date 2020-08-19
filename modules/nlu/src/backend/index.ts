@@ -15,7 +15,8 @@ import { NLUState } from './typings'
 
 const state: NLUState = {
   nluByBot: {},
-  reportTrainingProgress: () => {}
+  logger: {} as sdk.NLU.Logger,
+  sendNLUStatusEvent: async () => {}
 }
 
 const onServerStarted = getOnSeverStarted(state)
@@ -65,9 +66,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   translations: { en, fr },
   definition: {
     name: 'nlu',
-    moduleView: {
-      stretched: true
-    },
+    noInterface: true,
     menuIcon: 'translate',
     menuText: 'NLU',
     fullName: 'NLU',

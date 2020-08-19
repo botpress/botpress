@@ -325,7 +325,7 @@ export default class HTTPServer {
           window.APP_FAVICON = "${branding.favicon}";
           window.APP_CUSTOM_CSS = "${branding.customCss}";
           window.TELEMETRY_URL = "${process.TELEMETRY_URL}";
-          window.SEND_USAGE_STATS = "${botpressConfig!.sendUsageStats}";
+          window.SEND_USAGE_STATS = ${botpressConfig!.sendUsageStats};
         })(typeof window != 'undefined' ? window : {})
       `)
     })

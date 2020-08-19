@@ -1,0 +1,54 @@
+.wrapper {
+  background: #fff;
+  margin-top: var(--spacing-xx-large);
+  padding: var(--spacing-x-large) var(--spacing-xx-large) var(--spacing-xx-large) var(--spacing-large);
+  border-radius: 5px;
+}
+
+.group {
+  display: flex;
+  margin: var(--spacing-large) 0;
+
+  .label {
+    width: 280px;
+    line-height: 1.25;
+  }
+}
+
+.divider {
+  height: 1px;
+  background-color: var(--gray);
+}
+
+.variables {
+  color: var(--shark);
+  font-size: 12px;
+  margin-top: 5px;
+  margin: var(--spacing-xx-large) 0 var(--spacing-small);
+}
+
+.button {
+  height: 20px;
+  border-radius: 3px;
+
+  line-height: 10px;
+  background-color: var(--seashell);
+  border: solid 1px var(--seashell);
+  margin: 0 var(--spacing-medium);
+
+  .label {
+    height: 10px;
+    font-size: 10px;
+    color: var(--shark);
+    line-height: 1.25;
+  }
+
+  &:hover {
+    border: solid 1px var(--ocean);
+    background-color: var(--hover-ocean);
+  }
+}
+
+.emptyState {
+  margin: auto auto;
+}

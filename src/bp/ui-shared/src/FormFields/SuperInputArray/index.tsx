@@ -109,7 +109,6 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
   const onKeyDown = (e, index): void => {
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault()
-      skipBlur.current = true
       addItem()
     }
 
@@ -136,7 +135,7 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
             canPickEvents={canPickEvents}
             canPickVariables={canPickVariables}
             multiple
-            variables={variables || []}
+            variables={variables}
             events={events || []}
             addVariable={onUpdateVariables}
             childRef={(ref: any) => {

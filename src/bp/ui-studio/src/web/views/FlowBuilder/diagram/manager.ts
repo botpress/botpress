@@ -18,7 +18,8 @@ const passThroughNodeProps: string[] = [
   'type',
   'contents',
   'activeWorkflow',
-  'prompt'
+  'prompt',
+  'subflow'
 ]
 export const DIAGRAM_PADDING: number = 100
 
@@ -29,14 +30,16 @@ export const nodeTypes = [
   'skill-call',
   'say_something',
   'execute',
-  'listen',
   'router',
   'action',
-  'prompt'
+  'prompt',
+  'sub-workflow'
 ]
 
+export const outcomeNodeTypes = ['success', 'failure']
+
 // Using the new node types to prevent displaying start port
-export const newNodeTypes = ['say_something', 'execute', 'listen', 'router']
+export const newNodeTypes = ['say_something', 'execute', 'router']
 
 // Default transition applied for new nodes 1.5
 export const defaultTransition = { condition: 'true', node: '' }
@@ -51,7 +54,17 @@ const createNodeModel = (node, modelProps) => {
   if (type === 'skill-call') {
     return new SkillCallNodeModel(modelProps)
   } else if (
-    ['say_something', 'prompt', 'execute', 'listen', 'router', 'action', 'success', 'trigger', 'failure'].includes(type)
+    [
+      'say_something',
+      'prompt',
+      'execute',
+      'router',
+      'action',
+      'success',
+      'trigger',
+      'failure',
+      'sub-workflow'
+    ].includes(type)
   ) {
     return new BlockModel(modelProps)
   } else {
@@ -370,7 +383,7 @@ export class DiagramManager {
       } else if (/\.flow/i.test(target)) {
         // Handle subflow connection
       } else {
-        const sourcePort = node.ports['out' + index]
+        const sourcePort = node.ports[`out${index}`]
         const targetNode = _.find(allNodes, { name: next.node })
 
         if (!targetNode) {

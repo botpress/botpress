@@ -1,8 +1,9 @@
-import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
+import { Button, Icon } from '@blueprintjs/core'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { Fragment } from 'react'
 
+import ToolTip from '../../../../ui-shared-lite/ToolTip'
 import { lang } from '../../translations'
 import Dropdown from '../../Dropdown'
 import Icons from '../../Icons'
@@ -24,6 +25,7 @@ const SingleSuperInput = ({
   canPickVariables,
   events,
   variables,
+  allVariables,
   onAddVariable,
   eventsDesc,
   value,
@@ -90,13 +92,19 @@ const SingleSuperInput = ({
       return null
     }
 
+    const type = allVariables.currentFlow?.find(x => x.params?.name === option.value)?.type
+    const icon = allVariables.primitive?.find(x => x.id === type)?.config?.icon
+
     const label = isAdding ? (
       <Fragment>
         <Icon icon="plus" iconSize={12} />
         {lang('create')} "{option.label}"
       </Fragment>
     ) : (
-      option.label
+      <Fragment>
+        <Icon icon={icon} iconSize={12} />
+        {option.label}
+      </Fragment>
     )
 
     return (
@@ -126,13 +134,9 @@ const SingleSuperInput = ({
               onBlur?.(`{{${value}}}`)
             }}
           >
-            <Tooltip
-              content={lang('superInput.insertValueFromEvent')}
-              hoverOpenDelay={300}
-              position={Position.TOP_LEFT}
-            >
+            <ToolTip content={lang('superInput.insertValueFromEvent')} hoverOpenDelay={300}>
               <Button className={style.btn} icon={<Icons.Brackets />} />
-            </Tooltip>
+            </ToolTip>
           </Dropdown>
         )}
         {canPickVariables && (
@@ -146,13 +150,9 @@ const SingleSuperInput = ({
               onBlur?.(`$${value}`)
             }}
           >
-            <Tooltip
-              content={lang('superInput.insertValueFromVariables')}
-              hoverOpenDelay={300}
-              position={Position.TOP_LEFT}
-            >
+            <ToolTip content={lang('superInput.insertValueFromVariables')} hoverOpenDelay={300}>
               <Button className={style.btn} icon="dollar" />
-            </Tooltip>
+            </ToolTip>
           </Dropdown>
         )}
       </div>

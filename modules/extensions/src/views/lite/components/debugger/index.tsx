@@ -7,9 +7,12 @@ import nanoid from 'nanoid'
 import React from 'react'
 import 'ui-shared/dist/theme.css'
 
+import lang from '../../../lang'
+
 import Settings from './settings'
 import style from './style.scss'
 import { loadSettings } from './utils'
+import { Inspector } from './views/Inspector'
 import { Processing } from './views/Processing'
 import Summary from './views/Summary'
 import EventNotFound from './EventNotFound'
@@ -36,6 +39,7 @@ interface State {
   visible: boolean
   showSettings: boolean
   showEventNotFound: boolean
+  showInspector: boolean
   fetching: boolean
   unauthorized: boolean
   tab: string
@@ -51,6 +55,7 @@ export class Debugger extends React.Component<Props, State> {
     showSettings: false,
     fetching: false,
     unauthorized: false,
+    showInspector: false,
     tab: window['BP_STORAGE'].get(DEBUGGER_TAB_KEY) || 'content'
   }
   allowedRetryCount = 0
@@ -59,6 +64,7 @@ export class Debugger extends React.Component<Props, State> {
   lastMessage = undefined
 
   async componentDidMount() {
+    lang.init()
     updater.callback = this.loadEvent
 
     this.props.store.view.setLayoutWidth(WEBCHAT_WIDTH)
@@ -66,7 +72,7 @@ export class Debugger extends React.Component<Props, State> {
 
     this.props.store.view.addCustomAction({
       id: 'actionDebug',
-      label: 'Inspect in Debugger',
+      label: lang.tr('module.extensions.inspectIn'),
       onClick: this.handleSelect
     })
 
@@ -112,7 +118,7 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   handleNewMessage = async (m: Partial<sdk.IO.IncomingEvent>) => {
-    if (m.payload.type !== 'session_reset') {
+    if (!['session_reset', 'visit'].includes(m.payload.type)) {
       // @ts-ignore
       await this.updateLastMessage(m.incomingEventId)
     }
@@ -144,6 +150,9 @@ export class Debugger extends React.Component<Props, State> {
     if (e.ctrlKey && e.key === 'd') {
       e.preventDefault()
       this.toggleDebugger()
+    } else if (e.ctrlKey && e.key === 'i') {
+      e.preventDefault()
+      this.setState({ showInspector: !this.state.showInspector })
     }
   }
 
@@ -152,16 +161,23 @@ export class Debugger extends React.Component<Props, State> {
       return
     }
 
+    let keepRetrying = false
     this.setState({ fetching: true })
 
     try {
       const { data: event } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
 
-      this.setState({ event, showEventNotFound: !event, fetching: false })
-
+      this.setState({ event, showEventNotFound: !event })
       this.props.store.view.setHighlightedMessages(eventId)
-      this.currentRetryCount = 0
+
+      if (!event.processing?.['completed']) {
+        keepRetrying = true
+      }
     } catch (err) {
+      keepRetrying = true
+    }
+
+    if (keepRetrying) {
       if (this.currentRetryCount < this.allowedRetryCount) {
         this.currentRetryCount++
 
@@ -171,6 +187,9 @@ export class Debugger extends React.Component<Props, State> {
         this.currentRetryCount = 0
         this.setState({ fetching: false })
       }
+    } else {
+      this.setState({ fetching: false })
+      this.currentRetryCount = 0
     }
   }
 
@@ -203,13 +222,20 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   renderEvent() {
-    const lang = this.props.store?.botUILanguage || 'en'
     const { tab, event } = this.state
+
+    if (this.state.showInspector) {
+      return (
+        <div className={style.content}>
+          <Inspector data={event} />
+        </div>
+      )
+    }
 
     return (
       <div className={style.content}>
         {tab === 'content' && <Summary event={event} />}
-        {tab === 'processing' && <Processing processing={event?.processing} lang={lang} />}
+        {tab === 'processing' && <Processing processing={event?.processing} />}
       </div>
     )
   }

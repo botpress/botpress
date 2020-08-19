@@ -1,5 +1,7 @@
-import { BoxedVariable, FlowVariableType } from 'botpress/sdk'
+import { BoxedVariable, PrimitiveVarType } from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
+
+import common from './common'
 
 class BoxedString extends BaseVariable<string> {
   constructor(args) {
@@ -33,11 +35,13 @@ class BoxedString extends BaseVariable<string> {
   }
 }
 
-const StringVariableType: FlowVariableType = {
+const StringVariableType: PrimitiveVarType = {
   id: 'string',
   config: {
-    fields: [],
-    advancedSettings: []
+    label: 'string',
+    icon: 'font',
+    fields: common.fields,
+    advancedSettings: common.advancedSettings
   },
   box: BoxedString
 }

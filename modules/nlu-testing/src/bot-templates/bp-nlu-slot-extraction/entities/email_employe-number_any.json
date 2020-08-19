@@ -1,0 +1,8 @@
+{
+  "id": "email_employe-number_any",
+  "name": "email_employe-number_any",
+  "type": "complex",
+  "examples": ["Jean-Bernard", "JB", "Sylvain", "Jean Bernard", "Eff"],
+  "list_entities": [],
+  "pattern_entities": ["email", "employe-number"]
+}

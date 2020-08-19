@@ -1,38 +1,34 @@
 import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import semver from 'semver'
 
-import nluInfo from '../../../package.json'
-import Engine from '../engine'
 import legacyElectionPipeline from '../legacy-election'
 import { getLatestModel } from '../model-service'
-import { InvalidLanguagePredictorError } from '../predict-pipeline'
-import { removeTrainingSession, setTrainingSession } from '../train-session-service'
-import { NLUProgressEvent, NLUState, TrainingSession } from '../typings'
+import { setTrainingSession } from '../train-session-service'
+import { NLUState } from '../typings'
 
 async function initializeReportingTool(bp: typeof sdk, state: NLUState) {
-  state.reportTrainingProgress = async (botId: string, message: string, trainSession: TrainingSession) => {
+  state.sendNLUStatusEvent = async (botId: string, trainSession: sdk.NLU.TrainingSession) => {
     await setTrainingSession(bp, botId, trainSession)
 
-    const ev: NLUProgressEvent = {
-      type: 'nlu',
-      working: trainSession.status === 'training',
-      botId,
-      message,
-      trainSession: _.omit(trainSession, 'lock')
-    }
+    const ev = { type: 'nlu', botId, trainSession: _.omit(trainSession, 'lock') }
     bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', ev))
-    if (trainSession.status === 'done') {
-      setTimeout(() => removeTrainingSession(bp, botId, trainSession), 5000)
-    }
   }
+}
+
+function initializeLogger(bp: typeof sdk, state: NLUState) {
+  const logger: sdk.NLU.Logger = {
+    info: (msg: string) => bp.logger.info(msg),
+    warning: (msg: string, err?: Error) => (err ? bp.logger.attachError(err).warn(msg) : bp.logger.warn(msg)),
+    error: (msg: string, err?: Error) => (err ? bp.logger.attachError(err).error(msg) : bp.logger.error(msg))
+  }
+  state.logger = logger
 }
 
 const EVENTS_TO_IGNORE = ['session_reference', 'session_reset', 'bp_dialog_timeout', 'visit', 'say_something', '']
 
 const ignoreEvent = (bp: typeof sdk, state: NLUState, event: sdk.IO.IncomingEvent) => {
-  const health = Engine.tools.getHealth()
+  const health = bp.NLU.Engine.getHealth()
   return (
     !state.nluByBot[event.botId] ||
     !health.isEnabled ||
@@ -54,25 +50,22 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
         return next(undefined, false, true)
       }
 
-      let nluResults = {}
+      let nluResults: sdk.IO.EventUnderstanding
       const { engine } = state.nluByBot[event.botId]
       const extractEngine2 = async () => {
-        try {
-          // eventually if model not loaded for bot languages ==> train or load
+        // eventually if model not loaded for bot languages ==> train or load
+        nluResults = await engine.predict(event.preview, event.nlu.includedContexts)
+        if (nluResults.errored && nluResults.suggestedLanguage) {
+          const model = await getLatestModel(bp.ghost.forBot(event.botId), nluResults.suggestedLanguage)
+          await engine.loadModel(model)
+          // might throw again, thus usage of bluebird retry
           nluResults = await engine.predict(event.preview, event.nlu.includedContexts)
-        } catch (err) {
-          if (err instanceof InvalidLanguagePredictorError) {
-            const model = await getLatestModel(bp.ghost.forBot(event.botId), err.languageCode)
-            await engine.loadModel(model)
-            // might throw again, thus usage of bluebird retry
-            nluResults = await engine.predict(event.preview, event.nlu.includedContexts)
-          }
         }
       }
 
       try {
         await retry(extractEngine2, { max_tries: 2, throw_original: true })
-        _.merge(event, { nlu: nluResults })
+        _.merge(event, { nlu: nluResults ?? {} })
         removeSensitiveText(event)
       } catch (err) {
         bp.logger.warn(`Error extracting metadata for incoming text: ${err.message}`)
@@ -124,7 +117,9 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
 export function getOnSeverStarted(state: NLUState) {
   return async (bp: typeof sdk) => {
     await initializeReportingTool(bp, state)
-    await Engine.initialize(bp)
+    initializeLogger(bp, state)
+    const globalConfig = await bp.config.getModuleConfig('nlu')
+    await bp.NLU.Engine.initialize(globalConfig, state.logger)
     await registerMiddleware(bp, state)
   }
 }

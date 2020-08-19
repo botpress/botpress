@@ -285,3 +285,9 @@ pre.code {
     }
   }
 }
+
+.bp-header {
+  :global(.bp3-navbar-group) {
+    height: 50px;
+  }
+}

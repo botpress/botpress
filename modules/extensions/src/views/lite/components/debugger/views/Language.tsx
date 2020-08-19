@@ -1,5 +1,6 @@
-import React, { FC, Fragment, useState } from 'react'
+import React, { FC, Fragment } from 'react'
 
+import lang from '../../../../lang'
 import style from '../style.scss'
 
 interface Props {
@@ -10,12 +11,8 @@ interface Props {
 export const Language: FC<Props> = props => (
   <Fragment>
     <div className={style.section}>
-      <h2 className={style.sectionTitle}>Detected language</h2>
+      <h2 className={style.sectionTitle}>{lang.tr('module.extensions.detectedLanguage')}</h2>
       <p>{props.detectedLanguage}</p>
-    </div>
-    <div className={style.section}>
-      <h2 className={style.sectionTitle}>Used Language</h2>
-      <p>{props.usedLanguage}</p>
     </div>
   </Fragment>
 )

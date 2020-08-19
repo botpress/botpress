@@ -1,11 +1,10 @@
 import { Intent, Menu, MenuItem } from '@blueprintjs/core'
-import { DecisionTriggerCondition, FormData } from 'botpress/sdk'
+import { DecisionTriggerCondition, FormData, SubWorkflowNode } from 'botpress/sdk'
 import { contextMenu, lang, ShortcutLabel } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
 import { AllPartialNode } from '~/actions'
-import storage from '~/util/storage'
 import { BaseNodeModel } from '~/views/FlowBuilder/diagram/nodes/BaseNodeModel'
 import { StandardPortWidget } from '~/views/FlowBuilder/diagram/nodes/Ports'
 
@@ -14,9 +13,11 @@ import style from '../Components/style.scss'
 import NodeHeader from '../Components/NodeHeader'
 import NodeWrapper from '../Components/NodeWrapper'
 import ExecuteContents from '../ExecuteContents'
+import OutcomeContents from '../OutcomeContents'
 import PromptContents from '../PromptContents'
 import RouterContents from '../RouterContents'
 import SaySomethingContents from '../SaySomethingContents'
+import SubworkflowContents from '../SubworkflowContents'
 import TriggerContents from '../TriggerContents'
 
 interface Props {
@@ -38,12 +39,12 @@ const defaultLabels = {
   action: 'studio.flow.node.chatbotExecutes',
   execute: 'studio.flow.node.chatbotExecutes',
   failure: 'studio.flow.node.workflowFails',
-  listen: 'listen',
   prompt: 'studio.flow.node.chatbotPromptsUser',
   router: 'if',
   say_something: 'studio.flow.node.chatbotSays',
   success: 'studio.flow.node.workflowSucceeds',
-  trigger: 'studio.flow.node.triggeredBy'
+  trigger: 'studio.flow.node.triggeredBy',
+  'sub-workflow': 'studio.flow.node.subworkflow'
 }
 
 const BlockWidget: FC<Props> = ({
@@ -117,8 +118,8 @@ const BlockWidget: FC<Props> = ({
   }
 
   const inputPortInHeader = !['trigger'].includes(nodeType)
-  const outPortInHeader = !['failure', 'prompt', 'router', 'success'].includes(nodeType)
-  const canCollapse = !['failure', 'prompt', 'router', 'success', 'listen'].includes(nodeType)
+  const outPortInHeader = !['failure', 'prompt', 'router', 'success', 'sub-workflow'].includes(nodeType)
+  const canCollapse = !['failure', 'prompt', 'router', 'success', 'sub-workflow'].includes(nodeType)
   const hasContextMenu = !['failure', 'success'].includes(nodeType)
 
   const renderContents = () => {
@@ -131,6 +132,10 @@ const BlockWidget: FC<Props> = ({
         return <PromptContents node={node} selectedNodeItem={selectedNodeItem} getCurrentLang={getCurrentLang} />
       case 'router':
         return <RouterContents node={node} />
+      case 'success':
+        return <OutcomeContents node={node} selectedNodeItem={selectedNodeItem} getCurrentLang={getCurrentLang} />
+      case 'failure':
+        return <OutcomeContents node={node} selectedNodeItem={selectedNodeItem} getCurrentLang={getCurrentLang} />
       case 'say_something':
         return (
           <SaySomethingContents
@@ -149,6 +154,15 @@ const BlockWidget: FC<Props> = ({
             getConditions={getConditions}
           />
         )
+      case 'sub-workflow':
+        return (
+          <SubworkflowContents
+            node={node}
+            selectedNodeItem={selectedNodeItem}
+            getCurrentLang={getCurrentLang}
+            editNodeItem={editNodeItem}
+          />
+        )
       default:
         return null
     }
@@ -164,7 +178,7 @@ const BlockWidget: FC<Props> = ({
   node.locked = isEditing
 
   return (
-    <NodeWrapper>
+    <NodeWrapper isHighlighed={node.isHighlighted}>
       <NodeHeader
         className={style[nodeType]}
         setExpanded={canCollapse && handleExpanded}
@@ -177,7 +191,7 @@ const BlockWidget: FC<Props> = ({
         type={nodeType}
         error={error}
       >
-        {inputPortInHeader && <StandardPortWidget name="in" node={node} className={style.in} />}
+        <StandardPortWidget hidden={!inputPortInHeader} name="in" node={node} className={style.in} />
         {outPortInHeader && <StandardPortWidget name="out0" node={node} className={style.out} />}
       </NodeHeader>
       {(!canCollapse || expanded) && renderContents()}
@@ -192,6 +206,7 @@ export class BlockModel extends BaseNodeModel {
   public nodeType: string
   public prompt?
   public contents?: { [lang: string]: FormData }[] = []
+  public subflow: SubWorkflowNode
 
   constructor({
     id,
@@ -204,6 +219,7 @@ export class BlockModel extends BaseNodeModel {
     onEnter = [],
     next = [],
     conditions = [],
+    subflow = {},
     activeWorkflow = false,
     isNew = false,
     isStartNode = false,
@@ -221,6 +237,7 @@ export class BlockModel extends BaseNodeModel {
       isStartNode,
       isHighlighted,
       conditions,
+      subflow,
       activeWorkflow,
       isNew
     })
@@ -238,6 +255,7 @@ export class BlockModel extends BaseNodeModel {
     this.nodeType = data.type
     this.prompt = data.prompt
     this.contents = data.contents
+    this.subflow = data.subflow
   }
 }
 

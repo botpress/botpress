@@ -40,6 +40,16 @@ interface ILayoutProps {
   translations: any
 }
 
+const handleWebChatPanel = message => {
+  if (message.data.name === 'webchatOpened') {
+    document.getElementById('main-content-wrapper').classList.toggle('emulator-open', true)
+  }
+
+  if (message.data.name === 'webchatClosed') {
+    document.getElementById('main-content-wrapper').classList.toggle('emulator-open', false)
+  }
+}
+
 const Layout: FC<ILayoutProps> = props => {
   const mainElRef = useRef(null)
   const [langSwitcherOpen, setLangSwitcherOpen] = useState(false)
@@ -53,6 +63,11 @@ const Layout: FC<ILayoutProps> = props => {
     })
 
     setTimeout(() => BotUmountedWarning(), 500)
+
+    window.addEventListener('message', handleWebChatPanel)
+    return () => {
+      window.removeEventListener('message', handleWebChatPanel)
+    }
   }, [])
 
   useEffect(() => {

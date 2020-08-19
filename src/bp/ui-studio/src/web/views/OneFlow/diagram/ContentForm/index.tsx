@@ -3,8 +3,9 @@ import axios from 'axios'
 import { BotEvent, FlowVariable, FormData } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
+import { Variables } from 'common/typings'
 import _ from 'lodash'
-import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
+import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
 import style from './style.scss'
 import TextField from './TextField'
@@ -13,7 +14,7 @@ interface Props {
   deleteContent: () => void
   editingContent: number
   customKey: string
-  variables: FlowVariable[]
+  variables: Variables
   events: BotEvent[]
   close: (closingKey: number) => void
   onUpdate: (data: any) => void
@@ -90,7 +91,7 @@ const ContentForm: FC<Props> = ({
       canOutsideClickClose={canOutsideClickClose}
       close={() => close(editingContent)}
     >
-      <Fragment key={`${contentType.current}-${customKey || editingContent}`}>
+      <Fragment key={`${contentType.current}-${contentLang}-${customKey || editingContent}`}>
         <div className={style.formHeader}>
           <Tabs id="contentFormTabs">
             <Tab id="content" title={lang.tr('studio.flow.nodeType.say')} />

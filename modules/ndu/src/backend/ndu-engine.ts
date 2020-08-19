@@ -5,62 +5,11 @@ import _ from 'lodash'
 
 import { Config } from '../config'
 
-import { BASE_DATA } from './base-data'
-import { Features } from './typings'
+import { ActionPredictions, ActionType, ActionTypes, dataset, Trainer } from './training/trainer'
+import { Features, Model } from './typings'
+import { getTriggerId, stringToVec, WfIdToTopic } from './utils'
 
 const debug = DEBUG('ndu').sub('processing')
-
-const ActionTypes = <const>[
-  'faq_trigger_outside_topic',
-  'faq_trigger_inside_topic',
-  'wf_trigger_inside_topic',
-  'wf_trigger_outside_topic',
-  'wf_trigger_inside_wf',
-  'faq_trigger_inside_wf',
-  'node_trigger_inside_wf'
-]
-
-type ActionType = typeof ActionTypes[number]
-type ActionPredictions = { [key in ActionType]: number }
-
-const stringToVec = (choices: string[], value: string) => {
-  const arr = Array(choices.length).fill(0)
-  const idx = choices.indexOf(value)
-  if (idx >= 0) {
-    arr[idx] = 1
-  }
-  return arr
-}
-
-const newFeature = (): Features => ({
-  conf_faq_trigger_inside_topic: 0,
-  conf_faq_trigger_outside_topic: 0,
-  conf_faq_trigger_parameter: 0,
-  conf_node_trigger_inside_wf: 0,
-  conf_wf_trigger_inside_topic: 0,
-  conf_wf_trigger_inside_wf: 0,
-  conf_wf_trigger_outside_topic: 0,
-  current_highest_ranking_trigger_id: '',
-  current_node_id: '',
-  current_workflow_id: '',
-  last_turn_action_name: '',
-  last_turn_same_highest_ranking_trigger_id: false,
-  last_turn_same_node: false,
-  last_turn_since: 0
-})
-
-const dataset: [Features, ActionType][] = BASE_DATA.map(([feat, label]) => [
-  Object.assign(newFeature(), (feat as any) as Features),
-  <ActionType>label
-])
-
-const WfIdToTopic = (wfId: string): string | undefined => {
-  if (wfId === 'n/a' || wfId.startsWith('skills/')) {
-    return
-  }
-
-  return wfId.split('/')[0]
-}
 
 export const DEFAULT_MIN_CONFIDENCE = 0.1
 
@@ -69,22 +18,38 @@ export class UnderstandingEngine {
   private _allNodeIds: Set<string> = new Set()
   private _allWfIds: Set<string> = new Set()
 
-  private _allTriggers: Map<string, sdk.NDU.Trigger[]> = new Map()
+  private _allTriggers?: sdk.NDU.Trigger[]
   private _minConfidence: number
 
-  trainer: sdk.MLToolkit.SVM.Trainer
-  predictor: sdk.MLToolkit.SVM.Predictor
+  private trainer: Trainer
+  private predictor: sdk.MLToolkit.SVM.Predictor
+  private loadedModelHash: string
 
-  constructor(private bp: typeof sdk, private _dialogConditions: sdk.Condition[], config: Config) {
-    this.trainer = new this.bp.MLToolkit.SVM.Trainer()
+  constructor(
+    private bp: typeof sdk,
+    private botId: string,
+    private _dialogConditions: sdk.Condition[],
+    config: Config
+  ) {
+    this.trainer = new Trainer(bp, botId)
     this._minConfidence = config.minimumConfidence ?? DEFAULT_MIN_CONFIDENCE
+  }
+
+  async loadModel(model: Model) {
+    if (this.loadedModelHash !== undefined && this.loadedModelHash === model.hash) {
+      return
+    }
+
+    this.predictor = new this.bp.MLToolkit.SVM.Predictor(model.data)
+    this.loadedModelHash = model.hash
   }
 
   featToVec(features: Features): number[] {
     const triggerId = stringToVec(
-      _.flatten([...this._allTriggers.values()].map(x => x.map(this.getTriggerId))),
+      _.flatten(this._allTriggers.map(x => getTriggerId(x))),
       features.current_highest_ranking_trigger_id
-    ) // TODO: Fix this for bot specific
+    )
+
     const nodeId = stringToVec([...this._allNodeIds], features.current_node_id)
     const wfId = stringToVec([...this._allWfIds], features.current_workflow_id)
     const actionName = stringToVec([...ActionTypes], features.last_turn_action_name)
@@ -105,13 +70,16 @@ export class UnderstandingEngine {
     return [...triggerId, ...nodeId, ...wfId, ...actionName, ...other]
   }
 
-  queryQna = async (intentName: string, event): Promise<sdk.NDU.Actions[]> => {
+  queryQna = async (intentName: string, event: sdk.IO.IncomingEvent): Promise<sdk.NDU.Actions[]> => {
     try {
       const axiosConfig = await this.bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
       const { data } = await axios.post('/mod/qna/intentActions', { intentName, event }, axiosConfig)
-      const redirect: sdk.NDU.Actions[] = data.filter(a => a.action !== 'redirect')
+      const actions: sdk.NDU.Actions[] = data.filter(a => a.action !== 'redirect')
       // TODO: Warn that REDIRECTS should be migrated over to flow nodes triggers
-      return redirect
+      if (event.state.context?.activePrompt?.status === 'pending') {
+        actions.push({ action: 'prompt.repeat' })
+      }
+      return actions
     } catch (err) {
       this.bp.logger.warn('Could not query qna', err)
       return []
@@ -121,9 +89,7 @@ export class UnderstandingEngine {
   async trainIfNot() {
     if (!this.predictor) {
       const data = dataset.map(([feat, label]) => ({ label, coordinates: this.featToVec(feat) }))
-      const duplicatedArray = _.shuffle(_.flatten(_.times(10, () => data)))
-      const model = await this.trainer.train(duplicatedArray)
-      this.predictor = new this.bp.MLToolkit.SVM.Predictor(model)
+      await this.trainer.trainOrLoad(data)
     }
   }
 
@@ -140,6 +106,7 @@ export class UnderstandingEngine {
     }
 
     const currentFlow = event.state?.context?.currentFlow ?? 'n/a'
+    // TODO : sync this with transitionTo and jumpTo
     const currentTopic = event.state?.session?.nduContext?.last_topic ?? 'n/a'
     const currentNode = event.state?.context?.currentNode ?? 'n/a'
     const isInMiddleOfFlow = currentFlow !== 'n/a'
@@ -254,6 +221,8 @@ export class UnderstandingEngine {
         metadata.last_turn_highest_ranking_trigger_id === actionFeatures.conf_all.id
     }
 
+    await this.trainIfNot()
+
     const predict = async (input: Features): Promise<ActionPredictions> => {
       const vec = this.featToVec(input)
       const preds = await this.predictor.predict(vec)
@@ -266,7 +235,6 @@ export class UnderstandingEngine {
       }, <any>{})
     }
 
-    await this.trainIfNot()
     const prediction = await predict(features)
     const topAction = _.maxBy(_.toPairs(prediction), '1')[0]
 
@@ -341,16 +309,15 @@ export class UnderstandingEngine {
   }
 
   async _processTriggers(event: sdk.IO.IncomingEvent) {
-    if (!this._allTriggers.has(event.botId)) {
-      await this._loadBotWorkflows(event.botId)
+    if (!this._allTriggers) {
+      await this._loadBotWorkflows()
     }
-    const triggers = this._allTriggers.get(event.botId)
 
     event.ndu.triggers = {}
 
     const { currentFlow, currentNode } = event.state.context
 
-    for (const trigger of triggers) {
+    for (const trigger of this._allTriggers) {
       if (
         trigger.type === 'node' &&
         (currentFlow !== `${trigger.workflowId}.flow.json` || currentNode !== trigger.nodeId)
@@ -370,20 +337,10 @@ export class UnderstandingEngine {
         continue
       }
 
-      const id = this.getTriggerId(trigger)
+      const id = getTriggerId(trigger)
       const result = this._testConditions(event, trigger.conditions)
       event.ndu.triggers[id] = { result, trigger }
     }
-  }
-
-  private getTriggerId(trigger: sdk.NDU.Trigger) {
-    return trigger.type === 'workflow'
-      ? `wf/${trigger.workflowId}/${trigger.nodeId}`
-      : trigger.type === 'faq'
-      ? `faq/${trigger.topicName}/${trigger.faqId}`
-      : trigger.type === 'node'
-      ? `node/${trigger.workflowId}/${trigger.nodeId}${trigger.name ? `/${trigger.name}` : ''}`
-      : 'invalid_trigger/' + _.random(10 ^ 9, false)
   }
 
   private _testConditions(event: sdk.IO.IncomingEvent, conditions: sdk.DecisionTriggerCondition[]) {
@@ -406,22 +363,23 @@ export class UnderstandingEngine {
     }, {})
   }
 
-  async invalidateWorkflows(botId: string) {
-    this._allTriggers.delete(botId)
+  async invalidateWorkflows() {
+    this._allTriggers = undefined
     this.predictor = undefined
+    this.loadedModelHash = undefined
   }
 
-  private async _loadBotWorkflows(botId: string) {
-    const flowsPaths = await this.bp.ghost.forBot(botId).directoryListing('flows', '*.flow.json')
+  private async _loadBotWorkflows() {
+    const flowsPaths = await this.bp.ghost.forBot(this.botId).directoryListing('flows', '*.flow.json')
     const flows: sdk.Flow[] = await Promise.map(flowsPaths, async (flowPath: string) => ({
       name: flowPath,
-      ...(await this.bp.ghost.forBot(botId).readFileAsObject<FlowView>('flows', flowPath))
+      ...(await this.bp.ghost.forBot(this.botId).readFileAsObject<FlowView>('flows', flowPath))
     }))
 
-    const intentsPath = await this.bp.ghost.forBot(botId).directoryListing('intents', '*.json')
+    const intentsPath = await this.bp.ghost.forBot(this.botId).directoryListing('intents', '*.json')
     const qnaPaths = intentsPath.filter(x => x.includes('__qna__')) // TODO: change this
     const faqs: sdk.NLU.IntentDefinition[] = await Promise.map(qnaPaths, (qnaPath: string) =>
-      this.bp.ghost.forBot(botId).readFileAsObject<sdk.NLU.IntentDefinition>('intents', qnaPath)
+      this.bp.ghost.forBot(this.botId).readFileAsObject<sdk.NLU.IntentDefinition>('intents', qnaPath)
     )
 
     const triggers: sdk.NDU.Trigger[] = []
@@ -434,16 +392,19 @@ export class UnderstandingEngine {
 
       for (const node of flow.nodes) {
         if (node.type === ('listener' as sdk.FlowNodeType)) {
+          // TODO: remove this (deprecated)
           this._allNodeIds.add(node.id)
         }
 
         if (node.type === 'trigger') {
           const tn = node as sdk.TriggerNode
           triggers.push(<sdk.NDU.WorkflowTrigger>{
-            conditions: tn.conditions.map(x => ({
-              ...x,
-              params: { ...x.params, topicName, wfName: flowName }
-            })),
+            conditions: tn.conditions
+              .filter(x => x.id !== undefined)
+              .map((x, idx) => ({
+                ...x,
+                params: { ...x.params, topicName, wfName: flowName, nodeName: tn.name, conditionIndex: idx }
+              })),
             type: 'workflow',
             workflowId: flowName,
             activeWorkflow: tn.activeWorkflow,
@@ -489,14 +450,14 @@ export class UnderstandingEngine {
 
           triggers.push(
             ...ln.triggers.map(
-              trigger =>
+              (trigger, idx) =>
                 <sdk.NDU.NodeTrigger>{
                   nodeId: ln.name,
                   name: trigger.name,
                   effect: trigger.effect,
                   conditions: trigger.conditions.map(x => ({
                     ...x,
-                    params: { topicName, wfName: flowName, ...x.params }
+                    params: { topicName, wfName: flowName, nodeName: ln.name, conditionIndex: idx, ...x.params }
                   })),
                   type: 'node',
                   workflowId: flowName
@@ -510,13 +471,13 @@ export class UnderstandingEngine {
     for (const faq of faqs) {
       for (const topicName of faq.contexts) {
         triggers.push(<sdk.NDU.FaqTrigger>{
-          topicName: topicName,
+          topicName,
           conditions: [
             {
               id: 'user_intent_is', // TODO: this should be moved somewhere else
               params: {
                 intentName: faq.name,
-                topicName: topicName
+                topicName
               }
             }
           ],
@@ -526,6 +487,6 @@ export class UnderstandingEngine {
       }
     }
 
-    this._allTriggers.set(botId, triggers)
+    this._allTriggers = triggers
   }
 }

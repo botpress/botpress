@@ -8,6 +8,7 @@ import { GhostService } from '..'
 import { NLUService } from './nlu-service'
 
 const INTENTS_DIR = './intents'
+const FLOWS_DIR = './flows'
 
 export class IntentService {
   constructor(private ghostService: GhostService, private nluService: NLUService) {}
@@ -18,9 +19,47 @@ export class IntentService {
 
   public async getIntents(botId: string): Promise<sdk.NLU.IntentDefinition[]> {
     const intentNames = await this.ghostService.forBot(botId).directoryListing(INTENTS_DIR, '*.json')
-    return Promise.mapSeries(intentNames, n => this.getIntent(botId, n))
+    const intentsFromFiles = await Promise.mapSeries(intentNames, n => this.getIntent(botId, n))
+    const intentsFromFlows = await this.getIntentsFromFlows(botId)
+    return [...intentsFromFiles, ...intentsFromFlows]
   }
 
+  private async getIntentsFromFlows(botId: string): Promise<sdk.NLU.IntentDefinition[]> {
+    const flowsPaths = await this.ghostService.forBot(botId).directoryListing(FLOWS_DIR, '*.flow.json')
+    const flows: sdk.Flow[] = await Promise.map(flowsPaths, async (flowPath: string) => ({
+      // @ts-ignore
+      name: flowPath.replace(/.flow.json$/i, ''),
+      ...(await this.ghostService.forBot(botId).readFileAsObject<FlowView>(FLOWS_DIR, flowPath))
+    }))
+
+    const intentsByName: Dic<sdk.NLU.IntentDefinition> = {}
+
+    for (const flow of flows) {
+      const topicName = flow.name.split('/')[0]
+
+      for (const node of flow.nodes.filter(x => x.type === 'trigger')) {
+        const tn = node as sdk.TriggerNode
+        const conditions = tn?.conditions.filter(x => x?.id === 'user_intent_is')
+
+        for (let i = 0; i < conditions.length; i++) {
+          const intentName = sanitizeFileName(`${flow.name}/${tn?.name}/${i}`) // TODO: remove this, move name generation to front-end
+          if (intentsByName[intentName]) {
+            throw new Error(`Duplicated intent with name "${intentName}"`)
+          }
+          intentsByName[intentName] = {
+            contexts: [topicName],
+            filename: flow.name,
+            name: intentName,
+            slots: flow.variables?.map(x => ({ name: x.params?.name, entity: x?.params?.subType ?? x.type })) ?? [],
+            utterances: conditions[i]?.params?.utterances ?? {}
+          }
+        }
+      }
+    }
+
+    return Object.values(intentsByName)
+  }
+  // TODO: move the built-in "Yes", "No", "Cancel" in /library/built-in.intents.json then get rid of thisfunction
   public async getIntent(botId: string, intentName: string): Promise<sdk.NLU.IntentDefinition> {
     intentName = sanitizeFileName(intentName)
     if (intentName.length < 1) {
@@ -83,12 +122,10 @@ export class IntentService {
     _.each(await this.getIntents(botId), async intent => {
       let modified = false
       _.each(intent.slots, slot => {
-        _.forEach(slot.entities, (e, index, arr) => {
-          if (e === prevEntityName) {
-            arr[index] = newEntityName
-            modified = true
-          }
-        })
+        if (slot.entity === prevEntityName) {
+          slot.entity = newEntityName
+          modified = true
+        }
       })
       if (modified) {
         await this.updateIntent(botId, intent.name, intent)

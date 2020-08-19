@@ -41,8 +41,18 @@ const config: PromptConfig = {
   type: 'number',
   label: 'Number',
   valueType: 'number',
+  icon: 'numerical',
   fields: [
     ...common.fields,
+    {
+      type: 'variable',
+      key: 'output',
+      required: true,
+      label: 'module.builtin.setValueTo',
+      placeholder: 'module.builtin.setValueToPlaceholder',
+      variableTypes: ['number'],
+      defaultVariableType: 'number'
+    },
     {
       type: 'number',
       key: 'min',

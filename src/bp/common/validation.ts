@@ -122,7 +122,7 @@ export const EntityDefCreateSchema = Joi.object().keys({
   id: Joi.string().regex(/\t\s/gi, { invert: true }),
   name: Joi.string().required(),
   type: Joi.string()
-    .valid(['system', 'pattern', 'list'])
+    .valid(['system', 'pattern', 'list', 'complex'])
     .required(),
   sensitive: Joi.boolean().default(false),
   fuzzy: Joi.number().default(FuzzyTolerance.Medium),
@@ -132,6 +132,12 @@ export const EntityDefCreateSchema = Joi.object().keys({
     .default([]),
   occurrences: Joi.array()
     .items(EntityDefOccurrenceSchema)
+    .default([]),
+  list_entities: Joi.array()
+    .items(Joi.string())
+    .default([]),
+  pattern_entities: Joi.array()
+    .items(Joi.string())
     .default([]),
   pattern: Joi.string()
     .default('')
