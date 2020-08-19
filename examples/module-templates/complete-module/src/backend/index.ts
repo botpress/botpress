@@ -14,7 +14,7 @@ const onServerReady = async (bp: typeof sdk) => {
 const onBotMount = async (bp: typeof sdk, botId: string) => {}
 
 // This is called every time a bot is deleted (or disabled)
-const onBotUnmount = async (botId: string) => {}
+const onBotUnmount = async (bp: typeof sdk, botId: string) => {}
 
 // When anything is changed using the flow editor, this is called with the new flow, so you can rename nodes if you reference them
 const onFlowChanged = async (bp: typeof sdk, botId: string, flow: sdk.Flow) => {}
