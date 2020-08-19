@@ -50,13 +50,14 @@ export const Processing: FC<{ processing: { [activity: string]: sdk.IO.Processin
 
   const renderToggleItem = (item, key) => {
     const isExpanded = expanded[key]
+    const hasError = item.status === 'error' || !!item.errors?.length
 
     return (
       <Fragment>
         <button className={style.itemButton} onClick={() => setExpanded({ ...expanded, [key]: !isExpanded })}>
           <Icon icon={isExpanded ? 'chevron-down' : 'chevron-right'} iconSize={10} />
-          {item.name}
-          {item.status === 'error' && <Icon className={style.error} icon="error" iconSize={10} />}
+          <span className={cx({ [style.error]: hasError })}>{item.name}</span>
+          {hasError && <Icon className={style.error} icon="error" iconSize={10} />}
         </button>
         {isExpanded && (
           <span className={style.expanded}>
