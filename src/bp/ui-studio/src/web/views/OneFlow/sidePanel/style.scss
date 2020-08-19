@@ -191,7 +191,7 @@
   background: var(--c-neutral--light-2);
   border-radius: 3px;
   color: var(--c-background--dark-2);
-  font-size: 8px;
+  font-size: 10px;
   padding: 6px 6px 5px;
 }
 
@@ -294,7 +294,7 @@
       margin-right: var(--spacing-x-large);
     }
 
-    .bp3-tab:not([aria-disabled="true"]):hover {
+    .bp3-tab:not([aria-disabled='true']):hover {
       color: var(--reef) !important;
     }
 
