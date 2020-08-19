@@ -323,18 +323,29 @@ export class DialogEngine {
       delete event.state.context.activePrompt
     }
 
-    const botId = event.botId
-    await this._loadFlows(botId)
+    try {
+      const botId = event.botId
+      await this._loadFlows(botId)
 
-    const targetFlow = this._findFlow(botId, targetFlowName)
-    const targetNode = targetNodeName
-      ? this._findNode(botId, targetFlow, targetNodeName)
-      : this._findNode(botId, targetFlow, targetFlow.startNode)
+      const targetFlow = this._findFlow(botId, targetFlowName)
+      const targetNode = targetNodeName
+        ? this._findNode(botId, targetFlow, targetNodeName)
+        : this._findNode(botId, targetFlow, targetFlow.startNode)
 
-    event.state.context.currentFlow = targetFlow.name
-    event.state.context.currentNode = targetNode.name
-    event.state.context.queue = undefined
-    event.state.context.hasJumped = true
+      event.state.context.currentFlow = targetFlow.name
+      event.state.context.currentNode = targetNode.name
+      event.state.context.queue = undefined
+      event.state.context.hasJumped = true
+    } catch (err) {
+      addErrorToEvent(
+        {
+          type: 'dialog-engine',
+          stacktrace: err.stacktrace || err.stack
+        },
+        event
+      )
+      throw err
+    }
   }
 
   public async processTimeout(botId: string, sessionId: string, event: IO.IncomingEvent, isPrompt?: boolean) {
