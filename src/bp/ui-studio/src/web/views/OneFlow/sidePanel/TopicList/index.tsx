@@ -2,10 +2,11 @@ import { Button, Intent, MenuItem } from '@blueprintjs/core'
 import axios from 'axios'
 import { confirmDialog, EmptyState, lang } from 'botpress/shared'
 import cx from 'classnames'
+import { parseFlowName } from 'common/flow'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { deleteFlow, fetchFlows, fetchTopics, renameFlow, updateFlow } from '~/actions'
+import { deleteFlow, duplicateFlow, fetchFlows, fetchTopics, renameFlow, updateFlow } from '~/actions'
 import { SearchBar } from '~/components/Shared/Interface'
 import { AccessControl } from '~/components/Shared/Utils'
 import { getCurrentFlow, getFlowNamesList, RootReducer } from '~/reducers'
@@ -43,6 +44,7 @@ interface OwnProps {
   setIsEditingNew: (val: boolean) => void
   selectedTopic: string
   selectedWorkflow: string
+  nextFlowName: (topic: string, originalName: string) => string
 }
 
 type StateProps = ReturnType<typeof mapStateToProps>
@@ -99,6 +101,15 @@ const TopicList: FC<Props> = props => {
     ) {
       props.deleteFlow(name)
     }
+  }
+
+  const duplicateFlow = (workflowPath: string) => {
+    const parsedName = parseFlowName(workflowPath)
+    const copyName = props.nextFlowName(parsedName.topic, parsedName.workflow)
+    props.duplicateFlow({
+      flowNameToDuplicate: workflowPath,
+      name: copyName
+    })
   }
 
   const deleteTopic = async (name: string, skipDialog = false) => {
@@ -162,6 +173,13 @@ const TopicList: FC<Props> = props => {
             onClick={() => {
               setEditing(path)
               setIsEditingNew(false)
+            }}
+          />
+          <MenuItem
+            id="btn-duplicate"
+            label={lang.tr('studio.flow.sidePanel.duplicateWorkflow')}
+            onClick={() => {
+              duplicateFlow(name)
             }}
           />
           <MenuItem
@@ -373,7 +391,8 @@ const mapDispatchToProps = {
   fetchFlows,
   renameFlow,
   updateFlow,
-  deleteFlow
+  deleteFlow,
+  duplicateFlow
 }
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(TopicList)

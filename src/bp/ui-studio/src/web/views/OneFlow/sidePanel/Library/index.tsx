@@ -35,6 +35,7 @@ interface OwnProps {
   flows: FlowView[]
   createWorkflow: (topicId: string) => void
   refreshEntities: () => void
+  nextFlowName: (topic: string, originalName: string) => string
 }
 
 type StateProps = ReturnType<typeof mapStateToProps>
@@ -170,22 +171,9 @@ const Library: FC<Props> = props => {
     }
   }
 
-  const nextFlowName = (topic: string, originalName: string): string => {
-    let name = undefined
-    let fullName = undefined
-    let index = 0
-    do {
-      name = `${originalName}${index ? `-${index}` : ''}`
-      fullName = buildFlowName({ topic, workflow: name }, true).workflowPath
-      index++
-    } while (props.flows.find(f => f.name === fullName))
-
-    return fullName
-  }
-
   const duplicateWorkflow = async (workflow: string) => {
     const parsedName = parseFlowName(workflow)
-    const copyName = nextFlowName(parsedName.topic, parsedName.workflow)
+    const copyName = props.nextFlowName(parsedName.topic, parsedName.workflow)
     props.duplicateFlow({
       flowNameToDuplicate: workflow,
       name: copyName
@@ -193,7 +181,7 @@ const Library: FC<Props> = props => {
   }
 
   const newFlow = async () => {
-    const name = nextFlowName('__reusable', 'subworkflow')
+    const name = props.nextFlowName('__reusable', 'subworkflow')
     props.createFlow(name)
   }
 

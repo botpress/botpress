@@ -76,17 +76,21 @@ const SidePanelContent: FC<Props> = props => {
 
   const goToFlow = flow => history.push(`/oneflow/${flow.replace(/\.flow\.json/, '')}`)
 
-  const createWorkflow = (topicName: string) => {
-    const originalName = 'Workflow'
-    let name = originalName
-    let fullName = buildFlowName({ topic: topicName, workflow: name }, true)
+  const nextFlowName = (topic: string, originalName: string): string => {
+    let name = undefined
+    let fullName = undefined
     let index = 0
-    while (props.flows.find(f => f.name === fullName)) {
+    do {
+      name = `${originalName}${index ? `-${index}` : ''}`
+      fullName = buildFlowName({ topic, workflow: name }, true)
       index++
-      name = `${originalName}-${index}`
-      fullName = buildFlowName({ topic: topicName, workflow: name }, true)
-    }
+    } while (props.flowsName.find(f => f.name === fullName))
 
+    return fullName
+  }
+
+  const createWorkflow = (topicName: string) => {
+    const fullName = nextFlowName(topicName, 'Workflow')
     setEditing(fullName.replace('.flow.json', ''))
     setIsEditingNew(true)
 
@@ -172,6 +176,7 @@ const SidePanelContent: FC<Props> = props => {
               setEditing={setEditing}
               isEditingNew={isEditingNew}
               setIsEditingNew={setIsEditingNew}
+              nextFlowName={nextFlowName}
             />
           )}
 
@@ -181,6 +186,7 @@ const SidePanelContent: FC<Props> = props => {
               createWorkflow={createWorkflow}
               flows={props.flows}
               selectedWorkflow={props.selectedWorkflow}
+              nextFlowName={nextFlowName}
             />
           )}
         </React.Fragment>
