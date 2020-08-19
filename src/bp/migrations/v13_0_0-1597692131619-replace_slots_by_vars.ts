@@ -75,26 +75,7 @@ class ComplexEntityCreator {
 
   constructor(private entities: sdk.NLU.EntityDefinition[]) {}
 
-  buildNewComplexFromSlotAny(name: string) {
-    if (!!this.newComplexs[name]) {
-      return name // here there is collision with two slots sharing the same name in different intents...
-    }
-
-    this.newComplexs[name] = {
-      id: name,
-      name,
-      type: 'complex',
-      list_entities: [],
-      pattern_entities: [],
-      examples: []
-    }
-
-    return name
-  }
-
-  buildNewComplex(allEntities: string[]) {
-    const entities = allEntities.filter(e => e !== 'any')
-
+  buildNewComplex(entities: string[]) {
     const name = this.makeName(entities)
     if (!!this.newComplexs[name]) {
       return name
@@ -109,6 +90,9 @@ class ComplexEntityCreator {
 
     const list_entities = getEntitiesOfType('list')
     const pattern_entities = getEntitiesOfType('pattern')
+
+    // TODO: get system entities and find a way to add them to the new complex.
+
     const newEntity: sdk.NLU.EntityDefinition = {
       id: name,
       name,
@@ -145,9 +129,9 @@ class ComplexEntityCreator {
 const migrateOneIntent = (complexCreator: ComplexEntityCreator) => async (intent: OldIntent) => {
   for (const slot of intent.slots) {
     let entity: string
-    if (slot.entities.length === 1 && slot.entities[0] === 'any') {
-      entity = complexCreator.buildNewComplexFromSlotAny(slot.name) // build entity from slot name
-    } else if (slot.entities.length > 1) {
+    const isOnlyAny = slot.entities.length === 1 && slot.entities[0] === 'any'
+    if (isOnlyAny || slot.entities.length > 1) {
+      slot.entities = slot.entities.map(e => (e === 'any' ? slot.name : e)) // replace any by slot name
       entity = complexCreator.buildNewComplex(slot.entities)
     } else {
       entity = slot.entities[0]
@@ -170,8 +154,7 @@ const migrateOneUtterance = (complexCreator: ComplexEntityCreator, intent: OldIn
     const slotEntities = intent.slots.find(s => s.name === slotName)?.entities
 
     if (slotEntities) {
-      const isOnlyAny = slotEntities.length === 1 && slotEntities[0] === 'any'
-      const newComplex = isOnlyAny ? slotName : complexCreator.makeName(slotEntities.filter(e => e !== 'any'))
+      const newComplex = complexCreator.makeName(slotEntities)
       complexCreator.appendExample(newComplex, slotExample)
     }
 
