@@ -81,6 +81,7 @@ export class DecisionEngine {
     if (!event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE) && (hasContinue || hasPrompt)) {
       try {
         const processedEvent = await this.dialogEngine.processEvent(sessionId, event)
+        addStepToEvent('dialog:completed', event)
 
         // In case there are no unknown errors, remove skills/ flow from the stacktrace
         processedEvent.state.__stacktrace = processedEvent.state.__stacktrace.filter(x => !x.flow.startsWith('skills/'))

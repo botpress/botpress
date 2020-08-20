@@ -1,10 +1,10 @@
-import { BoxedVariable, Content, FlowNode, IO, VariableParams } from 'botpress/sdk'
+import { BoxedVariable, Content, FlowNode, IO, Logger, VariableParams } from 'botpress/sdk'
 import { parseFlowName } from 'common/flow'
 import { FlowView } from 'common/typings'
 import { createForGlobalHooks } from 'core/api'
 import { EventRepository } from 'core/repositories'
 import { TYPES } from 'core/types'
-import { inject, injectable } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
 import { converseApiEvents } from '../converse'
@@ -13,8 +13,9 @@ import { DialogStore } from '../middleware/dialog-store'
 import { addErrorToEvent } from '../middleware/event-collector'
 import { EventEngine } from '../middleware/event-engine'
 
-import { FlowError, ProcessingError, TimeoutNodeNotFound } from './errors'
+import { FlowError, TimeoutNodeNotFound } from './errors'
 import { FlowService } from './flow/service'
+import { Instruction } from './instruction'
 import { InstructionProcessor } from './instruction/processor'
 import { InstructionQueue } from './instruction/queue'
 import { PromptManager } from './prompt-manager'
@@ -24,11 +25,12 @@ const debug = DEBUG('dialog')
 
 @injectable()
 export class DialogEngine {
-  public onProcessingError: ((err: ProcessingError, hideStack: boolean) => void) | undefined
-
   private _flowsByBot: Map<string, FlowView[]> = new Map()
 
   constructor(
+    @inject(TYPES.Logger)
+    @tagged('name', 'DialogEngine')
+    private logger: Logger,
     @inject(TYPES.FlowService) private flowService: FlowService,
     @inject(TYPES.HookService) private hookService: HookService,
     @inject(TYPES.EventRepository) private eventRepository: EventRepository,
@@ -635,15 +637,28 @@ export class DialogEngine {
     return node
   }
 
-  private _reportProcessingError(botId, error, event, instruction) {
+  private _reportProcessingError(botId: string, err, event: IO.IncomingEvent, instruction: Instruction) {
     const nodeName = _.get(event, 'state.context.currentNode', 'N/A')
     const flowName = _.get(event, 'state.context.currentFlow', 'N/A')
-    const instructionDetails = instruction.fn || instruction.type
-    this.onProcessingError &&
-      this.onProcessingError(
-        new ProcessingError(error.message, botId, nodeName, flowName, instructionDetails),
-        error.hideStack
-      )
+    const instr = instruction.fn || instruction.type
+    const message = `Error processing '${instr}'\nErr: ${err.message}\nBotId: ${botId}\nFlow: ${flowName}\nNode: ${nodeName}`
+
+    if (!err.hideStack) {
+      this.logger
+        .forBot(botId)
+        .attachError(err)
+        .warn(message)
+    } else {
+      this.logger.forBot(botId).warn(message)
+    }
+
+    addErrorToEvent(
+      {
+        type: 'dialog-engine',
+        stacktrace: err.stacktrace || err.stack
+      },
+      event
+    )
   }
 
   private _exitingSubflow(event: IO.IncomingEvent) {

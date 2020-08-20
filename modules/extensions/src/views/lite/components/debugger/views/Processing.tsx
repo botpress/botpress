@@ -51,6 +51,7 @@ export const Processing: FC<{ processing: { [activity: string]: sdk.IO.Processin
   const renderToggleItem = (item, key) => {
     const isExpanded = expanded[key]
     const hasError = item.status === 'error' || !!item.errors?.length
+    const hasLog = !!item.logs?.length
 
     return (
       <Fragment>
@@ -58,21 +59,22 @@ export const Processing: FC<{ processing: { [activity: string]: sdk.IO.Processin
           <Icon icon={isExpanded ? 'chevron-down' : 'chevron-right'} iconSize={10} />
           <span className={cx({ [style.error]: hasError })}>{item.name}</span>
           {hasError && <Icon className={style.error} icon="error" iconSize={10} />}
+          {hasLog && <Icon className={style.info} icon="info-sign" iconSize={10} />}
         </button>
         {isExpanded && (
           <span className={style.expanded}>
-            {item.logs?.length && (
+            {hasLog && (
               <span className={style.infoBox}>
                 {item.logs.map(log => (
-                  <div>{log}</div>
+                  <div key={log}>{log}</div>
                 ))}
               </span>
             )}
 
-            {item.errors?.length && (
+            {hasError && (
               <span className={style.infoBox}>
                 {item.errors.map(entry => (
-                  <div>
+                  <div key={entry.stacktrace}>
                     <b>{lang.tr('module.extensions.processing.type')}:</b> {entry.type}
                     <br />
                     <b>{lang.tr('module.extensions.processing.stacktrace')}:</b> {entry.stacktrace}

@@ -327,6 +327,15 @@
       }
     }
 
+    .info {
+      color: var(--ocean);
+
+      margin: 0 0 0 var(--spacing-small);
+      svg {
+        fill: var(--ocean);
+      }
+    }
+
     svg {
       fill: var(--gray);
     }
