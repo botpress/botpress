@@ -3,6 +3,7 @@
 interface CssExports {
   'centered': string;
   'diagramContainer': string;
+  'diagramHidden': string;
   'emptyState': string;
   'floatingInfo': string;
   'hidden': string;

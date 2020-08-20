@@ -248,10 +248,11 @@ class Diagram extends Component<Props> {
     }
 
     if (this.diagramContainer) {
-      this.manager.setDiagramContainer(this.diagramWidget, {
-        width: this.diagramContainer.offsetWidth,
-        height: this.diagramContainer.offsetHeight
-      })
+      const { offsetWidth, offsetHeight } = this.diagramContainer
+
+      if (offsetHeight !== 0 && offsetWidth !== 0) {
+        this.manager.setDiagramContainer(this.diagramWidget, { width: offsetWidth, height: offsetHeight })
+      }
     }
 
     if (this.dragPortSource && !prevProps.currentFlowNode && this.props.currentFlowNode) {
@@ -1027,7 +1028,7 @@ class Diagram extends Component<Props> {
               id="diagramContainer"
               ref={ref => (this.diagramContainer = ref)}
               tabIndex={1}
-              className={cx(style.diagramContainer, { [style.hidden]: currentTab !== 'workflow' })}
+              className={cx(style.diagramContainer, { [style.diagramHidden]: currentTab !== 'workflow' })}
               onContextMenu={this.handleContextMenu}
               onDrop={this.handleToolDropped}
               onDragOver={event => event.preventDefault()}
@@ -1041,7 +1042,7 @@ class Diagram extends Component<Props> {
                 inverseZoom={true}
               />
             </div>
-            {this.props.currentFlow?.nodes?.length === 0 && (
+            {currentTab === 'workflow' && this.props.currentFlow?.nodes?.length === 0 && (
               <div className={style.centered}>
                 <EmptyState
                   text={lang.tr('studio.flow.emptyWorkflow')}
