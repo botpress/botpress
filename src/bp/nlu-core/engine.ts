@@ -9,6 +9,7 @@ import { deserializeModel, PredictableModel, serializeModel } from './model-mana
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
+import { WorkerQueue } from './training-forker'
 import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
 import { ComplexEntity, EntityCacheDump, Intent, ListEntity, ListEntityModel, PatternEntity, Tools } from './typings'
 
@@ -16,6 +17,7 @@ const trainDebug = DEBUG('nlu').sub('training')
 
 export default class Engine implements NLU.Engine {
   private static _tools: Tools
+  private static _workerPool: WorkerQueue
 
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<PredictableModel> = {}
@@ -45,6 +47,8 @@ export default class Engine implements NLU.Engine {
     if (!version.nluVersion.length || !version.langServerInfo.version.length) {
       logger.warning('Either the nlu version or the lang server version is not set correctly.')
     }
+
+    this._workerPool = new WorkerQueue(config, logger)
   }
 
   public hasModel(language: string, hash: string) {
@@ -177,7 +181,7 @@ export default class Engine implements NLU.Engine {
     let output: TrainOutput | undefined
 
     try {
-      output = await Trainer(input, Engine._tools, progressCallback, cancelCallback)
+      output = await Engine._workerPool.startTraining('69', input, progressCallback)
     } catch (err) {
       this.logger.error('Could not finish training NLU model', err)
       return

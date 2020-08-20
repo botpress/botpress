@@ -1,14 +1,13 @@
 import sdk from 'botpress/sdk'
 import cluster from 'cluster'
 import _ from 'lodash'
-import ms from 'ms'
 import nanoid from 'nanoid/generate'
-import os from 'os'
 import yn from 'yn'
 
 export enum WORKER_TYPES {
   WEB = 'WEB_WORKER',
-  LOCAL_ACTION_SERVER = 'LOCAL_ACTION_SERVER'
+  LOCAL_ACTION_SERVER = 'LOCAL_ACTION_SERVER',
+  ML = 'ML'
 }
 
 const MESSAGE_TYPE_START_LOCAL_ACTION_SERVER = 'start_local_action_server'
@@ -96,6 +95,11 @@ function spawnWebWorker() {
   const { id } = cluster.fork({ SERVER_ID: process.SERVER_ID, WORKER_TYPE: WORKER_TYPES.WEB })
   process.WEB_WORKER = id
   debug(`Spawned Web Worker`)
+}
+
+export async function spawnNewMlWorker(config: sdk.NLU.Config): Promise<number> {
+  const worker = cluster.fork({ WORKER_TYPE: WORKER_TYPES.ML, NLU_CONFIG: JSON.stringify(config) })
+  return Promise.fromCallback(cb => worker.on('online', () => cb(undefined, worker.id)))
 }
 
 export const startLocalActionServer = (message: StartLocalActionServerMessage) => {
