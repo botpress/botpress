@@ -2,6 +2,7 @@ import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { Fragment } from 'react'
 
+import lang from '../../../../lang'
 import style from '../style.scss'
 import { formatConfidence } from '../utils'
 
@@ -20,7 +21,7 @@ const Predictions = (props: Props) => {
 
   return (
     <div className={style.section}>
-      <div className={style.sectionTitle}>Top Predictions</div>
+      <div className={style.sectionTitle}>{lang.tr('module.extensions.topPredictions')}</div>
       {Object.keys(predictions).map((key, index) => {
         const { confidence, intents } = predictions[key]
         return (

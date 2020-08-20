@@ -22,7 +22,9 @@ const prepareUserVarTypes = (variableTypes: NLU.EntityDefinition[]) => {
 }
 
 const filterGenerics = items => {
-  return items.filter(x => !['enum', 'pattern'].includes(x.id)).map(x => ({ type: x.id, label: x.config?.label }))
+  return items
+    .filter(x => !['enum', 'pattern', 'complex'].includes(x.id))
+    .map(x => ({ type: x.id, label: x.config?.label }))
 }
 
 export const getAllFlows = createSelector([_getFlowsByName], (flowsByName): FlowView[] => {
