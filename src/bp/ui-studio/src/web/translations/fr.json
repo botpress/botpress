@@ -287,7 +287,7 @@
         "addWorkflow": "Ajouter workflow",
         "tapIconsToAdd": "Appuyez sur les icônes de la barre d'outils pour importer ou ajouter votre premier sujet.",
         "renameWorkflow": "Renommer workflow",
-        "moveWorkflow": "Déplacer le workflow",
+        "moveWorkflow": "Déplacer le workflow vers",
         "renameTopic": "Renommer sujet",
         "nameWorkflow": "Name Workflow",
         "nameTopic": "Name Topic"

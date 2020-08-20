@@ -178,7 +178,6 @@ const TopicList: FC<Props> = props => {
             }}
           />
           <MenuItem id="btn-moveTo" disabled={props.readOnly} label={lang.tr('studio.flow.sidePanel.moveWorkflow')}>
-            {console.log(props.topics)}
             {props.topics?.map(topic => (
               <MenuItem
                 label={topic.name}
