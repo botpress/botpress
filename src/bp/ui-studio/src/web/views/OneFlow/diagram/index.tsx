@@ -11,7 +11,7 @@ import {
   Toaster
 } from '@blueprintjs/core'
 import { FlowVariable } from 'botpress/sdk'
-import { Contents, contextMenu, Icons, lang, MainContent, toast } from 'botpress/shared'
+import { Contents, contextMenu, EmptyState, Icons, lang, MainContent, toast } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
@@ -78,6 +78,7 @@ import menuStyle from './style.scss'
 import ActionForm from './ActionForm'
 import ConditionForm from './ConditionForm'
 import ContentForm from './ContentForm'
+import EmptyStateIcon from './EmptyStateIcon'
 import ExecuteForm from './ExecuteForm'
 import PromptForm from './PromptForm'
 import SubWorkflowForm from './SubWorkflowForm'
@@ -247,10 +248,11 @@ class Diagram extends Component<Props> {
     }
 
     if (this.diagramContainer) {
-      this.manager.setDiagramContainer(this.diagramWidget, {
-        width: this.diagramContainer.offsetWidth,
-        height: this.diagramContainer.offsetHeight
-      })
+      const { offsetWidth, offsetHeight } = this.diagramContainer
+
+      if (offsetHeight !== 0 && offsetWidth !== 0) {
+        this.manager.setDiagramContainer(this.diagramWidget, { width: offsetWidth, height: offsetHeight })
+      }
     }
 
     if (this.dragPortSource && !prevProps.currentFlowNode && this.props.currentFlowNode) {
@@ -1011,7 +1013,7 @@ class Diagram extends Component<Props> {
             }}
           />
         )}
-        <MainContent.Wrapper className={cx({ [style.hidden]: isQnA })}>
+        <MainContent.Wrapper className={cx({ [style.hidden]: isQnA || this.props.currentFlow === undefined })}>
           <WorkflowToolbar
             currentLang={this.state.currentLang}
             languages={this.props.languages}
@@ -1026,7 +1028,7 @@ class Diagram extends Component<Props> {
               id="diagramContainer"
               ref={ref => (this.diagramContainer = ref)}
               tabIndex={1}
-              className={cx(style.diagramContainer, { [style.hidden]: currentTab !== 'workflow' })}
+              className={cx(style.diagramContainer, { [style.diagramHidden]: currentTab !== 'workflow' })}
               onContextMenu={this.handleContextMenu}
               onDrop={this.handleToolDropped}
               onDragOver={event => event.preventDefault()}
@@ -1040,7 +1042,15 @@ class Diagram extends Component<Props> {
                 inverseZoom={true}
               />
             </div>
-
+            {currentTab === 'workflow' && this.props.currentFlow?.nodes?.length === 0 && (
+              <div className={style.centered}>
+                <EmptyState
+                  text={lang.tr('studio.flow.emptyWorkflow')}
+                  icon={<EmptyStateIcon />}
+                  className={style.emptyState}
+                />
+              </div>
+            )}
             {currentTab === 'workflow' && <Toolbar />}
           </Fragment>
 

@@ -153,7 +153,7 @@
     :global {
       .tagify__tag {
         color: var(--shark);
-        font-size: 8px;
+        font-size: 10px;
         margin: 0;
 
         &.tagify--invalid > span {
@@ -257,7 +257,7 @@
         max-height: 0;
         overflow: hidden;
         transition: opacity 0.3s 0.3s, visibility 0.3s 0.3s, max-height 1s 0;
-        font-size: 8px;
+        font-size: 10px;
         line-height: 1.25;
         color: var(--shark);
         width: 100%;

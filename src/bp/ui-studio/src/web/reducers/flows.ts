@@ -424,20 +424,11 @@ let reducer = handleActions(
     }),
 
     [receiveFlows]: (state, { payload }) => {
-      const flows = _.keys(payload).filter(key => !payload[key].skillData)
-
-      // Temporary until we change the default to misunderstood
-      const welcomeFlow = _.keys(payload).includes('Built-In/welcome.flow.json') && 'Built-In/welcome.flow.json'
-      const newFlow = _.keys(payload).includes('misunderstood.flow.json') && 'misunderstood.flow.json'
-      const mainFlow = _.keys(payload).includes('main.flow.json') && 'main.flow.json'
-
-      const defaultFlow = welcomeFlow || newFlow || mainFlow || _.first(flows)
-
       const newState = {
         ...state,
         fetchingFlows: false,
         flowsByName: payload,
-        currentFlow: state.currentFlow || defaultFlow
+        currentFlow: state.currentFlow
       }
       return {
         ...newState,
