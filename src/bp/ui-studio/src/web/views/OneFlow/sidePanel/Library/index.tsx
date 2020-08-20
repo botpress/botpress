@@ -3,7 +3,7 @@ import axios from 'axios'
 import sdk from 'botpress/sdk'
 import { confirmDialog, lang } from 'botpress/shared'
 import cx from 'classnames'
-import { buildFlowName, parseFlowName } from 'common/flow'
+import { buildFlowName, nextFlowName, parseFlowName } from 'common/flow'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
@@ -35,7 +35,6 @@ interface OwnProps {
   flows: FlowView[]
   createWorkflow: (topicId: string) => void
   refreshEntities: () => void
-  nextFlowName: (topic: string, originalName: string) => string
 }
 
 type StateProps = ReturnType<typeof mapStateToProps>
@@ -173,7 +172,7 @@ const Library: FC<Props> = props => {
 
   const duplicateWorkflow = async (workflow: string) => {
     const parsedName = parseFlowName(workflow)
-    const copyName = props.nextFlowName(parsedName.topic, parsedName.workflow)
+    const copyName = nextFlowName(props.flows, parsedName.topic, parsedName.workflow)
     props.duplicateFlow({
       flowNameToDuplicate: workflow,
       name: copyName
@@ -181,7 +180,7 @@ const Library: FC<Props> = props => {
   }
 
   const newFlow = async () => {
-    const name = props.nextFlowName('__reusable', 'subworkflow')
+    const name = nextFlowName(props.flows, '__reusable', 'subworkflow')
     props.createFlow(name)
   }
 

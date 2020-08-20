@@ -2,7 +2,7 @@ import { Button, Intent, MenuItem } from '@blueprintjs/core'
 import axios from 'axios'
 import { confirmDialog, EmptyState, lang } from 'botpress/shared'
 import cx from 'classnames'
-import { parseFlowName } from 'common/flow'
+import { nextFlowName, parseFlowName } from 'common/flow'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -44,7 +44,6 @@ interface OwnProps {
   setIsEditingNew: (val: boolean) => void
   selectedTopic: string
   selectedWorkflow: string
-  nextFlowName: (topic: string, originalName: string) => string
 }
 
 type StateProps = ReturnType<typeof mapStateToProps>
@@ -105,7 +104,7 @@ const TopicList: FC<Props> = props => {
 
   const duplicateFlow = (workflowPath: string) => {
     const parsedName = parseFlowName(workflowPath)
-    const copyName = props.nextFlowName(parsedName.topic, parsedName.workflow)
+    const copyName = nextFlowName(props.flowsName, parsedName.topic, parsedName.workflow)
     props.duplicateFlow({
       flowNameToDuplicate: workflowPath,
       name: copyName
