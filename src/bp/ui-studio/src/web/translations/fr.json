@@ -284,10 +284,10 @@
         "renameFlow": "Renommer le flow",
         "importTopic": "Importer sujet",
         "addTopic": "Ajouter sujet",
-        "addWorkflow": "Ajouter workflow",
+        "addWorkflow": "Ajouter Workflow",
         "tapIconsToAdd": "Appuyez sur les icônes de la barre d'outils pour importer ou ajouter votre premier sujet.",
-        "renameWorkflow": "Renommer workflow",
-        "duplicateWorkflow": "Dupliquer workflow",
+        "renameWorkflow": "Renommer Workflow",
+        "duplicateWorkflow": "Dupliquer Workflow",
         "renameTopic": "Renommer sujet",
         "nameWorkflow": "Name Workflow",
         "nameTopic": "Name Topic"
