@@ -1,5 +1,5 @@
 import sdk from 'botpress/sdk'
-import cluster from 'cluster'
+import cluster, { Worker } from 'cluster'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
 import yn from 'yn'
@@ -52,7 +52,12 @@ export const setupMasterNode = (logger: sdk.Logger) => {
     cluster.fork({ WORKER_TYPE: WORKER_TYPES.LOCAL_ACTION_SERVER, APP_SECRET: appSecret, PORT: port })
   })
 
-  cluster.on('exit', async (worker, code, signal) => {
+  cluster.on('exit', async (worker: Worker, code, signal) => {
+    if (process.TRAINING_WORKERS.includes(worker.id)) {
+      process.TRAINING_WORKERS = process.TRAINING_WORKERS.filter(w => w !== worker.id)
+      return
+    }
+
     const { exitedAfterDisconnect, id } = worker
     debug(`Process exiting %o`, { workerId: id, code, signal, exitedAfterDisconnect })
     // Reset the counter when the reboot was intended
@@ -98,8 +103,13 @@ function spawnWebWorker() {
 }
 
 export async function spawnNewTrainingWorker(config: sdk.NLU.Config): Promise<number> {
+  if (!process.TRAINING_WORKERS) {
+    process.TRAINING_WORKERS = []
+  }
   const worker = cluster.fork({ WORKER_TYPE: WORKER_TYPES.TRAINING, NLU_CONFIG: JSON.stringify(config) })
-  return Promise.fromCallback(cb => worker.on('online', () => cb(undefined, worker.id)))
+  const workerId = worker.id
+  process.TRAINING_WORKERS.push(workerId)
+  return Promise.fromCallback(cb => worker.on('online', () => cb(undefined, workerId)))
 }
 
 export const startLocalActionServer = (message: StartLocalActionServerMessage) => {

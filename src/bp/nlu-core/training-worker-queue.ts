@@ -1,5 +1,6 @@
 import { NLU } from 'botpress/sdk'
-import cluster from 'cluster'
+import cluster, { Worker } from 'cluster'
+import { exitCode } from 'process'
 
 import { registerMsgHandler, spawnNewTrainingWorker, WORKER_TYPES } from '../cluster'
 
@@ -10,7 +11,7 @@ type OutgoingPayload = Partial<{
   config: NLU.Config
   input: TrainInput
 }>
-type OutgoingMessageType = 'make_new_worker' | 'start_training'
+type OutgoingMessageType = 'make_new_worker' | 'start_training' | 'cancel_training'
 interface OutgoingMessage {
   type: OutgoingMessageType
   payload: OutgoingPayload
@@ -25,7 +26,13 @@ type IncomingPayload = Partial<{
   error: string
   progress: number
 }>
-type IncomingMessageType = 'log' | 'worker_ready' | 'training_done' | 'training_progress' | 'training_error'
+type IncomingMessageType =
+  | 'log'
+  | 'worker_ready'
+  | 'training_canceled'
+  | 'training_done'
+  | 'training_progress'
+  | 'training_error'
 interface IncomingMessage {
   type: IncomingMessageType
   payload: IncomingPayload
@@ -38,8 +45,29 @@ export class TrainingWorkerQueue {
 
   constructor(private config: NLU.Config, private logger: NLU.Logger) {}
 
-  public cancelTraining(trainSessionId: string) {
-    console.log('about to cancel training!!')
+  public async cancelTraining(trainSessionId: string): Promise<void> {
+    const workerId = this.activeWorkers[trainSessionId]
+    if (!workerId) {
+      return
+    }
+
+    await this._cancelTraining(workerId)
+
+    delete this.activeWorkers[trainSessionId]
+  }
+
+  private _cancelTraining(destWid: number) {
+    const msg: OutgoingMessage = { type: 'cancel_training', payload: {}, destWid }
+    return new Promise(resolve => {
+      const handler = (msg: IncomingMessage) => {
+        if (msg.type === 'training_canceled') {
+          console.log('training canceled with sucess')
+          resolve()
+        }
+      }
+      process.send!(msg)
+      process.on('message', handler)
+    })
   }
 
   public async startTraining(trainSessionId: string, input: TrainInput, progress?: (x: number) => void) {
@@ -100,7 +128,7 @@ export class TrainingWorkerQueue {
     return new Promise(resolve => {
       const handler = (msg: IncomingMessage) => {
         if (msg.type === 'log') {
-          this.logMessage(msg)
+          this._logMessage(msg)
         }
 
         if (msg.type === 'worker_ready') {
@@ -112,7 +140,7 @@ export class TrainingWorkerQueue {
     })
   }
 
-  private logMessage(msg: IncomingMessage) {
+  private _logMessage(msg: IncomingMessage) {
     const log: Log = msg.payload.log!
     log.info && this.logger.info(log.info)
     log.warning && this.logger.warning(log.warning)
@@ -131,9 +159,24 @@ if (cluster.isMaster) {
     worker?.send(msg) // TODO: find out why this is sometimes undefined.
   }
 
+  function killTrainingWorker(msg: OutgoingMessage) {
+    const worker = cluster.workers[msg.destWid!]
+
+    console.log(`about to kill worker: ${worker?.id}`)
+    worker?.kill('SIGKILL')
+
+    const exitHandler = (worker: Worker, exitCode: number, signal: string) => {
+      console.log(`worker ${worker.id} exited with exit code ${exitCode} and signal '${signal}'`)
+      const response: IncomingMessage = { type: 'training_canceled', payload: {}, srcWid: worker.id }
+      sendToWebWorker(response)
+    }
+    cluster.on('exit', exitHandler)
+  }
+
   registerMsgHandler('make_new_worker', async (msg: OutgoingMessage) => {
     await spawnNewTrainingWorker(msg.payload.config!)
   })
+  registerMsgHandler('cancel_training', (msg: OutgoingMessage) => killTrainingWorker(msg))
   registerMsgHandler('start_training', sendToTrainingWorker)
 
   registerMsgHandler('log', sendToWebWorker)

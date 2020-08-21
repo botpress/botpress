@@ -31,7 +31,8 @@ const MLToolkit: typeof sdk.MLToolkit = {
   SentencePiece: { createProcessor: processor }
 }
 
-if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.WEB) {
+if (cluster.isWorker) {
+  // WEB or TRAINING worker, I don't mind...
   const workerPool = new MLWorkerPool()
 
   MLToolkit.SVM.Trainer.prototype.train = (

@@ -168,8 +168,8 @@ export default class Engine implements NLU.Engine {
     return serializeModel(model)
   }
 
-  cancelTraining(trainSessionId: string) {
-    Engine._trainingWorkerQueue.cancelTraining(trainSessionId)
+  cancelTraining(trainSessionId: string): Promise<void> {
+    return Engine._trainingWorkerQueue.cancelTraining(trainSessionId)
   }
 
   private async _trainAndMakeModel(

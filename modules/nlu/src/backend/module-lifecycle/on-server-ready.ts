@@ -32,7 +32,7 @@ export function getOnServerReady(state: NLUState) {
         }
 
         const trainSessionKey = makeTrainSessionKey(botId, language)
-        state.nluByBot[botId].engine.cancelTraining(trainSessionKey)
+        await state.nluByBot[botId].engine.cancelTraining(trainSessionKey)
 
         trainSession.status = 'needs-training'
         await state.sendNLUStatusEvent(botId, trainSession)
