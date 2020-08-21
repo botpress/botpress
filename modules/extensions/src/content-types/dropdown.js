@@ -18,10 +18,10 @@ function render(data) {
       component: 'Dropdown',
       message: data.message,
       buttonText: data.buttonText,
-      displayInKeyboard: data.displayInKeyboard,
+      displayInKeyboard: data.displayInKeyboard, // do we really want to give that flexibility ?
       options: data.options,
-      allowCreation: data.allowCreation,
-      allowMultiple: data.allowMultiple,
+      allowCreation: data.allowCreation, // do we still want that ? what's the use case ?
+      allowMultiple: data.allowMultiple, // do we still want that ?  what's the use case ?
       width: data.width,
       collectFeedback: data.collectFeedback
     }

@@ -2,6 +2,8 @@ import { Button, Classes, MenuItem, PopoverPosition } from '@blueprintjs/core'
 import { ItemPredicate, ItemRenderer, Select } from '@blueprintjs/select'
 import React, { FC, useEffect, useState } from 'react'
 
+import lang from '../../lang'
+
 import style from './style.scss'
 
 interface Option {
@@ -16,11 +18,16 @@ interface Props {
   message: string
   keyboard: any
   onSendData?: Function
+  buttonText?: string
+  displayInKeyboard?: boolean // do we want to support this ?
+  allowCreation: boolean // do we want to support this ?
+  allowMultiple: boolean // do we want to support this ?
+  width: number // do we want to support this ?
+  collectFeedback: boolean // do we want to support this ?
 }
 
 // TODOS :
 // handle multi
-// proper i18n
 
 const itemRenderer: ItemRenderer<Option> = (item, { modifiers, handleClick }) => (
   <MenuItem
@@ -58,7 +65,7 @@ export const Dropdown: FC<Props> = props => {
     return compact.indexOf(query.toLowerCase()) !== -1
   }
 
-  const placeholder = 'Select from these options'
+  const placeholder = props.buttonText ? props.buttonText : lang.tr('module.extensions.components.dropdown.placeholder')
 
   const selectProps = {
     items,
