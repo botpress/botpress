@@ -44,9 +44,9 @@ const SubWorkflowForm: FC<Props> = ({
   const commonProps = { close, customKey, subFlowVars, variables, updateEntry, onUpdateVariables }
 
   if (type === 'in') {
-    return <InputForm {...commonProps} formData={formData.in}></InputForm>
+    return <InputForm {...commonProps} formData={formData?.in ?? {}}></InputForm>
   } else {
-    return <OutputForm {...commonProps} formData={formData.out}></OutputForm>
+    return <OutputForm {...commonProps} formData={formData?.out ?? {}}></OutputForm>
   }
 }
 

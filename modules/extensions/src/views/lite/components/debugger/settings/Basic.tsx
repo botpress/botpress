@@ -1,6 +1,7 @@
 import { Button, Checkbox, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
 import React from 'react'
 
+import lang from '../../../../lang'
 import { AppToaster } from '../toaster'
 import { loadSettings, persistSettings } from '../utils'
 
@@ -29,7 +30,11 @@ export default class Basic extends React.Component<BasicSettingProps, BasicSetti
       autoOpenDebugger: this.state.autoOpenDebugger,
       updateToLastMessage: this.state.updateToLastMessage
     })
-    AppToaster.show({ message: 'Configuration updated successfully!', intent: Intent.SUCCESS, timeout: 3000 })
+    AppToaster.show({
+      message: lang.tr('module.extensions.settings.confUpdated'),
+      intent: Intent.SUCCESS,
+      timeout: 3000
+    })
   }
 
   handleUserIdChanged = event => this.setState({ userId: event.target.value })
@@ -41,31 +46,41 @@ export default class Basic extends React.Component<BasicSettingProps, BasicSetti
     return (
       <div>
         <Checkbox
-          label="Always show Debugger"
+          label={lang.tr('module.extensions.settings.alwaysShowDebugger')}
           checked={this.state.autoOpenDebugger}
           onChange={this.handleAutoOpenChanged}
         />
 
         <Checkbox
-          label="Update debugger on new message"
+          label={lang.tr('module.extensions.settings.updateDebuggerOnNew')}
           checked={this.state.updateToLastMessage}
           onChange={this.handleAutoUpdateToLastMessage}
         />
 
-        <FormGroup label="User ID" helperText={'Changes the User ID stored on your browser'}>
-          <InputGroup value={this.state.userId} onChange={this.handleUserIdChanged} placeholder="Your User ID" />
+        <FormGroup
+          label={lang.tr('module.extensions.settings.userId')}
+          helperText={lang.tr('module.extensions.settings.userIdHelper')}
+        >
+          <InputGroup
+            value={this.state.userId}
+            onChange={this.handleUserIdChanged}
+            placeholder={lang.tr('module.extensions.settings.userIdPlaceholder')}
+          />
         </FormGroup>
 
-        <FormGroup label="External Auth Token" helperText={'It must be a valid JWT Token'}>
+        <FormGroup
+          label={lang.tr('module.extensions.settings.authToken')}
+          helperText={lang.tr('module.extensions.settings.authTokenHelper')}
+        >
           <InputGroup
             value={this.state.externalAuthToken}
             onChange={this.handleAuthChanged}
-            placeholder="Token generated from your system"
+            placeholder={lang.tr('module.extensions.settings.authTokenPlaceholder')}
           />
         </FormGroup>
 
         <Button onClick={this.saveSettings} intent={Intent.PRIMARY}>
-          Save
+          {lang.tr('module.extensions.settings.save')}
         </Button>
       </div>
     )

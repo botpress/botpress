@@ -27,3 +27,18 @@
   width: 100%;
   height: calc(100% - 28px);
 }
+
+.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  .emptyState {
+    max-width: 200px !important;
+  }
+}
+
+.diagramHidden {
+  display: none;
+}

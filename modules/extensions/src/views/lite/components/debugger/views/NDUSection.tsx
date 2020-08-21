@@ -3,6 +3,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import React, { Fragment, SFC, useState } from 'react'
 
+import lang from '../../../../lang'
 import { Collapsible } from '../components/Collapsible'
 import style from '../style.scss'
 
@@ -29,12 +30,12 @@ const NDUSection: SFC<{ nduData: sdk.NDU.DialogUnderstanding }> = ({ nduData }) 
     return (
       <Fragment>
         <div className={style.section}>
-          <div className={style.sectionTitle}>Top Triggers</div>
+          <div className={style.sectionTitle}>{lang.tr('module.extensions.ndu.topTriggers')}</div>
           <Triggers ndu={nduData}></Triggers>
         </div>
 
         <div className={style.section}>
-          <div className={style.sectionTitle}>Decisions Taken</div>
+          <div className={style.sectionTitle}>{lang.tr('module.extensions.ndu.decisionsTaken')}</div>
           <Actions ndu={nduData} />
         </div>
       </Fragment>
@@ -43,10 +44,10 @@ const NDUSection: SFC<{ nduData: sdk.NDU.DialogUnderstanding }> = ({ nduData }) 
 
   return (
     <Fragment>
-      <Collapsible name="Dialog Understanding">
+      <Collapsible name={lang.tr('module.extensions.ndu.dialogUnderstanding')}>
         {renderContent()}
         <Button minimal className={style.switchViewBtn} icon="eye-open" onClick={toggleView}>
-          {viewJSON ? 'View as Summary' : 'View as JSON'}
+          {viewJSON ? lang.tr('module.extensions.viewAsSummary') : lang.tr('module.extensions.viewAsJson')}
         </Button>
       </Collapsible>
     </Fragment>

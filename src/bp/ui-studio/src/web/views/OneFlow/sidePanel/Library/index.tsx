@@ -109,7 +109,7 @@ const Library: FC<Props> = props => {
       }))
 
     const items = [
-      { id: 'block', type: 'block' as NodeType, label: lang.tr('studio.library.savedBlocks'), children: [] },
+      // { id: 'block', type: 'block' as NodeType, label: lang.tr('studio.library.savedBlocks'), children: [] },
       {
         id: 'workflow',
         type: 'workflow' as NodeType,
