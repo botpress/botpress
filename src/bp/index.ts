@@ -189,7 +189,8 @@ try {
           type: 'string'
         },
         dest: {
-          description: 'Path where the file will be copied locally (if not set, it uses the same path as "file")',
+          description:
+            'Path where the file will be copied locally (relative to data/, if not set, it uses the same path as "file")',
           type: 'string'
         }
       },
