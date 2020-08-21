@@ -101,7 +101,7 @@ const TopicList: FC<Props> = props => {
       props.deleteFlow(name)
     }
   }
-  
+
   const duplicateFlow = (workflowPath: string) => {
     const parsedName = parseFlowName(workflowPath)
     const copyName = nextFlowName(props.flowsName, parsedName.topic, parsedName.workflow)
@@ -109,7 +109,8 @@ const TopicList: FC<Props> = props => {
       flowNameToDuplicate: workflowPath,
       name: copyName
     })
-    
+  }
+
   const moveFlow = (workflowPath: string, newTopicName: string) => {
     const parsed = parseFlowName(workflowPath, true)
     const fullName = buildFlowName({ topic: newTopicName, workflow: parsed.workflow }, true)
