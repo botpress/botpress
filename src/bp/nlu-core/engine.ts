@@ -10,8 +10,8 @@ import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipe
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
 import { WorkerQueue } from './training-forker'
-import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
-import { ComplexEntity, EntityCacheDump, Intent, ListEntity, ListEntityModel, PatternEntity, Tools } from './typings'
+import { computeKmeans, ProcessIntents, TrainInput, TrainOutput } from './training-pipeline'
+import { ComplexEntity, Intent, ListEntity, PatternEntity, Tools } from './typings'
 
 const trainDebug = DEBUG('nlu').sub('training')
 
@@ -224,48 +224,33 @@ export default class Engine implements NLU.Engine {
     }
 
     const model = deserializeModel(serialized)
-
     const { input, output } = model.data
 
-    if (!output.intents) {
-      const intents = await ProcessIntents(
-        input.intents,
-        model.languageCode,
-        output.list_entities,
-        input.list_entities,
-        input.pattern_entities,
-        input.complex_entities,
-        Engine._tools
-      )
-      output.intents = intents
-    }
     const trainOutput = output as TrainOutput
 
-    this._warmEntitiesCaches(model.data.output.list_entities ?? [])
     this.predictorsByLang[model.languageCode] = await this._makePredictors(input, trainOutput)
     this.modelsByLang[model.languageCode] = model
   }
 
-  private _warmEntitiesCaches(listEntities: ListEntityModel[]) {
-    for (const entity of listEntities) {
-      if (!entity.cache) {
-        // when loading a model trained in a previous version
-        entity.cache = CacheManager.getOrCreateCache(entity.entityName, this.botId)
-      }
-      if (CacheManager.isCacheDump(entity.cache)) {
-        entity.cache = CacheManager.loadCacheFromData(<EntityCacheDump>entity.cache, entity.entityName, this.botId)
-      }
-    }
-  }
-
   private async _makePredictors(input: TrainInput, output: TrainOutput): Promise<Predictors> {
     const tools = Engine._tools
+
+    const intents = await ProcessIntents(
+      input.intents,
+      input.languageCode,
+      output.list_entities,
+      input.list_entities,
+      input.pattern_entities,
+      input.complex_entities,
+      Engine._tools
+    )
 
     if (_.flatMap(input.intents, i => i.utterances).length <= 0) {
       // we don't want to return undefined as extraction won't be triggered
       // we want to make it possible to extract entities without having any intents
       return {
         ...output,
+        intents,
         pattern_entities: input.pattern_entities
       }
     }
@@ -283,10 +268,11 @@ export default class Engine implements NLU.Engine {
     const slot_tagger = new SlotTagger(tools.mlToolkit)
     slot_tagger.load(output.slots_model)
 
-    const kmeans = computeKmeans(output.intents!, tools) // TODO load from artefacts when persisted
+    const kmeans = computeKmeans(intents!, tools) // TODO load from artefacts when persisted
 
     return {
       ...output,
+      intents,
       ctx_classifier,
       oos_classifier_per_ctx: oos_classifier,
       intent_classifier_per_ctx,

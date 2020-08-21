@@ -45,7 +45,6 @@ export class WorkerQueue {
 
     if (!this.waitingWorkers.length) {
       const newWorker = await this._createNewWorker()
-      console.log('worker created : ', newWorker)
       this.waitingWorkers.push(newWorker)
     }
 
@@ -66,7 +65,6 @@ export class WorkerQueue {
     input: TrainInput,
     progress?: (x: number) => void
   ): Promise<TrainOutput> {
-    console.log('starting training on worker id: ', workerId)
     const msg: OutgoingMessage = { type: 'start_training', destWid: workerId, payload: { input } }
 
     return new Promise((resolve, reject) => {
@@ -78,7 +76,6 @@ export class WorkerQueue {
           reject(msg.payload.error!)
         }
         if (progress && msg.type === 'training_progress') {
-          console.log('progress received: ', progress)
           progress(msg.payload.progress!)
         }
       }
@@ -121,7 +118,6 @@ if (cluster.isMaster) {
   }
 
   function sendToMLWorker(msg: OutgoingMessage) {
-    console.log('current workers: ', Object.keys(cluster.workers))
     const worker = cluster.workers[msg.destWid!]
     worker!.send(msg)
   }
@@ -139,8 +135,6 @@ if (cluster.isMaster) {
 }
 
 if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.ML) {
-  console.log("I'm worker!")
-
   const config = JSON.parse(process.env.NLU_CONFIG!)
 
   const srcWid = cluster.worker.id
@@ -166,7 +160,6 @@ if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.ML) {
         const { input } = msg.payload
 
         const progressCb = (progress: number) => {
-          console.log('progress sent: ', progress)
           const res: IncomingMessage = { type: 'training_progress', payload: { progress }, srcWid: srcWid }
           process.send!(res)
         }

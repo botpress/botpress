@@ -67,7 +67,6 @@ export interface TrainOutput {
   slots_model: Buffer
   exact_match_index: ExactMatchIndex
   oos_model: _.Dictionary<string>
-  intents: Intent<Utterance>[]
 }
 
 export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] }>
@@ -696,7 +695,6 @@ export const Trainer: Trainer = async (
     list_entities: step.list_entities,
     oos_model: oos_model!,
     tfidf: step.tfIdf!,
-    intents: step.intents,
     ctx_model: ctx_model!,
     intent_model_by_ctx: intent_model_by_ctx!,
     slots_model: slots_model!,
