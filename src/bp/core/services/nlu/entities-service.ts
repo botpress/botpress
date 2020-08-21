@@ -47,7 +47,7 @@ export class EntityService {
     entityName = sanitizeFileName(entityName)
 
     if (!(await this.entityExists(botId, entityName))) {
-      throw new Error('Entity does not exist')
+      throw new Error(`Entity does not exist: ${entityName}`)
     }
     return this.ghostService.forBot(botId).readFileAsObject(ENTITIES_DIR, `${entityName}.json`)
   }
@@ -55,7 +55,7 @@ export class EntityService {
   public async deleteEntity(botId: string, entityName: string): Promise<void> {
     const nameSanitized = sanitizeFileName(entityName)
     if (!(await this.entityExists(botId, nameSanitized))) {
-      throw new Error('Entity does not exist')
+      throw new Error(`Entity does not exist: ${entityName}`)
     }
 
     CacheManager.deleteCache(entityName, botId)

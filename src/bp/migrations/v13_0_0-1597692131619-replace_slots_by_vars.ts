@@ -123,6 +123,7 @@ class ComplexEntityCreator {
       .sortBy()
       .value()
       .join('_')
+      .toLowerCase()
   }
 }
 
