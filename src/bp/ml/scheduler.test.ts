@@ -1,4 +1,4 @@
-import { BaseScheduler } from './worker-scheduler'
+import { BaseScheduler } from './ml-worker-scheduler'
 
 test('scheduler with 4 elements doesnt messes up', () => {
   // arrange

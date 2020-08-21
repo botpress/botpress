@@ -7,7 +7,7 @@ import yn from 'yn'
 export enum WORKER_TYPES {
   WEB = 'WEB_WORKER',
   LOCAL_ACTION_SERVER = 'LOCAL_ACTION_SERVER',
-  ML = 'ML'
+  TRAINING = 'TRAINING'
 }
 
 const MESSAGE_TYPE_START_LOCAL_ACTION_SERVER = 'start_local_action_server'
@@ -97,8 +97,8 @@ function spawnWebWorker() {
   debug(`Spawned Web Worker`)
 }
 
-export async function spawnNewMlWorker(config: sdk.NLU.Config): Promise<number> {
-  const worker = cluster.fork({ WORKER_TYPE: WORKER_TYPES.ML, NLU_CONFIG: JSON.stringify(config) })
+export async function spawnNewTrainingWorker(config: sdk.NLU.Config): Promise<number> {
+  const worker = cluster.fork({ WORKER_TYPE: WORKER_TYPES.TRAINING, NLU_CONFIG: JSON.stringify(config) })
   return Promise.fromCallback(cb => worker.on('online', () => cb(undefined, worker.id)))
 }
 

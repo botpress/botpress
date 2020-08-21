@@ -9,7 +9,7 @@ import { deserializeModel, PredictableModel, serializeModel } from './model-mana
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
-import { WorkerQueue } from './training-forker'
+import { TrainingWorkerQueue } from './training-worker-queue'
 import { computeKmeans, ProcessIntents, TrainInput, TrainOutput } from './training-pipeline'
 import { ComplexEntity, Intent, ListEntity, PatternEntity, Tools } from './typings'
 
@@ -17,7 +17,7 @@ const trainDebug = DEBUG('nlu').sub('training')
 
 export default class Engine implements NLU.Engine {
   private static _tools: Tools
-  private static _workerPool: WorkerQueue
+  private static _workerPool: TrainingWorkerQueue
 
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<PredictableModel> = {}
@@ -48,7 +48,7 @@ export default class Engine implements NLU.Engine {
       logger.warning('Either the nlu version or the lang server version is not set correctly.')
     }
 
-    this._workerPool = new WorkerQueue(config, logger)
+    this._workerPool = new TrainingWorkerQueue(config, logger)
   }
 
   public hasModel(language: string, hash: string) {

@@ -3,7 +3,7 @@ import _ from 'lodash'
 import os from 'os'
 import { Worker } from 'worker_threads'
 
-import { WorkerScheduler } from './worker-scheduler'
+import { MLWorkerScheduler } from './ml-worker-scheduler'
 
 type MsgType =
   | 'svm_train'
@@ -31,15 +31,15 @@ export interface Message {
 
 const MAX_CRF_WORKERS = 1
 
-export class WorkerPool {
-  private svmWorkerScheduler: WorkerScheduler
-  private crfWorkerScheduler: WorkerScheduler
+export class MLWorkerPool {
+  private svmWorkerScheduler: MLWorkerScheduler
+  private crfWorkerScheduler: MLWorkerScheduler
 
   constructor() {
     const maxSvmWorkers = Math.max(os.cpus().length - 1, 1) // ncpus - webworker
     const numSvmWorkers = Math.min(maxSvmWorkers, process.core_env.BP_NUM_ML_WORKERS || 4)
-    this.svmWorkerScheduler = new WorkerScheduler(numSvmWorkers)
-    this.crfWorkerScheduler = new WorkerScheduler(MAX_CRF_WORKERS)
+    this.svmWorkerScheduler = new MLWorkerScheduler(numSvmWorkers)
+    this.crfWorkerScheduler = new MLWorkerScheduler(MAX_CRF_WORKERS)
   }
 
   public startSvmTraining(

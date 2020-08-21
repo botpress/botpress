@@ -24,7 +24,7 @@ export class BaseScheduler<T> {
   }
 }
 
-export class WorkerScheduler extends BaseScheduler<Worker> {
+export class MLWorkerScheduler extends BaseScheduler<Worker> {
   constructor(maxElements: number) {
     super(maxElements, makeWorker)
   }
@@ -48,7 +48,7 @@ function makeWorker() {
     pkg: process.pkg
   }
 
-  const workerIndex = path.resolve(__dirname, 'worker-index.js')
+  const workerIndex = path.resolve(__dirname, 'ml-worker-index.js')
   return new Worker(workerIndex, ({
     workerData: {
       processData: clean(processData),

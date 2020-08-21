@@ -1,7 +1,7 @@
 import { NLU } from 'botpress/sdk'
 import cluster from 'cluster'
 
-import { registerMsgHandler, spawnNewMlWorker, WORKER_TYPES } from '../cluster'
+import { registerMsgHandler, spawnNewTrainingWorker, WORKER_TYPES } from '../cluster'
 
 import { initializeTools } from './initialize-tools'
 import { Trainer, TrainInput, TrainOutput } from './training-pipeline'
@@ -32,7 +32,7 @@ interface IncomingMessage {
   srcWid: number
 }
 
-export class WorkerQueue {
+export class TrainingWorkerQueue {
   private waitingWorkers: number[] = []
   private activeWorkers: { [trainSessionId: string]: number } = {}
 
@@ -122,15 +122,15 @@ if (cluster.isMaster) {
     webWorker?.isConnected() && webWorker.send(msg)
   }
 
-  function sendToMLWorker(msg: OutgoingMessage) {
+  function sendToTrainingWorker(msg: OutgoingMessage) {
     const worker = cluster.workers[msg.destWid!]
     worker?.send(msg) // TODO: find out why this is sometimes undefined.
   }
 
   registerMsgHandler('make_new_worker', async (msg: OutgoingMessage) => {
-    await spawnNewMlWorker(msg.payload.config!)
+    await spawnNewTrainingWorker(msg.payload.config!)
   })
-  registerMsgHandler('start_training', sendToMLWorker)
+  registerMsgHandler('start_training', sendToTrainingWorker)
 
   registerMsgHandler('log', sendToWebWorker)
   registerMsgHandler('worker_ready', sendToWebWorker)
@@ -139,7 +139,7 @@ if (cluster.isMaster) {
   registerMsgHandler('training_error', sendToWebWorker)
 }
 
-if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.ML) {
+if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.TRAINING) {
   const config = JSON.parse(process.env.NLU_CONFIG!)
 
   const srcWid = cluster.worker.id

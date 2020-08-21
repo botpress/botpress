@@ -10,9 +10,9 @@ import { Tagger, Trainer as CRFTrainer } from './crf'
 import { FastTextModel } from './fasttext'
 import computeJaroWinklerDistance from './homebrew/jaro-winkler'
 import computeLevenshteinDistance from './homebrew/levenshtein'
+import { MLWorkerPool } from './ml-worker-pool'
 import { processor } from './sentencepiece'
 import { Predictor, Trainer as SVMTrainer } from './svm'
-import { WorkerPool } from './worker-pool'
 
 const MLToolkit: typeof sdk.MLToolkit = {
   KMeans: {
@@ -32,7 +32,7 @@ const MLToolkit: typeof sdk.MLToolkit = {
 }
 
 if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.WEB) {
-  const workerPool = new WorkerPool()
+  const workerPool = new MLWorkerPool()
 
   MLToolkit.SVM.Trainer.prototype.train = (
     points: sdk.MLToolkit.SVM.DataPoint[],

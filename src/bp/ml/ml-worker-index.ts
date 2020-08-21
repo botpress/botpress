@@ -8,8 +8,8 @@ import * as sdk from 'botpress/sdk'
 import { parentPort } from 'worker_threads'
 
 import { Trainer as CrfTrainer } from './crf'
+import { Message } from './ml-worker-pool'
 import { Trainer as SvmTrainer } from './svm'
-import { Message } from './worker-pool'
 
 // Debugging currently not possible in this file and beyond...
 
