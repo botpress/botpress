@@ -38,6 +38,10 @@ export class TrainingWorkerQueue {
 
   constructor(private config: NLU.Config, private logger: NLU.Logger) {}
 
+  public cancelTraining(trainSessionId: string) {
+    console.log('about to cancel training!!')
+  }
+
   public async startTraining(trainSessionId: string, input: TrainInput, progress?: (x: number) => void) {
     if (!!this.activeWorkers[trainSessionId]) {
       return // training already started

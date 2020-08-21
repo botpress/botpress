@@ -2,22 +2,20 @@ import { MLToolkit, NLU } from 'botpress/sdk'
 import crypto from 'crypto'
 import _ from 'lodash'
 
-import * as CacheManager from '../core/services/nlu/cache-manager'
-
 import { initializeTools } from './initialize-tools'
 import { deserializeModel, PredictableModel, serializeModel } from './model-manager'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
-import { TrainingWorkerQueue } from './training-worker-queue'
 import { computeKmeans, ProcessIntents, TrainInput, TrainOutput } from './training-pipeline'
+import { TrainingWorkerQueue } from './training-worker-queue'
 import { ComplexEntity, Intent, ListEntity, PatternEntity, Tools } from './typings'
 
 const trainDebug = DEBUG('nlu').sub('training')
 
 export default class Engine implements NLU.Engine {
   private static _tools: Tools
-  private static _workerPool: TrainingWorkerQueue
+  private static _trainingWorkerQueue: TrainingWorkerQueue
 
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<PredictableModel> = {}
@@ -48,7 +46,7 @@ export default class Engine implements NLU.Engine {
       logger.warning('Either the nlu version or the lang server version is not set correctly.')
     }
 
-    this._workerPool = new TrainingWorkerQueue(config, logger)
+    this._trainingWorkerQueue = new TrainingWorkerQueue(config, logger)
   }
 
   public hasModel(language: string, hash: string) {
@@ -68,10 +66,10 @@ export default class Engine implements NLU.Engine {
   }
 
   async train(
+    trainSessionId: string,
     intentDefs: NLU.IntentDefinition[],
     entityDefs: NLU.EntityDefinition[],
     languageCode: string,
-    trainingSession?: NLU.TrainingSession,
     options?: NLU.TrainingOptions
   ): Promise<NLU.Model | undefined> {
     trainDebug.forBot(this.botId, `Started ${languageCode} training`)
@@ -145,7 +143,6 @@ export default class Engine implements NLU.Engine {
 
     const input: TrainInput = {
       botId: this.botId,
-      trainingSession,
       languageCode,
       list_entities,
       pattern_entities,
@@ -156,7 +153,7 @@ export default class Engine implements NLU.Engine {
     }
 
     const hash = this.computeModelHash(intentDefs, entityDefs, languageCode)
-    const model = await this._trainAndMakeModel(input, hash, options?.progressCallback, options?.cancelCallback)
+    const model = await this._trainAndMakeModel(trainSessionId, input, hash, options?.progressCallback)
     if (!model) {
       return
     }
@@ -171,17 +168,21 @@ export default class Engine implements NLU.Engine {
     return serializeModel(model)
   }
 
+  cancelTraining(trainSessionId: string) {
+    Engine._trainingWorkerQueue.cancelTraining(trainSessionId)
+  }
+
   private async _trainAndMakeModel(
+    trainSessionId: string,
     input: TrainInput,
     hash: string,
-    progressCallback?,
-    cancelCallback?
+    progressCallback?
   ): Promise<PredictableModel | undefined> {
     const startedAt = new Date()
     let output: TrainOutput | undefined
 
     try {
-      output = await Engine._workerPool.startTraining('69', input, progressCallback)
+      output = await Engine._trainingWorkerQueue.startTraining(trainSessionId, input, progressCallback)
     } catch (err) {
       this.logger.error('Could not finish training NLU model', err)
       return

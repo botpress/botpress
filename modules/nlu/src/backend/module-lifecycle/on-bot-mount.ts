@@ -60,14 +60,10 @@ export function getOnBotMount(state: NLUState) {
                 await state.sendNLUStatusEvent(botId, trainSession)
               }
 
-              const cancelCallback = async () => {
-                trainSession.status = 'needs-training'
-                await state.sendNLUStatusEvent(botId, trainSession)
-                bp.logger.forBot(botId).info('Training cancelled')
-              }
+              const options = { forceTrain, progressCallback }
 
-              const options = { forceTrain, progressCallback, cancelCallback }
-              model = await engine.train(intentDefs, entityDefs, languageCode, trainSession, options)
+              const trainSessionKey = makeTrainSessionKey(botId, languageCode)
+              model = await engine.train(trainSessionKey, intentDefs, entityDefs, languageCode, options)
               trainSession.status = 'done'
               await state.sendNLUStatusEvent(botId, trainSession)
               if (model) {

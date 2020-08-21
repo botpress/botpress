@@ -467,12 +467,13 @@ declare module 'botpress/sdk' {
       loadModel: (m: Model) => Promise<void>
       hasModel: (lang: string, hash: string) => boolean
       train: (
+        trainSessionId: string,
         intentDefs: NLU.IntentDefinition[],
         entityDefs: NLU.EntityDefinition[],
         languageCode: string,
-        trainingSession?: TrainingSession,
         options?: TrainingOptions
       ) => Promise<Model | undefined>
+      cancelTraining(trainSessionId: string): void
       predict: (t: string, ctx: string[]) => Promise<IO.EventUnderstanding>
     }
 
@@ -496,7 +497,6 @@ declare module 'botpress/sdk' {
     export interface TrainingOptions {
       forceTrain: boolean
       progressCallback: (x: number) => void
-      cancelCallback: () => void
     }
 
     export interface Model {
@@ -515,17 +515,6 @@ declare module 'botpress/sdk' {
       validProvidersCount: number
       validLanguages: string[]
     }
-
-    export type TrainingStatus = 'idle' | 'done' | 'needs-training' | 'training' | 'canceled' | 'errored' | null
-
-    export interface TrainingSession {
-      status: TrainingStatus
-      language: string
-      progress: number
-      lock?: RedisLock
-    }
-
-    export type ProgressReporter = (botId: string, message: string, trainSession: TrainingSession) => void
 
     export type EntityType = 'system' | 'pattern' | 'list' | 'complex' // TODO: Add the notion of Utterance Placeholder instead of adding "Complex" as an entity type here (synonyms and variables)
 
@@ -660,7 +649,15 @@ declare module 'botpress/sdk' {
     }
 
     export interface Actions {
-      action: 'send' | 'startWorkflow' | 'redirect' | 'continue' | 'goToNode' | 'prompt.repeat' | 'prompt.inform' | 'prompt.cancel'
+      action:
+        | 'send'
+        | 'startWorkflow'
+        | 'redirect'
+        | 'continue'
+        | 'goToNode'
+        | 'prompt.repeat'
+        | 'prompt.inform'
+        | 'prompt.cancel'
       data?: SendContent | FlowRedirect
     }
 
