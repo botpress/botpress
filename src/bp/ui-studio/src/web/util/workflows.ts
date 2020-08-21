@@ -30,16 +30,3 @@ export const buildFlowName = ({ topic, folders, workflow }: FlowDef, withExt?: b
 
   return `${topic}${folder}${workflow}${ext}`
 }
-
-const nextFlowName = (flows: FlowView[], topic: string, originalName: string): string => {
-  let name = undefined
-  let fullName = undefined
-  let index = 0
-  do {
-    name = `${originalName}${index ? `-${index}` : ''}`
-    fullName = buildFlowName({ topic, workflow: name }, true)
-    index++
-  } while (flows.find(f => f.name === fullName))
-
-  return fullName
-}
