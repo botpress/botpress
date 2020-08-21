@@ -18,11 +18,7 @@ type Props = StateProps & OwnProps
 const VariablesEditor: FC<Props> = ({ variables, editVariable }) => {
   const currentFlowVars = variables.currentFlow
   if (!currentFlowVars?.length) {
-    return (
-      <div className={style.emptyState}>
-        <EmptyState icon={<NoVariableIcon />} text={lang.tr('variable.emptyState')} />
-      </div>
-    )
+    return <EmptyState icon={<NoVariableIcon />} text={lang.tr('variable.emptyState')} />
   }
 
   const allTypes = _.sortBy(

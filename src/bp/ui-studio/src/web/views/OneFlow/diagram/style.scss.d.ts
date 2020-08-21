@@ -2,7 +2,6 @@
 // Please do not change this file!
 interface CssExports {
   'header': string;
-  'hidden': string;
   'sayNodeContextMenu': string;
 }
 declare var cssExports: CssExports;

@@ -101,7 +101,7 @@ const TopicList: FC<Props> = props => {
       props.deleteFlow(name)
     }
   }
-
+  
   const duplicateFlow = (workflowPath: string) => {
     const parsedName = parseFlowName(workflowPath)
     const copyName = nextFlowName(props.flowsName, parsedName.topic, parsedName.workflow)
@@ -109,6 +109,17 @@ const TopicList: FC<Props> = props => {
       flowNameToDuplicate: workflowPath,
       name: copyName
     })
+    
+  const moveFlow = (workflowPath: string, newTopicName: string) => {
+    const parsed = parseFlowName(workflowPath, true)
+    const fullName = buildFlowName({ topic: newTopicName, workflow: parsed.workflow }, true)
+
+    if (!props.flowsName.find(x => x.name === fullName)) {
+      props.renameFlow({ targetFlow: workflowPath, name: fullName })
+      props.updateFlow({ name: fullName })
+    }
+
+    setExpanded({ ...expanded, [newTopicName]: true })
   }
 
   const deleteTopic = async (name: string, skipDialog = false) => {
@@ -174,6 +185,16 @@ const TopicList: FC<Props> = props => {
               setIsEditingNew(false)
             }}
           />
+          <MenuItem id="btn-moveTo" disabled={props.readOnly} label={lang.tr('studio.flow.sidePanel.moveWorkflow')}>
+            {props.topics?.map(topic => (
+              <MenuItem
+                label={topic.name}
+                onClick={() => {
+                  moveFlow(name, topic.name)
+                }}
+              />
+            ))}
+          </MenuItem>
           <MenuItem
             id="btn-duplicate"
             label={lang.tr('studio.flow.sidePanel.duplicateWorkflow')}
