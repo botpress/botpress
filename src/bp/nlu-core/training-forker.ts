@@ -54,7 +54,11 @@ export class WorkerQueue {
     let output: TrainOutput
     try {
       output = await this._startTraining(worker, input, progress)
+    } catch (err) {
+      throw err // so error is thrown without a warning about rejected promise
     } finally {
+      const worker = this.activeWorkers[trainSessionId]
+      this.waitingWorkers.unshift(worker)
       delete this.activeWorkers[trainSessionId]
     }
     return output
@@ -76,6 +80,7 @@ export class WorkerQueue {
           reject(msg.payload.error!)
         }
         if (progress && msg.type === 'training_progress') {
+          console.log('progress received: ', msg.payload.progress)
           progress(msg.payload.progress!)
         }
       }
@@ -119,7 +124,7 @@ if (cluster.isMaster) {
 
   function sendToMLWorker(msg: OutgoingMessage) {
     const worker = cluster.workers[msg.destWid!]
-    worker!.send(msg)
+    worker?.send(msg) // TODO: find out why this is sometimes undefined.
   }
 
   registerMsgHandler('make_new_worker', async (msg: OutgoingMessage) => {
@@ -157,9 +162,12 @@ if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.ML) {
     const tools = await initializeTools(config, logger)
     process.on('message', async (msg: OutgoingMessage) => {
       if (msg.type === 'start_training') {
+        console.log('training started !!!')
+
         const { input } = msg.payload
 
         const progressCb = (progress: number) => {
+          console.log('progress sent: ', progress)
           const res: IncomingMessage = { type: 'training_progress', payload: { progress }, srcWid: srcWid }
           process.send!(res)
         }
