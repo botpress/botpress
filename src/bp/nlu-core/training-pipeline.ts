@@ -15,6 +15,7 @@ import { getSeededLodash, resetSeed } from './tools/seeded-lodash'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import tfidf from './tools/tfidf'
 import { convertToRealSpaces, isSpace, SPACE } from './tools/token-utils'
+
 import {
   ComplexEntity,
   EntityExtractionResult,
@@ -94,7 +95,7 @@ const KMEANS_OPTIONS = {
   seed: 666 // so training is consistent
 } as sdk.MLToolkit.KMeans.KMeansOptions
 
-const PreprocessInput = async (input: TrainInput, tools: Tools, entityDef: sdk.NLU.EntityDefinition[]): Promise<TrainStep> => {
+const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainStep> => {
   debugTraining.forBot(input.botId, 'Preprocessing intents')
   input = _.cloneDeep(input)
   const list_entities = await Promise.map(input.list_entities, list =>
@@ -102,6 +103,8 @@ const PreprocessInput = async (input: TrainInput, tools: Tools, entityDef: sdk.N
   )
 
   const intents = await ProcessIntents(
+
+
     input.intents,
     input.languageCode,
     list_entities,
@@ -109,7 +112,6 @@ const PreprocessInput = async (input: TrainInput, tools: Tools, entityDef: sdk.N
     input.pattern_entities,
     input.complex_entities,
     tools,
-    entityDef
   )
 
   const vocabVectors = buildVectorsVocab(intents)
@@ -364,8 +366,7 @@ export const ProcessIntents = async (
   list_entities: ListEntity[],
   pattern_entities: PatternEntity[],
   complex_entities: ComplexEntity[],
-  tools: Tools,
-  entityDef?: sdk.NLU.EntityDefinition[]
+  tools: Tools
 ): Promise<Intent<Utterance>[]> => {
   const sysComplexes = convertSysEntitiesSlotsToComplex(intents)
 
@@ -385,7 +386,8 @@ export const ProcessIntents = async (
     // const augmented: string[] = _.flatMap(cleaned, phrase => _.times(5, () => augmenter(phrase)))
 
     // const utterances = await buildUtteranceBatch(_.uniq([...original, ...augmented]), languageCode, tools)
-    const utterances = await buildUtteranceBatch(cleaned, languageCode, tools, entityDef)
+    // debugger
+    const utterances = await buildUtteranceBatch(cleaned, languageCode, tools)
     // utterances.slice(original.length).forEach(x => (x.augmented = true))
 
     const allowedEntities = _.chain(intent.slot_definitions)
@@ -626,7 +628,6 @@ const NB_STEPS = 6 // change this if the training pipeline changes
 export type Trainer = (
   input: TrainInput,
   tools: Tools,
-  entityDef: sdk.NLU.EntityDefinition[],
   progress?: (x: number) => void,
   cancelCallback?: () => void
 ) => Promise<TrainOutput | undefined>
@@ -634,7 +635,6 @@ export type Trainer = (
 export const Trainer: Trainer = async (
   input: TrainInput,
   tools: Tools,
-  entityDef: sdk.NLU.EntityDefinition[],
   progress?: (x: number) => void,
   cancelCallback?: () => void
 ): Promise<TrainOutput | undefined> => {
@@ -664,7 +664,7 @@ export const Trainer: Trainer = async (
     debouncedProgress(normalizedProgress)
   }
 
-  let step = await PreprocessInput(input, tools, entityDef)
+  let step = await PreprocessInput(input, tools)
   try {
     reportProgress() // 10%
   } catch (err) {
@@ -677,6 +677,7 @@ export const Trainer: Trainer = async (
   step = await TfidfTokens(step)
   step = ClusterTokens(step, tools)
   step = await ExtractEntities(step, tools)
+  step = await AddSynonyms(step, tools)
   step = await AppendNoneIntent(step, tools)
   const exact_match_index = BuildExactMatchIndex(step)
   try {
@@ -719,6 +720,37 @@ export const Trainer: Trainer = async (
   }
 
   return output
+}
+
+const AddSynonyms = async (step: TrainStep, tools: Tools): Promise<TrainStep> => {
+  if (_.isEmpty(tools.meanSyn)) {
+    const lutSynVec = {}
+    // console.log("COUCOU", step.intents[1].utterances[0].tokens[8].vector[0])
+    for (const entity of step.list_entities) {
+      const mappedTokensWithName = { ...entity.mappingsTokens, [entity.entityName]: [[entity.entityName]] }
+      for (const mappedTokens of Object.values(mappedTokensWithName)) {
+        const tokensVec = await tools.vectorize_tokens(mappedTokens[0].filter(t => t !== ' '), step.languageCode)
+        const wordVec: number[] = tokensVec
+          .reduce((acc, cur) => acc.map((num, idx) => num + cur[idx]), Array(tokensVec[0].length).fill(0))
+          .map(e => e / tokensVec.length)
+        lutSynVec[entity.entityName] = wordVec
+      }
+    }
+    tools.meanSyn = lutSynVec
+  }
+
+  const utterances = _.flatMapDeep(step.intents, i => i.utterances)
+  for (const utt of utterances) {
+    for (const entity of utt.entities) {
+      if (entity.metadata.extractor === 'list') {
+        const tokenIdx = utt.tokens.findIndex(t => t.value.includes(entity.metadata.source))
+        if (tokenIdx > 0) { utt.setTokenVector(tokenIdx, tools.meanSyn[entity.type]) }
+      }
+    }
+  }
+  // console.log("PLOP", step.intents[1].utterances[0].tokens[8].vector[0])
+
+  return step
 }
 
 class TrainingCanceledError extends Error {

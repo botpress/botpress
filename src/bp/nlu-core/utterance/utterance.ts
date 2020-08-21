@@ -32,22 +32,22 @@ export interface UtteranceRange {
 }
 export type UtteranceEntity = Readonly<UtteranceRange & ExtractedEntity>
 export type UtteranceSlot = Readonly<UtteranceRange & ExtractedSlot>
-export type UtteranceToken = Readonly<{
-  index: number
-  value: string
-  isWord: boolean
-  isSpace: boolean
-  isBOS: boolean
-  isEOS: boolean
-  POS: POSClass
-  vector: ReadonlyArray<number>
-  tfidf: number
-  cluster: number
-  offset: number
-  entities: ReadonlyArray<UtteranceEntity>
-  slots: ReadonlyArray<UtteranceSlot>
+export type UtteranceToken = {
+  readonly index: number
+  readonly value: string
+  readonly isWord: boolean
+  readonly isSpace: boolean
+  readonly isBOS: boolean
+  readonly isEOS: boolean
+  readonly POS: POSClass
+  vector: number[]
+  readonly tfidf: number
+  readonly cluster: number
+  readonly offset: number
+  readonly entities: ReadonlyArray<UtteranceEntity>
+  readonly slots: ReadonlyArray<UtteranceSlot>
   toString(options?: TokenToStringOptions): string
-}>
+}
 
 export const DefaultTokenToStringOptions: TokenToStringOptions = { lowerCase: false, realSpaces: true, trim: false }
 
@@ -58,6 +58,7 @@ export default class Utterance {
 
   private _tokens: ReadonlyArray<UtteranceToken> = []
   private _globalTfidf?: TFIDF
+  private _globalMeanEmbed?: any
   private _kmeans?: sdk.MLToolkit.KMeans.KmeansResult
   private _sentenceEmbedding?: number[]
 
@@ -72,44 +73,47 @@ export default class Utterance {
       const that = this
       const value = tokens[i]
       arr.push(
-        Object.freeze({
-          index: i,
-          isBOS: i === 0,
-          isEOS: i === tokens.length - 1,
-          isWord: isWord(value),
-          offset,
-          isSpace: isSpace(value),
-          get slots(): ReadonlyArray<UtteranceRange & ExtractedSlot> {
-            return that.slots.filter(x => x.startTokenIdx <= i && x.endTokenIdx >= i)
-          },
-          get entities(): ReadonlyArray<UtteranceRange & ExtractedEntity> {
-            return that.entities.filter(x => x.startTokenIdx <= i && x.endTokenIdx >= i)
-          },
-          get tfidf(): number {
-            return (that._globalTfidf && that._globalTfidf[value]) || 1
-          },
-          get cluster(): number {
-            const wordVec = vectors[i]
-            return (that._kmeans && that._kmeans.nearest([wordVec])[0]) || 1
-          },
-          value,
+        {
+          ...Object.freeze({
+            index: i,
+            isBOS: i === 0,
+            isEOS: i === tokens.length - 1,
+            isWord: isWord(value),
+            offset,
+            isSpace: isSpace(value),
+            get slots(): ReadonlyArray<UtteranceRange & ExtractedSlot> {
+              return that.slots.filter(x => x.startTokenIdx <= i && x.endTokenIdx >= i)
+            },
+            get entities(): ReadonlyArray<UtteranceRange & ExtractedEntity> {
+              return that.entities.filter(x => x.startTokenIdx <= i && x.endTokenIdx >= i)
+            },
+            get tfidf(): number {
+              return (that._globalTfidf && that._globalTfidf[value]) || 1
+            },
+            get cluster(): number {
+              const wordVec = vectors[i]
+              return (that._kmeans && that._kmeans.nearest([wordVec])[0]) || 1
+            },
+            value,
+
+            POS: posTags[i],
+            toString: (opts: TokenToStringOptions = {}) => {
+              const options = { ...DefaultTokenToStringOptions, ...opts }
+              let result = value
+              if (options.lowerCase) {
+                result = result.toLowerCase()
+              }
+              if (options.realSpaces) {
+                result = convertToRealSpaces(result)
+              }
+              if (options.trim) {
+                result = result.trim()
+              }
+              return result
+            }
+          }) as UtteranceToken,
           vector: vectors[i],
-          POS: posTags[i],
-          toString: (opts: TokenToStringOptions = {}) => {
-            const options = { ...DefaultTokenToStringOptions, ...opts }
-            let result = value
-            if (options.lowerCase) {
-              result = result.toLowerCase()
-            }
-            if (options.realSpaces) {
-              result = convertToRealSpaces(result)
-            }
-            if (options.trim) {
-              result = result.trim()
-            }
-            return result
-          }
-        }) as UtteranceToken
+        }
       )
       offset += value.length
     }
@@ -118,6 +122,10 @@ export default class Utterance {
 
   get tokens(): ReadonlyArray<UtteranceToken> {
     return this._tokens
+  }
+
+  setTokenVector(index: number, value: number[]) {
+    this._tokens[index].vector = value
   }
 
   get sentenceEmbedding(): number[] {
@@ -263,8 +271,7 @@ export async function buildUtteranceBatch(
   raw_utterances: string[],
   language: string,
   tools: Tools,
-  entities?: sdk.NLU.EntityDefinition[],
-  vocab?: Token2Vec,
+  vocab?: Token2Vec
 ): Promise<Utterance[]> {
   const parsed = raw_utterances.map(u => parseUtterance(replaceConsecutiveSpaces(u)))
   const tokenUtterances = await tools.tokenize_utterances(
@@ -274,7 +281,7 @@ export async function buildUtteranceBatch(
   )
   const POSUtterances = tools.partOfSpeechUtterances(tokenUtterances, language) as POSClass[][]
   const uniqTokens = _.uniq(_.flatten(tokenUtterances))
-  const vectors = await tools.vectorize_tokens(uniqTokens, language, entities)
+  const vectors = await tools.vectorize_tokens(uniqTokens, language)
   const vectorMap = _.zipObject(uniqTokens, vectors)
 
   return _.zipWith(tokenUtterances, POSUtterances, parsed, (tokUtt, POSUtt, parsed) => ({ tokUtt, POSUtt, parsed }))

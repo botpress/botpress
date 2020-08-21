@@ -16,15 +16,17 @@ const trainDebug = DEBUG('nlu').sub('training')
 
 export default class Engine implements NLU.Engine {
   private static _tools: Tools
-
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<PredictableModel> = {}
-
   constructor(private defaultLanguage: string, private botId: string, private logger: NLU.Logger) { }
 
   // NOTE: removed private in order to prevent important refactor (which will be done later)
   public static get tools() {
     return this._tools
+  }
+
+  private static setMeanSyn(value) {
+    this._tools.meanSyn = value
   }
 
   public static getHealth() {
@@ -152,7 +154,7 @@ export default class Engine implements NLU.Engine {
     }
 
     const hash = this.computeModelHash(intentDefs, entityDefs, languageCode)
-    const model = await this._trainAndMakeModel(input, hash, entityDefs, options?.progressCallback, options?.cancelCallback)
+    const model = await this._trainAndMakeModel(input, hash, options?.progressCallback, options?.cancelCallback)
     if (!model) {
       return
     }
@@ -170,7 +172,6 @@ export default class Engine implements NLU.Engine {
   private async _trainAndMakeModel(
     input: TrainInput,
     hash: string,
-    entityDefs: NLU.EntityDefinition[],
     progressCallback?,
     cancelCallback?
   ): Promise<PredictableModel | undefined> {
@@ -178,7 +179,7 @@ export default class Engine implements NLU.Engine {
     let output: TrainOutput | undefined
 
     try {
-      output = await Trainer(input, Engine._tools, entityDefs, progressCallback, cancelCallback)
+      output = await Trainer(input, Engine._tools, progressCallback, cancelCallback)
     } catch (err) {
       this.logger.error('Could not finish training NLU model', err)
       return
@@ -293,7 +294,7 @@ export default class Engine implements NLU.Engine {
     }
   }
 
-  async predict(sentence: string, includedContexts: string[], entities?: NLU.EntityDefinition[]): Promise<PredictOutput> {
+  async predict(sentence: string, includedContexts: string[]): Promise<PredictOutput> {
     const input: PredictInput = {
       defaultLanguage: this.defaultLanguage,
       sentence,
@@ -301,7 +302,7 @@ export default class Engine implements NLU.Engine {
     }
 
     // error handled a level higher
-    return Predict(input, Engine._tools, this.predictorsByLang, entities)
+    return Predict(input, Engine._tools, this.predictorsByLang)
   }
 
   private _ctxHasChanged = (previousIntents: Intent<string>[], currentIntents: Intent<string>[]) => (ctx: string) => {

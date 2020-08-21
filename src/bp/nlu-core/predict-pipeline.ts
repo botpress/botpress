@@ -142,11 +142,11 @@ async function preprocessInput(
   return { step, predictors }
 }
 
-async function makePredictionUtterance(input: InitialStep, predictors: Predictors, tools: Tools, entities?: sdk.NLU.EntityDefinition[]): Promise<PredictStep> {
+async function makePredictionUtterance(input: InitialStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
   const { tfidf, vocabVectors, kmeans } = predictors
 
   const text = replaceConsecutiveSpaces(input.rawText.trim())
-  const [utterance] = await buildUtteranceBatch([text], input.languageCode, tools, entities, vocabVectors)
+  const [utterance] = await buildUtteranceBatch([text], input.languageCode, tools, vocabVectors)
   const alternateUtterance = getAlternateUtterance(utterance, vocabVectors)
 
   Array(utterance, alternateUtterance).forEach(u => {
@@ -450,19 +450,21 @@ class InvalidLanguagePredictorError extends Error {
 export const Predict = async (
   input: PredictInput,
   tools: Tools,
-  predictorsByLang: _.Dictionary<Predictors>,
-  entities?: sdk.NLU.EntityDefinition[]
+  predictorsByLang: _.Dictionary<Predictors>
 ): Promise<PredictOutput> => {
   const STRING_REPLACE = true
+  const REPLACE_SYN = false
   try {
     const t0 = Date.now()
     // tslint:disable-next-line
     let { step, predictors } = await preprocessInput(input, tools, predictorsByLang)
 
     let stepOutput: PredictStep
-    stepOutput = await makePredictionUtterance(step, predictors, tools, entities)
+    stepOutput = await makePredictionUtterance(step, predictors, tools)
     stepOutput = await extractEntities(stepOutput, predictors, tools)
-
+    if (REPLACE_SYN) {
+      stepOutput = await addSynonyms(stepOutput, predictors, tools)
+    }
     if (STRING_REPLACE) {
       if (stepOutput.utterance.entities) {
         for (const ent of stepOutput.utterance.entities) {
@@ -479,12 +481,11 @@ export const Predict = async (
           languageCode: stepOutput.languageCode,
         } as InitialStep,
         predictors,
-        tools,
-        entities
+        tools
       )
       stepOutput = await extractEntities(stepOutput, predictors, tools)
-      stepOutput = await predictOutOfScope(stepOutput, predictors)
     }
+    stepOutput = await predictOutOfScope(stepOutput, predictors)
     stepOutput = await predictContext(stepOutput, predictors)
     stepOutput = await predictIntent(stepOutput, predictors)
     stepOutput = await extractSlots(stepOutput, predictors)
@@ -498,4 +499,20 @@ export const Predict = async (
     console.log('Could not perform predict data', err)
     return { errored: true } as sdk.IO.EventUnderstanding
   }
+}
+
+const addSynonyms = async (stepOutput: PredictStep, predictors: Predictors, tools: Tools): Promise<PredictStep> => {
+  // console.log('fsdf', stepOutput.utterance.tokens[15].vector[0])
+  for (const entity of stepOutput.utterance.entities) {
+    if (entity.metadata.extractor === 'list') {
+      const tokenIdx = stepOutput.utterance.tokens.findIndex(
+        t => t.value.includes(entity.metadata.source)
+      )
+      if (tokenIdx > 0) {
+        stepOutput.utterance.setTokenVector(tokenIdx, tools.meanSyn[entity.type])
+      }
+    }
+  }
+  // console.log('loikuyjth', stepOutput.utterance.tokens[15].vector[0])
+  return stepOutput
 }

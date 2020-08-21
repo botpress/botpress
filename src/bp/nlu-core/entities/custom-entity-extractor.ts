@@ -189,6 +189,10 @@ export const extractListEntities = (
   )
 
   for (const listModel of listModelsToExtract) {
+    // console.log("exctracting", utterance._tokens.map(t => t.value).join(""), "for ", listModel.entityName)
+    // if ((utterance._tokens.map(t => t.value).join("") === 'I▁need▁a▁gun') && (listModel.entityName === 'guns')) {
+    //   console.log('go')
+    // }
     const extracted = extractForListModel(utterance, listModel)
     if (extracted.length > 0) {
       useCache && (listModel.cache as EntityCache)?.set(cacheKey, extracted)
