@@ -38,7 +38,32 @@
 
     .bp3-select-popover.bp3-minimal {
       width: 100%;
-      margin-top: 48px !important; //button height + some weird container padding
+      &:not(.filterable) {
+        margin-top: 48px !important;
+      }
+      &.filterable {
+        //account for ugly filtering box
+        .bp3-input-group:first-child {
+          > span {
+            //remove search icon
+            display: none;
+          }
+          .bp3-input {
+            font-weight: normal;
+            font-size: 12px;
+            padding: 0 10px; //restore padding
+            outline: none;
+            box-shadow: none;
+            &:focus {
+              box-shadow: none;
+            }
+          }
+          > .bp3-input-action {
+            // remove clear search button
+            display: none;
+          }
+        }
+      }
     }
 
     .bp3-button-text {

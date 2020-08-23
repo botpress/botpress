@@ -66,13 +66,15 @@ export const Dropdown: FC<Props> = props => {
   }
 
   const placeholder = props.buttonText ? props.buttonText : lang.tr('module.extensions.components.dropdown.placeholder')
+  const filterable = items.length > 6
 
   const selectProps = {
     items,
     placeholder,
+    filterable,
     className: style.formSelect,
-    filterable: items.length > 6,
     popoverProps: {
+      popoverClassName: filterable ? 'filterable' : '',
       minimal: true,
       usePortal: false,
       position: PopoverPosition.BOTTOM,
@@ -85,11 +87,11 @@ export const Dropdown: FC<Props> = props => {
   }
 
   // hack to control the height of parent for my lack of css skills
-  // item = 20, button = 40, padding = 25
-  const bpHeight = isOpened && items.length * 20 + 40 + 50
+  // item = 26, list menu padding = 5, dropdown button = 40, search button = 30, outside padding = 12
+  const bgHeight = isOpened && items.length * 26 + 40 + 2 * 5 + 2 * 12 + (filterable && 30)
 
   const keyboard = (
-    <div className={'bpw-keyboard-quick_reply'} style={{ height: isOpened && bpHeight }}>
+    <div className={'bpw-keyboard-quick_reply'} style={{ height: isOpened && bgHeight }}>
       <OptionSelect {...selectProps}>
         <Button text={<small>{selectedItem?.label ?? placeholder}</small>} rightIcon={'chevron-down'} small />
       </OptionSelect>
