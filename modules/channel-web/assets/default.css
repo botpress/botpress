@@ -500,12 +500,16 @@
 
   .bpw-keyboard-quick_reply {
     overflow-y: auto;
-    white-space: nowrap;
     background-color: var(--bg);
     padding: 12px 8px;
     text-align: left;
     border-radius: 3px;
     margin: 12px 12px 0px 12px;
+  }
+
+  .bpw-quick_reply-buttons-container {
+    width: 100%;
+    white-space: nowrap;
   }
 
   /* CAROUSEL  */
