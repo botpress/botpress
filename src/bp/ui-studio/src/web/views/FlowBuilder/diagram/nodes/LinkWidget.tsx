@@ -42,6 +42,10 @@ class DeletableLinkWidget extends DefaultLinkWidget {
         className={style.removeLinkButton}
         onMouseLeave={() => this.setState({ selected: false })}
         onMouseEnter={() => this.setState({ selected: true })}
+        onClick={() => {
+          link.remove()
+          this.props.diagramEngine.repaintCanvas()
+        }}
       >
         <rect
           data-linkid={link.getID()}
@@ -51,10 +55,6 @@ class DeletableLinkWidget extends DefaultLinkWidget {
           height={deleteBorderWidth}
           rx="5"
           opacity={showRemove ? 0.9 : 0}
-          onClick={() => {
-            link.remove()
-            this.props.diagramEngine.repaintCanvas()
-          }}
         />
         {/* no idea how to do this without hardcoding */}
         <svg x={removeX + 6.5} y={removeY + 7}>
