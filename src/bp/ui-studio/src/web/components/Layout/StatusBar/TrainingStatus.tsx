@@ -35,20 +35,20 @@ export const TrainingStatusComponent: FC<Props> = props => {
   const onStatusBarEvent = async event => {
     const isNLUEvent = event.botId === window.BOT_ID && event.trainSession?.language === props.currentLanguage
     if (isNLUEvent) {
-      updateState(event.trainSession as NLU.TrainingSession, false)
+      updateState(event.trainSession as NLU.TrainingSession)
     }
   }
 
   const fetchTrainingStatus = async () => {
     try {
       const { data: session } = await axios.get(`${window.BOT_API_PATH}/mod/nlu/training/${props.currentLanguage}`)
-      updateState(session as NLU.TrainingSession, true)
+      updateState(session as NLU.TrainingSession)
     } catch (err) {
       status !== 'needs-training' && onTrainingNeeded()
     }
   }
 
-  const updateState = (session: NLU.TrainingSession, fromWS: boolean) => {
+  const updateState = (session: NLU.TrainingSession) => {
     setStatus(session.status)
 
     if (session.status === 'training') {
@@ -60,9 +60,7 @@ export const TrainingStatusComponent: FC<Props> = props => {
     } else if (session.status === 'needs-training') {
       onTrainingNeeded()
     } else if (session.status === 'idle' || session.status === 'done') {
-      // shady timeout prevents adding embarrasing racecondition checks
-      const delay = fromWS ? 0 : 750
-      setTimeout(onTraingDone, delay)
+      onTraingDone()
     }
   }
 
@@ -100,13 +98,7 @@ export const TrainingStatusComponent: FC<Props> = props => {
     return (
       <div className={style.item}>
         <span className={style.message}>{message}</span>
-
-        {/*
-            Button is displayed even when training is being cancelled because
-            1. Sometimes training seems stuck and cancel is uneffective
-            2. Training Cancelation is currently a long and unreliable process
-            */}
-        {['needs-training', 'canceled'].includes(status) && (
+        {status === 'needs-training' && (
           <Button minimal className={style.button} onClick={onTrainClicked}>
             {lang.tr('statusBar.trainChatbot')}
           </Button>

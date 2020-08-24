@@ -5,10 +5,10 @@ import _ from 'lodash'
 import legacyElectionPipeline from '../legacy-election'
 import { getLatestModel } from '../model-service'
 import { setTrainingSession } from '../train-session-service'
-import { NLUState, TrainingSession } from '../typings'
+import { NLUState } from '../typings'
 
 async function initializeReportingTool(bp: typeof sdk, state: NLUState) {
-  state.sendNLUStatusEvent = async (botId: string, trainSession: TrainingSession) => {
+  state.sendNLUStatusEvent = async (botId: string, trainSession: sdk.NLU.TrainingSession) => {
     await setTrainingSession(bp, botId, trainSession)
 
     const ev = { type: 'nlu', botId, trainSession: _.omit(trainSession, 'lock') }
