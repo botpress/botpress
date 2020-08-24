@@ -8,8 +8,10 @@ process.BOTPRESS_EVENTS = new EventEmitter()
 process.BOTPRESS_EVENTS.setMaxListeners(1000)
 global.BOTPRESS_CORE_EVENT = (event, args) => process.BOTPRESS_EVENTS.emit(event, args)
 
-if (workerData?.processData) {
-  Object.assign(process, workerData.processData)
+const processData = workerData?.processData
+if (processData) {
+  Object.assign(process, processData)
+  process.distro = new Distro(processData.distro)
 }
 
 if (workerData?.processEnv) {
@@ -34,21 +36,3 @@ if (!process.core_env) {
 if (!process.BOTPRESS_EVENTS) {
   process.BOTPRESS_EVENTS = new EventEmitter()
 }
-
-const os = require('os').platform()
-
-const distribution =
-  os !== 'linux'
-    ? {
-        os,
-        codename: '',
-        dist: '',
-        release: ''
-      }
-    : {
-        os,
-        codename: '',
-        dist: 'Ubuntu',
-        release: '18.04'
-      }
-process.distro = new Distro(distribution) // TODO: find the actual distribution with getos

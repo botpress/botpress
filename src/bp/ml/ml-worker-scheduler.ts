@@ -1,4 +1,6 @@
+import getos from 'getos'
 import _ from 'lodash'
+import os from 'os'
 import path from 'path'
 import { Worker, WorkerOptions } from 'worker_threads'
 
@@ -7,13 +9,13 @@ export class BaseScheduler<T> {
   private elements: { el: T; turns: number }[] = []
 
   // TODO: still not quite sure if we want the threads to be lazy created... Logic could be even simpler if not.
-  constructor(private maxElements: number, private elementGenerator: () => T) {}
+  constructor(private maxElements: number, private elementGenerator: () => Promise<T>) {}
 
-  getNext(): T {
+  async getNext(): Promise<T> {
     this.elements.forEach(el => el.turns++)
 
     if (this.elements.length < this.maxElements) {
-      const el = this.elementGenerator()
+      const el = await this.elementGenerator()
       this.elements.push({ el, turns: 0 })
       return el
     }
@@ -30,7 +32,16 @@ export class MLWorkerScheduler extends BaseScheduler<Worker> {
   }
 }
 
-function makeWorker() {
+async function makeWorker() {
+  const distro = (await Promise.fromCallback(getos)
+    .timeout(1000)
+    .catch(_err => ({
+      os: os.platform(),
+      dist: 'default',
+      codename: 'N/A',
+      release: 'N/A'
+    }))) as typeof process.distro
+
   const clean = data => _.omitBy(data, val => val == undefined || val == undefined || typeof val === 'object')
   const processData = {
     VERBOSITY_LEVEL: process.VERBOSITY_LEVEL,
@@ -45,13 +56,14 @@ function makeWorker() {
     SERVER_ID: process.SERVER_ID,
     LOADED_MODULES: process.LOADED_MODULES,
     PROJECT_LOCATION: process.PROJECT_LOCATION,
-    pkg: process.pkg
+    pkg: process.pkg,
+    distro
   }
 
   const workerIndex = path.resolve(__dirname, 'ml-worker-index.js')
   return new Worker(workerIndex, ({
     workerData: {
-      processData: clean(processData),
+      processData: processData,
       processEnv: clean(process.env)
     },
     env: { ...process.env }

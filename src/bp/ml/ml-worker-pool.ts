@@ -42,7 +42,7 @@ export class MLWorkerPool {
     this.crfWorkerScheduler = new MLWorkerScheduler(MAX_CRF_WORKERS)
   }
 
-  public startSvmTraining(
+  public async startSvmTraining(
     trainingId: string,
     points: sdk.MLToolkit.SVM.DataPoint[],
     options: Partial<sdk.MLToolkit.SVM.SVMOptions>,
@@ -50,7 +50,7 @@ export class MLWorkerPool {
     complete: (model: string) => void,
     error: (error: Error) => void
   ) {
-    const worker = this.svmWorkerScheduler.getNext()
+    const worker = await this.svmWorkerScheduler.getNext()
 
     const messageHandler = (msg: Message) => {
       if (msg.id !== trainingId) {
@@ -84,7 +84,7 @@ export class MLWorkerPool {
    * I'll think of some way of either merge the code into one general function or let them evolve differently.
    * Not sure yet, but not my current focus anyway.
    */
-  public startCrfTraining(
+  public async startCrfTraining(
     trainingId: string,
     points: sdk.MLToolkit.CRF.DataPoint[],
     options: sdk.MLToolkit.CRF.TrainerOptions,
@@ -92,7 +92,7 @@ export class MLWorkerPool {
     complete: (modelFilePath: string) => void,
     error: (error: Error) => void
   ) {
-    const worker = this.crfWorkerScheduler.getNext()
+    const worker = await this.crfWorkerScheduler.getNext()
 
     const messageHandler = (msg: Message) => {
       if (msg.id !== trainingId) {
