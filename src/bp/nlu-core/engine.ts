@@ -70,7 +70,7 @@ export default class Engine implements NLU.Engine {
     intentDefs: NLU.IntentDefinition[],
     entityDefs: NLU.EntityDefinition[],
     languageCode: string,
-    options?: NLU.TrainingOptions
+    options: NLU.TrainingOptions
   ): Promise<NLU.Model | undefined> {
     trainDebug.forBot(this.botId, `Started ${languageCode} training`)
 
@@ -153,7 +153,14 @@ export default class Engine implements NLU.Engine {
     }
 
     const hash = this.computeModelHash(intentDefs, entityDefs, languageCode)
-    const model = await this._trainAndMakeModel(trainSessionId, input, hash, options?.progressCallback)
+    const model = await this._trainAndMakeModel(
+      trainSessionId,
+      input,
+      hash,
+      options.progressCallback,
+      options.cancelCallback
+    )
+
     if (!model) {
       return
     }
@@ -176,7 +183,8 @@ export default class Engine implements NLU.Engine {
     trainSessionId: string,
     input: TrainInput,
     hash: string,
-    progressCallback?
+    progressCallback: (progress: number) => void,
+    cancelCallback: () => void
   ): Promise<PredictableModel | undefined> {
     const startedAt = new Date()
     let output: TrainOutput | undefined
@@ -184,10 +192,11 @@ export default class Engine implements NLU.Engine {
     try {
       output = await Engine._trainingWorkerQueue.startTraining(trainSessionId, input, progressCallback)
     } catch (err) {
-      const isTrainingCancelled = err instanceof TrainingCanceledError
-      if (!isTrainingCancelled) {
-        this.logger.error('Could not finish training NLU model', err)
+      if (err instanceof TrainingCanceledError) {
+        cancelCallback()
+        return
       }
+      this.logger.error('Could not finish training NLU model', err)
       return
     }
 

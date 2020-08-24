@@ -471,7 +471,7 @@ declare module 'botpress/sdk' {
         intentDefs: NLU.IntentDefinition[],
         entityDefs: NLU.EntityDefinition[],
         languageCode: string,
-        options?: TrainingOptions
+        options: TrainingOptions
       ) => Promise<Model | undefined>
       cancelTraining(trainSessionId: string): Promise<void>
       predict: (t: string, ctx: string[]) => Promise<IO.EventUnderstanding>
@@ -506,6 +506,7 @@ declare module 'botpress/sdk' {
     export interface TrainingOptions {
       forceTrain: boolean
       progressCallback: (x: number) => void
+      cancelCallback: () => void
     }
 
     export interface Model {

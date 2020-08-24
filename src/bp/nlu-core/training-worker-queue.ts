@@ -73,7 +73,7 @@ export class TrainingWorkerQueue {
     })
   }
 
-  public async startTraining(trainSessionId: string, input: TrainInput, progress?: (x: number) => void) {
+  public async startTraining(trainSessionId: string, input: TrainInput, progress: (x: number) => void) {
     if (!!this.activeWorkers[trainSessionId]) {
       return // training already started
     }
@@ -109,7 +109,7 @@ export class TrainingWorkerQueue {
   private async _startTraining(
     workerId: number,
     input: TrainInput,
-    progress?: (x: number) => void
+    progress: (x: number) => void
   ): Promise<TrainOutput> {
     const msg: OutgoingMessage = { type: 'start_training', destWid: workerId, payload: { input } }
 
@@ -127,7 +127,7 @@ export class TrainingWorkerQueue {
           process.off('message', handler)
           reject(new TrainingCanceledError())
         }
-        if (msg.type === 'training_progress' && progress) {
+        if (msg.type === 'training_progress') {
           progress(msg.payload.progress!)
         }
       }
