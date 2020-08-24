@@ -166,7 +166,7 @@ if (cluster.isMaster) {
 
     if (!worker) {
       const response: IncomingMessage = { type: 'training_canceled', payload: {}, srcWid: msg.destWid! }
-      sendToWebWorker(response)
+      return sendToWebWorker(response)
     }
 
     worker!.kill('SIGKILL')
