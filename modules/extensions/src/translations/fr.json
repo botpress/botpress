@@ -146,5 +146,11 @@
     "message": "L'événement demandé est introuvable. Raisons possibles:",
     "message2": "Le collecteur d'événements n'est pas activé dans Botpress Config",
     "message3": "L'événement a été supprimé de la base de données"
+  },
+  "state": {
+    "variable": "Variable",
+    "valueBefore": "Valeur avant",
+    "valueAfter": "Valeur après",
+    "undefined": "aucune"
   }
 }

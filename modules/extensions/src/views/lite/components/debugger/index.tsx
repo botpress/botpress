@@ -35,6 +35,7 @@ interface Props {
 
 interface State {
   event: any
+  prevEvent: any
   selectedTabId: string
   visible: boolean
   showSettings: boolean
@@ -49,6 +50,7 @@ const DEBUGGER_TAB_KEY = 'debuggerTab'
 export class Debugger extends React.Component<Props, State> {
   state = {
     event: undefined,
+    prevEvent: undefined,
     showEventNotFound: false,
     visible: false,
     selectedTabId: 'basic',
@@ -167,7 +169,16 @@ export class Debugger extends React.Component<Props, State> {
     try {
       const { data: event } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
 
-      this.setState({ event, showEventNotFound: !event })
+      let prevEvent = undefined
+      const incoming = event as sdk.IO.IncomingEvent
+      const lastMessages = incoming.state?.session?.lastMessages
+      if (lastMessages.length > 1) {
+        const prevMessage = lastMessages[lastMessages.length - 2]
+        const { data } = await this.props.store.bp.axios.get('/mod/extensions/events/' + prevMessage.eventId)
+        prevEvent = data
+      }
+
+      this.setState({ event, prevEvent, showEventNotFound: !event })
       this.props.store.view.setHighlightedMessages(eventId)
 
       if (!event.processing?.['completed']) {
@@ -222,7 +233,7 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   renderEvent() {
-    const { tab, event } = this.state
+    const { tab, event, prevEvent } = this.state
 
     if (this.state.showInspector) {
       return (
@@ -234,7 +245,7 @@ export class Debugger extends React.Component<Props, State> {
 
     return (
       <div className={style.content}>
-        {tab === 'content' && <Summary event={event} />}
+        {tab === 'content' && <Summary event={event} prevEvent={prevEvent} />}
         {tab === 'processing' && <Processing processing={event?.processing} />}
       </div>
     )
