@@ -50,7 +50,11 @@
     "ready": "Ready",
     "cancelTraining": "Cancel Training",
     "canceling": "Canceling",
-    "trainingError": "Cannot train Chatbot"
+    "trainingError": "Cannot train Chatbot",
+    "configChangedDialog": "Changes were made to Botpress configurations, restart your server to apply those changes.",
+    "reboot": "Restart Server",
+    "rebooting": "Restarting",
+    "applyConfigs": "Apply Configurations"
   },
   "studio": {
     "condition": {

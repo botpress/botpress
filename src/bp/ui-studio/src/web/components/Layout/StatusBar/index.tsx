@@ -10,7 +10,6 @@ import { TrainingStatusComponent } from './TrainingStatus'
 interface Props {
   langSwitcherOpen: boolean
   user: any
-  botInfo: any
   contentLang: string
   toggleLangSwitcher: (e: any) => void
 }
@@ -24,8 +23,8 @@ const StatusBar: FC<Props> = props => {
         <LangSwitcher toggleLangSwitcher={props.toggleLangSwitcher} langSwitcherOpen={props.langSwitcherOpen} />
       </div>
       <div className={style.item}>
-        {props.user && props.user.isSuperAdmin && <ConfigStatus />}
         <TrainingStatusComponent currentLanguage={props.contentLang} />
+        {props.user && props.user.isSuperAdmin && <ConfigStatus />}
       </div>
     </footer>
   )
@@ -33,7 +32,6 @@ const StatusBar: FC<Props> = props => {
 
 const mapStateToProps = state => ({
   user: state.user,
-  botInfo: state.bot,
   contentLang: state.language.contentLang
 })
 

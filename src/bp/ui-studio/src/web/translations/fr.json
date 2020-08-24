@@ -50,7 +50,11 @@
     "ready": "Prêt",
     "cancelTraining": "Annuler l'entraînement",
     "canceling": "Annulation en cours",
-    "trainingError": "L'agent ne peut pas être entraîné"
+    "trainingError": "L'agent ne peut pas être entraîné",
+    "configChangedDialog": "Les configurations de Botpress ont été changées, veuillez redémarer le serveur pour appliquer ces changements.",
+    "reboot": "Redémarrer le Serveur",
+    "rebooting": "Redémarrage",
+    "applyConfigs": "Appliquer les Configurations"
   },
   "studio": {
     "condition": {
