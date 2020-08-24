@@ -61,7 +61,8 @@ export class TrainingWorkerQueue {
     return new Promise(resolve => {
       const handler = (msg: IncomingMessage) => {
         if (msg.type === 'training_canceled') {
-          console.log('training canceled with sucess')
+          console.log(`training of worker #${msg.srcWid} canceled with sucess`)
+          process.off('message', handler)
           resolve()
         }
       }
@@ -106,13 +107,14 @@ export class TrainingWorkerQueue {
     return new Promise((resolve, reject) => {
       const handler = (msg: IncomingMessage) => {
         if (msg.type === 'training_done') {
+          process.off('message', handler)
           resolve(msg.payload.output!)
         }
         if (msg.type === 'training_error') {
+          process.off('message', handler)
           reject(msg.payload.error!)
         }
         if (progress && msg.type === 'training_progress') {
-          console.log('progress received: ', msg.payload.progress)
           progress(msg.payload.progress!)
         }
       }
@@ -132,6 +134,7 @@ export class TrainingWorkerQueue {
         }
 
         if (msg.type === 'worker_ready') {
+          process.off('message', handler)
           resolve(msg.srcWid)
         }
       }
@@ -170,13 +173,11 @@ if (cluster.isMaster) {
       const response: IncomingMessage = { type: 'training_canceled', payload: {}, srcWid: worker.id }
       sendToWebWorker(response)
     }
-    cluster.on('exit', exitHandler)
+    cluster.once('exit', exitHandler)
   }
 
-  registerMsgHandler('make_new_worker', async (msg: OutgoingMessage) => {
-    await spawnNewTrainingWorker(msg.payload.config!)
-  })
-  registerMsgHandler('cancel_training', (msg: OutgoingMessage) => killTrainingWorker(msg))
+  registerMsgHandler('make_new_worker', async (msg: OutgoingMessage) => spawnNewTrainingWorker(msg.payload.config!))
+  registerMsgHandler('cancel_training', killTrainingWorker)
   registerMsgHandler('start_training', sendToTrainingWorker)
 
   registerMsgHandler('log', sendToWebWorker)
@@ -209,12 +210,9 @@ if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.TRAINING) {
     const tools = await initializeTools(config, logger)
     process.on('message', async (msg: OutgoingMessage) => {
       if (msg.type === 'start_training') {
-        console.log('training started !!!')
-
         const { input } = msg.payload
 
         const progressCb = (progress: number) => {
-          console.log('progress sent: ', progress)
           const res: IncomingMessage = { type: 'training_progress', payload: { progress }, srcWid: srcWid }
           process.send!(res)
         }
