@@ -39,9 +39,41 @@
 .nodeWrapper {
   background: #fff;
   width: 150px;
+  border: transparent;
+  border-radius: 0 0 5px 5px;
 
   &.highlighted {
-    outline: 5px solid #ffde33 !important;
+    border: 1px solid var(--ocean) !important;
+
+    .prompt,
+    .trigger,
+    .execute,
+    .action,
+    .failure,
+    .router,
+    .success {
+      :global(.port):before {
+        background: var(--ocean);
+      }
+    }
+
+    .headerWrapper {
+      &.trigger,
+      &:hover.trigger,
+      &.execute,
+      &:hover.execute,
+      &.action,
+      &:hover.action,
+      &.failure,
+      &:hover.failure,
+      &.router,
+      &:hover.router &.success,
+      &:hover.success,
+      &.prompt,
+      &:hover.prompt {
+        border-color: var(--ocean);
+      }
+    }
   }
 
   .prompt :global(.port):before {
