@@ -63,7 +63,6 @@ export class TrainingWorkerQueue {
     return new Promise(resolve => {
       const handler = (msg: IncomingMessage) => {
         if (msg.type === 'training_canceled') {
-          console.log(`training of worker #${msg.srcWid} canceled with sucess`)
           process.off('message', handler)
           resolve()
         }
