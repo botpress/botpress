@@ -39,7 +39,7 @@
 .nodeWrapper {
   background: #fff;
   width: 150px;
-  border: transparent;
+  border: none;
   border-radius: 0 0 5px 5px;
 
   &.highlighted {
@@ -146,9 +146,7 @@
           margin-top: 0 !important;
         }
 
-        &.active,
         &:hover {
-          .content,
           &:after {
             background: #fff !important;
           }
@@ -178,9 +176,7 @@
     &.say_something,
     &:hover.say_something {
       background: #fff;
-      border: none;
-      border-top: 2px solid var(--say);
-      box-shadow: none;
+      border-color: var(--say);
     }
 
     &.trigger,
@@ -394,6 +390,8 @@
   word-break: break-all;
 
   &.promptPortContent {
+    border-color: var(--bg);
+    background-color: var(--bg);
     position: relative;
   }
 }
