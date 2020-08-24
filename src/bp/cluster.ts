@@ -53,7 +53,7 @@ export const setupMasterNode = (logger: sdk.Logger) => {
   })
 
   cluster.on('exit', async (worker: Worker, code, signal) => {
-    if (process.TRAINING_WORKERS.includes(worker.id)) {
+    if (process.TRAINING_WORKERS?.includes(worker.id)) {
       process.TRAINING_WORKERS = process.TRAINING_WORKERS.filter(w => w !== worker.id)
       return
     }
