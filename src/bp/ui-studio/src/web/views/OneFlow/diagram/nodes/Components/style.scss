@@ -45,6 +45,7 @@
   &.highlighted {
     border: 1px solid var(--ocean) !important;
 
+    .say_something,
     .prompt,
     .trigger,
     .execute,
@@ -58,6 +59,8 @@
     }
 
     .headerWrapper {
+      &.say_something,
+      &:hover.say_something,
       &.trigger,
       &:hover.trigger,
       &.execute,
@@ -172,7 +175,8 @@
     position: relative;
     width: 100%;
 
-    &:hover {
+    &.say_something,
+    &:hover.say_something {
       background: #fff;
       border: none;
       border-top: 2px solid var(--say);
@@ -348,8 +352,13 @@
     cursor: grabbing;
   }
 
-  &:hover,
   &.active {
+    .content {
+      background-color: var(--hover-ocean);
+      border: solid 1px var(--ocean);
+    }
+  }
+  &:hover {
     .content:not(.promptPortContent) {
       border: solid 1px var(--ocean);
     }

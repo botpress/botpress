@@ -178,7 +178,7 @@ const BlockWidget: FC<Props> = ({
   node.locked = isEditing
 
   return (
-    <NodeWrapper isHighlighed={node.isHighlighted}>
+    <NodeWrapper isHighlighed={node.isHighlighted || node.isSelected() || isEditing}>
       <NodeHeader
         className={style[nodeType]}
         setExpanded={canCollapse && handleExpanded}
