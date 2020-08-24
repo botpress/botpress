@@ -131,6 +131,7 @@
       "mustHaveOutcomes": "Les flux de travail doivent avoir au moins un succès et un échec",
       "referenceCount": "{count} {count, plural, one {référence} other {références}}",
       "noReferences": "Non utilisé",
+      "emptyWorkflow": "Utilisez le clic droit ou glissez et déplacez des bloques pour commencer a designer votre workflow.",
       "chips": "Chips",
       "condition": {
         "addCondition": "Ajouter condition",
@@ -206,6 +207,7 @@
         "return": "Revenir",
         "saySomething": "Écrire quelque chose",
         "theBotWill": "Le bot va",
+        "subworkflow": "Aller au Sub Workflow",
         "transition": {
           "action": {
             "endFlow": "Finir Flow",
@@ -286,6 +288,7 @@
         "addWorkflow": "Ajouter workflow",
         "tapIconsToAdd": "Appuyez sur les icônes de la barre d'outils pour importer ou ajouter votre premier sujet.",
         "renameWorkflow": "Renommer workflow",
+        "moveWorkflow": "Déplacer le workflow vers",
         "renameTopic": "Renommer sujet",
         "nameWorkflow": "Name Workflow",
         "nameTopic": "Name Topic"

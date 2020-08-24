@@ -127,7 +127,7 @@
       font-size: 12px;
       line-height: 1.25;
       text-align: center;
-      color: var(--shark)
+      color: var(--shark);
     }
 
     p {
@@ -280,7 +280,8 @@
 .section {
   margin-top: var(--spacing-large);
 
-  p, a {
+  p,
+  a {
     color: var(--shark);
     font-size: 12px;
     line-height: 1.25;
@@ -317,14 +318,12 @@
       }
     }
 
-    &.error {
+    .error {
       color: var(--lighthouse);
 
-      .error {
-        margin: 0 0 0 var(--spacing-small);
-        svg {
-          fill: var(--lighthouse);
-        }
+      margin: 0 0 0 var(--spacing-small);
+      svg {
+        fill: var(--lighthouse);
       }
     }
 

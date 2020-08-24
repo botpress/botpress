@@ -3,7 +3,7 @@
   border-radius: 5px;
   border: none;
   color: var(--shark);
-  font-size: 8px;
+  font-size: 10px;
   line-height: 1.25;
   margin: var(--spacing-medium) var(--spacing-medium) 0 0;
   height: 40px;
@@ -16,7 +16,7 @@
     background: #fff;
     border-radius: 5px;
     border: 1px solid var(--gray);
-    content: "";
+    content: '';
     position: absolute;
     transition: background 0.3s, border 0.3s;
     top: 0;
@@ -26,8 +26,8 @@
     z-index: -1;
   }
 
-  &:hover, &.active {
-
+  &:hover,
+  &.active {
     .content {
       background-color: var(--hover-ocean);
       border: solid 1px var(--ocean);

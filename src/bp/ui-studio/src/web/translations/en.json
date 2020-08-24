@@ -132,6 +132,7 @@
       "mustHaveOutcomes": "Workflows must have at least one success and one failure outcome",
       "referenceCount": "{count} {count, plural, one {reference} other {references}}",
       "noReferences": "Not used",
+      "emptyWorkflow": "Right-click or drag and drop blocks to start designing your workflow.",
       "chips": "Chips",
       "condition": {
         "addCondition": "Add condition",
@@ -208,6 +209,7 @@
         "return": "Return",
         "saySomething": "Say Something",
         "theBotWill": "The bot will",
+        "subworkflow": "Go to Sub Workflow",
         "transition": {
           "action": {
             "endFlow": "End flow",
@@ -288,6 +290,7 @@
         "addWorkflow": "Add Workflow",
         "tapIconsToAdd": "Tap icons in the toolbar to import or add your first topic.",
         "renameWorkflow": "Rename Workflow",
+        "moveWorkflow": "Move Workflow to",
         "renameTopic": "Rename Topic",
         "nameWorkflow": "Name Workflow",
         "nameTopic": "Name Topic"

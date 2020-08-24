@@ -48,8 +48,11 @@ export class Dropdown extends React.Component {
     const placeholder = this.props.intl.locale === 'fr' ? 'Sélectionnez un choix' : 'Select a choice'
 
     return (
-      <div className={inKeyboard && 'bpw-keyboard-quick_reply-dropdown'}>
-        <div style={{ width: +this.props.width || 210, display: 'inline-block', marginRight: 15 }}>
+      <div className={inKeyboard ? 'bpw-keyboard-quick_reply-dropdown' : 'bpw-chat-quick_reply-dropdown'}>
+        <div
+          className="bpw-inner-quick_reply-dropdown"
+          style={{ width: +this.props.width || 210, display: 'inline-block' }}
+        >
           {this.props.allowCreation ? (
             <Creatable
               value={this.state.selectedOption}

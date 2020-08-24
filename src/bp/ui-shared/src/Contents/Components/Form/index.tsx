@@ -95,6 +95,10 @@ const Form: FC<FormProps> = ({
           {lang(field.label)}
         </Button>
       </ToolTip>
+    ) : field.onClick ? (
+      <Button className={style.superInputBtn} small minimal onClick={() => field.onClick(field, parent)}>
+        {lang(field.label)}
+      </Button>
     ) : (
       lang(field.label)
     )

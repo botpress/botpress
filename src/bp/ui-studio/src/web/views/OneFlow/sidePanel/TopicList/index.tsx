@@ -2,6 +2,7 @@ import { Button, Intent, MenuItem } from '@blueprintjs/core'
 import axios from 'axios'
 import { confirmDialog, EmptyState, lang } from 'botpress/shared'
 import cx from 'classnames'
+import { parseFlowName } from 'common/flow'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -101,6 +102,18 @@ const TopicList: FC<Props> = props => {
     }
   }
 
+  const moveFlow = (workflowPath: string, newTopicName: string) => {
+    const parsed = parseFlowName(workflowPath, true)
+    const fullName = buildFlowName({ topic: newTopicName, workflow: parsed.workflow }, true)
+
+    if (!props.flowsName.find(x => x.name === fullName)) {
+      props.renameFlow({ targetFlow: workflowPath, name: fullName })
+      props.updateFlow({ name: fullName })
+    }
+
+    setExpanded({ ...expanded, [newTopicName]: true })
+  }
+
   const deleteTopic = async (name: string, skipDialog = false) => {
     const matcher = new RegExp(`^${name}/`)
     const flowsToDelete = props.flowsName.filter(x => matcher.test(x.name))
@@ -164,6 +177,16 @@ const TopicList: FC<Props> = props => {
               setIsEditingNew(false)
             }}
           />
+          <MenuItem id="btn-moveTo" disabled={props.readOnly} label={lang.tr('studio.flow.sidePanel.moveWorkflow')}>
+            {props.topics?.map(topic => (
+              <MenuItem
+                label={topic.name}
+                onClick={() => {
+                  moveFlow(name, topic.name)
+                }}
+              />
+            ))}
+          </MenuItem>
           <MenuItem
             id="btn-delete"
             disabled={lockedFlows.includes(name) || !props.canDelete || props.readOnly}

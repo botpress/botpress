@@ -11,7 +11,7 @@ import {
   Toaster
 } from '@blueprintjs/core'
 import { FlowVariable } from 'botpress/sdk'
-import { Contents, contextMenu, Icons, lang, MainContent, toast } from 'botpress/shared'
+import { Contents, contextMenu, EmptyState, Icons, lang, MainContent, toast } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
@@ -78,9 +78,10 @@ import menuStyle from './style.scss'
 import ActionForm from './ActionForm'
 import ConditionForm from './ConditionForm'
 import ContentForm from './ContentForm'
+import EmptyStateIcon from './EmptyStateIcon'
 import ExecuteForm from './ExecuteForm'
 import PromptForm from './PromptForm'
-import SubworkflowForm from './SubworkflowForm'
+import SubWorkflowForm from './SubWorkflowForm'
 import Toolbar from './Toolbar'
 import VariablesEditor from './VariablesEditor'
 import VariableForm from './VariableForm'
@@ -247,10 +248,11 @@ class Diagram extends Component<Props> {
     }
 
     if (this.diagramContainer) {
-      this.manager.setDiagramContainer(this.diagramWidget, {
-        width: this.diagramContainer.offsetWidth,
-        height: this.diagramContainer.offsetHeight
-      })
+      const { offsetWidth, offsetHeight } = this.diagramContainer
+
+      if (offsetHeight !== 0 && offsetWidth !== 0) {
+        this.manager.setDiagramContainer(this.diagramWidget, { width: offsetWidth, height: offsetHeight })
+      }
     }
 
     if (this.dragPortSource && !prevProps.currentFlowNode && this.props.currentFlowNode) {
@@ -446,10 +448,12 @@ class Diagram extends Component<Props> {
         <MenuItem text={lang.tr('ifElse')} onClick={wrap(this.add.routerNode, point)} icon="fork" />
         <MenuItem text={lang.tr('action')} onClick={wrap(this.add.actionNode, point)} icon="offline" />
 
-        <MenuItem text="Outcome" icon="take-action">
-          <MenuItem text="Success" onClick={wrap(this.add.successNode, point)} icon="tick" />
-          <MenuItem text="Failure" onClick={wrap(this.add.failureNode, point)} icon="cross" />
-        </MenuItem>
+        {this.props.currentFlow?.type === 'reusable' && (
+          <MenuItem text="Outcome" icon="take-action">
+            <MenuItem text="Success" onClick={wrap(this.add.successNode, point)} icon="tick" />
+            <MenuItem text="Failure" onClick={wrap(this.add.failureNode, point)} icon="cross" />
+          </MenuItem>
+        )}
 
         <MenuItem text="Go to Reusable Workflow" icon="pivot" disabled={!hasSubFlows}>
           {this.props.reusableFlows?.map(flow => (
@@ -937,6 +941,15 @@ class Diagram extends Component<Props> {
     })
   }
 
+  updateSubWorkflow = data => {
+    const { node, index } = this.state.editingNodeItem
+
+    this.props.switchFlowNode(node.id)
+    this.setState({ editingNodeItem: { node: { ...node, subflow: { ...node.subflow, ...data } }, index } })
+
+    this.props.updateFlowNode({ subflow: data })
+  }
+
   renderSearch = () => {
     return (
       this.props.showSearch && (
@@ -967,7 +980,7 @@ class Diagram extends Component<Props> {
     } else if (formType === 'trigger') {
       currentItem = node?.conditions?.[index]
     } else if (formType === 'sub-workflow') {
-      currentItem = index ? 'out' : 'in'
+      currentItem = node.subflow
     } else if (formType === 'variableType') {
       currentItem = data
     } else if (formType === 'variable') {
@@ -1000,7 +1013,7 @@ class Diagram extends Component<Props> {
             }}
           />
         )}
-        <MainContent.Wrapper className={cx({ [style.hidden]: isQnA })}>
+        <MainContent.Wrapper className={cx({ [style.hidden]: isQnA || this.props.currentFlow === undefined })}>
           <WorkflowToolbar
             currentLang={this.state.currentLang}
             languages={this.props.languages}
@@ -1015,10 +1028,7 @@ class Diagram extends Component<Props> {
               id="diagramContainer"
               ref={ref => (this.diagramContainer = ref)}
               tabIndex={1}
-              className={style.diagramContainer}
-              style={{
-                display: currentTab === 'workflow' ? 'inherit' : 'none'
-              }}
+              className={cx(style.diagramContainer, { [style.diagramHidden]: currentTab !== 'workflow' })}
               onContextMenu={this.handleContextMenu}
               onDrop={this.handleToolDropped}
               onDragOver={event => event.preventDefault()}
@@ -1032,7 +1042,15 @@ class Diagram extends Component<Props> {
                 inverseZoom={true}
               />
             </div>
-
+            {currentTab === 'workflow' && this.props.currentFlow?.nodes?.length === 0 && (
+              <div className={style.centered}>
+                <EmptyState
+                  text={lang.tr('studio.flow.emptyWorkflow')}
+                  icon={<EmptyStateIcon />}
+                  className={style.emptyState}
+                />
+              </div>
+            )}
             {currentTab === 'workflow' && <Toolbar />}
           </Fragment>
 
@@ -1119,11 +1137,15 @@ class Diagram extends Component<Props> {
             />
           )}
           {formType === 'sub-workflow' && (
-            <SubworkflowForm
+            <SubWorkflowForm
+              variables={this.props.variables}
               node={this.props.currentFlowNode}
-              diagramEngine={this.diagramEngine}
+              customKey={`${node?.id}${node?.type}`}
+              updateSubWorkflow={this.updateSubWorkflow}
+              onUpdateVariables={this.addVariable}
+              formData={currentItem}
               flows={this.props.flows}
-              type={currentItem}
+              type={index === 0 ? 'in' : 'out'}
               close={() => {
                 this.timeout = setTimeout(() => {
                   this.setState({ editingNodeItem: null })

@@ -1,4 +1,6 @@
 import * as sdk from 'botpress/sdk'
+import { extractEventCommonArgs } from 'common/action'
+import { EventCommonArgs, OutgoingEventCommonArgs } from 'common/typings'
 import { TimedPerfCounter } from 'core/misc/timed-perf'
 import { WellKnownFlags } from 'core/sdk/enums'
 import { inject, injectable, tagged } from 'inversify'
@@ -88,7 +90,7 @@ export class EventEngine {
   public onBeforeIncomingMiddleware?: (event) => Promise<void>
   public onAfterIncomingMiddleware?: (event) => Promise<void>
   public onBeforeOutgoingMiddleware?: (event) => Promise<void>
-  public translatePayload?: (payload: sdk.Content.All, event: sdk.IO.IncomingEvent) => Promise<any>
+  public translatePayload?: (payload: sdk.Content.All, args: EventCommonArgs | OutgoingEventCommonArgs) => Promise<any>
 
   private readonly _incomingPerf = new TimedPerfCounter('mw_incoming')
   private readonly _outgoingPerf = new TimedPerfCounter('mw_outgoing')
@@ -220,15 +222,11 @@ export class EventEngine {
       ...(payload.metadata ?? {})
     }
 
-    payload = !(event as sdk.IO.IncomingEvent).state
-      ? payload
-      : await this.translatePayload!(payload, event as sdk.IO.IncomingEvent)
-
     const replyEvent = Event({
       ..._.pick(event, ['botId', 'channel', 'target', 'threadId']),
       direction: 'outgoing',
       type: options.eventType ?? payload.type ?? 'default',
-      payload,
+      payload: await this.translatePayload!(payload, extractEventCommonArgs(event)),
       incomingEventId: options.incomingEventId
     })
 

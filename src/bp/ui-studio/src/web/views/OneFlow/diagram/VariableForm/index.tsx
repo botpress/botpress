@@ -60,9 +60,9 @@ const VariableForm: FC<Props> = ({
       value.type === variableType.current && (!formData.params?.subType || value.subType === formData.params?.subType)
   )
 
-  let advancedSettings = selectedVariableType.config?.advancedSettings || []
+  let fields = selectedVariableType.config?.fields || []
   if (currentFlow.type !== 'reusable') {
-    advancedSettings = advancedSettings.filter(x => !['isInput', 'isOutput'].includes(x.key))
+    fields = fields.filter(x => !['isInput', 'isOutput'].includes(x.key))
   }
 
   return (
@@ -97,8 +97,8 @@ const VariableForm: FC<Props> = ({
           <Contents.Form
             currentLang={contentLang}
             axios={axios}
-            fields={selectedVariableType.config?.fields || []}
-            advancedSettings={advancedSettings}
+            fields={fields || []}
+            advancedSettings={selectedVariableType.config?.advancedSettings}
             formData={formData?.params || {}}
             onUpdate={data => onUpdate({ params: { ...data }, type: variableType.current })}
           />

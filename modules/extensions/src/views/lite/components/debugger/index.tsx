@@ -7,6 +7,8 @@ import nanoid from 'nanoid'
 import React from 'react'
 import 'ui-shared/dist/theme.css'
 
+import lang from '../../../lang'
+
 import Settings from './settings'
 import style from './style.scss'
 import { loadSettings } from './utils'
@@ -62,6 +64,7 @@ export class Debugger extends React.Component<Props, State> {
   lastMessage = undefined
 
   async componentDidMount() {
+    lang.init()
     updater.callback = this.loadEvent
 
     this.props.store.view.setLayoutWidth(WEBCHAT_WIDTH)
@@ -69,7 +72,7 @@ export class Debugger extends React.Component<Props, State> {
 
     this.props.store.view.addCustomAction({
       id: 'actionDebug',
-      label: 'Inspect in Debugger',
+      label: lang.tr('module.extensions.inspectIn'),
       onClick: this.handleSelect
     })
 
@@ -115,7 +118,7 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   handleNewMessage = async (m: Partial<sdk.IO.IncomingEvent>) => {
-    if (m.payload.type !== 'session_reset') {
+    if (!['session_reset', 'visit'].includes(m.payload.type)) {
       // @ts-ignore
       await this.updateLastMessage(m.incomingEventId)
     }
@@ -158,16 +161,23 @@ export class Debugger extends React.Component<Props, State> {
       return
     }
 
+    let keepRetrying = false
     this.setState({ fetching: true })
 
     try {
       const { data: event } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
 
-      this.setState({ event, showEventNotFound: !event, fetching: false })
-
+      this.setState({ event, showEventNotFound: !event })
       this.props.store.view.setHighlightedMessages(eventId)
-      this.currentRetryCount = 0
+
+      if (!event.processing?.['completed']) {
+        keepRetrying = true
+      }
     } catch (err) {
+      keepRetrying = true
+    }
+
+    if (keepRetrying) {
       if (this.currentRetryCount < this.allowedRetryCount) {
         this.currentRetryCount++
 
@@ -177,6 +187,9 @@ export class Debugger extends React.Component<Props, State> {
         this.currentRetryCount = 0
         this.setState({ fetching: false })
       }
+    } else {
+      this.setState({ fetching: false })
+      this.currentRetryCount = 0
     }
   }
 
