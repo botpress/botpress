@@ -227,7 +227,7 @@ if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.TRAINING) {
         const { input } = msg.payload
 
         const progressCb = (progress: number) => {
-          const res: IncomingMessage = { type: 'training_progress', payload: { progress }, srcWid: srcWid }
+          const res: IncomingMessage = { type: 'training_progress', payload: { progress }, srcWid }
           process.send!(res)
         }
 
@@ -235,16 +235,16 @@ if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.TRAINING) {
         try {
           output = await Trainer(input!, tools, progressCb)
         } catch (err) {
-          const res: IncomingMessage = { type: 'training_error', payload: { error: err.message }, srcWid: srcWid }
+          const res: IncomingMessage = { type: 'training_error', payload: { error: err.message }, srcWid }
           process.send!(res)
         }
 
-        const res: IncomingMessage = { type: 'training_done', payload: { output }, srcWid: srcWid }
+        const res: IncomingMessage = { type: 'training_done', payload: { output }, srcWid }
         process.send!(res)
       }
     })
 
-    const res: IncomingMessage = { type: 'worker_ready', payload: {}, srcWid: srcWid }
+    const res: IncomingMessage = { type: 'worker_ready', payload: {}, srcWid }
     process.send!(res)
   }
 

@@ -477,15 +477,6 @@ declare module 'botpress/sdk' {
       predict: (t: string, ctx: string[]) => Promise<IO.EventUnderstanding>
     }
 
-    export type TrainingStatus = 'idle' | 'done' | 'needs-training' | 'training' | 'canceled' | 'errored' | null
-
-    export interface TrainingSession {
-      status: TrainingStatus
-      language: string
-      progress: number
-      lock?: RedisLock
-    }
-
     export interface Config {
       ducklingURL: string
       ducklingEnabled: boolean
@@ -524,6 +515,15 @@ declare module 'botpress/sdk' {
       isEnabled: boolean
       validProvidersCount: number
       validLanguages: string[]
+    }
+
+    export type TrainingStatus = 'idle' | 'done' | 'needs-training' | 'training' | 'canceled' | 'errored' | null
+
+    export interface TrainingSession {
+      status: TrainingStatus
+      language: string
+      progress: number
+      lock?: RedisLock
     }
 
     export type EntityType = 'system' | 'pattern' | 'list' | 'complex' // TODO: Add the notion of Utterance Placeholder instead of adding "Complex" as an entity type here (synonyms and variables)

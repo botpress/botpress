@@ -237,6 +237,7 @@ export default class Engine implements NLU.Engine {
     }
 
     const model = deserializeModel(serialized)
+
     const { input, output } = model.data
 
     const trainOutput = output as TrainOutput
