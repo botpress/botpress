@@ -8,7 +8,7 @@ import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipe
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
 import { computeKmeans, ProcessIntents, TrainInput, TrainOutput } from './training-pipeline'
-import { TrainingWorkerQueue } from './training-worker-queue'
+import { TrainingCanceledError, TrainingWorkerQueue } from './training-worker-queue'
 import { ComplexEntity, Intent, ListEntity, PatternEntity, Tools } from './typings'
 
 const trainDebug = DEBUG('nlu').sub('training')
@@ -184,7 +184,10 @@ export default class Engine implements NLU.Engine {
     try {
       output = await Engine._trainingWorkerQueue.startTraining(trainSessionId, input, progressCallback)
     } catch (err) {
-      this.logger.error('Could not finish training NLU model', err)
+      const isTrainingCancelled = err instanceof TrainingCanceledError
+      if (!isTrainingCancelled) {
+        this.logger.error('Could not finish training NLU model', err)
+      }
       return
     }
 

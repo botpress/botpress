@@ -1,5 +1,5 @@
 import { NLU } from 'botpress/sdk'
-import cluster, { Worker } from 'cluster'
+import cluster, { Worker, worker } from 'cluster'
 
 import { registerMsgHandler, spawnNewTrainingWorker, WORKER_TYPES } from '../cluster'
 
@@ -38,6 +38,8 @@ interface IncomingMessage {
   srcWid: number
 }
 
+export class TrainingCanceledError extends Error {}
+
 export class TrainingWorkerQueue {
   private waitingWorkers: number[] = []
   private activeWorkers: { [trainSessionId: string]: number } = {}
@@ -53,6 +55,7 @@ export class TrainingWorkerQueue {
     await this._cancelTraining(workerId)
 
     delete this.activeWorkers[trainSessionId]
+    this.waitingWorkers = this.waitingWorkers.filter(w => w !== workerId) // just in case...
   }
 
   private _cancelTraining(destWid: number) {
@@ -87,13 +90,20 @@ export class TrainingWorkerQueue {
     try {
       output = await this._startTraining(worker, input, progress)
     } catch (err) {
-      throw err // so error is thrown without a warning about rejected promise
-    } finally {
-      const worker = this.activeWorkers[trainSessionId]
-      this.waitingWorkers.unshift(worker)
-      delete this.activeWorkers[trainSessionId]
+      const isTrainingCanceled = err instanceof TrainingCanceledError
+      if (!isTrainingCanceled) {
+        this._prepareForNextTraining(trainSessionId)
+      }
+      throw err
     }
+    this._prepareForNextTraining(trainSessionId)
     return output
+  }
+
+  private _prepareForNextTraining(trainSessionId: string) {
+    const worker = this.activeWorkers[trainSessionId]
+    this.waitingWorkers.unshift(worker)
+    delete this.activeWorkers[trainSessionId]
   }
 
   private async _startTraining(
@@ -111,9 +121,13 @@ export class TrainingWorkerQueue {
         }
         if (msg.type === 'training_error') {
           process.off('message', handler)
-          reject(msg.payload.error!)
+          reject(new Error(msg.payload.error!))
         }
-        if (progress && msg.type === 'training_progress') {
+        if (msg.type === 'training_canceled' && msg.srcWid === workerId) {
+          process.off('message', handler)
+          reject(new TrainingCanceledError())
+        }
+        if (msg.type === 'training_progress' && progress) {
           progress(msg.payload.progress!)
         }
       }
