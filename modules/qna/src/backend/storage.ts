@@ -6,7 +6,6 @@ import _ from 'lodash'
 import mkdirp from 'mkdirp'
 import nanoid from 'nanoid/generate'
 import path from 'path'
-import { BPFS_STORAGE } from 'process'
 import tar from 'tar'
 import tmp from 'tmp'
 
@@ -84,6 +83,16 @@ const MEDIA_FOLDER = 'media'
 const toQnaFile = topicName => path.join(topicName, 'qna.intents.json')
 
 const serialize = (intents: Intent[]) => JSON.stringify(intents, undefined, 2)
+
+const keepEndPath = path => path.split('/').slice(-2).join('/')
+const removeBotPrefix = c => c.items ?
+  { ...c, items: c.items.map(o => { return { ...o, image: keepEndPath(o.image) } }) } :
+  { ...c, image: keepEndPath(c.image) }
+
+const addBotPath = (file, botId) => path.join(`/api/v1/bots/${botId}`, file)
+const addBotPrefix = (c, botId) => c.items ?
+  { ...c, items: c.items.map(o => { return { ...o, image: addBotPath(o.image, botId) } }) } :
+  { ...c, image: addBotPath(c.image, botId) }
 
 export default class Storage {
   constructor(private ghost: sdk.ScopedGhostService) { }
@@ -166,11 +175,6 @@ export default class Storage {
     const zipName = path.join(tmpDir.name, `${topicName}.tar.gz`)
     await mkdirp.sync(path.join(tmpDir.name, MEDIA_FOLDER))
 
-    const keepEndPath = path => path.split('/').slice(-2).join('/')
-    const removeBotPrefix = c => c.items ?
-      { ...c, items: c.items.map(o => { return { ...o, image: keepEndPath(o.image) } }) } :
-      { ...c, image: keepEndPath(c.image) }
-
     const jsonQnaForBot = await this.ghost.readFileAsObject<Intent[]>(FLOW_FOLDER, toQnaFile(topicName))
     const jsonQna = jsonQnaForBot.map(i => {
       const newContent = [...i.metadata.contentAnswers].map(c => removeBotPrefix(c))
@@ -206,11 +210,8 @@ export default class Storage {
   }
 
   async importPerTopic(importArgs: ImportArgs) {
-    const { topicName, botId, zipFile, bpCms, override, clean } = importArgs
-    const addBotPath = file => path.join(`/api/v1/bots/${botId}`, file)
-    const addBotPrefix = c => c.items ?
-      { ...c, items: c.items.map(o => { return { ...o, image: addBotPath(o.image) } }) } :
-      { ...c, image: addBotPath(c.image) }
+    const { topicName, botId, zipFile, override, clean } = importArgs
+
 
     if (!clean) {
       const questions = await this.fetchItems(topicName)
@@ -224,9 +225,9 @@ export default class Storage {
       file: path.join(tmpDir.name, `${topicName}.tar.gz`)
     })
 
-    const qnas = JSON.parse(fse.readFileSync(path.join(tmpDir.name, FLOW_FOLDER, 'exportable.qna.intents.json'), 'utf8'))
+    const qnas = JSON.parse(await fse.readFile(path.join(tmpDir.name, FLOW_FOLDER, 'exportable.qna.intents.json'), 'utf8'))
     const qnaForBot = qnas.map(i => {
-      const newContent = [...i.metadata.contentAnswers].map(c => addBotPrefix(c))
+      const newContent = [...i.metadata.contentAnswers].map(c => addBotPrefix(c, botId))
       const newMetadata = { ...i.metadata, contentAnswers: newContent }
       return { ...i, contexts: [topicName], filename: `${topicName}/qna.intents.json`, metadata: newMetadata }
     })
@@ -239,7 +240,7 @@ export default class Storage {
     for (const mediaFile of fse.readdirSync(path.join(tmpDir.name, MEDIA_FOLDER))) {
       await this.ghost.upsertFile(MEDIA_FOLDER,
         mediaFile,
-        fse.readFileSync(path.join(tmpDir.name, MEDIA_FOLDER, mediaFile))
+        await fse.readFile(path.join(tmpDir.name, MEDIA_FOLDER, mediaFile))
       )
     }
   }

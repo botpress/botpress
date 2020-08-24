@@ -53,7 +53,7 @@ export const ImportModal: FC<Props> = props => {
 
   const updateUploadStatus = async () => {
     const { data: status } = await props.axios.get(`/mod/qna/json-upload-status/${statusId}`)
-    setUploadStatus(status)
+    setUploadStatus(lang.tr(status))
     if (status === 'Completed') {
       clearStatus()
       closeDialog()

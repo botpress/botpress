@@ -46,8 +46,8 @@ const QnAList: FC<Props> = ({
     wrapperRef.current.addEventListener('scroll', handleScroll)
 
     fetchData()
-      .then(() => {})
-      .catch(() => {})
+      .then(() => { })
+      .catch(() => { })
 
     fetchFlows()
 
@@ -61,8 +61,8 @@ const QnAList: FC<Props> = ({
   useEffect(() => {
     if (queryParams.get('id')) {
       fetchHighlightedQna(queryParams.get('id'))
-        .then(() => {})
-        .catch(() => {})
+        .then(() => { })
+        .catch(() => { })
     } else {
       dispatch({ type: 'resetHighlighted' })
     }
@@ -72,8 +72,8 @@ const QnAList: FC<Props> = ({
     const timer = setTimeout(() => {
       if (!firstUpdate) {
         fetchData()
-          .then(() => {})
-          .catch(() => {})
+          .then(() => { })
+          .catch(() => { })
       }
     }, 300)
 
@@ -83,8 +83,8 @@ const QnAList: FC<Props> = ({
   useEffect(() => {
     if (!loading && fetchMore && items.length < count) {
       fetchData(page + 1)
-        .then(() => {})
-        .catch(() => {})
+        .then(() => { })
+        .catch(() => { })
     }
   }, [fetchMore])
 
@@ -159,21 +159,21 @@ const QnAList: FC<Props> = ({
     }
   ]
 
-  // if (!isLite) {
-  buttons.push(
-    {
-      icon: 'export',
-      disabled: !items.length,
-      onClick: startDownload,
-      tooltip: noItemsTooltip || lang.tr('exportToJson')
-    },
-    {
-      icon: 'import',
-      onClick: () => setShowImportModal(true),
-      tooltip: lang.tr('importJson')
-    }
-  )
-  // }
+  if (!isLite) {
+    buttons.push(
+      {
+        icon: 'export',
+        disabled: !items.length,
+        onClick: startDownload,
+        tooltip: noItemsTooltip || lang.tr('exportToJson')
+      },
+      {
+        icon: 'import',
+        onClick: () => setShowImportModal(true),
+        tooltip: lang.tr('importJson')
+      }
+    )
+  }
 
   buttons.push({
     icon: 'plus',

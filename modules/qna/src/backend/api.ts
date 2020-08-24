@@ -9,12 +9,10 @@ import { getQnaEntryPayloads } from './utils'
 
 export interface ImportArgs {
   topicName: string
-  botId: string,
+  botId: string
   zipFile: Buffer
-  bpCms: typeof sdk.cms
-  override: boolean,
+  override: boolean
   clean: boolean
-
 }
 
 export default async (bp: typeof sdk, bots: ScopedBots) => {
@@ -128,7 +126,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
 
   router.post('/:topicName/import', multer().single('file'), async (req: any, res: Response) => {
     const statusId = nanoid()
-    jsonRequestStatuses[statusId] = 'Uploading'
+    jsonRequestStatuses[statusId] = 'module.qna.import.uploading'
     res.send(statusId)
 
     const { storage } = bots[req.params.botId]
@@ -137,7 +135,6 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
         topicName: req.params.topicName,
         botId: req.params.botId,
         zipFile: req.file.buffer,
-        bpCms: bp.cms,
         override: false,
         clean: req.body.action === 'clear_insert'
       }
