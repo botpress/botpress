@@ -290,6 +290,7 @@
         "addWorkflow": "Add Workflow",
         "tapIconsToAdd": "Tap icons in the toolbar to import or add your first topic.",
         "renameWorkflow": "Rename Workflow",
+        "duplicateWorkflow": "Duplicate Workflow",
         "moveWorkflow": "Move Workflow to",
         "renameTopic": "Rename Topic",
         "nameWorkflow": "Name Workflow",
