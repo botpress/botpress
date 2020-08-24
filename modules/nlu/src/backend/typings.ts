@@ -23,8 +23,6 @@ export interface BotState {
 
 export interface NLUProgressEvent {
   type: 'nlu'
-  working: boolean
   botId: string
-  message: string
   trainSession: NLU.TrainingSession
 }

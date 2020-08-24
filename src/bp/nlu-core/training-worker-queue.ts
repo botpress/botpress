@@ -1,6 +1,5 @@
 import { NLU } from 'botpress/sdk'
 import cluster, { Worker } from 'cluster'
-import { exitCode } from 'process'
 
 import { registerMsgHandler, spawnNewTrainingWorker, WORKER_TYPES } from '../cluster'
 
@@ -165,11 +164,13 @@ if (cluster.isMaster) {
   function killTrainingWorker(msg: OutgoingMessage) {
     const worker = cluster.workers[msg.destWid!]
 
-    console.log(`about to kill worker: ${worker?.id}`)
-    worker?.kill('SIGKILL')
+    if (!worker) {
+      const response: IncomingMessage = { type: 'training_canceled', payload: {}, srcWid: msg.destWid! }
+      sendToWebWorker(response)
+    }
 
-    const exitHandler = (worker: Worker, exitCode: number, signal: string) => {
-      console.log(`worker ${worker.id} exited with exit code ${exitCode} and signal '${signal}'`)
+    worker!.kill('SIGKILL')
+    const exitHandler = (worker: Worker, _exitCode: number, _signal: string) => {
       const response: IncomingMessage = { type: 'training_canceled', payload: {}, srcWid: worker.id }
       sendToWebWorker(response)
     }
