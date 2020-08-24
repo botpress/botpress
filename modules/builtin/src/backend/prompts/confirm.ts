@@ -13,6 +13,10 @@ class PromptConfirm implements Prompt {
       return [{ value: yesOrNo, confidence: 1 }]
     }
 
+    if (!event.ndu?.triggers) {
+      return []
+    }
+
     const topConfirmation = _.chain(event.ndu.triggers)
       .values()
       .filter(val => val.trigger.name?.startsWith('prompt_'))

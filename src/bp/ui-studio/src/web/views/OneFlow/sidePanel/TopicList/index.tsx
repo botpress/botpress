@@ -2,10 +2,11 @@ import { Button, Intent, MenuItem } from '@blueprintjs/core'
 import axios from 'axios'
 import { confirmDialog, EmptyState, lang } from 'botpress/shared'
 import cx from 'classnames'
+import { nextFlowName, parseFlowName } from 'common/flow'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { deleteFlow, fetchFlows, fetchTopics, renameFlow, updateFlow } from '~/actions'
+import { deleteFlow, duplicateFlow, fetchFlows, fetchTopics, renameFlow, updateFlow } from '~/actions'
 import { SearchBar } from '~/components/Shared/Interface'
 import { AccessControl } from '~/components/Shared/Utils'
 import { getCurrentFlow, getFlowNamesList, RootReducer } from '~/reducers'
@@ -101,6 +102,27 @@ const TopicList: FC<Props> = props => {
     }
   }
 
+  const duplicateFlow = (workflowPath: string) => {
+    const parsedName = parseFlowName(workflowPath)
+    const copyName = nextFlowName(props.flowsName, parsedName.topic, parsedName.workflow)
+    props.duplicateFlow({
+      flowNameToDuplicate: workflowPath,
+      name: copyName
+    })
+  }
+
+  const moveFlow = (workflowPath: string, newTopicName: string) => {
+    const parsed = parseFlowName(workflowPath, true)
+    const fullName = buildFlowName({ topic: newTopicName, workflow: parsed.workflow }, true)
+
+    if (!props.flowsName.find(x => x.name === fullName)) {
+      props.renameFlow({ targetFlow: workflowPath, name: fullName })
+      props.updateFlow({ name: fullName })
+    }
+
+    setExpanded({ ...expanded, [newTopicName]: true })
+  }
+
   const deleteTopic = async (name: string, skipDialog = false) => {
     const matcher = new RegExp(`^${name}/`)
     const flowsToDelete = props.flowsName.filter(x => matcher.test(x.name))
@@ -162,6 +184,23 @@ const TopicList: FC<Props> = props => {
             onClick={() => {
               setEditing(path)
               setIsEditingNew(false)
+            }}
+          />
+          <MenuItem id="btn-moveTo" disabled={props.readOnly} label={lang.tr('studio.flow.sidePanel.moveWorkflow')}>
+            {props.topics?.map(topic => (
+              <MenuItem
+                label={topic.name}
+                onClick={() => {
+                  moveFlow(name, topic.name)
+                }}
+              />
+            ))}
+          </MenuItem>
+          <MenuItem
+            id="btn-duplicate"
+            label={lang.tr('studio.flow.sidePanel.duplicateWorkflow')}
+            onClick={() => {
+              duplicateFlow(name)
             }}
           />
           <MenuItem
@@ -373,7 +412,8 @@ const mapDispatchToProps = {
   fetchFlows,
   renameFlow,
   updateFlow,
-  deleteFlow
+  deleteFlow,
+  duplicateFlow
 }
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(TopicList)

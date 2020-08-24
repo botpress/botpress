@@ -131,6 +131,7 @@
       "mustHaveOutcomes": "Les flux de travail doivent avoir au moins un succès et un échec",
       "referenceCount": "{count} {count, plural, one {référence} other {références}}",
       "noReferences": "Non utilisé",
+      "emptyWorkflow": "Utilisez le clic droit ou glissez et déplacez des bloques pour commencer a designer votre workflow.",
       "chips": "Chips",
       "condition": {
         "addCondition": "Ajouter condition",
@@ -284,9 +285,11 @@
         "renameFlow": "Renommer le flow",
         "importTopic": "Importer sujet",
         "addTopic": "Ajouter sujet",
-        "addWorkflow": "Ajouter workflow",
+        "addWorkflow": "Ajouter Workflow",
         "tapIconsToAdd": "Appuyez sur les icônes de la barre d'outils pour importer ou ajouter votre premier sujet.",
-        "renameWorkflow": "Renommer workflow",
+        "renameWorkflow": "Renommer Workflow",
+        "duplicateWorkflow": "Dupliquer Workflow",
+        "moveWorkflow": "Déplacer le workflow vers",
         "renameTopic": "Renommer sujet",
         "nameWorkflow": "Name Workflow",
         "nameTopic": "Name Topic"

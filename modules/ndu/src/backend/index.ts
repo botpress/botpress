@@ -61,7 +61,7 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
   delete bots[botId]
 }
 
-const botTemplates: sdk.BotTemplate[] = [{ id: 'oneflow', name: 'Test bot', desc: 'Test bot' }]
+const botTemplates: sdk.BotTemplate[] = [{ id: 'oneflow', name: 'Empty', desc: 'Start fresh with an empty bot' }]
 
 const onFlowChanged = async (bp: typeof sdk, botId: string, flow: sdk.Flow) => {
   if (bots[botId]) {
