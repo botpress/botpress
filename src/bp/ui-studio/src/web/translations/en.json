@@ -182,6 +182,7 @@
         "add": "add",
         "addAction": "Add new action",
         "addCondition": "Add Condition",
+        "addMessage": "Add Message",
         "cantSeeActions": "Can't see your action?",
         "chatbotExecutes": "Chatbot Executes",
         "chatbotSays": "Chatbot Says",
