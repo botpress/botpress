@@ -1,10 +1,8 @@
 import * as sdk from 'botpress/sdk'
 
 import { BotpressPredictor } from '../models/botpress_predictor'
-import { BotpressEmbedder, PythonEmbedder } from '../models/embedder'
 
 export interface BotState {
-  embedder: BotpressEmbedder | PythonEmbedder
   axiosConfig: sdk.AxiosBotConfig
   predictor: BotpressPredictor
   botId: string

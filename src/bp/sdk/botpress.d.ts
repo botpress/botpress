@@ -317,8 +317,8 @@ declare module 'botpress/sdk' {
       }
 
       export interface ModelConstructor {
-        new (): Model
-        new (lazy: boolean, keepInMemory: boolean, queryOnly: boolean): Model
+        new(): Model
+        new(lazy: boolean, keepInMemory: boolean, queryOnly: boolean): Model
       }
 
       export const Model: ModelConstructor
@@ -462,6 +462,7 @@ declare module 'botpress/sdk' {
       static initialize: (config: Config, logger: NLU.Logger) => Promise<void>
       static getHealth: () => Health
       static getLanguages: () => string[]
+      static embed: (utterances: string[], lang: string) => Promise<number[][]>
       constructor(defaultLanguage: string, botId: string, logger: Logger)
       computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string
       loadModel: (m: Model) => Promise<void>
@@ -1796,11 +1797,11 @@ declare module 'botpress/sdk' {
   }
 
   export interface PromptConstructable {
-    new (ctor: any): Prompt
+    new(ctor: any): Prompt
   }
 
   export interface BoxedVarConstructable<T, V = any> {
-    new (ctor: BoxedVarContructor<T, V>): BoxedVariable<T, V>
+    new(ctor: BoxedVarContructor<T, V>): BoxedVariable<T, V>
   }
 
   export interface BoxedVariable<T, V = any> {

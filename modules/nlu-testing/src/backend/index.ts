@@ -1,10 +1,12 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { getOnBotMount } from '../module_lifecycle/on_bot_mount'
 import en from '../translations/en.json'
 import fr from '../translations/fr.json'
 
 import api from './api'
+const state = {}
 
 export type SDK = typeof sdk
 
@@ -15,9 +17,10 @@ const onServerStarted = async (bp: SDK) => {
 }
 
 const onServerReady = async (bp: SDK) => {
-  await api(bp)
+  await api(bp, state)
 }
 
+const onBotMount = getOnBotMount(state)
 const onModuleUnmount = async (bp: typeof sdk) => {
   bp.http.deleteRouterForBot('nlu-testing')
 }
@@ -46,6 +49,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   botTemplates,
   onServerStarted,
   onServerReady,
+  onBotMount,
   onModuleUnmount,
   translations: { en, fr },
   definition: {

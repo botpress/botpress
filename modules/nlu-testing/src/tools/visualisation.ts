@@ -32,7 +32,7 @@ export async function computeConfusionMatrix(
   }
 
   await state.ghost.upsertFile(
-    `./datas/${state.embedder.model_name}/results`,
+    `./datas/results`,
     'confusion_matrix.json',
     JSON.stringify(results, undefined, 2)
   )
@@ -79,7 +79,7 @@ export async function computeEmbeddingSimilarity(state: BotState) {
     }
   ]
   await state.ghost.upsertFile(
-    `./datas/${state.embedder.model_name}/results`,
+    `./datas/results`,
     'similarity_matrix.json',
     JSON.stringify(simMat, undefined, 2)
   )

@@ -11,7 +11,7 @@ import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
 import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
 import { ComplexEntity, EntityCacheDump, Intent, ListEntity, ListEntityModel, PatternEntity, Tools } from './typings'
-
+import { buildUtteranceBatch } from './utterance/utterance'
 const trainDebug = DEBUG('nlu').sub('training')
 
 export default class Engine implements NLU.Engine {
@@ -20,7 +20,7 @@ export default class Engine implements NLU.Engine {
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<PredictableModel> = {}
 
-  constructor(private defaultLanguage: string, private botId: string, private logger: NLU.Logger) {}
+  constructor(private defaultLanguage: string, private botId: string, private logger: NLU.Logger) { }
 
   // NOTE: removed private in order to prevent important refactor (which will be done later)
   public static get tools() {
@@ -39,12 +39,18 @@ export default class Engine implements NLU.Engine {
     return this._tools.getVersionInfo()
   }
 
+
   public static async initialize(config: NLU.Config, logger: NLU.Logger): Promise<void> {
     this._tools = await initializeTools(config, logger)
     const version = this._tools.getVersionInfo()
     if (!version.nluVersion.length || !version.langServerInfo.version.length) {
       logger.warning('Either the nlu version or the lang server version is not set correctly.')
     }
+  }
+
+  public static async embed(sentences: string[], lang: string) {
+    const utterances = await buildUtteranceBatch(sentences, lang, this._tools)
+    return utterances.map(u => u.sentenceEmbedding)
   }
 
   public hasModel(language: string, hash: string) {
