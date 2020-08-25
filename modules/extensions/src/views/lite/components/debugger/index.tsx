@@ -169,10 +169,13 @@ export class Debugger extends React.Component<Props, State> {
     try {
       const { data: event } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
 
-      const userMessages: any[] = this.props.store.currentConversation.messages.filter(m => m.userId)
+      const lastMessages: any[] = this.props.store.currentConversation.messages
+      const currentMessageIndex = lastMessages.findIndex(m => m.incomingEventId == eventId)
+      const previousUserMessages = lastMessages.filter((m, i) => i < currentMessageIndex && m.userId)
+
       let prevEvent = undefined
-      if (userMessages.length > 1) {
-        const prevMessage = userMessages[userMessages.length - 2]
+      if (previousUserMessages.length) {
+        const prevMessage = previousUserMessages[previousUserMessages.length - 1]
         const { data } = await this.props.store.bp.axios.get('/mod/extensions/events/' + prevMessage.incomingEventId)
         prevEvent = data
       }
