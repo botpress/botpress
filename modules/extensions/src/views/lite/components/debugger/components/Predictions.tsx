@@ -6,7 +6,7 @@ import style from '../style.scss'
 import { formatConfidence } from '../utils'
 
 import { Intent } from './Intent'
-
+const GLOBAL_TOPIC = 'global'
 interface Props {
   predictions: NLU.Predictions
   activePrompt: IO.PromptStatus
@@ -22,14 +22,14 @@ const Predictions = (props: Props) => {
   return (
     <div className={style.section}>
       <div className={style.sectionTitle}>Top Predictions</div>
-      {Object.keys(predictions).map((key, index) => {
-        const { confidence, intents } = predictions[key]
-        if ((key === 'global' && activePrompt) || key !== 'global') {
+      {Object.keys(predictions).map(topicName => {
+        const { confidence, intents } = predictions[topicName]
+        if ((topicName === GLOBAL_TOPIC && activePrompt) || topicName !== GLOBAL_TOPIC) {
           return (
-            <div className={style.subSection} key={index}>
+            <div className={style.subSection} key={topicName}>
               <div>
                 <p>
-                  {key} {formatConfidence(confidence)}%
+                  {topicName} {formatConfidence(confidence)}
                 </p>
                 <ul>
                   {intents.slice(0, 4).map(i => {
