@@ -370,7 +370,8 @@
       "pickType": "Pick a type",
       "userAnswersCorrectly": "User answers correctly",
       "userCancels": "User Cancels",
-      "userDoesNotAnswer": "User does not answer"
+      "userDoesNotAnswer": "User does not answer",
+      "defaultQuestion": "Please provide value for __VARNAME"
     },
     "sideBar": {
       "flowBuilder": "Workflow Builder",

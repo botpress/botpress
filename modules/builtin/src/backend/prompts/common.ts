@@ -7,6 +7,7 @@ const common: FormDefinition = {
       key: 'question',
       translated: true,
       required: true,
+      defaultValue: 'studio.prompt.defaultQuestion',
       maxLength: 150,
       placeholder: 'module.builtin.messagePlaceholder',
       label: 'message'

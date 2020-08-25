@@ -50,15 +50,6 @@ const config: PromptConfig = {
   fields: [
     ...common.fields,
     {
-      type: 'variable',
-      key: 'output',
-      required: true,
-      label: 'module.builtin.setValueTo',
-      placeholder: 'module.builtin.setValueToPlaceholder',
-      variableTypes: ['date'],
-      defaultVariableType: 'date'
-    },
-    {
       type: 'checkbox',
       key: 'mustBePast',
       label: 'module.builtin.mustBePast'

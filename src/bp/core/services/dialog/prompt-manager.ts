@@ -91,6 +91,7 @@ const generateDisambiguate = (
       type: 'say',
       payload: {
         type: 'enum',
+        output: status.config.output,
         question: status.config.question,
         items: candidates.map(x => ({ label: x.value_string, value: x.value_string }))
       },
