@@ -169,12 +169,11 @@ export class Debugger extends React.Component<Props, State> {
     try {
       const { data: event } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
 
+      const userMessages: any[] = this.props.store.currentConversation.messages.filter(m => m.userId)
       let prevEvent = undefined
-      const incoming = event as sdk.IO.IncomingEvent
-      const lastMessages = incoming.state?.session?.lastMessages
-      if (lastMessages.length > 1) {
-        const prevMessage = lastMessages[lastMessages.length - 2]
-        const { data } = await this.props.store.bp.axios.get('/mod/extensions/events/' + prevMessage.eventId)
+      if (userMessages.length > 1) {
+        const prevMessage = userMessages[userMessages.length - 2]
+        const { data } = await this.props.store.bp.axios.get('/mod/extensions/events/' + prevMessage.incomingEventId)
         prevEvent = data
       }
 
