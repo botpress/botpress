@@ -286,6 +286,7 @@
         "nameInUse": "Nom déjà utilisé",
         "nameInUseMessage": "Un flow portant ce nom existe déjà. Veuillez en choisir un autre.",
         "node": "Nœud",
+        "noSearchMatch": "Désolé, aucun résultat ne correspond aux critères de recherche.",
         "renameFlow": "Renommer le flow",
         "importTopic": "Importer sujet",
         "addTopic": "Ajouter sujet",
