@@ -61,8 +61,6 @@ const BlockWidget: FC<Props> = ({
   getExpandedNodes,
   setExpanded
 }) => {
-  const [error, setError] = useState(null)
-  const [isEditing, setIsEditing] = useState(false)
   const { nodeType } = node
 
   const handleContextMenu = e => {
@@ -72,12 +70,6 @@ const BlockWidget: FC<Props> = ({
     contextMenu(
       e,
       <Menu>
-        <MenuItem
-          text={lang.tr('studio.flow.node.renameBlock')}
-          onClick={() => {
-            setIsEditing(true)
-          }}
-        />
         {nodeType === 'trigger' && (
           <MenuItem
             text={lang.tr('studio.flow.node.addCondition')}
@@ -98,23 +90,6 @@ const BlockWidget: FC<Props> = ({
         />
       </Menu>
     )
-  }
-
-  const saveName = (value): void => {
-    setError(null)
-
-    if (value) {
-      const alreadyExists = getCurrentFlow().nodes.find(x => x.name === value && x.id !== node.id)
-
-      if (alreadyExists) {
-        setError(lang.tr('studio.flow.node.nameAlreadyExists'))
-        return
-      }
-
-      updateFlowNode({ name: value })
-    }
-
-    setIsEditing(false)
   }
 
   const inputPortInHeader = !['trigger'].includes(nodeType)
@@ -174,9 +149,6 @@ const BlockWidget: FC<Props> = ({
 
   const expanded = getExpandedNodes().includes(node.id)
 
-  // Prevents moving the node while editing the name so text can be selected
-  node.locked = isEditing
-
   return (
     <NodeWrapper isHighlighed={node.isHighlighted}>
       <NodeHeader
@@ -184,12 +156,7 @@ const BlockWidget: FC<Props> = ({
         setExpanded={canCollapse && handleExpanded}
         expanded={canCollapse && expanded}
         handleContextMenu={hasContextMenu && handleContextMenu}
-        isEditing={isEditing}
-        saveName={saveName}
         defaultLabel={lang.tr(defaultLabels[nodeType])}
-        name={node.name}
-        type={nodeType}
-        error={error}
       >
         <StandardPortWidget hidden={!inputPortInHeader} name="in" node={node} className={style.in} />
         {outPortInHeader && <StandardPortWidget name="out0" node={node} className={style.out} />}
