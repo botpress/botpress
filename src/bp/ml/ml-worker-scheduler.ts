@@ -42,7 +42,7 @@ async function makeWorker() {
       release: 'N/A'
     }))) as typeof process.distro
 
-  const clean = data => _.omitBy(data, val => val == undefined || val == undefined || typeof val === 'object')
+  const clean = data => _.omitBy(data, val => val == undefined || typeof val === 'object')
   const processData = {
     VERBOSITY_LEVEL: process.VERBOSITY_LEVEL,
     IS_PRODUCTION: process.IS_PRODUCTION,
@@ -56,14 +56,13 @@ async function makeWorker() {
     SERVER_ID: process.SERVER_ID,
     LOADED_MODULES: process.LOADED_MODULES,
     PROJECT_LOCATION: process.PROJECT_LOCATION,
-    pkg: process.pkg,
-    distro
+    distro: JSON.stringify(distro)
   }
 
-  const workerIndex = path.resolve(__dirname, 'ml-worker-index.js')
+  const workerIndex = path.resolve(__dirname, './ml-worker-index.js')
   return new Worker(workerIndex, ({
     workerData: {
-      processData: processData,
+      processData: clean(processData),
       processEnv: clean(process.env)
     },
     env: { ...process.env }
