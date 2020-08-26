@@ -41,6 +41,12 @@ const common: FormDefinition = {
     },
     {
       type: 'checkbox',
+      key: 'confirmFilled',
+      defaultValue: true,
+      label: 'module.builtin.confirmVariableFilled'
+    },
+    {
+      type: 'checkbox',
       key: 'cancellable',
       defaultValue: true,
       label: 'Prompt can be cancelled'

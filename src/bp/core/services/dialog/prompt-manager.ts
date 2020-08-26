@@ -285,7 +285,13 @@ export class PromptManager {
       return generateDisambiguate(actions, status, shortlisted)
     } else {
       if (others.length === 1 && !this.prompts.find(x => x.id === status.config.type)?.config.noConfirmation) {
-        return generateCandidate(actions, status, others[0])
+        if (status.config.confirmFilled) {
+          return generateCandidate(actions, status, others[0])
+        } else {
+          if (tryElect(others[0].value_raw)) {
+            return generateResolved(actions, status, others[0].value_raw)
+          }
+        }
       } else if (others.length > 1) {
         return generateDisambiguate(actions, status, others)
       }

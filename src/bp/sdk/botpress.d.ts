@@ -1755,6 +1755,8 @@ declare module 'botpress/sdk' {
   }
 
   export interface PromptNodeParams {
+    /** Whether to ask confirmation before taking an already filled value */
+    confirmFilled: boolean
     cancellable?: boolean
     confirmCancellation?: boolean
     /** The name of the variable that will be filled with the value extracted */
