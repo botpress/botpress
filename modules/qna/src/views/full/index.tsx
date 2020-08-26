@@ -1,15 +1,15 @@
-import { Spinner } from '@blueprintjs/core'
-import { EmptyState, HeaderButtonProps, lang, MainContent } from 'botpress/shared'
-import { AccessControl, Downloader, reorderFlows } from 'botpress/utils'
+import { Spinner, IconName, FileInput } from '@blueprintjs/core'
+import { EmptyState, HeaderButtonProps, lang, MainContent, confirmDialog } from 'botpress/shared'
+import { AccessControl, Downloader, reorderFlows, toastFailure, toastSuccess } from 'botpress/utils'
 import cx from 'classnames'
 import { debounce } from 'lodash'
 import React, { FC, useCallback, useEffect, useReducer, useRef, useState } from 'react'
 
 import style from './style.scss'
 import { dispatchMiddleware, fetchReducer, itemHasError, ITEMS_PER_PAGE, Props } from './utils/qnaList.utils'
-import { ImportModal } from './Components/ImportModal'
 import QnA from './Components/QnA'
 import EmptyStateIcon from './Icons/EmptyStateIcon'
+import { props } from 'bluebird'
 
 const QnAList: FC<Props> = ({
   bp,
@@ -23,10 +23,13 @@ const QnAList: FC<Props> = ({
 }) => {
   const [flows, setFlows] = useState([])
   const [questionSearch, setQuestionSearch] = useState('')
-  const [showImportModal, setShowImportModal] = useState(false)
+  const [uploadFile, setUploadFile] = useState<any>()
+  const [importStatus, setImportStatus] = useState({ id: '', status: '' })
   const [currentTab, setCurrentTab] = useState('qna')
   const [currentLang, setCurrentLang] = useState(contentLang)
+  const [importIcon, setImportIcon] = useState('import')
   const [url, setUrl] = useState('')
+  const formInput = useRef(null);
   const debounceDispatchMiddleware = useCallback(debounce(dispatchMiddleware, 300), [])
   const wrapperRef = useRef<HTMLDivElement>()
   const [state, dispatch] = useReducer(fetchReducer, {
@@ -159,21 +162,24 @@ const QnAList: FC<Props> = ({
     }
   ]
 
-  if (!isLite) {
-    buttons.push(
-      {
-        icon: 'export',
-        disabled: !items.length,
-        onClick: startDownload,
-        tooltip: noItemsTooltip || lang.tr('exportToJson')
+  // if (!isLite) {
+  buttons.push(
+    {
+      icon: 'export',
+      disabled: !items.length,
+      onClick: startDownload,
+      tooltip: noItemsTooltip || lang.tr('exportToJson')
+    },
+    {
+      icon: importIcon as IconName,
+      onClick: () => {
+        formInput.current!.click()
+        askUploadOptions()
       },
-      {
-        icon: 'import',
-        onClick: () => setShowImportModal(true),
-        tooltip: lang.tr('importJson')
-      }
-    )
-  }
+      tooltip: lang.tr('importJson')
+    }
+  )
+  // }
 
   buttons.push({
     icon: 'plus',
@@ -182,6 +188,44 @@ const QnAList: FC<Props> = ({
     },
     tooltip: lang.tr('module.qna.form.addQuestion')
   })
+
+  const askUploadOptions = async () => {
+    if (await confirmDialog(`Are you sure you want to import ${uploadFile.name} ?`, { acceptLabel: "Yes" })) {
+      // TODO beautiful asking for clean and override
+      if (await confirmDialog(`clean import ?`, { acceptLabel: "Yes" })) {
+        importTar(uploadFile, 'clean-insert')
+      } else {
+        importTar(uploadFile, 'insert')
+      }
+    }
+  }
+
+  const importTar = async (file, action) => {
+    try {
+      const form = new FormData()
+      form.append('file', file)
+      form.append('action', action)
+      const { data } = await bp.axios.post(`/mod/qna/${topicName}/import`, form, bp.axiosConfig)
+      setImportStatus({ id: data, status: 'uploading' })
+      setImportIcon('' as IconName)
+
+      const interval = setInterval(async () => {
+        const { data } = await bp.axios.get(`/mod/new_qna/long-jobs-status/${importStatus.id}`)
+        if (data.status === 'Completed') {
+          clearInterval(interval)
+          toastSuccess(lang.tr('module.qna.import.uploadSuccessful'))
+          setImportIcon('cloud' as IconName)
+        } else if (data.status.slice(0, 4) === 'Error') {
+          toastFailure(data.status)
+          clearInterval(interval)
+          setImportIcon('delete' as IconName)
+        }
+      }, 500)
+    } catch (err) {
+      setImportStatus({ id: '', status: '' })
+      toastFailure(err.message)
+    }
+  }
 
   const fetchData = async (page = 1) => {
     dispatch({ type: 'loading' })
@@ -205,7 +249,13 @@ const QnAList: FC<Props> = ({
     <AccessControl resource="module.qna" operation="write">
       <MainContent.Wrapper className={style.embeddedInFlow} childRef={ref => (wrapperRef.current = ref)}>
         <MainContent.Header className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
-
+        <input
+          onChange={e => { if ((e.target as HTMLInputElement).files) { setUploadFile((e.target as HTMLInputElement).files[0]) } }}
+          // inputProps={{ accept: '.tar.gz' }}
+          id="filePicker"
+          ref={formInput}
+          style={{ display: 'none' }}
+        />
         <div className={style.searchWrapper}>
           <input
             className={style.input}
@@ -302,14 +352,6 @@ const QnAList: FC<Props> = ({
         </div>
 
         <Downloader url={url} />
-
-        <ImportModal
-          axios={bp.axios}
-          topicName={topicName}
-          onImportCompleted={() => fetchData()}
-          isOpen={showImportModal}
-          toggle={() => setShowImportModal(!showImportModal)}
-        />
       </MainContent.Wrapper>
     </AccessControl>
   )

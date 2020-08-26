@@ -76,11 +76,42 @@ const ItemSchema = Joi.object().keys({
   enabled: Joi.bool().required(),
 })
 
+const contentShema = Joi.object().keys({
+  items: Joi.array().items(Joi.object().keys({
+    image: Joi.string(),
+    title: Joi.object().pattern(Joi.string(), Joi.string().default(null)),
+    subtitle: Joi.object().pattern(Joi.string(), Joi.string().default(null)),
+    actions: Joi.array()
+  })),
+  image: Joi.string(),
+  title: Joi.object().pattern(Joi.string().max(2), Joi.string().default(null)).optional(),
+  markdown: Joi.boolean(),
+  typing: Joi.boolean(),
+  contentType: Joi.string()
+}).xor('items', 'image')
+
+
+const QnASchema = Joi.object().keys({
+  name: Joi.string(),
+  context: Joi.array().items(Joi.string()),
+  filename: Joi.string(),
+  slots: Joi.array(),
+  utterances: Joi.object().pattern(Joi.string().max(2), Joi.array().items(Joi.string())),
+  metadata: Joi.object().keys({
+    answers: Joi.object().pattern(Joi.string().max(2), Joi.array().items(Joi.string())),
+    contentAnswers: Joi.array().items(contentShema),
+    enabled: Joi.boolean()
+  })
+})
+
 type Intent = Omit<sdk.NLU.IntentDefinition, 'metadata'> & { metadata?: Metadata }
 
 const FLOW_FOLDER = 'flows'
 const MEDIA_FOLDER = 'media'
-const toQnaFile = topicName => path.join(topicName, 'qna.intents.json')
+const TEMP_INTENT_FILENAME = 'exportable.qna.intents.json'
+const INTENT_FILENAME = 'qna.intents.json'
+
+const toQnaFile = topicName => path.join(topicName, INTENT_FILENAME)
 
 const serialize = (intents: Intent[]) => JSON.stringify(intents, undefined, 2)
 
@@ -155,7 +186,7 @@ export default class Storage {
   }
 
   async getCountPerTopic() {
-    const qnaFilesPerTopic = await this.ghost.directoryListing(FLOW_FOLDER, 'qna.intents.json')
+    const qnaFilesPerTopic = await this.ghost.directoryListing(FLOW_FOLDER, INTENT_FILENAME)
     const qnaPerTopic = {}
     for (const qnaFile of qnaFilesPerTopic) {
       qnaPerTopic[qnaFile.split('/')[0]] = (await this.ghost.readFileAsObject<Intent[]>(FLOW_FOLDER, qnaFile)).length
@@ -172,39 +203,35 @@ export default class Storage {
 
   async exportPerTopic(topicName: string) {
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
-    const zipName = path.join(tmpDir.name, `${topicName}.tar.gz`)
+    const zipName = path.join(tmpDir.name, `${topicName}.qna.tar.gz`)
     await mkdirp.sync(path.join(tmpDir.name, MEDIA_FOLDER))
 
     const jsonQnaForBot = await this.ghost.readFileAsObject<Intent[]>(FLOW_FOLDER, toQnaFile(topicName))
     const jsonQna = jsonQnaForBot.map(i => {
-      const newContent = [...i.metadata.contentAnswers].map(c => removeBotPrefix(c))
-      const newMetadata = { ...i.metadata, contentAnswers: newContent }
-      return { ...i, metadata: newMetadata }
+      const contentAnswers = [...i.metadata?.contentAnswers ?? []].map(c => removeBotPrefix(c))
+      const metadata = { ...i.metadata, contentAnswers }
+      return { ...i, metadata }
     })
-    const contentToExport: sdk.FormData[] = _.flatMapDeep(jsonQna.map(i => i.metadata.contentAnswers))
-    const mediaToExport = _.flatMapDeep(contentToExport.map(c => c.items ? c.items.map(i => i.image) : c.image))
 
-    await this.ghost.upsertFile(FLOW_FOLDER, 'exportable.qna.intents.json', serialize(jsonQna))
+    const medias = _.chain(jsonQna)
+      .flatMapDeep(item => item.metadata?.contentAnswers ?? [])
+      .flatMap(c => c.items ? c.items : [c])
+      .map(c => c.image)
+      .value()
 
-    const filesToZip = [...mediaToExport, path.join(FLOW_FOLDER, 'exportable.qna.intents.json')]
+    await this.ghost.upsertFile(FLOW_FOLDER, TEMP_INTENT_FILENAME, serialize(jsonQna))
+
+    const filesToZip = [...medias, path.join(FLOW_FOLDER, TEMP_INTENT_FILENAME)]
 
     for (const file of filesToZip) {
       await mkdirp.sync(path.dirname(path.join(tmpDir.name, file)))
       const buff = await this.ghost.readFileAsBuffer('/', file)
-      fse.writeFileSync(path.resolve(tmpDir.name, file), buff)
+      await fse.writeFile(path.resolve(tmpDir.name, file), buff)
     }
 
-    await tar.create(
-      {
-        cwd: tmpDir.name,
-        file: zipName,
-        portable: true,
-        gzip: true
-      },
-      filesToZip
-    )
+    await tar.create({ cwd: tmpDir.name, file: zipName, portable: true, gzip: true }, filesToZip)
     const zipBuffer = await fse.readFile(zipName)
-    await this.ghost.deleteFile(FLOW_FOLDER, 'exportable.qna.intents.json')
+    await this.ghost.deleteFile(FLOW_FOLDER, TEMP_INTENT_FILENAME)
     tmp.setGracefulCleanup()
     return zipBuffer
   }
@@ -212,35 +239,31 @@ export default class Storage {
   async importPerTopic(importArgs: ImportArgs) {
     const { topicName, botId, zipFile, override, clean } = importArgs
 
-
-    if (!clean) {
+    if (clean) {
       const questions = await this.fetchItems(topicName)
       await Promise.map(questions, q => this.deleteSingleItem(topicName, q.id))
     }
 
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
-    await fse.writeFileSync(path.join(tmpDir.name, `${topicName}.tar.gz`), zipFile)
-    await tar.extract({
-      cwd: tmpDir.name,
-      file: path.join(tmpDir.name, `${topicName}.tar.gz`)
-    })
+    await fse.writeFile(path.join(tmpDir.name, `${topicName}.tar.gz`), zipFile)
+    await tar.extract({ cwd: tmpDir.name, file: path.join(tmpDir.name, `${topicName}.tar.gz`) })
 
-    const qnas = JSON.parse(await fse.readFile(path.join(tmpDir.name, FLOW_FOLDER, 'exportable.qna.intents.json'), 'utf8'))
+    let qnas = []
+
+    qnas = JSON.parse(await fse.readFile(path.join(tmpDir.name, FLOW_FOLDER, TEMP_INTENT_FILENAME), 'utf8'))
+    qnas = await QnASchema.validate(qnas)
+
+
     const qnaForBot = qnas.map(i => {
       const newContent = [...i.metadata.contentAnswers].map(c => addBotPrefix(c, botId))
       const newMetadata = { ...i.metadata, contentAnswers: newContent }
-      return { ...i, contexts: [topicName], filename: `${topicName}/qna.intents.json`, metadata: newMetadata }
+      return { ...i, contexts: [topicName], filename: path.join(topicName, INTENT_FILENAME), metadata: newMetadata }
     })
 
-    await this.ghost.upsertFile(FLOW_FOLDER,
-      path.join(topicName, 'qna.intents.json'),
-      serialize(qnaForBot)
-    )
+    await this.ghost.upsertFile(FLOW_FOLDER, path.join(topicName, INTENT_FILENAME), serialize(qnaForBot))
 
     for (const mediaFile of fse.readdirSync(path.join(tmpDir.name, MEDIA_FOLDER))) {
-      await this.ghost.upsertFile(MEDIA_FOLDER,
-        mediaFile,
-        await fse.readFile(path.join(tmpDir.name, MEDIA_FOLDER, mediaFile))
+      await this.ghost.upsertFile(MEDIA_FOLDER, mediaFile, await fse.readFile(path.join(tmpDir.name, MEDIA_FOLDER, mediaFile))
       )
     }
   }
