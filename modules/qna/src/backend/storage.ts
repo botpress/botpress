@@ -181,6 +181,7 @@ export default class Storage {
         lastModifiedOn: i.id === item.id ? new Date() : i.lastModified
       }
     }))
+
     await this.ghost.upsertFile(FLOW_FOLDER, toQnaFile(topicName), serialize(intents))
     return item.id
   }

@@ -92,9 +92,8 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
     try {
       const { storage } = bots[req.params.botId]
       const items = await storage.fetchItems(req.params.topicName)
-      const item = items.find(x => x.id === req.params.id)
-      console.log("ITEM  ", item)
-      const payloads = await getQnaEntryPayloads(item, req.body.userLanguage, bots[req.params.botId].defaultLang)
+      const item = items.find(x => (x.id === req.params.id) && x.enabled)
+      const payloads = item ? await getQnaEntryPayloads(item, req.body.userLanguage, bots[req.params.botId].defaultLang) : []
       res.send([
         {
           action: 'send',
