@@ -87,7 +87,7 @@ const ConditionForm: FC<Props> = ({
   }
 
   const optionsVariablePlaceholder = {
-    intentName: `[${lang.tr('intent').toLowerCase()}]`,
+    firstSentence: '',
     channelName: `[${lang.tr('channel').toLowerCase()}]`,
     language: `[${lang.tr('language').toLowerCase()}]`,
     topicName: `[${lang.tr('topic').toLowerCase()}]`

@@ -11,11 +11,13 @@ interface Props {
   editNodeItem: (node: BlockModel, index: number) => void
   selectedNodeItem: () => { node: BlockModel; index: number }
   getConditions: () => any
+  getCurrentLang: () => string
 }
 
-const TriggerContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem, getConditions }) => {
+const TriggerContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem, getConditions, getCurrentLang }) => {
   const conditionLabels = getConditions().reduce((acc, cond) => ({ ...acc, [cond.id]: cond.label }), {})
   const selectedCondition = selectedNodeItem()
+  const currentLang = getCurrentLang()
 
   return (
     <div className={style.contentsWrapper}>
@@ -27,7 +29,12 @@ const TriggerContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem, getC
             })}
             onEdit={() => editNodeItem?.(node, index)}
           >
-            <span className={style.content}>{lang.tr(conditionLabels[condition.id], { ...condition.params })}</span>
+            <span className={style.content}>
+              {lang.tr(conditionLabels[condition.id], {
+                ...condition.params,
+                firstSentence: condition.params?.utterances?.[currentLang]?.[0]
+              })}
+            </span>
           </NodeContentItem>
           <span className={style.joinLabel}>{lang.tr('and')}</span>
         </Fragment>

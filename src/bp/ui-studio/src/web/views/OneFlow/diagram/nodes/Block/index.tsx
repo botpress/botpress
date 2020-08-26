@@ -162,6 +162,7 @@ const BlockWidget: FC<Props> = ({
             editNodeItem={editNodeItem}
             selectedNodeItem={selectedNodeItem}
             getConditions={getConditions}
+            getCurrentLang={getCurrentLang}
           />
         )
       case 'sub-workflow':
