@@ -39,6 +39,11 @@
     }
   }
 
+  :global(.variable) {
+    color: var(--ocean);
+    font-weight: bold;
+  }
+
   .img {
     background-position: center;
     background-repeat: no-repeat;
