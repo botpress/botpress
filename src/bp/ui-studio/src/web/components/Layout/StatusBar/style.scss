@@ -19,9 +19,16 @@
     font-size: 10px;
     height: 20px;
     padding: 6px;
+    transition: background 0.3s ease-in-out;
+    &:hover {
+      background-color: var(--gray);
+    }
     &.danger {
       background-color: var(--lighthouse);
       color: white;
+      &:hover {
+        background-color: var(--hover-lighthouse);
+      }
     }
   }
 
