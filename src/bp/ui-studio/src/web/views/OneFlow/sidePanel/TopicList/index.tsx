@@ -2,7 +2,7 @@ import { Button, Intent, MenuItem } from '@blueprintjs/core'
 import axios from 'axios'
 import { confirmDialog, EmptyState, lang } from 'botpress/shared'
 import cx from 'classnames'
-import { nextFlowName, parseFlowName } from 'common/flow'
+import { nextFlowName, nextTopicName, parseFlowName } from 'common/flow'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -138,6 +138,23 @@ const TopicList: FC<Props> = props => {
     }
   }
 
+  const duplicateTopic = async (name: string) => {
+    const flowsToCopy = props.flowsName.filter(x => parseFlowName(x.name).topic === name)
+    const newName = nextTopicName(props.topics, name)
+
+    await axios.post(`${window.BOT_API_PATH}/topic`, { name: newName })
+    props.fetchTopics()
+
+    for (const flow of flowsToCopy) {
+      const parsedName = parseFlowName(flow.name, true)
+      const newWorkflowName = buildFlowName({ topic: newName, workflow: parsedName.workflow }, true)
+      props.duplicateFlow({
+        flowNameToDuplicate: flow.name,
+        name: newWorkflowName
+      })
+    }
+  }
+
   const sanitize = (name: string) => {
     return sanitizeName(name).replace(/\//g, '-')
   }
@@ -157,6 +174,13 @@ const TopicList: FC<Props> = props => {
             onClick={() => {
               setEditing(path)
               setIsEditingNew(false)
+            }}
+          />
+          <MenuItem
+            id="btn-duplicate"
+            label={lang.tr('studio.flow.sidePanel.duplicateTopic')}
+            onClick={async () => {
+              await duplicateTopic(folder)
             }}
           />
           <MenuItem

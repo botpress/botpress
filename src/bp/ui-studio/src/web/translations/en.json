@@ -300,7 +300,8 @@
         "moveWorkflow": "Move Workflow to",
         "renameTopic": "Rename Topic",
         "nameWorkflow": "Name Workflow",
-        "nameTopic": "Name Topic"
+        "nameTopic": "Name Topic",
+        "duplicateTopic": "Duplicate Topic"
       },
       "skills": {
         "couldNotLoad": "Could not load skills view",
