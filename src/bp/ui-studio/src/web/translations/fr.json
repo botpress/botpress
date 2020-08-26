@@ -43,6 +43,7 @@
     "public": "Publié"
   },
   "statusBar": {
+    "trainWarning": "Vous êtes en train d'essayer un bot qui n'a pas été entrainé.",
     "contentLanguage": "Langue du contenu",
     "switchLang": "Modifier la langue du contenu. Langue courante: {currentLang}",
     "trainChatbot": "Entraîner l'agent",

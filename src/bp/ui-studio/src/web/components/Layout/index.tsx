@@ -16,11 +16,13 @@ import Logs from '~/views/Logs'
 import Module from '~/views/Module'
 import OneFlow from '~/views/OneFlow'
 
+import TrainingStatusObserver from './training-status-observer'
 import BotUmountedWarning from './BotUnmountedWarning'
 import CommandPalette from './CommandPalette'
 import GuidedTour from './GuidedTour'
 import LanguageServerHealth from './LangServerHealthWarning'
 import layout from './Layout.scss'
+import { NotTrainedWarningComponent } from './NotTrainedWarning'
 import Sidebar from './Sidebar'
 import StatusBar from './StatusBar'
 import Toolbar from './Toolbar'
@@ -38,6 +40,7 @@ interface ILayoutProps {
   history: any
   bottomPanel: boolean
   translations: any
+  contentLang: string
 }
 
 const handleWebChatPanel = message => {
@@ -54,6 +57,7 @@ const Layout: FC<ILayoutProps> = props => {
   const mainElRef = useRef(null)
   const [langSwitcherOpen, setLangSwitcherOpen] = useState(false)
   const [guidedTourOpen, setGuidedTourOpen] = useState(false)
+  const [emulatorOpen, setEmulatorOpen] = useState(false)
 
   useEffect(() => {
     const viewMode = props.location.query && props.location.query.viewMode
@@ -65,8 +69,11 @@ const Layout: FC<ILayoutProps> = props => {
     setTimeout(() => BotUmountedWarning(), 500)
 
     window.addEventListener('message', handleWebChatPanel)
+
+    TrainingStatusObserver.setLanguage(props.contentLang)
     return () => {
       window.removeEventListener('message', handleWebChatPanel)
+      TrainingStatusObserver.dispose()
     }
   }, [])
 
@@ -78,6 +85,7 @@ const Layout: FC<ILayoutProps> = props => {
   }, [props.translations])
 
   const toggleEmulator = () => {
+    setEmulatorOpen(!emulatorOpen)
     window.botpressWebChat.sendEvent({ type: 'toggle' })
     document.getElementById('main-content-wrapper').classList.toggle('emulator-open')
   }
@@ -216,8 +224,8 @@ const Layout: FC<ILayoutProps> = props => {
           <LanguageServerHealth />
         </div>
       </HotKeys>
+      <NotTrainedWarningComponent emulatorOpen={emulatorOpen} currentLanguage={props.contentLang} />
       <StatusBar
-        onToggleEmulator={toggleEmulator}
         langSwitcherOpen={langSwitcherOpen}
         toggleLangSwitcher={toggleLangSwitcher}
         onToggleGuidedTour={toggleGuidedTour}
@@ -232,7 +240,8 @@ const mapStateToProps = state => ({
   viewMode: state.ui.viewMode,
   docHints: state.ui.docHints,
   bottomPanel: state.ui.bottomPanel,
-  translations: state.language.translations
+  translations: state.language.translations,
+  contentLang: state.language.contentLang
 })
 
 const mapDispatchToProps = dispatch => bindActionCreators({ viewModeChanged, toggleBottomPanel }, dispatch)

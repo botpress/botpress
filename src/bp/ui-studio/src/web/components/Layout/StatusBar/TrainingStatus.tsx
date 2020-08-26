@@ -5,7 +5,8 @@ import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
-import EventBus from '~/util/EventBus'
+
+import TrainingStatusObserver from '../training-status-observer'
 
 import style from './style.scss'
 
@@ -21,32 +22,20 @@ export const TrainingStatusComponent: FC<Props> = props => {
   const [message, setMessage] = useState('')
 
   useEffect(() => {
-    // tslint:disable-next-line: no-floating-promises
-    fetchTrainingStatus()
+    const listener = {
+      name: 'TrainingStatusComponent',
+      cb: updateState,
+      error: onTrainingNeeded
+    }
+    TrainingStatusObserver.addListener(listener)
 
-    EventBus.default.on('statusbar.event', onStatusBarEvent)
-    const i = window.setInterval(() => status !== 'training' && fetchTrainingStatus(), 1500) // for training-needed
+    // tslint:disable-next-line: no-floating-promises
+    TrainingStatusObserver.fetchTrainingStatus()
+
     return () => {
-      clearInterval(i)
-      EventBus.default.off('statusbar.event', onStatusBarEvent)
+      TrainingStatusObserver.removeListener(listener)
     }
   }, [])
-
-  const onStatusBarEvent = async event => {
-    const isNLUEvent = event.botId === window.BOT_ID && event.trainSession?.language === props.currentLanguage
-    if (isNLUEvent) {
-      updateState(event.trainSession as NLU.TrainingSession, false)
-    }
-  }
-
-  const fetchTrainingStatus = async () => {
-    try {
-      const { data: session } = await axios.get(`${window.BOT_API_PATH}/mod/nlu/training/${props.currentLanguage}`)
-      updateState(session as NLU.TrainingSession, true)
-    } catch (err) {
-      status !== 'needs-training' && onTrainingNeeded()
-    }
-  }
 
   const updateState = (session: NLU.TrainingSession, fromWS: boolean) => {
     setStatus(session.status)
