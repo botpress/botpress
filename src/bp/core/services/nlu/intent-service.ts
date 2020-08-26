@@ -8,7 +8,7 @@ import { GhostService } from '..'
 const FLOWS_DIR = './flows'
 
 export class IntentService {
-  constructor(private ghostService: GhostService) {}
+  constructor(private ghostService: GhostService) { }
 
   public async getIntents(botId: string): Promise<sdk.NLU.IntentDefinition[]> {
     const intentsFromFiles = await this.getIntentsFromFiles(botId)

@@ -181,7 +181,7 @@ export default class Storage {
         enabled: i.enabled,
         lastModifiedOn: i.id === item.id ? new Date() : i.lastModified
       }
-    }))
+    })).filter(i => i.metadata.enabled)
 
     await this.ghost.upsertFile(FLOW_FOLDER, toQnaFile(topicName), serialize(intents))
     return item.id
@@ -233,12 +233,7 @@ export default class Storage {
   }
 
   async importPerTopic(importArgs: ImportArgs) {
-    const { topicName, botId, zipFile, override, clean } = importArgs
-
-    if (clean) {
-      const questions = await this.fetchItems(topicName)
-      await Promise.map(questions, q => this.deleteSingleItem(topicName, q.id))
-    }
+    const { topicName, botId, zipFile } = importArgs
 
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
     await fse.writeFile(path.join(tmpDir.name, toZipFile(topicName)), zipFile)

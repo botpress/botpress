@@ -11,6 +11,7 @@ export interface HeaderProps {
 export interface HeaderButtonProps {
   onClick?: () => void
   icon?: IconName
+  content?: any
   optionsItems?: MoreOptionsItems[]
   disabled?: boolean
   tooltip?: string

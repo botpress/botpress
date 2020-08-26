@@ -11,8 +11,6 @@ export interface ImportArgs {
   topicName: string
   botId: string
   zipFile: Buffer
-  override: boolean
-  clean: boolean
 }
 
 export default async (bp: typeof sdk, bots: ScopedBots) => {
@@ -134,9 +132,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
       const importArgs: ImportArgs = {
         topicName: req.params.topicName,
         botId: req.params.botId,
-        zipFile: req.file.buffer,
-        override: false,
-        clean: req.body.action === 'clear_insert'
+        zipFile: req.file.buffer
       }
       await storage.importPerTopic(importArgs)
       jsonRequestStatuses[statusId] = 'module.qna.import.uploadSuccessful'

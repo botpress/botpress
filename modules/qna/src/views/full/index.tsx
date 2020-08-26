@@ -1,4 +1,4 @@
-import { Spinner, IconName, FileInput } from '@blueprintjs/core'
+import { Spinner, IconName, Icon } from '@blueprintjs/core'
 import { EmptyState, HeaderButtonProps, lang, MainContent, confirmDialog } from 'botpress/shared'
 import { AccessControl, Downloader, reorderFlows, toastFailure, toastSuccess } from 'botpress/utils'
 import cx from 'classnames'
@@ -23,11 +23,9 @@ const QnAList: FC<Props> = ({
 }) => {
   const [flows, setFlows] = useState([])
   const [questionSearch, setQuestionSearch] = useState('')
-  const [uploadFile, setUploadFile] = useState<any>()
   const [currentTab, setCurrentTab] = useState('qna')
   const [currentLang, setCurrentLang] = useState(contentLang)
   const [url, setUrl] = useState('')
-  const formInput = useRef(null);
   const debounceDispatchMiddleware = useCallback(debounce(dispatchMiddleware, 300), [])
   const wrapperRef = useRef<HTMLDivElement>()
   const [state, dispatch] = useReducer(fetchReducer, {
@@ -45,7 +43,6 @@ const QnAList: FC<Props> = ({
 
   useEffect(() => {
     wrapperRef.current.addEventListener('scroll', handleScroll)
-
     fetchData()
       .then(() => { })
       .catch(() => { })
@@ -77,7 +74,6 @@ const QnAList: FC<Props> = ({
           .catch(() => { })
       }
     }, 300)
-
     return () => clearTimeout(timer)
   }, [questionSearch])
 
@@ -95,24 +91,16 @@ const QnAList: FC<Props> = ({
     })
   }
 
-  const startDownload = () => {
-    setUrl(`${window['BOT_API_PATH']}/mod/qna/${topicName}/export`)
-  }
+  const startDownload = () => { setUrl(`${window['BOT_API_PATH']}/mod/qna/${topicName}/export`) }
 
   const handleScroll = () => {
     if (wrapperRef.current.scrollHeight - wrapperRef.current.scrollTop !== wrapperRef.current.offsetHeight) {
       return
     }
-
     dispatch({ type: 'fetchMore' })
   }
 
-  const tabs = [
-    {
-      id: 'qna',
-      title: lang.tr('module.qna.fullName')
-    }
-  ]
+  const tabs = [{ id: 'qna', title: lang.tr('module.qna.fullName') }]
 
   const allExpanded = Object.keys(expandedItems).filter(itemId => expandedItems[itemId]).length === items.length
 
@@ -160,7 +148,6 @@ const QnAList: FC<Props> = ({
     }
   ]
 
-  // if (!isLite) {
   buttons.push(
     {
       icon: 'export',
@@ -169,15 +156,23 @@ const QnAList: FC<Props> = ({
       tooltip: noItemsTooltip || lang.tr('exportToJson')
     },
     {
+      content: (
+        <span className={style.uploadWrapper}>
+          <Icon className={style.fakeIconInput} icon={'import' as IconName} />
+          <input
+            type="file"
+            className={style.fakeInput}
+            onChange={e => {
+              if ((e.target as HTMLInputElement).files) {
+                askUploadOptions((e.target as HTMLInputElement).files[0])
+              }
+            }} />
+        </span>
+      ),
       icon: 'import',
-      onClick: () => {
-        formInput.current!.click()
-        askUploadOptions()
-      },
       tooltip: lang.tr('importJson')
     }
   )
-  // }
 
   buttons.push({
     icon: 'plus',
@@ -187,22 +182,16 @@ const QnAList: FC<Props> = ({
     tooltip: lang.tr('module.qna.form.addQuestion')
   })
 
-  const askUploadOptions = async () => {
-    if (await confirmDialog(`Are you sure you want to import ${uploadFile.name} ?`, { acceptLabel: "Yes", declineLabel: "No" })) {
-      // TODO beautiful asking for clean and override
-      if (await confirmDialog(`clean import ?`, { acceptLabel: "Yes" })) {
-        importTar(uploadFile, 'clean-insert')
-      } else {
-        importTar(uploadFile, 'insert')
-      }
+  const askUploadOptions = async (uploadFile) => {
+    if (await confirmDialog(`${uploadFile.name} : ${lang.tr('module.qna.import.insertNewQuestions')} ?`, { acceptLabel: "Yes", declineLabel: "No" })) {
+      importTar(uploadFile)
     }
   }
 
-  const importTar = async (file, action) => {
+  const importTar = async file => {
     try {
       const form = new FormData()
       form.append('file', file)
-      form.append('action', action)
       const { data } = await bp.axios.post(`/mod/qna/${topicName}/import`, form, bp.axiosConfig)
       const uploadStatusId = data
 
@@ -243,14 +232,6 @@ const QnAList: FC<Props> = ({
     <AccessControl resource="module.qna" operation="write">
       <MainContent.Wrapper className={style.embeddedInFlow} childRef={ref => (wrapperRef.current = ref)}>
         <MainContent.Header className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
-        <input
-          type='file'
-          onChange={e => { if ((e.target as HTMLInputElement).files) { setUploadFile((e.target as HTMLInputElement).files[0]) } }}
-          // inputProps={{ accept: '.tar.gz' }}
-          id="filePicker"
-          ref={formInput}
-          style={{ display: 'none' }}
-        />
         <div className={style.searchWrapper}>
           <input
             className={style.input}
