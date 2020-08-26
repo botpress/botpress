@@ -181,6 +181,7 @@
         "add": "ajouter",
         "addAction": "Ajouter une nouvelle action",
         "addCondition": "Ajouter une condition",
+        "addMessage": "Ajouter un message",
         "cantSeeActions": "Vous ne voyez pas votre action?",
         "chatbotExecutes": "L'assistant virtuel exécute",
         "chatbotSays": "L'assistant virtuel dit",

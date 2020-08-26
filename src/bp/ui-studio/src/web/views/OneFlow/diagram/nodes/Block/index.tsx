@@ -30,6 +30,7 @@ interface Props {
   getConditions: () => DecisionTriggerCondition[]
   switchFlowNode: (id: string) => void
   addCondition: () => void
+  addMessage: () => void
   getCurrentLang: () => string
   getExpandedNodes: () => string[]
   setExpanded: (id: string, expanded: boolean) => void
@@ -57,6 +58,7 @@ const BlockWidget: FC<Props> = ({
   getConditions,
   switchFlowNode,
   addCondition,
+  addMessage,
   getCurrentLang,
   getExpandedNodes,
   setExpanded
@@ -83,6 +85,14 @@ const BlockWidget: FC<Props> = ({
             text={lang.tr('studio.flow.node.addCondition')}
             onClick={() => {
               addCondition()
+            }}
+          />
+        )}
+        {nodeType === 'say_something' && (
+          <MenuItem
+            text={lang.tr('studio.flow.node.addMessage')}
+            onClick={() => {
+              addMessage()
             }}
           />
         )}
@@ -268,6 +278,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
   private updateFlowNode: (props: AllPartialNode) => void
   private switchFlowNode: (id: string) => void
   private addCondition: () => void
+  private addMessage: () => void
   private getCurrentLang: () => string
   private getExpandedNodes: () => string[]
   private setExpandedNodes: (id: string, expanded: boolean) => void
@@ -283,6 +294,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
     this.getConditions = methods.getConditions
     this.switchFlowNode = methods.switchFlowNode
     this.addCondition = methods.addCondition
+    this.addMessage = methods.addMessage
     this.getCurrentLang = methods.getCurrentLang
     this.getExpandedNodes = methods.getExpandedNodes
     this.setExpandedNodes = methods.setExpandedNodes
@@ -301,6 +313,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
         getConditions={this.getConditions}
         switchFlowNode={this.switchFlowNode}
         addCondition={this.addCondition}
+        addMessage={this.addMessage}
         getExpandedNodes={this.getExpandedNodes}
         setExpanded={this.setExpandedNodes}
       />
