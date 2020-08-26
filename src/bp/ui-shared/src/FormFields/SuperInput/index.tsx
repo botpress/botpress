@@ -303,8 +303,6 @@ export default ({
                 suffix = prefix === '{{' ? '}}' : ''
               }
 
-              console.log(suffix)
-
               return (
                 <span
                   title={value}
