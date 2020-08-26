@@ -168,15 +168,16 @@ export const dispatchMiddleware = async (dispatch, action) => {
       const originalValue = qnaItem.data.enabled
 
       qnaItem.data.enabled = !originalValue
-
       if (!qnaItem.id.startsWith('qna-')) {
         try {
-          await bp.axios.post(`/mod/qna/${topicName}/questions/${qnaItem.id}`, _.omit(qnaItem.data, 'topicName',
-            'redirectFlow',
-            'redirectNode',
-            'action',
-            'lastModified'))
-        } catch {
+          await bp.axios.post(`/mod/qna/${topicName}/questions/${qnaItem.id}`,
+            _.omit(qnaItem.data,
+              'topicName',
+              'redirectFlow',
+              'redirectNode',
+              'action',
+              'lastModified'))
+        } catch (e) {
           qnaItem.data.enabled = originalValue
         }
       }

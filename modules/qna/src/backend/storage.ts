@@ -79,12 +79,12 @@ const ItemSchema = Joi.object().keys({
 const contentShema = Joi.object().keys({
   items: Joi.array().items(Joi.object().keys({
     image: Joi.string(),
-    title: Joi.object().pattern(Joi.string(), Joi.string().default(null)),
-    subtitle: Joi.object().pattern(Joi.string(), Joi.string().default(null)),
+    title: Joi.object().pattern(Joi.string(), Joi.string().allow(null)),
+    subtitle: Joi.object().pattern(Joi.string(), Joi.string().allow(null)),
     actions: Joi.array()
   })),
   image: Joi.string(),
-  title: Joi.object().pattern(Joi.string().max(2), Joi.string().default(null)).optional(),
+  title: Joi.object().pattern(Joi.string().max(2), Joi.string().allow(null)).optional(),
   markdown: Joi.boolean(),
   typing: Joi.boolean(),
   contentType: Joi.string()
@@ -93,14 +93,15 @@ const contentShema = Joi.object().keys({
 
 const QnASchema = Joi.object().keys({
   name: Joi.string(),
-  context: Joi.array().items(Joi.string()),
+  contexts: Joi.array().items(Joi.string()),
   filename: Joi.string(),
   slots: Joi.array(),
   utterances: Joi.object().pattern(Joi.string().max(2), Joi.array().items(Joi.string())),
   metadata: Joi.object().keys({
     answers: Joi.object().pattern(Joi.string().max(2), Joi.array().items(Joi.string())),
     contentAnswers: Joi.array().items(contentShema),
-    enabled: Joi.boolean()
+    enabled: Joi.boolean(),
+    lastModifiedOn: Joi.string().optional()
   })
 })
 
@@ -110,9 +111,10 @@ const FLOW_FOLDER = 'flows'
 const MEDIA_FOLDER = 'media'
 const TEMP_INTENT_FILENAME = 'exportable.qna.intents.json'
 const INTENT_FILENAME = 'qna.intents.json'
+const QNA_PATH_TO_ZIP = path.join(FLOW_FOLDER, TEMP_INTENT_FILENAME)
 
 const toQnaFile = topicName => path.join(topicName, INTENT_FILENAME)
-
+const toZipFile = topicName => `${topicName}.qna.tar.gz`
 const serialize = (intents: Intent[]) => JSON.stringify(intents, undefined, 2)
 
 const keepEndPath = path => path.split('/').slice(-2).join('/')
@@ -203,35 +205,29 @@ export default class Storage {
 
   async exportPerTopic(topicName: string) {
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
-    const zipName = path.join(tmpDir.name, `${topicName}.qna.tar.gz`)
+    const zipName = path.join(tmpDir.name, toZipFile(topicName))
     await mkdirp.sync(path.join(tmpDir.name, MEDIA_FOLDER))
 
     const jsonQnaForBot = await this.ghost.readFileAsObject<Intent[]>(FLOW_FOLDER, toQnaFile(topicName))
-    const jsonQna = jsonQnaForBot.map(i => {
+    const jsonQnaBotAgnostic = jsonQnaForBot.map(i => {
       const contentAnswers = [...i.metadata?.contentAnswers ?? []].map(c => removeBotPrefix(c))
       const metadata = { ...i.metadata, contentAnswers }
       return { ...i, metadata }
     })
 
-    const medias = _.chain(jsonQna)
+    const medias = _.chain(jsonQnaBotAgnostic)
       .flatMapDeep(item => item.metadata?.contentAnswers ?? [])
       .flatMap(c => c.items ? c.items : [c])
       .map(c => c.image)
       .value()
 
-    await this.ghost.upsertFile(FLOW_FOLDER, TEMP_INTENT_FILENAME, serialize(jsonQna))
 
-    const filesToZip = [...medias, path.join(FLOW_FOLDER, TEMP_INTENT_FILENAME)]
+    await mkdirp.sync(path.join(tmpDir.name, path.dirname(QNA_PATH_TO_ZIP)))
+    await fse.writeFile(path.join(tmpDir.name, QNA_PATH_TO_ZIP), Buffer.from(serialize(jsonQnaBotAgnostic)))
+    await Promise.all(medias.map(async mediaFile => await fse.writeFile(path.resolve(tmpDir.name, mediaFile), await this.ghost.readFileAsBuffer('/', mediaFile))))
 
-    for (const file of filesToZip) {
-      await mkdirp.sync(path.dirname(path.join(tmpDir.name, file)))
-      const buff = await this.ghost.readFileAsBuffer('/', file)
-      await fse.writeFile(path.resolve(tmpDir.name, file), buff)
-    }
-
-    await tar.create({ cwd: tmpDir.name, file: zipName, portable: true, gzip: true }, filesToZip)
+    await tar.create({ cwd: tmpDir.name, file: zipName, portable: true, gzip: true }, [...medias, QNA_PATH_TO_ZIP])
     const zipBuffer = await fse.readFile(zipName)
-    await this.ghost.deleteFile(FLOW_FOLDER, TEMP_INTENT_FILENAME)
     tmp.setGracefulCleanup()
     return zipBuffer
   }
@@ -245,16 +241,14 @@ export default class Storage {
     }
 
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
-    await fse.writeFile(path.join(tmpDir.name, `${topicName}.tar.gz`), zipFile)
-    await tar.extract({ cwd: tmpDir.name, file: path.join(tmpDir.name, `${topicName}.tar.gz`) })
-
-    let qnas = []
-
-    qnas = JSON.parse(await fse.readFile(path.join(tmpDir.name, FLOW_FOLDER, TEMP_INTENT_FILENAME), 'utf8'))
-    qnas = await QnASchema.validate(qnas)
+    await fse.writeFile(path.join(tmpDir.name, toZipFile(topicName)), zipFile)
+    await tar.extract({ cwd: tmpDir.name, file: path.join(tmpDir.name, toZipFile(topicName)) })
 
 
-    const qnaForBot = qnas.map(i => {
+    let qnasBotAgnostic = JSON.parse(await fse.readFile(path.join(tmpDir.name, FLOW_FOLDER, TEMP_INTENT_FILENAME), 'utf8'))
+    qnasBotAgnostic = await Joi.array().items(QnASchema).validate(qnasBotAgnostic)
+
+    const qnaForBot = qnasBotAgnostic.map(i => {
       const newContent = [...i.metadata.contentAnswers].map(c => addBotPrefix(c, botId))
       const newMetadata = { ...i.metadata, contentAnswers: newContent }
       return { ...i, contexts: [topicName], filename: path.join(topicName, INTENT_FILENAME), metadata: newMetadata }

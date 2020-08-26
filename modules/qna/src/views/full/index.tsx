@@ -24,10 +24,8 @@ const QnAList: FC<Props> = ({
   const [flows, setFlows] = useState([])
   const [questionSearch, setQuestionSearch] = useState('')
   const [uploadFile, setUploadFile] = useState<any>()
-  const [importStatus, setImportStatus] = useState({ id: '', status: '' })
   const [currentTab, setCurrentTab] = useState('qna')
   const [currentLang, setCurrentLang] = useState(contentLang)
-  const [importIcon, setImportIcon] = useState('import')
   const [url, setUrl] = useState('')
   const formInput = useRef(null);
   const debounceDispatchMiddleware = useCallback(debounce(dispatchMiddleware, 300), [])
@@ -171,7 +169,7 @@ const QnAList: FC<Props> = ({
       tooltip: noItemsTooltip || lang.tr('exportToJson')
     },
     {
-      icon: importIcon as IconName,
+      icon: 'import',
       onClick: () => {
         formInput.current!.click()
         askUploadOptions()
@@ -190,7 +188,7 @@ const QnAList: FC<Props> = ({
   })
 
   const askUploadOptions = async () => {
-    if (await confirmDialog(`Are you sure you want to import ${uploadFile.name} ?`, { acceptLabel: "Yes" })) {
+    if (await confirmDialog(`Are you sure you want to import ${uploadFile.name} ?`, { acceptLabel: "Yes", declineLabel: "No" })) {
       // TODO beautiful asking for clean and override
       if (await confirmDialog(`clean import ?`, { acceptLabel: "Yes" })) {
         importTar(uploadFile, 'clean-insert')
@@ -206,23 +204,19 @@ const QnAList: FC<Props> = ({
       form.append('file', file)
       form.append('action', action)
       const { data } = await bp.axios.post(`/mod/qna/${topicName}/import`, form, bp.axiosConfig)
-      setImportStatus({ id: data, status: 'uploading' })
-      setImportIcon('' as IconName)
+      const uploadStatusId = data
 
       const interval = setInterval(async () => {
-        const { data } = await bp.axios.get(`/mod/new_qna/long-jobs-status/${importStatus.id}`)
-        if (data.status === 'Completed') {
+        const { data } = await bp.axios.get(`/mod/qna/json-upload-status/${uploadStatusId}`)
+        if (data === 'module.qna.import.uploadSuccessful') {
           clearInterval(interval)
-          toastSuccess(lang.tr('module.qna.import.uploadSuccessful'))
-          setImportIcon('cloud' as IconName)
-        } else if (data.status.slice(0, 4) === 'Error') {
-          toastFailure(data.status)
+          toastSuccess(lang.tr(data))
+        } else if (data.split('.')[0] !== 'module') {
+          toastFailure(data)
           clearInterval(interval)
-          setImportIcon('delete' as IconName)
         }
       }, 500)
     } catch (err) {
-      setImportStatus({ id: '', status: '' })
       toastFailure(err.message)
     }
   }
@@ -250,6 +244,7 @@ const QnAList: FC<Props> = ({
       <MainContent.Wrapper className={style.embeddedInFlow} childRef={ref => (wrapperRef.current = ref)}>
         <MainContent.Header className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
         <input
+          type='file'
           onChange={e => { if ((e.target as HTMLInputElement).files) { setUploadFile((e.target as HTMLInputElement).files[0]) } }}
           // inputProps={{ accept: '.tar.gz' }}
           id="filePicker"

@@ -139,7 +139,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
         clean: req.body.action === 'clear_insert'
       }
       await storage.importPerTopic(importArgs)
-      jsonRequestStatuses[statusId] = 'Completed'
+      jsonRequestStatuses[statusId] = 'module.qna.import.uploadSuccessful'
     } catch (e) {
       bp.logger.attachError(e).error('JSON Import Failure')
       jsonRequestStatuses[statusId] = `Error: ${e.message}`
@@ -158,7 +158,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
   })
 
   router.get('/json-upload-status/:uploadStatusId', async (req: Request, res: Response) => {
-    res.end(jsonRequestStatuses[req.params.uploadStatusId])
+    res.send(jsonRequestStatuses[req.params.uploadStatusId])
   })
 
   const sendToastError = (action: string, error: string) => {
