@@ -144,7 +144,6 @@ export const dispatchMiddleware = async (dispatch, action) => {
 
         if (qnaItem.id.startsWith('qna-')) {
           try {
-            console.log('==>', qnaItem, action)
             const res = await bp.axios.post(`/mod/qna/${topicName}/questions`, cleanData)
             itemId = res.data[0]
             refreshQnaCount?.()
@@ -178,6 +177,7 @@ export const dispatchMiddleware = async (dispatch, action) => {
               'action',
               'lastModified'))
         } catch (e) {
+          console.log("ERROR  ", e)
           qnaItem.data.enabled = originalValue
         }
       }

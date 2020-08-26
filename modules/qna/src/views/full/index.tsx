@@ -157,11 +157,15 @@ const QnAList: FC<Props> = ({
     },
     {
       content: (
-        <span className={style.uploadWrapper}>
-          <Icon className={style.fakeIconInput} icon={'import' as IconName} />
-          <input
-            type="file"
-            className={style.fakeInput}
+        <span
+          className="uploadWrapper"
+          style={{ position: 'relative', overflow: 'hidden', height: '24px', width: '24px', display: 'block' }}
+        >
+          <Icon
+            icon={'import' as IconName}
+            style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
+          />
+          <input type="file" style={{ opacity: 0, position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}
             onChange={e => {
               if ((e.target as HTMLInputElement).files) {
                 askUploadOptions((e.target as HTMLInputElement).files[0])

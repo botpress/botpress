@@ -7,30 +7,6 @@
   }
 }
 
-.uploadWrapper { 
-  position: 'relative';
-  overflow: 'hidden';
-  height: '24px';
-  width: '24px';
-  display: 'block'
-}
-
-.fakeIconInput { 
-  position: 'absolute';
-  top: '50%';
-  left: '50%';
-  transform: 'translate(-50%, -50%)'; 
-}
-
-.fakeInput { 
-  opacity: 0;
-  position: 'absolute';
-  top: 0;
-  right: 0; 
-  bottom: 0;
-  left: 0;
-}
-
 :global(.qna-dialog) {
   display: flex;
   padding: 0 !important;

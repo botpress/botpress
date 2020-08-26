@@ -28,7 +28,7 @@ export class IntentService {
             return []
           })
       )
-    )
+    ).filter(i => i.metadata?.enabled)
   }
 
   private async getIntentsFromFlows(botId: string): Promise<sdk.NLU.IntentDefinition[]> {

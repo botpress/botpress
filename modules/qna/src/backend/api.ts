@@ -67,13 +67,11 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
       const { storage } = bots[req.params.botId]
       await storage.updateSingleItem(req.params.topicName, { ...req.body, id: req.params.id })
       const items = await storage.fetchItems(req.params.topicName)
-      const item = items.find(x => x.id === req.params.id)
-      if (!item) {
-        throw new Error(`Failed to update QnA "${req.params.id}"`)
-      }
-      res.send({ items: item })
+      res.send({ items })
     } catch (e) {
-      next(new Error(e.message))
+      bp.logger.attachError(e).error(`Error updating QnA #${req.params.id}`)
+      res.status(500).send(e.message || 'Error')
+      sendToastError('Update', e.message)
     }
   })
 
@@ -95,6 +93,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
       const { storage } = bots[req.params.botId]
       const items = await storage.fetchItems(req.params.topicName)
       const item = items.find(x => x.id === req.params.id)
+      console.log("ITEM  ", item)
       const payloads = await getQnaEntryPayloads(item, req.body.userLanguage, bots[req.params.botId].defaultLang)
       res.send([
         {

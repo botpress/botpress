@@ -12,8 +12,6 @@ interface CssExports {
   'empty': string;
   'errorIcon': string;
   'errorsList': string;
-  'fakeIconInput': string;
-  'fakeInput': string;
   'hasError': string;
   'header': string;
   'headerWrapper': string;
@@ -32,7 +30,6 @@ interface CssExports {
   'tag': string;
   'textarea': string;
   'textareaWrapper': string;
-  'uploadWrapper': string;
   'warning': string;
 }
 declare var cssExports: CssExports;

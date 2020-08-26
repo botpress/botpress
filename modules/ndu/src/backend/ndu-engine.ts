@@ -375,7 +375,7 @@ export class UnderstandingEngine {
       await Promise.map(qnaPaths, (qnaPath: string) =>
         this.bp.ghost.forBot(this.botId).readFileAsObject<sdk.NLU.IntentDefinition>('flows', qnaPath)
       )
-    )
+    ).filter(f => f.metadata?.enabled)
 
     const triggers: sdk.NDU.Trigger[] = []
 

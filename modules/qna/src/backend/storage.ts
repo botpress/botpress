@@ -151,7 +151,6 @@ export default class Storage {
       lastModified: intent.metadata?.lastModifiedOn
     }))
     return items
-
   }
 
   async updateSingleItem(topicName: string, item: Item): Promise<string> {
@@ -181,8 +180,7 @@ export default class Storage {
         enabled: i.enabled,
         lastModifiedOn: i.id === item.id ? new Date() : i.lastModified
       }
-    })).filter(i => i.metadata.enabled)
-
+    }))
     await this.ghost.upsertFile(FLOW_FOLDER, toQnaFile(topicName), serialize(intents))
     return item.id
   }
