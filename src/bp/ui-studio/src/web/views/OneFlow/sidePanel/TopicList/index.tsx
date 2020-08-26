@@ -138,11 +138,10 @@ const TopicList: FC<Props> = props => {
   }
 
   const duplicateTopic = async (name: string) => {
-    const matcher = new RegExp(`^${name}/`)
-    const flowsToCopy = props.flowsName.filter(x => matcher.test(x.name))
+    const flowsToCopy = props.flowsName.filter(x => parseFlowName(x.name).topic === name)
     const newName = nextTopicName(props.topics, name)
 
-    await axios.post(`${window.BOT_API_PATH}/topic`, { name: newName, description: undefined })
+    await axios.post(`${window.BOT_API_PATH}/topic`, { name: newName })
     props.fetchTopics()
 
     for (const flow of flowsToCopy) {
