@@ -132,7 +132,7 @@ export class StateManager {
     const sessionId = SessionIdFactory.createIdFromEvent(event)
 
     if (!lastMessages.find(x => x.eventId === event.id)) {
-      addLogToEvent(`No message was sent by the bot`, event)
+      addLogToEvent(`No messages were sent by the bot`, event)
 
       if (_.isEmpty(event.state.context)) {
         addLogToEvent(`End of workflow`, event)
