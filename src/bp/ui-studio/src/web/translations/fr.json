@@ -50,7 +50,11 @@
     "ready": "Prêt",
     "cancelTraining": "Annuler l'entraînement",
     "canceling": "Annulation en cours",
-    "trainingError": "L'agent ne peut pas être entraîné"
+    "trainingError": "L'agent ne peut pas être entraîné",
+    "configChangedDialog": "Les configurations de Botpress ont été changées, veuillez redémarer le serveur pour appliquer ces changements.",
+    "reboot": "Redémarrer le Serveur",
+    "rebooting": "Redémarrage",
+    "applyConfigs": "Appliquer les Configurations"
   },
   "studio": {
     "router": {
@@ -183,6 +187,7 @@
         "add": "ajouter",
         "addAction": "Ajouter une nouvelle action",
         "addCondition": "Ajouter une condition",
+        "addMessage": "Ajouter un message",
         "cantSeeActions": "Vous ne voyez pas votre action?",
         "chatbotExecutes": "L'assistant virtuel exécute",
         "chatbotSays": "L'assistant virtuel dit",
@@ -288,6 +293,7 @@
         "nameInUse": "Nom déjà utilisé",
         "nameInUseMessage": "Un flow portant ce nom existe déjà. Veuillez en choisir un autre.",
         "node": "Nœud",
+        "noSearchMatch": "Désolé, aucun résultat ne correspond aux critères de recherche.",
         "renameFlow": "Renommer le flow",
         "importTopic": "Importer sujet",
         "addTopic": "Ajouter sujet",

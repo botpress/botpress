@@ -11,7 +11,7 @@ import {
   Toaster
 } from '@blueprintjs/core'
 import { FlowVariable, NodeTransition } from 'botpress/sdk'
-import { Contents, contextMenu, Icons, EmptyState, Icons, lang, MainContent, toast } from 'botpress/shared'
+import { Contents, contextMenu, EmptyState, Icons, Icons, lang, MainContent, toast } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
@@ -170,6 +170,7 @@ class Diagram extends Component<Props> {
       getCurrentLang: () => this.getStateProperty('currentLang'),
       getConditions: () => this.getPropsProperty('conditions'),
       addCondition: this.addCondition.bind(this),
+      addMessage: this.addMessage.bind(this),
       getExpandedNodes: () => this.getStateProperty('expandedNodes'),
       setExpandedNodes: this.updateExpandedNodes.bind(this)
     }
@@ -325,6 +326,12 @@ class Diagram extends Component<Props> {
     }
   }
 
+  getTextFields = () => {
+    const { fields, advancedSettings } =
+      this.props.contentTypes.find(contentType => contentType.id === 'builtin_text')?.schema?.newJson || {}
+    return [...(fields || []), ...(advancedSettings || [])]
+  }
+
   add = {
     flowNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'standard' }),
     skillNode: (point: Point, skillId: string) => this.props.buildSkill({ location: point, id: skillId }),
@@ -339,15 +346,14 @@ class Diagram extends Component<Props> {
       })
     },
     say: (point: Point, moreProps) => {
-      const { fields, advancedSettings } =
-        this.props.contentTypes.find(contentType => contentType.id === 'builtin_text')?.schema?.newJson || {}
-      const schemaFields = [...(fields || []), ...(advancedSettings || [])]
-
       this.props.createFlowNode({
         ...point,
         type: 'say_something',
         contents: [
-          { contentType: 'builtin_text', ...Contents.createEmptyDataFromSchema(schemaFields, this.state.currentLang) }
+          {
+            contentType: 'builtin_text',
+            ...Contents.createEmptyDataFromSchema(this.getTextFields(), this.state.currentLang)
+          }
         ],
         next: [defaultTransition],
         isNew: true,
@@ -664,18 +670,15 @@ class Diagram extends Component<Props> {
     return this.props[propertyName]
   }
 
-  addCondition(nodeType) {
-    if (nodeType === 'trigger') {
-      this.props.updateFlowNode({ conditions: [...this.props.currentFlowNode.conditions, { params: {} }] })
-    } else if (nodeType === 'router') {
-      const next = this.props.currentFlowNode.next
-      const lastItem = next.length - 1
+  addCondition() {
+    this.props.updateFlowNode({ conditions: [...this.props.currentFlowNode.conditions, { params: {} }] })
+  }
 
-      // Inserting before the last element to keep "otherwise" at the end
-      this.props.updateFlowNode({
-        next: [...next.slice(0, lastItem), { condition: '', node: '' }, ...next.slice(lastItem)]
-      })
-    }
+  addMessage() {
+    const schema = Contents.createEmptyDataFromSchema(this.getTextFields(), this.state.currentLang)
+    this.props.updateFlowNode({
+      contents: [...this.props.currentFlowNode.contents, { contentType: 'builtin_text', ...schema }]
+    })
   }
 
   switchFlowNode(nodeId) {
@@ -784,6 +787,8 @@ class Diagram extends Component<Props> {
     const data = JSON.parse(event.dataTransfer.getData('diagram-node'))
 
     const point = this.manager.getRealPosition(event)
+    const target = this.diagramWidget.getMouseElement(event)
+    const targetNodeType = target?.model['nodeType']
 
     if (data.type === 'chip') {
       const target = this.diagramWidget.getMouseElement(event)
@@ -795,13 +800,25 @@ class Diagram extends Component<Props> {
     } else if (data.type === 'node') {
       switch (data.id) {
         case 'trigger':
-          this.add.triggerNode(point, {})
+          if (targetNodeType === 'trigger') {
+            await this.props.switchFlowNode(target.model.id)
+            this.addCondition()
+          } else {
+            this.add.triggerNode(point, {})
+          }
+
           break
         case 'prompt':
           this.add.promptNode(point, '')
           break
         case 'say_something':
-          this.add.say(point, {})
+          if (targetNodeType === 'say_something') {
+            await this.props.switchFlowNode(target.model.id)
+            this.addMessage()
+          } else {
+            this.add.say(point, {})
+          }
+
           break
         case 'execute':
           this.add.executeNode(point, data.contentId ? { onReceive: [`${data.contentId}`] } : {})
@@ -868,17 +885,9 @@ class Diagram extends Component<Props> {
       node: { contents },
       index
     } = this.state.editingNodeItem
-    const newContents = [...contents]
+    const newContents = [...contents.filter((_, i) => index !== i)]
 
-    newContents[index] = Object.keys(newContents[index]).reduce((acc, lang) => {
-      if (lang !== this.state.currentLang) {
-        acc = { ...acc, [lang]: { ...newContents[index][lang] } }
-      }
-
-      return acc
-    }, {})
-
-    if (isContentEmpty(newContents[index])) {
+    if (!newContents.length) {
       this.deleteSelectedElements()
     } else {
       this.props.updateFlowNode({ contents: newContents })

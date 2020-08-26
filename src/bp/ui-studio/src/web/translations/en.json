@@ -50,7 +50,11 @@
     "ready": "Ready",
     "cancelTraining": "Cancel Training",
     "canceling": "Canceling",
-    "trainingError": "Cannot train Chatbot"
+    "trainingError": "Cannot train Chatbot",
+    "configChangedDialog": "Changes were made to Botpress configurations, restart your server to apply those changes.",
+    "reboot": "Restart Server",
+    "rebooting": "Restarting",
+    "applyConfigs": "Apply Configurations"
   },
   "studio": {
     "router": {
@@ -184,6 +188,7 @@
         "add": "add",
         "addAction": "Add new action",
         "addCondition": "Add Condition",
+        "addMessage": "Add Message",
         "cantSeeActions": "Can't see your action?",
         "chatbotExecutes": "Chatbot Executes",
         "chatbotSays": "Chatbot Says",
@@ -290,6 +295,7 @@
         "nameInUse": "Name already in use",
         "nameInUseMessage": "A flow with that name already exists. Please choose another one.",
         "node": "Node",
+        "noSearchMatch": "Sorry, no results match the search criteria.",
         "renameFlow": "Rename Flow",
         "importTopic": "Import Topic",
         "addTopic": "Add Topic",

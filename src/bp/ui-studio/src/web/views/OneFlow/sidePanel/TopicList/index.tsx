@@ -17,6 +17,7 @@ import { buildFlowName } from '../../../../util/workflows'
 import style from './style.scss'
 import EmptyStateIcon from './EmptyStateIcon'
 import TreeItem from './TreeItem'
+import SearchIcon from './SearchIcon'
 
 const lockedFlows = ['misunderstood.flow.json', 'error.flow.json', 'workflow_ended.flow.json']
 
@@ -389,13 +390,20 @@ const TopicList: FC<Props> = props => {
           onChange={setFilter}
         />
       )}
-      {isEmpty && (
-        <EmptyState
-          className={style.emptyState}
-          icon={<EmptyStateIcon />}
-          text={lang.tr('studio.flow.sidePanel.tapIconsToAdd')}
-        />
-      )}
+      {isEmpty &&
+        (!!filter.length ? (
+          <EmptyState
+            className={style.emptyState}
+            icon={<SearchIcon />}
+            text={lang.tr('studio.flow.sidePanel.noSearchMatch')}
+          />
+        ) : (
+          <EmptyState
+            className={style.emptyState}
+            icon={<EmptyStateIcon />}
+            text={lang.tr('studio.flow.sidePanel.tapIconsToAdd')}
+          />
+        ))}
       {getFlattenFlows(newFlows).map(item => printTree(item, 0))}
     </div>
   )
