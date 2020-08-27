@@ -1,25 +1,23 @@
 import { Operation } from './Operation'
 
 export const serializeOperation = (operation: Operation): string => {
-  let args: string = `{`
+  let args: string = ``
   let isFirst = true
 
-  for (const [key, value] of Object.entries(operation.args)) {
+  for (const arg of operation.args) {
     let expr: string = ''
-    const strValue = `${value || ''}`
+    const value = arg || ''
 
-    if (/^\$[a-zA-Z][a-zA-Z0-9_-]*$/g.test(strValue)) {
-      expr = `${strValue}.value`
+    if (/^\$[a-zA-Z][a-zA-Z0-9_-]*$/g.test(value)) {
+      expr = `${value}.value`
     } else {
-      const escapedValue = strValue?.replace(/'/gs, "\\'") || ''
+      const escapedValue = value?.replace(/'/gs, "\\'") || ''
       expr = `$${operation.variable}.parse('${escapedValue}')`
     }
 
-    args = `${args}${isFirst ? '' : ','}${key}:${expr}`
+    args = `${args}${isFirst ? '' : ', '}${expr}`
     isFirst = false
   }
-
-  args = `${args}}`
 
   return `${operation.negate ? '!' : ''}$${operation.variable}.${operation.operator}(${args})`
 }

@@ -13,11 +13,11 @@ class BoxedBoolean extends BaseVariable<boolean> {
     return yn(text)
   }
 
-  isTrue(args: any) {
+  isTrue() {
     return this.value
   }
 
-  isFalse(args: any) {
+  isFalse() {
     return !this.value
   }
 

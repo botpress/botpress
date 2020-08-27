@@ -24,62 +24,51 @@ export class OperationParser {
     return match.replace('.', '').replace('(', '')
   }
 
-  parseArgs(expression: string): { [key: string]: any } {
-    // Matches ({ something : something })
-    //         X-------------------------X
+  parseArgs(expression: string): string[] {
+    // Matches (something, something)
+    //         X--------------------X
     let argsSection = expression.match(/\(.*\)/gs)[0]
     argsSection = argsSection.substr(1, argsSection.length - 2)
 
-    const statementsStart = argsSection.indexOf('{')
-    const statementsEnd = argsSection.lastIndexOf('}')
-    const statementsSection = argsSection.substring(statementsStart + 1, statementsEnd)
-
-    // Matches { something: something, something: something }
-    //           ---------  ---------  ---------  ---------
-    const statements = []
+    // Matches something, something, something
+    //         ---------  ---------  ---------
+    const args = []
     let startIndex = 0
     let inString = false
     let escaping = false
 
-    const pushStatement = (i: number) => {
+    const pushArg = (i: number) => {
       if (i - startIndex > 0) {
-        statements.push(statementsSection.substr(startIndex, i - startIndex).trim())
+        args.push(argsSection.substr(startIndex, i - startIndex).trim())
       }
       startIndex = i + 1
     }
 
-    for (let i = 0; i < statementsSection.length; i++) {
-      const c = statementsSection[i]
+    for (let i = 0; i < argsSection.length; i++) {
+      const c = argsSection[i]
       if (c === "'" && !escaping) {
         inString = !inString
-      } else if (!inString && (c === ',' || c === ':')) {
-        pushStatement(i)
+      } else if (!inString && c === ',') {
+        pushArg(i)
       }
       escaping = c === '\\'
     }
-    pushStatement(statementsSection.length)
+    pushArg(argsSection.length)
 
-    for (const statement of statements) {
-      let escaped = JSON.stringify([statement])
-      escaped = escaped.substr(2, escaped.length - 4)
-      argsSection = argsSection.replace(statement, `"${escaped}"`)
-    }
-
-    const args = JSON.parse(argsSection) as { [key: string]: any }
-
-    for (let [key, value] of Object.entries(args)) {
-      // Matches operator('val')
-      //                  X---X
-      const harcodedMatch = value.match(/'.*'/gs)?.[0]
+    for (let i = 0; i < args.length; i++) {
+      let arg = args[i]
+      // Matches 'val'
+      //         X---X
+      const harcodedMatch = arg.match(/'.*'/gs)?.[0]
       if (harcodedMatch) {
-        value = harcodedMatch.substr(1, harcodedMatch.length - 2).replace(/\\'/gs, "'")
+        arg = harcodedMatch.substr(1, harcodedMatch.length - 2).replace(/\\'/gs, "'")
       } else {
         // Matches $something
         //         ----------
-        value = value.match(/\$[a-zA-Z][a-zA-Z0-9_-]*/g)[0]
+        arg = arg.match(/\$[a-zA-Z][a-zA-Z0-9_-]*/g)[0]
       }
 
-      args[key] = value
+      args[i] = arg
     }
 
     return args

@@ -19,7 +19,7 @@ class BoxedDate extends BaseVariable<BoxedDateType, DateConfig> {
     return moment(text).toDate()
   }
 
-  equals({ other }: { other: Date }) {
+  equals(other: Date) {
     return (
       moment(this.value)
         .toDate()
@@ -27,11 +27,11 @@ class BoxedDate extends BaseVariable<BoxedDateType, DateConfig> {
     )
   }
 
-  isBefore({ other }: { other: Date }) {
+  isBefore(other: Date) {
     return moment(this.value).toDate() < other
   }
 
-  isAfter({ other }: { other: Date }) {
+  isAfter(other: Date) {
     return moment(this.value).toDate() > other
   }
 

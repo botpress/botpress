@@ -60,7 +60,7 @@ export class BaseVariable<T, V = any> implements BoxedVariable<T, V> {
     return (this._value as any)?.toString()
   }
 
-  equals({ other }: { other: T }) {
+  equals(other: T) {
     return this.value === other
   }
 

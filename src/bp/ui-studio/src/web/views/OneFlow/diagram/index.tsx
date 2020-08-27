@@ -11,7 +11,7 @@ import {
   Toaster
 } from '@blueprintjs/core'
 import { FlowVariable, NodeTransition } from 'botpress/sdk'
-import { Contents, contextMenu, EmptyState, Icons, Icons, lang, MainContent, toast } from 'botpress/shared'
+import { Contents, contextMenu, EmptyState, Icons, lang, MainContent, toast } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'

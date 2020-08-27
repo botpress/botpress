@@ -1,6 +1,6 @@
 export interface Operation {
   variable: string
   operator: string
-  args: { [key: string]: any }
+  args: string[]
   negate: boolean
 }

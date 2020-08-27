@@ -13,15 +13,15 @@ class BoxedString extends BaseVariable<string> {
     return text.replace(/\\'/gs, "'")
   }
 
-  contains({ other }: { other: string }) {
+  contains(other: string) {
     return this.value.includes(other)
   }
 
-  startsWith({ other }: { other: string }) {
+  startsWith(other: string) {
     return this.value.startsWith(other)
   }
 
-  endsWith({ other }: { other: string }) {
+  endsWith(other: string) {
     return this.value.endsWith(other)
   }
 

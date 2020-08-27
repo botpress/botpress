@@ -12,19 +12,19 @@ class BoxedNumber extends BaseVariable<number> {
     return +text
   }
 
-  smallerThan({ other }: { other: number }) {
+  smallerThan(other: number) {
     return this.value < other
   }
 
-  smallerOrEqualTo({ other }: { other: number }) {
+  smallerOrEqualTo(other: number) {
     return this.value <= other
   }
 
-  largerThan({ other }: { other: number }) {
+  largerThan(other: number) {
     return this.value > other
   }
 
-  largerOrEqualTo({ other }: { other: number }) {
+  largerOrEqualTo(other: number) {
     return this.value >= other
   }
 
