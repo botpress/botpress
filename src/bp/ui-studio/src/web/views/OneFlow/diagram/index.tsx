@@ -1,15 +1,4 @@
-import {
-  Button,
-  ContextMenu,
-  ControlGroup,
-  InputGroup,
-  Menu,
-  MenuDivider,
-  MenuItem,
-  Position,
-  Tag,
-  Toaster
-} from '@blueprintjs/core'
+import { ContextMenu, Menu, MenuDivider, MenuItem, Position, Toaster } from '@blueprintjs/core'
 import { FlowVariable } from 'botpress/sdk'
 import { Contents, contextMenu, EmptyState, Icons, lang, MainContent, toast } from 'botpress/shared'
 import cx from 'classnames'
@@ -46,6 +35,7 @@ import {
   updateFlowProblems
 } from '~/actions'
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
+import { SearchBar } from '~/components/Shared/Interface'
 import { toastSuccess } from '~/components/Shared/Utils'
 import withLanguage from '~/components/Util/withLanguage'
 import {
@@ -90,14 +80,14 @@ import WorkflowToolbar from './WorkflowToolbar'
 
 interface OwnProps {
   childRef: (el: any) => void
-  showSearch: boolean
-  hideSearch: () => void
   readOnly: boolean
   canPasteNode: boolean
   selectedTopic: string
   selectedWorkflow: string
   flowPreview: boolean
   highlightFilter: string
+  showSearch: boolean
+  hideSearch: () => void
   handleFilterChanged: (event: any) => void
 }
 
@@ -143,13 +133,13 @@ class Diagram extends Component<Props> {
   private diagramEngine: ExtendedDiagramEngine
   private diagramWidget: DiagramWidget
   private diagramContainer: HTMLDivElement
+  private searchRef: React.Ref<HTMLInputElement>
   private manager: DiagramManager
   private timeout
   /** Represents the source port clicked when the user is connecting a node */
   private dragPortSource: any
 
   state = {
-    highlightFilter: '',
     editingNodeItem: null,
     currentLang: '',
     currentTab: 'workflow',
@@ -207,6 +197,7 @@ class Diagram extends Component<Props> {
         console.error('Error when switching flow or refreshing', err)
       }
     }
+    this.searchRef = React.createRef()
   }
 
   componentDidMount() {
@@ -223,6 +214,7 @@ class Diagram extends Component<Props> {
       deleteSelectedElements: this.deleteSelectedElements.bind(this),
       createFlow: this.createFlow.bind(this)
     })
+    // this.searchRef && this.props.showSearch && this.searchRef.focus()
   }
 
   componentWillUnmount() {
@@ -233,6 +225,12 @@ class Diagram extends Component<Props> {
   componentDidUpdate(prevProps, prevState) {
     this.manager.setCurrentFlow(this.props.currentFlow)
     this.manager.setReadOnly(this.props.readOnly)
+
+    if (!prevProps.showSearch && this.props.showSearch) {
+      debugger
+      // @ts-ignore
+      this.searchRef.current.focus()
+    }
 
     if (
       !prevState.editingNodeItem &&
@@ -274,7 +272,7 @@ class Diagram extends Component<Props> {
     }
 
     // Refresh nodes when the filter is displayed
-    if (this.props.highlightFilter && this.props.showSearch) {
+    if (this.props.highlightFilter) {
       this.manager.setHighlightedNodes(this.props.highlightFilter)
       this.manager.syncModel()
     }
@@ -286,7 +284,7 @@ class Diagram extends Component<Props> {
     }
 
     // Clear nodes when search field is hidden
-    if (!this.props.showSearch && prevProps.showSearch) {
+    if (!this.props.highlightFilter) {
       this.manager.setHighlightedNodes([])
       this.manager.syncModel()
     }
@@ -754,10 +752,6 @@ class Diagram extends Component<Props> {
     this.props.openFlowNodeProps()
   }
 
-  handleFilterChanged = event => {
-    this.setState({ highlightFilter: event.target.value })
-  }
-
   handleToolDropped = async (event: React.DragEvent) => {
     if (this.props.readOnly) {
       return
@@ -950,26 +944,6 @@ class Diagram extends Component<Props> {
     this.props.updateFlowNode({ subflow: data })
   }
 
-  renderSearch = () => {
-    return (
-      this.props.showSearch && (
-        <div className={style.floatingInfo}>
-          <ControlGroup>
-            <InputGroup
-              id="input-highlight-name"
-              tabIndex={1}
-              placeholder={lang.tr('studio.flow.highlightByName')}
-              value={this.props.highlightFilter}
-              onChange={this.props.handleFilterChanged}
-              autoFocus={true}
-            />
-            <Button icon="small-cross" onClick={this.props.hideSearch} />
-          </ControlGroup>
-        </div>
-      )
-    )
-  }
-
   render() {
     const { node, index, data } = this.state.editingNodeItem || {}
     const formType: string = node?.nodeType || node?.type || this.state.editingNodeItem?.type
@@ -1033,7 +1007,17 @@ class Diagram extends Component<Props> {
               onDrop={this.handleToolDropped}
               onDragOver={event => event.preventDefault()}
             >
-              {this.renderSearch()}
+              <div className={style.floatingInfo}>
+                <SearchBar
+                  // TODO change placeholder
+                  // TODO show search to the right
+                  ref={this.searchRef}
+                  onBlur={this.props.hideSearch}
+                  value={this.props.highlightFilter}
+                  placeholder={lang.tr('studio.flow.highlightByName')}
+                  onChange={this.props.handleFilterChanged}
+                />
+              </div>
               <DiagramWidget
                 ref={w => (this.diagramWidget = w)}
                 deleteKeys={[]}

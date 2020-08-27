@@ -90,10 +90,10 @@ export const SidePanelSection = (props: SidePanelSectionProps) => {
   )
 }
 
-export const SearchBar = (props: SearchBarProps) => {
+export const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>((props, ref) => {
   const [text, setText] = useState('')
   const handleTextChanged = e => {
-    setText(e.target.value)
+    props.value == undefined && setText(e.target.value)
     props.onChange && props.onChange(e.target.value)
   }
 
@@ -101,10 +101,13 @@ export const SearchBar = (props: SearchBarProps) => {
     <div className={cx(style.searchBar, props.className)}>
       <ControlGroup fill={true}>
         <InputGroup
+          // @ts-ignore: inputRef expects a callback ref but types won't match with forwarRef signature
+          inputRef={ref}
+          onBlur={props.onBlur || (() => {})}
           id={props.id}
           leftIcon={props.icon}
           placeholder={props.placeholder || 'Search'}
-          value={text}
+          value={props.value !== undefined ? props.value : text}
           onChange={handleTextChanged}
         />
         {props.showButton && (
@@ -118,7 +121,7 @@ export const SearchBar = (props: SearchBarProps) => {
       </ControlGroup>
     </div>
   )
-}
+})
 
 export const ItemList = (props: ItemListProps) => {
   return (
