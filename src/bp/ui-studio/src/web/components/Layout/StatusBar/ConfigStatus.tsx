@@ -67,9 +67,13 @@ const ConfigStatus = () => {
     }
   }
 
-  if (!isRestarting && !isDifferent) {
-    return null
-  } else if (isDifferent && !isRestarting) {
+  if (isRestarting) {
+    return (
+      <div className={style.item}>
+        <span className={style.message}>{lang.tr('statusBar.rebooting')}</span>
+      </div>
+    )
+  } else if (isDifferent) {
     return (
       <div className={style.item}>
         <ToolTip content={lang.tr('statusBar.applyConfigsTooltip')}>
@@ -77,12 +81,8 @@ const ConfigStatus = () => {
         </ToolTip>
       </div>
     )
-  } else if (isRestarting) {
-    return (
-      <div className={style.item}>
-        <span className={style.message}>{lang.tr('statusBar.rebooting')}</span>
-      </div>
-    )
+  } else {
+    return null
   }
 }
 
