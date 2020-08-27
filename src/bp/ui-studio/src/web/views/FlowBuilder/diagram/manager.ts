@@ -105,7 +105,7 @@ export class DiagramManager {
       return createNodeModel(node, {
         ...node,
         isStartNode: currentFlow.startNode === node.name,
-        isHighlighted: this.shouldHighlightNode(node.name)
+        isHighlighted: this.shouldHighlightNode(node)
       })
     })
 
@@ -119,8 +119,24 @@ export class DiagramManager {
     this.getLinksRequiringUpdate()
   }
 
-  shouldHighlightNode(nodeName): boolean {
-    return this.highlightedNodeNames && !!this.highlightedNodeNames.find(x => nodeName.includes(x))
+  shouldHighlightNode(node: NodeView): boolean {
+    if (_.isEmpty(this.highlightedNodeNames)) {
+      return false
+    }
+
+    return this.highlightedNodeNames
+      .map(q => {
+        // quick and dirty way to filter on node content
+        const candidates = [
+          node.name,
+          node.id,
+          JSON.stringify(node.contents || {}),
+          JSON.stringify(node.prompt?.params.question ?? {}),
+          JSON.stringify(node.conditions || {})
+        ]
+        return [q, candidates] as [string, string[]]
+      })
+      .some(([q, candidates]) => candidates.some(c => c.toLowerCase().includes(q.toLowerCase())))
   }
 
   // Syncs model with the store (only update changes instead of complete initialization)
@@ -156,7 +172,7 @@ export class DiagramManager {
           model.setData({
             ..._.pick(node, passThroughNodeProps),
             isStartNode: this.currentFlow.startNode === node.name,
-            isHighlighted: this.shouldHighlightNode(node.name)
+            isHighlighted: this.shouldHighlightNode(node)
           })
         }
       })
@@ -331,7 +347,7 @@ export class DiagramManager {
     const model = createNodeModel(node, {
       ...node,
       isStartNode: this.currentFlow.startNode === node.name,
-      isHighlighted: this.shouldHighlightNode(node.name)
+      isHighlighted: this.shouldHighlightNode(node)
     })
 
     this.activeModel.addNode(model)
@@ -350,7 +366,7 @@ export class DiagramManager {
     model.setData({
       ..._.pick(node, passThroughNodeProps),
       isStartNode: this.currentFlow.startNode === node.name,
-      isHighlighted: this.shouldHighlightNode(node.name)
+      isHighlighted: this.shouldHighlightNode(node)
     })
 
     model.setPosition(node.x, node.y)
