@@ -14,8 +14,6 @@ class TrainingStatusObserver {
   private session: NLU.TrainingSession
   private language: string
 
-  constructor() {}
-
   setLanguage(language: string) {
     this.language = language
   }
@@ -64,15 +62,11 @@ class TrainingStatusObserver {
 
   private notifyListeners(ts: NLU.TrainingSession, fromWebSocket: boolean) {
     this.session = ts
-    for (const listener of this.listeners) {
-      listener.cb(ts, fromWebSocket)
-    }
+    this.listeners.forEach(listener => listener.cb(ts, fromWebSocket))
   }
 
   private notifyError(err: Error) {
-    for (const listener of this.listeners) {
-      listener.error(err)
-    }
+    this.listeners.forEach(listener => listener.error(err))
   }
 
   fetchTrainingStatus = async () => {
