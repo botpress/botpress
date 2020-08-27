@@ -834,7 +834,12 @@ class Diagram extends Component<Props> {
           this.add.executeNode(point, data.contentId ? { onReceive: [`${data.contentId}`] } : {})
           break
         case 'router':
-          this.add.routerNode(point)
+          if (targetNodeType === 'router') {
+            await this.props.switchFlowNode(target.model.id)
+            this.addCondition(targetNodeType)
+          } else {
+            this.add.routerNode(point)
+          }
           break
         case 'action':
           this.add.actionNode(point)
