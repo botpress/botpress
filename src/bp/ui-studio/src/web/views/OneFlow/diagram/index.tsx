@@ -1083,6 +1083,7 @@ class Diagram extends Component<Props> {
               variables={this.props.variables}
               events={this.props.hints || []}
               contentLang={this.state.currentLang}
+              defaultLanguage={this.props.defaultLanguage}
               editingContent={index}
               formData={currentItem || getEmptyContent(currentItem)}
               onUpdate={this.updateNodeContent.bind(this)}
@@ -1105,6 +1106,7 @@ class Diagram extends Component<Props> {
               events={this.props.hints}
               formData={currentItem}
               contentLang={this.state.currentLang}
+              defaultLanguage={this.props.defaultLanguage}
               onUpdate={this.updateNodeCondition.bind(this)}
               onUpdateVariables={this.addVariable}
               close={() => {
@@ -1124,6 +1126,7 @@ class Diagram extends Component<Props> {
               variables={this.props.variables}
               onUpdateVariables={this.addVariable}
               contentLang={this.state.currentLang}
+              defaultLanguage={this.props.defaultLanguage}
               close={() => {
                 this.timeout = setTimeout(() => {
                   this.setState({ editingNodeItem: null })
@@ -1175,6 +1178,7 @@ class Diagram extends Component<Props> {
           {formType === 'variableType' && (
             <VariableTypesForm
               contentLang={this.state.currentLang}
+              defaultLanguage={this.props.defaultLanguage}
               customKey={data.id}
               formData={currentItem}
               variables={this.props.variables}
@@ -1190,6 +1194,7 @@ class Diagram extends Component<Props> {
             <VariableForm
               variables={this.props.variables}
               contentLang={this.state.currentLang}
+              defaultLanguage={this.props.defaultLanguage}
               customKey={`${node?.id}${node?.prompt?.type}`}
               deleteVariable={this.deleteVariable.bind(this)}
               formData={currentItem}

@@ -30,6 +30,7 @@ export default ({
   onBlur,
   className,
   value,
+  refValue,
   childRef,
   isFocused,
   placeholder

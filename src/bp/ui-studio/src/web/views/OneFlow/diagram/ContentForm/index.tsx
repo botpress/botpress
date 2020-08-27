@@ -21,6 +21,7 @@ interface Props {
   onUpdateVariables: (variable: FlowVariable) => void
   formData: FormData
   contentTypes: any
+  defaultLanguage: string
   contentLang: string
 }
 
@@ -28,6 +29,7 @@ const ContentForm: FC<Props> = ({
   contentTypes,
   customKey,
   editingContent,
+  defaultLanguage,
   close,
   formData,
   onUpdate,
@@ -124,12 +126,14 @@ const ContentForm: FC<Props> = ({
           <Contents.Form
             axios={axios}
             currentLang={contentLang}
+            defaultLanguage={defaultLanguage}
             mediaPath={`${window.BOT_API_PATH}/media`}
             overrideFields={{
               textOverride: props => (
                 <TextField
                   {...props}
                   currentLang={contentLang}
+                  defaultLanguage={defaultLanguage}
                   variables={variables}
                   events={events}
                   onUpdateVariables={onUpdateVariables}

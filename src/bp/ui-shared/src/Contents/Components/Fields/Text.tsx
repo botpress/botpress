@@ -13,9 +13,12 @@ const Text: FC<TextProps> = ({
   placeholder,
   field: { valueManipulation, type, min, max, maxLength },
   value,
+  refValue,
   childRef
 }) => {
   const [localValue, setLocalValue] = useState(value || getFieldDefaultValue({ type }))
+
+  console.log(refValue, value)
 
   useEffect(() => {
     setLocalValue(value ?? getFieldDefaultValue({ type }))

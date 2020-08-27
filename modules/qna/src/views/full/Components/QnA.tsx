@@ -340,6 +340,7 @@ const QnA: FC<Props> = props => {
           onUpdate={data => updateContentAnswers(data)}
           events={events}
           currentLang={contentLang}
+          defaultLanguage={defaultLanguage}
           close={closingKey => {
             setTimeout(() => {
               if (closingKey === editingContent.current) {

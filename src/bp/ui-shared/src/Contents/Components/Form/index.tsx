@@ -26,6 +26,7 @@ import style from './style.scss'
 import { FormProps } from './typings'
 
 const Form: FC<FormProps> = ({
+  defaultLanguage,
   currentLang,
   axios,
   mediaPath,
@@ -165,7 +166,7 @@ const Form: FC<FormProps> = ({
     }
   }
 
-  const renderSuperInput = (field, data, update) => {
+  const renderSuperInput = (field, data, update, refValue?) => {
     return (
       <SuperInput
         defaultVariableType={getVariableType(field.type)}
@@ -180,14 +181,34 @@ const Form: FC<FormProps> = ({
         onBlur={value => {
           update(value)
         }}
+        refValue={refValue}
         value={data}
       />
     )
   }
 
+  const getRefValue = (value, currentLang, defaultLanguage) => {
+    if (defaultLanguage === currentLang) {
+      return
+    }
+
+    if (currentLang !== defaultLanguage || !value[defaultLanguage]) {
+      const refLang = Object.keys(value).find(key => key !== currentLang && value[key])
+
+      return refLang && value[refLang]
+    }
+
+    return value[defaultLanguage]
+  }
+
   const printField = (field, data, parent?) => {
     let currentValue = data[field.key] ?? newFormData[field.key]
-    currentValue = field.translated ? currentValue?.[currentLang!] : currentValue
+    let refValue
+
+    if (field.translated) {
+      refValue = getRefValue(currentValue, currentLang, defaultLanguage)
+      currentValue = currentValue?.[currentLang!]
+    }
     const invalid = invalidFields?.find(x => x.field === field.key)
 
     switch (field.type) {
@@ -301,6 +322,7 @@ const Form: FC<FormProps> = ({
                 variables={variables}
                 events={events || []}
                 onUpdateVariables={onUpdateVariables}
+                refValue={refValue}
                 items={currentValue || ['']}
                 label={printLabel(field, currentValue, parent, currentLang)}
                 addBtnLabel={lang(field.group?.addLabel)}
@@ -323,6 +345,7 @@ const Form: FC<FormProps> = ({
                     }
                   })
                 }}
+                refValue={refValue}
                 items={currentValue || ['']}
                 label={printLabel(field, currentValue, parent, currentLang)}
                 addBtnLabel={lang(field.group?.addLabel)}
@@ -361,19 +384,24 @@ const Form: FC<FormProps> = ({
           <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)} invalid={invalid}>
             {printMoreInfo(field.moreInfo)}
             {showSuperInput(field, parent) ? (
-              renderSuperInput(field, currentValue, value => {
-                dispatch({
-                  type: 'updateField',
-                  data: {
-                    newFormData,
-                    field: field.key,
-                    lang: field.translated && currentLang,
-                    parent,
-                    value,
-                    onUpdate
-                  }
-                })
-              })
+              renderSuperInput(
+                field,
+                currentValue,
+                value => {
+                  dispatch({
+                    type: 'updateField',
+                    data: {
+                      newFormData,
+                      field: field.key,
+                      lang: field.translated && currentLang,
+                      parent,
+                      value,
+                      onUpdate
+                    }
+                  })
+                },
+                refValue
+              )
             ) : (
               <TextArea
                 placeholder={lang(field.placeholder)}
@@ -391,6 +419,7 @@ const Form: FC<FormProps> = ({
                     }
                   })
                 }}
+                refValue={refValue}
                 value={currentValue}
               />
             )}
@@ -457,6 +486,7 @@ const Form: FC<FormProps> = ({
             {overrideFields?.[field.overrideKey]?.({
               field,
               data,
+              refValue,
               label: printLabel(field, currentValue, currentLang),
               onChange: value => {
                 dispatch({
@@ -501,20 +531,25 @@ const Form: FC<FormProps> = ({
           <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)} invalid={invalid}>
             {printMoreInfo(field.moreInfo)}
             {showSuperInput(field, parent) ? (
-              renderSuperInput(field, currentValue, value => {
-                dispatch({
-                  type: 'updateField',
-                  data: {
-                    newFormData,
-                    field: field.key,
-                    type: field.type,
-                    lang: field.translated && currentLang,
-                    parent,
-                    value,
-                    onUpdate
-                  }
-                })
-              })
+              renderSuperInput(
+                field,
+                currentValue,
+                value => {
+                  dispatch({
+                    type: 'updateField',
+                    data: {
+                      newFormData,
+                      field: field.key,
+                      type: field.type,
+                      lang: field.translated && currentLang,
+                      parent,
+                      value,
+                      onUpdate
+                    }
+                  })
+                },
+                refValue
+              )
             ) : (
               <Text
                 placeholder={lang(field.placeholder)}
@@ -533,6 +568,7 @@ const Form: FC<FormProps> = ({
                   })
                 }}
                 field={field}
+                refValue={refValue}
                 value={currentValue}
               />
             )}

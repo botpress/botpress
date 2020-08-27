@@ -14,6 +14,7 @@ interface Props {
   prompts: Prompts
   variables: Variables
   customKey: string
+  defaultLanguage: string
   contentLang: string
   close: () => void
   onUpdate: (data: any) => void
@@ -24,6 +25,7 @@ interface Props {
 const PromptForm: FC<Props> = ({
   customKey,
   prompts,
+  defaultLanguage,
   contentLang,
   close,
   formData,
@@ -99,6 +101,7 @@ const PromptForm: FC<Props> = ({
           <div className={cx(style.fieldWrapper, style.contentTypeField)}>
             <Contents.Form
               currentLang={contentLang}
+              defaultLanguage={defaultLanguage}
               axios={axios}
               onUpdateVariables={onUpdateVariables}
               variables={variables}

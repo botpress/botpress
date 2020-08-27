@@ -1,4 +1,5 @@
 import { Position, Tooltip } from '@blueprintjs/core'
+import _isEqual from 'lodash/isEqual'
 import _uniqueId from 'lodash/uniqueId'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
@@ -32,14 +33,23 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
   label,
   onChange,
   moreInfo,
+  refValue,
   items,
   getPlaceholder,
   variables,
   events,
   onUpdateVariables
 }) => {
+  const getInitialItems = () => {
+    let localItems = [...items]
+    if (items.length < (refValue || []).length) {
+      localItems = localItems.filter(Boolean).concat(refValue!.slice(items.length - 1))
+    }
+    return localItems
+  }
+
   const [elRefs, setElRefs] = useState({})
-  const [localItems, setLocalItems] = useState([...items])
+  const [localItems, setLocalItems] = useState(getInitialItems())
   const skipBlur = useRef(false)
   const focusedElement = useRef(items.length)
   const itemIds = useRef(items.map(i => _uniqueId()))
@@ -99,6 +109,7 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
       if (localItems[index] !== undefined) {
         localItems[index] = convertToString(elRefs[index]?.DOM.originalInput.value)
         setLocalItems([...localItems])
+        console.log(_isEqual(localItems, refValue))
         onChange([...localItems])
       }
     } else {

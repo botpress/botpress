@@ -12,7 +12,8 @@ interface Props {
   onUpdateVariables?: (variable: FlowVariable) => void
   variables?: Variables
   events?: BotEvent[]
-  currentLang
+  currentLang: string
+  defaultLanguage: string
 }
 
 const TextAreaList: FC<Props> = ({
@@ -23,7 +24,8 @@ const TextAreaList: FC<Props> = ({
   variables,
   events,
   onUpdateVariables,
-  currentLang
+  currentLang,
+  defaultLanguage
 }) => {
   const [forceUpdateHeight, setForceUpdateHeight] = useState(false)
 
@@ -42,9 +44,24 @@ const TextAreaList: FC<Props> = ({
     })
   }
 
+  const getRefLang = (value, currentLang, defaultLanguage) => {
+    if (defaultLanguage === currentLang) {
+      return
+    }
+
+    if (currentLang !== defaultLanguage || !value[defaultLanguage]) {
+      return Object.keys(value).find(key => key !== currentLang && value[key])
+    }
+
+    return defaultLanguage
+  }
+
+  const refLang = getRefLang(data.text || {}, currentLang, defaultLanguage)
+
   return (
     <FormFields.SuperInputArray
       variables={variables}
+      refValue={[...[data.text?.[refLang] || ''], ...(data.variations?.[refLang] || [])]}
       events={events || []}
       onUpdateVariables={onUpdateVariables}
       label={label}
