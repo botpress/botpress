@@ -12,6 +12,8 @@ Botpress is an open-source all-in-one bot creation platform that provides all th
 - Skype
 - Website (Webchat)
 - Telegram
+- Smooch
+- Twilio
 
 Botpress is:
 
