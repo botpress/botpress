@@ -3,6 +3,15 @@ import _ from 'lodash'
 
 export const dialogConditions: sdk.Condition[] = [
   {
+    id: 'workflow_called',
+    label: 'module.ndu.conditions.workflowCalled',
+    description: `This workflow is called by another workflow`,
+    fields: [],
+    evaluate: (event, params) => {
+      return 0
+    }
+  },
+  {
     id: 'user_channel_is',
     label: 'module.ndu.conditions.userUsingChannel',
     description: `The user speaks on channel {channelName}`,

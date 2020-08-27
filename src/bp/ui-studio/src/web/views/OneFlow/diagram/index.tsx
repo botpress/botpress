@@ -11,7 +11,7 @@ import {
   Toaster
 } from '@blueprintjs/core'
 import { FlowVariable } from 'botpress/sdk'
-import { Contents, contextMenu, Icons, lang, MainContent } from 'botpress/shared'
+import { Contents, contextMenu, EmptyState, Icons, lang, MainContent, toast } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
@@ -33,6 +33,8 @@ import {
   insertNewSkillNode,
   openFlowNodeProps,
   pasteFlowNode,
+  refreshCallerFlows,
+  refreshEntities,
   refreshFlowsLinks,
   refreshHints,
   removeFlowNode,
@@ -46,13 +48,23 @@ import {
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { toastSuccess } from '~/components/Shared/Utils'
 import withLanguage from '~/components/Util/withLanguage'
-import { getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/reducers'
+import {
+  getAllFlows,
+  getCallerFlowsOutcomeUsage,
+  getCurrentFlow,
+  getCurrentFlowNode,
+  getPrompts,
+  getReusableWorkflows,
+  getVariables,
+  RootReducer
+} from '~/reducers'
 import storage from '~/util/storage'
 import {
   defaultTransition,
   DiagramManager,
   DIAGRAM_PADDING,
   nodeTypes,
+  outcomeNodeTypes,
   Point
 } from '~/views/FlowBuilder/diagram/manager'
 import { DeletableLinkFactory } from '~/views/FlowBuilder/diagram/nodes/LinkWidget'
@@ -66,8 +78,10 @@ import menuStyle from './style.scss'
 import ActionForm from './ActionForm'
 import ConditionForm from './ConditionForm'
 import ContentForm from './ContentForm'
+import EmptyStateIcon from './EmptyStateIcon'
 import ExecuteForm from './ExecuteForm'
 import PromptForm from './PromptForm'
+import SubWorkflowForm from './SubWorkflowForm'
 import Toolbar from './Toolbar'
 import VariablesEditor from './VariablesEditor'
 import VariableForm from './VariableForm'
@@ -155,6 +169,7 @@ class Diagram extends Component<Props> {
       getCurrentLang: () => this.getStateProperty('currentLang'),
       getConditions: () => this.getPropsProperty('conditions'),
       addCondition: this.addCondition.bind(this),
+      addMessage: this.addMessage.bind(this),
       getExpandedNodes: () => this.getStateProperty('expandedNodes'),
       setExpandedNodes: this.updateExpandedNodes.bind(this)
     }
@@ -199,6 +214,7 @@ class Diagram extends Component<Props> {
     this.props.fetchFlows()
     this.props.fetchPrompts()
     this.props.fetchVariables()
+    this.props.refreshEntities()
     this.props.fetchContentCategories()
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
@@ -233,10 +249,11 @@ class Diagram extends Component<Props> {
     }
 
     if (this.diagramContainer) {
-      this.manager.setDiagramContainer(this.diagramWidget, {
-        width: this.diagramContainer.offsetWidth,
-        height: this.diagramContainer.offsetHeight
-      })
+      const { offsetWidth, offsetHeight } = this.diagramContainer
+
+      if (offsetHeight !== 0 && offsetWidth !== 0) {
+        this.manager.setDiagramContainer(this.diagramWidget, { width: offsetWidth, height: offsetHeight })
+      }
     }
 
     if (this.dragPortSource && !prevProps.currentFlowNode && this.props.currentFlowNode) {
@@ -308,6 +325,12 @@ class Diagram extends Component<Props> {
     }
   }
 
+  getTextFields = () => {
+    const { fields, advancedSettings } =
+      this.props.contentTypes.find(contentType => contentType.id === 'builtin_text')?.schema?.newJson || {}
+    return [...(fields || []), ...(advancedSettings || [])]
+  }
+
   add = {
     flowNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'standard' }),
     skillNode: (point: Point, skillId: string) => this.props.buildSkill({ location: point, id: skillId }),
@@ -322,15 +345,14 @@ class Diagram extends Component<Props> {
       })
     },
     say: (point: Point, moreProps) => {
-      const { fields, advancedSettings } =
-        this.props.contentTypes.find(contentType => contentType.id === 'builtin_text')?.schema?.newJson || {}
-      const schemaFields = [...(fields || []), ...(advancedSettings || [])]
-
       this.props.createFlowNode({
         ...point,
         type: 'say_something',
         contents: [
-          { contentType: 'builtin_text', ...Contents.createEmptyDataFromSchema(schemaFields, this.state.currentLang) }
+          {
+            contentType: 'builtin_text',
+            ...Contents.createEmptyDataFromSchema(this.getTextFields(), this.state.currentLang)
+          }
         ],
         next: [defaultTransition],
         isNew: true,
@@ -341,7 +363,7 @@ class Diagram extends Component<Props> {
       this.props.createFlowNode({ ...point, type: 'execute', next: [defaultTransition], ...moreProps }),
     routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' }),
     actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action' }),
-    promptNode: (point: Point, promptType: string) => {
+    promptNode: (point: Point, promptType: string, subType?: string) => {
       this.props.createFlowNode({
         ...point,
         type: 'prompt',
@@ -350,7 +372,8 @@ class Diagram extends Component<Props> {
           type: promptType,
           params: {
             output: '',
-            question: {}
+            question: {},
+            subType
           }
         },
         next: [
@@ -371,6 +394,18 @@ class Diagram extends Component<Props> {
           }
         ]
       })
+    },
+    successNode: (point: Point) => {
+      this.props.createFlowNode({ ...point, type: 'success' })
+      this.props.refreshCallerFlows()
+    },
+    failureNode: (point: Point) => {
+      this.props.createFlowNode({ ...point, type: 'failure' })
+      this.props.refreshCallerFlows()
+    },
+    gotoSubWorkflow: (point: Point, flowName: string) => {
+      this.props.createFlowNode({ ...point, type: 'sub-workflow', flow: flowName })
+      this.props.refreshCallerFlows(flowName)
     }
   }
 
@@ -385,6 +420,8 @@ class Diagram extends Component<Props> {
       clearStartPortOnClose = false
       addNodeMethod(...args)
     }
+
+    const hasSubFlows = !!this.props.reusableFlows?.length
 
     contextMenu(
       event,
@@ -403,19 +440,32 @@ class Diagram extends Component<Props> {
           icon={<Icons.Say />}
         />
         <MenuItem tagName="span" text={lang.tr('prompt')} icon="citation">
-          {this.props.prompts.map(({ id, config }) => (
+          {this.props.prompts.display.map(({ type, subType, label, icon }) => (
             <MenuItem
-              key={id}
-              text={lang.tr(config.label)}
+              key={`${type}-${subType}`}
+              text={lang.tr(label)}
               tagName="button"
-              onClick={wrap(this.add.promptNode, point, id)}
-              icon={config.icon as any}
+              onClick={wrap(this.add.promptNode, point, type, subType)}
+              icon={icon as any}
             />
           ))}
         </MenuItem>
         <MenuItem text={lang.tr('execute')} onClick={wrap(this.add.executeNode, point)} icon="code" />
         <MenuItem text={lang.tr('ifElse')} onClick={wrap(this.add.routerNode, point)} icon="fork" />
         <MenuItem text={lang.tr('action')} onClick={wrap(this.add.actionNode, point)} icon="offline" />
+
+        {this.props.currentFlow?.type === 'reusable' && (
+          <MenuItem text="Outcome" icon="take-action">
+            <MenuItem text="Success" onClick={wrap(this.add.successNode, point)} icon="tick" />
+            <MenuItem text="Failure" onClick={wrap(this.add.failureNode, point)} icon="cross" />
+          </MenuItem>
+        )}
+
+        <MenuItem text="Go to Reusable Workflow" icon="pivot" disabled={!hasSubFlows}>
+          {this.props.reusableFlows?.map(flow => (
+            <MenuItem text={flow.workflow} onClick={wrap(this.add.gotoSubWorkflow, point, flow.workflowPath)} />
+          ))}
+        </MenuItem>
 
         <MenuItem tagName="span" text={lang.tr('skills')} icon="add">
           {this.props.skills.map(skill => (
@@ -613,12 +663,62 @@ class Diagram extends Component<Props> {
     return this.props[propertyName]
   }
 
-  addCondition(nodeId) {
+  addCondition() {
     this.props.updateFlowNode({ conditions: [...this.props.currentFlowNode.conditions, { params: {} }] })
+  }
+
+  addMessage() {
+    const schema = Contents.createEmptyDataFromSchema(this.getTextFields(), this.state.currentLang)
+    this.props.updateFlowNode({
+      contents: [...this.props.currentFlowNode.contents, { contentType: 'builtin_text', ...schema }]
+    })
   }
 
   switchFlowNode(nodeId) {
     this.props.switchFlowNode(nodeId)
+  }
+
+  canDeleteOutcome(type: string, nodeName?: string, toastReason?: boolean) {
+    const successCount = this.props.currentFlow.nodes.filter(x => x.type === 'success').length
+    const failureCount = this.props.currentFlow.nodes.filter(x => x.type === 'failure').length
+    const isUsed =
+      nodeName === undefined ? false : !!this.props.outcomeUsage?.find(x => x.condition === `lastNode=${nodeName}`)
+
+    if (isUsed) {
+      toastReason && toast.failure(lang.tr('studio.flow.cantDeleteOutcome'))
+      return false
+    }
+
+    if ((type === 'success' && successCount === 1) || (type === 'failure' && failureCount === 1)) {
+      toastReason && toast.failure(lang.tr('studio.flow.mustHaveOutcomes'))
+      return false
+    }
+
+    return true
+  }
+
+  deleteElement(element) {
+    if (this.diagramEngine.isModelLocked(element)) {
+      return
+    }
+
+    const type = element['nodeType']
+
+    if (outcomeNodeTypes.includes(type)) {
+      if (this.canDeleteOutcome(type, element['name'], true)) {
+        this.props.removeFlowNode(element)
+        this.props.refreshCallerFlows()
+      }
+    } else if (this.props.currentFlow.type === 'reusable' && this.props.currentFlow.startNode === element['name']) {
+      toast.failure(lang.tr('studio.flow.cantDeleteStartReusable'))
+    } else if (_.includes(nodeTypes, type) || _.includes(nodeTypes, element.type)) {
+      this.props.removeFlowNode(element)
+    } else if (element.type === 'default') {
+      element.remove()
+      this.checkForLinksUpdate()
+    } else {
+      element.remove() // it's a point or something else
+    }
   }
 
   deleteSelectedElements() {
@@ -627,20 +727,7 @@ class Diagram extends Component<Props> {
 
     // Use sorting to make the nodes first in the array, deleting the node before the links
     for (const element of elements) {
-      if (!this.diagramEngine.isModelLocked(element)) {
-        if (element.type === 'success') {
-          return alert(lang.tr('studio.flow.cantDeleteSuccess'))
-        } else if (element.type === 'failure') {
-          return alert(lang.tr('studio.flow.cantDeleteFailure'))
-        } else if (_.includes(nodeTypes, element['nodeType']) || _.includes(nodeTypes, element.type)) {
-          this.props.removeFlowNode(element)
-        } else if (element.type === 'default') {
-          element.remove()
-          this.checkForLinksUpdate()
-        } else {
-          element.remove() // it's a point or something else
-        }
-      }
+      this.deleteElement(element)
     }
 
     this.props.closeFlowNodeProps()
@@ -693,6 +780,8 @@ class Diagram extends Component<Props> {
     const data = JSON.parse(event.dataTransfer.getData('diagram-node'))
 
     const point = this.manager.getRealPosition(event)
+    const target = this.diagramWidget.getMouseElement(event)
+    const targetNodeType = target?.model['nodeType']
 
     if (data.type === 'chip') {
       const target = this.diagramWidget.getMouseElement(event)
@@ -704,13 +793,25 @@ class Diagram extends Component<Props> {
     } else if (data.type === 'node') {
       switch (data.id) {
         case 'trigger':
-          this.add.triggerNode(point, {})
+          if (targetNodeType === 'trigger') {
+            await this.props.switchFlowNode(target.model.id)
+            this.addCondition()
+          } else {
+            this.add.triggerNode(point, {})
+          }
+
           break
         case 'prompt':
           this.add.promptNode(point, '')
           break
         case 'say_something':
-          this.add.say(point, {})
+          if (targetNodeType === 'say_something') {
+            await this.props.switchFlowNode(target.model.id)
+            this.addMessage()
+          } else {
+            this.add.say(point, {})
+          }
+
           break
         case 'execute':
           this.add.executeNode(point, data.contentId ? { onReceive: [`${data.contentId}`] } : {})
@@ -777,17 +878,9 @@ class Diagram extends Component<Props> {
       node: { contents },
       index
     } = this.state.editingNodeItem
-    const newContents = [...contents]
+    const newContents = [...contents.filter((_, i) => index !== i)]
 
-    newContents[index] = Object.keys(newContents[index]).reduce((acc, lang) => {
-      if (lang !== this.state.currentLang) {
-        acc = { ...acc, [lang]: { ...newContents[index][lang] } }
-      }
-
-      return acc
-    }, {})
-
-    if (isContentEmpty(newContents[index])) {
+    if (!newContents.length) {
       this.deleteSelectedElements()
     } else {
       this.props.updateFlowNode({ contents: newContents })
@@ -817,7 +910,7 @@ class Diagram extends Component<Props> {
   }
 
   addVariable = (variable?: FlowVariable & { isNew?: boolean }) => {
-    const vars = this.props.currentFlow?.variables ?? []
+    const vars = this.props.variables.currentFlow ?? []
 
     if (!variable) {
       variable = {
@@ -847,7 +940,7 @@ class Diagram extends Component<Props> {
 
   updateFlowVariable = data => {
     const { node, index } = this.state.editingNodeItem
-    const vars = this.props.currentFlow.variables ?? []
+    const vars = this.props.variables.currentFlow ?? []
 
     this.setState({ editingNodeItem: { node: { ...node, variable: data }, index } })
 
@@ -859,12 +952,21 @@ class Diagram extends Component<Props> {
 
   deleteVariable = () => {
     const { index } = this.state.editingNodeItem
-    const vars = this.props.currentFlow.variables ?? []
+    const vars = this.props.variables.currentFlow ?? []
 
     this.props.updateFlow({
       ...this.props.currentFlow,
       variables: [...vars.slice(0, index), ...vars.slice(index + 1)]
     })
+  }
+
+  updateSubWorkflow = data => {
+    const { node, index } = this.state.editingNodeItem
+
+    this.props.switchFlowNode(node.id)
+    this.setState({ editingNodeItem: { node: { ...node, subflow: { ...node.subflow, ...data } }, index } })
+
+    this.props.updateFlowNode({ subflow: data })
   }
 
   renderSearch = () => {
@@ -896,6 +998,8 @@ class Diagram extends Component<Props> {
       currentItem = node?.contents?.[index]
     } else if (formType === 'trigger') {
       currentItem = node?.conditions?.[index]
+    } else if (formType === 'sub-workflow') {
+      currentItem = node.subflow
     } else if (formType === 'variableType') {
       currentItem = data
     } else if (formType === 'variable') {
@@ -928,7 +1032,7 @@ class Diagram extends Component<Props> {
             }}
           />
         )}
-        <MainContent.Wrapper className={cx({ [style.hidden]: isQnA })}>
+        <MainContent.Wrapper className={cx({ [style.hidden]: isQnA || this.props.currentFlow === undefined })}>
           <WorkflowToolbar
             currentLang={this.state.currentLang}
             languages={this.props.languages}
@@ -943,10 +1047,7 @@ class Diagram extends Component<Props> {
               id="diagramContainer"
               ref={ref => (this.diagramContainer = ref)}
               tabIndex={1}
-              className={style.diagramContainer}
-              style={{
-                display: currentTab === 'workflow' ? 'inherit' : 'none'
-              }}
+              className={cx(style.diagramContainer, { [style.diagramHidden]: currentTab !== 'workflow' })}
               onContextMenu={this.handleContextMenu}
               onDrop={this.handleToolDropped}
               onDragOver={event => event.preventDefault()}
@@ -956,10 +1057,19 @@ class Diagram extends Component<Props> {
                 ref={w => (this.diagramWidget = w)}
                 deleteKeys={[]}
                 diagramEngine={this.diagramEngine}
+                maxNumberPointsPerLink={0}
                 inverseZoom={true}
               />
             </div>
-
+            {currentTab === 'workflow' && this.props.currentFlow?.nodes?.length === 0 && (
+              <div className={style.centered}>
+                <EmptyState
+                  text={lang.tr('studio.flow.emptyWorkflow')}
+                  icon={<EmptyStateIcon />}
+                  className={style.emptyState}
+                />
+              </div>
+            )}
             {currentTab === 'workflow' && <Toolbar />}
           </Fragment>
 
@@ -970,7 +1080,7 @@ class Diagram extends Component<Props> {
                 type.schema.newJson?.displayedIn.includes('sayNode')
               )}
               deleteContent={() => this.deleteNodeContent()}
-              variables={this.props.currentFlow?.variables || []}
+              variables={this.props.variables}
               events={this.props.hints || []}
               contentLang={this.state.currentLang}
               editingContent={index}
@@ -991,7 +1101,7 @@ class Diagram extends Component<Props> {
               deleteCondition={() => this.deleteNodeCondition()}
               editingCondition={index}
               topicName={this.props.selectedTopic}
-              variables={this.props.currentFlow?.variables}
+              variables={this.props.variables}
               events={this.props.hints}
               formData={currentItem}
               contentLang={this.state.currentLang}
@@ -1011,7 +1121,7 @@ class Diagram extends Component<Props> {
               formData={node?.prompt}
               onUpdate={this.updatePromptNode.bind(this)}
               deletePrompt={this.deleteSelectedElements.bind(this)}
-              variables={this.props.currentFlow?.variables}
+              variables={this.props.variables}
               onUpdateVariables={this.addVariable}
               contentLang={this.state.currentLang}
               close={() => {
@@ -1045,11 +1155,29 @@ class Diagram extends Component<Props> {
               }}
             />
           )}
+          {formType === 'sub-workflow' && (
+            <SubWorkflowForm
+              variables={this.props.variables}
+              node={this.props.currentFlowNode}
+              customKey={`${node?.id}${node?.type}`}
+              updateSubWorkflow={this.updateSubWorkflow}
+              onUpdateVariables={this.addVariable}
+              formData={currentItem}
+              flows={this.props.flows}
+              type={index === 0 ? 'in' : 'out'}
+              close={() => {
+                this.timeout = setTimeout(() => {
+                  this.setState({ editingNodeItem: null })
+                }, 200)
+              }}
+            />
+          )}
           {formType === 'variableType' && (
             <VariableTypesForm
               contentLang={this.state.currentLang}
               customKey={data.id}
               formData={currentItem}
+              variables={this.props.variables}
               close={() => {
                 this.timeout = setTimeout(() => {
                   this.setState({ editingNodeItem: null })
@@ -1065,6 +1193,7 @@ class Diagram extends Component<Props> {
               customKey={`${node?.id}${node?.prompt?.type}`}
               deleteVariable={this.deleteVariable.bind(this)}
               formData={currentItem}
+              currentFlow={this.props.currentFlow}
               onUpdate={this.updateFlowVariable.bind(this)}
               close={() => {
                 this.timeout = setTimeout(() => {
@@ -1081,13 +1210,16 @@ class Diagram extends Component<Props> {
 
 const mapStateToProps = (state: RootReducer) => ({
   currentFlow: getCurrentFlow(state),
+  flows: getAllFlows(state),
+  reusableFlows: getReusableWorkflows(state),
+  outcomeUsage: getCallerFlowsOutcomeUsage(state),
   currentFlowNode: getCurrentFlowNode(state),
   currentDiagramAction: state.flows.currentDiagramAction,
   canPasteNode: Boolean(state.flows.nodeInBuffer),
   skills: state.skills.installed,
   library: state.content.library,
-  prompts: state.ndu.prompts,
-  variables: state.ndu.variables,
+  prompts: getPrompts(state),
+  variables: getVariables(state),
   contentTypes: state.content.categories,
   conditions: state.ndu.conditions,
   hints: state.hints.inputs,
@@ -1098,11 +1230,13 @@ const mapDispatchToProps = {
   fetchFlows,
   fetchPrompts,
   fetchVariables,
+  refreshEntities,
   switchFlowNode,
   openFlowNodeProps,
   closeFlowNodeProps,
   createFlowNode,
   removeFlowNode,
+  refreshCallerFlows,
   createFlow,
   updateFlowNode,
   switchFlow,

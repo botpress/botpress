@@ -73,7 +73,7 @@ const ItemSchema = Joi.object().keys({
   contentAnswers: Joi.array()
     .items(QnaItemContentAnswerSchema)
     .default([]),
-  enabled: Joi.bool().required(),
+  enabled: Joi.bool().required()
 })
 
 const contentShema = Joi.object().keys({
@@ -128,7 +128,7 @@ const addBotPrefix = (c, botId) => c.items ?
   { ...c, image: addBotPath(c.image, botId) }
 
 export default class Storage {
-  constructor(private ghost: sdk.ScopedGhostService) { }
+  constructor(private ghost: sdk.ScopedGhostService) {}
 
   // TODO: validate no dupes
 

@@ -85,8 +85,7 @@
 
   .bpw-from-user .bpw-bubble-highlight .bpw-chat-bubble-content {
     border-color: var(--ocean);
-    background-color: var(--ocean);
-    color: #fff;
+    background-color: var(--hover-ocean);
   }
 
   .bpw-from-user .bpw-bubble-highlight .bpw-chat-bubble-content a {
@@ -171,7 +170,7 @@
     right: 0;
     width: 100%;
     height: 100%;
-    border-left: 1px solid #ccc;
+    border-left: 1px solid var(--gray);
     visibility: hidden;
 
     -webkit-box-orient: vertical;
@@ -769,8 +768,8 @@
     flex-shrink: 0;
     height: 52px;
     font-weight: 500;
-    border-top: solid 1px #ccc;
-    border-bottom: 1px solid #ccc;
+    border-top: solid 1px var(--gray);
+    border-bottom: 1px solid var(--gray);
     padding: 0 1rem;
     overflow: hidden;
   }
@@ -929,7 +928,7 @@
   .bpw-botinfo-summary {
     margin-top: -32px;
     border-bottom: solid 1px rgba(0, 0, 0, 0.1);
-    box-shadow: 0px 4px 5px -5px #ccc;
+    box-shadow: 0px 4px 5px -5px var(--gray);
     text-align: center;
   }
 
@@ -1153,4 +1152,9 @@
 
 .bpw-emulator-header-tab + div {
   line-height: 0;
+}
+
+.bpw-emulator .bpw-chat-quick_reply-dropdown {
+  margin-top: 5px;
+  zoom: 0.8 !important;
 }

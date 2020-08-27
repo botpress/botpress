@@ -43,3 +43,18 @@ export const convertToTags = (value: string): string => {
 
   return newString
 }
+
+export const convertToHtml = (value: string): string => {
+  let matches: any
+  let newString = value
+
+  while ((matches = VARIABLES_REGEX.exec(value)) !== null) {
+    newString = newString.replace(matches[0], `<span class="variable">$${matches[0].replace('$', '')}</span>`)
+  }
+
+  while ((matches = EVENT_REGEX.exec(value)) !== null) {
+    newString = newString.replace(matches[0], `<span class="variable">{{${matches[1]}}}</span>`)
+  }
+
+  return newString
+}

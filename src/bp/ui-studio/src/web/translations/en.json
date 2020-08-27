@@ -44,7 +44,19 @@
   },
   "statusBar": {
     "contentLanguage": "Content Language",
-    "switchLang": "Change the bot content language. Currently editing: {currentLang}"
+    "switchLang": "Change the bot content language. Currently editing: {currentLang}",
+    "trainChatbot": "Train Chatbot",
+    "trainChatbotTooltip": "Allow your chatbot to take in its new learnings",
+    "training": "Training",
+    "ready": "Ready",
+    "cancelTraining": "Cancel Training",
+    "canceling": "Canceling",
+    "trainingError": "Cannot train Chatbot",
+    "configChangedDialog": "Are you sure you want to apply configurations? Your server won’t be accessible for a few moments.",
+    "reboot": "Apply",
+    "rebooting": "Restarting",
+    "applyConfigs": "Apply Configurations ",
+    "applyConfigsTooltip": "Restarts server so configuration changes can take effect"
   },
   "studio": {
     "condition": {
@@ -101,6 +113,8 @@
       "variableTypes": "Variable Types",
       "addEnum": "Add Enumeration",
       "addPattern": "Add Pattern",
+      "addComplex": "Add Complex",
+      "addType": "Add Type",
       "filter": "Filter blocks, workflows and variable types",
       "variableName": "What is the name of this variable",
       "addSynonyms": "Add synonyms by separating values with commas",
@@ -110,7 +124,8 @@
       "examplePlaceholder": "Add examples that match your pattern (one per line)",
       "addExample": "Add Example",
       "deletePattern": "Delete Pattern",
-      "patternInvalid": "Pattern is invalid"
+      "patternInvalid": "Pattern is invalid",
+      "possibleVarTypes": "Possible Variable Types"
     },
     "flow": {
       "addNode": "Add Node",
@@ -118,6 +133,12 @@
       "cantDeleteFailure": "You can't delete the failure node.",
       "cantDeleteStart": "You can't delete the start node.",
       "cantDeleteSuccess": "You can't delete the success node.",
+      "cantDeleteOutcome": "Cannot delete an outcome which is currently used in the parent flow",
+      "cantDeleteStartReusable": "You can't delete the start node of a reusable workflow",
+      "mustHaveOutcomes": "Workflows must have at least one success and one failure outcome",
+      "referenceCount": "{count} {count, plural, one {reference} other {references}}",
+      "noReferences": "Not used",
+      "emptyWorkflow": "Right-click or drag and drop blocks to start designing your workflow.",
       "chips": "Chips",
       "condition": {
         "addCondition": "Add condition",
@@ -163,6 +184,7 @@
         "add": "add",
         "addAction": "Add new action",
         "addCondition": "Add Condition",
+        "addMessage": "Add Message",
         "cantSeeActions": "Can't see your action?",
         "chatbotExecutes": "Chatbot Executes",
         "chatbotSays": "Chatbot Says",
@@ -194,6 +216,7 @@
         "return": "Return",
         "saySomething": "Say Something",
         "theBotWill": "The bot will",
+        "subworkflow": "Go to Sub Workflow",
         "transition": {
           "action": {
             "endFlow": "End flow",
@@ -268,15 +291,19 @@
         "nameInUse": "Name already in use",
         "nameInUseMessage": "A flow with that name already exists. Please choose another one.",
         "node": "Node",
+        "noSearchMatch": "Sorry, no results match the search criteria.",
         "renameFlow": "Rename Flow",
         "importTopic": "Import Topic",
         "addTopic": "Add Topic",
         "addWorkflow": "Add Workflow",
         "tapIconsToAdd": "Tap icons in the toolbar to import or add your first topic.",
         "renameWorkflow": "Rename Workflow",
+        "duplicateWorkflow": "Duplicate Workflow",
+        "moveWorkflow": "Move Workflow to",
         "renameTopic": "Rename Topic",
         "nameWorkflow": "Name Workflow",
-        "nameTopic": "Name Topic"
+        "nameTopic": "Name Topic",
+        "duplicateTopic": "Duplicate Topic"
       },
       "skills": {
         "couldNotLoad": "Could not load skills view",
@@ -348,7 +375,8 @@
       "pickType": "Pick a type",
       "userAnswersCorrectly": "User answers correctly",
       "userCancels": "User Cancels",
-      "userDoesNotAnswer": "User does not answer"
+      "userDoesNotAnswer": "User does not answer",
+      "defaultQuestion": "Please provide value for __VARNAME"
     },
     "sideBar": {
       "flowBuilder": "Workflow Builder",

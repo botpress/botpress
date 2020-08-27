@@ -1,5 +1,5 @@
 import { Intent, Menu, MenuItem } from '@blueprintjs/core'
-import { DecisionTriggerCondition, FormData } from 'botpress/sdk'
+import { DecisionTriggerCondition, FormData, SubWorkflowNode } from 'botpress/sdk'
 import { contextMenu, lang, ShortcutLabel } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
@@ -13,9 +13,11 @@ import style from '../Components/style.scss'
 import NodeHeader from '../Components/NodeHeader'
 import NodeWrapper from '../Components/NodeWrapper'
 import ExecuteContents from '../ExecuteContents'
+import OutcomeContents from '../OutcomeContents'
 import PromptContents from '../PromptContents'
 import RouterContents from '../RouterContents'
 import SaySomethingContents from '../SaySomethingContents'
+import SubworkflowContents from '../SubworkflowContents'
 import TriggerContents from '../TriggerContents'
 
 interface Props {
@@ -28,6 +30,7 @@ interface Props {
   getConditions: () => DecisionTriggerCondition[]
   switchFlowNode: (id: string) => void
   addCondition: () => void
+  addMessage: () => void
   getCurrentLang: () => string
   getExpandedNodes: () => string[]
   setExpanded: (id: string, expanded: boolean) => void
@@ -41,7 +44,8 @@ const defaultLabels = {
   router: 'if',
   say_something: 'studio.flow.node.chatbotSays',
   success: 'studio.flow.node.workflowSucceeds',
-  trigger: 'studio.flow.node.triggeredBy'
+  trigger: 'studio.flow.node.triggeredBy',
+  'sub-workflow': 'studio.flow.node.subworkflow'
 }
 
 const BlockWidget: FC<Props> = ({
@@ -54,12 +58,11 @@ const BlockWidget: FC<Props> = ({
   getConditions,
   switchFlowNode,
   addCondition,
+  addMessage,
   getCurrentLang,
   getExpandedNodes,
   setExpanded
 }) => {
-  const [error, setError] = useState(null)
-  const [isEditing, setIsEditing] = useState(false)
   const { nodeType } = node
 
   const handleContextMenu = e => {
@@ -69,17 +72,19 @@ const BlockWidget: FC<Props> = ({
     contextMenu(
       e,
       <Menu>
-        <MenuItem
-          text={lang.tr('studio.flow.node.renameBlock')}
-          onClick={() => {
-            setIsEditing(true)
-          }}
-        />
         {nodeType === 'trigger' && (
           <MenuItem
             text={lang.tr('studio.flow.node.addCondition')}
             onClick={() => {
               addCondition()
+            }}
+          />
+        )}
+        {nodeType === 'say_something' && (
+          <MenuItem
+            text={lang.tr('studio.flow.node.addMessage')}
+            onClick={() => {
+              addMessage()
             }}
           />
         )}
@@ -97,26 +102,9 @@ const BlockWidget: FC<Props> = ({
     )
   }
 
-  const saveName = (value): void => {
-    setError(null)
-
-    if (value) {
-      const alreadyExists = getCurrentFlow().nodes.find(x => x.name === value && x.id !== node.id)
-
-      if (alreadyExists) {
-        setError(lang.tr('studio.flow.node.nameAlreadyExists'))
-        return
-      }
-
-      updateFlowNode({ name: value })
-    }
-
-    setIsEditing(false)
-  }
-
   const inputPortInHeader = !['trigger'].includes(nodeType)
-  const outPortInHeader = !['failure', 'prompt', 'router', 'success'].includes(nodeType)
-  const canCollapse = !['failure', 'prompt', 'router', 'success'].includes(nodeType)
+  const outPortInHeader = !['failure', 'prompt', 'router', 'success', 'sub-workflow'].includes(nodeType)
+  const canCollapse = !['failure', 'prompt', 'router', 'success', 'sub-workflow'].includes(nodeType)
   const hasContextMenu = !['failure', 'success'].includes(nodeType)
 
   const renderContents = () => {
@@ -129,6 +117,10 @@ const BlockWidget: FC<Props> = ({
         return <PromptContents node={node} selectedNodeItem={selectedNodeItem} getCurrentLang={getCurrentLang} />
       case 'router':
         return <RouterContents node={node} />
+      case 'success':
+        return <OutcomeContents node={node} selectedNodeItem={selectedNodeItem} getCurrentLang={getCurrentLang} />
+      case 'failure':
+        return <OutcomeContents node={node} selectedNodeItem={selectedNodeItem} getCurrentLang={getCurrentLang} />
       case 'say_something':
         return (
           <SaySomethingContents
@@ -147,6 +139,15 @@ const BlockWidget: FC<Props> = ({
             getConditions={getConditions}
           />
         )
+      case 'sub-workflow':
+        return (
+          <SubworkflowContents
+            node={node}
+            selectedNodeItem={selectedNodeItem}
+            getCurrentLang={getCurrentLang}
+            editNodeItem={editNodeItem}
+          />
+        )
       default:
         return null
     }
@@ -158,9 +159,6 @@ const BlockWidget: FC<Props> = ({
 
   const expanded = getExpandedNodes().includes(node.id)
 
-  // Prevents moving the node while editing the name so text can be selected
-  node.locked = isEditing
-
   return (
     <NodeWrapper isHighlighed={node.isHighlighted}>
       <NodeHeader
@@ -168,14 +166,9 @@ const BlockWidget: FC<Props> = ({
         setExpanded={canCollapse && handleExpanded}
         expanded={canCollapse && expanded}
         handleContextMenu={hasContextMenu && handleContextMenu}
-        isEditing={isEditing}
-        saveName={saveName}
         defaultLabel={lang.tr(defaultLabels[nodeType])}
-        name={node.name}
-        type={nodeType}
-        error={error}
       >
-        {inputPortInHeader && <StandardPortWidget name="in" node={node} className={style.in} />}
+        <StandardPortWidget hidden={!inputPortInHeader} name="in" node={node} className={style.in} />
         {outPortInHeader && <StandardPortWidget name="out0" node={node} className={style.out} />}
       </NodeHeader>
       {(!canCollapse || expanded) && renderContents()}
@@ -190,6 +183,7 @@ export class BlockModel extends BaseNodeModel {
   public nodeType: string
   public prompt?
   public contents?: { [lang: string]: FormData }[] = []
+  public subflow: SubWorkflowNode
 
   constructor({
     id,
@@ -202,6 +196,7 @@ export class BlockModel extends BaseNodeModel {
     onEnter = [],
     next = [],
     conditions = [],
+    subflow = {},
     activeWorkflow = false,
     isNew = false,
     isStartNode = false,
@@ -219,6 +214,7 @@ export class BlockModel extends BaseNodeModel {
       isStartNode,
       isHighlighted,
       conditions,
+      subflow,
       activeWorkflow,
       isNew
     })
@@ -236,6 +232,7 @@ export class BlockModel extends BaseNodeModel {
     this.nodeType = data.type
     this.prompt = data.prompt
     this.contents = data.contents
+    this.subflow = data.subflow
   }
 }
 
@@ -248,6 +245,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
   private updateFlowNode: (props: AllPartialNode) => void
   private switchFlowNode: (id: string) => void
   private addCondition: () => void
+  private addMessage: () => void
   private getCurrentLang: () => string
   private getExpandedNodes: () => string[]
   private setExpandedNodes: (id: string, expanded: boolean) => void
@@ -263,6 +261,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
     this.getConditions = methods.getConditions
     this.switchFlowNode = methods.switchFlowNode
     this.addCondition = methods.addCondition
+    this.addMessage = methods.addMessage
     this.getCurrentLang = methods.getCurrentLang
     this.getExpandedNodes = methods.getExpandedNodes
     this.setExpandedNodes = methods.setExpandedNodes
@@ -281,6 +280,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
         getConditions={this.getConditions}
         switchFlowNode={this.switchFlowNode}
         addCondition={this.addCondition}
+        addMessage={this.addMessage}
         getExpandedNodes={this.getExpandedNodes}
         setExpanded={this.setExpandedNodes}
       />

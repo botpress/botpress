@@ -13,6 +13,10 @@ class PromptConfirm implements Prompt {
       return [{ value: yesOrNo, confidence: 1 }]
     }
 
+    if (!event.ndu?.triggers) {
+      return []
+    }
+
     const topConfirmation = _.chain(event.ndu.triggers)
       .values()
       .filter(val => val.trigger.name?.startsWith('prompt_'))
@@ -40,19 +44,9 @@ const config: PromptConfig = {
   type: 'confirm',
   label: 'Confirm',
   valueType: 'boolean',
+  icon: 'segmented-control',
   noConfirmation: true,
-  fields: [
-    ...common.fields,
-    {
-      type: 'variable',
-      key: 'output',
-      required: true,
-      label: 'module.builtin.setValueTo',
-      placeholder: 'module.builtin.setValueToPlaceholder',
-      variableTypes: ['boolean'],
-      defaultVariableType: 'boolean'
-    }
-  ],
+  fields: common.fields,
   advancedSettings: common.advancedSettings
 }
 

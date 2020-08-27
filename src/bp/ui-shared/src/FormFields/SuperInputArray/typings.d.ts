@@ -1,3 +1,5 @@
+import { Variables } from 'common/typings'
+
 export interface SuperInputArrayProps {
   addBtnLabel: string
   items: string[]
@@ -9,6 +11,6 @@ export interface SuperInputArrayProps {
   onUpdateVariables?: (variable: FlowVariable) => void
   canPickEvents?: boolean
   canPickVariables?: boolean
-  variables?: FlowVariable[]
+  variables?: Variables
   events?: BotEvent[]
 }

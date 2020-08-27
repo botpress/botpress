@@ -1,6 +1,7 @@
 {
   "$schema": "../../bot.config.schema.json",
-  "description": "",
+  "bpdsId": "slot-extraction",
+  "description": "This dataset aims to test slot extraction",
   "active": true,
   "version": "1.0.0",
   "author": "Botpress, Inc.",

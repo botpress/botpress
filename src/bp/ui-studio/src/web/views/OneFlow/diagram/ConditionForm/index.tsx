@@ -3,8 +3,10 @@ import axios from 'axios'
 import { BotEvent, Condition, FlowVariable, FormData } from 'botpress/sdk'
 import { Contents, Dropdown, Icons, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
+import { Variables } from 'common/typings'
 import _ from 'lodash'
-import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
+import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
+import storage from '~/util/storage'
 
 import style from './style.scss'
 
@@ -19,8 +21,22 @@ interface Props {
   onUpdate: (data: any) => void
   onUpdateVariables: (variable: FlowVariable) => void
   formData: { id: string; params: FormData }
-  variables: FlowVariable[]
+  variables: Variables
   events: BotEvent[]
+}
+
+interface ConditionUsage {
+  [id: string]: number
+}
+
+const CONDITIONS_USAGE_KEY = 'bp::conditionUsage'
+
+const getConditionUsage = (): ConditionUsage => {
+  try {
+    return JSON.parse(storage.get(CONDITIONS_USAGE_KEY) || '{}')
+  } catch (err) {
+    return {}
+  }
 }
 
 const ConditionForm: FC<Props> = ({
@@ -42,6 +58,7 @@ const ConditionForm: FC<Props> = ({
   const condition = useRef(formData?.id)
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
+  const [conditionUsage, setConditionUsage] = useState<ConditionUsage>(getConditionUsage())
 
   useEffect(() => {
     condition.current = formData?.id
@@ -61,6 +78,12 @@ const ConditionForm: FC<Props> = ({
     onUpdate({
       id: value
     })
+
+    try {
+      const newConditions = { ...conditionUsage, [value]: (conditionUsage[value] ?? 0) + 1 }
+      setConditionUsage(newConditions)
+      storage.set(CONDITIONS_USAGE_KEY, JSON.stringify(newConditions))
+    } catch (err) {}
   }
 
   const optionsVariablePlaceholder = {
@@ -70,7 +93,12 @@ const ConditionForm: FC<Props> = ({
     topicName: `[${lang.tr('topic').toLowerCase()}]`
   }
 
-  const options = conditions.map(type => ({ value: type.id, label: lang.tr(type.label, optionsVariablePlaceholder) }))
+  const options = conditions.map(type => ({
+    value: type.id,
+    label: lang.tr(type.label, optionsVariablePlaceholder),
+    order: conditionUsage[type.id] ?? 0
+  }))
+
   const selectedCondition = conditions.find(cond => cond.id === condition.current)
   const selectedOption = options.find(cond => cond.value === condition.current)
 
@@ -135,7 +163,7 @@ const ConditionForm: FC<Props> = ({
               filterable
               className={style.formSelect}
               placeholder={lang.tr('studio.condition.pickCondition')}
-              items={options}
+              items={_.orderBy(options, 'order', 'desc')}
               defaultItem={selectedOption}
               rightIcon="chevron-down"
               onChange={option => {

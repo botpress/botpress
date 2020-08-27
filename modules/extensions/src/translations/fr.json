@@ -1,4 +1,25 @@
 {
+  "topIntents": "Principales intentions",
+  "topPredictions": "Principales prédictions",
+  "viewAsSummary": "Afficher comme résumé",
+  "viewAsJson": "Afficher en JSON",
+  "errorExecuting": "Erreur lors de l'exécution de l'action \"{name}\"",
+  "errorTransition": "Erreur lors de la transition vers \"{name}\"",
+  "intents": "Intentions",
+  "detectedLanguage": "Langue détectée",
+  "usedLanguage": "Langue utilisée",
+  "fetchingEvent": "Récupération de l'événement...",
+  "inspectIn": "Inspecter dans le débogueur",
+  "splashMessage": "Engagez la conversation avec votre chatbot et cliquez sur n'importe quel message pour inspecter ses comportements.",
+  "unauthorized": "Non autorisé",
+  "unauthorizedMessage": "Vous ne disposez pas des autorisations suffisantes pour inspecter les événements.",
+  "unauthorizedMessage2": "Autorisation requise: accès en écriture sur \"module.extensions\"",
+  "header": {
+    "newSession": "Créer une nouvelle session",
+    "confSettings": "Configurer les paramètres",
+    "debugger": "Débogueur",
+    "processing": "Traitement"
+  },
   "types": {
     "dropdown": {
       "allowCreate": "Permettre la création de nouvelles options",
@@ -25,6 +46,105 @@
     "mw": "Middleware",
     "dialog": "Exécution du dialogue",
     "action": "Action",
-    "completed": "Traitement complété"
+    "completed": "Traitement complété",
+    "executedIn": "Exécuté en {n} ms",
+    "type": "Type",
+    "stacktrace": "Stacktrace"
+  },
+  "settings": {
+    "confUpdated": "Configuration mise à jour avec succès!",
+    "confUpdatedError": "Une erreur s'est produite lors de l'analyse de votre configuration. Veuillez valider la syntaxe",
+    "payloadSent": "Données envoyées avec succès!",
+    "payloadSentError": "Une erreur s'est produite lors de l'analyse de vos données. Veuillez valider la syntaxe",
+    "editConf": "Modifier la configuration",
+    "editConfHelper": "Testez les modifications de configuration temporaires. Actualisez la page pour réinitialiser.",
+    "editConfPlaceholder": "Modifier les paramètres du Webchat (doit être json valide)",
+    "saveConf": "Enregistrer la configuration",
+    "sendRawPayloads": "Envoyer des données brutes",
+    "sendRawPayloadsHelper": "Envoyez n'importe quel message JSON valide, pour tester des événements personnalisés, par exemple",
+    "sendRawPayloadsPlaceholder": "Données JSON valides",
+    "saveRawPayloads": "Envoyer des données",
+    "alwaysShowDebugger": "Toujours afficher le débogueur",
+    "updateDebuggerOnNew": "Mettre à jour le débogueur sur un nouveau message",
+    "userId": "ID Utilisateur",
+    "userIdHelper": "Modifie l'ID utilisateur stocké sur votre navigateur",
+    "userIdPlaceholder": "Votre ID d'utilisateur",
+    "authToken": "Jeton d'authentification externe",
+    "authTokenHelper": "Il doit s'agir d'un jeton JWT valide",
+    "authTokenPlaceholder": "Jeton généré à partir de votre système",
+    "save": "Sauvegarder",
+    "settings": "Paramètres",
+    "basic": "Élémentaire",
+    "advanced": "Avancé"
+  },
+  "actions": {
+    "say": "Dire {x}",
+    "startWorkflow": "Commencer Workflow {x}",
+    "goToNode": "Aller au noeud {x}",
+    "redirectTo": "Rediriger vers {x}",
+    "continue": "Continuer",
+    "cancelPrompt": "Annuler Prompt",
+    "informPrompt": "Informer Prompt"
+  },
+  "dialog": {
+    "decision": "Décision",
+    "suggestions": "Suggestions",
+    "flowNodes": "Noeuds de flux",
+    "dialogManager": "Gestionnaire de dialogue"
+  },
+  "entities": {
+    "type": "Type",
+    "source": "Source",
+    "normalizedValue": "Valeur normalisée"
+  },
+  "inspector": {
+    "copyEventPath": "Copier le chemin de l'événement",
+    "expandAll": "Ouvrir tout"
+  },
+  "ndu": {
+    "topTriggers": "Top déclencheurs",
+    "decisionsTaken": "Décisions prises",
+    "sendKnowledge": "Envoyer connaissances {x}",
+    "startWorkflow": "Démarrer workflow {x}",
+    "goToNode": "Aller au noeud {x}",
+    "redirectTo": "Rediriger vers {x}",
+    "continueFlowExecution": "Continuer l'exécution du flux",
+    "informCurrentPrompt": "Informer le prompt actuel",
+    "cancelCurrentPrompt": "Annuler le prompt actuel",
+    "noResults": "Aucun résultat",
+    "dialogUnderstanding": "Compréhension du dialogue"
+  },
+  "nlu": {
+    "intentsVeryClose": "Les intentions prévues sont très proches.",
+    "youCanAccountForIt": "Vous pouvez en rendre compte en vérifiant la variable : ",
+    "ambiguous": "Ambigu",
+    "languageUnderstanding": "Compréhension du langage"
+  },
+  "slots": {
+    "slot": "Slot",
+    "source": "Source",
+    "extracted": "Extraction",
+    "value": "Valeur: {x}",
+    "turnsAgo": "Il y a {x} tours",
+    "thisTurn": "Ce tour"
+  },
+  "summary": {
+    "cannotDisplay": "Impossible d'afficher le résumé de l'événement",
+    "state": "État",
+    "errors": "Erreurs"
+  },
+  "triggers": {
+    "insideTopic": "Intérieur du sujet",
+    "outsideTopic": "Extérieur du sujet",
+    "insideWorkflow": "Dans le workflow",
+    "qna": "Q&R",
+    "wf": "WF",
+    "node": "Noeud"
+  },
+  "eventNotFound": {
+    "title": "Événement introuvable",
+    "message": "L'événement demandé est introuvable. Raisons possibles:",
+    "message2": "Le collecteur d'événements n'est pas activé dans Botpress Config",
+    "message3": "L'événement a été supprimé de la base de données"
   }
 }

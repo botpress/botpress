@@ -1,25 +1,11 @@
 import React from 'react'
-import { AbstractLinkFactory, DefaultLinkModel, DefaultLinkWidget, PointModel } from 'storm-react-diagrams'
+import { AbstractLinkFactory, DefaultLinkModel, DefaultLinkWidget } from 'storm-react-diagrams'
+
+import style from './style.scss'
 
 class DeletableLinkWidget extends DefaultLinkWidget {
-  addPointToLink = (event, index: number): void => {
-    if (
-      event.type === 'contextmenu' &&
-      !this.props.diagramEngine.isModelLocked(this.props.link) &&
-      this.props.link.points.length - 1 <= this.props.diagramEngine.getMaxNumberPointsPerLink()
-    ) {
-      event.preventDefault()
-      const point = new PointModel(this.props.link, this.props.diagramEngine.getRelativeMousePoint(event))
-      point.setSelected(true)
-      this.forceUpdate()
-      this.props.link.addPoint(point, index)
-      this.props.pointAdded(point, event)
-    }
-  }
-
   generateLink(path: string, extraProps: any, id: string | number): JSX.Element {
     const { link, width, color } = this.props
-    const index = extraProps['data-point'] || 0
 
     const Bottom = (
       <path
@@ -37,20 +23,57 @@ class DeletableLinkWidget extends DefaultLinkWidget {
         strokeLinecap="round"
         onMouseLeave={() => this.setState({ selected: false })}
         onMouseEnter={() => this.setState({ selected: true })}
-        onContextMenu={event => this.addPointToLink(event, index + 1)}
         data-linkid={link.getID()}
         stroke={color}
         strokeOpacity={this.state.selected ? 0.1 : 0}
-        strokeWidth={20}
+        strokeWidth={10}
         d={path}
         {...extraProps}
       />
+    )
+
+    const deleteBorderWidth = 30
+    const removeX = (link.points[0]?.x + link.points[1]?.x) / 2 - deleteBorderWidth / 2
+    const removeY = (link.points[0]?.y + link.points[1]?.y) / 2 - deleteBorderWidth / 2
+    const showRemove = link.sourcePort && link.targetPort && (this.state.selected || link.isSelected())
+
+    const RemoveLinkButton = (
+      <g
+        className={style.removeLinkButton}
+        onMouseLeave={() => this.setState({ selected: false })}
+        onMouseEnter={() => this.setState({ selected: true })}
+        onClick={() => {
+          link.remove()
+          this.props.diagramEngine.repaintCanvas()
+        }}
+      >
+        <rect
+          data-linkid={link.getID()}
+          x={removeX}
+          y={removeY}
+          width={deleteBorderWidth}
+          height={deleteBorderWidth}
+          rx="5"
+          opacity={showRemove ? 0.9 : 0}
+        />
+        {/* no idea how to do this without hardcoding */}
+        <svg x={removeX + 6.5} y={removeY + 7}>
+          {/* copy pasted blueprint trash icon */}
+          <path
+            className={style.trash}
+            visibility={showRemove ? 'visible' : 'hidden'}
+            d="M14.49 3.99h-13c-.28 0-.5.22-.5.5s.22.5.5.5h.5v10c0 .55.45 1 1 1h10c.55 0 1-.45 1-1v-10h.5c.28 0 .5-.22.5-.5s-.22-.5-.5-.5zm-8.5 9c0 .55-.45 1-1 1s-1-.45-1-1v-6c0-.55.45-1 1-1s1 .45 1 1v6zm3 0c0 .55-.45 1-1 1s-1-.45-1-1v-6c0-.55.45-1 1-1s1 .45 1 1v6zm3 0c0 .55-.45 1-1 1s-1-.45-1-1v-6c0-.55.45-1 1-1s1 .45 1 1v6zm2-12h-4c0-.55-.45-1-1-1h-2c-.55 0-1 .45-1 1h-4c-.55 0-1 .45-1 1v1h14v-1c0-.55-.45-1-1-1z"
+            fill-rule="evenodd"
+          ></path>
+        </svg>
+      </g>
     )
 
     return (
       <g key={'link-' + id}>
         {Bottom}
         {Top}
+        {RemoveLinkButton}
       </g>
     )
   }
@@ -62,7 +85,7 @@ export class DeletableLinkFactory extends AbstractLinkFactory {
   }
 
   generateReactWidget(diagramEngine, link) {
-    return <DeletableLinkWidget link={link} diagramEngine={diagramEngine} />
+    return <DeletableLinkWidget link={link} color="#bec5c9" width={2} diagramEngine={diagramEngine} />
   }
 
   getNewInstance() {

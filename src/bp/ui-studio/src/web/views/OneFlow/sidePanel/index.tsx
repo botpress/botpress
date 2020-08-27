@@ -1,6 +1,7 @@
 import { Alignment, Button, Navbar, NavbarGroup, Tab, Tabs, Tooltip } from '@blueprintjs/core'
 import axios from 'axios'
 import { lang } from 'botpress/shared'
+import { nextFlowName, nextTopicName } from 'common/flow'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -19,17 +20,14 @@ import {
 import { history } from '~/components/Routes'
 import { getAllFlows, getFlowNamesList, RootReducer } from '~/reducers'
 
-import { buildFlowName } from '../../../util/workflows'
 import Inspector from '../../FlowBuilder/inspector'
 
 import style from './style.scss'
 import Library from './Library'
 import { exportCompleteTopic } from './TopicEditor/export'
 import CreateTopicModal from './TopicEditor/CreateTopicModal'
-import EditTopicModal from './TopicEditor/EditTopicModal'
 import ImportModal from './TopicEditor/ImportModal'
 import TopicList from './TopicList'
-import WorkflowEditor from './WorkflowEditor'
 
 export type PanelPermissions = 'create' | 'rename' | 'delete'
 
@@ -66,8 +64,6 @@ const SidePanelContent: FC<Props> = props => {
   const [editing, setEditing] = useState<string>()
   const [isEditingNew, setIsEditingNew] = useState(false)
 
-  const [libraryFilter, setLibraryFilter] = useState('')
-
   const [currentTab, setCurrentTab] = useState('topics')
 
   useEffect(() => {
@@ -79,16 +75,7 @@ const SidePanelContent: FC<Props> = props => {
   const goToFlow = flow => history.push(`/oneflow/${flow.replace(/\.flow\.json/, '')}`)
 
   const createWorkflow = (topicName: string) => {
-    const originalName = 'Workflow'
-    let name = originalName
-    let fullName = buildFlowName({ topic: topicName, workflow: name }, true)
-    let index = 0
-    while (props.flows.find(f => f.name === fullName)) {
-      index++
-      name = `${originalName}-${index}`
-      fullName = buildFlowName({ topic: topicName, workflow: name }, true)
-    }
-
+    const fullName = nextFlowName(props.flows, topicName, 'Workflow')
     setEditing(fullName.replace('.flow.json', ''))
     setIsEditingNew(true)
 
@@ -96,14 +83,7 @@ const SidePanelContent: FC<Props> = props => {
   }
 
   const createTopic = async () => {
-    const originalName = 'Topic'
-    let name = originalName
-    let index = 0
-
-    while (props.topics.find(t => t.name === name)) {
-      index++
-      name = `${originalName}-${index}`
-    }
+    const name = nextTopicName(props.topics, 'Topic')
 
     setEditing(name)
     setIsEditingNew(true)
@@ -177,7 +157,14 @@ const SidePanelContent: FC<Props> = props => {
             />
           )}
 
-          {currentTab === 'library' && <Library goToFlow={goToFlow} />}
+          {currentTab === 'library' && (
+            <Library
+              goToFlow={goToFlow}
+              createWorkflow={createWorkflow}
+              flows={props.flows}
+              selectedWorkflow={props.selectedWorkflow}
+            />
+          )}
         </React.Fragment>
       )}
 

@@ -50,8 +50,8 @@ export abstract class TelemetryStats {
   }
 
   private async sendStats(url: string, stats) {
-    debug('Sending stats: %o', stats)
     try {
+      debug('Sending stats: %o', JSON.stringify(stats))
       await axios.post(url, stats)
     } catch (err) {
       if (url === process.TELEMETRY_URL) {

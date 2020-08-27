@@ -1,4 +1,4 @@
-import { Condition, PromptDefinition, Topic } from 'botpress/sdk'
+import { Condition, PrimitiveVarType, PromptDefinition, Topic } from 'botpress/sdk'
 import _ from 'lodash'
 import { handleActions } from 'redux-actions'
 import {
@@ -15,7 +15,7 @@ export interface NduReducer {
   topics: Topic[]
   qnaCountByTopic?: CountByTopic[]
   prompts: PromptDefinition[]
-  variables: any[]
+  primitiveVariables: PrimitiveVarType[]
 }
 
 const defaultState: NduReducer = {
@@ -23,7 +23,7 @@ const defaultState: NduReducer = {
   topics: [],
   qnaCountByTopic: undefined,
   prompts: [],
-  variables: []
+  primitiveVariables: []
 }
 
 export default handleActions(
@@ -46,7 +46,7 @@ export default handleActions(
     }),
     [variablesReceived]: (state, { payload }) => ({
       ...state,
-      variables: payload
+      primitiveVariables: payload
     })
   },
   defaultState

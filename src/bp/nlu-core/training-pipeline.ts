@@ -4,6 +4,7 @@ import _ from 'lodash'
 import { getOrCreateCache } from '../core/services/nlu/cache-manager'
 
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
+import { DucklingEntityExtractor } from './entities/duckling_extractor'
 import { getCtxFeatures } from './intents/context-featurizer'
 import { getIntentFeatures } from './intents/intent-featurizer'
 import { isPOSAvailable } from './language/pos-tagger'
@@ -82,8 +83,8 @@ const NONE_UTTERANCES_BOUNDS = {
 export const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
   lowerCase: true,
   onlyWords: true,
-  slots: 'ignore',
-  entities: 'ignore'
+  slots: 'keep-value', // slot extraction is done in || with intent prediction
+  entities: 'keep-name'
 }
 export const MIN_NB_UTTERANCES = 3
 const NUM_CLUSTERS = 8
@@ -241,7 +242,7 @@ const TrainIntentClassifier = async (
       i => i.name !== NONE_INTENT && i.contexts.includes(ctx) && i.utterances.length >= MIN_NB_UTTERANCES
     )
 
-    const nAvgUtts = Math.ceil(_.meanBy(trainableIntents, 'utterances.length'))
+    const nAvgUtts = Math.ceil(_.meanBy(trainableIntents, i => i.utterances.filter(u => !u.augmented).length))
 
     const lo = getSeededLodash(process.env.NLU_SEED)
     const points = _.chain(trainableIntents)
@@ -339,6 +340,22 @@ const TrainContextClassifier = async (
   return model
 }
 
+// this is a temporary fix so we can extract extract tag system entities slots
+// only fixes date and number for english only
+// ex: Remind me to eat a sandwich $time ==> Remind me to eat a sandwich in 3 hours
+function convertSysEntitiesSlotsToComplex(intents: Intent<string>[]): ComplexEntity[] {
+  const examplesByType = {
+    time: ['in three hours', 'tomorrow night', 'now', 'today', 'jan 22nd 2021', '2021-06-07', 'june 7th'], // should be time
+    number: ['zero', '0', 'tenty-five', '25', 'one hundred sixty-five', '165']
+  }
+  return _.chain(intents)
+    .flatMap(i => i.slot_definitions.map(s => (s.entity === 'date' ? 'time' : s.entity))) // highly hardcoded, date is in fact a system time
+    .filter(ent => !!examplesByType[ent])
+    .uniq()
+    .map(ent => ({ name: ent, examples: examplesByType[ent], list_entities: [], pattern_entities: [] }))
+    .value()
+}
+
 export const ProcessIntents = async (
   intents: Intent<string>[],
   languageCode: string,
@@ -348,12 +365,18 @@ export const ProcessIntents = async (
   complex_entities: ComplexEntity[],
   tools: Tools
 ): Promise<Intent<Utterance>[]> => {
+  const sysComplexes = convertSysEntitiesSlotsToComplex(intents)
+
   return Promise.map(intents, async intent => {
     const cleaned: string[] = intent.utterances.map(_.flow([_.trim, replaceConsecutiveSpaces]))
 
-    const augmentations = extractAugmentations(intent, complex_entities, list_entities, pattern_entities)
+    const augmentations = extractAugmentations(
+      intent,
+      [...sysComplexes, ...complex_entities],
+      list_entities,
+      pattern_entities
+    )
     const augmenter = createAugmenter(augmentations)
-
     const original: string[] = _.uniq(cleaned.map(augmenter))
     // TODO: (sly) we probably want to have a different logic than a hardcoded "5" here
     // although this doesn't impact anything but the slot extractor at the moment
@@ -363,7 +386,18 @@ export const ProcessIntents = async (
     utterances.slice(original.length).forEach(x => (x.augmented = true))
 
     const allowedEntities = _.chain(intent.slot_definitions)
-      .flatMap(s => complex_entities?.find(x => x.name === s.name)?.list_entities ?? [s.name])
+      .flatMap(s => {
+        const slotEntity = s.entity === 'date' ? 'time' : s.entity // highly hardcoded, date is in fact a system time
+        const sysComplex = sysComplexes.find(c => c.name === slotEntity)
+        const complex = complex_entities?.find(x => x.name === slotEntity)
+        if (sysComplex) {
+          return sysComplex.name
+        } else if (complex) {
+          return [...(complex.list_entities ?? []), ...(complex.pattern_entities ?? [])]
+        } else {
+          return slotEntity
+        }
+      })
       .uniq()
       .value() as string[]
 
@@ -372,7 +406,6 @@ export const ProcessIntents = async (
     })
 
     const vocab = buildIntentVocab(utterances, entityModels)
-
     return { ...intent, utterances, vocab, slot_entities: allowedEntities }
   })
 }
@@ -578,18 +611,20 @@ const TrainOutOfScope = async (
   }, {} as _.Dictionary<string>)
 }
 
-const NB_STEPS = 5 // change this if the training pipeline changes
+const NB_STEPS = 6 // change this if the training pipeline changes
 
 export type Trainer = (
   input: TrainInput,
   tools: Tools,
-  reportTrainingProgress?: sdk.NLU.ProgressReporter
+  progress?: (x: number) => void,
+  cancelCallback?: () => void
 ) => Promise<TrainOutput | undefined>
 
 export const Trainer: Trainer = async (
   input: TrainInput,
   tools: Tools,
-  progress?: sdk.NLU.ProgressReporter
+  progress?: (x: number) => void,
+  cancelCallback?: () => void
 ): Promise<TrainOutput | undefined> => {
   let totalProgress = 0
   let normalizedProgress = 0
@@ -604,7 +639,7 @@ export const Trainer: Trainer = async (
     }
     if (input.trainingSession.status === 'canceled') {
       // Note that we don't use debouncedProgress here as we want the side effects probagated now
-      reportTrainingProgress(input.botId, 'Currently cancelling...', input.trainingSession)
+      debugTraining.forBot(input.botId, 'Canceling')
       throw new TrainingCanceledError()
     }
 
@@ -614,26 +649,29 @@ export const Trainer: Trainer = async (
       return
     }
     normalizedProgress = scaledProgress
-    debouncedProgress(input.botId, 'Training', { ...input.trainingSession, progress: normalizedProgress })
-  }
-
-  const handleCancellation = () => {
-    reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession!)
-    console.info(input.botId, 'Training aborted')
+    debouncedProgress(normalizedProgress)
   }
 
   let step = await PreprocessInput(input, tools)
+  try {
+    reportProgress() // 10%
+  } catch (err) {
+    if (err instanceof TrainingCanceledError) {
+      cancelCallback?.()
+      return
+    }
+    throw err
+  }
   step = await TfidfTokens(step)
   step = ClusterTokens(step, tools)
   step = await ExtractEntities(step, tools)
   step = await AppendNoneIntent(step, tools)
   const exact_match_index = BuildExactMatchIndex(step)
-
   try {
-    reportProgress() // 20% done...
+    reportProgress() // 20%
   } catch (err) {
     if (err instanceof TrainingCanceledError) {
-      handleCancellation()
+      cancelCallback?.()
       return
     }
     throw err
@@ -646,8 +684,9 @@ export const Trainer: Trainer = async (
     TrainSlotTagger(step, tools, reportProgress)
   ])
 
+  debouncedProgress.flush()
   if (models.some(_.isUndefined)) {
-    handleCancellation()
+    cancelCallback?.()
     return
   }
 
@@ -685,14 +724,19 @@ function extractAugmentations(
 ): Augmentation[] {
   return intent.slot_definitions
     .map(slot => {
-      const complexEntity = complex_entities.find(x => x.name === slot.entity)
+      const slotEntity = (slot.entity === 'date' ? 'time' : slot.entity).toLowerCase()
+      const complexEntity = complex_entities.find(x => x.name.toLowerCase() === slotEntity)
 
       const listEntities = list_entities.filter(
-        x => x.name === slot.entity || complexEntity?.list_entities.includes(slot.entity)
+        x =>
+          x.name.toLowerCase() === slotEntity ||
+          complexEntity?.list_entities.map(l => l.toLowerCase()).includes(x.name.toLowerCase())
       )
 
       const patternEntities = pattern_entities.filter(
-        x => x.name === slot.entity || complexEntity?.list_entities.includes(slot.entity)
+        x =>
+          x.name.toLowerCase() === slotEntity ||
+          complexEntity?.pattern_entities.map(l => l.toLowerCase()).includes(x.name.toLowerCase())
       )
 
       const listExamples = interleave(
@@ -704,7 +748,7 @@ function extractAugmentations(
       const complexExamples = complexEntity?.examples ?? []
 
       return {
-        slotName: slot.name,
+        slotName: slot.name.toLowerCase(),
         examples: interleave(complexExamples, listExamples, patternExamples)
       }
     })

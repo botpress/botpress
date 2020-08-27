@@ -10,7 +10,7 @@ export const createAugmenter = (vars: Augmentation[]) => {
   const indexes: { [key: string]: number } = {}
   return function(phrase: string): string {
     return vars.reduce((acc, curr) => {
-      return acc.replace(new RegExp('\\$' + curr.slotName, 'g'), function() {
+      return acc.replace(new RegExp('\\$' + curr.slotName, 'gi'), function() {
         indexes[curr.slotName] = (indexes[curr.slotName] ?? -1) + 1
         const occ = curr.examples[indexes[curr.slotName] % curr.examples.length]
         return `[${occ}](${curr.slotName})`

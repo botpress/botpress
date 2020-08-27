@@ -82,7 +82,8 @@ const dialog = (
     deleteSession: stateManager.deleteDialogSession.bind(stateManager),
     jumpTo: dialogEngine.jumpTo.bind(dialogEngine),
     getConditions: moduleLoader.getDialogConditions.bind(moduleLoader),
-    getVariables: moduleLoader.getVariables.bind(moduleLoader)
+    getVariables: moduleLoader.getVariables.bind(moduleLoader),
+    createVariable: dialogEngine.createVariable.bind(dialogEngine)
   }
 }
 
