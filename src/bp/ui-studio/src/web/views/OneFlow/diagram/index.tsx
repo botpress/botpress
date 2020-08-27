@@ -133,7 +133,7 @@ class Diagram extends Component<Props> {
   private diagramEngine: ExtendedDiagramEngine
   private diagramWidget: DiagramWidget
   private diagramContainer: HTMLDivElement
-  private searchRef: React.Ref<HTMLInputElement>
+  private searchRef: React.RefObject<HTMLInputElement>
   private manager: DiagramManager
   private timeout
   /** Represents the source port clicked when the user is connecting a node */
@@ -214,7 +214,6 @@ class Diagram extends Component<Props> {
       deleteSelectedElements: this.deleteSelectedElements.bind(this),
       createFlow: this.createFlow.bind(this)
     })
-    // this.searchRef && this.props.showSearch && this.searchRef.focus()
   }
 
   componentWillUnmount() {
@@ -227,8 +226,6 @@ class Diagram extends Component<Props> {
     this.manager.setReadOnly(this.props.readOnly)
 
     if (!prevProps.showSearch && this.props.showSearch) {
-      debugger
-      // @ts-ignore
       this.searchRef.current.focus()
     }
 
@@ -1009,12 +1006,11 @@ class Diagram extends Component<Props> {
             >
               <div className={style.floatingInfo}>
                 <SearchBar
-                  // TODO change placeholder
                   // TODO show search to the right
                   ref={this.searchRef}
                   onBlur={this.props.hideSearch}
                   value={this.props.highlightFilter}
-                  placeholder={lang.tr('studio.flow.highlightByName')}
+                  placeholder={lang.tr('studio.flow.filterBlocks')}
                   onChange={this.props.handleFilterChanged}
                 />
               </div>
