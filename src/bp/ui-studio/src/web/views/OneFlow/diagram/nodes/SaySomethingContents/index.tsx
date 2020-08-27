@@ -55,14 +55,6 @@ const SaySomethingContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem,
           }, {})
           const curLangLength = translatedVariations[currentLang] || 0
 
-          console.log(
-            translatedVariations,
-            Object.keys(translatedVariations).filter(l => l !== currentLang),
-            curLangLength,
-            Object.keys(translatedVariations)
-              .filter(l => l !== currentLang)
-              .map(l => translatedVariations[l] > curLangLength)
-          )
           return (
             fieldHasMissingTranslation(content.text) ||
             Object.keys(translatedVariations)

@@ -44,15 +44,30 @@ const TextAreaList: FC<Props> = ({
     })
   }
 
-  const getRefLang = (value, currentLang, defaultLanguage) => {
-    if (currentLang !== defaultLanguage || !value[defaultLanguage]) {
-      return Object.keys(value).find(key => key !== currentLang && value[key])
-    }
+  const getRefLang = (value, variations, currentLang, defaultLanguage) => {
+    const combinedValues = Object.keys(value).reduce(
+      (acc, key) => ({ ...acc, [key]: [value?.[key] || '', ...(variations[key] || [])].filter(Boolean) }),
+      {}
+    )
+    const currentLangValues = combinedValues[currentLang]
+    let currentHighest = 0
+    let refLang
+    Object.keys(combinedValues)
+      .filter(l => l !== currentLang)
+      .forEach(key => {
+        const thisLength = combinedValues[key].length
+        if (thisLength > currentHighest) {
+          refLang = key
+          currentHighest = thisLength
+        }
+      })
 
-    return defaultLanguage
+    if (currentLangValues?.length || 0 < currentHighest) {
+      return refLang
+    }
   }
 
-  const refLang = getRefLang(data.text || {}, currentLang, defaultLanguage)
+  const refLang = getRefLang(data.text || {}, data.variations || {}, currentLang, defaultLanguage)
 
   return (
     <FormFields.SuperInputArray
