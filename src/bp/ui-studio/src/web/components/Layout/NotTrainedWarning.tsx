@@ -8,13 +8,9 @@ import { RootReducer } from '~/reducers'
 
 import layout from './Layout.scss'
 
-interface Props {
-  currentLanguage: string
-  emulatorOpen: boolean
-  currentSession: NLU.TrainingSession
-}
+type Props = ReturnType<typeof mapStateToProps>
 
-const NotTrainedWarningComponent: FC<Props> = props => {
+const NotTrainedWarningComponent: FC<Props> = (props: Props) => {
   const currentStatus = props.currentSession?.status
 
   const displayWarning = props.emulatorOpen && currentStatus !== 'done'
@@ -33,6 +29,7 @@ const NotTrainedWarningComponent: FC<Props> = props => {
 }
 
 const mapStateToProps = (state: RootReducer) => ({
-  currentSession: state.nlu.trainSession
+  currentSession: state.nlu.trainSession,
+  emulatorOpen: state.ui.emulatorOpen
 })
 export default connect(mapStateToProps)(NotTrainedWarningComponent)

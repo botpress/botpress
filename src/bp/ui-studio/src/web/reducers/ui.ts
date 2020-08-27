@@ -2,6 +2,7 @@ import _ from 'lodash'
 import { handleActions } from 'redux-actions'
 import {
   addDocumentationHint,
+  emulatorOpen,
   removeDocumentationHint,
   toggleBottomPanel,
   updateDocumentationModal,
@@ -19,12 +20,15 @@ const defaultState = {
   customStyle: {},
   docHints: [],
   docModal: null,
-  bottomPanel: defaultBottomPanelOpen || false
+  bottomPanel: defaultBottomPanelOpen || false,
+  emulatorOpen: false
 }
 
 export interface UiReducer {
   viewMode: any
   docHints: string[]
+  emulatorOpen: boolean
+  bottomPanel: boolean
 }
 
 const reducer = handleActions(
@@ -56,7 +60,11 @@ const reducer = handleActions(
         ...state,
         bottomPanel: value
       }
-    }
+    },
+    [emulatorOpen]: (state, { payload }) => ({
+      ...state,
+      emulatorOpen: payload
+    })
   },
   defaultState
 )

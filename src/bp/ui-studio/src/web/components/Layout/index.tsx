@@ -6,10 +6,11 @@ import { connect } from 'react-redux'
 import { Redirect, Route, Switch } from 'react-router-dom'
 import SplitPane from 'react-split-pane'
 import { bindActionCreators } from 'redux'
-import { toggleBottomPanel, trainSessionReceived, viewModeChanged } from '~/actions'
+import { emulatorOpen, toggleBottomPanel, trainSessionReceived, viewModeChanged } from '~/actions'
 import SelectContentManager from '~/components/Content/Select/Manager'
 import PluginInjectionSite from '~/components/PluginInjectionSite'
 import BackendToast from '~/components/Util/BackendToast'
+import { RootReducer } from '~/reducers'
 import Config from '~/views/Config'
 import Content from '~/views/Content'
 import FlowBuilder from '~/views/FlowBuilder'
@@ -43,13 +44,13 @@ interface ILayoutProps {
   translations: any
   contentLang: string
   trainSessionReceived: (ts: NLU.TrainingSession) => void
+  emulatorOpen: (state: boolean) => void
 }
 
 const Layout: FC<ILayoutProps> = props => {
   const mainElRef = useRef(null)
   const [langSwitcherOpen, setLangSwitcherOpen] = useState(false)
   const [guidedTourOpen, setGuidedTourOpen] = useState(false)
-  const [emulatorOpen, setEmulatorOpen] = useState(false)
 
   useEffect(() => {
     const viewMode = props.location.query && props.location.query.viewMode
@@ -62,12 +63,12 @@ const Layout: FC<ILayoutProps> = props => {
 
     const handleWebChatPanel = message => {
       if (message.data.name === 'webchatOpened') {
-        setEmulatorOpen(true)
+        props.emulatorOpen(true)
         document.getElementById('main-content-wrapper').classList.toggle('emulator-open', true)
       }
 
       if (message.data.name === 'webchatClosed') {
-        setEmulatorOpen(false)
+        props.emulatorOpen(false)
         document.getElementById('main-content-wrapper').classList.toggle('emulator-open', false)
       }
     }
@@ -229,7 +230,7 @@ const Layout: FC<ILayoutProps> = props => {
           <LanguageServerHealth />
         </div>
       </HotKeys>
-      <NotTrainedWarningComponent emulatorOpen={emulatorOpen} currentLanguage={props.contentLang} />
+      <NotTrainedWarningComponent />
       <StatusBar
         langSwitcherOpen={langSwitcherOpen}
         toggleLangSwitcher={toggleLangSwitcher}
@@ -241,7 +242,7 @@ const Layout: FC<ILayoutProps> = props => {
   )
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: RootReducer) => ({
   viewMode: state.ui.viewMode,
   docHints: state.ui.docHints,
   bottomPanel: state.ui.bottomPanel,
@@ -250,6 +251,6 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ viewModeChanged, toggleBottomPanel, trainSessionReceived }, dispatch)
+  bindActionCreators({ viewModeChanged, toggleBottomPanel, trainSessionReceived, emulatorOpen }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Layout)

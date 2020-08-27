@@ -545,3 +545,5 @@ export const fetchVariables = () => dispatch => {
     dispatch(variablesReceived(data))
   })
 }
+
+export const emulatorOpen = createAction('EMULATOR_OPENED')
