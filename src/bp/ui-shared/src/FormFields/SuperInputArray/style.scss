@@ -18,13 +18,13 @@
   }
 
   &:focus-within {
-    & + .textareaWrapper {
+    &:not(:global(.has-error)) + .textareaWrapper {
       :global(.superinput-wrapper).customTextarea {
         border-top-color: transparent !important;
       }
     }
 
-    :global(.superinput-wrapper).customTextarea {
+    :global(.superinput-wrapper).customTextarea:not(:global(.has-error)) {
       border-top-color: var(--ocean) !important;
       border-bottom-color: var(--ocean) !important;
 
@@ -57,6 +57,10 @@
   resize: none !important;
   transition: border 0.3s !important;
   width: 100% !important;
+
+  &:global(.has-error) {
+    border-color: var(--lighthouse) !important;
+  }
 
   :global {
     .tags-input .tagify {

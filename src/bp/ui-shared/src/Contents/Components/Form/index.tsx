@@ -188,10 +188,6 @@ const Form: FC<FormProps> = ({
   }
 
   const getRefValue = (value, currentLang, defaultLanguage) => {
-    if (defaultLanguage === currentLang) {
-      return
-    }
-
     if (currentLang !== defaultLanguage || !value[defaultLanguage]) {
       const refLang = Object.keys(value).find(key => key !== currentLang && value[key])
 
@@ -206,7 +202,7 @@ const Form: FC<FormProps> = ({
     let refValue
 
     if (field.translated) {
-      refValue = getRefValue(currentValue, currentLang, defaultLanguage)
+      refValue = getRefValue(currentValue || {}, currentLang, defaultLanguage)
       currentValue = currentValue?.[currentLang!]
     }
     const invalid = invalidFields?.find(x => x.field === field.key)

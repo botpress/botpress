@@ -25,6 +25,7 @@ export interface Props {
   contentLang: string
   defaultLanguage: string
   refreshQnaCount: () => void
+  updateLocalLang: (lang: string) => void
   languages: string[]
   events?: BotEvent[]
 }

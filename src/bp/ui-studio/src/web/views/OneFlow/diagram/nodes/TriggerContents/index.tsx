@@ -12,15 +12,18 @@ interface Props {
   selectedNodeItem: () => { node: BlockModel; index: number }
   getConditions: () => any
   getCurrentLang: () => string
+  defaultLang: string
 }
 
 const TriggerContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem, getConditions, getCurrentLang }) => {
   const conditionLabels = getConditions().reduce((acc, cond) => ({ ...acc, [cond.id]: cond.label }), {})
   const selectedCondition = selectedNodeItem()
   const currentLang = getCurrentLang()
+  const hasMissingTranslations = false
 
   return (
     <div className={style.contentsWrapper}>
+      {hasMissingTranslations && <span className={style.needsTranslation}>{lang.tr('needsTranslation')}</span>}
       {node.conditions?.map((condition, index) => (
         <Fragment key={index}>
           <NodeContentItem

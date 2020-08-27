@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC } from 'react'
 import { StandardPortWidget } from '~/views/FlowBuilder/diagram/nodes/Ports'
@@ -7,6 +8,7 @@ import style from '../Components/style.scss'
 
 interface Props {
   node: BlockModel
+  defaultLang: string
   selectedNodeItem: () => { node: BlockModel; index: number }
   getCurrentLang: () => string
 }
@@ -17,8 +19,11 @@ const PromptContents: FC<Props> = ({ node, selectedNodeItem, getCurrentLang }) =
   const { next } = node || {}
   const { params } = node.prompt || {}
 
+  const hasMissingTranslations = false
+
   return (
     <div className={style.contentsWrapper}>
+      {hasMissingTranslations && <span className={style.needsTranslation}>{lang.tr('needsTranslation')}</span>}
       <div
         className={cx(style.contentWrapper, {
           [style.active]: selectedContent?.node?.id === node.id

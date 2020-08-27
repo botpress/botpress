@@ -120,10 +120,7 @@ type ExtendedDiagramEngine = {
 } & DiagramEngine
 
 const EXPANDED_NODES_KEY = `bp::${window.BOT_ID}::expandedNodes`
-
-const isContentEmpty = content => {
-  return !_.flatMap(content).length
-}
+const STORAGE_KEY = `bp::${window.BOT_ID}::cmsLanguage`
 
 const getEmptyContent = content => {
   return {
@@ -166,6 +163,7 @@ class Diagram extends Component<Props> {
       getCurrentFlow: () => this.getPropsProperty('currentFlow'),
       updateFlowNode: this.updateNodeAndRefresh.bind(this),
       switchFlowNode: this.switchFlowNode.bind(this),
+      getDefaultLanguage: () => this.getPropsProperty('defaultLanguage'),
       getCurrentLang: () => this.getStateProperty('currentLang'),
       getConditions: () => this.getPropsProperty('conditions'),
       addCondition: this.addCondition.bind(this),
@@ -219,7 +217,7 @@ class Diagram extends Component<Props> {
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
 
-    this.setState({ currentLang: this.props.contentLang, expandedNodes: getExpandedNodes() })
+    this.setState({ currentLang: localStorage.getItem(STORAGE_KEY), expandedNodes: getExpandedNodes() })
     this.props.childRef({
       deleteSelectedElements: this.deleteSelectedElements.bind(this),
       createFlow: this.createFlow.bind(this)
@@ -989,6 +987,12 @@ class Diagram extends Component<Props> {
     )
   }
 
+  updateLang = lang => {
+    this.setState({ currentLang: lang })
+
+    localStorage.setItem(STORAGE_KEY, lang)
+  }
+
   render() {
     const { node, index, data } = this.state.editingNodeItem || {}
     const formType: string = node?.nodeType || node?.type || this.state.editingNodeItem?.type
@@ -1016,8 +1020,9 @@ class Diagram extends Component<Props> {
             key={`${this.props.selectedTopic}`}
             moduleName="qna"
             componentName="LiteEditor"
-            contentLang={this.props.contentLang}
+            contentLang={this.state.currentLang}
             extraProps={{
+              updateLocalLang: lang => this.updateLang(lang),
               isLite: true,
               topicName: this.props.selectedTopic,
               languages: this.props.languages,
@@ -1037,7 +1042,7 @@ class Diagram extends Component<Props> {
             currentLang={this.state.currentLang}
             languages={this.props.languages}
             currentTab={this.state.currentTab}
-            setCurrentLang={lang => this.setState({ currentLang: lang })}
+            setCurrentLang={lang => this.updateLang(lang)}
             addVariable={this.addVariable}
             tabChange={this.handleTabChanged}
           />

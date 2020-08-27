@@ -18,6 +18,7 @@ const QnAList: FC<Props> = ({
   defaultLanguage,
   topicName,
   contentLang,
+  updateLocalLang,
   isLite,
   events,
   refreshQnaCount
@@ -151,6 +152,7 @@ const QnAList: FC<Props> = ({
         selected: currentLang === language,
         action: () => {
           setCurrentLang(language)
+          updateLocalLang(language)
         }
       })),
       disabled: !items.length || languages?.length <= 1,

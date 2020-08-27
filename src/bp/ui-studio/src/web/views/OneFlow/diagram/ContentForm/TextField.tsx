@@ -45,10 +45,6 @@ const TextAreaList: FC<Props> = ({
   }
 
   const getRefLang = (value, currentLang, defaultLanguage) => {
-    if (defaultLanguage === currentLang) {
-      return
-    }
-
     if (currentLang !== defaultLanguage || !value[defaultLanguage]) {
       return Object.keys(value).find(key => key !== currentLang && value[key])
     }

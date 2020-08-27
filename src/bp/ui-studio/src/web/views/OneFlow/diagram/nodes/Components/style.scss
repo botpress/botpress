@@ -20,6 +20,22 @@
   }
 }
 
+.needsTranslation {
+  border-radius: 5px;
+  border: solid 1px var(--lighthouse);
+  background-color: var(--hover-lighthouse-30);
+  color: var(--lighthouse);
+  display: block;
+  font-size: 8px;
+  line-height: 1.88;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  margin: 0 0 var(--spacing-medium);
+}
+
 .img {
   background-position: center;
   background-repeat: no-repeat;
