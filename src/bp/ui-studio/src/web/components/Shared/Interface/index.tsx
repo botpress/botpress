@@ -93,7 +93,7 @@ export const SidePanelSection = (props: SidePanelSectionProps) => {
 export const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>((props, ref) => {
   const [text, setText] = useState('')
   const handleTextChanged = e => {
-    props.value == undefined && setText(e.target.value)
+    props.value === undefined && setText(e.target.value)
     props.onChange && props.onChange(e.target.value)
   }
 
