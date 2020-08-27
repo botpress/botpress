@@ -1,39 +1,21 @@
 import { Icon } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
-import { FC, useEffect, useState } from 'react'
+import { FC } from 'react'
 import React from 'react'
+import { connect } from 'react-redux'
+import { RootReducer } from '~/reducers'
 
-import TrainingStatusObserver from './training-status-observer'
 import layout from './Layout.scss'
 
 interface Props {
   currentLanguage: string
   emulatorOpen: boolean
+  currentSession: NLU.TrainingSession
 }
 
-export const NotTrainedWarningComponent: FC<Props> = props => {
-  const [currentStatus, setCurrentStatus] = useState(null as NLU.TrainingStatus)
-
-  useEffect(() => {
-    const listener = {
-      name: 'NotTrainedWarningComponent',
-      cb: updateState,
-      error: () => {}
-    }
-    TrainingStatusObserver.addListener(listener)
-
-    // tslint:disable-next-line: no-floating-promises
-    TrainingStatusObserver.fetchTrainingStatus()
-
-    return () => {
-      TrainingStatusObserver.removeListener(listener)
-    }
-  }, [])
-
-  const updateState = (session: NLU.TrainingSession, _fromWS: boolean) => {
-    setCurrentStatus(session.status)
-  }
+const NotTrainedWarningComponent: FC<Props> = props => {
+  const currentStatus = props.currentSession?.status
 
   const displayWarning = props.emulatorOpen && currentStatus !== 'done'
   if (!displayWarning) {
@@ -49,3 +31,8 @@ export const NotTrainedWarningComponent: FC<Props> = props => {
     </div>
   )
 }
+
+const mapStateToProps = (state: RootReducer) => ({
+  currentSession: state.nlu.trainSession
+})
+export default connect(mapStateToProps)(NotTrainedWarningComponent)

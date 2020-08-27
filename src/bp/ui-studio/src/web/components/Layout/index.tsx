@@ -1,3 +1,4 @@
+import { NLU } from 'botpress/sdk'
 import { lang, utils } from 'botpress/shared'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { HotKeys } from 'react-hotkeys'
@@ -5,7 +6,7 @@ import { connect } from 'react-redux'
 import { Redirect, Route, Switch } from 'react-router-dom'
 import SplitPane from 'react-split-pane'
 import { bindActionCreators } from 'redux'
-import { toggleBottomPanel, viewModeChanged } from '~/actions'
+import { toggleBottomPanel, trainSessionReceived, viewModeChanged } from '~/actions'
 import SelectContentManager from '~/components/Content/Select/Manager'
 import PluginInjectionSite from '~/components/PluginInjectionSite'
 import BackendToast from '~/components/Util/BackendToast'
@@ -16,13 +17,13 @@ import Logs from '~/views/Logs'
 import Module from '~/views/Module'
 import OneFlow from '~/views/OneFlow'
 
-import TrainingStatusObserver from './training-status-observer'
+import { TrainingStatusService } from './training-status-service'
 import BotUmountedWarning from './BotUnmountedWarning'
 import CommandPalette from './CommandPalette'
 import GuidedTour from './GuidedTour'
 import LanguageServerHealth from './LangServerHealthWarning'
 import layout from './Layout.scss'
-import { NotTrainedWarningComponent } from './NotTrainedWarning'
+import NotTrainedWarningComponent from './NotTrainedWarning'
 import Sidebar from './Sidebar'
 import StatusBar from './StatusBar'
 import Toolbar from './Toolbar'
@@ -41,6 +42,7 @@ interface ILayoutProps {
   bottomPanel: boolean
   translations: any
   contentLang: string
+  trainSessionReceived: (ts: NLU.TrainingSession) => void
 }
 
 const Layout: FC<ILayoutProps> = props => {
@@ -71,10 +73,13 @@ const Layout: FC<ILayoutProps> = props => {
     }
     window.addEventListener('message', handleWebChatPanel)
 
-    TrainingStatusObserver.setLanguage(props.contentLang)
+    const trainStatusService = new TrainingStatusService(props.contentLang, props.trainSessionReceived)
+    // tslint:disable-next-line: no-floating-promises
+    trainStatusService.fetchTrainingStatus()
+    trainStatusService.startPolling()
     return () => {
       window.removeEventListener('message', handleWebChatPanel)
-      TrainingStatusObserver.dispose()
+      trainStatusService.stopPolling()
     }
   }, [])
 
@@ -244,6 +249,7 @@ const mapStateToProps = state => ({
   contentLang: state.language.contentLang
 })
 
-const mapDispatchToProps = dispatch => bindActionCreators({ viewModeChanged, toggleBottomPanel }, dispatch)
+const mapDispatchToProps = dispatch =>
+  bindActionCreators({ viewModeChanged, toggleBottomPanel, trainSessionReceived }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Layout)

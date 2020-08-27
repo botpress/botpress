@@ -5,55 +5,22 @@ import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
-
-import TrainingStatusObserver from '../training-status-observer'
+import { connect } from 'react-redux'
+import { RootReducer } from '~/reducers'
 
 import style from './style.scss'
 
 interface Props {
-  currentLanguage: string
+  trainSession: NLU.TrainingSession
 }
 
 // TODO change this url for core ?
 const BASE_NLU_URL = `${window.BOT_API_PATH}/mod/nlu`
 
-export const TrainingStatusComponent: FC<Props> = props => {
-  const [status, setStatus] = useState<NLU.TrainingStatus>(null)
+const TrainingStatusComponent: FC<Props> = (props: Props) => {
+  const { status, progress } = props.trainSession ?? {}
+
   const [message, setMessage] = useState('')
-
-  useEffect(() => {
-    const listener = {
-      name: 'TrainingStatusComponent',
-      cb: updateState,
-      error: onTrainingNeeded
-    }
-    TrainingStatusObserver.addListener(listener)
-
-    // tslint:disable-next-line: no-floating-promises
-    TrainingStatusObserver.fetchTrainingStatus()
-
-    return () => {
-      TrainingStatusObserver.removeListener(listener)
-    }
-  }, [])
-
-  const updateState = (session: NLU.TrainingSession, fromWS: boolean) => {
-    setStatus(session.status)
-
-    if (session.status === 'training') {
-      onTrainingProgress(session.progress)
-    } else if (session.status === 'errored') {
-      onError()
-    } else if (session.status === 'canceled') {
-      onCanceling()
-    } else if (session.status === 'needs-training') {
-      onTrainingNeeded()
-    } else if (session.status === 'idle' || session.status === 'done') {
-      // shady timeout prevents adding embarrasing racecondition checks
-      const delay = fromWS ? 0 : 750
-      setTimeout(onTraingDone, delay)
-    }
-  }
 
   const onTrainingNeeded = () => setMessage('')
   const onTraingDone = () => setMessage(lang.tr('statusBar.ready'))
@@ -63,6 +30,20 @@ export const TrainingStatusComponent: FC<Props> = props => {
     const p = Math.floor(progress * 100)
     setMessage(`${lang.tr('statusBar.training')} ${p}%`)
   }
+
+  useEffect(() => {
+    if (status === 'training') {
+      onTrainingProgress(progress ?? 0)
+    } else if (status === 'errored') {
+      onError()
+    } else if (status === 'canceled') {
+      onCanceling()
+    } else if (status === 'needs-training') {
+      onTrainingNeeded()
+    } else if (status === 'idle' || status === 'done') {
+      onTraingDone()
+    }
+  }, [props.trainSession])
 
   const onTrainClicked = async (e: React.SyntheticEvent) => {
     e.preventDefault()
@@ -109,3 +90,8 @@ export const TrainingStatusComponent: FC<Props> = props => {
     )
   }
 }
+
+const mapStateToProps = (state: RootReducer) => ({
+  trainSession: state.nlu.trainSession
+})
+export default connect(mapStateToProps)(TrainingStatusComponent)
