@@ -5,25 +5,23 @@ import common from './common'
 
 class PromptPattern implements Prompt {
   private _formatInvalidMessage: MultiLangText
-  private regex: RegExp
+  private _subType: string
 
-  constructor({ regexPattern = '', formatInvalidMessage }) {
+  constructor({ subType, formatInvalidMessage }) {
+    this._subType = subType
     this._formatInvalidMessage = formatInvalidMessage
-    this.regex = new RegExp(regexPattern, 'g')
   }
 
   extraction(event: IO.IncomingEvent): ExtractionResult[] {
-    const text = event.payload.text
-
-    if (this.regex.test(text)) {
-      return text.match(this.regex).map(x => ({ value: x, confidence: 1 }))
-    }
-
-    return []
+    const entities = event.nlu?.entities?.filter(x => x.type === `custom.pattern.${this._subType}`) ?? []
+    return entities.map(entity => ({
+      value: entity.data.value,
+      confidence: entity.meta.confidence
+    }))
   }
 
   validate(value): ValidationResult {
-    if (value == undefined || !this.regex.test(value)) {
+    if (value == undefined) {
       return { valid: false, message: this._formatInvalidMessage ?? lang.tr('module.builtin.prompt.pattern.invalid') }
     }
 
@@ -35,24 +33,13 @@ const config: PromptConfig = {
   type: 'pattern',
   label: 'Pattern',
   valueType: 'string',
+  icon: 'comparison',
   fields: [
     ...common.fields,
     {
-      type: 'variable',
-      key: 'output',
-      required: true,
-      label: 'module.builtin.setValueTo',
-      placeholder: 'module.builtin.setValueToPlaceholder',
-      variableTypes: ['pattern'],
-      defaultVariableType: 'pattern'
-    },
-    {
-      type: 'text',
-      key: 'regexPattern',
-      required: true,
-      placeholder: 'module.builtin.regexPatternPlaceholder',
-      label: 'module.builtin.regexPattern'
-      // TODO add combo box to select from predefined patterns or custom
+      type: 'hidden',
+      key: 'subType',
+      label: 'subType'
     },
     {
       type: 'text',

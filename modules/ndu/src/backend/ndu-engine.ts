@@ -78,7 +78,11 @@ export class UnderstandingEngine {
         { userLanguage: event?.state?.user?.language },
         axiosConfig
       )
-      return data
+      const actions: sdk.NDU.Actions[] = data.filter(a => a.action !== 'redirect')
+      if (event.state.context?.activePrompt?.status === 'pending') {
+        actions.push({ action: 'prompt.repeat' })
+      }
+      return actions
     } catch (err) {
       this.bp.logger.warn('Could not query qna', err)
       return []
@@ -105,6 +109,7 @@ export class UnderstandingEngine {
     }
 
     const currentFlow = event.state?.context?.currentFlow ?? 'n/a'
+    // TODO : sync this with transitionTo and jumpTo
     const currentTopic = event.state?.session?.nduContext?.last_topic ?? 'n/a'
     const currentNode = event.state?.context?.currentNode ?? 'n/a'
     const isInMiddleOfFlow = currentFlow !== 'n/a'
@@ -387,6 +392,7 @@ export class UnderstandingEngine {
 
       for (const node of flow.nodes) {
         if (node.type === ('listener' as sdk.FlowNodeType)) {
+          // TODO: remove this (deprecated)
           this._allNodeIds.add(node.id)
         }
 
@@ -395,9 +401,9 @@ export class UnderstandingEngine {
           triggers.push(<sdk.NDU.WorkflowTrigger>{
             conditions: tn.conditions
               .filter(x => x.id !== undefined)
-              .map(x => ({
+              .map((x, idx) => ({
                 ...x,
-                params: { ...x.params, topicName, wfName: flowName }
+                params: { ...x.params, topicName, wfName: flowName, nodeName: tn.name, conditionIndex: idx }
               })),
             type: 'workflow',
             workflowId: flowName,
@@ -444,14 +450,14 @@ export class UnderstandingEngine {
 
           triggers.push(
             ...ln.triggers.map(
-              trigger =>
+              (trigger, idx) =>
                 <sdk.NDU.NodeTrigger>{
                   nodeId: ln.name,
                   name: trigger.name,
                   effect: trigger.effect,
                   conditions: trigger.conditions.map(x => ({
                     ...x,
-                    params: { topicName, wfName: flowName, ...x.params }
+                    params: { topicName, wfName: flowName, nodeName: ln.name, conditionIndex: idx, ...x.params }
                   })),
                   type: 'node',
                   workflowId: flowName

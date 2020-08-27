@@ -15,8 +15,8 @@ import { NLUState } from './typings'
 
 const state: NLUState = {
   nluByBot: {},
-  reportTrainingProgress: () => {},
-  logger: {} as sdk.NLU.Logger
+  logger: {} as sdk.NLU.Logger,
+  sendNLUStatusEvent: async () => {}
 }
 
 const onServerStarted = getOnSeverStarted(state)

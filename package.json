@@ -22,6 +22,8 @@
     "commitmsg": "commitlint -e $GIT_PARAMS"
   },
   "dependencies": {
+    "@babel/parser": "^7.11.2",
+    "@babel/traverse": "^7.11.0",
     "axios": "^0.19.0",
     "bluebird-global": "^1.0.1",
     "bluebird-retry": "^0.11.0",

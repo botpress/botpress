@@ -9,6 +9,8 @@ interface CssExports {
   'inlineEditing': string;
   'inputLabel': string;
   'isTopic': string;
+  'larger': string;
+  'largerSelected': string;
   'searchBar': string;
   'tag': string;
   'topicName': string;

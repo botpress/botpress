@@ -50,6 +50,7 @@ export class NLURouter extends CustomRouter {
       })
     )
 
+    // TODO: Deprecate this
     this.router.get(
       '/entities',
       this._checkTokenHeader,

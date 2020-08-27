@@ -28,7 +28,7 @@ export const handlePrompt = async (event: sdk.IO.OutgoingEvent, bp: typeof sdk):
 
   const defaultPayload: sdk.Content.Text = {
     type: 'text',
-    text: payload.question,
+    text: (payload.question as string).replace('__VARNAME', payload.output),
     metadata: payload.metadata
   }
 
@@ -53,9 +53,9 @@ export const handlePrompt = async (event: sdk.IO.OutgoingEvent, bp: typeof sdk):
     case 'enum':
       let items = payload.items
 
-      if (payload.enumType) {
+      if (payload.subType) {
         const { data } = await axios.get(
-          `nlu/entities/${payload.enumType}`,
+          `nlu/entities/${payload.subType}`,
           await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
         )
         items = data.occurrences.map(x => ({ label: x.name, value: x.name }))

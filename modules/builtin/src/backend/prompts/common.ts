@@ -7,6 +7,7 @@ const common: FormDefinition = {
       key: 'question',
       translated: true,
       required: true,
+      defaultValue: 'studio.prompt.defaultQuestion',
       maxLength: 150,
       placeholder: 'module.builtin.messagePlaceholder',
       label: 'message'
@@ -32,7 +33,7 @@ const common: FormDefinition = {
     {
       type: 'number',
       key: 'searchBackCount',
-      defaultValue: 0,
+      defaultValue: 2,
       min: 0,
       max: 10,
       // moreInfo: { label: 'module.builtin.searchBackCountMoreInfo' },

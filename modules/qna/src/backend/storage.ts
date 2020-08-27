@@ -68,7 +68,7 @@ const ItemSchema = Joi.object().keys({
   contentAnswers: Joi.array()
     .items(QnaItemContentAnswerSchema)
     .default([]),
-  enabled: Joi.bool().required(),
+  enabled: Joi.bool().required()
 })
 
 type Intent = Omit<sdk.NLU.IntentDefinition, 'metadata'> & { metadata?: Metadata }
@@ -79,7 +79,7 @@ const toQnaFile = topicName => `${topicName}/qna.intents.json`
 const serialize = (intents: Intent[]) => JSON.stringify(intents, undefined, 2)
 
 export default class Storage {
-  constructor(private ghost: sdk.ScopedGhostService) { }
+  constructor(private ghost: sdk.ScopedGhostService) {}
 
   // TODO: validate no dupes
 

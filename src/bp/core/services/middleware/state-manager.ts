@@ -1,10 +1,8 @@
 import * as sdk from 'botpress/sdk'
-import { FlowVariableType } from 'botpress/sdk'
 import { BotpressConfig } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
 import { createExpiry } from 'core/misc/expiry'
-import { ModuleLoader } from 'core/module-loader'
 import { inject, injectable, tagged } from 'inversify'
 import { Redis } from 'ioredis'
 import Knex from 'knex'
@@ -106,42 +104,6 @@ export class StateManager {
     })
 
     this.boxWorkflowVariables(state.session.workflows, event.botId)
-
-    // This can be used to set a variable on the current workflow, or on a specific workflow
-    state.createVariable = (
-      name: string,
-      value: any,
-      type: string,
-      options?: { nbOfTurns: number; specificWorkflow?: string; enumType?: string; config?: any }
-    ) => {
-      const workflowName = options?.specificWorkflow ?? state.session.currentWorkflow!
-      const wf = state.session.workflows[workflowName]
-      if (!wf) {
-        return
-      }
-
-      const { enumType, nbOfTurns, config } = options ?? {}
-      const data = { type, enumType, value, nbOfTurns: nbOfTurns ?? 10, config }
-
-      wf.variables[name] = this._getBoxedVar(data, event.botId, workflowName, name)!
-    }
-  }
-
-  private _getBoxedVar(
-    data: Omit<sdk.BoxedVarContructor<any>, 'getEnumList'>,
-    botId: string,
-    workflowName: string,
-    variableName: string
-  ) {
-    const { type, enumType, value, nbOfTurns, config: optConfig } = data
-
-    const BoxedVar = this.dialogStore.getVariable(type)?.box
-    if (BoxedVar) {
-      const config = optConfig ?? this.dialogStore.getVariableConfig(botId, workflowName, variableName)?.params
-
-      const getEnumList = () => this.dialogStore.getEnumForBot(botId, enumType) ?? []
-      return new BoxedVar({ type, enumType, nbOfTurns, value, config, getEnumList })
-    }
   }
 
   private boxWorkflowVariables(workflows: { [name: string]: sdk.IO.WorkflowHistory }, botId: string) {
@@ -149,10 +111,10 @@ export class StateManager {
       const variables = workflows[wf].variables
 
       workflows[wf].variables = Object.keys(variables).reduce((acc, id) => {
-        const { type, enumType, value, nbTurns } = (variables[id] as any) as sdk.UnboxedVariable<any>
+        const { type, subType, value, nbTurns } = (variables[id] as any) as sdk.UnboxedVariable<any>
 
-        const data = { type, enumType, value, nbOfTurns: nbTurns - 1 }
-        acc[id] = this._getBoxedVar(data, botId, wf, id)
+        const data = { type, subType, value, nbOfTurns: nbTurns - 1 }
+        acc[id] = this.dialogStore.getBoxedVar(data, botId, wf, id)
 
         return acc
       }, {})

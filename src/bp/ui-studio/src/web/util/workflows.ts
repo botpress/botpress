@@ -1,3 +1,5 @@
+import { FlowView } from 'common/typings'
+
 interface FlowDef {
   topic?: string
   workflow: string

@@ -19,14 +19,29 @@ interface WorkflowVariables {
 }
 
 const DEBOUNCE_DELAY = 2000
-const ENUMS_DIR = './entities'
+const ENTITIES_DIR = './entities'
+
+const preparePattern = (pattern: string, matchCase?: boolean) => {
+  try {
+    let p = pattern || ''
+    if (!p.startsWith('^')) {
+      p = `^${p}`
+    }
+    if (!p.endsWith('$')) {
+      p = `${p}$`
+    }
+    return new RegExp(p, matchCase ? '' : 'i')
+  } catch (err) {
+    console.error('Pattern invalid', err)
+  }
+}
 
 @injectable()
 export class DialogStore {
   private _prompts!: sdk.PromptDefinition[]
-  private _variables!: sdk.FlowVariableType[]
+  private _variables!: sdk.PrimitiveVarType[]
 
-  private _enums: { [botId: string]: sdk.NLU.EntityDefinition[] } = {}
+  private _customTypes: { [botId: string]: sdk.NLU.EntityDefinition[] } = {}
   private _wfVariables: WorkflowVariables = {}
 
   constructor(
@@ -50,11 +65,12 @@ export class DialogStore {
     this._variables = await this.moduleLoader.getVariables()
 
     this.promptManager.prompts = this._prompts
+    this.promptManager.getCustomTypes = (botId: string) => this._customTypes[botId]
 
     // Preloading content so we can keep all methods sync for the boxed variable
     const bots = await this.botService.getBotsIds()
     bots.forEach(async botId => {
-      await this._reloadEnums(botId)
+      await this._reloadEntities(botId)
       await this._reloadWorkflowVariables(botId)
     })
   }
@@ -73,17 +89,51 @@ export class DialogStore {
 
   reloadContent = async (botId: string, type: string) => {
     if (type === 'entities') {
-      await this._reloadEnums(botId)
+      await this._reloadEntities(botId)
     } else if (type === 'flows') {
       await this._reloadWorkflowVariables(botId)
     }
   }
 
-  public getEnumForBot(botId: string, enumType?: string): sdk.NLU.EntityDefOccurrence[] | undefined {
-    return this._enums[botId]?.find(x => x.id === enumType)?.occurrences
+  private _getValidationData(botId: string, subType?: string): sdk.ValidationData | undefined {
+    const entity = this._customTypes[botId]?.find(x => x.id === subType)
+    if (!entity) {
+      return
+    }
+    const patterns: any = []
+    const elements: any = []
+
+    if (entity.pattern) {
+      patterns.push(preparePattern(entity.pattern, entity.matchCase))
+    }
+
+    if (entity.occurrences?.length) {
+      elements.push(entity.occurrences)
+    }
+
+    if (entity.type === 'complex') {
+      if (entity.pattern_entities?.length) {
+        patterns.push(
+          ...entity.pattern_entities.map(name => {
+            const item = this._customTypes[botId].find(x => x.id === name)
+            return item && !!item.pattern && preparePattern(item.pattern!, item.matchCase)
+          })
+        )
+      }
+      if (entity.list_entities?.length) {
+        elements.push(
+          ...entity.list_entities.map(name => this._customTypes[botId].find(x => x.id === name)?.occurrences)
+        )
+      }
+    }
+
+    return {
+      patterns: patterns.filter(Boolean),
+      elements: _.flatten<sdk.NLU.EntityDefOccurrence>(elements).filter(Boolean)
+    }
   }
 
-  public getVariable(type: string): sdk.FlowVariableType | undefined {
+  public getVariable(type: string): sdk.PrimitiveVarType | undefined {
     return this._variables.find(x => x.id === type)
   }
 
@@ -95,11 +145,28 @@ export class DialogStore {
     return this._prompts.find(x => x.id === type)?.config
   }
 
-  private async _reloadEnums(botId: string) {
-    const enumFiles = await this.ghost.forBot(botId).directoryListing(ENUMS_DIR, '*.json')
+  public getBoxedVar(
+    data: Omit<sdk.BoxedVarContructor<any>, 'getValidationData'>,
+    botId: string,
+    workflowName: string,
+    variableName: string
+  ) {
+    const { type, subType, value, nbOfTurns, config: optConfig } = data
 
-    this._enums[botId] = await Promise.mapSeries(enumFiles, name =>
-      this.ghost.forBot(botId).readFileAsObject<sdk.NLU.EntityDefinition>(ENUMS_DIR, name)
+    const BoxedVar = this.getVariable(type)?.box
+    if (BoxedVar) {
+      const config = optConfig ?? this.getVariableConfig(botId, workflowName, variableName)?.params
+
+      const getValidationData = () => this._getValidationData(botId, subType)
+      return new BoxedVar({ type, subType, nbOfTurns, value, config, getValidationData })
+    }
+  }
+
+  private async _reloadEntities(botId: string) {
+    const enumFiles = await this.ghost.forBot(botId).directoryListing(ENTITIES_DIR, '*.json')
+
+    this._customTypes[botId] = await Promise.mapSeries(enumFiles, name =>
+      this.ghost.forBot(botId).readFileAsObject<sdk.NLU.EntityDefinition>(ENTITIES_DIR, name)
     )
   }
 
