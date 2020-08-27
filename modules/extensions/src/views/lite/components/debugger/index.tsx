@@ -34,8 +34,8 @@ interface Props {
 }
 
 interface State {
-  event: any
-  prevEvent: any
+  event: sdk.IO.IncomingEvent
+  prevEvent: sdk.IO.IncomingEvent
   selectedTabId: string
   visible: boolean
   showSettings: boolean
@@ -170,12 +170,10 @@ export class Debugger extends React.Component<Props, State> {
       const { data: event } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
 
       const lastMessages: any[] = this.props.store.currentConversation.messages
-      const currentMessageIndex = lastMessages.findIndex(m => m.incomingEventId == eventId)
-      const previousUserMessages = lastMessages.filter((m, i) => i < currentMessageIndex && m.userId)
-
+      const prevMessage = _.last(_.takeWhile(lastMessages, x => x.incomingEventId !== eventId).filter(x => x.userId))
       let prevEvent = undefined
-      if (previousUserMessages.length) {
-        const prevMessage = previousUserMessages[previousUserMessages.length - 1]
+
+      if (prevMessage) {
         const { data } = await this.props.store.bp.axios.get('/mod/extensions/events/' + prevMessage.incomingEventId)
         prevEvent = data
       }

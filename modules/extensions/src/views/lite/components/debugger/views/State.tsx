@@ -39,7 +39,8 @@ const State: FC<Props> = ({ state, prevState, isExpanded, toggleExpand }) => {
     }
 
     const variables = state.session.workflows[state.session.currentWorkflow]?.variables || {}
-    const prevVariables = prevState?.session.workflows[prevState.session.currentWorkflow]?.variables || {}
+    const prevVariables = prevState?.session.workflows[state.session.currentWorkflow]?.variables || {}
+    const variableIds = _.uniq([...Object.keys(variables), ...Object.keys(prevVariables)])
 
     return (
       <table className={cx(style.variablesTable, 'bp3-html-table .modifier')}>
@@ -51,11 +52,11 @@ const State: FC<Props> = ({ state, prevState, isExpanded, toggleExpand }) => {
           </tr>
         </thead>
         <tbody>
-          {Object.keys(variables).map(x => (
+          {variableIds.map(variableId => (
             <tr>
-              <td>{x}</td>
-              <td>{prevVariables[x]?.value || lang.tr('module.extensions.state.undefined')}</td>
-              <td>{variables[x].value}</td>
+              <td>{variableId}</td>
+              <td>{prevVariables[variableId]?.value || lang.tr('module.extensions.state.undefined')}</td>
+              <td>{variables[variableId]?.value || lang.tr('module.extensions.state.undefined')}</td>
             </tr>
           ))}
         </tbody>
