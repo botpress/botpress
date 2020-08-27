@@ -44,11 +44,12 @@ interface State {
   fetching: boolean
   unauthorized: boolean
   tab: string
+  eventsCache: { [key: string]: sdk.IO.IncomingEvent }
 }
 const DEBUGGER_TAB_KEY = 'debuggerTab'
 
 export class Debugger extends React.Component<Props, State> {
-  state = {
+  state: State = {
     event: undefined,
     prevEvent: undefined,
     showEventNotFound: false,
@@ -58,7 +59,8 @@ export class Debugger extends React.Component<Props, State> {
     fetching: false,
     unauthorized: false,
     showInspector: false,
-    tab: window['BP_STORAGE'].get(DEBUGGER_TAB_KEY) || 'content'
+    tab: window['BP_STORAGE'].get(DEBUGGER_TAB_KEY) || 'content',
+    eventsCache: {}
   }
   allowedRetryCount = 0
   currentRetryCount = 0
@@ -167,15 +169,14 @@ export class Debugger extends React.Component<Props, State> {
     this.setState({ fetching: true })
 
     try {
-      const { data: event } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
+      const event = await this.getEvent(eventId)
 
       const lastMessages: any[] = this.props.store.currentConversation.messages
       const prevMessage = _.last(_.takeWhile(lastMessages, x => x.incomingEventId !== eventId).filter(x => x.userId))
-      let prevEvent = undefined
+      let prevEvent: sdk.IO.IncomingEvent = undefined
 
       if (prevMessage) {
-        const { data } = await this.props.store.bp.axios.get('/mod/extensions/events/' + prevMessage.incomingEventId)
-        prevEvent = data
+        prevEvent = await this.getEvent(prevMessage.incomingEventId)
       }
 
       this.setState({ event, prevEvent, showEventNotFound: !event })
@@ -201,6 +202,16 @@ export class Debugger extends React.Component<Props, State> {
     } else {
       this.setState({ fetching: false })
       this.currentRetryCount = 0
+    }
+  }
+
+  getEvent = async (eventId: string): Promise<sdk.IO.IncomingEvent> => {
+    if (this.state.eventsCache[eventId]) {
+      return this.state.eventsCache[eventId]
+    } else {
+      const { data: event } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
+      this.state.eventsCache[eventId] = event
+      return event
     }
   }
 
