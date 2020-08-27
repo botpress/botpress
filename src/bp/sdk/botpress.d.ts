@@ -868,6 +868,7 @@ declare module 'botpress/sdk' {
       state: {
         confirmCandidate?: PromptCandidate
         disambiguateCandidates?: PromptCandidate[]
+        electedCandidate?: PromptCandidate
         value?: any
         nextDestination?: { flowName: string; node: string }
       }
@@ -929,6 +930,8 @@ declare module 'botpress/sdk' {
       hasJumped?: boolean
       /** The status of the current active prompt */
       activePrompt?: PromptStatus
+      /** The list of previously extracted candidates */
+      pastPromptCandidates?: PromptCandidate[]
       inputs?: { [variable: string]: SubWorkflowInput }
     }
 

@@ -40,13 +40,18 @@ const generateJumpTo = (actions: any[], status: IO.PromptStatus): ProcessedStatu
   }
 }
 
-const generateResolved = (actions: any[], status: IO.PromptStatus, value: any): ProcessedStatus => {
+const generateResolved = (
+  actions: any[],
+  status: IO.PromptStatus,
+  value?: any,
+  candidate?: IO.PromptCandidate
+): ProcessedStatus => {
   return {
     actions,
     status: {
       ...status,
       status: 'resolved',
-      state: { value }
+      state: { value: value ?? candidate?.value_raw, electedCandidate: candidate }
     }
   }
 }
@@ -153,7 +158,7 @@ export class PromptManager {
 
     debugPrompt('before process prompt %o', { prompt: status })
 
-    const candidates: IO.PromptCandidate[] = []
+    let candidates: IO.PromptCandidate[] = []
 
     const prompt = this.loadPrompt(status.config.type, status.config, () => this.getCustomTypes!(event.botId))
 
@@ -196,7 +201,7 @@ export class PromptManager {
     if (status.stage === 'confirm-candidate') {
       if (confirmValue?.value === true) {
         if (tryElect(status.state.confirmCandidate?.value_raw)) {
-          return generateResolved(actions, status, status.state.confirmCandidate?.value_raw)
+          return generateResolved(actions, status, undefined, status.state.confirmCandidate)
         } else {
           return generatePrompt(actions, status)
         }
@@ -219,7 +224,8 @@ export class PromptManager {
     let eventsToExtractFrom = [event]
 
     if (status.stage === 'new') {
-      eventsToExtractFrom = _.orderBy([event, ...previousEvents], 'id', 'desc')
+      const evt = status.config.searchBackCount > 0 ? [event] : []
+      eventsToExtractFrom = _.orderBy([...evt, ...previousEvents], 'id', 'desc')
 
       const currentVariable = event.state.workflow.variables[varName]
       if (currentVariable?.value !== undefined && currentVariable?.value !== null) {
@@ -258,6 +264,14 @@ export class PromptManager {
       }
     }
 
+    if (context.pastPromptCandidates) {
+      context.pastPromptCandidates = context.pastPromptCandidates
+        .map(c => ({ ...c, turns_ago: c.turns_ago++ }))
+        .filter(x => x.turns_ago < 10)
+
+      candidates = _.differenceBy(candidates, context.pastPromptCandidates, x => `${x.source}${x.value_raw}`)
+    }
+
     const shortlisted = candidates
       .filter(x => x.turns_ago === 0)
       .filter(x => x.confidence >= MIN_CONFIDENCE_VALIDATION)
@@ -279,7 +293,7 @@ export class PromptManager {
         if (shortlisted[0].source === 'slot') {
           this._electSlot(event, varName)
         }
-        return generateResolved(actions, status, shortlisted[0].value_raw)
+        return generateResolved(actions, status, undefined, shortlisted[0])
       }
     } else if (shortlisted.length > 1) {
       return generateDisambiguate(actions, status, shortlisted)
