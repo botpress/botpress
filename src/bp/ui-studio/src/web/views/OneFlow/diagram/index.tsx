@@ -994,6 +994,15 @@ class Diagram extends Component<Props> {
             tabChange={this.handleTabChanged}
           />
           {currentTab === 'variables' && <VariablesEditor editVariable={this.editVariable} />}
+          <div className={style.searchWrapper}>
+            <SearchBar
+              ref={this.searchRef}
+              onBlur={this.props.hideSearch}
+              value={this.props.highlightFilter}
+              placeholder={lang.tr('studio.flow.filterBlocks')}
+              onChange={this.props.handleFilterChanged}
+            />
+          </div>
           <Fragment>
             <div
               id="diagramContainer"
@@ -1004,16 +1013,6 @@ class Diagram extends Component<Props> {
               onDrop={this.handleToolDropped}
               onDragOver={event => event.preventDefault()}
             >
-              <div className={style.floatingInfo}>
-                <SearchBar
-                  // TODO show search to the right
-                  ref={this.searchRef}
-                  onBlur={this.props.hideSearch}
-                  value={this.props.highlightFilter}
-                  placeholder={lang.tr('studio.flow.filterBlocks')}
-                  onChange={this.props.handleFilterChanged}
-                />
-              </div>
               <DiagramWidget
                 ref={w => (this.diagramWidget = w)}
                 deleteKeys={[]}
