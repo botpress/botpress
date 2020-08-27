@@ -43,16 +43,6 @@ interface ILayoutProps {
   contentLang: string
 }
 
-const handleWebChatPanel = message => {
-  if (message.data.name === 'webchatOpened') {
-    document.getElementById('main-content-wrapper').classList.toggle('emulator-open', true)
-  }
-
-  if (message.data.name === 'webchatClosed') {
-    document.getElementById('main-content-wrapper').classList.toggle('emulator-open', false)
-  }
-}
-
 const Layout: FC<ILayoutProps> = props => {
   const mainElRef = useRef(null)
   const [langSwitcherOpen, setLangSwitcherOpen] = useState(false)
@@ -68,6 +58,17 @@ const Layout: FC<ILayoutProps> = props => {
 
     setTimeout(() => BotUmountedWarning(), 500)
 
+    const handleWebChatPanel = message => {
+      if (message.data.name === 'webchatOpened') {
+        setEmulatorOpen(true)
+        document.getElementById('main-content-wrapper').classList.toggle('emulator-open', true)
+      }
+
+      if (message.data.name === 'webchatClosed') {
+        setEmulatorOpen(false)
+        document.getElementById('main-content-wrapper').classList.toggle('emulator-open', false)
+      }
+    }
     window.addEventListener('message', handleWebChatPanel)
 
     TrainingStatusObserver.setLanguage(props.contentLang)
@@ -85,7 +86,6 @@ const Layout: FC<ILayoutProps> = props => {
   }, [props.translations])
 
   const toggleEmulator = () => {
-    setEmulatorOpen(!emulatorOpen)
     window.botpressWebChat.sendEvent({ type: 'toggle' })
     document.getElementById('main-content-wrapper').classList.toggle('emulator-open')
   }
