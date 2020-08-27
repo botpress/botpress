@@ -16,6 +16,7 @@ interface CssExports {
   'header': string;
   'headerWrapper': string;
   'highlightedQna': string;
+  'importBtn': string;
   'initialLoading': string;
   'input': string;
   'items': string;

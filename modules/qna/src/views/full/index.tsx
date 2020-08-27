@@ -1,5 +1,6 @@
-import { Spinner, IconName, Icon } from '@blueprintjs/core'
-import { EmptyState, HeaderButtonProps, lang, MainContent, confirmDialog } from 'botpress/shared'
+import { Icon, IconName, Spinner } from '@blueprintjs/core'
+import { props } from 'bluebird'
+import { confirmDialog, EmptyState, HeaderButtonProps, lang, MainContent } from 'botpress/shared'
 import { AccessControl, Downloader, reorderFlows, toastFailure, toastSuccess } from 'botpress/utils'
 import cx from 'classnames'
 import { debounce } from 'lodash'
@@ -9,7 +10,6 @@ import style from './style.scss'
 import { dispatchMiddleware, fetchReducer, itemHasError, ITEMS_PER_PAGE, Props } from './utils/qnaList.utils'
 import QnA from './Components/QnA'
 import EmptyStateIcon from './Icons/EmptyStateIcon'
-import { props } from 'bluebird'
 
 const QnAList: FC<Props> = ({
   bp,
@@ -44,8 +44,8 @@ const QnAList: FC<Props> = ({
   useEffect(() => {
     wrapperRef.current.addEventListener('scroll', handleScroll)
     fetchData()
-      .then(() => { })
-      .catch(() => { })
+      .then(() => {})
+      .catch(() => {})
 
     fetchFlows()
 
@@ -59,8 +59,8 @@ const QnAList: FC<Props> = ({
   useEffect(() => {
     if (queryParams.get('id')) {
       fetchHighlightedQna(queryParams.get('id'))
-        .then(() => { })
-        .catch(() => { })
+        .then(() => {})
+        .catch(() => {})
     } else {
       dispatch({ type: 'resetHighlighted' })
     }
@@ -70,8 +70,8 @@ const QnAList: FC<Props> = ({
     const timer = setTimeout(() => {
       if (!firstUpdate) {
         fetchData()
-          .then(() => { })
-          .catch(() => { })
+          .then(() => {})
+          .catch(() => {})
       }
     }, 300)
     return () => clearTimeout(timer)
@@ -80,8 +80,8 @@ const QnAList: FC<Props> = ({
   useEffect(() => {
     if (!loading && fetchMore && items.length < count) {
       fetchData(page + 1)
-        .then(() => { })
-        .catch(() => { })
+        .then(() => {})
+        .catch(() => {})
     }
   }, [fetchMore])
 
@@ -91,7 +91,9 @@ const QnAList: FC<Props> = ({
     })
   }
 
-  const startDownload = () => { setUrl(`${window['BOT_API_PATH']}/mod/qna/${topicName}/export`) }
+  const startDownload = () => {
+    setUrl(`${window['BOT_API_PATH']}/mod/qna/${topicName}/export`)
+  }
 
   const handleScroll = () => {
     if (wrapperRef.current.scrollHeight - wrapperRef.current.scrollTop !== wrapperRef.current.offsetHeight) {
@@ -157,20 +159,16 @@ const QnAList: FC<Props> = ({
     },
     {
       content: (
-        <span
-          className="uploadWrapper"
-          style={{ position: 'relative', overflow: 'hidden', height: '24px', width: '24px', display: 'block' }}
-        >
-          <Icon
-            icon={'import' as IconName}
-            style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
-          />
-          <input type="file" style={{ opacity: 0, position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}
+        <span className={style.importBtn}>
+          <Icon icon={'import' as IconName} />
+          <input
+            type="file"
             onChange={e => {
               if ((e.target as HTMLInputElement).files) {
                 askUploadOptions((e.target as HTMLInputElement).files[0])
               }
-            }} />
+            }}
+          />
         </span>
       ),
       icon: 'import',
@@ -186,8 +184,13 @@ const QnAList: FC<Props> = ({
     tooltip: lang.tr('module.qna.form.addQuestion')
   })
 
-  const askUploadOptions = async (uploadFile) => {
-    if (await confirmDialog(`${uploadFile.name} : ${lang.tr('module.qna.import.insertNewQuestions')} ?`, { acceptLabel: "Yes", declineLabel: "No" })) {
+  const askUploadOptions = async uploadFile => {
+    if (
+      await confirmDialog(`${uploadFile.name} : ${lang.tr('module.qna.import.insertNewQuestions')} ?`, {
+        acceptLabel: 'Yes',
+        declineLabel: 'No'
+      })
+    ) {
       importTar(uploadFile)
     }
   }

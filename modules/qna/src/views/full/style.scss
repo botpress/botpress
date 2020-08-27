@@ -44,6 +44,41 @@
   }
 }
 
+input[type=file],
+input[type=file]::-webkit-file-upload-button {
+  cursor: pointer;
+}
+
+.importBtn {
+  position: relative;
+  overflow: hidden;
+  height: 24px;
+  width: 24px;
+  display: block;
+  border-radius: 3px;
+  transition: background 0.3s;
+
+  &:hover {
+    background: var(--gray);
+  }
+
+  :global(.bp3-icon) {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  input {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+}
+
 .contextSelector {
   grid-column: 1/3;
   margin-bottom: var(--spacing-x-large);
