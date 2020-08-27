@@ -29,7 +29,7 @@ interface Props {
   selectedNodeItem: () => { node: BlockModel; index: number }
   getConditions: () => DecisionTriggerCondition[]
   switchFlowNode: (id: string) => void
-  addCondition: () => void
+  addCondition: (nodeType: string) => void
   addMessage: () => void
   getCurrentLang: () => string
   getExpandedNodes: () => string[]
@@ -72,11 +72,11 @@ const BlockWidget: FC<Props> = ({
     contextMenu(
       e,
       <Menu>
-        {nodeType === 'trigger' && (
+        {(nodeType === 'trigger' || nodeType === 'router') && (
           <MenuItem
             text={lang.tr('studio.flow.node.addCondition')}
             onClick={() => {
-              addCondition()
+              addCondition(nodeType)
             }}
           />
         )}
@@ -244,7 +244,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
   private getCurrentFlow: () => FlowView
   private updateFlowNode: (props: AllPartialNode) => void
   private switchFlowNode: (id: string) => void
-  private addCondition: () => void
+  private addCondition: (nodeType: string) => void
   private addMessage: () => void
   private getCurrentLang: () => string
   private getExpandedNodes: () => string[]

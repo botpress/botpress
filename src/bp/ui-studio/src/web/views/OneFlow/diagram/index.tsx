@@ -670,8 +670,18 @@ class Diagram extends Component<Props> {
     return this.props[propertyName]
   }
 
-  addCondition() {
-    this.props.updateFlowNode({ conditions: [...this.props.currentFlowNode.conditions, { params: {} }] })
+  addCondition(nodeType) {
+    if (nodeType === 'trigger') {
+      this.props.updateFlowNode({ conditions: [...this.props.currentFlowNode.conditions, { params: {} }] })
+    } else if (nodeType === 'router') {
+      const next = this.props.currentFlowNode.next
+      const lastItem = next.length - 1
+
+      // Inserting before the last element to keep "otherwise" at the end
+      this.props.updateFlowNode({
+        next: [...next.slice(0, lastItem), { condition: '', node: '' }, ...next.slice(lastItem)]
+      })
+    }
   }
 
   addMessage() {
@@ -802,7 +812,7 @@ class Diagram extends Component<Props> {
         case 'trigger':
           if (targetNodeType === 'trigger') {
             await this.props.switchFlowNode(target.model.id)
-            this.addCondition()
+            this.addCondition(targetNodeType)
           } else {
             this.add.triggerNode(point, {})
           }
