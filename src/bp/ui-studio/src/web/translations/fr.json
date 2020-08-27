@@ -46,15 +46,17 @@
     "contentLanguage": "Langue du contenu",
     "switchLang": "Modifier la langue du contenu. Langue courante: {currentLang}",
     "trainChatbot": "Entraîner l'agent",
+    "trainChatbotTooltip": "Permet à l'agent d'apprendre de nouvelles connaissances",
     "training": "Entraînement en cours",
     "ready": "Prêt",
     "cancelTraining": "Annuler l'entraînement",
     "canceling": "Annulation en cours",
     "trainingError": "L'agent ne peut pas être entraîné",
-    "configChangedDialog": "Les configurations de Botpress ont été changées, veuillez redémarer le serveur pour appliquer ces changements.",
-    "reboot": "Redémarrer le Serveur",
+    "configChangedDialog": "Êtes vous certain de vouloir redémarrer? Le serveur Botpress ne sera pas accessible pour quelques instants.",
+    "reboot": "Appliquer",
     "rebooting": "Redémarrage",
-    "applyConfigs": "Appliquer les Configurations"
+    "applyConfigs": "Appliquer les configurations",
+    "applyConfigsTooltip": "Redémarre le seveur afin d'appliquer les changements"
   },
   "studio": {
     "condition": {

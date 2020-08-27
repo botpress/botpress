@@ -1,7 +1,7 @@
 import { Button } from '@blueprintjs/core'
 import axios from 'axios'
 import { NLU } from 'botpress/sdk'
-import { lang } from 'botpress/shared'
+import { lang, ToolTip } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
@@ -107,9 +107,11 @@ export const TrainingStatusComponent: FC<Props> = props => {
             2. Training Cancelation is currently a long and unreliable process
             */}
         {['needs-training', 'canceled'].includes(status) && (
-          <Button minimal className={style.button} onClick={onTrainClicked}>
-            {lang.tr('statusBar.trainChatbot')}
-          </Button>
+          <ToolTip content={lang.tr('statusBar.trainChatbotTooltip')}>
+            <Button minimal className={style.button} onClick={onTrainClicked}>
+              {lang.tr('statusBar.trainChatbot')}
+            </Button>
+          </ToolTip>
         )}
         {status === 'training' && (
           <Button minimal className={cx(style.button, style.danger)} onClick={onCancelClicked}>
