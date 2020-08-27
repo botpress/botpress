@@ -1,6 +1,6 @@
 import { Button } from '@blueprintjs/core'
 import axios from 'axios'
-import { lang } from 'botpress/shared'
+import { lang, ToolTip } from 'botpress/shared'
 import { confirmDialog } from 'botpress/shared'
 import React, { useEffect, useState } from 'react'
 import { toastFailure } from '~/components/Shared/Utils'
@@ -66,14 +66,24 @@ const ConfigStatus = () => {
       await restartServer()
     }
   }
-  return (
-    <div className={style.item}>
-      {isRestarting && <span className={style.message}>{lang.tr('statusBar.rebooting')}</span>}
-      {isDifferent && !isRestarting && (
-        <Button minimal className={style.button} onClick={onRestartClick} text={lang.tr('statusBar.applyConfigs')} />
-      )}
-    </div>
-  )
+
+  if (isRestarting) {
+    return (
+      <div className={style.item}>
+        <span className={style.message}>{lang.tr('statusBar.rebooting')}</span>
+      </div>
+    )
+  } else if (isDifferent) {
+    return (
+      <div className={style.item}>
+        <ToolTip content={lang.tr('statusBar.applyConfigsTooltip')}>
+          <Button minimal className={style.button} onClick={onRestartClick} text={lang.tr('statusBar.applyConfigs')} />
+        </ToolTip>
+      </div>
+    )
+  } else {
+    return null
+  }
 }
 
 export default ConfigStatus

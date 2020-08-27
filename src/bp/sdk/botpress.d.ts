@@ -1760,7 +1760,7 @@ declare module 'botpress/sdk' {
     /** The name of the variable that will be filled with the value extracted */
     output: string
     /** The question to ask to the user for this prompt */
-    question: MultiLangText
+    question: string | MultiLangText
     /** Confirmation message to send to ask the user if the provided value is correct */
     confirm?: MultiLangText
     /** Additional param for prompts */
