@@ -157,7 +157,6 @@ export const dispatchMiddleware = async (dispatch, action) => {
             saveError = data.message
           }
         }
-
       }
 
       dispatch({ ...action, data: { ...action.data, qnaItem: { ...qnaItem, id: itemId, saveError } } })
@@ -169,15 +168,12 @@ export const dispatchMiddleware = async (dispatch, action) => {
       qnaItem.data.enabled = !originalValue
       if (!qnaItem.id.startsWith('qna-')) {
         try {
-          await bp.axios.post(`/mod/qna/${topicName}/questions/${qnaItem.id}`,
-            _.omit(qnaItem.data,
-              'topicName',
-              'redirectFlow',
-              'redirectNode',
-              'action',
-              'lastModified'))
+          await bp.axios.post(
+            `/mod/qna/${topicName}/questions/${qnaItem.id}`,
+            _.omit(qnaItem.data, 'topicName', 'redirectFlow', 'redirectNode', 'action', 'lastModified')
+          )
         } catch (e) {
-          console.log("ERROR  ", e)
+          console.log('ERROR  ', e)
           qnaItem.data.enabled = originalValue
         }
       }
@@ -283,8 +279,8 @@ export const fetchReducer = (state: State, action): State => {
       const topicName = state.highlighted.data.topicName
       bp.axios
         .post(`/mod/qna/${topicName}/questions/${state.highlighted.id}/delete`)
-        .then(() => { })
-        .catch(() => { })
+        .then(() => {})
+        .catch(() => {})
       refreshQnaCount?.()
 
       return {
@@ -299,8 +295,8 @@ export const fetchReducer = (state: State, action): State => {
     if (!deletedItem.id.startsWith('qna-')) {
       bp.axios
         .post(`/mod/qna/${topicName}/questions/${deletedItem.id}/delete`)
-        .then(() => { })
-        .catch(() => { })
+        .then(() => {})
+        .catch(() => {})
     }
     refreshQnaCount?.()
 

@@ -22,13 +22,16 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
       const items = await storage.fetchItems(req.params.topicName)
       const searchTerm = req.query.question.toLowerCase()
       const filteredItems = items.filter(qna => {
-        // @ts-ignore
-        const questions = Object.values(qna.questions).flat().map(q => q.toLowerCase())
-        // @ts-ignore
-        const answers = Object.values(qna.answers).flat().map(q => q.toLowerCase())
+        const questions = Object.values(qna.questions)
+          // @ts-ignore
+          .flat()
+          .map(q => q.toLowerCase())
+        const answers = Object.values(qna.answers)
+          // @ts-ignore
+          .flat()
+          .map(q => q.toLowerCase())
         return [...questions, ...answers].filter(q => q.includes(searchTerm)).length > 0
-      }
-      )
+      })
 
       const data = { count: items.length, items: filteredItems }
       res.send(data)
@@ -92,7 +95,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
     try {
       const { storage } = bots[req.params.botId]
       const items = await storage.fetchItems(req.params.topicName)
-      const item = items.find(x => (x.id === req.params.id))
+      const item = items.find(x => x.id === req.params.id)
       const payloads = await getQnaEntryPayloads(item, req.body.userLanguage, bots[req.params.botId].defaultLang)
       res.send([
         {
@@ -110,14 +113,16 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
     try {
       const { storage } = bots[req.params.botId]
       res.setHeader('Content-Type', 'application/gzip')
-      res.setHeader('Content-disposition', `attachment; filename=qna_${req.params.topicName}_${moment().format('DD-MM-YYYY')}.tar.gz`)
+      res.setHeader(
+        'Content-disposition',
+        `attachment; filename=qna_${req.params.topicName}_${moment().format('DD-MM-YYYY')}.tar.gz`
+      )
       const zipBuffer = await storage.exportPerTopic(req.params.topicName)
       res.send(zipBuffer)
     } catch (e) {
       bp.logger.attachError(e).error('Zip export failure')
       res.status(500).send(e.message || 'Error')
     }
-
   })
 
   router.post('/:topicName/import', multer().single('file'), async (req: any, res: Response) => {
@@ -144,7 +149,6 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
     try {
       const { storage } = bots[req.params.botId]
       res.send(await storage.getCountPerTopic())
-
     } catch (err) {
       bp.logger.attachError(err).error(err.message)
       res.status(200).send([])

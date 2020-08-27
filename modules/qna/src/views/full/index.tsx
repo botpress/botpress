@@ -43,8 +43,8 @@ const QnAList: FC<Props> = ({
   useEffect(() => {
     wrapperRef.current.addEventListener('scroll', handleScroll)
     fetchData()
-      .then(() => { })
-      .catch(() => { })
+      .then(() => {})
+      .catch(() => {})
 
     fetchFlows()
 
@@ -58,8 +58,8 @@ const QnAList: FC<Props> = ({
   useEffect(() => {
     if (queryParams.get('id')) {
       fetchHighlightedQna(queryParams.get('id'))
-        .then(() => { })
-        .catch(() => { })
+        .then(() => {})
+        .catch(() => {})
     } else {
       dispatch({ type: 'resetHighlighted' })
     }
@@ -69,8 +69,8 @@ const QnAList: FC<Props> = ({
     const timer = setTimeout(() => {
       if (!firstUpdate) {
         fetchData()
-          .then(() => { })
-          .catch(() => { })
+          .then(() => {})
+          .catch(() => {})
       }
     }, 300)
     return () => clearTimeout(timer)
@@ -79,8 +79,8 @@ const QnAList: FC<Props> = ({
   useEffect(() => {
     if (!loading && fetchMore && items.length < count) {
       fetchData(page + 1)
-        .then(() => { })
-        .catch(() => { })
+        .then(() => {})
+        .catch(() => {})
     }
   }, [fetchMore])
 
