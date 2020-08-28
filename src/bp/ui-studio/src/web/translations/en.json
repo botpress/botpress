@@ -60,6 +60,12 @@
     "applyConfigsTooltip": "Restarts server so configuration changes can take effect"
   },
   "studio": {
+    "router": {
+      "variable": "Variable",
+      "pickVariable": "Pick a variable",
+      "condition": "Condition",
+      "negate": "Make the condition negative"
+    },
     "condition": {
       "label": "Condition",
       "pickCondition": "Pick a condition"
@@ -260,7 +266,7 @@
         "executeAction": "Execute Action",
         "listen": "Listen",
         "prompt": "Prompt",
-        "router": "Router",
+        "router": "If Else",
         "say": "Say",
         "sendMessage": "Send Message",
         "split": "Split",
