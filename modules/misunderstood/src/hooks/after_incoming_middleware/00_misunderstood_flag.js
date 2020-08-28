@@ -1,20 +1,22 @@
 const axios = require('axios')
+const _ = require('lodash')
 
 const flag = async () => {
   const matchesQuickReply = async () => {
     const { currentFlow } = event.state.context
     if (currentFlow && currentFlow.startsWith('skills/choice')) {
       const flow = await bp.ghost.forBot(event.botId).readFileAsObject('flows', currentFlow)
+      const preview = event.preview.toLowerCase()
+      const kw = _.chain(flow.skillData.keywords)
+        .values()
+        .flatten()
+        .find(kw => kw.toLowerCase() === preview.toLowerCase())
 
-      for (const kwList of Object.values(flow.skillData.keywords)) {
-        for (const kw of kwList) {
-          if (kw.toLowerCase() === event.preview.toLowerCase()) {
-            bp.logger.info(
-              `Misunderstood: event matches Choice Skill quick reply (preview: ${event.preview}, keyword: ${kw})`
-            )
-            return true
-          }
-        }
+      if (kw) {
+        bp.logger.info(
+          `Misunderstood: event matches Choice Skill quick reply (preview: ${event.preview}, keyword: ${kw})`
+        )
+        return true
       }
     }
 
