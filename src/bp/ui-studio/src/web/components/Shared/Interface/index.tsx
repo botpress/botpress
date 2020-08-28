@@ -94,7 +94,7 @@ export const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>((pro
   const [text, setText] = useState('')
 
   const handleTextChanged = e => {
-    props.value == undefined && setText(e.target.value)
+    props.value === undefined && setText(e.target.value)
     props.onChange && props.onChange(e.target.value)
   }
 

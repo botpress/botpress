@@ -130,7 +130,7 @@ $status-bar-height: 30px;
     color: var(--shark);
     font-size: 12px;
     line-height: 1.25;
-    padding: 6px 6px 5px;
+    padding: var(--spacing-medium) var(--spacing-medium) var(--spacing-small);
     transition: border 0.3s;
     width: 100%;
 
