@@ -79,7 +79,7 @@ const FlowBuilder = (props: Props) => {
   useEffect(() => {
     if (props.errorSavingFlows) {
       const { status } = props.errorSavingFlows
-      const message = status === 403 ? lang.tr('studio.unauthUpdate') : lang.tr('studio.errorWhileSaving')
+      const message = status === 403 ? lang.tr('studio.flow.unauthUpdate') : lang.tr('studio.flow.errorWhileSaving')
       toastFailure(message, Timeout.LONG, props.clearErrorSaveFlows, { delayed: true })
     }
   }, [props.errorSavingFlows])
@@ -147,7 +147,7 @@ const FlowBuilder = (props: Props) => {
     },
     save: e => {
       e.preventDefault()
-      toastInfo(lang.tr('studio.nowSaveAuto'), Timeout.LONG)
+      toastInfo(lang.tr('studio.flow.nowSaveAuto'), Timeout.LONG)
     },
     delete: e => {
       if (!utils.isInputFocused()) {
