@@ -44,7 +44,7 @@ interface State {
   fetching: boolean
   unauthorized: boolean
   tab: string
-  eventsCache: { [key: string]: sdk.IO.IncomingEvent }
+  eventsCache: sdk.IO.IncomingEvent[]
 }
 const DEBUGGER_TAB_KEY = 'debuggerTab'
 
@@ -60,7 +60,7 @@ export class Debugger extends React.Component<Props, State> {
     unauthorized: false,
     showInspector: false,
     tab: window['BP_STORAGE'].get(DEBUGGER_TAB_KEY) || 'content',
-    eventsCache: {}
+    eventsCache: []
   }
   allowedRetryCount = 0
   currentRetryCount = 0
@@ -206,11 +206,24 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   getEvent = async (eventId: string): Promise<sdk.IO.IncomingEvent> => {
-    if (this.state.eventsCache[eventId]) {
-      return this.state.eventsCache[eventId]
+    const eventsCache = this.state.eventsCache
+    const cacheEventIdx = eventsCache.findIndex(e => e.id === eventId)
+
+    if (cacheEventIdx >= 0) {
+      const event = eventsCache[cacheEventIdx]
+
+      eventsCache.splice(cacheEventIdx, 1)
+      eventsCache.push(event)
+
+      return event
     } else {
       const { data: event } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
-      this.state.eventsCache[eventId] = event
+
+      if (eventsCache.length >= 10) {
+        eventsCache.splice(0, 1)
+      }
+      eventsCache.push(event)
+
       return event
     }
   }
