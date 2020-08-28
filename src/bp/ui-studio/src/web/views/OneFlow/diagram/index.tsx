@@ -73,6 +73,8 @@ import { StandardNodeModel, StandardWidgetFactory } from '~/views/FlowBuilder/di
 import { textToItemId } from '~/views/FlowBuilder/diagram/nodes_v2/utils'
 import style from '~/views/FlowBuilder/diagram/style.scss'
 
+import WarningMessage from '../../../components/Layout/WarningMessage'
+
 import { BlockModel, BlockWidgetFactory } from './nodes/Block'
 import menuStyle from './style.scss'
 import ActionForm from './ActionForm'
@@ -1213,6 +1215,13 @@ class Diagram extends Component<Props> {
             />
           )}
         </MainContent.Wrapper>
+        {this.props.defaultLanguage !== this.state.currentLang && (
+          <WarningMessage
+            message={lang.tr('notViewingDefaultLang', {
+              language: lang.tr(lang.tr(`isoLangs.${this.state.currentLang}.name`).toLowerCase())
+            })}
+          />
+        )}
       </Fragment>
     )
   }

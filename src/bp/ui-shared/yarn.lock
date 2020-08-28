@@ -112,9 +112,9 @@
     "@types/react" "*"
 
 "@types/react@*", "@types/react@^16.8.19":
-  version "16.9.47"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.9.47.tgz#fb092936f0b56425f874d0ff1b08051fdf70c1ba"
-  integrity sha512-dAJO4VbrjYqTUwFiQqAKjLyHHl4RSTNnRyPdX3p16MPbDKvow51wxATUPxoe2QsiXNMEYrOjc2S6s92VjG+1VQ==
+  version "16.9.48"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.9.48.tgz#d3387329f070d1b1bc0ff4a54a54ceefd5a8485c"
+  integrity sha512-4ykBVswgYitPGMXFRxJCHkxJDU2rjfU3/zw67f8+dB7sNdVJXsrwqoYxz/stkAucymnEEbRPFmX7Ce5Mc/kJCw==
   dependencies:
     "@types/prop-types" "*"
     csstype "^3.0.2"
@@ -874,9 +874,9 @@ caniuse-api@^1.5.2:
     lodash.uniq "^4.5.0"
 
 caniuse-db@^1.0.30000529, caniuse-db@^1.0.30000634, caniuse-db@^1.0.30000639:
-  version "1.0.30001117"
-  resolved "https://registry.yarnpkg.com/caniuse-db/-/caniuse-db-1.0.30001117.tgz#d3312f3b62f94279c3582bd8c9eca9c31b10f704"
-  integrity sha512-Hbwwte7T8krZgfNhiszLXb0MVs+qxoSH4aY926ooa4hnFynQVLn0HtPqilxn28vd5CNXoQVlOWcAEWClt/tYyA==
+  version "1.0.30001119"
+  resolved "https://registry.yarnpkg.com/caniuse-db/-/caniuse-db-1.0.30001119.tgz#7be3e2325f9a619901eadcf0ca52e4f7074ab072"
+  integrity sha512-uO9XlGbTl5R7J53BcXrTxsxdvOwdWmPQFHzWG3/6BxipOMUrddzGMRTC10Qtivg2jGJOWmluPcCuVgz6XLrZWA==
 
 caseless@~0.12.0:
   version "0.12.0"
@@ -1552,9 +1552,9 @@ ejs@^2.6.1:
   integrity sha512-7vmuyh5+kuUyJKePhQfRQBhXV5Ce+RnaeeQArKu1EAMpL3WbgMt5WG6uQZpEVvYSSsxMXRKOewtDk9RaTKXRlA==
 
 electron-to-chromium@^1.2.7:
-  version "1.3.545"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.545.tgz#d9add694c78554b8c00bc6e6fc929d5ccd7d1b99"
-  integrity sha512-+0R/i17u5E1cwF3g0W8Niq3UUKTUMyyT4kLkutZUHG8mDNvFsAckK3HIanzGVtixe3b6rknD8k7gHiR6nKFkgg==
+  version "1.3.554"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.554.tgz#11d0619b927a25f300b787ad7ee1ece91384dde9"
+  integrity sha512-Vtz2dVH5nMtKK4brahmgScwFS8PBnpA4VObYXtlsqN8ZpT9IFelv0Rpflc1+NIILjGVaj6vEiXQbhrs3Pl8O7g==
 
 elliptic@^6.5.3:
   version "6.5.3"
@@ -5159,9 +5159,9 @@ supports-color@^5.3.0, supports-color@^5.4.0:
     has-flag "^3.0.0"
 
 supports-color@^7.0.0:
-  version "7.1.0"
-  resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-7.1.0.tgz#68e32591df73e25ad1c4b49108a2ec507962bfd1"
-  integrity sha512-oRSIpR8pxT1Wr2FquTNnGet79b3BWljqOuoW/h4oBhxJ/HUbX5nX6JSruTkvXDCFMwDPvsaTTbvMLKZWSy0R5g==
+  version "7.2.0"
+  resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-7.2.0.tgz#1b7dcdcb32b8138801b3e478ba6a51caa89648da"
+  integrity sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==
   dependencies:
     has-flag "^4.0.0"
 

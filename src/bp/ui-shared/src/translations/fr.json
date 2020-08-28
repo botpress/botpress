@@ -98,6 +98,7 @@
   "moveUp": "Déplacer vers le haut",
   "name": "Nom",
   "needsTranslation": "Nécessite une traduction",
+  "notViewingDefaultLang": "Vous êtes actuellement dans la version en {langue} de cet agent conversationnel.",
   "never": "Jamais",
   "next": "Suivant",
   "noRowsFound": "Aucun enregistrement trouvé",
