@@ -13,17 +13,17 @@ const Text: FC<TextProps> = ({
   onBlur,
   onChange,
   placeholder,
-  field: { valueManipulation, type, min, max, maxLength },
+  field: { valueManipulation, type, min, max, maxLength, defaultValue },
   value,
   refValue,
   childRef
 }) => {
-  const [localValue, setLocalValue] = useState(value || getFieldDefaultValue({ type }))
+  const [localValue, setLocalValue] = useState(value || getFieldDefaultValue({ type, defaultValue }))
 
   const missingTranslation = refValue && !value
 
   useEffect(() => {
-    setLocalValue(value ?? getFieldDefaultValue({ type }))
+    setLocalValue(value ?? getFieldDefaultValue({ type, defaultValue }))
   }, [value])
 
   const onKeyDown = e => {

@@ -302,12 +302,13 @@ export default ({
                   : localEvents
                 ).includes(value)
 
-                let icon: IconName | JSX.Element = <Icons.Brackets iconSize={10} />
+                let icon, suffix
 
                 if (isInvalid) {
-                  icon = 'error'
-                } else if (prefix === '$') {
-                  icon = 'dollar'
+                  icon = <Icon icon="error" iconSize={10} />
+                } else {
+                  icon = prefix
+                  suffix = prefix === '{{' ? '}}' : ''
                 }
 
                 return (
@@ -319,8 +320,9 @@ export default ({
                     className={cx('tagify__tag', { ['tagify--invalid']: isInvalid })}
                   >
                     <span>
-                      <Icon icon={icon} iconSize={10} />
+                      {icon}
                       <span className="tagify__tag-text">{value}</span>
+                      {suffix}
                     </span>
                   </span>
                 )
