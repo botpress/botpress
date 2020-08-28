@@ -3,7 +3,7 @@ const axios = require('axios')
 const flag = async () => {
   const matchesQuickReply = async () => {
     const { currentFlow } = event.state.context
-    if (currentFlow.startsWith('skills/choice')) {
+    if (currentFlow && currentFlow.startsWith('skills/choice')) {
       const flow = await bp.ghost.forBot(event.botId).readFileAsObject('flows', currentFlow)
 
       for (const kwList of Object.values(flow.skillData.keywords)) {
