@@ -119,10 +119,6 @@ const RouterForm: FC<Props> = ({
     }
 
     let opInfo = getOperationInfo(operation)
-    if (operation.variable && !operation.operator) {
-      operation.operator = opInfo.operators?.[0].value
-      opInfo = getOperationInfo(operation)
-    }
 
     const args = []
     if (opInfo.operator) {
@@ -135,6 +131,11 @@ const RouterForm: FC<Props> = ({
 
     operation.args = args
     opInfo = getOperationInfo(operation)
+
+    if (operation.variable && !opInfo.operator) {
+      operation.operator = opInfo.operators?.[0].value
+      opInfo = getOperationInfo(operation)
+    }
 
     updateRouter(convertToTransition(opInfo, operation))
   }
@@ -201,6 +202,7 @@ const RouterForm: FC<Props> = ({
             fields={fields}
             advancedSettings={advancedSettings}
             formData={{ ...currentItem, ...opInfo.args }}
+            key={currentVarName.current}
             onUpdate={data => onUpdate({ ...data, variable: currentVarName.current })}
           />
         )}
