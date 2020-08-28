@@ -218,6 +218,9 @@ export class Debugger extends React.Component<Props, State> {
       return event
     } else {
       const { data: event } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
+      if (!event.processing?.['completed']) {
+        return event
+      }
 
       if (eventsCache.length >= 10) {
         eventsCache.splice(0, 1)
