@@ -43,7 +43,8 @@ interface InitialStep {
 }
 
 export type PredictStep = InitialStep & {
-  utterance: Utterance
+  originalUtterance: Utterance
+  synonymUtterance: Utterance
   alternateUtterance?: Utterance
   ctx_predictions?: sdk.MLToolkit.SVM.Prediction[]
   intent_predictions?: {
@@ -156,22 +157,23 @@ async function makePredictionUtterance(input: InitialStep, predictors: Predictor
 
   return {
     ...input,
-    utterance,
+    originalUtterance: utterance,
+    synonymUtterance: utterance,
     alternateUtterance
   }
 }
 
 async function extractEntities(input: PredictStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
-  const { utterance, alternateUtterance } = input
+  const { originalUtterance, alternateUtterance } = input
 
   _.forEach(
     [
-      ...extractListEntities(utterance, predictors.list_entities, true),
-      ...extractPatternEntities(utterance, predictors.pattern_entities),
-      ...(await tools.duckling.extract(utterance.toString(), utterance.languageCode))
+      ...extractListEntities(originalUtterance, predictors.list_entities, true),
+      ...extractPatternEntities(originalUtterance, predictors.pattern_entities),
+      ...(await tools.duckling.extract(originalUtterance.toString(), originalUtterance.languageCode))
     ],
     entityRes => {
-      utterance.tagEntity(_.omit(entityRes, ['start, end']) as ExtractedEntity, entityRes.start, entityRes.end)
+      originalUtterance.tagEntity(_.omit(entityRes, ['start, end']) as ExtractedEntity, entityRes.start, entityRes.end)
     }
   )
 
@@ -180,7 +182,7 @@ async function extractEntities(input: PredictStep, predictors: Predictors, tools
       [
         ...extractListEntities(alternateUtterance, predictors.list_entities),
         ...extractPatternEntities(alternateUtterance, predictors.pattern_entities),
-        ...(await tools.duckling.extract(alternateUtterance.toString(), utterance.languageCode))
+        ...(await tools.duckling.extract(alternateUtterance.toString(), originalUtterance.languageCode))
       ],
       entityRes => {
         alternateUtterance.tagEntity(
@@ -216,7 +218,7 @@ async function predictContext(input: PredictStep, predictors: Predictors): Promi
     }
   }
 
-  const features = getCtxFeatures(input.utterance, customEntities)
+  const features = getCtxFeatures(input.synonymUtterance, customEntities)
   let ctx_predictions = await classifier.predict(features)
 
   if (input.alternateUtterance) {
@@ -254,11 +256,11 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
 
       const predictor = predictors.intent_classifier_per_ctx![ctx]
       if (predictor) {
-        const features = getIntentFeatures(input.utterance, customEntities)
+        const features = getIntentFeatures(input.synonymUtterance, customEntities)
         const prediction = await predictor.predict(features)
         preds.push(...prediction)
       }
-      const exactPred = findExactIntentForCtx(predictors.exact_match_index, input.utterance, ctx)
+      const exactPred = findExactIntentForCtx(predictors.exact_match_index, input.synonymUtterance, ctx)
       if (exactPred) {
         const idxToRemove = preds.findIndex(p => p.label === exactPred.label)
         preds.splice(idxToRemove, 1)
@@ -311,7 +313,7 @@ async function predictOutOfScope(input: PredictStep, predictors: Predictors): Pr
     }
   }
 
-  const utt = input.alternateUtterance || input.utterance
+  const utt = input.alternateUtterance || input.originalUtterance
   const feats = getUtteranceFeatures(utt, predictors.vocabVectors)
   for (const ctx of predictors.contexts) {
     try {
@@ -335,7 +337,7 @@ async function predictOutOfScope(input: PredictStep, predictors: Predictors): Pr
 async function extractSlots(input: PredictStep, predictors: Predictors): Promise<PredictStep> {
   const slots_per_intent: typeof input.slot_predictions_per_intent = {}
   for (const intent of predictors.intents.filter(x => x.slot_definitions.length > 0)) {
-    const slots = await predictors.slot_tagger!.extract(input.utterance, intent)
+    const slots = await predictors.slot_tagger!.extract(input.originalUtterance, intent)
     slots_per_intent[intent.name] = slots
   }
 
@@ -365,7 +367,7 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
     }
   }
 
-  const entities = step.utterance.entities.map(entitiesMapper)
+  const entities = step.originalUtterance.entities.map(entitiesMapper)
 
   const slotsCollectionReducer = (slots: sdk.NLU.SlotCollection, s: SlotExtractionResult): sdk.NLU.SlotCollection => {
     if (slots[s.slot.name] && slots[s.slot.name].confidence > s.slot.confidence) {
@@ -394,10 +396,10 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
     const intents = !intentPred
       ? []
       : intentPred.map(i => ({
-        extractor: 'classifier', // exact-matcher overwrites this field in line below
-        ...i,
-        slots: (step.slot_predictions_per_intent![i.label] || []).reduce(slotsCollectionReducer, {})
-      }))
+          extractor: 'classifier', // exact-matcher overwrites this field in line below
+          ...i,
+          slots: (step.slot_predictions_per_intent![i.label] || []).reduce(slotsCollectionReducer, {})
+        }))
 
     const includeOOS = !intents.filter(x => x.extractor === 'exact-matcher').length
 
@@ -452,8 +454,6 @@ export const Predict = async (
   tools: Tools,
   predictorsByLang: _.Dictionary<Predictors>
 ): Promise<PredictOutput> => {
-  const STRING_REPLACE = true
-  const REPLACE_SYN = false
   try {
     const t0 = Date.now()
     // tslint:disable-next-line
@@ -462,29 +462,18 @@ export const Predict = async (
     let stepOutput: PredictStep
     stepOutput = await makePredictionUtterance(step, predictors, tools)
     stepOutput = await extractEntities(stepOutput, predictors, tools)
-    if (REPLACE_SYN) {
-      stepOutput = await addSynonyms(stepOutput, predictors, tools)
-    }
-    if (STRING_REPLACE) {
-      if (stepOutput.utterance.entities) {
-        for (const ent of stepOutput.utterance.entities) {
-          // @ts-ignore
-          stepOutput.rawText = stepOutput.rawText.replace(ent.metadata.source, ent.type)
-        }
-      }
 
-      stepOutput = await makePredictionUtterance(
-        {
-          rawText: stepOutput.rawText,
-          includedContexts: stepOutput.includedContexts,
-          detectedLanguage: stepOutput.detectedLanguage,
-          languageCode: stepOutput.languageCode,
-        } as InitialStep,
-        predictors,
-        tools
-      )
-      stepOutput = await extractEntities(stepOutput, predictors, tools)
+    if (stepOutput.originalUtterance.entities) {
+      let rawUtt = _.cloneDeep(stepOutput.rawText)
+      for (const ent of stepOutput.originalUtterance.entities) {
+        // @ts-ignore
+        rawUtt = rawUtt.replace(ent.metadata.source, ent.type)
+      }
+      // @ts-ignore
+      stepOutput.synonymUtterance = (await buildUtteranceBatch([rawUtt], stepOutput.languageCode, tools))[0]
     }
+
+    stepOutput = await extractEntities(stepOutput, predictors, tools)
     stepOutput = await predictOutOfScope(stepOutput, predictors)
     stepOutput = await predictContext(stepOutput, predictors)
     stepOutput = await predictIntent(stepOutput, predictors)
@@ -499,20 +488,4 @@ export const Predict = async (
     console.log('Could not perform predict data', err)
     return { errored: true } as sdk.IO.EventUnderstanding
   }
-}
-
-const addSynonyms = async (stepOutput: PredictStep, predictors: Predictors, tools: Tools): Promise<PredictStep> => {
-  // console.log('fsdf', stepOutput.utterance.tokens[15].vector[0])
-  for (const entity of stepOutput.utterance.entities) {
-    if (entity.metadata.extractor === 'list') {
-      const tokenIdx = stepOutput.utterance.tokens.findIndex(
-        t => t.value.includes(entity.metadata.source)
-      )
-      if (tokenIdx > 0) {
-        stepOutput.utterance.setTokenVector(tokenIdx, tools.meanSyn[entity.type])
-      }
-    }
-  }
-  // console.log('loikuyjth', stepOutput.utterance.tokens[15].vector[0])
-  return stepOutput
 }

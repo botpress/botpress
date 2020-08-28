@@ -135,7 +135,8 @@ export type Intent<T> = {
   name: string
   contexts: string[]
   slot_definitions: SlotDefinition[]
-  utterances: T[]
+  originalUtterances: T[]
+  synonymUtterances: T[]
   vocab?: _.Dictionary<boolean>
   slot_entities?: string[]
 }

@@ -15,7 +15,6 @@ import { getSeededLodash, resetSeed } from './tools/seeded-lodash'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import tfidf from './tools/tfidf'
 import { convertToRealSpaces, isSpace, SPACE } from './tools/token-utils'
-
 import {
   ComplexEntity,
   EntityExtractionResult,
@@ -98,20 +97,19 @@ const KMEANS_OPTIONS = {
 const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainStep> => {
   debugTraining.forBot(input.botId, 'Preprocessing intents')
   input = _.cloneDeep(input)
+
   const list_entities = await Promise.map(input.list_entities, list =>
     makeListEntityModel(list, input.botId, input.languageCode, tools)
   )
 
   const intents = await ProcessIntents(
-
-
     input.intents,
     input.languageCode,
     list_entities,
     input.list_entities, // because output list_entities (line above) doesn't contain raw synonyms
     input.pattern_entities,
     input.complex_entities,
-    tools,
+    tools
   )
 
   const vocabVectors = buildVectorsVocab(intents)
@@ -153,7 +151,7 @@ export const computeKmeans = (
 ): sdk.MLToolkit.KMeans.KmeansResult | undefined => {
   const data = _.chain(intents)
     .filter(i => i.name !== NONE_INTENT)
-    .flatMap(i => i.utterances)
+    .flatMap(i => i.originalUtterances)
     .flatMap(u => u.tokens)
     .uniqBy((t: UtteranceToken) => t.value)
     .map((t: UtteranceToken) => t.vector)
@@ -171,7 +169,7 @@ export const computeKmeans = (
 const ClusterTokens = (input: TrainStep, tools: Tools): TrainStep => {
   const kmeans = computeKmeans(input.intents, tools)
   const copy = { ...input, kmeans }
-  copy.intents.forEach(x => x.utterances.forEach(u => u.setKmeans(kmeans)))
+  copy.intents.forEach(x => x.originalUtterances.forEach(u => u.setKmeans(kmeans)))
 
   return copy
 }
@@ -193,7 +191,7 @@ export const buildIntentVocab = (utterances: Utterance[], intentEntities: ListEn
 const buildVectorsVocab = (intents: Intent<Utterance>[]): _.Dictionary<number[]> => {
   return _.chain(intents)
     .filter(i => i.name !== NONE_INTENT)
-    .flatMap((intent: Intent<Utterance>) => intent.utterances)
+    .flatMap((intent: Intent<Utterance>) => intent.originalUtterances)
     .flatMap((utt: Utterance) => utt.tokens)
     .reduce((vocab, tok: UtteranceToken) => {
       vocab[tok.toString({ lowerCase: true })] = <number[]>tok.vector
@@ -206,7 +204,7 @@ export const BuildExactMatchIndex = (input: TrainStep): ExactMatchIndex => {
   return _.chain(input.intents)
     .filter(i => i.name !== NONE_INTENT)
     .flatMap(i =>
-      i.utterances.map(u => ({
+      i.originalUtterances.map(u => ({
         utterance: u.toString(EXACT_MATCH_STR_OPTIONS),
         contexts: i.contexts,
         intent: i.name
@@ -235,17 +233,17 @@ const TrainIntentClassifier = async (
 
   const noneUtts = _.chain(input.intents)
     .filter(i => i.name === NONE_INTENT) // in case use defines a none intent we want to combine utterances
-    .flatMap(i => i.utterances)
+    .flatMap(i => i.originalUtterances)
     .filter(u => u.tokens.filter(t => t.isWord).length >= 3)
     .value()
 
   for (let i = 0; i < input.ctxToTrain.length; i++) {
     const ctx = input.ctxToTrain[i]
     const trainableIntents = input.intents.filter(
-      i => i.name !== NONE_INTENT && i.contexts.includes(ctx) && i.utterances.length >= MIN_NB_UTTERANCES
+      i => i.name !== NONE_INTENT && i.contexts.includes(ctx) && i.synonymUtterances.length >= MIN_NB_UTTERANCES
     )
 
-    const nAvgUtts = Math.ceil(_.meanBy(trainableIntents, i => i.utterances.filter(u => !u.augmented).length))
+    const nAvgUtts = Math.ceil(_.meanBy(trainableIntents, i => i.synonymUtterances.filter(u => !u.augmented).length))
 
     const lo = getSeededLodash(process.env.NLU_SEED)
     const points = _.chain(trainableIntents)
@@ -253,7 +251,7 @@ const TrainIntentClassifier = async (
         ...ints,
         {
           name: NONE_INTENT,
-          utterances: lo
+          originalUtterances: lo
             .chain(noneUtts)
             .shuffle()
             .take(nAvgUtts * 2.5) // undescriptible magic n, no sens to extract constant
@@ -261,7 +259,7 @@ const TrainIntentClassifier = async (
         }
       ])
       .flatMap(i =>
-        i.utterances
+        i.originalUtterances
           .filter(u => !u.augmented) // we don't want to train on augmented utterances as it would slow down training too much
           .map(utt => ({
             label: i.name,
@@ -310,7 +308,7 @@ const TrainContextClassifier = async (
     return input.intents
       .filter(intent => intent.contexts.includes(ctx) && intent.name !== NONE_INTENT)
       .map(intent =>
-        intent.utterances
+        intent.synonymUtterances
           .filter(u => !u.augmented) // we don't want to train on augmented utterances as it would slow down training too much
           .map(utt => ({
             label: ctx,
@@ -371,7 +369,7 @@ export const ProcessIntents = async (
   const sysComplexes = convertSysEntitiesSlotsToComplex(intents)
 
   return Promise.map(intents, async intent => {
-    const cleaned: string[] = intent.utterances.map(_.flow([_.trim, replaceConsecutiveSpaces]))
+    const cleaned: string[] = intent.originalUtterances.map(_.flow([_.trim, replaceConsecutiveSpaces]))
 
     // const augmentations = extractAugmentations(
     //   intent,
@@ -418,14 +416,21 @@ export const ProcessIntents = async (
     })
 
     const vocab = buildIntentVocab(utterances, entityModels)
-    return { ...intent, utterances, vocab, slot_entities: allowedEntities }
+    return {
+      ...intent,
+      originalUtterances: utterances,
+      synonymUtterances: utterances,
+      vocab,
+      slot_entities: allowedEntities,
+      slotUtterance: utterances
+    }
   })
 }
 
 export const ExtractEntities = async (input: TrainStep, tools: Tools): Promise<TrainStep> => {
   const utterances: Utterance[] = _.chain(input.intents)
     .filter(i => i.name !== NONE_INTENT)
-    .flatMap('utterances')
+    .flatMap('slotUtterance')
     .value()
 
   // we extract sys entities for all utterances, helps on training and exact matcher
@@ -456,7 +461,7 @@ export const AppendNoneIntent = async (input: TrainStep, tools: Tools): Promise<
 
   const lo = getSeededLodash(process.env.NLU_SEED)
 
-  const allUtterances = lo.flatten(input.intents.map(x => x.utterances))
+  const allUtterances = lo.flatten(input.intents.map(x => x.originalUtterances))
   const vocabWithDupes = lo
     .chain(allUtterances)
     .map(x => x.tokens.map(x => x.value))
@@ -496,14 +501,17 @@ export const AppendNoneIntent = async (input: TrainStep, tools: Tools): Promise<
     return lo.sampleSize([...junkWords, ...stopWords], nbWords).join(joinChar)
   })
 
+  const utterances = await buildUtteranceBatch(
+    [...mixedUtts, ...vocabUtts, ...junkWordsUtts, ...stopWords],
+    input.languageCode,
+    tools
+  )
+
   const intent: Intent<Utterance> = {
     name: NONE_INTENT,
     slot_definitions: [],
-    utterances: await buildUtteranceBatch(
-      [...mixedUtts, ...vocabUtts, ...junkWordsUtts, ...stopWords],
-      input.languageCode,
-      tools
-    ),
+    originalUtterances: utterances,
+    synonymUtterances: utterances,
     contexts: [...input.contexts],
     vocab: {},
     slot_entities: []
@@ -518,7 +526,7 @@ export const TfidfTokens = async (input: TrainStep): Promise<TrainStep> => {
     (tfidfInput, intent) => ({
       ...tfidfInput,
       [intent.name]: _.flatMapDeep(
-        intent.utterances
+        intent.originalUtterances
           // .filter(u => !u.augmented) // we don't want auto-generated phrases to impact TFIDF
           .map(u => u.tokens.map(t => t.toString({ lowerCase: true })))
       )
@@ -528,7 +536,7 @@ export const TfidfTokens = async (input: TrainStep): Promise<TrainStep> => {
 
   const { __avg__: avg_tfidf } = tfidf(tfidfInput)
   const copy = { ...input, tfIdf: avg_tfidf }
-  copy.intents.forEach(x => x.utterances.forEach(u => u.setGlobalTfidf(avg_tfidf)))
+  copy.intents.forEach(x => x.originalUtterances.forEach(u => u.setGlobalTfidf(avg_tfidf)))
   return copy
 }
 
@@ -575,7 +583,7 @@ const TrainOutOfScope = async (
 
   const noneUtts = _.chain(input.intents)
     .filter(i => i.name === NONE_INTENT)
-    .flatMap(i => i.utterances)
+    .flatMap(i => i.originalUtterances)
     .value()
 
   if (!isPOSAvailable(input.languageCode) || noneUtts.length === 0) {
@@ -590,7 +598,7 @@ const TrainOutOfScope = async (
   const ctxModels: ContextModel[] = await Promise.map(input.ctxToTrain, async ctx => {
     const in_ctx_scope_points = _.chain(input.intents)
       .filter(i => i.name !== NONE_INTENT && i.contexts.includes(ctx))
-      .flatMap(i => featurizeInScopeUtterances(i.utterances, i.name))
+      .flatMap(i => featurizeInScopeUtterances(i.synonymUtterances, i.name))
       .value()
 
     const svm = new tools.mlToolkit.SVM.Trainer()
@@ -641,7 +649,7 @@ export const Trainer: Trainer = async (
   let totalProgress = 0
   let normalizedProgress = 0
 
-  const emptyProgress = () => { }
+  const emptyProgress = () => {}
   const reportTrainingProgress = progress ?? emptyProgress
 
   const debouncedProgress = _.debounce(reportTrainingProgress, 75, { maxWait: 750 })
@@ -674,10 +682,10 @@ export const Trainer: Trainer = async (
     }
     throw err
   }
+  step = await ExtractEntities(step, tools)
+  step = await AddSynonyms(step, tools) // Add a field synonymUtterances in the Intent of the step
   step = await TfidfTokens(step)
   step = ClusterTokens(step, tools)
-  step = await ExtractEntities(step, tools)
-  step = await AddSynonyms(step, tools)
   step = await AppendNoneIntent(step, tools)
   const exact_match_index = BuildExactMatchIndex(step)
   try {
@@ -723,33 +731,17 @@ export const Trainer: Trainer = async (
 }
 
 const AddSynonyms = async (step: TrainStep, tools: Tools): Promise<TrainStep> => {
-  if (_.isEmpty(tools.meanSyn)) {
-    const lutSynVec = {}
-    // console.log("COUCOU", step.intents[1].utterances[0].tokens[8].vector[0])
-    for (const entity of step.list_entities) {
-      const mappedTokensWithName = { ...entity.mappingsTokens, [entity.entityName]: [[entity.entityName]] }
-      for (const mappedTokens of Object.values(mappedTokensWithName)) {
-        const tokensVec = await tools.vectorize_tokens(mappedTokens[0].filter(t => t !== ' '), step.languageCode)
-        const wordVec: number[] = tokensVec
-          .reduce((acc, cur) => acc.map((num, idx) => num + cur[idx]), Array(tokensVec[0].length).fill(0))
-          .map(e => e / tokensVec.length)
-        lutSynVec[entity.entityName] = wordVec
+  for (const intent of step.intents) {
+    const rawUtterances: string[] = []
+    for (const utt of intent.originalUtterances) {
+      let rawUtt = utt.toString()
+      for (const entity of utt.entities) {
+        rawUtt = rawUtt.replace(entity.metadata.source, entity.type)
       }
+      rawUtterances.push(rawUtt)
     }
-    tools.meanSyn = lutSynVec
+    intent.synonymUtterances = await buildUtteranceBatch(rawUtterances, step.languageCode, tools)
   }
-
-  const utterances = _.flatMapDeep(step.intents, i => i.utterances)
-  for (const utt of utterances) {
-    for (const entity of utt.entities) {
-      if (entity.metadata.extractor === 'list') {
-        const tokenIdx = utt.tokens.findIndex(t => t.value.includes(entity.metadata.source))
-        if (tokenIdx > 0) { utt.setTokenVector(tokenIdx, tools.meanSyn[entity.type]) }
-      }
-    }
-  }
-  // console.log("PLOP", step.intents[1].utterances[0].tokens[8].vector[0])
-
   return step
 }
 

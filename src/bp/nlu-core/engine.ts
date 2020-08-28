@@ -18,7 +18,7 @@ export default class Engine implements NLU.Engine {
   private static _tools: Tools
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<PredictableModel> = {}
-  constructor(private defaultLanguage: string, private botId: string, private logger: NLU.Logger) { }
+  constructor(private defaultLanguage: string, private botId: string, private logger: NLU.Logger) {}
 
   // NOTE: removed private in order to prevent important refactor (which will be done later)
   public static get tools() {
@@ -119,7 +119,8 @@ export default class Engine implements NLU.Engine {
       .map(x => ({
         name: x.name,
         contexts: x.contexts,
-        utterances: x.utterances[languageCode],
+        originalUtterances: x.utterances[languageCode],
+        synonymUtterances: x.utterances[languageCode],
         slot_definitions: x.slots
       }))
 
@@ -259,7 +260,7 @@ export default class Engine implements NLU.Engine {
   private async _makePredictors(input: TrainInput, output: TrainOutput): Promise<Predictors> {
     const tools = Engine._tools
 
-    if (_.flatMap(input.intents, i => i.utterances).length <= 0) {
+    if (_.flatMap(input.intents, i => i.originalUtterances).length <= 0) {
       // we don't want to return undefined as extraction won't be triggered
       // we want to make it possible to extract entities without having any intents
       return {

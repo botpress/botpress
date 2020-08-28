@@ -12,21 +12,24 @@ const intent1: Intent<Utterance> = {
   name: 'intent1',
   contexts: ['global'],
   slot_definitions: [],
-  utterances: [u1, u2].map(makeTestUtterance)
+  originalUtterances: [u1, u2].map(makeTestUtterance),
+  synonymUtterances: [u1, u2].map(makeTestUtterance)
 }
 
 const intent2: Intent<Utterance> = {
   name: 'intent2',
   contexts: ['global', 'marijane'],
   slot_definitions: [],
-  utterances: [makeTestUtterance(u3)]
+  originalUtterances: [makeTestUtterance(u3)],
+  synonymUtterances: [makeTestUtterance(u3)]
 }
 
 const noneIntent: Intent<Utterance> = {
   name: 'none',
   contexts: ['global'],
   slot_definitions: [],
-  utterances: [makeTestUtterance('lorem ipsum dolor sit amet')]
+  originalUtterances: [makeTestUtterance('lorem ipsum dolor sit amet')],
+  synonymUtterances: [makeTestUtterance('lorem ipsum dolor sit amet')]
 }
 
 describe('Exact match', () => {

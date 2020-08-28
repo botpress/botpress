@@ -162,7 +162,7 @@ export default class SlotTagger {
     const elements: sdk.MLToolkit.CRF.DataPoint[] = []
 
     for (const intent of intents) {
-      for (const utterance of intent.utterances) {
+      for (const utterance of intent.originalUtterances) {
         const features: string[][] = utterance.tokens
           .filter(x => !x.isSpace)
           .map(this.tokenSliceFeatures.bind(this, intent, utterance, false))
