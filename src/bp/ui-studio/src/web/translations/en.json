@@ -43,6 +43,7 @@
     "public": "Published"
   },
   "statusBar": {
+    "trainWarning": "You are testing a chatbot that needs to be trained.",
     "contentLanguage": "Content Language",
     "switchLang": "Change the bot content language. Currently editing: {currentLang}",
     "trainChatbot": "Train Chatbot",

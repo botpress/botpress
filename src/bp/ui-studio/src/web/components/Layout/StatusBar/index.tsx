@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 import style from './style.scss'
 import ConfigStatus from './ConfigStatus'
 import LangSwitcher from './LangSwitcher'
-import { TrainingStatusComponent } from './TrainingStatus'
+import TrainingStatusComponent from './TrainingStatus'
 
 interface Props {
   langSwitcherOpen: boolean
@@ -23,7 +23,7 @@ const StatusBar: FC<Props> = props => {
         <LangSwitcher toggleLangSwitcher={props.toggleLangSwitcher} langSwitcherOpen={props.langSwitcherOpen} />
       </div>
       <div className={style.item}>
-        <TrainingStatusComponent currentLanguage={props.contentLang} />
+        <TrainingStatusComponent />
         {props.user && props.user.isSuperAdmin && <ConfigStatus />}
       </div>
     </footer>
