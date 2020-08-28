@@ -57,3 +57,11 @@ export const extractEventCommonArgs = (
     workflow: incomingEvent.state.workflow ?? ({} as IO.WorkflowHistory)
   }
 }
+
+export const snakeToCamel = (text: string) =>
+  text.replace(/([-_][a-z0-9])/g, group =>
+    group
+      .toUpperCase()
+      .replace('-', '')
+      .replace('_', '')
+  )

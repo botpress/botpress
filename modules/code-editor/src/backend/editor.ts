@@ -172,30 +172,48 @@ export default class Editor {
     return ghost.renameFile(folder, filename, newFilename)
   }
 
+  async readFile(name: string, filePath: string) {
+    let fileContent = ''
+    try {
+      const typings = fs.readFileSync(filePath, 'utf-8')
+
+      fileContent = typings.toString()
+      if (name === 'botpress.d.ts') {
+        fileContent = fileContent.replace(`'botpress/sdk'`, `sdk`)
+      }
+    } catch (err) {
+      this.bp.logger.warn(`Couldn't load file ${filePath} `)
+    }
+
+    return { name, fileContent }
+  }
+
   async loadTypings() {
     if (this._typings) {
       return this._typings
     }
 
-    const sdkTyping = fs.readFileSync(path.join(__dirname, '/../botpress.d.js'), 'utf-8')
-    const nodeTyping = fs.readFileSync(path.join(__dirname, `/../typings/node.d.txt`), 'utf-8')
-
     const ghost = this.bp.ghost.forRoot()
     const botConfigSchema = await ghost.readFileAsString('/', 'bot.config.schema.json')
     const botpressConfigSchema = await ghost.readFileAsString('/', 'botpress.config.schema.json')
 
-    // Required so array.includes() can be used without displaying an error
-    const es6include = fs.readFileSync(path.join(__dirname, '/../typings/es6include.txt'), 'utf-8')
-
     const moduleTypings = await this.getModuleTypings()
+
+    const files = [
+      { name: 'node.d.ts', location: path.join(__dirname, `/../typings/node.d.txt`) },
+      { name: 'botpress.d.ts', location: path.join(__dirname, '/../botpress.d.js') },
+      // Required so array.includes() can be used without displaying an error
+      { name: 'es6include.d.ts', location: path.join(__dirname, '/../typings/es6include.txt') }
+    ]
+
+    const content = await Promise.mapSeries(files, file => this.readFile(file.name, file.location))
+    const localTypings = _.mapValues(_.keyBy(content, 'name'), 'fileContent')
 
     this._typings = {
       'process.d.ts': buildRestrictedProcessVars(),
-      'node.d.ts': nodeTyping.toString(),
-      'botpress.d.ts': sdkTyping.toString().replace(`'botpress/sdk'`, `sdk`),
       'bot.config.schema.json': botConfigSchema,
       'botpress.config.schema.json': botpressConfigSchema,
-      'es6include.d.ts': es6include.toString(),
+      ...localTypings,
       ...moduleTypings
     }
 

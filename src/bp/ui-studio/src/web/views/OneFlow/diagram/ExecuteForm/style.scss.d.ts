@@ -2,6 +2,7 @@
 // Please do not change this file!
 interface CssExports {
   'actionModal': string;
+  'expandBtn': string;
   'formHeader': string;
   'wrapper': string;
 }

@@ -141,6 +141,8 @@ const getExpandedNodes = () => {
   }
 }
 
+const autoOpenNodes = ['say_something', 'trigger', 'prompt', 'execute']
+
 class Diagram extends Component<Props> {
   private diagramEngine: ExtendedDiagramEngine
   private diagramWidget: DiagramWidget
@@ -245,7 +247,7 @@ class Diagram extends Component<Props> {
     if (
       !prevState.editingNodeItem &&
       this.props.currentFlowNode?.isNew &&
-      ['say_something', 'trigger', 'prompt'].includes(this.props.currentFlowNode?.type)
+      autoOpenNodes.includes(this.props.currentFlowNode?.type)
     ) {
       this.editNodeItem(this.props.currentFlowNode, 0)
     }
@@ -367,7 +369,7 @@ class Diagram extends Component<Props> {
       })
     },
     executeNode: (point: Point, moreProps) =>
-      this.props.createFlowNode({ ...point, type: 'execute', next: [defaultTransition], ...moreProps }),
+      this.props.createFlowNode({ ...point, type: 'execute', next: [defaultTransition], ...moreProps, isNew: true }),
     routerNode: (point: Point) =>
       this.props.createFlowNode({
         ...point,
@@ -1012,6 +1014,15 @@ class Diagram extends Component<Props> {
     this.props.updateFlowNode({ next: newTransitions })
   }
 
+  updateExecute = data => {
+    const { node, index } = this.state.editingNodeItem
+
+    this.props.switchFlowNode(node.id)
+    this.setState({ editingNodeItem: { node: { ...node, execute: { ...node.execute, ...data } }, index } })
+
+    this.props.updateFlowNode({ execute: { ...node.execute, ...data } })
+  }
+
   renderSearch = () => {
     return (
       this.props.showSearch && (
@@ -1049,6 +1060,8 @@ class Diagram extends Component<Props> {
       currentItem = node?.variable
     } else if (formType === 'router') {
       currentItem = node?.next
+    } else if (formType === 'execute') {
+      currentItem = node?.execute
     }
 
     const isQnA = this.props.selectedWorkflow === 'qna'
@@ -1187,8 +1200,15 @@ class Diagram extends Component<Props> {
           {formType === 'execute' && (
             <ExecuteForm
               node={this.props.currentFlowNode}
+              customKey={`${node?.id}`}
               deleteNode={this.deleteSelectedElements.bind(this)}
-              diagramEngine={this.diagramEngine}
+              contentLang={this.state.currentLang}
+              formData={currentItem}
+              events={this.props.hints}
+              actions={this.props.actions}
+              variables={this.props.variables}
+              onUpdate={this.updateExecute.bind(this)}
+              onUpdateVariables={this.addVariable}
               close={() => {
                 this.timeout = setTimeout(() => {
                   this.setState({ editingNodeItem: null })
@@ -1286,6 +1306,7 @@ const mapStateToProps = (state: RootReducer) => ({
   currentDiagramAction: state.flows.currentDiagramAction,
   canPasteNode: Boolean(state.flows.nodeInBuffer),
   skills: state.skills.installed,
+  actions: state.skills.actions?.filter(a => a.legacy),
   library: state.content.library,
   prompts: getPrompts(state),
   variables: getVariables(state),

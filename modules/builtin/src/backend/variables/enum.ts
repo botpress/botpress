@@ -1,9 +1,11 @@
-import { PrimitiveVarType } from 'botpress/sdk'
+import sdk from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 
 import { common, getCommonOperators } from './common'
 
-class BoxedEnum extends BaseVariable<string> {
+interface Variable extends sdk.BoxedVariable<string> {}
+
+class BoxedEnum extends BaseVariable<string> implements Variable {
   constructor(args) {
     super(args)
   }
@@ -25,7 +27,7 @@ class BoxedEnum extends BaseVariable<string> {
   }
 }
 
-const EnumVariableType: PrimitiveVarType = {
+const definition: sdk.PrimitiveVarType = {
   id: 'enum',
   config: {
     label: 'enum',
@@ -44,4 +46,4 @@ const EnumVariableType: PrimitiveVarType = {
   box: BoxedEnum
 }
 
-export default EnumVariableType
+export default definition

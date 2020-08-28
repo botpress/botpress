@@ -145,6 +145,15 @@ export class ModuleResourceLoader {
     return path.resolve(`${this.modulePath}/dist/bot-templates/${templateName}`)
   }
 
+  async getModuleDefinitions() {
+    const filePath = path.resolve(`${this.modulePath}/dist/variables.txt`)
+    if (!fse.pathExistsSync(filePath)) {
+      return ''
+    }
+
+    return fse.readFileSync(filePath, 'utf8')
+  }
+
   private async _getHooksPaths(): Promise<ResourceExportPath[]> {
     const hooks: ResourceExportPath[] = []
 
