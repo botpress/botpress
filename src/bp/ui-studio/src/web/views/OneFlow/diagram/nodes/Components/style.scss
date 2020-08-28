@@ -55,9 +55,44 @@
 .nodeWrapper {
   background: #fff;
   width: 150px;
+  border: none;
+  border-radius: 0 0 5px 5px;
 
   &.highlighted {
-    outline: 5px solid #ffde33 !important;
+    border: 1px solid var(--ocean) !important;
+
+    .say_something,
+    .prompt,
+    .trigger,
+    .execute,
+    .action,
+    .failure,
+    .router,
+    .success {
+      :global(.port):before {
+        background: var(--ocean);
+      }
+    }
+
+    .headerWrapper {
+      &.say_something,
+      &:hover.say_something,
+      &.trigger,
+      &:hover.trigger,
+      &.execute,
+      &:hover.execute,
+      &.action,
+      &:hover.action,
+      &.failure,
+      &:hover.failure,
+      &.router,
+      &:hover.router &.success,
+      &:hover.success,
+      &.prompt,
+      &:hover.prompt {
+        border-color: var(--ocean);
+      }
+    }
   }
 
   .prompt :global(.port):before {
@@ -127,9 +162,7 @@
           margin-top: 0 !important;
         }
 
-        &.active,
         &:hover {
-          .content,
           &:after {
             background: #fff !important;
           }
@@ -156,11 +189,10 @@
     position: relative;
     width: 100%;
 
-    &:hover {
+    &.say_something,
+    &:hover.say_something {
       background: #fff;
-      border: none;
-      border-top: 2px solid var(--say);
-      box-shadow: none;
+      border-color: var(--say);
     }
 
     &.trigger,
@@ -332,8 +364,13 @@
     cursor: grabbing;
   }
 
-  &:hover,
   &.active {
+    .content {
+      background-color: var(--hover-ocean);
+      border: solid 1px var(--ocean);
+    }
+  }
+  &:hover {
     .content:not(.promptPortContent) {
       border: solid 1px var(--ocean);
     }
@@ -369,6 +406,8 @@
   word-break: break-all;
 
   &.promptPortContent {
+    border-color: var(--bg);
+    background-color: var(--bg);
     position: relative;
   }
 }
