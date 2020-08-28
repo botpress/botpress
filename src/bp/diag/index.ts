@@ -16,7 +16,6 @@ import path from 'path'
 import stripAnsi from 'strip-ansi'
 import yn from 'yn'
 
-import { json } from 'body-parser'
 import IORedis from 'ioredis'
 import { startMonitor } from './monitor'
 import {
