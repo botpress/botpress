@@ -11,14 +11,14 @@ const Text: FC<TextProps> = ({
   onBlur,
   onChange,
   placeholder,
-  field: { valueManipulation, type, min, max, maxLength },
+  field: { valueManipulation, type, min, max, maxLength, defaultValue },
   value,
   childRef
 }) => {
-  const [localValue, setLocalValue] = useState(value || getFieldDefaultValue({ type }))
+  const [localValue, setLocalValue] = useState(value || getFieldDefaultValue({ type, defaultValue }))
 
   useEffect(() => {
-    setLocalValue(value ?? getFieldDefaultValue({ type }))
+    setLocalValue(value ?? getFieldDefaultValue({ type, defaultValue }))
   }, [value])
 
   const onKeyDown = e => {

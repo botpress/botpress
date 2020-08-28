@@ -13,16 +13,16 @@ const test = {
     users: './admin/users.test'
   },
   studio: {
-    ui: './studio/ui.test',
-    flows: './studio/flows.test',
-    cms: './studio/cms.test'
+    // ui: './studio/ui.test'
+    // flows: './studio/flows.test',
+    // cms: './studio/cms.test'
   },
   mod: {
-    editor: './modules/code-editor.test',
+    // editor: './modules/code-editor.test'
     // qna: './modules/qna.test',
-    testing: './modules/testing.test',
-    nlu: './modules/nlu.test',
-    webchat: './modules/webchat.test'
+    // testing: './modules/testing.test',
+    // nlu: './modules/nlu.test',
+    // webchat: './modules/webchat.test'
   }
 }
 

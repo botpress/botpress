@@ -43,14 +43,21 @@
     "public": "Published"
   },
   "statusBar": {
+    "trainWarning": "You are testing a chatbot that needs to be trained.",
     "contentLanguage": "Content Language",
     "switchLang": "Change the bot content language. Currently editing: {currentLang}",
     "trainChatbot": "Train Chatbot",
+    "trainChatbotTooltip": "Allow your chatbot to take in its new learnings",
     "training": "Training",
     "ready": "Ready",
     "cancelTraining": "Cancel Training",
     "canceling": "Canceling",
-    "trainingError": "Cannot train Chatbot"
+    "trainingError": "Cannot train Chatbot",
+    "configChangedDialog": "Are you sure you want to apply configurations? Your server won’t be accessible for a few moments.",
+    "reboot": "Apply",
+    "rebooting": "Restarting",
+    "applyConfigs": "Apply Configurations ",
+    "applyConfigsTooltip": "Restarts server so configuration changes can take effect"
   },
   "studio": {
     "condition": {
@@ -132,6 +139,7 @@
       "mustHaveOutcomes": "Workflows must have at least one success and one failure outcome",
       "referenceCount": "{count} {count, plural, one {reference} other {references}}",
       "noReferences": "Not used",
+      "emptyWorkflow": "Right-click or drag and drop blocks to start designing your workflow.",
       "chips": "Chips",
       "condition": {
         "addCondition": "Add condition",
@@ -152,7 +160,7 @@
       "errorWhileSaving": "There was an error while saving, deleting or renaming a flow. Last modification might not have been saved on server. Please reload page before continuing flow edition",
       "flowWideOnReceives": "flow-wide on {count, plural, one {receive} other {receives}}",
       "flowWideTransitions": "flow-wide {count, plural, one {transition} other {transitions}}",
-      "highlightByName": "Highlight nodes by name",
+      "filterBlocks": "Filter Blocks",
       "ignoredWorkflows": {
         "addLabel": "Add Workflow"
       },
@@ -177,6 +185,7 @@
         "add": "add",
         "addAction": "Add new action",
         "addCondition": "Add Condition",
+        "addMessage": "Add Message",
         "cantSeeActions": "Can't see your action?",
         "chatbotExecutes": "Chatbot Executes",
         "chatbotSays": "Chatbot Says",
@@ -283,15 +292,19 @@
         "nameInUse": "Name already in use",
         "nameInUseMessage": "A flow with that name already exists. Please choose another one.",
         "node": "Node",
+        "noSearchMatch": "Sorry, no results match the search criteria.",
         "renameFlow": "Rename Flow",
         "importTopic": "Import Topic",
         "addTopic": "Add Topic",
         "addWorkflow": "Add Workflow",
         "tapIconsToAdd": "Tap icons in the toolbar to import or add your first topic.",
         "renameWorkflow": "Rename Workflow",
+        "duplicateWorkflow": "Duplicate Workflow",
+        "moveWorkflow": "Move Workflow to",
         "renameTopic": "Rename Topic",
         "nameWorkflow": "Name Workflow",
-        "nameTopic": "Name Topic"
+        "nameTopic": "Name Topic",
+        "duplicateTopic": "Duplicate Topic"
       },
       "skills": {
         "couldNotLoad": "Could not load skills view",
@@ -363,7 +376,8 @@
       "pickType": "Pick a type",
       "userAnswersCorrectly": "User answers correctly",
       "userCancels": "User Cancels",
-      "userDoesNotAnswer": "User does not answer"
+      "userDoesNotAnswer": "User does not answer",
+      "defaultQuestion": "Please provide value for __VARNAME"
     },
     "sideBar": {
       "flowBuilder": "Workflow Builder",

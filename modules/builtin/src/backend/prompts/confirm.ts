@@ -46,18 +46,7 @@ const config: PromptConfig = {
   valueType: 'boolean',
   icon: 'segmented-control',
   noConfirmation: true,
-  fields: [
-    ...common.fields,
-    {
-      type: 'variable',
-      key: 'output',
-      required: true,
-      label: 'module.builtin.setValueTo',
-      placeholder: 'module.builtin.setValueToPlaceholder',
-      variableTypes: ['boolean'],
-      defaultVariableType: 'boolean'
-    }
-  ],
+  fields: common.fields,
   advancedSettings: common.advancedSettings
 }
 
