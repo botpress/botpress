@@ -25,6 +25,7 @@ interface CssExports {
   'prompt': string;
   'promptPortContent': string;
   'router': string;
+  'say_something': string;
   'secondaryText': string;
   'success': string;
   'text': string;

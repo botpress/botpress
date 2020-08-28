@@ -9,6 +9,7 @@ interface CssExports {
   'hidden': string;
   'insertMode': string;
   'insertNode': string;
+  'searchWrapper': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

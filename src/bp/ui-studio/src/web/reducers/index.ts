@@ -6,7 +6,7 @@ import bots, { BotsReducer } from './bots'
 import content, { ContentReducer } from './content'
 import flows, { FlowReducer } from './flows'
 import hints from './hints'
-import language from './language'
+import language, { LanguageReducer } from './language'
 import modules from './modules'
 import ndu, { NduReducer } from './ndu'
 import nlu, { NLUReducer } from './nlu'
@@ -38,6 +38,7 @@ export interface RootReducer {
   user: UserReducer
   content: ContentReducer
   skills: SkillsReducer
+  language: LanguageReducer
   ndu: NduReducer
   modules: ModuleDefinition[]
   ui: UiReducer

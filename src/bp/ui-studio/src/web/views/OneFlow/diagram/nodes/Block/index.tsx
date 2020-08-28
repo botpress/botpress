@@ -160,7 +160,7 @@ const BlockWidget: FC<Props> = ({
   const expanded = getExpandedNodes().includes(node.id)
 
   return (
-    <NodeWrapper isHighlighed={node.isHighlighted}>
+    <NodeWrapper isHighlighed={node.isHighlighted || node.isSelected()}>
       <NodeHeader
         className={style[nodeType]}
         setExpanded={canCollapse && handleExpanded}
