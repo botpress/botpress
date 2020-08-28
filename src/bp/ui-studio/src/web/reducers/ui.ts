@@ -2,8 +2,8 @@ import _ from 'lodash'
 import { handleActions } from 'redux-actions'
 import {
   addDocumentationHint,
-  emulatorOpen,
   removeDocumentationHint,
+  setEmulatorOpen,
   toggleBottomPanel,
   updateDocumentationModal,
   updateGlobalStyle,
@@ -61,7 +61,7 @@ const reducer = handleActions(
         bottomPanel: value
       }
     },
-    [emulatorOpen]: (state, { payload }) => ({
+    [setEmulatorOpen]: (state, { payload }) => ({
       ...state,
       emulatorOpen: payload
     })

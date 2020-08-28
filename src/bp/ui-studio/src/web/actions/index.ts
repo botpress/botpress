@@ -546,4 +546,4 @@ export const fetchVariables = () => dispatch => {
   })
 }
 
-export const emulatorOpen = createAction('EMULATOR_OPENED')
+export const setEmulatorOpen = createAction('EMULATOR_OPENED')

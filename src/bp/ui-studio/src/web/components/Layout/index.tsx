@@ -6,7 +6,7 @@ import { connect } from 'react-redux'
 import { Redirect, Route, Switch } from 'react-router-dom'
 import SplitPane from 'react-split-pane'
 import { bindActionCreators } from 'redux'
-import { emulatorOpen, toggleBottomPanel, trainSessionReceived, viewModeChanged } from '~/actions'
+import { setEmulatorOpen, toggleBottomPanel, trainSessionReceived, viewModeChanged } from '~/actions'
 import SelectContentManager from '~/components/Content/Select/Manager'
 import PluginInjectionSite from '~/components/PluginInjectionSite'
 import BackendToast from '~/components/Util/BackendToast'
@@ -44,7 +44,7 @@ interface ILayoutProps {
   translations: any
   contentLang: string
   trainSessionReceived: (ts: NLU.TrainingSession) => void
-  emulatorOpen: (state: boolean) => void
+  setEmulatorOpen: (state: boolean) => void
 }
 
 const Layout: FC<ILayoutProps> = props => {
@@ -63,12 +63,12 @@ const Layout: FC<ILayoutProps> = props => {
 
     const handleWebChatPanel = message => {
       if (message.data.name === 'webchatOpened') {
-        props.emulatorOpen(true)
+        props.setEmulatorOpen(true)
         document.getElementById('main-content-wrapper').classList.toggle('emulator-open', true)
       }
 
       if (message.data.name === 'webchatClosed') {
-        props.emulatorOpen(false)
+        props.setEmulatorOpen(false)
         document.getElementById('main-content-wrapper').classList.toggle('emulator-open', false)
       }
     }
@@ -251,6 +251,6 @@ const mapStateToProps = (state: RootReducer) => ({
 })
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ viewModeChanged, toggleBottomPanel, trainSessionReceived, emulatorOpen }, dispatch)
+  bindActionCreators({ viewModeChanged, toggleBottomPanel, trainSessionReceived, setEmulatorOpen }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Layout)
