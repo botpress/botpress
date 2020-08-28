@@ -155,9 +155,15 @@
         color: var(--shark);
         font-size: 10px;
         margin: 0;
+        vertical-align: top;
 
         &.tagify--invalid > span {
           background: var(--hover-lighthouse-30);
+
+
+          .tagify__tag-text {
+            margin-left: var(--spacing-x-small);
+          }
         }
 
         svg {
@@ -166,7 +172,7 @@
 
         & > span {
           align-items: center;
-          background: var(--bg);
+          background: var(--hover-ocean);
           border-radius: 3px;
           display: flex;
           height: 20px;
@@ -178,7 +184,6 @@
           }
 
           .tagify__tag-text {
-            margin-left: var(--spacing-x-small);
             font-size: 10px;
 
             &[contenteditable] {

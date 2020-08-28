@@ -26,7 +26,16 @@
     z-index: -1;
   }
 
-  &:hover,
+  &:hover {
+    .content {
+      border: solid 1px var(--ocean);
+    }
+
+    &:after {
+      border: solid 1px var(--ocean);
+    }
+  }
+
   &.active {
     .content {
       background-color: var(--hover-ocean);
@@ -37,6 +46,11 @@
       background-color: var(--hover-ocean);
       border: solid 1px var(--ocean);
     }
+  }
+
+  :global(.variable) {
+    color: var(--ocean);
+    font-weight: bold;
   }
 
   .img {

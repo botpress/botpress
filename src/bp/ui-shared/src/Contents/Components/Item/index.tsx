@@ -4,6 +4,7 @@ import React, { FC, Fragment } from 'react'
 import Dotdotdot from 'react-dotdotdot'
 
 import { lang } from '../../../translations'
+import { convertToHtml } from '../../../FormFields/SuperInput/utils'
 import MarkdownContent from '../../../MarkdownContent'
 
 import style from './style.scss'
@@ -15,7 +16,9 @@ const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active, contentLang }) 
       <div className={style.contentImgWrapper}>
         {image && <div style={{ backgroundImage: `url('${image}')` }} className={style.img}></div>}
         <div className={style.textWrapper}>
-          <Dotdotdot clamp={3}>{title?.[contentLang]}</Dotdotdot>
+          <Dotdotdot clamp={3}>
+            <span dangerouslySetInnerHTML={{ __html: convertToHtml(title?.[contentLang]) }} />
+          </Dotdotdot>
         </div>
       </div>
     )
@@ -31,7 +34,9 @@ const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active, contentLang }) 
       case 'builtin_single-choice':
         return (
           <Dotdotdot clamp={3}>
-            {(content.choices as FormData[])?.map(choice => choice.title?.[contentLang]).join(' · ')}
+            {(content.choices as FormData[])
+              ?.map(choice => <span dangerouslySetInnerHTML={{ __html: convertToHtml(choice.title?.[contentLang]) }} />)
+              .join(' · ')}
           </Dotdotdot>
         )
       default:

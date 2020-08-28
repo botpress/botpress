@@ -3,7 +3,9 @@ import { Variables } from 'common/typings'
 
 export interface VariablePickerProps {
   field: FormField
-  data: FormData
+  data: { [key: string]: any }
+  placeholder?: string
+  onChange: (type: string) => void
   addVariable: (variable: FlowVariable) => void
   variables: Variables
   defaultVariableType?: string

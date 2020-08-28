@@ -1,15 +1,4 @@
-import {
-  Button,
-  ContextMenu,
-  ControlGroup,
-  InputGroup,
-  Menu,
-  MenuDivider,
-  MenuItem,
-  Position,
-  Tag,
-  Toaster
-} from '@blueprintjs/core'
+import { ContextMenu, Menu, MenuDivider, MenuItem, Position, Toaster } from '@blueprintjs/core'
 import { FlowVariable } from 'botpress/sdk'
 import { Contents, contextMenu, EmptyState, Icons, lang, MainContent, toast } from 'botpress/shared'
 import cx from 'classnames'
@@ -46,6 +35,7 @@ import {
   updateFlowProblems
 } from '~/actions'
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
+import { SearchBar } from '~/components/Shared/Interface'
 import { toastSuccess } from '~/components/Shared/Utils'
 import withLanguage from '~/components/Util/withLanguage'
 import {
@@ -90,14 +80,14 @@ import WorkflowToolbar from './WorkflowToolbar'
 
 interface OwnProps {
   childRef: (el: any) => void
-  showSearch: boolean
-  hideSearch: () => void
   readOnly: boolean
   canPasteNode: boolean
   selectedTopic: string
   selectedWorkflow: string
   flowPreview: boolean
   highlightFilter: string
+  showSearch: boolean
+  hideSearch: () => void
   handleFilterChanged: (event: any) => void
 }
 
@@ -143,13 +133,13 @@ class Diagram extends Component<Props> {
   private diagramEngine: ExtendedDiagramEngine
   private diagramWidget: DiagramWidget
   private diagramContainer: HTMLDivElement
+  private searchRef: React.RefObject<HTMLInputElement>
   private manager: DiagramManager
   private timeout
   /** Represents the source port clicked when the user is connecting a node */
   private dragPortSource: any
 
   state = {
-    highlightFilter: '',
     editingNodeItem: null,
     currentLang: '',
     currentTab: 'workflow',
@@ -169,6 +159,7 @@ class Diagram extends Component<Props> {
       getCurrentLang: () => this.getStateProperty('currentLang'),
       getConditions: () => this.getPropsProperty('conditions'),
       addCondition: this.addCondition.bind(this),
+      addMessage: this.addMessage.bind(this),
       getExpandedNodes: () => this.getStateProperty('expandedNodes'),
       setExpandedNodes: this.updateExpandedNodes.bind(this)
     }
@@ -207,6 +198,7 @@ class Diagram extends Component<Props> {
         console.error('Error when switching flow or refreshing', err)
       }
     }
+    this.searchRef = React.createRef()
   }
 
   componentDidMount() {
@@ -233,6 +225,10 @@ class Diagram extends Component<Props> {
   componentDidUpdate(prevProps, prevState) {
     this.manager.setCurrentFlow(this.props.currentFlow)
     this.manager.setReadOnly(this.props.readOnly)
+
+    if (!prevProps.showSearch && this.props.showSearch) {
+      this.searchRef.current.focus()
+    }
 
     if (
       !prevState.editingNodeItem &&
@@ -274,7 +270,7 @@ class Diagram extends Component<Props> {
     }
 
     // Refresh nodes when the filter is displayed
-    if (this.props.highlightFilter && this.props.showSearch) {
+    if (this.props.highlightFilter) {
       this.manager.setHighlightedNodes(this.props.highlightFilter)
       this.manager.syncModel()
     }
@@ -286,7 +282,7 @@ class Diagram extends Component<Props> {
     }
 
     // Clear nodes when search field is hidden
-    if (!this.props.showSearch && prevProps.showSearch) {
+    if (!this.props.highlightFilter) {
       this.manager.setHighlightedNodes([])
       this.manager.syncModel()
     }
@@ -324,6 +320,12 @@ class Diagram extends Component<Props> {
     }
   }
 
+  getTextFields = () => {
+    const { fields, advancedSettings } =
+      this.props.contentTypes.find(contentType => contentType.id === 'builtin_text')?.schema?.newJson || {}
+    return [...(fields || []), ...(advancedSettings || [])]
+  }
+
   add = {
     flowNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'standard' }),
     skillNode: (point: Point, skillId: string) => this.props.buildSkill({ location: point, id: skillId }),
@@ -338,15 +340,14 @@ class Diagram extends Component<Props> {
       })
     },
     say: (point: Point, moreProps) => {
-      const { fields, advancedSettings } =
-        this.props.contentTypes.find(contentType => contentType.id === 'builtin_text')?.schema?.newJson || {}
-      const schemaFields = [...(fields || []), ...(advancedSettings || [])]
-
       this.props.createFlowNode({
         ...point,
         type: 'say_something',
         contents: [
-          { contentType: 'builtin_text', ...Contents.createEmptyDataFromSchema(schemaFields, this.state.currentLang) }
+          {
+            contentType: 'builtin_text',
+            ...Contents.createEmptyDataFromSchema(this.getTextFields(), this.state.currentLang)
+          }
         ],
         next: [defaultTransition],
         isNew: true,
@@ -657,8 +658,15 @@ class Diagram extends Component<Props> {
     return this.props[propertyName]
   }
 
-  addCondition(nodeId) {
+  addCondition() {
     this.props.updateFlowNode({ conditions: [...this.props.currentFlowNode.conditions, { params: {} }] })
+  }
+
+  addMessage() {
+    const schema = Contents.createEmptyDataFromSchema(this.getTextFields(), this.state.currentLang)
+    this.props.updateFlowNode({
+      contents: [...this.props.currentFlowNode.contents, { contentType: 'builtin_text', ...schema }]
+    })
   }
 
   switchFlowNode(nodeId) {
@@ -754,10 +762,6 @@ class Diagram extends Component<Props> {
     this.props.openFlowNodeProps()
   }
 
-  handleFilterChanged = event => {
-    this.setState({ highlightFilter: event.target.value })
-  }
-
   handleToolDropped = async (event: React.DragEvent) => {
     if (this.props.readOnly) {
       return
@@ -767,6 +771,8 @@ class Diagram extends Component<Props> {
     const data = JSON.parse(event.dataTransfer.getData('diagram-node'))
 
     const point = this.manager.getRealPosition(event)
+    const target = this.diagramWidget.getMouseElement(event)
+    const targetNodeType = target?.model['nodeType']
 
     if (data.type === 'chip') {
       const target = this.diagramWidget.getMouseElement(event)
@@ -778,13 +784,25 @@ class Diagram extends Component<Props> {
     } else if (data.type === 'node') {
       switch (data.id) {
         case 'trigger':
-          this.add.triggerNode(point, {})
+          if (targetNodeType === 'trigger') {
+            await this.props.switchFlowNode(target.model.id)
+            this.addCondition()
+          } else {
+            this.add.triggerNode(point, {})
+          }
+
           break
         case 'prompt':
           this.add.promptNode(point, '')
           break
         case 'say_something':
-          this.add.say(point, {})
+          if (targetNodeType === 'say_something') {
+            await this.props.switchFlowNode(target.model.id)
+            this.addMessage()
+          } else {
+            this.add.say(point, {})
+          }
+
           break
         case 'execute':
           this.add.executeNode(point, data.contentId ? { onReceive: [`${data.contentId}`] } : {})
@@ -851,17 +869,9 @@ class Diagram extends Component<Props> {
       node: { contents },
       index
     } = this.state.editingNodeItem
-    const newContents = [...contents]
+    const newContents = [...contents.filter((_, i) => index !== i)]
 
-    newContents[index] = Object.keys(newContents[index]).reduce((acc, lang) => {
-      if (lang !== this.state.currentLang) {
-        acc = { ...acc, [lang]: { ...newContents[index][lang] } }
-      }
-
-      return acc
-    }, {})
-
-    if (isContentEmpty(newContents[index])) {
+    if (!newContents.length) {
       this.deleteSelectedElements()
     } else {
       this.props.updateFlowNode({ contents: newContents })
@@ -950,26 +960,6 @@ class Diagram extends Component<Props> {
     this.props.updateFlowNode({ subflow: data })
   }
 
-  renderSearch = () => {
-    return (
-      this.props.showSearch && (
-        <div className={style.floatingInfo}>
-          <ControlGroup>
-            <InputGroup
-              id="input-highlight-name"
-              tabIndex={1}
-              placeholder={lang.tr('studio.flow.highlightByName')}
-              value={this.props.highlightFilter}
-              onChange={this.props.handleFilterChanged}
-              autoFocus={true}
-            />
-            <Button icon="small-cross" onClick={this.props.hideSearch} />
-          </ControlGroup>
-        </div>
-      )
-    )
-  }
-
   render() {
     const { node, index, data } = this.state.editingNodeItem || {}
     const formType: string = node?.nodeType || node?.type || this.state.editingNodeItem?.type
@@ -1023,6 +1013,15 @@ class Diagram extends Component<Props> {
             tabChange={this.handleTabChanged}
           />
           {currentTab === 'variables' && <VariablesEditor editVariable={this.editVariable} />}
+          <div className={style.searchWrapper}>
+            <SearchBar
+              ref={this.searchRef}
+              onBlur={this.props.hideSearch}
+              value={this.props.highlightFilter}
+              placeholder={lang.tr('studio.flow.filterBlocks')}
+              onChange={this.props.handleFilterChanged}
+            />
+          </div>
           <Fragment>
             <div
               id="diagramContainer"
@@ -1033,7 +1032,6 @@ class Diagram extends Component<Props> {
               onDrop={this.handleToolDropped}
               onDragOver={event => event.preventDefault()}
             >
-              {this.renderSearch()}
               <DiagramWidget
                 ref={w => (this.diagramWidget = w)}
                 deleteKeys={[]}

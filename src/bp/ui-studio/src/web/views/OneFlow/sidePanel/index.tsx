@@ -1,7 +1,7 @@
 import { Alignment, Button, Navbar, NavbarGroup, Tab, Tabs, Tooltip } from '@blueprintjs/core'
 import axios from 'axios'
 import { lang } from 'botpress/shared'
-import { nextFlowName } from 'common/flow'
+import { nextFlowName, nextTopicName } from 'common/flow'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -83,14 +83,7 @@ const SidePanelContent: FC<Props> = props => {
   }
 
   const createTopic = async () => {
-    const originalName = 'Topic'
-    let name = originalName
-    let index = 0
-
-    while (props.topics.find(t => t.name === name)) {
-      index++
-      name = `${originalName}-${index}`
-    }
+    const name = nextTopicName(props.topics, 'Topic')
 
     setEditing(name)
     setIsEditingNew(true)

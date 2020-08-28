@@ -2,7 +2,7 @@ import { Button, Intent, MenuItem } from '@blueprintjs/core'
 import axios from 'axios'
 import { confirmDialog, EmptyState, lang } from 'botpress/shared'
 import cx from 'classnames'
-import { nextFlowName, parseFlowName } from 'common/flow'
+import { nextFlowName, nextTopicName, parseFlowName } from 'common/flow'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -17,6 +17,7 @@ import { buildFlowName } from '../../../../util/workflows'
 import style from './style.scss'
 import EmptyStateIcon from './EmptyStateIcon'
 import TreeItem from './TreeItem'
+import SearchIcon from './SearchIcon'
 
 const lockedFlows = ['misunderstood.flow.json', 'error.flow.json', 'workflow_ended.flow.json']
 
@@ -137,6 +138,23 @@ const TopicList: FC<Props> = props => {
     }
   }
 
+  const duplicateTopic = async (name: string) => {
+    const flowsToCopy = props.flowsName.filter(x => parseFlowName(x.name).topic === name)
+    const newName = nextTopicName(props.topics, name)
+
+    await axios.post(`${window.BOT_API_PATH}/topic`, { name: newName })
+    props.fetchTopics()
+
+    for (const flow of flowsToCopy) {
+      const parsedName = parseFlowName(flow.name, true)
+      const newWorkflowName = buildFlowName({ topic: newName, workflow: parsedName.workflow }, true)
+      props.duplicateFlow({
+        flowNameToDuplicate: flow.name,
+        name: newWorkflowName
+      })
+    }
+  }
+
   const sanitize = (name: string) => {
     return sanitizeName(name).replace(/\//g, '-')
   }
@@ -156,6 +174,13 @@ const TopicList: FC<Props> = props => {
             onClick={() => {
               setEditing(path)
               setIsEditingNew(false)
+            }}
+          />
+          <MenuItem
+            id="btn-duplicate"
+            label={lang.tr('studio.flow.sidePanel.duplicateTopic')}
+            onClick={async () => {
+              await duplicateTopic(folder)
             }}
           />
           <MenuItem
@@ -389,13 +414,20 @@ const TopicList: FC<Props> = props => {
           onChange={setFilter}
         />
       )}
-      {isEmpty && (
-        <EmptyState
-          className={style.emptyState}
-          icon={<EmptyStateIcon />}
-          text={lang.tr('studio.flow.sidePanel.tapIconsToAdd')}
-        />
-      )}
+      {isEmpty &&
+        (!!filter.length ? (
+          <EmptyState
+            className={style.emptyState}
+            icon={<SearchIcon />}
+            text={lang.tr('studio.flow.sidePanel.noSearchMatch')}
+          />
+        ) : (
+          <EmptyState
+            className={style.emptyState}
+            icon={<EmptyStateIcon />}
+            text={lang.tr('studio.flow.sidePanel.tapIconsToAdd')}
+          />
+        ))}
       {getFlattenFlows(newFlows).map(item => printTree(item, 0))}
     </div>
   )
