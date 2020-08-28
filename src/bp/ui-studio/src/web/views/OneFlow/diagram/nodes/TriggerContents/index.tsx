@@ -19,7 +19,23 @@ const TriggerContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem, getC
   const conditionLabels = getConditions().reduce((acc, cond) => ({ ...acc, [cond.id]: cond.label }), {})
   const selectedCondition = selectedNodeItem()
   const currentLang = getCurrentLang()
-  const hasMissingTranslations = false
+
+  const checkMissingTranslations = () => {
+    return node.conditions?.some(condition => {
+      switch (condition.id) {
+        case 'user_intent_is':
+          const utterances = condition.params?.utterances || {}
+          const curLangLength = utterances[currentLang] || 0
+
+          return Object.keys(utterances)
+            .filter(l => l !== currentLang)
+            .some(l => utterances[l] > curLangLength)
+        default:
+          return false
+      }
+    })
+  }
+  const hasMissingTranslations = checkMissingTranslations()
 
   return (
     <div className={style.contentsWrapper}>

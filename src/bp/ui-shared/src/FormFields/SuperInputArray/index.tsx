@@ -42,7 +42,7 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
   onUpdateVariables
 }) => {
   const getInitialItems = () => {
-    let localItems = [...items]
+    let localItems = [...(items || [])]
     const diff = (refValue || []).length - items.length
 
     if (diff > 0) {
@@ -143,7 +143,7 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
       <h2>{label}</h2>
       {moreInfo}
       {localItems?.map((item, index) => {
-        const missingTranslation = refValue && !item
+        const missingTranslation = refValue?.[index] && !item
         return (
           <div
             key={itemIds.current[index]}
