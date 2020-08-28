@@ -124,19 +124,17 @@ export class DiagramManager {
       return false
     }
 
-    return this.highlightedNodeNames
-      .map(q => {
-        // quick and dirty way to filter on node content
-        const candidates = [
-          node.name,
-          node.id,
-          JSON.stringify(node.contents || {}),
-          JSON.stringify(node.prompt?.params.question ?? {}),
-          JSON.stringify(node.conditions || {})
-        ]
-        return [q, candidates] as [string, string[]]
-      })
-      .some(([q, candidates]) => candidates.some(c => c.toLowerCase().includes(q.toLowerCase())))
+    const corpus = [
+      node.name,
+      node.id,
+      JSON.stringify(node.contents || {}),
+      JSON.stringify(node.prompt?.params.question ?? {}),
+      JSON.stringify(node.conditions || {})
+    ]
+      .join('__')
+      .toLowerCase()
+
+    return this.highlightedNodeNames.some(query => query.length > 1 && corpus.includes(query.toLowerCase()))
   }
 
   // Syncs model with the store (only update changes instead of complete initialization)
