@@ -1,102 +1,99 @@
+import { Button } from '@blueprintjs/core'
 import axios from 'axios'
+import { NLU } from 'botpress/sdk'
+import { lang, ToolTip } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
-import EventBus from '~/util/EventBus'
+import { connect } from 'react-redux'
+import { RootReducer } from '~/reducers'
 
 import style from './style.scss'
 
-type TrainingStatus = 'idle' | 'done' | 'needs-training' | 'training' | 'canceled' | null
-
-interface TrainingSession {
-  status: TrainingStatus
-  language: string
-  progress: number
-}
-
 interface Props {
-  currentLanguage: string
+  trainSession: NLU.TrainingSession
 }
 
-// TODOs
-// - display cancel button
-// - canceling state
-// - needs-training state
-// - display / hide buttons given the current state
-// - add translations in ui
-// - remove autotrain
+// TODO change this url for core ?
+const BASE_NLU_URL = `${window.BOT_API_PATH}/mod/nlu`
 
-export const TrainingStatusComponent: FC<Props> = props => {
-  // TODO change this for a reducer
-  const [status, setStatus] = useState<TrainingStatus>(null)
-  const [message, setMessage] = useState('') // change this for translated keys
-  const [progress, setProgress] = useState('')
+const TrainingStatusComponent: FC<Props> = (props: Props) => {
+  const { status, progress } = props.trainSession ?? {}
+
+  const [message, setMessage] = useState('')
+
+  const onTrainingNeeded = () => setMessage('')
+  const onTraingDone = () => setMessage(lang.tr('statusBar.ready'))
+  const onCanceling = () => setMessage(lang.tr('statusBar.canceling'))
+  const onError = () => setMessage(lang.tr('statusBar.trainingError'))
+  const onTrainingProgress = (progress: number) => {
+    const p = Math.floor(progress * 100)
+    setMessage(`${lang.tr('statusBar.training')} ${p}%`)
+  }
 
   useEffect(() => {
-    fetchTrainingStatus()
-
-    EventBus.default.on('statusbar.event', handleTrainingProgressEvent)
-    const i = window.setInterval(() => status !== 'training', 2500) // can be done by events too ...
-    return () => {
-      clearInterval(i)
-      EventBus.default.off('statusbar.event', handleTrainingProgressEvent)
+    if (status === 'training') {
+      onTrainingProgress(progress ?? 0)
+    } else if (status === 'errored') {
+      onError()
+    } else if (status === 'canceled') {
+      onCanceling()
+    } else if (status === 'needs-training') {
+      onTrainingNeeded()
+    } else if (status === 'idle' || status === 'done') {
+      onTraingDone()
     }
-  }, [])
-
-  const handleTrainingProgressEvent = async event => {
-    const isNLUEvent = event.botId === window.BOT_ID && event.trainSession?.language === props.currentLanguage
-    if (isNLUEvent) {
-      console.log('training event', event.trainSession)
-      const ts: TrainingSession = event.trainSession
-      if (ts.status === 'training') {
-        onTrainingProgress(ts)
-      } else if (ts.status === 'done') {
-        setTimeout(onTraingDone, 750) // prevents adding embarrasing racecondition checks
-      }
-    }
-  }
-
-  const fetchTrainingStatus = async () => {
-    try {
-      const { data: session } = await axios.get(`${window.BOT_API_PATH}/mod/nlu/training/${props.currentLanguage}`)
-      if (session && session.status === 'training') {
-        onTrainingProgress(session)
-      } else if (session.status === 'idle') {
-        onTraingDone()
-      }
-    } catch (err) {
-      setStatus('needs-training')
-    }
-  }
-
-  const onTraingDone = () => {
-    setStatus('done')
-    setMessage('Ready') // need translation for this
-    setProgress('')
-  }
-
-  const onTrainingProgress = (trainSession: TrainingSession) => {
-    setStatus(trainSession.status)
-    setMessage('Training') // translation keys for this
-    setProgress(`${Math.floor(trainSession.progress * 100)}%`)
-  }
+  }, [props.trainSession])
 
   const onTrainClicked = async (e: React.SyntheticEvent) => {
     e.preventDefault()
     try {
-      // TODO change this url for
-      await axios.post(`${window.BOT_API_PATH}/mod/nlu/train`)
+      await axios.post(`${BASE_NLU_URL}/train`)
     } catch (err) {
-      // TODO better handle this
-      console.log('cannot train chatbot')
+      onError()
     }
   }
 
-  return (
-    <div className={cx(style.item, style.progress)}>
-      {!!status && `${message} ${progress}`}
-      <button onClick={onTrainClicked}>Train</button>
-      {/* <button onClick={onCancelClicked}>Cancel</button> */}
-    </div>
-  )
+  const onCancelClicked = async (e: React.SyntheticEvent) => {
+    e.preventDefault()
+    onCanceling()
+    try {
+      await axios.post(`${BASE_NLU_URL}/train/delete`)
+    } catch (err) {
+      console.log('cannot cancel training')
+    }
+  }
+
+  if (status === null) {
+    return null
+  } else {
+    return (
+      <div className={style.item}>
+        <span className={style.message}>{message}</span>
+
+        {/*
+            Button is displayed even when training is being cancelled because
+            1. Sometimes training seems stuck and cancel is uneffective
+            2. Training Cancelation is currently a long and unreliable process
+            */}
+        {['needs-training', 'canceled'].includes(status) && (
+          <ToolTip content={lang.tr('statusBar.trainChatbotTooltip')}>
+            <Button minimal className={style.button} onClick={onTrainClicked}>
+              {lang.tr('statusBar.trainChatbot')}
+            </Button>
+          </ToolTip>
+        )}
+        {status === 'training' && (
+          <Button minimal className={cx(style.button, style.danger)} onClick={onCancelClicked}>
+            {lang.tr('statusBar.cancelTraining')}
+          </Button>
+        )}
+      </div>
+    )
+  }
 }
+
+const mapStateToProps = (state: RootReducer) => ({
+  trainSession: state.nlu.trainSession
+})
+export default connect(mapStateToProps)(TrainingStatusComponent)

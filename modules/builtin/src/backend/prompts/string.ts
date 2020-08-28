@@ -14,7 +14,7 @@ class PromptString implements Prompt {
     const text = event.payload.text
 
     // Do not extract on the first turn
-    if (!event.state.context.activePrompt?.turn || !text) {
+    if (!event.state?.context.activePrompt?.turn || !text) {
       return []
     }
 
@@ -39,18 +39,7 @@ const config: PromptConfig = {
   label: 'String',
   valueType: 'string',
   icon: 'font',
-  fields: [
-    ...common.fields,
-    {
-      type: 'variable',
-      key: 'output',
-      required: true,
-      label: 'module.builtin.setValueTo',
-      placeholder: 'module.builtin.setValueToPlaceholder',
-      variableTypes: ['string'],
-      defaultVariableType: 'string'
-    }
-  ],
+  fields: common.fields,
   noConfirmation: true,
   advancedSettings: [
     {

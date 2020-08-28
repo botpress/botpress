@@ -3,6 +3,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import React, { FC, Fragment } from 'react'
 
+import lang from '../../../../lang'
 import style from '../style.scss'
 
 interface Props {
@@ -21,33 +22,33 @@ export const Actions: FC<Props> = props => {
               case 'send':
                 return (
                   <span key={index} className={style.truncate}>
-                    Say {(data as sdk.NDU.SendContent).sourceDetails}
+                    {lang.tr('module.extensions.actions.say', { x: (data as sdk.NDU.SendContent).sourceDetails })}
                   </span>
                 )
               case 'startWorkflow':
                 return (
                   <span key={index} className={style.truncate}>
-                    Start Workflow {(data as sdk.NDU.FlowRedirect).flow}
+                    {lang.tr('module.extensions.actions.startWorkflow', { x: (data as sdk.NDU.FlowRedirect).flow })}
                   </span>
                 )
               case 'goToNode':
                 return (
                   <span key={index} className={style.truncate}>
-                    Go to node {(data as sdk.NDU.FlowRedirect).node}
+                    {lang.tr('module.extensions.actions.goToNode', { x: (data as sdk.NDU.FlowRedirect).node })}
                   </span>
                 )
               case 'redirect':
                 return (
                   <span key={index} className={style.truncate}>
-                    Redirect to {(data as sdk.NDU.FlowRedirect).flow}
+                    {lang.tr('module.extensions.actions.redirectTo', { x: (data as sdk.NDU.FlowRedirect).flow })}
                   </span>
                 )
               case 'continue':
-                return <span key={index}>Continue</span>
+                return <span key={index}>{lang.tr('module.extensions.actions.continue')}</span>
               case 'prompt.cancel':
-                return <span key={index}>Cancel Prompt</span>
+                return <span key={index}>{lang.tr('module.extensions.actions.cancelPrompt')}</span>
               case 'prompt.inform':
-                return <span key={index}>Inform Prompt</span>
+                return <span key={index}>{lang.tr('module.extensions.actions.informPrompt')}</span>
             }
           })}
         </li>

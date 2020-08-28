@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import React, { Fragment } from 'react'
 
+import lang from '../../../../lang'
 import style from '../style.scss'
 import { formatConfidence } from '../utils'
 
@@ -35,7 +36,7 @@ export const Intents = (props: Props) => {
 
   return (
     <div className={style.section}>
-      <div className={style.sectionTitle}>Top Intents</div>
+      <div className={style.sectionTitle}>{lang.tr('module.extensions.topIntents')}</div>
       {Object.keys(intentsByContext).map((key, index) => {
         const { name, confidence, intents } = intentsByContext[key]
         return (

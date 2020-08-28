@@ -1,5 +1,6 @@
 import React from 'react'
 
+import lang from '../../../../lang'
 import style from '../style.scss'
 import { formatConfidence } from '../utils'
 
@@ -11,7 +12,7 @@ export const Intents = props => {
 
   return (
     <div className={style.section}>
-      <h2 className={style.sectionTitle}>Intents</h2>
+      <h2 className={style.sectionTitle}>{lang.tr('module.extensions.intents')}</h2>
       {intents.length > 1 && (
         <ul>
           {intents.map(i => {

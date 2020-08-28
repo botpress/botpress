@@ -1,7 +1,7 @@
 .moreInfo {
   color: var(--reef);
   display: block;
-  font-size: 8px;
+  font-size: 10px;
   line-height: 1.25;
   margin: 0 0 var(--spacing-medium);
 }
@@ -15,7 +15,9 @@ a.moreInfo {
   color: var(--ocean);
   transition: color 0.3s;
 
-  &:hover, &:focus, &:active {
+  &:hover,
+  &:focus,
+  &:active {
     color: var(--hover-ocean);
     text-decoration: none;
   }

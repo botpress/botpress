@@ -1,12 +1,14 @@
 import { FormData, FormField } from 'botpress/sdk'
 
+import { lang as langTr } from '../../translations'
+
 export const createEmptyDataFromSchema = (fields: FormField[], lang?: string): FormData => {
   return fields.reduce((acc, field) => ({ ...acc, [field.key]: getFieldDefaultValue(field, lang) }), {})
 }
 
 export const getFieldDefaultValue = (field: Partial<FormField>, lang?: string) => {
   if (field.defaultValue !== undefined) {
-    return field.defaultValue
+    return typeof field.defaultValue === 'string' ? langTr(field.defaultValue) : field.defaultValue
   }
 
   switch (field.type) {
@@ -25,7 +27,7 @@ export const getFieldDefaultValue = (field: Partial<FormField>, lang?: string) =
     case 'select':
       return null
     case 'text_array':
-      return ['']
+      return field.translated ? { [lang!]: [''] } : ['']
     case 'overridable':
     case 'text':
     case 'textarea':

@@ -1,14 +1,13 @@
 import axios from 'axios'
 import sdk from 'botpress/sdk'
-import { RightSidebar } from 'botpress/shared'
+import { Variables } from 'common/typings'
 import _ from 'lodash'
 import React, { FC } from 'react'
 import { connect } from 'react-redux'
 import { deleteEntity, refreshEntities, setActiveFormItem } from '~/actions'
 import { ActiveFormItem } from '~/reducers/flows'
 
-import style from '../PromptForm/style.scss'
-
+import ComplexForm from './ComplexForm'
 import EnumForm from './EnumForm'
 import PatternForm from './PatternForm'
 
@@ -16,6 +15,7 @@ interface Props {
   customKey: string
   contentLang: string
   formData: sdk.NLU.EntityDefinition
+  variables: Variables
   close: () => void
   deleteEntity: (entityId: string) => void
   refreshEntities: () => void
@@ -47,9 +47,15 @@ const VariableForm: FC<Props> = props => {
   }
 
   const allProps = { ...props, updateEntity, deleteEntity, updateFormItem }
-  const Form = props.formData?.type === 'pattern' ? PatternForm : EnumForm
 
-  return <Form {...allProps}></Form>
+  switch (props.formData?.type) {
+    case 'pattern':
+      return <PatternForm {...allProps} />
+    case 'list':
+      return <EnumForm {...allProps} />
+    case 'complex':
+      return <ComplexForm {...allProps} />
+  }
 }
 
 export default connect(undefined, { refreshEntities, deleteEntity, setActiveFormItem })(VariableForm)

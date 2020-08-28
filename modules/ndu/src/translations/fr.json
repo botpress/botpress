@@ -22,6 +22,7 @@
         "workflowName": "Nom du workflow"
       }
     },
+    "workflowCalled": "Le workflow est déclenché par un autre workflow",
     "userAlreadySpoke": "L’utilisateur a déjà parlé avec l’agent conversationnel",
     "userAuthenticated": "L’utilisateur est authentifié",
     "userComingFromTopic": "L’utilisateur vient de {topicName}",

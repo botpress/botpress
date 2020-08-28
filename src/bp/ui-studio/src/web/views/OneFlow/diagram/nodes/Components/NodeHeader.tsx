@@ -9,92 +9,30 @@ interface Props {
   setExpanded?: (expanded: boolean) => void
   expanded?: boolean
   defaultLabel: string
-  name?: string
-  type?: string
   handleContextMenu?: (e: SyntheticEvent) => void
-  isEditing?: boolean
-  saveName?: (value: string) => void
-  error?: string
   children?: any
   className?: string
 }
 
-const NodeHeader: FC<Props> = ({
-  setExpanded,
-  expanded,
-  defaultLabel,
-  name,
-  type,
-  handleContextMenu,
-  isEditing,
-  saveName,
-  error,
-  children,
-  className
-}) => {
-  const isDefaultName = !name || name.startsWith(`${type}-`) || name.startsWith('node-')
-  const getInitialInputValue = () => {
-    return isDefaultName ? '' : name
-  }
-
-  const [inputValue, setInputValue] = useState(getInitialInputValue())
+const NodeHeader: FC<Props> = ({ setExpanded, expanded, defaultLabel, handleContextMenu, children, className }) => {
   const [startMouse, setStartMouse] = useState({ x: 0, y: 0 })
-
-  useEffect(() => {
-    setInputValue(getInitialInputValue())
-  }, [name, isEditing])
-
-  const onKeyDown = event => {
-    if ((event.ctrlKey || event.metaKey) && event.key === 'a') {
-      event.target.select()
-    }
-
-    if (event.key === 'Escape' || event.key === 'Enter') {
-      event.target.blur()
-    }
-  }
-
   const icon = expanded ? 'chevron-down' : 'chevron-right'
 
   return (
     <div className={cx(style.headerWrapper, className)}>
-      {!isEditing ? (
-        <Button
-          icon={setExpanded ? icon : null}
-          onClick={e => {
-            if (e.screenX - startMouse.x === 0 && e.screenY - startMouse.y == 0) {
-              setExpanded && setExpanded(!expanded)
-            }
-          }}
-          onMouseDown={e => setStartMouse({ x: e.screenX, y: e.screenY })}
-          className={style.button}
-          onContextMenu={e => handleContextMenu && handleContextMenu(e)}
-        >
-          {isDefaultName ? defaultLabel : name}
-        </Button>
-      ) : (
-        <div className={style.button}>
-          {setExpanded && <Icon icon={icon} />}
-          <input
-            type="text"
-            placeholder={lang.tr('studio.flow.node.renameBlock')}
-            autoFocus
-            onFocus={e => e.currentTarget.select()}
-            onKeyDown={onKeyDown}
-            onChange={e => setInputValue(e.currentTarget.value)}
-            onBlur={() => saveName(inputValue)}
-            value={inputValue}
-            className={cx({ [style.error]: error })}
-          />
-          {error && (
-            <span className={style.errorIcon}>
-              <Tooltip content={error}>
-                <Icon icon="warning-sign" iconSize={10} intent={Intent.DANGER} />
-              </Tooltip>
-            </span>
-          )}
-        </div>
-      )}
+      <Button
+        icon={setExpanded ? icon : null}
+        onClick={e => {
+          if (e.screenX - startMouse.x === 0 && e.screenY - startMouse.y == 0) {
+            setExpanded && setExpanded(!expanded)
+          }
+        }}
+        onMouseDown={e => setStartMouse({ x: e.screenX, y: e.screenY })}
+        className={style.button}
+        onContextMenu={e => handleContextMenu && handleContextMenu(e)}
+      >
+        {defaultLabel}
+      </Button>
       {children}
     </div>
   )

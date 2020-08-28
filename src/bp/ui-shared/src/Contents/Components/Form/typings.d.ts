@@ -16,6 +16,7 @@ export interface FormProps {
   formData?: FormData
   onUpdate: (data: { [key: string]: any }) => void
   onUpdateVariables?: (variable: FlowVariable) => void
+  getCustomPlaceholder?: (field: string, index) => string
   variables?: Variables
   invalidFields?: InvalidField[]
   superInputOptions?: {

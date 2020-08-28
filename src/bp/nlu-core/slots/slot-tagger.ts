@@ -66,9 +66,13 @@ export function removeInvalidTagsForIntent(intent: Intent<Utterance>, tag: TagRe
     return tag
   }
 
-  const foundInSlotDef = !!intent.slot_definitions.find(s => s.name === tag.name)
+  const slotDef = intent.slot_definitions.find(s => s.name.toLowerCase() === tag.name.toLowerCase())
 
-  if (tag.probability < MIN_SLOT_CONFIDENCE || !foundInSlotDef) {
+  if (slotDef) {
+    tag.name = slotDef.name // restore casing
+  }
+
+  if (tag.probability < MIN_SLOT_CONFIDENCE || !slotDef) {
     tag = {
       tag: BIO.OUT,
       name: '',

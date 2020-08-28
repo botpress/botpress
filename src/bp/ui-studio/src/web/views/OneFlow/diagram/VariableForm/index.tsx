@@ -3,7 +3,7 @@ import axios from 'axios'
 import { PromptNode } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
-import { Variables } from 'common/typings'
+import { FlowView, Variables } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
@@ -17,9 +17,19 @@ interface Props {
   close: () => void
   onUpdate: (data: any) => void
   formData: PromptNode
+  currentFlow: FlowView
 }
 
-const VariableForm: FC<Props> = ({ customKey, variables, contentLang, close, formData, onUpdate, deleteVariable }) => {
+const VariableForm: FC<Props> = ({
+  customKey,
+  variables,
+  contentLang,
+  close,
+  formData,
+  onUpdate,
+  deleteVariable,
+  currentFlow
+}) => {
   const variableType = useRef(formData?.type)
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
@@ -49,6 +59,11 @@ const VariableForm: FC<Props> = ({ customKey, variables, contentLang, close, for
     ({ value }) =>
       value.type === variableType.current && (!formData.params?.subType || value.subType === formData.params?.subType)
   )
+
+  let fields = selectedVariableType.config?.fields || []
+  if (currentFlow.type !== 'reusable') {
+    fields = fields.filter(x => !['isInput', 'isOutput'].includes(x.key))
+  }
 
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={close}>
@@ -82,8 +97,8 @@ const VariableForm: FC<Props> = ({ customKey, variables, contentLang, close, for
           <Contents.Form
             currentLang={contentLang}
             axios={axios}
-            fields={selectedVariableType.config?.fields || []}
-            advancedSettings={selectedVariableType.config?.advancedSettings || []}
+            fields={fields || []}
+            advancedSettings={selectedVariableType.config?.advancedSettings}
             formData={formData?.params || {}}
             onUpdate={data => onUpdate({ params: { ...data }, type: variableType.current })}
           />

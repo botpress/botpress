@@ -39,7 +39,7 @@ const loopThroughData = data => {
         if (_.isObject(item)) {
           return loopThroughData(item)
         } else {
-          return item === '' ? null : item
+          return item
         }
       })
     } else if (_.isObject(currentData)) {
@@ -163,7 +163,7 @@ export const formReducer = (state, action) => {
     }
 
     if (lang) {
-      value = { ...state[field], [lang]: value }
+      value = { ...(state[field] || {}), [lang]: value }
     }
 
     const newState = {

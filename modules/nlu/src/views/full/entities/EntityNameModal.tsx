@@ -62,7 +62,7 @@ export const EntityNameModal: FC<Props> = props => {
       type: type as NLU.EntityType,
       occurrences: []
     }
-    await props.api.createEntity(entity)
+    await props.api.createEntity((entity as unknown) as any) // TODO: we changed typings but getting rid of this GUI so didn't change the code here
     props.onEntityModified(entity)
   }
 
