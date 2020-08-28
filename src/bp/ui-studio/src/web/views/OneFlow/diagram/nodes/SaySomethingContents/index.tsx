@@ -18,7 +18,7 @@ const SaySomethingContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem,
 
   const selectedContent = selectedNodeItem()
 
-  const fieldHasMissingTranslation = value => {
+  const fieldHasMissingTranslation = (value = {}) => {
     if (value[currentLang]) {
       return false
     }

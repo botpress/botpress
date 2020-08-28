@@ -19,7 +19,7 @@ const PromptContents: FC<Props> = ({ node, selectedNodeItem, getCurrentLang }) =
   const { next } = node || {}
   const { params } = node.prompt || {}
 
-  const fieldHasMissingTranslation = value => {
+  const fieldHasMissingTranslation = (value = {}) => {
     if (value[currentLang]) {
       return false
     }
