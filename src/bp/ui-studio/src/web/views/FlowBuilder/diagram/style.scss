@@ -42,3 +42,11 @@
 .diagramHidden {
   display: none;
 }
+
+.searchWrapper {
+  align-items: flex-start;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--spacing-large);
+  margin-bottom: var(--spacing-large);
+}
