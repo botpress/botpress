@@ -1,9 +1,9 @@
-import { FlowVariable, FormField } from 'botpress/sdk'
+import { FlowVariable, FormData, FormField } from 'botpress/sdk'
 import { Variables } from 'common/typings'
 
 export interface VariablePickerProps {
   field: FormField
-  data: { [key: string]: any }
+  data: FormData
   placeholder?: string
   onChange: (type: string) => void
   addVariable: (variable: FlowVariable) => void

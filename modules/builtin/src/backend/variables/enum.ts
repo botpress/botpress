@@ -1,7 +1,7 @@
 import { PrimitiveVarType } from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 
-import common from './common'
+import { common, getCommonOperators } from './common'
 
 class BoxedEnum extends BaseVariable<string> {
   constructor(args) {
@@ -30,6 +30,7 @@ const EnumVariableType: PrimitiveVarType = {
   config: {
     label: 'enum',
     icon: 'properties',
+    operators: [...getCommonOperators('enum')],
     fields: [
       ...common.fields,
       {
