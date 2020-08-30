@@ -1,0 +1,322 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "startNode": "entry",
+  "description": "",
+  "variables": [
+    {
+      "type": "number",
+      "params": {
+        "name": "firstNumber"
+      }
+    },
+    {
+      "type": "number",
+      "params": {
+        "name": "secondNumber"
+      }
+    }
+  ],
+  "type": "standard",
+  "nodes": [
+    {
+      "id": "d415ca848f",
+      "name": "trigger-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": "prompt-1"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "trigger",
+      "conditions": [
+        {
+          "params": {
+            "candidate": [
+              "condition-compare-numbers"
+            ],
+            "exactMatch": true,
+            "caseSensitive": false
+          },
+          "id": "type_text"
+        }
+      ]
+    },
+    {
+      "id": "df3c11d9f3",
+      "name": "prompt-1",
+      "next": [
+        {
+          "caption": "User answers correctly",
+          "condition": "thisNode.extracted === true",
+          "node": "prompt-2"
+        },
+        {
+          "caption": "User does not answer",
+          "condition": "thisNode.timeout === true",
+          "node": ""
+        },
+        {
+          "caption": "User Cancels",
+          "condition": "thisNode.cancelled === true",
+          "node": ""
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "prompt",
+      "prompt": {
+        "params": {
+          "question": {
+            "en": "Pick a number between 1 and 100"
+          },
+          "min": 1,
+          "max": 100,
+          "confirm": {
+            "en": null
+          },
+          "duration": 5,
+          "searchBackCount": 2,
+          "cancellable": true,
+          "confirmCancellation": false,
+          "output": "firstNumber"
+        },
+        "type": "number"
+      },
+      "triggers": [
+        {
+          "name": "prompt_yes",
+          "effect": "prompt.inform",
+          "conditions": [
+            {
+              "id": "prompt_listening"
+            },
+            {
+              "id": "user_intent_yes"
+            }
+          ]
+        },
+        {
+          "name": "prompt_no",
+          "effect": "prompt.inform",
+          "conditions": [
+            {
+              "id": "prompt_listening"
+            },
+            {
+              "id": "user_intent_no"
+            }
+          ]
+        },
+        {
+          "name": "prompt_inform",
+          "effect": "prompt.inform",
+          "conditions": [
+            {
+              "id": "prompt_listening"
+            },
+            {
+              "id": "custom_confidence",
+              "params": {
+                "confidence": 0.7
+              }
+            }
+          ]
+        },
+        {
+          "name": "prompt_cancel",
+          "effect": "prompt.cancel",
+          "conditions": [
+            {
+              "id": "prompt_listening"
+            },
+            {
+              "id": "prompt_cancellable"
+            },
+            {
+              "id": "user_intent_is",
+              "params": {
+                "intentName": "cancel",
+                "topicName": "global"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "3127384dbf",
+      "name": "prompt-2",
+      "next": [
+        {
+          "caption": "User answers correctly",
+          "condition": "thisNode.extracted === true",
+          "node": "router-1"
+        },
+        {
+          "caption": "User does not answer",
+          "condition": "thisNode.timeout === true",
+          "node": ""
+        },
+        {
+          "caption": "User Cancels",
+          "condition": "thisNode.cancelled === true",
+          "node": ""
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "prompt",
+      "prompt": {
+        "params": {
+          "question": {
+            "en": "Now, pick a second number, again between 1 and 100"
+          },
+          "min": 1,
+          "max": 100,
+          "confirm": {
+            "en": null
+          },
+          "duration": 5,
+          "searchBackCount": 2,
+          "cancellable": true,
+          "confirmCancellation": false,
+          "output": "secondNumber"
+        },
+        "type": "number"
+      },
+      "triggers": [
+        {
+          "name": "prompt_yes",
+          "effect": "prompt.inform",
+          "conditions": [
+            {
+              "id": "prompt_listening"
+            },
+            {
+              "id": "user_intent_yes"
+            }
+          ]
+        },
+        {
+          "name": "prompt_no",
+          "effect": "prompt.inform",
+          "conditions": [
+            {
+              "id": "prompt_listening"
+            },
+            {
+              "id": "user_intent_no"
+            }
+          ]
+        },
+        {
+          "name": "prompt_inform",
+          "effect": "prompt.inform",
+          "conditions": [
+            {
+              "id": "prompt_listening"
+            },
+            {
+              "id": "custom_confidence",
+              "params": {
+                "confidence": 0.7
+              }
+            }
+          ]
+        },
+        {
+          "name": "prompt_cancel",
+          "effect": "prompt.cancel",
+          "conditions": [
+            {
+              "id": "prompt_listening"
+            },
+            {
+              "id": "prompt_cancellable"
+            },
+            {
+              "id": "user_intent_is",
+              "params": {
+                "intentName": "cancel",
+                "topicName": "global"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c7a09188cf",
+      "name": "router-1",
+      "next": [
+        {
+          "condition": "$firstNumber.smallerThan({other:$secondNumber.value})",
+          "caption": "If firstNumber smaller than secondNumber",
+          "node": "say_something-1"
+        },
+        {
+          "condition": "true",
+          "node": "say_something-2"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "router"
+    },
+    {
+      "id": "250c19a974",
+      "name": "say_something-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "say_something",
+      "contents": [
+        {
+          "text": {
+            "en": "First number ($firstNumber ) is smaller than the second number ($secondNumber )"
+          },
+          "variations": {
+            "en": []
+          },
+          "markdown": true,
+          "typing": true,
+          "contentType": "builtin_text"
+        }
+      ]
+    },
+    {
+      "id": "e70fd2ab28",
+      "name": "say_something-2",
+      "next": [
+        {
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "say_something",
+      "contents": [
+        {
+          "text": {
+            "en": "First number ($firstNumber ) is bigger than the second number ($secondNumber )"
+          },
+          "variations": {
+            "en": []
+          },
+          "markdown": true,
+          "typing": true,
+          "contentType": "builtin_text"
+        }
+      ]
+    }
+  ]
+}

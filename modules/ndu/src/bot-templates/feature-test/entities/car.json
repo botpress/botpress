@@ -1,0 +1,29 @@
+{
+  "name": "car",
+  "occurrences": [
+    {
+      "name": "ford",
+      "synonyms": []
+    },
+    {
+      "name": "mercedes",
+      "synonyms": ["benz"]
+    },
+    {
+      "name": "gmc",
+      "synonyms": []
+    },
+    {
+      "name": "porsche",
+      "synonyms": []
+    }
+  ],
+  "fuzzy": 0.8,
+  "id": "car",
+  "type": "list",
+  "pattern": "",
+  "sensitive": false,
+  "examples": [],
+  "list_entities": [],
+  "pattern_entities": []
+}

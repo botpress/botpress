@@ -1,0 +1,35 @@
+{
+  "nodes": [
+    {
+      "id": "fb32f8c720",
+      "position": {
+        "x": 100,
+        "y": 145
+      }
+    },
+    {
+      "id": "5f54deb864",
+      "position": {
+        "x": 370,
+        "y": 150
+      }
+    }
+  ],
+  "links": [
+    {
+      "source": "fb32f8c720",
+      "sourcePort": "out0",
+      "target": "5f54deb864",
+      "points": [
+        {
+          "x": 249,
+          "y": 167
+        },
+        {
+          "x": 371,
+          "y": 167
+        }
+      ]
+    }
+  ]
+}
