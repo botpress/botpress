@@ -82,9 +82,9 @@ const EnumForm: FC<Props> = ({
   }
 
   const isDuplicate = (localItems: Item[], newItem: Item) => {
-    const lastAdded: string = [newItem.name, ...newItem.tags].slice(-1)[0]
+    const lastAdded: string = [newItem.name, ...newItem.tags].slice(-1)[0].toLowerCase()
     for (const occurence of localItems) {
-      if ([...[occurence.name], ...occurence.tags].includes(lastAdded)) {
+      if ([...[occurence.name], ...occurence.tags].map(occ => occ.toLowerCase()).includes(lastAdded)) {
         toast.failure(`${lastAdded} already exists in ${occurence.name}`)
         return false
       }
@@ -92,7 +92,7 @@ const EnumForm: FC<Props> = ({
 
     for (const entity of allEntities.filter(x => x.name !== formData.name)) {
       for (const occurence of entity.occurrences) {
-        if ([...[occurence.name], ...occurence.synonyms].includes(lastAdded)) {
+        if ([...[occurence.name], ...occurence.synonyms].map(occ => occ.toLowerCase()).includes(lastAdded)) {
           toast.failure(`${lastAdded} already exists in ${occurence.name} (${entity.name})`)
           return false
         }
