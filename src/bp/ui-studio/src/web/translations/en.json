@@ -43,6 +43,7 @@
     "public": "Published"
   },
   "statusBar": {
+    "trainWarning": "You are testing a chatbot that needs to be trained.",
     "contentLanguage": "Content Language",
     "switchLang": "Change the bot content language. Currently editing: {currentLang}",
     "trainChatbot": "Train Chatbot",
@@ -59,6 +60,12 @@
     "applyConfigsTooltip": "Restarts server so configuration changes can take effect"
   },
   "studio": {
+    "router": {
+      "variable": "Variable",
+      "pickVariable": "Pick a variable",
+      "condition": "Condition",
+      "negate": "Make the condition negative"
+    },
     "condition": {
       "label": "Condition",
       "pickCondition": "Pick a condition"
@@ -159,7 +166,7 @@
       "errorWhileSaving": "There was an error while saving, deleting or renaming a flow. Last modification might not have been saved on server. Please reload page before continuing flow edition",
       "flowWideOnReceives": "flow-wide on {count, plural, one {receive} other {receives}}",
       "flowWideTransitions": "flow-wide {count, plural, one {transition} other {transitions}}",
-      "highlightByName": "Highlight nodes by name",
+      "filterBlocks": "Filter Blocks",
       "ignoredWorkflows": {
         "addLabel": "Add Workflow"
       },
@@ -259,7 +266,7 @@
         "executeAction": "Execute Action",
         "listen": "Listen",
         "prompt": "Prompt",
-        "router": "Router",
+        "router": "If Else",
         "say": "Say",
         "sendMessage": "Send Message",
         "split": "Split",

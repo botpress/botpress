@@ -702,9 +702,10 @@ export class DialogEngine {
     event: IO.IncomingEvent,
     context: IO.DialogContext
   ): Promise<IO.IncomingEvent | undefined> {
+    const { searchBackCount } = context.activePrompt!.config
     const previousEvents =
-      context.activePrompt!.stage === 'new'
-        ? await this._getPreviousEvents(event.target, context.activePrompt!.config.searchBackCount)
+      context.activePrompt!.stage === 'new' && searchBackCount > 1
+        ? await this._getPreviousEvents(event.target, searchBackCount - 1)
         : []
 
     const { status: promptStatus, actions } = await this.promptManager.processPrompt(event, previousEvents)
@@ -738,6 +739,10 @@ export class DialogEngine {
 
   private _processResolvedPrompt(event: IO.IncomingEvent, context: IO.DialogContext) {
     const { config, state } = context.activePrompt!
+
+    if (state.electedCandidate) {
+      context.pastPromptCandidates = [...(context.pastPromptCandidates || []), state.electedCandidate]
+    }
 
     this.createVariable(
       {

@@ -10,7 +10,7 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
-import { FlowVariable } from 'botpress/sdk'
+import { FlowVariable, NodeTransition } from 'botpress/sdk'
 import { Contents, contextMenu, EmptyState, Icons, lang, MainContent, toast } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -46,6 +46,7 @@ import {
   updateFlowProblems
 } from '~/actions'
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
+import { SearchBar } from '~/components/Shared/Interface'
 import { toastSuccess } from '~/components/Shared/Utils'
 import withLanguage from '~/components/Util/withLanguage'
 import {
@@ -81,6 +82,7 @@ import ContentForm from './ContentForm'
 import EmptyStateIcon from './EmptyStateIcon'
 import ExecuteForm from './ExecuteForm'
 import PromptForm from './PromptForm'
+import RouterForm from './RouterForm'
 import SubWorkflowForm from './SubWorkflowForm'
 import Toolbar from './Toolbar'
 import VariablesEditor from './VariablesEditor'
@@ -90,14 +92,14 @@ import WorkflowToolbar from './WorkflowToolbar'
 
 interface OwnProps {
   childRef: (el: any) => void
-  showSearch: boolean
-  hideSearch: () => void
   readOnly: boolean
   canPasteNode: boolean
   selectedTopic: string
   selectedWorkflow: string
   flowPreview: boolean
   highlightFilter: string
+  showSearch: boolean
+  hideSearch: () => void
   handleFilterChanged: (event: any) => void
 }
 
@@ -143,13 +145,13 @@ class Diagram extends Component<Props> {
   private diagramEngine: ExtendedDiagramEngine
   private diagramWidget: DiagramWidget
   private diagramContainer: HTMLDivElement
+  private searchRef: React.RefObject<HTMLInputElement>
   private manager: DiagramManager
   private timeout
   /** Represents the source port clicked when the user is connecting a node */
   private dragPortSource: any
 
   state = {
-    highlightFilter: '',
     editingNodeItem: null,
     currentLang: '',
     currentTab: 'workflow',
@@ -208,6 +210,7 @@ class Diagram extends Component<Props> {
         console.error('Error when switching flow or refreshing', err)
       }
     }
+    this.searchRef = React.createRef()
   }
 
   componentDidMount() {
@@ -234,6 +237,10 @@ class Diagram extends Component<Props> {
   componentDidUpdate(prevProps, prevState) {
     this.manager.setCurrentFlow(this.props.currentFlow)
     this.manager.setReadOnly(this.props.readOnly)
+
+    if (!prevProps.showSearch && this.props.showSearch) {
+      this.searchRef.current.focus()
+    }
 
     if (
       !prevState.editingNodeItem &&
@@ -275,7 +282,7 @@ class Diagram extends Component<Props> {
     }
 
     // Refresh nodes when the filter is displayed
-    if (this.props.highlightFilter && this.props.showSearch) {
+    if (this.props.highlightFilter) {
       this.manager.setHighlightedNodes(this.props.highlightFilter)
       this.manager.syncModel()
     }
@@ -287,7 +294,7 @@ class Diagram extends Component<Props> {
     }
 
     // Clear nodes when search field is hidden
-    if (!this.props.showSearch && prevProps.showSearch) {
+    if (!this.props.highlightFilter) {
       this.manager.setHighlightedNodes([])
       this.manager.syncModel()
     }
@@ -361,7 +368,15 @@ class Diagram extends Component<Props> {
     },
     executeNode: (point: Point, moreProps) =>
       this.props.createFlowNode({ ...point, type: 'execute', next: [defaultTransition], ...moreProps }),
-    routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' }),
+    routerNode: (point: Point) =>
+      this.props.createFlowNode({
+        ...point,
+        type: 'router',
+        next: [
+          { condition: '', node: '' },
+          { condition: 'true', node: '' }
+        ]
+      }),
     actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action' }),
     promptNode: (point: Point, promptType: string, subType?: string) => {
       this.props.createFlowNode({
@@ -572,9 +587,7 @@ class Diagram extends Component<Props> {
     const targetModel = target.model
     const { nodeType } = targetModel
 
-    return (
-      targetModel instanceof StandardNodeModel || targetModel instanceof SkillCallNodeModel || nodeType === 'router'
-    )
+    return targetModel instanceof StandardNodeModel || targetModel instanceof SkillCallNodeModel
   }
 
   onDiagramClick = (event: MouseEvent) => {
@@ -663,8 +676,18 @@ class Diagram extends Component<Props> {
     return this.props[propertyName]
   }
 
-  addCondition() {
-    this.props.updateFlowNode({ conditions: [...this.props.currentFlowNode.conditions, { params: {} }] })
+  addCondition(nodeType) {
+    if (nodeType === 'trigger') {
+      this.props.updateFlowNode({ conditions: [...this.props.currentFlowNode.conditions, { params: {} }] })
+    } else if (nodeType === 'router') {
+      const next = this.props.currentFlowNode.next
+      const lastItem = next.length - 1
+
+      // Inserting before the last element to keep "otherwise" at the end
+      this.props.updateFlowNode({
+        next: [...next.slice(0, lastItem), { condition: '', node: '' }, ...next.slice(lastItem)]
+      })
+    }
   }
 
   addMessage() {
@@ -767,10 +790,6 @@ class Diagram extends Component<Props> {
     this.props.openFlowNodeProps()
   }
 
-  handleFilterChanged = event => {
-    this.setState({ highlightFilter: event.target.value })
-  }
-
   handleToolDropped = async (event: React.DragEvent) => {
     if (this.props.readOnly) {
       return
@@ -795,7 +814,7 @@ class Diagram extends Component<Props> {
         case 'trigger':
           if (targetNodeType === 'trigger') {
             await this.props.switchFlowNode(target.model.id)
-            this.addCondition()
+            this.addCondition(targetNodeType)
           } else {
             this.add.triggerNode(point, {})
           }
@@ -817,7 +836,12 @@ class Diagram extends Component<Props> {
           this.add.executeNode(point, data.contentId ? { onReceive: [`${data.contentId}`] } : {})
           break
         case 'router':
-          this.add.routerNode(point)
+          if (targetNodeType === 'router') {
+            await this.props.switchFlowNode(target.model.id)
+            this.addCondition(targetNodeType)
+          } else {
+            this.add.routerNode(point)
+          }
           break
         case 'action':
           this.add.actionNode(point)
@@ -969,6 +993,25 @@ class Diagram extends Component<Props> {
     this.props.updateFlowNode({ subflow: data })
   }
 
+  deleteTransition = () => {
+    const { node, index } = this.state.editingNodeItem
+    const next = this.props.currentFlowNode.next
+
+    this.props.switchFlowNode(node.id)
+    this.props.updateFlowNode({ next: [...next.slice(0, index), ...next.slice(index + 1)] })
+  }
+
+  updateRouter = (data: NodeTransition) => {
+    const { node, index } = this.state.editingNodeItem
+
+    this.props.switchFlowNode(node.id)
+
+    const newTransitions = [...node.next.slice(0, index), data, ...node.next.slice(index + 1)]
+
+    this.setState({ editingNodeItem: { node: { ...node, next: newTransitions }, index } })
+    this.props.updateFlowNode({ next: newTransitions })
+  }
+
   renderSearch = () => {
     return (
       this.props.showSearch && (
@@ -1004,6 +1047,8 @@ class Diagram extends Component<Props> {
       currentItem = data
     } else if (formType === 'variable') {
       currentItem = node?.variable
+    } else if (formType === 'router') {
+      currentItem = node?.next
     }
 
     const isQnA = this.props.selectedWorkflow === 'qna'
@@ -1042,6 +1087,15 @@ class Diagram extends Component<Props> {
             tabChange={this.handleTabChanged}
           />
           {currentTab === 'variables' && <VariablesEditor editVariable={this.editVariable} />}
+          <div className={style.searchWrapper}>
+            <SearchBar
+              ref={this.searchRef}
+              onBlur={this.props.hideSearch}
+              value={this.props.highlightFilter}
+              placeholder={lang.tr('studio.flow.filterBlocks')}
+              onChange={this.props.handleFilterChanged}
+            />
+          </div>
           <Fragment>
             <div
               id="diagramContainer"
@@ -1052,7 +1106,6 @@ class Diagram extends Component<Props> {
               onDrop={this.handleToolDropped}
               onDragOver={event => event.preventDefault()}
             >
-              {this.renderSearch()}
               <DiagramWidget
                 ref={w => (this.diagramWidget = w)}
                 deleteKeys={[]}
@@ -1178,6 +1231,22 @@ class Diagram extends Component<Props> {
               customKey={data.id}
               formData={currentItem}
               variables={this.props.variables}
+              close={() => {
+                this.timeout = setTimeout(() => {
+                  this.setState({ editingNodeItem: null })
+                }, 200)
+              }}
+            />
+          )}
+          {formType === 'router' && (
+            <RouterForm
+              transition={currentItem?.[index]}
+              deleteTransition={this.deleteTransition.bind(this)}
+              variables={this.props.variables}
+              onUpdateVariables={this.addVariable}
+              customKey={`${node?.type}${node?.id}${index}`}
+              updateRouter={this.updateRouter}
+              contentLang={this.state.currentLang}
               close={() => {
                 this.timeout = setTimeout(() => {
                   this.setState({ editingNodeItem: null })
