@@ -8,6 +8,7 @@ interface CssExports {
   'contentAnswerWrapper': string;
   'contextInput': string;
   'contextSelector': string;
+  'customBtn': string;
   'embeddedInFlow': string;
   'empty': string;
   'errorIcon': string;
@@ -16,7 +17,6 @@ interface CssExports {
   'header': string;
   'headerWrapper': string;
   'highlightedQna': string;
-  'importBtn': string;
   'initialLoading': string;
   'input': string;
   'items': string;

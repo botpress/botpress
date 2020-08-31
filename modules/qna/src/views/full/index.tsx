@@ -1,9 +1,11 @@
 import { Icon, IconName, Spinner } from '@blueprintjs/core'
-import { confirmDialog, EmptyState, HeaderButtonProps, lang, MainContent } from 'botpress/shared'
+import { confirmDialog, EmptyState, HeaderButtonProps, lang, MainContent, MoreOptionsItems } from 'botpress/shared'
 import { AccessControl, Downloader, reorderFlows, toastFailure, toastSuccess } from 'botpress/utils'
 import cx from 'classnames'
 import { debounce } from 'lodash'
 import React, { FC, useCallback, useEffect, useReducer, useRef, useState } from 'react'
+
+import { isQnaComplete } from '../../backend/utils'
 
 import style from './style.scss'
 import { dispatchMiddleware, fetchReducer, itemHasError, ITEMS_PER_PAGE, Props } from './utils/qnaList.utils'
@@ -25,6 +27,7 @@ const QnAList: FC<Props> = ({
   const [currentTab, setCurrentTab] = useState('qna')
   const [currentLang, setCurrentLang] = useState(contentLang)
   const [url, setUrl] = useState('')
+  const [filterOptions, setFilterOptions] = useState({ disabled: true, incomplete: true, active: true })
   const debounceDispatchMiddleware = useCallback(debounce(dispatchMiddleware, 300), [])
   const wrapperRef = useRef<HTMLDivElement>()
   const [state, dispatch] = useReducer(fetchReducer, {
@@ -129,18 +132,41 @@ const QnAList: FC<Props> = ({
       disabled: !items.length || languages?.length <= 1,
       tooltip: noItemsTooltip || languesTooltip
     },
-    /*{
+    {
       icon: 'filter',
-      disabled: true,
-      onClick: () => {},
-      tooltip: noItemsTooltip || lang.tr('filterBy')
+      optionsItems: [
+        {
+          label: lang.tr('disabled'),
+          selected: filterOptions.disabled,
+          action: () => {
+            setFilterOptions({ ...filterOptions, disabled: !filterOptions.disabled })
+          }
+        },
+        {
+          label: lang.tr('active'),
+          selected: filterOptions.active,
+          action: () => {
+            setFilterOptions({ ...filterOptions, active: !filterOptions.active })
+          }
+        },
+        {
+          label: lang.tr('incomplete'),
+          selected: filterOptions.incomplete,
+          action: () => {
+            setFilterOptions({ ...filterOptions, incomplete: !filterOptions.incomplete })
+          }
+        }
+      ],
+      tooltip: lang.tr('filterBy')
     },
+    /*
     {
       icon: 'sort',
       disabled: true,
       onClick: () => {},
       tooltip: noItemsTooltip || lang.tr('sortBy')
-    },*/
+    },
+    */
     {
       icon: allExpanded ? 'collapse-all' : 'expand-all',
       disabled: !items.length,
@@ -158,19 +184,18 @@ const QnAList: FC<Props> = ({
     },
     {
       content: (
-        <span className={style.importBtn}>
+        <span className={style.customBtn}>
           <Icon icon={'import' as IconName} />
           <input
             type="file"
-            onChange={e => {
+            onChange={async e => {
               if ((e.target as HTMLInputElement).files) {
-                askUploadOptions((e.target as HTMLInputElement).files[0])
+                await askUploadOptions((e.target as HTMLInputElement).files[0])
               }
             }}
           />
         </span>
       ),
-      icon: 'import',
       tooltip: lang.tr('importJson')
     }
   )
@@ -190,7 +215,7 @@ const QnAList: FC<Props> = ({
         declineLabel: lang.tr('cancel')
       })
     ) {
-      importTar(uploadFile)
+      await importTar(uploadFile)
     }
   }
 
@@ -287,7 +312,13 @@ const QnAList: FC<Props> = ({
             </div>
           )}
           {items
-            .filter(item => highlighted?.id !== item.id)
+            .filter(
+              item =>
+                highlighted?.id !== item.id &&
+                ((!item.data.enabled && filterOptions.disabled) ||
+                  (!isQnaComplete(item.data as any, defaultLanguage) && filterOptions.incomplete) ||
+                  (item.data.enabled && isQnaComplete(item.data as any, defaultLanguage) && filterOptions.active))
+            )
             .map((item, index) => (
               <QnA
                 updateQnA={data =>

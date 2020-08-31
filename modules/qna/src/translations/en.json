@@ -50,6 +50,8 @@
     "enableQuestion": "Enable Question",
     "enableRedirection": "Enable Redirection",
     "incomplete": "Incomplete",
+    "disabled": "Disabled",
+    "active": "Active",
     "incompleteTooltip": "This Q&A will use exact match only.",
     "missingAnswer": "Leaving answer field empty will disable this question.",
     "missingQuestion": "Leaving question field empty will disable this question.",
