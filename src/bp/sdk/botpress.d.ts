@@ -458,7 +458,7 @@ declare module 'botpress/sdk' {
       static initialize: (config: Config, logger: NLU.Logger) => Promise<void>
       static getHealth: () => Health
       static getLanguages: () => string[]
-      constructor(defaultLanguage: string, botId: string, logger: Logger)
+      constructor(botId: string, logger: Logger)
       computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string
       loadModel: (m: Model) => Promise<void>
       hasModel: (lang: string, hash: string) => boolean
@@ -470,8 +470,10 @@ declare module 'botpress/sdk' {
         options: TrainingOptions
       ) => Promise<Model | undefined>
       cancelTraining(trainSessionId: string): Promise<void>
-      predict: (t: string, ctx: string[]) => Promise<IO.EventUnderstanding>
+      predict: (t: string, ctx: string[], language: string) => Promise<IO.EventUnderstanding>
     }
+
+    export type PredictErrorStatus = 'invalid_predictor' | 'other'
 
     export interface Config {
       ducklingURL: string
@@ -782,7 +784,7 @@ declare module 'botpress/sdk' {
       readonly detectedLanguage: string
       readonly entities: NLU.Entity[]
       readonly slots?: NLU.SlotCollection
-      readonly errored: boolean
+      readonly error?: NLU.PredictErrorStatus
       readonly includedContexts: string[]
       readonly predictions?: NLU.Predictions
       readonly ms: number

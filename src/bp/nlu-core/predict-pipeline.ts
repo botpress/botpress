@@ -29,7 +29,7 @@ export interface EntityPredictor {
 }
 
 export interface PredictInput {
-  defaultLanguage: string
+  language: string
   includedContexts: string[]
   sentence: string
 }
@@ -71,7 +71,7 @@ async function DetectLanguage(
   input: PredictInput,
   predictorsByLang: _.Dictionary<Predictors>,
   tools: Tools
-): Promise<{ detectedLanguage: string; usedLanguage: string }> {
+): Promise<{ detectedLanguage: string }> {
   const supportedLanguages = Object.keys(predictorsByLang)
 
   const langIdentifier = LanguageIdentifierProvider.getLanguageIdentifier(tools.mlToolkit)
@@ -113,9 +113,7 @@ async function DetectLanguage(
     }
   }
 
-  const usedLanguage = supportedLanguages.includes(detectedLanguage) ? detectedLanguage : input.defaultLanguage
-
-  return { usedLanguage, detectedLanguage }
+  return { detectedLanguage }
 }
 
 async function preprocessInput(
@@ -123,11 +121,13 @@ async function preprocessInput(
   tools: Tools,
   predictorsBylang: _.Dictionary<Predictors>
 ): Promise<{ step: InitialStep; predictors: Predictors }> {
-  const { detectedLanguage, usedLanguage } = await DetectLanguage(input, predictorsBylang, tools)
+  const { detectedLanguage } = await DetectLanguage(input, predictorsBylang, tools)
+
+  const usedLanguage = input.language
   const predictors = predictorsBylang[usedLanguage]
   if (_.isEmpty(predictors)) {
     // eventually better validation than empty check
-    throw new InvalidLanguagePredictorError(usedLanguage)
+    throw new InvalidLanguagePredictorError(usedLanguage, detectedLanguage)
   }
 
   const contexts = input.includedContexts.filter(x => predictors.contexts.includes(x))
@@ -413,7 +413,6 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
   return {
     detectedLanguage: step.detectedLanguage,
     entities,
-    errored: false,
     predictions: _.chain(predictions) // orders all predictions by confidence
       .entries()
       .orderBy(x => x[1].confidence, 'desc')
@@ -440,8 +439,8 @@ export function findExactIntentForCtx(
 }
 
 class InvalidLanguagePredictorError extends Error {
-  constructor(public languageCode: string) {
-    super(`Predictor for language: ${languageCode} is not valid`)
+  constructor(missingLanguage: string, public detectedLanguage: string) {
+    super(`Predictor for language: ${missingLanguage} is not valid`)
     this.name = 'PredictorError'
   }
 }
@@ -467,10 +466,11 @@ export const Predict = async (
     return MapStepToOutput(stepOutput, t0)
   } catch (err) {
     if (err instanceof InvalidLanguagePredictorError) {
-      return { errored: true, suggestedLanguage: err.languageCode } as sdk.IO.EventUnderstanding
+      const { detectedLanguage } = err
+      return { error: 'invalid_predictor', detectedLanguage } as sdk.IO.EventUnderstanding
     }
     // tslint:disable-next-line: no-console
     console.log('Could not perform predict data', err)
-    return { errored: true } as sdk.IO.EventUnderstanding
+    return { error: 'other' } as sdk.IO.EventUnderstanding
   }
 }
