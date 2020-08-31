@@ -189,7 +189,6 @@ export const dispatchMiddleware = async (dispatch, action) => {
 export const fetchReducer = (state: State, action): State => {
   if (action.type === 'dataSuccess') {
     const { items, count, page } = action.data
-
     return {
       ...state,
       count,
@@ -228,7 +227,6 @@ export const fetchReducer = (state: State, action): State => {
   } else if (action.type === 'updateQnA') {
     const { qnaItem, index } = action.data
     const newItems = state.items
-
     if (index === 'highlighted') {
       const newHighlighted = { ...state.highlighted, saveError: qnaItem.saveError, id: qnaItem.id, data: qnaItem.data }
 

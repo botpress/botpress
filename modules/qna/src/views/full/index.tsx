@@ -28,6 +28,7 @@ const QnAList: FC<Props> = ({
   const [currentLang, setCurrentLang] = useState(contentLang)
   const [url, setUrl] = useState('')
   const [filterOptions, setFilterOptions] = useState({ disabled: true, incomplete: true, active: true })
+  const [sortOption, setSortOption] = useState(+1)
   const debounceDispatchMiddleware = useCallback(debounce(dispatchMiddleware, 300), [])
   const wrapperRef = useRef<HTMLDivElement>()
   const [state, dispatch] = useReducer(fetchReducer, {
@@ -159,14 +160,26 @@ const QnAList: FC<Props> = ({
       ],
       tooltip: lang.tr('filterBy')
     },
-    /*
     {
       icon: 'sort',
-      disabled: true,
-      onClick: () => {},
-      tooltip: noItemsTooltip || lang.tr('sortBy')
+      optionsItems: [
+        {
+          label: lang.tr('mostRecent'),
+          selected: sortOption === +1,
+          action: () => {
+            setSortOption(+1)
+          }
+        },
+        {
+          label: lang.tr('leastRecent'),
+          selected: sortOption === -1,
+          action: () => {
+            setSortOption(-1)
+          }
+        }
+      ],
+      tooltip: lang.tr('sortBy')
     },
-    */
     {
       icon: allExpanded ? 'collapse-all' : 'expand-all',
       disabled: !items.length,
@@ -319,6 +332,7 @@ const QnAList: FC<Props> = ({
                   (!isQnaComplete(item.data as any, defaultLanguage) && filterOptions.incomplete) ||
                   (item.data.enabled && isQnaComplete(item.data as any, defaultLanguage) && filterOptions.active))
             )
+            .sort((a, b) => sortOption * (+(a.data.lastModified < b.data.lastModified) * 2 - 1))
             .map((item, index) => (
               <QnA
                 updateQnA={data =>
