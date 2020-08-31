@@ -428,8 +428,8 @@ declare module 'botpress/sdk' {
         [key: string]: string
       }
 
-      export interface TrainerCallback {
-        (message: string): void
+      export interface TrainProgressCallback {
+        (iteration: number): void
       }
 
       interface DataPoint {
@@ -438,11 +438,7 @@ declare module 'botpress/sdk' {
       }
 
       export class Trainer {
-        train(
-          elements: DataPoint[],
-          options: TrainerOptions,
-          progressCallback?: (iteration: number) => void
-        ): Promise<string>
+        train(elements: DataPoint[], options: TrainerOptions, progressCallback?: TrainProgressCallback): Promise<string>
       }
     }
 

@@ -19,7 +19,7 @@ type Payload = Partial<{
   result: string
   error: string
   points: (sdk.MLToolkit.SVM.DataPoint | sdk.MLToolkit.CRF.DataPoint)[]
-  options: sdk.MLToolkit.SVM.SVMOptions | sdk.MLToolkit.CRF.TrainerOptions
+  options: Partial<sdk.MLToolkit.SVM.SVMOptions> | sdk.MLToolkit.CRF.TrainerOptions
 }>
 
 export interface Message {
@@ -28,17 +28,13 @@ export interface Message {
   payload: Payload
 }
 
-const MAX_CRF_WORKERS = 1
-
 export class MLThreadPool {
-  private svmWorkerScheduler: MLThreadScheduler
-  private crfWorkerScheduler: MLThreadScheduler
+  private mlThreadsScheduler: MLThreadScheduler
 
   constructor() {
-    const maxSvmWorkers = Math.max(os.cpus().length - 1, 1) // ncpus - webworker
-    const numSvmWorkers = Math.min(maxSvmWorkers, process.core_env.BP_NUM_ML_THREADS || 4)
-    this.svmWorkerScheduler = new MLThreadScheduler(numSvmWorkers)
-    this.crfWorkerScheduler = new MLThreadScheduler(MAX_CRF_WORKERS)
+    const maxMLThreads = Math.max(os.cpus().length - 1, 1) // ncpus - webworker
+    const numMLThreads = Math.min(maxMLThreads, process.core_env.BP_NUM_ML_THREADS || 4)
+    this.mlThreadsScheduler = new MLThreadScheduler(numMLThreads)
   }
 
   public async startSvmTraining(
@@ -49,40 +45,10 @@ export class MLThreadPool {
     complete: (model: string) => void,
     error: (error: Error) => void
   ) {
-    const worker = await this.svmWorkerScheduler.getNext()
-
-    const messageHandler = (msg: Message) => {
-      if (msg.id !== trainingId) {
-        return
-      }
-      if (progress && msg.type === 'svm_progress') {
-        try {
-          progress(msg.payload.progress!)
-        } catch (err) {
-          error(err)
-          worker.off('message', messageHandler)
-        }
-      }
-
-      if (msg.type === 'svm_done') {
-        complete(msg.payload.result!)
-        worker.off('message', messageHandler)
-      }
-
-      if (msg.type === 'svm_error') {
-        error(new Error(msg.payload.error!))
-        worker.off('message', messageHandler)
-      }
-    }
-    worker.postMessage({ type: 'svm_train', id: trainingId, payload: { points, options } })
-    worker.on('message', messageHandler)
+    return this.startTraining('svm', trainingId, points, options, progress, complete, error)
   }
 
-  /**
-   * Currently dupplicated with svm...
-   * I'll think of some way of either merge the code into one general function or let them evolve differently.
-   * Not sure yet, but not my current focus anyway.
-   */
+  // TODO: maybe CRF training should have its own dedicated ml thread
   public async startCrfTraining(
     trainingId: string,
     points: sdk.MLToolkit.CRF.DataPoint[],
@@ -91,13 +57,27 @@ export class MLThreadPool {
     complete: (modelFilePath: string) => void,
     error: (error: Error) => void
   ) {
-    const worker = await this.crfWorkerScheduler.getNext()
+    return this.startTraining('crf', trainingId, points, options, progress, complete, error)
+  }
+
+  private async startTraining(
+    trainingType: 'svm' | 'crf',
+    trainingId: string,
+    points: sdk.MLToolkit.SVM.DataPoint[] | sdk.MLToolkit.CRF.DataPoint[],
+    options: Partial<sdk.MLToolkit.SVM.SVMOptions> | sdk.MLToolkit.CRF.TrainerOptions | undefined,
+    progress: sdk.MLToolkit.SVM.TrainProgressCallback | sdk.MLToolkit.CRF.TrainProgressCallback | undefined,
+    complete: (model: string) => void,
+    error: (error: Error) => void
+  ) {
+    const worker = await this.mlThreadsScheduler.getNext()
 
     const messageHandler = (msg: Message) => {
       if (msg.id !== trainingId) {
         return
       }
-      if (progress && msg.type === 'crf_progress') {
+
+      const isProgress = msg.type === 'svm_progress' || msg.type === 'crf_progress'
+      if (progress && isProgress) {
         try {
           progress(msg.payload.progress!)
         } catch (err) {
@@ -106,17 +86,20 @@ export class MLThreadPool {
         }
       }
 
-      if (msg.type === 'crf_done') {
+      if (msg.type === 'svm_done' || msg.type === 'crf_done') {
         complete(msg.payload.result!)
         worker.off('message', messageHandler)
       }
 
-      if (msg.type === 'crf_error') {
+      if (msg.type === 'svm_error' || msg.type === 'crf_error') {
         error(new Error(msg.payload.error!))
         worker.off('message', messageHandler)
       }
     }
-    worker.postMessage({ type: 'crf_train', id: trainingId, payload: { points, options } })
+
+    const type: MsgType = trainingType === 'svm' ? 'svm_train' : 'crf_train'
+    const msg: Message = { type, id: trainingId, payload: { points, options } }
+    worker.postMessage(msg)
     worker.on('message', messageHandler)
   }
 }
