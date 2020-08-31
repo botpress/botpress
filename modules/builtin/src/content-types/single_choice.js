@@ -102,7 +102,7 @@ module.exports = {
   },
 
   newSchema: {
-    displayedIn: ['sayNode'],
+    displayedIn: [],
     advancedSettings: [
       {
         key: 'typing',

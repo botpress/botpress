@@ -50,8 +50,7 @@ export const Dropdown: FC<Props> = props => {
   const [isOpened, setIsOpen] = useState(false)
 
   useEffect(() => {
-    const itms = props.options?.map((o: Option) => ({ label: o.label, value: o.value || o.label })) ?? [] // kept logic
-    setItems(itms)
+    setItems(props.options?.map((o: Option) => ({ label: o.label, value: o.value || o.label })) ?? []) // kept logic
   }, [])
 
   const onItemSelect = (item: Option) => {
