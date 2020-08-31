@@ -97,6 +97,7 @@ interface OwnProps {
   selectedTopic: string
   selectedWorkflow: string
   flowPreview: boolean
+  portalNode: any
   highlightFilter: string
   showSearch: boolean
   hideSearch: () => void
@@ -1203,6 +1204,7 @@ class Diagram extends Component<Props> {
               customKey={`${node?.id}`}
               deleteNode={this.deleteSelectedElements.bind(this)}
               contentLang={this.state.currentLang}
+              portalNode={this.props.portalNode}
               formData={currentItem}
               events={this.props.hints}
               actions={this.props.actions}

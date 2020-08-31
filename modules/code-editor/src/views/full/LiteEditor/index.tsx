@@ -23,11 +23,16 @@ interface Parameters {
 }
 
 const argsToConst = (params?: Parameters[]) => {
-  return (params ?? []).map(x => (x.name?.includes('-') ? `'${x.name}': ${snakeToCamel(x.name)}` : x.name)).join(', ')
+  return (params ?? [])
+    .filter(Boolean)
+    .map(x => (x.name?.includes('-') ? `'${x.name}': ${snakeToCamel(x.name)}` : x.name))
+    .join(', ')
 }
 
 const argsToInterface = (params?: Parameters[]) => {
-  return (params ?? []).map(x => ({ name: x.name?.includes('-') ? `'${x.name}'` : x.name, type: x.type }))
+  return (params ?? [])
+    .filter(Boolean)
+    .map(x => ({ name: x.name?.includes('-') ? `'${x.name}'` : x.name, type: x.type }))
 }
 
 interface Props {
@@ -67,6 +72,8 @@ export default class MinimalEditor extends React.Component<Props> {
       this.setState({ code: this.props.code })
       this.reloadCode(this.props.code)
     }
+
+    this.refreshLayout()
   }
 
   componentDidUpdate(prevProps) {
@@ -184,15 +191,16 @@ export default class MinimalEditor extends React.Component<Props> {
 
     this.editor.onDidChangeModelContent(this.handleContentChanged)
 
+    // TODO: Better logic
     // Prevents the user from editing the template lines
-    this.editor.onDidChangeCursorPosition(e => {
-      const { endLineNumber } = this.editor.getVisibleRanges()[0]
-      if (e.position.lineNumber < 4) {
-        this.editor.setPosition({ lineNumber: 4, column: 1 })
-      } else if (e.position.lineNumber > endLineNumber - 2) {
-        this.editor.setPosition({ lineNumber: endLineNumber - 3, column: 1 })
-      }
-    })
+    // this.editor.onDidChangeCursorPosition(e => {
+    //   const { endLineNumber } = this.editor.getVisibleRanges()[0]
+    //   if (e.position.lineNumber < 4) {
+    //     this.editor.setPosition({ lineNumber: 4, column: 1 })
+    //   } else if (e.position.lineNumber > endLineNumber - 2) {
+    //     this.editor.setPosition({ lineNumber: endLineNumber - 3, column: 1 })
+    //   }
+    // })
   }
 
   loadTypings = async () => {

@@ -3,9 +3,12 @@ import { Contents, lang } from 'botpress/shared'
 import cx from 'classnames'
 import { Variables } from 'common/typings'
 import React, { FC, Fragment, useEffect, useRef } from 'react'
+import * as portals from 'react-reverse-portal'
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 
 import contentStyle from '../ContentForm/style.scss'
+
+import style from './style.scss'
 
 interface Props {
   customKey: string
@@ -14,6 +17,7 @@ interface Props {
   events: BotEvent[]
   formData: ExecuteNode
   maximized: boolean
+  portalNode: any
   setMaximized: (val: boolean) => void
   onUpdate: (data: Partial<ExecuteNode>) => void
   onUpdateVariables: (variable: FlowVariable) => void
@@ -33,6 +37,7 @@ const CodeEditor: FC<Props> = ({
   formData,
   maximized,
   contentLang,
+  portalNode,
   setMaximized,
   onUpdate,
   onUpdateVariables
@@ -53,10 +58,10 @@ const CodeEditor: FC<Props> = ({
 
   useEffect(() => {
     refreshArgs()
-  }, [formData.params])
+  }, [formData?.params])
 
   const refreshArgs = () => {
-    params.current = Object.keys(formData.params ?? {}).map(name => {
+    params.current = Object.keys(formData?.params ?? {}).map(name => {
       if (formData.params[name].source === 'variable' && name) {
         const type = variables.currentFlow.find(v => v.params?.name === name)?.type
         return { name, type: `BP.${type}.Variable` }
@@ -120,11 +125,23 @@ const CodeEditor: FC<Props> = ({
         />
       </div>
 
-      <InjectedModuleView
-        moduleName="code-editor"
-        componentName="LiteEditor"
-        extraProps={{ code: originalCode.current, maximized, args: params.current, onChange: handleCodeChanged }}
-      />
+      {/* <div style={{ height: '100%' }}>
+        <InjectedModuleView
+          moduleName="code-editor"
+          componentName="LiteEditor"
+          extraProps={{ code: originalCode.current, maximized, args: params.current, onChange: handleCodeChanged }}
+        />
+      </div> */}
+
+      <div className={style.editorWrap}>
+        <portals.OutPortal
+          node={portalNode}
+          onChange={handleCodeChanged}
+          code={originalCode.current}
+          args={params.current}
+          maximized={maximized}
+        />
+      </div>
     </Fragment>
   )
 }

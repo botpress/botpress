@@ -17,6 +17,7 @@ interface Props {
   contentLang: string
   variables: Variables
   actions: LocalActionDefinition[]
+  portalNode: any
   events: BotEvent[]
   formData: ExecuteNode
   onUpdate: (data: Partial<ExecuteNode>) => void
@@ -35,6 +36,7 @@ const ExecuteForm: FC<Props> = ({
   events,
   formData,
   contentLang,
+  portalNode,
   close,
   deleteNode,
   onUpdate,
@@ -45,10 +47,6 @@ const ExecuteForm: FC<Props> = ({
   const [maximized, setMaximized] = useState(false)
   const selectedAction = useRef(formData?.actionName)
 
-  const closee = useCallback(close, [])
-  const deleteNodee = useCallback(deleteNode, [])
-  const onUpdatee = useCallback(onUpdate, [])
-  const onUpdateVariabless = useCallback(onUpdateVariables, [])
   const moreOptionsItems: MoreOptionsItems[] = [
     {
       label: lang.tr('deleteNode'),
@@ -56,10 +54,6 @@ const ExecuteForm: FC<Props> = ({
       type: 'delete'
     }
   ]
-
-  useEffect(() => {
-    console.log(node.onEnter)
-  }, [customKey])
 
   useEffect(() => {
     document.documentElement.style.setProperty('--right-sidebar-width', maximized ? '580px' : '240px')
@@ -71,7 +65,7 @@ const ExecuteForm: FC<Props> = ({
 
   const onActionChanged = (actionName: string) => {
     selectedAction.current = actionName
-    onUpdatee({ actionName })
+    onUpdate({ actionName })
   }
 
   const allActions = [newAction, ...actions.map(x => ({ label: `${x.category} - ${x.title}`, value: x.name }))]
@@ -83,12 +77,12 @@ const ExecuteForm: FC<Props> = ({
     formData,
     events,
     variables,
-    onUpdate: onUpdatee,
-    onUpdateVariables: onUpdateVariabless
+    onUpdate,
+    onUpdateVariables
   }
 
   return (
-    <RightSidebar className={style.wrapper} canOutsideClickClose={canOutsideClickClose} close={closee}>
+    <RightSidebar className={style.wrapper} canOutsideClickClose={canOutsideClickClose} close={close}>
       <Fragment key={`${node?.id}`}>
         <div className={style.formHeader}>
           <Tabs id="contentFormTabs">
@@ -130,7 +124,7 @@ const ExecuteForm: FC<Props> = ({
         {selectedOption !== undefined && (
           <Fragment>
             {selectedAction.current === newAction.value ? (
-              <CodeEditor {...commonProps} maximized={maximized} setMaximized={setMaximized} />
+              <CodeEditor {...commonProps} maximized={maximized} setMaximized={setMaximized} portalNode={portalNode} />
             ) : (
               <ConfigAction {...commonProps} actions={actions} actionName={selectedAction.current} />
             )}
