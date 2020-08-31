@@ -26,11 +26,15 @@ function render(data) {
 
 function renderer(data) {
   const payload = base.renderer(data, 'text')
+  // hardcoded at the moment, do we want to offer this flexibility ? if yes, needs to be in advanced settings
+  // we might want to check if extensions module is enabled before setting it to dropdown
+  const metaKey = data.choices.length > 4 ? '__dropdown' : '__buttons'
   return {
     ...payload,
     metadata: {
       ...payload.metadata,
-      __buttons: data.choices
+      // should we rename key in schema or we keep backward compatibility rendering ?
+      [metaKey]: data.choices.map(c => ({ label: c.title, valueL: c.value }))
     }
   }
 }
@@ -101,27 +105,23 @@ module.exports = {
     displayedIn: [],
     advancedSettings: [
       {
-        key: 'onTopOfKeyboard',
-        defaultValue: true,
-        type: 'checkbox',
-        label: 'module.builtin.types.suggestions.displayOnTop'
-      },
-      {
         key: 'typing',
         defaultValue: true,
         type: 'checkbox',
         label: 'module.builtin.typingIndicator'
-      },
-      {
-        key: 'canAdd',
-        type: 'checkbox',
-        label: 'module.builtin.types.suggestions.allowToAdd'
-      },
-      {
-        key: 'multiple',
-        type: 'checkbox',
-        label: 'module.builtin.types.suggestions.allowMultiplePick'
       }
+      // not supported yet, if we support we need to do so for buttons as well
+      // {
+      //   key: 'canAdd',
+      //   type: 'checkbox',
+      //   label: 'module.builtin.types.suggestions.allowToAdd'
+      // },
+      // not supported yet, if we support we need to do so for buttons as well
+      // {
+      //   key: 'multiple',
+      //   type: 'checkbox',
+      //   label: 'module.builtin.types.suggestions.allowMultiplePick'
+      // }
     ],
     fields: [
       {
