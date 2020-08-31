@@ -1,0 +1,37 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "startNode": "entry",
+  "label": "Error handling",
+  "description": "Users are redirected here when they encounter errors during their discussions",
+  "nodes": [
+    {
+      "id": "3d466ba64a",
+      "name": "entry",
+      "next": [
+        {
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "say_something",
+      "contents": [
+        {
+          "text": {
+            "en": "😯 Oops! We've got a problem. Please try something else while we're fixing it 🔨",
+            "fr": "😯 Oups! Nous avons un problème. Veuillez essayer autre chose pendant que nous le réglons 🔨"
+          },
+          "variations": {
+            "en": [],
+            "fr": []
+          },
+          "markdown": true,
+          "typing": true,
+          "contentType": "builtin_text"
+        }
+      ]
+    }
+  ]
+}

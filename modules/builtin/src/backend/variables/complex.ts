@@ -1,7 +1,7 @@
 import { BoxedVariable, PrimitiveVarType } from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 
-import common from './common'
+import { common } from './common'
 
 class BoxedComplex extends BaseVariable<string> {
   constructor(args) {

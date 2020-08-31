@@ -1,0 +1,35 @@
+{
+  "nodes": [
+    {
+      "id": "ccf16060a9",
+      "position": {
+        "x": 85,
+        "y": -25
+      }
+    },
+    {
+      "id": "2edd2251f0",
+      "position": {
+        "x": 370,
+        "y": -30
+      }
+    }
+  ],
+  "links": [
+    {
+      "source": "ccf16060a9",
+      "sourcePort": "out0",
+      "target": "2edd2251f0",
+      "points": [
+        {
+          "x": 235,
+          "y": -3
+        },
+        {
+          "x": 370,
+          "y": -13
+        }
+      ]
+    }
+  ]
+}
