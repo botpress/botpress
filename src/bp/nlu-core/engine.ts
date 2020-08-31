@@ -153,13 +153,7 @@ export default class Engine implements NLU.Engine {
     }
 
     const hash = this.computeModelHash(intentDefs, entityDefs, languageCode)
-    const model = await this._trainAndMakeModel(
-      trainSessionId,
-      input,
-      hash,
-      options.progressCallback,
-      options.cancelCallback
-    )
+    const model = await this._trainAndMakeModel(trainSessionId, input, hash, options.progressCallback)
 
     if (!model) {
       return
@@ -183,8 +177,7 @@ export default class Engine implements NLU.Engine {
     trainSessionId: string,
     input: TrainInput,
     hash: string,
-    progressCallback: (progress: number) => void,
-    cancelCallback: () => void
+    progressCallback: (progress: number) => void
   ): Promise<PredictableModel | undefined> {
     const startedAt = new Date()
     let output: TrainOutput | undefined
@@ -193,7 +186,7 @@ export default class Engine implements NLU.Engine {
       output = await Engine._trainingWorkerQueue.startTraining(trainSessionId, input, progressCallback)
     } catch (err) {
       if (err instanceof TrainingCanceledError) {
-        cancelCallback()
+        this.logger.info('Training cancelled')
         return
       }
       this.logger.error('Could not finish training NLU model', err)

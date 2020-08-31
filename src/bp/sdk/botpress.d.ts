@@ -497,7 +497,6 @@ declare module 'botpress/sdk' {
     export interface TrainingOptions {
       forceTrain: boolean
       progressCallback: (x: number) => void
-      cancelCallback: () => void
     }
 
     export interface Model {
