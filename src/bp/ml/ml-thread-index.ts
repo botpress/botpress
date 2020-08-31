@@ -42,8 +42,8 @@ async function messageHandler(msg: Message) {
     const { points, options } = msg.payload
 
     const progressCb = (iteration: number) => {
-      parentPort?.postMessage({ type: 'crf_progress', id: msg.id, payload: { iteration }, workerPid: process.pid })
-      return 0
+      const progressMsg: Message = { type: 'crf_progress', id: msg.id, payload: { progress: iteration } }
+      parentPort?.postMessage(progressMsg)
     }
 
     try {
@@ -53,9 +53,11 @@ async function messageHandler(msg: Message) {
         options as sdk.MLToolkit.CRF.TrainerOptions,
         progressCb
       )
-      parentPort?.postMessage({ type: 'crf_done', id: msg.id, payload: { result } })
+      const response: Message = { type: 'crf_done', id: msg.id, payload: { result } }
+      parentPort?.postMessage(response)
     } catch (err) {
-      parentPort?.postMessage({ type: 'crf_error', id: msg.id, payload: { error: err.message } })
+      const response: Message = { type: 'crf_error', id: msg.id, payload: { error: err.message } }
+      parentPort?.postMessage(response)
     }
   }
 }
