@@ -1,9 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import os from 'os'
-import { Worker } from 'worker_threads'
 
-import { MLWorkerScheduler } from './ml-worker-scheduler'
+import { MLThreadScheduler } from './ml-thread-scheduler'
 
 type MsgType =
   | 'svm_train'
@@ -31,15 +30,15 @@ export interface Message {
 
 const MAX_CRF_WORKERS = 1
 
-export class MLWorkerPool {
-  private svmWorkerScheduler: MLWorkerScheduler
-  private crfWorkerScheduler: MLWorkerScheduler
+export class MLThreadPool {
+  private svmWorkerScheduler: MLThreadScheduler
+  private crfWorkerScheduler: MLThreadScheduler
 
   constructor() {
     const maxSvmWorkers = Math.max(os.cpus().length - 1, 1) // ncpus - webworker
-    const numSvmWorkers = Math.min(maxSvmWorkers, process.core_env.BP_NUM_ML_WORKERS || 4)
-    this.svmWorkerScheduler = new MLWorkerScheduler(numSvmWorkers)
-    this.crfWorkerScheduler = new MLWorkerScheduler(MAX_CRF_WORKERS)
+    const numSvmWorkers = Math.min(maxSvmWorkers, process.core_env.BP_NUM_ML_THREADS || 4)
+    this.svmWorkerScheduler = new MLThreadScheduler(numSvmWorkers)
+    this.crfWorkerScheduler = new MLThreadScheduler(MAX_CRF_WORKERS)
   }
 
   public async startSvmTraining(

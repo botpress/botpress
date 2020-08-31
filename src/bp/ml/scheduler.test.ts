@@ -1,4 +1,4 @@
-import { BaseScheduler } from './ml-worker-scheduler'
+import { BaseScheduler } from './ml-thread-scheduler'
 
 test('scheduler with 4 elements should create new elements only four times', async () => {
   // arrange

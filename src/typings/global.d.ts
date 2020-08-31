@@ -226,7 +226,7 @@ declare type BotpressEnvironmentVariables = {
    * Defaults to 4 if supported by CPU
    * @default 4
    */
-  readonly BP_NUM_ML_WORKERS?: number
+  readonly BP_NUM_ML_THREADS?: number
 
   /**
    * Overrides the maximum file size allowed for the BPFS

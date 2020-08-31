@@ -26,7 +26,7 @@ export class BaseScheduler<T> {
   }
 }
 
-export class MLWorkerScheduler extends BaseScheduler<Worker> {
+export class MLThreadScheduler extends BaseScheduler<Worker> {
   constructor(maxElements: number) {
     super(maxElements, makeWorker)
   }
@@ -59,8 +59,8 @@ async function makeWorker() {
     distro: JSON.stringify(distro)
   }
 
-  const workerIndex = path.resolve(__dirname, './ml-worker-index.js')
-  return new Worker(workerIndex, ({
+  const workerEntryPoint = path.resolve(__dirname, './ml-thread-index.js')
+  return new Worker(workerEntryPoint, ({
     workerData: {
       processData: clean(processData),
       processEnv: clean(process.env)

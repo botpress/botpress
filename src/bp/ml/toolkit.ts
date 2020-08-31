@@ -8,7 +8,7 @@ import { Tagger, Trainer as CRFTrainer } from './crf'
 import { FastTextModel } from './fasttext'
 import computeJaroWinklerDistance from './homebrew/jaro-winkler'
 import computeLevenshteinDistance from './homebrew/levenshtein'
-import { MLWorkerPool } from './ml-worker-pool'
+import { MLThreadPool } from './ml-thread-pool'
 import { processor } from './sentencepiece'
 import { Predictor, Trainer as SVMTrainer } from './svm'
 
@@ -30,7 +30,7 @@ const MLToolkit: typeof sdk.MLToolkit = {
 }
 
 if (cluster.isWorker) {
-  const workerPool = new MLWorkerPool()
+  const workerPool = new MLThreadPool()
 
   MLToolkit.SVM.Trainer.prototype.train = (
     points: sdk.MLToolkit.SVM.DataPoint[],
