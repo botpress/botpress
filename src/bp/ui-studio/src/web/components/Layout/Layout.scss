@@ -106,3 +106,30 @@
     border-bottom: 5px solid rgba(0, 0, 0, 0.2);
   }
 }
+
+.not-trained-warning {
+  position: relative;
+  left: -50%;
+  background: var(--hover-lighthouse-30);
+  padding: 3% 2%;
+  border-radius: 5px;
+  display: flex;
+  width: fit-content;
+
+  &_container {
+    position: absolute;
+    left: 50%;
+    bottom: 3em;
+  }
+
+  &_icon {
+    color: var(--lighthouse);
+    margin: auto;
+    margin-right: 1%;
+  }
+
+  &_text {
+    white-space: nowrap;
+    margin: auto;
+  }
+}

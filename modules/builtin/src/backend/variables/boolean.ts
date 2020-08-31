@@ -2,11 +2,23 @@ import { PrimitiveVarType } from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 import yn from 'yn'
 
-import common from './common'
+import { common, getCommonOperators } from './common'
 
 class BoxedBoolean extends BaseVariable<boolean> {
   constructor(args) {
     super(args)
+  }
+
+  parse(text: string): boolean {
+    return yn(text)
+  }
+
+  isTrue() {
+    return this.value
+  }
+
+  isFalse() {
+    return !this.value
   }
 
   trySet(value: boolean, confidence: number) {
@@ -38,6 +50,23 @@ const BooleanVariableType: PrimitiveVarType = {
   config: {
     label: 'boolean',
     icon: 'segmented-control',
+    operators: [
+      ...getCommonOperators('boolean'),
+      {
+        func: 'isTrue',
+        label: `module.builtin.operator.isTrue`,
+        caption: 'module.builtin.operations.selfOperation',
+        fields: [],
+        advancedSettings: []
+      },
+      {
+        func: 'isFalse',
+        label: `module.builtin.operator.isFalse`,
+        caption: 'module.builtin.operations.selfOperation',
+        fields: [],
+        advancedSettings: []
+      }
+    ],
     fields: [
       ...common.fields,
       {

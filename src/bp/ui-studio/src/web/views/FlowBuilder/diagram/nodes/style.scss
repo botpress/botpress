@@ -1,5 +1,19 @@
+:global(.srd-diagram .srd-default-link--path-selected) {
+  stroke: var(--gray) !important;
+}
+
 :global(.srd-diagram .node.selected) > .node-container {
   border-color: #028aee !important;
+}
+
+.removeLinkButton {
+  cursor: pointer;
+  rect {
+    fill: var(--hover-lighthouse-30);
+  }
+  .trash {
+    fill: var(--lighthouse) !important;
+  }
 }
 
 .node-container {

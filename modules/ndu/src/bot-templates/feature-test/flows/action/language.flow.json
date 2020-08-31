@@ -1,0 +1,131 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "startNode": "entry",
+  "description": "",
+  "variables": [
+    {
+      "type": "enum",
+      "params": {
+        "name": "language",
+        "subType": "languages"
+      }
+    },
+    {
+      "type": "string",
+      "params": {
+        "name": "l"
+      }
+    }
+  ],
+  "type": "standard",
+  "nodes": [
+    {
+      "id": "6e92662663",
+      "name": "trigger-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": "prompt-1"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "trigger",
+      "conditions": [
+        {
+          "params": {
+            "candidate": [
+              "action-language"
+            ],
+            "exactMatch": false,
+            "caseSensitive": false
+          },
+          "id": "type_text"
+        }
+      ]
+    },
+    {
+      "id": "02d79a8ab3",
+      "name": "prompt-1",
+      "next": [
+        {
+          "caption": "User answers correctly",
+          "condition": "thisNode.extracted === true",
+          "node": "say_something-1"
+        },
+        {
+          "caption": "User does not answer",
+          "condition": "thisNode.timeout === true",
+          "node": ""
+        },
+        {
+          "caption": "User Cancels",
+          "condition": "thisNode.cancelled === true",
+          "node": ""
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "prompt",
+      "prompt": {
+        "params": {
+          "question": {
+            "en": "Please choose the language for the webchat"
+          },
+          "subType": "languages",
+          "confirm": {
+            "en": null
+          },
+          "duration": 5,
+          "searchBackCount": 2,
+          "cancellable": true,
+          "confirmCancellation": false,
+          "output": "language"
+        },
+        "type": "enum"
+      }
+    },
+    {
+      "id": "04bf0f4b2e",
+      "name": "execute-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": [
+        "builtin/switchLanguage {\"lang\":\"{{workflow.variables.language}}\"}"
+      ],
+      "onReceive": null,
+      "type": "execute"
+    },
+    {
+      "id": "165383a1a5",
+      "name": "say_something-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": "execute-1"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "say_something",
+      "contents": [
+        {
+          "text": {
+            "en": "Webchat language changed to $language"
+          },
+          "variations": {
+            "en": []
+          },
+          "markdown": true,
+          "typing": true,
+          "contentType": "builtin_text"
+        }
+      ]
+    }
+  ]
+}

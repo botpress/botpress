@@ -57,3 +57,15 @@ export const nextFlowName = (flows: { name: string }[], topic: string, originalN
 
   return fullName
 }
+
+export const nextTopicName = (topics: { name: string }[], originalName: string) => {
+  let name = originalName
+  let index = 0
+
+  do {
+    name = `${originalName}${index ? `-${index}` : ''}`
+    index++
+  } while (topics.find(t => t.name === name))
+
+  return name
+}

@@ -1,0 +1,222 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "startNode": "entry",
+  "description": "",
+  "variables": [
+    {
+      "type": "date",
+      "params": {
+        "name": "date"
+      }
+    }
+  ],
+  "type": "standard",
+  "nodes": [
+    {
+      "id": "ffda0aafdb",
+      "name": "trigger-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": "prompt-1"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "trigger",
+      "conditions": [
+        {
+          "params": {
+            "candidate": [
+              "prompt-date"
+            ],
+            "exactMatch": false,
+            "caseSensitive": false
+          },
+          "id": "type_text"
+        }
+      ]
+    },
+    {
+      "id": "cfc4fd8902",
+      "name": "prompt-1",
+      "next": [
+        {
+          "caption": "User answers correctly",
+          "condition": "thisNode.extracted === true",
+          "node": "say_something-1"
+        },
+        {
+          "caption": "User does not answer",
+          "condition": "thisNode.timeout === true",
+          "node": "say_something-2"
+        },
+        {
+          "caption": "User Cancels",
+          "condition": "thisNode.cancelled === true",
+          "node": "say_something-3"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "prompt",
+      "prompt": {
+        "params": {
+          "question": {
+            "en": "Please provide a date (ex: february 1st, tomorrow, next year, 2020-08-26)"
+          },
+          "output": "date",
+          "mustBePast": false,
+          "mustBeFuture": false,
+          "confirm": {
+            "en": null
+          },
+          "duration": 5,
+          "searchBackCount": 2,
+          "cancellable": true,
+          "confirmCancellation": false
+        },
+        "type": "date"
+      },
+      "triggers": [
+        {
+          "name": "prompt_yes",
+          "effect": "prompt.inform",
+          "conditions": [
+            {
+              "id": "prompt_listening"
+            },
+            {
+              "id": "user_intent_yes"
+            }
+          ]
+        },
+        {
+          "name": "prompt_no",
+          "effect": "prompt.inform",
+          "conditions": [
+            {
+              "id": "prompt_listening"
+            },
+            {
+              "id": "user_intent_no"
+            }
+          ]
+        },
+        {
+          "name": "prompt_inform",
+          "effect": "prompt.inform",
+          "conditions": [
+            {
+              "id": "prompt_listening"
+            },
+            {
+              "id": "custom_confidence",
+              "params": {
+                "confidence": 0.7
+              }
+            }
+          ]
+        },
+        {
+          "name": "prompt_cancel",
+          "effect": "prompt.cancel",
+          "conditions": [
+            {
+              "id": "prompt_listening"
+            },
+            {
+              "id": "prompt_cancellable"
+            },
+            {
+              "id": "user_intent_is",
+              "params": {
+                "intentName": "cancel",
+                "topicName": "global"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f8888af301",
+      "name": "say_something-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "say_something",
+      "contents": [
+        {
+          "text": {
+            "en": "You chose $date"
+          },
+          "variations": {
+            "en": []
+          },
+          "markdown": true,
+          "typing": true,
+          "contentType": "builtin_text"
+        }
+      ]
+    },
+    {
+      "id": "446ec753ed",
+      "name": "say_something-2",
+      "next": [
+        {
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "say_something",
+      "contents": [
+        {
+          "text": {
+            "en": "Prompt timed-out"
+          },
+          "variations": {
+            "en": []
+          },
+          "markdown": true,
+          "typing": true,
+          "contentType": "builtin_text"
+        }
+      ]
+    },
+    {
+      "id": "b3667efbe5",
+      "name": "say_something-3",
+      "next": [
+        {
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "say_something",
+      "contents": [
+        {
+          "text": {
+            "en": "Prompt cancelled"
+          },
+          "variations": {
+            "en": []
+          },
+          "markdown": true,
+          "typing": true,
+          "contentType": "builtin_text"
+        }
+      ]
+    }
+  ]
+}

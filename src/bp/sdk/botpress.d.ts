@@ -863,6 +863,7 @@ declare module 'botpress/sdk' {
       state: {
         confirmCandidate?: PromptCandidate
         disambiguateCandidates?: PromptCandidate[]
+        electedCandidate?: PromptCandidate
         value?: any
         nextDestination?: { flowName: string; node: string }
       }
@@ -924,6 +925,8 @@ declare module 'botpress/sdk' {
       hasJumped?: boolean
       /** The status of the current active prompt */
       activePrompt?: PromptStatus
+      /** The list of previously extracted candidates */
+      pastPromptCandidates?: PromptCandidate[]
       inputs?: { [variable: string]: SubWorkflowInput }
     }
 
@@ -1755,7 +1758,7 @@ declare module 'botpress/sdk' {
     /** The name of the variable that will be filled with the value extracted */
     output: string
     /** The question to ask to the user for this prompt */
-    question: MultiLangText
+    question: string | MultiLangText
     /** Confirmation message to send to ask the user if the provided value is correct */
     confirm?: MultiLangText
     /** Additional param for prompts */
@@ -1828,6 +1831,7 @@ declare module 'botpress/sdk' {
     compare(compareTo: BoxedVariable<T, V>): number
     getValidationData: () => ValidationData | undefined
     unbox(): UnboxedVariable<T>
+    parse(text: string): T
   }
 
   export interface ValidationData {
@@ -1869,6 +1873,13 @@ declare module 'botpress/sdk' {
   export type FlowVariableConfig = {
     label: string
     icon?: any
+    operators?: FlowVariableOperator[]
+  } & FormDefinition
+
+  export type FlowVariableOperator = {
+    func: string
+    label: string
+    caption: string
   } & FormDefinition
 
   export interface FormMoreInfo {
