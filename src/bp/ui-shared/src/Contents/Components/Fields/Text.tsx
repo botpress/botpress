@@ -11,7 +11,7 @@ const Text: FC<TextProps> = ({
   onBlur,
   onChange,
   placeholder,
-  field: { valueManipulation, type, min, max, maxLength, defaultValue },
+  field: { valueManipulation, type, min, max, maxLength, defaultValue, required },
   value,
   childRef
 }) => {
@@ -47,6 +47,15 @@ const Text: FC<TextProps> = ({
     return value
   }
 
+  const beforeOnBlur = () => {
+    if (!localValue && required) {
+      setLocalValue(defaultValue)
+      onBlur?.(defaultValue)
+      return
+    }
+    onBlur?.(localValue)
+  }
+
   return (
     <input
       ref={ref => childRef?.(ref)}
@@ -61,7 +70,7 @@ const Text: FC<TextProps> = ({
         onChange?.(value)
         setLocalValue(value)
       }}
-      onBlur={() => onBlur?.(localValue)}
+      onBlur={beforeOnBlur}
       value={localValue}
     />
   )
