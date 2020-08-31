@@ -20,10 +20,6 @@ if (workerData?.processEnv) {
 }
 
 if (!process.core_env) {
-  if (!!process.env.pkg) {
-    process.pkg = process.env.pkg
-  }
-
   process.LOADED_MODULES = {}
   process.PROJECT_LOCATION =
     process.pkg || process.env.pkg
