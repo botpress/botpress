@@ -419,8 +419,8 @@ declare module 'botpress/sdk' {
         [key: string]: string
       }
 
-      export interface TrainerCallback {
-        (message: string): void
+      export interface TrainProgressCallback {
+        (iteration: number): void
       }
 
       interface DataPoint {
@@ -429,11 +429,7 @@ declare module 'botpress/sdk' {
       }
 
       export class Trainer {
-        train(
-          elements: DataPoint[],
-          options: TrainerOptions,
-          progressCallback?: (iteration: number) => void
-        ): Promise<string>
+        train(elements: DataPoint[], options: TrainerOptions, progressCallback?: TrainProgressCallback): Promise<string>
       }
     }
 
@@ -458,12 +454,13 @@ declare module 'botpress/sdk' {
       loadModel: (m: Model) => Promise<void>
       hasModel: (lang: string, hash: string) => boolean
       train: (
+        trainSessionId: string,
         intentDefs: NLU.IntentDefinition[],
         entityDefs: NLU.EntityDefinition[],
         languageCode: string,
-        trainingSession?: TrainingSession,
-        options?: TrainingOptions
+        options: TrainingOptions
       ) => Promise<Model | undefined>
+      cancelTraining(trainSessionId: string): Promise<void>
       predict: (t: string, ctx: string[]) => Promise<IO.EventUnderstanding>
     }
 
@@ -487,7 +484,6 @@ declare module 'botpress/sdk' {
     export interface TrainingOptions {
       forceTrain: boolean
       progressCallback: (x: number) => void
-      cancelCallback: () => void
     }
 
     export interface Model {
@@ -510,13 +506,12 @@ declare module 'botpress/sdk' {
     export type TrainingStatus = 'idle' | 'done' | 'needs-training' | 'training' | 'canceled' | 'errored' | null
 
     export interface TrainingSession {
+      key: string
       status: TrainingStatus
       language: string
       progress: number
       lock?: RedisLock
     }
-
-    export type ProgressReporter = (botId: string, message: string, trainSession: TrainingSession) => void
 
     export type EntityType = 'system' | 'pattern' | 'list'
 

@@ -62,9 +62,6 @@ export type ListEntity = Readonly<{
   sensitive: boolean
 }>
 
-export type EntityCache = LRUCache<string, EntityExtractionResult[]>
-export type EntityCacheDump = LRUCache.Entry<string, EntityExtractionResult[]>[]
-
 export interface ListEntityModel {
   type: 'custom.list'
   id: string
@@ -74,7 +71,6 @@ export interface ListEntityModel {
   sensitive: boolean
   /** @example { 'Air Canada': [ ['Air', '_Canada'], ['air', 'can'] ] } */
   mappingsTokens: _.Dictionary<string[][]>
-  cache?: EntityCache | EntityCacheDump
 }
 
 export interface ExtractedSlot {
