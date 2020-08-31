@@ -507,10 +507,7 @@ const TrainSlotTagger = async (input: TrainStep, tools: Tools, progress: progres
   debugTraining.forBot(input.botId, 'Training slot tagger')
   const slotTagger = new SlotTagger(tools.mlToolkit)
 
-  await slotTagger.train(
-    input.intents.filter(i => i.name !== NONE_INTENT),
-    () => progress(0) // not increasing actual progress but checking if training was cancelled
-  )
+  await slotTagger.train(input.intents.filter(i => i.name !== NONE_INTENT))
 
   debugTraining.forBot(input.botId, 'Done training slot tagger')
   progress()
