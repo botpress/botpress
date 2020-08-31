@@ -98,7 +98,7 @@
   "moveUp": "Déplacer vers le haut",
   "name": "Nom",
   "needsTranslation": "Nécessite une traduction",
-  "notViewingDefaultLang": "Vous êtes actuellement dans la version en {langue} de cet agent conversationnel.",
+  "notViewingDefaultLang": "Vous êtes actuellement dans la version en [Langue] de cet agent conversationnel, retournez dans la langue par défaut si vous souhaitez ajouter des éléments.",
   "never": "Jamais",
   "next": "Suivant",
   "noRowsFound": "Aucun enregistrement trouvé",

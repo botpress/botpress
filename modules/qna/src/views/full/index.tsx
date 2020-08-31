@@ -194,13 +194,15 @@ const QnAList: FC<Props> = ({
     )
   }
 
-  buttons.push({
-    icon: 'plus',
-    onClick: () => {
-      dispatch({ type: 'addQnA', data: { languages, contexts: [topicName || 'global'] } })
-    },
-    tooltip: lang.tr('module.qna.form.addQuestion')
-  })
+  if (!defaultLang || defaultLang === contentLang) {
+    buttons.push({
+      icon: 'plus',
+      onClick: () => {
+        dispatch({ type: 'addQnA', data: { languages, contexts: [topicName || 'global'] } })
+      },
+      tooltip: lang.tr('module.qna.form.addQuestion')
+    })
+  }
 
   const fetchData = async (page = 1) => {
     dispatch({ type: 'loading' })

@@ -13,7 +13,7 @@ interface Props {
   variables?: Variables
   events?: BotEvent[]
   currentLang: string
-  defaultLanguage: string
+  defaultLang: string
 }
 
 const TextAreaList: FC<Props> = ({
@@ -25,7 +25,7 @@ const TextAreaList: FC<Props> = ({
   events,
   onUpdateVariables,
   currentLang,
-  defaultLanguage
+  defaultLang
 }) => {
   const [forceUpdateHeight, setForceUpdateHeight] = useState(false)
 
@@ -44,7 +44,7 @@ const TextAreaList: FC<Props> = ({
     })
   }
 
-  const getRefLang = (value, variations, currentLang, defaultLanguage) => {
+  const getRefLang = (value, variations, currentLang, defaultLang) => {
     const combinedValues = Object.keys(value).reduce(
       (acc, key) => ({ ...acc, [key]: [value?.[key] || '', ...(variations[key] || [])].filter(Boolean) }),
       {}
@@ -67,11 +67,12 @@ const TextAreaList: FC<Props> = ({
     }
   }
 
-  const refLang = getRefLang(data.text || {}, data.variations || {}, currentLang, defaultLanguage)
+  const refLang = getRefLang(data.text || {}, data.variations || {}, currentLang, defaultLang)
 
   return (
     <FormFields.SuperInputArray
       variables={variables}
+      canAdd={!defaultLang || defaultLang === currentLang}
       refValue={[...[data.text?.[refLang] || ''], ...(data.variations?.[refLang] || [])]}
       events={events || []}
       onUpdateVariables={onUpdateVariables}

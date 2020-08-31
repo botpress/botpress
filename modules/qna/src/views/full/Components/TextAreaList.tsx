@@ -21,6 +21,7 @@ interface Props {
   initialFocus?: string
   duplicateMsg?: string
   children?: any
+  canAdd: boolean
 }
 
 const TextAreaList: FC<Props> = props => {
@@ -47,7 +48,7 @@ const TextAreaList: FC<Props> = props => {
   }
 
   const onKeyDown = (e: KeyboardEvent, index: number): void => {
-    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    if (props.canAdd && e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault()
       addItem()
     }
@@ -106,14 +107,16 @@ const TextAreaList: FC<Props> = props => {
             </div>
           )
         )}
-        <Tooltip
-          content={lang.tr('quickAddAlternative', {
-            shortcut: <ShortcutLabel light keys={[utils.controlKey, 'enter']} />
-          })}
-          position={Position.BOTTOM}
-        >
-          <FormFields.AddButton text={addItemLabel} onClick={() => addItem()} />
-        </Tooltip>
+        {props.canAdd && (
+          <Tooltip
+            content={lang.tr('quickAddAlternative', {
+              shortcut: <ShortcutLabel light keys={[utils.controlKey, 'enter']} />
+            })}
+            position={Position.BOTTOM}
+          >
+            <FormFields.AddButton text={addItemLabel} onClick={() => addItem()} />
+          </Tooltip>
+        )}
         {props.children}
       </div>
     </Fragment>

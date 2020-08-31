@@ -7,6 +7,7 @@ export interface SuperInputArrayProps {
   moreInfo?: JSX.Element
   label?: string
   variableTypes?: string[]
+  canAdd?: boolean
   onChange: (items: string[]) => void
   getPlaceholder?: (index: number) => string
   onUpdateVariables?: (variable: FlowVariable) => void

@@ -19,6 +19,7 @@ interface CssExports {
   'img': string;
   'in': string;
   'joinLabel': string;
+  'needsTranslation': string;
   'nodeWrapper': string;
   'out': string;
   'outRouting': string;

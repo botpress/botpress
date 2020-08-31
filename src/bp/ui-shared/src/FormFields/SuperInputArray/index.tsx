@@ -32,6 +32,7 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
   variableTypes,
   addBtnLabel,
   label,
+  canAdd,
   onChange,
   moreInfo,
   refValue,
@@ -169,14 +170,17 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
           </div>
         )
       })}
-      <Tooltip
-        content={lang('quickAddAlternative', {
-          shortcut: <ShortcutLabel light keys={[controlKey, 'enter']} />
-        })}
-        position={Position.BOTTOM}
-      >
-        <AddButton text={addBtnLabel} onClick={() => addItem()} />
-      </Tooltip>
+
+      {canAdd && (
+        <Tooltip
+          content={lang('quickAddAlternative', {
+            shortcut: <ShortcutLabel light keys={[controlKey, 'enter']} />
+          })}
+          position={Position.BOTTOM}
+        >
+          <AddButton text={addBtnLabel} onClick={() => addItem()} />
+        </Tooltip>
+      )}
     </div>
   )
 }

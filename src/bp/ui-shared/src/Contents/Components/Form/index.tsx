@@ -238,21 +238,23 @@ const Form: FC<FormProps> = ({
                 </GroupItemWrapper>
               ))}
             </div>
-            <AddButton
-              text={lang(field.group?.addLabel)}
-              onClick={() => {
-                moveFocusTo.current = field.key
-                dispatch({
-                  type: 'add',
-                  data: {
-                    field,
-                    parent,
-                    currentLang,
-                    onUpdate
-                  }
-                })
-              }}
-            />
+            {(!defaultLang || defaultLang === currentLang) && (
+              <AddButton
+                text={lang(field.group?.addLabel)}
+                onClick={() => {
+                  moveFocusTo.current = field.key
+                  dispatch({
+                    type: 'add',
+                    data: {
+                      field,
+                      parent,
+                      currentLang,
+                      onUpdate
+                    }
+                  })
+                }}
+              />
+            )}
           </Fragment>
         )
       case 'select':
@@ -295,6 +297,7 @@ const Form: FC<FormProps> = ({
               <SuperInputArray
                 getPlaceholder={index => getArrayPlaceholder(index, field)}
                 moreInfo={printMoreInfo(field.moreInfo)}
+                canAdd={!defaultLang || defaultLang === currentLang}
                 onChange={value => {
                   dispatch({
                     type: 'updateField',

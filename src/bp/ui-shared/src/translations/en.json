@@ -147,7 +147,7 @@
   "moveUp": "Move Up",
   "name": "Name",
   "needsTranslation": "Needs Translation",
-  "notViewingDefaultLang": "You are currently in the {language} version of this chatbot.",
+  "notViewingDefaultLang": "You are currently in the {language} version of this chatbot, go back to default language if you want to add elements.",
   "never": "Never",
   "next": "Next",
   "noRowsFound": "No rows found",

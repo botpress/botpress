@@ -242,6 +242,7 @@ const QnA: FC<Props> = props => {
                 data: { ...data, questions: { ...data.questions, [contentLang]: items }, answers: data.answers }
               })
             }
+            canAdd={!defaultLang || defaultLang === contentLang}
             refItems={refQuestions}
             keyPrefix="question-"
             duplicateMsg={lang.tr('module.qna.form.duplicateQuestion')}
@@ -267,6 +268,7 @@ const QnA: FC<Props> = props => {
               placeholder={index => getPlaceholder('answer', index)}
               label={lang.tr('module.qna.answer')}
               addItemLabel={lang.tr('module.qna.form.addAnswerAlternative')}
+              canAdd={!defaultLang || defaultLang === contentLang}
             />
             <div className={style.contentAnswerWrapper}>
               {contentAnswers?.map((content, index) => (
@@ -282,13 +284,15 @@ const QnA: FC<Props> = props => {
                 />
               ))}
             </div>
-            <FormFields.AddButton
-              text={lang.tr('module.qna.form.addContent')}
-              onClick={() => {
-                setShowContentForm(true)
-                editingContent.current = null
-              }}
-            />
+            {(!defaultLang || defaultLang === contentLang) && (
+              <FormFields.AddButton
+                text={lang.tr('module.qna.form.addContent')}
+                onClick={() => {
+                  setShowContentForm(true)
+                  editingContent.current = null
+                }}
+              />
+            )}
           </div>
           {showRedirectToFlow && (
             <Fragment>

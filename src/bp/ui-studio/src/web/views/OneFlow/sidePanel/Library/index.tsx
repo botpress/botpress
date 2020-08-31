@@ -29,6 +29,7 @@ import TreeItem from './TreeItem'
 interface OwnProps {
   goToFlow: (flow: any) => void
   readOnly: boolean
+  canAdd: boolean
   editing: string
   isEditingNew: boolean
   selectedWorkflow: string
@@ -254,7 +255,7 @@ const Library: FC<Props> = props => {
           <Fragment>
             {hasChildren && item.children.map(child => printTree(child, level + 1, path))}
 
-            {item.type === 'workflow' && (
+            {props.canAdd && item.type === 'workflow' && (
               <Button
                 minimal
                 onClick={() => newFlow()}
@@ -264,7 +265,7 @@ const Library: FC<Props> = props => {
               />
             )}
 
-            {item.type === 'variableType' && (
+            {props.canAdd && item.type === 'variableType' && (
               <Fragment>
                 <Button
                   minimal
