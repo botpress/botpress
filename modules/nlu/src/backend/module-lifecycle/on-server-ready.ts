@@ -3,7 +3,7 @@ import _ from 'lodash'
 
 import makeApi from '../api'
 import { getModel } from '../model-service'
-import { makeTrainSessionKey, setTrainingSession } from '../train-session-service'
+import { setTrainingSession } from '../train-session-service'
 import { NLUState } from '../typings'
 
 export function getOnServerReady(state: NLUState) {
@@ -33,8 +33,7 @@ export function getOnServerReady(state: NLUState) {
         trainSession.status = 'canceled'
         await setTrainingSession(bp, botId, trainSession)
 
-        const trainSessionKey = makeTrainSessionKey(botId, language)
-        await state.nluByBot[botId].engine.cancelTraining(trainSessionKey)
+        await state.nluByBot[botId].engine.cancelTraining(trainSession.key)
       }
     }
 

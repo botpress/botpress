@@ -50,10 +50,9 @@ export function getOnBotMount(state: NLUState) {
             await ModelService.pruneModels(ghost, languageCode)
             let model = await ModelService.getModel(ghost, hash, languageCode)
 
+            const trainSession = makeTrainingSession(botId, languageCode, lock)
             if ((forceTrain || !model) && !yn(process.env.BP_NLU_DISABLE_TRAINING)) {
-              const trainSession = makeTrainingSession(languageCode, lock)
               await setTrainingSession(bp, botId, trainSession)
-              state.nluByBot[botId].trainSessions[languageCode] = trainSession
 
               const progressCallback = async (progress: number) => {
                 trainSession.progress = progress
@@ -68,8 +67,7 @@ export function getOnBotMount(state: NLUState) {
 
               const options = { forceTrain, progressCallback, cancelCallback }
 
-              const trainSessionKey = makeTrainSessionKey(botId, languageCode)
-              model = await engine.train(trainSessionKey, intentDefs, entityDefs, languageCode, options)
+              model = await engine.train(trainSession.key, intentDefs, entityDefs, languageCode, options)
               trainSession.status = 'done'
               await state.sendNLUStatusEvent(botId, trainSession)
               if (model) {
@@ -77,7 +75,9 @@ export function getOnBotMount(state: NLUState) {
                 await ModelService.saveModel(ghost, model, hash)
               }
             } else {
-              await state.sendNLUStatusEvent(botId, { language: languageCode, progress: 1, status: 'done' })
+              trainSession.progress = 1
+              trainSession.status = 'done'
+              await state.sendNLUStatusEvent(botId, trainSession)
             }
             try {
               if (model) {
@@ -107,7 +107,6 @@ export function getOnBotMount(state: NLUState) {
       botId,
       engine,
       trainOrLoad,
-      trainSessions: {},
       cancelTraining
     }
 
