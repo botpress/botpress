@@ -14,7 +14,6 @@ import { replaceConsecutiveSpaces } from './tools/strings'
 import tfidf from './tools/tfidf'
 import { convertToRealSpaces, isSpace, SPACE } from './tools/token-utils'
 import {
-  CachedListEntity,
   ColdListEntityModel,
   ComplexEntity,
   EntityExtractionResult,
@@ -22,6 +21,7 @@ import {
   Intent,
   ListEntity,
   ListEntityModel,
+  ListEntityWithCache,
   PatternEntity,
   TFIDF,
   Token2Vec,
@@ -37,7 +37,7 @@ export type TrainInput = Readonly<{
   languageCode: string
   pattern_entities: PatternEntity[]
   complex_entities: ComplexEntity[]
-  list_entities: CachedListEntity[]
+  list_entities: ListEntityWithCache[]
   contexts: string[]
   intents: Intent<string>[]
   ctxToTrain: string[]
@@ -122,7 +122,7 @@ const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainSt
   } as TrainStep
 }
 
-const makeListEntityModel = async (entity: CachedListEntity, languageCode: string, tools: Tools) => {
+const makeListEntityModel = async (entity: ListEntityWithCache, languageCode: string, tools: Tools) => {
   const allValues = _.uniq(Object.keys(entity.synonyms).concat(..._.values(entity.synonyms)))
   const allTokens = (await tools.tokenize_utterances(allValues, languageCode)).map(toks =>
     toks.map(convertToRealSpaces)

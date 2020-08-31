@@ -10,7 +10,7 @@ import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
 import { computeKmeans, ProcessIntents, TrainInput, TrainOutput } from './training-pipeline'
 import { TrainingCanceledError, TrainingWorkerQueue } from './training-worker-queue'
-import { CachedListEntity, ComplexEntity, Intent, PatternEntity, Tools } from './typings'
+import { ComplexEntity, Intent, ListEntityWithCache, PatternEntity, Tools } from './typings'
 
 const trainDebug = DEBUG('nlu').sub('training')
 
@@ -83,7 +83,7 @@ export default class Engine implements NLU.Engine {
     const list_entities = entityDefs
       .filter(ent => ent.type === 'list')
       .map(e => {
-        return <CachedListEntity>{
+        return <ListEntityWithCache>{
           name: e.name,
           fuzzyTolerance: e.fuzzy,
           sensitive: e.sensitive,

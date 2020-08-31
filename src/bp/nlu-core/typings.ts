@@ -69,7 +69,7 @@ export type ListEntity = Readonly<{
   sensitive: boolean
 }>
 
-export type CachedListEntity = ListEntity & {
+export type ListEntityWithCache = ListEntity & {
   cache: EntityCacheDump
 }
 
