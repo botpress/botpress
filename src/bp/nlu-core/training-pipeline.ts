@@ -371,46 +371,45 @@ export const ProcessIntents = async (
   return Promise.map(intents, async intent => {
     const cleaned: string[] = intent.originalUtterances.map(_.flow([_.trim, replaceConsecutiveSpaces]))
 
-    // const augmentations = extractAugmentations(
-    //   intent,
-    //   [...sysComplexes, ...complex_entities],
-    //   list_entities,
-    //   pattern_entities
-    // )
-    // const augmenter = createAugmenter(augmentations)
-    // const original: string[] = _.uniq(cleaned.map(augmenter))
-    // // TODO: (sly) we probably want to have a different logic than a hardcoded "5" here
-    // // although this doesn't impact anything but the slot extractor at the moment
-    // const augmented: string[] = _.flatMap(cleaned, phrase => _.times(5, () => augmenter(phrase)))
+    const augmentations = extractAugmentations(
+      intent,
+      [...sysComplexes, ...complex_entities],
+      list_entities,
+      pattern_entities
+    )
+    const augmenter = createAugmenter(augmentations)
+    const original: string[] = _.uniq(cleaned.map(augmenter))
+    // TODO: (sly) we probably want to have a different logic than a hardcoded "5" here
+    // although this doesn't impact anything but the slot extractor at the moment
+    const augmented: string[] = _.flatMap(cleaned, phrase => _.times(5, () => augmenter(phrase)))
 
-    // const utterances = await buildUtteranceBatch(_.uniq([...original, ...augmented]), languageCode, tools)
+    const utterances = await buildUtteranceBatch(_.uniq([...original, ...augmented]), languageCode, tools)
     // debugger
-    const utterances = await buildUtteranceBatch(cleaned, languageCode, tools)
-    // utterances.slice(original.length).forEach(x => (x.augmented = true))
-
-    const allowedEntities = _.chain(intent.slot_definitions)
-      .flatMap(s => s.entity)
-      .filter(e => e !== 'any')
-      .uniq()
-      .value() as string[]
+    // const utterances = await buildUtteranceBatch(cleaned, languageCode, tools)
+    utterances.slice(original.length).forEach(x => (x.augmented = true))
 
     // const allowedEntities = _.chain(intent.slot_definitions)
-    //   .flatMap(s => {
-    //     const slotEntity = s.entity === 'date' ? 'time' : s.entity // highly hardcoded, date is in fact a system time
-    //     const sysComplex = sysComplexes.find(c => c.name === slotEntity)
-    //     const complex = complex_entities?.find(x => x.name === slotEntity)
-    //     if (sysComplex) {
-    //       return sysComplex.name
-    //     } else if (complex) {
-    //       return [...(complex.list_entities ?? []), ...(complex.pattern_entities ?? [])]
-    //     } else {
-    //       return slotEntity
-    //     }
-    //   })
+    //   .flatMap(s => s.entity)
+    //   .filter(e => e !== 'any')
     //   .uniq()
     //   .value() as string[]
 
-    // const entityModels = _.intersectionWith(list_entities_model, allowedEntities, (entity, name) => {
+    const allowedEntities = _.chain(intent.slot_definitions)
+      .flatMap(s => {
+        const slotEntity = s.entity === 'date' ? 'time' : s.entity // highly hardcoded, date is in fact a system time
+        const sysComplex = sysComplexes.find(c => c.name === slotEntity)
+        const complex = complex_entities?.find(x => x.name === slotEntity)
+        if (sysComplex) {
+          return sysComplex.name
+        } else if (complex) {
+          return [...(complex.list_entities ?? []), ...(complex.pattern_entities ?? [])]
+        } else {
+          return slotEntity
+        }
+      })
+      .uniq()
+      .value() as string[]
+
     const entityModels = _.intersectionWith(list_entities_model, allowedEntities, (entity, name) => {
       return entity.entityName === name
     })
@@ -527,7 +526,7 @@ export const TfidfTokens = async (input: TrainStep): Promise<TrainStep> => {
       ...tfidfInput,
       [intent.name]: _.flatMapDeep(
         intent.originalUtterances
-          // .filter(u => !u.augmented) // we don't want auto-generated phrases to impact TFIDF
+          .filter(u => !u.augmented) // we don't want auto-generated phrases to impact TFIDF
           .map(u => u.tokens.map(t => t.toString({ lowerCase: true })))
       )
     }),

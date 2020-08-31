@@ -462,18 +462,7 @@ export const Predict = async (
     let stepOutput: PredictStep
     stepOutput = await makePredictionUtterance(step, predictors, tools)
     stepOutput = await extractEntities(stepOutput, predictors, tools)
-
-    if (stepOutput.originalUtterance.entities) {
-      let rawUtt = _.cloneDeep(stepOutput.rawText)
-      for (const ent of stepOutput.originalUtterance.entities) {
-        // @ts-ignore
-        rawUtt = rawUtt.replace(ent.metadata.source, ent.type)
-      }
-      // @ts-ignore
-      stepOutput.synonymUtterance = (await buildUtteranceBatch([rawUtt], stepOutput.languageCode, tools))[0]
-    }
-
-    stepOutput = await extractEntities(stepOutput, predictors, tools)
+    stepOutput = await addSynonyms(stepOutput, tools)
     stepOutput = await predictOutOfScope(stepOutput, predictors)
     stepOutput = await predictContext(stepOutput, predictors)
     stepOutput = await predictIntent(stepOutput, predictors)
@@ -488,4 +477,15 @@ export const Predict = async (
     console.log('Could not perform predict data', err)
     return { errored: true } as sdk.IO.EventUnderstanding
   }
+}
+
+async function addSynonyms(stepOutput: PredictStep, tools: Tools): Promise<PredictStep> {
+  if (stepOutput.originalUtterance.entities) {
+    let rawUtt = _.clone(stepOutput.rawText)
+    for (const ent of stepOutput.originalUtterance.entities) {
+      rawUtt = rawUtt.replace(ent.metadata.source, ent.type)
+    }
+    stepOutput.synonymUtterance = (await buildUtteranceBatch([rawUtt], stepOutput.languageCode, tools))[0]
+  }
+  return stepOutput
 }
