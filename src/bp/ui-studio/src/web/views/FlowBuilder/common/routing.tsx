@@ -80,19 +80,23 @@ export default class RoutingItem extends Component<Props> {
     let raw = null
     const renderer = caption ? this.renderOverlay : this.renderNormal
     if (caption) {
-      const vars = {}
+      try {
+        const vars = {}
 
-      const stripDots = str => str.replace(/\./g, '--dot--')
-      const restoreDots = str => str.replace(/--dot--/g, '.')
+        const stripDots = str => str.replace(/\./g, '--dot--')
+        const restoreDots = str => str.replace(/--dot--/g, '.')
 
-      const htmlTpl = caption.replace(/\[(.+)]/gi, x => {
-        const name = stripDots(x.replace(/\[|]/g, ''))
-        vars[name] = '<span class="val">' + _.escape(name) + '</span>'
-        return '{{{' + name + '}}}'
-      })
+        const htmlTpl = caption.replace(/\[(.+)]/gi, x => {
+          const name = stripDots(x.replace(/\[|]/g, ''))
+          vars[name] = '<span class="val">' + _.escape(name) + '</span>'
+          return '{{{' + name + '}}}'
+        })
 
-      const mustached = restoreDots(Mustache.render(htmlTpl, vars))
-      raw = mustached
+        const mustached = restoreDots(Mustache.render(htmlTpl, vars))
+        raw = mustached
+      } catch {
+        raw = caption
+      }
     } else {
       if ((condition && condition.length <= 0) || /^(yes|true)$/i.test(condition.toLowerCase())) {
         raw = position === 0 ? 'always' : 'otherwise'

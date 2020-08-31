@@ -35,6 +35,7 @@ const Form: FC<FormProps> = ({
   advancedSettings,
   onUpdate,
   onUpdateVariables,
+  getCustomPlaceholder,
   variables,
   invalidFields,
   superInputOptions,
@@ -94,6 +95,10 @@ const Form: FC<FormProps> = ({
           {lang(field.label)}
         </Button>
       </ToolTip>
+    ) : field.onClick ? (
+      <Button className={style.superInputBtn} small minimal onClick={() => field.onClick(field, parent)}>
+        {lang(field.label)}
+      </Button>
     ) : (
       lang(field.label)
     )
@@ -131,13 +136,10 @@ const Form: FC<FormProps> = ({
     setSuperInput({ ...superInput, [pathKey]: !superInput[pathKey] })
   }
 
-  const getArrayPlaceholder = (index, placeholder) => {
-    if (Array.isArray(placeholder)) {
-      if (index < placeholder.length) {
-        return lang(placeholder[index], { count: index })
-      } else {
-        return ''
-      }
+  const getArrayPlaceholder = (index, field) => {
+    const { placeholder, customPlaceholder, key } = field
+    if (customPlaceholder && getCustomPlaceholder) {
+      return getCustomPlaceholder(key, index)
     }
 
     return index === 0 && placeholder ? lang(placeholder) : ''
@@ -169,7 +171,7 @@ const Form: FC<FormProps> = ({
         defaultVariableType={getVariableType(field.type)}
         variableTypes={field.variableTypes}
         placeholder={lang(field.placeholder)}
-        variables={variables || []}
+        variables={variables}
         events={events || []}
         canPickEvents={superInputOptions?.variablesOnly !== true && field.superInputOptions?.canPickEvents !== false}
         canPickVariables={superInputOptions?.eventsOnly !== true && field.superInputOptions?.canPickVariables !== false}
@@ -274,7 +276,7 @@ const Form: FC<FormProps> = ({
           <Fragment key={field.key}>
             {showSuperInput(field, parent) ? (
               <SuperInputArray
-                getPlaceholder={index => getArrayPlaceholder(index, field.placeholder)}
+                getPlaceholder={index => getArrayPlaceholder(index, field)}
                 moreInfo={printMoreInfo(field.moreInfo)}
                 onChange={value => {
                   dispatch({
@@ -296,7 +298,7 @@ const Form: FC<FormProps> = ({
                 canPickVariables={
                   superInputOptions?.eventsOnly !== true && field.superInputOptions?.canPickVariables !== false
                 }
-                variables={variables || []}
+                variables={variables}
                 events={events || []}
                 onUpdateVariables={onUpdateVariables}
                 items={currentValue || ['']}
@@ -305,7 +307,7 @@ const Form: FC<FormProps> = ({
               />
             ) : (
               <TextFieldsArray
-                getPlaceholder={index => getArrayPlaceholder(index, field.placeholder)}
+                getPlaceholder={index => getArrayPlaceholder(index, field)}
                 moreInfo={printMoreInfo(field.moreInfo)}
                 validation={field.validation}
                 onChange={value => {
@@ -472,9 +474,10 @@ const Form: FC<FormProps> = ({
             {printMoreInfo(field.moreInfo)}
             <VariablePicker
               data={data}
-              variables={variables || []}
+              variables={variables!}
               variableTypes={field.variableTypes}
               defaultVariableType={field.defaultVariableType}
+              variableSubType={formData?.subType}
               field={field}
               addVariable={onUpdateVariables!}
               placeholder={lang(field.placeholder)}

@@ -10,14 +10,13 @@ import { getUtteranceFeatures } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import { ExactMatchIndex, EXACT_MATCH_STR_OPTIONS, TrainOutput } from './training-pipeline'
-import { EntityExtractionResult, ExtractedEntity, PatternEntity, SlotExtractionResult, Tools } from './typings'
+import { EntityExtractionResult, ExtractedEntity, Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
 import Utterance, { buildUtteranceBatch, getAlternateUtterance, UtteranceEntity } from './utterance/utterance'
 
 export type ExactMatchResult = (sdk.MLToolkit.SVM.Prediction & { extractor: 'exact-matcher' }) | undefined
 
 export type Predictors = TrainOutput &
-  EntityPredictor &
-  Partial<{
+  EntityPredictor & { intents: Intent<Utterance>[] } & Partial<{
     ctx_classifier: sdk.MLToolkit.SVM.Predictor
     intent_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
     oos_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
@@ -76,23 +75,18 @@ async function DetectLanguage(
   const supportedLanguages = Object.keys(predictorsByLang)
 
   const langIdentifier = LanguageIdentifierProvider.getLanguageIdentifier(tools.mlToolkit)
-  const lidRes = await langIdentifier.identify(input.sentence)
-  const elected = lidRes.filter(pred => supportedLanguages.includes(pred.label))[0]
-  let score = elected?.value ?? 0
+  const bestMlLangMatch = (await langIdentifier.identify(input.sentence))[0]
+  let detectedLanguage = bestMlLangMatch?.label ?? NA_LANG
+  let scoreDetectedLang = bestMlLangMatch?.value ?? 0
 
   // because with single-worded sentences, confidence is always very low
   // we assume that a input of 20 chars is more than a single word
   const threshold = input.sentence.length > 20 ? 0.5 : 0.3
 
-  let detectedLanguage = _.get(elected, 'label', NA_LANG)
-  if (detectedLanguage !== NA_LANG && !supportedLanguages.includes(detectedLanguage)) {
-    detectedLanguage = NA_LANG
-  }
-
   // if ML-based language identifier didn't find a match
   // we proceed with a custom vocabulary matching algorithm
   // ie. the % of the sentence comprised of tokens in the training vocabulary
-  if (detectedLanguage === NA_LANG) {
+  if (scoreDetectedLang <= threshold) {
     try {
       const match = _.chain(supportedLanguages)
         .map(lang => ({
@@ -113,16 +107,17 @@ async function DetectLanguage(
 
       if (match) {
         detectedLanguage = match.lang
-        score = match.confidence
+        scoreDetectedLang = match.confidence
       }
     } finally {
     }
   }
 
-  const usedLanguage = detectedLanguage !== NA_LANG && score > threshold ? detectedLanguage : input.defaultLanguage
+  const usedLanguage = supportedLanguages.includes(detectedLanguage) ? detectedLanguage : input.defaultLanguage
 
   return { usedLanguage, detectedLanguage }
 }
+
 async function preprocessInput(
   input: PredictInput,
   tools: Tools,
@@ -170,7 +165,7 @@ async function extractEntities(input: PredictStep, predictors: Predictors, tools
 
   _.forEach(
     [
-      ...extractListEntities(utterance, predictors.list_entities, true),
+      ...extractListEntities(utterance, predictors.list_entities),
       ...extractPatternEntities(utterance, predictors.pattern_entities),
       ...(await tools.duckling.extract(utterance.toString(), utterance.languageCode))
     ],

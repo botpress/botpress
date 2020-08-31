@@ -1,0 +1,41 @@
+{
+  "name": "languages",
+  "occurrences": [
+    {
+      "name": "fr",
+      "synonyms": [
+        "french",
+        "français"
+      ]
+    },
+    {
+      "name": "en",
+      "synonyms": [
+        "english",
+        "anglish"
+      ]
+    },
+    {
+      "name": "es",
+      "synonyms": [
+        "spanish",
+        "espanol"
+      ]
+    },
+    {
+      "name": "ar",
+      "synonyms": [
+        "arabic",
+        "arabe"
+      ]
+    }
+  ],
+  "fuzzy": 0.8,
+  "id": "languages",
+  "type": "list",
+  "pattern": "",
+  "sensitive": false,
+  "examples": [],
+  "list_entities": [],
+  "pattern_entities": []
+}

@@ -17,26 +17,7 @@ type Props = FieldProps & VariablePickerProps
 interface Option {
   label: string
   value: string
-  variableType: string
-}
-
-const variableTypeToIcon = type => {
-  switch (type) {
-    case 'boolean':
-      return <Icon icon="segmented-control" iconSize={10} />
-    case 'number':
-      return <Icon icon="numerical" iconSize={10} />
-    case 'date':
-      return <Icon icon="calendar" iconSize={10} />
-    case 'string':
-      return <Icon icon="font" iconSize={10} />
-    case 'enum':
-      return <Icon icon="properties" iconSize={10} />
-    case 'pattern':
-      return <Icon icon="comparison" iconSize={10} />
-  }
-
-  return null
+  icon?: string
 }
 
 const itemRenderer = (option, { modifiers, handleClick }) => {
@@ -53,7 +34,7 @@ const itemRenderer = (option, { modifiers, handleClick }) => {
       disabled={modifiers.disabled || option.disabled}
       key={option.label || option}
       onClick={handleClick}
-      icon={isAdding ? <Icon icon="plus" iconSize={12} /> : variableTypeToIcon(option.variableType)}
+      icon={isAdding ? <Icon icon="plus" iconSize={12} /> : <Icon icon={option.icon} iconSize={10} />}
       text={isAdding ? `${lang('create')} "${option.label}"` : option.label || option}
     />
   )
@@ -69,7 +50,8 @@ const VariablePicker: FC<Props> = ({
   variables,
   addVariable,
   defaultVariableType,
-  variableTypes
+  variableTypes,
+  variableSubType
 }) => {
   const [options, setOptions] = useState<Option[]>([])
   const [activeItem, setActiveItem] = useState<Option | undefined>()
@@ -77,17 +59,17 @@ const VariablePicker: FC<Props> = ({
   const SimpleDropdown = Select.ofType<Option>()
 
   const getCurrentOption = () => {
-    const value = data[field.key] || field.defaultValue || (!field.placeholder && options?.[0]?.value)
+    const value = data[field.key] || field.defaultValue || (!placeholder && options?.[0]?.value)
     return options?.find(option => option.value === value)
   }
 
   useEffect(() => {
-    const vars = variables
-      ?.filter(x => variableTypes?.includes(x.type))
-      .map(x => ({
-        label: x.params?.name,
-        value: x.params?.name,
-        variableType: x.type
+    const vars = variables.currentFlow
+      ?.filter(x => variableTypes?.includes(x.type) && (!variableSubType || variableSubType === x.params?.subType))
+      .map(({ type, params: { name } }) => ({
+        label: name,
+        value: name,
+        icon: variables.primitive.find(x => x.id === type)?.config?.icon
       }))
 
     setOptions(vars ?? [])
@@ -104,7 +86,7 @@ const VariablePicker: FC<Props> = ({
     const newVarName = query?.replace(/[^A-Z_0-9-]/gi, '')
     const canCreate =
       newVarName?.length &&
-      !variables?.find(x => x.params?.name?.toLowerCase() === newVarName.toLowerCase()) &&
+      !variables?.currentFlow?.find(x => x.params?.name?.toLowerCase() === newVarName.toLowerCase()) &&
       !options?.find(x => query.toLowerCase() === x.label.toLowerCase() || query.toLowerCase() === x.value)
 
     if (canCreate) {
@@ -128,7 +110,8 @@ const VariablePicker: FC<Props> = ({
       const newVariable = {
         type: defaultVariableType || 'string',
         params: {
-          name: value
+          name: value,
+          subType: variableSubType
         }
       }
 
@@ -137,7 +120,7 @@ const VariablePicker: FC<Props> = ({
   }
 
   const updateSelectedOption = option => {
-    onAddVariable(option.value, variables?.map(x => x.params.name) ?? [])
+    onAddVariable(option.value, variables?.currentFlow?.map(x => x.params?.name) ?? [])
     onChange?.(option.value)
   }
 

@@ -1,11 +1,28 @@
-import { BoxedVariable, FlowVariableType } from 'botpress/sdk'
+import { BoxedVariable, PrimitiveVarType } from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 
-import common from './common'
+import { common, createOperator, getCommonOperators } from './common'
 
 class BoxedString extends BaseVariable<string> {
   constructor(args) {
     super(args)
+  }
+
+  parse(text: string): string {
+    // We replace escaped '
+    return text.replace(/\\'/gs, "'")
+  }
+
+  contains(other: string) {
+    return this.value.includes(other)
+  }
+
+  startsWith(other: string) {
+    return this.value.startsWith(other)
+  }
+
+  endsWith(other: string) {
+    return this.value.endsWith(other)
   }
 
   trySet(value: string, confidence: number) {
@@ -35,9 +52,17 @@ class BoxedString extends BaseVariable<string> {
   }
 }
 
-const StringVariableType: FlowVariableType = {
+const StringVariableType: PrimitiveVarType = {
   id: 'string',
   config: {
+    label: 'string',
+    icon: 'font',
+    operators: [
+      ...getCommonOperators('string'),
+      createOperator('string', 'contains'),
+      createOperator('string', 'startsWith'),
+      createOperator('string', 'endsWith')
+    ],
     fields: common.fields,
     advancedSettings: common.advancedSettings
   },

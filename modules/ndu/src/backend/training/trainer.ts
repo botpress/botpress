@@ -60,6 +60,13 @@ export const getModel = async (ghost: sdk.ScopedGhostService, hash: string) => {
   }
 }
 
+export const pruneModels = async (ghost: sdk.ScopedGhostService, modelToKeep: string): Promise<void | void[]> => {
+  const models = await ghost.directoryListing(MODELS_DIR, '*.ndu.model')
+  const modelsToRemove = models.filter(x => x !== modelToKeep)
+
+  return Promise.map(modelsToRemove, file => ghost.deleteFile(MODELS_DIR, file))
+}
+
 export class Trainer {
   trainer: sdk.MLToolkit.SVM.Trainer
   private ghost: sdk.ScopedGhostService
@@ -83,7 +90,10 @@ export class Trainer {
 
       if (model.success) {
         debug('Model trained successfully', { botId: this.botId })
-        await this.ghost.upsertFile(MODELS_DIR, makeFileName(hash), JSON.stringify(model))
+        const fileName = makeFileName(hash)
+
+        await this.ghost.upsertFile(MODELS_DIR, fileName, JSON.stringify(model))
+        await pruneModels(this.ghost, fileName)
       }
     }
 

@@ -1,4 +1,4 @@
-import { IO, Prompt, PromptDefinition } from 'botpress/sdk'
+import { IO, NLU, Prompt, PromptDefinition } from 'botpress/sdk'
 import { MultiLangText } from 'botpress/sdk'
 import lang from 'common/lang'
 import { injectable } from 'inversify'
@@ -40,13 +40,18 @@ const generateJumpTo = (actions: any[], status: IO.PromptStatus): ProcessedStatu
   }
 }
 
-const generateResolved = (actions: any[], status: IO.PromptStatus, value: any): ProcessedStatus => {
+const generateResolved = (
+  actions: any[],
+  status: IO.PromptStatus,
+  value?: any,
+  candidate?: IO.PromptCandidate
+): ProcessedStatus => {
   return {
     actions,
     status: {
       ...status,
       status: 'resolved',
-      state: { value }
+      state: { value: value ?? candidate?.value_raw, electedCandidate: candidate }
     }
   }
 }
@@ -91,6 +96,7 @@ const generateDisambiguate = (
       type: 'say',
       payload: {
         type: 'enum',
+        output: status.config.output,
         question: status.config.question,
         items: candidates.map(x => ({ label: x.value_string, value: x.value_string }))
       },
@@ -137,6 +143,7 @@ const generateCandidate = (actions: any[], status: IO.PromptStatus, candidate: I
 @injectable()
 export class PromptManager {
   public prompts!: PromptDefinition[]
+  public getCustomTypes?: (botId: string) => NLU.EntityDefinition[]
 
   public async processPrompt(
     event: IO.IncomingEvent,
@@ -151,8 +158,10 @@ export class PromptManager {
 
     debugPrompt('before process prompt %o', { prompt: status })
 
-    const candidates: IO.PromptCandidate[] = []
-    const prompt = this.loadPrompt(status.config.type, status.config)
+    let candidates: IO.PromptCandidate[] = []
+
+    const prompt = this.loadPrompt(status.config.type, status.config, () => this.getCustomTypes!(event.botId))
+
     const actions: IO.DialogAction[] = []
 
     const tryElect = (value: any): boolean => {
@@ -167,7 +176,7 @@ export class PromptManager {
       return valid
     }
 
-    const confirmPrompt = this.loadPrompt('confirm', {})
+    const confirmPrompt = this.loadPrompt('confirm', {}, () => this.getCustomTypes!(event.botId))
     const confirmValue = _.chain(confirmPrompt.extraction(event) ?? [])
       .filter(x => x.confidence >= MIN_CONFIDENCE_VALIDATION)
       .orderBy('confidence', 'desc')
@@ -176,6 +185,10 @@ export class PromptManager {
 
     if (status.stage !== 'new') {
       status.turn++
+    }
+
+    if (event.ndu?.actions.find(x => x.action === 'prompt.repeat')) {
+      return generatePrompt(actions, status)
     }
 
     if (status.stage === 'confirm-cancel') {
@@ -188,7 +201,7 @@ export class PromptManager {
     if (status.stage === 'confirm-candidate') {
       if (confirmValue?.value === true) {
         if (tryElect(status.state.confirmCandidate?.value_raw)) {
-          return generateResolved(actions, status, status.state.confirmCandidate?.value_raw)
+          return generateResolved(actions, status, undefined, status.state.confirmCandidate)
         } else {
           return generatePrompt(actions, status)
         }
@@ -211,7 +224,8 @@ export class PromptManager {
     let eventsToExtractFrom = [event]
 
     if (status.stage === 'new') {
-      eventsToExtractFrom = _.orderBy([event, ...previousEvents], 'id', 'desc')
+      const evt = status.config.searchBackCount > 0 ? [event] : []
+      eventsToExtractFrom = _.orderBy([...evt, ...previousEvents], 'id', 'desc')
 
       const currentVariable = event.state.workflow.variables[varName]
       if (currentVariable?.value !== undefined && currentVariable?.value !== null) {
@@ -223,6 +237,9 @@ export class PromptManager {
 
     const slotCandidate = slots[varName]
     if (slotCandidate?.value !== undefined && slotCandidate?.value !== null) {
+      // Below condition is to make sure the slot has a matching entity type (lists, patterns)
+      // Exception for complex types, where they don't necessarily need an entity extracted, they accept free-form text
+      if (!params.subType?.length || params.type === 'complex' || slotCandidate.entity?.name === params.subType) {
       candidates.push({
         confidence: slotCandidate.confidence,
         source: 'slot',
@@ -230,6 +247,7 @@ export class PromptManager {
         value_raw: slotCandidate.value,
         value_string: slotCandidate?.value.toString() ?? slotCandidate.value
       })
+    }
     }
 
     for (const [turn, pastEvent] of eventsToExtractFrom.entries()) {
@@ -248,6 +266,14 @@ export class PromptManager {
           value_string: candidate?.value.toString() ?? candidate.value
         })
       }
+    }
+
+    if (context.pastPromptCandidates) {
+      context.pastPromptCandidates = context.pastPromptCandidates
+        .map(c => ({ ...c, turns_ago: c.turns_ago++ }))
+        .filter(x => x.turns_ago < 10)
+
+      candidates = _.differenceBy(candidates, context.pastPromptCandidates, x => `${x.source}${x.value_raw}`)
     }
 
     const shortlisted = candidates
@@ -271,7 +297,7 @@ export class PromptManager {
         if (shortlisted[0].source === 'slot') {
           this._electSlot(event, varName)
         }
-        return generateResolved(actions, status, shortlisted[0].value_raw)
+        return generateResolved(actions, status, undefined, shortlisted[0])
       }
     } else if (shortlisted.length > 1) {
       return generateDisambiguate(actions, status, shortlisted)
@@ -302,11 +328,11 @@ export class PromptManager {
     _.set(event.state.session, `slots.${slotName}.elected`, true)
   }
 
-  private loadPrompt(type: string, params: any): Prompt {
+  private loadPrompt(type: string, params: any, getCustomTypes: () => NLU.EntityDefinition[]): Prompt {
     const definition = this.prompts.find(x => x.id === type)
     if (!definition) {
       throw new Error(`Unknown prompt type ${type}`)
     }
-    return new definition.prompt(params)
+    return new definition.prompt({ ...params, getCustomTypes })
   }
 }

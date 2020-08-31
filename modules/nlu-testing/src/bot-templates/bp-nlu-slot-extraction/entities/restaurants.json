@@ -1,0 +1,8 @@
+{
+  "id": "restaurants",
+  "name": "restaurants",
+  "type": "complex",
+  "examples": ["subway", "Pizza Hut", "east side marios", "mc'donalds", "normandin", "Burger King"],
+  "list_entities": [],
+  "pattern_entities": []
+}

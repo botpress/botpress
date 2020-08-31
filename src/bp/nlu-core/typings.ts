@@ -55,15 +55,19 @@ export type PatternEntity = Readonly<{
   sensitive: boolean
 }>
 
+export type ComplexEntity = Readonly<{
+  name: string
+  pattern_entities: string[]
+  list_entities: string[]
+  examples: string[]
+}>
+
 export type ListEntity = Readonly<{
   name: string
   synonyms: { [canonical: string]: string[] }
   fuzzyTolerance: number
   sensitive: boolean
 }>
-
-export type EntityCache = LRUCache<string, EntityExtractionResult[]>
-export type EntityCacheDump = LRUCache.Entry<string, EntityExtractionResult[]>[]
 
 export interface ListEntityModel {
   type: 'custom.list'
@@ -74,7 +78,6 @@ export interface ListEntityModel {
   sensitive: boolean
   /** @example { 'Air Canada': [ ['Air', '_Canada'], ['air', 'can'] ] } */
   mappingsTokens: _.Dictionary<string[][]>
-  cache?: EntityCache | EntityCacheDump
 }
 
 export interface ExtractedSlot {
@@ -134,5 +137,5 @@ export type Intent<T> = Readonly<{
 
 type SlotDefinition = Readonly<{
   name: string
-  entities: string[]
+  entity: string
 }>

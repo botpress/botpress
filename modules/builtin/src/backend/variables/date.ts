@@ -1,8 +1,8 @@
-import { BoxedVariable, FlowVariableType } from 'botpress/sdk'
+import { BoxedVariable, PrimitiveVarType } from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 import moment from 'moment'
 
-import common from './common'
+import { common, createOperator, getCommonOperators } from './common'
 
 type BoxedDateType = string | Date | moment.Moment
 
@@ -13,6 +13,26 @@ interface DateConfig {
 class BoxedDate extends BaseVariable<BoxedDateType, DateConfig> {
   constructor(args) {
     super(args)
+  }
+
+  parse(text: string): BoxedDateType {
+    return moment(text).toDate()
+  }
+
+  equals(other: Date) {
+    return (
+      moment(this.value)
+        .toDate()
+        .getTime() === other.getTime()
+    )
+  }
+
+  isBefore(other: Date) {
+    return moment(this.value).toDate() < other
+  }
+
+  isAfter(other: Date) {
+    return moment(this.value).toDate() > other
   }
 
   trySet(value: BoxedDateType, confidence?: number) {
@@ -42,9 +62,12 @@ class BoxedDate extends BaseVariable<BoxedDateType, DateConfig> {
   }
 }
 
-const DateVariableType: FlowVariableType = {
+const DateVariableType: PrimitiveVarType = {
   id: 'date',
   config: {
+    label: 'date',
+    icon: 'calendar',
+    operators: [...getCommonOperators('date'), createOperator('date', 'isBefore'), createOperator('date', 'isAfter')],
     fields: [
       ...common.fields,
       {

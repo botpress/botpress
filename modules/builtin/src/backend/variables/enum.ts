@@ -1,7 +1,7 @@
-import { BoxedVariable, FlowVariableType } from 'botpress/sdk'
+import { PrimitiveVarType } from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 
-import common from './common'
+import { common, getCommonOperators } from './common'
 
 class BoxedEnum extends BaseVariable<string> {
   constructor(args) {
@@ -9,7 +9,7 @@ class BoxedEnum extends BaseVariable<string> {
   }
 
   trySet(value: string, confidence: number) {
-    const valid = this.getEnumList().find(x => x.name === value || x.synonyms.find(s => s === value))
+    const valid = this.getValidationData?.()?.elements.find(x => x.name === value || x.synonyms.find(s => s === value))
     if (valid) {
       this._value = valid.name
       this._confidence = confidence
@@ -21,14 +21,24 @@ class BoxedEnum extends BaseVariable<string> {
     }
 
     // TODO Should we throw instead ? Or use the logger ?
-    console.error(`Value ${value} is invalid for enum type ${this._enumType}`)
+    console.error(`Value ${value} is invalid for enum type ${this._subType}`)
   }
 }
 
-const EnumVariableType: FlowVariableType = {
+const EnumVariableType: PrimitiveVarType = {
   id: 'enum',
   config: {
-    fields: common.fields,
+    label: 'enum',
+    icon: 'properties',
+    operators: [...getCommonOperators('enum')],
+    fields: [
+      ...common.fields,
+      {
+        type: 'hidden',
+        key: 'subType',
+        label: 'subType'
+      }
+    ],
     advancedSettings: common.advancedSettings
   },
   box: BoxedEnum

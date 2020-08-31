@@ -1,11 +1,31 @@
-import { BoxedVariable, FlowVariableType } from 'botpress/sdk'
+import { PrimitiveVarType } from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 
-import common from './common'
+import { common, createOperator, getCommonOperators } from './common'
 
 class BoxedNumber extends BaseVariable<number> {
   constructor(args) {
     super(args)
+  }
+
+  parse(text: string): number {
+    return +text
+  }
+
+  smallerThan(other: number) {
+    return this.value < other
+  }
+
+  smallerOrEqualTo(other: number) {
+    return this.value <= other
+  }
+
+  largerThan(other: number) {
+    return this.value > other
+  }
+
+  largerOrEqualTo(other: number) {
+    return this.value >= other
   }
 
   trySet(value: number, confidence: number) {
@@ -31,9 +51,18 @@ class BoxedNumber extends BaseVariable<number> {
   }
 }
 
-const NumberVariableType: FlowVariableType = {
+const NumberVariableType: PrimitiveVarType = {
   id: 'number',
   config: {
+    label: 'number',
+    icon: 'numerical',
+    operators: [
+      ...getCommonOperators('number'),
+      createOperator('number', 'smallerThan'),
+      createOperator('number', 'largerThan'),
+      createOperator('number', 'smallerOrEqualTo'),
+      createOperator('number', 'largerOrEqualTo')
+    ],
     fields: common.fields,
     advancedSettings: common.advancedSettings
   },

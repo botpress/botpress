@@ -12,6 +12,10 @@ interface CssExports {
   'main-content': string;
   'mainLayout': string;
   'mainSplitPaneWToolbar': string;
+  'not-trained-warning': string;
+  'not-trained-warning_container': string;
+  'not-trained-warning_icon': string;
+  'not-trained-warning_text': string;
   'sidebar': string;
   'sidebar-tabs': string;
 }

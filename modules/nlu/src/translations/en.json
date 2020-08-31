@@ -20,7 +20,14 @@
       },
       "placeholder": {
         "pickComparisonMethod": "Pick a comparison method",
-        "pickVariableType": "Pick an variable type"
+        "pickVariableType": "Pick an variable type",
+        "intents": {
+          "empty": "Write at least 3 sentences that your users could write to invoke their intent",
+          "one": "Write at least 2 more sentences that your users could write to invoke their intent",
+          "two": "Write at least 1 more sentence that your users could write to invoke their intent",
+          "morePlural": "Write at least {count} other sentences to make your chatbot more resilient",
+          "moreSingular": "Write at least 1 other sentence to make your chatbot more resilient"
+        }
       }
     },
     "saySomethingMisunderstood": "Users says something misunderstood (intent)",

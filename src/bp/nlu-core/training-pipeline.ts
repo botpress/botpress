@@ -15,6 +15,7 @@ import { replaceConsecutiveSpaces } from './tools/strings'
 import tfidf from './tools/tfidf'
 import { convertToRealSpaces, isSpace, SPACE } from './tools/token-utils'
 import {
+  ComplexEntity,
   EntityExtractionResult,
   ExtractedEntity,
   Intent,
@@ -25,16 +26,17 @@ import {
   Token2Vec,
   Tools
 } from './typings'
+import { Augmentation, createAugmenter, interleave } from './utterance/augmenter'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
 
 export type TrainInput = Readonly<{
   botId: string
   languageCode: string
   pattern_entities: PatternEntity[]
+  complex_entities: ComplexEntity[]
   list_entities: ListEntity[]
   contexts: string[]
   intents: Intent<string>[]
-  trainingSession?: sdk.NLU.TrainingSession
   ctxToTrain: string[]
 }>
 
@@ -43,6 +45,7 @@ export type TrainStep = Readonly<{
   languageCode: string
   list_entities: ListEntityModel[]
   pattern_entities: PatternEntity[]
+  complex_entities: ComplexEntity[]
   contexts: string[]
   intents: Intent<Utterance>[]
   vocabVectors: Token2Vec
@@ -62,7 +65,6 @@ export interface TrainOutput {
   slots_model: Buffer
   exact_match_index: ExactMatchIndex
   oos_model: _.Dictionary<string>
-  intents: Intent<Utterance>[]
 }
 
 export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] }>
@@ -96,7 +98,16 @@ const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainSt
     makeListEntityModel(list, input.botId, input.languageCode, tools)
   )
 
-  const intents = await ProcessIntents(input.intents, input.languageCode, list_entities, tools)
+  const intents = await ProcessIntents(
+    input.intents,
+    input.languageCode,
+    list_entities,
+    input.list_entities, // because output list_entities (line above) doesn't contain raw synonyms
+    input.pattern_entities,
+    input.complex_entities,
+    tools
+  )
+
   const vocabVectors = buildVectorsVocab(intents)
 
   return {
@@ -211,7 +222,7 @@ const TrainIntentClassifier = async (
   input: TrainStep,
   tools: Tools,
   progress: progressCB
-): Promise<_.Dictionary<string> | undefined> => {
+): Promise<_.Dictionary<string>> => {
   debugTraining.forBot(input.botId, 'Training intent classifier')
   const customEntities = getCustomEntitiesNames(input)
   const svmPerCtx: _.Dictionary<string> = {}
@@ -228,7 +239,7 @@ const TrainIntentClassifier = async (
       i => i.name !== NONE_INTENT && i.contexts.includes(ctx) && i.utterances.length >= MIN_NB_UTTERANCES
     )
 
-    const nAvgUtts = Math.ceil(_.meanBy(trainableIntents, 'utterances.length'))
+    const nAvgUtts = Math.ceil(_.meanBy(trainableIntents, i => i.utterances.filter(u => !u.augmented).length))
 
     const lo = getSeededLodash(process.env.NLU_SEED)
     const points = _.chain(trainableIntents)
@@ -244,10 +255,12 @@ const TrainIntentClassifier = async (
         }
       ])
       .flatMap(i =>
-        i.utterances.map(utt => ({
-          label: i.name,
-          coordinates: getIntentFeatures(utt, customEntities)
-        }))
+        i.utterances
+          .filter(u => !u.augmented) // we don't want to train on augmented utterances as it would slow down training too much
+          .map(utt => ({
+            label: i.name,
+            coordinates: getIntentFeatures(utt, customEntities)
+          }))
       )
       .filter(x => !x.coordinates.some(isNaN))
       .value()
@@ -260,19 +273,10 @@ const TrainIntentClassifier = async (
     }
     const svm = new tools.mlToolkit.SVM.Trainer()
 
-    let model: string
-    try {
-      model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
-        const completion = (i + p) / input.ctxToTrain.length
-        progress(completion)
-      })
-    } catch (err) {
-      if (err instanceof TrainingCanceledError) {
-        return
-      }
-      throw err
-    }
-
+    const model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
+      const completion = (i + p) / input.ctxToTrain.length
+      progress(completion)
+    })
     svmPerCtx[ctx] = model
   }
 
@@ -280,21 +284,19 @@ const TrainIntentClassifier = async (
   return svmPerCtx
 }
 
-const TrainContextClassifier = async (
-  input: TrainStep,
-  tools: Tools,
-  progress: progressCB
-): Promise<string | undefined> => {
+const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<string> => {
   debugTraining.forBot(input.botId, 'Training context classifier')
   const customEntities = getCustomEntitiesNames(input)
   const points = _.flatMapDeep(input.contexts, ctx => {
     return input.intents
       .filter(intent => intent.contexts.includes(ctx) && intent.name !== NONE_INTENT)
       .map(intent =>
-        intent.utterances.map(utt => ({
-          label: ctx,
-          coordinates: getCtxFeatures(utt, customEntities)
-        }))
+        intent.utterances
+          .filter(u => !u.augmented) // we don't want to train on augmented utterances as it would slow down training too much
+          .map(utt => ({
+            label: ctx,
+            coordinates: getCtxFeatures(utt, customEntities)
+          }))
       )
   }).filter(x => x.coordinates.filter(isNaN).length === 0)
 
@@ -306,44 +308,80 @@ const TrainContextClassifier = async (
 
   const svm = new tools.mlToolkit.SVM.Trainer()
 
-  let model: string
-  try {
-    model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
-      progress(_.round(p, 1))
-    })
-  } catch (err) {
-    if (err instanceof TrainingCanceledError) {
-      return
-    }
-    throw err
-  }
+  const model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
+    progress(_.round(p, 1))
+  })
 
   debugTraining.forBot(input.botId, 'Done training context classifier')
   return model
 }
 
+// this is a temporary fix so we can extract extract tag system entities slots
+// only fixes date and number for english only
+// ex: Remind me to eat a sandwich $time ==> Remind me to eat a sandwich in 3 hours
+function convertSysEntitiesSlotsToComplex(intents: Intent<string>[]): ComplexEntity[] {
+  const examplesByType = {
+    time: ['in three hours', 'tomorrow night', 'now', 'today', 'jan 22nd 2021', '2021-06-07', 'june 7th'], // should be time
+    number: ['zero', '0', 'tenty-five', '25', 'one hundred sixty-five', '165']
+  }
+  return _.chain(intents)
+    .flatMap(i => i.slot_definitions.map(s => (s.entity === 'date' ? 'time' : s.entity))) // highly hardcoded, date is in fact a system time
+    .filter(ent => !!examplesByType[ent])
+    .uniq()
+    .map(ent => ({ name: ent, examples: examplesByType[ent], list_entities: [], pattern_entities: [] }))
+    .value()
+}
+
 export const ProcessIntents = async (
   intents: Intent<string>[],
   languageCode: string,
-  list_entities: ListEntityModel[],
+  list_entities_model: ListEntityModel[],
+  list_entities: ListEntity[],
+  pattern_entities: PatternEntity[],
+  complex_entities: ComplexEntity[],
   tools: Tools
 ): Promise<Intent<Utterance>[]> => {
+  const sysComplexes = convertSysEntitiesSlotsToComplex(intents)
+
   return Promise.map(intents, async intent => {
-    const cleaned = intent.utterances.map(_.flow([_.trim, replaceConsecutiveSpaces]))
-    const utterances = await buildUtteranceBatch(cleaned, languageCode, tools)
+    const cleaned: string[] = intent.utterances.map(_.flow([_.trim, replaceConsecutiveSpaces]))
+
+    const augmentations = extractAugmentations(
+      intent,
+      [...sysComplexes, ...complex_entities],
+      list_entities,
+      pattern_entities
+    )
+    const augmenter = createAugmenter(augmentations)
+    const original: string[] = _.uniq(cleaned.map(augmenter))
+    // TODO: (sly) we probably want to have a different logic than a hardcoded "5" here
+    // although this doesn't impact anything but the slot extractor at the moment
+    const augmented: string[] = _.flatMap(cleaned, phrase => _.times(5, () => augmenter(phrase)))
+
+    const utterances = await buildUtteranceBatch(_.uniq([...original, ...augmented]), languageCode, tools)
+    utterances.slice(original.length).forEach(x => (x.augmented = true))
 
     const allowedEntities = _.chain(intent.slot_definitions)
-      .flatMap(s => s.entities)
-      .filter(e => e !== 'any')
+      .flatMap(s => {
+        const slotEntity = s.entity === 'date' ? 'time' : s.entity // highly hardcoded, date is in fact a system time
+        const sysComplex = sysComplexes.find(c => c.name === slotEntity)
+        const complex = complex_entities?.find(x => x.name === slotEntity)
+        if (sysComplex) {
+          return sysComplex.name
+        } else if (complex) {
+          return [...(complex.list_entities ?? []), ...(complex.pattern_entities ?? [])]
+        } else {
+          return slotEntity
+        }
+      })
       .uniq()
       .value() as string[]
 
-    const entityModels = _.intersectionWith(list_entities, allowedEntities, (entity, name) => {
+    const entityModels = _.intersectionWith(list_entities_model, allowedEntities, (entity, name) => {
       return entity.entityName === name
     })
 
     const vocab = buildIntentVocab(utterances, entityModels)
-
     return { ...intent, utterances, vocab, slot_entities: allowedEntities }
   })
 }
@@ -443,7 +481,11 @@ export const TfidfTokens = async (input: TrainStep): Promise<TrainStep> => {
   const tfidfInput = input.intents.reduce(
     (tfidfInput, intent) => ({
       ...tfidfInput,
-      [intent.name]: _.flatMapDeep(intent.utterances.map(u => u.tokens.map(t => t.toString({ lowerCase: true }))))
+      [intent.name]: _.flatMapDeep(
+        intent.utterances
+          .filter(u => !u.augmented) // we don't want auto-generated phrases to impact TFIDF
+          .map(u => u.tokens.map(t => t.toString({ lowerCase: true })))
+      )
     }),
     {} as _.Dictionary<string[]>
   )
@@ -454,7 +496,7 @@ export const TfidfTokens = async (input: TrainStep): Promise<TrainStep> => {
   return copy
 }
 
-const TrainSlotTagger = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<Buffer | undefined> => {
+const TrainSlotTagger = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<Buffer> => {
   const hasSlots = _.flatMap(input.intents, i => i.slot_definitions).length > 0
 
   if (!hasSlots) {
@@ -465,17 +507,7 @@ const TrainSlotTagger = async (input: TrainStep, tools: Tools, progress: progres
   debugTraining.forBot(input.botId, 'Training slot tagger')
   const slotTagger = new SlotTagger(tools.mlToolkit)
 
-  try {
-    await slotTagger.train(
-      input.intents.filter(i => i.name !== NONE_INTENT),
-      () => progress(0) // not increasing actual progress but checking if training was cancelled
-    )
-  } catch (err) {
-    if (err instanceof TrainingCanceledError) {
-      return
-    }
-    throw err
-  }
+  await slotTagger.train(input.intents.filter(i => i.name !== NONE_INTENT))
 
   debugTraining.forBot(input.botId, 'Done training slot tagger')
   progress()
@@ -483,11 +515,7 @@ const TrainSlotTagger = async (input: TrainStep, tools: Tools, progress: progres
   return slotTagger.serialized
 }
 
-const TrainOutOfScope = async (
-  input: TrainStep,
-  tools: Tools,
-  progress: progressCB
-): Promise<_.Dictionary<string> | undefined> => {
+const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<_.Dictionary<string>> => {
   debugTraining.forBot(input.botId, 'Training out of scope classifier')
   const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
     c: [10], // so there's no grid search
@@ -508,7 +536,7 @@ const TrainOutOfScope = async (
   const oos_points = featurizeOOSUtterances(noneUtts, input.vocabVectors, tools)
   let combinedProgress = 0
 
-  type ContextModel = [string, string] | undefined
+  type ContextModel = [string, string]
   const ctxModels: ContextModel[] = await Promise.map(input.ctxToTrain, async ctx => {
     const in_ctx_scope_points = _.chain(input.intents)
       .filter(i => i.name !== NONE_INTENT && i.contexts.includes(ctx))
@@ -516,25 +544,13 @@ const TrainOutOfScope = async (
       .value()
 
     const svm = new tools.mlToolkit.SVM.Trainer()
-    let model: string
-    try {
-      model = await svm.train([...in_ctx_scope_points, ...oos_points], trainingOptions, p => {
-        combinedProgress += p / input.ctxToTrain.length
-        progress(combinedProgress)
-      })
-    } catch (err) {
-      if (err instanceof TrainingCanceledError) {
-        return
-      }
-      throw err
-    }
+    const model = await svm.train([...in_ctx_scope_points, ...oos_points], trainingOptions, p => {
+      combinedProgress += p / input.ctxToTrain.length
+      progress(combinedProgress)
+    })
 
     return [ctx, model] as [string, string]
   })
-
-  if (ctxModels.some(m => !m)) {
-    return
-  }
 
   debugTraining.forBot(input.botId, 'Done training out of scope')
   progress(1)
@@ -545,18 +561,18 @@ const TrainOutOfScope = async (
   }, {} as _.Dictionary<string>)
 }
 
-const NB_STEPS = 5 // change this if the training pipeline changes
+const NB_STEPS = 6 // change this if the training pipeline changes
 
 export type Trainer = (
   input: TrainInput,
   tools: Tools,
-  reportTrainingProgress?: sdk.NLU.ProgressReporter
+  progress?: (x: number) => void
 ) => Promise<TrainOutput | undefined>
 
 export const Trainer: Trainer = async (
   input: TrainInput,
   tools: Tools,
-  progress?: sdk.NLU.ProgressReporter
+  progress?: (x: number) => void
 ): Promise<TrainOutput | undefined> => {
   let totalProgress = 0
   let normalizedProgress = 0
@@ -566,45 +582,24 @@ export const Trainer: Trainer = async (
 
   const debouncedProgress = _.debounce(reportTrainingProgress, 75, { maxWait: 750 })
   const reportProgress: progressCB = (stepProgress = 1) => {
-    if (!input.trainingSession) {
-      return
-    }
-    if (input.trainingSession.status === 'canceled') {
-      // Note that we don't use debouncedProgress here as we want the side effects probagated now
-      reportTrainingProgress(input.botId, 'Currently cancelling...', input.trainingSession)
-      throw new TrainingCanceledError()
-    }
-
     totalProgress = Math.max(totalProgress, Math.floor(totalProgress) + _.round(stepProgress, 2))
     const scaledProgress = Math.min(1, _.round(totalProgress / NB_STEPS, 2))
     if (scaledProgress === normalizedProgress) {
       return
     }
     normalizedProgress = scaledProgress
-    debouncedProgress(input.botId, 'Training', { ...input.trainingSession, progress: normalizedProgress })
-  }
-
-  const handleCancellation = () => {
-    reportTrainingProgress(input.botId, 'Training canceled', input.trainingSession!)
-    console.info(input.botId, 'Training aborted')
+    debouncedProgress(normalizedProgress)
   }
 
   let step = await PreprocessInput(input, tools)
+  reportProgress() // 10%
+
   step = await TfidfTokens(step)
   step = ClusterTokens(step, tools)
   step = await ExtractEntities(step, tools)
   step = await AppendNoneIntent(step, tools)
   const exact_match_index = BuildExactMatchIndex(step)
-
-  try {
-    reportProgress() // 20% done...
-  } catch (err) {
-    if (err instanceof TrainingCanceledError) {
-      handleCancellation()
-      return
-    }
-    throw err
-  }
+  reportProgress() // 20%
 
   const models = await Promise.all([
     TrainOutOfScope(step, tools, reportProgress),
@@ -613,10 +608,7 @@ export const Trainer: Trainer = async (
     TrainSlotTagger(step, tools, reportProgress)
   ])
 
-  if (models.some(_.isUndefined)) {
-    handleCancellation()
-    return
-  }
+  debouncedProgress.flush()
 
   const [oos_model, ctx_model, intent_model_by_ctx, slots_model] = models
 
@@ -624,7 +616,6 @@ export const Trainer: Trainer = async (
     list_entities: step.list_entities,
     oos_model: oos_model!,
     tfidf: step.tfIdf!,
-    intents: step.intents,
     ctx_model: ctx_model!,
     intent_model_by_ctx: intent_model_by_ctx!,
     slots_model: slots_model!,
@@ -637,9 +628,41 @@ export const Trainer: Trainer = async (
   return output
 }
 
-class TrainingCanceledError extends Error {
-  constructor() {
-    super('Training cancelled')
-    this.name = 'CancelError'
-  }
+function extractAugmentations(
+  intent: Intent<string>,
+  complex_entities: ComplexEntity[],
+  list_entities: ListEntity[],
+  pattern_entities: PatternEntity[]
+): Augmentation[] {
+  return intent.slot_definitions
+    .map(slot => {
+      const slotEntity = (slot.entity === 'date' ? 'time' : slot.entity).toLowerCase()
+      const complexEntity = complex_entities.find(x => x.name.toLowerCase() === slotEntity)
+
+      const listEntities = list_entities.filter(
+        x =>
+          x.name.toLowerCase() === slotEntity ||
+          complexEntity?.list_entities.map(l => l.toLowerCase()).includes(x.name.toLowerCase())
+      )
+
+      const patternEntities = pattern_entities.filter(
+        x =>
+          x.name.toLowerCase() === slotEntity ||
+          complexEntity?.pattern_entities.map(l => l.toLowerCase()).includes(x.name.toLowerCase())
+      )
+
+      const listExamples = interleave(
+        ...listEntities.map(x => interleave(...Object.keys(x.synonyms).map(key => [key, ...x.synonyms[key]])))
+      )
+
+      const patternExamples = interleave(...patternEntities.map(x => x.examples))
+
+      const complexExamples = complexEntity?.examples ?? []
+
+      return {
+        slotName: slot.name.toLowerCase(),
+        examples: interleave(complexExamples, listExamples, patternExamples)
+      }
+    })
+    .filter(x => x.examples.length)
 }

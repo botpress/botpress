@@ -43,10 +43,29 @@
     "public": "Publié"
   },
   "statusBar": {
+    "trainWarning": "Vous êtes en train d'essayer un bot qui n'a pas été entrainé.",
     "contentLanguage": "Langue du contenu",
-    "switchLang": "Modifier la langue du contenu. Langue courante: {currentLang}"
+    "switchLang": "Modifier la langue du contenu. Langue courante: {currentLang}",
+    "trainChatbot": "Entraîner l'agent",
+    "trainChatbotTooltip": "Permet à l'agent d'apprendre de nouvelles connaissances",
+    "training": "Entraînement en cours",
+    "ready": "Prêt",
+    "cancelTraining": "Annuler l'entraînement",
+    "canceling": "Annulation en cours",
+    "trainingError": "L'agent ne peut pas être entraîné",
+    "configChangedDialog": "Êtes vous certain de vouloir redémarrer? Le serveur Botpress ne sera pas accessible pour quelques instants.",
+    "reboot": "Appliquer",
+    "rebooting": "Redémarrage",
+    "applyConfigs": "Appliquer les configurations",
+    "applyConfigsTooltip": "Redémarre le seveur afin d'appliquer les changements"
   },
   "studio": {
+    "router": {
+      "variable": "Variable",
+      "pickVariable": "Choisissez une variable",
+      "condition": "Condition",
+      "negate": "Rendre cette condition négative"
+    },
     "condition": {
       "label": "Condition",
       "pickCondition": "Sélectionnez une condition"
@@ -100,6 +119,8 @@
       "variableTypes": "Types de Variables",
       "addEnum": "Ajouter Énumération",
       "addPattern": "Ajouter Expression Régulière",
+      "addComplex": "Ajouter Complexe",
+      "addType": "Ajouter un type",
       "filter": "Filtrer les blocs, workflows et type de variables",
       "variableName": "Quel est le nom de cette variable?",
       "addSynonyms": "Ajoutez des synomymes en séparant les valeurs par des virgules",
@@ -109,7 +130,8 @@
       "examplePlaceholder": "Ajoutez des exemples qui correspondent à votre expression régulière (un par ligne)",
       "addExample": "Ajouter un exemple",
       "deletePattern": "Supprimer l'expression régulière",
-      "patternInvalid": "L'expression est invalide"
+      "patternInvalid": "L'expression est invalide",
+      "possibleVarTypes": "Type de variable possible"
     },
     "flow": {
       "addNode": "Ajouter une node",
@@ -118,9 +140,11 @@
       "cantDeleteStart": "Vous ne pouvez pas supprimer le point d'entrée.",
       "cantDeleteSuccess": "Vous ne pouvez pas supprimer le nœud de réussite.",
       "cantDeleteOutcome": "Impossible de supprimer un résultat actuellement utilisé dans le flux parent",
+      "cantDeleteStartReusable": "Vous ne pouvez pas supprimer le point d'entrée d'un workflow réutilisable",
       "mustHaveOutcomes": "Les flux de travail doivent avoir au moins un succès et un échec",
       "referenceCount": "{count} {count, plural, one {référence} other {références}}",
       "noReferences": "Non utilisé",
+      "emptyWorkflow": "Utilisez le clic droit ou glissez et déplacez des bloques pour commencer a designer votre workflow.",
       "chips": "Chips",
       "condition": {
         "addCondition": "Ajouter condition",
@@ -141,7 +165,7 @@
       "errorWhileSaving": "Une erreur s'est produite lors de l'enregistrement, de la suppression ou du changement de nom d'un flow. La dernière modification n'a peut-être pas été enregistrée sur le serveur. Veuillez recharger la page avant de continuer l'édition du flow",
       "flowWideOnReceives": "{count, plural, one {réception} other {réceptions}} à l'échelle du flow",
       "flowWideTransitions": "{count, plural, one {transition} other {transitions}} à l'échelle du flow",
-      "highlightByName": "Tapez le nom d'un élément",
+      "filterBlocks": "Filtrer les blocs",
       "ignoredWorkflows": {
         "addLabel": "Ajouter un workflow"
       },
@@ -166,6 +190,7 @@
         "add": "ajouter",
         "addAction": "Ajouter une nouvelle action",
         "addCondition": "Ajouter une condition",
+        "addMessage": "Ajouter un message",
         "cantSeeActions": "Vous ne voyez pas votre action?",
         "chatbotExecutes": "L'assistant virtuel exécute",
         "chatbotSays": "L'assistant virtuel dit",
@@ -196,6 +221,7 @@
         "return": "Revenir",
         "saySomething": "Écrire quelque chose",
         "theBotWill": "Le bot va",
+        "subworkflow": "Aller au Sub Workflow",
         "transition": {
           "action": {
             "endFlow": "Finir Flow",
@@ -238,7 +264,7 @@
         "executeAction": "Exécuter Action",
         "listen": "Écouter",
         "prompt": "Questionne",
-        "router": "Routeur",
+        "router": "Si Sinon",
         "say": "Dire",
         "sendMessage": "Envoyer Message",
         "split": "Diviser",
@@ -270,15 +296,19 @@
         "nameInUse": "Nom déjà utilisé",
         "nameInUseMessage": "Un flow portant ce nom existe déjà. Veuillez en choisir un autre.",
         "node": "Nœud",
+        "noSearchMatch": "Désolé, aucun résultat ne correspond aux critères de recherche.",
         "renameFlow": "Renommer le flow",
         "importTopic": "Importer sujet",
         "addTopic": "Ajouter sujet",
-        "addWorkflow": "Ajouter workflow",
+        "addWorkflow": "Ajouter Workflow",
         "tapIconsToAdd": "Appuyez sur les icônes de la barre d'outils pour importer ou ajouter votre premier sujet.",
-        "renameWorkflow": "Renommer workflow",
-        "renameTopic": "Renommer sujet",
-        "nameWorkflow": "Name Workflow",
-        "nameTopic": "Name Topic"
+        "renameWorkflow": "Renommer Workflow",
+        "duplicateWorkflow": "Dupliquer Workflow",
+        "moveWorkflow": "Déplacer le workflow vers",
+        "renameTopic": "Renommer Sujet",
+        "nameWorkflow": "Nommer Workflow",
+        "nameTopic": "Nommer Sujet",
+        "duplicateTopic": "Dupliquer Sujet"
       },
       "skills": {
         "couldNotLoad": "Impossible de charger la vue des compétences",
@@ -350,7 +380,8 @@
       "pickType": "Sélectionnez un type",
       "userAnswersCorrectly": "L'utilisateur réponds correctement",
       "userCancels": "L'utilisateur annule",
-      "userDoesNotAnswer": "L'utilisateur ne réponds pas"
+      "userDoesNotAnswer": "L'utilisateur ne réponds pas",
+      "defaultQuestion": "Veuillez fournir une valeur pour __VARNAME"
     },
     "sideBar": {
       "flowBuilder": "Éditeur de workflow",

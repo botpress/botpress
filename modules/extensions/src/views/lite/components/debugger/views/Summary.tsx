@@ -2,6 +2,7 @@ import sdk from 'botpress/sdk'
 import _ from 'lodash'
 import React from 'react'
 
+import lang from '../../../../lang'
 import { Collapsible } from '../components/Collapsible'
 import style from '../style.scss'
 
@@ -70,7 +71,7 @@ export default class Summary extends React.Component<Props> {
     if (this.state.hasError) {
       return (
         <div className={style.section}>
-          <p>Cannot display event summary</p>
+          <p>{lang.tr('module.extensions.summary.cannotDisplay')}</p>
         </div>
       )
     }
@@ -93,7 +94,7 @@ export default class Summary extends React.Component<Props> {
         <Collapsible
           opened={this.isExpanded(STATE_PANEL)}
           toggleExpand={expanded => this.toggleExpand(STATE_PANEL, expanded)}
-          name="State"
+          name={lang.tr('module.extensions.summary.state')}
         >
           <Inspector data={this.props.event.state} />
         </Collapsible>
@@ -101,7 +102,7 @@ export default class Summary extends React.Component<Props> {
           <Collapsible
             opened={this.isExpanded(ERROR_PANEL)}
             toggleExpand={expanded => this.toggleExpand(ERROR_PANEL, expanded)}
-            name="Errors"
+            name={lang.tr('module.extensions.summary.errors')}
           >
             <Inspector data={eventError} />
           </Collapsible>

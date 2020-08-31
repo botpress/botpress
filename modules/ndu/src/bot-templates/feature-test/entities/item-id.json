@@ -1,0 +1,16 @@
+{
+  "name": "item-id",
+  "pattern": "[a-z]{2}\\-[0-9]{3}",
+  "examples": [
+    "ab-123",
+    "yz-956"
+  ],
+  "matchCase": false,
+  "sensitive": false,
+  "id": "item-id",
+  "type": "pattern",
+  "occurrences": [],
+  "fuzzy": 0.8,
+  "list_entities": [],
+  "pattern_entities": []
+}

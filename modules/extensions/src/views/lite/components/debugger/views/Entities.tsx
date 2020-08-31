@@ -2,14 +2,16 @@ import { HTMLTable } from '@blueprintjs/core'
 import * as sdk from 'botpress/sdk'
 import React, { Fragment, SFC } from 'react'
 
+import lang from '../../../../lang'
+
 export const Entities: SFC<{ entities: sdk.NLU.Entity[] }> = props => (
   <Fragment>
     <HTMLTable condensed>
       <thead>
         <tr>
-          <th>Type</th>
-          <th>Source</th>
-          <th>Normalized Value</th>
+          <th>{lang.tr('module.extensions.entities.type')}</th>
+          <th>{lang.tr('module.extensions.entities.source')}</th>
+          <th>{lang.tr('module.extensions.entities.normalizedValue')}</th>
         </tr>
       </thead>
       <tbody>

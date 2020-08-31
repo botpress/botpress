@@ -1,8 +1,9 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
-import { Condition, FlowVariable, FormData, PromptNode } from 'botpress/sdk'
-import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
+import { FlowVariable, PromptNode } from 'botpress/sdk'
+import { Contents, Dropdown, FormFields, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
+import { Prompts, Variables } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
@@ -10,14 +11,14 @@ import style from './style.scss'
 
 interface Props {
   deletePrompt: () => void
-  prompts: any[]
+  prompts: Prompts
+  variables: Variables
   customKey: string
   contentLang: string
   close: () => void
   onUpdate: (data: any) => void
   formData: PromptNode
   onUpdateVariables: (variable: FlowVariable) => void
-  variables: FlowVariable[]
 }
 
 const PromptForm: FC<Props> = ({
@@ -32,6 +33,8 @@ const PromptForm: FC<Props> = ({
   variables
 }) => {
   const promptType = useRef(formData?.type)
+  const promptSubType = useRef(formData?.params?.subType)
+  const currentVarName = useRef<string>(formData?.params?.output)
   const [isConfirming, setIsConfirming] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
@@ -49,30 +52,55 @@ const PromptForm: FC<Props> = ({
     }
   ]
 
-  const handleTypeChange = value => {
-    promptType.current = value
+  const handleTypeChange = ({ type, subType }) => {
+    promptType.current = type
+    promptSubType.current = subType
+
     onUpdate({
-      type: value,
-      params: {}
+      type,
+      params: { output: undefined, subType }
     })
   }
 
-  const options = prompts.map(x => ({ label: x.config.label, value: x.id }))
-  const selectedPromptType = prompts.find(x => x.id === promptType.current)
-  const selectedOption = options.find(x => x.value === promptType.current)
+  const handleVariablePicked = (value: string) => {
+    currentVarName.current = value
+
+    if (!promptType.current) {
+      const variableInfo = variables.currentFlow.find(x => x.params.name === value)
+
+      promptType.current = variableInfo.type
+      promptSubType.current = variableInfo.params.subType
+    }
+
+    onUpdate({
+      params: { ...formData?.params, output: value, subType: promptSubType.current },
+      type: promptType.current
+    })
+  }
+
+  const selectedPromptType = prompts.primitive.find(x => x.id === promptType.current)
+
+  const options = prompts.display.map(x => ({ label: lang.tr(x.label), icon: x.icon, value: x }))
+  const selectedOption = options.find(
+    ({ value }) =>
+      value.type === promptType.current && (!promptSubType.current || value.subType === promptSubType.current)
+  )
+
+  const variableTypes = selectedOption ? [selectedOption.value.type] : variables.primitive.map(x => x.id)
+  const variableSubType = selectedOption?.value?.subType
 
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={!isConfirming} close={close}>
-      <Fragment key={`${promptType.current}-${customKey}`}>
+      <Fragment key={`${promptType.current}-${contentLang}-${customKey}`}>
         <div className={style.formHeader}>
           <Tabs id="contentFormTabs">
             <Tab id="content" title={lang.tr('studio.flow.nodeType.prompt')} />
           </Tabs>
           <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
         </div>
-        <div className={cx(style.fieldWrapper, style.contentTypeField)}>
+        <div>
           <span className={style.formLabel}>{lang.tr('studio.prompt.label')}</span>
-          {!!prompts.length && (
+          {!!prompts.primitive.length && (
             <Dropdown
               filterable
               className={style.formSelect}
@@ -80,9 +108,23 @@ const PromptForm: FC<Props> = ({
               items={options}
               defaultItem={selectedOption}
               rightIcon="chevron-down"
-              onChange={option => {
-                handleTypeChange(option.value)
-              }}
+              onChange={({ value }) => handleTypeChange(value)}
+            />
+          )}
+        </div>
+        <div className={cx(style.fieldWrapper, style.contentTypeField)}>
+          <span className={style.formLabel}>{lang.tr('module.builtin.setValueTo')}</span>
+          {!!prompts.primitive.length && (
+            <FormFields.VariablePicker
+              field={{ type: 'variable', key: 'output' }}
+              placeholder={lang.tr('module.builtin.setValueToPlaceholder')}
+              data={{ output: currentVarName.current }}
+              variables={variables}
+              addVariable={onUpdateVariables}
+              variableTypes={variableTypes}
+              defaultVariableType={variableTypes?.[0]}
+              variableSubType={variableSubType}
+              onChange={value => handleVariablePicked(value)}
             />
           )}
         </div>
@@ -96,7 +138,9 @@ const PromptForm: FC<Props> = ({
               fields={selectedPromptType.config?.fields || []}
               advancedSettings={selectedPromptType.config?.advancedSettings || []}
               formData={formData?.params || {}}
-              onUpdate={data => onUpdate({ params: { ...data }, type: promptType.current })}
+              onUpdate={data => {
+                onUpdate({ params: { ...data, output: currentVarName.current }, type: promptType.current })
+              }}
             />
           </div>
         )}

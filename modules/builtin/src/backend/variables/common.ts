@@ -1,6 +1,6 @@
-import { FormDefinition } from 'botpress/sdk'
+import { FlowVariableOperator, FormDefinition } from 'botpress/sdk'
 
-const common: FormDefinition = {
+export const common: FormDefinition = {
   fields: [
     {
       type: 'text',
@@ -20,9 +20,8 @@ const common: FormDefinition = {
       key: 'description',
       placeholder: 'module.builtin.variable.descPlaceholder',
       label: 'description'
-    }
-  ],
-  advancedSettings: [
+    },
+
     {
       type: 'checkbox',
       key: 'isInput',
@@ -33,7 +32,31 @@ const common: FormDefinition = {
       key: 'isOutput',
       label: 'module.builtin.variable.output'
     }
-  ]
+  ],
+  advancedSettings: []
 }
 
-export default common
+export const getCommonOperators = (variableType: string): FlowVariableOperator[] => {
+  return [createOperator(variableType, 'equals')]
+}
+
+export const createOperator = (variableType: string, func: string): FlowVariableOperator => {
+  return {
+    func,
+    label: `module.builtin.operator.${func}`,
+    caption: 'module.builtin.operations.standard',
+    fields: [
+      {
+        type: 'text',
+        superInput: true,
+        key: 'other',
+        required: true,
+        label: 'module.builtin.value',
+        placeholder: 'module.builtin.enterValue',
+        variableTypes: [variableType],
+        defaultVariableType: variableType
+      }
+    ],
+    advancedSettings: []
+  }
+}

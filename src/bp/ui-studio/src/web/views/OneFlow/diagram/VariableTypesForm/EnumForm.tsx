@@ -121,7 +121,8 @@ const EnumForm: FC<Props> = ({
               label: 'name',
               required: true,
               maxLength: 150,
-              placeholder: 'studio.library.variableName'
+              placeholder: 'studio.library.variableName',
+              defaultValue: formData.name
             },
             {
               key: 'occurrences',

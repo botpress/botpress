@@ -2,6 +2,8 @@ import { Classes, H4, Overlay, Tab, Tabs } from '@blueprintjs/core'
 import classnames from 'classnames'
 import React from 'react'
 
+import lang from '../../../../lang'
+
 import AdvancedSettings from './Advanced'
 import BasicSettings from './Basic'
 
@@ -22,11 +24,19 @@ export default class Settings extends React.Component<any> {
         usePortal={false}
       >
         <div className={classnames(Classes.CARD, Classes.ELEVATION_4)} style={{ width: 535, top: '20px', left: '25%' }}>
-          <H4>Settings</H4>
+          <H4>{lang.tr('module.extensions.settings.settings')}</H4>
 
           <Tabs id="tabs" onChange={this.handleTabChange} selectedTabId={this.state.selectedTabId}>
-            <Tab id="basic" title="Basic" panel={<BasicSettings store={this.props.store} />} />
-            <Tab id="advanced" title="Advanced" panel={<AdvancedSettings store={this.props.store} />} />
+            <Tab
+              id="basic"
+              title={lang.tr('module.extensions.settings.basic')}
+              panel={<BasicSettings store={this.props.store} />}
+            />
+            <Tab
+              id="advanced"
+              title={lang.tr('module.extensions.settings.advanced')}
+              panel={<AdvancedSettings store={this.props.store} />}
+            />
           </Tabs>
         </div>
       </Overlay>

@@ -27,3 +27,26 @@
   width: 100%;
   height: calc(100% - 28px);
 }
+
+.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  .emptyState {
+    max-width: 200px !important;
+  }
+}
+
+.diagramHidden {
+  display: none;
+}
+
+.searchWrapper {
+  align-items: flex-start;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--spacing-large);
+  margin-bottom: var(--spacing-large);
+}

@@ -1,6 +1,6 @@
 import { FlowNode } from 'botpress/sdk'
 import { parseFlowName } from 'common/flow'
-import { FlowView } from 'common/typings'
+import { FlowView, NodeView } from 'common/typings'
 import _ from 'lodash'
 import reduceReducers from 'reduce-reducers'
 import { handleActions } from 'redux-actions'
@@ -177,7 +177,9 @@ const popHistory = stackName => state => {
   }
   const currentSnapshot = state[stackName][0]
   // Going back to the QnA flow after ctrl + z will create weird behaviors since it's not a real flow
-  const currentFlow = currentSnapshot.currentFlow.endsWith('qna.flow.json') ? state.currentFlow : currentSnapshot.currentFlow
+  const currentFlow = currentSnapshot.currentFlow.endsWith('qna.flow.json')
+    ? state.currentFlow
+    : currentSnapshot.currentFlow
 
   const newState = {
     ...state,
@@ -239,7 +241,7 @@ const doDeleteFlow = ({ name, flowsByName }) => {
 }
 
 const doCreateNewFlow = name => {
-  const nodes = window.USE_ONEFLOW
+  const nodes: NodeView[] = window.USE_ONEFLOW
     ? []
     : [
         {
@@ -254,9 +256,30 @@ const doCreateNewFlow = name => {
         }
       ]
 
-  const isSubWorkflow = false // TODO window.USE_ONEFLOW && parseFlowName(name)
-  if (isSubWorkflow) {
+  const isReusable = window.USE_ONEFLOW && name.startsWith('__reusable')
+  if (isReusable) {
     nodes.push(
+      {
+        id: prettyId(),
+        name: 'entry',
+        onEnter: [],
+        onReceive: null,
+        next: [
+          {
+            condition: 'true',
+            node: ''
+          }
+        ],
+        type: 'trigger',
+        conditions: [
+          {
+            id: 'workflow_called',
+            params: {}
+          }
+        ],
+        x: 100,
+        y: 100
+      },
       {
         id: prettyId(),
         name: 'success',
@@ -282,6 +305,7 @@ const doCreateNewFlow = name => {
 
   return {
     version: '0.1',
+    type: isReusable ? 'reusable' : 'standard',
     name,
     location: name,
     label: undefined,
@@ -400,20 +424,11 @@ let reducer = handleActions(
     }),
 
     [receiveFlows]: (state, { payload }) => {
-      const flows = _.keys(payload).filter(key => !payload[key].skillData)
-
-      // Temporary until we change the default to misunderstood
-      const welcomeFlow = _.keys(payload).includes('Built-In/welcome.flow.json') && 'Built-In/welcome.flow.json'
-      const newFlow = _.keys(payload).includes('misunderstood.flow.json') && 'misunderstood.flow.json'
-      const mainFlow = _.keys(payload).includes('main.flow.json') && 'main.flow.json'
-
-      const defaultFlow = welcomeFlow || newFlow || mainFlow || _.first(flows)
-
       const newState = {
         ...state,
         fetchingFlows: false,
         flowsByName: payload,
-        currentFlow: state.currentFlow || defaultFlow
+        currentFlow: state.currentFlow
       }
       return {
         ...newState,

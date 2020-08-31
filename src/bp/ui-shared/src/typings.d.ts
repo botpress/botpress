@@ -25,6 +25,8 @@ import { FormField, MultiLangText } from 'botpress/sdk'
 import { MoreOptionsProps } from '../../ui-shared-lite/MoreOptions/typings'
 import { OverlayProps } from '../../ui-shared-lite/Overlay/typings'
 import { ToolTipProps } from '../../ui-shared-lite/ToolTip/typings'
+import { VariablePickerProps } from './FormFields/VariablePicker/typings'
+
 declare module 'botpress/shared' {
   export function Commander(props: CommanderProps): JSX.Element
   export const Dialog: {
@@ -45,6 +47,7 @@ declare module 'botpress/shared' {
     AddButton(props: AddButtonProps): JSX.Element
     TextFieldsArray(props: TextFieldsArrayProps): JSX.Element
     SuperInputArray(props: SuperInputArrayProps): JSX.Element
+    VariablePicker(props: VariablePickerProps): JSX.Element
   }
   export function Dropdown(props: DropdownProps): JSX.Element
   export function EmptyState(props: EmptyStateProps): JSX.Element
@@ -74,6 +77,8 @@ declare module 'botpress/shared' {
   }
 
   export const Icons: {
+    Brackets(): JSX.Element
+    Minimize(): JSX.Element
     Say(): JSX.Element
   }
 

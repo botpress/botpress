@@ -70,13 +70,16 @@ export class UnderstandingEngine {
     return [...triggerId, ...nodeId, ...wfId, ...actionName, ...other]
   }
 
-  queryQna = async (intentName: string, event): Promise<sdk.NDU.Actions[]> => {
+  queryQna = async (intentName: string, event: sdk.IO.IncomingEvent): Promise<sdk.NDU.Actions[]> => {
     try {
       const axiosConfig = await this.bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
       const { data } = await axios.post('/mod/qna/intentActions', { intentName, event }, axiosConfig)
-      const redirect: sdk.NDU.Actions[] = data.filter(a => a.action !== 'redirect')
+      const actions: sdk.NDU.Actions[] = data.filter(a => a.action !== 'redirect')
       // TODO: Warn that REDIRECTS should be migrated over to flow nodes triggers
-      return redirect
+      if (event.state.context?.activePrompt?.status === 'pending') {
+        actions.push({ action: 'prompt.repeat' })
+      }
+      return actions
     } catch (err) {
       this.bp.logger.warn('Could not query qna', err)
       return []
@@ -389,6 +392,7 @@ export class UnderstandingEngine {
 
       for (const node of flow.nodes) {
         if (node.type === ('listener' as sdk.FlowNodeType)) {
+          // TODO: remove this (deprecated)
           this._allNodeIds.add(node.id)
         }
 
@@ -397,9 +401,9 @@ export class UnderstandingEngine {
           triggers.push(<sdk.NDU.WorkflowTrigger>{
             conditions: tn.conditions
               .filter(x => x.id !== undefined)
-              .map(x => ({
+              .map((x, idx) => ({
                 ...x,
-                params: { ...x.params, topicName, wfName: flowName }
+                params: { ...x.params, topicName, wfName: flowName, nodeName: tn.name, conditionIndex: idx }
               })),
             type: 'workflow',
             workflowId: flowName,
@@ -446,14 +450,14 @@ export class UnderstandingEngine {
 
           triggers.push(
             ...ln.triggers.map(
-              trigger =>
+              (trigger, idx) =>
                 <sdk.NDU.NodeTrigger>{
                   nodeId: ln.name,
                   name: trigger.name,
                   effect: trigger.effect,
                   conditions: trigger.conditions.map(x => ({
                     ...x,
-                    params: { topicName, wfName: flowName, ...x.params }
+                    params: { topicName, wfName: flowName, nodeName: ln.name, conditionIndex: idx, ...x.params }
                   })),
                   type: 'node',
                   workflowId: flowName
