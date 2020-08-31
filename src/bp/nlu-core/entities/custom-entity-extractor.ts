@@ -3,7 +3,7 @@ import _ from 'lodash'
 import jaroDistance from '../tools/jaro'
 import levenDistance from '../tools/levenshtein'
 import { extractPattern } from '../tools/patterns-utils'
-import { EntityCache, EntityExtractionResult, ListEntityModel, PatternEntity } from '../typings'
+import { EntityExtractionResult, ListEntityModel, PatternEntity } from '../typings'
 import Utterance, { UtteranceToken } from '../utterance/utterance'
 
 const ENTITY_SCORE_THRESHOLD = 0.6
@@ -72,21 +72,6 @@ function computeStructuralScore(a: string[], b: string[]): number {
   const token_size_score = Math.min(size1, size2) / Math.max(size1, size2)
 
   return Math.sqrt(final_charset_score * token_qty_score * token_size_score)
-}
-
-// returns list entities having cached results in one array and those without results in another
-function splitModels(listModels: ListEntityModel[], cacheKey: string): [ListEntityModel[], ListEntityModel[]] {
-  return listModels.reduce(
-    ([withCached, withoutCached], nextModel) => {
-      if ((<EntityCache>nextModel.cache)?.has(cacheKey) ?? false) {
-        withCached.push(nextModel)
-      } else {
-        withoutCached.push(nextModel)
-      }
-      return [withCached, withoutCached]
-    },
-    [[], []] as [ListEntityModel[], ListEntityModel[]]
-  )
 }
 
 interface Candidate {
@@ -175,23 +160,14 @@ function extractForListModel(utterance: Utterance, listModel: ListEntityModel): 
 
 export const extractListEntities = (
   utterance: Utterance,
-  list_entities: ListEntityModel[],
-  useCache: boolean = false
+  list_entities: ListEntityModel[]
 ): EntityExtractionResult[] => {
   const cacheKey = utterance.toString({ lowerCase: true })
-  const [listModelsWithCachedRes, listModelsToExtract] = useCache
-    ? splitModels(list_entities, cacheKey)
-    : [[], list_entities]
 
-  let matches: EntityExtractionResult[] = _.flatMap(
-    listModelsWithCachedRes,
-    listModel => (listModel.cache as EntityCache)?.get(cacheKey) ?? []
-  )
-
-  for (const listModel of listModelsToExtract) {
+  let matches: EntityExtractionResult[] = []
+  for (const listModel of list_entities) {
     const extracted = extractForListModel(utterance, listModel)
     if (extracted.length > 0) {
-      useCache && (listModel.cache as EntityCache)?.set(cacheKey, extracted)
       matches = matches.concat(...extracted)
     }
   }

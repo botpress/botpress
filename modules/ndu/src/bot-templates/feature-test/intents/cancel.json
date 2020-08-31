@@ -1,0 +1,8 @@
+{
+  "name": "cancel",
+  "utterances": {
+    "en": ["cancel", "abort", "leave"]
+  },
+  "slots": [],
+  "contexts": ["global"]
+}

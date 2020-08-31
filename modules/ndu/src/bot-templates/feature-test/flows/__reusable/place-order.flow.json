@@ -1,0 +1,235 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "startNode": "entry",
+  "description": "",
+  "variables": [
+    {
+      "params": {
+        "name": "itemName",
+        "description": null,
+        "isInput": false,
+        "isOutput": false
+      },
+      "type": "string"
+    },
+    {
+      "type": "pattern",
+      "params": {
+        "name": "itemId"
+      }
+    },
+    {
+      "type": "number",
+      "params": {
+        "name": "orderCount"
+      }
+    },
+    {
+      "params": {
+        "name": "confirmationNumber",
+        "description": null,
+        "isInput": false,
+        "isOutput": true
+      },
+      "type": "number"
+    }
+  ],
+  "type": "reusable",
+  "nodes": [
+    {
+      "id": "1d06e9d3e4",
+      "name": "entry",
+      "onEnter": [],
+      "onReceive": null,
+      "next": [
+        {
+          "condition": "true",
+          "node": "prompt-2"
+        }
+      ],
+      "type": "trigger",
+      "conditions": [
+        {
+          "id": "workflow_called",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "id": "4b9e193e05",
+      "name": "success",
+      "onEnter": [],
+      "onReceive": null,
+      "next": [],
+      "type": "success"
+    },
+    {
+      "id": "1ec9509a8b",
+      "name": "failure",
+      "onEnter": [],
+      "onReceive": null,
+      "next": [],
+      "type": "failure"
+    },
+    {
+      "id": "d83c1416cb",
+      "name": "prompt-1",
+      "next": [
+        {
+          "caption": "User answers correctly",
+          "condition": "thisNode.extracted === true",
+          "node": "execute-1"
+        },
+        {
+          "caption": "User does not answer",
+          "condition": "thisNode.timeout === true",
+          "node": "failure"
+        },
+        {
+          "caption": "User Cancels",
+          "condition": "thisNode.cancelled === true",
+          "node": "failure"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "prompt",
+      "prompt": {
+        "params": {
+          "question": {
+            "en": "How many would you like to order? (Max: 100)"
+          },
+          "output": "orderCount",
+          "min": null,
+          "max": 100,
+          "confirm": {
+            "en": null
+          },
+          "duration": 5,
+          "searchBackCount": 2,
+          "cancellable": true,
+          "confirmCancellation": false
+        },
+        "type": "number"
+      },
+      "triggers": [
+        {
+          "name": "prompt_yes",
+          "effect": "prompt.inform",
+          "conditions": [
+            {
+              "id": "prompt_listening"
+            },
+            {
+              "id": "user_intent_yes"
+            }
+          ]
+        },
+        {
+          "name": "prompt_no",
+          "effect": "prompt.inform",
+          "conditions": [
+            {
+              "id": "prompt_listening"
+            },
+            {
+              "id": "user_intent_no"
+            }
+          ]
+        },
+        {
+          "name": "prompt_inform",
+          "effect": "prompt.inform",
+          "conditions": [
+            {
+              "id": "prompt_listening"
+            },
+            {
+              "id": "custom_confidence",
+              "params": {
+                "confidence": 0.7
+              }
+            }
+          ]
+        },
+        {
+          "name": "prompt_cancel",
+          "effect": "prompt.cancel",
+          "conditions": [
+            {
+              "id": "prompt_listening"
+            },
+            {
+              "id": "prompt_cancellable"
+            },
+            {
+              "id": "user_intent_is",
+              "params": {
+                "intentName": "cancel",
+                "topicName": "global"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "b00ac0a4e7",
+      "name": "prompt-2",
+      "next": [
+        {
+          "caption": "User answers correctly",
+          "condition": "thisNode.extracted === true",
+          "node": "prompt-1"
+        },
+        {
+          "caption": "User does not answer",
+          "condition": "thisNode.timeout === true",
+          "node": ""
+        },
+        {
+          "caption": "User Cancels",
+          "condition": "thisNode.cancelled === true",
+          "node": ""
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "prompt",
+      "prompt": {
+        "params": {
+          "question": {
+            "en": "Please type the ID of the item you'd like to order"
+          },
+          "output": "itemId",
+          "subType": "item-id",
+          "formatInvalidMessage": "The format must be like 'ab-123'",
+          "confirm": {
+            "en": null
+          },
+          "duration": 5,
+          "searchBackCount": 2,
+          "cancellable": true,
+          "confirmCancellation": false
+        },
+        "type": "pattern"
+      }
+    },
+    {
+      "id": "d3ba925436",
+      "name": "execute-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": "success"
+        }
+      ],
+      "onEnter": [
+        "prompt-subworkflow-order {\"name\":\"\",\"value\":\"\"}"
+      ],
+      "onReceive": null,
+      "type": "execute"
+    }
+  ]
+}

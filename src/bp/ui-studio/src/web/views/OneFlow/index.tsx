@@ -37,7 +37,7 @@ type DispatchProps = typeof mapDispatchToProps
 type Props = DispatchProps & StateProps & OwnProps & RouteComponentProps
 
 const allActions: PanelPermissions[] = ['create', 'rename', 'delete']
-const searchTag = '#search:'
+const SEARCH_TAG = '#search:'
 
 const FlowBuilder = (props: Props) => {
   const { flow } = props.match.params as any
@@ -62,7 +62,7 @@ const FlowBuilder = (props: Props) => {
     }
 
     const { hash } = props.location
-    setHighlightFilter(hash.startsWith(searchTag) ? hash.replace(searchTag, '') : '')
+    setHighlightFilter(hash.startsWith(SEARCH_TAG) ? hash.replace(SEARCH_TAG, '') : '')
   }, [])
 
   useEffect(() => {
@@ -79,7 +79,7 @@ const FlowBuilder = (props: Props) => {
   useEffect(() => {
     if (props.errorSavingFlows) {
       const { status } = props.errorSavingFlows
-      const message = status === 403 ? lang.tr('studio.unauthUpdate') : lang.tr('studio.errorWhileSaving')
+      const message = status === 403 ? lang.tr('studio.flow.unauthUpdate') : lang.tr('studio.flow.errorWhileSaving')
       toastFailure(message, Timeout.LONG, props.clearErrorSaveFlows, { delayed: true })
     }
   }, [props.errorSavingFlows])
@@ -139,7 +139,7 @@ const FlowBuilder = (props: Props) => {
     },
     find: e => {
       e.preventDefault()
-      setShowSearch(!showSearch)
+      setShowSearch(true)
     },
     'preview-flow': e => {
       e.preventDefault()
@@ -147,7 +147,7 @@ const FlowBuilder = (props: Props) => {
     },
     save: e => {
       e.preventDefault()
-      toastInfo(lang.tr('studio.nowSaveAuto'), Timeout.LONG)
+      toastInfo(lang.tr('studio.flow.nowSaveAuto'), Timeout.LONG)
     },
     delete: e => {
       if (!utils.isInputFocused()) {
@@ -158,14 +158,14 @@ const FlowBuilder = (props: Props) => {
     cancel: e => {
       e.preventDefault()
       props.closeFlowNodeProps()
-      setShowSearch(false)
     }
   }
 
-  const handleFilterChanged = ({ target: { value: highlightFilter } }) => {
-    const newUrl = props.location.pathname + searchTag + highlightFilter
-    setHighlightFilter(highlightFilter)
-    props.history.replace(newUrl)
+  const handleFilterChanged = (filter: string) => {
+    setHighlightFilter(filter)
+
+    const query = filter ? `${SEARCH_TAG}${filter}` : ''
+    props.history.replace(`${props.location.pathname}${query}`)
   }
 
   const createFlow = name => {

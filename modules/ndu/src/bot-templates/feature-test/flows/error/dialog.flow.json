@@ -1,0 +1,75 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "startNode": "entry",
+  "description": "",
+  "type": "standard",
+  "nodes": [
+    {
+      "id": "7dc95a4ed5",
+      "name": "trigger-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": "execute-1"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "trigger",
+      "conditions": [
+        {
+          "params": {
+            "candidate": [
+              "error-"
+            ],
+            "exactMatch": false,
+            "caseSensitive": false
+          },
+          "id": "type_text"
+        }
+      ]
+    },
+    {
+      "id": "8f50f2445d",
+      "name": "execute-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": "say_something-1"
+        }
+      ],
+      "onEnter": [
+        "error_dialog {\"name\":\"\",\"value\":\"\"}"
+      ],
+      "onReceive": null,
+      "type": "execute"
+    },
+    {
+      "id": "acb0497dca",
+      "name": "say_something-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "say_something",
+      "contents": [
+        {
+          "text": {
+            "en": "ohoh"
+          },
+          "variations": {
+            "en": []
+          },
+          "markdown": true,
+          "typing": true,
+          "contentType": "builtin_text"
+        }
+      ]
+    }
+  ]
+}

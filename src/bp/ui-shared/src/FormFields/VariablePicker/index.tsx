@@ -59,7 +59,7 @@ const VariablePicker: FC<Props> = ({
   const SimpleDropdown = Select.ofType<Option>()
 
   const getCurrentOption = () => {
-    const value = data[field.key] || field.defaultValue || (!field.placeholder && options?.[0]?.value)
+    const value = data[field.key] || field.defaultValue || (!placeholder && options?.[0]?.value)
     return options?.find(option => option.value === value)
   }
 

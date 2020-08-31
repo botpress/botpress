@@ -50,32 +50,31 @@ export function getOnBotMount(state: NLUState) {
             await ModelService.pruneModels(ghost, languageCode)
             let model = await ModelService.getModel(ghost, hash, languageCode)
 
+            const trainSession = makeTrainingSession(botId, languageCode, lock)
+            state.nluByBot[botId].trainSessions[languageCode] = trainSession
             if ((forceTrain || !model) && !yn(process.env.BP_NLU_DISABLE_TRAINING)) {
-              const trainSession = makeTrainingSession(languageCode, lock)
               await setTrainingSession(bp, botId, trainSession)
-              state.nluByBot[botId].trainSessions[languageCode] = trainSession
 
               const progressCallback = async (progress: number) => {
                 trainSession.progress = progress
                 await state.sendNLUStatusEvent(botId, trainSession)
               }
 
-              const cancelCallback = async () => {
-                trainSession.status = 'needs-training'
-                await state.sendNLUStatusEvent(botId, trainSession)
-                bp.logger.forBot(botId).info('Training cancelled')
-              }
-
-              const options = { forceTrain, progressCallback, cancelCallback }
-              model = await engine.train(intentDefs, entityDefs, languageCode, trainSession, options)
-              trainSession.status = 'done'
-              await state.sendNLUStatusEvent(botId, trainSession)
+              const options: sdk.NLU.TrainingOptions = { forceTrain, progressCallback }
+              model = await engine.train(trainSession.key, intentDefs, entityDefs, languageCode, options)
               if (model) {
+                trainSession.status = 'done'
+                await state.sendNLUStatusEvent(botId, trainSession)
                 await engine.loadModel(model)
                 await ModelService.saveModel(ghost, model, hash)
+              } else {
+                trainSession.status = 'needs-training'
+                await state.sendNLUStatusEvent(botId, trainSession)
               }
             } else {
-              await state.sendNLUStatusEvent(botId, { language: languageCode, progress: 1, status: 'done' })
+              trainSession.progress = 1
+              trainSession.status = 'done'
+              await state.sendNLUStatusEvent(botId, trainSession)
             }
             try {
               if (model) {
