@@ -51,6 +51,7 @@ export function getOnBotMount(state: NLUState) {
             let model = await ModelService.getModel(ghost, hash, languageCode)
 
             const trainSession = makeTrainingSession(botId, languageCode, lock)
+            state.nluByBot[botId].trainSessions[languageCode] = trainSession
             if ((forceTrain || !model) && !yn(process.env.BP_NLU_DISABLE_TRAINING)) {
               await setTrainingSession(bp, botId, trainSession)
 
@@ -103,6 +104,7 @@ export function getOnBotMount(state: NLUState) {
       botId,
       engine,
       trainOrLoad,
+      trainSessions: {},
       cancelTraining
     }
 
