@@ -60,6 +60,12 @@
     "applyConfigsTooltip": "Redémarre le seveur afin d'appliquer les changements"
   },
   "studio": {
+    "router": {
+      "variable": "Variable",
+      "pickVariable": "Choisissez une variable",
+      "condition": "Condition",
+      "negate": "Rendre cette condition négative"
+    },
     "condition": {
       "label": "Condition",
       "pickCondition": "Sélectionnez une condition"
@@ -258,7 +264,7 @@
         "executeAction": "Exécuter Action",
         "listen": "Écouter",
         "prompt": "Questionne",
-        "router": "Routeur",
+        "router": "Si Sinon",
         "say": "Dire",
         "sendMessage": "Envoyer Message",
         "split": "Diviser",

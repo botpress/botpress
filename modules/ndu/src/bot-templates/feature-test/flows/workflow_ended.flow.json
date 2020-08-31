@@ -1,0 +1,88 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "label": "Workflow Ended",
+  "description": "Users are redirected here at the end of a workflow when they need to provide feedback",
+  "variables": [
+    {
+      "type": "confirm",
+      "params": {
+        "name": "confirm"
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "f69abffa5b",
+      "name": "node-1ff1",
+      "next": [
+        {
+          "condition": "true",
+          "node": "node-6721"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "trigger",
+      "conditions": [
+        {
+          "id": "workflow_ended",
+          "params": {
+            "outcome": "success",
+            "ignoredWorkflows": [
+              "misunderstood",
+              "workflow_ended",
+              "error"
+            ]
+          }
+        }
+      ],
+      "activeWorkflow": false
+    },
+    {
+      "id": "9e942a28fb",
+      "name": "node-6721",
+      "next": [
+        {
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": [
+        "builtin/setVariable {\"type\":\"temp\",\"name\":\"eventId\",\"value\":\"{{event.payload.eventId}}\"}"
+      ],
+      "onReceive": null,
+      "type": "execute"
+    },
+    {
+      "id": "53c079f447",
+      "name": "node-c127",
+      "next": [
+        {
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": [
+        "builtin/sendFeedback {\"value\":\"1\"}"
+      ],
+      "onReceive": null,
+      "type": "execute"
+    },
+    {
+      "id": "3cfb59a35f",
+      "name": "node-60f0",
+      "next": [
+        {
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": [
+        "builtin/sendFeedback {\"value\":\"-1\"}"
+      ],
+      "onReceive": null,
+      "type": "execute"
+    }
+  ]
+}

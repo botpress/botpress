@@ -60,6 +60,10 @@ export class BaseVariable<T, V = any> implements BoxedVariable<T, V> {
     return (this._value as any)?.toString()
   }
 
+  equals(other: T) {
+    return this.value === other
+  }
+
   compare(compareTo: BoxedVariable<T>): number {
     if (this.type !== compareTo.type) {
       throw new Error('You can only compare variables of the same type')
@@ -80,5 +84,9 @@ export class BaseVariable<T, V = any> implements BoxedVariable<T, V> {
       nbTurns: this._nbTurns,
       confidence: this._confidence!
     }
+  }
+
+  parse(text: string): T {
+    return <any>text
   }
 }

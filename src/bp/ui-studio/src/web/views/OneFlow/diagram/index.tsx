@@ -1,5 +1,16 @@
-import { ContextMenu, Menu, MenuDivider, MenuItem, Position, Toaster } from '@blueprintjs/core'
-import { FlowVariable } from 'botpress/sdk'
+import {
+  Button,
+  ContextMenu,
+  ControlGroup,
+  InputGroup,
+  Menu,
+  MenuDivider,
+  MenuItem,
+  Position,
+  Tag,
+  Toaster
+} from '@blueprintjs/core'
+import { FlowVariable, NodeTransition } from 'botpress/sdk'
 import { Contents, contextMenu, EmptyState, Icons, lang, MainContent, toast } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -73,6 +84,7 @@ import ContentForm from './ContentForm'
 import EmptyStateIcon from './EmptyStateIcon'
 import ExecuteForm from './ExecuteForm'
 import PromptForm from './PromptForm'
+import RouterForm from './RouterForm'
 import SubWorkflowForm from './SubWorkflowForm'
 import Toolbar from './Toolbar'
 import VariablesEditor from './VariablesEditor'
@@ -361,7 +373,15 @@ class Diagram extends Component<Props> {
     },
     executeNode: (point: Point, moreProps) =>
       this.props.createFlowNode({ ...point, type: 'execute', next: [defaultTransition], ...moreProps }),
-    routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' }),
+    routerNode: (point: Point) =>
+      this.props.createFlowNode({
+        ...point,
+        type: 'router',
+        next: [
+          { condition: '', node: '' },
+          { condition: 'true', node: '' }
+        ]
+      }),
     actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action' }),
     promptNode: (point: Point, promptType: string, subType?: string) => {
       this.props.createFlowNode({
@@ -572,9 +592,7 @@ class Diagram extends Component<Props> {
     const targetModel = target.model
     const { nodeType } = targetModel
 
-    return (
-      targetModel instanceof StandardNodeModel || targetModel instanceof SkillCallNodeModel || nodeType === 'router'
-    )
+    return targetModel instanceof StandardNodeModel || targetModel instanceof SkillCallNodeModel
   }
 
   onDiagramClick = (event: MouseEvent) => {
@@ -663,8 +681,18 @@ class Diagram extends Component<Props> {
     return this.props[propertyName]
   }
 
-  addCondition() {
-    this.props.updateFlowNode({ conditions: [...this.props.currentFlowNode.conditions, { params: {} }] })
+  addCondition(nodeType) {
+    if (nodeType === 'trigger') {
+      this.props.updateFlowNode({ conditions: [...this.props.currentFlowNode.conditions, { params: {} }] })
+    } else if (nodeType === 'router') {
+      const next = this.props.currentFlowNode.next
+      const lastItem = next.length - 1
+
+      // Inserting before the last element to keep "otherwise" at the end
+      this.props.updateFlowNode({
+        next: [...next.slice(0, lastItem), { condition: '', node: '' }, ...next.slice(lastItem)]
+      })
+    }
   }
 
   addMessage() {
@@ -791,7 +819,7 @@ class Diagram extends Component<Props> {
         case 'trigger':
           if (targetNodeType === 'trigger') {
             await this.props.switchFlowNode(target.model.id)
-            this.addCondition()
+            this.addCondition(targetNodeType)
           } else {
             this.add.triggerNode(point, {})
           }
@@ -813,7 +841,12 @@ class Diagram extends Component<Props> {
           this.add.executeNode(point, data.contentId ? { onReceive: [`${data.contentId}`] } : {})
           break
         case 'router':
-          this.add.routerNode(point)
+          if (targetNodeType === 'router') {
+            await this.props.switchFlowNode(target.model.id)
+            this.addCondition(targetNodeType)
+          } else {
+            this.add.routerNode(point)
+          }
           break
         case 'action':
           this.add.actionNode(point)
@@ -971,6 +1004,45 @@ class Diagram extends Component<Props> {
     localStorage.setItem(CMS_LANG_KEY, lang)
   }
 
+  deleteTransition = () => {
+    const { node, index } = this.state.editingNodeItem
+    const next = this.props.currentFlowNode.next
+
+    this.props.switchFlowNode(node.id)
+    this.props.updateFlowNode({ next: [...next.slice(0, index), ...next.slice(index + 1)] })
+  }
+
+  updateRouter = (data: NodeTransition) => {
+    const { node, index } = this.state.editingNodeItem
+
+    this.props.switchFlowNode(node.id)
+
+    const newTransitions = [...node.next.slice(0, index), data, ...node.next.slice(index + 1)]
+
+    this.setState({ editingNodeItem: { node: { ...node, next: newTransitions }, index } })
+    this.props.updateFlowNode({ next: newTransitions })
+  }
+
+  renderSearch = () => {
+    return (
+      this.props.showSearch && (
+        <div className={style.floatingInfo}>
+          <ControlGroup>
+            <InputGroup
+              id="input-highlight-name"
+              tabIndex={1}
+              placeholder={lang.tr('studio.flow.highlightByName')}
+              value={this.props.highlightFilter}
+              onChange={this.props.handleFilterChanged}
+              autoFocus={true}
+            />
+            <Button icon="small-cross" onClick={this.props.hideSearch} />
+          </ControlGroup>
+        </div>
+      )
+    )
+  }
+
   render() {
     const { node, index, data } = this.state.editingNodeItem || {}
     const formType: string = node?.nodeType || node?.type || this.state.editingNodeItem?.type
@@ -986,6 +1058,8 @@ class Diagram extends Component<Props> {
       currentItem = data
     } else if (formType === 'variable') {
       currentItem = node?.variable
+    } else if (formType === 'router') {
+      currentItem = node?.next
     }
 
     const isQnA = this.props.selectedWorkflow === 'qna'
@@ -1173,6 +1247,22 @@ class Diagram extends Component<Props> {
               customKey={data.id}
               formData={currentItem}
               variables={this.props.variables}
+              close={() => {
+                this.timeout = setTimeout(() => {
+                  this.setState({ editingNodeItem: null })
+                }, 200)
+              }}
+            />
+          )}
+          {formType === 'router' && (
+            <RouterForm
+              transition={currentItem?.[index]}
+              deleteTransition={this.deleteTransition.bind(this)}
+              variables={this.props.variables}
+              onUpdateVariables={this.addVariable}
+              customKey={`${node?.type}${node?.id}${index}`}
+              updateRouter={this.updateRouter}
+              contentLang={this.state.currentLang}
               close={() => {
                 this.timeout = setTimeout(() => {
                   this.setState({ editingNodeItem: null })
