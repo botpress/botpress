@@ -199,9 +199,13 @@ export const fetchReducer = (state: State, action): State => {
       fetchMore: false
     }
   } else if (action.type === 'highlightedSuccess') {
+    const { id, topicName, ...data } = action.data
     return {
       ...state,
-      highlighted: action.data,
+      highlighted: {
+        id: action.data.id,
+        data: { ...action.data }
+      },
       expandedItems: { ...state.expandedItems, highlighted: true }
     }
   } else if (action.type === 'resetHighlighted') {

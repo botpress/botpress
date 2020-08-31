@@ -269,7 +269,7 @@ const QnAList: FC<Props> = ({
 
   const fetchHighlightedQna = async id => {
     const { data } = await bp.axios.get(`/mod/qna/${topicName}/questions/${id}`)
-    dispatch({ type: 'highlightedSuccess', data })
+    dispatch({ type: 'highlightedSuccess', data: { ...data, topicName } })
   }
 
   return (
