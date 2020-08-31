@@ -1,0 +1,49 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "startNode": "entry",
+  "description": "",
+  "type": "standard",
+  "nodes": [
+    {
+      "id": "ccf16060a9",
+      "name": "trigger-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": "execute-1"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "trigger",
+      "conditions": [
+        {
+          "params": {
+            "candidate": [
+              "error-action"
+            ],
+            "exactMatch": false,
+            "caseSensitive": false
+          },
+          "id": "type_text"
+        }
+      ]
+    },
+    {
+      "id": "2edd2251f0",
+      "name": "execute-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": [
+        "error_action {\"name\":\"\",\"value\":\"\"}"
+      ],
+      "onReceive": null,
+      "type": "execute"
+    }
+  ]
+}

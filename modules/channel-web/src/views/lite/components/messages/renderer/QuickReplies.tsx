@@ -26,22 +26,26 @@ export class QuickReplies extends Component<Renderer.QuickReply> {
   }
 
   renderKeyboard(buttons: Renderer.QuickReplyButton[]) {
-    return buttons.map((btn, idx) => {
-      if (Array.isArray(btn)) {
-        return <div>{this.renderKeyboard(btn)}</div>
-      } else {
-        return (
-          <Button
-            key={idx}
-            label={(btn.label || btn.title)?.toString()}
-            payload={btn.payload}
-            preventDoubleClick={!btn.allowMultipleClick}
-            onButtonClick={this.handleButtonClicked}
-            onFileUpload={this.props.onFileUpload}
-          />
-        )
-      }
-    })
+    return (
+      <div className="bpw-quick_reply-buttons-container">
+        {buttons.map((btn, idx) => {
+          if (Array.isArray(btn)) {
+            return this.renderKeyboard(btn)
+          } else {
+            return (
+              <Button
+                key={idx}
+                label={(btn.label || btn.title)?.toString()}
+                payload={btn.payload}
+                preventDoubleClick={!btn.allowMultipleClick}
+                onButtonClick={this.handleButtonClicked}
+                onFileUpload={this.props.onFileUpload}
+              />
+            )
+          }
+        })}
+      </div>
+    )
   }
 
   render() {

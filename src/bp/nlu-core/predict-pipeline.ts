@@ -10,14 +10,13 @@ import { getUtteranceFeatures } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import { ExactMatchIndex, EXACT_MATCH_STR_OPTIONS, TrainOutput } from './training-pipeline'
-import { EntityExtractionResult, ExtractedEntity, PatternEntity, SlotExtractionResult, Tools } from './typings'
+import { EntityExtractionResult, ExtractedEntity, Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
 import Utterance, { buildUtteranceBatch, getAlternateUtterance, UtteranceEntity } from './utterance/utterance'
 
 export type ExactMatchResult = (sdk.MLToolkit.SVM.Prediction & { extractor: 'exact-matcher' }) | undefined
 
 export type Predictors = TrainOutput &
-  EntityPredictor &
-  Partial<{
+  EntityPredictor & { intents: Intent<Utterance>[] } & Partial<{
     ctx_classifier: sdk.MLToolkit.SVM.Predictor
     intent_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
     oos_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
@@ -166,7 +165,7 @@ async function extractEntities(input: PredictStep, predictors: Predictors, tools
 
   _.forEach(
     [
-      ...extractListEntities(utterance, predictors.list_entities, true),
+      ...extractListEntities(utterance, predictors.list_entities),
       ...extractPatternEntities(utterance, predictors.pattern_entities),
       ...(await tools.duckling.extract(utterance.toString(), utterance.languageCode))
     ],

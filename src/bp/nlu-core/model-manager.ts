@@ -2,7 +2,6 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { TrainInput, TrainOutput } from './training-pipeline'
-import { EntityCache } from './typings'
 
 export type PredictableModel = Omit<sdk.NLU.Model, 'data'> & {
   data: {
@@ -25,9 +24,6 @@ export function serializeModel(model: PredictableModel): sdk.NLU.Model {
     }
   }
 
-  for (const entity of model.data.output.list_entities) {
-    entity.cache = (<EntityCache>entity.cache)?.dump() ?? []
-  }
   const serializableData = _.omit(data, ['output.intents', 'input.trainingSession'])
   serialized.data.input = JSON.stringify(serializableData.input)
   serialized.data.output = JSON.stringify(serializableData.output)
