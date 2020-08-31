@@ -13,6 +13,7 @@ export class TrainingStatusService {
       const { data: session } = await axios.get(`${window.BOT_API_PATH}/mod/nlu/training/${this.language}`)
       this.listener(session)
     } catch (err) {
+      // @ts-ignore
       const session: NLU.TrainingSession = { status: 'needs-training', language: this.language, progress: 0 }
       this.listener(session)
     }
