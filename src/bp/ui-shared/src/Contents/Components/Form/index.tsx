@@ -26,7 +26,7 @@ import style from './style.scss'
 import { FormProps } from './typings'
 
 const Form: FC<FormProps> = ({
-  defaultLanguage,
+  defaultLang,
   currentLang,
   axios,
   mediaPath,
@@ -187,14 +187,14 @@ const Form: FC<FormProps> = ({
     )
   }
 
-  const getRefValue = (value, currentLang, defaultLanguage) => {
-    if (currentLang !== defaultLanguage || !value[defaultLanguage]) {
+  const getRefValue = (value, currentLang, defaultLang) => {
+    if (currentLang !== defaultLang || !value[defaultLang]) {
       const refLang = Object.keys(value).find(key => key !== currentLang && value[key])
 
       return refLang && value[refLang]
     }
 
-    return value[defaultLanguage]
+    return value[defaultLang]
   }
 
   const printField = (field, data, parent?) => {
@@ -202,7 +202,7 @@ const Form: FC<FormProps> = ({
     let refValue
 
     if (field.translated) {
-      refValue = getRefValue(currentValue || {}, currentLang, defaultLanguage)
+      refValue = getRefValue(currentValue || {}, currentLang, defaultLang)
       currentValue = currentValue?.[currentLang!]
     }
     const invalid = invalidFields?.find(x => x.field === field.key)

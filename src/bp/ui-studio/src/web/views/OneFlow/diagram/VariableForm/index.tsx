@@ -13,7 +13,7 @@ interface Props {
   deleteVariable: () => void
   variables: Variables
   customKey: string
-  defaultLanguage: string
+  defaultLang: string
   contentLang: string
   close: () => void
   onUpdate: (data: any) => void
@@ -24,7 +24,7 @@ interface Props {
 const VariableForm: FC<Props> = ({
   customKey,
   variables,
-  defaultLanguage,
+  defaultLang,
   contentLang,
   close,
   formData,
@@ -98,7 +98,7 @@ const VariableForm: FC<Props> = ({
         {selectedVariableType && (
           <Contents.Form
             currentLang={contentLang}
-            defaultLanguage={defaultLanguage}
+            defaultLang={defaultLang}
             axios={axios}
             fields={fields || []}
             advancedSettings={selectedVariableType.config?.advancedSettings}

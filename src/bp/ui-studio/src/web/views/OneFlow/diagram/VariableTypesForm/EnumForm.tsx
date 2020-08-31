@@ -11,7 +11,7 @@ import { getEntityId } from '.'
 
 interface Props {
   customKey: string
-  defaultLanguage: string
+  defaultLang: string
   contentLang: string
   formData: sdk.NLU.EntityDefinition
   close: () => void
@@ -22,7 +22,7 @@ interface Props {
 
 const EnumForm: FC<Props> = ({
   customKey,
-  defaultLanguage,
+  defaultLang,
   contentLang,
   formData,
   close,
@@ -89,7 +89,7 @@ const EnumForm: FC<Props> = ({
 
         <Contents.Form
           currentLang={contentLang}
-          defaultLanguage={defaultLanguage}
+          defaultLang={defaultLang}
           axios={axios}
           fields={[
             {

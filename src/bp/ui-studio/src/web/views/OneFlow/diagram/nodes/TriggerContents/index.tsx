@@ -11,14 +11,13 @@ interface Props {
   editNodeItem: (node: BlockModel, index: number) => void
   selectedNodeItem: () => { node: BlockModel; index: number }
   getConditions: () => any
-  getCurrentLang: () => string
+  currentLang: string
   defaultLang: string
 }
 
-const TriggerContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem, getConditions, getCurrentLang }) => {
+const TriggerContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem, getConditions, currentLang }) => {
   const conditionLabels = getConditions().reduce((acc, cond) => ({ ...acc, [cond.id]: cond.label }), {})
   const selectedCondition = selectedNodeItem()
-  const currentLang = getCurrentLang()
 
   const checkMissingTranslations = () => {
     return node.conditions?.some(condition => {

@@ -16,8 +16,8 @@ import { buildFlowName } from '../../../../util/workflows'
 
 import style from './style.scss'
 import EmptyStateIcon from './EmptyStateIcon'
-import TreeItem from './TreeItem'
 import SearchIcon from './SearchIcon'
+import TreeItem from './TreeItem'
 
 const lockedFlows = ['misunderstood.flow.json', 'error.flow.json', 'workflow_ended.flow.json']
 
@@ -212,10 +212,10 @@ const TopicList: FC<Props> = props => {
             }}
           />
           <MenuItem id="btn-moveTo" disabled={props.readOnly} label={lang.tr('studio.flow.sidePanel.moveWorkflow')}>
-            {props.topics?.map((topic, index) => (
+            {props.topics?.map(topic => (
               <MenuItem
                 label={topic.name}
-                key={index}
+                key={topic.name}
                 onClick={() => {
                   moveFlow(name, topic.name)
                 }}

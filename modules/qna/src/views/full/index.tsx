@@ -15,7 +15,7 @@ import EmptyStateIcon from './Icons/EmptyStateIcon'
 const QnAList: FC<Props> = ({
   bp,
   languages,
-  defaultLanguage,
+  defaultLang,
   topicName,
   contentLang,
   updateLocalLang,
@@ -262,7 +262,7 @@ const QnAList: FC<Props> = ({
                 key={highlighted.id}
                 flows={flows}
                 events={events}
-                defaultLanguage={defaultLanguage}
+                defaultLang={defaultLang}
                 deleteQnA={() => {
                   dispatch({ type: 'deleteQnA', data: { index: 'highlighted', bp, refreshQnaCount } })
 
@@ -301,7 +301,7 @@ const QnAList: FC<Props> = ({
                 isLite={isLite}
                 flows={flows}
                 events={events}
-                defaultLanguage={defaultLanguage}
+                defaultLang={defaultLang}
                 deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp, refreshQnaCount } })}
                 toggleEnabledQnA={() =>
                   dispatchMiddleware(dispatch, { type: 'toggleEnabledQnA', data: { qnaItem: item, bp } })

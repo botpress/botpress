@@ -27,7 +27,7 @@ interface Props {
   qnaItem: QnaItem
   bp: any
   contentLang: string
-  defaultLanguage: string
+  defaultLang: string
   errorMessages?: string[]
   flows?: Flow[]
   childRef?: (ref: HTMLDivElement | null) => void
@@ -49,7 +49,7 @@ const QnA: FC<Props> = props => {
     expanded,
     setExpanded,
     errorMessages,
-    defaultLanguage,
+    defaultLang,
     flows,
     isLite,
     events,
@@ -59,8 +59,8 @@ const QnA: FC<Props> = props => {
   let questions = data.questions[contentLang]
   let answers = data.answers[contentLang]
   const contentAnswers = data.contentAnswers || []
-  const refQuestions = contentLang !== defaultLanguage && data.questions[defaultLanguage]
-  const refAnswers = contentLang !== defaultLanguage && data.answers[defaultLanguage]
+  const refQuestions = contentLang !== defaultLang && data.questions[defaultLang]
+  const refAnswers = contentLang !== defaultLang && data.answers[defaultLang]
 
   if (refQuestions?.length > questions?.length || (!questions?.length && refQuestions?.length)) {
     questions = [...(questions || []), ...Array(refQuestions.length - (questions?.length || 0)).fill('')]
@@ -340,7 +340,7 @@ const QnA: FC<Props> = props => {
           onUpdate={data => updateContentAnswers(data)}
           events={events}
           currentLang={contentLang}
-          defaultLanguage={defaultLanguage}
+          defaultLang={defaultLang}
           close={closingKey => {
             setTimeout(() => {
               if (closingKey === editingContent.current) {

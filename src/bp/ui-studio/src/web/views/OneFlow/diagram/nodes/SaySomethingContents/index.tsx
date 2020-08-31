@@ -9,13 +9,11 @@ interface Props {
   node: BlockModel
   editNodeItem: (node: BlockModel, index: number) => void
   selectedNodeItem: () => { node: BlockModel; index: number }
-  getCurrentLang: () => string
+  currentLang: string
   defaultLang: string
 }
 
-const SaySomethingContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem, getCurrentLang }) => {
-  const currentLang = getCurrentLang()
-
+const SaySomethingContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem, currentLang }) => {
   const selectedContent = selectedNodeItem()
 
   const fieldHasMissingTranslation = (value = {}) => {
@@ -74,7 +72,7 @@ const SaySomethingContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem,
           active={selectedContent?.node?.id === node.id && index === selectedContent?.index}
           key={`${index}${currentLang}`}
           onEdit={() => editNodeItem?.(node, index)}
-          contentLang={getCurrentLang()}
+          contentLang={currentLang}
           content={content}
         />
       ))}

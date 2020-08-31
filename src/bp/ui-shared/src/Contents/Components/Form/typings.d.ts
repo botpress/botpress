@@ -8,7 +8,7 @@ export interface InvalidField {
 
 export interface FormProps {
   axios?: any
-  defaultLanguage?: string
+  defaultLang?: string
   currentLang?: string
   mediaPath?: string
   overrideFields?: { [field: string]: (props: any) => JSX.Element }

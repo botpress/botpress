@@ -17,7 +17,7 @@ interface Props {
   topicName?: string
   customKey: string
   contentLang: string
-  defaultLanguage: string
+  defaultLang: string
   close: (closingKey: number) => void
   onUpdate: (data: any) => void
   onUpdateVariables: (variable: FlowVariable) => void
@@ -43,7 +43,7 @@ const getConditionUsage = (): ConditionUsage => {
 const ConditionForm: FC<Props> = ({
   customKey,
   conditions,
-  defaultLanguage,
+  defaultLang,
   contentLang,
   editingCondition,
   close,
@@ -178,7 +178,7 @@ const ConditionForm: FC<Props> = ({
           <Contents.Form
             axios={axios}
             currentLang={contentLang}
-            defaultLanguage={defaultLanguage}
+            defaultLang={defaultLang}
             getCustomPlaceholder={getCustomPlaceholder}
             variables={variables}
             events={events}

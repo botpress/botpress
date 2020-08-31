@@ -112,7 +112,7 @@ type ExtendedDiagramEngine = {
 } & DiagramEngine
 
 const EXPANDED_NODES_KEY = `bp::${window.BOT_ID}::expandedNodes`
-const STORAGE_KEY = `bp::${window.BOT_ID}::cmsLanguage`
+const CMS_LANG_KEY = `bp::${window.BOT_ID}::cmsLanguage`
 
 const getEmptyContent = content => {
   return {
@@ -155,8 +155,10 @@ class Diagram extends Component<Props> {
       getCurrentFlow: () => this.getPropsProperty('currentFlow'),
       updateFlowNode: this.updateNodeAndRefresh.bind(this),
       switchFlowNode: this.switchFlowNode.bind(this),
-      getDefaultLanguage: () => this.getPropsProperty('defaultLanguage'),
-      getCurrentLang: () => this.getStateProperty('currentLang'),
+      getLanguage: () => ({
+        currentLang: this.getStateProperty('currentLang'),
+        defaultLang: this.getPropsProperty('defaultLanguage')
+      }),
       getConditions: () => this.getPropsProperty('conditions'),
       addCondition: this.addCondition.bind(this),
       addMessage: this.addMessage.bind(this),
@@ -210,7 +212,10 @@ class Diagram extends Component<Props> {
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
 
-    this.setState({ currentLang: localStorage.getItem(STORAGE_KEY), expandedNodes: getExpandedNodes() })
+    this.setState({
+      currentLang: localStorage.getItem(CMS_LANG_KEY) || this.props.contentLang,
+      expandedNodes: getExpandedNodes()
+    })
     this.props.childRef({
       deleteSelectedElements: this.deleteSelectedElements.bind(this),
       createFlow: this.createFlow.bind(this)
@@ -963,7 +968,7 @@ class Diagram extends Component<Props> {
   updateLang = lang => {
     this.setState({ currentLang: lang })
 
-    localStorage.setItem(STORAGE_KEY, lang)
+    localStorage.setItem(CMS_LANG_KEY, lang)
   }
 
   render() {
@@ -999,7 +1004,7 @@ class Diagram extends Component<Props> {
               isLite: true,
               topicName: this.props.selectedTopic,
               languages: this.props.languages,
-              defaultLanguage: this.props.defaultLanguage,
+              defaultLang: this.props.defaultLanguage,
               events: this.props.hints || [],
               refreshQnaCount: () => {
                 // So it's processed on the next tick, otherwise it won't update with the latest update
@@ -1069,7 +1074,7 @@ class Diagram extends Component<Props> {
               variables={this.props.variables}
               events={this.props.hints || []}
               contentLang={this.state.currentLang}
-              defaultLanguage={this.props.defaultLanguage}
+              defaultLang={this.props.defaultLanguage}
               editingContent={index}
               formData={currentItem || getEmptyContent(currentItem)}
               onUpdate={this.updateNodeContent.bind(this)}
@@ -1092,7 +1097,7 @@ class Diagram extends Component<Props> {
               events={this.props.hints}
               formData={currentItem}
               contentLang={this.state.currentLang}
-              defaultLanguage={this.props.defaultLanguage}
+              defaultLang={this.props.defaultLanguage}
               onUpdate={this.updateNodeCondition.bind(this)}
               onUpdateVariables={this.addVariable}
               close={() => {
@@ -1112,7 +1117,7 @@ class Diagram extends Component<Props> {
               variables={this.props.variables}
               onUpdateVariables={this.addVariable}
               contentLang={this.state.currentLang}
-              defaultLanguage={this.props.defaultLanguage}
+              defaultLang={this.props.defaultLanguage}
               close={() => {
                 this.timeout = setTimeout(() => {
                   this.setState({ editingNodeItem: null })
@@ -1164,7 +1169,7 @@ class Diagram extends Component<Props> {
           {formType === 'variableType' && (
             <VariableTypesForm
               contentLang={this.state.currentLang}
-              defaultLanguage={this.props.defaultLanguage}
+              defaultLang={this.props.defaultLanguage}
               customKey={data.id}
               formData={currentItem}
               variables={this.props.variables}
@@ -1180,7 +1185,7 @@ class Diagram extends Component<Props> {
             <VariableForm
               variables={this.props.variables}
               contentLang={this.state.currentLang}
-              defaultLanguage={this.props.defaultLanguage}
+              defaultLang={this.props.defaultLanguage}
               customKey={`${node?.id}${node?.prompt?.type}`}
               deleteVariable={this.deleteVariable.bind(this)}
               formData={currentItem}

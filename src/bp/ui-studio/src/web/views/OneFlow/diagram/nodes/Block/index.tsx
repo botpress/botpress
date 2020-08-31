@@ -31,8 +31,7 @@ interface Props {
   switchFlowNode: (id: string) => void
   addCondition: () => void
   addMessage: () => void
-  getDefaultLanguage?: () => string
-  getCurrentLang: () => string
+  getLanguage?: () => { currentLang: string; defaultLang: string }
   getExpandedNodes: () => string[]
   setExpanded: (id: string, expanded: boolean) => void
 }
@@ -60,8 +59,7 @@ const BlockWidget: FC<Props> = ({
   switchFlowNode,
   addCondition,
   addMessage,
-  getDefaultLanguage,
-  getCurrentLang,
+  getLanguage,
   getExpandedNodes,
   setExpanded
 }) => {
@@ -108,6 +106,7 @@ const BlockWidget: FC<Props> = ({
   const outPortInHeader = !['failure', 'prompt', 'router', 'success', 'sub-workflow'].includes(nodeType)
   const canCollapse = !['failure', 'prompt', 'router', 'success', 'sub-workflow'].includes(nodeType)
   const hasContextMenu = !['failure', 'success'].includes(nodeType)
+  const { currentLang, defaultLang } = getLanguage()
 
   const renderContents = () => {
     switch (nodeType) {
@@ -120,46 +119,39 @@ const BlockWidget: FC<Props> = ({
           <PromptContents
             node={node}
             selectedNodeItem={selectedNodeItem}
-            defaultLang={getDefaultLanguage()}
-            getCurrentLang={getCurrentLang}
+            defaultLang={defaultLang}
+            currentLang={currentLang}
           />
         )
       case 'router':
         return <RouterContents node={node} />
       case 'success':
-        return <OutcomeContents node={node} selectedNodeItem={selectedNodeItem} getCurrentLang={getCurrentLang} />
+        return <OutcomeContents node={node} selectedNodeItem={selectedNodeItem} currentLang={currentLang} />
       case 'failure':
-        return <OutcomeContents node={node} selectedNodeItem={selectedNodeItem} getCurrentLang={getCurrentLang} />
+        return <OutcomeContents node={node} selectedNodeItem={selectedNodeItem} currentLang={currentLang} />
       case 'say_something':
         return (
           <SaySomethingContents
             node={node}
-            defaultLang={getDefaultLanguage()}
+            defaultLang={defaultLang}
             editNodeItem={editNodeItem}
             selectedNodeItem={selectedNodeItem}
-            getCurrentLang={getCurrentLang}
+            currentLang={currentLang}
           />
         )
       case 'trigger':
         return (
           <TriggerContents
             node={node}
-            defaultLang={getDefaultLanguage()}
+            defaultLang={defaultLang}
             editNodeItem={editNodeItem}
             selectedNodeItem={selectedNodeItem}
             getConditions={getConditions}
-            getCurrentLang={getCurrentLang}
+            currentLang={currentLang}
           />
         )
       case 'sub-workflow':
-        return (
-          <SubworkflowContents
-            node={node}
-            selectedNodeItem={selectedNodeItem}
-            getCurrentLang={getCurrentLang}
-            editNodeItem={editNodeItem}
-          />
-        )
+        return <SubworkflowContents node={node} selectedNodeItem={selectedNodeItem} editNodeItem={editNodeItem} />
       default:
         return null
     }
@@ -258,8 +250,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
   private switchFlowNode: (id: string) => void
   private addCondition: () => void
   private addMessage: () => void
-  private getDefaultLanguage: () => string
-  private getCurrentLang: () => string
+  private getLanguage: () => { currentLang: string; defaultLang: string }
   private getExpandedNodes: () => string[]
   private setExpandedNodes: (id: string, expanded: boolean) => void
 
@@ -275,8 +266,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
     this.switchFlowNode = methods.switchFlowNode
     this.addCondition = methods.addCondition
     this.addMessage = methods.addMessage
-    this.getDefaultLanguage = methods.getDefaultLanguage
-    this.getCurrentLang = methods.getCurrentLang
+    this.getLanguage = methods.getLanguage
     this.getExpandedNodes = methods.getExpandedNodes
     this.setExpandedNodes = methods.setExpandedNodes
   }
@@ -286,8 +276,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
       <BlockWidget
         node={node}
         getCurrentFlow={this.getCurrentFlow}
-        getDefaultLanguage={this.getDefaultLanguage}
-        getCurrentLang={this.getCurrentLang}
+        getLanguage={this.getLanguage}
         editNodeItem={this.editNodeItem}
         onDeleteSelectedElements={this.deleteSelectedElements}
         updateFlowNode={this.updateFlowNode}

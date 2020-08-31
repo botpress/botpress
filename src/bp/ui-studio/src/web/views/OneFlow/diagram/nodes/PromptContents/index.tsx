@@ -10,11 +10,10 @@ interface Props {
   node: BlockModel
   defaultLang: string
   selectedNodeItem: () => { node: BlockModel; index: number }
-  getCurrentLang: () => string
+  currentLang: string
 }
 
-const PromptContents: FC<Props> = ({ node, selectedNodeItem, getCurrentLang }) => {
-  const currentLang = getCurrentLang()
+const PromptContents: FC<Props> = ({ node, selectedNodeItem, currentLang }) => {
   const selectedContent = selectedNodeItem()
   const { next } = node || {}
   const { params } = node.prompt || {}
