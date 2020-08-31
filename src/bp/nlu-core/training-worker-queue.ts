@@ -5,6 +5,7 @@ import { registerMsgHandler, spawnNewTrainingWorker, WORKER_TYPES } from '../clu
 
 import { initializeTools } from './initialize-tools'
 import { Trainer, TrainInput, TrainOutput } from './training-pipeline'
+import { Tools } from './typings'
 
 type OutgoingPayload = Partial<{
   config: NLU.Config
@@ -14,7 +15,7 @@ type OutgoingMessageType = 'make_new_worker' | 'start_training' | 'cancel_traini
 interface OutgoingMessage {
   type: OutgoingMessageType
   payload: OutgoingPayload
-  destWid?: number
+  destWorkerId?: number
 }
 
 type Log = Partial<{ info: string; warning: string; error: string }>
@@ -35,13 +36,13 @@ type IncomingMessageType =
 interface IncomingMessage {
   type: IncomingMessageType
   payload: IncomingPayload
-  srcWid: number
+  srcWorkerId: number
 }
 
 export class TrainingCanceledError extends Error {}
 
 export class TrainingWorkerQueue {
-  private waitingWorkers: number[] = []
+  private readyWorkers: number[] = []
   private activeWorkers: { [trainSessionId: string]: number } = {}
 
   constructor(private config: NLU.Config, private logger: NLU.Logger) {}
@@ -55,11 +56,11 @@ export class TrainingWorkerQueue {
     await this._cancelTraining(workerId)
 
     delete this.activeWorkers[trainSessionId]
-    this.waitingWorkers = this.waitingWorkers.filter(w => w !== workerId) // just in case...
+    this.readyWorkers = this.readyWorkers.filter(w => w !== workerId) // just in case...
   }
 
-  private _cancelTraining(destWid: number) {
-    const msg: OutgoingMessage = { type: 'cancel_training', payload: {}, destWid }
+  private _cancelTraining(destWorkerId: number) {
+    const msg: OutgoingMessage = { type: 'cancel_training', payload: {}, destWorkerId }
     return new Promise(resolve => {
       const handler = (msg: IncomingMessage) => {
         if (msg.type === 'training_canceled') {
@@ -77,12 +78,12 @@ export class TrainingWorkerQueue {
       return // training already started
     }
 
-    if (!this.waitingWorkers.length) {
+    if (!this.readyWorkers.length) {
       const newWorker = await this._createNewWorker()
-      this.waitingWorkers.push(newWorker)
+      this.readyWorkers.push(newWorker)
     }
 
-    const worker = this.waitingWorkers.pop()!
+    const worker = this.readyWorkers.pop()!
     this.activeWorkers[trainSessionId] = worker
 
     let output: TrainOutput
@@ -101,7 +102,7 @@ export class TrainingWorkerQueue {
 
   private _prepareForNextTraining(trainSessionId: string) {
     const worker = this.activeWorkers[trainSessionId]
-    this.waitingWorkers.unshift(worker)
+    this.readyWorkers.unshift(worker)
     delete this.activeWorkers[trainSessionId]
   }
 
@@ -110,7 +111,7 @@ export class TrainingWorkerQueue {
     input: TrainInput,
     progress: (x: number) => void
   ): Promise<TrainOutput> {
-    const msg: OutgoingMessage = { type: 'start_training', destWid: workerId, payload: { input } }
+    const msg: OutgoingMessage = { type: 'start_training', destWorkerId: workerId, payload: { input } }
 
     return new Promise((resolve, reject) => {
       const handler = (msg: IncomingMessage) => {
@@ -122,7 +123,7 @@ export class TrainingWorkerQueue {
           process.off('message', handler)
           reject(new Error(msg.payload.error!))
         }
-        if (msg.type === 'training_canceled' && msg.srcWid === workerId) {
+        if (msg.type === 'training_canceled' && msg.srcWorkerId === workerId) {
           process.off('message', handler)
           reject(new TrainingCanceledError())
         }
@@ -147,7 +148,7 @@ export class TrainingWorkerQueue {
 
         if (msg.type === 'worker_ready') {
           process.off('message', handler)
-          resolve(msg.srcWid)
+          resolve(msg.srcWorkerId)
         }
       }
       process.send!(msg)
@@ -170,21 +171,21 @@ if (cluster.isMaster) {
   }
 
   function sendToTrainingWorker(msg: OutgoingMessage) {
-    const worker = cluster.workers[msg.destWid!]
+    const worker = cluster.workers[msg.destWorkerId!]
     worker?.send(msg) // TODO: find out why this is sometimes undefined.
   }
 
   function killTrainingWorker(msg: OutgoingMessage) {
-    const worker = cluster.workers[msg.destWid!]
+    const worker = cluster.workers[msg.destWorkerId!]
 
     if (!worker) {
-      const response: IncomingMessage = { type: 'training_canceled', payload: {}, srcWid: msg.destWid! }
+      const response: IncomingMessage = { type: 'training_canceled', payload: {}, srcWorkerId: msg.destWorkerId! }
       return sendToWebWorker(response)
     }
 
     worker!.kill('SIGKILL')
     const exitHandler = (worker: Worker, _exitCode: number, _signal: string) => {
-      const response: IncomingMessage = { type: 'training_canceled', payload: {}, srcWid: worker.id }
+      const response: IncomingMessage = { type: 'training_canceled', payload: {}, srcWorkerId: worker.id }
       sendToWebWorker(response)
     }
     cluster.once('exit', exitHandler)
@@ -204,50 +205,56 @@ if (cluster.isMaster) {
 if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.TRAINING) {
   const config = JSON.parse(process.env.NLU_CONFIG!)
 
-  const srcWid = cluster.worker.id
+  const srcWorkerId = cluster.worker.id
   const logger: NLU.Logger = {
     info: (info: string) => {
-      const msg: IncomingMessage = { type: 'log', payload: { log: { info } }, srcWid }
+      const msg: IncomingMessage = { type: 'log', payload: { log: { info } }, srcWorkerId }
       process.send!(msg)
     },
     warning: (warning: string) => {
-      const msg: IncomingMessage = { type: 'log', payload: { log: { warning } }, srcWid }
+      const msg: IncomingMessage = { type: 'log', payload: { log: { warning } }, srcWorkerId }
       process.send!(msg)
     },
     error: (error: string) => {
-      const msg: IncomingMessage = { type: 'log', payload: { log: { error } }, srcWid }
+      const msg: IncomingMessage = { type: 'log', payload: { log: { error } }, srcWorkerId }
       process.send!(msg)
     }
   }
 
-  async function main() {
-    const tools = await initializeTools(config, logger)
-    process.on('message', async (msg: OutgoingMessage) => {
-      if (msg.type === 'start_training') {
-        const { input } = msg.payload
+  const msgHandler = (tools: Tools) => async (msg: OutgoingMessage) => {
+    if (msg.type === 'start_training') {
+      const { input } = msg.payload
 
-        const progressCb = (progress: number) => {
-          const res: IncomingMessage = { type: 'training_progress', payload: { progress }, srcWid }
-          process.send!(res)
-        }
-
-        let output: TrainOutput | undefined
-        try {
-          output = await Trainer(input!, tools, progressCb)
-        } catch (err) {
-          const res: IncomingMessage = { type: 'training_error', payload: { error: err.message }, srcWid }
-          process.send!(res)
-        }
-
-        const res: IncomingMessage = { type: 'training_done', payload: { output }, srcWid }
+      const progressCb = (progress: number) => {
+        const res: IncomingMessage = { type: 'training_progress', payload: { progress }, srcWorkerId }
         process.send!(res)
       }
-    })
 
-    const res: IncomingMessage = { type: 'worker_ready', payload: {}, srcWid }
-    process.send!(res)
+      let output: TrainOutput | undefined
+      try {
+        output = await Trainer(input!, tools, progressCb)
+      } catch (err) {
+        const res: IncomingMessage = {
+          type: 'training_error',
+          payload: { error: err.message },
+          srcWorkerId
+        }
+        process.send!(res)
+      }
+
+      const res: IncomingMessage = { type: 'training_done', payload: { output }, srcWorkerId }
+      process.send!(res)
+    }
   }
 
   // tslint:disable-next-line: no-floating-promises
-  main()
+  initializeTools(config, logger)
+    .then(tools => {
+      process.on('message', msgHandler(tools))
+      const res: IncomingMessage = { type: 'worker_ready', payload: {}, srcWorkerId }
+      process.send!(res)
+    })
+    .catch(err => {
+      logger.error('The following error occured during initialization of tools', err)
+    })
 }
