@@ -5,6 +5,7 @@ export const dialogConditions: sdk.Condition[] = [
   {
     id: 'workflow_called',
     label: 'module.ndu.conditions.workflowCalled',
+    hidden: true,
     description: `This workflow is called by another workflow`,
     fields: [],
     evaluate: (event, params) => {
@@ -234,6 +235,7 @@ export const dialogConditions: sdk.Condition[] = [
   // TODO: These two conditions should be hidden from the UI
   {
     id: 'prompt_listening',
+    hidden: true,
     label: 'A prompt is currently active and listening for user input',
     evaluate: (event: sdk.IO.IncomingEvent, _params) => {
       return event.state.context.activePrompt?.status === 'pending' ? 1 : 0
@@ -241,6 +243,7 @@ export const dialogConditions: sdk.Condition[] = [
   },
   {
     id: 'prompt_cancellable',
+    hidden: true,
     label: 'A prompt is currently active and is cancellable',
     evaluate: (event: sdk.IO.IncomingEvent, _params) => {
       return event.state.context.activePrompt?.config?.cancellable ? 1 : 0

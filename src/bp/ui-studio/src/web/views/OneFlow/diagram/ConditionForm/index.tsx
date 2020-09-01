@@ -93,11 +93,13 @@ const ConditionForm: FC<Props> = ({
     topicName: `[${lang.tr('topic').toLowerCase()}]`
   }
 
-  const options = conditions.map(type => ({
-    value: type.id,
-    label: lang.tr(type.label, optionsVariablePlaceholder),
-    order: conditionUsage[type.id] ?? 0
-  }))
+  const options = conditions
+    .filter(x => !x.hidden || (x.hidden && x.id === condition.current))
+    .map(type => ({
+      value: type.id,
+      label: lang.tr(type.label, optionsVariablePlaceholder),
+      order: conditionUsage[type.id] ?? 0
+    }))
 
   const selectedCondition = conditions.find(cond => cond.id === condition.current)
   const selectedOption = options.find(cond => cond.value === condition.current)

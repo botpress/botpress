@@ -1367,6 +1367,8 @@ declare module 'botpress/sdk' {
     advancedSettings?: FormField[]
     /** In which order the conditions will be displayed in the dropdown menu. 0 is the first item */
     displayOrder?: number
+    /** When true, it is not displayed in the dropdown menu on the studio */
+    hidden?: boolean
     /** This callback url is called when the condition is deleted or pasted in the flow */
     callback?: string
     /** The editor will use the custom component to provide the requested parameters */
