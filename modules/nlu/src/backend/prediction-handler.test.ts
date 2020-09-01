@@ -243,6 +243,6 @@ describe('predict', () => {
     // assert
     expect(errorOccured).toBe(true)
     assertPredictCalled(engine.predict as jest.Mock, 1)
-    assertModelLoadedFromFS(modelGetter, de, de) // currently loaded twice...
+    assertModelLoadedFromFS(modelGetter, de)
   })
 })
