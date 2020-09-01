@@ -23,12 +23,16 @@ const TagInputList = ({ validation, onChange, placeholder, items, addBtnLabel })
 
   const updateLocalItem = (index: number, item: Item): void => {
     const newItems = [...localItems]
+    const oldItems = [...localItems]
     if (item.name === '' && item.tags.length === 1) {
       newItems[index] = { name: item.tags[0], tags: [] }
     } else {
       newItems[index] = item
     }
-    if (validation?.validator) {
+    if (
+      validation?.validator &&
+      [oldItems[index].name, ...oldItems[index].tags].length < [item.name, ...item.tags].length
+    ) {
       if (validation.validator(localItems, item)) {
         setLocalItems(newItems)
       }
