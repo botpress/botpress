@@ -230,7 +230,7 @@ describe('predict', () => {
     const defaultLang = 'de'
     const engine = makeEngineMock([])
 
-    // act & assert
+    // act
     const predictionHandler = new PredictionHandler(modelGetter, engine, defaultLang)
 
     let errorOccured = false
@@ -242,5 +242,7 @@ describe('predict', () => {
 
     // assert
     expect(errorOccured).toBe(true)
+    assertPredictCalled(engine.predict as jest.Mock, 1)
+    assertModelLoadedFromFS(modelGetter, de, de) // currently loaded twice...
   })
 })

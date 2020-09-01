@@ -6,26 +6,25 @@ export class PredictionHandler {
   constructor(private getLatestModel: ModelGetter, private engine: sdk.NLU.Engine, private defaultLanguage: string) {}
 
   async predict(textInput: string, includedContexts: string[]) {
-    let language = this.defaultLanguage // TODO: use user's previously used language instead of bot's default
-    const defaultResults = await this.engine.predict(textInput, includedContexts, language)
+    const defaultResults = await this.engine.predict(textInput, includedContexts, this.defaultLanguage)
+    const detectedLanguage = defaultResults.detectedLanguage
 
     let nluResults = defaultResults
-    if (nluResults.detectedLanguage !== language) {
-      language = nluResults.detectedLanguage
-      nluResults = await this.engine.predict(textInput, includedContexts, language)
+    if (nluResults.detectedLanguage !== this.defaultLanguage) {
+      nluResults = await this.engine.predict(textInput, includedContexts, detectedLanguage)
     }
 
     if (this.isEmptyOrError(nluResults)) {
-      nluResults = await this._loadAndPredict(textInput, includedContexts, language)
+      nluResults = await this._loadAndPredict(textInput, includedContexts, detectedLanguage)
     }
 
     if (this.isEmptyOrError(nluResults)) {
-      nluResults = await this._fallbackOnDefault(defaultResults, textInput, includedContexts)
+      nluResults = await this._fallbackOnDefault(textInput, includedContexts, defaultResults)
     }
 
     if (this.isEmptyOrError(nluResults)) {
       throw new Error(
-        `no model found for either bot's default language (${this.defaultLanguage}) or detected language (${language})`
+        `no model found for either bot's default language (${this.defaultLanguage}) or detected language (${detectedLanguage})`
       )
     }
 
@@ -51,9 +50,9 @@ export class PredictionHandler {
   }
 
   private async _fallbackOnDefault(
-    defaultResults: sdk.IO.EventUnderstanding,
     textInput: string,
-    includedContexts: string[]
+    includedContexts: string[],
+    defaultResults: sdk.IO.EventUnderstanding
   ) {
     if (!defaultResults.error) {
       return defaultResults
