@@ -1,0 +1,8 @@
+{
+  "name": "no",
+  "utterances": {
+    "en": ["no", "disagree", "disapprove", "nah", "nope", "no", "absolutely not", "wrong"]
+  },
+  "slots": [],
+  "contexts": ["global"]
+}

@@ -120,7 +120,7 @@ const PatternForm: FC<Props> = ({
               type: 'text_array',
               label: 'examples',
               placeholder: 'studio.library.examplePlaceholder',
-              validationPattern: preparePattern(pattern, matchCase),
+              validation: { regex: preparePattern(pattern, matchCase) },
               group: {
                 addLabel: 'studio.library.addExample'
               }

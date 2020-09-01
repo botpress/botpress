@@ -152,5 +152,10 @@
     "valueBefore": "Value Before",
     "valueAfter": "Value After",
     "undefined": "none"
+  },
+  "components": {
+    "dropdown": {
+      "placeholder": "Select from these options"
+    }
   }
 }

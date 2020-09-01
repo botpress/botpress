@@ -1,0 +1,147 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "startNode": "entry",
+  "description": "",
+  "variables": [
+    {
+      "params": {
+        "name": "confirmation",
+        "description": null
+      },
+      "type": "number"
+    }
+  ],
+  "type": "standard",
+  "nodes": [
+    {
+      "id": "6c8ea9db90",
+      "name": "trigger-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": "say_something-3"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "trigger",
+      "conditions": [
+        {
+          "params": {
+            "candidate": [
+              "prompt-subworkflow"
+            ],
+            "exactMatch": false,
+            "caseSensitive": false
+          },
+          "id": "type_text"
+        }
+      ]
+    },
+    {
+      "id": "6efc8d2ba6",
+      "name": "sub-workflow-1",
+      "next": [
+        {
+          "condition": "lastNode=success",
+          "caption": "success",
+          "node": "say_something-1"
+        },
+        {
+          "condition": "lastNode=failure",
+          "caption": "failure",
+          "node": "say_something-2"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "sub-workflow",
+      "flow": "__reusable/place-order.flow.json",
+      "subflow": {
+        "out": {
+          "confirmationNumber": "confirmation",
+          "orderId": "eddeeded"
+        }
+      }
+    },
+    {
+      "id": "afb5a892d4",
+      "name": "say_something-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "say_something",
+      "contents": [
+        {
+          "text": {
+            "en": "Confirmation number: $confirmation"
+          },
+          "variations": {
+            "en": []
+          },
+          "markdown": true,
+          "typing": true,
+          "contentType": "builtin_text"
+        }
+      ]
+    },
+    {
+      "id": "32f1549793",
+      "name": "say_something-2",
+      "next": [
+        {
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "say_something",
+      "contents": [
+        {
+          "text": {
+            "en": "You failed"
+          },
+          "variations": {
+            "en": []
+          },
+          "markdown": true,
+          "typing": true,
+          "contentType": "builtin_text"
+        }
+      ]
+    },
+    {
+      "id": "c5d2c8817c",
+      "name": "say_something-3",
+      "next": [
+        {
+          "condition": "true",
+          "node": "sub-workflow-1"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "say_something",
+      "contents": [
+        {
+          "text": {
+            "en": "Testing sub-workflow. You can place your order now."
+          },
+          "variations": {
+            "en": []
+          },
+          "markdown": true,
+          "typing": true,
+          "contentType": "builtin_text"
+        }
+      ]
+    }
+  ]
+}

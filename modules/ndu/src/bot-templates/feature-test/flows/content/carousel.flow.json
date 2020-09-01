@@ -1,0 +1,111 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "startNode": "entry",
+  "description": "",
+  "type": "standard",
+  "nodes": [
+    {
+      "id": "f1fdccd1ad",
+      "name": "trigger-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": "say_something-1"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "trigger",
+      "conditions": [
+        {
+          "params": {
+            "candidate": [
+              "content-carousel"
+            ],
+            "exactMatch": false,
+            "caseSensitive": false
+          },
+          "id": "type_text"
+        }
+      ]
+    },
+    {
+      "id": "eea5c879b7",
+      "name": "say_something-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "say_something",
+      "contents": [
+        {
+          "items": [
+            {
+              "image": null,
+              "title": {
+                "en": "Hello there!"
+              },
+              "subtitle": {
+                "en": "Subtitle"
+              },
+              "actions": [
+                {
+                  "title": {
+                    "en": "Visit google"
+                  },
+                  "action": "Open URL",
+                  "text": {
+                    "en": null
+                  },
+                  "url": "http://google.com"
+                },
+                {
+                  "title": {
+                    "en": "Say hi!"
+                  },
+                  "action": "Say something",
+                  "text": {
+                    "en": "hi"
+                  }
+                },
+                {
+                  "title": {
+                    "en": "Send postback"
+                  },
+                  "action": "Postback",
+                  "payload": "postback!!!"
+                }
+              ]
+            },
+            {
+              "image": null,
+              "title": {
+                "en": "A second timid card"
+              },
+              "subtitle": {
+                "en": "Mouhahaha"
+              },
+              "actions": [
+                {
+                  "title": {
+                    "en": "Visit botpress"
+                  },
+                  "action": "Open URL",
+                  "url": "http://botpress.com"
+                }
+              ]
+            }
+          ],
+          "markdown": true,
+          "typing": true,
+          "contentType": "builtin_carousel"
+        }
+      ]
+    }
+  ]
+}

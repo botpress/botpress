@@ -16,8 +16,7 @@
   "dependencies": {
     "nanoid": "^2.0.2",
     "react-copy-to-clipboard": "^5.0.2",
-    "react-json-tree": "^0.11.2",
-    "react-select": "^2.4.2"
+    "react-json-tree": "^0.11.2"
   },
   "resolutions": {
     "fstream": ">=1.0.12",
