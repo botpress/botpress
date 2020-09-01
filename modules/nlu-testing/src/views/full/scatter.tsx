@@ -12,6 +12,8 @@ const Scatter: FC<any> = props => {
       setScatEmb(data)
     }
     scatterEmbeddings()
+      .then()
+      .catch()
   }, [props.dataLoaded])
 
   if (!props.dataLoaded) {

@@ -43,6 +43,8 @@ const NLUVisusalisation: FC<any> = props => {
       }, 1000)
     }
     loadDatas()
+      .then()
+      .catch()
   }, [])
 
   return (

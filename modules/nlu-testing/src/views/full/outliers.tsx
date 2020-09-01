@@ -10,6 +10,8 @@ const Outliers: FC<any> = props => {
       setClusterScore(data)
     }
     computeOutliers()
+      .then()
+      .catch()
   }, [props.dataLoaded])
 
   if (!props.dataLoaded) {

@@ -11,6 +11,8 @@ const SimilarityEmbeddings: FC<any> = props => {
       setSimEmb(data)
     }
     similarityEmbeddings()
+      .then()
+      .catch()
   }, [props.dataLoaded])
 
   if (!props.dataLoaded) {
