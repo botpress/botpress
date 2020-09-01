@@ -1,17 +1,18 @@
-import { Button, Classes, Colors, Dialog, Icon, Intent } from '@blueprintjs/core'
+import { Button } from '@blueprintjs/core'
 import axios from 'axios'
-import React, { Fragment, useEffect, useState } from 'react'
+import { lang, ToolTip } from 'botpress/shared'
+import { confirmDialog } from 'botpress/shared'
+import React, { useEffect, useState } from 'react'
 import { toastFailure } from '~/components/Shared/Utils'
 import EventBus from '~/util/EventBus'
 
-import ActionItem from './ActionItem'
+import style from './style.scss'
 
 const adminUrl = `${window['API_PATH']}/admin/server`
 
 const ConfigStatus = () => {
   const [isDifferent, setDifferent] = useState(false)
   const [isRestarting, setRestart] = useState(false)
-  const [isOpen, setOpen] = useState(false)
 
   useEffect(() => {
     // tslint:disable-next-line: no-floating-promises
@@ -57,48 +58,32 @@ const ConfigStatus = () => {
     }
   }
 
-  return (
-    <Fragment>
-      <ActionItem
-        id="statusbar_configstatus"
-        title="Config Status"
-        description="Pending changes"
-        onClick={() => setOpen(true)}
-      >
-        {isDifferent && <Icon icon="cog" style={{ color: Colors.RED5 }} />}
-      </ActionItem>
+  const onRestartClick = async () => {
+    const conf = await confirmDialog(lang.tr('statusBar.configChangedDialog'), {
+      acceptLabel: lang.tr('statusBar.reboot')
+    })
+    if (conf) {
+      await restartServer()
+    }
+  }
 
-      <Dialog
-        title="Configuration Outdated"
-        isOpen={isOpen}
-        onClose={() => setOpen(false)}
-        transitionDuration={0}
-        canOutsideClickClose={false}
-      >
-        <div className={Classes.DIALOG_BODY}>
-          {!isRestarting ? (
-            <div>
-              Changes were made to the main Botpress configuration file. <br />
-              It is recommended to restart the server so they can take effect.
-            </div>
-          ) : (
-            <div>Server restart in progress, please wait...</div>
-          )}
-        </div>
-        <div className={Classes.DIALOG_FOOTER}>
-          <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            <Button
-              id="btn-restart"
-              text={isRestarting ? 'Please wait...' : 'Restart server now'}
-              disabled={isRestarting}
-              onClick={restartServer}
-              intent={Intent.PRIMARY}
-            />
-          </div>
-        </div>
-      </Dialog>
-    </Fragment>
-  )
+  if (isRestarting) {
+    return (
+      <div className={style.item}>
+        <span className={style.message}>{lang.tr('statusBar.rebooting')}</span>
+      </div>
+    )
+  } else if (isDifferent) {
+    return (
+      <div className={style.item}>
+        <ToolTip content={lang.tr('statusBar.applyConfigsTooltip')}>
+          <Button minimal className={style.button} onClick={onRestartClick} text={lang.tr('statusBar.applyConfigs')} />
+        </ToolTip>
+      </div>
+    )
+  } else {
+    return null
+  }
 }
 
 export default ConfigStatus

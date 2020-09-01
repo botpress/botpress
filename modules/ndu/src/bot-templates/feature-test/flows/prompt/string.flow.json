@@ -1,0 +1,160 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "startNode": "entry",
+  "description": "",
+  "variables": [
+    {
+      "type": "string",
+      "params": {
+        "name": "string"
+      }
+    }
+  ],
+  "type": "standard",
+  "nodes": [
+    {
+      "id": "bb5c6599bf",
+      "name": "trigger-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": "prompt-1"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "trigger",
+      "conditions": [
+        {
+          "params": {
+            "candidate": [
+              "prompt-string"
+            ],
+            "exactMatch": false,
+            "caseSensitive": false
+          },
+          "id": "type_text"
+        }
+      ]
+    },
+    {
+      "id": "24112b5ebb",
+      "name": "prompt-1",
+      "next": [
+        {
+          "caption": "User answers correctly",
+          "condition": "thisNode.extracted === true",
+          "node": "say_something-1"
+        },
+        {
+          "caption": "User does not answer",
+          "condition": "thisNode.timeout === true",
+          "node": "say_something-2"
+        },
+        {
+          "caption": "User Cancels",
+          "condition": "thisNode.cancelled === true",
+          "node": "say_something-3"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "prompt",
+      "prompt": {
+        "params": {
+          "question": {
+            "en": "Choose a random string"
+          },
+          "confirm": {
+            "en": null
+          },
+          "duration": 5,
+          "searchBackCount": 2,
+          "cancellable": true,
+          "confirmCancellation": false,
+          "output": "string"
+        },
+        "type": "string"
+      }
+    },
+    {
+      "id": "1ed913b41d",
+      "name": "say_something-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "say_something",
+      "contents": [
+        {
+          "text": {
+            "en": "You chose $string"
+          },
+          "variations": {
+            "en": []
+          },
+          "markdown": true,
+          "typing": true,
+          "contentType": "builtin_text"
+        }
+      ]
+    },
+    {
+      "id": "045b3deeb7",
+      "name": "say_something-2",
+      "next": [
+        {
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "say_something",
+      "contents": [
+        {
+          "text": {
+            "en": "Prompt timed-out"
+          },
+          "variations": {
+            "en": []
+          },
+          "markdown": true,
+          "typing": true,
+          "contentType": "builtin_text"
+        }
+      ]
+    },
+    {
+      "id": "3678dd31da",
+      "name": "say_something-3",
+      "next": [
+        {
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "say_something",
+      "contents": [
+        {
+          "text": {
+            "en": "Prompt cancelled"
+          },
+          "variations": {
+            "en": []
+          },
+          "markdown": true,
+          "typing": true,
+          "contentType": "builtin_text"
+        }
+      ]
+    }
+  ]
+}

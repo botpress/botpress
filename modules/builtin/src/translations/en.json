@@ -89,6 +89,8 @@
     "input": "Input Variable",
     "output": "Output Variable"
   },
+  "enterValue": "Enter a value",
+  "value": "Value",
   "min": "Min",
   "max": "Max",
   "yes": "Yes",
@@ -125,5 +127,25 @@
     "string": {
       "tooLong": "The maximum length is {maxLength} {maxLength, plural, one {character} other {characters}}."
     }
+  },
+  "operator": {
+    "isTrue": "Is True",
+    "isFalse": "Is False",
+    "equals": "Equals",
+    "smallerThan": "Smaller than",
+    "largerThan": "Larger than",
+    "smallerOrEqualTo": "Smaller or Equal to",
+    "largerOrEqualTo": "Larger or Equal to",
+    "contains": "Contains",
+    "startsWith": "Starts with",
+    "endsWith": "Ends with",
+    "isBefore": "Is Before",
+    "isAfter": "Is After"
+  },
+  "operations": {
+    "selfOperation": "If {var} {op}",
+    "standard": "If {var} {op} {other}",
+    "selfOperationNot": "If Not {var} {op}",
+    "standardNot": "If Not {var} {op} {other}"
   }
 }

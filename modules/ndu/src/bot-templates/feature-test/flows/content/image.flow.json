@@ -1,0 +1,58 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "startNode": "entry",
+  "description": "",
+  "type": "standard",
+  "nodes": [
+    {
+      "id": "92dcb808a1",
+      "name": "trigger-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": "say_something-1"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "trigger",
+      "conditions": [
+        {
+          "params": {
+            "candidate": [
+              "content-image"
+            ],
+            "exactMatch": false,
+            "caseSensitive": false
+          },
+          "id": "type_text"
+        }
+      ]
+    },
+    {
+      "id": "2308cff280",
+      "name": "say_something-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "say_something",
+      "contents": [
+        {
+          "image": "/api/v1/bots/main/media/akqk42hnbxwxod3pldug-smallimage.PNG",
+          "title": {
+            "en": "Cute background"
+          },
+          "markdown": true,
+          "typing": true,
+          "contentType": "builtin_image"
+        }
+      ]
+    }
+  ]
+}

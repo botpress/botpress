@@ -44,3 +44,28 @@ export const isSkillFlow = (flow: string | FlowView) => {
     return !!flow.skillData
   }
 }
+
+export const nextFlowName = (flows: { name: string }[], topic: string, originalName: string): string => {
+  let name: string = ''
+  let fullName: string = ''
+  let index = 0
+  do {
+    name = `${originalName}${index ? `-${index}` : ''}`
+    fullName = buildFlowName({ topic, workflow: name }, true).workflowPath || ''
+    index++
+  } while (flows.find(f => f.name === fullName))
+
+  return fullName
+}
+
+export const nextTopicName = (topics: { name: string }[], originalName: string) => {
+  let name = originalName
+  let index = 0
+
+  do {
+    name = `${originalName}${index ? `-${index}` : ''}`
+    index++
+  } while (topics.find(t => t.name === name))
+
+  return name
+}

@@ -452,6 +452,8 @@ export const refreshEntities = () => dispatch => {
   })
 }
 
+export const trainSessionReceived = createAction('TRAIN_SESSION/RECEIVED')
+
 export const conditionsReceived = createAction('CONDITIONS/RECEIVED')
 export const refreshConditions = () => dispatch => {
   // tslint:disable-next-line: no-floating-promises
@@ -543,3 +545,5 @@ export const fetchVariables = () => dispatch => {
     dispatch(variablesReceived(data))
   })
 }
+
+export const setEmulatorOpen = createAction('EMULATOR_OPENED')
