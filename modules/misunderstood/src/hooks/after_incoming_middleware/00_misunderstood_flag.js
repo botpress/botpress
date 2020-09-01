@@ -11,6 +11,7 @@ const flag = async () => {
         .values()
         .flatten()
         .find(kw => kw.toLowerCase() === preview.toLowerCase())
+        .values()
 
       if (kw) {
         bp.logger.info(
