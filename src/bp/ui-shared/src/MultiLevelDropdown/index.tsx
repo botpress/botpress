@@ -3,6 +3,9 @@ import cx from 'classnames'
 import { FC, useState } from 'react'
 import React from 'react'
 import { useEffect } from 'react'
+import { Fragment } from 'react'
+
+import Overlay from '../../../ui-shared-lite/Overlay'
 
 import style from './style.scss'
 import { MultiLevelDropdownProps, Option } from './typings'
@@ -74,33 +77,36 @@ const MultiLevelDropdown: FC<MultiLevelDropdownProps> = props => {
         small={small}
       />
       {isOpen && (
-        <ul className={style.select}>
-          {items.map(({ name, items: options }) => (
-            <li key={name}>
-              <button
-                className={style.selectItem}
-                onClick={() => setExpanded({ ...expanded, [name]: !expanded[name] })}
-              >
-                <Icon icon={expanded[name] ? 'chevron-down' : 'chevron-right'} />
-                {name}
-              </button>
-              {expanded[name] && (
-                <ul>
-                  {options.map(option => (
-                    <li key={option.value}>
-                      <button
-                        onClick={() => updateSelectedOption(option)}
-                        className={cx(style.selectItem, { [style.active]: option.value === activeItem?.value })}
-                      >
-                        {option.label}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          ))}
-        </ul>
+        <Fragment>
+          <ul className={style.select}>
+            {items.map(({ name, items: options }) => (
+              <li key={name}>
+                <button
+                  className={style.selectItem}
+                  onClick={() => setExpanded({ ...expanded, [name]: !expanded[name] })}
+                >
+                  <Icon icon={expanded[name] ? 'chevron-down' : 'chevron-right'} />
+                  {name}
+                </button>
+                {expanded[name] && (
+                  <ul>
+                    {options.map(option => (
+                      <li key={option.value}>
+                        <button
+                          onClick={() => updateSelectedOption(option)}
+                          className={cx(style.selectItem, { [style.active]: option.value === activeItem?.value })}
+                        >
+                          {option.label}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ul>
+          <Overlay onClick={() => setIsOpen(false)} />
+        </Fragment>
       )}
     </div>
   )

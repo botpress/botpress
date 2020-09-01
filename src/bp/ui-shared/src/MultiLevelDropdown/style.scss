@@ -60,6 +60,7 @@
     right: 0;
     max-height: 250px;
     overflow: auto;
+    z-index: 9999;
 
     &Item {
       border: none;
