@@ -21,7 +21,7 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
 
   async train(
     points: sdk.MLToolkit.SVM.DataPoint[],
-    options?: Partial<sdk.MLToolkit.SVM.SVMOptions>,
+    options?: sdk.MLToolkit.SVM.SVMOptions,
     callback?: sdk.MLToolkit.SVM.TrainProgressCallback | undefined
   ): Promise<string> {
     const vectorsLengths = _(points)
@@ -47,18 +47,19 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
 
     const arr = (n: number | number[]) => (_.isArray(n) ? n : [n])
 
-    options = options ?? {}
+    const args: Partial<sdk.MLToolkit.SVM.SVMOptions> = options ?? {}
     this.svm = new SVM({
-      svm_type: options.classifier ? SvmTypes[options.classifier] : undefined,
-      kernel_type: options.kernel ? KernelTypes[options.kernel] : undefined,
-      C: options.c ? arr(options.c) : undefined,
-      gamma: options.gamma ? arr(options.gamma) : undefined,
-      probability: options.probability,
-      reduce: options.reduce,
+      svm_type: args.classifier ? SvmTypes[args.classifier] : undefined,
+      kernel_type: args.kernel ? KernelTypes[args.kernel] : undefined,
+      C: args.c ? arr(args.c) : undefined,
+      gamma: args.gamma ? arr(args.gamma) : undefined,
+      probability: args.probability,
+      reduce: args.reduce,
       kFold
     })
 
-    const trainResult = await this.svm.train(dataset, progress => {
+    const seed = this._extractSeed(args)
+    const trainResult = await this.svm.train(dataset, seed, progress => {
       if (callback && typeof callback === 'function') {
         callback(progress)
       }
@@ -75,6 +76,13 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
 
   isTrained(): boolean {
     return !!this.model
+  }
+
+  private _extractSeed(options: Partial<sdk.MLToolkit.SVM.SVMOptions>): number {
+    if (options.seed) {
+      return options.seed
+    }
+    return Math.round(Math.random() * 10000)
   }
 }
 

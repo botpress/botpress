@@ -4,6 +4,8 @@ import { Data } from '../typings'
 
 import split from './split-dataset'
 
+const SEED = 42
+
 describe('split-dataset', () => {
   test('split-dataset with even kfold', async () => {
     // arrange
@@ -21,7 +23,7 @@ describe('split-dataset', () => {
     const kfold = 4
 
     // act
-    const res = split(dataset, kfold)
+    const res = split(dataset, SEED, kfold)
 
     // assert
     const expectedNbOfSplit = 4
@@ -51,7 +53,7 @@ describe('split-dataset', () => {
     const kfold = 4
 
     // act
-    const res = split(dataset, kfold)
+    const res = split(dataset, SEED, kfold)
 
     // assert
     const expectedNbOfSplit = 4
@@ -91,7 +93,7 @@ describe('split-dataset', () => {
     const kfold = 16
 
     // act
-    const res = split(dataset, kfold)
+    const res = split(dataset, SEED, kfold)
 
     // assert
     for (const ss of res) {

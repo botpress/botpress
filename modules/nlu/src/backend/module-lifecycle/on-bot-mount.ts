@@ -60,7 +60,10 @@ export function getOnBotMount(state: NLUState) {
                 await state.sendNLUStatusEvent(botId, trainSession)
               }
 
-              const options: sdk.NLU.TrainingOptions = { forceTrain, progressCallback }
+              const rand = () => Math.round(Math.random() * 10000)
+              const nluSeed = parseInt(process.env.NLU_SEED) || rand()
+
+              const options: sdk.NLU.TrainingOptions = { forceTrain, nluSeed, progressCallback }
               model = await engine.train(trainSession.key, intentDefs, entityDefs, languageCode, options)
               if (model) {
                 trainSession.status = 'done'
