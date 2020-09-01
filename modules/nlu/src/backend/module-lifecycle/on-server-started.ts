@@ -3,7 +3,7 @@ import _ from 'lodash'
 
 import legacyElectionPipeline from '../legacy-election'
 import { getLatestModel } from '../model-service'
-import { PredictionHandler } from '../prediction-hanlder'
+import { PredictionHandler } from '../prediction-handler'
 import { setTrainingSession } from '../train-session-service'
 import { NLUProgressEvent, NLUState } from '../typings'
 
