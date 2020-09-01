@@ -1470,6 +1470,7 @@ declare module 'botpress/sdk' {
     prompt?: PromptNode
     subflow?: SubWorkflowNode
     isNew?: boolean
+    isReadOnly?: boolean
     /** Used internally by the flow editor */
     readonly lastModified?: Date
   } & NodeActions

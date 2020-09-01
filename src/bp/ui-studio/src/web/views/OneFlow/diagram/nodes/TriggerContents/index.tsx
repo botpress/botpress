@@ -25,9 +25,11 @@ const TriggerContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem, getC
             className={cx(style.hasJoinLabel, {
               [style.active]: selectedCondition?.node?.id === node.id && index === selectedCondition?.index
             })}
-            onEdit={() => editNodeItem?.(node, index)}
+            onEdit={() => !node.isReadOnly && editNodeItem?.(node, index)}
           >
-            <span className={style.content}>{lang.tr(conditionLabels[condition.id], { ...condition.params })}</span>
+            <span className={cx(style.content, { [style.readOnly]: node.isReadOnly })}>
+              {lang.tr(conditionLabels[condition.id], { ...condition.params })}
+            </span>
           </NodeContentItem>
           <span className={style.joinLabel}>{lang.tr('and')}</span>
         </Fragment>
