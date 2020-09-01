@@ -19,6 +19,7 @@ import MainContainer from './MainContainer'
 import MainContent from './MainContent'
 import RightSidebar from './MainContent/RightSidebar'
 import MarkdownContent from './MarkdownContent'
+import MultiLevelDropdown from './MultiLevelDropdown'
 import ShortcutLabel from './ShortcutLabel'
 import Textarea from './Textarea'
 import { toast } from './Toaster'
@@ -35,6 +36,7 @@ exports.MainContent = MainContent
 exports.RightSidebar = RightSidebar
 exports.MarkdownContent = MarkdownContent
 exports.MoreOptions = MoreOptions
+exports.MultiLevelDropdown = MultiLevelDropdown
 exports.Overlay = Overlay
 exports.ShortcutLabel = ShortcutLabel
 exports.Textarea = Textarea

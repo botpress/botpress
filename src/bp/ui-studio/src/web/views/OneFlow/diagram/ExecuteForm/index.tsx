@@ -1,6 +1,6 @@
 import { Button, Tab, Tabs, Tooltip } from '@blueprintjs/core'
 import { BotEvent, ExecuteNode, FlowNode, FlowVariable } from 'botpress/sdk'
-import { Dropdown, Icons, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
+import { Icons, lang, MoreOptions, MoreOptionsItems, MultiLevelDropdown, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import { LocalActionDefinition, Variables } from 'common/typings'
 import React, { FC, Fragment, useCallback, useEffect, useRef, useState } from 'react'
@@ -70,6 +70,13 @@ const ExecuteForm: FC<Props> = ({
 
   const allActions = [newAction, ...actions.map(x => ({ label: `${x.category} - ${x.title}`, value: x.name }))]
   const selectedOption = allActions.find(a => a.value === selectedAction.current)
+  const multiLevelActions = actions.reduce((acc, action) => {
+    const category = acc.find(c => c.name === action.category) || { name: action.category, items: [] }
+
+    category.items.push({ label: action.title, value: action.name })
+
+    return [...acc.filter(a => a.name !== action.category), category]
+  }, [])
 
   const commonProps = {
     customKey,
@@ -104,10 +111,10 @@ const ExecuteForm: FC<Props> = ({
         <div className={cx(contentStyle.fieldWrapper, contentStyle.contentTypeField)}>
           <span className={contentStyle.formLabel}>{lang.tr('Action')}</span>
 
-          <Dropdown
+          <MultiLevelDropdown
             filterable
             className={contentStyle.formSelect}
-            items={allActions}
+            items={multiLevelActions}
             rightIcon="chevron-down"
             defaultItem={selectedOption}
             confirmChange={
