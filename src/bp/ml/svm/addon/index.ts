@@ -13,19 +13,16 @@ export default class BaseSVM {
   }
 
   static restore = (model: Model) => {
-    const random_seed = parseInt(process.env.NLU_SEED || '')
-    const clf = random_seed ? new addon.NSVM({ random_seed }) : new addon.NSVM()
-
+    const clf = new addon.NSVM()
     clf.set_model(model) // might throw
     return new BaseSVM(clf)
   }
 
-  train = (dataset: Data[], params: Parameters): Promise<Model> => {
+  train = (dataset: Data[], random_seed: number, params: Parameters): Promise<Model> => {
     const dims = numeric.dim(dataset)
     assert(dims[0] > 0 && dims[1] === 2 && dims[2] > 0, 'dataset must be a list of [X,y] tuples')
 
-    const random_seed = parseInt(process.env.NLU_SEED || '')
-    this._clf = random_seed ? new addon.NSVM({ random_seed }) : new addon.NSVM()
+    this._clf = new addon.NSVM({ random_seed })
 
     const X = dataset.map(d => d[0])
     const y = dataset.map(d => d[1])

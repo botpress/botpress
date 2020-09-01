@@ -14,6 +14,7 @@ import { GridSearchResult, GridSearchProgress } from './typings'
 export default async function(
   dataset: Data[],
   config: SvmConfig,
+  seed: number,
   progressCb: (progress: GridSearchProgress) => void
 ): Promise<GridSearchResult> {
   const dims = numeric.dim(dataset)
@@ -30,7 +31,7 @@ export default async function(
     arr(config.coef0)
   ])
 
-  const subsets = splitDataset([...dataset], config.kFold)
+  const subsets = splitDataset([...dataset], seed, config.kFold)
 
   const evaluator = evaluators(config)
 
@@ -66,7 +67,7 @@ export default async function(
     const cPromises = subsets.map(function(ss) {
       const clf = new BaseSVM()
 
-      return clf.train(ss.train, params).then(() => {
+      return clf.train(ss.train, seed, params).then(() => {
         done += 1
         progressCb({ done: done, total: total })
         return _.map(ss.test, function(test) {

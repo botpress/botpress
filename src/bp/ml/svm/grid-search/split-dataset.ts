@@ -3,7 +3,7 @@ import _ from 'lodash'
 import { Data } from '../typings'
 import seedrandom from 'seedrandom'
 
-export default function(dataset: Data[], k = 5): SplittedDataSet[] {
+export default function(dataset: Data[], seed: number, k: number): SplittedDataSet[] {
   const kFold = Math.min(dataset.length, k)
   const n = dataset.length
   assert(n >= kFold, 'kFold parameter must be <= n')
@@ -20,11 +20,8 @@ export default function(dataset: Data[], k = 5): SplittedDataSet[] {
   const res: SplittedDataSet[] = []
 
   let lo = _
-  const randomSeed = parseInt(process.env.NLU_SEED || '')
-  if (randomSeed) {
-    seedrandom(`${randomSeed}`, { global: true })
-    lo = _.runInContext()
-  }
+  seedrandom(`${seed}`, { global: true })
+  lo = _.runInContext()
 
   for (let i = 0; i < kFold; i++) {
     const test_set = lo(available_test_samples)
@@ -40,10 +37,8 @@ export default function(dataset: Data[], k = 5): SplittedDataSet[] {
     })
   }
 
-  if (randomSeed) {
-    // cancel back the random seed
-    seedrandom(`${new Date().getMilliseconds()}`, { global: true })
-  }
+  // cancel back the random seed
+  seedrandom(`${new Date().getMilliseconds()}`, { global: true })
 
   return res
 }

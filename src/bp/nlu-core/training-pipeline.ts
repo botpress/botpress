@@ -29,6 +29,7 @@ import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOption
 
 export type TrainInput = Readonly<{
   botId: string
+  nluSeed: number
   languageCode: string
   pattern_entities: PatternEntity[]
   list_entities: ListEntity[]
@@ -39,6 +40,7 @@ export type TrainInput = Readonly<{
 
 export type TrainStep = Readonly<{
   botId: string
+  nluSeed: number
   languageCode: string
   list_entities: ListEntityModel[]
   pattern_entities: PatternEntity[]
@@ -228,7 +230,7 @@ const TrainIntentClassifier = async (
 
     const nAvgUtts = Math.ceil(_.meanBy(trainableIntents, 'utterances.length'))
 
-    const lo = getSeededLodash(process.env.NLU_SEED)
+    const lo = getSeededLodash(input.nluSeed)
     const points = _.chain(trainableIntents)
       .thru(ints => [
         ...ints,
@@ -258,7 +260,8 @@ const TrainIntentClassifier = async (
     }
     const svm = new tools.mlToolkit.SVM.Trainer()
 
-    const model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
+    const seed = input.nluSeed
+    const model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC', seed }, p => {
       const completion = (i + p) / input.ctxToTrain.length
       progress(completion)
     })
@@ -291,7 +294,8 @@ const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: 
 
   const svm = new tools.mlToolkit.SVM.Trainer()
 
-  const model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC' }, p => {
+  const seed = input.nluSeed
+  const model = await svm.train(points, { kernel: 'LINEAR', classifier: 'C_SVC', seed }, p => {
     progress(_.round(p, 1))
   })
 
@@ -358,7 +362,7 @@ export const AppendNoneIntent = async (input: TrainStep, tools: Tools): Promise<
     return input
   }
 
-  const lo = getSeededLodash(process.env.NLU_SEED)
+  const lo = getSeededLodash(input.nluSeed)
 
   const allUtterances = lo.flatten(input.intents.map(x => x.utterances))
   const vocabWithDupes = lo
@@ -456,7 +460,8 @@ const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progres
   const trainingOptions: sdk.MLToolkit.SVM.SVMOptions = {
     c: [10], // so there's no grid search
     kernel: 'LINEAR',
-    classifier: 'C_SVC'
+    classifier: 'C_SVC',
+    seed: input.nluSeed
   }
 
   const noneUtts = _.chain(input.intents)
