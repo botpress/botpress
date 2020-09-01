@@ -48,7 +48,11 @@ export class SVM {
     this._isCanceled = true
   }
 
-  train = async (dataset: Data[], progressCb: (progress: number) => void): Promise<TrainOutput | undefined> => {
+  train = async (
+    dataset: Data[],
+    seed: number,
+    progressCb: (progress: number) => void
+  ): Promise<TrainOutput | undefined> => {
     const self = this
     const dims = numeric.dim(dataset)
     assert(dims[0] > 0 && dims[1] === 2 && dims[2] > 0, 'dataset must be an list of [X,y] tuples')
@@ -79,7 +83,7 @@ export class SVM {
 
     let gridSearchResult: GridSearchResult
     try {
-      gridSearchResult = await gridSearch(dataset, this._config, progress => {
+      gridSearchResult = await gridSearch(dataset, this._config, seed, progress => {
         if (this._isCanceled) {
           throw new TrainingCanceledError('Training was canceled')
         }
@@ -94,7 +98,7 @@ export class SVM {
 
     const { params, report } = gridSearchResult
     self._baseSvm = new BaseSVM()
-    return self._baseSvm.train(dataset, params).then(function(model) {
+    return self._baseSvm.train(dataset, seed, params).then(function(model) {
       progressCb(1)
       const fullModel: SvmModel = { ...model, param: { ...self._config, ...model.param } }
 
