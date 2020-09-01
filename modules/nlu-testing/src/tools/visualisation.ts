@@ -7,34 +7,6 @@ import { PCA } from 'ml-pca'
 import { BotState, PredRes } from '../backend/typings'
 const clustering = require('density-clustering')
 
-export async function computeConfusionMatrix(
-  state: BotState,
-  glob_res: { utt: string; acc: boolean; conf: number; pred: string; gt: string }[]
-) {
-  const results: PredRes[] = []
-  for (const entry of state.testDatas) {
-    const pred = await state.predictor.predict(entry.utt)
-    results.push({
-      utt: entry.utt,
-      acc: pred.label === entry.intent,
-      conf: pred.confidence,
-      pred: pred.label,
-      gt: entry.intent
-    })
-
-    glob_res.push({
-      utt: entry.utt,
-      acc: pred.label === entry.intent,
-      conf: pred.confidence,
-      pred: pred.label,
-      gt: entry.intent
-    })
-  }
-
-  await state.ghost.upsertFile(`./datas/results`, 'confusion_matrix.json', JSON.stringify(results, undefined, 2))
-  return results
-}
-
 export async function computeEmbeddingSimilarity(state: BotState) {
   const intentDatas = _.groupBy(state.trainDatas, 'intent')
 
@@ -78,24 +50,45 @@ export async function computeEmbeddingSimilarity(state: BotState) {
 }
 
 export async function computeScatterEmbeddings(state: BotState, logger: sdk.Logger) {
-  const pca = new PCA(state.trainDatas.map(o => o.utt_emb))
-  const variance = pca.getExplainedVariance()
+  const pcaTrain = new PCA(state.trainDatas.map(o => o.utt_emb))
+  const pcaTest = new PCA(state.testDatas.map(o => o.utt_emb))
+  const varianceTrain = pcaTrain.getExplainedVariance()
+  const varianceTest = pcaTest.getExplainedVariance()
   logger.info(
-    `Top 3 variance ${variance.slice(0, 3).map(o => _.round(o, 2))} Accounting for ${_.round(
-      _.sum(variance.slice(0, 3)),
+    `Top 3 train variance ${varianceTrain.slice(0, 3).map(o => _.round(o, 2))} Accounting for ${_.round(
+      _.sum(varianceTrain.slice(0, 3)),
       2
     )}%`
   )
-  const grouped_intents = _.groupBy(state.trainDatas, 'intent')
+  logger.info(
+    `Top 3 test variance ${varianceTest.slice(0, 3).map(o => _.round(o, 2))} Accounting for ${_.round(
+      _.sum(varianceTest.slice(0, 3)),
+      2
+    )}%`
+  )
+  const groupedIntentsTrain = _.groupBy(state.trainDatas, 'intent')
+  const groupedIntentsTest = _.groupBy(state.testDatas, 'intent')
   const traces = []
-  Object.entries(grouped_intents).map(([k, v]: [string, any[]], i) =>
+  Object.entries(groupedIntentsTrain).map(([k, v]: [string, any[]], i) =>
     traces.push({
-      x: v.map(o => pca.predict([o.utt_emb]).get(0, 0)),
-      y: v.map(o => pca.predict([o.utt_emb]).get(0, 1)),
-      z: v.map(o => pca.predict([o.utt_emb]).get(0, 2)),
+      x: v.map(o => pcaTrain.predict([o.utt_emb]).get(0, 0)),
+      y: v.map(o => pcaTrain.predict([o.utt_emb]).get(0, 1)),
+      z: v.map(o => pcaTrain.predict([o.utt_emb]).get(0, 2)),
       mode: 'markers',
       type: 'scatter3d',
       name: k,
+      text: v.map(o => o.utt),
+      marker: { size: 8, color: i }
+    })
+  )
+  Object.entries(groupedIntentsTest).map(([k, v]: [string, any[]], i) =>
+    traces.push({
+      x: v.map(o => pcaTest.predict([o.utt_emb]).get(0, 0)),
+      y: v.map(o => pcaTest.predict([o.utt_emb]).get(0, 1)),
+      z: v.map(o => pcaTest.predict([o.utt_emb]).get(0, 2)),
+      mode: 'markers',
+      type: 'scatter3d',
+      name: `${k}_test`,
       text: v.map(o => o.utt),
       marker: { size: 8, color: i }
     })

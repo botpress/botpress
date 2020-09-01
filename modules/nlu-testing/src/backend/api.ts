@@ -14,7 +14,6 @@ import { Condition, CSVTest, Test, TestResult, TestResultDetails } from '../shar
 import { computeSummary } from '../shared/utils'
 import { getTrainTestDatas } from '../tools/data_loader'
 import {
-  computeConfusionMatrix,
   computeEmbeddingSimilarity,
   computeKmeansPairwiseIntent,
   computeOutliers,
@@ -183,29 +182,9 @@ export default async (bp: typeof sdk, state: VisuState) => {
     res.send(testResults)
   })
 
-  router.get('/confusionMatrix', async (req, res) => {
-    const botId = req.params.botId
-    const newAxiosConfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
-    state[botId].predictor.axiosConfig = newAxiosConfig
-    state[botId].axiosConfig = newAxiosConfig
-    const jobId = nanoid()
-    res.send(jobId)
-    longJobsPool[jobId] = { status: 'computing', data: undefined, error: undefined, cm: true }
-    try {
-      longJobsPool[jobId].data = await computeConfusionMatrix(state[botId], glob_res)
-      longJobsPool[jobId].status = 'done'
-      bp.logger.info('Done computing Confusion Matrix')
-    } catch (e) {
-      bp.logger.error('Error while trying to compute confusion matrix : ', e)
-      longJobsPool[jobId].status = 'crashed'
-      longJobsPool[jobId].error = e.data
-    }
-  })
-
   router.get('/loadDatas', async (req, res) => {
     const botId = req.params.botId
     const newAxiosConfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
-    state[botId].predictor.axiosConfig = newAxiosConfig
     state[botId].axiosConfig = newAxiosConfig
     const jobId = nanoid()
     res.send(jobId)
@@ -213,9 +192,9 @@ export default async (bp: typeof sdk, state: VisuState) => {
     try {
       await getTrainTestDatas(state[req.params.botId], bp.logger, bp.NLU.Engine)
       longJobsPool[jobId].status = 'done'
-      bp.logger.info('Done loading train and test datas')
+      bp.logger.info('Done embedding or loading train and test datas')
     } catch (e) {
-      bp.logger.error('Error while trying to load datas : ', e)
+      bp.logger.error('Error while trying to embed or load datas : ', e)
       longJobsPool[jobId].status = 'crashed'
       longJobsPool[jobId].error = e.data
     }
@@ -239,13 +218,7 @@ export default async (bp: typeof sdk, state: VisuState) => {
 
   router.get('/long-jobs-status/:jobId', async (req, res) => {
     const newAxiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, { localUrl: true })
-    state[req.params.botId].predictor.axiosConfig = newAxiosConfig
     state[req.params.botId].axiosConfig = newAxiosConfig
-
-    if (longJobsPool[req.params.jobId].cm) {
-      longJobsPool[req.params.jobId].data = glob_res
-    }
-
     res.send(longJobsPool[req.params.jobId])
   })
 }
@@ -334,6 +307,7 @@ function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]
     }
 
     return {
+      type: 'intent',
       success,
       reason: success
         ? ''
@@ -354,6 +328,7 @@ function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]
     received = received !== 'oos' ? received : NONE
     const success = expected === received
     return {
+      type: 'context',
       success,
       reason: success
         ? ''
@@ -390,6 +365,7 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
     }
 
     return {
+      type: 'context',
       success,
       reason: success
         ? ''
@@ -420,6 +396,7 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
     const success = expected === highestRankingIntent.label
     const conf = Math.round(Number(highestRankingIntent.confidence) * 100)
     return {
+      type: 'intent',
       success,
       reason: success
         ? ''
@@ -430,11 +407,12 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
   }
 }
 
-function checkSlotMatch(nlu, slotName, expected) {
+function checkSlotMatch(nlu, slotName, expected): TestResultDetails {
   const received = _.get(nlu, `slots.${slotName}.source`, 'undefined')
   const success = received === expected
 
   return {
+    type: 'slot',
     success,
     reason: success ? '' : `Slot ${slotName} doesn't match. \nexpected: ${expected} \nreceived: ${received}`,
     received,
@@ -450,6 +428,7 @@ function checkSlotsCount(nlu: sdk.IO.EventUnderstanding, conditions: Condition[]
   const expected = `${expectedCount}`
   const received = `${receivedCount}`
   return {
+    type: 'slotCount',
     success,
     reason: success ? '' : `Slot count doesn't match. \nexpected: ${expected} \nreceived: ${received}`,
     received,

@@ -1,50 +1,37 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 import { FaSkullCrossbones } from 'react-icons/fa'
 import { GiLoad } from 'react-icons/gi'
 import { IoMdCloudDone } from 'react-icons/io'
 import { RiLoader2Line } from 'react-icons/ri'
 
-import { Test, TestResult } from '../../shared/typings'
+import { DataResult, Test, TestResult } from '../../shared/typings'
 
+import AccBars from './accBarsTab'
 import ConfusionMatrix from './confusionMatrix'
 import NLUTests from './nluTests'
 import Outliers from './outliers'
 import Scatter from './scatter'
-import SlotTests from './slotTests'
+import SimilarityEmbeddings from './similarityEmb'
 
-interface State {
-  createModalVisible: boolean
-  importModalVisible: boolean
-  tests: Test[]
-  testResults: _.Dictionary<TestResult>
-  loading: boolean
-  working: boolean
-  currentTest?: Test
-}
-
-interface Props {
-  bp: { axios: AxiosInstance }
-  contentLang: string
-  dataLoaded: boolean
-}
-
-const NLUVisusalisation: FC<any> = (props: Props, state: State) => {
+const NLUVisusalisation: FC<any> = props => {
+  const [dataResult, setDataResult] = useState(undefined)
+  const onTestDone = res => {
+    setDataResult(res)
+  }
   const [loadingDatasIcon, setLoadingDatasIcon] = useState(<GiLoad />)
-  const [isLoaded, setIsloaded] = useState(false)
+  const [dataLoaded, setDataLoaded] = useState(false)
   useEffect(() => {
     async function loadDatas() {
       const { data } = await props.bp.axios.get('/mod/nlu-testing/loadDatas', { timeout: 0 })
       const jobId = data
-      console.log('Job ID : ', jobId)
       setLoadingDatasIcon(<RiLoader2Line />)
       const interval = setInterval(async () => {
         const { data } = await props.bp.axios.get(`/mod/nlu-testing/long-jobs-status/${jobId}`)
         if (data.status === 'done') {
-          console.log('Loading datas done')
           setLoadingDatasIcon(<IoMdCloudDone />)
-          setIsloaded(true)
+          setDataLoaded(true)
           clearInterval(interval)
         } else if (data.status === 'crashed') {
           console.error(`Loading datas crashed : ${data.error}`)
@@ -52,7 +39,6 @@ const NLUVisusalisation: FC<any> = (props: Props, state: State) => {
           clearInterval(interval)
         } else {
           setLoadingDatasIcon(<RiLoader2Line />)
-          console.log('Loading Datas ')
         }
       }, 1000)
     }
@@ -63,11 +49,20 @@ const NLUVisusalisation: FC<any> = (props: Props, state: State) => {
     <div>
       <div>Datas {loadingDatasIcon}</div>
       <Tabs animate={true} id="NLU">
-        <Tab id="intents" title="Intent tests" panel={<NLUTests {...props} {...state} />} />
-        <Tab id="slots" title="Slots tests" panel={<SlotTests {...props} {...state} />} />
-        {isLoaded && <Tab id="Confusion Matrix" title="Confusion Matrix" panel={<ConfusionMatrix {...props} />} />}
-        {isLoaded && <Tab id="Outliers" title="Outliers" panel={<Outliers {...props} />} />}
-        {isLoaded && <Tab id="Scatter" title="Scatter" panel={<Scatter {...props} />} />}
+        <Tab id="intents" title="Intent tests" panel={<NLUTests {...props} onTestDone={onTestDone} />} />
+        {dataResult && (
+          <Tab
+            id="Confusion Matrix"
+            title="Confusion Matrix"
+            panel={<ConfusionMatrix {...props} dataResult={dataResult} />}
+          />
+        )}
+        {dataResult && <Tab id="Bars" title="Bars" panel={<AccBars {...props} dataResult={dataResult} />} />}
+        {dataLoaded && <Tab id="Outliers" title="Outliers" panel={<Outliers {...props} dataLoaded={dataLoaded} />} />}
+        {dataLoaded && <Tab id="Scatter" title="Scatter" panel={<Scatter {...props} dataLoaded={dataLoaded} />} />}
+        {dataLoaded && (
+          <Tab id="Similarity" title="Similarity" panel={<SimilarityEmbeddings {...props} dataLoaded={dataLoaded} />} />
+        )}
         <Tabs.Expander />
       </Tabs>
     </div>

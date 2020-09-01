@@ -1,10 +1,7 @@
 import * as sdk from 'botpress/sdk'
 
-import { BotpressPredictor } from '../models/botpress_predictor'
-
 export interface BotState {
   axiosConfig: sdk.AxiosBotConfig
-  predictor: BotpressPredictor
   botId: string
   ghost: sdk.ScopedGhostService
   trainDatas: Data[]

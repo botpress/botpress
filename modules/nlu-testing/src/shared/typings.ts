@@ -15,6 +15,7 @@ export interface CSVTest {
 }
 
 export interface TestResultDetails {
+  type: 'slot' | 'slotCount' | 'intent' | 'context'
   success: boolean
   reason: string
   expected: string
@@ -26,4 +27,15 @@ export interface TestResult {
   success: boolean
   details: TestResultDetails[]
   nlu: IO.EventUnderstanding
+}
+
+export interface VisData {
+  gt: string
+  pred: string
+}
+export interface DataResult {
+  intent: VisData[]
+  slot: VisData[]
+  context: VisData[]
+  slotCount: VisData[]
 }

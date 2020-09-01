@@ -5,10 +5,9 @@ import { toastFailure, toastSuccess } from 'botpress/utils'
 import _ from 'lodash'
 import React from 'react'
 
-import { Test, TestResult } from '../../shared/typings'
+import { DataResult, Test, TestResult } from '../../shared/typings'
 import { computeSummary } from '../../shared/utils'
 
-import { TestingAPI } from './api'
 import { makeApi } from './api'
 import style from './style.scss'
 import { ImportModal } from './ImportModal'
@@ -28,6 +27,7 @@ interface State {
 interface Props {
   bp: { axios: AxiosInstance }
   contentLang: string
+  onTestDone: (res: any) => void
 }
 
 // TODO use ctx & useReducer instead of state
@@ -71,7 +71,15 @@ export default class NLUTests extends React.Component<Props, State> {
     this.setState({ working: true })
     await new Promise(resolve => this.setState({ testResults: {} }, resolve))
     const testResults = await this.api.runAllTests()
+    console.log('testResults   ', testResults)
     this.setState({ working: false, testResults })
+    const dataResult = { intent: [], slot: [], context: [], slotCount: [] }
+    for (const res of Object.values(testResults)) {
+      res.details.map(rd => {
+        dataResult[rd.type].push({ gt: rd.expected, pred: rd.received })
+      })
+    }
+    this.props.onTestDone(dataResult)
   }
 
   runSingleTest = async (test: Test) => {

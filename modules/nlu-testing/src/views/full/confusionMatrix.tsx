@@ -1,109 +1,78 @@
 import _ from 'lodash'
-import React, { useEffect, useState } from 'react'
-import Plot from 'react-plotly.js'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 
-import { PredRes } from '../../backend/typings'
+import Plots from './plots'
 
-const ConfusionMatrix = props => {
-  const [CF, setCF] = useState([])
+const ConfusionMatrix: FC<any> = props => {
+  const [CF, setCF] = useState({ intent: [], context: [], slot: [], slotCount: [] })
 
-  const createCM = (datas: PredRes[]) => {
+  const createCM = (matrixType: 'slot' | 'intent' | 'context' | 'slotCount') => {
+    const datas: { pred: string; gt: string }[] = props.dataResult[matrixType]
+    if (datas.length < 1) {
+      return []
+    }
     const CM = {}
-    const allIntents = Array.from(new Set(datas.map(o => o.pred).concat(datas.map(o => o.gt))))
-    for (const intent of allIntents) {
-      CM[intent] = {}
-      for (const subIntent of allIntents) {
-        CM[intent][subIntent] = { score: 0, utts: [] }
+    const allLabels = Array.from(new Set(datas.map(o => o.pred).concat(datas.map(o => o.gt))))
+    for (const label of allLabels) {
+      CM[label] = {}
+      for (const subLabel of allLabels) {
+        CM[label][subLabel] = 0
       }
     }
 
     for (const entry of datas) {
-      CM[entry.pred][entry.gt]['score'] += 1
-      if (!entry.acc) {
-        CM[entry.pred][entry.gt]['utts'].push(entry.utt)
-      }
+      CM[entry.pred][entry.gt] += 1
     }
 
-    const text = []
     const z = []
-    for (const intent of allIntents) {
+    for (const label of allLabels) {
       const numberRow = []
-      const textRow = []
-      for (const subIntent of allIntents) {
-        textRow.push(CM[intent][subIntent]['utts'].join('<br>'))
-        numberRow.push(CM[intent][subIntent]['score'])
+      for (const subLabel of allLabels) {
+        numberRow.push(CM[label][subLabel])
       }
       z.push(numberRow)
-      text.push(textRow)
     }
 
     const zTranspose = z[0].map((_, colIndex) => z.map(row => row[colIndex]))
-    const textTranspose = text[0].map((_, colIndex) => text.map(row => row[colIndex]))
     const zTransposeNorm = zTranspose.map(row => {
       const sumRow = _.sum(row)
       return row.map(elt => _.round(elt / (sumRow + Number.EPSILON), 2))
     })
+
     const matrix = [
       {
-        x: allIntents,
-        y: allIntents,
+        x: allLabels,
+        y: allLabels,
         z: zTransposeNorm,
-        text: textTranspose,
         type: 'heatmap'
       }
     ]
-    setCF([...matrix])
+    return matrix
   }
 
   useEffect(() => {
-    async function confusionMatrix() {
-      const { data } = await props.bp.axios.get('/mod/nlu-testing/confusionMatrix', { timeout: 0 })
-      const jobId = data
-      console.log('Job ID : ', jobId)
-      const interval = setInterval(async () => {
-        const { data } = await props.bp.axios.get(`/mod/nlu-testing/long-jobs-status/${jobId}`)
-        if (data.status === 'done') {
-          console.log('Confusion Matrix done')
-          clearInterval(interval)
-          createCM(data.data)
-        } else if (data.status === 'crashed') {
-          console.error(`Confusion Matrix crashed : ${data.error}`)
-          clearInterval(interval)
-        } else {
-          console.log('Computing Confusion Matrix ')
-          createCM(data.data)
-        }
-      }, 20000)
-    }
-    confusionMatrix()
-  }, [props.dataLoaded])
+    const intentCF = createCM('intent')
+    const contextCF = createCM('context')
+    const slotCF = createCM('slot')
+    const slotCountCF = createCM('slotCount')
+    setCF({ intent: intentCF, context: contextCF, slot: slotCF, slotCount: slotCountCF })
+  }, [props.dataResult])
 
-  return (
-    <Plot
-      data={CF}
-      layout={{
-        autosize: true,
-        title: {
-          text: 'Intents from nlu-tests confusion matrix ',
-          font: { family: 'Courier New, monospace', size: 24 },
-          xref: 'paper',
-          x: 0.05
-        },
-        xaxis: {
-          title: { text: 'Predicted', font: { family: 'Courier New, monospace', size: 18, color: '#7f7f7f' } },
-          automargin: true,
-          autosize: true,
-          tickangle: -45
-        },
-        yaxis: {
-          title: { text: 'Actual', font: { family: 'Courier New, monospace', size: 18, color: '#7f7f7f' } },
-          automargin: true,
-          autosize: true
-        }
-      }}
-      config={{ responsive: true }}
-      style={{ width: '100%', height: '100%' }}
-    />
-  )
+  if (!props.dataResult) {
+    return <h3>Please run the intent test first</h3>
+  } else {
+    return (
+      <Fragment>
+        {props.dataResult.intent.length > 0 && (
+          <Plots data={CF.intent} title={'Intents from nlu-tests confusion matrix'} />
+        )}
+        {props.dataResult.context.length > 0 && (
+          <Plots data={CF.context} title={'Contexts from nlu-tests confusion matrix'} />
+        )}
+        {props.dataResult.slot.length > 0 && <Plots data={CF.slot} title={'Slots from nlu-tests confusion matrix'} />}
+        {false && <Plots data={CF.slotCount} title={'Slot count from nlu-tests confusion matrix'} />}
+      </Fragment>
+    )
+  }
 }
 export default ConfusionMatrix
