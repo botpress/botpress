@@ -45,20 +45,18 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
     const minKFold = getMinKFold(dataset)
     const kFold = Math.max(minKFold, 4)
 
-    const arr = (n: number | number[]) => (_.isArray(n) ? n : [n])
-
-    const args: Partial<sdk.MLToolkit.SVM.SVMOptions> = options ?? {}
+    const arr = (n?: number | number[]) => (_.isNumber(n) ? [n] : n)
     this.svm = new SVM({
-      svm_type: args.classifier ? SvmTypes[args.classifier] : undefined,
-      kernel_type: args.kernel ? KernelTypes[args.kernel] : undefined,
-      C: args.c ? arr(args.c) : undefined,
-      gamma: args.gamma ? arr(args.gamma) : undefined,
-      probability: args.probability,
-      reduce: args.reduce,
+      svm_type: options && SvmTypes[options.classifier],
+      kernel_type: options && KernelTypes[options.kernel],
+      C: options && arr(options.c),
+      gamma: options && arr(options.gamma),
+      probability: options?.probability,
+      reduce: options?.reduce,
       kFold
     })
 
-    const seed = this._extractSeed(args)
+    const seed = this._extractSeed(options)
     const trainResult = await this.svm.train(dataset, seed, progress => {
       if (callback && typeof callback === 'function') {
         callback(progress)
@@ -78,11 +76,9 @@ export class Trainer implements sdk.MLToolkit.SVM.Trainer {
     return !!this.model
   }
 
-  private _extractSeed(options: Partial<sdk.MLToolkit.SVM.SVMOptions>): number {
-    if (options.seed) {
-      return options.seed
-    }
-    return Math.round(Math.random() * 10000)
+  private _extractSeed(options?: sdk.MLToolkit.SVM.SVMOptions): number {
+    const seed = options?.seed
+    return seed ?? Math.round(Math.random() * 10000)
   }
 }
 
