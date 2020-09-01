@@ -437,3 +437,17 @@
     }
   }
 }
+
+.variablesTable {
+  th {
+    font-size: 12px;
+    padding-left: 0px !important;
+    padding-bottom: 0px !important;
+  }
+
+  td {
+    font-size: 10px;
+    padding-left: 0px !important;
+    box-shadow: none !important;
+  }
+}
