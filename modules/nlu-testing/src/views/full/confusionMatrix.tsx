@@ -7,7 +7,6 @@ import { PredRes } from '../../backend/typings'
 const ConfusionMatrix = props => {
   const [CF, setCF] = useState([])
 
-
   const createCM = (datas: PredRes[]) => {
     const CM = {}
     const allIntents = Array.from(new Set(datas.map(o => o.pred).concat(datas.map(o => o.gt))))
@@ -78,7 +77,6 @@ const ConfusionMatrix = props => {
     }
     confusionMatrix()
   }, [props.dataLoaded])
-
 
   return (
     <Plot

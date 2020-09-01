@@ -31,11 +31,7 @@ export async function computeConfusionMatrix(
     })
   }
 
-  await state.ghost.upsertFile(
-    `./datas/results`,
-    'confusion_matrix.json',
-    JSON.stringify(results, undefined, 2)
-  )
+  await state.ghost.upsertFile(`./datas/results`, 'confusion_matrix.json', JSON.stringify(results, undefined, 2))
   return results
 }
 
@@ -53,7 +49,6 @@ export async function computeEmbeddingSimilarity(state: BotState) {
       intentEmb[key] = Matrix.div(meanEmb, intentDatas[key].length).to1DArray()
     }
   }
-  // console.log(intentEmb)
 
   const indexAndIntent = Array.from(Object.keys(intentEmb).entries())
   const simMat = { matrix: [], labels: [] }
@@ -78,11 +73,7 @@ export async function computeEmbeddingSimilarity(state: BotState) {
       type: 'heatmap'
     }
   ]
-  await state.ghost.upsertFile(
-    `./datas/results`,
-    'similarity_matrix.json',
-    JSON.stringify(simMat, undefined, 2)
-  )
+  await state.ghost.upsertFile(`./datas/results`, 'similarity_matrix.json', JSON.stringify(simMat, undefined, 2))
   return plotlyMatrixData
 }
 

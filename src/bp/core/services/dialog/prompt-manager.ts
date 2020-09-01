@@ -240,14 +240,14 @@ export class PromptManager {
       // Below condition is to make sure the slot has a matching entity type (lists, patterns)
       // Exception for complex types, where they don't necessarily need an entity extracted, they accept free-form text
       if (!params.subType?.length || params.type === 'complex' || slotCandidate.entity?.name === params.subType) {
-      candidates.push({
-        confidence: slotCandidate.confidence,
-        source: 'slot',
-        turns_ago: 0,
-        value_raw: slotCandidate.value,
-        value_string: slotCandidate?.value.toString() ?? slotCandidate.value
-      })
-    }
+        candidates.push({
+          confidence: slotCandidate.confidence,
+          source: 'slot',
+          turns_ago: 0,
+          value_raw: slotCandidate.value,
+          value_string: slotCandidate?.value.toString() ?? slotCandidate.value
+        })
+      }
     }
 
     for (const [turn, pastEvent] of eventsToExtractFrom.entries()) {

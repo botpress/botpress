@@ -12,7 +12,6 @@ const Outliers = props => {
     computeOutliers()
   }, [props.dataLoaded])
 
-
   return (
     <div>
       {_.toPairs(clusterScore).map(([k, v]: [string, { outliers: string[]; clusters: string[][] }]) => {

@@ -8,6 +8,7 @@ import React from 'react'
 import { Test, TestResult } from '../../shared/typings'
 import { computeSummary } from '../../shared/utils'
 
+import { TestingAPI } from './api'
 import { makeApi } from './api'
 import style from './style.scss'
 import { ImportModal } from './ImportModal'
@@ -32,7 +33,6 @@ interface Props {
 // TODO use ctx & useReducer instead of state
 export default class NLUTests extends React.Component<Props, State> {
   private api = makeApi(this.props.bp)
-
   state: State = {
     createModalVisible: false,
     importModalVisible: false,
@@ -133,7 +133,7 @@ export default class NLUTests extends React.Component<Props, State> {
             {this.state.working && (
               <span className={style.working}>
                 <Spinner size={20} />
-                  &nbsp; Working
+                &nbsp; Working
               </span>
             )}
             {!this.state.working && !_.isEmpty(this.state.testResults) && (
@@ -149,7 +149,7 @@ export default class NLUTests extends React.Component<Props, State> {
                 <span className={style.working}>
                   <Icon icon="tick" />
                   {computeSummary(this.state.tests, this.state.testResults)} % of tests passing
-                  </span>
+                </span>
               </React.Fragment>
             )}
           </div>

@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import crypto from 'crypto'
 import _ from 'lodash'
-import axios from 'axios'
+
 import { BotState, Data, RawData, Test } from '../backend/typings'
 
 async function splitTrainToTrainAndTest(state: BotState) {
@@ -49,7 +49,6 @@ async function splitTrainToTrainAndTest(state: BotState) {
 }
 
 export async function getTrainTestDatas(state: BotState, logger: sdk.Logger, engine) {
-
   if (
     (await state.ghost.fileExists('./datas', 'test_set.json')) &&
     (await state.ghost.fileExists('./datas', 'train_set.json'))
@@ -126,17 +125,9 @@ export async function getTrainTestDatas(state: BotState, logger: sdk.Logger, eng
     }
   }
 
-  await state.ghost.upsertFile(
-    './datas',
-    'test_set.json',
-    JSON.stringify(vectorized_test, undefined, 2)
-  )
+  await state.ghost.upsertFile('./datas', 'test_set.json', JSON.stringify(vectorized_test, undefined, 2))
 
-  await state.ghost.upsertFile(
-    './datas',
-    'train_set.json',
-    JSON.stringify(vectorized_train, undefined, 2)
-  )
+  await state.ghost.upsertFile('./datas', 'train_set.json', JSON.stringify(vectorized_train, undefined, 2))
 
   state.trainDatas = vectorized_train
   state.testDatas = vectorized_test

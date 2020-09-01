@@ -338,9 +338,9 @@ function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]
       reason: success
         ? ''
         : `Intent doesn't match. \nexpected: ${expected} \nreceived: ${received} \nconfidence: ${_.round(
-          nlu.intent.confidence,
-          2
-        )}`,
+            nlu.intent.confidence,
+            2
+          )}`,
       received,
       expected
     }
@@ -358,9 +358,9 @@ function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]
       reason: success
         ? ''
         : `Context doesn't match. \nexpected: ${expected} \nreceived: ${received} \nconfidence ${_.round(
-          ctxPred.confidence,
-          2
-        )}`,
+            ctxPred.confidence,
+            2
+          )}`,
       received,
       expected
     }

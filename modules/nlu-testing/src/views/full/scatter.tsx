@@ -1,14 +1,6 @@
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
-import { FaSkullCrossbones } from 'react-icons/fa'
-import { GiLoad } from 'react-icons/gi'
-import { IoMdCloudDone } from 'react-icons/io'
-import { RiLoader2Line } from 'react-icons/ri'
 import Plot from 'react-plotly.js'
-
-import { PredRes } from '../../backend/typings'
-
-import style from './style.scss'
 
 const Scatter = props => {
   const [scatEmb, setScatEmb] = useState([])
@@ -20,7 +12,6 @@ const Scatter = props => {
     }
     scatterEmbeddings()
   }, [props.dataLoaded])
-
 
   return (
     <Plot
