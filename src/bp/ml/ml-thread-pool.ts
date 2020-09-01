@@ -19,7 +19,7 @@ type Payload = Partial<{
   result: string
   error: string
   points: (sdk.MLToolkit.SVM.DataPoint | sdk.MLToolkit.CRF.DataPoint)[]
-  options: Partial<sdk.MLToolkit.SVM.SVMOptions> | sdk.MLToolkit.CRF.TrainerOptions
+  options: sdk.MLToolkit.SVM.SVMOptions | sdk.MLToolkit.CRF.TrainerOptions | undefined
 }>
 
 export interface Message {
@@ -40,7 +40,7 @@ export class MLThreadPool {
   public async startSvmTraining(
     trainingId: string,
     points: sdk.MLToolkit.SVM.DataPoint[],
-    options: Partial<sdk.MLToolkit.SVM.SVMOptions>,
+    options: sdk.MLToolkit.SVM.SVMOptions | undefined,
     progress: sdk.MLToolkit.SVM.TrainProgressCallback | undefined,
     complete: (model: string) => void,
     error: (error: Error) => void
@@ -64,7 +64,7 @@ export class MLThreadPool {
     trainingType: 'svm' | 'crf',
     trainingId: string,
     points: sdk.MLToolkit.SVM.DataPoint[] | sdk.MLToolkit.CRF.DataPoint[],
-    options: Partial<sdk.MLToolkit.SVM.SVMOptions> | sdk.MLToolkit.CRF.TrainerOptions | undefined,
+    options: sdk.MLToolkit.SVM.SVMOptions | sdk.MLToolkit.CRF.TrainerOptions | undefined,
     progress: sdk.MLToolkit.SVM.TrainProgressCallback | sdk.MLToolkit.CRF.TrainProgressCallback | undefined,
     complete: (model: string) => void,
     error: (error: Error) => void

@@ -129,8 +129,10 @@ export default class Engine implements NLU.Engine {
         slot_definitions: x.slots
       }))
 
+    const { forceTrain, nluSeed, progressCallback } = options
+
     const previousModel = this.modelsByLang[languageCode]
-    let trainAllCtx = options?.forceTrain || !previousModel
+    let trainAllCtx = forceTrain || !previousModel
     let ctxToTrain = contexts
 
     if (!trainAllCtx) {
@@ -149,6 +151,7 @@ export default class Engine implements NLU.Engine {
 
     const input: TrainInput = {
       botId: this.botId,
+      nluSeed,
       languageCode,
       list_entities,
       pattern_entities,
@@ -159,7 +162,7 @@ export default class Engine implements NLU.Engine {
     }
 
     const hash = this.computeModelHash(intentDefs, entityDefs, languageCode)
-    const model = await this._trainAndMakeModel(trainSessionId, input, hash, options.progressCallback)
+    const model = await this._trainAndMakeModel(trainSessionId, input, hash, progressCallback)
 
     if (!model) {
       return

@@ -16,6 +16,7 @@ interface Props {
   contentLang: string
   formData: sdk.NLU.EntityDefinition
   variables: Variables
+  entities: sdk.NLU.EntityDefinition[]
   close: () => void
   deleteEntity: (entityId: string) => void
   refreshEntities: () => void
@@ -52,10 +53,14 @@ const VariableForm: FC<Props> = props => {
     case 'pattern':
       return <PatternForm {...allProps} />
     case 'list':
-      return <EnumForm {...allProps} />
+      return <EnumForm allEntities={props.entities.filter(e => e.type === 'list')} {...allProps} />
     case 'complex':
       return <ComplexForm {...allProps} />
   }
 }
 
-export default connect(undefined, { refreshEntities, deleteEntity, setActiveFormItem })(VariableForm)
+const mapStateToProps = state => ({
+  entities: state.nlu.entities
+})
+
+export default connect(mapStateToProps, { refreshEntities, deleteEntity, setActiveFormItem })(VariableForm)

@@ -9,14 +9,15 @@ import style from '../style.scss'
 import { Inspector } from './Inspector'
 import NDU from './NDU'
 import NLU from './NLU'
+import State from './State'
 
 interface Props {
   event: sdk.IO.IncomingEvent
+  prevEvent: sdk.IO.IncomingEvent
 }
 
 const DEBUGGER_STATE_KEY = 'debuggerState'
 const ERROR_PANEL = 'panel::errors'
-const STATE_PANEL = 'panel::state'
 
 const getDebuggerState = () => {
   try {
@@ -91,13 +92,13 @@ export default class Summary extends React.Component<Props> {
           ndu={this.props.event.ndu}
         />
 
-        <Collapsible
-          opened={this.isExpanded(STATE_PANEL)}
-          toggleExpand={expanded => this.toggleExpand(STATE_PANEL, expanded)}
-          name={lang.tr('module.extensions.summary.state')}
-        >
-          <Inspector data={this.props.event.state} />
-        </Collapsible>
+        <State
+          isExpanded={this.isExpanded.bind(this)}
+          toggleExpand={this.toggleExpand.bind(this)}
+          state={this.props.event.state}
+          prevState={this.props.prevEvent?.state}
+        />
+
         {eventError && (
           <Collapsible
             opened={this.isExpanded(ERROR_PANEL)}

@@ -366,6 +366,7 @@ declare module 'botpress/sdk' {
       export interface SVMOptions {
         classifier: 'C_SVC' | 'NU_SVC' | 'ONE_CLASS' | 'EPSILON_SVR' | 'NU_SVR'
         kernel: 'LINEAR' | 'POLY' | 'RBF' | 'SIGMOID'
+        seed: number
         c?: number | number[]
         gamma?: number | number[]
         probability?: boolean
@@ -388,7 +389,7 @@ declare module 'botpress/sdk' {
 
       export class Trainer {
         constructor()
-        train(points: DataPoint[], options?: Partial<SVMOptions>, callback?: TrainProgressCallback): Promise<string>
+        train(points: DataPoint[], options?: SVMOptions, callback?: TrainProgressCallback): Promise<string>
         isTrained(): boolean
       }
 
@@ -493,6 +494,7 @@ declare module 'botpress/sdk' {
 
     export interface TrainingOptions {
       forceTrain: boolean
+      nluSeed: number
       progressCallback: (x: number) => void
     }
 
@@ -1588,7 +1590,11 @@ declare module 'botpress/sdk' {
     fields?: FormField[]
     moreInfo?: FormMoreInfo
     /** When specified, indicate if array elements match the provided pattern */
-    validationPattern?: RegExp
+    validation?: {
+      regex?: RegExp
+      list?: any[]
+      validator?: (items: any[], newItem: any) => boolean
+    }
     group?: {
       /** You have to specify the add button label */
       addLabel?: string
