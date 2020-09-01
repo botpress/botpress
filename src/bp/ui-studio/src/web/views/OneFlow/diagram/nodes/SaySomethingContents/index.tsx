@@ -12,7 +12,7 @@ interface Props {
   defaultLang: string
 }
 
-const SaySomethingContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem, currentLang }) => {
+const SaySomethingContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem, currentLang, defaultLang }) => {
   const selectedContent = selectedNodeItem()
 
   const fieldHasMissingTranslation = (value = {}) => {
@@ -46,20 +46,16 @@ const SaySomethingContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem,
           choice => fieldHasMissingTranslation(choice.title) || fieldHasMissingTranslation(choice.value)
         )
       default:
-        const translatedVariations = Object.keys(content.variations || {}).reduce((acc, key) => {
-          return { ...acc, [key]: content.variations[key].filter(Boolean).length }
-        }, {})
-        const curLangLength = translatedVariations[currentLang] || 0
+        const variations = content.variations || {}
+        const curLangLength = variations[currentLang]?.length || 0
+        const text = content.text || {}
 
-        return (
-          fieldHasMissingTranslation(content.text) ||
-          Object.keys(translatedVariations)
-            .filter(l => l !== currentLang)
-            .some(l => translatedVariations[l] > curLangLength)
+        return !!(
+          !text[currentLang] &&
+          !curLangLength &&
+          (variations[defaultLang]?.filter(Boolean).length || text[defaultLang])
         )
     }
-
-    return false
   }
 
   return (

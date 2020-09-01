@@ -297,7 +297,6 @@ const Form: FC<FormProps> = ({
               <SuperInputArray
                 getPlaceholder={index => getArrayPlaceholder(index, field)}
                 moreInfo={printMoreInfo(field.moreInfo)}
-                canAdd={!defaultLang || defaultLang === currentLang}
                 onChange={value => {
                   dispatch({
                     type: 'updateField',

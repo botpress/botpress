@@ -27,6 +27,7 @@ export default ({
   variables,
   addVariable,
   onChange,
+  isPartOfArray,
   onBlur,
   className,
   value,
@@ -206,7 +207,7 @@ export default ({
     }
   }
 
-  const missingTranslation = refValue && !value
+  const missingTranslation = !isPartOfArray && refValue && !value
 
   return (
     <Fragment>

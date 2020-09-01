@@ -32,7 +32,6 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
   variableTypes,
   addBtnLabel,
   label,
-  canAdd,
   onChange,
   moreInfo,
   refValue,
@@ -139,12 +138,13 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
     }
   }
 
+  const missingTranslation = !!refValue?.filter(Boolean).length && !localItems.filter(Boolean).length
+
   return (
     <div className={style.items}>
       <h2>{label}</h2>
       {moreInfo}
       {localItems?.map((item, index) => {
-        const missingTranslation = refValue?.[index] && !item
         return (
           <div
             key={itemIds.current[index]}
@@ -154,9 +154,10 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
               isFocused={focusedElement.current === index}
               placeholder={getPlaceholder?.(index)}
               variableTypes={variableTypes}
-              className={style.customTextarea}
+              className={cx(style.customTextarea, { ['has-error']: missingTranslation })}
               canPickEvents={canPickEvents}
               canPickVariables={canPickVariables}
+              isPartOfArray
               multiple
               variables={variables}
               events={events || []}
@@ -170,17 +171,16 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
           </div>
         )
       })}
+      {missingTranslation && <span className={style.error}>{lang('pleaseTranslateField')}</span>}
 
-      {canAdd && (
-        <Tooltip
-          content={lang('quickAddAlternative', {
-            shortcut: <ShortcutLabel light keys={[controlKey, 'enter']} />
-          })}
-          position={Position.BOTTOM}
-        >
-          <AddButton text={addBtnLabel} onClick={() => addItem()} />
-        </Tooltip>
-      )}
+      <Tooltip
+        content={lang('quickAddAlternative', {
+          shortcut: <ShortcutLabel light keys={[controlKey, 'enter']} />
+        })}
+        position={Position.BOTTOM}
+      >
+        <AddButton text={addBtnLabel} onClick={() => addItem()} />
+      </Tooltip>
     </div>
   )
 }

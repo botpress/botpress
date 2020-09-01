@@ -15,7 +15,14 @@ interface Props {
   defaultLang: string
 }
 
-const TriggerContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem, getConditions, currentLang }) => {
+const TriggerContents: FC<Props> = ({
+  node,
+  editNodeItem,
+  selectedNodeItem,
+  getConditions,
+  currentLang,
+  defaultLang
+}) => {
   const conditionLabels = getConditions().reduce((acc, cond) => ({ ...acc, [cond.id]: cond.label }), {})
   const selectedCondition = selectedNodeItem()
 
@@ -23,11 +30,8 @@ const TriggerContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem, getC
     switch (condition.id) {
       case 'user_intent_is':
         const utterances = condition.params?.utterances || {}
-        const curLangLength = utterances[currentLang] || 0
 
-        return Object.keys(utterances)
-          .filter(l => l !== currentLang)
-          .some(l => utterances[l].length > curLangLength)
+        return !utterances[currentLang]?.filter(Boolean)?.length && utterances[defaultLang]?.filter(Boolean)?.length
       default:
         return false
     }

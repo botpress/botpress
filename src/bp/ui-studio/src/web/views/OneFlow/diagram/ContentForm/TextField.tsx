@@ -72,7 +72,6 @@ const TextAreaList: FC<Props> = ({
   return (
     <FormFields.SuperInputArray
       variables={variables}
-      canAdd={!defaultLang || defaultLang === currentLang}
       refValue={[...[data.text?.[refLang] || ''], ...(data.variations?.[refLang] || [])]}
       events={events || []}
       onUpdateVariables={onUpdateVariables}
