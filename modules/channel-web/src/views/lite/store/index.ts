@@ -417,7 +417,7 @@ class RootStore {
   updateBotUILanguage(lang: string): void {
     runInAction('-> setBotUILanguage', () => {
       this.botUILanguage = lang
-      localStorage.setItem('bp/channel-web/user-lang', lang)
+      window.BP_STORAGE?.set('bp/channel-web/user-lang', lang)
     })
   }
 
