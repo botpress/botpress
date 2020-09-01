@@ -16,7 +16,8 @@ module.exports = {
       metadata: {
         ...(data.markdown && { __markdown: true }),
         ...(data.typing && { __typing: true }),
-        ...(data.collectFeedback && { __collectFeedback: true })
+        ...(data.collectFeedback && { __collectFeedback: true }),
+        ...(data.metadata || {})
       }
     }
   }

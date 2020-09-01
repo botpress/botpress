@@ -8,7 +8,8 @@ const DEFAULT_TRAINING_SESSION: Partial<sdk.NLU.TrainingSession> = {
 
 export const makeTrainSessionKey = (botId: string, language: string): string => `training:${botId}:${language}`
 
-export const makeTrainingSession = (language: string, lock: sdk.RedisLock): sdk.NLU.TrainingSession => ({
+export const makeTrainingSession = (botId: string, language: string, lock: sdk.RedisLock): sdk.NLU.TrainingSession => ({
+  key: makeTrainSessionKey(botId, language),
   status: 'training',
   progress: 0,
   language,
@@ -26,8 +27,7 @@ export async function getTrainingSession(
 }
 
 export function setTrainingSession(bp: typeof sdk, botId: string, trainSession: sdk.NLU.TrainingSession): Promise<any> {
-  const key = makeTrainSessionKey(botId, trainSession.language)
-  return bp.kvs.forBot(botId).set(key, _.omit(trainSession, 'lock'))
+  return bp.kvs.forBot(botId).set(trainSession.key, _.omit(trainSession, 'lock'))
 }
 
 export async function removeTrainingSession(
@@ -35,5 +35,5 @@ export async function removeTrainingSession(
   botId: string,
   trainSession: sdk.NLU.TrainingSession
 ): Promise<void> {
-  await bp.kvs.forBot(botId).removeStorageKeysStartingWith(makeTrainSessionKey(botId, trainSession.language))
+  await bp.kvs.forBot(botId).removeStorageKeysStartingWith(trainSession.key)
 }

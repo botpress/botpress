@@ -1,4 +1,4 @@
-import sdk, { NLU } from 'botpress/sdk'
+import { NLU } from 'botpress/sdk'
 
 export interface NluMlRecommendations {
   minUtterancesForML: number
@@ -15,16 +15,14 @@ export type NLUState = {
 
 export interface BotState {
   botId: string
-  engine: sdk.NLU.Engine
+  engine: NLU.Engine
   trainOrLoad: (forceTrain: boolean) => Promise<void>
-  trainSessions: _.Dictionary<sdk.NLU.TrainingSession>
+  trainSessions: _.Dictionary<NLU.TrainingSession>
   cancelTraining: () => Promise<void>
 }
 
 export interface NLUProgressEvent {
   type: 'nlu'
-  working: boolean
   botId: string
-  message: string
-  trainSession: sdk.NLU.TrainingSession
+  trainSession: NLU.TrainingSession
 }
