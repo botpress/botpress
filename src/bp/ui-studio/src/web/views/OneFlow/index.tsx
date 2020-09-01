@@ -36,7 +36,7 @@ interface OwnProps {
 }
 
 interface LangProps {
-  currentLang: string
+  contentLang: string
   languages: string[]
   defaultLanguage: string
 }
@@ -55,7 +55,7 @@ const FlowBuilder = (props: Props) => {
   const [showSearch, setShowSearch] = useState(false)
   const [readOnly, setReadOnly] = useState(false)
   const [flowPreview, setFlowPreview] = useState(true)
-  const [currentLang, setCurrentLang] = useState(localStorage.getItem(CMS_LANG_KEY) || props.currentLang)
+  const [currentLang, setCurrentLang] = useState(localStorage.getItem(CMS_LANG_KEY) || props.contentLang)
   const [mutex, setMutex] = useState(null)
   const [actions, setActions] = useState(allActions)
   const [highlightFilter, setHighlightFilter] = useState('')
