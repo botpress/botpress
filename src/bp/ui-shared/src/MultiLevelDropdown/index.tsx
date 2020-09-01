@@ -70,7 +70,7 @@ const MultiLevelDropdown: FC<MultiLevelDropdownProps> = props => {
         onClick={() => setIsOpen(!isOpen)}
         className={cx(style.btn, { [style.spaced]: spaced, [style.placeholder]: !activeItem })}
         text={small ? <small>{btnText}</small> : btnText}
-        rightIcon="double-caret-vertical"
+        rightIcon={isOpen ? 'chevron-up' : 'chevron-down'}
         small={small}
       />
       {isOpen && (
