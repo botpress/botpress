@@ -173,7 +173,11 @@ export class StateManager {
       dialogSession.prompt_expiry = expiry.prompt
     }
 
-    dialogSession.session_data = session || {}
+    dialogSession.session_data = {
+      ...session,
+      workflows: _.omitBy(session?.workflows, x => x.status === 'completed')
+    }
+
     dialogSession.session_expiry = expiry.session
     dialogSession.context_expiry = expiry.context
 

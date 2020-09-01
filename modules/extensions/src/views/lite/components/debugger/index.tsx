@@ -207,28 +207,20 @@ export class Debugger extends React.Component<Props, State> {
 
   getEvent = async (eventId: string): Promise<sdk.IO.IncomingEvent> => {
     const eventsCache = this.state.eventsCache
-    const cacheEventIdx = eventsCache.findIndex(e => e.id === eventId)
 
-    if (cacheEventIdx >= 0) {
-      const event = eventsCache[cacheEventIdx]
+    const existing = eventsCache.find(x => x.id === eventId)
+    if (existing) {
+      return existing
+    }
 
-      eventsCache.splice(cacheEventIdx, 1)
-      eventsCache.push(event)
-
-      return event
-    } else {
-      const { data: event } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
-      if (!event.processing?.['completed']) {
-        return event
-      }
-
-      if (eventsCache.length >= 10) {
-        eventsCache.splice(0, 1)
-      }
-      eventsCache.push(event)
-
+    const { data: event } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
+    if (!event.processing?.['completed']) {
       return event
     }
+
+    this.setState({ eventsCache: [event, ...eventsCache].slice(0, 10) })
+
+    return event
   }
 
   handleNewSession = () => {

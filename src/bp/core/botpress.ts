@@ -418,8 +418,6 @@ export class Botpress {
         const metric = wf.success ? 'bp_core_workflow_completed' : 'bp_core_workflow_failed'
         BOTPRESS_CORE_EVENT(metric, { botId: event.botId, channel: event.channel, wfName: workflow })
 
-        delete event.state.session.workflows[workflow]
-
         if (!activeWorkflow && !wf.parent) {
           await this.eventEngine.sendEvent(
             Event({
