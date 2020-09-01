@@ -174,6 +174,53 @@ const QnA: FC<Props> = props => {
   const nodeList = (currentFlow.nodes as FlowNode[])?.map(({ name }) => ({ label: name, value: name }))
   const flowsList = flows.map(({ name }) => ({ label: getFlowLabel(name), value: name }))
 
+  const fieldHasMissingTranslation = (value = {}) => {
+    if (value[contentLang]) {
+      return false
+    }
+
+    return Object.keys(value)
+      .filter(key => key !== contentLang)
+      .some(key => (value[key] || []).length)
+  }
+
+  const checkCardMissingTranslation = card => {
+    return (
+      fieldHasMissingTranslation(card.title) ||
+      fieldHasMissingTranslation(card.subtitle) ||
+      card.actions.some(action => fieldHasMissingTranslation(action.title) || fieldHasMissingTranslation(action.text))
+    )
+  }
+
+  const checkMissingTranslations = content => {
+    switch (content.contentType) {
+      case 'builtin_image':
+        return fieldHasMissingTranslation(content.title)
+      case 'builtin_card':
+        return checkCardMissingTranslation(content)
+      case 'builtin_carousel':
+        return content.items.some(item => checkCardMissingTranslation(item))
+      case 'builtin_single-choice':
+        return content.choices?.some(
+          choice => fieldHasMissingTranslation(choice.title) || fieldHasMissingTranslation(choice.value)
+        )
+      default:
+        const translatedVariations = Object.keys(content.variations || {}).reduce((acc, key) => {
+          return { ...acc, [key]: content.variations[key].filter(Boolean).length }
+        }, {})
+        const curLangLength = translatedVariations[contentLang] || 0
+
+        return (
+          fieldHasMissingTranslation(content.text) ||
+          Object.keys(translatedVariations)
+            .filter(l => l !== contentLang)
+            .some(l => translatedVariations[l] > curLangLength)
+        )
+    }
+
+    return false
+  }
+
   return (
     <div className={style.questionWrapper}>
       <div className={style.headerWrapper}>
@@ -271,18 +318,30 @@ const QnA: FC<Props> = props => {
               canAdd={!defaultLang || defaultLang === contentLang}
             />
             <div className={style.contentAnswerWrapper}>
-              {contentAnswers?.map((content, index) => (
-                <Contents.Item
-                  key={index}
-                  contentLang={contentLang}
-                  content={content}
-                  active={editingContent.current === index}
-                  onEdit={() => {
-                    editingContent.current = index
-                    setShowContentForm(true)
-                  }}
-                />
-              ))}
+              {contentAnswers?.map((content, index) =>
+                checkMissingTranslations(content) ? (
+                  <button
+                    onClick={() => {
+                      editingContent.current = index
+                      setShowContentForm(true)
+                    }}
+                    className={style.needsTranslation}
+                  >
+                    {lang.tr('needsTranslation')}
+                  </button>
+                ) : (
+                  <Contents.Item
+                    key={index}
+                    contentLang={contentLang}
+                    content={content}
+                    active={editingContent.current === index}
+                    onEdit={() => {
+                      editingContent.current = index
+                      setShowContentForm(true)
+                    }}
+                  />
+                )
+              )}
             </div>
             {(!defaultLang || defaultLang === contentLang) && (
               <FormFields.AddButton

@@ -38,13 +38,16 @@ const PromptContents: FC<Props> = ({ node, selectedNodeItem, currentLang }) => {
 
   return (
     <div className={style.contentsWrapper}>
-      {hasMissingTranslations && <span className={style.needsTranslation}>{lang.tr('needsTranslation')}</span>}
       <div
         className={cx(style.contentWrapper, {
           [style.active]: selectedContent?.node?.id === node.id
         })}
       >
-        <span className={style.content}>{params?.output && `$${params?.output}`}</span>
+        {hasMissingTranslations ? (
+          <span className={style.needsTranslation}>{lang.tr('needsTranslation')}</span>
+        ) : (
+          <span className={style.content}>{params?.output && `$${params?.output}`}</span>
+        )}
       </div>
       {next?.map((item, i) => {
         const outputPortName = `out${i}`

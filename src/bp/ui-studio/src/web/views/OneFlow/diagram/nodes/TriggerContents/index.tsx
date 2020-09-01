@@ -19,41 +19,43 @@ const TriggerContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem, getC
   const conditionLabels = getConditions().reduce((acc, cond) => ({ ...acc, [cond.id]: cond.label }), {})
   const selectedCondition = selectedNodeItem()
 
-  const checkMissingTranslations = () => {
-    return node.conditions?.some(condition => {
-      switch (condition.id) {
-        case 'user_intent_is':
-          const utterances = condition.params?.utterances || {}
-          const curLangLength = utterances[currentLang] || 0
+  const checkMissingTranslations = condition => {
+    switch (condition.id) {
+      case 'user_intent_is':
+        const utterances = condition.params?.utterances || {}
+        const curLangLength = utterances[currentLang] || 0
 
-          return Object.keys(utterances)
-            .filter(l => l !== currentLang)
-            .some(l => utterances[l] > curLangLength)
-        default:
-          return false
-      }
-    })
+        return Object.keys(utterances)
+          .filter(l => l !== currentLang)
+          .some(l => utterances[l].length > curLangLength)
+      default:
+        return false
+    }
   }
-  const hasMissingTranslations = checkMissingTranslations()
 
   return (
     <div className={style.contentsWrapper}>
-      {hasMissingTranslations && <span className={style.needsTranslation}>{lang.tr('needsTranslation')}</span>}
       {node.conditions?.map((condition, index) => (
         <Fragment key={index}>
-          <NodeContentItem
-            className={cx(style.hasJoinLabel, {
-              [style.active]: selectedCondition?.node?.id === node.id && index === selectedCondition?.index
-            })}
-            onEdit={() => editNodeItem?.(node, index)}
-          >
-            <span className={style.content}>
-              {lang.tr(conditionLabels[condition.id], {
-                ...condition.params,
-                firstSentence: condition.params?.utterances?.[currentLang]?.[0]
+          {checkMissingTranslations(condition) ? (
+            <button onClick={() => editNodeItem?.(node, index)} className={style.needsTranslation}>
+              {lang.tr('needsTranslation')}
+            </button>
+          ) : (
+            <NodeContentItem
+              className={cx(style.hasJoinLabel, {
+                [style.active]: selectedCondition?.node?.id === node.id && index === selectedCondition?.index
               })}
-            </span>
-          </NodeContentItem>
+              onEdit={() => editNodeItem?.(node, index)}
+            >
+              <span className={style.content}>
+                {lang.tr(conditionLabels[condition.id], {
+                  ...condition.params,
+                  firstSentence: condition.params?.utterances?.[currentLang]?.[0]
+                })}
+              </span>
+            </NodeContentItem>
+          )}
           <span className={style.joinLabel}>{lang.tr('and')}</span>
         </Fragment>
       ))}

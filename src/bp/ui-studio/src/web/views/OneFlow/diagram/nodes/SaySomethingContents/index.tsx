@@ -1,7 +1,6 @@
 import { Contents, lang } from 'botpress/shared'
 import React, { FC } from 'react'
 
-import { nodeSaySomething } from '../../../../FlowBuilder/diagram/nodes_v2/style.scss'
 import { BlockModel } from '../Block'
 import style from '../Components/style.scss'
 
@@ -34,48 +33,52 @@ const SaySomethingContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem,
     )
   }
 
-  const checkMissingTranslations = () => {
-    return node.contents?.some(content => {
-      switch (content.contentType) {
-        case 'builtin_image':
-          return fieldHasMissingTranslation(content.title)
-        case 'builtin_card':
-          return checkCardMissingTranslation(content)
-        case 'builtin_carousel':
-          return content.items.some(item => checkCardMissingTranslation(item))
-        case 'builtin_single-choice':
-          return content.choices?.some(
-            choice => fieldHasMissingTranslation(choice.title) || fieldHasMissingTranslation(choice.value)
-          )
-        default:
-          const translatedVariations = Object.keys(content.variations || {}).reduce((acc, key) => {
-            return { ...acc, [key]: content.variations[key].filter(Boolean).length }
-          }, {})
-          const curLangLength = translatedVariations[currentLang] || 0
+  const checkMissingTranslations = content => {
+    switch (content.contentType) {
+      case 'builtin_image':
+        return fieldHasMissingTranslation(content.title)
+      case 'builtin_card':
+        return checkCardMissingTranslation(content)
+      case 'builtin_carousel':
+        return content.items.some(item => checkCardMissingTranslation(item))
+      case 'builtin_single-choice':
+        return content.choices?.some(
+          choice => fieldHasMissingTranslation(choice.title) || fieldHasMissingTranslation(choice.value)
+        )
+      default:
+        const translatedVariations = Object.keys(content.variations || {}).reduce((acc, key) => {
+          return { ...acc, [key]: content.variations[key].filter(Boolean).length }
+        }, {})
+        const curLangLength = translatedVariations[currentLang] || 0
 
-          return (
-            fieldHasMissingTranslation(content.text) ||
-            Object.keys(translatedVariations)
-              .filter(l => l !== currentLang)
-              .some(l => translatedVariations[l] > curLangLength)
-          )
-      }
-    })
+        return (
+          fieldHasMissingTranslation(content.text) ||
+          Object.keys(translatedVariations)
+            .filter(l => l !== currentLang)
+            .some(l => translatedVariations[l] > curLangLength)
+        )
+    }
+
+    return false
   }
-  const hasMissingTranslations = checkMissingTranslations()
 
   return (
     <div className={style.contentsWrapper}>
-      {hasMissingTranslations && <span className={style.needsTranslation}>{lang.tr('needsTranslation')}</span>}
-      {node.contents?.map((content, index) => (
-        <Contents.Item
-          active={selectedContent?.node?.id === node.id && index === selectedContent?.index}
-          key={`${index}${currentLang}`}
-          onEdit={() => editNodeItem?.(node, index)}
-          contentLang={currentLang}
-          content={content}
-        />
-      ))}
+      {node.contents?.map((content, index) =>
+        checkMissingTranslations(content) ? (
+          <button onClick={() => editNodeItem?.(node, index)} className={style.needsTranslation}>
+            {lang.tr('needsTranslation')}
+          </button>
+        ) : (
+          <Contents.Item
+            active={selectedContent?.node?.id === node.id && index === selectedContent?.index}
+            key={`${index}${currentLang}`}
+            onEdit={() => editNodeItem?.(node, index)}
+            contentLang={currentLang}
+            content={content}
+          />
+        )
+      )}
     </div>
   )
 }
