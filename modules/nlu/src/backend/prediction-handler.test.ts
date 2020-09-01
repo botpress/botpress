@@ -4,7 +4,7 @@ import '../../../../src/bp/sdk/botpress.d'
 import { NLU, IO } from 'botpress/sdk'
 
 import _ from 'lodash'
-import { makePredictor } from './predict'
+import { PredictionHandler } from './prediction-hanlder'
 
 const frenchUtt = 'DONNE MOI UNE BANANE'
 const englishUtt = 'GIVE ME A BANANA'
@@ -61,14 +61,14 @@ function makeModelGetterMock(): (languageCode: string) => Promise<NLU.Model | un
   }) as (languageCode: string) => Promise<NLU.Model | undefined>
 }
 
-const assertNoModelLoaded = (engineLoadMock: jest.Mock, ghostMock: jest.Mock) => {
-  expect(ghostMock.mock.calls.length).toBe(0)
+const assertNoModelLoaded = (engineLoadMock: jest.Mock, modelGetterMock: jest.Mock) => {
+  expect(modelGetterMock.mock.calls.length).toBe(0)
   expect(engineLoadMock.mock.calls.length).toBe(0)
 }
 
-const assertModelLoadedFromFS = (ghostMock: jest.Mock, lang: string) => {
-  expect(ghostMock.mock.calls.length).toBe(1)
-  expect(ghostMock.mock.calls[0][0]).toBe(lang)
+const assertModelLoadedFromFS = (modelGetterMock: jest.Mock, lang: string) => {
+  expect(modelGetterMock.mock.calls.length).toBe(1)
+  expect(modelGetterMock.mock.calls[0][0]).toBe(lang)
 }
 
 const assertModelLoadedInEngine = (engineLoadMock: jest.Mock, lang: string) => {
@@ -88,8 +88,8 @@ describe('predict', () => {
 
     // act
     const defaultLang = en
-    const predict = makePredictor(modelGetter, engine, defaultLang)
-    const result = await predict(englishUtt, ['global'])
+    const predictionHandler = new PredictionHandler(modelGetter, engine, defaultLang)
+    const result = await predictionHandler.predict(englishUtt, ['global'])
 
     // assert
     expect(result).toBeDefined()
@@ -107,8 +107,8 @@ describe('predict', () => {
 
     // act
     const defaultLang = en
-    const predict = makePredictor(modelGetter, engine, defaultLang)
-    const result = await predict(frenchUtt, ['global'])
+    const predictionHandler = new PredictionHandler(modelGetter, engine, defaultLang)
+    const result = await predictionHandler.predict(frenchUtt, ['global'])
 
     // assert
     expect(result).toBeDefined()
@@ -126,8 +126,8 @@ describe('predict', () => {
 
     // act
     const defaultLang = en
-    const predict = makePredictor(modelGetter, engine, defaultLang)
-    const result = await predict(englishUtt, ['global'])
+    const predictionHandler = new PredictionHandler(modelGetter, engine, defaultLang)
+    const result = await predictionHandler.predict(englishUtt, ['global'])
 
     // assert
     expect(result).toBeDefined()
@@ -146,8 +146,8 @@ describe('predict', () => {
 
     // act
     const defaultLang = en
-    const predict = makePredictor(modelGetter, engine, defaultLang)
-    const result = await predict(frenchUtt, ['global'])
+    const predictionHandler = new PredictionHandler(modelGetter, engine, defaultLang)
+    const result = await predictionHandler.predict(frenchUtt, ['global'])
 
     // assert
     expect(result).toBeDefined()
@@ -165,8 +165,8 @@ describe('predict', () => {
 
     // act
     const defaultLang = en
-    const predict = makePredictor(modelGetter, engine, defaultLang)
-    const result = await predict(frenchUtt, ['global'])
+    const predictionHandler = new PredictionHandler(modelGetter, engine, defaultLang)
+    const result = await predictionHandler.predict(frenchUtt, ['global'])
 
     // assert
     expect(result).toBeDefined()
@@ -185,8 +185,8 @@ describe('predict', () => {
 
     // act
     const defaultLang = en
-    const predict = makePredictor(modelGetter, engine, defaultLang)
-    const result = await predict(germanUtt, ['global'])
+    const predictionHandler = new PredictionHandler(modelGetter, engine, defaultLang)
+    const result = await predictionHandler.predict(germanUtt, ['global'])
 
     // assert
     expect(result).toBeDefined()
@@ -205,11 +205,11 @@ describe('predict', () => {
     const engine = makeEngineMock([])
 
     // act & assert
-    const predict = makePredictor(modelGetter, engine, defaultLang)
+    const predictionHandler = new PredictionHandler(modelGetter, engine, defaultLang)
 
     let errorOccured = false
     try {
-      await predict(germanUtt, ['global'])
+      await predictionHandler.predict(germanUtt, ['global'])
     } catch {
       errorOccured = true
     }

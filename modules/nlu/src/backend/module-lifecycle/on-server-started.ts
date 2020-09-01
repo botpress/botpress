@@ -3,7 +3,7 @@ import _ from 'lodash'
 
 import legacyElectionPipeline from '../legacy-election'
 import { getLatestModel } from '../model-service'
-import { makePredictor } from '../predict'
+import { PredictionHandler } from '../prediction-hanlder'
 import { setTrainingSession } from '../train-session-service'
 import { NLUProgressEvent, NLUState } from '../typings'
 
@@ -57,8 +57,8 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
         const ghost = bp.ghost.forBot(botId)
         const modelGetter = (language: string) => getLatestModel(ghost, language)
 
-        const predict = makePredictor(modelGetter, engine, defaultLanguage)
-        const nluResults = predict(preview, nlu?.includedContexts)
+        const predictionHandler = new PredictionHandler(modelGetter, engine, defaultLanguage)
+        const nluResults = predictionHandler.predict(preview, nlu?.includedContexts)
 
         _.merge(event, { nlu: nluResults ?? {} })
         removeSensitiveText(event)
