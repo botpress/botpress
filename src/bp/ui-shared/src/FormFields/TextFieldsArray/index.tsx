@@ -20,7 +20,7 @@ const TextFieldsArray: FC<TextFieldsArrayProps> = ({
   items,
   refValue,
   getPlaceholder,
-  validationPattern,
+  validation,
   moreInfo
 }) => {
   const getInitialItems = () => {
@@ -80,11 +80,11 @@ const TextFieldsArray: FC<TextFieldsArrayProps> = ({
   }
 
   const validateItem = (item: string) => {
-    if (!validationPattern?.test || !item) {
+    if (!validation?.regex?.test || !item) {
       return null
     }
 
-    return validationPattern.test(item) ? (
+    return validation.regex.test(item) ? (
       <Icon icon="tick-circle" className={cx(style.icon, style.success)}></Icon>
     ) : (
       <Icon icon="error" className={cx(style.icon, style.error)}></Icon>
