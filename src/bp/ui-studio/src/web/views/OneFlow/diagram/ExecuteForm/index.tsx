@@ -68,7 +68,8 @@ const ExecuteForm: FC<Props> = ({
     onUpdate({ actionName })
   }
 
-  const allActions = [newAction, ...actions.map(x => ({ label: `${x.category} - ${x.title}`, value: x.name }))]
+  const onlyLegacy = actions.filter(a => a.legacy)
+  const allActions = [newAction, ...onlyLegacy.map(x => ({ label: `${x.category} - ${x.title}`, value: x.name }))]
   const selectedOption = allActions.find(a => a.value === selectedAction.current)
 
   const commonProps = {

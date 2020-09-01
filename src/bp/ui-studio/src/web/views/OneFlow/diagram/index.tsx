@@ -1308,7 +1308,7 @@ const mapStateToProps = (state: RootReducer) => ({
   currentDiagramAction: state.flows.currentDiagramAction,
   canPasteNode: Boolean(state.flows.nodeInBuffer),
   skills: state.skills.installed,
-  actions: state.skills.actions?.filter(a => a.legacy),
+  actions: state.skills.actions,
   library: state.content.library,
   prompts: getPrompts(state),
   variables: getVariables(state),
