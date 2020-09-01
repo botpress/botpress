@@ -1225,19 +1225,7 @@ class Diagram extends Component<Props> {
               }}
             />
           )}
-          {formType === 'variableType' && (
-            <VariableTypesForm
-              contentLang={this.state.currentLang}
-              customKey={data.id}
-              formData={currentItem}
-              variables={this.props.variables}
-              close={() => {
-                this.timeout = setTimeout(() => {
-                  this.setState({ editingNodeItem: null })
-                }, 200)
-              }}
-            />
-          )}
+
           {formType === 'router' && (
             <RouterForm
               transition={currentItem?.[index]}
@@ -1272,6 +1260,20 @@ class Diagram extends Component<Props> {
             />
           )}
         </MainContent.Wrapper>
+
+        {formType === 'variableType' && (
+          <VariableTypesForm
+            contentLang={this.state.currentLang}
+            customKey={data.id}
+            formData={currentItem}
+            variables={this.props.variables}
+            close={() => {
+              this.timeout = setTimeout(() => {
+                this.setState({ editingNodeItem: null })
+              }, 200)
+            }}
+          />
+        )}
       </Fragment>
     )
   }
