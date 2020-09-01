@@ -14,9 +14,6 @@ const flag = async () => {
         .values()
 
       if (kw) {
-        bp.logger.info(
-          `Misunderstood: event matches Choice Skill quick reply (preview: ${event.preview}, keyword: ${kw})`
-        )
         return true
       }
     }
