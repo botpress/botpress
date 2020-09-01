@@ -11,7 +11,7 @@ const flag = async () => {
         .values()
         .flatten()
         .find(kw => kw.toLowerCase() === preview.toLowerCase())
-        .values()
+        .value()
 
       if (kw) {
         return true
