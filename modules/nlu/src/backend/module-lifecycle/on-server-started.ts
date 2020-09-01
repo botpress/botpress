@@ -1,9 +1,9 @@
-import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import legacyElectionPipeline from '../legacy-election'
 import { getLatestModel } from '../model-service'
+import { makePredictor } from '../predict'
 import { setTrainingSession } from '../train-session-service'
 import { NLUProgressEvent, NLUState } from '../typings'
 
@@ -52,24 +52,15 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
 
       try {
         const { engine, defaultLanguage } = state.nluByBot[event.botId]
+        const { botId, preview, nlu } = event
 
-        let language = defaultLanguage // TODO: use user's previously used language instead of bot's default
+        const ghost = bp.ghost.forBot(botId)
+        const modelGetter = (language: string) => getLatestModel(ghost, language)
 
-        let nluResults = await engine.predict(event.preview, event.nlu.includedContexts, language)
+        const predict = makePredictor(modelGetter, engine, defaultLanguage)
+        const nluResults = predict(preview, nlu?.includedContexts)
 
-        if (nluResults.detectedLanguage && nluResults.detectedLanguage !== language) {
-          language = nluResults.detectedLanguage
-          nluResults = await engine.predict(event.preview, event.nlu.includedContexts, language)
-        }
-
-        if (nluResults.error && nluResults.error === 'invalid_predictor') {
-          const model = await getLatestModel(bp.ghost.forBot(event.botId), language)
-          if (!model) {
-            throw new Error(`no model found for language ${language}, training needed.`)
-          }
-          await engine.loadModel(model)
-          nluResults = await engine.predict(event.preview, event.nlu.includedContexts, nluResults.suggestedLanguage)
-        }
+        _.merge(event, { nlu: nluResults ?? {} })
         removeSensitiveText(event)
       } catch (err) {
         bp.logger.warn(`Error extracting metadata for incoming text: ${err.message}`)

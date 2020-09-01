@@ -788,7 +788,6 @@ declare module 'botpress/sdk' {
       readonly includedContexts: string[]
       readonly predictions?: NLU.Predictions
       readonly ms: number
-      readonly suggestedLanguage?: string
     }
 
     export interface IncomingEvent extends Event {
