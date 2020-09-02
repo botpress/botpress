@@ -1,9 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { getOrCreateCache } from '../core/services/nlu/cache-manager'
-
-import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
+import { extractListEntitiesWithCache, extractPatternEntities } from './entities/custom-entity-extractor'
+import { warmEntityCache } from './entities/entity-cache-manager'
 import { getCtxFeatures } from './intents/context-featurizer'
 import { getIntentFeatures } from './intents/intent-featurizer'
 import { isPOSAvailable } from './language/pos-tagger'
@@ -15,24 +14,30 @@ import { replaceConsecutiveSpaces } from './tools/strings'
 import tfidf from './tools/tfidf'
 import { convertToRealSpaces, isSpace, SPACE } from './tools/token-utils'
 import {
+  ColdListEntityModel,
+  EntityCacheDump,
   EntityExtractionResult,
-  ExtractedEntity,
   Intent,
   ListEntity,
   ListEntityModel,
   PatternEntity,
   TFIDF,
   Token2Vec,
-  Tools
+  Tools,
+  WarmedListEntityModel
 } from './typings'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
+
+type ListEntityWithCache = ListEntity & {
+  cache: EntityCacheDump
+}
 
 export type TrainInput = Readonly<{
   botId: string
   nluSeed: number
   languageCode: string
   pattern_entities: PatternEntity[]
-  list_entities: ListEntity[]
+  list_entities: ListEntityWithCache[]
   contexts: string[]
   intents: Intent<string>[]
   ctxToTrain: string[]
@@ -42,7 +47,7 @@ export type TrainStep = Readonly<{
   botId: string
   nluSeed: number
   languageCode: string
-  list_entities: ListEntityModel[]
+  list_entities: WarmedListEntityModel[]
   pattern_entities: PatternEntity[]
   contexts: string[]
   intents: Intent<Utterance>[]
@@ -53,7 +58,7 @@ export type TrainStep = Readonly<{
 }>
 
 export interface TrainOutput {
-  list_entities: ListEntityModel[]
+  list_entities: ColdListEntityModel[]
   tfidf: TFIDF
   vocabVectors: Token2Vec
   // kmeans: KmeansResult
@@ -93,7 +98,7 @@ const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainSt
   debugTraining.forBot(input.botId, 'Preprocessing intents')
   input = _.cloneDeep(input)
   const list_entities = await Promise.map(input.list_entities, list =>
-    makeListEntityModel(list, input.botId, input.languageCode, tools)
+    makeListEntityModel(list, input.languageCode, tools)
   )
 
   const intents = await ProcessIntents(input.intents, input.languageCode, list_entities, tools)
@@ -107,13 +112,15 @@ const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainSt
   } as TrainStep
 }
 
-const makeListEntityModel = async (entity: ListEntity, botId: string, languageCode: string, tools: Tools) => {
+const makeListEntityModel = async (entity: ListEntityWithCache, languageCode: string, tools: Tools) => {
   const allValues = _.uniq(Object.keys(entity.synonyms).concat(..._.values(entity.synonyms)))
   const allTokens = (await tools.tokenize_utterances(allValues, languageCode)).map(toks =>
     toks.map(convertToRealSpaces)
   )
 
-  return <ListEntityModel>{
+  const cache = warmEntityCache(entity.cache)
+
+  return <WarmedListEntityModel>{
     type: 'custom.list',
     id: `custom.list.${entity.name}`,
     languageCode,
@@ -126,7 +133,7 @@ const makeListEntityModel = async (entity: ListEntity, botId: string, languageCo
         return allTokens[idx]
       })
     ),
-    cache: getOrCreateCache(entity.name, botId)
+    cache
   }
 }
 
@@ -344,7 +351,7 @@ export const ExtractEntities = async (input: TrainStep, tools: Tools): Promise<T
 
   _.zipWith(utterances, allSysEntities, (utt, sysEntities) => ({ utt, sysEntities }))
     .map(({ utt, sysEntities }) => {
-      const listEntities = extractListEntities(utt, input.list_entities)
+      const listEntities = extractListEntitiesWithCache(utt, input.list_entities)
       const patternEntities = extractPatternEntities(utt, input.pattern_entities)
       return [utt, [...sysEntities, ...listEntities, ...patternEntities]] as [Utterance, EntityExtractionResult[]]
     })
@@ -553,8 +560,13 @@ export const Trainer: Trainer = async (
 
   const [oos_model, ctx_model, intent_model_by_ctx, slots_model] = models
 
+  const coldEntities: ColdListEntityModel[] = step.list_entities.map(e => ({
+    ...e,
+    cache: e.cache.dump()
+  }))
+
   const output: TrainOutput = {
-    list_entities: step.list_entities,
+    list_entities: coldEntities,
     oos_model: oos_model!,
     tfidf: step.tfIdf!,
     ctx_model: ctx_model!,

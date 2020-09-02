@@ -2,6 +2,7 @@ import { MLToolkit, NLU } from 'botpress/sdk'
 import crypto from 'crypto'
 import _ from 'lodash'
 
+import { EntityCacheManager } from './entities/entity-cache-manager'
 import { initializeTools } from './initialize-tools'
 import { deserializeModel, PredictableModel, serializeModel } from './model-manager'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
@@ -9,7 +10,7 @@ import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
 import { computeKmeans, ProcessIntents, TrainInput, TrainOutput } from './training-pipeline'
 import { TrainingCanceledError, TrainingWorkerQueue } from './training-worker-queue'
-import { Intent, ListEntity, PatternEntity, Tools } from './typings'
+import { EntityCacheDump, Intent, ListEntity, PatternEntity, Tools } from './typings'
 
 const trainDebug = DEBUG('nlu').sub('training')
 
@@ -19,6 +20,7 @@ export default class Engine implements NLU.Engine {
 
   private predictorsByLang: _.Dictionary<Predictors> = {}
   private modelsByLang: _.Dictionary<PredictableModel> = {}
+  private entitiesCacheByLang: _.Dictionary<EntityCacheManager> = {}
 
   constructor(private defaultLanguage: string, private botId: string, private logger: NLU.Logger) {}
 
@@ -77,15 +79,16 @@ export default class Engine implements NLU.Engine {
     const list_entities = entityDefs
       .filter(ent => ent.type === 'list')
       .map(e => {
-        return {
+        return <ListEntity & { cache: EntityCacheDump }>{
           name: e.name,
           fuzzyTolerance: e.fuzzy,
           sensitive: e.sensitive,
           synonyms: _.chain(e.occurrences)
             .keyBy('name')
             .mapValues('synonyms')
-            .value()
-        } as ListEntity
+            .value(),
+          cache: this.entitiesCacheByLang[languageCode]?.getCache(e.name) || []
+        }
       })
 
     const pattern_entities: PatternEntity[] = entityDefs
@@ -226,23 +229,38 @@ export default class Engine implements NLU.Engine {
 
     const trainOutput = output as TrainOutput
 
-    this.predictorsByLang[model.languageCode] = await this._makePredictors(input, trainOutput)
-    this.modelsByLang[model.languageCode] = model
+    const { languageCode } = model
+    this.predictorsByLang[languageCode] = await this._makePredictors(input, trainOutput)
+    this.entitiesCacheByLang[languageCode] = this._makeCacheManager(trainOutput)
+    this.modelsByLang[languageCode] = model
+  }
+
+  private _makeCacheManager(output: TrainOutput) {
+    const cacheManager = new EntityCacheManager()
+    const { list_entities } = output
+    cacheManager.loadFromData(list_entities)
+    return cacheManager
   }
 
   private async _makePredictors(input: TrainInput, output: TrainOutput): Promise<Predictors> {
     const tools = Engine._tools
 
+    /**
+     * TODO: extract this function some place else,
+     * Engine shouldn't be dependant of training pipeline...
+     */
     const intents = await ProcessIntents(input.intents, input.languageCode, output.list_entities, Engine._tools)
+
+    const basePredictors: Predictors = {
+      ...output,
+      intents,
+      pattern_entities: input.pattern_entities
+    }
 
     if (_.flatMap(input.intents, i => i.utterances).length <= 0) {
       // we don't want to return undefined as extraction won't be triggered
       // we want to make it possible to extract entities without having any intents
-      return {
-        ...output,
-        intents,
-        pattern_entities: input.pattern_entities
-      }
+      return basePredictors
     }
 
     const { ctx_model, intent_model_by_ctx, oos_model } = output
@@ -261,14 +279,12 @@ export default class Engine implements NLU.Engine {
     const kmeans = computeKmeans(intents!, tools) // TODO load from artefacts when persisted
 
     return {
-      ...output,
-      intents,
+      ...basePredictors,
       ctx_classifier,
       oos_classifier_per_ctx: oos_classifier,
       intent_classifier_per_ctx,
       slot_tagger,
-      kmeans,
-      pattern_entities: input.pattern_entities
+      kmeans
     }
   }
 

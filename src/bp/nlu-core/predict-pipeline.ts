@@ -9,24 +9,37 @@ import { isPOSAvailable } from './language/pos-tagger'
 import { getUtteranceFeatures } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import { replaceConsecutiveSpaces } from './tools/strings'
-import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainOutput } from './training-pipeline'
-import { EntityExtractionResult, ExtractedEntity, Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
+import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex } from './training-pipeline'
+import {
+  EntityExtractionResult,
+  ExtractedEntity,
+  Intent,
+  ListEntityModel,
+  PatternEntity,
+  SlotExtractionResult,
+  TFIDF,
+  Token2Vec,
+  Tools
+} from './typings'
 import Utterance, { buildUtteranceBatch, getAlternateUtterance, UtteranceEntity } from './utterance/utterance'
 
 export type ExactMatchResult = (sdk.MLToolkit.SVM.Prediction & { extractor: 'exact-matcher' }) | undefined
 
-export type Predictors = TrainOutput &
-  EntityPredictor & { intents: Intent<Utterance>[] } & Partial<{
-    ctx_classifier: sdk.MLToolkit.SVM.Predictor
-    intent_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
-    oos_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
-    kmeans: sdk.MLToolkit.KMeans.KmeansResult
-    slot_tagger: SlotTagger // TODO replace this by MlToolkit.CRF.Tagger
-  }>
-
-export interface EntityPredictor {
+export type Predictors = {
+  list_entities: ListEntityModel[] // no need for cache
+  tfidf: TFIDF
+  vocabVectors: Token2Vec
+  contexts: string[]
+  exact_match_index: ExactMatchIndex
   pattern_entities: PatternEntity[]
-}
+  intents: Intent<Utterance>[]
+} & Partial<{
+  ctx_classifier: sdk.MLToolkit.SVM.Predictor
+  intent_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
+  oos_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
+  kmeans: sdk.MLToolkit.KMeans.KmeansResult
+  slot_tagger: SlotTagger // TODO replace this by MlToolkit.CRF.Tagger
+}>
 
 export interface PredictInput {
   defaultLanguage: string
