@@ -104,17 +104,17 @@ export default class Db {
         .andWhere('id', '<=', messageId)
         .orderBy('id', 'desc')
         .limit(3)
-        .select('id', 'event'),
+        .select('id', 'event', 'createdOn'),
       this.knex(EVENTS_TABLE_NAME)
         .where({ botId, threadId, sessionId })
         .andWhere('id', '>', messageId)
         .orderBy('id', 'asc')
         .limit(3)
-        .select('id', 'event')
+        .select('id', 'event', 'createdOn')
     ])
 
     const context = [...messagesBefore, ...messagesAfter]
-      .sort((e1, e2) => e1.id - e2.id)
+      .sort((e1, e2) => e1.createdOn.localeCompare(e2.createdOn))
       .map(({ id, event }) => {
         const eventObj = typeof event === 'string' ? JSON.parse(event) : event
         return {
