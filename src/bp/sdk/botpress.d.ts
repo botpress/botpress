@@ -625,9 +625,11 @@ declare module 'botpress/sdk' {
     export interface WorkflowTrigger extends GenericTrigger {
       type: 'workflow'
       workflowId: string
+      topicName: string
       nodeId: string
       /** When true, the user must be inside the specified workflow for the trigger to be active */
       activeWorkflow?: boolean
+      activeTopic?: boolean
     }
 
     export interface FaqTrigger extends GenericTrigger {
@@ -1488,6 +1490,7 @@ declare module 'botpress/sdk' {
   export type TriggerNode = FlowNode & {
     conditions: DecisionTriggerCondition[]
     activeWorkflow?: boolean
+    activeTopic?: boolean
   }
 
   export type ListenNode = FlowNode & {

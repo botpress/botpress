@@ -887,7 +887,11 @@ class Diagram extends Component<Props> {
     this.props.switchFlowNode(node.id)
     this.setState({ editingNodeItem: { node: { ...node, conditions: newConditions }, index } })
 
-    this.props.updateFlowNode({ conditions: newConditions })
+    this.props.updateFlowNode({
+      conditions: newConditions,
+      activeWorkflow: !!newConditions.find(x => x.id === 'on_active_workflow'),
+      activeTopic: !!newConditions.find(x => x.id === 'on_active_topic')
+    })
   }
 
   updatePromptNode(args) {
