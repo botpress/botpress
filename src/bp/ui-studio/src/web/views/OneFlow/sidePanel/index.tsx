@@ -72,7 +72,7 @@ const SidePanelContent: FC<Props> = props => {
     props.getQnaCountByTopic()
   }, [])
 
-  const goToFlow = flow => history.push(`/oneflow/${flow.replace(/\.flow\.json/, '')}`)
+  const goToFlow = (flow?: string) => history.push(`/oneflow/${flow?.replace(/\.flow\.json/, '') ?? ''}`)
 
   const createWorkflow = (topicName: string) => {
     const fullName = nextFlowName(props.flows, topicName, 'Workflow')
