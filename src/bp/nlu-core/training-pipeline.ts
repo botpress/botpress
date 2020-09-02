@@ -16,12 +16,12 @@ import { convertToRealSpaces, isSpace, SPACE } from './tools/token-utils'
 import {
   ColdListEntityModel,
   ComplexEntity,
+  EntityCacheDump,
   EntityExtractionResult,
   ExtractedEntity,
   Intent,
   ListEntity,
   ListEntityModel,
-  ListEntityWithCache,
   PatternEntity,
   TFIDF,
   Token2Vec,
@@ -30,6 +30,10 @@ import {
 } from './typings'
 import { Augmentation, createAugmenter, interleave } from './utterance/augmenter'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
+
+type ListEntityWithCache = ListEntity & {
+  cache: EntityCacheDump
+}
 
 export type TrainInput = Readonly<{
   botId: string
