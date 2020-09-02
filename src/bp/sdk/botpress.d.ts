@@ -366,6 +366,7 @@ declare module 'botpress/sdk' {
       export interface SVMOptions {
         classifier: 'C_SVC' | 'NU_SVC' | 'ONE_CLASS' | 'EPSILON_SVR' | 'NU_SVR'
         kernel: 'LINEAR' | 'POLY' | 'RBF' | 'SIGMOID'
+        seed: number
         c?: number | number[]
         gamma?: number | number[]
         probability?: boolean
@@ -388,7 +389,7 @@ declare module 'botpress/sdk' {
 
       export class Trainer {
         constructor()
-        train(points: DataPoint[], options?: Partial<SVMOptions>, callback?: TrainProgressCallback): Promise<string>
+        train(points: DataPoint[], options?: SVMOptions, callback?: TrainProgressCallback): Promise<string>
         isTrained(): boolean
       }
 
@@ -492,6 +493,7 @@ declare module 'botpress/sdk' {
 
     export interface TrainingOptions {
       forceTrain: boolean
+      nluSeed: number
       progressCallback: (x: number) => void
     }
 
@@ -887,10 +889,11 @@ declare module 'botpress/sdk' {
     }
 
     export interface EventError {
-      type: 'action-execution' | 'dialog-transition'
+      type: 'action-execution' | 'dialog-transition' | 'dialog-engine' | 'hook-execution'
       stacktrace?: string
       actionName?: string
       actionArgs?: any
+      hookName?: string
       destination?: string
     }
 

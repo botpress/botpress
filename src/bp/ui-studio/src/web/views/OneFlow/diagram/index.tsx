@@ -1239,20 +1239,7 @@ class Diagram extends Component<Props> {
               }}
             />
           )}
-          {formType === 'variableType' && (
-            <VariableTypesForm
-              contentLang={this.props.currentLang}
-              defaultLang={this.props.defaultLang}
-              customKey={data.id}
-              formData={currentItem}
-              variables={this.props.variables}
-              close={() => {
-                this.timeout = setTimeout(() => {
-                  this.setState({ editingNodeItem: null })
-                }, 200)
-              }}
-            />
-          )}
+
           {formType === 'router' && (
             <RouterForm
               transition={currentItem?.[index]}
@@ -1280,6 +1267,19 @@ class Diagram extends Component<Props> {
               formData={currentItem}
               currentFlow={this.props.currentFlow}
               onUpdate={this.updateFlowVariable.bind(this)}
+              close={() => {
+                this.timeout = setTimeout(() => {
+                  this.setState({ editingNodeItem: null })
+                }, 200)
+              }}
+            />
+          )}
+          {formType === 'variableType' && (
+            <VariableTypesForm
+              contentLang={this.state.currentLang}
+              customKey={data.id}
+              formData={currentItem}
+              variables={this.props.variables}
               close={() => {
                 this.timeout = setTimeout(() => {
                   this.setState({ editingNodeItem: null })

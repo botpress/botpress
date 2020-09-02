@@ -32,14 +32,14 @@ const MLToolkit: typeof sdk.MLToolkit = {
 if (cluster.isWorker) {
   const workerPool = new MLThreadPool()
 
-  MLToolkit.SVM.Trainer.prototype.train = (
+  MLToolkit.SVM.Trainer.prototype.train = function(
     points: sdk.MLToolkit.SVM.DataPoint[],
-    options?: Partial<sdk.MLToolkit.SVM.SVMOptions>,
+    options?: sdk.MLToolkit.SVM.SVMOptions,
     progressCb?: sdk.MLToolkit.SVM.TrainProgressCallback | undefined
-  ): any => {
+  ): any {
     return new Promise(async (resolve, reject) => {
       const id = nanoid()
-      await workerPool.startSvmTraining(id, points, options ?? {}, progressCb, resolve, reject)
+      await workerPool.startSvmTraining(id, points, options, progressCb, resolve, reject)
     })
   }
 

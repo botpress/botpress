@@ -136,6 +136,10 @@ const TopicList: FC<Props> = props => {
       await axios.post(`${window.BOT_API_PATH}/deleteTopic/${name}`)
       flowsToDelete.forEach(flow => props.deleteFlow(flow.name))
       props.fetchTopics()
+
+      if (name === props.selectedTopic) {
+        props.goToFlow(undefined)
+      }
     }
   }
 

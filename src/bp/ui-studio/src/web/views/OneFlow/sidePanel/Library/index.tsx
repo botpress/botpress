@@ -113,13 +113,11 @@ const Library: FC<Props> = props => {
       // { id: 'block', type: 'block' as NodeType, label: lang.tr('studio.library.savedBlocks'), children: [] },
       {
         id: 'workflow',
-        type: 'workflow' as NodeType,
         label: lang.tr('studio.library.savedWorkflows'),
         children: reusables
       },
       {
         id: 'variableType',
-        type: 'variableType' as NodeType,
         label: lang.tr('studio.library.variableTypes'),
         children: entities
       }
@@ -255,7 +253,7 @@ const Library: FC<Props> = props => {
           <Fragment>
             {hasChildren && item.children.map(child => printTree(child, level + 1, path))}
 
-            {props.canAdd && item.type === 'workflow' && (
+            {props.canAdd && item.id === 'workflow' && (
               <Button
                 minimal
                 onClick={() => newFlow()}
@@ -265,7 +263,7 @@ const Library: FC<Props> = props => {
               />
             )}
 
-            {props.canAdd && item.type === 'variableType' && (
+            {props.canAdd && item.id === 'variableType' && (
               <Fragment>
                 <Button
                   minimal
