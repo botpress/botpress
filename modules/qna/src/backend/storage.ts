@@ -1,7 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { Paging } from 'botpress/sdk'
 import fse from 'fs-extra'
-import Joi, { object } from 'joi'
 import _ from 'lodash'
 import mkdirp from 'mkdirp'
 import nanoid from 'nanoid/generate'
@@ -11,6 +9,7 @@ import tmp from 'tmp'
 
 import { ImportArgs } from './api'
 import { Dic, Item } from './qna'
+import { ItemSchema, QnASchemaArray } from './validation'
 
 const safeId = (length = 10) => nanoid('1234567890abcdefghijklmnopqrsuvwxyz', length)
 const slugify = s => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '_')
@@ -33,82 +32,12 @@ const normalizeQuestions = (questions: string[]) =>
     )
     .filter(Boolean)
 
-type Metadata = {
+interface Metadata {
   answers: Dic<string[]>
-  contentAnswers: any[]
+  contentAnswers: sdk.Content.All[]
   enabled: boolean
   lastModifiedOn: Date
 }
-
-const LangStringArrSchema = Joi.object().pattern(
-  Joi.string()
-    .min(1)
-    .max(3)
-    .required(),
-  Joi.array().items(
-    Joi.string()
-      .not()
-      .empty()
-  )
-)
-
-const QnaItemContentAnswerSchema = Joi.object().pattern(
-  Joi.string(),
-  Joi.alternatives().try(
-    Joi.number(),
-    Joi.boolean(),
-    // tslint:disable-next-line
-    Joi.allow(null),
-    Joi.string().allow(''),
-    Joi.array().items(Joi.object())
-  )
-)
-
-const ItemSchema = Joi.object().keys({
-  id: Joi.string()
-    .min(1)
-    .optional(),
-  questions: LangStringArrSchema.required(),
-  answers: LangStringArrSchema.required(),
-  contentAnswers: Joi.array()
-    .items(QnaItemContentAnswerSchema)
-    .default([]),
-  enabled: Joi.bool().required()
-})
-
-const contentShema = Joi.object()
-  .keys({
-    items: Joi.array().items(
-      Joi.object().keys({
-        image: Joi.string(),
-        title: Joi.object().pattern(Joi.string(), Joi.string().allow(null)),
-        subtitle: Joi.object().pattern(Joi.string(), Joi.string().allow(null)),
-        actions: Joi.array()
-      })
-    ),
-    image: Joi.string(),
-    title: Joi.object()
-      .pattern(Joi.string().max(2), Joi.string().allow(null))
-      .optional(),
-    markdown: Joi.boolean(),
-    typing: Joi.boolean(),
-    contentType: Joi.string()
-  })
-  .xor('items', 'image')
-
-const QnASchema = Joi.object().keys({
-  name: Joi.string(),
-  contexts: Joi.array().items(Joi.string()),
-  filename: Joi.string(),
-  slots: Joi.array(),
-  utterances: Joi.object().pattern(Joi.string().max(2), Joi.array().items(Joi.string())),
-  metadata: Joi.object().keys({
-    answers: Joi.object().pattern(Joi.string().max(2), Joi.array().items(Joi.string())),
-    contentAnswers: Joi.array().items(contentShema),
-    enabled: Joi.boolean(),
-    lastModifiedOn: Joi.string().optional()
-  })
-})
 
 type Intent = Omit<sdk.NLU.IntentDefinition, 'metadata'> & { metadata?: Metadata }
 
@@ -127,29 +56,25 @@ const keepEndPath = path =>
     .split('/')
     .slice(-2)
     .join('/')
-const removeBotPrefix = c =>
-  c.items
-    ? {
-        ...c,
-        items: c.items.map(o => {
-          return { ...o, image: keepEndPath(o.image) }
-        })
-      }
-    : { ...c, image: keepEndPath(c.image) }
+const removeBotPrefix = (c: sdk.Content.All) => {
+  if (c.type === 'carousel') {
+    return { ...c, items: c.items.map(o => { return { ...o, image: keepEndPath(o.image) } }) }
+  } else if (c.type === 'image' || c.type === 'card') {
+    return { ...c, image: keepEndPath(c.image) }
+  }
+}
 
-const addBotPath = (file, botId) => path.join(`/api/v1/bots/${botId}`, file)
-const addBotPrefix = (c, botId) =>
-  c.items
-    ? {
-        ...c,
-        items: c.items.map(o => {
-          return { ...o, image: addBotPath(o.image, botId) }
-        })
-      }
-    : { ...c, image: addBotPath(c.image, botId) }
+const addBotPath = (file: string, botId: string) => path.join(`/api/v1/bots/${botId}`, file)
+const addBotPrefix = (c: sdk.Content.All, botId: string) => {
+  if (c.type === 'carousel') {
+    return { ...c, items: c.items.map(o => { return { ...o, image: addBotPath(o.image, botId) } }) }
+  } else if (c.type === 'image' || c.type === 'card') {
+    return { ...c, image: addBotPath(c.image, botId) }
+  }
+}
 
 export default class Storage {
-  constructor(private ghost: sdk.ScopedGhostService) {}
+  constructor(private ghost: sdk.ScopedGhostService) { }
 
   // TODO: validate no dupes
 
@@ -159,7 +84,7 @@ export default class Storage {
     }
   }
 
-  async fetchItems(topicName: string, opts?: Paging): Promise<Item[]> {
+  async fetchItems(topicName: string, opts?: sdk.Paging): Promise<Item[]> {
     await this.ensureIntentsFileExists(topicName)
     const intents = await this.ghost.readFileAsObject<Intent[]>(FLOW_FOLDER, toQnaFile(topicName))
 
@@ -237,7 +162,7 @@ export default class Storage {
 
     const medias = _.chain(jsonQnaBotAgnostic)
       .flatMapDeep(item => item.metadata?.contentAnswers ?? [])
-      .flatMap(c => (c.items ? c.items : [c]))
+      .flatMap(c => (c.type === 'carousel' ? c.items : [c]))
       .map(c => c.image)
       .value()
 
@@ -256,21 +181,19 @@ export default class Storage {
     return zipBuffer
   }
 
-  async importPerTopic(importArgs: ImportArgs) {
+  async importArchivePerTopic(importArgs: ImportArgs) {
     const { topicName, botId, zipFile } = importArgs
 
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
     await fse.writeFile(path.join(tmpDir.name, toZipFile(topicName)), zipFile)
     await tar.extract({ cwd: tmpDir.name, file: path.join(tmpDir.name, toZipFile(topicName)) })
 
-    let qnasBotAgnostic = JSON.parse(
+    let qnasBotAgnostic: Intent[] = JSON.parse(
       await fse.readFile(path.join(tmpDir.name, FLOW_FOLDER, TEMP_INTENT_FILENAME), 'utf8')
     )
-    qnasBotAgnostic = await Joi.array()
-      .items(QnASchema)
-      .validate(qnasBotAgnostic)
+    qnasBotAgnostic = await QnASchemaArray.validate(qnasBotAgnostic)
 
-    const qnaForBot = qnasBotAgnostic.map(i => {
+    const qnaForBot: Intent[] = qnasBotAgnostic.map(i => {
       const newContent = [...i.metadata.contentAnswers].map(c => addBotPrefix(c, botId))
       const newMetadata = { ...i.metadata, contentAnswers: newContent }
       return { ...i, contexts: [topicName], filename: path.join(topicName, INTENT_FILENAME), metadata: newMetadata }
@@ -278,12 +201,14 @@ export default class Storage {
 
     await this.ghost.upsertFile(FLOW_FOLDER, path.join(topicName, INTENT_FILENAME), serialize(qnaForBot))
 
-    for (const mediaFile of fse.readdirSync(path.join(tmpDir.name, MEDIA_FOLDER))) {
-      await this.ghost.upsertFile(
-        MEDIA_FOLDER,
-        mediaFile,
-        await fse.readFile(path.join(tmpDir.name, MEDIA_FOLDER, mediaFile))
-      )
+    if (await fse.pathExists(path.join(tmpDir.name, MEDIA_FOLDER))) {
+      for (const mediaFile of await fse.readdir(path.join(tmpDir.name, MEDIA_FOLDER))) {
+        await this.ghost.upsertFile(
+          MEDIA_FOLDER,
+          mediaFile,
+          await fse.readFile(path.join(tmpDir.name, MEDIA_FOLDER, mediaFile))
+        )
+      }
     }
   }
 }

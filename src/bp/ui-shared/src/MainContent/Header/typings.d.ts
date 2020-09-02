@@ -11,7 +11,7 @@ export interface HeaderProps {
 export interface HeaderButtonProps {
   onClick?: () => void
   icon?: IconName
-  content?: any
+  content?: JSX // Allow to add custom fonctionality to a button (like adding an input in front of it)
   optionsItems?: MoreOptionsItems[]
   disabled?: boolean
   tooltip?: string

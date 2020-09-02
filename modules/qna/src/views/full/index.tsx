@@ -28,7 +28,7 @@ const QnAList: FC<Props> = ({
   const [currentLang, setCurrentLang] = useState(contentLang)
   const [url, setUrl] = useState('')
   const [filterOptions, setFilterOptions] = useState({ disabled: true, incomplete: true, active: true })
-  const [sortOption, setSortOption] = useState(+1)
+  const [sortOption, setSortOption] = useState('mostRecent')
   const debounceDispatchMiddleware = useCallback(debounce(dispatchMiddleware, 300), [])
   const wrapperRef = useRef<HTMLDivElement>()
   const [state, dispatch] = useReducer(fetchReducer, {
@@ -110,7 +110,7 @@ const QnAList: FC<Props> = ({
   const allExpanded = Object.keys(expandedItems).filter(itemId => expandedItems[itemId]).length === items.length
 
   let noItemsTooltip
-  let languesTooltip = lang.tr('translate')
+  let languesTooltip = lang.tr('module.qna.translate')
 
   if (!items.length) {
     noItemsTooltip = lang.tr('module.qna.form.addOneItemTooltip')
@@ -158,27 +158,27 @@ const QnAList: FC<Props> = ({
           }
         }
       ],
-      tooltip: lang.tr('filterBy')
+      tooltip: lang.tr('module.qna.filterBy')
     },
     {
       icon: 'sort',
       optionsItems: [
         {
-          label: lang.tr('mostRecent'),
-          selected: sortOption === +1,
+          label: lang.tr('module.qna.mostRecent'),
+          selected: sortOption === 'mostRecent',
           action: () => {
-            setSortOption(+1)
+            setSortOption('mostRecent')
           }
         },
         {
-          label: lang.tr('leastRecent'),
-          selected: sortOption === -1,
+          label: lang.tr('module.qna.leastRecent'),
+          selected: sortOption === 'leastRecent',
           action: () => {
-            setSortOption(-1)
+            setSortOption('leastRecent')
           }
         }
       ],
-      tooltip: lang.tr('sortBy')
+      tooltip: lang.tr('module.qna.sortBy')
     },
     {
       icon: allExpanded ? 'collapse-all' : 'expand-all',
@@ -193,7 +193,7 @@ const QnAList: FC<Props> = ({
       icon: 'export',
       disabled: !items.length,
       onClick: startDownload,
-      tooltip: noItemsTooltip || lang.tr('exportToJson')
+      tooltip: noItemsTooltip || lang.tr('module.qna.import.exportQnAs')
     },
     {
       content: (
@@ -209,7 +209,7 @@ const QnAList: FC<Props> = ({
           />
         </span>
       ),
-      tooltip: lang.tr('importJson')
+      tooltip: lang.tr('module.qna.import.importQnAs')
     }
   )
 
@@ -228,28 +228,35 @@ const QnAList: FC<Props> = ({
         declineLabel: lang.tr('cancel')
       })
     ) {
-      await importTar(uploadFile)
+      await importArchive(uploadFile)
     }
   }
 
-  const importTar = async file => {
+  const importArchive = async file => {
+    const extension = file.name.split('.').slice(-1)[0]
+    if (extension !== 'gz') {
+      toastFailure(lang.tr('module.qna.import.badImportFormat'))
+      return
+    }
+    let intervalHandle: number
     try {
       const form = new FormData()
       form.append('file', file)
       const { data } = await bp.axios.post(`/mod/qna/${topicName}/import`, form, bp.axiosConfig)
       const uploadStatusId = data
 
-      const interval = setInterval(async () => {
+      intervalHandle = window.setInterval(async () => {
         const { data } = await bp.axios.get(`/mod/qna/json-upload-status/${uploadStatusId}`)
         if (data === 'module.qna.import.uploadSuccessful') {
-          clearInterval(interval)
+          clearInterval(intervalHandle)
           toastSuccess(lang.tr(data))
         } else if (data.split('.')[0] !== 'module') {
           toastFailure(data)
-          clearInterval(interval)
+          clearInterval(intervalHandle)
         }
       }, 500)
     } catch (err) {
+      clearInterval(intervalHandle)
       toastFailure(err.message)
     }
   }
@@ -332,7 +339,9 @@ const QnAList: FC<Props> = ({
                   (!isQnaComplete(item.data as any, defaultLanguage) && filterOptions.incomplete) ||
                   (item.data.enabled && isQnaComplete(item.data as any, defaultLanguage) && filterOptions.active))
             )
-            .sort((a, b) => sortOption * (+(a.data.lastModified < b.data.lastModified) * 2 - 1))
+            .sort(
+              (a, b) => (sortOption === 'mostRecent' ? +1 : -1) * (+(a.data.lastModified < b.data.lastModified) * 2 - 1)
+            )
             .map((item, index) => (
               <QnA
                 updateQnA={data =>

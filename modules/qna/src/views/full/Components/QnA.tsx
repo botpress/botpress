@@ -219,20 +219,6 @@ const QnA: FC<Props> = props => {
       </div>
       {expanded && (
         <div key={contentLang} className={style.collapsibleWrapper}>
-          {/* {!isLite && (
-            <ContextSelector
-              className={cx(style.contextSelector)}
-              contexts={data.topicName}
-              customIdSuffix={id}
-              saveContexts={contexts =>
-                updateQnA({
-                  id,
-                  data: { ...data, topicName }
-                })
-              }
-              bp={bp}
-            />
-          )} */}
           <TextAreaList
             key="questions"
             items={questions || ['']}

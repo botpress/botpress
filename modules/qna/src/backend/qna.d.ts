@@ -17,11 +17,11 @@ export interface Dic<T> {
   [Key: string]: T
 }
 
-export type Item = {
+export interface Item {
   id: string
   questions: Dic<string[]>
   answers: Dic<string[]>
-  contentAnswers: sdk.FormData[]
+  contentAnswers: sdk.Content.All[]
   enabled: boolean
   lastModified: Date
 }

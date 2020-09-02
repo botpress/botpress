@@ -8,7 +8,7 @@ import { GhostService } from '..'
 const FLOWS_DIR = './flows'
 
 export class IntentService {
-  constructor(private ghostService: GhostService) {}
+  constructor(private ghostService: GhostService) { }
 
   public async getIntents(botId: string): Promise<sdk.NLU.IntentDefinition[]> {
     const intentsFromFiles = await this.getIntentsFromFiles(botId)
@@ -57,7 +57,7 @@ export class IntentService {
             contexts: [topicName],
             filename: flow.name,
             name: intentName,
-            slots: flow.variables?.map(x => ({ name: x.params?.name, entity: x.type })) ?? [], // TODO: sub-type (type of list entity and type of pattern is not included in variables yet)
+            slots: flow.variables?.map(x => ({ name: x.params?.name, entity: x?.params?.subType ?? x.type })) ?? [],
             utterances: conditions[i]?.params?.utterances ?? {}
           }
         }
