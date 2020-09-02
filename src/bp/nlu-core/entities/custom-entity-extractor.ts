@@ -199,7 +199,7 @@ export const extractListEntitiesWithCache = (
   const extractedMatches: EntityExtractionResult[] = _(withCacheMiss)
     .map(model => {
       const extractions = extractForListModel(utterance, model)
-      extractions.length && model.cache.set(model.entityName, extractions) // TODO: also set cache for utterance without entities
+      extractions.length && model.cache.set(cacheKey, extractions) // TODO: also set cache for utterance without entities
       return extractions
     })
     .flatten()
