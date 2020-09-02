@@ -76,10 +76,6 @@ export default class Engine implements NLU.Engine {
   ): Promise<NLU.Model | undefined> {
     trainDebug.forBot(this.botId, `Started ${languageCode} training`)
 
-    if (!this.entitiesCacheByLang[languageCode]) {
-      this.entitiesCacheByLang[languageCode] = new EntityCacheManager()
-    }
-
     const list_entities = entityDefs
       .filter(ent => ent.type === 'list')
       .map(e => {
@@ -91,7 +87,7 @@ export default class Engine implements NLU.Engine {
             .keyBy('name')
             .mapValues('synonyms')
             .value(),
-          cache: this.entitiesCacheByLang[languageCode].getCache(e.name)
+          cache: this.entitiesCacheByLang[languageCode]?.getCache(e.name) || []
         }
       })
 
@@ -207,13 +203,10 @@ export default class Engine implements NLU.Engine {
       return
     }
 
-    const languageCode = input.languageCode
-    this.entitiesCacheByLang[languageCode].setCacheByBatch(output.list_entities)
-
     return {
       startedAt,
       finishedAt: new Date(),
-      languageCode,
+      languageCode: input.languageCode,
       hash,
       data: {
         input,
@@ -248,8 +241,17 @@ export default class Engine implements NLU.Engine {
 
     const trainOutput = output as TrainOutput
 
-    this.predictorsByLang[model.languageCode] = await this._makePredictors(input, trainOutput)
-    this.modelsByLang[model.languageCode] = model
+    const { languageCode } = model
+    this.predictorsByLang[languageCode] = await this._makePredictors(input, trainOutput)
+    this.entitiesCacheByLang[languageCode] = this._makeCacheManager(trainOutput)
+    this.modelsByLang[languageCode] = model
+  }
+
+  private _makeCacheManager(output: TrainOutput) {
+    const cacheManager = new EntityCacheManager()
+    const { list_entities } = output
+    cacheManager.loadFromData(list_entities)
+    return cacheManager
   }
 
   private async _makePredictors(input: TrainInput, output: TrainOutput): Promise<Predictors> {

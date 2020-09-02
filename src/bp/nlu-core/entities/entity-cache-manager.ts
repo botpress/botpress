@@ -14,13 +14,13 @@ export class EntityCacheManager {
     return this.cache[listEntity]
   }
 
-  setCacheByBatch(listEntities: ColdListEntityModel[]) {
+  loadFromData(listEntities: ColdListEntityModel[]) {
     for (const e of listEntities) {
       this.setCache(e.entityName, e.cache)
     }
   }
 
-  setCache(listEntity: string, cache: EntityCacheDump) {
+  private setCache(listEntity: string, cache: EntityCacheDump) {
     this.cache[listEntity] = cache
   }
 }
