@@ -4,6 +4,7 @@ import { MoreOptionsItems } from '../../MoreOptions/typings';
 export interface HeaderProps {
   tabs?: ITabProps[]
   tabChange?: (tab: string) => void
+  currentTab?: string
   buttons?: HeaderButtonProps[]
   className?: string
 }

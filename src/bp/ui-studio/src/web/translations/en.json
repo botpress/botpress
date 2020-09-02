@@ -410,6 +410,11 @@
     }
   },
   "variable": {
-    "emptyState": "Tap + in the toolbar to add your first variable"
+    "emptyState": "Tap + in the toolbar to add your first variable",
+    "variableVisibility": "Variable Visibility",
+    "visibilityPlaceholder": "Pick a Visibility",
+    "inputVariables": "Input Variables",
+    "outputVariables": "Output Variables",
+    "privateVariables": "Private Variables"
   }
 }

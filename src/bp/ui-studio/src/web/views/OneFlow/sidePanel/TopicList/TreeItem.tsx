@@ -102,7 +102,7 @@ const TreeItem: FC<Props> = ({
       icon={hasChildren ? chevron : null}
     >
       <span className={style.topicName}>
-        {item.label || item.id}
+        <span className={style.ellipsisText}>{item.label || item.id}</span>
         {isTopic && item.type !== 'default' && (
           <span className={style.tag}>
             {qnaCount} Q&A · {wfCount} WF

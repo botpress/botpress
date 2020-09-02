@@ -215,6 +215,7 @@ const TopicList: FC<Props> = props => {
             {props.topics?.map(topic => (
               <MenuItem
                 label={topic.name}
+                key={topic.name}
                 onClick={() => {
                   moveFlow(name, topic.name)
                 }}

@@ -1,4 +1,4 @@
-import { Button, IconName, Menu } from '@blueprintjs/core'
+import { Button, Icon, IconName, Menu } from '@blueprintjs/core'
 import { contextMenu, lang } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, useState } from 'react'
@@ -90,9 +90,25 @@ const TreeItem: FC<Props> = ({
       onContextMenu={onContextMenu}
       onDoubleClick={onDoubleClick}
       onClick={onClick}
-      icon={hasChildren ? chevron : (item.icon as IconName)}
+      icon={
+        item.type === 'workflow' ? (
+          <span
+            className={style.draggable}
+            draggable
+            onDragStart={event => {
+              event.dataTransfer.setData('diagram-node', JSON.stringify({ type: 'subworkflow', id: item.id }))
+            }}
+          >
+            <Icon icon={hasChildren ? chevron : (item.icon as IconName)} />
+          </span>
+        ) : (
+          <Icon icon={hasChildren ? chevron : (item.icon as IconName)} />
+        )
+      }
     >
-      <span className={style.topicName}>{item.label || item.id}</span>
+      <span className={style.topicName}>
+        <span className={style.ellipsisText}>{item.label || item.id}</span>
+      </span>
     </Button>
   )
 }

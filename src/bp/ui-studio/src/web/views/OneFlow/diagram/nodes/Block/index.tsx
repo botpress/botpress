@@ -117,10 +117,6 @@ const BlockWidget: FC<Props> = ({
         return <PromptContents node={node} selectedNodeItem={selectedNodeItem} getCurrentLang={getCurrentLang} />
       case 'router':
         return <RouterContents node={node} editNodeItem={editNodeItem} selectedNodeItem={selectedNodeItem} />
-      case 'success':
-        return <OutcomeContents node={node} selectedNodeItem={selectedNodeItem} getCurrentLang={getCurrentLang} />
-      case 'failure':
-        return <OutcomeContents node={node} selectedNodeItem={selectedNodeItem} getCurrentLang={getCurrentLang} />
       case 'say_something':
         return (
           <SaySomethingContents

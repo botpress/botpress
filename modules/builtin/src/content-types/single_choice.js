@@ -98,7 +98,7 @@ module.exports = {
   },
 
   newSchema: {
-    displayedIn: [],
+    displayedIn: ['qna', 'sayNode'],
     advancedSettings: [
       {
         key: 'onTopOfKeyboard',

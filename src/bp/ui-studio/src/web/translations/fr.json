@@ -408,6 +408,11 @@
     }
   },
   "variable": {
-    "emptyState": "Appuyez sur + dans la barre d'outils pour ajouter votre première variable"
+    "emptyState": "Appuyez sur + dans la barre d'outils pour ajouter votre première variable",
+    "variableVisibility": "Visibilité de la variable",
+    "visibilityPlaceholder": "Choisissez la visibilité",
+    "inputVariables": "Variables d'entrée",
+    "outputVariables": "Variables de sortie",
+    "privateVariables": "Variables privée"
   }
 }
