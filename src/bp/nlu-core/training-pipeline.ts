@@ -1,6 +1,5 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import LRUCache from 'lru-cache'
 
 import { extractListEntitiesWithCache, extractPatternEntities } from './entities/custom-entity-extractor'
 import { getCtxFeatures } from './intents/context-featurizer'
@@ -30,6 +29,7 @@ import {
 } from './typings'
 import { Augmentation, createAugmenter, interleave } from './utterance/augmenter'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
+import { warmEntityCache } from './entities/entity-cache-manager'
 
 type ListEntityWithCache = ListEntity & {
   cache: EntityCacheDump
@@ -132,8 +132,7 @@ const makeListEntityModel = async (entity: ListEntityWithCache, languageCode: st
     toks.map(convertToRealSpaces)
   )
 
-  const cache = new LRUCache(1000)
-  cache.load(entity.cache)
+  const cache = warmEntityCache(entity.cache)
 
   return <WarmedListEntityModel>{
     type: 'custom.list',
