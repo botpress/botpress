@@ -34,7 +34,8 @@ interface Props {
 }
 
 interface State {
-  event: any
+  event: sdk.IO.IncomingEvent
+  prevEvent: sdk.IO.IncomingEvent
   selectedTabId: string
   visible: boolean
   showSettings: boolean
@@ -43,12 +44,14 @@ interface State {
   fetching: boolean
   unauthorized: boolean
   tab: string
+  eventsCache: sdk.IO.IncomingEvent[]
 }
 const DEBUGGER_TAB_KEY = 'debuggerTab'
 
 export class Debugger extends React.Component<Props, State> {
-  state = {
+  state: State = {
     event: undefined,
+    prevEvent: undefined,
     showEventNotFound: false,
     visible: false,
     selectedTabId: 'basic',
@@ -56,7 +59,8 @@ export class Debugger extends React.Component<Props, State> {
     fetching: false,
     unauthorized: false,
     showInspector: false,
-    tab: window['BP_STORAGE'].get(DEBUGGER_TAB_KEY) || 'content'
+    tab: window['BP_STORAGE'].get(DEBUGGER_TAB_KEY) || 'content',
+    eventsCache: []
   }
   allowedRetryCount = 0
   currentRetryCount = 0
@@ -165,9 +169,17 @@ export class Debugger extends React.Component<Props, State> {
     this.setState({ fetching: true })
 
     try {
-      const { data: event } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
+      const event = await this.getEvent(eventId)
 
-      this.setState({ event, showEventNotFound: !event })
+      const lastMessages: any[] = this.props.store.currentConversation.messages
+      const prevMessage = _.last(_.takeWhile(lastMessages, x => x.incomingEventId !== eventId).filter(x => x.userId))
+      let prevEvent: sdk.IO.IncomingEvent = undefined
+
+      if (prevMessage) {
+        prevEvent = await this.getEvent(prevMessage.incomingEventId)
+      }
+
+      this.setState({ event, prevEvent, showEventNotFound: !event })
       this.props.store.view.setHighlightedMessages(eventId)
 
       if (!event.processing?.['completed']) {
@@ -191,6 +203,24 @@ export class Debugger extends React.Component<Props, State> {
       this.setState({ fetching: false })
       this.currentRetryCount = 0
     }
+  }
+
+  getEvent = async (eventId: string): Promise<sdk.IO.IncomingEvent> => {
+    const eventsCache = this.state.eventsCache
+
+    const existing = eventsCache.find(x => x.id === eventId)
+    if (existing) {
+      return existing
+    }
+
+    const { data: event } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
+    if (!event.processing?.['completed']) {
+      return event
+    }
+
+    this.setState({ eventsCache: [event, ...eventsCache].slice(0, 10) })
+
+    return event
   }
 
   handleNewSession = () => {
@@ -222,7 +252,7 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   renderEvent() {
-    const { tab, event } = this.state
+    const { tab, event, prevEvent } = this.state
 
     if (this.state.showInspector) {
       return (
@@ -234,7 +264,7 @@ export class Debugger extends React.Component<Props, State> {
 
     return (
       <div className={style.content}>
-        {tab === 'content' && <Summary event={event} />}
+        {tab === 'content' && <Summary event={event} prevEvent={prevEvent} />}
         {tab === 'processing' && <Processing processing={event?.processing} />}
       </div>
     )

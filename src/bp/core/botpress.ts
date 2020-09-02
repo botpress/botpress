@@ -35,7 +35,6 @@ import { CMSService } from './services/cms'
 import { converseApiEvents } from './services/converse'
 import { DecisionEngine } from './services/dialog/decision-engine'
 import { DialogEngine } from './services/dialog/dialog-engine'
-import { ProcessingError } from './services/dialog/errors'
 import { DialogJanitor } from './services/dialog/janitor'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { HintsService } from './services/hints'
@@ -418,8 +417,6 @@ export class Botpress {
         const metric = wf.success ? 'bp_core_workflow_completed' : 'bp_core_workflow_failed'
         BOTPRESS_CORE_EVENT(metric, { botId: event.botId, channel: event.channel, wfName: workflow })
 
-        delete event.state.session.workflows[workflow]
-
         if (!activeWorkflow && !wf.parent) {
           await this.eventEngine.sendEvent(
             Event({
@@ -441,19 +438,6 @@ export class Botpress {
     }
 
     await this.dataRetentionService.initialize()
-
-    const dialogEngineLogger = await this.loggerProvider('DialogEngine')
-    this.dialogEngine.onProcessingError = (err, hideStack?) => {
-      const message = this.formatProcessingError(err)
-      if (!hideStack) {
-        dialogEngineLogger
-          .forBot(err.botId)
-          .attachError(err)
-          .warn(message)
-      } else {
-        dialogEngineLogger.forBot(err.botId).warn(message)
-      }
-    }
 
     this.notificationService.onNotification = notification => {
       const payload: sdk.RealTimePayload = {
@@ -502,14 +486,6 @@ export class Botpress {
 
   private async startRealtime() {
     await this.realtimeService.installOnHttpServer(this.httpServer.httpServer)
-  }
-
-  private formatProcessingError(err: ProcessingError) {
-    return `Error processing '${err.instruction}'
-Err: ${err.message}
-BotId: ${err.botId}
-Flow: ${err.flowName}
-Node: ${err.nodeName}`
   }
 
   private trackStart() {

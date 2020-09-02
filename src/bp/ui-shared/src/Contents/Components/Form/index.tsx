@@ -309,7 +309,7 @@ const Form: FC<FormProps> = ({
               <TextFieldsArray
                 getPlaceholder={index => getArrayPlaceholder(index, field)}
                 moreInfo={printMoreInfo(field.moreInfo)}
-                validationPattern={field.validationPattern}
+                validation={field.validation}
                 onChange={value => {
                   dispatch({
                     type: 'updateField',
@@ -336,6 +336,7 @@ const Form: FC<FormProps> = ({
         return (
           <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)} invalid={invalid}>
             <TagInputList
+              validation={field.validation}
               placeholder={lang(field.placeholder)}
               items={currentValue || []}
               addBtnLabel={lang(field.group?.addLabel)}

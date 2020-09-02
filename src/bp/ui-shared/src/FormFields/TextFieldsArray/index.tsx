@@ -13,7 +13,7 @@ import style from './style.scss'
 import { TextFieldsArrayProps } from './typings'
 
 const TextFieldsArray: FC<TextFieldsArrayProps> = props => {
-  const { addBtnLabel, label, onChange, items, getPlaceholder, validationPattern } = props
+  const { addBtnLabel, label, onChange, items, getPlaceholder, validation } = props
   const [localItems, setLocalItems] = useState(items || [])
   const focusedElement = useRef(items.length)
 
@@ -59,11 +59,11 @@ const TextFieldsArray: FC<TextFieldsArrayProps> = props => {
   }
 
   const validateItem = (item: string) => {
-    if (!validationPattern?.test || !item) {
+    if (!validation?.regex?.test || !item) {
       return null
     }
 
-    return validationPattern.test(item) ? (
+    return validation.regex.test(item) ? (
       <Icon icon="tick-circle" className={cx(style.icon, style.success)}></Icon>
     ) : (
       <Icon icon="error" className={cx(style.icon, style.error)}></Icon>

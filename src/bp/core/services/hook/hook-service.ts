@@ -17,7 +17,7 @@ import { clearRequireCache, requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
 import { filterDisabled, runOutsideVm } from '../action/utils'
 import { VmRunner } from '../action/vm'
-import { addStepToEvent } from '../middleware/event-collector'
+import { addErrorToEvent, addStepToEvent } from '../middleware/event-collector'
 
 const debug = DEBUG('hooks')
 const DEBOUNCE_DELAY = ms('2s')
@@ -284,11 +284,24 @@ export class HookService {
     hook.debug.forBot(botId, 'after execute')
   }
 
-  private addEventStep = (hookName: string, status: 'completed' | 'error', hook: Hooks.BaseHook) => {
-    if (hook.args?.event) {
-      const event = hook.args.event as IO.Event
-      addStepToEvent(`hook:${hookName}:${status}`, event)
+  private addEventStep = (hookName: string, status: 'completed' | 'error', hook: Hooks.BaseHook, error?: any) => {
+    if (!hook.args?.event) {
+      return
     }
+
+    const event = hook.args.event as IO.Event
+    if (error) {
+      addErrorToEvent(
+        {
+          type: 'hook-execution',
+          stacktrace: error.stacktrace || error.stack,
+          actionArgs: _.omit(hook.args, ['bp', 'event'])
+        },
+        event
+      )
+    }
+
+    addStepToEvent(`hook:${hookName}:${status}`, event)
   }
 
   private async runWithoutVm(hookScript: HookScript, hook: Hooks.BaseHook, botId: string, _require: Function) {
@@ -305,7 +318,7 @@ export class HookService {
       this.addEventStep(hookScript.name, 'completed', hook)
       return
     } catch (err) {
-      this.addEventStep(hookScript.name, 'error', hook)
+      this.addEventStep(hookScript.name, 'error', hook, err)
       this.logScriptError(err, botId, hookScript.path, hook.folder)
     }
   }
@@ -339,7 +352,7 @@ export class HookService {
       .runInVm(vm, hookScript.code, hookScript.path)
       .then(() => this.addEventStep(hookScript.name, 'completed', hook))
       .catch(err => {
-        this.addEventStep(hookScript.name, 'error', hook)
+        this.addEventStep(hookScript.name, 'error', hook, err)
         this.logScriptError(err, botId, hookScript.path, hook.folder)
       })
   }
