@@ -1,15 +1,3 @@
-export class ProcessingError extends Error {
-  constructor(
-    message: string,
-    public readonly botId: string,
-    public readonly nodeName: string,
-    public readonly flowName: string,
-    public readonly instruction: string
-  ) {
-    super(message)
-  }
-}
-
 export class ActionExecutionError extends Error {
   private hideStack = false
   constructor(
