@@ -102,11 +102,7 @@ export default class Db {
       return
     }
 
-    const { threadId, sessionId, id: messageId, event: eventDetails } = await this.knex(EVENTS_TABLE_NAME)
-      .where({ botId, incomingEventId: event.eventId, direction: 'incoming' })
-      .select('id', 'threadId', 'sessionId', 'event')
-      .limit(1)
-      .first()
+    const { threadId, sessionId, id: messageId, event: eventDetails } = parentEvent
 
     const [messagesBefore, messagesAfter] = await Promise.all([
       this.knex(EVENTS_TABLE_NAME)
