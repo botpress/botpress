@@ -105,7 +105,7 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
     await this.setStateP({ selectedEventIndex, selectedEvent: null })
     if (events && events.length) {
       const event = await this.fetchEvent(events[selectedEventIndex].id)
-      await this.setStateP({ selectedEvent: event, eventNotFound: !!!event })
+      await this.setStateP({ selectedEvent: event, eventNotFound: !event })
     }
   }
 
