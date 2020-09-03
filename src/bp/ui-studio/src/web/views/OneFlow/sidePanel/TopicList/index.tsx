@@ -38,6 +38,7 @@ interface OwnProps {
   goToFlow: (flow: any) => void
   createWorkflow: (topicId: string) => void
   exportTopic: (topicName: string | NodeData) => void
+  canAdd: boolean
   canDelete: boolean
   editing: string
   setEditing: (name: string) => void
@@ -383,7 +384,7 @@ const TopicList: FC<Props> = props => {
         {expanded[path] && (
           <Fragment>
             {hasChildren && item.children.map(child => printTree(child, level + 1, path))}
-            {isTopic && item.id !== 'default' && (
+            {props.canAdd && isTopic && item.id !== 'default' && (
               <Button
                 minimal
                 onClick={() => props.createWorkflow(item.id)}

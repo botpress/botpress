@@ -1,0 +1,32 @@
+.warning {
+  position: relative;
+  background: var(--hover-lighthouse-30);
+  padding: var(--spacing-large) var(--spacing-medium);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+
+  &_container {
+    position: fixed;
+    right: 50%;
+    bottom: calc(var(--spacing-medium) + 28px);
+    transform: translate(50%, 0);
+    z-index: 9;
+  }
+
+  &_icon {
+    color: var(--lighthouse);
+    margin-right: var(--spacing-medium);
+  }
+
+  &_text {
+    font-size: 12px;
+    line-height: 1.25;
+    color: var(--shark);
+  }
+}
+
+:global(.layout-emulator-open) + .warning_container,
+:global(.emulator-open) + .warning_container {
+  margin-right: 100px;
+}

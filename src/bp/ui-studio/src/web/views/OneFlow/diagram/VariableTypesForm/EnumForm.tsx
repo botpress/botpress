@@ -15,6 +15,7 @@ interface Item {
 }
 interface Props {
   customKey: string
+  defaultLang: string
   contentLang: string
   formData: sdk.NLU.EntityDefinition
   allEntities: sdk.NLU.EntityDefinition[]
@@ -26,6 +27,7 @@ interface Props {
 
 const EnumForm: FC<Props> = ({
   customKey,
+  defaultLang,
   contentLang,
   formData,
   allEntities,
@@ -113,6 +115,7 @@ const EnumForm: FC<Props> = ({
 
         <Contents.Form
           currentLang={contentLang}
+          defaultLang={defaultLang}
           axios={axios}
           fields={[
             {

@@ -41,13 +41,15 @@ const WorkflowToolbar = props => {
     }
   ]
 
-  const variableButtons: HeaderButtonProps[] = [
-    {
+  const variableButtons: HeaderButtonProps[] = []
+
+  if (props.canAdd) {
+    variableButtons.push({
       icon: 'plus',
       tooltip: lang.tr('addVariable'),
       onClick: () => props.addVariable()
-    }
-  ]
+    })
+  }
 
   const buttons: HeaderButtonProps[] = [
     {

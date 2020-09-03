@@ -74,6 +74,8 @@ import { StandardNodeModel, StandardWidgetFactory } from '~/views/FlowBuilder/di
 import { textToItemId } from '~/views/FlowBuilder/diagram/nodes_v2/utils'
 import style from '~/views/FlowBuilder/diagram/style.scss'
 
+import WarningMessage from '../../../components/Layout/WarningMessage'
+
 import { BlockModel, BlockWidgetFactory } from './nodes/Block'
 import menuStyle from './style.scss'
 import ActionForm from './ActionForm'
@@ -100,19 +102,17 @@ interface OwnProps {
   highlightFilter: string
   showSearch: boolean
   hideSearch: () => void
-  handleFilterChanged: (event: any) => void
-}
-
-interface LangProps {
-  contentLang: string
+  currentLang: string
+  setCurrentLang: (lang: string) => void
   languages: string[]
-  defaultLanguage: string
+  defaultLang: string
+  handleFilterChanged: (event: any) => void
 }
 
 type StateProps = ReturnType<typeof mapStateToProps>
 type DispatchProps = typeof mapDispatchToProps
 
-type Props = DispatchProps & StateProps & OwnProps & LangProps
+type Props = DispatchProps & StateProps & OwnProps
 
 type BpNodeModel = StandardNodeModel | SkillCallNodeModel
 
@@ -150,7 +150,6 @@ class Diagram extends Component<Props> {
 
   state = {
     editingNodeItem: null,
-    currentLang: '',
     currentTab: storage.get(DIAGRAM_TAB_KEY) || 'workflow',
     expandedNodes: []
   }
@@ -165,7 +164,10 @@ class Diagram extends Component<Props> {
       getCurrentFlow: () => this.getPropsProperty('currentFlow'),
       updateFlowNode: this.updateNodeAndRefresh.bind(this),
       switchFlowNode: this.switchFlowNode.bind(this),
-      getCurrentLang: () => this.getStateProperty('currentLang'),
+      getLanguage: () => ({
+        currentLang: this.getPropsProperty('currentLang'),
+        defaultLang: this.getPropsProperty('defaultLang')
+      }),
       getConditions: () => this.getPropsProperty('conditions'),
       addCondition: this.addCondition.bind(this),
       addMessage: this.addMessage.bind(this),
@@ -219,7 +221,9 @@ class Diagram extends Component<Props> {
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
 
-    this.setState({ currentLang: this.props.contentLang, expandedNodes: getExpandedNodes() })
+    this.setState({
+      expandedNodes: getExpandedNodes()
+    })
     this.props.childRef({
       deleteSelectedElements: this.deleteSelectedElements.bind(this),
       createFlow: this.createFlow.bind(this)
@@ -355,7 +359,7 @@ class Diagram extends Component<Props> {
         contents: [
           {
             contentType: 'builtin_text',
-            ...Contents.createEmptyDataFromSchema(this.getTextFields(), this.state.currentLang)
+            ...Contents.createEmptyDataFromSchema(this.getTextFields(), this.props.currentLang)
           }
         ],
         next: [defaultTransition],
@@ -422,6 +426,10 @@ class Diagram extends Component<Props> {
   }
 
   handleContextMenuNoElement = (event: React.MouseEvent) => {
+    if (this.props.defaultLang && this.props.defaultLang !== this.props.currentLang) {
+      return
+    }
+
     const point = this.manager.getRealPosition(event)
     const originatesFromOutPort = _.get(this.dragPortSource, 'parent.sourcePort.name', '').startsWith('out')
 
@@ -688,7 +696,7 @@ class Diagram extends Component<Props> {
   }
 
   addMessage() {
-    const schema = Contents.createEmptyDataFromSchema(this.getTextFields(), this.state.currentLang)
+    const schema = Contents.createEmptyDataFromSchema(this.getTextFields(), this.props.currentLang)
     this.props.updateFlowNode({
       contents: [...this.props.currentFlowNode.contents, { contentType: 'builtin_text', ...schema }]
     })
@@ -995,6 +1003,10 @@ class Diagram extends Component<Props> {
     this.props.updateFlowNode({ subflow: data })
   }
 
+  updateLang = lang => {
+    this.props.setCurrentLang(lang)
+  }
+
   deleteTransition = () => {
     const { node, index } = this.state.editingNodeItem
     const next = this.props.currentFlowNode.next
@@ -1055,6 +1067,7 @@ class Diagram extends Component<Props> {
 
     const isQnA = this.props.selectedWorkflow === 'qna'
     const { currentTab } = this.state
+    const canAdd = !this.props.defaultLang || this.props.defaultLang === this.props.currentLang
 
     return (
       <Fragment>
@@ -1063,12 +1076,13 @@ class Diagram extends Component<Props> {
             key={`${this.props.selectedTopic}`}
             moduleName="qna"
             componentName="LiteEditor"
-            contentLang={this.props.contentLang}
+            contentLang={this.props.currentLang}
             extraProps={{
+              updateLocalLang: lang => this.updateLang(lang),
               isLite: true,
               topicName: this.props.selectedTopic,
               languages: this.props.languages,
-              defaultLanguage: this.props.defaultLanguage,
+              defaultLang: this.props.defaultLang,
               events: this.props.hints || [],
               refreshQnaCount: () => {
                 // So it's processed on the next tick, otherwise it won't update with the latest update
@@ -1081,11 +1095,12 @@ class Diagram extends Component<Props> {
         )}
         <MainContent.Wrapper className={cx({ [style.hidden]: isQnA || this.props.currentFlow === undefined })}>
           <WorkflowToolbar
-            currentLang={this.state.currentLang}
+            currentLang={this.props.currentLang}
             languages={this.props.languages}
             currentTab={this.state.currentTab}
-            setCurrentLang={lang => this.setState({ currentLang: lang })}
+            setCurrentLang={lang => this.updateLang(lang)}
             addVariable={this.addVariable}
+            canAdd={canAdd}
             tabChange={this.handleTabChanged}
           />
           {currentTab === 'variables' ? (
@@ -1128,7 +1143,7 @@ class Diagram extends Component<Props> {
                 />
               </div>
             )}
-            {currentTab === 'workflow' && <Toolbar />}
+            {currentTab === 'workflow' && canAdd && <Toolbar />}
           </Fragment>
 
           {formType === 'say_something' && (
@@ -1140,7 +1155,8 @@ class Diagram extends Component<Props> {
               deleteContent={() => this.deleteNodeContent()}
               variables={this.props.variables}
               events={this.props.hints || []}
-              contentLang={this.state.currentLang}
+              contentLang={this.props.currentLang}
+              defaultLang={this.props.defaultLang}
               editingContent={index}
               formData={currentItem || getEmptyContent(currentItem)}
               onUpdate={this.updateNodeContent.bind(this)}
@@ -1162,7 +1178,8 @@ class Diagram extends Component<Props> {
               variables={this.props.variables}
               events={this.props.hints}
               formData={currentItem}
-              contentLang={this.state.currentLang}
+              contentLang={this.props.currentLang}
+              defaultLang={this.props.defaultLang}
               onUpdate={this.updateNodeCondition.bind(this)}
               onUpdateVariables={this.addVariable}
               close={() => {
@@ -1181,7 +1198,8 @@ class Diagram extends Component<Props> {
               deletePrompt={this.deleteSelectedElements.bind(this)}
               variables={this.props.variables}
               onUpdateVariables={this.addVariable}
-              contentLang={this.state.currentLang}
+              contentLang={this.props.currentLang}
+              defaultLang={this.props.defaultLang}
               close={() => {
                 this.timeout = setTimeout(() => {
                   this.setState({ editingNodeItem: null })
@@ -1239,7 +1257,7 @@ class Diagram extends Component<Props> {
               onUpdateVariables={this.addVariable}
               customKey={`${node?.type}${node?.id}${index}`}
               updateRouter={this.updateRouter}
-              contentLang={this.state.currentLang}
+              contentLang={this.props.currentLang}
               close={() => {
                 this.timeout = setTimeout(() => {
                   this.setState({ editingNodeItem: null })
@@ -1251,7 +1269,8 @@ class Diagram extends Component<Props> {
           {formType === 'variable' && (
             <VariableForm
               variables={this.props.variables}
-              contentLang={this.state.currentLang}
+              contentLang={this.props.currentLang}
+              defaultLang={this.props.defaultLang}
               customKey={`${node?.id}${currentItem?.type}`}
               deleteVariable={this.deleteVariable.bind(this)}
               formData={currentItem}
@@ -1264,19 +1283,25 @@ class Diagram extends Component<Props> {
               }}
             />
           )}
+          {formType === 'variableType' && (
+            <VariableTypesForm
+              contentLang={this.state.currentLang}
+              customKey={data.id}
+              formData={currentItem}
+              variables={this.props.variables}
+              close={() => {
+                this.timeout = setTimeout(() => {
+                  this.setState({ editingNodeItem: null })
+                }, 200)
+              }}
+            />
+          )}
         </MainContent.Wrapper>
-
-        {formType === 'variableType' && (
-          <VariableTypesForm
-            contentLang={this.state.currentLang}
-            customKey={data.id}
-            formData={currentItem}
-            variables={this.props.variables}
-            close={() => {
-              this.timeout = setTimeout(() => {
-                this.setState({ editingNodeItem: null })
-              }, 200)
-            }}
+        {this.props.defaultLang !== this.props.currentLang && (
+          <WarningMessage
+            message={lang.tr('notViewingDefaultLang', {
+              language: lang.tr(lang.tr(`isoLangs.${this.props.currentLang}.name`).toLowerCase())
+            })}
           />
         )}
       </Fragment>
@@ -1332,4 +1357,4 @@ const mapDispatchToProps = {
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps, null, {
   withRef: true
-})(withLanguage(Diagram))
+})(Diagram)

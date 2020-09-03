@@ -23,7 +23,7 @@ export default {
       customPlaceholder: true,
       translated: true,
       variablesOnly: true,
-      label: 'intent',
+      label: 'module.nlu.intents.label',
       group: {
         addLabel: 'module.nlu.intents.addBtn'
       }

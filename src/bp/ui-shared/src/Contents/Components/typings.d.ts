@@ -5,6 +5,7 @@ export interface FieldProps {
   onChange?: (value: null | number | string) => void
   onBlur?: (value?: string | number | null) => void
   childRef?: (ref: HTMLElement | null) => void
+  refValue?: string
   value?: string
 }
 

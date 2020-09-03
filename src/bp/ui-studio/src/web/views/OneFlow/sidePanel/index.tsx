@@ -50,6 +50,8 @@ interface OwnProps {
   history: any
   permissions: PanelPermissions[]
   readOnly: boolean
+  currentLang: string
+  defaultLang: string
   mutexInfo: any
   selectedTopic: string
   selectedWorkflow: string
@@ -111,6 +113,7 @@ const SidePanelContent: FC<Props> = props => {
   }
 
   const canDelete = props.permissions.includes('delete')
+  const canAdd = !props.defaultLang || props.defaultLang === props.currentLang
 
   const onTabChanged = tabId => {
     setCurrentTab(tabId)
@@ -135,9 +138,11 @@ const SidePanelContent: FC<Props> = props => {
                 <Tooltip content={lang.tr('studio.flow.sidePanel.importTopic')}>
                   <Button icon="import" onClick={() => setImportModalOpen(true)} />
                 </Tooltip>
-                <Tooltip content={lang.tr('studio.flow.sidePanel.addTopic')}>
-                  <Button icon="plus" onClick={() => createTopic()} />
-                </Tooltip>
+                {canAdd && (
+                  <Tooltip content={lang.tr('studio.flow.sidePanel.addTopic')}>
+                    <Button icon="plus" onClick={() => createTopic()} />
+                  </Tooltip>
+                )}
               </NavbarGroup>
             )}
           </Navbar>
@@ -156,6 +161,7 @@ const SidePanelContent: FC<Props> = props => {
               setEditing={setEditing}
               isEditingNew={isEditingNew}
               setIsEditingNew={setIsEditingNew}
+              canAdd={canAdd}
             />
           )}
 
@@ -165,6 +171,7 @@ const SidePanelContent: FC<Props> = props => {
               createWorkflow={createWorkflow}
               flows={props.flows}
               selectedWorkflow={props.selectedWorkflow}
+              canAdd={canAdd}
             />
           )}
         </React.Fragment>
