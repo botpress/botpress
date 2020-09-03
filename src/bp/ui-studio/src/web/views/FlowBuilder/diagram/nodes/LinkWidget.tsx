@@ -11,7 +11,7 @@ class DeletableLinkWidget extends DefaultLinkWidget {
     // @ts-ignore
     const flowManager = diagramEngine.flowBuilder.manager
     if (flowManager.shouldHighlightLink(link.getID())) {
-      color = '#3276ea'
+      color = 'var(--ocean)'
       width = 4
     }
 

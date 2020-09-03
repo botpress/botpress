@@ -173,7 +173,7 @@ const BlockWidget: FC<Props> = ({
         className={style[nodeType]}
         setExpanded={canCollapse && handleExpanded}
         expanded={canCollapse && expanded}
-        handleContextMenu={hasContextMenu && handleContextMenu}
+        handleContextMenu={!node.isReadOnly && hasContextMenu && handleContextMenu}
         defaultLabel={lang.tr(defaultLabels[nodeType])}
         debugInfo={debugInfo}
         nodeType={nodeType}
@@ -190,6 +190,7 @@ export class BlockModel extends BaseNodeModel {
   public conditions: DecisionTriggerCondition[] = []
   public activeWorkflow: boolean
   public isNew: boolean
+  public isReadOnly: boolean
   public nodeType: string
   public prompt?
   public contents?: FormData[] = []
@@ -210,7 +211,8 @@ export class BlockModel extends BaseNodeModel {
     activeWorkflow = false,
     isNew = false,
     isStartNode = false,
-    isHighlighted = false
+    isHighlighted = false,
+    isReadOnly = false
   }) {
     super('block', id)
 
@@ -226,7 +228,8 @@ export class BlockModel extends BaseNodeModel {
       conditions,
       subflow,
       activeWorkflow,
-      isNew
+      isNew,
+      isReadOnly
     })
 
     this.x = this.oldX = x
@@ -243,6 +246,7 @@ export class BlockModel extends BaseNodeModel {
     this.prompt = data.prompt
     this.contents = data.contents
     this.subflow = data.subflow
+    this.isReadOnly = data.isReadOnly
   }
 }
 

@@ -20,7 +20,8 @@ const passThroughNodeProps: string[] = [
   'contents',
   'activeWorkflow',
   'prompt',
-  'subflow'
+  'subflow',
+  'isReadOnly'
 ]
 export const DIAGRAM_PADDING: number = 100
 

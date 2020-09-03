@@ -625,9 +625,11 @@ declare module 'botpress/sdk' {
     export interface WorkflowTrigger extends GenericTrigger {
       type: 'workflow'
       workflowId: string
+      topicName: string
       nodeId: string
       /** When true, the user must be inside the specified workflow for the trigger to be active */
       activeWorkflow?: boolean
+      activeTopic?: boolean
     }
 
     export interface FaqTrigger extends GenericTrigger {
@@ -1368,6 +1370,8 @@ declare module 'botpress/sdk' {
     advancedSettings?: FormField[]
     /** In which order the conditions will be displayed in the dropdown menu. 0 is the first item */
     displayOrder?: number
+    /** When true, it is not displayed in the dropdown menu on the studio */
+    hidden?: boolean
     /** This callback url is called when the condition is deleted or pasted in the flow */
     callback?: string
     /** The editor will use the custom component to provide the requested parameters */
@@ -1469,6 +1473,7 @@ declare module 'botpress/sdk' {
     prompt?: PromptNode
     subflow?: SubWorkflowNode
     isNew?: boolean
+    isReadOnly?: boolean
     /** Used internally by the flow editor */
     readonly lastModified?: Date
   } & NodeActions
@@ -1486,6 +1491,7 @@ declare module 'botpress/sdk' {
   export type TriggerNode = FlowNode & {
     conditions: DecisionTriggerCondition[]
     activeWorkflow?: boolean
+    activeTopic?: boolean
   }
 
   export type ListenNode = FlowNode & {
