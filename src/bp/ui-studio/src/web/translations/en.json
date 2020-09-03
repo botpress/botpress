@@ -381,7 +381,8 @@
       "currentStage": "Current Stage: {stage}",
       "extractedVar": "{output} extracted is {value}",
       "jumpOutOfWorkflow": "Jump out of workflow",
-      "jumpIntoWorkflow": "Jump into workflow"
+      "jumpIntoWorkflow": "Jump into workflow",
+      "errorOccurred": "An error occurred here"
     },
     "prompt": {
       "label": "Type",

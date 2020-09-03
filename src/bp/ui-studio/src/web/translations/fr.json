@@ -379,7 +379,8 @@
       "currentStage": "Étape courante: {stage}",
       "extractedVar": "{output} extrait est {value}",
       "jumpOutOfWorkflow": "Sauter hors du workflow",
-      "jumpIntoWorkflow": "Sauter dans le workflow"
+      "jumpIntoWorkflow": "Sauter dans le workflow",
+      "errorOccurred": "Une erreur est survenue ici"
     },
     "prompt": {
       "label": "Type",

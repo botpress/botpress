@@ -7,6 +7,7 @@ import _ from 'lodash'
 export interface NodeDebugInfo {
   workflow: string
   node: string
+  hasError?: boolean
   isEndOfFlow?: boolean
   nextWorkflow?: string
   prevWorkflow?: string
@@ -60,6 +61,7 @@ export const prepareEventForDiagram = (event: sdk.IO.IncomingEvent, flows: FlowV
     topQna = processTriggers(event.ndu, conditions, getNode)
 
     processVariables(session, flows, getNode)
+    processErrors(event, getNode)
 
     if (context) {
       const { activePrompt, currentFlow, currentNode } = context
@@ -72,6 +74,23 @@ export const prepareEventForDiagram = (event: sdk.IO.IncomingEvent, flows: FlowV
   }
 
   return { nodeInfos: nodes.filter(Boolean), highlightedNodes, topQna }
+}
+
+const processErrors = (event: sdk.IO.IncomingEvent, getNode: (flow: string, node: string) => NodeDebugInfo) => {
+  if (!event.processing) {
+    return
+  }
+
+  Object.values(event.processing)
+    .filter(x => x.errors?.length)
+    .forEach(({ errors }) => {
+      errors.forEach(error => {
+        console.log(error)
+        if (error.flowName && error.nodeName) {
+          getNode(error.flowName, error.nodeName).hasError = true
+        }
+      })
+    })
 }
 
 const processVariables = (

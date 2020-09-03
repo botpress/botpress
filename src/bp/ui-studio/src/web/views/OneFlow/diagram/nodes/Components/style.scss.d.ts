@@ -15,6 +15,7 @@ interface CssExports {
   'errorIcon': string;
   'execute': string;
   'failure': string;
+  'hasError': string;
   'hasJoinLabel': string;
   'headerWrapper': string;
   'highlighted': string;

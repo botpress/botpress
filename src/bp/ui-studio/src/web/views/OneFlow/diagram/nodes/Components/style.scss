@@ -79,6 +79,11 @@
       color: #fff;
     }
 
+    .hasError {
+      border: 1px solid var(--lighthouse);
+      background: var(--lighthouse) !important;
+    }
+
     .headerWrapper {
       &.say_something,
       &:hover.say_something,

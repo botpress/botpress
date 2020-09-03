@@ -40,6 +40,7 @@ export const DebugInfo: FC<NodeDebugInfoProps> = ({
   isEndOfFlow,
   nextWorkflow,
   prevWorkflow,
+  hasError,
   nodeType,
   className
 }) => {
@@ -84,12 +85,16 @@ export const DebugInfo: FC<NodeDebugInfoProps> = ({
     )
   }
 
+  if (hasError) {
+    infos.push(<div>{lang.tr('studio.flow.errorOccurred')}</div>)
+  }
+
   if (!infos.length) {
     return null
   }
 
   return (
-    <div className={cx(style.debugInfo, className)}>
+    <div className={cx(style.debugInfo, className, { [style.hasError]: hasError })}>
       {infos.map((info, idx) => (
         <Fragment key={idx}>{info}</Fragment>
       ))}
