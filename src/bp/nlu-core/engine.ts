@@ -306,7 +306,7 @@ export default class Engine implements NLU.Engine {
   }
 
   async detectLanguage(sentence: string): Promise<string> {
-    return await DetectLanguage(sentence, this.predictorsByLang, Engine._tools)
+    return DetectLanguage(sentence, this.predictorsByLang, Engine._tools)
   }
 
   private _ctxHasChanged = (previousIntents: Intent<string>[], currentIntents: Intent<string>[]) => (ctx: string) => {
