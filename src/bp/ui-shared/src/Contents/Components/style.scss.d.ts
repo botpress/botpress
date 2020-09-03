@@ -10,6 +10,7 @@ interface CssExports {
   'fieldWrapperHeader': string;
   'formSelect': string;
   'groupLabel': string;
+  'hasError': string;
   'imgWrapper': string;
   'imgWrapperActions': string;
   'input': string;

@@ -24,9 +24,8 @@ export function serializeModel(model: PredictableModel): sdk.NLU.Model {
     }
   }
 
-  const serializableData = _.omit(data, ['output.intents', 'input.trainingSession'])
-  serialized.data.input = JSON.stringify(serializableData.input)
-  serialized.data.output = JSON.stringify(serializableData.output)
+  serialized.data.input = JSON.stringify(data.input)
+  serialized.data.output = JSON.stringify(data.output)
 
   return serialized
 }

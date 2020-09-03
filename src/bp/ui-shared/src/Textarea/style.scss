@@ -1,4 +1,16 @@
 .textarea {
   overflow: hidden;
   overflow-wrap: break-word;
+
+  &:global(.has-error) {
+    border-color: var(--lighthouse) !important;
+  }
+}
+
+.fieldError {
+  font-size: 12px;
+  line-height: 1.25;
+  color: var(--lighthouse);
+  margin: var(--spacing-small) 0 var(--spacing-large);
+  display: block;
 }

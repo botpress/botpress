@@ -13,6 +13,7 @@ import PatternForm from './PatternForm'
 
 interface Props {
   customKey: string
+  defaultLang: string
   contentLang: string
   formData: sdk.NLU.EntityDefinition
   variables: Variables

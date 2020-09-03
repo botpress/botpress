@@ -31,7 +31,7 @@
       }
     },
     "saySomethingMisunderstood": "Users says something misunderstood (intent)",
-    "userWantsTo": "User wants to {intentName}",
+    "userWantsTo": "User wants to {firstSentence}",
     "variableExtractedFromMessage": "A variable was extracted from the user’s message"
   },
   "description": "Use Botpress native Natural Language Understanding engine to make your bot smarter.",
@@ -83,6 +83,7 @@
     "hintExactMatch": "This intent will use {exactOnly}. To enable machine learning, add at least {nb} more utterances.",
     "hintIgnored": "This intent will be ignored, start adding utterances to make it trainable.",
     "hintResilient": "Add {nb} more utterances to make NLU more resilient.",
+    "label": "How will the users express what they want?",
     "nameDupe": "An intent with that name already exists. Please choose another one.",
     "nameLabel": "Intent Name",
     "namePlaceholder": "Choose a name for your intent",

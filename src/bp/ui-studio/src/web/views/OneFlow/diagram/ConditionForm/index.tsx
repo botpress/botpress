@@ -17,6 +17,7 @@ interface Props {
   topicName?: string
   customKey: string
   contentLang: string
+  defaultLang: string
   close: (closingKey: number) => void
   onUpdate: (data: any) => void
   onUpdateVariables: (variable: FlowVariable) => void
@@ -42,6 +43,7 @@ const getConditionUsage = (): ConditionUsage => {
 const ConditionForm: FC<Props> = ({
   customKey,
   conditions,
+  defaultLang,
   contentLang,
   editingCondition,
   close,
@@ -87,7 +89,7 @@ const ConditionForm: FC<Props> = ({
   }
 
   const optionsVariablePlaceholder = {
-    intentName: `[${lang.tr('intent').toLowerCase()}]`,
+    firstSentence: '',
     channelName: `[${lang.tr('channel').toLowerCase()}]`,
     language: `[${lang.tr('language').toLowerCase()}]`,
     topicName: `[${lang.tr('topic').toLowerCase()}]`
@@ -178,6 +180,7 @@ const ConditionForm: FC<Props> = ({
           <Contents.Form
             axios={axios}
             currentLang={contentLang}
+            defaultLang={defaultLang}
             getCustomPlaceholder={getCustomPlaceholder}
             variables={variables}
             events={events}

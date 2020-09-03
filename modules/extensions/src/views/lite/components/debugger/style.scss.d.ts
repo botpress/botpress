@@ -15,6 +15,7 @@ interface CssExports {
   'group': string;
   'header': string;
   'hovering': string;
+  'info': string;
   'infoBox': string;
   'inspector': string;
   'inspectorContainer': string;
