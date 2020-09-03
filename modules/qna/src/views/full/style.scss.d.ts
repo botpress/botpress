@@ -11,6 +11,7 @@ interface CssExports {
   'customBtn': string;
   'embeddedInFlow': string;
   'empty': string;
+  'error': string;
   'errorIcon': string;
   'errorsList': string;
   'hasError': string;
@@ -22,6 +23,7 @@ interface CssExports {
   'items': string;
   'left': string;
   'loading': string;
+  'needsTranslation': string;
   'questionHeader': string;
   'questionWrapper': string;
   'redirectTitle': string;

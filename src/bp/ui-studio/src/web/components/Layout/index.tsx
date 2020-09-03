@@ -29,6 +29,7 @@ import Sidebar from './Sidebar'
 import StatusBar from './StatusBar'
 import Toolbar from './Toolbar'
 import BottomPanel from './Toolbar/BottomPanel'
+import WarningMessage from './WarningMessage'
 
 const { isInputFocused } = utils
 
@@ -65,11 +66,13 @@ const Layout: FC<ILayoutProps> = props => {
       if (message.data.name === 'webchatOpened') {
         props.setEmulatorOpen(true)
         document.getElementById('main-content-wrapper').classList.toggle('emulator-open', true)
+        document.getElementById('mainLayout').classList.toggle('layout-emulator-open', true)
       }
 
       if (message.data.name === 'webchatClosed') {
         props.setEmulatorOpen(false)
         document.getElementById('main-content-wrapper').classList.toggle('emulator-open', false)
+        document.getElementById('mainLayout').classList.toggle('layout-emulator-open', false)
       }
     }
     window.addEventListener('message', handleWebChatPanel)
@@ -94,6 +97,7 @@ const Layout: FC<ILayoutProps> = props => {
   const toggleEmulator = () => {
     window.botpressWebChat.sendEvent({ type: 'toggle' })
     document.getElementById('main-content-wrapper').classList.toggle('emulator-open')
+    document.getElementById('mainLayout').classList.toggle('layout-emulator-open')
   }
 
   const toggleGuidedTour = () => {

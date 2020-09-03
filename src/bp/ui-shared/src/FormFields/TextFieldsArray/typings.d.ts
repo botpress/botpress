@@ -1,5 +1,6 @@
 export interface TextFieldsArrayProps {
   addBtnLabel: string
+  refValue?: string[]
   items: string[]
   moreInfo?: JSX.Element
   label?: string

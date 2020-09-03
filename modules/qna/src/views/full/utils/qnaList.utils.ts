@@ -49,8 +49,9 @@ export interface Props {
   isLite?: boolean
   topicName: string
   contentLang: string
-  defaultLanguage: string
+  defaultLang: string
   refreshQnaCount: () => void
+  updateLocalLang: (lang: string) => void
   languages: string[]
   events?: BotEvent[]
 }
