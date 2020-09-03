@@ -258,7 +258,7 @@ const QnA: FC<Props> = props => {
             )}
             {showIncomplete && (
               <Tooltip position={Position.BOTTOM} content={lang.tr('module.qna.form.incompleteTooltip')}>
-                <span className={cx(style.tag)}>{lang.tr('module.qna.form.incomplete')}</span>
+                <span className={cx(style.tag)}>{lang.tr('incomplete')}</span>
               </Tooltip>
             )}
             {!expanded && (
