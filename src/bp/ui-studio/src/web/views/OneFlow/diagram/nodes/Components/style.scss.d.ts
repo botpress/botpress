@@ -19,11 +19,13 @@ interface CssExports {
   'img': string;
   'in': string;
   'joinLabel': string;
+  'needsTranslation': string;
   'nodeWrapper': string;
   'out': string;
   'outRouting': string;
   'prompt': string;
   'promptPortContent': string;
+  'readOnly': string;
   'router': string;
   'say_something': string;
   'secondaryText': string;

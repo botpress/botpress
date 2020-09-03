@@ -21,6 +21,7 @@ interface Props {
   initialFocus?: string
   duplicateMsg?: string
   children?: any
+  canAdd: boolean
 }
 
 const TextAreaList: FC<Props> = props => {
@@ -47,7 +48,7 @@ const TextAreaList: FC<Props> = props => {
   }
 
   const onKeyDown = (e: KeyboardEvent, index: number): void => {
-    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    if (props.canAdd && e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault()
       addItem()
     }
@@ -75,8 +76,10 @@ const TextAreaList: FC<Props> = props => {
     <Fragment>
       <div className={style.items}>
         <h2>{label}</h2>
-        {localItems?.map((item, index) =>
-          item.startsWith('#!') ? (
+        {localItems?.map((item, index) => {
+          const missingTranslation = refItems?.[index] && !item
+
+          return item.startsWith('#!') ? (
             <div key={keys[index]} className={style.contentAnswer}>
               <BotpressContentPicker
                 itemId={item.replace('#!', '')}
@@ -86,16 +89,17 @@ const TextAreaList: FC<Props> = props => {
               <Button icon="trash" onClick={() => deleteItem(index)} />
             </div>
           ) : (
-            <div key={keys[index]} className={style.textareaWrapper}>
+            <div key={keys[index]} className={cx(style.textareaWrapper, { ['has-error']: missingTranslation })}>
               <Textarea
                 isFocused={focusedElement.current === `${keyPrefix}${index}`}
-                className={cx(style.textarea, { [style.hasError]: errors[index] })}
-                placeholder={refItems?.[index] ? refItems[index] : placeholder(index)}
+                className={cx(style.textarea, { ['has-error']: errors[index] || missingTranslation })}
+                placeholder={placeholder(index)}
                 onChange={value => updateLocalItem(index, value)}
                 onBlur={() => updateItems(localItems)}
                 onKeyDown={e => onKeyDown(e, index)}
-                value={item}
+                value={item || refItems?.[index] || ''}
               />
+              {missingTranslation && <span className={style.error}>{lang.tr('pleaseTranslateField')}</span>}
               {errors[index] && (
                 <div className={style.errorIcon}>
                   <Tooltip content={errors[index]} position={Position.BOTTOM}>
@@ -105,15 +109,17 @@ const TextAreaList: FC<Props> = props => {
               )}
             </div>
           )
+        })}
+        {props.canAdd && (
+          <Tooltip
+            content={lang.tr('quickAddAlternative', {
+              shortcut: <ShortcutLabel light keys={[utils.controlKey, 'enter']} />
+            })}
+            position={Position.BOTTOM}
+          >
+            <FormFields.AddButton text={addItemLabel} onClick={() => addItem()} />
+          </Tooltip>
         )}
-        <Tooltip
-          content={lang.tr('quickAddAlternative', {
-            shortcut: <ShortcutLabel light keys={[utils.controlKey, 'enter']} />
-          })}
-          position={Position.BOTTOM}
-        >
-          <FormFields.AddButton text={addItemLabel} onClick={() => addItem()} />
-        </Tooltip>
         {props.children}
       </div>
     </Fragment>

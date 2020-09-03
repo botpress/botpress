@@ -1,4 +1,6 @@
 import { Position, Tooltip } from '@blueprintjs/core'
+import cx from 'classnames'
+import _isEqual from 'lodash/isEqual'
 import _uniqueId from 'lodash/uniqueId'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
@@ -32,17 +34,30 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
   label,
   onChange,
   moreInfo,
+  refValue,
   items,
   getPlaceholder,
   variables,
   events,
   onUpdateVariables
 }) => {
+  const getInitialItems = () => {
+    let localItems = [...(items || [])]
+    const diff = (refValue || []).length - items.length
+
+    if (diff > 0) {
+      localItems = localItems.concat(Array(diff).fill(''))
+    }
+
+    return localItems
+  }
+
   const [elRefs, setElRefs] = useState({})
-  const [localItems, setLocalItems] = useState([...items])
+  const initialItems = getInitialItems()
+  const [localItems, setLocalItems] = useState(initialItems)
   const skipBlur = useRef(false)
-  const focusedElement = useRef(items.length)
-  const itemIds = useRef(items.map(i => _uniqueId()))
+  const focusedElement = useRef(initialItems.length)
+  const itemIds = useRef(initialItems.map(i => _uniqueId()))
 
   useEffect(() => {
     const keydownEvent = {}
@@ -99,7 +114,9 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
       if (localItems[index] !== undefined) {
         localItems[index] = convertToString(elRefs[index]?.DOM.originalInput.value)
         setLocalItems([...localItems])
-        onChange([...localItems])
+        if (!_isEqual(localItems, refValue)) {
+          onChange([...localItems])
+        }
       }
     } else {
       skipBlur.current = false
@@ -121,30 +138,41 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
     }
   }
 
+  const missingTranslation = !!refValue?.filter(Boolean).length && !localItems.filter(Boolean).length
+
   return (
     <div className={style.items}>
       <h2>{label}</h2>
       {moreInfo}
-      {localItems?.map((item, index) => (
-        <div key={itemIds.current[index]} className={style.textareaWrapper}>
-          <SuperInput
-            isFocused={focusedElement.current === index}
-            placeholder={getPlaceholder?.(index)}
-            variableTypes={variableTypes}
-            className={style.customTextarea}
-            canPickEvents={canPickEvents}
-            canPickVariables={canPickVariables}
-            multiple
-            variables={variables}
-            events={events || []}
-            addVariable={onUpdateVariables}
-            childRef={(ref: any) => {
-              setElRefs(elRefs => ({ ...elRefs, [index]: ref }))
-            }}
-            value={item}
-          />
-        </div>
-      ))}
+      {localItems?.map((item, index) => {
+        return (
+          <div
+            key={itemIds.current[index]}
+            className={cx(style.textareaWrapper, { ['has-error']: missingTranslation })}
+          >
+            <SuperInput
+              isFocused={focusedElement.current === index}
+              placeholder={getPlaceholder?.(index)}
+              variableTypes={variableTypes}
+              className={cx(style.customTextarea, { ['has-error']: missingTranslation })}
+              canPickEvents={canPickEvents}
+              canPickVariables={canPickVariables}
+              isPartOfArray
+              multiple
+              variables={variables}
+              events={events || []}
+              addVariable={onUpdateVariables}
+              childRef={(ref: any) => {
+                setElRefs(elRefs => ({ ...elRefs, [index]: ref }))
+              }}
+              refValue={refValue?.[index]}
+              value={item}
+            />
+          </div>
+        )
+      })}
+      {missingTranslation && <span className={style.error}>{lang('pleaseTranslateField')}</span>}
+
       <Tooltip
         content={lang('quickAddAlternative', {
           shortcut: <ShortcutLabel light keys={[controlKey, 'enter']} />

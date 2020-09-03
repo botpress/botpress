@@ -366,6 +366,7 @@ declare module 'botpress/sdk' {
       export interface SVMOptions {
         classifier: 'C_SVC' | 'NU_SVC' | 'ONE_CLASS' | 'EPSILON_SVR' | 'NU_SVR'
         kernel: 'LINEAR' | 'POLY' | 'RBF' | 'SIGMOID'
+        seed: number
         c?: number | number[]
         gamma?: number | number[]
         probability?: boolean
@@ -388,7 +389,7 @@ declare module 'botpress/sdk' {
 
       export class Trainer {
         constructor()
-        train(points: DataPoint[], options?: Partial<SVMOptions>, callback?: TrainProgressCallback): Promise<string>
+        train(points: DataPoint[], options?: SVMOptions, callback?: TrainProgressCallback): Promise<string>
         isTrained(): boolean
       }
 
@@ -494,6 +495,7 @@ declare module 'botpress/sdk' {
 
     export interface TrainingOptions {
       forceTrain: boolean
+      nluSeed: number
       progressCallback: (x: number) => void
     }
 
@@ -517,7 +519,7 @@ declare module 'botpress/sdk' {
     export type TrainingStatus = 'idle' | 'done' | 'needs-training' | 'training' | 'canceled' | 'errored' | null
 
     export interface TrainingSession {
-      key: string
+      key?: string
       status: TrainingStatus
       language: string
       progress: number
@@ -625,9 +627,11 @@ declare module 'botpress/sdk' {
     export interface WorkflowTrigger extends GenericTrigger {
       type: 'workflow'
       workflowId: string
+      topicName: string
       nodeId: string
       /** When true, the user must be inside the specified workflow for the trigger to be active */
       activeWorkflow?: boolean
+      activeTopic?: boolean
     }
 
     export interface FaqTrigger extends GenericTrigger {
@@ -888,10 +892,11 @@ declare module 'botpress/sdk' {
     }
 
     export interface EventError {
-      type: 'action-execution' | 'dialog-transition'
+      type: 'action-execution' | 'dialog-transition' | 'dialog-engine' | 'hook-execution'
       stacktrace?: string
       actionName?: string
       actionArgs?: any
+      hookName?: string
       destination?: string
     }
 
@@ -1366,6 +1371,8 @@ declare module 'botpress/sdk' {
     advancedSettings?: FormField[]
     /** In which order the conditions will be displayed in the dropdown menu. 0 is the first item */
     displayOrder?: number
+    /** When true, it is not displayed in the dropdown menu on the studio */
+    hidden?: boolean
     /** This callback url is called when the condition is deleted or pasted in the flow */
     callback?: string
     /** The editor will use the custom component to provide the requested parameters */
@@ -1467,6 +1474,7 @@ declare module 'botpress/sdk' {
     prompt?: PromptNode
     subflow?: SubWorkflowNode
     isNew?: boolean
+    isReadOnly?: boolean
     /** Used internally by the flow editor */
     readonly lastModified?: Date
   } & NodeActions
@@ -1484,6 +1492,7 @@ declare module 'botpress/sdk' {
   export type TriggerNode = FlowNode & {
     conditions: DecisionTriggerCondition[]
     activeWorkflow?: boolean
+    activeTopic?: boolean
   }
 
   export type ListenNode = FlowNode & {
@@ -1588,7 +1597,11 @@ declare module 'botpress/sdk' {
     fields?: FormField[]
     moreInfo?: FormMoreInfo
     /** When specified, indicate if array elements match the provided pattern */
-    validationPattern?: RegExp
+    validation?: {
+      regex?: RegExp
+      list?: any[]
+      validator?: (items: any[], newItem: any) => boolean
+    }
     group?: {
       /** You have to specify the add button label */
       addLabel?: string

@@ -12,6 +12,7 @@ import { getTriggerId, stringToVec, WfIdToTopic } from './utils'
 const debug = DEBUG('ndu').sub('processing')
 
 export const DEFAULT_MIN_CONFIDENCE = 0.1
+const fakeConditions = ['on_active_workflow', 'on_active_topic']
 
 export class UnderstandingEngine {
   private _allTopicIds: Set<string> = new Set()
@@ -327,8 +328,8 @@ export class UnderstandingEngine {
 
       if (
         trigger.type === 'workflow' &&
-        trigger.activeWorkflow &&
-        event.state?.context.currentFlow !== `${trigger.workflowId}.flow.json`
+        ((trigger.activeWorkflow && event.state?.context.currentFlow !== `${trigger.workflowId}.flow.json`) ||
+          (trigger.activeTopic && event.state?.session.nduContext?.last_topic !== trigger.topicName))
       ) {
         continue
       }
@@ -400,14 +401,16 @@ export class UnderstandingEngine {
           const tn = node as sdk.TriggerNode
           triggers.push(<sdk.NDU.WorkflowTrigger>{
             conditions: tn.conditions
-              .filter(x => x.id !== undefined)
+              .filter(x => x.id !== undefined && !fakeConditions.includes(x.id))
               .map((x, idx) => ({
                 ...x,
                 params: { ...x.params, topicName, wfName: flowName, nodeName: tn.name, conditionIndex: idx }
               })),
             type: 'workflow',
             workflowId: flowName,
+            topicName,
             activeWorkflow: tn.activeWorkflow,
+            activeTopic: tn.activeTopic,
             nodeId: tn.name
           })
         } else if ((<sdk.ListenNode>node)?.triggers?.length || node.type === 'prompt') {

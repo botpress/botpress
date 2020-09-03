@@ -18,13 +18,13 @@
   }
 
   &:focus-within {
-    & + .textareaWrapper {
+    &:not(:global(.has-error)) + .textareaWrapper {
       :global(.superinput-wrapper).customTextarea {
         border-top-color: transparent !important;
       }
     }
 
-    :global(.superinput-wrapper).customTextarea {
+    :global(.superinput-wrapper).customTextarea:not(:global(.has-error)) {
       border-top-color: var(--ocean) !important;
       border-bottom-color: var(--ocean) !important;
 
@@ -58,10 +58,22 @@
   transition: border 0.3s !important;
   width: 100% !important;
 
+  &:global(.has-error) {
+    border-color: var(--lighthouse) !important;
+  }
+
   :global {
     .tags-input .tagify {
       padding-left: 0 !important;
       padding-right: 0 !important;
     }
   }
+}
+
+.error {
+  font-size: 12px;
+  line-height: 1.25;
+  color: var(--lighthouse);
+  margin: var(--spacing-small) 0 var(--spacing-large);
+  display: block;
 }

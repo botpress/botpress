@@ -1,14 +1,24 @@
 import { FormField } from 'botpress/sdk'
-import React, { FC, useEffect, useState } from 'react'
+import cx from 'classnames'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 
+import { lang } from '../../../translations'
 import Textarea from '../../../Textarea'
 import style from '../style.scss'
 import { FieldProps } from '../typings'
 
 type TextAreaProps = FieldProps & { field: FormField }
 
-const TextArea: FC<TextAreaProps> = ({ onBlur, onChange, placeholder, field: { valueManipulation }, value }) => {
+const TextArea: FC<TextAreaProps> = ({
+  onBlur,
+  onChange,
+  placeholder,
+  field: { valueManipulation },
+  refValue,
+  value
+}) => {
   const [localValue, setLocalValue] = useState(value || '')
+  const missingTranslation = refValue && !value
 
   useEffect(() => {
     setLocalValue(value || '')
@@ -22,24 +32,27 @@ const TextArea: FC<TextAreaProps> = ({ onBlur, onChange, placeholder, field: { v
   }
 
   return (
-    <Textarea
-      className={style.textarea}
-      placeholder={placeholder}
-      onKeyDown={onKeyDown}
-      onChange={value => {
-        if (valueManipulation) {
-          const { regex, modifier, replaceChar } = valueManipulation
-          const re = new RegExp(regex, modifier)
+    <Fragment>
+      <Textarea
+        className={cx(style.textarea, { [style.hasError]: missingTranslation })}
+        placeholder={placeholder}
+        onKeyDown={onKeyDown}
+        onChange={value => {
+          if (valueManipulation) {
+            const { regex, modifier, replaceChar } = valueManipulation
+            const re = new RegExp(regex, modifier)
 
-          value = value.replace(re, replaceChar)
-        }
+            value = value.replace(re, replaceChar)
+          }
 
-        onChange?.(value)
-        setLocalValue(value)
-      }}
-      onBlur={() => onBlur?.(localValue)}
-      value={localValue}
-    />
+          onChange?.(value)
+          setLocalValue(value)
+        }}
+        onBlur={() => onBlur?.(localValue)}
+        value={localValue || refValue || ''}
+      />
+      {missingTranslation && <span className={style.fieldError}>{lang('pleaseTranslateField')}</span>}
+    </Fragment>
   )
 }
 

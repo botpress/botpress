@@ -20,6 +20,22 @@
   }
 }
 
+.needsTranslation {
+  border-radius: 5px;
+  border: solid 1px var(--lighthouse);
+  background-color: var(--hover-lighthouse-30);
+  color: var(--lighthouse);
+  font-size: 8px;
+  line-height: 1.88;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  margin: 0 0 var(--spacing-medium);
+  width: 100%;
+}
+
 .img {
   background-position: center;
   background-repeat: no-repeat;
@@ -387,9 +403,8 @@
   padding: var(--spacing-small);
   transition: background 0.3s, border 0.3s;
   width: 100%;
-  word-break: break-all;
 
-  &.promptPortContent {
+  &.readOnly {
     border-color: var(--bg);
     background-color: var(--bg);
     position: relative;

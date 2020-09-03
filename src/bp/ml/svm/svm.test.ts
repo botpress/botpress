@@ -4,6 +4,8 @@ import '../../import-rewire'
 
 import { Predictor, Trainer } from '.'
 
+const SEED = 42
+
 /**
  * WARNING:
  *  If test fails it may be because of your Linux distribution.
@@ -20,7 +22,7 @@ describe('SVM', () => {
     ]
 
     const trainer = new Trainer()
-    const mod = await trainer.train(line, { classifier: 'C_SVC', kernel: 'LINEAR', c: 1 })
+    const mod = await trainer.train(line, { classifier: 'C_SVC', kernel: 'LINEAR', c: 1, seed: SEED })
 
     const predictor = new Predictor(mod)
 
@@ -48,7 +50,7 @@ describe('SVM', () => {
 
     let errorThrown = false
     try {
-      await trainer.train(line, { classifier: 'C_SVC', kernel: 'LINEAR', c: [1] })
+      await trainer.train(line, { classifier: 'C_SVC', kernel: 'LINEAR', c: [1], seed: SEED })
     } catch (err) {
       errorThrown = true
     }

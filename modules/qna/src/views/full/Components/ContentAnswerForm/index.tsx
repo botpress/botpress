@@ -16,6 +16,7 @@ interface Props {
   events: BotEvent[]
   isLite: boolean
   currentLang: string
+  defaultLang: string
 }
 
 const fetchReducer = (state, action) => {
@@ -39,6 +40,7 @@ const fetchReducer = (state, action) => {
 const ContentAnswerForm: FC<Props> = ({
   isLite,
   currentLang,
+  defaultLang,
   editingContent,
   bp,
   close,
@@ -115,6 +117,7 @@ const ContentAnswerForm: FC<Props> = ({
           <Contents.Form
             superInputOptions={{ enabled: !isLite, eventsOnly: true }}
             currentLang={currentLang}
+            defaultLang={defaultLang}
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
             axios={bp.axios}

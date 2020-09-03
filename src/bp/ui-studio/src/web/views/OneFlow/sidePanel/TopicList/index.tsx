@@ -16,8 +16,8 @@ import { buildFlowName } from '../../../../util/workflows'
 
 import style from './style.scss'
 import EmptyStateIcon from './EmptyStateIcon'
-import TreeItem from './TreeItem'
 import SearchIcon from './SearchIcon'
+import TreeItem from './TreeItem'
 
 const lockedFlows = ['misunderstood.flow.json', 'error.flow.json', 'workflow_ended.flow.json']
 
@@ -38,6 +38,7 @@ interface OwnProps {
   goToFlow: (flow: any) => void
   createWorkflow: (topicId: string) => void
   exportTopic: (topicName: string | NodeData) => void
+  canAdd: boolean
   canDelete: boolean
   editing: string
   setEditing: (name: string) => void
@@ -135,6 +136,10 @@ const TopicList: FC<Props> = props => {
       await axios.post(`${window.BOT_API_PATH}/deleteTopic/${name}`)
       flowsToDelete.forEach(flow => props.deleteFlow(flow.name))
       props.fetchTopics()
+
+      if (name === props.selectedTopic) {
+        props.goToFlow(undefined)
+      }
     }
   }
 
@@ -215,6 +220,7 @@ const TopicList: FC<Props> = props => {
             {props.topics?.map(topic => (
               <MenuItem
                 label={topic.name}
+                key={topic.name}
                 onClick={() => {
                   moveFlow(name, topic.name)
                 }}
@@ -378,7 +384,7 @@ const TopicList: FC<Props> = props => {
         {expanded[path] && (
           <Fragment>
             {hasChildren && item.children.map(child => printTree(child, level + 1, path))}
-            {isTopic && item.id !== 'default' && (
+            {props.canAdd && isTopic && item.id !== 'default' && (
               <Button
                 minimal
                 onClick={() => props.createWorkflow(item.id)}
