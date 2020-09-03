@@ -11,6 +11,7 @@ import SelectContentManager from '~/components/Content/Select/Manager'
 import PluginInjectionSite from '~/components/PluginInjectionSite'
 import BackendToast from '~/components/Util/BackendToast'
 import { RootReducer } from '~/reducers'
+import storage from '~/util/storage'
 import Config from '~/views/Config'
 import Content from '~/views/Content'
 import FlowBuilder from '~/views/FlowBuilder'
@@ -32,6 +33,7 @@ import BottomPanel from './Toolbar/BottomPanel'
 import WarningMessage from './WarningMessage'
 
 const { isInputFocused } = utils
+const WEBCHAT_PANEL_STATUS = 'bp::webchatOpened'
 
 interface ILayoutProps {
   viewModeChanged: any
@@ -63,13 +65,19 @@ const Layout: FC<ILayoutProps> = props => {
     setTimeout(() => BotUmountedWarning(), 500)
 
     const handleWebChatPanel = message => {
+      if (message.data.name === 'webchatLoaded' && storage.get(WEBCHAT_PANEL_STATUS) === 'opened') {
+        toggleEmulator()
+      }
+
       if (message.data.name === 'webchatOpened') {
+        storage.set(WEBCHAT_PANEL_STATUS, 'opened')
         props.setEmulatorOpen(true)
         document.getElementById('main-content-wrapper').classList.toggle('emulator-open', true)
         document.getElementById('mainLayout').classList.toggle('layout-emulator-open', true)
       }
 
       if (message.data.name === 'webchatClosed') {
+        storage.set(WEBCHAT_PANEL_STATUS, 'closed')
         props.setEmulatorOpen(false)
         document.getElementById('main-content-wrapper').classList.toggle('emulator-open', false)
         document.getElementById('mainLayout').classList.toggle('layout-emulator-open', false)
