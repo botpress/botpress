@@ -71,7 +71,7 @@ export const DebugInfo: FC<NodeDebugInfoProps> = ({
   if (nextWorkflow) {
     infos.push(
       <Button minimal className={style.smallButton} onClick={() => goToFlow(nextWorkflow)}>
-        {lang.tr('studio.flow.jumpOutOfWorkflow')}
+        {lang.tr(`studio.flow.${nextWorkflow.startsWith('__reusable') ? 'jumpIntoWorkflow' : 'jumpOutOfWorkflow'}`)}
       </Button>
     )
   }
@@ -79,7 +79,7 @@ export const DebugInfo: FC<NodeDebugInfoProps> = ({
   if (prevWorkflow) {
     infos.push(
       <Button minimal className={style.smallButton} onClick={() => goToFlow(prevWorkflow)}>
-        {lang.tr('studio.flow.jumpIntoWorkflow')}
+        {lang.tr(`studio.flow.${prevWorkflow.startsWith('__reusable') ? 'jumpIntoWorkflow' : 'jumpOutOfWorkflow'}`)}
       </Button>
     )
   }
