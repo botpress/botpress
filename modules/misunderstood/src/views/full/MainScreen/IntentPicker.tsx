@@ -114,7 +114,7 @@ class IntentPicker extends React.Component<Props, State> {
   renderParamsForm() {
     const { event, params, selected: selectedItemName } = this.props
 
-    const eventContexts = (event && event.nluContexts) || []
+    const eventContexts = event?.nluContexts || []
     const selectedItem = this.state.intents.find(intent => intent.name === selectedItemName)
     const newContexts = without(eventContexts, ...selectedItem.contexts)
 
