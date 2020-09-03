@@ -32,7 +32,7 @@ interface Props {
   flows?: Flow[]
   childRef?: (ref: HTMLDivElement | null) => void
   updateQnA: (qnaItem: QnaItem) => void
-  deleteQnA: () => void
+  deleteQnA: (qnaItem: QnaItem) => void
   events: BotEvent[]
   toggleEnabledQnA: () => void
 }
@@ -76,7 +76,7 @@ const QnA: FC<Props> = props => {
         acceptLabel: lang.tr('delete')
       })
     ) {
-      props.deleteQnA()
+      props.deleteQnA({ id, saveError, data })
     }
   }
 
