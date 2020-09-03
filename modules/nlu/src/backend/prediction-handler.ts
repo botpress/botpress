@@ -1,11 +1,13 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-type ModelGetter = (lang: string) => Promise<sdk.NLU.Model | undefined>
+export type ModelProvider = {
+  getLatestModel: (lang: string) => Promise<sdk.NLU.Model | undefined>
+}
 
 export class PredictionHandler {
   constructor(
-    private getLatestModel: ModelGetter,
+    private modelProvider: ModelProvider,
     private engine: sdk.NLU.Engine,
     private anticipatedLanguage: string,
     private defaultLanguage: string
@@ -38,7 +40,7 @@ export class PredictionHandler {
     lang: string
   ): Promise<sdk.IO.EventUnderstanding | undefined> {
     if (!this.engine.hasModelForLang(lang)) {
-      const model = await this.getLatestModel(lang)
+      const model = await this.modelProvider.getLatestModel(lang)
       if (!model) {
         return
       }
