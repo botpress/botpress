@@ -16,6 +16,7 @@ const MainScreen = ({
   selectedStatus,
   events,
   selectedEventIndex,
+  eventNotFound,
   totalEventsCount,
   skipEvent,
   deleteEvent,
@@ -50,6 +51,7 @@ const MainScreen = ({
       language={language}
       axios={axios}
       event={selectedEvent}
+      eventNotFound={eventNotFound}
       totalEventsCount={totalEventsCount}
       eventIndex={selectedEventIndex}
       skipEvent={skipEvent}

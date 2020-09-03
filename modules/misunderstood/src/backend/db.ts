@@ -93,13 +93,18 @@ export default class Db {
       .select('*')
       .then((data: DbFlaggedEvent[]) => (data && data.length ? data[0] : null))
 
-    const { threadId, sessionId, id: messageId, event: eventDetails, createdOn: messageCreatedOn } = await this.knex(
-      EVENTS_TABLE_NAME
     )
+    const parentEvent = await this.knex(EVENTS_TABLE_NAME)
       .where({ botId, incomingEventId: event.eventId, direction: 'incoming' })
       .select('id', 'threadId', 'sessionId', 'event', 'createdOn')
       .limit(1)
       .first()
+
+    if (!parentEvent) {
+      return
+    }
+
+    const { threadId, sessionId, id: messageId, event: eventDetails, createdOn: messageCreatedOn } = parentEvent
 
     // SQLite will return dates as strings.
     // Since this.knex.date.[isAfter() | isBeforeOrOn()] expect strings to be colum names,
