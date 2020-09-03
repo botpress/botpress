@@ -69,7 +69,8 @@ const removeBotPrefix = (c: sdk.Content.All) => {
   } else if ((c as sdk.Content.Card | sdk.Content.Image).image) {
     const image = c as sdk.Content.Image | sdk.Content.Card
     return {
-      ...image, image: keepEndPath(image.image)
+      ...image,
+      image: keepEndPath(image.image)
     }
   } else {
     return c
@@ -89,11 +90,13 @@ const addBotPrefix = (c: sdk.Content.All, botId: string) => {
   } else if ((c as sdk.Content.Card | sdk.Content.Image).image) {
     const image = c as sdk.Content.Image | sdk.Content.Card
     return { ...image, image: addBotPath(image.image, botId) }
-  } else { return c }
+  } else {
+    return c
+  }
 }
 
 export default class Storage {
-  constructor(private ghost: sdk.ScopedGhostService) { }
+  constructor(private ghost: sdk.ScopedGhostService) {}
 
   // TODO: validate no dupes
 
@@ -185,7 +188,9 @@ export default class Storage {
         if ((c as sdk.Content.Carousel).items) {
           const carousel = c as sdk.Content.Carousel
           return carousel.items
-        } else { return [c] }
+        } else {
+          return [c]
+        }
       })
       .map(c => _.get(c, 'image', undefined))
       .filter(c => c)
