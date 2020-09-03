@@ -157,5 +157,6 @@
     "dropdown": {
       "placeholder": "Select from these options"
     }
-  }
+  },
+  "displayDebugging": "Display debugging in workflows"
 }

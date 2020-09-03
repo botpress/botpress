@@ -897,6 +897,9 @@ declare module 'botpress/sdk' {
       actionArgs?: any
       hookName?: string
       destination?: string
+      /** Represent the location where the error was triggered  */
+      flowName?: string
+      nodeName?: string
     }
 
     export interface JumpPoint {

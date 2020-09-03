@@ -157,5 +157,6 @@
     "dropdown": {
       "placeholder": "Sélectionnez parmis ces options"
     }
-  }
+  },
+  "displayDebugging": "Afficher débobage dans les workflows"
 }
