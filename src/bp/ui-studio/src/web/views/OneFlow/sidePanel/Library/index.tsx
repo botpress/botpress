@@ -252,6 +252,7 @@ const Library: FC<Props> = props => {
             [style.isTopic]: isTopLevel,
             [style.active]: isSelected
           })}
+          canDrag={!isSelected}
           isExpanded={expanded[path]}
           item={item}
           level={level}

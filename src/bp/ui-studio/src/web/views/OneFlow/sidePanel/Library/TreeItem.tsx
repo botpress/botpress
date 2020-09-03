@@ -13,6 +13,7 @@ interface Props {
   item: NodeData
   level: number
   contextMenuContent: any
+  canDrag?: boolean
   isExpanded: boolean
   isEditingNew: boolean
   isEditing: boolean
@@ -26,6 +27,7 @@ const TreeItem: FC<Props> = ({
   item,
   level,
   className,
+  canDrag,
   isExpanded,
   isEditingNew,
   isEditing,
@@ -91,7 +93,7 @@ const TreeItem: FC<Props> = ({
       onDoubleClick={onDoubleClick}
       onClick={onClick}
       icon={
-        item.type === 'workflow' ? (
+        canDrag && item.type === 'workflow' ? (
           <span
             className={style.draggable}
             draggable

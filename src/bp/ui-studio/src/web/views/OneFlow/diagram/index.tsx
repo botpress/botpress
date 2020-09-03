@@ -807,7 +807,9 @@ class Diagram extends Component<Props> {
     } else if (data.type === 'skill') {
       this.add.skillNode(point, data.id)
     } else if (data.type === 'subworkflow') {
-      this.add.gotoSubWorkflow(point, data.id)
+      if (this.props.currentFlow.name !== data.id) {
+        this.add.gotoSubWorkflow(point, data.id)
+      }
     } else if (data.type === 'node') {
       switch (data.id) {
         case 'trigger':
