@@ -93,7 +93,6 @@ export default class Db {
       .select('*')
       .then((data: DbFlaggedEvent[]) => (data && data.length ? data[0] : null))
 
-    )
     const parentEvent = await this.knex(EVENTS_TABLE_NAME)
       .where({ botId, incomingEventId: event.eventId, direction: 'incoming' })
       .select('id', 'threadId', 'sessionId', 'event', 'createdOn')
