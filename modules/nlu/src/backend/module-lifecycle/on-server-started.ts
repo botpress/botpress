@@ -1,9 +1,9 @@
-import retry from 'bluebird-retry'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import legacyElectionPipeline from '../legacy-election'
 import { getLatestModel } from '../model-service'
+import { PredictionHandler } from '../prediction-handler'
 import { setTrainingSession } from '../train-session-service'
 import { NLUProgressEvent, NLUState } from '../typings'
 
@@ -50,21 +50,19 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
         return next()
       }
 
-      let nluResults: sdk.IO.EventUnderstanding
-      const { engine } = state.nluByBot[event.botId]
-      const extractEngine2 = async () => {
-        // eventually if model not loaded for bot languages ==> train or load
-        nluResults = await engine.predict(event.preview, event.nlu.includedContexts)
-        if (nluResults.errored && nluResults.suggestedLanguage) {
-          const model = await getLatestModel(bp.ghost.forBot(event.botId), nluResults.suggestedLanguage)
-          await engine.loadModel(model)
-          // might throw again, thus usage of bluebird retry
-          nluResults = await engine.predict(event.preview, event.nlu.includedContexts)
-        }
-      }
-
       try {
-        await retry(extractEngine2, { max_tries: 2, throw_original: true })
+        const { engine, defaultLanguage } = state.nluByBot[event.botId]
+        const { botId, preview, nlu } = event
+
+        const ghost = bp.ghost.forBot(botId)
+        const modelProvider = {
+          getLatestModel: (language: string) => getLatestModel(ghost, language)
+        }
+
+        const anticipatedLanguage = event.state.user?.language || defaultLanguage
+        const predictionHandler = new PredictionHandler(modelProvider, engine, anticipatedLanguage, defaultLanguage)
+        const nluResults = await predictionHandler.predict(preview, nlu?.includedContexts)
+
         _.merge(event, { nlu: nluResults ?? {} })
         removeSensitiveText(event)
       } catch (err) {

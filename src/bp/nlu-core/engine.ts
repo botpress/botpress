@@ -4,6 +4,7 @@ import _ from 'lodash'
 
 import { EntityCacheManager } from './entities/entity-cache-manager'
 import { initializeTools } from './initialize-tools'
+import DetectLanguage from './language/language-identifier'
 import { deserializeModel, PredictableModel, serializeModel } from './model-manager'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
@@ -22,7 +23,7 @@ export default class Engine implements NLU.Engine {
   private modelsByLang: _.Dictionary<PredictableModel> = {}
   private entitiesCacheByLang: _.Dictionary<EntityCacheManager> = {}
 
-  constructor(private defaultLanguage: string, private botId: string, private logger: NLU.Logger) {}
+  constructor(private botId: string, private logger: NLU.Logger) {}
 
   // NOTE: removed private in order to prevent important refactor (which will be done later)
   public static get tools() {
@@ -53,6 +54,10 @@ export default class Engine implements NLU.Engine {
 
   public hasModel(language: string, hash: string) {
     return this.modelsByLang[language]?.hash === hash
+  }
+
+  public hasModelForLang(language: string) {
+    return !!this.modelsByLang[language]
   }
 
   // we might want to make this language specific
@@ -288,15 +293,19 @@ export default class Engine implements NLU.Engine {
     }
   }
 
-  async predict(sentence: string, includedContexts: string[]): Promise<PredictOutput> {
+  async predict(sentence: string, includedContexts: string[], language: string): Promise<PredictOutput> {
     const input: PredictInput = {
-      defaultLanguage: this.defaultLanguage,
+      language,
       sentence,
       includedContexts
     }
 
     // error handled a level higher
     return Predict(input, Engine._tools, this.predictorsByLang)
+  }
+
+  async detectLanguage(sentence: string): Promise<string> {
+    return DetectLanguage(sentence, this.predictorsByLang, Engine._tools)
   }
 
   private _ctxHasChanged = (previousIntents: Intent<string>[], currentIntents: Intent<string>[]) => (ctx: string) => {
