@@ -1,4 +1,4 @@
-import { Tab, Tabs } from '@blueprintjs/core'
+import { Icon, Tab, Tabs } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import { FaSkullCrossbones } from 'react-icons/fa'
@@ -51,19 +51,69 @@ const NLUVisusalisation: FC<any> = props => {
     <div>
       <div>Datas {loadingDatasIcon}</div>
       <Tabs animate={true} id="NLU">
-        <Tab id="intents" title="Intent tests" panel={<NLUTests {...props} onTestDone={onTestDone} />} />
+        <Tab
+          id="intents"
+          title={
+            <>
+              <Icon icon="form" /> Intent tests
+            </>
+          }
+          panel={<NLUTests {...props} onTestDone={onTestDone} />}
+        />
         {dataResult && (
           <Tab
             id="Confusion Matrix"
-            title="Confusion Matrix"
+            title={
+              <>
+                <Icon icon="heat-grid" /> Confusion Matrix{' '}
+              </>
+            }
             panel={<ConfusionMatrix {...props} dataResult={dataResult} />}
           />
         )}
-        {dataResult && <Tab id="Bars" title="Bars" panel={<AccBars {...props} dataResult={dataResult} />} />}
-        {dataLoaded && <Tab id="Outliers" title="Outliers" panel={<Outliers {...props} dataLoaded={dataLoaded} />} />}
-        {dataLoaded && <Tab id="Scatter" title="Scatter" panel={<Scatter {...props} dataLoaded={dataLoaded} />} />}
+        {dataResult && (
+          <Tab
+            id="Bars"
+            title={
+              <>
+                <Icon icon="timeline-bar-chart" /> Bars
+              </>
+            }
+            panel={<AccBars {...props} dataResult={dataResult} />}
+          />
+        )}
         {dataLoaded && (
-          <Tab id="Similarity" title="Similarity" panel={<SimilarityEmbeddings {...props} dataLoaded={dataLoaded} />} />
+          <Tab
+            id="Outliers"
+            title={
+              <>
+                <Icon icon="layout" /> Outliers
+              </>
+            }
+            panel={<Outliers {...props} dataLoaded={dataLoaded} />}
+          />
+        )}
+        {dataLoaded && (
+          <Tab
+            id="Scatter"
+            title={
+              <>
+                <Icon icon="heatmap" /> Scatter
+              </>
+            }
+            panel={<Scatter {...props} dataLoaded={dataLoaded} />}
+          />
+        )}
+        {dataLoaded && (
+          <Tab
+            id="Similarity"
+            title={
+              <>
+                <Icon icon="layout-auto" /> Similarity
+              </>
+            }
+            panel={<SimilarityEmbeddings {...props} dataLoaded={dataLoaded} />}
+          />
         )}
         <Tabs.Expander />
       </Tabs>

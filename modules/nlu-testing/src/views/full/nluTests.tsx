@@ -19,6 +19,12 @@ interface State {
   importModalVisible: boolean
   tests: Test[]
   testResults: _.Dictionary<TestResult>
+  resultByType: {
+    intent: { gt: string; pred: string }[]
+    slot: { gt: string; pred: string }[]
+    context: { gt: string; pred: string }[]
+    slotCount: { gt: string; pred: string }[]
+  }
   loading: boolean
   working: boolean
   currentTest?: Test
@@ -38,6 +44,7 @@ export default class NLUTests extends React.Component<Props, State> {
     importModalVisible: false,
     tests: [],
     testResults: {},
+    resultByType: { intent: [], slot: [], context: [], slotCount: [] },
     loading: true,
     working: false
   }
@@ -79,6 +86,7 @@ export default class NLUTests extends React.Component<Props, State> {
         dataResult[rd.type].push({ gt: rd.expected, pred: rd.received })
       })
     }
+    this.setState({ resultByType: dataResult })
     this.props.onTestDone(dataResult)
   }
 
@@ -154,9 +162,62 @@ export default class NLUTests extends React.Component<Props, State> {
                   onClick={() => this.saveResults()}
                   text="Save results"
                 />
-                <span className={style.working}>
-                  <Icon icon="tick" />
-                  {computeSummary(this.state.tests, this.state.testResults)} % of tests passing
+                <span className={style.results}>
+                  {this.state.resultByType.intent.length > 0 && (
+                    <span className={style.working}>
+                      <Icon icon="direction-right" />
+                      {_.round(
+                        (this.state.resultByType.intent.reduce((acc: number, curr: { gt: string; pred: string }) => {
+                          if (curr.gt === curr.pred) {
+                            acc++
+                          }
+                          return acc
+                        }, 0) /
+                          this.state.resultByType.intent.length) *
+                          100,
+                        1
+                      )}
+                      % of intents passing
+                    </span>
+                  )}
+                  {this.state.resultByType.context.length > 0 && (
+                    <span className={style.working}>
+                      <Icon icon="globe-network" />
+                      {_.round(
+                        (this.state.resultByType.context.reduce((acc: number, curr: { gt: string; pred: string }) => {
+                          if (curr.gt === curr.pred) {
+                            acc++
+                          }
+                          return acc
+                        }, 0) /
+                          this.state.resultByType.context.length) *
+                          100,
+                        1
+                      )}
+                      % of contexts passing
+                    </span>
+                  )}
+                  {this.state.resultByType.slot.length > 0 && (
+                    <span className={style.working}>
+                      <Icon icon="segmented-control" />
+                      {_.round(
+                        (this.state.resultByType.slot.reduce((acc: number, curr: { gt: string; pred: string }) => {
+                          if (curr.gt === curr.pred) {
+                            acc++
+                          }
+                          return acc
+                        }, 0) /
+                          this.state.resultByType.slot.length) *
+                          100,
+                        1
+                      )}
+                      % of slots passing
+                    </span>
+                  )}
+                  <span className={style.working}>
+                    <Icon icon="tick" />
+                    {computeSummary(this.state.testResults)} % of tests passing
+                  </span>
                 </span>
               </React.Fragment>
             )}

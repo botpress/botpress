@@ -1,5 +1,13 @@
 @import '~@blueprintjs/core/lib/scss/variables';
 
+.results {
+  display: flex;
+}
+
+.results .span {
+  margin-right: 5vw;
+}
+
 .container {
   background-color: white;
   display: flex;
@@ -58,4 +66,3 @@ tr {
 td {
   border: 1px solid black;
 }
-

@@ -6,6 +6,8 @@ interface CssExports {
   'f1Section': string;
   'inline': string;
   'main': string;
+  'results': string;
+  'span': string;
   'toolbar': string;
   'verticalText': string;
   'working': string;

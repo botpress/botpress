@@ -224,7 +224,7 @@ export default async (bp: typeof sdk, state: VisuState) => {
 }
 
 function results2CSV(tests: Test[], results: _.Dictionary<TestResult>) {
-  const summary = computeSummary(tests, results)
+  const summary = computeSummary(results)
   const records = [
     [
       'utterance',
