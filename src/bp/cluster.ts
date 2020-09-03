@@ -35,7 +35,7 @@ export const registerMsgHandler = (messageType: string, handler: (message: any, 
   msgHandlers[messageType] = handler
 }
 
-export const setupMasterNode = (logger: sdk.Logger) => {
+export const setupMasterNode = (logger: sdk.Logger, params?: _.Dictionary<string>) => {
   process.SERVER_ID = process.env.SERVER_ID || nanoid('1234567890abcdefghijklmnopqrstuvwxyz', 10)
 
   // Fix an issue with pkg when passing custom options for v8
@@ -75,7 +75,7 @@ export const setupMasterNode = (logger: sdk.Logger) => {
         )
         process.exit(0)
       }
-      spawnWebWorker()
+      spawnWebWorker(params)
       webServerRebootCount++
     }
   })
@@ -93,11 +93,11 @@ export const setupMasterNode = (logger: sdk.Logger) => {
     }
   })
 
-  spawnWebWorker()
+  spawnWebWorker(params)
 }
 
-function spawnWebWorker() {
-  const { id } = cluster.fork({ SERVER_ID: process.SERVER_ID, WORKER_TYPE: WORKER_TYPES.WEB })
+function spawnWebWorker(params?: _.Dictionary<string>) {
+  const { id } = cluster.fork({ SERVER_ID: process.SERVER_ID, WORKER_TYPE: WORKER_TYPES.WEB, ...params })
   process.WEB_WORKER = id
   debug(`Spawned Web Worker`)
 }

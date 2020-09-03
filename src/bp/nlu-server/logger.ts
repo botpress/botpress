@@ -1,3 +1,4 @@
+import * as sdk from 'botpress/sdk'
 import chalk from 'chalk'
 import _ from 'lodash'
 import moment from 'moment'
@@ -20,7 +21,7 @@ export function serializeArgs(args: any): string {
   }
 }
 
-export class NLUServerLogger {
+export class NLUServerLogger implements sdk.Logger {
   private attachedError: Error | undefined
   public readonly displayLevel: number
   private currentMessageLevel: LogLevel | undefined
@@ -28,6 +29,24 @@ export class NLUServerLogger {
   constructor(private name: string) {
     this.displayLevel = process.VERBOSITY_LEVEL || 0
   }
+
+  forBot(botId: string): this {
+    return this
+  }
+
+  attachEvent(event: sdk.IO.Event): this {
+    return this
+  }
+
+  persist(shouldPersist: boolean): this {
+    return this
+  }
+
+  noEmit(): this {
+    return this
+  }
+
+  critical(message: string, metadata?: any): void {}
 
   attachError(error: Error): this {
     this.attachedError = error

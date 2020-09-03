@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import fs from 'fs'
+import cluster from 'cluster'
 import _ from 'lodash'
 import path from 'path'
 
@@ -13,6 +13,7 @@ import rewire from '../sdk/rewire'
 global.rewire = rewire as any
 import { NLU } from 'botpress/sdk'
 import Engine from 'nlu-core/engine'
+import { setupMasterNode, WORKER_TYPES } from '../cluster'
 import API, { APIOptions } from './api'
 import { NLUServerLogger } from './logger'
 
@@ -73,5 +74,14 @@ ${_.repeat(' ', 9)}========================================`)
     logger.info(`limit: ${chalk.redBright('disabled')} (no protection - anyone can query without limitation)`)
   }
 
-  await Promise.all([API(apiOptions)])
+  if (cluster.isMaster) {
+    setupMasterNode(logger, {
+      apiOptions: JSON.stringify(apiOptions)
+    })
+  }
+}
+
+if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.WEB) {
+  // tslint:disable-next-line: no-floating-promises
+  API(JSON.parse(process.env.apiOptions!))
 }
