@@ -132,7 +132,8 @@
       "addExample": "Add Example",
       "deletePattern": "Delete Pattern",
       "patternInvalid": "Pattern is invalid",
-      "possibleVarTypes": "Possible Variable Types"
+      "possibleVarTypes": "Possible Variable Types",
+      "variableTypePlaceholder": "What is this variable type?"
     },
     "flow": {
       "addNode": "Add Node",

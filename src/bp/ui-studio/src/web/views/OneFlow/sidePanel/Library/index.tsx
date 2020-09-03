@@ -21,10 +21,13 @@ import {
 import { SearchBar } from '~/components/Shared/Interface'
 import { RootReducer } from '~/reducers'
 import { sanitizeName } from '~/util'
+import storage from '~/util/storage'
 
 import style from '../TopicList/style.scss'
 
 import TreeItem from './TreeItem'
+
+const LIBRARY_EXPANDED_KEY = `bp::${window.BOT_ID}::libraryExpanded`
 
 interface OwnProps {
   goToFlow: (flow: any) => void
@@ -81,14 +84,28 @@ const getVarTypeIcon = type => {
 }
 
 const Library: FC<Props> = props => {
+  let initialExpanded
+  try {
+    initialExpanded = JSON.parse(storage.get(LIBRARY_EXPANDED_KEY)) || {}
+  } catch (error) {
+    initialExpanded = {}
+  }
   const [filter, setFilter] = useState('')
   const [items, setItems] = useState<NodeData[]>([])
-  const [expanded, setExpanded] = useState<any>({})
+  const [expanded, setExpanded] = useState<any>(initialExpanded)
   const [editing, setEditing] = useState('')
 
   useEffect(() => {
     props.refreshEntities()
   }, [])
+
+  useEffect(() => {
+    try {
+      storage.set(LIBRARY_EXPANDED_KEY, JSON.stringify(expanded))
+    } catch (error) {
+      storage.del(LIBRARY_EXPANDED_KEY)
+    }
+  }, [expanded])
 
   useEffect(() => {
     const entities = props.entities

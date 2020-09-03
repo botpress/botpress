@@ -131,7 +131,8 @@
       "addExample": "Ajouter un exemple",
       "deletePattern": "Supprimer l'expression régulière",
       "patternInvalid": "L'expression est invalide",
-      "possibleVarTypes": "Type de variable possible"
+      "possibleVarTypes": "Type de variable possible",
+      "variableTypePlaceholder": "Quel est ce type de variable?"
     },
     "flow": {
       "addNode": "Ajouter une node",

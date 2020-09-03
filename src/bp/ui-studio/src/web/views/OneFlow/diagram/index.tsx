@@ -1285,7 +1285,7 @@ class Diagram extends Component<Props> {
           )}
           {formType === 'variableType' && (
             <VariableTypesForm
-              contentLang={this.state.currentLang}
+              contentLang={this.props.currentLang}
               customKey={data.id}
               formData={currentItem}
               variables={this.props.variables}
