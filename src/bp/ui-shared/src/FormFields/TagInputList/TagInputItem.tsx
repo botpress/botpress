@@ -41,7 +41,6 @@ const TagInputItem: FC<Props> = ({ item, isFocused, placeholder, onChange, remov
       onChange={tags => onChange({ name: item.name, tags: tags as string[] })}
       inputProps={{ onBlur }}
       onAdd={e => {
-        console.log('test')
         inputVal.current = ''
       }}
       onKeyDown={e => {

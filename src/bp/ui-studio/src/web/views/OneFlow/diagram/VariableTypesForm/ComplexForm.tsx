@@ -1,5 +1,6 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
+import cx from 'classnames'
 import sdk from 'botpress/sdk'
 import { Contents, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import { Variables } from 'common/typings'
@@ -93,7 +94,7 @@ const ComplexForm: FC<Props> = ({
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={close}>
       <Fragment key={customKey}>
-        <div className={style.formHeader}>
+        <div className={cx(style.formHeader, style.noSelect)}>
           <Tabs id="contentFormTabs">
             <Tab id="content" title={lang.tr('complex')} />
           </Tabs>
