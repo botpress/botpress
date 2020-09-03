@@ -75,7 +75,7 @@ export const nextTopicName = (topics: { name: string }[], originalName: string) 
 export const sortTriggersByScore = triggers => {
   const result = Object.keys(triggers).map(id => {
     const trigger = triggers[id]
-    const values = _.values(trigger.result)
+    const values = Object.values<number>(trigger.result)
     const score = values.slice(1).reduce((total, curr) => total * curr, values[0])
 
     return { id, result: trigger.result, score: isNaN(score) ? -1 : score, trigger: trigger.trigger }
