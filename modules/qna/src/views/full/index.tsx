@@ -250,6 +250,7 @@ const QnAList: FC<Props> = ({
         if (data === 'module.qna.import.uploadSuccessful') {
           clearInterval(intervalHandle)
           toastSuccess(lang.tr(data))
+          dispatch({ type: 'collapseAll' })
         } else if (data.split('.')[0] !== 'module') {
           toastFailure(data)
           clearInterval(intervalHandle)
