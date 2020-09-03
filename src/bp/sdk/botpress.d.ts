@@ -459,10 +459,11 @@ declare module 'botpress/sdk' {
       static initialize: (config: Config, logger: NLU.Logger) => Promise<void>
       static getHealth: () => Health
       static getLanguages: () => string[]
-      constructor(defaultLanguage: string, botId: string, logger: Logger)
+      constructor(botId: string, logger: Logger)
       computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string
       loadModel: (m: Model) => Promise<void>
       hasModel: (lang: string, hash: string) => boolean
+      hasModelForLang: (lang: string) => boolean
       train: (
         trainSessionId: string,
         intentDefs: NLU.IntentDefinition[],
@@ -470,8 +471,9 @@ declare module 'botpress/sdk' {
         languageCode: string,
         options: TrainingOptions
       ) => Promise<Model | undefined>
-      cancelTraining(trainSessionId: string): Promise<void>
-      predict: (t: string, ctx: string[]) => Promise<IO.EventUnderstanding>
+      cancelTraining: (trainSessionId: string) => Promise<void>
+      detectLanguage: (sentence: string) => Promise<string>
+      predict: (t: string, ctx: string[], language: string) => Promise<IO.EventUnderstanding>
     }
 
     export interface Config {
@@ -783,14 +785,13 @@ declare module 'botpress/sdk' {
       /** The language used for prediction. Will be equal to detected language when its part of supported languages, falls back to default language otherwise */
       readonly language: string
       /** Language detected from users input. */
-      readonly detectedLanguage: string
+      readonly detectedLanguage?: string
       readonly entities: NLU.Entity[]
       readonly slots?: NLU.SlotCollection
       readonly errored: boolean
       readonly includedContexts: string[]
       readonly predictions?: NLU.Predictions
       readonly ms: number
-      readonly suggestedLanguage?: string
     }
 
     export interface IncomingEvent extends Event {
@@ -897,6 +898,9 @@ declare module 'botpress/sdk' {
       actionArgs?: any
       hookName?: string
       destination?: string
+      /** Represent the location where the error was triggered  */
+      flowName?: string
+      nodeName?: string
     }
 
     export interface JumpPoint {

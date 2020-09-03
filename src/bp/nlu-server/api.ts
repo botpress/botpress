@@ -83,7 +83,7 @@ export default async function(options: APIOptions) {
   let trainSessionService: TrainSessionService
   let trainService: TrainService
   try {
-    engine = new Engine('en', 'nlu-server', loggerWrapper)
+    engine = new Engine('nlu-server', loggerWrapper)
     modelService = new ModelService(options.modelDir)
     await modelService.init()
     trainSessionService = new TrainSessionService()
@@ -196,7 +196,7 @@ export default async function(options: APIOptions) {
       if (model) {
         await engine.loadModel(model)
 
-        const prediction = await engine.predict(sentence, [])
+        const prediction = await engine.predict(sentence, [], model?.languageCode!)
         engine.unloadModel(model.languageCode)
 
         return res.send({

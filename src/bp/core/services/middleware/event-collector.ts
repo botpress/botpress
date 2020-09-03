@@ -36,8 +36,13 @@ export const addLogToEvent = (logEntry: string, event: sdk.IO.Event) => {
   }
 }
 
-export const addErrorToEvent = (eventError: sdk.IO.EventError, event: sdk.IO.Event) => {
+export const addErrorToEvent = (eventError: sdk.IO.EventError, event: sdk.IO.Event | sdk.IO.IncomingEvent) => {
   if (event?.debugger && event?.activeProcessing) {
+    if (event.direction === 'incoming') {
+      const { context } = (event as sdk.IO.IncomingEvent).state
+      eventError = { ...eventError, flowName: context?.currentFlow, nodeName: context?.currentNode }
+    }
+
     event.activeProcessing.errors = [...(event.activeProcessing.errors ?? []), eventError]
   }
 }
