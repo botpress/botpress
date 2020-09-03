@@ -111,7 +111,7 @@ const QnAList: FC<Props> = ({
   const allExpanded = Object.keys(expandedItems).filter(itemId => expandedItems[itemId]).length === items.length
 
   let noItemsTooltip
-  let languesTooltip = lang.tr('module.qna.translate')
+  let languesTooltip = lang.tr('module.qna.form.translate')
 
   if (!items.length) {
     noItemsTooltip = lang.tr('module.qna.form.addOneItemTooltip')
@@ -137,6 +137,7 @@ const QnAList: FC<Props> = ({
     },
     {
       icon: 'filter',
+      disabled: !items.length,
       optionsItems: [
         {
           label: lang.tr('disabled'),
@@ -164,6 +165,7 @@ const QnAList: FC<Props> = ({
     },
     {
       icon: 'sort',
+      disabled: items.length > 1,
       optionsItems: [
         {
           label: lang.tr('module.qna.mostRecent'),
@@ -187,42 +189,41 @@ const QnAList: FC<Props> = ({
       disabled: !items.length,
       onClick: () => dispatch({ type: allExpanded ? 'collapseAll' : 'expandAll' }),
       tooltip: noItemsTooltip || lang.tr(allExpanded ? 'collapseAll' : 'expandAll')
-    }
-  ]
-
-  buttons.push(
+    },
     {
       icon: 'export',
       disabled: !items.length,
       onClick: startDownload,
       tooltip: noItemsTooltip || lang.tr('module.qna.import.exportQnAs')
-    },
-    {
-      content: (
-        <span className={style.customBtn}>
-          <Icon icon={'import' as IconName} />
-          <input
-            type="file"
-            onChange={async e => {
-              if ((e.target as HTMLInputElement).files) {
-                await askUploadOptions((e.target as HTMLInputElement).files[0])
-              }
-            }}
-          />
-        </span>
-      ),
-      tooltip: lang.tr('module.qna.import.importQnAs')
     }
-  )
+  ]
 
   if (!defaultLang || defaultLang === contentLang) {
-    buttons.push({
-      icon: 'plus',
-      onClick: () => {
-        dispatch({ type: 'addQnA', data: { languages, contexts: [topicName || 'global'] } })
+    buttons.push(
+      {
+        content: (
+          <span className={style.customBtn}>
+            <Icon icon={'import' as IconName} />
+            <input
+              type="file"
+              onChange={async e => {
+                if ((e.target as HTMLInputElement).files) {
+                  await askUploadOptions((e.target as HTMLInputElement).files[0])
+                }
+              }}
+            />
+          </span>
+        ),
+        tooltip: lang.tr('module.qna.import.importQnAs')
       },
-      tooltip: lang.tr('module.qna.form.addQuestion')
-    })
+      {
+        icon: 'plus',
+        onClick: () => {
+          dispatch({ type: 'addQnA', data: { languages, topicName: topicName || 'global' } })
+        },
+        tooltip: lang.tr('module.qna.form.addQuestion')
+      }
+    )
   }
 
   const askUploadOptions = async uploadFile => {
