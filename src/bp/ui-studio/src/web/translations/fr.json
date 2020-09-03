@@ -373,7 +373,13 @@
         "edit": "Modifier le workflow - {name}",
         "labelHelp": "L'étiquette est un nom convivial qui remplace le nom dans la liste des sujets",
         "name": "Nom du workflow"
-      }
+      },
+      "likelyTriggered": "{pct}% de chance de se déclencher",
+      "endOfWorkflow": "Fin du workflow",
+      "currentStage": "Étape courante: {stage}",
+      "extractedVar": "{output} extrait est {value}",
+      "jumpOutOfWorkflow": "Sauter hors du workflow",
+      "jumpIntoWorkflow": "Sauter dans le workflow"
     },
     "prompt": {
       "label": "Type",

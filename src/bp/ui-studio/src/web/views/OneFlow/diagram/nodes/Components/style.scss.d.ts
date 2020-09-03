@@ -9,6 +9,8 @@ interface CssExports {
   'contentWrapper': string;
   'contentsWrapper': string;
   'contextMenuLabel': string;
+  'danger': string;
+  'debugInfo': string;
   'error': string;
   'errorIcon': string;
   'execute': string;
@@ -25,12 +27,15 @@ interface CssExports {
   'outRouting': string;
   'prompt': string;
   'promptPortContent': string;
+  'results': string;
   'router': string;
   'say_something': string;
   'secondaryText': string;
+  'smallButton': string;
   'success': string;
   'text': string;
   'textWrapper': string;
+  'total': string;
   'trigger': string;
 }
 declare var cssExports: CssExports;

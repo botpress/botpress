@@ -72,12 +72,12 @@ class Diagram extends Component<Props> {
     this.manager = new DiagramManager(this.diagramEngine, { switchFlowNode: this.props.switchFlowNode })
 
     if (this.props.highlightFilter) {
-      this.manager.setHighlightedNodes(this.props.highlightFilter)
+      this.manager.setHighlightFilter(this.props.highlightFilter)
     }
 
     // @ts-ignore
     window.highlightNode = (flowName: string, nodeName: string) => {
-      this.manager.setHighlightedNodes(nodeName)
+      this.manager.setHighlightFilter(nodeName)
 
       if (!flowName || !nodeName) {
         // Refreshing the model anyway, to remove the highlight if node is undefined
@@ -139,19 +139,19 @@ class Diagram extends Component<Props> {
 
     // Refresh nodes when the filter is displayed
     if (this.props.highlightFilter && this.props.showSearch) {
-      this.manager.setHighlightedNodes(this.props.highlightFilter)
+      this.manager.setHighlightFilter(this.props.highlightFilter)
       this.manager.syncModel()
     }
 
     // Refresh nodes when the filter is updated
     if (this.props.highlightFilter !== prevProps.highlightFilter) {
-      this.manager.setHighlightedNodes(this.props.highlightFilter)
+      this.manager.setHighlightFilter(this.props.highlightFilter)
       this.manager.syncModel()
     }
 
     // Clear nodes when search field is hidden
     if (!this.props.showSearch && prevProps.showSearch) {
-      this.manager.setHighlightedNodes([])
+      this.manager.setHighlightFilter()
       this.manager.syncModel()
     }
   }

@@ -74,6 +74,11 @@
       }
     }
 
+    .debugInfo {
+      background: var(--ocean) !important;
+      color: #fff;
+    }
+
     .headerWrapper {
       &.say_something,
       &:hover.say_something,
@@ -166,6 +171,74 @@
           &:after {
             background: #fff !important;
           }
+        }
+      }
+    }
+  }
+
+  .debugInfo {
+    padding: 5px;
+    font-size: 10px;
+    text-align: center;
+    font-weight: normal;
+
+    &.say_something,
+    &:hover.say_something {
+      background: var(--say);
+    }
+
+    &.trigger,
+    &:hover.trigger {
+      background: var(--trigger);
+    }
+
+    &.execute,
+    &:hover.execute,
+    &.action,
+    &:hover.action {
+      background: var(--execute);
+    }
+
+    &.failure,
+    &:hover.failure {
+      background: var(--lighthouse);
+    }
+
+    &.router,
+    &:hover.router {
+      background: var(--if-else);
+    }
+
+    &.success,
+    &:hover.success {
+      background: var(--success);
+    }
+
+    &.prompt,
+    &:hover.prompt {
+      background: var(--prompt);
+    }
+
+    :global(.bp3-button).button {
+      background-color: var(--seashell);
+      color: var(--shark);
+      min-height: 0;
+      border-radius: 3px;
+      font-size: 10px;
+      height: 20px;
+      padding: 6px;
+      transition: background 0.3s ease-in-out;
+
+      &:hover {
+        background-color: var(--gray);
+      }
+
+      &.danger {
+        background-color: var(--lighthouse);
+        color: white;
+
+        &:hover {
+          background-color: var(--hover-lighthouse);
         }
       }
     }
@@ -409,5 +482,29 @@
     border-color: var(--bg);
     background-color: var(--bg);
     position: relative;
+  }
+}
+
+.results {
+  font-size: 10px;
+}
+
+.total {
+  font-size: 14px;
+  text-align: center;
+}
+
+.smallButton {
+  background-color: var(--seashell) !important;
+  color: var(--shark);
+  min-height: 0;
+  border-radius: 3px;
+  font-size: 10px;
+  height: 20px;
+  padding: 6px;
+  transition: background 0.3s ease-in-out;
+
+  &:hover {
+    background-color: var(--gray);
   }
 }
