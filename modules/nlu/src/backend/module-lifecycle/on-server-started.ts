@@ -61,7 +61,7 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
 
         const anticipatedLanguage = event.state.user?.language || defaultLanguage
         const predictionHandler = new PredictionHandler(modelProvider, engine, anticipatedLanguage, defaultLanguage)
-        const nluResults = predictionHandler.predict(preview, nlu?.includedContexts)
+        const nluResults = await predictionHandler.predict(preview, nlu?.includedContexts)
 
         _.merge(event, { nlu: nluResults ?? {} })
         removeSensitiveText(event)
