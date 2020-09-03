@@ -27,7 +27,7 @@ const QnAList: FC<Props> = ({
   const [currentTab, setCurrentTab] = useState('qna')
   const [currentLang, setCurrentLang] = useState(contentLang)
   const [url, setUrl] = useState('')
-  const [filterOptions, setFilterOptions] = useState({ disabled: true, incomplete: true, active: true })
+  const [filterOptions, setFilterOptions] = useState({ disabled: false, incomplete: false, active: false })
   const [sortOption, setSortOption] = useState('mostRecent')
   const debounceDispatchMiddleware = useCallback(debounce(dispatchMiddleware, 300), [])
   const wrapperRef = useRef<HTMLDivElement>()
@@ -335,9 +335,9 @@ const QnAList: FC<Props> = ({
             .filter(
               item =>
                 highlighted?.id !== item.id &&
-                ((!item.data.enabled && filterOptions.disabled) ||
-                  (!isQnaComplete(item.data as any, defaultLanguage) && filterOptions.incomplete) ||
-                  (item.data.enabled && isQnaComplete(item.data as any, defaultLanguage) && filterOptions.active))
+                (item.data.enabled || !filterOptions.disabled) &&
+                (isQnaComplete(item.data as any, defaultLanguage) || !filterOptions.incomplete) &&
+                !(item.data.enabled && isQnaComplete(item.data as any, defaultLanguage) && filterOptions.active)
             )
             .sort(
               (a, b) => (sortOption === 'mostRecent' ? +1 : -1) * (+(a.data.lastModified < b.data.lastModified) * 2 - 1)

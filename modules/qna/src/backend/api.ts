@@ -104,9 +104,13 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
       botId: req.params.botId,
       zipFile: req.file.buffer
     }
+    try {
+      await storage.importArchivePerTopic(importArgs)
+      jsonRequestStatuses[statusId] = 'module.qna.import.uploadSuccessful'
+    } catch (e) {
+      jsonRequestStatuses[statusId] = `Error: ${e.message}`
 
-    await storage.importArchivePerTopic(importArgs)
-    jsonRequestStatuses[statusId] = 'module.qna.import.uploadSuccessful'
+    }
   }
   ))
 
@@ -118,4 +122,5 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
   router.get('/json-upload-status/:uploadStatusId', asyncMiddleware(async (req: Request, res: Response) => {
     res.send(jsonRequestStatuses[req.params.uploadStatusId])
   }))
+
 }

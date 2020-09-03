@@ -1,4 +1,4 @@
-import { BotEvent, FormData } from 'botpress/sdk'
+import { BotEvent, Content, FormData } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import _uniqueId from 'lodash/uniqueId'
@@ -18,7 +18,7 @@ export interface QnaEntry {
   answers: {
     [lang: string]: string[]
   }
-  contentAnswers: any
+  contentAnswers: Content.All[]
   redirectFlow: string
   redirectNode: string
   lastModified?: Date

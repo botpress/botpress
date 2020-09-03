@@ -56,22 +56,26 @@ const keepEndPath = path =>
     .split('/')
     .slice(-2)
     .join('/')
-const removeBotPrefix = (c: sdk.Content.All) => {
-  if (c.type === 'carousel') {
-    return { ...c, items: c.items.map(o => { return { ...o, image: keepEndPath(o.image) } }) }
-  } else if (c.type === 'image' || c.type === 'card') {
-    return { ...c, image: keepEndPath(c.image) }
-  }
-}
+const removeBotPrefix = c =>
+  c.items
+    ? {
+      ...c,
+      items: c.items.map(o => {
+        return { ...o, image: keepEndPath(o.image) }
+      })
+    }
+    : { ...c, image: keepEndPath(c.image) }
 
-const addBotPath = (file: string, botId: string) => path.join(`/api/v1/bots/${botId}`, file)
-const addBotPrefix = (c: sdk.Content.All, botId: string) => {
-  if (c.type === 'carousel') {
-    return { ...c, items: c.items.map(o => { return { ...o, image: addBotPath(o.image, botId) } }) }
-  } else if (c.type === 'image' || c.type === 'card') {
-    return { ...c, image: addBotPath(c.image, botId) }
-  }
-}
+const addBotPath = (file, botId) => path.join(`/api/v1/bots/${botId}`, file)
+const addBotPrefix = (c, botId) =>
+  c.items
+    ? {
+      ...c,
+      items: c.items.map(o => {
+        return { ...o, image: addBotPath(o.image, botId) }
+      })
+    }
+    : { ...c, image: addBotPath(c.image, botId) }
 
 export default class Storage {
   constructor(private ghost: sdk.ScopedGhostService) { }
@@ -160,11 +164,15 @@ export default class Storage {
       return { ...i, metadata }
     })
 
-    const medias = _.chain(jsonQnaBotAgnostic)
-      .flatMapDeep(item => item.metadata?.contentAnswers ?? [])
-      .flatMap(c => (c.type === 'carousel' ? c.items : [c]))
-      .map(c => c.image)
-      .value()
+    // const medias = _.chain(jsonQnaBotAgnostic)
+    //   .flatMapDeep(item => item.metadata?.contentAnswers ?? [])
+    //   .flatMap(c => (c.type === 'carousel' ? c.items : [c]))
+    //   .map(c => c.image)
+    //   .value()
+
+    const one = _.flatMapDeep(jsonQnaBotAgnostic, item => item.metadata?.contentAnswers ?? [])
+    const two = _.flatMap(one, c => (c.type === 'carousel' ? c.items : [c]))
+    const medias = _.map(two, c => c.image)
 
     await mkdirp.sync(path.join(tmpDir.name, path.dirname(QNA_PATH_TO_ZIP)))
     await fse.writeFile(path.join(tmpDir.name, QNA_PATH_TO_ZIP), Buffer.from(serialize(jsonQnaBotAgnostic)))
