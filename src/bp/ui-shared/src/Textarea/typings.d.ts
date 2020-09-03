@@ -8,5 +8,6 @@ export interface TextareaProps {
   onChange: (value: string) => void
   onBlur?: () => void
   onKeyDown?: (e?: SyntheticEvent) => void
+  refValue?: string
   value: string
 }

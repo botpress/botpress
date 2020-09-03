@@ -8,7 +8,6 @@ import style from '../Components/style.scss'
 interface Props {
   node: BlockModel
   selectedNodeItem: () => { node: BlockModel; index: number }
-  getCurrentLang: () => string
   editNodeItem: (node: BlockModel, index: number) => void
 }
 
