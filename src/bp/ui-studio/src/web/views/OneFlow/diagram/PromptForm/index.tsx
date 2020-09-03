@@ -88,7 +88,7 @@ const PromptForm: FC<Props> = ({
       value.type === promptType.current && (!promptSubType.current || value.subType === promptSubType.current)
   )
 
-  const variableTypes = selectedOption ? [selectedOption.value.type] : variables.primitive.map(x => x.id)
+  const variableTypes = selectedOption ? [selectedOption.value.variableType] : variables.primitive.map(x => x.id)
   const variableSubType = selectedOption?.value?.subType
 
   return (
