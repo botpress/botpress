@@ -79,8 +79,6 @@ const TextAreaList: FC<Props> = props => {
         {localItems?.map((item, index) => {
           const missingTranslation = refItems?.[index] && !item
 
-          console.log()
-
           return item.startsWith('#!') ? (
             <div key={keys[index]} className={style.contentAnswer}>
               <BotpressContentPicker

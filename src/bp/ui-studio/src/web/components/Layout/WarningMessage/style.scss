@@ -11,6 +11,7 @@
     right: 50%;
     bottom: calc(var(--spacing-medium) + 28px);
     transform: translate(50%, 0);
+    z-index: 9;
   }
 
   &_icon {
@@ -25,6 +26,7 @@
   }
 }
 
-:global(.layout-emulator-open) + .warning_container, :global(.emulator-open) + .warning_container {
+:global(.layout-emulator-open) + .warning_container,
+:global(.emulator-open) + .warning_container {
   margin-right: 100px;
 }

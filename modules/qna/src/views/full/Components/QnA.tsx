@@ -217,9 +217,12 @@ const QnA: FC<Props> = props => {
             .some(l => translatedVariations[l] > curLangLength)
         )
     }
-
-    return false
   }
+
+  const missingTranslation =
+    ((refQuestions || []).filter(Boolean).length && !questions?.filter(Boolean).length) ||
+    ((refAnswers || []).filter(Boolean).length && !answers?.filter(Boolean).length) ||
+    contentAnswers?.some(content => checkMissingTranslations(content))
 
   return (
     <div className={style.questionWrapper}>
@@ -249,6 +252,9 @@ const QnA: FC<Props> = props => {
               <Tooltip position={Position.BOTTOM} content={lang.tr('module.qna.form.disabledTooltip')}>
                 <span className={style.tag}>{lang.tr('disabled')}</span>
               </Tooltip>
+            )}
+            {!!missingTranslation && (
+              <span className={cx(style.tag, style.warning)}>{lang.tr('needsTranslation')}</span>
             )}
             {showIncomplete && (
               <Tooltip position={Position.BOTTOM} content={lang.tr('module.qna.form.incompleteTooltip')}>
