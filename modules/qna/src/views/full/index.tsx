@@ -165,7 +165,7 @@ const QnAList: FC<Props> = ({
     },
     {
       icon: 'sort',
-      disabled: items.length > 1,
+      disabled: items.length < 2,
       optionsItems: [
         {
           label: lang.tr('module.qna.mostRecent'),
