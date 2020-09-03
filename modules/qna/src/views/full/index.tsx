@@ -285,6 +285,22 @@ const QnAList: FC<Props> = ({
     dispatch({ type: 'highlightedSuccess', data: { ...data, topicName } })
   }
 
+  const filterQnAs = item => {
+    const isNotHighlighted = highlighted?.id !== item.id
+    const weKeepNothing = !filterOptions.active && !filterOptions.disabled && !filterOptions.incomplete
+    const isDisabledAndWeKeepDisabled = !item.data.enabled && filterOptions.disabled
+    const isIncompleteAndWeKeepIncomplete = !isQnaComplete(item.data as any, defaultLang) && filterOptions.incomplete
+    const isActiveAndWeKeepActive =
+      item.data.enabled && isQnaComplete(item.data as any, defaultLang) && filterOptions.active
+    if (weKeepNothing) {
+      return isNotHighlighted
+    } else {
+      return (
+        isNotHighlighted && (isDisabledAndWeKeepDisabled || isIncompleteAndWeKeepIncomplete || isActiveAndWeKeepActive)
+      )
+    }
+  }
+
   return (
     <AccessControl resource="module.qna" operation="write">
       <MainContent.Wrapper className={style.embeddedInFlow} childRef={ref => (wrapperRef.current = ref)}>
@@ -314,8 +330,8 @@ const QnAList: FC<Props> = ({
                 flows={flows}
                 events={events}
                 defaultLang={defaultLang}
-                deleteQnA={() => {
-                  dispatch({ type: 'deleteQnA', data: { index: 'highlighted', bp, refreshQnaCount } })
+                deleteQnA={data => {
+                  dispatch({ type: 'deleteQnA', data: { qnaItem: data, index: 'highlighted', bp, refreshQnaCount } })
 
                   window.history.pushState(
                     window.history.state,
@@ -338,13 +354,7 @@ const QnAList: FC<Props> = ({
             </div>
           )}
           {items
-            .filter(
-              item =>
-                highlighted?.id !== item.id &&
-                (item.data.enabled || !filterOptions.disabled) &&
-                (isQnaComplete(item.data as any, defaultLang) || !filterOptions.incomplete) &&
-                !(item.data.enabled && isQnaComplete(item.data as any, defaultLang) && filterOptions.active)
-            )
+            .filter(item => filterQnAs(item))
             .sort(
               (a, b) => (sortOption === 'mostRecent' ? +1 : -1) * (+(a.data.lastModified < b.data.lastModified) * 2 - 1)
             )
@@ -362,7 +372,7 @@ const QnAList: FC<Props> = ({
                 flows={flows}
                 events={events}
                 defaultLang={defaultLang}
-                deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp, refreshQnaCount } })}
+                deleteQnA={data => dispatch({ type: 'deleteQnA', data: { qnaItem: data, index, bp, refreshQnaCount } })}
                 toggleEnabledQnA={() =>
                   dispatchMiddleware(dispatch, { type: 'toggleEnabledQnA', data: { qnaItem: item, bp } })
                 }

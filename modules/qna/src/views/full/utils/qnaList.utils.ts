@@ -1,6 +1,6 @@
 import { BotEvent, Content, FormData } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
-import _ from 'lodash'
+import _, { findIndex } from 'lodash'
 import _uniqueId from 'lodash/uniqueId'
 
 export const ITEMS_PER_PAGE = 50
@@ -183,7 +183,7 @@ export const dispatchMiddleware = async (dispatch, action) => {
       break
 
     default:
-      return dispatch(action)
+      return
   }
 }
 
@@ -240,8 +240,8 @@ export const fetchReducer = (state: State, action): State => {
         highlighted: newHighlighted
       }
     }
-
-    newItems[index] = { ...newItems[index], saveError: qnaItem.saveError, id: qnaItem.id, data: qnaItem.data }
+    const idx = state.items.findIndex(i => i.id === qnaItem.id)
+    newItems[idx] = { ...newItems[idx], saveError: qnaItem.saveError, id: qnaItem.id, data: qnaItem.data }
 
     return {
       ...state,
@@ -275,7 +275,7 @@ export const fetchReducer = (state: State, action): State => {
       expandedItems: { ...state.expandedItems, [id]: true }
     }
   } else if (action.type === 'deleteQnA') {
-    const { index, bp, refreshQnaCount } = action.data
+    const { qnaItem, index, bp, refreshQnaCount } = action.data
     const newItems = state.items
 
     if (index === 'highlighted') {
@@ -291,8 +291,9 @@ export const fetchReducer = (state: State, action): State => {
         highlighted: undefined
       }
     }
+    const idx = state.items.findIndex(i => i.id === qnaItem.id)
 
-    const [deletedItem] = newItems.splice(index, 1)
+    const [deletedItem] = newItems.splice(idx, 1)
     const topicName = deletedItem.data.topicName
 
     if (!deletedItem.id.startsWith('qna-')) {
