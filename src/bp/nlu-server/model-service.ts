@@ -71,8 +71,8 @@ export default class ModelService {
     tmpDir.removeCallback()
   }
 
-  public makeModelId(hash: string, languageCode: string, seed: number | undefined) {
-    return seed ? `${hash}.${languageCode}.${seed}` : `${hash}.${languageCode}`
+  public makeModelId(hash: string, languageCode: string, seed: number) {
+    return `${hash}.${languageCode}.${seed}`
   }
 
   private makeFileName(modelId: string, password: string): string {
