@@ -319,6 +319,13 @@ export default class Engine implements NLU.Engine {
     return Predict(input, Engine._tools, this.predictorsByLang)
   }
 
+  unloadModel(lang: string) {
+    if (this.modelsByLang[lang]) {
+      delete this.modelsByLang[lang]
+      delete this.predictorsByLang[lang]
+    }
+  }
+
   private _ctxHasChanged = (previousIntents: Intent<string>[], currentIntents: Intent<string>[]) => (ctx: string) => {
     const prevHash = this._computeCtxHash(previousIntents, ctx)
     const currHash = this._computeCtxHash(currentIntents, ctx)

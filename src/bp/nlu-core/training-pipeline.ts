@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { extractListEntitiesWithCache, extractPatternEntities } from './entities/custom-entity-extractor'
+import { warmEntityCache } from './entities/entity-cache-manager'
 import { getCtxFeatures } from './intents/context-featurizer'
 import { getIntentFeatures } from './intents/intent-featurizer'
 import { isPOSAvailable } from './language/pos-tagger'
@@ -29,7 +30,6 @@ import {
 } from './typings'
 import { Augmentation, createAugmenter, interleave } from './utterance/augmenter'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
-import { warmEntityCache } from './entities/entity-cache-manager'
 
 type ListEntityWithCache = ListEntity & {
   cache: EntityCacheDump

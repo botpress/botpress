@@ -517,7 +517,7 @@ declare module 'botpress/sdk' {
     export type TrainingStatus = 'idle' | 'done' | 'needs-training' | 'training' | 'canceled' | 'errored' | null
 
     export interface TrainingSession {
-      key?: string
+      key: string
       status: TrainingStatus
       language: string
       progress: number
