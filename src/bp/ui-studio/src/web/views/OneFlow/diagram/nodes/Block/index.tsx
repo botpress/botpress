@@ -2,7 +2,7 @@ import { Intent, Menu, MenuItem } from '@blueprintjs/core'
 import { DecisionTriggerCondition, FormData, SubWorkflowNode } from 'botpress/sdk'
 import { contextMenu, lang, ShortcutLabel } from 'botpress/shared'
 import { FlowView } from 'common/typings'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useState } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
 import { AllPartialNode } from '~/actions'
 import { BaseNodeModel } from '~/views/FlowBuilder/diagram/nodes/BaseNodeModel'
@@ -31,7 +31,7 @@ interface Props {
   switchFlowNode: (id: string) => void
   addCondition: (nodeType: string) => void
   addMessage: () => void
-  getCurrentLang: () => string
+  getLanguage?: () => { currentLang: string; defaultLang: string }
   getExpandedNodes: () => string[]
   setExpanded: (id: string, expanded: boolean) => void
 }
@@ -59,7 +59,7 @@ const BlockWidget: FC<Props> = ({
   switchFlowNode,
   addCondition,
   addMessage,
-  getCurrentLang,
+  getLanguage,
   getExpandedNodes,
   setExpanded
 }) => {
@@ -106,6 +106,7 @@ const BlockWidget: FC<Props> = ({
   const outPortInHeader = !['failure', 'prompt', 'router', 'success', 'sub-workflow'].includes(nodeType)
   const canCollapse = !['failure', 'prompt', 'router', 'success', 'sub-workflow'].includes(nodeType)
   const hasContextMenu = !['failure', 'success'].includes(nodeType)
+  const { currentLang, defaultLang } = getLanguage()
 
   const renderContents = () => {
     switch (nodeType) {
@@ -114,40 +115,43 @@ const BlockWidget: FC<Props> = ({
       case 'execute':
         return <ExecuteContents node={node} editNodeItem={editNodeItem} />
       case 'prompt':
-        return <PromptContents node={node} selectedNodeItem={selectedNodeItem} getCurrentLang={getCurrentLang} />
+        return (
+          <PromptContents
+            node={node}
+            selectedNodeItem={selectedNodeItem}
+            defaultLang={defaultLang}
+            currentLang={currentLang}
+          />
+        )
       case 'router':
         return <RouterContents node={node} editNodeItem={editNodeItem} selectedNodeItem={selectedNodeItem} />
       case 'success':
-        return <OutcomeContents node={node} selectedNodeItem={selectedNodeItem} getCurrentLang={getCurrentLang} />
+        return <OutcomeContents node={node} selectedNodeItem={selectedNodeItem} currentLang={currentLang} />
       case 'failure':
-        return <OutcomeContents node={node} selectedNodeItem={selectedNodeItem} getCurrentLang={getCurrentLang} />
+        return <OutcomeContents node={node} selectedNodeItem={selectedNodeItem} currentLang={currentLang} />
       case 'say_something':
         return (
           <SaySomethingContents
             node={node}
+            defaultLang={defaultLang}
             editNodeItem={editNodeItem}
             selectedNodeItem={selectedNodeItem}
-            getCurrentLang={getCurrentLang}
+            currentLang={currentLang}
           />
         )
       case 'trigger':
         return (
           <TriggerContents
             node={node}
+            defaultLang={defaultLang}
             editNodeItem={editNodeItem}
             selectedNodeItem={selectedNodeItem}
             getConditions={getConditions}
+            currentLang={currentLang}
           />
         )
       case 'sub-workflow':
-        return (
-          <SubworkflowContents
-            node={node}
-            selectedNodeItem={selectedNodeItem}
-            getCurrentLang={getCurrentLang}
-            editNodeItem={editNodeItem}
-          />
-        )
+        return <SubworkflowContents node={node} selectedNodeItem={selectedNodeItem} editNodeItem={editNodeItem} />
       default:
         return null
     }
@@ -182,7 +186,7 @@ export class BlockModel extends BaseNodeModel {
   public isNew: boolean
   public nodeType: string
   public prompt?
-  public contents?: { [lang: string]: FormData }[] = []
+  public contents?: FormData[] = []
   public subflow: SubWorkflowNode
 
   constructor({
@@ -246,7 +250,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
   private switchFlowNode: (id: string) => void
   private addCondition: (nodeType: string) => void
   private addMessage: () => void
-  private getCurrentLang: () => string
+  private getLanguage: () => { currentLang: string; defaultLang: string }
   private getExpandedNodes: () => string[]
   private setExpandedNodes: (id: string, expanded: boolean) => void
 
@@ -262,7 +266,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
     this.switchFlowNode = methods.switchFlowNode
     this.addCondition = methods.addCondition
     this.addMessage = methods.addMessage
-    this.getCurrentLang = methods.getCurrentLang
+    this.getLanguage = methods.getLanguage
     this.getExpandedNodes = methods.getExpandedNodes
     this.setExpandedNodes = methods.setExpandedNodes
   }
@@ -272,7 +276,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
       <BlockWidget
         node={node}
         getCurrentFlow={this.getCurrentFlow}
-        getCurrentLang={this.getCurrentLang}
+        getLanguage={this.getLanguage}
         editNodeItem={this.editNodeItem}
         onDeleteSelectedElements={this.deleteSelectedElements}
         updateFlowNode={this.updateFlowNode}
