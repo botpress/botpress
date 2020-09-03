@@ -25,13 +25,15 @@ export function getOnServerReady(state: NLUState) {
     }
 
     const cancelTraining = async (botId: string, language: string) => {
-      const trainSession: sdk.NLU.TrainingSession = _.get(state, `nluByBot.${botId}.trainSessions.${language}`)
+      const trainSession: sdk.NLU.TrainingSession = state.nluByBot[botId]?.trainSessions[language]
       if (trainSession && trainSession.status === 'training') {
         if (trainSession.lock) {
           await trainSession.lock.unlock()
         }
         trainSession.status = 'canceled'
         await setTrainingSession(bp, botId, trainSession)
+
+        await state.nluByBot[botId].engine.cancelTraining(trainSession.key)
       }
     }
 
