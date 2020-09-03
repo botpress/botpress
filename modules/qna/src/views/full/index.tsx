@@ -341,8 +341,8 @@ const QnAList: FC<Props> = ({
               item =>
                 highlighted?.id !== item.id &&
                 (item.data.enabled || !filterOptions.disabled) &&
-                (isQnaComplete(item.data as any, defaultLanguage) || !filterOptions.incomplete) &&
-                !(item.data.enabled && isQnaComplete(item.data as any, defaultLanguage) && filterOptions.active)
+                (isQnaComplete(item.data as any, defaultLang) || !filterOptions.incomplete) &&
+                !(item.data.enabled && isQnaComplete(item.data as any, defaultLang) && filterOptions.active)
             )
             .sort(
               (a, b) => (sortOption === 'mostRecent' ? +1 : -1) * (+(a.data.lastModified < b.data.lastModified) * 2 - 1)
