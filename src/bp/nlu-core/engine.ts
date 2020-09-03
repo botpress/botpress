@@ -3,6 +3,7 @@ import crypto from 'crypto'
 import _ from 'lodash'
 
 import { initializeTools } from './initialize-tools'
+import DetectLanguage from './language/language-identifier'
 import { deserializeModel, PredictableModel, serializeModel } from './model-manager'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
@@ -51,6 +52,10 @@ export default class Engine implements NLU.Engine {
 
   public hasModel(language: string, hash: string) {
     return this.modelsByLang[language]?.hash === hash
+  }
+
+  public hasModelForLang(language: string) {
+    return !!this.modelsByLang[language]
   }
 
   // we might want to make this language specific
@@ -298,6 +303,10 @@ export default class Engine implements NLU.Engine {
 
     // error handled a level higher
     return Predict(input, Engine._tools, this.predictorsByLang)
+  }
+
+  async detectLanguage(sentence: string): Promise<string> {
+    return await DetectLanguage(sentence, this.predictorsByLang, Engine._tools)
   }
 
   private _ctxHasChanged = (previousIntents: Intent<string>[], currentIntents: Intent<string>[]) => (ctx: string) => {

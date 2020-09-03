@@ -16,21 +16,27 @@ const de = 'de'
 
 function makeEngineMock(loadedModels: string[]): NLU.Engine {
   return (<Partial<NLU.Engine>>{
-    loadModel: jest.fn(async (m: NLU.Model) => {
+    loadModel: async (m: NLU.Model) => {
       loadedModels.push(m.languageCode)
-    }),
+    },
 
-    predict: jest.fn(async (textInput: string, ctx: string[], language: string) => {
-      let detectedLanguage = de
+    detectLanguage: async (textInput: string) => {
+      let detectedLanguage = ''
       if (textInput === frenchUtt) {
         detectedLanguage = fr
       } else if (textInput === englishUtt) {
         detectedLanguage = en
+      } else if (textInput === germanUtt) {
+        detectedLanguage = de
       }
+      return detectedLanguage
+    },
 
+    hasModelForLang: (lang: string) => loadedModels.includes(lang),
+
+    predict: jest.fn(async (textInput: string, ctx: string[], language: string) => {
       if (loadedModels.includes(language)) {
         return <IO.EventUnderstanding>{
-          detectedLanguage,
           entities: [],
           predictions: {},
           includedContexts: ctx,
@@ -38,7 +44,7 @@ function makeEngineMock(loadedModels: string[]): NLU.Engine {
           ms: Date.now()
         }
       }
-      return <IO.EventUnderstanding>{ error: 'invalid_predictor', detectedLanguage }
+      return <IO.EventUnderstanding>{ errored: true }
     })
   }) as NLU.Engine
 }
@@ -60,66 +66,79 @@ function makeModelGetterMock(modelsOnFs: string[]): (languageCode: string) => Pr
   }) as (languageCode: string) => Promise<NLU.Model | undefined>
 }
 
-const assertNoModelLoaded = (engineLoadMock: jest.Mock, modelGetterMock: jest.Mock) => {
-  assertNoModelLoadedFromFS(modelGetterMock)
-  assertNoModelLoadedFromFS(engineLoadMock)
+const assertNoModelLoaded = (modelGetterMock: jest.Mock) => {
+  assertModelLoaded(modelGetterMock, [])
 }
 
-const assertNoModelLoadedFromFS = (modelGetterMock: jest.Mock) => {
-  assertModelLoadedFromFS(modelGetterMock, [])
-}
-
-const assertNoModelLoadedInEngine = (engineLoadMock: jest.Mock) => {
-  assertModelLoadedInEngine(engineLoadMock, [])
-}
-
-const assertModelLoadedFromFS = (modelGetterMock: jest.Mock, langs: string[]) => {
+const assertModelLoaded = (modelGetterMock: jest.Mock, langs: string[]) => {
   expect(modelGetterMock.mock.calls.length).toBe(langs.length)
-
   for (let i = 0; i < langs.length; i++) {
     expect(modelGetterMock.mock.calls[i][0]).toBe(langs[i])
   }
 }
 
-const assertModelLoadedInEngine = (engineLoadMock: jest.Mock, langs: string[]) => {
-  expect(engineLoadMock.mock.calls.length).toBe(langs.length)
-
-  for (let i = 0; i < langs.length; i++) {
-    expect(engineLoadMock.mock.calls[i][0].languageCode).toBe(langs[i])
-  }
-}
-
 const assertPredictCalled = (enginePredictMock: jest.Mock, langs: string[]) => {
   expect(enginePredictMock.mock.calls.length).toBe(langs.length)
-
   for (let i = 0; i < langs.length; i++) {
     expect(enginePredictMock.mock.calls[i][2]).toBe(langs[i])
   }
 }
 
+const assertThrows = async (fn: () => Promise<any>) => {
+  let errorThrown = false
+  try {
+    await fn()
+  } catch {
+    errorThrown = true
+  }
+  expect(errorThrown).toBe(true)
+}
+
+const defaultLang = en
+const anticipatedLang = fr
+
 describe('predict', () => {
-  test('predict with default == detected language should predict once', async () => {
+  test('predict with loaded detected language should use detected', async () => {
     // arrange
-    const modelsOnFs = [en, fr]
+    const modelsOnFs = [en, fr, de]
     const modelGetter = makeModelGetterMock(modelsOnFs) as jest.Mock
-    const modelsInEngine = [en]
+    const modelsInEngine = [en, fr, de]
     const engine = makeEngineMock(modelsInEngine)
 
     // act
-    const defaultLang = en
-    const predictionHandler = new PredictionHandler(modelGetter, engine, defaultLang)
-    const result = await predictionHandler.predict(englishUtt, ['global'])
+    const predictionHandler = new PredictionHandler(modelGetter, engine, anticipatedLang, defaultLang)
+    const result = await predictionHandler.predict(germanUtt, ['global'])
 
     // assert
     expect(result).toBeDefined()
-    expect(result.language).toBe(en)
-    expect(result.detectedLanguage).toBe(en)
+    expect(result.language).toBe(de)
+    expect(result.detectedLanguage).toBe(de)
 
-    assertPredictCalled(engine.predict as jest.Mock, [en])
-    assertNoModelLoaded(engine.loadModel as jest.Mock, modelGetter)
+    assertPredictCalled(engine.predict as jest.Mock, [de])
+    assertNoModelLoaded(modelGetter)
   })
 
-  test('predict with default != detected language should predict twice', async () => {
+  test('predict with unloaded detected language should load then predict', async () => {
+    // arrange
+    const modelsOnFs = [en, fr, de]
+    const modelGetter = makeModelGetterMock(modelsOnFs) as jest.Mock
+    const modelsInEngine = [en, fr]
+    const engine = makeEngineMock(modelsInEngine)
+
+    // act
+    const predictionHandler = new PredictionHandler(modelGetter, engine, anticipatedLang, defaultLang)
+    const result = await predictionHandler.predict(germanUtt, ['global'])
+
+    // assert
+    expect(result).toBeDefined()
+    expect(result.language).toBe(de)
+    expect(result.detectedLanguage).toBe(de)
+
+    assertPredictCalled(engine.predict as jest.Mock, [de])
+    assertModelLoaded(modelGetter, [de])
+  })
+
+  test('predict with no model for detected language should fallback on anticipated', async () => {
     // arrange
     const modelsOnFs = [en, fr]
     const modelGetter = makeModelGetterMock(modelsOnFs) as jest.Mock
@@ -127,63 +146,19 @@ describe('predict', () => {
     const engine = makeEngineMock(modelsInEngine)
 
     // act
-    const defaultLang = en
-    const predictionHandler = new PredictionHandler(modelGetter, engine, defaultLang)
-    const result = await predictionHandler.predict(frenchUtt, ['global'])
+    const predictionHandler = new PredictionHandler(modelGetter, engine, anticipatedLang, defaultLang)
+    const result = await predictionHandler.predict(germanUtt, ['global'])
 
     // assert
     expect(result).toBeDefined()
     expect(result.language).toBe(fr)
-    expect(result.detectedLanguage).toBe(fr)
+    expect(result.detectedLanguage).toBe(de)
 
-    assertPredictCalled(engine.predict as jest.Mock, [en, fr])
-    assertNoModelLoaded(engine.loadModel as jest.Mock, modelGetter)
+    assertPredictCalled(engine.predict as jest.Mock, [fr])
+    assertModelLoaded(modelGetter, [de])
   })
 
-  test('predict with default == detected but default not loaded should predict then load then predict', async () => {
-    // arrange
-    const modelsOnFs = [en, fr]
-    const modelGetter = makeModelGetterMock(modelsOnFs) as jest.Mock
-    const modelsInEngine = []
-    const engine = makeEngineMock(modelsInEngine)
-
-    // act
-    const defaultLang = en
-    const predictionHandler = new PredictionHandler(modelGetter, engine, defaultLang)
-    const result = await predictionHandler.predict(englishUtt, ['global'])
-
-    // assert
-    expect(result).toBeDefined()
-    expect(result.language).toBe(en)
-    expect(result.detectedLanguage).toBe(en)
-
-    assertPredictCalled(engine.predict as jest.Mock, [en, en])
-    assertModelLoadedFromFS(modelGetter, [en])
-    assertModelLoadedInEngine(engine.loadModel as jest.Mock, [en])
-  })
-
-  test('predict with default != detected and default not loaded shoud not try to load default', async () => {
-    // arrange
-    const modelsOnFs = [en, fr]
-    const modelGetter = makeModelGetterMock(modelsOnFs) as jest.Mock
-    const modelsInEngine = [fr]
-    const engine = makeEngineMock(modelsInEngine)
-
-    // act
-    const defaultLang = en
-    const predictionHandler = new PredictionHandler(modelGetter, engine, defaultLang)
-    const result = await predictionHandler.predict(frenchUtt, ['global'])
-
-    // assert
-    expect(result).toBeDefined()
-    expect(result.language).toBe(fr)
-    expect(result.detectedLanguage).toBe(fr)
-
-    assertPredictCalled(engine.predict as jest.Mock, [en, fr])
-    assertNoModelLoaded(engine.loadModel as jest.Mock, modelGetter)
-  })
-
-  test('predict with default != detected and detected not loaded should predict twice then load then predict', async () => {
+  test('predict with no model for detected lang and unloaded anticipated lang should load anticipated', async () => {
     // arrange
     const modelsOnFs = [en, fr]
     const modelGetter = makeModelGetterMock(modelsOnFs) as jest.Mock
@@ -191,30 +166,27 @@ describe('predict', () => {
     const engine = makeEngineMock(modelsInEngine)
 
     // act
-    const defaultLang = en
-    const predictionHandler = new PredictionHandler(modelGetter, engine, defaultLang)
-    const result = await predictionHandler.predict(frenchUtt, ['global'])
+    const predictionHandler = new PredictionHandler(modelGetter, engine, anticipatedLang, defaultLang)
+    const result = await predictionHandler.predict(germanUtt, ['global'])
 
     // assert
     expect(result).toBeDefined()
     expect(result.language).toBe(fr)
-    expect(result.detectedLanguage).toBe(fr)
+    expect(result.detectedLanguage).toBe(de)
 
-    assertPredictCalled(engine.predict as jest.Mock, [en, fr, fr])
-    assertModelLoadedFromFS(modelGetter, [fr])
-    assertModelLoadedInEngine(engine.loadModel as jest.Mock, [fr])
+    assertPredictCalled(engine.predict as jest.Mock, [fr])
+    assertModelLoaded(modelGetter, [de, fr])
   })
 
-  test('predict with default != detected but no model for detected in FS should return default', async () => {
+  test('predict with no model for both detected and anticipated langs should fallback on default', async () => {
     // arrange
-    const modelsOnFs = [en, fr]
+    const modelsOnFs = [en]
     const modelGetter = makeModelGetterMock(modelsOnFs) as jest.Mock
     const modelsInEngine = [en]
     const engine = makeEngineMock(modelsInEngine)
 
     // act
-    const defaultLang = en
-    const predictionHandler = new PredictionHandler(modelGetter, engine, defaultLang)
+    const predictionHandler = new PredictionHandler(modelGetter, engine, anticipatedLang, defaultLang)
     const result = await predictionHandler.predict(germanUtt, ['global'])
 
     // assert
@@ -222,21 +194,19 @@ describe('predict', () => {
     expect(result.language).toBe(en)
     expect(result.detectedLanguage).toBe(de)
 
-    assertPredictCalled(engine.predict as jest.Mock, [en, de])
-    assertModelLoadedFromFS(modelGetter, [de])
-    assertNoModelLoadedInEngine(engine.loadModel as jest.Mock)
+    assertPredictCalled(engine.predict as jest.Mock, [en])
+    assertModelLoaded(modelGetter, [de, fr])
   })
 
-  test('predict with default != detected but no model for detected in FS and default not loaded should try to load default', async () => {
+  test('predict with no model for both detected and anticipated langs and unloaded default should load default', async () => {
     // arrange
-    const modelsOnFs = [en, fr]
+    const modelsOnFs = [en]
     const modelGetter = makeModelGetterMock(modelsOnFs) as jest.Mock
     const modelsInEngine = []
     const engine = makeEngineMock(modelsInEngine)
 
     // act
-    const defaultLang = en
-    const predictionHandler = new PredictionHandler(modelGetter, engine, defaultLang)
+    const predictionHandler = new PredictionHandler(modelGetter, engine, anticipatedLang, defaultLang)
     const result = await predictionHandler.predict(germanUtt, ['global'])
 
     // assert
@@ -244,33 +214,21 @@ describe('predict', () => {
     expect(result.language).toBe(en)
     expect(result.detectedLanguage).toBe(de)
 
-    assertPredictCalled(engine.predict as jest.Mock, [en, de, en])
-    assertModelLoadedFromFS(modelGetter, [de, en])
-    assertModelLoadedInEngine(engine.loadModel as jest.Mock, [en])
+    assertPredictCalled(engine.predict as jest.Mock, [en])
+    assertModelLoaded(modelGetter, [de, fr, en])
   })
 
-  test('predict with default == detected but no model for lang in FS should throw', async () => {
+  test('predict with no model for detected, anticipated and default shoud throw', async () => {
     // arrange
-    const modelsOnFs = [en, fr]
+    const modelsOnFs = []
     const modelGetter = makeModelGetterMock(modelsOnFs) as jest.Mock
     const modelsInEngine = []
     const engine = makeEngineMock(modelsInEngine)
 
-    // act
-    const defaultLang = de
-    const predictionHandler = new PredictionHandler(modelGetter, engine, defaultLang)
-
-    let errorOccured = false
-    try {
-      await predictionHandler.predict(germanUtt, ['global'])
-    } catch {
-      errorOccured = true
-    }
-
-    // assert
-    expect(errorOccured).toBe(true)
-    assertPredictCalled(engine.predict as jest.Mock, [de])
-    assertModelLoadedFromFS(modelGetter, [de])
-    assertNoModelLoadedInEngine(engine.loadModel as jest.Mock)
+    // act & assert
+    const predictionHandler = new PredictionHandler(modelGetter, engine, anticipatedLang, defaultLang)
+    await assertThrows(() => predictionHandler.predict(germanUtt, ['global']))
+    assertPredictCalled(engine.predict as jest.Mock, [])
+    assertModelLoaded(modelGetter, [de, fr, en])
   })
 })

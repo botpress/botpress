@@ -4,7 +4,6 @@ import _ from 'lodash'
 import { extractListEntities, extractPatternEntities } from './entities/custom-entity-extractor'
 import { getCtxFeatures } from './intents/context-featurizer'
 import { getIntentFeatures } from './intents/intent-featurizer'
-import LanguageIdentifierProvider, { NA_LANG } from './language/language-identifier'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getUtteranceFeatures } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
@@ -37,7 +36,6 @@ export interface PredictInput {
 interface InitialStep {
   readonly rawText: string
   includedContexts: string[]
-  detectedLanguage: string
   languageCode: string
 }
 
@@ -67,74 +65,22 @@ interface E1IntentPred {
 const DEFAULT_CTX = 'global'
 const NONE_INTENT = 'none'
 
-async function DetectLanguage(
-  input: PredictInput,
-  predictorsByLang: _.Dictionary<Predictors>,
-  tools: Tools
-): Promise<{ detectedLanguage: string }> {
-  const supportedLanguages = Object.keys(predictorsByLang)
-
-  const langIdentifier = LanguageIdentifierProvider.getLanguageIdentifier(tools.mlToolkit)
-  const bestMlLangMatch = (await langIdentifier.identify(input.sentence))[0]
-  let detectedLanguage = bestMlLangMatch?.label ?? NA_LANG
-  let scoreDetectedLang = bestMlLangMatch?.value ?? 0
-
-  // because with single-worded sentences, confidence is always very low
-  // we assume that a input of 20 chars is more than a single word
-  const threshold = input.sentence.length > 20 ? 0.5 : 0.3
-
-  // if ML-based language identifier didn't find a match
-  // we proceed with a custom vocabulary matching algorithm
-  // ie. the % of the sentence comprised of tokens in the training vocabulary
-  if (scoreDetectedLang <= threshold) {
-    try {
-      const match = _.chain(supportedLanguages)
-        .map(lang => ({
-          lang,
-          sentence: input.sentence.toLowerCase(),
-          tokens: _.orderBy(Object.keys(predictorsByLang[lang].vocabVectors), 'length', 'desc')
-        }))
-        .map(({ lang, sentence, tokens }) => {
-          for (const token of tokens) {
-            sentence = sentence.replace(token, '')
-          }
-          return { lang, confidence: 1 - sentence.length / input.sentence.length }
-        })
-        .filter(x => x.confidence >= threshold)
-        .orderBy('confidence', 'desc')
-        .first()
-        .value()
-
-      if (match) {
-        detectedLanguage = match.lang
-        scoreDetectedLang = match.confidence
-      }
-    } finally {
-    }
-  }
-
-  return { detectedLanguage }
-}
-
 async function preprocessInput(
   input: PredictInput,
   tools: Tools,
   predictorsBylang: _.Dictionary<Predictors>
 ): Promise<{ step: InitialStep; predictors: Predictors }> {
-  const { detectedLanguage } = await DetectLanguage(input, predictorsBylang, tools)
-
   const usedLanguage = input.language
   const predictors = predictorsBylang[usedLanguage]
   if (_.isEmpty(predictors)) {
     // eventually better validation than empty check
-    throw new InvalidLanguagePredictorError(usedLanguage, detectedLanguage)
+    throw new Error(`Predictor for language: ${usedLanguage} is not valid`)
   }
 
   const contexts = input.includedContexts.filter(x => predictors.contexts.includes(x))
   const step: InitialStep = {
     includedContexts: _.isEmpty(contexts) ? predictors.contexts : contexts,
     rawText: input.sentence,
-    detectedLanguage,
     languageCode: usedLanguage
   }
 
@@ -411,8 +357,8 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
   }, {})
 
   return {
-    detectedLanguage: step.detectedLanguage,
     entities,
+    errored: false,
     predictions: _.chain(predictions) // orders all predictions by confidence
       .entries()
       .orderBy(x => x[1].confidence, 'desc')
@@ -438,13 +384,6 @@ export function findExactIntentForCtx(
   }
 }
 
-class InvalidLanguagePredictorError extends Error {
-  constructor(missingLanguage: string, public detectedLanguage: string) {
-    super(`Predictor for language: ${missingLanguage} is not valid`)
-    this.name = 'PredictorError'
-  }
-}
-
 export const Predict = async (
   input: PredictInput,
   tools: Tools,
@@ -465,12 +404,8 @@ export const Predict = async (
 
     return MapStepToOutput(stepOutput, t0)
   } catch (err) {
-    if (err instanceof InvalidLanguagePredictorError) {
-      const { detectedLanguage } = err
-      return { error: 'invalid_predictor', detectedLanguage } as sdk.IO.EventUnderstanding
-    }
     // tslint:disable-next-line: no-console
     console.log('Could not perform predict data', err)
-    return { error: 'other' } as sdk.IO.EventUnderstanding
+    return { errored: true } as sdk.IO.EventUnderstanding
   }
 }

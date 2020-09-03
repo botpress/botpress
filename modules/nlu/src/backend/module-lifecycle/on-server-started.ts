@@ -57,7 +57,8 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
         const ghost = bp.ghost.forBot(botId)
         const modelGetter = (language: string) => getLatestModel(ghost, language)
 
-        const predictionHandler = new PredictionHandler(modelGetter, engine, defaultLanguage)
+        const anticipatedLanguage = event.state.user?.language || defaultLanguage
+        const predictionHandler = new PredictionHandler(modelGetter, engine, anticipatedLanguage, defaultLanguage)
         const nluResults = predictionHandler.predict(preview, nlu?.includedContexts)
 
         _.merge(event, { nlu: nluResults ?? {} })

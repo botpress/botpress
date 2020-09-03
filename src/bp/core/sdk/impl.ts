@@ -90,6 +90,7 @@ export class IOEvent implements sdk.IO.Event {
       slots: {},
       intent: { name: 'none', confidence: 1, context: 'global' },
       intents: [],
+      errored: false,
       includedContexts: ['global'],
       ms: 0,
       ...args.nlu
