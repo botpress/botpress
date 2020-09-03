@@ -359,6 +359,7 @@ const Form: FC<FormProps> = ({
             <TagInputList
               validation={field.validation}
               placeholder={lang(field.placeholder)}
+              emptyPlaceholder={lang(field.emptyPlaceholder)}
               items={currentValue || []}
               addBtnLabel={lang(field.group?.addLabel)}
               onChange={value => {

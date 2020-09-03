@@ -133,6 +133,7 @@ const EnumForm: FC<Props> = ({
               type: 'tag-input',
               label: 'values',
               placeholder: 'studio.library.addSynonyms',
+              emptyPlaceholder: 'studio.library.writeAsManyHintsAsPossible',
               group: {
                 addLabel: 'studio.library.addValueAlternative'
               },

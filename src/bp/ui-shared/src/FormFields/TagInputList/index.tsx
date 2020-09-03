@@ -7,15 +7,13 @@ import AddButton from '../../Contents/Components/Fields/AddButton'
 
 import style from './style.scss'
 import TagInputItem from './TagInputItem'
-import ShortcutLabel from '../../ShortcutLabel'
-import { controlKey } from '../../utils/keyboardShortcuts'
 
 export interface Item {
   name: string
   tags: string[]
 }
 
-const TagInputList = ({ validation, onChange, placeholder, items, addBtnLabel }) => {
+const TagInputList = ({ validation, onChange, emptyPlaceholder, placeholder, items, addBtnLabel }) => {
   const [localItems, setLocalItems] = useState(items || [])
   const focusedElement = useRef(items.length)
 
@@ -64,7 +62,7 @@ const TagInputList = ({ validation, onChange, placeholder, items, addBtnLabel })
             key={item.name}
             isFocused={focusedElement.current === index}
             onChange={item => updateLocalItem(index, item)}
-            placeholder={placeholder}
+            placeholder={!item.name && !item.tags.length ? emptyPlaceholder : placeholder}
             removeItem={() => deleteItem(index)}
             addRow={addItem}
             onBlur={() => onChange([...localItems])}

@@ -132,7 +132,8 @@
       "deletePattern": "Supprimer l'expression régulière",
       "patternInvalid": "L'expression est invalide",
       "possibleVarTypes": "Type de variable possible",
-      "variableTypePlaceholder": "Quel est ce type de variable?"
+      "variableTypePlaceholder": "Quel est ce type de variable?",
+      "writeAsManyHintsAsPossible": "Écrivez autant de valeurs que vos utilisateurs pourraient écrire pour appeler cette variable que possible"
     },
     "flow": {
       "addNode": "Ajouter une node",

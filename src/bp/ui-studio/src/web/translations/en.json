@@ -133,7 +133,8 @@
       "deletePattern": "Delete Pattern",
       "patternInvalid": "Pattern is invalid",
       "possibleVarTypes": "Possible Variable Types",
-      "variableTypePlaceholder": "What is this variable type?"
+      "variableTypePlaceholder": "What is this variable type?",
+      "writeAsManyHintsAsPossible": "Write as many values as possible that your users could write to invoke this variable"
     },
     "flow": {
       "addNode": "Add Node",

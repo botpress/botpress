@@ -1565,6 +1565,7 @@ declare module 'botpress/sdk' {
     label?: string
     overrideKey?: string
     placeholder?: string | string[]
+    emptyPlaceholder?: string
     options?: FormOption[]
     defaultValue?: FormDataField
     required?: boolean
