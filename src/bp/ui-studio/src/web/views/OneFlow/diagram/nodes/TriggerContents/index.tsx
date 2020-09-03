@@ -50,9 +50,9 @@ const TriggerContents: FC<Props> = ({
               className={cx(style.hasJoinLabel, {
                 [style.active]: selectedCondition?.node?.id === node.id && index === selectedCondition?.index
               })}
-              onEdit={() => editNodeItem?.(node, index)}
+              onEdit={() => !node.isReadOnly &&  editNodeItem?.(node, index)}
             >
-              <span className={style.content}>
+              <span className={cx(style.content, { [style.readOnly]: node.isReadOnly })}>
                 {lang.tr(conditionLabels[condition.id], {
                   ...condition.params,
                   firstSentence: condition.params?.utterances?.[currentLang]?.[0]

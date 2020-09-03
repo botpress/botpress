@@ -25,6 +25,7 @@ interface CssExports {
   'outRouting': string;
   'prompt': string;
   'promptPortContent': string;
+  'readOnly': string;
   'router': string;
   'say_something': string;
   'secondaryText': string;

@@ -403,9 +403,8 @@
   padding: var(--spacing-small);
   transition: background 0.3s, border 0.3s;
   width: 100%;
-  word-break: break-all;
 
-  &.promptPortContent {
+  &.readOnly {
     border-color: var(--bg);
     background-color: var(--bg);
     position: relative;
