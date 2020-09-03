@@ -115,6 +115,14 @@ Content-Type: application/json
   "password": "123456"
 }
 
+### cancel training
+# @name cancel-training
+POST {{api}}/train/{{modelId}}/cancel
+Content-Type: application/json
+
+{
+  "password": "123456"
+}
 
 ### predict for sentence
 # @name predict

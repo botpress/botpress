@@ -164,6 +164,29 @@ export default async function(options: APIOptions) {
     }
   })
 
+  router.post('/train/:modelId/cancel', async (req, res) => {
+    try {
+      const { modelId } = req.params
+      const { password } = req.body
+      const model = await modelService.getModel(modelId, password ?? '')
+      if (model && engine.hasModel(model.languageCode, model.hash)) {
+        await engine.cancelTraining(modelId)
+        res.send({
+          success: true
+        })
+      }
+      res.status(404).send({
+        success: true,
+        error: `no current training for model id: ${modelId}`
+      })
+    } catch (err) {
+      res.status(500).send({
+        success: false,
+        error: err.message
+      })
+    }
+  })
+
   router.post('/predict/:modelId', async (req, res) => {
     try {
       const { modelId } = req.params
