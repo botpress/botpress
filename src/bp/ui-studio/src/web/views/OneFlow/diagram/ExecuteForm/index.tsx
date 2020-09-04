@@ -46,6 +46,7 @@ const ExecuteForm: FC<Props> = ({
   const [canOutsideClickClose, setCanOutsideClickClose] = useState(true)
   const [showOptions, setShowOptions] = useState(false)
   const [maximized, setMaximized] = useState(false)
+  const [forceUpdate, setForceUpdate] = useState(false)
   const selectedAction = useRef(formData?.actionName)
   const originalCode = useRef(formData?.code ?? '')
   const flowArgs = useRef(variables.currentFlow.map(x => ({ name: x.params.name, type: `BP.${x.type}.Variable` })))
@@ -59,9 +60,13 @@ const ExecuteForm: FC<Props> = ({
 
   useEffect(() => {
     if (isCodeEditor) {
+      updateCode.cancel()
+
       flowArgs.current = variables.currentFlow.map(x => ({ name: x.params.name, type: `BP.${x.type}.Variable` }))
-      originalCode.current = formData.code
+      originalCode.current = formData?.code ?? ''
+
       setMaximized(true)
+      setForceUpdate(!forceUpdate)
     }
   }, [customKey])
 
