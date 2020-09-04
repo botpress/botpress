@@ -1328,6 +1328,9 @@ class Diagram extends Component<Props> {
             })}
           />
         )}
+        {this.props.currentFlow?.type === 'reusable' && this.props.defaultLang === this.props.currentLang && (
+          <WarningMessage message={lang.tr('studio.library.editingSubWorkflowWarning')} />
+        )}
       </Fragment>
     )
   }

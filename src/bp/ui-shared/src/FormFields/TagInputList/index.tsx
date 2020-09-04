@@ -14,11 +14,11 @@ export interface Item {
 }
 
 const TagInputList = ({ validation, onChange, emptyPlaceholder, placeholder, items, addBtnLabel }) => {
-  const [localItems, setLocalItems] = useState(items || [])
-  const focusedElement = useRef(items.length)
+  const [localItems, setLocalItems] = useState(items?.length ? items : [{ name: '', tags: [] }])
+  const focusedElement = useRef(items?.length || 0)
 
   useEffect(() => {
-    setLocalItems(items ?? [])
+    setLocalItems(items?.length ? items : [{ name: '', tags: [] }])
   }, [items])
 
   const updateLocalItem = (index: number, item: Item): void => {

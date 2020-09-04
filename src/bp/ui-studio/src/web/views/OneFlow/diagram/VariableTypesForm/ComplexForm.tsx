@@ -1,8 +1,8 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
-import cx from 'classnames'
 import sdk from 'botpress/sdk'
 import { Contents, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
+import cx from 'classnames'
 import { Variables } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
@@ -112,7 +112,7 @@ const ComplexForm: FC<Props> = ({
               label: 'name',
               required: true,
               maxLength: 150,
-              placeholder: 'studio.library.variableName'
+              placeholder: 'studio.library.variableTypePlaceholder'
             },
             {
               type: 'group',
@@ -142,7 +142,9 @@ const ComplexForm: FC<Props> = ({
               label: 'examples',
               placeholder: 'studio.library.examplePlaceholder',
               group: {
-                addLabel: 'studio.library.addExample'
+                minimum: 1,
+                addLabel: 'studio.library.addExample',
+                addLabelTooltip: 'studio.library.addExampleTooltip'
               }
             }
           ]}

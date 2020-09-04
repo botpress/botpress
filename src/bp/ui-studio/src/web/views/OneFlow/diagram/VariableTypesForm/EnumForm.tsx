@@ -135,6 +135,7 @@ const EnumForm: FC<Props> = ({
               placeholder: 'studio.library.addSynonyms',
               emptyPlaceholder: 'studio.library.writeAsManyHintsAsPossible',
               group: {
+                minimum: 1,
                 addLabel: 'studio.library.addValueAlternative'
               },
               validation: { validator: isDuplicate }

@@ -83,7 +83,7 @@ const Form: FC<FormProps> = ({
       const labelField = field.fields?.find(subField => subField.key === field.label.replace('fields::', ''))
       const fieldData = labelField.translated ? data[labelField.key]?.[currentLang] : data[labelField.key]
 
-      return fieldData || lang(labelField.label)
+      return fieldData || ' '
     }
 
     return field.superInput && !['text', 'text_array'].includes(field.type) ? (
@@ -260,7 +260,6 @@ const Form: FC<FormProps> = ({
       case 'select':
         return (
           <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)} invalid={invalid}>
-            {printMoreInfo(field.moreInfo)}
             {showSuperInput(field, parent) ? (
               renderSuperInput(field, currentValue, value => {
                 dispatch({ type: 'updateField', data: { field: field.key, onUpdate, parent, value } })
@@ -288,6 +287,7 @@ const Form: FC<FormProps> = ({
                 }
               />
             )}
+            {printMoreInfo(field.moreInfo)}
           </FieldWrapper>
         )
       case 'text_array':
@@ -324,6 +324,7 @@ const Form: FC<FormProps> = ({
                 items={currentValue || ['']}
                 label={printLabel(field, currentValue, parent, currentLang)}
                 addBtnLabel={lang(field.group?.addLabel)}
+                addBtnLabelTooltip={lang(field.group?.addLabelTooltip)}
               />
             ) : (
               <TextFieldsArray
@@ -347,12 +348,12 @@ const Form: FC<FormProps> = ({
                 items={currentValue || ['']}
                 label={printLabel(field, currentValue, parent, currentLang)}
                 addBtnLabel={lang(field.group?.addLabel)}
+                addBtnLabelTooltip={lang(field.group?.addLabelTooltip)}
               />
             )}
           </Fragment>
         )
 
-      // TODO: Max's magic touch
       case 'tag-input':
         return (
           <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)} invalid={invalid}>
@@ -360,7 +361,7 @@ const Form: FC<FormProps> = ({
               validation={field.validation}
               placeholder={lang(field.placeholder)}
               emptyPlaceholder={lang(field.emptyPlaceholder)}
-              items={currentValue || []}
+              items={currentValue || ['']}
               addBtnLabel={lang(field.group?.addLabel)}
               onChange={value => {
                 dispatch({
@@ -382,7 +383,6 @@ const Form: FC<FormProps> = ({
       case 'textarea':
         return (
           <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)} invalid={invalid}>
-            {printMoreInfo(field.moreInfo)}
             {showSuperInput(field, parent) ? (
               renderSuperInput(
                 field,
@@ -423,6 +423,7 @@ const Form: FC<FormProps> = ({
                 value={currentValue}
               />
             )}
+            {printMoreInfo(field.moreInfo)}
           </FieldWrapper>
         )
       case 'upload':
@@ -453,10 +454,10 @@ const Form: FC<FormProps> = ({
       case 'checkbox':
         return showSuperInput(field, parent) ? (
           <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent)}>
-            {printMoreInfo(field.moreInfo)}
             {renderSuperInput(field, currentValue, value => {
               dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
             })}
+            {printMoreInfo(field.moreInfo)}
           </FieldWrapper>
         ) : (
           <div key={field.key} className={cx(style.checkboxWrapper, 'checkbox-wrapper')}>
@@ -500,7 +501,6 @@ const Form: FC<FormProps> = ({
       case 'variable':
         return (
           <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)}>
-            {printMoreInfo(field.moreInfo)}
             <VariablePicker
               data={data}
               variables={variables!}
@@ -524,12 +524,12 @@ const Form: FC<FormProps> = ({
                 })
               }
             />
+            {printMoreInfo(field.moreInfo)}
           </FieldWrapper>
         )
       default:
         return (
           <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)} invalid={invalid}>
-            {printMoreInfo(field.moreInfo)}
             {showSuperInput(field, parent) ? (
               renderSuperInput(
                 field,
@@ -572,6 +572,7 @@ const Form: FC<FormProps> = ({
                 value={currentValue}
               />
             )}
+            {printMoreInfo(field.moreInfo)}
           </FieldWrapper>
         )
     }

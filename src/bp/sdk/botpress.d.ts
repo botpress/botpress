@@ -1609,6 +1609,7 @@ declare module 'botpress/sdk' {
     group?: {
       /** You have to specify the add button label */
       addLabel?: string
+      addLabelTooltip?: string
       /** You can specify a minimum so the delete button won't show if there isn't more than the minimum */
       minimum?: number
       /** You can add a contextual menu to add extra options */
