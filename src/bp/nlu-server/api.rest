@@ -108,12 +108,8 @@ Content-Type: application/json
 
 ### get training-status
 # @name train-status
-GET {{api}}/train/{{modelId}}
-Content-Type: application/json
+GET {{api}}/train/{{modelId}}?password=123456
 
-{
-  "password": "123456"
-}
 
 ### cancel training
 # @name cancel-training
