@@ -8,6 +8,7 @@ import { AllPartialNode } from '~/actions'
 import { BaseNodeModel } from '~/views/FlowBuilder/diagram/nodes/BaseNodeModel'
 import { StandardPortWidget } from '~/views/FlowBuilder/diagram/nodes/Ports'
 
+import { NodeDebugInfo } from '../../debugger'
 import ActionContents from '../ActionContents'
 import style from '../Components/style.scss'
 import NodeHeader from '../Components/NodeHeader'
@@ -34,6 +35,7 @@ interface Props {
   getLanguage?: () => { currentLang: string; defaultLang: string }
   getExpandedNodes: () => string[]
   setExpanded: (id: string, expanded: boolean) => void
+  getDebugInfo: (nodeName: string) => NodeDebugInfo
 }
 
 const defaultLabels = {
@@ -61,7 +63,8 @@ const BlockWidget: FC<Props> = ({
   addMessage,
   getLanguage,
   getExpandedNodes,
-  setExpanded
+  setExpanded,
+  getDebugInfo
 }) => {
   const { nodeType } = node
 
@@ -107,6 +110,7 @@ const BlockWidget: FC<Props> = ({
   const canCollapse = !['failure', 'prompt', 'router', 'success', 'sub-workflow'].includes(nodeType)
   const hasContextMenu = !['failure', 'success'].includes(nodeType)
   const { currentLang, defaultLang } = getLanguage()
+  const debugInfo = getDebugInfo(node.name)
 
   const renderContents = () => {
     switch (nodeType) {
@@ -169,8 +173,10 @@ const BlockWidget: FC<Props> = ({
         className={style[nodeType]}
         setExpanded={canCollapse && handleExpanded}
         expanded={canCollapse && expanded}
-        handleContextMenu={hasContextMenu && handleContextMenu}
+        handleContextMenu={!node.isReadOnly && hasContextMenu && handleContextMenu}
         defaultLabel={lang.tr(defaultLabels[nodeType])}
+        debugInfo={debugInfo}
+        nodeType={nodeType}
       >
         <StandardPortWidget hidden={!inputPortInHeader} name="in" node={node} className={style.in} />
         {outPortInHeader && <StandardPortWidget name="out0" node={node} className={style.out} />}
@@ -184,6 +190,7 @@ export class BlockModel extends BaseNodeModel {
   public conditions: DecisionTriggerCondition[] = []
   public activeWorkflow: boolean
   public isNew: boolean
+  public isReadOnly: boolean
   public nodeType: string
   public prompt?
   public contents?: FormData[] = []
@@ -204,7 +211,8 @@ export class BlockModel extends BaseNodeModel {
     activeWorkflow = false,
     isNew = false,
     isStartNode = false,
-    isHighlighted = false
+    isHighlighted = false,
+    isReadOnly = false
   }) {
     super('block', id)
 
@@ -220,7 +228,8 @@ export class BlockModel extends BaseNodeModel {
       conditions,
       subflow,
       activeWorkflow,
-      isNew
+      isNew,
+      isReadOnly
     })
 
     this.x = this.oldX = x
@@ -237,6 +246,7 @@ export class BlockModel extends BaseNodeModel {
     this.prompt = data.prompt
     this.contents = data.contents
     this.subflow = data.subflow
+    this.isReadOnly = data.isReadOnly
   }
 }
 
@@ -253,6 +263,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
   private getLanguage: () => { currentLang: string; defaultLang: string }
   private getExpandedNodes: () => string[]
   private setExpandedNodes: (id: string, expanded: boolean) => void
+  private getDebugInfo: (nodeName: string) => NodeDebugInfo
 
   constructor(methods) {
     super('block')
@@ -269,6 +280,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
     this.getLanguage = methods.getLanguage
     this.getExpandedNodes = methods.getExpandedNodes
     this.setExpandedNodes = methods.setExpandedNodes
+    this.getDebugInfo = methods.getDebugInfo
   }
 
   generateReactWidget(diagramEngine: DiagramEngine, node: BlockModel) {
@@ -287,6 +299,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
         addMessage={this.addMessage}
         getExpandedNodes={this.getExpandedNodes}
         setExpanded={this.setExpandedNodes}
+        getDebugInfo={this.getDebugInfo}
       />
     )
   }

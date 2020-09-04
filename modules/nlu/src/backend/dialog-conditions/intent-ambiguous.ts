@@ -10,6 +10,7 @@ interface Params {
 export default {
   id: 'intent_is_ambiguous',
   label: 'module.nlu.conditions.ambiguousIntentInTopic',
+  hidden: true,
   description: "The users's intention is can be interpreted as multiple intents within the same topic",
   displayOrder: 1,
   fields: [

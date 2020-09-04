@@ -72,6 +72,10 @@ export class DialogEngine {
         this._appendActivePromptToContext(currentNode, context)
       }
 
+      if (context.activePrompt && !event.state.__stacktrace.length) {
+        event.state.__stacktrace.push({ flow: currentFlow.name, node: currentNode.name })
+      }
+
       if (context.activePrompt?.status === 'pending') {
         const listenEvent = await this._processPendingPrompt(event, context)
         if (listenEvent) {
@@ -334,6 +338,7 @@ export class DialogEngine {
         ? this._findNode(botId, targetFlow, targetNodeName)
         : this._findNode(botId, targetFlow, targetFlow.startNode)
 
+      event.state.__stacktrace.push({ flow: targetFlow.name, node: targetNode.name })
       event.state.context.currentFlow = targetFlow.name
       event.state.context.currentNode = targetNode.name
       event.state.context.queue = undefined

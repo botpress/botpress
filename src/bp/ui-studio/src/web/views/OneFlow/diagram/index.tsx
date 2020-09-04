@@ -10,7 +10,7 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
-import { FlowVariable, NodeTransition } from 'botpress/sdk'
+import { FlowVariable, IO, NodeTransition } from 'botpress/sdk'
 import { Contents, contextMenu, EmptyState, Icons, lang, MainContent, toast } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -46,6 +46,7 @@ import {
   updateFlowProblems
 } from '~/actions'
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
+import { history } from '~/components/Routes'
 import { SearchBar } from '~/components/Shared/Interface'
 import { toastSuccess } from '~/components/Shared/Utils'
 import withLanguage from '~/components/Util/withLanguage'
@@ -76,6 +77,7 @@ import style from '~/views/FlowBuilder/diagram/style.scss'
 
 import WarningMessage from '../../../components/Layout/WarningMessage'
 
+import { prepareEventForDiagram } from './debugger'
 import { BlockModel, BlockWidgetFactory } from './nodes/Block'
 import menuStyle from './style.scss'
 import ActionForm from './ActionForm'
@@ -150,7 +152,8 @@ class Diagram extends Component<Props> {
   state = {
     editingNodeItem: null,
     currentTab: 'workflow',
-    expandedNodes: []
+    expandedNodes: [],
+    nodeInfos: []
   }
 
   constructor(props) {
@@ -171,7 +174,8 @@ class Diagram extends Component<Props> {
       addCondition: this.addCondition.bind(this),
       addMessage: this.addMessage.bind(this),
       getExpandedNodes: () => this.getStateProperty('expandedNodes'),
-      setExpandedNodes: this.updateExpandedNodes.bind(this)
+      setExpandedNodes: this.updateExpandedNodes.bind(this),
+      getDebugInfo: this.getDebugInfo
     }
 
     this.diagramEngine = new DiagramEngine()
@@ -185,30 +189,46 @@ class Diagram extends Component<Props> {
     this.manager = new DiagramManager(this.diagramEngine, { switchFlowNode: this.props.switchFlowNode })
 
     if (this.props.highlightFilter) {
-      this.manager.setHighlightedNodes(this.props.highlightFilter)
+      this.manager.setHighlightFilter(this.props.highlightFilter)
     }
 
     // @ts-ignore
-    window.highlightNode = (flowName: string, nodeName: string) => {
-      this.manager.setHighlightedNodes(nodeName)
+    window.showEventOnDiagram = () => {
+      return event => this.showEventOnDiagram(event)
+    }
 
-      if (!flowName || !nodeName) {
-        // Refreshing the model anyway, to remove the highlight if node is undefined
-        this.manager.syncModel()
-        return
-      }
+    this.searchRef = React.createRef()
+  }
 
-      try {
-        if (this.props.currentFlow.name !== flowName) {
-          this.props.switchFlow(flowName)
-        } else {
-          this.manager.syncModel()
-        }
-      } catch (err) {
-        console.error('Error when switching flow or refreshing', err)
+  getDebugInfo = (nodeName: string) => {
+    return (this.state.nodeInfos ?? [])
+      .filter(x => x.workflow === this.props.currentFlow?.name.replace('.flow.json', ''))
+      .find(x => x?.node == nodeName)
+  }
+
+  showEventOnDiagram(event?: IO.IncomingEvent) {
+    if (!event) {
+      this.manager.setHighlightedNodes([])
+      this.setState({ nodeInfos: [] })
+      return
+    }
+
+    const { flows, conditions } = this.props
+    const { nodeInfos, highlightedNodes, topQna } = prepareEventForDiagram(event, flows, conditions)
+
+    this.manager.setHighlightedNodes(highlightedNodes)
+    this.manager.highlightLinkedNodes()
+    this.setState({ nodeInfos })
+
+    if (topQna) {
+      history.push(`/oneflow/${topQna.topicName}/qna?id=${topQna.faqId.replace('__qna__', '')}`)
+    } else if (highlightedNodes.length) {
+      const firstFlow = highlightedNodes[0].flow
+
+      if (this.props.currentFlow?.name !== firstFlow) {
+        this.props.switchFlow(firstFlow)
       }
     }
-    this.searchRef = React.createRef()
   }
 
   componentDidMount() {
@@ -283,19 +303,19 @@ class Diagram extends Component<Props> {
 
     // Refresh nodes when the filter is displayed
     if (this.props.highlightFilter) {
-      this.manager.setHighlightedNodes(this.props.highlightFilter)
+      this.manager.setHighlightFilter(this.props.highlightFilter)
       this.manager.syncModel()
     }
 
     // Refresh nodes when the filter is updated
     if (this.props.highlightFilter !== prevProps.highlightFilter) {
-      this.manager.setHighlightedNodes(this.props.highlightFilter)
+      this.manager.setHighlightFilter(this.props.highlightFilter)
       this.manager.syncModel()
     }
 
     // Clear nodes when search field is hidden
     if (!this.props.highlightFilter) {
-      this.manager.setHighlightedNodes([])
+      this.manager.setHighlightFilter()
       this.manager.syncModel()
     }
   }
@@ -891,7 +911,11 @@ class Diagram extends Component<Props> {
     this.props.switchFlowNode(node.id)
     this.setState({ editingNodeItem: { node: { ...node, conditions: newConditions }, index } })
 
-    this.props.updateFlowNode({ conditions: newConditions })
+    this.props.updateFlowNode({
+      conditions: newConditions,
+      activeWorkflow: !!newConditions.find(x => x.id === 'on_active_workflow'),
+      activeTopic: !!newConditions.find(x => x.id === 'on_active_topic')
+    })
   }
 
   updatePromptNode(args) {
@@ -1276,7 +1300,7 @@ class Diagram extends Component<Props> {
           )}
           {formType === 'variableType' && (
             <VariableTypesForm
-              contentLang={this.state.currentLang}
+              contentLang={this.props.currentLang}
               customKey={data.id}
               formData={currentItem}
               variables={this.props.variables}

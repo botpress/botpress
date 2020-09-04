@@ -1,4 +1,4 @@
-import { Icon, Tab, Tabs } from '@blueprintjs/core'
+import { Checkbox } from '@blueprintjs/core'
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
@@ -43,12 +43,15 @@ interface State {
   showInspector: boolean
   fetching: boolean
   unauthorized: boolean
+  updateDiagram: boolean
   tab: string
   eventsCache: sdk.IO.IncomingEvent[]
 }
 const DEBUGGER_TAB_KEY = 'debuggerTab'
 
 export class Debugger extends React.Component<Props, State> {
+  private showEventOnDiagram: (event: sdk.IO.IncomingEvent) => void
+
   state: State = {
     event: undefined,
     prevEvent: undefined,
@@ -59,8 +62,9 @@ export class Debugger extends React.Component<Props, State> {
     fetching: false,
     unauthorized: false,
     showInspector: false,
-    tab: window['BP_STORAGE'].get(DEBUGGER_TAB_KEY) || 'content',
-    eventsCache: []
+    eventsCache: [],
+    updateDiagram: true,
+    tab: window['BP_STORAGE'].get(DEBUGGER_TAB_KEY) || 'content'
   }
   allowedRetryCount = 0
   currentRetryCount = 0
@@ -68,6 +72,9 @@ export class Debugger extends React.Component<Props, State> {
   lastMessage = undefined
 
   async componentDidMount() {
+    // @ts-ignore
+    this.showEventOnDiagram = window.parent.showEventOnDiagram()
+
     lang.init()
     updater.callback = this.loadEvent
 
@@ -111,6 +118,7 @@ export class Debugger extends React.Component<Props, State> {
     this.props.store.view.removeCustomAction('actionDebug')
     window.removeEventListener('keydown', this.hotkeyListener)
     this.resetWebchat()
+    this.showEventOnDiagram(undefined)
   }
 
   componentDidUpdate(_prevProps, prevState) {
@@ -181,6 +189,10 @@ export class Debugger extends React.Component<Props, State> {
 
       this.setState({ event, prevEvent, showEventNotFound: !event })
       this.props.store.view.setHighlightedMessages(eventId)
+
+      if (this.state.updateDiagram) {
+        this.showEventOnDiagram(event)
+      }
 
       if (!event.processing?.['completed']) {
         keepRetrying = true
@@ -266,6 +278,17 @@ export class Debugger extends React.Component<Props, State> {
       <div className={style.content}>
         {tab === 'content' && <Summary event={event} prevEvent={prevEvent} />}
         {tab === 'processing' && <Processing processing={event?.processing} />}
+        <Checkbox
+          checked={this.state.updateDiagram}
+          className={style.debugCheckbox}
+          label={lang.tr('module.extensions.displayDebugging')}
+          onChange={e => {
+            const newState = e.currentTarget.checked
+
+            this.showEventOnDiagram(newState && this.state.event ? this.state.event : undefined)
+            this.setState({ updateDiagram: newState })
+          }}
+        />
       </div>
     )
   }

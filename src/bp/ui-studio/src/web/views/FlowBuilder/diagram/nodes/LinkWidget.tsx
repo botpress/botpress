@@ -5,7 +5,15 @@ import style from './style.scss'
 
 class DeletableLinkWidget extends DefaultLinkWidget {
   generateLink(path: string, extraProps: any, id: string | number): JSX.Element {
-    const { link, width, color } = this.props
+    const { link, diagramEngine } = this.props
+    let { color, width } = this.props
+
+    // @ts-ignore
+    const flowManager = diagramEngine.flowBuilder.manager
+    if (flowManager.shouldHighlightLink(link.getID())) {
+      color = 'var(--ocean)'
+      width = 4
+    }
 
     const Bottom = (
       <path

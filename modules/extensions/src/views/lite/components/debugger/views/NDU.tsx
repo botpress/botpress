@@ -1,27 +1,13 @@
 import { Button } from '@blueprintjs/core'
 import * as sdk from 'botpress/sdk'
-import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 
-import ToolTip from '../../../../../../../../src/bp/ui-shared-lite/ToolTip'
 import lang from '../../../../lang'
 import { Collapsible } from '../components/Collapsible'
 import style from '../style.scss'
 
 import { Inspector } from './Inspector'
-
-const sortTriggersByScore = triggers => {
-  const result = Object.keys(triggers).map(id => {
-    const trigger = triggers[id]
-    const values = _.values(trigger.result)
-    const score = _.sum(values) / values.length
-
-    return { id, result: trigger.result, score: isNaN(score) ? -1 : score }
-  })
-
-  return _.orderBy(result, 'score', 'desc')
-}
 
 interface Props {
   ndu: sdk.NDU.DialogUnderstanding
@@ -45,10 +31,6 @@ const NDU: FC<Props> = ({ ndu, isExpanded, toggleExpand }) => {
     setViewJSON(newValue)
   }
 
-  const getPercentage = (number: number) => {
-    return _.round(number * 100, 2)
-  }
-
   const renderContent = () => {
     if (viewJSON) {
       return <Inspector data={ndu} />
@@ -56,19 +38,6 @@ const NDU: FC<Props> = ({ ndu, isExpanded, toggleExpand }) => {
 
     return (
       <Fragment>
-        <div className={style.section}>
-          <div className={style.sectionTitle}>{lang.tr('module.extensions.ndu.topTriggers')}</div>
-          {_.take(sorted, 5).map((trigger, index) => {
-            return (
-              <div key={index} className={style.subSection}>
-                <ToolTip content={trigger.id}>
-                  <p className={cx(style.canShowFull, style.truncate)}>{trigger.id}</p>
-                </ToolTip>
-                <ul>{listResults(trigger.result)}</ul>
-              </div>
-            )
-          })}
-        </div>
         <div className={style.section}>
           <div className={style.sectionTitle}>{lang.tr('module.extensions.ndu.decisionsTaken')}</div>
           <ul>
@@ -122,21 +91,6 @@ const NDU: FC<Props> = ({ ndu, isExpanded, toggleExpand }) => {
 
   if (!ndu || !ndu.triggers) {
     return null
-  }
-
-  const sorted = sortTriggersByScore(ndu.triggers)
-
-  const listResults = results => {
-    const keys = Object.keys(results || [])
-    if (!keys.length) {
-      return <li>{lang.tr('module.extensions.ndu.noResults')}</li>
-    }
-
-    return keys.map(id => (
-      <li key={id}>
-        {id}: {getPercentage(results[id])}%
-      </li>
-    ))
   }
 
   return (

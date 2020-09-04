@@ -3,7 +3,10 @@ import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, SyntheticEvent, useEffect, useState } from 'react'
 
+import { NodeDebugInfo } from '../../debugger'
+
 import style from './style.scss'
+import { DebugInfo } from './DebugInfo'
 
 interface Props {
   setExpanded?: (expanded: boolean) => void
@@ -12,14 +15,26 @@ interface Props {
   handleContextMenu?: (e: SyntheticEvent) => void
   children?: any
   className?: string
+  debugInfo: NodeDebugInfo
+  nodeType: string
 }
 
-const NodeHeader: FC<Props> = ({ setExpanded, expanded, defaultLabel, handleContextMenu, children, className }) => {
+const NodeHeader: FC<Props> = ({
+  setExpanded,
+  expanded,
+  defaultLabel,
+  handleContextMenu,
+  debugInfo,
+  children,
+  nodeType,
+  className
+}) => {
   const [startMouse, setStartMouse] = useState({ x: 0, y: 0 })
   const icon = expanded ? 'chevron-down' : 'chevron-right'
 
   return (
     <div className={cx(style.headerWrapper, className)}>
+      {debugInfo && <DebugInfo {...debugInfo} nodeType={nodeType} className={className}></DebugInfo>}
       <Button
         icon={setExpanded ? icon : null}
         onClick={e => {

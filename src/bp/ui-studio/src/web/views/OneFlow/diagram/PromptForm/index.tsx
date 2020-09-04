@@ -43,6 +43,7 @@ const PromptForm: FC<Props> = ({
 
   useEffect(() => {
     promptType.current = formData?.type
+    currentVarName.current = formData.params.output
     setForceUpdate(!forceUpdate)
   }, [customKey])
 
