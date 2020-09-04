@@ -1,0 +1,11 @@
+{
+  "name": "email",
+  "pattern": "(([^<>()\\[\\]\\\\.,;:\\s@\"]+(\\.[^<>()\\[\\]\\\\.,;:\\s@\"]+)*)|(\".+\"))@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))",
+  "examples": ["elon@musk.com", "your.name@domain.co", "This_is-OK.too@aa.bb"],
+  "matchCase": false,
+  "sensitive": false,
+  "id": "email",
+  "type": "pattern",
+  "occurrences": [],
+  "fuzzy": 0.8
+}

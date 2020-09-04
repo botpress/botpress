@@ -106,7 +106,7 @@ export default (bp: typeof sdk): Database => {
 
     let qnaItems: QnAItem[]
     try {
-      qnaItems = (await axios.get('/mod/qna/questions', axiosConfig)).data.items
+      qnaItems = (await axios.get('/mod/qna/questions', axiosConfig)).data.items // TODO: fixme
     } catch (e) {
       bp.logger.attachError(e).error(`Could not fetch QnA questions`)
     }

@@ -234,5 +234,8 @@
   "strict": "Strict",
   "medium": "Medium",
   "loose": "Loose",
-  "examples": "Examples"
+  "examples": "Examples",
+  "uploading": "Uploading",
+  "incomplete": "Incomplete",
+  "active": "Active"
 }

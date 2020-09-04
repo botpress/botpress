@@ -4,7 +4,7 @@ import * as sdk from 'botpress/sdk'
 import memoize from 'lodash/memoize'
 import uniq from 'lodash/uniq'
 
-import { QnaEntry } from '../../../qna/src/backend/qna'
+import { Item } from '../../../qna/src/backend/qna'
 import { DbFlaggedEvent, FLAGGED_MESSAGE_STATUS, RESOLUTION_TYPE } from '../types'
 
 const applyChanges = (bp: typeof sdk, botId: string, tableName: string) => {
@@ -22,7 +22,7 @@ const applyChanges = (bp: typeof sdk, botId: string, tableName: string) => {
 
     const addQnA = async (event: DbFlaggedEvent) => {
       const qnaId = event.resolution
-      const qnaEntry: { data: QnaEntry } = await botGhost.readFileAsObject('qna', `${qnaId}.json`)
+      const qnaEntry: { data: Item } = await botGhost.readFileAsObject('qna', `${qnaId}.json`)
       qnaEntry.data.questions[event.language] = uniq([
         ...(qnaEntry.data.questions[event.language] || []),
         event.preview
