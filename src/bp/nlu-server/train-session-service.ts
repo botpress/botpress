@@ -7,22 +7,22 @@ export default class TrainSessionService {
 
   constructor() {}
 
-  makeTrainingSession = (modelId: string, language: string): sdk.NLU.TrainingSession => ({
-    key: modelId,
+  makeTrainingSession = (modelFileName: string, language: string): sdk.NLU.TrainingSession => ({
+    key: modelFileName,
     status: 'training',
     progress: 0,
     language
   })
 
-  getTrainingSession(modelId: string): sdk.NLU.TrainingSession | undefined {
-    return this.trainSessions[modelId]
+  getTrainingSession(modelFileName: string): sdk.NLU.TrainingSession | undefined {
+    return this.trainSessions[modelFileName]
   }
 
-  setTrainingSession(modelId: string, trainSession: sdk.NLU.TrainingSession) {
-    this.trainSessions[modelId] = trainSession
+  setTrainingSession(modelFileName: string, trainSession: sdk.NLU.TrainingSession) {
+    this.trainSessions[modelFileName] = trainSession
   }
 
-  removeTrainingSession(modelId: string): void {
-    delete this.trainSessions[modelId]
+  removeTrainingSession(modelFileName: string): void {
+    delete this.trainSessions[modelFileName]
   }
 }

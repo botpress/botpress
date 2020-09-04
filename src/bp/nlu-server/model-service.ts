@@ -17,11 +17,10 @@ export default class ModelService {
     }
   }
 
-  public async getModel(modelId: string, password: string): Promise<NLU.Model | undefined> {
+  public async getModel(modelFileName: string): Promise<NLU.Model | undefined> {
     const { modelDir } = this
 
-    const fname = this.makeFileName(modelId, password)
-    const fpath = path.join(modelDir, fname)
+    const fpath = path.join(modelDir, modelFileName)
     if (!fse.existsSync(fpath)) {
       return
     }
@@ -45,17 +44,16 @@ export default class ModelService {
     }
   }
 
-  public async saveModel(model: NLU.Model, modelId: string, password: string): Promise<void> {
+  public async saveModel(model: NLU.Model, modelFileName: string): Promise<void> {
     const { modelDir } = this
 
     const serialized = JSON.stringify(model)
 
-    const modelName = this.makeFileName(modelId, password)
     const tmpDir = tmp.dirSync({ unsafeCleanup: true })
     const tmpFileName = path.join(tmpDir.name, 'model')
     await fse.writeFile(tmpFileName, serialized)
 
-    const archiveName = path.join(tmpDir.name, modelName)
+    const archiveName = path.join(tmpDir.name, modelFileName)
     await tar.create(
       {
         file: archiveName,
@@ -66,7 +64,7 @@ export default class ModelService {
       ['model']
     )
     const buffer = await fse.readFile(archiveName)
-    const fpath = path.join(modelDir, modelName)
+    const fpath = path.join(modelDir, modelFileName)
     await fse.writeFile(fpath, buffer)
     tmpDir.removeCallback()
   }
@@ -75,7 +73,7 @@ export default class ModelService {
     return `${hash}.${languageCode}.${seed}`
   }
 
-  private makeFileName(modelId: string, password: string): string {
+  public makeFileName(modelId: string, password: string): string {
     const fname = crypto
       .createHash('md5')
       .update(JSON.stringify({ modelId, password }))

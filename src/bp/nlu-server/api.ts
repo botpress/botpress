@@ -112,10 +112,11 @@ export default async function(options: APIOptions) {
 
       const seed = input.seed ?? Math.round(Math.random() * 10000)
       const modelId = modelService.makeModelId(modelHash, input.language, seed)
+      const modelFileName = modelService.makeFileName(modelId, password)
 
       // return the modelId as fast as possible
       // tslint:disable-next-line: no-floating-promises
-      trainService.train(modelId, password, intents, entities, language, seed)
+      trainService.train(modelFileName, intents, entities, language, seed)
 
       return res.send({
         success: true,
@@ -132,10 +133,11 @@ export default async function(options: APIOptions) {
   router.get('/train/:modelId', async (req, res) => {
     try {
       const { modelId } = req.params
-      const { password } = req.body
-      let session = trainSessionService.getTrainingSession(modelId)
+      const { password } = req.query
+      const modelFileName = modelService.makeFileName(modelId, password ?? '')
+      let session = trainSessionService.getTrainingSession(modelFileName)
       if (!session) {
-        const model = await modelService.getModel(modelId, password ?? '')
+        const model = await modelService.getModel(modelFileName)
 
         if (!model) {
           return res.status(404).send({
@@ -168,10 +170,11 @@ export default async function(options: APIOptions) {
     try {
       const { modelId } = req.params
       const { password } = req.body
-      const model = await modelService.getModel(modelId, password ?? '')
-      if (model && engine.hasModel(model.languageCode, model.hash)) {
-        await engine.cancelTraining(modelId)
-        res.send({
+      const modelFileName = modelService.makeFileName(modelId, password ?? '')
+      const session = trainSessionService.getTrainingSession(modelFileName)
+      if (session?.status === 'training') {
+        await engine.cancelTraining(modelFileName)
+        return res.send({
           success: true
         })
       }
@@ -191,8 +194,8 @@ export default async function(options: APIOptions) {
     try {
       const { modelId } = req.params
       const { sentence, password } = req.body
-
-      const model = await modelService.getModel(modelId, password ?? '')
+      const modelFileName = modelService.makeFileName(modelId, password ?? '')
+      const model = await modelService.getModel(modelFileName)
       if (model) {
         await engine.loadModel(model)
 

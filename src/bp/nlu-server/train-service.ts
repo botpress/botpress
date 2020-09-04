@@ -14,20 +14,19 @@ export default class TrainService {
   ) {}
 
   train = async (
-    modelId: string,
-    password: string,
+    modelFileName: string,
     intents: NLU.IntentDefinition[],
     entities: NLU.EntityDefinition[],
     language: string,
     nluSeed: number
   ) => {
     try {
-      const ts = this.trainSessionService.makeTrainingSession(modelId, language)
-      this.trainSessionService.setTrainingSession(modelId, ts)
+      const ts = this.trainSessionService.makeTrainingSession(modelFileName, language)
+      this.trainSessionService.setTrainingSession(modelFileName, ts)
 
       const progressCallback = (progress: number) => {
         ts.progress = progress
-        this.trainSessionService.setTrainingSession(modelId, ts)
+        this.trainSessionService.setTrainingSession(modelFileName, ts)
       }
 
       const model = await this.engine.train(ts.key, intents, entities, language, {
@@ -35,14 +34,18 @@ export default class TrainService {
         nluSeed,
         progressCallback
       })
-      if (!model) {
-        throw new Error('training could not finish')
-      }
-      await this.modelService.saveModel(model!, modelId, password)
 
+      if (!model) {
+        ts.status = 'canceled'
+        this.trainSessionService.setTrainingSession(modelFileName, ts)
+        setTimeout(() => this.trainSessionService.removeTrainingSession(modelFileName), 30000)
+        return
+      }
+
+      await this.modelService.saveModel(model!, modelFileName)
       ts.status = 'done'
-      this.trainSessionService.setTrainingSession(modelId, ts)
-      setTimeout(() => this.trainSessionService.removeTrainingSession(modelId), 30000)
+      this.trainSessionService.setTrainingSession(modelFileName, ts)
+      setTimeout(() => this.trainSessionService.removeTrainingSession(modelFileName), 30000)
     } catch (err) {
       this.logger.attachError(err).error('an error occured during training')
     }
