@@ -22,9 +22,16 @@ const debug = DEBUG('api')
 type ArgV = APIOptions & NLU.Config
 
 export default async function(options: ArgV) {
+  const logger = new NLUServerLogger('Launcher')
+  if (cluster.isMaster) {
+    setupMasterNode(logger)
+    return
+  } else if (cluster.isWorker && process.env.WORKER_TYPE !== WORKER_TYPES.WEB) {
+    return
+  }
+
   options.modelDir = options.modelDir || path.join(process.APP_DATA_PATH, 'models')
 
-  const logger = new NLUServerLogger('Launcher')
   const loggerWrapper: NLU.Logger = {
     info: (msg: string) => logger.info(msg),
     warning: (msg: string, err?: Error) => (err ? logger.attachError(err).warn(msg) : logger.warn(msg)),
@@ -52,10 +59,6 @@ export default async function(options: ArgV) {
     limitWindow: options.limitWindow
   }
 
-  if (!cluster.isMaster) {
-    return
-  }
-
   logger.info(chalk`========================================
 {bold ${center(`Botpress NLU Server`, 40, 9)}}
 {dim ${center(`Version ${version}`, 40, 9)}}
@@ -78,12 +81,5 @@ ${_.repeat(' ', 9)}========================================`)
     logger.info(`limit: ${chalk.redBright('disabled')} (no protection - anyone can query without limitation)`)
   }
 
-  setupMasterNode(logger, {
-    apiOptions: JSON.stringify(apiOptions)
-  })
-}
-
-if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.WEB) {
-  // tslint:disable-next-line: no-floating-promises
-  API(JSON.parse(process.env.apiOptions!))
+  await API(apiOptions)
 }
