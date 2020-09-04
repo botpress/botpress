@@ -141,6 +141,16 @@ export class DialogStore {
     return this._wfVariables[botId]?.[wfName]?.find(x => x.params?.name === varName)
   }
 
+  public getWorkflowVariables(botId: string, wfName: string): { name: string; type: string; subType?: string }[] {
+    return (
+      this._wfVariables[botId]?.[wfName]?.map(x => ({
+        name: x.params.name,
+        type: x.type,
+        subType: x.params.subType
+      })) ?? []
+    )
+  }
+
   public getPromptConfig(type: string): sdk.PromptConfig | undefined {
     return this._prompts.find(x => x.id === type)?.config
   }

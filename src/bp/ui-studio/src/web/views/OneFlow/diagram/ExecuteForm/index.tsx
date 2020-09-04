@@ -3,12 +3,13 @@ import { BotEvent, ExecuteNode, FlowNode, FlowVariable } from 'botpress/sdk'
 import { Dropdown, Icons, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import { LocalActionDefinition, Variables } from 'common/typings'
+import _ from 'lodash'
 import React, { FC, Fragment, useCallback, useEffect, useRef, useState } from 'react'
+import * as portals from 'react-reverse-portal'
 
 import contentStyle from '../ContentForm/style.scss'
 
 import style from './style.scss'
-import CodeEditor from './CodeEditor'
 import ConfigAction from './ConfigAction'
 
 interface Props {
@@ -46,6 +47,27 @@ const ExecuteForm: FC<Props> = ({
   const [showOptions, setShowOptions] = useState(false)
   const [maximized, setMaximized] = useState(false)
   const selectedAction = useRef(formData?.actionName)
+  const originalCode = useRef(formData?.code ?? '')
+  const params = useRef([])
+
+  const updateCode = useCallback(
+    _.debounce((value: string) => onUpdate({ code: value }), 1000),
+    []
+  )
+
+  const isEditor = selectedAction.current === newAction.value
+
+  useEffect(() => {
+    if (formData?.code) {
+      originalCode.current = formData.code
+      refreshArgs()
+      setMaximized(true)
+    }
+  }, [customKey])
+
+  useEffect(() => {
+    document.documentElement.style.setProperty('--right-sidebar-width', maximized ? '580px' : '240px')
+  }, [maximized])
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
@@ -55,9 +77,9 @@ const ExecuteForm: FC<Props> = ({
     }
   ]
 
-  useEffect(() => {
-    document.documentElement.style.setProperty('--right-sidebar-width', maximized ? '580px' : '240px')
-  }, [maximized])
+  const refreshArgs = () => {
+    params.current = variables.currentFlow.map(x => ({ name: x.params.name, type: `BP.${x.type}.Variable` }))
+  }
 
   const toggleSize = () => {
     setMaximized(!maximized)
@@ -83,7 +105,16 @@ const ExecuteForm: FC<Props> = ({
   }
 
   return (
-    <RightSidebar className={style.wrapper} canOutsideClickClose={canOutsideClickClose} close={close}>
+    <RightSidebar
+      className={style.wrapper}
+      canOutsideClickClose={canOutsideClickClose}
+      close={() => {
+        if (isEditor) {
+          updateCode.flush()
+        }
+        close()
+      }}
+    >
       <Fragment key={`${node?.id}`}>
         <div className={style.formHeader}>
           <Tabs id="contentFormTabs">
@@ -124,8 +155,16 @@ const ExecuteForm: FC<Props> = ({
 
         {selectedOption !== undefined && (
           <Fragment>
-            {selectedAction.current === newAction.value ? (
-              <CodeEditor {...commonProps} maximized={maximized} setMaximized={setMaximized} portalNode={portalNode} />
+            {isEditor ? (
+              <div className={style.editorWrap}>
+                <portals.OutPortal
+                  node={portalNode}
+                  onChange={data => updateCode(data.content)}
+                  code={originalCode.current}
+                  args={params.current}
+                  maximized={maximized}
+                />
+              </div>
             ) : (
               <ConfigAction {...commonProps} actions={actions} actionName={selectedAction.current} />
             )}

@@ -176,6 +176,7 @@ export default class MinimalEditor extends React.Component<Props> {
       folding: false,
       lineDecorationsWidth: 0,
       lineNumbersMinChars: 3,
+      scrollBeyondLastLine: false,
       minimap: {
         enabled: false
       }
@@ -193,14 +194,22 @@ export default class MinimalEditor extends React.Component<Props> {
 
     // TODO: Better logic
     // Prevents the user from editing the template lines
-    // this.editor.onDidChangeCursorPosition(e => {
-    //   const { endLineNumber } = this.editor.getVisibleRanges()[0]
-    //   if (e.position.lineNumber < 4) {
-    //     this.editor.setPosition({ lineNumber: 4, column: 1 })
-    //   } else if (e.position.lineNumber > endLineNumber - 2) {
-    //     this.editor.setPosition({ lineNumber: endLineNumber - 3, column: 1 })
-    //   }
-    // })
+
+    this.editor.onDidChangeCursorPosition(e => {
+      const lines = this.editor.getValue().split('\n')
+      const startLine = lines.findIndex(x => x.includes('Your code starts')) + 2
+      const endLine = lines.findIndex(x => x.includes('Your code ends'))
+
+      if (startLine === 1 || endLine === -1) {
+        return
+      }
+
+      if (e.position.lineNumber < startLine) {
+        this.editor.setPosition({ lineNumber: startLine, column: 1 })
+      } else if (e.position.lineNumber > endLine) {
+        this.editor.setPosition({ lineNumber: endLine, column: 1 })
+      }
+    })
   }
 
   loadTypings = async () => {
