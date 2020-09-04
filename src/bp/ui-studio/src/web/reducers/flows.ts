@@ -271,6 +271,7 @@ const doCreateNewFlow = name => {
           }
         ],
         type: 'trigger',
+        isReadOnly: true,
         conditions: [
           {
             id: 'workflow_called',

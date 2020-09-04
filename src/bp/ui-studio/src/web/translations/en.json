@@ -377,7 +377,14 @@
         "edit": "Edit Workflow - {name}",
         "labelHelp": "The label is a friendly name that can replace the name in the topic list",
         "name": "Workflow name"
-      }
+      },
+      "likelyTriggered": "{pct}% likely to be triggered",
+      "endOfWorkflow": "End of the workflow",
+      "currentStage": "Current Stage: {stage}",
+      "extractedVar": "{output} extracted is {value}",
+      "jumpOutOfWorkflow": "Jump out of workflow",
+      "jumpIntoWorkflow": "Jump into workflow",
+      "errorOccurred": "An error occurred here"
     },
     "prompt": {
       "label": "Type",

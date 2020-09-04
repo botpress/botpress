@@ -4,6 +4,7 @@ import _ from 'lodash'
 export default {
   id: 'extracted_entity',
   label: 'module.nlu.conditions.variableExtractedFromMessage',
+  hidden: true,
   description: 'Entity {type} {comparison} {value}',
   fields: [
     {
