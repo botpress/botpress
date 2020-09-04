@@ -90,7 +90,7 @@ const ComplexForm: FC<Props> = ({
 
   const choices = variables.display
     .filter(x => ['enum', 'pattern'].includes(x.type))
-    .map(({ label, subType, icon }) => ({ label, value: subType, icon }))
+    .map(({ label, subType }) => ({ label, value: subType }))
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={close}>
       <Fragment key={customKey}>
