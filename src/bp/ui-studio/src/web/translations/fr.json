@@ -129,6 +129,7 @@
       "deleteEnumeration": "Supprimer l'énumération",
       "confirmDeleteEntity": "Voulez-vous réellement supprimer ce type de variable?",
       "examplePlaceholder": "Écrire des exemples qui correspondent à ce modèle de type de variable",
+      "complexityExamplePlaceholder": "Écrivez autant d'exemples que possible qui correspondent à la complexité de cette variable",
       "regexPatternPlaceholder": "Écrire un modèle d'expression régulière",
       "addExample": "Ajouter un exemple",
       "addExampleTooltip": "Appuyez sur la touche Entrée pendant que vous êtes dans le champ pour ajouter rapidement un nouvel exemple",
@@ -423,6 +424,7 @@
     "emptyState": "Appuyez sur + dans la barre d'outils pour ajouter votre première variable",
     "variableVisibility": "Visibilité de la variable",
     "visibilityPlaceholder": "Choisissez la visibilité",
+    "pickType": "Choisissez un type",
     "inputVariables": "Variables d'entrée",
     "outputVariables": "Variables de sortie",
     "privateVariables": "Variables privée"

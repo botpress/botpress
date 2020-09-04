@@ -129,6 +129,7 @@
       "addValueAlternative": "Add Value Alternative",
       "deleteEnumeration": "Delete Enumeration",
       "confirmDeleteEntity": "Do you really want to delete this variable type ?",
+      "complexityExamplePlaceholder": "Write as many example as possible that match this variable's complexity",
       "examplePlaceholder": "Write examples that match this variable type pattern",
       "regexPatternPlaceholder": "Write a regular expression pattern",
       "addExample": "Add Example",
@@ -424,6 +425,7 @@
   "variable": {
     "emptyState": "Tap + in the toolbar to add your first variable",
     "variableVisibility": "Variable Visibility",
+    "pickType": "Pick a type",
     "visibilityPlaceholder": "Pick a Visibility",
     "inputVariables": "Input Variables",
     "outputVariables": "Output Variables",

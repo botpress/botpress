@@ -10,6 +10,7 @@ import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import style from '../PromptForm/style.scss'
 
 import { getEntityId } from '.'
+import VarTypePickerArray from './VarTypePickerArray'
 
 interface Props {
   customKey: string
@@ -75,7 +76,7 @@ const ComplexForm: FC<Props> = ({
     const items = data.items
       .filter(x => x.item)
       .map(({ item }) => ({
-        type: variables.display.find(x => x.subType === item).type,
+        type: variables.display.find(x => x.subType === item)?.type,
         subType: item
       }))
 
@@ -90,7 +91,6 @@ const ComplexForm: FC<Props> = ({
   const choices = variables.display
     .filter(x => ['enum', 'pattern'].includes(x.type))
     .map(({ label, subType, icon }) => ({ label, value: subType, icon }))
-
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={close}>
       <Fragment key={customKey}>
@@ -115,32 +115,17 @@ const ComplexForm: FC<Props> = ({
               placeholder: 'studio.library.variableTypePlaceholder'
             },
             {
-              type: 'group',
+              type: 'overridable',
               key: 'items',
               label: lang.tr('studio.library.possibleVarTypes'),
-              fields: [
-                {
-                  type: 'select',
-                  key: 'item',
-                  options: [{ label: 'Select a type', value: '' }, ...choices]
-                }
-              ],
-              group: {
-                addLabel: lang.tr('studio.library.addType'),
-                minimum: 1,
-                contextMenu: [
-                  {
-                    type: 'delete',
-                    label: 'delete'
-                  }
-                ]
-              }
+              overrideKey: 'varTypeOverride',
+              defaultValue: ['']
             },
             {
               key: 'examples',
               type: 'text_array',
               label: 'examples',
-              placeholder: 'studio.library.examplePlaceholder',
+              placeholder: 'studio.library.complexityExamplePlaceholder',
               group: {
                 minimum: 1,
                 addLabel: 'studio.library.addExample',
@@ -148,6 +133,9 @@ const ComplexForm: FC<Props> = ({
               }
             }
           ]}
+          overrideFields={{
+            varTypeOverride: props => <VarTypePickerArray {...props} choices={choices} />
+          }}
           advancedSettings={[]}
           formData={convertToSelect(formData)}
           invalidFields={[]}

@@ -5,6 +5,9 @@ import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 're
 
 import ToolTip from '../../../../../ui-shared-lite/ToolTip'
 import { lang } from '../../../translations'
+import FieldWrapper from '../../../FormFields/FieldWrapper'
+import wrapperStyle from '../../../FormFields/FieldWrapper/style.scss'
+import Select from '../../../FormFields/Select'
 import SuperInput from '../../../FormFields/SuperInput'
 import superInputStyle from '../../../FormFields/SuperInput/style.scss'
 import SuperInputArray from '../../../FormFields/SuperInputArray'
@@ -15,11 +18,9 @@ import { createEmptyDataFromSchema } from '../../utils/fields'
 import { formReducer, getSuperInputsFromData, printMoreInfo } from '../../utils/form.utils'
 import parentStyle from '../style.scss'
 import AddButton from '../Fields/AddButton'
-import Select from '../Fields/Select'
 import Text from '../Fields/Text'
 import TextArea from '../Fields/TextArea'
 import Upload from '../Fields/Upload'
-import FieldWrapper from '../FieldWrapper'
 import GroupItemWrapper from '../GroupItemWrapper'
 
 import style from './style.scss'
@@ -60,7 +61,7 @@ const Form: FC<FormProps> = ({
   useEffect(() => {
     if (moveFocusTo.current) {
       const nodeWrappers = groupRef.current[moveFocusTo.current].querySelectorAll(
-        `:scope > .${parentStyle.fieldWrapper}`
+        `:scope > .${wrapperStyle.fieldWrapper}`
       )
 
       focusFirstElement(nodeWrappers[nodeWrappers.length - 1])
