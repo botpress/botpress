@@ -48,19 +48,19 @@ const ExecuteForm: FC<Props> = ({
   const [maximized, setMaximized] = useState(false)
   const selectedAction = useRef(formData?.actionName)
   const originalCode = useRef(formData?.code ?? '')
-  const params = useRef([])
+  const flowArgs = useRef(variables.currentFlow.map(x => ({ name: x.params.name, type: `BP.${x.type}.Variable` })))
 
   const updateCode = useCallback(
     _.debounce((value: string) => onUpdate({ code: value }), 1000),
     []
   )
 
-  const isEditor = selectedAction.current === newAction.value
+  const isCodeEditor = selectedAction.current === newAction.value
 
   useEffect(() => {
-    if (formData?.code) {
+    if (isCodeEditor) {
+      flowArgs.current = variables.currentFlow.map(x => ({ name: x.params.name, type: `BP.${x.type}.Variable` }))
       originalCode.current = formData.code
-      refreshArgs()
       setMaximized(true)
     }
   }, [customKey])
@@ -76,10 +76,6 @@ const ExecuteForm: FC<Props> = ({
       type: 'delete'
     }
   ]
-
-  const refreshArgs = () => {
-    params.current = variables.currentFlow.map(x => ({ name: x.params.name, type: `BP.${x.type}.Variable` }))
-  }
 
   const toggleSize = () => {
     setMaximized(!maximized)
@@ -113,7 +109,7 @@ const ExecuteForm: FC<Props> = ({
       className={style.wrapper}
       canOutsideClickClose={canOutsideClickClose}
       close={() => {
-        if (isEditor) {
+        if (isCodeEditor) {
           updateCode.flush()
         }
         close()
@@ -159,13 +155,13 @@ const ExecuteForm: FC<Props> = ({
 
         {selectedOption !== undefined && (
           <Fragment>
-            {isEditor ? (
+            {isCodeEditor ? (
               <div className={style.editorWrap}>
                 <portals.OutPortal
                   node={portalNode}
                   onChange={data => updateCode(data.content)}
                   code={originalCode.current}
-                  args={params.current}
+                  args={flowArgs.current}
                   maximized={maximized}
                 />
               </div>

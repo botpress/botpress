@@ -1241,7 +1241,7 @@ class Diagram extends Component<Props> {
               node={this.props.currentFlowNode}
               customKey={`${node?.id}`}
               deleteNode={this.deleteSelectedElements.bind(this)}
-              contentLang={this.state.currentLang}
+              contentLang={this.props.currentLang}
               portalNode={this.props.portalNode}
               formData={currentItem}
               events={this.props.hints}
