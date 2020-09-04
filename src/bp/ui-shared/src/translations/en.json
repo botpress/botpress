@@ -53,6 +53,7 @@
   "delete": "Delete",
   "deleteCondition": "Delete Condition",
   "deleteContent": "Delete Content",
+  "deleteField": "Delete Field",
   "deleteNode": "Delete Node",
   "deletePrompt": "Delete Prompt",
   "deleteVariable": "Delete Variable",

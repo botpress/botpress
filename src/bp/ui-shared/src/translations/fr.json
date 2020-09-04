@@ -56,6 +56,7 @@
   "delete": "Supprimer",
   "deleteCondition": "Supprimer la condition",
   "deleteContent": "Supprimer le contenu",
+  "deleteField": "Supprimer le champ",
   "deleteNode": "Supprimer le bloque",
   "deletePrompt": "Supprimer le prompt",
   "deleteVariable": "Supprimer la variable",

@@ -119,7 +119,7 @@ const ComplexForm: FC<Props> = ({
               key: 'items',
               label: lang.tr('studio.library.possibleVarTypes'),
               overrideKey: 'varTypeOverride',
-              defaultValue: ['']
+              defaultValue: [{ item: '' }, { item: '' }]
             },
             {
               key: 'examples',
