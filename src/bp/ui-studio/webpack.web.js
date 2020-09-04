@@ -249,8 +249,9 @@ const showNodeEnvWarning = () => {
 const compiler = webpack(webConfig)
 
 compiler.hooks.done.tap('ExitCodePlugin', stats => {
-  if (stats.compilation.errors && stats.compilation.errors.length && process.argv.indexOf('--watch') == -1) {
-    for (const e of stats.compilation.errors) {
+  const errors = stats.compilation.errors
+  if (errors && errors.length && process.argv.indexOf('--watch') == -1) {
+    for (const e of errors) {
       console.log(e.message)
     }
     console.log('Webpack build failed')
