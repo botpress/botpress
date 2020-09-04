@@ -35,14 +35,13 @@
       "name": "Debug NLU Server",
       "program": "${workspaceFolder}/out/bp/index.js",
       "cwd": "${workspaceFolder}",
-      "args": ["nlu"],
+      "args": ["nlu", "languageSources=http://localhost:3100"],
       "protocol": "auto",
       "env": {
         "BP_MODULES_PATH": "${workspaceFolder}/modules:${workspaceFolder}/internal-modules",
         "NODE_PATH": "${workspaceFolder}/out/bp",
         "DEBUG": "bp:none",
-        "BLUEBIRD_DEBUG": "1",
-        "TELEMETRY_URL": "https://telemetry.botpress.dev/ingest"
+        "BLUEBIRD_DEBUG": "1"
       },
       "smartStep": true,
       "outFiles": [

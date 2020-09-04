@@ -37,7 +37,18 @@ export default async function(options: ArgV) {
     warning: (msg: string, err?: Error) => (err ? logger.attachError(err).warn(msg) : logger.warn(msg)),
     error: (msg: string, err?: Error) => (err ? logger.attachError(err).error(msg) : logger.error(msg))
   }
-  await Engine.initialize(options, loggerWrapper)
+
+  try {
+    await Engine.initialize(options, loggerWrapper)
+  } catch (err) {
+    // TODO: Make lang provider throw if it can't connect.
+    logger
+      .attachError(err)
+      .error(
+        'There was an error while initializing Engine tools. Check out the connection to your language and Duckling server.'
+      )
+    process.exit(1)
+  }
 
   global.printLog = args => {
     const message = args[0]
