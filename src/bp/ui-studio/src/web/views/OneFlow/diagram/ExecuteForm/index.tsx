@@ -88,6 +88,10 @@ const ExecuteForm: FC<Props> = ({
   const onActionChanged = (actionName: string) => {
     selectedAction.current = actionName
     onUpdate({ actionName })
+
+    if (actionName === newAction.value && !maximized) {
+      setMaximized(true)
+    }
   }
 
   const onlyLegacy = actions.filter(a => a.legacy)
