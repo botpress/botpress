@@ -8,7 +8,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 
-import { addStepToEvent } from '../middleware/event-collector'
+import { addErrorToEvent, addStepToEvent } from '../middleware/event-collector'
 import { EventEngine } from '../middleware/event-engine'
 import { StateManager } from '../middleware/state-manager'
 
@@ -79,13 +79,33 @@ export class DecisionEngine {
     const hasContinue = event.ndu.actions.find(x => x.action === 'continue')
     const hasPrompt = event.ndu.actions.find(x => x.action.startsWith('prompt.'))
     if (!event.hasFlag(WellKnownFlags.SKIP_DIALOG_ENGINE) && (hasContinue || hasPrompt)) {
-      const processedEvent = await this.dialogEngine.processEvent(sessionId, event)
+      try {
+        const processedEvent = await this.dialogEngine.processEvent(sessionId, event)
+        addStepToEvent('dialog:completed', event)
 
-      // In case there are no unknown errors, remove skills/ flow from the stacktrace
-      processedEvent.state.__stacktrace = processedEvent.state.__stacktrace.filter(x => !x.flow.startsWith('skills/'))
-      await processEvent(processedEvent)
-      await this.stateManager.persist(processedEvent, false)
-      return
+        // In case there are no unknown errors, remove skills/ flow from the stacktrace
+        processedEvent.state.__stacktrace = processedEvent.state.__stacktrace.filter(x => !x.flow.startsWith('skills/'))
+        await processEvent(processedEvent)
+        await this.stateManager.persist(processedEvent, false)
+        return
+      } catch (err) {
+        this.logger
+          .forBot(event.botId)
+          .attachError(err)
+          .error('An unexpected error occurred.')
+
+        addErrorToEvent(
+          {
+            type: 'dialog-engine',
+            stacktrace: err.stacktrace || err.stack
+          },
+          event
+        )
+
+        addStepToEvent('dialog:error', event)
+
+        await this._processErrorFlow(sessionId, event)
+      }
     }
 
     if (event.hasFlag(WellKnownFlags.FORCE_PERSIST_STATE)) {

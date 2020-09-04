@@ -1,0 +1,86 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "startNode": "entry",
+  "description": "",
+  "type": "standard",
+  "nodes": [
+    {
+      "id": "4b3e61b1f1",
+      "name": "trigger-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": "say_something-1"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "trigger",
+      "conditions": [
+        {
+          "params": {
+            "candidate": [
+              "content-text"
+            ],
+            "exactMatch": false,
+            "caseSensitive": false
+          },
+          "id": "type_text"
+        }
+      ]
+    },
+    {
+      "id": "bde74f144c",
+      "name": "say_something-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": "say_something-2"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "say_something",
+      "contents": [
+        {
+          "text": {
+            "en": "Text with **markdown**"
+          },
+          "variations": {
+            "en": []
+          },
+          "markdown": true,
+          "typing": true,
+          "contentType": "builtin_text"
+        }
+      ]
+    },
+    {
+      "id": "227feef046",
+      "name": "say_something-2",
+      "next": [
+        {
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "say_something",
+      "contents": [
+        {
+          "text": {
+            "en": "Text without **markdown**"
+          },
+          "variations": {
+            "en": []
+          },
+          "markdown": false,
+          "typing": true,
+          "contentType": "builtin_text"
+        }
+      ]
+    }
+  ]
+}

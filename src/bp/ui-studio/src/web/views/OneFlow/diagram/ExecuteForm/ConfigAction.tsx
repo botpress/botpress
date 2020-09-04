@@ -49,7 +49,7 @@ const ConfigAction: FC<Props> = ({
       events={events}
       fields={fields}
       advancedSettings={[]}
-      formData={mapValues(formData.params, ({ value }) => value)}
+      formData={mapValues(formData?.params, ({ value }) => value)}
       onUpdate={onUpdateContent}
       onUpdateVariables={onUpdateVariables}
     />

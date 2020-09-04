@@ -23,6 +23,7 @@ import { isOperationAllowed } from '~/components/Shared/Utils/AccessControl'
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
 import { RootReducer } from '~/reducers'
 
+import withLanguage from '../../components/Util/withLanguage'
 import { PanelPermissions } from '../FlowBuilder/sidePanel'
 import SkillsBuilder from '../FlowBuilder/skills'
 import style from '../FlowBuilder/style.scss'
@@ -30,13 +31,21 @@ import style from '../FlowBuilder/style.scss'
 import Diagram from './diagram'
 import SidePanel from './sidePanel'
 
+const CMS_LANG_KEY = `bp::${window.BOT_ID}::cmsLanguage`
+
 interface OwnProps {
   currentMutex: any
 }
 
+interface LangProps {
+  contentLang: string
+  languages: string[]
+  defaultLanguage: string
+}
+
 type StateProps = ReturnType<typeof mapStateToProps>
 type DispatchProps = typeof mapDispatchToProps
-type Props = DispatchProps & StateProps & OwnProps & RouteComponentProps
+type Props = DispatchProps & StateProps & OwnProps & LangProps & RouteComponentProps
 
 const allActions: PanelPermissions[] = ['create', 'rename', 'delete']
 const SEARCH_TAG = '#search:'
@@ -48,6 +57,7 @@ const FlowBuilder = (props: Props) => {
   const [showSearch, setShowSearch] = useState(false)
   const [readOnly, setReadOnly] = useState(false)
   const [flowPreview, setFlowPreview] = useState(true)
+  const [currentLang, setCurrentLang] = useState(localStorage.getItem(CMS_LANG_KEY) || props.contentLang)
   const [mutex, setMutex] = useState(null)
   const [actions, setActions] = useState(allActions)
   const [highlightFilter, setHighlightFilter] = useState('')
@@ -182,6 +192,8 @@ const FlowBuilder = (props: Props) => {
       <SidePanel
         onDeleteSelectedElements={() => diagram.current?.deleteSelectedElements()}
         readOnly={readOnly}
+        defaultLang={props.defaultLanguage}
+        currentLang={currentLang}
         mutexInfo={mutex}
         permissions={actions}
         flowPreview={flowPreview}
@@ -196,6 +208,13 @@ const FlowBuilder = (props: Props) => {
           portalNode={portalNode}
           showSearch={showSearch}
           topicQnA={topicQnA}
+          setCurrentLang={lang => {
+            setCurrentLang(lang)
+            localStorage.setItem(CMS_LANG_KEY, lang)
+          }}
+          languages={props.languages}
+          defaultLang={props.defaultLanguage}
+          currentLang={currentLang}
           hideSearch={() => setShowSearch(false)}
           handleFilterChanged={handleFilterChanged}
           highlightFilter={highlightFilter}
@@ -245,4 +264,4 @@ const mapDispatchToProps = {
 export default connect<StateProps, DispatchProps, OwnProps>(
   mapStateToProps,
   mapDispatchToProps
-)(withRouter(FlowBuilder))
+)(withRouter(withLanguage(FlowBuilder)))

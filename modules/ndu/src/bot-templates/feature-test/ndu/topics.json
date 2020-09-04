@@ -1,0 +1,17 @@
+[
+  {
+    "name": "content"
+  },
+  {
+    "name": "prompt"
+  },
+  {
+    "name": "error"
+  },
+  {
+    "name": "condition"
+  },
+  {
+    "name": "action"
+  }
+]

@@ -20,7 +20,9 @@ const StatusBar: FC<Props> = props => {
       <div className={style.item}>
         <span>{window.APP_VERSION}</span>
         <span className={style.botName}>{window.BOT_NAME}</span>
-        <LangSwitcher toggleLangSwitcher={props.toggleLangSwitcher} langSwitcherOpen={props.langSwitcherOpen} />
+        {!window.USE_ONEFLOW && (
+          <LangSwitcher toggleLangSwitcher={props.toggleLangSwitcher} langSwitcherOpen={props.langSwitcherOpen} />
+        )}
       </div>
       <div className={style.item}>
         <TrainingStatusComponent />

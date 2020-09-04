@@ -1,0 +1,72 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "startNode": "entry",
+  "description": "",
+  "type": "standard",
+  "nodes": [
+    {
+      "id": "09fce572ac",
+      "name": "trigger-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": "say_something-1"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "trigger",
+      "conditions": [
+        {
+          "params": {
+            "candidate": [
+              "content-card"
+            ],
+            "exactMatch": false,
+            "caseSensitive": false
+          },
+          "id": "type_text"
+        }
+      ]
+    },
+    {
+      "id": "1585e5948c",
+      "name": "say_something-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "say_something",
+      "contents": [
+        {
+          "image": null,
+          "title": {
+            "en": "Card"
+          },
+          "subtitle": {
+            "en": "Subtitle"
+          },
+          "actions": [
+            {
+              "title": {
+                "en": "HALLO"
+              },
+              "action": "Say something",
+              "text": {
+                "en": "yooo"
+              }
+            }
+          ],
+          "markdown": true,
+          "typing": true,
+          "contentType": "builtin_card"
+        }
+      ]
+    }
+  ]
+}

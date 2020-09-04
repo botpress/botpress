@@ -107,27 +107,28 @@ export class ActionStrategy implements InstructionStrategy {
   private async invokeAction(botId, instruction, event: IO.IncomingEvent): Promise<ProcessingResult> {
     // TODO better
     if (instruction.fn === 'exec') {
-      const { code, variables } = instruction.args
+      const { code } = instruction.args
       const args: any = {}
 
-      variables.map(x => {
-        let boxedVar = event.state.workflow.variables[x]
-        if (boxedVar) {
-          args[x] = boxedVar
-        }
-        const variable = { type: 'string', value: undefined, nbOfTurns: 5 }
-        const box = this.dialogStore.getBoxedVar(variable, botId, event.state.session.currentWorkflow!, x)
+      const { currentWorkflow } = event.state.session
 
-        if (box) {
-          event.state.workflow.variables[x] = boxedVar = box
+      const variables = this.dialogStore.getWorkflowVariables(botId, currentWorkflow!)
+      variables.map(({ name, type, subType }) => {
+        const boxedVar = event.state.workflow.variables[name]
+        if (!boxedVar) {
+          const variable = { type, subType, value: undefined, nbOfTurns: 5 }
+          const box = this.dialogStore.getBoxedVar(variable, botId, currentWorkflow!, name)
+
+          if (box) {
+            event.state.workflow.variables[name] = box
+          }
         }
-        args[x] = boxedVar
       })
 
       try {
         const service = await this.actionService.forBot(botId)
         await service.runAction({
-          actionCode: `const { ${argsToConst(variables)} } = args\n${code}`,
+          actionCode: `const { ${argsToConst(variables.map(x => x.name))} } = event.state.workflow.variables\n${code}`,
           incomingEvent: event,
           actionArgs: args
         })
@@ -240,16 +241,7 @@ export class TransitionStrategy implements InstructionStrategy {
       instruction.fn = instruction.fn!.replace(match, `event.state.workflow.variables.${name}`)
     }
 
-    const code = `
-    try {
-      return ${instruction.fn};
-    } catch (err) {
-      if (err instanceof TypeError) {
-        console.log(err)
-        return false
-      }
-      throw err
-    }`
+    const code = `return ${instruction.fn};`
 
     if (process.DISABLE_TRANSITION_SANDBOX || !this.unsafeRegex.test(instruction.fn!)) {
       const fn = new Function(...Object.keys(sandbox), code)

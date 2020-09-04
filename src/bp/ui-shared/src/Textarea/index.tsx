@@ -1,10 +1,21 @@
 import cx from 'classnames'
-import React, { FC, useEffect, useRef, useState } from 'react'
+import React, { FC, useEffect, useRef, useState, Fragment } from 'react'
 
 import style from './style.scss'
 import { TextareaProps } from './typings'
+import { lang } from '../translations'
 
-const Textarea: FC<TextareaProps> = props => {
+const Textarea: FC<TextareaProps> = ({
+  refValue,
+  forceUpdateHeight,
+  isFocused,
+  onChange,
+  className,
+  value,
+  placeholder,
+  onBlur,
+  onKeyDown
+}) => {
   const [forceUpdate, setForceUpdate] = useState(false)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const height = useRef(39)
@@ -21,16 +32,16 @@ const Textarea: FC<TextareaProps> = props => {
     }
 
     initialChange.current = false
-  }, [props.forceUpdateHeight])
+  }, [forceUpdateHeight])
 
   useEffect(() => {
-    if (inputRef.current && props.isFocused) {
+    if (inputRef.current && isFocused) {
       const length = inputRef.current.value?.length
 
       inputRef.current.focus()
       inputRef.current.setSelectionRange(length, length)
     }
-  }, [props.isFocused])
+  }, [isFocused])
 
   const updateHeight = () => {
     if (inputRef.current) {
@@ -40,22 +51,27 @@ const Textarea: FC<TextareaProps> = props => {
     }
   }
 
-  const onChange = value => {
-    props.onChange(value)
+  const handleOnChange = value => {
+    onChange(value)
   }
 
+  const missingTranslation = refValue && !value
+
   return (
-    <textarea
-      style={{ height: height.current + 'px' }}
-      ref={inputRef}
-      className={cx(style.textarea, props.className)}
-      value={props.value}
-      placeholder={props.placeholder}
-      onChange={e => onChange(e.currentTarget.value)}
-      onBlur={props.onBlur}
-      onKeyDown={props.onKeyDown}
-      onInput={updateHeight}
-    />
+    <Fragment>
+      <textarea
+        style={{ height: height.current + 'px' }}
+        ref={inputRef}
+        className={cx(style.textarea, className)}
+        value={value || refValue}
+        placeholder={placeholder}
+        onChange={e => handleOnChange(e.currentTarget.value)}
+        onBlur={onBlur}
+        onKeyDown={onKeyDown}
+        onInput={updateHeight}
+      />
+      {missingTranslation && <span className={style.fieldError}>{lang('pleaseTranslateField')}</span>}
+    </Fragment>
   )
 }
 

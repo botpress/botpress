@@ -15,9 +15,10 @@ import EmptyStateIcon from './Icons/EmptyStateIcon'
 const QnAList: FC<Props> = ({
   bp,
   languages,
-  defaultLanguage,
+  defaultLang,
   topicName,
   contentLang,
+  updateLocalLang,
   isLite,
   events,
   refreshQnaCount
@@ -151,6 +152,7 @@ const QnAList: FC<Props> = ({
         selected: currentLang === language,
         action: () => {
           setCurrentLang(language)
+          updateLocalLang(language)
         }
       })),
       disabled: !items.length || languages?.length <= 1,
@@ -192,13 +194,15 @@ const QnAList: FC<Props> = ({
     )
   }
 
-  buttons.push({
-    icon: 'plus',
-    onClick: () => {
-      dispatch({ type: 'addQnA', data: { languages, contexts: [topicName || 'global'] } })
-    },
-    tooltip: lang.tr('module.qna.form.addQuestion')
-  })
+  if (!defaultLang || defaultLang === contentLang) {
+    buttons.push({
+      icon: 'plus',
+      onClick: () => {
+        dispatch({ type: 'addQnA', data: { languages, contexts: [topicName || 'global'] } })
+      },
+      tooltip: lang.tr('module.qna.form.addQuestion')
+    })
+  }
 
   const fetchData = async (page = 1) => {
     dispatch({ type: 'loading' })
@@ -260,7 +264,7 @@ const QnAList: FC<Props> = ({
                 key={highlighted.id}
                 flows={flows}
                 events={events}
-                defaultLanguage={defaultLanguage}
+                defaultLang={defaultLang}
                 deleteQnA={() => {
                   dispatch({ type: 'deleteQnA', data: { index: 'highlighted', bp, refreshQnaCount } })
 
@@ -299,7 +303,7 @@ const QnAList: FC<Props> = ({
                 isLite={isLite}
                 flows={flows}
                 events={events}
-                defaultLanguage={defaultLanguage}
+                defaultLang={defaultLang}
                 deleteQnA={() => dispatch({ type: 'deleteQnA', data: { index, bp, refreshQnaCount } })}
                 toggleEnabledQnA={() =>
                   dispatchMiddleware(dispatch, { type: 'toggleEnabledQnA', data: { qnaItem: item, bp } })

@@ -366,6 +366,7 @@ declare module 'botpress/sdk' {
       export interface SVMOptions {
         classifier: 'C_SVC' | 'NU_SVC' | 'ONE_CLASS' | 'EPSILON_SVR' | 'NU_SVR'
         kernel: 'LINEAR' | 'POLY' | 'RBF' | 'SIGMOID'
+        seed: number
         c?: number | number[]
         gamma?: number | number[]
         probability?: boolean
@@ -388,7 +389,7 @@ declare module 'botpress/sdk' {
 
       export class Trainer {
         constructor()
-        train(points: DataPoint[], options?: Partial<SVMOptions>, callback?: TrainProgressCallback): Promise<string>
+        train(points: DataPoint[], options?: SVMOptions, callback?: TrainProgressCallback): Promise<string>
         isTrained(): boolean
       }
 
@@ -428,8 +429,8 @@ declare module 'botpress/sdk' {
         [key: string]: string
       }
 
-      export interface TrainerCallback {
-        (message: string): void
+      export interface TrainProgressCallback {
+        (iteration: number): void
       }
 
       interface DataPoint {
@@ -438,11 +439,7 @@ declare module 'botpress/sdk' {
       }
 
       export class Trainer {
-        train(
-          elements: DataPoint[],
-          options: TrainerOptions,
-          progressCallback?: (iteration: number) => void
-        ): Promise<string>
+        train(elements: DataPoint[], options: TrainerOptions, progressCallback?: TrainProgressCallback): Promise<string>
       }
     }
 
@@ -462,18 +459,21 @@ declare module 'botpress/sdk' {
       static initialize: (config: Config, logger: NLU.Logger) => Promise<void>
       static getHealth: () => Health
       static getLanguages: () => string[]
-      constructor(defaultLanguage: string, botId: string, logger: Logger)
+      constructor(botId: string, logger: Logger)
       computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string
       loadModel: (m: Model) => Promise<void>
       hasModel: (lang: string, hash: string) => boolean
+      hasModelForLang: (lang: string) => boolean
       train: (
+        trainSessionId: string,
         intentDefs: NLU.IntentDefinition[],
         entityDefs: NLU.EntityDefinition[],
         languageCode: string,
-        trainingSession?: TrainingSession,
-        options?: TrainingOptions
+        options: TrainingOptions
       ) => Promise<Model | undefined>
-      predict: (t: string, ctx: string[]) => Promise<IO.EventUnderstanding>
+      cancelTraining: (trainSessionId: string) => Promise<void>
+      detectLanguage: (sentence: string) => Promise<string>
+      predict: (t: string, ctx: string[], language: string) => Promise<IO.EventUnderstanding>
     }
 
     export interface Config {
@@ -495,8 +495,8 @@ declare module 'botpress/sdk' {
 
     export interface TrainingOptions {
       forceTrain: boolean
+      nluSeed: number
       progressCallback: (x: number) => void
-      cancelCallback: () => void
     }
 
     export interface Model {
@@ -519,13 +519,12 @@ declare module 'botpress/sdk' {
     export type TrainingStatus = 'idle' | 'done' | 'needs-training' | 'training' | 'canceled' | 'errored' | null
 
     export interface TrainingSession {
+      key?: string
       status: TrainingStatus
       language: string
       progress: number
       lock?: RedisLock
     }
-
-    export type ProgressReporter = (botId: string, message: string, trainSession: TrainingSession) => void
 
     export type EntityType = 'system' | 'pattern' | 'list' | 'complex' // TODO: Add the notion of Utterance Placeholder instead of adding "Complex" as an entity type here (synonyms and variables)
 
@@ -628,9 +627,11 @@ declare module 'botpress/sdk' {
     export interface WorkflowTrigger extends GenericTrigger {
       type: 'workflow'
       workflowId: string
+      topicName: string
       nodeId: string
       /** When true, the user must be inside the specified workflow for the trigger to be active */
       activeWorkflow?: boolean
+      activeTopic?: boolean
     }
 
     export interface FaqTrigger extends GenericTrigger {
@@ -784,14 +785,13 @@ declare module 'botpress/sdk' {
       /** The language used for prediction. Will be equal to detected language when its part of supported languages, falls back to default language otherwise */
       readonly language: string
       /** Language detected from users input. */
-      readonly detectedLanguage: string
+      readonly detectedLanguage?: string
       readonly entities: NLU.Entity[]
       readonly slots?: NLU.SlotCollection
       readonly errored: boolean
       readonly includedContexts: string[]
       readonly predictions?: NLU.Predictions
       readonly ms: number
-      readonly suggestedLanguage?: string
     }
 
     export interface IncomingEvent extends Event {
@@ -892,11 +892,15 @@ declare module 'botpress/sdk' {
     }
 
     export interface EventError {
-      type: 'action-execution' | 'dialog-transition'
+      type: 'action-execution' | 'dialog-transition' | 'dialog-engine' | 'hook-execution'
       stacktrace?: string
       actionName?: string
       actionArgs?: any
+      hookName?: string
       destination?: string
+      /** Represent the location where the error was triggered  */
+      flowName?: string
+      nodeName?: string
     }
 
     export interface JumpPoint {
@@ -1370,6 +1374,8 @@ declare module 'botpress/sdk' {
     advancedSettings?: FormField[]
     /** In which order the conditions will be displayed in the dropdown menu. 0 is the first item */
     displayOrder?: number
+    /** When true, it is not displayed in the dropdown menu on the studio */
+    hidden?: boolean
     /** This callback url is called when the condition is deleted or pasted in the flow */
     callback?: string
     /** The editor will use the custom component to provide the requested parameters */
@@ -1472,6 +1478,7 @@ declare module 'botpress/sdk' {
     subflow?: SubWorkflowNode
     execute?: ExecuteNode
     isNew?: boolean
+    isReadOnly?: boolean
     /** Used internally by the flow editor */
     readonly lastModified?: Date
   } & NodeActions
@@ -1502,6 +1509,7 @@ declare module 'botpress/sdk' {
   export type TriggerNode = FlowNode & {
     conditions: DecisionTriggerCondition[]
     activeWorkflow?: boolean
+    activeTopic?: boolean
   }
 
   export type ListenNode = FlowNode & {
@@ -1606,7 +1614,11 @@ declare module 'botpress/sdk' {
     fields?: FormField[]
     moreInfo?: FormMoreInfo
     /** When specified, indicate if array elements match the provided pattern */
-    validationPattern?: RegExp
+    validation?: {
+      regex?: RegExp
+      list?: any[]
+      validator?: (items: any[], newItem: any) => boolean
+    }
     group?: {
       /** You have to specify the add button label */
       addLabel?: string

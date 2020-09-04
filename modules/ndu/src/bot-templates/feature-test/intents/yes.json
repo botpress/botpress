@@ -1,0 +1,8 @@
+{
+  "name": "yes",
+  "utterances": {
+    "en": ["yes", "i agree", "approve", "yup", "yeah", "absolutely", "sure", "right"]
+  },
+  "slots": [],
+  "contexts": ["global"]
+}

@@ -29,7 +29,7 @@ const EditTopicQnAModal: FC<Props> = props => (
           isLite: true,
           topicName: props.selectedTopic,
           languages: props.languages,
-          defaultLanguage: props.defaultLanguage
+          defaultLang: props.defaultLanguage
         }}
       />
     </Dialog.Body>
