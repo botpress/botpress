@@ -30,6 +30,8 @@
     "userNotInWorkflowOrBlock": "User is not in any workflow or block",
     "userSpeaks": "User speaks {language}",
     "userTyped": "User typed something specific",
-    "userUsingChannel": "User is using {channelName}"
+    "userUsingChannel": "User is using {channelName}",
+    "userIsInWorkflow": "User is in this workflow",
+    "userIsInTopic": "User is in this topic"
   }
 }

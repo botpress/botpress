@@ -17,6 +17,7 @@ interface Props {
   topicName?: string
   customKey: string
   contentLang: string
+  defaultLang: string
   close: (closingKey: number) => void
   onUpdate: (data: any) => void
   onUpdateVariables: (variable: FlowVariable) => void
@@ -42,6 +43,7 @@ const getConditionUsage = (): ConditionUsage => {
 const ConditionForm: FC<Props> = ({
   customKey,
   conditions,
+  defaultLang,
   contentLang,
   editingCondition,
   close,
@@ -87,17 +89,19 @@ const ConditionForm: FC<Props> = ({
   }
 
   const optionsVariablePlaceholder = {
-    intentName: `[${lang.tr('intent').toLowerCase()}]`,
+    firstSentence: '',
     channelName: `[${lang.tr('channel').toLowerCase()}]`,
     language: `[${lang.tr('language').toLowerCase()}]`,
     topicName: `[${lang.tr('topic').toLowerCase()}]`
   }
 
-  const options = conditions.map(type => ({
-    value: type.id,
-    label: lang.tr(type.label, optionsVariablePlaceholder),
-    order: conditionUsage[type.id] ?? 0
-  }))
+  const options = conditions
+    .filter(x => !x.hidden || (x.hidden && x.id === condition.current))
+    .map(type => ({
+      value: type.id,
+      label: lang.tr(type.label, optionsVariablePlaceholder),
+      order: conditionUsage[type.id] ?? 0
+    }))
 
   const selectedCondition = conditions.find(cond => cond.id === condition.current)
   const selectedOption = options.find(cond => cond.value === condition.current)
@@ -176,6 +180,7 @@ const ConditionForm: FC<Props> = ({
           <Contents.Form
             axios={axios}
             currentLang={contentLang}
+            defaultLang={defaultLang}
             getCustomPlaceholder={getCustomPlaceholder}
             variables={variables}
             events={events}

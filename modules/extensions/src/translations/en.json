@@ -146,5 +146,17 @@
     "message": "The requested event was not found. Possible reasons:",
     "message2": "The Event Collector is not enabled in Botpress Config",
     "message3": "The event was pruned from the database"
-  }
+  },
+  "state": {
+    "variable": "Variable",
+    "valueBefore": "Value Before",
+    "valueAfter": "Value After",
+    "undefined": "none"
+  },
+  "components": {
+    "dropdown": {
+      "placeholder": "Select from these options"
+    }
+  },
+  "displayDebugging": "Display debugging in workflows"
 }

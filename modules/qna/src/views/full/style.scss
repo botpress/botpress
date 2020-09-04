@@ -380,27 +380,36 @@
   .textareaWrapper {
     position: relative;
 
+    &:not(:global(.has-error)):focus-within {
+      border-color: var(--ocean) !important;
+    }
+
+    &:global(.has-error) {
+      border-color: var(--lighthouse) !important;
+    }
+
     &:focus-within {
-      & + .textareaWrapper {
-        .textarea,
-        .contentAnswer {
-          border-top-color: transparent;
+      &:not(:global(.has-error)) + .textareaWrapper {
+        :global(.superinput-wrapper).textarea,
+        :global(.superinput-wrapper).contentAnswer {
+          border-top-color: transparent !important;
         }
       }
 
-      .textarea,
-      .contentAnswer {
-        border-top-color: var(--ocean);
-        border-bottom-color: var(--ocean);
+      :global(.superinput-wrapper).textarea:not(:global(.has-error)),
+      :global(.superinput-wrapper).contentAnswer:not(:global(.has-error)) {
+        border-top-color: var(--ocean) !important;
+        border-bottom-color: var(--ocean) !important;
 
         &.hasError {
-          border-bottom-color: var(--lighthouse);
+          border-bottom-color: var(--lighthouse) !important;
 
-          &:focus {
-            border-top-color: var(--lighthouse);
+          &:focus-within {
+            border-top-color: var(--lighthouse) !important;
 
-            & + .textarea {
-              border-top-color: transparent;
+            & + :global(.superinput-wrapper).textarea,
+            & + :global(.superinput-wrapper).contentAnswer {
+              border-top-color: transparent !important;
             }
           }
         }
@@ -424,6 +433,10 @@
     resize: none;
     transition: border 0.3s;
     width: 100%;
+
+    &:global(.has-error) {
+      border-color: var(--lighthouse) !important;
+    }
   }
 
   .contentAnswer {
@@ -453,4 +466,28 @@
       }
     }
   }
+}
+
+.needsTranslation {
+  border-radius: 5px;
+  border: solid 1px var(--lighthouse);
+  background-color: var(--hover-lighthouse-30);
+  color: var(--lighthouse);
+  font-size: 8px;
+  line-height: 1.88;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  margin: var(--spacing-medium) var(--spacing-medium) 0 0;
+  width: 135px;
+}
+
+.error {
+  font-size: 12px;
+  line-height: 1.25;
+  color: var(--lighthouse);
+  margin: var(--spacing-small) 0 var(--spacing-large);
+  display: block;
 }

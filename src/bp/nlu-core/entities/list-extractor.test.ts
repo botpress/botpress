@@ -57,14 +57,14 @@ const list_entities: ListEntityModel[] = [
 describe('list entity extractor', () => {
   test('Sensitivity flag', () => {
     const utt = makeTestUtterance('YQB is as bad as that poisonous blueberry')
-    const res = extractListEntities(utt, list_entities, false)
+    const res = extractListEntities(utt, list_entities)
     expect(res.find(e => e.type === 'fruit')!.sensitive).toBeTruthy()
     expect(res.find(e => e.type === 'airport')!.sensitive).not.toBeTruthy()
   })
 
   test('Data structure test', async () => {
     const utterance = makeTestUtterance('Blueberries are berries that are blue')
-    const results = extractListEntities(utterance, list_entities, false)
+    const results = extractListEntities(utterance, list_entities)
 
     expect(results).toHaveLength(1)
     expect(results[0].value).toBe('Blueberry')
@@ -174,7 +174,7 @@ function assertEntity(expression: string) {
   const parts = parsedSlots.map(p => p.value)
 
   const utterance = makeTestUtterance(text)
-  const results = extractListEntities(utterance, list_entities, false)
+  const results = extractListEntities(utterance, list_entities)
 
   for (const strConds of parsedSlots) {
     const { start, end } = strConds.cleanPosition

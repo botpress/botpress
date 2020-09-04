@@ -226,6 +226,7 @@
     margin-right: 12px;
     cursor: pointer;
     min-height: 40px;
+    padding: var(--spacing-x-small) var(--spacing-large);
     transition: border 0.3s, background 0.3s, color 0.3s;
   }
 
@@ -499,11 +500,17 @@
 
   .bpw-keyboard-quick_reply {
     overflow-y: auto;
-    white-space: nowrap;
     background-color: var(--bg);
-    padding: 12px 8px;
+    padding: var(--spacing-large) var(--spacing-medium);
     text-align: left;
     border-radius: 3px;
+    margin: var(--spacing-large);
+    margin-bottom: 0;
+  }
+
+  .bpw-quick_reply-buttons-container {
+    width: 100%;
+    white-space: nowrap;
   }
 
   /* CAROUSEL  */

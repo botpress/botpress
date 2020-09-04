@@ -1,0 +1,170 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "startNode": "entry",
+  "description": "",
+  "variables": [
+    {
+      "type": "enum",
+      "params": {
+        "name": "manufacturer",
+        "subType": "car"
+      }
+    }
+  ],
+  "type": "standard",
+  "nodes": [
+    {
+      "id": "e83f6f5a45",
+      "name": "trigger-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": "prompt-1"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "trigger",
+      "conditions": [
+        {
+          "params": {
+            "candidate": [
+              "prompt-enum-car"
+            ],
+            "exactMatch": true,
+            "caseSensitive": false
+          },
+          "id": "type_text"
+        }
+      ]
+    },
+    {
+      "id": "866609c86d",
+      "name": "prompt-1",
+      "next": [
+        {
+          "caption": "User answers correctly",
+          "condition": "thisNode.extracted === true",
+          "node": "say_something-1"
+        },
+        {
+          "caption": "User does not answer",
+          "condition": "thisNode.timeout === true",
+          "node": ""
+        },
+        {
+          "caption": "User Cancels",
+          "condition": "thisNode.cancelled === true",
+          "node": ""
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "prompt",
+      "prompt": {
+        "params": {
+          "question": {
+            "en": "Choose a car manufacturer"
+          },
+          "output": "manufacturer",
+          "subType": "car",
+          "confirm": {
+            "en": null
+          },
+          "duration": 5,
+          "searchBackCount": 2,
+          "cancellable": true,
+          "confirmCancellation": false
+        },
+        "type": "enum"
+      },
+      "triggers": [
+        {
+          "name": "prompt_yes",
+          "effect": "prompt.inform",
+          "conditions": [
+            {
+              "id": "prompt_listening"
+            },
+            {
+              "id": "user_intent_yes"
+            }
+          ]
+        },
+        {
+          "name": "prompt_no",
+          "effect": "prompt.inform",
+          "conditions": [
+            {
+              "id": "prompt_listening"
+            },
+            {
+              "id": "user_intent_no"
+            }
+          ]
+        },
+        {
+          "name": "prompt_inform",
+          "effect": "prompt.inform",
+          "conditions": [
+            {
+              "id": "prompt_listening"
+            },
+            {
+              "id": "custom_confidence",
+              "params": {
+                "confidence": 0.7
+              }
+            }
+          ]
+        },
+        {
+          "name": "prompt_cancel",
+          "effect": "prompt.cancel",
+          "conditions": [
+            {
+              "id": "prompt_listening"
+            },
+            {
+              "id": "prompt_cancellable"
+            },
+            {
+              "id": "user_intent_is",
+              "params": {
+                "intentName": "cancel",
+                "topicName": "global"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "1e77395281",
+      "name": "say_something-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "say_something",
+      "contents": [
+        {
+          "text": {
+            "en": "You picked \"$manufacturer\""
+          },
+          "variations": {
+            "en": []
+          },
+          "markdown": true,
+          "typing": true,
+          "contentType": "builtin_text"
+        }
+      ]
+    }
+  ]
+}

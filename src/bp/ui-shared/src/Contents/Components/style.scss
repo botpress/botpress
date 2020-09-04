@@ -149,9 +149,14 @@
   transition: border 0.3s !important;
   width: 100% !important;
 
-  &:focus,
-  &:focus-within {
+  &:not(.hasError):focus,
+  &:not(.hasError):focus-within {
     border-color: var(--ocean) !important;
+    box-shadow: none !important;
+  }
+
+  &.hasError {
+    border-color: var(--lighthouse) !important;
     box-shadow: none !important;
   }
 }
@@ -270,7 +275,9 @@
 }
 
 .fieldError {
-  color: var(--lighthouse);
   font-size: 12px;
-  margin-top: var(--spacing-medium);
+  line-height: 1.25;
+  color: var(--lighthouse);
+  margin: var(--spacing-small) 0 var(--spacing-large);
+  display: block;
 }

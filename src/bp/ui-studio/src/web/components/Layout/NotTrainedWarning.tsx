@@ -7,6 +7,7 @@ import { connect } from 'react-redux'
 import { RootReducer } from '~/reducers'
 
 import layout from './Layout.scss'
+import WarningMessage from './WarningMessage'
 
 type Props = ReturnType<typeof mapStateToProps>
 
@@ -18,14 +19,7 @@ const NotTrainedWarningComponent: FC<Props> = (props: Props) => {
     return null
   }
 
-  return (
-    <div className={layout['not-trained-warning_container']}>
-      <div className={layout['not-trained-warning']}>
-        <Icon icon="warning-sign" className={layout['not-trained-warning_icon']} />
-        <div className={layout['not-trained-warning_text']}>{lang.tr('statusBar.trainWarning')}</div>
-      </div>
-    </div>
-  )
+  return <WarningMessage message={lang.tr('statusBar.trainWarning')} />
 }
 
 const mapStateToProps = (state: RootReducer) => ({

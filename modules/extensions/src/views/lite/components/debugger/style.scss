@@ -327,6 +327,15 @@
       }
     }
 
+    .info {
+      color: var(--ocean);
+
+      margin: 0 0 0 var(--spacing-small);
+      svg {
+        fill: var(--ocean);
+      }
+    }
+
     svg {
       fill: var(--gray);
     }
@@ -436,4 +445,22 @@
       }
     }
   }
+}
+
+.variablesTable {
+  th {
+    font-size: 12px;
+    padding-left: 0px !important;
+    padding-bottom: 0px !important;
+  }
+
+  td {
+    font-size: 10px;
+    padding-left: 0px !important;
+    box-shadow: none !important;
+  }
+}
+
+.debugCheckbox {
+  font-size: 12px;
 }

@@ -31,7 +31,7 @@
       }
     },
     "saySomethingMisunderstood": "L'utilisateur dit quelque chose qui est mal compris (intention)",
-    "userWantsTo": "L'utilisateur veut {intentName}",
+    "userWantsTo": "L'utilisateur veut {firstSentence}",
     "variableExtractedFromMessage": "Une variable été extraite du message de l'utilisateur"
   },
   "description": "Utilisez la compréhension du langage de Botpress pour rendre votre agent plus intelligent.",
@@ -83,6 +83,7 @@
     "hintExactMatch": "Cette intention ne sera considérée que par {exactOnly}. Pour activer l'apprentissage automatique, ajoutez au minimum {nb} alternatives.",
     "hintIgnored": "Cette intention sera ignorée, ajoutez des alternatives pour qu'elle soit entraînable.",
     "hintResilient": "Ajoutez {nb} alternatives pour améliorer la compréhension de cet intention.",
+    "label": "Comment est-ce que l'utilisateur exprimera ce qu'il veut?",
     "nameDupe": "Une intention avec ce nom existe déjà",
     "nameLabel": "Nom de l'intention",
     "namePlaceholder": "Choisissez un nom pour cet intention",

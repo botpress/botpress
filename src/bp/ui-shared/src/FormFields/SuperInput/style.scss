@@ -2,6 +2,14 @@
   margin: 0;
 }
 
+.error {
+  font-size: 12px;
+  line-height: 1.25;
+  color: var(--lighthouse);
+  margin: var(--spacing-small) 0 var(--spacing-large);
+  display: block;
+}
+
 .superInputWrapper {
   background: #fff !important;
   border: 1px solid var(--seashell) !important;
@@ -9,8 +17,12 @@
   position: relative;
   transition: border 0.3s;
 
-  &:focus-within {
+  &:not(:global(.has-error)):focus-within {
     border-color: var(--ocean) !important;
+  }
+
+  &:global(.has-error) {
+    border-color: var(--lighthouse) !important;
   }
 
   &:focus-within .tagBtnWrapper,

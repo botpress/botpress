@@ -1,7 +1,7 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
 import sdk from 'botpress/sdk'
-import { Contents, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
+import { Contents, lang, MoreOptions, MoreOptionsItems, RightSidebar, toast } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
@@ -9,10 +9,16 @@ import style from '../PromptForm/style.scss'
 
 import { getEntityId } from '.'
 
+interface Item {
+  name: string
+  tags: string[]
+}
 interface Props {
   customKey: string
+  defaultLang: string
   contentLang: string
   formData: sdk.NLU.EntityDefinition
+  allEntities: sdk.NLU.EntityDefinition[]
   close: () => void
   deleteEntity: (entityId: string) => void
   updateEntity: (originalId: string, entity: sdk.NLU.EntityDefinition) => void
@@ -21,8 +27,10 @@ interface Props {
 
 const EnumForm: FC<Props> = ({
   customKey,
+  defaultLang,
   contentLang,
   formData,
+  allEntities,
   close,
   updateEntity,
   updateFormItem,
@@ -75,6 +83,26 @@ const EnumForm: FC<Props> = ({
     updateFormItem(convertFromTags(data))
   }
 
+  const isDuplicate = (localItems: Item[], newItem: Item) => {
+    const lastAdded: string = [newItem.name, ...newItem.tags].slice(-1)[0].toLowerCase()
+    for (const occurence of localItems) {
+      if ([...[occurence.name], ...occurence.tags].map(occ => occ.toLowerCase()).includes(lastAdded)) {
+        toast.failure(`${lastAdded} already exists in ${occurence.name}`)
+        return false
+      }
+    }
+
+    for (const entity of allEntities.filter(x => x.name !== formData.name)) {
+      for (const occurence of entity.occurrences) {
+        if ([...[occurence.name], ...occurence.synonyms].map(occ => occ.toLowerCase()).includes(lastAdded)) {
+          toast.failure(`${lastAdded} already exists in ${occurence.name} (${entity.name})`)
+          return false
+        }
+      }
+    }
+    return true
+  }
+
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={close}>
       <Fragment key={customKey}>
@@ -87,6 +115,7 @@ const EnumForm: FC<Props> = ({
 
         <Contents.Form
           currentLang={contentLang}
+          defaultLang={defaultLang}
           axios={axios}
           fields={[
             {
@@ -95,7 +124,8 @@ const EnumForm: FC<Props> = ({
               label: 'name',
               required: true,
               maxLength: 150,
-              placeholder: 'studio.library.variableName'
+              placeholder: 'studio.library.variableName',
+              defaultValue: formData.name
             },
             {
               key: 'occurrences',
@@ -104,7 +134,8 @@ const EnumForm: FC<Props> = ({
               placeholder: 'studio.library.addSynonyms',
               group: {
                 addLabel: 'studio.library.addValueAlternative'
-              }
+              },
+              validation: { validator: isDuplicate }
             }
           ]}
           advancedSettings={[
