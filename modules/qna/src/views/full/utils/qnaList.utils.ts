@@ -1,6 +1,6 @@
 import { BotEvent, Content, FormData } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
-import _, { findIndex } from 'lodash'
+import _ from 'lodash'
 import _uniqueId from 'lodash/uniqueId'
 
 export const ITEMS_PER_PAGE = 50
@@ -105,6 +105,7 @@ export const dispatchMiddleware = async (dispatch, action) => {
     case 'updateQnA':
       const { currentLang } = action.data
       let itemId = qnaItem.id
+      const prevId = qnaItem.id
       let saveError = null
 
       if (!itemHasError(qnaItem, currentLang).length) {
@@ -146,7 +147,7 @@ export const dispatchMiddleware = async (dispatch, action) => {
         if (qnaItem.id.startsWith('qna-')) {
           try {
             const res = await bp.axios.post(`/mod/qna/${topicName}/questions`, cleanData)
-            itemId = res.data[0]
+            itemId = res.data
             refreshQnaCount?.()
           } catch ({ response: { data } }) {
             saveError = data.message
@@ -160,7 +161,7 @@ export const dispatchMiddleware = async (dispatch, action) => {
         }
       }
 
-      dispatch({ ...action, data: { ...action.data, qnaItem: { ...qnaItem, id: itemId, saveError } } })
+      dispatch({ ...action, data: { ...action.data, qnaItem: { ...qnaItem, id: itemId, saveError }, prevId } })
       break
 
     case 'toggleEnabledQnA':
@@ -230,7 +231,7 @@ export const fetchReducer = (state: State, action): State => {
       loading: true
     }
   } else if (action.type === 'updateQnA') {
-    const { qnaItem, index } = action.data
+    const { qnaItem, index, prevId } = action.data
     const newItems = state.items
     if (index === 'highlighted') {
       const newHighlighted = { ...state.highlighted, saveError: qnaItem.saveError, id: qnaItem.id, data: qnaItem.data }
@@ -240,7 +241,8 @@ export const fetchReducer = (state: State, action): State => {
         highlighted: newHighlighted
       }
     }
-    const idx = state.items.findIndex(i => i.id === qnaItem.id)
+
+    const idx = state.items.findIndex(i => (i.isNew ? i.id === prevId : i.id === qnaItem.id))
     newItems[idx] = { ...newItems[idx], saveError: qnaItem.saveError, id: qnaItem.id, data: qnaItem.data }
 
     return {
