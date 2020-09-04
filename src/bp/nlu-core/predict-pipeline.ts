@@ -200,12 +200,17 @@ async function predictContext(input: PredictStep, predictors: Predictors): Promi
 }
 
 async function predictIntent(input: PredictStep, predictors: Predictors): Promise<PredictStep> {
-  if (predictors.intents.length === 0) {
+  if (_.flatMap(predictors.intents, i => i.utterances).length <= 0) {
     return { ...input, intent_predictions: { per_ctx: { [DEFAULT_CTX]: [{ label: NONE_INTENT, confidence: 1 }] } } }
   }
 
   const customEntities = getCustomEntitiesNames(predictors)
-  const ctxToPredict = input.ctx_predictions!.map(p => p.label)
+
+  const predictableContext = Object.keys(predictors.intent_classifier_per_ctx ?? {}).filter(_.identity)
+  const ctxToPredict = _.intersection(
+    input.ctx_predictions!.map(p => p.label),
+    predictableContext
+  )
   const predictions = (
     await Promise.map(ctxToPredict, async ctx => {
       let preds: sdk.MLToolkit.SVM.Prediction[] = []
@@ -291,6 +296,10 @@ async function predictOutOfScope(input: PredictStep, predictors: Predictors): Pr
 }
 
 async function extractSlots(input: PredictStep, predictors: Predictors): Promise<PredictStep> {
+  if (!predictors.slot_tagger) {
+    return input
+  }
+
   const slots_per_intent: typeof input.slot_predictions_per_intent = {}
   for (const intent of predictors.intents.filter(x => x.slot_definitions.length > 0)) {
     const slots = await predictors.slot_tagger!.extract(input.utterance, intent)
@@ -354,7 +363,7 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
       : intentPred.map(i => ({
           extractor: 'classifier', // exact-matcher overwrites this field in line below
           ...i,
-          slots: (step.slot_predictions_per_intent![i.label] || []).reduce(slotsCollectionReducer, {})
+          slots: (step.slot_predictions_per_intent?.[i.label] || []).reduce(slotsCollectionReducer, {})
         }))
 
     const includeOOS = !intents.filter(x => x.extractor === 'exact-matcher').length
