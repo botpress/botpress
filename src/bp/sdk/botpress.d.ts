@@ -619,7 +619,11 @@ declare module 'botpress/sdk' {
   }
 
   export namespace NDU {
+    export type TriggerEffect = 'prompt.cancel' | 'prompt.inform' | 'jump.node' | 'say'
+
     interface GenericTrigger {
+      type: 'workflow' | 'faq' | 'node' | 'contextual'
+      effect: TriggerEffect
       name?: string
       conditions: DecisionTriggerCondition[]
     }
@@ -632,22 +636,30 @@ declare module 'botpress/sdk' {
       /** When true, the user must be inside the specified workflow for the trigger to be active */
       activeWorkflow?: boolean
       activeTopic?: boolean
+      effect: 'jump.node'
     }
 
     export interface FaqTrigger extends GenericTrigger {
       type: 'faq'
       faqId: string
       topicName: string
+      effect: 'say'
     }
 
     export interface NodeTrigger extends GenericTrigger {
       type: 'node'
       workflowId: string
       nodeId: string
-      effect?: 'prompt.cancel' | 'prompt.inform'
     }
 
-    export type Trigger = NodeTrigger | FaqTrigger | WorkflowTrigger
+    export interface ContextualTrigger extends GenericTrigger {
+      type: 'contextual'
+      workflowId: string
+      nodeId: string
+      gotoNodeId: string
+    }
+
+    export type Trigger = NodeTrigger | FaqTrigger | WorkflowTrigger | ContextualTrigger
 
     export interface DialogUnderstanding {
       triggers: {
@@ -874,6 +886,17 @@ declare module 'botpress/sdk' {
       }
     }
 
+    export interface ContextualTriggerState {
+      readonly workflowId: string
+      readonly nodeId: string
+      readonly index: number
+      readonly turn: number
+      readonly expiryPolicy: {
+        readonly strategy: 'turn'
+        readonly turnCount: number
+      }
+    }
+
     export interface DialogAction {
       type: 'say' | 'listen' | 'cancel'
       message?: MultiLangText | string
@@ -994,6 +1017,7 @@ declare module 'botpress/sdk' {
       last_turn_node_id: string
       last_turn_ts: number
       last_topic: string
+      triggers?: ContextualTriggerState[]
     }
 
     export interface DialogTurnHistory {
@@ -1478,6 +1502,7 @@ declare module 'botpress/sdk' {
     subflow?: SubWorkflowNode
     isNew?: boolean
     isReadOnly?: boolean
+    triggers?: NDU.GenericTrigger[]
     /** Used internally by the flow editor */
     readonly lastModified?: Date
   } & NodeActions
@@ -1499,7 +1524,7 @@ declare module 'botpress/sdk' {
   }
 
   export type ListenNode = FlowNode & {
-    triggers: { name?: string; effect?: 'prompt.inform' | 'prompt.cancel'; conditions: DecisionTriggerCondition[] }[]
+    triggers: { type?: string; name?: string; effect?: NDU.TriggerEffect; conditions: DecisionTriggerCondition[] }[]
   }
 
   export type SkillFlowNode = Partial<ListenNode> & Pick<Required<ListenNode>, 'name'> & Partial<TriggerNode>

@@ -205,7 +205,7 @@ async function predictIntent(input: PredictStep, predictors: Predictors): Promis
   }
 
   const customEntities = getCustomEntitiesNames(predictors)
-  const ctxToPredict = input.ctx_predictions!.map(p => p.label)
+  const ctxToPredict = _.uniq([...input.ctx_predictions!.map(p => p.label), ...Object.keys(input.oos_predictions!)])
   const predictions = (
     await Promise.map(ctxToPredict, async ctx => {
       let preds: sdk.MLToolkit.SVM.Prediction[] = []
@@ -345,8 +345,10 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
     }
   }
 
-  const predictions: sdk.NLU.Predictions = step.ctx_predictions!.reduce((preds, current) => {
-    const { label, confidence } = current
+  const contexts = _.uniq([...step.ctx_predictions!.map(p => p.label), ...Object.keys(step.oos_predictions!)])
+
+  const predictions: sdk.NLU.Predictions = contexts.reduce((preds, current) => {
+    const { label, confidence } = step.ctx_predictions?.[current] ?? { label: current, confidence: 0 }
 
     const intentPred = step.intent_predictions!.per_ctx![label]
     const intents = !intentPred

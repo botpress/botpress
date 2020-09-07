@@ -8,6 +8,8 @@ export const getTriggerId = (trigger: sdk.NDU.Trigger) => {
       return `wf/${trigger.workflowId}/${trigger.nodeId}`
     case 'faq':
       return `faq/${trigger.topicName}/${trigger.faqId}`
+    case 'contextual':
+      return `contextual/${trigger.workflowId}/${trigger.nodeId}/${trigger.name}`
     case 'node':
       return `node/${trigger.workflowId}/${trigger.nodeId}${trigger.name ? `/${trigger.name}` : ''}`
     default:

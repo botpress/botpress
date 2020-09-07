@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { extractListEntitiesWithCache, extractPatternEntities } from './entities/custom-entity-extractor'
+import { warmEntityCache } from './entities/entity-cache-manager'
 import { getCtxFeatures } from './intents/context-featurizer'
 import { getIntentFeatures } from './intents/intent-featurizer'
 import { isPOSAvailable } from './language/pos-tagger'
@@ -29,7 +30,6 @@ import {
 } from './typings'
 import { Augmentation, createAugmenter, interleave } from './utterance/augmenter'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
-import { warmEntityCache } from './entities/entity-cache-manager'
 
 type ListEntityWithCache = ListEntity & {
   cache: EntityCacheDump
@@ -298,18 +298,21 @@ const TrainIntentClassifier = async (
 const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<string> => {
   debugTraining.forBot(input.botId, 'Training context classifier')
   const customEntities = getCustomEntitiesNames(input)
-  const points = _.flatMapDeep(input.contexts, ctx => {
-    return input.intents
-      .filter(intent => intent.contexts.includes(ctx) && intent.name !== NONE_INTENT)
-      .map(intent =>
-        intent.utterances
-          .filter(u => !u.augmented) // we don't want to train on augmented utterances as it would slow down training too much
-          .map(utt => ({
-            label: ctx,
-            coordinates: getCtxFeatures(utt, customEntities)
-          }))
-      )
-  }).filter(x => x.coordinates.filter(isNaN).length === 0)
+  const points = _.flatMapDeep(
+    input.contexts.filter(ctx => !ctx.startsWith('explicit:')),
+    ctx => {
+      return input.intents
+        .filter(intent => intent.contexts.includes(ctx) && intent.name !== NONE_INTENT)
+        .map(intent =>
+          intent.utterances
+            .filter(u => !u.augmented) // we don't want to train on augmented utterances as it would slow down training too much
+            .map(utt => ({
+              label: ctx,
+              coordinates: getCtxFeatures(utt, customEntities)
+            }))
+        )
+    }
+  ).filter(x => x.coordinates.filter(isNaN).length === 0)
 
   if (points.length === 0 || input.contexts.length <= 1) {
     progress()
