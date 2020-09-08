@@ -85,15 +85,19 @@ const Layout: FC<ILayoutProps> = props => {
     }
     window.addEventListener('message', handleWebChatPanel)
 
+    return () => {
+      window.removeEventListener('message', handleWebChatPanel)
+    }
+  }, [])
+
+  useEffect(() => {
     const trainStatusService = new TrainingStatusService(props.contentLang, props.trainSessionReceived)
     // tslint:disable-next-line: no-floating-promises
     trainStatusService.fetchTrainingStatus()
     trainStatusService.startPolling()
-    return () => {
-      window.removeEventListener('message', handleWebChatPanel)
-      trainStatusService.stopPolling()
-    }
-  }, [])
+
+    return () => trainStatusService.stopPolling()
+  }, [props.contentLang])
 
   useEffect(() => {
     if (props.translations) {

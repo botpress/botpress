@@ -1,5 +1,5 @@
 {
-  "name": "a-problem",
+  "name": "c-problem",
   "utterances": {
     "en": [
       "I have a problem",
@@ -75,5 +75,10 @@
     ]
   },
   "slots": [],
-  "contexts": ["A"]
+  "contexts": [
+    "C"
+  ],
+  "metadata": {
+    "enabled": true
+  }
 }

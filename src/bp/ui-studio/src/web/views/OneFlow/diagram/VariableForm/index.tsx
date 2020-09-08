@@ -62,7 +62,7 @@ const VariableForm: FC<Props> = ({
       value.type === variableType.current && (!formData.params?.subType || value.subType === formData.params?.subType)
   )
 
-  let fields = selectedVariableType.config?.fields || []
+  let fields = selectedVariableType?.config?.fields || []
   if (currentFlow.type !== 'reusable') {
     fields = fields.filter(x => !['isInput', 'isOutput'].includes(x.key))
   }

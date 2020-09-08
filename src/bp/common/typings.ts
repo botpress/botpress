@@ -311,6 +311,7 @@ export interface DisplayVariableType {
 
 export interface DisplayPromptType {
   type: string
+  variableType: string
   subType?: string
   icon?: any
   label: string

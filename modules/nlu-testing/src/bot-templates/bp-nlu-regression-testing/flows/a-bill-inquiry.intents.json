@@ -63,5 +63,10 @@
     ]
   },
   "slots": [],
-  "contexts": ["A"]
+  "contexts": [
+    "A"
+  ],
+  "metadata": {
+    "enabled": true
+  }
 }
