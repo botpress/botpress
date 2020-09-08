@@ -31,6 +31,7 @@ interface Props {
   args?: Parameters[]
   code: string
   maximized: boolean
+  displayed: boolean
   bp: any
 }
 
@@ -59,7 +60,11 @@ export default class MinimalEditor extends React.Component<Props> {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.maximized !== this.props.maximized) {
+    if (!this.props.displayed) {
+      return
+    }
+
+    if (prevProps.maximized !== this.props.maximized || prevProps.displayed !== this.props.displayed) {
       this.refreshLayout()
     }
 

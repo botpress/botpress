@@ -5,6 +5,7 @@ interface CssExports {
   'editorWrap': string;
   'expandBtn': string;
   'formHeader': string;
+  'hidden': string;
   'wrapper': string;
 }
 declare var cssExports: CssExports;

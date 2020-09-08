@@ -59,16 +59,22 @@ const ExecuteForm: FC<Props> = ({
   )
 
   useEffect(() => {
-    if (isCodeEditor) {
+    selectedAction.current = formData?.actionName
+
+    if (selectedAction.current === newAction.value) {
       updateCode.cancel()
 
       flowArgs.current = variables.currentFlow?.map(x => ({ name: x.params.name, type: `BP.${x.type}.Variable` }))
       originalCode.current = formData?.code ?? ''
-
-      setMaximized(true)
-      setForceUpdate(!forceUpdate)
     }
+
+    setMaximized(isCodeEditor)
+    setForceUpdate(!forceUpdate)
   }, [customKey])
+
+  useEffect(() => {
+    setMaximized(isCodeEditor)
+  }, [isCodeEditor])
 
   useEffect(() => {
     flowArgs.current = variables.currentFlow?.map(x => ({ name: x.params.name, type: `BP.${x.type}.Variable` }))
@@ -179,22 +185,20 @@ const ExecuteForm: FC<Props> = ({
           />
         </div>
 
-        {selectedOption !== undefined && (
-          <Fragment>
-            {isCodeEditor ? (
-              <div className={style.editorWrap}>
-                <portals.OutPortal
-                  node={editorPortal}
-                  onChange={updateCode}
-                  code={originalCode.current}
-                  args={flowArgs.current}
-                  maximized={maximized}
-                />
-              </div>
-            ) : (
-              <ConfigAction {...commonProps} actions={actions} actionName={selectedAction.current} />
-            )}
-          </Fragment>
+        <div className={cx(style.editorWrap, { [style.hidden]: !isCodeEditor })}>
+          <portals.OutPortal
+            node={editorPortal}
+            displayed={isCodeEditor}
+            onChange={updateCode}
+            code={originalCode.current}
+            customKey={customKey}
+            args={flowArgs.current}
+            maximized={maximized}
+          />
+        </div>
+
+        {selectedOption !== undefined && !isCodeEditor && (
+          <ConfigAction {...commonProps} actions={actions} actionName={selectedAction.current} />
         )}
       </Fragment>
     </RightSidebar>
