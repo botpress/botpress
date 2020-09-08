@@ -3,6 +3,7 @@ import cors from 'cors'
 import express, { Application } from 'express'
 import rateLimit from 'express-rate-limit'
 import { createServer } from 'http'
+import { authMiddleware, handleErrorLogging, handleUnexpectedError, isAdminToken, RequestWithLang } from 'http-utils'
 import _ from 'lodash'
 import ms from 'ms'
 
@@ -13,15 +14,7 @@ import { getLanguageByCode } from './languages'
 import { monitoringMiddleware, startMonitoring } from './monitoring'
 import LanguageService from './service'
 import DownloadManager from './service/download-manager'
-import {
-  assertValidLanguage,
-  authMiddleware,
-  handleErrorLogging,
-  handleUnexpectedError,
-  isAdminToken,
-  RequestWithLang,
-  serviceLoadingMiddleware
-} from './util'
+import { assertValidLanguage, serviceLoadingMiddleware } from './util'
 
 export type APIOptions = {
   version: string

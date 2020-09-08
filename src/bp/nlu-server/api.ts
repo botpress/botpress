@@ -9,6 +9,7 @@ import _ from 'lodash'
 import ms from 'ms'
 import Engine from 'nlu-core/engine'
 
+import { authMiddleware, handleErrorLogging, handleUnexpectedError } from '../http-utils'
 import Logger from '../simple-logger'
 
 import makeLoggerWrapper from './logger-wrapper'
@@ -16,7 +17,6 @@ import ModelService from './model-service'
 import TrainService from './train-service'
 import TrainSessionService from './train-session-service'
 import { TrainInput } from './typings'
-import { authMiddleware, handleErrorLogging, handleUnexpectedError } from './util'
 import { TrainInputCreateSchema } from './validation'
 
 export interface APIOptions {
