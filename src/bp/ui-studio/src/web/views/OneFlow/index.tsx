@@ -63,7 +63,7 @@ const FlowBuilder = (props: Props) => {
   const [highlightFilter, setHighlightFilter] = useState('')
   const [topicQnA, setTopicQnA] = useState(null)
 
-  const portalNode = React.useMemo(() => portals.createHtmlPortalNode(), [])
+  const editorPortal = React.useMemo(() => portals.createHtmlPortalNode(), [])
 
   useEffect(() => {
     props.refreshActions()
@@ -205,7 +205,7 @@ const FlowBuilder = (props: Props) => {
         <Diagram
           readOnly={readOnly}
           flowPreview={flowPreview}
-          portalNode={portalNode}
+          editorPortal={editorPortal}
           showSearch={showSearch}
           topicQnA={topicQnA}
           setCurrentLang={lang => {
@@ -228,7 +228,7 @@ const FlowBuilder = (props: Props) => {
         />
       </div>
 
-      <portals.InPortal node={portalNode}>
+      <portals.InPortal node={editorPortal}>
         <WrappedEditor />
       </portals.InPortal>
 

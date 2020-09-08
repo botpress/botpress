@@ -1,3 +1,4 @@
+import { snakeToCamel } from 'common/action'
 import _ from 'lodash'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import babylon from 'prettier/parser-babylon'
@@ -5,17 +6,9 @@ import prettier from 'prettier/standalone'
 import React from 'react'
 
 import { RootStore } from '../store'
+import { wrapper } from '../utils/wrapper'
 
 import style from './style.scss'
-import { addWrapper, removeWrapper } from './wrapper'
-
-const snakeToCamel = str =>
-  str.replace(/([-_][a-z0-9])/g, group =>
-    group
-      .toUpperCase()
-      .replace('-', '')
-      .replace('_', '')
-  )
 
 interface Parameters {
   name: string
@@ -36,14 +29,13 @@ const argsToInterface = (params?: Parameters[]) => {
 }
 
 interface Props {
-  onChange: ({ content: string, args: any }) => void
+  onChange: (code: string) => void
   args?: Parameters[]
   code: string
   maximized: boolean
   bp: any
 }
 
-// TODOrefactor
 export default class MinimalEditor extends React.Component<Props> {
   private store: RootStore
   private editor: monaco.editor.IStandaloneCodeEditor
@@ -58,20 +50,13 @@ export default class MinimalEditor extends React.Component<Props> {
     code: ''
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     this.setupEditor()
-
-    if (this.props.maximized) {
-      this.refreshLayout()
-    }
 
     // tslint:disable-next-line: no-floating-promises
     this.loadTypings()
 
-    if (this.props.code) {
-      this.reloadCode(this.props.code)
-    }
-
+    this.reloadCode(this.props.code)
     this.refreshLayout()
   }
 
@@ -80,17 +65,23 @@ export default class MinimalEditor extends React.Component<Props> {
       this.refreshLayout()
     }
 
-    if (this.props.code && prevProps.code !== this.props.code) {
+    if (prevProps.code !== this.props.code) {
+      this.setState({ code: this.props.code })
       this.reloadCode(this.props.code)
     }
 
+    // Handles update when adding a new variable on the active workflow
     if (prevProps.args !== this.props.args) {
       this.loadCodeTypings()
+
+      if (prevProps.code === this.props.code && this.state.code) {
+        this.reloadCode(this.state.code)
+      }
     }
   }
 
   refreshLayout() {
-    // Delay necessary because of sidepanel animation
+    // Delay necessary because of sidePanel animation
     setTimeout(() => {
       this.editor.layout()
     }, 300)
@@ -102,7 +93,7 @@ export default class MinimalEditor extends React.Component<Props> {
     if (oldModel) {
       oldModel.dispose()
     }
-    this.editor && this.editor.dispose()
+    this.editor?.dispose()
   }
 
   reloadCode(unwrapped: string) {
@@ -122,17 +113,15 @@ export default class MinimalEditor extends React.Component<Props> {
 
   wrapCode(code) {
     const args = argsToConst(this.props.args)
-    const argStr = args.length ? `const { ${argsToConst(this.props.args)} } = args` : ''
+    const argStr = args.length ? `const { ${args} } = args` : ''
 
-    return addWrapper(code, argStr)
+    return wrapper.add('execute', code, argStr)
   }
 
   handleContentChanged = () => {
-    const args = argsToConst(this.props.args)
-    const argStr = args.length ? `const { ${argsToConst(this.props.args)} } = args` : ''
-    const unwrapped = removeWrapper(this.editor.getValue())
+    const unwrapped = wrapper.remove(this.editor.getValue(), 'execute')
 
-    this.props.onChange({ content: unwrapped, args: argStr })
+    this.props.onChange(unwrapped)
     this.setState({ code: unwrapped })
   }
 
@@ -193,7 +182,6 @@ export default class MinimalEditor extends React.Component<Props> {
 
     // TODO: Better logic
     // Prevents the user from editing the template lines
-
     this.editor.onDidChangeCursorPosition(e => {
       const lines = this.editor.getValue().split('\n')
       const startLine = lines.findIndex(x => x.includes('Your code starts')) + 2
@@ -228,27 +216,27 @@ export default class MinimalEditor extends React.Component<Props> {
 
   loadVariableDefinitions = async () => {
     const { data } = await this.props.bp.axios.get(`/modules/variables/definitions`, { baseURL: window.API_PATH })
-    const realD = data.replace(/export/g, '')
 
-    monaco.languages.typescript.typescriptDefaults.addExtraLib(realD, 'bp://types/custom_variables.d.ts')
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(data, 'bp://types/custom_variables.d.ts')
   }
 
   loadCodeTypings = () => {
     const content = `
-      declare var args: Args;
-      declare var user: any;
-      declare var temp: any;
-      declare var session: sdk.IO.CurrentSession;
-      declare var bp: typeof sdk;
+  declare var args: Args;
+  declare var user: any;
+  declare var temp: any;
+  declare var session: sdk.IO.CurrentSession;
+  declare var bp: typeof sdk;
 
-      interface Args {
-        ${argsToInterface(this.props.args).map(x => {
-          return `
-    ${x.name}: ${x.type}
-    `
-        })}
-      }`
+  interface Args {
+${argsToInterface(this.props.args)
+  .map(x => {
+    return `    ${x.name}: ${x.type};`
+  })
+  .join('\n')}
+  }`
 
+    console.log(content)
     monaco.languages.typescript.typescriptDefaults.addExtraLib(content, 'bp://types/args.d.ts')
   }
 

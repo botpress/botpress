@@ -104,42 +104,45 @@ export class ActionStrategy implements InstructionStrategy {
     return ProcessingResult.none()
   }
 
-  private async invokeAction(botId, instruction, event: IO.IncomingEvent): Promise<ProcessingResult> {
-    // TODO better
-    if (instruction.fn === 'exec') {
-      const { code } = instruction.args
-      const args: any = {}
+  private async executeAction(botId, instruction, event: IO.IncomingEvent): Promise<ProcessingResult> {
+    const { code } = instruction.args
+    const args: any = {}
 
-      const { currentWorkflow } = event.state.session
+    const { currentWorkflow } = event.state.session
 
-      const variables = this.dialogStore.getWorkflowVariables(botId, currentWorkflow!)
-      variables.map(({ name, type, subType }) => {
-        const boxedVar = event.state.workflow.variables[name]
-        if (!boxedVar) {
-          const variable = { type, subType, value: undefined, nbOfTurns: 5 }
-          const box = this.dialogStore.getBoxedVar(variable, botId, currentWorkflow!, name)
+    const variables = this.dialogStore.getWorkflowVariables(botId, currentWorkflow!)
+    variables.map(({ name, type, subType }) => {
+      const boxedVar = event.state.workflow.variables[name]
+      if (!boxedVar) {
+        const variable = { type, subType, value: undefined, nbOfTurns: 5 }
+        const box = this.dialogStore.getBoxedVar(variable, botId, currentWorkflow!, name)
 
-          if (box) {
-            event.state.workflow.variables[name] = box
-          }
+        if (box) {
+          event.state.workflow.variables[name] = box
         }
-      })
-
-      try {
-        const service = await this.actionService.forBot(botId)
-        await service.runAction({
-          actionCode: `const { ${argsToConst(variables.map(x => x.name))} } = event.state.workflow.variables\n${code}`,
-          incomingEvent: event,
-          actionArgs: args
-        })
-      } catch (err) {
-        const { onErrorFlowTo } = event.state.temp
-        const errorFlow = typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : 'error.flow.json'
-
-        return ProcessingResult.transition(errorFlow)
       }
+    })
 
-      return ProcessingResult.none()
+    try {
+      const service = await this.actionService.forBot(botId)
+      await service.runAction({
+        actionCode: `const { ${argsToConst(variables.map(x => x.name))} } = event.state.workflow.variables\n${code}`,
+        incomingEvent: event,
+        actionArgs: args
+      })
+    } catch (err) {
+      const { onErrorFlowTo } = event.state.temp
+      const errorFlow = typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : 'error.flow.json'
+
+      return ProcessingResult.transition(errorFlow)
+    }
+
+    return ProcessingResult.none()
+  }
+
+  private async invokeAction(botId, instruction, event: IO.IncomingEvent): Promise<ProcessingResult> {
+    if (instruction.fn === 'exec') {
+      return this.executeAction(botId, instruction, event)
     }
 
     const { actionName, argsStr, actionServerId } = parseActionInstruction(instruction.fn)

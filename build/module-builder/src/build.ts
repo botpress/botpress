@@ -46,21 +46,21 @@ export const extractTypings = async (modulePath: string) => {
         const constCode = statement.getStructure().declarations?.[0].initializer as string
         if (constCode?.match(idRegex)) {
           variableType = idRegex.exec(constCode)[1]
-          console.log(variableType)
         }
       } catch (err) {}
     }
 
     const namespace = `BP.${variableType}`
 
-    const contents: string[] = []
-
-    contents.push(...file.getTypeAliases().map(x => x.getFullText()))
-    contents.push(...file.getInterfaces().map(x => x.getFullText()))
+    const contents: string[] = [
+      ...file.getTypeAliases().map(x => x.getFullText()),
+      ...file.getInterfaces().map(x => x.getFullText())
+    ]
 
     variables.push(`declare namespace ${namespace} {\n${contents.join('\n')}\n}`)
   }
 
+  // Must be exported as such so we are sure ts/webpack do not process it
   fse.writeFileSync(path.join(modulePath, 'dist/variables.txt'), variables.join('\n'))
 }
 

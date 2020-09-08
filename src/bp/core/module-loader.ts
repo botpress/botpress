@@ -202,12 +202,12 @@ export class ModuleLoader {
   }
 
   public async getVariableDefinitions() {
-    const definitions: any = []
+    const definitions: string[] = []
     const modules = this.getLoadedModules()
 
     for (const module of modules) {
       const resourceLoader = new ModuleResourceLoader(this.logger, module.name, this.ghost)
-      const def = await resourceLoader.getModuleDefinitions()
+      const def = await resourceLoader.getModuleVariableDefs()
       if (def) {
         definitions.push(def)
       }

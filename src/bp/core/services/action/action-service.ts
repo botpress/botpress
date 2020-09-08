@@ -176,7 +176,7 @@ export class ScopedActionService {
           actionName,
           actionArgs,
           incomingEvent,
-          runType: isTrustedAction(actionName ?? '') ? 'trusted' : 'legacy'
+          runType: actionName && isTrustedAction(actionName) ? 'trusted' : 'legacy'
         })
       }
 
@@ -197,9 +197,9 @@ export class ScopedActionService {
         },
         incomingEvent
       )
-
-      addStepToEvent(`action:${actionName}:error`, incomingEvent)
-      throw new ActionExecutionError(err.message, actionName!, err.stack)
+      const name = actionName ?? incomingEvent.state.context?.currentNode ?? ''
+      addStepToEvent(`action:${name}:error`, incomingEvent)
+      throw new ActionExecutionError(err.message, name, err.stack)
     }
   }
 
@@ -368,7 +368,7 @@ export class ScopedActionService {
 
   private async _getCodeActionDetails(actionCode: string) {
     const botFolder = 'bots/' + this.botId
-    const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/__fake.js`))
+    const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/__internal.js`))
     const lookups = getBaseLookupPaths(dirPath)
     const _require = prepareRequire(dirPath, lookups)
 

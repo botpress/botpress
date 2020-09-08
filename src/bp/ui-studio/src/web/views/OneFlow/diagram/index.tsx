@@ -17,6 +17,7 @@ import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
 import { connect } from 'react-redux'
+import * as portals from 'react-reverse-portal'
 import { DefaultPortModel, DiagramEngine, DiagramWidget, NodeModel, PointModel } from 'storm-react-diagrams'
 import {
   addElementToLibrary,
@@ -101,7 +102,7 @@ interface OwnProps {
   selectedTopic: string
   selectedWorkflow: string
   flowPreview: boolean
-  portalNode: any
+  editorPortal: portals.HtmlPortalNode
   highlightFilter: string
   showSearch: boolean
   hideSearch: () => void
@@ -1242,7 +1243,7 @@ class Diagram extends Component<Props> {
               customKey={`${node?.id}`}
               deleteNode={this.deleteSelectedElements.bind(this)}
               contentLang={this.props.currentLang}
-              portalNode={this.props.portalNode}
+              editorPortal={this.props.editorPortal}
               formData={currentItem}
               events={this.props.hints}
               actions={this.props.actions}

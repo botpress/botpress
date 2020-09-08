@@ -18,7 +18,7 @@ interface Props {
   contentLang: string
   variables: Variables
   actions: LocalActionDefinition[]
-  portalNode: any
+  editorPortal: portals.HtmlPortalNode
   events: BotEvent[]
   formData: ExecuteNode
   onUpdate: (data: Partial<ExecuteNode>) => void
@@ -37,7 +37,7 @@ const ExecuteForm: FC<Props> = ({
   events,
   formData,
   contentLang,
-  portalNode,
+  editorPortal,
   close,
   deleteNode,
   onUpdate,
@@ -50,7 +50,7 @@ const ExecuteForm: FC<Props> = ({
   const [forceUpdate, setForceUpdate] = useState(false)
   const selectedAction = useRef(formData?.actionName)
   const originalCode = useRef(formData?.code ?? '')
-  const flowArgs = useRef(variables.currentFlow.map(x => ({ name: x.params.name, type: `BP.${x.type}.Variable` })))
+  const flowArgs = useRef(undefined)
 
   const updateCode = useCallback(
     _.debounce((value: string) => onUpdate({ code: value }), 1000),
@@ -61,13 +61,17 @@ const ExecuteForm: FC<Props> = ({
     if (isCodeEditor) {
       updateCode.cancel()
 
-      flowArgs.current = variables.currentFlow.map(x => ({ name: x.params.name, type: `BP.${x.type}.Variable` }))
+      flowArgs.current = variables.currentFlow?.map(x => ({ name: x.params.name, type: `BP.${x.type}.Variable` }))
       originalCode.current = formData?.code ?? ''
 
       setMaximized(true)
       setForceUpdate(!forceUpdate)
     }
   }, [customKey])
+
+  useEffect(() => {
+    flowArgs.current = variables.currentFlow?.map(x => ({ name: x.params.name, type: `BP.${x.type}.Variable` }))
+  }, [variables.currentFlow])
 
   useEffect(() => {
     setIsCodeEditor(formData?.actionName === newAction.value)
@@ -179,8 +183,8 @@ const ExecuteForm: FC<Props> = ({
             {isCodeEditor ? (
               <div className={style.editorWrap}>
                 <portals.OutPortal
-                  node={portalNode}
-                  onChange={data => updateCode(data.content)}
+                  node={editorPortal}
+                  onChange={updateCode}
                   code={originalCode.current}
                   args={flowArgs.current}
                   maximized={maximized}
