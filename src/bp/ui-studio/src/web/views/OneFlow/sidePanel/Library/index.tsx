@@ -230,10 +230,14 @@ const Library: FC<Props> = props => {
     if (type == 'variableType') {
       return (
         <Fragment>
-          <MenuItem id="btn-duplicate" label={lang.tr('duplicateVariableType')} onClick={() => duplicateVarType(id)} />
+          <MenuItem
+            id="btn-duplicate"
+            label={lang.tr('studio.library.duplicateVariableType')}
+            onClick={() => duplicateVarType(id)}
+          />
           <MenuItem
             id="btn-delete"
-            label={lang.tr('deleteVariableFromLibrary')}
+            label={lang.tr('studio.library.deleteVariableFromLibrary')}
             intent={Intent.DANGER}
             onClick={() => deleteEntity(id)}
           />
@@ -243,7 +247,11 @@ const Library: FC<Props> = props => {
       return (
         <Fragment>
           <MenuItem id="btn-rename" label={lang.tr('renameWorkflow')} onClick={() => setEditing(id)} />
-          <MenuItem id="btn-duplicate" label={lang.tr('duplicateWorkflow')} onClick={() => duplicateWorkflow(id)} />
+          <MenuItem
+            id="btn-duplicate"
+            label={lang.tr('studio.library.duplicateWorkflow')}
+            onClick={() => duplicateWorkflow(id)}
+          />
           <MenuItem
             id="btn-delete"
             label={lang.tr('deleteWorkflow')}

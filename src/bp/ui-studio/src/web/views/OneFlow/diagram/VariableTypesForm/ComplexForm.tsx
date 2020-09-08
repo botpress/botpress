@@ -57,7 +57,7 @@ const ComplexForm: FC<Props> = ({
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
-      label: lang.tr('deleteVariableFromLibrary'),
+      label: lang.tr('studio.library.deleteVariableFromLibrary'),
       action: () => deleteEntity(formData.id),
       type: 'delete'
     }

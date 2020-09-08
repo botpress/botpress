@@ -123,6 +123,9 @@
       "addComplex": "Add Complex",
       "addType": "Add Type",
       "editingSubWorkflowWarning": "Editing this workflow will impact all its linked instances.",
+      "deleteVariableFromLibrary": "Remove Variable Type from Library",
+      "duplicateVariableType": "Duplicate Variable Type",
+      "duplicateWorkflow": "Duplicate Workflow",
       "filter": "Filter blocks, workflows and variable types",
       "variableName": "What is the name of this variable",
       "addSynonyms": "Add synonyms by separating values with commas",
@@ -425,8 +428,9 @@
   "variable": {
     "emptyState": "Tap + in the toolbar to add your first variable",
     "variableVisibility": "Variable Visibility",
-    "pickType": "Pick a type",
     "visibilityPlaceholder": "Pick a Visibility",
+    "textMatchingTolerance": "Text Matching Tolerance",
+    "pickType": "Pick a type",
     "inputVariables": "Input Variables",
     "outputVariables": "Output Variables",
     "privateVariables": "Private Variables"

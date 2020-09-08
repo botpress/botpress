@@ -125,7 +125,7 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
   }
 
   const onKeyDown = (e, index): void => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !(e.ctrlKey || e.metaKey || e.shiftKey)) {
       e.preventDefault()
       addItem()
     }

@@ -60,7 +60,7 @@ const EnumForm: FC<Props> = ({
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
-      label: lang.tr('deleteVariableFromLibrary'),
+      label: lang.tr('studio.library.deleteVariableFromLibrary'),
       action: () => deleteEntity(formData.id),
       type: 'delete'
     }
@@ -145,7 +145,7 @@ const EnumForm: FC<Props> = ({
             {
               key: 'fuzzy',
               type: 'select',
-              label: 'textMatchingTolerance',
+              label: 'variable.textMatchingTolerance',
               defaultValue: 0.8,
               options: [
                 { label: 'exactMatch', value: 1 },

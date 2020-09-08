@@ -48,7 +48,7 @@ const TextAreaList: FC<Props> = props => {
   }
 
   const onKeyDown = (e: KeyboardEvent, index: number): void => {
-    if (props.canAdd && e.key === 'Enter') {
+    if (props.canAdd && e.key === 'Enter' && !(e.ctrlKey || e.metaKey || e.shiftKey)) {
       e.preventDefault()
       addItem()
     }

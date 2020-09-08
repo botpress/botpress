@@ -54,7 +54,7 @@ const TextFieldsArray: FC<TextFieldsArrayProps> = ({
   }
 
   const onKeyDown = (e, index: number): void => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !(e.ctrlKey || e.metaKey || e.shiftKey)) {
       e.preventDefault()
       addItem()
     }
