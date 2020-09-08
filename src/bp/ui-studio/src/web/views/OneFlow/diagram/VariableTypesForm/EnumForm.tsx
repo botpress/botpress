@@ -60,7 +60,7 @@ const EnumForm: FC<Props> = ({
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
-      label: lang.tr('studio.library.deleteEnumeration'),
+      label: lang.tr('deleteVariableFromLibrary'),
       action: () => deleteEntity(formData.id),
       type: 'delete'
     }
