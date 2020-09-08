@@ -69,20 +69,11 @@ export default async function(options: ArgV) {
 
   debug('NLU Server Options %o', options)
 
-  const { nluVersion: version } = Engine.getVersionInfo()
-  const apiOptions: APIOptions = {
-    version,
-    host: options.host,
-    port: options.port,
-    modelDir: options.modelDir,
-    authToken: options.authToken,
-    limit: options.limit,
-    limitWindow: options.limitWindow
-  }
+  const { nluVersion } = Engine.getVersionInfo()
 
   logger.info(chalk`========================================
 {bold ${center(`Botpress NLU Server`, 40, 9)}}
-{dim ${center(`Version ${version}`, 40, 9)}}
+{dim ${center(`Version ${nluVersion}`, 40, 9)}}
 {dim ${center(`OS ${process.distro}`, 40, 9)}}
 ${_.repeat(' ', 9)}========================================`)
 
@@ -102,5 +93,5 @@ ${_.repeat(' ', 9)}========================================`)
     logger.info(`limit: ${chalk.redBright('disabled')} (no protection - anyone can query without limitation)`)
   }
 
-  await API(apiOptions)
+  await API(options, nluVersion)
 }

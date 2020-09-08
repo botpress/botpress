@@ -20,7 +20,6 @@ import { TrainInput } from './typings'
 import { TrainInputCreateSchema } from './validation'
 
 export interface APIOptions {
-  version: string
   host: string
   port: number
   modelDir: string
@@ -69,7 +68,7 @@ const createExpressApp = (options: APIOptions): Application => {
   return app
 }
 
-export default async function(options: APIOptions) {
+export default async function(options: APIOptions, nluVersion: string) {
   const app = createExpressApp(options)
   const logger = new Logger('API')
   const loggerWrapper = makeLoggerWrapper(logger)
@@ -82,7 +81,7 @@ export default async function(options: APIOptions) {
 
   app.get('/info', (req, res) => {
     res.send({
-      version: options.version
+      version: nluVersion
     })
   })
 
