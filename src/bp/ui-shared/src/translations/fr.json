@@ -185,5 +185,8 @@
   "strict": "Stricte",
   "medium": "Médium",
   "loose": "Indulgent",
-  "examples": "Exemples"
+  "examples": "Exemples",
+  "uploading": "Téléversement",
+  "incomplete": "Incomplètes",
+  "active": "Actives"
 }

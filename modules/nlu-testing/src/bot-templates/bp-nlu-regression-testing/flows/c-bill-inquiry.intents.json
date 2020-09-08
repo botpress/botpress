@@ -1,5 +1,5 @@
 {
-  "name": "e-bill-inquiry",
+  "name": "c-bill-inquiry",
   "utterances": {
     "en": [
       "I don't understand something on my invoice",
@@ -63,5 +63,10 @@
     ]
   },
   "slots": [],
-  "contexts": ["E"]
+  "contexts": [
+    "C"
+  ],
+  "metadata": {
+    "enabled": true
+  }
 }

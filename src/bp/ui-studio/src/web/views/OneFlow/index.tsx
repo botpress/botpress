@@ -5,6 +5,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { connect } from 'react-redux'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
 import {
+  changeContentLanguage,
   clearErrorSaveFlows,
   closeFlowNodeProps,
   flowEditorRedo,
@@ -15,7 +16,6 @@ import {
   setDiagramAction,
   switchFlow
 } from '~/actions'
-import { Container } from '~/components/Shared/Interface'
 import { Timeout, toastFailure, toastInfo } from '~/components/Shared/Utils'
 import { isOperationAllowed } from '~/components/Shared/Utils/AccessControl'
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
@@ -205,6 +205,7 @@ const FlowBuilder = (props: Props) => {
           topicQnA={topicQnA}
           setCurrentLang={lang => {
             setCurrentLang(lang)
+            props.changeContentLanguage(lang)
             localStorage.setItem(CMS_LANG_KEY, lang)
           }}
           languages={props.languages}
@@ -237,6 +238,7 @@ const mapStateToProps = (state: RootReducer) => ({
 })
 
 const mapDispatchToProps = {
+  changeContentLanguage,
   switchFlow,
   setDiagramAction,
   flowEditorUndo,

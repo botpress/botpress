@@ -1,6 +1,8 @@
 {
   "name": "f-helpline-problem",
-  "contexts": ["F"],
+  "contexts": [
+    "F"
+  ],
   "utterances": {
     "en": [
       "I can't get through to the helpline",
@@ -59,5 +61,8 @@
       "Comment se fait-il que le service d'assistance ne fonctionne pas?"
     ]
   },
-  "slots": []
+  "slots": [],
+  "metadata": {
+    "enabled": true
+  }
 }
