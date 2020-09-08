@@ -2,9 +2,11 @@
 // Please do not change this file!
 interface CssExports {
   'active': string;
+  'addBtn': string;
   'btn': string;
   'dropdown': string;
   'placeholder': string;
+  'search': string;
   'select': string;
   'selectItem': string;
   'spaced': string;

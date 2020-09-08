@@ -19,9 +19,61 @@
     overflow: hidden;
   }
 
-  &:focus, &:active {
+  &:focus,
+  &:active {
     outline: 0;
     border-color: var(--ocean) !important;
+  }
+}
+
+.search {
+  border: solid 1px var(--seashell);
+  border-radius: 3px;
+  padding: var(--spacing-medium);
+  height: 30px;
+  display: flex;
+  align-items: center;
+  line-height: 30px;
+  transition: border 0.3s;
+
+  svg {
+    fill: var(--gray) !important;
+  }
+
+  input {
+    background: none;
+    border: none;
+    color: var(--reef);
+    font-size: 12px;
+    margin-left: var(--spacing-small);
+    height: 100%;
+    padding: 0;
+    line-height: 1.25;
+    width: 100%;
+  }
+
+  &:focus-within {
+    border-color: var(--ocean);
+  }
+}
+
+.addBtn {
+  justify-content: left !important;
+  width: 100%;
+  transition: background 0.3s;
+
+  &:hover {
+    background-color: var(--bg) !important;
+  }
+
+  :global(.bp3-button-text) {
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+    color: var(--ocean) !important;
+  }
+
+  svg {
+    fill: var(--ocean) !important;
   }
 }
 

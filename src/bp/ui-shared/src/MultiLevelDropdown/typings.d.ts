@@ -13,6 +13,10 @@ export interface Item {
 }
 
 export interface MultiLevelDropdownProps {
+  addBtn?: {
+    text: string
+    onClick: () => void
+  }
   confirmChange?: {
     message: string
     acceptLabel?: string

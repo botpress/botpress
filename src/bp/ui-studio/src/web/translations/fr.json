@@ -217,6 +217,7 @@
         "nodeName": "Nom du node",
         "onEnter": "Sur Entrée",
         "onReceive": "Sur réception",
+        "pickAction": "Sélectionnez une action",
         "renameBlock": "Renommer le block",
         "return": "Revenir",
         "saySomething": "Écrire quelque chose",

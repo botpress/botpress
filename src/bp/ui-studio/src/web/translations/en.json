@@ -219,6 +219,7 @@
         "nodeName": "Node Name",
         "onEnter": "On Enter",
         "onReceive": "On Receive",
+        "pickAction": "Pick an action",
         "renameBlock": "Rename Block",
         "return": "Return",
         "saySomething": "Say Something",

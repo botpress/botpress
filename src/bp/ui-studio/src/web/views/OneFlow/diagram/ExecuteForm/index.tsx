@@ -46,6 +46,7 @@ const ExecuteForm: FC<Props> = ({
   const [canOutsideClickClose, setCanOutsideClickClose] = useState(true)
   const [showOptions, setShowOptions] = useState(false)
   const [maximized, setMaximized] = useState(false)
+  const [isCodeEditor, setIsCodeEditor] = useState(formData?.actionName === newAction.value)
   const selectedAction = useRef(formData?.actionName)
   const originalCode = useRef(formData?.code ?? '')
   const flowArgs = useRef(variables.currentFlow.map(x => ({ name: x.params.name, type: `BP.${x.type}.Variable` })))
@@ -55,8 +56,6 @@ const ExecuteForm: FC<Props> = ({
     []
   )
 
-  const isCodeEditor = selectedAction.current === newAction.value
-
   useEffect(() => {
     if (isCodeEditor) {
       flowArgs.current = variables.currentFlow.map(x => ({ name: x.params.name, type: `BP.${x.type}.Variable` }))
@@ -64,6 +63,10 @@ const ExecuteForm: FC<Props> = ({
       setMaximized(true)
     }
   }, [customKey])
+
+  useEffect(() => {
+    setIsCodeEditor(formData?.actionName === newAction.value)
+  }, [formData?.actionName])
 
   useEffect(() => {
     document.documentElement.style.setProperty('--right-sidebar-width', maximized ? '580px' : '240px')
@@ -100,6 +103,11 @@ const ExecuteForm: FC<Props> = ({
 
     return [...acc.filter(a => a.name !== action.category), category]
   }, [])
+
+  const handleCodeNewAction = () => {
+    onActionChanged(newAction.value)
+    setIsCodeEditor(true)
+  }
 
   const commonProps = {
     customKey,
@@ -144,11 +152,13 @@ const ExecuteForm: FC<Props> = ({
           <span className={contentStyle.formLabel}>{lang.tr('Action')}</span>
 
           <MultiLevelDropdown
+            addBtn={{ text: lang.tr('codeNewAction'), onClick: handleCodeNewAction }}
             filterable
             className={contentStyle.formSelect}
             items={multiLevelActions}
             rightIcon="chevron-down"
             defaultItem={selectedOption}
+            placeholder={lang.tr('studio.flow.node.pickAction')}
             confirmChange={
               selectedOption && {
                 message: lang.tr('studio.content.confirmChangeContentType'),

@@ -6,6 +6,7 @@ import { useEffect } from 'react'
 import { Fragment } from 'react'
 
 import Overlay from '../../../ui-shared-lite/Overlay'
+import { contentTypeField } from '../FormFields/VariablePicker/style.scss'
 
 import style from './style.scss'
 import { MultiLevelDropdownProps, Option } from './typings'
@@ -30,6 +31,7 @@ const itemRenderer = (option, { modifiers, handleClick }) => {
 
 const MultiLevelDropdown: FC<MultiLevelDropdownProps> = props => {
   const {
+    addBtn,
     placeholder,
     filterPlaceholder,
     confirmChange,
@@ -48,6 +50,7 @@ const MultiLevelDropdown: FC<MultiLevelDropdownProps> = props => {
   } = props
   const [activeItem, setActiveItem] = useState<Option | undefined>()
   const [isOpen, setIsOpen] = useState(false)
+  const [searchValue, setSearchValue] = useState('')
   const [expanded, setExpanded] = useState({})
 
   useEffect(() => {
@@ -67,6 +70,22 @@ const MultiLevelDropdown: FC<MultiLevelDropdownProps> = props => {
 
   const btnText = activeItem?.label || defaultItem?.label || placeholder
 
+  const filterItem = item => `${item.label}//${item.value}`.toLowerCase().includes(searchValue)
+
+  const filteredItems = items.filter(x => x.name.toLowerCase().includes(searchValue) || x.items.some(filterItem))
+
+  const onKeyDown = e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+      e.preventDefault()
+      e.target.select()
+    }
+  }
+
+  const handleAddBtnClick = () => {
+    setIsOpen(false)
+    addBtn?.onClick()
+  }
+
   return (
     <div className={cx(style.dropdown)}>
       <Button
@@ -79,7 +98,25 @@ const MultiLevelDropdown: FC<MultiLevelDropdownProps> = props => {
       {isOpen && (
         <Fragment>
           <ul className={style.select}>
-            {items.map(({ name, items: options }) => (
+            {filterable && (
+              <li>
+                <div className={style.search}>
+                  <Icon icon="search" />
+                  <input
+                    type="text"
+                    onKeyDown={onKeyDown}
+                    onChange={({ currentTarget: { value } }) => setSearchValue(value)}
+                    value={searchValue}
+                  />
+                </div>
+              </li>
+            )}
+            {addBtn && (
+              <li>
+                <Button minimal className={style.addBtn} icon="plus" text={addBtn.text} onClick={handleAddBtnClick} />
+              </li>
+            )}
+            {filteredItems.map(({ name, items: options }) => (
               <li key={name}>
                 <button
                   className={style.selectItem}
@@ -90,7 +127,7 @@ const MultiLevelDropdown: FC<MultiLevelDropdownProps> = props => {
                 </button>
                 {expanded[name] && (
                   <ul>
-                    {options.map(option => (
+                    {options.filter(filterItem).map(option => (
                       <li key={option.value}>
                         <button
                           onClick={() => updateSelectedOption(option)}
