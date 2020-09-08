@@ -189,10 +189,7 @@ async function predictContext(input: OutOfScopeStep, predictors: Predictors): Pr
 
 async function predictIntent(input: ContextStep, predictors: Predictors): Promise<IntentStep> {
   if (_.flatMap(predictors.intents, i => i.utterances).length <= 0) {
-    return {
-      ...input,
-      intent_predictions: { per_ctx: { [DEFAULT_CTX]: [{ label: NONE_INTENT, confidence: 1 }] } }
-    }
+    return { ...input, intent_predictions: { per_ctx: { [DEFAULT_CTX]: [{ label: NONE_INTENT, confidence: 1 }] } } }
   }
 
   const customEntities = getCustomEntitiesNames(predictors)
