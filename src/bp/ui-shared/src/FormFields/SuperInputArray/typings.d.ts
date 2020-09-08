@@ -2,6 +2,7 @@ import { Variables } from 'common/typings'
 
 export interface SuperInputArrayProps {
   addBtnLabel: string
+  addBtnLabelTooltip?: string
   refValue?: string[]
   items: string[]
   moreInfo?: JSX.Element

@@ -1,5 +1,6 @@
 import { Tag, TagInput } from '@blueprintjs/core'
 import React, { FC, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { lang } from '~/translations'
 
 import { Item } from '.'
@@ -10,19 +11,15 @@ interface Props {
   placeholder: string
   isFocused?: boolean
   onChange: (item: Item) => void
-  onKeyDown: (event, canDelete: boolean) => void
+  removeItem: () => void
+  addRow: () => void
   onBlur: () => void
 }
 
-const TagInputItem: FC<Props> = ({ item, isFocused, placeholder, onChange, onKeyDown, onBlur }) => {
+const TagInputItem: FC<Props> = ({ item, isFocused, placeholder, onChange, removeItem, onBlur, addRow }) => {
   const inputRef = useRef<any>(null)
-  const canRemoveLast = useRef<boolean>(item.tags.length === 0)
-
-  useEffect(() => {
-    if (item.tags.length > 0) {
-      canRemoveLast.current = false
-    }
-  }, [item.tags])
+  const inputVal = useRef<any>('')
+  const [forceUpdate, setForceUpdate] = useState(false)
 
   useEffect(() => {
     if (isFocused && inputRef.current?.inputElement) {
@@ -32,27 +29,48 @@ const TagInputItem: FC<Props> = ({ item, isFocused, placeholder, onChange, onKey
 
   return (
     <TagInput
-      className={style.wrapper}
+      className={style.tagInput}
       leftIcon={
         !!item.name?.length ? (
-          <div>
-            <Tag minimal className={style.title}>
-              <strong>{item.name}</strong>
-            </Tag>
-          </div>
+          <Tag minimal className={style.tag}>
+            {item.name}
+          </Tag>
         ) : null
       }
       placeholder={lang(placeholder)}
       onChange={tags => onChange({ name: item.name, tags: tags as string[] })}
       inputProps={{ onBlur }}
-      onKeyDown={(e, index) => {
-        // Shady logic to remove the element only after all tags are deleted
-        const isLast = index === undefined || index === 0
-        onKeyDown(e, isLast && canRemoveLast.current)
-
-        if (isLast && !canRemoveLast.current) {
-          canRemoveLast.current = true
+      onAdd={e => {
+        inputVal.current = ''
+      }}
+      onKeyDown={e => {
+        if (inputVal.current === '' && e.key === 'Backspace') {
+          e.preventDefault()
+          if (item.tags.length) {
+            item.tags.pop()
+            setForceUpdate(!forceUpdate)
+          } else if (item.name !== '') {
+            item.name = ''
+            setForceUpdate(!forceUpdate)
+          } else {
+            removeItem()
+          }
         }
+
+        if (e.key === ',') {
+          e.preventDefault()
+          e.stopPropagation()
+          inputRef.current.addTags(inputVal.current)
+        }
+
+        if (e.key === 'Enter' && !(e.ctrlKey || e.metaKey || e.shiftKey)) {
+          e.preventDefault()
+          e.stopPropagation()
+          addRow()
+        }
+      }}
+      onInputChange={e => {
+        inputVal.current = e.currentTarget.value
       }}
       values={item.tags}
       tagProps={{ minimal: true }}

@@ -2,10 +2,10 @@ import { FormData, FormDynamicOptions, FormField, FormOption } from 'botpress/sd
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 
-import { lang } from '../../../translations'
-import Dropdown from '../../../Dropdown'
-import style from '../style.scss'
-import { FieldProps } from '../typings'
+import { lang } from '../translations'
+import style from '../Contents/Components/style.scss'
+import { FieldProps } from '../Contents/Components/typings'
+import Dropdown from '../Dropdown'
 
 interface SelectProps extends FieldProps {
   data: FormData
