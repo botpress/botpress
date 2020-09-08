@@ -16,6 +16,7 @@ import Engine from 'nlu-core/engine'
 import { setupMasterNode, WORKER_TYPES } from '../cluster'
 import Logger from '../simple-logger'
 import API, { APIOptions } from './api'
+import makeLoggerWrapper from './logger-wrapper'
 
 const debug = DEBUG('api')
 
@@ -32,12 +33,7 @@ export default async function(options: ArgV) {
 
   options.modelDir = options.modelDir || path.join(process.APP_DATA_PATH, 'models')
 
-  const loggerWrapper: NLU.Logger = {
-    info: (msg: string) => logger.info(msg),
-    warning: (msg: string, err?: Error) => (err ? logger.attachError(err).warn(msg) : logger.warn(msg)),
-    error: (msg: string, err?: Error) => (err ? logger.attachError(err).error(msg) : logger.error(msg))
-  }
-
+  const loggerWrapper = makeLoggerWrapper(logger)
   try {
     await Engine.initialize(options, loggerWrapper)
   } catch (err) {
