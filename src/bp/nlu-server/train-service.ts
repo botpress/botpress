@@ -1,13 +1,12 @@
-import { NLU } from 'botpress/sdk'
+import * as sdk from 'botpress/sdk'
 import Engine from 'nlu-core/engine'
 
-import { NLUServerLogger } from './logger'
 import ModelService from './model-service'
 import TrainSessionService from './train-session-service'
 
 export default class TrainService {
   constructor(
-    private logger: NLUServerLogger,
+    private logger: sdk.Logger,
     private engine: Engine,
     private modelService: ModelService,
     private trainSessionService: TrainSessionService
@@ -15,8 +14,8 @@ export default class TrainService {
 
   train = async (
     modelFileName: string,
-    intents: NLU.IntentDefinition[],
-    entities: NLU.EntityDefinition[],
+    intents: sdk.NLU.IntentDefinition[],
+    entities: sdk.NLU.EntityDefinition[],
     language: string,
     nluSeed: number
   ) => {

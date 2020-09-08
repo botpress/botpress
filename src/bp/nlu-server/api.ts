@@ -9,7 +9,8 @@ import _ from 'lodash'
 import ms from 'ms'
 import Engine from 'nlu-core/engine'
 
-import { NLUServerLogger } from './logger'
+import Logger from '../simple-logger'
+
 import ModelService from './model-service'
 import TrainService from './train-service'
 import TrainSessionService from './train-session-service'
@@ -69,7 +70,7 @@ const createExpressApp = (options: APIOptions): Application => {
 
 export default async function(options: APIOptions) {
   const app = createExpressApp(options)
-  const logger = new NLUServerLogger('API')
+  const logger = new Logger('API')
   const loggerWrapper: NLU.Logger = {
     info: (msg: string) => logger.info(msg),
     warning: (msg: string, err?: Error) => (err ? logger.attachError(err).warn(msg) : logger.warn(msg)),

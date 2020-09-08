@@ -14,15 +14,15 @@ global.rewire = rewire as any
 import { NLU } from 'botpress/sdk'
 import Engine from 'nlu-core/engine'
 import { setupMasterNode, WORKER_TYPES } from '../cluster'
+import Logger from '../simple-logger'
 import API, { APIOptions } from './api'
-import { NLUServerLogger } from './logger'
 
 const debug = DEBUG('api')
 
 type ArgV = APIOptions & NLU.Config
 
 export default async function(options: ArgV) {
-  const logger = new NLUServerLogger('Launcher')
+  const logger = new Logger('Launcher')
   if (cluster.isMaster) {
     setupMasterNode(logger)
     return
