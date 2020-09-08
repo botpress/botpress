@@ -9,7 +9,6 @@ interface CssExports {
   'search': string;
   'select': string;
   'selectItem': string;
-  'spaced': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

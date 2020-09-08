@@ -156,12 +156,11 @@ const ExecuteForm: FC<Props> = ({
             filterable
             className={contentStyle.formSelect}
             items={multiLevelActions}
-            rightIcon="chevron-down"
             defaultItem={selectedOption}
             placeholder={lang.tr('studio.flow.node.pickAction')}
             confirmChange={
               selectedOption && {
-                message: lang.tr('studio.content.confirmChangeContentType'),
+                message: lang.tr('studio.content.confirmChangeAction'),
                 acceptLabel: lang.tr('change'),
                 callback: setCanOutsideClickClose
               }

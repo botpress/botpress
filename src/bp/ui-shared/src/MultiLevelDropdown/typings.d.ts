@@ -30,10 +30,4 @@ export interface MultiLevelDropdownProps {
   items: Item[]
   defaultItem?: Option
   onChange: (option: Option) => void
-  icon?: any
-  rightIcon?: any
-  small?: boolean
-  spaced?: boolean
-  filterList?: (query: string, options: Option[]) => Option[]
-  customItemRenderer?: (item, { handleClick, modifiers }) => JSX.Element | null
 }

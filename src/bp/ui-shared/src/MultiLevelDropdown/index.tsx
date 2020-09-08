@@ -7,12 +7,21 @@ import { Fragment } from 'react'
 
 import Overlay from '../../../ui-shared-lite/Overlay'
 import { lang } from '../translations'
+import confirmDialog from '../ConfirmDialog'
 
 import style from './style.scss'
 import { MultiLevelDropdownProps, Option } from './typings'
 
-const MultiLevelDropdown: FC<MultiLevelDropdownProps> = props => {
-  const { addBtn, placeholder, filterPlaceholder, defaultItem, items, onChange, small, spaced, filterable } = props
+const MultiLevelDropdown: FC<MultiLevelDropdownProps> = ({
+  addBtn,
+  confirmChange,
+  placeholder,
+  filterPlaceholder,
+  defaultItem,
+  items,
+  onChange,
+  filterable
+}) => {
   const [activeItem, setActiveItem] = useState<Option | undefined>()
   const [isOpen, setIsOpen] = useState(false)
   const [searchValue, setSearchValue] = useState('')
@@ -31,6 +40,25 @@ const MultiLevelDropdown: FC<MultiLevelDropdownProps> = props => {
     onChange(option)
     setActiveItem(option)
     setIsOpen(false)
+  }
+
+  const handleOptionClick = async option => {
+    if (confirmChange) {
+      confirmChange.callback?.(false)
+
+      if (
+        await confirmDialog(confirmChange.message, {
+          acceptLabel: confirmChange.acceptLabel
+        })
+      ) {
+        confirmChange.callback?.(true)
+        updateSelectedOption(option)
+      } else {
+        confirmChange.callback?.(true)
+      }
+    } else {
+      updateSelectedOption(option)
+    }
   }
 
   const btnText = activeItem?.label || defaultItem?.label || placeholder
@@ -55,10 +83,9 @@ const MultiLevelDropdown: FC<MultiLevelDropdownProps> = props => {
     <div className={cx(style.dropdown)}>
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className={cx(style.btn, { [style.spaced]: spaced, [style.placeholder]: !activeItem })}
-        text={small ? <small>{btnText}</small> : btnText}
+        className={cx(style.btn, { [style.placeholder]: !activeItem })}
+        text={btnText}
         rightIcon={isOpen ? 'chevron-up' : 'chevron-down'}
-        small={small}
       />
       {isOpen && (
         <Fragment>
@@ -96,7 +123,7 @@ const MultiLevelDropdown: FC<MultiLevelDropdownProps> = props => {
                     {options.filter(filterItem).map(option => (
                       <li key={option.value}>
                         <button
-                          onClick={() => updateSelectedOption(option)}
+                          onClick={() => handleOptionClick(option)}
                           className={cx(style.selectItem, { [style.active]: option.value === activeItem?.value })}
                         >
                           {option.label}
