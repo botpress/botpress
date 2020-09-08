@@ -16,11 +16,14 @@ import Engine from 'nlu-core/engine'
 import { setupMasterNode, WORKER_TYPES } from '../cluster'
 import Logger from '../simple-logger'
 import API, { APIOptions } from './api'
+import { getConfig } from './config'
 import makeLoggerWrapper from './logger-wrapper'
 
 const debug = DEBUG('api')
 
-type ArgV = APIOptions & NLU.Config
+type ArgV = APIOptions & {
+  nluConfigFile?: string
+}
 
 export default async function(options: ArgV) {
   const logger = new Logger('Launcher')
@@ -33,9 +36,20 @@ export default async function(options: ArgV) {
 
   options.modelDir = options.modelDir || path.join(process.APP_DATA_PATH, 'models')
 
+  let config: NLU.Config
+  try {
+    config = await getConfig(options.nluConfigFile)
+  } catch (err) {
+    logger.attachError(err).error(
+      `Config file ${options.nluConfigFile} could not be read. \
+        Make sure the file exists and that it contains an actual NLU Config in a JSON format.`
+    )
+    process.exit(1) // TODO: this should also exit master process... Find a way to do so in cluster.ts
+  }
+
   const loggerWrapper = makeLoggerWrapper(logger)
   try {
-    await Engine.initialize(options, loggerWrapper)
+    await Engine.initialize(config, loggerWrapper)
   } catch (err) {
     // TODO: Make lang provider throw if it can't connect.
     logger

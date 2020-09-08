@@ -352,17 +352,10 @@ try {
           description: 'Time window on which the limit is applied (use standard notation, ex: 25m or 1h)',
           default: '1h'
         },
-        ducklingURL: {
-          description: 'URL of duckling server',
-          default: 'https://duckling.botpress.io'
-        },
-        ducklingEnabled: {
-          description: 'Weither or not to enable duckling',
-          default: true
-        },
-        languageSources: {
-          description: 'The list of sources to load languages from',
-          default: [{ endpoint: 'https://lang-01.botpress.io' }]
+        nluConfigFile: {
+          description:
+            'Path of the NLU configuration file (ex: "~/bp-nlu-config.json"). \
+            Use to configure the duckling and language servers endpoints.'
         }
       },
       argv => {
