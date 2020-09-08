@@ -11,7 +11,6 @@ import Engine from 'nlu-core/engine'
 
 import { NLUServerLogger } from './logger'
 import ModelService from './model-service'
-import { monitoringMiddleware, startMonitoring } from './monitoring'
 import TrainService from './train-service'
 import TrainSessionService from './train-session-service'
 import { TrainInput } from './typings'
@@ -45,7 +44,6 @@ const createExpressApp = (options: APIOptions): Application => {
     next()
   })
 
-  app.use(monitoringMiddleware)
   app.use(handleUnexpectedError)
 
   if (process.core_env.REVERSE_PROXY) {
@@ -206,8 +204,4 @@ export default async function(options: APIOptions) {
   })
 
   logger.info(`NLU Server is ready at http://${options.host}:${options.port}/`)
-
-  if (process.env.MONITORING_INTERVAL) {
-    startMonitoring()
-  }
 }
