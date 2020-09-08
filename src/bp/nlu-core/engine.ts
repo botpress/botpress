@@ -278,8 +278,12 @@ export default class Engine implements NLU.Engine {
       (c, [ctx, mod]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(mod) }),
       {} as _.Dictionary<MLToolkit.SVM.Predictor>
     )
-    const slot_tagger = new SlotTagger(tools.mlToolkit)
-    slot_tagger.load(output.slots_model)
+
+    let slot_tagger: SlotTagger | undefined
+    if (output.slots_model.length) {
+      slot_tagger = new SlotTagger(tools.mlToolkit)
+      slot_tagger.load(output.slots_model)
+    }
 
     const kmeans = computeKmeans(intents!, tools) // TODO load from artefacts when persisted
 
