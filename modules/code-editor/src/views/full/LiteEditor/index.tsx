@@ -238,7 +238,6 @@ ${argsToInterface(this.props.args)
   .join('\n')}
   }`
 
-    console.log(content)
     monaco.languages.typescript.typescriptDefaults.addExtraLib(content, 'bp://types/args.d.ts')
   }
 
