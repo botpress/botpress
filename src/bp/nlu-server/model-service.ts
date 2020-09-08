@@ -2,6 +2,7 @@ import { NLU } from 'botpress/sdk'
 import crypto from 'crypto'
 import fse, { WriteStream } from 'fs-extra'
 import _ from 'lodash'
+import mkdirp from 'mkdirp'
 import path from 'path'
 import { Stream } from 'stream'
 import tar from 'tar'
@@ -11,10 +12,7 @@ export default class ModelService {
   constructor(private modelDir: string) {}
 
   public async init() {
-    const modelDirExists = fse.existsSync(this.modelDir)
-    if (!modelDirExists) {
-      await fse.mkdir(this.modelDir)
-    }
+    mkdirp.sync(this.modelDir)
   }
 
   public async getModel(modelFileName: string): Promise<NLU.Model | undefined> {
