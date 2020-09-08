@@ -20,17 +20,6 @@ export const common: FormDefinition = {
       key: 'description',
       placeholder: 'module.builtin.variable.descPlaceholder',
       label: 'description'
-    },
-
-    {
-      type: 'checkbox',
-      key: 'isInput',
-      label: 'module.builtin.variable.input'
-    },
-    {
-      type: 'checkbox',
-      key: 'isOutput',
-      label: 'module.builtin.variable.output'
     }
   ],
   advancedSettings: []

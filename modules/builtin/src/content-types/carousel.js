@@ -99,7 +99,6 @@ module.exports = {
       {
         group: {
           addLabel: 'module.builtin.types.card.add',
-          minimum: 1,
           contextMenu: [
             {
               type: 'delete',

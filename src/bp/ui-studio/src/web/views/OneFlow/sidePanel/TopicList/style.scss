@@ -53,7 +53,15 @@
   :global {
     .bp3-button-text {
       flex-grow: 1;
+      overflow: hidden;
     }
+  }
+
+  .ellipsisText {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
   }
 
   &.isTopic:hover {
@@ -220,7 +228,7 @@
       width: 30px !important;
       height: 30px !important;
       border-radius: 5px !important;
-      background-color: var(--seashell) !important;
+      background-color: var(--bg) !important;
 
       svg {
         margin: 7px 7px;
@@ -233,6 +241,21 @@
   :global {
     .bp3-icon {
       background-color: transparent !important;
+    }
+  }
+}
+
+.draggable {
+  display: block;
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  :global {
+    .bp3-icon {
+      margin: 0 !important;
     }
   }
 }

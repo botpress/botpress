@@ -126,6 +126,7 @@ type ExtendedDiagramEngine = {
 } & DiagramEngine
 
 const EXPANDED_NODES_KEY = `bp::${window.BOT_ID}::expandedNodes`
+const DIAGRAM_TAB_KEY = `bp::${window.BOT_ID}::diagramTab`
 
 const getEmptyContent = content => {
   return {
@@ -155,7 +156,7 @@ class Diagram extends Component<Props> {
 
   state = {
     editingNodeItem: null,
-    currentTab: 'workflow',
+    currentTab: storage.get(DIAGRAM_TAB_KEY) || 'workflow',
     expandedNodes: [],
     nodeInfos: []
   }
@@ -837,6 +838,10 @@ class Diagram extends Component<Props> {
       }
     } else if (data.type === 'skill') {
       this.add.skillNode(point, data.id)
+    } else if (data.type === 'subworkflow') {
+      if (this.props.currentFlow.name !== data.id) {
+        this.add.gotoSubWorkflow(point, data.id)
+      }
     } else if (data.type === 'node') {
       switch (data.id) {
         case 'trigger':
@@ -963,6 +968,7 @@ class Diagram extends Component<Props> {
 
   handleTabChanged = (tab: string) => {
     this.setState({ currentTab: tab })
+    storage.set(DIAGRAM_TAB_KEY, tab)
   }
 
   addVariable = (variable?: FlowVariable & { isNew?: boolean }) => {
@@ -1136,22 +1142,25 @@ class Diagram extends Component<Props> {
             canAdd={canAdd}
             tabChange={this.handleTabChanged}
           />
-          {currentTab === 'variables' && <VariablesEditor editVariable={this.editVariable} />}
-          <div className={style.searchWrapper}>
-            <SearchBar
-              ref={this.searchRef}
-              onBlur={this.props.hideSearch}
-              value={this.props.highlightFilter}
-              placeholder={lang.tr('studio.flow.filterBlocks')}
-              onChange={this.props.handleFilterChanged}
-            />
-          </div>
+          {currentTab === 'variables' ? (
+            <VariablesEditor editVariable={this.editVariable} editingVar={currentItem} />
+          ) : (
+            <div className={style.searchWrapper}>
+              <SearchBar
+                ref={this.searchRef}
+                onBlur={this.props.hideSearch}
+                value={this.props.highlightFilter}
+                placeholder={lang.tr('studio.flow.filterBlocks')}
+                onChange={this.props.handleFilterChanged}
+              />
+            </div>
+          )}
           <Fragment>
             <div
               id="diagramContainer"
               ref={ref => (this.diagramContainer = ref)}
               tabIndex={1}
-              className={cx(style.diagramContainer, { [style.diagramHidden]: currentTab !== 'workflow' })}
+              className={cx(style.diagramContainer, { [style.hidden]: currentTab !== 'workflow' })}
               onContextMenu={this.handleContextMenu}
               onDrop={this.handleToolDropped}
               onDragOver={event => event.preventDefault()}
@@ -1309,7 +1318,7 @@ class Diagram extends Component<Props> {
               variables={this.props.variables}
               contentLang={this.props.currentLang}
               defaultLang={this.props.defaultLang}
-              customKey={`${node?.id}${node?.prompt?.type}`}
+              customKey={`${node?.id}${currentItem?.type}`}
               deleteVariable={this.deleteVariable.bind(this)}
               formData={currentItem}
               currentFlow={this.props.currentFlow}
@@ -1341,6 +1350,9 @@ class Diagram extends Component<Props> {
               language: lang.tr(lang.tr(`isoLangs.${this.props.currentLang}.name`).toLowerCase())
             })}
           />
+        )}
+        {this.props.currentFlow?.type === 'reusable' && this.props.defaultLang === this.props.currentLang && (
+          <WarningMessage message={lang.tr('studio.library.editingSubWorkflowWarning')} />
         )}
       </Fragment>
     )
