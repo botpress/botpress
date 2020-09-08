@@ -1,5 +1,5 @@
 {
-  "name": "e-contact-details",
+  "name": "a-contact-details",
   "utterances": {
     "en": [
       "What is the helpline as the system is not working?",
@@ -85,5 +85,10 @@
     ]
   },
   "slots": [],
-  "contexts": ["E"]
+  "contexts": [
+    "A"
+  ],
+  "metadata": {
+    "enabled": true
+  }
 }
