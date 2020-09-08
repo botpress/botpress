@@ -35,6 +35,7 @@ const ConfigAction: FC<Props> = ({
     label: x.description,
     required: x.required,
     placeholder: x.description,
+    superInput: true,
     defaultValue: x.default
   }))
 

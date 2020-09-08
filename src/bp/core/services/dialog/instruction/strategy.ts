@@ -123,13 +123,15 @@ export class ActionStrategy implements InstructionStrategy {
     })
 
     try {
+      const actionArgs = extractEventCommonArgs(event)
+
       const service = await this.actionService.forBot(botId)
       await service.runAction({
         actionName,
         actionCode:
           code && `const { ${argsToConst(variables.map(x => x.name))} } = event.state.workflow.variables\n${code}`,
         incomingEvent: event,
-        actionArgs: _.mapValues(params, x => x.value)
+        actionArgs: _.mapValues(params, ({ value }) => renderTemplate(value, actionArgs))
       })
     } catch (err) {
       const { onErrorFlowTo } = event.state.temp
