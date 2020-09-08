@@ -69,7 +69,6 @@ export default class MinimalEditor extends React.Component<Props> {
     this.loadTypings()
 
     if (this.props.code) {
-      this.setState({ code: this.props.code })
       this.reloadCode(this.props.code)
     }
 
@@ -81,13 +80,12 @@ export default class MinimalEditor extends React.Component<Props> {
       this.refreshLayout()
     }
 
-    if (prevProps.code !== this.props.code) {
+    if (this.props.code && prevProps.code !== this.props.code) {
       this.reloadCode(this.props.code)
     }
 
     if (prevProps.args !== this.props.args) {
       this.loadCodeTypings()
-      this.reloadCode(this.state.code)
     }
   }
 
@@ -108,6 +106,7 @@ export default class MinimalEditor extends React.Component<Props> {
   }
 
   reloadCode(unwrapped: string) {
+    this.setState({ code: unwrapped })
     const uri = monaco.Uri.parse(`bp://files/index.ts`)
 
     const oldModel = monaco.editor.getModel(uri)
