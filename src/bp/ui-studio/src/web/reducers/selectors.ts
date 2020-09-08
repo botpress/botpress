@@ -18,12 +18,12 @@ const _getPrompts = (state: RootReducer) => state.ndu.prompts
 const prepareUserVarTypes = (variableTypes: NLU.EntityDefinition[]) => {
   return variableTypes
     .filter(x => x.type !== 'system')
-    .map(x => ({ type: x.type.replace('list', 'enum'), subType: x.id, label: x.name }))
+    .map(x => ({ type: x.type.replace('list', 'enumeration'), subType: x.id, label: x.name }))
 }
 
 const filterGenerics = items => {
   return items
-    .filter(x => !['enum', 'pattern', 'complex'].includes(x.id))
+    .filter(x => !['enumeration', 'pattern', 'complex'].includes(x.id))
     .map(x => ({ type: x.id, label: x.config?.label }))
 }
 

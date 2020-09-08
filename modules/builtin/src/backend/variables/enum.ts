@@ -28,11 +28,11 @@ class BoxedEnum extends BaseVariable<string> implements Variable {
 }
 
 const definition: sdk.PrimitiveVarType = {
-  id: 'enum',
+  id: 'enumeration',
   config: {
     label: 'enum',
     icon: 'properties',
-    operators: [...getCommonOperators('enum')],
+    operators: [...getCommonOperators('enumeration')],
     fields: [
       ...common.fields,
       {

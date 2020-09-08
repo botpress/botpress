@@ -67,6 +67,8 @@ export default class MinimalEditor extends React.Component<Props> {
 
     if (prevProps.code !== this.props.code) {
       this.setState({ code: this.props.code })
+
+      this.loadCodeTypings()
       this.reloadCode(this.props.code)
     }
 
