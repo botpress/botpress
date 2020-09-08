@@ -42,7 +42,7 @@ export default class TrainService {
         return
       }
 
-      await this.modelService.saveModel(model!, modelFileName)
+      await this.modelService.saveModel(model, modelFileName)
       ts.status = 'done'
       this.trainSessionService.setTrainingSession(modelFileName, ts)
       setTimeout(() => this.trainSessionService.removeTrainingSession(modelFileName), 30000)

@@ -18,7 +18,7 @@ import { TrainInput } from './typings'
 import { authMiddleware, handleErrorLogging, handleUnexpectedError } from './util'
 import { TrainInputCreateSchema } from './validation'
 
-export type APIOptions = {
+export interface APIOptions {
   version: string
   host: string
   port: number
@@ -78,20 +78,11 @@ export default async function(options: APIOptions) {
     error: (msg: string, err?: Error) => (err ? logger.attachError(err).error(msg) : logger.error(msg))
   }
 
-  let engine: Engine
-  let modelService: ModelService
-  let trainSessionService: TrainSessionService
-  let trainService: TrainService
-  try {
-    engine = new Engine('nlu-server', loggerWrapper)
-    modelService = new ModelService(options.modelDir)
-    await modelService.init()
-    trainSessionService = new TrainSessionService()
-    trainService = new TrainService(logger, engine, modelService, trainSessionService)
-  } catch (err) {
-    logger.attachError(err).error('an error occured while initializing the server')
-    process.exit(1)
-  }
+  const engine = new Engine('nlu-server', loggerWrapper)
+  const modelService = new ModelService(options.modelDir)
+  await modelService.init()
+  const trainSessionService = new TrainSessionService()
+  const trainService = new TrainService(logger, engine, modelService, trainSessionService)
 
   app.get('/info', (req, res) => {
     res.send({
@@ -123,10 +114,7 @@ export default async function(options: APIOptions) {
         modelId
       })
     } catch (err) {
-      res.status(500).send({
-        success: false,
-        error: err.message
-      })
+      res.status(500).send({ success: false, error: err.message })
     }
   })
 
@@ -140,10 +128,9 @@ export default async function(options: APIOptions) {
         const model = await modelService.getModel(modelFileName)
 
         if (!model) {
-          return res.status(404).send({
-            success: false,
-            error: `no model or training could be found for modelId: ${modelId}`
-          })
+          return res
+            .status(404)
+            .send({ success: false, error: `no model or training could be found for modelId: ${modelId}` })
         }
 
         session = {
@@ -159,10 +146,7 @@ export default async function(options: APIOptions) {
         session
       })
     } catch (err) {
-      res.status(500).send({
-        success: false,
-        error: err.message
-      })
+      res.status(500).send({ success: false, error: err.message })
     }
   })
 
@@ -172,21 +156,17 @@ export default async function(options: APIOptions) {
       const { password } = req.body
       const modelFileName = modelService.makeFileName(modelId, password ?? '')
       const session = trainSessionService.getTrainingSession(modelFileName)
+
       if (session?.status === 'training') {
         await engine.cancelTraining(modelFileName)
         return res.send({
           success: true
         })
       }
-      res.status(404).send({
-        success: true,
-        error: `no current training for model id: ${modelId}`
-      })
+
+      res.status(404).send({ success: true, error: `no current training for model id: ${modelId}` })
     } catch (err) {
-      res.status(500).send({
-        success: false,
-        error: err.message
-      })
+      res.status(500).send({ success: false, error: err.message })
     }
   })
 
@@ -196,6 +176,7 @@ export default async function(options: APIOptions) {
       const { sentence, password } = req.body
       const modelFileName = modelService.makeFileName(modelId, password ?? '')
       const model = await modelService.getModel(modelFileName)
+
       if (model) {
         await engine.loadModel(model)
 
@@ -207,15 +188,10 @@ export default async function(options: APIOptions) {
           prediction
         })
       }
-      res.status(404).send({
-        success: false,
-        error: `modelId ${modelId} can't be found`
-      })
+
+      res.status(404).send({ success: false, error: `modelId ${modelId} can't be found` })
     } catch (err) {
-      res.status(404).send({
-        success: false,
-        error: err.message
-      })
+      res.status(404).send({ success: false, error: err.message })
     }
   })
 
