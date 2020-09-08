@@ -22,7 +22,7 @@ export enum NodeActionType {
 
 export const WellKnownFlags: typeof IO.WellKnownFlags = {
   SKIP_DIALOG_ENGINE: Symbol.for('skipDialogEngine'),
-  SKIP_QNA_PROCESSING: Symbol.for('avoidQnaProcessing'),
+  SKIP_QNA_PROCESSING: Symbol.for('avoidQnaProcessing'), // TODO: remove this
   SKIP_NATIVE_NLU: Symbol.for('skipNativeNLU'),
   FORCE_PERSIST_STATE: Symbol.for('forcePersistState')
 }

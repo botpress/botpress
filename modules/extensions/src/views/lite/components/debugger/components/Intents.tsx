@@ -48,7 +48,7 @@ export const Intents = (props: Props) => {
               {_.take(intents, 4).map(i => {
                 return (
                   <li key={i.name}>
-                    <Intent name={i.name} confidence={i.confidence} elected={i.name === intent.name} />
+                    <Intent topicName={key} name={i.name} confidence={i.confidence} elected={i.name === intent.name} />
                   </li>
                 )
               })}

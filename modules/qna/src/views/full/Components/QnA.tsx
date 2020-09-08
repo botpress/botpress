@@ -3,16 +3,16 @@ import { BotEvent, Flow, FlowNode } from 'botpress/sdk'
 import { confirmDialog, Contents, FormFields, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
 import { getFlowLabel } from 'botpress/utils'
 import cx from 'classnames'
+import { QnaItem } from 'full/utils/qnaList.utils'
 import _uniqueId from 'lodash/uniqueId'
 import React, { FC, Fragment, useRef, useState } from 'react'
 import Select from 'react-select'
 
-import { QnaItem } from '../../../backend/qna'
 import { isQnaComplete } from '../../../backend/utils'
 import style from '../style.scss'
 
 import ContentAnswerForm from './ContentAnswerForm'
-import ContextSelector from './ContextSelector'
+// import ContextSelector from './ContextSelector'
 import TextAreaList from './TextAreaList'
 
 interface RedirectItem {
@@ -32,7 +32,7 @@ interface Props {
   flows?: Flow[]
   childRef?: (ref: HTMLDivElement | null) => void
   updateQnA: (qnaItem: QnaItem) => void
-  deleteQnA: () => void
+  deleteQnA: (qnaItem: QnaItem) => void
   events: BotEvent[]
   toggleEnabledQnA: () => void
 }
@@ -76,7 +76,7 @@ const QnA: FC<Props> = props => {
         acceptLabel: lang.tr('delete')
       })
     ) {
-      props.deleteQnA()
+      props.deleteQnA({ id, saveError, data })
     }
   }
 
@@ -169,7 +169,7 @@ const QnA: FC<Props> = props => {
     })
   }
 
-  const showIncomplete = !isQnaComplete(props.qnaItem.data, contentLang)
+  const showIncomplete = !isQnaComplete(props.qnaItem.data as any, contentLang)
   const currentFlow = flows ? flows.find(({ name }) => name === data.redirectFlow) || { nodes: [] } : { nodes: [] }
   const nodeList = (currentFlow.nodes as FlowNode[])?.map(({ name }) => ({ label: name, value: name }))
   const flowsList = flows.map(({ name }) => ({ label: getFlowLabel(name), value: name }))
@@ -258,7 +258,7 @@ const QnA: FC<Props> = props => {
             )}
             {showIncomplete && (
               <Tooltip position={Position.BOTTOM} content={lang.tr('module.qna.form.incompleteTooltip')}>
-                <span className={cx(style.tag)}>{lang.tr('module.qna.form.incomplete')}</span>
+                <span className={cx(style.tag)}>{lang.tr('incomplete')}</span>
               </Tooltip>
             )}
             {!expanded && (
@@ -272,20 +272,6 @@ const QnA: FC<Props> = props => {
       </div>
       {expanded && (
         <div key={contentLang} className={style.collapsibleWrapper}>
-          {!isLite && (
-            <ContextSelector
-              className={cx(style.contextSelector)}
-              contexts={data.contexts}
-              customIdSuffix={id}
-              saveContexts={contexts =>
-                updateQnA({
-                  id,
-                  data: { ...data, contexts }
-                })
-              }
-              bp={bp}
-            />
-          )}
           <TextAreaList
             key="questions"
             items={questions || ['']}
