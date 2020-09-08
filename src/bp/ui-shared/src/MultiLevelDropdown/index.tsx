@@ -43,21 +43,23 @@ const MultiLevelDropdown: FC<MultiLevelDropdownProps> = ({
   }
 
   const handleOptionClick = async option => {
-    if (confirmChange) {
-      confirmChange.callback?.(false)
-
-      if (
-        await confirmDialog(confirmChange.message, {
-          acceptLabel: confirmChange.acceptLabel
-        })
-      ) {
-        confirmChange.callback?.(true)
-        updateSelectedOption(option)
-      } else {
-        confirmChange.callback?.(true)
-      }
-    } else {
+    if (!confirmChange) {
       updateSelectedOption(option)
+
+      return
+    }
+
+    confirmChange.callback?.(false)
+
+    if (
+      await confirmDialog(confirmChange.message, {
+        acceptLabel: confirmChange.acceptLabel
+      })
+    ) {
+      confirmChange.callback?.(true)
+      updateSelectedOption(option)
+    } else {
+      confirmChange.callback?.(true)
     }
   }
 
