@@ -198,16 +198,7 @@ export class TransitionStrategy implements InstructionStrategy {
       instruction.fn = instruction.fn!.replace(match, `event.state.workflow.variables.${name}`)
     }
 
-    const code = `
-    try {
-      return ${instruction.fn};
-    } catch (err) {
-      if (err instanceof TypeError) {
-        console.log(err)
-        return false
-      }
-      throw err
-    }`
+    const code = `return ${instruction.fn};`
 
     if (process.DISABLE_TRANSITION_SANDBOX || !this.unsafeRegex.test(instruction.fn!)) {
       const fn = new Function(...Object.keys(sandbox), code)

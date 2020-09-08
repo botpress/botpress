@@ -146,6 +146,8 @@
   "moveDown": "Move Down",
   "moveUp": "Move Up",
   "name": "Name",
+  "needsTranslation": "Needs Translation",
+  "notViewingDefaultLang": "You are currently in the {language} version of this chatbot, go back to default language if you want to add elements.",
   "never": "Never",
   "next": "Next",
   "noRowsFound": "No rows found",
@@ -158,6 +160,7 @@
   "paste": "Paste",
   "pattern": "Pattern",
   "pictures": "Pictures",
+  "pleaseTranslateField": "Please translate this field",
   "pleaseWait": "Please wait...",
   "preview": "Preview",
   "previous": "Previous",
@@ -231,5 +234,8 @@
   "strict": "Strict",
   "medium": "Medium",
   "loose": "Loose",
-  "examples": "Examples"
+  "examples": "Examples",
+  "uploading": "Uploading",
+  "incomplete": "Incomplete",
+  "active": "Active"
 }

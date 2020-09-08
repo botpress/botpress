@@ -1,4 +1,4 @@
-import { Icon, Tab, Tabs } from '@blueprintjs/core'
+import { Checkbox } from '@blueprintjs/core'
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
@@ -34,7 +34,8 @@ interface Props {
 }
 
 interface State {
-  event: any
+  event: sdk.IO.IncomingEvent
+  prevEvent: sdk.IO.IncomingEvent
   selectedTabId: string
   visible: boolean
   showSettings: boolean
@@ -42,13 +43,18 @@ interface State {
   showInspector: boolean
   fetching: boolean
   unauthorized: boolean
+  updateDiagram: boolean
   tab: string
+  eventsCache: sdk.IO.IncomingEvent[]
 }
 const DEBUGGER_TAB_KEY = 'debuggerTab'
 
 export class Debugger extends React.Component<Props, State> {
-  state = {
+  private showEventOnDiagram: (event: sdk.IO.IncomingEvent) => void
+
+  state: State = {
     event: undefined,
+    prevEvent: undefined,
     showEventNotFound: false,
     visible: false,
     selectedTabId: 'basic',
@@ -56,6 +62,8 @@ export class Debugger extends React.Component<Props, State> {
     fetching: false,
     unauthorized: false,
     showInspector: false,
+    eventsCache: [],
+    updateDiagram: true,
     tab: window['BP_STORAGE'].get(DEBUGGER_TAB_KEY) || 'content'
   }
   allowedRetryCount = 0
@@ -64,6 +72,9 @@ export class Debugger extends React.Component<Props, State> {
   lastMessage = undefined
 
   async componentDidMount() {
+    // @ts-ignore
+    this.showEventOnDiagram = window.parent.showEventOnDiagram()
+
     lang.init()
     updater.callback = this.loadEvent
 
@@ -107,6 +118,7 @@ export class Debugger extends React.Component<Props, State> {
     this.props.store.view.removeCustomAction('actionDebug')
     window.removeEventListener('keydown', this.hotkeyListener)
     this.resetWebchat()
+    this.showEventOnDiagram(undefined)
   }
 
   componentDidUpdate(_prevProps, prevState) {
@@ -165,10 +177,22 @@ export class Debugger extends React.Component<Props, State> {
     this.setState({ fetching: true })
 
     try {
-      const { data: event } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
+      const event = await this.getEvent(eventId)
 
-      this.setState({ event, showEventNotFound: !event })
+      const lastMessages: any[] = this.props.store.currentConversation.messages
+      const prevMessage = _.last(_.takeWhile(lastMessages, x => x.incomingEventId !== eventId).filter(x => x.userId))
+      let prevEvent: sdk.IO.IncomingEvent = undefined
+
+      if (prevMessage) {
+        prevEvent = await this.getEvent(prevMessage.incomingEventId)
+      }
+
+      this.setState({ event, prevEvent, showEventNotFound: !event })
       this.props.store.view.setHighlightedMessages(eventId)
+
+      if (this.state.updateDiagram) {
+        this.showEventOnDiagram(event)
+      }
 
       if (!event.processing?.['completed']) {
         keepRetrying = true
@@ -191,6 +215,24 @@ export class Debugger extends React.Component<Props, State> {
       this.setState({ fetching: false })
       this.currentRetryCount = 0
     }
+  }
+
+  getEvent = async (eventId: string): Promise<sdk.IO.IncomingEvent> => {
+    const eventsCache = this.state.eventsCache
+
+    const existing = eventsCache.find(x => x.id === eventId)
+    if (existing) {
+      return existing
+    }
+
+    const { data: event } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
+    if (!event.processing?.['completed']) {
+      return event
+    }
+
+    this.setState({ eventsCache: [event, ...eventsCache].slice(0, 10) })
+
+    return event
   }
 
   handleNewSession = () => {
@@ -222,7 +264,7 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   renderEvent() {
-    const { tab, event } = this.state
+    const { tab, event, prevEvent } = this.state
 
     if (this.state.showInspector) {
       return (
@@ -234,8 +276,19 @@ export class Debugger extends React.Component<Props, State> {
 
     return (
       <div className={style.content}>
-        {tab === 'content' && <Summary event={event} />}
+        {tab === 'content' && <Summary event={event} prevEvent={prevEvent} />}
         {tab === 'processing' && <Processing processing={event?.processing} />}
+        <Checkbox
+          checked={this.state.updateDiagram}
+          className={style.debugCheckbox}
+          label={lang.tr('module.extensions.displayDebugging')}
+          onChange={e => {
+            const newState = e.currentTarget.checked
+
+            this.showEventOnDiagram(newState && this.state.event ? this.state.event : undefined)
+            this.setState({ updateDiagram: newState })
+          }}
+        />
       </div>
     )
   }

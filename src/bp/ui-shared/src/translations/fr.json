@@ -97,6 +97,8 @@
   "moveDown": "Déplacer vers le bas",
   "moveUp": "Déplacer vers le haut",
   "name": "Nom",
+  "needsTranslation": "Nécessite une traduction",
+  "notViewingDefaultLang": "Vous êtes actuellement dans la version en {language} de cet agent conversationnel, retournez dans la langue par défaut si vous souhaitez ajouter des éléments.",
   "never": "Jamais",
   "next": "Suivant",
   "noRowsFound": "Aucun enregistrement trouvé",
@@ -109,6 +111,7 @@
   "paste": "Coller",
   "pattern": "Expression régulière",
   "pictures": "Images",
+  "pleaseTranslateField": "Veuillez traduire ce champ",
   "pleaseWait": "Veuillez patienter...",
   "preview": "Aperçu",
   "previous": "Précédent",
@@ -182,5 +185,8 @@
   "strict": "Stricte",
   "medium": "Médium",
   "loose": "Indulgent",
-  "examples": "Exemples"
+  "examples": "Exemples",
+  "uploading": "Téléversement",
+  "incomplete": "Incomplètes",
+  "active": "Actives"
 }

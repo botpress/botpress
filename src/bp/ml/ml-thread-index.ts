@@ -24,10 +24,12 @@ async function messageHandler(msg: Message) {
       }
     }
     try {
+      const { points, options } = msg.payload
+
       const trainer = new SvmTrainer()
       const result = await trainer.train(
-        msg.payload.points as sdk.MLToolkit.SVM.DataPoint[],
-        msg.payload.options as sdk.MLToolkit.SVM.SVMOptions,
+        points as sdk.MLToolkit.SVM.DataPoint[],
+        options as sdk.MLToolkit.SVM.SVMOptions,
         progressCb
       )
       const response: Message = { type: 'svm_done', id: msg.id, payload: { result } }

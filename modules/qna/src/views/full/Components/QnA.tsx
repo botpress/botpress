@@ -3,16 +3,16 @@ import { BotEvent, Flow, FlowNode } from 'botpress/sdk'
 import { confirmDialog, Contents, FormFields, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
 import { getFlowLabel } from 'botpress/utils'
 import cx from 'classnames'
+import { QnaItem } from 'full/utils/qnaList.utils'
 import _uniqueId from 'lodash/uniqueId'
 import React, { FC, Fragment, useRef, useState } from 'react'
 import Select from 'react-select'
 
-import { QnaItem } from '../../../backend/qna'
 import { isQnaComplete } from '../../../backend/utils'
 import style from '../style.scss'
 
 import ContentAnswerForm from './ContentAnswerForm'
-import ContextSelector from './ContextSelector'
+// import ContextSelector from './ContextSelector'
 import TextAreaList from './TextAreaList'
 
 interface RedirectItem {
@@ -27,12 +27,12 @@ interface Props {
   qnaItem: QnaItem
   bp: any
   contentLang: string
-  defaultLanguage: string
+  defaultLang: string
   errorMessages?: string[]
   flows?: Flow[]
   childRef?: (ref: HTMLDivElement | null) => void
   updateQnA: (qnaItem: QnaItem) => void
-  deleteQnA: () => void
+  deleteQnA: (qnaItem: QnaItem) => void
   events: BotEvent[]
   toggleEnabledQnA: () => void
 }
@@ -49,7 +49,7 @@ const QnA: FC<Props> = props => {
     expanded,
     setExpanded,
     errorMessages,
-    defaultLanguage,
+    defaultLang,
     flows,
     isLite,
     events,
@@ -59,8 +59,8 @@ const QnA: FC<Props> = props => {
   let questions = data.questions[contentLang]
   let answers = data.answers[contentLang]
   const contentAnswers = data.contentAnswers || []
-  const refQuestions = contentLang !== defaultLanguage && data.questions[defaultLanguage]
-  const refAnswers = contentLang !== defaultLanguage && data.answers[defaultLanguage]
+  const refQuestions = contentLang !== defaultLang && data.questions[defaultLang]
+  const refAnswers = contentLang !== defaultLang && data.answers[defaultLang]
 
   if (refQuestions?.length > questions?.length || (!questions?.length && refQuestions?.length)) {
     questions = [...(questions || []), ...Array(refQuestions.length - (questions?.length || 0)).fill('')]
@@ -76,7 +76,7 @@ const QnA: FC<Props> = props => {
         acceptLabel: lang.tr('delete')
       })
     ) {
-      props.deleteQnA()
+      props.deleteQnA({ id, saveError, data })
     }
   }
 
@@ -169,10 +169,60 @@ const QnA: FC<Props> = props => {
     })
   }
 
-  const showIncomplete = !isQnaComplete(props.qnaItem.data, contentLang)
+  const showIncomplete = !isQnaComplete(props.qnaItem.data as any, contentLang)
   const currentFlow = flows ? flows.find(({ name }) => name === data.redirectFlow) || { nodes: [] } : { nodes: [] }
   const nodeList = (currentFlow.nodes as FlowNode[])?.map(({ name }) => ({ label: name, value: name }))
   const flowsList = flows.map(({ name }) => ({ label: getFlowLabel(name), value: name }))
+
+  const fieldHasMissingTranslation = (value = {}) => {
+    if (value[contentLang]) {
+      return false
+    }
+
+    return Object.keys(value)
+      .filter(key => key !== contentLang)
+      .some(key => (value[key] || []).length)
+  }
+
+  const checkCardMissingTranslation = card => {
+    return (
+      fieldHasMissingTranslation(card.title) ||
+      fieldHasMissingTranslation(card.subtitle) ||
+      card.actions.some(action => fieldHasMissingTranslation(action.title) || fieldHasMissingTranslation(action.text))
+    )
+  }
+
+  const checkMissingTranslations = content => {
+    switch (content.contentType) {
+      case 'builtin_image':
+        return fieldHasMissingTranslation(content.title)
+      case 'builtin_card':
+        return checkCardMissingTranslation(content)
+      case 'builtin_carousel':
+        return content.items.some(item => checkCardMissingTranslation(item))
+      case 'builtin_single-choice':
+        return content.choices?.some(
+          choice => fieldHasMissingTranslation(choice.title) || fieldHasMissingTranslation(choice.value)
+        )
+      default:
+        const translatedVariations = Object.keys(content.variations || {}).reduce((acc, key) => {
+          return { ...acc, [key]: content.variations[key].filter(Boolean).length }
+        }, {})
+        const curLangLength = translatedVariations[contentLang] || 0
+
+        return (
+          fieldHasMissingTranslation(content.text) ||
+          Object.keys(translatedVariations)
+            .filter(l => l !== contentLang)
+            .some(l => translatedVariations[l] > curLangLength)
+        )
+    }
+  }
+
+  const missingTranslation =
+    ((refQuestions || []).filter(Boolean).length && !questions?.filter(Boolean).length) ||
+    ((refAnswers || []).filter(Boolean).length && !answers?.filter(Boolean).length) ||
+    contentAnswers?.some(content => checkMissingTranslations(content))
 
   return (
     <div className={style.questionWrapper}>
@@ -203,9 +253,12 @@ const QnA: FC<Props> = props => {
                 <span className={style.tag}>{lang.tr('disabled')}</span>
               </Tooltip>
             )}
+            {!!missingTranslation && (
+              <span className={cx(style.tag, style.warning)}>{lang.tr('needsTranslation')}</span>
+            )}
             {showIncomplete && (
               <Tooltip position={Position.BOTTOM} content={lang.tr('module.qna.form.incompleteTooltip')}>
-                <span className={cx(style.tag)}>{lang.tr('module.qna.form.incomplete')}</span>
+                <span className={cx(style.tag)}>{lang.tr('incomplete')}</span>
               </Tooltip>
             )}
             {!expanded && (
@@ -219,20 +272,6 @@ const QnA: FC<Props> = props => {
       </div>
       {expanded && (
         <div key={contentLang} className={style.collapsibleWrapper}>
-          {!isLite && (
-            <ContextSelector
-              className={cx(style.contextSelector)}
-              contexts={data.contexts}
-              customIdSuffix={id}
-              saveContexts={contexts =>
-                updateQnA({
-                  id,
-                  data: { ...data, contexts }
-                })
-              }
-              bp={bp}
-            />
-          )}
           <TextAreaList
             key="questions"
             items={questions || ['']}
@@ -242,6 +281,7 @@ const QnA: FC<Props> = props => {
                 data: { ...data, questions: { ...data.questions, [contentLang]: items }, answers: data.answers }
               })
             }
+            canAdd={!defaultLang || defaultLang === contentLang}
             refItems={refQuestions}
             keyPrefix="question-"
             duplicateMsg={lang.tr('module.qna.form.duplicateQuestion')}
@@ -267,28 +307,43 @@ const QnA: FC<Props> = props => {
               placeholder={index => getPlaceholder('answer', index)}
               label={lang.tr('module.qna.answer')}
               addItemLabel={lang.tr('module.qna.form.addAnswerAlternative')}
+              canAdd={!defaultLang || defaultLang === contentLang}
             />
             <div className={style.contentAnswerWrapper}>
-              {contentAnswers?.map((content, index) => (
-                <Contents.Item
-                  key={index}
-                  contentLang={contentLang}
-                  content={content}
-                  active={editingContent.current === index}
-                  onEdit={() => {
-                    editingContent.current = index
-                    setShowContentForm(true)
-                  }}
-                />
-              ))}
+              {contentAnswers?.map((content, index) =>
+                checkMissingTranslations(content) ? (
+                  <button
+                    onClick={() => {
+                      editingContent.current = index
+                      setShowContentForm(true)
+                    }}
+                    className={style.needsTranslation}
+                  >
+                    {lang.tr('needsTranslation')}
+                  </button>
+                ) : (
+                  <Contents.Item
+                    key={index}
+                    contentLang={contentLang}
+                    content={content}
+                    active={editingContent.current === index}
+                    onEdit={() => {
+                      editingContent.current = index
+                      setShowContentForm(true)
+                    }}
+                  />
+                )
+              )}
             </div>
-            <FormFields.AddButton
-              text={lang.tr('module.qna.form.addContent')}
-              onClick={() => {
-                setShowContentForm(true)
-                editingContent.current = null
-              }}
-            />
+            {(!defaultLang || defaultLang === contentLang) && (
+              <FormFields.AddButton
+                text={lang.tr('module.qna.form.addContent')}
+                onClick={() => {
+                  setShowContentForm(true)
+                  editingContent.current = null
+                }}
+              />
+            )}
           </div>
           {showRedirectToFlow && (
             <Fragment>
@@ -340,6 +395,7 @@ const QnA: FC<Props> = props => {
           onUpdate={data => updateContentAnswers(data)}
           events={events}
           currentLang={contentLang}
+          defaultLang={defaultLang}
           close={closingKey => {
             setTimeout(() => {
               if (closingKey === editingContent.current) {

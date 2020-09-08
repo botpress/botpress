@@ -11,6 +11,7 @@ import { getEntityId } from '.'
 
 interface Props {
   customKey: string
+  defaultLang: string
   contentLang: string
   formData: sdk.NLU.EntityDefinition
   close: () => void
@@ -36,6 +37,7 @@ const preparePattern = (pattern: string, matchCase?: boolean) => {
 
 const PatternForm: FC<Props> = ({
   customKey,
+  defaultLang,
   contentLang,
   formData,
   close,
@@ -97,6 +99,7 @@ const PatternForm: FC<Props> = ({
 
         <Contents.Form
           currentLang={contentLang}
+          defaultLang={defaultLang}
           axios={axios}
           fields={[
             {
@@ -120,7 +123,7 @@ const PatternForm: FC<Props> = ({
               type: 'text_array',
               label: 'examples',
               placeholder: 'studio.library.examplePlaceholder',
-              validationPattern: preparePattern(pattern, matchCase),
+              validation: { regex: preparePattern(pattern, matchCase) },
               group: {
                 addLabel: 'studio.library.addExample'
               }

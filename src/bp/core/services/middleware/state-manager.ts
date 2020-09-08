@@ -18,6 +18,7 @@ import { JobService } from '../job-service'
 import { KeyValueStore } from '../kvs'
 
 import { DialogStore } from './dialog-store'
+import { addLogToEvent } from './event-collector'
 
 const getRedisSessionKey = sessionId => `sessionstate_${sessionId}`
 const BATCH_SIZE = 100
@@ -122,13 +123,21 @@ export class StateManager {
   }
 
   public async persist(event: sdk.IO.IncomingEvent, ignoreContext: boolean) {
-    const { workflows } = event.state.session
+    const { workflows, lastMessages } = event.state.session
 
     for (const wf of Object.keys(workflows)) {
       workflows[wf].variables = _.mapValues(workflows[wf].variables, (x: sdk.BoxedVariable<any>) => x.unbox()) as any
     }
 
     const sessionId = SessionIdFactory.createIdFromEvent(event)
+
+    if (!lastMessages.find(x => x.eventId === event.id)) {
+      addLogToEvent(`No messages were sent by the bot`, event)
+
+      if (_.isEmpty(event.state.context)) {
+        addLogToEvent(`End of workflow`, event)
+      }
+    }
 
     if (this.useRedis) {
       await this._redisClient.set(
@@ -173,7 +182,11 @@ export class StateManager {
       dialogSession.prompt_expiry = expiry.prompt
     }
 
-    dialogSession.session_data = session || {}
+    dialogSession.session_data = {
+      ...session,
+      workflows: _.omitBy(session?.workflows, x => x.status === 'completed')
+    }
+
     dialogSession.session_expiry = expiry.session
     dialogSession.context_expiry = expiry.context
 

@@ -23,7 +23,7 @@ export function getOnBotMount(state: NLUState) {
       bp.logger.warn(missingLangMsg(botId), { notSupported: _.difference(bot.languages, languages) })
     }
 
-    const engine = new bp.NLU.Engine(bot.defaultLanguage, bot.id, state.logger)
+    const engine = new bp.NLU.Engine(bot.id, state.logger)
     const trainOrLoad = _.debounce(
       async (forceTrain: boolean = false) => {
         // bot got deleted
@@ -60,7 +60,10 @@ export function getOnBotMount(state: NLUState) {
                 await state.sendNLUStatusEvent(botId, trainSession)
               }
 
-              const options: sdk.NLU.TrainingOptions = { forceTrain, progressCallback }
+              const rand = () => Math.round(Math.random() * 10000)
+              const nluSeed = parseInt(process.env.NLU_SEED) || rand()
+
+              const options: sdk.NLU.TrainingOptions = { forceTrain, nluSeed, progressCallback }
               model = await engine.train(trainSession.key, intentDefs, entityDefs, languageCode, options)
               if (model) {
                 trainSession.status = 'done'
@@ -100,9 +103,11 @@ export function getOnBotMount(state: NLUState) {
       })
     }
 
+    const { defaultLanguage } = bot
     state.nluByBot[botId] = {
       botId,
       engine,
+      defaultLanguage,
       trainOrLoad,
       trainSessions: {},
       cancelTraining

@@ -1,7 +1,8 @@
 import { Icon, Position, Tooltip } from '@blueprintjs/core'
 import cx from 'classnames'
+import _isEqual from 'lodash/isEqual'
 import _uniqueId from 'lodash/uniqueId'
-import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
+import React, { FC, useEffect, useRef, useState } from 'react'
 
 import { lang } from '../../translations'
 import { controlKey } from '../../utils/keyboardShortcuts'
@@ -12,13 +13,33 @@ import Textarea from '../../Textarea'
 import style from './style.scss'
 import { TextFieldsArrayProps } from './typings'
 
-const TextFieldsArray: FC<TextFieldsArrayProps> = props => {
-  const { addBtnLabel, label, onChange, items, getPlaceholder, validationPattern } = props
-  const [localItems, setLocalItems] = useState(items || [])
-  const focusedElement = useRef(items.length)
+const TextFieldsArray: FC<TextFieldsArrayProps> = ({
+  addBtnLabel,
+  label,
+  onChange,
+  items,
+  refValue,
+  getPlaceholder,
+  validation,
+  moreInfo
+}) => {
+  const getInitialItems = () => {
+    let localItems = [...(items || [])]
+    const diff = (refValue || []).length - items.length
+
+    if (diff > 0) {
+      localItems = localItems.concat(Array(diff).fill(''))
+    }
+
+    return localItems
+  }
+
+  const initialItems = getInitialItems()
+  const [localItems, setLocalItems] = useState(initialItems)
+  const focusedElement = useRef(initialItems.length)
 
   useEffect(() => {
-    setLocalItems(items || [])
+    setLocalItems(getInitialItems())
   }, [items.length])
 
   const updateLocalItem = (index: number, value: string): void => {
@@ -59,11 +80,11 @@ const TextFieldsArray: FC<TextFieldsArrayProps> = props => {
   }
 
   const validateItem = (item: string) => {
-    if (!validationPattern?.test || !item) {
+    if (!validation?.regex?.test || !item) {
       return null
     }
 
-    return validationPattern.test(item) ? (
+    return validation.regex.test(item) ? (
       <Icon icon="tick-circle" className={cx(style.icon, style.success)}></Icon>
     ) : (
       <Icon icon="error" className={cx(style.icon, style.error)}></Icon>
@@ -73,21 +94,30 @@ const TextFieldsArray: FC<TextFieldsArrayProps> = props => {
   return (
     <div className={style.items}>
       <h2>{label}</h2>
-      {props.moreInfo}
-      {localItems?.map((item, index) => (
-        <div key={index} className={style.textareaWrapper}>
-          <Textarea
-            isFocused={focusedElement.current === index}
-            className={style.customTextarea}
-            placeholder={getPlaceholder?.(index)}
-            onChange={value => updateLocalItem(index, value)}
-            onBlur={() => onChange([...localItems])}
-            onKeyDown={e => onKeyDown(e, index)}
-            value={item}
-          />
-          {validateItem(item)}
-        </div>
-      ))}
+      {moreInfo}
+      {localItems?.map((item, index) => {
+        const missingTranslation = refValue?.[index] && !item
+
+        return (
+          <div key={index} className={style.textareaWrapper}>
+            <Textarea
+              isFocused={focusedElement.current === index}
+              className={cx(style.customTextarea, { ['has-error']: missingTranslation })}
+              placeholder={getPlaceholder?.(index)}
+              onChange={value => updateLocalItem(index, value)}
+              onBlur={() => {
+                if (!_isEqual(localItems, refValue)) {
+                  onChange([...localItems])
+                }
+              }}
+              onKeyDown={e => onKeyDown(e, index)}
+              refValue={refValue?.[index]}
+              value={item}
+            />
+            {validateItem(item)}
+          </div>
+        )
+      })}
       <Tooltip
         content={lang('quickAddAlternative', {
           shortcut: <ShortcutLabel light keys={[controlKey, 'enter']} />

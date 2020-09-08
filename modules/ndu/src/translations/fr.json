@@ -10,7 +10,7 @@
         "caseSensitive": "Sensibilité aux majuscules et minuscules",
         "exactMatch": "Doit être une correspondance exacte",
         "ignoredWorkflows": "Flux de travail ignorés",
-        "ignoredWorkflowsMoreInfo": "Leur complétion n’activera pas ce déclencheur",
+        "ignoredWorkflowsMoreInfo": "Leur complétion n'activera pas ce déclencheur",
         "workflowOutcome": "Résultat du flux de travail"
       },
       "placeholder": {
@@ -23,13 +23,15 @@
       }
     },
     "workflowCalled": "Le workflow est déclenché par un autre workflow",
-    "userAlreadySpoke": "L’utilisateur a déjà parlé avec l’agent conversationnel",
-    "userAuthenticated": "L’utilisateur est authentifié",
-    "userComingFromTopic": "L’utilisateur vient de {topicName}",
-    "userEndedWorkflow": "L’utilisateur a mis fin à un flux de travail",
-    "userNotInWorkflowOrBlock": "L’utilisateur n’est pas dans un flux de travail ou un bloc",
-    "userSpeaks": "L’utilisateur parle {language}",
-    "userTyped": "L’utilisateur a tapé quelque chose de spécifique",
-    "userUsingChannel": "L’utilisateur utilise {channelName}"
+    "userAlreadySpoke": "L'utilisateur a déjà parlé avec l'agent conversationnel",
+    "userAuthenticated": "L'utilisateur est authentifié",
+    "userComingFromTopic": "L'utilisateur vient de {topicName}",
+    "userEndedWorkflow": "L'utilisateur a mis fin à un flux de travail",
+    "userNotInWorkflowOrBlock": "L'utilisateur n'est pas dans un flux de travail ou un bloc",
+    "userSpeaks": "L'utilisateur parle {language}",
+    "userTyped": "L'utilisateur a tapé quelque chose de spécifique",
+    "userUsingChannel": "L'utilisateur utilise {channelName}",
+    "userIsInWorkflow": "L'utilisateur est dans ce workflow",
+    "userIsInTopic": "L'utilisateur est dans ce topic"
   }
 }
