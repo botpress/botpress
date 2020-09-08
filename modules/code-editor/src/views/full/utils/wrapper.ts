@@ -15,7 +15,7 @@ const ACTION_LEGACY_SIGNATURE =
 const wrapper = {
   add: (file: EditableFile | 'execute', content: string, args?: any) => {
     if (file === 'execute') {
-      return `${EXECUTE_SIGNATURE} {\n  ${args}\n  return async () => {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n  }\n}`
+      return `${EXECUTE_SIGNATURE} {\n  // Current workflow variables are accessible as arguments\n  ${args}\n  return async () => {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n  }\n}`
     }
 
     const { type, hookType, botId } = file

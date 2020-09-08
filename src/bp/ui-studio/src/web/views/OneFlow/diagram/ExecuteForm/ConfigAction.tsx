@@ -29,7 +29,7 @@ const ConfigAction: FC<Props> = ({
 }) => {
   const actionParams = actions.find(x => x.name === actionName)?.params
 
-  const fields: FormField[] = actionParams.map(x => ({
+  const fields: FormField[] = actionParams?.map(x => ({
     type: 'text',
     key: x.name,
     label: x.description,

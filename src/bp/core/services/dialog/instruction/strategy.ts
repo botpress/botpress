@@ -23,7 +23,7 @@ export interface InstructionStrategy {
 }
 
 const argsToConst = (fields: string[]) => {
-  return (fields ?? []).map(x => (x.includes('-') ? `'${x}': ${snakeToCamel(x)}` : x)).join(', ')
+  return (fields ?? []).map(snakeToCamel).join(', ')
 }
 
 @injectable()

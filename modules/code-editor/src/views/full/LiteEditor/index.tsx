@@ -18,14 +18,12 @@ interface Parameters {
 const argsToConst = (params?: Parameters[]) => {
   return (params ?? [])
     .filter(Boolean)
-    .map(x => (x.name?.includes('-') ? `'${x.name}': ${snakeToCamel(x.name)}` : x.name))
+    .map(x => snakeToCamel(x.name))
     .join(', ')
 }
 
 const argsToInterface = (params?: Parameters[]) => {
-  return (params ?? [])
-    .filter(Boolean)
-    .map(x => ({ name: x.name?.includes('-') ? `'${x.name}'` : x.name, type: x.type }))
+  return (params ?? []).filter(Boolean).map(x => ({ name: snakeToCamel(x.name), type: x.type }))
 }
 
 interface Props {
