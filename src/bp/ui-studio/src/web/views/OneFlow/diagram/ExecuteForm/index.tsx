@@ -1,6 +1,6 @@
 import { Button, Tab, Tabs, Tooltip } from '@blueprintjs/core'
 import { BotEvent, ExecuteNode, FlowNode, FlowVariable } from 'botpress/sdk'
-import { Dropdown, Icons, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
+import { Icons, lang, MoreOptions, MoreOptionsItems, MultiLevelDropdown, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import { LocalActionDefinition, Variables } from 'common/typings'
 import _ from 'lodash'
@@ -46,6 +46,7 @@ const ExecuteForm: FC<Props> = ({
   const [canOutsideClickClose, setCanOutsideClickClose] = useState(true)
   const [showOptions, setShowOptions] = useState(false)
   const [maximized, setMaximized] = useState(false)
+  const [isCodeEditor, setIsCodeEditor] = useState(formData?.actionName === newAction.value)
   const [forceUpdate, setForceUpdate] = useState(false)
   const selectedAction = useRef(formData?.actionName)
   const originalCode = useRef(formData?.code ?? '')
@@ -55,8 +56,6 @@ const ExecuteForm: FC<Props> = ({
     _.debounce((value: string) => onUpdate({ code: value }), 1000),
     []
   )
-
-  const isCodeEditor = selectedAction.current === newAction.value
 
   useEffect(() => {
     if (isCodeEditor) {
@@ -69,6 +68,10 @@ const ExecuteForm: FC<Props> = ({
       setForceUpdate(!forceUpdate)
     }
   }, [customKey])
+
+  useEffect(() => {
+    setIsCodeEditor(formData?.actionName === newAction.value)
+  }, [formData?.actionName])
 
   useEffect(() => {
     document.documentElement.style.setProperty('--right-sidebar-width', maximized ? '580px' : '240px')
@@ -98,6 +101,18 @@ const ExecuteForm: FC<Props> = ({
   const onlyLegacy = actions.filter(a => a.legacy)
   const allActions = [newAction, ...onlyLegacy.map(x => ({ label: `${x.category} - ${x.title}`, value: x.name }))]
   const selectedOption = allActions.find(a => a.value === selectedAction.current)
+  const multiLevelActions = actions.reduce((acc, action) => {
+    const category = acc.find(c => c.name === action.category) || { name: action.category, items: [] }
+
+    category.items.push({ label: action.title, value: action.name })
+
+    return [...acc.filter(a => a.name !== action.category), category]
+  }, [])
+
+  const handleCodeNewAction = () => {
+    onActionChanged(newAction.value)
+    setIsCodeEditor(true)
+  }
 
   const commonProps = {
     customKey,
@@ -141,15 +156,16 @@ const ExecuteForm: FC<Props> = ({
         <div className={cx(contentStyle.fieldWrapper, contentStyle.contentTypeField)}>
           <span className={contentStyle.formLabel}>{lang.tr('Action')}</span>
 
-          <Dropdown
+          <MultiLevelDropdown
+            addBtn={{ text: lang.tr('codeNewAction'), onClick: handleCodeNewAction }}
             filterable
             className={contentStyle.formSelect}
-            items={allActions}
-            rightIcon="chevron-down"
+            items={multiLevelActions}
             defaultItem={selectedOption}
+            placeholder={lang.tr('studio.flow.node.pickAction')}
             confirmChange={
               selectedOption && {
-                message: lang.tr('studio.content.confirmChangeContentType'),
+                message: lang.tr('studio.content.confirmChangeAction'),
                 acceptLabel: lang.tr('change'),
                 callback: setCanOutsideClickClose
               }

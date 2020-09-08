@@ -72,7 +72,8 @@
     },
     "content": {
       "cloneElements": "Cloner les éléments sélectionnés",
-      "confirmChangeContentType": "Souhaitez-vous vraiment changer le type de ce contenu ? Tous les champs seront effacés.",
+      "confirmChangeAction": "Souhaitez-vous vraiment changer l'action? Tous les champs seront effacés.",
+      "confirmChangeContentType": "Souhaitez-vous vraiment changer le type de ce contenu? Tous les champs seront effacés.",
       "confirmDeleteItem": "Voulez-vous vraiment supprimer {count, number} {count, plural, one {item} other {items}}?",
       "contentType": "Type de contenu",
       "createNew": "Créer un nouveau {title}",
@@ -217,6 +218,7 @@
         "nodeName": "Nom du node",
         "onEnter": "Sur Entrée",
         "onReceive": "Sur réception",
+        "pickAction": "Sélectionnez une action",
         "renameBlock": "Renommer le block",
         "return": "Revenir",
         "saySomething": "Écrire quelque chose",
