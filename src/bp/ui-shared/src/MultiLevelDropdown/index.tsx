@@ -1,4 +1,4 @@
-import { Button, Classes, Icon, MenuItem } from '@blueprintjs/core'
+import { Button, Icon } from '@blueprintjs/core'
 import cx from 'classnames'
 import { FC, useState } from 'react'
 import React from 'react'
@@ -6,48 +6,13 @@ import { useEffect } from 'react'
 import { Fragment } from 'react'
 
 import Overlay from '../../../ui-shared-lite/Overlay'
-import { contentTypeField } from '../FormFields/VariablePicker/style.scss'
+import { lang } from '../translations'
 
 import style from './style.scss'
 import { MultiLevelDropdownProps, Option } from './typings'
 
-const itemRenderer = (option, { modifiers, handleClick }) => {
-  if (!modifiers.matchesPredicate) {
-    return null
-  }
-
-  return (
-    <MenuItem
-      className={Classes.SMALL}
-      active={modifiers.active}
-      disabled={modifiers.disabled}
-      key={option.label || option}
-      onClick={handleClick}
-      text={option.label || option}
-      icon={option.icon}
-    />
-  )
-}
-
 const MultiLevelDropdown: FC<MultiLevelDropdownProps> = props => {
-  const {
-    addBtn,
-    placeholder,
-    filterPlaceholder,
-    confirmChange,
-    defaultItem,
-    items,
-    onChange,
-    small,
-    icon,
-    rightIcon,
-    children,
-    spaced,
-    className,
-    filterable,
-    filterList,
-    customItemRenderer
-  } = props
+  const { addBtn, placeholder, filterPlaceholder, defaultItem, items, onChange, small, spaced, filterable } = props
   const [activeItem, setActiveItem] = useState<Option | undefined>()
   const [isOpen, setIsOpen] = useState(false)
   const [searchValue, setSearchValue] = useState('')
@@ -104,6 +69,7 @@ const MultiLevelDropdown: FC<MultiLevelDropdownProps> = props => {
                   <Icon icon="search" />
                   <input
                     type="text"
+                    placeholder={filterPlaceholder || lang('search')}
                     onKeyDown={onKeyDown}
                     onChange={({ currentTarget: { value } }) => setSearchValue(value)}
                     value={searchValue}
