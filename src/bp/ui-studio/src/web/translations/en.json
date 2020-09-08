@@ -416,6 +416,10 @@
       "endOfLogs": "End of logs"
     }
   },
+  "issue": {
+    "stepsToReproduce": "Steps to reproduce",
+    "whatIsTheIssue": "What is the issue?"
+  },
   "variable": {
     "emptyState": "Tap + in the toolbar to add your first variable"
   }

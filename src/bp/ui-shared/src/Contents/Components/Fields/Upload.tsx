@@ -82,7 +82,7 @@ const Upload: FC<UploadFieldProps> = props => {
       {value && (
         <div style={{ backgroundImage: `url('${value}')` }} className={style.imgWrapper}>
           <div className={style.imgWrapperActions}>
-            <Tooltip content={lang('delete')} position={Position.TOP}>
+            <Tooltip content={lang('deleteImage')} position={Position.TOP}>
               <Button
                 className={style.deleteImg}
                 minimal
