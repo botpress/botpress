@@ -1,4 +1,5 @@
 import { lang } from 'botpress/shared'
+import { CUSTOM_ACTION } from 'common/action'
 import React, { FC } from 'react'
 import ActionItem from '~/views/FlowBuilder/common/action'
 
@@ -15,7 +16,7 @@ const ExecuteContents: FC<Props> = ({ node, editNodeItem }) => {
 
   const nodeActionName = node.execute?.actionName
   if (nodeActionName) {
-    actionName = nodeActionName === '__newAction' ? lang.tr('module.ndu.conditions.customCode') : nodeActionName
+    actionName = nodeActionName === CUSTOM_ACTION ? lang.tr('module.ndu.conditions.customCode') : nodeActionName
   }
 
   return (

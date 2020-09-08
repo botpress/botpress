@@ -3,6 +3,8 @@ import _ from 'lodash'
 
 import { EventCommonArgs, OutgoingEventCommonArgs } from './typings'
 
+export const CUSTOM_ACTION = '__customAction'
+
 export interface ActionInstruction {
   actionName: string
   argsStr: string

@@ -105,8 +105,7 @@ export class ActionStrategy implements InstructionStrategy {
   }
 
   private async executeAction(botId, instruction, event: IO.IncomingEvent): Promise<ProcessingResult> {
-    const { code } = instruction.args
-    const args: any = {}
+    const { code, params, actionName } = instruction.args
 
     const { currentWorkflow } = event.state.session
 
@@ -126,9 +125,11 @@ export class ActionStrategy implements InstructionStrategy {
     try {
       const service = await this.actionService.forBot(botId)
       await service.runAction({
-        actionCode: `const { ${argsToConst(variables.map(x => x.name))} } = event.state.workflow.variables\n${code}`,
+        actionName,
+        actionCode:
+          code && `const { ${argsToConst(variables.map(x => x.name))} } = event.state.workflow.variables\n${code}`,
         incomingEvent: event,
-        actionArgs: args
+        actionArgs: _.mapValues(params, x => x.value)
       })
     } catch (err) {
       const { onErrorFlowTo } = event.state.temp

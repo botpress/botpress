@@ -2,6 +2,7 @@ import { Button, Tab, Tabs, Tooltip } from '@blueprintjs/core'
 import { BotEvent, ExecuteNode, FlowNode, FlowVariable } from 'botpress/sdk'
 import { Icons, lang, MoreOptions, MoreOptionsItems, MultiLevelDropdown, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
+import { CUSTOM_ACTION } from 'common/action'
 import { LocalActionDefinition, Variables } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useCallback, useEffect, useRef, useState } from 'react'
@@ -27,7 +28,7 @@ interface Props {
   close: () => void
 }
 
-const newAction = { label: 'Code New Action', value: '__newAction' }
+const newAction = { label: 'Code New Action', value: CUSTOM_ACTION }
 
 const ExecuteForm: FC<Props> = ({
   node,
