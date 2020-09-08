@@ -35,7 +35,7 @@
       "name": "Debug NLU Server",
       "program": "${workspaceFolder}/out/bp/index.js",
       "cwd": "${workspaceFolder}",
-      "args": ["nlu", "--nluConfigFile=${workspaceFolder}/out/bp/data/global/config/nlu.json"],
+      "args": ["nlu", "--config=${workspaceFolder}/out/bp/data/global/config/nlu.json"],
       "protocol": "auto",
       "env": {
         "BP_MODULES_PATH": "${workspaceFolder}/modules:${workspaceFolder}/internal-modules",

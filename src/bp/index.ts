@@ -352,7 +352,7 @@ try {
           description: 'Time window on which the limit is applied (use standard notation, ex: 25m or 1h)',
           default: '1h'
         },
-        nluConfigFile: {
+        config: {
           description:
             'Path of the NLU configuration file (ex: "~/bp-nlu-config.json"). \
             Use to configure the duckling and language servers endpoints.'

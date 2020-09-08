@@ -22,7 +22,7 @@ import makeLoggerWrapper from './logger-wrapper'
 const debug = DEBUG('api')
 
 type ArgV = APIOptions & {
-  nluConfigFile?: string
+  config?: string
 }
 
 export default async function(options: ArgV) {
@@ -38,10 +38,10 @@ export default async function(options: ArgV) {
 
   let config: NLU.Config
   try {
-    config = await getConfig(options.nluConfigFile)
+    config = await getConfig(options.config)
   } catch (err) {
     logger.attachError(err).error(
-      `Config file ${options.nluConfigFile} could not be read. \
+      `Config file ${options.config} could not be read. \
         Make sure the file exists and that it contains an actual NLU Config in a JSON format.`
     )
     process.exit(1) // TODO: this should also exit master process... Find a way to do so in cluster.ts
