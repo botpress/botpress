@@ -56,22 +56,12 @@ type OutOfScopeStep = PredictStep & { oos_predictions: _.Dictionary<number> }
 type ContextStep = OutOfScopeStep & { ctx_predictions: sdk.MLToolkit.SVM.Prediction[] }
 type IntentStep = ContextStep & {
   intent_predictions: {
-    per_ctx?: _.Dictionary<sdk.MLToolkit.SVM.Prediction[]>
-    combined?: E1IntentPred[] // only to comply with E1
-    elected?: E1IntentPred // only to comply with E1
-    ambiguous?: boolean
+    per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Prediction[]>
   }
 }
 type SlotStep = IntentStep & { slot_predictions_per_intent: _.Dictionary<SlotExtractionResult[]> }
 
 export type PredictOutput = sdk.IO.EventUnderstanding
-
-// only to comply with E1
-interface E1IntentPred {
-  name: string
-  context: string
-  confidence: number
-}
 
 const DEFAULT_CTX = 'global'
 const NONE_INTENT = 'none'
@@ -199,7 +189,10 @@ async function predictContext(input: OutOfScopeStep, predictors: Predictors): Pr
 
 async function predictIntent(input: ContextStep, predictors: Predictors): Promise<IntentStep> {
   if (_.flatMap(predictors.intents, i => i.utterances).length <= 0) {
-    return { ...input, intent_predictions: { per_ctx: { [DEFAULT_CTX]: [{ label: NONE_INTENT, confidence: 1 }] } } }
+    return {
+      ...input,
+      intent_predictions: { per_ctx: { [DEFAULT_CTX]: [{ label: NONE_INTENT, confidence: 1 }] } }
+    }
   }
 
   const customEntities = getCustomEntitiesNames(predictors)
