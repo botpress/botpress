@@ -1,122 +1,41 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { QnaEntry } from './qna'
-import Storage, { NLU_PREFIX } from './storage'
+import { Item } from './qna'
 
 export const QNA_MIN_QUESTIONS = 3
 export const QNA_MIN_ANSWERS = 1
 
-export const isQnaComplete = (qnaEntry: QnaEntry, lang: string): boolean => {
-  return (
-    qnaEntry.questions[lang]?.length >= QNA_MIN_QUESTIONS &&
-    (qnaEntry.answers[lang]?.length >= QNA_MIN_ANSWERS ||
-      qnaEntry.redirectFlow !== undefined ||
-      qnaEntry.redirectNode !== undefined)
-  )
+export const isQnaComplete = (qnaEntry: Item, lang: string): boolean => {
+  return qnaEntry.questions[lang]?.length >= QNA_MIN_QUESTIONS && qnaEntry.answers[lang]?.length >= QNA_MIN_ANSWERS
 }
 
-export const getQuestionForIntent = async (storage: Storage, intentName) => {
-  if (intentName && intentName.startsWith(NLU_PREFIX)) {
-    const qnaId = intentName.substring(NLU_PREFIX.length)
-    return (await storage.getQnaItem(qnaId)).data
-  }
-}
-
-export const getRandomAnswer = (answers: string[]): string => {
-  const randomIndex = Math.floor(Math.random() * answers.length)
-  return answers[randomIndex]
-}
-
-export const getQnaEntryPayloads = async (
-  qnaEntry: QnaEntry,
-  event: sdk.IO.IncomingEvent,
-  renderer: string,
-  defaultLang: string,
-  bp: typeof sdk
-) => {
-  let lang = event.state?.user?.language ?? defaultLang
-  if (!qnaEntry.answers[lang] && !qnaEntry.contentAnswers?.length) {
-    if (!qnaEntry.answers[defaultLang] && !qnaEntry.contentAnswers?.length) {
-      throw new Error(`No answers found for language ${lang} or default language ${defaultLang}`)
+export const getQnaEntryPayloads = async (item: Item, userLang: string, fallbackLang: string) => {
+  let lang = userLang ?? fallbackLang
+  if (!item.answers[lang]?.length && !item.contentAnswers?.length) {
+    if (!item.answers[fallbackLang]?.length && !item.contentAnswers?.length) {
+      throw new Error(`No answers found for language ${lang} or default language ${fallbackLang}`)
     }
-    lang = defaultLang
+    lang = fallbackLang
   }
 
-  const payloads: object[] = []
-  const args: any = {
-    event,
-    user: _.get(event, 'state.user') || {},
-    session: _.get(event, 'state.session') || {},
-    temp: _.get(event, 'state.temp') || {},
-    collectFeedback: true
-  }
+  const payloads: sdk.Content.All[] = []
 
-  if (qnaEntry.answers?.[lang]?.length > 0) {
-    const electedAnswer = getRandomAnswer(qnaEntry.answers[lang])
-    const textArgs = { ...args }
-
-    if (electedAnswer.startsWith('#!')) {
-      renderer = `!${electedAnswer.replace('#!', '')}`
-    } else {
-      textArgs.text = electedAnswer
-      textArgs.typing = true
+  if (item.answers?.[lang]?.length > 0) {
+    const textContent: sdk.Content.Text = {
+      text: item.answers[lang][0],
+      type: 'text',
+      variations: item.answers[lang],
+      extraProps: { BOT_URL: (process as any).EXTERNAL_URL },
+      metadata: { __markdown: true, __typing: true, __trimText: 500 } // TODO: put these in config?
     }
 
-    payloads.push(
-      ...(await bp.cms.renderElement(renderer, textArgs, {
-        botId: event.botId,
-        channel: event.channel,
-        target: event.target,
-        threadId: event.threadId
-      }))
-    )
+    payloads.push(textContent)
   }
 
-  if (!qnaEntry.contentAnswers) {
+  if (!item.contentAnswers) {
     return payloads
   }
 
-  for (const contentAnswer of qnaEntry.contentAnswers) {
-    renderer = `#${contentAnswer.contentType}`
-    const contentArgs = {
-      ...args,
-      ...contentAnswer,
-      typing: payloads.length === 0
-    }
-
-    payloads.push(
-      ...(await bp.cms.renderElement(renderer, contentArgs, {
-        botId: event.botId,
-        channel: event.channel,
-        target: event.target,
-        threadId: event.threadId
-      }))
-    )
-  }
-
-  return payloads
-}
-
-export const getIntentActions = async (
-  intentName: string,
-  event: sdk.IO.IncomingEvent,
-  { bp, storage, config, defaultLang }
-): Promise<sdk.NDU.Actions[]> => {
-  const actions = []
-
-  const qnaEntry = await getQuestionForIntent(storage, intentName)
-
-  if (qnaEntry?.enabled) {
-    if (qnaEntry.action.includes('text')) {
-      const payloads = await getQnaEntryPayloads(qnaEntry, event, config.textRenderer, defaultLang, bp)
-      actions.push({ action: 'send', data: { payloads, source: 'qna', sourceDetails: intentName } })
-    }
-
-    if (qnaEntry.action.includes('redirect')) {
-      actions.push({ action: 'redirect', data: { flow: qnaEntry.redirectFlow, node: qnaEntry.redirectNode } })
-    }
-  }
-
-  return actions
+  return [...payloads] // TODO: implement contentAnswers
 }

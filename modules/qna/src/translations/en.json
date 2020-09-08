@@ -49,7 +49,6 @@
     "emptyState": "Tap + in the toolbar to add your first question.",
     "enableQuestion": "Enable Question",
     "enableRedirection": "Enable Redirection",
-    "incomplete": "Incomplete",
     "incompleteTooltip": "This Q&A will use exact match only.",
     "missingAnswer": "Leaving answer field empty will disable this question.",
     "missingQuestion": "Leaving question field empty will disable this question.",
@@ -68,6 +67,7 @@
     "writeTheAnswer": "Write the answer to the question",
     "writingSameQuestion": "Writing the same question twice will disable this Q&A."
   },
+  "filterBy": "Filter By",
   "fullName": "Q&A",
   "hint": {
     "addMoreQuestions": "Add {moreQuestions} to make your Q&A more resilient.",
@@ -79,6 +79,7 @@
   "import": {
     "analysis": "Analysis",
     "botContains": "The bot contains {qnaCount} questions and {cmsCount} content elements.",
+    "badFormat": "File need to be  a Json or a Tar.gz",
     "clearQuestionsThenInsert": "Clear existing questions, then insert my new questions and create/update content elements",
     "fileContains": "Your file contains {fileQnaCount} questions and {fileCmsCount} content elements.",
     "insertNewQuestions": "Insert the new questions from my file and create/update associated content elements",
@@ -88,12 +89,16 @@
     "uploadFile": "Upload File",
     "uploadStatus": "Upload status",
     "uploadSuccessful": "Upload successful",
-    "whatLikeDo": "What would you like to do?"
+    "whatLikeDo": "What would you like to do?",
+    "importQnAs": "Import Q&As",
+    "exportQnAs": "Export Q&As"
   },
-  "importJson": "Import JSON",
+  "leastRecent": "Least recent",
   "missingTranslations": "Missing translations",
+  "mostRecent": "Most recent",
   "noQuestionsYet": "No questions have been added yet.",
   "question": "Question",
   "redirectsAssociated": "There are redirects associated to this questions, you can view them in the edit form",
-  "search": "Search question"
+  "search": "Search question",
+  "sortBy": "Sort by date"
 }

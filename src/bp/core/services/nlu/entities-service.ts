@@ -4,7 +4,6 @@ import { sanitizeFileName } from 'core/misc/utils'
 import { GhostService } from '..'
 
 import * as CacheManager from './cache-manager'
-import { NLUService } from './nlu-service'
 
 const ENTITIES_DIR = './entities'
 
@@ -28,7 +27,7 @@ const getSystemEntities = (): sdk.NLU.EntityDefinition[] => {
 }
 
 export class EntityService {
-  constructor(private ghostService: GhostService, private nluService: NLUService) {}
+  constructor(private ghostService: GhostService) {}
 
   private entityExists(botId: string, entityName: string): Promise<boolean> {
     return this.ghostService.forBot(botId).fileExists(ENTITIES_DIR, `${entityName}.json`)
@@ -76,10 +75,7 @@ export class EntityService {
     if (targetSanitized !== nameSanitized) {
       // entity renamed
       CacheManager.copyCache(targetEntityName, entity.name, botId)
-      await Promise.all([
-        this.deleteEntity(botId, targetSanitized),
-        this.nluService.intents.updateIntentsSlotsEntities(botId, targetSanitized, nameSanitized)
-      ])
+      await this.deleteEntity(botId, targetSanitized)
     } else {
       // entity changed
       CacheManager.getOrCreateCache(targetEntityName, botId).reset()

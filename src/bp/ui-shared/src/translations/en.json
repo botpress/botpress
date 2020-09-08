@@ -246,5 +246,8 @@
   "moderate": "Moderate",
   "loose": "Loose",
   "examples": "Examples",
-  "private": "Private"
+  "private": "Private",
+  "uploading": "Uploading",
+  "incomplete": "Incomplete",
+  "active": "Active"
 }
