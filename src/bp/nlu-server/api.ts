@@ -1,5 +1,4 @@
 import bodyParser from 'body-parser'
-import { NLU } from 'botpress/sdk'
 import cors from 'cors'
 import express, { Application } from 'express'
 import rateLimit from 'express-rate-limit'
@@ -80,9 +79,7 @@ export default async function(options: APIOptions, nluVersion: string) {
   const trainService = new TrainService(logger, engine, modelService, trainSessionService)
 
   app.get('/info', (req, res) => {
-    res.send({
-      version: nluVersion
-    })
+    res.send({ version: nluVersion })
   })
 
   const router = express.Router({ mergeParams: true })
@@ -104,10 +101,7 @@ export default async function(options: APIOptions, nluVersion: string) {
       // tslint:disable-next-line: no-floating-promises
       trainService.train(modelFileName, intents, entities, language, seed)
 
-      return res.send({
-        success: true,
-        modelId
-      })
+      return res.send({ success: true, modelId })
     } catch (err) {
       res.status(500).send({ success: false, error: err.message })
     }
@@ -136,10 +130,7 @@ export default async function(options: APIOptions, nluVersion: string) {
         }
       }
 
-      res.send({
-        success: true,
-        session
-      })
+      res.send({ success: true, session })
     } catch (err) {
       res.status(500).send({ success: false, error: err.message })
     }
@@ -154,9 +145,7 @@ export default async function(options: APIOptions, nluVersion: string) {
 
       if (session?.status === 'training') {
         await engine.cancelTraining(modelFileName)
-        return res.send({
-          success: true
-        })
+        return res.send({ success: true })
       }
 
       res.status(404).send({ success: true, error: `no current training for model id: ${modelId}` })
@@ -178,10 +167,7 @@ export default async function(options: APIOptions, nluVersion: string) {
         const prediction = await engine.predict(sentence, [], model?.languageCode!)
         engine.unloadModel(model.languageCode)
 
-        return res.send({
-          success: true,
-          prediction
-        })
+        return res.send({ success: true, prediction })
       }
 
       res.status(404).send({ success: false, error: `modelId ${modelId} can't be found` })
