@@ -60,10 +60,6 @@ export default class MinimalEditor extends React.Component<Props> {
   }
 
   componentDidUpdate(prevProps) {
-    if (!this.props.displayed) {
-      return
-    }
-
     if (prevProps.maximized !== this.props.maximized || prevProps.displayed !== this.props.displayed) {
       this.refreshLayout()
     }
@@ -124,6 +120,10 @@ export default class MinimalEditor extends React.Component<Props> {
   }
 
   handleContentChanged = () => {
+    if (!this.props.displayed) {
+      return
+    }
+
     const unwrapped = wrapper.remove(this.editor.getValue(), 'execute')
 
     this.props.onChange(unwrapped)
