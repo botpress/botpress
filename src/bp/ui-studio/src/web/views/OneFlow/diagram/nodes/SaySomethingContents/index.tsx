@@ -63,11 +63,6 @@ const SaySomethingContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem,
     const refValue = suggestions[defaultLang]?.[index] || {}
     const currentValue = suggestions[currentLang]?.[index] || {}
 
-    console.log(
-      [refValue?.name || '', ...(refValue?.tags || [])].filter(Boolean),
-      [currentValue?.name || '', ...(currentValue?.tags || [])].filter(Boolean)
-    )
-
     return (
       [refValue?.name || '', ...(refValue?.tags || [])].filter(Boolean).length !==
       [currentValue?.name || '', ...(currentValue?.tags || [])].filter(Boolean).length
