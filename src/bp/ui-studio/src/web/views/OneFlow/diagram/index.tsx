@@ -124,6 +124,7 @@ type ExtendedDiagramEngine = {
 } & DiagramEngine
 
 const EXPANDED_NODES_KEY = `bp::${window.BOT_ID}::expandedNodes`
+const DIAGRAM_TAB_KEY = `bp::${window.BOT_ID}::diagramTab`
 
 const getEmptyContent = content => {
   return {
@@ -151,7 +152,7 @@ class Diagram extends Component<Props> {
 
   state = {
     editingNodeItem: null,
-    currentTab: 'workflow',
+    currentTab: storage.get(DIAGRAM_TAB_KEY) || 'workflow',
     expandedNodes: [],
     nodeInfos: []
   }
@@ -833,6 +834,10 @@ class Diagram extends Component<Props> {
       }
     } else if (data.type === 'skill') {
       this.add.skillNode(point, data.id)
+    } else if (data.type === 'subworkflow') {
+      if (this.props.currentFlow.name !== data.id) {
+        this.add.gotoSubWorkflow(point, data.id)
+      }
     } else if (data.type === 'node') {
       switch (data.id) {
         case 'trigger':
@@ -959,6 +964,7 @@ class Diagram extends Component<Props> {
 
   handleTabChanged = (tab: string) => {
     this.setState({ currentTab: tab })
+    storage.set(DIAGRAM_TAB_KEY, tab)
   }
 
   addVariable = (variable?: FlowVariable & { isNew?: boolean }) => {
@@ -1111,7 +1117,12 @@ class Diagram extends Component<Props> {
             }}
           />
         )}
-        <MainContent.Wrapper className={cx({ [style.hidden]: isQnA || this.props.currentFlow === undefined })}>
+        <MainContent.Wrapper
+          className={cx({
+            [style.hidden]: isQnA || this.props.currentFlow === undefined,
+            'emulator-open': this.props.emulatorOpen
+          })}
+        >
           <WorkflowToolbar
             currentLang={this.props.currentLang}
             languages={this.props.languages}
@@ -1121,22 +1132,25 @@ class Diagram extends Component<Props> {
             canAdd={canAdd}
             tabChange={this.handleTabChanged}
           />
-          {currentTab === 'variables' && <VariablesEditor editVariable={this.editVariable} />}
-          <div className={style.searchWrapper}>
-            <SearchBar
-              ref={this.searchRef}
-              onBlur={this.props.hideSearch}
-              value={this.props.highlightFilter}
-              placeholder={lang.tr('studio.flow.filterBlocks')}
-              onChange={this.props.handleFilterChanged}
-            />
-          </div>
+          {currentTab === 'variables' ? (
+            <VariablesEditor editVariable={this.editVariable} editingVar={currentItem} />
+          ) : (
+            <div className={style.searchWrapper}>
+              <SearchBar
+                ref={this.searchRef}
+                onBlur={this.props.hideSearch}
+                value={this.props.highlightFilter}
+                placeholder={lang.tr('studio.flow.filterBlocks')}
+                onChange={this.props.handleFilterChanged}
+              />
+            </div>
+          )}
           <Fragment>
             <div
               id="diagramContainer"
               ref={ref => (this.diagramContainer = ref)}
               tabIndex={1}
-              className={cx(style.diagramContainer, { [style.diagramHidden]: currentTab !== 'workflow' })}
+              className={cx(style.diagramContainer, { [style.hidden]: currentTab !== 'workflow' })}
               onContextMenu={this.handleContextMenu}
               onDrop={this.handleToolDropped}
               onDragOver={event => event.preventDefault()}
@@ -1160,164 +1174,165 @@ class Diagram extends Component<Props> {
             )}
             {currentTab === 'workflow' && canAdd && <Toolbar />}
           </Fragment>
-
-          {formType === 'say_something' && (
-            <ContentForm
-              customKey={`${node.id}${index}`}
-              contentTypes={this.props.contentTypes.filter(type =>
-                type.schema.newJson?.displayedIn.includes('sayNode')
-              )}
-              deleteContent={() => this.deleteNodeContent()}
-              variables={this.props.variables}
-              events={this.props.hints || []}
-              contentLang={this.props.currentLang}
-              defaultLang={this.props.defaultLang}
-              editingContent={index}
-              formData={currentItem || getEmptyContent(currentItem)}
-              onUpdate={this.updateNodeContent.bind(this)}
-              onUpdateVariables={this.addVariable}
-              close={() => {
-                this.timeout = setTimeout(() => {
-                  this.setState({ editingNodeItem: null })
-                }, 200)
-              }}
-            />
-          )}
-          {formType === 'trigger' && (
-            <ConditionForm
-              customKey={`${node.id}${index}`}
-              conditions={this.props.conditions}
-              deleteCondition={() => this.deleteNodeCondition()}
-              editingCondition={index}
-              topicName={this.props.selectedTopic}
-              variables={this.props.variables}
-              events={this.props.hints}
-              formData={currentItem}
-              contentLang={this.props.currentLang}
-              defaultLang={this.props.defaultLang}
-              onUpdate={this.updateNodeCondition.bind(this)}
-              onUpdateVariables={this.addVariable}
-              close={() => {
-                this.timeout = setTimeout(() => {
-                  this.setState({ editingNodeItem: null })
-                }, 200)
-              }}
-            />
-          )}
-          {formType === 'prompt' && (
-            <PromptForm
-              prompts={this.props.prompts}
-              customKey={`${node?.id}${node?.prompt?.type}`}
-              formData={node?.prompt}
-              onUpdate={this.updatePromptNode.bind(this)}
-              deletePrompt={this.deleteSelectedElements.bind(this)}
-              variables={this.props.variables}
-              onUpdateVariables={this.addVariable}
-              contentLang={this.props.currentLang}
-              defaultLang={this.props.defaultLang}
-              close={() => {
-                this.timeout = setTimeout(() => {
-                  this.setState({ editingNodeItem: null })
-                }, 200)
-              }}
-            />
-          )}
-          {formType === 'execute' && (
-            <ExecuteForm
-              node={this.props.currentFlowNode}
-              deleteNode={this.deleteSelectedElements.bind(this)}
-              diagramEngine={this.diagramEngine}
-              close={() => {
-                this.timeout = setTimeout(() => {
-                  this.setState({ editingNodeItem: null })
-                }, 200)
-              }}
-            />
-          )}
-          {formType === 'action' && (
-            <ActionForm
-              node={this.props.currentFlowNode}
-              deleteNode={this.deleteSelectedElements.bind(this)}
-              diagramEngine={this.diagramEngine}
-              close={() => {
-                this.timeout = setTimeout(() => {
-                  this.setState({ editingNodeItem: null })
-                }, 200)
-              }}
-            />
-          )}
-          {formType === 'sub-workflow' && (
-            <SubWorkflowForm
-              variables={this.props.variables}
-              node={this.props.currentFlowNode}
-              customKey={`${node?.id}${node?.type}`}
-              updateSubWorkflow={this.updateSubWorkflow}
-              onUpdateVariables={this.addVariable}
-              formData={currentItem}
-              flows={this.props.flows}
-              type={index === 0 ? 'in' : 'out'}
-              close={() => {
-                this.timeout = setTimeout(() => {
-                  this.setState({ editingNodeItem: null })
-                }, 200)
-              }}
-            />
-          )}
-
-          {formType === 'router' && (
-            <RouterForm
-              transition={currentItem?.[index]}
-              deleteTransition={this.deleteTransition.bind(this)}
-              variables={this.props.variables}
-              onUpdateVariables={this.addVariable}
-              customKey={`${node?.type}${node?.id}${index}`}
-              updateRouter={this.updateRouter}
-              contentLang={this.props.currentLang}
-              close={() => {
-                this.timeout = setTimeout(() => {
-                  this.setState({ editingNodeItem: null })
-                }, 200)
-              }}
-            />
-          )}
-
-          {formType === 'variable' && (
-            <VariableForm
-              variables={this.props.variables}
-              contentLang={this.props.currentLang}
-              defaultLang={this.props.defaultLang}
-              customKey={`${node?.id}${node?.prompt?.type}`}
-              deleteVariable={this.deleteVariable.bind(this)}
-              formData={currentItem}
-              currentFlow={this.props.currentFlow}
-              onUpdate={this.updateFlowVariable.bind(this)}
-              close={() => {
-                this.timeout = setTimeout(() => {
-                  this.setState({ editingNodeItem: null })
-                }, 200)
-              }}
-            />
-          )}
-          {formType === 'variableType' && (
-            <VariableTypesForm
-              contentLang={this.props.currentLang}
-              customKey={data.id}
-              formData={currentItem}
-              variables={this.props.variables}
-              close={() => {
-                this.timeout = setTimeout(() => {
-                  this.setState({ editingNodeItem: null })
-                }, 200)
-              }}
-            />
-          )}
         </MainContent.Wrapper>
+
+        {formType === 'say_something' && (
+          <ContentForm
+            customKey={`${node.id}${index}`}
+            contentTypes={this.props.contentTypes.filter(type => type.schema.newJson?.displayedIn.includes('sayNode'))}
+            deleteContent={() => this.deleteNodeContent()}
+            variables={this.props.variables}
+            events={this.props.hints || []}
+            contentLang={this.props.currentLang}
+            defaultLang={this.props.defaultLang}
+            editingContent={index}
+            formData={currentItem || getEmptyContent(currentItem)}
+            onUpdate={this.updateNodeContent.bind(this)}
+            onUpdateVariables={this.addVariable}
+            close={() => {
+              this.timeout = setTimeout(() => {
+                this.setState({ editingNodeItem: null })
+              }, 200)
+            }}
+          />
+        )}
+        {formType === 'trigger' && (
+          <ConditionForm
+            customKey={`${node.id}${index}`}
+            conditions={this.props.conditions}
+            deleteCondition={() => this.deleteNodeCondition()}
+            editingCondition={index}
+            topicName={this.props.selectedTopic}
+            variables={this.props.variables}
+            events={this.props.hints}
+            formData={currentItem}
+            contentLang={this.props.currentLang}
+            defaultLang={this.props.defaultLang}
+            onUpdate={this.updateNodeCondition.bind(this)}
+            onUpdateVariables={this.addVariable}
+            close={() => {
+              this.timeout = setTimeout(() => {
+                this.setState({ editingNodeItem: null })
+              }, 200)
+            }}
+          />
+        )}
+        {formType === 'prompt' && (
+          <PromptForm
+            prompts={this.props.prompts}
+            customKey={`${node?.id}${node?.prompt?.type}`}
+            formData={node?.prompt}
+            onUpdate={this.updatePromptNode.bind(this)}
+            deletePrompt={this.deleteSelectedElements.bind(this)}
+            variables={this.props.variables}
+            onUpdateVariables={this.addVariable}
+            contentLang={this.props.currentLang}
+            defaultLang={this.props.defaultLang}
+            close={() => {
+              this.timeout = setTimeout(() => {
+                this.setState({ editingNodeItem: null })
+              }, 200)
+            }}
+          />
+        )}
+        {formType === 'execute' && (
+          <ExecuteForm
+            node={this.props.currentFlowNode}
+            deleteNode={this.deleteSelectedElements.bind(this)}
+            diagramEngine={this.diagramEngine}
+            close={() => {
+              this.timeout = setTimeout(() => {
+                this.setState({ editingNodeItem: null })
+              }, 200)
+            }}
+          />
+        )}
+        {formType === 'action' && (
+          <ActionForm
+            node={this.props.currentFlowNode}
+            deleteNode={this.deleteSelectedElements.bind(this)}
+            diagramEngine={this.diagramEngine}
+            close={() => {
+              this.timeout = setTimeout(() => {
+                this.setState({ editingNodeItem: null })
+              }, 200)
+            }}
+          />
+        )}
+        {formType === 'sub-workflow' && (
+          <SubWorkflowForm
+            variables={this.props.variables}
+            node={this.props.currentFlowNode}
+            customKey={`${node?.id}${node?.type}`}
+            updateSubWorkflow={this.updateSubWorkflow}
+            onUpdateVariables={this.addVariable}
+            formData={currentItem}
+            flows={this.props.flows}
+            type={index === 0 ? 'in' : 'out'}
+            close={() => {
+              this.timeout = setTimeout(() => {
+                this.setState({ editingNodeItem: null })
+              }, 200)
+            }}
+          />
+        )}
+
+        {formType === 'router' && (
+          <RouterForm
+            transition={currentItem?.[index]}
+            deleteTransition={this.deleteTransition.bind(this)}
+            variables={this.props.variables}
+            onUpdateVariables={this.addVariable}
+            customKey={`${node?.type}${node?.id}${index}`}
+            updateRouter={this.updateRouter}
+            contentLang={this.props.currentLang}
+            close={() => {
+              this.timeout = setTimeout(() => {
+                this.setState({ editingNodeItem: null })
+              }, 200)
+            }}
+          />
+        )}
+
+        {formType === 'variable' && (
+          <VariableForm
+            variables={this.props.variables}
+            contentLang={this.props.currentLang}
+            defaultLang={this.props.defaultLang}
+            customKey={`${node?.id}${currentItem?.type}`}
+            deleteVariable={this.deleteVariable.bind(this)}
+            formData={currentItem}
+            currentFlow={this.props.currentFlow}
+            onUpdate={this.updateFlowVariable.bind(this)}
+            close={() => {
+              this.timeout = setTimeout(() => {
+                this.setState({ editingNodeItem: null })
+              }, 200)
+            }}
+          />
+        )}
+        {formType === 'variableType' && (
+          <VariableTypesForm
+            contentLang={this.props.currentLang}
+            customKey={data.id}
+            formData={currentItem}
+            variables={this.props.variables}
+            close={() => {
+              this.timeout = setTimeout(() => {
+                this.setState({ editingNodeItem: null })
+              }, 200)
+            }}
+          />
+        )}
         {this.props.defaultLang !== this.props.currentLang && (
           <WarningMessage
             message={lang.tr('notViewingDefaultLang', {
               language: lang.tr(lang.tr(`isoLangs.${this.props.currentLang}.name`).toLowerCase())
             })}
           />
+        )}
+        {this.props.currentFlow?.type === 'reusable' && this.props.defaultLang === this.props.currentLang && (
+          <WarningMessage message={lang.tr('studio.library.editingSubWorkflowWarning')} />
         )}
       </Fragment>
     )
@@ -1339,6 +1354,7 @@ const mapStateToProps = (state: RootReducer) => ({
   contentTypes: state.content.categories,
   conditions: state.ndu.conditions,
   hints: state.hints.inputs,
+  emulatorOpen: state.ui.emulatorOpen,
   activeFormItem: state.flows.activeFormItem
 })
 

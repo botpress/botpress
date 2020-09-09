@@ -18,6 +18,7 @@ import { RightSidebarProps } from './MainContent/RightSidebar/typings'
 import { FormProps } from './Contents/Components/Form/typings'
 import { ItemProps } from './Contents/Components/Item/typings'
 import { AddButtonProps } from './Contents/Components/typings'
+import { SelectProps } from './FormFields/Select'
 import { TextFieldsArrayProps } from './FormFields/TextFieldsArray/typings'
 import { SuperInputArrayProps } from './FormFields/SuperInputArray/typings'
 import { OverlayProps } from './Overlay/typings'
@@ -26,6 +27,7 @@ import { MoreOptionsProps } from '../../ui-shared-lite/MoreOptions/typings'
 import { OverlayProps } from '../../ui-shared-lite/Overlay/typings'
 import { ToolTipProps } from '../../ui-shared-lite/ToolTip/typings'
 import { VariablePickerProps } from './FormFields/VariablePicker/typings'
+import { FieldWrapperProps } from './FormFields/FieldWrapper/typings'
 
 declare module 'botpress/shared' {
   export function Commander(props: CommanderProps): JSX.Element
@@ -45,6 +47,8 @@ declare module 'botpress/shared' {
   }
   export const FormFields: {
     AddButton(props: AddButtonProps): JSX.Element
+    FieldWrapper(props: FieldWrapperProps): JSX.Element
+    Select(props: SelectProps): JSX.Element
     TextFieldsArray(props: TextFieldsArrayProps): JSX.Element
     SuperInputArray(props: SuperInputArrayProps): JSX.Element
     VariablePicker(props: VariablePickerProps): JSX.Element

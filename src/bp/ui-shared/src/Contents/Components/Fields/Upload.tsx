@@ -2,6 +2,7 @@ import { Button, FileInput, Icon, Intent, Position, Tooltip } from '@blueprintjs
 import React, { FC, Fragment, useReducer } from 'react'
 
 import { lang } from '../../../translations'
+import wrapperStyle from '../../../FormFields/FieldWrapper/style.scss'
 import style from '../style.scss'
 import { FieldProps } from '../typings'
 
@@ -78,11 +79,11 @@ const Upload: FC<UploadFieldProps> = props => {
   const { value } = props
 
   return (
-    <div className={style.fieldWrapper}>
+    <div className={wrapperStyle.fieldWrapper}>
       {value && (
         <div style={{ backgroundImage: `url('${value}')` }} className={style.imgWrapper}>
           <div className={style.imgWrapperActions}>
-            <Tooltip content={lang('delete')} position={Position.TOP}>
+            <Tooltip content={lang('deleteImage')} position={Position.TOP}>
               <Button
                 className={style.deleteImg}
                 minimal

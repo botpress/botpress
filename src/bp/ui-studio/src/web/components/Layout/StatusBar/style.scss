@@ -1,3 +1,64 @@
+.issueBtn {
+  background: none;
+  border: none;
+  border-bottom: 1px solid transparent;
+  color: var(--bg);
+  padding: 0;
+  margin: 0 0 -1px var(--spacing-small);
+  font-size: 12px;
+  transition: border 0.3s;
+
+  &:hover {
+    border-color: var(--seashell);
+  }
+}
+
+.formHeader {
+  position: relative;
+  margin-bottom: var(--spacing-x-large);
+
+  h4 {
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--shark);
+    margin: 0 0 var(--spacing-small);
+  }
+}
+
+.betaTag {
+  background: var(--ocean);
+  border-radius: 3px;
+  color: #fff;
+  font-size: 10px;
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 3px 0;
+}
+
+.submitBtn {
+  background-color: var(--ocean) !important;
+  border-radius: 5px !important;
+  border: none;
+  color: var(--white) !important;
+  display: flex;
+  font-size: 12px !important;
+  height: 30px !important;
+  line-height: 30px !important;
+  margin-left: auto;
+  margin-top: var(--spacing-large);
+  padding: 0 var(--spacing-medium) !important;
+  transition: background 0.3s, color 0.3s !important;
+
+  &:hover {
+    color: var(--seashell) !important;
+  }
+}
+
+.wrapper {
+  background: #fff;
+  padding: 0 var(--spacing-xx-large) var(--spacing-xx-large) var(--spacing-large);
+}
+
 .statusBar {
   align-items: center;
   background-color: var(--c-background--dark-2);
@@ -20,11 +81,11 @@
     height: 20px;
     padding: 6px;
     transition: background 0.3s ease-in-out;
-    
+
     &:hover {
       background-color: var(--gray);
     }
-    
+
     &.danger {
       background-color: var(--lighthouse);
       color: white;

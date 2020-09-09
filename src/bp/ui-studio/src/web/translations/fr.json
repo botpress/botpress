@@ -60,6 +60,13 @@
     "applyConfigsTooltip": "Redémarre le seveur afin d'appliquer les changements"
   },
   "studio": {
+    "betaNotice": {
+      "usingBeta": "Vous utilisez Botpress Albert - Beta",
+      "seeNotice": "Voir la Note",
+      "contribution": "En utilisant cet aperçu, vous contribuez à améliorer Botpress.",
+      "limitations": "Il est non recommandé de l'utiliser dans un environnement de production. Notez également qu'aucune documentation ou outil de migration n'est disponible en ce moment.",
+      "thanks": "Merci de votre support!"
+    },
     "router": {
       "variable": "Variable",
       "pickVariable": "Choisissez une variable",
@@ -121,17 +128,26 @@
       "addPattern": "Ajouter Expression Régulière",
       "addComplex": "Ajouter Complexe",
       "addType": "Ajouter un type",
+      "editingSubWorkflowWarning": "Modifier ce workflow aura un impact sur toutes ses instances liées.",
+      "deleteVariableFromLibrary": "Supprimer la variable de la librairie",
+      "duplicateVariableType": "Dupliquer le type de variable",
+      "duplicateWorkflow": "Dupliquer le workflow",
       "filter": "Filtrer les blocs, workflows et type de variables",
       "variableName": "Quel est le nom de cette variable?",
       "addSynonyms": "Ajoutez des synomymes en séparant les valeurs par des virgules",
       "addValueAlternative": "Ajouter Valeur Alternative",
       "deleteEnumeration": "Supprimer l'énumération",
       "confirmDeleteEntity": "Voulez-vous réellement supprimer ce type de variable?",
-      "examplePlaceholder": "Ajoutez des exemples qui correspondent à votre expression régulière (un par ligne)",
+      "examplePlaceholder": "Écrire des exemples qui correspondent à ce modèle de type de variable",
+      "complexityExamplePlaceholder": "Écrivez autant d'exemples que possible qui correspondent à la complexité de cette variable",
+      "regexPatternPlaceholder": "Écrire un modèle d'expression régulière",
       "addExample": "Ajouter un exemple",
+      "addExampleTooltip": "Appuyez sur la touche Entrée pendant que vous êtes dans le champ pour ajouter rapidement un nouvel exemple",
       "deletePattern": "Supprimer l'expression régulière",
       "patternInvalid": "L'expression est invalide",
-      "possibleVarTypes": "Type de variable possible"
+      "possibleVarTypes": "Type de variable possible",
+      "variableTypePlaceholder": "Quel est ce type de variable?",
+      "writeAsManyHintsAsPossible": "Écrivez autant de valeurs que vos utilisateurs pourraient écrire pour appeler cette variable que possible"
     },
     "flow": {
       "addNode": "Ajouter une node",
@@ -414,7 +430,20 @@
       "endOfLogs": "Fin des journaux"
     }
   },
+  "issue": {
+    "stepsToReproduce": "Étapes pour reproduire",
+    "whatIsTheIssue": "Quel est le problème?",
+    "previewOnGithub": "Aperçu sur Github",
+    "submitBug": "Soumettre un bogue"
+  },
   "variable": {
-    "emptyState": "Appuyez sur + dans la barre d'outils pour ajouter votre première variable"
+    "emptyState": "Appuyez sur + dans la barre d'outils pour ajouter votre première variable",
+    "variableVisibility": "Visibilité de la variable",
+    "visibilityPlaceholder": "Choisissez la visibilité",
+    "textMatchingTolerance": "Tolérance de correspondance de texte",
+    "pickType": "Choisissez un type",
+    "inputVariables": "Variables d'entrée",
+    "outputVariables": "Variables de sortie",
+    "privateVariables": "Variables privée"
   }
 }

@@ -34,9 +34,14 @@ const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active, contentLang }) 
       case 'builtin_single-choice':
         return (
           <Dotdotdot clamp={3}>
-            {(content.choices as FormData[])
-              ?.map(choice => <span dangerouslySetInnerHTML={{ __html: convertToHtml(choice.title?.[contentLang]) }} />)
-              .join(' · ')}
+            {(content.choices as FormData[])?.map((choice, index) => {
+              return (
+                <Fragment>
+                  <span dangerouslySetInnerHTML={{ __html: convertToHtml(choice.title?.[contentLang] || '') }} />
+                  {index !== content.choices.length - 1 && ' · '}
+                </Fragment>
+              )
+            })}
           </Dotdotdot>
         )
       default:

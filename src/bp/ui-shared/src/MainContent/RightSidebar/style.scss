@@ -10,21 +10,9 @@
     padding-right: calc(var(--spacing-x-large) + var(--right-sidebar-width) + 480px);
   }
 
-  .rightSidebar {
+  & + .rightSidebar {
     right: 480px;
     border-right: 1px solid var(--gray);
-  }
-}
-
-:global(.emulator-open) {
-  padding-right: calc(var(--spacing-x-large) + 480px);
-
-  &.wRightSidebar {
-    padding-right: calc(var(--spacing-x-large) + var(--right-sidebar-width) + 480px);
-  }
-
-  .rightSidebar {
-    right: 480px;
   }
 }
 

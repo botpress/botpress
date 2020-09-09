@@ -15,6 +15,7 @@ import { TextFieldsArrayProps } from './typings'
 
 const TextFieldsArray: FC<TextFieldsArrayProps> = ({
   addBtnLabel,
+  addBtnLabelTooltip,
   label,
   onChange,
   items,
@@ -24,8 +25,8 @@ const TextFieldsArray: FC<TextFieldsArrayProps> = ({
   moreInfo
 }) => {
   const getInitialItems = () => {
-    let localItems = [...(items || [])]
-    const diff = (refValue || []).length - items.length
+    let localItems = [...(items?.length ? items : [''])]
+    const diff = (refValue || []).length - items?.length
 
     if (diff > 0) {
       localItems = localItems.concat(Array(diff).fill(''))
@@ -53,7 +54,7 @@ const TextFieldsArray: FC<TextFieldsArrayProps> = ({
   }
 
   const onKeyDown = (e, index: number): void => {
-    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    if (e.key === 'Enter' && !(e.ctrlKey || e.metaKey || e.shiftKey)) {
       e.preventDefault()
       addItem()
     }
@@ -118,12 +119,7 @@ const TextFieldsArray: FC<TextFieldsArrayProps> = ({
           </div>
         )
       })}
-      <Tooltip
-        content={lang('quickAddAlternative', {
-          shortcut: <ShortcutLabel light keys={[controlKey, 'enter']} />
-        })}
-        position={Position.BOTTOM}
-      >
+      <Tooltip content={lang(addBtnLabelTooltip || 'quickAddAlternative')} position={Position.BOTTOM}>
         <AddButton text={addBtnLabel} onClick={() => addItem()} />
       </Tooltip>
     </div>
