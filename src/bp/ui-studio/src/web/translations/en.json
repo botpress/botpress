@@ -129,17 +129,26 @@
       "addPattern": "Add Pattern",
       "addComplex": "Add Complex",
       "addType": "Add Type",
+      "editingSubWorkflowWarning": "Editing this workflow will impact all its linked instances.",
+      "deleteVariableFromLibrary": "Remove Variable Type from Library",
+      "duplicateVariableType": "Duplicate Variable Type",
+      "duplicateWorkflow": "Duplicate Workflow",
       "filter": "Filter blocks, workflows and variable types",
       "variableName": "What is the name of this variable",
       "addSynonyms": "Add synonyms by separating values with commas",
       "addValueAlternative": "Add Value Alternative",
       "deleteEnumeration": "Delete Enumeration",
       "confirmDeleteEntity": "Do you really want to delete this variable type ?",
-      "examplePlaceholder": "Add examples that match your pattern (one per line)",
+      "complexityExamplePlaceholder": "Write as many example as possible that match this variable's complexity",
+      "examplePlaceholder": "Write examples that match this variable type pattern",
+      "regexPatternPlaceholder": "Write a regular expression pattern",
       "addExample": "Add Example",
+      "addExampleTooltip": "Press Enter while inline to add new example quickly",
       "deletePattern": "Delete Pattern",
       "patternInvalid": "Pattern is invalid",
-      "possibleVarTypes": "Possible Variable Types"
+      "possibleVarTypes": "Possible Variable Types",
+      "variableTypePlaceholder": "What is this variable type?",
+      "writeAsManyHintsAsPossible": "Write as many values as possible that your users could write to invoke this variable"
     },
     "flow": {
       "addNode": "Add Node",
@@ -423,7 +432,20 @@
       "endOfLogs": "End of logs"
     }
   },
+  "issue": {
+    "stepsToReproduce": "Steps to reproduce",
+    "whatIsTheIssue": "What is the issue?",
+    "previewOnGithub": "Preview on Github",
+    "submitBug": "Submit a bug"
+  },
   "variable": {
-    "emptyState": "Tap + in the toolbar to add your first variable"
+    "emptyState": "Tap + in the toolbar to add your first variable",
+    "variableVisibility": "Variable Visibility",
+    "visibilityPlaceholder": "Pick a Visibility",
+    "textMatchingTolerance": "Text Matching Tolerance",
+    "pickType": "Pick a type",
+    "inputVariables": "Input Variables",
+    "outputVariables": "Output Variables",
+    "privateVariables": "Private Variables"
   }
 }

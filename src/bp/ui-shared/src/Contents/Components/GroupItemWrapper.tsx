@@ -4,6 +4,7 @@ import React, { FC, useState } from 'react'
 import MoreOptions from '../../../../ui-shared-lite/MoreOptions'
 import { MoreOptionsItems } from '../../../../ui-shared-lite/MoreOptions/typings'
 import { lang } from '../../translations'
+import wrapperStyle from '../../FormFields/FieldWrapper/style.scss'
 
 import style from './style.scss'
 import { GroupItemWrapperProps } from './typings'
@@ -25,7 +26,7 @@ const GroupItemWrapper: FC<GroupItemWrapperProps> = ({ label, contextMenu, defau
   }
 
   return (
-    <div className={style.fieldWrapper}>
+    <div className={wrapperStyle.fieldWrapper}>
       <div className={style.labelWrapper}>
         {label && (
           <Button

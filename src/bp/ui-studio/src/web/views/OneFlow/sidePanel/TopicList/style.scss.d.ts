@@ -4,6 +4,8 @@ interface CssExports {
   'active': string;
   'addBtn': string;
   'contextMenu': string;
+  'draggable': string;
+  'ellipsisText': string;
   'emptyState': string;
   'importInput': string;
   'inlineEditing': string;

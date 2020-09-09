@@ -49,7 +49,7 @@ export class IntentService {
         const conditions = tn?.conditions.filter(x => x?.id === 'user_intent_is')
 
         for (let i = 0; i < conditions.length; i++) {
-          const intentName = sanitizeFileName(`${topicName}/${flow.name}/${tn?.name}/${i}`)
+          const intentName = sanitizeFileName(`${flow.name}/${tn?.name}/${i}`)
           if (intentsByName[intentName]) {
             throw new Error(`Duplicated intent with name "${intentName}"`)
           }

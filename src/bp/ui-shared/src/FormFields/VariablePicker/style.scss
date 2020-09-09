@@ -110,12 +110,16 @@ input[type='radio'] {
     }
 
     .bp3-menu-item {
-      color: var(--shark);
+      color: var(--shark) !important;
       font-size: 12px;
       line-height: 1.65;
       min-height: 30px;
       display: flex;
       align-items: center;
+
+      svg {
+        fill: var(--shark) !important;
+      }
 
       &:not(.bp3-active):hover {
         background: var(--bg) !important;
@@ -156,6 +160,7 @@ input[type='radio'] {
       width: 100%;
       max-height: 250px;
       overflow-y: auto;
+      background: #fff;
     }
 
     .bp3-button-text {
@@ -201,7 +206,7 @@ input[type='radio'] {
   color: var(--shark);
   display: block;
   font-size: 12px;
-  font-weight: 400;
+  font-weight: 700;
   line-height: 1.25;
   margin: var(--spacing-xx-large) 0 var(--spacing-small);
 }
