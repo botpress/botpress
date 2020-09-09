@@ -1,5 +1,7 @@
 import { Contents, lang } from 'botpress/shared'
+import cx from 'classnames'
 import React, { FC } from 'react'
+import { StandardPortWidget } from '~/views/FlowBuilder/diagram/nodes/Ports'
 
 import { BlockModel } from '../Block'
 import style from '../Components/style.scss'
@@ -14,6 +16,7 @@ interface Props {
 
 const SaySomethingContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem, currentLang, defaultLang }) => {
   const selectedContent = selectedNodeItem()
+  const { next } = node || {}
 
   const fieldHasMissingTranslation = (value = {}) => {
     if (value[currentLang]) {
@@ -75,6 +78,18 @@ const SaySomethingContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem,
           />
         )
       )}
+      {next?.map((item, i) => {
+        const outputPortName = `out${i}`
+
+        return (
+          <div key={`${i}.${item}`} className={cx(style.contentWrapper, { [style.hidden]: item.condition === 'true' })}>
+            <div className={cx(style.content, style.readOnly)}>
+              {item.caption}
+              <StandardPortWidget name={outputPortName} node={node} className={style.outRouting} />
+            </div>
+          </div>
+        )
+      })}
     </div>
   )
 }

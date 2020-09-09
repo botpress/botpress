@@ -34,7 +34,7 @@ function renderer(data) {
     metadata: {
       ...payload.metadata,
       // should we rename key in schema or we keep backward compatibility rendering ?
-      [metaKey]: data.choices.map(c => ({ label: c.title, valueL: c.value }))
+      [metaKey]: data.choices.map(c => ({ label: c.title, value: c.value }))
     }
   }
 }
@@ -124,6 +124,16 @@ module.exports = {
       // }
     ],
     fields: [
+      {
+        key: 'suggestions',
+        type: 'tag-input',
+        translated: true,
+        label: 'suggestions',
+        placeholder: 'studio.library.addSynonyms',
+        group: {
+          addLabel: 'studio.library.addValueAlternative'
+        }
+      },
       {
         group: {
           addLabel: 'module.builtin.types.suggestions.add',

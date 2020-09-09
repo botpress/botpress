@@ -18,6 +18,7 @@ interface CssExports {
   'hasError': string;
   'hasJoinLabel': string;
   'headerWrapper': string;
+  'hidden': string;
   'highlighted': string;
   'img': string;
   'in': string;

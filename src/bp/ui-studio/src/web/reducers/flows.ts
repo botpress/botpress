@@ -513,7 +513,7 @@ reducer = reduceReducers(
       }),
 
       [requestUpdateFlow]: (state, { payload }) => {
-        const currentFlow = state.flowsByName[state.currentFlow]
+        const currentFlow = state.flowsByName[state.currentFlow] as FlowView
         const nodes = !payload.links
           ? currentFlow.nodes
           : currentFlow.nodes.map(node => {
@@ -530,7 +530,15 @@ reducer = reduceReducers(
                 return { ...value, node: (targetNode && targetNode.name) || remapNode }
               })
 
-              return { ...node, next, lastModified: new Date() }
+              let triggers = node.triggers
+              if (node.type === 'say_something' && node.triggers?.length) {
+                triggers = node.triggers.map(trigger => ({
+                  ...trigger,
+                  gotoNodeId: next.find(x => x.condition === trigger.name)?.node
+                }))
+              }
+
+              return { ...node, next, triggers, lastModified: new Date() }
             })
 
         const links = (payload.links || currentFlow.links).map(link => ({

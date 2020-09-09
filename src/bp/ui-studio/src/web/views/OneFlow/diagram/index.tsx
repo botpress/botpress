@@ -894,12 +894,22 @@ class Diagram extends Component<Props> {
     const { node, index } = this.state.editingNodeItem
     const newContents = [...node.contents]
 
-    newContents[index] = data
+    newContents[index] = data.content
 
     this.props.switchFlowNode(node.id)
     this.setState({ editingNodeItem: { node: { ...node, contents: newContents }, index } })
 
-    this.props.updateFlowNode({ contents: newContents })
+    if (data.transitions && data.triggers) {
+      this.props.updateFlowNode({
+        contents: newContents,
+        next: [...node.next.filter(x => x.condition === 'true'), ...data.transitions],
+        triggers: data.triggers
+      })
+    } else {
+      this.props.updateFlowNode({
+        contents: newContents
+      })
+    }
   }
 
   updateNodeCondition(data) {
@@ -1171,6 +1181,7 @@ class Diagram extends Component<Props> {
               variables={this.props.variables}
               events={this.props.hints || []}
               contentLang={this.props.currentLang}
+              node={this.props.currentFlowNode}
               defaultLang={this.props.defaultLang}
               editingContent={index}
               formData={currentItem || getEmptyContent(currentItem)}

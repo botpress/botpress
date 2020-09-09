@@ -1,6 +1,6 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
-import { BotEvent, FlowVariable, FormData } from 'botpress/sdk'
+import { BotEvent, FlowNode, FlowVariable, FormData } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import { Variables } from 'common/typings'
@@ -23,6 +23,7 @@ interface Props {
   contentTypes: any
   defaultLang: string
   contentLang: string
+  node: FlowNode
 }
 
 const ContentForm: FC<Props> = ({
@@ -37,6 +38,7 @@ const ContentForm: FC<Props> = ({
   deleteContent,
   variables,
   events,
+  node,
   contentLang
 }) => {
   const [canOutsideClickClose, setCanOutsideClickClose] = useState(true)
@@ -63,9 +65,11 @@ const ContentForm: FC<Props> = ({
     const schemaFields = [...(fields || []), ...(advancedSettings || [])]
     contentType.current = value
     onUpdate({
-      ...Contents.createEmptyDataFromSchema(schemaFields, contentLang),
-      contentType: value,
-      id: formData?.id
+      content: {
+        ...Contents.createEmptyDataFromSchema(schemaFields, contentLang),
+        contentType: value,
+        id: formData?.id
+      }
     })
   }
 
@@ -86,6 +90,59 @@ const ContentForm: FC<Props> = ({
       id: formData?.id
     })
   )
+
+  const prepareUpdate = data => {
+    if (!data.suggestions) {
+      onUpdate({ content: { ...data, contentType: contentType.current } })
+      return
+    }
+
+    const langs = Object.keys(data.suggestions)
+    const suggestions = _.flatten(Object.values<any>(data.suggestions))
+
+    const transitions: any = []
+    const choices: any = []
+
+    const triggers = suggestions.map(({ name }, idx) => {
+      const allTags = langs.reduce((acc, curr) => {
+        return { ...acc, [curr]: data.suggestions[curr]?.find(x => x.name === name)?.tags }
+      }, {})
+
+      const currentDest = node.next.find(x => x.condition === `choice-${name}${idx}`)?.node ?? ''
+
+      choices.push({
+        title: langs.reduce((acc, curr) => {
+          return { ...acc, [curr]: data.suggestions[curr]?.find(x => x.name === name)?.name }
+        }, {}),
+        value: langs.reduce((acc, curr) => {
+          return { ...acc, [curr]: data.suggestions[curr]?.find(x => x.name === name)?.tags?.[0] }
+        }, {})
+      })
+
+      transitions.push({
+        condition: `choice-${name}${idx}`,
+        caption: name,
+        node: currentDest
+      })
+
+      return {
+        name: `choice-${name}${idx}`,
+        effect: 'jump.node',
+        conditions: [
+          {
+            params: {
+              utterances: allTags
+            },
+            id: 'user_intent_is'
+          }
+        ],
+        type: 'contextual',
+        gotoNodeId: currentDest
+      }
+    })
+
+    onUpdate({ content: { ...data, choices, contentType: contentType.current }, triggers, transitions })
+  }
 
   return (
     <RightSidebar
@@ -145,7 +202,7 @@ const ContentForm: FC<Props> = ({
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
             formData={formData}
-            onUpdate={data => onUpdate({ ...data, contentType: contentType.current })}
+            onUpdate={data => prepareUpdate({ ...data, contentType: contentType.current })}
             onUpdateVariables={onUpdateVariables}
           />
         )}
