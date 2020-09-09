@@ -23,5 +23,8 @@
   ],
   "contexts": [
     "multi-entity"
-  ]
+  ],
+  "metadata": {
+    "enabled": true
+  }
 }

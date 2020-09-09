@@ -22,5 +22,8 @@
   ],
   "contexts": [
     "any"
-  ]
+  ],
+  "metadata": {
+    "enabled": true
+  }
 }
