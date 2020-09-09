@@ -55,7 +55,7 @@ const IssueForm: FC<Props> = ({ formData, close, onUpdate }) => {
         onUpdate={onUpdate}
       />
       <button className={style.submitBtn} onClick={handleSubmit}>
-        {lang.tr('Preview on Github')}
+        {lang.tr('issue.previewOnGithub')}
       </button>
     </RightSidebar>
   )

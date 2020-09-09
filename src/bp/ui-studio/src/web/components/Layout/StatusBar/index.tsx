@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useReducer, useState } from 'react'
 import { connect } from 'react-redux'
@@ -39,7 +40,7 @@ const StatusBar: FC<Props> = props => {
               {' '}
               <span className={style.betaTag}>Beta</span>
               <button onClick={() => setIsSubmitting(!isSubmitting)} className={style.issueBtn}>
-                Submit a bug
+                {lang.tr('issue.submitBug')}
               </button>
               {isSubmitting && (
                 <IssueForm
