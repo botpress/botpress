@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import legacyElectionPipeline from '../legacy-election'
+import { makeLoggerWrapper } from '../logger'
 import { getLatestModel } from '../model-service'
 import { PredictionHandler } from '../prediction-handler'
 import { setTrainingSession } from '../train-session-service'
@@ -14,15 +15,6 @@ async function initializeReportingTool(bp: typeof sdk, state: NLUState) {
     const ev: NLUProgressEvent = { type: 'nlu', botId, trainSession: _.omit(trainSession, 'lock') }
     bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('statusbar.event', ev))
   }
-}
-
-function initializeLogger(bp: typeof sdk, state: NLUState) {
-  const logger: sdk.NLU.Logger = {
-    info: (msg: string) => bp.logger.info(msg),
-    warning: (msg: string, err?: Error) => (err ? bp.logger.attachError(err).warn(msg) : bp.logger.warn(msg)),
-    error: (msg: string, err?: Error) => (err ? bp.logger.attachError(err).error(msg) : bp.logger.error(msg))
-  }
-  state.logger = logger
 }
 
 const EVENTS_TO_IGNORE = ['session_reference', 'session_reset', 'bp_dialog_timeout', 'visit', 'say_something', '']
@@ -125,9 +117,8 @@ export function getOnSeverStarted(state: NLUState) {
   return async (bp: typeof sdk) => {
     setNluVersion(bp, state)
     await initializeReportingTool(bp, state)
-    initializeLogger(bp, state)
     const globalConfig = await bp.config.getModuleConfig('nlu')
-    await bp.NLU.Engine.initialize(globalConfig, state.logger)
+    await bp.NLU.Engine.initialize(globalConfig, makeLoggerWrapper(bp))
     await registerMiddleware(bp, state)
   }
 }

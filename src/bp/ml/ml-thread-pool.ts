@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import os from 'os'
 
+import { deserializeError, ErrorMessage } from './error-utils'
 import { MLThreadScheduler } from './ml-thread-scheduler'
 
 type MsgType =
@@ -17,7 +18,7 @@ type MsgType =
 type Payload = Partial<{
   progress: number
   result: string
-  error: string
+  error: ErrorMessage
   points: (sdk.MLToolkit.SVM.DataPoint | sdk.MLToolkit.CRF.DataPoint)[]
   options: sdk.MLToolkit.SVM.SVMOptions | sdk.MLToolkit.CRF.TrainerOptions | undefined
 }>
@@ -92,7 +93,7 @@ export class MLThreadPool {
       }
 
       if (msg.type === 'svm_error' || msg.type === 'crf_error') {
-        error(new Error(msg.payload.error!))
+        error(deserializeError(msg.payload.error!))
         worker.off('message', messageHandler)
       }
     }
