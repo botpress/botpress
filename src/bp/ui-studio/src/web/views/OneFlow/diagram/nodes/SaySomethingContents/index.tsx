@@ -88,6 +88,7 @@ const SaySomethingContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem,
       )}
       {next?.map((item, i) => {
         const outputPortName = `out${i}`
+        const currentContent = node.contents[0]?.suggestions?.[currentLang]?.[i - 1] || {}
         return item.condition !== 'true' && checkMissingSuggestionTranslations(node.contents[0], i - 1) ? (
           <button onClick={() => editNodeItem?.(node, 0)} className={style.needsTranslation}>
             {lang.tr('needsTranslation')}
@@ -99,7 +100,7 @@ const SaySomethingContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem,
             className={cx(style.contentWrapper, { [style.hidden]: item.condition === 'true' })}
           >
             <div className={cx(style.content, style.readOnly)}>
-              {item.caption}
+              {[...([currentContent.name] || []), ...(currentContent.tags || [])].filter(Boolean).join(' · ')}
               <StandardPortWidget name={outputPortName} node={node} className={style.outRouting} />
             </div>
           </button>
