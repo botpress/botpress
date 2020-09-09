@@ -93,7 +93,7 @@ const TagInputItem: FC<Props> = ({
               inputRef.current.addTags(inputVal.current)
             }
 
-            if (e.key === 'Enter' && !(e.ctrlKey || e.metaKey || e.shiftKey)) {
+            if (e.key === 'Enter' && e.shiftKey) {
               e.preventDefault()
               e.stopPropagation()
               addRow()

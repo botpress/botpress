@@ -103,6 +103,8 @@ const ContentForm: FC<Props> = ({
     const transitions: any = []
     const choices: any = []
 
+    console.log(suggestions)
+
     const triggers = suggestions.map(({ name }, idx) => {
       const allTags = langs.reduce((acc, curr) => {
         return { ...acc, [curr]: data.suggestions[curr]?.find(x => x.name === name)?.tags }
