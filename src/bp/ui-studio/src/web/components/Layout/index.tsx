@@ -21,6 +21,7 @@ import Module from '~/views/Module'
 import OneFlow from '~/views/OneFlow'
 
 import { TrainingStatusService } from './training-status-service'
+import BetaNotice from './BetaNotice'
 import BotUmountedWarning from './BotUnmountedWarning'
 import CommandPalette from './CommandPalette'
 import GuidedTour from './GuidedTour'
@@ -31,7 +32,6 @@ import Sidebar from './Sidebar'
 import StatusBar from './StatusBar'
 import Toolbar from './Toolbar'
 import BottomPanel from './Toolbar/BottomPanel'
-import WarningMessage from './WarningMessage'
 
 const { isInputFocused } = utils
 const WEBCHAT_PANEL_STATUS = 'bp::webchatOpened'
@@ -105,7 +105,7 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
   }
 
   const toggleGuidedTour = () => {
-    setGuidedTourOpen(!guidedTourOpen)
+    !window.USE_ONEFLOW && setGuidedTourOpen(!guidedTourOpen)
   }
 
   const focusEmulator = e => {
@@ -238,7 +238,8 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
           <PluginInjectionSite site="overlay" />
           <BackendToast />
           <SelectContentManager />
-          <GuidedTour isDisplayed={guidedTourOpen} onToggle={toggleGuidedTour} />
+          <GuidedTour isDisplayed={!window.USE_ONEFLOW && guidedTourOpen} onToggle={toggleGuidedTour} />
+          <BetaNotice />
           <LanguageServerHealth />
         </div>
       </HotKeys>
