@@ -126,7 +126,8 @@ export class DecisionEngine {
       BOTPRESS_CORE_EVENT('bp_core_decision_elected', {
         botId: event.botId,
         channel: event.channel,
-        source: elected.source || 'none'
+        source: elected.source || 'none',
+        details: elected.sourceDetails
       })
       sendSuggestionResult = await this._sendSuggestion(elected, sessionId, event)
     }

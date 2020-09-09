@@ -9,12 +9,17 @@ interface Props {
   name: string
   items: { label: string; onClick?: () => void }[]
   className: string
-  itemLimit: number
+  itemLimit?: number
   hasTooltip?: boolean
 }
 
 const ItemsList: FC<Props> = props => {
-  const { items, name, className, itemLimit, hasTooltip } = props
+  const { name, className, itemLimit, hasTooltip } = props
+  let { items } = props
+
+  if (itemLimit) {
+    items = items.slice(0, itemLimit)
+  }
 
   return (
     <div className={className}>
@@ -23,7 +28,7 @@ const ItemsList: FC<Props> = props => {
         <p className={cx(style.emptyState, style.alignedLeft)}>{lang.tr('module.analytics.noDataAvailable')}</p>
       )}
       <ol>
-        {items.slice(0, itemLimit).map((item, index) => (
+        {items.map((item, index) => (
           <li key={index}>
             {hasTooltip ? (
               <Tooltip content={item.label}>

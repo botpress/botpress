@@ -49,6 +49,9 @@ interface State {
   selectedChannel: string
   shownSection: string
   disableAnalyticsFetching?: boolean
+  qnaQuestions: {
+    [id: string]: string
+  }
 }
 
 interface ExportPeriod {
@@ -126,6 +129,13 @@ const fetchReducer = (state: State, action): State => {
       dateRange,
       disableAnalyticsFetching: true
     }
+  } else if (action.type === 'receivedQnaQuestions') {
+    const { qnaQuestions } = action.data
+
+    return {
+      ...state,
+      qnaQuestions: { ...qnaQuestions }
+    }
   } else {
     throw new Error(`That action type isn't supported.`)
   }
@@ -147,7 +157,8 @@ const Analytics: FC<any> = ({ bp }) => {
     previousRangeMetrics: [],
     pageTitle: lang.tr('module.analytics.dashboard'),
     selectedChannel: defaultChannels[0].value,
-    shownSection: 'dashboard'
+    shownSection: 'dashboard',
+    qnaQuestions: {}
   })
 
   useEffect(() => {
@@ -188,6 +199,22 @@ const Analytics: FC<any> = ({ bp }) => {
     })
   }, [state.dateRange, state.selectedChannel])
 
+  useEffect(() => {
+    const metrics = orderMetrics(getMetric('msg_sent_qna_count'))
+      .filter(r => r.name)
+      .slice(0, 10)
+
+    Promise.all(metrics.map(r => fetchQnaQuestion(r.name.replace('__qna__', '')))).then(values => {
+      const qnaQuestions = values.reduce((acc, { data: { questions }, id }) => {
+        const question = questions[lang.getLocale()][0]
+        acc[`__qna__${id}`] = question
+        return acc
+      }, {})
+
+      dispatch({ type: 'receivedQnaQuestions', data: { qnaQuestions } })
+    })
+  }, [state.metrics])
+
   const fetchAnalytics = async (channel: string, dateRange): Promise<MetricEntry[]> => {
     const startDate = moment(dateRange[0]).unix()
     const endDate = moment(dateRange[1]).unix()
@@ -199,6 +226,11 @@ const Analytics: FC<any> = ({ bp }) => {
       }
     })
     return data.metrics
+  }
+
+  const fetchQnaQuestion = async (id: string): Promise<any> => {
+    const { data } = await bp.axios.get(`mod/qna/questions/${id}`)
+    return data
   }
 
   const handleChannelChange = async ({ target: { value: selectedChannel } }) => {
@@ -265,19 +297,32 @@ const Analytics: FC<any> = ({ bp }) => {
 
   const getMetric = metricName => state.metrics.filter(x => x.metric === metricName)
 
-  const getTopItems = (metricName: string, type: string) => {
-    const grouped = _.groupBy(getMetric(metricName), 'subMetric')
-    const results = _.orderBy(
+  const getTopItems = (
+    metricName: string,
+    type: string,
+    nameRenderer?: (name: string) => string,
+    filter?: (x: any) => boolean
+  ) => {
+    let metrics = getMetric(metricName)
+    if (filter) {
+      metrics = metrics.filter(filter)
+    }
+    const results = orderMetrics(metrics)
+
+    return results.map(x => ({
+      label: `${nameRenderer ? nameRenderer(x.name) : x.name} (${x.count})`,
+      href: '',
+      onClick: navigateToElement(x.name, type)
+    }))
+  }
+
+  const orderMetrics = metrics => {
+    const grouped = _.groupBy(metrics, 'subMetric')
+    return _.orderBy(
       Object.keys(grouped).map(x => ({ name: x, count: _.sumBy(grouped[x], 'value') })),
       x => x.count,
       'desc'
     )
-
-    return results.map(x => ({
-      label: `${x.name} (${x.count})`,
-      href: '',
-      onClick: navigateToElement(x.name, type)
-    }))
   }
 
   const renderEngagement = () => {
@@ -338,13 +383,20 @@ const Analytics: FC<any> = ({ bp }) => {
           itemLimit={10}
           className={cx(style.genericMetric, style.half, style.list)}
         />
-        <ItemsList
-          name={lang.tr('module.analytics.mostAskedQuestions')}
-          items={getTopItems('msg_sent_qna_count', 'qna')}
-          itemLimit={10}
-          hasTooltip
-          className={cx(style.genericMetric, style.half, style.list)}
-        />
+        {!_.isEmpty(state.qnaQuestions) && (
+          <ItemsList
+            name={lang.tr('module.analytics.mostAskedQuestions')}
+            items={getTopItems(
+              'msg_sent_qna_count',
+              'qna',
+              id => state.qnaQuestions[id],
+              // Filter out QnA metrics without submetric (legacy)
+              metric => metric.subMetric
+            )}
+            hasTooltip
+            className={cx(style.genericMetric, style.half, style.list)}
+          />
+        )}
       </div>
     )
   }
