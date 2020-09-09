@@ -114,7 +114,7 @@ const ExecuteForm: FC<Props> = ({
     .map(x => ({ ...x, category: x.category || lang.tr('uncategorized'), title: x.title || x.name }))
 
   const selectedOption = onlyLegacy
-    .map(x => ({ label: x.name, value: x.name }))
+    .map(x => ({ label: x.title, value: x.name }))
     .find(a => a.value === selectedAction.current)
 
   const multiLevelActions = onlyLegacy.reduce((acc, action) => {

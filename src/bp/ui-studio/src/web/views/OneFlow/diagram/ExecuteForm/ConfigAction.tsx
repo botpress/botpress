@@ -32,7 +32,7 @@ const ConfigAction: FC<Props> = ({
   const fields: FormField[] = actionParams?.map(x => ({
     type: 'text',
     key: x.name,
-    label: x.description,
+    label: x.name,
     required: x.required,
     placeholder: x.description,
     superInput: true,
