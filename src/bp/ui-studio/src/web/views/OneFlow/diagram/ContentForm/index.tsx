@@ -110,15 +110,6 @@ const ContentForm: FC<Props> = ({
 
       const currentDest = node.next.find(x => x.condition === `choice-${name}${idx}`)?.node ?? ''
 
-      choices.push({
-        title: langs.reduce((acc, curr) => {
-          return { ...acc, [curr]: data.suggestions[curr]?.find(x => x.name === name)?.name }
-        }, {}),
-        value: langs.reduce((acc, curr) => {
-          return { ...acc, [curr]: data.suggestions[curr]?.find(x => x.name === name)?.tags?.[0] }
-        }, {})
-      })
-
       transitions.push({
         condition: `choice-${name}${idx}`,
         caption: name,

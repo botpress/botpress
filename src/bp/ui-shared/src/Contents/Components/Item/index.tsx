@@ -11,6 +11,10 @@ import style from './style.scss'
 import { ItemProps } from './typings'
 
 const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active, contentLang }) => {
+  if (content.contentType === 'builtin_single-choice') {
+    return null
+  }
+
   const renderCardOrImg = ({ image, title }: FormData): JSX.Element => {
     return (
       <div className={style.contentImgWrapper}>

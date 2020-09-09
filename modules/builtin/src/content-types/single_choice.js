@@ -131,41 +131,9 @@ module.exports = {
         label: 'suggestions',
         placeholder: 'studio.library.addSynonyms',
         group: {
-          addLabel: 'studio.library.addValueAlternative'
+          addLabel: 'studio.flow.node.addSuggestion',
+          addLabelTooltip: 'studio.flow.node.addSuggestionTooltip'
         }
-      },
-      {
-        group: {
-          addLabel: 'module.builtin.types.suggestions.add',
-          minimum: 1,
-          contextMenu: [
-            {
-              type: 'delete',
-              label: 'module.builtin.types.suggestions.delete'
-            }
-          ]
-        },
-        type: 'group',
-        key: 'choices',
-        label: 'fields::title',
-        fields: [
-          {
-            type: 'text',
-            key: 'title',
-            superInput: true,
-            translated: true,
-            label: 'module.builtin.types.suggestions.label',
-            placeholder: 'module.builtin.types.suggestions.labelPlaceholder'
-          },
-          {
-            type: 'text',
-            key: 'value',
-            superInput: true,
-            translated: true,
-            label: 'module.builtin.types.suggestions.value',
-            placeholder: 'module.builtin.types.suggestions.valuePlaceholder'
-          }
-        ]
       }
     ]
   },
