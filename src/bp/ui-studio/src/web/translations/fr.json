@@ -64,8 +64,10 @@
       "usingBeta": "Vous utilisez Botpress Albert - Beta",
       "seeNotice": "Voir la Note",
       "contribution": "En utilisant cet aperçu, vous contribuez à améliorer Botpress.",
-      "limitations": "Il est non recommandé de l'utiliser dans un environnement de production. Notez également qu'aucune documentation ou outil de migration n'est disponible en ce moment.",
-      "thanks": "Merci de votre support!"
+      "limitations": "Il est non recommandé de l'utiliser dans un environnement de production puisque certains changements importants seront apportés. Notez également qu'aucune documentation ou outil de migration n'est disponible en ce moment.",
+      "thanks": "Merci de votre support!",
+      "accept": "D'accord",
+      "dismiss": "Rejetter"
     },
     "router": {
       "variable": "Variable",
