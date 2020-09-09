@@ -111,7 +111,7 @@ const TagInputItem: FC<Props> = ({
         />
         {missingTranslation && (
           <ToolTip content={lang('studio.library.copyTags')}>
-            <CopyToClipboard onCopy={onCopy} text={[refValue?.name || '', ...(refValue?.tags || [])].join(', ')}>
+            <CopyToClipboard onCopy={onCopy} text={[refValue?.name || '', ...(refValue?.tags || []), ''].join(', ')}>
               <Button small minimal className={style.copyBtn}>
                 <Icon icon="duplicate" iconSize={13} />
               </Button>
