@@ -298,23 +298,21 @@ const TrainIntentClassifier = async (
 const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<string> => {
   debugTraining.forBot(input.botId, 'Training context classifier')
   const customEntities = getCustomEntitiesNames(input)
-  const points = _.flatMapDeep(
-    input.contexts.filter(ctx => !ctx.startsWith('explicit:')),
-    ctx => {
-      return input.intents
-        .filter(intent => intent.contexts.includes(ctx) && intent.name !== NONE_INTENT)
-        .map(intent =>
-          intent.utterances
-            .filter(u => !u.augmented) // we don't want to train on augmented utterances as it would slow down training too much
-            .map(utt => ({
-              label: ctx,
-              coordinates: getCtxFeatures(utt, customEntities)
-            }))
-        )
-    }
-  ).filter(x => x.coordinates.filter(isNaN).length === 0)
+  const contexts = input.contexts.filter(ctx => !ctx.startsWith('explicit:'))
+  const points = _.flatMapDeep(contexts, ctx => {
+    return input.intents
+      .filter(intent => intent.contexts.includes(ctx) && intent.name !== NONE_INTENT)
+      .map(intent =>
+        intent.utterances
+          .filter(u => !u.augmented) // we don't want to train on augmented utterances as it would slow down training too much
+          .map(utt => ({
+            label: ctx,
+            coordinates: getCtxFeatures(utt, customEntities)
+          }))
+      )
+  }).filter(x => x.coordinates.filter(isNaN).length === 0)
 
-  if (points.length === 0 || input.contexts.length <= 1) {
+  if (points.length === 0 || contexts.length <= 1) {
     progress()
     debugTraining.forBot(input.botId, 'No context to train')
     return ''

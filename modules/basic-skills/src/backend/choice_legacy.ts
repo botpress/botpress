@@ -52,7 +52,7 @@ const generateFlowLegacy = async (data: ChoiceData): Promise<sdk.FlowGenerationR
         { condition: `temp['skill-choice-valid-${randomId}'] === true`, node: '#' },
         { condition: 'true', node: 'invalid' }
       ],
-      triggers: [{ conditions: [{ id: 'always' }] }]
+      triggers: [{ type: 'node', effect: 'jump.node', conditions: [{ id: 'always' }] }]
     },
     {
       name: 'invalid',

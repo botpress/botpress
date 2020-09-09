@@ -150,12 +150,13 @@ async function predictContext(input: OutOfScopeStep, predictors: Predictors): Pr
   const customEntities = getCustomEntitiesNames(predictors)
 
   const classifier = predictors.ctx_classifier
+  const contexts = input.includedContexts.filter(x => !x.startsWith('explicit:'))
   if (!classifier) {
     return {
       ...input,
       ctx_predictions: [
         {
-          label: input.includedContexts.length ? input.includedContexts[0] : DEFAULT_CTX,
+          label: contexts.length ? contexts[0] : DEFAULT_CTX,
           confidence: 1
         }
       ]
@@ -344,7 +345,10 @@ function MapStepToOutput(step: SlotStep, startTime: number): PredictOutput {
   const contexts = _.uniq([...step.ctx_predictions!.map(p => p.label), ...Object.keys(step.oos_predictions!)])
 
   const predictions: sdk.NLU.Predictions = contexts.reduce((preds, current) => {
-    const { label, confidence } = step.ctx_predictions?.[current] ?? { label: current, confidence: 0 }
+    const { label, confidence } = step.ctx_predictions?.find(x => x.label === current) ?? {
+      label: current,
+      confidence: 0
+    }
 
     const intentPred = step.intent_predictions.per_ctx![label]
     const intents = !intentPred
