@@ -117,6 +117,16 @@ export class UnderstandingEngine {
 
     debug('Processing %o', { currentFlow, currentNode, isInMiddleOfFlow })
 
+    const contextualTriggers = event.state.session?.nduContext?.triggers
+    if (contextualTriggers) {
+      event.state.session.nduContext.triggers = contextualTriggers
+        .map(trigger => ({
+          ...trigger,
+          turn: trigger.turn - 1
+        }))
+        .filter(x => x.turn >= 0)
+    }
+
     // Then process triggers on what the NDU decided
     await this._processTriggers(event)
 

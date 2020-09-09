@@ -84,8 +84,7 @@ export class ActionStrategy implements InstructionStrategy {
         nodeId,
         index,
         expiryPolicy: trigger.expiryPolicy,
-        turn: 0 // TODO: Add the turn number if the session state
-        // TODO: potentially add origin of workflow, topic and node for future expiry policies?
+        turn: trigger?.expiryPolicy?.turnCount ?? 3
       }
     ]
 
