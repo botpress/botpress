@@ -103,7 +103,7 @@ const TagInputList: FC<TagInputListProps> = ({
     <Fragment>
       {localItems?.map((item, index) => {
         const missingTranslation =
-          refValue &&
+          !canAdd &&
           [refValue?.[index]?.name || '', ...(refValue?.[index]?.tags || [])].filter(Boolean).length !==
             [item?.name || '', ...(item?.tags || [])].filter(Boolean).length
 
@@ -111,6 +111,7 @@ const TagInputList: FC<TagInputListProps> = ({
           <div key={index} className={cx(style.wrapper, { ['has-error']: missingTranslation })}>
             <TagInputItem
               item={item}
+              canAdd={canAdd}
               key={item.name}
               isFocused={focusedElement.current === index}
               onChange={item => updateLocalItem(index, item)}

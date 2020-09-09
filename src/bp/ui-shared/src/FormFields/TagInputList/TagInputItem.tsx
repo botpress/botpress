@@ -13,6 +13,7 @@ import style from './style.scss'
 
 interface Props {
   className?: string
+  canAdd: boolean
   item: Item
   placeholder: string
   refValue?: Item
@@ -25,6 +26,7 @@ interface Props {
 
 const TagInputItem: FC<Props> = ({
   className,
+  canAdd,
   item,
   isFocused,
   placeholder,
@@ -52,7 +54,7 @@ const TagInputItem: FC<Props> = ({
   }
 
   const missingTranslation =
-    refValue &&
+    !canAdd &&
     [refValue?.name || '', ...(refValue?.tags || [])].filter(Boolean).length !==
       [item?.name || '', ...(item?.tags || [])].filter(Boolean).length
 
