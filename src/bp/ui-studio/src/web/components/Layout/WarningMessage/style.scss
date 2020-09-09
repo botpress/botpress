@@ -1,3 +1,11 @@
+:global(.warning-container) {
+  position: fixed;
+  right: 50%;
+  bottom: calc(var(--spacing-medium) + 28px);
+  transform: translate(50%, 0);
+  z-index: 9;
+}
+
 .warning {
   position: relative;
   background: var(--hover-lighthouse-30);
@@ -5,14 +13,6 @@
   border-radius: 5px;
   display: flex;
   align-items: center;
-
-  &_container {
-    position: fixed;
-    right: 50%;
-    bottom: calc(var(--spacing-medium) + 28px);
-    transform: translate(50%, 0);
-    z-index: 9;
-  }
 
   &_icon {
     color: var(--lighthouse);
@@ -26,7 +26,7 @@
   }
 }
 
-:global(.layout-emulator-open) + .warning_container,
-:global(.emulator-open) + .warning_container {
+:global(.layout-emulator-open) + :global(.warning-container),
+:global(.emulator-open) + :global(.warning-container) {
   margin-right: 100px;
 }
