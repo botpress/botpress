@@ -110,6 +110,7 @@ const PromptForm: FC<Props> = ({
               placeholder={lang.tr('studio.prompt.pickType')}
               items={options}
               defaultItem={selectedOption}
+              hideActiveItemIcon
               rightIcon="chevron-down"
               onChange={({ value }) => handleTypeChange(value)}
             />

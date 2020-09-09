@@ -425,6 +425,12 @@
       "endOfLogs": "End of logs"
     }
   },
+  "issue": {
+    "stepsToReproduce": "Steps to reproduce",
+    "whatIsTheIssue": "What is the issue?",
+    "previewOnGithub": "Preview on Github",
+    "submitBug": "Submit a bug"
+  },
   "variable": {
     "emptyState": "Tap + in the toolbar to add your first variable",
     "variableVisibility": "Variable Visibility",

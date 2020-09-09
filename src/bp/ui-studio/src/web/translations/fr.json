@@ -423,6 +423,12 @@
       "endOfLogs": "Fin des journaux"
     }
   },
+  "issue": {
+    "stepsToReproduce": "Étapes pour reproduire",
+    "whatIsTheIssue": "Quel est le problème?",
+    "previewOnGithub": "Aperçu sur Github",
+    "submitBug": "Soumettre un bogue"
+  },
   "variable": {
     "emptyState": "Appuyez sur + dans la barre d'outils pour ajouter votre première variable",
     "variableVisibility": "Visibilité de la variable",

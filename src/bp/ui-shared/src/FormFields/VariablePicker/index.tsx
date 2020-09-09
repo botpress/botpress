@@ -78,7 +78,7 @@ const VariablePicker: FC<Props> = ({
   useEffect(() => {
     const currentOption = getCurrentOption()
     setActiveItem(options?.find(item => item.value === currentOption?.value) ?? currentOption)
-  }, [])
+  }, [options])
 
   const filterDropdown = (query: string, options) => {
     const addOption = [] as any[]
@@ -132,7 +132,7 @@ const VariablePicker: FC<Props> = ({
   return (
     <SimpleDropdown
       filterable
-      className={cx(style.formSelect, sharedStyle.formSelect, className)}
+      className={cx(style.formSelect, className)}
       inputProps={{ placeholder: lang('filter') }}
       items={options}
       activeItem={activeItem}
