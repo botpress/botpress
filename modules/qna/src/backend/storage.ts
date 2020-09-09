@@ -1,23 +1,22 @@
-import axios from 'axios'
 import * as sdk from 'botpress/sdk'
-import { Paging } from 'botpress/sdk'
+import fse from 'fs-extra'
 import _ from 'lodash'
+import mkdirp from 'mkdirp'
 import nanoid from 'nanoid/generate'
+import path from 'path'
+import tar from 'tar'
+import tmp from 'tmp'
 
-import { QnaEntry, QnaItem } from './qna'
-import { isQnaComplete } from './utils'
-
-export const NLU_PREFIX = '__qna__'
+import { ImportArgs } from './api'
+import { Dic, Item } from './qna'
+import { ItemSchema, QnASchemaArray } from './validation'
 
 const safeId = (length = 10) => nanoid('1234567890abcdefghijklmnopqrsuvwxyz', length)
-
 const slugify = s => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '_')
 
-const getIntentId = id => `${NLU_PREFIX}${id}`
-
-const makeID = (qna: QnaEntry) => {
-  const firstQuestion = qna.questions[Object.keys(qna.questions)[0]][0]
-  return `${safeId()}_${slugify(firstQuestion)
+const makeId = (item: Item) => {
+  const firstQuestion = item.questions[Object.keys(item.questions)[0]][0]
+  return `__qna__${safeId()}_${slugify(firstQuestion)
     .replace(/^_+/, '')
     .substring(0, 50)
     .replace(/_+$/, '')}`
@@ -33,271 +32,213 @@ const normalizeQuestions = (questions: string[]) =>
     )
     .filter(Boolean)
 
-export default class Storage {
-  private bp: typeof sdk
-  private config
-  public botId: string
+interface Metadata {
+  answers: Dic<string[]>
+  contentAnswers: sdk.Content.All[]
+  enabled: boolean
+  lastModifiedOn: Date
+}
 
-  constructor(bp: typeof sdk, config, botId) {
-    this.bp = bp
-    this.config = config
-    this.botId = botId
-  }
+type Intent = Omit<sdk.NLU.IntentDefinition, 'metadata'> & { metadata?: Metadata }
 
-  private async getAxiosConfig() {
-    return this.bp.http.getAxiosConfigForBot(this.botId, { localUrl: true })
-  }
+const FLOW_FOLDER = 'flows'
+const MEDIA_FOLDER = 'media'
+const TEMP_INTENT_FILENAME = 'exportable.qna.intents.json'
+const INTENT_FILENAME = 'qna.intents.json'
+const QNA_PATH_TO_ZIP = path.join(FLOW_FOLDER, TEMP_INTENT_FILENAME)
 
-  async initialize() {
-    await this.syncQnaToNlu()
-  }
+const toQnaFile = topicName => path.join(topicName, INTENT_FILENAME)
+const toZipFile = topicName => `${topicName}.qna.tar.gz`
+const serialize = (intents: Intent[]) => JSON.stringify(intents, undefined, 2)
 
-  /**
-   * Creates QNA intents for each QNA item and cleanup unused qna intents.
-   */
-  async syncQnaToNlu(): Promise<void> {
-    const axiosConfig = await this.getAxiosConfig()
-    const allQuestions = await this.fetchQNAs()
-    const { data: allIntents } = await axios.get(`/nlu/intents`, axiosConfig)
+const keepEndPath = path =>
+  path
+    .split('/')
+    .slice(-2)
+    .join('/')
 
-    const leftOverQnaIntents = allIntents.filter(
-      (intent: sdk.NLU.IntentDefinition) =>
-        intent.name.startsWith(NLU_PREFIX) &&
-        !_.find(allQuestions, q => getIntentId(q.id).toLowerCase() === intent.name)
-    )
-    await Promise.map(
-      leftOverQnaIntents,
-      (intent: sdk.NLU.IntentDefinition) => axios.post(`/nlu/intents/${intent.name}/delete`, {}, axiosConfig) // TODO: remove this, QnA are synced from Core
-    )
-
-    const qnaItemsToSync = allQuestions.filter(
-      qnaItem => qnaItem.data.enabled && !_.find(allIntents, i => i.name === getIntentId(qnaItem.id).toLowerCase())
-    )
-    await Promise.map(qnaItemsToSync, item => this.createNLUIntentFromQnaItem(item, false))
-  }
-
-  private async createNLUIntentFromQnaItem(qnaItem: QnaItem, create: boolean): Promise<void> {
-    const axiosConfig = await this.getAxiosConfig()
-    const utterances = {}
-    for (const lang in qnaItem.data.questions) {
-      utterances[lang] = normalizeQuestions(qnaItem.data.questions[lang])
-    }
-
-    const intent = {
-      name: getIntentId(qnaItem.id),
-      entities: [],
-      contexts: qnaItem.data.contexts,
-      utterances: utterances
-    }
-
-    await axios.post('/nlu/intents', intent, axiosConfig) // TODO: remove this, QnA are synced from Core
-  }
-
-  async update(data: QnaEntry, id: string): Promise<string> {
-    await this.checkForDuplicatedQuestions(data, id)
-
-    id = id || makeID(data)
-    const item: QnaItem = { id, data: { ...data, lastModified: new Date() } }
-
-    if (data.enabled) {
-      await this.createNLUIntentFromQnaItem(item, false)
-    } else {
-      await this.deleteMatchingIntent(item.id)
-    }
-
-    await this.bp.ghost
-      .forBot(this.botId)
-      .upsertFile(this.config.qnaDir, `${id}.json`, JSON.stringify({ id, data }, undefined, 2))
-
-    return id
-  }
-
-  async deleteMatchingIntent(id: string) {
-    const axiosConfig = await this.getAxiosConfig()
-    try {
-      await axios.post(`/nlu/intents/${getIntentId(id)}/delete`, {}, axiosConfig) // TODO: remove this, QnA are synced from Core
-    } catch (err) {
-      /* swallow error */
-    }
-  }
-
-  async insert(qna: QnaEntry | QnaEntry[]): Promise<string[]> {
-    const ids = await Promise.mapSeries(_.isArray(qna) ? qna : [qna], async (data, i) => {
-      const id = makeID(data)
-      await this.checkForDuplicatedQuestions(data, id)
-      const item: QnaItem = { id, data: { ...data, lastModified: new Date() } }
-      if (data.enabled) {
-        await this.createNLUIntentFromQnaItem(item, true)
-      }
-
-      await this.bp.ghost
-        .forBot(this.botId)
-        .upsertFile(this.config.qnaDir, `${id}.json`, JSON.stringify(item, undefined, 2))
-
-      return id
-    })
-
-    return ids
-  }
-
-  private async checkForDuplicatedQuestions(newItem: QnaEntry, editingQnaId?: string) {
-    const qnaItems = (await this.fetchQNAs()).filter(q => !editingQnaId || q.id != editingQnaId)
-
-    const newQuestions = Object.values(newItem.questions).reduce((a, b) => a.concat(b), [])
-    const dupes = qnaItems
-      .map(item => ({
-        id: item.id,
-        questions: Object.values(item.data.questions).reduce((acc, arr) => [...acc, ...arr], [])
-      }))
-      .filter(existingQuestion => !!existingQuestion.questions.filter(q => newQuestions.includes(q)).length)
-
-    if (dupes.length) {
-      this.bp.logger
-        .forBot(this.botId)
-        .warn(`These questions already exist in another entry: ${dupes.join(', ')}. Please remove duplicates`)
-    }
-  }
-
-  async getQnaItem(id: string): Promise<QnaItem> {
-    const filename = `${id}.json`
-    return await this.bp.ghost.forBot(this.botId).readFileAsObject(this.config.qnaDir, filename)
-  }
-
-  async fetchQNAs(opts?: Paging) {
-    try {
-      let questions = await this.bp.ghost.forBot(this.botId).directoryListing(this.config.qnaDir, '*.json')
-      if (opts && opts.count) {
-        questions = questions.slice(opts.start, opts.start + opts.count)
-      }
-
-      return Promise.map(questions, itemName => this.getQnaItem(itemName.replace(/\.json$/i, '')))
-    } catch (err) {
-      this.bp.logger.warn(`Error while reading questions. ${err}`)
-      return []
-    }
-  }
-
-  async filterByContextsAndQuestion(
-    question: string,
-    filteredContexts: string[],
-    stateFilter: string,
-    order: string,
-    lang: string
-  ) {
-    if (stateFilter === 'incomplete' && !lang) {
-      throw new Error('Using the incomplete parameter requires the lang parameter to be set')
-    }
-
-    const allQuestions = await this.fetchQNAs()
-    const filteredQuestions = allQuestions.filter(q => {
-      const { questions, contexts } = q.data
-
-      const hasMatch =
-        Object.values(questions)
-          .reduce((a, b) => a.concat(b), [])
-          .join('\n')
-          .toLowerCase()
-          .indexOf(question.toLowerCase()) !== -1
-
-      if (
-        (stateFilter === 'active' && !q.data.enabled) ||
-        (stateFilter === 'disabled' && q.data.enabled) ||
-        (stateFilter === 'incomplete' && isQnaComplete(q.data, lang))
-      ) {
-        return false
-      }
-
-      if (!filteredContexts.length) {
-        return hasMatch || q.id.includes(question)
-      }
-
-      if (!question) {
-        return !!_.intersection(contexts, filteredContexts).length
-      }
-      return hasMatch && !!_.intersection(contexts, filteredContexts).length
-    })
-
-    if (order) {
-      return _.orderBy(filteredQuestions, q => (q.data.lastModified ? new Date(q.data.lastModified).getTime() : 0), [
-        <'asc' | 'desc'>order
-      ])
-    } else {
-      return filteredQuestions.reverse()
-    }
-  }
-
-  async getQuestions(
-    { question = '', filteredContexts = [], stateFilter = undefined, order = undefined, lang = undefined },
-    { limit = 50, offset = 0 }
-  ): Promise<{ items: QnaItem[]; count: number }> {
-    let items: QnaItem[] = []
-    let count = 0
-
-    if (!(question || filteredContexts.length || stateFilter || order)) {
-      items = await this.fetchQNAs({
-        start: +offset,
-        count: +limit
+const removeBotPrefix = (c: sdk.Content.All) => {
+  if ((c as sdk.Content.Carousel).items) {
+    const carousel = c as sdk.Content.Carousel
+    return {
+      ...carousel,
+      items: carousel.items.map(o => {
+        return { ...o, image: keepEndPath(o.image) }
       })
-      count = await this.count()
+    }
+  } else if ((c as sdk.Content.Card | sdk.Content.Image).image) {
+    const image = c as sdk.Content.Image | sdk.Content.Card
+    return {
+      ...image,
+      image: keepEndPath(image.image)
+    }
+  } else {
+    return c
+  }
+}
+
+const addBotPath = (file, botId) => path.join(`/api/v1/bots/${botId}`, file)
+const addBotPrefix = (c: sdk.Content.All, botId: string) => {
+  if ((c as sdk.Content.Carousel).items) {
+    const carousel = c as sdk.Content.Carousel
+    return {
+      ...carousel,
+      items: carousel.items.map(o => {
+        return { ...o, image: addBotPath(o.image, botId) }
+      })
+    }
+  } else if ((c as sdk.Content.Card | sdk.Content.Image).image) {
+    const image = c as sdk.Content.Image | sdk.Content.Card
+    return { ...image, image: addBotPath(image.image, botId) }
+  } else {
+    return c
+  }
+}
+
+export default class Storage {
+  constructor(private ghost: sdk.ScopedGhostService) {}
+
+  // TODO: validate no dupes
+
+  private async ensureIntentsFileExists(topicName: string) {
+    if (!(await this.ghost.fileExists(FLOW_FOLDER, toQnaFile(topicName)))) {
+      await this.ghost.upsertFile(FLOW_FOLDER, toQnaFile(topicName), serialize([]))
+    }
+  }
+
+  async fetchItems(topicName: string, opts?: sdk.Paging): Promise<Item[]> {
+    await this.ensureIntentsFileExists(topicName)
+    const intents = await this.ghost.readFileAsObject<Intent[]>(FLOW_FOLDER, toQnaFile(topicName))
+
+    const items = intents.map<Item>(intent => ({
+      id: intent.name,
+      questions: intent.utterances,
+      answers: intent.metadata?.answers,
+      contentAnswers: intent.metadata?.contentAnswers,
+      enabled: intent.metadata?.enabled,
+      lastModified: intent.metadata?.lastModifiedOn
+    }))
+    return items
+  }
+
+  async updateSingleItem(topicName: string, item: Item): Promise<string> {
+    item = await ItemSchema.validate(item)
+    await this.ensureIntentsFileExists(topicName)
+
+    const items = await this.fetchItems(topicName)
+    let newItems: Item[]
+
+    if (!item.id?.length) {
+      item.id = makeId(item)
+      newItems = [item, ...items]
     } else {
-      const tmpQuestions = await this.filterByContextsAndQuestion(question, filteredContexts, stateFilter, order, lang)
-      items = tmpQuestions.slice(offset, offset + limit)
-      count = tmpQuestions.length
+      newItems = [...items]
+      newItems[items.findIndex(i => i.id === item.id)] = item
     }
-    return { items, count }
+
+    const intents = newItems.map<Intent>(i => ({
+      name: i.id,
+      contexts: [topicName],
+      filename: toQnaFile(topicName),
+      slots: [],
+      utterances: _.mapValues(i.questions, q => normalizeQuestions(q)),
+      metadata: {
+        answers: i.answers,
+        contentAnswers: i.contentAnswers,
+        enabled: i.enabled,
+        lastModifiedOn: i.id === item.id ? new Date() : i.lastModified
+      }
+    }))
+
+    await this.ghost.upsertFile(FLOW_FOLDER, toQnaFile(topicName), serialize(intents))
+    return item.id
   }
 
-  async getAllContentElementIds(list?: QnaItem[]): Promise<string[]> {
-    const qnas = list || (await this.fetchQNAs())
-    const allAnswers = _.flatMapDeep(qnas, qna => Object.values(qna.data.answers))
-    return _.uniq(_.filter(allAnswers as string[], x => _.isString(x) && x.startsWith('#!')))
+  async getCountPerTopic() {
+    const qnaFilesPerTopic = await this.ghost.directoryListing(FLOW_FOLDER, INTENT_FILENAME)
+    const qnaPerTopic = {}
+    for (const qnaFile of qnaFilesPerTopic) {
+      qnaPerTopic[qnaFile.split('/')[0]] = (await this.ghost.readFileAsObject<Intent[]>(FLOW_FOLDER, qnaFile)).length
+    }
+    return qnaPerTopic
   }
 
-  async getCountByTopic(): Promise<{ [context: string]: number }> {
-    const qnas = await this.fetchQNAs()
-
-    return _.countBy(qnas, x => x.data.contexts)
+  async deleteSingleItem(topicName: string, itemId: string) {
+    await this.ensureIntentsFileExists(topicName)
+    const intents = await this.ghost.readFileAsObject<Intent[]>(FLOW_FOLDER, toQnaFile(topicName))
+    const newIntents = intents.filter(x => x.name !== itemId)
+    await this.ghost.upsertFile(FLOW_FOLDER, toQnaFile(topicName), serialize(newIntents))
   }
 
-  async getContentElementUsage(): Promise<any> {
-    const qnas = await this.fetchQNAs()
+  async exportPerTopic(topicName: string) {
+    const tmpDir = tmp.dirSync({ unsafeCleanup: true })
+    const zipName = path.join(tmpDir.name, toZipFile(topicName))
+    await mkdirp.sync(path.join(tmpDir.name, MEDIA_FOLDER))
 
-    return _.reduce(
-      qnas,
-      (result, qna) => {
-        const answers = _.flatMap(Object.values(qna.data.answers))
+    const jsonQnaForBot = await this.ghost.readFileAsObject<Intent[]>(FLOW_FOLDER, toQnaFile(topicName))
+    const jsonQnaBotAgnostic = jsonQnaForBot.map(i => {
+      const contentAnswers = [...(i.metadata?.contentAnswers ?? [])].map((c: sdk.Content.All) => removeBotPrefix(c))
+      const metadata = { ...i.metadata, contentAnswers }
+      return { ...i, metadata }
+    })
 
-        _.filter(answers, x => x.startsWith('#!')).forEach(answer => {
-          const values = result[answer]
-          if (values) {
-            values.count++
-          } else {
-            result[answer] = { qna: qna.id, count: 1 }
-          }
-        })
-        return result
-      },
-      {}
+    const medias = _.chain(jsonQnaBotAgnostic)
+      .flatMapDeep(item => item.metadata?.contentAnswers ?? [])
+      .flatMap(c => {
+        if ((c as sdk.Content.Carousel).items) {
+          const carousel = c as sdk.Content.Carousel
+          return carousel.items
+        } else {
+          return [c]
+        }
+      })
+      .map(c => _.get(c, 'image', undefined))
+      .filter(c => c)
+      .value()
+
+    await mkdirp.sync(path.join(tmpDir.name, path.dirname(QNA_PATH_TO_ZIP)))
+    await fse.writeFile(path.join(tmpDir.name, QNA_PATH_TO_ZIP), Buffer.from(serialize(jsonQnaBotAgnostic)))
+    await Promise.all(
+      medias.map(
+        async mediaFile =>
+          await fse.writeFile(path.resolve(tmpDir.name, mediaFile), await this.ghost.readFileAsBuffer('/', mediaFile))
+      )
     )
+
+    await tar.create({ cwd: tmpDir.name, file: zipName, portable: true, gzip: true }, [...medias, QNA_PATH_TO_ZIP])
+    const zipBuffer = await fse.readFile(zipName)
+    tmp.setGracefulCleanup()
+    return zipBuffer
   }
 
-  async count() {
-    const questions = await this.fetchQNAs()
-    return questions.length
-  }
+  async importArchivePerTopic(importArgs: ImportArgs) {
+    const { topicName, botId, zipFile } = importArgs
 
-  // TODO remove batch deleter, it's done one by one anyway
-  async delete(qnaId) {
-    const ids = _.isArray(qnaId) ? qnaId : [qnaId]
-    if (!ids.length) {
-      return
+    const tmpDir = tmp.dirSync({ unsafeCleanup: true })
+    await fse.writeFile(path.join(tmpDir.name, toZipFile(topicName)), zipFile)
+    await tar.extract({ cwd: tmpDir.name, file: path.join(tmpDir.name, toZipFile(topicName)) })
+
+    let qnasBotAgnostic: Intent[] = JSON.parse(
+      await fse.readFile(path.join(tmpDir.name, FLOW_FOLDER, TEMP_INTENT_FILENAME), 'utf8')
+    )
+    qnasBotAgnostic = await QnASchemaArray.validate(qnasBotAgnostic)
+
+    const qnaForBot: Intent[] = qnasBotAgnostic.map(i => {
+      const newContent = [...i.metadata.contentAnswers].map(c => addBotPrefix(c, botId))
+      const newMetadata = { ...i.metadata, contentAnswers: newContent }
+      return { ...i, contexts: [topicName], filename: path.join(topicName, INTENT_FILENAME), metadata: newMetadata }
+    })
+
+    await this.ghost.upsertFile(FLOW_FOLDER, path.join(topicName, INTENT_FILENAME), serialize(qnaForBot))
+
+    if (await fse.pathExists(path.join(tmpDir.name, MEDIA_FOLDER))) {
+      for (const mediaFile of await fse.readdir(path.join(tmpDir.name, MEDIA_FOLDER))) {
+        await this.ghost.upsertFile(
+          MEDIA_FOLDER,
+          mediaFile,
+          await fse.readFile(path.join(tmpDir.name, MEDIA_FOLDER, mediaFile))
+        )
+      }
     }
-
-    const deletePromise = async (id: string): Promise<void> => {
-      await this.deleteMatchingIntent(id)
-      return this.bp.ghost.forBot(this.botId).deleteFile(this.config.qnaDir, `${id}.json`)
-    }
-
-    await Promise.all(ids.map(deletePromise))
   }
 }

@@ -2,6 +2,7 @@ import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
 import sdk from 'botpress/sdk'
 import { Contents, lang, MoreOptions, MoreOptionsItems, RightSidebar, toast } from 'botpress/shared'
+import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
@@ -59,7 +60,7 @@ const EnumForm: FC<Props> = ({
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
-      label: lang.tr('studio.library.deleteEnumeration'),
+      label: lang.tr('studio.library.deleteVariableFromLibrary'),
       action: () => deleteEntity(formData.id),
       type: 'delete'
     }
@@ -106,7 +107,7 @@ const EnumForm: FC<Props> = ({
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={close}>
       <Fragment key={customKey}>
-        <div className={style.formHeader}>
+        <div className={cx(style.formHeader, style.noSelect)}>
           <Tabs id="contentFormTabs">
             <Tab id="content" title={lang.tr('enumeration')} />
           </Tabs>
@@ -124,7 +125,7 @@ const EnumForm: FC<Props> = ({
               label: 'name',
               required: true,
               maxLength: 150,
-              placeholder: 'studio.library.variableName',
+              placeholder: 'studio.library.variableTypePlaceholder',
               defaultValue: formData.name
             },
             {
@@ -132,7 +133,9 @@ const EnumForm: FC<Props> = ({
               type: 'tag-input',
               label: 'values',
               placeholder: 'studio.library.addSynonyms',
+              emptyPlaceholder: 'studio.library.writeAsManyHintsAsPossible',
               group: {
+                minimum: 1,
                 addLabel: 'studio.library.addValueAlternative'
               },
               validation: { validator: isDuplicate }
@@ -142,11 +145,11 @@ const EnumForm: FC<Props> = ({
             {
               key: 'fuzzy',
               type: 'select',
-              label: 'tolerance',
+              label: 'variable.textMatchingTolerance',
               defaultValue: 0.8,
               options: [
-                { label: 'strict', value: 1 },
-                { label: 'medium', value: 0.8 },
+                { label: 'exactMatch', value: 1 },
+                { label: 'moderate', value: 0.8 },
                 { label: 'loose', value: 0.65 }
               ]
             }
