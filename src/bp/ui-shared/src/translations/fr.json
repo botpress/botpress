@@ -187,6 +187,7 @@
   "output": "Sortie",
   "tolerance": "Tolérance",
   "enumeration": "Énumération",
+  "uncategorized": "Non catégorisée",
   "values": "Valeurs",
   "exactMatch": "Correspondances exactes uniquement",
   "moderate": "Modéré",

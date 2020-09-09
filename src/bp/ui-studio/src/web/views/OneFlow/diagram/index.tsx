@@ -418,17 +418,17 @@ class Diagram extends Component<Props> {
         },
         next: [
           {
-            caption: lang.tr('studio.prompt.userAnswersCorrectly'),
+            caption: 'studio.prompt.userAnswersCorrectly',
             condition: 'thisNode.extracted === true',
             node: ''
           },
           {
-            caption: lang.tr('studio.prompt.userDoesNotAnswer'),
+            caption: 'studio.prompt.userDoesNotAnswer',
             condition: 'thisNode.timeout === true',
             node: ''
           },
           {
-            caption: lang.tr('studio.prompt.userCancels'),
+            caption: 'studio.prompt.userCancels',
             condition: 'thisNode.cancelled === true',
             node: ''
           }

@@ -109,10 +109,15 @@ const ExecuteForm: FC<Props> = ({
     }
   }
 
-  const onlyLegacy = actions.filter(a => a.legacy)
-  const allActions = [newAction, ...onlyLegacy.map(x => ({ label: `${x.category} - ${x.title}`, value: x.name }))]
-  const selectedOption = allActions.find(a => a.value === selectedAction.current)
-  const multiLevelActions = actions.reduce((acc, action) => {
+  const onlyLegacy = actions
+    .filter(a => a.legacy)
+    .map(x => ({ ...x, category: x.category || lang.tr('uncategorized'), title: x.title || x.name }))
+
+  const selectedOption = onlyLegacy
+    .map(x => ({ label: x.name, value: x.name }))
+    .find(a => a.value === selectedAction.current)
+
+  const multiLevelActions = onlyLegacy.reduce((acc, action) => {
     const category = acc.find(c => c.name === action.category) || { name: action.category, items: [] }
 
     category.items.push({ label: action.title, value: action.name })
