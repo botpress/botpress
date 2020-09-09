@@ -2,6 +2,7 @@ import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
 import sdk from 'botpress/sdk'
 import { Contents, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
+import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
@@ -79,7 +80,7 @@ const PatternForm: FC<Props> = ({
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
-      label: lang.tr('studio.library.deletePattern'),
+      label: lang.tr('studio.library.deleteVariableFromLibrary'),
       action: () => deleteEntity(formData.id),
       type: 'delete'
     }
@@ -90,7 +91,7 @@ const PatternForm: FC<Props> = ({
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={close}>
       <Fragment key={customKey}>
-        <div className={style.formHeader}>
+        <div className={cx(style.formHeader, style.noSelect)}>
           <Tabs id="contentFormTabs">
             <Tab id="content" title={lang.tr('pattern')} />
           </Tabs>
@@ -108,14 +109,18 @@ const PatternForm: FC<Props> = ({
               label: 'name',
               required: true,
               maxLength: 150,
-              placeholder: 'studio.library.variableName'
+              placeholder: 'studio.library.variableTypePlaceholder'
             },
             {
               key: 'pattern',
               type: 'text',
               required: true,
-              placeholder: 'module.builtin.regexPatternPlaceholder',
-              label: 'module.builtin.regexPattern'
+              placeholder: 'studio.library.regexPatternPlaceholder',
+              label: 'module.builtin.regexPattern',
+              moreInfo: {
+                label: 'learnMore',
+                url: 'https://regex101.com/'
+              }
               // TODO add combo box to select from predefined patterns or custom
             },
             {
@@ -125,7 +130,9 @@ const PatternForm: FC<Props> = ({
               placeholder: 'studio.library.examplePlaceholder',
               validation: { regex: preparePattern(pattern, matchCase) },
               group: {
-                addLabel: 'studio.library.addExample'
+                minimum: 1,
+                addLabel: 'studio.library.addExample',
+                addLabelTooltip: 'studio.library.addExampleTooltip'
               }
             }
           ]}

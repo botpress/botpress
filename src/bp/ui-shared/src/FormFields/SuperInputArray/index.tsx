@@ -31,6 +31,7 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
   canPickVariables = true,
   variableTypes,
   addBtnLabel,
+  addBtnLabelTooltip,
   label,
   onChange,
   moreInfo,
@@ -42,8 +43,8 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
   onUpdateVariables
 }) => {
   const getInitialItems = () => {
-    let localItems = [...(items || [])]
-    const diff = (refValue || []).length - items.length
+    let localItems = [...(items?.length ? items : [''])]
+    const diff = (refValue || []).length - items?.length
 
     if (diff > 0) {
       localItems = localItems.concat(Array(diff).fill(''))
@@ -124,7 +125,7 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
   }
 
   const onKeyDown = (e, index): void => {
-    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    if (e.key === 'Enter' && !(e.ctrlKey || e.metaKey || e.shiftKey)) {
       e.preventDefault()
       addItem()
     }
@@ -173,12 +174,7 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
       })}
       {missingTranslation && <span className={style.error}>{lang('pleaseTranslateField')}</span>}
 
-      <Tooltip
-        content={lang('quickAddAlternative', {
-          shortcut: <ShortcutLabel light keys={[controlKey, 'enter']} />
-        })}
-        position={Position.BOTTOM}
-      >
+      <Tooltip content={lang(addBtnLabelTooltip || 'quickAddAlternative')} position={Position.BOTTOM}>
         <AddButton text={addBtnLabel} onClick={() => addItem()} />
       </Tooltip>
     </div>

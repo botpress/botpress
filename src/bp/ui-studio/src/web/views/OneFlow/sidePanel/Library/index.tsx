@@ -21,10 +21,13 @@ import {
 import { SearchBar } from '~/components/Shared/Interface'
 import { RootReducer } from '~/reducers'
 import { sanitizeName } from '~/util'
+import storage from '~/util/storage'
 
 import style from '../TopicList/style.scss'
 
 import TreeItem from './TreeItem'
+
+const LIBRARY_EXPANDED_KEY = `bp::${window.BOT_ID}::libraryExpanded`
 
 interface OwnProps {
   goToFlow: (flow: any) => void
@@ -81,14 +84,28 @@ const getVarTypeIcon = type => {
 }
 
 const Library: FC<Props> = props => {
+  let initialExpanded
+  try {
+    initialExpanded = JSON.parse(storage.get(LIBRARY_EXPANDED_KEY)) || {}
+  } catch (error) {
+    initialExpanded = {}
+  }
   const [filter, setFilter] = useState('')
   const [items, setItems] = useState<NodeData[]>([])
-  const [expanded, setExpanded] = useState<any>({})
+  const [expanded, setExpanded] = useState<any>(initialExpanded)
   const [editing, setEditing] = useState('')
 
   useEffect(() => {
     props.refreshEntities()
   }, [])
+
+  useEffect(() => {
+    try {
+      storage.set(LIBRARY_EXPANDED_KEY, JSON.stringify(expanded))
+    } catch (error) {
+      storage.del(LIBRARY_EXPANDED_KEY)
+    }
+  }, [expanded])
 
   useEffect(() => {
     const entities = props.entities
@@ -113,6 +130,7 @@ const Library: FC<Props> = props => {
       // { id: 'block', type: 'block' as NodeType, label: lang.tr('studio.library.savedBlocks'), children: [] },
       {
         id: 'workflow',
+        type: 'workflowGroup' as NodeType,
         label: lang.tr('studio.library.savedWorkflows'),
         children: reusables
       },
@@ -131,7 +149,11 @@ const Library: FC<Props> = props => {
       setExpanded({ ...expanded, [path]: !expanded[path] })
     }
 
-    if (item.type === 'variableType' && level !== 0) {
+    if (level === 0) {
+      return
+    }
+
+    if (item.type === 'variableType') {
       props.setActiveFormItem({ type: 'variableType', data: props.entities.find(x => x.id === item.id) })
     } else if (item.type === 'workflow') {
       props.goToFlow(item.id)
@@ -181,15 +203,20 @@ const Library: FC<Props> = props => {
   const newFlow = async () => {
     const name = nextFlowName(props.flows, '__reusable', 'subworkflow')
     props.createFlow(name)
+    setEditing(name)
   }
 
   const renameFlow = async (value: string) => {
+    const currentFlow = props.flows.find(x => x.name === editing)
     const fullName = buildFlowName({ topic: parseFlowName(editing).topic, workflow: sanitize(value) }, true)
       .workflowPath
+    const flowExists = props.flows.find(x => x.name === fullName)
 
-    if (!props.flows.find(x => x.name === fullName)) {
+    if (currentFlow.name !== value && !flowExists) {
       props.renameFlow({ targetFlow: editing, name: fullName })
       props.updateFlow({ name: fullName })
+    } else {
+      setEditing('')
     }
   }
 
@@ -203,18 +230,31 @@ const Library: FC<Props> = props => {
     if (type == 'variableType') {
       return (
         <Fragment>
-          <MenuItem id="btn-duplicate" label={lang.tr('duplicate')} onClick={() => duplicateVarType(id)} />
-          <MenuItem id="btn-delete" label={lang.tr('delete')} intent={Intent.DANGER} onClick={() => deleteEntity(id)} />
+          <MenuItem
+            id="btn-duplicate"
+            label={lang.tr('studio.library.duplicateVariableType')}
+            onClick={() => duplicateVarType(id)}
+          />
+          <MenuItem
+            id="btn-delete"
+            label={lang.tr('studio.library.deleteVariableFromLibrary')}
+            intent={Intent.DANGER}
+            onClick={() => deleteEntity(id)}
+          />
         </Fragment>
       )
     } else if (type == 'workflow') {
       return (
         <Fragment>
-          <MenuItem id="btn-rename" label={lang.tr('rename')} onClick={() => setEditing(id)} />
-          <MenuItem id="btn-duplicate" label={lang.tr('duplicate')} onClick={() => duplicateWorkflow(id)} />
+          <MenuItem id="btn-rename" label={lang.tr('renameWorkflow')} onClick={() => setEditing(id)} />
+          <MenuItem
+            id="btn-duplicate"
+            label={lang.tr('studio.library.duplicateWorkflow')}
+            onClick={() => duplicateWorkflow(id)}
+          />
           <MenuItem
             id="btn-delete"
-            label={lang.tr('delete')}
+            label={lang.tr('deleteWorkflow')}
             intent={Intent.DANGER}
             onClick={() => deleteWorkflow(id)}
           />
@@ -228,7 +268,6 @@ const Library: FC<Props> = props => {
     const path = `${parentId}${parentId && '/'}${item.id}`
     const isTopLevel = level === 0
     const isSelected = item.label === props.selectedWorkflow
-
     const treeItem = (
       <div
         className={cx(item.type, { [style.larger]: parentId === 'workflow', [style.largerSelected]: isSelected })}
@@ -239,6 +278,7 @@ const Library: FC<Props> = props => {
             [style.isTopic]: isTopLevel,
             [style.active]: isSelected
           })}
+          canDrag={!isSelected}
           isExpanded={expanded[path]}
           item={item}
           level={level}

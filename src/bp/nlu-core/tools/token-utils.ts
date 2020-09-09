@@ -7,7 +7,8 @@ import getVocabTokenizer from './vocab-tokenizer'
 
 export const SPACE = '\u2581'
 
-export const isWord = (str: string) => _.every(SPECIAL_CHARSET, c => !RegExp(c).test(str)) && !hasSpace(str)
+export const isWord = (str: string) =>
+  str.length > 0 && _.every(SPECIAL_CHARSET, c => !RegExp(c).test(str)) && !hasSpace(str)
 
 export const hasSpace = (str: string) => _.some(str, isSpace)
 

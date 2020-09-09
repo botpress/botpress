@@ -33,7 +33,7 @@ const Predictions = (props: Props) => {
               {intents.slice(0, 4).map(i => {
                 return (
                   <li key={i.label}>
-                    <Intent name={i.label} confidence={i.confidence} />
+                    <Intent topicName={key} name={i.label} confidence={i.confidence} />
                   </li>
                 )
               })}
