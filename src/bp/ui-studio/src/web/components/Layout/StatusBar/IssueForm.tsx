@@ -25,8 +25,6 @@ const IssueForm: FC<Props> = ({ formData, close, onUpdate }) => {
     close()
   }
 
-  console.log(formData)
-
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose close={close}>
       <div className={style.formHeader}>
