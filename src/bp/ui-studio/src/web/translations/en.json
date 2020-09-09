@@ -60,6 +60,13 @@
     "applyConfigsTooltip": "Restarts server so configuration changes can take effect"
   },
   "studio": {
+    "betaNotice": {
+      "usingBeta": "You're using Botpress Albert - Beta",
+      "seeNotice": "See Notice",
+      "contribution": "By using this preview, you contribute to improve Botpress.",
+      "limitations": "It is not meant to be run in a production environment. Also, note that no documentation and no migration tool is offered yet.",
+      "thanks": "Thank you for your support!"
+    },
     "router": {
       "variable": "Variable",
       "pickVariable": "Pick a variable",
@@ -427,6 +434,12 @@
       "closePanel": "Close Panel",
       "endOfLogs": "End of logs"
     }
+  },
+  "issue": {
+    "stepsToReproduce": "Steps to reproduce",
+    "whatIsTheIssue": "What is the issue?",
+    "previewOnGithub": "Preview on Github",
+    "submitBug": "Submit a bug"
   },
   "variable": {
     "emptyState": "Tap + in the toolbar to add your first variable",

@@ -63,6 +63,10 @@ const ConditionForm: FC<Props> = ({
   const [conditionUsage, setConditionUsage] = useState<ConditionUsage>(getConditionUsage())
 
   useEffect(() => {
+    return () => document.documentElement.style.setProperty('--right-sidebar-width', '240px')
+  }, [])
+
+  useEffect(() => {
     condition.current = formData?.id
     setForceUpdate(!forceUpdate)
   }, [editingCondition, customKey])
@@ -76,6 +80,9 @@ const ConditionForm: FC<Props> = ({
   ]
 
   const handleConditionChange = value => {
+    if (!['user_intent_is', 'raw_js'].includes(value)) {
+      document.documentElement.style.setProperty('--right-sidebar-width', '240px')
+    }
     condition.current = value
     onUpdate({
       id: value

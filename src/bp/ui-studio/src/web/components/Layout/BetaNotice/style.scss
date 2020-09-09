@@ -1,0 +1,20 @@
+.infoContent {
+  display: flex;
+  align-items: center;
+}
+
+.showMoreBtn {
+  color: var(--ocean) !important;
+  font-size: 12px !important;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1.25;
+  transition: background 0.3s;
+  margin-left: var(--spacing-small);
+
+  &:hover,
+  &:focus {
+    color: var(--ocean) !important;
+    background: var(--hover-ocean) !important;
+  }
+}

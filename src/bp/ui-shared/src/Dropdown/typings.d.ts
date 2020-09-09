@@ -13,6 +13,7 @@ export interface DropdownProps {
     acceptLabel?: string
     callback?: (value?: any) => void
   }
+  hideActiveItemIcon?: boolean
   children?: any
   placeholder?: string
   filterPlaceholder?: string

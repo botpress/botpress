@@ -176,13 +176,9 @@
 }
 
 .deleteImg {
+  background: var(--hover-lighthouse-30) !important;
   min-height: 30px !important;
   min-width: 30px !important;
-  transition: background 0.3s;
-
-  &:hover {
-    background: var(--hover-lighthouse-30) !important;
-  }
 
   svg {
     fill: var(--lighthouse) !important;
