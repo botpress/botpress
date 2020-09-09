@@ -7,19 +7,19 @@ import InfoMessage from '../InfoMessage'
 
 import style from './style.scss'
 
-const welcomKey = () => `bp::beta::${window.APP_VERSION}`
+const WELCOME_KEY = `bp::beta::${window.APP_VERSION}`
 
 export default () => {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    if (window.USE_ONEFLOW && !storage.get(welcomKey())) {
+    if (window.USE_ONEFLOW && !storage.get(WELCOME_KEY)) {
       setVisible(true)
     }
   }, [])
 
   const onAccept = () => {
-    storage.set(welcomKey(), '1')
+    storage.set(WELCOME_KEY, '1')
     setVisible(false)
   }
 
