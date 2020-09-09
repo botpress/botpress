@@ -1576,6 +1576,7 @@ declare module 'botpress/sdk' {
     label?: string
     overrideKey?: string
     placeholder?: string | string[]
+    emptyPlaceholder?: string
     options?: FormOption[]
     defaultValue?: FormDataField
     required?: boolean
@@ -1609,6 +1610,7 @@ declare module 'botpress/sdk' {
     group?: {
       /** You have to specify the add button label */
       addLabel?: string
+      addLabelTooltip?: string
       /** You can specify a minimum so the delete button won't show if there isn't more than the minimum */
       minimum?: number
       /** You can add a contextual menu to add extra options */

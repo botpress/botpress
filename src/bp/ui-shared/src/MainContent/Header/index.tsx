@@ -14,7 +14,7 @@ const Header: FC<HeaderProps> = props => {
     <Navbar className={cx(style.header, props.className)}>
       {!!props.tabs?.length && (
         <NavbarGroup>
-          <Tabs id="headerTabs" onChange={props.tabChange}>
+          <Tabs id="headerTabs" selectedTabId={props.currentTab} onChange={props.tabChange}>
             {props.tabs.map(tab => (
               <Tab key={tab.id} id={tab.id} title={tab.title} />
             ))}

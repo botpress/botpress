@@ -1,6 +1,6 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
-import { PromptNode } from 'botpress/sdk'
+import { FormData } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import { FlowView, Variables } from 'common/typings'
@@ -17,7 +17,7 @@ interface Props {
   contentLang: string
   close: () => void
   onUpdate: (data: any) => void
-  formData: PromptNode
+  formData: FormData
   currentFlow: FlowView
 }
 
@@ -32,7 +32,18 @@ const VariableForm: FC<Props> = ({
   deleteVariable,
   currentFlow
 }) => {
+  const getVisibility = () => {
+    if (formData?.params?.isInput) {
+      return 'input'
+    } else if (formData?.params?.isOutput) {
+      return 'output'
+    } else {
+      return 'private'
+    }
+  }
+
   const variableType = useRef(formData?.type)
+  const variableVisibility = useRef(getVisibility())
   const [showOptions, setShowOptions] = useState(false)
   const [forceUpdate, setForceUpdate] = useState(false)
 
@@ -62,10 +73,12 @@ const VariableForm: FC<Props> = ({
       value.type === variableType.current && (!formData.params?.subType || value.subType === formData.params?.subType)
   )
 
-  let fields = selectedVariableType.config?.fields || []
-  if (currentFlow.type !== 'reusable') {
-    fields = fields.filter(x => !['isInput', 'isOutput'].includes(x.key))
-  }
+  const visibilityOptions = [
+    { label: lang.tr('private'), value: 'private' },
+    { label: lang.tr('input'), value: 'input' },
+    { label: lang.tr('output'), value: 'output' }
+  ]
+  const selectedVisibility = visibilityOptions.find(({ value }) => value === variableVisibility.current)
 
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={close}>
@@ -76,6 +89,33 @@ const VariableForm: FC<Props> = ({
           </Tabs>
           <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
         </div>
+        {currentFlow.type === 'reusable' && (
+          <div className={style.fieldWrapper}>
+            <span className={style.formLabel}>{lang.tr('variable.variableVisibility')}</span>
+            {!!variables.primitive.length && (
+              <Dropdown
+                filterable={false}
+                className={style.formSelect}
+                items={visibilityOptions}
+                defaultItem={selectedVisibility}
+                placeholder={lang.tr('variable.visibilityPlaceholder')}
+                rightIcon="chevron-down"
+                onChange={({ value }) => {
+                  const newVisibility = { isInput: false, isOutput: false }
+                  variableVisibility.current = value
+
+                  if (value === 'input') {
+                    newVisibility.isInput = true
+                  } else if (value === 'output') {
+                    newVisibility.isOutput = true
+                  }
+
+                  onUpdate({ ...formData, params: { ...formData.params, ...newVisibility } })
+                }}
+              />
+            )}
+          </div>
+        )}
         <div className={cx(style.fieldWrapper, style.contentTypeField)}>
           <span className={style.formLabel}>{lang.tr('type')}</span>
           {!!variables.primitive.length && (
@@ -100,7 +140,7 @@ const VariableForm: FC<Props> = ({
             currentLang={contentLang}
             defaultLang={defaultLang}
             axios={axios}
-            fields={fields || []}
+            fields={selectedVariableType.config?.fields || []}
             advancedSettings={selectedVariableType.config?.advancedSettings}
             formData={formData?.params || {}}
             onUpdate={data => onUpdate({ params: { ...data }, type: variableType.current })}

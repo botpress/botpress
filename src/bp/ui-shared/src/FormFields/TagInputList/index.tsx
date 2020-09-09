@@ -1,11 +1,11 @@
 import { Position, Tooltip } from '@blueprintjs/core'
 import React, { useEffect, useRef, useState } from 'react'
+import { Fragment } from 'react'
 import { lang } from '~/translations'
-import { controlKey } from '~/utils/keyboardShortcuts'
-import ShortcutLabel from '~/ShortcutLabel'
 
 import AddButton from '../../Contents/Components/Fields/AddButton'
 
+import style from './style.scss'
 import TagInputItem from './TagInputItem'
 
 export interface Item {
@@ -13,12 +13,12 @@ export interface Item {
   tags: string[]
 }
 
-const TagInputList = ({ validation, onChange, placeholder, items, addBtnLabel }) => {
-  const [localItems, setLocalItems] = useState(items || [])
-  const focusedElement = useRef(items.length)
+const TagInputList = ({ validation, onChange, emptyPlaceholder, placeholder, items, addBtnLabel }) => {
+  const [localItems, setLocalItems] = useState(items?.length ? items : [{ name: '', tags: [] }])
+  const focusedElement = useRef(items?.length || 0)
 
   useEffect(() => {
-    setLocalItems(items ?? [])
+    setLocalItems(items?.length ? items : [{ name: '', tags: [] }])
   }, [items])
 
   const updateLocalItem = (index: number, item: Item): void => {
@@ -53,41 +53,26 @@ const TagInputList = ({ validation, onChange, placeholder, items, addBtnLabel })
     onChange([...newItems])
   }
 
-  const onKeyDown = (index: number, e, shouldDelete: boolean): void => {
-    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-      e.preventDefault()
-      addItem()
-    }
-
-    const isLast = localItems?.[index]?.tags?.length === 0
-    if (e.key === 'Backspace' && shouldDelete && isLast) {
-      e.preventDefault()
-      deleteItem(index)
-    }
-  }
-
   return (
-    <div>
+    <Fragment>
       {localItems?.map((item, index) => (
-        <TagInputItem
-          item={item}
-          key={item.name}
-          isFocused={focusedElement.current === index}
-          onChange={item => updateLocalItem(index, item)}
-          placeholder={placeholder}
-          onKeyDown={(e, shouldDelete) => onKeyDown(index, e, shouldDelete)}
-          onBlur={() => onChange([...localItems])}
-        />
+        <div className={style.wrapper}>
+          <TagInputItem
+            item={item}
+            key={item.name}
+            isFocused={focusedElement.current === index}
+            onChange={item => updateLocalItem(index, item)}
+            placeholder={!item.name && !item.tags.length ? emptyPlaceholder : placeholder}
+            removeItem={() => deleteItem(index)}
+            addRow={addItem}
+            onBlur={() => onChange([...localItems])}
+          />
+        </div>
       ))}
-      <Tooltip
-        content={lang('quickAddAlternative', {
-          shortcut: <ShortcutLabel light keys={[controlKey, 'enter']} />
-        })}
-        position={Position.BOTTOM}
-      >
+      <Tooltip content={lang('quickAddAlternative')} position={Position.BOTTOM}>
         <AddButton text={addBtnLabel} onClick={() => addItem()} />
       </Tooltip>
-    </div>
+    </Fragment>
   )
 }
 
