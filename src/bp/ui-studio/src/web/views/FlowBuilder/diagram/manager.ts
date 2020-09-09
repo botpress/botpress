@@ -235,7 +235,7 @@ export class DiagramManager {
       const targetPort = link.getSourcePort().name.startsWith('out') ? link.getTargetPort() : link.getSourcePort()
 
       const output = outPort.getParent()['name']
-      const input = targetPort.getParent()['name']
+      const input = targetPort?.getParent()['name']
 
       if (nodeNames.includes(output) && nodeNames.includes(input)) {
         this.highlightedLinks.push(link.getID())
