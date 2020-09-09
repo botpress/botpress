@@ -33,7 +33,8 @@ const onServerStarted = async (bp: typeof sdk) => {
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   variables: [BoxedDate, BoxedBoolean, BoxedNumber, BoxedString, BoxedEnum, BoxedPattern, BoxedComplex],
-  botTemplates,
+  // TODO: remove templates
+  // botTemplates,
   translations: { en, fr },
   prompts,
   definition: {
