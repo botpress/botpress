@@ -4,6 +4,7 @@ import ms from 'ms'
 import yn from 'yn'
 
 import { createApi } from '../../api'
+import { makeLoggerWrapper } from '../logger'
 import * as ModelService from '../model-service'
 import { makeTrainingSession, makeTrainSessionKey, setTrainingSession } from '../train-session-service'
 import { NLUState } from '../typings'
@@ -23,7 +24,7 @@ export function getOnBotMount(state: NLUState) {
       bp.logger.warn(missingLangMsg(botId), { notSupported: _.difference(bot.languages, languages) })
     }
 
-    const engine = new bp.NLU.Engine(bot.id, state.logger)
+    const engine = new bp.NLU.Engine(bot.id, makeLoggerWrapper(bp, botId))
     const trainOrLoad = _.debounce(
       async (forceTrain: boolean = false) => {
         // bot got deleted

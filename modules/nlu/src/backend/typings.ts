@@ -7,7 +7,6 @@ export interface NluMlRecommendations {
 
 export type NLUState = {
   nluByBot: _.Dictionary<BotState>
-  logger: NLU.Logger
   broadcastLoadModel?: (botId: string, hash: string, language: string) => Promise<void>
   broadcastCancelTraining?: (botId: string, language: string) => Promise<void>
   sendNLUStatusEvent: (botId: string, trainSession: NLU.TrainingSession) => Promise<void>
