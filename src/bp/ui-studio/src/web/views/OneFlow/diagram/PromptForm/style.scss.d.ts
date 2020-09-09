@@ -28,6 +28,7 @@ interface CssExports {
   'insertBtn': string;
   'items': string;
   'multipleInputs': string;
+  'noSelect': string;
   'textInput': string;
   'textarea': string;
   'textareaWrapper': string;

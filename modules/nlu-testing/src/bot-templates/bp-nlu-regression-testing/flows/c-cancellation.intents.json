@@ -1,5 +1,5 @@
 {
-  "name": "e-cancellation",
+  "name": "c-cancellation",
   "utterances": {
     "en": [
       "I need to cancel my contract",
@@ -67,5 +67,10 @@
     ]
   },
   "slots": [],
-  "contexts": ["E"]
+  "contexts": [
+    "C"
+  ],
+  "metadata": {
+    "enabled": true
+  }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "d-cancellation",
+  "name": "f-cancellation",
   "utterances": {
     "en": [
       "I need to cancel my contract",
@@ -67,5 +67,10 @@
     ]
   },
   "slots": [],
-  "contexts": ["D"]
+  "contexts": [
+    "F"
+  ],
+  "metadata": {
+    "enabled": true
+  }
 }

@@ -46,7 +46,7 @@ const WorkflowToolbar = props => {
   if (props.canAdd) {
     variableButtons.push({
       icon: 'plus',
-      tooltip: lang.tr('add'),
+      tooltip: lang.tr('addVariable'),
       onClick: () => props.addVariable()
     })
   }
@@ -67,7 +67,15 @@ const WorkflowToolbar = props => {
     ...(props.currentTab === 'variables' ? variableButtons : flowButtons)
   ]
 
-  return <MainContent.Header className={style.header} tabs={tabs} buttons={buttons} tabChange={props.tabChange} />
+  return (
+    <MainContent.Header
+      className={style.header}
+      tabs={tabs}
+      currentTab={props.currentTab}
+      buttons={buttons}
+      tabChange={props.tabChange}
+    />
+  )
 }
 
 const mapStateToProps = state => ({

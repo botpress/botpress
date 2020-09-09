@@ -874,9 +874,9 @@ caniuse-api@^1.5.2:
     lodash.uniq "^4.5.0"
 
 caniuse-db@^1.0.30000529, caniuse-db@^1.0.30000634, caniuse-db@^1.0.30000639:
-  version "1.0.30001124"
-  resolved "https://registry.yarnpkg.com/caniuse-db/-/caniuse-db-1.0.30001124.tgz#b8bcd26a3a482ef633f9b8d934d9414ef0cf0e57"
-  integrity sha512-IlMKWAmKcQkx7QDelzH/yl+vMgXBhhQXxN4awbWSAuGgSbU3AuxTrHqOPA5Wsu1N1wRLzkpwgIa33AiVEPpDZQ==
+  version "1.0.30001123"
+  resolved "https://registry.yarnpkg.com/caniuse-db/-/caniuse-db-1.0.30001123.tgz#7d8a810274c46d0926d70e2a916d6bab4da84f75"
+  integrity sha512-pa1vs7rfSLOV7Y0SmmUKS/RjeqtAEGwtHNLkm4Sm9k/6a+OzzSPxeG/0kkOmEBBmGehfdIasT+dWcipDOGIeJg==
 
 caseless@~0.12.0:
   version "0.12.0"

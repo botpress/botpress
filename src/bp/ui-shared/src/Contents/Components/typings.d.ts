@@ -14,12 +14,6 @@ export interface AddButtonProps {
   onClick: (e: MouseEvent<HTMLElement, MouseEvent>) => void
 }
 
-export interface FieldWrapperProps {
-  children: any
-  label?: string
-  invalid?: InvalidField
-}
-
 export interface GroupItemWrapperProps {
   children: any
   defaultCollapsed?: boolean
