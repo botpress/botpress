@@ -132,7 +132,7 @@
       "deleteEnumeration": "Supprimer l'énumération",
       "confirmDeleteEntity": "Voulez-vous réellement supprimer ce type de variable?",
       "copyTags": "Copier les tags",
-      "mustMatchNumberOfTags": "Le nombre de tag doit être le même que celui de la langue par défaut",
+      "mustMatchNumberOfTags": "Le nombre de tag doit être le même dans toutes les langues",
       "examplePlaceholder": "Écrire des exemples qui correspondent à ce modèle de type de variable",
       "complexityExamplePlaceholder": "Écrivez autant d'exemples que possible qui correspondent à la complexité de cette variable",
       "regexPatternPlaceholder": "Écrire un modèle d'expression régulière",

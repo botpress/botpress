@@ -133,7 +133,7 @@
       "deleteEnumeration": "Delete Enumeration",
       "confirmDeleteEntity": "Do you really want to delete this variable type ?",
       "copyTags": "Copy Tags",
-      "mustMatchNumberOfTags": "Number of tags must match the default language",
+      "mustMatchNumberOfTags": "Number of tags must match in all languages",
       "complexityExamplePlaceholder": "Write as many example as possible that match this variable's complexity",
       "examplePlaceholder": "Write examples that match this variable type pattern",
       "regexPatternPlaceholder": "Write a regular expression pattern",
