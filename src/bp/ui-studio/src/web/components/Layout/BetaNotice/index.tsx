@@ -7,7 +7,7 @@ import InfoMessage from '../InfoMessage'
 
 import style from './style.scss'
 
-const WELCOME_KEY = 'bp::beta'
+const WELCOME_KEY = `bp::beta::${window.APP_VERSION}`
 
 export default () => {
   const [visible, setVisible] = useState(false)
@@ -17,6 +17,11 @@ export default () => {
       setVisible(true)
     }
   }, [])
+
+  const onAccept = () => {
+    storage.set(WELCOME_KEY, '1')
+    setVisible(false)
+  }
 
   const showMoreClicked = async e => {
     const confirmContent = (
@@ -28,9 +33,11 @@ export default () => {
         <p>{lang.tr('studio.betaNotice.thanks')}</p>
       </div>
     )
-    await confirmDialog(confirmContent, { acceptLabel: 'Ok', showDecline: false })
-    storage.set(WELCOME_KEY, '1')
-    setVisible(false)
+    await confirmDialog(confirmContent, {
+      accept: onAccept,
+      acceptLabel: lang.tr('studio.betaNotice.accept'),
+      declineLabel: lang.tr('studio.betaNotice.dismiss')
+    })
   }
 
   if (!visible) {
@@ -43,6 +50,7 @@ export default () => {
         <span className={style.infoContent}>
           {lang.tr('studio.betaNotice.usingBeta')}
           <Button
+            small
             className={style.showMoreBtn}
             minimal
             onClick={showMoreClicked}
