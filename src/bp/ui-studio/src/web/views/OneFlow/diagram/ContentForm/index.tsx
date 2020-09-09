@@ -98,13 +98,10 @@ const ContentForm: FC<Props> = ({
     }
 
     const langs = Object.keys(data.suggestions)
-    const suggestions = _.flatten(Object.values<any>(data.suggestions))
-    console.log(suggestions)
-
     const transitions: any = []
     const choices: any = []
 
-    const triggers = suggestions.map(({ name }, idx) => {
+    const triggers = data.suggestions[defaultLang].map(({ name }, idx) => {
       const allTags = langs.reduce((acc, curr) => {
         return { ...acc, [curr]: data.suggestions[curr]?.find(x => x.name === name)?.tags }
       }, {})

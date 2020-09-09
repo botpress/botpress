@@ -108,7 +108,7 @@ const TagInputList: FC<TagInputListProps> = ({
             [item?.name || '', ...(item?.tags || [])].filter(Boolean).length
 
         return (
-          <div className={cx(style.wrapper, { ['has-error']: missingTranslation })}>
+          <div key={index} className={cx(style.wrapper, { ['has-error']: missingTranslation })}>
             <TagInputItem
               item={item}
               key={item.name}
