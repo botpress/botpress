@@ -204,6 +204,7 @@ const Analytics: FC<any> = ({ bp }) => {
       .filter(r => r.name)
       .slice(0, 10)
 
+    // tslint:disable-next-line: no-floating-promises
     Promise.all(metrics.map(r => fetchQnaQuestion(r.name.replace('__qna__', '')))).then(values => {
       const qnaQuestions = values.reduce((acc, { data: { questions }, id }) => {
         const question = questions[lang.getLocale()][0]
