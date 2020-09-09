@@ -24,14 +24,14 @@ const TagInputList = ({ validation, onChange, emptyPlaceholder, placeholder, ite
   const updateLocalItem = (index: number, item: Item): void => {
     const newItems = [...localItems]
     const oldItems = [...localItems]
-    if (item.name === '' && item.tags.length === 1) {
+    if (item.name === '' && item.tags?.length === 1) {
       newItems[index] = { name: item.tags[0], tags: [] }
     } else {
       newItems[index] = item
     }
     if (
       validation?.validator &&
-      [oldItems[index].name, ...oldItems[index].tags].length < [item.name, ...item.tags].length
+      [oldItems[index].name, ...oldItems[index].tags]?.length < [item.name, ...item.tags]?.length
     ) {
       if (validation.validator(localItems, item)) {
         setLocalItems(newItems)
@@ -62,7 +62,7 @@ const TagInputList = ({ validation, onChange, emptyPlaceholder, placeholder, ite
             key={item.name}
             isFocused={focusedElement.current === index}
             onChange={item => updateLocalItem(index, item)}
-            placeholder={!item.name && !item.tags.length ? emptyPlaceholder : placeholder}
+            placeholder={!item.name && !item.tags?.length ? emptyPlaceholder : placeholder}
             removeItem={() => deleteItem(index)}
             addRow={addItem}
             onBlur={() => onChange([...localItems])}

@@ -72,7 +72,7 @@ const TagInputItem: FC<Props> = ({ item, isFocused, placeholder, onChange, remov
       onInputChange={e => {
         inputVal.current = e.currentTarget.value
       }}
-      values={item.tags}
+      values={item.tags || []}
       tagProps={{ minimal: true }}
       ref={inputRef}
     />
