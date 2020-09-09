@@ -203,7 +203,7 @@
         "addCondition": "Ajouter une condition",
         "addMessage": "Ajouter un message",
         "addSuggestion": "Ajouter une suggestion",
-        "addSuggestionTooltip": "Appuyez sur la touche Entrée pendant que vous êtes dans le champ pour ajouter rapidement une nouvelle suggestion",
+        "addSuggestionTooltip": "Appuyez sur la touche Entrée et Majuscule pendant que vous êtes dans le champ pour ajouter rapidement une nouvelle suggestion",
         "cantSeeActions": "Vous ne voyez pas votre action?",
         "chatbotExecutes": "L'assistant virtuel exécute",
         "chatbotSays": "L'assistant virtuel dit",

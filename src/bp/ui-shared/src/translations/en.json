@@ -170,6 +170,7 @@
   "previous": "Previous",
   "prompt": "Prompt",
   "quickAddAlternative": "Press Enter while inline to add new alternative quickly",
+  "quickAddAlternativeTags": "Press Enter + Shift while inline to add new alternative quickly",
   "redo": "Redo",
   "refresh": "Refresh",
   "remove": "Remove",

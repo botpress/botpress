@@ -123,7 +123,7 @@ const TagInputList: FC<TagInputListProps> = ({
         )
       })}
       {canAdd && (
-        <Tooltip content={lang(addBtnLabelTooltip || 'quickAddAlternative')} position={Position.BOTTOM}>
+        <Tooltip content={lang(addBtnLabelTooltip || 'quickAddAlternativeTags')} position={Position.BOTTOM}>
           <AddButton text={addBtnLabel} onClick={() => addItem()} />
         </Tooltip>
       )}

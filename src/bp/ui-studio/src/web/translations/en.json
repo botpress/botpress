@@ -204,7 +204,7 @@
         "addCondition": "Add Condition",
         "addMessage": "Add Message",
         "addSuggestion": "Add a Suggestion",
-        "addSuggestionTooltip": "Press Enter while inline to add new suggestion quickly",
+        "addSuggestionTooltip": "Press Enter + Shift while inline to add new suggestion quickly",
         "cantSeeActions": "Can't see your action?",
         "chatbotExecutes": "Chatbot Executes",
         "chatbotSays": "Chatbot Says",
