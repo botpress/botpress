@@ -64,6 +64,7 @@ const TagInputList: FC<TagInputListProps> = ({
     const oldItems = [...localItems]
     if ((!item.name || item.name === '') && item.tags?.length === 1) {
       newItems[index] = { name: item.tags[0], tags: [] }
+      onChange([...newItems])
     } else {
       newItems[index] = item
     }
