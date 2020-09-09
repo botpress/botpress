@@ -1,6 +1,7 @@
 import { Contents, lang } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC } from 'react'
+import Dotdotdot from 'react-dotdotdot'
 import { StandardPortWidget } from '~/views/FlowBuilder/diagram/nodes/Ports'
 
 import { BlockModel } from '../Block'
@@ -100,7 +101,9 @@ const SaySomethingContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem,
             className={cx(style.contentWrapper, { [style.hidden]: item.condition === 'true' })}
           >
             <div className={cx(style.content, style.readOnly)}>
-              {[...([currentContent.name] || []), ...(currentContent.tags || [])].filter(Boolean).join(' · ')}
+              <Dotdotdot clamp={2}>
+                {[...([currentContent.name] || []), ...(currentContent.tags || [])].filter(Boolean).join(' · ')}
+              </Dotdotdot>
               <StandardPortWidget name={outputPortName} node={node} className={style.outRouting} />
             </div>
           </button>
