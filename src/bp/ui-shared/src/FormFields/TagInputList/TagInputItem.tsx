@@ -62,7 +62,7 @@ const TagInputItem: FC<Props> = ({
     <Fragment>
       <div className={style.inputWrapper}>
         <TagInput
-          className={cx(style.tagInput, className)}
+          className={cx(style.tagInput, { 'has-error': missingTranslation })}
           leftIcon={
             !!item.name?.length ? (
               <Tag minimal className={style.tag}>
