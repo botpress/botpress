@@ -52,8 +52,9 @@ const TagInputItem: FC<Props> = ({
   }
 
   const missingTranslation =
+    refValue &&
     [refValue?.name || '', ...(refValue?.tags || [])].filter(Boolean).length !==
-    [item?.name || '', ...(item?.tags || [])].filter(Boolean).length
+      [item?.name || '', ...(item?.tags || [])].filter(Boolean).length
 
   return (
     <Fragment>

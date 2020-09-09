@@ -62,7 +62,7 @@ const TagInputList: FC<TagInputListProps> = ({
   const updateLocalItem = (index: number, item: Item): void => {
     const newItems = [...localItems]
     const oldItems = [...localItems]
-    if (item.name === '' && item.tags?.length === 1) {
+    if ((!item.name || item.name === '') && item.tags?.length === 1) {
       newItems[index] = { name: item.tags[0], tags: [] }
     } else {
       newItems[index] = item
@@ -103,8 +103,9 @@ const TagInputList: FC<TagInputListProps> = ({
     <Fragment>
       {localItems?.map((item, index) => {
         const missingTranslation =
+          refValue &&
           [refValue?.[index]?.name || '', ...(refValue?.[index]?.tags || [])].filter(Boolean).length !==
-          [item?.name || '', ...(item?.tags || [])].filter(Boolean).length
+            [item?.name || '', ...(item?.tags || [])].filter(Boolean).length
 
         return (
           <div className={cx(style.wrapper, { ['has-error']: missingTranslation })}>

@@ -99,6 +99,7 @@ const ContentForm: FC<Props> = ({
 
     const langs = Object.keys(data.suggestions)
     const suggestions = _.flatten(Object.values<any>(data.suggestions))
+    console.log(suggestions)
 
     const transitions: any = []
     const choices: any = []
