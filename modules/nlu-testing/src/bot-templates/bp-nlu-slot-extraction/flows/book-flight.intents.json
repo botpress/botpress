@@ -29,5 +29,8 @@
   ],
   "contexts": [
     "1-entity"
-  ]
+  ],
+  "metadata": {
+    "enabled": true
+  }
 }
