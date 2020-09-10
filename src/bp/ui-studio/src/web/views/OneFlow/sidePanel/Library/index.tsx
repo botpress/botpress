@@ -169,14 +169,15 @@ const Library: FC<Props> = props => {
   const duplicateVarType = async (entityId: string) => {
     const original = props.entities.find(x => x.name === entityId)
     const name = getNextName(entityId, props.entities)
+    const entity = { ...original, id: name, name }
 
-    await createVarType({ ...original, id: name, name })
+    await createVarType(entity)
+    props.setActiveFormItem({ type: 'variableType', data: entity })
   }
 
   const createVarType = async entity => {
     await axios.post(`${window.BOT_API_PATH}/nlu/entities`, entity)
     props.refreshEntities()
-    props.setActiveFormItem({ type: 'variableType', data: entity })
   }
 
   const deleteEntity = async (entityId: string) => {
