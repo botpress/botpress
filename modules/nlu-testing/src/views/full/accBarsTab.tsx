@@ -1,7 +1,9 @@
 import _ from 'lodash'
 import React, { FC, Fragment } from 'react'
-import Plots from './plots'
+
 import { VisData } from '../../shared/typings'
+
+import Plots from './plots'
 
 const AccBars: FC<any> = props => {
   const getXY = (key: string) => {

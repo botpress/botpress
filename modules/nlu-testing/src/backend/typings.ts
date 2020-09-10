@@ -9,14 +9,6 @@ export interface BotState {
   language: string
 }
 
-export interface PredRes {
-  utt: string
-  acc: boolean
-  conf: number
-  pred: string
-  gt: string
-}
-
 export interface VisuState {
   [botId: string]: BotState
 }
@@ -25,7 +17,6 @@ export interface Data {
   ctx: string
   utt: string
   utt_emb: number[]
-  label?: number
   intent: string
 }
 

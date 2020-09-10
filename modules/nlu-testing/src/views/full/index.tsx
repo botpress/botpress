@@ -1,12 +1,11 @@
 import { Icon, Tab, Tabs } from '@blueprintjs/core'
-import { AxiosInstance } from 'axios'
-import React, { FC, Fragment, useEffect, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { FaSkullCrossbones } from 'react-icons/fa'
 import { GiLoad } from 'react-icons/gi'
 import { IoMdCloudDone } from 'react-icons/io'
 import { RiLoader2Line } from 'react-icons/ri'
 
-import { DataResult, Test, TestResult } from '../../shared/typings'
+import { DataResult } from '../../shared/typings'
 
 import AccBars from './accBarsTab'
 import ConfusionMatrix from './confusionMatrix'

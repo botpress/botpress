@@ -3,7 +3,7 @@ import _ from 'lodash'
 
 import { BotState, Data, RawData, Test } from '../backend/typings'
 
-export async function getTrainTestDatas(state: BotState, logger: sdk.Logger, engine) {
+export async function getTrainTestDatas(state: BotState, bp: typeof sdk) {
   const EMBEDDING_FOLDER = './embeddings'
   let vectorized_train: Data[] = []
   let vectorized_test: Data[] = []
@@ -24,7 +24,7 @@ export async function getTrainTestDatas(state: BotState, logger: sdk.Logger, eng
 
     for (const entry of rawTrain) {
       for (const utt of entry.utterances[lang]) {
-        const utt_emb = (await engine.embed([utt.trim()], state.language))[0]
+        const utt_emb = (await bp.NLU.Engine.embed([utt.trim()], state.language))[0]
         vectorized_train.push({
           utt,
           utt_emb,
@@ -43,7 +43,7 @@ export async function getTrainTestDatas(state: BotState, logger: sdk.Logger, eng
     if (testFileExist) {
       rawTest = await state.ghost.readFileAsObject<Test[]>('./', 'nlu-tests.json')
     } else {
-      logger.info('No test file found : You need a test file to view all')
+      bp.logger.info('No test file found : You need a test file to view all')
     }
     const vectorized_test: Data[] = []
 
@@ -57,7 +57,7 @@ export async function getTrainTestDatas(state: BotState, logger: sdk.Logger, eng
         ['2']
       )
 
-      const utt_emb = (await engine.embed([entry.utterance.trim()], state.language))[0]
+      const utt_emb = (await bp.NLU.Engine.embed([entry.utterance.trim()], state.language))[0]
 
       vectorized_test.push({
         utt: entry.utterance,

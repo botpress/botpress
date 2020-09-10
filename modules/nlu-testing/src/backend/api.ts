@@ -190,7 +190,7 @@ export default async (bp: typeof sdk, state: VisuState) => {
     res.send(jobId)
     longJobsPool[jobId] = { status: 'computing', data: undefined, error: undefined, cm: false }
     try {
-      const { train, test } = await getTrainTestDatas(state[req.params.botId], bp.logger, bp.NLU.Engine)
+      const { train, test } = await getTrainTestDatas(state[req.params.botId], bp)
       state[req.params.botId].trainDatas = train
       state[req.params.botId].testDatas = test
       longJobsPool[jobId].status = 'done'

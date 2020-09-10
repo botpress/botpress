@@ -4,7 +4,7 @@ import { distance, similarity } from 'ml-distance'
 import { Matrix } from 'ml-matrix'
 import { PCA } from 'ml-pca'
 
-import { BotState, PredRes } from '../backend/typings'
+import { BotState } from '../backend/typings'
 const clustering = require('density-clustering')
 
 export async function computeEmbeddingSimilarity(state: BotState) {
