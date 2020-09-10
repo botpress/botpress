@@ -28,21 +28,22 @@ const Header: FC<HeaderProps> = props => {
               <Fragment>
                 {!button.optionsItems?.length && (
                   <ToolTip position="bottom" content={button.tooltip}>
-                    {
-                      button.content ?
-                        (button.content) :
-                        (<AnchorButton
-                          minimal
-                          small
-                          onClick={button.onClick}
-                          icon={button.icon}
-                          disabled={button.disabled}
-                        />)
-                    }
+                    {button.content ? (
+                      button.content
+                    ) : (
+                      <AnchorButton
+                        minimal
+                        small
+                        onClick={button.onClick}
+                        icon={button.icon}
+                        disabled={button.disabled}
+                      />
+                    )}
                   </ToolTip>
                 )}
                 {!!button.optionsItems?.length && (
                   <MoreOptions
+                    className={button.optionsWrapperClassName}
                     element={
                       <ToolTip position="bottom" content={button.tooltip}>
                         <AnchorButton
