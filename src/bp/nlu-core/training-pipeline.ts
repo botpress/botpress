@@ -2,10 +2,12 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { extractListEntitiesWithCache, extractPatternEntities } from './entities/custom-entity-extractor'
+import { warmEntityCache } from './entities/entity-cache-manager'
 import { getCtxFeatures } from './intents/context-featurizer'
 import { getIntentFeatures } from './intents/intent-featurizer'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getStopWordsForLang } from './language/stopWords'
+import { getSystemExamplesForLang } from './language/systemExamples'
 import { featurizeInScopeUtterances, featurizeOOSUtterances } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import { getSeededLodash, resetSeed } from './tools/seeded-lodash'
@@ -29,7 +31,6 @@ import {
 } from './typings'
 import { Augmentation, createAugmenter, interleave } from './utterance/augmenter'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
-import { warmEntityCache } from './entities/entity-cache-manager'
 
 type ListEntityWithCache = ListEntity & {
   cache: EntityCacheDump
@@ -331,11 +332,8 @@ const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: 
 // this is a temporary fix so we can extract extract tag system entities slots
 // only fixes date and number for english only
 // ex: Remind me to eat a sandwich $time ==> Remind me to eat a sandwich in 3 hours
-function convertSysEntitiesSlotsToComplex(intents: Intent<string>[]): ComplexEntity[] {
-  const examplesByType = {
-    time: ['in three hours', 'tomorrow night', 'now', 'today', 'jan 22nd 2021', '2021-06-07', 'june 7th'], // should be time
-    number: ['zero', '0', 'tenty-five', '25', 'one hundred sixty-five', '165']
-  }
+async function convertSysEntitiesSlotsToComplex(intents: Intent<string>[], language: string): Promise<ComplexEntity[]> {
+  const examplesByType = await getSystemExamplesForLang(language)
   return _.chain(intents)
     .flatMap(i => i.slot_definitions.map(s => (s.entity === 'date' ? 'time' : s.entity))) // highly hardcoded, date is in fact a system time
     .filter(ent => !!examplesByType[ent])
@@ -353,7 +351,7 @@ export const ProcessIntents = async (
   complex_entities: ComplexEntity[],
   tools: Tools
 ): Promise<Intent<Utterance>[]> => {
-  const sysComplexes = convertSysEntitiesSlotsToComplex(intents)
+  const sysComplexes = await convertSysEntitiesSlotsToComplex(intents, languageCode)
 
   return Promise.map(intents, async intent => {
     const cleaned: string[] = intent.utterances.map(_.flow([_.trim, replaceConsecutiveSpaces]))
