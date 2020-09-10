@@ -311,7 +311,7 @@ const Analytics: FC<any> = ({ bp }) => {
     const results = orderMetrics(metrics)
 
     return results.map(x => ({
-      label: `${nameRenderer ? nameRenderer(x.name) : x.name} (${x.count})`,
+      label: `${nameRenderer ? nameRenderer(x.name) : x.name}`,
       href: '',
       onClick: navigateToElement(x.name, type)
     }))
@@ -394,8 +394,7 @@ const Analytics: FC<any> = ({ bp }) => {
               // Filter out QnA metrics without submetric (legacy)
               metric => metric.subMetric
             )}
-            hasTooltip
-            className={cx(style.genericMetric, style.half, style.list)}
+            className={cx(style.genericMetric, style.list)}
           />
         )}
       </div>

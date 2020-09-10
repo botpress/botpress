@@ -252,10 +252,22 @@ $success-color: #56b149;
       }
 
       color: $linkText;
-      display: block;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      display: flex;
+
+      // white-space: nowrap;
+      // max-width: 100px;
+
+      span {
+        // display: inline-block;
+        // overflow: hidden;
+        // text-overflow: ellipsis;
+      }
+
+      span:nth-child(1) {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
     }
   }
 

@@ -1,4 +1,3 @@
-import { Tooltip } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC } from 'react'
@@ -10,11 +9,10 @@ interface Props {
   items: { label: string; onClick?: () => void }[]
   className: string
   itemLimit?: number
-  hasTooltip?: boolean
 }
 
 const ItemsList: FC<Props> = props => {
-  const { name, className, itemLimit, hasTooltip } = props
+  const { name, className, itemLimit } = props
   let { items } = props
 
   if (itemLimit) {
@@ -30,13 +28,10 @@ const ItemsList: FC<Props> = props => {
       <ol>
         {items.map((item, index) => (
           <li key={index}>
-            {hasTooltip ? (
-              <Tooltip content={item.label}>
-                <a onClick={item.onClick}>{item.label}</a>
-              </Tooltip>
-            ) : (
-              <a onClick={item.onClick}>{item.label}</a>
-            )}
+            <a onClick={item.onClick}>
+              <span>{item.label}</span>
+              <span>(3)</span>
+            </a>
           </li>
         ))}
       </ol>
