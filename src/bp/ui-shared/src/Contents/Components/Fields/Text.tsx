@@ -1,6 +1,8 @@
 import { FormField } from 'botpress/sdk'
-import React, { FC, useEffect, useState } from 'react'
+import cx from 'classnames'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 
+import { lang } from '../../../translations'
 import { getFieldDefaultValue } from '../../utils/fields'
 import style from '../style.scss'
 import { FieldProps } from '../typings'
@@ -13,9 +15,12 @@ const Text: FC<TextProps> = ({
   placeholder,
   field: { valueManipulation, type, min, max, maxLength, defaultValue, required },
   value,
+  refValue,
   childRef
 }) => {
   const [localValue, setLocalValue] = useState(value || getFieldDefaultValue({ type, defaultValue }))
+
+  const missingTranslation = refValue && !value
 
   useEffect(() => {
     setLocalValue(value ?? getFieldDefaultValue({ type, defaultValue }))
@@ -57,22 +62,25 @@ const Text: FC<TextProps> = ({
   }
 
   return (
-    <input
-      ref={ref => childRef?.(ref)}
-      className={style.input}
-      type={type}
-      maxLength={maxLength}
-      placeholder={placeholder}
-      onKeyDown={onKeyDown}
-      onChange={e => {
-        const value = reformatValue(e.target.value)
+    <Fragment>
+      <input
+        ref={ref => childRef?.(ref)}
+        className={cx(style.input, { [style.hasError]: missingTranslation })}
+        type={type}
+        maxLength={maxLength}
+        placeholder={placeholder}
+        onKeyDown={onKeyDown}
+        onChange={e => {
+          const value = reformatValue(e.target.value)
 
-        onChange?.(value)
-        setLocalValue(value)
-      }}
-      onBlur={beforeOnBlur}
-      value={localValue}
-    />
+          onChange?.(value)
+          setLocalValue(value)
+        }}
+        onBlur={beforeOnBlur}
+        value={localValue || refValue}
+      />
+      {missingTranslation && <span className={style.fieldError}>{lang('pleaseTranslateField')}</span>}
+    </Fragment>
   )
 }
 

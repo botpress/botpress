@@ -12,6 +12,7 @@ import { getTriggerId, stringToVec, WfIdToTopic } from './utils'
 const debug = DEBUG('ndu').sub('processing')
 
 export const DEFAULT_MIN_CONFIDENCE = 0.1
+const fakeConditions = ['on_active_workflow', 'on_active_topic']
 
 export class UnderstandingEngine {
   private _allTopicIds: Set<string> = new Set()
@@ -70,12 +71,15 @@ export class UnderstandingEngine {
     return [...triggerId, ...nodeId, ...wfId, ...actionName, ...other]
   }
 
-  queryQna = async (intentName: string, event: sdk.IO.IncomingEvent): Promise<sdk.NDU.Actions[]> => {
+  queryQna = async (topicName: string, qnaId: string, event: sdk.IO.IncomingEvent): Promise<sdk.NDU.Actions[]> => {
     try {
       const axiosConfig = await this.bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
-      const { data } = await axios.post('/mod/qna/intentActions', { intentName, event }, axiosConfig)
+      const { data } = await axios.post(
+        `/mod/qna/${topicName}/actions/${qnaId}`,
+        { userLanguage: event?.state?.user?.language },
+        axiosConfig
+      )
       const actions: sdk.NDU.Actions[] = data.filter(a => a.action !== 'redirect')
-      // TODO: Warn that REDIRECTS should be migrated over to flow nodes triggers
       if (event.state.context?.activePrompt?.status === 'pending') {
         actions.push({ action: 'prompt.repeat' })
       }
@@ -112,10 +116,6 @@ export class UnderstandingEngine {
     const isInMiddleOfFlow = currentFlow !== 'n/a'
 
     debug('Processing %o', { currentFlow, currentNode, isInMiddleOfFlow })
-
-    // // Overwrite the NLU detected intents
-    // event.nlu.intent = bestIntents?.[0]
-    // event.nlu.intents = bestIntents
 
     // Then process triggers on what the NDU decided
     await this._processTriggers(event)
@@ -223,6 +223,11 @@ export class UnderstandingEngine {
 
     await this.trainIfNot()
 
+    // This can happen if one request acquired the lock and is waiting a training or loading the model
+    if (!this.predictor) {
+      return
+    }
+
     const predict = async (input: Features): Promise<ActionPredictions> => {
       const vec = this.featToVec(input)
       const preds = await this.predictor.predict(vec)
@@ -282,7 +287,7 @@ export class UnderstandingEngine {
 
           break
         case 'faq':
-          const qnaActions = await this.queryQna(trigger.faqId, event)
+          const qnaActions = await this.queryQna(trigger.topicName, trigger.faqId, event)
           event.ndu.actions = [...qnaActions]
           break
         case 'node':
@@ -327,8 +332,8 @@ export class UnderstandingEngine {
 
       if (
         trigger.type === 'workflow' &&
-        trigger.activeWorkflow &&
-        event.state?.context.currentFlow !== `${trigger.workflowId}.flow.json`
+        ((trigger.activeWorkflow && event.state?.context.currentFlow !== `${trigger.workflowId}.flow.json`) ||
+          (trigger.activeTopic && event.state?.session.nduContext?.last_topic !== trigger.topicName))
       ) {
         continue
       }
@@ -376,11 +381,12 @@ export class UnderstandingEngine {
       ...(await this.bp.ghost.forBot(this.botId).readFileAsObject<FlowView>('flows', flowPath))
     }))
 
-    const intentsPath = await this.bp.ghost.forBot(this.botId).directoryListing('intents', '*.json')
-    const qnaPaths = intentsPath.filter(x => x.includes('__qna__')) // TODO: change this
-    const faqs: sdk.NLU.IntentDefinition[] = await Promise.map(qnaPaths, (qnaPath: string) =>
-      this.bp.ghost.forBot(this.botId).readFileAsObject<sdk.NLU.IntentDefinition>('intents', qnaPath)
-    )
+    const qnaPaths = await this.bp.ghost.forBot(this.botId).directoryListing('flows', '*/qna.intents.json')
+    const faqs: sdk.NLU.IntentDefinition[] = _.flatten(
+      await Promise.map(qnaPaths, (qnaPath: string) =>
+        this.bp.ghost.forBot(this.botId).readFileAsObject<sdk.NLU.IntentDefinition>('flows', qnaPath)
+      )
+    ).filter(f => f.metadata?.enabled)
 
     const triggers: sdk.NDU.Trigger[] = []
 
@@ -400,14 +406,16 @@ export class UnderstandingEngine {
           const tn = node as sdk.TriggerNode
           triggers.push(<sdk.NDU.WorkflowTrigger>{
             conditions: tn.conditions
-              .filter(x => x.id !== undefined)
+              .filter(x => x.id !== undefined && !fakeConditions.includes(x.id))
               .map((x, idx) => ({
                 ...x,
                 params: { ...x.params, topicName, wfName: flowName, nodeName: tn.name, conditionIndex: idx }
               })),
             type: 'workflow',
             workflowId: flowName,
+            topicName,
             activeWorkflow: tn.activeWorkflow,
+            activeTopic: tn.activeTopic,
             nodeId: tn.name
           })
         } else if ((<sdk.ListenNode>node)?.triggers?.length || node.type === 'prompt') {

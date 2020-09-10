@@ -5,7 +5,15 @@ import style from './style.scss'
 
 class DeletableLinkWidget extends DefaultLinkWidget {
   generateLink(path: string, extraProps: any, id: string | number): JSX.Element {
-    const { link, width, color } = this.props
+    const { link, diagramEngine } = this.props
+    let { color, width } = this.props
+
+    // @ts-ignore
+    const flowManager = diagramEngine.flowBuilder.manager
+    if (flowManager.shouldHighlightLink(link.getID())) {
+      color = 'var(--ocean)'
+      width = 4
+    }
 
     const Bottom = (
       <path
@@ -63,7 +71,7 @@ class DeletableLinkWidget extends DefaultLinkWidget {
             className={style.trash}
             visibility={showRemove ? 'visible' : 'hidden'}
             d="M14.49 3.99h-13c-.28 0-.5.22-.5.5s.22.5.5.5h.5v10c0 .55.45 1 1 1h10c.55 0 1-.45 1-1v-10h.5c.28 0 .5-.22.5-.5s-.22-.5-.5-.5zm-8.5 9c0 .55-.45 1-1 1s-1-.45-1-1v-6c0-.55.45-1 1-1s1 .45 1 1v6zm3 0c0 .55-.45 1-1 1s-1-.45-1-1v-6c0-.55.45-1 1-1s1 .45 1 1v6zm3 0c0 .55-.45 1-1 1s-1-.45-1-1v-6c0-.55.45-1 1-1s1 .45 1 1v6zm2-12h-4c0-.55-.45-1-1-1h-2c-.55 0-1 .45-1 1h-4c-.55 0-1 .45-1 1v1h14v-1c0-.55-.45-1-1-1z"
-            fill-rule="evenodd"
+            fillRule="evenodd"
           ></path>
         </svg>
       </g>

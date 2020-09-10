@@ -10,7 +10,6 @@ import style from '../Components/style.scss'
 interface Props {
   node: BlockModel
   selectedNodeItem: () => { node: BlockModel; index: number }
-  getCurrentLang: () => string
   outcomes?: { condition: string; caption: string; node: string }[]
 }
 

@@ -60,6 +60,15 @@
     "applyConfigsTooltip": "Restarts server so configuration changes can take effect"
   },
   "studio": {
+    "betaNotice": {
+      "usingBeta": "You're using Botpress Albert - Beta",
+      "seeNotice": "See Notice",
+      "contribution": "By using this preview, you contribute to improve Botpress.",
+      "limitations": "It is not meant to be run in a production environment as breaking changes might still occur. Also, note that no documentation and no migration tool is offered yet.",
+      "thanks": "Thank you for your support!",
+      "accept": "Accept",
+      "dismiss": "Dismiss"
+    },
     "router": {
       "variable": "Variable",
       "pickVariable": "Pick a variable",
@@ -122,17 +131,26 @@
       "addPattern": "Add Pattern",
       "addComplex": "Add Complex",
       "addType": "Add Type",
+      "editingSubWorkflowWarning": "Editing this workflow will impact all its linked instances.",
+      "deleteVariableFromLibrary": "Remove Variable Type from Library",
+      "duplicateVariableType": "Duplicate Variable Type",
+      "duplicateWorkflow": "Duplicate Workflow",
       "filter": "Filter blocks, workflows and variable types",
       "variableName": "What is the name of this variable",
       "addSynonyms": "Add synonyms by separating values with commas",
       "addValueAlternative": "Add Value Alternative",
       "deleteEnumeration": "Delete Enumeration",
       "confirmDeleteEntity": "Do you really want to delete this variable type ?",
-      "examplePlaceholder": "Add examples that match your pattern (one per line)",
+      "complexityExamplePlaceholder": "Write as many example as possible that match this variable's complexity",
+      "examplePlaceholder": "Write examples that match this variable type pattern",
+      "regexPatternPlaceholder": "Write a regular expression pattern",
       "addExample": "Add Example",
+      "addExampleTooltip": "Press Enter while inline to add new example quickly",
       "deletePattern": "Delete Pattern",
       "patternInvalid": "Pattern is invalid",
-      "possibleVarTypes": "Possible Variable Types"
+      "possibleVarTypes": "Possible Variable Types",
+      "variableTypePlaceholder": "What is this variable type?",
+      "writeAsManyHintsAsPossible": "Write as many values as possible that your users could write to invoke this variable"
     },
     "flow": {
       "addNode": "Add Node",
@@ -145,6 +163,7 @@
       "mustHaveOutcomes": "Workflows must have at least one success and one failure outcome",
       "referenceCount": "{count} {count, plural, one {reference} other {references}}",
       "noReferences": "Not used",
+      "cannotAddContent": "Adding new content is disabled when not in the default language",
       "emptyWorkflow": "Right-click or drag and drop blocks to start designing your workflow.",
       "chips": "Chips",
       "condition": {
@@ -375,7 +394,14 @@
         "edit": "Edit Workflow - {name}",
         "labelHelp": "The label is a friendly name that can replace the name in the topic list",
         "name": "Workflow name"
-      }
+      },
+      "likelyTriggered": "{pct}% likely to be triggered",
+      "endOfWorkflow": "End of the workflow",
+      "currentStage": "Current Stage: {stage}",
+      "extractedVar": "{output} extracted is {value}",
+      "jumpOutOfWorkflow": "Jump out of workflow",
+      "jumpIntoWorkflow": "Jump into workflow",
+      "errorOccurred": "An error occurred here"
     },
     "prompt": {
       "label": "Type",
@@ -409,7 +435,20 @@
       "endOfLogs": "End of logs"
     }
   },
+  "issue": {
+    "stepsToReproduce": "Steps to reproduce",
+    "whatIsTheIssue": "What is the issue?",
+    "previewOnGithub": "Preview on Github",
+    "submitBug": "Submit a bug"
+  },
   "variable": {
-    "emptyState": "Tap + in the toolbar to add your first variable"
+    "emptyState": "Tap + in the toolbar to add your first variable",
+    "variableVisibility": "Variable Visibility",
+    "visibilityPlaceholder": "Pick a Visibility",
+    "textMatchingTolerance": "Text Matching Tolerance",
+    "pickType": "Pick a type",
+    "inputVariables": "Input Variables",
+    "outputVariables": "Output Variables",
+    "privateVariables": "Private Variables"
   }
 }

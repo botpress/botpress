@@ -19,6 +19,7 @@ const BASE_NLU_URL = `${window.BOT_API_PATH}/mod/nlu`
 
 const TrainingStatusComponent: FC<Props> = (props: Props) => {
   const { status, progress } = props.trainSession ?? {}
+  const [loading, setLoading] = useState(false)
 
   const [message, setMessage] = useState('')
 
@@ -46,21 +47,27 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
   }, [props.trainSession])
 
   const onTrainClicked = async (e: React.SyntheticEvent) => {
+    setLoading(true)
     e.preventDefault()
     try {
       await axios.post(`${BASE_NLU_URL}/train`)
     } catch (err) {
       onError()
+    } finally {
+      setLoading(false)
     }
   }
 
   const onCancelClicked = async (e: React.SyntheticEvent) => {
+    setLoading(true)
     e.preventDefault()
     onCanceling()
     try {
       await axios.post(`${BASE_NLU_URL}/train/delete`)
     } catch (err) {
       console.log('cannot cancel training')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -73,13 +80,13 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
 
         {status === 'needs-training' && (
           <ToolTip content={lang.tr('statusBar.trainChatbotTooltip')}>
-            <Button minimal className={style.button} onClick={onTrainClicked}>
+            <Button minimal className={style.button} onClick={onTrainClicked} disabled={loading}>
               {lang.tr('statusBar.trainChatbot')}
             </Button>
           </ToolTip>
         )}
         {status === 'training' && (
-          <Button minimal className={cx(style.button, style.danger)} onClick={onCancelClicked}>
+          <Button minimal className={cx(style.button, style.danger)} onClick={onCancelClicked} disabled={loading}>
             {lang.tr('statusBar.cancelTraining')}
           </Button>
         )}

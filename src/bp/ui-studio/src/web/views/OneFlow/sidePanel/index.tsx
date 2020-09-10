@@ -19,6 +19,7 @@ import {
 } from '~/actions'
 import { history } from '~/components/Routes'
 import { getAllFlows, getFlowNamesList, RootReducer } from '~/reducers'
+import storage from '~/util/storage'
 
 import Inspector from '../../FlowBuilder/inspector'
 
@@ -30,6 +31,7 @@ import ImportModal from './TopicEditor/ImportModal'
 import TopicList from './TopicList'
 
 export type PanelPermissions = 'create' | 'rename' | 'delete'
+const SIDEBAR_TAB_KEY = `bp::${window.BOT_ID}::sidebarTab`
 
 export enum ElementType {
   Topic = 'topic',
@@ -48,6 +50,8 @@ interface OwnProps {
   history: any
   permissions: PanelPermissions[]
   readOnly: boolean
+  currentLang: string
+  defaultLang: string
   mutexInfo: any
   selectedTopic: string
   selectedWorkflow: string
@@ -63,8 +67,7 @@ const SidePanelContent: FC<Props> = props => {
   const [importModalOpen, setImportModalOpen] = useState(false)
   const [editing, setEditing] = useState<string>()
   const [isEditingNew, setIsEditingNew] = useState(false)
-
-  const [currentTab, setCurrentTab] = useState('topics')
+  const [currentTab, setCurrentTab] = useState(storage.get(SIDEBAR_TAB_KEY) || 'topics')
 
   useEffect(() => {
     props.refreshConditions()
@@ -72,7 +75,7 @@ const SidePanelContent: FC<Props> = props => {
     props.getQnaCountByTopic()
   }, [])
 
-  const goToFlow = flow => history.push(`/oneflow/${flow.replace(/\.flow\.json/, '')}`)
+  const goToFlow = (flow?: string) => history.push(`/oneflow/${flow?.replace(/\.flow\.json/, '') ?? ''}`)
 
   const createWorkflow = (topicName: string) => {
     const fullName = nextFlowName(props.flows, topicName, 'Workflow')
@@ -110,9 +113,11 @@ const SidePanelContent: FC<Props> = props => {
   }
 
   const canDelete = props.permissions.includes('delete')
+  const canAdd = !props.defaultLang || props.defaultLang === props.currentLang
 
   const onTabChanged = tabId => {
     setCurrentTab(tabId)
+    storage.set(SIDEBAR_TAB_KEY, tabId)
   }
 
   return (
@@ -123,7 +128,7 @@ const SidePanelContent: FC<Props> = props => {
         <React.Fragment>
           <Navbar className={style.topicsNavbar}>
             <NavbarGroup>
-              <Tabs onChange={onTabChanged}>
+              <Tabs onChange={onTabChanged} selectedTabId={currentTab}>
                 <Tab id="topics" title={lang.tr('topics')} />
                 <Tab id="library" title={lang.tr('library')} />
               </Tabs>
@@ -133,9 +138,11 @@ const SidePanelContent: FC<Props> = props => {
                 <Tooltip content={lang.tr('studio.flow.sidePanel.importTopic')}>
                   <Button icon="import" onClick={() => setImportModalOpen(true)} />
                 </Tooltip>
-                <Tooltip content={lang.tr('studio.flow.sidePanel.addTopic')}>
-                  <Button icon="plus" onClick={() => createTopic()} />
-                </Tooltip>
+                {canAdd && (
+                  <Tooltip content={lang.tr('studio.flow.sidePanel.addTopic')}>
+                    <Button icon="plus" onClick={() => createTopic()} />
+                  </Tooltip>
+                )}
               </NavbarGroup>
             )}
           </Navbar>
@@ -154,6 +161,7 @@ const SidePanelContent: FC<Props> = props => {
               setEditing={setEditing}
               isEditingNew={isEditingNew}
               setIsEditingNew={setIsEditingNew}
+              canAdd={canAdd}
             />
           )}
 
@@ -163,6 +171,7 @@ const SidePanelContent: FC<Props> = props => {
               createWorkflow={createWorkflow}
               flows={props.flows}
               selectedWorkflow={props.selectedWorkflow}
+              canAdd={canAdd}
             />
           )}
         </React.Fragment>

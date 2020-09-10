@@ -9,12 +9,14 @@ interface CssExports {
   'container': string;
   'container2': string;
   'content': string;
+  'debugCheckbox': string;
   'debuggerIcon': string;
   'error': string;
   'expanded': string;
   'group': string;
   'header': string;
   'hovering': string;
+  'info': string;
   'infoBox': string;
   'inspector': string;
   'inspectorContainer': string;

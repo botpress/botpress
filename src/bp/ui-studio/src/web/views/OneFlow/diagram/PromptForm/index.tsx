@@ -14,6 +14,7 @@ interface Props {
   prompts: Prompts
   variables: Variables
   customKey: string
+  defaultLang: string
   contentLang: string
   close: () => void
   onUpdate: (data: any) => void
@@ -24,6 +25,7 @@ interface Props {
 const PromptForm: FC<Props> = ({
   customKey,
   prompts,
+  defaultLang,
   contentLang,
   close,
   formData,
@@ -41,6 +43,7 @@ const PromptForm: FC<Props> = ({
 
   useEffect(() => {
     promptType.current = formData?.type
+    currentVarName.current = formData.params.output
     setForceUpdate(!forceUpdate)
   }, [customKey])
 
@@ -86,7 +89,7 @@ const PromptForm: FC<Props> = ({
       value.type === promptType.current && (!promptSubType.current || value.subType === promptSubType.current)
   )
 
-  const variableTypes = selectedOption ? [selectedOption.value.type] : variables.primitive.map(x => x.id)
+  const variableTypes = selectedOption ? [selectedOption.value.variableType] : variables.primitive.map(x => x.id)
   const variableSubType = selectedOption?.value?.subType
 
   return (
@@ -107,6 +110,7 @@ const PromptForm: FC<Props> = ({
               placeholder={lang.tr('studio.prompt.pickType')}
               items={options}
               defaultItem={selectedOption}
+              hideActiveItemIcon
               rightIcon="chevron-down"
               onChange={({ value }) => handleTypeChange(value)}
             />
@@ -132,6 +136,7 @@ const PromptForm: FC<Props> = ({
           <div className={cx(style.fieldWrapper, style.contentTypeField)}>
             <Contents.Form
               currentLang={contentLang}
+              defaultLang={defaultLang}
               axios={axios}
               onUpdateVariables={onUpdateVariables}
               variables={variables}

@@ -28,15 +28,17 @@ const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
         {props.message}
       </Body>
       <Footer>
-        <Button
-          id="confirm-dialog-decline"
-          className={Classes.BUTTON}
-          type="button"
-          onClick={onDecline}
-          text={props.declineLabel || lang('cancel')}
-          tabIndex={2}
-          intent={Intent.NONE}
-        />
+        {props.showDecline && (
+          <Button
+            id="confirm-dialog-decline"
+            className={Classes.BUTTON}
+            type="button"
+            onClick={onDecline}
+            text={props.declineLabel || lang('cancel')}
+            tabIndex={2}
+            intent={Intent.NONE}
+          />
+        )}
         <Button
           id="confirm-dialog-accept"
           className={Classes.BUTTON}
@@ -52,9 +54,18 @@ const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
   )
 }
 
+const defaultConfirmOptions: ConfirmDialogOptions = {
+  title: '',
+  accept: () => {},
+  acceptLabel: 'Confirm',
+  decline: () => {},
+  declineLabel: 'Decline',
+  showDecline: true
+}
+
 const confirmDialog = (message: string, options: ConfirmDialogOptions): Promise<boolean> => {
   return new Promise((resolve, _reject) => {
-    addDialog({ message, ...options }, resolve)
+    addDialog({ message, ...defaultConfirmOptions, ...options }, resolve)
   })
 }
 

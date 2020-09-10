@@ -1,11 +1,37 @@
-import { BotEvent, FormData } from 'botpress/sdk'
+import { BotEvent, Content, FormData } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import _uniqueId from 'lodash/uniqueId'
 
-import { QnaItem } from '../../../backend/qna'
-
 export const ITEMS_PER_PAGE = 50
+
+export type Action = 'text' | 'redirect' | 'text_redirect'
+
+export interface QnaEntry {
+  // TODO: temporary until we refactor the views to match new data structure
+  action: Action
+  topicName: string
+  enabled: boolean
+  questions: {
+    [lang: string]: string[]
+  }
+  answers: {
+    [lang: string]: string[]
+  }
+  contentAnswers: Content.All[]
+  redirectFlow: string
+  redirectNode: string
+  lastModified?: Date
+}
+
+export interface QnaItem {
+  // TODO: temporary until we refactor the views to match new data structure
+  id: string
+  key?: string
+  isNew?: boolean
+  saveError?: string
+  data: QnaEntry
+}
 
 export interface State {
   count: number
@@ -23,8 +49,9 @@ export interface Props {
   isLite?: boolean
   topicName: string
   contentLang: string
-  defaultLanguage: string
+  defaultLang: string
   refreshQnaCount: () => void
+  updateLocalLang: (lang: string) => void
   languages: string[]
   events?: BotEvent[]
 }
@@ -46,6 +73,7 @@ export const itemHasError = (qnaItem: QnaItem, currentLang: string): string[] =>
   const errors = []
   const { data } = qnaItem
 
+  // TODO : Add more validation with all others qnas
   const hasDuplicateQuestions =
     data.questions[currentLang]?.filter((item, index) =>
       [...data.questions[currentLang].slice(0, index).filter(item2 => item2.length)].includes(item)
@@ -71,10 +99,13 @@ export const itemHasError = (qnaItem: QnaItem, currentLang: string): string[] =>
 
 export const dispatchMiddleware = async (dispatch, action) => {
   const { qnaItem, bp, refreshQnaCount } = action.data
+  const topicName = qnaItem.data?.topicName
+
   switch (action.type) {
     case 'updateQnA':
       const { currentLang } = action.data
       let itemId = qnaItem.id
+      const prevId = qnaItem.id
       let saveError = null
 
       if (!itemHasError(qnaItem, currentLang).length) {
@@ -89,51 +120,62 @@ export const dispatchMiddleware = async (dispatch, action) => {
           action = 'redirect'
         }
 
-        const cleanData = {
-          ...qnaItem.data,
-          action,
-          answers: {
-            ...Object.keys(answers).reduce(
-              (acc, lang) => ({ ...acc, [lang]: [...answers[lang].filter(entry => !!entry.trim().length)] }),
-              {}
-            )
+        const cleanData = _.omit(
+          {
+            ...qnaItem.data,
+            action,
+            answers: {
+              ...Object.keys(answers).reduce(
+                (acc, lang) => ({ ...acc, [lang]: [...answers[lang].filter(entry => !!entry.trim().length)] }),
+                {}
+              )
+            },
+            questions: {
+              ...Object.keys(questions).reduce(
+                (acc, lang) => ({ ...acc, [lang]: [...questions[lang].filter(entry => !!entry.trim().length)] }),
+                {}
+              )
+            }
           },
-          questions: {
-            ...Object.keys(questions).reduce(
-              (acc, lang) => ({ ...acc, [lang]: [...questions[lang].filter(entry => !!entry.trim().length)] }),
-              {}
-            )
-          }
-        }
+          'topicName',
+          'redirectFlow',
+          'redirectNode',
+          'action',
+          'lastModified'
+        )
+
         if (qnaItem.id.startsWith('qna-')) {
           try {
-            const res = await bp.axios.post('/mod/qna/questions', cleanData)
-            itemId = res.data[0]
+            const res = await bp.axios.post(`/mod/qna/${topicName}/questions`, cleanData)
+            itemId = res.data
             refreshQnaCount?.()
           } catch ({ response: { data } }) {
             saveError = data.message
           }
         } else {
           try {
-            await bp.axios.post(`/mod/qna/questions/${qnaItem.id}`, cleanData)
+            await bp.axios.post(`/mod/qna/${topicName}/questions/${qnaItem.id}`, cleanData)
           } catch ({ response: { data } }) {
             saveError = data.message
           }
         }
       }
 
-      dispatch({ ...action, data: { ...action.data, qnaItem: { ...qnaItem, id: itemId, saveError } } })
+      dispatch({ ...action, data: { ...action.data, qnaItem: { ...qnaItem, id: itemId, saveError }, prevId } })
       break
 
     case 'toggleEnabledQnA':
       const originalValue = qnaItem.data.enabled
 
       qnaItem.data.enabled = !originalValue
-
       if (!qnaItem.id.startsWith('qna-')) {
         try {
-          await bp.axios.post(`/mod/qna/questions/${qnaItem.id}`, qnaItem.data)
-        } catch {
+          await bp.axios.post(
+            `/mod/qna/${topicName}/questions/${qnaItem.id}`,
+            _.omit(qnaItem.data, 'topicName', 'redirectFlow', 'redirectNode', 'action', 'lastModified')
+          )
+        } catch (e) {
+          console.log('ERROR  ', e)
           qnaItem.data.enabled = originalValue
         }
       }
@@ -142,14 +184,13 @@ export const dispatchMiddleware = async (dispatch, action) => {
       break
 
     default:
-      return dispatch(action)
+      return
   }
 }
 
 export const fetchReducer = (state: State, action): State => {
   if (action.type === 'dataSuccess') {
     const { items, count, page } = action.data
-
     return {
       ...state,
       count,
@@ -160,9 +201,13 @@ export const fetchReducer = (state: State, action): State => {
       fetchMore: false
     }
   } else if (action.type === 'highlightedSuccess') {
+    const { id, topicName, ...data } = action.data
     return {
       ...state,
-      highlighted: action.data,
+      highlighted: {
+        id: action.data.id,
+        data: { ...action.data }
+      },
       expandedItems: { ...state.expandedItems, highlighted: true }
     }
   } else if (action.type === 'resetHighlighted') {
@@ -186,9 +231,8 @@ export const fetchReducer = (state: State, action): State => {
       loading: true
     }
   } else if (action.type === 'updateQnA') {
-    const { qnaItem, index } = action.data
+    const { qnaItem, index, prevId } = action.data
     const newItems = state.items
-
     if (index === 'highlighted') {
       const newHighlighted = { ...state.highlighted, saveError: qnaItem.saveError, id: qnaItem.id, data: qnaItem.data }
 
@@ -198,7 +242,8 @@ export const fetchReducer = (state: State, action): State => {
       }
     }
 
-    newItems[index] = { ...newItems[index], saveError: qnaItem.saveError, id: qnaItem.id, data: qnaItem.data }
+    const idx = state.items.findIndex(i => (i.isNew ? i.id === prevId : i.id === qnaItem.id))
+    newItems[idx] = { ...newItems[idx], saveError: qnaItem.saveError, id: qnaItem.id, data: qnaItem.data }
 
     return {
       ...state,
@@ -207,7 +252,7 @@ export const fetchReducer = (state: State, action): State => {
   } else if (action.type === 'addQnA') {
     const newItems = state.items
     const id = _uniqueId('qna-')
-    const { languages, contexts } = action.data
+    const { languages, topicName } = action.data
     const languageArrays = languages.reduce((acc, lang) => ({ ...acc, [lang]: [''] }), {})
 
     newItems.unshift({
@@ -216,7 +261,7 @@ export const fetchReducer = (state: State, action): State => {
       key: id,
       data: {
         action: 'text',
-        contexts,
+        topicName,
         enabled: true,
         answers: _.cloneDeep(languageArrays),
         questions: _.cloneDeep(languageArrays),
@@ -232,12 +277,13 @@ export const fetchReducer = (state: State, action): State => {
       expandedItems: { ...state.expandedItems, [id]: true }
     }
   } else if (action.type === 'deleteQnA') {
-    const { index, bp, refreshQnaCount } = action.data
+    const { qnaItem, index, bp, refreshQnaCount } = action.data
     const newItems = state.items
 
     if (index === 'highlighted') {
+      const topicName = state.highlighted.data.topicName
       bp.axios
-        .post(`/mod/qna/questions/${state.highlighted.id}/delete`)
+        .post(`/mod/qna/${topicName}/questions/${state.highlighted.id}/delete`)
         .then(() => {})
         .catch(() => {})
       refreshQnaCount?.()
@@ -247,12 +293,14 @@ export const fetchReducer = (state: State, action): State => {
         highlighted: undefined
       }
     }
+    const idx = state.items.findIndex(i => i.id === qnaItem.id)
 
-    const [deletedItem] = newItems.splice(index, 1)
+    const [deletedItem] = newItems.splice(idx, 1)
+    const topicName = deletedItem.data.topicName
 
     if (!deletedItem.id.startsWith('qna-')) {
       bp.axios
-        .post(`/mod/qna/questions/${deletedItem.id}/delete`)
+        .post(`/mod/qna/${topicName}/questions/${deletedItem.id}/delete`)
         .then(() => {})
         .catch(() => {})
     }

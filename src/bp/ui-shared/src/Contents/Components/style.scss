@@ -131,8 +131,9 @@
   color: var(--shark);
   display: block;
   font-size: 12px;
+  font-weight: 700;
   line-height: 1.25;
-  margin: var(--spacing-medium) 0 var(--spacing-small);
+  margin: var(--spacing-large) 0 var(--spacing-small);
 }
 
 .input,
@@ -149,36 +150,16 @@
   transition: border 0.3s !important;
   width: 100% !important;
 
-  &:focus,
-  &:focus-within {
+  &:not(.hasError):focus,
+  &:not(.hasError):focus-within {
     border-color: var(--ocean) !important;
     box-shadow: none !important;
   }
-}
 
-.fieldWrapper :global {
-  .bp3-file-input {
-    display: block;
-    height: 66px !important;
-    width: 66px !important;
-
-    input {
-      height: 100%;
-      width: 100%;
-      min-width: auto;
-    }
+  &.hasError {
+    border-color: var(--lighthouse) !important;
+    box-shadow: none !important;
   }
-}
-
-.errorMessage {
-  color: var(--lighthouse) !important;
-  font-size: 12px;
-  padding-top: 2px;
-  border-top: 1px solid var(--lighthouse);
-}
-
-.labelError {
-  border-bottom: 1px solid var(--lighthouse);
 }
 
 .fieldWrapperHeader {
@@ -195,13 +176,9 @@
 }
 
 .deleteImg {
+  background: var(--hover-lighthouse-30) !important;
   min-height: 30px !important;
   min-width: 30px !important;
-  transition: background 0.3s;
-
-  &:hover {
-    background: var(--hover-lighthouse-30) !important;
-  }
 
   svg {
     fill: var(--lighthouse) !important;
@@ -237,40 +214,10 @@
   }
 }
 
-.fieldWrapper :global(.bp3-file-input:focus-within .bp3-file-upload-input) {
-  border-color: var(--ocean);
-
-  svg {
-    fill: var(--ocean) !important;
-  }
-}
-
-.fieldWrapper :global(.bp3-file-upload-input) {
-  align-items: center;
-  background: #fff;
-  border: 1px dashed var(--seashell);
-  box-shadow: none;
-  color: #fff;
-  display: flex;
-  height: 66px !important;
-  justify-content: center;
-  padding: 0 !important;
-  text-align: center;
-  transition: border 0.3s;
-  width: 66px !important;
-
-  svg {
-    fill: var(--seashell) !important;
-    transition: fill 0.3s;
-  }
-
-  &:after {
-    display: none;
-  }
-}
-
 .fieldError {
-  color: var(--lighthouse);
   font-size: 12px;
-  margin-top: var(--spacing-medium);
+  line-height: 1.25;
+  color: var(--lighthouse);
+  margin: var(--spacing-small) 0 var(--spacing-large);
+  display: block;
 }

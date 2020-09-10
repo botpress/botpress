@@ -2,16 +2,20 @@
 // Please do not change this file!
 interface CssExports {
   'addBtn': string;
+  'checkboxWrapper': string;
   'collapsibleWrapper': string;
   'content': string;
   'contentAnswer': string;
   'contentAnswerWrapper': string;
   'contextInput': string;
   'contextSelector': string;
+  'customBtn': string;
   'embeddedInFlow': string;
   'empty': string;
+  'error': string;
   'errorIcon': string;
   'errorsList': string;
+  'filterWrapper': string;
   'hasError': string;
   'header': string;
   'headerWrapper': string;
@@ -21,6 +25,7 @@ interface CssExports {
   'items': string;
   'left': string;
   'loading': string;
+  'needsTranslation': string;
   'questionHeader': string;
   'questionWrapper': string;
   'redirectTitle': string;
