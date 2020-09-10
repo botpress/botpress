@@ -363,7 +363,10 @@ const Form: FC<FormProps> = ({
               placeholder={lang(field.placeholder)}
               emptyPlaceholder={lang(field.emptyPlaceholder)}
               items={currentValue || ['']}
+              canAdd={!defaultLang || defaultLang === currentLang}
               addBtnLabel={lang(field.group?.addLabel)}
+              addBtnLabelTooltip={lang(field.group?.addLabelTooltip)}
+              refValue={refValue}
               onChange={value => {
                 dispatch({
                   type: 'updateField',

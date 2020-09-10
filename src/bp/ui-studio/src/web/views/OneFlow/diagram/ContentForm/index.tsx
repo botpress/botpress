@@ -98,26 +98,15 @@ const ContentForm: FC<Props> = ({
     }
 
     const langs = Object.keys(data.suggestions)
-    const suggestions = _.flatten(Object.values<any>(data.suggestions))
-
     const transitions: any = []
     const choices: any = []
 
-    const triggers = suggestions.map(({ name }, idx) => {
+    const triggers = data.suggestions[defaultLang].map(({ name }, idx) => {
       const allTags = langs.reduce((acc, curr) => {
         return { ...acc, [curr]: data.suggestions[curr]?.find(x => x.name === name)?.tags }
       }, {})
 
       const currentDest = node.next.find(x => x.condition === `choice-${name}${idx}`)?.node ?? ''
-
-      choices.push({
-        title: langs.reduce((acc, curr) => {
-          return { ...acc, [curr]: data.suggestions[curr]?.find(x => x.name === name)?.name }
-        }, {}),
-        value: langs.reduce((acc, curr) => {
-          return { ...acc, [curr]: data.suggestions[curr]?.find(x => x.name === name)?.tags?.[0] }
-        }, {})
-      })
 
       transitions.push({
         condition: `choice-${name}${idx}`,
