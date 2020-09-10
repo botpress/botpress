@@ -7,12 +7,12 @@ const ConfusionMatrix: FC<any> = props => {
   const [CF, setCF] = useState({ intent: [], context: [], slot: [], slotCount: [] })
 
   const createCM = (matrixType: 'slot' | 'intent' | 'context' | 'slotCount') => {
-    const datas: { pred: string; gt: string }[] = props.dataResult[matrixType]
+    const datas: { predicted: string; expected: string }[] = props.dataResult[matrixType]
     if (datas.length < 1) {
       return []
     }
     const CM = {}
-    const allLabels = Array.from(new Set(datas.map(o => o.pred).concat(datas.map(o => o.gt))))
+    const allLabels = Array.from(new Set(datas.map(o => o.predicted).concat(datas.map(o => o.expected))))
     for (const label of allLabels) {
       CM[label] = {}
       for (const subLabel of allLabels) {
@@ -21,7 +21,7 @@ const ConfusionMatrix: FC<any> = props => {
     }
 
     for (const entry of datas) {
-      CM[entry.pred][entry.gt] += 1
+      CM[entry.predicted][entry.expected] += 1
     }
 
     const z = []

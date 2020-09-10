@@ -5,8 +5,8 @@ import { toastFailure, toastSuccess } from 'botpress/utils'
 import _ from 'lodash'
 import React from 'react'
 
-import { DataResult, Test, TestResult } from '../../shared/typings'
-import { computeSummary } from '../../shared/utils'
+import { DataResult, Test, TestResult, VisData } from '../../shared/typings'
+import { computeAccuracy, computeSummary } from '../../shared/utils'
 
 import { makeApi } from './api'
 import style from './style.scss'
@@ -20,10 +20,10 @@ interface State {
   tests: Test[]
   testResults: _.Dictionary<TestResult>
   resultByType: {
-    intent: { gt: string; pred: string }[]
-    slot: { gt: string; pred: string }[]
-    context: { gt: string; pred: string }[]
-    slotCount: { gt: string; pred: string }[]
+    intent: VisData[]
+    slot: VisData[]
+    context: VisData[]
+    slotCount: VisData[]
   }
   loading: boolean
   working: boolean
@@ -80,10 +80,10 @@ export default class NLUTests extends React.Component<Props, State> {
     const testResults = await this.api.runAllTests()
     console.log('testResults   ', testResults)
     this.setState({ working: false, testResults })
-    const dataResult = { intent: [], slot: [], context: [], slotCount: [] }
+    const dataResult: DataResult = { intent: [], slot: [], context: [], slotCount: [] }
     for (const res of Object.values(testResults)) {
       res.details.map(rd => {
-        dataResult[rd.type].push({ gt: rd.expected, pred: rd.received })
+        dataResult[rd.type].push({ expected: rd.expected, predicted: rd.received })
       })
     }
     this.setState({ resultByType: dataResult })
@@ -166,52 +166,19 @@ export default class NLUTests extends React.Component<Props, State> {
                   {this.state.resultByType.intent.length > 0 && (
                     <span className={style.working}>
                       <Icon icon="direction-right" />
-                      {_.round(
-                        (this.state.resultByType.intent.reduce((acc: number, curr: { gt: string; pred: string }) => {
-                          if (curr.gt === curr.pred) {
-                            acc++
-                          }
-                          return acc
-                        }, 0) /
-                          this.state.resultByType.intent.length) *
-                          100,
-                        1
-                      )}
-                      % of intents passing
+                      {computeAccuracy(this.state.resultByType.intent)}% of intents passing
                     </span>
                   )}
                   {this.state.resultByType.context.length > 0 && (
                     <span className={style.working}>
                       <Icon icon="globe-network" />
-                      {_.round(
-                        (this.state.resultByType.context.reduce((acc: number, curr: { gt: string; pred: string }) => {
-                          if (curr.gt === curr.pred) {
-                            acc++
-                          }
-                          return acc
-                        }, 0) /
-                          this.state.resultByType.context.length) *
-                          100,
-                        1
-                      )}
-                      % of contexts passing
+                      {computeAccuracy(this.state.resultByType.context)}% of contexts passing
                     </span>
                   )}
                   {this.state.resultByType.slot.length > 0 && (
                     <span className={style.working}>
                       <Icon icon="segmented-control" />
-                      {_.round(
-                        (this.state.resultByType.slot.reduce((acc: number, curr: { gt: string; pred: string }) => {
-                          if (curr.gt === curr.pred) {
-                            acc++
-                          }
-                          return acc
-                        }, 0) /
-                          this.state.resultByType.slot.length) *
-                          100,
-                        1
-                      )}
-                      % of slots passing
+                      {computeAccuracy(this.state.resultByType.slot)}% of slots passing
                     </span>
                   )}
                   <span className={style.working}>

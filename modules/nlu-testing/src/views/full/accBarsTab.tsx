@@ -1,21 +1,17 @@
 import _ from 'lodash'
 import React, { FC, Fragment } from 'react'
-
 import Plots from './plots'
+import { VisData } from '../../shared/typings'
 
-interface VisData {
-  gt: string
-  pred: string
-}
 const AccBars: FC<any> = props => {
   const getXY = (key: string) => {
     const datas: VisData[] = props.dataResult[key]
     const XYLabel = {}
     for (const entry of datas) {
-      const label = _.get(XYLabel, `${entry.gt}`, { total: 0, pass: 0 })
+      const label = _.get(XYLabel, `${entry.expected}`, { total: 0, pass: 0 })
       label.total += 1
-      label.pass += +(entry.pred === entry.gt)
-      XYLabel[entry.gt] = label
+      label.pass += +(entry.predicted === entry.expected)
+      XYLabel[entry.expected] = label
     }
     const x = Object.keys(XYLabel)
     const y = Object.values(XYLabel).map((l: { total: number; pass: number }) => l.pass / l.total)

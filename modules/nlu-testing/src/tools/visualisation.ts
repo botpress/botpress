@@ -45,7 +45,7 @@ export async function computeEmbeddingSimilarity(state: BotState) {
       type: 'heatmap'
     }
   ]
-  await state.ghost.upsertFile(`./datas/results`, 'similarity_matrix.json', JSON.stringify(simMat, undefined, 2))
+  // await state.ghost.upsertFile(`./datas/results`, 'similarity_matrix.json', JSON.stringify(simMat, undefined, 2))
   return plotlyMatrixData
 }
 

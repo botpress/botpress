@@ -30,8 +30,8 @@ export interface TestResult {
 }
 
 export interface VisData {
-  gt: string
-  pred: string
+  expected: string
+  predicted: string
 }
 export interface DataResult {
   intent: VisData[]

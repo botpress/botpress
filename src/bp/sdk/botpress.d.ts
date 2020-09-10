@@ -460,7 +460,7 @@ declare module 'botpress/sdk' {
       static getHealth: () => Health
       static getLanguages: () => string[]
       static embed: (utterances: string[], lang: string) => Promise<number[][]>
-      constructor(defaultLanguage: string, botId: string, logger: Logger)
+      constructor(botId: string, logger: Logger)
       computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string
       loadModel: (m: Model) => Promise<void>
       hasModel: (lang: string, hash: string) => boolean

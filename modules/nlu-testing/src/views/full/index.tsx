@@ -16,7 +16,7 @@ import Scatter from './scatter'
 import SimilarityEmbeddings from './similarityEmb'
 
 const NLUVisusalisation: FC<any> = props => {
-  const [dataResult, setDataResult] = useState(undefined)
+  const [dataResult, setDataResult] = useState({} as DataResult)
   const onTestDone = res => {
     setDataResult(res)
   }
@@ -60,7 +60,7 @@ const NLUVisusalisation: FC<any> = props => {
           }
           panel={<NLUTests {...props} onTestDone={onTestDone} />}
         />
-        {dataResult && (
+        {Object.keys(dataResult).length > 0 && (
           <Tab
             id="Confusion Matrix"
             title={
@@ -71,7 +71,7 @@ const NLUVisusalisation: FC<any> = props => {
             panel={<ConfusionMatrix {...props} dataResult={dataResult} />}
           />
         )}
-        {dataResult && (
+        {Object.keys(dataResult).length > 0 && (
           <Tab
             id="Bars"
             title={
