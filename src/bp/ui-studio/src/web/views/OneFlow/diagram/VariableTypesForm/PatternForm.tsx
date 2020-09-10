@@ -65,7 +65,6 @@ const PatternForm: FC<Props> = ({
 
     const newEntity = { ...formData }
 
-    console.log(formData, originalEntity)
     updateEntity(originalEntity.current.name, newEntity)
     originalEntity.current = newEntity
   }, [formData])
