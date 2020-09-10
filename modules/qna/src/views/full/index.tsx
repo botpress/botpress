@@ -12,7 +12,7 @@ import { dispatchMiddleware, fetchReducer, itemHasError, ITEMS_PER_PAGE, Props }
 import QnA from './Components/QnA'
 import EmptyStateIcon from './Icons/EmptyStateIcon'
 
-const QNA_FILTER_KEY = `bp::${window['BOT_ID']}::expandedNodes`
+const QNA_FILTER_KEY = `bp::${window['BOT_ID']}::qnaFilter`
 
 const QnAList: FC<Props> = ({
   bp,
