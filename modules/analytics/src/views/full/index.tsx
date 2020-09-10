@@ -130,11 +130,9 @@ const fetchReducer = (state: State, action): State => {
       disableAnalyticsFetching: true
     }
   } else if (action.type === 'receivedQnaQuestions') {
-    const { qnaQuestions } = action.data
-
     return {
       ...state,
-      qnaQuestions: { ...qnaQuestions }
+      qnaQuestions: action.data.qnaQuestions
     }
   } else {
     throw new Error(`That action type isn't supported.`)
@@ -145,6 +143,8 @@ const defaultChannels = [
   { value: 'all', label: lang.tr('module.analytics.channels.all') },
   { value: 'api', label: lang.tr('module.analytics.channels.api') }
 ]
+
+const qnaQuestionsCache = {}
 
 const Analytics: FC<any> = ({ bp }) => {
   const loadJson = useRef(null)
@@ -200,20 +200,8 @@ const Analytics: FC<any> = ({ bp }) => {
   }, [state.dateRange, state.selectedChannel])
 
   useEffect(() => {
-    const metrics = orderMetrics(getMetric('msg_sent_qna_count'))
-      .filter(r => r.name)
-      .slice(0, 10)
-
     // tslint:disable-next-line: no-floating-promises
-    Promise.all(metrics.map(r => fetchQnaQuestion(r.name.replace('__qna__', '')))).then(values => {
-      const qnaQuestions = values.reduce((acc, { data: { questions }, id }) => {
-        const question = questions[lang.getLocale()][0]
-        acc[`__qna__${id}`] = question
-        return acc
-      }, {})
-
-      dispatch({ type: 'receivedQnaQuestions', data: { qnaQuestions } })
-    })
+    fetchQnaQuestions()
   }, [state.metrics])
 
   const fetchAnalytics = async (channel: string, dateRange): Promise<MetricEntry[]> => {
@@ -227,6 +215,32 @@ const Analytics: FC<any> = ({ bp }) => {
       }
     })
     return data.metrics
+  }
+
+  const fetchQnaQuestions = async () => {
+    const qnaIds = orderMetrics(getMetric('msg_sent_qna_count'))
+      .filter(m => m.name)
+      .slice(0, 10)
+      .map(m => m.name)
+
+    const fetchedQuestions = await Promise.all(
+      qnaIds.filter(id => !(id in qnaQuestionsCache)).map(id => fetchQnaQuestion(id.replace('__qna__', '')))
+    )
+
+    for (const {
+      data: { questions },
+      id
+    } of fetchedQuestions) {
+      const question = questions[lang.getLocale()][0]
+      qnaQuestionsCache[`__qna__${id}`] = question
+    }
+
+    const qnaQuestions = qnaIds.reduce((acc, id) => {
+      acc[id] = qnaQuestionsCache[id]
+      return acc
+    }, {})
+
+    dispatch({ type: 'receivedQnaQuestions', data: { qnaQuestions } })
   }
 
   const fetchQnaQuestion = async (id: string): Promise<any> => {
@@ -298,12 +312,14 @@ const Analytics: FC<any> = ({ bp }) => {
 
   const getMetric = metricName => state.metrics.filter(x => x.metric === metricName)
 
-  const getTopItems = (
-    metricName: string,
-    type: string,
-    nameRenderer?: (name: string) => string,
+  const getTopItems = (options: {
+    metricName: string
+    type: string
+    nameRenderer?: (name: string) => string
     filter?: (x: any) => boolean
-  ) => {
+  }) => {
+    const { metricName, type, nameRenderer, filter } = options
+
     let metrics = getMetric(metricName)
     if (filter) {
       metrics = metrics.filter(filter)
@@ -384,20 +400,20 @@ const Analytics: FC<any> = ({ bp }) => {
         />
         <ItemsList
           name={lang.tr('module.analytics.mostUsedWorkflows')}
-          items={getTopItems('enter_flow_count', 'workflow')}
+          items={getTopItems({ metricName: 'enter_flow_count', type: 'workflow' })}
           itemLimit={10}
           className={cx(style.genericMetric, style.half, style.list)}
         />
         {!_.isEmpty(state.qnaQuestions) && (
           <ItemsList
             name={lang.tr('module.analytics.mostAskedQuestions')}
-            items={getTopItems(
-              'msg_sent_qna_count',
-              'qna',
-              id => state.qnaQuestions[id],
+            items={getTopItems({
+              metricName: 'msg_sent_qna_count',
+              type: 'qna',
+              nameRenderer: id => state.qnaQuestions[id],
               // Filter out QnA metrics without submetric (legacy)
-              metric => metric.subMetric
-            )}
+              filter: metric => metric.subMetric
+            })}
             className={cx(style.genericMetric, style.half, style.list)}
           />
         )}
@@ -428,7 +444,7 @@ const Analytics: FC<any> = ({ bp }) => {
             <div className={cx(style.genericMetric, style.quarter, style.list, style.multiple)}>
               <ItemsList
                 name={lang.tr('module.analytics.mostFailedWorkflows')}
-                items={getTopItems('workflow_failed_count', 'workflow')}
+                items={getTopItems({ metricName: 'workflow_failed_count', type: 'workflow' })}
                 itemLimit={3}
                 className={style.list}
               />
