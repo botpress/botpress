@@ -1,12 +1,11 @@
-import { Button, Icon, Position, Tag, TagInput, Toaster } from '@blueprintjs/core'
+import { Button, Icon, Position, Tag, TagInput } from '@blueprintjs/core'
 import cx from 'classnames'
-import React, { FC, useEffect, useRef } from 'react'
-import { useState } from 'react'
-import { Fragment } from 'react'
+import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { lang } from '~/translations'
 
 import ToolTip from '../../../../ui-shared-lite/ToolTip'
+import { toast } from '../../Toaster'
 
 import { Item } from '.'
 import style from './style.scss'
@@ -47,10 +46,7 @@ const TagInputItem: FC<Props> = ({
   }, [isFocused])
 
   const onCopy = () => {
-    Toaster.create({
-      className: 'recipe-toaster',
-      position: Position.TOP_RIGHT
-    }).show({ message: lang('studio.flow.copiedToBuffer') })
+    toast.info(lang('studio.flow.copiedToBuffer'))
   }
 
   const missingTranslation =
