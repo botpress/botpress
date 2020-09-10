@@ -51,23 +51,14 @@ export async function computeEmbeddingSimilarity(state: BotState) {
 
 export async function computeScatterEmbeddings(state: BotState, logger: sdk.Logger) {
   const pcaTrain = new PCA(state.trainDatas.map(o => o.utt_emb))
-  const pcaTest = new PCA(state.testDatas.map(o => o.utt_emb))
   const varianceTrain = pcaTrain.getExplainedVariance()
-  const varianceTest = pcaTest.getExplainedVariance()
   logger.info(
     `Top 3 train variance ${varianceTrain.slice(0, 3).map(o => _.round(o, 2))} Accounting for ${_.round(
       _.sum(varianceTrain.slice(0, 3)),
       2
     )}%`
   )
-  logger.info(
-    `Top 3 test variance ${varianceTest.slice(0, 3).map(o => _.round(o, 2))} Accounting for ${_.round(
-      _.sum(varianceTest.slice(0, 3)),
-      2
-    )}%`
-  )
   const groupedIntentsTrain = _.groupBy(state.trainDatas, 'intent')
-  const groupedIntentsTest = _.groupBy(state.testDatas, 'intent')
   const traces = []
   Object.entries(groupedIntentsTrain).map(([k, v]: [string, any[]], i) =>
     traces.push({
@@ -81,18 +72,30 @@ export async function computeScatterEmbeddings(state: BotState, logger: sdk.Logg
       marker: { size: 8, color: i }
     })
   )
-  Object.entries(groupedIntentsTest).map(([k, v]: [string, any[]], i) =>
-    traces.push({
-      x: v.map(o => pcaTest.predict([o.utt_emb]).get(0, 0)),
-      y: v.map(o => pcaTest.predict([o.utt_emb]).get(0, 1)),
-      z: v.map(o => pcaTest.predict([o.utt_emb]).get(0, 2)),
-      mode: 'markers',
-      type: 'scatter3d',
-      name: `${k}_test`,
-      text: v.map(o => o.utt),
-      marker: { size: 8, color: i }
-    })
-  )
+
+  if (state.testDatas.length) {
+    const pcaTest = new PCA(state.testDatas.map(o => o.utt_emb))
+    const varianceTest = pcaTest.getExplainedVariance()
+    logger.info(
+      `Top 3 test variance ${varianceTest.slice(0, 3).map(o => _.round(o, 2))} Accounting for ${_.round(
+        _.sum(varianceTest.slice(0, 3)),
+        2
+      )}%`
+    )
+    const groupedIntentsTest = _.groupBy(state.testDatas, 'intent')
+    Object.entries(groupedIntentsTest).map(([k, v]: [string, any[]], i) =>
+      traces.push({
+        x: v.map(o => pcaTest.predict([o.utt_emb]).get(0, 0)),
+        y: v.map(o => pcaTest.predict([o.utt_emb]).get(0, 1)),
+        z: v.map(o => pcaTest.predict([o.utt_emb]).get(0, 2)),
+        mode: 'markers',
+        type: 'scatter3d',
+        name: `${k}_test`,
+        text: v.map(o => o.utt),
+        marker: { size: 8, color: i }
+      })
+    )
+  }
   return traces
 }
 
