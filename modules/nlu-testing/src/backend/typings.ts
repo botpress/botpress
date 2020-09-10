@@ -44,3 +44,8 @@ export interface Test {
   context: string
   conditions: [string, string, string][]
 }
+
+export interface JobInfo {
+  status: string
+  error: string
+}

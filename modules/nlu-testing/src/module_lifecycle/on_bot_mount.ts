@@ -11,5 +11,7 @@ export function getOnBotMount(state: VisuState) {
     state[botId].axiosConfig = axiosConfig
     state[botId].botId = botId
     state[botId].language = (await bp.bots.getBotById(botId)).defaultLanguage
+    state[botId].trainDatas = []
+    state[botId].testDatas = []
   }
 }

@@ -23,7 +23,7 @@ const NLUVisusalisation: FC<any> = props => {
   const [dataLoaded, setDataLoaded] = useState(false)
   useEffect(() => {
     async function loadDatas() {
-      const { data } = await props.bp.axios.get('/mod/nlu-testing/loadDatas', { timeout: 0 })
+      const { data } = await props.bp.axios.post('/mod/nlu-testing/prepare-data', { timeout: 0 })
       const jobId = data
       setLoadingDatasIcon(<RiLoader2Line />)
       const interval = setInterval(async () => {

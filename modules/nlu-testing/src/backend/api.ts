@@ -20,7 +20,7 @@ import {
   computeScatterEmbeddings
 } from '../tools/visualisation'
 
-import { VisuState } from './typings'
+import { JobInfo, VisuState } from './typings'
 
 type BPDS_BotConfig = sdk.BotConfig & {
   bpdsId: string
@@ -44,8 +44,7 @@ const TestsSchema = Joi.array().items(
 
 export default async (bp: typeof sdk, state: VisuState) => {
   const router = bp.http.createRouterForBot('nlu-testing')
-  const longJobsPool = {}
-  const glob_res = []
+  const longJobsPool: _.Dictionary<JobInfo> = {}
 
   const getAllTests = async (botId: string) => {
     try {
@@ -170,10 +169,9 @@ export default async (bp: typeof sdk, state: VisuState) => {
 
   router.post('/runAll', async (req, res) => {
     const tests = await getAllTests(req.params.botId)
-    const axiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, { localUrl: true })
 
     const resultsBatch = await P.mapSeries(_.chunk(tests, 20), testChunk => {
-      return P.map(testChunk, async test => runTest(test, axiosConfig))
+      return P.map(testChunk, async test => runTest(test, state[req.params.botId].axiosConfig))
     })
 
     const testResults = _.flatten(resultsBatch).reduce((dic, testRes) => ({ ...dic, [testRes.id]: testRes }), {})
@@ -182,17 +180,12 @@ export default async (bp: typeof sdk, state: VisuState) => {
     res.send(testResults)
   })
 
-  router.get('/loadDatas', async (req, res) => {
-    const botId = req.params.botId
-    const newAxiosConfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
-    state[botId].axiosConfig = newAxiosConfig
-    const jobId = nanoid()
-    res.send(jobId)
-    longJobsPool[jobId] = { status: 'computing', data: undefined, error: undefined, cm: false }
+  async function loadDatas(jobId: string, botId: string) {
+    longJobsPool[jobId] = { status: 'computing', error: undefined }
     try {
-      const { train, test } = await getTrainTestDatas(state[req.params.botId], bp)
-      state[req.params.botId].trainDatas = train
-      state[req.params.botId].testDatas = test
+      const { train, test } = await getTrainTestDatas(state[botId], bp)
+      state[botId].trainDatas = train
+      state[botId].testDatas = test
       longJobsPool[jobId].status = 'done'
       bp.logger.info('Done embedding or loading train and test datas')
     } catch (e) {
@@ -200,6 +193,13 @@ export default async (bp: typeof sdk, state: VisuState) => {
       longJobsPool[jobId].status = 'crashed'
       longJobsPool[jobId].error = e.data
     }
+  }
+
+  router.post('/prepare-data', async (req, res) => {
+    const jobId = nanoid()
+    // tslint:disable-next-line: no-floating-promises
+    loadDatas(jobId, req.params.botId)
+    res.send(jobId)
   })
 
   router.get('/similarityEmbeddings', async (req, res) => {
@@ -219,6 +219,7 @@ export default async (bp: typeof sdk, state: VisuState) => {
   })
 
   router.get('/long-jobs-status/:jobId', async (req, res) => {
+    // TODO this could be done with reddis to be share among multiples botpress instances
     const newAxiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, { localUrl: true })
     state[req.params.botId].axiosConfig = newAxiosConfig
     res.send(longJobsPool[req.params.jobId])

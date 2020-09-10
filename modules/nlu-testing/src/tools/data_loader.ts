@@ -18,7 +18,6 @@ export async function getTrainTestDatas(state: BotState, bp: typeof sdk) {
       rawTrain.push(jsonData)
     }
 
-    const vectorized_train: Data[] = []
     const config = await state.ghost.readFileAsString('./', 'bot.config.json')
     const lang = JSON.parse(config).languages[0]
 
@@ -45,7 +44,6 @@ export async function getTrainTestDatas(state: BotState, bp: typeof sdk) {
     } else {
       bp.logger.info('No test file found : You need a test file to view all')
     }
-    const vectorized_test: Data[] = []
 
     for (const entry of rawTest) {
       const context = _.get(
@@ -70,6 +68,6 @@ export async function getTrainTestDatas(state: BotState, bp: typeof sdk) {
       await state.ghost.upsertFile(EMBEDDING_FOLDER, 'test_set.json', JSON.stringify(vectorized_test, undefined, 2))
     }
   }
-
+  console.log(vectorized_train, vectorized_test)
   return { train: vectorized_train, test: vectorized_test }
 }
