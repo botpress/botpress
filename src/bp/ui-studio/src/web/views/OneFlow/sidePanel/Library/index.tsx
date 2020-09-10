@@ -163,6 +163,7 @@ const Library: FC<Props> = props => {
   const newVarType = async (type: 'pattern' | 'list' | 'complex') => {
     const name = getNextName(`${type}-entity`, props.entities)
     await createVarType({ id: name, name, type, occurrences: [] })
+    setEditing({ id: name, type: 'variableType', new: true })
   }
 
   const duplicateVarType = async (entityId: string) => {
