@@ -51,11 +51,16 @@ const SEARCH_TAG = '#search:'
 const FlowBuilder = (props: Props) => {
   const { flow } = props.match.params as any
 
+  const getLang = () => {
+    const lang = localStorage.getItem(CMS_LANG_KEY)
+    return lang && props.languages.includes(lang) ? lang : props.contentLang
+  }
+
   const diagram: any = useRef(null)
   const [showSearch, setShowSearch] = useState(false)
   const [readOnly, setReadOnly] = useState(false)
   const [flowPreview, setFlowPreview] = useState(true)
-  const [currentLang, setCurrentLang] = useState(localStorage.getItem(CMS_LANG_KEY) || props.contentLang)
+  const [currentLang, setCurrentLang] = useState(getLang())
   const [mutex, setMutex] = useState(null)
   const [actions, setActions] = useState(allActions)
   const [highlightFilter, setHighlightFilter] = useState('')

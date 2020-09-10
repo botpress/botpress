@@ -162,6 +162,7 @@
       "mustHaveOutcomes": "Les flux de travail doivent avoir au moins un succès et un échec",
       "referenceCount": "{count} {count, plural, one {référence} other {références}}",
       "noReferences": "Non utilisé",
+      "cannotAddContent": "L'ajout de contenu est seulement disponible sur la langue par défaut",
       "emptyWorkflow": "Utilisez le clic droit ou glissez et déplacez des bloques pour commencer a designer votre workflow.",
       "chips": "Chips",
       "condition": {

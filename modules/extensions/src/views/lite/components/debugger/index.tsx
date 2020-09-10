@@ -191,7 +191,11 @@ export class Debugger extends React.Component<Props, State> {
       this.props.store.view.setHighlightedMessages(eventId)
 
       if (this.state.updateDiagram) {
-        this.showEventOnDiagram(event)
+        try {
+          this.showEventOnDiagram(event)
+        } catch (err) {
+          console.error("Couldn't load event on workflow", err)
+        }
       }
 
       if (!event.processing?.['completed']) {
