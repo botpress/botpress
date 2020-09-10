@@ -1,6 +1,6 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
-import { BotEvent, FlowNode, FlowVariable, FormData } from 'botpress/sdk'
+import { BotEvent, FlowNode, FlowVariable, FormData, NodeTransition } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
 import cx from 'classnames'
 import { Variables } from 'common/typings'
@@ -98,8 +98,7 @@ const ContentForm: FC<Props> = ({
     }
 
     const langs = Object.keys(data.suggestions)
-    const transitions: any = []
-    const choices: any = []
+    const transitions: NodeTransition[] = []
 
     const triggers = data.suggestions[defaultLang].map(({ name }, idx) => {
       const allTags = langs.reduce((acc, curr) => {
@@ -130,7 +129,7 @@ const ContentForm: FC<Props> = ({
       }
     })
 
-    onUpdate({ content: { ...data, choices, contentType: contentType.current }, triggers, transitions })
+    onUpdate({ content: { ...data, contentType: contentType.current }, triggers, transitions })
   }
 
   return (

@@ -911,9 +911,7 @@ class Diagram extends Component<Props> {
         triggers: data.triggers
       })
     } else {
-      this.props.updateFlowNode({
-        contents: newContents
-      })
+      this.props.updateFlowNode({ contents: newContents })
     }
   }
 
