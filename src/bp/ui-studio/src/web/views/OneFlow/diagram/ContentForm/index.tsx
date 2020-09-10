@@ -106,7 +106,7 @@ const ContentForm: FC<Props> = ({
         return { ...acc, [curr]: data.suggestions[curr]?.find(x => x.name === name)?.tags }
       }, {})
 
-      const currentDest = node.next.find(x => x.condition === `choice-${name}${idx}`)?.node ?? ''
+      const currentDest = node?.next.find(x => x.condition === `choice-${name}${idx}`)?.node ?? ''
 
       transitions.push({
         condition: `choice-${name}${idx}`,

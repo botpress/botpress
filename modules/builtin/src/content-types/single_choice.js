@@ -28,13 +28,13 @@ function renderer(data) {
   const payload = base.renderer(data, 'text')
   // hardcoded at the moment, do we want to offer this flexibility ? if yes, needs to be in advanced settings
   // we might want to check if extensions module is enabled before setting it to dropdown
-  const metaKey = data.choices.length > 4 ? '__dropdown' : '__buttons'
+  const metaKey = data.suggestions.length > 4 ? '__dropdown' : '__buttons'
   return {
     ...payload,
     metadata: {
       ...payload.metadata,
       // should we rename key in schema or we keep backward compatibility rendering ?
-      [metaKey]: data.choices.map(c => ({ label: c.title, value: c.value }))
+      [metaKey]: data.suggestions.map(({ name, tags }) => ({ label: name, value: tags.length > 0 ? tags[0] : name }))
     }
   }
 }
