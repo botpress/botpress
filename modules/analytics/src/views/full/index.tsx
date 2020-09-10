@@ -334,12 +334,14 @@ const Analytics: FC<any> = ({ bp }) => {
     return (
       <div className={style.metricsContainer}>
         <NumberMetric
+          className={style.half}
           diffFromPreviousRange={newUserCountDiff}
           previousDateRange={state.previousDateRange}
           name={lang.tr('module.analytics.newUsers', { nb: getMetricCount('new_users_count') })}
           value={getNewUsersPercent()}
         />
         <NumberMetric
+          className={style.half}
           diffFromPreviousRange={activeUserCountDiff}
           previousDateRange={state.previousDateRange}
           name={lang.tr('module.analytics.returningUsers', { nb: getMetricCount('active_users_count') })}
@@ -360,8 +362,9 @@ const Analytics: FC<any> = ({ bp }) => {
 
     return (
       <div className={style.metricsContainer}>
-        <TimeSeriesChart name="Sessions" data={sessionsCount} className={style.threeQuarterGrid} channels={channels} />
+        <TimeSeriesChart name="Sessions" data={sessionsCount} className={style.fullGrid} channels={channels} />
         <NumberMetric
+          className={style.half}
           name={lang.tr('module.analytics.messageExchanged')}
           value={getAvgMsgPerSessions()}
           iconBottom="chat"
@@ -394,7 +397,7 @@ const Analytics: FC<any> = ({ bp }) => {
               // Filter out QnA metrics without submetric (legacy)
               metric => metric.subMetric
             )}
-            className={cx(style.genericMetric, style.list)}
+            className={cx(style.genericMetric, style.half, style.list)}
           />
         )}
       </div>
