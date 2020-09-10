@@ -62,7 +62,11 @@ const SaySomethingContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem,
     <div className={style.contentsWrapper}>
       {node.contents?.map((content, index) =>
         checkMissingTranslations(content) ? (
-          <button onClick={() => editNodeItem?.(node, index)} className={style.needsTranslation}>
+          <button
+            onClick={() => editNodeItem?.(node, index)}
+            key={`${index}${currentLang}`}
+            className={style.needsTranslation}
+          >
             {lang.tr('needsTranslation')}
           </button>
         ) : (

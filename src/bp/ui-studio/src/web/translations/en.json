@@ -134,6 +134,8 @@
       "editingSubWorkflowWarning": "Editing this workflow will impact all its linked instances.",
       "deleteVariableFromLibrary": "Remove Variable Type from Library",
       "duplicateVariableType": "Duplicate Variable Type",
+      "renameVariableType": "Rename Variable Type",
+      "nameVariableType": "Name Variable Type",
       "duplicateWorkflow": "Duplicate Workflow",
       "filter": "Filter blocks, workflows and variable types",
       "variableName": "What is the name of this variable",

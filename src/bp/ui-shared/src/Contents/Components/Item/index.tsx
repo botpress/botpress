@@ -10,7 +10,7 @@ import MarkdownContent from '../../../MarkdownContent'
 import style from './style.scss'
 import { ItemProps } from './typings'
 
-const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active, contentLang }) => {
+const ContentItem: FC<ItemProps> = ({ content, onEdit, active, contentLang }) => {
   const renderCardOrImg = ({ image, title }: FormData): JSX.Element => {
     return (
       <div className={style.contentImgWrapper}>
@@ -36,7 +36,7 @@ const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active, contentLang }) 
           <Dotdotdot clamp={3}>
             {(content.choices as FormData[])?.map((choice, index) => {
               return (
-                <Fragment>
+                <Fragment key={index}>
                   <span dangerouslySetInnerHTML={{ __html: convertToHtml(choice.title?.[contentLang] || '') }} />
                   {index !== content.choices.length - 1 && ' · '}
                 </Fragment>
@@ -74,4 +74,4 @@ const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active, contentLang }) 
   )
 }
 
-export default ContentAnswer
+export default ContentItem

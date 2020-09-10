@@ -56,7 +56,7 @@ const TagInputList = ({ validation, onChange, emptyPlaceholder, placeholder, ite
   return (
     <Fragment>
       {localItems?.map((item, index) => (
-        <div className={style.wrapper}>
+        <div key={index} className={style.wrapper}>
           <TagInputItem
             item={item}
             key={item.name}

@@ -93,7 +93,7 @@ const Library: FC<Props> = props => {
   const [filter, setFilter] = useState('')
   const [items, setItems] = useState<NodeData[]>([])
   const [expanded, setExpanded] = useState<any>(initialExpanded)
-  const [editing, setEditing] = useState('')
+  const [editing, setEditing] = useState(null)
 
   useEffect(() => {
     props.refreshEntities()
@@ -166,7 +166,7 @@ const Library: FC<Props> = props => {
   }
 
   const duplicateVarType = async (entityId: string) => {
-    const original = props.entities.find(x => x.id === entityId)
+    const original = props.entities.find(x => x.name === entityId)
     const name = getNextName(entityId, props.entities)
 
     await createVarType({ ...original, id: name, name })
@@ -203,25 +203,35 @@ const Library: FC<Props> = props => {
   const newFlow = async () => {
     const name = nextFlowName(props.flows, '__reusable', 'subworkflow')
     props.createFlow(name)
-    setEditing(name)
+    setEditing({ type: 'flow', id: name, new: true })
   }
 
   const renameFlow = async (value: string) => {
-    const currentFlow = props.flows.find(x => x.name === editing)
-    const fullName = buildFlowName({ topic: parseFlowName(editing).topic, workflow: sanitize(value) }, true)
+    const currentFlow = props.flows.find(x => x.name === editing?.id)
+    const fullName = buildFlowName({ topic: parseFlowName(editing?.id).topic, workflow: sanitize(value) }, true)
       .workflowPath
     const flowExists = props.flows.find(x => x.name === fullName)
 
     if (currentFlow.name !== value && !flowExists) {
-      props.renameFlow({ targetFlow: editing, name: fullName })
+      props.renameFlow({ targetFlow: editing?.id, name: fullName })
       props.updateFlow({ name: fullName })
     } else {
-      setEditing('')
+      setEditing(null)
+    }
+  }
+
+  const renameVariableType = async (name: string) => {
+    const entity = props.entities.find(x => x.id === editing.id)
+
+    setEditing(null)
+    if (name) {
+      await axios.post(`${window.BOT_API_PATH}/nlu/entities/${entity.name}`, { ...entity, name })
+      props.refreshEntities()
     }
   }
 
   const handleContextMenu = (element: NodeData) => {
-    const { id, type } = element as NodeData
+    const { id, label, type } = element as NodeData
 
     if (id === type) {
       return
@@ -231,22 +241,31 @@ const Library: FC<Props> = props => {
       return (
         <Fragment>
           <MenuItem
+            id="btn-rename"
+            label={lang.tr('studio.library.renameVariableType')}
+            onClick={() => setEditing({ id, type: 'variableType' })}
+          />
+          <MenuItem
             id="btn-duplicate"
             label={lang.tr('studio.library.duplicateVariableType')}
-            onClick={() => duplicateVarType(id)}
+            onClick={() => duplicateVarType(label)}
           />
           <MenuItem
             id="btn-delete"
             label={lang.tr('studio.library.deleteVariableFromLibrary')}
             intent={Intent.DANGER}
-            onClick={() => deleteEntity(id)}
+            onClick={() => deleteEntity(label)}
           />
         </Fragment>
       )
     } else if (type == 'workflow') {
       return (
         <Fragment>
-          <MenuItem id="btn-rename" label={lang.tr('renameWorkflow')} onClick={() => setEditing(id)} />
+          <MenuItem
+            id="btn-rename"
+            label={lang.tr('renameWorkflow')}
+            onClick={() => setEditing({ id, type: 'flow' })}
+          />
           <MenuItem
             id="btn-duplicate"
             label={lang.tr('studio.library.duplicateWorkflow')}
@@ -282,11 +301,11 @@ const Library: FC<Props> = props => {
           isExpanded={expanded[path]}
           item={item}
           level={level}
-          isEditing={editing === item.id}
-          isEditingNew={false}
+          isEditing={editing?.id === item.id}
+          isEditingNew={editing?.new}
           contextMenuContent={handleContextMenu(item)}
           onClick={() => handleClick({ item, path, level })}
-          onSave={value => renameFlow(value)}
+          onSave={value => (editing?.type === 'flow' ? renameFlow(value) : renameVariableType(value))}
         />
 
         {expanded[path] && (
