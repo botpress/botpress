@@ -2,11 +2,11 @@ import fse from 'fs-extra'
 import _ from 'lodash'
 import path from 'path'
 
-const SystemExamplesByLang: _.Dictionary<SystemExamples> = {}
-
 export type SystemExamples = {
   [entity: string]: string[]
 }
+
+const SystemExamplesByLang: _.Dictionary<SystemExamples> = {}
 
 async function loadSystemExamples(language: string): Promise<SystemExamples> {
   const filePath = path.resolve(process.APP_DATA_PATH, `./system-examples/${language}.json`)
