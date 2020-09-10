@@ -6,7 +6,7 @@ import readline from 'readline'
 const StopWordsByLang: _.Dictionary<string[]> = {}
 
 async function loadStopWords(language: string): Promise<string[]> {
-  const filePath = path.join(__dirname, `stop-words/${language}.txt`)
+  const filePath = path.resolve(process.APP_DATA_PATH, `./stop-words/${language}.txt`)
 
   if (!(await fse.pathExists(filePath))) {
     return []
