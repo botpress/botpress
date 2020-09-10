@@ -6,7 +6,7 @@ import style from './style.scss'
 
 interface Props {
   name: string
-  items: { label: string; onClick?: () => void }[]
+  items: { label: string; count: number; onClick?: () => void }[]
   className: string
   itemLimit?: number
 }
@@ -30,7 +30,7 @@ const ItemsList: FC<Props> = props => {
           <li key={index}>
             <a onClick={item.onClick}>
               <span>{item.label}</span>
-              <span>(3)</span>
+              <span>({item.count})</span>
             </a>
           </li>
         ))}

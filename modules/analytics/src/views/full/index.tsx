@@ -312,6 +312,7 @@ const Analytics: FC<any> = ({ bp }) => {
 
     return results.map(x => ({
       label: `${nameRenderer ? nameRenderer(x.name) : x.name}`,
+      count: x.count,
       href: '',
       onClick: navigateToElement(x.name, type)
     }))
