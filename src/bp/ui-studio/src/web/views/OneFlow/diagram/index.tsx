@@ -93,6 +93,7 @@ import VariablesEditor from './VariablesEditor'
 import VariableForm from './VariableForm'
 import VariableTypesForm from './VariableTypesForm'
 import WorkflowToolbar from './WorkflowToolbar'
+import ZoomToolbar from './ZoomToolbar'
 
 interface OwnProps {
   childRef: (el: any) => void
@@ -154,7 +155,8 @@ class Diagram extends Component<Props> {
     editingNodeItem: null,
     currentTab: storage.get(DIAGRAM_TAB_KEY) || 'workflow',
     expandedNodes: [],
-    nodeInfos: []
+    nodeInfos: [],
+    zoomLevel: 100
   }
 
   constructor(props) {
@@ -192,6 +194,8 @@ class Diagram extends Component<Props> {
     if (this.props.highlightFilter) {
       this.manager.setHighlightFilter(this.props.highlightFilter)
     }
+
+    this.setState({ zoomLevel: this.diagramEngine.diagramModel.getZoomLevel() })
 
     // @ts-ignore
     window.showEventOnDiagram = () => {
@@ -1158,10 +1162,18 @@ class Diagram extends Component<Props> {
             >
               <DiagramWidget
                 ref={w => (this.diagramWidget = w)}
+                allowCanvasZoom={false}
                 deleteKeys={[]}
                 diagramEngine={this.diagramEngine}
                 maxNumberPointsPerLink={0}
                 inverseZoom={true}
+              />
+              <ZoomToolbar
+                zoomLevel={this.state.zoomLevel}
+                setZoomLevel={zoom => {
+                  this.diagramEngine.diagramModel.setZoomLevel(zoom)
+                  this.setState({ zoomLevel: zoom })
+                }}
               />
             </div>
             {currentTab === 'workflow' && this.props.currentFlow?.nodes?.length === 0 && (

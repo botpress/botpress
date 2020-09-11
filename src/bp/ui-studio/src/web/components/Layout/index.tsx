@@ -181,7 +181,15 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
     'go-module-qna': () => gotoUrl('/modules/qna'),
     'go-module-testing': () => gotoUrl('/modules/testing'),
     'go-module-analytics': () => gotoUrl('/modules/analytics'),
-    'go-understanding': () => gotoUrl('/modules/nlu')
+    'go-understanding': () => gotoUrl('/modules/nlu'),
+    'zoom-in': e => {
+      e.preventDefault()
+      console.log('in')
+    },
+    'zoom-out': e => {
+      e.preventDefault()
+      console.log('out')
+    }
   }
 
   const splitPanelLastSizeKey = `bp::${window.BOT_ID}::bottom-panel-size`

@@ -416,7 +416,9 @@
       "config": "Config",
       "content": "Content",
       "flows": "Flows"
-    }
+    },
+    "zoomOut": "Zoom Out",
+    "zoomIn": "Zoom In"
   },
   "toolbar": {
     "emulator": "Emulator",
