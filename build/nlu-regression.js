@@ -2,6 +2,8 @@ const fs = require('fs')
 const axios = require('axios').default
 const _ = require('lodash')
 const chalk = require('chalk')
+const getos = require('getos')
+const os = require('os')
 
 const repoRootDir = `${__dirname}/..`
 const nluTestingDir = `${repoRootDir}/modules/nlu-testing/`
@@ -102,19 +104,18 @@ const runAllTests = async (axiosConfig, botInfo) => {
   return _.round((passedTests / tests.length) * 100, 1)
 }
 
-const compareScore = async (score, botInfo) => {
+const getPreviousScore = async botInfo => {
   const latestResultsFile = `${nluTestingDir}/src/bot-templates/${botInfo.template.id}/latest-results.csv`
   const latestResultsContent = fs.readFileSync(latestResultsFile, { encoding: 'utf8' })
   const previousScoreOccurence = latestResultsContent.match(/summary: ((100|\d{1,2})[.]\d{1})?/gm)
   if (!previousScoreOccurence || !previousScoreOccurence[0]) {
-    return false
+    return
   }
 
   const previousScoreString = previousScoreOccurence[0].split(':')[1]
   const previousScore = parseFloat(previousScoreString)
-  console.log(chalk.yellow(`[${botInfo.id}] Previous Score Was:`), previousScore)
 
-  return score >= previousScore
+  return previousScore
 }
 
 const makeAxiosConfig = token => {
@@ -126,6 +127,43 @@ const makeAxiosConfig = token => {
   }
 }
 
+const getOs = () => {
+  return new Promise((resolve, error) => {
+    getos((err, os) => {
+      if (err) {
+        error(err)
+      } else {
+        resolve(os)
+      }
+    })
+  }).catch(_err => ({
+    os: os.platform(),
+    dist: 'default',
+    codename: 'N/A',
+    release: 'N/A'
+  }))
+}
+
+const isLinuxUbuntu = distribution => {
+  const { os, dist } = distribution
+  return os.toLowerCase() === 'linux' && dist.toLowerCase().includes('ubuntu')
+}
+
+const handleRegression = async botInfo => {
+  const distribution = await getOs()
+
+  if (!isLinuxUbuntu(distribution)) {
+    const { os, dist } = distribution
+    const msg = `[${botInfo.id}] There Seems To Be A Regression On Dataset... \
+                  However, Because You're Using OS ${os} ${dist} This May Be Normal. \
+                  Some tests are platform dependant.`
+    console.error(chalk.red(chalk.bold(msg)))
+    return
+  }
+
+  console.error(chalk.red(chalk.bold(`[${botInfo.id}] There Seems To Be A Regression On Dataset...`)))
+}
+
 const runRegressionForBot = async (axiosConfig, botInfo) => {
   await createBot(axiosConfig, botInfo)
   await waitForTraining(axiosConfig, botInfo)
@@ -134,13 +172,22 @@ const runRegressionForBot = async (axiosConfig, botInfo) => {
   const score = await runAllTests(axiosConfig, botInfo)
   console.log(chalk.yellow(`[${botInfo.id}] Score:`), score)
 
-  const testPasses = await compareScore(score, botInfo)
-  if (!testPasses) {
-    console.error(chalk.red(chalk.bold(`[${botInfo.id}] There Seems To Be A Regression On Dataset...`)))
+  const previousScore = await getPreviousScore(botInfo)
+  if (_.isNull(previousScore) || _.isUndefined(previousScore)) {
+    console.error(chalk.red(chalk.bold(`[${botInfo.id}] Could not find previous score...`)))
     process.exit(1)
   }
 
+  console.log(chalk.yellow(`[${botInfo.id}] Previous Score Was:`), previousScore)
+
+  const testPasses = score >= previousScore
+  if (!testPasses) {
+    await handleRegression(botInfo)
+    return false
+  }
+
   console.log(chalk.green(chalk.bold(`[${botInfo.id}] No Regression Noted!`)))
+  return true
 }
 
 const main = async () => {
@@ -171,8 +218,13 @@ const main = async () => {
   }
 
   try {
-    await runRegressionForBot(axiosConfig, testyInfo)
-    await runRegressionForBot(axiosConfig, slotyInfo)
+    let testPasses = true
+    testPasses = await runRegressionForBot(axiosConfig, testyInfo)
+    testPasses = await runRegressionForBot(axiosConfig, slotyInfo)
+
+    if (!testPasses) {
+      process.exit(1)
+    }
     process.exit(0)
   } catch (err) {
     console.error(chalk.red(chalk.bold('An Error Occured During Test:')))
