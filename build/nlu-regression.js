@@ -152,16 +152,17 @@ const isLinuxUbuntu = distribution => {
 const handleRegression = async botInfo => {
   const distribution = await getOs()
 
+  console.error(chalk.bold(chalk.red(`[${botInfo.id}] There Seems To Be A Regression On Dataset...`)))
+
   if (!isLinuxUbuntu(distribution)) {
     const { os, dist } = distribution
-    const msg = `[${botInfo.id}] There Seems To Be A Regression On Dataset... \
-                  However, Because You're Using OS ${os} ${dist} This May Be Normal. \
-                  Some tests are platform dependant.`
-    console.error(chalk.red(chalk.bold(msg)))
+    console.error(
+      chalk.red(
+        `However, because you're using OS ${os} ${dist} this may be normal as some tests are platform dependant.`
+      )
+    )
     return
   }
-
-  console.error(chalk.red(chalk.bold(`[${botInfo.id}] There Seems To Be A Regression On Dataset...`)))
 }
 
 const runRegressionForBot = async (axiosConfig, botInfo) => {
