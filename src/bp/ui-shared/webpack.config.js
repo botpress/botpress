@@ -66,6 +66,18 @@ if (process.argv.find(x => x.toLowerCase() === '--analyze')) {
 }
 
 const compiler = webpack(config)
+
+compiler.hooks.done.tap('ExitCodePlugin', stats => {
+  const errors = stats.compilation.errors
+  if (errors && errors.length && process.argv.indexOf('--watch') === -1) {
+    for (const e of errors) {
+      console.error(e.message)
+    }
+    console.error('Webpack build failed')
+    process.exit(1)
+  }
+})
+
 const postProcess = (err, stats) => {
   if (err) {
     throw err
