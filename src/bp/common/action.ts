@@ -3,6 +3,8 @@ import _ from 'lodash'
 
 import { EventCommonArgs, OutgoingEventCommonArgs } from './typings'
 
+export const CUSTOM_ACTION = '__customAction'
+
 export interface ActionInstruction {
   actionName: string
   argsStr: string
@@ -57,3 +59,11 @@ export const extractEventCommonArgs = (
     workflow: incomingEvent.state.workflow ?? ({} as IO.WorkflowHistory)
   }
 }
+
+export const snakeToCamel = (text: string) =>
+  text.replace(/([-_][a-z0-9])/g, group =>
+    group
+      .toUpperCase()
+      .replace('-', '')
+      .replace('_', '')
+  )

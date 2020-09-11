@@ -5,6 +5,7 @@ import React from 'react'
 
 import { RootStore } from './store'
 import Editor from './Editor'
+import LiteEditor from './LiteEditor'
 import SidePanel from './SidePanel'
 
 configure({ enforceActions: 'observed' })
@@ -36,3 +37,5 @@ export default class CodeEditor extends React.Component<{ bp: any }> {
     )
   }
 }
+
+export { LiteEditor }
