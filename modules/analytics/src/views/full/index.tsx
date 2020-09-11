@@ -231,8 +231,8 @@ const Analytics: FC<any> = ({ bp }) => {
       data: { questions },
       id
     } of fetchedQuestions) {
-      const question = questions[lang.getLocale()][0]
-      qnaQuestionsCache[`__qna__${id}`] = question
+      const question = questions[lang.getLocale()] || questions[lang.defaultLocale] || Object.values(questions)[0]
+      qnaQuestionsCache[`__qna__${id}`] = question[0]
     }
 
     const qnaQuestions = qnaIds.reduce((acc, id) => {
@@ -312,13 +312,15 @@ const Analytics: FC<any> = ({ bp }) => {
 
   const getMetric = metricName => state.metrics.filter(x => x.metric === metricName)
 
-  const getTopItems = (options: {
-    metricName: string
-    type: string
-    nameRenderer?: (name: string) => string
-    filter?: (x: any) => boolean
-  }) => {
-    const { metricName, type, nameRenderer, filter } = options
+  const getTopItems = (
+    metricName: string,
+    type: string,
+    options?: {
+      nameRenderer?: (name: string) => string
+      filter?: (x: any) => boolean
+    }
+  ) => {
+    const { nameRenderer, filter } = options || {}
 
     let metrics = getMetric(metricName)
     if (filter) {
@@ -400,16 +402,14 @@ const Analytics: FC<any> = ({ bp }) => {
         />
         <ItemsList
           name={lang.tr('module.analytics.mostUsedWorkflows')}
-          items={getTopItems({ metricName: 'enter_flow_count', type: 'workflow' })}
+          items={getTopItems('enter_flow_count', 'workflow')}
           itemLimit={10}
           className={cx(style.genericMetric, style.half, style.list)}
         />
         {!_.isEmpty(state.qnaQuestions) && (
           <ItemsList
             name={lang.tr('module.analytics.mostAskedQuestions')}
-            items={getTopItems({
-              metricName: 'msg_sent_qna_count',
-              type: 'qna',
+            items={getTopItems('msg_sent_qna_count', 'qna', {
               nameRenderer: id => state.qnaQuestions[id],
               // Filter out QnA metrics without submetric (legacy)
               filter: metric => metric.subMetric
@@ -444,7 +444,7 @@ const Analytics: FC<any> = ({ bp }) => {
             <div className={cx(style.genericMetric, style.quarter, style.list, style.multiple)}>
               <ItemsList
                 name={lang.tr('module.analytics.mostFailedWorkflows')}
-                items={getTopItems({ metricName: 'workflow_failed_count', type: 'workflow' })}
+                items={getTopItems('workflow_failed_count', 'workflow')}
                 itemLimit={3}
                 className={style.list}
               />
