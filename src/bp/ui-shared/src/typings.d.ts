@@ -75,6 +75,7 @@ declare module 'botpress/shared' {
     extend(langs)
     getLocale(): string
     getAvailable(): string[]
+    defaultLocale: string
   }
 
   export const telemetry: {
