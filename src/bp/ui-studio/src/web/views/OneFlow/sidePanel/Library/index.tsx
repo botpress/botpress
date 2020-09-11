@@ -226,11 +226,11 @@ const Library: FC<Props> = props => {
     const entity = props.entities.find(x => x.id === editing.id)
     const varTypeExists = props.entities.find(x => x.name === name)
 
-    setEditing(null)
     if (name && !varTypeExists) {
-      await axios.post(`${window.BOT_API_PATH}/nlu/entities/${entity.name}`, { ...entity, name })
+      await axios.post(`${window.BOT_API_PATH}/nlu/entities/${entity.name}`, { ...entity, name, id: name })
       props.refreshEntities()
     }
+    setEditing(null)
   }
 
   const handleContextMenu = (element: NodeData) => {
@@ -288,6 +288,7 @@ const Library: FC<Props> = props => {
   const printTree = (item: NodeData, level, parentId = '') => {
     const hasChildren = !!item.children?.length
     const path = `${parentId}${parentId && '/'}${item.id}`
+
     const isTopLevel = level === 0
     const isSelected = item.label === props.selectedWorkflow
     const treeItem = (
