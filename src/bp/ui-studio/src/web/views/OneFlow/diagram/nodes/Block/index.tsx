@@ -2,9 +2,8 @@ import { Intent, Menu, MenuItem } from '@blueprintjs/core'
 import { DecisionTriggerCondition, Flow, FormData, SubWorkflowNode } from 'botpress/sdk'
 import { contextMenu, lang, ShortcutLabel } from 'botpress/shared'
 import { FlowView } from 'common/typings'
-import React, { FC, useState } from 'react'
+import React, { FC } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
-import { AllPartialNode } from '~/actions'
 import { BaseNodeModel } from '~/views/FlowBuilder/diagram/nodes/BaseNodeModel'
 import { StandardPortWidget } from '~/views/FlowBuilder/diagram/nodes/Ports'
 
@@ -179,7 +178,7 @@ const BlockWidget: FC<Props> = ({
         setExpanded={canCollapse && handleExpanded}
         expanded={canCollapse && expanded}
         handleContextMenu={!node.isReadOnly && hasContextMenu && handleContextMenu}
-        defaultLabel={lang.tr(defaultLabels[nodeType])}
+        defaultLabel={nodeType === 'sub-workflow' ? node.name : lang.tr(defaultLabels[nodeType])}
         debugInfo={debugInfo}
         nodeType={nodeType}
       >
