@@ -96,7 +96,7 @@ const runAllTests = async (axiosConfig, botInfo) => {
     }
 
     passedTests += testResult.success ? 1 : 0
-    console.log(`[${botInfo.id}] (${i++} /${tests.length}) #${test.id}`, 'success: ', testResult.success)
+    console.log(`[${botInfo.id}] (${++i} /${tests.length}) #${test.id}`, 'success: ', testResult.success)
   }
 
   return _.round((passedTests / tests.length) * 100, 1)
