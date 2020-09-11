@@ -1,0 +1,31 @@
+{
+  "type": "object",
+  "properties": {
+    "enabled": {
+      "description": "Enable or disable this channel for this bot",
+      "default": false,
+      "type": "boolean"
+    },
+    "accountSID": {
+      "description": "Account SID found in the settings page https://www.twilio.com/console/project/settings (must be LIVE Credentials)",
+      "default": "your accound SID here",
+      "type": "string"
+    },
+    "authToken": {
+      "description": "Auth Token found in the settings page https://www.twilio.com/console/project/settings (must be LIVE Credentials)",
+      "default": "your auth token here",
+      "type": "string"
+    },
+    "$schema": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "accountSID",
+    "authToken",
+    "enabled"
+  ],
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
+
