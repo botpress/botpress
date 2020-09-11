@@ -8,16 +8,6 @@ const nluTestingDir = `${repoRootDir}/modules/nlu-testing/`
 
 const BASE = 'http://localhost:3000'
 
-const BOT_ID = 'testy'
-const BOT_INFO = {
-  id: BOT_ID,
-  name: 'testy',
-  template: {
-    id: 'bp-nlu-regression-testing',
-    moduleId: 'nlu-testing'
-  }
-}
-
 const USER_CREDENTIALS = {
   email: 'admin',
   password: '123456'
@@ -41,26 +31,34 @@ const signup = async () => {
   }
 }
 
-const createBot = async axiosConfig => {
+const loginOrSignup = async () => {
+  let token = await login()
+  if (!token) {
+    token = await signup()
+  }
+  return token
+}
+
+const createBot = async (axiosConfig, botInfo) => {
   try {
-    await axios.post(`${BASE}/api/v1/admin/bots`, BOT_INFO, axiosConfig)
+    await axios.post(`${BASE}/api/v1/admin/bots`, botInfo, axiosConfig)
   } catch (err) {
     const { status } = err.response
     if (status === 409) {
-      console.log('bot already exists')
+      console.log(`[${botInfo.id}] bot already exists`)
       return
     }
     throw err
   }
 }
 
-const waitForTraining = async axiosConfig => {
+const waitForTraining = async (axiosConfig, botInfo) => {
   return new Promise(resolve => {
     let i = 0
-    console.log(`training...`)
+    console.log(`[${botInfo.id}] training...`)
     const intervalId = setInterval(async () => {
       const { data: trainingSession } = await axios.get(
-        `${BASE}/api/v1/bots/${BOT_ID}/mod/nlu/training/en`,
+        `${BASE}/api/v1/bots/${botInfo.id}/mod/nlu/training/en`,
         axiosConfig
       )
 
@@ -69,7 +67,7 @@ const waitForTraining = async axiosConfig => {
         clearInterval(intervalId)
         resolve()
       } else if (status === 'training') {
-        console.log(`training... ${2 * ++i}s`)
+        console.log(`[${botInfo.id}] training... ${2 * ++i}s`)
       } else {
         throw new Error(`An error occured while training. Training status is: ${status}`)
       }
@@ -77,8 +75,8 @@ const waitForTraining = async axiosConfig => {
   })
 }
 
-const runAllTests = async axiosConfig => {
-  const baseNluTesting = `${BASE}/api/v1/bots/${BOT_ID}/mod/nlu-testing`
+const runAllTests = async (axiosConfig, botInfo) => {
+  const baseNluTesting = `${BASE}/api/v1/bots/${botInfo.id}/mod/nlu-testing`
   const { data: tests } = await axios.get(`${baseNluTesting}/tests`, axiosConfig)
 
   let passedTests = 0
@@ -98,14 +96,14 @@ const runAllTests = async axiosConfig => {
     }
 
     passedTests += testResult.success ? 1 : 0
-    console.log(`(${i++} /${tests.length}) #${test.id}`, 'success: ', testResult.success)
+    console.log(`[${botInfo.id}] (${i++} /${tests.length}) #${test.id}`, 'success: ', testResult.success)
   }
 
   return _.round((passedTests / tests.length) * 100, 1)
 }
 
-const compareScore = async score => {
-  const latestResultsFile = `${nluTestingDir}/src/bot-templates/bp-nlu-regression-testing/latest-results.csv`
+const compareScore = async (score, botInfo) => {
+  const latestResultsFile = `${nluTestingDir}/src/bot-templates/${botInfo.template.id}/latest-results.csv`
   const latestResultsContent = fs.readFileSync(latestResultsFile, { encoding: 'utf8' })
   const previousScoreOccurence = latestResultsContent.match(/summary: ((100|\d{1,2})[.]\d{1})?/gm)
   if (!previousScoreOccurence || !previousScoreOccurence[0]) {
@@ -114,42 +112,67 @@ const compareScore = async score => {
 
   const previousScoreString = previousScoreOccurence[0].split(':')[1]
   const previousScore = parseFloat(previousScoreString)
-  console.log(chalk.yellow('Previous Score Was:'), previousScore)
+  console.log(chalk.yellow(`[${botInfo.id}] Previous Score Was:`), previousScore)
 
   return score >= previousScore
 }
 
+const makeAxiosConfig = token => {
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'X-BP-Workspace': 'default'
+    }
+  }
+}
+
+const runRegressionForBot = async (axiosConfig, botInfo) => {
+  await createBot(axiosConfig, botInfo)
+  await waitForTraining(axiosConfig, botInfo)
+  console.log(chalk.green(chalk.bold(`[${botInfo.id}] Training Done!`)))
+
+  const score = await runAllTests(axiosConfig, botInfo)
+  console.log(chalk.yellow(`[${botInfo.id}] Score:`), score)
+
+  const testPasses = await compareScore(score, botInfo)
+  if (!testPasses) {
+    console.error(chalk.red(chalk.bold(`[${botInfo.id}] There Seems To Be A Regression On Dataset...`)))
+    process.exit(1)
+  }
+
+  console.log(chalk.green(chalk.bold(`[${botInfo.id}] No Regression Noted!`)))
+}
+
 const main = async () => {
+  const token = await loginOrSignup()
+  if (!token) {
+    console.error(chalk.red(chalk.bold('Unable To Login Or Sign Up...')))
+    process.exit(1)
+  }
+
+  const axiosConfig = makeAxiosConfig(token)
+
+  const testyInfo = {
+    id: 'testy',
+    name: 'testy',
+    template: {
+      id: 'bp-nlu-regression-testing',
+      moduleId: 'nlu-testing'
+    }
+  }
+
+  const slotyInfo = {
+    id: 'sloty',
+    name: 'sloty',
+    template: {
+      id: 'bp-nlu-slot-extraction',
+      moduleId: 'nlu-testing'
+    }
+  }
+
   try {
-    let token = await login()
-    if (!token) {
-      token = await signup()
-    }
-    if (!token) {
-      console.error(chalk.red(chalk.bold('Unable To Login Or Sign Up...')))
-    }
-
-    const axiosConfig = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'X-BP-Workspace': 'default'
-      }
-    }
-
-    await createBot(axiosConfig)
-    await waitForTraining(axiosConfig)
-    console.log(chalk.green(chalk.bold('Training Done!')))
-
-    const score = await runAllTests(axiosConfig)
-    console.log(chalk.yellow('Score:'), score)
-
-    const testPasses = await compareScore(score)
-    if (!testPasses) {
-      console.error(chalk.red(chalk.bold('There Seems To Be A Regression On NLU BPDS...')))
-      process.exit(1)
-    }
-
-    console.log(chalk.green(chalk.bold('No Regression Noted!')))
+    await runRegressionForBot(axiosConfig, testyInfo)
+    await runRegressionForBot(axiosConfig, slotyInfo)
     process.exit(0)
   } catch (err) {
     console.error(chalk.red(chalk.bold('An Error Occured During Test:')))
