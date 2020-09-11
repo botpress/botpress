@@ -1,9 +1,5 @@
 import { Icon, Tab, Tabs } from '@blueprintjs/core'
 import React, { FC, useEffect, useState } from 'react'
-import { FaSkullCrossbones } from 'react-icons/fa'
-import { GiLoad } from 'react-icons/gi'
-import { IoMdCloudDone } from 'react-icons/io'
-import { RiLoader2Line } from 'react-icons/ri'
 
 import { DataResult } from '../../shared/typings'
 
@@ -19,28 +15,30 @@ const NLUVisusalisation: FC<any> = props => {
   const onTestDone = res => {
     setDataResult(res)
   }
-  const [loadingDatasIcon, setLoadingDatasIcon] = useState(<GiLoad />)
+  const [loadingDatasIcon, setLoadingDatasIcon] = useState(<Icon icon="floppy-disk" />)
   const [dataLoaded, setDataLoaded] = useState(false)
   useEffect(() => {
     async function loadDatas() {
       const { data } = await props.bp.axios.post('/mod/nlu-testing/prepare-data', { timeout: 0 })
       const jobId = data
-      setLoadingDatasIcon(<RiLoader2Line />)
+
+      setLoadingDatasIcon(<Icon icon="flash" />)
+
       const interval = setInterval(async () => {
         const { data } = await props.bp.axios.get(`/mod/nlu-testing/long-jobs-status/${jobId}`)
+
         if (data.status === 'done') {
-          setLoadingDatasIcon(<IoMdCloudDone />)
+          setLoadingDatasIcon(<Icon icon="tick-circle" />)
           setDataLoaded(true)
           clearInterval(interval)
         } else if (data.status === 'crashed') {
           console.error(`Loading datas crashed : ${data.error}`)
-          setLoadingDatasIcon(<FaSkullCrossbones />)
+          setLoadingDatasIcon(<Icon icon="cross" />)
           clearInterval(interval)
-        } else {
-          setLoadingDatasIcon(<RiLoader2Line />)
         }
       }, 1000)
     }
+
     loadDatas()
       .then()
       .catch()
@@ -59,6 +57,7 @@ const NLUVisusalisation: FC<any> = props => {
           }
           panel={<NLUTests {...props} onTestDone={onTestDone} />}
         />
+
         {Object.keys(dataResult).length > 0 && (
           <Tab
             id="Confusion Matrix"
@@ -70,6 +69,7 @@ const NLUVisusalisation: FC<any> = props => {
             panel={<ConfusionMatrix {...props} dataResult={dataResult} />}
           />
         )}
+
         {Object.keys(dataResult).length > 0 && (
           <Tab
             id="Bars"
@@ -81,6 +81,7 @@ const NLUVisusalisation: FC<any> = props => {
             panel={<AccBars {...props} dataResult={dataResult} />}
           />
         )}
+
         {dataLoaded && (
           <Tab
             id="Outliers"
@@ -92,6 +93,7 @@ const NLUVisusalisation: FC<any> = props => {
             panel={<Outliers {...props} dataLoaded={dataLoaded} />}
           />
         )}
+
         {dataLoaded && (
           <Tab
             id="Scatter"
@@ -103,6 +105,7 @@ const NLUVisusalisation: FC<any> = props => {
             panel={<Scatter {...props} dataLoaded={dataLoaded} />}
           />
         )}
+
         {dataLoaded && (
           <Tab
             id="Similarity"

@@ -10,6 +10,7 @@ const SimilarityEmbeddings: FC<any> = props => {
       const { data } = await props.bp.axios.get('/mod/nlu-testing/similarityEmbeddings', { timeout: 0 })
       setSimEmb(data)
     }
+
     similarityEmbeddings()
       .then()
       .catch()
@@ -17,8 +18,8 @@ const SimilarityEmbeddings: FC<any> = props => {
 
   if (!props.dataLoaded) {
     return <h3>Please wait for the data to be embeded</h3>
-  } else {
-    return <Plot data={simEmb} title={'Cosine similarity for the mean of the embeddings per intent'} />
   }
+  return <Plot data={simEmb} title={'Cosine similarity for the mean of the embeddings per intent'} />
 }
+
 export default SimilarityEmbeddings

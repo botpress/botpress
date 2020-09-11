@@ -33,6 +33,7 @@ export interface VisData {
   expected: string
   predicted: string
 }
+
 export interface DataResult {
   intent: VisData[]
   slot: VisData[]

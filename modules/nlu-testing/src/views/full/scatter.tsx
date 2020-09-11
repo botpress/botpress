@@ -11,6 +11,7 @@ const Scatter: FC<any> = props => {
       const { data } = await props.bp.axios.get('/mod/nlu-testing/scatterEmbeddings', { timeout: 0 })
       setScatEmb(data)
     }
+
     scatterEmbeddings()
       .then()
       .catch()
@@ -18,8 +19,8 @@ const Scatter: FC<any> = props => {
 
   if (!props.dataLoaded) {
     return <h3>Please wait for the data to be embeded</h3>
-  } else {
-    return <Plots data={scatEmb} title={'Dimensionality reduction and scatter of intents embeddings'} />
   }
+  return <Plots data={scatEmb} title={'Dimensionality reduction and scatter of intents embeddings'} />
 }
+
 export default Scatter

@@ -60,14 +60,14 @@ export async function getTrainTestDatas(state: BotState, bp: typeof sdk) {
       vectorized_test.push({
         utt: entry.utterance,
         utt_emb,
-        intent: intent,
-        ctx: context
+        ctx: context,
+        intent
       } as Data)
     }
     if (vectorized_test.length) {
       await state.ghost.upsertFile(EMBEDDING_FOLDER, 'test_set.json', JSON.stringify(vectorized_test, undefined, 2))
     }
   }
-  console.log(vectorized_train, vectorized_test)
+
   return { train: vectorized_train, test: vectorized_test }
 }

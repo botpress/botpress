@@ -13,12 +13,7 @@ import path from 'path'
 import { Condition, CSVTest, Test, TestResult, TestResultDetails } from '../shared/typings'
 import { computeSummary } from '../shared/utils'
 import { getTrainTestDatas } from '../tools/data_loader'
-import {
-  computeEmbeddingSimilarity,
-  computeKmeansPairwiseIntent,
-  computeOutliers,
-  computeScatterEmbeddings
-} from '../tools/visualisation'
+import { computeEmbeddingSimilarity, computeOutliers, computeScatterEmbeddings } from '../tools/visualisation'
 
 import { JobInfo, VisuState } from './typings'
 
@@ -206,10 +201,6 @@ export default async (bp: typeof sdk, state: VisuState) => {
     res.send(await computeEmbeddingSimilarity(state[req.params.botId]))
   })
 
-  router.get('/similarityIntents', async (req, res) => {
-    res.send(await computeKmeansPairwiseIntent(state[req.params.botId]))
-  })
-
   router.get('/scatterEmbeddings', async (req, res) => {
     res.send(await computeScatterEmbeddings(state[req.params.botId], bp.logger))
   })
@@ -220,8 +211,7 @@ export default async (bp: typeof sdk, state: VisuState) => {
 
   router.get('/long-jobs-status/:jobId', async (req, res) => {
     // TODO this could be done with reddis to be share among multiples botpress instances
-    const newAxiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, { localUrl: true })
-    state[req.params.botId].axiosConfig = newAxiosConfig
+    state[req.params.botId].axiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, { localUrl: true })
     res.send(longJobsPool[req.params.jobId])
   })
 }

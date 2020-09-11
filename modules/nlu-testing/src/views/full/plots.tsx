@@ -1,6 +1,8 @@
 import React, { FC } from 'react'
 import Plot from 'react-plotly.js'
 
+// C.F https://plotly.com/javascript/reference/
+
 const Plots: FC<any> = props => {
   return (
     <Plot
