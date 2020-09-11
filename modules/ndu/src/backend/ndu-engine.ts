@@ -223,6 +223,11 @@ export class UnderstandingEngine {
 
     await this.trainIfNot()
 
+    // This can happen if one request acquired the lock and is waiting a training or loading the model
+    if (!this.predictor) {
+      return
+    }
+
     const predict = async (input: Features): Promise<ActionPredictions> => {
       const vec = this.featToVec(input)
       const preds = await this.predictor.predict(vec)

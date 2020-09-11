@@ -268,7 +268,7 @@ export class Botpress {
 
   async deployAssets() {
     try {
-      for (const dir of ['./pre-trained', './stop-words']) {
+      for (const dir of ['./pre-trained', './stop-words', './system-examples']) {
         await copyDir(path.resolve(__dirname, '../nlu-core/language', dir), path.resolve(process.APP_DATA_PATH, dir))
       }
 

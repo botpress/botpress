@@ -104,6 +104,12 @@ const copyStopWords = () => {
   return gulp.src('src/bp/nlu-core/language/stop-words/*').pipe(gulp.dest('./out/bp/nlu-core/language/stop-words'))
 }
 
+const copySystemExamples = () => {
+  return gulp
+    .src('src/bp/nlu-core/language/system-examples/*')
+    .pipe(gulp.dest('./out/bp/nlu-core/language/system-examples'))
+}
+
 const checkTranslations = cb => {
   const reorder = process.argv.find(x => x.toLowerCase() === '--reorder')
   exec(`node build/check-translations.js ${reorder && '--reorder'}`, (err, stdout, stderr) => {
@@ -121,7 +127,8 @@ const build = () => {
     createOutputDirs,
     copyBinaries,
     copyPreTrained,
-    copyStopWords
+    copyStopWords,
+    copySystemExamples
   ])
 }
 

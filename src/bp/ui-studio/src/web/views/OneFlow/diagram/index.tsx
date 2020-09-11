@@ -448,10 +448,6 @@ class Diagram extends Component<Props> {
   }
 
   handleContextMenuNoElement = (event: React.MouseEvent) => {
-    if (this.props.defaultLang && this.props.defaultLang !== this.props.currentLang) {
-      return
-    }
-
     const point = this.manager.getRealPosition(event)
     const originatesFromOutPort = _.get(this.dragPortSource, 'parent.sourcePort.name', '').startsWith('out')
 
@@ -531,6 +527,11 @@ class Diagram extends Component<Props> {
 
   handleContextMenu = (event: React.MouseEvent) => {
     event.preventDefault()
+
+    if (this.props.defaultLang && this.props.defaultLang !== this.props.currentLang) {
+      toast.info('studio.flow.cannotAddContent')
+      return
+    }
 
     const target = this.diagramWidget.getMouseElement(event)
     if (!target && !this.props.readOnly) {
