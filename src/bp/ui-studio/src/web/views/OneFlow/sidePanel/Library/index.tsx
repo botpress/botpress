@@ -224,9 +224,10 @@ const Library: FC<Props> = props => {
 
   const renameVariableType = async (name: string) => {
     const entity = props.entities.find(x => x.id === editing.id)
+    const varTypeExists = props.entities.find(x => x.name === name)
 
     setEditing(null)
-    if (name) {
+    if (name && !varTypeExists) {
       await axios.post(`${window.BOT_API_PATH}/nlu/entities/${entity.name}`, { ...entity, name })
       props.refreshEntities()
     }
