@@ -22,7 +22,7 @@ interface Params {
 interface Props {
   axios: AxiosStatic
   language: string
-  event: ApiFlaggedEvent
+  event: ApiFlaggedEvent | null
   selected: string
   params: Params
   onSelect: (id: string | null) => void
@@ -114,7 +114,7 @@ class IntentPicker extends React.Component<Props, State> {
   renderParamsForm() {
     const { event, params, selected: selectedItemName } = this.props
 
-    const eventContexts = event.nluContexts || []
+    const eventContexts = event?.nluContexts || []
     const selectedItem = this.state.intents.find(intent => intent.name === selectedItemName)
     const newContexts = without(eventContexts, ...selectedItem.contexts)
 

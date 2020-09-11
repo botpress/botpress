@@ -32,6 +32,6 @@ export default (bp: typeof sdk, db: Database) => {
       throw new Error(`Invalid unix timestamp format ${unix}.`)
     }
 
-    return momentDate.toDate()
+    return moment.utc(momentDate.format('YYYY-MM-DD')).toDate()
   }
 }

@@ -3,7 +3,7 @@ import Overlay from '../../ui-shared-lite/Overlay'
 import ToolTip from '../../ui-shared-lite/ToolTip'
 
 import { sendTelemetry, startFallback } from './telemetry'
-import { lang, langAvaibale, langExtend, langInit, langLocale } from './translations'
+import { defaultLocale, lang, langAvaibale, langExtend, langInit, langLocale } from './translations'
 import { isInputFocused } from './utils/inputs'
 import { controlKey, keyMap } from './utils/keyboardShortcuts'
 import { Commander } from './Commander'
@@ -49,7 +49,8 @@ exports.lang = {
   init: langInit,
   extend: langExtend,
   getLocale: langLocale,
-  getAvailable: langAvaibale
+  getAvailable: langAvaibale,
+  defaultLocale
 }
 exports.toast = toast
 exports.utils = { controlKey, keyMap, isInputFocused }

@@ -1,4 +1,3 @@
-import { Tooltip } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC } from 'react'
@@ -7,14 +6,18 @@ import style from './style.scss'
 
 interface Props {
   name: string
-  items: { label: string; onClick?: () => void }[]
+  items: { label: string; count: number; onClick?: () => void }[]
   className: string
-  itemLimit: number
-  hasTooltip?: boolean
+  itemLimit?: number
 }
 
 const ItemsList: FC<Props> = props => {
-  const { items, name, className, itemLimit, hasTooltip } = props
+  const { name, className, itemLimit } = props
+  let { items } = props
+
+  if (itemLimit) {
+    items = items.slice(0, itemLimit)
+  }
 
   return (
     <div className={className}>
@@ -23,15 +26,12 @@ const ItemsList: FC<Props> = props => {
         <p className={cx(style.emptyState, style.alignedLeft)}>{lang.tr('module.analytics.noDataAvailable')}</p>
       )}
       <ol>
-        {items.slice(0, itemLimit).map((item, index) => (
+        {items.map((item, index) => (
           <li key={index}>
-            {hasTooltip ? (
-              <Tooltip content={item.label}>
-                <a onClick={item.onClick}>{item.label}</a>
-              </Tooltip>
-            ) : (
-              <a onClick={item.onClick}>{item.label}</a>
-            )}
+            <a onClick={item.onClick}>
+              <span>{item.label}</span>
+              <span>({item.count})</span>
+            </a>
           </li>
         ))}
       </ol>
