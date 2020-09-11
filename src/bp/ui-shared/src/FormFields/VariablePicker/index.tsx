@@ -6,7 +6,6 @@ import React from 'react'
 import { FieldProps } from '~/Contents/Components/typings'
 
 import { lang } from '../../translations'
-import sharedStyle from '../../Contents/Components/style.scss'
 
 import style from './style.scss'
 import { VariablePickerProps } from './typings'
@@ -146,7 +145,7 @@ const VariablePicker: FC<Props> = ({
         <Button
           className={cx(style.btn, { [style.placeholder]: !activeItem })}
           text={btnText}
-          rightIcon={'double-caret-vertical'}
+          rightIcon={'chevron-down'}
         />
       )}
     </SimpleDropdown>

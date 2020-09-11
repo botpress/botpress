@@ -176,7 +176,8 @@ class Diagram extends Component<Props> {
       addMessage: this.addMessage.bind(this),
       getExpandedNodes: () => this.getStateProperty('expandedNodes'),
       setExpandedNodes: this.updateExpandedNodes.bind(this),
-      getDebugInfo: this.getDebugInfo
+      getDebugInfo: this.getDebugInfo,
+      getFlows: () => this.getPropsProperty('flows')
     }
 
     this.diagramEngine = new DiagramEngine()
@@ -442,6 +443,7 @@ class Diagram extends Component<Props> {
     gotoSubWorkflow: (point: Point, flowName: string) => {
       this.props.createFlowNode({ ...point, type: 'sub-workflow', flow: flowName })
       this.props.refreshCallerFlows(flowName)
+      this.props.updateFlowNode({ isNew: false })
     }
   }
 

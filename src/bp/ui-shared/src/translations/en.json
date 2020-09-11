@@ -235,6 +235,8 @@
   "format": "Format",
   "input": "Input",
   "output": "Output",
+  "inputs": "Inputs",
+  "outputs": "Outputs",
   "tolerance": "Tolerance",
   "enumeration": "Enumeration",
   "values": "Values",

@@ -123,6 +123,7 @@
       }
     },
     "library": {
+      "setVarValueTo": "Définir la valeur de {varName} à",
       "savedBlocks": "Blocs Enregistrés",
       "savedWorkflows": "Workflows Enregistrés",
       "variableTypes": "Types de Variables",
@@ -130,6 +131,7 @@
       "addPattern": "Ajouter Expression Régulière",
       "addComplex": "Ajouter Complexe",
       "addType": "Ajouter un type",
+      "enterValue": "Entrer une valeur",
       "editingSubWorkflowWarning": "Modifier ce workflow aura un impact sur toutes ses instances liées.",
       "deleteVariableFromLibrary": "Supprimer la variable de la librairie",
       "duplicateVariableType": "Dupliquer le type de variable",

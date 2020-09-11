@@ -1,5 +1,5 @@
 import { Intent, Menu, MenuItem } from '@blueprintjs/core'
-import { DecisionTriggerCondition, FormData, SubWorkflowNode } from 'botpress/sdk'
+import { DecisionTriggerCondition, Flow, FormData, SubWorkflowNode } from 'botpress/sdk'
 import { contextMenu, lang, ShortcutLabel } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import React, { FC, useState } from 'react'
@@ -14,7 +14,6 @@ import style from '../Components/style.scss'
 import NodeHeader from '../Components/NodeHeader'
 import NodeWrapper from '../Components/NodeWrapper'
 import ExecuteContents from '../ExecuteContents'
-import OutcomeContents from '../OutcomeContents'
 import PromptContents from '../PromptContents'
 import RouterContents from '../RouterContents'
 import SaySomethingContents from '../SaySomethingContents'
@@ -24,7 +23,6 @@ import TriggerContents from '../TriggerContents'
 interface Props {
   node: BlockModel
   getCurrentFlow: () => FlowView
-  updateFlowNode: (props: AllPartialNode) => void
   onDeleteSelectedElements: () => void
   editNodeItem: (node: BlockModel, index: number) => void
   selectedNodeItem: () => { node: BlockModel; index: number }
@@ -36,6 +34,7 @@ interface Props {
   getExpandedNodes: () => string[]
   setExpanded: (id: string, expanded: boolean) => void
   getDebugInfo: (nodeName: string) => NodeDebugInfo
+  getFlows: () => Flow[]
 }
 
 const defaultLabels = {
@@ -56,7 +55,6 @@ const BlockWidget: FC<Props> = ({
   editNodeItem,
   onDeleteSelectedElements,
   selectedNodeItem,
-  updateFlowNode,
   getConditions,
   switchFlowNode,
   addCondition,
@@ -64,7 +62,8 @@ const BlockWidget: FC<Props> = ({
   getLanguage,
   getExpandedNodes,
   setExpanded,
-  getDebugInfo
+  getDebugInfo,
+  getFlows
 }) => {
   const { nodeType } = node
 
@@ -151,7 +150,17 @@ const BlockWidget: FC<Props> = ({
           />
         )
       case 'sub-workflow':
-        return <SubworkflowContents node={node} selectedNodeItem={selectedNodeItem} editNodeItem={editNodeItem} />
+        const subFlowName = getCurrentFlow().nodes.find(x => x.name === node.name)?.flow
+        const subFlow = getFlows().find(x => x.name === subFlowName)
+
+        return (
+          <SubworkflowContents
+            node={node}
+            variables={subFlow?.variables || []}
+            selectedNodeItem={selectedNodeItem}
+            editNodeItem={editNodeItem}
+          />
+        )
       default:
         return null
     }
@@ -252,7 +261,6 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
   private deleteSelectedElements: () => void
   private getConditions: () => DecisionTriggerCondition[]
   private getCurrentFlow: () => FlowView
-  private updateFlowNode: (props: AllPartialNode) => void
   private switchFlowNode: (id: string) => void
   private addCondition: (nodeType: string) => void
   private addMessage: () => void
@@ -260,6 +268,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
   private getExpandedNodes: () => string[]
   private setExpandedNodes: (id: string, expanded: boolean) => void
   private getDebugInfo: (nodeName: string) => NodeDebugInfo
+  private getFlows: () => Flow[]
 
   constructor(methods) {
     super('block')
@@ -268,7 +277,6 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
     this.selectedNodeItem = methods.selectedNodeItem
     this.deleteSelectedElements = methods.deleteSelectedElements
     this.getCurrentFlow = methods.getCurrentFlow
-    this.updateFlowNode = methods.updateFlowNode
     this.getConditions = methods.getConditions
     this.switchFlowNode = methods.switchFlowNode
     this.addCondition = methods.addCondition
@@ -277,6 +285,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
     this.getExpandedNodes = methods.getExpandedNodes
     this.setExpandedNodes = methods.setExpandedNodes
     this.getDebugInfo = methods.getDebugInfo
+    this.getFlows = methods.getFlows
   }
 
   generateReactWidget(diagramEngine: DiagramEngine, node: BlockModel) {
@@ -287,7 +296,6 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
         getLanguage={this.getLanguage}
         editNodeItem={this.editNodeItem}
         onDeleteSelectedElements={this.deleteSelectedElements}
-        updateFlowNode={this.updateFlowNode}
         selectedNodeItem={this.selectedNodeItem}
         getConditions={this.getConditions}
         switchFlowNode={this.switchFlowNode}
@@ -296,6 +304,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
         getExpandedNodes={this.getExpandedNodes}
         setExpanded={this.setExpandedNodes}
         getDebugInfo={this.getDebugInfo}
+        getFlows={this.getFlows}
       />
     )
   }
