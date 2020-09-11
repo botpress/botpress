@@ -28,5 +28,8 @@
   ],
   "contexts": [
     "built-in"
-  ]
+  ],
+  "metadata": {
+    "enabled": true
+  }
 }

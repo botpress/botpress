@@ -2,6 +2,7 @@
 // Please do not change this file!
 interface CssExports {
   'addBtn': string;
+  'checkboxWrapper': string;
   'collapsibleWrapper': string;
   'content': string;
   'contentAnswer': string;
@@ -14,6 +15,7 @@ interface CssExports {
   'error': string;
   'errorIcon': string;
   'errorsList': string;
+  'filterWrapper': string;
   'hasError': string;
   'header': string;
   'headerWrapper': string;

@@ -1,5 +1,6 @@
-import { Button, FileInput, Icon, Intent, Position, Tooltip } from '@blueprintjs/core'
+import { Button, FileInput, Icon, Intent } from '@blueprintjs/core'
 import React, { FC, Fragment, useReducer } from 'react'
+import ToolTip from '../../../../../ui-shared-lite/ToolTip'
 
 import { lang } from '../../../translations'
 import wrapperStyle from '../../../FormFields/FieldWrapper/style.scss'
@@ -83,7 +84,7 @@ const Upload: FC<UploadFieldProps> = props => {
       {value && (
         <div style={{ backgroundImage: `url('${value}')` }} className={style.imgWrapper}>
           <div className={style.imgWrapperActions}>
-            <Tooltip content={lang('deleteImage')} position={Position.TOP}>
+            <ToolTip content={lang('deleteImage')}>
               <Button
                 className={style.deleteImg}
                 minimal
@@ -92,7 +93,7 @@ const Upload: FC<UploadFieldProps> = props => {
                 icon="trash"
                 onClick={deleteFile}
               ></Button>
-            </Tooltip>
+            </ToolTip>
           </div>
         </div>
       )}

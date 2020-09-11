@@ -164,6 +164,7 @@
       "mustHaveOutcomes": "Workflows must have at least one success and one failure outcome",
       "referenceCount": "{count} {count, plural, one {reference} other {references}}",
       "noReferences": "Not used",
+      "cannotAddContent": "Adding new content is disabled when not in the default language",
       "emptyWorkflow": "Right-click or drag and drop blocks to start designing your workflow.",
       "chips": "Chips",
       "condition": {

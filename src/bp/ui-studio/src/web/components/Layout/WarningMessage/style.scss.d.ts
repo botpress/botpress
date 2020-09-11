@@ -2,7 +2,6 @@
 // Please do not change this file!
 interface CssExports {
   'warning': string;
-  'warning_container': string;
   'warning_icon': string;
   'warning_text': string;
 }

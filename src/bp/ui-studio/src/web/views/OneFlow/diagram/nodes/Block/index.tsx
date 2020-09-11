@@ -1,6 +1,6 @@
 import { Intent, Menu, MenuItem } from '@blueprintjs/core'
 import { DecisionTriggerCondition, ExecuteNode, FormData, SubWorkflowNode } from 'botpress/sdk'
-import { contextMenu, lang, ShortcutLabel } from 'botpress/shared'
+import { contextMenu, lang, ShortcutLabel, toast } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import React, { FC, useState } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
@@ -67,10 +67,17 @@ const BlockWidget: FC<Props> = ({
   getDebugInfo
 }) => {
   const { nodeType } = node
+  const { currentLang, defaultLang } = getLanguage()
 
   const handleContextMenu = e => {
     e.stopPropagation()
     e.preventDefault()
+
+    if (defaultLang && defaultLang !== currentLang) {
+      toast.info('studio.flow.cannotAddContent')
+      return
+    }
+
     switchFlowNode(node.id)
     contextMenu(
       e,
@@ -109,7 +116,7 @@ const BlockWidget: FC<Props> = ({
   const outPortInHeader = !['failure', 'prompt', 'router', 'success', 'sub-workflow'].includes(nodeType)
   const canCollapse = !['failure', 'prompt', 'router', 'success', 'sub-workflow'].includes(nodeType)
   const hasContextMenu = !['failure', 'success'].includes(nodeType)
-  const { currentLang, defaultLang } = getLanguage()
+
   const debugInfo = getDebugInfo(node.name)
 
   const renderContents = () => {
