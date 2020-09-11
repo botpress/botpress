@@ -1171,8 +1171,8 @@ class Diagram extends Component<Props> {
               <ZoomToolbar
                 zoomLevel={this.state.zoomLevel}
                 setZoomLevel={zoom => {
-                  this.diagramEngine.diagramModel.setZoomLevel(zoom)
                   this.setState({ zoomLevel: zoom })
+                  this.diagramEngine.diagramModel.setZoomLevel(zoom)
                 }}
               />
             </div>

@@ -184,11 +184,15 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
     'go-understanding': () => gotoUrl('/modules/nlu'),
     'zoom-in': e => {
       e.preventDefault()
-      console.log('in')
+      const event = new CustomEvent('zoomEvent', { detail: 'in' })
+
+      document.dispatchEvent(event)
     },
     'zoom-out': e => {
       e.preventDefault()
-      console.log('out')
+      const event = new CustomEvent('zoomEvent', { detail: 'out' })
+
+      document.dispatchEvent(event)
     }
   }
 

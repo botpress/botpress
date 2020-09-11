@@ -1,7 +1,6 @@
 import { Button, Icon, Tooltip } from '@blueprintjs/core'
 import { Icons, lang, ToolTip, utils } from 'botpress/shared'
-import React, { FC, Fragment, useState } from 'react'
-import { HotKeys } from 'react-hotkeys'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 
 import style from './style.scss'
 
@@ -11,13 +10,25 @@ interface Props {
 }
 
 const ZoomToolbar: FC<Props> = ({ zoomLevel, setZoomLevel }) => {
+  const handleZoomEvent = event => {
+    if (event.detail === 'in') {
+      zoomIn()
+    } else {
+      zoomOut()
+    }
+  }
+
+  useEffect(() => {
+    document.addEventListener('zoomEvent', handleZoomEvent, false)
+
+    return () => document.removeEventListener('zoomEvent', handleZoomEvent, false)
+  }, [zoomLevel])
+
   const zoomIn = () => {
-    console.log('test')
     setZoomLevel(zoomLevel + 25)
   }
 
   const zoomOut = () => {
-    console.log('test out')
     setZoomLevel(zoomLevel - 25)
   }
 
