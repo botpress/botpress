@@ -1,4 +1,4 @@
-utterance,context,conditions,status,date: 8/12/2020,summary: 52.8
+utterance,context,conditions,status,date: 9/14/2020,summary: 53.9
 A MP34 I WHAT I WISH FOR LOL,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,MP34",pass
 I wanto by a AKP447,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,AKP447",fail
 I wish to get my hands on a Ak-47,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,Ak-47",pass
@@ -39,7 +39,7 @@ I really want to eat a banana in the big apple,no-slot,"-intent,is,eat-fruit-slo
 In the big apple I wanna eat cherries,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,cherries",pass
 I'm going banana about eating this orange in the big apple tonight,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,orange",fail
 I'm going banana about eating this chile pepper in the big apple tonight,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,chile pepper",fail
-about to eat my lemon at the big apple right now,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,lemon",fail
+about to eat my lemon at the big apple right now,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,lemon",pass
 I want a flight which leaves Prague and land in Tataouine,1-entity,"-intent,is,book-flight-slot:to_city,is,Tataouine-slot:from_city,is,Prague",pass
 Sofia to Tokyo,1-entity,"-intent,is,book-flight-slot:to_city,is,Tokyo-slot:from_city,is,Sofia",fail
 flight to Tokyo,1-entity,"-intent,is,book-flight-slot:to_city,is,Tokyo",pass
