@@ -190,8 +190,14 @@ export default async (bp: typeof sdk, state: VisuState) => {
     }
   }
 
+  router.get('/prepare-data/:jobId', async (req, res) => {
+    state[req.params.botId].axiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, { localUrl: true })
+    res.send(longJobsPool[req.params.jobId])
+  })
+
   router.post('/prepare-data', async (req, res) => {
     const jobId = nanoid()
+    // Start the job embedding utterances in the background, don't wait for it as it would freeze and return a pingable ID
     // tslint:disable-next-line: no-floating-promises
     loadDatas(jobId, req.params.botId)
     res.send(jobId)
@@ -207,12 +213,6 @@ export default async (bp: typeof sdk, state: VisuState) => {
 
   router.get('/computeOutliers', async (req, res) => {
     res.send(computeOutliers(state[req.params.botId]))
-  })
-
-  router.get('/long-jobs-status/:jobId', async (req, res) => {
-    // TODO this could be done with reddis to be share among multiples botpress instances
-    state[req.params.botId].axiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, { localUrl: true })
-    res.send(longJobsPool[req.params.jobId])
   })
 }
 

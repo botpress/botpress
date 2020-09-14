@@ -49,3 +49,10 @@ export interface JobInfo {
   status: string
   error: string
 }
+
+export interface PlotlyDatas {
+  x: string[]
+  y: string[]
+  z: number[][]
+  type: string
+}

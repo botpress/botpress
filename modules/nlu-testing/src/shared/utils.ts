@@ -14,6 +14,6 @@ export const computeAccuracy = (datas: VisData[]) => {
     }
     return acc
   }, 0)
-  const totalPercent = _.round((total / datas.length) * 100, 1)
-  return totalPercent
+
+  return _.round((total / datas.length) * 100, 1)
 }

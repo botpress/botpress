@@ -25,7 +25,7 @@ const NLUVisusalisation: FC<any> = props => {
       setLoadingDatasIcon(<Icon icon="flash" />)
 
       const interval = setInterval(async () => {
-        const { data } = await props.bp.axios.get(`/mod/nlu-testing/long-jobs-status/${jobId}`)
+        const { data } = await props.bp.axios.get(`/mod/nlu-testing/prepare-data/${jobId}`)
 
         if (data.status === 'done') {
           setLoadingDatasIcon(<Icon icon="tick-circle" />)
