@@ -194,14 +194,14 @@ const QnAList: FC<Props> = ({
       disabled: items.length < 2,
       optionsItems: [
         {
-          label: lang.tr('module.qna.mostRecent'),
+          label: lang.tr('module.qna.mostRecentlyEdited'),
           selected: sortOption === 'mostRecent',
           action: () => {
             setSortOption('mostRecent')
           }
         },
         {
-          label: lang.tr('module.qna.leastRecent'),
+          label: lang.tr('module.qna.leastRecentlyEdited'),
           selected: sortOption === 'leastRecent',
           action: () => {
             setSortOption('leastRecent')
