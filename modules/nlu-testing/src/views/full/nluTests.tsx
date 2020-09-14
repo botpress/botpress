@@ -78,7 +78,6 @@ export default class NLUTests extends React.Component<Props, State> {
     this.setState({ working: true })
     await new Promise(resolve => this.setState({ testResults: {} }, resolve))
     const testResults = await this.api.runAllTests()
-    console.log('testResults   ', testResults)
     this.setState({ working: false, testResults })
     const dataResult: DataResult = { intent: [], slot: [], context: [], slotCount: [] }
     for (const res of Object.values(testResults)) {

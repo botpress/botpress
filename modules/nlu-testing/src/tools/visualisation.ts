@@ -88,7 +88,7 @@ export async function computeScatterEmbeddings(state: BotState, logger: sdk.Logg
         z: v.map(o => pcaTest.predict([o.utt_emb]).get(0, 2)),
         mode: 'markers',
         type: 'scatter3d',
-        name: `$ {k}_test`,
+        name: `${k}_test`,
         text: v.map(o => o.utt),
         marker: { size: 8, color: i }
       }

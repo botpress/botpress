@@ -400,7 +400,8 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
   }
 }
 
-function checkSlotMatch(nlu, slotName, expected): TestResultDetails {
+function checkSlotMatch(nlu: sdk.IO.EventUnderstanding, slotName: string, expected: string): TestResultDetails {
+  // TODO replace name of slot by it's type
   const received = _.get(nlu, `slots.${slotName}.source`, 'undefined')
   const success = received === expected
 
