@@ -171,7 +171,7 @@ export default class Engine implements NLU.Engine {
     }
 
     if (!trainAllCtx) {
-      model.data.output = this._mergeModelOutputs(model.data.output, previousModel.data.output)
+      model.data.output = this._mergeModelOutputs(model.data.output, previousModel.data.output, contexts)
     }
 
     trainDebug.forBot(this.botId, `Successfully finished ${languageCode} training`)
@@ -183,10 +183,18 @@ export default class Engine implements NLU.Engine {
     return Engine._trainingWorkerQueue.cancelTraining(trainSessionId)
   }
 
-  private _mergeModelOutputs(currentOutput: TrainOutput, previousOutput: TrainOutput): TrainOutput {
+  private _mergeModelOutputs(
+    currentOutput: TrainOutput,
+    previousOutput: TrainOutput,
+    allContexts: string[]
+  ): TrainOutput {
     const output = { ...currentOutput }
-    output.intent_model_by_ctx = { ...previousOutput.intent_model_by_ctx, ...currentOutput.intent_model_by_ctx }
-    output.oos_model = { ...previousOutput.oos_model, ...currentOutput.oos_model }
+
+    const previousIntents = _.pick(previousOutput.intent_model_by_ctx, allContexts)
+    const previousOOS = _.pick(previousOutput.oos_model, allContexts)
+
+    output.intent_model_by_ctx = { ...previousIntents, ...currentOutput.intent_model_by_ctx }
+    output.oos_model = { ...previousOOS, ...currentOutput.oos_model }
     return output
   }
 
