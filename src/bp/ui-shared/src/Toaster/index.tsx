@@ -24,7 +24,7 @@ const prepareMessage = (message: string | React.ReactElement, details?: string) 
 
 const successOptions = {
   delayed: false,
-  timeout: 'short',
+  timeout: 'medium',
   icon: 'tick-circle',
   key: 'success'
 }
@@ -38,7 +38,7 @@ const failureOptions = {
 
 const infoOptions = {
   delayed: false,
-  timeout: 'short',
+  timeout: 'medium',
   icon: 'info-sign',
   key: 'info'
 }
