@@ -62,7 +62,7 @@ export const testWebsiteAccess = async (label: string, url: string) => {
   const start = Date.now()
   let ip
   try {
-    ip = await dnsLookup(new URL(url).host)
+    ip = await dnsLookup(new URL(url).hostname)
     await axios.get(url)
 
     printRow(label, `${chalk.green('success')} (${Date.now() - start}ms)`)

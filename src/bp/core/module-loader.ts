@@ -201,6 +201,21 @@ export class ModuleLoader {
     }
   }
 
+  public async getVariableDefinitions() {
+    const definitions: string[] = []
+    const modules = this.getLoadedModules()
+
+    for (const module of modules) {
+      const resourceLoader = new ModuleResourceLoader(this.logger, module.name, this.ghost)
+      const def = await resourceLoader.getModuleVariableDefs()
+      if (def) {
+        definitions.push(def)
+      }
+    }
+
+    return definitions.join('\n')
+  }
+
   private async _loadModule(module: ModuleEntryPoint, name: string) {
     try {
       ModuleLoader.processModuleEntryPoint(module, name)

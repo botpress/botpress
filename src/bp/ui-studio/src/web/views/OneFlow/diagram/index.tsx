@@ -17,6 +17,7 @@ import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
 import { connect } from 'react-redux'
+import * as portals from 'react-reverse-portal'
 import { DefaultPortModel, DiagramEngine, DiagramWidget, NodeModel, PointModel } from 'storm-react-diagrams'
 import {
   addElementToLibrary,
@@ -101,6 +102,7 @@ interface OwnProps {
   selectedTopic: string
   selectedWorkflow: string
   flowPreview: boolean
+  editorPortal: portals.HtmlPortalNode
   highlightFilter: string
   showSearch: boolean
   hideSearch: () => void
@@ -139,6 +141,8 @@ const getExpandedNodes = () => {
     return []
   }
 }
+
+const autoOpenNodes = ['say_something', 'trigger', 'prompt', 'execute']
 
 class Diagram extends Component<Props> {
   private diagramEngine: ExtendedDiagramEngine
@@ -267,7 +271,7 @@ class Diagram extends Component<Props> {
     if (
       !prevState.editingNodeItem &&
       this.props.currentFlowNode?.isNew &&
-      ['say_something', 'trigger', 'prompt'].includes(this.props.currentFlowNode?.type)
+      autoOpenNodes.includes(this.props.currentFlowNode?.type)
     ) {
       this.editNodeItem(this.props.currentFlowNode, 0)
     }
@@ -389,7 +393,7 @@ class Diagram extends Component<Props> {
       })
     },
     executeNode: (point: Point, moreProps) =>
-      this.props.createFlowNode({ ...point, type: 'execute', next: [defaultTransition], ...moreProps }),
+      this.props.createFlowNode({ ...point, type: 'execute', next: [defaultTransition], ...moreProps, isNew: true }),
     routerNode: (point: Point) =>
       this.props.createFlowNode({
         ...point,
@@ -415,17 +419,17 @@ class Diagram extends Component<Props> {
         },
         next: [
           {
-            caption: lang.tr('studio.prompt.userAnswersCorrectly'),
+            caption: 'studio.prompt.userAnswersCorrectly',
             condition: 'thisNode.extracted === true',
             node: ''
           },
           {
-            caption: lang.tr('studio.prompt.userDoesNotAnswer'),
+            caption: 'studio.prompt.userDoesNotAnswer',
             condition: 'thisNode.timeout === true',
             node: ''
           },
           {
-            caption: lang.tr('studio.prompt.userCancels'),
+            caption: 'studio.prompt.userCancels',
             condition: 'thisNode.cancelled === true',
             node: ''
           }
@@ -1053,6 +1057,15 @@ class Diagram extends Component<Props> {
     this.props.updateFlowNode({ next: newTransitions })
   }
 
+  updateExecute = data => {
+    const { node, index } = this.state.editingNodeItem
+
+    this.props.switchFlowNode(node.id)
+    this.setState({ editingNodeItem: { node: { ...node, execute: { ...node.execute, ...data } }, index } })
+
+    this.props.updateFlowNode({ execute: { ...node.execute, ...data } })
+  }
+
   renderSearch = () => {
     return (
       this.props.showSearch && (
@@ -1090,6 +1103,8 @@ class Diagram extends Component<Props> {
       currentItem = node?.variable
     } else if (formType === 'router') {
       currentItem = node?.next
+    } else if (formType === 'execute') {
+      currentItem = node?.execute
     }
 
     const isQnA = this.props.selectedWorkflow === 'qna'
@@ -1241,8 +1256,16 @@ class Diagram extends Component<Props> {
         {formType === 'execute' && (
           <ExecuteForm
             node={this.props.currentFlowNode}
+            customKey={`${node?.id}`}
             deleteNode={this.deleteSelectedElements.bind(this)}
-            diagramEngine={this.diagramEngine}
+            contentLang={this.props.currentLang}
+            editorPortal={this.props.editorPortal}
+            formData={currentItem}
+            events={this.props.hints}
+            actions={this.props.actions}
+            variables={this.props.variables}
+            onUpdate={this.updateExecute.bind(this)}
+            onUpdateVariables={this.addVariable}
             close={() => {
               this.timeout = setTimeout(() => {
                 this.setState({ editingNodeItem: null })
@@ -1351,6 +1374,7 @@ const mapStateToProps = (state: RootReducer) => ({
   currentDiagramAction: state.flows.currentDiagramAction,
   canPasteNode: Boolean(state.flows.nodeInBuffer),
   skills: state.skills.installed,
+  actions: state.skills.actions,
   library: state.content.library,
   prompts: getPrompts(state),
   variables: getVariables(state),
