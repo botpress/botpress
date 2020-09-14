@@ -142,7 +142,7 @@ export default class Engine implements NLU.Engine {
       const ctxHasChanged = this._ctxHasChanged(previousIntents, intents)
       const modifiedCtx = contexts.filter(ctxHasChanged)
 
-      trainAllCtx = modifiedCtx.length === contexts.length
+      trainAllCtx = modifiedCtx.length >= contexts.length
       ctxToTrain = trainAllCtx ? contexts : modifiedCtx
     }
 
