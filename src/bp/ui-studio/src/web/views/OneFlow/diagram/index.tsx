@@ -124,7 +124,6 @@ type ExtendedDiagramEngine = {
 
 const EXPANDED_NODES_KEY = `bp::${window.BOT_ID}::expandedNodes`
 const DIAGRAM_TAB_KEY = `bp::${window.BOT_ID}::diagramTab`
-const ZOOM_KEY = `bp::${window.BOT_ID}::zoom`
 
 const getEmptyContent = content => {
   return {
@@ -155,7 +154,7 @@ class Diagram extends Component<Props> {
     currentTab: storage.get(DIAGRAM_TAB_KEY) || 'workflow',
     expandedNodes: [],
     nodeInfos: [],
-    zoomLevel: Number.parseInt(storage.get(ZOOM_KEY)) || 100
+    zoomLevel: 100
   }
 
   constructor(props) {
@@ -249,8 +248,8 @@ class Diagram extends Component<Props> {
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
 
-    // TODO find a way to make this work, see what the community says on gitter first
-    this.diagramEngine.diagramModel.setZoomLevel(this.state.zoomLevel)
+    // TODO find a way to use saved zoom level, right now this line doesn't work
+    // this.diagramEngine.diagramModel.setZoomLevel(this.state.zoomLevel)
 
     this.setState({
       expandedNodes: getExpandedNodes()
@@ -1208,7 +1207,6 @@ class Diagram extends Component<Props> {
                 zoomLevel={this.state.zoomLevel}
                 setZoomLevel={zoom => {
                   this.setState({ zoomLevel: zoom })
-                  storage.set(ZOOM_KEY, `${zoom}`)
                   this.diagramEngine.diagramModel.setZoomLevel(zoom)
                 }}
               />
