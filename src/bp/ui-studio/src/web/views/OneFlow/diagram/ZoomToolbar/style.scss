@@ -12,6 +12,10 @@
     box-shadow: none !important;
     border-radius: 5px;
 
+    &:disabled {
+      opacity: 0.4;
+    }
+
     svg {
       fill: var(--shark) !important;
     }
