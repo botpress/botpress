@@ -48,7 +48,7 @@ import {
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { history } from '~/components/Routes'
 import { SearchBar } from '~/components/Shared/Interface'
-import { toastSuccess } from '~/components/Shared/Utils'
+import { toastInfo, toastSuccess } from '~/components/Shared/Utils'
 import withLanguage from '~/components/Util/withLanguage'
 import {
   getAllFlows,
@@ -74,8 +74,6 @@ import { SkillCallNodeModel, SkillCallWidgetFactory } from '~/views/FlowBuilder/
 import { StandardNodeModel, StandardWidgetFactory } from '~/views/FlowBuilder/diagram/nodes/StandardNode'
 import { textToItemId } from '~/views/FlowBuilder/diagram/nodes_v2/utils'
 import style from '~/views/FlowBuilder/diagram/style.scss'
-
-import WarningMessage from '../../../components/Layout/WarningMessage'
 
 import { prepareEventForDiagram } from './debugger'
 import { BlockModel, BlockWidgetFactory } from './nodes/Block'
@@ -126,6 +124,7 @@ type ExtendedDiagramEngine = {
 
 const EXPANDED_NODES_KEY = `bp::${window.BOT_ID}::expandedNodes`
 const DIAGRAM_TAB_KEY = `bp::${window.BOT_ID}::diagramTab`
+const ZOOM_KEY = `bp::${window.BOT_ID}::zoom`
 
 const getEmptyContent = content => {
   return {
@@ -156,7 +155,7 @@ class Diagram extends Component<Props> {
     currentTab: storage.get(DIAGRAM_TAB_KEY) || 'workflow',
     expandedNodes: [],
     nodeInfos: [],
-    zoomLevel: 100
+    zoomLevel: Number.parseInt(storage.get(ZOOM_KEY)) || 100
   }
 
   constructor(props) {
@@ -178,7 +177,8 @@ class Diagram extends Component<Props> {
       addMessage: this.addMessage.bind(this),
       getExpandedNodes: () => this.getStateProperty('expandedNodes'),
       setExpandedNodes: this.updateExpandedNodes.bind(this),
-      getDebugInfo: this.getDebugInfo
+      getDebugInfo: this.getDebugInfo,
+      isSelected: this.isNodeSelected
     }
 
     this.diagramEngine = new DiagramEngine()
@@ -195,14 +195,18 @@ class Diagram extends Component<Props> {
       this.manager.setHighlightFilter(this.props.highlightFilter)
     }
 
-    this.setState({ zoomLevel: this.diagramEngine.diagramModel.getZoomLevel() })
-
     // @ts-ignore
     window.showEventOnDiagram = () => {
       return event => this.showEventOnDiagram(event)
     }
 
     this.searchRef = React.createRef()
+  }
+
+  isNodeSelected = (nodeId: string) => {
+    const queryParams = new URLSearchParams(window.location.search)
+
+    return queryParams.get('highlightedNode') === nodeId
   }
 
   getDebugInfo = (nodeName: string) => {
@@ -245,6 +249,9 @@ class Diagram extends Component<Props> {
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
 
+    // TODO find a way to make this work, see what the community says on gitter first
+    this.diagramEngine.diagramModel.setZoomLevel(this.state.zoomLevel)
+
     this.setState({
       expandedNodes: getExpandedNodes()
     })
@@ -252,6 +259,13 @@ class Diagram extends Component<Props> {
       deleteSelectedElements: this.deleteSelectedElements.bind(this),
       createFlow: this.createFlow.bind(this)
     })
+
+    if (this.props.defaultLang !== this.props.currentLang) {
+      this.showNotDefaultWarning()
+    }
+    if (this.props.currentFlow?.type === 'reusable' && this.props.defaultLang === this.props.currentLang) {
+      this.showEditSubWorkflowWarning()
+    }
   }
 
   componentWillUnmount() {
@@ -278,6 +292,22 @@ class Diagram extends Component<Props> {
     if (this.props.activeFormItem !== undefined && prevProps.activeFormItem !== this.props.activeFormItem) {
       clearTimeout(this.timeout)
       this.setState({ editingNodeItem: this.props.activeFormItem })
+    }
+
+    if (this.props.currentLang !== prevProps.currentLang && this.props.defaultLang !== this.props.currentLang) {
+      this.showNotDefaultWarning()
+    } else if (this.props.defaultLang === this.props.currentLang) {
+      toast.dismiss('notViewingDefaultLang')
+    }
+    if (
+      (this.props.currentFlow?.type !== prevProps.currentFlow?.type ||
+        this.props.currentLang !== prevProps.currentLang) &&
+      this.props.currentFlow?.type === 'reusable' &&
+      this.props.defaultLang === this.props.currentLang
+    ) {
+      this.showEditSubWorkflowWarning()
+    } else if (this.props.currentFlow?.type !== 'reusable' || this.props.defaultLang !== this.props.currentLang) {
+      toast.dismiss('editingSubWorkflowWarning')
     }
 
     if (this.diagramContainer) {
@@ -323,6 +353,24 @@ class Diagram extends Component<Props> {
       this.manager.setHighlightFilter()
       this.manager.syncModel()
     }
+  }
+
+  showNotDefaultWarning = () => {
+    toast.warning(
+      lang.tr('notViewingDefaultLang', {
+        language: lang.tr(lang.tr(`isoLangs.${this.props.currentLang}.name`).toLowerCase())
+      }),
+      '',
+      { timeout: 'infinite', hideDismiss: true, key: 'notViewingDefaultLang' }
+    )
+  }
+
+  showEditSubWorkflowWarning = () => {
+    toast.warning(lang.tr('studio.library.editingSubWorkflowWarning'), '', {
+      timeout: 'infinite',
+      hideDismiss: true,
+      key: 'editingSubWorkflowWarning'
+    })
   }
 
   updateTransitionNode = async (nodeId: string, index: number, newName: string) => {
@@ -504,18 +552,6 @@ class Diagram extends Component<Props> {
         <MenuItem text="Go to Reusable Workflow" icon="pivot" disabled={!hasSubFlows}>
           {this.props.reusableFlows?.map(flow => (
             <MenuItem text={flow.workflow} onClick={wrap(this.add.gotoSubWorkflow, point, flow.workflowPath)} />
-          ))}
-        </MenuItem>
-
-        <MenuItem tagName="span" text={lang.tr('skills')} icon="add">
-          {this.props.skills.map(skill => (
-            <MenuItem
-              key={skill.id}
-              text={lang.tr(skill.name)}
-              tagName="button"
-              onClick={wrap(this.add.skillNode, point, skill.id)}
-              icon={skill.icon}
-            />
           ))}
         </MenuItem>
       </Menu>,
@@ -1172,6 +1208,7 @@ class Diagram extends Component<Props> {
                 zoomLevel={this.state.zoomLevel}
                 setZoomLevel={zoom => {
                   this.setState({ zoomLevel: zoom })
+                  storage.set(ZOOM_KEY, `${zoom}`)
                   this.diagramEngine.diagramModel.setZoomLevel(zoom)
                 }}
               />
@@ -1336,16 +1373,6 @@ class Diagram extends Component<Props> {
               }, 200)
             }}
           />
-        )}
-        {this.props.defaultLang !== this.props.currentLang && (
-          <WarningMessage
-            message={lang.tr('notViewingDefaultLang', {
-              language: lang.tr(lang.tr(`isoLangs.${this.props.currentLang}.name`).toLowerCase())
-            })}
-          />
-        )}
-        {this.props.currentFlow?.type === 'reusable' && this.props.defaultLang === this.props.currentLang && (
-          <WarningMessage message={lang.tr('studio.library.editingSubWorkflowWarning')} />
         )}
       </Fragment>
     )

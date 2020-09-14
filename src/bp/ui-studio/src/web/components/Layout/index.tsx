@@ -1,5 +1,5 @@
 import { NLU } from 'botpress/sdk'
-import { lang, utils } from 'botpress/shared'
+import { lang, toast, utils } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { HotKeys } from 'react-hotkeys'
@@ -27,7 +27,6 @@ import CommandPalette from './CommandPalette'
 import GuidedTour from './GuidedTour'
 import LanguageServerHealth from './LangServerHealthWarning'
 import layout from './Layout.scss'
-import NotTrainedWarningComponent from './NotTrainedWarning'
 import Sidebar from './Sidebar'
 import StatusBar from './StatusBar'
 import Toolbar from './Toolbar'
@@ -83,6 +82,16 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
       window.removeEventListener('message', handleWebChatPanel)
     }
   }, [])
+
+  useEffect(() => {
+    const displayWarning = props.emulatorOpen && props.currentSession?.status !== 'done'
+
+    if (displayWarning) {
+      toast.warning(lang.tr('statusBar.trainWarning'), '', { key: 'trainWarning' })
+    }
+
+    return () => toast.dismiss('trainWarning')
+  }, [props.emulatorOpen, props.currentSession?.status])
 
   useEffect(() => {
     const trainStatusService = new TrainingStatusService(props.contentLang, props.trainSessionReceived)
@@ -255,7 +264,6 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
           <LanguageServerHealth />
         </div>
       </HotKeys>
-      <NotTrainedWarningComponent />
       <StatusBar
         langSwitcherOpen={langSwitcherOpen}
         toggleLangSwitcher={toggleLangSwitcher}
@@ -268,6 +276,7 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
 }
 
 const mapStateToProps = (state: RootReducer) => ({
+  currentSession: state.nlu.trainSession,
   viewMode: state.ui.viewMode,
   docHints: state.ui.docHints,
   emulatorOpen: state.ui.emulatorOpen,

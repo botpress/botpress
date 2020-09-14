@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { toast } from 'botpress/shared'
 import { StoredToken } from 'common/typings'
 import ms from 'ms'
 import { Component } from 'react'
@@ -34,8 +35,14 @@ interface Props {
   user: any
 }
 
+toast.init()
+
 class App extends Component<Props> {
   private interval
+
+  constructor(props) {
+    super(props)
+  }
 
   fetchData = () => {
     this.props.getModuleTranslations()

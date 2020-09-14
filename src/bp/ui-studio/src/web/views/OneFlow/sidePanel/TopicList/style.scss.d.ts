@@ -3,6 +3,7 @@
 interface CssExports {
   'active': string;
   'addBtn': string;
+  'confirmBody': string;
   'contextMenu': string;
   'draggable': string;
   'ellipsisText': string;
