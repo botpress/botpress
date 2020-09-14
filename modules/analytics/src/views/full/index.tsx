@@ -49,6 +49,9 @@ interface State {
   selectedChannel: string
   shownSection: string
   disableAnalyticsFetching?: boolean
+  qnaQuestions: {
+    [id: string]: string
+  }
 }
 
 interface ExportPeriod {
@@ -126,6 +129,11 @@ const fetchReducer = (state: State, action): State => {
       dateRange,
       disableAnalyticsFetching: true
     }
+  } else if (action.type === 'receivedQnaQuestions') {
+    return {
+      ...state,
+      qnaQuestions: action.data.qnaQuestions
+    }
   } else {
     throw new Error(`That action type isn't supported.`)
   }
@@ -135,6 +143,8 @@ const defaultChannels = [
   { value: 'all', label: lang.tr('module.analytics.channels.all') },
   { value: 'api', label: lang.tr('module.analytics.channels.api') }
 ]
+
+const qnaQuestionsCache = {}
 
 const Analytics: FC<any> = ({ bp }) => {
   const loadJson = useRef(null)
@@ -147,7 +157,8 @@ const Analytics: FC<any> = ({ bp }) => {
     previousRangeMetrics: [],
     pageTitle: lang.tr('module.analytics.dashboard'),
     selectedChannel: defaultChannels[0].value,
-    shownSection: 'dashboard'
+    shownSection: 'dashboard',
+    qnaQuestions: {}
   })
 
   useEffect(() => {
@@ -188,6 +199,11 @@ const Analytics: FC<any> = ({ bp }) => {
     })
   }, [state.dateRange, state.selectedChannel])
 
+  useEffect(() => {
+    // tslint:disable-next-line: no-floating-promises
+    fetchQnaQuestions()
+  }, [state.metrics])
+
   const fetchAnalytics = async (channel: string, dateRange): Promise<MetricEntry[]> => {
     const startDate = moment(dateRange[0]).unix()
     const endDate = moment(dateRange[1]).unix()
@@ -199,6 +215,37 @@ const Analytics: FC<any> = ({ bp }) => {
       }
     })
     return data.metrics
+  }
+
+  const fetchQnaQuestions = async () => {
+    const qnaIds = orderMetrics(getMetric('msg_sent_qna_count'))
+      .filter(m => m.name)
+      .slice(0, 10)
+      .map(m => m.name)
+
+    const fetchedQuestions = await Promise.all(
+      qnaIds.filter(id => !(id in qnaQuestionsCache)).map(id => fetchQnaQuestion(id.replace('__qna__', '')))
+    )
+
+    for (const {
+      data: { questions },
+      id
+    } of fetchedQuestions) {
+      const question = questions[lang.getLocale()] || questions[lang.defaultLocale] || Object.values(questions)[0]
+      qnaQuestionsCache[`__qna__${id}`] = question[0]
+    }
+
+    const qnaQuestions = qnaIds.reduce((acc, id) => {
+      acc[id] = qnaQuestionsCache[id]
+      return acc
+    }, {})
+
+    dispatch({ type: 'receivedQnaQuestions', data: { qnaQuestions } })
+  }
+
+  const fetchQnaQuestion = async (id: string): Promise<any> => {
+    const { data } = await bp.axios.get(`mod/qna/questions/${id}`)
+    return data
   }
 
   const handleChannelChange = async ({ target: { value: selectedChannel } }) => {
@@ -265,19 +312,37 @@ const Analytics: FC<any> = ({ bp }) => {
 
   const getMetric = metricName => state.metrics.filter(x => x.metric === metricName)
 
-  const getTopItems = (metricName: string, type: string) => {
-    const grouped = _.groupBy(getMetric(metricName), 'subMetric')
-    const results = _.orderBy(
+  const getTopItems = (
+    metricName: string,
+    type: string,
+    options?: {
+      nameRenderer?: (name: string) => string
+      filter?: (x: any) => boolean
+    }
+  ) => {
+    const { nameRenderer, filter } = options || {}
+
+    let metrics = getMetric(metricName)
+    if (filter) {
+      metrics = metrics.filter(filter)
+    }
+    const results = orderMetrics(metrics)
+
+    return results.map(x => ({
+      label: `${nameRenderer ? nameRenderer(x.name) : x.name}`,
+      count: x.count,
+      href: '',
+      onClick: navigateToElement(x.name, type)
+    }))
+  }
+
+  const orderMetrics = metrics => {
+    const grouped = _.groupBy(metrics, 'subMetric')
+    return _.orderBy(
       Object.keys(grouped).map(x => ({ name: x, count: _.sumBy(grouped[x], 'value') })),
       x => x.count,
       'desc'
     )
-
-    return results.map(x => ({
-      label: `${x.name} (${x.count})`,
-      href: '',
-      onClick: navigateToElement(x.name, type)
-    }))
   }
 
   const renderEngagement = () => {
@@ -288,12 +353,14 @@ const Analytics: FC<any> = ({ bp }) => {
     return (
       <div className={style.metricsContainer}>
         <NumberMetric
+          className={style.half}
           diffFromPreviousRange={newUserCountDiff}
           previousDateRange={state.previousDateRange}
           name={lang.tr('module.analytics.newUsers', { nb: getMetricCount('new_users_count') })}
           value={getNewUsersPercent()}
         />
         <NumberMetric
+          className={style.half}
           diffFromPreviousRange={activeUserCountDiff}
           previousDateRange={state.previousDateRange}
           name={lang.tr('module.analytics.returningUsers', { nb: getMetricCount('active_users_count') })}
@@ -314,8 +381,9 @@ const Analytics: FC<any> = ({ bp }) => {
 
     return (
       <div className={style.metricsContainer}>
-        <TimeSeriesChart name="Sessions" data={sessionsCount} className={style.threeQuarterGrid} channels={channels} />
+        <TimeSeriesChart name="Sessions" data={sessionsCount} className={style.fullGrid} channels={channels} />
         <NumberMetric
+          className={style.half}
           name={lang.tr('module.analytics.messageExchanged')}
           value={getAvgMsgPerSessions()}
           iconBottom="chat"
@@ -338,13 +406,17 @@ const Analytics: FC<any> = ({ bp }) => {
           itemLimit={10}
           className={cx(style.genericMetric, style.half, style.list)}
         />
-        <ItemsList
-          name={lang.tr('module.analytics.mostAskedQuestions')}
-          items={getTopItems('msg_sent_qna_count', 'qna')}
-          itemLimit={10}
-          hasTooltip
-          className={cx(style.genericMetric, style.half, style.list)}
-        />
+        {!_.isEmpty(state.qnaQuestions) && (
+          <ItemsList
+            name={lang.tr('module.analytics.mostAskedQuestions')}
+            items={getTopItems('msg_sent_qna_count', 'qna', {
+              nameRenderer: id => state.qnaQuestions[id],
+              // Filter out QnA metrics without submetric (legacy)
+              filter: metric => metric.subMetric
+            })}
+            className={cx(style.genericMetric, style.half, style.list)}
+          />
+        )}
       </div>
     )
   }

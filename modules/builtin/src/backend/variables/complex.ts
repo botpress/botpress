@@ -1,9 +1,11 @@
-import { BoxedVariable, PrimitiveVarType } from 'botpress/sdk'
+import sdk from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 
 import { common } from './common'
 
-class BoxedComplex extends BaseVariable<string> {
+interface Variable extends sdk.BoxedVariable<string> {}
+
+class BoxedComplex extends BaseVariable<string> implements Variable {
   constructor(args) {
     super(args)
   }
@@ -32,7 +34,7 @@ class BoxedComplex extends BaseVariable<string> {
   }
 }
 
-const ComplexVariableType: PrimitiveVarType = {
+const definition: sdk.PrimitiveVarType = {
   id: 'complex',
   config: {
     label: 'complex',
@@ -50,4 +52,4 @@ const ComplexVariableType: PrimitiveVarType = {
   box: BoxedComplex
 }
 
-export default ComplexVariableType
+export default definition

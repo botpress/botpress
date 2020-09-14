@@ -81,7 +81,7 @@ const ComplexForm: FC<Props> = ({
       }))
 
     const result = {
-      list_entities: items.filter(x => x.type === 'enum').map(x => x.subType),
+      list_entities: items.filter(x => x.type === 'enumeration').map(x => x.subType),
       pattern_entities: items.filter(x => x.type === 'pattern').map(x => x.subType)
     }
 
@@ -89,7 +89,7 @@ const ComplexForm: FC<Props> = ({
   }
 
   const choices = variables.display
-    .filter(x => ['enum', 'pattern'].includes(x.type))
+    .filter(x => ['enumeration', 'pattern'].includes(x.type))
     .map(({ label, subType }) => ({ label, value: subType }))
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={close}>

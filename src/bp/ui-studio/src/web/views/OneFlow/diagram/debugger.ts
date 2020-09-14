@@ -123,9 +123,9 @@ const processStackTrace = (
   traces: sdk.IO.JumpPoint[],
   context: sdk.IO.DialogContext,
   getNode: (flow: string, node: string) => NodeDebugInfo
-) => {
+): FlowNode[] => {
   if (!traces?.length) {
-    return
+    return []
   }
 
   const lastNode = _.last(traces)

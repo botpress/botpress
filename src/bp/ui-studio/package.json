@@ -68,6 +68,7 @@
     "react-loaders": "^3.0.1",
     "react-markdown": "^4.3.1",
     "react-redux": "^5.0.6",
+    "react-reverse-portal": "^2.0.0",
     "react-router": "4.3.1",
     "react-router-dom": "4.3.1",
     "react-select": "^2.4.2",

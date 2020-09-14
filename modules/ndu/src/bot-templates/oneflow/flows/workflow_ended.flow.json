@@ -3,33 +3,17 @@
   "catchAll": {},
   "label": "Workflow Ended",
   "description": "Users are redirected here at the end of a workflow when they need to provide feedback",
-  "nodes": [
+  "variables": [
     {
-      "id": "skill-b71567",
-      "type": "skill-call",
-      "skill": "choice",
-      "name": "feedbackChoice",
-      "flow": "skills/choice-b71567.flow.json",
-      "next": [
-        {
-          "caption": "User picked [yes]",
-          "condition": "temp['skill-choice-ret-k0tqq3ze5d'] == \"yes\"",
-          "node": "node-c127"
-        },
-        {
-          "caption": "User picked [no]",
-          "condition": "temp['skill-choice-ret-k0tqq3ze5d'] == \"no\"",
-          "node": "node-60f0"
-        },
-        {
-          "caption": "On failure",
-          "condition": "true",
-          "node": "node-049a"
-        }
-      ],
-      "onEnter": null,
-      "onReceive": null
-    },
+      "params": {
+        "name": "isSatisfied",
+        "description": null,
+        "defaultValue": false
+      },
+      "type": "boolean"
+    }
+  ],
+  "nodes": [
     {
       "id": "451f60deab",
       "name": "node-049a",
@@ -55,11 +39,7 @@
           "id": "workflow_ended",
           "params": {
             "outcome": "success",
-            "ignoredWorkflows": [
-              "misunderstood",
-              "workflow_ended",
-              "error"
-            ]
+            "ignoredWorkflows": ["misunderstood", "workflow_ended", "error"]
           }
         }
       ],
@@ -71,14 +51,29 @@
       "next": [
         {
           "condition": "true",
-          "node": "feedbackChoice"
+          "node": "prompt-1"
         }
       ],
-      "onEnter": [
-        "builtin/setVariable {\"type\":\"temp\",\"name\":\"eventId\",\"value\":\"{{event.payload.eventId}}\"}"
-      ],
+      "onEnter": [],
       "onReceive": null,
-      "type": "execute"
+      "type": "execute",
+      "execute": {
+        "actionName": "builtin/setVariable",
+        "params": {
+          "type": {
+            "source": "hardcoded",
+            "value": "temp"
+          },
+          "name": {
+            "source": "hardcoded",
+            "value": "eventId"
+          },
+          "value": {
+            "source": "hardcoded",
+            "value": "{{event.payload.eventId}}"
+          }
+        }
+      }
     },
     {
       "id": "53c079f447",
@@ -89,11 +84,18 @@
           "node": "node-049a"
         }
       ],
-      "onEnter": [
-        "builtin/sendFeedback {\"value\":\"1\"}"
-      ],
+      "onEnter": [],
       "onReceive": null,
-      "type": "execute"
+      "type": "execute",
+      "execute": {
+        "actionName": "builtin/sendFeedback",
+        "params": {
+          "value": {
+            "source": "hardcoded",
+            "value": "1"
+          }
+        }
+      }
     },
     {
       "id": "3cfb59a35f",
@@ -104,11 +106,76 @@
           "node": "node-049a"
         }
       ],
-      "onEnter": [
-        "builtin/sendFeedback {\"value\":\"-1\"}"
-      ],
+      "onEnter": [],
       "onReceive": null,
-      "type": "execute"
+      "type": "execute",
+      "execute": {
+        "actionName": "builtin/sendFeedback",
+        "params": {
+          "value": {
+            "source": "hardcoded",
+            "value": "-1"
+          }
+        }
+      }
+    },
+    {
+      "id": "74a6e04117",
+      "name": "prompt-1",
+      "next": [
+        {
+          "caption": "User answers correctly",
+          "condition": "thisNode.extracted === true",
+          "node": "router-1"
+        },
+        {
+          "caption": "User does not answer",
+          "condition": "thisNode.timeout === true",
+          "node": "node-049a"
+        },
+        {
+          "caption": "User Cancels",
+          "condition": "thisNode.cancelled === true",
+          "node": "node-049a"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "prompt",
+      "prompt": {
+        "params": {
+          "question": {
+            "en": "Was this helpful?"
+          },
+          "confirm": {
+            "en": null
+          },
+          "duration": 5,
+          "searchBackCount": 0,
+          "cancellable": true,
+          "confirmCancellation": false,
+          "output": "isSatisfied"
+        },
+        "type": "confirm"
+      }
+    },
+    {
+      "id": "f8ff9caff4",
+      "name": "router-1",
+      "next": [
+        {
+          "condition": "$isSatisfied.isTrue()",
+          "caption": "If isSatisfied is true",
+          "node": "node-c127"
+        },
+        {
+          "condition": "true",
+          "node": "node-60f0"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "router"
     }
   ]
 }

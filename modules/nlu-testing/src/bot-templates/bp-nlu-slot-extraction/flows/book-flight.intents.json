@@ -1,0 +1,36 @@
+{
+  "name": "book-flight",
+  "utterances": {
+    "en": [
+      "I want to book a flight from $from_city to $to_city",
+      "book me a trip leaving $from_city and arriving in $to_city",
+      "book me 2 adult business tickets to $to_city tomorrow on air france",
+      "book flight from: $from_city to: $to_city",
+      "flight $from_city $to_city",
+      "I want to leave $from_city as soon a possible to reach $to_city",
+      "trip starting at $from_city and landing in $to_city",
+      "I want to reach $to_city from $from_city",
+      "Can you reserve a flight to $to_city from $from_city"
+    ]
+  },
+  "slots": [
+    {
+      "id": "QlWeACIMoyUjs7P0Pvew4",
+      "name": "from_city",
+      "color": 1,
+      "entity": "city"
+    },
+    {
+      "id": "_7l5Unv5Oc6yI5Qo-337g",
+      "name": "to_city",
+      "color": 2,
+      "entity": "city"
+    }
+  ],
+  "contexts": [
+    "1-entity"
+  ],
+  "metadata": {
+    "enabled": true
+  }
+}

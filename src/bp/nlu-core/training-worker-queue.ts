@@ -1,5 +1,7 @@
 import { NLU } from 'botpress/sdk'
-import cluster, { Worker, worker } from 'cluster'
+import cluster, { Worker } from 'cluster'
+import _ from 'lodash'
+import { deserializeError, ErrorMessage, serializeError } from 'ml/error-utils'
 
 import { registerMsgHandler, spawnNewTrainingWorker, WORKER_TYPES } from '../cluster'
 
@@ -23,7 +25,7 @@ type IncomingPayload = Partial<{
   log: Log
   workerId: number
   output: TrainOutput
-  error: string
+  error: ErrorMessage
   progress: number
 }>
 type IncomingMessageType =
@@ -121,7 +123,7 @@ export class TrainingWorkerQueue {
         }
         if (msg.type === 'training_error') {
           process.off('message', handler)
-          reject(new Error(msg.payload.error!))
+          reject(deserializeError(msg.payload.error!))
         }
         if (msg.type === 'training_canceled' && msg.srcWorkerId === workerId) {
           process.off('message', handler)
@@ -207,17 +209,19 @@ if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.TRAINING) {
 
   const srcWorkerId = cluster.worker.id
   const logger: NLU.Logger = {
-    info: (info: string) => {
-      const msg: IncomingMessage = { type: 'log', payload: { log: { info } }, srcWorkerId }
-      process.send!(msg)
+    info: (msg: string) => {
+      const response: IncomingMessage = { type: 'log', payload: { log: { info: msg } }, srcWorkerId }
+      process.send!(response)
     },
-    warning: (warning: string) => {
-      const msg: IncomingMessage = { type: 'log', payload: { log: { warning } }, srcWorkerId }
-      process.send!(msg)
+    warning: (msg: string, err?: Error) => {
+      const warning = `${msg} ${serializeError(err)}`
+      const response: IncomingMessage = { type: 'log', payload: { log: { warning } }, srcWorkerId }
+      process.send!(response)
     },
-    error: (error: string) => {
-      const msg: IncomingMessage = { type: 'log', payload: { log: { error } }, srcWorkerId }
-      process.send!(msg)
+    error: (msg: string, err?: Error) => {
+      const error = `${msg} ${serializeError(err)}`
+      const response: IncomingMessage = { type: 'log', payload: { log: { error } }, srcWorkerId }
+      process.send!(response)
     }
   }
 
@@ -236,7 +240,7 @@ if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.TRAINING) {
       } catch (err) {
         const res: IncomingMessage = {
           type: 'training_error',
-          payload: { error: err.message },
+          payload: { error: serializeError(err) },
           srcWorkerId
         }
         process.send!(res)

@@ -21,6 +21,7 @@ const passThroughNodeProps: string[] = [
   'activeWorkflow',
   'prompt',
   'subflow',
+  'execute',
   'isReadOnly'
 ]
 export const DIAGRAM_PADDING: number = 100
@@ -234,8 +235,8 @@ export class DiagramManager {
       const outPort = link.getSourcePort().name.startsWith('out') ? link.getSourcePort() : link.getTargetPort()
       const targetPort = link.getSourcePort().name.startsWith('out') ? link.getTargetPort() : link.getSourcePort()
 
-      const output = outPort.getParent()['name']
-      const input = targetPort.getParent()['name']
+      const output = outPort?.getParent()['name']
+      const input = targetPort?.getParent()['name']
 
       if (nodeNames.includes(output) && nodeNames.includes(input)) {
         this.highlightedLinks.push(link.getID())

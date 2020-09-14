@@ -7,6 +7,7 @@
   "all": "All",
   "and": "and",
   "back": "Back",
+  "bug": "Bug",
   "builder": "Builder",
   "cancel": "Cancel",
   "card": "Card",
@@ -16,6 +17,7 @@
   "chooseFile": "Choose file...",
   "close": "Close",
   "code": "Code",
+  "codeNewAction": "Code New Action",
   "collapseAll": "Collapse All",
   "commander": {
     "backToAdmin": "Back to Admin",
@@ -53,6 +55,7 @@
   "delete": "Delete",
   "deleteCondition": "Delete Condition",
   "deleteContent": "Delete Content",
+  "deleteImage": "Delete Image",
   "deleteField": "Delete Field",
   "deleteNode": "Delete Node",
   "deletePrompt": "Delete Prompt",
@@ -244,6 +247,7 @@
   "examples": "Examples",
   "private": "Private",
   "uploading": "Uploading",
+  "uncategorized": "Uncategorized",
   "incomplete": "Incomplete",
   "active": "Active"
 }

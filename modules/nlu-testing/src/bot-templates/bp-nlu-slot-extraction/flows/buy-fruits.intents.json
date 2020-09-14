@@ -1,0 +1,31 @@
+{
+  "name": "buy-fruits",
+  "utterances": {
+    "en": [
+      "I want to buy an $fruit-to-buy",
+      "please let me buy a $fruit-to-buy",
+      "Can you get me a $fruit-to-buy ?",
+      "Do you sell any $fruit-to-buy ?",
+      "Where can I get my hands on a $fruit-to-buy ?",
+      "How much for a $fruit-to-buy ?",
+      "I need a $fruit-to-buy",
+      "$fruit-to-buy price",
+      "any $fruit-to-buy to sell  ?",
+      "a $fruit-to-buy is what I want"
+    ]
+  },
+  "slots": [
+    {
+      "id": "J9z8AMnK6FcgFpgUc_ieQ",
+      "name": "fruit-to-buy",
+      "color": 1,
+      "entity": "fruits"
+    }
+  ],
+  "contexts": [
+    "list"
+  ],
+  "metadata": {
+    "enabled": true
+  }
+}
