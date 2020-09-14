@@ -116,10 +116,22 @@ export const patchKnex = (knex: Knex): KnexExtended => {
       return knex.raw(exp1 + ' < ' + exp2)
     },
 
+    isBeforeOrOn: (d1: Knex.ColumnOrDate, d2: Knex.ColumnOrDate): Knex.Raw => {
+      const exp1 = columnOrDateFormat(d1)
+      const exp2 = columnOrDateFormat(d2)
+      return knex.raw(exp1 + ' <= ' + exp2)
+    },
+
     isAfter: (d1: Knex.ColumnOrDate, d2: Knex.ColumnOrDate): Knex.Raw => {
       const exp1 = columnOrDateFormat(d1)
       const exp2 = columnOrDateFormat(d2)
       return knex.raw(exp1 + ' > ' + exp2)
+    },
+
+    isAfterOrOn: (d1: Knex.ColumnOrDate, d2: Knex.ColumnOrDate): Knex.Raw => {
+      const exp1 = columnOrDateFormat(d1)
+      const exp2 = columnOrDateFormat(d2)
+      return knex.raw(exp1 + ' >= ' + exp2)
     },
 
     isBetween: (date: Knex.ColumnOrDate, betweenA: Knex.ColumnOrDate, betweenB: Knex.ColumnOrDate): Knex.Raw => {

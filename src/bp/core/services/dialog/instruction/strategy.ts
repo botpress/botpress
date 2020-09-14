@@ -1,9 +1,10 @@
 import { IO, Logger } from 'botpress/sdk'
-import { extractEventCommonArgs, parseActionInstruction } from 'common/action'
+import { extractEventCommonArgs, parseActionInstruction, snakeToCamel } from 'common/action'
 import { ActionServer, EventCommonArgs } from 'common/typings'
 import ActionServersService from 'core/services/action/action-servers-service'
 import ActionService from 'core/services/action/action-service'
 import { CMSService } from 'core/services/cms'
+import { DialogStore } from 'core/services/middleware/dialog-store'
 import { EventEngine } from 'core/services/middleware/event-engine'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
@@ -21,6 +22,10 @@ export interface InstructionStrategy {
   processInstruction(botId: string, instruction: Instruction, event): Promise<ProcessingResult>
 }
 
+const argsToConst = (fields: string[]) => {
+  return (fields ?? []).map(snakeToCamel).join(', ')
+}
+
 @injectable()
 export class ActionStrategy implements InstructionStrategy {
   constructor(
@@ -30,7 +35,8 @@ export class ActionStrategy implements InstructionStrategy {
     @inject(TYPES.ActionService) private actionService: ActionService,
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.CMSService) private cms: CMSService,
-    @inject(TYPES.ActionServersService) private actionServersService: ActionServersService
+    @inject(TYPES.ActionServersService) private actionServersService: ActionServersService,
+    @inject(TYPES.DialogStore) private dialogStore: DialogStore
   ) {}
 
   public static isSayInstruction(instructionFn: string): boolean {
@@ -98,7 +104,50 @@ export class ActionStrategy implements InstructionStrategy {
     return ProcessingResult.none()
   }
 
+  private async executeAction(botId, instruction, event: IO.IncomingEvent): Promise<ProcessingResult> {
+    const { code, params, actionName } = instruction.args
+
+    const { currentWorkflow } = event.state.session
+
+    const variables = this.dialogStore.getWorkflowVariables(botId, currentWorkflow!)
+    variables.map(({ name, type, subType }) => {
+      const boxedVar = event.state.workflow.variables[name]
+      if (!boxedVar) {
+        const variable = { type, subType, value: undefined, nbOfTurns: 5 }
+        const box = this.dialogStore.getBoxedVar(variable, botId, currentWorkflow!, name)
+
+        if (box) {
+          event.state.workflow.variables[name] = box
+        }
+      }
+    })
+
+    try {
+      const actionArgs = extractEventCommonArgs(event)
+
+      const service = await this.actionService.forBot(botId)
+      await service.runAction({
+        actionName,
+        actionCode:
+          code && `const { ${argsToConst(variables.map(x => x.name))} } = event.state.workflow.variables\n${code}`,
+        incomingEvent: event,
+        actionArgs: _.mapValues(params, ({ value }) => renderTemplate(value, actionArgs))
+      })
+    } catch (err) {
+      const { onErrorFlowTo } = event.state.temp
+      const errorFlow = typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : 'error.flow.json'
+
+      return ProcessingResult.transition(errorFlow)
+    }
+
+    return ProcessingResult.none()
+  }
+
   private async invokeAction(botId, instruction, event: IO.IncomingEvent): Promise<ProcessingResult> {
+    if (instruction.fn === 'exec') {
+      return this.executeAction(botId, instruction, event)
+    }
+
     const { actionName, argsStr, actionServerId } = parseActionInstruction(instruction.fn)
 
     let args: { [key: string]: any } = {}

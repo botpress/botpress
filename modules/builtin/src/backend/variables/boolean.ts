@@ -1,10 +1,16 @@
-import { PrimitiveVarType } from 'botpress/sdk'
+import sdk from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 import yn from 'yn'
 
 import { common, getCommonOperators } from './common'
 
-class BoxedBoolean extends BaseVariable<boolean> {
+interface Variable extends sdk.BoxedVariable<boolean> {
+  parse(text: string): boolean
+  isTrue: (other: Date) => boolean
+  isFalse: (other: Date) => boolean
+}
+
+class BoxedBoolean extends BaseVariable<boolean> implements Variable {
   constructor(args) {
     super(args)
   }
@@ -45,7 +51,7 @@ class BoxedBoolean extends BaseVariable<boolean> {
   }
 }
 
-const BooleanVariableType: PrimitiveVarType = {
+const definition: sdk.PrimitiveVarType = {
   id: 'boolean',
   config: {
     label: 'boolean',
@@ -80,4 +86,4 @@ const BooleanVariableType: PrimitiveVarType = {
   box: BoxedBoolean
 }
 
-export default BooleanVariableType
+export default definition

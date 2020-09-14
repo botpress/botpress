@@ -1,5 +1,8 @@
 .formHeader {
   position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
 
   h4 {
     font-size: 22px;
@@ -7,8 +10,25 @@
     color: var(--shark);
     margin: 0 0 var(--spacing-small);
   }
-}
 
+  .expandBtn {
+    margin-right: var(--spacing-xx-large);
+    width: 24px;
+
+    svg {
+      fill: var(--shark);
+      transition: fill 0.3s;
+    }
+
+    &:hover {
+      background: none;
+
+      svg {
+        fill: var(--reef);
+      }
+    }
+  }
+}
 .wrapper {
   background: #fff;
   padding: 0 var(--spacing-xx-large) var(--spacing-xx-large) var(--spacing-large);
@@ -16,4 +36,18 @@
 
 .actionModal {
   margin-top: var(--spacing-xxxx-large);
+}
+
+.editorWrap {
+  height: 300px;
+}
+
+.editorWrap > div {
+  width: 100%;
+  height: 100%;
+  max-height: 500px;
+}
+
+.hidden {
+  display: none;
 }

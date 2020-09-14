@@ -54,7 +54,7 @@ const PromptContents: FC<Props> = ({ node, selectedNodeItem, currentLang }) => {
         return (
           <div key={`${i}.${item}`} className={style.contentWrapper}>
             <div className={cx(style.content, style.readOnly)}>
-              {item.caption}
+              {lang.tr(item.caption)}
               <StandardPortWidget name={outputPortName} node={node} className={style.outRouting} />
             </div>
           </div>

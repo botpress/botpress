@@ -7052,6 +7052,11 @@ react-redux@^5.0.6:
     react-is "^16.6.0"
     react-lifecycles-compat "^3.0.0"
 
+react-reverse-portal@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/react-reverse-portal/-/react-reverse-portal-2.0.0.tgz#a262df2a2238d1baf356022c6b5c731879bcc24d"
+  integrity sha512-dXdPYa8ysVtj1iS/DkmgS9S0P8Fb/i82UJyyalt16duNk11qtAwBmC1qA81787CUDcflyBQvxgxdQcjmgg736Q==
+
 react-router-dom@4.3.1:
   version "4.3.1"
   resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-4.3.1.tgz#4c2619fc24c4fa87c9fd18f4fb4a43fe63fbd5c6"

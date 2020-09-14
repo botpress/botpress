@@ -3,6 +3,7 @@ import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { useEffect, useRef, useState } from 'react'
 import { connect } from 'react-redux'
+import * as portals from 'react-reverse-portal'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
 import {
   changeContentLanguage,
@@ -16,6 +17,7 @@ import {
   setDiagramAction,
   switchFlow
 } from '~/actions'
+import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { Timeout, toastFailure, toastInfo } from '~/components/Shared/Utils'
 import { isOperationAllowed } from '~/components/Shared/Utils/AccessControl'
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
@@ -65,6 +67,8 @@ const FlowBuilder = (props: Props) => {
   const [actions, setActions] = useState(allActions)
   const [highlightFilter, setHighlightFilter] = useState('')
   const [topicQnA, setTopicQnA] = useState(null)
+
+  const editorPortal = React.useMemo(() => portals.createHtmlPortalNode(), [])
 
   useEffect(() => {
     props.refreshActions()
@@ -206,6 +210,7 @@ const FlowBuilder = (props: Props) => {
         <Diagram
           readOnly={readOnly}
           flowPreview={flowPreview}
+          editorPortal={editorPortal}
           showSearch={showSearch}
           topicQnA={topicQnA}
           setCurrentLang={lang => {
@@ -229,10 +234,18 @@ const FlowBuilder = (props: Props) => {
         />
       </div>
 
+      <portals.InPortal node={editorPortal}>
+        <WrappedEditor />
+      </portals.InPortal>
+
       <DocumentationProvider file="flows" />
       <SkillsBuilder />
     </MainContainer>
   )
+}
+
+const WrappedEditor = props => {
+  return <InjectedModuleView moduleName="code-editor" componentName="LiteEditor" extraProps={props} />
 }
 
 const mapStateToProps = (state: RootReducer) => ({

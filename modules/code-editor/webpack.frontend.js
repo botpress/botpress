@@ -7,6 +7,16 @@ module.exports = ({ full, lite }) => {
       ...full.output,
       publicPath: 'assets/modules/code-editor/web/'
     },
+    module: {
+      ...full.module,
+      rules: [
+        ...full.module.rules,
+        {
+          test: /\.ttf$/,
+          use: ['file-loader']
+        }
+      ]
+    },
     plugins: [
       ...full.plugins,
       new MonacoWebpackPlugin({

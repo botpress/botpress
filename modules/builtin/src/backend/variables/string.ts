@@ -1,9 +1,16 @@
-import { BoxedVariable, PrimitiveVarType } from 'botpress/sdk'
+import sdk from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 
 import { common, createOperator, getCommonOperators } from './common'
 
-class BoxedString extends BaseVariable<string> {
+interface Variable extends sdk.BoxedVariable<string> {
+  parse(text: string): string
+  contains: (str: string) => boolean
+  startsWith: (str: string) => boolean
+  endsWith: (str: string) => boolean
+}
+
+class BoxedString extends BaseVariable<string> implements Variable {
   constructor(args) {
     super(args)
   }
@@ -39,7 +46,7 @@ class BoxedString extends BaseVariable<string> {
     }
   }
 
-  compare(compareTo: BoxedVariable<string>) {
+  compare(compareTo: Variable) {
     if (this.type !== compareTo.type) {
       throw new Error('You can only compare variables of the same type')
     }
@@ -52,7 +59,7 @@ class BoxedString extends BaseVariable<string> {
   }
 }
 
-const StringVariableType: PrimitiveVarType = {
+const definition: sdk.PrimitiveVarType = {
   id: 'string',
   config: {
     label: 'string',
@@ -69,4 +76,4 @@ const StringVariableType: PrimitiveVarType = {
   box: BoxedString
 }
 
-export default StringVariableType
+export default definition

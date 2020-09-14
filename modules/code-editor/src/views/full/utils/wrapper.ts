@@ -4,6 +4,8 @@ import { HOOK_SIGNATURES } from '../../../typings/hooks'
 const START_COMMENT = `/** Your code starts below */`
 const END_COMMENT = '/** Your code ends here */'
 
+const EXECUTE_SIGNATURE = 'function action(event: sdk.IO.IncomingEvent)'
+
 const ACTION_HTTP_SIGNATURE =
   'function action(event: sdk.IO.IncomingEvent, args: any, { user, temp, session } = event.state)'
 
@@ -11,7 +13,11 @@ const ACTION_LEGACY_SIGNATURE =
   'function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { user, temp, session } = event.state)'
 
 const wrapper = {
-  add: (file: EditableFile, content: string) => {
+  add: (file: EditableFile | 'execute', content: string, args?: any) => {
+    if (file === 'execute') {
+      return `${EXECUTE_SIGNATURE} {\n  // Current workflow variables are accessible as arguments\n  ${args}\n  return async () => {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n  }\n}`
+    }
+
     const { type, hookType, botId } = file
 
     if (type === 'action_legacy') {
