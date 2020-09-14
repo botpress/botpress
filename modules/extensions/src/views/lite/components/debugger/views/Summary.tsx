@@ -83,6 +83,7 @@ export default class Summary extends React.Component<Props> {
           isExpanded={this.isExpanded.bind(this)}
           toggleExpand={this.toggleExpand.bind(this)}
           session={this.props.event.state.session}
+          context={this.props.event.state.context}
           isNDU={!!this.props.event.ndu}
           nluData={this.props.event.nlu}
         />

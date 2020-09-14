@@ -18,6 +18,7 @@ interface Props {
   nluData: sdk.IO.EventUnderstanding
   isNDU: boolean
   session: any
+  context: sdk.IO.DialogContext
   isExpanded: (key: string) => boolean
   toggleExpand: (section: string, expanded: boolean) => void
 }
@@ -25,7 +26,7 @@ interface Props {
 const NLU_JSON = 'json::nlu'
 const NLU_PANEL = 'panel::nlu'
 
-const NLU: SFC<Props> = ({ nluData, isNDU, isExpanded, toggleExpand, session }) => {
+const NLU: SFC<Props> = ({ nluData, isNDU, isExpanded, toggleExpand, context }) => {
   const [viewJSON, setViewJSON] = useState(isExpanded(NLU_JSON))
 
   useEffect(() => {
@@ -68,7 +69,7 @@ const NLU: SFC<Props> = ({ nluData, isNDU, isExpanded, toggleExpand, session }) 
           </Tooltip>
         )}
         <Language detectedLanguage={nluData.detectedLanguage} usedLanguage={nluData.language} />
-        <Predictions predictions={nluData.predictions} />
+        <Predictions predictions={nluData.predictions} activePrompt={context?.activePrompt} />
         {!isNDU && <Intents intents={nluData.intents} intent={nluData.intent} />}
         {/* TODO re-add Entities and Slots when design is made for them
         <Collapsible name="Entities" hidden={!nluData.entities.length}>
