@@ -171,6 +171,11 @@ export class KnexUserRepository implements UserRepository {
     channel = channel.toLowerCase()
     await this._dataRetentionUpdate(channel, user_id, attributes)
 
+    const originalAttributes = await this.getAttributes(channel, user_id)
+    if (_.isEqual(originalAttributes, attributes)) {
+      return
+    }
+
     const req = this.database
       .knex(this.tableName)
       .update({ attributes: this.database.knex.json.set(attributes) })

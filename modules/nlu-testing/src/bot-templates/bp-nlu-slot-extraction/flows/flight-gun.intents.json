@@ -26,5 +26,8 @@
   ],
   "contexts": [
     "2-entities-close"
-  ]
+  ],
+  "metadata": {
+    "enabled": true
+  }
 }

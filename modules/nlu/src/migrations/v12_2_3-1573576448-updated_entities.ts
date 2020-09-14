@@ -31,7 +31,7 @@ const migration: sdk.ModuleMigration = {
           }
         }
 
-        await bpfs.upsertFile('./entities', fileName, JSON.stringify(entityDef, undefined, 2))
+        await bpfs.upsertFile('./entities', fileName, JSON.stringify(entityDef, undefined, 2), { ignoreLock: true })
       }
     }
     if (metadata.botId) {

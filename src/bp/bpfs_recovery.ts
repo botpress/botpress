@@ -23,9 +23,9 @@ export default async (argv, action) => {
     database = container.get<Database>(TYPES.Database)
 
     const useDbDriver = process.env.BPFS_STORAGE === 'database'
-    await ghost.initialize(useDbDriver)
 
     await database.initialize()
+    await ghost.initialize(useDbDriver)
   } catch (err) {
     console.error(chalk.red(`Error during initialization`), err)
     return process.exit()
@@ -48,8 +48,12 @@ export default async (argv, action) => {
   }
 
   if (action === 'pullfile') {
-    const rootFolder = path.dirname(file)
+    let rootFolder = path.dirname(file)
     const filename = path.basename(file)
+
+    if (rootFolder.startsWith('data/')) {
+      rootFolder = rootFolder.replace(/^data\//, '')
+    }
 
     if (!(await ghost.root().fileExists(rootFolder, filename))) {
       console.error(chalk.red(`File "${file}" not found in the database.`))

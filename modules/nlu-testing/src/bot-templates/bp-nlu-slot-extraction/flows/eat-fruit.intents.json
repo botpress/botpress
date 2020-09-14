@@ -19,7 +19,8 @@
       "entity": "fruits"
     }
   ],
-  "contexts": [
-    "no-slot"
-  ]
+  "contexts": ["no-slot"],
+  "metadata": {
+    "enabled": true
+  }
 }

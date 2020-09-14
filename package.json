@@ -1,6 +1,6 @@
 {
   "name": "botpress",
-  "version": "12.10.5",
+  "version": "12.10.7",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": ">=12"
@@ -157,7 +157,7 @@
     "prettier": "^1.19.1",
     "puppeteer": "^2.0.0",
     "rimraf": "^2.6.2",
-    "showdown": "^1.9.0",
+    "showdown": "^1.9.1",
     "stylus": "^0.54.5",
     "ts-jest": "^24.3.0",
     "tslint": "^6.1.2",

@@ -17,6 +17,7 @@
   "chooseFile": "Choose file...",
   "close": "Close",
   "code": "Code",
+  "codeNewAction": "Code New Action",
   "collapseAll": "Collapse All",
   "commander": {
     "backToAdmin": "Back to Admin",
@@ -246,6 +247,7 @@
   "examples": "Examples",
   "private": "Private",
   "uploading": "Uploading",
+  "uncategorized": "Uncategorized",
   "incomplete": "Incomplete",
   "active": "Active"
 }
