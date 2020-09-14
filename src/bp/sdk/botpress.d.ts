@@ -1477,11 +1477,25 @@ declare module 'botpress/sdk' {
     flow?: string
     prompt?: PromptNode
     subflow?: SubWorkflowNode
+    execute?: ExecuteNode
     isNew?: boolean
     isReadOnly?: boolean
     /** Used internally by the flow editor */
     readonly lastModified?: Date
   } & NodeActions
+
+  export interface ExecuteNode {
+    actionName?: string
+    /** List of possible parameters for the action */
+    params?: { [key: string]: ActionParameter }
+    code: string
+  }
+
+  export interface ActionParameter {
+    source: 'variable' | 'hardcoded'
+    /** Can be the name of the variable or any kind of value */
+    value: any
+  }
 
   export interface SubWorkflowNode {
     in: { [variable: string]: SubWorkflowInput }

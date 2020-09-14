@@ -13,7 +13,7 @@ import QnAPicker from './QnAPicker'
 interface Props {
   axios: AxiosStatic
   language: string
-  event: ApiFlaggedEvent
+  event: ApiFlaggedEvent | null
   mode: RESOLUTION_TYPE
   resolution: string | null
   resolutionParams: object | null

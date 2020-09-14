@@ -131,13 +131,8 @@ export default class Database {
   }
 
   async getMetrics(botId: string, options?: { startDate: Date; endDate: Date; channel: string }) {
-    const startDate = moment(options?.startDate ?? new Date())
-      .startOf('day')
-      .toDate()
-
-    const endDate = moment(options?.endDate ?? new Date())
-      .endOf('day')
-      .toDate()
+    const startDate = options?.startDate ?? new Date()
+    const endDate = options?.endDate ?? new Date()
 
     let queryMetrics = this.knex(TABLE_NAME)
       .select()

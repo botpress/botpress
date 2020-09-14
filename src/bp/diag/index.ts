@@ -173,14 +173,17 @@ const testNetworkConnections = async () => {
     },
     {
       label: 'Licensing Server',
-      url: 'https://license.botpress.io/prices'
+      url: `https://${process.env.BP_LICENSE_SERVER_HOST || 'license.botpress.io'}/prices`
     }
   ]
 
   try {
     const nluConfig = await Ghost.global().readFileAsObject<any>('config/', 'nlu.json')
     const duckling = process.env.BP_MODULE_NLU_DUCKLINGURL || nluConfig?.ducklingURL
-    const langServer = process.env.BP_MODULE_NLU_LANGUAGESOURCES || nluConfig?.languageSources?.[0]?.endpoint
+    const langServer =
+      (process.env.BP_MODULE_NLU_LANGUAGESOURCES &&
+        JSON.parse(process.env.BP_MODULE_NLU_LANGUAGESOURCES)[0]?.endpoint) ||
+      nluConfig?.languageSources?.[0]?.endpoint
 
     if (duckling) {
       hosts.push({ label: 'Duckling Server', url: duckling })

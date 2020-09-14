@@ -50,7 +50,7 @@ export const handlePrompt = async (event: sdk.IO.OutgoingEvent, bp: typeof sdk):
         }
       }
 
-    case 'enum':
+    case 'enumeration':
       let items = payload.items
 
       if (payload.subType) {
