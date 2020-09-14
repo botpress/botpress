@@ -40,13 +40,18 @@ const generateJumpTo = (actions: any[], status: IO.PromptStatus): ProcessedStatu
   }
 }
 
-const generateResolved = (actions: any[], status: IO.PromptStatus, value: any): ProcessedStatus => {
+const generateResolved = (
+  actions: any[],
+  status: IO.PromptStatus,
+  value?: any,
+  candidate?: IO.PromptCandidate
+): ProcessedStatus => {
   return {
     actions,
     status: {
       ...status,
       status: 'resolved',
-      state: { value }
+      state: { value: value ?? candidate?.value_raw, electedCandidate: candidate }
     }
   }
 }
@@ -90,7 +95,8 @@ const generateDisambiguate = (
     {
       type: 'say',
       payload: {
-        type: 'enum',
+        type: 'enumeration',
+        output: status.config.output,
         question: status.config.question,
         items: candidates.map(x => ({ label: x.value_string, value: x.value_string }))
       },
@@ -152,7 +158,7 @@ export class PromptManager {
 
     debugPrompt('before process prompt %o', { prompt: status })
 
-    const candidates: IO.PromptCandidate[] = []
+    let candidates: IO.PromptCandidate[] = []
 
     const prompt = this.loadPrompt(status.config.type, status.config, () => this.getCustomTypes!(event.botId))
 
@@ -195,7 +201,7 @@ export class PromptManager {
     if (status.stage === 'confirm-candidate') {
       if (confirmValue?.value === true) {
         if (tryElect(status.state.confirmCandidate?.value_raw)) {
-          return generateResolved(actions, status, status.state.confirmCandidate?.value_raw)
+          return generateResolved(actions, status, undefined, status.state.confirmCandidate)
         } else {
           return generatePrompt(actions, status)
         }
@@ -218,7 +224,8 @@ export class PromptManager {
     let eventsToExtractFrom = [event]
 
     if (status.stage === 'new') {
-      eventsToExtractFrom = _.orderBy([event, ...previousEvents], 'id', 'desc')
+      const evt = status.config.searchBackCount > 0 ? [event] : []
+      eventsToExtractFrom = _.orderBy([...evt, ...previousEvents], 'id', 'desc')
 
       const currentVariable = event.state.workflow.variables[varName]
       if (currentVariable?.value !== undefined && currentVariable?.value !== null) {
@@ -230,13 +237,17 @@ export class PromptManager {
 
     const slotCandidate = slots[varName]
     if (slotCandidate?.value !== undefined && slotCandidate?.value !== null) {
-      candidates.push({
-        confidence: slotCandidate.confidence,
-        source: 'slot',
-        turns_ago: 0,
-        value_raw: slotCandidate.value,
-        value_string: slotCandidate?.value.toString() ?? slotCandidate.value
-      })
+      // Below condition is to make sure the slot has a matching entity type (lists, patterns)
+      // Exception for complex types, where they don't necessarily need an entity extracted, they accept free-form text
+      if (!params.subType?.length || params.type === 'complex' || slotCandidate.entity?.name === params.subType) {
+        candidates.push({
+          confidence: slotCandidate.confidence,
+          source: 'slot',
+          turns_ago: 0,
+          value_raw: slotCandidate.value,
+          value_string: slotCandidate?.value.toString() ?? slotCandidate.value
+        })
+      }
     }
 
     for (const [turn, pastEvent] of eventsToExtractFrom.entries()) {
@@ -255,6 +266,14 @@ export class PromptManager {
           value_string: candidate?.value.toString() ?? candidate.value
         })
       }
+    }
+
+    if (context.pastPromptCandidates) {
+      context.pastPromptCandidates = context.pastPromptCandidates
+        .map(c => ({ ...c, turns_ago: c.turns_ago++ }))
+        .filter(x => x.turns_ago < 10)
+
+      candidates = _.differenceBy(candidates, context.pastPromptCandidates, x => `${x.source}${x.value_raw}`)
     }
 
     const shortlisted = candidates
@@ -278,7 +297,7 @@ export class PromptManager {
         if (shortlisted[0].source === 'slot') {
           this._electSlot(event, varName)
         }
-        return generateResolved(actions, status, shortlisted[0].value_raw)
+        return generateResolved(actions, status, undefined, shortlisted[0])
       }
     } else if (shortlisted.length > 1) {
       return generateDisambiguate(actions, status, shortlisted)

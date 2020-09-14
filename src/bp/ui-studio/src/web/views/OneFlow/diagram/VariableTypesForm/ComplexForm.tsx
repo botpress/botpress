@@ -2,6 +2,7 @@ import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
 import sdk from 'botpress/sdk'
 import { Contents, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
+import cx from 'classnames'
 import { Variables } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
@@ -9,9 +10,11 @@ import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import style from '../PromptForm/style.scss'
 
 import { getEntityId } from '.'
+import VarTypePickerArray from './VarTypePickerArray'
 
 interface Props {
   customKey: string
+  defaultLang: string
   contentLang: string
   formData: sdk.NLU.EntityDefinition
   variables: Variables
@@ -23,6 +26,7 @@ interface Props {
 
 const ComplexForm: FC<Props> = ({
   customKey,
+  defaultLang,
   contentLang,
   formData,
   variables,
@@ -53,7 +57,7 @@ const ComplexForm: FC<Props> = ({
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
-      label: lang.tr('studio.library.deletePattern'),
+      label: lang.tr('studio.library.deleteVariableFromLibrary'),
       action: () => deleteEntity(formData.id),
       type: 'delete'
     }
@@ -72,12 +76,12 @@ const ComplexForm: FC<Props> = ({
     const items = data.items
       .filter(x => x.item)
       .map(({ item }) => ({
-        type: variables.display.find(x => x.subType === item).type,
+        type: variables.display.find(x => x.subType === item)?.type,
         subType: item
       }))
 
     const result = {
-      list_entities: items.filter(x => x.type === 'enum').map(x => x.subType),
+      list_entities: items.filter(x => x.type === 'enumeration').map(x => x.subType),
       pattern_entities: items.filter(x => x.type === 'pattern').map(x => x.subType)
     }
 
@@ -85,13 +89,12 @@ const ComplexForm: FC<Props> = ({
   }
 
   const choices = variables.display
-    .filter(x => ['enum', 'pattern'].includes(x.type))
-    .map(({ label, subType, icon }) => ({ label, value: subType, icon }))
-
+    .filter(x => ['enumeration', 'pattern'].includes(x.type))
+    .map(({ label, subType }) => ({ label, value: subType }))
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={close}>
       <Fragment key={customKey}>
-        <div className={style.formHeader}>
+        <div className={cx(style.formHeader, style.noSelect)}>
           <Tabs id="contentFormTabs">
             <Tab id="content" title={lang.tr('complex')} />
           </Tabs>
@@ -100,6 +103,7 @@ const ComplexForm: FC<Props> = ({
 
         <Contents.Form
           currentLang={contentLang}
+          defaultLang={defaultLang}
           axios={axios}
           fields={[
             {
@@ -108,40 +112,30 @@ const ComplexForm: FC<Props> = ({
               label: 'name',
               required: true,
               maxLength: 150,
-              placeholder: 'studio.library.variableName'
+              placeholder: 'studio.library.variableTypePlaceholder'
             },
             {
-              type: 'group',
+              type: 'overridable',
               key: 'items',
               label: lang.tr('studio.library.possibleVarTypes'),
-              fields: [
-                {
-                  type: 'select',
-                  key: 'item',
-                  options: [{ label: 'Select a type', value: '' }, ...choices]
-                }
-              ],
-              group: {
-                addLabel: lang.tr('studio.library.addType'),
-                minimum: 1,
-                contextMenu: [
-                  {
-                    type: 'delete',
-                    label: 'delete'
-                  }
-                ]
-              }
+              overrideKey: 'varTypeOverride',
+              defaultValue: [{ item: '' }, { item: '' }]
             },
             {
               key: 'examples',
               type: 'text_array',
               label: 'examples',
-              placeholder: 'studio.library.examplePlaceholder',
+              placeholder: 'studio.library.complexityExamplePlaceholder',
               group: {
-                addLabel: 'studio.library.addExample'
+                minimum: 1,
+                addLabel: 'studio.library.addExample',
+                addLabelTooltip: 'studio.library.addExampleTooltip'
               }
             }
           ]}
+          overrideFields={{
+            varTypeOverride: props => <VarTypePickerArray {...props} choices={choices} />
+          }}
           advancedSettings={[]}
           formData={convertToSelect(formData)}
           invalidFields={[]}

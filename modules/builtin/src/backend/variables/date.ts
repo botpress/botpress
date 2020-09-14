@@ -1,8 +1,8 @@
-import { BoxedVariable, PrimitiveVarType } from 'botpress/sdk'
+import sdk from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 import moment from 'moment'
 
-import common from './common'
+import { common, createOperator, getCommonOperators } from './common'
 
 type BoxedDateType = string | Date | moment.Moment
 
@@ -10,9 +10,36 @@ interface DateConfig {
   format: string
 }
 
-class BoxedDate extends BaseVariable<BoxedDateType, DateConfig> {
+interface Variable extends sdk.BoxedVariable<BoxedDateType, DateConfig> {
+  parse(text: string): BoxedDateType
+  equals: (other: Date) => boolean
+  isBefore: (other: Date) => boolean
+  isAfter: (other: Date) => boolean
+}
+
+class BoxedDate extends BaseVariable<BoxedDateType, DateConfig> implements Variable {
   constructor(args) {
     super(args)
+  }
+
+  parse(text: string): BoxedDateType {
+    return moment(text).toDate()
+  }
+
+  equals(other: Date) {
+    return (
+      moment(this.value)
+        .toDate()
+        .getTime() === other.getTime()
+    )
+  }
+
+  isBefore(other: Date) {
+    return moment(this.value).toDate() < other
+  }
+
+  isAfter(other: Date) {
+    return moment(this.value).toDate() > other
   }
 
   trySet(value: BoxedDateType, confidence?: number) {
@@ -24,7 +51,7 @@ class BoxedDate extends BaseVariable<BoxedDateType, DateConfig> {
     }
   }
 
-  compare(compareTo: BoxedVariable<BoxedDateType, DateConfig>) {
+  compare(compareTo: sdk.BoxedVariable<BoxedDateType, DateConfig>) {
     const dateA = this.value
     const dateB = moment(compareTo.value)
 
@@ -42,11 +69,12 @@ class BoxedDate extends BaseVariable<BoxedDateType, DateConfig> {
   }
 }
 
-const DateVariableType: PrimitiveVarType = {
+const definition: sdk.PrimitiveVarType = {
   id: 'date',
   config: {
     label: 'date',
     icon: 'calendar',
+    operators: [...getCommonOperators('date'), createOperator('date', 'isBefore'), createOperator('date', 'isAfter')],
     fields: [
       ...common.fields,
       {
@@ -60,4 +88,4 @@ const DateVariableType: PrimitiveVarType = {
   box: BoxedDate
 }
 
-export default DateVariableType
+export default definition

@@ -5,18 +5,13 @@ export interface FieldProps {
   onChange?: (value: null | number | string) => void
   onBlur?: (value?: string | number | null) => void
   childRef?: (ref: HTMLElement | null) => void
+  refValue?: string
   value?: string
 }
 
 export interface AddButtonProps {
   text: string
   onClick: (e: MouseEvent<HTMLElement, MouseEvent>) => void
-}
-
-export interface FieldWrapperProps {
-  children: any
-  label?: string
-  invalid?: InvalidField
 }
 
 export interface GroupItemWrapperProps {

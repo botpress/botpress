@@ -43,22 +43,45 @@
     "public": "Published"
   },
   "statusBar": {
+    "trainWarning": "You are testing a chatbot that needs to be trained.",
     "contentLanguage": "Content Language",
     "switchLang": "Change the bot content language. Currently editing: {currentLang}",
     "trainChatbot": "Train Chatbot",
+    "trainChatbotTooltip": "Allow your chatbot to take in its new learnings",
     "training": "Training",
     "ready": "Ready",
     "cancelTraining": "Cancel Training",
     "canceling": "Canceling",
-    "trainingError": "Cannot train Chatbot"
+    "trainingError": "Cannot train Chatbot",
+    "configChangedDialog": "Are you sure you want to apply configurations? Your server won’t be accessible for a few moments.",
+    "reboot": "Apply",
+    "rebooting": "Restarting",
+    "applyConfigs": "Apply Configurations ",
+    "applyConfigsTooltip": "Restarts server so configuration changes can take effect"
   },
   "studio": {
+    "betaNotice": {
+      "usingBeta": "You're using Botpress Albert - Beta",
+      "seeNotice": "See Notice",
+      "contribution": "By using this preview, you contribute to improve Botpress.",
+      "limitations": "It is not meant to be run in a production environment as breaking changes might still occur. Also, note that no documentation and no migration tool is offered yet.",
+      "thanks": "Thank you for your support!",
+      "accept": "Accept",
+      "dismiss": "Dismiss"
+    },
+    "router": {
+      "variable": "Variable",
+      "pickVariable": "Pick a variable",
+      "condition": "Condition",
+      "negate": "Make the condition negative"
+    },
     "condition": {
       "label": "Condition",
       "pickCondition": "Pick a condition"
     },
     "content": {
       "cloneElements": "Clone selected elements",
+      "confirmChangeAction": "Are you sure you want to change this action? All fields will be erased.",
       "confirmChangeContentType": "Are you sure you want to change this content type? All fields will be erased.",
       "confirmDeleteItem": "Do you really want to delete {count, number} {count, plural, one {item} other {items}}?",
       "contentType": "Content Type",
@@ -109,17 +132,26 @@
       "addPattern": "Add Pattern",
       "addComplex": "Add Complex",
       "addType": "Add Type",
+      "editingSubWorkflowWarning": "Editing this workflow will impact all its linked instances.",
+      "deleteVariableFromLibrary": "Remove Variable Type from Library",
+      "duplicateVariableType": "Duplicate Variable Type",
+      "duplicateWorkflow": "Duplicate Workflow",
       "filter": "Filter blocks, workflows and variable types",
       "variableName": "What is the name of this variable",
       "addSynonyms": "Add synonyms by separating values with commas",
       "addValueAlternative": "Add Value Alternative",
       "deleteEnumeration": "Delete Enumeration",
       "confirmDeleteEntity": "Do you really want to delete this variable type ?",
-      "examplePlaceholder": "Add examples that match your pattern (one per line)",
+      "complexityExamplePlaceholder": "Write as many example as possible that match this variable's complexity",
+      "examplePlaceholder": "Write examples that match this variable type pattern",
+      "regexPatternPlaceholder": "Write a regular expression pattern",
       "addExample": "Add Example",
+      "addExampleTooltip": "Press Enter while inline to add new example quickly",
       "deletePattern": "Delete Pattern",
       "patternInvalid": "Pattern is invalid",
-      "possibleVarTypes": "Possible Variable Types"
+      "possibleVarTypes": "Possible Variable Types",
+      "variableTypePlaceholder": "What is this variable type?",
+      "writeAsManyHintsAsPossible": "Write as many values as possible that your users could write to invoke this variable"
     },
     "flow": {
       "addNode": "Add Node",
@@ -132,6 +164,8 @@
       "mustHaveOutcomes": "Workflows must have at least one success and one failure outcome",
       "referenceCount": "{count} {count, plural, one {reference} other {references}}",
       "noReferences": "Not used",
+      "cannotAddContent": "Adding new content is disabled when not in the default language",
+      "emptyWorkflow": "Right-click or drag and drop blocks to start designing your workflow.",
       "chips": "Chips",
       "condition": {
         "addCondition": "Add condition",
@@ -152,7 +186,7 @@
       "errorWhileSaving": "There was an error while saving, deleting or renaming a flow. Last modification might not have been saved on server. Please reload page before continuing flow edition",
       "flowWideOnReceives": "flow-wide on {count, plural, one {receive} other {receives}}",
       "flowWideTransitions": "flow-wide {count, plural, one {transition} other {transitions}}",
-      "highlightByName": "Highlight nodes by name",
+      "filterBlocks": "Filter Blocks",
       "ignoredWorkflows": {
         "addLabel": "Add Workflow"
       },
@@ -168,6 +202,7 @@
         "tryingToLoad": "It seems like you are trying to load a module that has not been registered. Please make sure the module is registered then restart the bot."
       },
       "node": {
+        "noActionSelected": "No action selected",
         "actionParameters": "Action Parameters",
         "actionServer": "Action Server",
         "actionServerTooltip": "This is the action server on which the action will be executed",
@@ -177,6 +212,7 @@
         "add": "add",
         "addAction": "Add new action",
         "addCondition": "Add Condition",
+        "addMessage": "Add Message",
         "cantSeeActions": "Can't see your action?",
         "chatbotExecutes": "Chatbot Executes",
         "chatbotSays": "Chatbot Says",
@@ -204,6 +240,7 @@
         "nodeName": "Node Name",
         "onEnter": "On Enter",
         "onReceive": "On Receive",
+        "pickAction": "Pick an action",
         "renameBlock": "Rename Block",
         "return": "Return",
         "saySomething": "Say Something",
@@ -251,7 +288,7 @@
         "executeAction": "Execute Action",
         "listen": "Listen",
         "prompt": "Prompt",
-        "router": "Router",
+        "router": "If Else",
         "say": "Say",
         "sendMessage": "Send Message",
         "split": "Split",
@@ -283,15 +320,19 @@
         "nameInUse": "Name already in use",
         "nameInUseMessage": "A flow with that name already exists. Please choose another one.",
         "node": "Node",
+        "noSearchMatch": "Sorry, no results match the search criteria.",
         "renameFlow": "Rename Flow",
         "importTopic": "Import Topic",
         "addTopic": "Add Topic",
         "addWorkflow": "Add Workflow",
         "tapIconsToAdd": "Tap icons in the toolbar to import or add your first topic.",
         "renameWorkflow": "Rename Workflow",
+        "duplicateWorkflow": "Duplicate Workflow",
+        "moveWorkflow": "Move Workflow to",
         "renameTopic": "Rename Topic",
         "nameWorkflow": "Name Workflow",
-        "nameTopic": "Name Topic"
+        "nameTopic": "Name Topic",
+        "duplicateTopic": "Duplicate Topic"
       },
       "skills": {
         "couldNotLoad": "Could not load skills view",
@@ -356,14 +397,22 @@
         "edit": "Edit Workflow - {name}",
         "labelHelp": "The label is a friendly name that can replace the name in the topic list",
         "name": "Workflow name"
-      }
+      },
+      "likelyTriggered": "{pct}% likely to be triggered",
+      "endOfWorkflow": "End of the workflow",
+      "currentStage": "Current Stage: {stage}",
+      "extractedVar": "{output} extracted is {value}",
+      "jumpOutOfWorkflow": "Jump out of workflow",
+      "jumpIntoWorkflow": "Jump into workflow",
+      "errorOccurred": "An error occurred here"
     },
     "prompt": {
       "label": "Type",
       "pickType": "Pick a type",
       "userAnswersCorrectly": "User answers correctly",
       "userCancels": "User Cancels",
-      "userDoesNotAnswer": "User does not answer"
+      "userDoesNotAnswer": "User does not answer",
+      "defaultQuestion": "Please provide value for __VARNAME"
     },
     "sideBar": {
       "flowBuilder": "Workflow Builder",
@@ -389,7 +438,20 @@
       "endOfLogs": "End of logs"
     }
   },
+  "issue": {
+    "stepsToReproduce": "Steps to reproduce",
+    "whatIsTheIssue": "What is the issue?",
+    "previewOnGithub": "Preview on Github",
+    "submitBug": "Submit a bug"
+  },
   "variable": {
-    "emptyState": "Tap + in the toolbar to add your first variable"
+    "emptyState": "Tap + in the toolbar to add your first variable",
+    "variableVisibility": "Variable Visibility",
+    "visibilityPlaceholder": "Pick a Visibility",
+    "textMatchingTolerance": "Text Matching Tolerance",
+    "pickType": "Pick a type",
+    "inputVariables": "Input Variables",
+    "outputVariables": "Output Variables",
+    "privateVariables": "Private Variables"
   }
 }

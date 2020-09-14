@@ -12,7 +12,8 @@ interface Props {
   onUpdateVariables?: (variable: FlowVariable) => void
   variables?: Variables
   events?: BotEvent[]
-  currentLang
+  currentLang: string
+  defaultLang: string
 }
 
 const TextAreaList: FC<Props> = ({
@@ -23,7 +24,8 @@ const TextAreaList: FC<Props> = ({
   variables,
   events,
   onUpdateVariables,
-  currentLang
+  currentLang,
+  defaultLang
 }) => {
   const [forceUpdateHeight, setForceUpdateHeight] = useState(false)
 
@@ -42,9 +44,35 @@ const TextAreaList: FC<Props> = ({
     })
   }
 
+  const getRefLang = (value, variations, currentLang, defaultLang) => {
+    const combinedValues = Object.keys(value).reduce(
+      (acc, key) => ({ ...acc, [key]: [value?.[key] || '', ...(variations[key] || [])].filter(Boolean) }),
+      {}
+    )
+    const currentLangValues = combinedValues[currentLang]
+    let currentHighest = 0
+    let refLang
+    Object.keys(combinedValues)
+      .filter(l => l !== currentLang)
+      .forEach(key => {
+        const thisLength = combinedValues[key].length
+        if (thisLength > currentHighest) {
+          refLang = key
+          currentHighest = thisLength
+        }
+      })
+
+    if (currentLangValues?.length || 0 < currentHighest) {
+      return refLang
+    }
+  }
+
+  const refLang = getRefLang(data.text || {}, data.variations || {}, currentLang, defaultLang)
+
   return (
     <FormFields.SuperInputArray
       variables={variables}
+      refValue={[...[data.text?.[refLang] || ''], ...(data.variations?.[refLang] || [])]}
       events={events || []}
       onUpdateVariables={onUpdateVariables}
       label={label}

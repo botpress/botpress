@@ -1,11 +1,35 @@
-import { BoxedVariable, PrimitiveVarType } from 'botpress/sdk'
+import sdk from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 
-import common from './common'
+import { common, createOperator, getCommonOperators } from './common'
 
-class BoxedString extends BaseVariable<string> {
+interface Variable extends sdk.BoxedVariable<string> {
+  parse(text: string): string
+  contains: (str: string) => boolean
+  startsWith: (str: string) => boolean
+  endsWith: (str: string) => boolean
+}
+
+class BoxedString extends BaseVariable<string> implements Variable {
   constructor(args) {
     super(args)
+  }
+
+  parse(text: string): string {
+    // We replace escaped '
+    return text.replace(/\\'/gs, "'")
+  }
+
+  contains(other: string) {
+    return this.value.includes(other)
+  }
+
+  startsWith(other: string) {
+    return this.value.startsWith(other)
+  }
+
+  endsWith(other: string) {
+    return this.value.endsWith(other)
   }
 
   trySet(value: string, confidence: number) {
@@ -22,7 +46,7 @@ class BoxedString extends BaseVariable<string> {
     }
   }
 
-  compare(compareTo: BoxedVariable<string>) {
+  compare(compareTo: Variable) {
     if (this.type !== compareTo.type) {
       throw new Error('You can only compare variables of the same type')
     }
@@ -35,15 +59,21 @@ class BoxedString extends BaseVariable<string> {
   }
 }
 
-const StringVariableType: PrimitiveVarType = {
+const definition: sdk.PrimitiveVarType = {
   id: 'string',
   config: {
     label: 'string',
     icon: 'font',
+    operators: [
+      ...getCommonOperators('string'),
+      createOperator('string', 'contains'),
+      createOperator('string', 'startsWith'),
+      createOperator('string', 'endsWith')
+    ],
     fields: common.fields,
     advancedSettings: common.advancedSettings
   },
   box: BoxedString
 }
 
-export default StringVariableType
+export default definition

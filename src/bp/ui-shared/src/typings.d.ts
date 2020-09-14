@@ -18,6 +18,7 @@ import { RightSidebarProps } from './MainContent/RightSidebar/typings'
 import { FormProps } from './Contents/Components/Form/typings'
 import { ItemProps } from './Contents/Components/Item/typings'
 import { AddButtonProps } from './Contents/Components/typings'
+import { SelectProps } from './FormFields/Select'
 import { TextFieldsArrayProps } from './FormFields/TextFieldsArray/typings'
 import { SuperInputArrayProps } from './FormFields/SuperInputArray/typings'
 import { OverlayProps } from './Overlay/typings'
@@ -25,6 +26,9 @@ import { FormField, MultiLangText } from 'botpress/sdk'
 import { MoreOptionsProps } from '../../ui-shared-lite/MoreOptions/typings'
 import { OverlayProps } from '../../ui-shared-lite/Overlay/typings'
 import { ToolTipProps } from '../../ui-shared-lite/ToolTip/typings'
+import { VariablePickerProps } from './FormFields/VariablePicker/typings'
+import { MultiLevelDropdownProps } from './MultiLevelDropdown/typings'
+import { FieldWrapperProps } from './FormFields/FieldWrapper/typings'
 
 declare module 'botpress/shared' {
   export function Commander(props: CommanderProps): JSX.Element
@@ -44,14 +48,18 @@ declare module 'botpress/shared' {
   }
   export const FormFields: {
     AddButton(props: AddButtonProps): JSX.Element
+    FieldWrapper(props: FieldWrapperProps): JSX.Element
+    Select(props: SelectProps): JSX.Element
     TextFieldsArray(props: TextFieldsArrayProps): JSX.Element
     SuperInputArray(props: SuperInputArrayProps): JSX.Element
+    VariablePicker(props: VariablePickerProps): JSX.Element
   }
   export function Dropdown(props: DropdownProps): JSX.Element
   export function EmptyState(props: EmptyStateProps): JSX.Element
   export function MainContainer(props: MainContainerProps): JSX.Element
   export function MarkdownContent(props: MarkdownContentProps): JSX.Element
   export function MoreOptions(props: MoreOptionsProps): JSX.Element
+  export function MultiLevelDropdown(props: MultiLevelDropdownProps): JSX.Element
   export function RightSidebar(props: RightSidebarProps): JSX.Element
   export function Overlay(props: OverlayProps): JSX.Element
   export function ShortcutLabel(props: ShortcutLabelProps): JSX.Element
@@ -67,6 +75,7 @@ declare module 'botpress/shared' {
     extend(langs)
     getLocale(): string
     getAvailable(): string[]
+    defaultLocale: string
   }
 
   export const telemetry: {

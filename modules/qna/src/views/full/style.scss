@@ -17,6 +17,44 @@
   }
 }
 
+.filterWrapper {
+  padding: var(--spacing-large) var(--spacing-x-large);
+}
+
+.checkboxWrapper {
+  margin-top: var(--spacing-large);
+  min-height: 16px;
+
+  &:first-of-type {
+    margin-top: 0;
+  }
+
+  :global {
+    .bp3-control input:checked ~ .bp3-control-indicator {
+      background: var(--ocean) !important;
+      box-shadow: none !important;
+      border: none !important;
+    }
+
+    .bp3-checkbox {
+      color: var(--shark);
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 1.25;
+      margin: 0;
+
+      .bp3-control-indicator {
+        box-shadow: none !important;
+        background: #fff !important;
+        border: 1px solid var(--seashell) !important;
+        font-size: 15px !important;
+        height: 15px !important;
+        width: 15px !important;
+      }
+    }
+  }
+}
+
 .embeddedInFlow {
   position: absolute;
   top: 0;
@@ -41,6 +79,41 @@
 
   svg {
     fill: var(--shark) !important;
+  }
+}
+
+input[type='file'],
+input[type='file']::-webkit-file-upload-button {
+  cursor: pointer;
+}
+
+.customBtn {
+  position: relative;
+  overflow: hidden;
+  height: 24px;
+  width: 24px;
+  display: block;
+  border-radius: 3px;
+  transition: background 0.3s;
+
+  &:hover {
+    background: var(--gray);
+  }
+
+  :global(.bp3-icon) {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  input {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
   }
 }
 
@@ -73,7 +146,8 @@
       border: 1px solid var(--reef);
     }
 
-    &:focus, &:focus-within {
+    &:focus,
+    &:focus-within {
       outline-color: transparent;
       outline-style: none;
       font-weight: 300;
@@ -106,7 +180,8 @@
   margin-bottom: var(--spacing-large);
 }
 
-.initialLoading, .loading {
+.initialLoading,
+.loading {
   :global {
     .bp3-spinner-track {
       stroke: var(--gray) !important;
@@ -134,9 +209,10 @@
   align-items: flex-start;
   display: flex;
   justify-content: flex-end;
-  margin-top: var(--spacing-xxx-large);
+  margin-top: var(--spacing-large);
 
-  .input, .contextInput {
+  .input,
+  .contextInput {
     background: #fff;
     border-radius: 3px;
     border: 1px solid var(--gray);
@@ -153,7 +229,8 @@
       border: 1px solid var(--reef);
     }
 
-    &:focus, &:focus-within {
+    &:focus,
+    &:focus-within {
       outline-color: transparent;
       outline-style: none;
       font-weight: 300;
@@ -180,7 +257,9 @@
     position: relative;
 
     :global {
-      .bp3-tag-input, .bp3-tag-input-values, input {
+      .bp3-tag-input,
+      .bp3-tag-input-values,
+      input {
         display: block;
         font-size: 14px;
         font-weight: 300;
@@ -243,9 +322,10 @@
       fill: var(--ocean);
     }
 
-    &:hover, &:focus {
+    &:hover,
+    &:focus {
       color: var(--ocean);
-      background:  var(--hover-ocean);
+      background: var(--hover-ocean);
     }
   }
 
@@ -315,7 +395,9 @@
       }
     }
 
-    .right :global(.bp3-popover-wrapper) + :global(.bp3-popover-wrapper) .tag, .right :global(.bp3-popover-wrapper) + .tag, .right .tag + :global(.bp3-popover-wrapper) .tag {
+    .right :global(.bp3-popover-wrapper) + :global(.bp3-popover-wrapper) .tag,
+    .right :global(.bp3-popover-wrapper) + .tag,
+    .right .tag + :global(.bp3-popover-wrapper) .tag {
       margin-left: var(--spacing-medium);
     }
 
@@ -324,7 +406,7 @@
       border-radius: 3px;
       color: var(--shark);
       display: inline-block;
-      font-size: 8px;
+      font-size: 10px;
       height: 20px;
       line-height: 20px;
       padding: 1px 6px 0;
@@ -371,25 +453,36 @@
   .textareaWrapper {
     position: relative;
 
+    &:not(:global(.has-error)):focus-within {
+      border-color: var(--ocean) !important;
+    }
+
+    &:global(.has-error) {
+      border-color: var(--lighthouse) !important;
+    }
+
     &:focus-within {
-      & + .textareaWrapper {
-        .textarea, .contentAnswer {
-          border-top-color: transparent;
+      &:not(:global(.has-error)) + .textareaWrapper {
+        :global(.superinput-wrapper).textarea,
+        :global(.superinput-wrapper).contentAnswer {
+          border-top-color: transparent !important;
         }
       }
 
-      .textarea, .contentAnswer {
-        border-top-color: var(--ocean);
-        border-bottom-color: var(--ocean);
+      :global(.superinput-wrapper).textarea:not(:global(.has-error)),
+      :global(.superinput-wrapper).contentAnswer:not(:global(.has-error)) {
+        border-top-color: var(--ocean) !important;
+        border-bottom-color: var(--ocean) !important;
 
         &.hasError {
-          border-bottom-color: var(--lighthouse);
+          border-bottom-color: var(--lighthouse) !important;
 
-          &:focus {
-            border-top-color: var(--lighthouse);
+          &:focus-within {
+            border-top-color: var(--lighthouse) !important;
 
-            & + .textarea {
-              border-top-color: transparent;
+            & + :global(.superinput-wrapper).textarea,
+            & + :global(.superinput-wrapper).contentAnswer {
+              border-top-color: transparent !important;
             }
           }
         }
@@ -397,7 +490,8 @@
     }
   }
 
-  .textarea, .contentAnswer {
+  .textarea,
+  .contentAnswer {
     background: transparent;
     border: none;
     border-bottom: 1px solid var(--gray);
@@ -412,6 +506,10 @@
     resize: none;
     transition: border 0.3s;
     width: 100%;
+
+    &:global(.has-error) {
+      border-color: var(--lighthouse) !important;
+    }
   }
 
   .contentAnswer {
@@ -441,4 +539,28 @@
       }
     }
   }
+}
+
+.needsTranslation {
+  border-radius: 5px;
+  border: solid 1px var(--lighthouse);
+  background-color: var(--hover-lighthouse-30);
+  color: var(--lighthouse);
+  font-size: 8px;
+  line-height: 1.88;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  margin: var(--spacing-medium) var(--spacing-medium) 0 0;
+  width: 135px;
+}
+
+.error {
+  font-size: 12px;
+  line-height: 1.25;
+  color: var(--lighthouse);
+  margin: var(--spacing-small) 0 var(--spacing-large);
+  display: block;
 }

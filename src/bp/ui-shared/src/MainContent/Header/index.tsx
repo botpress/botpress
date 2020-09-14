@@ -14,7 +14,7 @@ const Header: FC<HeaderProps> = props => {
     <Navbar className={cx(style.header, props.className)}>
       {!!props.tabs?.length && (
         <NavbarGroup>
-          <Tabs id="headerTabs" onChange={props.tabChange}>
+          <Tabs id="headerTabs" selectedTabId={props.currentTab} onChange={props.tabChange}>
             {props.tabs.map(tab => (
               <Tab key={tab.id} id={tab.id} title={tab.title} />
             ))}
@@ -28,17 +28,22 @@ const Header: FC<HeaderProps> = props => {
               <Fragment>
                 {!button.optionsItems?.length && (
                   <ToolTip position="bottom" content={button.tooltip}>
-                    <AnchorButton
-                      minimal
-                      small
-                      onClick={button.onClick}
-                      icon={button.icon}
-                      disabled={button.disabled}
-                    />
+                    {button.content ? (
+                      button.content
+                    ) : (
+                      <AnchorButton
+                        minimal
+                        small
+                        onClick={button.onClick}
+                        icon={button.icon}
+                        disabled={button.disabled}
+                      />
+                    )}
                   </ToolTip>
                 )}
                 {!!button.optionsItems?.length && (
                   <MoreOptions
+                    className={button.optionsWrapperClassName}
                     element={
                       <ToolTip position="bottom" content={button.tooltip}>
                         <AnchorButton

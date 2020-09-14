@@ -1,26 +1,13 @@
 import { Button } from '@blueprintjs/core'
 import * as sdk from 'botpress/sdk'
-import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 
-import ToolTip from '../../../../../../../../src/bp/ui-shared-lite/ToolTip'
+import lang from '../../../../lang'
 import { Collapsible } from '../components/Collapsible'
 import style from '../style.scss'
 
 import { Inspector } from './Inspector'
-
-const sortTriggersByScore = triggers => {
-  const result = Object.keys(triggers).map(id => {
-    const trigger = triggers[id]
-    const values = _.values(trigger.result)
-    const score = _.sum(values) / values.length
-
-    return { id, result: trigger.result, score: isNaN(score) ? -1 : score }
-  })
-
-  return _.orderBy(result, 'score', 'desc')
-}
 
 interface Props {
   ndu: sdk.NDU.DialogUnderstanding
@@ -44,10 +31,6 @@ const NDU: FC<Props> = ({ ndu, isExpanded, toggleExpand }) => {
     setViewJSON(newValue)
   }
 
-  const getPercentage = (number: number) => {
-    return _.round(number * 100, 2)
-  }
-
   const renderContent = () => {
     if (viewJSON) {
       return <Inspector data={ndu} />
@@ -56,37 +39,48 @@ const NDU: FC<Props> = ({ ndu, isExpanded, toggleExpand }) => {
     return (
       <Fragment>
         <div className={style.section}>
-          <div className={style.sectionTitle}>Top Triggers</div>
-          {_.take(sorted, 5).map((trigger, index) => {
-            return (
-              <div key={index} className={style.subSection}>
-                <ToolTip content={trigger.id}>
-                  <p className={cx(style.canShowFull, style.truncate)}>{trigger.id}</p>
-                </ToolTip>
-                <ul>{listResults(trigger.result)}</ul>
-              </div>
-            )
-          })}
-        </div>
-        <div className={style.section}>
-          <div className={style.sectionTitle}>Decisions Taken</div>
+          <div className={style.sectionTitle}>{lang.tr('module.extensions.ndu.decisionsTaken')}</div>
           <ul>
             {ndu.actions.map(({ action, data }, index) => {
               switch (action) {
                 case 'send':
-                  return <li key={index}>Send knowledge {(data as sdk.NDU.SendContent).sourceDetails}</li>
+                  return (
+                    <li key={index}>
+                      {lang.tr('module.extensions.ndu.sendKnowledge', {
+                        x: (data as sdk.NDU.SendContent).sourceDetails
+                      })}
+                    </li>
+                  )
                 case 'startWorkflow':
-                  return <li key={index}>Start Workflow {(data as sdk.NDU.FlowRedirect).flow}</li>
+                  return (
+                    <li key={index}>
+                      {lang.tr('module.extensions.ndu.startWorkflow', {
+                        x: (data as sdk.NDU.FlowRedirect).flow
+                      })}
+                    </li>
+                  )
                 case 'goToNode':
-                  return <li key={index}>Go to node {(data as sdk.NDU.FlowRedirect).node}</li>
+                  return (
+                    <li key={index}>
+                      {lang.tr('module.extensions.ndu.goToNode', {
+                        x: (data as sdk.NDU.FlowRedirect).node
+                      })}
+                    </li>
+                  )
                 case 'redirect':
-                  return <li key={index}>Redirect to {(data as sdk.NDU.FlowRedirect).flow}</li>
+                  return (
+                    <li key={index}>
+                      {lang.tr('module.extensions.ndu.redirectTo', {
+                        x: (data as sdk.NDU.FlowRedirect).flow
+                      })}
+                    </li>
+                  )
                 case 'continue':
-                  return <li key={index}>Continue flow execution</li>
+                  return <li key={index}>{lang.tr('module.extensions.ndu.continueFlowExecution')}</li>
                 case 'prompt.inform':
-                  return <li key={index}>Inform current prompt</li>
+                  return <li key={index}>{lang.tr('module.extensions.ndu.informCurrentPrompt')}</li>
                 case 'prompt.cancel':
-                  return <li key={index}>Cancel current prompt</li>
+                  return <li key={index}>{lang.tr('module.extensions.ndu.cancelCurrentPrompt')}</li>
               }
             })}
           </ul>
@@ -99,31 +93,16 @@ const NDU: FC<Props> = ({ ndu, isExpanded, toggleExpand }) => {
     return null
   }
 
-  const sorted = sortTriggersByScore(ndu.triggers)
-
-  const listResults = results => {
-    const keys = Object.keys(results || [])
-    if (!keys.length) {
-      return <li>No results</li>
-    }
-
-    return keys.map(id => (
-      <li key={id}>
-        {id}: {getPercentage(results[id])}%
-      </li>
-    ))
-  }
-
   return (
     <Fragment>
       <Collapsible
         opened={isExpanded(NDU_PANEL)}
         toggleExpand={expanded => toggleExpand(NDU_PANEL, expanded)}
-        name="Dialog Understanding"
+        name={lang.tr('module.extensions.ndu.dialogUnderstanding')}
       >
         {renderContent()}
         <Button minimal className={style.switchViewBtn} icon="eye-open" onClick={toggleView}>
-          {viewJSON ? 'View as Summary' : 'View as JSON'}
+          {viewJSON ? lang.tr('module.extensions.viewAsSummary') : lang.tr('module.extensions.viewAsJson')}
         </Button>
       </Collapsible>
     </Fragment>

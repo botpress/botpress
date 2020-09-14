@@ -1,9 +1,9 @@
-import _ from 'lodash'
+import _, { LoDashImplicitWrapper, LoDashWrapper } from 'lodash'
 
 import jaroDistance from '../tools/jaro'
 import levenDistance from '../tools/levenshtein'
 import { extractPattern } from '../tools/patterns-utils'
-import { EntityCache, EntityExtractionResult, ListEntityModel, PatternEntity } from '../typings'
+import { EntityExtractionResult, ListEntityModel, PatternEntity, WarmedListEntityModel } from '../typings'
 import Utterance, { UtteranceToken } from '../utterance/utterance'
 
 const ENTITY_SCORE_THRESHOLD = 0.6
@@ -74,18 +74,22 @@ function computeStructuralScore(a: string[], b: string[]): number {
   return Math.sqrt(final_charset_score * token_qty_score * token_size_score)
 }
 
-// returns list entities having cached results in one array and those without results in another
-function splitModels(listModels: ListEntityModel[], cacheKey: string): [ListEntityModel[], ListEntityModel[]] {
+interface SplittedModels {
+  withCacheHit: WarmedListEntityModel[]
+  withCacheMiss: WarmedListEntityModel[]
+}
+
+function splitModelsByCacheHitOrMiss(listModels: WarmedListEntityModel[], cacheKey: string): SplittedModels {
   return listModels.reduce(
-    ([withCached, withoutCached], nextModel) => {
-      if ((<EntityCache>nextModel.cache)?.has(cacheKey) ?? false) {
-        withCached.push(nextModel)
+    ({ withCacheHit, withCacheMiss }, nextModel) => {
+      if (nextModel.cache.has(cacheKey)) {
+        withCacheHit.push(nextModel)
       } else {
-        withoutCached.push(nextModel)
+        withCacheMiss.push(nextModel)
       }
-      return [withCached, withoutCached]
+      return { withCacheHit, withCacheMiss }
     },
-    [[], []] as [ListEntityModel[], ListEntityModel[]]
+    { withCacheHit: [], withCacheMiss: [] } as SplittedModels
   )
 }
 
@@ -175,28 +179,33 @@ function extractForListModel(utterance: Utterance, listModel: ListEntityModel): 
 
 export const extractListEntities = (
   utterance: Utterance,
-  list_entities: ListEntityModel[],
-  useCache: boolean = false
+  list_entities: ListEntityModel[]
+): EntityExtractionResult[] => {
+  return _(list_entities)
+    .map(model => extractForListModel(utterance, model))
+    .flatten()
+    .value()
+}
+
+export const extractListEntitiesWithCache = (
+  utterance: Utterance,
+  list_entities: WarmedListEntityModel[]
 ): EntityExtractionResult[] => {
   const cacheKey = utterance.toString({ lowerCase: true })
-  const [listModelsWithCachedRes, listModelsToExtract] = useCache
-    ? splitModels(list_entities, cacheKey)
-    : [[], list_entities]
+  const { withCacheHit, withCacheMiss } = splitModelsByCacheHitOrMiss(list_entities, cacheKey)
 
-  let matches: EntityExtractionResult[] = _.flatMap(
-    listModelsWithCachedRes,
-    listModel => (listModel.cache as EntityCache)?.get(cacheKey) ?? []
-  )
+  const cachedMatches: EntityExtractionResult[] = _.flatMap(withCacheHit, listModel => listModel.cache.get(cacheKey)!)
 
-  for (const listModel of listModelsToExtract) {
-    const extracted = extractForListModel(utterance, listModel)
-    if (extracted.length > 0) {
-      useCache && (listModel.cache as EntityCache)?.set(cacheKey, extracted)
-      matches = matches.concat(...extracted)
-    }
-  }
+  const extractedMatches: EntityExtractionResult[] = _(withCacheMiss)
+    .map(model => {
+      const extractions = extractForListModel(utterance, model)
+      model.cache.set(cacheKey, extractions)
+      return extractions
+    })
+    .flatten()
+    .value()
 
-  return matches
+  return [...cachedMatches, ...extractedMatches]
 }
 
 export const extractPatternEntities = (

@@ -22,10 +22,9 @@ $success-color: #56b149;
 }
 
 .sectionsWrapper {
-  display: grid;
-  grid-column-gap: 20px;
-  grid-row-gap: 24px;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
 }
 
 .section {
@@ -37,8 +36,7 @@ $success-color: #56b149;
   }
 
   &:not(.half) {
-    grid-column-start: 1;
-    grid-column-end: 3;
+    width: 100%;
   }
 }
 
@@ -171,6 +169,10 @@ $success-color: #56b149;
   }
 }
 
+.half {
+  width: 49%;
+}
+
 .genericMetric {
   background: #fff;
   border-radius: 3px;
@@ -187,17 +189,17 @@ $success-color: #56b149;
     min-height: 240px;
   }
 
-  &.quarter {
-    margin: 0 1% 20px;
-    width: 23%;
+  &.half {
+    width: 46%;
 
     .metricName {
       min-height: 0;
     }
   }
 
-  &.half {
-    width: 46%;
+  &.quarter {
+    margin: 0 1% 20px;
+    width: 23%;
 
     .metricName {
       min-height: 0;
@@ -252,10 +254,17 @@ $success-color: #56b149;
       }
 
       color: $linkText;
-      display: block;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      display: flex;
+
+      span:nth-child(1) {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      span:nth-child(2) {
+        margin-left: 5px;
+      }
     }
   }
 

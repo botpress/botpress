@@ -18,11 +18,18 @@ const _getPrompts = (state: RootReducer) => state.ndu.prompts
 const prepareUserVarTypes = (variableTypes: NLU.EntityDefinition[]) => {
   return variableTypes
     .filter(x => x.type !== 'system')
-    .map(x => ({ type: x.type.replace('list', 'enum'), subType: x.id, label: x.name }))
+    .map(x => ({
+      type: x.type.replace('list', 'enumeration'),
+      variableType: x.type.replace('list', 'enumeration'),
+      subType: x.id,
+      label: x.name
+    }))
 }
 
 const filterGenerics = items => {
-  return items.filter(x => !['enum', 'pattern'].includes(x.id)).map(x => ({ type: x.id, label: x.config?.label }))
+  return items
+    .filter(x => !['enumeration', 'pattern', 'complex'].includes(x.id))
+    .map(x => ({ type: x.id, variableType: x.config?.valueType, label: x.config?.label }))
 }
 
 export const getAllFlows = createSelector([_getFlowsByName], (flowsByName): FlowView[] => {

@@ -2,10 +2,11 @@ import { Button, Intent, MenuItem } from '@blueprintjs/core'
 import axios from 'axios'
 import { confirmDialog, EmptyState, lang } from 'botpress/shared'
 import cx from 'classnames'
+import { nextFlowName, nextTopicName, parseFlowName } from 'common/flow'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { deleteFlow, fetchFlows, fetchTopics, renameFlow, updateFlow } from '~/actions'
+import { deleteFlow, duplicateFlow, fetchFlows, fetchTopics, renameFlow, updateFlow } from '~/actions'
 import { SearchBar } from '~/components/Shared/Interface'
 import { AccessControl } from '~/components/Shared/Utils'
 import { getCurrentFlow, getFlowNamesList, RootReducer } from '~/reducers'
@@ -15,6 +16,7 @@ import { buildFlowName } from '../../../../util/workflows'
 
 import style from './style.scss'
 import EmptyStateIcon from './EmptyStateIcon'
+import SearchIcon from './SearchIcon'
 import TreeItem from './TreeItem'
 
 const lockedFlows = ['misunderstood.flow.json', 'error.flow.json', 'workflow_ended.flow.json']
@@ -36,6 +38,7 @@ interface OwnProps {
   goToFlow: (flow: any) => void
   createWorkflow: (topicId: string) => void
   exportTopic: (topicName: string | NodeData) => void
+  canAdd: boolean
   canDelete: boolean
   editing: string
   setEditing: (name: string) => void
@@ -101,6 +104,27 @@ const TopicList: FC<Props> = props => {
     }
   }
 
+  const duplicateFlow = (workflowPath: string) => {
+    const parsedName = parseFlowName(workflowPath)
+    const copyName = nextFlowName(props.flowsName, parsedName.topic, parsedName.workflow)
+    props.duplicateFlow({
+      flowNameToDuplicate: workflowPath,
+      name: copyName
+    })
+  }
+
+  const moveFlow = (workflowPath: string, newTopicName: string) => {
+    const parsed = parseFlowName(workflowPath, true)
+    const fullName = buildFlowName({ topic: newTopicName, workflow: parsed.workflow }, true)
+
+    if (!props.flowsName.find(x => x.name === fullName)) {
+      props.renameFlow({ targetFlow: workflowPath, name: fullName })
+      props.updateFlow({ name: fullName })
+    }
+
+    setExpanded({ ...expanded, [newTopicName]: true })
+  }
+
   const deleteTopic = async (name: string, skipDialog = false) => {
     const matcher = new RegExp(`^${name}/`)
     const flowsToDelete = props.flowsName.filter(x => matcher.test(x.name))
@@ -112,6 +136,27 @@ const TopicList: FC<Props> = props => {
       await axios.post(`${window.BOT_API_PATH}/deleteTopic/${name}`)
       flowsToDelete.forEach(flow => props.deleteFlow(flow.name))
       props.fetchTopics()
+
+      if (name === props.selectedTopic) {
+        props.goToFlow(undefined)
+      }
+    }
+  }
+
+  const duplicateTopic = async (name: string) => {
+    const flowsToCopy = props.flowsName.filter(x => parseFlowName(x.name).topic === name)
+    const newName = nextTopicName(props.topics, name)
+
+    await axios.post(`${window.BOT_API_PATH}/topic`, { name: newName })
+    props.fetchTopics()
+
+    for (const flow of flowsToCopy) {
+      const parsedName = parseFlowName(flow.name, true)
+      const newWorkflowName = buildFlowName({ topic: newName, workflow: parsedName.workflow }, true)
+      props.duplicateFlow({
+        flowNameToDuplicate: flow.name,
+        name: newWorkflowName
+      })
     }
   }
 
@@ -134,6 +179,13 @@ const TopicList: FC<Props> = props => {
             onClick={() => {
               setEditing(path)
               setIsEditingNew(false)
+            }}
+          />
+          <MenuItem
+            id="btn-duplicate"
+            label={lang.tr('studio.flow.sidePanel.duplicateTopic')}
+            onClick={async () => {
+              await duplicateTopic(folder)
             }}
           />
           <MenuItem
@@ -162,6 +214,24 @@ const TopicList: FC<Props> = props => {
             onClick={() => {
               setEditing(path)
               setIsEditingNew(false)
+            }}
+          />
+          <MenuItem id="btn-moveTo" disabled={props.readOnly} label={lang.tr('studio.flow.sidePanel.moveWorkflow')}>
+            {props.topics?.map(topic => (
+              <MenuItem
+                label={topic.name}
+                key={topic.name}
+                onClick={() => {
+                  moveFlow(name, topic.name)
+                }}
+              />
+            ))}
+          </MenuItem>
+          <MenuItem
+            id="btn-duplicate"
+            label={lang.tr('studio.flow.sidePanel.duplicateWorkflow')}
+            onClick={() => {
+              duplicateFlow(name)
             }}
           />
           <MenuItem
@@ -314,7 +384,7 @@ const TopicList: FC<Props> = props => {
         {expanded[path] && (
           <Fragment>
             {hasChildren && item.children.map(child => printTree(child, level + 1, path))}
-            {isTopic && item.id !== 'default' && (
+            {props.canAdd && isTopic && item.id !== 'default' && (
               <Button
                 minimal
                 onClick={() => props.createWorkflow(item.id)}
@@ -350,13 +420,20 @@ const TopicList: FC<Props> = props => {
           onChange={setFilter}
         />
       )}
-      {isEmpty && (
-        <EmptyState
-          className={style.emptyState}
-          icon={<EmptyStateIcon />}
-          text={lang.tr('studio.flow.sidePanel.tapIconsToAdd')}
-        />
-      )}
+      {isEmpty &&
+        (!!filter.length ? (
+          <EmptyState
+            className={style.emptyState}
+            icon={<SearchIcon />}
+            text={lang.tr('studio.flow.sidePanel.noSearchMatch')}
+          />
+        ) : (
+          <EmptyState
+            className={style.emptyState}
+            icon={<EmptyStateIcon />}
+            text={lang.tr('studio.flow.sidePanel.tapIconsToAdd')}
+          />
+        ))}
       {getFlattenFlows(newFlows).map(item => printTree(item, 0))}
     </div>
   )
@@ -373,7 +450,8 @@ const mapDispatchToProps = {
   fetchFlows,
   renameFlow,
   updateFlow,
-  deleteFlow
+  deleteFlow,
+  duplicateFlow
 }
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(TopicList)

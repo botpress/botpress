@@ -1,0 +1,35 @@
+[
+  {
+    "name": "cancel",
+    "utterances": {
+      "en": ["cancel", "abort", "leave"]
+    },
+    "slots": [],
+    "contexts": ["global"],
+    "metadata": {
+      "enabled": true
+    }
+  },
+  {
+    "name": "no",
+    "utterances": {
+      "en": ["no", "disagree", "disapprove", "nah", "nope", "no", "absolutely not", "wrong"]
+    },
+    "slots": [],
+    "contexts": ["global"],
+    "metadata": {
+      "enabled": true
+    }
+  },
+  {
+    "name": "yes",
+    "utterances": {
+      "en": ["yes", "i agree", "approve", "yup", "yeah", "absolutely", "sure", "right"]
+    },
+    "slots": [],
+    "contexts": ["global"],
+    "metadata": {
+      "enabled": true
+    }
+  }
+]

@@ -1,0 +1,30 @@
+{
+  "name": "fire-employe",
+  "utterances": {
+    "en": [
+      "I want to fire $employe_to_fire",
+      "fire $employe_to_fire",
+      "kick out $employe_to_fire",
+      "How can I expel $employe_to_fire from this compagny?",
+      "Get rid of $employe_to_fire tonight.",
+      "$employe_to_fire, you're fired!",
+      "I want to fire someone",
+      "How to expel employe?",
+      "expel employe number $employe_to_fire"
+    ]
+  },
+  "slots": [
+    {
+      "id": "RaeD5-Sigmlm1bbssELcX",
+      "name": "employe_to_fire",
+      "color": 1,
+      "entity": "email_employe-number_any"
+    }
+  ],
+  "contexts": [
+    "multi-entity"
+  ],
+  "metadata": {
+    "enabled": true
+  }
+}

@@ -81,7 +81,14 @@ export interface ListEntityModel {
   sensitive: boolean
   /** @example { 'Air Canada': [ ['Air', '_Canada'], ['air', 'can'] ] } */
   mappingsTokens: _.Dictionary<string[][]>
-  cache?: EntityCache | EntityCacheDump
+}
+
+export type ColdListEntityModel = ListEntityModel & {
+  cache: EntityCacheDump
+}
+
+export type WarmedListEntityModel = ListEntityModel & {
+  cache: EntityCache
 }
 
 export interface ExtractedSlot {

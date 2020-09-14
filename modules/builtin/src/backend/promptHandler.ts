@@ -28,7 +28,7 @@ export const handlePrompt = async (event: sdk.IO.OutgoingEvent, bp: typeof sdk):
 
   const defaultPayload: sdk.Content.Text = {
     type: 'text',
-    text: payload.question,
+    text: (payload.question as string).replace('__VARNAME', payload.output),
     metadata: payload.metadata
   }
 
@@ -50,7 +50,7 @@ export const handlePrompt = async (event: sdk.IO.OutgoingEvent, bp: typeof sdk):
         }
       }
 
-    case 'enum':
+    case 'enumeration':
       let items = payload.items
 
       if (payload.subType) {

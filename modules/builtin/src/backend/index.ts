@@ -21,8 +21,7 @@ import BoxedString from './variables/string'
 
 const botTemplates: sdk.BotTemplate[] = [
   { id: 'welcome-bot', name: 'Welcome Bot', desc: `Basic bot that showcases some of the bot's functionality` },
-  { id: 'small-talk', name: 'Small Talk', desc: `Includes basic smalltalk examples` },
-  { id: 'empty-bot', name: 'Empty Bot', desc: `Start fresh with a clean flow` }
+  { id: 'small-talk', name: 'Small Talk', desc: `Includes basic smalltalk examples` }
 ]
 
 const prompts = [PromptConfirm, PromptDate, PromptNumber, PromptString, PromptEnum, PromptPattern, PromptComplex]
@@ -34,7 +33,8 @@ const onServerStarted = async (bp: typeof sdk) => {
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   variables: [BoxedDate, BoxedBoolean, BoxedNumber, BoxedString, BoxedEnum, BoxedPattern, BoxedComplex],
-  botTemplates,
+  // TODO: remove templates
+  // botTemplates,
   translations: { en, fr },
   prompts,
   definition: {

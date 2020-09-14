@@ -27,9 +27,11 @@ export default ({
   variables,
   addVariable,
   onChange,
+  isPartOfArray,
   onBlur,
   className,
   value,
+  refValue,
   childRef,
   isFocused,
   placeholder
@@ -50,7 +52,7 @@ export default ({
       .map(({ params }) => params?.name)
       .filter(Boolean) || []
 
-  const initialValue = useRef<string>((value && convertToTags(value)) || '')
+  const initialValue = useRef<string>((value && convertToTags(value)) || (refValue && convertToTags(refValue)) || '')
   const newlyAddedVar = useRef<string[]>([])
   const currentPrefix = useRef<string>()
   const tagifyRef = useRef<any>()
@@ -205,129 +207,140 @@ export default ({
     }
   }
 
+  const missingTranslation = !isPartOfArray && refValue && !value
+
   return (
-    <div className={cx(style.superInputWrapper, className, 'superinput-wrapper')}>
-      {
-        <div className={style.tagBtnWrapper}>
-          {canPickEvents && (
-            <ToolTip content={lang('superInput.insertValueFromEvent')} hoverOpenDelay={300} position="top">
-              <Button
-                className={style.tagBtn}
-                onClick={() => {
-                  addPrefix('{{')
-                }}
-                icon={<Icons.Brackets />}
-              />
-            </ToolTip>
-          )}
-          {canPickVariables && (
-            <ToolTip content={lang('superInput.insertValueFromVariables')} hoverOpenDelay={300} position="top">
-              <Button
-                className={style.tagBtn}
-                onClick={() => {
-                  addPrefix('$')
-                }}
-                icon="dollar"
-              />
-            </ToolTip>
-          )}
-        </div>
-      }
-      <Tags
-        placeholder={placeholder}
-        className={style.superInput}
-        tagifyRef={tagifyRef}
-        InputMode="textarea"
-        settings={{
-          dropdown: {
-            classname: 'color-blue',
-            enabled: 0,
-            maxItems: 5,
-            position: 'below',
-            closeOnSelect: true,
-            highlightFirst: true
-          },
-          templates: {
-            dropdown(settings) {
-              return (
-                <div
-                  className={cx(style.dropdown, 'tagify__dropdown tagify__dropdown--below')}
-                  role="listbox"
-                  aria-labelledby="dropdown"
-                >
-                  <div className="tagify__dropdown__wrapper"></div>
-                </div>
-              )
+    <Fragment>
+      <div
+        className={cx(style.superInputWrapper, className, 'superinput-wrapper', {
+          ['has-error']: missingTranslation
+        })}
+      >
+        {
+          <div className={style.tagBtnWrapper}>
+            {canPickEvents && (
+              <ToolTip content={lang('superInput.insertValueFromEvent')} hoverOpenDelay={300} position="top">
+                <Button
+                  className={style.tagBtn}
+                  onClick={() => {
+                    addPrefix('{{')
+                  }}
+                  icon={<Icons.Brackets />}
+                />
+              </ToolTip>
+            )}
+            {canPickVariables && (
+              <ToolTip content={lang('superInput.insertValueFromVariables')} hoverOpenDelay={300} position="top">
+                <Button
+                  className={style.tagBtn}
+                  onClick={() => {
+                    addPrefix('$')
+                  }}
+                  icon="dollar"
+                />
+              </ToolTip>
+            )}
+          </div>
+        }
+        <Tags
+          placeholder={placeholder}
+          className={style.superInput}
+          tagifyRef={tagifyRef}
+          InputMode="textarea"
+          settings={{
+            dropdown: {
+              classname: 'color-blue',
+              enabled: 0,
+              maxItems: 5,
+              position: 'below',
+              closeOnSelect: true,
+              highlightFirst: true
             },
-            dropdownItem({ value, tagifySuggestionIdx }) {
-              const type = variables?.currentFlow?.find(x => x.params?.name === value)?.type
-              const icon = variables?.primitive.find(x => x.id === type)?.config?.icon
+            templates: {
+              dropdown(settings) {
+                return (
+                  <div
+                    className={cx(style.dropdown, 'tagify__dropdown tagify__dropdown--below')}
+                    role="listbox"
+                    aria-labelledby="dropdown"
+                  >
+                    <div className="tagify__dropdown__wrapper"></div>
+                  </div>
+                )
+              },
+              dropdownItem({ value, tagifySuggestionIdx }) {
+                const type = variables?.currentFlow?.find(x => x.params?.name === value)?.type
+                const icon = variables?.primitive.find(x => x.id === type)?.config?.icon
 
-              const isAdding = !tagifyRef.current.settings.whitelist.includes(value)
-              const string = isAdding ? `"${value}"` : value
+                const isAdding = !tagifyRef.current.settings.whitelist.includes(value)
+                const string = isAdding ? `"${value}"` : value
 
-              if (isAdding && (currentPrefix.current === '{{' || !canAddElements)) {
-                return null
-              }
+                if (isAdding && (currentPrefix.current === '{{' || !canAddElements)) {
+                  return null
+                }
 
-              return (
-                <div
-                  {...{ tagifysuggestionidx: tagifySuggestionIdx }}
-                  className={cx('tagify__dropdown__item', { [style.addingItem]: isAdding })}
-                  tabIndex={0}
-                  role="option"
-                >
-                  {isAdding && (
-                    <Fragment>
-                      <Icon icon="plus" iconSize={12} />
-                      {lang('create')}
-                    </Fragment>
-                  )}
-                  <Icon icon={icon} iconSize={10} /> {string}
-                  <span className="description">{eventsDesc?.[value] || ''}</span>
-                </div>
-              )
-            },
-            tag({ prefix, value }) {
-              const isInvalid = !(prefix === '$'
-                ? [...localVariables, ...newlyAddedVar.current]
-                : localEvents
-              ).includes(value)
+                return (
+                  <div
+                    {...{ tagifysuggestionidx: tagifySuggestionIdx }}
+                    className={cx('tagify__dropdown__item', { [style.addingItem]: isAdding })}
+                    tabIndex={0}
+                    role="option"
+                  >
+                    {isAdding && (
+                      <Fragment>
+                        <Icon icon="plus" iconSize={12} />
+                        {lang('create')}
+                      </Fragment>
+                    )}
+                    <Icon icon={icon} iconSize={10} /> {string}
+                    <span className="description">{eventsDesc?.[value] || ''}</span>
+                  </div>
+                )
+              },
+              tag({ prefix, value }) {
+                const isInvalid = !(prefix === '$'
+                  ? [...localVariables, ...newlyAddedVar.current]
+                  : localEvents
+                ).includes(value)
 
-              let icon: IconName | JSX.Element = <Icons.Brackets iconSize={10} />
+                let icon, suffix
 
-              if (isInvalid) {
-                icon = 'error'
-              } else if (prefix === '$') {
-                icon = 'dollar'
-              }
+                if (isInvalid) {
+                  icon = <Icon icon="error" iconSize={10} />
+                } else {
+                  icon = prefix
+                  suffix = prefix === '{{' ? '}}' : ''
+                }
 
-              return (
-                <span
-                  title={value}
-                  contentEditable={false}
-                  spellCheck={false}
-                  tabIndex={-1}
-                  className={cx('tagify__tag', { ['tagify--invalid']: isInvalid })}
-                >
-                  <span>
-                    <Icon icon={icon} iconSize={10} />
-                    <span className="tagify__tag-text">{value}</span>
+                return (
+                  <span
+                    title={value}
+                    contentEditable={false}
+                    spellCheck={false}
+                    tabIndex={-1}
+                    className={cx('tagify__tag', { ['tagify--invalid']: isInvalid })}
+                  >
+                    <span>
+                      {icon}
+                      <span className="tagify__tag-text">{value}</span>
+                      {suffix}
+                    </span>
                   </span>
-                </span>
-              )
-            }
-          },
-          duplicates: true,
-          callbacks: tagifyCallbacks,
-          mode: 'mix',
-          pattern: getPattern()
-        }}
-        defaultValue={initialValue.current}
-        onChange={e => {
-          onChange?.(convertToString(e.currentTarget.value))
-        }}
-      />
-    </div>
+                )
+              }
+            },
+            duplicates: true,
+            callbacks: tagifyCallbacks,
+            mode: 'mix',
+            pattern: getPattern()
+          }}
+          defaultValue={initialValue.current}
+          onChange={e => {
+            onChange?.(convertToString(e.currentTarget.value))
+          }}
+        />
+      </div>
+      {missingTranslation && <span className={style.error}>{lang('pleaseTranslateField')}</span>}
+    </Fragment>
   )
 }

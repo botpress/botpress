@@ -59,7 +59,7 @@ const VariablePicker: FC<Props> = ({
   const SimpleDropdown = Select.ofType<Option>()
 
   const getCurrentOption = () => {
-    const value = data[field.key] || field.defaultValue || (!field.placeholder && options?.[0]?.value)
+    const value = data[field.key] || field.defaultValue || (!placeholder && options?.[0]?.value)
     return options?.find(option => option.value === value)
   }
 
@@ -78,7 +78,7 @@ const VariablePicker: FC<Props> = ({
   useEffect(() => {
     const currentOption = getCurrentOption()
     setActiveItem(options?.find(item => item.value === currentOption?.value) ?? currentOption)
-  }, [])
+  }, [options])
 
   const filterDropdown = (query: string, options) => {
     const addOption = [] as any[]
@@ -132,7 +132,7 @@ const VariablePicker: FC<Props> = ({
   return (
     <SimpleDropdown
       filterable
-      className={cx(style.formSelect, sharedStyle.formSelect, className)}
+      className={cx(style.formSelect, className)}
       inputProps={{ placeholder: lang('filter') }}
       items={options}
       activeItem={activeItem}

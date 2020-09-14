@@ -4,6 +4,7 @@ export interface ConfirmDialogOptions {
   decline?: () => void
   acceptLabel?: string
   declineLabel?: string
+  showDecline?: boolean
 }
 
 export interface ConfirmDialogProps extends ConfirmDialogOptions {

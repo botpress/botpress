@@ -20,6 +20,22 @@
   }
 }
 
+.needsTranslation {
+  border-radius: 5px;
+  border: solid 1px var(--lighthouse);
+  background-color: var(--hover-lighthouse-30);
+  color: var(--lighthouse);
+  font-size: 8px;
+  line-height: 1.88;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  margin: 0 0 var(--spacing-medium);
+  width: 100%;
+}
+
 .img {
   background-position: center;
   background-repeat: no-repeat;
@@ -39,9 +55,55 @@
 .nodeWrapper {
   background: #fff;
   width: 150px;
+  border: none;
+  border-radius: 0 0 5px 5px;
 
   &.highlighted {
-    outline: 5px solid #ffde33 !important;
+    border: 1px solid var(--ocean) !important;
+
+    .say_something,
+    .prompt,
+    .trigger,
+    .execute,
+    .action,
+    .failure,
+    .router,
+    .success {
+      :global(.port):before {
+        background: var(--ocean);
+      }
+    }
+
+    .debugInfo {
+      background: var(--ocean) !important;
+      color: #fff;
+    }
+
+    .hasError {
+      border: 1px solid var(--lighthouse);
+      background: var(--lighthouse) !important;
+    }
+
+    .headerWrapper {
+      &.say_something,
+      &:hover.say_something,
+      &.trigger,
+      &:hover.trigger,
+      &.execute,
+      &:hover.execute,
+      &.action,
+      &:hover.action,
+      &.failure,
+      &:hover.failure,
+      &.router,
+      &:hover.router,
+      &.success,
+      &:hover.success,
+      &.prompt,
+      &:hover.prompt {
+        border-color: var(--ocean);
+      }
+    }
   }
 
   .prompt :global(.port):before {
@@ -111,12 +173,78 @@
           margin-top: 0 !important;
         }
 
-        &.active,
         &:hover {
-          .content,
           &:after {
             background: #fff !important;
           }
+        }
+      }
+    }
+  }
+
+  .debugInfo {
+    padding: 5px;
+    font-size: 10px;
+    text-align: center;
+    font-weight: normal;
+
+    &.say_something,
+    &:hover.say_something {
+      background: var(--say);
+    }
+
+    &.trigger,
+    &:hover.trigger {
+      background: var(--trigger);
+    }
+
+    &.execute,
+    &:hover.execute,
+    &.action,
+    &:hover.action {
+      background: var(--execute);
+    }
+
+    &.failure,
+    &:hover.failure {
+      background: var(--lighthouse);
+    }
+
+    &.router,
+    &:hover.router {
+      background: var(--if-else);
+    }
+
+    &.success,
+    &:hover.success {
+      background: var(--success);
+    }
+
+    &.prompt,
+    &:hover.prompt {
+      background: var(--prompt);
+    }
+
+    :global(.bp3-button).button {
+      background-color: var(--seashell);
+      color: var(--shark);
+      min-height: 0;
+      border-radius: 3px;
+      font-size: 10px;
+      height: 20px;
+      padding: 6px;
+      transition: background 0.3s ease-in-out;
+
+      &:hover {
+        background-color: var(--gray);
+      }
+
+      &.danger {
+        background-color: var(--lighthouse);
+        color: white;
+
+        &:hover {
+          background-color: var(--hover-lighthouse);
         }
       }
     }
@@ -140,11 +268,10 @@
     position: relative;
     width: 100%;
 
-    &:hover {
+    &.say_something,
+    &:hover.say_something {
       background: #fff;
-      border: none;
-      border-top: 2px solid var(--say);
-      box-shadow: none;
+      border-color: var(--say);
     }
 
     &.trigger,
@@ -279,7 +406,7 @@
 .joinLabel {
   color: var(--shark);
   display: block;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: bold;
   line-height: 1.25;
   margin: var(--spacing-small) 0;
@@ -295,7 +422,7 @@
   border-radius: 5px;
   border: none;
   color: var(--shark);
-  font-size: 8px;
+  font-size: 10px;
   height: 40px;
   line-height: 1.25;
   margin: var(--spacing-medium) var(--spacing-medium) 0 0;
@@ -316,8 +443,13 @@
     cursor: grabbing;
   }
 
-  &:hover,
   &.active {
+    .content {
+      background-color: var(--hover-ocean);
+      border: solid 1px var(--ocean);
+    }
+  }
+  &:hover {
     .content:not(.promptPortContent) {
       border: solid 1px var(--ocean);
     }
@@ -348,11 +480,37 @@
   flex-wrap: wrap;
   height: 100%;
   padding: var(--spacing-small);
+  text-align: left;
   transition: background 0.3s, border 0.3s;
   width: 100%;
-  word-break: break-all;
 
-  &.promptPortContent {
+  &.readOnly {
+    border-color: var(--bg);
+    background-color: var(--bg);
     position: relative;
+  }
+}
+
+.results {
+  font-size: 10px;
+}
+
+.total {
+  font-size: 14px;
+  text-align: center;
+}
+
+.smallButton {
+  background-color: var(--seashell) !important;
+  color: var(--shark);
+  min-height: 0;
+  border-radius: 3px;
+  font-size: 10px;
+  height: 20px;
+  padding: 6px;
+  transition: background 0.3s ease-in-out;
+
+  &:hover {
+    background-color: var(--gray);
   }
 }

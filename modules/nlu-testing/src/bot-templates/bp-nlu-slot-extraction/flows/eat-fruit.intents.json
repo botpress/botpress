@@ -1,0 +1,26 @@
+{
+  "name": "eat-fruit",
+  "utterances": {
+    "en": [
+      "I really want to eat my $fruit_to_eat",
+      "A $fruit_to_eat is what i want to eat",
+      "I can't resist this big $fruit_to_eat",
+      "about to eat this $fruit_to_eat right now",
+      "I eat my $fruit_to_eat now",
+      "going to eat a $fruit_to_eat",
+      "I wanna eat a $fruit_to_eat"
+    ]
+  },
+  "slots": [
+    {
+      "id": "N0F7p4WcfJ9Ey9MgOXJwI",
+      "name": "fruit_to_eat",
+      "color": 1,
+      "entity": "fruits"
+    }
+  ],
+  "contexts": ["no-slot"],
+  "metadata": {
+    "enabled": true
+  }
+}

@@ -1,11 +1,39 @@
-import { PrimitiveVarType } from 'botpress/sdk'
+import sdk from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 
-import common from './common'
+import { common, createOperator, getCommonOperators } from './common'
 
-class BoxedNumber extends BaseVariable<number> {
+interface Variable extends sdk.BoxedVariable<number> {
+  parse(text: string): number
+  smallerThan(other: number): boolean
+  smallerOrEqualTo(other: number): boolean
+  largerThan(other: number): boolean
+  largerOrEqualTo(other: number): boolean
+}
+
+class BoxedNumber extends BaseVariable<number> implements Variable {
   constructor(args) {
     super(args)
+  }
+
+  parse(text: string): number {
+    return +text
+  }
+
+  smallerThan(other: number): boolean {
+    return this.value < other
+  }
+
+  smallerOrEqualTo(other: number): boolean {
+    return this.value <= other
+  }
+
+  largerThan(other: number): boolean {
+    return this.value > other
+  }
+
+  largerOrEqualTo(other: number): boolean {
+    return this.value >= other
   }
 
   trySet(value: number, confidence: number) {
@@ -26,20 +54,27 @@ class BoxedNumber extends BaseVariable<number> {
     }
   }
 
-  toString(customFormat?: string) {
+  toString() {
     return this._value.toString()
   }
 }
 
-const NumberVariableType: PrimitiveVarType = {
+const definition: sdk.PrimitiveVarType = {
   id: 'number',
   config: {
     label: 'number',
     icon: 'numerical',
+    operators: [
+      ...getCommonOperators('number'),
+      createOperator('number', 'smallerThan'),
+      createOperator('number', 'largerThan'),
+      createOperator('number', 'smallerOrEqualTo'),
+      createOperator('number', 'largerOrEqualTo')
+    ],
     fields: common.fields,
     advancedSettings: common.advancedSettings
   },
   box: BoxedNumber
 }
 
-export default NumberVariableType
+export default definition

@@ -1,12 +1,30 @@
-import { PrimitiveVarType } from 'botpress/sdk'
+import sdk from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 import yn from 'yn'
 
-import common from './common'
+import { common, getCommonOperators } from './common'
 
-class BoxedBoolean extends BaseVariable<boolean> {
+interface Variable extends sdk.BoxedVariable<boolean> {
+  parse(text: string): boolean
+  isTrue: (other: Date) => boolean
+  isFalse: (other: Date) => boolean
+}
+
+class BoxedBoolean extends BaseVariable<boolean> implements Variable {
   constructor(args) {
     super(args)
+  }
+
+  parse(text: string): boolean {
+    return yn(text)
+  }
+
+  isTrue() {
+    return this.value
+  }
+
+  isFalse() {
+    return !this.value
   }
 
   trySet(value: boolean, confidence: number) {
@@ -33,11 +51,28 @@ class BoxedBoolean extends BaseVariable<boolean> {
   }
 }
 
-const BooleanVariableType: PrimitiveVarType = {
+const definition: sdk.PrimitiveVarType = {
   id: 'boolean',
   config: {
     label: 'boolean',
     icon: 'segmented-control',
+    operators: [
+      ...getCommonOperators('boolean'),
+      {
+        func: 'isTrue',
+        label: `module.builtin.operator.isTrue`,
+        caption: 'module.builtin.operations.selfOperation',
+        fields: [],
+        advancedSettings: []
+      },
+      {
+        func: 'isFalse',
+        label: `module.builtin.operator.isFalse`,
+        caption: 'module.builtin.operations.selfOperation',
+        fields: [],
+        advancedSettings: []
+      }
+    ],
     fields: [
       ...common.fields,
       {
@@ -51,4 +86,4 @@ const BooleanVariableType: PrimitiveVarType = {
   box: BoxedBoolean
 }
 
-export default BooleanVariableType
+export default definition

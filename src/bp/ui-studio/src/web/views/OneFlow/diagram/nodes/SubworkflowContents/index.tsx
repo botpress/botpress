@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, Fragment } from 'react'
 import { StandardPortWidget } from '~/views/FlowBuilder/diagram/nodes/Ports'
@@ -8,7 +9,6 @@ import style from '../Components/style.scss'
 interface Props {
   node: BlockModel
   selectedNodeItem: () => { node: BlockModel; index: number }
-  getCurrentLang: () => string
   editNodeItem: (node: BlockModel, index: number) => void
 }
 
@@ -40,7 +40,7 @@ const SubworkflowContents: FC<Props> = ({ node, selectedNodeItem, editNodeItem }
           return (
             <div key={`${i}.${item}`} className={style.contentWrapper}>
               <div className={cx(style.content, style.promptPortContent)}>
-                {item.caption}
+                {lang.tr(item.caption)}
                 <StandardPortWidget name={outputPortName} node={node} className={style.outRouting} />
               </div>
             </div>

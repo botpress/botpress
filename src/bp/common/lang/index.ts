@@ -1,5 +1,6 @@
 import IntlMessageFormat from 'intl-messageformat'
-import _ from 'lodash'
+import get from 'lodash/get'
+import merge from 'lodash/merge'
 
 const defaultLocale = 'en'
 const translations = {}
@@ -27,7 +28,7 @@ const init = (langs: { [lang: string]: any }, prefix?: string) => {
  */
 const tr = (key: string, values?: { [variable: string]: any }, lang?: string) => {
   const getFormattedText = (lang: string) => {
-    const text = _.get(translations?.[lang], key)
+    const text = get(translations?.[lang], key)
     return values ? new IntlMessageFormat(text, []).format(values) : text
   }
 
@@ -41,7 +42,7 @@ const tr = (key: string, values?: { [variable: string]: any }, lang?: string) =>
 const extend = langs => {
   for (const [key, value] of Object.entries(langs)) {
     if (translations[key]) {
-      _.merge(translations[key], value)
+      merge(translations[key], value)
     } else {
       translations[key] = value
     }

@@ -170,7 +170,7 @@
     right: 0;
     width: 100%;
     height: 100%;
-    border-left: 1px solid #ccc;
+    border-left: 1px solid var(--gray);
     visibility: hidden;
 
     -webkit-box-orient: vertical;
@@ -226,6 +226,7 @@
     margin-right: 12px;
     cursor: pointer;
     min-height: 40px;
+    padding: var(--spacing-x-small) var(--spacing-large);
     transition: border 0.3s, background 0.3s, color 0.3s;
   }
 
@@ -499,11 +500,17 @@
 
   .bpw-keyboard-quick_reply {
     overflow-y: auto;
-    white-space: nowrap;
     background-color: var(--bg);
-    padding: 12px 8px;
+    padding: var(--spacing-large) var(--spacing-medium);
     text-align: left;
     border-radius: 3px;
+    margin: var(--spacing-large);
+    margin-bottom: 0;
+  }
+
+  .bpw-quick_reply-buttons-container {
+    width: 100%;
+    white-space: nowrap;
   }
 
   /* CAROUSEL  */
@@ -768,8 +775,8 @@
     flex-shrink: 0;
     height: 52px;
     font-weight: 500;
-    border-top: solid 1px #ccc;
-    border-bottom: 1px solid #ccc;
+    border-top: solid 1px var(--gray);
+    border-bottom: 1px solid var(--gray);
     padding: 0 1rem;
     overflow: hidden;
   }
@@ -928,7 +935,7 @@
   .bpw-botinfo-summary {
     margin-top: -32px;
     border-bottom: solid 1px rgba(0, 0, 0, 0.1);
-    box-shadow: 0px 4px 5px -5px #ccc;
+    box-shadow: 0px 4px 5px -5px var(--gray);
     text-align: center;
   }
 

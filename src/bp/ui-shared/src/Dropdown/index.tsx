@@ -34,6 +34,7 @@ const filterOptions: ItemPredicate<Option> = (query, option) => {
 
 const Dropdown: FC<DropdownProps> = props => {
   const {
+    hideActiveItemIcon,
     placeholder,
     filterPlaceholder,
     confirmChange,
@@ -97,7 +98,7 @@ const Dropdown: FC<DropdownProps> = props => {
         <Button
           className={cx(style.btn, { [style.spaced]: spaced, [style.placeholder]: !activeItem })}
           text={small ? <small>{btnText}</small> : btnText}
-          icon={activeItem?.icon ?? icon}
+          icon={!hideActiveItemIcon && (activeItem?.icon ?? icon)}
           rightIcon={rightIcon || 'double-caret-vertical'}
           small={small}
         />

@@ -1,0 +1,34 @@
+{
+  "name": "fire-something",
+  "utterances": {
+    "en": [
+      "I'm gonna fire my $thing_to_fire at $time_or_place",
+      "I'm going to fire $thing_to_fire in $time_or_place",
+      "There's an $thing_to_fire shooting planned $time_or_place",
+      "I'm heading to $time_or_place shooting lane to test my $thing_to_fire",
+      "let's shoot some $thing_to_fire at $time_or_place",
+      "at $time_or_place is the time I will fire $thing_to_fire",
+      "Go to $time_or_place to shoot some fruits!",
+      "Fire your $time_or_place at some place or time!",
+      "I'm going to fire fruits ora gun at some place or time"
+    ]
+  },
+  "slots": [
+    {
+      "id": "tr6LhqpNT_hRF8VSeyXBE",
+      "name": "thing_to_fire",
+      "color": 1,
+      "entity": "fruits_gun"
+    },
+    {
+      "id": "vlqdXhPbpb5R_u3-7qEJ7",
+      "name": "time_or_place",
+      "color": 2,
+      "entity": "time_city"
+    }
+  ],
+  "contexts": ["multi-slot-multi-entity"],
+  "metadata": {
+    "enabled": true
+  }
+}

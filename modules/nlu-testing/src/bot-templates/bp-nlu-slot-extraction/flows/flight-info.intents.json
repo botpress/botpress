@@ -1,0 +1,36 @@
+{
+  "name": "flight-info",
+  "utterances": {
+    "en": [
+      "check flight $flight-number to $arrival-city",
+      "info $flight-number to $arrival-city",
+      "I would like info$flight-number",
+      "trip arriving in $arrival-city",
+      "get info about $flight-number arriving in the $arrival-city",
+      "$flight-number informations",
+      "details on my flight $flight-number landing in $arrival-city",
+      "My daughter flight is $flight-number I would like to know where she is.",
+      "Inform me about aircanada $flight-number for $arrival-city"
+    ]
+  },
+  "slots": [
+    {
+      "id": "-Q9oYuup66K2wkXsEbSoM",
+      "name": "arrival-city",
+      "color": 1,
+      "entity": "city"
+    },
+    {
+      "id": "Xf3oT1n7JcIk9PDJTbh8p",
+      "name": "flight-number",
+      "color": 3,
+      "entity": "flight-number"
+    }
+  ],
+  "contexts": [
+    "2-entities"
+  ],
+  "metadata": {
+    "enabled": true
+  }
+}

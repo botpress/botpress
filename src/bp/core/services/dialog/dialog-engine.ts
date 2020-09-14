@@ -1,10 +1,10 @@
-import { BoxedVariable, Content, FlowNode, IO, VariableParams } from 'botpress/sdk'
+import { BoxedVariable, Content, FlowNode, IO, Logger, VariableParams } from 'botpress/sdk'
 import { parseFlowName } from 'common/flow'
 import { FlowView } from 'common/typings'
 import { createForGlobalHooks } from 'core/api'
 import { EventRepository } from 'core/repositories'
 import { TYPES } from 'core/types'
-import { inject, injectable } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
 import { converseApiEvents } from '../converse'
@@ -13,8 +13,9 @@ import { DialogStore } from '../middleware/dialog-store'
 import { addErrorToEvent } from '../middleware/event-collector'
 import { EventEngine } from '../middleware/event-engine'
 
-import { FlowError, ProcessingError, TimeoutNodeNotFound } from './errors'
+import { FlowError, TimeoutNodeNotFound } from './errors'
 import { FlowService } from './flow/service'
+import { Instruction } from './instruction'
 import { InstructionProcessor } from './instruction/processor'
 import { InstructionQueue } from './instruction/queue'
 import { PromptManager } from './prompt-manager'
@@ -24,11 +25,12 @@ const debug = DEBUG('dialog')
 
 @injectable()
 export class DialogEngine {
-  public onProcessingError: ((err: ProcessingError, hideStack: boolean) => void) | undefined
-
   private _flowsByBot: Map<string, FlowView[]> = new Map()
 
   constructor(
+    @inject(TYPES.Logger)
+    @tagged('name', 'DialogEngine')
+    private logger: Logger,
     @inject(TYPES.FlowService) private flowService: FlowService,
     @inject(TYPES.HookService) private hookService: HookService,
     @inject(TYPES.EventRepository) private eventRepository: EventRepository,
@@ -68,6 +70,10 @@ export class DialogEngine {
 
       if (currentNode.type === 'prompt' && !context.activePrompt && !this._getCurrentNodeValue(event, 'processed')) {
         this._appendActivePromptToContext(currentNode, context)
+      }
+
+      if (context.activePrompt && !event.state.__stacktrace.length) {
+        event.state.__stacktrace.push({ flow: currentFlow.name, node: currentNode.name })
       }
 
       if (context.activePrompt?.status === 'pending') {
@@ -323,18 +329,30 @@ export class DialogEngine {
       delete event.state.context.activePrompt
     }
 
-    const botId = event.botId
-    await this._loadFlows(botId)
+    try {
+      const botId = event.botId
+      await this._loadFlows(botId)
 
-    const targetFlow = this._findFlow(botId, targetFlowName)
-    const targetNode = targetNodeName
-      ? this._findNode(botId, targetFlow, targetNodeName)
-      : this._findNode(botId, targetFlow, targetFlow.startNode)
+      const targetFlow = this._findFlow(botId, targetFlowName)
+      const targetNode = targetNodeName
+        ? this._findNode(botId, targetFlow, targetNodeName)
+        : this._findNode(botId, targetFlow, targetFlow.startNode)
 
-    event.state.context.currentFlow = targetFlow.name
-    event.state.context.currentNode = targetNode.name
-    event.state.context.queue = undefined
-    event.state.context.hasJumped = true
+      event.state.__stacktrace.push({ flow: targetFlow.name, node: targetNode.name })
+      event.state.context.currentFlow = targetFlow.name
+      event.state.context.currentNode = targetNode.name
+      event.state.context.queue = undefined
+      event.state.context.hasJumped = true
+    } catch (err) {
+      addErrorToEvent(
+        {
+          type: 'dialog-engine',
+          stacktrace: err.stacktrace || err.stack
+        },
+        event
+      )
+      throw err
+    }
   }
 
   public async processTimeout(botId: string, sessionId: string, event: IO.IncomingEvent, isPrompt?: boolean) {
@@ -624,15 +642,28 @@ export class DialogEngine {
     return node
   }
 
-  private _reportProcessingError(botId, error, event, instruction) {
+  private _reportProcessingError(botId: string, err, event: IO.IncomingEvent, instruction: Instruction) {
     const nodeName = _.get(event, 'state.context.currentNode', 'N/A')
     const flowName = _.get(event, 'state.context.currentFlow', 'N/A')
-    const instructionDetails = instruction.fn || instruction.type
-    this.onProcessingError &&
-      this.onProcessingError(
-        new ProcessingError(error.message, botId, nodeName, flowName, instructionDetails),
-        error.hideStack
-      )
+    const instr = instruction.fn || instruction.type
+    const message = `Error processing '${instr}'\nErr: ${err.message}\nBotId: ${botId}\nFlow: ${flowName}\nNode: ${nodeName}`
+
+    if (!err.hideStack) {
+      this.logger
+        .forBot(botId)
+        .attachError(err)
+        .warn(message)
+    } else {
+      this.logger.forBot(botId).warn(message)
+    }
+
+    addErrorToEvent(
+      {
+        type: 'dialog-engine',
+        stacktrace: err.stacktrace || err.stack
+      },
+      event
+    )
   }
 
   private _exitingSubflow(event: IO.IncomingEvent) {
@@ -702,9 +733,10 @@ export class DialogEngine {
     event: IO.IncomingEvent,
     context: IO.DialogContext
   ): Promise<IO.IncomingEvent | undefined> {
+    const { searchBackCount } = context.activePrompt!.config
     const previousEvents =
-      context.activePrompt!.stage === 'new'
-        ? await this._getPreviousEvents(event.target, context.activePrompt!.config.searchBackCount)
+      context.activePrompt!.stage === 'new' && searchBackCount > 1
+        ? await this._getPreviousEvents(event.target, searchBackCount - 1)
         : []
 
     const { status: promptStatus, actions } = await this.promptManager.processPrompt(event, previousEvents)
@@ -738,6 +770,10 @@ export class DialogEngine {
 
   private _processResolvedPrompt(event: IO.IncomingEvent, context: IO.DialogContext) {
     const { config, state } = context.activePrompt!
+
+    if (state.electedCandidate) {
+      context.pastPromptCandidates = [...(context.pastPromptCandidates || []), state.electedCandidate]
+    }
 
     this.createVariable(
       {

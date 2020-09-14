@@ -28,21 +28,12 @@ class PromptEnum implements Prompt {
 }
 
 const config: PromptConfig = {
-  type: 'enum',
+  type: 'enumeration',
   label: 'Enum',
   valueType: 'string',
   icon: 'properties',
   fields: [
     ...common.fields,
-    {
-      type: 'variable',
-      key: 'output',
-      required: true,
-      label: 'module.builtin.setValueTo',
-      placeholder: 'module.builtin.setValueToPlaceholder',
-      variableTypes: ['enum'],
-      defaultVariableType: 'enum'
-    },
     {
       type: 'hidden',
       key: 'subType',
@@ -52,4 +43,4 @@ const config: PromptConfig = {
   advancedSettings: common.advancedSettings
 }
 
-export default { id: 'enum', config, prompt: PromptEnum }
+export default { id: 'enumeration', config, prompt: PromptEnum }

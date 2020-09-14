@@ -2,6 +2,7 @@ import { FlowView, NodeView } from 'common/typings'
 import _ from 'lodash'
 import { DefaultLinkModel, DiagramEngine, DiagramModel, DiagramWidget, PointModel } from 'storm-react-diagrams'
 import { hashCode } from '~/util'
+import { FlowNode } from '~/views/OneFlow/diagram/debugger'
 import { BlockModel } from '~/views/OneFlow/diagram/nodes/Block'
 
 import { BaseNodeModel } from './nodes/BaseNodeModel'
@@ -19,7 +20,9 @@ const passThroughNodeProps: string[] = [
   'contents',
   'activeWorkflow',
   'prompt',
-  'subflow'
+  'subflow',
+  'execute',
+  'isReadOnly'
 ]
 export const DIAGRAM_PADDING: number = 100
 
@@ -76,7 +79,9 @@ export class DiagramManager {
   private diagramEngine: DiagramEngine
   private activeModel: ExtendedDiagramModel
   private diagramWidget: DiagramWidget
-  private highlightedNodeNames?: string[]
+  private highlightedNodes?: FlowNode[] = []
+  private highlightedLinks?: string[] = []
+  private highlightFilter?: string
   private currentFlow: FlowView
   private isReadOnly: boolean
   private diagramContainerSize: DiagramContainerSize
@@ -105,7 +110,7 @@ export class DiagramManager {
       return createNodeModel(node, {
         ...node,
         isStartNode: currentFlow.startNode === node.name,
-        isHighlighted: this.shouldHighlightNode(node.name)
+        isHighlighted: this.shouldHighlightNode(node)
       })
     })
 
@@ -117,10 +122,38 @@ export class DiagramManager {
 
     // Setting the initial links hash when changing flow
     this.getLinksRequiringUpdate()
+    this.highlightLinkedNodes()
   }
 
-  shouldHighlightNode(nodeName): boolean {
-    return this.highlightedNodeNames && !!this.highlightedNodeNames.find(x => nodeName.includes(x))
+  shouldHighlightNode(node: NodeView): boolean {
+    if (this.highlightFilter?.length <= 1 && !this.highlightedNodes.length) {
+      return false
+    }
+
+    const matchNodeName = !!this.highlightedNodes?.find(
+      x => x.flow === this.currentFlow?.name && node.name?.includes(x.node)
+    )
+
+    let matchCorpus
+    if (this.highlightFilter) {
+      const corpus = [
+        node.name,
+        node.id,
+        JSON.stringify(node.contents || {}),
+        JSON.stringify(node.prompt?.params.question ?? {}),
+        JSON.stringify(node.conditions || {})
+      ]
+        .join('__')
+        .toLowerCase()
+
+      matchCorpus = corpus.includes(this.highlightFilter.toLowerCase())
+    }
+
+    return matchNodeName || matchCorpus
+  }
+
+  shouldHighlightLink(linkId: string) {
+    return this.highlightedLinks.includes(linkId)
   }
 
   // Syncs model with the store (only update changes instead of complete initialization)
@@ -156,7 +189,7 @@ export class DiagramManager {
           model.setData({
             ..._.pick(node, passThroughNodeProps),
             isStartNode: this.currentFlow.startNode === node.name,
-            isHighlighted: this.shouldHighlightNode(node.name)
+            isHighlighted: this.shouldHighlightNode(node)
           })
         }
       })
@@ -164,6 +197,8 @@ export class DiagramManager {
     this.cleanPortLinks()
     this.activeModel.setLocked(this.isReadOnly)
     this.diagramWidget.forceUpdate()
+
+    this.highlightLinkedNodes()
   }
 
   clearModel() {
@@ -185,6 +220,30 @@ export class DiagramManager {
         ports[p].removeLink(link)
       })
     })
+  }
+
+  highlightLinkedNodes() {
+    this.highlightedLinks = []
+
+    const nodeNames = this.highlightedNodes.filter(x => x.flow === this.currentFlow?.name).map(x => x.node)
+    if (!nodeNames) {
+      return
+    }
+
+    const links = _.values(this.activeModel.getLinks())
+    links.forEach(link => {
+      const outPort = link.getSourcePort().name.startsWith('out') ? link.getSourcePort() : link.getTargetPort()
+      const targetPort = link.getSourcePort().name.startsWith('out') ? link.getTargetPort() : link.getSourcePort()
+
+      const output = outPort?.getParent()['name']
+      const input = targetPort?.getParent()['name']
+
+      if (nodeNames.includes(output) && nodeNames.includes(input)) {
+        this.highlightedLinks.push(link.getID())
+      }
+    })
+
+    this.diagramWidget.forceUpdate()
   }
 
   sanitizeLinks() {
@@ -285,8 +344,12 @@ export class DiagramManager {
     this.currentFlow = currentFlow
   }
 
-  setHighlightedNodes(nodeName: string | string[]) {
-    this.highlightedNodeNames = _.isArray(nodeName) ? nodeName : [nodeName]
+  setHighlightFilter(filter?: string) {
+    this.highlightFilter = filter
+  }
+
+  setHighlightedNodes(nodes?: FlowNode[]) {
+    this.highlightedNodes = nodes ?? []
   }
 
   setReadOnly(readOnly: boolean) {
@@ -331,7 +394,7 @@ export class DiagramManager {
     const model = createNodeModel(node, {
       ...node,
       isStartNode: this.currentFlow.startNode === node.name,
-      isHighlighted: this.shouldHighlightNode(node.name)
+      isHighlighted: this.shouldHighlightNode(node)
     })
 
     this.activeModel.addNode(model)
@@ -350,7 +413,7 @@ export class DiagramManager {
     model.setData({
       ..._.pick(node, passThroughNodeProps),
       isStartNode: this.currentFlow.startNode === node.name,
-      isHighlighted: this.shouldHighlightNode(node.name)
+      isHighlighted: this.shouldHighlightNode(node)
     })
 
     model.setPosition(node.x, node.y)
@@ -481,7 +544,7 @@ export class DiagramManager {
       if (instance.getSourcePort().name === 'in') {
         // We reverse the model so that target is always an input port
         model.source = link.target
-        model.sourcePort = instance.getTargetPort().name
+        model.sourcePort = instance.getTargetPort()?.name
         model.target = link.source
         model.points = _.reverse(model.points)
       }
