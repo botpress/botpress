@@ -1,0 +1,22 @@
+{
+  "$schema": "../../bot.config.schema.json",
+  "bpdsId": "entities-encoding",
+  "description": "Dataset made from random subsets of CLINC150 intent dataset. Usefull to benchmark with concurents. Go to botpress/modules/nlu-testing/src/bot-templates/bp-nlu-modular and edit createBPDatas.py to change the intents and their utterances",
+  "active": true,
+  "version": "1.0.0",
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0",
+  "imports": {
+    "modules": [],
+    "incomingMiddleware": [],
+    "outgoingMiddleware": []
+  },
+  "dialog": {
+    "timeoutInterval": "5m"
+  },
+  "logs": {
+    "expiration": "1 week"
+  },
+  "defaultLanguage": "en",
+  "languages": ["en"]
+}
