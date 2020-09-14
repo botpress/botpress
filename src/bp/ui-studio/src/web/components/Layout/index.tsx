@@ -1,5 +1,6 @@
 import { NLU } from 'botpress/sdk'
 import { lang, utils } from 'botpress/shared'
+import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { HotKeys } from 'react-hotkeys'
 import { connect } from 'react-redux'
@@ -20,6 +21,7 @@ import Module from '~/views/Module'
 import OneFlow from '~/views/OneFlow'
 
 import { TrainingStatusService } from './training-status-service'
+import BetaNotice from './BetaNotice'
 import BotUmountedWarning from './BotUnmountedWarning'
 import CommandPalette from './CommandPalette'
 import GuidedTour from './GuidedTour'
@@ -30,27 +32,23 @@ import Sidebar from './Sidebar'
 import StatusBar from './StatusBar'
 import Toolbar from './Toolbar'
 import BottomPanel from './Toolbar/BottomPanel'
-import WarningMessage from './WarningMessage'
 
 const { isInputFocused } = utils
 const WEBCHAT_PANEL_STATUS = 'bp::webchatOpened'
 
 interface ILayoutProps {
   viewModeChanged: any
-  viewMode: number
   docModal: any
-  docHints: any
   location: any
   toggleBottomPanel: () => null
   history: any
-  bottomPanel: boolean
-  translations: any
-  contentLang: string
   trainSessionReceived: (ts: NLU.TrainingSession) => void
   setEmulatorOpen: (state: boolean) => void
 }
 
-const Layout: FC<ILayoutProps> = props => {
+type StateProps = ReturnType<typeof mapStateToProps>
+
+const Layout: FC<ILayoutProps & StateProps> = props => {
   const mainElRef = useRef(null)
   const [langSwitcherOpen, setLangSwitcherOpen] = useState(false)
   const [guidedTourOpen, setGuidedTourOpen] = useState(false)
@@ -72,15 +70,11 @@ const Layout: FC<ILayoutProps> = props => {
       if (message.data.name === 'webchatOpened') {
         storage.set(WEBCHAT_PANEL_STATUS, 'opened')
         props.setEmulatorOpen(true)
-        document.getElementById('main-content-wrapper').classList.toggle('emulator-open', true)
-        document.getElementById('mainLayout').classList.toggle('layout-emulator-open', true)
       }
 
       if (message.data.name === 'webchatClosed') {
         storage.set(WEBCHAT_PANEL_STATUS, 'closed')
         props.setEmulatorOpen(false)
-        document.getElementById('main-content-wrapper').classList.toggle('emulator-open', false)
-        document.getElementById('mainLayout').classList.toggle('layout-emulator-open', false)
       }
     }
     window.addEventListener('message', handleWebChatPanel)
@@ -108,12 +102,10 @@ const Layout: FC<ILayoutProps> = props => {
 
   const toggleEmulator = () => {
     window.botpressWebChat.sendEvent({ type: 'toggle' })
-    document.getElementById('main-content-wrapper').classList.toggle('emulator-open')
-    document.getElementById('mainLayout').classList.toggle('layout-emulator-open')
   }
 
   const toggleGuidedTour = () => {
-    setGuidedTourOpen(!guidedTourOpen)
+    !window.USE_ONEFLOW && setGuidedTourOpen(!guidedTourOpen)
   }
 
   const focusEmulator = e => {
@@ -198,7 +190,11 @@ const Layout: FC<ILayoutProps> = props => {
 
   return (
     <Fragment>
-      <HotKeys handlers={keyHandlers} id="mainLayout" className={layout.mainLayout}>
+      <HotKeys
+        handlers={keyHandlers}
+        id="mainLayout"
+        className={cx(layout.mainLayout, { 'layout-emulator-open': props.emulatorOpen })}
+      >
         <Sidebar />
         <div className={layout.container}>
           <Toolbar
@@ -242,7 +238,8 @@ const Layout: FC<ILayoutProps> = props => {
           <PluginInjectionSite site="overlay" />
           <BackendToast />
           <SelectContentManager />
-          <GuidedTour isDisplayed={guidedTourOpen} onToggle={toggleGuidedTour} />
+          <GuidedTour isDisplayed={!window.USE_ONEFLOW && guidedTourOpen} onToggle={toggleGuidedTour} />
+          <BetaNotice />
           <LanguageServerHealth />
         </div>
       </HotKeys>
@@ -261,6 +258,7 @@ const Layout: FC<ILayoutProps> = props => {
 const mapStateToProps = (state: RootReducer) => ({
   viewMode: state.ui.viewMode,
   docHints: state.ui.docHints,
+  emulatorOpen: state.ui.emulatorOpen,
   bottomPanel: state.ui.bottomPanel,
   translations: state.language.translations,
   contentLang: state.language.contentLang

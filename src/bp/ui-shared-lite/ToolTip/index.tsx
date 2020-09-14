@@ -185,9 +185,16 @@ const ToolTip: FC<ToolTipProps> = ({ children, content, position = 'top', hoverO
   }
 
   const show = e => {
+    document.addEventListener('mousemove', mouseMove)
     clearTimeout(timeout.current)
     handleHtmlRendering()
     pastShow(e.currentTarget)
+  }
+
+  const mouseMove = e => {
+    if (!e.target?.closest(`#${id.current}-trigger`)) {
+      hide()
+    }
   }
 
   const handleHtmlRendering = (classNames = '', inlineStyle = {}, tipPos = {}) => {
@@ -213,6 +220,7 @@ const ToolTip: FC<ToolTipProps> = ({ children, content, position = 'top', hoverO
   }
 
   const hide = () => {
+    document.removeEventListener('mousemove', mouseMove)
     tooltipRef.current.classList.remove(style.visible)
     const body = document.getElementsByTagName('body')[0]
 
@@ -226,6 +234,7 @@ const ToolTip: FC<ToolTipProps> = ({ children, content, position = 'top', hoverO
   }
 
   return cloneElement(Children.only(children), {
+    id: `${id.current}-trigger`,
     onMouseEnter: show,
     onMouseLeave: hide
   })

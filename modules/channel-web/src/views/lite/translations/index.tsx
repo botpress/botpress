@@ -23,14 +23,23 @@ const translations = { en, fr, pt, es, ar, ru, uk, de }
 const getUserLocale = (manualLocale?: 'browser' | string) => {
   const code = str => str.split('-')[0]
   const browserLocale = code(navigator.language || navigator['userLanguage'] || '')
-  const storageLocale = code(localStorage.getItem('bp/channel-web/user-lang') || '')
+  const storageLocale = code(window.BP_STORAGE?.get('bp/channel-web/user-lang') || '')
   manualLocale = code(manualLocale === 'browser' ? browserLocale : manualLocale || '')
 
   return translations[manualLocale] ? manualLocale : translations[storageLocale] ? storageLocale : defaultLocale
 }
 
 const initializeLocale = () => {
-  addLocaleData([...localeEn, ...localeFr, ...localePt, ...localeEs, ...localeAr, ...localeRu, ...localeUk, ...localeDe])
+  addLocaleData([
+    ...localeEn,
+    ...localeFr,
+    ...localePt,
+    ...localeEs,
+    ...localeAr,
+    ...localeRu,
+    ...localeUk,
+    ...localeDe
+  ])
 }
 
 export { initializeLocale, translations, defaultLocale, getUserLocale }

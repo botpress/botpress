@@ -19,8 +19,8 @@ const prepareUserVarTypes = (variableTypes: NLU.EntityDefinition[]) => {
   return variableTypes
     .filter(x => x.type !== 'system')
     .map(x => ({
-      type: x.type.replace('list', 'enum'),
-      variableType: x.type.replace('list', 'enum'),
+      type: x.type.replace('list', 'enumeration'),
+      variableType: x.type.replace('list', 'enumeration'),
       subType: x.id,
       label: x.name
     }))
@@ -28,7 +28,7 @@ const prepareUserVarTypes = (variableTypes: NLU.EntityDefinition[]) => {
 
 const filterGenerics = items => {
   return items
-    .filter(x => !['enum', 'pattern', 'complex'].includes(x.id))
+    .filter(x => !['enumeration', 'pattern', 'complex'].includes(x.id))
     .map(x => ({ type: x.id, variableType: x.config?.valueType, label: x.config?.label }))
 }
 

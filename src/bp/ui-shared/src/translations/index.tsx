@@ -108,4 +108,4 @@ const lang = (id: string | MultiLangText, values?: { [variable: string]: any }):
   }
 }
 
-export { lang, langInit, langExtend, langLocale, langAvaibale }
+export { lang, langInit, langExtend, langLocale, langAvaibale, defaultLocale }

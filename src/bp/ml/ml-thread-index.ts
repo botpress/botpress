@@ -8,6 +8,7 @@ import * as sdk from 'botpress/sdk'
 import { parentPort } from 'worker_threads'
 
 import { Trainer as CrfTrainer } from './crf'
+import { serializeError } from './error-utils'
 import { Message } from './ml-thread-pool'
 import { Trainer as SvmTrainer } from './svm'
 
@@ -35,7 +36,7 @@ async function messageHandler(msg: Message) {
       const response: Message = { type: 'svm_done', id: msg.id, payload: { result } }
       parentPort?.postMessage(response)
     } catch (err) {
-      const response: Message = { type: 'svm_error', id: msg.id, payload: { error: err.message } }
+      const response: Message = { type: 'svm_error', id: msg.id, payload: { error: serializeError(err) } }
       parentPort?.postMessage(response)
     }
   }
@@ -58,7 +59,7 @@ async function messageHandler(msg: Message) {
       const response: Message = { type: 'crf_done', id: msg.id, payload: { result } }
       parentPort?.postMessage(response)
     } catch (err) {
-      const response: Message = { type: 'crf_error', id: msg.id, payload: { error: err.message } }
+      const response: Message = { type: 'crf_error', id: msg.id, payload: { error: serializeError(err) } }
       parentPort?.postMessage(response)
     }
   }

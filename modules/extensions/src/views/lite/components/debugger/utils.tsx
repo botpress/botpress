@@ -1,4 +1,4 @@
-export const formatConfidence = confidence => (+confidence * 100).toFixed(1)
+export const formatConfidence = confidence => `${(+confidence * 100).toFixed(1)}%`
 
 const SETTINGS_KEY = 'bp::modules::extensions::settings'
 const DEFAULT_SETTINGS: Settings = {

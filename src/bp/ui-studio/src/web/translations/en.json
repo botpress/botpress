@@ -60,6 +60,15 @@
     "applyConfigsTooltip": "Restarts server so configuration changes can take effect"
   },
   "studio": {
+    "betaNotice": {
+      "usingBeta": "You're using Botpress Albert - Beta",
+      "seeNotice": "See Notice",
+      "contribution": "By using this preview, you contribute to improve Botpress.",
+      "limitations": "It is not meant to be run in a production environment as breaking changes might still occur. Also, note that no documentation and no migration tool is offered yet.",
+      "thanks": "Thank you for your support!",
+      "accept": "Accept",
+      "dismiss": "Dismiss"
+    },
     "router": {
       "variable": "Variable",
       "pickVariable": "Pick a variable",
@@ -72,6 +81,7 @@
     },
     "content": {
       "cloneElements": "Clone selected elements",
+      "confirmChangeAction": "Are you sure you want to change this action? All fields will be erased.",
       "confirmChangeContentType": "Are you sure you want to change this content type? All fields will be erased.",
       "confirmDeleteItem": "Do you really want to delete {count, number} {count, plural, one {item} other {items}}?",
       "contentType": "Content Type",
@@ -156,6 +166,7 @@
       "mustHaveOutcomes": "Workflows must have at least one success and one failure outcome",
       "referenceCount": "{count} {count, plural, one {reference} other {references}}",
       "noReferences": "Not used",
+      "cannotAddContent": "Adding new content is disabled when not in the default language",
       "emptyWorkflow": "Right-click or drag and drop blocks to start designing your workflow.",
       "chips": "Chips",
       "condition": {
@@ -193,6 +204,7 @@
         "tryingToLoad": "It seems like you are trying to load a module that has not been registered. Please make sure the module is registered then restart the bot."
       },
       "node": {
+        "noActionSelected": "No action selected",
         "actionParameters": "Action Parameters",
         "actionServer": "Action Server",
         "actionServerTooltip": "This is the action server on which the action will be executed",
@@ -232,6 +244,7 @@
         "nodeName": "Node Name",
         "onEnter": "On Enter",
         "onReceive": "On Receive",
+        "pickAction": "Pick an action",
         "renameBlock": "Rename Block",
         "return": "Return",
         "saySomething": "Say Something",
@@ -428,6 +441,12 @@
       "closePanel": "Close Panel",
       "endOfLogs": "End of logs"
     }
+  },
+  "issue": {
+    "stepsToReproduce": "Steps to reproduce",
+    "whatIsTheIssue": "What is the issue?",
+    "previewOnGithub": "Preview on Github",
+    "submitBug": "Submit a bug"
   },
   "variable": {
     "emptyState": "Tap + in the toolbar to add your first variable",

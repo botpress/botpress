@@ -31,7 +31,7 @@ const validateChoice = async data => {
   }
 
   if (!choice) {
-    const lcstr = value => (typeof value === string ? value.toLowerCase() : '')
+    const lcstr = value => (typeof value === 'string' ? value.toLowerCase() : '')
     const preview = lcstr(event.preview)
     const userText = lcstr(event.payload && event.payload.text)
     const choiceValue = lcstr(event.payload && event.payload.payload)
