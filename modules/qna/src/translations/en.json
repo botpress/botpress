@@ -51,6 +51,7 @@
     "enableRedirection": "Enable Redirection",
     "incompleteTooltip": "This Q&A will use exact match only.",
     "missingAnswer": "Leaving answer field empty will disable this question.",
+    "missingAnswerOrQuestion": "Leaving question or answer fields empty will disable this question",
     "missingQuestion": "Leaving question field empty will disable this question.",
     "node": "Node",
     "noResultsFromFilters": "No questions found",
