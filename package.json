@@ -1,6 +1,6 @@
 {
   "name": "botpress",
-  "version": "12.10.1",
+  "version": "12.10.7",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": ">=10"
@@ -53,7 +53,7 @@
     "jwks-rsa": "^1.8.0",
     "knex": "^0.20.1",
     "ldapauth-fork": "^4.2.0",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.19",
     "lodash-decorators": "^6.0.0",
     "lru-cache": "^5.1.1",
     "mime-types": "^2.1.27",
@@ -94,7 +94,7 @@
   },
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.12"
+    "lodash": ">=4.17.19"
   },
   "devDependencies": {
     "@commitlint/cli": "^7.2.1",
@@ -149,7 +149,7 @@
     "prettier": "^1.19.1",
     "puppeteer": "^2.0.0",
     "rimraf": "^2.6.2",
-    "showdown": "^1.9.0",
+    "showdown": "^1.9.1",
     "stylus": "^0.54.5",
     "ts-jest": "^24.3.0",
     "tslint": "^5.11.0",

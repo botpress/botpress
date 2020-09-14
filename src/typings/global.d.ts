@@ -171,6 +171,12 @@ declare type BotpressEnvironmentVariables = {
   readonly BP_DISABLE_SERVER_CONFIG?: boolean
 
   /**
+   * Disable API call to generate a diagnostic report. Command line/environment variables will still work
+   * @default false
+   */
+  readonly BP_DISABLE_SERVER_DIAG?: boolean
+
+  /**
    * Prevents Botpress from closing cleanly when an error is encountered.
    * This only affects fatal errors, it will not affect business rules checks (eg: licensing)
    */
@@ -276,7 +282,6 @@ declare interface Dic<T> {
 declare type BOTPRESS_CORE_EVENTS = {
   bp_core_session_created: { botId: string; channel: string }
   bp_core_send_content: { botId: string; channel: string; source: string; details: string }
-  bp_core_decision_elected: { botId: string; channel: string; source: string }
   bp_core_workflow_started: { botId: string; channel: string; wfName: string }
   bp_core_workflow_completed: { botId: string; channel: string; wfName: string }
   bp_core_workflow_failed: { botId: string; channel: string; wfName: string }

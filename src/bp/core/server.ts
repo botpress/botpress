@@ -251,7 +251,11 @@ export default class HTTPServer {
       res.set(config.headers)
       if (!this.isBotpressReady) {
         if (!(req.headers['user-agent'] || '').includes('axios') || !req.headers.authorization) {
-          return res.status(503).send('Botpress is loading. Please try again in a minute.')
+          return res
+            .status(503)
+            .send(
+              '<html><head><meta http-equiv="refresh" content="2"> </head><body>Botpress is loading. Please try again in a minute.</body></html>'
+            )
         }
       }
       next()

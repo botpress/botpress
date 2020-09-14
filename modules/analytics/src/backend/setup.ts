@@ -8,12 +8,6 @@ export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[
 
   const removeExt = (name: string) => name?.replace(/\.flow\.json$/i, '')
 
-  process.BOTPRESS_EVENTS.on('bp_core_decision_elected', ({ channel, botId, source }) => {
-    if (source === 'qna') {
-      db.incrementMetric(botId, channel, 'msg_sent_qna_count')
-    }
-  })
-
   process.BOTPRESS_EVENTS.on('bp_core_send_content', ({ channel, botId, source, details }) => {
     if (source === 'qna') {
       db.incrementMetric(botId, channel, 'msg_sent_qna_count', details)

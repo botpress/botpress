@@ -1,6 +1,7 @@
 import { Button, ButtonGroup, Intent } from '@blueprintjs/core'
 import { AxiosStatic } from 'axios'
 import { lang } from 'botpress/shared'
+import { SplashScreen } from 'botpress/ui'
 import pick from 'lodash/pick'
 import React from 'react'
 
@@ -14,7 +15,8 @@ import ChatPreview from './ChatPreview'
 interface Props {
   axios: AxiosStatic
   language: string
-  event: ApiFlaggedEvent
+  event: ApiFlaggedEvent | null
+  eventNotFound: boolean
   totalEventsCount: number
   eventIndex: number
   skipEvent: () => void
@@ -68,7 +70,7 @@ class NewEventView extends React.Component<Props, State> {
   }
 
   render() {
-    const { axios, language, event, totalEventsCount, eventIndex, skipEvent, deleteEvent } = this.props
+    const { axios, language, event, totalEventsCount, eventIndex, skipEvent, deleteEvent, eventNotFound } = this.props
     const { isAmending, resolutionType, resolution, resolutionParams } = this.state
 
     return (
@@ -77,7 +79,15 @@ class NewEventView extends React.Component<Props, State> {
 
         {!isAmending && (
           <>
-            <ChatPreview messages={event.context} />
+            {eventNotFound ? (
+              <SplashScreen
+                title={lang.tr('module.misunderstood.couldNotLoadConversation')}
+                description={lang.tr('module.misunderstood.conversationDeleted')}
+                icon="warning-sign"
+              />
+            ) : (
+              <ChatPreview messages={event.context} />
+            )}
             <StickyActionBar>
               <Button onClick={deleteEvent} icon="trash" intent={Intent.DANGER} disabled={isAmending}>
                 {lang.tr('module.misunderstood.ignore')}
@@ -97,11 +107,13 @@ class NewEventView extends React.Component<Props, State> {
           </>
         )}
 
-        <h4 className={style.newEventPreview}>
-          {lang.tr('module.misunderstood.showMisunderstoodMessage', {
-            preview: <span className={style.newEventPreviewMessage}>{event.preview}</span>
-          })}
-        </h4>
+        {event && (
+          <h4 className={style.newEventPreview}>
+            {lang.tr('module.misunderstood.showMisunderstoodMessage', {
+              preview: <span className={style.newEventPreviewMessage}>{event.preview}</span>
+            })}
+          </h4>
+        )}
 
         {isAmending && (
           <AmendForm

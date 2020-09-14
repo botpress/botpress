@@ -107,4 +107,4 @@ const lang = (id: string | { [lang: string]: string }, values?: { [variable: str
   }
 }
 
-export { lang, langInit, langExtend, langLocale, langAvaibale }
+export { lang, langInit, langExtend, langLocale, langAvaibale, defaultLocale }

@@ -10,8 +10,8 @@ import SlotTagger from './slots/slot-tagger'
 import * as math from './tools/math'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './training-pipeline'
-import { Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
-import Utterance, { buildUtteranceBatch, getAlternateUtterance } from './utterance/utterance'
+import { EntityExtractionResult, Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
+import Utterance, { buildUtteranceBatch, getAlternateUtterance, UtteranceEntity } from './utterance/utterance'
 
 export type ExactMatchResult = (sdk.MLToolkit.SVM.Prediction & { extractor: 'exact-matcher' }) | undefined
 
@@ -320,60 +320,70 @@ function electIntent(input: PredictStep): PredictStep {
   const ctxPreds = input.ctx_predictions.map(x => ({ ...x, confidence: x.confidence / totalConfidence }))
 
   // taken from svm classifier #349
-  let predictions = _.chain(ctxPreds)
-    .flatMap(({ label: ctx, confidence: ctxConf }) => {
-      const intentPreds = _.chain(input.intent_predictions.per_ctx[ctx] || [])
-        .thru(preds => {
-          if (input.oos_predictions[ctx] >= OOS_AS_NONE_TRESH) {
-            return [
-              ...preds,
-              {
-                label: NONE_INTENT,
-                confidence: input.oos_predictions[ctx],
-                context: ctx,
-                l0Confidence: ctxConf
-              }
-            ]
-          } else {
-            return preds
-          }
-        })
-        .map(p => ({ ...p, confidence: _.round(p.confidence, 2) }))
-        .orderBy('confidence', 'desc')
-        .value() as (sdk.MLToolkit.SVM.Prediction & { context: string })[]
-      if (intentPreds[0]?.confidence === 1 || intentPreds.length === 1) {
-        return [{ label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: 1 }]
-      }
+  interface RawPrediction {
+    label: string
+    context: string
+    confidence: number
+    l0Confidence: number
+  }
 
-      const noneIntent = { label: NONE_INTENT, context: ctx, confidence: 1 }
-      if (predictionsReallyConfused(intentPreds)) {
-        intentPreds.unshift(noneIntent)
-      }
-
-      if (intentPreds.length <= 1) {
-        return noneIntent
-      }
-
-      const lnstd = math.std(intentPreds.filter(x => x.confidence !== 0).map(x => Math.log(x.confidence))) // because we want a lognormal distribution
-      let p1Conf = math.GetZPercent((Math.log(intentPreds[0].confidence) - Math.log(intentPreds[1].confidence)) / lnstd)
-      if (isNaN(p1Conf)) {
-        p1Conf = 0.5
-      }
-
-      return [
-        { label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: _.round(ctxConf * p1Conf, 3) },
-        {
-          label: intentPreds[1].label,
-          l0Confidence: ctxConf,
-          context: ctx,
-          confidence: _.round(ctxConf * (1 - p1Conf), 3)
+  const rawPredictions: RawPrediction[] = _.flatMap(ctxPreds, ({ label: ctx, confidence: ctxConf }) => {
+    const intentPreds = _.chain(input.intent_predictions.per_ctx[ctx] || [])
+      .thru(preds => {
+        if (input.oos_predictions[ctx] >= OOS_AS_NONE_TRESH) {
+          return [
+            ...preds,
+            {
+              label: NONE_INTENT,
+              confidence: input.oos_predictions[ctx],
+              context: ctx,
+              l0Confidence: ctxConf
+            }
+          ]
+        } else {
+          return preds
         }
-      ]
-    })
-    .orderBy('confidence', 'desc')
+      })
+      .map(p => ({ ...p, confidence: _.round(p.confidence, 2) }))
+      .orderBy('confidence', 'desc')
+      .value() as (sdk.MLToolkit.SVM.Prediction & { context: string })[]
+
+    if (intentPreds[0]?.confidence === 1 || intentPreds.length === 1) {
+      return [{ label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: 1 }]
+    }
+
+    const noneIntent = { label: NONE_INTENT, l0Confidence: ctxConf, context: ctx, confidence: 1 }
+    if (predictionsReallyConfused(intentPreds)) {
+      intentPreds.unshift(noneIntent)
+    }
+
+    if (intentPreds.length <= 1) {
+      return noneIntent
+    }
+
+    const lnstd = math.std(intentPreds.filter(x => x.confidence !== 0).map(x => Math.log(x.confidence))) // because we want a lognormal distribution
+    let p1Conf = math.GetZPercent((Math.log(intentPreds[0].confidence) - Math.log(intentPreds[1].confidence)) / lnstd)
+    if (isNaN(p1Conf)) {
+      p1Conf = 0.5
+    }
+
+    return [
+      { label: intentPreds[0].label, l0Confidence: ctxConf, context: ctx, confidence: p1Conf },
+      {
+        label: intentPreds[1].label,
+        l0Confidence: ctxConf,
+        context: ctx,
+        confidence: 1 - p1Conf
+      }
+    ]
+  })
+
+  const computeTotalPrediction = (rawPred: RawPrediction) => _.round(rawPred.confidence * rawPred.l0Confidence, 3)
+  let predictions = _.chain(rawPredictions)
+    .orderBy(computeTotalPrediction, 'desc')
     .filter(p => input.includedContexts.includes(p.context))
     .uniqBy(p => p.label)
-    .map(p => ({ name: p.label, context: p.context, confidence: p.confidence }))
+    .map(p => ({ name: p.label, context: p.context, confidence: computeTotalPrediction(p) }))
     .value()
 
   const ctx = _.get(predictions, '0.context', 'global')
@@ -464,25 +474,31 @@ async function extractSlots(input: PredictStep, predictors: Predictors): Promise
 }
 
 function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
+  const entitiesMapper = (e?: EntityExtractionResult | UtteranceEntity): sdk.NLU.Entity => {
+    if (!e) {
+      return eval('null')
+    }
+
+    return {
+      name: e.type,
+      type: e.metadata.entityId,
+      data: {
+        unit: e.metadata.unit,
+        value: e.value
+      },
+      meta: {
+        sensitive: e.sensitive,
+        confidence: e.confidence,
+        end: (e as EntityExtractionResult).end ?? (e as UtteranceEntity).endPos,
+        source: e.metadata.source,
+        start: (e as EntityExtractionResult).start ?? (e as UtteranceEntity).startPos
+      }
+    }
+  }
+
   // legacy pre-ndu
-  const entities = step.utterance.entities.map(
-    e =>
-      ({
-        name: e.type,
-        type: e.metadata.entityId,
-        data: {
-          unit: e.metadata.unit,
-          value: e.value
-        },
-        meta: {
-          sensitive: e.sensitive,
-          confidence: e.confidence,
-          end: e.endPos,
-          source: e.metadata.source,
-          start: e.startPos
-        }
-      } as sdk.NLU.Entity)
-  )
+  const entities = step.utterance.entities.map(entitiesMapper)
+
   // legacy pre-ndu
   const slots = step.utterance.slots.reduce((slots, s) => {
     return {
@@ -493,8 +509,9 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
         confidence: s.confidence,
         name: s.name,
         source: s.source,
-        value: s.value
-      } as sdk.NLU.Slot
+        value: s.value,
+        entity: entitiesMapper(s.entity) // TODO: add this mapper to the legacy election pipeline
+      }
     }
   }, {} as sdk.NLU.SlotCollection)
 
@@ -512,8 +529,9 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
         confidence: s.slot.confidence,
         name: s.slot.name,
         source: s.slot.source,
-        value: s.slot.value
-      } as sdk.NLU.Slot
+        value: s.slot.value,
+        entity: entitiesMapper(s.slot.entity)
+      }
     }
   }
 
