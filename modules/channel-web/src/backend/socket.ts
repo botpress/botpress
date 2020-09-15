@@ -112,8 +112,11 @@ export default async (bp: typeof sdk, db: Database) => {
       payload = {
         type: 'custom',
         module: 'channel-web',
-        component: 'QuickReplies',
+        // TODO: remove
+        component: payload.metadata.suggestion ? 'Suggestions' : 'QuickReplies',
         quick_replies: __buttons,
+        turnCount: payload.metadata.turnCount,
+        position: payload.metadata.position,
         wrapped: {
           type: event.type,
           ..._.omit(event.payload, 'quick_replies')

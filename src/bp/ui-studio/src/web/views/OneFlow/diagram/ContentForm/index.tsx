@@ -125,7 +125,12 @@ const ContentForm: FC<Props> = ({
           }
         ],
         type: 'contextual',
-        gotoNodeId: currentDest
+        gotoNodeId: currentDest,
+        // TODO cleanup
+        expiryPolicy: {
+          strategy: 'turn',
+          turnCount: data.turnCount ?? 3
+        }
       }
     })
 

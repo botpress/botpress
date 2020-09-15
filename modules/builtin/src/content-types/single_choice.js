@@ -33,7 +33,11 @@ function renderer(data) {
     ...payload,
     metadata: {
       ...payload.metadata,
+      // TODO Temporary
       // should we rename key in schema or we keep backward compatibility rendering ?
+      suggestion: true,
+      turnCount: data.turnCount,
+      position: data.position,
       [metaKey]: data.suggestions.map(({ name, tags }) => ({ label: name, value: tags.length > 0 ? tags[0] : name }))
     }
   }
@@ -109,6 +113,43 @@ module.exports = {
         defaultValue: true,
         type: 'checkbox',
         label: 'module.builtin.typingIndicator'
+      },
+      // TODO: not final
+      {
+        key: 'position',
+        label: 'Position of suggestions',
+        type: 'select',
+        defaultValue: 'conversation',
+        options: [
+          { label: 'In the conversation', value: 'conversation' },
+          { label: 'Static menu', value: 'staticMenu' }
+        ]
+      },
+      {
+        key: 'expiryPolicy',
+        label: 'Expiry Policy',
+        type: 'select',
+        defaultValue: 'nbOfTurns',
+        options: [
+          { label: 'Number of turns', value: 'nbOfTurns' },
+          { label: 'End of workflow', value: 'endOfWorkflow' }
+        ]
+      },
+      {
+        key: 'turnCount',
+        defaultValue: 2,
+        type: 'number',
+        label: 'Nb of turns before suggestion expires'
+      },
+      {
+        key: 'multiple',
+        type: 'checkbox',
+        label: 'Can pick more than one suggestion'
+      },
+      {
+        key: 'singleUse',
+        type: 'checkbox',
+        label: 'A suggestion can be used only once'
       }
       // not supported yet, if we support we need to do so for buttons as well
       // {
@@ -124,6 +165,12 @@ module.exports = {
       // }
     ],
     fields: [
+      {
+        key: 'text',
+        defaultValue: '',
+        type: 'text',
+        label: 'Message'
+      },
       {
         key: 'suggestions',
         type: 'tag-input',

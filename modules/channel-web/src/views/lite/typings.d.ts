@@ -46,6 +46,8 @@ export namespace Renderer {
 
     onSendData?: (data: any) => Promise<void>
     onFileUpload?: (label: string, payload: any, file: File) => Promise<void>
+    // TODO: remove
+    [test: string]: any
   }
 
   export type Button = {
