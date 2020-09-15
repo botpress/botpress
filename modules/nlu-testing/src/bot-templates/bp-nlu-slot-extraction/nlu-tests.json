@@ -521,8 +521,7 @@
     "context": "built-in",
     "conditions": [
       ["intent", "is", "ask_holidays"],
-      ["slot:holiday_start", "is", "3rd of june"],
-      ["slot:holiday_duration", "is", "approximately five weeks"]
+      ["slot:holiday_start", "is", "the 3rd of june"]
     ]
   },
   {
@@ -531,8 +530,7 @@
     "context": "built-in",
     "conditions": [
       ["intent", "is", "ask_holidays"],
-      ["slot:holiday_start", "is", "3rd of june"],
-      ["slot:holiday_duration", "is", "five weeks"]
+      ["slot:holiday_start", "is", "the 3 of june"]
     ]
   },
   {
@@ -541,8 +539,7 @@
     "context": "built-in",
     "conditions": [
       ["intent", "is", "ask_holidays"],
-      ["slot:holiday_start", "is", "next week"],
-      ["slot:holiday_duration", "is", "weekend"]
+      ["slot:holiday_start", "is", "next week"]
     ]
   },
   {
@@ -551,8 +548,7 @@
     "context": "built-in",
     "conditions": [
       ["intent", "is", "ask_holidays"],
-      ["slot:holiday_start", "is", "8 of may"],
-      ["slot:holiday_duration", "is", "a week"]
+      ["slot:holiday_start", "is", "8 of may"]
     ]
   },
   {
@@ -561,8 +557,7 @@
     "context": "built-in",
     "conditions": [
       ["intent", "is", "ask_holidays"],
-      ["slot:holiday_start", "is", "3 of june"],
-      ["slot:holiday_duration", "is", "five weeks"]
+      ["slot:holiday_start", "is", "the 3 of june"]
     ]
   },
   {
@@ -571,18 +566,16 @@
     "context": "built-in",
     "conditions": [
       ["intent", "is", "ask_holidays"],
-      ["slot:holiday_start", "is", "3rd of june"],
-      ["slot:holiday_duration", "is", "five weeks"]
+      ["slot:holiday_start", "is", "the 3rd of june"]
     ]
   },
   {
     "id": "1597177864264",
-    "utterance": "I would like to take 4 days after new year eve",
+    "utterance": "I would like to take 4 days of vacation after new year's eve",
     "context": "built-in",
     "conditions": [
       ["intent", "is", "ask_holidays"],
-      ["slot:holiday_duration", "is", "4 days"],
-      ["slot:holiday_start", "is", "new year eve"]
+      ["slot:holiday_start", "is", "after new year's eve"]
     ]
   },
   {
@@ -591,7 +584,6 @@
     "context": "built-in",
     "conditions": [
       ["intent", "is", "ask_holidays"],
-      ["slot:holiday_duration", "is", "4 days"],
       ["slot:holiday_start", "is", "new year eve"]
     ]
   },
