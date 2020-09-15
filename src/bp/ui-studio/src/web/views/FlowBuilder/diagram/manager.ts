@@ -126,8 +126,12 @@ export class DiagramManager {
   }
 
   shouldHighlightNode(node: NodeView): boolean {
+    const queryParams = new URLSearchParams(window.location.search)
+
     if (this.highlightFilter?.length <= 1 && !this.highlightedNodes.length) {
       return false
+    } else if (queryParams.get('highlightedNode') === node.id) {
+      return true
     }
 
     const matchNodeName = !!this.highlightedNodes?.find(

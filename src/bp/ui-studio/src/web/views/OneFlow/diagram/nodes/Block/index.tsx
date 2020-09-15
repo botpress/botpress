@@ -36,7 +36,6 @@ interface Props {
   getExpandedNodes: () => string[]
   setExpanded: (id: string, expanded: boolean) => void
   getDebugInfo: (nodeName: string) => NodeDebugInfo
-  isSelected: (nodeId: string) => boolean
 }
 
 const defaultLabels = {
@@ -65,8 +64,7 @@ const BlockWidget: FC<Props> = ({
   getLanguage,
   getExpandedNodes,
   setExpanded,
-  getDebugInfo,
-  isSelected
+  getDebugInfo
 }) => {
   const { nodeType } = node
   const { currentLang, defaultLang } = getLanguage()
@@ -173,7 +171,7 @@ const BlockWidget: FC<Props> = ({
   const expanded = getExpandedNodes().includes(node.id)
 
   return (
-    <NodeWrapper isHighlighed={node.isHighlighted || isSelected(node.id)}>
+    <NodeWrapper isHighlighed={node.isHighlighted || node.isSelected()}>
       <NodeHeader
         className={style[nodeType]}
         setExpanded={canCollapse && handleExpanded}
@@ -269,7 +267,6 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
   private getExpandedNodes: () => string[]
   private setExpandedNodes: (id: string, expanded: boolean) => void
   private getDebugInfo: (nodeName: string) => NodeDebugInfo
-  private isSelected: (nodeId: string) => boolean
 
   constructor(methods) {
     super('block')
@@ -287,7 +284,6 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
     this.getExpandedNodes = methods.getExpandedNodes
     this.setExpandedNodes = methods.setExpandedNodes
     this.getDebugInfo = methods.getDebugInfo
-    this.isSelected = methods.isSelected
   }
 
   generateReactWidget(diagramEngine: DiagramEngine, node: BlockModel) {
@@ -307,7 +303,6 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
         getExpandedNodes={this.getExpandedNodes}
         setExpanded={this.setExpandedNodes}
         getDebugInfo={this.getDebugInfo}
-        isSelected={this.isSelected}
       />
     )
   }

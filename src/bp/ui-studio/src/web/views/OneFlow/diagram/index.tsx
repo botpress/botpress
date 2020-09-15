@@ -176,8 +176,7 @@ class Diagram extends Component<Props> {
       addMessage: this.addMessage.bind(this),
       getExpandedNodes: () => this.getStateProperty('expandedNodes'),
       setExpandedNodes: this.updateExpandedNodes.bind(this),
-      getDebugInfo: this.getDebugInfo,
-      isSelected: this.isNodeSelected
+      getDebugInfo: this.getDebugInfo
     }
 
     this.diagramEngine = new DiagramEngine()
@@ -203,12 +202,6 @@ class Diagram extends Component<Props> {
     }
 
     this.searchRef = React.createRef()
-  }
-
-  isNodeSelected = (nodeId: string) => {
-    const queryParams = new URLSearchParams(window.location.search)
-
-    return queryParams.get('highlightedNode') === nodeId
   }
 
   getDebugInfo = (nodeName: string) => {
