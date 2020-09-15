@@ -1,5 +1,4 @@
 import { IconName, Intent, Position, Toaster } from '@blueprintjs/core'
-import cx from 'lodash'
 import _ from 'lodash'
 
 import { lang } from '../translations'
@@ -16,16 +15,8 @@ export interface ToastOptions {
   onDismiss?: (didTimeoutExpire: boolean) => void
 }
 
-let toaster
+const toaster = Toaster.create({ className: style.toaster, position: Position.BOTTOM })
 const toastKeys = {}
-
-const init = () => {
-  toaster = Toaster.create({ className: style.toaster, position: Position.BOTTOM })
-}
-
-if (!toaster) {
-  init()
-}
 
 const prepareMessage = (message: string | React.ReactElement, details?: string) =>
   typeof message === 'string' ? lang(message, { details }) : message
@@ -90,10 +81,6 @@ const showToast = (message: string | React.ReactElement, intent, options: ToastO
   }
 
   const showToast = () => {
-    if (!toaster) {
-      init()
-    }
-
     dismiss(options.key!)
 
     toastKeys[options.key!] = toaster.show({

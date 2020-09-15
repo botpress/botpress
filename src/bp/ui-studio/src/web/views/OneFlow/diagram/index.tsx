@@ -251,9 +251,6 @@ class Diagram extends Component<Props> {
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
 
-    // TODO find a way to use saved zoom level, right now this line doesn't work
-    // this.diagramEngine.diagramModel.setZoomLevel(this.state.zoomLevel)
-
     this.setState({
       expandedNodes: getExpandedNodes()
     })
