@@ -362,6 +362,8 @@ function MapStepToOutput(step: SlotStep, startTime: number): PredictOutput {
     }
   }, {})
 
+  const spellChecked = step.alternateUtterance?.toString({ entities: 'keep-value', slots: 'keep-value' })
+
   return {
     entities,
     errored: false,
@@ -372,7 +374,8 @@ function MapStepToOutput(step: SlotStep, startTime: number): PredictOutput {
       .value(),
     includedContexts: step.includedContexts, // legacy pre-ndu
     language: step.languageCode,
-    ms: Date.now() - startTime
+    ms: Date.now() - startTime,
+    spellChecked
   }
 }
 
