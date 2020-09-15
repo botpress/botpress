@@ -94,9 +94,9 @@ const showToast = (message: string | React.ReactElement, intent, options: ToastO
       init()
     }
 
-    dismiss(options.key)
+    dismiss(options.key!)
 
-    toastKeys[options.key] = toaster.show({
+    toastKeys[options.key!] = toaster.show({
       message: typeof message === 'string' ? lang(message) : message,
       intent,
       timeout,
