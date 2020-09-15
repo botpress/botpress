@@ -55,7 +55,7 @@
 .nodeWrapper {
   background: #fff;
   width: 150px;
-  border: none;
+  border: 1px solid transparent;
   border-radius: 0 0 5px 5px;
 
   &.highlighted {
@@ -72,6 +72,11 @@
       :global(.port):before {
         background: var(--ocean);
       }
+    }
+
+    .outRouting:before,
+    .outRouting.say_something:before {
+      background-color: var(--ocean) !important;
     }
 
     .debugInfo {
@@ -389,7 +394,11 @@
     position: absolute;
     top: 50%;
     right: calc(var(--spacing-small) * -1);
-    transform: translate(65%, -50%);
+    transform: translate(55%, -50%);
+
+    &.say_something:before {
+      background-color: var(--say) !important;
+    }
 
     :before {
       background-color: var(--prompt) !important;

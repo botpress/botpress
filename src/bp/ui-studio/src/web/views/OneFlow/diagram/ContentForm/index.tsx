@@ -100,7 +100,7 @@ const ContentForm: FC<Props> = ({
     const langs = Object.keys(data.suggestions)
     const transitions: NodeTransition[] = []
 
-    const triggers = data.suggestions[defaultLang].map(({ name }, idx) => {
+    const triggers = data.suggestions[defaultLang].map(({ name, tags }, idx) => {
       const allTags = langs.reduce((acc, curr) => {
         return { ...acc, [curr]: data.suggestions[curr]?.find(x => x.name === name)?.tags }
       }, {})
@@ -109,7 +109,8 @@ const ContentForm: FC<Props> = ({
 
       transitions.push({
         condition: `choice-${name}${idx}`,
-        caption: name,
+        caption: [...([name] || []), ...(tags || [])].filter(Boolean).join(' · '),
+        contentIndex: editingContent,
         node: currentDest
       })
 

@@ -89,22 +89,27 @@ const SaySomethingContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem,
       )}
       {next?.map((item, i) => {
         const outputPortName = `out${i}`
-        const currentContent = node.contents[0]?.suggestions?.[currentLang]?.[i - 1] || {}
-        return item.condition !== 'true' && checkMissingSuggestionTranslations(node.contents[0], i - 1) ? (
+        return item.condition !== 'true' &&
+          checkMissingSuggestionTranslations(node.contents[item.contentIndex], i - 1) ? (
           <button onClick={() => editNodeItem?.(node, 0)} className={style.needsTranslation}>
             {lang.tr('needsTranslation')}
           </button>
         ) : (
           <button
             key={`${i}.${item}`}
-            onClick={() => editNodeItem?.(node, 0)}
-            className={cx(style.contentWrapper, { [style.hidden]: item.condition === 'true' })}
+            onClick={() => editNodeItem?.(node, item.contentIndex)}
+            className={cx(style.contentWrapper, {
+              [style.hidden]: item.condition === 'true',
+              [style.active]: selectedContent?.node?.id === node.id && item.contentIndex === selectedContent?.index
+            })}
           >
-            <div className={cx(style.content, style.readOnly)}>
-              <Dotdotdot clamp={2}>
-                {[...([currentContent.name] || []), ...(currentContent.tags || [])].filter(Boolean).join(' · ')}
-              </Dotdotdot>
-              <StandardPortWidget name={outputPortName} node={node} className={style.outRouting} />
+            <div className={style.content}>
+              <Dotdotdot clamp={2}>{item.caption}</Dotdotdot>
+              <StandardPortWidget
+                name={outputPortName}
+                node={node}
+                className={cx(style.outRouting, style.say_something)}
+              />
             </div>
           </button>
         )
