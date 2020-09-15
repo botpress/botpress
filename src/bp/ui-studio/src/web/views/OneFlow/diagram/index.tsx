@@ -1199,6 +1199,7 @@ class Diagram extends Component<Props> {
             >
               <DiagramWidget
                 ref={w => (this.diagramWidget = w)}
+                allowCanvasZoom={false}
                 deleteKeys={[]}
                 diagramEngine={this.diagramEngine}
                 maxNumberPointsPerLink={0}
