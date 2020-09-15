@@ -1,6 +1,4 @@
-import findLastIndex from 'lodash/findLastIndex'
 import React, { Component, Fragment } from 'react'
-import { FormattedMessage } from 'react-intl'
 
 import { Renderer } from '../../../typings'
 import * as Keyboard from '../../Keyboard'
@@ -18,12 +16,18 @@ import { Button } from './Button'
  */
 export class Suggestions extends Component<Renderer.QuickReply> {
   state = {
-    clickedButtons: []
+    clickedButtons: [],
+    display: false
+  }
+
+  componentDidMount() {
+    // Required otherwise the component mounts too fast (before the keyboard)
+    setTimeout(() => {
+      this.setState({ display: true })
+    }, 100)
   }
 
   handleButtonClicked = (title, payload) => {
-    this.setState({ clickedButtons: [...this.state.clickedButtons, title] })
-
     // tslint:disable-next-line: no-floating-promises
     this.props.onSendData?.({
       type: 'quick_reply',
@@ -56,22 +60,25 @@ export class Suggestions extends Component<Renderer.QuickReply> {
   }
 
   render() {
-    const isLast = this.props.isLastGroup && this.props.isLastOfGroup
-    const shouldDisplay = isLast || (this.props.suggestion && this.props.elapsedTurns < this.props['turnCount'])
-    const buttons = (this.props.buttons || this.props.quick_replies).filter(
-      x => !this.state.clickedButtons.includes(x.label)
-    )
+    const suggestions = this.props.suggestions
+    console.log(suggestions, this.state.display)
+    if (!suggestions?.length || !this.state.display) {
+      return null
+    }
 
-    if (this.props.position === 'conversation' && shouldDisplay) {
-      return this.renderKeyboard(buttons)
+    if (this.props.position === 'conversation') {
+      return this.renderKeyboard(suggestions)
     }
 
     const kbd = (
-      <div className={'bpw-keyboard-quick_reply'}>{buttons && <Fragment>{this.renderKeyboard(buttons)}</Fragment>}</div>
+      <div className={'bpw-keyboard-quick_reply'}>{<Fragment>{this.renderKeyboard(suggestions)}</Fragment>}</div>
     )
 
     return (
-      <Keyboard.Prepend keyboard={kbd} visible={shouldDisplay}>
+      <Keyboard.Prepend
+        keyboard={kbd}</div>}
+        visible={true}
+      >
         {this.props.children}
       </Keyboard.Prepend>
     )

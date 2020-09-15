@@ -8,7 +8,7 @@ import { RootStore, StoreDef } from '../../store'
 import { Renderer } from '../../typings'
 import * as Keyboard from '../Keyboard'
 
-import { Carousel, FileMessage, LoginPrompt, Text } from './renderer'
+import { Carousel, FileMessage, LoginPrompt, Suggestions, Text } from './renderer'
 
 class Message extends Component<MessageProps> {
   state = {
@@ -51,6 +51,10 @@ class Message extends Component<MessageProps> {
 
   render_carousel() {
     return <Carousel onSendData={this.props.onSendData} carousel={this.props.payload} />
+  }
+
+  render_suggestions() {
+    return <Suggestions {...this.props.payload} position={this.props.position} onSendData={this.props.onSendData} />
   }
 
   render_typing() {

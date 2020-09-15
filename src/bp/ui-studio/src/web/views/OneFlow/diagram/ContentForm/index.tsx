@@ -101,8 +101,8 @@ const ContentForm: FC<Props> = ({
     const transitions: NodeTransition[] = []
 
     const triggers = data.suggestions[defaultLang].map(({ name }, idx) => {
-      const allTags = langs.reduce((acc, curr) => {
-        return { ...acc, [curr]: data.suggestions[curr]?.find(x => x.name === name)?.tags }
+      const utterances = langs.reduce((acc, curr) => {
+        return { ...acc, [curr]: [name, ...(data.suggestions[curr]?.find(x => x.name === name)?.tags || [])] }
       }, {})
 
       const currentDest = node?.next.find(x => x.condition === `choice-${name}${idx}`)?.node ?? ''
@@ -118,14 +118,13 @@ const ContentForm: FC<Props> = ({
         effect: 'jump.node',
         conditions: [
           {
-            params: {
-              utterances: allTags
-            },
+            params: { utterances },
             id: 'user_intent_is'
           }
         ],
         type: 'contextual',
         gotoNodeId: currentDest,
+        suggestion: { label: name, value: name, position: data.position },
         // TODO cleanup
         expiryPolicy: {
           strategy: 'turn',

@@ -56,14 +56,6 @@ export class InstructionsQueueBuilder {
       }
 
       if (this.currentNode.type === 'say_something' && this.currentNode.contents?.length) {
-        this.currentNode.contents.forEach(content => {
-          this._queue.enqueue({
-            type: 'on-enter',
-            fn: `say @${content.contentType}`,
-            args: content
-          })
-        })
-
         for (let i = 0; i < (this.currentNode.triggers?.length ?? 0); i++) {
           this._queue.enqueue({
             type: 'on-enter',
@@ -76,6 +68,14 @@ export class InstructionsQueueBuilder {
             }
           })
         }
+
+        this.currentNode.contents.forEach(content => {
+          this._queue.enqueue({
+            type: 'on-enter',
+            fn: `say @${content.contentType}`,
+            args: content
+          })
+        })
       }
 
       if (this.currentNode.type === 'execute' && !this.currentNode.onEnter?.length) {

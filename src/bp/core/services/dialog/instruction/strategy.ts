@@ -89,6 +89,7 @@ export class ActionStrategy implements InstructionStrategy {
         workflowId,
         nodeId,
         index,
+        suggestion: { ...trigger.suggestion, eventId: event.id },
         expiryPolicy: trigger.expiryPolicy,
         turn: trigger?.expiryPolicy?.turnCount ?? 3
       }
