@@ -1,4 +1,4 @@
-utterance,context,conditions,status,date: 9/15/2020,summary: 69.2,nlu seed: 42
+utterance,context,conditions,status,date: 9/15/2020,summary: 68.9,nlu seed: 42
 What is the contact number?,A,"-intent,is,a-contact-details",pass
 WHAT IS THE CONTACT NUMBER?,A,"-intent,is,a-contact-details",pass
 WHAT is THE contact NUMBER,A,"-intent,is,a-contact-details",pass
@@ -11,12 +11,12 @@ what ; is ; your ; contact number ?,A,"-intent,is,a-contact-details",pass
 Where can I find your ladnline?,A,"-intent,is,a-contact-details",pass
 Where can I find your ladnline?,C,"-intent,is,c-contact-details",pass
 Where can I find your ladnline?,D,"-intent,is,d-contact-details",pass
-Where can I find your ladnline?,E,"-intent,is,e-contact-details",pass
+Where can I find your ladnline?,E,"-intent,is,e-contact-details",fail
 Where can I find your ladnline?,F,"-intent,is,f-contact-details",pass
 Please help with technical isseu,A,"-intent,is,a-problem",fail
 Please help with technical isseu,C,"-intent,is,c-problem",pass
 Please help with technical isseu,D,"-intent,is,d-problem",pass
-Please help with technical isseu,E,"-intent,is,e-problem",pass
+Please help with technical isseu,E,"-intent,is,e-problem",fail
 Please help with technical isseu,F,"-intent,is,f-problem",pass
 I want to amend my staetment,A,"-intent,is,a-bill-inquiry",pass
 I want to amend my staetment,C,"-intent,is,c-bill-inquiry",fail
@@ -179,7 +179,7 @@ screenlocked,A,"-intent,is,a-none",pass
 screenlocked,C,"-intent,is,c-none",pass
 screenlocked,D,"-intent,is,d-none",pass
 screenlocked,E,"-intent,is,e-none",pass
-screenlocked,F,"-intent,is,f-none",pass
+screenlocked,F,"-intent,is,f-none",fail
 Whats the contactnumer,A,"-intent,is,a-contact-details",fail
 Whats the contactnumer,C,"-intent,is,c-contact-details",pass
 Whats the contactnumer,D,"-intent,is,d-contact-details",pass
@@ -196,9 +196,9 @@ How can Icancerl,D,"-intent,is,d-cancellation",pass
 How can Icancerl,E,"-intent,is,e-cancellation",pass
 How can Icancerl,F,"-intent,is,f-cancellation",pass
 Where tofind your land line?,A,"-intent,is,a-contact-details",fail
-Where tofind your land line?,C,"-intent,is,c-contact-details",pass
+Where tofind your land line?,C,"-intent,is,c-contact-details",fail
 Where tofind your land line?,D,"-intent,is,d-contact-details",fail
-Where tofind your land line?,E,"-intent,is,e-contact-details",pass
+Where tofind your land line?,E,"-intent,is,e-contact-details",fail
 Where tofind your land line?,F,"-intent,is,f-contact-details",fail
 teckproblem,A,"-intent,is,a-problem",pass
 teckproblem,C,"-intent,is,c-problem",fail
@@ -221,9 +221,9 @@ I want to amend my statements,D,"-intent,is,d-bill-inquiry",fail
 I want to amend my statements,E,"-intent,is,e-bill-inquiry",pass
 how do I go about cancellings,A,"-intent,is,a-cancellation",fail
 how do I go about cancellings,C,"-intent,is,c-cancellation",pass
-how do I go about cancellings,D,"-intent,is,d-cancellation",fail
+how do I go about cancellings,D,"-intent,is,d-cancellation",pass
 how do I go about cancellings,E,"-intent,is,e-cancellation",pass
-how do I go about cancellings,F,"-intent,is,f-cancellation",fail
+how do I go about cancellings,F,"-intent,is,f-cancellation",pass
 I've got a problems with logins,A,"-intent,is,a-problem",pass
 I've got a problems with logins,C,"-intent,is,c-problem",pass
 I've got a problems with logins,D,"-intent,is,d-problem",pass
@@ -291,7 +291,7 @@ Why are my screen lockerd,A,"-intent,is,a-none",pass
 Why are my screen lockerd,C,"-intent,is,c-none",pass
 Why are my screen lockerd,D,"-intent,is,d-none",pass
 Why are my screen lockerd,E,"-intent,is,e-none",pass
-Why are my screen lockerd,F,"-intent,is,f-none",fail
+Why are my screen lockerd,F,"-intent,is,f-none",pass
 canbcel,A,"-intent,is,a-cancellation",pass
 canbcel,C,"-intent,is,c-cancellation",pass
 canbcel,D,"-intent,is,d-cancellation",pass
@@ -309,8 +309,8 @@ There's a problem with my screen,E,"-intent,is,e-problem",fail
 There's a problem with my screen,F,"-intent,is,f-problem",fail
 They're is a problem with my screen,A,"-intent,is,a-problem",pass
 They're is a problem with my screen,C,"-intent,is,c-problem",pass
-They're is a problem with my screen,D,"-intent,is,d-problem",pass
-They're is a problem with my screen,E,"-intent,is,e-problem",pass
+They're is a problem with my screen,D,"-intent,is,d-problem",fail
+They're is a problem with my screen,E,"-intent,is,e-problem",fail
 They're is a problem with my screen,F,"-intent,is,f-problem",fail
 Theirs a problem with my screen,A,"-intent,is,a-problem",pass
 Theirs a problem with my screen,C,"-intent,is,c-problem",pass
@@ -350,7 +350,7 @@ Where can I fidn your ladnline?,F,"-intent,is,f-contact-details",pass
 Please help with techniqual isseu,A,"-intent,is,a-problem",fail
 Please help with techniqual isseu,C,"-intent,is,c-problem",pass
 Please help with techniqual isseu,D,"-intent,is,d-problem",pass
-Please help with techniqual isseu,E,"-intent,is,e-problem",pass
+Please help with techniqual isseu,E,"-intent,is,e-problem",fail
 Please help with techniqual isseu,F,"-intent,is,f-problem",pass
 I want to ammend my staetment,A,"-intent,is,a-bill-inquiry",pass
 I want to ammend my staetment,C,"-intent,is,c-bill-inquiry",pass
@@ -403,7 +403,7 @@ I can't login in for some reason,A,"-intent,is,a-none",fail
 I can't login in for some reason,C,"-intent,is,c-none",fail
 I can't login in for some reason,D,"-intent,is,d-none",pass
 I can't login in for some reason,E,"-intent,is,e-none",pass
-I can't login in for some reason,F,"-intent,is,f-none",fail
+I can't login in for some reason,F,"-intent,is,f-none",pass
 I can not get the right results,A,"-intent,is,a-none",fail
 I can not get the right results,C,"-intent,is,c-none",fail
 I can not get the right results,D,"-intent,is,d-none",fail
@@ -431,9 +431,9 @@ I got the wrong results for some reason,E,"-intent,is,e-none",fail
 I got the wrong results for some reason,F,"-intent,is,f-none",fail
 My results are not what it is supposed to be,A,"-intent,is,a-none",fail
 My results are not what it is supposed to be,C,"-intent,is,c-none",fail
-My results are not what it is supposed to be,D,"-intent,is,d-none",fail
+My results are not what it is supposed to be,D,"-intent,is,d-none",pass
 My results are not what it is supposed to be,E,"-intent,is,e-none",fail
-My results are not what it is supposed to be,F,"-intent,is,f-none",fail
+My results are not what it is supposed to be,F,"-intent,is,f-none",pass
 There is a problem with my screen,A,"-intent,is,a-problem",pass
 There is a problem with my screen,C,"-intent,is,c-problem",pass
 There is a problem with my screen,D,"-intent,is,d-problem",pass
@@ -561,7 +561,7 @@ I want to amend my statement,D,"-intent,is,d-bill-inquiry",fail
 I want to amend my statement,E,"-intent,is,e-bill-inquiry",pass
 I want to verify a charge,A,"-intent,is,a-bill-inquiry",pass
 I want to verify a charge,C,"-intent,is,c-bill-inquiry",pass
-I want to verify a charge,D,"-intent,is,d-bill-inquiry",pass
+I want to verify a charge,D,"-intent,is,d-bill-inquiry",fail
 I want to verify a charge,E,"-intent,is,e-bill-inquiry",pass
 I want to amend my bill,A,"-intent,is,a-bill-inquiry",fail
 I want to amend my bill,C,"-intent,is,c-bill-inquiry",fail
@@ -619,8 +619,8 @@ I want to solve a problem,F,"-intent,is,f-problem",pass
 I have bugs,A,"-intent,is,a-problem",pass
 I have bugs,C,"-intent,is,c-problem",pass
 I have bugs,D,"-intent,is,d-problem",fail
-I have bugs,E,"-intent,is,e-problem",fail
-I have bugs,F,"-intent,is,f-problem",fail
+I have bugs,E,"-intent,is,e-problem",pass
+I have bugs,F,"-intent,is,f-problem",pass
 I want to solve some bugs,A,"-intent,is,a-problem",pass
 I want to solve some bugs,C,"-intent,is,c-problem",pass
 I want to solve some bugs,D,"-intent,is,d-problem",pass
@@ -638,7 +638,7 @@ there is a major bug,E,"-intent,is,e-problem",fail
 there is a major bug,F,"-intent,is,f-problem",fail
 there is a major glitch,A,"-intent,is,a-problem",pass
 there is a major glitch,C,"-intent,is,c-problem",pass
-there is a major glitch,D,"-intent,is,d-problem",pass
+there is a major glitch,D,"-intent,is,d-problem",fail
 there is a major glitch,E,"-intent,is,e-problem",fail
 there is a major glitch,F,"-intent,is,f-problem",pass
 I have an inquiry about an IT issue,A,"-intent,is,a-problem",fail
@@ -770,7 +770,7 @@ help,D,"-intent,is,d-disambiguation",fail
 help,E,"-intent,is,e-disambiguation",pass
 help,F,"-intent,is,f-disambiguation",fail
 I need assistance,A,"-intent,is,a-disambiguation",fail
-I need assistance,C,"-intent,is,c-disambiguation",pass
+I need assistance,C,"-intent,is,c-disambiguation",fail
 I need assistance,D,"-intent,is,d-disambiguation",pass
 I need assistance,E,"-intent,is,e-disambiguation",fail
 I need assistance,F,"-intent,is,f-disambiguation",pass
@@ -815,7 +815,7 @@ what is your name,A,"-intent,is,a-none",pass
 what is your name,B,"-intent,is,b-none",pass
 what is your name,C,"-intent,is,c-none",pass
 what is your name,D,"-intent,is,d-none",pass
-what is your name,E,"-intent,is,e-none",pass
+what is your name,E,"-intent,is,e-none",fail
 what is your name,F,"-intent,is,f-none",pass
 how have you been,A,"-intent,is,a-none",pass
 how have you been,B,"-intent,is,b-none",pass
@@ -828,7 +828,7 @@ what are your hobbies,B,"-intent,is,b-none",pass
 what are your hobbies,C,"-intent,is,c-none",pass
 what are your hobbies,D,"-intent,is,d-none",pass
 what are your hobbies,E,"-intent,is,e-none",pass
-what are your hobbies,F,"-intent,is,f-none",pass
+what are your hobbies,F,"-intent,is,f-none",fail
 Tell me a joke,A,"-intent,is,a-none",fail
 Tell me a joke,B,"-intent,is,b-none",pass
 Tell me a joke,C,"-intent,is,c-none",fail
@@ -898,24 +898,24 @@ options,F,"-intent,is,f-none",pass
 start,A,"-intent,is,a-none",fail
 start,B,"-intent,is,b-none",pass
 start,C,"-intent,is,c-none",fail
-start,D,"-intent,is,d-none",pass
-start,E,"-intent,is,e-none",pass
+start,D,"-intent,is,d-none",fail
+start,E,"-intent,is,e-none",fail
 start,F,"-intent,is,f-none",pass
 what can you do,A,"-intent,is,a-none",fail
 what can you do,B,"-intent,is,b-none",pass
 what can you do,C,"-intent,is,c-none",fail
-what can you do,D,"-intent,is,d-none",fail
+what can you do,D,"-intent,is,d-none",pass
 what can you do,E,"-intent,is,e-none",fail
 what can you do,F,"-intent,is,f-none",fail
 what can you do for me,A,"-intent,is,a-none",pass
 what can you do for me,B,"-intent,is,b-none",pass
 what can you do for me,C,"-intent,is,c-none",fail
-what can you do for me,D,"-intent,is,d-none",fail
+what can you do for me,D,"-intent,is,d-none",pass
 what can you do for me,E,"-intent,is,e-none",pass
 what can you do for me,F,"-intent,is,f-none",fail
 what are your functionalities,A,"-intent,is,a-none",fail
 what are your functionalities,B,"-intent,is,b-none",pass
-what are your functionalities,C,"-intent,is,c-none",fail
+what are your functionalities,C,"-intent,is,c-none",pass
 what are your functionalities,D,"-intent,is,d-none",pass
 what are your functionalities,E,"-intent,is,e-none",fail
 what are your functionalities,F,"-intent,is,f-none",pass
@@ -948,7 +948,7 @@ I need,B,"-intent,is,b-none",pass
 I need,C,"-intent,is,c-none",pass
 I need,D,"-intent,is,d-none",pass
 I need,E,"-intent,is,e-none",fail
-I need,F,"-intent,is,f-none",pass
+I need,F,"-intent,is,f-none",fail
 I can't,A,"-intent,is,a-none",pass
 I can't,B,"-intent,is,b-none",pass
 I can't,C,"-intent,is,c-none",pass
@@ -1017,13 +1017,13 @@ I want to locate you CEO,E,"-intent,is,e-none",fail
 I want to locate you CEO,F,"-intent,is,f-none",fail
 How many employees work for your company,A,"-intent,is,a-none",fail
 How many employees work for your company,B,"-intent,is,b-none",pass
-How many employees work for your company,C,"-intent,is,c-none",fail
+How many employees work for your company,C,"-intent,is,c-none",pass
 How many employees work for your company,D,"-intent,is,d-none",fail
 How many employees work for your company,E,"-intent,is,e-none",fail
 How many employees work for your company,F,"-intent,is,f-none",fail
 how many locations do you have,A,"-intent,is,a-none",fail
 how many locations do you have,B,"-intent,is,b-none",pass
-how many locations do you have,C,"-intent,is,c-none",fail
+how many locations do you have,C,"-intent,is,c-none",pass
 how many locations do you have,D,"-intent,is,d-none",pass
 how many locations do you have,E,"-intent,is,e-none",fail
 how many locations do you have,F,"-intent,is,f-none",pass
@@ -1064,7 +1064,7 @@ I want to mail you something,D,"-intent,is,d-none",fail
 I want to mail you something,E,"-intent,is,e-none",fail
 I want to mail you something,F,"-intent,is,f-none",fail
 i want to make a complaint,A,"-intent,is,a-none",fail
-i want to make a complaint,B,"-intent,is,b-none",pass
+i want to make a complaint,B,"-intent,is,b-none",fail
 i want to make a complaint,C,"-intent,is,c-none",fail
 i want to make a complaint,D,"-intent,is,d-none",fail
 i want to make a complaint,E,"-intent,is,e-none",fail
