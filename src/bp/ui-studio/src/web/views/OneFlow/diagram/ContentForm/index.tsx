@@ -98,7 +98,9 @@ const ContentForm: FC<Props> = ({
     }
 
     const langs = Object.keys(data.suggestions)
-    const transitions: NodeTransition[] = []
+    const transitions: NodeTransition[] = [
+      ...(node.next.filter(transition => transition.contentIndex !== editingContent) || [])
+    ]
 
     const triggers = data.suggestions[defaultLang].map(({ name, tags }, idx) => {
       const allTags = langs.reduce((acc, curr) => {
