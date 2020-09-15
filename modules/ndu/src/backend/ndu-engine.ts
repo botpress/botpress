@@ -286,6 +286,10 @@ export class UnderstandingEngine {
           const sameWorkflow = trigger.workflowId === currentFlow?.replace('.flow.json', '')
           const sameNode = gotoNodeId === currentNode
 
+          if (!gotoNodeId) {
+            break
+          }
+
           event.ndu.actions = [{ action: 'continue' }]
 
           if (sameWorkflow && !sameNode) {
@@ -316,6 +320,7 @@ export class UnderstandingEngine {
     }
 
     event.state.session.nduContext = {
+      ...(event.state.session.nduContext || {}),
       last_turn_action_name: topAction,
       last_turn_highest_ranking_trigger_id: actionFeatures.conf_all.id,
       last_turn_node_id: isInMiddleOfFlow && `${currentFlow}/${currentNode}`,

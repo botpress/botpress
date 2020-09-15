@@ -80,7 +80,7 @@ export class ActionStrategy implements InstructionStrategy {
     if (!event.state.session.nduContext?.triggers) {
       event.state.session.nduContext!.triggers = []
     } else {
-      triggers = triggers.filter(x => x.workflowId === workflowId && x.nodeId === nodeId && x.index === index)
+      triggers = triggers.filter(x => x.workflowId !== workflowId || x.nodeId !== nodeId || x.index !== index)
     }
 
     event.state.session.nduContext.triggers = [
