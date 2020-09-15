@@ -2,14 +2,14 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "node",
+      "type": "pwa-node",
       "runtimeVersion": "12.13.0",
       "request": "launch",
       "name": "Debug App",
       "program": "${workspaceFolder}/out/bp/index.js",
       "cwd": "${workspaceFolder}",
       "args": ["start"],
-      "protocol": "auto",
+      "resolveSourceMapLocations": null,
       "env": {
         "BP_MODULES_PATH": "${workspaceFolder}/modules:${workspaceFolder}/internal-modules",
         "NODE_PATH": "${workspaceFolder}/out/bp",
