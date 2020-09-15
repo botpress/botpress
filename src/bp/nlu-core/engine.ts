@@ -131,7 +131,7 @@ export default class Engine implements NLU.Engine {
       const ctxHasChanged = this._ctxHasChanged(previousIntents, intents)
       const modifiedCtx = contexts.filter(ctxHasChanged)
 
-      trainAllCtx = modifiedCtx.length === contexts.length
+      trainAllCtx = modifiedCtx.length >= contexts.length
       ctxToTrain = trainAllCtx ? contexts : modifiedCtx
     }
 
@@ -159,8 +159,7 @@ export default class Engine implements NLU.Engine {
     }
 
     if (!trainAllCtx) {
-      model.data.output = _.merge({}, previousModel.data.output, model.data.output)
-      model.data.output.slots_model = new Buffer(model.data.output.slots_model) // lodash merge messes up buffers
+      model.data.output = this._mergeModelOutputs(model.data.output, previousModel.data.output, contexts)
     }
 
     trainDebug.forBot(this.botId, `Successfully finished ${languageCode} training`)
@@ -170,6 +169,21 @@ export default class Engine implements NLU.Engine {
 
   cancelTraining(trainSessionId: string): Promise<void> {
     return Engine._trainingWorkerQueue.cancelTraining(trainSessionId)
+  }
+
+  private _mergeModelOutputs(
+    currentOutput: TrainOutput,
+    previousOutput: TrainOutput,
+    allContexts: string[]
+  ): TrainOutput {
+    const output = { ...currentOutput }
+
+    const previousIntents = _.pick(previousOutput.intent_model_by_ctx, allContexts)
+    const previousOOS = _.pick(previousOutput.oos_model, allContexts)
+
+    output.intent_model_by_ctx = { ...previousIntents, ...currentOutput.intent_model_by_ctx }
+    output.oos_model = { ...previousOOS, ...currentOutput.oos_model }
+    return output
   }
 
   private async _trainAndMakeModel(
