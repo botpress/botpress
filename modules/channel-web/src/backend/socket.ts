@@ -115,6 +115,7 @@ export default async (bp: typeof sdk, db: Database) => {
         // TODO: remove
         component: payload.metadata.suggestion ? 'Suggestions' : 'QuickReplies',
         quick_replies: __buttons,
+        suggestion: payload.metadata.suggestion,
         turnCount: payload.metadata.turnCount,
         position: payload.metadata.position,
         wrapped: {
