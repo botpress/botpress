@@ -35,14 +35,8 @@ interface Props {
   user: any
 }
 
-toast.init()
-
 class App extends Component<Props> {
   private interval
-
-  constructor(props) {
-    super(props)
-  }
 
   fetchData = () => {
     this.props.getModuleTranslations()

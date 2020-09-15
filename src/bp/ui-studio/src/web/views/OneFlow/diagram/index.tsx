@@ -153,8 +153,7 @@ class Diagram extends Component<Props> {
     editingNodeItem: null,
     currentTab: storage.get(DIAGRAM_TAB_KEY) || 'workflow',
     expandedNodes: [],
-    nodeInfos: [],
-    zoomLevel: 100
+    nodeInfos: []
   }
 
   constructor(props) {
@@ -286,6 +285,9 @@ class Diagram extends Component<Props> {
       ['say_something', 'trigger', 'prompt'].includes(this.props.currentFlowNode?.type)
     ) {
       this.editNodeItem(this.props.currentFlowNode, 0)
+    }
+    if (prevProps.zoomLevel !== this.props.zoomLevel) {
+      this.diagramEngine.diagramModel.setZoomLevel(this.props.zoomLevel)
     }
 
     if (this.props.activeFormItem !== undefined && prevProps.activeFormItem !== this.props.activeFormItem) {
@@ -1197,19 +1199,12 @@ class Diagram extends Component<Props> {
             >
               <DiagramWidget
                 ref={w => (this.diagramWidget = w)}
-                allowCanvasZoom={false}
                 deleteKeys={[]}
                 diagramEngine={this.diagramEngine}
                 maxNumberPointsPerLink={0}
                 inverseZoom={true}
               />
-              <ZoomToolbar
-                zoomLevel={this.state.zoomLevel}
-                setZoomLevel={zoom => {
-                  this.setState({ zoomLevel: zoom })
-                  this.diagramEngine.diagramModel.setZoomLevel(zoom)
-                }}
-              />
+              <ZoomToolbar />
             </div>
             {currentTab === 'workflow' && this.props.currentFlow?.nodes?.length === 0 && (
               <div className={style.centered}>
@@ -1393,7 +1388,8 @@ const mapStateToProps = (state: RootReducer) => ({
   conditions: state.ndu.conditions,
   hints: state.hints.inputs,
   emulatorOpen: state.ui.emulatorOpen,
-  activeFormItem: state.flows.activeFormItem
+  activeFormItem: state.flows.activeFormItem,
+  zoomLevel: state.ui.zoomLevel
 })
 
 const mapDispatchToProps = {

@@ -87,7 +87,6 @@ declare module 'botpress/shared' {
   }
 
   export const toast: {
-    init: () => void
     dismiss: (key: string) => void
     success: (message: string | React.ReactElement, details?: string, options?: ToastOptions) => void
     failure: (message: string | React.ReactElement, details?: string, options?: ToastOptions) => void

@@ -19,6 +19,14 @@ export interface ToastOptions {
 let toaster
 const toastKeys = {}
 
+const init = () => {
+  toaster = Toaster.create({ className: style.toaster, position: Position.BOTTOM })
+}
+
+if (!toaster) {
+  init()
+}
+
 const prepareMessage = (message: string | React.ReactElement, details?: string) =>
   typeof message === 'string' ? lang(message, { details }) : message
 
@@ -48,10 +56,6 @@ const warningOptions = {
   timeout: 'medium',
   icon: 'warning-sign',
   key: 'warning'
-}
-
-const init = () => {
-  toaster = Toaster.create({ className: style.toaster, position: Position.BOTTOM })
 }
 
 const dismiss = (key: string) => {
@@ -111,4 +115,4 @@ const showToast = (message: string | React.ReactElement, intent, options: ToastO
   }
 }
 
-export const toast = { init, dismiss, success, failure, warning, info }
+export const toast = { dismiss, success, failure, warning, info }
