@@ -11,6 +11,28 @@
     margin: 0 0 var(--spacing-small);
   }
 
+  :global(.more-options-btn) {
+    height: 24px;
+    width: 16px;
+
+    span {
+      height: 4px;
+      width: 4px;
+
+      &:before {
+        height: 4px;
+        width: 4px;
+        left: -6px;
+      }
+
+      &:after {
+        height: 4px;
+        width: 4px;
+        right: -6px;
+      }
+    }
+  }
+
   .expandBtn {
     margin-right: var(--spacing-xx-large);
     width: 24px;
@@ -24,7 +46,7 @@
       background: none;
 
       svg {
-        fill: var(--reef);
+        fill: var(--ocean);
       }
     }
   }
@@ -72,8 +94,11 @@ input[type='radio'] {
 
 .contentTypeField {
   padding-bottom: var(--spacing-xx-large);
-  border-bottom: 1px solid var(--gray);
   margin-bottom: var(--spacing-xx-large);
+
+  &:not(.noBorder) {
+    border-bottom: 1px solid var(--gray);
+  }
 }
 
 .codeEditor {
@@ -415,28 +440,6 @@ select:global(.form-control) {
 }
 
 :global {
-  .more-options-btn {
-    height: 24px;
-    width: 16px;
-
-    span {
-      height: 4px;
-      width: 4px;
-
-      &:before {
-        height: 4px;
-        width: 4px;
-        left: -6px;
-      }
-
-      &:after {
-        height: 4px;
-        width: 4px;
-        right: -6px;
-      }
-    }
-  }
-
   .bp3-tab {
     text-transform: uppercase;
     font-weight: bold;

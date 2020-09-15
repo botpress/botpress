@@ -261,7 +261,7 @@ const QnA: FC<Props> = props => {
                 <span className={cx(style.tag)}>{lang.tr('incomplete')}</span>
               </Tooltip>
             )}
-            {!expanded && !showIncomplete && (
+            {!showIncomplete && (
               <span className={style.tag}>{`${questions?.filter(q => q.trim()).length || 0} ${lang.tr(
                 'module.qna.form.q'
               )} · ${answers?.filter(a => a.trim()).length || 0}  ${lang.tr('module.qna.form.a')}`}</span>

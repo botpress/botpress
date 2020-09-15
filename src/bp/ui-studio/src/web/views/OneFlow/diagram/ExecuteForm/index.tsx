@@ -169,7 +169,11 @@ const ExecuteForm: FC<Props> = ({
             </Tooltip>
           </div>
         </div>
-        <div className={cx(contentStyle.fieldWrapper, contentStyle.contentTypeField)}>
+        <div
+          className={cx(contentStyle.fieldWrapper, contentStyle.contentTypeField, {
+            [contentStyle.noBorder]: !selectedOption
+          })}
+        >
           <span className={contentStyle.formLabel}>{lang.tr('Action')}</span>
 
           <MultiLevelDropdown
