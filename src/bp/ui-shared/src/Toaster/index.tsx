@@ -12,7 +12,7 @@ export interface ToastOptions {
   timeout?: 'short' | 'medium' | 'long' | 'infinite'
   icon?: IconName | JSX.Element
   hideDismiss?: boolean
-  key: string
+  key?: string
   onDismiss?: (didTimeoutExpire: boolean) => void
 }
 
