@@ -79,9 +79,10 @@ const reducer = handleActions(
       }
     },
     [zoomOut]: (state, {}) => {
+      const newLevel = state.zoomLevel - 25
       return {
         ...state,
-        zoomLevel: state.zoomLevel - 25
+        zoomLevel: newLevel > 10 ? newLevel : 10
       }
     },
     [setEmulatorOpen]: (state, { payload }) => ({

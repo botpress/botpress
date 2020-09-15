@@ -16,7 +16,7 @@ type Props = DispatchProps & StateProps
 const ZoomToolbar: FC<Props> = ({ zoomLevel, zoomIn, zoomOut, zoomToLevel }) => (
   <div className={style.zoomWrapper}>
     <ToolTip content={lang.tr('studio.zoomOut')}>
-      <Button icon="zoom-out" disabled={zoomLevel <= 25} onClick={zoomOut} />
+      <Button icon="zoom-out" disabled={zoomLevel <= 10} onClick={zoomOut} />
     </ToolTip>
     <label>
       <span className={style.label}>{zoomLevel}%</span>
@@ -30,7 +30,7 @@ const ZoomToolbar: FC<Props> = ({ zoomLevel, zoomIn, zoomOut, zoomToLevel }) => 
       </select>
     </label>
     <ToolTip content={lang.tr('studio.zoomIn')}>
-      <Button icon="zoom-in" disabled={zoomLevel >= 200} onClick={zoomIn} />
+      <Button icon="zoom-in" onClick={zoomIn} />
     </ToolTip>
   </div>
 )

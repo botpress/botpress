@@ -43,7 +43,8 @@ import {
   switchFlowNode,
   updateFlow,
   updateFlowNode,
-  updateFlowProblems
+  updateFlowProblems,
+  zoomToLevel
 } from '~/actions'
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { history } from '~/components/Routes'
@@ -187,7 +188,10 @@ class Diagram extends Component<Props> {
 
     // This reference allows us to update flow nodes from widgets
     this.diagramEngine.flowBuilder = this
-    this.manager = new DiagramManager(this.diagramEngine, { switchFlowNode: this.props.switchFlowNode })
+    this.manager = new DiagramManager(this.diagramEngine, {
+      switchFlowNode: this.props.switchFlowNode,
+      zoomToLevel: this.props.zoomToLevel
+    })
 
     if (this.props.highlightFilter) {
       this.manager.setHighlightFilter(this.props.highlightFilter)
@@ -1417,7 +1421,8 @@ const mapDispatchToProps = {
   fetchContentCategories,
   getQnaCountByTopic,
   refreshHints,
-  setActiveFormItem
+  setActiveFormItem,
+  zoomToLevel
 }
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps, null, {
