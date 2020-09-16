@@ -1,5 +1,5 @@
 import { Intent, Menu, MenuItem } from '@blueprintjs/core'
-import { DecisionTriggerCondition, Flow, FormData, SubWorkflowNode } from 'botpress/sdk'
+import { DecisionTriggerCondition, ExecuteNode, Flow, FormData, SubWorkflowNode } from 'botpress/sdk'
 import { contextMenu, lang, ShortcutLabel, toast } from 'botpress/shared'
 import { parseFlowName } from 'common/flow'
 import { FlowView } from 'common/typings'
@@ -210,6 +210,7 @@ export class BlockModel extends BaseNodeModel {
   public contents?: FormData[] = []
   public subflow: SubWorkflowNode
   public flow: string
+  public execute: ExecuteNode
 
   constructor({
     id,
@@ -224,6 +225,7 @@ export class BlockModel extends BaseNodeModel {
     next = [],
     conditions = [],
     subflow = {},
+    execute = {},
     activeWorkflow = false,
     isNew = false,
     isStartNode = false,
@@ -244,6 +246,7 @@ export class BlockModel extends BaseNodeModel {
       isHighlighted,
       conditions,
       subflow,
+      execute,
       activeWorkflow,
       isNew,
       isReadOnly
@@ -264,6 +267,7 @@ export class BlockModel extends BaseNodeModel {
     this.contents = data.contents
     this.flow = data.flow
     this.subflow = data.subflow
+    this.execute = data.execute
     this.isReadOnly = data.isReadOnly
   }
 }

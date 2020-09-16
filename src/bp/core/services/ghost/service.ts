@@ -41,6 +41,12 @@ export interface FileChange {
 
 export type FileChangeAction = 'add' | 'edit' | 'del'
 
+interface ScopedGhostOptions {
+  botId?: string
+  // Archive upload requires the full path, including drive letter, so it should not be sanitized
+  noSanitize?: boolean
+}
+
 const MAX_GHOST_FILE_SIZE = process.core_env.BP_BPFS_MAX_FILE_SIZE || '100mb'
 const bpfsIgnoredFiles = ['models/**', 'data/bots/*/models/**', '**/*.js.map']
 const GLOBAL_GHOST_KEY = '__global__'
@@ -79,14 +85,7 @@ export class GhostService {
 
   // Not caching this scope since it's rarely used
   root(useDbDriver?: boolean): ScopedGhostService {
-    return new ScopedGhostService(
-      `./data`,
-      this.diskDriver,
-      this.dbDriver,
-      useDbDriver ?? this.useDbDriver,
-      this.cache,
-      this.logger
-    )
+    return new ScopedGhostService(`./data`, this.diskDriver, this.dbDriver, useDbDriver ?? this.useDbDriver, this.cache)
   }
 
   global(): ScopedGhostService {
@@ -99,8 +98,7 @@ export class GhostService {
       this.diskDriver,
       this.dbDriver,
       this.useDbDriver,
-      this.cache,
-      this.logger
+      this.cache
     )
 
     this._scopedGhosts.set(GLOBAL_GHOST_KEY, scopedGhost)
@@ -108,7 +106,7 @@ export class GhostService {
   }
 
   custom(baseDir: string) {
-    return new ScopedGhostService(baseDir, this.diskDriver, this.dbDriver, false, this.cache, this.logger)
+    return new ScopedGhostService(baseDir, this.diskDriver, this.dbDriver, false, this.cache, { noSanitize: true })
   }
 
   // TODO: refactor this
@@ -239,8 +237,7 @@ export class GhostService {
       this.diskDriver,
       this.dbDriver,
       this.useDbDriver,
-      this.cache,
-      this.logger
+      this.cache
     )
 
     this._scopedGhosts.set(BOTS_GHOST_KEY, scopedGhost)
@@ -262,8 +259,7 @@ export class GhostService {
       this.dbDriver,
       this.useDbDriver,
       this.cache,
-      this.logger,
-      botId
+      { botId }
     )
 
     const listenForUnmount = args => {
@@ -349,8 +345,10 @@ export class ScopedGhostService {
     private dbDriver: DBStorageDriver,
     private useDbDriver: boolean,
     private cache: ObjectCache,
-    private logger: Logger,
-    private botId?: string
+    private options: ScopedGhostOptions = {
+      botId: undefined,
+      noSanitize: true
+    }
   ) {
     if (![-1, this.baseDir.length - 1].includes(this.baseDir.indexOf('*'))) {
       throw new Error(`Base directory can only contain '*' at the end of the path`)
@@ -365,7 +363,7 @@ export class ScopedGhostService {
    * This is a temporary workaround to lock bots marked as "locked" until modules are correctly updated.
    */
   private async _assertBotUnlocked(directory: string, file?: string) {
-    if (!this.botId || directory.startsWith('./models')) {
+    if (!this.options.botId || directory.startsWith('./models')) {
       return
     }
 
@@ -378,7 +376,8 @@ export class ScopedGhostService {
   }
 
   private _normalizeFolderName(rootFolder: string) {
-    return sanitize(forceForwardSlashes(path.join(this.baseDir, rootFolder)), 'folder')
+    const folder = forceForwardSlashes(path.join(this.baseDir, rootFolder))
+    return this.options.noSanitize ? folder : sanitize(folder, 'folder')
   }
 
   private _normalizeFileName(rootFolder: string, file: string) {
@@ -441,7 +440,7 @@ export class ScopedGhostService {
     await this._invalidateFile(fileName)
 
     if (options.syncDbToDisk) {
-      await this.cache.sync(JSON.stringify({ rootFolder, botId: this.botId }))
+      await this.cache.sync(JSON.stringify({ rootFolder, botId: this.options.botId }))
     }
   }
 
