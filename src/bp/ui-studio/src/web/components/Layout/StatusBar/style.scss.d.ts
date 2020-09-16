@@ -7,7 +7,6 @@ interface CssExports {
   'danger': string;
   'flag': string;
   'flagWrapper': string;
-  'formHeader': string;
   'issueBtn': string;
   'item': string;
   'langItem': string;

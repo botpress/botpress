@@ -1,6 +1,6 @@
 import { Button, Tab, Tabs } from '@blueprintjs/core'
 import { FlowNode } from 'botpress/sdk'
-import { lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
+import { lang, MoreOptions, MoreOptionsItems, RightSidebar, sharedStyle } from 'botpress/shared'
 import React, { FC, Fragment, useState } from 'react'
 import ActionDialog from '~/views/FlowBuilder/nodeProps/ActionDialog'
 
@@ -44,7 +44,7 @@ const ActionForm: FC<Props> = ({ close, node, diagramEngine, deleteNode }) => {
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={!showModal} close={() => close()}>
       <Fragment key={`${node?.id}`}>
-        <div className={style.formHeader}>
+        <div className={sharedStyle.formHeader}>
           <Tabs id="contentFormTabs">
             <Tab id="content" title={lang.tr('studio.flow.nodeType.execute')} />
           </Tabs>

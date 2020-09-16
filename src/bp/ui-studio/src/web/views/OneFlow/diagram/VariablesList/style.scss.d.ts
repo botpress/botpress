@@ -3,7 +3,6 @@
 interface CssExports {
   'active': string;
   'button': string;
-  'emptyState': string;
   'group': string;
   'label': string;
   'noMargin': string;

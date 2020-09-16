@@ -4,10 +4,9 @@ import _isEqual from 'lodash/isEqual'
 import _uniqueId from 'lodash/uniqueId'
 import React, { FC, useEffect, useRef, useState } from 'react'
 
+import sharedStyle from '../../style.scss'
 import { lang } from '../../translations'
-import { controlKey } from '../../utils/keyboardShortcuts'
 import AddButton from '../../Contents/Components/Fields/AddButton'
-import ShortcutLabel from '../../ShortcutLabel'
 import Textarea from '../../Textarea'
 
 import style from './style.scss'
@@ -100,10 +99,10 @@ const TextFieldsArray: FC<TextFieldsArrayProps> = ({
         const missingTranslation = refValue?.[index] && !item
 
         return (
-          <div key={index} className={style.textareaWrapper}>
+          <div key={index} className={sharedStyle.textareaWrapper}>
             <Textarea
               isFocused={focusedElement.current === index}
-              className={cx(style.customTextarea, { ['has-error']: missingTranslation })}
+              className={cx(sharedStyle.textarea, { ['has-error']: missingTranslation })}
               placeholder={getPlaceholder?.(index)}
               onChange={value => updateLocalItem(index, value)}
               onBlur={() => {

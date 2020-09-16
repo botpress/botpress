@@ -1,7 +1,7 @@
 import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
 // @ts-ignore
 import BotpressContentPicker from 'botpress/content-picker'
-import { FormFields, lang, ShortcutLabel, Textarea, utils } from 'botpress/shared'
+import { FormFields, lang, sharedStyle, ShortcutLabel, Textarea, utils } from 'botpress/shared'
 import cx from 'classnames'
 import _uniqueId from 'lodash/uniqueId'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
@@ -80,7 +80,7 @@ const TextAreaList: FC<Props> = props => {
           const missingTranslation = refItems?.[index] && !item
 
           return item.startsWith('#!') ? (
-            <div key={keys[index]} className={style.contentAnswer}>
+            <div key={keys[index]} className={cx(style.contentAnswer, sharedStyle.textatea)}>
               <BotpressContentPicker
                 itemId={item.replace('#!', '')}
                 onClickChange={() => this.toggleEditMode(index)}
@@ -89,17 +89,17 @@ const TextAreaList: FC<Props> = props => {
               <Button icon="trash" onClick={() => deleteItem(index)} />
             </div>
           ) : (
-            <div key={keys[index]} className={cx(style.textareaWrapper, { ['has-error']: missingTranslation })}>
+            <div key={keys[index]} className={cx(sharedStyle.textareaWrapper, { ['has-error']: missingTranslation })}>
               <Textarea
                 isFocused={focusedElement.current === `${keyPrefix}${index}`}
-                className={cx(style.textarea, { ['has-error']: errors[index] || missingTranslation })}
+                className={cx(sharedStyle.textarea, { ['has-error']: errors[index] || missingTranslation })}
                 placeholder={placeholder(index)}
                 onChange={value => updateLocalItem(index, value)}
                 onBlur={() => updateItems(localItems)}
                 onKeyDown={e => onKeyDown(e, index)}
                 value={item || refItems?.[index] || ''}
               />
-              {missingTranslation && <span className={style.error}>{lang.tr('pleaseTranslateField')}</span>}
+              {missingTranslation && <span className={sharedStyle.error}>{lang.tr('pleaseTranslateField')}</span>}
               {errors[index] && (
                 <div className={style.errorIcon}>
                   <Tooltip content={errors[index]} position={Position.BOTTOM}>

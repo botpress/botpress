@@ -161,7 +161,7 @@ const RouterForm: FC<Props> = ({
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={close}>
       <Fragment key={customKey}>
-        <div className={style.formHeader}>
+        <div className={sharedStyle.formHeader}>
           <Tabs id="contentFormTabs">
             <Tab id="content" title={lang.tr('studio.flow.nodeType.router')} />
           </Tabs>
@@ -177,8 +177,8 @@ const RouterForm: FC<Props> = ({
             ]}
           />
         </div>
-        <div className={cx(sharedStyle.fieldWrapper, style.contentTypeField)}>
-          <span className={style.formLabel}>{lang.tr('studio.router.variable')}</span>
+        <div className={cx(sharedStyle.fieldWrapper, sharedStyle.typeField)}>
+          <span className={sharedStyle.formLabel}>{lang.tr('studio.router.variable')}</span>
           <FormFields.VariablePicker
             field={{ type: 'variable', key: 'value' }}
             placeholder={lang.tr('studio.router.pickVariable')}

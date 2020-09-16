@@ -2,7 +2,6 @@
 // Please do not change this file!
 interface CssExports {
   'addWorkflowNode': string;
-  'emptyState': string;
   'grabbable': string;
   'mainoverlay': string;
   'modalHeader': string;

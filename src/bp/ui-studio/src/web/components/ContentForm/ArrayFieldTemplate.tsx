@@ -30,7 +30,7 @@ const ArrayFieldTemplate = props => {
 
   return (
     <div className={sharedStyle.fieldWrapper}>
-      <span className={style.formLabel}>{schema.title}</span>
+      <span className={sharedStyle.formLabel}>{schema.title}</span>
       {items?.map(element => {
         const { type } = schema.items
 
@@ -41,7 +41,7 @@ const ArrayFieldTemplate = props => {
                 key={`${key.current}${element.key}`}
                 value={element.children?.props?.formData}
                 onChange={element.children?.props?.onChange}
-                className={cx(style.textarea, style.multipleInputs)}
+                className={cx(sharedStyle.textarea, style.multipleInputs)}
                 isSideForm
                 singleLine={false}
               >

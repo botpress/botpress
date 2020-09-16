@@ -5,6 +5,7 @@ import React, { Fragment, useEffect, useRef, useState } from 'react'
 import { Variables } from '~/../../common/typings'
 
 import ToolTip from '../../../../ui-shared-lite/ToolTip'
+import sharedStyle from '../../style.scss'
 import { lang } from '../../translations'
 import { FieldProps } from '../../Contents/Components/typings'
 import Icons from '../../Icons'
@@ -213,6 +214,7 @@ export default ({
     <Fragment>
       <div
         className={cx(style.superInputWrapper, className, 'superinput-wrapper', {
+          [style.singular]: !isPartOfArray,
           ['has-error']: missingTranslation
         })}
       >
@@ -340,7 +342,7 @@ export default ({
           }}
         />
       </div>
-      {missingTranslation && <span className={style.error}>{lang('pleaseTranslateField')}</span>}
+      {missingTranslation && <span className={sharedStyle.error}>{lang('pleaseTranslateField')}</span>}
     </Fragment>
   )
 }

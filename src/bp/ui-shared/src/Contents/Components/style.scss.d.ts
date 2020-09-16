@@ -7,13 +7,10 @@ interface CssExports {
   'fieldError': string;
   'fieldWrapperHeader': string;
   'groupLabel': string;
-  'hasError': string;
   'imgWrapper': string;
   'imgWrapperActions': string;
-  'input': string;
   'label': string;
   'labelWrapper': string;
-  'textarea': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

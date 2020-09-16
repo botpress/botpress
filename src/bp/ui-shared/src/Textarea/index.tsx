@@ -1,5 +1,5 @@
 import cx from 'classnames'
-import React, { FC, useEffect, useRef, useState, Fragment } from 'react'
+import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
 import style from './style.scss'
 import { TextareaProps } from './typings'

@@ -160,7 +160,7 @@ const ExecuteForm: FC<Props> = ({
       }}
     >
       <Fragment key={`${node?.id}`}>
-        <div className={style.formHeader}>
+        <div className={sharedStyle.formHeader}>
           <Tabs id="contentFormTabs">
             <Tab id="content" title={lang.tr('studio.flow.nodeType.execute')} />
           </Tabs>
@@ -168,7 +168,7 @@ const ExecuteForm: FC<Props> = ({
             <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
             <Tooltip content={lang.tr(maximized ? 'minimizeInspector' : 'maximizeInspector')}>
               <Button
-                className={style.expandBtn}
+                className={sharedStyle.expandBtn}
                 small
                 minimal
                 icon={maximized ? <Icons.Minimize /> : 'fullscreen'}
@@ -178,11 +178,11 @@ const ExecuteForm: FC<Props> = ({
           </div>
         </div>
         <div
-          className={cx(sharedStyle.fieldWrapper, contentStyle.contentTypeField, {
-            [contentStyle.noBorder]: !selectedOption
+          className={cx(sharedStyle.fieldWrapper, sharedStyle.typeField, {
+            [sharedStyle.noBorder]: !selectedOption
           })}
         >
-          <span className={contentStyle.formLabel}>{lang.tr('Action')}</span>
+          <span className={sharedStyle.formLabel}>{lang.tr('Action')}</span>
 
           <MultiLevelDropdown
             addBtn={{

@@ -2,6 +2,7 @@ import { FormField } from 'botpress/sdk'
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 
+import sharedStyle from '../../../style.scss'
 import { lang } from '../../../translations'
 import Textarea from '../../../Textarea'
 import style from '../style.scss'
@@ -34,7 +35,7 @@ const TextArea: FC<TextAreaProps> = ({
   return (
     <Fragment>
       <Textarea
-        className={cx(style.textarea, { [style.hasError]: missingTranslation })}
+        className={cx(sharedStyle.input, { [sharedStyle.hasError]: missingTranslation })}
         placeholder={placeholder}
         onKeyDown={onKeyDown}
         onChange={value => {

@@ -3,8 +3,6 @@
 interface CssExports {
   'actionModal': string;
   'editorWrap': string;
-  'expandBtn': string;
-  'formHeader': string;
   'hidden': string;
   'wrapper': string;
 }

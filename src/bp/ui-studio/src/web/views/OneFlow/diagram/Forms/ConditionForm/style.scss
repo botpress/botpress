@@ -1,139 +1,8 @@
-.formHeader {
-  position: relative;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-
-  h4 {
-    font-size: 22px;
-    font-weight: 500;
-    color: var(--shark);
-    margin: 0 0 var(--spacing-small);
-  }
-
-  :global(.more-options-btn) {
-    height: 24px;
-    width: 16px;
-
-    span {
-      height: 4px;
-      width: 4px;
-
-      &:before {
-        height: 4px;
-        width: 4px;
-        left: -6px;
-      }
-
-      &:after {
-        height: 4px;
-        width: 4px;
-        right: -6px;
-      }
-    }
-  }
-
-  .expandBtn {
-    margin-right: var(--spacing-xx-large);
-    width: 24px;
-
-    svg {
-      fill: var(--shark);
-      transition: fill 0.3s;
-    }
-
-    &:hover {
-      background: none;
-
-      svg {
-        fill: var(--ocean);
-      }
-    }
-  }
-}
-
-.alignBtnRight {
-  display: block !important;
-  margin-left: auto;
-}
-
-.innerWrapper {
-  position: relative;
-
-  .insertBtn {
-    position: absolute;
-    right: 38px;
-    top: 4px;
-  }
-
-  .deleteBtn {
-    position: absolute;
-    right: 4px;
-    top: 4px;
-  }
-}
-
-input[type='checkbox'],
-input[type='radio'] {
-  &:focus {
-    outline: 1px solid var(--ocean) !important;
-    outline-offset: 1px !important;
-  }
-}
-
-.contentTypeField {
-  padding-bottom: var(--spacing-xx-large);
-  margin-bottom: var(--spacing-xx-large);
-
-  &:not(.noBorder) {
-    border-bottom: 1px solid var(--gray);
-  }
-}
-
 .codeEditor {
   border-bottom: 1px solid var(--seashell);
   border-top: 1px solid var(--seashell);
   padding: var(--spacing-medium) 0;
   min-height: 35px;
-}
-
-:global(.field-description) {
-  line-height: 1;
-}
-
-.formLabel,
-:global(.control-label) {
-  color: var(--shark);
-  display: block;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.25;
-  margin: var(--spacing-xx-large) 0 var(--spacing-small);
-}
-
-.advancedSettingsBtn {
-  border-top: 1px solid var(--seashell);
-  color: var(--shark);
-  font-size: 18px;
-  font-weight: 500;
-  justify-content: space-between;
-  margin: var(--spacing-xx-large) 0 var(--spacing-x-large);
-  padding: 0;
-  padding-top: var(--spacing-xx-large);
-  text-align: left;
-  width: 100%;
-
-  &:hover {
-    background: transparent !important;
-  }
-}
-
-.checkboxLabel {
-  font-weight: 400;
-
-  a {
-    display: block;
-  }
 }
 
 .imgWrapper {
@@ -169,35 +38,9 @@ input[type='radio'] {
   margin-top: var(--spacing-medium);
 }
 
-.textInput,
-.textarea,
-:global(.form-control) {
-  background: #fff !important;
-  border: 1px solid var(--seashell) !important;
-  border-radius: 3px !important;
-  color: var(--shark) !important;
-  font-size: 16px !important;
-  font-weight: 400 !important;
-  line-height: 1.25 !important;
-  padding: var(--spacing-medium) var(--spacing-large) !important;
-  transition: border 0.3s !important;
-  width: 100% !important;
-
-  &:focus,
-  &:focus-within {
-    border-color: var(--ocean) !important;
-    box-shadow: none !important;
-  }
-}
-
 select:global(.form-control) {
   box-shadow: none;
   height: 38px;
-}
-
-.textarea,
-:global(.form-control) {
-  resize: none;
 }
 
 .multipleInputs {
@@ -225,24 +68,6 @@ select:global(.form-control) {
     margin-right: var(--spacing-small);
     position: relative !important;
   }
-}
-
-.addContentBtn {
-  border: 1px solid var(--seashell) !important;
-  box-shadow: none !important;
-  cursor: pointer;
-  line-height: 1.25;
-  width: 100%;
-
-  &:focus {
-    border-color: var(--ocean) !important;
-  }
-}
-
-.emptyState {
-  color: var(--reef);
-  font-size: 14px;
-  margin-top: var(--spacing-large);
 }
 
 .actionDialogContent {
@@ -332,54 +157,6 @@ select:global(.form-control) {
 
 .items {
   line-height: 0;
-}
-
-.textareaWrapper {
-  position: relative;
-
-  &:focus-within {
-    & + .textareaWrapper {
-      .textarea,
-      .contentAnswer {
-        border-top-color: transparent;
-      }
-    }
-
-    .textarea,
-    .contentAnswer {
-      border-top-color: var(--ocean);
-      border-bottom-color: var(--ocean);
-
-      &.hasError {
-        border-bottom-color: var(--lighthouse);
-
-        &:focus {
-          border-top-color: var(--lighthouse);
-
-          & + .textarea {
-            border-top-color: transparent;
-          }
-        }
-      }
-    }
-  }
-}
-
-.customTextarea {
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--gray);
-  border-top: 1px solid var(--gray);
-  color: var(--shark);
-  font-size: 12px;
-  height: 39px;
-  line-height: 1.25;
-  margin: -1px 0 0;
-  padding: var(--spacing-large) 2%;
-  padding-left: 0;
-  resize: none;
-  transition: border 0.3s;
-  width: 100%;
 }
 
 h2 {

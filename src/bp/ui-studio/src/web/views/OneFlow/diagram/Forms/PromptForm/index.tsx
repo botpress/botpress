@@ -104,14 +104,14 @@ const PromptForm: FC<Props> = ({
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={!isConfirming} close={close}>
       <Fragment key={`${promptType.current}-${contentLang}-${customKey}`}>
-        <div className={style.formHeader}>
+        <div className={sharedStyle.formHeader}>
           <Tabs id="contentFormTabs">
             <Tab id="content" title={lang.tr('studio.flow.nodeType.prompt')} />
           </Tabs>
           <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
         </div>
         <div>
-          <span className={style.formLabel}>{lang.tr('studio.prompt.label')}</span>
+          <span className={sharedStyle.formLabel}>{lang.tr('studio.prompt.label')}</span>
           {!!prompts.primitive.length && (
             <Dropdown
               filterable
@@ -125,8 +125,8 @@ const PromptForm: FC<Props> = ({
             />
           )}
         </div>
-        <div className={cx(sharedStyle.fieldWrapper, style.contentTypeField)}>
-          <span className={style.formLabel}>{lang.tr('module.builtin.setValueTo')}</span>
+        <div className={cx(sharedStyle.fieldWrapper, sharedStyle.typeField)}>
+          <span className={sharedStyle.formLabel}>{lang.tr('module.builtin.setValueTo')}</span>
           {!!prompts.primitive.length && (
             <FormFields.VariablePicker
               field={{ type: 'variable', key: 'output' }}
@@ -142,7 +142,7 @@ const PromptForm: FC<Props> = ({
           )}
         </div>
         {selectedPromptType && (
-          <div className={cx(sharedStyle.fieldWrapper, style.contentTypeField)}>
+          <div className={cx(sharedStyle.fieldWrapper, sharedStyle.typeField)}>
             <Contents.Form
               currentLang={contentLang}
               defaultLang={defaultLang}

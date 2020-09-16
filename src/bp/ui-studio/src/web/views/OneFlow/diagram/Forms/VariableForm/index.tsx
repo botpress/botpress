@@ -81,7 +81,7 @@ const VariableForm: FC<Props> = ({
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={close}>
       <Fragment key={`${variableType.current}-${uniqueKey}`}>
-        <div className={style.formHeader}>
+        <div className={sharedStyle.formHeader}>
           <Tabs id="contentFormTabs">
             <Tab id="content" title={lang.tr('variable')} />
           </Tabs>
@@ -89,7 +89,7 @@ const VariableForm: FC<Props> = ({
         </div>
         {currentFlow.type === 'reusable' && (
           <div className={sharedStyle.fieldWrapper}>
-            <span className={style.formLabel}>{lang.tr('variable.variableVisibility')}</span>
+            <span className={sharedStyle.formLabel}>{lang.tr('variable.variableVisibility')}</span>
             {!!variables.primitive.length && (
               <Dropdown
                 filterable={false}
@@ -114,8 +114,8 @@ const VariableForm: FC<Props> = ({
             )}
           </div>
         )}
-        <div className={cx(sharedStyle.fieldWrapper, style.contentTypeField)}>
-          <span className={style.formLabel}>{lang.tr('type')}</span>
+        <div className={cx(sharedStyle.fieldWrapper, sharedStyle.typeField)}>
+          <span className={sharedStyle.formLabel}>{lang.tr('type')}</span>
           {!!variables.primitive.length && (
             <Dropdown
               filterable={false}

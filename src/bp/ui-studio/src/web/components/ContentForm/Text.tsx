@@ -27,7 +27,7 @@ const Text: FC<Props> = props => {
 
   return (
     <div className={sharedStyle.fieldWrapper}>
-      <span className={style.formLabel}>
+      <span className={sharedStyle.formLabel}>
         {schema.title} {required && '*'}
       </span>
       <div className={style.innerWrapper}>
@@ -36,7 +36,7 @@ const Text: FC<Props> = props => {
           singleLine={uiSchema.$subtype !== 'textarea'}
           value={value}
           onChange={onChange}
-          className={style.textarea}
+          className={sharedStyle.input}
           isSideForm
         />
       </div>

@@ -10,7 +10,6 @@ interface CssExports {
   'category': string;
   'description': string;
   'endBloc': string;
-  'formHeader': string;
   'item': string;
   'name': string;
   'node': string;

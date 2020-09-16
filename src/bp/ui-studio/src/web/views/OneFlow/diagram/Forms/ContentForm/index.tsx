@@ -94,14 +94,14 @@ const ContentForm: FC<Props> = ({
       close={() => close(editingContent)}
     >
       <Fragment key={`${contentType.current}-${contentLang}-${customKey || editingContent}`}>
-        <div className={style.formHeader}>
+        <div className={sharedStyle.formHeader}>
           <Tabs id="contentFormTabs">
             <Tab id="content" title={lang.tr('studio.flow.nodeType.say')} />
           </Tabs>
           <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
         </div>
-        <div className={cx(sharedStyle.fieldWrapper, style.contentTypeField)}>
-          <span className={style.formLabel}>{lang.tr('studio.content.contentType')}</span>
+        <div className={cx(sharedStyle.fieldWrapper, sharedStyle.typeField)}>
+          <span className={sharedStyle.formLabel}>{lang.tr('studio.content.contentType')}</span>
           {!!contentTypes.length && (
             <Dropdown
               filterable={false}

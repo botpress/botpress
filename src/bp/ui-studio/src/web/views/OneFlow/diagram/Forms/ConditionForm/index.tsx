@@ -157,7 +157,7 @@ const ConditionForm: FC<Props> = ({
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={!isConfirming} close={() => close(editingCondition)}>
       <Fragment key={`${condition.current}-${contentLang}-${customKey || editingCondition}`}>
-        <div className={style.formHeader}>
+        <div className={sharedStyle.formHeader}>
           <Tabs id="contentFormTabs">
             <Tab id="content" title={lang.tr('studio.flow.nodeType.trigger')} />
           </Tabs>
@@ -166,7 +166,7 @@ const ConditionForm: FC<Props> = ({
             {['user_intent_is', 'raw_js'].includes(selectedOption?.value) && (
               <Tooltip content={lang.tr(maximized ? 'minimizeInspector' : 'maximizeInspector')}>
                 <Button
-                  className={style.expandBtn}
+                  className={sharedStyle.expandBtn}
                   small
                   minimal
                   icon={maximized ? <Icons.Minimize /> : 'fullscreen'}
@@ -177,12 +177,12 @@ const ConditionForm: FC<Props> = ({
           </div>
         </div>
         <div
-          className={cx(sharedStyle.fieldWrapper, style.contentTypeField, {
-            [style.noBorder]:
+          className={cx(sharedStyle.fieldWrapper, sharedStyle.typeField, {
+            [sharedStyle.noBorder]:
               !selectedCondition || (!selectedCondition.fields?.length && !selectedCondition.advancedSettings?.length)
           })}
         >
-          <span className={style.formLabel}>{lang.tr('studio.condition.label')}</span>
+          <span className={sharedStyle.formLabel}>{lang.tr('studio.condition.label')}</span>
           {!!conditions.length && (
             <Dropdown
               filterable
