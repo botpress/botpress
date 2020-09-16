@@ -1,12 +1,11 @@
 import * as sdk from 'botpress/sdk'
+import clustering from 'density-clustering'
 import _ from 'lodash'
 import { distance, similarity } from 'ml-distance'
 import { Matrix } from 'ml-matrix'
 import { PCA } from 'ml-pca'
 
 import { BotState, PlotlyDatas } from '../backend/typings'
-
-const clustering = require('density-clustering')
 
 export async function computeEmbeddingSimilarity(state: BotState) {
   const intentDatas = _.groupBy(state.trainDatas, 'intent')

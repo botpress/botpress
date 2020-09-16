@@ -31,7 +31,7 @@ const AccBars: FC<any> = props => {
       {context.length > 0 && (
         <Plots data={[{ ...getXY('context'), type: 'bar' }]} title={'Accuracy of each contexts'} />
       )}
-      {slot.length > 0 && <Plots data={[{ ...getXY('slot'), type: 'bar' }]} title={'Accuracy of each slots'} />}
+      {/* {slot.length > 0 && <Plots data={[{ ...getXY('slot'), type: 'bar' }]} title={'Accuracy of each slots'} />} */}
       {slotCount.length > 0 && (
         <Plots data={[{ ...getXY('slotCount'), type: 'bar' }]} title={'Accuracy of each slot count'} />
       )}

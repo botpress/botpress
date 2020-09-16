@@ -77,8 +77,8 @@ const ConfusionMatrix: FC<any> = props => {
     <Fragment>
       {intent.length > 0 && <Plots data={intentCM} title={'Intents from nlu-tests confusion matrix'} />}
       {context.length > 0 && <Plots data={contextCM} title={'Contexts from nlu-tests confusion matrix'} />}
-      {slot.length > 0 && <Plots data={slotCM} title={'Slots from nlu-tests confusion matrix'} />}
-      {slotCount.length > 0 && <Plots data={slotCountCM} title={'Slot count from nlu-tests confusion matrix'} />}
+      {/* {slot.length > 0 && <Plots data={slotCM} title={'Slots from nlu-tests confusion matrix'} />} */}
+      {/* {slotCount.length > 0 && <Plots data={slotCountCM} title={'Slot count from nlu-tests confusion matrix'} />} */}
     </Fragment>
   )
 }

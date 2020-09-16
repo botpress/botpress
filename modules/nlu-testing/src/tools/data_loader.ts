@@ -1,22 +1,20 @@
+import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { BotState, Data, RawData, Test } from '../backend/typings'
+import { BotState, Data, Test } from '../backend/typings'
 const EMBEDDING_FOLDER = './embeddings'
 
 const createTrainEmbeddingsFile = async (state: BotState, bp: typeof sdk) => {
-  const intentFiles = await state.ghost.directoryListing('./flows', '*.intents.json')
-
-  const rawTrain: RawData[] = _.flatten(
-    await Promise.map(intentFiles, async file => await state.ghost.readFileAsObject<RawData>('./flows', file))
-  )
+  const { data } = await axios.get('/nlu/intents', state.axiosConfig)
+  const intents: sdk.NLU.IntentDefinition[] = data
 
   const config = await state.ghost.readFileAsString('./', 'bot.config.json')
   // TODO Deal with multiple languages for now we only take default one
   const lang = JSON.parse(config).languages[0]
 
   let vectorized_train: Data[] = []
-  for (const entry of rawTrain) {
+  for (const entry of intents) {
     const utterances = entry.utterances[lang]
     const allUtts = utterances.map(u => u.trim())
     const allUttsEmb = await bp.NLU.Engine.embed(allUtts, state.language)
