@@ -8,7 +8,7 @@ import { RootStore, StoreDef } from '../../store'
 import { Renderer } from '../../typings'
 import * as Keyboard from '../Keyboard'
 
-import { Carousel, FileMessage, LoginPrompt, Text } from './renderer'
+import { Carousel, FileMessage, LoginPrompt, Suggestions, Text } from './renderer'
 
 class Message extends Component<MessageProps> {
   state = {
@@ -53,6 +53,10 @@ class Message extends Component<MessageProps> {
     return <Carousel onSendData={this.props.onSendData} carousel={this.props.payload} />
   }
 
+  render_suggestions() {
+    return <Suggestions {...this.props.payload} position={this.props.position} onSendData={this.props.onSendData} />
+  }
+
   render_typing() {
     return (
       <div className={'bpw-typing-group'}>
@@ -88,13 +92,19 @@ class Message extends Component<MessageProps> {
       'onFileUpload',
       'sentOn',
       'store',
+      'turnCount',
+      'position',
       'className',
       'intl'
     ])
+    // TODO cleanup
+    const messages = this.props.store.currentConversation.messages.filter(x => x.userId)
+    const messageIndex = messages.findIndex(x => x.incomingEventId === this.props.incomingEventId) + 1
 
     const props = {
       ...sanitizedProps,
       ...messageDataProps,
+      elapsedTurns: messages.length - messageIndex,
       keyboard: Keyboard,
       children: wrapped && <Message {...sanitizedProps} keyboard={Keyboard} noBubble payload={wrapped} />
     }

@@ -32,9 +32,7 @@ function renderer(data) {
   return {
     ...payload,
     metadata: {
-      ...payload.metadata,
-      // should we rename key in schema or we keep backward compatibility rendering ?
-      [metaKey]: data.suggestions.map(({ name, tags }) => ({ label: name, value: tags.length > 0 ? tags[0] : name }))
+      ...payload.metadata
     }
   }
 }
@@ -109,6 +107,33 @@ module.exports = {
         defaultValue: true,
         type: 'checkbox',
         label: 'module.builtin.typingIndicator'
+      },
+      // TODO: not final
+      {
+        key: 'position',
+        label: 'Position of suggestions',
+        type: 'select',
+        defaultValue: 'conversation',
+        options: [
+          { label: 'In the conversation', value: 'conversation' },
+          { label: 'Static menu', value: 'static' }
+        ]
+      },
+      {
+        key: 'expiryPolicy',
+        label: 'Expiry Policy',
+        type: 'select',
+        defaultValue: 'nbOfTurns',
+        options: [
+          { label: 'Number of turns', value: 'nbOfTurns' },
+          { label: 'End of workflow', value: 'endOfWorkflow' }
+        ]
+      },
+      {
+        key: 'turnCount',
+        defaultValue: 2,
+        type: 'number',
+        label: 'Nb of turns before suggestion expires'
       }
       // not supported yet, if we support we need to do so for buttons as well
       // {

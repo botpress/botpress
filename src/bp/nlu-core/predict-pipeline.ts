@@ -258,7 +258,7 @@ async function predictOutOfScope(input: PredictStep, predictors: Predictors): Pr
   ) {
     return {
       ...input,
-      oos_predictions: Object.keys(predictors.contexts).reduce((preds, ctx) => ({ ...preds, [ctx]: 0 }), {})
+      oos_predictions: predictors.contexts.reduce((preds, ctx) => ({ ...preds, [ctx]: 0 }), {})
     }
   }
 

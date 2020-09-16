@@ -892,10 +892,20 @@ declare module 'botpress/sdk' {
       readonly nodeId: string
       readonly index: number
       readonly turn: number
+      readonly suggestion: SuggestChoice
       readonly expiryPolicy: {
         readonly strategy: 'turn'
         readonly turnCount: number
       }
+    }
+
+    export interface SuggestChoice {
+      /** Should the suggestions be displayed next to the associated message, or persistent in the keyboard */
+      position: 'conversation' | 'static'
+      /** Required when position is conversation, to know where to attach the event */
+      eventId?: string
+      label: string
+      value: string
     }
 
     export interface DialogAction {

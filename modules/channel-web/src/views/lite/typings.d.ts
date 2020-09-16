@@ -46,6 +46,8 @@ export namespace Renderer {
 
     onSendData?: (data: any) => Promise<void>
     onFileUpload?: (label: string, payload: any, file: File) => Promise<void>
+    // TODO: remove
+    [test: string]: any
   }
 
   export type Button = {
@@ -64,8 +66,8 @@ export namespace Renderer {
   } & Message
 
   export type QuickReply = {
-    buttons: any
-    quick_replies: any
+    buttons?: any
+    quick_replies?: any
   } & Message
 
   export type QuickReplyButton = {
