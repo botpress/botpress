@@ -3,12 +3,12 @@
   "utterances": {
     "en": [
       "I want to take holidays $holiday_start",
-      "Can I take holidays the $holiday_start for $holiday_duration",
-      "I would like to go camping for $holiday_duration from the $holiday_start is it okay ?",
-      "take $holiday_duration for $holiday_start",
-      "would you let me come back home $holiday_start for the $holiday_duration",
-      "Can I take $holiday_duration from the $holiday_start ?",
-      "Is it possible to take $holiday_duration after the $holiday_start ?",
+      "Can I take holidays the $holiday_start for few weeks",
+      "I would like to go camping for the weekend from the $holiday_start is it okay ?",
+      "take five weeks for $holiday_start",
+      "would you let me come back home $holiday_start for the weekend",
+      "Can I take four days from the $holiday_start ?",
+      "Is it possible to take few days after the $holiday_start ?",
       "please let me go $holiday_start"
     ]
   },
@@ -18,17 +18,9 @@
       "name": "holiday_start",
       "color": 1,
       "entity": "time"
-    },
-    {
-      "id": "Iqe5muTIqRqUsvdm0Hf2l",
-      "name": "holiday_duration",
-      "color": 2,
-      "entity": "duration"
     }
   ],
-  "contexts": [
-    "built-in"
-  ],
+  "contexts": ["built-in"],
   "metadata": {
     "enabled": true
   }

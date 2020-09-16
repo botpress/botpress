@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { toast } from 'botpress/shared'
 import { StoredToken } from 'common/typings'
 import ms from 'ms'
 import { Component } from 'react'

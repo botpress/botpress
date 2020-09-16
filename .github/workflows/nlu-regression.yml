@@ -16,6 +16,7 @@ jobs:
       - name: Build core, NLU and NLU-Testing
         run: |
           NODE_OPTIONS="--max-old-space-size=6000" yarn cmd build:core
+          yarn cmd build:sharedLite
           yarn cmd build:shared
           yarn cmd init:studio
           yarn cmd build:modules --m nlu,nlu-testing

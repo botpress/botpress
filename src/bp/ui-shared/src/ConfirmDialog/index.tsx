@@ -25,7 +25,10 @@ const ConfirmDialogComponent: FC<ConfirmDialogProps> = props => {
     <Wrapper icon="warning-sign" usePortal={false} isOpen onClose={onDecline} size="sm">
       <Body>
         <Icon icon="warning-sign" iconSize={32} className={styles.icon} />
-        {props.message}
+        <div>
+          {props.message}
+          {props.body}
+        </div>
       </Body>
       <Footer>
         {props.showDecline && (
