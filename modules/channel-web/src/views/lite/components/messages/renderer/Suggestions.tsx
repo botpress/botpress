@@ -75,10 +75,7 @@ export class Suggestions extends Component<Renderer.QuickReply> {
     )
 
     return (
-      <Keyboard.Prepend
-        keyboard={kbd}</div>}
-        visible={true}
-      >
+      <Keyboard.Prepend keyboard={kbd} visible={true}>
         {this.props.children}
       </Keyboard.Prepend>
     )

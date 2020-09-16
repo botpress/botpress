@@ -126,8 +126,8 @@ class MessageList extends React.Component<MessageListProps, State> {
     let currentGroup = undefined
 
     const lastMessage = last(messages.filter(x => !x.userId))
-    const suggestions: sdk.IO.SuggestChoice[] = lastMessage?.payload.metadata?.__suggestions
-    const staticMenuSuggest = suggestions?.filter(x => x.position === 'static') || []
+    const suggestions: sdk.IO.SuggestChoice[] = lastMessage?.payload.metadata?.__suggestions || []
+    const staticMenuSuggest = suggestions.filter(x => x.position === 'static')
 
     messages.forEach(m => {
       const speaker = m.full_name
