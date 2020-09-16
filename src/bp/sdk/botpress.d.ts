@@ -1567,6 +1567,8 @@ declare module 'botpress/sdk' {
   export interface NodeTransition {
     /** The text to display instead of the condition in the flow editor */
     caption?: string
+    /** Content it's linked to for the flow editor */
+    contentIndex?: number
     /** A JS expression that is evaluated to determine if it should send the user to the specified node */
     condition: string
     /** The destination node */

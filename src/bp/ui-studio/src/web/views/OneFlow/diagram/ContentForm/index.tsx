@@ -6,6 +6,7 @@ import cx from 'classnames'
 import { Variables } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
+import { defaultTransition } from '~/views/FlowBuilder/diagram/manager'
 
 import style from './style.scss'
 import TextField from './TextField'
@@ -98,9 +99,13 @@ const ContentForm: FC<Props> = ({
     }
 
     const langs = Object.keys(data.suggestions)
-    const transitions: NodeTransition[] = []
+    const transitions: NodeTransition[] = [
+      ...(node.next.filter(
+        transition => transition.contentIndex !== editingContent && transition.condition !== 'true'
+      ) || [])
+    ]
 
-    const triggers = data.suggestions[defaultLang].map(({ name }, idx) => {
+    const triggers = data.suggestions[defaultLang].map(({ name, tags }, idx) => {
       const utterances = langs.reduce((acc, curr) => {
         return { ...acc, [curr]: [name, ...(data.suggestions[curr]?.find(x => x.name === name)?.tags || [])] }
       }, {})
@@ -109,7 +114,8 @@ const ContentForm: FC<Props> = ({
 
       transitions.push({
         condition: `choice-${name}${idx}`,
-        caption: name,
+        caption: [...([name] || []), ...(tags || [])].filter(Boolean).join(' · '),
+        contentIndex: editingContent,
         node: currentDest
       })
 
