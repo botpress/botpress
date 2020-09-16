@@ -16,8 +16,6 @@ import { Prompts, Variables } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
-import style from './style.scss'
-
 interface Props {
   deletePrompt: () => void
   prompts: Prompts

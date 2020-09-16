@@ -16,8 +16,6 @@ import _ from 'lodash'
 import React, { FC, Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import * as portals from 'react-reverse-portal'
 
-import contentStyle from '../ContentForm/style.scss'
-
 import style from './style.scss'
 import ConfigAction from './ConfigAction'
 

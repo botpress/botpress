@@ -7,8 +7,6 @@ import { Variables } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
-import style from '../PromptForm/style.scss'
-
 import { Operation } from './Operation'
 import { OperationParser } from './OperationParser'
 import { serializeOperation } from './OperationSerializer'

@@ -5,8 +5,6 @@ import { Variables } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 
-import style from '../PromptForm/style.scss'
-
 interface Props {
   customKey: string
   subFlowVars: FlowVariable[]

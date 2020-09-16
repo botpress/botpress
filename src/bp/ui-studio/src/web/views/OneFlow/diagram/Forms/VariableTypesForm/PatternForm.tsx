@@ -6,8 +6,6 @@ import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
-import style from '../PromptForm/style.scss'
-
 import { getEntityId } from '.'
 
 interface Props {

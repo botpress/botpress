@@ -17,8 +17,6 @@ import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import storage from '~/util/storage'
 
-import style from './style.scss'
-
 interface Props {
   deleteCondition: () => void
   conditions: Condition[]
