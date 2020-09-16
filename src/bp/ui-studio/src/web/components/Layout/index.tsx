@@ -1,5 +1,5 @@
 import { NLU } from 'botpress/sdk'
-import { lang, utils } from 'botpress/shared'
+import { lang, toast, utils } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { HotKeys } from 'react-hotkeys'
@@ -7,7 +7,7 @@ import { connect } from 'react-redux'
 import { Redirect, Route, Switch } from 'react-router-dom'
 import SplitPane from 'react-split-pane'
 import { bindActionCreators } from 'redux'
-import { setEmulatorOpen, toggleBottomPanel, trainSessionReceived, viewModeChanged } from '~/actions'
+import { setEmulatorOpen, toggleBottomPanel, trainSessionReceived, viewModeChanged, zoomIn, zoomOut } from '~/actions'
 import SelectContentManager from '~/components/Content/Select/Manager'
 import PluginInjectionSite from '~/components/PluginInjectionSite'
 import BackendToast from '~/components/Util/BackendToast'
@@ -27,7 +27,7 @@ import CommandPalette from './CommandPalette'
 import GuidedTour from './GuidedTour'
 import LanguageServerHealth from './LangServerHealthWarning'
 import layout from './Layout.scss'
-import NotTrainedWarningComponent from './NotTrainedWarning'
+import NotTrainedWarning from './NotTrainedWarning'
 import Sidebar from './Sidebar'
 import StatusBar from './StatusBar'
 import Toolbar from './Toolbar'
@@ -41,6 +41,8 @@ interface ILayoutProps {
   docModal: any
   location: any
   toggleBottomPanel: () => null
+  zoomIn: () => null
+  zoomOut: () => null
   history: any
   trainSessionReceived: (ts: NLU.TrainingSession) => void
   setEmulatorOpen: (state: boolean) => void
@@ -181,7 +183,15 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
     'go-module-qna': () => gotoUrl('/modules/qna'),
     'go-module-testing': () => gotoUrl('/modules/testing'),
     'go-module-analytics': () => gotoUrl('/modules/analytics'),
-    'go-understanding': () => gotoUrl('/modules/nlu')
+    'go-understanding': () => gotoUrl('/modules/nlu'),
+    'zoom-in': e => {
+      e.preventDefault()
+      props.zoomIn()
+    },
+    'zoom-out': e => {
+      e.preventDefault()
+      props.zoomOut()
+    }
   }
 
   const splitPanelLastSizeKey = `bp::${window.BOT_ID}::bottom-panel-size`
@@ -243,7 +253,7 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
           <LanguageServerHealth />
         </div>
       </HotKeys>
-      <NotTrainedWarningComponent />
+      <NotTrainedWarning />
       <StatusBar
         langSwitcherOpen={langSwitcherOpen}
         toggleLangSwitcher={toggleLangSwitcher}
@@ -265,6 +275,9 @@ const mapStateToProps = (state: RootReducer) => ({
 })
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ viewModeChanged, toggleBottomPanel, trainSessionReceived, setEmulatorOpen }, dispatch)
+  bindActionCreators(
+    { viewModeChanged, toggleBottomPanel, trainSessionReceived, setEmulatorOpen, zoomIn, zoomOut },
+    dispatch
+  )
 
 export default connect(mapStateToProps, mapDispatchToProps)(Layout)

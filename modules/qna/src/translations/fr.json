@@ -93,9 +93,9 @@
     "importQnAs": "Importer des Q&R",
     "exportQnAs": "Exporter des Q&R"
   },
-  "leastRecent": "Le moins récent",
+  "leastRecentlyEdited": "Modifié le moins récemment",
   "missingTranslations": "Traductions manquantes",
-  "mostRecent": "Le plus récent",
+  "mostRecentlyEdited": "Midifié plus récemment",
   "noQuestionsYet": "Aucune question n'a encore été ajoutée.",
   "question": "Question",
   "redirectsAssociated": "Il existe des redirections associées à ces questions, vous pouvez les visualiser dans le formulaire d'édition",

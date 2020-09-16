@@ -186,8 +186,52 @@ const Library: FC<Props> = props => {
   }
 
   const deleteWorkflow = async (workflow: string) => {
-    if (await confirmDialog(lang.tr('studio.flow.topicList.confirmDeleteFlow'), { acceptLabel: lang.tr('delete') })) {
+    const instances = {}
+    props.flows.forEach(flow => {
+      flow.nodes.filter(node => {
+        if (node.flow === workflow) {
+          if (instances[flow.name]) {
+            instances[flow.name].nodes.push(node)
+          } else {
+            instances[flow.name] = { ...parseFlowName(flow.name), nodes: [node] }
+          }
+        }
+      })
+    })
+
+    if (
+      !Object.keys(instances).length &&
+      (await confirmDialog(lang.tr('studio.flow.topicList.confirmDeleteFlow'), { acceptLabel: lang.tr('delete') }))
+    ) {
       props.deleteFlow(workflow)
+    } else {
+      await confirmDialog(lang.tr('studio.flow.topicList.beforeRemovingSubflow'), {
+        acceptLabel: lang.tr('ok'),
+        showDecline: false,
+        body: (
+          <ul className={style.confirmBody}>
+            {Object.keys(instances).map(key =>
+              instances[key].nodes.map(node => {
+                const nodeFlow = parseFlowName(node.flow).workflow
+                const flow = parseFlowName(key)
+                const baseUrl = `/studio/${window.BOT_ID}/oneflow/${flow.workflowPath}`
+
+                return (
+                  <li key={`${key}-${node.name}`}>
+                    <a href={`${baseUrl}?highlightedNode=${node.id}`} target="_blank">
+                      {nodeFlow}
+                    </a>{' '}
+                    in{' '}
+                    <a href={baseUrl} target="_blank">
+                      {flow.workflow}
+                    </a>
+                  </li>
+                )
+              })
+            )}
+          </ul>
+        )
+      })
     }
   }
 
