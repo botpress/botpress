@@ -131,7 +131,8 @@ const FlowBuilder = (props: Props) => {
     }
   }, [props.flowsByName, props.currentFlow])
 
-  const pushFlowState = flow => props.history.push(`/oneflow/${flow.replace(/\.flow\.json/i, '')}`)
+  const pushFlowState = flow =>
+    props.history.push(`/oneflow/${flow.replace(/\.flow\.json/i, '')}${props.history.location.search}`)
   const pathName = window.location.pathname.split('/')
   const currentWorkflow = pathName.pop()
   let currentTopic = pathName.pop()

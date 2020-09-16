@@ -60,6 +60,10 @@
   top: 0;
   left: 0;
   width: 100%;
+
+  &:global(.emulator-open) :global(.right-sidebar) {
+    right: 480px !important;
+  }
 }
 
 .highlightedQna {

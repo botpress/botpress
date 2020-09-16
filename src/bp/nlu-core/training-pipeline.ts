@@ -244,6 +244,7 @@ const TrainIntentClassifier = async (
     .filter(u => u.tokens.filter(t => t.isWord).length >= 3)
     .value()
 
+  const lo = getSeededLodash(input.nluSeed)
   for (let i = 0; i < input.ctxToTrain.length; i++) {
     const ctx = input.ctxToTrain[i]
     const trainableIntents = input.intents.filter(
@@ -252,7 +253,6 @@ const TrainIntentClassifier = async (
 
     const nAvgUtts = Math.ceil(_.meanBy(trainableIntents, i => i.utterances.filter(u => !u.augmented).length))
 
-    const lo = getSeededLodash(input.nluSeed)
     const points = _.chain(trainableIntents)
       .thru(ints => [
         ...ints,
@@ -276,8 +276,6 @@ const TrainIntentClassifier = async (
       .filter(x => !x.coordinates.some(isNaN))
       .value()
 
-    resetSeed()
-
     if (points.length <= 0) {
       progress(1 / input.ctxToTrain.length)
       continue
@@ -291,6 +289,7 @@ const TrainIntentClassifier = async (
     })
     svmPerCtx[ctx] = model
   }
+  resetSeed()
 
   debugTraining.forBot(input.botId, 'Done training intent classifier')
   return svmPerCtx
@@ -312,7 +311,8 @@ const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: 
       )
   }).filter(x => x.coordinates.filter(isNaN).length === 0)
 
-  if (points.length === 0 || input.contexts.length <= 1) {
+  const classCount = _.uniq(points.map(p => p.label)).length
+  if (points.length === 0 || classCount <= 1) {
     progress()
     debugTraining.forBot(input.botId, 'No context to train')
     return ''

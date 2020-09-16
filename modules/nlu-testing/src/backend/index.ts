@@ -37,6 +37,18 @@ const botTemplates: sdk.BotTemplate[] = [
     name: 'BPDS - NLU slot extraction testing ',
     desc:
       'BPDS are handcrafted datasets. There is exactly one intent per context. Slots of each intents are built with a specific distribution in mind, making slot extraction hard to achieve.'
+  },
+  {
+    id: 'bp-nlu-clinc150',
+    name: 'BPDS - NLU CLINC150 testing ',
+    desc:
+      'Dataset made from random subsets of CLINC150 intent dataset. Usefull to benchmark with concurents. Go to botpress/modules/nlu-testing/src/bot-templates/bp-nlu-clinc150 and edit createBPDatas.py to change the intents and their utterances'
+  },
+  {
+    id: 'bp-nlu-snips',
+    name: 'BPDS - NLU snips testing ',
+    desc:
+      'Dataset made from random subsets of Snips intent & Slots dataset. Usefull to benchmark with concurents. Go to botpress/modules/nlu-testing/src/bot-templates/bp-nlu-snips and edit createBPDatas.py to change the intents and their utterances'
   }
 ]
 

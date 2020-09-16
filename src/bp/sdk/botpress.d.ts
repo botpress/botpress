@@ -788,6 +788,7 @@ declare module 'botpress/sdk' {
       readonly language: string
       /** Language detected from users input. */
       readonly detectedLanguage?: string
+      readonly spellChecked?: string
       readonly entities: NLU.Entity[]
       readonly slots?: NLU.SlotCollection
       readonly errored: boolean
