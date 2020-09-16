@@ -34,7 +34,8 @@
     .bp3-button:not([class*='bp3-intent']) {
       background-color: white;
 
-      &:hover, &:focus {
+      &:hover,
+      &:focus {
         background-color: var(--seashell);
       }
     }
@@ -42,7 +43,6 @@
 }
 
 .icon {
-  float: left !important;
   margin-right: 16px;
   color: var(--lighthouse) !important;
 }
