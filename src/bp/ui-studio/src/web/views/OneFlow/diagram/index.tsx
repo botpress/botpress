@@ -330,10 +330,8 @@ class Diagram extends Component<Props> {
     const next = this.props.currentFlowNode.next
 
     if (!next.length) {
-      console.log('test2')
       this.props.updateFlowNode({ next: [{ condition: 'true', node: newName }] })
     } else {
-      console.log('test')
       await this.props.updateFlowNode({
         next: Object.assign([], next, { [index]: { ...next[index], node: newName } })
       })
