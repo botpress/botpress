@@ -1,12 +1,39 @@
 import sdk from 'botpress/sdk'
 import classnames from 'classnames'
+import omit from 'lodash/omit'
 import { inject } from 'mobx-react'
 import React, { Fragment } from 'react'
+
 import { RootStore, StoreDef } from '../../store'
 import { Message as MessageDetails } from '../../typings'
 
 import { InlineFeedback } from './InlineFeedback'
 import Message from './Message'
+
+export const getSuggestionPayload = (suggestions: sdk.IO.SuggestChoice[]) => {
+  if (!suggestions?.length) {
+    return null
+  }
+  const position = suggestions[0].position
+
+  if (suggestions.length <= 4) {
+    return {
+      type: 'custom',
+      module: 'channel-web',
+      component: 'QuickReplies',
+      quick_replies: suggestions,
+      position
+    }
+  }
+
+  return {
+    type: 'custom',
+    module: 'extensions',
+    component: 'Dropdown',
+    options: suggestions,
+    position
+  }
+}
 
 class MessageGroup extends React.Component<Props> {
   state = {
@@ -124,8 +151,9 @@ class MessageGroup extends React.Component<Props> {
                     <Message
                       {...commonProps}
                       key={`msg-${i}-suggest`}
-                      payload={{ type: 'suggestions', suggestions }}
+                      payload={getSuggestionPayload(suggestions)}
                       position="conversation"
+                      noBubble
                     />
                   )}
                 </Fragment>

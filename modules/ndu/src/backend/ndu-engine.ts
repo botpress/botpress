@@ -65,7 +65,8 @@ export class UnderstandingEngine {
       features.conf_node_trigger_inside_wf,
       features.conf_wf_trigger_inside_topic,
       features.conf_wf_trigger_inside_wf,
-      features.conf_wf_trigger_outside_topic
+      features.conf_wf_trigger_outside_topic,
+      features.conf_contextual_trigger
     ].map(n => (n === false ? 0 : n === true ? 1 : n))
 
     return [...triggerId, ...nodeId, ...wfId, ...actionName, ...other]
@@ -109,23 +110,14 @@ export class UnderstandingEngine {
       return
     }
 
-    const currentFlow = event.state?.context?.currentFlow ?? 'n/a'
+    const nduContext = event.state.session.nduContext
+    const currentFlow = event.state.context?.currentFlow ?? 'n/a'
     // TODO : sync this with transitionTo and jumpTo
-    const currentTopic = event.state?.session?.nduContext?.last_topic ?? 'n/a'
-    const currentNode = event.state?.context?.currentNode ?? 'n/a'
+    const currentTopic = nduContext?.last_topic ?? 'n/a'
+    const currentNode = event.state.context?.currentNode ?? 'n/a'
     const isInMiddleOfFlow = currentFlow !== 'n/a'
 
     debug('Processing %o', { currentFlow, currentNode, isInMiddleOfFlow })
-
-    const contextualTriggers = event.state.session?.nduContext?.triggers
-    if (contextualTriggers) {
-      event.state.session.nduContext.triggers = contextualTriggers
-        .map(trigger => ({
-          ...trigger,
-          turn: trigger.turn - 1
-        }))
-        .filter(x => x.turn >= 0)
-    }
 
     // Then process triggers on what the NDU decided
     await this._processTriggers(event)
@@ -170,7 +162,7 @@ export class UnderstandingEngine {
         last_turn_ts: Date.now(),
         last_topic: ''
       },
-      event.state?.session?.nduContext ?? {}
+      event.state.session.nduContext ?? {}
     )
 
     // TODO: NDU compute & rank triggers
@@ -331,6 +323,16 @@ export class UnderstandingEngine {
           : currentTopic
     }
 
+    const contextualTriggers = nduContext?.triggers
+    if (contextualTriggers) {
+      event.state.session.nduContext.triggers = contextualTriggers
+        .map(trigger => ({
+          ...trigger,
+          turn: trigger.turn - 1
+        }))
+        .filter(x => x.turn >= 0)
+    }
+
     // TODO: NDU what to do if no action elected
     // TODO: NDU what to do if confused action
   }
@@ -340,12 +342,7 @@ export class UnderstandingEngine {
       await this._loadBotWorkflows()
     }
 
-    const contextualTriggers =
-      (event.state &&
-        event.state.session &&
-        event.state.session.nduContext &&
-        event.state.session.nduContext.triggers) ??
-      []
+    const contextualTriggers = (event.state.session.nduContext && event.state.session.nduContext.triggers) ?? []
 
     event.ndu.triggers = {}
 
@@ -361,8 +358,8 @@ export class UnderstandingEngine {
 
       if (
         trigger.type === 'workflow' &&
-        ((trigger.activeWorkflow && event.state?.context.currentFlow !== `${trigger.workflowId}.flow.json`) ||
-          (trigger.activeTopic && event.state?.session.nduContext?.last_topic !== trigger.topicName))
+        ((trigger.activeWorkflow && event.state.context.currentFlow !== `${trigger.workflowId}.flow.json`) ||
+          (trigger.activeTopic && event.state.session.nduContext?.last_topic !== trigger.topicName))
       ) {
         continue
       }

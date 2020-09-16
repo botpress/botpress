@@ -2089,6 +2089,8 @@ declare module 'botpress/sdk' {
       __typing?: boolean | number
       /** Use markdown for text fields when possible */
       __markdown?: boolean
+      /** Send suggestions */
+      __suggestions?: IO.SuggestChoice[]
       /** If the channel supports it, it will trim the text to the specified length */
       __trimText?: number
       /** Force usage of a dropdown menu instead of buttons */

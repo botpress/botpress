@@ -22,6 +22,18 @@ const debugOutgoing = debug.sub('outgoing')
 
 const userCache = new LRU({ max: 1000, maxAge: ms('1h') })
 
+const getSuggestions = (event: sdk.IO.OutgoingEvent, scope?: 'conversation' | 'static') => {
+  const allSuggestions = (event.payload.metadata as sdk.Content.Metadata)?.__suggestions || []
+
+  if (scope === 'conversation') {
+    return allSuggestions.filter(x => x.eventId === event.incomingEventId && x.position === 'conversation')
+  } else if (scope === 'static') {
+    return allSuggestions.filter(x => x.position === 'static')
+  }
+
+  return allSuggestions
+}
+
 export class SlackClient {
   private client: WebClient
   private rtm: RTMClient
@@ -240,6 +252,23 @@ export class SlackClient {
             text: q.label || q['title']
           },
           value: q.value.toString().toUpperCase()
+        }))
+      })
+    }
+
+    const suggestions = getSuggestions(event)
+    if (suggestions.length) {
+      blocks.push({ type: 'section', text: { type: textType, text: payload.text } })
+      blocks.push({
+        type: 'actions',
+        elements: suggestions.map((q, idx) => ({
+          type: 'button',
+          action_id: `replace_buttons${idx}`,
+          text: {
+            type: 'plain_text',
+            text: q.label || q['title']
+          },
+          value: q.value?.toString().toUpperCase()
         }))
       })
     }

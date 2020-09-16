@@ -29,7 +29,7 @@ const Predictions = (props: Props) => {
           return (
             <div className={style.subSection} key={index}>
               <p>
-                {topicName} {formatConfidence(confidence)}%
+                {topicName} {formatConfidence(confidence)}
               </p>
               <ul>
                 {intents.slice(0, 4).map(i => {

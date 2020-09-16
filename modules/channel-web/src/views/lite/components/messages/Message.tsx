@@ -53,10 +53,6 @@ class Message extends Component<MessageProps> {
     return <Carousel onSendData={this.props.onSendData} carousel={this.props.payload} />
   }
 
-  render_suggestions() {
-    return <Suggestions {...this.props.payload} position={this.props.position} onSendData={this.props.onSendData} />
-  }
-
   render_typing() {
     return (
       <div className={'bpw-typing-group'}>

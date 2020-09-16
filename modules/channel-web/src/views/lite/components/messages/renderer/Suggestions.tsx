@@ -61,7 +61,6 @@ export class Suggestions extends Component<Renderer.QuickReply> {
 
   render() {
     const suggestions = this.props.suggestions
-    console.log(suggestions, this.state.display)
     if (!suggestions?.length || !this.state.display) {
       return null
     }

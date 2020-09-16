@@ -16,7 +16,7 @@ import { isIE } from '../../utils'
 import Avatar from '../common/Avatar'
 
 import Message from './Message'
-import MessageGroup from './MessageGroup'
+import MessageGroup, { getSuggestionPayload } from './MessageGroup'
 
 interface State {
   manualScroll: boolean
@@ -196,14 +196,15 @@ class MessageList extends React.Component<MessageListProps, State> {
           )
         })}
 
-        {staticMenuSuggest && (
+        {!!staticMenuSuggest.length && (
           <div className={classnames('bpw-message-big-container', { 'bpw-from-user': false })}>
             <div role="region" className={'bpw-message-container'}>
               <div aria-live="assertive" role="log" className={'bpw-message-group'}>
                 <Message
                   store={this.props.store}
+                  onSendData={this.props.onSendData}
                   key={`msg-static-suggest`}
-                  payload={{ type: 'suggestions', suggestions: staticMenuSuggest }}
+                  payload={getSuggestionPayload(staticMenuSuggest, {})}
                   noBubble
                 />
               </div>
@@ -259,6 +260,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   isBotTyping: store.isBotTyping,
   isEmulator: store.isEmulator,
   botAvatarUrl: store.botAvatarUrl,
+  onSendData: store.sendData,
   currentMessages: store.currentMessages,
   focusPrevious: store.view.focusPrevious,
   focusNext: store.view.focusNext,
@@ -267,7 +269,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   enableArrowNavigation: store.config.enableArrowNavigation
 }))(injectIntl(observer(MessageList)))
 
-type MessageListProps = { store?: RootStore } & InjectedIntlProps &
+type MessageListProps = { store?: RootStore; onSendData?: any } & InjectedIntlProps &
   Pick<
     StoreDef,
     | 'intl'

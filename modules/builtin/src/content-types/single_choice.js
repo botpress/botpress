@@ -150,6 +150,11 @@ module.exports = {
     ],
     fields: [
       {
+        key: 'text',
+        type: 'text',
+        label: 'message'
+      },
+      {
         key: 'suggestions',
         type: 'tag-input',
         translated: true,
