@@ -647,7 +647,19 @@ declare module 'botpress/sdk' {
     }
 
     export interface Actions {
+<<<<<<< HEAD
       action: 'send' | 'startWorkflow' | 'redirect' | 'continue' | 'goToNode'
+=======
+      action:
+        | 'send'
+        | 'startWorkflow'
+        | 'redirect'
+        | 'continue'
+        | 'goToNode'
+        | 'prompt.repeat'
+        | 'prompt.inform'
+        | 'prompt.cancel'
+>>>>>>> e9511e1c1... feat(nlu): new field spellChecked in event understanding (#3953)
       data?: SendContent | FlowRedirect
     }
 
@@ -751,6 +763,7 @@ declare module 'botpress/sdk' {
       readonly language: string
       /** Language detected from users input. */
       readonly detectedLanguage?: string
+      readonly spellChecked?: string
       readonly entities: NLU.Entity[]
       readonly slots?: NLU.SlotCollection
       readonly errored: boolean

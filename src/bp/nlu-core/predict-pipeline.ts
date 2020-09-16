@@ -54,11 +54,7 @@ interface InitialStep {
 type PredictStep = InitialStep & { utterance: Utterance; alternateUtterance?: Utterance }
 type OutOfScopeStep = PredictStep & { oos_predictions: _.Dictionary<number> }
 type ContextStep = OutOfScopeStep & { ctx_predictions: sdk.MLToolkit.SVM.Prediction[] }
-type IntentStep = ContextStep & {
-  intent_predictions: {
-    per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Prediction[]>
-  }
-}
+type IntentStep = ContextStep & { intent_predictions: _.Dictionary<sdk.MLToolkit.SVM.Prediction[]> }
 type SlotStep = IntentStep & { slot_predictions_per_intent: _.Dictionary<SlotExtractionResult[]> }
 
 export type PredictOutput = sdk.IO.EventUnderstanding
@@ -189,7 +185,7 @@ async function predictContext(input: OutOfScopeStep, predictors: Predictors): Pr
 
 async function predictIntent(input: ContextStep, predictors: Predictors): Promise<IntentStep> {
   if (_.flatMap(predictors.intents, i => i.utterances).length <= 0) {
-    return { ...input, intent_predictions: { per_ctx: { [DEFAULT_CTX]: [{ label: NONE_INTENT, confidence: 1 }] } } }
+    return { ...input, intent_predictions: { [DEFAULT_CTX]: [{ label: NONE_INTENT, confidence: 1 }] } }
   }
 
   const customEntities = getCustomEntitiesNames(predictors)
@@ -245,7 +241,7 @@ async function predictIntent(input: ContextStep, predictors: Predictors): Promis
 
   return {
     ...input,
-    intent_predictions: { per_ctx: _.zipObject(ctxToPredict, predictions) }
+    intent_predictions: _.zipObject(ctxToPredict, predictions)
   }
 }
 
@@ -362,7 +358,7 @@ function MapStepToOutput(step: SlotStep, startTime: number): PredictOutput {
   const predictions: sdk.NLU.Predictions = step.ctx_predictions!.reduce((preds, current) => {
     const { label, confidence } = current
 
-    const intentPred = step.intent_predictions.per_ctx![label]
+    const intentPred = step.intent_predictions[label]
     const intents = !intentPred
       ? []
       : intentPred.map(i => ({
@@ -383,6 +379,8 @@ function MapStepToOutput(step: SlotStep, startTime: number): PredictOutput {
     }
   }, {})
 
+  const spellChecked = step.alternateUtterance?.toString({ entities: 'keep-value', slots: 'keep-value' })
+
   return {
     entities,
     errored: false,
@@ -393,7 +391,8 @@ function MapStepToOutput(step: SlotStep, startTime: number): PredictOutput {
       .value(),
     includedContexts: step.includedContexts, // legacy pre-ndu
     language: step.languageCode,
-    ms: Date.now() - startTime
+    ms: Date.now() - startTime,
+    spellChecked
   }
 }
 
