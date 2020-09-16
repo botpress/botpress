@@ -44,12 +44,13 @@ import {
   switchFlowNode,
   updateFlow,
   updateFlowNode,
-  updateFlowProblems
+  updateFlowProblems,
+  zoomToLevel
 } from '~/actions'
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { history } from '~/components/Routes'
 import { SearchBar } from '~/components/Shared/Interface'
-import { toastSuccess } from '~/components/Shared/Utils'
+import { toastInfo, toastSuccess } from '~/components/Shared/Utils'
 import withLanguage from '~/components/Util/withLanguage'
 import {
   getAllFlows,
@@ -76,8 +77,6 @@ import { StandardNodeModel, StandardWidgetFactory } from '~/views/FlowBuilder/di
 import { textToItemId } from '~/views/FlowBuilder/diagram/nodes_v2/utils'
 import style from '~/views/FlowBuilder/diagram/style.scss'
 
-import WarningMessage from '../../../components/Layout/WarningMessage'
-
 import { prepareEventForDiagram } from './debugger'
 import { BlockModel, BlockWidgetFactory } from './nodes/Block'
 import menuStyle from './style.scss'
@@ -94,6 +93,7 @@ import VariablesEditor from './VariablesEditor'
 import VariableForm from './VariableForm'
 import VariableTypesForm from './VariableTypesForm'
 import WorkflowToolbar from './WorkflowToolbar'
+import ZoomToolbar from './ZoomToolbar'
 
 interface OwnProps {
   childRef: (el: any) => void
@@ -191,7 +191,10 @@ class Diagram extends Component<Props> {
 
     // This reference allows us to update flow nodes from widgets
     this.diagramEngine.flowBuilder = this
-    this.manager = new DiagramManager(this.diagramEngine, { switchFlowNode: this.props.switchFlowNode })
+    this.manager = new DiagramManager(this.diagramEngine, {
+      switchFlowNode: this.props.switchFlowNode,
+      zoomToLevel: this.props.zoomToLevel
+    })
 
     if (this.props.highlightFilter) {
       this.manager.setHighlightFilter(this.props.highlightFilter)
@@ -252,6 +255,13 @@ class Diagram extends Component<Props> {
       deleteSelectedElements: this.deleteSelectedElements.bind(this),
       createFlow: this.createFlow.bind(this)
     })
+
+    if (this.props.defaultLang !== this.props.currentLang) {
+      this.showNotDefaultWarning()
+    }
+    if (this.props.currentFlow?.type === 'reusable' && this.props.defaultLang === this.props.currentLang) {
+      this.showEditSubWorkflowWarning()
+    }
   }
 
   componentWillUnmount() {
@@ -274,10 +284,29 @@ class Diagram extends Component<Props> {
     ) {
       this.editNodeItem(this.props.currentFlowNode, 0)
     }
+    if (prevProps.zoomLevel !== this.props.zoomLevel) {
+      this.diagramEngine.diagramModel.setZoomLevel(this.props.zoomLevel)
+    }
 
     if (this.props.activeFormItem !== undefined && prevProps.activeFormItem !== this.props.activeFormItem) {
       clearTimeout(this.timeout)
       this.setState({ editingNodeItem: this.props.activeFormItem })
+    }
+
+    if (this.props.currentLang !== prevProps.currentLang && this.props.defaultLang !== this.props.currentLang) {
+      this.showNotDefaultWarning()
+    } else if (this.props.defaultLang === this.props.currentLang) {
+      toast.dismiss('notViewingDefaultLang')
+    }
+    if (
+      (this.props.currentFlow?.type !== prevProps.currentFlow?.type ||
+        this.props.currentLang !== prevProps.currentLang) &&
+      this.props.currentFlow?.type === 'reusable' &&
+      this.props.defaultLang === this.props.currentLang
+    ) {
+      this.showEditSubWorkflowWarning()
+    } else if (this.props.currentFlow?.type !== 'reusable' || this.props.defaultLang !== this.props.currentLang) {
+      toast.dismiss('editingSubWorkflowWarning')
     }
 
     if (this.diagramContainer) {
@@ -323,6 +352,24 @@ class Diagram extends Component<Props> {
       this.manager.setHighlightFilter()
       this.manager.syncModel()
     }
+  }
+
+  showNotDefaultWarning = () => {
+    toast.warning(
+      lang.tr('notViewingDefaultLang', {
+        language: lang.tr(lang.tr(`isoLangs.${this.props.currentLang}.name`).toLowerCase())
+      }),
+      '',
+      { timeout: 'infinite', hideDismiss: true, key: 'notViewingDefaultLang' }
+    )
+  }
+
+  showEditSubWorkflowWarning = () => {
+    toast.warning(lang.tr('studio.library.editingSubWorkflowWarning'), '', {
+      timeout: 'infinite',
+      hideDismiss: true,
+      key: 'editingSubWorkflowWarning'
+    })
   }
 
   updateTransitionNode = async (nodeId: string, index: number, newName: string) => {
@@ -504,18 +551,6 @@ class Diagram extends Component<Props> {
         <MenuItem text="Go to Reusable Workflow" icon="pivot" disabled={!hasSubFlows}>
           {this.props.reusableFlows?.map(flow => (
             <MenuItem text={flow.workflow} onClick={wrap(this.add.gotoSubWorkflow, point, flow.workflowPath)} />
-          ))}
-        </MenuItem>
-
-        <MenuItem tagName="span" text={lang.tr('skills')} icon="add">
-          {this.props.skills.map(skill => (
-            <MenuItem
-              key={skill.id}
-              text={lang.tr(skill.name)}
-              tagName="button"
-              onClick={wrap(this.add.skillNode, point, skill.id)}
-              icon={skill.icon}
-            />
           ))}
         </MenuItem>
       </Menu>,
@@ -1128,6 +1163,7 @@ class Diagram extends Component<Props> {
             extraProps={{
               updateLocalLang: lang => this.updateLang(lang),
               isLite: true,
+              emulatorOpen: this.props.emulatorOpen,
               topicName: this.props.selectedTopic,
               languages: this.props.languages,
               defaultLang: this.props.defaultLang,
@@ -1186,6 +1222,7 @@ class Diagram extends Component<Props> {
                 maxNumberPointsPerLink={0}
                 inverseZoom={true}
               />
+              <ZoomToolbar />
             </div>
             {currentTab === 'workflow' && this.props.currentFlow?.nodes?.length === 0 && (
               <div className={style.centered}>
@@ -1357,16 +1394,6 @@ class Diagram extends Component<Props> {
             }}
           />
         )}
-        {this.props.defaultLang !== this.props.currentLang && (
-          <WarningMessage
-            message={lang.tr('notViewingDefaultLang', {
-              language: lang.tr(lang.tr(`isoLangs.${this.props.currentLang}.name`).toLowerCase())
-            })}
-          />
-        )}
-        {this.props.currentFlow?.type === 'reusable' && this.props.defaultLang === this.props.currentLang && (
-          <WarningMessage message={lang.tr('studio.library.editingSubWorkflowWarning')} />
-        )}
       </Fragment>
     )
   }
@@ -1389,7 +1416,8 @@ const mapStateToProps = (state: RootReducer) => ({
   conditions: state.ndu.conditions,
   hints: state.hints.inputs,
   emulatorOpen: state.ui.emulatorOpen,
-  activeFormItem: state.flows.activeFormItem
+  activeFormItem: state.flows.activeFormItem,
+  zoomLevel: state.ui.zoomLevel
 })
 
 const mapDispatchToProps = {
@@ -1417,7 +1445,8 @@ const mapDispatchToProps = {
   fetchContentCategories,
   getQnaCountByTopic,
   refreshHints,
-  setActiveFormItem
+  setActiveFormItem,
+  zoomToLevel
 }
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps, null, {

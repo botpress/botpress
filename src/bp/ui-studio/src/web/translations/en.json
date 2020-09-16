@@ -392,6 +392,7 @@
         "importExisting": "Import existing workflow",
         "nbQuestionsInTopic": "Number of questions in that topic",
         "nbTriggersInWorkflow": "Number of NLU triggers on that workflow",
+        "beforeRemovingSubflow": "Before removing this saved workflow block from library, please delete all the following instances:",
         "workflowReceiving": "Workflows referencing this workflow:"
       },
       "transition": "Transition",
@@ -423,7 +424,9 @@
       "config": "Config",
       "content": "Content",
       "flows": "Flows"
-    }
+    },
+    "zoomOut": "Zoom Out",
+    "zoomIn": "Zoom In"
   },
   "toolbar": {
     "emulator": "Emulator",

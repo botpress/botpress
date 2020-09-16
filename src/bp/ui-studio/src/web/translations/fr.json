@@ -389,6 +389,7 @@
         "importExisting": "Importer un workflow existant",
         "nbQuestionsInTopic": "Nombre de questions sur ce sujet",
         "nbTriggersInWorkflow": "Nombre de déclencheurs sur ce workflow",
+        "beforeRemovingSubflow": "Avant de supprimer ce workflow sauvegardé dans la librairie, veuillez supprimer toutes ses utilisations :",
         "workflowReceiving": "Workflows référençant ce workflow:"
       },
       "transition": "Transition",
@@ -420,7 +421,9 @@
       "config": "Configuration",
       "content": "Contenu",
       "flows": "Flows"
-    }
+    },
+    "zoomOut": "Réduire",
+    "zoomIn": "Agrandir"
   },
   "toolbar": {
     "emulator": "Émulateur",
