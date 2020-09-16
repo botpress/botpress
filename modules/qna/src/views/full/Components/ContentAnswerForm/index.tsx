@@ -1,6 +1,6 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import { BotEvent, FormData } from 'botpress/sdk'
-import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
+import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar, sharedStyle } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
 
@@ -98,12 +98,12 @@ const ContentAnswerForm: FC<Props> = ({
           </Tabs>
           <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
         </div>
-        <div className={cx(style.fieldWrapper, style.contentTypeField)}>
+        <div className={cx(sharedStyle.fieldWrapper, style.contentTypeField)}>
           <span className={style.formLabel}>{lang.tr('studio.content.contentType')}</span>
           {contentTypes.length && (
             <Dropdown
               filterable={false}
-              className={style.formSelect}
+              className={sharedStyle.formSelect}
               items={contentTypes}
               defaultItem={contentType.current}
               rightIcon="chevron-down"

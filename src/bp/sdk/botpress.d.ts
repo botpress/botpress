@@ -317,8 +317,8 @@ declare module 'botpress/sdk' {
       }
 
       export interface ModelConstructor {
-        new(): Model
-        new(lazy: boolean, keepInMemory: boolean, queryOnly: boolean): Model
+        new (): Model
+        new (lazy: boolean, keepInMemory: boolean, queryOnly: boolean): Model
       }
 
       export const Model: ModelConstructor
@@ -663,14 +663,14 @@ declare module 'botpress/sdk' {
 
     export interface Actions {
       action:
-      | 'send'
-      | 'startWorkflow'
-      | 'redirect'
-      | 'continue'
-      | 'goToNode'
-      | 'prompt.repeat'
-      | 'prompt.inform'
-      | 'prompt.cancel'
+        | 'send'
+        | 'startWorkflow'
+        | 'redirect'
+        | 'continue'
+        | 'goToNode'
+        | 'prompt.repeat'
+        | 'prompt.inform'
+        | 'prompt.cancel'
       data?: SendContent | FlowRedirect
     }
 
@@ -1836,11 +1836,11 @@ declare module 'botpress/sdk' {
   }
 
   export interface PromptConstructable {
-    new(ctor: any): Prompt
+    new (ctor: any): Prompt
   }
 
   export interface BoxedVarConstructable<T, V = any> {
-    new(ctor: BoxedVarContructor<T, V>): BoxedVariable<T, V>
+    new (ctor: BoxedVarContructor<T, V>): BoxedVariable<T, V>
   }
 
   export interface BoxedVariable<T, V = any> {

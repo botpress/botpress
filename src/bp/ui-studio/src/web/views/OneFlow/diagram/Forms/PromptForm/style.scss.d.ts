@@ -16,12 +16,9 @@ interface CssExports {
   'deleteBtn': string;
   'description': string;
   'emptyState': string;
-  'expandBtn': string;
   'fieldError': string;
-  'fieldWrapper': string;
   'formHeader': string;
   'formLabel': string;
-  'formSelect': string;
   'hasError': string;
   'imgWrapper': string;
   'imgWrapperActions': string;
@@ -29,7 +26,7 @@ interface CssExports {
   'insertBtn': string;
   'items': string;
   'multipleInputs': string;
-  'noBorder': string;
+  'noSelect': string;
   'textInput': string;
   'textarea': string;
   'textareaWrapper': string;

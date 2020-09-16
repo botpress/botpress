@@ -1,5 +1,5 @@
 import { AnchorButton, Button, ButtonGroup, Intent, Position, Tooltip } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { lang, sharedStyle } from 'botpress/shared'
 import cx from 'classnames'
 import React, { Fragment, useEffect, useRef } from 'react'
 import style from '~/views/OneFlow/sidePanel/form/style.scss'
@@ -29,7 +29,7 @@ const ArrayFieldTemplate = props => {
   )
 
   return (
-    <div className={style.fieldWrapper}>
+    <div className={sharedStyle.fieldWrapper}>
       <span className={style.formLabel}>{schema.title}</span>
       {items?.map(element => {
         const { type } = schema.items

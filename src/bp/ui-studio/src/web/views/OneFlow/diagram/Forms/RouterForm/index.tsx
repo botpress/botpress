@@ -1,7 +1,7 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
 import { FlowVariable, FlowVariableConfig, FlowVariableOperator, FormField, NodeTransition, Option } from 'botpress/sdk'
-import { Contents, FormFields, lang, MoreOptions, RightSidebar } from 'botpress/shared'
+import { Contents, FormFields, lang, MoreOptions, RightSidebar, sharedStyle } from 'botpress/shared'
 import cx from 'classnames'
 import { Variables } from 'common/typings'
 import _ from 'lodash'
@@ -177,7 +177,7 @@ const RouterForm: FC<Props> = ({
             ]}
           />
         </div>
-        <div className={cx(style.fieldWrapper, style.contentTypeField)}>
+        <div className={cx(sharedStyle.fieldWrapper, style.contentTypeField)}>
           <span className={style.formLabel}>{lang.tr('studio.router.variable')}</span>
           <FormFields.VariablePicker
             field={{ type: 'variable', key: 'value' }}

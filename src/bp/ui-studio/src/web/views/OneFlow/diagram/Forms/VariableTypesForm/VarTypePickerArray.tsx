@@ -1,6 +1,6 @@
 import { Button, Intent, Position, Tooltip } from '@blueprintjs/core'
 import { BotEvent, FlowVariable, FormData } from 'botpress/sdk'
-import { Dropdown, FormFields, lang } from 'botpress/shared'
+import { Dropdown, FormFields, lang, sharedStyle } from 'botpress/shared'
 import { Variables } from 'common/typings'
 import _uniqueId from 'lodash/uniqueId'
 import React, { FC, Fragment, useState } from 'react'
@@ -47,7 +47,7 @@ const VarTypePickerArray: FC<Props> = ({ onChange, field, data, choices }) => {
           <div className={style.dropdownWrapper}>
             <Dropdown
               filterable={false}
-              className={style.formSelect}
+              className={sharedStyle.formSelect}
               placeholder={lang.tr('variable.pickType')}
               items={choices}
               defaultItem={item.item}

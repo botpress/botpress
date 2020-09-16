@@ -14,17 +14,6 @@
   margin-left: auto;
 }
 
-:global(.form-group) {
-  margin-bottom: 0;
-}
-
-.fieldWrapper,
-:global(.form-group) {
-  display: block;
-  line-height: 0;
-  width: 100%;
-}
-
 .innerWrapper {
   position: relative;
 
@@ -60,141 +49,6 @@ input[type='radio'] {
   border-top: 1px solid var(--seashell);
   padding: var(--spacing-medium) 0;
   min-height: 35px;
-}
-
-.formSelect {
-  display: block;
-  padding: 0;
-  position: relative;
-
-  :global {
-    .bp3-popover {
-      overflow-x: hidden;
-    }
-
-    .bp3-popover-target {
-      width: 100%;
-    }
-
-    .bp3-input-group {
-      margin: var(--spacing-medium) var(--spacing-medium) var(--spacing-small);
-
-      svg {
-        fill: var(--gray) !important;
-      }
-
-      .bp3-input-action {
-        button {
-          margin: 0;
-          top: 0;
-          bottom: 0;
-          right: 0;
-          background: none !important;
-          border: none !important;
-          height: 100% !important;
-        }
-      }
-
-      input {
-        border: 1px solid var(--seashell);
-        box-shadow: none !important;
-        font-size: 12px;
-        line-height: 1.25;
-
-        &:focus {
-          outline: none !important;
-          box-shadow: none !important;
-          border-color: var(--ocean);
-        }
-      }
-    }
-
-    .bp3-menu-item {
-      color: var(--shark) !important;
-      font-size: 12px;
-      line-height: 1.65;
-      min-height: 30px;
-      display: flex;
-      align-items: center;
-
-      svg {
-        fill: var(--shark) !important;
-      }
-
-      &:not(.bp3-active):hover {
-        background: var(--bg) !important;
-      }
-
-      & > div {
-        line-height: 1.25;
-        overflow: visible !important;
-        white-space: normal;
-      }
-
-      // TODO:
-      .addingItem {
-        color: var(--ocean) !important;
-
-        &:global(.tagify__dropdown__item--active) {
-          color: var(--ocean);
-          background-color: var(--hover-ocean) !important;
-        }
-
-        svg {
-          fill: var(--ocean) !important;
-        }
-      }
-      ///////////
-    }
-
-    .bp3-active {
-      background: var(--hover-ocean) !important;
-      color: var(--shark) !important;
-    }
-
-    .bp3-transition-container {
-      right: 0;
-    }
-
-    .bp3-select-popover {
-      width: 100%;
-      max-height: 250px;
-      overflow-y: auto;
-      background: #fff;
-    }
-
-    .bp3-button-text {
-      color: var(--shark);
-      font-size: 12px;
-      line-height: 1.25;
-    }
-  }
-
-  &,
-  > * {
-    cursor: pointer;
-  }
-
-  button {
-    border: 1px solid var(--seashell) !important;
-    border-radius: 3px !important;
-    box-shadow: none !important;
-    color: var(--shark) !important;
-    background: #fff !important;
-    font-size: 16px !important;
-    font-weight: 400 !important;
-    justify-content: space-between !important;
-    height: 40px !important;
-    line-height: 1.25 !important;
-    padding: var(--spacing-medium) var(--spacing-large) !important;
-    width: 100% !important;
-
-    &:focus,
-    &:active {
-      outline: 0;
-      border-color: var(--ocean) !important;
-    }
-  }
 }
 
 :global(.field-description) {
@@ -236,16 +90,6 @@ input[type='radio'] {
   }
 }
 
-.fieldWrapper :global(.bp3-file-input) {
-  display: block;
-  height: 40px;
-
-  input {
-    height: 100%;
-    width: 100%;
-  }
-}
-
 .imgWrapper {
   background-position: center;
   background-repeat: no-repeat;
@@ -270,27 +114,6 @@ input[type='radio'] {
     right: 0;
     bottom: 0;
     left: 0;
-  }
-}
-.fieldWrapper :global(.bp3-file-input:focus-within .bp3-file-upload-input) {
-  background: #2a87c3;
-}
-
-.fieldWrapper :global(.bp3-file-upload-input) {
-  color: #fff;
-  background: #137cbd;
-  text-align: center;
-  padding: 0 !important;
-  box-shadow: inset 0 0 0 1px rgba(16, 22, 26, 0.4), inset 0 -1px 1px 0 rgba(16, 22, 26, 0.2);
-  background-image: linear-gradient(to bottom, #2a87c3, #137cbd);
-  transition: background 0.3s;
-
-  &:hover {
-    background: #2a87c3;
-  }
-
-  &:after {
-    display: none;
   }
 }
 

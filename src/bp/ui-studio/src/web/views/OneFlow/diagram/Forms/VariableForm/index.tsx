@@ -1,7 +1,7 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
 import { FormData } from 'botpress/sdk'
-import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
+import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar, sharedStyle } from 'botpress/shared'
 import cx from 'classnames'
 import { FlowView, Variables } from 'common/typings'
 import _ from 'lodash'
@@ -12,7 +12,6 @@ import style from './style.scss'
 interface Props {
   deleteVariable: () => void
   variables: Variables
-  customKey: string
   defaultLang: string
   contentLang: string
   close: () => void
@@ -22,7 +21,6 @@ interface Props {
 }
 
 const VariableForm: FC<Props> = ({
-  customKey,
   variables,
   defaultLang,
   contentLang,
@@ -45,12 +43,12 @@ const VariableForm: FC<Props> = ({
   const variableType = useRef(formData?.type)
   const variableVisibility = useRef(getVisibility())
   const [showOptions, setShowOptions] = useState(false)
-  const [forceUpdate, setForceUpdate] = useState(false)
+  const [uniqueKey, setUniqueKey] = useState(_.uniqueId())
 
   useEffect(() => {
     variableType.current = formData?.type
-    setForceUpdate(!forceUpdate)
-  }, [customKey])
+    setUniqueKey(_.uniqueId())
+  }, [formData])
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
@@ -68,7 +66,7 @@ const VariableForm: FC<Props> = ({
   const selectedVariableType = variables.primitive.find(x => x.id === variableType.current)
 
   const options = variables.display.map(x => ({ label: lang.tr(x.label), icon: x.icon, value: x }))
-  const selectedOption = options.find(
+  const { icon, ...selectedOption } = options.find(
     ({ value }) =>
       value.type === variableType.current && (!formData.params?.subType || value.subType === formData.params?.subType)
   )
@@ -82,7 +80,7 @@ const VariableForm: FC<Props> = ({
 
   return (
     <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={close}>
-      <Fragment key={`${variableType.current}-${customKey}`}>
+      <Fragment key={`${variableType.current}-${uniqueKey}`}>
         <div className={style.formHeader}>
           <Tabs id="contentFormTabs">
             <Tab id="content" title={lang.tr('variable')} />
@@ -90,12 +88,12 @@ const VariableForm: FC<Props> = ({
           <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
         </div>
         {currentFlow.type === 'reusable' && (
-          <div className={style.fieldWrapper}>
+          <div className={sharedStyle.fieldWrapper}>
             <span className={style.formLabel}>{lang.tr('variable.variableVisibility')}</span>
             {!!variables.primitive.length && (
               <Dropdown
                 filterable={false}
-                className={style.formSelect}
+                className={sharedStyle.formSelect}
                 items={visibilityOptions}
                 defaultItem={selectedVisibility}
                 placeholder={lang.tr('variable.visibilityPlaceholder')}
@@ -116,12 +114,12 @@ const VariableForm: FC<Props> = ({
             )}
           </div>
         )}
-        <div className={cx(style.fieldWrapper, style.contentTypeField)}>
+        <div className={cx(sharedStyle.fieldWrapper, style.contentTypeField)}>
           <span className={style.formLabel}>{lang.tr('type')}</span>
           {!!variables.primitive.length && (
             <Dropdown
-              filterable
-              className={style.formSelect}
+              filterable={false}
+              className={sharedStyle.formSelect}
               items={options}
               defaultItem={selectedOption}
               rightIcon="chevron-down"

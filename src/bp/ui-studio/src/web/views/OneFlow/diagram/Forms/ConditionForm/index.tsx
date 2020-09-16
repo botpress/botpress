@@ -1,7 +1,16 @@
 import { Button, Tab, Tabs, Tooltip } from '@blueprintjs/core'
 import axios from 'axios'
 import { BotEvent, Condition, FlowVariable, FormData } from 'botpress/sdk'
-import { Contents, Dropdown, Icons, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
+import {
+  Contents,
+  Dropdown,
+  Icons,
+  lang,
+  MoreOptions,
+  MoreOptionsItems,
+  RightSidebar,
+  sharedStyle
+} from 'botpress/shared'
 import cx from 'classnames'
 import { Variables } from 'common/typings'
 import _ from 'lodash'
@@ -168,7 +177,7 @@ const ConditionForm: FC<Props> = ({
           </div>
         </div>
         <div
-          className={cx(style.fieldWrapper, style.contentTypeField, {
+          className={cx(sharedStyle.fieldWrapper, style.contentTypeField, {
             [style.noBorder]:
               !selectedCondition || (!selectedCondition.fields?.length && !selectedCondition.advancedSettings?.length)
           })}
@@ -177,7 +186,7 @@ const ConditionForm: FC<Props> = ({
           {!!conditions.length && (
             <Dropdown
               filterable
-              className={style.formSelect}
+              className={sharedStyle.formSelect}
               placeholder={lang.tr('studio.condition.pickCondition')}
               items={_.orderBy(options, 'order', 'desc')}
               defaultItem={selectedOption}

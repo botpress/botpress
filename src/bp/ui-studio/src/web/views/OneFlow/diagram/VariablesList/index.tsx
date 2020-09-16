@@ -11,49 +11,38 @@ import NoVariableIcon from './NoVariableIcon'
 
 interface OwnProps {
   editVariable: (variable) => void
-  editingVar
 }
 type StateProps = ReturnType<typeof mapStateToProps>
 
 type Props = StateProps & OwnProps
 
-const VariablesEditor: FC<Props> = ({ variables, editingVar, editVariable, currentFlow }) => {
+const VariablesList: FC<Props> = ({ variables, activeFormItem, editVariable, currentFlow }) => {
   const currentFlowVars = variables.currentFlow
   if (!currentFlowVars?.length) {
     return <EmptyState icon={<NoVariableIcon />} text={lang.tr('variable.emptyState')} />
   }
-
-  const allTypes = _.sortBy(
-    _.uniqWith(
-      currentFlowVars.map(x => ({ type: x.type, subType: x.params?.subType })),
-      (a, b) => a.type === b.type && a.subType === b.subType
-    ),
-    'type'
-  )
 
   const renderTypes = types =>
     types.map(({ type, subType, vars }, i) => {
       const icon = variables.primitive.find(x => x.id === type)?.config?.icon
 
       return (
-        <Fragment>
-          <div className={style.group} key={`${type}-${subType}`}>
-            <div className={style.label}>
-              {lang.tr(type)} {subType ? `(${subType})` : ''}
-            </div>
-            <div className={style.variables}>
-              {vars.map(item => (
-                <button
-                  key={item.params?.name}
-                  className={cx(style.button, { [style.active]: editingVar === item })}
-                  onClick={() => editVariable(item)}
-                >
-                  <Icon icon={icon} iconSize={10} /> <span className={style.label}>{item.params?.name}</span>
-                </button>
-              ))}
-            </div>
+        <div className={style.group} key={`${type}-${subType}`}>
+          <div className={style.label}>
+            {lang.tr(type)} {subType ? `(${subType})` : ''}
           </div>
-        </Fragment>
+          <div className={style.variables}>
+            {vars.map(item => (
+              <button
+                key={item.params?.name}
+                className={cx(style.button, { [style.active]: activeFormItem?.node?.variable === item })}
+                onClick={() => editVariable(item)}
+              >
+                <Icon icon={icon} iconSize={10} /> <span className={style.label}>{item.params?.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
       )
     })
 
@@ -119,7 +108,8 @@ const VariablesEditor: FC<Props> = ({ variables, editingVar, editVariable, curre
 
 const mapStateToProps = (state: RootReducer) => ({
   currentFlow: getCurrentFlow(state),
-  variables: getVariables(state)
+  variables: getVariables(state),
+  activeFormItem: state.flows.activeFormItem
 })
 
-export default connect<StateProps, OwnProps>(mapStateToProps)(VariablesEditor)
+export default connect<StateProps, OwnProps>(mapStateToProps)(VariablesList)

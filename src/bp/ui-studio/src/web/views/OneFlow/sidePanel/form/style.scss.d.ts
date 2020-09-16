@@ -13,10 +13,8 @@ interface CssExports {
   'description': string;
   'emptyState': string;
   'fieldError': string;
-  'fieldWrapper': string;
   'formHeader': string;
   'formLabel': string;
-  'formSelect': string;
   'imgWrapper': string;
   'imgWrapperActions': string;
   'innerWrapper': string;

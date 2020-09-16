@@ -1,6 +1,14 @@
 import { Button, Tab, Tabs, Tooltip } from '@blueprintjs/core'
 import { BotEvent, ExecuteNode, FlowNode, FlowVariable } from 'botpress/sdk'
-import { Icons, lang, MoreOptions, MoreOptionsItems, MultiLevelDropdown, RightSidebar } from 'botpress/shared'
+import {
+  Icons,
+  lang,
+  MoreOptions,
+  MoreOptionsItems,
+  MultiLevelDropdown,
+  RightSidebar,
+  sharedStyle
+} from 'botpress/shared'
 import cx from 'classnames'
 import { CUSTOM_ACTION } from 'common/action'
 import { LocalActionDefinition, Variables } from 'common/typings'
@@ -170,16 +178,20 @@ const ExecuteForm: FC<Props> = ({
           </div>
         </div>
         <div
-          className={cx(contentStyle.fieldWrapper, contentStyle.contentTypeField, {
+          className={cx(sharedStyle.fieldWrapper, contentStyle.contentTypeField, {
             [contentStyle.noBorder]: !selectedOption
           })}
         >
           <span className={contentStyle.formLabel}>{lang.tr('Action')}</span>
 
           <MultiLevelDropdown
-            addBtn={{ text: lang.tr('codeNewAction'), onClick: handleCodeNewAction }}
+            addBtn={{
+              text: lang.tr('codeNewAction'),
+              onClick: handleCodeNewAction,
+              selected: selectedAction.current === newAction.value
+            }}
             filterable
-            className={contentStyle.formSelect}
+            className={sharedStyle.formSelect}
             items={multiLevelActions}
             defaultItem={selectedOption}
             placeholder={lang.tr('studio.flow.node.pickAction')}

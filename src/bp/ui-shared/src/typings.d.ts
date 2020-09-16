@@ -103,6 +103,8 @@ declare module 'botpress/shared' {
     isInputFocused(): boolean
   }
 
+  export const sharedStyle: CssExports
+
   export { Option, MoreOptionsItems, HeaderButtonProps, QuickShortcut }
 }
 

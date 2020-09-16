@@ -1,3 +1,4 @@
+import { sharedStyle } from 'botpress/shared'
 import React, { FC, useEffect, useRef, useState } from 'react'
 import SmartInput from '~/components/SmartInput'
 import style from '~/views/OneFlow/sidePanel/form/style.scss'
@@ -25,7 +26,7 @@ const Text: FC<Props> = props => {
   }, [formContext?.customKey])
 
   return (
-    <div className={style.fieldWrapper}>
+    <div className={sharedStyle.fieldWrapper}>
       <span className={style.formLabel}>
         {schema.title} {required && '*'}
       </span>

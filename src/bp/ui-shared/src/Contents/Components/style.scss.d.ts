@@ -6,7 +6,6 @@ interface CssExports {
   'errorIcon': string;
   'fieldError': string;
   'fieldWrapperHeader': string;
-  'formSelect': string;
   'groupLabel': string;
   'hasError': string;
   'imgWrapper': string;

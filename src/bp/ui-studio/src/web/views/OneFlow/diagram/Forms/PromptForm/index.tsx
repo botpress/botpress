@@ -1,7 +1,16 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
 import { FlowVariable, PromptNode } from 'botpress/sdk'
-import { Contents, Dropdown, FormFields, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
+import {
+  Contents,
+  Dropdown,
+  FormFields,
+  lang,
+  MoreOptions,
+  MoreOptionsItems,
+  RightSidebar,
+  sharedStyle
+} from 'botpress/shared'
 import cx from 'classnames'
 import { Prompts, Variables } from 'common/typings'
 import _ from 'lodash'
@@ -106,7 +115,7 @@ const PromptForm: FC<Props> = ({
           {!!prompts.primitive.length && (
             <Dropdown
               filterable
-              className={style.formSelect}
+              className={sharedStyle.formSelect}
               placeholder={lang.tr('studio.prompt.pickType')}
               items={options}
               defaultItem={selectedOption}
@@ -116,7 +125,7 @@ const PromptForm: FC<Props> = ({
             />
           )}
         </div>
-        <div className={cx(style.fieldWrapper, style.contentTypeField)}>
+        <div className={cx(sharedStyle.fieldWrapper, style.contentTypeField)}>
           <span className={style.formLabel}>{lang.tr('module.builtin.setValueTo')}</span>
           {!!prompts.primitive.length && (
             <FormFields.VariablePicker
@@ -133,7 +142,7 @@ const PromptForm: FC<Props> = ({
           )}
         </div>
         {selectedPromptType && (
-          <div className={cx(style.fieldWrapper, style.contentTypeField)}>
+          <div className={cx(sharedStyle.fieldWrapper, style.contentTypeField)}>
             <Contents.Form
               currentLang={contentLang}
               defaultLang={defaultLang}

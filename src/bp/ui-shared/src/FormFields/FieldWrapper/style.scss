@@ -7,52 +7,6 @@
   margin: var(--spacing-large) 0 var(--spacing-small);
 }
 
-.fieldWrapper :global {
-  .bp3-file-input {
-    display: block;
-    height: 66px !important;
-    width: 66px !important;
-
-    input {
-      height: 100%;
-      width: 100%;
-      min-width: auto;
-    }
-  }
-}
-
-.fieldWrapper :global(.bp3-file-input:focus-within .bp3-file-upload-input) {
-  border-color: var(--ocean);
-
-  svg {
-    fill: var(--ocean) !important;
-  }
-}
-
-.fieldWrapper :global(.bp3-file-upload-input) {
-  align-items: center;
-  background: #fff;
-  border: 1px dashed var(--seashell);
-  box-shadow: none;
-  color: #fff;
-  display: flex;
-  height: 66px !important;
-  justify-content: center;
-  padding: 0 !important;
-  text-align: center;
-  transition: border 0.3s;
-  width: 66px !important;
-
-  svg {
-    fill: var(--seashell) !important;
-    transition: fill 0.3s;
-  }
-
-  &:after {
-    display: none;
-  }
-}
-
 .errorMessage {
   color: var(--lighthouse) !important;
   font-size: 12px;
