@@ -292,7 +292,8 @@ const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: 
       )
   }).filter(x => x.coordinates.filter(isNaN).length === 0)
 
-  if (points.length === 0 || input.contexts.length <= 1) {
+  const classCount = _.uniq(points.map(p => p.label)).length
+  if (points.length === 0 || classCount <= 1) {
     progress()
     debugTraining.forBot(input.botId, 'No context to train')
     return ''
