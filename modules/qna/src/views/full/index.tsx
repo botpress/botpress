@@ -22,6 +22,7 @@ const QnAList: FC<Props> = ({
   contentLang,
   updateLocalLang,
   isLite,
+  emulatorOpen,
   events,
   refreshQnaCount
 }) => {
@@ -329,7 +330,10 @@ const QnAList: FC<Props> = ({
 
   return (
     <AccessControl resource="module.qna" operation="write">
-      <MainContent.Wrapper className={style.embeddedInFlow} childRef={ref => (wrapperRef.current = ref)}>
+      <MainContent.Wrapper
+        className={cx(style.embeddedInFlow, { 'emulator-open': emulatorOpen })}
+        childRef={ref => (wrapperRef.current = ref)}
+      >
         <MainContent.Header className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
         <div className={style.searchWrapper}>
           <input

@@ -1120,6 +1120,7 @@ class Diagram extends Component<Props> {
             extraProps={{
               updateLocalLang: lang => this.updateLang(lang),
               isLite: true,
+              emulatorOpen: this.props.emulatorOpen,
               topicName: this.props.selectedTopic,
               languages: this.props.languages,
               defaultLang: this.props.defaultLang,

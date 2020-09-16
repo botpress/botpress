@@ -51,6 +51,7 @@
     "enableRedirect": "Activer la redirection",
     "incompleteTooltip": "Ce question-réponses utilisera uniquement la correspondance exacte.",
     "missingAnswer": "Si vous laissez le champ réponse vide, cette question sera désactivée.",
+    "missingAnswerOrQuestion": "Si vous laissez le champ réponse ou question vide, cette question sera désactivée.",
     "noResultsFromFilters": "Aucune question trouvé",
     "missingQuestion": "Si vous laissez le champ question vide, cette question sera désactivée.",
     "node": "Nœud",

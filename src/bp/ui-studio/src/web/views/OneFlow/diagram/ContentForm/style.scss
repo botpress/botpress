@@ -51,8 +51,11 @@ input[type='radio'] {
 
 .contentTypeField {
   padding-bottom: var(--spacing-xx-large);
-  border-bottom: 1px solid var(--gray);
   margin-bottom: var(--spacing-xx-large);
+
+  &:not(.noBorder) {
+    border-bottom: 1px solid var(--gray);
+  }
 }
 
 .formSelect {

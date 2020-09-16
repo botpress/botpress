@@ -167,7 +167,12 @@ const ConditionForm: FC<Props> = ({
             )}
           </div>
         </div>
-        <div className={cx(style.fieldWrapper, style.contentTypeField)}>
+        <div
+          className={cx(style.fieldWrapper, style.contentTypeField, {
+            [style.noBorder]:
+              !selectedCondition || (!selectedCondition.fields?.length && !selectedCondition.advancedSettings?.length)
+          })}
+        >
           <span className={style.formLabel}>{lang.tr('studio.condition.label')}</span>
           {!!conditions.length && (
             <Dropdown
