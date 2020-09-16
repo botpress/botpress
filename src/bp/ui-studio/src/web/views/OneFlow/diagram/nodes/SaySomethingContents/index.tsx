@@ -60,7 +60,7 @@ const SaySomethingContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem,
   }
 
   const checkMissingSuggestionTranslations = (content, index) => {
-    const suggestions = content.suggestions || {}
+    const suggestions = content?.suggestions || {}
     const refValue = suggestions[defaultLang]?.[index] || {}
     const currentValue = suggestions[currentLang]?.[index] || {}
 
