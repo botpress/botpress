@@ -2,6 +2,26 @@
   margin: auto 0;
 }
 
+.confirmBody {
+  list-style: none;
+  padding: var(--spacing-large) 0;
+
+  li {
+    font-size: 14px;
+    line-height: 1.29;
+    color: var(--shark);
+
+    &:before {
+      content: '•';
+      margin-right: var(--spacing-small);
+    }
+
+    a {
+      color: var(--ocean);
+    }
+  }
+}
+
 .searchBar {
   padding: 0 0 var(--spacing-medium) !important;
 
@@ -70,7 +90,7 @@
 
   &:not(.isTopic) {
     &:hover {
-      background: var(--seashell);
+      background: var(--bg);
     }
 
     &.active {

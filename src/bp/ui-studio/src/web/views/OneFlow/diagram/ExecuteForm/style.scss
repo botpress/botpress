@@ -11,6 +11,28 @@
     margin: 0 0 var(--spacing-small);
   }
 
+  :global(.more-options-btn) {
+    height: 24px;
+    width: 16px;
+
+    span {
+      height: 4px;
+      width: 4px;
+
+      &:before {
+        height: 4px;
+        width: 4px;
+        left: -6px;
+      }
+
+      &:after {
+        height: 4px;
+        width: 4px;
+        right: -6px;
+      }
+    }
+  }
+
   .expandBtn {
     margin-right: var(--spacing-xx-large);
     width: 24px;
@@ -24,7 +46,7 @@
       background: none;
 
       svg {
-        fill: var(--reef);
+        fill: var(--ocean);
       }
     }
   }

@@ -165,7 +165,7 @@ const handleRegression = async botInfo => {
   }
 }
 
-const runRegressionForBot = async (axiosConfig, botInfo) => {
+const runRegressionForBot = async (axiosConfig, botInfo, tolerance = 0) => {
   await createBot(axiosConfig, botInfo)
   await waitForTraining(axiosConfig, botInfo)
   console.log(chalk.green(chalk.bold(`[${botInfo.id}] Training Done!`)))
@@ -181,13 +181,17 @@ const runRegressionForBot = async (axiosConfig, botInfo) => {
 
   console.log(chalk.yellow(`[${botInfo.id}] Previous Score Was:`), previousScore)
 
-  const testPasses = score >= previousScore
+  const delta = tolerance * score
+  const testPasses = score + delta >= previousScore
   if (!testPasses) {
     await handleRegression(botInfo)
     return false
+  } else if (score < previousScore) {
+    console.log(chalk.yellow(`[${botInfo.id}] The regression is under ${tolerance * 100}%, so it's tolerated.`))
+  } else {
+    console.log(chalk.green(chalk.bold(`[${botInfo.id}] No Regression Noted!`)))
   }
 
-  console.log(chalk.green(chalk.bold(`[${botInfo.id}] No Regression Noted!`)))
   return true
 }
 
@@ -221,7 +225,7 @@ const main = async () => {
   try {
     let testPasses = true
     testPasses = await runRegressionForBot(axiosConfig, testyInfo)
-    testPasses = await runRegressionForBot(axiosConfig, slotyInfo)
+    testPasses = await runRegressionForBot(axiosConfig, slotyInfo, 0.05)
 
     if (!testPasses) {
       process.exit(1)

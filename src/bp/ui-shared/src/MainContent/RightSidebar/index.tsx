@@ -1,3 +1,4 @@
+import cx from 'classnames'
 import { useEffect } from 'react'
 import React, { FC } from 'react'
 
@@ -35,7 +36,7 @@ const RightSidebar: FC<RightSidebarProps> = ({ className, canOutsideClickClose, 
   }
 
   return (
-    <div className={style.rightSidebar} id="sidebar-container">
+    <div className={cx(style.rightSidebar, 'right-sidebar')} id="sidebar-container">
       {children}
     </div>
   )
