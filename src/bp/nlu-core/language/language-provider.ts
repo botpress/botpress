@@ -392,16 +392,19 @@ export class RemoteLanguageProvider implements LanguageProvider {
     const meanWordSize = _.meanBy(realWords, w => w.length)
     const minJunkSize = Math.max(JUNK_TOKEN_MIN, meanWordSize / 2) // Twice as short
     const maxJunkSize = Math.min(JUNK_TOKEN_MAX, meanWordSize * 1.5) // A bit longer.  Those numbers are discretionary and are not expected to make a big impact on the models.
-    return _.range(0, JUNK_VOCAB_SIZE).map(() => {
-      const lo = getSeededLodash(process.env.NLU_SEED)
+
+    const lo = getSeededLodash(process.env.NLU_SEED)
+    const junks = _.range(0, JUNK_VOCAB_SIZE).map(() => {
       const finalSize = lo.random(minJunkSize, maxJunkSize, false)
       let word = ''
       while (word.length < finalSize) {
         word += lo.sample(gramset)
       }
-      resetSeed()
       return word
     }) // randomly generated words
+
+    resetSeed()
+    return junks
   }
 
   async vectorize(tokens: string[], lang: string): Promise<Float32Array[]> {
