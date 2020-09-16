@@ -102,7 +102,7 @@ const PromptForm: FC<Props> = ({
   const variableSubType = selectedOption?.value?.subType
 
   return (
-    <RightSidebar className={style.wrapper} canOutsideClickClose={!isConfirming} close={close}>
+    <RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={!isConfirming} close={close}>
       <Fragment key={`${promptType.current}-${contentLang}-${customKey}`}>
         <div className={sharedStyle.formHeader}>
           <Tabs id="contentFormTabs">

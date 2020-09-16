@@ -92,7 +92,7 @@ const ComplexForm: FC<Props> = ({
     .filter(x => ['enumeration', 'pattern'].includes(x.type))
     .map(({ label, subType }) => ({ label, value: subType }))
   return (
-    <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={close}>
+    <RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={true} close={close}>
       <Fragment key={customKey}>
         <div className={cx(sharedStyle.formHeader, sharedStyle.noSelect)}>
           <Tabs id="contentFormTabs">

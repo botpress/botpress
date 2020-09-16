@@ -74,7 +74,7 @@ const TextAreaList: FC<Props> = props => {
 
   return (
     <Fragment>
-      <div className={style.items}>
+      <div className={sharedStyle.items}>
         <h2>{label}</h2>
         {localItems?.map((item, index) => {
           const missingTranslation = refItems?.[index] && !item

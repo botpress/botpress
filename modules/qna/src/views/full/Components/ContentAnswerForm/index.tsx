@@ -90,7 +90,7 @@ const ContentAnswerForm: FC<Props> = ({
   const contentFields = contentTypesFields?.[contentType.current]
 
   return (
-    <RightSidebar className={style.wrapper} canOutsideClickClose close={() => close(editingContent)}>
+    <RightSidebar className={sharedStyle.wrapper} canOutsideClickClose close={() => close(editingContent)}>
       <Fragment key={`${contentType.current}-${editingContent}`}>
         <div className={sharedStyle.formHeader}>
           <Tabs id="contentFormTabs">

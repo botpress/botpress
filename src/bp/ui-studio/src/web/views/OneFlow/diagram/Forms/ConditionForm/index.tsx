@@ -155,7 +155,11 @@ const ConditionForm: FC<Props> = ({
   }
 
   return (
-    <RightSidebar className={style.wrapper} canOutsideClickClose={!isConfirming} close={() => close(editingCondition)}>
+    <RightSidebar
+      className={sharedStyle.wrapper}
+      canOutsideClickClose={!isConfirming}
+      close={() => close(editingCondition)}
+    >
       <Fragment key={`${condition.current}-${contentLang}-${customKey || editingCondition}`}>
         <div className={sharedStyle.formHeader}>
           <Tabs id="contentFormTabs">

@@ -159,7 +159,7 @@ const RouterForm: FC<Props> = ({
   const advancedSettings = opInfo.operator?.advancedSettings ?? []
 
   return (
-    <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={close}>
+    <RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={true} close={close}>
       <Fragment key={customKey}>
         <div className={sharedStyle.formHeader}>
           <Tabs id="contentFormTabs">

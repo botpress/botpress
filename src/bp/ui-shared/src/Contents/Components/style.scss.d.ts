@@ -4,11 +4,8 @@ interface CssExports {
   'addBtn': string;
   'deleteImg': string;
   'errorIcon': string;
-  'fieldError': string;
   'fieldWrapperHeader': string;
   'groupLabel': string;
-  'imgWrapper': string;
-  'imgWrapperActions': string;
   'label': string;
   'labelWrapper': string;
 }

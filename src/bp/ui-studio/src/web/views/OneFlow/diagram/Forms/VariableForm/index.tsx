@@ -66,7 +66,7 @@ const VariableForm: FC<Props> = ({
   const selectedVariableType = variables.primitive.find(x => x.id === variableType.current)
 
   const options = variables.display.map(x => ({ label: lang.tr(x.label), icon: x.icon, value: x }))
-  const { icon, ...selectedOption } = options.find(
+  const selectedOption = options.find(
     ({ value }) =>
       value.type === variableType.current && (!formData.params?.subType || value.subType === formData.params?.subType)
   )
@@ -79,7 +79,7 @@ const VariableForm: FC<Props> = ({
   const selectedVisibility = visibilityOptions.find(({ value }) => value === variableVisibility.current)
 
   return (
-    <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={close}>
+    <RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={true} close={close}>
       <Fragment key={`${variableType.current}-${uniqueKey}`}>
         <div className={sharedStyle.formHeader}>
           <Tabs id="contentFormTabs">
@@ -121,7 +121,8 @@ const VariableForm: FC<Props> = ({
               filterable={false}
               className={sharedStyle.formSelect}
               items={options}
-              defaultItem={selectedOption}
+              defaultItem={selectedOption && { label: selectedOption.label, value: selectedOption.value }}
+              placeholder={lang.tr('variable.pickType')}
               rightIcon="chevron-down"
               onChange={({ value }) => {
                 handleTypeChange(value.type)

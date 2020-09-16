@@ -1,9 +1,11 @@
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
+import sharedStyle from '../style.scss'
+import { lang } from '../translations'
+
 import style from './style.scss'
 import { TextareaProps } from './typings'
-import { lang } from '../translations'
 
 const Textarea: FC<TextareaProps> = ({
   refValue,
@@ -70,7 +72,7 @@ const Textarea: FC<TextareaProps> = ({
         onKeyDown={onKeyDown}
         onInput={updateHeight}
       />
-      {missingTranslation && <span className={style.fieldError}>{lang('pleaseTranslateField')}</span>}
+      {missingTranslation && <span className={sharedStyle.fieldError}>{lang('pleaseTranslateField')}</span>}
     </Fragment>
   )
 }

@@ -141,7 +141,7 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
   const missingTranslation = !!refValue?.filter(Boolean).length && !localItems.filter(Boolean).length
 
   return (
-    <div className={style.items}>
+    <div className={sharedStyle.items}>
       <h2>{label}</h2>
       {moreInfo}
       {localItems?.map((item, index) => {

@@ -4,7 +4,6 @@ interface CssExports {
   'actionModal': string;
   'editorWrap': string;
   'hidden': string;
-  'wrapper': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

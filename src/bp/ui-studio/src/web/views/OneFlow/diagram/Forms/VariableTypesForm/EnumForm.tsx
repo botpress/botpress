@@ -105,7 +105,7 @@ const EnumForm: FC<Props> = ({
   }
 
   return (
-    <RightSidebar className={style.wrapper} canOutsideClickClose={true} close={close}>
+    <RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={true} close={close}>
       <Fragment key={customKey}>
         <div className={cx(sharedStyle.formHeader, sharedStyle.noSelect)}>
           <Tabs id="contentFormTabs">

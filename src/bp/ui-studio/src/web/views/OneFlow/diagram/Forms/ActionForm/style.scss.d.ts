@@ -2,7 +2,6 @@
 // Please do not change this file!
 interface CssExports {
   'actionModal': string;
-  'wrapper': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

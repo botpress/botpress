@@ -52,7 +52,7 @@ const TextArea: FC<TextAreaProps> = ({
         onBlur={() => onBlur?.(localValue)}
         value={localValue || refValue || ''}
       />
-      {missingTranslation && <span className={style.fieldError}>{lang('pleaseTranslateField')}</span>}
+      {missingTranslation && <span className={sharedStyle.fieldError}>{lang('pleaseTranslateField')}</span>}
     </Fragment>
   )
 }

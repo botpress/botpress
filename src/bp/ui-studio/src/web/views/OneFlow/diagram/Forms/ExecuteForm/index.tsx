@@ -150,7 +150,7 @@ const ExecuteForm: FC<Props> = ({
 
   return (
     <RightSidebar
-      className={style.wrapper}
+      className={sharedStyle.wrapper}
       canOutsideClickClose={canOutsideClickClose}
       close={() => {
         if (isCodeEditor) {

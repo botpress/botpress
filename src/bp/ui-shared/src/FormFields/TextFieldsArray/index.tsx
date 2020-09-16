@@ -92,7 +92,7 @@ const TextFieldsArray: FC<TextFieldsArrayProps> = ({
   }
 
   return (
-    <div className={style.items}>
+    <div className={sharedStyle.items}>
       <h2>{label}</h2>
       {moreInfo}
       {localItems?.map((item, index) => {

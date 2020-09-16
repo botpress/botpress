@@ -3,17 +3,22 @@
 interface CssExports {
   'error': string;
   'expandBtn': string;
+  'fieldError': string;
   'fieldWrapper': string;
   'formHeader': string;
   'formLabel': string;
   'formSelect': string;
   'hasError': string;
+  'imgWrapper': string;
+  'imgWrapperActions': string;
   'input': string;
+  'items': string;
   'noBorder': string;
   'noSelect': string;
   'textarea': string;
   'textareaWrapper': string;
   'typeField': string;
+  'wrapper': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

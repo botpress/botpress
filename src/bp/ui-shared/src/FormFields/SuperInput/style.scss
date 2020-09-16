@@ -10,6 +10,11 @@
     background: #fff !important;
     border: 1px solid var(--seashell) !important;
     border-radius: 3px !important;
+
+    .superInput {
+      min-height: 38px;
+      padding: var(--spacing-medium) var(--spacing-large) !important;
+    }
   }
 
   &:not(:global(.has-error)):focus-within {
@@ -145,8 +150,6 @@
     font-size: 12px !important;
     font-weight: 400 !important;
     line-height: 1.85 !important;
-    min-height: 38px;
-    padding: var(--spacing-medium) var(--spacing-large) !important;
     resize: none;
     transition: border 0.3s !important;
     width: 100% !important;

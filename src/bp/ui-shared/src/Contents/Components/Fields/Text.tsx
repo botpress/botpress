@@ -80,7 +80,7 @@ const Text: FC<TextProps> = ({
         onBlur={beforeOnBlur}
         value={localValue || refValue}
       />
-      {missingTranslation && <span className={style.fieldError}>{lang('pleaseTranslateField')}</span>}
+      {missingTranslation && <span className={sharedStyle.fieldError}>{lang('pleaseTranslateField')}</span>}
     </Fragment>
   )
 }

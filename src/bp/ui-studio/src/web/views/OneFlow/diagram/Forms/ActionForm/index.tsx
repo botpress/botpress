@@ -42,7 +42,7 @@ const ActionForm: FC<Props> = ({ close, node, diagramEngine, deleteNode }) => {
   const action = parseActionString((node as BlockModel)?.onEnter?.[0])
 
   return (
-    <RightSidebar className={style.wrapper} canOutsideClickClose={!showModal} close={() => close()}>
+    <RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={!showModal} close={() => close()}>
       <Fragment key={`${node?.id}`}>
         <div className={sharedStyle.formHeader}>
           <Tabs id="contentFormTabs">

@@ -3,7 +3,6 @@
 interface CssExports {
   'error': string;
   'icon': string;
-  'items': string;
   'success': string;
 }
 declare var cssExports: CssExports;

@@ -26,7 +26,7 @@ const IssueForm: FC<Props> = ({ formData, close, onUpdate }) => {
   }
 
   return (
-    <RightSidebar className={style.wrapper} canOutsideClickClose close={close}>
+    <RightSidebar className={sharedStyle.wrapper} canOutsideClickClose close={close}>
       <div className={sharedStyle.formHeader}>
         <Tabs id="contentFormTabs">
           <Tab id="content" title={lang.tr('bug')} />

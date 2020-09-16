@@ -82,8 +82,8 @@ const Upload: FC<UploadFieldProps> = props => {
   return (
     <div className={sharedStyle.fieldWrapper}>
       {value && (
-        <div style={{ backgroundImage: `url('${value}')` }} className={style.imgWrapper}>
-          <div className={style.imgWrapperActions}>
+        <div style={{ backgroundImage: `url('${value}')` }} className={sharedStyle.imgWrapper}>
+          <div className={sharedStyle.imgWrapperActions}>
             <ToolTip content={lang('deleteImage')}>
               <Button
                 className={style.deleteImg}
@@ -109,7 +109,7 @@ const Upload: FC<UploadFieldProps> = props => {
               onChange: startUpload
             }}
           />
-          {error && <p className={style.fieldError}>{error}</p>}
+          {error && <p className={sharedStyle.fieldError}>{error}</p>}
         </Fragment>
       )}
     </div>
