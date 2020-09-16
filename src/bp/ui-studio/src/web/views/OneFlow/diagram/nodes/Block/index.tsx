@@ -1,6 +1,7 @@
 import { Intent, Menu, MenuItem } from '@blueprintjs/core'
 import { DecisionTriggerCondition, Flow, FormData, SubWorkflowNode } from 'botpress/sdk'
 import { contextMenu, lang, ShortcutLabel, toast } from 'botpress/shared'
+import { parseFlowName } from 'common/flow'
 import { FlowView } from 'common/typings'
 import React, { FC } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
@@ -156,7 +157,7 @@ const BlockWidget: FC<Props> = ({
           />
         )
       case 'sub-workflow':
-        const subFlowName = getCurrentFlow().nodes.find(x => x.name === node.name)?.flow
+        const subFlowName = getCurrentFlow()?.nodes.find(x => x.name === node.name)?.flow
         const subFlow = getFlows().find(x => x.name === subFlowName)
 
         return (
@@ -185,7 +186,9 @@ const BlockWidget: FC<Props> = ({
         setExpanded={canCollapse && handleExpanded}
         expanded={canCollapse && expanded}
         handleContextMenu={!node.isReadOnly && hasContextMenu && handleContextMenu}
-        defaultLabel={nodeType === 'sub-workflow' ? node.name : lang.tr(defaultLabels[nodeType])}
+        defaultLabel={
+          nodeType === 'sub-workflow' ? parseFlowName(node.flow).workflow : lang.tr(defaultLabels[nodeType])
+        }
         debugInfo={debugInfo}
         nodeType={nodeType}
       >
@@ -206,6 +209,7 @@ export class BlockModel extends BaseNodeModel {
   public prompt?
   public contents?: FormData[] = []
   public subflow: SubWorkflowNode
+  public flow: string
 
   constructor({
     id,
@@ -213,6 +217,7 @@ export class BlockModel extends BaseNodeModel {
     y,
     name,
     type,
+    flow,
     prompt,
     contents,
     onEnter = [],
@@ -234,6 +239,7 @@ export class BlockModel extends BaseNodeModel {
       type,
       onEnter,
       next,
+      flow,
       isStartNode,
       isHighlighted,
       conditions,
@@ -256,6 +262,7 @@ export class BlockModel extends BaseNodeModel {
     this.nodeType = data.type
     this.prompt = data.prompt
     this.contents = data.contents
+    this.flow = data.flow
     this.subflow = data.subflow
     this.isReadOnly = data.isReadOnly
   }
