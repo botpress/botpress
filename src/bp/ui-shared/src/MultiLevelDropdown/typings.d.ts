@@ -16,6 +16,7 @@ export interface MultiLevelDropdownProps {
   addBtn?: {
     text: string
     onClick: () => void
+    selected?: boolean
   }
   confirmChange?: {
     message: string

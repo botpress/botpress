@@ -12,17 +12,14 @@ interface CssExports {
   'customBtn': string;
   'embeddedInFlow': string;
   'empty': string;
-  'error': string;
   'errorIcon': string;
   'errorsList': string;
   'filterWrapper': string;
-  'hasError': string;
   'header': string;
   'headerWrapper': string;
   'highlightedQna': string;
   'initialLoading': string;
   'input': string;
-  'items': string;
   'left': string;
   'loading': string;
   'needsTranslation': string;
@@ -33,8 +30,6 @@ interface CssExports {
   'right': string;
   'searchWrapper': string;
   'tag': string;
-  'textarea': string;
-  'textareaWrapper': string;
   'warning': string;
 }
 declare var cssExports: CssExports;

@@ -1,7 +1,7 @@
 import { Button, Callout, FileInput, FormGroup, InputGroup, Intent, TextArea } from '@blueprintjs/core'
 import axios from 'axios'
 import { BotConfig } from 'botpress/sdk'
-import { lang } from 'botpress/shared'
+import { lang, sharedStyle } from 'botpress/shared'
 import { confirmDialog } from 'botpress/shared'
 import { BotEditSchema } from 'common/validation'
 import Joi from 'joi'
@@ -341,7 +341,7 @@ class ConfigView extends Component<Props, State> {
                     id="description"
                     name="description"
                     rows={3}
-                    className={style.textarea}
+                    className={sharedStyle.input}
                     value={this.state.description}
                     onChange={this.handleInputChanged}
                   />

@@ -2,7 +2,6 @@
 // Please do not change this file!
 interface CssExports {
   'errorMessage': string;
-  'fieldWrapper': string;
   'label': string;
   'labelError': string;
 }

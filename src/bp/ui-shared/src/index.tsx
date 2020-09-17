@@ -2,6 +2,7 @@ import MoreOptions from '../../ui-shared-lite/MoreOptions'
 import Overlay from '../../ui-shared-lite/Overlay'
 import ToolTip from '../../ui-shared-lite/ToolTip'
 
+import style from './style.scss'
 import { sendTelemetry, startFallback } from './telemetry'
 import { defaultLocale, lang, langAvaibale, langExtend, langInit, langLocale } from './translations'
 import { isInputFocused } from './utils/inputs'
@@ -43,6 +44,7 @@ exports.Textarea = Textarea
 exports.ToolTip = ToolTip
 exports.TreeView = TreeView
 exports.Icons = Icons
+exports.sharedStyle = style
 
 exports.contextMenu = contextMenu
 exports.confirmDialog = confirmDialog

@@ -4,9 +4,9 @@ import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
 
 import ToolTip from '../../../../../ui-shared-lite/ToolTip'
+import sharedStyle from '../../../style.scss'
 import { lang } from '../../../translations'
 import FieldWrapper from '../../../FormFields/FieldWrapper'
-import wrapperStyle from '../../../FormFields/FieldWrapper/style.scss'
 import Select from '../../../FormFields/Select'
 import SuperInput from '../../../FormFields/SuperInput'
 import superInputStyle from '../../../FormFields/SuperInput/style.scss'
@@ -61,7 +61,7 @@ const Form: FC<FormProps> = ({
   useEffect(() => {
     if (moveFocusTo.current) {
       const nodeWrappers = groupRef.current[moveFocusTo.current].querySelectorAll(
-        `:scope > .${wrapperStyle.fieldWrapper}`
+        `:scope > .${sharedStyle.fieldWrapper}`
       )
 
       focusFirstElement(nodeWrappers[nodeWrappers.length - 1])

@@ -13,18 +13,6 @@
   }
 }
 
-.formHeader {
-  position: relative;
-  margin-bottom: var(--spacing-x-large);
-
-  h4 {
-    font-size: 22px;
-    font-weight: 500;
-    color: var(--shark);
-    margin: 0 0 var(--spacing-small);
-  }
-}
-
 .betaTag {
   background: var(--ocean);
   border-radius: 3px;
@@ -52,11 +40,6 @@
   &:hover {
     color: var(--seashell) !important;
   }
-}
-
-.wrapper {
-  background: #fff;
-  padding: 0 var(--spacing-xx-large) var(--spacing-xx-large) var(--spacing-large);
 }
 
 .statusBar {

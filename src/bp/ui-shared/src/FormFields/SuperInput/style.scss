@@ -2,20 +2,20 @@
   margin: 0;
 }
 
-.error {
-  font-size: 12px;
-  line-height: 1.25;
-  color: var(--lighthouse);
-  margin: var(--spacing-small) 0 var(--spacing-large);
-  display: block;
-}
-
 .superInputWrapper {
-  background: #fff !important;
-  border: 1px solid var(--seashell) !important;
-  border-radius: 3px !important;
   position: relative;
   transition: border 0.3s;
+
+  &.singular {
+    background: #fff !important;
+    border: 1px solid var(--seashell) !important;
+    border-radius: 3px !important;
+
+    .superInput {
+      min-height: 38px;
+      padding: var(--spacing-medium) var(--spacing-large) !important;
+    }
+  }
 
   &:not(:global(.has-error)):focus-within {
     border-color: var(--ocean) !important;
@@ -150,8 +150,6 @@
     font-size: 12px !important;
     font-weight: 400 !important;
     line-height: 1.85 !important;
-    min-height: 38px;
-    padding: var(--spacing-medium) var(--spacing-large) !important;
     resize: none;
     transition: border 0.3s !important;
     width: 100% !important;
@@ -171,7 +169,6 @@
 
         &.tagify--invalid > span {
           background: var(--hover-lighthouse-30);
-
 
           .tagify__tag-text {
             margin-left: var(--spacing-x-small);
