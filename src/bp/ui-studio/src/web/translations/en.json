@@ -9,19 +9,20 @@
     "configUpdated": "Bot configuration updated successfully",
     "confirmChangeLanguage": "Are you sure you want to change the language of your bot from {currentName} to {newName}? All of your content elements will be copied, make sure you translate them.",
     "confirmUnmount": "Are you sure want to unmount this bot? All of the functionalities of this bot will become unavailable.",
-    "contactEmail": "Contact E-mail",
+    "contactEmail": "Contact Email",
     "coverPicture": "Cover Picture",
     "coverUploadSuccess": "The cover picture has been uploaded successfully. You need to save the form in order for the changes to take effect.",
     "defaultLanguage": "Default language",
     "description": "Description",
     "formContainsErrors": "The form contains errors",
     "language": "Language",
-    "linkToPolicy": "Link to Privacy Policy",
-    "linkToTerms": "Link to Terms & Conditions",
+    "linkToPolicy": "Privacy Policy URL",
+    "linkToTerms": "Terms & Conditions URL",
     "phoneNumber": "Phone Number",
     "requireImageFile": "{targetProp} requires an image file",
     "supportedLanguages": "Supported languages",
-    "website": "Website"
+    "website": "Website URL",
+    "whatIsYourChatbotName": "What is your chatbot name?"
   },
   "language": {
     "arabic": "Arabic",
@@ -40,7 +41,7 @@
   "status": {
     "disabled": "Unmounted",
     "private": "Collaborators Only",
-    "public": "Published"
+    "public": "Public"
   },
   "statusBar": {
     "trainWarning": "You are testing a chatbot that needs to be trained.",
@@ -425,6 +426,7 @@
     "zoomIn": "Zoom In"
   },
   "toolbar": {
+    "configuration": "Configuration",
     "emulator": "Emulator",
     "help": "Help",
     "logsPanel": "Logs Panel",

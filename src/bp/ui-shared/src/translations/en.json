@@ -160,6 +160,7 @@
   "noRowsFound": "No rows found",
   "of": "of",
   "ok": "OK",
+  "optional": "Optional",
   "options": "Options",
   "or": "or",
   "overwrite": "Overwrite",
@@ -249,5 +250,6 @@
   "uploading": "Uploading",
   "uncategorized": "Uncategorized",
   "incomplete": "Incomplete",
-  "active": "Active"
+  "active": "Active",
+  "visibility": "Visibility"
 }

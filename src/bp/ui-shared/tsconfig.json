@@ -21,6 +21,7 @@
       "~/*": ["*"],
       "botpress/sdk": ["../../sdk/botpress.d.ts"],
       "common/*": ["../../common/*"],
+      "react-select": ["../../ui-studio/node_modules/react-select"],
       "@blueprintjs/core": ["../../ui-studio/node_modules/@blueprintjs/core"],
       "@blueprintjs/select": ["../../ui-studio/node_modules/@blueprintjs/select"],
       "react": ["../../ui-studio/node_modules/@types/react"],
