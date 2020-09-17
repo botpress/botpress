@@ -405,7 +405,7 @@ export class BotsRouter extends CustomRouter {
     )
 
     this.router.post(
-      '/deleteTopic/:topicName',
+      '/topics/:topicName/delete',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
       this.asyncMiddleware(async (req, res) => {

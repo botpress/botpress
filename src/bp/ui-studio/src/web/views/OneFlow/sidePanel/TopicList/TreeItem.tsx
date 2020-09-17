@@ -38,10 +38,6 @@ const TreeItem: FC<Props> = ({
 
   const onContextMenu = e => {
     e.preventDefault()
-    if (item.type === 'qna') {
-      return
-    }
-
     contextMenu(e, <Menu className={style.contextMenu}>{contextMenuContent}</Menu>)
   }
 
