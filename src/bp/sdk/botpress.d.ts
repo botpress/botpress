@@ -2081,15 +2081,11 @@ declare module 'botpress/sdk' {
     }
 
     export interface Metadata {
-      /** Display quick reply buttons */
-      __buttons?: Option[]
-      /** Display a dropdown menu to select an item  */
-      __dropdown?: Option[] | Dropdown
       /** Set to true to display typing effect, or set a delay in ms */
       __typing?: boolean | number
       /** Use markdown for text fields when possible */
       __markdown?: boolean
-      /** Send suggestions */
+      /** Display suggestions to the user, either using buttons or a dropdown if there are multiple elements */
       __suggestions?: IO.SuggestChoice[]
       /** If the channel supports it, it will trim the text to the specified length */
       __trimText?: number

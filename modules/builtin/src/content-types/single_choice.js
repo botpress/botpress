@@ -130,7 +130,7 @@ module.exports = {
             value: 'turn',
             related: {
               key: 'turnCount',
-              defaultValue: 2,
+              defaultValue: 0,
               type: 'number',
               label: 'Nb of turns before suggestion expires'
             }

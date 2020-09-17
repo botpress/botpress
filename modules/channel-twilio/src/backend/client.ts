@@ -105,10 +105,10 @@ export class TwilioClient {
 
   async handleOutgoingEvent(event: sdk.IO.Event, next: sdk.IO.MiddlewareNextCallback) {
     const payload = event.payload as sdk.Content.All
-    const { __buttons, __dropdown } = payload.metadata
+    const { __suggestions } = payload.metadata
 
-    if (__buttons || __dropdown) {
-      await this.sendChoices(event, __buttons || <sdk.Option[]>__dropdown)
+    if (__suggestions) {
+      await this.sendChoices(event, __suggestions)
     } else if (payload.type === 'text') {
       await this.sendMessage(event, {
         body: payload.text
