@@ -894,7 +894,7 @@ declare module 'botpress/sdk' {
       readonly turn: number
       readonly suggestion: SuggestChoice
       readonly expiryPolicy: {
-        readonly strategy: 'turn'
+        readonly strategy: 'turn' | 'workflow'
         readonly turnCount: number
       }
     }

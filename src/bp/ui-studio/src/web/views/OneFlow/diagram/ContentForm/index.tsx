@@ -131,9 +131,8 @@ const ContentForm: FC<Props> = ({
         type: 'contextual',
         gotoNodeId: currentDest,
         suggestion: { label: name, value: name, position: data.position },
-        // TODO cleanup
         expiryPolicy: {
-          strategy: 'turn',
+          strategy: data.expiryPolicy,
           turnCount: data.turnCount ?? 3
         }
       }

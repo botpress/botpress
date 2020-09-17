@@ -330,7 +330,11 @@ export class UnderstandingEngine {
           ...trigger,
           turn: trigger.turn - 1
         }))
-        .filter(x => x.turn >= 0)
+        .filter(
+          x =>
+            (x.expiryPolicy.strategy === 'turn' && x.turn >= 0) ||
+            (x.expiryPolicy.strategy === 'workflow' && !_.isEmpty(event.state.context))
+        )
     }
 
     // TODO: NDU what to do if no action elected

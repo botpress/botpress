@@ -113,28 +113,32 @@ module.exports = {
         key: 'position',
         label: 'Position of suggestions',
         type: 'select',
-        defaultValue: 'conversation',
+        defaultValue: 'static',
         options: [
-          { label: 'In the conversation', value: 'conversation' },
-          { label: 'Static menu', value: 'static' }
+          { label: 'Static menu', value: 'static' },
+          { label: 'In the conversation', value: 'conversation' }
         ]
       },
       {
         key: 'expiryPolicy',
         label: 'Expiry Policy',
         type: 'select',
-        defaultValue: 'nbOfTurns',
+        defaultValue: 'turn',
         options: [
-          { label: 'Number of turns', value: 'nbOfTurns' },
-          { label: 'End of workflow', value: 'endOfWorkflow' }
+          {
+            label: 'Number of turns',
+            value: 'turn',
+            related: {
+              key: 'turnCount',
+              defaultValue: 2,
+              type: 'number',
+              label: 'Nb of turns before suggestion expires'
+            }
+          },
+          { label: 'End of workflow', value: 'workflow' }
         ]
-      },
-      {
-        key: 'turnCount',
-        defaultValue: 2,
-        type: 'number',
-        label: 'Nb of turns before suggestion expires'
       }
+
       // not supported yet, if we support we need to do so for buttons as well
       // {
       //   key: 'canAdd',
