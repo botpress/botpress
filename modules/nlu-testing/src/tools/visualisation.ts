@@ -7,6 +7,11 @@ import { PCA } from 'ml-pca'
 
 import { BotState, PlotlyDatas } from '../backend/typings'
 
+interface DbScan {
+  run: (datas: number[][], neighboorhoodRadius: number, numberOfPointsToMakeCluster: number) => number[][]
+  noise: number[]
+}
+
 export async function computeEmbeddingSimilarity(state: BotState) {
   const intentDatas = _.groupBy(state.trainDatas, 'intent')
 
@@ -123,8 +128,7 @@ export function computeOutliers(state: BotState) {
       return sum / o.length
     }, 0)
 
-    const dbscan = new clustering.DBSCAN()
-    // parameters: neighborhood radius, number of points in neighborhood to form a cluster
+    const dbscan: DbScan = new clustering.DBSCAN()
     const clusters = dbscan.run(embedArray, meanDist + 0.5 * meanDist, _.floor(o.length / 3))
 
     return {
