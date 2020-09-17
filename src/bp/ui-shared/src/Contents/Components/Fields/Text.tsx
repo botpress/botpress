@@ -77,7 +77,7 @@ const Text: FC<TextProps> = ({
           setLocalValue(value)
         }}
         onBlur={beforeOnBlur}
-        value={localValue || refValue}
+        value={localValue ?? refValue}
       />
       {missingTranslation && <span className={style.fieldError}>{lang('pleaseTranslateField')}</span>}
     </Fragment>

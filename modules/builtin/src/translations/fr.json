@@ -55,9 +55,14 @@
       "displayOnTop": "Affichage au-dessus du clavier",
       "label": "Étiquette de suggestion",
       "labelPlaceholder": "Quelle est la suggestion affichée?",
-      "title": "Suggestions",
-      "value": "Valeur",
-      "valuePlaceholder": "Que recevra votre agent conversationnel?"
+      "valuePlaceholder": "Que recevra votre agent conversationnel?",
+      "expiryPolicy": "Politique d'expiration",
+      "numberOfTurns": "Nombre de tours",
+      "numberOfTurnsExpire": "Nombre de tours avant expiration",
+      "position": "Position des suggestions",
+      "endOfWorkflow": "Fin du workflow",
+      "staticMenu": "Menu statique",
+      "inConversation": "Dans la conversation"
     },
     "text": {
       "add": "Ajouter une alternative",

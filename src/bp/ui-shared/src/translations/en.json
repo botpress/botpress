@@ -212,6 +212,7 @@
   "submit": "Submit",
   "subtitle": "Subtitle",
   "success": "Success",
+  "suggestions": "Suggestions",
   "superInput": {
     "convertToRegularInput": "Convert to Regular Input",
     "convertToSmartInput": "Convert to Smart Input",
@@ -239,6 +240,7 @@
   "output": "Output",
   "tolerance": "Tolerance",
   "enumeration": "Enumeration",
+  "value": "Value",
   "values": "Values",
   "strict": "Strict",
   "exactMatch": "Exact matches only",

@@ -48,7 +48,7 @@ function renderElement(data, channel) {
 module.exports = {
   id: 'builtin_single-choice',
   group: 'Built-in Messages',
-  title: 'module.builtin.types.suggestions.title',
+  title: 'suggestions',
 
   jsonSchema: {
     description: 'module.builtin.types.singleChoice.description',
@@ -108,34 +108,33 @@ module.exports = {
         type: 'checkbox',
         label: 'module.builtin.typingIndicator'
       },
-      // TODO: not final
       {
         key: 'position',
-        label: 'Position of suggestions',
+        label: 'module.builtin.types.suggestions.position',
         type: 'select',
         defaultValue: 'static',
         options: [
-          { label: 'Static menu', value: 'static' },
-          { label: 'In the conversation', value: 'conversation' }
+          { label: 'module.builtin.types.suggestions.staticMenu', value: 'static' },
+          { label: 'module.builtin.types.suggestions.inConversation', value: 'conversation' }
         ]
       },
       {
         key: 'expiryPolicy',
-        label: 'Expiry Policy',
+        label: 'module.builtin.types.suggestions.expiryPolicy',
         type: 'select',
         defaultValue: 'turn',
         options: [
           {
-            label: 'Number of turns',
+            label: 'module.builtin.types.suggestions.numberOfTurns',
             value: 'turn',
             related: {
               key: 'turnCount',
               defaultValue: 0,
               type: 'number',
-              label: 'Nb of turns before suggestion expires'
+              label: 'module.builtin.types.suggestions.numberOfTurnsExpire'
             }
           },
-          { label: 'End of workflow', value: 'workflow' }
+          { label: 'module.builtin.types.suggestions.endOfWorkflow', value: 'workflow' }
         ]
       }
 
