@@ -12,6 +12,7 @@ import { isPatternValid } from './tools/patterns-utils'
 import { computeKmeans, ProcessIntents, TrainInput, TrainOutput } from './training-pipeline'
 import { TrainingCanceledError, TrainingWorkerQueue } from './training-worker-queue'
 import { ComplexEntity, EntityCacheDump, Intent, ListEntity, PatternEntity, Tools } from './typings'
+import { buildUtteranceBatch } from './utterance/utterance'
 
 const trainDebug = DEBUG('nlu').sub('training')
 
@@ -50,6 +51,11 @@ export default class Engine implements NLU.Engine {
     }
 
     this._trainingWorkerQueue = new TrainingWorkerQueue(config, logger)
+  }
+
+  public static async embed(sentences: string[], lang: string) {
+    const utterances = await buildUtteranceBatch(sentences, lang, this._tools)
+    return utterances.map(u => u.sentenceEmbedding)
   }
 
   public hasModel(language: string, hash: string) {

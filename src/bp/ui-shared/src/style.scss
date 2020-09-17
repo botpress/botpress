@@ -423,9 +423,9 @@ input[type='radio'] {
   display: flex;
   align-items: center;
 
-  :global(input) {
-    margin-right: var(--spacing-small);
-    position: relative !important;
+  &.hasError {
+    border-color: var(--lighthouse) !important;
+    box-shadow: none !important;
   }
 }
 

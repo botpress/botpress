@@ -459,6 +459,7 @@ declare module 'botpress/sdk' {
       static initialize: (config: Config, logger: NLU.Logger) => Promise<void>
       static getHealth: () => Health
       static getLanguages: () => string[]
+      static embed: (utterances: string[], lang: string) => Promise<number[][]>
       constructor(botId: string, logger: Logger)
       computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string
       loadModel: (m: Model) => Promise<void>
@@ -787,6 +788,7 @@ declare module 'botpress/sdk' {
       readonly language: string
       /** Language detected from users input. */
       readonly detectedLanguage?: string
+      readonly spellChecked?: string
       readonly entities: NLU.Entity[]
       readonly slots?: NLU.SlotCollection
       readonly errored: boolean

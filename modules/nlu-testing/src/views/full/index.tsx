@@ -1,194 +1,126 @@
-import { Button, Icon, Spinner } from '@blueprintjs/core'
-import { AxiosInstance } from 'axios'
-import { Container, SplashScreen } from 'botpress/ui'
-import { toastFailure, toastSuccess } from 'botpress/utils'
-import _ from 'lodash'
-import React from 'react'
+import { Icon, Tab, Tabs } from '@blueprintjs/core'
+import React, { FC, useEffect, useState } from 'react'
 
-import { Test, TestResult } from '../../shared/typings'
-import { computeSummary } from '../../shared/utils'
+import { DataResult } from '../../shared/typings'
 
-import { makeApi } from './api'
-import style from './style.scss'
-import { ImportModal } from './ImportModal'
-import { TestModal } from './TestModal'
-import { TestTable } from './TestTable'
+import AccBars from './accBarsTab'
+import ConfusionMatrix from './confusionMatrix'
+import NLUTests from './nluTests'
+import Outliers from './outliers'
+import Scatter from './scatter'
+import SimilarityEmbeddings from './similarityEmb'
 
-interface State {
-  createModalVisible: boolean
-  importModalVisible: boolean
-  tests: Test[]
-  testResults: _.Dictionary<TestResult>
-  loading: boolean
-  working: boolean
-  currentTest?: Test
-}
-
-interface Props {
-  bp: { axios: AxiosInstance }
-  contentLang: string
-}
-
-// TODO use ctx & useReducer instead of state
-export default class NLUTests extends React.Component<Props, State> {
-  private api = makeApi(this.props.bp)
-
-  state: State = {
-    createModalVisible: false,
-    importModalVisible: false,
-    tests: [],
-    testResults: {},
-    loading: true,
-    working: false
+const NLUVisusalisation: FC<any> = props => {
+  const [dataResult, setDataResult] = useState({} as DataResult)
+  const onTestDone = res => {
+    setDataResult(res)
   }
+  const [loadingDatasIcon, setLoadingDatasIcon] = useState(<Icon icon="floppy-disk" />)
+  const [dataLoaded, setDataLoaded] = useState(false)
+  useEffect(() => {
+    async function loadDatas() {
+      const { data } = await props.bp.axios.post('/mod/nlu-testing/prepare-data', { timeout: 0 })
+      const jobId = data
 
-  createTest = () => {
-    this.setState({ createModalVisible: true, currentTest: undefined })
-  }
+      setLoadingDatasIcon(<Icon icon="flash" />)
 
-  editTest = (test: Test) => {
-    this.setState({ createModalVisible: true, currentTest: test })
-  }
+      const interval = setInterval(async () => {
+        const { data } = await props.bp.axios.get(`/mod/nlu-testing/prepare-data/${jobId}`)
 
-  setModalVisible(createModalVisible: boolean) {
-    this.setState({ createModalVisible })
-  }
-
-  setImportModalVisibility(isVisible: boolean) {
-    this.setState({ importModalVisible: isVisible })
-  }
-
-  async componentDidMount() {
-    await this.refreshTests()
-  }
-
-  refreshTests = async () => {
-    // tslint:disable-next-line: no-floating-promises
-    this.api.fetchTests().then(tests => this.setState({ tests, loading: false, currentTest: undefined }))
-  }
-
-  runTests = async () => {
-    this.setState({ working: true })
-    await new Promise(resolve => this.setState({ testResults: {} }, resolve))
-    const testResults = await this.api.runAllTests()
-    this.setState({ working: false, testResults })
-  }
-
-  runSingleTest = async (test: Test) => {
-    this.setState({ working: true })
-    const testRes = await this.api.runTest(test)
-    await new Promise(resolve =>
-      this.setState({ testResults: { ...this.state.testResults, [testRes.id]: testRes } }, resolve)
-    )
-    this.setState({ working: false })
-  }
-
-  deleteTest = async (test: Test) => {
-    await this.api.deleteTest(test)
-    await this.refreshTests()
-    delete this.state.testResults[test.id]
-  }
-
-  async saveResults() {
-    if (_.isEmpty(this.state.testResults)) {
-      return
+        if (data.status === 'done') {
+          setLoadingDatasIcon(<Icon icon="tick-circle" />)
+          setDataLoaded(true)
+          clearInterval(interval)
+        } else if (data.status === 'crashed') {
+          console.error(`Loading datas crashed : ${data.error}`)
+          setLoadingDatasIcon(<Icon icon="cross" />)
+          clearInterval(interval)
+        }
+      }, 1000)
     }
 
-    try {
-      await this.api.exportResults(this.state.testResults)
-      toastSuccess('Results saved')
-    } catch (err) {
-      toastFailure('Could not export test results')
-    }
-  }
+    loadDatas()
+      .then()
+      .catch()
+  }, [])
 
-  render() {
-    const shouldRenderSplash = !this.state.loading && !this.state.tests.length
-    return (
-      <Container sidePanelHidden={true} yOverflowScroll={true}>
-        <div />
-        <div className="bph-layout-main">
-          <div className="bph-layout-middle">
-            <div className={style.toolbar}>
-              {!this.state.tests.length && (
-                <Button
-                  intent="success"
-                  minimal
-                  small
-                  icon="add"
-                  text="Create your first test"
-                  onClick={this.createTest}
-                />
-              )}
-              <Button
-                type="button"
-                intent="success"
-                minimal
-                icon="import"
-                text="Import tests"
-                onClick={this.setImportModalVisibility.bind(this, true)}
-              />
-              {!!this.state.tests.length && (
-                <Button intent="primary" minimal icon="play" text="Run tests" onClick={() => this.runTests()} />
-              )}
-              {this.state.working && (
-                <span className={style.working}>
-                  <Spinner size={20} />
-                  &nbsp; Working
-                </span>
-              )}
-              {!this.state.working && !_.isEmpty(this.state.testResults) && (
-                <React.Fragment>
-                  <Button
-                    type="button"
-                    intent="primary"
-                    minimal
-                    icon="export"
-                    onClick={() => this.saveResults()}
-                    text="Save results"
-                  />
-                  <span className={style.working}>
-                    <Icon icon="tick" />
-                    {computeSummary(this.state.tests, this.state.testResults)} % of tests passing
-                  </span>
-                </React.Fragment>
-              )}
-            </div>
-            <div className={style.container}>
-              {shouldRenderSplash && (
-                <SplashScreen
-                  icon={<Icon iconSize={100} icon="predictive-analysis" style={{ marginBottom: '3em' }} />}
-                  title="NLU Regression Testing"
-                  description="Utility module used by the Botpress team to perform regression testing on native NLU"
-                />
-              )}
-              {!!this.state.tests.length && (
-                <TestTable
-                  tests={this.state.tests}
-                  testResults={this.state.testResults}
-                  createTest={this.createTest}
-                  runTest={this.runSingleTest}
-                  editTest={this.editTest}
-                  deleteTest={this.deleteTest}
-                />
-              )}
-              <TestModal
-                test={this.state.currentTest}
-                api={this.api}
-                hide={this.setModalVisible.bind(this, false)}
-                visible={this.state.createModalVisible}
-                onTestCreated={this.refreshTests}
-              />
-              <ImportModal
-                axios={this.props.bp.axios}
-                onImportCompleted={this.refreshTests}
-                isOpen={this.state.importModalVisible}
-                close={this.setImportModalVisibility.bind(this, false)}
-              />
-            </div>
-          </div>
-        </div>
-      </Container>
-    )
-  }
+  return (
+    <div>
+      <div>Datas {loadingDatasIcon}</div>
+      <Tabs animate={true} id="NLU">
+        <Tab
+          id="intents"
+          title={
+            <>
+              <Icon icon="form" /> Intent tests
+            </>
+          }
+          panel={<NLUTests {...props} onTestDone={onTestDone} />}
+        />
+
+        {Object.keys(dataResult).length > 0 && (
+          <Tab
+            id="Confusion Matrix"
+            title={
+              <>
+                <Icon icon="heat-grid" /> Confusion Matrix{' '}
+              </>
+            }
+            panel={<ConfusionMatrix {...props} dataResult={dataResult} />}
+          />
+        )}
+
+        {Object.keys(dataResult).length > 0 && (
+          <Tab
+            id="Bars"
+            title={
+              <>
+                <Icon icon="timeline-bar-chart" /> Bars
+              </>
+            }
+            panel={<AccBars {...props} dataResult={dataResult} />}
+          />
+        )}
+
+        {dataLoaded && (
+          <Tab
+            id="Outliers"
+            title={
+              <>
+                <Icon icon="layout" /> Outliers
+              </>
+            }
+            panel={<Outliers {...props} dataLoaded={dataLoaded} />}
+          />
+        )}
+
+        {dataLoaded && (
+          <Tab
+            id="Scatter"
+            title={
+              <>
+                <Icon icon="heatmap" /> Scatter
+              </>
+            }
+            panel={<Scatter {...props} dataLoaded={dataLoaded} />}
+          />
+        )}
+
+        {dataLoaded && (
+          <Tab
+            id="Similarity"
+            title={
+              <>
+                <Icon icon="layout-auto" /> Similarity
+              </>
+            }
+            panel={<SimilarityEmbeddings {...props} dataLoaded={dataLoaded} />}
+          />
+        )}
+        <Tabs.Expander />
+      </Tabs>
+    </div>
+  )
 }
+
+export default NLUVisusalisation
