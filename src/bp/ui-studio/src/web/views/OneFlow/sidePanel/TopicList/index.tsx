@@ -6,7 +6,7 @@ import { nextFlowName, nextTopicName, parseFlowName } from 'common/flow'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { deleteFlow, duplicateFlow, fetchFlows, fetchTopics, renameFlow, updateFlow } from '~/actions'
+import { deleteFlow, duplicateFlow, fetchFlows, fetchTopics, renameFlow, updateFlow, deleteTopic } from '~/actions'
 import { SearchBar } from '~/components/Shared/Interface'
 import { AccessControl } from '~/components/Shared/Utils'
 import { getCurrentFlow, getFlowNamesList, RootReducer } from '~/reducers'
@@ -85,7 +85,11 @@ const TopicList: FC<Props> = props => {
       icon: 'chat'
     }))
 
-    setFlows([...qna, ...props.flowsName.filter(filterByText)])
+    const filteredFlows = props.flowsName
+      .filter(flow => props.topics.some(topic => flow.name.includes(topic.name))) // Hack to prevent race condition sometimes after topic deleted flows are done fetching
+      .filter(filterByText)
+
+    setFlows([...qna, ...filteredFlows])
   }, [props.flowsName, filter, props.topics, props.qnaCountByTopic])
 
   useEffect(() => {
@@ -126,16 +130,12 @@ const TopicList: FC<Props> = props => {
   }
 
   const deleteTopic = async (name: string, skipDialog = false) => {
-    const matcher = new RegExp(`^${name}/`)
-    const flowsToDelete = props.flowsName.filter(x => matcher.test(x.name))
-
     if (
       skipDialog ||
       (await confirmDialog(lang.tr('studio.flow.topicList.confirmDeleteTopic'), { acceptLabel: lang.tr('delete') }))
     ) {
-      await axios.post(`${window.BOT_API_PATH}/deleteTopic/${name}`)
-      flowsToDelete.forEach(flow => props.deleteFlow(flow.name))
-      props.fetchTopics()
+      props.deleteTopic(name)
+      props.fetchFlows()
 
       if (name === props.selectedTopic) {
         props.goToFlow(undefined)
@@ -173,6 +173,7 @@ const TopicList: FC<Props> = props => {
 
       return (
         <Fragment>
+          {/* TODO permission check here */}
           <MenuItem
             id="btn-edit"
             label={lang.tr('studio.flow.sidePanel.renameTopic')}
@@ -446,6 +447,7 @@ const mapStateToProps = (state: RootReducer) => ({
 })
 
 const mapDispatchToProps = {
+  deleteTopic,
   fetchTopics,
   fetchFlows,
   renameFlow,
