@@ -381,7 +381,6 @@
         "editQna": "Modifier Q&R",
         "moveQna": "Déplacer Q&Rs vers",
         "confirmMoveQna": "Souhaitez-vous vraiment déplacer les Q&Rs vers un autre sujet?",
-        "move": "Déplacer",
         "editTopic": "Modifier le sujet",
         "editWorkflow": "Modifier le workflow",
         "exportTopic": "Exporter le sujet",
