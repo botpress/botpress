@@ -8,6 +8,7 @@
     "chooseFile": "Choisir fichier",
     "configUpdated": "La configuration du bot a été mise à jour avec succès",
     "confirmChangeLanguage": "Voulez-vous vraiment changer la langue de votre bot de {currentName} à {newName} ? Tous vos éléments de contenu seront copiés, assurez-vous de les traduire.",
+    "confirm": "Confirmer",
     "confirmUnmount": "Voulez-vous vraiment démonter ce bot? Toutes les fonctionnalités de ce bot deviendront indisponibles.",
     "contactEmail": "Adresse courriel de contact",
     "coverPicture": "Image de couverture",
