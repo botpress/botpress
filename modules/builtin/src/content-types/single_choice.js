@@ -26,9 +26,7 @@ function render(data) {
 
 function renderer(data) {
   const payload = base.renderer(data, 'text')
-  // hardcoded at the moment, do we want to offer this flexibility ? if yes, needs to be in advanced settings
-  // we might want to check if extensions module is enabled before setting it to dropdown
-  const metaKey = data.suggestions.length > 4 ? '__dropdown' : '__buttons'
+
   return {
     ...payload,
     metadata: {
@@ -162,7 +160,7 @@ module.exports = {
         type: 'tag-input',
         translated: true,
         label: 'suggestions',
-        placeholder: 'studio.library.addSynonyms',
+        placeholder: 'studio.library.quickAddAlternative',
         group: {
           addLabel: 'studio.flow.node.addSuggestion',
           addLabelTooltip: 'studio.flow.node.addSuggestionTooltip'

@@ -664,12 +664,12 @@ export class CMSService implements IDisposeOnExit {
       let payloads: any = contentTypeRenderer.renderElement({ ...this._getAdditionalData(), ...rendered }, channel)
 
       if (!_.isArray(payloads)) {
-        // TODO revisit this
-        const event = args.event
-        const triggers = event.state.session?.nduContext?.triggers
-        payloads.metadata = {
-          ...payloads.metadata,
-          __suggestions: triggers?.map(x => x.suggestion)
+        const triggers = args.event.state.session.nduContext?.triggers
+        if (triggers) {
+          payloads.metadata = {
+            ...payloads.metadata,
+            __suggestions: triggers.map(x => x.suggestion)
+          }
         }
 
         payloads = [payloads]

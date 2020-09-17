@@ -1,5 +1,6 @@
 import { Button, Classes, MenuItem, PopoverPosition } from '@blueprintjs/core'
 import { ItemPredicate, ItemRenderer, Select } from '@blueprintjs/select'
+import sdk from 'botpress/sdk'
 import React, { FC, useEffect, useState } from 'react'
 
 import lang from '../../lang'
@@ -24,7 +25,7 @@ interface Props {
   allowMultiple: boolean // do we want to support this ?
   width: number // do we want to support this ?
   collectFeedback: boolean // do we want to support this ?
-  position: 'conversation' | 'static'
+  position: sdk.IO.SuggestionPosition
 }
 
 // TODOS :

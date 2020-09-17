@@ -1,4 +1,5 @@
 import { RootStore } from './store'
+import sdk from 'botpress/sdk'
 
 declare global {
   interface Window {
@@ -46,8 +47,6 @@ export namespace Renderer {
 
     onSendData?: (data: any) => Promise<void>
     onFileUpload?: (label: string, payload: any, file: File) => Promise<void>
-    // TODO: remove
-    [test: string]: any
   }
 
   export type Button = {
@@ -68,6 +67,7 @@ export namespace Renderer {
   export type QuickReply = {
     buttons?: any
     quick_replies?: any
+    position?: sdk.IO.SuggestionPosition
   } & Message
 
   export type QuickReplyButton = {

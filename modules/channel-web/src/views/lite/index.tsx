@@ -59,7 +59,6 @@ export { Fullscreen as fullscreen } from '.'
 export {
   Carousel,
   QuickReplies,
-  Suggestions,
   LoginPrompt,
   Text,
   FileMessage,

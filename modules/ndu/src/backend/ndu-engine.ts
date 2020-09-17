@@ -362,7 +362,7 @@ export class UnderstandingEngine {
 
       if (
         trigger.type === 'workflow' &&
-        ((trigger.activeWorkflow && event.state.context.currentFlow !== `${trigger.workflowId}.flow.json`) ||
+        ((trigger.activeWorkflow && event.state.context?.currentFlow !== `${trigger.workflowId}.flow.json`) ||
           (trigger.activeTopic && event.state.session.nduContext?.last_topic !== trigger.topicName))
       ) {
         continue

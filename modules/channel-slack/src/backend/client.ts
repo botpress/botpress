@@ -22,12 +22,12 @@ const debugOutgoing = debug.sub('outgoing')
 
 const userCache = new LRU({ max: 1000, maxAge: ms('1h') })
 
-const getSuggestions = (event: sdk.IO.OutgoingEvent, scope?: 'conversation' | 'static') => {
+const getSuggestions = (event: sdk.IO.OutgoingEvent, position?: sdk.IO.SuggestionPosition) => {
   const allSuggestions = (event.payload.metadata as sdk.Content.Metadata)?.__suggestions || []
 
-  if (scope === 'conversation') {
+  if (position === 'conversation') {
     return allSuggestions.filter(x => x.eventId === event.incomingEventId && x.position === 'conversation')
-  } else if (scope === 'static') {
+  } else if (position === 'static') {
     return allSuggestions.filter(x => x.position === 'static')
   }
 

@@ -1,6 +1,6 @@
 import { ResizeObserver } from '@juggle/resize-observer'
 import sdk from 'botpress/sdk'
-import classnames from 'classnames'
+import cx from 'classnames'
 import differenceInMinutes from 'date-fns/difference_in_minutes'
 import debounce from 'lodash/debounce'
 import last from 'lodash/last'
@@ -11,7 +11,7 @@ import { InjectedIntlProps, injectIntl } from 'react-intl'
 
 import constants from '../../core/constants'
 import { RootStore, StoreDef } from '../../store'
-import { Message as MessageType } from '../../typings'
+import { Message as MessageTypings } from '../../typings'
 import { isIE } from '../../utils'
 import Avatar from '../common/Avatar'
 
@@ -197,7 +197,7 @@ class MessageList extends React.Component<MessageListProps, State> {
         })}
 
         {!!staticMenuSuggest.length && (
-          <div className={classnames('bpw-message-big-container', { 'bpw-from-user': false })}>
+          <div className={cx('bpw-message-big-container', { 'bpw-from-user': false })}>
             <div role="region" className={'bpw-message-container'}>
               <div aria-live="assertive" role="log" className={'bpw-message-group'}>
                 <Message
@@ -215,7 +215,7 @@ class MessageList extends React.Component<MessageListProps, State> {
     )
   }
 
-  shouldDisplayMessage = (m: MessageType): boolean => {
+  shouldDisplayMessage = (m: MessageTypings): boolean => {
     return m.message_type !== 'postback'
   }
 
