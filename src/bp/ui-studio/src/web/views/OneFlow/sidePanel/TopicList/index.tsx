@@ -6,7 +6,16 @@ import { nextFlowName, nextTopicName, parseFlowName } from 'common/flow'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { deleteFlow, duplicateFlow, fetchFlows, fetchTopics, renameFlow, updateFlow, deleteTopic } from '~/actions'
+import {
+  deleteFlow,
+  duplicateFlow,
+  fetchFlows,
+  fetchTopics,
+  renameFlow,
+  updateFlow,
+  deleteTopic,
+  getQnaCountByTopic
+} from '~/actions'
 import { SearchBar } from '~/components/Shared/Interface'
 import { AccessControl } from '~/components/Shared/Utils'
 import { getCurrentFlow, getFlowNamesList, RootReducer } from '~/reducers'
@@ -34,7 +43,6 @@ export interface CountByTopic {
 
 interface OwnProps {
   readOnly: boolean
-  qnaCountByTopic: CountByTopic[]
   goToFlow: (flow: any) => void
   createWorkflow: (topicId: string) => void
   exportTopic: (topicName: string | NodeData) => void
@@ -76,6 +84,10 @@ const TopicList: FC<Props> = props => {
 
   const filterByText = item =>
     item.name?.toLowerCase()?.includes(filter.toLowerCase()) && !item.name.startsWith('__reusable')
+
+  useEffect(() => {
+    props.getQnaCountByTopic()
+  }, [])
 
   useEffect(() => {
     const qna = props.topics.filter(filterByText).map(topic => ({
@@ -132,6 +144,7 @@ const TopicList: FC<Props> = props => {
   const moveQna = async (prevTopic: string, newTopic: string) => {
     if (await confirmDialog(lang.tr('studio.flow.topicList.confirmMoveQna'), { acceptLabel: lang.tr('move') })) {
       await axios.post(`${window.BOT_API_PATH}/mod/qna/:${prevTopic}/questions/move`, { newTopic })
+      props.getQnaCountByTopic()
       props.goToFlow(`${newTopic}/qna`)
     }
   }
@@ -466,7 +479,8 @@ const TopicList: FC<Props> = props => {
 const mapStateToProps = (state: RootReducer) => ({
   flowsName: getFlowNamesList(state),
   topics: state.ndu.topics,
-  currentFlow: getCurrentFlow(state)
+  currentFlow: getCurrentFlow(state),
+  qnaCountByTopic: state.ndu.qnaCountByTopic
 })
 
 const mapDispatchToProps = {
@@ -476,7 +490,8 @@ const mapDispatchToProps = {
   renameFlow,
   updateFlow,
   deleteFlow,
-  duplicateFlow
+  duplicateFlow,
+  getQnaCountByTopic
 }
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(TopicList)
