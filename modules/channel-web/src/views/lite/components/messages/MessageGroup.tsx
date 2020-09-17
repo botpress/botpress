@@ -14,7 +14,7 @@ export const getSuggestionPayload = (suggestions: sdk.IO.SuggestChoice[]) => {
   if (!suggestions?.length) {
     return null
   }
-  const position = suggestions[0].position
+  const position = suggestions[0].position ?? 'static'
 
   if (suggestions.length <= 4) {
     return {

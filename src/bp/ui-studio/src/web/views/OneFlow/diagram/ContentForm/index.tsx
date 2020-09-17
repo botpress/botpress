@@ -100,7 +100,7 @@ const ContentForm: FC<Props> = ({
 
     const langs = Object.keys(data.suggestions)
     const transitions: NodeTransition[] = [
-      ...(node.next.filter(
+      ...(node?.next.filter(
         transition => transition.contentIndex !== editingContent && transition.condition !== 'true'
       ) || [])
     ]

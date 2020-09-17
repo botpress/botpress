@@ -98,7 +98,7 @@ export const Dropdown: FC<Props> = props => {
     return keyboard
   }
 
-  const shouldDisplay = (this.props.isLastGroup && this.props.isLastOfGroup) || this.props.position === 'static'
+  const shouldDisplay = (props.isLastGroup && props.isLastOfGroup) || props.position === 'static'
   return (
     <Keyboard.Prepend
       keyboard={

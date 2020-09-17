@@ -901,7 +901,7 @@ declare module 'botpress/sdk' {
 
     export interface SuggestChoice {
       /** Should the suggestions be displayed next to the associated message, or persistent in the keyboard */
-      position: 'conversation' | 'static'
+      position?: 'conversation' | 'static'
       /** Required when position is conversation, to know where to attach the event */
       eventId?: string
       label: string

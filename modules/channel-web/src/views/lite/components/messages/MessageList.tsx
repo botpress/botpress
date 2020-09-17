@@ -127,7 +127,7 @@ class MessageList extends React.Component<MessageListProps, State> {
 
     const lastMessage = last(messages.filter(x => !x.userId))
     const suggestions: sdk.IO.SuggestChoice[] = lastMessage?.payload.metadata?.__suggestions || []
-    const staticMenuSuggest = suggestions.filter(x => x.position === 'static')
+    const staticMenuSuggest = suggestions.filter(x => x.position === 'static' || !x.position)
 
     messages.forEach(m => {
       const speaker = m.full_name
@@ -204,7 +204,7 @@ class MessageList extends React.Component<MessageListProps, State> {
                   store={this.props.store}
                   onSendData={this.props.onSendData}
                   key={`msg-static-suggest`}
-                  payload={getSuggestionPayload(staticMenuSuggest, {})}
+                  payload={getSuggestionPayload(staticMenuSuggest)}
                   noBubble
                 />
               </div>

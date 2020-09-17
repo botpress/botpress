@@ -342,7 +342,7 @@ export class UnderstandingEngine {
       await this._loadBotWorkflows()
     }
 
-    const contextualTriggers = (event.state.session.nduContext && event.state.session.nduContext.triggers) ?? []
+    const contextualTriggers = event.state.session.nduContext?.triggers ?? []
 
     event.ndu.triggers = {}
 
