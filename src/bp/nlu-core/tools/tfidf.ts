@@ -2,6 +2,7 @@ import _ from 'lodash'
 
 export const MAX_TFIDF = 2
 export const MIN_TFIDF = 0.5
+export const SMALL_TFIDF = (MAX_TFIDF - MIN_TFIDF) * 0.2 + MIN_TFIDF
 
 const MIN_IDF = 0.25 // term appears in 78.5% of documents
 

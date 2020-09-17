@@ -12,7 +12,7 @@ import { featurizeInScopeUtterances, featurizeOOSUtterances } from './out-of-sco
 import SlotTagger from './slots/slot-tagger'
 import { getSeededLodash, resetSeed } from './tools/seeded-lodash'
 import { replaceConsecutiveSpaces } from './tools/strings'
-import tfidf from './tools/tfidf'
+import tfidf, { SMALL_TFIDF } from './tools/tfidf'
 import { convertToRealSpaces, isSpace, SPACE } from './tools/token-utils'
 import {
   ColdListEntityModel,
@@ -449,7 +449,7 @@ export const AppendNoneIntent = async (input: TrainStep, tools: Tools): Promise<
   const vocabWords = lo
     .chain(input.tfIdf)
     .toPairs()
-    .filter(([word, tfidf]) => tfidf <= 0.3) // TODO: 0.3 is smaller than the minimum allowed tfidf...
+    .filter(([word, tfidf]) => tfidf <= SMALL_TFIDF)
     .map('0')
     .value()
 
