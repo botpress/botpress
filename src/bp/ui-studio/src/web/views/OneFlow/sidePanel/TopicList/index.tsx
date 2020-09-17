@@ -129,6 +129,13 @@ const TopicList: FC<Props> = props => {
     setExpanded({ ...expanded, [newTopicName]: true })
   }
 
+  const moveQna = async (prevTopic: string, newTopic: string) => {
+    if (await confirmDialog(lang.tr('studio.flow.topicList.confirmMoveQna'), { acceptLabel: lang.tr('move') })) {
+      await axios.post(`${window.BOT_API_PATH}/mod/qna/:${prevTopic}/questions/move`, { newTopic })
+      props.goToFlow(`${newTopic}/qna`)
+    }
+  }
+
   const deleteTopic = async (name: string, skipDialog = false) => {
     if (
       skipDialog ||
@@ -204,46 +211,62 @@ const TopicList: FC<Props> = props => {
         </Fragment>
       )
     } else {
-      const { name } = element as NodeData
+      const { name, type } = element as NodeData
 
-      return (
-        <Fragment>
-          <MenuItem
-            id="btn-edit"
-            disabled={props.readOnly}
-            label={lang.tr('studio.flow.sidePanel.renameWorkflow')}
-            onClick={() => {
-              setEditing(path)
-              setIsEditingNew(false)
-            }}
-          />
-          <MenuItem id="btn-moveTo" disabled={props.readOnly} label={lang.tr('studio.flow.sidePanel.moveWorkflow')}>
-            {props.topics?.map(topic => (
-              <MenuItem
-                label={topic.name}
-                key={topic.name}
-                onClick={() => {
-                  moveFlow(name, topic.name)
-                }}
-              />
-            ))}
-          </MenuItem>
-          <MenuItem
-            id="btn-duplicate"
-            label={lang.tr('studio.flow.sidePanel.duplicateWorkflow')}
-            onClick={() => {
-              duplicateFlow(name)
-            }}
-          />
-          <MenuItem
-            id="btn-delete"
-            disabled={lockedFlows.includes(name) || !props.canDelete || props.readOnly}
-            label={lang.tr('delete')}
-            intent={Intent.DANGER}
-            onClick={() => deleteFlow(name)}
-          />
-        </Fragment>
-      )
+      if (type === 'qna') {
+        return (
+          <Fragment>
+            <MenuItem id="btn-moveQna" label={lang.tr('studio.flow.topicList.moveQna')}>
+              {props.topics
+                ?.filter(t => t.name !== element.topic!)
+                .map(topic => (
+                  <MenuItem label={topic.name} key={topic.name} onClick={() => moveQna(element.topic!, topic.name)} />
+                ))}
+            </MenuItem>
+          </Fragment>
+        )
+      } else {
+        return (
+          <Fragment>
+            <MenuItem
+              id="btn-edit"
+              disabled={props.readOnly}
+              label={lang.tr('studio.flow.sidePanel.renameWorkflow')}
+              onClick={() => {
+                setEditing(path)
+                setIsEditingNew(false)
+              }}
+            />
+            <MenuItem id="btn-moveTo" disabled={props.readOnly} label={lang.tr('studio.flow.sidePanel.moveWorkflow')}>
+              {props.topics
+                ?.filter(t => t.name !== element.topic!)
+                .map(topic => (
+                  <MenuItem
+                    label={topic.name}
+                    key={topic.name}
+                    onClick={() => {
+                      moveFlow(name, topic.name)
+                    }}
+                  />
+                ))}
+            </MenuItem>
+            <MenuItem
+              id="btn-duplicate"
+              label={lang.tr('studio.flow.sidePanel.duplicateWorkflow')}
+              onClick={() => {
+                duplicateFlow(name)
+              }}
+            />
+            <MenuItem
+              id="btn-delete"
+              disabled={lockedFlows.includes(name) || !props.canDelete || props.readOnly}
+              label={lang.tr('delete')}
+              intent={Intent.DANGER}
+              onClick={() => deleteFlow(name)}
+            />
+          </Fragment>
+        )
+      }
     }
   }
 

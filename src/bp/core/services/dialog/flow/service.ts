@@ -388,7 +388,7 @@ export class FlowService {
     return []
   }
 
-  public async deleteTopic(botId: string, topicName: string) {\
+  public async deleteTopic(botId: string, topicName: string) {
     let topics = await this.getTopics(botId)
     topics = topics.filter(x => x.name !== topicName)
 
