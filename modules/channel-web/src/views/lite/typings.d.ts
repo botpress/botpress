@@ -36,6 +36,7 @@ export namespace Renderer {
     noBubble?: boolean
     keyboard?: any
     eventId?: string
+    position?: sdk.IO.SuggestionPosition
 
     isHighlighted?: boolean
     isLastGroup?: boolean
