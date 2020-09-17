@@ -430,6 +430,7 @@ export const AppendNoneIntent = async (input: TrainStep, tools: Tools): Promise<
 
   const lo = getSeededLodash(input.nluSeed)
 
+  // TODO: we should filter out augmented + we should create none utterances by context
   const allUtterances = lo.flatten(input.intents.map(x => x.utterances))
   const vocabWithDupes = lo
     .chain(allUtterances)
@@ -448,7 +449,7 @@ export const AppendNoneIntent = async (input: TrainStep, tools: Tools): Promise<
   const vocabWords = lo
     .chain(input.tfIdf)
     .toPairs()
-    .filter(([word, tfidf]) => tfidf <= 0.3)
+    .filter(([word, tfidf]) => tfidf <= 0.3) // TODO: 0.3 is smaller than the minimum allowed tfidf...
     .map('0')
     .value()
 
