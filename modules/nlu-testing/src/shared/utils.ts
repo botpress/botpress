@@ -1,8 +1,19 @@
 import _ from 'lodash'
 
-import { Test, TestResult } from './typings'
+import { TestResult, VisData } from './typings'
 
-export function computeSummary(tests: Test[], testResults: _.Dictionary<TestResult>): number {
+export const computeSummary = (testResults: _.Dictionary<TestResult>): number => {
   const passedCount = Object.values(testResults).filter(res => res.success).length
-  return _.round((passedCount / tests.length) * 100, 1)
+  return _.round((passedCount / Object.values(testResults).length) * 100, 1)
+}
+
+export const computeAccuracy = (datas: VisData[]) => {
+  const total = datas.reduce((acc: number, curr: VisData) => {
+    if (curr.expected === curr.predicted) {
+      acc++
+    }
+    return acc
+  }, 0)
+
+  return _.round((total / datas.length) * 100, 1)
 }
