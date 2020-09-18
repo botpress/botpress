@@ -28,7 +28,7 @@ const RouterContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem }) => 
         >
           <div className={style.content}>
             <RoutingItem condition={item} position={i} />
-            <StandardPortWidget name={`out${i}`} node={node} className={style.outRouting} />
+            <StandardPortWidget name={`out${i}`} node={node} className={cx(style.outRouting, 'if-else')} />
           </div>
         </NodeContentItem>
       ))}

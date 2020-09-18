@@ -47,16 +47,16 @@ const ComplexForm: FC<Props> = ({
       return
     }
 
-    const newEntity = { ...formData, id: getEntityId(formData.name) }
+    const newEntity = { ...formData }
 
-    updateEntity(originalEntity.current.id, newEntity)
+    updateEntity(originalEntity.current.name, newEntity)
     originalEntity.current = newEntity
   }, [formData])
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
       label: lang.tr('studio.library.deleteVariableFromLibrary'),
-      action: () => deleteEntity(formData.id),
+      action: () => deleteEntity(formData.name),
       type: 'delete'
     }
   ]
@@ -104,14 +104,6 @@ const ComplexForm: FC<Props> = ({
           defaultLang={defaultLang}
           axios={axios}
           fields={[
-            {
-              key: 'name',
-              type: 'text',
-              label: 'name',
-              required: true,
-              maxLength: 150,
-              placeholder: 'studio.library.variableTypePlaceholder'
-            },
             {
               type: 'overridable',
               key: 'items',

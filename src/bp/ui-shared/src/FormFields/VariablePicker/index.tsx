@@ -146,7 +146,7 @@ const VariablePicker: FC<Props> = ({
         <Button
           className={cx(style.btn, { [style.placeholder]: !activeItem })}
           text={btnText}
-          rightIcon={'double-caret-vertical'}
+          rightIcon={'chevron-down'}
         />
       )}
     </SimpleDropdown>

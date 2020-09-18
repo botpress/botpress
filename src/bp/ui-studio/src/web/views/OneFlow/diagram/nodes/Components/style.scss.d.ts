@@ -34,6 +34,7 @@ interface CssExports {
   'say_something': string;
   'secondaryText': string;
   'smallButton': string;
+  'sub-workflow': string;
   'success': string;
   'text': string;
   'textWrapper': string;

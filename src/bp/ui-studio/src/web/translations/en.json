@@ -126,6 +126,7 @@
       }
     },
     "library": {
+      "setVarValueTo": "Set {varName} Value to",
       "savedBlocks": "Saved Blocks",
       "savedWorkflows": "Saved Workflows",
       "variableTypes": "Variable Types",
@@ -133,9 +134,12 @@
       "addPattern": "Add Pattern",
       "addComplex": "Add Complex",
       "addType": "Add Type",
+      "enterValue": "Enter a value",
       "editingSubWorkflowWarning": "Editing this workflow will impact all its linked instances.",
       "deleteVariableFromLibrary": "Remove Variable Type from Library",
       "duplicateVariableType": "Duplicate Variable Type",
+      "renameVariableType": "Rename Variable Type",
+      "nameVariableType": "Name Variable Type",
       "duplicateWorkflow": "Duplicate Workflow",
       "filter": "Filter blocks, workflows and variable types",
       "variableName": "What is the name of this variable",

@@ -50,16 +50,16 @@ const EnumForm: FC<Props> = ({
       return
     }
 
-    const newEntity = { ...formData, pattern: '', id: getEntityId(formData.name) }
+    const newEntity = { ...formData, pattern: '' }
 
-    updateEntity(originalEntity.current.id, newEntity)
+    updateEntity(originalEntity.current.name, newEntity)
     originalEntity.current = newEntity
   }, [formData])
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
       label: lang.tr('studio.library.deleteVariableFromLibrary'),
-      action: () => deleteEntity(formData.id),
+      action: () => deleteEntity(formData.name),
       type: 'delete'
     }
   ]
@@ -117,15 +117,6 @@ const EnumForm: FC<Props> = ({
           defaultLang={defaultLang}
           axios={axios}
           fields={[
-            {
-              key: 'name',
-              type: 'text',
-              label: 'name',
-              required: true,
-              maxLength: 150,
-              placeholder: 'studio.library.variableTypePlaceholder',
-              defaultValue: formData.name
-            },
             {
               key: 'occurrences',
               type: 'tag-input',
