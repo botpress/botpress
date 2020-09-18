@@ -3,7 +3,7 @@ import _ from 'lodash'
 
 import { POSClass } from '../language/pos-tagger'
 import { SPECIAL_CHARSET } from '../tools/chars'
-import { computeNorm, scalarDivide, vectorAdd } from '../tools/math'
+import { computeNorm, scalarDivide, scalarMultiply, vectorAdd } from '../tools/math'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { convertToRealSpaces, isSpace, isWord, SPACE } from '../tools/token-utils'
 import { getClosestToken } from '../tools/vocab'
@@ -127,6 +127,7 @@ export default class Utterance {
     const dims = this._tokens[0].vector.length
     let sentenceEmbedding = new Array(dims).fill(0)
 
+    // Algorithm strongly inspired by Fasttext classifier (see method FastText::getSentenceVector)
     for (const token of this.tokens) {
       const norm = computeNorm(token.vector as number[])
       if (norm <= 0 || !token.isWord) {
@@ -134,10 +135,9 @@ export default class Utterance {
         continue
       }
 
-      // hard limit on TFIDF of (we don't want to over scale the features)
-      const weight = Math.min(1, token.tfidf)
+      const weight = Math.min(1, token.tfidf) // TODO: there's already an upper limit on TFIDF
       totalWeight += weight
-      const weightedVec = scalarDivide(token.vector as number[], norm / weight)
+      const weightedVec = scalarMultiply(token.vector as number[], weight / norm) // TODO: experiment without dividing by norm
       sentenceEmbedding = vectorAdd(sentenceEmbedding, weightedVec)
     }
 

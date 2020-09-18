@@ -157,4 +157,4 @@ const main = async () => {
     process.exit(1)
   }
 }
-main()
+main(process.argv.slice(2))
