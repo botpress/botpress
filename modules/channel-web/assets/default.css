@@ -1,4 +1,4 @@
-@import url('/assets/ui-studio/public/external/font-roboto.css');
+@import url('../../ui-studio/public/external/font-roboto.css');
 
 :root {
   --main-bg-color: #ffffff;
