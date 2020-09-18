@@ -33,6 +33,7 @@ type Props = StateProps & DispatchProps & OwnProps
 
 const ConfigForm: FC<Props> = ({ close, bot, fetchBotInformation }) => {
   const [error, setError] = useState(null)
+  const [languageLoaded, setLanguageLoaded] = useState(false)
   const initialDisabledState = useRef(bot.disabled)
   const [licensing, setLicensing] = useState<Licensing>()
   const [languages, setLanguages] = useState<SelectItem[]>([])
@@ -69,6 +70,7 @@ const ConfigForm: FC<Props> = ({ close, bot, fetchBotInformation }) => {
       value: language.code
     }))
     setLanguages(languages)
+    setLanguageLoaded(true)
   }
 
   const fetchLicensing = async () => {
@@ -225,7 +227,7 @@ const ConfigForm: FC<Props> = ({ close, bot, fetchBotInformation }) => {
         </Tabs>
       </div>
 
-      {!!languages.length && (
+      {languageLoaded && (
         <Contents.Form
           axios={axios}
           fieldsError={error}
