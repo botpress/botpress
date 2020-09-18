@@ -3,7 +3,6 @@ import cx from 'classnames'
 import React, { FC, Fragment } from 'react'
 import Dotdotdot from 'react-dotdotdot'
 
-import { lang } from '../../../translations'
 import { convertToHtml } from '../../../FormFields/SuperInput/utils'
 import MarkdownContent from '../../../MarkdownContent'
 
@@ -45,7 +44,6 @@ const ContentItem: FC<ItemProps> = ({ content, onEdit, active, contentLang }) =>
           </Dotdotdot>
         )
       default:
-        const variationsCount = (content.variations?.[contentLang] || [])?.filter(Boolean)?.length
         return (
           <Fragment>
             <Dotdotdot clamp={2}>

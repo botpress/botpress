@@ -5,6 +5,7 @@ import { FC, useEffect, useState } from 'react'
 import React from 'react'
 import { FieldProps } from '~/Contents/Components/typings'
 
+import sharedStyle from '../../style.scss'
 import { lang } from '../../translations'
 
 import style from './style.scss'
@@ -131,7 +132,7 @@ const VariablePicker: FC<Props> = ({
   return (
     <SimpleDropdown
       filterable
-      className={cx(style.formSelect, className)}
+      className={cx(sharedStyle.formSelect, className)}
       inputProps={{ placeholder: lang('filter') }}
       items={options}
       activeItem={activeItem}

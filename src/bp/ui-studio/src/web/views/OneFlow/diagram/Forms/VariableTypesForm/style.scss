@@ -1,0 +1,32 @@
+.deleteBtn {
+  min-height: 30px !important;
+  min-width: 30px !important;
+  height: 30px !important;
+  width: 30px !important;
+  transition: background 0.3s;
+  flex-shrink: 0;
+  margin-left: var(--spacing-large);
+
+  &:hover {
+    background: var(--hover-lighthouse-30) !important;
+  }
+
+  svg {
+    fill: var(--lighthouse) !important;
+  }
+}
+
+.dropdownWrapper {
+  display: flex;
+  align-items: center;
+}
+
+.separator {
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--shark);
+  padding: var(--spacing-medium) 0;
+  display: block;
+  text-align: center;
+}

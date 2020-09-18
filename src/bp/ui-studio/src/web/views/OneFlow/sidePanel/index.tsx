@@ -11,7 +11,6 @@ import {
   duplicateFlow,
   fetchFlows,
   fetchTopics,
-  getQnaCountByTopic,
   refreshConditions,
   renameFlow,
   switchFlow,
@@ -72,7 +71,6 @@ const SidePanelContent: FC<Props> = props => {
   useEffect(() => {
     props.refreshConditions()
     props.fetchTopics()
-    props.getQnaCountByTopic()
   }, [])
 
   const goToFlow = (flow?: string) => history.push(`/oneflow/${flow?.replace(/\.flow\.json/, '') ?? ''}`)
@@ -150,7 +148,6 @@ const SidePanelContent: FC<Props> = props => {
           {currentTab === 'topics' && (
             <TopicList
               readOnly={props.readOnly}
-              qnaCountByTopic={props.qnaCountByTopic}
               goToFlow={goToFlow}
               createWorkflow={createWorkflow}
               exportTopic={exportTopic}
@@ -198,8 +195,7 @@ const mapStateToProps = (state: RootReducer) => ({
   flows: getAllFlows(state),
   flowsName: getFlowNamesList(state),
   showFlowNodeProps: state.flows.showFlowNodeProps,
-  topics: state.ndu.topics,
-  qnaCountByTopic: state.ndu.qnaCountByTopic
+  topics: state.ndu.topics
 })
 
 const mapDispatchToProps = {
@@ -211,8 +207,7 @@ const mapDispatchToProps = {
   updateFlow,
   refreshConditions,
   fetchTopics,
-  fetchFlows,
-  getQnaCountByTopic
+  fetchFlows
 }
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(SidePanelContent)

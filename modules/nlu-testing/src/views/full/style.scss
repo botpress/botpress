@@ -1,5 +1,13 @@
 @import '~@blueprintjs/core/lib/scss/variables';
 
+.results {
+  display: flex;
+}
+
+.results .span {
+  margin-right: 5vw;
+}
+
 .container {
   background-color: white;
   display: flex;
@@ -30,4 +38,31 @@
 .working {
   display: flex;
   align-items: center;
+}
+
+.main {
+  width: 100%;
+}
+
+.inline {
+  display: inline;
+}
+
+.verticalText {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  padding-left: 1px;
+  padding-right: 1px;
+}
+
+table {
+  border: 1px solid black;
+}
+
+tr {
+  border: 1px solid black;
+}
+
+td {
+  border: 1px solid black;
 }

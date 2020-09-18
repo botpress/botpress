@@ -4,17 +4,10 @@ interface CssExports {
   'addBtn': string;
   'deleteImg': string;
   'errorIcon': string;
-  'fieldError': string;
   'fieldWrapperHeader': string;
-  'formSelect': string;
   'groupLabel': string;
-  'hasError': string;
-  'imgWrapper': string;
-  'imgWrapperActions': string;
-  'input': string;
   'label': string;
   'labelWrapper': string;
-  'textarea': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

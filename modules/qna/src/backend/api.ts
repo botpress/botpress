@@ -49,6 +49,15 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
     })
   )
 
+  router.post(
+    '/:topicName/questions/move',
+    asyncMiddleware(async (req: Request, res: Response, next: Function) => {
+      const { storage } = bots[req.params.botId]
+      await storage.moveToAnotherTopic(req.params.topicName, req.body.newTopic)
+      res.sendStatus(200)
+    })
+  )
+
   router.get(
     '/:topicName/questions/:id',
     asyncMiddleware(async (req: Request, res: Response) => {

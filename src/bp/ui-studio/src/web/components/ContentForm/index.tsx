@@ -1,10 +1,9 @@
-import { lang } from 'botpress/shared'
+import { lang, sharedStyle } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC } from 'react'
 import Form from 'react-jsonschema-form'
 import SmartInput from '~/components/SmartInput'
 import { getFormData } from '~/util/NodeFormData'
-import style from '~/views/OneFlow/sidePanel/form/style.scss'
 
 import withLanguage from '../Util/withLanguage'
 
@@ -38,7 +37,7 @@ const CustomBaseInput = props => {
     }
   }
 
-  return <SmartInput key={props?.formContext?.customKey} {...props} singleLine={true} className={style.textarea} />
+  return <SmartInput key={props?.formContext?.customKey} {...props} singleLine={true} className={sharedStyle.input} />
 }
 
 const widgets = {
