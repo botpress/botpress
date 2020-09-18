@@ -65,24 +65,6 @@ module.exports = {
 
   newSchema: {
     displayedIn: ['qna', 'sayNode'],
-    advancedSettings: [
-      {
-        key: 'markdown',
-        label: 'module.builtin.useMarkdown',
-        defaultValue: true,
-        type: 'checkbox',
-        moreInfo: {
-          label: 'learnMore',
-          url: 'https://daringfireball.net/projects/markdown/'
-        }
-      },
-      {
-        key: 'typing',
-        defaultValue: true,
-        type: 'checkbox',
-        label: 'module.builtin.typingIndicator'
-      }
-    ],
     fields: [
       {
         type: 'upload',

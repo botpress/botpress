@@ -103,26 +103,6 @@ module.exports = {
 
   newSchema: {
     displayedIn: ['qna', 'sayNode'],
-    advancedSettings: [
-      {
-        key: 'typing',
-        defaultValue: true,
-        type: 'checkbox',
-        label: 'module.builtin.typingIndicator'
-      }
-      // not supported yet, if we support we need to do so for buttons as well
-      // {
-      //   key: 'canAdd',
-      //   type: 'checkbox',
-      //   label: 'module.builtin.types.suggestions.allowToAdd'
-      // },
-      // not supported yet, if we support we need to do so for buttons as well
-      // {
-      //   key: 'multiple',
-      //   type: 'checkbox',
-      //   label: 'module.builtin.types.suggestions.allowMultiplePick'
-      // }
-    ],
     fields: [
       {
         group: {
