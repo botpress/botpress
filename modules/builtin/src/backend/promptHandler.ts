@@ -67,7 +67,10 @@ export const handlePrompt = async (event: sdk.IO.OutgoingEvent, bp: typeof sdk):
 
       return {
         ...defaultPayload,
-        metadata: { ...defaultPayload.metadata, __suggestions: items }
+        metadata: {
+          ...defaultPayload.metadata,
+          __suggestions: [...(defaultPayload.metadata?.__suggestions || []), ...items]
+        }
       }
   }
 }
