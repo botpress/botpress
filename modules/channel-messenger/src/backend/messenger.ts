@@ -234,6 +234,7 @@ export class MessengerService {
     }
 
     if (__suggestions) {
+      // TODO: handle the "static menu" suggestions into the Messenger's Persistent Menu
       payload = {
         ...payload,
         quick_replies: __suggestions.map(c => ({
