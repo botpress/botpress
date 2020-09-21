@@ -3,14 +3,13 @@ import cx from 'classnames'
 import React, { FC, Fragment } from 'react'
 import Dotdotdot from 'react-dotdotdot'
 
-import { lang } from '../../../translations'
 import { convertToHtml } from '../../../FormFields/SuperInput/utils'
 import MarkdownContent from '../../../MarkdownContent'
 
 import style from './style.scss'
 import { ItemProps } from './typings'
 
-const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active, contentLang }) => {
+const ContentItem: FC<ItemProps> = ({ content, onEdit, active, contentLang }) => {
   if (content.contentType === 'builtin_single-choice') {
     return null
   }
@@ -40,7 +39,7 @@ const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active, contentLang }) 
           <Dotdotdot clamp={2}>
             {(content.choices as FormData[])?.map((choice, index) => {
               return (
-                <Fragment>
+                <Fragment key={index}>
                   <span dangerouslySetInnerHTML={{ __html: convertToHtml(choice.title?.[contentLang] || '') }} />
                   {index !== content.choices.length - 1 && ' · '}
                 </Fragment>
@@ -49,7 +48,6 @@ const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active, contentLang }) 
           </Dotdotdot>
         )
       default:
-        const variationsCount = (content.variations?.[contentLang] || [])?.filter(Boolean)?.length
         return (
           <Fragment>
             <Dotdotdot clamp={2}>
@@ -73,4 +71,4 @@ const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active, contentLang }) 
   )
 }
 
-export default ContentAnswer
+export default ContentItem

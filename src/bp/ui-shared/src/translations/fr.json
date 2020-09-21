@@ -189,6 +189,8 @@
   "format": "Format",
   "input": "Entrée",
   "output": "Sortie",
+  "inputs": "Entrées",
+  "outputs": "Sorties",
   "tolerance": "Tolérance",
   "enumeration": "Énumération",
   "uncategorized": "Non catégorisée",

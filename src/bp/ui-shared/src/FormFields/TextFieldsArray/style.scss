@@ -1,85 +1,21 @@
-.items {
-  line-height: 0;
+.icon {
+  position: absolute;
+  right: 0;
+  top: 15px;
 
-  h2 {
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 1.25;
-    color: var(--shark);
-    margin: var(--spacing-large) 0 var(--spacing-small);
+  svg {
+    height: 10px;
   }
 }
 
-.textareaWrapper {
-  position: relative;
-
-  .icon {
-    position: absolute;
-    right: 0;
-    top: 15px;
-
-    svg {
-      height: 10px;
-    }
-  }
-
-  .error {
-    svg {
-      fill: var(--lighthouse) !important;
-    }
-  }
-
-  .success {
-    svg {
-      fill: var(--success) !important;
-    }
-  }
-
-  &:first-of-type {
-    margin-top: var(--spacing-small);
-  }
-
-  &:focus-within {
-    & + .textareaWrapper {
-      .textarea,
-      .contentAnswer {
-        border-top-color: transparent;
-      }
-    }
-
-    .textarea,
-    .contentAnswer {
-      border-top-color: var(--ocean);
-      border-bottom-color: var(--ocean);
-
-      &.hasError {
-        border-bottom-color: var(--lighthouse);
-
-        &:focus {
-          border-top-color: var(--lighthouse);
-
-          & + .textarea {
-            border-top-color: transparent;
-          }
-        }
-      }
-    }
+.error {
+  svg {
+    fill: var(--lighthouse) !important;
   }
 }
 
-.customTextarea {
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--gray);
-  border-top: 1px solid var(--gray);
-  color: var(--shark);
-  font-size: 12px;
-  height: 39px;
-  line-height: 1.25;
-  margin: -1px 0 0;
-  padding: var(--spacing-large) 2%;
-  padding-left: 0;
-  resize: none;
-  transition: border 0.3s;
-  width: 100%;
+.success {
+  svg {
+    fill: var(--success) !important;
+  }
 }

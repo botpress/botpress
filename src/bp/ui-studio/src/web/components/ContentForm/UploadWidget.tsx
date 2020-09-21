@@ -1,6 +1,6 @@
 import { Button, FileInput, Intent, Position, Tooltip } from '@blueprintjs/core'
 import axios from 'axios'
-import { lang } from 'botpress/shared'
+import { lang, sharedStyle } from 'botpress/shared'
 import React, { FC, Fragment, useReducer } from 'react'
 import { AccessControl } from '~/components/Shared/Utils'
 import style from '~/views/OneFlow/sidePanel/form/style.scss'
@@ -83,10 +83,10 @@ const UploadWidget: FC<any> = props => {
       resource="bot.media"
       fallback={<em>{lang.tr('module.builtin.types.image.permissionDenied')}</em>}
     >
-      <div className={style.fieldWrapper}>
+      <div className={sharedStyle.fieldWrapper}>
         {value && (
-          <div style={{ backgroundImage: `url('${value}')` }} className={style.imgWrapper}>
-            <div className={style.imgWrapperActions}>
+          <div style={{ backgroundImage: `url('${value}')` }} className={sharedStyle.imgWrapper}>
+            <div className={sharedStyle.imgWrapperActions}>
               <Tooltip content={lang.tr('delete')} position={Position.TOP}>
                 <Button minimal small intent={Intent.DANGER} icon="trash" onClick={deleteFile}></Button>
               </Tooltip>
@@ -105,7 +105,7 @@ const UploadWidget: FC<any> = props => {
                 onChange: startUpload
               }}
             />
-            {error && <p className={style.fieldError}>{error}</p>}
+            {error && <p className={sharedStyle.fieldError}>{error}</p>}
           </Fragment>
         )}
       </div>

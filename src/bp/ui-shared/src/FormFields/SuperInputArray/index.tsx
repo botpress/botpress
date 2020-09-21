@@ -2,12 +2,11 @@ import { Position, Tooltip } from '@blueprintjs/core'
 import cx from 'classnames'
 import _isEqual from 'lodash/isEqual'
 import _uniqueId from 'lodash/uniqueId'
-import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
+import React, { FC, useEffect, useRef, useState } from 'react'
 
+import sharedStyle from '../../style.scss'
 import { lang } from '../../translations'
-import { controlKey } from '../../utils/keyboardShortcuts'
 import AddButton from '../../Contents/Components/Fields/AddButton'
-import ShortcutLabel from '../../ShortcutLabel'
 import SuperInput from '../SuperInput'
 import { convertToString } from '../SuperInput/utils'
 
@@ -142,20 +141,20 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
   const missingTranslation = !!refValue?.filter(Boolean).length && !localItems.filter(Boolean).length
 
   return (
-    <div className={style.items}>
+    <div className={sharedStyle.items}>
       <h2>{label}</h2>
       {moreInfo}
       {localItems?.map((item, index) => {
         return (
           <div
             key={itemIds.current[index]}
-            className={cx(style.textareaWrapper, { ['has-error']: missingTranslation })}
+            className={cx(sharedStyle.textareaWrapper, { ['has-error']: missingTranslation })}
           >
             <SuperInput
               isFocused={focusedElement.current === index}
               placeholder={getPlaceholder?.(index)}
               variableTypes={variableTypes}
-              className={cx(style.customTextarea, { ['has-error']: missingTranslation })}
+              className={cx(sharedStyle.textarea, { ['has-error']: missingTranslation })}
               canPickEvents={canPickEvents}
               canPickVariables={canPickVariables}
               isPartOfArray
@@ -172,7 +171,7 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
           </div>
         )
       })}
-      {missingTranslation && <span className={style.error}>{lang('pleaseTranslateField')}</span>}
+      {missingTranslation && <span className={sharedStyle.error}>{lang('pleaseTranslateField')}</span>}
 
       <Tooltip content={lang(addBtnLabelTooltip || 'quickAddAlternative')} position={Position.BOTTOM}>
         <AddButton text={addBtnLabel} onClick={() => addItem()} />

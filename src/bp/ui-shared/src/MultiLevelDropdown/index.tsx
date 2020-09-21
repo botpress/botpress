@@ -63,10 +63,8 @@ const MultiLevelDropdown: FC<MultiLevelDropdownProps> = ({
     }
   }
 
-  const btnText = activeItem?.label || defaultItem?.label || placeholder
-
+  const btnText = activeItem?.label || (addBtn?.selected && addBtn.text) || defaultItem?.label || placeholder
   const filterItem = item => `${item.label}//${item.value}`.toLowerCase().includes(searchValue)
-
   const filteredItems = items.filter(x => x.name.toLowerCase().includes(searchValue) || x.items.some(filterItem))
 
   const onKeyDown = e => {
@@ -85,7 +83,7 @@ const MultiLevelDropdown: FC<MultiLevelDropdownProps> = ({
     <div className={cx(style.dropdown)}>
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className={cx(style.btn, { [style.placeholder]: !activeItem })}
+        className={cx(style.btn, { [style.placeholder]: !activeItem && !addBtn?.selected })}
         text={btnText}
         rightIcon={isOpen ? 'chevron-up' : 'chevron-down'}
       />

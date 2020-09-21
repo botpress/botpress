@@ -12,6 +12,10 @@ import path from 'path'
 
 import { Condition, CSVTest, Test, TestResult, TestResultDetails } from '../shared/typings'
 import { computeSummary } from '../shared/utils'
+import { getTrainTestDatas } from '../tools/data_loader'
+import { computeEmbeddingSimilarity, computeOutliers, computeScatterEmbeddings } from '../tools/visualisation'
+
+import { JobInfo, VisuState } from './typings'
 
 type BPDS_BotConfig = sdk.BotConfig & {
   bpdsId: string
@@ -33,8 +37,9 @@ const TestsSchema = Joi.array().items(
   })
 )
 
-export default async (bp: typeof sdk) => {
+export default async (bp: typeof sdk, state: VisuState) => {
   const router = bp.http.createRouterForBot('nlu-testing')
+  const longJobsPool: _.Dictionary<JobInfo> = {}
 
   const getAllTests = async (botId: string) => {
     try {
@@ -159,10 +164,9 @@ export default async (bp: typeof sdk) => {
 
   router.post('/runAll', async (req, res) => {
     const tests = await getAllTests(req.params.botId)
-    const axiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, { localUrl: true })
 
     const resultsBatch = await P.mapSeries(_.chunk(tests, 20), testChunk => {
-      return P.map(testChunk, async test => runTest(test, axiosConfig))
+      return P.map(testChunk, async test => runTest(test, state[req.params.botId].axiosConfig))
     })
 
     const testResults = _.flatten(resultsBatch).reduce((dic, testRes) => ({ ...dic, [testRes.id]: testRes }), {})
@@ -170,10 +174,50 @@ export default async (bp: typeof sdk) => {
     bp.logger.forBot(req.params.botId).info(`finished running tests with ${accuracy} of accuracy`)
     res.send(testResults)
   })
+
+  async function loadDatas(jobId: string, botId: string) {
+    longJobsPool[jobId] = { status: 'computing', error: undefined }
+    try {
+      const { train, test } = await getTrainTestDatas(state[botId], bp)
+      state[botId].trainDatas = train
+      state[botId].testDatas = test
+      longJobsPool[jobId].status = 'done'
+      bp.logger.info('Done embedding or loading train and test datas')
+    } catch (e) {
+      bp.logger.error('Error while trying to embed or load datas : ', e)
+      longJobsPool[jobId].status = 'crashed'
+      longJobsPool[jobId].error = e.data
+    }
+  }
+
+  router.get('/prepare-data/:jobId', async (req, res) => {
+    state[req.params.botId].axiosConfig = await bp.http.getAxiosConfigForBot(req.params.botId, { localUrl: true })
+    res.send(longJobsPool[req.params.jobId])
+  })
+
+  router.post('/prepare-data', async (req, res) => {
+    const jobId = nanoid()
+    // Start the job embedding utterances in the background, don't wait for it as it would freeze and return a pingable ID
+    // tslint:disable-next-line: no-floating-promises
+    loadDatas(jobId, req.params.botId)
+    res.send(jobId)
+  })
+
+  router.get('/similarityEmbeddings', async (req, res) => {
+    res.send(await computeEmbeddingSimilarity(state[req.params.botId]))
+  })
+
+  router.get('/scatterEmbeddings', async (req, res) => {
+    res.send(await computeScatterEmbeddings(state[req.params.botId], bp.logger))
+  })
+
+  router.get('/computeOutliers', async (req, res) => {
+    res.send(computeOutliers(state[req.params.botId]))
+  })
 }
 
 function results2CSV(tests: Test[], results: _.Dictionary<TestResult>) {
-  const summary = computeSummary(tests, results)
+  const summary = computeSummary(results)
   const records = [
     [
       'utterance',
@@ -256,6 +300,7 @@ function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]
     }
 
     return {
+      type: 'intent',
       success,
       reason: success
         ? ''
@@ -276,6 +321,7 @@ function conditionMatch(nlu: sdk.IO.EventUnderstanding, [key, matcher, expected]
     received = received !== 'oos' ? received : NONE
     const success = expected === received
     return {
+      type: 'context',
       success,
       reason: success
         ? ''
@@ -312,6 +358,7 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
     }
 
     return {
+      type: 'context',
       success,
       reason: success
         ? ''
@@ -342,6 +389,7 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
     const success = expected === highestRankingIntent.label
     const conf = Math.round(Number(highestRankingIntent.confidence) * 100)
     return {
+      type: 'intent',
       success,
       reason: success
         ? ''
@@ -352,11 +400,13 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
   }
 }
 
-function checkSlotMatch(nlu, slotName, expected) {
+function checkSlotMatch(nlu: sdk.IO.EventUnderstanding, slotName: string, expected: string): TestResultDetails {
+  // TODO replace name of slot by it's type
   const received = _.get(nlu, `slots.${slotName}.source`, 'undefined')
   const success = received === expected
 
   return {
+    type: 'slot',
     success,
     reason: success ? '' : `Slot ${slotName} doesn't match. \nexpected: ${expected} \nreceived: ${received}`,
     received,
@@ -372,6 +422,7 @@ function checkSlotsCount(nlu: sdk.IO.EventUnderstanding, conditions: Condition[]
   const expected = `${expectedCount}`
   const received = `${receivedCount}`
   return {
+    type: 'slotCount',
     success,
     reason: success ? '' : `Slot count doesn't match. \nexpected: ${expected} \nreceived: ${received}`,
     received,

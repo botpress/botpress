@@ -35,7 +35,8 @@ interface DucklingEntity {
 
 interface DucklingRawValue {
   normalized: ValueUnit
-  value: string
+  value?: string
+  values?: string[]
   grain: string
   unit: string
 }
@@ -271,13 +272,15 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
       case 'duration':
         return rawVal.normalized
       case 'time':
+        const value = rawVal.values?.length ? rawVal.values[0] : rawVal.value
+
         return {
-          value: rawVal.value,
+          value: value ?? '',
           unit: rawVal.grain
         }
       default:
         return {
-          value: rawVal.value,
+          value: rawVal.value ?? '',
           unit: rawVal.unit
         }
     }

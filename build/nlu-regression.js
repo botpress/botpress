@@ -55,14 +55,17 @@ const createBot = async (axiosConfig, botInfo) => {
 }
 
 const waitForTraining = async (axiosConfig, botInfo) => {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     let i = 0
     console.log(`[${botInfo.id}] training...`)
     const intervalId = setInterval(async () => {
-      const { data: trainingSession } = await axios.get(
-        `${BASE}/api/v1/bots/${botInfo.id}/mod/nlu/training/en`,
-        axiosConfig
-      )
+      let trainingSession
+      try {
+        const { data } = await axios.get(`${BASE}/api/v1/bots/${botInfo.id}/mod/nlu/training/en`, axiosConfig)
+        trainingSession = data
+      } catch (err) {
+        reject(err)
+      }
 
       const { status } = trainingSession
       if (status === 'done') {
@@ -70,8 +73,6 @@ const waitForTraining = async (axiosConfig, botInfo) => {
         resolve()
       } else if (status === 'training') {
         console.log(`[${botInfo.id}] training... ${2 * ++i}s`)
-      } else {
-        throw new Error(`An error occured while training. Training status is: ${status}`)
       }
     }, 2000)
   })
@@ -195,7 +196,7 @@ const runRegressionForBot = async (axiosConfig, botInfo, tolerance = 0) => {
   return true
 }
 
-const main = async () => {
+const main = async args => {
   const token = await loginOrSignup()
   if (!token) {
     console.error(chalk.red(chalk.bold('Unable To Login Or Sign Up...')))
@@ -224,8 +225,18 @@ const main = async () => {
 
   try {
     let testPasses = true
-    testPasses = await runRegressionForBot(axiosConfig, testyInfo)
-    testPasses = await runRegressionForBot(axiosConfig, slotyInfo, 0.05)
+
+    if (!args.length) {
+      testPasses = await runRegressionForBot(axiosConfig, testyInfo)
+      testPasses = await runRegressionForBot(axiosConfig, slotyInfo, 0.05) // 5% tolerance because plateform dependent
+    } else if (args[0] === 'testy') {
+      testPasses = await runRegressionForBot(axiosConfig, testyInfo)
+    } else if (args[0] === 'sloty') {
+      testPasses = await runRegressionForBot(axiosConfig, slotyInfo)
+    } else {
+      console.log(chalk.red('invalid args'))
+      process.exit(1)
+    }
 
     if (!testPasses) {
       process.exit(1)
@@ -237,4 +248,4 @@ const main = async () => {
     process.exit(1)
   }
 }
-main()
+main(process.argv.slice(2))

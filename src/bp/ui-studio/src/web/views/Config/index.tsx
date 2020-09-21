@@ -1,7 +1,7 @@
 import { Button, Callout, FileInput, FormGroup, InputGroup, Intent, TextArea } from '@blueprintjs/core'
 import axios from 'axios'
 import { BotConfig } from 'botpress/sdk'
-import { lang } from 'botpress/shared'
+import { lang, sharedStyle } from 'botpress/shared'
 import { confirmDialog } from 'botpress/shared'
 import { BotEditSchema } from 'common/validation'
 import Joi from 'joi'
@@ -238,8 +238,8 @@ class ConfigView extends Component<Props, State> {
     if (this.state.selectedDefaultLang !== language) {
       const currentName = this.state.languages.find(x => x.value === this.state.selectedDefaultLang.value).label
       const newName = this.state.languages.find(x => x.value === language.value).label
-      const conf = await confirmDialog(lang.tr('confirmChangeLanguage', { currentName, newName }), {
-        acceptLabel: 'Change'
+      const conf = await confirmDialog(lang.tr('config.confirmChangeLanguage', { currentName, newName }), {
+        acceptLabel: lang.tr('config.confirm')
       })
 
       if (conf) {
@@ -341,7 +341,7 @@ class ConfigView extends Component<Props, State> {
                     id="description"
                     name="description"
                     rows={3}
-                    className={style.textarea}
+                    className={sharedStyle.input}
                     value={this.state.description}
                     onChange={this.handleInputChanged}
                   />

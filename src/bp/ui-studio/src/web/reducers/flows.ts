@@ -45,6 +45,8 @@ export interface ActiveFormItem {
   type: string
   /** Used when editing nodes on the flow */
   node?: any
+  /** Used to specify node item index to edit */
+  index?: number
   /** Any other kind of item which requires the inspector */
   data?: any
 }

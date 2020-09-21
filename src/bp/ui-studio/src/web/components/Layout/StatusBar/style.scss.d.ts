@@ -7,7 +7,6 @@ interface CssExports {
   'danger': string;
   'flag': string;
   'flagWrapper': string;
-  'formHeader': string;
   'issueBtn': string;
   'item': string;
   'langItem': string;
@@ -15,7 +14,6 @@ interface CssExports {
   'message': string;
   'statusBar': string;
   'submitBtn': string;
-  'wrapper': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

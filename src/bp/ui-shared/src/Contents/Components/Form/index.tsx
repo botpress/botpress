@@ -4,9 +4,9 @@ import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
 
 import ToolTip from '../../../../../ui-shared-lite/ToolTip'
+import sharedStyle from '../../../style.scss'
 import { lang } from '../../../translations'
 import FieldWrapper from '../../../FormFields/FieldWrapper'
-import wrapperStyle from '../../../FormFields/FieldWrapper/style.scss'
 import Select from '../../../FormFields/Select'
 import SuperInput from '../../../FormFields/SuperInput'
 import superInputStyle from '../../../FormFields/SuperInput/style.scss'
@@ -61,7 +61,7 @@ const Form: FC<FormProps> = ({
   useEffect(() => {
     if (moveFocusTo.current) {
       const nodeWrappers = groupRef.current[moveFocusTo.current].querySelectorAll(
-        `:scope > .${wrapperStyle.fieldWrapper}`
+        `:scope > .${sharedStyle.fieldWrapper}`
       )
 
       focusFirstElement(nodeWrappers[nodeWrappers.length - 1])
@@ -87,7 +87,7 @@ const Form: FC<FormProps> = ({
       return fieldData || ' '
     }
 
-    return field.superInput && !['text', 'text_array'].includes(field.type) ? (
+    return field.superInput && (!['text', 'text_array'].includes(field.type) || field.superInputOptions?.toggleable) ? (
       <ToolTip
         content={lang(
           isSuperInput(field, parent) ? 'superInput.convertToRegularInput' : 'superInput.convertToSmartInput'
@@ -151,7 +151,8 @@ const Form: FC<FormProps> = ({
     return (
       !superInputOptions?.enabled &&
       field.superInput &&
-      (['text', 'text_array'].includes(field.type) || isSuperInput(field, parent))
+      ((['text', 'text_array'].includes(field.type) && !field.superInputOptions?.toggleable) ||
+        isSuperInput(field, parent))
     )
   }
 
@@ -178,7 +179,7 @@ const Form: FC<FormProps> = ({
         canPickEvents={superInputOptions?.variablesOnly !== true && field.superInputOptions?.canPickEvents !== false}
         canPickVariables={superInputOptions?.eventsOnly !== true && field.superInputOptions?.canPickVariables !== false}
         addVariable={onUpdateVariables}
-        multiple={field.type === 'text'}
+        multiple={field.type === 'text' && !field.superInputOptions?.simple}
         onBlur={value => {
           update(value)
         }}

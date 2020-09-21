@@ -35,7 +35,7 @@ const TreeItem: FC<Props> = ({
   onDoubleClick,
   onSave
 }) => {
-  const [inputValue, setInputValue] = useState(isEditingNew ? '' : item?.id)
+  const [inputValue, setInputValue] = useState(isEditingNew ? '' : item?.label)
 
   const onContextMenu = e => {
     e.preventDefault()
@@ -62,10 +62,14 @@ const TreeItem: FC<Props> = ({
   const hasChildren = !!item.children?.length || level === 0
   const chevron = !isExpanded ? 'chevron-right' : 'chevron-down'
 
-  let placeholder = lang.tr('studio.flow.sidePanel.renameWorkflow')
+  let placeholder = lang.tr(
+    `studio.${item.type === 'variableType' ? 'library.renameVariableType' : 'flow.sidePanel.renameWorkflow'}`
+  )
 
   if (isEditingNew) {
-    placeholder = lang.tr('studio.flow.sidePanel.nameWorkflow')
+    placeholder = lang.tr(
+      `studio.${item.type === 'variableType' ? 'library.nameVariableType' : 'flow.sidePanel.nameWorkflow'}`
+    )
   }
 
   if (isEditing) {
@@ -77,6 +81,7 @@ const TreeItem: FC<Props> = ({
           onFocus={e => e.currentTarget.select()}
           onBlur={() => onSave(inputValue || item.id)}
           onKeyDown={onKeyDown}
+          value={inputValue}
           placeholder={placeholder}
           onChange={e => setInputValue(sanitize(e.currentTarget.value))}
         />
