@@ -24,9 +24,7 @@ import Inspector from '../../FlowBuilder/inspector'
 
 import style from './style.scss'
 import Library from './Library'
-import { exportCompleteTopic } from './TopicEditor/export'
 import CreateTopicModal from './TopicEditor/CreateTopicModal'
-import ImportModal from './TopicEditor/ImportModal'
 import TopicList from './TopicList'
 
 export type PanelPermissions = 'create' | 'rename' | 'delete'
@@ -93,23 +91,6 @@ const SidePanelContent: FC<Props> = props => {
     props.fetchTopics()
   }
 
-  const downloadTextFile = (text, fileName) => {
-    const link = document.createElement('a')
-    link.href = URL.createObjectURL(new Blob([text], { type: `application/json` }))
-    link.download = fileName
-    link.click()
-  }
-
-  const exportTopic = async topicName => {
-    const topic = await exportCompleteTopic(topicName, props.flows)
-    downloadTextFile(JSON.stringify(topic), `${topicName}.json`)
-  }
-
-  const onImportCompleted = () => {
-    props.fetchFlows()
-    props.fetchTopics()
-  }
-
   const canDelete = props.permissions.includes('delete')
   const canAdd = !props.defaultLang || props.defaultLang === props.currentLang
 
@@ -133,9 +114,6 @@ const SidePanelContent: FC<Props> = props => {
             </NavbarGroup>
             {props.permissions.includes('create') && currentTab === 'topics' && (
               <NavbarGroup align={Alignment.RIGHT}>
-                <Tooltip content={lang.tr('studio.flow.sidePanel.importTopic')}>
-                  <Button icon="import" onClick={() => setImportModalOpen(true)} />
-                </Tooltip>
                 {canAdd && (
                   <Tooltip content={lang.tr('studio.flow.sidePanel.addTopic')}>
                     <Button icon="plus" onClick={() => createTopic()} />
@@ -150,7 +128,6 @@ const SidePanelContent: FC<Props> = props => {
               readOnly={props.readOnly}
               goToFlow={goToFlow}
               createWorkflow={createWorkflow}
-              exportTopic={exportTopic}
               canDelete={canDelete}
               selectedTopic={props.selectedTopic}
               selectedWorkflow={props.selectedWorkflow}
@@ -178,14 +155,6 @@ const SidePanelContent: FC<Props> = props => {
         isOpen={createTopicOpen}
         toggle={() => setCreateTopicOpen(!createTopicOpen)}
         onCreateFlow={props.onCreateFlow}
-      />
-
-      <ImportModal
-        isOpen={importModalOpen}
-        toggle={() => setImportModalOpen(!importModalOpen)}
-        onImportCompleted={onImportCompleted}
-        flows={props.flows}
-        topics={props.topics}
       />
     </div>
   )
