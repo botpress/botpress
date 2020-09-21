@@ -27,6 +27,11 @@ a.moreInfo {
   margin-left: 26px;
 }
 
+.formGroup > div:not(:first-of-type) {
+  margin-top: var(--spacing-x-large);
+  border-top: 1px solid var(--gray);
+}
+
 .checkboxWrapper {
   margin-top: var(--spacing-medium);
   min-height: 16px;

@@ -61,7 +61,7 @@ module.exports = {
       },
       {
         group: {
-          addLabel: 'module.builtin.actionButton',
+          addLabel: 'module.builtin.types.actionButton.addButton',
           contextMenu: [
             {
               type: 'delete',

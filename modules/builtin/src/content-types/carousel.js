@@ -81,6 +81,7 @@ module.exports = {
       {
         group: {
           addLabel: 'module.builtin.types.card.add',
+          defaultItem: true,
           contextMenu: [
             {
               type: 'delete',

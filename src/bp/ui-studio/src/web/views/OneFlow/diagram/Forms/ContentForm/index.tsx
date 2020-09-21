@@ -86,6 +86,16 @@ const ContentForm: FC<Props> = ({
     })
   )
 
+  const contentTypeWeight = {
+    builtin_text: 0,
+    builtin_image: 1,
+    builtin_card: 2,
+    builtin_carousel: 3,
+    'builtin_single-choice': 4
+  }
+
+  const sortContentTypes = (a, b) => contentTypeWeight[a.id] - contentTypeWeight[b.id]
+
   return (
     <RightSidebar
       className={sharedStyle.wrapper}
@@ -105,7 +115,7 @@ const ContentForm: FC<Props> = ({
             <Dropdown
               filterable={false}
               className={sharedStyle.formSelect}
-              items={contentTypes.map(type => ({ value: type.id, label: lang.tr(type.title) }))}
+              items={contentTypes.sort(sortContentTypes).map(type => ({ value: type.id, label: lang.tr(type.title) }))}
               defaultItem={contentType.current}
               rightIcon="chevron-down"
               confirmChange={

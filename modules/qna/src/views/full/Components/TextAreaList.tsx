@@ -112,7 +112,7 @@ const TextAreaList: FC<Props> = props => {
         })}
         {props.canAdd && (
           <Tooltip content={lang.tr('quickAddAlternative')} position={Position.BOTTOM}>
-            <FormFields.AddButton text={addItemLabel} onClick={() => addItem()} />
+            <FormFields.AddButton className={style.addBtnSpacing} text={addItemLabel} onClick={() => addItem()} />
           </Tooltip>
         )}
         {props.children}

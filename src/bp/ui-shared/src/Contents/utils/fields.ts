@@ -17,7 +17,7 @@ export const getFieldDefaultValue = (field: Partial<FormField>, lang?: string) =
     case 'checkbox':
       return false
     case 'group':
-      if (!field.fields || !field.group?.minimum) {
+      if (!field.fields || (!field.group?.minimum && !field.group?.defaultItem)) {
         return []
       }
 

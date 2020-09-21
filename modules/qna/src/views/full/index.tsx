@@ -1,5 +1,5 @@
 import { Checkbox, Icon, IconName, Spinner } from '@blueprintjs/core'
-import { confirmDialog, EmptyState, HeaderButtonProps, lang, MainContent } from 'botpress/shared'
+import { confirmDialog, EmptyState, HeaderButtonProps, Icons, lang, MainContent, sharedStyle } from 'botpress/shared'
 import { AccessControl, Downloader, reorderFlows, toastFailure, toastSuccess } from 'botpress/utils'
 import cx from 'classnames'
 import { debounce } from 'lodash'
@@ -150,7 +150,7 @@ const QnAList: FC<Props> = ({
         }
       })),
       disabled: !items.length || languages?.length <= 1,
-      tooltip: noItemsTooltip || languesTooltip
+      tooltip: languesTooltip
     },
     {
       icon: 'filter',
@@ -215,13 +215,13 @@ const QnAList: FC<Props> = ({
       icon: allExpanded ? 'collapse-all' : 'expand-all',
       disabled: !items.length,
       onClick: () => dispatch({ type: allExpanded ? 'collapseAll' : 'expandAll' }),
-      tooltip: noItemsTooltip || lang.tr(allExpanded ? 'collapseAll' : 'expandAll')
+      tooltip: lang.tr(allExpanded ? 'collapseAll' : 'expandAll')
     },
     {
       icon: 'export',
       disabled: !items.length,
       onClick: startDownload,
-      tooltip: noItemsTooltip || lang.tr('module.qna.import.exportQnAs')
+      tooltip: lang.tr('module.qna.import.exportQnAs')
     }
   ]
 
@@ -335,15 +335,16 @@ const QnAList: FC<Props> = ({
         childRef={ref => (wrapperRef.current = ref)}
       >
         <MainContent.Header className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
-        <div className={style.searchWrapper}>
-          <input
-            className={style.input}
-            type="text"
-            value={questionSearch}
-            onChange={e => setQuestionSearch(e.currentTarget.value)}
-            placeholder={lang.tr('module.qna.search')}
-          />
-        </div>
+        {!!((items.length && !loading) || questionSearch.length) && (
+          <div className={cx(sharedStyle.searchBar, style.searchBar)}>
+            <input
+              type="text"
+              value={questionSearch}
+              onChange={e => setQuestionSearch(e.currentTarget.value)}
+              placeholder={lang.tr('module.qna.search')}
+            />
+          </div>
+        )}
         <div className={cx(style.content, { [style.empty]: !items.length && !highlighted })}>
           {highlighted && (
             <div className={style.highlightedQna}>
@@ -417,10 +418,10 @@ const QnAList: FC<Props> = ({
             ))}
           {!items.length && !loading && (
             <EmptyState
-              icon={<EmptyStateIcon />}
+              icon={questionSearch.length ? <Icons.Search /> : <EmptyStateIcon />}
               text={
                 questionSearch.length
-                  ? lang.tr('module.qna.form.noResultsFromFilters')
+                  ? lang.tr('studio.flow.sidePanel.noSearchMatch')
                   : lang.tr('module.qna.form.emptyState')
               }
             />

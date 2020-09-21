@@ -2,6 +2,7 @@
 // Please do not change this file!
 interface CssExports {
   'addBtn': string;
+  'borderTop': string;
   'deleteImg': string;
   'errorIcon': string;
   'fieldWrapperHeader': string;

@@ -1,6 +1,6 @@
 import { Button, Intent, MenuItem } from '@blueprintjs/core'
 import axios from 'axios'
-import { confirmDialog, EmptyState, lang } from 'botpress/shared'
+import { confirmDialog, EmptyState, Icons, lang, sharedStyle } from 'botpress/shared'
 import cx from 'classnames'
 import { nextFlowName, nextTopicName, parseFlowName } from 'common/flow'
 import _ from 'lodash'
@@ -8,13 +8,13 @@ import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import {
   deleteFlow,
+  deleteTopic,
   duplicateFlow,
   fetchFlows,
   fetchTopics,
+  getQnaCountByTopic,
   renameFlow,
-  updateFlow,
-  deleteTopic,
-  getQnaCountByTopic
+  updateFlow
 } from '~/actions'
 import { SearchBar } from '~/components/Shared/Interface'
 import { AccessControl } from '~/components/Shared/Utils'
@@ -451,17 +451,13 @@ const TopicList: FC<Props> = props => {
   return (
     <div className={cx(style.tree)}>
       {!!(!isEmpty || filter.length) && (
-        <SearchBar
-          className={style.searchBar}
-          placeholder={lang.tr('studio.flow.sidePanel.filterTopicsAndWorkflows')}
-          onChange={setFilter}
-        />
+        <SearchBar placeholder={lang.tr('studio.flow.sidePanel.filterTopicsAndWorkflows')} onChange={setFilter} />
       )}
       {isEmpty &&
         (!!filter.length ? (
           <EmptyState
             className={style.emptyState}
-            icon={<SearchIcon />}
+            icon={<Icons.Search />}
             text={lang.tr('studio.flow.sidePanel.noSearchMatch')}
           />
         ) : (

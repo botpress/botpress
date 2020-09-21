@@ -4,21 +4,6 @@ import { AbstractLinkFactory, DefaultLinkModel, DefaultLinkWidget, PointModel } 
 import style from './style.scss'
 
 class DeletableLinkWidget extends DefaultLinkWidget {
-  getAngle(px1, py1, px2, py2) {
-    const x = px2 - px1
-    const y = py2 - py1
-    const hypotenuse = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2))
-    const cos = x / hypotenuse
-    const radian = Math.acos(cos)
-    let angle = 180 / (Math.PI / radian)
-    if (y < 0) {
-      angle = -angle
-    } else if (y == 0 && x < 0) {
-      angle = 180
-    }
-    return angle
-  }
-
   addPointToLink = (event: MouseEvent, index: number): void => {
     if (
       !event.shiftKey &&
@@ -30,36 +15,6 @@ class DeletableLinkWidget extends DefaultLinkWidget {
       this.props.link.addPoint(point, index)
       this.props.pointAdded(point, event)
     }
-  }
-
-  generatePoint(pointIndex: number): JSX.Element {
-    const { link } = this.props
-    const x = link.points[pointIndex].x
-    const y = link.points[pointIndex].y
-    const pointOne = link.points[pointIndex - 1]
-    const pointTwo = link.points[pointIndex]
-    const angle = this.getAngle(pointOne.x, pointOne.y, pointTwo.x, pointTwo.y)
-
-    return (
-      <g key={'point-' + this.props.link.points[pointIndex].id}>
-        {/* <circle
-				cx={x}
-				cy={y}
-				r={5}
-				className={
-					"point " +
-					this.bem("__point") +
-					(this.props.link.points[pointIndex].isSelected() ? this.bem("--point-selected") : "")
-				}
-			/> */}
-        <polygon
-          x={x - 20}
-          y={y + 12}
-          transform={`rotate(${angle}, ${x}, ${y})`}
-          points={`${x - 10},${y - 8} ${x + 3},${y} ${x - 10},${y + 8}`}
-        />
-      </g>
-    )
   }
 
   generateLink(path: string, extraProps: any, id: string | number): JSX.Element {
@@ -88,7 +43,7 @@ class DeletableLinkWidget extends DefaultLinkWidget {
       <path
         strokeLinecap="round"
         onMouseLeave={() => this.setState({ selected: false })}
-        onMouseEnter={() => this.setState({ selected: true })}
+        onMouseEnter={() => this.setState({ selected: false })}
         data-linkid={link.getID()}
         stroke={color}
         strokeOpacity={this.state.selected ? 0.1 : 0}

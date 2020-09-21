@@ -10,6 +10,7 @@ export interface FieldProps {
 }
 
 export interface AddButtonProps {
+  className?: string
   text: string
   onClick: (e: MouseEvent<HTMLElement, MouseEvent>) => void
 }
@@ -17,6 +18,7 @@ export interface AddButtonProps {
 export interface GroupItemWrapperProps {
   children: any
   defaultCollapsed?: boolean
+  borderTop?: boolean
   contextMenu?: {
     type: string
     label: string

@@ -1,10 +1,10 @@
+// TODO refactor to use the same form as say node
+
 import { Tab, Tabs } from '@blueprintjs/core'
 import { BotEvent, FormData } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar, sharedStyle } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
-
-import style from './style.scss'
 
 interface Props {
   bp: any
@@ -87,6 +87,16 @@ const ContentAnswerForm: FC<Props> = ({
     })
   }
 
+  const contentTypeWeight = {
+    builtin_text: 0,
+    builtin_image: 1,
+    builtin_card: 2,
+    builtin_carousel: 3,
+    'builtin_single-choice': 4
+  }
+
+  const sortContentTypes = (a, b) => contentTypeWeight[a.value] - contentTypeWeight[b.value]
+
   const contentFields = contentTypesFields?.[contentType.current]
 
   return (
@@ -104,7 +114,7 @@ const ContentAnswerForm: FC<Props> = ({
             <Dropdown
               filterable={false}
               className={sharedStyle.formSelect}
-              items={contentTypes}
+              items={contentTypes.sort(sortContentTypes)}
               defaultItem={contentType.current}
               rightIcon="chevron-down"
               onChange={option => {

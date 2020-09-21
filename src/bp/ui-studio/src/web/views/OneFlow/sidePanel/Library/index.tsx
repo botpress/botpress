@@ -1,7 +1,7 @@
 import { Button, Intent, MenuItem } from '@blueprintjs/core'
 import axios from 'axios'
 import sdk from 'botpress/sdk'
-import { confirmDialog, lang } from 'botpress/shared'
+import { confirmDialog, lang, sharedStyle } from 'botpress/shared'
 import cx from 'classnames'
 import { buildFlowName, nextFlowName, parseFlowName } from 'common/flow'
 import { FlowView } from 'common/typings'
@@ -406,7 +406,7 @@ const Library: FC<Props> = props => {
   return (
     <div className={cx(style.tree)}>
       <SearchBar
-        className={style.searchBar}
+        className={sharedStyle.searchBar}
         placeholder={lang.tr('Filter blocks, workflows and variables')}
         onChange={setFilter}
       />

@@ -11,7 +11,7 @@ import {
   Toaster
 } from '@blueprintjs/core'
 import { FlowVariable, IO, NodeTransition } from 'botpress/sdk'
-import { Contents, contextMenu, EmptyState, Icons, lang, MainContent, toast } from 'botpress/shared'
+import { Contents, contextMenu, EmptyState, Icons, lang, MainContent, toast, sharedStyle } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
@@ -1023,6 +1023,7 @@ class Diagram extends Component<Props> {
           ) : (
             <div className={style.searchWrapper}>
               <SearchBar
+                className={sharedStyle.noPadding}
                 ref={this.searchRef}
                 onBlur={this.props.hideSearch}
                 value={this.props.highlightFilter}
