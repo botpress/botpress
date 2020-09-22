@@ -26,6 +26,15 @@ const onTriggerEvent = async (action: 'delete' | 'create', conditions: sdk.Decis
   }
 }
 
+// Core
+export const licensingReceived = createAction('LICENSING/RECEIVED')
+export const fetchLicensing = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.get('api/v1/admin/license/status').then(({ data }) => {
+    dispatch(licensingReceived(data.payload))
+  })
+}
+
 // Flows
 export const receiveFlowsModification = createAction('FLOWS/MODIFICATIONS/RECEIVE')
 

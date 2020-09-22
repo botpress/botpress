@@ -10,8 +10,8 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
-import { FlowVariable, IO, NodeTransition } from 'botpress/sdk'
-import { Contents, contextMenu, EmptyState, Icons, lang, MainContent, toast, sharedStyle } from 'botpress/shared'
+import { FlowVariable, IO } from 'botpress/sdk'
+import { Contents, contextMenu, EmptyState, Icons, lang, MainContent, sharedStyle, toast } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
@@ -37,7 +37,6 @@ import {
   refreshCallerFlows,
   refreshEntities,
   refreshFlowsLinks,
-  refreshHints,
   removeFlowNode,
   setActiveFormItem,
   switchFlow,
@@ -50,8 +49,6 @@ import {
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { history } from '~/components/Routes'
 import { SearchBar } from '~/components/Shared/Interface'
-import { toastInfo, toastSuccess } from '~/components/Shared/Utils'
-import withLanguage from '~/components/Util/withLanguage'
 import {
   getAllFlows,
   getCallerFlowsOutcomeUsage,
@@ -600,7 +597,7 @@ class Diagram extends Component<Props> {
                 onClick={() => {
                   const elementId = textToItemId((targetModel as BlockModel).onEnter?.[0])
                   this.props.addElementToLibrary(elementId)
-                  toastSuccess('Added to library')
+                  toast.success('Added to library')
                 }}
               />
             )}

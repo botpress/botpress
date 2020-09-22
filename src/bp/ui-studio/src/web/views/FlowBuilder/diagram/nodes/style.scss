@@ -3,7 +3,7 @@
   animation: none;
   stroke-dasharray: 6, 2;
 }
-:global(.srd-diagram .srd-default-link--path-tracing) {
+:global(.srd-diagram .srd-default-link--path-dragging) {
   stroke: var(--ocean) !important;
   animation: none;
   stroke-dasharray: none;

@@ -25,7 +25,6 @@ import { buildFlowName } from '../../../../util/workflows'
 
 import style from './style.scss'
 import EmptyStateIcon from './EmptyStateIcon'
-import SearchIcon from './SearchIcon'
 import TreeItem from './TreeItem'
 
 const lockedFlows = ['misunderstood.flow.json', 'error.flow.json', 'workflow_ended.flow.json']

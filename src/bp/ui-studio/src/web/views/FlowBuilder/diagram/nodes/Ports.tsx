@@ -119,6 +119,7 @@ export class StandardPortWidgetDisconnected extends React.PureComponent<Props> {
     })
 
     const isNewNodeType = newNodeTypes.includes(this.props.node.type)
+
     return (
       <div className={className}>
         <PortWidget {...this.props} />

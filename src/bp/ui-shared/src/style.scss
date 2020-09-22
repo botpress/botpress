@@ -252,7 +252,7 @@ select:global(.form-control) {
       }
 
       & > div {
-        line-height: 1.25;
+        line-height: 1;
         overflow: visible !important;
         white-space: normal;
       }
@@ -276,7 +276,7 @@ select:global(.form-control) {
     .bp3-button-text {
       color: var(--shark);
       font-size: 12px;
-      line-height: 1.25;
+      line-height: 1;
     }
   }
 
@@ -297,7 +297,7 @@ select:global(.form-control) {
     justify-content: space-between !important;
     min-height: 40px !important;
     line-height: 1.25 !important;
-    padding: var(--spacing-medium) var(--spacing-large) !important;
+    padding: var(--spacing-medium) var(--spacing-large) calc(var(--spacing-medium) - 1px) !important;
     width: 100% !important;
 
     &:focus,

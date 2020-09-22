@@ -30,6 +30,9 @@ declare global {
     BP_BASE_PATH: string
     SEND_USAGE_STATS: boolean
     BOTPRESS_FLOW_EDITOR_DISABLED: boolean
+    LICENSING: {
+      isPro: boolean
+    }
     botpress: {
       [moduleName: string]: any
     }

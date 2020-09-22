@@ -134,8 +134,10 @@ const QnAList: FC<Props> = ({
     noItemsTooltip = lang.tr('module.qna.form.addOneItemTooltip')
   }
 
-  if (languages?.length <= 1) {
-    languesTooltip = lang.tr('module.qna.form.onlyOneLanguage')
+  if (!window['LICENSING']?.isPro) {
+    languesTooltip = lang.tr('toolbar.contactSalesForMultilingual')
+  } else if (languages?.length <= 1) {
+    languesTooltip = lang.tr('toolbar.configureAnotherLanguage')
   }
 
   const buttons: HeaderButtonProps[] = [

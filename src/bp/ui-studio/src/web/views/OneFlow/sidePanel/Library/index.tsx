@@ -86,7 +86,7 @@ const getVarTypeIcon = type => {
 const Library: FC<Props> = props => {
   let initialExpanded
   try {
-    initialExpanded = JSON.parse(storage.get(LIBRARY_EXPANDED_KEY)) || {}
+    initialExpanded = JSON.parse(storage.get(LIBRARY_EXPANDED_KEY)) || { variableType: true, workflow: true }
   } catch (error) {
     initialExpanded = {}
   }

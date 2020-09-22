@@ -18,6 +18,9 @@ declare global {
     ROOT_PATH: string
     BOT_NAME: string
     BOT_ID: string
+    LICENSING: {
+      isPro: boolean
+    }
     BP_BASE_PATH: string
     SEND_USAGE_STATS: boolean
     IS_BOT_MOUNTED: boolean
