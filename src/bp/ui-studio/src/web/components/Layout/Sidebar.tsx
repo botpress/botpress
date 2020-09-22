@@ -90,13 +90,9 @@ const Sidebar: FC<Props> = props => {
           <Fragment>
             {BASIC_MENU_ITEMS.map(renderBasicItem)}
             {props.modules.filter(m => !m.noInterface).map(renderModuleItem)}
-            {renderBasicItem(configItem)}
           </Fragment>
         ) : (
-          <Fragment>
-            {props.modules.filter(m => m.name === 'code-editor').map(renderModuleItem)}
-            {renderBasicItem(configItem)}
-          </Fragment>
+          <Fragment>{props.modules.filter(m => m.name === 'code-editor').map(renderModuleItem)}</Fragment>
         )}
       </ul>
     </aside>

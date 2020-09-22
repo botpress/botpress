@@ -48,7 +48,7 @@
       white-space: pre;
 
       &Spacing {
-        margin-left: 10px;
+        margin-left: var(--spacing-medium);
       }
 
       &:hover {

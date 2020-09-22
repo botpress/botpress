@@ -3,6 +3,8 @@ import React, { FC, useEffect, useRef } from 'react'
 import { useState } from 'react'
 import { lang } from '~/translations'
 
+import sharedStyle from '../../style.scss'
+
 import { Item } from '.'
 import style from './style.scss'
 
@@ -29,7 +31,7 @@ const TagInputItem: FC<Props> = ({ item, isFocused, placeholder, onChange, remov
 
   return (
     <TagInput
-      className={style.tagInput}
+      className={sharedStyle.tagInput}
       leftIcon={
         !!item.name?.length ? (
           <Tag minimal className={style.tag}>

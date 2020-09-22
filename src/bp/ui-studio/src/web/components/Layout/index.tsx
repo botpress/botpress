@@ -13,7 +13,6 @@ import PluginInjectionSite from '~/components/PluginInjectionSite'
 import BackendToast from '~/components/Util/BackendToast'
 import { RootReducer } from '~/reducers'
 import storage from '~/util/storage'
-import Config from '~/views/Config'
 import Content from '~/views/Content'
 import FlowBuilder from '~/views/FlowBuilder'
 import Logs from '~/views/Logs'
@@ -228,7 +227,7 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
                   path="/"
                   render={() => {
                     if (!window.IS_BOT_MOUNTED) {
-                      return <Redirect to="/config" />
+                      return <Redirect to="/" />
                     }
 
                     return window.USE_ONEFLOW ? <Redirect to="/oneflow" /> : <Redirect to="/flows" />
@@ -236,7 +235,6 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
                 />
                 <Route exact path="/content" component={Content} />
                 <Route exact path="/flows/:flow*" component={FlowBuilder} />
-                <Route exact path="/config" component={Config} />
                 <Route exact path="/oneflow/:flow*" component={OneFlow} />
                 <Route exact path="/modules/:moduleName/:componentName?" render={props => <Module {...props} />} />
                 <Route exact path="/logs" component={Logs} />
