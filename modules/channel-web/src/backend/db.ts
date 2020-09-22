@@ -124,11 +124,12 @@ export default class WebchatDb {
         table.timestamp('last_heard_on') // The last time the user interacted with the bot. Used for "recent" conversation
         table.timestamp('user_last_seen_on')
         table.timestamp('bot_last_seen_on')
+        table.index(['userId', 'botId'], 'wcub_idx')
       })
       .then(() => {
         return this.knex.createTableIfNotExists('web_messages', function(table) {
           table.string('id').primary()
-          table.integer('conversationId')
+          table.integer('conversationId').references('web_conversations.id')
           table.string('incomingEventId')
           table.string('userId')
           table.string('message_type') // @ deprecated Remove in a future release (11.9)
@@ -139,7 +140,15 @@ export default class WebchatDb {
           table.string('full_name')
           table.string('avatar_url')
           table.timestamp('sent_on')
+          table.index(['conversationId', 'sent_on'], 'wmcs_idx')
         })
+      })
+      .then(() => {
+        this.knex.raw
+        // Index creation with where condition is unsupported by knex
+        return this.knex.raw(
+          `CREATE INDEX IF NOT EXISTS wmcms_idx ON web_messages ("conversationId", message_type, sent_on DESC) WHERE message_type != 'visit';`
+        )
       })
   }
 
@@ -273,7 +282,7 @@ export default class WebchatDb {
 
     let lastMessages: any = this.knex
       .from('web_messages')
-      .distinct(this.knex.raw('ON ("conversationId") *'))
+      .distinct(this.knex.raw('ON ("conversationId") message_type, message_text, full_name, avatar_url, sent_on'))
       .orderBy('conversationId')
       .orderBy('sent_on', 'desc')
 
