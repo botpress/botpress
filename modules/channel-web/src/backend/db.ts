@@ -144,7 +144,6 @@ export default class WebchatDb {
         })
       })
       .then(() => {
-        this.knex.raw
         // Index creation with where condition is unsupported by knex
         return this.knex.raw(
           `CREATE INDEX IF NOT EXISTS wmcms_idx ON web_messages ("conversationId", message_type, sent_on DESC) WHERE message_type != 'visit';`
