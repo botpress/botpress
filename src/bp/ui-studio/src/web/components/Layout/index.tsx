@@ -1,5 +1,5 @@
 import { NLU } from 'botpress/sdk'
-import { lang, toast, utils } from 'botpress/shared'
+import { lang, MainMenu, utils } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { HotKeys } from 'react-hotkeys'
@@ -20,6 +20,7 @@ import Module from '~/views/Module'
 import OneFlow from '~/views/OneFlow'
 
 import { TrainingStatusService } from './training-status-service'
+import { getMenuItems } from './utils/layout.utils'
 import BetaNotice from './BetaNotice'
 import BotUmountedWarning from './BotUnmountedWarning'
 import CommandPalette from './CommandPalette'
@@ -27,7 +28,6 @@ import GuidedTour from './GuidedTour'
 import LanguageServerHealth from './LangServerHealthWarning'
 import layout from './Layout.scss'
 import NotTrainedWarning from './NotTrainedWarning'
-import Sidebar from './Sidebar'
 import StatusBar from './StatusBar'
 import Toolbar from './Toolbar'
 import BottomPanel from './Toolbar/BottomPanel'
@@ -204,7 +204,7 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
         id="mainLayout"
         className={cx(layout.mainLayout, { 'layout-emulator-open': props.emulatorOpen })}
       >
-        <Sidebar />
+        <MainMenu items={getMenuItems(props.modules)} />
         <div className={layout.container}>
           <Toolbar
             hasDoc={props.docHints?.length}
@@ -269,7 +269,8 @@ const mapStateToProps = (state: RootReducer) => ({
   emulatorOpen: state.ui.emulatorOpen,
   bottomPanel: state.ui.bottomPanel,
   translations: state.language.translations,
-  contentLang: state.language.contentLang
+  contentLang: state.language.contentLang,
+  modules: state.modules
 })
 
 const mapDispatchToProps = dispatch =>

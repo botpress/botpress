@@ -19,6 +19,7 @@ import Icons from './Icons'
 import MainContainer from './MainContainer'
 import MainContent from './MainContent'
 import RightSidebar from './MainContent/RightSidebar'
+import MainMenu from './MainMenu'
 import MarkdownContent from './MarkdownContent'
 import MultiLevelDropdown from './MultiLevelDropdown'
 import ShortcutLabel from './ShortcutLabel'
@@ -35,6 +36,7 @@ exports.Contents = Contents
 exports.FormFields = FormFields
 exports.MainContent = MainContent
 exports.RightSidebar = RightSidebar
+exports.MainMenu = MainMenu
 exports.MarkdownContent = MarkdownContent
 exports.MoreOptions = MoreOptions
 exports.MultiLevelDropdown = MultiLevelDropdown
