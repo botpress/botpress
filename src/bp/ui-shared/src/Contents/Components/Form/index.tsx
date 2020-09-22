@@ -7,6 +7,7 @@ import ToolTip from '../../../../../ui-shared-lite/ToolTip'
 import sharedStyle from '../../../style.scss'
 import { lang } from '../../../translations'
 import FieldWrapper from '../../../FormFields/FieldWrapper'
+import MultiSelect from '../../../FormFields/MultiSelect'
 import Select from '../../../FormFields/Select'
 import SuperInput from '../../../FormFields/SuperInput'
 import superInputStyle from '../../../FormFields/SuperInput/style.scss'
@@ -41,7 +42,8 @@ const Form: FC<FormProps> = ({
   variables,
   invalidFields,
   superInputOptions,
-  events
+  events,
+  fieldsError
 }) => {
   const newFormData = createEmptyDataFromSchema([...(fields || []), ...(advancedSettings || [])], currentLang)
   const [state, dispatch] = useReducer(formReducer, formData || newFormData)
@@ -77,6 +79,14 @@ const Form: FC<FormProps> = ({
     if (firstFocusableElement) {
       firstFocusableElement.focus()
     }
+  }
+
+  const printError = key => {
+    if (!fieldsError?.[key]) {
+      return null
+    }
+
+    return <span className={sharedStyle.error}>{fieldsError[key]}</span>
   }
 
   const printLabel = (field, data, parent, currentLang?) => {
@@ -291,6 +301,32 @@ const Form: FC<FormProps> = ({
               />
             )}
             {printMoreInfo(field.moreInfo)}
+            {printError(field.key)}
+          </FieldWrapper>
+        )
+      case 'multi-select':
+        return (
+          <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)} invalid={invalid}>
+            <MultiSelect
+              value={currentValue}
+              options={field.options}
+              placeholder={field.placeholder}
+              onChange={value =>
+                dispatch({
+                  type: 'updateField',
+                  data: {
+                    newFormData,
+                    field: field.key,
+                    lang: field.translated && currentLang,
+                    parent,
+                    value,
+                    onUpdate
+                  }
+                })
+              }
+            />
+            {printMoreInfo(field.moreInfo)}
+            {printError(field.key)}
           </FieldWrapper>
         )
       case 'text_array':
@@ -380,6 +416,7 @@ const Form: FC<FormProps> = ({
                 })
               }}
             />
+            {printError(field.key)}
           </FieldWrapper>
         )
 
@@ -427,6 +464,7 @@ const Form: FC<FormProps> = ({
               />
             )}
             {printMoreInfo(field.moreInfo)}
+            {printError(field.key)}
           </FieldWrapper>
         )
       case 'upload':
@@ -452,6 +490,7 @@ const Form: FC<FormProps> = ({
               }
               value={currentValue}
             />
+            {printError(field.key)}
           </FieldWrapper>
         )
       case 'checkbox':
@@ -461,6 +500,7 @@ const Form: FC<FormProps> = ({
               dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
             })}
             {printMoreInfo(field.moreInfo)}
+            {printError(field.key)}
           </FieldWrapper>
         ) : (
           <div key={field.key} className={cx(style.checkboxWrapper, 'checkbox-wrapper')}>
@@ -482,6 +522,7 @@ const Form: FC<FormProps> = ({
               }
             />
             {field.moreInfo && printMoreInfo(field.moreInfo, true)}
+            {printError(field.key)}
           </div>
         )
       case 'overridable':
@@ -528,6 +569,7 @@ const Form: FC<FormProps> = ({
               }
             />
             {printMoreInfo(field.moreInfo)}
+            {printError(field.key)}
           </FieldWrapper>
         )
       default:
@@ -576,6 +618,7 @@ const Form: FC<FormProps> = ({
               />
             )}
             {printMoreInfo(field.moreInfo)}
+            {printError(field.key)}
           </FieldWrapper>
         )
     }

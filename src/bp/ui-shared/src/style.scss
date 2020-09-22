@@ -285,7 +285,8 @@ select:global(.form-control) {
     cursor: pointer;
   }
 
-  button {
+  button:not(:global(.bp3-tag-remove)),
+  :global(.bp3-multi-select) {
     border: 1px solid var(--seashell) !important;
     border-radius: 3px !important;
     box-shadow: none !important;
@@ -294,7 +295,7 @@ select:global(.form-control) {
     font-size: 16px !important;
     font-weight: 400 !important;
     justify-content: space-between !important;
-    height: 40px !important;
+    min-height: 40px !important;
     line-height: 1.25 !important;
     padding: var(--spacing-medium) var(--spacing-large) !important;
     width: 100% !important;
@@ -423,9 +424,60 @@ input[type='radio'] {
   display: flex;
   align-items: center;
 
-  :global(input) {
-    margin-right: var(--spacing-small);
-    position: relative !important;
+  &.hasError {
+    border-color: var(--lighthouse) !important;
+    box-shadow: none !important;
+  }
+}
+
+.tagInput {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid var(--gray) !important;
+  border-top: 1px solid var(--gray) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: var(--shark) !important;
+  font-size: 12px !important;
+  height: auto !important;
+  line-height: 1.25 !important;
+  margin: -1px 0 0 !important;
+  padding: var(--spacing-small) 2% var(--spacing-medium) 0 !important;
+  resize: none !important;
+  transition: border 0.3s !important;
+  width: 100% !important;
+}
+
+.tagInput,
+.formSelect {
+  :global {
+    .bp3-tag-input-values {
+      margin: 0 !important;
+
+      input {
+        margin: var(--spacing-small) 0 0 !important;
+      }
+    }
+
+    .bp3-tag-remove {
+      opacity: 1 !important;
+    }
+
+    .bp3-icon svg {
+      fill: var(--shark) !important;
+      width: 10px !important;
+    }
+  }
+
+  .tag,
+  :global(.bp3-tag) {
+    margin: var(--spacing-small) var(--spacing-small) 0 0 !important;
+    font-size: 10px !important;
+    line-height: 1.25 !important;
+    color: var(--shark) !important;
+    font-weight: normal !important;
+    border-radius: 3px !important;
+    background-color: var(--bg) !important;
   }
 }
 

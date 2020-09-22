@@ -587,7 +587,8 @@ class Bots extends Component {
         helpText="This page shows the details you can configure for a desired bot."
       >
         <Callout title="This menu is moving" intent="warning">
-          This menu will be permanently moving to <a href={`studio/${this.state.botId}/config`}>the studio.</a>
+          This menu will be permanently moving to <a href={`studio/${this.state.botId}`}>the studio.</a> You can find
+          the icon in the tool bar
         </Callout>
         {this.renderDetails()}
         <StickyActionBar>

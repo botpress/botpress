@@ -9,7 +9,6 @@
   "webpack": {
     "externals": {
       "reactstrap": "Reactstrap",
-      "react-select": "ReactSelect",
       "botpress/select-action-dropdown": "SelectActionDropdown",
       "botpress/tooltip": "BotpressTooltip"
     }

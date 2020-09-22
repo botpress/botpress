@@ -17,6 +17,8 @@ interface CssExports {
   'noPadding': string;
   'noSelect': string;
   'searchBar': string;
+  'tag': string;
+  'tagInput': string;
   'textarea': string;
   'textareaWrapper': string;
   'typeField': string;

@@ -1577,6 +1577,7 @@ declare module 'botpress/sdk' {
     | 'number'
     | 'overridable'
     | 'select'
+    | 'multi-select'
     | 'text'
     | 'text_array'
     | 'textarea'

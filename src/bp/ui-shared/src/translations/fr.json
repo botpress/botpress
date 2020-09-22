@@ -112,6 +112,7 @@
   "noRowsFound": "Aucun enregistrement trouvé",
   "of": "de",
   "ok": "OK",
+  "optional": "Optionnel",
   "options": "Options",
   "or": "ou",
   "overwrite": "Écraser",
@@ -202,5 +203,6 @@
   "examples": "Exemples",
   "uploading": "Téléversement",
   "incomplete": "Incomplètes",
-  "active": "Actives"
+  "active": "Actives",
+  "visibility": "Visibilité"
 }
