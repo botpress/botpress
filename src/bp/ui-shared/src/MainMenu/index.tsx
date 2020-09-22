@@ -23,7 +23,7 @@ const MainMenu: FC<MainMenuProps> = ({ items, className }) => {
       <a href="admin/" className={cx(style.logo, 'bp-logo')}>
         <img width="19" src="assets/ui-studio/public/img/logo-icon.svg" alt="Botpress Logo" />
       </a>
-      <ul className={cx('nav')}>{items.map(renderBasicItem)}</ul>
+      {!!items?.length && <ul className={cx('nav')}>{items.map(renderBasicItem)}</ul>}
     </aside>
   )
 }

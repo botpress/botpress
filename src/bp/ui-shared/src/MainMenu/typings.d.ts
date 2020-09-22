@@ -9,5 +9,5 @@ export interface MenuItem {
 
 export interface MainMenuProps {
   className?: string
-  items: MenuItem[]
+  items?: MenuItem[]
 }

@@ -1,5 +1,5 @@
 import { NLU } from 'botpress/sdk'
-import { lang, MainMenu, utils } from 'botpress/shared'
+import { lang, MainMenu, ShortcutLabel, utils } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { HotKeys } from 'react-hotkeys'
@@ -22,6 +22,7 @@ import OneFlow from '~/views/OneFlow'
 import { TrainingStatusService } from './training-status-service'
 import { getMenuItems } from './utils/layout.utils'
 import BetaNotice from './BetaNotice'
+import BottomPanel from './BottomPanel'
 import BotUmountedWarning from './BotUnmountedWarning'
 import CommandPalette from './CommandPalette'
 import GuidedTour from './GuidedTour'
@@ -29,8 +30,6 @@ import LanguageServerHealth from './LangServerHealthWarning'
 import layout from './Layout.scss'
 import NotTrainedWarning from './NotTrainedWarning'
 import StatusBar from './StatusBar'
-import Toolbar from './Toolbar'
-import BottomPanel from './Toolbar/BottomPanel'
 
 const { isInputFocused } = utils
 const WEBCHAT_PANEL_STATUS = 'bp::webchatOpened'
@@ -52,6 +51,7 @@ type StateProps = ReturnType<typeof mapStateToProps>
 const Layout: FC<ILayoutProps & StateProps> = props => {
   const mainElRef = useRef(null)
   const [langSwitcherOpen, setLangSwitcherOpen] = useState(false)
+  const [showConfigForm, setShowConfigForm] = useState(false)
   const [guidedTourOpen, setGuidedTourOpen] = useState(false)
 
   useEffect(() => {
@@ -197,6 +197,44 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
   const lastSize = parseInt(localStorage.getItem(splitPanelLastSizeKey) || '175', 10)
   const bottomBarSize = props.bottomPanel ? lastSize : '100%'
 
+  const leftHeaderButtons = [
+    ...(!!props.docHints?.length
+      ? [
+          {
+            tooltip: (
+              <div className={style.tooltip}>
+                {lang.tr('toolbar.help')}
+                <div className={style.shortcutLabel}>
+                  <ShortcutLabel light shortcut="docs-toggle" />
+                </div>
+              </div>
+            ),
+            icon: 'help',
+            onClick: toggleDocs
+          }
+        ]
+      : []),
+    {
+      tooltip: <div className={style.tooltip}>{lang.tr('toolbar.configuration')}</div>,
+      icon: 'cog',
+      onClick: () => setShowConfigForm(!showConfigForm)
+    }
+  ]
+  /*
+          <span className={style.divider}></span>
+          {window.IS_BOT_MOUNTED && (
+            <ToolTip content={<ShortcutLabel light shortcut="emulator-focus" />}>
+              <button
+                className={cx(style.item, style.itemSpacing, { [style.active]: isEmulatorOpen })}
+                onClick={onToggleEmulator}
+              >
+                <Icon color="#1a1e22" icon="chat" iconSize={16} />
+                <span className={style.label}>{lang.tr('toolbar.emulator')}</span>
+              </button>
+            </ToolTip>
+          )}
+          */
+
   return (
     <Fragment>
       <HotKeys
@@ -206,8 +244,8 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
       >
         <MainMenu items={getMenuItems(props.modules)} />
         <div className={layout.container}>
-          <Toolbar
-            hasDoc={props.docHints?.length}
+          <LayoutHeader
+            leftButtons={leftHeaderButtons}
             toggleDocs={toggleDocs}
             onToggleEmulator={toggleEmulator}
             toggleBottomPanel={props.toggleBottomPanel}

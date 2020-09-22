@@ -1,4 +1,4 @@
-import { Callout, Intent, Tab, Tabs } from '@blueprintjs/core'
+import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
 import { BotConfig, FormField } from 'botpress/sdk'
 import { confirmDialog, Contents, lang, RightSidebar, sharedStyle, toast } from 'botpress/shared'
