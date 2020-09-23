@@ -175,6 +175,7 @@
   "previous": "Previous",
   "prompt": "Prompt",
   "quickAddAlternative": "Press Enter while inline to add new alternative quickly",
+  "quickAddAlternativeTags": "Press Enter + Shift while inline to add new alternative quickly",
   "redo": "Redo",
   "refresh": "Refresh",
   "remove": "Remove",
@@ -213,6 +214,7 @@
   "submit": "Submit",
   "subtitle": "Subtitle",
   "success": "Success",
+  "suggestions": "Suggestions",
   "superInput": {
     "convertToRegularInput": "Convert to Regular Input",
     "convertToSmartInput": "Convert to Smart Input",
@@ -242,6 +244,7 @@
   "outputs": "Outputs",
   "tolerance": "Tolerance",
   "enumeration": "Enumeration",
+  "value": "Value",
   "values": "Values",
   "strict": "Strict",
   "exactMatch": "Exact matches only",

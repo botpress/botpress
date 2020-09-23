@@ -1,11 +1,12 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
-import { BotEvent, FlowVariable, FormData } from 'botpress/sdk'
+import { BotEvent, FlowNode, FlowVariable, FormData, NodeTransition } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar, sharedStyle } from 'botpress/shared'
 import cx from 'classnames'
 import { Variables } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
+import { defaultTransition } from '~/views/FlowBuilder/diagram/manager'
 
 import TextField from './TextField'
 
@@ -22,6 +23,7 @@ interface Props {
   contentTypes: any
   defaultLang: string
   contentLang: string
+  node: FlowNode
 }
 
 const ContentForm: FC<Props> = ({
@@ -36,6 +38,7 @@ const ContentForm: FC<Props> = ({
   deleteContent,
   variables,
   events,
+  node,
   contentLang
 }) => {
   const [canOutsideClickClose, setCanOutsideClickClose] = useState(true)
@@ -62,9 +65,11 @@ const ContentForm: FC<Props> = ({
     const schemaFields = [...(fields || []), ...(advancedSettings || [])]
     contentType.current = value
     onUpdate({
-      ...Contents.createEmptyDataFromSchema(schemaFields, contentLang),
-      contentType: value,
-      id: formData?.id
+      content: {
+        ...Contents.createEmptyDataFromSchema(schemaFields, contentLang),
+        contentType: value,
+        id: formData?.id
+      }
     })
   }
 
@@ -85,6 +90,55 @@ const ContentForm: FC<Props> = ({
       id: formData?.id
     })
   )
+
+  const prepareUpdate = data => {
+    if (!data.suggestions) {
+      onUpdate({ content: { ...data, contentType: contentType.current } })
+      return
+    }
+
+    const langs = Object.keys(data.suggestions)
+    const transitions: NodeTransition[] = [
+      ...(node?.next.filter(
+        transition => transition.contentIndex !== editingContent && transition.condition !== 'true'
+      ) || [])
+    ]
+
+    const triggers = data.suggestions[defaultLang].map(({ name, tags }, idx) => {
+      const utterances = langs.reduce((acc, curr) => {
+        return { ...acc, [curr]: [name, ...(data.suggestions[curr]?.find(x => x.name === name)?.tags || [])] }
+      }, {})
+
+      const currentDest = node?.next.find(x => x.condition === `choice-${name}${idx}`)?.node ?? ''
+
+      transitions.push({
+        condition: `choice-${name}${idx}`,
+        caption: [...([name] || []), ...(tags || [])].filter(Boolean).join(' · '),
+        contentIndex: editingContent,
+        node: currentDest
+      })
+
+      return {
+        name: `choice-${name}${idx}`,
+        effect: 'jump.node',
+        conditions: [
+          {
+            params: { utterances },
+            id: 'user_intent_is'
+          }
+        ],
+        type: 'contextual',
+        gotoNodeId: currentDest,
+        suggestion: { label: name, value: name, position: data.position },
+        expiryPolicy: {
+          strategy: data.expiryPolicy,
+          turnCount: data.turnCount ?? 3
+        }
+      }
+    })
+
+    onUpdate({ content: { ...data, contentType: contentType.current }, triggers, transitions })
+  }
 
   return (
     <RightSidebar
@@ -147,7 +201,7 @@ const ContentForm: FC<Props> = ({
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
             formData={formData}
-            onUpdate={data => onUpdate({ ...data, contentType: contentType.current })}
+            onUpdate={data => prepareUpdate({ ...data, contentType: contentType.current })}
             onUpdateVariables={onUpdateVariables}
           />
         )}

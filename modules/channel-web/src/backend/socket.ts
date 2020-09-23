@@ -81,16 +81,9 @@ export default async (bp: typeof sdk, db: Database) => {
   }
 
   const applyChannelEffects = async (event: sdk.IO.OutgoingEvent, userId, conversationId) => {
-    let payload = event.payload
+    const payload = event.payload
 
-    const {
-      __buttons,
-      __typing,
-      __trimText,
-      __markdown,
-      __dropdown,
-      __collectFeedback
-    } = payload.metadata as sdk.Content.Metadata
+    const { __typing, __trimText, __markdown, __collectFeedback } = payload.metadata as sdk.Content.Metadata
 
     if (__typing) {
       await sendTyping(event, userId, conversationId)
@@ -106,32 +99,6 @@ export default async (bp: typeof sdk, db: Database) => {
 
     if (__collectFeedback) {
       payload.collectFeedback = true
-    }
-
-    if (__buttons) {
-      payload = {
-        type: 'custom',
-        module: 'channel-web',
-        component: 'QuickReplies',
-        quick_replies: __buttons,
-        wrapped: {
-          type: event.type,
-          ..._.omit(event.payload, 'quick_replies')
-        }
-      }
-    }
-
-    if (__dropdown) {
-      payload = {
-        type: 'custom',
-        module: 'extensions',
-        component: 'Dropdown',
-        ...(_.isArray(__dropdown) ? { options: __dropdown } : __dropdown),
-        wrapped: {
-          type: event.type,
-          ..._.omit(event.payload, 'options')
-        }
-      }
     }
 
     return payload

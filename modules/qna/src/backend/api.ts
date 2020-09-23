@@ -22,7 +22,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
     asyncMiddleware(async (req: Request, res: Response) => {
       const { storage } = bots[req.params.botId]
       const items = await storage.fetchItems(req.params.topicName)
-      const searchTerm = req.query.question.toLowerCase()
+      const searchTerm = (req.query.question || '').toLowerCase()
       const filteredItems = items.filter(qna => {
         const questions = Object.values(qna.questions)
           // @ts-ignore

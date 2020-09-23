@@ -56,9 +56,14 @@
       "displayOnTop": "Display on top of the keyboard",
       "label": "Suggestion Label",
       "labelPlaceholder": "What is the suggestion displayed?",
-      "title": "Suggestions",
-      "value": "Value",
-      "valuePlaceholder": "What will your chatbot receive?"
+      "valuePlaceholder": "What will your chatbot receive?",
+      "expiryPolicy": "Expiry Policy",
+      "numberOfTurns": "Number of turns",
+      "numberOfTurnsExpire": "Nb of turns before suggestion expires",
+      "position": "Position of suggestions",
+      "endOfWorkflow": "End of workflow",
+      "staticMenu": "Static menu",
+      "inConversation": "In the conversation"
     },
     "text": {
       "add": "Add Text Alternatives",

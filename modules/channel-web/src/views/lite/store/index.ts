@@ -218,7 +218,7 @@ class RootStore {
     }
 
     const conversation: CurrentConversation = await this.api.fetchConversation(convoId || this._getCurrentConvoId())
-    await this.extractFeedback(conversation && conversation.messages)
+    await this.extractFeedback(conversation?.messages || [])
 
     runInAction('-> setConversation', () => {
       this.currentConversation = conversation

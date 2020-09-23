@@ -88,6 +88,7 @@ class Message extends Component<MessageProps> {
       'onFileUpload',
       'sentOn',
       'store',
+      'position',
       'className',
       'intl'
     ])

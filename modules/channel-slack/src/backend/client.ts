@@ -22,6 +22,56 @@ const debugOutgoing = debug.sub('outgoing')
 
 const userCache = new LRU({ max: 1000, maxAge: ms('1h') })
 
+const getSuggestions = (event: sdk.IO.OutgoingEvent, position?: sdk.IO.SuggestionPosition) => {
+  const allSuggestions = (event.payload.metadata as sdk.Content.Metadata)?.__suggestions || []
+
+  if (position === 'conversation') {
+    return allSuggestions.filter(x => x.eventId === event.incomingEventId && x.position === 'conversation')
+  } else if (position === 'static') {
+    return allSuggestions.filter(x => x.position === 'static')
+  }
+
+  return allSuggestions
+}
+
+const getSuggestionsPayload = (suggestions: sdk.IO.SuggestChoice[], payload) => {
+  if (suggestions.length <= 4) {
+    return {
+      type: 'actions',
+      elements: suggestions.map((q, idx) => ({
+        type: 'button',
+        action_id: `replace_buttons${idx}`,
+        text: {
+          type: 'plain_text',
+          text: q.label || q['title']
+        },
+        value: q.value.toString().toUpperCase()
+      }))
+    }
+  }
+
+  return {
+    type: 'actions',
+    elements: [
+      {
+        type: 'static_select',
+        action_id: 'option_selected',
+        placeholder: {
+          type: 'plain_text',
+          text: payload.message || 'empty'
+        },
+        options: suggestions.map(q => ({
+          text: {
+            type: 'plain_text',
+            text: q.label
+          },
+          value: q.value
+        }))
+      }
+    ]
+  }
+}
+
 export class SlackClient {
   private client: WebClient
   private rtm: RTMClient
@@ -217,7 +267,7 @@ export class SlackClient {
 
   private async applyChannelEffects(event: sdk.IO.OutgoingEvent) {
     const { payload } = event
-    const { __buttons, __typing, __markdown, __dropdown } = payload.metadata as sdk.Content.Metadata
+    const { __typing, __markdown } = payload.metadata as sdk.Content.Metadata
 
     const textType = __markdown === true ? 'mrkdwn' : 'plain_text'
     const blocks = []
@@ -228,43 +278,10 @@ export class SlackClient {
       await Promise.delay(parseTyping(__typing))
     }
 
-    if (__buttons) {
+    const suggestions = getSuggestions(event)
+    if (suggestions.length) {
       blocks.push({ type: 'section', text: { type: textType, text: payload.text } })
-      blocks.push({
-        type: 'actions',
-        elements: __buttons.map((q, idx) => ({
-          type: 'button',
-          action_id: `replace_buttons${idx}`,
-          text: {
-            type: 'plain_text',
-            text: q.label || q['title']
-          },
-          value: q.value.toString().toUpperCase()
-        }))
-      })
-    }
-
-    if (__dropdown) {
-      blocks.push({
-        type: 'actions',
-        elements: [
-          {
-            type: 'static_select',
-            action_id: 'option_selected',
-            placeholder: {
-              type: 'plain_text',
-              text: payload.message || 'empty'
-            },
-            options: (_.isArray(__dropdown) ? __dropdown : __dropdown.options).map(q => ({
-              text: {
-                type: 'plain_text',
-                text: q.label
-              },
-              value: q.value
-            }))
-          }
-        ]
-      })
+      blocks.push(getSuggestionsPayload(suggestions, payload))
     }
 
     return blocks

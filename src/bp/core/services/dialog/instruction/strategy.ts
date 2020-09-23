@@ -43,9 +43,15 @@ export class ActionStrategy implements InstructionStrategy {
     return instructionFn.indexOf('say ') === 0
   }
 
+  public static isTriggerRegistration(instructionFn: string): boolean {
+    return instructionFn === 'register-trigger'
+  }
+
   async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
     if (ActionStrategy.isSayInstruction(instruction.fn)) {
       return this.invokeOutputProcessor(botId, instruction, event)
+    } else if (ActionStrategy.isTriggerRegistration(instruction.fn)) {
+      return this.invokeTriggerRegistration(botId, instruction, event)
     } else {
       return this.invokeAction(botId, instruction, event)
     }
@@ -57,6 +63,39 @@ export class ActionStrategy implements InstructionStrategy {
     const renderedElements = await this.cms.renderElement(contentType, commonArgs as EventCommonArgs, eventDestination)
 
     await this.eventEngine.replyToEvent(eventDestination, renderedElements, event.id)
+  }
+
+  private async invokeTriggerRegistration(
+    botId: string,
+    instruction: Instruction,
+    event: IO.IncomingEvent
+  ): Promise<ProcessingResult> {
+    const { workflowId, nodeId, index, trigger } = instruction.args // TODO: make sure the trigger is valid
+    if (!event.state.session.nduContext) {
+      // TODO: possible if NDU module disabled?
+      return ProcessingResult.none()
+    }
+
+    let triggers = event.state.session.nduContext?.triggers ?? []
+    if (!event.state.session.nduContext?.triggers) {
+      event.state.session.nduContext!.triggers = []
+    } else {
+      triggers = triggers.filter(x => x.workflowId !== workflowId || x.nodeId !== nodeId || x.index !== index)
+    }
+
+    event.state.session.nduContext.triggers = [
+      ...triggers,
+      {
+        workflowId,
+        nodeId,
+        index,
+        suggestion: { ...trigger.suggestion, eventId: event.id },
+        expiryPolicy: trigger.expiryPolicy,
+        turn: trigger?.expiryPolicy?.turnCount ?? 3
+      }
+    ]
+
+    return ProcessingResult.none()
   }
 
   private async invokeOutputProcessor(botId, instruction, event: IO.IncomingEvent): Promise<ProcessingResult> {
