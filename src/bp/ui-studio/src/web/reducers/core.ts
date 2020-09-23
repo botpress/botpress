@@ -12,8 +12,6 @@ const defaultState = {
 const reducer = handleActions(
   {
     [licensingReceived]: (state, { payload }) => {
-      window.LICENSING = { isPro: payload.isPro }
-
       return { ...state, licensing: payload || {} }
     }
   },

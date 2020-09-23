@@ -22,6 +22,7 @@ const QnAList: FC<Props> = ({
   contentLang,
   updateLocalLang,
   isLite,
+  licensing,
   emulatorOpen,
   events,
   refreshQnaCount
@@ -134,7 +135,7 @@ const QnAList: FC<Props> = ({
     noItemsTooltip = lang.tr('module.qna.form.addOneItemTooltip')
   }
 
-  if (!window['LICENSING']?.isPro) {
+  if (!licensing?.isPro) {
     languesTooltip = lang.tr('toolbar.contactSalesForMultilingual')
   } else if (languages?.length <= 1) {
     languesTooltip = lang.tr('toolbar.configureAnotherLanguage')

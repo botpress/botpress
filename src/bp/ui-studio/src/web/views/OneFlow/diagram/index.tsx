@@ -986,6 +986,7 @@ class Diagram extends Component<Props> {
             extraProps={{
               updateLocalLang: lang => this.props.setCurrentLang(lang),
               isLite: true,
+              licensing: this.props.licensing,
               emulatorOpen: this.props.emulatorOpen,
               topicName: this.props.selectedTopic,
               languages: this.props.languages,
@@ -1093,7 +1094,8 @@ const mapStateToProps = (state: RootReducer) => ({
   emulatorOpen: state.ui.emulatorOpen,
   activeFormItem: state.flows.activeFormItem,
   conditions: state.ndu.conditions,
-  zoomLevel: state.ui.zoomLevel
+  zoomLevel: state.ui.zoomLevel,
+  licensing: state.core.licensing
 })
 
 const mapDispatchToProps = {
