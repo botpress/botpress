@@ -8,6 +8,7 @@ export interface HitlSession {
   botId: string
   channel: string
   userId: string
+  threadId?: string
   lastEventOn: Date
   lastHeardOn: Date
   isPaused: boolean
