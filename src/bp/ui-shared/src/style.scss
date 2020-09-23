@@ -391,11 +391,12 @@ select:global(.form-control) {
       padding-left: 0 !important;
       padding-right: 0 !important;
     }
-  }
-}
 
-.textarea {
-  resize: none;
+    .tag-btn-wrapper {
+      margin-top: calc(var(--spacing-small) * -1) !important;
+      margin-right: 0 !important;
+    }
+  }
 }
 
 input[type='checkbox'],

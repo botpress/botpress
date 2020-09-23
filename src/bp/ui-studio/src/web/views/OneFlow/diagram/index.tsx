@@ -138,7 +138,6 @@ class Diagram extends Component<Props> {
   private dragPortSource: any
 
   state = {
-    editingNodeItem: null,
     currentTab: storage.get(DIAGRAM_TAB_KEY) || 'workflow',
     expandedNodes: [],
     nodeInfos: []
@@ -149,7 +148,7 @@ class Diagram extends Component<Props> {
 
     const commonProps = {
       editNodeItem: this.editNodeItem.bind(this),
-      selectedNodeItem: () => this.getStateProperty('editingNodeItem'),
+      selectedNodeItem: () => this.getPropsProperty('activeFormItem'),
       deleteSelectedElements: this.deleteSelectedElements.bind(this),
       getCurrentFlow: () => this.getPropsProperty('currentFlow'),
       updateFlowNode: this.updateNodeAndRefresh.bind(this),
@@ -262,7 +261,7 @@ class Diagram extends Component<Props> {
     }
 
     if (
-      !prevState.editingNodeItem &&
+      !prevState.activeFormItem &&
       this.props.currentFlowNode?.isNew &&
       autoOpenNodes.includes(this.props.currentFlowNode?.type)
     ) {
@@ -1067,7 +1066,7 @@ class Diagram extends Component<Props> {
           addVariable={this.addVariable}
           diagramEngine={this.diagramEngine}
           deleteSelectedElements={this.deleteSelectedElements.bind(this)}
-          updateEditingNodeItem={editingNodeItem => this.setState({ editingNodeItem })}
+          updateEditingNodeItem={activeFormItem => this.props.setActiveFormItem(activeFormItem)}
           updateTimeout={timeout => (this.timeout = timeout)}
           selectedTopic={this.props.selectedTopic}
           currentLang={this.props.currentLang}
