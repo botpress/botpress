@@ -7,7 +7,7 @@ import path from 'path'
 import { VError } from 'verror'
 
 import toolkit from '../../ml/toolkit'
-import { LangServerLogger } from '../logger'
+import Logger from '../../simple-logger'
 
 import { LoadedBPEModel, LoadedFastTextModel, ModelFileInfo, ModelSet } from './typing'
 
@@ -23,10 +23,10 @@ export default class LanguageService {
   private _models: Dic<ModelSet> = {}
   private _ready: boolean = false
   private _cache
-  private logger: LangServerLogger
+  private logger: Logger
 
   constructor(public readonly dim: number, public readonly domain: string, private readonly langDir: string) {
-    this.logger = new LangServerLogger('Service')
+    this.logger = new Logger('Service')
   }
 
   async initialize() {

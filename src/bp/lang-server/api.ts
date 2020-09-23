@@ -3,25 +3,18 @@ import cors from 'cors'
 import express, { Application } from 'express'
 import rateLimit from 'express-rate-limit'
 import { createServer } from 'http'
+import { authMiddleware, handleErrorLogging, handleUnexpectedError, isAdminToken, RequestWithLang } from 'http-utils'
 import _ from 'lodash'
 import ms from 'ms'
 
 import { BadRequestError } from '../core/routers/errors'
+import Logger from '../simple-logger'
 
 import { getLanguageByCode } from './languages'
-import { LangServerLogger } from './logger'
 import { monitoringMiddleware, startMonitoring } from './monitoring'
 import LanguageService from './service'
 import DownloadManager from './service/download-manager'
-import {
-  assertValidLanguage,
-  authMiddleware,
-  handleErrorLogging,
-  handleUnexpectedError,
-  isAdminToken,
-  RequestWithLang,
-  serviceLoadingMiddleware
-} from './util'
+import { assertValidLanguage, serviceLoadingMiddleware } from './util'
 
 export type APIOptions = {
   version: string
@@ -84,7 +77,7 @@ export default async function(
   downloadManager?: DownloadManager
 ) {
   const app = createExpressApp(options)
-  const logger = new LangServerLogger('API')
+  const logger = new Logger('API')
 
   const waitForServiceMw = serviceLoadingMiddleware(languageService)
   const validateLanguageMw = assertValidLanguage(languageService)
