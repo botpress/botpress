@@ -1,12 +1,10 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
 import sdk from 'botpress/sdk'
-import { Contents, lang, MoreOptions, MoreOptionsItems, RightSidebar, sharedStyle, toast } from 'botpress/shared'
+import { Contents, lang, MainContent, MoreOptions, MoreOptionsItems, sharedStyle, toast } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
-
-import { getEntityId } from '.'
 
 interface Item {
   name: string
@@ -103,7 +101,7 @@ const EnumForm: FC<Props> = ({
   }
 
   return (
-    <RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={true} close={close}>
+    <MainContent.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={true} close={close}>
       <Fragment key={customKey}>
         <div className={cx(sharedStyle.formHeader, sharedStyle.noSelect)}>
           <Tabs id="contentFormTabs">
@@ -147,7 +145,7 @@ const EnumForm: FC<Props> = ({
           onUpdate={onUpdate}
         />
       </Fragment>
-    </RightSidebar>
+    </MainContent.RightSidebar>
   )
 }
 

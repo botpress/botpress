@@ -334,7 +334,7 @@ const QnAList: FC<Props> = ({
         className={cx(style.embeddedInFlow, { 'emulator-open': emulatorOpen })}
         childRef={ref => (wrapperRef.current = ref)}
       >
-        <MainContent.Header className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
+        <MainContent.Toolbar className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
         <div className={style.searchWrapper}>
           <input
             className={style.input}

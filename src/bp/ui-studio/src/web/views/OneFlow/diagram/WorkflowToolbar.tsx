@@ -68,7 +68,7 @@ const WorkflowToolbar = props => {
   ]
 
   return (
-    <MainContent.Header
+    <MainContent.Toolbar
       className={style.header}
       tabs={tabs}
       currentTab={props.currentTab}

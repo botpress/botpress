@@ -5,9 +5,9 @@ import React, { FC } from 'react'
 import { NavLink } from 'react-router-dom'
 
 import style from './style.scss'
-import { MainMenuProps, MenuItem } from './typings'
+import { MenuItem, MenuProps } from './typings'
 
-const MainMenu: FC<MainMenuProps> = ({ items, className }) => {
+const Menu: FC<MenuProps> = ({ items, className }) => {
   const renderBasicItem = ({ name, path, icon }: MenuItem) => (
     <li id={`bp-menu_${name}`} key={path}>
       <Tooltip boundary="window" position={Position.RIGHT} content={name}>
@@ -28,4 +28,4 @@ const MainMenu: FC<MainMenuProps> = ({ items, className }) => {
   )
 }
 
-export default MainMenu
+export default Menu

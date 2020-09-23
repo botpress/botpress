@@ -6,9 +6,9 @@ import {
   Dropdown,
   Icons,
   lang,
+  MainContent,
   MoreOptions,
   MoreOptionsItems,
-  RightSidebar,
   sharedStyle
 } from 'botpress/shared'
 import cx from 'classnames'
@@ -153,7 +153,7 @@ const ConditionForm: FC<Props> = ({
   }
 
   return (
-    <RightSidebar
+    <MainContent.RightSidebar
       className={sharedStyle.wrapper}
       canOutsideClickClose={!isConfirming}
       close={() => close(editingCondition)}
@@ -215,7 +215,7 @@ const ConditionForm: FC<Props> = ({
           />
         )}
       </Fragment>
-    </RightSidebar>
+    </MainContent.RightSidebar>
   )
 }
 

@@ -7,7 +7,7 @@ export interface MenuItem {
   icon: IconName | JSX.Element
 }
 
-export interface MainMenuProps {
+export interface MenuProps {
   className?: string
   items?: MenuItem[]
 }

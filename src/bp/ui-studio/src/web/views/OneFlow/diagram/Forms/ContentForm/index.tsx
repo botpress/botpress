@@ -1,7 +1,7 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
 import { BotEvent, FlowVariable, FormData } from 'botpress/sdk'
-import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar, sharedStyle } from 'botpress/shared'
+import { Contents, Dropdown, lang, MainContent, MoreOptions, MoreOptionsItems, sharedStyle } from 'botpress/shared'
 import cx from 'classnames'
 import { Variables } from 'common/typings'
 import _ from 'lodash'
@@ -87,7 +87,7 @@ const ContentForm: FC<Props> = ({
   )
 
   return (
-    <RightSidebar
+    <MainContent.RightSidebar
       className={sharedStyle.wrapper}
       canOutsideClickClose={canOutsideClickClose}
       close={() => close(editingContent)}
@@ -149,7 +149,7 @@ const ContentForm: FC<Props> = ({
           />
         )}
       </Fragment>
-    </RightSidebar>
+    </MainContent.RightSidebar>
   )
 }
 

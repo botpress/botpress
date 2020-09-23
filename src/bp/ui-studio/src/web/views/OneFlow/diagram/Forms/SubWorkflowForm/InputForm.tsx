@@ -1,6 +1,6 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import { FlowVariable, FormField, SubWorkflowInput } from 'botpress/sdk'
-import { Contents, lang, RightSidebar, sharedStyle } from 'botpress/shared'
+import { Contents, lang, MainContent, sharedStyle } from 'botpress/shared'
 import { Variables } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
@@ -40,7 +40,7 @@ const InputForm: FC<Props> = ({
   }))
 
   return (
-    <RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={true} close={close}>
+    <MainContent.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={true} close={close}>
       <Fragment key={customKey}>
         <div className={sharedStyle.formHeader}>
           <Tabs id="contentFormTabs">
@@ -56,7 +56,7 @@ const InputForm: FC<Props> = ({
           onUpdateVariables={onUpdateVariables}
         />
       </Fragment>
-    </RightSidebar>
+    </MainContent.RightSidebar>
   )
 }
 

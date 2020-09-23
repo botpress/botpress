@@ -16,11 +16,8 @@ import Dropdown from './Dropdown'
 import EmptyState from './EmptyState'
 import FormFields from './FormFields'
 import Icons from './Icons'
-import LayoutHeader from './LayoutHeader'
 import MainContainer from './MainContainer'
 import MainContent from './MainContent'
-import RightSidebar from './MainContent/RightSidebar'
-import MainMenu from './MainMenu'
 import MarkdownContent from './MarkdownContent'
 import MultiLevelDropdown from './MultiLevelDropdown'
 import ShortcutLabel from './ShortcutLabel'
@@ -35,10 +32,7 @@ exports.EmptyState = EmptyState
 exports.MainContainer = MainContainer
 exports.Contents = Contents
 exports.FormFields = FormFields
-exports.LayoutHeader = LayoutHeader
 exports.MainContent = MainContent
-exports.RightSidebar = RightSidebar
-exports.MainMenu = MainMenu
 exports.MarkdownContent = MarkdownContent
 exports.MoreOptions = MoreOptions
 exports.MultiLevelDropdown = MultiLevelDropdown

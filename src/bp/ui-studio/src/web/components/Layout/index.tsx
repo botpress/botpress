@@ -1,5 +1,5 @@
 import { NLU } from 'botpress/sdk'
-import { lang, LayoutHeader, LayoutHeaderButton, MainMenu, ShortcutLabel, utils } from 'botpress/shared'
+import { HeaderButton, lang, MainContent, ShortcutLabel, utils } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { HotKeys } from 'react-hotkeys'
@@ -199,7 +199,7 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
   const lastSize = parseInt(localStorage.getItem(splitPanelLastSizeKey) || '175', 10)
   const bottomBarSize = props.bottomPanel ? lastSize : '100%'
 
-  const leftHeaderButtons: LayoutHeaderButton[] = [
+  const leftHeaderButtons: HeaderButton[] = [
     ...(!!props.docHints?.length
       ? [
           {
@@ -240,9 +240,9 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
         id="mainLayout"
         className={cx(layout.mainLayout, { 'layout-emulator-open': props.emulatorOpen })}
       >
-        <MainMenu items={getMenuItems(props.modules)} />
+        <MainContent.Menu items={getMenuItems(props.modules)} />
         <div className={layout.container}>
-          <LayoutHeader leftButtons={leftHeaderButtons} />
+          <MainContent.Header leftButtons={leftHeaderButtons} />
           <SplitPane
             split={'horizontal'}
             defaultSize={lastSize}

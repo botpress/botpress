@@ -1,72 +1,51 @@
-import { Alignment, AnchorButton, Navbar, NavbarGroup, Position, Tab, Tabs } from '@blueprintjs/core'
+import { Icon, IconName } from '@blueprintjs/core'
 import cx from 'classnames'
-import React, { FC, Fragment, SetStateAction, useState } from 'react'
+import React, { FC, Fragment, useState } from 'react'
 
-import MoreOptions from '../../../../ui-shared-lite/MoreOptions'
 import ToolTip from '../../../../ui-shared-lite/ToolTip'
 
 import style from './style.scss'
 import { HeaderProps } from './typings'
 
-const Header: FC<HeaderProps> = props => {
-  const [showingOption, setShowingOption] = useState<SetStateAction<number>>()
+const Header: FC<HeaderProps> = ({ children, rightButtons, leftButtons }) => {
   return (
-    <Navbar className={cx(style.header, props.className)}>
-      {!!props.tabs?.length && (
-        <NavbarGroup>
-          <Tabs id="headerTabs" selectedTabId={props.currentTab} onChange={props.tabChange}>
-            {props.tabs.map(tab => (
-              <Tab key={tab.id} id={tab.id} title={tab.title} />
-            ))}
-          </Tabs>
-        </NavbarGroup>
-      )}
-      {!!props.buttons?.length && (
-        <NavbarGroup className={cx(style.buttons, 'toolbar-buttons')} align={Alignment.RIGHT}>
-          {props.buttons.map((button, index) => (
-            <div key={index} className={style.btnWrapper}>
-              <Fragment>
-                {!button.optionsItems?.length && (
-                  <ToolTip position="bottom" content={button.tooltip}>
-                    {button.content ? (
-                      button.content
-                    ) : (
-                      <AnchorButton
-                        minimal
-                        small
-                        onClick={button.onClick}
-                        icon={button.icon}
-                        disabled={button.disabled}
-                      />
-                    )}
+    <Fragment>
+      <header className={style.header}>
+        {!!rightButtons?.length && (
+          <div className={style.list}>
+            {rightButtons.map(({ divider, icon, label, onClick, tooltip }, index) => {
+              return (
+                <Fragment key={index}>
+                  {divider && <span className={style.divider}></span>}
+                  <ToolTip content={tooltip}>
+                    <button className={cx(style.item, style.itemSpacing)} onClick={onClick}>
+                      <Icon color="#1a1e22" icon={icon as IconName} iconSize={16} />
+                      {label && <span className={style.label}>{label}</span>}
+                    </button>
                   </ToolTip>
-                )}
-                {!!button.optionsItems?.length && (
-                  <MoreOptions
-                    className={button.optionsWrapperClassName}
-                    element={
-                      <ToolTip position="bottom" content={button.tooltip}>
-                        <AnchorButton
-                          minimal
-                          small
-                          onClick={() => setShowingOption(index)}
-                          className={cx({ active: showingOption === index })}
-                          icon={button.icon}
-                          disabled={button.disabled}
-                        />
-                      </ToolTip>
-                    }
-                    show={showingOption === index}
-                    onToggle={() => setShowingOption(undefined)}
-                    items={button.optionsItems}
-                  />
-                )}
+                </Fragment>
+              )
+            })}
+          </div>
+        )}
+        <div className={style.list}>
+          {leftButtons.map(({ divider, icon, label, onClick, tooltip }, index) => {
+            return (
+              <Fragment key={index}>
+                {divider && <span className={style.divider}></span>}
+                <ToolTip content={tooltip}>
+                  <button className={cx(style.item, style.itemSpacing)} onClick={onClick}>
+                    <Icon color="#1a1e22" icon={icon as IconName} iconSize={16} />
+                    {label && <span className={style.label}>{label}</span>}
+                  </button>
+                </ToolTip>
               </Fragment>
-            </div>
-          ))}
-        </NavbarGroup>
-      )}
-    </Navbar>
+            )
+          })}
+        </div>
+      </header>
+      {children}
+    </Fragment>
   )
 }
 

@@ -3,10 +3,10 @@ import { BotEvent, ExecuteNode, FlowNode, FlowVariable } from 'botpress/sdk'
 import {
   Icons,
   lang,
+  MainContent,
   MoreOptions,
   MoreOptionsItems,
   MultiLevelDropdown,
-  RightSidebar,
   sharedStyle
 } from 'botpress/shared'
 import cx from 'classnames'
@@ -147,7 +147,7 @@ const ExecuteForm: FC<Props> = ({
   }
 
   return (
-    <RightSidebar
+    <MainContent.RightSidebar
       className={sharedStyle.wrapper}
       canOutsideClickClose={canOutsideClickClose}
       close={() => {
@@ -220,7 +220,7 @@ const ExecuteForm: FC<Props> = ({
           <ConfigAction {...commonProps} actions={actions} actionName={selectedAction.current} />
         )}
       </Fragment>
-    </RightSidebar>
+    </MainContent.RightSidebar>
   )
 }
 

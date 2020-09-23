@@ -6,9 +6,9 @@ import {
   Dropdown,
   FormFields,
   lang,
+  MainContent,
   MoreOptions,
   MoreOptionsItems,
-  RightSidebar,
   sharedStyle
 } from 'botpress/shared'
 import cx from 'classnames'
@@ -100,7 +100,7 @@ const PromptForm: FC<Props> = ({
   const variableSubType = selectedOption?.value?.subType
 
   return (
-    <RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={!isConfirming} close={close}>
+    <MainContent.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={!isConfirming} close={close}>
       <Fragment key={`${promptType.current}-${contentLang}-${customKey}`}>
         <div className={sharedStyle.formHeader}>
           <Tabs id="contentFormTabs">
@@ -157,7 +157,7 @@ const PromptForm: FC<Props> = ({
           </div>
         )}
       </Fragment>
-    </RightSidebar>
+    </MainContent.RightSidebar>
   )
 }
 

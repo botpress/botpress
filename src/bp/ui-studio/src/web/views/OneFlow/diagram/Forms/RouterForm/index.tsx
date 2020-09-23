@@ -1,7 +1,7 @@
 import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
 import { FlowVariable, FlowVariableConfig, FlowVariableOperator, FormField, NodeTransition, Option } from 'botpress/sdk'
-import { Contents, FormFields, lang, MoreOptions, RightSidebar, sharedStyle } from 'botpress/shared'
+import { Contents, FormFields, lang, MainContent, MoreOptions, sharedStyle } from 'botpress/shared'
 import cx from 'classnames'
 import { Variables } from 'common/typings'
 import _ from 'lodash'
@@ -157,7 +157,7 @@ const RouterForm: FC<Props> = ({
   const advancedSettings = opInfo.operator?.advancedSettings ?? []
 
   return (
-    <RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={true} close={close}>
+    <MainContent.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={true} close={close}>
       <Fragment key={customKey}>
         <div className={sharedStyle.formHeader}>
           <Tabs id="contentFormTabs">
@@ -205,7 +205,7 @@ const RouterForm: FC<Props> = ({
           />
         )}
       </Fragment>
-    </RightSidebar>
+    </MainContent.RightSidebar>
   )
 }
 
