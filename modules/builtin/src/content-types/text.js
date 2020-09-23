@@ -74,6 +74,18 @@ module.exports = {
   newSchema: {
     displayedIn: ['sayNode'],
     order: 0,
+    advancedSettings: [
+      {
+        key: 'markdown',
+        label: 'module.builtin.useMarkdown',
+        type: 'checkbox',
+        defaultValue: true,
+        moreInfo: {
+          label: 'learnMore',
+          url: 'https://daringfireball.net/projects/markdown/'
+        }
+      }
+    ],
     fields: [
       {
         type: 'overridable',
