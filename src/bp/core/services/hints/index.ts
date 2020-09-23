@@ -32,7 +32,7 @@ export interface Hint {
   parentObject?: string
 }
 
-const invalidationFilePrefix = 'string::data/'
+const invalidationFilePrefix = 'buffer::data/'
 
 @injectable()
 export class HintsService {
@@ -63,7 +63,10 @@ export class HintsService {
       // This is necessary because the ghost relies on the cache when reading file content
       await Promise.delay(100)
       const filePath = key.substr(invalidationFilePrefix.length)
-      this.hints[filePath] = await this.indexFile(filePath)
+      const hints = await this.indexFile(filePath)
+      if (hints.length) {
+        this.hints[filePath] = hints
+      }
       this.realtimeService.sendToSocket(RealTimePayload.forAdmins('hints.updated', {}))
     })
   }
@@ -107,7 +110,12 @@ export class HintsService {
       ...(await this.ghost.bots().directoryListing('/')).map(x => 'bots/' + x)
     ]
 
-    await Promise.mapSeries(files, async file => (hints[file] = await this.indexFile(file)))
+    await Promise.mapSeries(files, async file => {
+      const hints = await this.indexFile(file)
+      if (hints.length) {
+        hints[file] = hints
+      }
+    })
 
     this.hints = hints
   }
