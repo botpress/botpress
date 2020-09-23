@@ -27,6 +27,10 @@ const Select: FC<SelectProps> = ({ onChange, printField, parent, field, data, ax
     }
   }, [])
 
+  useEffect(() => {
+    setOptions(field.options!)
+  }, [field.options])
+
   const loadListElements = async () => {
     const { endpoint, path, valueField, labelField } = field.dynamicOptions!
 
@@ -43,7 +47,7 @@ const Select: FC<SelectProps> = ({ onChange, printField, parent, field, data, ax
     }
   }
 
-  const value = data[field.key] || field.defaultValue || (!field.placeholder && options?.[0]?.value)
+  const value = data[field.key] ?? field.defaultValue ?? (!field.placeholder && options?.[0]?.value)
   const currentOption = options?.find(option => option.value === value)
 
   return (

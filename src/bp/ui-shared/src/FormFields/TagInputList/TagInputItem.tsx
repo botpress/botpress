@@ -2,10 +2,11 @@ import { Button, Icon, Position, Tag, TagInput } from '@blueprintjs/core'
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
+import ToolTip from '~/../../ui-shared-lite/ToolTip'
 import { lang } from '~/translations'
+import { toast } from '~/Toaster'
 
-import ToolTip from '../../../../ui-shared-lite/ToolTip'
-import { toast } from '../../Toaster'
+import sharedStyle from '../../style.scss'
 
 import { Item } from '.'
 import style from './style.scss'
@@ -58,7 +59,7 @@ const TagInputItem: FC<Props> = ({
     <Fragment>
       <div className={style.inputWrapper}>
         <TagInput
-          className={cx(style.tagInput, { 'has-error': missingTranslation })}
+          className={sharedStyle.tagInput}
           leftIcon={
             !!item.name?.length ? (
               <Tag minimal className={style.tag}>

@@ -8,13 +8,13 @@ import React, { FC, Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import {
   deleteFlow,
+  deleteTopic,
   duplicateFlow,
   fetchFlows,
   fetchTopics,
+  getQnaCountByTopic,
   renameFlow,
-  updateFlow,
-  deleteTopic,
-  getQnaCountByTopic
+  updateFlow
 } from '~/actions'
 import { SearchBar } from '~/components/Shared/Interface'
 import { AccessControl } from '~/components/Shared/Utils'
@@ -45,7 +45,6 @@ interface OwnProps {
   readOnly: boolean
   goToFlow: (flow: any) => void
   createWorkflow: (topicId: string) => void
-  exportTopic: (topicName: string | NodeData) => void
   canAdd: boolean
   canDelete: boolean
   editing: string
@@ -208,12 +207,6 @@ const TopicList: FC<Props> = props => {
             onClick={async () => {
               await duplicateTopic(folder)
             }}
-          />
-          <MenuItem
-            id="btn-export"
-            disabled={props.readOnly}
-            label={lang.tr('studio.flow.topicList.exportTopic')}
-            onClick={() => props.exportTopic(folder)}
           />
           <MenuItem
             id="btn-delete"

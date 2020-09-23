@@ -17,12 +17,13 @@
     "description": "Description",
     "formContainsErrors": "Le formulaire contient des erreurs",
     "language": "Langue",
-    "linkToPolicy": "Lien vers les politiques de confidentialité",
-    "linkToTerms": "Lien vers les termes et conditions",
+    "linkToPolicy": "URL des politiques de confidentialité",
+    "linkToTerms": "URL des termes et conditions",
     "phoneNumber": "Numéro de téléphone",
     "requireImageFile": "{targetProp} doit être une image",
     "supportedLanguages": "Langues supportées",
-    "website": "Site web"
+    "website": "URL du Site web",
+    "whatIsYourChatbotName": "Quel est le nom de votre assistant virtuel?"
   },
   "language": {
     "arabic": "Arabe",
@@ -41,7 +42,7 @@
   "status": {
     "disabled": "Démonté",
     "private": "Collaborateurs uniquement",
-    "public": "Publié"
+    "public": "Publique"
   },
   "statusBar": {
     "trainWarning": "Vous êtes en train d'essayer un bot qui n'a pas été entrainé.",
@@ -433,6 +434,7 @@
     "zoomIn": "Agrandir"
   },
   "toolbar": {
+    "configuration": "Configuration",
     "emulator": "Émulateur",
     "help": "Aide",
     "logsPanel": "Panneau de journalisation",
