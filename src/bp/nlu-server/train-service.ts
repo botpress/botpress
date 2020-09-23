@@ -20,6 +20,8 @@ export default class TrainService {
     nluSeed: number
   ) => {
     try {
+      this.logger.info(`[${modelFileName}] Training Started.`)
+
       const ts = this.trainSessionService.makeTrainingSession(modelFileName, language)
       this.trainSessionService.setTrainingSession(modelFileName, ts)
 
@@ -35,16 +37,20 @@ export default class TrainService {
       })
 
       if (!model) {
+        this.logger.info(`[${modelFileName}] Training Canceled.`)
+
         ts.status = 'canceled'
         this.trainSessionService.setTrainingSession(modelFileName, ts)
-        setTimeout(() => this.trainSessionService.removeTrainingSession(modelFileName), 30000)
+        this.trainSessionService.releaseTrainingSession(modelFileName)
         return
       }
+
+      this.logger.info(`[${modelFileName}] Training Done.`)
 
       await this.modelService.saveModel(model, modelFileName)
       ts.status = 'done'
       this.trainSessionService.setTrainingSession(modelFileName, ts)
-      setTimeout(() => this.trainSessionService.removeTrainingSession(modelFileName), 30000)
+      this.trainSessionService.releaseTrainingSession(modelFileName)
     } catch (err) {
       this.logger.attachError(err).error('an error occured during training')
     }

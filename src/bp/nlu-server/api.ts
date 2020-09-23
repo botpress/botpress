@@ -85,6 +85,8 @@ export default async function(options: APIOptions, nluVersion: string) {
   const router = express.Router({ mergeParams: true })
   router.post('/train', async (req, res) => {
     try {
+      // TODO: add actual validation that all slots reference existing entities
+      // and all dollar signs $ reference existing slots
       const input: TrainInput = await validate(req.body, TrainInputCreateSchema, {
         stripUnknown: true
       })

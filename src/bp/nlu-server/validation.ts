@@ -3,11 +3,18 @@ import Joi from 'joi'
 
 import { DEFAULT_DUCK_SERVER, DEFAULT_LANG_SERVER, DEFAULT_LANG_SOURCES } from './config'
 
+// TODO: refactor this to respect specs
 export const TrainInputCreateSchema = Joi.object().keys({
   language: Joi.string().required(),
-  topics: Joi.object().pattern(Joi.string(), Joi.array().items(IntentDefCreateSchema)),
-  entities: Joi.array().items(EntityDefCreateSchema),
-  password: Joi.string().default(''),
+  topics: Joi.object()
+    .pattern(Joi.string(), Joi.array().items(IntentDefCreateSchema))
+    .required(),
+  entities: Joi.array()
+    .items(EntityDefCreateSchema)
+    .required(),
+  password: Joi.string()
+    .optional()
+    .default(''),
   seed: Joi.number().optional()
 })
 
