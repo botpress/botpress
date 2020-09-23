@@ -125,6 +125,7 @@
   "previous": "Précédent",
   "prompt": "Prompt",
   "quickAddAlternative": "Appuyez sur la touche Entrée pendant que vous êtes dans le champ pour ajouter rapidement une nouvelle alternative",
+  "quickAddAlternativeTags": "Appuyez sur la touche Entrée et Majuscule pendant que vous êtes dans le champ pour ajouter rapidement une nouvelle alternative",
   "redo": "Refaire",
   "refresh": "Rafraîchir",
   "remove": "Retirer",
@@ -163,6 +164,7 @@
   "submit": "Soumettre",
   "subtitle": "Sous-titre",
   "success": "Succès",
+  "suggestions": "Suggestions",
   "superInput": {
     "convertToRegularInput": "Convertir en champ normal",
     "convertToSmartInput": "Convertir en champ intelligent",
@@ -193,6 +195,7 @@
   "tolerance": "Tolérance",
   "enumeration": "Énumération",
   "uncategorized": "Non catégorisée",
+  "value": "Valeur",
   "values": "Valeurs",
   "exactMatch": "Correspondances exactes uniquement",
   "moderate": "Modéré",

@@ -1,15 +1,38 @@
 .wrapper {
   &:focus-within {
-    & + .wrapper {
+    &:not(:global(.has-error)) + .wrapper {
       .tagInput {
         border-top-color: transparent !important;
       }
     }
 
-    .tagInput {
+    .tagInput:not(:global(.has-error)) {
       border-top-color: var(--ocean) !important;
       border-bottom-color: var(--ocean) !important;
     }
+  }
+}
+
+.inputWrapper {
+  position: relative;
+}
+
+.copyBtn {
+  border-radius: 4px;
+  background: #fff !important;
+  transition: background 0.3s;
+  position: absolute;
+  line-height: 0 !important;
+  padding: var(--spacing-small) !important;
+  top: var(--spacing-medium);
+  right: 0;
+
+  &:hover {
+    background-color: var(--bg) !important;
+  }
+
+  svg {
+    fill: var(--reef) !important;
   }
 }
 
@@ -21,4 +44,12 @@
   font-weight: normal !important;
   border-radius: 3px !important;
   background-color: var(--bg) !important;
+}
+
+.error {
+  font-size: 12px;
+  line-height: 1.25;
+  color: var(--lighthouse);
+  margin: var(--spacing-small) 0 var(--spacing-large);
+  display: block;
 }

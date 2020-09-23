@@ -1,5 +1,6 @@
 import { Button, Classes, MenuItem, PopoverPosition } from '@blueprintjs/core'
 import { ItemPredicate, ItemRenderer, Select } from '@blueprintjs/select'
+import sdk from 'botpress/sdk'
 import React, { FC, useEffect, useState } from 'react'
 
 import lang from '../../lang'
@@ -24,6 +25,7 @@ interface Props {
   allowMultiple: boolean // do we want to support this ?
   width: number // do we want to support this ?
   collectFeedback: boolean // do we want to support this ?
+  position: sdk.IO.SuggestionPosition
 }
 
 // TODOS :
@@ -42,8 +44,6 @@ const itemRenderer: ItemRenderer<Option> = (item, { modifiers, handleClick }) =>
 const OptionSelect = Select.ofType<Option>()
 
 export const Dropdown: FC<Props> = props => {
-  const shouldDisplay = props.isLastGroup && props.isLastOfGroup
-
   const Keyboard = props.keyboard
   const [items, setItems] = useState<Option[]>([])
   const [selectedItem, setSelected] = useState<Option | undefined>()
@@ -90,15 +90,25 @@ export const Dropdown: FC<Props> = props => {
   const bgHeight = isOpened && items.length * 26 + 40 + 2 * 5 + 2 * 12 + (filterable && 30)
 
   const keyboard = (
-    <div className={'bpw-keyboard-quick_reply'} style={{ height: isOpened && bgHeight }}>
-      <OptionSelect {...selectProps}>
-        <Button text={<small>{selectedItem?.label ?? placeholder}</small>} rightIcon={'chevron-down'} small />
-      </OptionSelect>
-    </div>
+    <OptionSelect {...selectProps}>
+      <Button text={<small>{selectedItem?.label ?? placeholder}</small>} rightIcon={'chevron-down'} small />
+    </OptionSelect>
   )
 
+  if (props.position === 'conversation') {
+    return keyboard
+  }
+
+  const shouldDisplay = (props.isLastGroup && props.isLastOfGroup) || props.position === 'static'
   return (
-    <Keyboard.Prepend keyboard={keyboard} visible={shouldDisplay}>
+    <Keyboard.Prepend
+      keyboard={
+        <div className={'bpw-keyboard-quick_reply'} style={{ height: isOpened && bgHeight }}>
+          {keyboard}
+        </div>
+      }
+      visible={shouldDisplay}
+    >
       {props.children || props.message}
     </Keyboard.Prepend>
   )

@@ -16,6 +16,17 @@ import { Button } from './Button'
  * @return onSendData is called with the reply
  */
 export class QuickReplies extends Component<Renderer.QuickReply> {
+  state = {
+    display: false
+  }
+
+  componentDidMount() {
+    // Required otherwise the component mounts too fast (before the keyboard)
+    setTimeout(() => {
+      this.setState({ display: true })
+    }, 100)
+  }
+
   handleButtonClicked = (title, payload) => {
     // tslint:disable-next-line: no-floating-promises
     this.props.onSendData?.({
@@ -50,6 +61,14 @@ export class QuickReplies extends Component<Renderer.QuickReply> {
 
   render() {
     const buttons = this.props.buttons || this.props.quick_replies
+    if (!buttons?.length || !this.state.display) {
+      return null
+    }
+
+    if (this.props.position === 'conversation') {
+      return this.renderKeyboard(buttons)
+    }
+
     const kbd = (
       <div className={'bpw-keyboard-quick_reply'}>
         {buttons && (
@@ -63,8 +82,9 @@ export class QuickReplies extends Component<Renderer.QuickReply> {
       </div>
     )
 
+    const shouldDisplay = (this.props.isLastGroup && this.props.isLastOfGroup) || this.props.position === 'static'
     return (
-      <Keyboard.Prepend keyboard={kbd} visible={this.props.isLastGroup && this.props.isLastOfGroup}>
+      <Keyboard.Prepend keyboard={kbd} visible={shouldDisplay}>
         {this.props.children}
       </Keyboard.Prepend>
     )
