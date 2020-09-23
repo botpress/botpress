@@ -4,14 +4,12 @@ interface CssExports {
   'active': string;
   'clickable': string;
   'divider': string;
+  'header': string;
   'item': string;
   'itemSpacing': string;
   'label': string;
   'list': string;
   'shortcut': string;
-  'shortcutLabel': string;
-  'toolbar': string;
-  'tooltip': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

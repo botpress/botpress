@@ -30,6 +30,7 @@ import { VariablePickerProps } from './FormFields/VariablePicker/typings'
 import { MultiLevelDropdownProps } from './MultiLevelDropdown/typings'
 import { FieldWrapperProps } from './FormFields/FieldWrapper/typings'
 import { MainMenuProps, MenuItem } from './MainMenu/typings'
+import { LayoutHeaderProps, LayoutHeaderButton } from './LayoutHeader/typings'
 
 declare module 'botpress/shared' {
   export function Commander(props: CommanderProps): JSX.Element
@@ -57,6 +58,7 @@ declare module 'botpress/shared' {
   }
   export function Dropdown(props: DropdownProps): JSX.Element
   export function EmptyState(props: EmptyStateProps): JSX.Element
+  export function LayoutHeader(props: LayoutHeaderProps): JSX.Element
   export function MainContainer(props: MainContainerProps): JSX.Element
   export function MainMenu(props: MainMenuProps): JSX.Element
   export function MarkdownContent(props: MarkdownContentProps): JSX.Element
@@ -107,7 +109,7 @@ declare module 'botpress/shared' {
 
   export const sharedStyle: CssExports
 
-  export { Option, MoreOptionsItems, HeaderButtonProps, QuickShortcut, MenuItem }
+  export { Option, MoreOptionsItems, HeaderButtonProps, QuickShortcut, MenuItem, LayoutHeaderButton }
 }
 
 declare global {

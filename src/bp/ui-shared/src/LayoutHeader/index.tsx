@@ -1,27 +1,46 @@
-import { Icon } from '@blueprintjs/core'
+import { Icon, IconName } from '@blueprintjs/core'
 import cx from 'classnames'
 import React, { FC, Fragment, useState } from 'react'
 
 import ToolTip from '../../../ui-shared-lite/ToolTip'
 
 import style from './style.scss'
+import { LayoutHeaderProps } from './typings'
 
-interface Props {
-  leftButtons: any[]
-  children?: JSX.Element | JSX.Element[]
-}
-
-const LayoutHeader: FC<Props> = ({ children, leftButtons }) => {
+const LayoutHeader: FC<LayoutHeaderProps> = ({ children, rightButtons, leftButtons }) => {
   return (
     <Fragment>
-      <header className={style.toolbar}>
+      <header className={style.header}>
+        {!!rightButtons?.length && (
+          <div className={style.list}>
+            {rightButtons.map(({ divider, icon, label, onClick, tooltip }, index) => {
+              return (
+                <Fragment key={index}>
+                  {divider && <span className={style.divider}></span>}
+                  <ToolTip content={tooltip}>
+                    <button className={cx(style.item, style.itemSpacing)} onClick={onClick}>
+                      <Icon color="#1a1e22" icon={icon as IconName} iconSize={16} />
+                      {label && <span className={style.label}>{label}</span>}
+                    </button>
+                  </ToolTip>
+                </Fragment>
+              )
+            })}
+          </div>
+        )}
         <div className={style.list}>
-          {leftButtons.map(({ icon, onClick, tooltip }) => {
-            ;<ToolTip content={tooltip}>
-              <button className={cx(style.item, style.itemSpacing)} onClick={onClick}>
-                <Icon color="#1a1e22" icon={icon} iconSize={16} />
-              </button>
-            </ToolTip>
+          {leftButtons.map(({ divider, icon, label, onClick, tooltip }, index) => {
+            return (
+              <Fragment key={index}>
+                {divider && <span className={style.divider}></span>}
+                <ToolTip content={tooltip}>
+                  <button className={cx(style.item, style.itemSpacing)} onClick={onClick}>
+                    <Icon color="#1a1e22" icon={icon as IconName} iconSize={16} />
+                    {label && <span className={style.label}>{label}</span>}
+                  </button>
+                </ToolTip>
+              </Fragment>
+            )
           })}
         </div>
       </header>

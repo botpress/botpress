@@ -1,5 +1,5 @@
 import { NLU } from 'botpress/sdk'
-import { lang, MainMenu, ShortcutLabel, utils } from 'botpress/shared'
+import { lang, LayoutHeader, LayoutHeaderButton, MainMenu, ShortcutLabel, utils } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { HotKeys } from 'react-hotkeys'
@@ -19,12 +19,14 @@ import Logs from '~/views/Logs'
 import Module from '~/views/Module'
 import OneFlow from '~/views/OneFlow'
 
+import style from './style.scss'
 import { TrainingStatusService } from './training-status-service'
 import { getMenuItems } from './utils/layout.utils'
 import BetaNotice from './BetaNotice'
 import BottomPanel from './BottomPanel'
 import BotUmountedWarning from './BotUnmountedWarning'
 import CommandPalette from './CommandPalette'
+import ConfigForm from './ConfigForm'
 import GuidedTour from './GuidedTour'
 import LanguageServerHealth from './LangServerHealthWarning'
 import layout from './Layout.scss'
@@ -197,7 +199,7 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
   const lastSize = parseInt(localStorage.getItem(splitPanelLastSizeKey) || '175', 10)
   const bottomBarSize = props.bottomPanel ? lastSize : '100%'
 
-  const leftHeaderButtons = [
+  const leftHeaderButtons: LayoutHeaderButton[] = [
     ...(!!props.docHints?.length
       ? [
           {
@@ -220,20 +222,16 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
       onClick: () => setShowConfigForm(!showConfigForm)
     }
   ]
-  /*
-          <span className={style.divider}></span>
-          {window.IS_BOT_MOUNTED && (
-            <ToolTip content={<ShortcutLabel light shortcut="emulator-focus" />}>
-              <button
-                className={cx(style.item, style.itemSpacing, { [style.active]: isEmulatorOpen })}
-                onClick={onToggleEmulator}
-              >
-                <Icon color="#1a1e22" icon="chat" iconSize={16} />
-                <span className={style.label}>{lang.tr('toolbar.emulator')}</span>
-              </button>
-            </ToolTip>
-          )}
-          */
+
+  if (window.IS_BOT_MOUNTED) {
+    leftHeaderButtons.push({
+      tooltip: <ShortcutLabel light shortcut="emulator-focus" />,
+      icon: 'chat',
+      onClick: toggleEmulator,
+      label: lang.tr('toolbar.emulator'),
+      divider: true
+    })
+  }
 
   return (
     <Fragment>
@@ -244,12 +242,7 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
       >
         <MainMenu items={getMenuItems(props.modules)} />
         <div className={layout.container}>
-          <LayoutHeader
-            leftButtons={leftHeaderButtons}
-            toggleDocs={toggleDocs}
-            onToggleEmulator={toggleEmulator}
-            toggleBottomPanel={props.toggleBottomPanel}
-          />
+          <LayoutHeader leftButtons={leftHeaderButtons} />
           <SplitPane
             split={'horizontal'}
             defaultSize={lastSize}
@@ -297,6 +290,7 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
         toggleBottomPanel={props.toggleBottomPanel}
       />
       <CommandPalette toggleEmulator={toggleEmulator} />
+      {showConfigForm && <ConfigForm close={() => setShowConfigForm(false)} />}
     </Fragment>
   )
 }
