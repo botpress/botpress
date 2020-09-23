@@ -322,6 +322,13 @@ export default class Engine implements NLU.Engine {
     return Predict(input, Engine._tools, this.predictorsByLang)
   }
 
+  unloadModel(lang: string) {
+    if (this.modelsByLang[lang]) {
+      delete this.modelsByLang[lang]
+      delete this.predictorsByLang[lang]
+    }
+  }
+
   async detectLanguage(sentence: string): Promise<string> {
     return DetectLanguage(sentence, this.predictorsByLang, Engine._tools)
   }

@@ -1,14 +1,15 @@
+import * as sdk from 'botpress/sdk'
 import chalk from 'chalk'
 import _ from 'lodash'
 import moment from 'moment'
 import os from 'os'
 import util from 'util'
 
-import { LoggerLevel, LogLevel } from '../core/sdk/enums'
+import { LoggerLevel, LogLevel } from './core/sdk/enums'
 
-export function serializeArgs(args: any): string {
+function _serializeArgs(args: any): string {
   if (_.isArray(args)) {
-    return args.map(arg => serializeArgs(arg)).join(', ')
+    return args.map(arg => _serializeArgs(arg)).join(', ')
   } else if (_.isObject(args)) {
     return util.inspect(args, false, 2, true)
   } else if (_.isString(args)) {
@@ -20,7 +21,7 @@ export function serializeArgs(args: any): string {
   }
 }
 
-export class LangServerLogger {
+export default class Logger implements sdk.Logger {
   private attachedError: Error | undefined
   public readonly displayLevel: number
   private currentMessageLevel: LogLevel | undefined
@@ -28,6 +29,24 @@ export class LangServerLogger {
   constructor(private name: string) {
     this.displayLevel = process.VERBOSITY_LEVEL || 0
   }
+
+  forBot(botId: string): this {
+    return this
+  }
+
+  attachEvent(event: sdk.IO.Event): this {
+    return this
+  }
+
+  persist(shouldPersist: boolean): this {
+    return this
+  }
+
+  noEmit(): this {
+    return this
+  }
+
+  critical(message: string, metadata?: any): void {}
 
   attachError(error: Error): this {
     this.attachedError = error
@@ -47,7 +66,7 @@ export class LangServerLogger {
   }
 
   private print(level: LoggerLevel, message: string, metadata: any) {
-    const serializedMetadata = metadata ? serializeArgs(metadata) : ''
+    const serializedMetadata = metadata ? _serializeArgs(metadata) : ''
     const timeFormat = 'L HH:mm:ss.SSS'
     const time = moment().format(timeFormat)
 

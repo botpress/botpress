@@ -29,6 +29,32 @@
     },
     {
       "type": "node",
+      "runtimeVersion": "12.13.0",
+      "request": "launch",
+      "name": "Debug NLU Server",
+      "program": "${workspaceFolder}/out/bp/index.js",
+      "cwd": "${workspaceFolder}",
+      "args": ["nlu", "--config=${workspaceFolder}/out/bp/data/global/config/nlu.json"],
+      "protocol": "auto",
+      "env": {
+        "BP_MODULES_PATH": "${workspaceFolder}/modules:${workspaceFolder}/internal-modules",
+        "NODE_PATH": "${workspaceFolder}/out/bp",
+        "DEBUG": "bp:none",
+        "BLUEBIRD_DEBUG": "1"
+      },
+      "smartStep": true,
+      "outFiles": [
+        "${workspaceFolder}/out",
+        "${workspaceFolder}/modules/*/dist",
+        "${workspaceFolder}/private-modules/*/dist",
+        "!${workspaceFolder}/**/node_modules"
+      ],
+      "console": "integratedTerminal",
+      "sourceMaps": true,
+      "autoAttachChildProcesses": true
+    },
+    {
+      "type": "node",
       "request": "launch",
       "name": "Debug Jest Tests",
       "cwd": "${workspaceFolder}",
