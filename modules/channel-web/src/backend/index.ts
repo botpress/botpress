@@ -28,7 +28,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     homepage: 'https://botpress.com',
     noInterface: true,
     plugins: [{ entry: 'WebBotpressUIInjection', position: 'overlay' }],
-    channelEffects: ['__typing', '__buttons', '__dropdown', '__markdown', '__collectFeedback', '__trimText']
+    channelEffects: ['__typing', '__suggestions', '__markdown', '__collectFeedback', '__trimText']
   }
 }
 

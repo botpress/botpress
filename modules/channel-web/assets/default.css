@@ -244,6 +244,12 @@
     background-color: var(--hover-ocean);
   }
 
+  .bpw-button:disabled {
+    color: var(--shark);
+    border: solid 1px var(--gray);
+    background-color: var(--gray);
+  }
+
   .bpw-input {
     height: 30px;
     border: none;

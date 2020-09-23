@@ -621,7 +621,11 @@ declare module 'botpress/sdk' {
   }
 
   export namespace NDU {
+    export type TriggerEffect = 'prompt.cancel' | 'prompt.inform' | 'jump.node' | 'say'
+
     interface GenericTrigger {
+      type: 'workflow' | 'faq' | 'node' | 'contextual'
+      effect: TriggerEffect
       name?: string
       conditions: DecisionTriggerCondition[]
     }
@@ -634,22 +638,30 @@ declare module 'botpress/sdk' {
       /** When true, the user must be inside the specified workflow for the trigger to be active */
       activeWorkflow?: boolean
       activeTopic?: boolean
+      effect: 'jump.node'
     }
 
     export interface FaqTrigger extends GenericTrigger {
       type: 'faq'
       faqId: string
       topicName: string
+      effect: 'say'
     }
 
     export interface NodeTrigger extends GenericTrigger {
       type: 'node'
       workflowId: string
       nodeId: string
-      effect?: 'prompt.cancel' | 'prompt.inform'
     }
 
-    export type Trigger = NodeTrigger | FaqTrigger | WorkflowTrigger
+    export interface ContextualTrigger extends GenericTrigger {
+      type: 'contextual'
+      workflowId: string
+      nodeId: string
+      gotoNodeId: string
+    }
+
+    export type Trigger = NodeTrigger | FaqTrigger | WorkflowTrigger | ContextualTrigger
 
     export interface DialogUnderstanding {
       triggers: {
@@ -877,6 +889,29 @@ declare module 'botpress/sdk' {
       }
     }
 
+    export interface ContextualTriggerState {
+      readonly workflowId: string
+      readonly nodeId: string
+      readonly index: number
+      readonly turn: number
+      readonly suggestion: SuggestChoice
+      readonly expiryPolicy: {
+        readonly strategy: 'turn' | 'workflow'
+        readonly turnCount: number
+      }
+    }
+
+    export interface SuggestChoice {
+      /** Should the suggestions be displayed next to the associated message, or persistent in the keyboard */
+      position?: SuggestionPosition
+      /** Required when position is conversation, to know where to attach the event */
+      eventId?: string
+      label: string
+      value: string
+    }
+
+    export type SuggestionPosition = 'conversation' | 'static'
+
     export interface DialogAction {
       type: 'say' | 'listen' | 'cancel'
       message?: MultiLangText | string
@@ -997,6 +1032,7 @@ declare module 'botpress/sdk' {
       last_turn_node_id: string
       last_turn_ts: number
       last_topic: string
+      triggers?: ContextualTriggerState[]
     }
 
     export interface DialogTurnHistory {
@@ -1482,6 +1518,7 @@ declare module 'botpress/sdk' {
     execute?: ExecuteNode
     isNew?: boolean
     isReadOnly?: boolean
+    triggers?: NDU.GenericTrigger[]
     /** Used internally by the flow editor */
     readonly lastModified?: Date
   } & NodeActions
@@ -1516,7 +1553,7 @@ declare module 'botpress/sdk' {
   }
 
   export type ListenNode = FlowNode & {
-    triggers: { name?: string; effect?: 'prompt.inform' | 'prompt.cancel'; conditions: DecisionTriggerCondition[] }[]
+    triggers: { type?: string; name?: string; effect?: NDU.TriggerEffect; conditions: DecisionTriggerCondition[] }[]
   }
 
   export type SkillFlowNode = Partial<ListenNode> & Pick<Required<ListenNode>, 'name'> & Partial<TriggerNode>
@@ -1534,6 +1571,8 @@ declare module 'botpress/sdk' {
   export interface NodeTransition {
     /** The text to display instead of the condition in the flow editor */
     caption?: string
+    /** Content it's linked to for the flow editor */
+    contentIndex?: number
     /** A JS expression that is evaluated to determine if it should send the user to the specified node */
     condition: string
     /** The destination node */
@@ -2047,14 +2086,12 @@ declare module 'botpress/sdk' {
     }
 
     export interface Metadata {
-      /** Display quick reply buttons */
-      __buttons?: Option[]
-      /** Display a dropdown menu to select an item  */
-      __dropdown?: Option[] | Dropdown
       /** Set to true to display typing effect, or set a delay in ms */
       __typing?: boolean | number
       /** Use markdown for text fields when possible */
       __markdown?: boolean
+      /** Display suggestions to the user, either using buttons or a dropdown if there are multiple elements */
+      __suggestions?: IO.SuggestChoice[]
       /** If the channel supports it, it will trim the text to the specified length */
       __trimText?: number
       /** Force usage of a dropdown menu instead of buttons */

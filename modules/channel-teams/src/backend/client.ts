@@ -8,7 +8,7 @@ import {
 } from 'botbuilder'
 import { MicrosoftAppCredentials } from 'botframework-connector'
 import * as sdk from 'botpress/sdk'
-import { getPayloadOptions, isValidOutgoingType, parseTyping } from 'common/channels'
+import { isValidOutgoingType, parseTyping } from 'common/channels'
 import _ from 'lodash'
 
 import { Config } from '../config'
@@ -146,7 +146,7 @@ If you have a restricted app, you may need to specify the tenantId also.`
       return
     }
 
-    const { __typing } = event.payload.metadata as sdk.Content.Metadata
+    const { __typing, __suggestions } = event.payload.metadata as sdk.Content.Metadata
     let payload: any = convertPayload(event.payload)
 
     if (__typing) {
@@ -154,8 +154,7 @@ If you have a restricted app, you may need to specify the tenantId also.`
       await Promise.delay(parseTyping(__typing))
     }
 
-    const options = getPayloadOptions(event.payload)
-    if (options) {
+    if (__suggestions) {
       payload = {
         ...payload,
         attachments: [
@@ -163,7 +162,7 @@ If you have a restricted app, you may need to specify the tenantId also.`
             '',
             CardFactory.images([]),
             CardFactory.actions(
-              options.map(reply => {
+              __suggestions.map(reply => {
                 return {
                   title: reply.label,
                   type: 'postBack',

@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { getPayloadOptions, isValidOutgoingType } from 'common/channels'
+import { isValidOutgoingType } from 'common/channels'
 import _ from 'lodash'
 import path from 'path'
 import Telegraf, { Button, CallbackButton, ContextMessageUpdate, Markup } from 'telegraf'
@@ -114,7 +114,7 @@ async function sendCarousel(payload: sdk.Content.Carousel, client: Telegraf<Cont
 }
 
 const getKeyboard = (payload: sdk.Content.All, markdown = false) => {
-  const options = getPayloadOptions(payload)
+  const options = payload.metadata?.__suggestions
   const keyboard = Markup.keyboard(keyboardButtons<Button>(options))
   return Extra.markdown(markdown).markup({ ...keyboard, one_time_keyboard: true })
 }

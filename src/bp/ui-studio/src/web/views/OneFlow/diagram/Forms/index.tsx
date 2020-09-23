@@ -88,11 +88,20 @@ const Forms: FC<Props> = ({
   const updateNodeContent = data => {
     const newContents = [...node.contents]
 
-    newContents[index] = data
+    newContents[index] = data.content
 
     switchFlowNode(node.id)
     updateEditingNodeItem({ node: { ...node, contents: newContents }, index })
-    updateFlowNode({ contents: newContents })
+
+    if (data.transitions && data.triggers) {
+      updateFlowNode({
+        contents: newContents,
+        next: [...node.next.filter(x => x.condition === 'true'), ...data.transitions],
+        triggers: data.triggers
+      })
+    } else {
+      updateFlowNode({ contents: newContents })
+    }
   }
 
   const updateNodeCondition = data => {
@@ -193,6 +202,7 @@ const Forms: FC<Props> = ({
           variables={variables}
           events={hints || []}
           contentLang={currentLang}
+          node={currentFlowNode}
           defaultLang={defaultLang}
           editingContent={index}
           formData={currentItem || getEmptyContent(currentItem)}

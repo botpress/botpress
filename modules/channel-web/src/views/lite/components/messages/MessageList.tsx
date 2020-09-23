@@ -1,6 +1,9 @@
 import { ResizeObserver } from '@juggle/resize-observer'
+import sdk from 'botpress/sdk'
+import cx from 'classnames'
 import differenceInMinutes from 'date-fns/difference_in_minutes'
 import debounce from 'lodash/debounce'
+import last from 'lodash/last'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
@@ -8,11 +11,12 @@ import { InjectedIntlProps, injectIntl } from 'react-intl'
 
 import constants from '../../core/constants'
 import { RootStore, StoreDef } from '../../store'
-import { Message } from '../../typings'
+import { Message as MessageTypings } from '../../typings'
 import { isIE } from '../../utils'
 import Avatar from '../common/Avatar'
 
-import MessageGroup from './MessageGroup'
+import Message from './Message'
+import MessageGroup, { getSuggestionPayload } from './MessageGroup'
 
 interface State {
   manualScroll: boolean
@@ -121,6 +125,10 @@ class MessageList extends React.Component<MessageListProps, State> {
     let lastDate = undefined
     let currentGroup = undefined
 
+    const lastMessage = last(messages.filter(x => !x.userId))
+    const suggestions: sdk.IO.SuggestChoice[] = lastMessage?.payload.metadata?.__suggestions || []
+    const staticMenuSuggest = suggestions.filter(x => x.position === 'static' || !x.position)
+
     messages.forEach(m => {
       const speaker = m.full_name
       const date = m.sent_on
@@ -182,15 +190,32 @@ class MessageList extends React.Component<MessageListProps, State> {
                 key={`msg-group-${i}`}
                 isLastGroup={i >= groups.length - 1}
                 messages={group}
+                suggestions={suggestions}
               />
             </div>
           )
         })}
+
+        {!!staticMenuSuggest.length && (
+          <div className={cx('bpw-message-big-container', { 'bpw-from-user': false })}>
+            <div role="region" className={'bpw-message-container'}>
+              <div aria-live="assertive" role="log" className={'bpw-message-group'}>
+                <Message
+                  store={this.props.store}
+                  onSendData={this.props.onSendData}
+                  key={`msg-static-suggest`}
+                  payload={getSuggestionPayload(staticMenuSuggest)}
+                  noBubble
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     )
   }
 
-  shouldDisplayMessage = (m: Message): boolean => {
+  shouldDisplayMessage = (m: MessageTypings): boolean => {
     return m.message_type !== 'postback'
   }
 
@@ -229,11 +254,13 @@ class MessageList extends React.Component<MessageListProps, State> {
 }
 
 export default inject(({ store }: { store: RootStore }) => ({
+  store,
   intl: store.intl,
   botName: store.botName,
   isBotTyping: store.isBotTyping,
   isEmulator: store.isEmulator,
   botAvatarUrl: store.botAvatarUrl,
+  onSendData: store.sendData,
   currentMessages: store.currentMessages,
   focusPrevious: store.view.focusPrevious,
   focusNext: store.view.focusNext,
@@ -242,7 +269,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   enableArrowNavigation: store.config.enableArrowNavigation
 }))(injectIntl(observer(MessageList)))
 
-type MessageListProps = InjectedIntlProps &
+type MessageListProps = { store?: RootStore; onSendData?: any } & InjectedIntlProps &
   Pick<
     StoreDef,
     | 'intl'

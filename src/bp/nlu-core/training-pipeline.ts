@@ -298,7 +298,8 @@ const TrainIntentClassifier = async (
 const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<string> => {
   debugTraining.forBot(input.botId, 'Training context classifier')
   const customEntities = getCustomEntitiesNames(input)
-  const points = _.flatMapDeep(input.contexts, ctx => {
+  const contexts = input.contexts.filter(ctx => !ctx.startsWith('explicit:'))
+  const points = _.flatMapDeep(contexts, ctx => {
     return input.intents
       .filter(intent => intent.contexts.includes(ctx) && intent.name !== NONE_INTENT)
       .map(intent =>

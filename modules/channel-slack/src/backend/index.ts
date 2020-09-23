@@ -53,7 +53,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     noInterface: true,
     fullName: 'Slack',
     homepage: 'https://botpress.com',
-    channelEffects: ['__typing', '__buttons', '__dropdown', '__markdown', '__collectFeedback']
+    channelEffects: ['__typing', '__suggestions', '__markdown', '__collectFeedback']
   }
 }
 

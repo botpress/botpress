@@ -56,6 +56,19 @@ export class InstructionsQueueBuilder {
       }
 
       if (this.currentNode.type === 'say_something' && this.currentNode.contents?.length) {
+        for (let i = 0; i < (this.currentNode.triggers?.length ?? 0); i++) {
+          this._queue.enqueue({
+            type: 'on-enter',
+            fn: 'register-trigger',
+            args: {
+              workflowId: this.currentFlow.name.replace(/.flow.json$/i, ''),
+              nodeId: this.currentNode.name,
+              index: i,
+              trigger: this.currentNode.triggers![i]
+            }
+          })
+        }
+
         this.currentNode.contents.forEach(content => {
           this._queue.enqueue({
             type: 'on-enter',
