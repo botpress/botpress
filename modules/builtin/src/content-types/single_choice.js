@@ -103,6 +103,7 @@ module.exports = {
 
   newSchema: {
     displayedIn: ['qna', 'sayNode'],
+    order: 4,
     fields: [
       {
         group: {

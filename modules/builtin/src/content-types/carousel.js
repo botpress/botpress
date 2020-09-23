@@ -77,6 +77,7 @@ module.exports = {
   },
   newSchema: {
     displayedIn: ['qna', 'sayNode'],
+    order: 3,
     fields: [
       {
         group: {

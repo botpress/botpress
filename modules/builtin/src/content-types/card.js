@@ -37,6 +37,7 @@ module.exports = {
 
   newSchema: {
     displayedIn: ['qna', 'sayNode'],
+    order: 2,
     fields: [
       {
         type: 'upload',

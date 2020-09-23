@@ -73,6 +73,7 @@ module.exports = {
   },
   newSchema: {
     displayedIn: ['sayNode'],
+    order: 0,
     fields: [
       {
         type: 'overridable',

@@ -65,6 +65,7 @@ module.exports = {
 
   newSchema: {
     displayedIn: ['qna', 'sayNode'],
+    order: 1,
     fields: [
       {
         type: 'upload',

@@ -4,6 +4,7 @@ import { Tab, Tabs } from '@blueprintjs/core'
 import { BotEvent, FormData } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar, sharedStyle } from 'botpress/shared'
 import cx from 'classnames'
+import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
 
 interface Props {
@@ -28,7 +29,8 @@ const fetchReducer = (state, action) => {
         ...state,
         contentTypes: data.map(type => ({
           value: type.id,
-          label: lang.tr(type.title)
+          label: lang.tr(type.title),
+          order: type.schema.newJson.order
         })),
         contentTypesFields: data.reduce((acc, type) => ({ ...acc, [type.id]: type.schema.newJson }), {})
       }
@@ -87,16 +89,6 @@ const ContentAnswerForm: FC<Props> = ({
     })
   }
 
-  const contentTypeWeight = {
-    builtin_text: 0,
-    builtin_image: 1,
-    builtin_card: 2,
-    builtin_carousel: 3,
-    'builtin_single-choice': 4
-  }
-
-  const sortContentTypes = (a, b) => contentTypeWeight[a.value] - contentTypeWeight[b.value]
-
   const contentFields = contentTypesFields?.[contentType.current]
 
   return (
@@ -114,7 +106,7 @@ const ContentAnswerForm: FC<Props> = ({
             <Dropdown
               filterable={false}
               className={sharedStyle.formSelect}
-              items={contentTypes.sort(sortContentTypes)}
+              items={_.sortBy(contentTypes, 'order')}
               defaultItem={contentType.current}
               rightIcon="chevron-down"
               onChange={option => {
