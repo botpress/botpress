@@ -38,6 +38,7 @@ export interface Message {
 export interface SessionIdentity {
   botId?: string
   channel?: string
+  threadId?: string
   userId?: string
   sessionId?: string
 }

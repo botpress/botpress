@@ -109,7 +109,7 @@ export default class HitlDb {
     }
 
     return this.knex('hitl_sessions')
-      .where({ botId: event.botId, channel: event.channel, userId: event.target })
+      .where({ botId: event.botId, channel: event.channel, userId: event.target, thread_id: event.threadId })
       .select('*')
       .limit(1)
       .then(users => {
@@ -227,7 +227,7 @@ export default class HitlDb {
   }
 
   async setSessionPauseState(isPaused: boolean, session: SessionIdentity, trigger: string): Promise<number> {
-    const { botId, channel, userId, sessionId } = session
+    const { botId, channel, userId, sessionId, threadId } = session
 
     if (sessionId) {
       return this.knex('hitl_sessions')
@@ -236,11 +236,11 @@ export default class HitlDb {
         .then(() => parseInt(sessionId))
     } else {
       return this.knex('hitl_sessions')
-        .where({ botId, channel, userId })
+        .where({ botId, channel, userId, thread_id: threadId })
         .update({ paused: isPaused ? 1 : 0, paused_trigger: trigger })
         .then(() => {
           return this.knex('hitl_sessions')
-            .where({ botId, channel, userId })
+            .where({ botId, channel, userId, thread_id: threadId })
             .select('id')
         })
         .then(sessions => parseInt(sessions[0].id))
@@ -248,10 +248,10 @@ export default class HitlDb {
   }
 
   async isSessionPaused(session: SessionIdentity): Promise<boolean> {
-    const { botId, channel, userId, sessionId } = session
+    const { botId, channel, userId, sessionId, threadId } = session
 
     return this.knex('hitl_sessions')
-      .where(sessionId ? { id: sessionId } : { botId, channel, userId })
+      .where(sessionId ? { id: sessionId } : { botId, channel, userId, threadId })
       .select('paused')
       .then()
       .get(0)
@@ -294,6 +294,7 @@ export default class HitlDb {
           id: res.session_id,
           botId: res.botId,
           channel: res.channel,
+          threadId: res.thread_id,
           lastEventOn: res.last_event_on,
           lastHeardOn: res.last_heard_on,
           isPaused: res.paused,
