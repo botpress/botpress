@@ -143,11 +143,6 @@ export default ({
   if (isPartOfArray) {
     tagifyCallbacks['paste'] = e => {
       e.preventDefault()
-      /*
-      const clipboardData = e.clipboardData
-      const pastedData = clipboardData.getData('Text')
-
-      addLines?.(pastedData.split(/\r?\n/))*/
     }
   }
 
@@ -334,9 +329,9 @@ export default ({
                     tabIndex={-1}
                     className={cx('tagify__tag', { ['tagify--invalid']: isInvalid })}
                   >
-                    <span>
+                    <span className="tagify__tag-text">
                       {icon}
-                      <span className="tagify__tag-text">{value}</span>
+                      {value}
                       {suffix}
                     </span>
                   </span>
