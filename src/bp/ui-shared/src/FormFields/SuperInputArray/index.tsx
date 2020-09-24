@@ -61,19 +61,29 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
 
   useEffect(() => {
     const keydownEvent = {}
+    const pasteEvent = {}
     const blurEvent = {}
     // If we don't recreate this everytime the refs or items change, the updates will have outdated states
     Object.keys(elRefs).forEach((key, index) => {
       keydownEvent[key] = addListenerWithArgs(elRefs[key].DOM.input, 'keydown', onKeyDown, index)
+      pasteEvent[key] = addListenerWithArgs(elRefs[key].DOM.input, 'paste', onPaste, index)
       blurEvent[key] = addListenerWithArgs(elRefs[key].DOM.input, 'blur', updateItems, index)
     })
 
     return () =>
       Object.keys(elRefs).forEach(key => {
         elRefs[key].DOM.input.removeEventListener('keydown', keydownEvent[key])
+        elRefs[key].DOM.input.removeEventListener('paste', pasteEvent[key])
         elRefs[key].DOM.input.removeEventListener('blur', blurEvent[key])
       })
   }, [elRefs, localItems])
+
+  const onPaste = (e, index) => {
+    const clipboardData = e.clipboardData
+    const pastedData = clipboardData.getData('Text')
+
+    addLines(pastedData.split(/\r?\n/))
+  }
 
   const addItem = (): void => {
     focusedElement.current = localItems.length
@@ -138,6 +148,14 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
     }
   }
 
+  const addLines = items => {
+    const newItems = [...localItems, ...items]
+    itemIds.current = [...itemIds.current, ...items.map(() => _uniqueId())]
+    focusedElement.current = newItems.length - 1
+
+    setLocalItems([...newItems])
+  }
+
   const missingTranslation = !!refValue?.filter(Boolean).length && !localItems.filter(Boolean).length
 
   return (
@@ -157,6 +175,7 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
               className={cx(sharedStyle.textarea, { ['has-error']: missingTranslation })}
               canPickEvents={canPickEvents}
               canPickVariables={canPickVariables}
+              addLines={addLines}
               isPartOfArray
               multiple
               variables={variables}

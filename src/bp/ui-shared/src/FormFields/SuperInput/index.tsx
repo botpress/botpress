@@ -28,6 +28,7 @@ export default ({
   variables,
   addVariable,
   onChange,
+  addLines,
   isPartOfArray,
   onBlur,
   className,
@@ -136,6 +137,17 @@ export default ({
         // TODO refactor to use the schema format properly and allow to breakdown into an object type search
         tagifyRef.current.settings.whitelist = localEvents
       }
+    }
+  }
+
+  if (isPartOfArray) {
+    tagifyCallbacks['paste'] = e => {
+      e.preventDefault()
+      /*
+      const clipboardData = e.clipboardData
+      const pastedData = clipboardData.getData('Text')
+
+      addLines?.(pastedData.split(/\r?\n/))*/
     }
   }
 
