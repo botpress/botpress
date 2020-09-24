@@ -417,7 +417,7 @@ export class Botpress {
         const metric = wf.success ? 'bp_core_workflow_completed' : 'bp_core_workflow_failed'
         BOTPRESS_CORE_EVENT(metric, { botId: event.botId, channel: event.channel, wfName: workflow })
 
-        if (!activeWorkflow && !wf.parent) {
+        if (!activeWorkflow && !wf.parent && event.type !== 'workflow_ended') {
           await this.eventEngine.sendEvent(
             Event({
               ..._.pick(event, ['botId', 'channel', 'target', 'threadId']),

@@ -32,7 +32,8 @@ export interface Hint {
   parentObject?: string
 }
 
-const invalidationFilePrefix = 'string::data/'
+const invalidationFilePrefix = 'buffer::data/'
+const DEBOUNCE_DELAY = 2000
 
 @injectable()
 export class HintsService {
@@ -54,6 +55,11 @@ export class HintsService {
   }
 
   private _listenForCacheInvalidation() {
+    const debounceHintsUpdated = _.debounce(
+      () => this.realtimeService.sendToSocket(RealTimePayload.forAdmins('hints.updated', {})),
+      DEBOUNCE_DELAY
+    )
+
     this.cache.events.on('invalidation', async key => {
       if (!key.startsWith(invalidationFilePrefix)) {
         return
@@ -63,8 +69,12 @@ export class HintsService {
       // This is necessary because the ghost relies on the cache when reading file content
       await Promise.delay(100)
       const filePath = key.substr(invalidationFilePrefix.length)
-      this.hints[filePath] = await this.indexFile(filePath)
-      this.realtimeService.sendToSocket(RealTimePayload.forAdmins('hints.updated', {}))
+      const hints = await this.indexFile(filePath)
+      if (hints.length) {
+        this.hints[filePath] = hints
+      }
+
+      debounceHintsUpdated()
     })
   }
 
@@ -107,7 +117,12 @@ export class HintsService {
       ...(await this.ghost.bots().directoryListing('/')).map(x => 'bots/' + x)
     ]
 
-    await Promise.mapSeries(files, async file => (hints[file] = await this.indexFile(file)))
+    await Promise.mapSeries(files, async file => {
+      const hints = await this.indexFile(file)
+      if (hints.length) {
+        hints[file] = hints
+      }
+    })
 
     this.hints = hints
   }

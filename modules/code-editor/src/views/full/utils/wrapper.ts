@@ -1,8 +1,8 @@
 import { EditableFile } from '../../../backend/typings'
 import { HOOK_SIGNATURES } from '../../../typings/hooks'
 
-const START_COMMENT = `/** Your code starts below */`
-const END_COMMENT = '/** Your code ends here */'
+export const START_COMMENT = `/** Your code starts below */`
+export const END_COMMENT = '/** Your code ends here */'
 
 const EXECUTE_SIGNATURE = 'function action(event: sdk.IO.IncomingEvent)'
 
@@ -52,7 +52,10 @@ const wrapper = {
     }
 
     const startIndex = content.indexOf(START_COMMENT)
-    const endIndex = content.indexOf(END_COMMENT)
+    let endIndex = content.indexOf(END_COMMENT)
+    if (endIndex === -1) {
+      endIndex = content.length
+    }
 
     if (startIndex === -1 || endIndex === -1) {
       return content
