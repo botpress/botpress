@@ -301,9 +301,10 @@ export default class MinimalEditor extends React.Component<Props> {
       return []
     }
 
-    return this.props.hints
-      .filter(x => x.name.startsWith(scope))
-      .map(x => `/** ${x.source}. ${x.location} */\n${x.name.replace(`${scope}.`, '')}: string\n`)
+    const printVarInfo = ({ source, location, name }: Hint) =>
+      `/** ${source}. ${location} */\n${name.replace(`${scope}.`, '')}: string\n`
+
+    return this.props.hints.filter(x => x.name.startsWith(scope)).map(printVarInfo)
   }
 
   loadCodeTypings = () => {
