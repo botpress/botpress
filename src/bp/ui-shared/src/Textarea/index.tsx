@@ -15,6 +15,7 @@ const Textarea: FC<TextareaProps> = ({
   className,
   value,
   placeholder,
+  onPaste,
   onBlur,
   onKeyDown
 }) => {
@@ -62,6 +63,7 @@ const Textarea: FC<TextareaProps> = ({
   return (
     <Fragment>
       <textarea
+        onPaste={onPaste}
         style={{ height: height.current + 'px' }}
         ref={inputRef}
         className={cx(style.textarea, className)}
