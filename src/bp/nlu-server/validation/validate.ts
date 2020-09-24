@@ -5,7 +5,7 @@ import { Enum, Intent, Pattern, TrainInput, Variable } from '../typings'
 import extractVariables from './extractVariables'
 import { TrainInputSchema } from './schemas'
 
-const makeSlotChecker = (enums: Enum[], patterns: Pattern[]) => (variable: Variable) => {
+const makeVariableChecker = (enums: Enum[], patterns: Pattern[]) => (variable: Variable) => {
   const { variableType, name } = variable
 
   const supportedTypes = [...enums.map(e => e.name), ...patterns.map(p => p.name)]
@@ -14,7 +14,7 @@ const makeSlotChecker = (enums: Enum[], patterns: Pattern[]) => (variable: Varia
   }
 }
 
-const makeUtteranceChecker = (supportedVariables: Variable[]) => (example: string) => {
+const makeExampleChecker = (supportedVariables: Variable[]) => (example: string) => {
   const variables = extractVariables(example)
 
   for (const v of variables) {
@@ -25,8 +25,8 @@ const makeUtteranceChecker = (supportedVariables: Variable[]) => (example: strin
 }
 
 function validateIntent(intent: Intent, enums: Enum[], patterns: Pattern[]) {
-  const exampleChecker = makeUtteranceChecker(intent.variables)
-  const variableChecker = makeSlotChecker(enums, patterns)
+  const exampleChecker = makeExampleChecker(intent.variables)
+  const variableChecker = makeVariableChecker(enums, patterns)
   intent.examples.forEach(exampleChecker)
   intent.variables.forEach(variableChecker)
 }

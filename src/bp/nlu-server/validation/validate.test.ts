@@ -235,3 +235,19 @@ test('validate with an unexisting referenced variable should throw', async () =>
   // act & assert
   await assertThrows(() => validateInput(trainInput), 'withoutTicketProblem')
 })
+
+test('validate with correct format but unexpected property should fail', async () => {
+  // arrange
+  const trainInput: TrainInput & { entities: any[] } = {
+    topics: [FLY_TOPIC],
+    enums: [CITY_ENUM],
+    language: LANG,
+    password: PW,
+    patterns: [],
+    seed: 42,
+    entities: []
+  }
+
+  // act & assert
+  await assertThrows(() => validateInput(trainInput), 'oneExtraKey')
+})
