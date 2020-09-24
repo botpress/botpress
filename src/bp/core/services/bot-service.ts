@@ -587,11 +587,14 @@ export class BotService {
 
   // Do not use directly use the public version instead due to broadcasting
   private async _localMount(botId: string): Promise<boolean> {
+    this.logger.info(`BotService._localMount(${botId}): stepped into`)
     const startTime = Date.now()
     if (this.isBotMounted(botId)) {
+      this.logger.info(`BotService._localMount(${botId}): is mounted`)
       return true
     }
 
+    this.logger.info(`BotService._localMount(${botId}): fileExists`)
     if (!(await this.ghostService.forBot(botId).fileExists('/', 'bot.config.json'))) {
       this.logger
         .forBot(botId)
@@ -600,10 +603,14 @@ export class BotService {
     }
 
     try {
+      this.logger.info(`BotService._localMount(${botId}): cms.loadElementsForBot`)
       await this.cms.loadElementsForBot(botId)
+      this.logger.info(`BotService._localMount(${botId}): moduleLoader.loadModulesForBot`)
       await this.moduleLoader.loadModulesForBot(botId)
 
+      this.logger.info(`BotService._localMount(${botId}): createForGlobalHooks`)
       const api = await createForGlobalHooks()
+      this.logger.info(`BotService._localMount(${botId}): hookService.executeHook`)
       await this.hookService.executeHook(new Hooks.AfterBotMount(api, botId))
       BotService._mountedBots.set(botId, true)
       this._invalidateBotIds()
@@ -613,6 +620,7 @@ export class BotService {
         BotService._botListenerHandles.delete(botId)
       }
 
+      this.logger.info(`BotService._localMount(${botId}): BotService._botListenerHandles.set`)
       BotService._botListenerHandles.set(
         botId,
         PersistedConsoleLogger.listenForAllLogs((level, message, args) => {
@@ -626,9 +634,11 @@ export class BotService {
         }, botId)
       )
 
+      this.logger.info(`BotService._localMount(${botId}): BotService.setBotStatus`)
       BotService.setBotStatus(botId, 'healthy')
       return true
     } catch (err) {
+      this.logger.info(`BotService._localMount(${botId}): catch`)
       this.logger
         .forBot(botId)
         .attachError(err)
@@ -636,6 +646,7 @@ export class BotService {
 
       return false
     } finally {
+      this.logger.info(`BotService._localMount(${botId}): finally`)
       await this._updateBotHealthDebounce()
       debug.forBot(botId, `Mount took ${Date.now() - startTime}ms`)
     }

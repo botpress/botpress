@@ -329,6 +329,8 @@ export class Botpress {
     )
 
     const maxConcurrentMount = parseInt(process.env.MAX_CONCURRENT_MOUNT || '5')
+    this.logger.info(JSON.stringify({ botsToMount }))
+    this.logger.info('Calling botService.mountBot()')
     await Promise.map(botsToMount, botId => this.botService.mountBot(botId), { concurrency: maxConcurrentMount })
   }
 
