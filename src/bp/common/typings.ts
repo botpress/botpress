@@ -330,3 +330,14 @@ export interface Prompts {
   primitive: PromptDefinition[]
   display: DisplayPromptType[]
 }
+
+export interface Hint {
+  scope: 'inputs'
+  name: string
+  source: string
+  category: 'VARIABLES'
+  partial: boolean
+  description?: string
+  location?: string
+  parentObject?: string
+}

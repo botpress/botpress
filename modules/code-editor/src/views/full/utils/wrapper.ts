@@ -52,7 +52,10 @@ const wrapper = {
     }
 
     const startIndex = content.indexOf(START_COMMENT)
-    const endIndex = content.indexOf(END_COMMENT)
+    let endIndex = content.indexOf(END_COMMENT)
+    if (endIndex === -1) {
+      endIndex = content.length
+    }
 
     if (startIndex === -1 || endIndex === -1) {
       return content

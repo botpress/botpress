@@ -1,4 +1,5 @@
 import { snakeToCamel } from 'common/action'
+import { Hint } from 'common/typings'
 import _ from 'lodash'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import babylon from 'prettier/parser-babylon'
@@ -26,12 +27,24 @@ const argsToInterface = (params?: Parameters[]) => {
   return (params ?? []).filter(Boolean).map(x => ({ name: snakeToCamel(x.name), type: x.type }))
 }
 
+function findLastIndex<T>(array: Array<T>, predicate: (value: T, index: number, obj: T[]) => boolean): number {
+  let l = array.length
+  while (l--) {
+    if (predicate(array[l], l, array)) {
+      return l
+    }
+  }
+  return -1
+}
+
 interface Props {
   onChange: (code: string) => void
   args?: Parameters[]
+  customKey: string
   code: string
   maximized: boolean
   displayed: boolean
+  hints: Hint[]
   bp: any
 }
 
@@ -64,7 +77,7 @@ export default class MinimalEditor extends React.Component<Props> {
       this.refreshLayout()
     }
 
-    if (prevProps.code !== this.props.code) {
+    if (prevProps.customKey !== this.props.customKey) {
       this.setState({ code: this.props.code })
 
       this.loadCodeTypings()
@@ -78,6 +91,10 @@ export default class MinimalEditor extends React.Component<Props> {
       if (prevProps.code === this.props.code && this.state.code) {
         this.reloadCode(this.state.code)
       }
+    }
+
+    if (prevProps.hints !== this.props.hints) {
+      this.loadCodeTypings()
     }
   }
 
@@ -120,7 +137,7 @@ export default class MinimalEditor extends React.Component<Props> {
   }
 
   handleContentChanged = () => {
-    if (!this.props.displayed) {
+    if (!this.props.displayed || !this.props.customKey) {
       return
     }
 
@@ -128,6 +145,14 @@ export default class MinimalEditor extends React.Component<Props> {
 
     this.props.onChange(unwrapped)
     this.setState({ code: unwrapped })
+  }
+
+  getEditableZone = () => {
+    const lines = this.editor.getValue().split('\n')
+    const startLine = lines.findIndex(x => x.includes('Your code starts')) + 2
+    const endLine = findLastIndex(lines, x => x.includes('Your code ends'))
+
+    return { startLine, endLine }
   }
 
   setupEditor() {
@@ -183,15 +208,25 @@ export default class MinimalEditor extends React.Component<Props> {
       this.editor.trigger('', 'editor.action.quickCommand', '')
     )
 
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_A, () => {
+      const { startLine, endLine } = this.getEditableZone()
+      this.editor.setSelection({ startLineNumber: startLine, startColumn: 0, endLineNumber: endLine, endColumn: 50 })
+    })
+
+    this.editor.onDidPaste(e => {
+      const { range } = e
+      const content = this.editor.getModel().getValueInRange(range)
+      const unwrapped = wrapper.remove(content, 'execute')
+
+      this.editor.executeEdits('paste', [{ range, text: unwrapped }])
+    })
+
     this.editor.onDidChangeModelContent(this.handleContentChanged)
 
     // TODO: Better logic
     // Prevents the user from editing the template lines
     this.editor.onDidChangeCursorPosition(e => {
-      const lines = this.editor.getValue().split('\n')
-      const startLine = lines.findIndex(x => x.includes('Your code starts')) + 2
-      const endLine = lines.findIndex(x => x.includes('Your code ends'))
-
+      const { startLine, endLine } = this.getEditableZone()
       if (startLine === 1 || endLine === -1) {
         return
       }
@@ -225,13 +260,34 @@ export default class MinimalEditor extends React.Component<Props> {
     monaco.languages.typescript.typescriptDefaults.addExtraLib(data, 'bp://types/custom_variables.d.ts')
   }
 
+  getHints = (scope: string) => {
+    if (!this.props.hints) {
+      return []
+    }
+
+    return this.props.hints
+      .filter(x => x.name.startsWith(scope))
+      .map(x => `/** ${x.source}. ${x.location} */\n${x.name.replace(`${scope}.`, '')}: string\n`)
+  }
+
   loadCodeTypings = () => {
     const content = `
-  declare var args: Args;
-  declare var user: any;
-  declare var temp: any;
-  declare var session: sdk.IO.CurrentSession;
-  declare var bp: typeof sdk;
+  declare const args: Args;
+  declare const user: {
+    ${this.getHints('user')}
+    [property: string]: any
+  };
+
+  declare const temp: {
+    ${this.getHints('temp')}
+    [property: string]: any
+  };
+
+  declare const session: {
+    ${this.getHints('session')}
+  } & sdk.IO.CurrentSession;
+
+  declare const bp: typeof sdk;
 
   interface Args {
 ${argsToInterface(this.props.args)
