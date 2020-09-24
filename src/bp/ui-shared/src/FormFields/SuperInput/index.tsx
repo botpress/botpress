@@ -219,7 +219,7 @@ export default ({
         })}
       >
         {
-          <div className={style.tagBtnWrapper}>
+          <div className={cx(style.tagBtnWrapper, 'tag-btn-wrapper')}>
             {canPickEvents && (
               <ToolTip content={lang('superInput.insertValueFromEvent')} hoverOpenDelay={300} position="top">
                 <Button

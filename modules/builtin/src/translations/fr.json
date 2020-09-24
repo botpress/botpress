@@ -5,11 +5,12 @@
   "types": {
     "actionButton": {
       "add": "Add Button",
+      "addLabel": "Ajouter un bouton",
       "actionLabel": "Action du bouton",
       "buttonTitle": "Titre du bouton",
       "delete": "Supprimer le bouton",
       "description": "Un bouton qui déclenche une action, souvent utilisé dans les cartes",
-      "sayLabel": "Dire",
+      "sayLabel": "L'assistant dit",
       "sayTextLabel": "Texte",
       "sayPlaceholder": "Qu'est-ce que l'assitant virtuel dit?",
       "postLabel": "Publier sur le serveur",

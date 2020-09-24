@@ -74,7 +74,7 @@ const TreeItem: FC<Props> = ({
 
   if (isEditing) {
     return (
-      <div style={{ paddingLeft: `${level * 23}px` }} className={cx(className, style.inlineEditing)}>
+      <div className={cx(className, style.inlineEditing)}>
         <input
           type="text"
           autoFocus
@@ -91,7 +91,6 @@ const TreeItem: FC<Props> = ({
 
   return (
     <Button
-      style={{ paddingLeft: `${level * 23}px` }}
       minimal
       className={className}
       onContextMenu={onContextMenu}

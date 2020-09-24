@@ -1,5 +1,5 @@
 import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
-import { BotEvent, Flow, FlowNode } from 'botpress/sdk'
+import { BotEvent, Content, Flow, FlowNode } from 'botpress/sdk'
 import { confirmDialog, Contents, FormFields, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
 import { getFlowLabel } from 'botpress/utils'
 import cx from 'classnames'
@@ -151,6 +151,17 @@ const QnA: FC<Props> = props => {
     updateQnA({
       id,
       data: { ...data, contentAnswers: newContentAnswers }
+    })
+  }
+
+  const addContentAnswer = () => {
+    contentAnswers.push({} as Content.All)
+    setShowContentForm(true)
+    editingContent.current = contentAnswers.length - 1
+
+    updateQnA({
+      id,
+      data: { ...data, contentAnswers: [...contentAnswers] }
     })
   }
 
@@ -337,10 +348,10 @@ const QnA: FC<Props> = props => {
             </div>
             {(!defaultLang || defaultLang === contentLang) && (
               <FormFields.AddButton
+                className={style.noSpacing}
                 text={lang.tr('module.qna.form.addContent')}
                 onClick={() => {
-                  setShowContentForm(true)
-                  editingContent.current = null
+                  addContentAnswer()
                 }}
               />
             )}

@@ -56,7 +56,7 @@ const Select: FC<SelectProps> = ({ onChange, printField, parent, field, data, ax
         filterable={false}
         className={sharedStyle.formSelect}
         placeholder={field.placeholder && lang(field.placeholder as string)}
-        items={options?.map(option => ({ ...option, label: lang(option.label) }))}
+        items={options?.map(option => ({ ...option, label: lang(option.label) })) || []}
         defaultItem={currentOption && { ...currentOption, label: lang(currentOption.label) }}
         rightIcon="chevron-down"
         onChange={option => onChange?.(option.value)}

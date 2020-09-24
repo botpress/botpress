@@ -37,7 +37,8 @@
     visibility: hidden;
     float: right;
     z-index: 9;
-    margin-top: 4px;
+    margin-top: var(--spacing-small);
+    margin-right: var(--spacing-small);
     transition: opacity 0.3s, visibility 0.3s;
   }
 

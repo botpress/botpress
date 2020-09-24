@@ -1,6 +1,6 @@
 import { Button, Intent, MenuItem } from '@blueprintjs/core'
 import axios from 'axios'
-import { confirmDialog, EmptyState, lang } from 'botpress/shared'
+import { confirmDialog, EmptyState, Icons, lang, sharedStyle } from 'botpress/shared'
 import cx from 'classnames'
 import { nextFlowName, nextTopicName, parseFlowName } from 'common/flow'
 import _ from 'lodash'
@@ -25,7 +25,6 @@ import { buildFlowName } from '../../../../util/workflows'
 
 import style from './style.scss'
 import EmptyStateIcon from './EmptyStateIcon'
-import SearchIcon from './SearchIcon'
 import TreeItem from './TreeItem'
 
 const lockedFlows = ['misunderstood.flow.json', 'error.flow.json', 'workflow_ended.flow.json']
@@ -444,17 +443,13 @@ const TopicList: FC<Props> = props => {
   return (
     <div className={cx(style.tree)}>
       {!!(!isEmpty || filter.length) && (
-        <SearchBar
-          className={style.searchBar}
-          placeholder={lang.tr('studio.flow.sidePanel.filterTopicsAndWorkflows')}
-          onChange={setFilter}
-        />
+        <SearchBar placeholder={lang.tr('studio.flow.sidePanel.filterTopicsAndWorkflows')} onChange={setFilter} />
       )}
       {isEmpty &&
         (!!filter.length ? (
           <EmptyState
             className={style.emptyState}
-            icon={<SearchIcon />}
+            icon={<Icons.Search />}
             text={lang.tr('studio.flow.sidePanel.noSearchMatch')}
           />
         ) : (

@@ -37,24 +37,7 @@ module.exports = {
 
   newSchema: {
     displayedIn: ['qna', 'sayNode'],
-    advancedSettings: [
-      {
-        key: 'markdown',
-        defaultValue: true,
-        label: 'module.builtin.useMarkdown',
-        type: 'checkbox',
-        moreInfo: {
-          label: 'learnMore',
-          url: 'https://daringfireball.net/projects/markdown/'
-        }
-      },
-      {
-        key: 'typing',
-        defaultValue: true,
-        type: 'checkbox',
-        label: 'module.builtin.typingIndicator'
-      }
-    ],
+    order: 2,
     fields: [
       {
         type: 'upload',
@@ -79,7 +62,7 @@ module.exports = {
       },
       {
         group: {
-          addLabel: 'module.builtin.actionButton',
+          addLabel: 'module.builtin.types.actionButton.addButton',
           contextMenu: [
             {
               type: 'delete',
