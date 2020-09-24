@@ -1,4 +1,4 @@
-import { Button, Callout, Intent, Tag } from '@blueprintjs/core'
+import { Callout, Intent, Tag } from '@blueprintjs/core'
 import { ServerConfig } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
