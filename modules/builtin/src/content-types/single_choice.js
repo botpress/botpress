@@ -98,14 +98,9 @@ module.exports = {
   },
 
   newSchema: {
-    displayedIn: ['sayNode', 'qna'],
+    displayedIn: ['qna', 'sayNode'],
+    order: 4,
     advancedSettings: [
-      {
-        key: 'typing',
-        defaultValue: true,
-        type: 'checkbox',
-        label: 'module.builtin.typingIndicator'
-      },
       {
         key: 'position',
         label: 'module.builtin.types.suggestions.position',
@@ -135,19 +130,6 @@ module.exports = {
           { label: 'module.builtin.types.suggestions.endOfWorkflow', value: 'workflow' }
         ]
       }
-
-      // not supported yet, if we support we need to do so for buttons as well
-      // {
-      //   key: 'canAdd',
-      //   type: 'checkbox',
-      //   label: 'module.builtin.types.suggestions.allowToAdd'
-      // },
-      // not supported yet, if we support we need to do so for buttons as well
-      // {
-      //   key: 'multiple',
-      //   type: 'checkbox',
-      //   label: 'module.builtin.types.suggestions.allowMultiplePick'
-      // }
     ],
     fields: [
       {

@@ -11,6 +11,11 @@
   }
 }
 
+.borderTop {
+  margin-top: var(--spacing-large);
+  border-top: 1px solid var(--gray);
+}
+
 .addBtn {
   color: var(--ocean) !important;
   display: block !important;
@@ -25,8 +30,7 @@
     fill: var(--ocean) !important;
   }
 
-  &:hover,
-  &:focus {
+  &:hover {
     color: var(--ocean) !important;
     background: var(--hover-ocean) !important;
   }

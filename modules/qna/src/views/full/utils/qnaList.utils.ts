@@ -47,6 +47,7 @@ export interface State {
 export interface Props {
   bp: any
   isLite?: boolean
+  licensing: any
   emulatorOpen?: boolean
   topicName: string
   contentLang: string

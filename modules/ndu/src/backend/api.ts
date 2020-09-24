@@ -34,6 +34,6 @@ export default async (bp: typeof sdk) => {
         return { label: upperFirst(value), value }
       })
 
-    res.send([...channels, { label: 'Converse', value: 'api' }])
+    res.send([...channels, { label: 'Converse API', value: 'api' }])
   })
 }

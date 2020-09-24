@@ -520,7 +520,7 @@ declare module 'botpress/sdk' {
     export type TrainingStatus = 'idle' | 'done' | 'needs-training' | 'training' | 'canceled' | 'errored' | null
 
     export interface TrainingSession {
-      key?: string
+      key: string
       status: TrainingStatus
       language: string
       progress: number
@@ -1669,6 +1669,8 @@ declare module 'botpress/sdk' {
       addLabelTooltip?: string
       /** You can specify a minimum so the delete button won't show if there isn't more than the minimum */
       minimum?: number
+      /** You can specify that there's one item of the group by default even if no minimum */
+      defaultItem?: boolean
       /** You can add a contextual menu to add extra options */
       contextMenu?: FormContextMenu[]
     }

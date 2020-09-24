@@ -2,6 +2,7 @@
 // Please do not change this file!
 interface CssExports {
   'checkboxWrapper': string;
+  'formGroup': string;
   'isCheckbox': string;
   'moreInfo': string;
   'requiredField': string;

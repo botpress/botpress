@@ -113,8 +113,7 @@ const ConditionForm: FC<Props> = ({
     .filter(x => !x.hidden || (x.hidden && x.id === condition.current))
     .map(type => ({
       value: type.id,
-      label: lang.tr(type.label, optionsVariablePlaceholder),
-      order: conditionUsage[type.id] ?? 0
+      label: lang.tr(type.label, optionsVariablePlaceholder)
     }))
 
   const selectedCondition = conditions.find(cond => cond.id === condition.current)
@@ -190,7 +189,7 @@ const ConditionForm: FC<Props> = ({
               filterable
               className={sharedStyle.formSelect}
               placeholder={lang.tr('studio.condition.pickCondition')}
-              items={_.orderBy(options, 'order', 'desc')}
+              items={_.orderBy(options, 'label')}
               defaultItem={selectedOption}
               rightIcon="chevron-down"
               onChange={option => {

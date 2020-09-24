@@ -233,6 +233,7 @@ select:global(.form-control) {
       line-height: 1.65;
       border-radius: 5px;
       min-height: 30px;
+      padding: var(--spacing-medium);
       display: flex;
       align-items: center;
 
@@ -251,7 +252,7 @@ select:global(.form-control) {
       }
 
       & > div {
-        line-height: 1.25;
+        line-height: 1;
         overflow: visible !important;
         white-space: normal;
       }
@@ -275,7 +276,7 @@ select:global(.form-control) {
     .bp3-button-text {
       color: var(--shark);
       font-size: 12px;
-      line-height: 1.25;
+      line-height: 1;
     }
   }
 
@@ -296,7 +297,7 @@ select:global(.form-control) {
     justify-content: space-between !important;
     min-height: 40px !important;
     line-height: 1.25 !important;
-    padding: var(--spacing-medium) var(--spacing-large) !important;
+    padding: var(--spacing-medium) var(--spacing-large) calc(var(--spacing-medium) - 1px) !important;
     width: 100% !important;
 
     &:focus,
@@ -373,8 +374,8 @@ select:global(.form-control) {
   border-top: 1px solid var(--gray) !important;
   color: var(--shark) !important;
   font-size: 12px !important;
-  min-height: 30px !important;
-  line-height: 1.25 !important;
+  min-height: 33px !important;
+  line-height: 1.1 !important;
   margin: -1px 0 0 !important;
   resize: none !important;
   transition: border 0.3s !important;
@@ -390,11 +391,12 @@ select:global(.form-control) {
       padding-left: 0 !important;
       padding-right: 0 !important;
     }
-  }
-}
 
-.textarea {
-  resize: none;
+    .tag-btn-wrapper {
+      margin-top: calc(var(--spacing-small) * -1) !important;
+      margin-right: 0 !important;
+    }
+  }
 }
 
 input[type='checkbox'],
@@ -477,5 +479,42 @@ input[type='radio'] {
     font-weight: normal !important;
     border-radius: 3px !important;
     background-color: var(--bg) !important;
+  }
+}
+
+.searchBar {
+  &:not(.noPadding) {
+    padding: 0 0 var(--spacing-medium) !important;
+  }
+
+  input {
+    background-color: #fff !important;
+    border-radius: 5px !important;
+    border: solid 1px var(--gray) !important;
+    box-shadow: none !important;
+    color: var(--shark) !important;
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+    padding: var(--spacing-medium) var(--spacing-medium) calc(var(--spacing-medium) - 1px) !important;
+    transition: border 0.3s !important;
+    width: 100% !important;
+
+    &:hover {
+      border: solid 1px var(--reef);
+    }
+
+    &:focus {
+      border: solid 1px var(--ocean);
+      outline: none;
+    }
+
+    &::placeholder {
+      opacity: 1;
+      color: var(--reef);
+    }
+  }
+
+  svg {
+    fill: var(--gray) !important;
   }
 }

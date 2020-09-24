@@ -22,41 +22,6 @@
   }
 }
 
-.searchBar {
-  padding: 0 0 var(--spacing-medium) !important;
-
-  input {
-    background-color: #fff;
-    border-radius: 5px;
-    border: solid 1px var(--gray);
-    box-shadow: none !important;
-    color: var(--shark);
-    font-size: 12px;
-    line-height: 1.25;
-    padding: 6px 6px 5px;
-    transition: border 0.3s;
-    width: 100%;
-
-    &:hover {
-      border: solid 1px var(--reef);
-    }
-
-    &:focus {
-      border: solid 1px var(--ocean);
-      outline: none;
-    }
-
-    &::placeholder {
-      opacity: 1;
-      color: var(--reef);
-    }
-  }
-
-  svg {
-    fill: var(--gray) !important;
-  }
-}
-
 .treeItem {
   align-items: center;
   color: var(--shark) !important;
@@ -64,11 +29,13 @@
   font-size: 12px !important;
   justify-content: flex-start;
   line-height: 1.25 !important;
-  padding-bottom: 0 !important;
-  padding-right: 0 !important;
-  padding-top: 0 !important;
+  padding: 0 !important;
   transition: background 0.3s;
   width: 100% !important;
+
+  &:not(.isTopic) {
+    padding-left: 23px !important;
+  }
 
   :global {
     .bp3-button-text {
@@ -205,7 +172,7 @@
   font-style: normal;
   font-weight: normal;
   line-height: 1.25;
-  padding-left: var(--spacing-small) !important;
+  padding-left: 4px !important;
   margin-top: 0;
   transition: background 0.3s;
   width: 100%;

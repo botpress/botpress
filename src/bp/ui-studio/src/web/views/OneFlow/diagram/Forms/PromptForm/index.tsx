@@ -140,7 +140,7 @@ const PromptForm: FC<Props> = ({
           )}
         </div>
         {selectedPromptType && (
-          <div className={cx(sharedStyle.fieldWrapper, sharedStyle.typeField)}>
+          <div className={sharedStyle.fieldWrapper}>
             <Contents.Form
               currentLang={contentLang}
               defaultLang={defaultLang}

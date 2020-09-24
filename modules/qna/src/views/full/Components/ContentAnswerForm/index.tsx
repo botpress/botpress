@@ -1,10 +1,11 @@
+// TODO refactor to use the same form as say node
+
 import { Tab, Tabs } from '@blueprintjs/core'
 import { BotEvent, FormData } from 'botpress/sdk'
 import { Contents, Dropdown, lang, MainContent, MoreOptions, MoreOptionsItems, sharedStyle } from 'botpress/shared'
 import cx from 'classnames'
+import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
-
-import style from './style.scss'
 
 interface Props {
   bp: any
@@ -28,7 +29,8 @@ const fetchReducer = (state, action) => {
         ...state,
         contentTypes: data.map(type => ({
           value: type.id,
-          label: lang.tr(type.title)
+          label: lang.tr(type.title),
+          order: type.schema.newJson.order
         })),
         contentTypesFields: data.reduce((acc, type) => ({ ...acc, [type.id]: type.schema.newJson }), {})
       }
@@ -104,7 +106,7 @@ const ContentAnswerForm: FC<Props> = ({
             <Dropdown
               filterable={false}
               className={sharedStyle.formSelect}
-              items={contentTypes}
+              items={_.sortBy(contentTypes, 'order')}
               defaultItem={contentType.current}
               rightIcon="chevron-down"
               onChange={option => {

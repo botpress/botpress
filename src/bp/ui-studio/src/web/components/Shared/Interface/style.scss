@@ -121,39 +121,6 @@ $status-bar-height: 30px;
   }
 }
 
-.searchBar {
-  input {
-    background-color: #fff;
-    border-radius: 5px;
-    border: solid 1px var(--gray);
-    box-shadow: none !important;
-    color: var(--shark);
-    font-size: 12px;
-    line-height: 1.25;
-    padding: var(--spacing-medium);
-    transition: border 0.3s;
-    width: 100%;
-
-    &:hover {
-      border: solid 1px var(--reef);
-    }
-
-    &:focus {
-      border: solid 1px var(--ocean);
-      outline: none;
-    }
-
-    &::placeholder {
-      opacity: 1;
-      color: var(--reef);
-    }
-  }
-
-  svg {
-    fill: var(--gray) !important;
-  }
-}
-
 .itemList {
   position: relative;
   overflow-y: auto;

@@ -91,6 +91,7 @@ declare module 'botpress/shared' {
     Brackets(): JSX.Element
     Minimize(): JSX.Element
     Say(): JSX.Element
+    Search(): JSX.Element
   }
 
   export const toast: {

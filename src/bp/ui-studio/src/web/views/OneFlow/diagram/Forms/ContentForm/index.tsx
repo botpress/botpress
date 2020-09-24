@@ -159,7 +159,10 @@ const ContentForm: FC<Props> = ({
             <Dropdown
               filterable={false}
               className={sharedStyle.formSelect}
-              items={contentTypes.map(type => ({ value: type.id, label: lang.tr(type.title) }))}
+              items={_.sortBy(contentTypes, 'schema.newJson.order').map(type => ({
+                value: type.id,
+                label: lang.tr(type.title)
+              }))}
               defaultItem={contentType.current}
               rightIcon="chevron-down"
               confirmChange={
