@@ -1,7 +1,6 @@
 import { Classes, InputGroup, MenuItem } from '@blueprintjs/core'
 import { DateRange, IDateRangeShortcut } from '@blueprintjs/datetime'
 import { lang } from 'botpress/shared'
-import _ from 'lodash'
 import moment from 'moment'
 import React from 'react'
 import { Filter } from 'react-table'

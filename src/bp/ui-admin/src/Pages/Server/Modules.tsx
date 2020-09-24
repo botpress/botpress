@@ -25,10 +25,6 @@ const Modules: FC<Props> = props => {
     props.fetchModules()
   }, [])
 
-  if (!props.modules) {
-    return null
-  }
-
   useEffect(() => {
     if (!isRestarting) {
       return
@@ -42,6 +38,10 @@ const Modules: FC<Props> = props => {
     }, 1000)
     return () => clearInterval(interval)
   }, [isRestarting])
+
+  if (!props.modules) {
+    return null
+  }
 
   const restartServer = async () => {
     try {

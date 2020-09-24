@@ -56,7 +56,7 @@ export const fetchLatestVersions = () => {
         const dockerInfo = data.results.map(result => ({
           name: result.name,
           version: result.name.slice(1).replace(/_/g, '.'),
-          hash: result.images[0].digest.replace(/\:/g, '-')
+          hash: result.images[0].digest.replace(/:/g, '-')
         }))
 
         releases.forEach(r => {
