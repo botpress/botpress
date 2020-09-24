@@ -1,6 +1,6 @@
 import { Intent, Menu, MenuItem } from '@blueprintjs/core'
 import { DecisionTriggerCondition, ExecuteNode, Flow, FormData, SubWorkflowNode } from 'botpress/sdk'
-import { contextMenu, lang, ShortcutLabel, toast } from 'botpress/shared'
+import { contextMenu, lang, sharedStyle, ShortcutLabel, toast } from 'botpress/shared'
 import { parseFlowName } from 'common/flow'
 import { FlowView } from 'common/typings'
 import React, { FC } from 'react'
@@ -99,7 +99,7 @@ const BlockWidget: FC<Props> = ({
         )}
         <MenuItem
           text={
-            <div className={style.contextMenuLabel}>
+            <div className={sharedStyle.contextMenuLabel}>
               {lang.tr('delete')}
               <ShortcutLabel light keys={['backspace']} />
             </div>

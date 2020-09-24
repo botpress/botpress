@@ -76,7 +76,7 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
         elRefs[key].DOM.input.removeEventListener('paste', pasteEvent[key])
         elRefs[key].DOM.input.removeEventListener('blur', blurEvent[key])
       })
-  }, [elRefs, localItems])
+  }, [elRefs, localItems, variables?.currentFlow?.length])
 
   const onPaste = (e, index) => {
     const clipboardData = e.clipboardData
@@ -124,9 +124,7 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
       if (localItems[index] !== undefined) {
         localItems[index] = convertToString(elRefs[index]?.DOM.originalInput.value)
         setLocalItems([...localItems])
-        if (!_isEqual(localItems, refValue)) {
-          onChange([...localItems])
-        }
+        onChange([...localItems])
       }
     } else {
       skipBlur.current = false
@@ -134,7 +132,11 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
   }
 
   const onKeyDown = (e, index): void => {
-    if (e.key === 'Enter' && !(e.ctrlKey || e.metaKey || e.shiftKey)) {
+    if (
+      e.key === 'Enter' &&
+      !(e.ctrlKey || e.metaKey || e.shiftKey) &&
+      elRefs[index]?.DOM?.input?.parentElement?.getAttribute('aria-expanded') !== 'true'
+    ) {
       e.preventDefault()
       addItem()
     }
