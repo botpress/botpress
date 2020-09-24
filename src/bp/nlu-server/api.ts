@@ -13,10 +13,12 @@ import Logger from '../simple-logger'
 
 import makeLoggerWrapper from './logger-wrapper'
 import ModelService from './model-service'
+import { TrainInputSchema } from './schemas'
 import TrainService from './train-service'
 import TrainSessionService from './train-session-service'
 import { TrainInput } from './typings'
-import { TrainInputCreateSchema } from './validation'
+import { mapTrainInput } from './utils'
+import validateInput from './validate'
 
 export interface APIOptions {
   host: string
@@ -85,23 +87,18 @@ export default async function(options: APIOptions, nluVersion: string) {
   const router = express.Router({ mergeParams: true })
   router.post('/train', async (req, res) => {
     try {
-      // TODO: add actual validation that all slots reference existing entities
-      // and all dollar signs $ reference existing slots
-      const input: TrainInput = await validate(req.body, TrainInputCreateSchema, {
-        stripUnknown: true
-      })
+      const input = await validateInput(req.body)
+      const { intents, entities, seed, language, password } = mapTrainInput(input)
 
-      const { topics, entities, language, password } = input
-      const intents = _.flatMap(Object.values(topics))
-      const modelHash = engine.computeModelHash(intents, input.entities, input.language)
+      const modelHash = engine.computeModelHash(intents, entities, language)
 
-      const seed = input.seed ?? Math.round(Math.random() * 10000)
-      const modelId = modelService.makeModelId(modelHash, input.language, seed)
+      const pickedSeed = seed ?? Math.round(Math.random() * 10000)
+      const modelId = modelService.makeModelId(modelHash, input.language, pickedSeed)
       const modelFileName = modelService.makeFileName(modelId, password)
 
       // return the modelId as fast as possible
       // tslint:disable-next-line: no-floating-promises
-      trainService.train(modelFileName, intents, entities, language, seed)
+      trainService.train(modelFileName, intents, entities, language, pickedSeed)
 
       return res.send({ success: true, modelId })
     } catch (err) {
