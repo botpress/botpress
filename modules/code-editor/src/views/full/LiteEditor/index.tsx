@@ -223,37 +223,53 @@ export default class MinimalEditor extends React.Component<Props> {
 
     this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_A, () => {
       const { startLine, endLine } = this.getEditableZone()
-      this.editor.setSelection({ startLineNumber: startLine, startColumn: 0, endLineNumber: endLine, endColumn: 50 })
+      this.editor.setSelection({ startLineNumber: startLine, startColumn: 0, endLineNumber: endLine, endColumn: 1000 })
     })
 
     this.editor.addCommand(monaco.KeyCode.Delete, () => {}, 'preventDelete')
-    this.editor.addCommand(monaco.KeyCode.Backspace, () => {}, 'preventBackspace')
+    this.editor.addCommand(monaco.KeyMod.Shift | monaco.KeyCode.Delete, () => {}, 'preventDelete')
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Delete, () => {}, 'preventDelete')
 
-    this.editor.onDidPaste(e => {
-      const { range } = e
+    this.editor.addCommand(monaco.KeyCode.Backspace, () => {}, 'preventBackspace')
+    this.editor.addCommand(monaco.KeyMod.Shift | monaco.KeyCode.Backspace, () => {}, 'preventBackspace')
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Backspace, () => {}, 'preventBackspace')
+
+    this.editor.onDidPaste(({ range }) => {
       const content = this.editor.getModel().getValueInRange(range)
       const unwrapped = wrapper.remove(content, 'execute')
 
       this.editor.executeEdits('paste', [{ range, text: unwrapped }])
     })
 
-    this.editor.onDidChangeModelContent(this.handleContentChanged)
+    const checkReadonlyZone = () => {
+      const { startLineNumber: lineNumber, startColumn: column } = this.editor.getSelection()
+      const { startLine, endLine } = this.getEditableZone()
+
+      const lineLastColumn = this.editor.getModel().getLineMaxColumn(lineNumber)
+
+      preventBackspace.set(lineNumber === startLine && column === 1)
+      preventDelete.set(lineNumber === endLine && column === lineLastColumn)
+    }
+
+    this.editor.onDidChangeModelContent(() => {
+      checkReadonlyZone()
+      this.handleContentChanged()
+    })
 
     // Prevents the user from editing the template lines
     this.editor.onDidChangeCursorPosition(e => {
-      const { lineNumber, column } = e.position
+      const { lineNumber } = e.position
       const { startLine, endLine } = this.getEditableZone()
 
-      preventBackspace.set(lineNumber === startLine && column === 1)
-      preventDelete.set(lineNumber === endLine)
+      checkReadonlyZone()
 
       if (startLine === 1 || endLine === -1) {
         return
       }
 
-      if (e.position.lineNumber < startLine) {
+      if (lineNumber < startLine) {
         this.editor.setPosition({ lineNumber: startLine, column: 1 })
-      } else if (e.position.lineNumber > endLine) {
+      } else if (lineNumber > endLine) {
         this.editor.setPosition({ lineNumber: endLine, column: 1 })
       }
     })
