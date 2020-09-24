@@ -10,8 +10,8 @@ import rewire from '../sdk/rewire'
 // tslint:disable-next-line:ordered-imports
 
 global.rewire = rewire as any
+import Logger from '../simple-logger'
 import API, { APIOptions } from './api'
-import { LangServerLogger } from './logger'
 import LanguageService from './service'
 import DownloadManager from './service/download-manager'
 
@@ -34,7 +34,7 @@ export interface ArgV {
 export default async function(options: ArgV) {
   options.langDir = options.langDir || path.join(process.APP_DATA_PATH, 'embeddings')
 
-  const logger = new LangServerLogger('Launcher')
+  const logger = new Logger('Launcher')
 
   global.printLog = args => {
     const message = args[0]
