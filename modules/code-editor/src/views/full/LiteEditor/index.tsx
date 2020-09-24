@@ -210,6 +210,9 @@ export default class MinimalEditor extends React.Component<Props> {
       }
     })
 
+    const preventBackspace = this.editor.createContextKey('preventBackspace', false)
+    const preventDelete = this.editor.createContextKey('preventDelete', false)
+
     this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, async () => {
       await this.editor.getAction('editor.action.formatDocument').run()
     })
@@ -223,6 +226,9 @@ export default class MinimalEditor extends React.Component<Props> {
       this.editor.setSelection({ startLineNumber: startLine, startColumn: 0, endLineNumber: endLine, endColumn: 50 })
     })
 
+    this.editor.addCommand(monaco.KeyCode.Delete, () => {}, 'preventDelete')
+    this.editor.addCommand(monaco.KeyCode.Backspace, () => {}, 'preventBackspace')
+
     this.editor.onDidPaste(e => {
       const { range } = e
       const content = this.editor.getModel().getValueInRange(range)
@@ -233,10 +239,14 @@ export default class MinimalEditor extends React.Component<Props> {
 
     this.editor.onDidChangeModelContent(this.handleContentChanged)
 
-    // TODO: Better logic
     // Prevents the user from editing the template lines
     this.editor.onDidChangeCursorPosition(e => {
+      const { lineNumber, column } = e.position
       const { startLine, endLine } = this.getEditableZone()
+
+      preventBackspace.set(lineNumber === startLine && column === 1)
+      preventDelete.set(lineNumber === endLine)
+
       if (startLine === 1 || endLine === -1) {
         return
       }
@@ -296,6 +306,10 @@ export default class MinimalEditor extends React.Component<Props> {
   declare const session: {
     ${this.getHints('session')}
   } & sdk.IO.CurrentSession;
+
+  declare const workflow: sdk.IO.WorkflowHistory & {
+    variables: Args
+  };
 
   declare const bp: typeof sdk;
 

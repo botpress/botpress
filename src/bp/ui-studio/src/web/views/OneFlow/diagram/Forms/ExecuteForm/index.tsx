@@ -84,6 +84,10 @@ const ExecuteForm: FC<Props> = ({
   })
 
   useEffect(() => {
+    return () => document.documentElement.style.setProperty('--right-sidebar-width', '240px')
+  }, [])
+
+  useEffect(() => {
     dispatch({
       type: 'setup',
       data: {
@@ -114,6 +118,7 @@ const ExecuteForm: FC<Props> = ({
   }, [state.selectedAction])
 
   useEffect(() => {
+    // TODO need to be flexible based on screen size
     document.documentElement.style.setProperty('--right-sidebar-width', maximized ? '820px' : '240px')
   }, [maximized])
 
