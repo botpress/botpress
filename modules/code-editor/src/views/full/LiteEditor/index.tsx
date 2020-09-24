@@ -1,5 +1,4 @@
 import { snakeToCamel } from 'common/action'
-import { Hint } from 'common/typings'
 import _ from 'lodash'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import babylon from 'prettier/parser-babylon'
@@ -14,6 +13,28 @@ import style from './style.scss'
 interface Parameters {
   name: string
   type: string
+}
+
+interface Props {
+  onChange: (code: string) => void
+  args?: Parameters[]
+  customKey: string
+  code: string
+  maximized: boolean
+  displayed: boolean
+  hints: Hint[]
+  bp: any
+}
+
+interface Hint {
+  scope: 'inputs'
+  name: string
+  source: string
+  category: 'VARIABLES'
+  partial: boolean
+  description?: string
+  location?: string
+  parentObject?: string
 }
 
 const argsToConst = (params?: Parameters[]) => {
@@ -35,17 +56,6 @@ function findLastIndex<T>(array: Array<T>, predicate: (value: T, index: number, 
     }
   }
   return -1
-}
-
-interface Props {
-  onChange: (code: string) => void
-  args?: Parameters[]
-  customKey: string
-  code: string
-  maximized: boolean
-  displayed: boolean
-  hints: Hint[]
-  bp: any
 }
 
 export default class MinimalEditor extends React.Component<Props> {
