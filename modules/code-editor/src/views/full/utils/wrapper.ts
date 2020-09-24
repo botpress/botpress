@@ -1,8 +1,8 @@
 import { EditableFile } from '../../../backend/typings'
 import { HOOK_SIGNATURES } from '../../../typings/hooks'
 
-const START_COMMENT = `/** Your code starts below */`
-const END_COMMENT = '/** Your code ends here */'
+export const START_COMMENT = `/** Your code starts below */`
+export const END_COMMENT = '/** Your code ends here */'
 
 const EXECUTE_SIGNATURE = 'function action(event: sdk.IO.IncomingEvent)'
 

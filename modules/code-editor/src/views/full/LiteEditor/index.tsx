@@ -6,7 +6,7 @@ import prettier from 'prettier/standalone'
 import React from 'react'
 
 import { RootStore } from '../store'
-import { wrapper } from '../utils/wrapper'
+import { END_COMMENT, START_COMMENT, wrapper } from '../utils/wrapper'
 
 import style from './style.scss'
 
@@ -159,8 +159,8 @@ export default class MinimalEditor extends React.Component<Props> {
 
   getEditableZone = () => {
     const lines = this.editor.getValue().split('\n')
-    const startLine = lines.findIndex(x => x.includes('Your code starts')) + 2
-    const endLine = findLastIndex(lines, x => x.includes('Your code ends'))
+    const startLine = lines.findIndex(x => x.includes(START_COMMENT)) + 2
+    const endLine = findLastIndex(lines, x => x.includes(END_COMMENT))
 
     return { startLine, endLine }
   }
