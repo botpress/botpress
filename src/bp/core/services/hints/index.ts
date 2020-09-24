@@ -33,6 +33,7 @@ export interface Hint {
 }
 
 const invalidationFilePrefix = 'buffer::data/'
+const DEBOUNCE_DELAY = 2000
 
 @injectable()
 export class HintsService {
@@ -54,6 +55,11 @@ export class HintsService {
   }
 
   private _listenForCacheInvalidation() {
+    const debounceHintsUpdated = _.debounce(
+      () => this.realtimeService.sendToSocket(RealTimePayload.forAdmins('hints.updated', {})),
+      DEBOUNCE_DELAY
+    )
+
     this.cache.events.on('invalidation', async key => {
       if (!key.startsWith(invalidationFilePrefix)) {
         return
@@ -67,7 +73,8 @@ export class HintsService {
       if (hints.length) {
         this.hints[filePath] = hints
       }
-      this.realtimeService.sendToSocket(RealTimePayload.forAdmins('hints.updated', {}))
+
+      debounceHintsUpdated()
     })
   }
 
