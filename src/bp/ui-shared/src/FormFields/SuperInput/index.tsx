@@ -16,6 +16,10 @@ import { convertToString, convertToTags } from './utils'
 import SingleSuperInput from './SingleSuperInput'
 
 type Props = FieldProps & SuperInputProps
+// Needs to be outside of react so there's a reference to the object.
+// otherwise tagify (which isn't react) only has the initial copy of
+// the variable list and won't update when creating new ones
+let theVariables
 
 export default ({
   canAddElements = true,
@@ -28,7 +32,6 @@ export default ({
   variables,
   addVariable,
   onChange,
-  addLines,
   isPartOfArray,
   onBlur,
   className,
@@ -65,6 +68,7 @@ export default ({
 
   useEffect(() => {
     setLocalVariables(filterVariables(variables))
+    theVariables = filterVariables(variables)
   }, [variables])
 
   useEffect(() => {
@@ -112,7 +116,7 @@ export default ({
 
       if (prefix && multiple) {
         if (prefix === '$') {
-          tagifyRef.current.settings.whitelist = localVariables
+          tagifyRef.current.settings.whitelist = theVariables
         }
 
         if (prefix === '{{') {
@@ -130,7 +134,7 @@ export default ({
       const prefix = e.detail.data.prefix
 
       if (prefix === '$') {
-        tagifyRef.current.settings.whitelist = localVariables
+        tagifyRef.current.settings.whitelist = theVariables
       }
 
       if (prefix === '{{') {
