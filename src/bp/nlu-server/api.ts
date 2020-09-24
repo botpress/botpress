@@ -3,7 +3,6 @@ import cors from 'cors'
 import express, { Application } from 'express'
 import rateLimit from 'express-rate-limit'
 import { createServer } from 'http'
-import { validate } from 'joi'
 import _ from 'lodash'
 import ms from 'ms'
 import Engine from 'nlu-core/engine'
@@ -13,12 +12,10 @@ import Logger from '../simple-logger'
 
 import makeLoggerWrapper from './logger-wrapper'
 import ModelService from './model-service'
-import { TrainInputSchema } from './schemas'
 import TrainService from './train-service'
 import TrainSessionService from './train-session-service'
-import { TrainInput } from './typings'
 import { mapTrainInput } from './utils'
-import validateInput from './validate'
+import validateInput from './validation/validate'
 
 export interface APIOptions {
   host: string

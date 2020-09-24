@@ -1,6 +1,6 @@
 import Joi from 'joi'
 
-import { DEFAULT_DUCK_SERVER, DEFAULT_LANG_SERVER, DEFAULT_LANG_SOURCES } from './config'
+import { DEFAULT_DUCK_SERVER, DEFAULT_LANG_SERVER, DEFAULT_LANG_SOURCES } from '../config'
 
 const EnumOccurenceSchema = Joi.object({
   name: Joi.string().required(), // ex: 'Paris', 'Montreal', 'Québec'
@@ -14,14 +14,18 @@ const EnumSchema = Joi.object().keys({
   name: Joi.string().required(), // ex: 'cities'
   values: Joi.array()
     .items(EnumOccurenceSchema)
-    .required(),
+    .required()
+    .min(1),
   fuzzy: Joi.number().default(0.9)
 })
 
 // TODO: maybe add some field to tell if information is sensitive (secret)...
 const PatternSchema = Joi.object().keys({
   name: Joi.string().required(),
-  positive_regexes: Joi.string().required(),
+  positive_regexes: Joi.array()
+    .items(Joi.string())
+    .required()
+    .min(1),
   case_sensitive: Joi.bool().default(true)
 })
 
@@ -39,6 +43,7 @@ const IntentSchema = Joi.object().keys({
   examples: Joi.array()
     .items(Joi.string())
     .required()
+    .min(1)
 })
 
 const TopicSchema = Joi.object().keys({
@@ -46,13 +51,14 @@ const TopicSchema = Joi.object().keys({
   intents: Joi.array()
     .items(IntentSchema)
     .required()
+    .min(1)
 })
 
 export const TrainInputSchema = Joi.object().keys({
   language: Joi.string().required(),
   topics: Joi.array()
     .items(TopicSchema)
-    .required(),
+    .required(), // train input with empty topics array just for entity extraction is allowed
   enums: Joi.array()
     .items(EnumSchema)
     .optional()

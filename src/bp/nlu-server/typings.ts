@@ -1,8 +1,6 @@
 export interface TrainInput {
   language: string
-  topics: {
-    [topic: string]: Topic
-  }
+  topics: Topic[]
   enums: Enum[]
   patterns: Pattern[] // TODO: add complexs
   password: string
@@ -38,6 +36,6 @@ export interface EnumOccurence {
 
 export interface Pattern {
   name: string
-  positive_regexes: string
+  positive_regexes: string[]
   case_sensitive: boolean
 }
