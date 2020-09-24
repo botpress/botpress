@@ -56,7 +56,7 @@ const mapPattern = (pattern: Pattern): NLU.EntityDefinition => {
     list_entities: [],
     pattern_entities: [],
     type: 'pattern',
-    pattern: positive_regexes,
+    pattern: positive_regexes[0], // TODO: adress this type mismatch...
     matchCase: case_sensitive
   }
 }
