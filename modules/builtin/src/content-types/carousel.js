@@ -77,28 +77,12 @@ module.exports = {
   },
   newSchema: {
     displayedIn: ['qna', 'sayNode'],
-    advancedSettings: [
-      {
-        key: 'markdown',
-        label: 'module.builtin.useMarkdown',
-        defaultValue: true,
-        type: 'checkbox',
-        moreInfo: {
-          label: 'learnMore',
-          url: 'https://daringfireball.net/projects/markdown/'
-        }
-      },
-      {
-        key: 'typing',
-        defaultValue: true,
-        type: 'checkbox',
-        label: 'module.builtin.typingIndicator'
-      }
-    ],
+    order: 3,
     fields: [
       {
         group: {
           addLabel: 'module.builtin.types.card.add',
+          defaultItem: true,
           contextMenu: [
             {
               type: 'delete',

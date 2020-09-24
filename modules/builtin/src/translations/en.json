@@ -1,15 +1,16 @@
 {
-  "actionButton": "Action Button",
+  "actionButton": "Button Action",
   "fullName": "Basic Skills",
   "optional": "Optional",
   "types": {
     "actionButton": {
       "add": "Add Button",
-      "actionLabel": "Action Button",
+      "addButton": "Add Button",
+      "actionLabel": "Button Action",
       "buttonTitle": "Title of the button",
       "delete": "Delete Button",
       "description": "A button that triggers an action, often used in cards",
-      "sayLabel": "Say",
+      "sayLabel": "Chatbot Says",
       "sayTextLabel": "Text",
       "sayPlaceholder": "What will your chatbot say?",
       "postLabel": "Post Back",
@@ -17,7 +18,7 @@
       "textTitle": "Enter text or the ID of a content element (ex: #!builtin_text-myid)",
       "textLabel": "Button Text",
       "textPlaceholder": "What is written on the button?",
-      "title": "Action Button",
+      "title": "Button Action",
       "urlLabel": "Open URL",
       "urlPlaceholder": "Write a valid URL"
     },

@@ -475,7 +475,7 @@
     }
   }
   &:hover {
-    .content:not(.promptPortContent) {
+    .content:not(.promptPortContent):not(.readOnly) {
       border: solid 1px var(--ocean);
     }
   }

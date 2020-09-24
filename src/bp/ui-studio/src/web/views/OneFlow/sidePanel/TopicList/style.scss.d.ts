@@ -14,7 +14,6 @@ interface CssExports {
   'isTopic': string;
   'larger': string;
   'largerSelected': string;
-  'searchBar': string;
   'tag': string;
   'topicName': string;
   'tree': string;

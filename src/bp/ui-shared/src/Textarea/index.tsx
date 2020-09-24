@@ -20,11 +20,11 @@ const Textarea: FC<TextareaProps> = ({
 }) => {
   const [forceUpdate, setForceUpdate] = useState(false)
   const inputRef = useRef<HTMLTextAreaElement>(null)
-  const height = useRef(39)
+  const height = useRef(33)
   const initialChange = useRef(true)
 
   useEffect(() => {
-    height.current = inputRef.current?.scrollHeight || 39
+    height.current = inputRef.current?.scrollHeight || 33
     setForceUpdate(!forceUpdate)
   }, [])
 

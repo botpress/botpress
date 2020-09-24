@@ -226,6 +226,7 @@ const Form: FC<FormProps> = ({
         return (
           <Fragment key={field.key}>
             <div
+              className={style.formGroup}
               ref={ref => {
                 groupRef.current[field.key] = ref!
               }}
@@ -630,7 +631,7 @@ const Form: FC<FormProps> = ({
     <Fragment>
       <div ref={fieldWrapperRef}>{fields?.map(field => printField(field, state))}</div>
       {!!advancedSettings?.length && (
-        <GroupItemWrapper defaultCollapsed label={lang('advancedSettings')}>
+        <GroupItemWrapper defaultCollapsed borderTop={!!fields.length} label={lang('advancedSettings')}>
           {advancedSettings.map(field => printField(field, state))}
         </GroupItemWrapper>
       )}

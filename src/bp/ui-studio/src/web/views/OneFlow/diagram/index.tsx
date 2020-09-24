@@ -10,8 +10,8 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
-import { FlowVariable, IO, NodeTransition } from 'botpress/sdk'
-import { Contents, contextMenu, EmptyState, Icons, lang, MainContent, toast } from 'botpress/shared'
+import { FlowVariable, IO } from 'botpress/sdk'
+import { Contents, contextMenu, EmptyState, Icons, lang, MainContent, sharedStyle, toast } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
@@ -37,7 +37,6 @@ import {
   refreshCallerFlows,
   refreshEntities,
   refreshFlowsLinks,
-  refreshHints,
   removeFlowNode,
   setActiveFormItem,
   switchFlow,
@@ -50,8 +49,6 @@ import {
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
 import { history } from '~/components/Routes'
 import { SearchBar } from '~/components/Shared/Interface'
-import { toastInfo, toastSuccess } from '~/components/Shared/Utils'
-import withLanguage from '~/components/Util/withLanguage'
 import {
   getAllFlows,
   getCallerFlowsOutcomeUsage,
@@ -141,7 +138,6 @@ class Diagram extends Component<Props> {
   private dragPortSource: any
 
   state = {
-    editingNodeItem: null,
     currentTab: storage.get(DIAGRAM_TAB_KEY) || 'workflow',
     expandedNodes: [],
     nodeInfos: []
@@ -152,7 +148,7 @@ class Diagram extends Component<Props> {
 
     const commonProps = {
       editNodeItem: this.editNodeItem.bind(this),
-      selectedNodeItem: () => this.getStateProperty('editingNodeItem'),
+      selectedNodeItem: () => this.getPropsProperty('activeFormItem'),
       deleteSelectedElements: this.deleteSelectedElements.bind(this),
       getCurrentFlow: () => this.getPropsProperty('currentFlow'),
       updateFlowNode: this.updateNodeAndRefresh.bind(this),
@@ -265,7 +261,7 @@ class Diagram extends Component<Props> {
     }
 
     if (
-      !prevState.editingNodeItem &&
+      !prevState.activeFormItem &&
       this.props.currentFlowNode?.isNew &&
       autoOpenNodes.includes(this.props.currentFlowNode?.type)
     ) {
@@ -600,7 +596,7 @@ class Diagram extends Component<Props> {
                 onClick={() => {
                   const elementId = textToItemId((targetModel as BlockModel).onEnter?.[0])
                   this.props.addElementToLibrary(elementId)
-                  toastSuccess('Added to library')
+                  toast.success('Added to library')
                 }}
               />
             )}
@@ -989,6 +985,7 @@ class Diagram extends Component<Props> {
             extraProps={{
               updateLocalLang: lang => this.props.setCurrentLang(lang),
               isLite: true,
+              licensing: this.props.licensing,
               emulatorOpen: this.props.emulatorOpen,
               topicName: this.props.selectedTopic,
               languages: this.props.languages,
@@ -1023,6 +1020,7 @@ class Diagram extends Component<Props> {
           ) : (
             <div className={style.searchWrapper}>
               <SearchBar
+                className={sharedStyle.noPadding}
                 ref={this.searchRef}
                 onBlur={this.props.hideSearch}
                 value={this.props.highlightFilter}
@@ -1068,7 +1066,7 @@ class Diagram extends Component<Props> {
           addVariable={this.addVariable}
           diagramEngine={this.diagramEngine}
           deleteSelectedElements={this.deleteSelectedElements.bind(this)}
-          updateEditingNodeItem={editingNodeItem => this.setState({ editingNodeItem })}
+          updateEditingNodeItem={activeFormItem => this.props.setActiveFormItem(activeFormItem)}
           updateTimeout={timeout => (this.timeout = timeout)}
           selectedTopic={this.props.selectedTopic}
           currentLang={this.props.currentLang}
@@ -1095,7 +1093,8 @@ const mapStateToProps = (state: RootReducer) => ({
   emulatorOpen: state.ui.emulatorOpen,
   activeFormItem: state.flows.activeFormItem,
   conditions: state.ndu.conditions,
-  zoomLevel: state.ui.zoomLevel
+  zoomLevel: state.ui.zoomLevel,
+  licensing: state.core.licensing
 })
 
 const mapDispatchToProps = {

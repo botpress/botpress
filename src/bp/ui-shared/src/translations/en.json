@@ -19,6 +19,7 @@
   "code": "Code",
   "codeNewAction": "Code New Action",
   "collapseAll": "Collapse All",
+  "converseApi": "Converse API",
   "commander": {
     "backToAdmin": "Back to Admin",
     "category": {
@@ -139,7 +140,7 @@
   },
   "label": "Label",
   "language": "Language",
-  "learnMore": "Learn More",
+  "learnMore": "Learn more",
   "library": "Library",
   "line": "Line",
   "list": "List",

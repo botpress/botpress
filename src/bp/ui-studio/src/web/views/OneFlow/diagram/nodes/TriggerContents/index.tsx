@@ -39,30 +39,36 @@ const TriggerContents: FC<Props> = ({
 
   return (
     <div className={style.contentsWrapper}>
-      {node.conditions?.map((condition, index) => (
-        <Fragment key={index}>
-          {checkMissingTranslations(condition) ? (
-            <button onClick={() => editNodeItem?.(node, index)} className={style.needsTranslation}>
-              {lang.tr('needsTranslation')}
-            </button>
-          ) : (
-            <NodeContentItem
-              className={cx(style.hasJoinLabel, {
-                [style.active]: selectedCondition?.node?.id === node.id && index === selectedCondition?.index
-              })}
-              onEdit={() => !node.isReadOnly &&  editNodeItem?.(node, index)}
-            >
-              <span className={cx(style.content, { [style.readOnly]: node.isReadOnly })}>
-                {lang.tr(conditionLabels[condition.id], {
-                  ...condition.params,
-                  firstSentence: condition.params?.utterances?.[currentLang]?.[0]
+      {node.conditions?.map((condition, index) => {
+        const { topicName, channelName, language } = condition.params || {}
+
+        return (
+          <Fragment key={index}>
+            {checkMissingTranslations(condition) ? (
+              <button onClick={() => editNodeItem?.(node, index)} className={style.needsTranslation}>
+                {lang.tr('needsTranslation')}
+              </button>
+            ) : (
+              <NodeContentItem
+                className={cx(style.hasJoinLabel, {
+                  [style.active]: selectedCondition?.node?.id === node.id && index === selectedCondition?.index
                 })}
-              </span>
-            </NodeContentItem>
-          )}
-          <span className={style.joinLabel}>{lang.tr('and')}</span>
-        </Fragment>
-      ))}
+                onEdit={() => !node.isReadOnly && editNodeItem?.(node, index)}
+              >
+                <span className={cx(style.content, { [style.readOnly]: node.isReadOnly })}>
+                  {lang.tr(conditionLabels[condition.id], {
+                    topicName: topicName || '',
+                    channelName: channelName === 'api' ? lang.tr('converseApi') : channelName,
+                    language: language ? lang.tr(`isoLangs.${language}.name`).toLowerCase() : '',
+                    firstSentence: condition.params?.utterances?.[currentLang]?.[0]
+                  })}
+                </span>
+              </NodeContentItem>
+            )}
+            <span className={style.joinLabel}>{lang.tr('and')}</span>
+          </Fragment>
+        )
+      })}
     </div>
   )
 }
