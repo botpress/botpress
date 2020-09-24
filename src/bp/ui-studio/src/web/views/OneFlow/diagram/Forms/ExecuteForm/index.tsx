@@ -114,7 +114,7 @@ const ExecuteForm: FC<Props> = ({
   }, [state.selectedAction])
 
   useEffect(() => {
-    document.documentElement.style.setProperty('--right-sidebar-width', maximized ? '580px' : '240px')
+    document.documentElement.style.setProperty('--right-sidebar-width', maximized ? '820px' : '240px')
   }, [maximized])
 
   const moreOptionsItems: MoreOptionsItems[] = [
