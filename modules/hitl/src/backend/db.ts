@@ -108,8 +108,13 @@ export default class HitlDb {
       return undefined
     }
 
+    const where = { botId: event.botId, channel: event.channel, userId: event.target }
+    if (event.threadId) {
+      where['thread_id'] = event.threadId
+    }
+
     return this.knex('hitl_sessions')
-      .where({ botId: event.botId, channel: event.channel, userId: event.target, thread_id: event.threadId })
+      .where(where)
       .select('*')
       .limit(1)
       .then(users => {
@@ -235,12 +240,16 @@ export default class HitlDb {
         .update({ paused: isPaused ? 1 : 0, paused_trigger: trigger })
         .then(() => parseInt(sessionId))
     } else {
+      const where = { botId, channel, userId }
+      if (threadId) {
+        where['thread_id'] = threadId
+      }
       return this.knex('hitl_sessions')
-        .where({ botId, channel, userId, thread_id: threadId })
+        .where(where)
         .update({ paused: isPaused ? 1 : 0, paused_trigger: trigger })
         .then(() => {
           return this.knex('hitl_sessions')
-            .where({ botId, channel, userId, thread_id: threadId })
+            .where(where)
             .select('id')
         })
         .then(sessions => parseInt(sessions[0].id))
