@@ -6,13 +6,35 @@ import prettier from 'prettier/standalone'
 import React from 'react'
 
 import { RootStore } from '../store'
-import { wrapper } from '../utils/wrapper'
+import { END_COMMENT, START_COMMENT, wrapper } from '../utils/wrapper'
 
 import style from './style.scss'
 
 interface Parameters {
   name: string
   type: string
+}
+
+interface Props {
+  onChange: (code: string) => void
+  args?: Parameters[]
+  customKey: string
+  code: string
+  maximized: boolean
+  displayed: boolean
+  hints: Hint[]
+  bp: any
+}
+
+interface Hint {
+  scope: 'inputs'
+  name: string
+  source: string
+  category: 'VARIABLES'
+  partial: boolean
+  description?: string
+  location?: string
+  parentObject?: string
 }
 
 const argsToConst = (params?: Parameters[]) => {
@@ -26,13 +48,14 @@ const argsToInterface = (params?: Parameters[]) => {
   return (params ?? []).filter(Boolean).map(x => ({ name: snakeToCamel(x.name), type: x.type }))
 }
 
-interface Props {
-  onChange: (code: string) => void
-  args?: Parameters[]
-  code: string
-  maximized: boolean
-  displayed: boolean
-  bp: any
+function findLastIndex<T>(array: Array<T>, predicate: (value: T, index: number, obj: T[]) => boolean): number {
+  let l = array.length
+  while (l--) {
+    if (predicate(array[l], l, array)) {
+      return l
+    }
+  }
+  return -1
 }
 
 export default class MinimalEditor extends React.Component<Props> {
@@ -64,7 +87,7 @@ export default class MinimalEditor extends React.Component<Props> {
       this.refreshLayout()
     }
 
-    if (prevProps.code !== this.props.code) {
+    if (prevProps.customKey !== this.props.customKey) {
       this.setState({ code: this.props.code })
 
       this.loadCodeTypings()
@@ -78,6 +101,10 @@ export default class MinimalEditor extends React.Component<Props> {
       if (prevProps.code === this.props.code && this.state.code) {
         this.reloadCode(this.state.code)
       }
+    }
+
+    if (prevProps.hints !== this.props.hints) {
+      this.loadCodeTypings()
     }
   }
 
@@ -120,7 +147,7 @@ export default class MinimalEditor extends React.Component<Props> {
   }
 
   handleContentChanged = () => {
-    if (!this.props.displayed) {
+    if (!this.props.displayed || !this.props.customKey) {
       return
     }
 
@@ -128,6 +155,14 @@ export default class MinimalEditor extends React.Component<Props> {
 
     this.props.onChange(unwrapped)
     this.setState({ code: unwrapped })
+  }
+
+  getEditableZone = () => {
+    const lines = this.editor.getValue().split('\n')
+    const startLine = lines.findIndex(x => x.includes(START_COMMENT)) + 2
+    const endLine = findLastIndex(lines, x => x.includes(END_COMMENT))
+
+    return { startLine, endLine }
   }
 
   setupEditor() {
@@ -175,6 +210,9 @@ export default class MinimalEditor extends React.Component<Props> {
       }
     })
 
+    const preventBackspace = this.editor.createContextKey('preventBackspace', false)
+    const preventDelete = this.editor.createContextKey('preventDelete', false)
+
     this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, async () => {
       await this.editor.getAction('editor.action.formatDocument').run()
     })
@@ -183,22 +221,55 @@ export default class MinimalEditor extends React.Component<Props> {
       this.editor.trigger('', 'editor.action.quickCommand', '')
     )
 
-    this.editor.onDidChangeModelContent(this.handleContentChanged)
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_A, () => {
+      const { startLine, endLine } = this.getEditableZone()
+      this.editor.setSelection({ startLineNumber: startLine, startColumn: 0, endLineNumber: endLine, endColumn: 1000 })
+    })
 
-    // TODO: Better logic
+    this.editor.addCommand(monaco.KeyCode.Delete, () => {}, 'preventDelete')
+    this.editor.addCommand(monaco.KeyMod.Shift | monaco.KeyCode.Delete, () => {}, 'preventDelete')
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Delete, () => {}, 'preventDelete')
+
+    this.editor.addCommand(monaco.KeyCode.Backspace, () => {}, 'preventBackspace')
+    this.editor.addCommand(monaco.KeyMod.Shift | monaco.KeyCode.Backspace, () => {}, 'preventBackspace')
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Backspace, () => {}, 'preventBackspace')
+
+    this.editor.onDidPaste(({ range }) => {
+      const content = this.editor.getModel().getValueInRange(range)
+      const unwrapped = wrapper.remove(content, 'execute')
+
+      this.editor.executeEdits('paste', [{ range, text: unwrapped }])
+    })
+
+    const checkReadonlyZone = () => {
+      const { startLineNumber: lineNumber, startColumn: column } = this.editor.getSelection()
+      const { startLine, endLine } = this.getEditableZone()
+
+      const lineLastColumn = this.editor.getModel().getLineMaxColumn(lineNumber)
+
+      preventBackspace.set(lineNumber === startLine && column === 1)
+      preventDelete.set(lineNumber === endLine && column === lineLastColumn)
+    }
+
+    this.editor.onDidChangeModelContent(() => {
+      checkReadonlyZone()
+      this.handleContentChanged()
+    })
+
     // Prevents the user from editing the template lines
     this.editor.onDidChangeCursorPosition(e => {
-      const lines = this.editor.getValue().split('\n')
-      const startLine = lines.findIndex(x => x.includes('Your code starts')) + 2
-      const endLine = lines.findIndex(x => x.includes('Your code ends'))
+      const { lineNumber } = e.position
+      const { startLine, endLine } = this.getEditableZone()
+
+      checkReadonlyZone()
 
       if (startLine === 1 || endLine === -1) {
         return
       }
 
-      if (e.position.lineNumber < startLine) {
+      if (lineNumber < startLine) {
         this.editor.setPosition({ lineNumber: startLine, column: 1 })
-      } else if (e.position.lineNumber > endLine) {
+      } else if (lineNumber > endLine) {
         this.editor.setPosition({ lineNumber: endLine, column: 1 })
       }
     })
@@ -225,13 +296,39 @@ export default class MinimalEditor extends React.Component<Props> {
     monaco.languages.typescript.typescriptDefaults.addExtraLib(data, 'bp://types/custom_variables.d.ts')
   }
 
+  getHints = (scope: string) => {
+    if (!this.props.hints) {
+      return []
+    }
+
+    const printVarInfo = ({ source, location, name }: Hint) =>
+      `/** ${source}. ${location} */\n${name.replace(`${scope}.`, '')}: string\n`
+
+    return this.props.hints.filter(x => x.name.startsWith(scope)).map(printVarInfo)
+  }
+
   loadCodeTypings = () => {
     const content = `
-  declare var args: Args;
-  declare var user: any;
-  declare var temp: any;
-  declare var session: sdk.IO.CurrentSession;
-  declare var bp: typeof sdk;
+  declare const args: Args;
+  declare const user: {
+    ${this.getHints('user')}
+    [property: string]: any
+  };
+
+  declare const temp: {
+    ${this.getHints('temp')}
+    [property: string]: any
+  };
+
+  declare const session: {
+    ${this.getHints('session')}
+  } & sdk.IO.CurrentSession;
+
+  declare const workflow: sdk.IO.WorkflowHistory & {
+    variables: Args
+  };
+
+  declare const bp: typeof sdk;
 
   interface Args {
 ${argsToInterface(this.props.args)
