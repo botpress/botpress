@@ -31,6 +31,7 @@ export default async (bp: SDK, db: Database) => {
         type: 'text',
         channel: session.channel,
         target: session.userId,
+        threadId: session.threadId,
         botId: req.params.botId,
         direction: 'outgoing',
         payload: {
@@ -50,13 +51,13 @@ export default async (bp: SDK, db: Database) => {
 
   router.post('/channel/:channel/user/:userId/isPaused', async (req, res) => {
     const { botId, channel, userId } = req.params
-    res.send(await db.isSessionPaused({ botId, channel, userId }))
+    const { threadId } = req.query
+    res.send(await db.isSessionPaused({ botId, channel, userId, threadId }))
   })
 
   const changePauseState = async (isPaused: boolean, targetUser: SessionIdentity, trigger: string = 'operator') => {
     const sessionId = await db.setSessionPauseState(isPaused, targetUser, trigger)
 
-    bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session', { id: sessionId }))
     bp.realtime.sendPayload(bp.RealTimePayload.forAdmins('hitl.session.changed', { id: sessionId, isPaused }))
   }
 
@@ -68,7 +69,8 @@ export default async (bp: SDK, db: Database) => {
 
   router.post('/channel/:channel/user/:userId/:action', async (req, res) => {
     const { botId, channel, userId, action, trigger } = req.params
-    await changePauseState(action === 'pause', { botId, channel, userId }, trigger)
+    const { threadId } = req.query
+    await changePauseState(action === 'pause', { botId, channel, userId, threadId }, trigger)
     res.sendStatus(200)
   })
 
