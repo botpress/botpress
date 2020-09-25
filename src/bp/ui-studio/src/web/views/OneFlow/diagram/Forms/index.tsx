@@ -177,6 +177,7 @@ const Forms: FC<Props> = ({
       ...currentFlow,
       variables: [...vars.slice(0, index), ...vars.slice(index + 1)]
     })
+    setActiveFormItem(null)
   }
 
   const updateSubWorkflow = data => {
@@ -339,6 +340,7 @@ const Forms: FC<Props> = ({
         <VariableForm
           variables={variables}
           contentLang={currentLang}
+          customKey={index}
           defaultLang={defaultLang}
           deleteVariable={deleteVariable}
           formData={currentItem}

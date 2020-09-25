@@ -1,4 +1,4 @@
-import { SyntheticEvent } from 'react';
+import { SyntheticEvent } from 'react'
 
 export interface TextareaProps {
   className?: string
@@ -8,6 +8,7 @@ export interface TextareaProps {
   onChange: (value: string) => void
   onBlur?: () => void
   onKeyDown?: (e?: SyntheticEvent) => void
+  onPaste?: (e?: SyntheticEvent) => void
   refValue?: string
   value: string
 }

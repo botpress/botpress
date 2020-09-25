@@ -366,6 +366,12 @@ select:global(.form-control) {
   }
 }
 
+.contextMenuLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .textarea {
   background: transparent !important;
   border: none !important;
