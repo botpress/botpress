@@ -1,5 +1,6 @@
 import { Callout } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
+import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 import PageContainer from '~/App/PageContainer'
 

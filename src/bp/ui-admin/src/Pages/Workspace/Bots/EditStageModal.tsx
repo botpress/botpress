@@ -53,7 +53,7 @@ const EditStageModal: FC<Props> = props => {
     if (props.stage) {
       const { id, label, action, reviewers, minimumApprovals } = props.stage
       const formatedReviewers = formatedUsers.filter(
-        user => reviewers && reviewers.find(x => user.user.email === x.email && user.user.strategy === x.strategy)
+        user => reviewers && reviewers.find(x => user.user.email == x.email && user.user.strategy == x.strategy)
       )
 
       setIsLastPipeline(pipeline[pipeline.length - 1].id === id)

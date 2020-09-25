@@ -1,5 +1,5 @@
 import { Button } from '@blueprintjs/core'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import api from '~/api'
 import { toastFailure } from '~/utils/toaster'
 
