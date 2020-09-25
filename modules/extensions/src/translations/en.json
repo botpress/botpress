@@ -6,7 +6,7 @@
   "errorExecuting": "Error executing action \"{name}\"",
   "errorTransition": "Error during transition to \"{name}\"",
   "intents": "Intents",
-  "detectedLanguage": "Detected language",
+  "detectedLanguage": "Detected Language",
   "usedLanguage": "Used language",
   "fetchingEvent": "Fetching event...",
   "inspectIn": "Inspect in Debugger",

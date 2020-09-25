@@ -1,4 +1,4 @@
-import { Button, Tab, Tabs, Tooltip } from '@blueprintjs/core'
+import { Button, Tooltip } from '@blueprintjs/core'
 import axios from 'axios'
 import { BotEvent, Condition, FlowVariable, FormData } from 'botpress/sdk'
 import {
@@ -9,7 +9,8 @@ import {
   MainContent,
   MoreOptions,
   MoreOptionsItems,
-  sharedStyle
+  sharedStyle,
+  Tabs
 } from 'botpress/shared'
 import cx from 'classnames'
 import { Variables } from 'common/typings'
@@ -159,9 +160,7 @@ const ConditionForm: FC<Props> = ({
     >
       <Fragment key={`${condition.current}-${contentLang}-${customKey || editingCondition}`}>
         <div className={sharedStyle.formHeader}>
-          <Tabs id="contentFormTabs">
-            <Tab id="content" title={lang.tr('studio.flow.nodeType.trigger')} />
-          </Tabs>
+          <Tabs tabs={[{ id: 'content', title: lang.tr('studio.flow.nodeType.trigger') }]} />
           <div>
             <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
             {['user_intent_is', 'raw_js'].includes(selectedOption?.value) && (

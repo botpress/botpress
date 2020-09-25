@@ -1,9 +1,8 @@
-import { Tab, Tabs } from '@blueprintjs/core'
 import { FlowVariable, FormField, SubWorkflowInput } from 'botpress/sdk'
-import { Contents, lang, MainContent, sharedStyle } from 'botpress/shared'
+import { Contents, lang, MainContent, sharedStyle, Tabs } from 'botpress/shared'
 import { Variables } from 'common/typings'
 import _ from 'lodash'
-import React, { FC, Fragment, useEffect, useState } from 'react'
+import React, { FC, Fragment } from 'react'
 
 interface Props {
   customKey: string
@@ -40,12 +39,10 @@ const InputForm: FC<Props> = ({
   }))
 
   return (
-    <MainContent.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={true} close={close}>
+    <MainContent.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={true} close={() => close()}>
       <Fragment key={customKey}>
         <div className={sharedStyle.formHeader}>
-          <Tabs id="contentFormTabs">
-            <Tab id="content" title={lang.tr('input')} />
-          </Tabs>
+          <Tabs tabs={[{ id: 'content', title: lang.tr('input') }]} />
         </div>
 
         <Contents.Form

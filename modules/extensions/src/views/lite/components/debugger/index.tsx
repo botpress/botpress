@@ -16,7 +16,6 @@ import { Inspector } from './views/Inspector'
 import { Processing } from './views/Processing'
 import Summary from './views/Summary'
 import EventNotFound from './EventNotFound'
-import FetchingEvent from './FetchingEvent'
 import Header from './Header'
 import SplashScreen from './SplashScreen'
 import Unauthorized from './Unauthorized'
@@ -257,9 +256,6 @@ export class Debugger extends React.Component<Props, State> {
   renderWhenNoEvent() {
     if (this.state.unauthorized) {
       return <Unauthorized />
-    }
-    if (this.state.fetching) {
-      return <FetchingEvent />
     }
     if (this.state.showEventNotFound) {
       return <EventNotFound />

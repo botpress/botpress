@@ -1,4 +1,4 @@
-import { Button, Tab, Tabs, Tooltip } from '@blueprintjs/core'
+import { Button, Tooltip } from '@blueprintjs/core'
 import { BotEvent, ExecuteNode, FlowNode, FlowVariable } from 'botpress/sdk'
 import {
   Icons,
@@ -7,7 +7,8 @@ import {
   MoreOptions,
   MoreOptionsItems,
   MultiLevelDropdown,
-  sharedStyle
+  sharedStyle,
+  Tabs
 } from 'botpress/shared'
 import cx from 'classnames'
 import { CUSTOM_ACTION } from 'common/action'
@@ -175,12 +176,14 @@ const ExecuteForm: FC<Props> = ({
   }
 
   return (
-    <MainContent.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={canOutsideClickClose} close={close}>
+    <MainContent.RightSidebar
+      className={sharedStyle.wrapper}
+      canOutsideClickClose={canOutsideClickClose}
+      close={() => close()}
+    >
       <Fragment key={`${node?.id}`}>
         <div className={sharedStyle.formHeader}>
-          <Tabs id="contentFormTabs">
-            <Tab id="content" title={lang.tr('studio.flow.nodeType.execute')} />
-          </Tabs>
+          <Tabs tabs={[{ id: 'content', title: lang.tr('studio.flow.nodeType.execute') }]} />
           <div>
             <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
             <Tooltip content={lang.tr(maximized ? 'minimizeInspector' : 'maximizeInspector')}>

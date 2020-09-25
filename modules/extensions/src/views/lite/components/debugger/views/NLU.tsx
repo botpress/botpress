@@ -3,8 +3,8 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import React, { Fragment, SFC, useEffect, useState } from 'react'
 
+import Collapsible from '../../../../../../../../src/bp/ui-shared-lite/Collapsible'
 import lang from '../../../../lang'
-import { Collapsible } from '../components/Collapsible'
 import { Intents } from '../components/Intents'
 import Predictions from '../components/Predictions'
 import style from '../style.scss'
@@ -85,18 +85,16 @@ const NLU: SFC<Props> = ({ nluData, isNDU, isExpanded, toggleExpand, context }) 
   }
 
   return (
-    <Fragment>
-      <Collapsible
-        opened={isExpanded(NLU_PANEL)}
-        toggleExpand={expanded => toggleExpand(NLU_PANEL, expanded)}
-        name={lang.tr('module.extensions.nlu.languageUnderstanding')}
-      >
-        {renderContent()}
-        <Button minimal className={style.switchViewBtn} icon="eye-open" onClick={toggleView}>
-          {viewJSON ? lang.tr('module.extensions.viewAsSummary') : lang.tr('module.extensions.viewAsJson')}
-        </Button>
-      </Collapsible>
-    </Fragment>
+    <Collapsible
+      opened={isExpanded(NLU_PANEL)}
+      toggleExpand={expanded => toggleExpand(NLU_PANEL, expanded)}
+      name={lang.tr('module.extensions.nlu.languageUnderstanding')}
+    >
+      {renderContent()}
+      <Button minimal className={style.switchViewBtn} icon="eye-open" onClick={toggleView}>
+        {viewJSON ? lang.tr('module.extensions.viewAsSummary') : lang.tr('module.extensions.viewAsJson')}
+      </Button>
+    </Collapsible>
   )
 }
 

@@ -25,8 +25,6 @@ interface CssExports {
   'percentBar': string;
   'processingItem': string;
   'processingSection': string;
-  'section': string;
-  'sectionTitle': string;
   'splash': string;
   'stacktrace': string;
   'subSection': string;

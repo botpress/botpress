@@ -4,8 +4,8 @@ import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 
+import Collapsible from '../../../../../../../../src/bp/ui-shared-lite/Collapsible'
 import lang from '../../../../lang'
-import { Collapsible } from '../components/Collapsible'
 import style from '../style.scss'
 
 import { Inspector } from './Inspector'
@@ -65,18 +65,16 @@ const State: FC<Props> = ({ state, prevState, isExpanded, toggleExpand }) => {
   }
 
   return (
-    <Fragment>
-      <Collapsible
-        opened={isExpanded(STATE_PANEL)}
-        toggleExpand={expanded => toggleExpand(STATE_PANEL, expanded)}
-        name={lang.tr('module.extensions.summary.state')}
-      >
-        {renderContent()}
-        <Button minimal className={style.switchViewBtn} icon="eye-open" onClick={toggleView}>
-          {viewJSON ? lang.tr('module.extensions.viewAsSummary') : lang.tr('module.extensions.viewAsJson')}
-        </Button>
-      </Collapsible>
-    </Fragment>
+    <Collapsible
+      opened={isExpanded(STATE_PANEL)}
+      toggleExpand={expanded => toggleExpand(STATE_PANEL, expanded)}
+      name={lang.tr('module.extensions.summary.state')}
+    >
+      {renderContent()}
+      <Button minimal className={style.switchViewBtn} icon="eye-open" onClick={toggleView}>
+        {viewJSON ? lang.tr('module.extensions.viewAsSummary') : lang.tr('module.extensions.viewAsJson')}
+      </Button>
+    </Collapsible>
   )
 }
 
