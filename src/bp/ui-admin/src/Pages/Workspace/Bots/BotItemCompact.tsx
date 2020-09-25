@@ -16,6 +16,7 @@ import { lang } from 'botpress/shared'
 import React, { FC } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import history from '~/history'
+import { toastInfo } from '~/utils/toaster'
 
 import AccessControl, { isChatUser } from '../../../App/AccessControl'
 

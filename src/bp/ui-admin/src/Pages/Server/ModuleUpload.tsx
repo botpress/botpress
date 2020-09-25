@@ -1,5 +1,6 @@
 import { Button, FileInput, FormGroup, Intent } from '@blueprintjs/core'
 import { Dialog, lang, toast } from 'botpress/shared'
+import _ from 'lodash'
 import React, { FC } from 'react'
 import api from '~/api'
 

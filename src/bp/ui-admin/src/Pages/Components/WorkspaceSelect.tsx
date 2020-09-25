@@ -64,8 +64,8 @@ const WorkspaceSelect: FC<Props> = props => {
       return
     }
 
-    const urlId = props.workspaces.find(x => x.workspace === urlWorkspaceId)
-    const storageId = props.workspaces.find(x => x.workspace === getActiveWorkspace())
+    const urlId = props.workspaces.find(x => x.workspace == urlWorkspaceId)
+    const storageId = props.workspaces.find(x => x.workspace == getActiveWorkspace())
     return (urlId && urlId.workspace) || (storageId && storageId.workspace) || props.workspaces[0].workspace
   }
 
