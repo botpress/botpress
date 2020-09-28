@@ -132,7 +132,7 @@ export class DiagramManager {
 
     if (this.highlightFilter?.length <= 1 && !this.highlightedNodes.length) {
       return false
-    } else if (queryParams.get('highlightedNode') === node.id) {
+    } else if (queryParams.get('highlightedNode') === node.id || queryParams.get('highlightedNode') === node.name) {
       return true
     }
 
