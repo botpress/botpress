@@ -311,7 +311,7 @@ class RootStore {
   @action.bound
   async sendData(data: any): Promise<void> {
     if (!constants.MESSAGE_TYPES.includes(data.type)) {
-      return await this.api.sendEvent(data)
+      return await this.api.sendEvent(data, this.currentConversationId)
     }
 
     await this.api.sendMessage(data, this.currentConversationId)

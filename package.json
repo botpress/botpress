@@ -69,7 +69,7 @@
     "on-headers": "^1.0.2",
     "passport": "^0.4.0",
     "passport-oauth2": "^1.5.0",
-    "passport-saml": "^1.0.0",
+    "passport-saml": "^1.3.5",
     "password-sheriff": "^1.1.0",
     "pg": "^7.8.0",
     "plur": "^3.0.1",
@@ -88,8 +88,8 @@
     "universal-analytics": "^0.4.20",
     "unzipper": "^0.10.3",
     "verror": "^1.10.0",
-    "vm2": "^3.6.10",
-    "yargs": "^12.0.2",
+    "vm2": "^3.9.2",
+    "yargs": "^16.0.3",
     "yn": "^2.0.0"
   },
   "resolutions": {
