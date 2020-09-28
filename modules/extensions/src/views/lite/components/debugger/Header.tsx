@@ -1,28 +1,16 @@
-import React, { useState } from 'react'
+import { Button } from '@blueprintjs/core'
+import cx from 'classnames'
+import React from 'react'
 
-import MoreOptions from '../../../../../../../src/bp/ui-shared-lite/MoreOptions'
-import { MoreOptionsItems } from '../../../../../../../src/bp/ui-shared-lite/MoreOptions/typings'
+import sharedStyle from '../../../../../../../src/bp/ui-shared-lite/style.scss'
+import Icons from '../../../../../../../src/bp/ui-shared-lite/Icons'
 import Tabs from '../../../../../../../src/bp/ui-shared-lite/Tabs'
+import ToolTip from '../../../../../../../src/bp/ui-shared-lite/ToolTip'
 import lang from '../../../lang'
 
 import style from './style.scss'
 
-export default ({ newSession, toggleSettings, hasProcessing, updateCurrentTab, selectedTab }) => {
-  const [showOptions, setShowOptions] = useState(false)
-
-  const moreOptionsItems: MoreOptionsItems[] = [
-    {
-      label: lang.tr('module.extensions.header.newSession'),
-      action: newSession,
-      icon: 'refresh'
-    },
-    {
-      label: lang.tr('module.extensions.header.confSettings'),
-      action: toggleSettings,
-      icon: 'cog'
-    }
-  ]
-
+export default ({ hasProcessing, updateCurrentTab, selectedTab, maximized, setMaximized }) => {
   const tabs = [
     {
       id: 'content',
@@ -39,7 +27,16 @@ export default ({ newSession, toggleSettings, hasProcessing, updateCurrentTab, s
   return (
     <div className={style.header}>
       <Tabs tabChange={updateCurrentTab} currentTab={selectedTab} tabs={tabs} />
-      {<MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />}
+
+      <ToolTip content={lang.tr(maximized ? 'minimizeInspector' : 'maximizeInspector')}>
+        <Button
+          className={cx(sharedStyle.expandBtn, style.noMargin)}
+          small
+          minimal
+          icon={maximized ? <Icons.Minimize /> : 'fullscreen'}
+          onClick={setMaximized}
+        />
+      </ToolTip>
     </div>
   )
 }

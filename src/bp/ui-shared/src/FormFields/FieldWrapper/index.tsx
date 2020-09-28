@@ -1,7 +1,7 @@
 import cx from 'classnames'
 import React, { FC } from 'react'
 
-import sharedStyle from '../../style.scss'
+import sharedStyle from '../../../../ui-shared-lite/style.scss'
 
 import style from './style.scss'
 import { FieldWrapperProps } from './typings'

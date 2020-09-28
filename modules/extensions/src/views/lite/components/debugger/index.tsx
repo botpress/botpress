@@ -1,5 +1,6 @@
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
+import cx from 'classnames'
 import _ from 'lodash'
 import ms from 'ms'
 import nanoid from 'nanoid'
@@ -9,9 +10,7 @@ import 'ui-shared/dist/theme.css'
 import Checkbox from '../../../../../../../src/bp/ui-shared-lite/Checkbox'
 import lang from '../../../lang'
 
-import Settings from './settings'
 import style from './style.scss'
-import { loadSettings } from './utils'
 import { Inspector } from './views/Inspector'
 import { Processing } from './views/Processing'
 import Summary from './views/Summary'
@@ -37,10 +36,10 @@ interface State {
   prevEvent: sdk.IO.IncomingEvent
   selectedTabId: string
   visible: boolean
-  showSettings: boolean
   showEventNotFound: boolean
   showInspector: boolean
   fetching: boolean
+  maximized: boolean
   unauthorized: boolean
   updateDiagram: boolean
   tab: string
@@ -57,9 +56,9 @@ export class Debugger extends React.Component<Props, State> {
     showEventNotFound: false,
     visible: false,
     selectedTabId: 'basic',
-    showSettings: false,
     fetching: false,
     unauthorized: false,
+    maximized: false,
     showInspector: false,
     eventsCache: [],
     updateDiagram: true,
@@ -94,15 +93,8 @@ export class Debugger extends React.Component<Props, State> {
       const maxDelai = ms(collectionInterval as string) * RETRY_SECURITY_FACTOR
       this.allowedRetryCount = Math.ceil(maxDelai / RETRY_PERIOD)
 
-      // Only open debugger & open on new messages if user is authorized
-      const settings = loadSettings()
-      if (settings.autoOpenDebugger) {
-        this.toggleDebugger()
-      }
-
-      if (settings.updateToLastMessage) {
-        this.props.store.bp.events.on('guest.webchat.message', this.handleNewMessage)
-      }
+      this.toggleDebugger()
+      this.props.store.bp.events.on('guest.webchat.message', this.handleNewMessage)
     } catch (err) {
       const errorCode = _.get(err, 'response.status')
       if (errorCode === 403) {
@@ -248,7 +240,12 @@ export class Debugger extends React.Component<Props, State> {
     this.setState({ visible: !this.state.visible })
   }
 
-  toggleSettings = e => this.setState({ showSettings: !this.state.showSettings })
+  toggleMaximized = () => {
+    this.props.store.view.setContainerWidth(
+      !this.state.maximized ? WEBCHAT_WIDTH + DEV_TOOLS_WIDTH * 2 : WEBCHAT_WIDTH + DEV_TOOLS_WIDTH
+    )
+    this.setState({ maximized: !this.state.maximized })
+  }
   handleTabChange = selectedTabId => this.setState({ selectedTabId })
 
   // check rendering
@@ -302,16 +299,15 @@ export class Debugger extends React.Component<Props, State> {
     if (!this.state.visible) {
       return null
     }
-    const { tab, event, showSettings } = this.state
+    const { tab, event } = this.state
 
     return (
-      <div className={style.container2}>
-        <Settings store={this.props.store} isOpen={showSettings} toggle={this.toggleSettings} />
+      <div className={cx(style.container2, { [style.expanded]: this.state.maximized })}>
         <Header
           updateCurrentTab={this.updateTab.bind(this)}
           selectedTab={tab}
-          newSession={this.handleNewSession}
-          toggleSettings={this.toggleSettings}
+          maximized={this.state.maximized}
+          setMaximized={this.toggleMaximized}
           hasProcessing={!!event?.processing}
         />
         {!event && this.renderWhenNoEvent()}

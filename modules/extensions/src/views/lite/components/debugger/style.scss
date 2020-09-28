@@ -19,6 +19,14 @@
   position: relative;
   border: none;
   background-color: white;
+
+  &.expanded {
+    width: 480px;
+  }
+}
+
+.noMargin {
+  margin: 0 !important;
 }
 
 .header {
@@ -344,6 +352,7 @@
     font-size: 10px;
     font-weight: 400;
     line-height: 1.5;
+    overflow: auto;
     color: var(--shark);
   }
 

@@ -1,12 +1,11 @@
-import { Button, Icon, Position, Tag, TagInput } from '@blueprintjs/core'
-import cx from 'classnames'
+import { Button, Icon, Tag, TagInput } from '@blueprintjs/core'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import ToolTip from '~/../../ui-shared-lite/ToolTip'
 import { lang } from '~/translations'
 import { toast } from '~/Toaster'
 
-import sharedStyle from '../../style.scss'
+import sharedStyle from '../../../../ui-shared-lite/style.scss'
 
 import { Item } from '.'
 import style from './style.scss'

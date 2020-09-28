@@ -4,11 +4,11 @@ import cx from 'classnames'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
 import { Variables } from '~/../../common/typings'
 
+import sharedStyle from '../../../../ui-shared-lite/style.scss'
+import Icons from '../../../../ui-shared-lite/Icons'
 import ToolTip from '../../../../ui-shared-lite/ToolTip'
-import sharedStyle from '../../style.scss'
 import { lang } from '../../translations'
 import { FieldProps } from '../../Contents/Components/typings'
-import Icons from '../../Icons'
 
 import style from './style.scss'
 import { SuperInputProps } from './typings'

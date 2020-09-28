@@ -2,10 +2,9 @@ import { FormField } from 'botpress/sdk'
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 
-import sharedStyle from '../../../style.scss'
+import sharedStyle from '../../../../../ui-shared-lite/style.scss'
 import { lang } from '../../../translations'
 import { getFieldDefaultValue } from '../../utils/fields'
-import style from '../style.scss'
 import { FieldProps } from '../typings'
 
 type TextProps = FieldProps & { field: FormField }

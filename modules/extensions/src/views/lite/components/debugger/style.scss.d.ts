@@ -22,6 +22,7 @@ interface CssExports {
   'inspectorContainer': string;
   'inspectorSpacing': string;
   'itemButton': string;
+  'noMargin': string;
   'notFound': string;
   'percentBar': string;
   'processingItem': string;

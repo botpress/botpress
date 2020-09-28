@@ -1,11 +1,10 @@
 import { Button } from '@blueprintjs/core'
-import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
 
+import sharedStyle from '../../../../../ui-shared-lite/style.scss'
 import Checkbox from '../../../../../ui-shared-lite/Checkbox'
 import ToolTip from '../../../../../ui-shared-lite/ToolTip'
-import sharedStyle from '../../../style.scss'
 import { lang } from '../../../translations'
 import FieldWrapper from '../../../FormFields/FieldWrapper'
 import MultiSelect from '../../../FormFields/MultiSelect'
