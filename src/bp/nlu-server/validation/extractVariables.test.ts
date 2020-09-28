@@ -65,7 +65,8 @@ test('variables extraction', () => {
   cities = extractVariables('fly from $سity to $木ity-2') // variable extraction doesnt work for non-latin words...
   expect(cities.length).toBe(0)
 
-  cities = extractVariables('fly from $cسity to $city-2') // variable extraction doesnt work for non-latin words...
-  expect(cities.length).toBe(1)
-  expect(cities[0]).toBe('city-2')
+  cities = extractVariables('fly from $cسity to $c木ity-2') // variable extraction doesnt work for non-latin words...
+  expect(cities.length).toBe(2)
+  expect(cities[0]).toBe('c') // weird but this is expected
+  expect(cities[1]).toBe('c')
 })
