@@ -3,6 +3,7 @@ import { Variables } from 'common/typings'
 
 export interface SuperInputProps {
   addVariable?: (variable: FlowVariable) => void
+  addLines?: (items: string[]) => void
   variables?: Variables
   defaultVariableType?: string
   events?: BotEvent[]

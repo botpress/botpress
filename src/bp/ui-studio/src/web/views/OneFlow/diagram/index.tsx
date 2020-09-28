@@ -573,7 +573,8 @@ class Diagram extends Component<Props> {
       await this._addTransitionChipToRouter(target)
     }
 
-    ContextMenu.show(
+    contextMenu(
+      event,
       <Menu>
         {!isNodeTargeted && this.props.canPasteNode && (
           <MenuItem icon="clipboard" text={lang.tr('paste')} onClick={() => this.pasteElementFromBuffer(point)} />
@@ -610,8 +611,7 @@ class Diagram extends Component<Props> {
             ) : null}
           </Fragment>
         )}
-      </Menu>,
-      { left: event.clientX, top: event.clientY }
+      </Menu>
     )
   }
 

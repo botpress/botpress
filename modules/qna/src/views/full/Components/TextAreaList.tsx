@@ -47,10 +47,23 @@ const TextAreaList: FC<Props> = props => {
     updateItems(localItems)
   }
 
+  const addLines = items => {
+    localItems.push(...items)
+    setKeys([...keys, ...items.map(() => _uniqueId(keyPrefix))])
+    focusedElement.current = `${keyPrefix}${localItems.length - 1}`
+
+    updateItems(localItems)
+  }
+
   const onKeyDown = (e: KeyboardEvent, index: number): void => {
     if (props.canAdd && e.key === 'Enter' && !(e.ctrlKey || e.metaKey || e.shiftKey)) {
       e.preventDefault()
       addItem()
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+      e.preventDefault()
+      e.currentTarget['select']()
     }
 
     const shouldDelete = localItems.length > 1 && !localItems[index].length
@@ -71,6 +84,13 @@ const TextAreaList: FC<Props> = props => {
   }
 
   const errors = props.itemListValidator(localItems, duplicateMsg)
+
+  const onPaste = e => {
+    e.preventDefault()
+    const clipboardData = e.clipboardData
+    const pastedData = clipboardData.getData('Text')
+    addLines(pastedData.split(/\r?\n/))
+  }
 
   return (
     <Fragment>
@@ -95,6 +115,7 @@ const TextAreaList: FC<Props> = props => {
                 className={cx(sharedStyle.textarea, { ['has-error']: errors[index] || missingTranslation })}
                 placeholder={placeholder(index)}
                 onChange={value => updateLocalItem(index, value)}
+                onPaste={onPaste}
                 onBlur={() => updateItems(localItems)}
                 onKeyDown={e => onKeyDown(e, index)}
                 value={item || refItems?.[index] || ''}

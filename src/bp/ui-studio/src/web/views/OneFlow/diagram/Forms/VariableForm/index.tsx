@@ -20,6 +20,7 @@ interface Props {
   variables: Variables
   defaultLang: string
   contentLang: string
+  customKey?: number
   close: () => void
   onUpdate: (data: any) => void
   formData: FormData
@@ -34,7 +35,8 @@ const VariableForm: FC<Props> = ({
   formData,
   onUpdate,
   deleteVariable,
-  currentFlow
+  currentFlow,
+  customKey
 }) => {
   const getVisibility = () => {
     if (formData?.params?.isInput) {
@@ -54,7 +56,7 @@ const VariableForm: FC<Props> = ({
   useEffect(() => {
     variableType.current = formData?.type
     setUniqueKey(_.uniqueId())
-  }, [formData])
+  }, [customKey])
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {

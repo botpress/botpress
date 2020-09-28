@@ -11,7 +11,7 @@ const NotTrainedWarningComponent: FC<Props> = (props: Props) => {
     const displayWarning = props.emulatorOpen && props.currentSession?.status !== 'done'
 
     if (displayWarning) {
-      toast.warning(lang.tr('statusBar.trainWarning'), '', { key: 'trainWarning' })
+      toast.warning(lang.tr('statusBar.trainWarning'), '', { key: 'trainWarning', hideDismiss: true })
     }
 
     return () => toast.dismiss('trainWarning')
