@@ -1,4 +1,3 @@
-import { Checkbox } from '@blueprintjs/core'
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
@@ -7,6 +6,7 @@ import nanoid from 'nanoid'
 import React from 'react'
 import 'ui-shared/dist/theme.css'
 
+import Checkbox from '../../../../../../../src/bp/ui-shared-lite/Checkbox'
 import lang from '../../../lang'
 
 import Settings from './settings'

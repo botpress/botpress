@@ -23,6 +23,7 @@ import { TextFieldsArrayProps } from './FormFields/TextFieldsArray/typings'
 import { SuperInputArrayProps } from './FormFields/SuperInputArray/typings'
 import { OverlayProps } from './Overlay/typings'
 import { FormField, MultiLangText } from 'botpress/sdk'
+import { CheckboxProps } from '../../ui-shared-lite/Checkbox/typings'
 import { MoreOptionsProps } from '../../ui-shared-lite/MoreOptions/typings'
 import { ContentSectionProps } from '../../ui-shared-lite/ContentSection/typings'
 import { CollapsibleProps } from '../../ui-shared-lite/Collapsible/typings'
@@ -36,6 +37,7 @@ import { MenuProps, MenuItem } from './MainContent/Menu/typings'
 import { HeaderProps, HeaderButton } from './MainContent/Header/typings'
 
 declare module 'botpress/shared' {
+  export function Checkbox(props: CheckboxProps): JSX.Element
   export function Collapsible(props: CollapsibleProps): JSX.Element
   export function Commander(props: CommanderProps): JSX.Element
   export const Dialog: {

@@ -33,14 +33,14 @@ const State: FC<Props> = ({ state, prevState, isExpanded, toggleExpand }) => {
     setViewJSON(newValue)
   }
 
-  const renderContent = () => {
-    if (viewJSON) {
-      return <Inspector data={state} />
-    }
+  const variables = state.session.workflows[state.session.currentWorkflow]?.variables || {}
+  const prevVariables = prevState?.session.workflows[state.session.currentWorkflow]?.variables || {}
+  const variableIds = _.uniq([...Object.keys(variables), ...Object.keys(prevVariables)])
 
-    const variables = state.session.workflows[state.session.currentWorkflow]?.variables || {}
-    const prevVariables = prevState?.session.workflows[state.session.currentWorkflow]?.variables || {}
-    const variableIds = _.uniq([...Object.keys(variables), ...Object.keys(prevVariables)])
+  const renderContent = () => {
+    if (viewJSON || !variableIds.length) {
+      return <Inspector className={cx({ [style.inspectorSpacing]: !variableIds.length })} data={state} />
+    }
 
     return (
       <table className={cx(style.variablesTable, 'bp3-html-table .modifier')}>
@@ -71,9 +71,11 @@ const State: FC<Props> = ({ state, prevState, isExpanded, toggleExpand }) => {
       name={lang.tr('module.extensions.summary.state')}
     >
       {renderContent()}
-      <Button minimal className={style.switchViewBtn} icon="eye-open" onClick={toggleView}>
-        {viewJSON ? lang.tr('module.extensions.viewAsSummary') : lang.tr('module.extensions.viewAsJson')}
-      </Button>
+      {!!variableIds.length && (
+        <Button minimal className={style.switchViewBtn} icon="eye-open" onClick={toggleView}>
+          {viewJSON ? lang.tr('module.extensions.viewAsSummary') : lang.tr('module.extensions.viewAsJson')}
+        </Button>
+      )}
     </Collapsible>
   )
 }

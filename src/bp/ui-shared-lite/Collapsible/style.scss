@@ -3,21 +3,21 @@
     margin-top: var(--spacing-medium);
   }
 
-  :global {
-    .bp3-button {
+  .collapseBtn {
+    background: none !important;
+    padding: 0;
+
+    &:hover {
       background: none !important;
-      padding: 0;
+    }
 
-      &:hover {
-        background: none !important;
-      }
+    svg {
+      fill: var(--shark);
+    }
 
+    :global {
       .bp3-icon {
         margin-right: var(--spacing-large);
-      }
-
-      svg {
-        fill: var(--shark);
       }
 
       .bp3-button-text {

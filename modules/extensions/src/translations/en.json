@@ -79,7 +79,7 @@
   },
   "actions": {
     "say": "Say {x}",
-    "startWorkflow": "Start Workflow {x}",
+    "startWorkflow": "Start flow {x}",
     "goToNode": "Go to node {x}",
     "redirectTo": "Redirect to {x}",
     "continue": "Continue",
@@ -105,7 +105,7 @@
     "topTriggers": "Top Triggers",
     "decisionsTaken": "Decisions Taken",
     "sendKnowledge": "Send knowledge {x}",
-    "startWorkflow": "Start Workflow {x}",
+    "startWorkflow": "Start flow {x}",
     "goToNode": "Go to node {x}",
     "redirectTo": "Redirect to {x}",
     "continueFlowExecution": "Continue flow execution",

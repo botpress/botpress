@@ -11,11 +11,12 @@ export const Intent = (props: { topicName: string; name: string; confidence?: nu
   const isQnA = isQnaItem(name)
 
   const displayName = isQnA ? formatQnaName(name) : name
+  console.log(name, topicName)
 
   return (
     <Fragment>
       <a onClick={navigateToIntentDefinition(topicName, name, isQnA)}>{displayName}</a>
-      {confidence && <span className={style.confidence}>{formatConfidence(confidence)}%</span>}
+      {confidence && <span className={style.confidence}>{formatConfidence(confidence)}</span>}
     </Fragment>
   )
 }

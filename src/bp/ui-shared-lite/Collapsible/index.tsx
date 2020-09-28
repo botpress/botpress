@@ -26,6 +26,7 @@ const Collapsible: FC<CollapsibleProps> = ({ opened, hidden, toggleExpand, name,
   return (
     <div className={style.collapsibleContainer}>
       <Button
+        className={style.collapseBtn}
         icon={isOpen ? 'chevron-down' : 'chevron-right'}
         minimal={true}
         fill={true}

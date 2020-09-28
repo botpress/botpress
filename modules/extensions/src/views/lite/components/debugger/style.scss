@@ -235,29 +235,20 @@
   }
 }
 
-.switchViewBtn {
+.switchViewBtn:global(.bp3-button) {
   margin: var(--spacing-small) 0 var(--spacing-medium);
+  transition: background 0.3s;
 
   :global(.bp3-button-text) {
     color: var(--ocean) !important;
-    transition: color 0.3s;
   }
 
   svg {
     fill: var(--ocean) !important;
-    transition: fill 0.3s;
   }
 
   &:hover {
-    background: #fff !important;
-
-    :global(.bp3-button-text) {
-      color: var(--hover-ocean) !important;
-    }
-
-    svg {
-      fill: var(--hover-ocean) !important;
-    }
+    background: var(--hover-ocean) !important;
   }
 }
 
@@ -337,14 +328,6 @@
     svg {
       transition: fill 0.3s;
     }
-
-    &:hover {
-      color: var(--ocean);
-
-      svg {
-        fill: var(--ocean);
-      }
-    }
   }
 
   .expanded {
@@ -401,6 +384,10 @@
   }
 }
 
+.inspectorSpacing {
+  margin-bottom: var(--spacing-xx-large) !important;
+}
+
 .variablesTable {
   th {
     font-size: 12px;
@@ -416,5 +403,6 @@
 }
 
 .debugCheckbox {
-  font-size: 12px;
+  border-top: 1px solid var(--gray);
+  padding-top: var(--spacing-xx-large);
 }

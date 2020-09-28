@@ -1,9 +1,10 @@
+import Checkbox from '../../ui-shared-lite/Checkbox'
 import Collapsible from '../../ui-shared-lite/Collapsible'
+import ContentSection from '../../ui-shared-lite/ContentSection'
 import MoreOptions from '../../ui-shared-lite/MoreOptions'
 import Overlay from '../../ui-shared-lite/Overlay'
 import Tabs from '../../ui-shared-lite/Tabs'
 import ToolTip from '../../ui-shared-lite/ToolTip'
-import ContentSection from '../../ui-shared-lite/ContentSection'
 
 import style from './style.scss'
 import { sendTelemetry, startFallback } from './telemetry'
@@ -28,6 +29,7 @@ import Textarea from './Textarea'
 import { toast } from './Toaster'
 import TreeView from './TreeView'
 
+exports.Checkbox = Checkbox
 exports.Collapsible = Collapsible
 exports.Commander = Commander
 exports.ContentSection = ContentSection

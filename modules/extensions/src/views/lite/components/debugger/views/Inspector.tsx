@@ -1,4 +1,5 @@
 import { ContextMenu, Menu, MenuItem, Pre } from '@blueprintjs/core'
+import cx from 'classnames'
 import copy from 'copy-to-clipboard'
 import _ from 'lodash'
 import React, { useState } from 'react'
@@ -56,7 +57,7 @@ export const Inspector = props => {
 
   return (
     <div>
-      <Pre className={style.inspectorContainer}>
+      <Pre className={cx(style.inspectorContainer, props.className)}>
         <div className={style.inspector}>
           <JSONTree
             data={props.data || {}}
