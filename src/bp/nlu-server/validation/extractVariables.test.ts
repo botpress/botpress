@@ -2,8 +2,28 @@ import extractVariables from './extractVariables'
 
 test('variables extraction', () => {
   expect(extractVariables('give me a $fruit')[0]).toBe('fruit')
+
+  expect(extractVariables('give me a $fruit ')[0]).toBe('fruit')
   expect(extractVariables('give me a $fruit.')[0]).toBe('fruit')
-  expect(extractVariables('give me a $fruit, right now')[0]).toBe('fruit')
+  expect(extractVariables('give me a $fruit?')[0]).toBe('fruit')
+  expect(extractVariables('give me a $fruit!')[0]).toBe('fruit')
+  expect(extractVariables('give me a $fruit,')[0]).toBe('fruit')
+  expect(extractVariables("give me a $fruit'")[0]).toBe('fruit')
+  expect(extractVariables('give me a "$fruit"')[0]).toBe('fruit')
+  expect(extractVariables('give me a $fruit~')[0]).toBe('fruit')
+  expect(extractVariables('give me a $fruit\\')[0]).toBe('fruit')
+  expect(extractVariables('give me a $fruit/')[0]).toBe('fruit')
+
+  expect(extractVariables('give me a $fruit right now')[0]).toBe('fruit')
+  expect(extractVariables('give me a $fruit.right now')[0]).toBe('fruit')
+  expect(extractVariables('give me a $fruit?right now')[0]).toBe('fruit')
+  expect(extractVariables('give me a $fruit!right now')[0]).toBe('fruit')
+  expect(extractVariables('give me a $fruit,right now')[0]).toBe('fruit')
+  expect(extractVariables("give me a $fruit'right now")[0]).toBe('fruit')
+  expect(extractVariables('give me a "$fruit"right now')[0]).toBe('fruit')
+  expect(extractVariables('give me a $fruit~right now')[0]).toBe('fruit')
+  expect(extractVariables('give me a $fruit\\right now')[0]).toBe('fruit')
+  expect(extractVariables('give me a $fruit/right now')[0]).toBe('fruit')
 
   let fruits = extractVariables('give me a $fruit, a $fruit, a $fruit and a $fruit')
   expect(fruits.length).toBe(4)
@@ -44,4 +64,8 @@ test('variables extraction', () => {
 
   cities = extractVariables('fly from $سity to $木ity-2') // variable extraction doesnt work for non-latin words...
   expect(cities.length).toBe(0)
+
+  cities = extractVariables('fly from $cسity to $city-2') // variable extraction doesnt work for non-latin words...
+  expect(cities.length).toBe(1)
+  expect(cities[0]).toBe('city-2')
 })
