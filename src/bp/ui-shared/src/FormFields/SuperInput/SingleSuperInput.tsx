@@ -3,10 +3,10 @@ import cx from 'classnames'
 import _ from 'lodash'
 import React, { Fragment } from 'react'
 
+import Icons from '../../../../ui-shared-lite/Icons'
 import ToolTip from '../../../../ui-shared-lite/ToolTip'
 import { lang } from '../../translations'
 import Dropdown from '../../Dropdown'
-import Icons from '../../Icons'
 
 import style from './style.scss'
 import { convertToTags } from './utils'

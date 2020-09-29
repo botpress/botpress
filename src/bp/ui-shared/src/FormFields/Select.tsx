@@ -1,8 +1,8 @@
-import { FormData, FormDynamicOptions, FormField, FormOption } from 'botpress/sdk'
+import { FormData, FormField, FormOption } from 'botpress/sdk'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 
-import sharedStyle from '../style.scss'
+import sharedStyle from '../../../ui-shared-lite/style.scss'
 import { lang } from '../translations'
 import { FieldProps } from '../Contents/Components/typings'
 import Dropdown from '../Dropdown'

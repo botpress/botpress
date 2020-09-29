@@ -234,6 +234,7 @@
   "upload": "Upload",
   "usage": "Usage",
   "date": "Date",
+  "notAvailable": "Not available",
   "number": "Number",
   "boolean": "Boolean",
   "string": "String",

@@ -33,6 +33,8 @@
     --spacing-xxxx-large: 28px;
 
     --right-sidebar-width: 240px;
+    --emulator-width: 240px;
+    --debugger-width: 240px;
   }
 
   body {

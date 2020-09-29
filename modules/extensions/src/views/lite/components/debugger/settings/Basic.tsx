@@ -1,6 +1,7 @@
-import { Button, Checkbox, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
+import { Button, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
 import React from 'react'
 
+import Checkbox from '../../../../../../../../src/bp/ui-shared-lite/Checkbox'
 import lang from '../../../../lang'
 import { AppToaster } from '../toaster'
 import { loadSettings, persistSettings } from '../utils'

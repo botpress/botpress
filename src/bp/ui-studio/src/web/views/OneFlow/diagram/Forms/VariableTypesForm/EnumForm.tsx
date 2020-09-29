@@ -1,7 +1,6 @@
-import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
 import sdk from 'botpress/sdk'
-import { Contents, lang, MainContent, MoreOptions, MoreOptionsItems, sharedStyle, toast } from 'botpress/shared'
+import { Contents, lang, MainContent, MoreOptions, MoreOptionsItems, sharedStyle, Tabs, toast } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
@@ -101,12 +100,10 @@ const EnumForm: FC<Props> = ({
   }
 
   return (
-    <MainContent.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={true} close={close}>
+    <MainContent.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={true} close={() => close()}>
       <Fragment key={customKey}>
         <div className={cx(sharedStyle.formHeader, sharedStyle.noSelect)}>
-          <Tabs id="contentFormTabs">
-            <Tab id="content" title={lang.tr('enumeration')} />
-          </Tabs>
+          <Tabs tabs={[{ id: 'content', title: lang.tr('enumeration') }]} />
           <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
         </div>
 

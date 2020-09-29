@@ -1,7 +1,6 @@
-import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
 import sdk from 'botpress/sdk'
-import { Contents, lang, MainContent, sharedStyle } from 'botpress/shared'
+import { Contents, lang, MainContent, sharedStyle, Tabs } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC } from 'react'
 
@@ -25,11 +24,9 @@ const IssueForm: FC<Props> = ({ formData, close, onUpdate }) => {
   }
 
   return (
-    <MainContent.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose close={close}>
+    <MainContent.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose close={() => close()}>
       <div className={sharedStyle.formHeader}>
-        <Tabs id="contentFormTabs">
-          <Tab id="content" title={lang.tr('bug')} />
-        </Tabs>
+        <Tabs tabs={[{ id: 'content', title: lang.tr('bug') }]} />
       </div>
 
       <Contents.Form

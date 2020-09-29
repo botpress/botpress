@@ -5,6 +5,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import React, { FC, Fragment, useState } from 'react'
 
+import ContentSection from '../../../../../../../../src/bp/ui-shared-lite/ContentSection'
 import lang from '../../../../lang'
 import style from '../style.scss'
 
@@ -92,7 +93,7 @@ export const Processing: FC<{ processing: { [activity: string]: sdk.IO.Processin
   }
 
   return (
-    <div className={style.section}>
+    <ContentSection>
       {processed.map((item, index) => {
         const hasChildren = item.subItems?.filter(x => x.name).length
 
@@ -119,6 +120,6 @@ export const Processing: FC<{ processing: { [activity: string]: sdk.IO.Processin
           </Fragment>
         )
       })}
-    </div>
+    </ContentSection>
   )
 }

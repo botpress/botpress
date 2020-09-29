@@ -2,8 +2,9 @@ import sdk from 'botpress/sdk'
 import _ from 'lodash'
 import React from 'react'
 
+import Collapsible from '../../../../../../../../src/bp/ui-shared-lite/Collapsible'
+import ContentSection from '../../../../../../../../src/bp/ui-shared-lite/ContentSection'
 import lang from '../../../../lang'
-import { Collapsible } from '../components/Collapsible'
 import style from '../style.scss'
 
 import { Inspector } from './Inspector'
@@ -70,11 +71,7 @@ export default class Summary extends React.Component<Props> {
     const eventError = _.get(this.props, 'event.state.__error')
 
     if (this.state.hasError) {
-      return (
-        <div className={style.section}>
-          <p>{lang.tr('module.extensions.summary.cannotDisplay')}</p>
-        </div>
-      )
+      return <ContentSection title={lang.tr('module.extensions.summary.cannotDisplay')} />
     }
 
     return (

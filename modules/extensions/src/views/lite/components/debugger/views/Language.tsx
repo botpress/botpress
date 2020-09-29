@@ -1,7 +1,7 @@
-import React, { FC, Fragment } from 'react'
+import React, { FC } from 'react'
 
+import ContentSection from '../../../../../../../../src/bp/ui-shared-lite/ContentSection'
 import lang from '../../../../lang'
-import style from '../style.scss'
 
 interface Props {
   detectedLanguage: string
@@ -9,10 +9,7 @@ interface Props {
 }
 
 export const Language: FC<Props> = props => (
-  <Fragment>
-    <div className={style.section}>
-      <h2 className={style.sectionTitle}>{lang.tr('module.extensions.detectedLanguage')}</h2>
-      <p>{props.detectedLanguage}</p>
-    </div>
-  </Fragment>
+  <ContentSection title={lang.tr('module.extensions.detectedLanguage')}>
+    <p>{props.detectedLanguage === 'n/a' ? lang.tr('module.extensions.notAvailable') : props.detectedLanguage}</p>
+  </ContentSection>
 )

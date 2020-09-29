@@ -1,7 +1,6 @@
-import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
 import { BotConfig, FormField } from 'botpress/sdk'
-import { confirmDialog, Contents, lang, sharedStyle, toast, MainContent } from 'botpress/shared'
+import { confirmDialog, Contents, lang, MainContent, sharedStyle, Tabs, toast } from 'botpress/shared'
 import { BotEditSchema } from 'common/validation'
 import Joi from 'joi'
 import _ from 'lodash'
@@ -222,9 +221,7 @@ const ConfigForm: FC<Props> = ({ close, bot, fetchBotInformation }) => {
   return (
     <MainContent.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose close={() => close()}>
       <div className={sharedStyle.formHeader}>
-        <Tabs id="configurationFormTabs">
-          <Tab id="configuration" title={lang.tr('toolbar.configuration')} />
-        </Tabs>
+        <Tabs tabs={[{ id: 'content', title: lang.tr('toolbar.configuration') }]} />
       </div>
 
       {languageLoaded && (

@@ -1,7 +1,15 @@
-import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
 import { FormData } from 'botpress/sdk'
-import { Contents, Dropdown, lang, MainContent, MoreOptions, MoreOptionsItems, sharedStyle } from 'botpress/shared'
+import {
+  Contents,
+  Dropdown,
+  lang,
+  MainContent,
+  MoreOptions,
+  MoreOptionsItems,
+  sharedStyle,
+  Tabs
+} from 'botpress/shared'
 import cx from 'classnames'
 import { FlowView, Variables } from 'common/typings'
 import _ from 'lodash'
@@ -79,12 +87,10 @@ const VariableForm: FC<Props> = ({
   const selectedVisibility = visibilityOptions.find(({ value }) => value === variableVisibility.current)
 
   return (
-    <MainContent.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={true} close={close}>
+    <MainContent.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={true} close={() => close()}>
       <Fragment key={`${variableType.current}-${uniqueKey}`}>
         <div className={sharedStyle.formHeader}>
-          <Tabs id="contentFormTabs">
-            <Tab id="content" title={lang.tr('variable')} />
-          </Tabs>
+          <Tabs tabs={[{ id: 'content', title: lang.tr('variable') }]} />
           <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
         </div>
         {currentFlow.type === 'reusable' && (

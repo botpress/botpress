@@ -1,5 +1,14 @@
-import { Checkbox, Icon, IconName, Spinner } from '@blueprintjs/core'
-import { confirmDialog, EmptyState, HeaderButtonProps, Icons, lang, MainContent, sharedStyle } from 'botpress/shared'
+import { Icon, IconName, Spinner } from '@blueprintjs/core'
+import {
+  Checkbox,
+  confirmDialog,
+  EmptyState,
+  HeaderButtonProps,
+  Icons,
+  lang,
+  MainContent,
+  sharedStyle
+} from 'botpress/shared'
 import { AccessControl, Downloader, reorderFlows, toastFailure, toastSuccess } from 'botpress/utils'
 import cx from 'classnames'
 import { debounce } from 'lodash'
@@ -161,7 +170,6 @@ const QnAList: FC<Props> = ({
       optionsWrapperClassName: style.filterWrapper,
       optionsItems: [
         {
-          className: style.checkboxWrapper,
           content: (
             <Checkbox
               checked={filterOptions.active}
@@ -171,20 +179,20 @@ const QnAList: FC<Props> = ({
           )
         },
         {
-          className: style.checkboxWrapper,
           content: (
             <Checkbox
               checked={filterOptions.incomplete}
+              className={style.checkboxSpacing}
               label={lang.tr('incomplete')}
               onChange={() => setFilterOptions({ ...filterOptions, incomplete: !filterOptions.incomplete })}
             />
           )
         },
         {
-          className: style.checkboxWrapper,
           content: (
             <Checkbox
               checked={filterOptions.disabled}
+              className={style.checkboxSpacing}
               label={lang.tr('disabled')}
               onChange={() => setFilterOptions({ ...filterOptions, disabled: !filterOptions.disabled })}
             />

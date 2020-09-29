@@ -23,9 +23,13 @@ import { TextFieldsArrayProps } from './FormFields/TextFieldsArray/typings'
 import { SuperInputArrayProps } from './FormFields/SuperInputArray/typings'
 import { OverlayProps } from './Overlay/typings'
 import { FormField, MultiLangText } from 'botpress/sdk'
+import { CheckboxProps } from '../../ui-shared-lite/Checkbox/typings'
 import { MoreOptionsProps } from '../../ui-shared-lite/MoreOptions/typings'
+import { ContentSectionProps } from '../../ui-shared-lite/ContentSection/typings'
+import { CollapsibleProps } from '../../ui-shared-lite/Collapsible/typings'
 import { OverlayProps } from '../../ui-shared-lite/Overlay/typings'
 import { ToolTipProps } from '../../ui-shared-lite/ToolTip/typings'
+import { TabsProps } from '../../ui-shared-lite/Tabs/typings'
 import { VariablePickerProps } from './FormFields/VariablePicker/typings'
 import { MultiLevelDropdownProps } from './MultiLevelDropdown/typings'
 import { FieldWrapperProps } from './FormFields/FieldWrapper/typings'
@@ -33,6 +37,8 @@ import { MenuProps, MenuItem } from './MainContent/Menu/typings'
 import { HeaderProps, HeaderButton } from './MainContent/Header/typings'
 
 declare module 'botpress/shared' {
+  export function Checkbox(props: CheckboxProps): JSX.Element
+  export function Collapsible(props: CollapsibleProps): JSX.Element
   export function Commander(props: CommanderProps): JSX.Element
   export const Dialog: {
     Wrapper(props: DialogProps): JSX.Element
@@ -67,6 +73,8 @@ declare module 'botpress/shared' {
   export function MultiLevelDropdown(props: MultiLevelDropdownProps): JSX.Element
   export function Overlay(props: OverlayProps): JSX.Element
   export function ShortcutLabel(props: ShortcutLabelProps): JSX.Element
+  export function ContentSection<T>(props: ContentSectionProps<T>): JSX.Element
+  export function Tabs<T>(props: TabsProps<T>): JSX.Element
   export function Textarea<T>(props: TextareaProps<T>): JSX.Element
   export function ToolTip<T>(props: ToolTipProps<T>): JSX.Element
   export function TreeView<T>(props: TreeViewProps<T>): JSX.Element
