@@ -81,7 +81,7 @@
   },
   "actions": {
     "say": "Say {x}",
-    "startWorkflow": "Start flow {x}",
+    "startWorkflow": "Start workflow {x}",
     "goToNode": "Go to node {x}",
     "redirectTo": "Redirect to {x}",
     "continue": "Continue",
@@ -103,11 +103,12 @@
     "copyEventPath": "Copy Event Path",
     "expandAll": "Expand All"
   },
+  "notAvailable": "Not available",
   "ndu": {
     "topTriggers": "Top Triggers",
     "decisionsTaken": "Decisions Taken",
     "sendKnowledge": "Send knowledge {x}",
-    "startWorkflow": "Start flow {x}",
+    "startWorkflow": "Start workflow {x}",
     "goToNode": "Go to node {x}",
     "redirectTo": "Redirect to {x}",
     "continueFlowExecution": "Continue flow execution",

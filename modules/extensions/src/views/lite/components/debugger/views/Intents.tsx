@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
-import ContentSection from '../../../../../../../../src/bp/ui-shared-lite/ContentSection'
 
+import ContentSection from '../../../../../../../../src/bp/ui-shared-lite/ContentSection'
 import lang from '../../../../lang'
 import { formatConfidence } from '../utils'
 
@@ -16,7 +16,7 @@ export const Intents = props => {
         {intents.length > 1 && (
           <ul>
             {intents.map(i => {
-              let content: string | JSX.Element = `${i.name}: ${formatConfidence(i.confidence)} %`
+              let content: string | JSX.Element = `${i.name}: ${formatConfidence(i.confidence)}`
               if (i.name === intent.name) {
                 content = <strong>{content}</strong>
               }
@@ -24,7 +24,7 @@ export const Intents = props => {
             })}
           </ul>
         )}
-        {intents.length === 1 && <strong>{`${intent.name}: ${formatConfidence(intent.confidence)} %`}</strong>}
+        {intents.length === 1 && <strong>{`${intent.name}: ${formatConfidence(intent.confidence)}`}</strong>}
       </Fragment>
     </ContentSection>
   )

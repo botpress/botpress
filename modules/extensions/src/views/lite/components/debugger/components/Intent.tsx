@@ -37,8 +37,8 @@ const navigateToIntentDefinition = (topicName: string, intent: string, isQna: bo
     const nodeIndex = intent.indexOf('/trigger-')
     const path = intent.substring(0, nodeIndex)
     const nodeId = intent.substring(nodeIndex + 1).split('/')
+
     url = `/oneflow/${path}?highlightedNode=${nodeId?.[0]}`
-    //  url = intent === 'none' ? '/modules/nlu' : `/modules/nlu?type=intent&id=${intent}` // TODO point to studio in intent (trigger)
   }
   window.parent.postMessage({ action: 'navigate-url', payload: url }, '*')
 }

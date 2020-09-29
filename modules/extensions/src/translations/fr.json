@@ -81,7 +81,7 @@
   },
   "actions": {
     "say": "Dire {x}",
-    "startWorkflow": "Commencer Workflow {x}",
+    "startWorkflow": "Commencer workflow {x}",
     "goToNode": "Aller au noeud {x}",
     "redirectTo": "Rediriger vers {x}",
     "continue": "Continuer",
@@ -103,6 +103,7 @@
     "copyEventPath": "Copier le chemin de l'événement",
     "expandAll": "Ouvrir tout"
   },
+  "notAvailable": "Non disponible",
   "ndu": {
     "topTriggers": "Top déclencheurs",
     "decisionsTaken": "Décisions prises",

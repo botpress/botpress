@@ -10,6 +10,6 @@ interface Props {
 
 export const Language: FC<Props> = props => (
   <ContentSection title={lang.tr('module.extensions.detectedLanguage')}>
-    <p>{props.detectedLanguage === 'n/a' ? lang.tr('notAvailable') : props.detectedLanguage}</p>
+    <p>{props.detectedLanguage === 'n/a' ? lang.tr('module.extensions.notAvailable') : props.detectedLanguage}</p>
   </ContentSection>
 )
