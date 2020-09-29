@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import Engine from 'nlu-core/engine'
 
-import ModelService from './model-service'
+import ModelService from './model/model-service'
 import TrainSessionService from './train-session-service'
 
 export default class TrainService {

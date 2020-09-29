@@ -11,7 +11,7 @@ import { authMiddleware, handleErrorLogging, handleUnexpectedError } from '../ht
 import Logger from '../simple-logger'
 
 import makeLoggerWrapper from './logger-wrapper'
-import ModelService from './model-service'
+import ModelService from './model/model-service'
 import TrainService from './train-service'
 import TrainSessionService from './train-session-service'
 import { mapTrainInput } from './utils'

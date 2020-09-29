@@ -93,5 +93,15 @@ ${_.repeat(' ', 9)}========================================`)
     logger.info(`limit: ${chalk.redBright('disabled')} (no protection - anyone can query without limitation)`)
   }
 
+  if (options.config) {
+    logger.info(
+      `duckling: ${chalk.redBright(config.ducklingEnabled ? 'enabled' : 'diabled')} url=${config.ducklingURL}`
+    )
+
+    for (const source of config.languageSources) {
+      logger.info(`lang server: url=${source.endpoint}`)
+    }
+  }
+
   await API(options, nluVersion)
 }
