@@ -337,7 +337,7 @@ const QnAList: FC<Props> = ({
         className={cx(style.embeddedInFlow, { 'emulator-open': emulatorOpen })}
         childRef={ref => (wrapperRef.current = ref)}
       >
-        <MainContent.Header className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
+        <MainContent.Toolbar className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
         {!!((items.length && !loading) || questionSearch.length) && (
           <div className={cx(sharedStyle.searchBar, style.searchBar)}>
             <input

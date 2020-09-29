@@ -3,17 +3,17 @@ import { BotEvent, ExecuteNode, FlowNode, FlowVariable } from 'botpress/sdk'
 import {
   Icons,
   lang,
+  MainContent,
   MoreOptions,
   MoreOptionsItems,
   MultiLevelDropdown,
-  RightSidebar,
   sharedStyle
 } from 'botpress/shared'
 import cx from 'classnames'
 import { CUSTOM_ACTION } from 'common/action'
 import { LocalActionDefinition, Variables } from 'common/typings'
 import _ from 'lodash'
-import React, { FC, Fragment, useCallback, useEffect, useRef, useState } from 'react'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 import * as portals from 'react-reverse-portal'
 
 import style from './style.scss'
@@ -175,7 +175,7 @@ const ExecuteForm: FC<Props> = ({
   }
 
   return (
-    <RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={canOutsideClickClose} close={close}>
+    <MainContent.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={canOutsideClickClose} close={close}>
       <Fragment key={`${node?.id}`}>
         <div className={sharedStyle.formHeader}>
           <Tabs id="contentFormTabs">
@@ -240,7 +240,7 @@ const ExecuteForm: FC<Props> = ({
           <ConfigAction {...commonProps} actions={actions} actionName={state.selectedAction} />
         )}
       </Fragment>
-    </RightSidebar>
+    </MainContent.RightSidebar>
   )
 }
 

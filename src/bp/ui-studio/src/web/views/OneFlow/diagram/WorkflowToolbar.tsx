@@ -89,7 +89,7 @@ const WorkflowToolbar = ({
   ]
 
   return (
-    <MainContent.Header
+    <MainContent.Toolbar
       className={style.header}
       tabs={tabs}
       currentTab={currentTab}

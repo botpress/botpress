@@ -2,12 +2,6 @@
   cursor: pointer;
 }
 
-.tooltipContent {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .tag {
   background: var(--ocean);
   border-radius: 3px;
@@ -91,7 +85,7 @@
   }
 }
 
-.customIcon {
+:global(.bp-custom-icon) {
   width: 28px;
   height: 18px;
   padding-right: 10px;

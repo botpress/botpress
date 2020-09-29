@@ -1,5 +1,5 @@
 import { NLU } from 'botpress/sdk'
-import { lang, toast, utils } from 'botpress/shared'
+import { HeaderButton, lang, MainContent, ShortcutLabel, utils } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { HotKeys } from 'react-hotkeys'
@@ -19,18 +19,19 @@ import Logs from '~/views/Logs'
 import Module from '~/views/Module'
 import OneFlow from '~/views/OneFlow'
 
+import style from './style.scss'
 import { TrainingStatusService } from './training-status-service'
+import { getMenuItems } from './utils/layout.utils'
 import BetaNotice from './BetaNotice'
+import BottomPanel from './BottomPanel'
 import BotUmountedWarning from './BotUnmountedWarning'
 import CommandPalette from './CommandPalette'
+import ConfigForm from './ConfigForm'
 import GuidedTour from './GuidedTour'
 import LanguageServerHealth from './LangServerHealthWarning'
 import layout from './Layout.scss'
 import NotTrainedWarning from './NotTrainedWarning'
-import Sidebar from './Sidebar'
 import StatusBar from './StatusBar'
-import Toolbar from './Toolbar'
-import BottomPanel from './Toolbar/BottomPanel'
 
 const { isInputFocused } = utils
 const WEBCHAT_PANEL_STATUS = 'bp::webchatOpened'
@@ -52,6 +53,7 @@ type StateProps = ReturnType<typeof mapStateToProps>
 const Layout: FC<ILayoutProps & StateProps> = props => {
   const mainElRef = useRef(null)
   const [langSwitcherOpen, setLangSwitcherOpen] = useState(false)
+  const [showConfigForm, setShowConfigForm] = useState(false)
   const [guidedTourOpen, setGuidedTourOpen] = useState(false)
 
   useEffect(() => {
@@ -197,6 +199,40 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
   const lastSize = parseInt(localStorage.getItem(splitPanelLastSizeKey) || '175', 10)
   const bottomBarSize = props.bottomPanel ? lastSize : '100%'
 
+  const leftHeaderButtons: HeaderButton[] = [
+    ...(!!props.docHints?.length
+      ? [
+          {
+            tooltip: (
+              <div className={style.tooltip}>
+                {lang.tr('toolbar.help')}
+                <div className={style.shortcutLabel}>
+                  <ShortcutLabel light shortcut="docs-toggle" />
+                </div>
+              </div>
+            ),
+            icon: 'help',
+            onClick: toggleDocs
+          }
+        ]
+      : []),
+    {
+      tooltip: <div className={style.tooltip}>{lang.tr('toolbar.configuration')}</div>,
+      icon: 'cog',
+      onClick: () => setShowConfigForm(!showConfigForm)
+    }
+  ]
+
+  if (window.IS_BOT_MOUNTED) {
+    leftHeaderButtons.push({
+      tooltip: <ShortcutLabel light shortcut="emulator-focus" />,
+      icon: 'chat',
+      onClick: toggleEmulator,
+      label: lang.tr('toolbar.emulator'),
+      divider: true
+    })
+  }
+
   return (
     <Fragment>
       <HotKeys
@@ -204,14 +240,9 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
         id="mainLayout"
         className={cx(layout.mainLayout, { 'layout-emulator-open': props.emulatorOpen })}
       >
-        <Sidebar />
+        <MainContent.Menu items={getMenuItems(props.modules)} />
         <div className={layout.container}>
-          <Toolbar
-            hasDoc={props.docHints?.length}
-            toggleDocs={toggleDocs}
-            onToggleEmulator={toggleEmulator}
-            toggleBottomPanel={props.toggleBottomPanel}
-          />
+          <MainContent.Header leftButtons={leftHeaderButtons} />
           <SplitPane
             split={'horizontal'}
             defaultSize={lastSize}
@@ -259,6 +290,7 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
         toggleBottomPanel={props.toggleBottomPanel}
       />
       <CommandPalette toggleEmulator={toggleEmulator} />
+      {showConfigForm && <ConfigForm close={() => setShowConfigForm(false)} />}
     </Fragment>
   )
 }
@@ -269,7 +301,8 @@ const mapStateToProps = (state: RootReducer) => ({
   emulatorOpen: state.ui.emulatorOpen,
   bottomPanel: state.ui.bottomPanel,
   translations: state.language.translations,
-  contentLang: state.language.contentLang
+  contentLang: state.language.contentLang,
+  modules: state.modules
 })
 
 const mapDispatchToProps = dispatch =>

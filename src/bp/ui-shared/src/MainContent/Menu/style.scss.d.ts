@@ -2,12 +2,10 @@
 // Please do not change this file!
 interface CssExports {
   'active': string;
-  'customIcon': string;
   'link': string;
   'logo': string;
   'sidebar': string;
   'tag': string;
-  'tooltipContent': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

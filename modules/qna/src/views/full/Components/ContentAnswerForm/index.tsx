@@ -2,7 +2,7 @@
 
 import { Tab, Tabs } from '@blueprintjs/core'
 import { BotEvent, FormData } from 'botpress/sdk'
-import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar, sharedStyle } from 'botpress/shared'
+import { Contents, Dropdown, lang, MainContent, MoreOptions, MoreOptionsItems, sharedStyle } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
@@ -92,7 +92,7 @@ const ContentAnswerForm: FC<Props> = ({
   const contentFields = contentTypesFields?.[contentType.current]
 
   return (
-    <RightSidebar className={sharedStyle.wrapper} canOutsideClickClose close={() => close(editingContent)}>
+    <MainContent.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose close={() => close(editingContent)}>
       <Fragment key={`${contentType.current}-${editingContent}`}>
         <div className={sharedStyle.formHeader}>
           <Tabs id="contentFormTabs">
@@ -129,7 +129,7 @@ const ContentAnswerForm: FC<Props> = ({
           />
         )}
       </Fragment>
-    </RightSidebar>
+    </MainContent.RightSidebar>
   )
 }
 

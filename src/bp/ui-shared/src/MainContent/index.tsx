@@ -1,4 +1,7 @@
 import Header from './Header'
+import Menu from './Menu'
+import RightSidebar from './RightSidebar'
+import Toolbar from './Toolbar'
 import MainContentWrapper from './Wrapper'
 
-export default { Header, Wrapper: MainContentWrapper }
+export default { Toolbar, Header, RightSidebar, Menu, Wrapper: MainContentWrapper }
