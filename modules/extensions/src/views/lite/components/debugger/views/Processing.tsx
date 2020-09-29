@@ -1,4 +1,4 @@
-import { Icon } from '@blueprintjs/core'
+import { Button, Icon } from '@blueprintjs/core'
 import sdk from 'botpress/sdk'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -48,8 +48,6 @@ export const Processing: FC<{ processing: { [activity: string]: sdk.IO.Processin
       return acc
     }, [])
 
-  const totalExec = _.sumBy(processed, x => x.execTime)
-
   const renderToggleItem = (item, key) => {
     const isExpanded = expanded[key]
     const hasError = item.status === 'error' || !!item.errors?.length
@@ -57,35 +55,51 @@ export const Processing: FC<{ processing: { [activity: string]: sdk.IO.Processin
 
     return (
       <Fragment>
-        <ToolTip content={lang.tr('module.extensions.processing.executedIn', { n: item.execTime || 0 })}>
-          <div className={cx(style.processingItemName, { [style.error]: hasError })}>
-            {hasError && <Icon className={style.error} icon="error" iconSize={10} />}
-            {hasLog && <Icon className={style.info} icon="info-sign" iconSize={10} />}
-            <span className={cx({ [style.error]: hasError })}>{item.name}</span>
-          </div>
-        </ToolTip>
-        <span className={style.expanded}>
-          {hasLog && (
-            <span className={style.infoBox}>
-              {item.logs.map(log => (
-                <div key={log}>{log}</div>
-              ))}
-            </span>
-          )}
+        <button className={style.itemButton} onClick={() => setExpanded({ ...expanded, [key]: !isExpanded })}>
+          <Icon className={style.itemButtonIcon} icon={isExpanded ? 'chevron-down' : 'chevron-right'} iconSize={10} />
+          {hasError && <Icon className={style.error} icon="error" iconSize={10} />}
+          {hasLog && <Icon className={style.info} icon="info-sign" iconSize={10} />}
+          <span className={cx({ [style.error]: hasError })}>{item.name}</span>
+        </button>
+        {isExpanded && (
+          <span className={style.expanded}>
+            {hasLog && (
+              <span className={style.infoBox}>
+                {item.logs.map(log => (
+                  <div key={log}>{log}</div>
+                ))}
+              </span>
+            )}
 
-          {hasError && (
-            <span className={style.infoBox}>
-              {item.errors.map(entry => (
-                <div key={entry.stacktrace}>
-                  <b>{lang.tr('module.extensions.processing.type')}:</b> {entry.type}
-                  <br />
-                  <b>{lang.tr('module.extensions.processing.stacktrace')}:</b> {entry.stacktrace}
-                </div>
-              ))}
-            </span>
-          )}
-        </span>
+            {hasError && (
+              <span className={style.infoBox}>
+                {item.errors.map(entry => (
+                  <div key={entry.stacktrace}>
+                    <b>{lang.tr('module.extensions.processing.type')}:</b> {entry.type}
+                    <br />
+                    <b>{lang.tr('module.extensions.processing.stacktrace')}:</b> {entry.stacktrace}
+                  </div>
+                ))}
+              </span>
+            )}
+          </span>
+        )}
       </Fragment>
+    )
+  }
+
+  const renderItem = (item, key) => {
+    const hasError = item.status === 'error' || !!item.errors?.length
+    const hasLog = !!item.logs?.length
+
+    if (hasError || hasLog) {
+      return renderToggleItem(item, key)
+    }
+
+    return (
+      <ToolTip content={lang.tr('module.extensions.processing.executedIn', { n: item.execTime || 0 })}>
+        <div className={style.processingItemName}>{item.name}</div>
+      </ToolTip>
     )
   }
 
@@ -98,7 +112,7 @@ export const Processing: FC<{ processing: { [activity: string]: sdk.IO.Processin
           <Fragment key={index}>
             {!item.subItems}
             <div className={cx(style.processingItem, style.processingSection)}>
-              {!hasChildren && renderToggleItem({ ...item.subItems?.[0], name: item.name }, index)}
+              {!hasChildren && renderItem({ ...item.subItems?.[0], name: item.name }, index)}
               {!!hasChildren && item.name}
             </div>
             {!!hasChildren && (
@@ -108,7 +122,7 @@ export const Processing: FC<{ processing: { [activity: string]: sdk.IO.Processin
 
                   return (
                     <li className={cx(style.processingItem, { [style.error]: entry.status === 'error' })} key={key}>
-                      {renderToggleItem(entry, key)}
+                      {renderItem(entry, key)}
                     </li>
                   )
                 })}
