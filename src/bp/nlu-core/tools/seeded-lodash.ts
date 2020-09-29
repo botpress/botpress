@@ -13,10 +13,8 @@ export default class SeededLodashProvider implements ISeededLodashProvider {
   }
 
   public getSeededLodash() {
-    let lo = _
     seedrandom(`${this._seed}`, { global: true })
-    lo = _.runInContext()
-    return lo
+    return _.runInContext()
   }
 
   public resetSeed() {
