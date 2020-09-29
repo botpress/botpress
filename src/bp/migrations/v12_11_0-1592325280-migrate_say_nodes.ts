@@ -64,6 +64,7 @@ class Migrater {
             'triggers',
             'label',
             'description',
+            'type',
             'variables'
           ]),
           nodes: flow.nodes.map(node => _.omit(node, 'x', 'y', 'lastModified'))
