@@ -4,7 +4,7 @@ import { TestResult, VisData } from './typings'
 
 export const computeSummary = (testResults: _.Dictionary<TestResult>): number => {
   const passedCount = Object.values(testResults).filter(res => res.success).length
-  return _.round((passedCount / Object.values(testResults).length) * 100, 1)
+  return (passedCount / Object.values(testResults).length) * 100
 }
 
 export const computeAccuracy = (datas: VisData[]) => {

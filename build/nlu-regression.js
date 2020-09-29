@@ -102,7 +102,7 @@ const runAllTests = async (axiosConfig, botInfo) => {
     console.log(`[${botInfo.id}] (${++i} /${tests.length}) #${test.id}`, 'success: ', testResult.success)
   }
 
-  return _.round((passedTests / tests.length) * 100, 1)
+  return (passedTests / tests.length) * 100
 }
 
 const getPreviousScore = async botInfo => {
