@@ -26,6 +26,7 @@ interface CssExports {
   'notFound': string;
   'percentBar': string;
   'processingItem': string;
+  'processingItemName': string;
   'processingSection': string;
   'splash': string;
   'stacktrace': string;

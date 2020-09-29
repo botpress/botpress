@@ -272,6 +272,12 @@
   margin-top: 0;
 }
 
+.processingItemName {
+  cursor: default;
+  display: inline-flex;
+  align-items: center;
+}
+
 .processingItem {
   font-size: 12px;
   color: var(--shark);
@@ -286,8 +292,8 @@
 
   .error {
     color: var(--lighthouse);
+    margin: 0 var(--spacing-medium) 0 0;
 
-    margin: 0 0 0 var(--spacing-small);
     svg {
       fill: var(--lighthouse);
     }
@@ -295,8 +301,8 @@
 
   .info {
     color: var(--ocean);
+    margin: 0 var(--spacing-medium) 0 0;
 
-    margin: 0 0 0 var(--spacing-small);
     svg {
       fill: var(--ocean);
     }
@@ -304,10 +310,6 @@
 
   svg {
     fill: var(--gray);
-  }
-
-  :global(.bp3-icon) {
-    margin-right: var(--spacing-medium);
   }
 
   :global(.bp3-icon-small-cross) {
