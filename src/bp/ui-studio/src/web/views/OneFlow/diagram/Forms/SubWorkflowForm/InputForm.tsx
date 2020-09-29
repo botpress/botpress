@@ -2,7 +2,7 @@ import { FlowVariable, FormField, SubWorkflowInput } from 'botpress/sdk'
 import { Contents, lang, MainContent, sharedStyle, Tabs } from 'botpress/shared'
 import { Variables } from 'common/typings'
 import _ from 'lodash'
-import React, { FC, Fragment } from 'react'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 
 interface Props {
   customKey: string
