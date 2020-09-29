@@ -411,7 +411,6 @@ export class RemoteLanguageProvider implements LanguageProvider {
       return word
     }) // randomly generated words
 
-    this._seededLodashProvider.resetSeed()
     return junks
   }
 
