@@ -1,8 +1,9 @@
-import { Alignment, AnchorButton, Navbar, NavbarGroup, Position, Tab, Tabs } from '@blueprintjs/core'
+import { Alignment, AnchorButton, Navbar, NavbarGroup } from '@blueprintjs/core'
 import cx from 'classnames'
 import React, { FC, Fragment, SetStateAction, useState } from 'react'
 
 import MoreOptions from '../../../../ui-shared-lite/MoreOptions'
+import Tabs from '../../../../ui-shared-lite/Tabs'
 import ToolTip from '../../../../ui-shared-lite/ToolTip'
 
 import style from './style.scss'
@@ -13,13 +14,7 @@ const Toolbar: FC<ToolbarProps> = props => {
   return (
     <Navbar className={cx(style.header, props.className)}>
       {!!props.tabs?.length && (
-        <NavbarGroup>
-          <Tabs id="headerTabs" selectedTabId={props.currentTab} onChange={props.tabChange}>
-            {props.tabs.map(tab => (
-              <Tab key={tab.id} id={tab.id} title={tab.title} />
-            ))}
-          </Tabs>
-        </NavbarGroup>
+        <Tabs currentTab={props.currentTab} tabChange={props.tabChange} shouldFloat tabs={props.tabs} />
       )}
       {!!props.buttons?.length && (
         <NavbarGroup className={cx(style.buttons, 'toolbar-buttons')} align={Alignment.RIGHT}>

@@ -1,8 +1,9 @@
-import { IButtonProps, ITabProps, IconName } from '@blueprintjs/core'
+import { IButtonProps, IconName } from '@blueprintjs/core'
 import { MoreOptionsItems } from '../../MoreOptions/typings'
+import { Tab } from '../../../../ui-shared-lite/Tabs/typings'
 
 export interface ToolbarProps {
-  tabs?: ITabProps[]
+  tabs?: Tab[]
   tabChange?: (tab: string) => void
   currentTab?: string
   buttons?: ToolbarButtonProps[]

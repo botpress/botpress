@@ -131,10 +131,9 @@ class MessageGroup extends React.Component<Props> {
               )
 
               return (
-                <Fragment>
+                <Fragment key={`msg-${i}`}>
                   <Message
                     {...commonProps}
-                    key={`msg-${i}`}
                     payload={payload}
                     inlineFeedback={
                       showInlineFeedback && (

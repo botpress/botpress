@@ -4,7 +4,7 @@ import _isEqual from 'lodash/isEqual'
 import _uniqueId from 'lodash/uniqueId'
 import React, { FC, useEffect, useRef, useState } from 'react'
 
-import sharedStyle from '../../style.scss'
+import sharedStyle from '../../../../ui-shared-lite/style.scss'
 import { lang } from '../../translations'
 import AddButton from '../../Contents/Components/Fields/AddButton'
 import Textarea from '../../Textarea'

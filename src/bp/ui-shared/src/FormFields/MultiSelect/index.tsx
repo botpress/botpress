@@ -2,7 +2,7 @@ import { Classes, MenuItem } from '@blueprintjs/core'
 import { MultiSelect } from '@blueprintjs/select'
 import React, { FC } from 'react'
 
-import sharedStyle from '../../style.scss'
+import sharedStyle from '../../../../ui-shared-lite/style.scss'
 import { lang } from '../../translations'
 
 const itemRenderer = (option, { modifiers, handleClick }) => {

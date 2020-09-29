@@ -1,7 +1,7 @@
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
-import sharedStyle from '../style.scss'
+import sharedStyle from '../../../ui-shared-lite/style.scss'
 import { lang } from '../translations'
 
 import style from './style.scss'

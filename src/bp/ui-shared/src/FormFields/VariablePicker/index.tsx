@@ -5,7 +5,7 @@ import { FC, useEffect, useState } from 'react'
 import React from 'react'
 import { FieldProps } from '~/Contents/Components/typings'
 
-import sharedStyle from '../../style.scss'
+import sharedStyle from '../../../../ui-shared-lite/style.scss'
 import { lang } from '../../translations'
 
 import style from './style.scss'
