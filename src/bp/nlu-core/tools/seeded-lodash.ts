@@ -1,20 +1,30 @@
 import _ from 'lodash'
 import seedrandom from 'seedrandom'
 
-export const getSeededLodash = (randomSeed?: number | string) => {
-  let lo = _
-  if (!randomSeed) {
+import { SeededLodashProvider as ISeededLodashProvider } from '../typings'
+
+const MAX_SEED = 100000
+
+export default class SeededLodashProvider implements ISeededLodashProvider {
+  private _seed: number = SeededLodashProvider._randomInt()
+
+  public setSeed(seed: number) {
+    this._seed = seed
+  }
+
+  public getSeededLodash() {
+    let lo = _
+    seedrandom(`${this._seed}`, { global: true })
+    lo = _.runInContext()
     return lo
   }
 
-  const seed = _.isString(randomSeed) ? parseInt(randomSeed) : randomSeed
-  if (seed) {
-    seedrandom(`${seed}`, { global: true })
-    lo = _.runInContext()
+  public resetSeed() {
+    this._seed = SeededLodashProvider._randomInt()
+    seedrandom(`${this._seed}`, { global: true })
   }
-  return lo
-}
 
-export const resetSeed = () => {
-  seedrandom(`${new Date().getMilliseconds()}`, { global: true })
+  private static _randomInt() {
+    return Math.round(new Date().getMilliseconds() % MAX_SEED)
+  }
 }
