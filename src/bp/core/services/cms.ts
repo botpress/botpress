@@ -463,17 +463,20 @@ export class CMSService implements IDisposeOnExit {
 
   private transformItemApiToDb(botId: string, element) {
     if (!element) {
+      this.logger.info(`loadElementsForBot.transformItemApiToDb(${botId}): No element`)
       return element
     }
-
+    this.logger.info(`loadElementsForBot.transformItemApiToDb(${botId}): Element(${element.id})`)
     const result = { ...element, botId }
 
     if ('formData' in element && typeof element.formData !== 'string') {
       result.formData = JSON.stringify(element.formData)
+      // this.logger.info(`loadElementsForBot.transformItemApiToDb(${botId}): formData(${result.formData})`)
     }
 
     if (element.previews) {
       result.previews = JSON.stringify(element.previews)
+      // this.logger.info(`loadElementsForBot.transformItemApiToDb(${botId}): Previews(${result.previews})`)
     }
 
     return result
