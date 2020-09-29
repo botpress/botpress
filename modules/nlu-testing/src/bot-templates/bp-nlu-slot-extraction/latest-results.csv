@@ -1,4 +1,4 @@
-utterance,context,conditions,status,date: 9/29/2020,summary: 40.44943820224719,nlu seed: 42
+utterance,context,conditions,status,date: 9/29/2020,summary: 40.449438,nlu seed: 42
 A MP34 I WHAT I WISH FOR LOL,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,MP34",fail
 I wanto by a AKP447,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,AKP447",fail
 I wish to get my hands on a Ak-47,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,Ak-47",pass

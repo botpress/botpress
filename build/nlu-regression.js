@@ -102,13 +102,13 @@ const runAllTests = async (axiosConfig, botInfo) => {
     console.log(`[${botInfo.id}] (${++i} /${tests.length}) #${test.id}`, 'success: ', testResult.success)
   }
 
-  return (passedTests / tests.length) * 100
+  return _.round((passedTests / tests.length) * 100, 6)
 }
 
 const getPreviousScore = async botInfo => {
   const latestResultsFile = `${nluTestingDir}/src/bot-templates/${botInfo.template.id}/latest-results.csv`
   const latestResultsContent = fs.readFileSync(latestResultsFile, { encoding: 'utf8' })
-  const previousScoreOccurence = latestResultsContent.match(/summary: ((100|\d{1,2})[.]\d{1})?/gm)
+  const previousScoreOccurence = latestResultsContent.match(/summary: ((100|\d{1,2})[.]\d{6})?/gm)
   if (!previousScoreOccurence || !previousScoreOccurence[0]) {
     return
   }
