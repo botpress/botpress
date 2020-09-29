@@ -49,19 +49,17 @@ const PromptContents: FC<Props> = ({ node, selectedNodeItem, currentLang }) => {
           <span className={style.content}>{params?.output && `$${params?.output}`}</span>
         )}
       </div>
-      {next
-        ?.filter(x => params.cancellable || x.condition !== 'thisNode.cancelled === true')
-        .map((item, i) => {
-          const outputPortName = `out${i}`
-          return (
-            <div key={`${i}.${item}`} className={style.contentWrapper}>
-              <div className={cx(style.content, style.readOnly)}>
-                {lang.tr(item.caption)}
-                <StandardPortWidget name={outputPortName} node={node} className={style.outRouting} />
-              </div>
+      {next?.map((item, i) => {
+        const outputPortName = `out${i}`
+        return (
+          <div key={`${i}.${item}`} className={style.contentWrapper}>
+            <div className={cx(style.content, style.readOnly)}>
+              {lang.tr(item.caption)}
+              <StandardPortWidget name={outputPortName} node={node} className={style.outRouting} />
             </div>
-          )
-        })}
+          </div>
+        )
+      })}
     </div>
   )
 }
