@@ -1,4 +1,4 @@
-import { Button, Icon } from '@blueprintjs/core'
+import { Icon } from '@blueprintjs/core'
 import sdk from 'botpress/sdk'
 import cx from 'classnames'
 import _ from 'lodash'

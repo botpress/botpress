@@ -31,7 +31,7 @@ export default {
   ],
   evaluate: (event, params) => {
     const { topicName } = params
-    const contextName = (params.contextName ?? topicName ?? '').toLowerCase()
+    const contextName = params.contextName ?? topicName ?? ''
     const intentName = params.intentName ?? `${params.wfName}/${params.nodeName}/${params.conditionIndex}`
     const topicConf = contextName.startsWith('explicit:')
       ? 1

@@ -24,12 +24,7 @@ const OutputForm: FC<Props> = ({
   close
 }) => {
   const fields = subFlowVars.map<FormField>(({ params, type }) => ({
-    type: 'text',
-    superInput: true,
-    superInputOptions: {
-      canPickEvents: false,
-      simple: true
-    },
+    type: 'variable',
     key: params.name,
     label: params.name,
     variableTypes: [type],
