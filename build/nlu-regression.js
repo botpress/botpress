@@ -227,8 +227,8 @@ const main = async args => {
     let testPasses = true
 
     if (!args.length) {
-      testPasses = await runRegressionForBot(axiosConfig, testyInfo)
-      testPasses = await runRegressionForBot(axiosConfig, slotyInfo, 0.05) // 5% tolerance because plateform dependent
+      testPasses = testPasses & (await runRegressionForBot(axiosConfig, testyInfo, 0.05))
+      testPasses = testPasses & (await runRegressionForBot(axiosConfig, slotyInfo, 0.05))
     } else if (args[0] === 'testy') {
       testPasses = await runRegressionForBot(axiosConfig, testyInfo)
     } else if (args[0] === 'sloty') {
