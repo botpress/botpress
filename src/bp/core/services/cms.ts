@@ -115,17 +115,19 @@ export class CMSService implements IDisposeOnExit {
 
   async loadElementsForBot(botId: string): Promise<any[]> {
     try {
+      this.logger.info(`loadElementsForBot(${botId}): getAllElements`)
       const contentElements = await this.getAllElements(botId)
-
+      this.logger.info(`loadElementsForBot(${botId}): transformItemApiToDb`)
       const elements = await Promise.map(contentElements, element => {
         return this.memDb(this.contentTable)
           .insert(this.transformItemApiToDb(botId, element))
           .catch(err => {
+            this.logger.info(`loadElementsForBot(${botId}): Duplicate key error?`)
             // ignore duplicate key errors
             // TODO: Knex error handling
           })
       })
-
+      this.logger.info(`loadElementsForBot(${botId}): recomputeElementsForBot`)
       await this.recomputeElementsForBot(botId)
 
       return elements
