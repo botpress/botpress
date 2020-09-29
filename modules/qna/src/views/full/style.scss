@@ -32,7 +32,7 @@
   width: 100%;
 
   &:global(.emulator-open) :global(.right-sidebar) {
-    right: 480px !important;
+    right: var(--emulator-width) + var(--debugger-width) !important;
   }
 }
 

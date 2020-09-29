@@ -14,15 +14,11 @@
 }
 
 .container2 {
-  width: 240px;
   height: 100vh;
   position: relative;
   border: none;
   background-color: white;
-
-  &.expanded {
-    width: 480px;
-  }
+  width: var(--debugger-width);
 }
 
 .noMargin {

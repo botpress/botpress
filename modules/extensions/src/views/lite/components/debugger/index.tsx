@@ -110,6 +110,9 @@ export class Debugger extends React.Component<Props, State> {
     window.removeEventListener('keydown', this.hotkeyListener)
     this.resetWebchat()
     this.showEventOnDiagram(undefined)
+
+    window.parent.document.documentElement.style.setProperty('--debugger-width', '240px')
+    document.documentElement.style.setProperty('--debugger-width', '240px')
   }
 
   componentDidUpdate(_prevProps, prevState) {
@@ -244,6 +247,10 @@ export class Debugger extends React.Component<Props, State> {
     this.props.store.view.setContainerWidth(
       !this.state.maximized ? WEBCHAT_WIDTH + DEV_TOOLS_WIDTH * 2 : WEBCHAT_WIDTH + DEV_TOOLS_WIDTH
     )
+    const newWidth = !this.state.maximized ? '480px' : '240px'
+
+    window.parent.document.documentElement.style.setProperty('--debugger-width', newWidth)
+    document.documentElement.style.setProperty('--debugger-width', newWidth)
     this.setState({ maximized: !this.state.maximized })
   }
   handleTabChange = selectedTabId => this.setState({ selectedTabId })
@@ -302,7 +309,7 @@ export class Debugger extends React.Component<Props, State> {
     const { tab, event } = this.state
 
     return (
-      <div className={cx(style.container2, { [style.expanded]: this.state.maximized })}>
+      <div className={style.container2}>
         <Header
           updateCurrentTab={this.updateTab.bind(this)}
           selectedTab={tab}
