@@ -1,9 +1,11 @@
 import cx from 'classnames'
-import React, { FC, useEffect, useRef, useState, Fragment } from 'react'
+import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
+
+import sharedStyle from '../style.scss'
+import { lang } from '../translations'
 
 import style from './style.scss'
 import { TextareaProps } from './typings'
-import { lang } from '../translations'
 
 const Textarea: FC<TextareaProps> = ({
   refValue,
@@ -13,16 +15,17 @@ const Textarea: FC<TextareaProps> = ({
   className,
   value,
   placeholder,
+  onPaste,
   onBlur,
   onKeyDown
 }) => {
   const [forceUpdate, setForceUpdate] = useState(false)
   const inputRef = useRef<HTMLTextAreaElement>(null)
-  const height = useRef(39)
+  const height = useRef(33)
   const initialChange = useRef(true)
 
   useEffect(() => {
-    height.current = inputRef.current?.scrollHeight || 39
+    height.current = inputRef.current?.scrollHeight || 33
     setForceUpdate(!forceUpdate)
   }, [])
 
@@ -60,6 +63,7 @@ const Textarea: FC<TextareaProps> = ({
   return (
     <Fragment>
       <textarea
+        onPaste={onPaste}
         style={{ height: height.current + 'px' }}
         ref={inputRef}
         className={cx(style.textarea, className)}
@@ -70,7 +74,7 @@ const Textarea: FC<TextareaProps> = ({
         onKeyDown={onKeyDown}
         onInput={updateHeight}
       />
-      {missingTranslation && <span className={style.fieldError}>{lang('pleaseTranslateField')}</span>}
+      {missingTranslation && <span className={sharedStyle.fieldError}>{lang('pleaseTranslateField')}</span>}
     </Fragment>
   )
 }

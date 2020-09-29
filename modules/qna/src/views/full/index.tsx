@@ -1,5 +1,5 @@
-import { Icon, IconName, Spinner } from '@blueprintjs/core'
-import { confirmDialog, EmptyState, HeaderButtonProps, lang, MainContent, MoreOptionsItems } from 'botpress/shared'
+import { Checkbox, Icon, IconName, Spinner } from '@blueprintjs/core'
+import { confirmDialog, EmptyState, HeaderButtonProps, Icons, lang, MainContent, sharedStyle } from 'botpress/shared'
 import { AccessControl, Downloader, reorderFlows, toastFailure, toastSuccess } from 'botpress/utils'
 import cx from 'classnames'
 import { debounce } from 'lodash'
@@ -12,6 +12,8 @@ import { dispatchMiddleware, fetchReducer, itemHasError, ITEMS_PER_PAGE, Props }
 import QnA from './Components/QnA'
 import EmptyStateIcon from './Icons/EmptyStateIcon'
 
+const QNA_FILTER_KEY = `bp::${window['BOT_ID']}::qnaFilter`
+
 const QnAList: FC<Props> = ({
   bp,
   languages,
@@ -20,15 +22,23 @@ const QnAList: FC<Props> = ({
   contentLang,
   updateLocalLang,
   isLite,
+  licensing,
+  emulatorOpen,
   events,
   refreshQnaCount
 }) => {
+  let filters
+  try {
+    filters = JSON.parse(localStorage.getItem(QNA_FILTER_KEY))
+  } catch (error) {
+    filters = {}
+  }
   const [flows, setFlows] = useState([])
   const [questionSearch, setQuestionSearch] = useState('')
   const [currentTab, setCurrentTab] = useState('qna')
   const [currentLang, setCurrentLang] = useState(contentLang)
   const [url, setUrl] = useState('')
-  const [filterOptions, setFilterOptions] = useState({ disabled: false, incomplete: false, active: false })
+  const [filterOptions, setFilterOptions] = useState(filters || {})
   const [sortOption, setSortOption] = useState('mostRecent')
   const debounceDispatchMiddleware = useCallback(debounce(dispatchMiddleware, 300), [])
   const wrapperRef = useRef<HTMLDivElement>()
@@ -89,6 +99,14 @@ const QnAList: FC<Props> = ({
     }
   }, [fetchMore])
 
+  useEffect(() => {
+    try {
+      localStorage.setItem(QNA_FILTER_KEY, JSON.stringify(filterOptions))
+    } catch (error) {
+      localStorage.setItem(QNA_FILTER_KEY, '{}')
+    }
+  }, [filterOptions])
+
   const fetchFlows = () => {
     bp.axios.get('/flows').then(({ data }) => {
       setFlows(reorderFlows(data.filter(flow => !flow.name.startsWith('skills/'))))
@@ -117,8 +135,10 @@ const QnAList: FC<Props> = ({
     noItemsTooltip = lang.tr('module.qna.form.addOneItemTooltip')
   }
 
-  if (languages?.length <= 1) {
-    languesTooltip = lang.tr('module.qna.form.onlyOneLanguage')
+  if (!licensing?.isPro) {
+    languesTooltip = lang.tr('toolbar.contactSalesForMultilingual')
+  } else if (languages?.length <= 1) {
+    languesTooltip = lang.tr('toolbar.configureAnotherLanguage')
   }
 
   const buttons: HeaderButtonProps[] = [
@@ -133,32 +153,42 @@ const QnAList: FC<Props> = ({
         }
       })),
       disabled: !items.length || languages?.length <= 1,
-      tooltip: noItemsTooltip || languesTooltip
+      tooltip: languesTooltip
     },
     {
       icon: 'filter',
       disabled: !items.length,
+      optionsWrapperClassName: style.filterWrapper,
       optionsItems: [
         {
-          label: lang.tr('disabled'),
-          selected: filterOptions.disabled,
-          action: () => {
-            setFilterOptions({ ...filterOptions, disabled: !filterOptions.disabled })
-          }
+          className: style.checkboxWrapper,
+          content: (
+            <Checkbox
+              checked={filterOptions.active}
+              label={lang.tr('active')}
+              onChange={() => setFilterOptions({ ...filterOptions, active: !filterOptions.active })}
+            />
+          )
         },
         {
-          label: lang.tr('active'),
-          selected: filterOptions.active,
-          action: () => {
-            setFilterOptions({ ...filterOptions, active: !filterOptions.active })
-          }
+          className: style.checkboxWrapper,
+          content: (
+            <Checkbox
+              checked={filterOptions.incomplete}
+              label={lang.tr('incomplete')}
+              onChange={() => setFilterOptions({ ...filterOptions, incomplete: !filterOptions.incomplete })}
+            />
+          )
         },
         {
-          label: lang.tr('incomplete'),
-          selected: filterOptions.incomplete,
-          action: () => {
-            setFilterOptions({ ...filterOptions, incomplete: !filterOptions.incomplete })
-          }
+          className: style.checkboxWrapper,
+          content: (
+            <Checkbox
+              checked={filterOptions.disabled}
+              label={lang.tr('disabled')}
+              onChange={() => setFilterOptions({ ...filterOptions, disabled: !filterOptions.disabled })}
+            />
+          )
         }
       ],
       tooltip: lang.tr('module.qna.filterBy')
@@ -168,14 +198,14 @@ const QnAList: FC<Props> = ({
       disabled: items.length < 2,
       optionsItems: [
         {
-          label: lang.tr('module.qna.mostRecent'),
+          label: lang.tr('module.qna.mostRecentlyEdited'),
           selected: sortOption === 'mostRecent',
           action: () => {
             setSortOption('mostRecent')
           }
         },
         {
-          label: lang.tr('module.qna.leastRecent'),
+          label: lang.tr('module.qna.leastRecentlyEdited'),
           selected: sortOption === 'leastRecent',
           action: () => {
             setSortOption('leastRecent')
@@ -188,13 +218,13 @@ const QnAList: FC<Props> = ({
       icon: allExpanded ? 'collapse-all' : 'expand-all',
       disabled: !items.length,
       onClick: () => dispatch({ type: allExpanded ? 'collapseAll' : 'expandAll' }),
-      tooltip: noItemsTooltip || lang.tr(allExpanded ? 'collapseAll' : 'expandAll')
+      tooltip: lang.tr(allExpanded ? 'collapseAll' : 'expandAll')
     },
     {
       icon: 'export',
       disabled: !items.length,
       onClick: startDownload,
-      tooltip: noItemsTooltip || lang.tr('module.qna.import.exportQnAs')
+      tooltip: lang.tr('module.qna.import.exportQnAs')
     }
   ]
 
@@ -303,17 +333,21 @@ const QnAList: FC<Props> = ({
 
   return (
     <AccessControl resource="module.qna" operation="write">
-      <MainContent.Wrapper className={style.embeddedInFlow} childRef={ref => (wrapperRef.current = ref)}>
-        <MainContent.Header className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
-        <div className={style.searchWrapper}>
-          <input
-            className={style.input}
-            type="text"
-            value={questionSearch}
-            onChange={e => setQuestionSearch(e.currentTarget.value)}
-            placeholder={lang.tr('module.qna.search')}
-          />
-        </div>
+      <MainContent.Wrapper
+        className={cx(style.embeddedInFlow, { 'emulator-open': emulatorOpen })}
+        childRef={ref => (wrapperRef.current = ref)}
+      >
+        <MainContent.Toolbar className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
+        {!!((items.length && !loading) || questionSearch.length) && (
+          <div className={cx(sharedStyle.searchBar, style.searchBar)}>
+            <input
+              type="text"
+              value={questionSearch}
+              onChange={e => setQuestionSearch(e.currentTarget.value)}
+              placeholder={lang.tr('module.qna.search')}
+            />
+          </div>
+        )}
         <div className={cx(style.content, { [style.empty]: !items.length && !highlighted })}>
           {highlighted && (
             <div className={style.highlightedQna}>
@@ -387,10 +421,10 @@ const QnAList: FC<Props> = ({
             ))}
           {!items.length && !loading && (
             <EmptyState
-              icon={<EmptyStateIcon />}
+              icon={questionSearch.length ? <Icons.Search /> : <EmptyStateIcon />}
               text={
                 questionSearch.length
-                  ? lang.tr('module.qna.form.noResultsFromFilters')
+                  ? lang.tr('studio.flow.sidePanel.noSearchMatch')
                   : lang.tr('module.qna.form.emptyState')
               }
             />

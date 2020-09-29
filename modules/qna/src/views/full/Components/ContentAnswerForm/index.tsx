@@ -1,10 +1,11 @@
+// TODO refactor to use the same form as say node
+
 import { Tab, Tabs } from '@blueprintjs/core'
 import { BotEvent, FormData } from 'botpress/sdk'
-import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
+import { Contents, Dropdown, lang, MainContent, MoreOptions, MoreOptionsItems, sharedStyle } from 'botpress/shared'
 import cx from 'classnames'
+import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
-
-import style from './style.scss'
 
 interface Props {
   bp: any
@@ -28,7 +29,8 @@ const fetchReducer = (state, action) => {
         ...state,
         contentTypes: data.map(type => ({
           value: type.id,
-          label: lang.tr(type.title)
+          label: lang.tr(type.title),
+          order: type.schema.newJson.order
         })),
         contentTypesFields: data.reduce((acc, type) => ({ ...acc, [type.id]: type.schema.newJson }), {})
       }
@@ -90,21 +92,21 @@ const ContentAnswerForm: FC<Props> = ({
   const contentFields = contentTypesFields?.[contentType.current]
 
   return (
-    <RightSidebar className={style.wrapper} canOutsideClickClose close={() => close(editingContent)}>
+    <MainContent.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose close={() => close(editingContent)}>
       <Fragment key={`${contentType.current}-${editingContent}`}>
-        <div className={style.formHeader}>
+        <div className={sharedStyle.formHeader}>
           <Tabs id="contentFormTabs">
             <Tab id="content" title="Content" />
           </Tabs>
           <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
         </div>
-        <div className={cx(style.fieldWrapper, style.contentTypeField)}>
-          <span className={style.formLabel}>{lang.tr('studio.content.contentType')}</span>
+        <div className={cx(sharedStyle.fieldWrapper, sharedStyle.typeField)}>
+          <span className={sharedStyle.formLabel}>{lang.tr('studio.content.contentType')}</span>
           {contentTypes.length && (
             <Dropdown
               filterable={false}
-              className={style.formSelect}
-              items={contentTypes}
+              className={sharedStyle.formSelect}
+              items={_.sortBy(contentTypes, 'order')}
               defaultItem={contentType.current}
               rightIcon="chevron-down"
               onChange={option => {
@@ -127,7 +129,7 @@ const ContentAnswerForm: FC<Props> = ({
           />
         )}
       </Fragment>
-    </RightSidebar>
+    </MainContent.RightSidebar>
   )
 }
 

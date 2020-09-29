@@ -317,8 +317,8 @@ declare module 'botpress/sdk' {
       }
 
       export interface ModelConstructor {
-        new(): Model
-        new(lazy: boolean, keepInMemory: boolean, queryOnly: boolean): Model
+        new (): Model
+        new (lazy: boolean, keepInMemory: boolean, queryOnly: boolean): Model
       }
 
       export const Model: ModelConstructor
@@ -459,6 +459,7 @@ declare module 'botpress/sdk' {
       static initialize: (config: Config, logger: NLU.Logger) => Promise<void>
       static getHealth: () => Health
       static getLanguages: () => string[]
+      static embed: (utterances: string[], lang: string) => Promise<number[][]>
       constructor(botId: string, logger: Logger)
       computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string
       loadModel: (m: Model) => Promise<void>
@@ -519,7 +520,7 @@ declare module 'botpress/sdk' {
     export type TrainingStatus = 'idle' | 'done' | 'needs-training' | 'training' | 'canceled' | 'errored' | null
 
     export interface TrainingSession {
-      key?: string
+      key: string
       status: TrainingStatus
       language: string
       progress: number
@@ -620,7 +621,11 @@ declare module 'botpress/sdk' {
   }
 
   export namespace NDU {
+    export type TriggerEffect = 'prompt.cancel' | 'prompt.inform' | 'jump.node' | 'say'
+
     interface GenericTrigger {
+      type: 'workflow' | 'faq' | 'node' | 'contextual'
+      effect: TriggerEffect
       name?: string
       conditions: DecisionTriggerCondition[]
     }
@@ -633,22 +638,30 @@ declare module 'botpress/sdk' {
       /** When true, the user must be inside the specified workflow for the trigger to be active */
       activeWorkflow?: boolean
       activeTopic?: boolean
+      effect: 'jump.node'
     }
 
     export interface FaqTrigger extends GenericTrigger {
       type: 'faq'
       faqId: string
       topicName: string
+      effect: 'say'
     }
 
     export interface NodeTrigger extends GenericTrigger {
       type: 'node'
       workflowId: string
       nodeId: string
-      effect?: 'prompt.cancel' | 'prompt.inform'
     }
 
-    export type Trigger = NodeTrigger | FaqTrigger | WorkflowTrigger
+    export interface ContextualTrigger extends GenericTrigger {
+      type: 'contextual'
+      workflowId: string
+      nodeId: string
+      gotoNodeId: string
+    }
+
+    export type Trigger = NodeTrigger | FaqTrigger | WorkflowTrigger | ContextualTrigger
 
     export interface DialogUnderstanding {
       triggers: {
@@ -663,14 +676,14 @@ declare module 'botpress/sdk' {
 
     export interface Actions {
       action:
-      | 'send'
-      | 'startWorkflow'
-      | 'redirect'
-      | 'continue'
-      | 'goToNode'
-      | 'prompt.repeat'
-      | 'prompt.inform'
-      | 'prompt.cancel'
+        | 'send'
+        | 'startWorkflow'
+        | 'redirect'
+        | 'continue'
+        | 'goToNode'
+        | 'prompt.repeat'
+        | 'prompt.inform'
+        | 'prompt.cancel'
       data?: SendContent | FlowRedirect
     }
 
@@ -787,6 +800,7 @@ declare module 'botpress/sdk' {
       readonly language: string
       /** Language detected from users input. */
       readonly detectedLanguage?: string
+      readonly spellChecked?: string
       readonly entities: NLU.Entity[]
       readonly slots?: NLU.SlotCollection
       readonly errored: boolean
@@ -874,6 +888,29 @@ declare module 'botpress/sdk' {
         nextDestination?: { flowName: string; node: string }
       }
     }
+
+    export interface ContextualTriggerState {
+      readonly workflowId: string
+      readonly nodeId: string
+      readonly index: number
+      readonly turn: number
+      readonly suggestion: SuggestChoice
+      readonly expiryPolicy: {
+        readonly strategy: 'turn' | 'workflow'
+        readonly turnCount: number
+      }
+    }
+
+    export interface SuggestChoice {
+      /** Should the suggestions be displayed next to the associated message, or persistent in the keyboard */
+      position?: SuggestionPosition
+      /** Required when position is conversation, to know where to attach the event */
+      eventId?: string
+      label: string
+      value: string
+    }
+
+    export type SuggestionPosition = 'conversation' | 'static'
 
     export interface DialogAction {
       type: 'say' | 'listen' | 'cancel'
@@ -995,6 +1032,7 @@ declare module 'botpress/sdk' {
       last_turn_node_id: string
       last_turn_ts: number
       last_topic: string
+      triggers?: ContextualTriggerState[]
     }
 
     export interface DialogTurnHistory {
@@ -1477,11 +1515,26 @@ declare module 'botpress/sdk' {
     flow?: string
     prompt?: PromptNode
     subflow?: SubWorkflowNode
+    execute?: ExecuteNode
     isNew?: boolean
     isReadOnly?: boolean
+    triggers?: NDU.GenericTrigger[]
     /** Used internally by the flow editor */
     readonly lastModified?: Date
   } & NodeActions
+
+  export interface ExecuteNode {
+    actionName?: string
+    /** List of possible parameters for the action */
+    params?: { [key: string]: ActionParameter }
+    code: string
+  }
+
+  export interface ActionParameter {
+    source: 'variable' | 'hardcoded'
+    /** Can be the name of the variable or any kind of value */
+    value: any
+  }
 
   export interface SubWorkflowNode {
     in: { [variable: string]: SubWorkflowInput }
@@ -1500,7 +1553,7 @@ declare module 'botpress/sdk' {
   }
 
   export type ListenNode = FlowNode & {
-    triggers: { name?: string; effect?: 'prompt.inform' | 'prompt.cancel'; conditions: DecisionTriggerCondition[] }[]
+    triggers: { type?: string; name?: string; effect?: NDU.TriggerEffect; conditions: DecisionTriggerCondition[] }[]
   }
 
   export type SkillFlowNode = Partial<ListenNode> & Pick<Required<ListenNode>, 'name'> & Partial<TriggerNode>
@@ -1518,6 +1571,8 @@ declare module 'botpress/sdk' {
   export interface NodeTransition {
     /** The text to display instead of the condition in the flow editor */
     caption?: string
+    /** Content it's linked to for the flow editor */
+    contentIndex?: number
     /** A JS expression that is evaluated to determine if it should send the user to the specified node */
     condition: string
     /** The destination node */
@@ -1561,6 +1616,7 @@ declare module 'botpress/sdk' {
     | 'number'
     | 'overridable'
     | 'select'
+    | 'multi-select'
     | 'text'
     | 'text_array'
     | 'textarea'
@@ -1613,6 +1669,8 @@ declare module 'botpress/sdk' {
       addLabelTooltip?: string
       /** You can specify a minimum so the delete button won't show if there isn't more than the minimum */
       minimum?: number
+      /** You can specify that there's one item of the group by default even if no minimum */
+      defaultItem?: boolean
       /** You can add a contextual menu to add extra options */
       contextMenu?: FormContextMenu[]
     }
@@ -1822,11 +1880,11 @@ declare module 'botpress/sdk' {
   }
 
   export interface PromptConstructable {
-    new(ctor: any): Prompt
+    new (ctor: any): Prompt
   }
 
   export interface BoxedVarConstructable<T, V = any> {
-    new(ctor: BoxedVarContructor<T, V>): BoxedVariable<T, V>
+    new (ctor: BoxedVarContructor<T, V>): BoxedVariable<T, V>
   }
 
   export interface BoxedVariable<T, V = any> {
@@ -2030,14 +2088,12 @@ declare module 'botpress/sdk' {
     }
 
     export interface Metadata {
-      /** Display quick reply buttons */
-      __buttons?: Option[]
-      /** Display a dropdown menu to select an item  */
-      __dropdown?: Option[] | Dropdown
       /** Set to true to display typing effect, or set a delay in ms */
       __typing?: boolean | number
       /** Use markdown for text fields when possible */
       __markdown?: boolean
+      /** Display suggestions to the user, either using buttons or a dropdown if there are multiple elements */
+      __suggestions?: IO.SuggestChoice[]
       /** If the channel supports it, it will trim the text to the specified length */
       __trimText?: number
       /** Force usage of a dropdown menu instead of buttons */

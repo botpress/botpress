@@ -1,9 +1,11 @@
-import { BoxedVariable, PrimitiveVarType } from 'botpress/sdk'
+import sdk from 'botpress/sdk'
 import { BaseVariable } from 'common/variables'
 
 import { common, getCommonOperators } from './common'
 
-class BoxedPattern extends BaseVariable<string> {
+interface Variable extends sdk.BoxedVariable<string> {}
+
+class BoxedPattern extends BaseVariable<string> implements Variable {
   constructor(args) {
     super(args)
   }
@@ -30,7 +32,7 @@ class BoxedPattern extends BaseVariable<string> {
   }
 }
 
-const PatternVariableType: PrimitiveVarType = {
+const definition: sdk.PrimitiveVarType = {
   id: 'pattern',
   config: {
     label: 'pattern',
@@ -49,4 +51,4 @@ const PatternVariableType: PrimitiveVarType = {
   box: BoxedPattern
 }
 
-export default PatternVariableType
+export default definition

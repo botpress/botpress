@@ -1,15 +1,16 @@
 {
-  "actionButton": "Action Button",
+  "actionButton": "Button Action",
   "fullName": "Basic Skills",
   "optional": "Optional",
   "types": {
     "actionButton": {
       "add": "Add Button",
-      "actionLabel": "Action Button",
+      "addButton": "Add Button",
+      "actionLabel": "Button Action",
       "buttonTitle": "Title of the button",
       "delete": "Delete Button",
       "description": "A button that triggers an action, often used in cards",
-      "sayLabel": "Say",
+      "sayLabel": "Chatbot Says",
       "sayTextLabel": "Text",
       "sayPlaceholder": "What will your chatbot say?",
       "postLabel": "Post Back",
@@ -17,7 +18,7 @@
       "textTitle": "Enter text or the ID of a content element (ex: #!builtin_text-myid)",
       "textLabel": "Button Text",
       "textPlaceholder": "What is written on the button?",
-      "title": "Action Button",
+      "title": "Button Action",
       "urlLabel": "Open URL",
       "urlPlaceholder": "Write a valid URL"
     },
@@ -55,9 +56,14 @@
       "displayOnTop": "Display on top of the keyboard",
       "label": "Suggestion Label",
       "labelPlaceholder": "What is the suggestion displayed?",
-      "title": "Suggestions",
-      "value": "Value",
-      "valuePlaceholder": "What will your chatbot receive?"
+      "valuePlaceholder": "What will your chatbot receive?",
+      "expiryPolicy": "Expiry Policy",
+      "numberOfTurns": "Number of turns",
+      "numberOfTurnsExpire": "Nb of turns before suggestion expires",
+      "position": "Position of suggestions",
+      "endOfWorkflow": "End of workflow",
+      "staticMenu": "Static menu",
+      "inConversation": "In the conversation"
     },
     "text": {
       "add": "Add Text Alternatives",

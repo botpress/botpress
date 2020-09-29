@@ -1,5 +1,5 @@
 import { NLU } from 'botpress/sdk'
-import { lang, utils } from 'botpress/shared'
+import { HeaderButton, lang, MainContent, ShortcutLabel, utils } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { HotKeys } from 'react-hotkeys'
@@ -7,31 +7,31 @@ import { connect } from 'react-redux'
 import { Redirect, Route, Switch } from 'react-router-dom'
 import SplitPane from 'react-split-pane'
 import { bindActionCreators } from 'redux'
-import { setEmulatorOpen, toggleBottomPanel, trainSessionReceived, viewModeChanged } from '~/actions'
+import { setEmulatorOpen, toggleBottomPanel, trainSessionReceived, viewModeChanged, zoomIn, zoomOut } from '~/actions'
 import SelectContentManager from '~/components/Content/Select/Manager'
 import PluginInjectionSite from '~/components/PluginInjectionSite'
 import BackendToast from '~/components/Util/BackendToast'
 import { RootReducer } from '~/reducers'
 import storage from '~/util/storage'
-import Config from '~/views/Config'
 import Content from '~/views/Content'
 import FlowBuilder from '~/views/FlowBuilder'
 import Logs from '~/views/Logs'
 import Module from '~/views/Module'
 import OneFlow from '~/views/OneFlow'
 
+import style from './style.scss'
 import { TrainingStatusService } from './training-status-service'
+import { getMenuItems } from './utils/layout.utils'
 import BetaNotice from './BetaNotice'
+import BottomPanel from './BottomPanel'
 import BotUmountedWarning from './BotUnmountedWarning'
 import CommandPalette from './CommandPalette'
+import ConfigForm from './ConfigForm'
 import GuidedTour from './GuidedTour'
 import LanguageServerHealth from './LangServerHealthWarning'
 import layout from './Layout.scss'
-import NotTrainedWarningComponent from './NotTrainedWarning'
-import Sidebar from './Sidebar'
+import NotTrainedWarning from './NotTrainedWarning'
 import StatusBar from './StatusBar'
-import Toolbar from './Toolbar'
-import BottomPanel from './Toolbar/BottomPanel'
 
 const { isInputFocused } = utils
 const WEBCHAT_PANEL_STATUS = 'bp::webchatOpened'
@@ -41,6 +41,8 @@ interface ILayoutProps {
   docModal: any
   location: any
   toggleBottomPanel: () => null
+  zoomIn: () => null
+  zoomOut: () => null
   history: any
   trainSessionReceived: (ts: NLU.TrainingSession) => void
   setEmulatorOpen: (state: boolean) => void
@@ -51,6 +53,7 @@ type StateProps = ReturnType<typeof mapStateToProps>
 const Layout: FC<ILayoutProps & StateProps> = props => {
   const mainElRef = useRef(null)
   const [langSwitcherOpen, setLangSwitcherOpen] = useState(false)
+  const [showConfigForm, setShowConfigForm] = useState(false)
   const [guidedTourOpen, setGuidedTourOpen] = useState(false)
 
   useEffect(() => {
@@ -181,12 +184,54 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
     'go-module-qna': () => gotoUrl('/modules/qna'),
     'go-module-testing': () => gotoUrl('/modules/testing'),
     'go-module-analytics': () => gotoUrl('/modules/analytics'),
-    'go-understanding': () => gotoUrl('/modules/nlu')
+    'go-understanding': () => gotoUrl('/modules/nlu'),
+    'zoom-in': e => {
+      e.preventDefault()
+      props.zoomIn()
+    },
+    'zoom-out': e => {
+      e.preventDefault()
+      props.zoomOut()
+    }
   }
 
   const splitPanelLastSizeKey = `bp::${window.BOT_ID}::bottom-panel-size`
   const lastSize = parseInt(localStorage.getItem(splitPanelLastSizeKey) || '175', 10)
   const bottomBarSize = props.bottomPanel ? lastSize : '100%'
+
+  const leftHeaderButtons: HeaderButton[] = [
+    ...(!!props.docHints?.length
+      ? [
+          {
+            tooltip: (
+              <div className={style.tooltip}>
+                {lang.tr('toolbar.help')}
+                <div className={style.shortcutLabel}>
+                  <ShortcutLabel light shortcut="docs-toggle" />
+                </div>
+              </div>
+            ),
+            icon: 'help',
+            onClick: toggleDocs
+          }
+        ]
+      : []),
+    {
+      tooltip: <div className={style.tooltip}>{lang.tr('toolbar.configuration')}</div>,
+      icon: 'cog',
+      onClick: () => setShowConfigForm(!showConfigForm)
+    }
+  ]
+
+  if (window.IS_BOT_MOUNTED) {
+    leftHeaderButtons.push({
+      tooltip: <ShortcutLabel light shortcut="emulator-focus" />,
+      icon: 'chat',
+      onClick: toggleEmulator,
+      label: lang.tr('toolbar.emulator'),
+      divider: true
+    })
+  }
 
   return (
     <Fragment>
@@ -195,14 +240,9 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
         id="mainLayout"
         className={cx(layout.mainLayout, { 'layout-emulator-open': props.emulatorOpen })}
       >
-        <Sidebar />
+        <MainContent.Menu items={getMenuItems(props.modules)} />
         <div className={layout.container}>
-          <Toolbar
-            hasDoc={props.docHints?.length}
-            toggleDocs={toggleDocs}
-            onToggleEmulator={toggleEmulator}
-            toggleBottomPanel={props.toggleBottomPanel}
-          />
+          <MainContent.Header leftButtons={leftHeaderButtons} />
           <SplitPane
             split={'horizontal'}
             defaultSize={lastSize}
@@ -218,7 +258,7 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
                   path="/"
                   render={() => {
                     if (!window.IS_BOT_MOUNTED) {
-                      return <Redirect to="/config" />
+                      return <Redirect to="/" />
                     }
 
                     return window.USE_ONEFLOW ? <Redirect to="/oneflow" /> : <Redirect to="/flows" />
@@ -226,7 +266,6 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
                 />
                 <Route exact path="/content" component={Content} />
                 <Route exact path="/flows/:flow*" component={FlowBuilder} />
-                <Route exact path="/config" component={Config} />
                 <Route exact path="/oneflow/:flow*" component={OneFlow} />
                 <Route exact path="/modules/:moduleName/:componentName?" render={props => <Module {...props} />} />
                 <Route exact path="/logs" component={Logs} />
@@ -243,7 +282,7 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
           <LanguageServerHealth />
         </div>
       </HotKeys>
-      <NotTrainedWarningComponent />
+      <NotTrainedWarning />
       <StatusBar
         langSwitcherOpen={langSwitcherOpen}
         toggleLangSwitcher={toggleLangSwitcher}
@@ -251,6 +290,7 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
         toggleBottomPanel={props.toggleBottomPanel}
       />
       <CommandPalette toggleEmulator={toggleEmulator} />
+      {showConfigForm && <ConfigForm close={() => setShowConfigForm(false)} />}
     </Fragment>
   )
 }
@@ -261,10 +301,14 @@ const mapStateToProps = (state: RootReducer) => ({
   emulatorOpen: state.ui.emulatorOpen,
   bottomPanel: state.ui.bottomPanel,
   translations: state.language.translations,
-  contentLang: state.language.contentLang
+  contentLang: state.language.contentLang,
+  modules: state.modules
 })
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ viewModeChanged, toggleBottomPanel, trainSessionReceived, setEmulatorOpen }, dispatch)
+  bindActionCreators(
+    { viewModeChanged, toggleBottomPanel, trainSessionReceived, setEmulatorOpen, zoomIn, zoomOut },
+    dispatch
+  )
 
 export default connect(mapStateToProps, mapDispatchToProps)(Layout)

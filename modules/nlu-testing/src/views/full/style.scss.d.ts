@@ -4,7 +4,12 @@ interface CssExports {
   'container': string;
   'f1Container': string;
   'f1Section': string;
+  'inline': string;
+  'main': string;
+  'results': string;
+  'span': string;
   'toolbar': string;
+  'verticalText': string;
   'working': string;
 }
 declare var cssExports: CssExports;

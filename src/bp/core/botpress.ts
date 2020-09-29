@@ -268,7 +268,7 @@ export class Botpress {
 
   async deployAssets() {
     try {
-      for (const dir of ['./pre-trained', './stop-words']) {
+      for (const dir of ['./pre-trained', './stop-words', './system-examples']) {
         await copyDir(path.resolve(__dirname, '../nlu-core/language', dir), path.resolve(process.APP_DATA_PATH, dir))
       }
 
@@ -417,7 +417,7 @@ export class Botpress {
         const metric = wf.success ? 'bp_core_workflow_completed' : 'bp_core_workflow_failed'
         BOTPRESS_CORE_EVENT(metric, { botId: event.botId, channel: event.channel, wfName: workflow })
 
-        if (!activeWorkflow && !wf.parent) {
+        if (!activeWorkflow && !wf.parent && event.type !== 'workflow_ended') {
           await this.eventEngine.sendEvent(
             Event({
               ..._.pick(event, ['botId', 'channel', 'target', 'threadId']),

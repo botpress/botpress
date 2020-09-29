@@ -17,7 +17,9 @@
   "chooseFile": "Choose file...",
   "close": "Close",
   "code": "Code",
+  "codeNewAction": "Code New Action",
   "collapseAll": "Collapse All",
+  "converseApi": "Converse API",
   "commander": {
     "backToAdmin": "Back to Admin",
     "category": {
@@ -138,7 +140,7 @@
   },
   "label": "Label",
   "language": "Language",
-  "learnMore": "Learn More",
+  "learnMore": "Learn more",
   "library": "Library",
   "line": "Line",
   "list": "List",
@@ -159,6 +161,7 @@
   "noRowsFound": "No rows found",
   "of": "of",
   "ok": "OK",
+  "optional": "Optional",
   "options": "Options",
   "or": "or",
   "overwrite": "Overwrite",
@@ -172,6 +175,7 @@
   "previous": "Previous",
   "prompt": "Prompt",
   "quickAddAlternative": "Press Enter while inline to add new alternative quickly",
+  "quickAddAlternativeTags": "Press Enter + Shift while inline to add new alternative quickly",
   "redo": "Redo",
   "refresh": "Refresh",
   "remove": "Remove",
@@ -210,6 +214,7 @@
   "submit": "Submit",
   "subtitle": "Subtitle",
   "success": "Success",
+  "suggestions": "Suggestions",
   "superInput": {
     "convertToRegularInput": "Convert to Regular Input",
     "convertToSmartInput": "Convert to Smart Input",
@@ -235,8 +240,11 @@
   "format": "Format",
   "input": "Input",
   "output": "Output",
+  "inputs": "Inputs",
+  "outputs": "Outputs",
   "tolerance": "Tolerance",
   "enumeration": "Enumeration",
+  "value": "Value",
   "values": "Values",
   "strict": "Strict",
   "exactMatch": "Exact matches only",
@@ -246,6 +254,8 @@
   "examples": "Examples",
   "private": "Private",
   "uploading": "Uploading",
+  "uncategorized": "Uncategorized",
   "incomplete": "Incomplete",
-  "active": "Active"
+  "active": "Active",
+  "visibility": "Visibility"
 }

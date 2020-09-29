@@ -211,6 +211,21 @@ export default class Storage {
     return zipBuffer
   }
 
+  async moveToAnotherTopic(sourceTopic: string, targetTopic: string) {
+    const sourceQnaFile = toQnaFile(sourceTopic)
+    const targetQnaFile = toQnaFile(targetTopic)
+
+    if (!(await this.ghost.fileExists(FLOW_FOLDER, sourceQnaFile))) {
+      return
+    }
+
+    const itemsBuff = await this.ghost.readFileAsBuffer(FLOW_FOLDER, sourceQnaFile)
+    return Promise.all([
+      this.ghost.upsertFile(FLOW_FOLDER, targetQnaFile, itemsBuff),
+      this.ghost.deleteFile(FLOW_FOLDER, sourceQnaFile)
+    ])
+  }
+
   async importArchivePerTopic(importArgs: ImportArgs) {
     const { topicName, botId, zipFile } = importArgs
 

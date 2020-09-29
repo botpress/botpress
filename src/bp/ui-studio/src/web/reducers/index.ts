@@ -4,6 +4,7 @@ import { combineReducers } from 'redux'
 import bot from './bot'
 import bots, { BotsReducer } from './bots'
 import content, { ContentReducer } from './content'
+import core, { CoreReducer } from './core'
 import flows, { FlowReducer } from './flows'
 import hints from './hints'
 import language, { LanguageReducer } from './language'
@@ -19,6 +20,7 @@ export * from './selectors'
 const bpApp = combineReducers({
   bots,
   content,
+  core,
   flows,
   ui,
   user,
@@ -36,6 +38,7 @@ export default bpApp
 export interface RootReducer {
   flows: FlowReducer
   user: UserReducer
+  core: CoreReducer
   content: ContentReducer
   skills: SkillsReducer
   language: LanguageReducer

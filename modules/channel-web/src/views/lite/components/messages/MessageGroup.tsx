@@ -1,12 +1,39 @@
+import sdk from 'botpress/sdk'
 import classnames from 'classnames'
+import omit from 'lodash/omit'
 import { inject } from 'mobx-react'
-import React from 'react'
+import React, { Fragment } from 'react'
 
 import { RootStore, StoreDef } from '../../store'
 import { Message as MessageDetails } from '../../typings'
 
 import { InlineFeedback } from './InlineFeedback'
 import Message from './Message'
+
+export const getSuggestionPayload = (suggestions: sdk.IO.SuggestChoice[]) => {
+  if (!suggestions?.length) {
+    return null
+  }
+  const position = suggestions[0].position ?? 'static'
+
+  if (suggestions.length <= 4) {
+    return {
+      type: 'custom',
+      module: 'channel-web',
+      component: 'QuickReplies',
+      quick_replies: suggestions,
+      position
+    }
+  }
+
+  return {
+    type: 'custom',
+    module: 'extensions',
+    component: 'Dropdown',
+    options: suggestions,
+    position
+  }
+}
 
 class MessageGroup extends React.Component<Props> {
   state = {
@@ -84,34 +111,52 @@ class MessageGroup extends React.Component<Props> {
                 isLastMsg &&
                 (payload.wrapped ? payload.wrapped.collectFeedback : payload.collectFeedback)
 
+              const commonProps = {
+                isHighlighted:
+                  this.props.highlightedMessages && this.props.highlightedMessages.includes(data.incomingEventId),
+                sentOn: data.sent_on,
+                onSendData: this.props.onSendData,
+                onFileUpload: this.props.onFileUpload,
+                bp: this.props.bp,
+                store: this.props.store,
+                fromLabel: fromLabel,
+                isLastOfGroup: i >= this.props.messages.length - 1,
+                isLastGroup: this.props.isLastGroup,
+                isBotMessage: !data.userId,
+                incomingEventId: data.incomingEventId
+              }
+
+              const suggestions = this.props.suggestions.filter(
+                x => x.eventId === data.incomingEventId && x.position === 'conversation'
+              )
+
               return (
-                <Message
-                  key={`msg-${i}`}
-                  isHighlighted={
-                    this.props.highlightedMessages && this.props.highlightedMessages.includes(data.incomingEventId)
-                  }
-                  inlineFeedback={
-                    showInlineFeedback && (
-                      <InlineFeedback
-                        intl={this.props.store.intl}
-                        incomingEventId={data.incomingEventId}
-                        onFeedback={this.props.onFeedback}
-                        eventFeedbacks={this.props.store.eventFeedbacks}
-                      />
-                    )
-                  }
-                  fromLabel={fromLabel}
-                  isLastOfGroup={i >= this.props.messages.length - 1}
-                  isLastGroup={this.props.isLastGroup}
-                  isBotMessage={!data.userId}
-                  incomingEventId={data.incomingEventId}
-                  payload={payload}
-                  sentOn={data.sent_on}
-                  onSendData={this.props.onSendData}
-                  onFileUpload={this.props.onFileUpload}
-                  bp={this.props.bp}
-                  store={this.props.store}
-                />
+                <Fragment>
+                  <Message
+                    {...commonProps}
+                    key={`msg-${i}`}
+                    payload={payload}
+                    inlineFeedback={
+                      showInlineFeedback && (
+                        <InlineFeedback
+                          intl={this.props.store.intl}
+                          incomingEventId={data.incomingEventId}
+                          onFeedback={this.props.onFeedback}
+                          eventFeedbacks={this.props.store.eventFeedbacks}
+                        />
+                      )
+                    }
+                  />
+                  {!!suggestions.length && this.props.isBot && commonProps.isLastOfGroup && (
+                    <Message
+                      {...commonProps}
+                      key={`msg-${i}-suggest`}
+                      payload={getSuggestionPayload(suggestions)}
+                      position="conversation"
+                      noBubble
+                    />
+                  )}
+                </Fragment>
               )
             })}
           </div>
@@ -137,6 +182,7 @@ type Props = {
   avatar: JSX.Element
   userName: string
   messages: MessageDetails[]
+  suggestions: sdk.IO.SuggestChoice[]
   isLastGroup: boolean
   onFileUpload?: any
   onSendData?: any

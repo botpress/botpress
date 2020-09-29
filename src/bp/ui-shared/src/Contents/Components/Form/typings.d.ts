@@ -15,6 +15,7 @@ export interface FormProps {
   fields: FormField[]
   advancedSettings?: FormField[]
   formData?: FormData
+  fieldsError?: { [field: string]: string }
   onUpdate: (data: { [key: string]: any }) => void
   onUpdateVariables?: (variable: FlowVariable) => void
   getCustomPlaceholder?: (field: string, index) => string

@@ -56,7 +56,17 @@ class Migrater {
         }
 
         const flowContent = {
-          ..._.pick(flow, ['version', 'catchAll', 'startNode', 'skillData', 'triggers', 'label', 'description']),
+          ..._.pick(flow, [
+            'version',
+            'catchAll',
+            'startNode',
+            'skillData',
+            'triggers',
+            'label',
+            'description',
+            'type',
+            'variables'
+          ]),
           nodes: flow.nodes.map(node => _.omit(node, 'x', 'y', 'lastModified'))
         }
         await ghost.upsertFile('./flows', flow.location!, JSON.stringify(flowContent, undefined, 2))

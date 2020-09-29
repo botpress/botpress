@@ -43,10 +43,14 @@ export class IntentService {
 
     for (const flow of flows) {
       const topicName = flow.name.split('/')[0]
+      const slots = flow.variables?.map(x => ({ name: x.params?.name, entity: x?.params?.subType ?? x.type })) ?? []
 
-      for (const node of flow.nodes.filter(x => x.type === 'trigger')) {
+      for (const node of flow.nodes.filter(x => x.type === 'trigger' || x.triggers?.length)) {
         const tn = node as sdk.TriggerNode
-        const conditions = tn?.conditions.filter(x => x?.id === 'user_intent_is')
+        const conditions = tn.conditions?.filter(x => x?.id === 'user_intent_is') ?? []
+        const explicitIntents = _.flatten(
+          tn.triggers?.map(x => x.conditions.filter(x => x?.id === 'user_intent_is')) ?? []
+        )
 
         for (let i = 0; i < conditions.length; i++) {
           const intentName = sanitizeFileName(`${flow.name}/${tn?.name}/${i}`)
@@ -57,11 +61,57 @@ export class IntentService {
             contexts: [topicName],
             filename: flow.name,
             name: intentName,
-            slots: flow.variables?.map(x => ({ name: x.params?.name, entity: x?.params?.subType ?? x.type })) ?? [],
+            slots,
             utterances: conditions[i]?.params?.utterances ?? {}
           }
         }
+
+        for (let i = 0; i < explicitIntents.length; i++) {
+          const intentName = sanitizeFileName(`${flow.name}/${tn?.name}/${conditions.length + i}`)
+          if (intentsByName[intentName]) {
+            throw new Error(`Duplicated intent with name "${intentName}"`)
+          }
+          intentsByName[intentName] = {
+            contexts: [sanitizeFileName(`explicit:${flow.name}/${node.name}`)],
+            filename: flow.name,
+            name: intentName,
+            slots,
+            utterances: explicitIntents[i]?.params?.utterances ?? {}
+          }
+        }
       }
+
+      // for (const node of flow.nodes.filter(x => x.type === 'say_something')) {
+      //   let idx = 0
+      //   for (let i = 0; i < (node.contents?.length ?? 0); i++) {
+      //     node.contents![i].choices?.forEach((choice, c) => {
+      //       const utterances = [choice.title, choice.value].filter(Boolean).reduce((utterances, obj) => {
+      //         // TODO: convert this once we have the GUI implemented
+      //         for (const lang of Object.keys(obj)) {
+      //           if (!utterances[lang]) {
+      //             utterances[lang] = []
+      //           }
+      //           utterances[lang] = [...utterances[lang], obj[lang]]
+      //         }
+
+      //         return utterances
+      //       }, {})
+
+      //       if (Object.keys(utterances)) {
+      //         const intentName = sanitizeFileName(`${flow.name}/${node.name}/${idx++}`) // TODO: change this for user_isdetection
+      //         const contextName = sanitizeFileName(`explicit:${flow.name}/${node.name}`)
+      //         intentsByName[intentName] = {
+      //           contexts: [contextName],
+      //           filename: flow.name,
+      //           name: intentName,
+      //           slots: [],
+      //           utterances: utterances
+      //         }
+      //       }
+      //     })
+      //   }
+      // }
+      //
     }
 
     return Object.values(intentsByName)

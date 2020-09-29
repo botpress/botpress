@@ -116,7 +116,7 @@ export const formReducer = (state, action) => {
       const { key, index } = parent
       const updatedItem = state[key]
 
-      updatedItem[index][field] = [...updatedItem[index][field].filter((item, index) => index !== deleteIndex)]
+      updatedItem[index][field] = [...updatedItem[index][field]?.filter((item, index) => index !== deleteIndex)]
 
       return {
         ...state,

@@ -8,6 +8,7 @@
     "chooseFile": "Choisir fichier",
     "configUpdated": "La configuration du bot a été mise à jour avec succès",
     "confirmChangeLanguage": "Voulez-vous vraiment changer la langue de votre bot de {currentName} à {newName} ? Tous vos éléments de contenu seront copiés, assurez-vous de les traduire.",
+    "confirm": "Confirmer",
     "confirmUnmount": "Voulez-vous vraiment démonter ce bot? Toutes les fonctionnalités de ce bot deviendront indisponibles.",
     "contactEmail": "Adresse courriel de contact",
     "coverPicture": "Image de couverture",
@@ -16,12 +17,13 @@
     "description": "Description",
     "formContainsErrors": "Le formulaire contient des erreurs",
     "language": "Langue",
-    "linkToPolicy": "Lien vers les politiques de confidentialité",
-    "linkToTerms": "Lien vers les termes et conditions",
+    "linkToPolicy": "URL des politiques de confidentialité",
+    "linkToTerms": "URL des termes et conditions",
     "phoneNumber": "Numéro de téléphone",
     "requireImageFile": "{targetProp} doit être une image",
     "supportedLanguages": "Langues supportées",
-    "website": "Site web"
+    "website": "URL du Site web",
+    "whatIsYourChatbotName": "Quel est le nom de votre assistant virtuel?"
   },
   "language": {
     "arabic": "Arabe",
@@ -40,7 +42,7 @@
   "status": {
     "disabled": "Démonté",
     "private": "Collaborateurs uniquement",
-    "public": "Publié"
+    "public": "Publique"
   },
   "statusBar": {
     "trainWarning": "Vous êtes en train d'essayer un bot qui n'a pas été entrainé.",
@@ -64,8 +66,10 @@
       "usingBeta": "Vous utilisez Botpress Albert - Beta",
       "seeNotice": "Voir la Note",
       "contribution": "En utilisant cet aperçu, vous contribuez à améliorer Botpress.",
-      "limitations": "Il est non recommandé de l'utiliser dans un environnement de production. Notez également qu'aucune documentation ou outil de migration n'est disponible en ce moment.",
-      "thanks": "Merci de votre support!"
+      "limitations": "Il est non recommandé de l'utiliser dans un environnement de production puisque certains changements importants seront apportés. Notez également qu'aucune documentation ou outil de migration n'est disponible en ce moment.",
+      "thanks": "Merci de votre support!",
+      "accept": "D'accord",
+      "dismiss": "Rejetter"
     },
     "router": {
       "variable": "Variable",
@@ -79,7 +83,8 @@
     },
     "content": {
       "cloneElements": "Cloner les éléments sélectionnés",
-      "confirmChangeContentType": "Souhaitez-vous vraiment changer le type de ce contenu ? Tous les champs seront effacés.",
+      "confirmChangeAction": "Souhaitez-vous vraiment changer l'action? Tous les champs seront effacés.",
+      "confirmChangeContentType": "Souhaitez-vous vraiment changer le type de ce contenu? Tous les champs seront effacés.",
       "confirmDeleteItem": "Voulez-vous vraiment supprimer {count, number} {count, plural, one {item} other {items}}?",
       "contentType": "Type de contenu",
       "createNew": "Créer un nouveau {title}",
@@ -121,6 +126,7 @@
       }
     },
     "library": {
+      "setVarValueTo": "Définir la valeur de {varName} à",
       "savedBlocks": "Blocs Enregistrés",
       "savedWorkflows": "Workflows Enregistrés",
       "variableTypes": "Types de Variables",
@@ -128,9 +134,12 @@
       "addPattern": "Ajouter Expression Régulière",
       "addComplex": "Ajouter Complexe",
       "addType": "Ajouter un type",
+      "enterValue": "Entrer une valeur",
       "editingSubWorkflowWarning": "Modifier ce workflow aura un impact sur toutes ses instances liées.",
       "deleteVariableFromLibrary": "Supprimer la variable de la librairie",
       "duplicateVariableType": "Dupliquer le type de variable",
+      "renameVariableType": "Renommer le type de variable",
+      "nameVariableType": "Nommer le type de variable",
       "duplicateWorkflow": "Dupliquer le workflow",
       "filter": "Filtrer les blocs, workflows et type de variables",
       "variableName": "Quel est le nom de cette variable?",
@@ -138,6 +147,8 @@
       "addValueAlternative": "Ajouter Valeur Alternative",
       "deleteEnumeration": "Supprimer l'énumération",
       "confirmDeleteEntity": "Voulez-vous réellement supprimer ce type de variable?",
+      "copyTags": "Copier les tags",
+      "mustMatchNumberOfTags": "Le nombre de tag doit être le même dans toutes les langues",
       "examplePlaceholder": "Écrire des exemples qui correspondent à ce modèle de type de variable",
       "complexityExamplePlaceholder": "Écrivez autant d'exemples que possible qui correspondent à la complexité de cette variable",
       "regexPatternPlaceholder": "Écrire un modèle d'expression régulière",
@@ -160,6 +171,7 @@
       "mustHaveOutcomes": "Les flux de travail doivent avoir au moins un succès et un échec",
       "referenceCount": "{count} {count, plural, one {référence} other {références}}",
       "noReferences": "Non utilisé",
+      "cannotAddContent": "L'ajout de contenu est seulement disponible sur la langue par défaut",
       "emptyWorkflow": "Utilisez le clic droit ou glissez et déplacez des bloques pour commencer a designer votre workflow.",
       "chips": "Chips",
       "condition": {
@@ -207,6 +219,8 @@
         "addAction": "Ajouter une nouvelle action",
         "addCondition": "Ajouter une condition",
         "addMessage": "Ajouter un message",
+        "addSuggestion": "Ajouter une suggestion",
+        "addSuggestionTooltip": "Appuyez sur la touche Entrée et Majuscule pendant que vous êtes dans le champ pour ajouter rapidement une nouvelle suggestion",
         "cantSeeActions": "Vous ne voyez pas votre action?",
         "chatbotExecutes": "L'assistant virtuel exécute",
         "chatbotSays": "L'assistant virtuel dit",
@@ -233,6 +247,7 @@
         "nodeName": "Nom du node",
         "onEnter": "Sur Entrée",
         "onReceive": "Sur réception",
+        "pickAction": "Sélectionnez une action",
         "renameBlock": "Renommer le block",
         "return": "Revenir",
         "saySomething": "Écrire quelque chose",
@@ -373,6 +388,8 @@
         "deleteTopic": "Supprimer le sujet",
         "deleteWorkflow": "Supprimer le workflow",
         "editQna": "Modifier Q&R",
+        "moveQna": "Déplacer Q&Rs vers",
+        "confirmMoveQna": "Souhaitez-vous vraiment déplacer les Q&Rs vers un autre sujet?",
         "editTopic": "Modifier le sujet",
         "editWorkflow": "Modifier le workflow",
         "exportTopic": "Exporter le sujet",
@@ -380,6 +397,7 @@
         "importExisting": "Importer un workflow existant",
         "nbQuestionsInTopic": "Nombre de questions sur ce sujet",
         "nbTriggersInWorkflow": "Nombre de déclencheurs sur ce workflow",
+        "beforeRemovingSubflow": "Avant de supprimer ce workflow sauvegardé dans la librairie, veuillez supprimer toutes ses utilisations :",
         "workflowReceiving": "Workflows référençant ce workflow:"
       },
       "transition": "Transition",
@@ -411,9 +429,12 @@
       "config": "Configuration",
       "content": "Contenu",
       "flows": "Flows"
-    }
+    },
+    "zoomOut": "Réduire",
+    "zoomIn": "Agrandir"
   },
   "toolbar": {
+    "configuration": "Configuration",
     "emulator": "Émulateur",
     "help": "Aide",
     "logsPanel": "Panneau de journalisation",

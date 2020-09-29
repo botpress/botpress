@@ -1,62 +1,55 @@
 .wrapper {
   &:focus-within {
-    & + .wrapper {
+    &:not(:global(.has-error)) + .wrapper {
       .tagInput {
         border-top-color: transparent !important;
       }
     }
 
-    .tagInput {
+    .tagInput:not(:global(.has-error)) {
       border-top-color: var(--ocean) !important;
       border-bottom-color: var(--ocean) !important;
     }
   }
 }
 
-.tagInput {
-  background: transparent !important;
-  border: none !important;
-  border-bottom: 1px solid var(--gray) !important;
-  border-top: 1px solid var(--gray) !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  color: var(--shark) !important;
-  font-size: 12px !important;
-  height: auto !important;
-  line-height: 1.25 !important;
-  margin: -1px 0 0 !important;
-  padding: var(--spacing-small) 2% var(--spacing-medium) 0 !important;
-  resize: none !important;
-  transition: border 0.3s !important;
-  width: 100% !important;
+.inputWrapper {
+  position: relative;
+}
 
-  :global {
-    .bp3-tag-input-values {
-      margin: 0 !important;
+.copyBtn {
+  border-radius: 4px;
+  background: #fff !important;
+  transition: background 0.3s;
+  position: absolute;
+  line-height: 0 !important;
+  padding: var(--spacing-small) !important;
+  top: var(--spacing-medium);
+  right: 0;
 
-      input {
-        margin: var(--spacing-small) 0 0 !important;
-      }
-    }
-
-    .bp3-tag-remove {
-      opacity: 1 !important;
-    }
-
-    .bp3-icon svg {
-      fill: var(--shark) !important;
-      width: 10px !important;
-    }
-  }
-
-  .tag,
-  :global(.bp3-tag) {
-    margin: var(--spacing-small) var(--spacing-small) 0 0 !important;
-    font-size: 10px !important;
-    line-height: 1.25 !important;
-    color: var(--shark) !important;
-    font-weight: normal !important;
-    border-radius: 3px !important;
+  &:hover {
     background-color: var(--bg) !important;
   }
+
+  svg {
+    fill: var(--reef) !important;
+  }
+}
+
+.tag {
+  margin: var(--spacing-small) var(--spacing-small) 0 0 !important;
+  font-size: 10px !important;
+  line-height: 1.25 !important;
+  color: var(--shark) !important;
+  font-weight: normal !important;
+  border-radius: 3px !important;
+  background-color: var(--bg) !important;
+}
+
+.error {
+  font-size: 12px;
+  line-height: 1.25;
+  color: var(--lighthouse);
+  margin: var(--spacing-small) 0 var(--spacing-large);
+  display: block;
 }

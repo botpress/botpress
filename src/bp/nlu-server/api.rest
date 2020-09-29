@@ -1,0 +1,131 @@
+@api = http://localhost:3200
+
+### get info
+# @name info
+GET {{api}}/info
+
+
+### do a training
+# @name train
+POST {{api}}/train
+Content-Type: application/json
+
+{
+  "language": "en",
+  "topics": {
+    "global": [
+      {
+        "name": "fruit-is-moldy",
+        "utterances": {
+          "en": [
+            "fruit is moldy",
+            "this fruit is moldy",
+            "this $moldy_fruit is not good to eat",
+            "theses $moldy_fruit have passed",
+            "theses $moldy_fruit look bad",
+            "theses $moldy_fruit look soo moldy"
+          ]
+        },
+        "slots": [
+          {
+            "id": "hxr9f-c7FmkQaZsXqdTvc",
+            "name": "moldy_fruit",
+            "entity": "fruits",
+            "color": 1
+          }
+        ],
+        "contexts": ["global"]
+      },
+      {
+        "name": "hello",
+        "contexts": ["global"],
+        "slots": [],
+        "utterances": {
+          "en": [
+            "good day!",
+            "good morning",
+            "holla",
+            "bonjour",
+            "hey there",
+            "hi bot",
+            "hey bot",
+            "hey robot",
+            "hey!",
+            "hi",
+            "hello"
+          ]
+        }
+      },
+      {
+        "name": "talk-to-manager",
+        "utterances": {
+          "en": [
+            "talk to manager",
+            "I want to talk to the manager",
+            "Who's your boss?",
+            "Can talk to the person in charge?",
+            "I'd like to speak to your manager",
+            "Can I talk to your boss? plz",
+            "I wanna speak to manager please",
+            "let me speak to your fucking boss or someone"
+          ]
+        },
+        "slots": [],
+        "contexts": ["global"]
+      },
+      {
+        "name": "where-is",
+        "utterances": {
+          "en": [
+            "where is $thing_to_search ?",
+            "where are $thing_to_search ?",
+            "can you help me find $thing_to_search ?",
+            "I'm searching for $thing_to_search ?",
+            "where is the $thing_to_search ?",
+            "where are the $thing_to_search ?"
+          ]
+        },
+        "slots": [
+          {
+            "id": "CHXyZ20FCsaagRJ7OO_3Y",
+            "name": "thing_to_search",
+            "entity": "fruits",
+            "color": 1
+          }
+        ],
+        "contexts": ["global"]
+      }
+    ]
+  },
+  "entities": [],
+  "password": "123456",
+  "seed": 42
+}
+###
+@modelId = {{train.response.body.modelId}}
+
+
+
+### get training-status
+# @name train-status
+GET {{api}}/train/{{modelId}}?password=123456
+
+
+### cancel training
+# @name cancel-training
+POST {{api}}/train/{{modelId}}/cancel
+Content-Type: application/json
+
+{
+  "password": "123456"
+}
+
+### predict for sentence
+# @name predict
+POST {{api}}/predict/{{modelId}}
+Content-Type: application/json
+
+{
+  "sentence" : "These grapes look moldy",
+  "password": "123456"
+}

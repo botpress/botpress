@@ -32,7 +32,7 @@
   align-items: center;
   justify-content: center;
   height: 38px;
-  margin: 0 0 var(--spacing-medium);
+  margin: var(--spacing-medium) 0 0;
   width: 100%;
 }
 
@@ -54,9 +54,11 @@
 
 .nodeWrapper {
   background: #fff;
+  border: 1px solid transparent !important;
   width: 150px;
-  border: none;
+  border: 1px solid transparent;
   border-radius: 0 0 5px 5px;
+  transition: border 0.3s;
 
   &.highlighted {
     border: 1px solid var(--ocean) !important;
@@ -74,6 +76,11 @@
       }
     }
 
+    .outRouting:before,
+    .outRouting.say_something:before {
+      background-color: var(--ocean) !important;
+    }
+
     .debugInfo {
       background: var(--ocean) !important;
       color: #fff;
@@ -87,6 +94,8 @@
     .headerWrapper {
       &.say_something,
       &:hover.say_something,
+      &.sub-workflow,
+      &:hover.sub-workflow,
       &.trigger,
       &:hover.trigger,
       &.execute,
@@ -389,18 +398,28 @@
     position: absolute;
     top: 50%;
     right: calc(var(--spacing-small) * -1);
-    transform: translate(65%, -50%);
+    transform: translate(55%, -50%);
+
+    &.say_something:before {
+      background-color: var(--say) !important;
+    }
 
     :before {
       background-color: var(--prompt) !important;
     }
-  }
-}
 
-.contextMenuLabel {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+    &:global(.if-else):before {
+      background-color: var(--if-else) !important;
+    }
+
+    &:global(.success):before {
+      background-color: var(--success) !important;
+    }
+
+    &:global(.failure):before {
+      background-color: var(--lighthouse) !important;
+    }
+  }
 }
 
 .joinLabel {
@@ -450,7 +469,7 @@
     }
   }
   &:hover {
-    .content:not(.promptPortContent) {
+    .content:not(.promptPortContent):not(.readOnly) {
       border: solid 1px var(--ocean);
     }
   }
@@ -513,4 +532,8 @@
   &:hover {
     background-color: var(--gray);
   }
+}
+
+.hidden {
+  display: none;
 }

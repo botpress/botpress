@@ -21,6 +21,8 @@ const passThroughNodeProps: string[] = [
   'activeWorkflow',
   'prompt',
   'subflow',
+  'flow',
+  'execute',
   'isReadOnly'
 ]
 export const DIAGRAM_PADDING: number = 100
@@ -112,6 +114,7 @@ export class DiagramManager {
         isHighlighted: this.shouldHighlightNode(node)
       })
     })
+    this.activeModel.addListener({ zoomUpdated: e => this.storeDispatch.zoomToLevel(Math.floor(e.zoom)) })
 
     this.activeModel.addAll(...nodes)
     nodes.forEach(node => this._createNodeLinks(node, nodes, this.currentFlow.links))
@@ -125,8 +128,12 @@ export class DiagramManager {
   }
 
   shouldHighlightNode(node: NodeView): boolean {
+    const queryParams = new URLSearchParams(window.location.search)
+
     if (this.highlightFilter?.length <= 1 && !this.highlightedNodes.length) {
       return false
+    } else if (queryParams.get('highlightedNode') === node.id) {
+      return true
     }
 
     const matchNodeName = !!this.highlightedNodes?.find(
@@ -234,8 +241,8 @@ export class DiagramManager {
       const outPort = link.getSourcePort().name.startsWith('out') ? link.getSourcePort() : link.getTargetPort()
       const targetPort = link.getSourcePort().name.startsWith('out') ? link.getTargetPort() : link.getSourcePort()
 
-      const output = outPort.getParent()['name']
-      const input = targetPort.getParent()['name']
+      const output = outPort?.getParent()['name']
+      const input = targetPort?.getParent()['name']
 
       if (nodeNames.includes(output) && nodeNames.includes(input)) {
         this.highlightedLinks.push(link.getID())

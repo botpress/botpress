@@ -3,20 +3,23 @@ import cx from 'classnames'
 import React, { FC, Fragment } from 'react'
 import Dotdotdot from 'react-dotdotdot'
 
-import { lang } from '../../../translations'
 import { convertToHtml } from '../../../FormFields/SuperInput/utils'
 import MarkdownContent from '../../../MarkdownContent'
 
 import style from './style.scss'
 import { ItemProps } from './typings'
 
-const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active, contentLang }) => {
+const ContentItem: FC<ItemProps> = ({ content, onEdit, active, contentLang }) => {
+  if (content.contentType === 'builtin_single-choice') {
+    return null
+  }
+
   const renderCardOrImg = ({ image, title }: FormData): JSX.Element => {
     return (
       <div className={style.contentImgWrapper}>
         {image && <div style={{ backgroundImage: `url('${image}')` }} className={style.img}></div>}
         <div className={style.textWrapper}>
-          <Dotdotdot clamp={3}>
+          <Dotdotdot clamp={2}>
             <span dangerouslySetInnerHTML={{ __html: convertToHtml(title?.[contentLang]) }} />
           </Dotdotdot>
         </div>
@@ -33,10 +36,10 @@ const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active, contentLang }) 
         return renderCardOrImg(content.items?.[0] || {})
       case 'builtin_single-choice':
         return (
-          <Dotdotdot clamp={3}>
+          <Dotdotdot clamp={2}>
             {(content.choices as FormData[])?.map((choice, index) => {
               return (
-                <Fragment>
+                <Fragment key={index}>
                   <span dangerouslySetInnerHTML={{ __html: convertToHtml(choice.title?.[contentLang] || '') }} />
                   {index !== content.choices.length - 1 && ' · '}
                 </Fragment>
@@ -45,17 +48,11 @@ const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active, contentLang }) 
           </Dotdotdot>
         )
       default:
-        const variationsCount = (content.variations?.[contentLang] || [])?.filter(Boolean)?.length
         return (
           <Fragment>
-            <Dotdotdot clamp={!!variationsCount ? 2 : 3}>
+            <Dotdotdot clamp={2}>
               <MarkdownContent markdown={content.markdown as boolean} content={content.text?.[contentLang] || ''} />
             </Dotdotdot>
-            {!!variationsCount && (
-              <span className={style.extraItems}>
-                + {variationsCount} {lang('module.builtin.types.text.alternative_plural')}
-              </span>
-            )}
           </Fragment>
         )
     }
@@ -74,4 +71,4 @@ const ContentAnswer: FC<ItemProps> = ({ content, onEdit, active, contentLang }) 
   )
 }
 
-export default ContentAnswer
+export default ContentItem

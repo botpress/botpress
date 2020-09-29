@@ -73,6 +73,7 @@ module.exports = {
   },
   newSchema: {
     displayedIn: ['sayNode'],
+    order: 0,
     advancedSettings: [
       {
         key: 'markdown',
@@ -83,12 +84,6 @@ module.exports = {
           label: 'learnMore',
           url: 'https://daringfireball.net/projects/markdown/'
         }
-      },
-      {
-        defaultValue: true,
-        key: 'typing',
-        type: 'checkbox',
-        label: 'module.builtin.typingIndicator'
       }
     ],
     fields: [

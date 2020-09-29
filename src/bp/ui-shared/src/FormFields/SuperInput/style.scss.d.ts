@@ -4,7 +4,7 @@ interface CssExports {
   'addingItem': string;
   'btn': string;
   'dropdown': string;
-  'error': string;
+  'singular': string;
   'singularTagBtnWrapper': string;
   'superInput': string;
   'superInputWrapper': string;

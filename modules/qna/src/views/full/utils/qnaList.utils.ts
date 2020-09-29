@@ -47,6 +47,8 @@ export interface State {
 export interface Props {
   bp: any
   isLite?: boolean
+  licensing: any
+  emulatorOpen?: boolean
   topicName: string
   contentLang: string
   defaultLang: string
@@ -70,7 +72,7 @@ export const hasContentAnswer = (data: FormData[]): boolean => {
 }
 
 export const itemHasError = (qnaItem: QnaItem, currentLang: string): string[] => {
-  const errors = []
+  let errors = []
   const { data } = qnaItem
 
   // TODO : Add more validation with all others qnas
@@ -88,7 +90,11 @@ export const itemHasError = (qnaItem: QnaItem, currentLang: string): string[] =>
     !data.redirectFlow &&
     !data.redirectNode
   ) {
-    errors.push(lang.tr('module.qna.form.missingAnswer'))
+    if (errors.length) {
+      errors = [lang.tr('module.qna.form.missingAnswerOrQuestion')]
+    } else {
+      errors.push(lang.tr('module.qna.form.missingAnswer'))
+    }
   }
   if (hasDuplicateQuestions.length) {
     errors.push(lang.tr('module.qna.form.writingSameQuestion'))

@@ -1,3 +1,4 @@
+import { sharedStyle } from 'botpress/shared'
 import React, { FC, useEffect, useRef, useState } from 'react'
 import SmartInput from '~/components/SmartInput'
 import style from '~/views/OneFlow/sidePanel/form/style.scss'
@@ -25,8 +26,8 @@ const Text: FC<Props> = props => {
   }, [formContext?.customKey])
 
   return (
-    <div className={style.fieldWrapper}>
-      <span className={style.formLabel}>
+    <div className={sharedStyle.fieldWrapper}>
+      <span className={sharedStyle.formLabel}>
         {schema.title} {required && '*'}
       </span>
       <div className={style.innerWrapper}>
@@ -35,7 +36,7 @@ const Text: FC<Props> = props => {
           singleLine={uiSchema.$subtype !== 'textarea'}
           value={value}
           onChange={onChange}
-          className={style.textarea}
+          className={sharedStyle.input}
           isSideForm
         />
       </div>

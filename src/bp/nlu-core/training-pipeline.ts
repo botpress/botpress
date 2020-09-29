@@ -2,15 +2,17 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { extractListEntitiesWithCache, extractPatternEntities } from './entities/custom-entity-extractor'
+import { warmEntityCache } from './entities/entity-cache-manager'
 import { getCtxFeatures } from './intents/context-featurizer'
 import { getIntentFeatures } from './intents/intent-featurizer'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getStopWordsForLang } from './language/stopWords'
+import { getSystemExamplesForLang } from './language/systemExamples'
 import { featurizeInScopeUtterances, featurizeOOSUtterances } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import { getSeededLodash, resetSeed } from './tools/seeded-lodash'
 import { replaceConsecutiveSpaces } from './tools/strings'
-import tfidf from './tools/tfidf'
+import tfidf, { SMALL_TFIDF } from './tools/tfidf'
 import { convertToRealSpaces, isSpace, SPACE } from './tools/token-utils'
 import {
   ColdListEntityModel,
@@ -29,7 +31,6 @@ import {
 } from './typings'
 import { Augmentation, createAugmenter, interleave } from './utterance/augmenter'
 import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
-import { warmEntityCache } from './entities/entity-cache-manager'
 
 type ListEntityWithCache = ListEntity & {
   cache: EntityCacheDump
@@ -243,6 +244,7 @@ const TrainIntentClassifier = async (
     .filter(u => u.tokens.filter(t => t.isWord).length >= 3)
     .value()
 
+  const lo = getSeededLodash(input.nluSeed)
   for (let i = 0; i < input.ctxToTrain.length; i++) {
     const ctx = input.ctxToTrain[i]
     const trainableIntents = input.intents.filter(
@@ -251,7 +253,6 @@ const TrainIntentClassifier = async (
 
     const nAvgUtts = Math.ceil(_.meanBy(trainableIntents, i => i.utterances.filter(u => !u.augmented).length))
 
-    const lo = getSeededLodash(input.nluSeed)
     const points = _.chain(trainableIntents)
       .thru(ints => [
         ...ints,
@@ -275,8 +276,6 @@ const TrainIntentClassifier = async (
       .filter(x => !x.coordinates.some(isNaN))
       .value()
 
-    resetSeed()
-
     if (points.length <= 0) {
       progress(1 / input.ctxToTrain.length)
       continue
@@ -290,6 +289,7 @@ const TrainIntentClassifier = async (
     })
     svmPerCtx[ctx] = model
   }
+  resetSeed()
 
   debugTraining.forBot(input.botId, 'Done training intent classifier')
   return svmPerCtx
@@ -298,7 +298,8 @@ const TrainIntentClassifier = async (
 const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: progressCB): Promise<string> => {
   debugTraining.forBot(input.botId, 'Training context classifier')
   const customEntities = getCustomEntitiesNames(input)
-  const points = _.flatMapDeep(input.contexts, ctx => {
+  const contexts = input.contexts.filter(ctx => !ctx.startsWith('explicit:'))
+  const points = _.flatMapDeep(contexts, ctx => {
     return input.intents
       .filter(intent => intent.contexts.includes(ctx) && intent.name !== NONE_INTENT)
       .map(intent =>
@@ -311,7 +312,8 @@ const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: 
       )
   }).filter(x => x.coordinates.filter(isNaN).length === 0)
 
-  if (points.length === 0 || input.contexts.length <= 1) {
+  const classCount = _.uniq(points.map(p => p.label)).length
+  if (points.length === 0 || classCount <= 1) {
     progress()
     debugTraining.forBot(input.botId, 'No context to train')
     return ''
@@ -331,11 +333,8 @@ const TrainContextClassifier = async (input: TrainStep, tools: Tools, progress: 
 // this is a temporary fix so we can extract extract tag system entities slots
 // only fixes date and number for english only
 // ex: Remind me to eat a sandwich $time ==> Remind me to eat a sandwich in 3 hours
-function convertSysEntitiesSlotsToComplex(intents: Intent<string>[]): ComplexEntity[] {
-  const examplesByType = {
-    time: ['in three hours', 'tomorrow night', 'now', 'today', 'jan 22nd 2021', '2021-06-07', 'june 7th'], // should be time
-    number: ['zero', '0', 'tenty-five', '25', 'one hundred sixty-five', '165']
-  }
+async function convertSysEntitiesSlotsToComplex(intents: Intent<string>[], language: string): Promise<ComplexEntity[]> {
+  const examplesByType = await getSystemExamplesForLang(language)
   return _.chain(intents)
     .flatMap(i => i.slot_definitions.map(s => (s.entity === 'date' ? 'time' : s.entity))) // highly hardcoded, date is in fact a system time
     .filter(ent => !!examplesByType[ent])
@@ -353,7 +352,7 @@ export const ProcessIntents = async (
   complex_entities: ComplexEntity[],
   tools: Tools
 ): Promise<Intent<Utterance>[]> => {
-  const sysComplexes = convertSysEntitiesSlotsToComplex(intents)
+  const sysComplexes = await convertSysEntitiesSlotsToComplex(intents, languageCode)
 
   return Promise.map(intents, async intent => {
     const cleaned: string[] = intent.utterances.map(_.flow([_.trim, replaceConsecutiveSpaces]))
@@ -432,6 +431,7 @@ export const AppendNoneIntent = async (input: TrainStep, tools: Tools): Promise<
 
   const lo = getSeededLodash(input.nluSeed)
 
+  // TODO: we should filter out augmented + we should create none utterances by context
   const allUtterances = lo.flatten(input.intents.map(x => x.utterances))
   const vocabWithDupes = lo
     .chain(allUtterances)
@@ -450,7 +450,7 @@ export const AppendNoneIntent = async (input: TrainStep, tools: Tools): Promise<
   const vocabWords = lo
     .chain(input.tfIdf)
     .toPairs()
-    .filter(([word, tfidf]) => tfidf <= 0.3)
+    .filter(([word, tfidf]) => tfidf <= SMALL_TFIDF)
     .map('0')
     .value()
 

@@ -219,7 +219,10 @@ export class EventEngine {
   ) {
     payload.metadata = {
       __typing: true,
-      ...(payload.metadata ?? {})
+      ...(payload.metadata ?? {}),
+      ...(event.direction === 'incoming'
+        ? { __suggestions: (event as sdk.IO.IncomingEvent).state.session.nduContext?.triggers?.map(x => x.suggestion) }
+        : {})
     }
 
     const replyEvent = Event({

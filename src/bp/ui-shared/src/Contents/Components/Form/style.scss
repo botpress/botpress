@@ -27,6 +27,16 @@ a.moreInfo {
   margin-left: 26px;
 }
 
+.formGroup > div {
+  padding-bottom: var(--spacing-large);
+  border-bottom: 1px solid var(--gray);
+
+  .formGroup > div {
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+}
+
 .checkboxWrapper {
   margin-top: var(--spacing-medium);
   min-height: 16px;
@@ -68,6 +78,7 @@ a.moreInfo {
   box-shadow: none !important;
   font-size: 12px !important;
   line-height: 1.25 !important;
+  min-height: auto !important;
   margin: 0 !important;
   transition: color 0.3s;
 

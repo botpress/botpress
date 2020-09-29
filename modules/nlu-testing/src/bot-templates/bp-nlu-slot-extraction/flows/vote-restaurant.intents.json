@@ -1,0 +1,29 @@
+{
+  "name": "vote-restaurant",
+  "utterances": {
+    "en": [
+      "I'm ready to vote for a restaurant",
+      "I'm ready to vote for $restaurant",
+      "I vote for $restaurant",
+      "vote $restaurant",
+      "I'd like to eat at $restaurant",
+      "$restaurant",
+      "$restaurant",
+      "Choose $restaurant"
+    ]
+  },
+  "slots": [
+    {
+      "id": "PZnpR5-AZVXMzZ7iv5yIP",
+      "name": "restaurant",
+      "color": 1,
+      "entity": "any"
+    }
+  ],
+  "contexts": [
+    "any"
+  ],
+  "metadata": {
+    "enabled": true
+  }
+}

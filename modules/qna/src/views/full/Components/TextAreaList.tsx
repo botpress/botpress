@@ -1,7 +1,7 @@
 import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
 // @ts-ignore
 import BotpressContentPicker from 'botpress/content-picker'
-import { FormFields, lang, ShortcutLabel, Textarea, utils } from 'botpress/shared'
+import { FormFields, lang, sharedStyle, ShortcutLabel, Textarea, utils } from 'botpress/shared'
 import cx from 'classnames'
 import _uniqueId from 'lodash/uniqueId'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
@@ -47,10 +47,23 @@ const TextAreaList: FC<Props> = props => {
     updateItems(localItems)
   }
 
+  const addLines = items => {
+    localItems.push(...items)
+    setKeys([...keys, ...items.map(() => _uniqueId(keyPrefix))])
+    focusedElement.current = `${keyPrefix}${localItems.length - 1}`
+
+    updateItems(localItems)
+  }
+
   const onKeyDown = (e: KeyboardEvent, index: number): void => {
     if (props.canAdd && e.key === 'Enter' && !(e.ctrlKey || e.metaKey || e.shiftKey)) {
       e.preventDefault()
       addItem()
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+      e.preventDefault()
+      e.currentTarget['select']()
     }
 
     const shouldDelete = localItems.length > 1 && !localItems[index].length
@@ -72,15 +85,22 @@ const TextAreaList: FC<Props> = props => {
 
   const errors = props.itemListValidator(localItems, duplicateMsg)
 
+  const onPaste = e => {
+    e.preventDefault()
+    const clipboardData = e.clipboardData
+    const pastedData = clipboardData.getData('Text')
+    addLines(pastedData.split(/\r?\n/))
+  }
+
   return (
     <Fragment>
-      <div className={style.items}>
+      <div className={sharedStyle.items}>
         <h2>{label}</h2>
         {localItems?.map((item, index) => {
           const missingTranslation = refItems?.[index] && !item
 
           return item.startsWith('#!') ? (
-            <div key={keys[index]} className={style.contentAnswer}>
+            <div key={keys[index]} className={cx(style.contentAnswer, sharedStyle.textatea)}>
               <BotpressContentPicker
                 itemId={item.replace('#!', '')}
                 onClickChange={() => this.toggleEditMode(index)}
@@ -89,17 +109,18 @@ const TextAreaList: FC<Props> = props => {
               <Button icon="trash" onClick={() => deleteItem(index)} />
             </div>
           ) : (
-            <div key={keys[index]} className={cx(style.textareaWrapper, { ['has-error']: missingTranslation })}>
+            <div key={keys[index]} className={cx(sharedStyle.textareaWrapper, { ['has-error']: missingTranslation })}>
               <Textarea
                 isFocused={focusedElement.current === `${keyPrefix}${index}`}
-                className={cx(style.textarea, { ['has-error']: errors[index] || missingTranslation })}
+                className={cx(sharedStyle.textarea, { ['has-error']: errors[index] || missingTranslation })}
                 placeholder={placeholder(index)}
                 onChange={value => updateLocalItem(index, value)}
+                onPaste={onPaste}
                 onBlur={() => updateItems(localItems)}
                 onKeyDown={e => onKeyDown(e, index)}
                 value={item || refItems?.[index] || ''}
               />
-              {missingTranslation && <span className={style.error}>{lang.tr('pleaseTranslateField')}</span>}
+              {missingTranslation && <span className={sharedStyle.error}>{lang.tr('pleaseTranslateField')}</span>}
               {errors[index] && (
                 <div className={style.errorIcon}>
                   <Tooltip content={errors[index]} position={Position.BOTTOM}>
@@ -112,7 +133,7 @@ const TextAreaList: FC<Props> = props => {
         })}
         {props.canAdd && (
           <Tooltip content={lang.tr('quickAddAlternative')} position={Position.BOTTOM}>
-            <FormFields.AddButton text={addItemLabel} onClick={() => addItem()} />
+            <FormFields.AddButton className={style.addBtnSpacing} text={addItemLabel} onClick={() => addItem()} />
           </Tooltip>
         )}
         {props.children}

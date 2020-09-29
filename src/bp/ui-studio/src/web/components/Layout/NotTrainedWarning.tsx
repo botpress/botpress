@@ -1,25 +1,23 @@
-import { Icon } from '@blueprintjs/core'
-import { NLU } from 'botpress/sdk'
-import { lang } from 'botpress/shared'
-import { FC } from 'react'
+import { lang, toast } from 'botpress/shared'
+import { FC, useEffect } from 'react'
 import React from 'react'
 import { connect } from 'react-redux'
 import { RootReducer } from '~/reducers'
 
-import layout from './Layout.scss'
-import WarningMessage from './WarningMessage'
-
 type Props = ReturnType<typeof mapStateToProps>
 
 const NotTrainedWarningComponent: FC<Props> = (props: Props) => {
-  const currentStatus = props.currentSession?.status
+  useEffect(() => {
+    const displayWarning = props.emulatorOpen && props.currentSession?.status !== 'done'
 
-  const displayWarning = props.emulatorOpen && currentStatus !== 'done'
-  if (!displayWarning) {
-    return null
-  }
+    if (displayWarning) {
+      toast.warning(lang.tr('statusBar.trainWarning'), '', { key: 'trainWarning', hideDismiss: true })
+    }
 
-  return <WarningMessage message={lang.tr('statusBar.trainWarning')} />
+    return () => toast.dismiss('trainWarning')
+  }, [props.emulatorOpen, props.currentSession?.status])
+
+  return null
 }
 
 const mapStateToProps = (state: RootReducer) => ({

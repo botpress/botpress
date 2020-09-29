@@ -2,38 +2,23 @@
   margin: auto 0;
 }
 
-.searchBar {
-  padding: 0 0 var(--spacing-medium) !important;
+.confirmBody {
+  list-style: none;
+  padding: var(--spacing-large) 0;
 
-  input {
-    background-color: #fff;
-    border-radius: 5px;
-    border: solid 1px var(--gray);
-    box-shadow: none !important;
+  li {
+    font-size: 14px;
+    line-height: 1.29;
     color: var(--shark);
-    font-size: 12px;
-    line-height: 1.25;
-    padding: 6px 6px 5px;
-    transition: border 0.3s;
-    width: 100%;
 
-    &:hover {
-      border: solid 1px var(--reef);
+    &:before {
+      content: '•';
+      margin-right: var(--spacing-small);
     }
 
-    &:focus {
-      border: solid 1px var(--ocean);
-      outline: none;
+    a {
+      color: var(--ocean);
     }
-
-    &::placeholder {
-      opacity: 1;
-      color: var(--reef);
-    }
-  }
-
-  svg {
-    fill: var(--gray) !important;
   }
 }
 
@@ -44,11 +29,13 @@
   font-size: 12px !important;
   justify-content: flex-start;
   line-height: 1.25 !important;
-  padding-bottom: 0 !important;
-  padding-right: 0 !important;
-  padding-top: 0 !important;
+  padding: 0 !important;
   transition: background 0.3s;
   width: 100% !important;
+
+  &:not(.isTopic) {
+    padding-left: 23px !important;
+  }
 
   :global {
     .bp3-button-text {
@@ -70,7 +57,7 @@
 
   &:not(.isTopic) {
     &:hover {
-      background: var(--seashell);
+      background: var(--bg);
     }
 
     &.active {
@@ -185,7 +172,7 @@
   font-style: normal;
   font-weight: normal;
   line-height: 1.25;
-  padding-left: var(--spacing-small) !important;
+  padding-left: 4px !important;
   margin-top: 0;
   transition: background 0.3s;
   width: 100%;

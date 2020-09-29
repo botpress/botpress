@@ -22,7 +22,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
     asyncMiddleware(async (req: Request, res: Response) => {
       const { storage } = bots[req.params.botId]
       const items = await storage.fetchItems(req.params.topicName)
-      const searchTerm = req.query.question.toLowerCase()
+      const searchTerm = (req.query.question || '').toLowerCase()
       const filteredItems = items.filter(qna => {
         const questions = Object.values(qna.questions)
           // @ts-ignore
@@ -46,6 +46,15 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
       const { storage } = bots[req.params.botId]
       const id = await storage.updateSingleItem(req.params.topicName, req.body)
       res.send(id)
+    })
+  )
+
+  router.post(
+    '/:topicName/questions/move',
+    asyncMiddleware(async (req: Request, res: Response, next: Function) => {
+      const { storage } = bots[req.params.botId]
+      await storage.moveToAnotherTopic(req.params.topicName, req.body.newTopic)
+      res.sendStatus(200)
     })
   )
 

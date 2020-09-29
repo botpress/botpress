@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
 import * as sdk from 'botpress/sdk'
-import { getPayloadOptions, isValidOutgoingType, parseTyping } from 'common/channels'
+import { isValidOutgoingType, parseTyping } from 'common/channels'
 import crypto from 'crypto'
 import { json as expressJson, Router } from 'express'
 import _ from 'lodash'
@@ -226,18 +226,18 @@ export class MessengerService {
     }
 
     let payload: any = convertPayload(event.payload)
-    const { __typing } = event.payload.metadata as sdk.Content.Metadata
+    const { __typing, __suggestions } = event.payload.metadata as sdk.Content.Metadata
 
     if (__typing) {
       await messenger.sendAction(event.target, 'typing_on')
       await Promise.delay(parseTyping(__typing))
     }
 
-    const options = getPayloadOptions(event.payload)
-    if (options) {
+    if (__suggestions) {
+      // TODO: handle the "static menu" suggestions into the Messenger's Persistent Menu
       payload = {
         ...payload,
-        quick_replies: options.map(c => ({
+        quick_replies: __suggestions.map(c => ({
           content_type: 'text',
           title: c.label,
           payload: c.value.toUpperCase()

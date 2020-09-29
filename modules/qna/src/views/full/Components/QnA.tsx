@@ -1,5 +1,5 @@
 import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
-import { BotEvent, Flow, FlowNode } from 'botpress/sdk'
+import { BotEvent, Content, Flow, FlowNode } from 'botpress/sdk'
 import { confirmDialog, Contents, FormFields, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
 import { getFlowLabel } from 'botpress/utils'
 import cx from 'classnames'
@@ -154,6 +154,17 @@ const QnA: FC<Props> = props => {
     })
   }
 
+  const addContentAnswer = () => {
+    contentAnswers.push({} as Content.All)
+    setShowContentForm(true)
+    editingContent.current = contentAnswers.length - 1
+
+    updateQnA({
+      id,
+      data: { ...data, contentAnswers: [...contentAnswers] }
+    })
+  }
+
   const deleteContentAnswer = () => {
     setShowContentForm(false)
 
@@ -261,7 +272,7 @@ const QnA: FC<Props> = props => {
                 <span className={cx(style.tag)}>{lang.tr('incomplete')}</span>
               </Tooltip>
             )}
-            {!expanded && (
+            {!showIncomplete && (
               <span className={style.tag}>{`${questions?.filter(q => q.trim()).length || 0} ${lang.tr(
                 'module.qna.form.q'
               )} · ${answers?.filter(a => a.trim()).length || 0}  ${lang.tr('module.qna.form.a')}`}</span>
@@ -337,10 +348,10 @@ const QnA: FC<Props> = props => {
             </div>
             {(!defaultLang || defaultLang === contentLang) && (
               <FormFields.AddButton
+                className={style.noSpacing}
                 text={lang.tr('module.qna.form.addContent')}
                 onClick={() => {
-                  setShowContentForm(true)
-                  editingContent.current = null
+                  addContentAnswer()
                 }}
               />
             )}

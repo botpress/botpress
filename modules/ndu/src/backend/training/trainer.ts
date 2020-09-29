@@ -17,7 +17,8 @@ export const ActionTypes = <const>[
   'wf_trigger_outside_topic',
   'wf_trigger_inside_wf',
   'faq_trigger_inside_wf',
-  'node_trigger_inside_wf'
+  'node_trigger_inside_wf',
+  'contextual_trigger'
 ]
 
 export type ActionType = typeof ActionTypes[number]
@@ -33,6 +34,7 @@ const newFeature = (): Features => ({
   conf_wf_trigger_inside_topic: 0,
   conf_wf_trigger_inside_wf: 0,
   conf_wf_trigger_outside_topic: 0,
+  conf_contextual_trigger: 0,
   current_highest_ranking_trigger_id: '',
   current_node_id: '',
   current_workflow_id: '',

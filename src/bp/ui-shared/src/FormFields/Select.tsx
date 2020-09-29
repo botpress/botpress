@@ -2,8 +2,8 @@ import { FormData, FormDynamicOptions, FormField, FormOption } from 'botpress/sd
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 
+import sharedStyle from '../style.scss'
 import { lang } from '../translations'
-import style from '../Contents/Components/style.scss'
 import { FieldProps } from '../Contents/Components/typings'
 import Dropdown from '../Dropdown'
 
@@ -27,6 +27,10 @@ const Select: FC<SelectProps> = ({ onChange, printField, parent, field, data, ax
     }
   }, [])
 
+  useEffect(() => {
+    setOptions(field.options!)
+  }, [field.options])
+
   const loadListElements = async () => {
     const { endpoint, path, valueField, labelField } = field.dynamicOptions!
 
@@ -43,16 +47,16 @@ const Select: FC<SelectProps> = ({ onChange, printField, parent, field, data, ax
     }
   }
 
-  const value = data[field.key] || field.defaultValue || (!field.placeholder && options?.[0]?.value)
+  const value = data[field.key] ?? field.defaultValue ?? (!field.placeholder && options?.[0]?.value)
   const currentOption = options?.find(option => option.value === value)
 
   return (
     <Fragment>
       <Dropdown
         filterable={false}
-        className={style.formSelect}
+        className={sharedStyle.formSelect}
         placeholder={field.placeholder && lang(field.placeholder as string)}
-        items={options?.map(option => ({ ...option, label: lang(option.label) }))}
+        items={options?.map(option => ({ ...option, label: lang(option.label) })) || []}
         defaultItem={currentOption && { ...currentOption, label: lang(currentOption.label) }}
         rightIcon="chevron-down"
         onChange={option => onChange?.(option.value)}

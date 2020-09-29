@@ -218,7 +218,7 @@ class RootStore {
     }
 
     const conversation: CurrentConversation = await this.api.fetchConversation(convoId || this._getCurrentConvoId())
-    await this.extractFeedback(conversation && conversation.messages)
+    await this.extractFeedback(conversation?.messages || [])
 
     runInAction('-> setConversation', () => {
       this.currentConversation = conversation
@@ -422,7 +422,7 @@ class RootStore {
   updateBotUILanguage(lang: string): void {
     runInAction('-> setBotUILanguage', () => {
       this.botUILanguage = lang
-      localStorage.setItem('bp/channel-web/user-lang', lang)
+      window.BP_STORAGE?.set('bp/channel-web/user-lang', lang)
     })
   }
 

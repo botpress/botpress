@@ -4,9 +4,10 @@ import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
 
 import ToolTip from '../../../../../ui-shared-lite/ToolTip'
+import sharedStyle from '../../../style.scss'
 import { lang } from '../../../translations'
 import FieldWrapper from '../../../FormFields/FieldWrapper'
-import wrapperStyle from '../../../FormFields/FieldWrapper/style.scss'
+import MultiSelect from '../../../FormFields/MultiSelect'
 import Select from '../../../FormFields/Select'
 import SuperInput from '../../../FormFields/SuperInput'
 import superInputStyle from '../../../FormFields/SuperInput/style.scss'
@@ -41,7 +42,8 @@ const Form: FC<FormProps> = ({
   variables,
   invalidFields,
   superInputOptions,
-  events
+  events,
+  fieldsError
 }) => {
   const newFormData = createEmptyDataFromSchema([...(fields || []), ...(advancedSettings || [])], currentLang)
   const [state, dispatch] = useReducer(formReducer, formData || newFormData)
@@ -61,7 +63,7 @@ const Form: FC<FormProps> = ({
   useEffect(() => {
     if (moveFocusTo.current) {
       const nodeWrappers = groupRef.current[moveFocusTo.current].querySelectorAll(
-        `:scope > .${wrapperStyle.fieldWrapper}`
+        `:scope > .${sharedStyle.fieldWrapper}`
       )
 
       focusFirstElement(nodeWrappers[nodeWrappers.length - 1])
@@ -79,6 +81,14 @@ const Form: FC<FormProps> = ({
     }
   }
 
+  const printError = key => {
+    if (!fieldsError?.[key]) {
+      return null
+    }
+
+    return <span className={sharedStyle.error}>{fieldsError[key]}</span>
+  }
+
   const printLabel = (field, data, parent, currentLang?) => {
     if (field.label?.startsWith('fields::') && field.fields?.length) {
       const labelField = field.fields?.find(subField => subField.key === field.label.replace('fields::', ''))
@@ -87,7 +97,7 @@ const Form: FC<FormProps> = ({
       return fieldData || ' '
     }
 
-    return field.superInput && !['text', 'text_array'].includes(field.type) ? (
+    return field.superInput && (!['text', 'text_array'].includes(field.type) || field.superInputOptions?.toggleable) ? (
       <ToolTip
         content={lang(
           isSuperInput(field, parent) ? 'superInput.convertToRegularInput' : 'superInput.convertToSmartInput'
@@ -151,7 +161,8 @@ const Form: FC<FormProps> = ({
     return (
       !superInputOptions?.enabled &&
       field.superInput &&
-      (['text', 'text_array'].includes(field.type) || isSuperInput(field, parent))
+      ((['text', 'text_array'].includes(field.type) && !field.superInputOptions?.toggleable) ||
+        isSuperInput(field, parent))
     )
   }
 
@@ -178,7 +189,7 @@ const Form: FC<FormProps> = ({
         canPickEvents={superInputOptions?.variablesOnly !== true && field.superInputOptions?.canPickEvents !== false}
         canPickVariables={superInputOptions?.eventsOnly !== true && field.superInputOptions?.canPickVariables !== false}
         addVariable={onUpdateVariables}
-        multiple={field.type === 'text'}
+        multiple={field.type === 'text' && !field.superInputOptions?.simple}
         onBlur={value => {
           update(value)
         }}
@@ -215,6 +226,7 @@ const Form: FC<FormProps> = ({
         return (
           <Fragment key={field.key}>
             <div
+              className={style.formGroup}
               ref={ref => {
                 groupRef.current[field.key] = ref!
               }}
@@ -289,6 +301,32 @@ const Form: FC<FormProps> = ({
               />
             )}
             {printMoreInfo(field.moreInfo)}
+            {printError(field.key)}
+          </FieldWrapper>
+        )
+      case 'multi-select':
+        return (
+          <FieldWrapper key={field.key} label={printLabel(field, currentValue, parent, currentLang)} invalid={invalid}>
+            <MultiSelect
+              value={currentValue}
+              options={field.options}
+              placeholder={field.placeholder}
+              onChange={value =>
+                dispatch({
+                  type: 'updateField',
+                  data: {
+                    newFormData,
+                    field: field.key,
+                    lang: field.translated && currentLang,
+                    parent,
+                    value,
+                    onUpdate
+                  }
+                })
+              }
+            />
+            {printMoreInfo(field.moreInfo)}
+            {printError(field.key)}
           </FieldWrapper>
         )
       case 'text_array':
@@ -363,7 +401,10 @@ const Form: FC<FormProps> = ({
               placeholder={lang(field.placeholder)}
               emptyPlaceholder={lang(field.emptyPlaceholder)}
               items={currentValue || ['']}
+              canAdd={!defaultLang || defaultLang === currentLang}
               addBtnLabel={lang(field.group?.addLabel)}
+              addBtnLabelTooltip={lang(field.group?.addLabelTooltip)}
+              refValue={refValue}
               onChange={value => {
                 dispatch({
                   type: 'updateField',
@@ -378,6 +419,7 @@ const Form: FC<FormProps> = ({
                 })
               }}
             />
+            {printError(field.key)}
           </FieldWrapper>
         )
 
@@ -425,6 +467,7 @@ const Form: FC<FormProps> = ({
               />
             )}
             {printMoreInfo(field.moreInfo)}
+            {printError(field.key)}
           </FieldWrapper>
         )
       case 'upload':
@@ -450,6 +493,7 @@ const Form: FC<FormProps> = ({
               }
               value={currentValue}
             />
+            {printError(field.key)}
           </FieldWrapper>
         )
       case 'checkbox':
@@ -459,6 +503,7 @@ const Form: FC<FormProps> = ({
               dispatch({ type: 'updateField', data: { field: field.key, parent, value, onUpdate } })
             })}
             {printMoreInfo(field.moreInfo)}
+            {printError(field.key)}
           </FieldWrapper>
         ) : (
           <div key={field.key} className={cx(style.checkboxWrapper, 'checkbox-wrapper')}>
@@ -480,6 +525,7 @@ const Form: FC<FormProps> = ({
               }
             />
             {field.moreInfo && printMoreInfo(field.moreInfo, true)}
+            {printError(field.key)}
           </div>
         )
       case 'overridable':
@@ -526,6 +572,7 @@ const Form: FC<FormProps> = ({
               }
             />
             {printMoreInfo(field.moreInfo)}
+            {printError(field.key)}
           </FieldWrapper>
         )
       default:
@@ -574,6 +621,7 @@ const Form: FC<FormProps> = ({
               />
             )}
             {printMoreInfo(field.moreInfo)}
+            {printError(field.key)}
           </FieldWrapper>
         )
     }
@@ -583,7 +631,7 @@ const Form: FC<FormProps> = ({
     <Fragment>
       <div ref={fieldWrapperRef}>{fields?.map(field => printField(field, state))}</div>
       {!!advancedSettings?.length && (
-        <GroupItemWrapper defaultCollapsed label={lang('advancedSettings')}>
+        <GroupItemWrapper defaultCollapsed borderTop={!!fields.length} label={lang('advancedSettings')}>
           {advancedSettings.map(field => printField(field, state))}
         </GroupItemWrapper>
       )}

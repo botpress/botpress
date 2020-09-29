@@ -26,6 +26,15 @@ const onTriggerEvent = async (action: 'delete' | 'create', conditions: sdk.Decis
   }
 }
 
+// Core
+export const licensingReceived = createAction('LICENSING/RECEIVED')
+export const fetchLicensing = () => dispatch => {
+  // tslint:disable-next-line: no-floating-promises
+  axios.get('api/v1/admin/license/status').then(({ data }) => {
+    dispatch(licensingReceived(data.payload))
+  })
+}
+
 // Flows
 export const receiveFlowsModification = createAction('FLOWS/MODIFICATIONS/RECEIVE')
 
@@ -306,6 +315,9 @@ export const addDocumentationHint = createAction('UI/ADD_DOCUMENTATION_HINT')
 export const removeDocumentationHint = createAction('UI/REMOVE_DOCUMENTATION_HINT')
 export const updateDocumentationModal = createAction('UI/UPDATE_DOCUMENTATION_MODAL')
 export const toggleBottomPanel = createAction('UI/TOGGLE_BOTTOM_PANEL')
+export const zoomIn = createAction('UI/ZOOM_IN_DIAGRAM')
+export const zoomOut = createAction('UI/ZOOM_OUT_DIAGRAM')
+export const zoomToLevel = createAction('UI/ZOOM_TO_LEVEL_DIAGRAM')
 
 // User
 export const userReceived = createAction('USER/RECEIVED')
@@ -467,6 +479,14 @@ export const fetchTopics = () => dispatch => {
   // tslint:disable-next-line: no-floating-promises
   axios.get(`${window.BOT_API_PATH}/topics`).then(({ data }) => {
     dispatch(topicsReceived(data))
+  })
+}
+
+export const deleteTopic = topicName => (dispatch, getState) => {
+  const { ndu } = getState()
+  // tslint:disable-next-line: no-floating-promises
+  axios.post(`${window.BOT_API_PATH}/topics/${topicName}/delete`).then(() => {
+    dispatch(topicsReceived(ndu.topics.filter(t => t.name !== topicName)))
   })
 }
 

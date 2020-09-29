@@ -38,10 +38,6 @@ const TreeItem: FC<Props> = ({
 
   const onContextMenu = e => {
     e.preventDefault()
-    if (item.type === 'qna') {
-      return
-    }
-
     contextMenu(e, <Menu className={style.contextMenu}>{contextMenuContent}</Menu>)
   }
 
@@ -75,7 +71,7 @@ const TreeItem: FC<Props> = ({
 
   if (isEditing) {
     return (
-      <div style={{ paddingLeft: `${level * 23}px` }} className={cx(className, style.inlineEditing)}>
+      <div className={cx(className, style.inlineEditing)}>
         {hasChildren && <Icon icon={chevron} iconSize={16} />}
         <input
           type="text"
@@ -93,7 +89,6 @@ const TreeItem: FC<Props> = ({
 
   return (
     <Button
-      style={{ paddingLeft: `${level * 23}px` }}
       minimal
       className={className}
       onContextMenu={onContextMenu}

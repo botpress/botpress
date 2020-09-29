@@ -1,15 +1,23 @@
 import { Button } from '@blueprintjs/core'
+import cx from 'classnames'
 import React, { FC, useState } from 'react'
 
 import MoreOptions from '../../../../ui-shared-lite/MoreOptions'
 import { MoreOptionsItems } from '../../../../ui-shared-lite/MoreOptions/typings'
+import sharedStyle from '../../style.scss'
 import { lang } from '../../translations'
-import wrapperStyle from '../../FormFields/FieldWrapper/style.scss'
 
 import style from './style.scss'
 import { GroupItemWrapperProps } from './typings'
 
-const GroupItemWrapper: FC<GroupItemWrapperProps> = ({ label, contextMenu, defaultCollapsed, onDelete, children }) => {
+const GroupItemWrapper: FC<GroupItemWrapperProps> = ({
+  label,
+  borderTop,
+  contextMenu,
+  defaultCollapsed,
+  onDelete,
+  children
+}) => {
   const [collapsed, setCollapsed] = useState(defaultCollapsed || false)
   const [showOptions, setShowOptions] = useState(false)
 
@@ -26,7 +34,7 @@ const GroupItemWrapper: FC<GroupItemWrapperProps> = ({ label, contextMenu, defau
   }
 
   return (
-    <div className={wrapperStyle.fieldWrapper}>
+    <div className={cx(sharedStyle.fieldWrapper, { [style.borderTop]: borderTop })}>
       <div className={style.labelWrapper}>
         {label && (
           <Button

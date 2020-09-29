@@ -5,25 +5,15 @@ interface CssExports {
   'actionSelectItem': string;
   'actionServer': string;
   'addContentBtn': string;
-  'advancedSettingsBtn': string;
-  'alignBtnRight': string;
   'category': string;
-  'checkboxLabel': string;
   'deleteBtn': string;
   'description': string;
-  'emptyState': string;
   'fieldError': string;
-  'fieldWrapper': string;
-  'formHeader': string;
-  'formLabel': string;
-  'formSelect': string;
   'imgWrapper': string;
   'imgWrapperActions': string;
   'innerWrapper': string;
   'insertBtn': string;
   'multipleInputs': string;
-  'textInput': string;
-  'textarea': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

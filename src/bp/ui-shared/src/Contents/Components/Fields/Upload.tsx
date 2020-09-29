@@ -1,8 +1,9 @@
-import { Button, FileInput, Icon, Intent, Position, Tooltip } from '@blueprintjs/core'
+import { Button, FileInput, Icon, Intent } from '@blueprintjs/core'
 import React, { FC, Fragment, useReducer } from 'react'
 
+import ToolTip from '../../../../../ui-shared-lite/ToolTip'
+import sharedStyle from '../../../style.scss'
 import { lang } from '../../../translations'
-import wrapperStyle from '../../../FormFields/FieldWrapper/style.scss'
 import style from '../style.scss'
 import { FieldProps } from '../typings'
 
@@ -79,11 +80,11 @@ const Upload: FC<UploadFieldProps> = props => {
   const { value } = props
 
   return (
-    <div className={wrapperStyle.fieldWrapper}>
+    <div className={sharedStyle.fieldWrapper}>
       {value && (
-        <div style={{ backgroundImage: `url('${value}')` }} className={style.imgWrapper}>
-          <div className={style.imgWrapperActions}>
-            <Tooltip content={lang('deleteImage')} position={Position.TOP}>
+        <div style={{ backgroundImage: `url('${value}')` }} className={sharedStyle.imgWrapper}>
+          <div className={sharedStyle.imgWrapperActions}>
+            <ToolTip content={lang('deleteImage')}>
               <Button
                 className={style.deleteImg}
                 minimal
@@ -92,7 +93,7 @@ const Upload: FC<UploadFieldProps> = props => {
                 icon="trash"
                 onClick={deleteFile}
               ></Button>
-            </Tooltip>
+            </ToolTip>
           </div>
         </div>
       )}
@@ -108,7 +109,7 @@ const Upload: FC<UploadFieldProps> = props => {
               onChange: startUpload
             }}
           />
-          {error && <p className={style.fieldError}>{error}</p>}
+          {error && <p className={sharedStyle.fieldError}>{error}</p>}
         </Fragment>
       )}
     </div>

@@ -1,10 +1,9 @@
-import { AnchorButton, Button, Tab, Tabs } from '@blueprintjs/core'
+import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
 import sdk from 'botpress/sdk'
-import { Contents, lang, MoreOptions, MoreOptionsItems, RightSidebar } from 'botpress/shared'
-import { Variables } from 'common/typings'
+import { Contents, lang, MainContent, sharedStyle } from 'botpress/shared'
 import _ from 'lodash'
-import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
+import React, { FC } from 'react'
 
 import style from './style.scss'
 
@@ -26,8 +25,8 @@ const IssueForm: FC<Props> = ({ formData, close, onUpdate }) => {
   }
 
   return (
-    <RightSidebar className={style.wrapper} canOutsideClickClose close={close}>
-      <div className={style.formHeader}>
+    <MainContent.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose close={close}>
+      <div className={sharedStyle.formHeader}>
         <Tabs id="contentFormTabs">
           <Tab id="content" title={lang.tr('bug')} />
         </Tabs>
@@ -57,7 +56,7 @@ const IssueForm: FC<Props> = ({ formData, close, onUpdate }) => {
       <button className={style.submitBtn} onClick={handleSubmit}>
         {lang.tr('issue.previewOnGithub')}
       </button>
-    </RightSidebar>
+    </MainContent.RightSidebar>
   )
 }
 

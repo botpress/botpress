@@ -3,6 +3,7 @@
 interface CssExports {
   'active': string;
   'addBtn': string;
+  'confirmBody': string;
   'contextMenu': string;
   'draggable': string;
   'ellipsisText': string;
@@ -13,7 +14,6 @@ interface CssExports {
   'isTopic': string;
   'larger': string;
   'largerSelected': string;
-  'searchBar': string;
   'tag': string;
   'topicName': string;
   'tree': string;

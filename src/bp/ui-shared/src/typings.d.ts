@@ -10,7 +10,7 @@ import { TreeViewProps } from './TreeView/typings'
 
 import { ToastOptions } from './Toaster'
 import { ShortcutLabelProps } from './ShortcutLabel/typings'
-import { HeaderProps, HeaderButtonProps } from './MainContent/Header/typings'
+import { ToolbarProps, ToolbarButtonProps } from './MainContent/Toolbar/typings'
 import { WrapperProps } from './MainContent/Wrapper/typings'
 import { EmptyStateProps } from './EmptyState/typings'
 import { TextareaProps } from './Textarea/typings'
@@ -27,7 +27,10 @@ import { MoreOptionsProps } from '../../ui-shared-lite/MoreOptions/typings'
 import { OverlayProps } from '../../ui-shared-lite/Overlay/typings'
 import { ToolTipProps } from '../../ui-shared-lite/ToolTip/typings'
 import { VariablePickerProps } from './FormFields/VariablePicker/typings'
+import { MultiLevelDropdownProps } from './MultiLevelDropdown/typings'
 import { FieldWrapperProps } from './FormFields/FieldWrapper/typings'
+import { MenuProps, MenuItem } from './MainContent/Menu/typings'
+import { HeaderProps, HeaderButton } from './MainContent/Header/typings'
 
 declare module 'botpress/shared' {
   export function Commander(props: CommanderProps): JSX.Element
@@ -37,8 +40,11 @@ declare module 'botpress/shared' {
     Footer(props: { children: any }): JSX.Element
   }
   export const MainContent: {
+    Toolbar(props: ToolbarProps): JSX.Element
     Header(props: HeaderProps): JSX.Element
     Wrapper(props: WrapperProps): JSX.Element
+    Menu(props: MenuProps): JSX.Element
+    RightSidebar(props: RightSidebarProps): JSX.Element
   }
   export const Contents: {
     Form(props: FormProps): JSX.Element
@@ -58,7 +64,7 @@ declare module 'botpress/shared' {
   export function MainContainer(props: MainContainerProps): JSX.Element
   export function MarkdownContent(props: MarkdownContentProps): JSX.Element
   export function MoreOptions(props: MoreOptionsProps): JSX.Element
-  export function RightSidebar(props: RightSidebarProps): JSX.Element
+  export function MultiLevelDropdown(props: MultiLevelDropdownProps): JSX.Element
   export function Overlay(props: OverlayProps): JSX.Element
   export function ShortcutLabel(props: ShortcutLabelProps): JSX.Element
   export function Textarea<T>(props: TextareaProps<T>): JSX.Element
@@ -73,6 +79,7 @@ declare module 'botpress/shared' {
     extend(langs)
     getLocale(): string
     getAvailable(): string[]
+    defaultLocale: string
   }
 
   export const telemetry: {
@@ -84,9 +91,11 @@ declare module 'botpress/shared' {
     Brackets(): JSX.Element
     Minimize(): JSX.Element
     Say(): JSX.Element
+    Search(): JSX.Element
   }
 
   export const toast: {
+    dismiss: (key: string) => void
     success: (message: string | React.ReactElement, details?: string, options?: ToastOptions) => void
     failure: (message: string | React.ReactElement, details?: string, options?: ToastOptions) => void
     warning: (message: string | React.ReactElement, details?: string, options?: ToastOptions) => void
@@ -99,7 +108,9 @@ declare module 'botpress/shared' {
     isInputFocused(): boolean
   }
 
-  export { Option, MoreOptionsItems, HeaderButtonProps, QuickShortcut }
+  export const sharedStyle: CssExports
+
+  export { Option, MoreOptionsItems, HeaderButtonProps, QuickShortcut, MenuItem, HeaderButton }
 }
 
 declare global {

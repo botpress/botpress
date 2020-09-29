@@ -63,7 +63,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     homepage: 'https://botpress.com',
     noInterface: true,
     plugins: [],
-    channelEffects: ['__typing', '__buttons']
+    channelEffects: ['__typing', '__suggestions']
   }
 }
 

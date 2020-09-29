@@ -1,0 +1,33 @@
+{
+  "name": "flight-gun",
+  "utterances": {
+    "en": [
+      "Rules for $flight about laws on $gun",
+      "I have one $gun, can I bring it on my $flight trip",
+      "The police won't let me go to new york on the $flight flight with a $gun",
+      "I would like to take my $gun on the air japan $flight flight to Tokyo",
+      "I want to bring a $gun on the flight $flight",
+      "I have one $gun, can I take it on my trip to Frankfurt $flight?"
+    ]
+  },
+  "slots": [
+    {
+      "id": "FeqnkmkJKyx10LD4n6NGx",
+      "name": "gun",
+      "color": 1,
+      "entity": "gun"
+    },
+    {
+      "id": "VGB19o16lksAcmVixyL9d",
+      "name": "flight",
+      "color": 2,
+      "entity": "flight-number"
+    }
+  ],
+  "contexts": [
+    "2-entities-close"
+  ],
+  "metadata": {
+    "enabled": true
+  }
+}

@@ -42,15 +42,15 @@ export const handlePrompt = async (event: sdk.IO.OutgoingEvent, bp: typeof sdk):
       return {
         ...defaultPayload,
         metadata: {
-          __buttons: [
+          ...defaultPayload.metadata,
+          __suggestions: [
             { label: lang.tr('module.builtin.yes'), value: 'yes' },
             { label: lang.tr('module.builtin.no'), value: 'no' }
-          ],
-          ...defaultPayload.metadata
+          ]
         }
       }
 
-    case 'enum':
+    case 'enumeration':
       let items = payload.items
 
       if (payload.subType) {
@@ -65,11 +65,12 @@ export const handlePrompt = async (event: sdk.IO.OutgoingEvent, bp: typeof sdk):
         return defaultPayload
       }
 
-      const field = items.length >= 4 || __useDropdown ? '__dropdown' : '__buttons'
-
       return {
         ...defaultPayload,
-        metadata: { ...defaultPayload.metadata, [field]: items }
+        metadata: {
+          ...defaultPayload.metadata,
+          __suggestions: [...(defaultPayload.metadata?.__suggestions || []), ...items]
+        }
       }
   }
 }

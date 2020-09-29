@@ -8,7 +8,6 @@ interface CssExports {
   'contentImgWrapper': string;
   'contentWrapper': string;
   'contentsWrapper': string;
-  'contextMenuLabel': string;
   'danger': string;
   'debugInfo': string;
   'error': string;
@@ -18,6 +17,7 @@ interface CssExports {
   'hasError': string;
   'hasJoinLabel': string;
   'headerWrapper': string;
+  'hidden': string;
   'highlighted': string;
   'img': string;
   'in': string;
@@ -34,6 +34,7 @@ interface CssExports {
   'say_something': string;
   'secondaryText': string;
   'smallButton': string;
+  'sub-workflow': string;
   'success': string;
   'text': string;
   'textWrapper': string;

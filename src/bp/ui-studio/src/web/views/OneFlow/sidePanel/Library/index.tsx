@@ -1,7 +1,7 @@
 import { Button, Intent, MenuItem } from '@blueprintjs/core'
 import axios from 'axios'
 import sdk from 'botpress/sdk'
-import { confirmDialog, lang } from 'botpress/shared'
+import { confirmDialog, lang, sharedStyle } from 'botpress/shared'
 import cx from 'classnames'
 import { buildFlowName, nextFlowName, parseFlowName } from 'common/flow'
 import { FlowView } from 'common/typings'
@@ -86,14 +86,14 @@ const getVarTypeIcon = type => {
 const Library: FC<Props> = props => {
   let initialExpanded
   try {
-    initialExpanded = JSON.parse(storage.get(LIBRARY_EXPANDED_KEY)) || {}
+    initialExpanded = JSON.parse(storage.get(LIBRARY_EXPANDED_KEY)) || { variableType: true, workflow: true }
   } catch (error) {
     initialExpanded = {}
   }
   const [filter, setFilter] = useState('')
   const [items, setItems] = useState<NodeData[]>([])
   const [expanded, setExpanded] = useState<any>(initialExpanded)
-  const [editing, setEditing] = useState('')
+  const [editing, setEditing] = useState(null)
 
   useEffect(() => {
     props.refreshEntities()
@@ -163,19 +163,21 @@ const Library: FC<Props> = props => {
   const newVarType = async (type: 'pattern' | 'list' | 'complex') => {
     const name = getNextName(`${type}-entity`, props.entities)
     await createVarType({ id: name, name, type, occurrences: [] })
+    setEditing({ id: name, type: 'variableType', new: true })
   }
 
   const duplicateVarType = async (entityId: string) => {
-    const original = props.entities.find(x => x.id === entityId)
+    const original = props.entities.find(x => x.name === entityId)
     const name = getNextName(entityId, props.entities)
+    const entity = { ...original, id: name, name }
 
-    await createVarType({ ...original, id: name, name })
+    await createVarType(entity)
+    props.setActiveFormItem({ type: 'variableType', data: entity })
   }
 
   const createVarType = async entity => {
     await axios.post(`${window.BOT_API_PATH}/nlu/entities`, entity)
     props.refreshEntities()
-    props.setActiveFormItem({ type: 'variableType', data: entity })
   }
 
   const deleteEntity = async (entityId: string) => {
@@ -186,8 +188,52 @@ const Library: FC<Props> = props => {
   }
 
   const deleteWorkflow = async (workflow: string) => {
-    if (await confirmDialog(lang.tr('studio.flow.topicList.confirmDeleteFlow'), { acceptLabel: lang.tr('delete') })) {
+    const instances = {}
+    props.flows.forEach(flow => {
+      flow.nodes.filter(node => {
+        if (node.flow === workflow) {
+          if (instances[flow.name]) {
+            instances[flow.name].nodes.push(node)
+          } else {
+            instances[flow.name] = { ...parseFlowName(flow.name), nodes: [node] }
+          }
+        }
+      })
+    })
+
+    if (
+      !Object.keys(instances).length &&
+      (await confirmDialog(lang.tr('studio.flow.topicList.confirmDeleteFlow'), { acceptLabel: lang.tr('delete') }))
+    ) {
       props.deleteFlow(workflow)
+    } else {
+      await confirmDialog(lang.tr('studio.flow.topicList.beforeRemovingSubflow'), {
+        acceptLabel: lang.tr('ok'),
+        showDecline: false,
+        body: (
+          <ul className={style.confirmBody}>
+            {Object.keys(instances).map(key =>
+              instances[key].nodes.map(node => {
+                const nodeFlow = parseFlowName(node.flow).workflow
+                const flow = parseFlowName(key)
+                const baseUrl = `/studio/${window.BOT_ID}/oneflow/${flow.workflowPath}`
+
+                return (
+                  <li key={`${key}-${node.name}`}>
+                    <a href={`${baseUrl}?highlightedNode=${node.id}`} target="_blank">
+                      {nodeFlow}
+                    </a>{' '}
+                    in{' '}
+                    <a href={baseUrl} target="_blank">
+                      {flow.workflow}
+                    </a>
+                  </li>
+                )
+              })
+            )}
+          </ul>
+        )
+      })
     }
   }
 
@@ -203,25 +249,36 @@ const Library: FC<Props> = props => {
   const newFlow = async () => {
     const name = nextFlowName(props.flows, '__reusable', 'subworkflow')
     props.createFlow(name)
-    setEditing(name)
+    setEditing({ type: 'flow', id: name, new: true })
   }
 
   const renameFlow = async (value: string) => {
-    const currentFlow = props.flows.find(x => x.name === editing)
-    const fullName = buildFlowName({ topic: parseFlowName(editing).topic, workflow: sanitize(value) }, true)
+    const currentFlow = props.flows.find(x => x.name === editing?.id)
+    const fullName = buildFlowName({ topic: parseFlowName(editing?.id).topic, workflow: sanitize(value) }, true)
       .workflowPath
     const flowExists = props.flows.find(x => x.name === fullName)
 
     if (currentFlow.name !== value && !flowExists) {
-      props.renameFlow({ targetFlow: editing, name: fullName })
+      props.renameFlow({ targetFlow: editing?.id, name: fullName })
       props.updateFlow({ name: fullName })
     } else {
-      setEditing('')
+      setEditing(null)
     }
   }
 
+  const renameVariableType = async (name: string) => {
+    const entity = props.entities.find(x => x.id === editing.id)
+    const varTypeExists = props.entities.find(x => x.name === name)
+
+    if (name && !varTypeExists) {
+      await axios.post(`${window.BOT_API_PATH}/nlu/entities/${entity.name}`, { ...entity, name, id: name })
+      props.refreshEntities()
+    }
+    setEditing(null)
+  }
+
   const handleContextMenu = (element: NodeData) => {
-    const { id, type } = element as NodeData
+    const { id, label, type } = element as NodeData
 
     if (id === type) {
       return
@@ -231,22 +288,31 @@ const Library: FC<Props> = props => {
       return (
         <Fragment>
           <MenuItem
+            id="btn-rename"
+            label={lang.tr('studio.library.renameVariableType')}
+            onClick={() => setEditing({ id, type: 'variableType' })}
+          />
+          <MenuItem
             id="btn-duplicate"
             label={lang.tr('studio.library.duplicateVariableType')}
-            onClick={() => duplicateVarType(id)}
+            onClick={() => duplicateVarType(label)}
           />
           <MenuItem
             id="btn-delete"
             label={lang.tr('studio.library.deleteVariableFromLibrary')}
             intent={Intent.DANGER}
-            onClick={() => deleteEntity(id)}
+            onClick={() => deleteEntity(label)}
           />
         </Fragment>
       )
     } else if (type == 'workflow') {
       return (
         <Fragment>
-          <MenuItem id="btn-rename" label={lang.tr('renameWorkflow')} onClick={() => setEditing(id)} />
+          <MenuItem
+            id="btn-rename"
+            label={lang.tr('renameWorkflow')}
+            onClick={() => setEditing({ id, type: 'flow' })}
+          />
           <MenuItem
             id="btn-duplicate"
             label={lang.tr('studio.library.duplicateWorkflow')}
@@ -266,6 +332,7 @@ const Library: FC<Props> = props => {
   const printTree = (item: NodeData, level, parentId = '') => {
     const hasChildren = !!item.children?.length
     const path = `${parentId}${parentId && '/'}${item.id}`
+
     const isTopLevel = level === 0
     const isSelected = item.label === props.selectedWorkflow
     const treeItem = (
@@ -282,11 +349,11 @@ const Library: FC<Props> = props => {
           isExpanded={expanded[path]}
           item={item}
           level={level}
-          isEditing={editing === item.id}
-          isEditingNew={false}
+          isEditing={editing?.id === item.id}
+          isEditingNew={editing?.new}
           contextMenuContent={handleContextMenu(item)}
           onClick={() => handleClick({ item, path, level })}
-          onSave={value => renameFlow(value)}
+          onSave={value => (editing?.type === 'flow' ? renameFlow(value) : renameVariableType(value))}
         />
 
         {expanded[path] && (
@@ -339,7 +406,7 @@ const Library: FC<Props> = props => {
   return (
     <div className={cx(style.tree)}>
       <SearchBar
-        className={style.searchBar}
+        className={sharedStyle.searchBar}
         placeholder={lang.tr('Filter blocks, workflows and variables')}
         onChange={setFilter}
       />

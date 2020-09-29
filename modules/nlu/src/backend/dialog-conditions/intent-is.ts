@@ -31,10 +31,13 @@ export default {
   ],
   evaluate: (event, params) => {
     const { topicName } = params
+    const contextName = params.contextName ?? topicName ?? ''
     const intentName = params.intentName ?? `${params.wfName}/${params.nodeName}/${params.conditionIndex}`
-    const topicConf = _.get(event, `nlu.predictions.${topicName}.confidence`, 0)
-    const oosConfidence = _.get(event, `nlu.predictions.${topicName}.oos`, 0)
-    const topicIntents = _.get(event, `nlu.predictions.${topicName}.intents`, [])
+    const topicConf = contextName.startsWith('explicit:')
+      ? 1
+      : _.get(event, `nlu.predictions.${contextName}.confidence`, 0)
+    const oosConfidence = _.get(event, `nlu.predictions.${contextName}.oos`, 0)
+    const topicIntents = _.get(event, `nlu.predictions.${contextName}.intents`, [])
     const intentConf = _.get(
       topicIntents.find((x: any) => x.label.toLowerCase() === intentName.toLowerCase()),
       'confidence',

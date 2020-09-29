@@ -1,0 +1,723 @@
+[
+  {
+    "id": "f8b06e6f49be67391fa3fd988c2c524d",
+    "utterance": "Alternative to Facebook",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Find Alternative"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "Facebook"
+      ]
+    ]
+  },
+  {
+    "id": "b8a1dcdfa75c25a455e832a6795119dd",
+    "utterance": "How do I delete my Facebook account?",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Delete Account"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "Facebook"
+      ]
+    ]
+  },
+  {
+    "id": "67847be7268bffb7e2f628a606a53124",
+    "utterance": "Are there any good Pandora alternatives with general availability outside the US?",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Find Alternative"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "Pandora"
+      ]
+    ]
+  },
+  {
+    "id": "b6e4d6f85aedf4eb30a11db996d178b7",
+    "utterance": "Is there an online alternative to iGoogle",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Find Alternative"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "iGoogle"
+      ]
+    ]
+  },
+  {
+    "id": "777fa3762b277a2e98ebda354d413fe0",
+    "utterance": "How can I remove myself from a Trello organization?",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Delete Account"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "Trello"
+      ]
+    ]
+  },
+  {
+    "id": "0d6364c9be20b681755e476eb8ec141d",
+    "utterance": "How can I delete my 160by2 account?",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Delete Account"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "160by2"
+      ]
+    ]
+  },
+  {
+    "id": "aad41d9ba003ee6f3ad017860fce8f79",
+    "utterance": "How can I permanently delete my Yahoo mail account?",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Delete Account"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "Yahoo mail"
+      ]
+    ]
+  },
+  {
+    "id": "2142d393664e38ddbc531677e28642ba",
+    "utterance": "Deleting an account(website) from Google Analytics?",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Delete Account"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "Google Analytics"
+      ]
+    ]
+  },
+  {
+    "id": "c5634628490fa67294af65c1fc43752a",
+    "utterance": "How to delete my imgur account?",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Delete Account"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "imgur"
+      ]
+    ]
+  },
+  {
+    "id": "ee82ac815e7622a9136588bf712a611d",
+    "utterance": "How to change my Uber password or delete the account?",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Delete Account"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "Uber"
+      ]
+    ]
+  },
+  {
+    "id": "199e1acc621654c40f9574608caecfd9",
+    "utterance": "How to delete a Sify Mail account",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Delete Account"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "Sify Mail"
+      ]
+    ]
+  },
+  {
+    "id": "84054d25e75abbb44279f1c9a5a1c03b",
+    "utterance": "Any alternatives to Google Apps for your domain?",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Find Alternative"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "Google Apps"
+      ]
+    ]
+  },
+  {
+    "id": "39af1de6b1755ff8427b2ef913be8c63",
+    "utterance": "Evernote alternative",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Find Alternative"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "Evernote"
+      ]
+    ]
+  },
+  {
+    "id": "e580d89bf6bee0c1adf55d336190625d",
+    "utterance": "Alternatives to LibraryThing",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Find Alternative"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "LibraryThing"
+      ]
+    ]
+  },
+  {
+    "id": "be20caeb4501fdd124be2429154edfcf",
+    "utterance": "What are the alternatives to Facebook/Meetup for Event Planning",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Find Alternative"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "Facebook"
+      ]
+    ]
+  },
+  {
+    "id": "6d8b47b50ee09b81dd05287dc0cc3c9f",
+    "utterance": "Is there a free and privacy-aware alternative to Google?",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Find Alternative"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "Google"
+      ]
+    ]
+  },
+  {
+    "id": "1b59e44cc532fc7ed9ad46f29bbe2609",
+    "utterance": "Gmail user set up through Google Apps can't change their password",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Change Password"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "Gmail"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "Google"
+      ]
+    ]
+  },
+  {
+    "id": "e40cfc283eaa5183f1eb64d7488cde90",
+    "utterance": "How do I change my password on ebay?",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Change Password"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "ebay"
+      ]
+    ]
+  },
+  {
+    "id": "dab14368cabaec83914cccd1f39913a3",
+    "utterance": "Gmail recover password while logged in Iphone",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Change Password"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "Gmail"
+      ]
+    ]
+  },
+  {
+    "id": "f961bdc57007196a9e5031dfa1a6c1ed",
+    "utterance": "How to retrieve forgotten Wordpress Admin password",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Change Password"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "Wordpress"
+      ]
+    ]
+  },
+  {
+    "id": "642b90c3bea1bf8a46ea13e08e6d9f7d",
+    "utterance": "How to retrieve a stolen Yahoo account's password?",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Change Password"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "Yahoo"
+      ]
+    ]
+  },
+  {
+    "id": "153cec7217f8610aad4a5995ff60555c",
+    "utterance": "Users can't reset their passwords anymore on Google Apps?",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Change Password"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "Google"
+      ]
+    ]
+  },
+  {
+    "id": "95ba72c5515c9a678c02c32e9c8831e3",
+    "utterance": "Does moving a mail to the IMAP spam folder trains Gmail's spam filter?",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Filter Spam"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "Gmail"
+      ]
+    ]
+  },
+  {
+    "id": "96141d8f017dd46594d6251cf214e529",
+    "utterance": "How can I auto-delete some spam from Gmail?",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Filter Spam"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "Gmail"
+      ]
+    ]
+  },
+  {
+    "id": "d372d100d8cc48ba85fb8a64a4c90a37",
+    "utterance": "When I move spam to my inbox it goes back into the spam again",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Filter Spam"
+      ]
+    ]
+  },
+  {
+    "id": "11b229ded4c30b4bc5a889ecf1ad426a",
+    "utterance": "How to send messages to spam in Gmail filter?",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Filter Spam"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "Gmail"
+      ]
+    ]
+  },
+  {
+    "id": "2a4aa2c6717610f7198e03e071150916",
+    "utterance": "How do I disable the spam filter in Gmail?",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Filter Spam"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "Gmail"
+      ]
+    ]
+  },
+  {
+    "id": "0ae9aa4e8b2205cc3336312859611fe4",
+    "utterance": "How to check your Gmail spam label for good emails",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Filter Spam"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "Gmail"
+      ]
+    ]
+  },
+  {
+    "id": "dd866d7aa0b4663964df81e9201f77ab",
+    "utterance": "Mark large numbers of messages as \"not spam\"",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Filter Spam"
+      ]
+    ]
+  },
+  {
+    "id": "a109f33744f3a789b83d358aecb3284b",
+    "utterance": "What are alternatives to Postini for spam filtering?",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "Filter Spam"
+      ],
+      [
+        "slot:WebService",
+        "is",
+        "Postini"
+      ]
+    ]
+  },
+  {
+    "id": "a4528e7928cfba4884a83f3bbba7508a",
+    "utterance": "when is the next train in muncher freiheit?",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "DepartureTime"
+      ],
+      [
+        "slot:Vehicle",
+        "is",
+        "train"
+      ],
+      [
+        "slot:Criterion",
+        "is",
+        "next"
+      ],
+      [
+        "slot:StationStart",
+        "is",
+        "muncher freiheit"
+      ]
+    ]
+  },
+  {
+    "id": "8b88cbf913f5e9d0476a68e18df3b0f3",
+    "utterance": "when does the next u-bahn leaves from garching forschungszentrum?",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "DepartureTime"
+      ],
+      [
+        "slot:Vehicle",
+        "is",
+        "u-bahn"
+      ],
+      [
+        "slot:Criterion",
+        "is",
+        "next"
+      ],
+      [
+        "slot:StationStart",
+        "is",
+        "garching forschungszentrum"
+      ]
+    ]
+  },
+  {
+    "id": "42cc675d6bed97fa28a4bd09fb619db0",
+    "utterance": "when is the next s-bahn leaving at garching?",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "DepartureTime"
+      ],
+      [
+        "slot:Vehicle",
+        "is",
+        "s-bahn"
+      ],
+      [
+        "slot:Criterion",
+        "is",
+        "next"
+      ],
+      [
+        "slot:StationStart",
+        "is",
+        "garching"
+      ]
+    ]
+  },
+  {
+    "id": "5a18cbd9317d602ecb5c3666aa04c3d5",
+    "utterance": "when does the next bus starts from garching?",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "DepartureTime"
+      ],
+      [
+        "slot:Vehicle",
+        "is",
+        "bus"
+      ],
+      [
+        "slot:Criterion",
+        "is",
+        "next"
+      ],
+      [
+        "slot:StationStart",
+        "is",
+        "garching"
+      ]
+    ]
+  },
+  {
+    "id": "e05b6923b71ff4f9fb1cb1120e4433e2",
+    "utterance": "when does the next train leaves at garching?",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "DepartureTime"
+      ],
+      [
+        "slot:Vehicle",
+        "is",
+        "train"
+      ],
+      [
+        "slot:Criterion",
+        "is",
+        "next"
+      ],
+      [
+        "slot:StationStart",
+        "is",
+        "garching"
+      ]
+    ]
+  },
+  {
+    "id": "5b18b76298c5d1259ea4c219fc73d3e4",
+    "utterance": "when is the next train leaving in garching forschungszentrum",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "DepartureTime"
+      ],
+      [
+        "slot:Vehicle",
+        "is",
+        "train"
+      ],
+      [
+        "slot:Criterion",
+        "is",
+        "next"
+      ],
+      [
+        "slot:StationStart",
+        "is",
+        "garching forschungszentrum"
+      ]
+    ]
+  },
+  {
+    "id": "ff3b7f71887ecac29016f2f2eee7ab66",
+    "utterance": "when does the next bus starts at garching?",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "DepartureTime"
+      ],
+      [
+        "slot:Vehicle",
+        "is",
+        "bus"
+      ],
+      [
+        "slot:Criterion",
+        "is",
+        "next"
+      ],
+      [
+        "slot:StationStart",
+        "is",
+        "garching"
+      ]
+    ]
+  },
+  {
+    "id": "b514982cbc733be4c8fd59328b5c3d79",
+    "utterance": "when is the next bus from ostbahnhof",
+    "context": "*",
+    "conditions": [
+      [
+        "intent",
+        "is",
+        "DepartureTime"
+      ],
+      [
+        "slot:Vehicle",
+        "is",
+        "bus"
+      ],
+      [
+        "slot:Criterion",
+        "is",
+        "next"
+      ],
+      [
+        "slot:StationStart",
+        "is",
+        "ostbahnhof"
+      ]
+    ]
+  }
+]

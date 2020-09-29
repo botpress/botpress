@@ -190,7 +190,8 @@ try {
           type: 'string'
         },
         dest: {
-          description: 'Path where the file will be copied locally (if not set, it uses the same path as "file")',
+          description:
+            'Path where the file will be copied locally (relative to data/, if not set, it uses the same path as "file")',
           type: 'string'
         }
       },
@@ -323,6 +324,47 @@ try {
         getos.default().then(distro => {
           process.distro = distro
           require('./lang-server').default(argv)
+        })
+      }
+    )
+    .command(
+      'nlu',
+      'Launch a local stand-alone nlu server',
+      {
+        port: {
+          description: 'The port to listen to',
+          default: 3200
+        },
+        host: {
+          description: 'Binds the nlu server to a specific hostname',
+          default: 'localhost'
+        },
+        modelDir: {
+          description: 'Directory where models will be saved'
+        },
+        authToken: {
+          description: 'When enabled, this token is required for clients to query your nlu server'
+        },
+        limit: {
+          description: 'Maximum number of requests per IP per "limitWindow" interval (0 means unlimited)',
+          default: 0
+        },
+        limitWindow: {
+          description: 'Time window on which the limit is applied (use standard notation, ex: 25m or 1h)',
+          default: '1h'
+        },
+        config: {
+          description:
+            'Path of the NLU configuration file (ex: "~/bp-nlu-config.json"). \
+            Use to configure the duckling and language servers endpoints.'
+        }
+      },
+      argv => {
+        process.VERBOSITY_LEVEL = argv.verbose ? Number(argv.verbose) : defaultVerbosity
+
+        getos.default().then(distro => {
+          process.distro = distro
+          require('./nlu-server').default(argv)
         })
       }
     )

@@ -116,7 +116,12 @@ class FlowBuilder extends Component<Props, State> {
     if (!prevProps.errorSavingFlows && this.props.errorSavingFlows) {
       const { status, data } = this.props.errorSavingFlows
       const message = status === 403 ? 'studio.flow.unauthUpdate' : 'studio.flow.errorWhileSaving'
-      toast.failure(message, data, { timeout: 'long', delayed: true, onDismiss: this.props.clearErrorSaveFlows })
+      toast.failure(message, data, {
+        timeout: 'long',
+        delayed: true,
+        onDismiss: this.props.clearErrorSaveFlows,
+        key: 'errorSavingFlows'
+      })
     }
 
     const flowsHaveChanged = !_.isEqual(prevProps.flowsByName, this.props.flowsByName)
