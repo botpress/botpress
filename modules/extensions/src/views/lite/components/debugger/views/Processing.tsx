@@ -55,12 +55,14 @@ export const Processing: FC<{ processing: { [activity: string]: sdk.IO.Processin
 
     return (
       <Fragment>
-        <button className={style.itemButton} onClick={() => setExpanded({ ...expanded, [key]: !isExpanded })}>
-          <Icon className={style.itemButtonIcon} icon={isExpanded ? 'chevron-down' : 'chevron-right'} iconSize={10} />
-          {hasError && <Icon className={style.error} icon="error" iconSize={10} />}
-          {hasLog && <Icon className={style.info} icon="info-sign" iconSize={10} />}
-          <span className={cx({ [style.error]: hasError })}>{item.name}</span>
-        </button>
+        <ToolTip content={lang.tr('module.extensions.processing.executedIn', { n: item.execTime || 0 })}>
+          <button className={style.itemButton} onClick={() => setExpanded({ ...expanded, [key]: !isExpanded })}>
+            <Icon className={style.itemButtonIcon} icon={isExpanded ? 'chevron-down' : 'chevron-right'} iconSize={10} />
+            {hasError && <Icon className={style.error} icon="error" iconSize={10} />}
+            {hasLog && <Icon className={style.info} icon="info-sign" iconSize={10} />}
+            <span className={cx({ [style.error]: hasError })}>{item.name}</span>
+          </button>
+        </ToolTip>
         {isExpanded && (
           <span className={style.expanded}>
             {hasLog && (
