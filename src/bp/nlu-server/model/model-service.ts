@@ -6,10 +6,21 @@ import ModelRepository from './model-repo'
 
 export default class ModelService {
   private _modelRepo: ModelRepository
+
+  /**
+   * Acording to wikipedia (https://en.wikipedia.org/wiki/UTF-8),
+   * UTF-8 characters can have a size varying from 1 to 4 bytes.
+   * We want to allow about ~500Mb of models in Memory.
+   * Assuming each character has an average size of 2 bytes,
+   * the total number of characters allowed is 250M or 250,000,000 chars.
+   * - FL
+   *
+   * TODO: this size should maybe be settable by CLI.
+   */
   private _modelCache = new LRUCache<string, NLU.Model>({
-    max: 500000000,
+    max: 250000000,
     length: model => model.data.input.length + model.data.output.length
-  }) // allow about 500 Mb of models in cache
+  })
 
   constructor(modelDir: string) {
     this._modelRepo = new ModelRepository(modelDir)
