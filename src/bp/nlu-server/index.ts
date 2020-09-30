@@ -98,6 +98,18 @@ ${_.repeat(' ', 9)}========================================`)
     logger.info(`limit: ${chalk.redBright('disabled')} (no protection - anyone can query without limitation)`)
   }
 
+  if (options.config) {
+    if (config.ducklingEnabled) {
+      logger.info(`duckling: ${chalk.greenBright('enabled')} url=${config.ducklingURL}`)
+    } else {
+      logger.info(`duckling: ${chalk.redBright('disabled')}`)
+    }
+
+    for (const source of config.languageSources) {
+      logger.info(`lang server: url=${source.endpoint}`)
+    }
+  }
+
   if (options.bodySize) {
     logger.info(`body size: allowing HTTP resquests body of size ${options.bodySize}`)
   }

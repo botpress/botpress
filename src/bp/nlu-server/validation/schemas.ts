@@ -68,6 +68,7 @@ export const TrainInputSchema = Joi.object().keys({
     .optional()
     .default([]),
   password: Joi.string()
+    .allow('')
     .optional()
     .default(''),
   seed: Joi.number().optional()

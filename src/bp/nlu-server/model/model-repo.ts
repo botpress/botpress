@@ -8,7 +8,7 @@ import { Stream } from 'stream'
 import tar from 'tar'
 import tmp from 'tmp'
 
-export default class ModelService {
+export default class ModelRepository {
   constructor(private modelDir: string) {}
 
   public async init() {
@@ -65,10 +65,6 @@ export default class ModelService {
     const fpath = path.join(modelDir, modelFileName)
     await fse.writeFile(fpath, buffer)
     tmpDir.removeCallback()
-  }
-
-  public makeModelId(hash: string, languageCode: string, seed: number) {
-    return `${hash}.${languageCode}.${seed}`
   }
 
   public makeFileName(modelId: string, password: string): string {

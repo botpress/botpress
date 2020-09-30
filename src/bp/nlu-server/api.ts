@@ -11,7 +11,7 @@ import { authMiddleware, handleErrorLogging, handleUnexpectedError } from '../ht
 import Logger from '../simple-logger'
 
 import makeLoggerWrapper from './logger-wrapper'
-import ModelService from './model-service'
+import ModelService from './model/model-service'
 import TrainService from './train-service'
 import TrainSessionService from './train-session-service'
 import { mapTrainInput } from './utils'
@@ -92,11 +92,10 @@ export default async function(options: APIOptions, nluVersion: string) {
 
       const pickedSeed = seed ?? Math.round(Math.random() * 10000)
       const modelId = modelService.makeModelId(modelHash, input.language, pickedSeed)
-      const modelFileName = modelService.makeFileName(modelId, password)
 
       // return the modelId as fast as possible
       // tslint:disable-next-line: no-floating-promises
-      trainService.train(modelFileName, intents, entities, language, pickedSeed)
+      trainService.train(modelId, password, intents, entities, language, pickedSeed)
 
       return res.send({ success: true, modelId })
     } catch (err) {
@@ -108,10 +107,9 @@ export default async function(options: APIOptions, nluVersion: string) {
     try {
       const { modelId } = req.params
       const { password } = req.query
-      const modelFileName = modelService.makeFileName(modelId, password ?? '')
-      let session = trainSessionService.getTrainingSession(modelFileName)
+      let session = trainSessionService.getTrainingSession(modelId, password)
       if (!session) {
-        const model = await modelService.getModel(modelFileName)
+        const model = await modelService.getModel(modelId, password ?? '')
 
         if (!model) {
           return res
@@ -136,12 +134,13 @@ export default async function(options: APIOptions, nluVersion: string) {
   router.post('/train/:modelId/cancel', async (req, res) => {
     try {
       const { modelId } = req.params
-      const { password } = req.body
-      const modelFileName = modelService.makeFileName(modelId, password ?? '')
-      const session = trainSessionService.getTrainingSession(modelFileName)
+      let { password } = req.body
+      password = password ?? ''
+
+      const session = trainSessionService.getTrainingSession(modelId, password)
 
       if (session?.status === 'training') {
-        await engine.cancelTraining(modelFileName)
+        await engine.cancelTraining(session.key)
         return res.send({ success: true })
       }
 
@@ -155,8 +154,8 @@ export default async function(options: APIOptions, nluVersion: string) {
     try {
       const { modelId } = req.params
       const { sentence, password } = req.body
-      const modelFileName = modelService.makeFileName(modelId, password ?? '')
-      const model = await modelService.getModel(modelFileName)
+
+      const model = await modelService.getModel(modelId, password)
 
       if (model) {
         await engine.loadModel(model)
