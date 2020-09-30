@@ -1,4 +1,3 @@
-import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
 import { FlowVariable, PromptNode } from 'botpress/sdk'
 import {
@@ -6,10 +5,11 @@ import {
   Dropdown,
   FormFields,
   lang,
+  MainContent,
   MoreOptions,
   MoreOptionsItems,
-  RightSidebar,
-  sharedStyle
+  sharedStyle,
+  Tabs
 } from 'botpress/shared'
 import cx from 'classnames'
 import { Prompts, Variables } from 'common/typings'
@@ -100,12 +100,14 @@ const PromptForm: FC<Props> = ({
   const variableSubType = selectedOption?.value?.subType
 
   return (
-    <RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={!isConfirming} close={close}>
+    <MainContent.RightSidebar
+      className={sharedStyle.wrapper}
+      canOutsideClickClose={!isConfirming}
+      close={() => close()}
+    >
       <Fragment key={`${promptType.current}-${contentLang}-${customKey}`}>
         <div className={sharedStyle.formHeader}>
-          <Tabs id="contentFormTabs">
-            <Tab id="content" title={lang.tr('studio.flow.nodeType.prompt')} />
-          </Tabs>
+          <Tabs tabs={[{ id: 'content', title: lang.tr('studio.flow.nodeType.prompt') }]} />
           <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
         </div>
         <div>
@@ -157,7 +159,7 @@ const PromptForm: FC<Props> = ({
           </div>
         )}
       </Fragment>
-    </RightSidebar>
+    </MainContent.RightSidebar>
   )
 }
 

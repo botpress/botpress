@@ -1,7 +1,6 @@
-import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
 import sdk from 'botpress/sdk'
-import { Contents, lang, MoreOptions, MoreOptionsItems, RightSidebar, sharedStyle } from 'botpress/shared'
+import { Contents, lang, MainContent, MoreOptions, MoreOptionsItems, sharedStyle, Tabs } from 'botpress/shared'
 import cx from 'classnames'
 import { Variables } from 'common/typings'
 import _ from 'lodash'
@@ -90,12 +89,10 @@ const ComplexForm: FC<Props> = ({
     .filter(x => ['enumeration', 'pattern'].includes(x.type))
     .map(({ label, subType }) => ({ label, value: subType }))
   return (
-    <RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={true} close={close}>
+    <MainContent.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={true} close={() => close()}>
       <Fragment key={customKey}>
         <div className={cx(sharedStyle.formHeader, sharedStyle.noSelect)}>
-          <Tabs id="contentFormTabs">
-            <Tab id="content" title={lang.tr('complex')} />
-          </Tabs>
+          <Tabs tabs={[{ id: 'content', title: lang.tr('complex') }]} />
           <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
         </div>
 
@@ -132,7 +129,7 @@ const ComplexForm: FC<Props> = ({
           onUpdate={convertFromSelect}
         />
       </Fragment>
-    </RightSidebar>
+    </MainContent.RightSidebar>
   )
 }
 

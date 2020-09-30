@@ -20,13 +20,15 @@ interface CssExports {
   'infoBox': string;
   'inspector': string;
   'inspectorContainer': string;
+  'inspectorSpacing': string;
   'itemButton': string;
+  'itemButtonIcon': string;
+  'noMargin': string;
   'notFound': string;
   'percentBar': string;
   'processingItem': string;
+  'processingItemName': string;
   'processingSection': string;
-  'section': string;
-  'sectionTitle': string;
   'splash': string;
   'stacktrace': string;
   'subSection': string;

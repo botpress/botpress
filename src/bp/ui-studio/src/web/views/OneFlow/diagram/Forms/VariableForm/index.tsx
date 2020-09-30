@@ -1,7 +1,15 @@
-import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
 import { FormData } from 'botpress/sdk'
-import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar, sharedStyle } from 'botpress/shared'
+import {
+  Contents,
+  Dropdown,
+  lang,
+  MainContent,
+  MoreOptions,
+  MoreOptionsItems,
+  sharedStyle,
+  Tabs
+} from 'botpress/shared'
 import cx from 'classnames'
 import { FlowView, Variables } from 'common/typings'
 import _ from 'lodash'
@@ -12,6 +20,7 @@ interface Props {
   variables: Variables
   defaultLang: string
   contentLang: string
+  customKey?: number
   close: () => void
   onUpdate: (data: any) => void
   formData: FormData
@@ -26,7 +35,8 @@ const VariableForm: FC<Props> = ({
   formData,
   onUpdate,
   deleteVariable,
-  currentFlow
+  currentFlow,
+  customKey
 }) => {
   const getVisibility = () => {
     if (formData?.params?.isInput) {
@@ -46,7 +56,7 @@ const VariableForm: FC<Props> = ({
   useEffect(() => {
     variableType.current = formData?.type
     setUniqueKey(_.uniqueId())
-  }, [formData])
+  }, [customKey])
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
@@ -77,12 +87,10 @@ const VariableForm: FC<Props> = ({
   const selectedVisibility = visibilityOptions.find(({ value }) => value === variableVisibility.current)
 
   return (
-    <RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={true} close={close}>
+    <MainContent.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={true} close={() => close()}>
       <Fragment key={`${variableType.current}-${uniqueKey}`}>
         <div className={sharedStyle.formHeader}>
-          <Tabs id="contentFormTabs">
-            <Tab id="content" title={lang.tr('variable')} />
-          </Tabs>
+          <Tabs tabs={[{ id: 'content', title: lang.tr('variable') }]} />
           <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
         </div>
         {currentFlow.type === 'reusable' && (
@@ -144,7 +152,7 @@ const VariableForm: FC<Props> = ({
           />
         )}
       </Fragment>
-    </RightSidebar>
+    </MainContent.RightSidebar>
   )
 }
 

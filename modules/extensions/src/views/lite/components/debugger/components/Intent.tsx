@@ -1,4 +1,4 @@
-import { Intent as BpIntent, Tag } from '@blueprintjs/core'
+import { parseFlowName } from 'common/flow'
 import React, { Fragment } from 'react'
 
 import style from '../style.scss'
@@ -7,7 +7,7 @@ import { formatConfidence } from '../utils'
 const QNA_IDENTIFIER = '__qna__'
 
 export const Intent = (props: { topicName: string; name: string; confidence?: number; elected?: boolean }) => {
-  const { topicName, name, confidence, elected } = props
+  const { topicName, name, confidence } = props
   const isQnA = isQnaItem(name)
 
   const displayName = isQnA ? formatQnaName(name) : name
@@ -15,7 +15,7 @@ export const Intent = (props: { topicName: string; name: string; confidence?: nu
   return (
     <Fragment>
       <a onClick={navigateToIntentDefinition(topicName, name, isQnA)}>{displayName}</a>
-      {confidence && <span className={style.confidence}>{formatConfidence(confidence)}%</span>}
+      {confidence && <span className={style.confidence}>{formatConfidence(confidence)}</span>}
     </Fragment>
   )
 }
@@ -34,7 +34,11 @@ const navigateToIntentDefinition = (topicName: string, intent: string, isQna: bo
   if (isQna) {
     url = `/oneflow/${topicName}/qna?id=${intent}`
   } else {
-    url = intent === 'none' ? '/modules/nlu' : `/modules/nlu?type=intent&id=${intent}` // TODO point to studio in intent (trigger)
+    const nodeIndex = intent.indexOf('/trigger-')
+    const path = intent.substring(0, nodeIndex)
+    const nodeId = intent.substring(nodeIndex + 1).split('/')
+
+    url = `/oneflow/${path}?highlightedNode=${nodeId?.[0]}`
   }
   window.parent.postMessage({ action: 'navigate-url', payload: url }, '*')
 }

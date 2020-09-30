@@ -13,7 +13,7 @@ import { toggleBottomPanel } from '~/actions'
 import { downloadBlob } from '~/util'
 import EventBus from '~/util/EventBus'
 
-import style from './BottomPanel.scss'
+import style from './style.scss'
 
 const INITIAL_LOGS_LIMIT = 200
 const MAX_LOGS_LIMIT = 500

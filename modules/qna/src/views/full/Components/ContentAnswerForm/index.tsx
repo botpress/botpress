@@ -1,8 +1,15 @@
 // TODO refactor to use the same form as say node
-
-import { Tab, Tabs } from '@blueprintjs/core'
 import { BotEvent, FormData } from 'botpress/sdk'
-import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar, sharedStyle } from 'botpress/shared'
+import {
+  Contents,
+  Dropdown,
+  lang,
+  MainContent,
+  MoreOptions,
+  MoreOptionsItems,
+  sharedStyle,
+  Tabs
+} from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
@@ -92,12 +99,10 @@ const ContentAnswerForm: FC<Props> = ({
   const contentFields = contentTypesFields?.[contentType.current]
 
   return (
-    <RightSidebar className={sharedStyle.wrapper} canOutsideClickClose close={() => close(editingContent)}>
+    <MainContent.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose close={() => close(editingContent)}>
       <Fragment key={`${contentType.current}-${editingContent}`}>
         <div className={sharedStyle.formHeader}>
-          <Tabs id="contentFormTabs">
-            <Tab id="content" title="Content" />
-          </Tabs>
+          <Tabs tabs={[{ id: 'content', title: lang.tr('Content') }]} />
           <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
         </div>
         <div className={cx(sharedStyle.fieldWrapper, sharedStyle.typeField)}>
@@ -129,7 +134,7 @@ const ContentAnswerForm: FC<Props> = ({
           />
         )}
       </Fragment>
-    </RightSidebar>
+    </MainContent.RightSidebar>
   )
 }
 

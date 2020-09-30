@@ -1,7 +1,8 @@
 import { IO, NLU } from 'botpress/sdk'
 import _ from 'lodash'
-import React, { Fragment } from 'react'
+import React from 'react'
 
+import ContentSection from '../../../../../../../../src/bp/ui-shared-lite/ContentSection'
 import lang from '../../../../lang'
 import style from '../style.scss'
 import { formatConfidence } from '../utils'
@@ -21,8 +22,7 @@ const Predictions = (props: Props) => {
   }
 
   return (
-    <div className={style.section}>
-      <div className={style.sectionTitle}>{lang.tr('module.extensions.topPredictions')}</div>
+    <ContentSection title={lang.tr('module.extensions.topPredictions')}>
       {Object.keys(predictions)
         .filter(x => !x.startsWith('explicit'))
         .map((topicName, index) => {
@@ -46,7 +46,7 @@ const Predictions = (props: Props) => {
             )
           }
         })}
-    </div>
+    </ContentSection>
   )
 }
 

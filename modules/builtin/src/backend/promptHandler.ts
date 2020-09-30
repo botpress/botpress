@@ -42,11 +42,11 @@ export const handlePrompt = async (event: sdk.IO.OutgoingEvent, bp: typeof sdk):
       return {
         ...defaultPayload,
         metadata: {
+          ...defaultPayload.metadata,
           __suggestions: [
             { label: lang.tr('module.builtin.yes'), value: 'yes' },
             { label: lang.tr('module.builtin.no'), value: 'no' }
-          ],
-          ...defaultPayload.metadata
+          ]
         }
       }
 

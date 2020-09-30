@@ -55,22 +55,23 @@
       }
     }
   }
+}
 
-  .expandBtn {
-    margin-right: var(--spacing-xx-large);
-    width: 24px;
+.expandBtn {
+  margin-right: var(--spacing-xx-large);
+  width: 24px;
+  height: 24px;
+
+  svg {
+    fill: var(--shark) !important;
+    transition: fill 0.3s;
+  }
+
+  &:hover {
+    background: none;
 
     svg {
-      fill: var(--shark);
-      transition: fill 0.3s;
-    }
-
-    &:hover {
-      background: none;
-
-      svg {
-        fill: var(--ocean);
-      }
+      fill: var(--ocean) !important;
     }
   }
 }
@@ -364,6 +365,12 @@ select:global(.form-control) {
       }
     }
   }
+}
+
+.contextMenuLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .textarea {

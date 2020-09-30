@@ -1,9 +1,10 @@
-import { Icon } from '@blueprintjs/core'
-import { EmptyState, lang } from 'botpress/shared'
+import { Icon, Intent, Menu, MenuItem } from '@blueprintjs/core'
+import { contextMenu, EmptyState, lang, sharedStyle, ShortcutLabel } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment } from 'react'
 import { connect } from 'react-redux'
+import { updateFlow } from '~/actions'
 import { getCurrentFlow, getVariables, RootReducer } from '~/reducers'
 
 import style from './style.scss'
@@ -13,13 +14,41 @@ interface OwnProps {
   editVariable: (variable) => void
 }
 type StateProps = ReturnType<typeof mapStateToProps>
+type DispatchProps = typeof mapDispatchToProps
 
-type Props = StateProps & OwnProps
+type Props = StateProps & OwnProps & DispatchProps
 
-const VariablesList: FC<Props> = ({ variables, activeFormItem, editVariable, currentFlow }) => {
+const VariablesList: FC<Props> = ({ variables, activeFormItem, editVariable, currentFlow, updateFlow }) => {
   const currentFlowVars = variables.currentFlow
   if (!currentFlowVars?.length) {
     return <EmptyState icon={<NoVariableIcon />} text={lang.tr('variable.emptyState')} />
+  }
+
+  const handleContextMenu = (event: React.MouseEvent, variable) => {
+    event.preventDefault()
+
+    contextMenu(
+      event,
+      <Menu>
+        <MenuItem
+          text={
+            <div className={sharedStyle.contextMenuLabel}>
+              {lang.tr('delete')}
+              <ShortcutLabel light keys={['backspace']} />
+            </div>
+          }
+          intent={Intent.DANGER}
+          onClick={e => deleteVariable(variable)}
+        />
+      </Menu>
+    )
+  }
+
+  const deleteVariable = variable => {
+    updateFlow({
+      ...currentFlow,
+      variables: [...variables.currentFlow.filter(v => v.params?.name !== variable.params?.name)]
+    })
   }
 
   const renderTypes = types =>
@@ -34,6 +63,7 @@ const VariablesList: FC<Props> = ({ variables, activeFormItem, editVariable, cur
           <div className={style.variables}>
             {vars.map(item => (
               <button
+                onContextMenu={e => handleContextMenu(e, item)}
                 key={item.params?.name}
                 className={cx(style.button, { [style.active]: activeFormItem?.node?.variable === item })}
                 onClick={() => editVariable(item)}
@@ -112,4 +142,8 @@ const mapStateToProps = (state: RootReducer) => ({
   activeFormItem: state.flows.activeFormItem
 })
 
-export default connect<StateProps, OwnProps>(mapStateToProps)(VariablesList)
+const mapDispatchToProps = {
+  updateFlow
+}
+
+export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(VariablesList)

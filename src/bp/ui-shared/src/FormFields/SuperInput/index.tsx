@@ -4,11 +4,11 @@ import cx from 'classnames'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
 import { Variables } from '~/../../common/typings'
 
+import sharedStyle from '../../../../ui-shared-lite/style.scss'
+import Icons from '../../../../ui-shared-lite/Icons'
 import ToolTip from '../../../../ui-shared-lite/ToolTip'
-import sharedStyle from '../../style.scss'
 import { lang } from '../../translations'
 import { FieldProps } from '../../Contents/Components/typings'
-import Icons from '../../Icons'
 
 import style from './style.scss'
 import { SuperInputProps } from './typings'
@@ -16,6 +16,10 @@ import { convertToString, convertToTags } from './utils'
 import SingleSuperInput from './SingleSuperInput'
 
 type Props = FieldProps & SuperInputProps
+// Needs to be outside of react so there's a reference to the object.
+// otherwise tagify (which isn't react) only has the initial copy of
+// the variable list and won't update when creating new ones
+let theVariables
 
 export default ({
   canAddElements = true,
@@ -64,6 +68,7 @@ export default ({
 
   useEffect(() => {
     setLocalVariables(filterVariables(variables))
+    theVariables = filterVariables(variables)
   }, [variables])
 
   useEffect(() => {
@@ -111,7 +116,7 @@ export default ({
 
       if (prefix && multiple) {
         if (prefix === '$') {
-          tagifyRef.current.settings.whitelist = localVariables
+          tagifyRef.current.settings.whitelist = theVariables
         }
 
         if (prefix === '{{') {
@@ -129,13 +134,19 @@ export default ({
       const prefix = e.detail.data.prefix
 
       if (prefix === '$') {
-        tagifyRef.current.settings.whitelist = localVariables
+        tagifyRef.current.settings.whitelist = theVariables
       }
 
       if (prefix === '{{') {
         // TODO refactor to use the schema format properly and allow to breakdown into an object type search
         tagifyRef.current.settings.whitelist = localEvents
       }
+    }
+  }
+
+  if (isPartOfArray) {
+    tagifyCallbacks['paste'] = e => {
+      e.preventDefault()
     }
   }
 
@@ -322,9 +333,9 @@ export default ({
                     tabIndex={-1}
                     className={cx('tagify__tag', { ['tagify--invalid']: isInvalid })}
                   >
-                    <span>
+                    <span className="tagify__tag-text">
                       {icon}
-                      <span className="tagify__tag-text">{value}</span>
+                      {value}
                       {suffix}
                     </span>
                   </span>

@@ -4,7 +4,7 @@ import _isEqual from 'lodash/isEqual'
 import _uniqueId from 'lodash/uniqueId'
 import React, { FC, useEffect, useRef, useState } from 'react'
 
-import sharedStyle from '../../style.scss'
+import sharedStyle from '../../../../ui-shared-lite/style.scss'
 import { lang } from '../../translations'
 import AddButton from '../../Contents/Components/Fields/AddButton'
 import SuperInput from '../SuperInput'
@@ -61,19 +61,29 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
 
   useEffect(() => {
     const keydownEvent = {}
+    const pasteEvent = {}
     const blurEvent = {}
     // If we don't recreate this everytime the refs or items change, the updates will have outdated states
     Object.keys(elRefs).forEach((key, index) => {
       keydownEvent[key] = addListenerWithArgs(elRefs[key].DOM.input, 'keydown', onKeyDown, index)
+      pasteEvent[key] = addListenerWithArgs(elRefs[key].DOM.input, 'paste', onPaste, index)
       blurEvent[key] = addListenerWithArgs(elRefs[key].DOM.input, 'blur', updateItems, index)
     })
 
     return () =>
       Object.keys(elRefs).forEach(key => {
         elRefs[key].DOM.input.removeEventListener('keydown', keydownEvent[key])
+        elRefs[key].DOM.input.removeEventListener('paste', pasteEvent[key])
         elRefs[key].DOM.input.removeEventListener('blur', blurEvent[key])
       })
-  }, [elRefs, localItems])
+  }, [elRefs, localItems, variables?.currentFlow?.length])
+
+  const onPaste = (e, index) => {
+    const clipboardData = e.clipboardData
+    const pastedData = clipboardData.getData('Text')
+
+    addLines(pastedData.split(/\r?\n/))
+  }
 
   const addItem = (): void => {
     focusedElement.current = localItems.length
@@ -114,9 +124,7 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
       if (localItems[index] !== undefined) {
         localItems[index] = convertToString(elRefs[index]?.DOM.originalInput.value)
         setLocalItems([...localItems])
-        if (!_isEqual(localItems, refValue)) {
-          onChange([...localItems])
-        }
+        onChange([...localItems])
       }
     } else {
       skipBlur.current = false
@@ -124,7 +132,11 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
   }
 
   const onKeyDown = (e, index): void => {
-    if (e.key === 'Enter' && !(e.ctrlKey || e.metaKey || e.shiftKey)) {
+    if (
+      e.key === 'Enter' &&
+      !(e.ctrlKey || e.metaKey || e.shiftKey) &&
+      elRefs[index]?.DOM?.input?.parentElement?.getAttribute('aria-expanded') !== 'true'
+    ) {
       e.preventDefault()
       addItem()
     }
@@ -136,6 +148,17 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
 
       deleteItem(index)
     }
+  }
+
+  const addLines = items => {
+    const newItems = [...localItems.filter(Boolean), ...items]
+    itemIds.current = [...newItems.map(() => _uniqueId())]
+
+    focusedElement.current = newItems.length - 1
+
+    skipBlur.current = true
+    setLocalItems([...newItems])
+    onChange([...newItems])
   }
 
   const missingTranslation = !!refValue?.filter(Boolean).length && !localItems.filter(Boolean).length
@@ -157,6 +180,7 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
               className={cx(sharedStyle.textarea, { ['has-error']: missingTranslation })}
               canPickEvents={canPickEvents}
               canPickVariables={canPickVariables}
+              addLines={addLines}
               isPartOfArray
               multiple
               variables={variables}

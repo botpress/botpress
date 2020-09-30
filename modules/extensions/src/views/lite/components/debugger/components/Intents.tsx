@@ -1,6 +1,7 @@
 import _ from 'lodash'
-import React, { Fragment } from 'react'
+import React from 'react'
 
+import ContentSection from '../../../../../../../../src/bp/ui-shared-lite/ContentSection'
 import lang from '../../../../lang'
 import style from '../style.scss'
 import { formatConfidence } from '../utils'
@@ -35,14 +36,13 @@ export const Intents = (props: Props) => {
   }, {})
 
   return (
-    <div className={style.section}>
-      <div className={style.sectionTitle}>{lang.tr('module.extensions.topIntents')}</div>
+    <ContentSection title={lang.tr('module.extensions.topIntents')}>
       {Object.keys(intentsByContext).map((key, index) => {
         const { name, confidence, intents } = intentsByContext[key]
         return (
           <div className={style.subSection} key={index}>
             <p>
-              {name} {formatConfidence(confidence)}%
+              {name} {formatConfidence(confidence)}
             </p>
             <ul>
               {_.take(intents, 4).map(i => {
@@ -56,6 +56,6 @@ export const Intents = (props: Props) => {
           </div>
         )
       })}
-    </div>
+    </ContentSection>
   )
 }

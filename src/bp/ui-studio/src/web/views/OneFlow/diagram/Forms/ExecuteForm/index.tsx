@@ -1,19 +1,20 @@
-import { Button, Tab, Tabs, Tooltip } from '@blueprintjs/core'
+import { Button, Tooltip } from '@blueprintjs/core'
 import { BotEvent, ExecuteNode, FlowNode, FlowVariable } from 'botpress/sdk'
 import {
   Icons,
   lang,
+  MainContent,
   MoreOptions,
   MoreOptionsItems,
   MultiLevelDropdown,
-  RightSidebar,
-  sharedStyle
+  sharedStyle,
+  Tabs
 } from 'botpress/shared'
 import cx from 'classnames'
 import { CUSTOM_ACTION } from 'common/action'
 import { LocalActionDefinition, Variables } from 'common/typings'
 import _ from 'lodash'
-import React, { FC, Fragment, useCallback, useEffect, useRef, useState } from 'react'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 import * as portals from 'react-reverse-portal'
 
 import style from './style.scss'
@@ -36,6 +37,26 @@ interface Props {
 
 const newAction = { label: 'Code New Action', value: CUSTOM_ACTION }
 
+const executeReducer = (state, action) => {
+  if (action.type === 'setup') {
+    return {
+      ...state,
+      ...action.data
+    }
+  } else if (action.type === 'updateArgs') {
+    return {
+      ...state,
+      args: action.data
+    }
+  } else if (action.type === 'changeAction') {
+    return {
+      ...state,
+      selectedAction: action.data,
+      code: ''
+    }
+  }
+}
+
 const ExecuteForm: FC<Props> = ({
   node,
   customKey,
@@ -55,44 +76,44 @@ const ExecuteForm: FC<Props> = ({
   const [maximized, setMaximized] = useState(false)
   const [isCodeEditor, setIsCodeEditor] = useState(formData?.actionName === newAction.value)
   const [forceUpdate, setForceUpdate] = useState(false)
-  const selectedAction = useRef(formData?.actionName)
-  const originalCode = useRef(formData?.code ?? '')
-  const flowArgs = useRef(undefined)
 
-  const updateCode = useCallback(
-    _.debounce((value: string) => onUpdate({ code: value }), 1000),
-    []
-  )
+  const [state, dispatch] = React.useReducer(executeReducer, {
+    selectedAction: '',
+    code: '',
+    args: undefined,
+    customKey: ''
+  })
 
   useEffect(() => {
-    selectedAction.current = formData?.actionName
+    dispatch({
+      type: 'setup',
+      data: {
+        selectedAction: formData?.actionName,
+        code: formData?.code ?? '',
+        args: variables.currentFlow?.map(x => ({ name: x.params.name, type: `BP.${x.type}.Variable` })),
+        customKey
+      }
+    })
 
-    if (selectedAction.current === newAction.value) {
-      updateCode.cancel()
-
-      flowArgs.current = variables.currentFlow?.map(x => ({ name: x.params.name, type: `BP.${x.type}.Variable` }))
-      originalCode.current = formData?.code ?? ''
-    }
-
-    setMaximized(isCodeEditor)
     setForceUpdate(!forceUpdate)
   }, [customKey])
 
   useEffect(() => {
-    setMaximized(isCodeEditor)
+    if (!isCodeEditor) {
+      setMaximized(false)
+    }
   }, [isCodeEditor])
 
   useEffect(() => {
-    flowArgs.current = variables.currentFlow?.map(x => ({ name: x.params.name, type: `BP.${x.type}.Variable` }))
+    dispatch({
+      type: 'updateArgs',
+      data: variables.currentFlow?.map(x => ({ name: x.params.name, type: `BP.${x.type}.Variable` }))
+    })
   }, [variables.currentFlow])
 
   useEffect(() => {
-    setIsCodeEditor(formData?.actionName === newAction.value)
-  }, [formData?.actionName])
-
-  useEffect(() => {
-    document.documentElement.style.setProperty('--right-sidebar-width', maximized ? '580px' : '240px')
-  }, [maximized])
+    setIsCodeEditor(state.selectedAction === newAction.value)
+  }, [state.selectedAction])
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
@@ -107,8 +128,8 @@ const ExecuteForm: FC<Props> = ({
   }
 
   const onActionChanged = (actionName: string) => {
-    selectedAction.current = actionName
-    onUpdate({ actionName })
+    dispatch({ type: 'changeAction', data: actionName })
+    onUpdate({ actionName, code: '' })
 
     if (actionName === newAction.value && !maximized) {
       setMaximized(true)
@@ -121,7 +142,7 @@ const ExecuteForm: FC<Props> = ({
 
   const selectedOption = onlyLegacy
     .map(x => ({ label: x.title, value: x.name }))
-    .find(a => a.value === selectedAction.current)
+    .find(a => a.value === state.selectedAction)
 
   const multiLevelActions = onlyLegacy.reduce((acc, action) => {
     const category = acc.find(c => c.name === action.category) || { name: action.category, items: [] }
@@ -147,32 +168,27 @@ const ExecuteForm: FC<Props> = ({
   }
 
   return (
-    <RightSidebar
-      className={sharedStyle.wrapper}
+    <MainContent.RightSidebar
+      className={cx(sharedStyle.wrapper, style.formWrap, { [style.maximized]: maximized })}
       canOutsideClickClose={canOutsideClickClose}
-      close={() => {
-        if (isCodeEditor) {
-          updateCode.flush()
-        }
-        close()
-      }}
+      close={() => close()}
     >
       <Fragment key={`${node?.id}`}>
         <div className={sharedStyle.formHeader}>
-          <Tabs id="contentFormTabs">
-            <Tab id="content" title={lang.tr('studio.flow.nodeType.execute')} />
-          </Tabs>
+          <Tabs tabs={[{ id: 'content', title: lang.tr('studio.flow.nodeType.execute') }]} />
           <div>
             <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
-            <Tooltip content={lang.tr(maximized ? 'minimizeInspector' : 'maximizeInspector')}>
-              <Button
-                className={sharedStyle.expandBtn}
-                small
-                minimal
-                icon={maximized ? <Icons.Minimize /> : 'fullscreen'}
-                onClick={toggleSize}
-              />
-            </Tooltip>
+            {isCodeEditor && (
+              <Tooltip content={lang.tr(maximized ? 'minimizeInspector' : 'maximizeInspector')}>
+                <Button
+                  className={sharedStyle.expandBtn}
+                  small
+                  minimal
+                  icon={maximized ? <Icons.Minimize /> : 'fullscreen'}
+                  onClick={toggleSize}
+                />
+              </Tooltip>
+            )}
           </div>
         </div>
         <div
@@ -186,7 +202,7 @@ const ExecuteForm: FC<Props> = ({
             addBtn={{
               text: lang.tr('codeNewAction'),
               onClick: handleCodeNewAction,
-              selected: selectedAction.current === newAction.value
+              selected: state.selectedAction === newAction.value
             }}
             filterable
             className={sharedStyle.formSelect}
@@ -208,19 +224,20 @@ const ExecuteForm: FC<Props> = ({
           <portals.OutPortal
             node={editorPortal}
             displayed={isCodeEditor}
-            onChange={updateCode}
-            code={originalCode.current}
-            customKey={customKey}
-            args={flowArgs.current}
+            customKey={state.customKey}
+            onChange={code => onUpdate({ code })}
+            code={state.code}
+            args={state.args}
+            hints={events}
             maximized={maximized}
           />
         </div>
 
         {selectedOption !== undefined && !isCodeEditor && (
-          <ConfigAction {...commonProps} actions={actions} actionName={selectedAction.current} />
+          <ConfigAction {...commonProps} actions={actions} actionName={state.selectedAction} />
         )}
       </Fragment>
-    </RightSidebar>
+    </MainContent.RightSidebar>
   )
 }
 

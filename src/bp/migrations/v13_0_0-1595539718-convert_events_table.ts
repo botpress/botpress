@@ -69,6 +69,7 @@ const migration: Migration = {
           table.boolean('success').nullable()
           table.json('event').notNullable()
           table.timestamp('createdOn').notNullable()
+          table.index('createdOn', 'ets_idx')
         })
 
         const rows = await db<sdk.IO.StoredEvent>(TABLE_NAME)

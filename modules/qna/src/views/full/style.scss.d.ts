@@ -2,7 +2,7 @@
 // Please do not change this file!
 interface CssExports {
   'addBtnSpacing': string;
-  'checkboxWrapper': string;
+  'checkboxSpacing': string;
   'collapsibleWrapper': string;
   'content': string;
   'contentAnswer': string;

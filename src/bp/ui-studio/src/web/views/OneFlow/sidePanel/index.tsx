@@ -1,6 +1,6 @@
-import { Alignment, Button, Navbar, NavbarGroup, Tab, Tabs, Tooltip } from '@blueprintjs/core'
+import { Alignment, Button, Navbar, NavbarGroup, Tooltip } from '@blueprintjs/core'
 import axios from 'axios'
-import { lang } from 'botpress/shared'
+import { lang, Tabs } from 'botpress/shared'
 import { nextFlowName, nextTopicName } from 'common/flow'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
@@ -99,6 +99,17 @@ const SidePanelContent: FC<Props> = props => {
     storage.set(SIDEBAR_TAB_KEY, tabId)
   }
 
+  const tabs = [
+    {
+      id: 'topics',
+      title: lang.tr('topics')
+    },
+    {
+      id: 'library',
+      title: lang.tr('library')
+    }
+  ]
+
   return (
     <div className={style.sidePanel}>
       {props.showFlowNodeProps ? (
@@ -106,12 +117,7 @@ const SidePanelContent: FC<Props> = props => {
       ) : (
         <React.Fragment>
           <Navbar className={style.topicsNavbar}>
-            <NavbarGroup>
-              <Tabs onChange={onTabChanged} selectedTabId={currentTab}>
-                <Tab id="topics" title={lang.tr('topics')} />
-                <Tab id="library" title={lang.tr('library')} />
-              </Tabs>
-            </NavbarGroup>
+            <Tabs currentTab={currentTab} tabChange={onTabChanged} tabs={tabs} />
             {props.permissions.includes('create') && currentTab === 'topics' && (
               <NavbarGroup align={Alignment.RIGHT}>
                 {canAdd && (

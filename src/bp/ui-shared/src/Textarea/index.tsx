@@ -1,7 +1,7 @@
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
-import sharedStyle from '../style.scss'
+import sharedStyle from '../../../ui-shared-lite/style.scss'
 import { lang } from '../translations'
 
 import style from './style.scss'
@@ -15,6 +15,7 @@ const Textarea: FC<TextareaProps> = ({
   className,
   value,
   placeholder,
+  onPaste,
   onBlur,
   onKeyDown
 }) => {
@@ -62,6 +63,7 @@ const Textarea: FC<TextareaProps> = ({
   return (
     <Fragment>
       <textarea
+        onPaste={onPaste}
         style={{ height: height.current + 'px' }}
         ref={inputRef}
         className={cx(style.textarea, className)}

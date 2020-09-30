@@ -1,12 +1,19 @@
-import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
 import { BotEvent, FlowNode, FlowVariable, FormData, NodeTransition } from 'botpress/sdk'
-import { Contents, Dropdown, lang, MoreOptions, MoreOptionsItems, RightSidebar, sharedStyle } from 'botpress/shared'
+import {
+  Contents,
+  Dropdown,
+  lang,
+  MainContent,
+  MoreOptions,
+  MoreOptionsItems,
+  sharedStyle,
+  Tabs
+} from 'botpress/shared'
 import cx from 'classnames'
 import { Variables } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
-import { defaultTransition } from '~/views/FlowBuilder/diagram/manager'
 
 import TextField from './TextField'
 
@@ -141,16 +148,14 @@ const ContentForm: FC<Props> = ({
   }
 
   return (
-    <RightSidebar
+    <MainContent.RightSidebar
       className={sharedStyle.wrapper}
       canOutsideClickClose={canOutsideClickClose}
       close={() => close(editingContent)}
     >
       <Fragment key={`${contentType.current}-${contentLang}-${customKey || editingContent}`}>
         <div className={sharedStyle.formHeader}>
-          <Tabs id="contentFormTabs">
-            <Tab id="content" title={lang.tr('studio.flow.nodeType.say')} />
-          </Tabs>
+          <Tabs tabs={[{ id: 'content', title: lang.tr('studio.flow.nodeType.say') }]} />
           <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
         </div>
         <div className={cx(sharedStyle.fieldWrapper, sharedStyle.typeField)}>
@@ -206,7 +211,7 @@ const ContentForm: FC<Props> = ({
           />
         )}
       </Fragment>
-    </RightSidebar>
+    </MainContent.RightSidebar>
   )
 }
 

@@ -1,12 +1,9 @@
-import { Tab, Tabs } from '@blueprintjs/core'
 import axios from 'axios'
 import sdk from 'botpress/sdk'
-import { Contents, lang, MoreOptions, MoreOptionsItems, RightSidebar, sharedStyle } from 'botpress/shared'
+import { Contents, lang, MainContent, MoreOptions, MoreOptionsItems, sharedStyle, Tabs } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
-
-import { getEntityId } from '.'
 
 interface Props {
   customKey: string
@@ -87,12 +84,10 @@ const PatternForm: FC<Props> = ({
   const invalidFields = !patternValid ? [{ field: 'pattern', message: lang.tr('studio.library.patternInvalid') }] : []
 
   return (
-    <RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={true} close={close}>
+    <MainContent.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={true} close={() => close()}>
       <Fragment key={customKey}>
         <div className={cx(sharedStyle.formHeader, sharedStyle.noSelect)}>
-          <Tabs id="contentFormTabs">
-            <Tab id="content" title={lang.tr('pattern')} />
-          </Tabs>
+          <Tabs tabs={[{ id: 'content', title: lang.tr('pattern') }]} />
           <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
         </div>
 
@@ -143,7 +138,7 @@ const PatternForm: FC<Props> = ({
           onUpdate={data => updateFormItem(data)}
         />
       </Fragment>
-    </RightSidebar>
+    </MainContent.RightSidebar>
   )
 }
 

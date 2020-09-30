@@ -8,7 +8,6 @@ interface CssExports {
   'contentImgWrapper': string;
   'contentWrapper': string;
   'contentsWrapper': string;
-  'contextMenuLabel': string;
   'danger': string;
   'debugInfo': string;
   'error': string;

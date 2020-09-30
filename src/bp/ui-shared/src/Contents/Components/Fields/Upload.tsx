@@ -1,8 +1,8 @@
 import { Button, FileInput, Icon, Intent } from '@blueprintjs/core'
 import React, { FC, Fragment, useReducer } from 'react'
 
+import sharedStyle from '../../../../../ui-shared-lite/style.scss'
 import ToolTip from '../../../../../ui-shared-lite/ToolTip'
-import sharedStyle from '../../../style.scss'
 import { lang } from '../../../translations'
 import style from '../style.scss'
 import { FieldProps } from '../typings'

@@ -120,7 +120,21 @@ const Forms: FC<Props> = ({
 
   const updatePromptNode = args => {
     switchFlowNode(node.id)
-    updateFlowNode({ prompt: { ...args } })
+
+    const cancellableTransition = [
+      {
+        caption: 'studio.prompt.userCancels',
+        condition: 'thisNode.cancelled === true',
+        node: ''
+      }
+    ]
+    updateFlowNode({
+      prompt: { ...args },
+      next: [
+        ...node.next.filter(x => x.condition !== 'thisNode.cancelled === true'),
+        ...(args.params.cancellable ? cancellableTransition : [])
+      ]
+    })
   }
 
   const deleteNodeContent = () => {
@@ -177,6 +191,7 @@ const Forms: FC<Props> = ({
       ...currentFlow,
       variables: [...vars.slice(0, index), ...vars.slice(index + 1)]
     })
+    setActiveFormItem(null)
   }
 
   const updateSubWorkflow = data => {
@@ -339,6 +354,7 @@ const Forms: FC<Props> = ({
         <VariableForm
           variables={variables}
           contentLang={currentLang}
+          customKey={index}
           defaultLang={defaultLang}
           deleteVariable={deleteVariable}
           formData={currentItem}

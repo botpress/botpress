@@ -8,8 +8,11 @@
   width: 26px;
   height: 24px;
 
-  &:hover .moreBtnDots, &.active .moreBtnDots {
-    &, &:before, &:after {
+  &:hover .moreBtnDots,
+  &.active .moreBtnDots {
+    &,
+    &:before,
+    &:after {
       background: var(--ocean);
     }
   }
@@ -20,7 +23,9 @@
   top: 50%;
   transform: translate(-50%, -50%);
 
-  &, &:before, &:after {
+  &,
+  &:before,
+  &:after {
     background: var(--shark);
     border-radius: 100%;
     display: inline-block;
@@ -29,8 +34,9 @@
     width: 5px;
   }
 
-  &:before, &:after {
-    content: "";
+  &:before,
+  &:after {
+    content: '';
     position: absolute;
     top: 0;
   }
@@ -59,7 +65,7 @@
 
   &:before,
   &:after {
-    content: "";
+    content: '';
     display: inline-block;
     font-size: 0;
     line-height: 1;
@@ -114,10 +120,11 @@
     }
 
     & > span {
-      margin-right: 10px;
+      margin: 0 10px 0 0 !important;
     }
 
-    svg, path {
+    svg,
+    path {
       fill: var(--shark) !important;
     }
 
@@ -128,7 +135,8 @@
         background: var(--hover-lighthouse-30) !important;
       }
 
-      svg, path {
+      svg,
+      path {
         fill: var(--lighthouse) !important;
       }
     }
@@ -143,6 +151,5 @@
         margin: 0 !important;
       }
     }
-
   }
 }

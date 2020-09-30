@@ -188,6 +188,8 @@ export class DialogEngine {
     const nextFlow = this._findFlow(event.botId, `${nextFlowName}.flow.json`)
     const isSubFlow = nextFlow.type === 'reusable'
 
+    event.state.session.workflows = _.omitBy(event.state.session.workflows, x => x.status === 'completed')
+
     // This workflow doesn't already exist, so we add it
     if (!workflow) {
       BOTPRESS_CORE_EVENT('bp_core_workflow_started', {

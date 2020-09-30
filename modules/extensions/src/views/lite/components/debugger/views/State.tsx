@@ -4,8 +4,8 @@ import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 
+import Collapsible from '../../../../../../../../src/bp/ui-shared-lite/Collapsible'
 import lang from '../../../../lang'
-import { Collapsible } from '../components/Collapsible'
 import style from '../style.scss'
 
 import { Inspector } from './Inspector'
@@ -33,14 +33,14 @@ const State: FC<Props> = ({ state, prevState, isExpanded, toggleExpand }) => {
     setViewJSON(newValue)
   }
 
-  const renderContent = () => {
-    if (viewJSON) {
-      return <Inspector data={state} />
-    }
+  const variables = state.session.workflows[state.session.currentWorkflow]?.variables || {}
+  const prevVariables = prevState?.session.workflows[state.session.currentWorkflow]?.variables || {}
+  const variableIds = _.uniq([...Object.keys(variables), ...Object.keys(prevVariables)])
 
-    const variables = state.session.workflows[state.session.currentWorkflow]?.variables || {}
-    const prevVariables = prevState?.session.workflows[state.session.currentWorkflow]?.variables || {}
-    const variableIds = _.uniq([...Object.keys(variables), ...Object.keys(prevVariables)])
+  const renderContent = () => {
+    if (viewJSON || !variableIds.length) {
+      return <Inspector className={cx({ [style.inspectorSpacing]: !variableIds.length })} data={state} />
+    }
 
     return (
       <table className={cx(style.variablesTable, 'bp3-html-table .modifier')}>
@@ -65,18 +65,18 @@ const State: FC<Props> = ({ state, prevState, isExpanded, toggleExpand }) => {
   }
 
   return (
-    <Fragment>
-      <Collapsible
-        opened={isExpanded(STATE_PANEL)}
-        toggleExpand={expanded => toggleExpand(STATE_PANEL, expanded)}
-        name={lang.tr('module.extensions.summary.state')}
-      >
-        {renderContent()}
+    <Collapsible
+      opened={isExpanded(STATE_PANEL)}
+      toggleExpand={expanded => toggleExpand(STATE_PANEL, expanded)}
+      name={lang.tr('module.extensions.summary.state')}
+    >
+      {renderContent()}
+      {!!variableIds.length && (
         <Button minimal className={style.switchViewBtn} icon="eye-open" onClick={toggleView}>
           {viewJSON ? lang.tr('module.extensions.viewAsSummary') : lang.tr('module.extensions.viewAsJson')}
         </Button>
-      </Collapsible>
-    </Fragment>
+      )}
+    </Collapsible>
   )
 }
 
