@@ -6,11 +6,11 @@ import extractVariables from './extractVariables'
 import { TrainInputSchema } from './schemas'
 
 const makeVariableChecker = (enums: Enum[], patterns: Pattern[]) => (variable: Variable) => {
-  const { variableType, name } = variable
+  const { type, name } = variable
 
   const supportedTypes = [...enums.map(e => e.name), ...patterns.map(p => p.name)]
-  if (!supportedTypes.includes(variableType)) {
-    throw new Error(`Variable ${name} references variable type ${variableType}, but it does not exist.`)
+  if (!supportedTypes.includes(type)) {
+    throw new Error(`Variable ${name} references variable type ${type}, but it does not exist.`)
   }
 }
 

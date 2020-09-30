@@ -36,9 +36,9 @@ const TICKET_PATTERN: Pattern = {
   positive_regexes: ['[A-Z]{3}-[0-9]{3}'] // ABC-123
 }
 
-const VARIABLE_CITY_FROM: Variable = { name: 'city-from', variableType: 'city' }
+const VARIABLE_CITY_FROM: Variable = { name: 'city-from', type: 'city' }
 
-const VARIABLE_TICKET_PROBLEM: Variable = { name: 'tick-with-problem', variableType: 'ticket' }
+const VARIABLE_TICKET_PROBLEM: Variable = { name: 'tick-with-problem', type: 'ticket' }
 
 const INTENT_FLY: Intent = {
   name: 'fly',
