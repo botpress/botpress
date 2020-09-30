@@ -30,11 +30,11 @@ const getPositions = (positionClasses, el, tooltip) => {
     left = elLeft
 
     if (yClass !== 'top' && yClass !== 'bottom') {
-      left = elLeft + elWidth + tooltipWidth
+      left = elLeft + elWidth
     }
   }
 
-  let top = elTop + elHeight / 2 - tooltipWidth / 2
+  let top = elTop + elHeight / 2 - tooltipHeight / 2
 
   if (yClass === 'top') {
     top = elTop - tooltipHeight
@@ -176,6 +176,7 @@ const ToolTip: FC<ToolTipProps> = ({ children, content, position = 'top', hoverO
         if (yClass) {
           tooltipRef.current.classList.add(yClass)
         }
+
         tooltipRef.current.style.left = inlineStyle.left
         tooltipRef.current.style.top = inlineStyle.top
         tipRef.current.style.left = tipPos.left

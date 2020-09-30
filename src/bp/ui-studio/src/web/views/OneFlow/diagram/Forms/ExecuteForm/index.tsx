@@ -85,10 +85,6 @@ const ExecuteForm: FC<Props> = ({
   })
 
   useEffect(() => {
-    return () => document.documentElement.style.setProperty('--right-sidebar-width', '240px')
-  }, [])
-
-  useEffect(() => {
     dispatch({
       type: 'setup',
       data: {
@@ -99,12 +95,13 @@ const ExecuteForm: FC<Props> = ({
       }
     })
 
-    setMaximized(isCodeEditor)
     setForceUpdate(!forceUpdate)
   }, [customKey])
 
   useEffect(() => {
-    setMaximized(isCodeEditor)
+    if (!isCodeEditor) {
+      setMaximized(false)
+    }
   }, [isCodeEditor])
 
   useEffect(() => {
@@ -117,11 +114,6 @@ const ExecuteForm: FC<Props> = ({
   useEffect(() => {
     setIsCodeEditor(state.selectedAction === newAction.value)
   }, [state.selectedAction])
-
-  useEffect(() => {
-    // TODO need to be flexible based on screen size
-    document.documentElement.style.setProperty('--right-sidebar-width', maximized ? '820px' : '240px')
-  }, [maximized])
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
@@ -177,7 +169,7 @@ const ExecuteForm: FC<Props> = ({
 
   return (
     <MainContent.RightSidebar
-      className={sharedStyle.wrapper}
+      className={cx(sharedStyle.wrapper, style.formWrap, { [style.maximized]: maximized })}
       canOutsideClickClose={canOutsideClickClose}
       close={() => close()}
     >
@@ -186,15 +178,17 @@ const ExecuteForm: FC<Props> = ({
           <Tabs tabs={[{ id: 'content', title: lang.tr('studio.flow.nodeType.execute') }]} />
           <div>
             <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
-            <Tooltip content={lang.tr(maximized ? 'minimizeInspector' : 'maximizeInspector')}>
-              <Button
-                className={sharedStyle.expandBtn}
-                small
-                minimal
-                icon={maximized ? <Icons.Minimize /> : 'fullscreen'}
-                onClick={toggleSize}
-              />
-            </Tooltip>
+            {isCodeEditor && (
+              <Tooltip content={lang.tr(maximized ? 'minimizeInspector' : 'maximizeInspector')}>
+                <Button
+                  className={sharedStyle.expandBtn}
+                  small
+                  minimal
+                  icon={maximized ? <Icons.Minimize /> : 'fullscreen'}
+                  onClick={toggleSize}
+                />
+              </Tooltip>
+            )}
           </div>
         </div>
         <div
