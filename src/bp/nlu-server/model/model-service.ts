@@ -19,7 +19,8 @@ export default class ModelService {
     return this._modelRepo.init()
   }
 
-  public async getModel(modelFileName: string): Promise<NLU.Model | undefined> {
+  public async getModel(modelId: string, password: string): Promise<NLU.Model | undefined> {
+    const modelFileName = this._modelRepo.makeFileName(modelId, password)
     const cached = this._modelCache.get(modelFileName)
     if (cached) {
       return cached
@@ -33,16 +34,13 @@ export default class ModelService {
     return model
   }
 
-  public async saveModel(model: NLU.Model, modelFileName: string): Promise<void> {
+  public async saveModel(model: NLU.Model, modelId: string, password: string): Promise<void> {
+    const modelFileName = this._modelRepo.makeFileName(modelId, password)
     this._modelCache.set(modelFileName, model)
     return this._modelRepo.saveModel(model, modelFileName)
   }
 
   public makeModelId(hash: string, languageCode: string, seed: number) {
     return `${hash}.${languageCode}.${seed}`
-  }
-
-  public makeFileName(modelId: string, password: string): string {
-    return this._modelRepo.makeFileName(modelId, password)
   }
 }

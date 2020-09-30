@@ -102,6 +102,24 @@ test('validate without pw should set pw as empty string', async () => {
   expect(validated.password).toBe('')
 })
 
+test('validate with empty string pw should be allowed', async () => {
+  // arrange
+  const trainInput: TrainInput = {
+    topics: [FLY_TOPIC],
+    enums: [CITY_ENUM],
+    language: LANG,
+    patterns: [],
+    seed: 42,
+    password: ''
+  }
+
+  // act
+  const validated = await validateInput(trainInput)
+
+  // assert
+  expect(validated.password).toBe('')
+})
+
 test('validate input without enums and patterns should pass', async () => {
   // arrange
   const trainInput: Omit<TrainInput, 'enums' | 'patterns'> = {
