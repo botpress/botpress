@@ -9,12 +9,11 @@ import {
   Radio,
   RadioGroup
 } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { lang, toast } from 'botpress/shared'
 import React, { ChangeEvent, FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import Select from 'react-select'
 import api from '~/api'
-import { toastFailure, toastSuccess } from '~/utils/toaster'
 import { getActiveWorkspace } from '~/Auth'
 
 import { WorkspaceUserInfo } from '../../../../../common/typings'
@@ -88,7 +87,7 @@ const EditStageModal: FC<Props> = props => {
     let newPipeline
 
     if (!pipeline.find(p => p.id === id)) {
-      toastFailure(lang.tr('admin.workspace.bots.edit.couldNotFindPipeline'))
+      toast.failure(lang.tr('admin.workspace.bots.edit.couldNotFindPipeline'))
     } else {
       newPipeline = pipeline.map(p =>
         p.id !== id
@@ -109,10 +108,10 @@ const EditStageModal: FC<Props> = props => {
         .post(`/admin/workspaces/${getActiveWorkspace()}/pipeline`, { updateCustom: true, pipeline: newPipeline })
 
       props.onEditSuccess()
-      toastSuccess(lang.tr('admin.workspace.bots.edit.stageSaved'))
+      toast.success(lang.tr('admin.workspace.bots.edit.stageSaved'))
       closeModal()
     } catch (error) {
-      toastFailure(lang.tr('admin.workspace.bots.edit.errorUpdatingPipeline', { message: error.message }))
+      toast.failure(lang.tr('admin.workspace.bots.edit.errorUpdatingPipeline', { message: error.message }))
     } finally {
       setProcessing(false)
     }

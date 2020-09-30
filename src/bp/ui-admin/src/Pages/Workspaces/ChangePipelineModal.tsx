@@ -1,10 +1,10 @@
 import { Button, Checkbox, Classes, Dialog, Radio, RadioGroup } from '@blueprintjs/core'
+import { toast } from 'botpress/shared'
 import { defaultPipelines } from 'common/defaults'
 import { Workspace } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import api from '~/api'
-import { toastFailure, toastSuccess } from '~/utils/toaster'
 
 interface Props {
   workspace: Workspace
@@ -47,10 +47,10 @@ const ChangePipelineModal: FC<Props> = props => {
     try {
       await api.getSecured().post(`/admin/workspaces/${props.workspace.id}/pipeline`, { pipelineId, resetStage })
 
-      toastSuccess('Pipeline updated successfully')
+      toast.success('Pipeline updated successfully')
       props.toggle()
     } catch (err) {
-      toastFailure(err.message)
+      toast.failure(err.message)
     }
   }
 

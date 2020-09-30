@@ -1,8 +1,7 @@
 import { Button, Classes } from '@blueprintjs/core'
 import { NLU } from 'botpress/sdk'
-import { confirmDialog, lang } from 'botpress/shared'
+import { confirmDialog, lang, toast } from 'botpress/shared'
 import { Item, ItemList, SearchBar } from 'botpress/ui'
-import { toastFailure } from 'botpress/utils'
 import _ from 'lodash'
 import React, { FC, useState } from 'react'
 
@@ -48,7 +47,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
         await props.api.deleteIntent(intentName)
         await props.reloadIntents()
       } catch (err) {
-        toastFailure(lang.tr('module.nlu.intents.actionErrorMessage', { action: 'delete' }))
+        toast.failure(lang.tr('module.nlu.intents.actionErrorMessage', { action: 'delete' }))
       }
     }
   }
@@ -74,7 +73,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
       await props.reloadIntents()
       props.setCurrentItem({ name: sanitizedName, type: 'intent' })
     } catch (err) {
-      toastFailure(lang.tr('module.nlu.intents.actionErrorMessage', { action: 'create' }))
+      toast.failure(lang.tr('module.nlu.intents.actionErrorMessage', { action: 'create' }))
     }
   }
 
@@ -89,7 +88,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
       await props.reloadIntents()
       props.setCurrentItem({ name: sanitizedName, type: 'intent' })
     } catch (err) {
-      toastFailure(lang.tr('module.nlu.intents.actionErrorMessage', { action: 'rename' }))
+      toast.failure(lang.tr('module.nlu.intents.actionErrorMessage', { action: 'rename' }))
     }
   }
 
@@ -104,7 +103,7 @@ export const IntentSidePanelSection: FC<Props> = props => {
       await props.reloadIntents()
       props.setCurrentItem({ name: sanitizedName, type: 'intent' })
     } catch (err) {
-      toastFailure(lang.tr('module.nlu.intents.actionErrorMessage', { action: 'duplicate' }))
+      toast.failure(lang.tr('module.nlu.intents.actionErrorMessage', { action: 'duplicate' }))
     }
   }
 

@@ -1,5 +1,5 @@
 import { Button, Checkbox, Intent, Tooltip } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { lang, toast } from 'botpress/shared'
 import React from 'react'
 import CheckboxTree from 'react-checkbox-tree'
 import 'react-checkbox-tree/lib/react-checkbox-tree.css'
@@ -14,7 +14,6 @@ import {
   FaPlusSquare,
   FaSquare
 } from 'react-icons/fa'
-import { toastSuccess } from '~/utils/toaster'
 import PageContainer from '~/App/PageContainer'
 import SplitPage from '~/App/SplitPage'
 
@@ -59,7 +58,7 @@ export default class Debug extends React.Component<Props, State> {
     const debugScope = this.state.checked && this.state.checked.join(',')
     await api.getSecured().post(`/admin/server/debug`, { debugScope, persist: this.state.persist })
 
-    toastSuccess(lang.tr('admin.debug.confUpdated'))
+    toast.success(lang.tr('admin.debug.confUpdated'))
   }
 
   handlePersistChanged = (e: any) => this.setState({ persist: e.target.checked })

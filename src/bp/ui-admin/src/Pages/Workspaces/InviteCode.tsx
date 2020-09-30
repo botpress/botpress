@@ -1,8 +1,8 @@
 import { Button, ControlGroup, NumericInput, Tab, Tabs } from '@blueprintjs/core'
+import { toast } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useState } from 'react'
 import api from '~/api'
-import { toastFailure, toastSuccess } from '~/utils/toaster'
 
 interface Props {
   workspaceId: string
@@ -19,11 +19,11 @@ const InviteCode: FC<Props> = props => {
     try {
       await api.getSecured().post(`/admin/workspaces/${props.workspaceId}/resetInvite`, { inviteLimit })
 
-      toastSuccess('Invite code updated successfully')
+      toast.success('Invite code updated successfully')
       props.onUpdate()
       setTab('current')
     } catch (err) {
-      toastFailure(err.message)
+      toast.failure(err.message)
     }
   }
 

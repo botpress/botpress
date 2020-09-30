@@ -1,8 +1,7 @@
 import { Button, Callout, Checkbox, Classes, Dialog, FormGroup, Intent } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { lang, toast } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
 import Select from 'react-select'
-import { toastFailure } from '~/utils/toaster'
 
 import api from '../../../api'
 
@@ -49,7 +48,7 @@ const RollbackBotModal: FC<Props> = props => {
       props.onRollbackSuccess()
       closeModal()
     } catch (error) {
-      toastFailure(lang.tr('admin.workspace.bots.rollback.error', { msg: error.message }))
+      toast.failure(lang.tr('admin.workspace.bots.rollback.error', { msg: error.message }))
     } finally {
       setProcessing(false)
     }

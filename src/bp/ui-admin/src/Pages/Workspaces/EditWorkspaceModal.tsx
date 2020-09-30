@@ -1,8 +1,8 @@
 import { Button, Classes, Dialog, FormGroup, InputGroup, TextArea } from '@blueprintjs/core'
+import { toast } from 'botpress/shared'
 import { Workspace } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import api from '~/api'
-import { toastFailure, toastSuccess } from '~/utils/toaster'
 
 interface Props {
   workspace: Workspace
@@ -29,10 +29,10 @@ const EditWorkspaceModal: FC<Props> = props => {
       await api.getSecured().post(`/admin/workspaces/${props.workspace.id}`, { name, description })
       props.refreshWorkspaces()
 
-      toastSuccess('Workspace saved successfully')
+      toast.success('Workspace saved successfully')
       closeModal()
     } catch (err) {
-      toastFailure(err.message)
+      toast.failure(err.message)
     }
   }
 

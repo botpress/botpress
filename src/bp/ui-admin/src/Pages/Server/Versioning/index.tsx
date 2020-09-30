@@ -1,11 +1,10 @@
 import { Callout, Position, Tooltip } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { lang, toast } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import CopyToClipboard from 'react-copy-to-clipboard'
 import { connect } from 'react-redux'
 import api from '~/api'
-import { toastInfo } from '~/utils/toaster'
 import PageContainer from '~/App/PageContainer'
 import { getToken } from '~/Auth'
 
@@ -35,7 +34,7 @@ const Versioning: FC<{ profile: any }> = props => {
   }
 
   const isSuperAdmin = props.profile && props.profile.isSuperAdmin
-  const toastCopiedClipboard = () => toastInfo('Copied to clipboard')
+  const toastCopiedClipboard = () => toast.info('Copied to clipboard')
 
   return (
     <PageContainer title={lang.tr('admin.versioning.sourceControl')} superAdmin={true}>
