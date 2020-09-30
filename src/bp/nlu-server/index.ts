@@ -94,9 +94,11 @@ ${_.repeat(' ', 9)}========================================`)
   }
 
   if (options.config) {
-    logger.info(
-      `duckling: ${chalk.redBright(config.ducklingEnabled ? 'enabled' : 'diabled')} url=${config.ducklingURL}`
-    )
+    if (config.ducklingEnabled) {
+      logger.info(`duckling: ${chalk.greenBright('enabled')} url=${config.ducklingURL}`)
+    } else {
+      logger.info(`duckling: ${chalk.redBright('disabled')}`)
+    }
 
     for (const source of config.languageSources) {
       logger.info(`lang server: url=${source.endpoint}`)
