@@ -1,3 +1,4 @@
+import bytes from 'bytes'
 import chalk from 'chalk'
 import cluster from 'cluster'
 import _ from 'lodash'
@@ -32,6 +33,10 @@ export default async function(options: ArgV) {
     return
   } else if (cluster.isWorker && process.env.WORKER_TYPE !== WORKER_TYPES.WEB) {
     return
+  }
+
+  if (options.bodySize && !bytes(options.bodySize)) {
+    throw new Error(`Specified body-size "${options.bodySize}" has an invalid format.`)
   }
 
   options.modelDir = options.modelDir || path.join(process.APP_DATA_PATH, 'models')
@@ -91,6 +96,10 @@ ${_.repeat(' ', 9)}========================================`)
     )
   } else {
     logger.info(`limit: ${chalk.redBright('disabled')} (no protection - anyone can query without limitation)`)
+  }
+
+  if (options.bodySize) {
+    logger.info(`body size: allowing HTTP resquests body of size ${options.bodySize}`)
   }
 
   await API(options, nluVersion)
