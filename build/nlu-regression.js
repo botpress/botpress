@@ -102,13 +102,13 @@ const runAllTests = async (axiosConfig, botInfo) => {
     console.log(`[${botInfo.id}] (${++i} /${tests.length}) #${test.id}`, 'success: ', testResult.success)
   }
 
-  return _.round((passedTests / tests.length) * 100, 1)
+  return _.round((passedTests / tests.length) * 100, 6)
 }
 
 const getPreviousScore = async botInfo => {
   const latestResultsFile = `${nluTestingDir}/src/bot-templates/${botInfo.template.id}/latest-results.csv`
   const latestResultsContent = fs.readFileSync(latestResultsFile, { encoding: 'utf8' })
-  const previousScoreOccurence = latestResultsContent.match(/summary: ((100|\d{1,2})[.]\d{1})?/gm)
+  const previousScoreOccurence = latestResultsContent.match(/summary: ((100|\d{1,2})[.]\d{6})?/gm)
   if (!previousScoreOccurence || !previousScoreOccurence[0]) {
     return
   }
@@ -227,8 +227,8 @@ const main = async args => {
     let testPasses = true
 
     if (!args.length) {
-      testPasses = await runRegressionForBot(axiosConfig, testyInfo)
-      testPasses = await runRegressionForBot(axiosConfig, slotyInfo, 0.05) // 5% tolerance because plateform dependent
+      testPasses = testPasses & (await runRegressionForBot(axiosConfig, testyInfo, 0.05))
+      testPasses = testPasses & (await runRegressionForBot(axiosConfig, slotyInfo, 0.05))
     } else if (args[0] === 'testy') {
       testPasses = await runRegressionForBot(axiosConfig, testyInfo)
     } else if (args[0] === 'sloty') {

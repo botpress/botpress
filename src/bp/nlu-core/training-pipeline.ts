@@ -10,7 +10,6 @@ import { getStopWordsForLang } from './language/stopWords'
 import { getSystemExamplesForLang } from './language/systemExamples'
 import { featurizeInScopeUtterances, featurizeOOSUtterances } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
-import { getSeededLodash, resetSeed } from './tools/seeded-lodash'
 import { replaceConsecutiveSpaces } from './tools/strings'
 import tfidf, { SMALL_TFIDF } from './tools/tfidf'
 import { convertToRealSpaces, isSpace, SPACE } from './tools/token-utils'
@@ -24,6 +23,7 @@ import {
   ListEntity,
   ListEntityModel,
   PatternEntity,
+  SeededLodashProvider,
   TFIDF,
   Token2Vec,
   Tools,
@@ -244,7 +244,7 @@ const TrainIntentClassifier = async (
     .filter(u => u.tokens.filter(t => t.isWord).length >= 3)
     .value()
 
-  const lo = getSeededLodash(input.nluSeed)
+  const lo = tools.seededLodashProvider.getSeededLodash()
   for (let i = 0; i < input.ctxToTrain.length; i++) {
     const ctx = input.ctxToTrain[i]
     const trainableIntents = input.intents.filter(
@@ -289,7 +289,6 @@ const TrainIntentClassifier = async (
     })
     svmPerCtx[ctx] = model
   }
-  resetSeed()
 
   debugTraining.forBot(input.botId, 'Done training intent classifier')
   return svmPerCtx
@@ -429,7 +428,7 @@ export const AppendNoneIntent = async (input: TrainStep, tools: Tools): Promise<
     return input
   }
 
-  const lo = getSeededLodash(input.nluSeed)
+  const lo = tools.seededLodashProvider.getSeededLodash()
 
   // TODO: we should filter out augmented + we should create none utterances by context
   const allUtterances = lo.flatten(input.intents.map(x => x.utterances))
@@ -485,7 +484,6 @@ export const AppendNoneIntent = async (input: TrainStep, tools: Tools): Promise<
     slot_entities: []
   }
 
-  resetSeed()
   return { ...input, intents: [...input.intents, intent] }
 }
 

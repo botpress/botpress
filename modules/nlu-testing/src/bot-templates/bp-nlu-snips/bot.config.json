@@ -1,6 +1,6 @@
 {
   "$schema": "../../bot.config.schema.json",
-  "bpdsId": "entities-encoding",
+  "bpdsId": "bp-nlu-snips",
   "description": "Dataset made from random subsets of CLINC150 intent dataset. Usefull to benchmark with concurents. Go to botpress/modules/nlu-testing/src/bot-templates/bp-nlu-modular and edit createBPDatas.py to change the intents and their utterances",
   "active": true,
   "version": "1.0.0",
