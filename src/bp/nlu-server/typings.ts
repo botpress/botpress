@@ -20,7 +20,7 @@ export interface Intent {
 
 export interface Variable {
   name: string
-  variableType: string
+  type: string
 }
 
 export interface Enum {

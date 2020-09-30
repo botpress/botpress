@@ -31,7 +31,7 @@ const PatternSchema = Joi.object().keys({
 
 const VariableSchema = Joi.object().keys({
   name: Joi.string().required(),
-  variableType: Joi.string().required()
+  type: Joi.string().required()
 })
 
 const IntentSchema = Joi.object().keys({
