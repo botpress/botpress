@@ -101,13 +101,13 @@ const runAllTests = async axiosConfig => {
     console.log(`(${i++} /${tests.length}) #${test.id}`, 'success: ', testResult.success)
   }
 
-  return _.round((passedTests / tests.length) * 100, 1)
+  return _.round((passedTests / tests.length) * 100, 6)
 }
 
 const compareScore = async score => {
   const latestResultsFile = `${nluTestingDir}/src/bot-templates/bp-nlu-regression-testing/latest-results.csv`
   const latestResultsContent = fs.readFileSync(latestResultsFile, { encoding: 'utf8' })
-  const previousScoreOccurence = latestResultsContent.match(/summary: ((100|\d{1,2})[.]\d{1})?/gm)
+  const previousScoreOccurence = latestResultsContent.match(/summary: ((100|\d{1,2})[.]\d{6})?/gm)
   if (!previousScoreOccurence || !previousScoreOccurence[0]) {
     return false
   }

@@ -113,6 +113,12 @@ export interface ExtractedEntity {
 }
 export type EntityExtractionResult = ExtractedEntity & { start: number; end: number }
 
+export interface SeededLodashProvider {
+  setSeed(seed: number): void
+  getSeededLodash(): _.LoDashStatic
+  resetSeed(): void
+}
+
 export interface Tools {
   tokenize_utterances(utterances: string[], languageCode: string, vocab?: Token2Vec): Promise<string[][]>
   vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
@@ -121,6 +127,7 @@ export interface Tools {
   getHealth(): sdk.NLU.Health
   getLanguages(): string[]
   getVersionInfo(): NLUVersionInfo
+  seededLodashProvider: SeededLodashProvider
   duckling: SystemEntityExtractor
   mlToolkit: typeof sdk.MLToolkit
 }

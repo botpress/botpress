@@ -11,10 +11,9 @@ import ms from 'ms'
 import path from 'path'
 import semver from 'semver'
 
-import { getSeededLodash, resetSeed } from '../tools/seeded-lodash'
 import { setSimilarity, vocabNGram } from '../tools/strings'
 import { isSpace, processUtteranceTokens, restoreOriginalUtteranceCasing } from '../tools/token-utils'
-import { Gateway, LangServerInfo, LangsGateway, LanguageProvider, Token2Vec } from '../typings'
+import { Gateway, LangServerInfo, LangsGateway, LanguageProvider, SeededLodashProvider, Token2Vec } from '../typings'
 
 const debug = DEBUG('nlu').sub('lang')
 
@@ -44,6 +43,8 @@ export class RemoteLanguageProvider implements LanguageProvider {
   private _nluVersion!: string
   private _langServerInfo!: LangServerInfo
 
+  private _seededLodashProvider!: SeededLodashProvider
+
   private discoveryRetryPolicy = {
     interval: 1000,
     max_interval: 5000,
@@ -62,9 +63,16 @@ export class RemoteLanguageProvider implements LanguageProvider {
     debug(`[${lang.toUpperCase()}] Language Provider added %o`, source)
   }
 
-  async initialize(sources: NLU.LanguageSource[], logger: NLU.Logger, nluVersion: string): Promise<LanguageProvider> {
+  async initialize(
+    sources: NLU.LanguageSource[],
+    logger: NLU.Logger,
+    nluVersion: string,
+    seededLodashProvider: SeededLodashProvider
+  ): Promise<LanguageProvider> {
     this._nluVersion = nluVersion
     this._validProvidersCount = 0
+
+    this._seededLodashProvider = seededLodashProvider
 
     this._vectorsCache = new lru<string, Float32Array>({
       length: (arr: Float32Array) => {
@@ -393,7 +401,8 @@ export class RemoteLanguageProvider implements LanguageProvider {
     const minJunkSize = Math.max(JUNK_TOKEN_MIN, meanWordSize / 2) // Twice as short
     const maxJunkSize = Math.min(JUNK_TOKEN_MAX, meanWordSize * 1.5) // A bit longer.  Those numbers are discretionary and are not expected to make a big impact on the models.
 
-    const lo = getSeededLodash(process.env.NLU_SEED)
+    const lo = this._seededLodashProvider.getSeededLodash()
+
     const junks = _.range(0, JUNK_VOCAB_SIZE).map(() => {
       const finalSize = lo.random(minJunkSize, maxJunkSize, false)
       let word = ''
@@ -403,7 +412,6 @@ export class RemoteLanguageProvider implements LanguageProvider {
       return word
     }) // randomly generated words
 
-    resetSeed()
     return junks
   }
 

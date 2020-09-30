@@ -4,6 +4,7 @@ import MLToolkit from 'ml/toolkit'
 import { DucklingEntityExtractor } from './entities/duckling_extractor'
 import LangProvider from './language/language-provider'
 import { getPOSTagger, tagSentence } from './language/pos-tagger'
+import SeededLodashProvider from './tools/seeded-lodash'
 import { LanguageProvider, NLUVersionInfo, Token2Vec, Tools } from './typings'
 
 const NLU_VERSION = '1.4.0'
@@ -24,9 +25,18 @@ const versionGetter = (languageProvider: LanguageProvider) => (): NLUVersionInfo
   }
 }
 
-const initializeLanguageProvider = async (config: NLU.Config, logger: NLU.Logger) => {
+const initializeLanguageProvider = async (
+  config: NLU.Config,
+  logger: NLU.Logger,
+  seededLodashProvider: SeededLodashProvider
+) => {
   try {
-    const languageProvider = await LangProvider.initialize(config.languageSources, logger, NLU_VERSION)
+    const languageProvider = await LangProvider.initialize(
+      config.languageSources,
+      logger,
+      NLU_VERSION,
+      seededLodashProvider
+    )
     const getHealth = healthGetter(languageProvider)
     return { languageProvider, health: getHealth() }
   } catch (e) {
@@ -46,7 +56,9 @@ const initDucklingExtractor = async (config: NLU.Config, logger: NLU.Logger): Pr
 
 export async function initializeTools(config: NLU.Config, logger: NLU.Logger): Promise<Tools> {
   await initDucklingExtractor(config, logger)
-  const { languageProvider } = await initializeLanguageProvider(config, logger)
+
+  const seededLodashProvider = new SeededLodashProvider()
+  const { languageProvider } = await initializeLanguageProvider(config, logger, seededLodashProvider)
 
   return {
     partOfSpeechUtterances: (tokenUtterances: string[][], lang: string) => {
@@ -63,6 +75,7 @@ export async function initializeTools(config: NLU.Config, logger: NLU.Logger): P
     getHealth: healthGetter(languageProvider),
     getLanguages: () => languageProvider.languages,
     getVersionInfo: versionGetter(languageProvider),
+    seededLodashProvider,
     mlToolkit: MLToolkit,
     duckling: new DucklingEntityExtractor(logger)
   }
