@@ -151,11 +151,14 @@ const SuperInputArray: FC<SuperInputArrayProps> = ({
   }
 
   const addLines = items => {
-    const newItems = [...localItems, ...items]
-    itemIds.current = [...itemIds.current, ...items.map(() => _uniqueId())]
+    const newItems = [...localItems.filter(Boolean), ...items]
+    itemIds.current = [...newItems.map(() => _uniqueId())]
+
     focusedElement.current = newItems.length - 1
 
+    skipBlur.current = true
     setLocalItems([...newItems])
+    onChange([...newItems])
   }
 
   const missingTranslation = !!refValue?.filter(Boolean).length && !localItems.filter(Boolean).length
