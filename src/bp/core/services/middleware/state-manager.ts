@@ -97,8 +97,6 @@ export class StateManager {
     state.bot = await this.kvs.forBot(event.botId).get(this.BOT_GLOBAL_KEY)
     state.__stacktrace = []
 
-    event.state.session.workflows = _.omitBy(event.state.session.workflows, x => x.status === 'completed')
-
     Object.defineProperty(state, 'workflow', {
       get() {
         return state.session.workflows?.[state.session.currentWorkflow!]

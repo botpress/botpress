@@ -375,6 +375,8 @@ export class Botpress {
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
       const sessionId = SessionIdFactory.createIdFromEvent(event)
 
+      event.state.session.workflows = _.omitBy(event.state.session.workflows, x => x.status === 'completed')
+
       addStepToEvent('dialog:start', event)
       this.eventCollector.storeEvent(event)
 
