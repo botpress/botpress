@@ -16,6 +16,7 @@ const TextFieldsArray: FC<TextFieldsArrayProps> = ({
   addBtnLabel,
   addBtnLabelTooltip,
   label,
+  minimum,
   onChange,
   items,
   refValue,
@@ -24,7 +25,8 @@ const TextFieldsArray: FC<TextFieldsArrayProps> = ({
   moreInfo
 }) => {
   const getInitialItems = () => {
-    let localItems = [...(items?.length ? items : [''])]
+    const baseItem = minimum ? [''] : []
+    let localItems = [...(items?.length ? items : baseItem)]
     const diff = (refValue || []).length - items?.length
 
     if (diff > 0) {
@@ -63,7 +65,7 @@ const TextFieldsArray: FC<TextFieldsArrayProps> = ({
       e.target.select()
     }
 
-    const shouldDelete = !localItems[index].length && localItems.length > 1
+    const shouldDelete = !localItems[index].length && localItems.length > minimum
 
     if (e.key === 'Backspace' && shouldDelete) {
       e.preventDefault()

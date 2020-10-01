@@ -229,6 +229,7 @@ class Diagram extends Component<Props> {
     this.props.refreshEntities()
     this.props.fetchContentCategories()
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
+    ReactDOM.findDOMNode(this.diagramWidget).addEventListener('dblclick', this.onDiagramDoubleClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
 
     this.setState({
@@ -249,6 +250,7 @@ class Diagram extends Component<Props> {
 
   componentWillUnmount() {
     ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('click', this.onDiagramClick)
+    ReactDOM.findDOMNode(this.diagramWidget).removeEventListener('dblclick', this.onDiagramDoubleClick)
     document.getElementById('diagramContainer').removeEventListener('keydown', this.onKeyDown)
   }
 
@@ -632,6 +634,15 @@ class Diagram extends Component<Props> {
     const { nodeType } = targetModel
 
     return targetModel instanceof StandardNodeModel || targetModel instanceof SkillCallNodeModel
+  }
+
+  onDiagramDoubleClick = (event: MouseEvent) => {
+    const target = this.diagramWidget.getMouseElement(event)
+    const model = target?.model as BlockModel
+
+    if (model.nodeType === 'sub-workflow') {
+      this.props.switchFlow(model.flow)
+    }
   }
 
   onDiagramClick = (event: MouseEvent) => {

@@ -16,7 +16,7 @@ export const common: FormDefinition = {
       }
     },
     {
-      type: 'text',
+      type: 'textarea',
       key: 'description',
       placeholder: 'module.builtin.variable.descPlaceholder',
       label: 'description'

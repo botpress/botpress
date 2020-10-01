@@ -71,8 +71,17 @@ const definition: sdk.PrimitiveVarType = {
       createOperator('number', 'smallerOrEqualTo'),
       createOperator('number', 'largerOrEqualTo')
     ],
-    fields: common.fields,
-    advancedSettings: common.advancedSettings
+    fields: [
+      ...common.fields,
+      {
+        type: 'number',
+        key: 'defaultValue',
+        label: 'module.builtin.defaultValue'
+      }
+    ],
+    advancedSettings: common.advancedSettings,
+    inputType: 'number',
+    canAddOptions: true
   },
   box: BoxedNumber
 }

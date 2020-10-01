@@ -26,18 +26,35 @@ const InputForm: FC<Props> = ({
   const [fieldTypes, setFieldTypes] = useState({})
 
   useEffect(() => {
-    setFieldTypes(_.mapValues(formData, item => (item?.source === 'variable' ? 'variable' : 'text')))
+    setFieldTypes(
+      _.mapValues(formData, (item, variable) => {
+        const details = subFlowVars.find(x => x.params.name === variable)
+        const inputType = variables.primitive.find(x => x.id === details?.type)?.config.inputType
+
+        return item?.source === 'variable' ? 'variable' : inputType
+      })
+    )
   }, [customKey])
 
-  const fields = subFlowVars.map<FormField>(({ params, type }) => ({
-    type: fieldTypes[params.name] ?? 'variable',
-    key: params.name,
-    label: params.name,
-    variableTypes: [type],
-    placeholder: 'module.builtin.enterValue',
-    onClick: field => setFieldTypes({ ...fieldTypes, [field.key]: field.type === 'variable' ? 'text' : 'variable' }),
-    defaultVariableType: type
-  }))
+  const fields = subFlowVars.map<FormField>(({ params, type }) => {
+    const inputType = variables.primitive.find(x => x.id === type)?.config.inputType
+    const realType = params.elements?.length ? 'select' : inputType
+
+    return {
+      type: fieldTypes[params.name] ?? realType,
+      key: params.name,
+      label: params.label ?? params.name,
+      variableTypes: [type],
+      defaultValue: params.defaultValue,
+      defaultItem: params.defaultValue,
+      moreInfo: { label: params.description },
+      options: params.elements?.map(x => ({ label: x, value: x })),
+      placeholder: params.placeholder ?? 'module.builtin.enterValue',
+      onClick: field =>
+        setFieldTypes({ ...fieldTypes, [field.key]: field.type === 'variable' ? realType : 'variable' }),
+      defaultVariableType: type
+    }
+  })
 
   const convertBack = data => {
     const items = _.mapValues(data, (value, key) => ({

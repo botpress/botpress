@@ -330,6 +330,7 @@ const Form: FC<FormProps> = ({
           </FieldWrapper>
         )
       case 'text_array':
+        const minimum = field.group.minimum ?? 1
         return (
           <Fragment key={field.key}>
             {showSuperInput(field, parent) ? (
@@ -384,7 +385,8 @@ const Form: FC<FormProps> = ({
                   })
                 }}
                 refValue={refValue}
-                items={currentValue || ['']}
+                items={currentValue?.length ? currentValue : minimum ? [''] : []}
+                minimum={minimum}
                 label={printLabel(field, currentValue, parent, currentLang)}
                 addBtnLabel={lang(field.group?.addLabel)}
                 addBtnLabelTooltip={lang(field.group?.addLabelTooltip)}

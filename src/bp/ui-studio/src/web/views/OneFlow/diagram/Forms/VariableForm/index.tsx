@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { FormData } from 'botpress/sdk'
+import { FormData, FormField } from 'botpress/sdk'
 import {
   Contents,
   Dropdown,
@@ -86,6 +86,38 @@ const VariableForm: FC<Props> = ({
   ]
   const selectedVisibility = visibilityOptions.find(({ value }) => value === variableVisibility.current)
 
+  const { advancedSettings, fields, inputType, canAddOptions } = selectedVariableType?.config ?? {}
+
+  const advanced: FormField[] = [...(advancedSettings || [])]
+
+  if (currentFlow.type === 'reusable') {
+    advanced.push(
+      {
+        type: 'text',
+        key: 'label',
+        placeholder: 'optional',
+        label: 'label'
+      },
+      {
+        type: 'text',
+        key: 'placeholder',
+        placeholder: 'optional',
+        label: 'placeholder'
+      }
+    )
+
+    if (canAddOptions) {
+      advanced.push({
+        type: 'text_array',
+        key: 'elements',
+        label: 'Available Elements',
+        group: {
+          minimum: 0
+        }
+      })
+    }
+  }
+
   return (
     <MainContent.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose={true} close={() => close()}>
       <Fragment key={`${variableType.current}-${uniqueKey}`}>
@@ -145,8 +177,8 @@ const VariableForm: FC<Props> = ({
             currentLang={contentLang}
             defaultLang={defaultLang}
             axios={axios}
-            fields={selectedVariableType.config?.fields || []}
-            advancedSettings={selectedVariableType.config?.advancedSettings}
+            fields={fields}
+            advancedSettings={advanced}
             formData={formData?.params || {}}
             onUpdate={data => onUpdate({ params: { ...data }, type: variableType.current })}
           />

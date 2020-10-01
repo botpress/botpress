@@ -18,7 +18,7 @@ export class BaseVariable<T, V = any> implements BoxedVariable<T, V> {
     this._config = config
     this._getValidationData = getValidationData
 
-    if (value !== undefined) {
+    if (value !== undefined && value !== null) {
       this.trySet(value, confidence ?? 1)
     }
   }

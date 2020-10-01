@@ -1952,6 +1952,8 @@ declare module 'botpress/sdk' {
     label: string
     icon?: any
     operators?: FlowVariableOperator[]
+    inputType?: string
+    canAddOptions?: boolean
   } & FormDefinition
 
   export type FlowVariableOperator = {

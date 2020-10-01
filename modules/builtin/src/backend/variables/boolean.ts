@@ -81,7 +81,9 @@ const definition: sdk.PrimitiveVarType = {
         label: 'module.builtin.defaultValue'
       }
     ],
-    advancedSettings: common.advancedSettings
+    advancedSettings: common.advancedSettings,
+    inputType: 'checkbox',
+    canAddOptions: false
   },
   box: BoxedBoolean
 }

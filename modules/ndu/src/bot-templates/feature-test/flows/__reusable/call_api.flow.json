@@ -1,0 +1,197 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "startNode": "entry",
+  "description": "",
+  "variables": [
+    {
+      "params": {
+        "name": "requestUrl",
+        "description": null,
+        "defaultValue": null,
+        "label": "Request URL",
+        "placeholder": null,
+        "elements": [],
+        "isMultiline": false,
+        "choices": [
+          ""
+        ],
+        "isInput": true,
+        "isOutput": false
+      },
+      "type": "string"
+    },
+    {
+      "params": {
+        "name": "requestBody",
+        "description": "Send a request body. Enter the raw payload of the request. Make sure it has proper formatting based on your Content-Type. E.g. application/json content type should respect the JSON format.",
+        "defaultValue": null,
+        "label": "Request Body",
+        "placeholder": "{ \"valid\": \"json\" }",
+        "elements": [],
+        "isMultiline": false,
+        "choices": [],
+        "isInput": true,
+        "isOutput": false
+      },
+      "type": "string"
+    },
+    {
+      "params": {
+        "name": "requestHeaders",
+        "description": "Send request headers. Write in JSON format.",
+        "defaultValue": null,
+        "label": "Request Headers",
+        "placeholder": "{ \"Authorization\": \"\" }",
+        "elements": [],
+        "isMultiline": false,
+        "choices": [
+          ""
+        ],
+        "isInput": true,
+        "isOutput": false
+      },
+      "type": "string"
+    },
+    {
+      "params": {
+        "name": "response",
+        "description": null,
+        "defaultValue": null,
+        "label": null,
+        "placeholder": null,
+        "elements": [
+          ""
+        ],
+        "isMultiline": false,
+        "choices": [
+          ""
+        ],
+        "isInput": false,
+        "isOutput": true
+      },
+      "type": "string"
+    },
+    {
+      "params": {
+        "name": "status",
+        "description": null,
+        "defaultValue": null,
+        "label": null,
+        "placeholder": null,
+        "elements": [
+          ""
+        ],
+        "isMultiline": false,
+        "choices": [
+          ""
+        ],
+        "isInput": false,
+        "isOutput": true
+      },
+      "type": "string"
+    },
+    {
+      "params": {
+        "name": "method",
+        "description": null,
+        "defaultValue": "GET",
+        "label": "Method",
+        "placeholder": null,
+        "elements": [
+          "GET",
+          "POST",
+          "PUT",
+          "DELETE"
+        ],
+        "isMultiline": true,
+        "choices": [
+          "GET",
+          "POST"
+        ],
+        "isInput": true,
+        "isOutput": false
+      },
+      "type": "string"
+    }
+  ],
+  "type": "reusable",
+  "nodes": [
+    {
+      "id": "4cdf663079",
+      "name": "entry",
+      "onEnter": [],
+      "onReceive": null,
+      "next": [
+        {
+          "condition": "true",
+          "node": "execute-1"
+        }
+      ],
+      "type": "trigger",
+      "isReadOnly": true,
+      "conditions": [
+        {
+          "id": "workflow_called",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "id": "c97e3f66d2",
+      "name": "success",
+      "onEnter": [],
+      "onReceive": null,
+      "next": [],
+      "type": "success"
+    },
+    {
+      "id": "f919d9d981",
+      "name": "failure",
+      "onEnter": [],
+      "onReceive": null,
+      "next": [],
+      "type": "failure"
+    },
+    {
+      "id": "693dd4f07b",
+      "name": "execute-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": "router-1"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "execute",
+      "execute": {
+        "actionName": "__customAction",
+        "code": "    const axios = require('axios')\n    /**\n     * @hidden true\n     */\n\n    const callApi = async () => {\n      // Use context to flatten event object\n      const context = {\n        event,\n        user: event.state.user,\n        temp: event.state.temp,\n        session: event.state.session\n      }\n      const renderedHeaders = bp.cms.renderTemplate(requestHeaders.value, context)\n      const renderedBody = bp.cms.renderTemplate(requestBody.value, context)\n\n      try {\n        const res = await axios({\n          method: method.value,\n          url: requestUrl.value,\n          headers: renderedHeaders,\n          data: renderedBody\n        })\n\n        status.value = res.status\n        response.value = res.data\n      } catch (error) {\n        response.value = error\n        status.value = error.response && error.response.status\n\n        const errorCode = status.value || error.code || ''\n        bp.logger.error(`Error: ${errorCode} while calling resource \"${requestUrl.value}\"`)\n      }\n    }\n\n    return callApi()"
+      }
+    },
+    {
+      "id": "31ad5a8707",
+      "name": "router-1",
+      "next": [
+        {
+          "condition": "$status.equals($status.parse('200'))",
+          "caption": "If status equals 200",
+          "node": "success"
+        },
+        {
+          "condition": "$status.equals($status.parse('201'))",
+          "caption": "If status equals 201",
+          "node": "success"
+        },
+        {
+          "condition": "true",
+          "node": "failure"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "router"
+    }
+  ]
+}

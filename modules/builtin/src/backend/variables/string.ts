@@ -68,10 +68,20 @@ const definition: sdk.PrimitiveVarType = {
       ...getCommonOperators('string'),
       createOperator('string', 'contains'),
       createOperator('string', 'startsWith'),
-      createOperator('string', 'endsWith')
+      createOperator('string', 'endsWith'),
+      createOperator('string', 'isIncludedIn')
     ],
-    fields: common.fields,
-    advancedSettings: common.advancedSettings
+    fields: [
+      ...common.fields,
+      {
+        type: 'text',
+        key: 'defaultValue',
+        label: 'module.builtin.defaultValue'
+      }
+    ],
+    advancedSettings: common.advancedSettings,
+    inputType: 'textarea',
+    canAddOptions: true
   },
   box: BoxedString
 }

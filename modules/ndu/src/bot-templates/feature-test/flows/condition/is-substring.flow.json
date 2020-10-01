@@ -129,7 +129,7 @@
       "name": "router-1",
       "next": [
         {
-          "condition": "$someText.contains({other:$secondString.value})",
+          "condition": "$someText.contains($secondString.value)",
           "caption": "If someText contains secondString",
           "node": "say_something-1"
         },

@@ -81,7 +81,7 @@ export class InstructionsQueueBuilder {
       if (this.currentNode.type === 'execute' && !this.currentNode.onEnter?.length) {
         this._queue.enqueue({
           type: 'on-enter',
-          fn: `exec`,
+          fn: 'execute',
           args: this.currentNode.execute
         })
       }

@@ -3,6 +3,7 @@
   "catchAll": {},
   "startNode": "entry",
   "description": "",
+  "type": "standard",
   "variables": [
     {
       "type": "number",
@@ -17,7 +18,6 @@
       }
     }
   ],
-  "type": "standard",
   "nodes": [
     {
       "id": "d415ca848f",
@@ -253,7 +253,7 @@
       "name": "router-1",
       "next": [
         {
-          "condition": "$firstNumber.smallerThan({other:$secondNumber.value})",
+          "condition": "$firstNumber.smallerThan($secondNumber.value)",
           "caption": "If firstNumber smaller than secondNumber",
           "node": "say_something-1"
         },

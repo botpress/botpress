@@ -10,6 +10,7 @@ export interface TextFieldsArrayProps {
     list?: any[]
     validator?: (items: any[], newItem: any) => boolean
   }
+  minimum: number
   onChange: (items: string[]) => void
   getPlaceholder?: (index: number) => string
 }
