@@ -13,6 +13,7 @@ import ExecuteForm from './ExecuteForm'
 import PromptForm from './PromptForm'
 import RouterForm from './RouterForm'
 import SubWorkflowForm from './SubWorkflowForm'
+import SuggestForm from './SuggestForm'
 import VariableForm from './VariableForm'
 import VariableTypesForm from './VariableTypesForm'
 
@@ -88,20 +89,17 @@ const Forms: FC<Props> = ({
   const updateNodeContent = data => {
     const newContents = [...node.contents]
 
-    newContents[index] = data.content
+    newContents[index] = data
 
     switchFlowNode(node.id)
     updateEditingNodeItem({ node: { ...node, contents: newContents }, index })
+    updateFlowNode({ contents: newContents })
+  }
 
-    if (data.transitions && data.triggers) {
-      updateFlowNode({
-        contents: newContents,
-        next: [...node.next.filter(x => x.condition === 'true'), ...data.transitions],
-        triggers: data.triggers
-      })
-    } else {
-      updateFlowNode({ contents: newContents })
-    }
+  const updateNodeSuggest = data => {
+    switchFlowNode(node.id)
+    updateEditingNodeItem({ node: { ...node, suggest: data.suggest }, index })
+    updateFlowNode({ suggest: data.suggest })
   }
 
   const updateNodeCondition = data => {
@@ -222,6 +220,28 @@ const Forms: FC<Props> = ({
           editingContent={index}
           formData={currentItem || getEmptyContent(currentItem)}
           onUpdate={updateNodeContent}
+          onUpdateVariables={addVariable}
+          close={() => {
+            updateTimeout(
+              setTimeout(() => {
+                setActiveFormItem(null)
+              }, 200)
+            )
+          }}
+        />
+      )}
+      {formType === 'suggest' && (
+        <SuggestForm
+          customKey={`${node.id}${index}`}
+          deleteContent={() => deleteNodeContent()}
+          variables={variables}
+          events={hints || []}
+          contentLang={currentLang}
+          node={currentFlowNode}
+          defaultLang={defaultLang}
+          editingContent={index}
+          formData={node.suggest}
+          onUpdate={updateNodeSuggest}
           onUpdateVariables={addVariable}
           close={() => {
             updateTimeout(

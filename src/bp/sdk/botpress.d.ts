@@ -1516,6 +1516,7 @@ declare module 'botpress/sdk' {
     prompt?: PromptNode
     subflow?: SubWorkflowNode
     execute?: ExecuteNode
+    suggest?: FormData
     isNew?: boolean
     isReadOnly?: boolean
     triggers?: NDU.GenericTrigger[]
@@ -1634,6 +1635,7 @@ declare module 'botpress/sdk' {
     placeholder?: string | string[]
     emptyPlaceholder?: string
     options?: FormOption[]
+    related?: FormField
     defaultValue?: FormDataField
     required?: boolean
     variableTypes?: string[]

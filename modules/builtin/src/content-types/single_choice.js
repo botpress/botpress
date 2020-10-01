@@ -98,7 +98,7 @@ module.exports = {
   },
 
   newSchema: {
-    displayedIn: ['qna', 'sayNode'],
+    displayedIn: ['qna'],
     order: 4,
     advancedSettings: [
       {

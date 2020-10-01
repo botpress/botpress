@@ -206,7 +206,7 @@ const ContentForm: FC<Props> = ({
             fields={contentFields.fields}
             advancedSettings={contentFields.advancedSettings}
             formData={formData}
-            onUpdate={data => prepareUpdate({ ...data, contentType: contentType.current })}
+            onUpdate={data => onUpdate({ ...data, contentType: contentType.current })}
             onUpdateVariables={onUpdateVariables}
           />
         )}

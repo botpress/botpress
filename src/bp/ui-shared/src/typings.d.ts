@@ -100,6 +100,7 @@ declare module 'botpress/shared' {
     Minimize(): JSX.Element
     Say(): JSX.Element
     Search(): JSX.Element
+    Suggest(): JSX.Element
   }
 
   export const toast: {

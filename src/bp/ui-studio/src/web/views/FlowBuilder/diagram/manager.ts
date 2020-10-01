@@ -18,6 +18,7 @@ const passThroughNodeProps: string[] = [
   'conditions',
   'type',
   'contents',
+  'suggest',
   'activeWorkflow',
   'prompt',
   'subflow',
@@ -37,6 +38,7 @@ export const nodeTypes = [
   'router',
   'action',
   'prompt',
+  'suggest',
   'sub-workflow'
 ]
 
@@ -67,6 +69,7 @@ const createNodeModel = (node, modelProps) => {
       'success',
       'trigger',
       'failure',
+      'suggest',
       'sub-workflow'
     ].includes(type)
   ) {

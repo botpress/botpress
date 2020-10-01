@@ -416,12 +416,23 @@ class Diagram extends Component<Props> {
         ...moreProps
       })
     },
+    suggestNode: (point: Point, moreProps) => {
+      this.props.createFlowNode({
+        ...point,
+        type: 'suggest',
+        suggest: {},
+        next: [defaultTransition],
+        isNew: true,
+        ...moreProps
+      })
+    },
     executeNode: (point: Point, moreProps) =>
       this.props.createFlowNode({ ...point, type: 'execute', next: [defaultTransition], ...moreProps, isNew: true }),
     routerNode: (point: Point) =>
       this.props.createFlowNode({
         ...point,
         type: 'router',
+        isNew: true,
         next: [
           { condition: '', node: '' },
           { condition: 'true', node: '' }
@@ -519,6 +530,7 @@ class Diagram extends Component<Props> {
         <MenuItem text={lang.tr('execute')} onClick={wrap(this.add.executeNode, point)} icon="code" />
         <MenuItem text={lang.tr('ifElse')} onClick={wrap(this.add.routerNode, point)} icon="fork" />
         <MenuItem text={lang.tr('action')} onClick={wrap(this.add.actionNode, point)} icon="offline" />
+        <MenuItem text={lang.tr('suggest')} onClick={wrap(this.add.suggestNode, point)} icon={<Icons.Suggest />} />
 
         {this.props.currentFlow?.type === 'reusable' && (
           <MenuItem text="Outcome" icon="take-action">
@@ -664,7 +676,7 @@ class Diagram extends Component<Props> {
 
     this.checkForLinksUpdate()
 
-    if ((target?.model as BlockModel)?.nodeType === 'prompt') {
+    if (['prompt', 'suggest'].includes((target?.model as BlockModel)?.nodeType)) {
       this.editNodeItem(selectedNode, 0)
     }
   }
@@ -890,6 +902,9 @@ class Diagram extends Component<Props> {
           } else {
             this.add.routerNode(point)
           }
+          break
+        case 'suggest':
+          this.add.suggestNode(point, {})
           break
         case 'action':
           this.add.actionNode(point)

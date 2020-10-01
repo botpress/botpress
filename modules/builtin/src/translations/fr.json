@@ -50,6 +50,8 @@
     },
     "suggestions": {
       "add": "Ajouter une suggestion",
+      "addSuggestionLabel": "Ajouter une suggestion alternative",
+      "addTextAlternative": "Ajouter un text alternatif",
       "allowMultiplePick": "Permettre à l'utilisateur de sélectionner plusieurs suggestions",
       "allowToAdd": "Permettre à l'utilisateur d'ajouter des suggestions",
       "delete": "Supprimer la suggestion",
@@ -58,12 +60,12 @@
       "labelPlaceholder": "Quelle est la suggestion affichée?",
       "valuePlaceholder": "Que recevra votre agent conversationnel?",
       "expiryPolicy": "Politique d'expiration",
-      "numberOfTurns": "Nombre de tours",
-      "numberOfTurnsExpire": "Nombre de tours avant expiration",
+      "numberOfTurns": "Définissez un nombre de tours avant que les suggestions expire",
       "position": "Position des suggestions",
       "endOfWorkflow": "Fin du workflow",
       "staticMenu": "Menu statique",
-      "inConversation": "Dans la conversation"
+      "inConversation": "Dans la conversation",
+      "writeNumberOfTurns": "Écrivez un nombre de tours"
     },
     "text": {
       "add": "Ajouter une alternative",

@@ -92,7 +92,8 @@ const Form: FC<FormProps> = ({
   const printLabel = (field, data, parent, currentLang?) => {
     if (field.label?.startsWith('fields::') && field.fields?.length) {
       const labelField = field.fields?.find(subField => subField.key === field.label.replace('fields::', ''))
-      const fieldData = labelField.translated ? data[labelField.key]?.[currentLang] : data[labelField.key]
+      let fieldData = labelField.translated ? data[labelField.key]?.[currentLang] : data[labelField.key]
+      fieldData = fieldData && _.isArray(fieldData) ? fieldData[0] : fieldData
 
       return fieldData || ' '
     }
@@ -519,6 +520,7 @@ const Form: FC<FormProps> = ({
                   field: field.key,
                   lang: field.translated && currentLang,
                   value: e.currentTarget.checked,
+                  parent,
                   onUpdate
                 }
               })
@@ -527,6 +529,7 @@ const Form: FC<FormProps> = ({
             <Fragment>
               {field.moreInfo && printMoreInfo(field.moreInfo, true)}
               {printError(field.key)}
+              {field.related && currentValue && printField(field.related, data, parent)}
             </Fragment>
           </Checkbox>
         )

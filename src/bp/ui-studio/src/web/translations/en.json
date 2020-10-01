@@ -227,6 +227,7 @@
         "chatbotExecutes": "Chatbot Executes",
         "chatbotSays": "Chatbot Says",
         "chatbotPromptsUser": "Chatbot Prompts User",
+        "chatbotSuggests": "Chatbot Suggests",
         "confirmOverwriteParameters": "Do you want to overwrite existing parameters?",
         "contentPaste": "content_paste",
         "couldNotRetrieveActionServer": "Could not retrieve action servers",

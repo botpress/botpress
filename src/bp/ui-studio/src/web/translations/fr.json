@@ -225,6 +225,7 @@
         "chatbotExecutes": "L'assistant virtuel exécute",
         "chatbotSays": "L'assistant virtuel dit",
         "chatbotPromptsUser": "L'agent conversationnel questionne l'utilisateur",
+        "chatbotSuggests": "L'agent conversationnel suggère",
         "confirmOverwriteParameters": "Voulez-vous remplacer les paramètres existants?",
         "couldNotRetrieveActionServer": "Impossible de récupérer les serveurs d'actions",
         "editAction": "Modifier l'action",

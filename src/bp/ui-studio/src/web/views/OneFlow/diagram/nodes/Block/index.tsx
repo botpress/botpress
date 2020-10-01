@@ -18,6 +18,7 @@ import PromptContents from '../PromptContents'
 import RouterContents from '../RouterContents'
 import SaySomethingContents from '../SaySomethingContents'
 import SubworkflowContents from '../SubworkflowContents'
+import SuggestContents from '../SuggestContents'
 import TriggerContents from '../TriggerContents'
 
 interface Props {
@@ -42,6 +43,7 @@ const defaultLabels = {
   execute: 'studio.flow.node.chatbotExecutes',
   failure: 'studio.flow.node.workflowFails',
   prompt: 'studio.flow.node.chatbotPromptsUser',
+  suggest: 'studio.flow.node.chatbotSuggests',
   router: 'if',
   say_something: 'studio.flow.node.chatbotSays',
   success: 'studio.flow.node.workflowSucceeds',
@@ -113,7 +115,7 @@ const BlockWidget: FC<Props> = ({
 
   const inputPortInHeader = !['trigger'].includes(nodeType)
   const outPortInHeader = !['failure', 'prompt', 'router', 'success', 'sub-workflow'].includes(nodeType)
-  const canCollapse = !['failure', 'prompt', 'router', 'success', 'sub-workflow'].includes(nodeType)
+  const canCollapse = !['failure', 'prompt', 'router', 'success', 'suggest', 'sub-workflow'].includes(nodeType)
   const hasContextMenu = !['failure', 'success'].includes(nodeType)
 
   const debugInfo = getDebugInfo(node.name)
@@ -138,6 +140,16 @@ const BlockWidget: FC<Props> = ({
       case 'say_something':
         return (
           <SaySomethingContents
+            node={node}
+            defaultLang={defaultLang}
+            editNodeItem={editNodeItem}
+            selectedNodeItem={selectedNodeItem}
+            currentLang={currentLang}
+          />
+        )
+      case 'suggest':
+        return (
+          <SuggestContents
             node={node}
             defaultLang={defaultLang}
             editNodeItem={editNodeItem}
@@ -208,6 +220,7 @@ export class BlockModel extends BaseNodeModel {
   public nodeType: string
   public prompt?
   public contents?: FormData[] = []
+  public suggest
   public subflow: SubWorkflowNode
   public flow: string
   public execute: ExecuteNode
@@ -224,6 +237,7 @@ export class BlockModel extends BaseNodeModel {
     onEnter = [],
     next = [],
     conditions = [],
+    suggest = {},
     subflow = {},
     execute = {},
     activeWorkflow = false,
@@ -245,6 +259,7 @@ export class BlockModel extends BaseNodeModel {
       isStartNode,
       isHighlighted,
       conditions,
+      suggest,
       subflow,
       execute,
       activeWorkflow,
@@ -266,6 +281,7 @@ export class BlockModel extends BaseNodeModel {
     this.prompt = data.prompt
     this.contents = data.contents
     this.flow = data.flow
+    this.suggest = data.suggest
     this.subflow = data.subflow
     this.execute = data.execute
     this.isReadOnly = data.isReadOnly

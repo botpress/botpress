@@ -18,6 +18,7 @@ const Toolbar: FC = () => {
       <ToolItem label={lang.tr('prompt')} type="node" id="prompt" icon="citation" />
       <ToolItem label={lang.tr('execute')} type="node" id="execute" icon="code" />
       <ToolItem label={lang.tr('ifElse')} type="node" id="router" icon="fork" />
+      <ToolItem label={lang.tr('suggest')} type="node" id="suggest" icon={<Icons.Suggest />} />
     </div>
   )
 }

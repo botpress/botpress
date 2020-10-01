@@ -50,6 +50,8 @@
     },
     "suggestions": {
       "add": "Add Suggestion",
+      "addSuggestionLabel": "Add Suggestion Alternatives",
+      "addTextAlternative": "Add Text Alternatives",
       "allowMultiplePick": "Allow user to pick multiple suggestions",
       "allowToAdd": "Allow user to add suggestions",
       "delete": "Delete Suggestion",
@@ -58,12 +60,12 @@
       "labelPlaceholder": "What is the suggestion displayed?",
       "valuePlaceholder": "What will your chatbot receive?",
       "expiryPolicy": "Expiry Policy",
-      "numberOfTurns": "Number of turns",
-      "numberOfTurnsExpire": "Nb of turns before suggestion expires",
+      "numberOfTurns": "Set a number of turns before suggestions expire",
       "position": "Position of suggestions",
       "endOfWorkflow": "End of workflow",
       "staticMenu": "Static menu",
-      "inConversation": "In the conversation"
+      "inConversation": "In the conversation",
+      "writeNumberOfTurns": "Write a number of turns"
     },
     "text": {
       "add": "Add Text Alternatives",
