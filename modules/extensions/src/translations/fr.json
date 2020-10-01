@@ -51,7 +51,8 @@
     "completed": "Traitement complété",
     "executedIn": "Exécuté en {n} ms",
     "type": "Type",
-    "stacktrace": "Stacktrace"
+    "stacktrace": "Stacktrace",
+    "timedOut": "La requête a expiré"
   },
   "settings": {
     "confUpdated": "Configuration mise à jour avec succès!",

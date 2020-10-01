@@ -51,7 +51,8 @@
     "completed": "Event Processing Completed",
     "executedIn": "Executed in {n} ms",
     "type": "Type",
-    "stacktrace": "Stacktrace"
+    "stacktrace": "Stacktrace",
+    "timedOut": "Request timed out"
   },
   "settings": {
     "confUpdated": "Configuration updated successfully!",

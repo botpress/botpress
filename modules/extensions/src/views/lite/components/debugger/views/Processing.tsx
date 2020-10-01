@@ -48,10 +48,8 @@ export const Processing: FC<{ processing: { [activity: string]: sdk.IO.Processin
       return acc
     }, [])
 
-  const renderToggleItem = (item, key) => {
+  const renderToggleItem = (item, key, { hasError, hasLog }) => {
     const isExpanded = expanded[key]
-    const hasError = item.status === 'error' || !!item.errors?.length
-    const hasLog = !!item.logs?.length
 
     return (
       <Fragment>
@@ -75,13 +73,14 @@ export const Processing: FC<{ processing: { [activity: string]: sdk.IO.Processin
 
             {hasError && (
               <span className={style.infoBox}>
-                {item.errors.map(entry => (
+                {item.errors?.map(entry => (
                   <div key={entry.stacktrace}>
                     <b>{lang.tr('module.extensions.processing.type')}:</b> {entry.type}
                     <br />
                     <b>{lang.tr('module.extensions.processing.stacktrace')}:</b> {entry.stacktrace}
                   </div>
                 ))}
+                {item.status === 'timedOut' && <div>{lang.tr('module.extensions.processing.timedOut')}</div>}
               </span>
             )}
           </span>
@@ -91,11 +90,11 @@ export const Processing: FC<{ processing: { [activity: string]: sdk.IO.Processin
   }
 
   const renderItem = (item, key) => {
-    const hasError = item.status === 'error' || !!item.errors?.length
+    const hasError = item.status === 'error' || item.status === 'timedOut' || !!item.errors?.length
     const hasLog = !!item.logs?.length
 
     if (hasError || hasLog) {
-      return renderToggleItem(item, key)
+      return renderToggleItem(item, key, { hasError, hasLog })
     }
 
     return (
