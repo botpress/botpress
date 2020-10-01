@@ -99,7 +99,17 @@
         "builtin/switchLanguage {\"lang\":\"{{workflow.variables.language}}\"}"
       ],
       "onReceive": null,
-      "type": "execute"
+      "type": "execute",
+      "execute": {
+        "actionName": "builtin/switchLanguage",
+        "code": "",
+        "params": {
+          "lang": {
+            "source": "hardcoded",
+            "value": "$language"
+          }
+        }
+      }
     },
     {
       "id": "165383a1a5",

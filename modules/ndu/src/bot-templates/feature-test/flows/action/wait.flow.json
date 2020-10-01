@@ -69,7 +69,17 @@
         "builtin/wait {\"delay\":\"3000\"}"
       ],
       "onReceive": null,
-      "type": "execute"
+      "type": "execute",
+      "execute": {
+        "actionName": "builtin/wait",
+        "code": "",
+        "params": {
+          "delay": {
+            "source": "hardcoded",
+            "value": "1000"
+          }
+        }
+      }
     },
     {
       "id": "33ddae4f7e",

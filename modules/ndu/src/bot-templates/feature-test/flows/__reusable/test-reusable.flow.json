@@ -1,0 +1,138 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "startNode": "entry",
+  "description": "",
+  "variables": [
+    {
+      "params": {
+        "name": "parentNumber",
+        "description": null,
+        "label": null,
+        "placeholder": null,
+        "elements": [],
+        "isInput": true,
+        "isOutput": false
+      },
+      "type": "number"
+    },
+    {
+      "params": {
+        "name": "childNumber",
+        "description": null,
+        "label": null,
+        "placeholder": null,
+        "elements": [],
+        "isInput": false,
+        "isOutput": true
+      },
+      "type": "number"
+    }
+  ],
+  "type": "reusable",
+  "nodes": [
+    {
+      "id": "597473ab7c",
+      "name": "entry",
+      "onEnter": [],
+      "onReceive": null,
+      "next": [
+        {
+          "condition": "true",
+          "node": "say_something-1"
+        }
+      ],
+      "type": "trigger",
+      "isReadOnly": true,
+      "conditions": [
+        {
+          "id": "workflow_called",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "id": "5a853e5825",
+      "name": "success",
+      "onEnter": [],
+      "onReceive": null,
+      "next": [],
+      "type": "success"
+    },
+    {
+      "id": "bd8bda473e",
+      "name": "failure",
+      "onEnter": [],
+      "onReceive": null,
+      "next": [],
+      "type": "failure"
+    },
+    {
+      "id": "34865cc1b9",
+      "name": "say_something-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": "execute-1"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "say_something",
+      "contents": [
+        {
+          "text": {
+            "en": "(reusable): Value from parent: $parentNumber"
+          },
+          "variations": {
+            "en": []
+          },
+          "markdown": true,
+          "contentType": "builtin_text"
+        }
+      ]
+    },
+    {
+      "id": "f5f1d63c98",
+      "name": "execute-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": "say_something-2"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "execute",
+      "execute": {
+        "actionName": "__customAction",
+        "code": "    childNumber.value = Math.round(Math.random() * 1000)"
+      }
+    },
+    {
+      "id": "2ffa893fc9",
+      "name": "say_something-2",
+      "next": [
+        {
+          "condition": "true",
+          "node": "success"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "say_something",
+      "contents": [
+        {
+          "text": {
+            "en": "(reusable): Number: $childNumber"
+          },
+          "variations": {
+            "en": []
+          },
+          "markdown": true,
+          "contentType": "builtin_text"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "startNode": "entry",
+  "description": "",
+  "variables": [
+    {
+      "params": {
+        "name": "parentNumber",
+        "description": null
+      },
+      "type": "number"
+    },
+    {
+      "params": {
+        "name": "childNumber",
+        "description": null
+      },
+      "type": "number"
+    }
+  ],
+  "type": "standard",
+  "nodes": [
+    {
+      "id": "898dac978f",
+      "name": "trigger-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": "execute-1"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "trigger",
+      "conditions": [
+        {
+          "params": {
+            "candidate": [
+              "action-reusable"
+            ],
+            "exactMatch": false,
+            "caseSensitive": false
+          },
+          "id": "type_text"
+        }
+      ],
+      "activeWorkflow": false,
+      "activeTopic": false
+    },
+    {
+      "id": "0b141f432f",
+      "name": "execute-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": "say_something-1"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "execute",
+      "execute": {
+        "actionName": "__customAction",
+        "code": "    parentNumber.value = Math.round(Math.random() * 1000)"
+      }
+    },
+    {
+      "id": "60b0e74f54",
+      "name": "say_something-1",
+      "next": [
+        {
+          "condition": "true",
+          "node": "sub-workflow-1"
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "say_something",
+      "contents": [
+        {
+          "text": {
+            "en": "(parent) Number: $parentNumber"
+          },
+          "variations": {
+            "en": []
+          },
+          "markdown": true,
+          "contentType": "builtin_text"
+        }
+      ]
+    },
+    {
+      "id": "2ff3cf739f",
+      "name": "sub-workflow-1",
+      "next": [
+        {
+          "condition": "lastNode=success",
+          "caption": "success",
+          "node": "say_something-2"
+        },
+        {
+          "condition": "lastNode=failure",
+          "caption": "failure",
+          "node": ""
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "sub-workflow",
+      "flow": "__reusable/test-reusable.flow.json",
+      "subflow": {
+        "in": {
+          "parentNumber": {
+            "source": "variable",
+            "value": "parentNumber"
+          }
+        },
+        "out": {
+          "childNumber": "childNumber"
+        }
+      }
+    },
+    {
+      "id": "cf1dfcbae7",
+      "name": "say_something-2",
+      "next": [
+        {
+          "condition": "true",
+          "node": ""
+        }
+      ],
+      "onEnter": [],
+      "onReceive": null,
+      "type": "say_something",
+      "contents": [
+        {
+          "text": {
+            "en": "(parent): Value from reusable: $childNumber"
+          },
+          "variations": {
+            "en": []
+          },
+          "markdown": true,
+          "contentType": "builtin_text"
+        }
+      ]
+    }
+  ]
+}
