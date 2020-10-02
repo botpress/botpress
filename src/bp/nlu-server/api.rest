@@ -29,7 +29,7 @@ Content-Type: application/json
           "variables": [
             {
               "name": "moldy_fruit",
-              "variableType": "fruits"
+              "type": "fruits"
             }
           ]
         },
@@ -77,7 +77,7 @@ Content-Type: application/json
           "variables": [
             {
               "name": "thing_to_search",
-              "variableType": "fruits"
+              "type": "fruits"
             }
           ]
         }
