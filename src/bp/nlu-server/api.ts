@@ -24,7 +24,7 @@ export interface APIOptions {
   authToken?: string
   limitWindow: string
   limit: number
-  bodySize?: string
+  bodySize: string
 }
 
 const debug = DEBUG('api')
@@ -36,7 +36,7 @@ const createExpressApp = (options: APIOptions): Application => {
   // This must be first, otherwise the /info endpoint can't be called when token is used
   app.use(cors())
 
-  app.use(bodyParser.json({ limit: options.bodySize ?? '250kb' }))
+  app.use(bodyParser.json({ limit: options.bodySize }))
 
   app.use((req, res, next) => {
     res.header('X-Powered-By', 'Botpress')

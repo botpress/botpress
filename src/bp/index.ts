@@ -357,6 +357,10 @@ try {
           description:
             'Path of the NLU configuration file (ex: "~/bp-nlu-config.json"). \
             Use to configure the duckling and language servers endpoints.'
+        },
+        bodySize: {
+          description: 'Allowed size of HTTP requests body',
+          default: '250kb'
         }
       },
       argv => {

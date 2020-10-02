@@ -35,7 +35,7 @@ export default async function(options: ArgV) {
     return
   }
 
-  if (options.bodySize && !bytes(options.bodySize)) {
+  if (!bytes(options.bodySize)) {
     throw new Error(`Specified body-size "${options.bodySize}" has an invalid format.`)
   }
 
@@ -110,9 +110,7 @@ ${_.repeat(' ', 9)}========================================`)
     }
   }
 
-  if (options.bodySize) {
-    logger.info(`body size: allowing HTTP resquests body of size ${options.bodySize}`)
-  }
+  logger.info(`body size: allowing HTTP resquests body of size ${options.bodySize}`)
 
   await API(options, nluVersion)
 }
