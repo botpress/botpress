@@ -1,4 +1,4 @@
-import { confirmDialog, lang } from 'botpress/shared'
+import { confirmDialog, lang, toast } from 'botpress/shared'
 import { action, observable, runInAction } from 'mobx'
 import path from 'path'
 
