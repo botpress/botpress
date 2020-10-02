@@ -26,6 +26,22 @@ const PatternSchema = Joi.object().keys({
   case_sensitive: Joi.bool().default(true)
 })
 
+const ComplexSchema = Joi.object().keys({
+  name: Joi.string().required(),
+  enums: Joi.array()
+    .items(Joi.string())
+    .optional()
+    .default([]),
+  patterns: Joi.array()
+    .items(Joi.string())
+    .optional()
+    .default([]),
+  examples: Joi.array()
+    .items(Joi.string())
+    .optional()
+    .default([])
+})
+
 const VariableSchema = Joi.object().keys({
   name: Joi.string().required(),
   type: Joi.string().required()
@@ -62,6 +78,10 @@ export const TrainInputSchema = Joi.object().keys({
     .default([]),
   patterns: Joi.array()
     .items(PatternSchema)
+    .optional()
+    .default([]),
+  complexes: Joi.array()
+    .items(ComplexSchema)
     .optional()
     .default([]),
   password: Joi.string()

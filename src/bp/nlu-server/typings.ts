@@ -2,7 +2,8 @@ export interface TrainInput {
   language: string
   topics: Topic[]
   enums: Enum[]
-  patterns: Pattern[] // TODO: add complexs
+  patterns: Pattern[]
+  complexes: Complex[]
   password: string
   seed?: number
 }
@@ -38,4 +39,11 @@ export interface Pattern {
   name: string
   regex: string
   case_sensitive: boolean
+}
+
+export type Complex = {
+  name: string
+  enums: string[]
+  patterns: string[]
+  examples: string[]
 }

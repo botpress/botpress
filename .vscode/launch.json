@@ -78,7 +78,6 @@
           "-c=${workspaceFolder}/jest.config.js"
         ]
       },
-      "outFiles": ["${workspaceFolder}/out/"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "sourceMaps": true,
