@@ -1,7 +1,7 @@
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 
-import { Enum, Intent, Pattern, TrainInput, Variable } from './typings'
+import { Complex, Enum, Intent, Pattern, TrainInput, Variable } from './typings'
 
 interface BpTrainInput {
   intents: NLU.IntentDefinition[]
@@ -61,12 +61,26 @@ const mapPattern = (pattern: Pattern): NLU.EntityDefinition => {
   }
 }
 
+const mapComplex = (complex: Complex): NLU.EntityDefinition => {
+  const { name, enums, patterns, examples } = complex
+
+  return {
+    id: name,
+    name,
+    list_entities: [...enums],
+    pattern_entities: [...patterns],
+    type: 'complex',
+    examples: [...examples]
+  }
+}
+
 export function mapTrainInput(trainInput: TrainInput): BpTrainInput {
-  const { language, topics, enums, patterns, seed, password } = trainInput
+  const { language, topics, enums, patterns, complexes, seed, password } = trainInput
 
   const listEntities = enums.map(mapEnum)
   const patternEntities = patterns.map(mapPattern)
-  const entities = [...listEntities, ...patternEntities]
+  const complexEntities = complexes.map(mapComplex)
+  const entities = [...listEntities, ...patternEntities, ...complexEntities]
 
   const intents: NLU.IntentDefinition[] = _.flatMap(topics, t => {
     const intentMapper = makeIntentMapper(t.name, language)
