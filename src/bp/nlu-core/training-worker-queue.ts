@@ -234,6 +234,8 @@ if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.TRAINING) {
         process.send!(res)
       }
 
+      tools.seededLodashProvider.setSeed(input!.nluSeed)
+
       let output: TrainOutput | undefined
       try {
         output = await Trainer(input!, tools, progressCb)
@@ -244,6 +246,8 @@ if (cluster.isWorker && process.env.WORKER_TYPE === WORKER_TYPES.TRAINING) {
           srcWorkerId
         }
         process.send!(res)
+      } finally {
+        tools.seededLodashProvider.resetSeed()
       }
 
       const res: IncomingMessage = { type: 'training_done', payload: { output }, srcWorkerId }

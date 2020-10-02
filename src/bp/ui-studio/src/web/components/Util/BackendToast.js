@@ -1,8 +1,8 @@
 import { Component } from 'react'
-import { toastSuccess, toastError, toastInfo } from '../Shared/Utils'
 import _ from 'lodash'
 
 import EventBus from '~/util/EventBus'
+import { toast } from 'botpress/shared'
 
 export default class BackendToast extends Component {
   constructor(props) {
@@ -18,15 +18,15 @@ export default class BackendToast extends Component {
   }
 
   static info = text => {
-    toastInfo(text)
+    toast.info(text)
   }
 
   static success = text => {
-    toastSuccess(text)
+    toast.success(text)
   }
 
   static error = text => {
-    toastError(text)
+    toast.error(text)
   }
 
   render = () => null

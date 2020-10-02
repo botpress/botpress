@@ -1,8 +1,7 @@
 import { Button } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { lang, toast } from 'botpress/shared'
 import _ from 'lodash'
 import React, { useState } from 'react'
-import { toastInfo } from '~/utils/toaster'
 import { Downloader } from '~/Pages/Components/Downloader'
 
 const DownloadArchive = () => {
@@ -16,7 +15,7 @@ const DownloadArchive = () => {
 
   const downloadCompleted = () => {
     setIsLoading(false)
-    toastInfo(lang.tr('admin.versioning.archiveReady'))
+    toast.info(lang.tr('admin.versioning.archiveReady'))
   }
 
   return (

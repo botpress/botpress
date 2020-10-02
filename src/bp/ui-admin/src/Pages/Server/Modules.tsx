@@ -1,9 +1,8 @@
 import { Button, Callout, Intent, Switch } from '@blueprintjs/core'
-import { confirmDialog, lang } from 'botpress/shared'
+import { confirmDialog, lang, toast } from 'botpress/shared'
 import { ModuleInfo } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { toastFailure, toastSuccess } from '~/utils/toaster'
 import PageContainer from '~/App/PageContainer'
 
 import api from '../../api'
@@ -55,7 +54,7 @@ const Modules: FC<Props> = props => {
         setRestart(true)
       }
     } catch (err) {
-      toastFailure(err.message)
+      toast.failure(err.message)
     }
   }
 
@@ -64,19 +63,19 @@ const Modules: FC<Props> = props => {
       const { data } = await api.getSecured().post(`/modules/${moduleName}/enabled/${enabled}`)
       setRebootRequired(data.rebootRequired)
       props.fetchModules()
-      toastSuccess('Module status updated successfully')
+      toast.success('Module status updated successfully')
     } catch (err) {
-      toastFailure(err.message)
+      toast.failure(err.message)
     }
   }
 
   const unpackModule = async (moduleName: string) => {
     try {
       await api.getSecured().post(`/modules/${moduleName}/unpack`)
-      toastSuccess('Module unpacked successfully')
+      toast.success('Module unpacked successfully')
       props.fetchModules()
     } catch (err) {
-      toastFailure(err.message)
+      toast.failure(err.message)
     }
   }
 

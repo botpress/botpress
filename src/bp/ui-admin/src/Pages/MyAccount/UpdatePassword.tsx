@@ -1,9 +1,8 @@
 import { Button, Classes, Dialog, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { lang, toast } from 'botpress/shared'
 import { UserProfile } from 'common/typings'
 import React, { FC, useState } from 'react'
 import api from '~/api'
-import { toastFailure, toastSuccess } from '~/utils/toaster'
 
 interface Props {
   isOpen: boolean
@@ -25,9 +24,9 @@ const UpdatePassword: FC<Props> = props => {
       await api.getSecured().post(`/auth/login/${strategyType}/${strategy}`, { email, password, newPassword })
 
       props.toggle()
-      toastSuccess(lang.tr('admin.passwordUpdatedSuccessfully'))
+      toast.success(lang.tr('admin.passwordUpdatedSuccessfully'))
     } catch (err) {
-      toastFailure(lang.tr('admin.errorUpdatingPassword', { msg: err.message }))
+      toast.failure(lang.tr('admin.errorUpdatingPassword', { msg: err.message }))
     }
   }
 

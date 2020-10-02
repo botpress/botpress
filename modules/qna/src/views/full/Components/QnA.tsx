@@ -238,7 +238,12 @@ const QnA: FC<Props> = props => {
   return (
     <div className={style.questionWrapper}>
       <div className={style.headerWrapper}>
-        <Button minimal small onClick={() => setExpanded(!expanded)} className={style.questionHeader}>
+        <Button
+          minimal
+          small
+          onClick={() => setExpanded(!expanded)}
+          className={cx(style.questionHeader, { [style.disabled]: !data.enabled, [style.expanded]: expanded })}
+        >
           <div className={style.left}>
             <Icon icon={!expanded ? 'chevron-right' : 'chevron-down'} />{' '}
             <h1>{questions?.[0] || <span className={style.refTitle}>{refQuestions?.[0]}</span>}</h1>
@@ -282,7 +287,7 @@ const QnA: FC<Props> = props => {
         <MoreOptions show={showOption} onToggle={() => setShowOption(!showOption)} items={moreOptionsItems} />
       </div>
       {expanded && (
-        <div key={contentLang} className={style.collapsibleWrapper}>
+        <div key={contentLang} className={cx(style.collapsibleWrapper, { [style.disabled]: !data.enabled })}>
           <TextAreaList
             key="questions"
             items={questions || ['']}

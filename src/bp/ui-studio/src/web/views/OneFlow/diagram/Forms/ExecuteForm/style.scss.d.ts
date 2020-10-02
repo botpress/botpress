@@ -2,7 +2,9 @@
 // Please do not change this file!
 interface CssExports {
   'editorWrap': string;
+  'formWrap': string;
   'hidden': string;
+  'maximized': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

@@ -1,5 +1,5 @@
 .editorWrap {
-  height: 70vh;
+  flex-grow: 1;
 }
 
 .editorWrap > div {
@@ -7,6 +7,17 @@
   height: 100%;
 }
 
+.formWrap {
+  display: flex;
+  flex-direction: column;
+}
+
 .hidden {
   display: none;
+}
+
+.maximized {
+  left: 280px; // main menu + topics list width
+  width: auto;
+  border-left: 1px solid var(--gray);
 }

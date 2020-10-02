@@ -6,6 +6,7 @@ import moment from 'moment'
 import React, { FC, Fragment, useState } from 'react'
 
 import ContentSection from '../../../../../../../../src/bp/ui-shared-lite/ContentSection'
+import ToolTip from '../../../../../../../../src/bp/ui-shared-lite/ToolTip'
 import lang from '../../../../lang'
 import style from '../style.scss'
 
@@ -47,8 +48,6 @@ export const Processing: FC<{ processing: { [activity: string]: sdk.IO.Processin
       return acc
     }, [])
 
-  const totalExec = _.sumBy(processed, x => x.execTime)
-
   const renderToggleItem = (item, key) => {
     const isExpanded = expanded[key]
     const hasError = item.status === 'error' || !!item.errors?.length
@@ -56,12 +55,14 @@ export const Processing: FC<{ processing: { [activity: string]: sdk.IO.Processin
 
     return (
       <Fragment>
-        <button className={style.itemButton} onClick={() => setExpanded({ ...expanded, [key]: !isExpanded })}>
-          <Icon icon={isExpanded ? 'chevron-down' : 'chevron-right'} iconSize={10} />
-          <span className={cx({ [style.error]: hasError })}>{item.name}</span>
-          {hasError && <Icon className={style.error} icon="error" iconSize={10} />}
-          {hasLog && <Icon className={style.info} icon="info-sign" iconSize={10} />}
-        </button>
+        <ToolTip content={lang.tr('module.extensions.processing.executedIn', { n: item.execTime || 0 })}>
+          <button className={style.itemButton} onClick={() => setExpanded({ ...expanded, [key]: !isExpanded })}>
+            <Icon className={style.itemButtonIcon} icon={isExpanded ? 'chevron-down' : 'chevron-right'} iconSize={10} />
+            {hasError && <Icon className={style.error} icon="error" iconSize={10} />}
+            {hasLog && <Icon className={style.info} icon="info-sign" iconSize={10} />}
+            <span className={cx({ [style.error]: hasError })}>{item.name}</span>
+          </button>
+        </ToolTip>
         {isExpanded && (
           <span className={style.expanded}>
             {hasLog && (
@@ -83,12 +84,24 @@ export const Processing: FC<{ processing: { [activity: string]: sdk.IO.Processin
                 ))}
               </span>
             )}
-            <span className={style.time}>
-              {lang.tr('module.extensions.processing.executedIn', { n: item.execTime || 0 })}
-            </span>
           </span>
         )}
       </Fragment>
+    )
+  }
+
+  const renderItem = (item, key) => {
+    const hasError = item.status === 'error' || !!item.errors?.length
+    const hasLog = !!item.logs?.length
+
+    if (hasError || hasLog) {
+      return renderToggleItem(item, key)
+    }
+
+    return (
+      <ToolTip content={lang.tr('module.extensions.processing.executedIn', { n: item.execTime || 0 })}>
+        <div className={style.processingItemName}>{item.name}</div>
+      </ToolTip>
     )
   }
 
@@ -101,7 +114,7 @@ export const Processing: FC<{ processing: { [activity: string]: sdk.IO.Processin
           <Fragment key={index}>
             {!item.subItems}
             <div className={cx(style.processingItem, style.processingSection)}>
-              {!hasChildren && renderToggleItem({ ...item.subItems?.[0], name: item.name }, index)}
+              {!hasChildren && renderItem({ ...item.subItems?.[0], name: item.name }, index)}
               {!!hasChildren && item.name}
             </div>
             {!!hasChildren && (
@@ -111,7 +124,7 @@ export const Processing: FC<{ processing: { [activity: string]: sdk.IO.Processin
 
                   return (
                     <li className={cx(style.processingItem, { [style.error]: entry.status === 'error' })} key={key}>
-                      {renderToggleItem(entry, key)}
+                      {renderItem(entry, key)}
                     </li>
                   )
                 })}

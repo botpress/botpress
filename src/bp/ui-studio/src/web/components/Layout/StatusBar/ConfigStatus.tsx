@@ -1,9 +1,8 @@
 import { Button } from '@blueprintjs/core'
 import axios from 'axios'
-import { lang, ToolTip } from 'botpress/shared'
+import { lang, toast, ToolTip } from 'botpress/shared'
 import { confirmDialog } from 'botpress/shared'
 import React, { useEffect, useState } from 'react'
-import { toastFailure } from '~/components/Shared/Utils'
 import EventBus from '~/util/EventBus'
 
 import style from './style.scss'
@@ -45,7 +44,7 @@ const ConfigStatus = () => {
         setDifferent(true)
       }
     } catch (err) {
-      toastFailure(err.message)
+      toast.failure(err.message)
     }
   }
 
@@ -54,7 +53,7 @@ const ConfigStatus = () => {
       await axios.post(`${adminUrl}/rebootServer`)
       setRestart(true)
     } catch (err) {
-      toastFailure(err.message)
+      toast.failure(err.message)
     }
   }
 

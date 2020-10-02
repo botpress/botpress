@@ -9,7 +9,7 @@ export interface Tab {
 export interface TabsProps {
   tabs: Tab[]
   className?: string
-  shouldFloat?: boolean
+  shouldFloat?: boolean // CSS float to align with another element
   tabChange?: (tab: string) => void
   currentTab?: string
 }

@@ -1,5 +1,5 @@
 import { Button, Classes, Colors, Dialog, FileInput, FormGroup, Icon, Intent } from '@blueprintjs/core'
-import { toastFailure, toastSuccess } from 'botpress/utils'
+import { toast } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useState } from 'react'
 
@@ -30,13 +30,13 @@ export const ImportModal: FC<Props> = props => {
     } catch (err) {
       setIsLoading(false)
       setHasError(true)
-      toastFailure(err.message)
+      toast.failure(err.message)
     }
   }
 
   const importSuccess = ({ nTests }) => {
     setIsLoading(false)
-    toastSuccess(`Successfully imported ${nTests}`)
+    toast.success(`Successfully imported ${nTests}`)
     props.onImportCompleted()
     setTimeout(closeDialog, 750)
   }

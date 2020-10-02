@@ -96,10 +96,11 @@
 
   .bpw-bubble-session_reset {
     background: var(--bg);
-    max-width: calc(100% + 60px) !important;
-    width: calc(100% + 60px) !important;
-    font-size: 8px;
-    line-height: 1.25;
+    max-width: calc(100% + 22px) !important;
+    width: calc(100% + 22px) !important;
+    font-size: 10px;
+    border-radius: 3px;
+    line-height: 1;
     margin: var(--spacing-xx-large) 0 !important;
   }
 
@@ -203,8 +204,8 @@
     justify-content: center;
   }
 
-  .bpw-bot-avatar:not(.emulator) img,
-  .bpw-bot-avatar:not(.emulator) svg {
+  .bpw-bot-avatar:not(.emulator):not(.default) img,
+  .bpw-bot-avatar:not(.emulator):not(.default) svg {
     border-radius: 50%;
     background: var(--shark);
   }
@@ -379,7 +380,7 @@
   }
 
   .bpw-date-container {
-    font-size: 8px;
+    font-size: 10px;
     line-height: 1.25;
     margin: var(--spacing-large) 0 var(--spacing-x-large);
     color: var(--shark);
@@ -762,8 +763,8 @@
     transition: fill 0.3s;
   }
 
-  .bpw-send-button:hover path,
-  .bpw-send-button:focus path {
+  .bpw-send-button:not(:disabled):hover path,
+  .bpw-send-button:not(:disabled):focus path {
     fill: var(--ocean);
   }
 

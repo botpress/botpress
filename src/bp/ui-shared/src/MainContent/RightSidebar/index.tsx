@@ -8,7 +8,7 @@ import { RightSidebarProps } from './typings'
 const RightSidebar: FC<RightSidebarProps> = ({ className, canOutsideClickClose, close, children }) => {
   let container
   const contentWrapper = document.getElementById('main-content-wrapper')
-  const classList = [style.show, className || ''].filter(Boolean)
+  const classList = [style.show, ...(className?.split(' ') || [])].filter(Boolean)
 
   useEffect(() => {
     container = document.getElementById('sidebar-container')

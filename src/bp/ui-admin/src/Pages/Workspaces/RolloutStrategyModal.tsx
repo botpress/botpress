@@ -1,9 +1,8 @@
 import { Button, Radio, RadioGroup } from '@blueprintjs/core'
-import { Dialog } from 'botpress/shared'
+import { Dialog, toast } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import api from '~/api'
-import { toastFailure, toastSuccess } from '~/utils/toaster'
 
 import InviteCode from './InviteCode'
 
@@ -70,10 +69,10 @@ const RolloutStrategyModal: FC<Props> = props => {
   const submit = async () => {
     try {
       await api.getSecured().post(`/admin/workspaces/${props.workspaceId}/rollout/${strategy}`)
-      toastSuccess('Rollout strategy updated successfully')
+      toast.success('Rollout strategy updated successfully')
       props.refreshWorkspaces && props.refreshWorkspaces()
     } catch (err) {
-      toastFailure(err.message)
+      toast.failure(err.message)
     }
   }
 

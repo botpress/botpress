@@ -1,7 +1,7 @@
 import { Button, Classes, Dialog, FormGroup, InputGroup, Radio, RadioGroup, TextArea } from '@blueprintjs/core'
+import { toast } from 'botpress/shared'
 import React, { FC, Fragment, useState } from 'react'
 import api from '~/api'
-import { toastFailure, toastSuccess } from '~/utils/toaster'
 
 export const sanitizeText = (text: string) =>
   text
@@ -30,10 +30,10 @@ const CreateWorkspaceModal: FC<Props> = props => {
       await api.getSecured().post('/admin/workspaces', workspace)
       props.refreshWorkspaces()
 
-      toastSuccess('Workspace created successfully')
+      toast.success('Workspace created successfully')
       closeModal()
     } catch (err) {
-      toastFailure(err.message)
+      toast.failure(err.message)
     }
   }
 
