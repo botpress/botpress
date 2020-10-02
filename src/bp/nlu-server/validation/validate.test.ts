@@ -33,7 +33,7 @@ const CITY_ENUM: Enum = {
 const TICKET_PATTERN: Pattern = {
   name: 'ticket',
   case_sensitive: true,
-  positive_regexes: ['[A-Z]{3}-[0-9]{3}'] // ABC-123
+  regex: '[A-Z]{3}-[0-9]{3}' // ABC-123
 }
 
 const VARIABLE_CITY_FROM: Variable = { name: 'city-from', type: 'city' }

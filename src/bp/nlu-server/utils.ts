@@ -48,7 +48,7 @@ const mapEnum = (enumDef: Enum): NLU.EntityDefinition => {
 }
 
 const mapPattern = (pattern: Pattern): NLU.EntityDefinition => {
-  const { name, positive_regexes, case_sensitive } = pattern
+  const { name, regex, case_sensitive } = pattern
 
   return {
     id: name,
@@ -56,7 +56,7 @@ const mapPattern = (pattern: Pattern): NLU.EntityDefinition => {
     list_entities: [],
     pattern_entities: [],
     type: 'pattern',
-    pattern: positive_regexes[0], // TODO: adress this type mismatch...
+    pattern: regex,
     matchCase: case_sensitive
   }
 }

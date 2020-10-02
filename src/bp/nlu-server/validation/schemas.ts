@@ -22,10 +22,7 @@ const EnumSchema = Joi.object().keys({
 // TODO: maybe add some field to tell if information is sensitive (secret)...
 const PatternSchema = Joi.object().keys({
   name: Joi.string().required(),
-  positive_regexes: Joi.array()
-    .items(Joi.string())
-    .required()
-    .min(1),
+  regex: Joi.string().required(),
   case_sensitive: Joi.bool().default(true)
 })
 
