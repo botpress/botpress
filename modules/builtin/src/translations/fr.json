@@ -55,6 +55,7 @@
       "allowMultiplePick": "Permettre à l'utilisateur de sélectionner plusieurs suggestions",
       "allowToAdd": "Permettre à l'utilisateur d'ajouter des suggestions",
       "delete": "Supprimer la suggestion",
+      "deleteSuggestions": "Supprimer les suggestions",
       "displayOnTop": "Affichage au-dessus du clavier",
       "label": "Étiquette de suggestion",
       "labelPlaceholder": "Quelle est la suggestion affichée?",

@@ -55,6 +55,7 @@
       "allowMultiplePick": "Allow user to pick multiple suggestions",
       "allowToAdd": "Allow user to add suggestions",
       "delete": "Delete Suggestion",
+      "deleteSuggestions": "Delete Suggestions",
       "displayOnTop": "Display on top of the keyboard",
       "label": "Suggestion Label",
       "labelPlaceholder": "What is the suggestion displayed?",

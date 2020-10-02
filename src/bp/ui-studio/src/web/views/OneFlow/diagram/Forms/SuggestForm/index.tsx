@@ -38,7 +38,7 @@ const ContentForm: FC<Props> = ({
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
-      label: lang.tr('delete'),
+      label: lang.tr('module.builtin.types.suggestions.deleteSuggestions'),
       action: deleteNode,
       type: 'delete'
     }
