@@ -9,10 +9,12 @@ interface CssExports {
   'contentAnswerWrapper': string;
   'contextSelector': string;
   'customBtn': string;
+  'disabled': string;
   'embeddedInFlow': string;
   'empty': string;
   'errorIcon': string;
   'errorsList': string;
+  'expanded': string;
   'filterWrapper': string;
   'header': string;
   'headerWrapper': string;

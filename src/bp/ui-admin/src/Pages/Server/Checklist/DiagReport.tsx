@@ -1,7 +1,7 @@
 import { Button } from '@blueprintjs/core'
+import { toast } from 'botpress/shared'
 import { useState } from 'react'
 import api from '~/api'
-import { toastFailure } from '~/utils/toaster'
 
 export const DiagReport = () => {
   const [loading, setLoading] = useState(false)
@@ -17,7 +17,7 @@ export const DiagReport = () => {
       link.download = `diagnostic.txt`
       link.click()
     } catch (err) {
-      toastFailure(`Couldn't generate diagnostic report: ${err}`)
+      toast.failure(`Couldn't generate diagnostic report: ${err}`)
     } finally {
       setLoading(false)
     }

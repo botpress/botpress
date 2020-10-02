@@ -1,5 +1,5 @@
 import { Button, Tooltip } from '@blueprintjs/core'
-import { confirmDialog } from 'botpress/shared'
+import { confirmDialog, toast } from 'botpress/shared'
 import { ServerHealth } from 'common/typings'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
@@ -9,7 +9,6 @@ import ReactTable from 'react-table'
 import api from '~/api'
 import { fetchBotHealth, fetchBotsByWorkspace } from '~/reducers/bots'
 import { switchWorkspace } from '~/reducers/user'
-import { toastFailure, toastSuccess } from '~/utils/toaster'
 import { getActiveWorkspace } from '~/Auth'
 
 import Dropdown, { Option } from '../Components/Dropdown'
@@ -167,10 +166,10 @@ const BotHealth: FC<Props> = props => {
 
     try {
       await api.getSecured().post(`/admin/bots/${botId}/reload`)
-      toastSuccess(`Bot remounted successfully`)
+      toast.success(`Bot remounted successfully`)
     } catch (err) {
       console.log(err)
-      toastFailure(`Could not mount bot. Check server logs for details`)
+      toast.failure(`Could not mount bot. Check server logs for details`)
     }
   }
 

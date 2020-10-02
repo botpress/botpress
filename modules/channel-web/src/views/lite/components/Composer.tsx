@@ -84,7 +84,7 @@ class Composer extends React.Component<ComposerProps> {
             {placeholder}
           </label>
 
-          <ToolTip content="Send Message">
+          <ToolTip content={this.props.isEmulator ? 'Interact with your chatbot' : 'Send Message'}>
             <button
               className={'bpw-send-button'}
               disabled={!this.props.message.length}
@@ -118,7 +118,8 @@ export default inject(({ store }: { store: RootStore }) => ({
   focusNext: store.view.focusNext,
   enableArrowNavigation: store.config.enableArrowNavigation,
   enableResetSessionShortcut: store.config.enableResetSessionShortcut,
-  resetSession: store.resetSession
+  resetSession: store.resetSession,
+  isEmulator: store.isEmulator
 }))(injectIntl(observer(Composer)))
 
 type ComposerProps = {
@@ -135,6 +136,7 @@ type ComposerProps = {
     | 'focusPrevious'
     | 'focusNext'
     | 'recallHistory'
+    | 'isEmulator'
     | 'setFocus'
     | 'updateMessage'
     | 'message'
