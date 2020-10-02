@@ -99,7 +99,11 @@ const Forms: FC<Props> = ({
   const updateNodeSuggest = data => {
     switchFlowNode(node.id)
     updateEditingNodeItem({ node: { ...node, suggest: data.suggest }, index })
-    updateFlowNode({ suggest: data.suggest })
+    updateFlowNode({
+      suggest: data.suggest,
+      next: [...node.next.filter(x => x.condition === 'true'), ...data.transitions],
+      triggers: data.triggers
+    })
   }
 
   const updateNodeCondition = data => {
@@ -233,7 +237,7 @@ const Forms: FC<Props> = ({
       {formType === 'suggest' && (
         <SuggestForm
           customKey={`${node.id}${index}`}
-          deleteContent={() => deleteNodeContent()}
+          deleteNode={deleteSelectedElements}
           variables={variables}
           events={hints || []}
           contentLang={currentLang}

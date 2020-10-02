@@ -114,7 +114,7 @@ const BlockWidget: FC<Props> = ({
   }
 
   const inputPortInHeader = !['trigger'].includes(nodeType)
-  const outPortInHeader = !['failure', 'prompt', 'router', 'success', 'sub-workflow'].includes(nodeType)
+  const outPortInHeader = !['failure', 'prompt', 'suggest', 'router', 'success', 'sub-workflow'].includes(nodeType)
   const canCollapse = !['failure', 'prompt', 'router', 'success', 'suggest', 'sub-workflow'].includes(nodeType)
   const hasContextMenu = !['failure', 'success'].includes(nodeType)
 

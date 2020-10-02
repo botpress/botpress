@@ -6,7 +6,7 @@ import _ from 'lodash'
 import React, { FC, Fragment, useState } from 'react'
 
 interface Props {
-  deleteContent: () => void
+  deleteNode: () => void
   editingContent: number
   customKey: string
   variables: Variables
@@ -28,7 +28,7 @@ const ContentForm: FC<Props> = ({
   formData,
   onUpdate,
   onUpdateVariables,
-  deleteContent,
+  deleteNode,
   variables,
   events,
   node,
@@ -38,56 +38,39 @@ const ContentForm: FC<Props> = ({
 
   const moreOptionsItems: MoreOptionsItems[] = [
     {
-      label: lang.tr('deleteContent'),
-      action: deleteContent,
+      label: lang.tr('delete'),
+      action: deleteNode,
       type: 'delete'
     }
   ]
 
   const prepareUpdate = data => {
-    onUpdate({ suggest: data })
-    return
-    const langs = Object.keys(data.suggestions)
-    const transitions: NodeTransition[] = [
-      ...(node?.next.filter(
-        transition => transition.contentIndex !== editingContent && transition.condition !== 'true'
-      ) || [])
-    ]
+    const transitions = []
 
-    const triggers = data.suggestions[defaultLang].map(({ name, tags }, idx) => {
-      const utterances = langs.reduce((acc, curr) => {
-        return { ...acc, [curr]: [name, ...(data.suggestions[curr]?.find(x => x.name === name)?.tags || [])] }
-      }, {})
-
-      const currentDest = node?.next.find(x => x.condition === `choice-${name}${idx}`)?.node ?? ''
+    const triggers = data.suggestions.reduce((acc, suggestion, index) => {
+      const currentDest = node?.next.find(x => x.condition === `choice-${index}`)?.node ?? ''
 
       transitions.push({
-        condition: `choice-${name}${idx}`,
-        caption: [...([name] || []), ...(tags || [])].filter(Boolean).join(' · '),
-        contentIndex: editingContent,
+        condition: `choice-${index}`,
+        suggestion,
         node: currentDest
       })
 
-      return {
-        name: `choice-${name}${idx}`,
-        effect: 'jump.node',
-        conditions: [
-          {
-            params: { utterances },
-            id: 'user_intent_is'
-          }
-        ],
-        type: 'contextual',
-        gotoNodeId: currentDest,
-        suggestion: { label: name, value: name, position: data.position },
-        expiryPolicy: {
-          strategy: data.expiryPolicy,
-          turnCount: data.turnCount ?? 3
+      return [
+        ...acc,
+        {
+          conditions: [{ params: { utterances: { ...suggestion.label } }, id: 'user_intent_is' }],
+          effect: 'jump.node',
+          expiryPolicy: { strategy: data.turn ? 'turn' : 'workflow', turnCount: data.turnCount ?? 0 },
+          gotoNodeId: currentDest,
+          name: `choice-${index}`,
+          suggestion,
+          type: 'contextual'
         }
-      }
-    })
+      ]
+    }, [])
 
-    onUpdate({ triggers, transitions })
+    onUpdate({ triggers, transitions, suggest: data })
   }
 
   const fields: FormField[] = [
@@ -96,6 +79,7 @@ const ContentForm: FC<Props> = ({
         addLabel: 'module.builtin.types.suggestions.addTextAlternative'
       },
       type: 'text_array',
+      translated: true,
       key: 'text',
       label: 'text'
     },
