@@ -160,7 +160,7 @@ export default async function(options: APIOptions, nluVersion: string) {
       if (model) {
         await engine.loadModel(model)
 
-        const prediction = await engine.predict(sentence, [], model?.languageCode!)
+        const prediction = await engine.predict(sentence, [], model.languageCode)
         engine.unloadModel(model.languageCode)
 
         return res.send({ success: true, prediction })
