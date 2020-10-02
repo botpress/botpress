@@ -36,6 +36,7 @@ interface CssExports {
   'smallButton': string;
   'sub-workflow': string;
   'success': string;
+  'suggest': string;
   'text': string;
   'textWrapper': string;
   'total': string;

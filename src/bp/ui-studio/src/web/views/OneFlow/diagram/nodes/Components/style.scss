@@ -65,6 +65,7 @@
 
     .say_something,
     .prompt,
+    .suggest,
     .trigger,
     .execute,
     .action,
@@ -94,6 +95,8 @@
     .headerWrapper {
       &.say_something,
       &:hover.say_something,
+      &.suggest,
+      &:hover.suggest,
       &.sub-workflow,
       &:hover.sub-workflow,
       &.trigger,
@@ -113,6 +116,10 @@
         border-color: var(--ocean);
       }
     }
+  }
+
+  .suggest :global(.port):before {
+    background: var(--suggest);
   }
 
   .prompt :global(.port):before {
@@ -202,6 +209,11 @@
       background: var(--say);
     }
 
+    &.suggest,
+    &:hover.suggest {
+      background: var(--suggest);
+    }
+
     &.trigger,
     &:hover.trigger {
       background: var(--trigger);
@@ -281,6 +293,12 @@
     &:hover.say_something {
       background: #fff;
       border-color: var(--say);
+    }
+
+    &.suggest,
+    &:hover.suggest {
+      background: #fff;
+      border-color: var(--suggest);
     }
 
     &.trigger,
@@ -402,6 +420,10 @@
 
     &.say_something:before {
       background-color: var(--say) !important;
+    }
+
+    &.suggest:before {
+      background-color: var(--suggest) !important;
     }
 
     :before {

@@ -47,11 +47,7 @@ const SaySomethingContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem,
             <div className={style.content}>
               <Dotdotdot clamp={2}>{item.suggestion?.label?.[currentLang]?.join(' · ')}</Dotdotdot>
               {!item.suggestion?.openUrl && (
-                <StandardPortWidget
-                  name={outputPortName}
-                  node={node}
-                  className={cx(style.outRouting, style.say_something)}
-                />
+                <StandardPortWidget name={outputPortName} node={node} className={cx(style.outRouting, style.suggest)} />
               )}
             </div>
           </button>

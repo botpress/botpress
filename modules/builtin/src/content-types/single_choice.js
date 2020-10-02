@@ -98,7 +98,7 @@ module.exports = {
   },
 
   newSchema: {
-    displayedIn: ['qna'],
+    displayedIn: [],
     order: 4,
     advancedSettings: [
       {
