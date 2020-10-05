@@ -10,6 +10,7 @@ import { Grid, Row, Col } from 'react-flexbox-grid'
 
 import AgentList from './Components/AgentList'
 import AgentProfile from './Components/AgentProfile'
+import Conversation from './Components/Conversation'
 import EscalationList from './Components/EscalationList'
 
 import style from './style.scss'
@@ -92,6 +93,9 @@ const App = ({ bp }) => {
       <Row>
         <Col md={4}>
           <EscalationList api={api} escalations={state.escalations} loading={escalationsLoading}></EscalationList>
+        </Col>
+        <Col md={8}>
+          <Conversation api={api} escalation={state.currentEscalation}></Conversation>
         </Col>
       </Row>
     </Grid>
