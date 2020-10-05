@@ -1,6 +1,7 @@
 import { Icon, Position, Tooltip } from '@blueprintjs/core'
 import cx from 'classnames'
 import _isEqual from 'lodash/isEqual'
+import isRegExp from 'lodash/isRegExp'
 import _uniqueId from 'lodash/uniqueId'
 import React, { FC, useEffect, useRef, useState } from 'react'
 
@@ -12,6 +13,21 @@ import Textarea from '../../Textarea'
 import style from './style.scss'
 import { TextFieldsArrayProps } from './typings'
 
+const preparePattern = (pattern: string, matchCase?: boolean) => {
+  try {
+    let p = pattern || ''
+    if (!p.startsWith('^')) {
+      p = `^${p}`
+    }
+    if (!p.endsWith('$')) {
+      p = `${p}$`
+    }
+    return new RegExp(p, matchCase ? '' : 'i')
+  } catch (err) {
+    console.error('Pattern invalid', err)
+  }
+}
+
 const TextFieldsArray: FC<TextFieldsArrayProps> = ({
   addBtnLabel,
   addBtnLabelTooltip,
@@ -22,6 +38,7 @@ const TextFieldsArray: FC<TextFieldsArrayProps> = ({
   refValue,
   getPlaceholder,
   validation,
+  data,
   moreInfo
 }) => {
   const getInitialItems = () => {
@@ -54,6 +71,20 @@ const TextFieldsArray: FC<TextFieldsArrayProps> = ({
     setLocalItems([...localItems, ''])
   }
 
+  const isItemValid = item => {
+    if (!validation?.regex) {
+      return true
+    }
+
+    if (isRegExp(validation.regex)) {
+      return validation.regex.test(item)
+    }
+
+    const { pattern, matchCase } = validation.regex
+    const regex = preparePattern(data[pattern], matchCase && data[matchCase])
+    return regex?.test(item)
+  }
+
   const onKeyDown = (e, index: number): void => {
     if (e.key === 'Enter' && !(e.ctrlKey || e.metaKey || e.shiftKey)) {
       e.preventDefault()
@@ -82,11 +113,11 @@ const TextFieldsArray: FC<TextFieldsArrayProps> = ({
   }
 
   const validateItem = (item: string) => {
-    if (!validation?.regex?.test || !item) {
+    if (!item || !validation?.regex) {
       return null
     }
 
-    return validation.regex.test(item) ? (
+    return isItemValid(item) ? (
       <Icon icon="tick-circle" className={cx(style.icon, style.success)}></Icon>
     ) : (
       <Icon icon="error" className={cx(style.icon, style.error)}></Icon>

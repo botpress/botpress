@@ -5,8 +5,9 @@ export interface TextFieldsArrayProps {
   items: string[]
   moreInfo?: JSX.Element
   label?: string
+  data?: any
   validation?: {
-    regex?: RegExp
+    regex?: RegExp | { pattern: string; matchCase?: string }
     list?: any[]
     validator?: (items: any[], newItem: any) => boolean
   }

@@ -14,6 +14,7 @@ export interface FormProps {
   overrideFields?: { [field: string]: (props: any) => JSX.Element }
   fields: FormField[]
   advancedSettings?: FormField[]
+  validation?: FormField[]
   formData?: FormData
   fieldsError?: { [field: string]: string }
   onUpdate: (data: { [key: string]: any }) => void

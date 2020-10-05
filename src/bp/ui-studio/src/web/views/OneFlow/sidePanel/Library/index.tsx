@@ -57,30 +57,8 @@ export interface NodeData {
 
 type NodeType = 'workflow' | 'block' | 'variableType'
 
-const getNextName = (originalName: string, list: any[]) => {
-  let index = 0
-  let name = originalName
-
-  while (list.find(f => f.name === name)) {
-    index++
-    name = `${originalName}-${index}`
-  }
-  return name
-}
-
 const sanitize = (name: string) => {
   return sanitizeName(name).replace(/\//g, '-')
-}
-
-const getVarTypeIcon = type => {
-  switch (type) {
-    case 'pattern':
-      return 'comparison'
-    case 'list':
-      return 'properties'
-    case 'complex':
-      return 'list-columns'
-  }
 }
 
 const Library: FC<Props> = props => {
@@ -108,15 +86,6 @@ const Library: FC<Props> = props => {
   }, [expanded])
 
   useEffect(() => {
-    const entities = props.entities
-      ?.filter(x => x.type !== 'system' && x.name?.toLowerCase()?.includes(filter.toLowerCase()))
-      .map<NodeData>(x => ({
-        id: x.id,
-        type: 'variableType',
-        label: x.name,
-        icon: getVarTypeIcon(x.type)
-      }))
-
     const reusables = props.flows
       .filter(x => x.type === 'reusable' && x.name?.toLowerCase()?.includes(filter.toLowerCase()))
       .map<NodeData>(x => ({
@@ -133,11 +102,6 @@ const Library: FC<Props> = props => {
         type: 'workflowGroup' as NodeType,
         label: lang.tr('studio.library.savedWorkflows'),
         children: reusables
-      },
-      {
-        id: 'variableType',
-        label: lang.tr('studio.library.variableTypes'),
-        children: entities
       }
     ]
 
@@ -160,31 +124,9 @@ const Library: FC<Props> = props => {
     }
   }
 
-  const newVarType = async (type: 'pattern' | 'list' | 'complex') => {
-    const name = getNextName(`${type}-entity`, props.entities)
-    await createVarType({ id: name, name, type, occurrences: [] })
-    setEditing({ id: name, type: 'variableType', new: true })
-  }
-
-  const duplicateVarType = async (entityId: string) => {
-    const original = props.entities.find(x => x.name === entityId)
-    const name = getNextName(entityId, props.entities)
-    const entity = { ...original, id: name, name }
-
-    await createVarType(entity)
-    props.setActiveFormItem({ type: 'variableType', data: entity })
-  }
-
   const createVarType = async entity => {
     await axios.post(`${window.BOT_API_PATH}/nlu/entities`, entity)
     props.refreshEntities()
-  }
-
-  const deleteEntity = async (entityId: string) => {
-    if (await confirmDialog(lang.tr('studio.library.confirmDeleteEntity'), { acceptLabel: lang.tr('delete') })) {
-      props.deleteEntity(entityId)
-      props.refreshEntities()
-    }
   }
 
   const deleteWorkflow = async (workflow: string) => {
@@ -284,28 +226,7 @@ const Library: FC<Props> = props => {
       return
     }
 
-    if (type == 'variableType') {
-      return (
-        <Fragment>
-          <MenuItem
-            id="btn-rename"
-            label={lang.tr('studio.library.renameVariableType')}
-            onClick={() => setEditing({ id, type: 'variableType' })}
-          />
-          <MenuItem
-            id="btn-duplicate"
-            label={lang.tr('studio.library.duplicateVariableType')}
-            onClick={() => duplicateVarType(label)}
-          />
-          <MenuItem
-            id="btn-delete"
-            label={lang.tr('studio.library.deleteVariableFromLibrary')}
-            intent={Intent.DANGER}
-            onClick={() => deleteEntity(label)}
-          />
-        </Fragment>
-      )
-    } else if (type == 'workflow') {
+    if (type == 'workflow') {
       return (
         <Fragment>
           <MenuItem
@@ -368,32 +289,6 @@ const Library: FC<Props> = props => {
                 className={style.addBtn}
                 text={lang.tr('studio.flow.sidePanel.addWorkflow')}
               />
-            )}
-
-            {props.canAdd && item.id === 'variableType' && (
-              <Fragment>
-                <Button
-                  minimal
-                  onClick={async () => newVarType('list')}
-                  icon="plus"
-                  className={style.addBtn}
-                  text={lang.tr('studio.library.addEnum')}
-                />
-                <Button
-                  minimal
-                  onClick={async () => newVarType('pattern')}
-                  icon="plus"
-                  className={style.addBtn}
-                  text={lang.tr('studio.library.addPattern')}
-                />
-                <Button
-                  minimal
-                  onClick={async () => newVarType('complex')}
-                  icon="plus"
-                  className={style.addBtn}
-                  text={lang.tr('studio.library.addComplex')}
-                />
-              </Fragment>
             )}
           </Fragment>
         )}

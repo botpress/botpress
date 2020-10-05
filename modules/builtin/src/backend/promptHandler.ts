@@ -1,6 +1,7 @@
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import lang from 'common/lang'
+import flatMap from 'lodash/flatMap'
 
 export async function setupMiddleware(bp: typeof sdk, prompts: { id; config: sdk.PromptConfig }[]) {
   bp.events.registerMiddleware({
@@ -51,14 +52,11 @@ export const handlePrompt = async (event: sdk.IO.OutgoingEvent, bp: typeof sdk):
       }
 
     case 'enumeration':
+    case 'string':
       let items = payload.items
 
-      if (payload.subType) {
-        const { data } = await axios.get(
-          `nlu/entities/${payload.subType}`,
-          await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
-        )
-        items = data.occurrences.map(x => ({ label: x.name, value: x.name }))
+      if (payload.enumerations) {
+        items = flatMap(payload.enumerations, 'occurrences').map(x => ({ label: x.name, value: x.name }))
       }
 
       if (!items?.length) {

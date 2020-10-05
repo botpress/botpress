@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import { FlowView } from 'common/typings'
 import { sanitizeFileName } from 'core/misc/utils'
 
 import { GhostService } from '..'
@@ -22,6 +23,8 @@ const DUCKLING_ENTITIES = [
   'volume'
 ]
 
+const FLOWS_DIR = './flows'
+
 const getSystemEntities = (): sdk.NLU.EntityDefinition[] => {
   return [...DUCKLING_ENTITIES, 'any'].map(name => ({ name, type: 'system' })) as sdk.NLU.EntityDefinition[]
 }
@@ -34,8 +37,12 @@ export class EntityService {
   }
 
   public async getCustomEntities(botId: string): Promise<sdk.NLU.EntityDefinition[]> {
+    const flowEnt = await this.getEntitiesFromFlows(botId)
+
     const intentNames = await this.ghostService.forBot(botId).directoryListing(ENTITIES_DIR, '*.json')
-    return Promise.mapSeries(intentNames, n => this.getEntity(botId, n))
+    const customEnt = await Promise.mapSeries(intentNames, n => this.getEntity(botId, n))
+
+    return [...flowEnt, ...customEnt]
   }
 
   public async getEntities(botId: string): Promise<sdk.NLU.EntityDefinition[]> {
@@ -81,5 +88,57 @@ export class EntityService {
       CacheManager.getOrCreateCache(targetEntityName, botId).reset()
     }
     await this.saveEntity(botId, entity)
+  }
+
+  private async getEntitiesFromFlows(botId: string): Promise<sdk.NLU.EntityDefinition[]> {
+    const flowsPaths = await this.ghostService.forBot(botId).directoryListing(FLOWS_DIR, '*.flow.json')
+    const flows: sdk.Flow[] = await Promise.map(flowsPaths, async (flowPath: string) => ({
+      // @ts-ignore
+      name: flowPath.replace(/.flow.json$/i, ''),
+      ...(await this.ghostService.forBot(botId).readFileAsObject<FlowView>(FLOWS_DIR, flowPath))
+    }))
+
+    const entitiesByName: Dic<sdk.NLU.EntityDefinition> = {}
+
+    for (const flow of flows) {
+      for (const node of flow.nodes.filter(x => x.type === 'prompt' && x.prompt?.type === 'string')) {
+        const tn = node as sdk.TriggerNode
+
+        const enums = tn.prompt?.params?.enumerations ?? []
+        const patterns = tn.prompt?.params?.patterns ?? []
+
+        for (let i = 0; i < enums.length; i++) {
+          const entityName = sanitizeFileName(`${flow.name}/${tn?.name}/list/${i}`)
+
+          entitiesByName[entityName] = {
+            id: entityName,
+            name: entityName,
+            occurrences: enums[i].occurrences?.map(({ name, tags }) => ({ name, synonyms: tags })),
+            fuzzy: enums[i].fuzzy,
+            list_entities: [],
+            pattern_entities: [],
+            type: 'list'
+          }
+        }
+
+        for (let i = 0; i < patterns.length; i++) {
+          const entityName = sanitizeFileName(`${flow.name}/${tn?.name}/pattern/${i}`)
+
+          entitiesByName[entityName] = {
+            id: entityName,
+            name: entityName,
+            matchCase: patterns[i].matchCase,
+            sensitive: patterns[i].sensitive,
+            pattern: patterns[i].pattern,
+            examples: patterns[i].examples,
+            list_entities: [],
+            pattern_entities: [],
+            type: 'pattern'
+          }
+        }
+      }
+    }
+
+    return Object.values(entitiesByName)
   }
 }

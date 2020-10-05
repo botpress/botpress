@@ -151,6 +151,7 @@ const PromptForm: FC<Props> = ({
               variables={variables}
               fields={selectedPromptType.config?.fields || []}
               advancedSettings={selectedPromptType.config?.advancedSettings || []}
+              validation={selectedPromptType.config?.validation || []}
               formData={formData?.params || {}}
               onUpdate={data => {
                 onUpdate({ params: { ...data, output: currentVarName.current }, type: promptType.current })

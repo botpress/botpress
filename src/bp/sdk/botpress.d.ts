@@ -1659,7 +1659,8 @@ declare module 'botpress/sdk' {
     moreInfo?: FormMoreInfo
     /** When specified, indicate if array elements match the provided pattern */
     validation?: {
-      regex?: RegExp
+      /** Either a reg expressior OR the name of fields on the object to use to build the regular expression */
+      regex?: RegExp | { pattern: string; matchCase?: string }
       list?: any[]
       validator?: (items: any[], newItem: any) => boolean
     }
@@ -1822,6 +1823,7 @@ declare module 'botpress/sdk' {
     /** Fields to configure the prompt on the studio */
     fields: FormField[]
     advancedSettings: FormField[]
+    validation?: FormField[]
   }
 
   export interface PromptNode {

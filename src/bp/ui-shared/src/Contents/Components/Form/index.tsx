@@ -36,6 +36,7 @@ const Form: FC<FormProps> = ({
   formData,
   fields,
   advancedSettings,
+  validation,
   onUpdate,
   onUpdateVariables,
   getCustomPlaceholder,
@@ -371,6 +372,7 @@ const Form: FC<FormProps> = ({
                 getPlaceholder={index => getArrayPlaceholder(index, field)}
                 moreInfo={printMoreInfo(field.moreInfo)}
                 validation={field.validation}
+                data={data}
                 onChange={value => {
                   dispatch({
                     type: 'updateField',
@@ -634,6 +636,11 @@ const Form: FC<FormProps> = ({
   return (
     <Fragment>
       <div ref={fieldWrapperRef}>{fields?.map(field => printField(field, state))}</div>
+      {!!validation?.length && (
+        <GroupItemWrapper defaultCollapsed borderTop={!!fields.length} label={lang('Validation')}>
+          {validation.map(field => printField(field, state))}
+        </GroupItemWrapper>
+      )}
       {!!advancedSettings?.length && (
         <GroupItemWrapper defaultCollapsed borderTop={!!fields.length} label={lang('advancedSettings')}>
           {advancedSettings.map(field => printField(field, state))}

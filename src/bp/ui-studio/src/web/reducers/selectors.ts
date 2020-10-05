@@ -27,9 +27,11 @@ const prepareUserVarTypes = (variableTypes: NLU.EntityDefinition[]) => {
 }
 
 const filterGenerics = items => {
-  return items
-    .filter(x => !['enumeration', 'pattern', 'complex'].includes(x.id))
-    .map(x => ({ type: x.id, variableType: x.config?.valueType, label: x.config?.label }))
+  return (
+    items
+      // .filter(x => !['enumeration', 'pattern', 'complex'].includes(x.id))
+      .map(x => ({ type: x.id, variableType: x.config?.valueType, label: x.config?.label }))
+  )
 }
 
 export const getAllFlows = createSelector([_getFlowsByName], (flowsByName): FlowView[] => {
@@ -69,7 +71,7 @@ export const getPrompts = createSelector(
   (variableTypes = [], prompts = []): Prompts => {
     return {
       primitive: prompts,
-      display: [...filterGenerics(prompts), ...prepareUserVarTypes(variableTypes)].map(x => ({
+      display: filterGenerics(prompts).map(x => ({
         ...x,
         icon: prompts.find(v => v.id === x.type)?.config?.icon
       }))
@@ -83,7 +85,7 @@ export const getVariables = createSelector(
     return {
       currentFlow: currentFlow?.variables,
       primitive: variables,
-      display: [...filterGenerics(variables), ...prepareUserVarTypes(variableTypes)].map(x => ({
+      display: filterGenerics(variables).map(x => ({
         ...x,
         icon: variables.find(v => v.id === x.type)?.config?.icon
       }))

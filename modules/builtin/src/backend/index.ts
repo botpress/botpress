@@ -24,7 +24,7 @@ const botTemplates: sdk.BotTemplate[] = [
   { id: 'small-talk', name: 'Small Talk', desc: `Includes basic smalltalk examples` }
 ]
 
-const prompts = [PromptConfirm, PromptDate, PromptNumber, PromptString, PromptEnum, PromptPattern, PromptComplex]
+const prompts = [PromptConfirm, PromptDate, PromptNumber, PromptString]
 
 const onServerStarted = async (bp: typeof sdk) => {
   await setupMiddleware(bp, prompts)
@@ -32,7 +32,7 @@ const onServerStarted = async (bp: typeof sdk) => {
 
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
-  variables: [BoxedDate, BoxedBoolean, BoxedNumber, BoxedString, BoxedEnum, BoxedPattern, BoxedComplex],
+  variables: [BoxedDate, BoxedBoolean, BoxedNumber, BoxedString],
   // TODO: remove templates
   // botTemplates,
   translations: { en, fr },
