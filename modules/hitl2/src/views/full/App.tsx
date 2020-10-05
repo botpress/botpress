@@ -9,6 +9,7 @@ import { toast } from 'botpress/shared'
 import { Grid, Row, Col } from 'react-flexbox-grid'
 
 import AgentList from './Components/AgentList'
+import AgentProfile from './Components/AgentProfile'
 import EscalationList from './Components/EscalationList'
 
 import style from './style.scss'
@@ -83,6 +84,7 @@ const App = ({ bp }) => {
   return (
     <Grid>
       <Row>
+        <Col>{state.currentAgent ? <AgentProfile api={api} {...state.currentAgent}></AgentProfile> : null}</Col>
         <Col>
           <AgentList agents={state.agents}></AgentList>
         </Col>
