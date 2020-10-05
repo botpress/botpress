@@ -1,1 +1,46 @@
-{}
+{
+  "sort": {
+    "mostRecentlyCreated": "Modifié plus récemment",
+    "leastRecentlyCreated": "Modifié plus anciennement",
+    "unread": "Non-lu",
+    "read": "Lu"
+  },
+  "filter": {
+    "unassigned": "Non-assigné",
+    "assignedMe": "Assigné à moi",
+    "assignedOther": "Assigné à d'autres"
+  },
+  "sortBy": "Trier Par",
+  "filterBy": "Filtrer Par",
+  "agent": {
+    "online": "connecté",
+    "offline": "déconnecté",
+    "getOnline": "Se connecter",
+    "getOffline": "Se déconnecter",
+    "onlineSuccess": "Vous êtes maintenant connecté",
+    "offlineSuccess": "Vous êtes maintenant déconnecté"
+  },
+  "escalation": {
+    "created": "Créée",
+    "status": {
+      "pending": "en attente",
+      "assigned": "assignée",
+      "resolved": "résolue"
+    },
+    "assignment": {
+      "me": "Assigné à moi",
+      "other": "Assignée à ${name}"
+    },
+    "assign": "L'escalation ${id} a été assignée avec succès",
+    "resolve": "L'escalation ${id} a été résoulue avec succès"
+  },
+  "comments": {
+    "heading": "Notes d'agents"
+  },
+  "conversation": {
+    "empty": "Sélectionnez une escalation en attente pour engager la conversation avec vos clients."
+  },
+  "escalations": {
+    "empty": "Aucune escalations"
+  }
+}

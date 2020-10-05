@@ -1,1 +1,46 @@
-{}
+{
+  "sort": {
+    "mostRecentlyCreated": "Most Recently Created",
+    "leastRecentlyCreated": "Least Recently Created",
+    "unread": "Unread first",
+    "read": "Read first"
+  },
+  "filter": {
+    "unassigned": "Unassigned",
+    "assignedMe": "Assigned to Me",
+    "assignedOther": "Assigned to Others"
+  },
+  "sortBy": "Sort By",
+  "filterBy": "Filter By",
+  "agent": {
+    "online": "online",
+    "offline": "offline",
+    "getOnline": "Get online",
+    "getOffline": "Get offline",
+    "onlineSuccess": "You are now online",
+    "offlineSuccess": "You are now offline"
+  },
+  "escalation": {
+    "created": "Created",
+    "status": {
+      "pending": "pending",
+      "assigned": "assigned",
+      "resolved": "resolved"
+    },
+    "assignment": {
+      "me": "Assigned to me",
+      "other": "Assigned to ${name}"
+    },
+    "assign": "Escalation ${id} successfully assigned",
+    "resolve": "Escalation ${id} successfully resolved"
+  },
+  "comments": {
+    "heading": "Notes from agents"
+  },
+  "conversation": {
+    "empty": "Select a pending case to engage conversation with your clients."
+  },
+  "escalations": {
+    "empty": "No escalations"
+  }
+}
