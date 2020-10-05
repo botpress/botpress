@@ -28,10 +28,12 @@
     "axios": "^0.19.0",
     "bluebird": "^3.5",
     "classnames": "^2.2",
+    "haikunator": "^2.1.2",
     "immer": "^7",
     "joi": "^17",
     "lodash": ">=4.17",
     "moment": "^2.24",
+    "object-hash": "^2.0.3",
     "react-flexbox-grid": "^2.1.2"
   },
   "resolutions": {
