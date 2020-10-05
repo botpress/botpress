@@ -3,6 +3,8 @@ import React, { useContext, useEffect, useState } from 'react'
 import { Api } from './Api'
 import { Context } from './Store'
 
+import { SocketMessageType } from './../../types'
+
 import { toast } from 'botpress/shared'
 import { Grid, Row, Col } from 'react-flexbox-grid'
 
@@ -14,6 +16,19 @@ const App = ({ bp }) => {
   const { state, dispatch } = useContext(Context)
 
   const [escalationsLoading, setEscalationsLoading] = useState(true)
+
+  function subscribe() {
+    bp.events.on('hitl2', (message: SocketMessageType) => {
+      switch (message.type) {
+        case 'update':
+          return dispatch({ type: 'updateSocketMessage', payload: message })
+        case 'create':
+          return dispatch({ type: 'createSocketMessage', payload: message })
+        default:
+          throw new Error('Invalid websocket message type')
+      }
+    })
+  }
 
   async function getCurrentAgent() {
     try {
@@ -46,6 +61,10 @@ const App = ({ bp }) => {
     Promise.all([getCurrentAgent(), getAgents(), getEscalations()]).then(() => {
       setEscalationsLoading(false)
     })
+  }, [])
+
+  useEffect(() => {
+    subscribe()
   }, [])
 
   useEffect(() => {
