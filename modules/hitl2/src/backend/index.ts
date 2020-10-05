@@ -4,6 +4,7 @@ import en from '../translations/en.json'
 import fr from '../translations/fr.json'
 
 import { setup, teardown } from './setup'
+import api from './api'
 
 interface State {}
 
