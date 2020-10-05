@@ -7,6 +7,7 @@ import { SocketMessageType } from './../../types'
 
 import { toast } from 'botpress/shared'
 import { Grid, Row, Col } from 'react-flexbox-grid'
+import EscalationList from './Components/EscalationList'
 
 import style from './style.scss'
 
@@ -78,6 +79,13 @@ const App = ({ bp }) => {
   }, [state.error])
 
   return (
+    <Grid>
+      <Row>
+        <Col md={4}>
+          <EscalationList api={api} escalations={state.escalations} loading={escalationsLoading}></EscalationList>
+        </Col>
+      </Row>
+    </Grid>
   )
 }
 
