@@ -8,6 +8,7 @@ import { BPRequest } from 'common/http'
 
 import { EscalationType, CommentType } from './../types'
 
+import socket from './socket'
 import { makeAgentId, formatError } from './helpers'
 import { ResponseError, NotFoundError, UnprocessableEntityError } from './errors'
 import {
@@ -24,6 +25,7 @@ import Repository from './repository'
 export default async (bp: typeof sdk, state) => {
   const router = bp.http.createRouterForBot('hitl2')
   const repository = new Repository(bp)
+  const realtime = socket(bp)
 
   const hitlMiddleware = fn => {
     return (req: BPRequest, res: Response, next) => {
@@ -68,6 +70,13 @@ export default async (bp: typeof sdk, state) => {
 
       await repository.setAgentOnline(req.params.botId, agentId, payload.online)
 
+      realtime.send({
+        resource: 'agent',
+        type: 'update',
+        id: agentId,
+        payload: payload
+      })
+
       res.json(payload)
     })
   )
@@ -91,6 +100,13 @@ export default async (bp: typeof sdk, state) => {
       Joi.attempt(payload, CreateEscalationSchema)
 
       const escalation = await repository.createEscalation(payload)
+
+      realtime.send({
+        resource: 'escalation',
+        type: 'create',
+        id: escalation.id,
+        payload: escalation
+      })
 
       res.json(escalation)
     })
@@ -125,6 +141,13 @@ export default async (bp: typeof sdk, state) => {
 
       escalation = await repository.updateEscalation(req.params.id, payload)
 
+      realtime.send({
+        resource: 'escalation',
+        type: 'update',
+        id: escalation.id,
+        payload: escalation
+      })
+
       res.json(escalation)
     })
   )
@@ -156,6 +179,13 @@ export default async (bp: typeof sdk, state) => {
       }
 
       escalation = await repository.updateEscalation(req.params.id, payload)
+
+      realtime.send({
+        resource: 'escalation',
+        type: 'update',
+        id: escalation.id,
+        payload: escalation
+      })
 
       res.json(escalation)
     })
