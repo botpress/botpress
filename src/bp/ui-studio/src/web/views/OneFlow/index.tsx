@@ -1,4 +1,4 @@
-import { lang, MainContainer, utils } from 'botpress/shared'
+import { lang, MainContainer, toast, utils } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { useEffect, useRef, useState } from 'react'
@@ -18,7 +18,6 @@ import {
   switchFlow
 } from '~/actions'
 import InjectedModuleView from '~/components/PluginInjectionSite/module'
-import { Timeout, toastFailure, toastInfo } from '~/components/Shared/Utils'
 import { isOperationAllowed } from '~/components/Shared/Utils/AccessControl'
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
 import { RootReducer } from '~/reducers'
@@ -99,7 +98,7 @@ const FlowBuilder = (props: Props) => {
     if (props.errorSavingFlows) {
       const { status } = props.errorSavingFlows
       const message = status === 403 ? lang.tr('studio.flow.unauthUpdate') : lang.tr('studio.flow.errorWhileSaving')
-      toastFailure(message, Timeout.LONG, props.clearErrorSaveFlows, { delayed: true })
+      toast.failure(message, '', { timeout: 'long', delayed: true, onDismiss: props.clearErrorSaveFlows })
     }
   }, [props.errorSavingFlows])
 
@@ -167,7 +166,7 @@ const FlowBuilder = (props: Props) => {
     },
     save: e => {
       e.preventDefault()
-      toastInfo(lang.tr('studio.flow.nowSaveAuto'), Timeout.LONG)
+      toast.info(lang.tr('studio.flow.nowSaveAuto'), '', { timeout: 'long' })
     },
     delete: e => {
       if (!utils.isInputFocused()) {

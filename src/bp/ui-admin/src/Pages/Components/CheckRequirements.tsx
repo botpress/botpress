@@ -1,12 +1,11 @@
 import { Button, Callout } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { lang, toast } from 'botpress/shared'
 import { ServerConfig } from 'common/typings'
 import _ from 'lodash'
 import React from 'react'
 import { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import api from '~/api'
-import { toastFailure, toastSuccess } from '~/utils/toaster'
 
 import { fetchServerConfig } from '../../reducers/server'
 
@@ -60,10 +59,10 @@ const CheckRequirements: FC<Props> = props => {
   const enableFeature = async () => {
     try {
       await api.getSecured().post(`/admin/server/features/enable/${props.feature}`)
-      toastSuccess(lang.tr('admin.requirements.confUpdated'))
+      toast.success(lang.tr('admin.requirements.confUpdated'))
       props.fetchServerConfig()
     } catch (err) {
-      toastFailure(lang.tr('admin.requirements.confNotUpdated', { msg: err.message }))
+      toast.failure(lang.tr('admin.requirements.confNotUpdated', { msg: err.message }))
     }
   }
 

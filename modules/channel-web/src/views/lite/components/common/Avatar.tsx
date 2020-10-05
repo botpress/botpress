@@ -2,7 +2,7 @@ import * as React from 'react'
 
 const Avatar = ({ name, avatarUrl, height, width }: AvatarProps) => {
   const className = `bpw-bot-avatar${!avatarUrl ? ' default' : ''}`
-  const defaultIconSize = Math.ceil((height / 100) * 75)
+  const defaultIconSize = Math.ceil((height / 100) * 50)
   const size = !avatarUrl && `${height}px`
 
   return (

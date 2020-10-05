@@ -1,7 +1,7 @@
 import { Button, Icon, Spinner } from '@blueprintjs/core'
 import { AxiosInstance } from 'axios'
+import { toast } from 'botpress/shared'
 import { SplashScreen } from 'botpress/ui'
-import { toastFailure, toastSuccess } from 'botpress/utils'
 import _ from 'lodash'
 import React from 'react'
 
@@ -111,9 +111,9 @@ export default class NLUTests extends React.Component<Props, State> {
 
     try {
       await this.api.exportResults(this.state.testResults)
-      toastSuccess('Results saved')
+      toast.success('Results saved')
     } catch (err) {
-      toastFailure('Could not export test results')
+      toast.failure('Could not export test results')
     }
   }
 

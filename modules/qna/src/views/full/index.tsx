@@ -7,9 +7,10 @@ import {
   Icons,
   lang,
   MainContent,
-  sharedStyle
+  sharedStyle,
+  toast
 } from 'botpress/shared'
-import { AccessControl, Downloader, reorderFlows, toastFailure, toastSuccess } from 'botpress/utils'
+import { AccessControl, Downloader, reorderFlows } from 'botpress/utils'
 import cx from 'classnames'
 import { debounce } from 'lodash'
 import React, { FC, useCallback, useEffect, useReducer, useRef, useState } from 'react'
@@ -278,7 +279,7 @@ const QnAList: FC<Props> = ({
   const importArchive = async file => {
     const extension = file.name.split('.').slice(-1)[0]
     if (extension !== 'gz') {
-      toastFailure(lang.tr('module.qna.import.badImportFormat'))
+      toast.failure(lang.tr('module.qna.import.badImportFormat'))
       return
     }
     let intervalHandle: number
@@ -292,16 +293,16 @@ const QnAList: FC<Props> = ({
         const { data } = await bp.axios.get(`/mod/qna/json-upload-status/${uploadStatusId}`)
         if (data === 'module.qna.import.uploadSuccessful') {
           clearInterval(intervalHandle)
-          toastSuccess(lang.tr(data))
+          toast.success(lang.tr(data))
           await fetchData()
         } else if (data.split('.')[0] !== 'module') {
-          toastFailure(data)
+          toast.failure(data)
           clearInterval(intervalHandle)
         }
       }, 500)
     } catch (err) {
       clearInterval(intervalHandle)
-      toastFailure(err.message)
+      toast.failure(err.message)
     }
   }
 

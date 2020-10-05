@@ -12,15 +12,13 @@ import {
   Position
 } from '@blueprintjs/core'
 import { BotConfig } from 'botpress/sdk'
-import { confirmDialog, lang, telemetry } from 'botpress/shared'
+import { confirmDialog, lang, telemetry, toast } from 'botpress/shared'
 import { ServerHealth, UserProfile } from 'common/typings'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { generatePath, RouteComponentProps } from 'react-router'
 import { Alert, Col, Row } from 'reactstrap'
-import { toastSuccess } from '~/utils/toaster'
-import { toastFailure } from '~/utils/toaster'
 import { filterList } from '~/utils/util'
 import PageContainer from '~/App/PageContainer'
 import SplitPage from '~/App/SplitPage'
@@ -112,10 +110,10 @@ class Bots extends Component<Props> {
       await api.getSecured().post(`/admin/bots/${botId}/reload`)
       this.props.fetchBots()
       this.props.fetchBotHealth()
-      toastSuccess(lang.tr('admin.workspace.bots.remounted'))
+      toast.success(lang.tr('admin.workspace.bots.remounted'))
     } catch (err) {
       console.log(err)
-      toastFailure(lang.tr('admin.workspace.bots.couldNotMount'))
+      toast.failure(lang.tr('admin.workspace.bots.couldNotMount'))
     }
   }
 
@@ -164,13 +162,13 @@ class Bots extends Component<Props> {
   async requestStageChange(botId: string) {
     await api.getSecured({ timeout: 60000 }).post(`/admin/bots/${botId}/stage`)
     this.props.fetchBots()
-    toastSuccess(lang.tr('admin.workspace.bots.promoted'))
+    toast.success(lang.tr('admin.workspace.bots.promoted'))
   }
 
   async approveStageChange(botId) {
     await api.getSecured({ timeout: 60000 }).post(`/admin/bots/${botId}/approve-stage`)
     this.props.fetchBots()
-    toastSuccess(lang.tr('admin.workspace.bots.approvedPromotion'))
+    toast.success(lang.tr('admin.workspace.bots.approvedPromotion'))
   }
 
   isLicensed = () => {
@@ -179,7 +177,7 @@ class Bots extends Component<Props> {
 
   async createRevision(botId) {
     await api.getSecured().post(`admin/bots/${botId}/revisions`)
-    toastSuccess(lang.tr('admin.workspace.bots.revisionsCreated'))
+    toast.success(lang.tr('admin.workspace.bots.revisionsCreated'))
   }
 
   toggleRollbackModal = (botId?: string) => {
@@ -191,7 +189,7 @@ class Bots extends Component<Props> {
 
   handleRollbackSuccess = () => {
     this.props.fetchBots()
-    toastSuccess(lang.tr('admin.workspace.bots.rollbackSuccess'))
+    toast.success(lang.tr('admin.workspace.bots.rollbackSuccess'))
   }
 
   handleEditStageSuccess = () => {

@@ -1,7 +1,6 @@
 import { Button, Classes, Dialog, Intent } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { lang, toast } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
-import { toastFailure } from '~/utils/toaster'
 
 import api from '../../../api'
 
@@ -23,7 +22,7 @@ const ServerControl: FC<Props> = props => {
       await api.getSecured().post(`/admin/server/rebootServer?hostname=${props.hostname}`)
       setRestarting(true)
     } catch (err) {
-      toastFailure(err.message)
+      toast.failure(err.message)
     }
   }
 

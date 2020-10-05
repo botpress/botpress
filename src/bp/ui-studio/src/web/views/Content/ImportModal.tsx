@@ -1,10 +1,10 @@
 import { Button, Callout, Classes, Dialog, FileInput, FormGroup, Intent, Radio, RadioGroup } from '@blueprintjs/core'
 import axios from 'axios'
 import 'bluebird-global'
-import { lang } from 'botpress/shared'
+import { lang, toast } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useState } from 'react'
-import { AccessControl, toastFailure } from '~/components/Shared/Utils'
+import { AccessControl } from '~/components/Shared/Utils'
 
 const axiosConfig = { headers: { 'Content-Type': 'multipart/form-data' } }
 
@@ -49,7 +49,7 @@ export const ImportModal: FC<Props> = props => {
 
       setAnalysis(data)
     } catch (err) {
-      toastFailure(_.get(err, 'response.data.message', err.message))
+      toast.failure(_.get(err, 'response.data.message', err.message))
     } finally {
       setIsLoading(false)
     }
@@ -69,7 +69,7 @@ export const ImportModal: FC<Props> = props => {
     } catch (err) {
       clearStatus()
       setHasError(true)
-      toastFailure(err.message)
+      toast.failure(err.message)
     } finally {
       setIsLoading(false)
     }

@@ -1,7 +1,6 @@
 import { Button, Callout } from '@blueprintjs/core'
-import sdk from 'botpress/sdk'
+import { toast } from 'botpress/shared'
 import { Container } from 'botpress/ui'
-import { toastFailure, toastSuccess } from 'botpress/utils'
 import _ from 'lodash'
 import React from 'react'
 
@@ -9,11 +8,11 @@ const FullView = props => {
   const migrateBot = async () => {
     try {
       await props.bp.axios.post('/mod/ndu/migrate')
-      toastSuccess(`Bot migrated successfully ! Reloading...`)
+      toast.success(`Bot migrated successfully ! Reloading...`)
 
       window.location.reload()
     } catch (err) {
-      toastFailure(err.message)
+      toast.failure(err.message)
     }
   }
 
