@@ -8,12 +8,11 @@ import {
   PopoverInteractionKind,
   Position
 } from '@blueprintjs/core'
-import { confirmDialog, lang } from 'botpress/shared'
+import { confirmDialog, lang, toast } from 'botpress/shared'
 import { AuthRole, AuthStrategyConfig, WorkspaceUser } from 'common/typings'
 import React, { FC } from 'react'
 import { connect } from 'react-redux'
 import api from '~/api'
-import { toastFailure, toastSuccess } from '~/utils/toaster'
 
 interface OwnProps {
   user: WorkspaceUser
@@ -47,10 +46,10 @@ const UserActions: FC<Props> = props => {
 
     try {
       const { data } = await api.getSecured().get(`/admin/users/reset/${user.strategy}/${user.email}`)
-      toastSuccess(lang.tr('admin.workspace.users.collaborators.passwordResetSuccess'))
+      toast.success(lang.tr('admin.workspace.users.collaborators.passwordResetSuccess'))
       props.onPasswordReset(user.email, data.payload.tempPassword)
     } catch (err) {
-      toastFailure(lang.tr('admin.workspace.users.collaborators.passwordResetFail', { msg: err.message }))
+      toast.failure(lang.tr('admin.workspace.users.collaborators.passwordResetFail', { msg: err.message }))
     }
   }
 
@@ -70,14 +69,14 @@ const UserActions: FC<Props> = props => {
 
     try {
       await api.getSecured().post(`/admin/users/${user.strategy}/${user.email}/delete`)
-      toastSuccess(
+      toast.success(
         lang.tr('admin.workspace.users.collaborators.deleteAccountSuccess', {
           user: user.email
         })
       )
       props.onUserUpdated()
     } catch (err) {
-      toastFailure(lang.tr('admin.workspace.users.collaborators.deleteAccountFail', { msg: err.message }))
+      toast.failure(lang.tr('admin.workspace.users.collaborators.deleteAccountFail', { msg: err.message }))
     }
   }
 
@@ -97,14 +96,14 @@ const UserActions: FC<Props> = props => {
 
     try {
       await api.getSecured().post(`/admin/users/workspace/remove/${user.strategy}/${user.email}/delete`)
-      toastSuccess(
+      toast.success(
         lang.tr('admin.workspace.users.collaborators.removeSuccess', {
           user: user.email
         })
       )
       props.onUserUpdated()
     } catch (err) {
-      toastFailure(lang.tr('admin.workspace.users.collaborators.removeFail', { msg: err.message }))
+      toast.failure(lang.tr('admin.workspace.users.collaborators.removeFail', { msg: err.message }))
     }
   }
 
@@ -115,10 +114,10 @@ const UserActions: FC<Props> = props => {
         role: newRoleId
       })
 
-      toastSuccess(lang.tr('admin.workspace.users.collaborators.roleUpdateSuccess'))
+      toast.success(lang.tr('admin.workspace.users.collaborators.roleUpdateSuccess'))
       props.onUserUpdated()
     } catch (err) {
-      toastFailure(lang.tr('admin.workspace.users.collaborators.roleUpdateFail', { msg: err.message }))
+      toast.failure(lang.tr('admin.workspace.users.collaborators.roleUpdateFail', { msg: err.message }))
     }
   }
 

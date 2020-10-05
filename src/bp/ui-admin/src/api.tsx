@@ -1,9 +1,9 @@
 import axios from 'axios'
 import Promise from 'bluebird'
+import { toast } from 'botpress/shared'
 import _ from 'lodash'
 import React from 'react'
 
-import { toastFailure } from './utils/toaster'
 import { getActiveWorkspace, getToken, logout } from './Auth'
 
 interface SecuredApi {
@@ -32,7 +32,7 @@ export const toastError = error => {
     message = <span>Something wrong happened. Please try again later.</span>
   }
 
-  toastFailure(message)
+  toast.failure(message)
 }
 
 const createClient = (clientOptions: any, options: { toastErrors?: boolean }) => {

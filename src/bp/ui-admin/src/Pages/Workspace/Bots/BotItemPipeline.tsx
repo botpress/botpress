@@ -12,11 +12,10 @@ import {
   Tooltip
 } from '@blueprintjs/core'
 import { BotConfig } from 'botpress/sdk'
-import { lang } from 'botpress/shared'
+import { lang, toast } from 'botpress/shared'
 import React, { FC, Fragment } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import history from '~/history'
-import { toastInfo } from '~/utils/toaster'
 
 import AccessControl, { isChatUser } from '../../../App/AccessControl'
 
@@ -81,7 +80,7 @@ const BotItemPipeline: FC<Props> = ({
 
               <CopyToClipboard
                 text={botShortLink}
-                onCopy={() => toastInfo(lang.tr('admin.workspace.bots.item.copyToClipboard'))}
+                onCopy={() => toast.info(lang.tr('admin.workspace.bots.item.copyToClipboard'))}
               >
                 <MenuItem icon="link" text={lang.tr('admin.workspace.bots.item.copyLinkToClipboard')} />
               </CopyToClipboard>

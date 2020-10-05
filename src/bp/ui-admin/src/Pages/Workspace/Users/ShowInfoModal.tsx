@@ -1,8 +1,7 @@
 import { Button, Intent, Pre } from '@blueprintjs/core'
-import { Dialog, lang } from 'botpress/shared'
+import { Dialog, lang, toast } from 'botpress/shared'
 import React, { FC } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { toastInfo } from '~/utils/toaster'
 
 interface Props {
   isOpen: boolean
@@ -47,14 +46,14 @@ const ShowInfoModal: FC<Props> = props => {
       <Dialog.Footer>
         <CopyToClipboard
           text={messages[props.messageId]}
-          onCopy={() => toastInfo(lang.tr('admin.workspace.users.collaborators.copiedToClipboard'))}
+          onCopy={() => toast.info(lang.tr('admin.workspace.users.collaborators.copiedToClipboard'))}
         >
           <Button text={lang.tr('admin.workspace.users.collaborators.copyMessageToClipboard')} />
         </CopyToClipboard>
 
         <CopyToClipboard
           text={props.password}
-          onCopy={() => toastInfo(lang.tr('admin.workspace.users.collaborators.copiedToClipboard'))}
+          onCopy={() => toast.info(lang.tr('admin.workspace.users.collaborators.copiedToClipboard'))}
         >
           <Button
             text={lang.tr('admin.workspace.users.collaborators.copyPasswordToClipboard')}

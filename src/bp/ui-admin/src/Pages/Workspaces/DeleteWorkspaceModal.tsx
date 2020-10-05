@@ -1,8 +1,8 @@
 import { Button, Callout, Classes, Dialog, FormGroup, InputGroup, Intent, TextArea } from '@blueprintjs/core'
+import { toast } from 'botpress/shared'
 import { Workspace } from 'common/typings'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useState } from 'react'
 import api from '~/api'
-import { toastFailure, toastSuccess } from '~/utils/toaster'
 
 interface Props {
   workspace: Workspace
@@ -19,10 +19,10 @@ const DeleteWorkspaceModal: FC<Props> = props => {
       await api.getSecured().post(`/admin/workspaces/${props.workspace.id}/delete`)
       props.refreshWorkspaces()
 
-      toastSuccess('Workspace deleted successfully')
+      toast.success('Workspace deleted successfully')
       closeModal()
     } catch (err) {
-      toastFailure(err.message)
+      toast.failure(err.message)
     }
   }
 

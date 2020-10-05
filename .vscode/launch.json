@@ -19,10 +19,10 @@
       },
       "smartStep": true,
       "outFiles": [
-        "${workspaceFolder}/out",
-        "${workspaceFolder}/modules/*/dist",
-        "${workspaceFolder}/private-modules/*/dist",
-        "!${workspaceFolder}/**/node_modules"
+        "${workspaceFolder}/out/**/*.js",
+        "${workspaceFolder}/modules/**/dist/**/*.js",
+        "${workspaceFolder}/private-modules/**/dist/**/*.js",
+        "!${workspaceFolder}/**/node_modules/**/*.js"
       ],
       "console": "integratedTerminal",
       "sourceMaps": true,
@@ -45,10 +45,10 @@
       },
       "smartStep": true,
       "outFiles": [
-        "${workspaceFolder}/out",
-        "${workspaceFolder}/modules/*/dist",
-        "${workspaceFolder}/private-modules/*/dist",
-        "!${workspaceFolder}/**/node_modules"
+        "${workspaceFolder}/out/**/*.js",
+        "${workspaceFolder}/modules/**/dist/**/*.js",
+        "${workspaceFolder}/private-modules/**/dist/**/*.js",
+        "!${workspaceFolder}/**/node_modules/**/*.js"
       ],
       "console": "integratedTerminal",
       "sourceMaps": true,
