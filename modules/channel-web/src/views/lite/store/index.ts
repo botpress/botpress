@@ -158,7 +158,7 @@ class RootStore {
   async initializeChat(): Promise<void> {
     try {
       await this.fetchConversations()
-      await this.fetchConversation()
+      await this.fetchConversation(this.config.conversationId)
       runInAction('-> setInitialized', () => {
         this.isInitialized = true
       })
