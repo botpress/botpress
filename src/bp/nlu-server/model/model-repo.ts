@@ -70,7 +70,7 @@ export default class ModelRepository {
   public makeFileName(modelId: string, password: string): string {
     const fname = crypto
       .createHash('md5')
-      .update(JSON.stringify({ modelId, password }))
+      .update(`${modelId}${password}`)
       .digest('hex')
 
     return `${fname}.model`

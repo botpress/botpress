@@ -46,7 +46,7 @@ export default class TrainSessionService {
   private _makeTrainSessionKey(modelId: string, password: string) {
     return crypto
       .createHash('md5')
-      .update(JSON.stringify({ modelId, password }))
+      .update(`${modelId}${password}`)
       .digest('hex')
   }
 }
