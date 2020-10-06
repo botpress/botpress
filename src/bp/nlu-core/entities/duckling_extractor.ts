@@ -25,18 +25,40 @@ interface KeyedItem {
   entities?: EntityExtractionResult[]
 }
 
+/**
+ * duckling return for "prompt-date next-week"
+ * {
+ *   "body": "next week",
+ *   "start": 12,
+ *   "value": {
+ *     "values": [
+ *       {
+ *         "value": "2020-10-12T00:00:00.000-04:00",
+ *         "grain": "week",
+ *         "type": "value"
+ *       }
+ *     ],
+ *     "value": "2020-10-12T00:00:00.000-04:00",
+ *     "grain": "week",
+ *     "type": "value"
+ *   },
+ *   "end": 21,
+ *   "dim": "time",
+ *   "latent": false
+ * }
+ */
 interface DucklingEntity {
   start: number
   end: number
   dim: string
   body: string
-  value: DucklingRawValue
+  value: DucklingValue
 }
 
-interface DucklingRawValue {
+interface DucklingValue {
   normalized: ValueUnit
   value?: string
-  values?: string[]
+  values?: DucklingValue[]
   grain: string
   unit: string
 }
@@ -267,16 +289,16 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
     } as EntityExtractionResult
   }
 
-  private _getUnitAndValue(dimension: string, rawVal: DucklingRawValue): ValueUnit {
+  private _getUnitAndValue(dimension: string, rawVal: DucklingValue): ValueUnit {
     switch (dimension) {
       case 'duration':
         return rawVal.normalized
       case 'time':
-        const value = rawVal.values?.length ? rawVal.values[0] : rawVal.value
+        const raw = rawVal.values?.length ? rawVal.values[0] : rawVal
 
         return {
-          value: value ?? '',
-          unit: rawVal.grain
+          value: raw.value ?? '',
+          unit: raw.grain
         }
       default:
         return {
