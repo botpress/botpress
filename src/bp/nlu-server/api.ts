@@ -1,4 +1,5 @@
 import bodyParser from 'body-parser'
+import { IO } from 'botpress/sdk'
 import cors from 'cors'
 import express, { Application } from 'express'
 import rateLimit from 'express-rate-limit'
@@ -25,6 +26,7 @@ export interface APIOptions {
   limitWindow: string
   limit: number
   bodySize: string
+  batchSize: number
 }
 
 const debug = DEBUG('api')
@@ -153,17 +155,24 @@ export default async function(options: APIOptions, nluVersion: string) {
   router.post('/predict/:modelId', async (req, res) => {
     try {
       const { modelId } = req.params
-      const { sentence, password } = req.body
+      const { texts, password } = req.body
+
+      if (options.batchSize > 0 && texts.length > options.batchSize) {
+        throw new Error(
+          `Batch size of ${texts.length} is larger than the allowed maximum batch size (${options.batchSize}).`
+        )
+      }
 
       const model = await modelService.getModel(modelId, password)
 
       if (model) {
         await engine.loadModel(model)
 
-        const prediction = await engine.predict(sentence, [], model.languageCode)
+        const predictions = await Promise.map(texts as string[], t => engine.predict(t, [], model.languageCode))
+
         engine.unloadModel(model.languageCode)
 
-        return res.send({ success: true, prediction })
+        return res.send({ success: true, predictions })
       }
 
       res.status(404).send({ success: false, error: `modelId ${modelId} can't be found` })
