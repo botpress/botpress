@@ -47,25 +47,62 @@ interface KeyedItem {
  *   "latent": false
  * }
  */
-interface DucklingEntity {
+interface DucklingReturn {
   start: number
   end: number
   dim: string
   body: string
   value: DucklingValue
 }
-
 interface DucklingValue {
-  normalized: ValueUnit
+  normalized?: ValueUnit
+  values?: ValueGrain[]
   value?: string
-  values?: DucklingValue[]
-  grain: string
-  unit: string
+  unit?: string
+  grain?: string
+}
+
+interface DucklingTime extends DucklingReturn {
+  dim: 'time'
+  value: DucklingTimeValue
+}
+type DucklingTimeValue = ValueGrain | DucklingTimeValues
+type DucklingTimeValues = { values: ValueGrain[] }
+
+interface DucklingDuration extends DucklingReturn {
+  dim: 'duration'
+  value: { normalized: ValueUnit }
 }
 
 interface ValueUnit {
   value: string
   unit: string
+}
+
+interface ValueGrain {
+  value: string
+  grain: string
+}
+
+// duckling type guards
+const _isDuration = (duck: DucklingReturn): duck is DucklingDuration => {
+  return duck.dim === 'duration'
+}
+
+const _isTime = (duck: DucklingReturn): duck is DucklingTime => {
+  return duck.dim === 'time'
+}
+
+const _isTimeValues = (duckValue: DucklingTimeValue): duckValue is DucklingTimeValues => {
+  return !!(duckValue as DucklingTimeValues).values
+}
+
+const _isValueGrain = (duckValue: DucklingTimeValue): duckValue is ValueGrain => {
+  return !!((duckValue as ValueGrain).value && (duckValue as ValueGrain).grain)
+}
+
+const _isValueUnit = (duckValue: DucklingValue): duckValue is ValueUnit => {
+  return !!((duckValue as ValueUnit).value && (duckValue as ValueUnit).unit)
 }
 
 export const JOIN_CHAR = `::${SPACE}::`
@@ -272,8 +309,8 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
     return Intl.DateTimeFormat().resolvedOptions().timeZone
   }
 
-  private _mapDuckToEntity(duckEnt: DucklingEntity): EntityExtractionResult {
-    const dimensionData = this._getUnitAndValue(duckEnt.dim, duckEnt.value)
+  private _mapDuckToEntity(duckEnt: DucklingReturn): EntityExtractionResult {
+    const dimensionData = this._getUnitAndValue(duckEnt)
     return {
       confidence: 1,
       start: duckEnt.start,
@@ -289,22 +326,38 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
     } as EntityExtractionResult
   }
 
-  private _getUnitAndValue(dimension: string, rawVal: DucklingValue): ValueUnit {
-    switch (dimension) {
-      case 'duration':
-        return rawVal.normalized
-      case 'time':
-        const raw = rawVal.values?.length ? rawVal.values[0] : rawVal
+  private _getUnitAndValue(duck: DucklingReturn): ValueUnit {
+    if (_isDuration(duck)) {
+      return duck.value.normalized
+    }
 
+    if (_isTime(duck)) {
+      if (_isValueGrain(duck.value)) {
         return {
-          value: raw.value ?? '',
-          unit: raw.grain
+          value: duck.value.value,
+          unit: duck.value.grain
         }
-      default:
+      }
+
+      if (_isTimeValues(duck.value) && duck.value.values.length) {
+        const first = duck.value.values[0]
         return {
-          value: rawVal.value ?? '',
-          unit: rawVal.unit
+          value: first.value,
+          unit: first.grain
         }
+      }
+    }
+
+    if (_isValueUnit(duck.value)) {
+      return {
+        value: duck.value.value,
+        unit: duck.value.unit
+      }
+    }
+
+    return {
+      value: '',
+      unit: ''
     }
   }
 }
