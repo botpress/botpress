@@ -19,7 +19,6 @@ const EnumSchema = Joi.object().keys({
   fuzzy: Joi.number().default(0.9)
 })
 
-// TODO: maybe add some field to tell if information is sensitive (secret)...
 const PatternSchema = Joi.object().keys({
   name: Joi.string().required(),
   regex: Joi.string().required(),
