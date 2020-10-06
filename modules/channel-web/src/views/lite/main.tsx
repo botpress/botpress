@@ -176,7 +176,7 @@ class Web extends React.Component<MainProps> {
       return
     }
 
-    if (Number(this.props.config.conversationId) !== Number(event.conversationId)) {
+    if (this.props.config.conversationId && Number(this.props.config.conversationId) !== Number(event.conversationId)) {
       // don't do anything, it's a message from another conversation
       return
     }
@@ -194,7 +194,7 @@ class Web extends React.Component<MainProps> {
   }
 
   handleTyping = async (event: Message) => {
-    if (Number(this.props.config.conversationId) !== Number(event.conversationId)) {
+    if (this.props.config.conversationId && Number(this.props.config.conversationId) !== Number(event.conversationId)) {
       // don't do anything, it's a message from another conversation
       return
     }
