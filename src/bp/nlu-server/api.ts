@@ -26,7 +26,7 @@ export interface APIOptions {
   limitWindow: string
   limit: number
   bodySize: string
-  batchSize?: number
+  batchSize: number
 }
 
 const debug = DEBUG('api')
@@ -157,7 +157,7 @@ export default async function(options: APIOptions, nluVersion: string) {
       const { modelId } = req.params
       const { texts, password } = req.body
 
-      if (options.batchSize && texts.length > options.batchSize) {
+      if (options.batchSize > 0 && texts.length > options.batchSize) {
         throw new Error(
           `Batch size of ${texts.length} is larger than the allowed maximum batch size (${options.batchSize}).`
         )
@@ -168,11 +168,7 @@ export default async function(options: APIOptions, nluVersion: string) {
       if (model) {
         await engine.loadModel(model)
 
-        const predictions: IO.EventUnderstanding[] = []
-        for (const text of texts) {
-          const prediction = await engine.predict(text, [], model.languageCode)
-          predictions.push(prediction)
-        }
+        const predictions = await Promise.map(texts as string[], t => engine.predict(t, [], model.languageCode))
 
         engine.unloadModel(model.languageCode)
 

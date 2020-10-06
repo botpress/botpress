@@ -363,7 +363,8 @@ try {
           default: '250kb'
         },
         batchSize: {
-          description: 'Allowed number of text inputs in one call to POST /predict.'
+          description: 'Allowed number of text inputs in one call to POST /predict.',
+          default: -1
         }
       },
       argv => {

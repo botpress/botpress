@@ -112,7 +112,7 @@ ${_.repeat(' ', 9)}========================================`)
 
   logger.info(`body size: allowing HTTP resquests body of size ${options.bodySize}`)
 
-  if (options.batchSize) {
+  if (options.batchSize > 0) {
     logger.info(`batch size: allowing up to ${options.batchSize} predictions in one call to POST /predict`)
   }
 
