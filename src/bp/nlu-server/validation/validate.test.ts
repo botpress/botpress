@@ -7,20 +7,6 @@ import validateInput from './validate'
  * If we ever find a bug in train input validation, we'll just add some more tests.
  */
 
-async function assertThrows(fn: () => Promise<any>, msg: string = '') {
-  let errorThrown = false
-  try {
-    await fn()
-  } catch (err) {
-    errorThrown = true
-  }
-
-  if (!errorThrown) {
-    console.log(`Didn't throw: ${msg}`) // for debug purposes
-  }
-  expect(errorThrown).toBe(true)
-}
-
 const CITY_ENUM: Enum = {
   name: 'city',
   fuzzy: 1,
@@ -165,8 +151,8 @@ test('validate input without topics or language should throw', async () => {
   }
 
   // act & assert
-  await assertThrows(() => validateInput(withoutTopic), 'withoutTopic')
-  await assertThrows(() => validateInput(withoutLang), 'withoutLang')
+  await expect(validateInput(withoutTopic)).rejects.toThrow()
+  await expect(validateInput(withoutLang)).rejects.toThrow()
 })
 
 test('validate without intent should fail', async () => {
@@ -184,7 +170,7 @@ test('validate without intent should fail', async () => {
   }
 
   // act & assert
-  await assertThrows(() => validateInput(trainInput), 'withoutIntent')
+  await expect(validateInput(trainInput)).rejects.toThrow()
 })
 
 test('validate enum without values or patterns without regexes or empty complex should fail', async () => {
@@ -224,9 +210,9 @@ test('validate enum without values or patterns without regexes or empty complex 
   }
 
   // act & assert
-  await assertThrows(() => validateInput(withoutValues), 'withoutValues')
-  await assertThrows(() => validateInput(withoutRegexes), 'withoutRegexes')
-  await assertThrows(() => validateInput(emptyComplex), 'emptyComplex')
+  await expect(validateInput(withoutValues)).rejects.toThrow()
+  await expect(validateInput(withoutRegexes)).rejects.toThrow()
+  await expect(validateInput(emptyComplex)).rejects.toThrow()
 })
 
 test('validate with an unexisting referenced enum should throw', async () => {
@@ -242,7 +228,7 @@ test('validate with an unexisting referenced enum should throw', async () => {
   }
 
   // act & assert
-  await assertThrows(() => validateInput(trainInput), 'withoutCities')
+  await expect(validateInput(trainInput)).rejects.toThrow()
 })
 
 test('validate with an unexisting referenced pattern should throw', async () => {
@@ -258,7 +244,7 @@ test('validate with an unexisting referenced pattern should throw', async () => 
   }
 
   // act & assert
-  await assertThrows(() => validateInput(trainInput), 'withoutTickets')
+  await expect(validateInput(trainInput)).rejects.toThrow()
 })
 
 test('validate with an unexisting referenced complex should throw', async () => {
@@ -285,7 +271,7 @@ test('validate with an unexisting referenced complex should throw', async () => 
   }
 
   // act & assert
-  await assertThrows(() => validateInput(trainInput), 'withoutRestaurant')
+  await expect(validateInput(trainInput)).rejects.toThrow()
 })
 
 test('validate with an unexisting referenced variable should throw', async () => {
@@ -308,7 +294,7 @@ test('validate with an unexisting referenced variable should throw', async () =>
   }
 
   // act & assert
-  await assertThrows(() => validateInput(trainInput), 'withoutTicketProblem')
+  await expect(validateInput(trainInput)).rejects.toThrow()
 })
 
 test('validate with correct format but unexpected property should fail', async () => {
@@ -325,7 +311,7 @@ test('validate with correct format but unexpected property should fail', async (
   }
 
   // act & assert
-  await assertThrows(() => validateInput(trainInput), 'oneExtraKey')
+  await expect(validateInput(trainInput)).rejects.toThrow()
 })
 
 test('validate with a complex referencing an unexisting enum or pattern should throw', async () => {
@@ -341,7 +327,7 @@ test('validate with a complex referencing an unexisting enum or pattern should t
   }
 
   // act & assert
-  await assertThrows(() => validateInput(trainInput), 'withoutPostalCodeOrEnum')
+  await expect(validateInput(trainInput)).rejects.toThrow()
 })
 
 test('validate with a complex referencing an enum and pattern should not throw', async () => {
