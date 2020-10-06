@@ -421,8 +421,22 @@ const Analytics: FC<any> = ({ bp }) => {
     )
   }
 
+  const getLanguagesData = () => {
+    const metrics = state.metrics.filter(m => m.metric === 'msg_nlu_language')
+    if (metrics.length === 0) {
+      return []
+    }
+
+    const total = _.sum(metrics.map(m => m.value))
+
+    return _.sortBy(metrics, m => m.value)
+      .reverse()
+      .map(m => ({ value: getNotNaN((m.value / total) * 100, '%'), language: m.subMetric }))
+  }
+
   const renderHandlingUnderstanding = () => {
-    const { total, inside, outside } = getMisunderStoodData()
+    const misunderstood = getMisunderStoodData()
+    const languages = getLanguagesData()
     const positiveFeedback = getMetricCount('feedback_positive_qna')
     const negativeFeedback = getMetricCount('feedback_negative_qna')
     const positivePct = Math.round((positiveFeedback / (positiveFeedback + negativeFeedback)) * 100)
@@ -431,12 +445,34 @@ const Analytics: FC<any> = ({ bp }) => {
       <div className={cx(style.metricsContainer, style.fullWidth)}>
         <div className={cx(style.genericMetric, style.quarter)}>
           <div>
-            <p className={style.numberMetricValue}>{total}</p>
+            <p className={style.numberMetricValue}>{misunderstood.total}</p>
             <h3 className={style.metricName}>{lang.tr('module.analytics.misunderstoodMessages')}</h3>
           </div>
           <div>
-            <FlatProgressChart value={inside} color="#DE4343" name={`${inside} inside flows`} />
-            <FlatProgressChart value={outside} color="#F2B824" name={`${outside} outside flows`} />
+            <FlatProgressChart
+              value={misunderstood.inside}
+              color="#DE4343"
+              name={`${misunderstood.inside} inside flows`}
+            />
+            <FlatProgressChart
+              value={misunderstood.outside}
+              color="#F2B824"
+              name={`${misunderstood.outside} outside flows`}
+            />
+          </div>
+        </div>
+        <div className={cx(style.genericMetric, style.quarter)}>
+          <div>
+            <h3 className={style.metricName}>{lang.tr('module.analytics.messagesByLanguage')}</h3>
+          </div>
+          <div>
+            {languages.map(i => (
+              <FlatProgressChart
+                value={i.value}
+                color="#F2B824"
+                name={`${lang.tr(`isoLangs.${i.language}.name`)}: ${i.value}`}
+              />
+            ))}
           </div>
         </div>
         {isNDU && (
