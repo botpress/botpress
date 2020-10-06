@@ -15,6 +15,7 @@ const Metric = <const>[
   'top_msg_nlu_none',
   'enter_flow_count',
   'msg_nlu_intent',
+  'msg_nlu_language',
 
   'workflow_started_count',
   'workflow_completed_count',

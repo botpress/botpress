@@ -19,6 +19,7 @@
   "handlingAndUnderstanding": "Handling and Understanding",
   "interval": "{startDate} to {endDate}",
   "messageExchanged": "Message Exchanged",
+  "messagesByLanguage": "Messages by Language",
   "messagesReceived": "Messages Received",
   "misunderstoodMessages": "misunderstood messages",
   "mostAskedQuestions": "Most Asked Questions",

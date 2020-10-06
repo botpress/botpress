@@ -66,7 +66,7 @@ class ViewStore {
 
   @computed
   get showConversationsButton() {
-    return this.rootStore.config?.showConversationsButton
+    return !this.rootStore.config?.conversationId && this.rootStore.config?.showConversationsButton
   }
 
   @computed

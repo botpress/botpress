@@ -20,6 +20,7 @@ export class EventsTable extends Table {
       table.boolean('success').nullable()
       table.json('event').notNullable()
       table.timestamp('createdOn').notNullable()
+      table.index('createdOn', 'ets_idx')
       created = true
     })
     return created

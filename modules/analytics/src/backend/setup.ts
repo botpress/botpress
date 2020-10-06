@@ -84,6 +84,11 @@ export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[
       db.incrementMetric(event.botId, event.channel, 'msg_nlu_intent', event.nlu?.intent?.name)
     }
 
+    const language = event.nlu?.language
+    if (language) {
+      db.incrementMetric(event.botId, event.channel, 'msg_nlu_language', language)
+    }
+
     next()
   }
 
