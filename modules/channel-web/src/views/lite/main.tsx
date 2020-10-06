@@ -10,6 +10,7 @@ import constants from './core/constants'
 import BpSocket from './core/socket'
 import ChatIcon from './icons/Chat'
 import { RootStore, StoreDef } from './store'
+import { Message } from './typings'
 import { checkLocationOrigin, initializeAnalytics, trackMessage, trackWebchatState } from './utils'
 
 const _values = obj => Object.keys(obj).map(x => obj[x])
@@ -78,7 +79,7 @@ class Web extends React.Component<MainProps> {
 
     this.socket = new BpSocket(this.props.bp, config)
     this.socket.onMessage = this.handleNewMessage
-    this.socket.onTyping = this.props.updateTyping
+    this.socket.onTyping = this.handleTyping
     this.socket.onData = this.handleDataMessage
     this.socket.onUserIdChanged = this.props.setUserId
     this.socket.setup()
@@ -175,6 +176,11 @@ class Web extends React.Component<MainProps> {
       return
     }
 
+    if (this.props.config.conversationId && Number(this.props.config.conversationId) !== Number(event.conversationId)) {
+      // don't do anything, it's a message from another conversation
+      return
+    }
+
     trackMessage('received')
     await this.props.addEventToConversation(event)
 
@@ -185,6 +191,15 @@ class Web extends React.Component<MainProps> {
     }
 
     this.handleResetUnreadCount()
+  }
+
+  handleTyping = async (event: Message) => {
+    if (this.props.config.conversationId && Number(this.props.config.conversationId) !== Number(event.conversationId)) {
+      // don't do anything, it's a message from another conversation
+      return
+    }
+
+    await this.props.updateTyping(event)
   }
 
   handleDataMessage = event => {
