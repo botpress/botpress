@@ -1,4 +1,4 @@
-import React, { FC, useContext } from 'react'
+import React, { FC, useContext, useState, useEffect } from 'react'
 import _ from 'lodash'
 import moment from 'moment'
 
@@ -20,6 +20,8 @@ const EscalationItem: FC<Props> = props => {
   const { api } = props
 
   const { state, dispatch } = useContext(Context)
+
+  const [fromNow, setFromNow] = useState(moment(props.createdAt).fromNow())
 
   async function handleSelect(id: string) {
     dispatch({ type: 'setCurrentEscalation', payload: id })
@@ -53,9 +55,14 @@ const EscalationItem: FC<Props> = props => {
     }
   }
 
-  function formatDate(date: Date) {
-    return moment(date).fromNow()
-  }
+  useEffect(() => {
+    const refreshRate = 1000 * 60 // ms
+
+    const interval = setInterval(() => {
+      setFromNow(moment(props.createdAt).fromNow())
+    }, refreshRate)
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <Grid>
@@ -64,7 +71,7 @@ const EscalationItem: FC<Props> = props => {
         <Col>
           <p>Id: {props.id}</p>
           <p className="bp3-text-small bp3-text-muted">
-            {lang.tr('module.hitl2.escalation.created', { date: formatDate(props.createdAt) })}
+            {lang.tr('module.hitl2.escalation.created', { date: fromNow })}
           </p>
           <p>From: {props.userConversation.channel}</p>
         </Col>
