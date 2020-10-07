@@ -17,7 +17,7 @@ export const initModule = async (bp: typeof sdk, bots: ScopedBots) => {
         next()
       }
     },
-    order: 11, // must be after the NLU middleware and before the dialog middleware
+    order: 140, // must be after the NLU middleware and before the dialog middleware
     description: 'Listen for predefined questions and send canned responses.'
   })
 

@@ -125,7 +125,7 @@ export default class Storage {
       answers: intent.metadata.answers!,
       // @ts-ignore
       contentAnswers: intent.metadata.contentAnswers!,
-      ..._.pick(intent.metadata, ['answers', 'contentAnswers', 'enabled', 'redirectFlow', 'redirectNode']),
+      ..._.pick(intent.metadata, ['answers', 'contentAnswers', 'enabled', 'redirectFlow', 'redirectNode', 'action']),
       lastModified: intent.metadata?.lastModifiedOn
     }))
     return items
@@ -152,10 +152,9 @@ export default class Storage {
       filename: toQnaFile(topicName),
       slots: [],
       utterances: _.mapValues(i.questions, q => normalizeQuestions(q)),
+      // @ts-ignore
       metadata: {
-        answers: i.answers,
-        contentAnswers: i.contentAnswers,
-        enabled: i.enabled,
+        ..._.pick(i, ['answers', 'contentAnswers', 'enabled', 'redirectFlow', 'redirectNode', 'action']),
         lastModifiedOn: i.id === item.id ? new Date() : i.lastModified
       }
     }))
