@@ -102,11 +102,15 @@ function spawnWebWorker() {
   debug(`Spawned Web Worker`)
 }
 
-export async function spawnNewTrainingWorker(config: sdk.NLU.Config): Promise<number> {
+export async function spawnNewTrainingWorker(config: sdk.NLU.Config, requestId: string): Promise<number> {
   if (!process.TRAINING_WORKERS) {
     process.TRAINING_WORKERS = []
   }
-  const worker = cluster.fork({ WORKER_TYPE: WORKER_TYPES.TRAINING, NLU_CONFIG: JSON.stringify(config) })
+  const worker = cluster.fork({
+    WORKER_TYPE: WORKER_TYPES.TRAINING,
+    NLU_CONFIG: JSON.stringify(config),
+    REQUEST_ID: requestId
+  })
   const workerId = worker.id
   process.TRAINING_WORKERS.push(workerId)
   return Promise.fromCallback(cb => worker.on('online', () => cb(undefined, workerId)))
