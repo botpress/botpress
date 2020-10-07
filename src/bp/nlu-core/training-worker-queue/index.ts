@@ -3,10 +3,11 @@ import cluster, { Worker } from 'cluster'
 import _ from 'lodash'
 import { deserializeError, serializeError } from 'ml/error-utils'
 
-import { registerMsgHandler, spawnNewTrainingWorker, WORKER_TYPES } from '../cluster'
+import { registerMsgHandler, spawnNewTrainingWorker, WORKER_TYPES } from '../../cluster'
+import { initializeTools } from '../initialize-tools'
+import { Trainer, TrainInput, TrainOutput } from '../training-pipeline'
+import { Tools } from '../typings'
 
-import { initializeTools } from './initialize-tools'
-import { Trainer, TrainInput, TrainOutput } from './training-pipeline'
 import {
   AllIncomingMessages,
   AllOutgoingMessages,
@@ -19,8 +20,7 @@ import {
   isTrainingProgress,
   isWorkerReady,
   OutgoingMessage
-} from './training-worker-communication'
-import { Tools } from './typings'
+} from './communication'
 
 export class TrainingCanceledError extends Error {}
 
