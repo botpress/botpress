@@ -106,16 +106,26 @@ export default class Storage {
     }
   }
 
+  async getQnaItem(qnaEntry) {
+    const all = await this.fetchItems(undefined)
+    return all.find(x => x.id === qnaEntry)
+  }
+
   async fetchItems(topicName: string, opts?: sdk.Paging): Promise<Item[]> {
+    if (!topicName || topicName === 'undefined') {
+      topicName = 'legacy_qna'
+    }
+
     await this.ensureIntentsFileExists(topicName)
     const intents = await this.ghost.readFileAsObject<Intent[]>(FLOW_FOLDER, toQnaFile(topicName))
 
     const items = intents.map<Item>(intent => ({
       id: intent.name,
       questions: intent.utterances,
-      answers: intent.metadata?.answers,
-      contentAnswers: intent.metadata?.contentAnswers,
-      enabled: intent.metadata?.enabled,
+      answers: intent.metadata.answers!,
+      // @ts-ignore
+      contentAnswers: intent.metadata.contentAnswers!,
+      ..._.pick(intent.metadata, ['answers', 'contentAnswers', 'enabled', 'redirectFlow', 'redirectNode']),
       lastModified: intent.metadata?.lastModifiedOn
     }))
     return items

@@ -28,7 +28,7 @@ const QnAList: FC<Props> = ({
   bp,
   languages,
   defaultLang,
-  topicName,
+  topicName = 'legacy_qna',
   contentLang,
   updateLocalLang,
   isLite,

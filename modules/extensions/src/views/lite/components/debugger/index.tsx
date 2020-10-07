@@ -71,9 +71,11 @@ export class Debugger extends React.Component<Props, State> {
 
   async componentDidMount() {
     // @ts-ignore
-    this.showEventOnDiagram = window.parent.showEventOnDiagram()
+    this.showEventOnDiagram = window.parent.showEventOnDiagram
+      ? // @ts-ignore
+        window.parent.showEventOnDiagram()
+      : () => void lang.init()
 
-    lang.init()
     updater.callback = this.loadEvent
 
     this.props.store.view.setLayoutWidth(WEBCHAT_WIDTH)

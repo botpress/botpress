@@ -39,7 +39,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   translations: { en, fr },
   definition: {
     name: 'nlu',
-    noInterface: true,
+    noInterface: false,
     menuIcon: 'translate',
     menuText: 'NLU',
     fullName: 'NLU',

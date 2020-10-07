@@ -241,7 +241,7 @@ export class TransitionStrategy implements InstructionStrategy {
   private unsafeRegex = new RegExp(/[\(\)\`]/)
 
   async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
-    const conditionSuccessful = await this.runCode(instruction, extractEventCommonArgs(event))
+    const conditionSuccessful = await this.runCode(instruction, extractEventCommonArgs(event) as EventCommonArgs)
 
     if (conditionSuccessful) {
       debug.forBot(
@@ -256,7 +256,7 @@ export class TransitionStrategy implements InstructionStrategy {
     }
   }
 
-  private async runCode(instruction: Instruction, sandbox): Promise<any> {
+  private async runCode(instruction: Instruction, sandbox: EventCommonArgs): Promise<any> {
     if (instruction.fn === 'true') {
       return true
     } else if (instruction.fn?.startsWith('lastNode')) {
@@ -276,14 +276,16 @@ export class TransitionStrategy implements InstructionStrategy {
       const { currentFlow, currentNode } = sandbox.event.state.context
       instruction.fn = instruction.fn.replace(
         /thisNode/g,
-        `(event.state.temp['${currentFlow.replace('.flow.json', '')}/${currentNode}'] || {})`
+        `(event.state.temp['${currentFlow!.replace('.flow.json', '')}/${currentNode}'] || {})`
       )
     }
 
-    const variables = instruction.fn?.match(/\$[a-zA-Z][a-zA-Z0-9_-]*/g) ?? []
-    for (const match of variables) {
-      const name = match.replace('$', '')
-      instruction.fn = instruction.fn!.replace(match, `event.state.workflow.variables['${name}']`)
+    if (sandbox.event.ndu) {
+      const variables = instruction.fn?.match(/\$[a-zA-Z][a-zA-Z0-9_-]*/g) ?? []
+      for (const match of variables) {
+        const name = match.replace('$', '')
+        instruction.fn = instruction.fn!.replace(match, `event.state.workflow.variables['${name}']`)
+      }
     }
 
     const code = `return ${instruction.fn};`
