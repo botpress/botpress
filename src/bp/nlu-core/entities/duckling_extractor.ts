@@ -46,6 +46,35 @@ interface KeyedItem {
  *   "dim": "time",
  *   "latent": false
  * }
+ *
+ *
+ * OR
+ *
+ *
+ * {
+ *  "values": [
+ *    {
+ *      "to": {
+ *        "value": "2020-10-08T00:00:00.000-04:00",
+ *        "grain": "hour"
+ *      },
+ *      "from": {
+ *        "value": "2020-10-07T18:00:00.000-04:00",
+ *        "grain": "hour"
+ *      },
+ *      "type": "interval"
+ *    }
+ *  ],
+ *  "to": {
+ *    "value": "2020-10-08T00:00:00.000-04:00",
+ *    "grain": "hour"
+ *  },
+ *  "from": {
+ *    "value": "2020-10-07T18:00:00.000-04:00",
+ *    "grain": "hour"
+ *  },
+ *  "type": "interval"
+ * }
  */
 interface DucklingReturn {
   start: number
@@ -56,7 +85,7 @@ interface DucklingReturn {
 }
 interface DucklingValue {
   normalized?: ValueUnit
-  values?: ValueGrain[]
+  values?: (ValueGrain | IntervalValueGrain)[]
   value?: string
   unit?: string
   grain?: string
@@ -67,7 +96,7 @@ interface DucklingTime extends DucklingReturn {
   value: DucklingTimeValue
 }
 type DucklingTimeValue = ValueGrain | DucklingTimeValues
-type DucklingTimeValues = { values: ValueGrain[] }
+type DucklingTimeValues = { values: (ValueGrain | IntervalValueGrain)[] }
 
 interface DucklingDuration extends DucklingReturn {
   dim: 'duration'
@@ -77,11 +106,19 @@ interface DucklingDuration extends DucklingReturn {
 interface ValueUnit {
   value: string
   unit: string
+  type: 'value'
 }
 
 interface ValueGrain {
   value: string
   grain: string
+  type: 'value'
+}
+
+interface IntervalValueGrain {
+  from: ValueGrain
+  to: ValueGrain
+  type: 'interval'
 }
 
 // duckling type guards
@@ -103,6 +140,10 @@ const _isValueGrain = (duckValue: DucklingTimeValue): duckValue is ValueGrain =>
 
 const _isValueUnit = (duckValue: DucklingValue): duckValue is ValueUnit => {
   return !!((duckValue as ValueUnit).value && (duckValue as ValueUnit).unit)
+}
+
+const _isIntervalValueGrain = (duckValue: ValueGrain | IntervalValueGrain): duckValue is IntervalValueGrain => {
+  return duckValue.type === 'interval'
 }
 
 export const JOIN_CHAR = `::${SPACE}::`
@@ -335,15 +376,25 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
       if (_isValueGrain(duck.value)) {
         return {
           value: duck.value.value,
-          unit: duck.value.grain
+          unit: duck.value.grain,
+          type: 'value'
         }
       }
 
       if (_isTimeValues(duck.value) && duck.value.values.length) {
         const first = duck.value.values[0]
+        if (_isIntervalValueGrain(first)) {
+          return {
+            value: first.from.value,
+            unit: first.from.grain,
+            type: 'value'
+          }
+        }
+
         return {
           value: first.value,
-          unit: first.grain
+          unit: first.grain,
+          type: 'value'
         }
       }
     }
@@ -351,13 +402,15 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
     if (_isValueUnit(duck.value)) {
       return {
         value: duck.value.value,
-        unit: duck.value.unit
+        unit: duck.value.unit,
+        type: 'value'
       }
     }
 
     return {
       value: '',
-      unit: ''
+      unit: '',
+      type: 'value'
     }
   }
 }
