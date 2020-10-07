@@ -63,14 +63,10 @@ export class TrainingWorkerQueue {
 
     if (!this.readyWorkers.length) {
       const newWorker = await this._createNewWorker(trainSessionId)
-      console.log(`[${trainSessionId}] new worker: ${newWorker}`)
       this.readyWorkers.push(newWorker)
     }
 
-    console.log(`[${trainSessionId}] available workers: ${this.readyWorkers.join(', ')}`)
     const worker = this.readyWorkers.pop()!
-
-    console.log(`[${trainSessionId}] chosen worker: ${worker}`)
     this.activeWorkers[trainSessionId] = worker
 
     let output: TrainOutput
