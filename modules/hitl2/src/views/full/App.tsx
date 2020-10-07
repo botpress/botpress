@@ -8,7 +8,6 @@ import { SocketMessageType } from './../../types'
 import { toast } from 'botpress/shared'
 import { Grid, Row, Col } from 'react-flexbox-grid'
 
-import AgentList from './Components/AgentList'
 import AgentProfile from './Components/AgentProfile'
 import Conversation from './Components/Conversation'
 import EscalationList from './Components/EscalationList'
@@ -86,9 +85,7 @@ const App = ({ bp }) => {
     <Grid>
       <Row>
         <Col>{state.currentAgent ? <AgentProfile api={api} {...state.currentAgent}></AgentProfile> : null}</Col>
-        <Col>
-          <AgentList agents={state.agents}></AgentList>
-        </Col>
+        <Col></Col>
       </Row>
       <Row>
         <Col md={4}>
