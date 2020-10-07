@@ -8,7 +8,7 @@ export interface FilterType {
   assignedOther: boolean
 }
 
-export type SortType = 'mostRecent' | 'leastRecent' | 'unread' | 'read'
+export type SortType = 'mostRecent' | 'leastRecent'
 
 interface Props {
   filterOptions: FilterType
@@ -34,20 +34,6 @@ const EscalationListFilter: FC<Props> = props => {
           selected: props.sortOption === 'leastRecent',
           action: () => {
             props.setSortOption('leastRecent')
-          }
-        },
-        {
-          label: lang.tr('module.hitl2.sort.unread'),
-          selected: props.sortOption === 'unread',
-          action: () => {
-            props.setSortOption('unread')
-          }
-        },
-        {
-          label: lang.tr('module.hitl2.sort.read'),
-          selected: props.sortOption === 'read',
-          action: () => {
-            props.setSortOption('read')
           }
         }
       ],

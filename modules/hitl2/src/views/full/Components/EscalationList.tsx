@@ -27,7 +27,7 @@ const EscalationList: FC<Props> = props => {
     assignedMe: true,
     assignedOther: true
   })
-  const [sortOption, setSortOption] = useState<SortType>('unread')
+  const [sortOption, setSortOption] = useState<SortType>('mostRecent')
 
   function filterBy(item) {
     const conditions = {
@@ -47,12 +47,6 @@ const EscalationList: FC<Props> = props => {
         return [['createdAt'], ['asc']]
       case 'leastRecent':
         return [['createdAt'], ['desc']]
-      case 'read':
-        // TODO
-        return
-      case 'unread':
-        // TODO
-        return
       default:
         return
     }
