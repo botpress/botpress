@@ -1,7 +1,7 @@
 import { NLU } from 'botpress/sdk'
 import MLToolkit from 'ml/toolkit'
 
-import { DucklingEntityExtractor } from './entities/duckling_extractor'
+import { DucklingEntityExtractor } from './entities/duckling-extractor'
 import LangProvider from './language/language-provider'
 import { getPOSTagger, tagSentence } from './language/pos-tagger'
 import SeededLodashProvider from './tools/seeded-lodash'
