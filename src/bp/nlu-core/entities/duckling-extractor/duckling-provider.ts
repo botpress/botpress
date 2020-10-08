@@ -19,27 +19,12 @@ https://botpress.com/docs/build/nlu/#system-entities
 
 const RETRY_POLICY = { backoff: 2, max_tries: 3, timeout: 500 }
 
-export const DUCKLING_ENTITIES: DucklingDimension[] = [
-  'amountOfMoney',
-  'distance',
-  'duration',
-  'email',
-  'number',
-  'ordinal',
-  'phoneNumber',
-  'quantity',
-  'temperature',
-  'time',
-  'url',
-  'volume'
-]
-
 export class DucklingProvider {
   public static client: AxiosInstance
 
   constructor(private logger?: NLU.Logger) {}
 
-  public static async configure(url: string, logger?: NLU.Logger): Promise<boolean> {
+  public static async init(url: string, logger?: NLU.Logger): Promise<boolean> {
     const proxyConfig = process.PROXY ? { httpsAgent: new httpsProxyAgent(process.PROXY) } : {}
     this.client = Axios.create({
       baseURL: url,

@@ -10,8 +10,9 @@ import { extractPattern } from '../../tools/patterns-utils'
 import { SPACE } from '../../tools/token-utils'
 import { EntityExtractionResult, SystemEntityExtractor } from '../../typings'
 
-import { DucklingParams, DucklingProvider, DUCKLING_ENTITIES } from './duckling-provider'
+import { DucklingParams, DucklingProvider } from './duckling-provider'
 import { mapDucklingToEntity } from './map-duckling'
+import { DucklingDimension } from './typings'
 
 interface KeyedItem {
   input: string
@@ -21,6 +22,21 @@ interface KeyedItem {
 
 export const JOIN_CHAR = `::${SPACE}::`
 const BATCH_SIZE = 10
+
+export const DUCKLING_ENTITIES: DucklingDimension[] = [
+  'amountOfMoney',
+  'distance',
+  'duration',
+  'email',
+  'number',
+  'ordinal',
+  'phoneNumber',
+  'quantity',
+  'temperature',
+  'time',
+  'url',
+  'volume'
+]
 
 const CACHE_PATH = path.join(process.APP_DATA_PATH || '', 'cache', 'sys_entities.json')
 
@@ -44,7 +60,7 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
 
   public static async configure(enabled: boolean, url: string, logger?: NLU.Logger) {
     if (enabled) {
-      this.enabled = await DucklingProvider.configure(url, logger)
+      this.enabled = await DucklingProvider.init(url, logger)
 
       this._cache = new lru<string, EntityExtractionResult[]>({
         length: (val: any, key: string) => sizeof(val) + sizeof(key),
