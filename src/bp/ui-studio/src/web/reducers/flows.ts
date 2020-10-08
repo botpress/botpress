@@ -516,6 +516,9 @@ reducer = reduceReducers(
 
       [requestUpdateFlow]: (state, { payload }) => {
         const currentFlow = state.flowsByName[state.currentFlow] as FlowView
+        if (!currentFlow) {
+          return
+        }
         const nodes = !payload.links
           ? currentFlow.nodes
           : currentFlow.nodes.map(node => {
