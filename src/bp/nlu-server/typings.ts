@@ -39,6 +39,7 @@ export interface Pattern {
   name: string
   regex: string
   case_sensitive: boolean
+  examples: string[]
 }
 
 export type Complex = {

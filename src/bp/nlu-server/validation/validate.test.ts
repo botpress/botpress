@@ -19,7 +19,8 @@ const CITY_ENUM: Enum = {
 const TICKET_PATTERN: Pattern = {
   name: 'ticket',
   case_sensitive: true,
-  regex: '[A-Z]{3}-[0-9]{3}' // ABC-123
+  regex: '[A-Z]{3}-[0-9]{3}', // ABC-123
+  examples: ['ABC-123']
 }
 
 const VARIABLE_CITY_FROM: Variable = { name: 'city-from', type: 'city' }
@@ -346,7 +347,7 @@ test('validate with a complex referencing an enum and pattern should not throw',
     ],
     language: LANG,
     password: PW,
-    patterns: [{ name: 'postal-code', regex: '\\w{6}', case_sensitive: false }],
+    patterns: [{ name: 'postal-code', regex: '\\w{6}', case_sensitive: false, examples: [] }],
     complexes: [{ name: 'restaurant', examples: [], patterns: ['postal-code'], enums: ['known-restaurant'] }],
     seed: 42
   }

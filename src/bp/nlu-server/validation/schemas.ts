@@ -22,7 +22,11 @@ const EnumSchema = Joi.object().keys({
 const PatternSchema = Joi.object().keys({
   name: Joi.string().required(),
   regex: Joi.string().required(),
-  case_sensitive: Joi.bool().default(true)
+  case_sensitive: Joi.bool().default(true),
+  examples: Joi.array()
+    .items(Joi.string())
+    .optional()
+    .default([])
 })
 
 const ComplexSchema = Joi.object().keys({
