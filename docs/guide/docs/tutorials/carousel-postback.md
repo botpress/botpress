@@ -19,7 +19,7 @@ It's now time to create the bot. Use [this link](/docs/assets/bot_carouselexampl
 
 ![Screenshot of the bot](assets/carousel-postback-bot.png)
 
-As you can see, the bot wil first display a Carousel, then flow to a different node based on the value of temp.cityClicked. The current transitions do not work yet, let's see the hook.
+As you can see, the bot wil first display a Carousel, then flow to a different node based on the value of `temp.cityClicked`. The current transitions do not work yet, let's see the hook.
 
 ### Implementing the hook
 
