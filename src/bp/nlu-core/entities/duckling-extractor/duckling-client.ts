@@ -4,7 +4,7 @@ import { NLU } from 'botpress/sdk'
 import httpsProxyAgent from 'https-proxy-agent'
 import _ from 'lodash'
 
-import { Duckling, DucklingDimension } from './typings'
+import { Duckling } from './typings'
 
 export interface DucklingParams {
   tz: string
@@ -19,7 +19,7 @@ https://botpress.com/docs/build/nlu/#system-entities
 
 const RETRY_POLICY = { backoff: 2, max_tries: 3, timeout: 500 }
 
-export class DucklingProvider {
+export class DucklingClient {
   public static client: AxiosInstance
 
   constructor(private logger?: NLU.Logger) {}
@@ -51,7 +51,7 @@ export class DucklingProvider {
   public async fetchDuckling(text: string, { lang, tz, refTime }: DucklingParams): Promise<Duckling[]> {
     try {
       return await retry(async () => {
-        const { data } = await DucklingProvider.client.post(
+        const { data } = await DucklingClient.client.post(
           '/parse',
           `lang=${lang}&text=${encodeURI(text)}&reftime=${refTime}&tz=${tz}`
         )
