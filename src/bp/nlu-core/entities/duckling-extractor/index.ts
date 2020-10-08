@@ -138,8 +138,7 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
     // trailing JOIN_CHAR so we have n joints and n examples
     const strBatch = batch.map(x => x.input)
     const concatBatch = strBatch.join(JOIN_CHAR) + JOIN_CHAR
-    const batchReturn = await this._provider.fetchDuckling(concatBatch, params)
-    const batchEntities = batchReturn.map(mapDucklingToEntity)
+    const batchEntities = await this._fetchDuckling(concatBatch, params)
     const splitLocations = extractPattern(concatBatch, new RegExp(JOIN_CHAR)).map(v => v.sourceIndex)
     const entities = splitLocations.map((to, idx, locs) => {
       const from = idx === 0 ? 0 : locs[idx - 1] + JOIN_CHAR.length
@@ -154,6 +153,11 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
     await this._cacheBatchResults(strBatch, entities)
 
     return batch.map((batchItm, i) => ({ ...batchItm, entities: entities[i] }))
+  }
+
+  private async _fetchDuckling(text: string, params: DucklingParams): Promise<EntityExtractionResult[]> {
+    const duckReturn = await this._provider.fetchDuckling(text, params)
+    return duckReturn.map(mapDucklingToEntity)
   }
 
   private async _cacheBatchResults(inputs: string[], results: EntityExtractionResult[][]) {
