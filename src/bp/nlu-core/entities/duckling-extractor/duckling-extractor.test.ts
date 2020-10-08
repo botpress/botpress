@@ -1,7 +1,7 @@
 import 'bluebird-global'
 import _ from 'lodash'
 
-import { DucklingEntityExtractor, JOIN_CHAR } from './duckling_extractor'
+import { DucklingEntityExtractor, JOIN_CHAR } from '.'
 
 class FakeCache {
   private _cache = {}
