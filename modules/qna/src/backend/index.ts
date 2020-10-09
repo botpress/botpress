@@ -6,7 +6,8 @@ import fr from '../translations/fr.json'
 
 import api from './api'
 import { ScopedBots } from './qna'
-import { initBot, initModule } from './setup'
+import { initBot } from './setup'
+import { initModule } from './setup_legacy'
 
 const bots: ScopedBots = {}
 

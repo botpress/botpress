@@ -18,6 +18,8 @@ export interface QnaEntry {
   answers: {
     [lang: string]: string[]
   }
+  // deprecated
+  contexts?: string[]
   contentAnswers: Content.All[]
   redirectFlow: string
   redirectNode: string
@@ -267,6 +269,7 @@ export const fetchReducer = (state: State, action): State => {
       key: id,
       data: {
         action: 'text',
+        contexts: [topicName || 'global'],
         topicName,
         enabled: true,
         answers: _.cloneDeep(languageArrays),

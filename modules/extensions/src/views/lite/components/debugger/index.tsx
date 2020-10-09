@@ -74,7 +74,9 @@ export class Debugger extends React.Component<Props, State> {
     this.showEventOnDiagram = window.parent.showEventOnDiagram
       ? // @ts-ignore
         window.parent.showEventOnDiagram()
-      : () => void lang.init()
+      : () => {}
+
+    lang.init()
 
     updater.callback = this.loadEvent
 

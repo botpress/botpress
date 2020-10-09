@@ -11,9 +11,14 @@ $dot-space: 12px;
 }
 
 .diagram :global(.srd-diagram) {
-  background: linear-gradient(90deg, $bg-color ($dot-space - $dot-size), transparent 1%) center, linear-gradient($bg-color ($dot-space - $dot-size), transparent 1%) center, $dot-color;
+  background: linear-gradient(90deg, $bg-color ($dot-space - $dot-size), transparent 1%) center,
+    linear-gradient($bg-color ($dot-space - $dot-size), transparent 1%) center, $dot-color;
   background-position: top left;
   background-size: $dot-space $dot-space;
   height: 100%;
   margin: 0 calc(var(--spacing-x-large) * -1);
+}
+
+.diagramLegacy {
+  width: 99%;
 }

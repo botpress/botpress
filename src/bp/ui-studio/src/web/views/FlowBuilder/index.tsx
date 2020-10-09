@@ -1,4 +1,5 @@
 import { toast, utils } from 'botpress/shared'
+import cx from 'classnames'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
 import React, { Component } from 'react'
@@ -231,7 +232,7 @@ class FlowBuilder extends Component<Props, State> {
     }
 
     return (
-      <Container keyHandlers={keyHandlers}>
+      <Container keyHandlers={keyHandlers} sidePanelWidth={320}>
         <SidePanel
           readOnly={this.state.readOnly}
           mutexInfo={this.state.mutexInfo}
@@ -241,7 +242,7 @@ class FlowBuilder extends Component<Props, State> {
             this.props.switchFlow(`${name}.flow.json`)
           }}
         />
-        <div className={style.diagram}>
+        <div className={cx(style.diagram, style.diagramLegacy)}>
           <Diagram
             readOnly={readOnly}
             showSearch={this.state.showSearch}

@@ -427,11 +427,13 @@ let reducer = handleActions(
     }),
 
     [receiveFlows]: (state, { payload }) => {
+      // @deprecated Old behavior of selecting the main flow for old bots
+      const defaultFlow = _.keys(payload).includes('main.flow.json') ? 'main.flow.json' : undefined
       const newState = {
         ...state,
         fetchingFlows: false,
         flowsByName: payload,
-        currentFlow: state.currentFlow
+        currentFlow: state.currentFlow || defaultFlow
       }
       return {
         ...newState,

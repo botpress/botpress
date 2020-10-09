@@ -43,20 +43,20 @@ const migration: sdk.ModuleMigration = {
         }
       }
 
-      // for (const context of Object.keys(qnaByContext)) {
-      //   const filename = `${context}/qna.intents.json`
+      for (const context of Object.keys(qnaByContext)) {
+        const filename = `${context}/qna.intents.json`
 
-      //   if (!(await bpfs.fileExists('flows', filename))) {
-      //     console.log(context, qnaByContext[context])
-      //     await bpfs.upsertFile('./flows', filename, JSON.stringify(qnaByContext[context], undefined, 2), {
-      //       ignoreLock: true
-      //     })
-      //   }
-      // }
+        if (!(await bpfs.fileExists('flows', filename))) {
+          console.log(context, qnaByContext[context])
+          await bpfs.upsertFile('./flows', filename, JSON.stringify(qnaByContext[context], undefined, 2), {
+            ignoreLock: true
+          })
+        }
+      }
 
-      await bpfs.upsertFile('./flows', 'legacy_qna/qna.intents.json', JSON.stringify(allQnas, undefined, 2), {
-        ignoreLock: true
-      })
+      // await bpfs.upsertFile('./flows', 'legacy_qna/qna.intents.json', JSON.stringify(allQnas, undefined, 2), {
+      //   ignoreLock: true
+      // })
 
       hasChanges = true
     }
