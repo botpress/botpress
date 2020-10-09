@@ -5,6 +5,7 @@ import _ from 'lodash'
 import { EntityCacheManager } from './entities/entity-cache-manager'
 import { initializeTools } from './initialize-tools'
 import DetectLanguage from './language/language-identifier'
+import { mapLegacySlots } from './legacy-slot-mapper'
 import { deserializeModel, PredictableModel, serializeModel } from './model-manager'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
@@ -80,12 +81,14 @@ export default class Engine implements NLU.Engine {
 
   async train(
     trainSessionId: string,
-    intentDefs: NLU.IntentDefinition[],
-    entityDefs: NLU.EntityDefinition[],
+    intentDefinitions: NLU.IntentDefinition[],
+    entityDefinitions: NLU.EntityDefinition[],
     languageCode: string,
     options: NLU.TrainingOptions
   ): Promise<NLU.Model | undefined> {
     trainDebug.forBot(this.botId, `Started ${languageCode} training`)
+
+    const { intentDefs, entityDefs } = mapLegacySlots(intentDefinitions, entityDefinitions)
 
     const list_entities = entityDefs
       .filter(ent => ent.type === 'list')

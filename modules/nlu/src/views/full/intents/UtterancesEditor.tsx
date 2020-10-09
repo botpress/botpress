@@ -27,7 +27,7 @@ interface Props {
   intentName: string
   utterances: string[]
   liteEditor: boolean
-  slots: NLU.SlotDefinition[]
+  slots: (NLU.SlotDefinition | NLU.LegacySlotDefinition)[]
   onChange: (x: string[]) => void
 }
 
@@ -144,7 +144,7 @@ export class UtterancesEditor extends React.Component<Props> {
     )
   }
 
-  tag = (editor: CoreEditor, slot: NLU.SlotDefinition) => {
+  tag = (editor: CoreEditor, slot: NLU.SlotDefinition | NLU.LegacySlotDefinition) => {
     const { utterance, block } = this.state.selection
     let { from, to } = this.state.selection
     const node: Node = editor.value.getIn(['document', 'nodes', utterance, 'nodes', block])

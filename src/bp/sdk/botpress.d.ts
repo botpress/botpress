@@ -554,13 +554,21 @@ declare module 'botpress/sdk' {
       entity: string
     }
 
+    /**
+     * @deprecated version > 13.0.0
+     */
+    export interface LegacySlotDefinition {
+      name: string
+      entities: string[]
+    }
+
     export interface IntentDefinition {
       name: string
       utterances: {
         [lang: string]: string[]
       }
       filename: string // TODO: remove, not used anymore
-      slots: SlotDefinition[] // TODO: rename to "placeholders" when we introduce this concept (synonyms, variables)
+      slots: (SlotDefinition | LegacySlotDefinition)[] // TODO: rename to "placeholders" when we introduce this concept (synonyms, variables)
       contexts: string[] // TODO: remove contexts, now a single 'topic'
       metadata?: any
     }
