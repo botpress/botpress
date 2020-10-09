@@ -11,7 +11,7 @@ export const Intent = (props: { name: string; confidence?: number; elected?: boo
 
   const displayName = isQnA ? formatQnaName(name) : name
 
-  const textContent: string = confidence ? `${displayName}: ${formatConfidence(confidence)} %` : displayName
+  const textContent: string = confidence ? `${displayName}: ${formatConfidence(confidence)} ` : displayName
   const content = elected ? <strong>{textContent}</strong> : <span>{textContent}</span>
 
   return (

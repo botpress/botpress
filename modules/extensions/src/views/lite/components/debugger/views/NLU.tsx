@@ -69,7 +69,7 @@ const NLU: SFC<Props> = ({ nluData, isNDU, session, isExpanded, toggleExpand, co
           </Tooltip>
         )}
         <Language detectedLanguage={nluData.detectedLanguage} usedLanguage={nluData.language} />
-        <Predictions predictions={nluData.predictions} activePrompt={context?.activePrompt} />
+        {isNDU && <Predictions predictions={nluData.predictions} activePrompt={context?.activePrompt} />}
         {!isNDU && <Intents intents={nluData.intents} intent={nluData.intent} />}
 
         <Collapsible name="Entities" hidden={!nluData.entities.length}>

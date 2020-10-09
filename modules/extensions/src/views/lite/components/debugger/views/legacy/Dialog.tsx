@@ -26,7 +26,7 @@ const Decision: FC<{ decision: sdk.IO.Suggestion }> = props => {
   return (
     <ContentSection title={lang.tr('module.extensions.dialog.decision')}>
       <div>
-        {isQnA ? <Intent name={decision} /> : <strong>{decision}</strong>}
+        {isQnA ? <Intent name={decision} /> : <span>{decision}</span>}
         &nbsp;
         <Tooltip content={props.decision.decision.reason} position={Position.RIGHT}>
           <Icon color={Colors.GRAY3} icon="info-sign" />
