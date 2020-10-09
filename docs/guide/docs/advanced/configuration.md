@@ -135,7 +135,7 @@ Every bot that you create will have its own configuration file. It is located at
 
 ## Module Configuration
 
-When you enable a module on Botpress, it is available globally, which means that you can't disable or enable them for specific bots. However, you can configure  every bot differently.
+When you enable a module on Botpress, it is available globally, which means that you can't disable or enable them for specific bots. However, you can configure every bot differently.
 
 Each module has a different configuration, so we won't go through that here. What you need to know is that when you run a module for the first time, the default configuration will be created in `data/global/config/MODULE_NAME.json`. If you need a special configuration for your bot, from the Code Editor you can right click any global configuration, then **Duplicate to current bot**.
 
@@ -174,7 +174,7 @@ Botpress supports `.env` files, so you don't have to set them every time you sta
 | FAST_TEXT_CLEANUP_MS      | The model will be kept in memory until it receives no messages to process for that duration | 60000   |
 | REVERSE_PROXY             | When enabled, it uses "x-forwarded-for" to fetch the user IP instead of remoteAddress       | false   |
 
-It is also possible to use environment variables to override module configuration. The pattern is `BP_MODULE_%MODULE_NAME%_%OPTION_PATH%`, all in upper cases. For example, to define the `languageSources` option of the module `nlu`, you would use `BP_MODULE_NLU_LANGUAGESOURCES`. 
+It is also possible to use environment variables to override module configuration. The pattern is `BP_MODULE_%MODULE_NAME%_%OPTION_PATH%`, all in upper case. For example, to define the `languageSources` option of the module `nlu`, you would use `BP_MODULE_NLU_LANGUAGESOURCES`. 
 
 > **Tip**: You can list the available environment variables for each module by enabling the `DEBUG=bp:configuration:modules:*` flag.
 
