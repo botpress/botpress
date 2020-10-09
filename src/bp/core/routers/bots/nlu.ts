@@ -50,6 +50,40 @@ export class NLURouter extends CustomRouter {
       })
     )
 
+    this.router.get(
+      '/intents/:intentName',
+      this._checkTokenHeader,
+      this._needPermissions('read', 'bot.content'),
+      this.asyncMiddleware(async (req, res) => {
+        const { botId } = req.params
+        const intentDefs = await this.nluService.intents.getIntents(botId)
+        const desiredIntent = intentDefs.filter(i => i.name === req.params.intentName)
+
+        if (desiredIntent.length) {
+          return res.send(desiredIntent[0])
+        }
+
+        res.sendStatus(404)
+      })
+    )
+
+    this.router.get(
+      '/contexts',
+      this._checkTokenHeader,
+      this._needPermissions('read', 'bot.content'),
+      this.asyncMiddleware(async (req, res) => {
+        const { botId } = req.params
+        const intentDefs = await this.nluService.intents.getIntents(botId)
+
+        const allTopics = _(intentDefs)
+          .flatMap(i => i.contexts)
+          .uniq()
+          .value()
+
+        res.send(allTopics)
+      })
+    )
+
     // TODO: Deprecate this
     this.router.get(
       '/entities',
