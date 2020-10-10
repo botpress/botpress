@@ -4,7 +4,8 @@ import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
-import { NLUApi } from '../../../api'
+import { LegacyIntentDefinition, LegacySlotDefinition } from '../../../backend/typings'
+import { NLUApiClient } from '../api-client'
 
 import Slots from './slots/Slots'
 import style from './style.scss'
@@ -15,7 +16,7 @@ import { UtterancesEditor } from './UtterancesEditor'
 
 interface Props {
   intent: string
-  api: NLUApi
+  api: NLUApiClient
   contentLang: string
   showSlotPanel?: boolean
   axios: AxiosInstance
@@ -23,7 +24,7 @@ interface Props {
 }
 
 export const IntentEditor: FC<Props> = props => {
-  const [intent, setIntent] = useState<NLU.IntentDefinition>()
+  const [intent, setIntent] = useState<LegacyIntentDefinition>()
 
   useEffect(() => {
     // tslint:disable-next-line: no-floating-promises
@@ -35,7 +36,7 @@ export const IntentEditor: FC<Props> = props => {
     return null
   }
 
-  const saveIntent = (newIntent: NLU.IntentDefinition) => {
+  const saveIntent = (newIntent: LegacyIntentDefinition) => {
     setIntent(newIntent)
     // tslint:disable-next-line: no-floating-promises
     props.api.createIntent(newIntent)
@@ -46,7 +47,7 @@ export const IntentEditor: FC<Props> = props => {
     saveIntent(newIntent)
   }
 
-  const handleSlotsChange = (slots: NLU.SlotDefinition[], { operation, name, oldName }) => {
+  const handleSlotsChange = (slots: LegacySlotDefinition[], { operation, name, oldName }) => {
     let newUtterances = [...intent.utterances[props.contentLang]]
     if (operation === 'deleted') {
       newUtterances = removeSlotFromUtterances(newUtterances, name)

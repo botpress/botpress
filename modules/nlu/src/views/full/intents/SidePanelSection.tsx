@@ -1,18 +1,18 @@
 import { Button, Classes } from '@blueprintjs/core'
-import { NLU } from 'botpress/sdk'
 import { confirmDialog, lang, toast } from 'botpress/shared'
 import { Item, ItemList, SearchBar } from 'botpress/ui'
 import _ from 'lodash'
 import React, { FC, useState } from 'react'
 
 import { NluItem } from '..'
-import { NLUApi } from '../../../api'
+import { LegacyIntentDefinition, NewLegacyIntentDefinition } from '../../../backend/typings'
+import { NLUApiClient } from '../api-client'
 
 import NameModal from './NameModal'
 
 interface Props {
-  api: NLUApi
-  intents: NLU.IntentDefinition[]
+  api: NLUApiClient
+  intents: LegacyIntentDefinition[]
   currentItem: NluItem
   contentLang: string
   setCurrentItem: (x: NluItem) => void
@@ -63,9 +63,11 @@ export const IntentSidePanelSection: FC<Props> = props => {
   }
 
   const createIntent = async (sanitizedName: string, rawName: string) => {
-    const intentDef = {
+    const intentDef: NewLegacyIntentDefinition = {
       name: sanitizedName,
-      utterances: { [props.contentLang]: [rawName] } // note usage of raw name as first utterance
+      utterances: { [props.contentLang]: [rawName] }, // note usage of raw name as first utterance
+      slots: [],
+      contexts: []
     }
 
     try {
