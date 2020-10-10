@@ -18,5 +18,6 @@
     "expiration": "1 week"
   },
   "defaultLanguage": "en",
-  "languages": ["en"]
+  "languages": ["en"],
+  "oneflow": true
 }
