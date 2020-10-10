@@ -2,9 +2,6 @@ import * as sdk from 'botpress/sdk'
 import Joi from 'joi'
 import _ from 'lodash'
 
-import { createApi } from '../api'
-
-import recommendations from './intents/recommendations'
 import legacyElectionPipeline from './legacy-election'
 import { getTrainingSession } from './train-session-service'
 import { NLUState } from './typings'
@@ -39,11 +36,9 @@ export default async (bp: typeof sdk, state: NLUState) => {
     //  temp hack
     if (session.status === 'idle' || session.status === 'done') {
       // TODO: get rid of training status 'idle' which is alway replaced by 'needs-training' anyway
-      const engine = state.nluByBot[botId].engine
-      const client = await createApi(bp, botId)
-      const intentDefs = await client.fetchIntentsWithQNAs()
-      const entityDefs = await client.fetchEntities()
+      const { engine, nluService } = state.nluByBot[botId]
 
+      const { intentDefs, entityDefs } = await nluService.getIntentsAndEntities()
       const hash = engine.computeModelHash(intentDefs, entityDefs, language)
       const hasModel = engine.hasModel(language, hash)
       if (!hasModel) {
@@ -96,7 +91,79 @@ export default async (bp: typeof sdk, state: NLUState) => {
     }
   })
 
-  router.get('/ml-recommendations', async (req, res) => {
-    res.send(recommendations)
+  router.get('/contexts', async (req, res) => {
+    const { botId } = req.params
+
+    const botNLU = state.nluByBot[botId]
+    if (!botNLU) {
+      return res.status(404).send(`Bot ${botId} doesn't exist`)
+    }
+
+    const contexts = await botNLU.legacyIntentService.getContexts()
+    res.send(contexts)
+  })
+
+  router.get('/legacy-intents', async (req, res) => {
+    const { botId } = req.params
+
+    const botNLU = state.nluByBot[botId]
+    if (!botNLU) {
+      return res.status(404).send(`Bot ${botId} doesn't exist`)
+    }
+
+    const intents = await botNLU.legacyIntentService.getIntents()
+    res.send(intents)
+  })
+
+  router.get(`/legacy-intents/:intentName`, async (req, res) => {
+    const { botId, intentName } = req.params
+
+    const botNLU = state.nluByBot[botId]
+    if (!botNLU) {
+      return res.status(404).send(`Bot ${botId} doesn't exist`)
+    }
+
+    const intents = await botNLU.legacyIntentService.getIntents()
+    const intent = intents.find(i => i.name === intentName)
+    if (intent) {
+      return res.send(intent)
+    }
+
+    res.status(404).send(`Couldn't find intent ${intentName} in bot ${botId}`)
+  })
+
+  router.post('/legacy-intents', async (req, res) => {
+    const { botId } = req.params
+    const intent = req.body
+
+    const botNLU = state.nluByBot[botId]
+    if (!botNLU) {
+      return res.status(404).send(`Bot ${botId} doesn't exist`)
+    }
+
+    await botNLU.legacyIntentService.createIntent(intent)
+  })
+
+  router.post(`/legacy-intents/:intentName`, async (req, res) => {
+    const { botId, intentName } = req.params
+    const intent = req.body
+
+    const botNLU = state.nluByBot[botId]
+    if (!botNLU) {
+      return res.status(404).send(`Bot ${botId} doesn't exist`)
+    }
+
+    await botNLU.legacyIntentService.updateIntent(intentName, intent)
+  })
+
+  router.post(`/legacy-intents/:intent/delete`, async (req, res) => {
+    const { botId, intentName } = req.params
+
+    const botNLU = state.nluByBot[botId]
+    if (!botNLU) {
+      return res.status(404).send(`Bot ${botId} doesn't exist`)
+    }
+
+    await botNLU.legacyIntentService.deleteIntent(intentName)
   })
 }

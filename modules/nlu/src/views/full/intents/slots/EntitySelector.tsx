@@ -3,7 +3,7 @@ import { ItemRenderer, MultiSelect } from '@blueprintjs/select'
 import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
 
-import { NLUApi } from '../../../../api'
+import { NLUApiClient } from '../../api-client'
 import style from '../style.scss'
 
 interface EntityOption {
@@ -13,7 +13,7 @@ interface EntityOption {
 
 interface Props {
   entities: string[]
-  api: NLUApi
+  api: NLUApiClient
   onChange: (entities: string[]) => void
 }
 

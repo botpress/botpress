@@ -3,9 +3,10 @@ import _ from 'lodash'
 import ms from 'ms'
 import yn from 'yn'
 
-import { createApi } from '../../api'
+import { LegacyIntentService } from '../intents/legacy-intent-service'
 import { makeLoggerWrapper } from '../logger'
 import * as ModelService from '../model-service'
+import { NLUService } from '../nlu-service'
 import { makeTrainingSession, makeTrainSessionKey, setTrainingSession } from '../train-session-service'
 import { NLUState } from '../typings'
 
@@ -25,6 +26,11 @@ export function getOnBotMount(state: NLUState) {
     }
 
     const engine = new bp.NLU.Engine(bot.id, makeLoggerWrapper(bp, botId))
+
+    const legacyIntentService = new LegacyIntentService(bp, bot.id)
+    const nluService = new NLUService(bp, bot, legacyIntentService)
+    await nluService.init()
+
     const trainOrLoad = _.debounce(
       async (forceTrain: boolean = false) => {
         // bot got deleted
@@ -32,9 +38,7 @@ export function getOnBotMount(state: NLUState) {
           return
         }
 
-        const api = await createApi(bp, botId)
-        const intentDefs = await api.fetchIntentsWithQNAs()
-        const entityDefs = await api.fetchEntities()
+        const { intentDefs, entityDefs } = await nluService.getIntentsAndEntities()
 
         const kvs = bp.kvs.forBot(botId)
         await kvs.set(KVS_TRAINING_STATUS_KEY, 'training')
@@ -111,9 +115,12 @@ export function getOnBotMount(state: NLUState) {
       defaultLanguage,
       trainOrLoad,
       trainSessions: {},
-      cancelTraining
+      cancelTraining,
+      nluService,
+      legacyIntentService
     }
 
+    // tslint:disable-next-line: no-floating-promises
     trainOrLoad(yn(process.env.FORCE_TRAIN_ON_MOUNT)) // floating promise on purpose
   }
 }
