@@ -51,16 +51,28 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
           }
         })
         .then(res => res.data)
-        .then(data => data.map(item => castDate(item, ['createdAt', 'updatedAt', 'assignedAt', 'resolvedAt']))),
+        .then(data =>
+          data.map(item =>
+            castDate(item, ['createdAt', 'updatedAt', 'assignedAt', 'resolvedAt', 'userConversation.createdOn'])
+          )
+        ),
     assignEscalation: async id =>
       bp.axios
         .post(`${base}/escalations/${id}/assign`)
         .then(res => res.data)
-        .then(data => data.map(item => castDate(item, ['createdAt', 'updatedAt', 'assignedAt', 'resolvedAt']))),
+        .then(data =>
+          data.map(item =>
+            castDate(item, ['createdAt', 'updatedAt', 'assignedAt', 'resolvedAt', 'userConversation.createdOn'])
+          )
+        ),
     resolveEscalation: async id =>
       bp.axios
         .post(`${base}/escalations/${id}/resolve`)
         .then(res => res.data)
-        .then(data => data.map(item => castDate(item, ['createdAt', 'updatedAt', 'assignedAt', 'resolvedAt'])))
+        .then(data =>
+          data.map(item =>
+            castDate(item, ['createdAt', 'updatedAt', 'assignedAt', 'resolvedAt', 'userConversation.createdOn'])
+          )
+        )
   }
 }
