@@ -62,7 +62,7 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
 }
 
 const botTemplates: sdk.BotTemplate[] = [
-  { id: 'oneflow', name: 'Empty bot (Albert)', desc: 'Start fresh with an empty bot' },
+  { id: 'oneflow', name: 'Empty bot', desc: 'Start fresh with an empty bot' },
   { id: 'feature-test', name: 'Test Features', desc: 'Sample test bot' }
 ]
 

@@ -2,7 +2,7 @@
   "name": "ndu",
   "fullName": "Natural Dialog Understanding",
   "version": "1.0.0",
-  "status": "experimental",
+  "status": "stable",
   "description": "Provides a new experience to understand conversations",
   "private": true,
   "main": "dist/backend/index.js",

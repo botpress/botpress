@@ -20,8 +20,9 @@ import BoxedPattern from './variables/pattern'
 import BoxedString from './variables/string'
 
 const botTemplates: sdk.BotTemplate[] = [
-  { id: 'welcome-bot', name: 'Welcome Bot', desc: `Basic bot that showcases some of the bot's functionality` },
-  { id: 'small-talk', name: 'Small Talk', desc: `Includes basic smalltalk examples` }
+  { id: 'welcome-bot', name: 'Welcome Bot (legacy)', desc: `Basic bot that showcases some of the bot's functionality` },
+  { id: 'small-talk', name: 'Small Talk (legacy)', desc: 'Includes basic smalltalk examples' },
+  { id: 'empty', name: 'Empty Bot (legacy)', desc: 'An empty bot' }
 ]
 
 const prompts = [PromptConfirm, PromptDate, PromptNumber, PromptString, PromptEnum, PromptPattern, PromptComplex]
