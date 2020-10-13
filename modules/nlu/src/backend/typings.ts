@@ -14,18 +14,18 @@ export interface BotState {
   trainOrLoad: (forceTrain: boolean) => Promise<void>
   trainSessions: _.Dictionary<NLU.TrainingSession>
   cancelTraining: () => Promise<void>
-  nluService: INLUService
-  legacyIntentService: ILegacyIntentService
+  nluService: NLUService
+  legacyIntentService: LegacyIntentService
 }
 
-export interface INLUService {
+export interface NLUService {
   getIntentsAndEntities(): Promise<{
     intentDefs: NLU.IntentDefinition[]
     entityDefs: NLU.EntityDefinition[]
   }>
 }
 
-export interface ILegacyIntentService {
+export interface LegacyIntentService {
   getIntents(): Promise<LegacyIntentDefinition[]>
   getContexts(): Promise<string[]>
   createIntent(intent: NewLegacyIntentDefinition): Promise<void>

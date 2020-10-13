@@ -3,9 +3,9 @@ import * as sdk from 'botpress/sdk'
 import { NLU } from 'botpress/sdk'
 
 import { LegacyIntentService } from './intents/legacy-intent-service'
-import { INLUService, LegacyIntentDefinition } from './typings'
+import { LegacyIntentDefinition } from './typings'
 
-export class NLUService implements INLUService {
+export class NLUService {
   private _isLegacy: boolean
   private _botId: string
   private _client: AxiosInstance
