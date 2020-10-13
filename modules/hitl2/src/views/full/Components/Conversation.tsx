@@ -5,6 +5,7 @@ import { EscalationType } from '../../../types'
 
 import { Grid, Row, Col } from 'react-flexbox-grid'
 import { EmptyState, lang } from 'botpress/shared'
+import AgentsIcon from './../Icons/AgentsIcon'
 import Sidebar from './Sidebar'
 
 interface Props {
@@ -25,7 +26,7 @@ const Conversation: FC<Props> = props => {
       </Row>
     </Grid>
   ) : (
-    <EmptyState text={lang.tr('module.hitl2.conversation.empty')}></EmptyState>
+    <EmptyState icon={<AgentsIcon />} text={lang.tr('module.hitl2.conversation.empty')}></EmptyState>
   )
 }
 

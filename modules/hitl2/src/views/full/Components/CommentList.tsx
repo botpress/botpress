@@ -11,10 +11,8 @@ interface Props {
 }
 
 const CommentList: FC<Props> = props => {
-  return props.comments ? (
+  return props.comments.length ? (
     <div>
-      <Divider></Divider>
-      <p>{lang.tr('modules.hitl2.comments.heading')}</p>
       <ul>
         {props.comments.map(comment => {
           return <Comment key={comment.id} {...comment}></Comment>
@@ -22,7 +20,7 @@ const CommentList: FC<Props> = props => {
       </ul>
     </div>
   ) : (
-    <EmptyState text={'No comments.'}></EmptyState>
+    <EmptyState text={lang.tr('module.hitl2.comments.empty')}></EmptyState>
   )
 }
 

@@ -7,13 +7,14 @@ import { Context, EscalationsMapType } from '../Store'
 
 import { Spinner } from '@blueprintjs/core'
 import { EmptyState, lang } from 'botpress/shared'
+import CasesIcon from './../Icons/CasesIcon'
 import EscalationListFilter, { SortType, FilterType } from './EscalationListFilter'
 import EscalationItem from './EscalationItem'
 
 interface Props {
   api: ApiType
-  loading: boolean
   escalations: EscalationsMapType
+  loading: boolean
 }
 
 const EscalationList: FC<Props> = props => {
@@ -63,16 +64,20 @@ const EscalationList: FC<Props> = props => {
 
   return (
     <div>
-      <EscalationListFilter
-        filterOptions={filterOptions}
-        sortOption={sortOption}
-        setFilterOptions={setFilterOptions}
-        setSortOption={setSortOption}
-      ></EscalationListFilter>
-
       {props.loading && <Spinner></Spinner>}
 
-      {!props.loading && !items.length && <EmptyState text={lang.tr('module.hitl2.escalations.empty')}></EmptyState>}
+      {!props.loading && (
+        <EscalationListFilter
+          filterOptions={filterOptions}
+          sortOption={sortOption}
+          setFilterOptions={setFilterOptions}
+          setSortOption={setSortOption}
+        ></EscalationListFilter>
+      )}
+
+      {!props.loading && !items.length && (
+        <EmptyState icon={<CasesIcon />} text={lang.tr('module.hitl2.escalations.empty')}></EmptyState>
+      )}
 
       {items.length && (
         <ul>
