@@ -5,7 +5,7 @@ import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { createFlow, renameFlow, updateFlow } from '~/actions'
-import { RootReducer } from '~/reducers'
+import { getAllFlows, RootReducer } from '~/reducers'
 import { sanitizeName } from '~/util'
 
 import { buildFlowName, parseFlowName } from '../../../../util/workflows'
@@ -136,7 +136,7 @@ const WorkflowEditor: FC<Props> = props => {
 }
 
 const mapStateToProps = (state: RootReducer) => ({
-  flows: _.values(state.flows.flowsByName),
+  flows: getAllFlows(state),
   topics: state.ndu.topics
 })
 
