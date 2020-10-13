@@ -10,19 +10,22 @@ export class NLUService implements INLUService {
   private _botId: string
   private _client: AxiosInstance
 
-  constructor(private bp: typeof sdk, botConfig: sdk.BotConfig, private legacyIntentService: LegacyIntentService) {
+  constructor(
+    private bp: typeof sdk,
+    botConfig: sdk.BotConfig,
+    private legacyIntentService: LegacyIntentService,
+    private logger: NLU.Logger
+  ) {
     this._isLegacy = !botConfig.oneflow
     this._botId = botConfig.id
-  }
-
-  public async init() {
-    this._client = axios.create(await this.bp.http.getAxiosConfigForBot(this._botId, { localUrl: true }))
   }
 
   public async getIntentsAndEntities(): Promise<{
     intentDefs: NLU.IntentDefinition[]
     entityDefs: NLU.EntityDefinition[]
   }> {
+    this._client = axios.create(await this.bp.http.getAxiosConfigForBot(this._botId, { localUrl: true }))
+
     if (this._isLegacy) {
       const entities = await this._getEntities()
       const legacyIntents = await this.legacyIntentService.getIntents()
@@ -43,7 +46,7 @@ export class NLUService implements INLUService {
       const { data } = await this._client.get('/nlu/entities')
       return data
     } catch (err) {
-      console.error(err) // TODO: remove this, error should not be handled here. Find out why this sometimes throws.
+      this.logger.error('An error occured when fetching entities from the core', err)
       return []
     }
   }
@@ -53,7 +56,7 @@ export class NLUService implements INLUService {
       const { data } = await this._client.get('/nlu/intents')
       return data
     } catch (err) {
-      console.error(err) // TODO: remove this, error should not be handled here. Find out why this sometimes throws.
+      this.logger.error('An error occured when fetching intents from the core', err)
       return []
     }
   }
