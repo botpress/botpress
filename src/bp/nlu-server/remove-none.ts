@@ -14,7 +14,7 @@ export default function removeNoneIntent(nlu: IO.EventUnderstanding) {
     }
     const none = topic.intents[noneIdx]
     topic.intents.splice(noneIdx, 1)
-    topic.oos = Math.max(none.confidence, topic.confidence)
+    topic.oos = Math.max(none.confidence, topic.oos)
     return topic
   })
 
