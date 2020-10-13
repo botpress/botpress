@@ -72,6 +72,7 @@ const EscalationList: FC<Props> = props => {
           sortOption={sortOption}
           setFilterOptions={setFilterOptions}
           setSortOption={setSortOption}
+          disabled={!items.length}
         ></EscalationListFilter>
       )}
 

@@ -15,6 +15,7 @@ interface Props {
   sortOption: SortType
   setFilterOptions: (value) => void
   setSortOption: (value) => void
+  disabled: boolean
 }
 
 const EscalationListFilter: FC<Props> = props => {
@@ -37,7 +38,8 @@ const EscalationListFilter: FC<Props> = props => {
           }
         }
       ],
-      tooltip: lang.tr('module.hitl2.sortBy')
+      tooltip: lang.tr('module.hitl2.sortBy'),
+      disabled: props.disabled
     },
     {
       icon: 'filter',
@@ -76,7 +78,8 @@ const EscalationListFilter: FC<Props> = props => {
           )
         }
       ],
-      tooltip: lang.tr('module.hitl2.filterBy')
+      tooltip: lang.tr('module.hitl2.filterBy'),
+      disabled: props.disabled
     }
   ]
 
