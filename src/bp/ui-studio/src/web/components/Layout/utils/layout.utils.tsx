@@ -48,6 +48,7 @@ export const getMenuItems = modules => {
         : []),
       ...modules
         .filter(m => !m.noInterface)
+        .filter(m => !window.USE_ONEFLOW || (window.USE_ONEFLOW && !['qna', 'nlu'].includes(m.name)))
         .filter(({ name }) => isOperationAllowed({ res: `module.${name}`, op: 'write' } as PermissionAllowedProps))
         .map(formatModuleItem)
     ]
