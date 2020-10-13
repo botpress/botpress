@@ -5,6 +5,7 @@ import _uniqueId from 'lodash/uniqueId'
 import { QnaItem } from '../../../backend/qna'
 
 export const ITEMS_PER_PAGE = 50
+export const NEW_QNA_PREFIX = 'qna-'
 
 export interface State {
   count: number
@@ -95,7 +96,7 @@ export const dispatchMiddleware = async (dispatch, action) => {
             )
           }
         }
-        if (qnaItem.id.startsWith('qna-')) {
+        if (qnaItem.id.startsWith(NEW_QNA_PREFIX)) {
           try {
             const res = await bp.axios.post('/mod/qna/questions', cleanData)
             itemId = res.data[0]
@@ -119,7 +120,7 @@ export const dispatchMiddleware = async (dispatch, action) => {
 
       qnaItem.data.enabled = !originalValue
 
-      if (!qnaItem.id.startsWith('qna-')) {
+      if (!qnaItem.id.startsWith(NEW_QNA_PREFIX)) {
         try {
           await bp.axios.post(`/mod/qna/questions/${qnaItem.id}`, qnaItem.data)
         } catch {
@@ -195,7 +196,7 @@ export const fetchReducer = (state: State, action): State => {
     }
   } else if (action.type === 'addQnA') {
     const newItems = state.items
-    const id = _uniqueId('qna-')
+    const id = _uniqueId(NEW_QNA_PREFIX)
     const { languages, contexts } = action.data
     const languageArrays = languages.reduce((acc, lang) => ({ ...acc, [lang]: [''] }), {})
 
@@ -237,7 +238,7 @@ export const fetchReducer = (state: State, action): State => {
 
     const [deletedItem] = newItems.splice(index, 1)
 
-    if (!deletedItem.id.startsWith('qna-')) {
+    if (!deletedItem.id.startsWith(NEW_QNA_PREFIX)) {
       bp.axios
         .post(`/mod/qna/questions/${deletedItem.id}/delete`)
         .then(() => {})

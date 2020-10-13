@@ -1,14 +1,17 @@
 import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
 import { Flow, FlowNode } from 'botpress/sdk'
 import { confirmDialog, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
+import { toast } from 'botpress/shared'
 import { getFlowLabel } from 'botpress/utils'
 import cx from 'classnames'
 import _uniqueId from 'lodash/uniqueId'
 import React, { FC, Fragment, useState } from 'react'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
 import Select from 'react-select'
 
 import { QnaItem } from '../../../backend/qna'
 import style from '../style.scss'
+import { NEW_QNA_PREFIX } from '../utils/qnaList.utils'
 
 import ContextSelector from './ContextSelector'
 import TextAreaList from './TextAreaList'
@@ -136,6 +139,7 @@ const QnA: FC<Props> = props => {
   const currentFlow = flows ? flows.find(({ name }) => name === data.redirectFlow) || { nodes: [] } : { nodes: [] }
   const nodeList = (currentFlow.nodes as FlowNode[])?.map(({ name }) => ({ label: name, value: name }))
   const flowsList = flows.map(({ name }) => ({ label: getFlowLabel(name), value: name }))
+  const isNewQna = id.startsWith(NEW_QNA_PREFIX)
 
   return (
     <div className={style.questionWrapper}>
@@ -143,6 +147,17 @@ const QnA: FC<Props> = props => {
         <Button minimal small onClick={() => setExpanded(!expanded)} className={style.questionHeader}>
           <div className={style.left}>
             <Icon icon={!expanded ? 'chevron-right' : 'chevron-down'} />{' '}
+            {!isNewQna && (
+              <Tooltip
+                className={cx(style.tag, style.qnaId)}
+                position={Position.BOTTOM}
+                content={lang.tr('module.qna.form.copyIdToClipboard')}
+              >
+                <CopyToClipboard text={id} onCopy={() => toast.info(lang.tr('module.qna.form.idCopiedToClipboard'))}>
+                  <span onClick={e => e.stopPropagation()}>ID</span>
+                </CopyToClipboard>
+              </Tooltip>
+            )}
             <h1>{questions?.[0] || <span className={style.refTitle}>{refQuestions?.[0]}</span>}</h1>
           </div>
           <div className={style.right}>
