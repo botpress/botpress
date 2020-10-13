@@ -175,13 +175,14 @@ export default class Repository {
   }
 
   getAgentOnline = async (botId: string, agentId: string): Promise<boolean> => {
-    const val = await this.bp.kvs.forBot(botId).get(`hitl2:online:${agentId}`)
-    return !!val
+    const value = await this.bp.kvs.forBot(botId).get(`hitl2:online:${agentId}`)
+    return !!value
   }
 
-  setAgentOnline = async (botId: string, agentId: string, value: boolean): Promise<void> => {
+  setAgentOnline = async (botId: string, agentId: string, value: boolean): Promise<boolean> => {
     const config = await this.bp.config.getModuleConfigForBot('hitl2', botId)
-    return this.bp.kvs.forBot(botId).set(`hitl2:online:${agentId}`, value, null, config.agentSessionTimeout)
+    await this.bp.kvs.forBot(botId).set(`hitl2:online:${agentId}`, value, null, config.agentSessionTimeout)
+    return value
   }
 
   getCurrentAgent = async (req, botId: string, agentId: string): Promise<AgentType> => {
