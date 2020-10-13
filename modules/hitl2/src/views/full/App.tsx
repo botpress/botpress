@@ -21,17 +21,17 @@ const App = ({ bp }) => {
 
   const [escalationsLoading, setEscalationsLoading] = useState(true)
 
-  function subscribe() {
-    bp.events.on('hitl2', (message: SocketMessageType) => {
-      switch (message.type) {
-        case 'update':
-          return dispatch({ type: 'updateSocketMessage', payload: message })
-        case 'create':
-          return dispatch({ type: 'createSocketMessage', payload: message })
-        default:
-          throw new Error('Invalid websocket message type')
-      }
-    })
+
+  function handleMessage(message: SocketMessageType) {
+    console.log('handleMessage')
+    switch (message.type) {
+      case 'update':
+        return dispatch({ type: 'updateSocketMessage', payload: message })
+      case 'create':
+        return dispatch({ type: 'createSocketMessage', payload: message })
+      default:
+        throw new Error('Invalid websocket message type')
+    }
   }
 
   async function getCurrentAgent() {
@@ -68,7 +68,8 @@ const App = ({ bp }) => {
   }, [])
 
   useEffect(() => {
-    subscribe()
+    bp.events.on('hitl2', handleMessage)
+    return () => bp.events.off('hitl2', handleMessage)
   }, [])
 
   useEffect(() => {
