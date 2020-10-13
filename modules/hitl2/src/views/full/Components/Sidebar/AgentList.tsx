@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import React, { FC } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 
 import { AgentType } from '../../../../types'
 import { AgentsMapType } from '../../Store'
@@ -15,17 +15,23 @@ interface Props {
 }
 
 const AgentList: FC<Props> = props => {
+  const [items, setItems] = useState([])
+
+  useEffect(() => {
+    setItems(_.filter(props.agents, ['online', true]))
+  }, [props.agents])
+
   return (
     <div>
       {props.loading && <Spinner></Spinner>}
 
-      {!props.loading && _.isEmpty(props.agents) && (
+      {!props.loading && _.isEmpty(items) && (
         <EmptyState icon={<AgentsIcon />} text={lang.tr('module.hitl2.sidebar.agents.empty')}></EmptyState>
       )}
 
-      {!_.isEmpty(props.agents) && (
+      {!_.isEmpty(items) && (
         <ul>
-          {_.values(props.agents).map((agent: AgentType) => (
+          {_.values(items).map((agent: AgentType) => (
             <AgentItem key={agent.id} {...agent}></AgentItem>
           ))}
         </ul>
