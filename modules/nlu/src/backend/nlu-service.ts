@@ -26,18 +26,19 @@ export class NLUService implements INLUService {
   }> {
     this._client = axios.create(await this.bp.http.getAxiosConfigForBot(this._botId, { localUrl: true }))
 
+    const entities = await this._getEntities()
+    const intents = await this._getIntents()
+
     if (this._isLegacy) {
-      const entities = await this._getEntities()
       const legacyIntents = await this.legacyIntentService.getIntents()
-      return this._mapLegacySlots(legacyIntents, entities)
+      const nluDefinitions = this._mapLegacySlots(legacyIntents, entities)
+      nluDefinitions.intentDefs.push(...intents)
+      return nluDefinitions
     }
 
-    const intentDefs = await this._getIntents()
-    const entityDefs = await this._getEntities()
-
     return {
-      intentDefs,
-      entityDefs
+      intentDefs: intents,
+      entityDefs: entities
     }
   }
 
