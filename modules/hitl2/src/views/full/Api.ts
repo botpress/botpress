@@ -12,8 +12,9 @@ function castDate(object, paths) {
 
 export interface ApiType {
   getAgents: () => Promise<AgentType[]>
+  setOnline: () => Promise<Partial<AgentType>>
+  setOffline: () => Promise<Partial<AgentType>>
   getCurrentAgent: () => Promise<AgentType>
-  updateCurrentAgentOnline: ({ online: boolean }) => Promise<Partial<AgentType>>
   getComments: (id: string) => Promise<CommentType[]>
   createComment: (id: string, payload: Partial<CommentType>) => Promise<CommentType>
   getEscalations: () => Promise<EscalationType[]>
@@ -26,8 +27,9 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
 
   return {
     getAgents: async () => bp.axios.get(`${base}/agents`).then(res => res.data),
+    setOnline: async () => bp.axios.post(`${base}/agents/me/online`).then(res => res.data),
+    setOffline: async () => bp.axios.delete(`${base}/agents/me/online`).then(res => res.data),
     getCurrentAgent: async () => bp.axios.get(`${base}/agents/me`).then(res => res.data),
-    updateCurrentAgentOnline: async payload => bp.axios.post(`${base}/agents/me/online`, payload).then(res => res.data),
     getComments: async id =>
       bp.axios
         .get(`${base}/escalations/${id}/comments`)

@@ -62,13 +62,34 @@ export default async (bp: typeof sdk, state) => {
     '/agents/me/online',
     hitlMiddleware(async (req: RequestWithUser, res: Response) => {
       const { email, strategy } = req.tokenUser!
-
-      const value = Joi.attempt(req.body, AgentOnlineSchema)
-
-      const payload = _.pick(value, 'online')
       const agentId = makeAgentId(strategy, email)
 
-      await repository.setAgentOnline(req.params.botId, agentId, payload.online)
+      const online = await repository.setAgentOnline(req.params.botId, agentId, true)
+      const payload = {
+        online: online
+      }
+
+      realtime.send({
+        resource: 'agent',
+        type: 'update',
+        id: agentId,
+        payload: payload
+      })
+
+      res.json(payload)
+    })
+  )
+
+  router.delete(
+    '/agents/me/online',
+    hitlMiddleware(async (req: RequestWithUser, res: Response) => {
+      const { email, strategy } = req.tokenUser!
+      const agentId = makeAgentId(strategy, email)
+
+      const online = await repository.setAgentOnline(req.params.botId, agentId, false)
+      const payload = {
+        online: online
+      }
 
       realtime.send({
         resource: 'agent',

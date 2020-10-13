@@ -17,7 +17,12 @@ const AgentProfile: FC<Props> = props => {
 
   async function toggleOnline(online: boolean) {
     try {
-      const agent = await props.api.updateCurrentAgentOnline({ online: online })
+      let agent
+      if (online) {
+        agent = await props.api.setOnline()
+      } else {
+        agent = await props.api.setOffline()
+      }
       dispatch({ type: 'setCurrentAgent', payload: agent }) // optimistic update, will also be updated via websocket event
       online
         ? toast.success(lang.tr('module.hitl2.agent.onlineSuccess'))
