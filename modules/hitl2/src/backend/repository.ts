@@ -22,9 +22,11 @@ export default class Repository {
   private eventColumns: string[]
   private commentColumnsPrefixed: string[]
   private commentPrefix: string
+  private escalationPrefix: string
 
   constructor(private bp: typeof sdk) {
-    this.commentPrefix = 'comment:'
+    this.commentPrefix = 'comment'
+    this.escalationPrefix = 'escalation'
 
     this.escalationColumns = [
       'id',
@@ -43,7 +45,7 @@ export default class Repository {
 
     this.eventColumns = ['id', 'direction', 'botId', 'channel', 'success', 'createdOn', 'threadId', 'event']
 
-    this.commentColumnsPrefixed = this.commentColumns.map(s => this.commentPrefix.concat(s))
+    this.commentColumnsPrefixed = this.commentColumns.map(s => this.commentPrefix.concat(':', s))
   }
 
   private axiosConfig = async (req, botId: string): Promise<sdk.AxiosBotConfig> => {
@@ -82,9 +84,9 @@ export default class Repository {
         comments: {}
       }
 
-      if (row['comment:id']) {
+      if (row[`${this.commentPrefix}:id`]) {
         const record = _.mapKeys(_.pick(row, this.commentColumnsPrefixed), (v, k) => _.split(k, ':').pop())
-        memo[row.id].comments[row['comment:id']] = record
+        memo[row.id].comments[row[`${this.commentPrefix}:id`]] = record
       }
 
       return memo
@@ -101,7 +103,7 @@ export default class Repository {
   private hydrateEvents(rows: any[], escalations: any[], key: string) {
     const toMerge = rows.map(row => {
       return _.tap({}, item => {
-        item['id'] = row['escalation:id']
+        item['id'] = row[`${this.escalationPrefix}:id`]
         item[key] = _.pick(row, this.eventColumns)
       })
     })
@@ -160,11 +162,11 @@ export default class Repository {
       .database('escalations')
       .select(
         'escalations.*',
-        `comments.id as ${this.commentPrefix}id`,
-        `comments.agentId as ${this.commentPrefix}agentId`,
-        `comments.content as ${this.commentPrefix}content`,
-        `comments.updatedAt as ${this.commentPrefix}updatedAt`,
-        `comments.createdAt as ${this.commentPrefix}createdAt`
+        `comments.id as ${this.commentPrefix}:id`,
+        `comments.agentId as ${this.commentPrefix}:agentId`,
+        `comments.content as ${this.commentPrefix}:content`,
+        `comments.updatedAt as ${this.commentPrefix}:updatedAt`,
+        `comments.createdAt as ${this.commentPrefix}:createdAt`
       )
       .leftJoin('comments', 'escalations.id', 'comments.escalationId')
       .where('escalations.botId', botId)
