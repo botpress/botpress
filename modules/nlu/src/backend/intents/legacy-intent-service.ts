@@ -1,11 +1,11 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { ILegacyIntentService, LegacyIntentDefinition, NewLegacyIntentDefinition } from '../typings'
+import { LegacyIntentDefinition, NewLegacyIntentDefinition } from '../typings'
 
 const LEGACY_INTENT_DIR = 'intents'
 
-export class LegacyIntentService implements ILegacyIntentService {
+export class LegacyIntentService {
   private _ghost: sdk.ScopedGhostService
 
   constructor(private bp: typeof sdk, private botId: string) {

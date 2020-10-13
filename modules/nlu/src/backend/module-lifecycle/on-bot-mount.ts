@@ -120,7 +120,8 @@ export function getOnBotMount(state: NLUState) {
       legacyIntentService
     }
 
+    // No need to wait for training as its a long and async process
     // tslint:disable-next-line: no-floating-promises
-    trainOrLoad(yn(process.env.FORCE_TRAIN_ON_MOUNT)) // floating promise on purpose
+    trainOrLoad(yn(process.env.FORCE_TRAIN_ON_MOUNT))
   }
 }

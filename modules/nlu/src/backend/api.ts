@@ -142,6 +142,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
     }
 
     await botNLU.legacyIntentService.createIntent(intent)
+    res.sendStatus(200)
   })
 
   router.post(`/legacy-intents/:intentName`, async (req, res) => {
@@ -154,9 +155,10 @@ export default async (bp: typeof sdk, state: NLUState) => {
     }
 
     await botNLU.legacyIntentService.updateIntent(intentName, intent)
+    res.sendStatus(200)
   })
 
-  router.post(`/legacy-intents/:intent/delete`, async (req, res) => {
+  router.post(`/legacy-intents/:intentName/delete`, async (req, res) => {
     const { botId, intentName } = req.params
 
     const botNLU = state.nluByBot[botId]
@@ -165,5 +167,6 @@ export default async (bp: typeof sdk, state: NLUState) => {
     }
 
     await botNLU.legacyIntentService.deleteIntent(intentName)
+    res.sendStatus(200)
   })
 }
