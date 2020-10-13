@@ -1,9 +1,7 @@
 {
   "sort": {
     "mostRecentlyCreated": "Most Recently Created",
-    "leastRecentlyCreated": "Least Recently Created",
-    "unread": "Unread first",
-    "read": "Read first"
+    "leastRecentlyCreated": "Least Recently Created"
   },
   "filter": {
     "unassigned": "Unassigned",
@@ -21,7 +19,7 @@
     "offlineSuccess": "You are now offline"
   },
   "escalation": {
-    "created": "Created",
+    "created": "Created {date}",
     "status": {
       "pending": "pending",
       "assigned": "assigned",
@@ -29,18 +27,37 @@
     },
     "assignment": {
       "me": "Assigned to me",
-      "other": "Assigned to ${name}"
+      "other": "Assigned to {name}"
     },
-    "assign": "Escalation ${id} successfully assigned",
-    "resolve": "Escalation ${id} successfully resolved"
+    "assign": "Escalation {id} successfully assigned",
+    "resolve": "Escalation {id} successfully resolved"
+  },
+  "user": {
+    "variables": {
+      "heading": "Contact variables",
+      "empty": "No variables"
+    }
   },
   "comments": {
-    "heading": "Notes from agents"
+    "heading": "Notes from agents",
+    "empty": "No comments"
   },
   "conversation": {
     "empty": "Select a pending case to engage conversation with your clients."
   },
   "escalations": {
-    "empty": "No escalations"
+    "empty": "Thanks to you and your team, there are no pending handoffs right now."
+  },
+  "sidebar": {
+    "tab": "Handoffs",
+    "access": "Access Botpress Handoffs",
+    "agents": {
+      "heading": "Agents Online",
+      "empty": "There are no agents online right now."
+    },
+    "escalations": {
+      "heading": "Most Recent Escalations",
+      "empty": "Thanks to you and your team, there are no pending handoffs right now."
+    }
   }
 }

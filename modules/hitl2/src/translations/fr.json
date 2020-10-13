@@ -1,9 +1,7 @@
 {
   "sort": {
     "mostRecentlyCreated": "Modifié plus récemment",
-    "leastRecentlyCreated": "Modifié plus anciennement",
-    "unread": "Non-lu",
-    "read": "Lu"
+    "leastRecentlyCreated": "Modifié plus anciennement"
   },
   "filter": {
     "unassigned": "Non-assigné",
@@ -21,7 +19,7 @@
     "offlineSuccess": "Vous êtes maintenant déconnecté"
   },
   "escalation": {
-    "created": "Créée",
+    "created": "Créée {date}",
     "status": {
       "pending": "en attente",
       "assigned": "assignée",
@@ -29,18 +27,37 @@
     },
     "assignment": {
       "me": "Assigné à moi",
-      "other": "Assignée à ${name}"
+      "other": "Assignée à {name}"
     },
-    "assign": "L'escalation ${id} a été assignée avec succès",
-    "resolve": "L'escalation ${id} a été résoulue avec succès"
+    "assign": "L'escalation {id} a été assignée avec succès",
+    "resolve": "L'escalation {id} a été résoulue avec succès"
+  },
+  "user": {
+    "variables": {
+      "heading": "Variables",
+      "empty": "Aucune variables"
+    }
   },
   "comments": {
-    "heading": "Notes d'agents"
+    "heading": "Notes d'agents",
+    "empty": "Aucun commentaires"
   },
   "conversation": {
     "empty": "Sélectionnez une escalation en attente pour engager la conversation avec vos clients."
   },
   "escalations": {
-    "empty": "Aucune escalations"
+    "empty": "Il n'y a présentement aucune escalation grâce à ton équipe et toi-même."
+  },
+  "sidebar": {
+    "tab": "Escalations",
+    "access": "Accéder aux Escalations Botpress",
+    "agents": {
+      "heading": "Agents Connectés",
+      "empty": "Il n'y a aucun agent connecté actuellement"
+    },
+    "escalations": {
+      "heading": "Escalations Récentes",
+      "empty": "Il n'y a présentement aucune escalation grâce à ton équipe et toi-même."
+    }
   }
 }

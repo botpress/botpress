@@ -41,9 +41,9 @@ const AgentProfile: FC<Props> = props => {
       </ul>
 
       {props.online ? (
-        <Button onClick={() => toggleOnline(false)}>{lang.tr('modules.hitl2.agent.getOffline')}</Button>
+        <Button onClick={() => toggleOnline(false)}>{lang.tr('module.hitl2.agent.getOffline')}</Button>
       ) : (
-        <Button onClick={() => toggleOnline(true)}>{lang.tr('modules.hitl2.agent.getOnline')}</Button>
+        <Button onClick={() => toggleOnline(true)}>{lang.tr('module.hitl2.agent.getOnline')}</Button>
       )}
     </div>
   )
