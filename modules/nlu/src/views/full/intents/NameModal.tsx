@@ -4,13 +4,15 @@ import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
+import { LegacyIntentDefinition } from '../../../backend/typings'
+
 interface Props {
   isOpen: boolean
   toggle: () => void
   onSubmit: (sanitizedName: string, rawName: string) => void
   title: string
   originalName?: string
-  intents?: NLU.IntentDefinition[]
+  intents?: LegacyIntentDefinition[]
 }
 
 const sanitizeName = (text: string) =>

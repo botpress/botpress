@@ -450,9 +450,15 @@ export const refreshActions = () => dispatch => {
 
 export const intentsReceived = createAction('INTENTS/RECEIVED')
 export const refreshIntents = () => dispatch => {
+  const intentCalls = [
+    axios.get(`${window.BOT_API_PATH}/nlu/intents`),
+    axios.get(`${window.BOT_API_PATH}/mod/nlu/legacy-intents`)
+  ]
+
   // tslint:disable-next-line: no-floating-promises
-  axios.get(`${window.BOT_API_PATH}/nlu/intents`).then(({ data }) => {
-    dispatch(intentsReceived(data))
+  Promise.all(intentCalls).then(res => {
+    const [intents, legacyIntents] = res.map(r => r.data)
+    dispatch(intentsReceived([...intents, ...legacyIntents]))
   })
 }
 

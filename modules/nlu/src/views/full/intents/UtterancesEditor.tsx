@@ -8,6 +8,8 @@ import { Document, Editor as CoreEditor, MarkJSON, Node, Range, Selection, Value
 import { Editor, EditorProps, RenderBlockProps, RenderMarkProps } from 'slate-react'
 import PlaceholderPlugin from 'slate-react-placeholder'
 
+import { LegacySlotDefinition } from '../../../backend/typings'
+
 import { TagSlotPopover } from './slots/SlotPopover'
 import style from './style.scss'
 import { makeSlotMark, utterancesToValue, valueToUtterances } from './utterances-state-utils'
@@ -27,7 +29,7 @@ interface Props {
   intentName: string
   utterances: string[]
   liteEditor: boolean
-  slots: NLU.SlotDefinition[]
+  slots: LegacySlotDefinition[]
   onChange: (x: string[]) => void
 }
 
@@ -144,7 +146,7 @@ export class UtterancesEditor extends React.Component<Props> {
     )
   }
 
-  tag = (editor: CoreEditor, slot: NLU.SlotDefinition) => {
+  tag = (editor: CoreEditor, slot: LegacySlotDefinition) => {
     const { utterance, block } = this.state.selection
     let { from, to } = this.state.selection
     const node: Node = editor.value.getIn(['document', 'nodes', utterance, 'nodes', block])

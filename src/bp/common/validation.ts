@@ -146,9 +146,7 @@ export const EntityDefCreateSchema = Joi.object().keys({
 
 export const SlotsCreateSchema = Joi.object().keys({
   name: Joi.string().required(),
-  entities: Joi.array()
-    .items(Joi.string())
-    .required(),
+  entity: Joi.string(),
   color: Joi.number().required(),
   id: Joi.string().required()
 })
