@@ -4,7 +4,7 @@ import { ApiType } from '../Api'
 import { EscalationType } from '../../../types'
 
 import { Grid, Row, Col } from 'react-flexbox-grid'
-import { EmptyState, lang } from 'botpress/shared'
+import { EmptyState, Tabs, lang } from 'botpress/shared'
 import AgentsIcon from './../Icons/AgentsIcon'
 import Sidebar from './Sidebar'
 
@@ -18,9 +18,10 @@ const Conversation: FC<Props> = props => {
     <Grid>
       <Row>
         <Col md={8}>
-          <h4>Current Conversation</h4>
+          <Tabs tabs={[{ id: 'conversation', title: lang.tr('module.hitl2.tab') }]} />
         </Col>
         <Col md={4}>
+          <Tabs tabs={[{ id: 'user', title: lang.tr('module.hitl2.tab') }]} />
           <Sidebar api={props.api} escalation={props.escalation}></Sidebar>
         </Col>
       </Row>

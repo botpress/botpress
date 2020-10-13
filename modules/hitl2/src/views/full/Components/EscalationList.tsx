@@ -6,7 +6,7 @@ import { ApiType } from '../Api'
 import { Context, EscalationsMapType } from '../Store'
 
 import { Spinner } from '@blueprintjs/core'
-import { EmptyState, lang } from 'botpress/shared'
+import { EmptyState, Tabs, lang } from 'botpress/shared'
 import CasesIcon from './../Icons/CasesIcon'
 import EscalationListFilter, { SortType, FilterType } from './EscalationListFilter'
 import EscalationItem from './EscalationItem'
@@ -64,6 +64,8 @@ const EscalationList: FC<Props> = props => {
 
   return (
     <div>
+      <Tabs tabs={[{ id: 'escalations', title: lang.tr('module.hitl2.tab') }]} />
+
       {props.loading && <Spinner></Spinner>}
 
       {!props.loading && (
