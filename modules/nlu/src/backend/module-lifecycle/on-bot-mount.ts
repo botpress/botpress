@@ -25,11 +25,11 @@ export function getOnBotMount(state: NLUState) {
       bp.logger.warn(missingLangMsg(botId), { notSupported: _.difference(bot.languages, languages) })
     }
 
-    const engine = new bp.NLU.Engine(bot.id, makeLoggerWrapper(bp, botId))
+    const logger = makeLoggerWrapper(bp, botId)
+    const engine = new bp.NLU.Engine(bot.id, logger)
 
     const legacyIntentService = new LegacyIntentService(bp, bot.id)
-    const nluService = new NLUService(bp, bot, legacyIntentService)
-    await nluService.init()
+    const nluService = new NLUService(bp, bot, legacyIntentService, logger)
 
     const trainOrLoad = _.debounce(
       async (forceTrain: boolean = false) => {
