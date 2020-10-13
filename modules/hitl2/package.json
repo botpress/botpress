@@ -27,6 +27,7 @@
     "@blueprintjs/core": "^3.31.0",
     "axios": "^0.19.0",
     "bluebird": "^3.5",
+    "boolean": "^3.0.1",
     "classnames": "^2.2",
     "haikunator": "^2.1.2",
     "immer": "^7",

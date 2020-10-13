@@ -11,13 +11,13 @@ function castDate(object, paths) {
 }
 
 export interface ApiType {
-  getAgents: () => Promise<AgentType[]>
   setOnline: () => Promise<Partial<AgentType>>
   setOffline: () => Promise<Partial<AgentType>>
+  getAgents: (online?: boolean) => Promise<AgentType[]>
   getCurrentAgent: () => Promise<AgentType>
   getComments: (id: string) => Promise<CommentType[]>
   createComment: (id: string, payload: Partial<CommentType>) => Promise<CommentType>
-  getEscalations: () => Promise<EscalationType[]>
+  getEscalations: (orderByColumn?: string, orderByDirection?: string, limit?: number) => Promise<EscalationType[]>
   assignEscalation: (id: string) => Promise<EscalationType>
   resolveEscalation: (id: string) => Promise<EscalationType>
 }
@@ -26,9 +26,10 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
   const base = '/mod/hitl2'
 
   return {
-    getAgents: async () => bp.axios.get(`${base}/agents`).then(res => res.data),
     setOnline: async () => bp.axios.post(`${base}/agents/me/online`).then(res => res.data),
     setOffline: async () => bp.axios.delete(`${base}/agents/me/online`).then(res => res.data),
+    getAgents: async (online?: boolean) =>
+      bp.axios.get(`${base}/agents`, { params: { online: online } }).then(res => res.data),
     getCurrentAgent: async () => bp.axios.get(`${base}/agents/me`).then(res => res.data),
     getComments: async id =>
       bp.axios
@@ -40,9 +41,15 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
         .post(`${base}/escalations/${id}/comments`, payload)
         .then(res => res.data)
         .then(data => castDate(data, ['createdAt', 'updatedAt'])),
-    getEscalations: async () =>
+    getEscalations: async (orderByColumn?: string, orderByDirection?: string, limit?: number) =>
       bp.axios
-        .get(`${base}/escalations`)
+        .get(`${base}/escalations`, {
+          params: {
+            orderByDirection: orderByDirection,
+            orderByColumn: orderByColumn,
+            limit: limit
+          }
+        })
         .then(res => res.data)
         .then(data => data.map(item => castDate(item, ['createdAt', 'updatedAt', 'assignedAt', 'resolvedAt']))),
     assignEscalation: async id =>

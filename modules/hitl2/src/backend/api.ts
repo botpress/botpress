@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import { Request, Response } from 'express'
 import Joi from 'joi'
+import { boolean } from 'boolean'
 
 import { RequestWithUser } from 'common/typings'
 import { BPRequest } from 'common/http'
@@ -20,7 +21,7 @@ import {
   AgentOnlineValidation,
   escalationStatusRule
 } from './validation'
-import Repository from './repository'
+import Repository, { AgentCollectionConditions, CollectionConditions } from './repository'
 
 export default async (bp: typeof sdk, state) => {
   const router = bp.http.createRouterForBot('hitl2')
@@ -53,7 +54,14 @@ export default async (bp: typeof sdk, state) => {
   router.get(
     '/agents',
     hitlMiddleware(async (req: RequestWithUser, res: Response) => {
-      const agents = await repository.getAgents(req.params.botId)
+      const agents = await repository.getAgents(
+        req.params.botId,
+        _.tap(_.pick(req.query, 'online'), conditions => {
+          if (conditions.online) {
+            conditions.online = boolean(conditions.online)
+          }
+        }) as AgentCollectionConditions
+      )
       res.json(agents)
     })
   )
@@ -105,7 +113,10 @@ export default async (bp: typeof sdk, state) => {
   router.get(
     '/escalations',
     hitlMiddleware(async (req: Request, res: Response) => {
-      const escalations = await repository.getEscalations(req.params.botId)
+      const escalations = await repository.getEscalations(
+        req.params.botId,
+        _.pick(req.query, ['limit', 'orderByColumn', 'orderByDirection']) as CollectionConditions
+      )
       res.json(escalations)
     })
   )

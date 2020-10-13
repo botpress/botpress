@@ -6,6 +6,16 @@ import { AgentType, CommentType, EscalationType } from './../types'
 
 import { makeAgentId } from './helpers'
 
+export interface AgentCollectionConditions {
+  online?: boolean
+}
+
+export interface CollectionConditions {
+  limit?: number
+  orderByColumn?: string
+  orderByDirection?: string
+}
+
 export default class Repository {
   private escalationColumns: string[]
   private commentColumns: string[]
@@ -49,6 +59,20 @@ export default class Repository {
       _.has(object, path) && _.set(object, path, this.bp.database.date.format(_.get(object, path)))
     })
     return object
+  }
+
+  private applyLimit(query, limit?: number) {
+    if (limit) {
+      return query.limit(_.toNumber(limit))
+    } else return query
+  }
+
+  private applyOrderBy(query, orderByColumn?: string, orderByDirection?: string) {
+    if (orderByColumn) {
+      return query.orderBy(orderByColumn)
+    } else if (orderByColumn && orderByDirection) {
+      return query.orderBy(orderByColumn, orderByDirection)
+    } else return query
   }
 
   private hydrateComments(rows: any[]): any[] {
@@ -175,7 +199,17 @@ export default class Repository {
       })
   }
 
-  getAgents = async (botId: string): Promise<AgentType[]> => {
+  getAgents = async (botId: string, conditions: AgentCollectionConditions = {}): Promise<AgentType[]> => {
+    let { online } = conditions
+
+    const applyConditions = data => {
+      if ('online' in conditions) {
+        return _.filter(data, ['online', online])
+      } else {
+        return data
+      }
+    }
+
     return this.bp
       .database('workspace_users')
       .then(data => {
@@ -201,6 +235,7 @@ export default class Repository {
 
         return agents.concat(admins)
       })
+      .then(applyConditions)
   }
 
   getEscalations = async (botId: string, conditions: CollectionConditions = {}): Promise<EscalationType[]> => {
