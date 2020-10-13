@@ -414,10 +414,14 @@ export class UnderstandingEngine {
 
   private async _loadBotWorkflows() {
     const flowsPaths = await this.bp.ghost.forBot(this.botId).directoryListing('flows', '*.flow.json')
-    const flows: sdk.Flow[] = await Promise.map(flowsPaths, async (flowPath: string) => ({
-      name: flowPath,
-      ...(await this.bp.ghost.forBot(this.botId).readFileAsObject<FlowView>('flows', flowPath))
-    }))
+    // We clone deep because we mutate trigger nodes and it gets saved in ghost cache
+    // TODO: ensure ghost returns readonly objects
+    const flows: sdk.Flow[] = _.cloneDeep(
+      await Promise.map(flowsPaths, async (flowPath: string) => ({
+        name: flowPath,
+        ...(await this.bp.ghost.forBot(this.botId).readFileAsObject<FlowView>('flows', flowPath))
+      }))
+    )
 
     const qnaPaths = await this.bp.ghost.forBot(this.botId).directoryListing('flows', '*/qna.intents.json')
     const faqs: sdk.NLU.IntentDefinition[] = _.flatten(

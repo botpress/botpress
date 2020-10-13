@@ -1,23 +1,18 @@
-import Axios, { AxiosInstance } from 'axios'
-import retry from 'bluebird-retry'
 import { NLU } from 'botpress/sdk'
 import { ensureFile, pathExists, readJSON, writeJson } from 'fs-extra'
-import httpsProxyAgent from 'https-proxy-agent'
 import _ from 'lodash'
 import lru from 'lru-cache'
 import ms from 'ms'
 import sizeof from 'object-sizeof'
 import path from 'path'
 
-import { extractPattern } from '../tools/patterns-utils'
-import { SPACE } from '../tools/token-utils'
-import { EntityExtractionResult, SystemEntityExtractor } from '../typings'
+import { extractPattern } from '../../tools/patterns-utils'
+import { SPACE } from '../../tools/token-utils'
+import { EntityExtractionResult, SystemEntityExtractor } from '../../typings'
 
-interface DucklingParams {
-  tz: string
-  refTime: number
-  lang: string
-}
+import { DucklingClient, DucklingParams } from './duckling-client'
+import { mapDucklingToEntity } from './map-duckling'
+import { DucklingDimension } from './typings'
 
 interface KeyedItem {
   input: string
@@ -25,34 +20,10 @@ interface KeyedItem {
   entities?: EntityExtractionResult[]
 }
 
-interface DucklingEntity {
-  start: number
-  end: number
-  dim: string
-  body: string
-  value: DucklingRawValue
-}
-
-interface DucklingRawValue {
-  normalized: ValueUnit
-  value?: string
-  values?: string[]
-  grain: string
-  unit: string
-}
-
-interface ValueUnit {
-  value: string
-  unit: string
-}
-
 export const JOIN_CHAR = `::${SPACE}::`
 const BATCH_SIZE = 10
-const DISABLED_MSG = `, so it will be disabled.
-For more information (or if you want to self-host it), please check the docs at
-https://botpress.com/docs/build/nlu/#system-entities
-`
-const DUCKLING_ENTITIES = [
+
+export const DUCKLING_ENTITIES: DucklingDimension[] = [
   'amountOfMoney',
   'distance',
   'duration',
@@ -67,21 +38,21 @@ const DUCKLING_ENTITIES = [
   'volume'
 ]
 
-const RETRY_POLICY = { backoff: 2, max_tries: 3, timeout: 500 }
 const CACHE_PATH = path.join(process.APP_DATA_PATH || '', 'cache', 'sys_entities.json')
 
 // Further improvements:
-// 1 - Duckling entity interface
-// 3- in _extractBatch, shift results ==> don't walk whole array n times (nlog(n) vs n2)
+// 1- in _extractBatch, shift results ==> don't walk whole array n times (nlog(n) vs n2)
 
 export class DucklingEntityExtractor implements SystemEntityExtractor {
   public static enabled: boolean
-  public static client: AxiosInstance
+  private _provider: DucklingClient
 
   private static _cache: lru<string, EntityExtractionResult[]>
   private _cacheDumpEnabled = true
 
-  constructor(private readonly logger?: NLU.Logger) {}
+  constructor(private readonly logger?: NLU.Logger) {
+    this._provider = new DucklingClient(logger)
+  }
 
   public static get entityTypes(): string[] {
     return DucklingEntityExtractor.enabled ? DUCKLING_ENTITIES : []
@@ -89,24 +60,7 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
 
   public static async configure(enabled: boolean, url: string, logger?: NLU.Logger) {
     if (enabled) {
-      const proxyConfig = process.PROXY ? { httpsAgent: new httpsProxyAgent(process.PROXY) } : {}
-      this.client = Axios.create({
-        baseURL: url,
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        ...proxyConfig
-      })
-
-      try {
-        await retry(async () => {
-          const { data } = await this.client.get('/')
-          if (data !== 'quack!') {
-            return logger && logger.warning(`Bad response from Duckling server ${DISABLED_MSG}`)
-          }
-          this.enabled = true
-        }, RETRY_POLICY)
-      } catch (err) {
-        logger && logger.warning(`Couldn't reach the Duckling server ${DISABLED_MSG}`, err)
-      }
+      this.enabled = await DucklingClient.init(url, logger)
 
       this._cache = new lru<string, EntityExtractionResult[]>({
         length: (val: any, key: string) => sizeof(val) + sizeof(key),
@@ -217,25 +171,9 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
     return batch.map((batchItm, i) => ({ ...batchItm, entities: entities[i] }))
   }
 
-  private async _fetchDuckling(text: string, { lang, tz, refTime }: DucklingParams): Promise<EntityExtractionResult[]> {
-    try {
-      return await retry(async () => {
-        const { data } = await DucklingEntityExtractor.client.post(
-          '/parse',
-          `lang=${lang}&text=${encodeURI(text)}&reftime=${refTime}&tz=${tz}`
-        )
-
-        if (!_.isArray(data)) {
-          throw new Error('Unexpected response from Duckling. Expected an array.')
-        }
-
-        return data.map(this._mapDuckToEntity.bind(this))
-      }, RETRY_POLICY)
-    } catch (err) {
-      const error = err.response ? err.response.data : err
-      this.logger && this.logger.warning('Error extracting duckling entities', error)
-      return []
-    }
+  private async _fetchDuckling(text: string, params: DucklingParams): Promise<EntityExtractionResult[]> {
+    const duckReturn = await this._provider.fetchDuckling(text, params)
+    return duckReturn.map(mapDucklingToEntity)
   }
 
   private async _cacheBatchResults(inputs: string[], results: EntityExtractionResult[][]) {
@@ -248,41 +186,5 @@ export class DucklingEntityExtractor implements SystemEntityExtractor {
 
   private _getTz(): string {
     return Intl.DateTimeFormat().resolvedOptions().timeZone
-  }
-
-  private _mapDuckToEntity(duckEnt: DucklingEntity): EntityExtractionResult {
-    const dimensionData = this._getUnitAndValue(duckEnt.dim, duckEnt.value)
-    return {
-      confidence: 1,
-      start: duckEnt.start,
-      end: duckEnt.end,
-      type: duckEnt.dim,
-      value: dimensionData.value,
-      metadata: {
-        extractor: 'system',
-        source: duckEnt.body,
-        entityId: `system.${duckEnt.dim}`,
-        unit: dimensionData.unit
-      }
-    } as EntityExtractionResult
-  }
-
-  private _getUnitAndValue(dimension: string, rawVal: DucklingRawValue): ValueUnit {
-    switch (dimension) {
-      case 'duration':
-        return rawVal.normalized
-      case 'time':
-        const value = rawVal.values?.length ? rawVal.values[0] : rawVal.value
-
-        return {
-          value: value ?? '',
-          unit: rawVal.grain
-        }
-      default:
-        return {
-          value: rawVal.value ?? '',
-          unit: rawVal.unit
-        }
-    }
   }
 }

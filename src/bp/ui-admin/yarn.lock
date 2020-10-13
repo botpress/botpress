@@ -1451,9 +1451,9 @@
   resolved "https://registry.yarnpkg.com/@xtuc/long/-/long-4.2.1.tgz#5c85d662f76fa1d34575766c5dcd6615abcd30d8"
   integrity sha512-FZdkNBDqBRHKQ2MEbSC17xnPFOhZxeJ2YGSfr2BKf3sujG49Qe3bB+rGCwQfIaA7WHnGeGkSijX4FuBCdrzW/g==
 
-"@yaireo/tagify@botpress/tagify":
+"@yaireo/tagify@git+https://github.com/botpress/tagify#v3.15.4":
   version "3.15.3"
-  resolved "https://codeload.github.com/botpress/tagify/tar.gz/5e1ade0dd3e1087693a21a4220ea2aab2f845b02"
+  resolved "git+https://github.com/botpress/tagify#97d267dc09ed18b6432f25b825a095673b4ca9ec"
 
 abab@^2.0.0:
   version "2.0.0"
