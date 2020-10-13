@@ -1,5 +1,6 @@
 import React from 'react'
 import { Store } from './Store'
+import Sidebar from './Sidebar'
 import App from './App'
 
 export default ({ bp }) => {
@@ -9,3 +10,5 @@ export default ({ bp }) => {
     </Store>
   )
 }
+
+export { Sidebar }

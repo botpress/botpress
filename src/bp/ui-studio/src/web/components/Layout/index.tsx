@@ -32,6 +32,7 @@ import LanguageServerHealth from './LangServerHealthWarning'
 import layout from './Layout.scss'
 import NotTrainedWarning from './NotTrainedWarning'
 import StatusBar from './StatusBar'
+import InjectedModuleView from '~/components/PluginInjectionSite/module'
 
 const { isInputFocused } = utils
 const WEBCHAT_PANEL_STATUS = 'bp::webchatOpened'
@@ -53,6 +54,7 @@ type StateProps = ReturnType<typeof mapStateToProps>
 const Layout: FC<ILayoutProps & StateProps> = props => {
   const mainElRef = useRef(null)
   const [langSwitcherOpen, setLangSwitcherOpen] = useState(false)
+  const [showHitl, setShowHitl] = useState(false)
   const [showConfigForm, setShowConfigForm] = useState(false)
   const [guidedTourOpen, setGuidedTourOpen] = useState(false)
 
@@ -200,6 +202,11 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
   const bottomBarSize = props.bottomPanel ? lastSize : '100%'
 
   const leftHeaderButtons: HeaderButton[] = [
+    {
+      tooltip: <div className={style.tooltip}>{lang.tr('toolbar.hitl')}</div>,
+      icon: 'headset',
+      onClick: () => setShowHitl(!showHitl)
+    },
     ...(!!props.docHints?.length
       ? [
           {
@@ -291,6 +298,7 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
       />
       <CommandPalette toggleEmulator={toggleEmulator} />
       {showConfigForm && <ConfigForm close={() => setShowConfigForm(false)} />}
+      {showHitl && <InjectedModuleView moduleName="hitl2" componentName="Sidebar" />}
     </Fragment>
   )
 }

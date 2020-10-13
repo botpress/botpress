@@ -437,6 +437,7 @@
     "configuration": "Configuration",
     "emulator": "Émulateur",
     "help": "Aide",
+    "hitl": "Handoffs",
     "logsPanel": "Panneau de journalisation",
     "readDoc": "Lire la documentation",
     "showEmulator": "Afficher l'émulateur",
