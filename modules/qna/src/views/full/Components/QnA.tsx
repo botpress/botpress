@@ -1,7 +1,8 @@
 import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
 import { Flow, FlowNode } from 'botpress/sdk'
 import { confirmDialog, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
-import { getFlowLabel, toastInfo } from 'botpress/utils'
+import { toast } from 'botpress/shared'
+import { getFlowLabel } from 'botpress/utils'
 import cx from 'classnames'
 import _uniqueId from 'lodash/uniqueId'
 import React, { FC, Fragment, useState } from 'react'
@@ -152,7 +153,7 @@ const QnA: FC<Props> = props => {
                 position={Position.BOTTOM}
                 content={lang.tr('module.qna.form.copyIdToClipboard')}
               >
-                <CopyToClipboard text={id} onCopy={() => toastInfo(lang.tr('module.qna.form.idCopiedToClipboard'))}>
+                <CopyToClipboard text={id} onCopy={() => toast.info(lang.tr('module.qna.form.idCopiedToClipboard'))}>
                   <span onClick={e => e.stopPropagation()}>ID</span>
                 </CopyToClipboard>
               </Tooltip>
