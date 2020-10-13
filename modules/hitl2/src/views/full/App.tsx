@@ -19,8 +19,7 @@ const App = ({ bp }) => {
 
   const { state, dispatch } = useContext(Context)
 
-  const [escalationsLoading, setEscalationsLoading] = useState(true)
-
+  const [loading, setLoading] = useState(true)
 
   function handleMessage(message: SocketMessageType) {
     console.log('handleMessage')
@@ -63,7 +62,7 @@ const App = ({ bp }) => {
 
   useEffect(() => {
     Promise.all([getCurrentAgent(), getAgents(), getEscalations()]).then(() => {
-      setEscalationsLoading(false)
+      setLoading(false)
     })
   }, [])
 
@@ -90,7 +89,7 @@ const App = ({ bp }) => {
       </Row>
       <Row>
         <Col md={4}>
-          <EscalationList api={api} escalations={state.escalations} loading={escalationsLoading}></EscalationList>
+          <EscalationList api={api} escalations={state.escalations} loading={loading}></EscalationList>
         </Col>
         <Col md={8}>
           <Conversation api={api} escalation={state.currentEscalation}></Conversation>
