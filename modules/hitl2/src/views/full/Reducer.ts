@@ -37,11 +37,6 @@ const Reducer = (state: StateType, action: ActionType): StateType => {
     case 'setComment':
       return produce(state, draft => {
         const escalation = draft.escalations[action.payload.escalationId]
-
-        if (!escalation.comments) {
-          escalation.comments = []
-        }
-
         escalation.comments.push(action.payload)
         draft.currentEscalation = escalation
       })

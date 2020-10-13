@@ -160,7 +160,7 @@ export default async (bp: typeof sdk, state) => {
         throw new UnprocessableEntityError(e)
       }
 
-      escalation = await repository.updateEscalation(req.params.id, payload)
+      escalation = await repository.updateEscalation(req.params.botId, req.params.id, payload)
 
       realtime.send({
         resource: 'escalation',
@@ -199,7 +199,7 @@ export default async (bp: typeof sdk, state) => {
         throw new UnprocessableEntityError(e)
       }
 
-      escalation = await repository.updateEscalation(req.params.id, payload)
+      escalation = await repository.updateEscalation(req.params.botId, req.params.id, payload)
 
       realtime.send({
         resource: 'escalation',

@@ -7,26 +7,36 @@ import { AgentType, CommentType, EscalationType } from './../types'
 import { makeAgentId } from './helpers'
 
 export default class Repository {
-  constructor(private bp: typeof sdk) {}
+  private escalationColumns: string[]
+  private commentColumns: string[]
+  private eventColumns: string[]
+  private commentColumnsPrefixed: string[]
+  private commentPrefix: string
 
-  private escalationColumns = [
-    'id',
-    'botId',
-    'agentId',
-    'userConversationId',
-    'agentConversationId',
-    'status',
-    'assignedAt',
-    'resolvedAt',
-    'createdAt',
-    'updatedAt'
-  ]
+  constructor(private bp: typeof sdk) {
+    this.commentPrefix = 'comment:'
 
-  private commentColumns = ['id', 'agentId', 'content', 'createdAt', 'updatedAt']
+    this.escalationColumns = [
+      'id',
+      'botId',
+      'agentId',
+      'userConversationId',
+      'agentConversationId',
+      'status',
+      'assignedAt',
+      'resolvedAt',
+      'createdAt',
+      'updatedAt'
+    ]
 
-  private eventColumns = ['id', 'direction', 'botId', 'channel', 'success', 'createdOn', 'threadId', 'event']
+    this.commentColumns = ['id', 'agentId', 'content', 'createdAt', 'updatedAt']
 
-  private axiosConfig = async (req, botId: string) => {
+    this.eventColumns = ['id', 'direction', 'botId', 'channel', 'success', 'createdOn', 'threadId', 'event']
+
+    this.commentColumnsPrefixed = this.commentColumns.map(s => this.commentPrefix.concat(s))
+  }
+
+  private axiosConfig = async (req, botId: string): Promise<sdk.AxiosBotConfig> => {
     const config = await this.bp.http.getAxiosConfigForBot(botId, { localUrl: true })
     config.baseURL = _.trim(config.baseURL, `/bots/${botId}`)
     config.headers['Authorization'] = req.headers.authorization
@@ -39,6 +49,105 @@ export default class Repository {
       _.has(object, path) && _.set(object, path, this.bp.database.date.format(_.get(object, path)))
     })
     return object
+  }
+
+  private hydrateComments(rows: any[]): any[] {
+    const records = rows.reduce((memo, row) => {
+      memo[row.id] = memo[row.id] || {
+        ..._.pick(row, this.escalationColumns),
+        comments: {}
+      }
+
+      if (row['comment:id']) {
+        const record = _.mapKeys(_.pick(row, this.commentColumnsPrefixed), (v, k) => _.split(k, ':').pop())
+        memo[row.id].comments[row['comment:id']] = record
+      }
+
+      return memo
+    }, {})
+
+    return _.values(records).map(record => {
+      return {
+        ...record,
+        comments: _.values(record.comments)
+      }
+    })
+  }
+
+  private hydrateEvents(rows: any[], escalations: any[], key: string) {
+    const toMerge = rows.map(row => {
+      return _.tap({}, item => {
+        item['id'] = row['escalation:id']
+        item[key] = _.pick(row, this.eventColumns)
+      })
+    })
+
+    return _.merge(escalations, toMerge)
+  }
+
+  // To get the most recent event, we assume the 'Id' column is ordered;
+  // thus meaning the highest Id is also the most recent
+  private recentConversationQuery() {
+    return this.bp
+      .database('events')
+      .select('*')
+      .whereIn('id', function() {
+        this.max('id')
+          .from('events')
+          .groupBy('threadId')
+      })
+      .as('most_recent_event')
+  }
+
+  private userEventsQuery() {
+    return this.bp
+      .database('escalations')
+      .select(
+        'escalations.id as escalation:id',
+        'escalations.userConversationId as escalation:userConversationId',
+        'most_recent_event.*'
+      )
+      .join(
+        this.recentConversationQuery().where('direction', 'incoming'),
+        'escalations.userConversationId',
+        'most_recent_event.threadId'
+      )
+  }
+
+  private agentEventsQuery() {
+    return this.bp
+      .database('escalations')
+      .select(
+        'escalations.id as escalation:id',
+        'escalations.agentConversationId as escalation:agentConversationId',
+        'most_recent_event.*'
+      )
+      .join(
+        this.recentConversationQuery().where('direction', 'incoming'),
+        'escalations.agentConversationId',
+        'most_recent_event.threadId'
+      )
+  }
+
+  private escalationsWithCommentsQuery(botId: string, conditions: CollectionConditions = {}) {
+    const { limit, orderByColumn, orderByDirection } = conditions
+
+    return this.bp
+      .database('escalations')
+      .select(
+        'escalations.*',
+        `comments.id as ${this.commentPrefix}id`,
+        `comments.agentId as ${this.commentPrefix}agentId`,
+        `comments.content as ${this.commentPrefix}content`,
+        `comments.updatedAt as ${this.commentPrefix}updatedAt`,
+        `comments.createdAt as ${this.commentPrefix}createdAt`
+      )
+      .leftJoin('comments', 'escalations.id', 'comments.escalationId')
+      .where('escalations.botId', botId)
+      .distinct()
+      .modify(this.applyLimit, limit)
+      .modify(this.applyOrderBy, orderByColumn, orderByDirection)
+      .orderBy([{ column: 'comments.createdAt', order: 'asc' }])
   }
 
   getAgentOnline = async (botId: string, agentId: string): Promise<boolean> => {
@@ -94,107 +203,13 @@ export default class Repository {
       })
   }
 
-  getEscalations = async (botId: string): Promise<EscalationType[]> => {
-    const commentPrefix = 'comment:'
-    const commentColumnsPrefixed = _.map(this.commentColumns, s => commentPrefix.concat(s))
-
-    const hydrateComments = (rows: any[]) => {
-      const records = rows.reduce((memo, row) => {
-        memo[row.id] = memo[row.id] || {
-          ..._.pick(row, this.escalationColumns),
-          comments: {}
-        }
-
-        if (row['comment:id']) {
-          const record = _.mapKeys(_.pick(row, commentColumnsPrefixed), (v, k) => _.split(k, ':').pop())
-          memo[row.id].comments[row['comment:id']] = record
-        }
-
-        return memo
-      }, {})
-
-      return _.values(records).map(record => {
-        return {
-          ...record,
-          comments: _.values(record.comments)
-        }
-      })
-    }
-
-    const hydrateEvents = (rows: any[], escalations: any[], key: string) => {
-      const toMerge = _.map(rows, row => {
-        return _.tap({}, item => {
-          item['id'] = row['escalation:id']
-          item[key] = _.pick(row, this.eventColumns)
-        })
-      })
-
-      return _.merge(escalations, toMerge)
-    }
-
-    const recentConversationQuery = () => {
-      return this.bp
-        .database('events')
-        .select('*')
-        .whereIn('id', function() {
-          this.max('id')
-            .from('events')
-            .groupBy('threadId')
-        })
-        .as('most_recent_event')
-    }
-
-    const fetchUserEvents = (escalations: any[]) => {
-      return this.bp
-        .database('escalations')
-        .select(
-          'escalations.id as escalation:id',
-          'escalations.userConversationId as escalation:userConversationId',
-          'most_recent_event.*'
-        )
-        .join(
-          recentConversationQuery().where('direction', 'incoming'),
-          'escalations.userConversationId',
-          'most_recent_event.threadId'
-        )
-        .then(data => hydrateEvents(data, escalations, 'userConversation'))
-    }
-
-    const fetchAgentEvents = (escalations: any[]) => {
-      return this.bp
-        .database('escalations')
-        .select(
-          'escalations.id as escalation:id',
-          'escalations.agentConversationId as escalation:agentConversationId',
-          'most_recent_event.*'
-        )
-        .join(
-          recentConversationQuery().where('direction', 'incoming'),
-          'escalations.agentConversationId',
-          'most_recent_event.threadId'
-        )
-        .then(data => hydrateEvents(data, escalations, 'agentConversation'))
-    }
-
-    const escalations = await this.bp
-      .database('escalations')
-      .select(
-        'escalations.*',
-        `comments.id as ${commentPrefix}id`,
-        `comments.agentId as ${commentPrefix}agentId`,
-        `comments.content as ${commentPrefix}content`,
-        `comments.updatedAt as ${commentPrefix}updatedAt`,
-        `comments.createdAt as ${commentPrefix}createdAt`
-      )
-      .leftJoin('comments', 'escalations.id', 'comments.escalationId')
-      .where('escalations.botId', botId)
-      .distinct()
-      .then(hydrateComments)
-      .then(data => fetchUserEvents(data))
-      .then(data => fetchAgentEvents(data))
+  getEscalations = async (botId: string, conditions: CollectionConditions = {}): Promise<EscalationType[]> => {
+    return this.escalationsWithCommentsQuery(botId, conditions)
+      .then(this.hydrateComments.bind(this))
+      .then(async data => this.hydrateEvents(await this.userEventsQuery(), data, 'userConversation'))
+      .then(async data => this.hydrateEvents(await this.agentEventsQuery(), data, 'agentConversation'))
       .then(data => data as EscalationType[])
 
-    return escalations
   }
 
   getEscalation = (id: string): Promise<EscalationType> => {
@@ -206,6 +221,7 @@ export default class Repository {
   }
 
   createEscalation = async (attributes: Partial<EscalationType>): Promise<Partial<EscalationType>> => {
+    const { botId } = attributes
     const now = new Date()
     const payload = this.castDate(
       {
@@ -216,12 +232,27 @@ export default class Repository {
       ['assignedAt', 'resolvedAt', 'createdAt', 'updatedAt']
     )
 
-    return this.bp.database
-      .insertAndRetrieve('escalations', payload, this.escalationColumns)
-      .then(data => data as EscalationType)
+    return this.bp
+      .database('escalations')
+      .select(this.bp.database.raw('last_insert_rowid() as id'))
+      .insert(payload)
+      .then(ids => {
+        this.escalationsWithCommentsQuery(botId)
+          .where({ id: _.head(ids) })
+          .first()
+      })
+      .then(data => _.castArray(data))
+      .then(this.hydrateComments.bind(this)) // Note: there won't be any comments yet, but an empty collection is required
+      .then(async data => this.hydrateEvents(await this.userEventsQuery(), data, 'userConversation'))
+      .then(async data => this.hydrateEvents(await this.agentEventsQuery(), data, 'agentConversation'))
+      .then(data => _.head(data) as EscalationType)
   }
 
-  updateEscalation = async (id: string, attributes: Partial<EscalationType>): Promise<Partial<EscalationType>> => {
+  updateEscalation = async (
+    botId: string,
+    id: string,
+    attributes: Partial<EscalationType>
+  ): Promise<Partial<EscalationType>> => {
     const now = new Date()
     const payload = this.castDate(
       {
@@ -235,13 +266,16 @@ export default class Repository {
       .database('escalations')
       .where({ id: id })
       .update(payload)
-      .then(() => {
-        return this.bp
-          .database('escalations')
+      .then(() =>
+        this.escalationsWithCommentsQuery(botId)
           .where({ id: id })
           .first()
-      })
-      .then(data => data as EscalationType)
+      )
+      .then(data => _.castArray(data))
+      .then(this.hydrateComments.bind(this))
+      .then(async data => this.hydrateEvents(await this.userEventsQuery(), data, 'userConversation'))
+      .then(async data => this.hydrateEvents(await this.agentEventsQuery(), data, 'agentConversation'))
+      .then(data => _.head(data) as EscalationType)
   }
 
   createComment = (attributes: Partial<CommentType>): Promise<CommentType> => {
