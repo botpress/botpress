@@ -18,7 +18,7 @@ import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
 import { connect } from 'react-redux'
 import * as portals from 'react-reverse-portal'
-import { DefaultPortModel, DiagramEngine, DiagramWidget, NodeModel, PointModel } from 'storm-react-diagrams'
+import { DefaultPortModel, DiagramEngine, NodeModel, PointModel } from 'storm-react-diagrams'
 import {
   addElementToLibrary,
   buildNewSkill,
@@ -77,6 +77,7 @@ import style from '~/views/FlowBuilder/diagram/style.scss'
 import { prepareEventForDiagram } from './debugger'
 import { BlockModel, BlockWidgetFactory } from './nodes/Block'
 import menuStyle from './style.scss'
+import DiagramWidget from './DiagramWidget'
 import EmptyStateIcon from './EmptyStateIcon'
 import Forms from './Forms'
 import Toolbar from './Toolbar'
@@ -140,7 +141,8 @@ class Diagram extends Component<Props> {
   state = {
     currentTab: storage.get(DIAGRAM_TAB_KEY) || 'workflow',
     expandedNodes: [],
-    nodeInfos: []
+    nodeInfos: [],
+    magnetableNodes: []
   }
 
   constructor(props) {
@@ -151,6 +153,7 @@ class Diagram extends Component<Props> {
       selectedNodeItem: () => this.getPropsProperty('activeFormItem'),
       deleteSelectedElements: this.deleteSelectedElements.bind(this),
       getCurrentFlow: () => this.getPropsProperty('currentFlow'),
+      getMagnetableNodes: () => this.getStateProperty('magnetableNodes'),
       updateFlowNode: this.updateNodeAndRefresh.bind(this),
       switchFlowNode: this.switchFlowNode.bind(this),
       getLanguage: () => ({
@@ -1042,6 +1045,7 @@ class Diagram extends Component<Props> {
               <DiagramWidget
                 ref={w => (this.diagramWidget = w)}
                 deleteKeys={[]}
+                setMagnetableNodes={nodes => this.setState({ magnetableNodes: nodes })}
                 diagramEngine={this.diagramEngine}
                 maxNumberPointsPerLink={0}
                 inverseZoom={true}

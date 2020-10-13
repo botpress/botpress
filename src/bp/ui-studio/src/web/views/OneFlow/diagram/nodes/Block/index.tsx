@@ -1,6 +1,7 @@
 import { Intent, Menu, MenuItem } from '@blueprintjs/core'
 import { DecisionTriggerCondition, ExecuteNode, Flow, FormData, SubWorkflowNode } from 'botpress/sdk'
 import { contextMenu, lang, sharedStyle, ShortcutLabel, toast } from 'botpress/shared'
+import cx from 'classnames'
 import { parseFlowName } from 'common/flow'
 import { FlowView } from 'common/typings'
 import React, { FC } from 'react'
@@ -23,6 +24,7 @@ import TriggerContents from '../TriggerContents'
 interface Props {
   node: BlockModel
   getCurrentFlow: () => FlowView
+  getMagnetableNodes: () => string[]
   onDeleteSelectedElements: () => void
   editNodeItem: (node: BlockModel, index: number) => void
   selectedNodeItem: () => { node: BlockModel; index: number }
@@ -52,6 +54,7 @@ const defaultLabels = {
 const BlockWidget: FC<Props> = ({
   node,
   getCurrentFlow,
+  getMagnetableNodes,
   editNodeItem,
   onDeleteSelectedElements,
   selectedNodeItem,
@@ -65,7 +68,7 @@ const BlockWidget: FC<Props> = ({
   getDebugInfo,
   getFlows
 }) => {
-  const { nodeType } = node
+  const { nodeType, id } = node
   const { currentLang, defaultLang } = getLanguage()
 
   const handleContextMenu = e => {
@@ -180,7 +183,10 @@ const BlockWidget: FC<Props> = ({
   const expanded = getExpandedNodes().includes(node.id)
 
   return (
-    <NodeWrapper isHighlighed={node.isHighlighted || node.isSelected()}>
+    <NodeWrapper
+      className={cx({ [style.magnetable]: getMagnetableNodes()?.includes(id) })}
+      isHighlighed={node.isHighlighted || node.isSelected()}
+    >
       <NodeHeader
         className={style[nodeType]}
         setExpanded={canCollapse && handleExpanded}
@@ -278,6 +284,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
   private deleteSelectedElements: () => void
   private getConditions: () => DecisionTriggerCondition[]
   private getCurrentFlow: () => FlowView
+  private getMagnetableNodes: () => string[]
   private switchFlowNode: (id: string) => void
   private addCondition: (nodeType: string) => void
   private addMessage: () => void
@@ -294,6 +301,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
     this.selectedNodeItem = methods.selectedNodeItem
     this.deleteSelectedElements = methods.deleteSelectedElements
     this.getCurrentFlow = methods.getCurrentFlow
+    this.getMagnetableNodes = methods.getMagnetableNodes
     this.getConditions = methods.getConditions
     this.switchFlowNode = methods.switchFlowNode
     this.addCondition = methods.addCondition
@@ -310,6 +318,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
       <BlockWidget
         node={node}
         getCurrentFlow={this.getCurrentFlow}
+        getMagnetableNodes={this.getMagnetableNodes}
         getLanguage={this.getLanguage}
         editNodeItem={this.editNodeItem}
         onDeleteSelectedElements={this.deleteSelectedElements}
