@@ -1,11 +1,13 @@
 import _ from 'lodash'
-import React, { FC, useContext } from 'react'
+import React, { FC, useContext, useState } from 'react'
+
+import { Context } from '../Store'
 
 import { ApiType } from './../Api'
 import { EscalationType } from '../../../types'
 
-import { Context } from '../Store'
-
+import { lang } from 'botpress/shared'
+import Collapsible from '../../../../../../src/bp/ui-shared-lite/Collapsible'
 import UserProfile from './UserProfile'
 import CommentList from './CommentList'
 import CommentForm from './CommentForm'
@@ -20,10 +22,12 @@ const Sidebar: FC<Props> = props => {
 
   const { dispatch } = useContext(Context)
 
+  const [expanded, setExpanded] = useState(true)
+
   async function createComment(content: string) {
     try {
       const comment = await api.createComment(props.escalation.id, { content: content })
-      api.updateCurrentAgentOnline({ online: true })
+      api.setOnline()
       dispatch({ type: 'setComment', payload: comment })
     } catch (error) {
       dispatch({ type: 'setError', payload: error })
@@ -33,7 +37,13 @@ const Sidebar: FC<Props> = props => {
   return (
     <div>
       <UserProfile conversation={props.escalation.userConversation}></UserProfile>
-      <CommentList comments={props.escalation.comments}></CommentList>
+      <Collapsible
+        opened={expanded}
+        toggleExpand={() => setExpanded(!expanded)}
+        name={lang.tr('module.hitl2.comments.heading')}
+      >
+        <CommentList comments={props.escalation.comments}></CommentList>
+      </Collapsible>
       <CommentForm onSubmit={createComment}></CommentForm>
     </div>
   )
