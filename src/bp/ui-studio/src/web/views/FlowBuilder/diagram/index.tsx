@@ -33,13 +33,14 @@ import {
   switchFlowNode,
   updateFlow,
   updateFlowNode,
-  updateFlowProblems
+  updateFlowProblems,
+  zoomToLevel
 } from '~/actions'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
 import { SkillDefinition } from '../sidePanel/FlowTools'
 
-import { defaultTransition, DiagramManager, DIAGRAM_PADDING, nodeTypes, Point } from './manager'
+import { defaultTransition, DIAGRAM_PADDING, DiagramManager, nodeTypes, Point } from './manager'
 import { DeletableLinkFactory } from './nodes/LinkWidget'
 import { SkillCallNodeModel, SkillCallWidgetFactory } from './nodes/SkillCallNode'
 import { StandardNodeModel, StandardWidgetFactory } from './nodes/StandardNode'
@@ -69,7 +70,10 @@ class Diagram extends Component<Props> {
 
     // This reference allows us to update flow nodes from widgets
     this.diagramEngine.flowBuilder = this
-    this.manager = new DiagramManager(this.diagramEngine, { switchFlowNode: this.props.switchFlowNode })
+    this.manager = new DiagramManager(this.diagramEngine, {
+      switchFlowNode: this.props.switchFlowNode,
+      zoomToLevel: this.props.zoomToLevel
+    })
 
     if (this.props.highlightFilter) {
       this.manager.setHighlightFilter(this.props.highlightFilter)
@@ -595,6 +599,7 @@ interface Props {
   handleFilterChanged: (event: object) => void
   highlightFilter: string
   skills: SkillDefinition[]
+  zoomToLevel: any
 }
 
 interface NodeProblem {
@@ -634,7 +639,8 @@ const mapDispatchToProps = {
   pasteFlowNode,
   insertNewSkillNode,
   updateFlowProblems,
-  buildSkill: buildNewSkill
+  buildSkill: buildNewSkill,
+  zoomToLevel
 }
 
 export default connect(mapStateToProps, mapDispatchToProps, null, { withRef: true })(Diagram)

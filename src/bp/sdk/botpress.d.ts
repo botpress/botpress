@@ -546,6 +546,7 @@ declare module 'botpress/sdk' {
       pattern?: string
       list_entities: string[]
       pattern_entities: string[]
+      system_entities: string[]
     }
 
     export interface SlotDefinition {

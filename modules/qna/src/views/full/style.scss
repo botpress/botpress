@@ -384,3 +384,24 @@ input[type='file']::-webkit-file-upload-button {
   margin: var(--spacing-medium) var(--spacing-medium) 0 0;
   width: 135px;
 }
+
+.addBtn {
+  color: var(--ocean) !important;
+  display: block;
+  font-size: 12px !important;
+  font-style: normal !important;
+  font-weight: normal !important;
+  line-height: 1.25 !important;
+  margin-top: var(--spacing-medium) !important;
+  transition: background 0.3s;
+
+  svg {
+    fill: var(--ocean) !important;
+  }
+
+  &:hover,
+  &:focus {
+    color: var(--ocean);
+    background: var(--hover-ocean);
+  }
+}

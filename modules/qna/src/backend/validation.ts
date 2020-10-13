@@ -66,7 +66,12 @@ export const ItemSchema = Joi.object().keys({
   contentAnswers: Joi.array()
     .items(QnaItemContentAnswerSchema)
     .default([]),
-  enabled: Joi.bool().required()
+  enabled: Joi.bool().required(),
+  // @deprecated Temporary to support old questions and ui
+  contexts: Joi.array()
+    .items(Joi.string())
+    .optional(),
+  location: Joi.string().optional()
 })
 
 export const QnASchemaArray = Joi.array().items(QnASchema)

@@ -19,7 +19,8 @@ export function renderRecursive(item: TemplateItem, context: any, lang?: string,
 }
 
 export function renderTemplate(template: string, context: any): string {
-  if (typeof template === 'string') {
+  // Avoid parsing variables dollar signs for non-ndu bots
+  if (typeof template === 'string' && context.event?.ndu) {
     const variables = template.match(/\$[a-zA-Z][a-zA-Z0-9_-]*/g) ?? []
     for (const match of variables) {
       const name = match.replace('$', '')

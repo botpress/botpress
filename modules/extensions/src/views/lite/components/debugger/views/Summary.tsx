@@ -7,6 +7,7 @@ import ContentSection from '../../../../../../../../src/bp/ui-shared-lite/Conten
 import lang from '../../../../lang'
 import style from '../style.scss'
 
+import Dialog from './legacy/Dialog'
 import { Inspector } from './Inspector'
 import NDU from './NDU'
 import NLU from './NLU'
@@ -76,6 +77,14 @@ export default class Summary extends React.Component<Props> {
 
     return (
       <div>
+        <Dialog
+          isExpanded={this.isExpanded.bind(this)}
+          toggleExpand={this.toggleExpand.bind(this)}
+          suggestions={this.props.event.suggestions}
+          decision={this.props.event.decision}
+          stacktrace={this.props.event.state.__stacktrace}
+        />
+
         <NLU
           isExpanded={this.isExpanded.bind(this)}
           toggleExpand={this.toggleExpand.bind(this)}

@@ -26,7 +26,7 @@ interface Props {
 const NLU_JSON = 'json::nlu'
 const NLU_PANEL = 'panel::nlu'
 
-const NLU: SFC<Props> = ({ nluData, isNDU, isExpanded, toggleExpand, context }) => {
+const NLU: SFC<Props> = ({ nluData, isNDU, session, isExpanded, toggleExpand, context }) => {
   const [viewJSON, setViewJSON] = useState(isExpanded(NLU_JSON))
 
   useEffect(() => {
@@ -69,17 +69,16 @@ const NLU: SFC<Props> = ({ nluData, isNDU, isExpanded, toggleExpand, context }) 
           </Tooltip>
         )}
         <Language detectedLanguage={nluData.detectedLanguage} usedLanguage={nluData.language} />
-        <Predictions predictions={nluData.predictions} activePrompt={context?.activePrompt} />
+        {isNDU && <Predictions predictions={nluData.predictions} activePrompt={context?.activePrompt} />}
         {!isNDU && <Intents intents={nluData.intents} intent={nluData.intent} />}
-        {/* TODO re-add Entities and Slots when design is made for them
+
         <Collapsible name="Entities" hidden={!nluData.entities.length}>
           <Entities entities={nluData.entities} />
         </Collapsible>
 
-        <Collapsible name="Slots" hidden={_.isEmpty(session.slots) && _.isEmpty(nluData.slots)}>
-          <Slots sessionSlots={session.slots} slots={nluData.slots} />
+        <Collapsible name="Slots" hidden={_.isEmpty(session?.slots) && _.isEmpty(nluData.slots)}>
+          <Slots sessionSlots={session?.slots} slots={nluData.slots} />
         </Collapsible>
-      */}
       </Fragment>
     )
   }

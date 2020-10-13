@@ -109,7 +109,9 @@ export class DialogEngine {
         const subFlow = this._findFlow(botId, currentNode.flow!)
         this.copyVarsToParent(subFlow, currentNode, event)
         // TODO remove this hack
-        event.state.session.nduContext!.last_topic = parseFlowName(context.currentFlow!).topic!
+        if (event.state.session.nduContext) {
+          event.state.session.nduContext.last_topic = parseFlowName(context.currentFlow!).topic!
+        }
       }
     }
 
@@ -570,7 +572,9 @@ export class DialogEngine {
     const subflowStartNode = this._findNode(botId, subflow, subflow.startNode)
 
     // TODO remove this hack
-    event.state.session.nduContext!.last_topic = parseFlowName(subflowName).topic!
+    if (event.state.session.nduContext) {
+      event.state.session.nduContext!.last_topic = parseFlowName(subflowName).topic!
+    }
 
     event.state.context = {
       inputs: parentNode.subflow?.in,

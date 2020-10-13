@@ -12,8 +12,9 @@ import { isQnaComplete } from '../../../backend/utils'
 import style from '../style.scss'
 
 import ContentAnswerForm from './ContentAnswerForm'
-// import ContextSelector from './ContextSelector'
+import ContextSelector from './ContextSelector'
 import TextAreaList from './TextAreaList'
+import TextAreaListLegacy from './TextAreaListLegacy'
 
 interface RedirectItem {
   label: string
@@ -235,6 +236,8 @@ const QnA: FC<Props> = props => {
     ((refAnswers || []).filter(Boolean).length && !answers?.filter(Boolean).length) ||
     contentAnswers?.some(content => checkMissingTranslations(content))
 
+  const TextAreaAnswer = isLite ? TextAreaList : TextAreaListLegacy
+
   return (
     <div className={style.questionWrapper}>
       <div className={style.headerWrapper}>
@@ -288,6 +291,20 @@ const QnA: FC<Props> = props => {
       </div>
       {expanded && (
         <div key={contentLang} className={cx(style.collapsibleWrapper, { [style.disabled]: !data.enabled })}>
+          {!isLite && (
+            <ContextSelector
+              className={cx(style.contextSelector)}
+              contexts={data.contexts}
+              customIdSuffix={id}
+              saveContexts={contexts =>
+                updateQnA({
+                  id,
+                  data: { ...data, contexts }
+                })
+              }
+              bp={bp}
+            />
+          )}
           <TextAreaList
             key="questions"
             items={questions || ['']}
@@ -307,7 +324,7 @@ const QnA: FC<Props> = props => {
             addItemLabel={lang.tr('module.qna.form.addQuestionAlternative')}
           />
           <div>
-            <TextAreaList
+            <TextAreaAnswer
               key="answers"
               items={answers || ['']}
               duplicateMsg={lang.tr('module.qna.form.duplicateAnswer')}
@@ -325,40 +342,44 @@ const QnA: FC<Props> = props => {
               addItemLabel={lang.tr('module.qna.form.addAnswerAlternative')}
               canAdd={!defaultLang || defaultLang === contentLang}
             />
-            <div className={style.contentAnswerWrapper}>
-              {contentAnswers?.map((content, index) =>
-                checkMissingTranslations(content) ? (
-                  <button
+            {isLite && (
+              <Fragment>
+                <div className={style.contentAnswerWrapper}>
+                  {contentAnswers?.map((content, index) =>
+                    checkMissingTranslations(content) ? (
+                      <button
+                        onClick={() => {
+                          editingContent.current = index
+                          setShowContentForm(true)
+                        }}
+                        className={style.needsTranslation}
+                      >
+                        {lang.tr('needsTranslation')}
+                      </button>
+                    ) : (
+                      <Contents.Item
+                        key={index}
+                        contentLang={contentLang}
+                        content={content}
+                        active={editingContent.current === index}
+                        onEdit={() => {
+                          editingContent.current = index
+                          setShowContentForm(true)
+                        }}
+                      />
+                    )
+                  )}
+                </div>
+                {(!defaultLang || defaultLang === contentLang) && (
+                  <FormFields.AddButton
+                    className={style.noSpacing}
+                    text={lang.tr('module.qna.form.addContent')}
                     onClick={() => {
-                      editingContent.current = index
-                      setShowContentForm(true)
-                    }}
-                    className={style.needsTranslation}
-                  >
-                    {lang.tr('needsTranslation')}
-                  </button>
-                ) : (
-                  <Contents.Item
-                    key={index}
-                    contentLang={contentLang}
-                    content={content}
-                    active={editingContent.current === index}
-                    onEdit={() => {
-                      editingContent.current = index
-                      setShowContentForm(true)
+                      addContentAnswer()
                     }}
                   />
-                )
-              )}
-            </div>
-            {(!defaultLang || defaultLang === contentLang) && (
-              <FormFields.AddButton
-                className={style.noSpacing}
-                text={lang.tr('module.qna.form.addContent')}
-                onClick={() => {
-                  addContentAnswer()
-                }}
-              />
+                )}
+              </Fragment>
             )}
           </div>
           {showRedirectToFlow && (

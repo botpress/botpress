@@ -28,7 +28,7 @@ const init = (langs: { [lang: string]: any }, prefix?: string) => {
  */
 const tr = (key: string, values?: { [variable: string]: any }, lang?: string) => {
   const getFormattedText = (lang: string) => {
-    const text = get(translations?.[lang], key)
+    const text = get(translations?.[lang], key) || ''
     return values ? new IntlMessageFormat(text, []).format(values) : text
   }
 

@@ -1,10 +1,10 @@
-import { Button, ControlGroup, FormGroup } from '@blueprintjs/core'
-import { NLU } from 'botpress/sdk'
+import { Button } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
-import { makeApi } from '../../../api'
+import { LegacyIntentDefinition, NewLegacyIntentDefinition } from '../../../backend/typings'
+import { makeApiClient } from '../api-client'
 import style from '../style.scss'
 
 import { IntentEditor } from './FullEditor'
@@ -32,20 +32,12 @@ export const sanitizeName = (text: string) =>
     .replace(/[^a-z0-9-_.]/g, '')
 
 export const LiteEditor: FC<Props> = props => {
-  const [intents, setIntents] = useState<NLU.IntentDefinition[]>([])
+  const [intents, setIntents] = useState<LegacyIntentDefinition[]>([])
   const [currentIntent, setCurrentIntent] = useState(props.params.intentName)
   const [isModalOpen, setModalOpen] = useState(false)
   const [dirtyIntents, setDirtyIntents] = useState([])
 
-  useEffect(() => {
-    // Ensure the current topic is in the intent's contexts
-    if (props.forceSave && dirtyIntents.length) {
-      // tslint:disable-next-line: no-floating-promises
-      api.syncIntentTopics()
-    }
-  }, [props.forceSave])
-
-  const api = makeApi(props.bp)
+  const api = makeApiClient(props.bp)
 
   useEffect(() => {
     // tslint:disable-next-line: no-floating-promises
@@ -61,10 +53,11 @@ export const LiteEditor: FC<Props> = props => {
   }
 
   const createIntent = async (sanitizedName: string, rawName: string) => {
-    const intentDef = {
+    const intentDef: NewLegacyIntentDefinition = {
       name: sanitizedName,
       contexts: [props.topicName || 'global'],
-      utterances: { [props.contentLang]: [rawName] }
+      utterances: { [props.contentLang]: [rawName] },
+      slots: []
     }
 
     props.updateParams({ intentName: sanitizedName })

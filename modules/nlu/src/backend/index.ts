@@ -2,7 +2,6 @@ import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { createApi } from '../api'
 import en from '../translations/en.json'
 import fr from '../translations/fr.json'
 
@@ -39,7 +38,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   translations: { en, fr },
   definition: {
     name: 'nlu',
-    noInterface: true,
+    noInterface: false,
     menuIcon: 'translate',
     menuText: 'NLU',
     fullName: 'NLU',
