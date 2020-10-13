@@ -1,20 +1,21 @@
 import { Button, Classes, MenuItem } from '@blueprintjs/core'
 import { ItemPredicate, ItemRenderer, Select } from '@blueprintjs/select'
-import { NLU } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
 
+import { LegacyIntentDefinition } from '../../../backend/typings'
+
 interface Props {
-  intents?: NLU.IntentDefinition[]
+  intents?: LegacyIntentDefinition[]
   currentIntent?: string
-  onChange?: (item: NLU.IntentDefinition) => void
+  onChange?: (item: LegacyIntentDefinition) => void
 }
 
-const SelectDropdown = Select.ofType<NLU.IntentDefinition>()
+const SelectDropdown = Select.ofType<LegacyIntentDefinition>()
 const noIntent: any = { name: lang.tr('module.nlu.intents.selectIntentLabel') }
 
 const IntentDropdown: FC<Props> = props => {
-  const [selected, setSelected] = useState<NLU.IntentDefinition>()
+  const [selected, setSelected] = useState<LegacyIntentDefinition>()
 
   useEffect(() => {
     if (props.intents && props.currentIntent) {
@@ -22,7 +23,7 @@ const IntentDropdown: FC<Props> = props => {
     }
   }, [props.intents])
 
-  const selectItem = (item: NLU.IntentDefinition) => {
+  const selectItem = (item: LegacyIntentDefinition) => {
     if (item !== noIntent && item !== selected) {
       setSelected(item)
       props.onChange && props.onChange(item)
@@ -49,11 +50,11 @@ const IntentDropdown: FC<Props> = props => {
   )
 }
 
-const filterOptions: ItemPredicate<NLU.IntentDefinition> = (query, option) => {
+const filterOptions: ItemPredicate<LegacyIntentDefinition> = (query, option) => {
   return `${option.name.toLowerCase()} `.indexOf(query.toLowerCase()) > -1
 }
 
-const renderOption: ItemRenderer<NLU.IntentDefinition> = (option, { handleClick, modifiers }) => {
+const renderOption: ItemRenderer<LegacyIntentDefinition> = (option, { handleClick, modifiers }) => {
   if (!modifiers.matchesPredicate) {
     return null
   }
