@@ -1,6 +1,6 @@
 import { EntityExtractionResult } from 'nlu-core/typings'
 
-import { Duckling, DucklingDimension, DucklingReturn, DucklingType, DucklingValue, ValueUnit } from './typings'
+import { Duckling, DucklingDimension, DucklingReturn, DucklingType, DucklingValue, Value, ValueUnit } from './typings'
 
 export function mapDucklingToEntity(duck: Duckling): EntityExtractionResult {
   const dimensionData = getUnitAndValue(duck)
@@ -50,6 +50,13 @@ export function getUnitAndValue(duck: Duckling): ValueUnit {
     }
   }
 
+  if (_isValue(duck.value)) {
+    return {
+      value: duck.value.value,
+      unit: ''
+    }
+  }
+
   return {
     value: '',
     unit: ''
@@ -78,4 +85,10 @@ const _isValueUnit = (
   duckValue: DucklingValue<DucklingDimension, DucklingType>
 ): duckValue is { type: DucklingType } & ValueUnit => {
   return !!((duckValue as ValueUnit).value && (duckValue as ValueUnit).unit)
+}
+
+const _isValue = (
+  duckValue: DucklingValue<DucklingDimension, DucklingType>
+): duckValue is { type: DucklingType } & Value => {
+  return !!(duckValue as Value).value
 }
