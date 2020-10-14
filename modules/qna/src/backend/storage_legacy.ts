@@ -160,4 +160,26 @@ export default class StorageLegacy {
   async importArchivePerTopic(importArgs: ImportArgs) {
     return importSingleArchive({ ...importArgs, topicName: undefined }, this.ghost)
   }
+
+  async getContentElementUsage(): Promise<any> {
+    const qnas = await this.fetchItems()
+
+    return _.reduce(
+      qnas,
+      (result, qna) => {
+        const answers = _.flatMap(Object.values(qna.answers))
+
+        _.filter(answers, x => x.startsWith('#!')).forEach(answer => {
+          const values = result[answer]
+          if (values) {
+            values.count++
+          } else {
+            result[answer] = { qna: qna.id, count: 1 }
+          }
+        })
+        return result
+      },
+      {}
+    )
+  }
 }

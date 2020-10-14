@@ -8,8 +8,8 @@ import style from './style.scss'
 import { MenuItem, MenuProps } from './typings'
 
 const Menu: FC<MenuProps> = ({ items, className }) => {
-  const renderBasicItem = ({ name, path, icon }: MenuItem) => (
-    <li id={`bp-menu_${name}`} key={path}>
+  const renderBasicItem = ({ id, name, path, icon }: MenuItem) => (
+    <li id={`bp-menu_${id ?? name}`} key={path}>
       <Tooltip boundary="window" position={Position.RIGHT} content={name}>
         <NavLink to={path} title={name} activeClassName={style.active}>
           <Icon icon={icon} iconSize={16} />

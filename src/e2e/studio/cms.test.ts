@@ -13,7 +13,7 @@ describe('Studio - CMS', () => {
   })
 
   it('Load CMS', async () => {
-    await clickOn('#bp-menu_Content')
+    await clickOn('#bp-menu_content')
     await expectBotApiCallSuccess(`content/elements`, 'POST')
   })
 

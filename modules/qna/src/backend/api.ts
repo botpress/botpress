@@ -40,17 +40,6 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
     })
   )
 
-  // @deprecated supporting old paths to query questions by its id
-  router.get(
-    '/:topicName?/questions/:questionId',
-    asyncMiddleware(async (req: Request, res: Response) => {
-      const { storage } = bots[req.params.botId]
-      const items = await storage.fetchItems(req.params.topicName)
-
-      res.send({ id: req.params.questionId, data: items.find(x => x.id === `__qna__${req.params.questionId}`) })
-    })
-  )
-
   router.post(
     '/:topicName/questions',
     asyncMiddleware(async (req: Request, res: Response, next: Function) => {
@@ -170,4 +159,21 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
       res.send(jsonRequestStatuses[req.params.uploadStatusId])
     })
   )
+
+  // @deprecated Below routes are only used to support old stuff
+  router.get(
+    '/:topicName?/questions/:questionId',
+    asyncMiddleware(async (req: Request, res: Response) => {
+      const { storage } = bots[req.params.botId]
+      const items = await storage.fetchItems(req.params.topicName)
+
+      res.send({ id: req.params.questionId, data: items.find(x => x.id === `__qna__${req.params.questionId}`) })
+    })
+  )
+
+  router.get('/contentElementUsage', async (req: Request, res: Response) => {
+    const { storage } = bots[req.params.botId]
+    const usage = await storage.getContentElementUsage()
+    res.send(usage)
+  })
 }

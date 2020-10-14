@@ -9,7 +9,7 @@ describe('Studio - Flows', () => {
   })
 
   it('Load Flows', async () => {
-    await clickOn('#bp-menu_Builder')
+    await clickOn('#bp-menu_flowBuilder')
   })
 
   it('Create new flow', async () => {

@@ -105,4 +105,8 @@ export default class Storage {
   async importArchivePerTopic(importArgs: ImportArgs) {
     return importArchivePerTopic(importArgs, this.ghost)
   }
+
+  async getContentElementUsage(): Promise<any> {
+    return {}
+  }
 }
