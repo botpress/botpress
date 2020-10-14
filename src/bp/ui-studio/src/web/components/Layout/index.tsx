@@ -204,7 +204,7 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
   const leftHeaderButtons: HeaderButton[] = [
     {
       tooltip: <div className={style.tooltip}>{lang.tr('toolbar.hitl')}</div>,
-      icon: 'headset',
+      icon: <InjectedModuleView moduleName="hitl2" componentName="AgentStatus" />,
       onClick: () => setShowHitl(!showHitl)
     },
     ...(!!props.docHints?.length
