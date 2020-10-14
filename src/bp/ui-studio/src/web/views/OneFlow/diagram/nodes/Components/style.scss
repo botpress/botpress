@@ -60,10 +60,6 @@
   border-radius: 0 0 5px 5px;
   transition: border 0.3s;
 
-  &.magnetable {
-    background: #f00;
-  }
-
   &.highlighted {
     border: 1px solid var(--ocean) !important;
 

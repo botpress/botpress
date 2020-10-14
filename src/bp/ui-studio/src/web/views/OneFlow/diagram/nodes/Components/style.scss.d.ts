@@ -22,7 +22,6 @@ interface CssExports {
   'img': string;
   'in': string;
   'joinLabel': string;
-  'magnetable': string;
   'needsTranslation': string;
   'nodeWrapper': string;
   'out': string;
