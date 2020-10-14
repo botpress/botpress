@@ -100,3 +100,25 @@ test('number is supported', () => {
   expect(value).toBe(500)
   expect(unit).toBe('')
 })
+
+test('zero is supported', () => {
+  // arrange
+  const duck = {
+    body: '0',
+    start: 0,
+    value: {
+      value: 0,
+      type: 'value' as 'value'
+    },
+    end: 1,
+    dim: 'number' as DucklingDimension,
+    latent: false
+  }
+
+  // act
+  const { unit, value } = getUnitAndValue(duck)
+
+  // assert
+  expect(value).toBe(0)
+  expect(unit).toBe('')
+})
