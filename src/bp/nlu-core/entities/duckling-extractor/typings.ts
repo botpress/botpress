@@ -55,5 +55,5 @@ export type ValueUnit = Value & {
 }
 
 export interface Value {
-  value: string
+  value: string | number
 }
