@@ -18,7 +18,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
   const router = bp.http.createRouterForBot('qna')
   const jsonRequestStatuses = {}
   router.get(
-    '/:topicName/questions',
+    '/:topicName?/questions',
     asyncMiddleware(async (req: Request, res: Response) => {
       const { storage } = bots[req.params.botId]
       const items = await storage.fetchItems(req.params.topicName)
@@ -37,6 +37,17 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
 
       const data = { count: items.length, items: filteredItems }
       res.send(data)
+    })
+  )
+
+  // @deprecated supporting old paths to query questions by its id
+  router.get(
+    '/:topicName?/questions/:questionId',
+    asyncMiddleware(async (req: Request, res: Response) => {
+      const { storage } = bots[req.params.botId]
+      const items = await storage.fetchItems(req.params.topicName)
+
+      res.send({ id: req.params.questionId, data: items.find(x => x.id === `__qna__${req.params.questionId}`) })
     })
   )
 

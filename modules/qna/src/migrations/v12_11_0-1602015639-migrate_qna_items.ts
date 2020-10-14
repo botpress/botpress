@@ -1,24 +1,30 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
+
+const getQnaFilename = (id: string) => `__qna__${id}`
+const QNA_FOLDER = './qna'
+const INTENTS_FOLDER = './intents'
+const FLOWS_FOLDER = './flows'
+
 const migration: sdk.ModuleMigration = {
   info: {
-    description: '',
-    target: 'core',
-    type: 'config'
+    description: 'Convert questions to the new format',
+    target: 'bot',
+    type: 'content'
   },
   up: async ({ bp, metadata }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {
     let hasChanges = false
 
     const updateBot = async (botId: string) => {
       const bpfs = bp.ghost.forBot(botId)
-      const files = await bpfs.directoryListing('./qna', '*.json')
+      const files = await bpfs.directoryListing(QNA_FOLDER, '*.json')
 
       const qnaByContext = {}
       const allQnas = []
 
       for (const file of files) {
-        const qna = (await bpfs.readFileAsObject('./qna', file)) as any
-        const intent = (await bpfs.readFileAsObject('./intents', `__qna__${file}`)) as any
+        const qna = (await bpfs.readFileAsObject(QNA_FOLDER, file)) as any
+        const intent = (await bpfs.readFileAsObject(INTENTS_FOLDER, getQnaFilename(file))) as any
 
         const firstContext = intent.contexts?.[0] ?? 'global'
 
@@ -41,22 +47,20 @@ const migration: sdk.ModuleMigration = {
         } else {
           qnaByContext[firstContext] = [fixedEntry]
         }
+
+        await bpfs.deleteFile(QNA_FOLDER, file)
+        await bpfs.deleteFile(INTENTS_FOLDER, getQnaFilename(file))
       }
 
       for (const context of Object.keys(qnaByContext)) {
         const filename = `${context}/qna.intents.json`
 
-        if (!(await bpfs.fileExists('flows', filename))) {
-          console.log(context, qnaByContext[context])
-          await bpfs.upsertFile('./flows', filename, JSON.stringify(qnaByContext[context], undefined, 2), {
+        if (!(await bpfs.fileExists(FLOWS_FOLDER, filename))) {
+          await bpfs.upsertFile(FLOWS_FOLDER, filename, JSON.stringify(qnaByContext[context], undefined, 2), {
             ignoreLock: true
           })
         }
       }
-
-      // await bpfs.upsertFile('./flows', 'legacy_qna/qna.intents.json', JSON.stringify(allQnas, undefined, 2), {
-      //   ignoreLock: true
-      // })
 
       hasChanges = true
     }
@@ -70,7 +74,10 @@ const migration: sdk.ModuleMigration = {
       }
     }
 
-    return { success: true, message: 'Configuration updated successfully' }
+    return {
+      success: true,
+      message: hasChanges ? 'Questions migrated successfully' : 'Questions are already converted, skipping...'
+    }
   }
 }
 

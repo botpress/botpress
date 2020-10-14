@@ -59,6 +59,18 @@ const itemToIntent = (item: ItemLegacy, topicName: string): Intent => {
   }
 }
 
+const intentToItem = ({ name, utterances, contexts, metadata }: Intent, location: string): ItemLegacy => {
+  return {
+    id: name,
+    location,
+    questions: utterances,
+    answers: metadata.answers,
+    contexts,
+    ...(_.pick(metadata, ['answers', 'contentAnswers', 'enabled', 'redirectFlow', 'redirectNode', 'action']) as any),
+    lastModified: metadata.lastModifiedOn
+  }
+}
+
 export default class StorageLegacy {
   constructor(private ghost: sdk.ScopedGhostService) {}
 
@@ -82,20 +94,8 @@ export default class StorageLegacy {
       const intents = await this.ghost.readFileAsObject<Intent[]>(FLOW_FOLDER, filename)
       return intents.map(x => ({ ...x, location: filename }))
     })
-    const intents = _.flatten(allIntents)
 
-    const items = intents.map<ItemLegacy>(intent => ({
-      id: intent.name,
-      location: intent.location,
-      questions: intent.utterances,
-      answers: intent.metadata.answers!,
-      contexts: intent.contexts,
-      // @ts-ignore
-      contentAnswers: intent.metadata.contentAnswers!,
-      ..._.pick(intent.metadata, ['answers', 'contentAnswers', 'enabled', 'redirectFlow', 'redirectNode', 'action']),
-      lastModified: intent.metadata?.lastModifiedOn
-    }))
-    return items
+    return _.flatten(allIntents).map<ItemLegacy>(x => intentToItem(x, x.location))
   }
 
   async _addInTopic(item: ItemLegacy, topicName: string) {
@@ -103,7 +103,7 @@ export default class StorageLegacy {
     const filename = toQnaFile(topicName)
     const intents = await this.ghost.readFileAsObject<Intent[]>(FLOW_FOLDER, filename)
 
-    await this.ghost.upsertFile(FLOW_FOLDER, filename, serialize([...intents, itemToIntent(item, filename)]))
+    await this.ghost.upsertFile(FLOW_FOLDER, filename, serialize([...intents, itemToIntent(item, topicName)]))
   }
 
   async _delFromTopic(item: ItemLegacy, topicName: string) {
@@ -120,7 +120,7 @@ export default class StorageLegacy {
     await this.ghost.upsertFile(
       FLOW_FOLDER,
       filename,
-      serialize([...intents.filter(x => x.name !== item.id), itemToIntent(item, filename)])
+      serialize([...intents.filter(x => x.name !== item.id), itemToIntent(item, topicName)])
     )
   }
 
