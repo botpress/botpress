@@ -13,6 +13,7 @@ import Logger from '../simple-logger'
 
 import makeLoggerWrapper from './logger-wrapper'
 import ModelService from './model/model-service'
+import removeNoneIntent from './remove-none'
 import TrainService from './train-service'
 import TrainSessionService from './train-session-service'
 import { mapTrainInput } from './utils'
@@ -157,7 +158,7 @@ export default async function(options: APIOptions, nluVersion: string) {
       const { modelId } = req.params
       const { texts, password } = req.body
 
-      if (options.batchSize > 0 && texts.length > options.batchSize) {
+      if (!_.isArray(texts) || (options.batchSize > 0 && texts.length > options.batchSize)) {
         throw new Error(
           `Batch size of ${texts.length} is larger than the allowed maximum batch size (${options.batchSize}).`
         )
@@ -168,11 +169,12 @@ export default async function(options: APIOptions, nluVersion: string) {
       if (model) {
         await engine.loadModel(model)
 
-        const predictions = await Promise.map(texts as string[], t => engine.predict(t, [], model.languageCode))
+        const rawPredictions = await Promise.map(texts as string[], t => engine.predict(t, [], model.languageCode))
+        const withoutNone = rawPredictions.map(removeNoneIntent)
 
         engine.unloadModel(model.languageCode)
 
-        return res.send({ success: true, predictions })
+        return res.send({ success: true, predictions: withoutNone })
       }
 
       res.status(404).send({ success: false, error: `modelId ${modelId} can't be found` })
