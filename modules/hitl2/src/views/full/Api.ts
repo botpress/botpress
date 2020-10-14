@@ -1,13 +1,25 @@
 import _ from 'lodash'
 import { AxiosInstance } from 'axios'
 import moment from 'moment'
-import { AgentType, CommentType, EscalationType, UserType } from '../../types'
+import { AgentType, CommentType, EscalationType } from '../../types'
 
-function castDate(object, paths) {
+function castDate(object: any, paths: string[]) {
   paths.map(path => {
-    _.has(object, path) && _.set(object, path, moment(_.get(object, path)).toDate())
+    _.get(object, path, false) && _.set(object, path, moment(_.get(object, path)).toDate())
   })
   return object
+}
+
+function castEscalations(data) {
+  return data.map(item =>
+    _.thru(
+      castDate(item, ['createdAt', 'updatedAt', 'assignedAt', 'resolvedAt', 'userConversation.createdOn']),
+      casted => {
+        casted.comments = _.castArray(casted.comments).map(comment => castDate(comment, ['createdAt', 'updatedAt']))
+        return casted
+      }
+    )
+  )
 }
 
 export interface ApiType {
@@ -51,28 +63,16 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
           }
         })
         .then(res => res.data)
-        .then(data =>
-          data.map(item =>
-            castDate(item, ['createdAt', 'updatedAt', 'assignedAt', 'resolvedAt', 'userConversation.createdOn'])
-          )
-        ),
+        .then(castEscalations),
     assignEscalation: async id =>
       bp.axios
         .post(`${base}/escalations/${id}/assign`)
         .then(res => res.data)
-        .then(data =>
-          data.map(item =>
-            castDate(item, ['createdAt', 'updatedAt', 'assignedAt', 'resolvedAt', 'userConversation.createdOn'])
-          )
-        ),
+        .then(castEscalations),
     resolveEscalation: async id =>
       bp.axios
         .post(`${base}/escalations/${id}/resolve`)
         .then(res => res.data)
-        .then(data =>
-          data.map(item =>
-            castDate(item, ['createdAt', 'updatedAt', 'assignedAt', 'resolvedAt', 'userConversation.createdOn'])
-          )
-        )
+        .then(castEscalations)
   }
 }
