@@ -204,5 +204,7 @@
 }
 
 .hiddenPort {
-  display: none;
+  // display: none;
+  opacity: 0;
+  visibility: hidden;
 }

@@ -114,12 +114,16 @@ const BlockWidget: FC<Props> = ({
     )
   }
 
-  const inputPortInHeader = !['trigger'].includes(nodeType)
+  const inputPortInHeader = !['trigger'].includes(nodeType) && !isMagnetNode
   const outPortInHeader = !['failure', 'prompt', 'router', 'success', 'sub-workflow'].includes(nodeType)
   const canCollapse = !['failure', 'prompt', 'router', 'success', 'sub-workflow'].includes(nodeType)
   const hasContextMenu = !['failure', 'success'].includes(nodeType)
 
   const debugInfo = getDebugInfo(node.name)
+
+  if (node.next?.[0].condition === 'true' && node.next?.[0].node !== '') {
+    console.log(getCurrentFlow()?.nodes.filter(node => node.name === node.next?.[0].node))
+  }
 
   const renderContents = () => {
     switch (nodeType) {

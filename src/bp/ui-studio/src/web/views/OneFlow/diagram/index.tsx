@@ -488,7 +488,7 @@ class Diagram extends Component<Props> {
   }
 
   handleContextMenuNoElement = async (event: React.MouseEvent, parentNode?: BlockModel) => {
-    const point = this.manager.getRealPosition(event)
+    let point = this.manager.getRealPosition(event)
     const originatesFromOutPort =
       _.get(this.dragPortSource, 'parent.sourcePort.name', '').startsWith('out') || parentNode
 
@@ -503,6 +503,7 @@ class Diagram extends Component<Props> {
     const hasSubFlows = !!this.props.reusableFlows?.length
     if (parentNode) {
       this.dragPortSource = { parent: { sourcePort: { name: 'out0', parent: { ...parentNode } } } }
+      point = { x: parentNode.x, y: parentNode.y + parentNode.height }
     }
 
     contextMenu(
