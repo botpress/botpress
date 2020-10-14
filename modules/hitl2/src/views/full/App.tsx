@@ -23,11 +23,11 @@ const App = ({ bp }) => {
 
   function handleMessage(message: SocketMessageType) {
     console.log('handleMessage')
-    switch (message.type) {
-      case 'update':
-        return dispatch({ type: 'updateSocketMessage', payload: message })
-      case 'create':
-        return dispatch({ type: 'createSocketMessage', payload: message })
+    switch (message.resource) {
+      case 'agent':
+        return dispatch({ type: 'setAgent', payload: message })
+      case 'escalation':
+        return dispatch({ type: 'setEscalation', payload: message })
       default:
         throw new Error('Invalid websocket message type')
     }

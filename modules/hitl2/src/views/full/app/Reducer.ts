@@ -9,8 +9,8 @@ export type ActionType =
   | { type: 'setAgents'; payload: AgentType[] }
   | { type: 'setEscalations'; payload: EscalationType[] }
   | { type: 'setComment'; payload: CommentType }
-  | { type: 'createSocketMessage'; payload: SocketMessageType }
-  | { type: 'updateSocketMessage'; payload: SocketMessageType }
+  | { type: 'setAgent'; payload: SocketMessageType }
+  | { type: 'setEscalation'; payload: SocketMessageType }
   | { type: 'setError'; payload: any }
 
 const Reducer = (state: StateType, action: ActionType): StateType => {
@@ -40,34 +40,31 @@ const Reducer = (state: StateType, action: ActionType): StateType => {
         escalation.comments.push(action.payload)
         draft.currentEscalation = escalation
       })
-    case 'createSocketMessage':
-      switch (action.payload['resource']) {
-        case 'escalation':
-          return produce(state, draft => {
-            draft.escalations[action.payload.id] = action.payload.payload as EscalationType
-          })
-        default:
-          return state
-      }
-    case 'updateSocketMessage':
-      switch (action.payload.resource) {
-        case 'escalation':
-          return produce(state, draft => {
-            draft.escalations[action.payload.id] = {
-              ...draft.escalations[action.payload.id],
-              ...action.payload.payload
-            } as EscalationType
-          })
-        case 'agent':
-          return produce(state, draft => {
-            draft.agents[action.payload.id] = {
-              ...draft.agents[action.payload.id],
-              ...action.payload.payload
-            } as AgentType
-          })
-        default:
-          return state
-      }
+    case 'setAgent':
+      return produce(state, draft => {
+        draft.agents = {
+          ...draft.agents,
+          [action.payload.id]: {
+            ...draft.agents[action.payload.id],
+            ...action.payload.payload
+          }
+        }
+        // Note: because currentAgent is an actual object,
+        // instead of a reference, must be manually updated
+        if (state.currentAgent.id == action.payload.id) {
+          draft.currentAgent = draft.agents[action.payload.id]
+        }
+      })
+    case 'setEscalation':
+      return produce(state, draft => {
+        draft.escalations = {
+          ...draft.escalations,
+          [action.payload.id]: {
+            ...draft.escalations[action.payload.id],
+            ...action.payload.payload
+          }
+        }
+      })
     case 'setError':
       return produce(state, draft => {
         draft.error = action.payload
