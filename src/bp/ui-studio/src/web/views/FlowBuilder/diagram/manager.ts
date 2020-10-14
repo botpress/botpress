@@ -21,6 +21,7 @@ const passThroughNodeProps: string[] = [
   'activeWorkflow',
   'prompt',
   'subflow',
+  'isMagnetNode',
   'flow',
   'execute',
   'isReadOnly'

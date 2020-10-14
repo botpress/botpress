@@ -68,7 +68,7 @@ const BlockWidget: FC<Props> = ({
   getDebugInfo,
   getFlows
 }) => {
-  const { nodeType } = node
+  const { nodeType, isMagnetNode } = node
   const { currentLang, defaultLang } = getLanguage()
 
   const handleContextMenu = e => {
@@ -214,6 +214,7 @@ export class BlockModel extends BaseNodeModel {
   public conditions: DecisionTriggerCondition[] = []
   public activeWorkflow: boolean
   public isNew: boolean
+  public isMagnetNode: boolean
   public isReadOnly: boolean
   public nodeType: string
   public prompt?
@@ -238,6 +239,7 @@ export class BlockModel extends BaseNodeModel {
     execute = {},
     activeWorkflow = false,
     isNew = false,
+    isMagnetNode = false,
     isStartNode = false,
     isHighlighted = false,
     isReadOnly = false
@@ -259,6 +261,7 @@ export class BlockModel extends BaseNodeModel {
       execute,
       activeWorkflow,
       isNew,
+      isMagnetNode,
       isReadOnly
     })
 
@@ -266,12 +269,13 @@ export class BlockModel extends BaseNodeModel {
     this.y = this.oldY = y
   }
 
-  setData({ conditions = [], activeWorkflow = false, isNew = false, ...data }) {
+  setData({ conditions = [], activeWorkflow = false, isNew = false, isMagnetNode = false, ...data }) {
     super.setData(data as any)
 
     this.conditions = conditions
     this.activeWorkflow = activeWorkflow
     this.isNew = isNew
+    this.isMagnetNode = isMagnetNode
     this.nodeType = data.type
     this.prompt = data.prompt
     this.contents = data.contents
