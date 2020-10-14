@@ -1,5 +1,6 @@
 import axios from 'axios'
 import _ from 'lodash'
+import Knex from 'knex'
 import * as sdk from 'botpress/sdk'
 
 import { AgentType, CommentType, EscalationType } from './../types'
@@ -63,13 +64,13 @@ export default class Repository {
     return object
   }
 
-  private applyLimit(query, limit?: number) {
+  private applyLimit(query: Knex.QueryBuilder, limit?: number) {
     if (limit) {
       return query.limit(_.toNumber(limit))
     } else return query
   }
 
-  private applyOrderBy(query, orderByColumn?: string, orderByDirection?: string) {
+  private applyOrderBy(query: Knex.QueryBuilder, orderByColumn?: string, orderByDirection?: string) {
     if (orderByColumn) {
       return query.orderBy(orderByColumn)
     } else if (orderByColumn && orderByDirection) {
@@ -113,7 +114,7 @@ export default class Repository {
 
   // To get the most recent event, we assume the 'Id' column is ordered;
   // thus meaning the highest Id is also the most recent
-  private recentConversationQuery() {
+  private recentConversationQuery(): Knex.QueryBuilder {
     return this.bp
       .database('events')
       .select('*')
@@ -125,7 +126,7 @@ export default class Repository {
       .as('most_recent_event')
   }
 
-  private userEventsQuery() {
+  private userEventsQuery(): Knex.QueryBuilder {
     return this.bp
       .database('escalations')
       .select(
@@ -140,7 +141,7 @@ export default class Repository {
       )
   }
 
-  private agentEventsQuery() {
+  private agentEventsQuery(): Knex.QueryBuilder {
     return this.bp
       .database('escalations')
       .select(
@@ -155,7 +156,7 @@ export default class Repository {
       )
   }
 
-  private escalationsWithCommentsQuery(botId: string, conditions: CollectionConditions = {}) {
+  private escalationsWithCommentsQuery(botId: string, conditions: CollectionConditions = {}): Knex.QueryBuilder {
     const { limit, orderByColumn, orderByDirection } = conditions
 
     return this.bp
@@ -205,60 +206,66 @@ export default class Repository {
   getAgents = async (botId: string, conditions: AgentCollectionConditions = {}): Promise<AgentType[]> => {
     let { online } = conditions
 
-    const applyConditions = data => {
+    const applyConditions = (records: []) => {
       if ('online' in conditions) {
-        return _.filter(data, ['online', online])
+        return _.filter(records, ['online', online]) as AgentType[]
       } else {
-        return data
+        return records
       }
     }
 
-    return this.bp
+    return await this.bp
       .database('workspace_users')
       .then(data => {
-        return Promise.all(
-          data.map(async row => {
-            return {
-              ...row,
-              id: makeAgentId(row.strategy, row.email),
-              online: await this.getAgentOnline(botId, makeAgentId(row.strategy, row.email))
-            }
-          })
-        )
+        return data.map(async row => {
+          return {
+            ...row,
+            id: makeAgentId(row.strategy, row.email),
+            online: await this.getAgentOnline(botId, makeAgentId(row.strategy, row.email))
+          }
+        })
       })
       .then(async agents => {
-        const admins = (await this.bp.config.getBotpressConfig()).superAdmins.map(admin => {
+        const superAdmins = (await this.bp.config.getBotpressConfig()).superAdmins
+        const admins = superAdmins.map(async admin => {
           return {
             ...admin,
             id: makeAgentId(admin.strategy, admin.email),
-            online: this.getAgentOnline(botId, makeAgentId(admin.strategy, admin.email)),
+            online: await this.getAgentOnline(botId, makeAgentId(admin.strategy, admin.email)),
             workspace: 'default'
           }
         })
 
-        return agents.concat(admins)
+        return Promise.all([...agents, ...admins])
       })
       .then(applyConditions)
   }
 
   getEscalations = async (botId: string, conditions: CollectionConditions = {}): Promise<EscalationType[]> => {
-    return this.escalationsWithCommentsQuery(botId, conditions)
-      .then(this.hydrateComments.bind(this))
-      .then(async data => this.hydrateEvents(await this.userEventsQuery(), data, 'userConversation'))
-      .then(async data => this.hydrateEvents(await this.agentEventsQuery(), data, 'agentConversation'))
+    return await this.bp.database
+      .transaction(async trx => {
+        return await this.escalationsWithCommentsQuery(botId, conditions)
+          .transacting(trx)
+          .then(this.hydrateComments.bind(this))
+          .then(async data =>
+            this.hydrateEvents(await this.userEventsQuery().transacting(trx), data, 'userConversation')
+          )
+          .then(async data =>
+            this.hydrateEvents(await this.agentEventsQuery().transacting(trx), data, 'agentConversation')
+          )
+      })
       .then(data => data as EscalationType[])
-
   }
 
   getEscalation = (id: string): Promise<EscalationType> => {
     return this.bp
       .database('escalations')
       .where({ id: id })
-      .first()
-      .then(data => data as EscalationType)
+      .limit(1)
+      .then(data => _.head(data) as EscalationType)
   }
 
-  createEscalation = async (attributes: Partial<EscalationType>): Promise<Partial<EscalationType>> => {
+  createEscalation = async (attributes: Partial<EscalationType>): Promise<EscalationType> => {
     const { botId } = attributes
     const now = new Date()
     const payload = this.castDate(
@@ -270,20 +277,37 @@ export default class Repository {
       ['assignedAt', 'resolvedAt', 'createdAt', 'updatedAt']
     )
 
-    return this.bp
-      .database('escalations')
-      .select(this.bp.database.raw('last_insert_rowid() as id'))
-      .insert(payload)
-      .then(ids => {
-        this.escalationsWithCommentsQuery(botId)
-          .where({ id: _.head(ids) })
-          .first()
-      })
-      .then(data => _.castArray(data))
-      .then(this.hydrateComments.bind(this)) // Note: there won't be any comments yet, but an empty collection is required
-      .then(async data => this.hydrateEvents(await this.userEventsQuery(), data, 'userConversation'))
-      .then(async data => this.hydrateEvents(await this.agentEventsQuery(), data, 'agentConversation'))
-      .then(data => _.head(data) as EscalationType)
+    return await this.bp.database.transaction(async trx => {
+      await trx('escalations').insert(payload)
+
+      const ids = await trx
+        .select(this.bp.database.raw('last_insert_rowid() as id'))
+        .then(result => _.map(result, 'id'))
+
+      return await trx('escalations')
+        .where('botId', botId)
+        .whereIn(['id'], ids as [])
+        .then(this.hydrateComments.bind(this)) // Note: there won't be any comments yet, but an empty collection is required
+        .then(async data =>
+          this.hydrateEvents(
+            await this.userEventsQuery()
+              .whereIn(['escalations.id'], ids as [])
+              .transacting(trx),
+            data,
+            'userConversation'
+          )
+        )
+        .then(async data =>
+          this.hydrateEvents(
+            await this.agentEventsQuery()
+              .whereIn(['escalations.id'], ids as [])
+              .transacting(trx),
+            data,
+            'agentConversation'
+          )
+        )
+        .then(data => _.head(data))
+    })
   }
 
   updateEscalation = async (
@@ -300,20 +324,35 @@ export default class Repository {
       ['assignedAt', 'resolvedAt', 'updatedAt']
     )
 
-    return this.bp
-      .database('escalations')
-      .where({ id: id })
-      .update(payload)
-      .then(() =>
-        this.escalationsWithCommentsQuery(botId)
-          .where({ id: id })
-          .first()
-      )
-      .then(data => _.castArray(data))
-      .then(this.hydrateComments.bind(this))
-      .then(async data => this.hydrateEvents(await this.userEventsQuery(), data, 'userConversation'))
-      .then(async data => this.hydrateEvents(await this.agentEventsQuery(), data, 'agentConversation'))
-      .then(data => _.head(data) as EscalationType)
+    return await this.bp.database.transaction(async trx => {
+      await trx('escalations')
+        .where({ id: id })
+        .update(payload)
+
+      return await this.escalationsWithCommentsQuery(botId)
+        .andWhere('escalations.id', id)
+        .transacting(trx)
+        .then(this.hydrateComments.bind(this))
+        .then(async data =>
+          this.hydrateEvents(
+            await this.userEventsQuery()
+              .andWhere('escalations.id', id)
+              .transacting(trx),
+            data,
+            'userConversation'
+          )
+        )
+        .then(async data =>
+          this.hydrateEvents(
+            await this.agentEventsQuery()
+              .andWhere('escalations.id', id)
+              .transacting(trx),
+            data,
+            'agentConversation'
+          )
+        )
+        .then(data => _.head(data))
+    })
   }
 
   createComment = (attributes: Partial<CommentType>): Promise<CommentType> => {
