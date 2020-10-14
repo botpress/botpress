@@ -1,5 +1,5 @@
 import React from 'react'
-import { Store } from './Store'
+import { Store } from './app/Store'
 import Sidebar from './Sidebar'
 import App from './App'
 

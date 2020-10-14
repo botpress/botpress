@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 
 import { Api } from './Api'
-import { Context } from './Store'
+import { Context } from './app/Store'
 
 import { SocketMessageType } from './../../types'
 

@@ -5,7 +5,7 @@ import moment from 'moment'
 import { ApiType } from '../Api'
 import { EscalationType } from '../../../types'
 
-import { Context } from '../Store'
+import { Context } from '../app/Store'
 
 import { Grid, Row, Col } from 'react-flexbox-grid'
 import { Icon, Button } from '@blueprintjs/core'

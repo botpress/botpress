@@ -1,6 +1,6 @@
 import produce from 'immer'
 import _ from 'lodash'
-import { CommentType, EscalationType, AgentType, SocketMessageType } from '../../types'
+import { CommentType, EscalationType, AgentType, SocketMessageType } from '../../../types'
 import { StateType, AgentsMapType, EscalationsMapType } from './Store'
 
 export type ActionType =

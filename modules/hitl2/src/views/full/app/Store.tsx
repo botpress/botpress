@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, Dispatch } from 'react'
-import { AgentType, EscalationType } from '../../types'
+import { AgentType, EscalationType } from '../../../types'
 import Reducer, { ActionType } from './Reducer'
 
 type StoreType = {

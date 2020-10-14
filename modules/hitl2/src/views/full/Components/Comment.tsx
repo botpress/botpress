@@ -1,7 +1,7 @@
 import React, { FC, useContext } from 'react'
 import moment from 'moment'
 
-import { Context } from '../Store'
+import { Context } from '../app/Store'
 
 import { CommentType } from '../../../types'
 

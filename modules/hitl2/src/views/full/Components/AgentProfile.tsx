@@ -1,6 +1,6 @@
 import React, { FC, useContext } from 'react'
 
-import { Context } from './../Store'
+import { Context } from './../app/Store'
 
 import { ApiType } from './../Api'
 import { AgentType } from './../../../types'

@@ -3,7 +3,7 @@ import React, { FC, useContext, useState, useEffect } from 'react'
 
 import { ApiType } from '../Api'
 
-import { Context, EscalationsMapType } from '../Store'
+import { Context, EscalationsMapType } from '../app/Store'
 
 import { Spinner } from '@blueprintjs/core'
 import { EmptyState, Tabs, lang } from 'botpress/shared'
