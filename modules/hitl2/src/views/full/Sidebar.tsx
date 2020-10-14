@@ -10,8 +10,8 @@ import { Divider, Icon } from '@blueprintjs/core'
 import { MainContent, Tabs, lang, sharedStyle } from 'botpress/shared'
 import Collapsible from '../../../../../src/bp/ui-shared-lite/Collapsible'
 
-import AgentList from './Components/Sidebar/AgentList'
-import EscalationList from './Components/Sidebar/EscalationList'
+import AgentList from './sidebar/components/AgentList'
+import EscalationList from './sidebar/components/EscalationList'
 
 const Sidebar = ({ bp }) => {
   const api = Api(bp)
