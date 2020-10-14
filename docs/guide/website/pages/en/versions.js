@@ -56,7 +56,9 @@ function Versions() {
               </tr>
             </tbody>
           </table>
-          <p>Other text describing this section.</p>
+          <p>
+            Nightly builds are based on this <strong>master</strong> branch
+          </p>
           <h3 id="archive">Past Versions</h3>
           <table className="versions">
             <tbody>
@@ -82,9 +84,7 @@ function Versions() {
             <tbody>
               <tr>
                 <th>10.50</th>
-                <td>
-                  Documentation
-                </td>
+                <td>Documentation</td>
               </tr>
             </tbody>
           </table>
