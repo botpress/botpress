@@ -1,48 +1,12 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import nanoid from 'nanoid/generate'
-import path from 'path'
 
-import { Dic, Item, ItemLegacy } from './qna'
+import { ImportArgs } from './api'
+import { exportQuestionsToArchive, importSingleArchive } from './archive'
+import { Intent, ItemLegacy } from './qna'
+import Storage from './storage'
+import { FLOW_FOLDER, INTENT_FILENAME, makeId, normalizeQuestions, serialize, toQnaFile } from './utils'
 import { ItemSchema } from './validation'
-
-const safeId = (length = 10) => nanoid('1234567890abcdefghijklmnopqrsuvwxyz', length)
-const slugify = s => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '_')
-
-const makeId = (item: Item) => {
-  const firstQuestion = item.questions[Object.keys(item.questions)[0]][0]
-  return `__qna__${safeId()}_${slugify(firstQuestion)
-    .replace(/^_+/, '')
-    .substring(0, 50)
-    .replace(/_+$/, '')}`
-}
-
-const normalizeQuestions = (questions: string[]) =>
-  questions
-    .map(q =>
-      q
-        .replace(/[\r\n]+/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim()
-    )
-    .filter(Boolean)
-
-interface Metadata {
-  answers: Dic<string[]>
-  contentAnswers: sdk.Content.All[]
-  enabled: boolean
-  lastModifiedOn: Date
-}
-
-type Intent = Omit<sdk.NLU.IntentDefinition, 'metadata'> & { metadata?: Metadata }
-
-const FLOW_FOLDER = 'flows'
-
-const INTENT_FILENAME = 'qna.intents.json'
-
-const toQnaFile = topicName => path.join(topicName, INTENT_FILENAME)
-
-const serialize = (intents: Intent[]) => JSON.stringify(intents, undefined, 2)
 
 const itemToIntent = (item: ItemLegacy, topicName: string): Intent => {
   return {
@@ -179,17 +143,21 @@ export default class StorageLegacy {
   }
 
   async moveToAnotherTopic(sourceTopic: string, targetTopic: string) {
-    const sourceQnaFile = toQnaFile(sourceTopic)
-    const targetQnaFile = toQnaFile(targetTopic)
+    const storage = new Storage(this.ghost)
+    return storage.moveToAnotherTopic(sourceTopic, targetTopic)
+  }
 
-    if (!(await this.ghost.fileExists(FLOW_FOLDER, sourceQnaFile))) {
-      return
-    }
+  async exportPerTopic(topicName: string) {
+    const files = await this.ghost.directoryListing(FLOW_FOLDER, '**/qna.intents.json')
 
-    const itemsBuff = await this.ghost.readFileAsBuffer(FLOW_FOLDER, sourceQnaFile)
-    return Promise.all([
-      this.ghost.upsertFile(FLOW_FOLDER, targetQnaFile, itemsBuff),
-      this.ghost.deleteFile(FLOW_FOLDER, sourceQnaFile)
-    ])
+    const allIntents = await Promise.mapSeries(files, filename =>
+      this.ghost.readFileAsObject<Intent[]>(FLOW_FOLDER, filename)
+    )
+
+    return exportQuestionsToArchive(_.flatten(allIntents), 'questions', this.ghost)
+  }
+
+  async importArchivePerTopic(importArgs: ImportArgs) {
+    return importSingleArchive({ ...importArgs, topicName: undefined }, this.ghost)
   }
 }

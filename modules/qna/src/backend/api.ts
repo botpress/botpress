@@ -122,12 +122,14 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
     '/:topicName/export',
     asyncMiddleware(async (req: Request, res: Response) => {
       const { storage } = bots[req.params.botId]
+      const topicName = req.params.topicName === 'undefined' ? 'questions' : req.params.topicName
+
       res.setHeader('Content-Type', 'application/gzip')
       res.setHeader(
         'Content-disposition',
-        `attachment; filename=qna_${req.params.topicName}_${moment().format('DD-MM-YYYY')}.tar.gz`
+        `attachment; filename=qna_${topicName}_${moment().format('DD-MM-YYYY')}.tar.gz`
       )
-      const zipBuffer = await storage.exportPerTopic(req.params.topicName)
+      const zipBuffer = await storage.exportPerTopic(topicName)
       res.send(zipBuffer)
     })
   )

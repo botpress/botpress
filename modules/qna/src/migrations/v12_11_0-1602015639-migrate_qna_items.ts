@@ -20,7 +20,6 @@ const migration: sdk.ModuleMigration = {
       const files = await bpfs.directoryListing(QNA_FOLDER, '*.json')
 
       const qnaByContext = {}
-      const allQnas = []
 
       for (const file of files) {
         const qna = (await bpfs.readFileAsObject(QNA_FOLDER, file)) as any
@@ -39,8 +38,6 @@ const migration: sdk.ModuleMigration = {
             lastModifiedOn: new Date()
           }
         }
-
-        allQnas.push(fixedEntry)
 
         if (qnaByContext[firstContext]) {
           qnaByContext[firstContext].push(fixedEntry)

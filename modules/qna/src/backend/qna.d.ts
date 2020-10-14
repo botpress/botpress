@@ -33,3 +33,12 @@ export type ItemLegacy = Item & {
   action: string
   location?: string
 }
+
+export interface Metadata {
+  answers: Dic<string[]>
+  contentAnswers: sdk.Content.All[]
+  enabled: boolean
+  lastModifiedOn: Date
+}
+
+export type Intent = Omit<sdk.NLU.IntentDefinition, 'metadata'> & { metadata?: Metadata }
