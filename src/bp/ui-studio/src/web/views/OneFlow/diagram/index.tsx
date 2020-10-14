@@ -10,6 +10,7 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
+import { throws } from 'assert'
 import { FlowVariable, IO } from 'botpress/sdk'
 import { Contents, contextMenu, EmptyState, Icons, lang, MainContent, sharedStyle, toast } from 'botpress/shared'
 import cx from 'classnames'
@@ -153,6 +154,7 @@ class Diagram extends Component<Props> {
       getCurrentFlow: () => this.getPropsProperty('currentFlow'),
       updateFlowNode: this.updateNodeAndRefresh.bind(this),
       switchFlowNode: this.switchFlowNode.bind(this),
+      handlePortClick: (e, node) => this.handleContextMenuNoElement(e, node),
       getLanguage: () => ({
         currentLang: this.getPropsProperty('currentLang'),
         defaultLang: this.getPropsProperty('defaultLang')
@@ -376,6 +378,7 @@ class Diagram extends Component<Props> {
 
     if (!sourcePort.in) {
       const sourcePortIndex = Number(sourcePort.name.replace('out', ''))
+
       await this.updateTransitionNode(sourcePort.parent.id, sourcePortIndex, this.props.currentFlowNode.name)
     } else {
       await this.updateTransitionNode(this.props.currentFlowNode.id, 0, sourcePort.parent['name'])
@@ -417,20 +420,29 @@ class Diagram extends Component<Props> {
       })
     },
     executeNode: (point: Point, moreProps) =>
-      this.props.createFlowNode({ ...point, type: 'execute', next: [defaultTransition], ...moreProps, isNew: true }),
-    routerNode: (point: Point) =>
       this.props.createFlowNode({
         ...point,
+        type: 'execute',
+        next: [defaultTransition],
+        ...moreProps,
+        isNew: true
+      }),
+    routerNode: (point: Point, isMagnetNode?: boolean) =>
+      this.props.createFlowNode({
+        ...point,
+        isMagnetNode,
         type: 'router',
         next: [
           { condition: '', node: '' },
           { condition: 'true', node: '' }
         ]
       }),
-    actionNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'action' }),
-    promptNode: (point: Point, promptType: string, subType?: string) => {
+    actionNode: (point: Point, isMagnetNode?: boolean) =>
+      this.props.createFlowNode({ ...point, isMagnetNode, type: 'action' }),
+    promptNode: (point: Point, promptType: string, subType?: string, isMagnetNode?: boolean) => {
       this.props.createFlowNode({
         ...point,
+        isMagnetNode,
         type: 'prompt',
         isNew: true,
         prompt: {
@@ -460,24 +472,25 @@ class Diagram extends Component<Props> {
         ]
       })
     },
-    successNode: (point: Point) => {
-      this.props.createFlowNode({ ...point, type: 'success' })
+    successNode: (point: Point, isMagnetNode?: boolean) => {
+      this.props.createFlowNode({ ...point, isMagnetNode, type: 'success' })
       this.props.refreshCallerFlows()
     },
-    failureNode: (point: Point) => {
-      this.props.createFlowNode({ ...point, type: 'failure' })
+    failureNode: (point: Point, isMagnetNode?: boolean) => {
+      this.props.createFlowNode({ ...point, isMagnetNode, type: 'failure' })
       this.props.refreshCallerFlows()
     },
-    gotoSubWorkflow: (point: Point, flowName: string) => {
-      this.props.createFlowNode({ ...point, type: 'sub-workflow', flow: flowName })
+    gotoSubWorkflow: (point: Point, flowName: string, isMagnetNode?: boolean) => {
+      this.props.createFlowNode({ ...point, isMagnetNode, type: 'sub-workflow', flow: flowName })
       this.props.refreshCallerFlows(flowName)
       this.props.updateFlowNode({ isNew: false })
     }
   }
 
-  handleContextMenuNoElement = (event: React.MouseEvent) => {
+  handleContextMenuNoElement = async (event: React.MouseEvent, parentNode?: BlockModel) => {
     const point = this.manager.getRealPosition(event)
-    const originatesFromOutPort = _.get(this.dragPortSource, 'parent.sourcePort.name', '').startsWith('out')
+    const originatesFromOutPort =
+      _.get(this.dragPortSource, 'parent.sourcePort.name', '').startsWith('out') || parentNode
 
     // When no element is chosen from the context menu, we reset the start port so it doesn't impact the next selected node
     let clearStartPortOnClose = true
@@ -488,6 +501,9 @@ class Diagram extends Component<Props> {
     }
 
     const hasSubFlows = !!this.props.reusableFlows?.length
+    if (parentNode) {
+      this.dragPortSource = { parent: { sourcePort: { name: 'out0', parent: { ...parentNode } } } }
+    }
 
     contextMenu(
       event,
@@ -502,7 +518,7 @@ class Diagram extends Component<Props> {
         <MenuItem
           className={menuStyle.sayNodeContextMenu}
           text={lang.tr('say')}
-          onClick={wrap(this.add.say, point)}
+          onClick={wrap(this.add.say, point, { isMagnetNode: !!parentNode })}
           icon={<Icons.Say />}
         />
         <MenuItem tagName="span" text={lang.tr('prompt')} icon="citation">
@@ -511,25 +527,32 @@ class Diagram extends Component<Props> {
               key={`${type}-${subType}`}
               text={lang.tr(label)}
               tagName="button"
-              onClick={wrap(this.add.promptNode, point, type, subType)}
+              onClick={wrap(this.add.promptNode, point, type, subType, !!parentNode)}
               icon={icon as any}
             />
           ))}
         </MenuItem>
-        <MenuItem text={lang.tr('execute')} onClick={wrap(this.add.executeNode, point)} icon="code" />
-        <MenuItem text={lang.tr('ifElse')} onClick={wrap(this.add.routerNode, point)} icon="fork" />
-        <MenuItem text={lang.tr('action')} onClick={wrap(this.add.actionNode, point)} icon="offline" />
+        <MenuItem
+          text={lang.tr('execute')}
+          onClick={wrap(this.add.executeNode, point, { isMagnetNode: !!parentNode })}
+          icon="code"
+        />
+        <MenuItem text={lang.tr('ifElse')} onClick={wrap(this.add.routerNode, point, !!parentNode)} icon="fork" />
+        <MenuItem text={lang.tr('action')} onClick={wrap(this.add.actionNode, point, !!parentNode)} icon="offline" />
 
         {this.props.currentFlow?.type === 'reusable' && (
           <MenuItem text="Outcome" icon="take-action">
-            <MenuItem text="Success" onClick={wrap(this.add.successNode, point)} icon="tick" />
-            <MenuItem text="Failure" onClick={wrap(this.add.failureNode, point)} icon="cross" />
+            <MenuItem text="Success" onClick={wrap(this.add.successNode, point, !!parentNode)} icon="tick" />
+            <MenuItem text="Failure" onClick={wrap(this.add.failureNode, point, !!parentNode)} icon="cross" />
           </MenuItem>
         )}
 
         <MenuItem text="Go to Reusable Workflow" icon="pivot" disabled={!hasSubFlows}>
           {this.props.reusableFlows?.map(flow => (
-            <MenuItem text={flow.workflow} onClick={wrap(this.add.gotoSubWorkflow, point, flow.workflowPath)} />
+            <MenuItem
+              text={flow.workflow}
+              onClick={wrap(this.add.gotoSubWorkflow, point, flow.workflowPath, !!parentNode)}
+            />
           ))}
         </MenuItem>
       </Menu>,
@@ -551,6 +574,7 @@ class Diagram extends Component<Props> {
 
     const target = this.diagramWidget.getMouseElement(event)
     if (!target && !this.props.readOnly) {
+      // tslint:disable-next-line: no-floating-promises
       this.handleContextMenuNoElement(event)
       return
     }

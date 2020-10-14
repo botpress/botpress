@@ -28,6 +28,7 @@ import SkillsBuilder from '../FlowBuilder/skills'
 import style from '../FlowBuilder/style.scss'
 
 import Diagram from './diagram'
+import { BlockModel } from './diagram/nodes/Block'
 import SidePanel from './sidePanel'
 
 const CMS_LANG_KEY = `bp::${window.BOT_ID}::cmsLanguage`

@@ -1511,6 +1511,7 @@ declare module 'botpress/sdk' {
     /** The name used by the dialog engine to link to other nodes */
     name: string
     type?: FlowNodeType
+    isMagnetNode?: boolean
     timeoutNode?: string
     flow?: string
     prompt?: PromptNode

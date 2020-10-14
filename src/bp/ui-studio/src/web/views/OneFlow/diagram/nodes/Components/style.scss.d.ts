@@ -26,6 +26,7 @@ interface CssExports {
   'nodeWrapper': string;
   'out': string;
   'outRouting': string;
+  'portBtn': string;
   'prompt': string;
   'promptPortContent': string;
   'readOnly': string;

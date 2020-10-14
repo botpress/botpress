@@ -52,6 +52,34 @@
   cursor: grabbing;
 }
 
+:global(.port).portBtn {
+  &:after {
+    background: var(--say);
+    border-radius: 3px;
+    content: '+';
+    left: 50%;
+    opacity: 0;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 15px;
+    padding: 2px 5px 1px;
+    color: var(--shark);
+    line-height: 1;
+    transition: opacity 0.3s;
+    cursor: pointer;
+  }
+
+  &:hover {
+    &:before {
+      opacity: 0;
+    }
+    &:after {
+      opacity: 1;
+    }
+  }
+}
+
 .nodeWrapper {
   background: #fff;
   border: 1px solid transparent !important;
@@ -71,13 +99,16 @@
     .failure,
     .router,
     .success {
-      :global(.port):before {
-        background: var(--ocean);
+      :global(.port):before,
+      :global(.port).portBtn:after {
+        background: var(--ocean) !important;
       }
     }
 
     .outRouting:before,
-    .outRouting.say_something:before {
+    .outRouting.say_something:before,
+    .outRouting:after,
+    .outRouting.say_something:after {
       background-color: var(--ocean) !important;
     }
 
@@ -115,33 +146,41 @@
     }
   }
 
+  .prompt :global(.port).portBtn:after,
   .prompt :global(.port):before {
-    background: var(--prompt);
+    background: var(--prompt) !important;
   }
 
+  .trigger :global(.port).portBtn:after,
   .trigger :global(.port):before {
-    background: var(--trigger);
+    background: var(--trigger) !important;
   }
 
+  .execute :global(.port).portBtn:after,
   .execute :global(.port):before,
+  .action :global(.port).portBtn:after,
   .action :global(.port):before {
-    background: var(--execute);
+    background: var(--execute) !important;
   }
 
+  .failure :global(.port).portBtn:after,
   .failure :global(.port):before {
-    background: var(--lighthouse);
+    background: var(--lighthouse) !important;
   }
 
+  .router :global(.port).portBtn:after,
   .router :global(.port):before {
-    background: var(--if-else);
+    background: var(--if-else) !important;
   }
 
+  .success :global(.port).portBtn:after,
   .success :global(.port):before {
-    background: var(--success);
+    background: var(--success) !important;
   }
 
+  .prompt :global(.port).portBtn:after,
   .prompt :global(.port):before {
-    background: var(--prompt);
+    background: var(--prompt) !important;
   }
 
   :global {

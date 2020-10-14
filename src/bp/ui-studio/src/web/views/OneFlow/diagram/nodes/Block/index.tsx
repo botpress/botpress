@@ -7,7 +7,6 @@ import { FlowView } from 'common/typings'
 import React, { FC } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
 import { BaseNodeModel } from '~/views/FlowBuilder/diagram/nodes/BaseNodeModel'
-import { StandardPortWidget } from '~/views/FlowBuilder/diagram/nodes/Ports'
 
 import { NodeDebugInfo } from '../../debugger'
 import ActionContents from '../ActionContents'
@@ -15,6 +14,7 @@ import style from '../Components/style.scss'
 import NodeHeader from '../Components/NodeHeader'
 import NodeWrapper from '../Components/NodeWrapper'
 import ExecuteContents from '../ExecuteContents'
+import { StandardPortWidget } from '../Ports'
 import PromptContents from '../PromptContents'
 import RouterContents from '../RouterContents'
 import SaySomethingContents from '../SaySomethingContents'
@@ -24,6 +24,7 @@ import TriggerContents from '../TriggerContents'
 interface Props {
   node: BlockModel
   getCurrentFlow: () => FlowView
+  handlePortClick: (e: React.MouseEvent, node: BlockModel) => void
   onDeleteSelectedElements: () => void
   editNodeItem: (node: BlockModel, index: number) => void
   selectedNodeItem: () => { node: BlockModel; index: number }
@@ -53,6 +54,7 @@ const defaultLabels = {
 const BlockWidget: FC<Props> = ({
   node,
   getCurrentFlow,
+  handlePortClick,
   editNodeItem,
   onDeleteSelectedElements,
   selectedNodeItem,
@@ -194,7 +196,14 @@ const BlockWidget: FC<Props> = ({
         nodeType={nodeType}
       >
         <StandardPortWidget hidden={!inputPortInHeader} name="in" node={node} className={style.in} />
-        {outPortInHeader && <StandardPortWidget name="out0" node={node} className={style.out} />}
+        {outPortInHeader && (
+          <StandardPortWidget
+            name="out0"
+            node={node}
+            className={cx(style.out, style.portBtn)}
+            simplePortClick={e => handlePortClick(e, node)}
+          />
+        )}
       </NodeHeader>
       {(!canCollapse || expanded) && renderContents()}
     </NodeWrapper>
@@ -278,6 +287,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
   private selectedNodeItem: () => { node: BlockModel; index: number }
   private deleteSelectedElements: () => void
   private getConditions: () => DecisionTriggerCondition[]
+  private handlePortClick: (e: React.MouseEvent, node: BlockModel) => void
   private getCurrentFlow: () => FlowView
   private switchFlowNode: (id: string) => void
   private addCondition: (nodeType: string) => void
@@ -294,6 +304,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
     this.editNodeItem = methods.editNodeItem
     this.selectedNodeItem = methods.selectedNodeItem
     this.deleteSelectedElements = methods.deleteSelectedElements
+    this.handlePortClick = methods.handlePortClick
     this.getCurrentFlow = methods.getCurrentFlow
     this.getConditions = methods.getConditions
     this.switchFlowNode = methods.switchFlowNode
@@ -310,6 +321,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
     return (
       <BlockWidget
         node={node}
+        handlePortClick={this.handlePortClick}
         getCurrentFlow={this.getCurrentFlow}
         getLanguage={this.getLanguage}
         editNodeItem={this.editNodeItem}
