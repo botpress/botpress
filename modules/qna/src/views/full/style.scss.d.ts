@@ -19,6 +19,7 @@ interface CssExports {
   'items': string;
   'left': string;
   'loading': string;
+  'qnaId': string;
   'questionHeader': string;
   'questionWrapper': string;
   'redirectTitle': string;
