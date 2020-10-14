@@ -2,7 +2,7 @@ import _ from 'lodash'
 import React, { FC } from 'react'
 
 import { EscalationType } from '../../../../types'
-import { EscalationsMapType } from '../../Store'
+import { EscalationsMapType } from '../../sidebar/Store'
 
 import { Spinner } from '@blueprintjs/core'
 import CasesIcon from './../../Icons/CasesIcon'

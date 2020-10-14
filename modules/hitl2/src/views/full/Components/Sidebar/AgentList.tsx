@@ -2,7 +2,7 @@ import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
 import { AgentType } from '../../../../types'
-import { AgentsMapType } from '../../Store'
+import { AgentsMapType } from '../../sidebar/Store'
 
 import { Spinner } from '@blueprintjs/core'
 import { EmptyState, lang } from 'botpress/shared'

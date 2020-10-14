@@ -1,9 +1,9 @@
 import _ from 'lodash'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 
 import { Api } from './Api'
+import { Store, Context } from './sidebar/Store'
 
-import { EscalationsMapType, AgentsMapType } from './Store'
 import { SocketMessageType } from './../../types'
 
 import { Divider, Icon } from '@blueprintjs/core'
@@ -16,8 +16,8 @@ import EscalationList from './Components/Sidebar/EscalationList'
 const Sidebar = ({ bp }) => {
   const api = Api(bp)
 
-  const [agents, setAgents] = useState({} as AgentsMapType)
-  const [escalations, setEscalations] = useState({} as EscalationsMapType)
+  const { state, dispatch } = useContext(Context)
+
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState({ agents: true, escalations: true })
 
@@ -25,41 +25,29 @@ const Sidebar = ({ bp }) => {
     console.log('handleMessage')
     switch (message.resource) {
       case 'agent':
-        setAgents({
-          ...agents,
-          [message.id]: {
-            ...agents[message.id],
-            ...message.payload
-          }
-        } as AgentsMapType)
-        return
+        return dispatch({ type: 'setAgent', payload: message })
       case 'escalation':
-        setEscalations({
-          ...escalations,
-          [message.id]: {
-            ...escalations[message.id],
-            ...message.payload
-          }
-        } as EscalationsMapType)
-        return
+        return dispatch({ type: 'setEscalation', payload: message })
       default:
-        throw new Error('Invalid websocket message type')
+        throw new Error('Invalid websocket message resource')
     }
   }
 
   async function getEscalations() {
     try {
       const data = await api.getEscalations('escalations.createdAt', 'asc', 5)
-      setEscalations(_.keyBy(data, 'id'))
+      dispatch({ type: 'setEscalations', payload: data })
     } catch (error) {
+      dispatch({ type: 'setError', payload: error })
     }
   }
 
   async function getAgents() {
     try {
       const data = await api.getAgents(true)
-      setAgents(_.keyBy(data, 'id'))
+      dispatch({ type: 'setAgents', payload: data })
     } catch (error) {
+      dispatch({ type: 'setError', payload: error })
     }
   }
 
@@ -97,7 +85,7 @@ const Sidebar = ({ bp }) => {
             toggleExpand={() => setExpanded({ ...expanded, escalations: !expanded.escalations })}
             name={lang.tr('module.hitl2.sidebar.escalations.heading')}
           >
-            <EscalationList escalations={escalations} loading={loading}></EscalationList>
+            <EscalationList escalations={state.escalations} loading={loading}></EscalationList>
           </Collapsible>
         </div>
 
@@ -107,7 +95,7 @@ const Sidebar = ({ bp }) => {
             toggleExpand={() => setExpanded({ ...expanded, agents: !expanded.agents })}
             name={lang.tr('module.hitl2.sidebar.agents.heading')}
           >
-            <AgentList agents={agents} loading={loading}></AgentList>
+            <AgentList agents={state.agents} loading={loading}></AgentList>
           </Collapsible>
         </div>
 
@@ -123,4 +111,10 @@ const Sidebar = ({ bp }) => {
   )
 }
 
-export default Sidebar
+export default ({ bp }) => {
+  return (
+    <Store>
+      <Sidebar bp={bp} />
+    </Store>
+  )
+}
