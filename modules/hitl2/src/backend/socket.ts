@@ -1,15 +1,9 @@
 import * as sdk from 'botpress/sdk'
-
-interface MessageType {
-  payload: {}
-  resource: string
-  type: string
-  id: string
-}
+import { SocketMessageType } from '../types'
 
 export default (bp: typeof sdk) => {
   return {
-    send: (message: MessageType) => {
+    send: (message: SocketMessageType) => {
       bp.realtime.sendPayload(new bp.RealTimePayload('hitl2', message))
     }
   }
