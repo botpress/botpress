@@ -238,15 +238,17 @@ const TrainIntentClassifier = async (
   const customEntities = getCustomEntitiesNames(input)
   const svmPerCtx: _.Dictionary<string> = {}
 
-  const noneUtts = _.chain(input.intents)
-    .filter(i => i.name === NONE_INTENT) // in case use defines a none intent we want to combine utterances
-    .flatMap(i => i.utterances)
-    .filter(u => u.tokens.filter(t => t.isWord).length >= 3)
-    .value()
-
   const lo = tools.seededLodashProvider.getSeededLodash()
   for (let i = 0; i < input.ctxToTrain.length; i++) {
     const ctx = input.ctxToTrain[i]
+
+    const noneUtts = _.chain(input.intents)
+      .filter(i => i.name === NONE_INTENT) // in case use defines a none intent we want to combine utterances
+      .filter(i => i.contexts.includes(ctx))
+      .flatMap(i => i.utterances)
+      .filter(u => u.tokens.filter(t => t.isWord).length >= 3)
+      .value()
+
     const trainableIntents = input.intents.filter(
       i => i.name !== NONE_INTENT && i.contexts.includes(ctx) && i.utterances.length >= MIN_NB_UTTERANCES
     )
