@@ -18,7 +18,7 @@ const AgentStatus = ({ bp }) => {
       case 'agent':
         return dispatch({ type: 'setAgent', payload: message })
       default:
-        throw new Error('Invalid websocket message resource')
+        return
     }
   }
 

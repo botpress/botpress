@@ -29,7 +29,7 @@ const Sidebar = ({ bp }) => {
       case 'escalation':
         return dispatch({ type: 'setEscalation', payload: message })
       default:
-        throw new Error('Invalid websocket message resource')
+        return
     }
   }
 
