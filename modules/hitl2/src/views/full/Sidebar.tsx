@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import React, { useContext, useEffect, useState } from 'react'
 
-import { Api } from './Api'
+import { Api, castEscalation } from './Api'
 import { Store, Context } from './sidebar/Store'
 
 import { SocketMessageType } from './../../types'
@@ -27,7 +27,13 @@ const Sidebar = ({ bp }) => {
       case 'agent':
         return dispatch({ type: 'setAgent', payload: message })
       case 'escalation':
-        return dispatch({ type: 'setEscalation', payload: message })
+        return dispatch({
+          type: 'setEscalation',
+          payload: _.thru(message, () => {
+            message.payload = castEscalation(message.payload)
+            return message
+          })
+        })
       default:
         return
     }

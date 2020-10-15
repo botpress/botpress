@@ -3,22 +3,20 @@ import { AxiosInstance } from 'axios'
 import moment from 'moment'
 import { AgentType, CommentType, EscalationType } from '../../types'
 
-function castDate(object: any, paths: string[]) {
+export function castDate(object: any, paths: string[]) {
   paths.map(path => {
     _.get(object, path, false) && _.set(object, path, moment(_.get(object, path)).toDate())
   })
   return object
 }
 
-function castEscalations(data) {
-  return data.map(item =>
-    _.thru(
-      castDate(item, ['createdAt', 'updatedAt', 'assignedAt', 'resolvedAt', 'userConversation.createdOn']),
-      casted => {
-        casted.comments = _.castArray(casted.comments).map(comment => castDate(comment, ['createdAt', 'updatedAt']))
-        return casted
-      }
-    )
+export function castEscalation(item) {
+  return _.thru(
+    castDate(item, ['createdAt', 'updatedAt', 'assignedAt', 'resolvedAt', 'userConversation.createdOn']),
+    casted => {
+      casted.comments = _.castArray(casted.comments).map(comment => castDate(comment, ['createdAt', 'updatedAt']))
+      return casted
+    }
   )
 }
 
@@ -63,16 +61,16 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
           }
         })
         .then(res => res.data)
-        .then(castEscalations),
+        .then(data => data.map(castEscalation)),
     assignEscalation: async id =>
       bp.axios
         .post(`${base}/escalations/${id}/assign`)
         .then(res => res.data)
-        .then(castEscalations),
+        .then(data => data.map(castEscalation)),
     resolveEscalation: async id =>
       bp.axios
         .post(`${base}/escalations/${id}/resolve`)
         .then(res => res.data)
-        .then(castEscalations)
+        .then(data => data.map(castEscalation))
   }
 }

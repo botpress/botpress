@@ -18,7 +18,7 @@ const AgentList: FC<Props> = props => {
   const [items, setItems] = useState([])
 
   useEffect(() => {
-    setItems(_.filter(props.agents, ['online', true]))
+    setItems(_.filter(_.values(props.agents), ['online', true]))
   }, [props.agents])
 
   return (

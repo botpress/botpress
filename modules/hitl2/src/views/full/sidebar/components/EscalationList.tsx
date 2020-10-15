@@ -19,7 +19,7 @@ const EscalationList: FC<Props> = props => {
   const [items, setItems] = useState([])
 
   useEffect(() => {
-    setItems(_.slice(_.orderBy(props.escalations, 'createdAt', 'desc'), 0, props.itemCount))
+    setItems(_.slice(_.orderBy(_.values(props.escalations), 'createdAt', 'desc'), 0, props.itemCount))
   }, [props.escalations])
 
   return (
