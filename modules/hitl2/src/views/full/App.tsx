@@ -6,8 +6,8 @@ import { Context } from './app/Store'
 
 import { SocketMessageType } from './../../types'
 
-import { toast } from 'botpress/shared'
 import { Grid, Row, Col } from 'react-flexbox-grid'
+import { lang, toast } from 'botpress/shared'
 
 import AgentProfile from './Components/AgentProfile'
 import Conversation from './Components/Conversation'
@@ -67,6 +67,23 @@ const App = ({ bp }) => {
     }
   }
 
+  async function toggleOnline(online: boolean) {
+    try {
+      let agent
+      if (online) {
+        agent = await api.setOnline()
+      } else {
+        agent = await api.setOffline()
+      }
+      dispatch({ type: 'setCurrentAgent', payload: agent }) // optimistic update, will also be updated via websocket event
+      online
+        ? toast.success(lang.tr('module.hitl2.agent.onlineSuccess'))
+        : toast.success(lang.tr('module.hitl2.agent.offlineSuccess'))
+    } catch (error) {
+      dispatch({ type: 'setError', payload: error })
+    }
+  }
+
   useEffect(() => {
     Promise.all([getCurrentAgent(), getAgents(), getEscalations()]).then(() => {
       setLoading(false)
@@ -91,7 +108,9 @@ const App = ({ bp }) => {
   return (
     <Grid>
       <Row>
-        <Col>{state.currentAgent ? <AgentProfile api={api} {...state.currentAgent}></AgentProfile> : null}</Col>
+        <Col>
+          <AgentProfile toggleOnline={toggleOnline} loading={loading} {...state.currentAgent}></AgentProfile>
+        </Col>
         <Col></Col>
       </Row>
       <Row>
