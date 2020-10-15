@@ -14,10 +14,14 @@ export function castEscalation(item) {
   return _.thru(
     castDate(item, ['createdAt', 'updatedAt', 'assignedAt', 'resolvedAt', 'userConversation.createdOn']),
     casted => {
-      casted.comments = _.castArray(casted.comments).map(comment => castDate(comment, ['createdAt', 'updatedAt']))
+      casted.comments = _.castArray(casted.comments).map(comment => castComment(comment))
       return casted
     }
   )
+}
+
+export function castComment(item) {
+  return castDate(item, ['createdAt', 'updatedAt'])
 }
 
 export interface ApiType {
@@ -45,12 +49,12 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
       bp.axios
         .get(`${base}/escalations/${id}/comments`)
         .then(res => res.data)
-        .then(data => data.map(item => castDate(item, ['createdAt', 'updatedAt']))),
+        .then(data => data.map(item => castComment(item))),
     createComment: async (id, payload) =>
       bp.axios
         .post(`${base}/escalations/${id}/comments`, payload)
         .then(res => res.data)
-        .then(data => castDate(data, ['createdAt', 'updatedAt'])),
+        .then(data => data.map(item => castComment(item))),
     getEscalations: async (orderByColumn?: string, orderByDirection?: string, limit?: number) =>
       bp.axios
         .get(`${base}/escalations`, {
