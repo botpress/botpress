@@ -265,12 +265,12 @@ export default class Repository {
       .then(data => _.head(data) as EscalationType)
   }
 
-  createEscalation = async (attributes: Partial<EscalationType>): Promise<EscalationType> => {
-    const { botId } = attributes
+  createEscalation = async (botId: string, attributes: Partial<EscalationType>): Promise<EscalationType> => {
     const now = new Date()
     const payload = this.castDate(
       {
         ...attributes,
+        botId: botId,
         createdAt: now,
         updatedAt: now
       },

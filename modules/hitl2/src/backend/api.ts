@@ -125,13 +125,12 @@ export default async (bp: typeof sdk, state) => {
     '/escalations',
     hitlMiddleware(async (req: Request, res: Response) => {
       const payload = Object.assign(req.body, {
-        botId: req.params.botId,
         status: 'pending'
       })
 
       Joi.attempt(payload, CreateEscalationSchema)
 
-      const escalation = await repository.createEscalation(payload)
+      const escalation = await repository.createEscalation(req.params.botId, payload)
 
       realtime.send({
         resource: 'escalation',

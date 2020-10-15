@@ -8,7 +8,6 @@ export const CreateCommentSchema = Joi.object({
 })
 
 export const CreateEscalationSchema = Joi.object({
-  botId: Joi.string().required(),
   status: Joi.string()
     .required()
     .valid('pending'),
