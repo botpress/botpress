@@ -2,7 +2,6 @@ import React, { FC } from 'react'
 
 import { CommentType } from '../../../types'
 
-import { Divider } from '@blueprintjs/core'
 import { EmptyState, lang } from 'botpress/shared'
 import Comment from './Comment'
 

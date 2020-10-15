@@ -22,7 +22,6 @@ const Sidebar = ({ bp, close }) => {
   const [expanded, setExpanded] = useState({ agents: true, escalations: true })
 
   function handleMessage(message: SocketMessageType) {
-    console.log('handleMessage')
     switch (message.resource) {
       case 'agent':
         return dispatch({ type: 'setAgent', payload: message })
@@ -68,9 +67,6 @@ const Sidebar = ({ bp, close }) => {
     return () => bp.events.off('hitl2', handleMessage)
   }, [])
 
-  console.log('agents', agents)
-  console.log('escalations', escalations)
-
   return (
     <MainContent.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose close={() => close()}>
       <div className={sharedStyle.formHeader}>
@@ -105,10 +101,10 @@ const Sidebar = ({ bp, close }) => {
           </Collapsible>
         </div>
 
-        <div style={{ marginTop: 'auto', paddingBottom: '20px' }}>
-          <Divider style={{ marginBottom: '10px' }}></Divider>
+        <div style={{ marginTop: 'auto', paddingBottom: 20 }}>
+          <Divider style={{ marginBottom: 10 }}></Divider>
           <a href={hitlPath}>
-            <Icon icon="headset" style={{ marginRight: '10px' }}></Icon>
+            <Icon icon="headset" style={{ marginRight: 10 }}></Icon>
             {lang.tr('module.hitl2.sidebar.access')}
           </a>
         </div>

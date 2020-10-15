@@ -13,8 +13,6 @@ import AgentProfile from './Components/AgentProfile'
 import Conversation from './Components/Conversation'
 import EscalationList from './Components/EscalationList'
 
-import style from './style.scss'
-
 const App = ({ bp }) => {
   const api = Api(bp)
 
@@ -23,7 +21,6 @@ const App = ({ bp }) => {
   const [loading, setLoading] = useState(true)
 
   function handleMessage(message: SocketMessageType) {
-    console.log('handleMessage')
     switch (message.resource) {
       case 'agent':
         return dispatch({ type: 'setAgent', payload: message })

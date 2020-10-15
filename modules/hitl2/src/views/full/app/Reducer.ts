@@ -59,7 +59,6 @@ const Reducer = (state: StateType, action: ActionType): StateType => {
       })
     case 'setEscalation':
       return produce(state, draft => {
-        console.log('setEscalation', action.payload.payload)
         draft.escalations = {
           ...draft.escalations,
           [action.payload.id]: {

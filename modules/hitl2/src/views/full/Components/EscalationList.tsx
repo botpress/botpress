@@ -42,8 +42,6 @@ const EscalationList: FC<Props> = props => {
   }
 
   function orderConditions() {
-    console.log('sortOption', sortOption)
-
     switch (sortOption) {
       case 'mostRecent':
         return [['createdAt'], ['desc']]

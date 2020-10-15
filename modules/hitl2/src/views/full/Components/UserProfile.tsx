@@ -16,7 +16,7 @@ interface Props {
 const UserProfile: FC<Props> = props => {
   const [expanded, setExpanded] = useState(true)
   const [userNames, setUserNames] = useState({})
-  const [haiku, sethaiku] = useState(() => {
+  const [haiku] = useState(() => {
     return new Haikunator({ defaults: { tokenLength: 0 } })
   })
 
