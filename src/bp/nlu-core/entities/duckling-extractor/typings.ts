@@ -32,6 +32,8 @@ type DucklingValueInfo<D extends DucklingDimension, T extends DucklingType> = D 
   ? { normalized: ValueUnit }
   : D extends 'time'
   ? DucklingTimeValue<T>
+  : D extends 'number'
+  ? Value
   : ValueUnit
 
 // Not sure yet, but I feel like if property `values` is defined, then root properties are also...
@@ -44,12 +46,14 @@ export interface TimeInterval {
   to: ValueGrain
 }
 
-export interface ValueGrain {
-  value: string
+export type ValueGrain = Value & {
   grain: string
 }
 
-export interface ValueUnit {
-  value: string
+export type ValueUnit = Value & {
   unit: string
+}
+
+export interface Value {
+  value: string | number
 }
