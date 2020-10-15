@@ -13,7 +13,7 @@ import Collapsible from '../../../../../src/bp/ui-shared-lite/Collapsible'
 import AgentList from './sidebar/components/AgentList'
 import EscalationList from './sidebar/components/EscalationList'
 
-const Sidebar = ({ bp }) => {
+const Sidebar = ({ bp, close }) => {
   const api = Api(bp)
 
   const { state, dispatch } = useContext(Context)
@@ -117,10 +117,10 @@ const Sidebar = ({ bp }) => {
   )
 }
 
-export default ({ bp }) => {
+export default ({ bp, close }) => {
   return (
     <Store>
-      <Sidebar bp={bp} />
+      <Sidebar bp={bp} close={close} />
     </Store>
   )
 }

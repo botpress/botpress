@@ -298,7 +298,13 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
       />
       <CommandPalette toggleEmulator={toggleEmulator} />
       {showConfigForm && <ConfigForm close={() => setShowConfigForm(false)} />}
-      {showHitl && <InjectedModuleView moduleName="hitl2" componentName="Sidebar" />}
+      {showHitl && (
+        <InjectedModuleView
+          moduleName="hitl2"
+          componentName="Sidebar"
+          extraProps={{ close: () => setShowHitl(false) }}
+        />
+      )}
     </Fragment>
   )
 }
