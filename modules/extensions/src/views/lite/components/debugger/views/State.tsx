@@ -33,8 +33,8 @@ const State: FC<Props> = ({ state, prevState, isExpanded, toggleExpand }) => {
     setViewJSON(newValue)
   }
 
-  const variables = state.session.workflows[state.session.currentWorkflow]?.variables || {}
-  const prevVariables = prevState?.session.workflows[state.session.currentWorkflow]?.variables || {}
+  const variables = state.session.workflows?.[state.session.currentWorkflow]?.variables || {}
+  const prevVariables = prevState?.session.workflows?.[state.session.currentWorkflow]?.variables || {}
   const variableIds = _.uniq([...Object.keys(variables), ...Object.keys(prevVariables)])
 
   const renderContent = () => {

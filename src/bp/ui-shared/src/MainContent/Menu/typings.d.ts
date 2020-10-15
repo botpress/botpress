@@ -1,6 +1,7 @@
 import { IconName } from '@blueprintjs/core'
 
 export interface MenuItem {
+  id?: string
   name: string
   path: string
   tooltip?: string | JSX.Element

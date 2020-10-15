@@ -103,7 +103,12 @@ class CreateBotModal extends Component<Props, State> {
     const templatesByModule = _.groupBy(this.props.botTemplates, 'moduleName')
     const groupedOptions = _.toPairs(templatesByModule).map(g => ({ label: g[0], options: g[1] }))
 
-    this.setState({ templates: groupedOptions, selectedTemplate: undefined })
+    const reordered = [
+      ...groupedOptions.filter(x => x.label === 'NDU'),
+      ...groupedOptions.filter(x => x.label !== 'NDU')
+    ]
+
+    this.setState({ templates: reordered, selectedTemplate: undefined })
   }
 
   handleNameChanged = e => {

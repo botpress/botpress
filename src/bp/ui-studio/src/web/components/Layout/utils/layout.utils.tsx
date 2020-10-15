@@ -19,6 +19,7 @@ const formatModuleItem = ({ name, menuIcon, menuText, experimental }): MenuItem 
     )
 
   return {
+    id: name,
     name: menuText || name,
     path,
     tooltip: (
@@ -32,26 +33,38 @@ const formatModuleItem = ({ name, menuIcon, menuText, experimental }): MenuItem 
 }
 
 export const getMenuItems = modules => {
-  let menuItems: MenuItem[] = [...modules.filter(m => m.name === 'code-editor').map(formatModuleItem)]
-
-  if (window.IS_BOT_MOUNTED) {
-    menuItems = [
-      ...(isOperationAllowed({ res: 'bot.flows', op: 'read' } as PermissionAllowedProps)
-        ? [
-            {
-              name: lang.tr('studio.sideBar.flowBuilder'),
-              path: window.USE_ONEFLOW ? '/oneflow' : '/flows',
-              icon: 'page-layout' as IconName,
-              tooltip: name
-            }
-          ]
-        : []),
-      ...modules
-        .filter(m => !m.noInterface)
-        .filter(({ name }) => isOperationAllowed({ res: `module.${name}`, op: 'write' } as PermissionAllowedProps))
-        .map(formatModuleItem)
-    ]
+  if (!window.IS_BOT_MOUNTED) {
+    return modules.filter(m => m.name === 'code-editor').map(formatModuleItem)
   }
 
-  return menuItems
+  const menuItems: MenuItem[] = []
+
+  if (!window.USE_ONEFLOW && isOperationAllowed({ resource: 'bot.content', operation: 'read' })) {
+    menuItems.push({
+      id: 'content',
+      name: lang.tr('studio.sideBar.content'),
+      path: '/content',
+      icon: 'document' as IconName,
+      tooltip: name
+    })
+  }
+
+  if (isOperationAllowed({ resource: 'bot.flows', operation: 'read' })) {
+    menuItems.push({
+      id: 'flowBuilder',
+      name: lang.tr('studio.sideBar.flowBuilder'),
+      path: window.USE_ONEFLOW ? '/oneflow' : '/flows',
+      icon: 'page-layout' as IconName,
+      tooltip: name
+    })
+  }
+
+  return [
+    ...menuItems,
+    ...modules
+      .filter(m => !m.noInterface)
+      .filter(m => !window.USE_ONEFLOW || (window.USE_ONEFLOW && !['qna', 'nlu'].includes(m.name)))
+      .filter(({ name }) => isOperationAllowed({ resource: `module.${name}`, operation: 'write' }))
+      .map(formatModuleItem)
+  ]
 }

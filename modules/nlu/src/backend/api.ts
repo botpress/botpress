@@ -2,6 +2,7 @@ import * as sdk from 'botpress/sdk'
 import Joi from 'joi'
 import _ from 'lodash'
 
+import { validateLegacyIntent } from './intents/legacy-validation'
 import legacyElectionPipeline from './legacy-election'
 import { getTrainingSession } from './train-session-service'
 import { NLUState } from './typings'
@@ -122,13 +123,13 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
   router.post('/legacy-intents', async (req, res) => {
     const { botId } = req.params
-    const intent = req.body
 
     const botNLU = state.nluByBot[botId]
     if (!botNLU) {
       return res.status(404).send(`Bot ${botId} doesn't exist`)
     }
 
+    const intent = await validateLegacyIntent(req.body, await botNLU.nluService.getEntities())
     await botNLU.legacyIntentService.createIntent(intent)
     res.sendStatus(200)
   })

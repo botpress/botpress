@@ -53,7 +53,10 @@ const QnASchema = Joi.object().keys({
     answers: Joi.object().pattern(Joi.string().max(2), Joi.array().items(Joi.string())),
     contentAnswers: Joi.array().items(contentShema),
     enabled: Joi.boolean(),
-    lastModifiedOn: Joi.string().optional()
+    lastModifiedOn: Joi.string().optional(),
+    action: Joi.string().allow(''),
+    redirectFlow: Joi.string().allow(''),
+    redirectNode: Joi.string().allow('')
   })
 })
 

@@ -7,6 +7,7 @@ import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { fetchFlows, fetchTopics, renameFlow } from '~/actions'
+import { getAllFlows } from '~/reducers'
 import { sanitizeName } from '~/util'
 
 interface Props {
@@ -94,7 +95,7 @@ const EditTopicModal: FC<Props> = props => {
 }
 
 const mapStateToProps = state => ({
-  flows: _.values(state.flows.flowsByName),
+  flows: getAllFlows(state),
   topics: state.ndu.topics
 })
 

@@ -13,7 +13,7 @@ import {
   updateFlow,
   updateFlowNode
 } from '~/actions'
-import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
+import { getAllFlows, getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
 import { nodeTypes } from '../diagram/manager'
 import FlowInformation from '../nodeProps/FlowInformation'
@@ -128,7 +128,7 @@ class Inspector extends Component<Props> {
 }
 
 const mapStateToProps = state => ({
-  flows: _.values(state.flows.flowsByName),
+  flows: getAllFlows(state),
   currentFlow: getCurrentFlow(state),
   currentFlowNode: getCurrentFlowNode(state) as any,
   buffer: state.flows.buffer,

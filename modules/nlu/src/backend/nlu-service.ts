@@ -26,7 +26,7 @@ export class NLUService {
   }> {
     this._client = axios.create(await this.bp.http.getAxiosConfigForBot(this._botId, { localUrl: true }))
 
-    const entities = await this._getEntities()
+    const entities = await this.getEntities()
     const intents = await this._getIntents()
 
     if (this._isLegacy) {
@@ -42,7 +42,7 @@ export class NLUService {
     }
   }
 
-  public async _getEntities(): Promise<sdk.NLU.EntityDefinition[]> {
+  public async getEntities(): Promise<sdk.NLU.EntityDefinition[]> {
     try {
       const { data } = await this._client.get('/nlu/entities')
       return data

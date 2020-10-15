@@ -18,7 +18,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
   const router = bp.http.createRouterForBot('qna')
   const jsonRequestStatuses = {}
   router.get(
-    '/:topicName/questions',
+    '/:topicName?/questions',
     asyncMiddleware(async (req: Request, res: Response) => {
       const { storage } = bots[req.params.botId]
       const items = await storage.fetchItems(req.params.topicName)
@@ -111,12 +111,14 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
     '/:topicName/export',
     asyncMiddleware(async (req: Request, res: Response) => {
       const { storage } = bots[req.params.botId]
+      const topicName = req.params.topicName === 'undefined' ? 'questions' : req.params.topicName
+
       res.setHeader('Content-Type', 'application/gzip')
       res.setHeader(
         'Content-disposition',
-        `attachment; filename=qna_${req.params.topicName}_${moment().format('DD-MM-YYYY')}.tar.gz`
+        `attachment; filename=qna_${topicName}_${moment().format('DD-MM-YYYY')}.tar.gz`
       )
-      const zipBuffer = await storage.exportPerTopic(req.params.topicName)
+      const zipBuffer = await storage.exportPerTopic(topicName)
       res.send(zipBuffer)
     })
   )
@@ -157,4 +159,21 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
       res.send(jsonRequestStatuses[req.params.uploadStatusId])
     })
   )
+
+  // @deprecated Below routes are only used to support old stuff
+  router.get(
+    '/:topicName?/questions/:questionId',
+    asyncMiddleware(async (req: Request, res: Response) => {
+      const { storage } = bots[req.params.botId]
+      const items = await storage.fetchItems(req.params.topicName)
+
+      res.send({ id: req.params.questionId, data: items.find(x => x.id === `__qna__${req.params.questionId}`) })
+    })
+  )
+
+  router.get('/contentElementUsage', async (req: Request, res: Response) => {
+    const { storage } = bots[req.params.botId]
+    const usage = await storage.getContentElementUsage()
+    res.send(usage)
+  })
 }

@@ -24,6 +24,7 @@ export interface NLUService {
     intentDefs: NLU.IntentDefinition[]
     entityDefs: NLU.EntityDefinition[]
   }>
+  getEntities(): Promise<NLU.EntityDefinition[]>
 }
 
 export interface LegacyIntentService {

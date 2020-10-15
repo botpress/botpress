@@ -13,10 +13,12 @@ export const initModule = async (bp: typeof sdk, bots: ScopedBots) => {
     direction: 'incoming',
     handler: async (event: sdk.IO.IncomingEvent, next) => {
       const bot = bots[event.botId]
-      if (!event.hasFlag(bp.IO.WellKnownFlags.SKIP_QNA_PROCESSING) && bot?.isLegacy) {
-        await processEvent(event, bot)
-        next()
+      if (!bot?.isLegacy || event.hasFlag(bp.IO.WellKnownFlags.SKIP_QNA_PROCESSING)) {
+        return next(undefined, undefined, true)
       }
+
+      await processEvent(event, bot)
+      next()
     },
     order: 140, // must be after the NLU middleware and before the dialog middleware
     description: 'Listen for predefined questions and send canned responses.'
