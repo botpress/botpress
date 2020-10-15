@@ -1,5 +1,4 @@
 import { FlowNode } from 'botpress/sdk'
-import { parseFlowName } from 'common/flow'
 import { FlowView, NodeView } from 'common/typings'
 import _ from 'lodash'
 import reduceReducers from 'reduce-reducers'
@@ -39,7 +38,7 @@ import {
   switchFlowNode,
   updateFlowProblems
 } from '~/actions'
-import { hashCode, prettyId } from '~/util'
+import { flattenNodesStructure, hashCode, prettyId } from '~/util'
 
 export interface ActiveFormItem {
   type: string
@@ -84,7 +83,7 @@ const defaultState = {
 }
 
 const findNodesThatReferenceFlow = (state, flowName) =>
-  _.flatten(_.values(state.flowsByName).map(flow => flow.nodes))
+  _.flatten(_.values(state.flowsByName).map(flow => flattenNodesStructure(flow.nodes)))
     .filter(node => node.flow === flowName || _.find(node.next, { node: flowName }))
     .map(node => node.id)
 
@@ -127,7 +126,7 @@ const computeHashForFlow = (flow: FlowView) => {
     buff = hashAction(buff, flow.catchAll.next)
   }
 
-  _.orderBy(flow.nodes, 'id').forEach(node => {
+  _.orderBy(flattenNodesStructure(flow.nodes), 'id').forEach(node => {
     buff = hashAction(buff, node.onReceive)
     buff = hashAction(buff, node.onEnter)
     buff = hashAction(buff, node.next)
@@ -225,7 +224,7 @@ const doRenameFlow = ({ currentName, newName, flows }) =>
     }
 
     if (f.nodes) {
-      let json = JSON.stringify(f.nodes)
+      let json = JSON.stringify(flattenNodesStructure(f.nodes))
       json = json.replace(currentName, newName)
       f.nodes = JSON.parse(json)
     }
@@ -492,7 +491,7 @@ let reducer = handleActions(
         ...state.flowsByName,
         [state.currentFlow]: {
           ...state.flowsByName[state.currentFlow],
-          nodes: state.flowsByName[state.currentFlow]?.nodes.map(node => ({ ...node, lastModified: new Date() })) || []
+          nodes: flattenNodesStructure(state.flowsByName[state.currentFlow]?.nodes).map(node => ({ ...node, lastModified: new Date() })) || []
         }
       }
     })
@@ -516,13 +515,14 @@ reducer = reduceReducers(
 
       [requestUpdateFlow]: (state, { payload }) => {
         const currentFlow = state.flowsByName[state.currentFlow] as FlowView
+        const flattenNodes = flattenNodesStructure(currentFlow.nodes)
         const nodes = !payload.links
-          ? currentFlow.nodes
-          : currentFlow.nodes.map(node => {
+          ? flattenNodes
+          : flattenNodes.map(node => {
               const nodeLinks = payload.links.filter(link => link.source === node.id)
               const next = node.next.map((value, index) => {
                 const link = nodeLinks.find(link => Number(link.sourcePort.replace('out', '')) === index)
-                const targetNode = _.find(currentFlow.nodes, { id: (link || {}).target })
+                const targetNode = _.find(flattenNodes, { id: (link || {}).target })
                 let remapNode = ''
 
                 if (value.node.includes('.flow.json') || value.node === 'END' || value.node.startsWith('#')) {
@@ -578,7 +578,7 @@ reducer = reduceReducers(
         const activeFlow = payload || state.currentFlow
         const currentFlow = state.flowsByName[activeFlow]
 
-        const outcomeNodes = currentFlow.nodes.filter(x => ['success', 'failure'].includes(x.type))
+        const outcomeNodes = flattenNodesStructure(currentFlow.nodes).filter(x => ['success', 'failure'].includes(x.type))
         const outcomes = _.orderBy(outcomeNodes, 'type', 'desc').map(x => ({
           condition: `lastNode=${x.name}`,
           caption: x.name,
@@ -587,7 +587,8 @@ reducer = reduceReducers(
 
         let updatedFlows = {}
         for (const [name, flow] of Object.entries(state.flowsByName)) {
-          if (!flow.nodes.find(n => n.flow === activeFlow)) {
+          const flattenNodes = flattenNodesStructure(flow.nodes)
+          if (!flattenNodes.find(n => n.flow === activeFlow)) {
             continue
           }
 
@@ -595,7 +596,7 @@ reducer = reduceReducers(
             ...updatedFlows,
             [name]: {
               ...flow,
-              nodes: flow.nodes.map(node => {
+              nodes: flattenNodes.map(node => {
                 if (node.flow !== activeFlow) {
                   return node
                 }
@@ -658,7 +659,7 @@ reducer = reduceReducers(
             [state.currentFlow]: {
               ...state.flowsByName[state.currentFlow],
               nodes: [
-                ...state.flowsByName[state.currentFlow].nodes,
+                ...flattenNodesStructure(state.flowsByName[state.currentFlow].nodes),
                 _.merge(newNode, _.pick(payload.location, ['x', 'y']))
               ]
             }
@@ -677,7 +678,7 @@ reducer = reduceReducers(
           location: payload.editFlowName
         })
 
-        const nodes = state.flowsByName[state.currentFlow].nodes.map(node => {
+        const nodes = flattenNodesStructure(state.flowsByName[state.currentFlow].nodes).map(node => {
           if (node.id !== payload.editNodeId) {
             return node
           }
@@ -715,7 +716,7 @@ reducer = reduceReducers(
           [state.currentFlow]: {
             ...state.flowsByName[state.currentFlow],
             nodes: [
-              ...state.flowsByName[state.currentFlow].nodes,
+              ...flattenNodesStructure(state.flowsByName[state.currentFlow].nodes),
               _.merge(state.nodeInBuffer, _.pick(payload, ['x', 'y']))
             ]
           }
@@ -731,7 +732,7 @@ reducer = reduceReducers(
               ...state.flowsByName[flowNameToDuplicate],
               name,
               location: name,
-              nodes: state.flowsByName[flowNameToDuplicate].nodes.map(node => ({
+              nodes: flattenNodesStructure(state.flowsByName[flowNameToDuplicate].nodes).map(node => ({
                 ...node,
                 id: prettyId()
               }))
@@ -744,7 +745,7 @@ reducer = reduceReducers(
 
       [requestUpdateFlowNode]: (state, { payload }) => {
         const currentFlow = state.flowsByName[state.currentFlow]
-        const currentNode = _.find(state.flowsByName[state.currentFlow].nodes, { id: state.currentFlowNode })
+        const currentNode = _.find(flattenNodesStructure(state.flowsByName[state.currentFlow].nodes), { id: state.currentFlowNode })
         const needsUpdate = name => name === (currentNode || {}).name && payload.name
 
         const updateNodeName = elements =>
@@ -762,7 +763,7 @@ reducer = reduceReducers(
             [state.currentFlow]: {
               ...currentFlow,
               startNode: needsUpdate(currentFlow.startNode) ? payload.name : currentFlow.startNode,
-              nodes: currentFlow.nodes.map(node => {
+              nodes: flattenNodesStructure(currentFlow.nodes).map(node => {
                 if (node.id !== state.currentFlowNode) {
                   return {
                     ...node,
@@ -783,7 +784,8 @@ reducer = reduceReducers(
 
       [requestRemoveFlowNode]: (state, { payload }) => {
         const flowsToRemove = []
-        const nodeToRemove = _.find(state.flowsByName[state.currentFlow].nodes, { id: payload?.id })
+        const flattenNodes = flattenNodesStructure(state.flowsByName[state.currentFlow].nodes)
+        const nodeToRemove = _.find(flattenNodes, { id: payload?.id })
 
         if (nodeToRemove.type === 'skill-call') {
           if (findNodesThatReferenceFlow(state, nodeToRemove.flow).length <= 1) {
@@ -798,14 +800,14 @@ reducer = reduceReducers(
             ..._.omit(state.flowsByName, flowsToRemove),
             [state.currentFlow]: {
               ...state.flowsByName[state.currentFlow],
-              nodes: state.flowsByName[state.currentFlow].nodes.filter(node => node.id !== payload.id)
+              nodes: flattenNodes.filter(node => node.id !== payload.id)
             }
           }
         }
       },
 
       [copyFlowNode as any]: state => {
-        const node = _.find(state.flowsByName[state.currentFlow].nodes, { id: state.currentFlowNode })
+        const node = _.find(flattenNodesStructure(state.flowsByName[state.currentFlow].nodes), { id: state.currentFlowNode })
         if (!node) {
           return state
         }
@@ -818,8 +820,9 @@ reducer = reduceReducers(
       [requestPasteFlowNode]: (state, { payload: { x, y } }) => {
         const currentFlow = state.flowsByName[state.currentFlow]
         const newNodeId = prettyId()
+        const flattenNodes = flattenNodesStructure(currentFlow.nodes)
         const name = copyName(
-          currentFlow.nodes.map(({ name }) => name),
+          flattenNodes.map(({ name }) => name),
           state.nodeInBuffer.name
         )
         return {
@@ -830,7 +833,7 @@ reducer = reduceReducers(
             [state.currentFlow]: {
               ...currentFlow,
               nodes: [
-                ...currentFlow.nodes,
+                ...flattenNodes,
                 { ...state.nodeInBuffer, id: newNodeId, name, lastModified: new Date(), x, y }
               ]
             }
@@ -854,7 +857,8 @@ reducer = reduceReducers(
         }
 
         const currentFlow = state.flowsByName[state.currentFlow]
-        const currentNode = _.find(currentFlow.nodes, { id: state.currentFlowNode })
+        const flattenNodes = flattenNodesStructure(currentFlow.nodes)
+        const currentNode = _.find(flattenNodes, { id: state.currentFlowNode })
 
         // TODO: use this as a helper function in other reducers
         const updateCurrentFlow = modifier => ({
@@ -865,7 +869,7 @@ reducer = reduceReducers(
         if (currentNode) {
           return updateCurrentFlow({
             nodes: [
-              ...currentFlow.nodes.filter(({ id }) => id !== state.currentFlowNode),
+              ...flattenNodes.filter(({ id }) => id !== state.currentFlowNode),
               { ...currentNode, [payload]: [...(currentNode[payload] || []), element] }
             ]
           })
@@ -879,18 +883,20 @@ reducer = reduceReducers(
         })
       },
 
-      [requestCreateFlowNode]: (state, { payload }) => ({
+      [requestCreateFlowNode]: (state, { payload }) => {
+        const flattenNodes = flattenNodesStructure(state.flowsByName[state.currentFlow].nodes)
+        return {
         ...state,
         flowsByName: {
           ...state.flowsByName,
           [state.currentFlow]: {
             ...state.flowsByName[state.currentFlow],
             nodes: [
-              ...state.flowsByName[state.currentFlow].nodes,
+              ...flattenNodes,
               _.merge(
                 {
                   id: prettyId(),
-                  name: getNextNodeName(payload.type, state.flowsByName[state.currentFlow].nodes),
+                  name: getNextNodeName(payload.type, flattenNodes),
                   x: 0,
                   y: 0,
                   next: [],
@@ -902,7 +908,7 @@ reducer = reduceReducers(
             ]
           }
         }
-      })
+      }}
     },
     defaultState
   )

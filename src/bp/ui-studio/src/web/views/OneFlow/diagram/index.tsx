@@ -115,16 +115,7 @@ type ExtendedDiagramEngine = {
   flowBuilder?: any
 } & DiagramEngine
 
-const EXPANDED_NODES_KEY = `bp::${window.BOT_ID}::expandedNodes`
 const DIAGRAM_TAB_KEY = `bp::${window.BOT_ID}::diagramTab`
-
-const getExpandedNodes = () => {
-  try {
-    return JSON.parse(storage.get(EXPANDED_NODES_KEY) || '[]')
-  } catch (error) {
-    return []
-  }
-}
 
 const autoOpenNodes = ['say_something', 'trigger', 'prompt', 'execute']
 
@@ -140,7 +131,6 @@ class Diagram extends Component<Props> {
 
   state = {
     currentTab: storage.get(DIAGRAM_TAB_KEY) || 'workflow',
-    expandedNodes: [],
     nodeInfos: []
   }
 
@@ -162,8 +152,6 @@ class Diagram extends Component<Props> {
       getConditions: () => this.getPropsProperty('conditions'),
       addCondition: this.addCondition.bind(this),
       addMessage: this.addMessage.bind(this),
-      getExpandedNodes: () => this.getStateProperty('expandedNodes'),
-      setExpandedNodes: this.updateExpandedNodes.bind(this),
       getDebugInfo: this.getDebugInfo,
       getFlows: () => this.getPropsProperty('flows')
     }
@@ -233,9 +221,6 @@ class Diagram extends Component<Props> {
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
     document.getElementById('diagramContainer').addEventListener('keydown', this.onKeyDown)
 
-    this.setState({
-      expandedNodes: getExpandedNodes()
-    })
     this.props.childRef({
       deleteSelectedElements: this.deleteSelectedElements.bind(this),
       createFlow: this.createFlow.bind(this)
@@ -297,6 +282,9 @@ class Diagram extends Component<Props> {
       }
     }
 
+    if (this.dragPortSource) {
+      console.log(!prevProps.currentFlowNode && this.props.currentFlowNode)
+    }
     if (this.dragPortSource && !prevProps.currentFlowNode && this.props.currentFlowNode) {
       // tslint:disable-next-line: no-floating-promises
       this.linkCreatedNode()
@@ -378,7 +366,6 @@ class Diagram extends Component<Props> {
 
     if (!sourcePort.in) {
       const sourcePortIndex = Number(sourcePort.name.replace('out', ''))
-
       await this.updateTransitionNode(sourcePort.parent.id, sourcePortIndex, this.props.currentFlowNode.name)
     } else {
       await this.updateTransitionNode(this.props.currentFlowNode.id, 0, sourcePort.parent['name'])
@@ -714,7 +701,6 @@ class Diagram extends Component<Props> {
   editNodeItem(node, index) {
     clearTimeout(this.timeout)
     if (node.isNew) {
-      this.updateExpandedNodes(node.id, true)
       this.props.updateFlowNode({ isNew: false })
     }
 
@@ -724,17 +710,6 @@ class Diagram extends Component<Props> {
   updateNodeAndRefresh(args) {
     this.props.updateFlowNode({ ...args })
     this.props.refreshFlowsLinks()
-  }
-
-  updateExpandedNodes(nodeId: string, expanded: boolean): void {
-    const expandedNodes = this.state.expandedNodes.filter(id => id !== nodeId)
-
-    if (expanded) {
-      expandedNodes.push(nodeId)
-    }
-
-    storage.set(EXPANDED_NODES_KEY, JSON.stringify(expandedNodes))
-    this.setState({ expandedNodes })
   }
 
   getStateProperty(propertyName) {

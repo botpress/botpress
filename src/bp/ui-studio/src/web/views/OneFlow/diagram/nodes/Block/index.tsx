@@ -1,10 +1,10 @@
 import { Intent, Menu, MenuItem } from '@blueprintjs/core'
-import { DecisionTriggerCondition, ExecuteNode, Flow, FormData, SubWorkflowNode } from 'botpress/sdk'
+import { DecisionTriggerCondition, ExecuteNode, Flow, FlowNode, FormData, SubWorkflowNode } from 'botpress/sdk'
 import { contextMenu, lang, sharedStyle, ShortcutLabel, toast } from 'botpress/shared'
 import cx from 'classnames'
 import { parseFlowName } from 'common/flow'
 import { FlowView } from 'common/typings'
-import React, { FC } from 'react'
+import React, { FC, Fragment } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'
 import { BaseNodeModel } from '~/views/FlowBuilder/diagram/nodes/BaseNodeModel'
 
@@ -33,8 +33,6 @@ interface Props {
   addCondition: (nodeType: string) => void
   addMessage: () => void
   getLanguage?: () => { currentLang: string; defaultLang: string }
-  getExpandedNodes: () => string[]
-  setExpanded: (id: string, expanded: boolean) => void
   getDebugInfo: (nodeName: string) => NodeDebugInfo
   getFlows: () => Flow[]
 }
@@ -63,8 +61,6 @@ const BlockWidget: FC<Props> = ({
   addCondition,
   addMessage,
   getLanguage,
-  getExpandedNodes,
-  setExpanded,
   getDebugInfo,
   getFlows
 }) => {
@@ -122,30 +118,31 @@ const BlockWidget: FC<Props> = ({
   const debugInfo = getDebugInfo(node.name)
 
   if (node.next?.[0].condition === 'true' && node.next?.[0].node !== '') {
-    console.log(getCurrentFlow()?.nodes.filter(node => node.name === node.next?.[0].node))
+    // console.log(getCurrentFlow()?.nodes.filter(node => node.name === node.next?.[0].node))
   }
 
-  const renderContents = () => {
+  const renderContents = (passedNode?) => {
+    const theNode = passedNode || node
     switch (nodeType) {
       case 'action':
-        return <ActionContents node={node} editNodeItem={editNodeItem} />
+        return <ActionContents node={theNode} editNodeItem={editNodeItem} />
       case 'execute':
-        return <ExecuteContents node={node} editNodeItem={editNodeItem} />
+        return <ExecuteContents node={theNode} editNodeItem={editNodeItem} />
       case 'prompt':
         return (
           <PromptContents
-            node={node}
+            node={theNode}
             selectedNodeItem={selectedNodeItem}
             defaultLang={defaultLang}
             currentLang={currentLang}
           />
         )
       case 'router':
-        return <RouterContents node={node} editNodeItem={editNodeItem} selectedNodeItem={selectedNodeItem} />
+        return <RouterContents node={theNode} editNodeItem={editNodeItem} selectedNodeItem={selectedNodeItem} />
       case 'say_something':
         return (
           <SaySomethingContents
-            node={node}
+            node={theNode}
             defaultLang={defaultLang}
             editNodeItem={editNodeItem}
             selectedNodeItem={selectedNodeItem}
@@ -155,7 +152,7 @@ const BlockWidget: FC<Props> = ({
       case 'trigger':
         return (
           <TriggerContents
-            node={node}
+            node={theNode}
             defaultLang={defaultLang}
             editNodeItem={editNodeItem}
             selectedNodeItem={selectedNodeItem}
@@ -164,12 +161,12 @@ const BlockWidget: FC<Props> = ({
           />
         )
       case 'sub-workflow':
-        const subFlowName = getCurrentFlow()?.nodes.find(x => x.name === node.name)?.flow
+        const subFlowName = getCurrentFlow()?.nodes.find(x => x.name === theNode.name)?.flow
         const subFlow = getFlows().find(x => x.name === subFlowName)
 
         return (
           <SubworkflowContents
-            node={node}
+            node={theNode}
             variables={subFlow?.variables || []}
             selectedNodeItem={selectedNodeItem}
             editNodeItem={editNodeItem}
@@ -180,37 +177,53 @@ const BlockWidget: FC<Props> = ({
     }
   }
 
-  const handleExpanded = expanded => {
-    setExpanded(node.id, expanded)
-  }
-
-  const expanded = getExpandedNodes().includes(node.id)
-
+  // console.log(node)
   return (
-    <NodeWrapper isHighlighed={node.isHighlighted || node.isSelected()}>
-      <NodeHeader
-        className={style[nodeType]}
-        setExpanded={canCollapse && handleExpanded}
-        expanded={canCollapse && expanded}
-        handleContextMenu={!node.isReadOnly && hasContextMenu && handleContextMenu}
-        defaultLabel={
-          nodeType === 'sub-workflow' ? parseFlowName(node.flow).workflow : lang.tr(defaultLabels[nodeType])
-        }
-        debugInfo={debugInfo}
-        nodeType={nodeType}
-      >
-        <StandardPortWidget hidden={!inputPortInHeader} name="in" node={node} className={style.in} />
-        {outPortInHeader && (
-          <StandardPortWidget
-            name="out0"
-            node={node}
-            className={cx(style.out, style.portBtn)}
-            simplePortClick={e => handlePortClick(e, node)}
+    <Fragment>
+      <NodeWrapper isHighlighed={node.isHighlighted || node.isSelected()}>
+        <NodeHeader
+          className={style[nodeType]}
+          handleContextMenu={!node.isReadOnly && hasContextMenu && handleContextMenu}
+          defaultLabel={
+            nodeType === 'sub-workflow' ? parseFlowName(node.flow).workflow : lang.tr(defaultLabels[nodeType])
+          }
+          debugInfo={debugInfo}
+          nodeType={nodeType}
+        >
+          <StandardPortWidget hidden={!inputPortInHeader} name="in" node={node} className={style.in} />
+          {outPortInHeader && (
+            <StandardPortWidget
+              name="out0"
+              node={node}
+              className={cx(style.out, style.portBtn)}
+              simplePortClick={e => handlePortClick(e, node)}
+            />
+          )}
+        </NodeHeader>
+        {renderContents()}
+      </NodeWrapper>
+      {node.childrenNodes?.map((childNode, index) => {
+        const modelNode = new BlockModel(childNode as any)
+        return (
+          <BlockWidget
+            key={index}
+            node={modelNode}
+            handlePortClick={handlePortClick}
+            getCurrentFlow={getCurrentFlow}
+            getLanguage={getLanguage}
+            editNodeItem={editNodeItem}
+            onDeleteSelectedElements={onDeleteSelectedElements}
+            selectedNodeItem={selectedNodeItem}
+            getConditions={getConditions}
+            switchFlowNode={switchFlowNode}
+            addCondition={addCondition}
+            addMessage={addMessage}
+            getDebugInfo={getDebugInfo}
+            getFlows={getFlows}
           />
-        )}
-      </NodeHeader>
-      {(!canCollapse || expanded) && renderContents()}
-    </NodeWrapper>
+        )
+      })}
+    </Fragment>
   )
 }
 
@@ -222,6 +235,7 @@ export class BlockModel extends BaseNodeModel {
   public isReadOnly: boolean
   public nodeType: string
   public prompt?
+  public childrenNodes?: BlockModel[]
   public contents?: FormData[] = []
   public subflow: SubWorkflowNode
   public flow: string
@@ -240,6 +254,7 @@ export class BlockModel extends BaseNodeModel {
     next = [],
     conditions = [],
     subflow = {},
+    childrenNodes = [],
     execute = {},
     activeWorkflow = false,
     isNew = false,
@@ -264,6 +279,7 @@ export class BlockModel extends BaseNodeModel {
       subflow,
       execute,
       activeWorkflow,
+      childrenNodes,
       isNew,
       isMagnetNode,
       isReadOnly
@@ -273,13 +289,21 @@ export class BlockModel extends BaseNodeModel {
     this.y = this.oldY = y
   }
 
-  setData({ conditions = [], activeWorkflow = false, isNew = false, isMagnetNode = false, ...data }) {
+  setData({
+    conditions = [],
+    activeWorkflow = false,
+    isNew = false,
+    isMagnetNode = false,
+    childrenNodes = [],
+    ...data
+  }) {
     super.setData(data as any)
 
     this.conditions = conditions
     this.activeWorkflow = activeWorkflow
     this.isNew = isNew
     this.isMagnetNode = isMagnetNode
+    this.childrenNodes = childrenNodes
     this.nodeType = data.type
     this.prompt = data.prompt
     this.contents = data.contents
@@ -301,8 +325,6 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
   private addCondition: (nodeType: string) => void
   private addMessage: () => void
   private getLanguage: () => { currentLang: string; defaultLang: string }
-  private getExpandedNodes: () => string[]
-  private setExpandedNodes: (id: string, expanded: boolean) => void
   private getDebugInfo: (nodeName: string) => NodeDebugInfo
   private getFlows: () => Flow[]
 
@@ -319,8 +341,6 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
     this.addCondition = methods.addCondition
     this.addMessage = methods.addMessage
     this.getLanguage = methods.getLanguage
-    this.getExpandedNodes = methods.getExpandedNodes
-    this.setExpandedNodes = methods.setExpandedNodes
     this.getDebugInfo = methods.getDebugInfo
     this.getFlows = methods.getFlows
   }
@@ -339,8 +359,6 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
         switchFlowNode={this.switchFlowNode}
         addCondition={this.addCondition}
         addMessage={this.addMessage}
-        getExpandedNodes={this.getExpandedNodes}
-        setExpanded={this.setExpandedNodes}
         getDebugInfo={this.getDebugInfo}
         getFlows={this.getFlows}
       />

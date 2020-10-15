@@ -60,7 +60,26 @@ export const getFlowNamesList = createSelector([getAllFlows], flows => {
 export const getCurrentFlow = createSelector(
   [_getFlowsByName, _getCurrentFlow],
   (flowsByName, currFlow): FlowView => {
-    return flowsByName[currFlow]
+
+  if (!flowsByName[currFlow]) {
+    return
+  }
+
+  const nodes = flowsByName[currFlow]?.nodes?.reduce((acc, node: any) => {
+    if (node.isMagnetNode) {
+      acc = acc.map(x => {
+        if (node.name !== x.next?.[0].node) {
+          return x
+        }
+
+        return { ...x, childrenNodes: [...(x.childrenNodes ? x.childrenNodes : []), node] }
+      })
+    }
+
+    return [...acc, ...(!node.isMagnetNode ? [node] : [])]
+  }, [])
+
+  return {...flowsByName[currFlow], nodes}
   }
 )
 

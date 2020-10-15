@@ -1,6 +1,12 @@
 import _ from 'lodash'
 import generate from 'nanoid/generate'
 
+export const flattenNodesStructure = nodes => {
+  return nodes.reduce((acc, node) => {
+    const {childrenNodes, ...restNode} = node
+    return [...acc, restNode, ...(childrenNodes ? [...flattenNodesStructure(childrenNodes)] : [])]
+  }, [])}
+
 export const hashCode = str => {
   let hash = 0
   if (str.length === 0) {

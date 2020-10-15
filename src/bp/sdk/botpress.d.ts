@@ -1512,6 +1512,7 @@ declare module 'botpress/sdk' {
     name: string
     type?: FlowNodeType
     isMagnetNode?: boolean
+    childrenNodes?: any[]
     timeoutNode?: string
     flow?: string
     prompt?: PromptNode

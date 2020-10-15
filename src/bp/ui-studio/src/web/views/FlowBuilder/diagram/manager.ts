@@ -22,6 +22,7 @@ const passThroughNodeProps: string[] = [
   'prompt',
   'subflow',
   'isMagnetNode',
+  'childrenNodes',
   'flow',
   'execute',
   'isReadOnly'
@@ -108,12 +109,14 @@ export class DiagramManager {
     const nodes = currentFlow.nodes.map((node: NodeView) => {
       node.x = _.round(node.x)
       node.y = _.round(node.y)
-
-      return createNodeModel(node, {
+      const model = createNodeModel(node, {
         ...node,
+        ...{...(node.childrenNodes ? { childrenNodes: node.childrenNodes.map(x => createNodeModel(x, {...x})) } : {} )},
         isStartNode: currentFlow.startNode === node.name,
         isHighlighted: this.shouldHighlightNode(node)
       })
+
+      return model
     })
     this.activeModel.addListener({ zoomUpdated: e => this.storeDispatch.zoomToLevel(Math.floor(e.zoom)) })
 
@@ -400,6 +403,7 @@ export class DiagramManager {
   private _addNode(node: NodeView) {
     const model = createNodeModel(node, {
       ...node,
+      ...{...(node.childrenNodes ? { childrenNodes: node.childrenNodes.map(x => createNodeModel(x, {...x})) } : {} )},
       isStartNode: this.currentFlow.startNode === node.name,
       isHighlighted: this.shouldHighlightNode(node)
     })
@@ -507,6 +511,7 @@ export class DiagramManager {
   private _serialize = () => {
     const model = this.activeModel.serializeDiagram()
     const nodes = model.nodes.map((node: any) => {
+
       return {
         ..._.pick(node, 'id', 'name', 'onEnter', 'onReceive'),
         next: node.next.map((next, index) => {

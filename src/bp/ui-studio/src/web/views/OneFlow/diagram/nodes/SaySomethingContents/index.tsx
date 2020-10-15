@@ -93,8 +93,10 @@ const SaySomethingContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem,
       )}
       {next?.map((item, i) => {
         const outputPortName = `out${i}`
-        return item.condition !== 'true' &&
-          checkMissingSuggestionTranslations(node.contents[item.contentIndex], i - 1) ? (
+        if (item.condition === 'true') {
+          return
+        }
+        return checkMissingSuggestionTranslations(node.contents[item.contentIndex], i - 1) ? (
           <button onClick={() => editNodeItem?.(node, 0)} className={style.needsTranslation}>
             {lang.tr('needsTranslation')}
           </button>
