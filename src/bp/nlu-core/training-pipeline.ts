@@ -430,61 +430,74 @@ export const AppendNoneIntent = async (input: TrainStep, tools: Tools): Promise<
 
   const lo = tools.seededLodashProvider.getSeededLodash()
 
-  // TODO: we should filter out augmented + we should create none utterances by context
-  const allUtterances = lo.flatten(input.intents.map(x => x.utterances))
-  const vocabWithDupes = lo
-    .chain(allUtterances)
-    .map(x => x.tokens.map(x => x.value))
-    .flattenDeep<string>()
-    .value()
+  const noneIntents: Intent<Utterance>[] = []
 
-  const junkWords = await tools.generateSimilarJunkWords(Object.keys(input.vocabVectors), input.languageCode)
-  const avgTokens = lo.meanBy(allUtterances, x => x.tokens.length)
-  const nbOfNoneUtterances = lo.clamp(
-    (allUtterances.length * 2) / 3,
-    NONE_UTTERANCES_BOUNDS.MIN,
-    NONE_UTTERANCES_BOUNDS.MAX
-  )
-  const stopWords = await getStopWordsForLang(input.languageCode)
-  const vocabWords = lo
-    .chain(input.tfIdf)
-    .toPairs()
-    .filter(([word, tfidf]) => tfidf <= SMALL_TFIDF)
-    .map('0')
-    .value()
+  for (const ctx of input.contexts) {
+    // keep augmented to make oos more agressive
+    const allUtterances = lo(input.intents)
+      .filter(i => i.contexts.includes(ctx))
+      .map(x => x.utterances)
+      .flatten()
+      .value()
 
-  // If 30% in utterances is a space, language is probably space-separated so we'll join tokens using spaces
-  const joinChar = vocabWithDupes.filter(x => isSpace(x)).length >= vocabWithDupes.length * 0.3 ? SPACE : ''
+    const vocabWithDupes = lo
+      .chain(allUtterances)
+      .map(x => x.tokens.map(x => x.value))
+      .flattenDeep<string>()
+      .value()
 
-  const vocabUtts = lo.range(0, nbOfNoneUtterances).map(() => {
-    const nbWords = Math.round(lo.random(1, avgTokens * 2, false))
-    return lo.sampleSize(lo.uniq([...stopWords, ...vocabWords]), nbWords).join(joinChar)
-  })
+    const junkWords = await tools.generateSimilarJunkWords(Object.keys(input.vocabVectors), input.languageCode)
+    const avgTokens = lo.meanBy(allUtterances, x => x.tokens.length)
+    const nbOfNoneUtterances = lo.clamp(
+      (allUtterances.length * 2) / 3,
+      NONE_UTTERANCES_BOUNDS.MIN,
+      NONE_UTTERANCES_BOUNDS.MAX
+    )
 
-  const junkWordsUtts = lo.range(0, nbOfNoneUtterances).map(() => {
-    const nbWords = Math.round(lo.random(1, avgTokens * 2, false))
-    return lo.sampleSize(junkWords, nbWords).join(joinChar)
-  })
+    const stopWords = await getStopWordsForLang(input.languageCode)
+    const vocabWords = lo
+      .chain(input.tfIdf)
+      .toPairs()
+      .filter(([word, tfidf]) => tfidf <= SMALL_TFIDF)
+      .map('0')
+      .value()
 
-  const mixedUtts = lo.range(0, nbOfNoneUtterances).map(() => {
-    const nbWords = Math.round(lo.random(1, avgTokens * 2, false))
-    return lo.sampleSize([...junkWords, ...stopWords], nbWords).join(joinChar)
-  })
+    // If 30% of tokens in utterances is a space, language is probably space-separated so we'll join tokens using spaces
+    const joinChar = vocabWithDupes.filter(x => isSpace(x)).length >= vocabWithDupes.length * 0.3 ? SPACE : ''
 
-  const intent: Intent<Utterance> = {
-    name: NONE_INTENT,
-    slot_definitions: [],
-    utterances: await buildUtteranceBatch(
-      [...mixedUtts, ...vocabUtts, ...junkWordsUtts, ...stopWords],
-      input.languageCode,
-      tools
-    ),
-    contexts: [...input.contexts],
-    vocab: {},
-    slot_entities: []
+    const vocabUtts = lo.range(0, nbOfNoneUtterances).map(() => {
+      const nbWords = Math.round(lo.random(1, avgTokens * 2, false))
+      return lo.sampleSize(lo.uniq([...stopWords, ...vocabWords]), nbWords).join(joinChar)
+    })
+
+    const junkWordsUtts = lo.range(0, nbOfNoneUtterances).map(() => {
+      const nbWords = Math.round(lo.random(1, avgTokens * 2, false))
+      return lo.sampleSize(junkWords, nbWords).join(joinChar)
+    })
+
+    const mixedUtts = lo.range(0, nbOfNoneUtterances).map(() => {
+      const nbWords = Math.round(lo.random(1, avgTokens * 2, false))
+      return lo.sampleSize([...junkWords, ...stopWords], nbWords).join(joinChar)
+    })
+
+    const subsampledStopWord = lo.sampleSize(stopWords, nbOfNoneUtterances)
+
+    const intent: Intent<Utterance> = {
+      name: NONE_INTENT,
+      slot_definitions: [],
+      utterances: await buildUtteranceBatch(
+        [...mixedUtts, ...vocabUtts, ...junkWordsUtts, ...subsampledStopWord],
+        input.languageCode,
+        tools
+      ),
+      contexts: [ctx],
+      vocab: {},
+      slot_entities: []
+    }
+    noneIntents.push(intent)
   }
 
-  return { ...input, intents: [...input.intents, intent] }
+  return { ...input, intents: [...input.intents, ...noneIntents] }
 }
 
 export const TfidfTokens = async (input: TrainStep): Promise<TrainStep> => {
@@ -534,21 +547,29 @@ const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progres
     seed: input.nluSeed
   }
 
-  const noneUtts = _.chain(input.intents)
-    .filter(i => i.name === NONE_INTENT)
-    .flatMap(i => i.utterances)
-    .value()
-
-  if (!isPOSAvailable(input.languageCode) || noneUtts.length === 0) {
+  if (!isPOSAvailable(input.languageCode)) {
     progress()
     return {}
   }
 
-  const oos_points = featurizeOOSUtterances(noneUtts, input.vocabVectors, tools)
   let combinedProgress = 0
 
   type ContextModel = [string, string]
-  const ctxModels: ContextModel[] = await Promise.map(input.ctxToTrain, async ctx => {
+  const ctxModels: (ContextModel | undefined)[] = await Promise.map(input.ctxToTrain, async ctx => {
+    const noneUtts = _.chain(input.intents)
+      .filter(i => i.contexts.includes(ctx))
+      .filter(i => i.name === NONE_INTENT)
+      .flatMap(i => i.utterances)
+      .value()
+
+    if (noneUtts.length === 0) {
+      combinedProgress += 1 / input.ctxToTrain.length
+      progress(combinedProgress)
+      return
+    }
+
+    const oos_points = featurizeOOSUtterances(noneUtts, input.vocabVectors, tools)
+
     const in_ctx_scope_points = _.chain(input.intents)
       .filter(i => i.name !== NONE_INTENT && i.contexts.includes(ctx))
       .flatMap(i => featurizeInScopeUtterances(i.utterances, i.name))
