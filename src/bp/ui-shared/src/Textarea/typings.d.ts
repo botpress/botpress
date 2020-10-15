@@ -1,6 +1,7 @@
 import { SyntheticEvent } from 'react'
 
 export interface TextareaProps {
+  id?: string
   className?: string
   placeholder?: string
   isFocused?: boolean

@@ -1,6 +1,7 @@
 import { SyntheticEvent } from 'react'
 
 export interface HeaderButton {
+  id?: string
   icon: string
   onClick: (e: SyntheticEvent) => void
   tooltip?: JSX.Element | string

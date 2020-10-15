@@ -9,6 +9,7 @@ import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import style from '../style.scss'
 
 interface Props {
+  id?: string
   updateItems: (items: string[]) => void
   items: string[]
   placeholder: (index: number) => void
@@ -111,6 +112,7 @@ const TextAreaList: FC<Props> = props => {
           ) : (
             <div key={keys[index]} className={cx(sharedStyle.textareaWrapper, { ['has-error']: missingTranslation })}>
               <Textarea
+                id={props.id}
                 isFocused={focusedElement.current === `${keyPrefix}${index}`}
                 className={cx(sharedStyle.textarea, { ['has-error']: errors[index] || missingTranslation })}
                 placeholder={placeholder(index)}

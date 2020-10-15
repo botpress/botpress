@@ -22,13 +22,14 @@ const Toolbar: FC<ToolbarProps> = props => {
             <div key={index} className={style.btnWrapper}>
               <Fragment>
                 {!button.optionsItems?.length && (
-                  <ToolTip position="bottom" content={button.tooltip}>
+                  <ToolTip position="bottom" content={button.tooltip} id={button.id}>
                     {button.content ? (
                       button.content
                     ) : (
                       <AnchorButton
                         minimal
                         small
+                        id={button.id}
                         onClick={button.onClick}
                         icon={button.icon}
                         disabled={button.disabled}
@@ -40,10 +41,11 @@ const Toolbar: FC<ToolbarProps> = props => {
                   <MoreOptions
                     className={button.optionsWrapperClassName}
                     element={
-                      <ToolTip position="bottom" content={button.tooltip}>
+                      <ToolTip position="bottom" content={button.tooltip} id={button.id}>
                         <AnchorButton
                           minimal
                           small
+                          id={button.id}
                           onClick={() => setShowingOption(index)}
                           className={cx({ active: showingOption === index })}
                           icon={button.icon}

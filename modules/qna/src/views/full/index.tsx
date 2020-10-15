@@ -153,6 +153,7 @@ const QnAList: FC<Props> = ({
 
   const buttons: HeaderButtonProps[] = [
     {
+      id: 'btn-translate',
       icon: 'translate',
       optionsItems: languages?.map(language => ({
         label: lang.tr(`isoLangs.${language}.name`),
@@ -166,6 +167,7 @@ const QnAList: FC<Props> = ({
       tooltip: languesTooltip
     },
     {
+      id: 'btn-filter',
       icon: 'filter',
       disabled: !items.length,
       optionsWrapperClassName: style.filterWrapper,
@@ -203,6 +205,7 @@ const QnAList: FC<Props> = ({
       tooltip: lang.tr('module.qna.filterBy')
     },
     {
+      id: 'btn-sort',
       icon: 'sort',
       disabled: items.length < 2,
       optionsItems: [
@@ -224,12 +227,14 @@ const QnAList: FC<Props> = ({
       tooltip: lang.tr('module.qna.sortBy')
     },
     {
+      id: 'btn-expand',
       icon: allExpanded ? 'collapse-all' : 'expand-all',
       disabled: !items.length,
       onClick: () => dispatch({ type: allExpanded ? 'collapseAll' : 'expandAll' }),
       tooltip: lang.tr(allExpanded ? 'collapseAll' : 'expandAll')
     },
     {
+      id: 'btn-export',
       icon: 'export',
       disabled: !items.length,
       onClick: startDownload,
@@ -240,6 +245,7 @@ const QnAList: FC<Props> = ({
   if (!defaultLang || defaultLang === contentLang) {
     buttons.push(
       {
+        id: 'btn-import',
         content: (
           <span className={style.customBtn}>
             <Icon icon={'import' as IconName} />
@@ -256,6 +262,7 @@ const QnAList: FC<Props> = ({
         tooltip: lang.tr('module.qna.import.importQnAs')
       },
       {
+        id: 'btn-create-qna',
         icon: 'plus',
         onClick: () => {
           dispatch({ type: 'addQnA', data: { languages, topicName: topicName || 'global' } })
@@ -350,6 +357,7 @@ const QnAList: FC<Props> = ({
         {!!((items.length && !loading) || questionSearch.length) && (
           <div className={cx(sharedStyle.searchBar, style.searchBar)}>
             <input
+              id="input-search"
               type="text"
               value={questionSearch}
               onChange={e => setQuestionSearch(e.currentTarget.value)}

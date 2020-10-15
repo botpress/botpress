@@ -41,7 +41,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
   )
 
   router.post(
-    '/:topicName/questions',
+    '/:topicName?/questions',
     asyncMiddleware(async (req: Request, res: Response, next: Function) => {
       const { storage } = bots[req.params.botId]
       const id = await storage.updateSingleItem(req.params.topicName, req.body)
@@ -59,7 +59,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
   )
 
   router.get(
-    '/:topicName/questions/:id',
+    '/:topicName?/questions/:id',
     asyncMiddleware(async (req: Request, res: Response) => {
       const { storage } = bots[req.params.botId]
       const items = await storage.fetchItems(req.params.topicName)
@@ -72,7 +72,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
   )
 
   router.post(
-    '/:topicName/questions/:id',
+    '/:topicName?/questions/:id',
     asyncMiddleware(async (req: Request, res: Response, next: Function) => {
       const { storage } = bots[req.params.botId]
       await storage.updateSingleItem(req.params.topicName, { ...req.body, id: req.params.id })
@@ -82,7 +82,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
   )
 
   router.post(
-    '/:topicName/questions/:id/delete',
+    '/:topicName?/questions/:id/delete',
     asyncMiddleware(async (req: Request, res: Response) => {
       const { storage } = bots[req.params.botId]
       await storage.deleteSingleItem(req.params.topicName, req.params.id)
@@ -92,7 +92,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
   )
 
   router.post(
-    '/:topicName/actions/:id',
+    '/:topicName?/actions/:id',
     asyncMiddleware(async (req: Request, res: Response) => {
       const { storage } = bots[req.params.botId]
       const items = await storage.fetchItems(req.params.topicName)
@@ -108,7 +108,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
   )
 
   router.get(
-    '/:topicName/export',
+    '/:topicName?/export',
     asyncMiddleware(async (req: Request, res: Response) => {
       const { storage } = bots[req.params.botId]
       const topicName = req.params.topicName === 'undefined' ? 'questions' : req.params.topicName
@@ -124,7 +124,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
   )
 
   router.post(
-    '/:topicName/import',
+    '/:topicName?/import',
     multer().single('file'),
     asyncMiddleware(async (req: any, res: Response) => {
       const statusId = nanoid()

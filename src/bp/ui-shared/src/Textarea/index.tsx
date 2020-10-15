@@ -8,6 +8,7 @@ import style from './style.scss'
 import { TextareaProps } from './typings'
 
 const Textarea: FC<TextareaProps> = ({
+  id,
   refValue,
   forceUpdateHeight,
   isFocused,
@@ -63,6 +64,7 @@ const Textarea: FC<TextareaProps> = ({
   return (
     <Fragment>
       <textarea
+        id={id}
         onPaste={onPaste}
         style={{ height: height.current + 'px' }}
         ref={inputRef}

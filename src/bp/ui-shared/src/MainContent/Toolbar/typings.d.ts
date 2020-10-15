@@ -11,6 +11,7 @@ export interface ToolbarProps {
 }
 
 export interface ToolbarButtonProps {
+  id?: string
   onClick?: () => void
   icon?: IconName
   optionsWrapperClassName?: string

@@ -64,12 +64,12 @@ const tipPosition = (positionClasses, el) => {
   return { left, right }
 }
 
-const ToolTip: FC<ToolTipProps> = ({ children, content, position = 'top', hoverOpenDelay }) => {
+const ToolTip: FC<ToolTipProps> = ({ id, children, content, position = 'top', hoverOpenDelay }) => {
   if (!content) {
     return children
   }
 
-  const id = useRef(`botpress-tooltip-${_uniqueId()}`)
+  const id = useRef(id ?? `botpress-tooltip-${_uniqueId()}`)
   const timeout = useRef(null)
   const tooltipRef = useRef<HTMLDivElement>(null)
   const tipRef = useRef<HTMLDivElement>(null)
@@ -193,17 +193,17 @@ const ToolTip: FC<ToolTipProps> = ({ children, content, position = 'top', hoverO
   }
 
   const mouseMove = e => {
-    if (!e.target?.closest(`#${id.current}-trigger`)) {
+    if (!e.target?.closest(`#${id.current}`)) {
       hide()
     }
   }
 
   const handleHtmlRendering = (classNames = '', inlineStyle = {}, tipPos = {}) => {
     const body = document.getElementsByTagName('body')[0]
-    const toolTip = document.getElementById(id.current) as HTMLElement
+    const toolTip = document.getElementById(`${id.current}-tooltip`) as HTMLElement
     const div = document.createElement('div')
 
-    div.setAttribute('id', id.current)
+    div.setAttribute('id', `${id.current}-tooltip`)
 
     if (toolTip) {
       body.replaceChild(div, toolTip)
@@ -227,7 +227,7 @@ const ToolTip: FC<ToolTipProps> = ({ children, content, position = 'top', hoverO
 
     clearTimeout(timeout.current)
     timeout.current = setTimeout(() => {
-      const div = document.getElementById(id.current) as HTMLElement
+      const div = document.getElementById(`${id.current}-tooltip`) as HTMLElement
       if (div) {
         body.removeChild(div)
       }
@@ -235,7 +235,7 @@ const ToolTip: FC<ToolTipProps> = ({ children, content, position = 'top', hoverO
   }
 
   return cloneElement(Children.only(children), {
-    id: `${id.current}-trigger`,
+    id: id.current,
     onMouseEnter: show,
     onMouseLeave: hide
   })

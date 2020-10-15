@@ -136,10 +136,14 @@ export default class StorageLegacy {
   }
 
   async deleteSingleItem(topicName: string, itemId: string) {
-    await this.ensureIntentsFileExists(topicName)
-    const intents = await this.ghost.readFileAsObject<Intent[]>(FLOW_FOLDER, toQnaFile(topicName))
-    const newIntents = intents.filter(x => x.name !== itemId)
-    await this.ghost.upsertFile(FLOW_FOLDER, toQnaFile(topicName), serialize(newIntents))
+    const items = await this.fetchItems()
+    const item = items.find(x => x.id === itemId)
+
+    if (item) {
+      for (const context of item.contexts) {
+        await this._delFromTopic(item, context)
+      }
+    }
   }
 
   async moveToAnotherTopic(sourceTopic: string, targetTopic: string) {

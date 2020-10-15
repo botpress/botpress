@@ -306,6 +306,7 @@ const QnA: FC<Props> = props => {
             />
           )}
           <TextAreaList
+            id={`input-questions-${id}`}
             key="questions"
             items={questions || ['']}
             updateItems={items =>
