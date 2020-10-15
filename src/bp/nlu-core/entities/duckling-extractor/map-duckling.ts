@@ -1,6 +1,7 @@
+import _ from 'lodash'
 import { EntityExtractionResult } from 'nlu-core/typings'
 
-import { Duckling, DucklingDimension, DucklingReturn, DucklingType, DucklingValue, ValueUnit } from './typings'
+import { Duckling, DucklingDimension, DucklingReturn, DucklingType, DucklingValue, Value, ValueUnit } from './typings'
 
 export function mapDucklingToEntity(duck: Duckling): EntityExtractionResult {
   const dimensionData = getUnitAndValue(duck)
@@ -50,6 +51,13 @@ export function getUnitAndValue(duck: Duckling): ValueUnit {
     }
   }
 
+  if (_isValue(duck.value)) {
+    return {
+      value: duck.value.value,
+      unit: ''
+    }
+  }
+
   return {
     value: '',
     unit: ''
@@ -77,5 +85,11 @@ const _isTimeValue = (duckTime: DucklingValue<'time', DucklingType>): duckTime i
 const _isValueUnit = (
   duckValue: DucklingValue<DucklingDimension, DucklingType>
 ): duckValue is { type: DucklingType } & ValueUnit => {
-  return !!((duckValue as ValueUnit).value && (duckValue as ValueUnit).unit)
+  return _isValue(duckValue) && !!(duckValue as ValueUnit).unit
+}
+
+const _isValue = (
+  duckValue: DucklingValue<DucklingDimension, DucklingType>
+): duckValue is { type: DucklingType } & Value => {
+  return _.isNumber((duckValue as Value).value) || !!(duckValue as Value).value
 }
