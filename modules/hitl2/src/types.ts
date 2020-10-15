@@ -50,7 +50,7 @@ export interface EventType {
 
 export interface CommentType {
   id: string
-  userId: string
+  agentId: string
   escalationId: string
   content: string
   createdAt: Date
