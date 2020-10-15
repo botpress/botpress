@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import _ from 'lodash'
 
 import { Api, castEscalation } from './Api'
-import { Context } from './app/Store'
+import { Context, Store } from './app/Store'
 
 import { SocketMessageType } from './../../types'
 
@@ -125,4 +125,10 @@ const App = ({ bp }) => {
   )
 }
 
-export default App
+export default ({ bp }) => {
+  return (
+    <Store>
+      <App bp={bp} />
+    </Store>
+  )
+}
