@@ -6,7 +6,7 @@ import { Store, Context } from './agentStatus/Store'
 
 import { SocketMessageType } from './../../types'
 
-import { Icon } from '@blueprintjs/core'
+import AgentIcon from './Components/AgentIcon'
 
 const AgentStatus = ({ bp }) => {
   const api = Api(bp)
@@ -40,24 +40,7 @@ const AgentStatus = ({ bp }) => {
     return () => bp.events.off('hitl2', handleMessage)
   }, [])
 
-  return (
-    <div style={{ position: 'relative' }}>
-      <Icon icon="headset"></Icon>
-      {state.currentAgent?.online ? (
-        <span
-          style={{
-            top: -3,
-            right: -3,
-            width: '6px',
-            height: '6px',
-            position: 'absolute',
-            backgroundColor: '#0d8050',
-            borderRadius: '5px'
-          }}
-        ></span>
-      ) : null}
-    </div>
-  )
+  return <AgentIcon online={state.currentAgent?.online} />
 }
 
 export default ({ bp }) => {
