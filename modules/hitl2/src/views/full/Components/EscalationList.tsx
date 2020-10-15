@@ -2,6 +2,7 @@ import _ from 'lodash'
 import React, { FC, useContext, useState, useEffect } from 'react'
 
 import { ApiType } from '../Api'
+import { EscalationType } from './../../../types'
 
 import { Context, EscalationsMapType } from '../app/Store'
 
@@ -30,11 +31,11 @@ const EscalationList: FC<Props> = props => {
   })
   const [sortOption, setSortOption] = useState<SortType>('mostRecent')
 
-  function filterBy(item) {
+  function filterBy(item: EscalationType): boolean {
     const conditions = {
       unassigned: item.agentId == null,
-      assignedMe: item.agentId == state.currentAgent.id,
-      assignedOther: item.agentId !== null && item.agentId !== state.currentAgent.id
+      assignedMe: item.agentId == state.currentAgent?.id,
+      assignedOther: item.agentId !== null && item.agentId !== state.currentAgent?.id
     }
 
     return _.some(_.pickBy(conditions), (value, key) => filterOptions[key])
@@ -45,9 +46,9 @@ const EscalationList: FC<Props> = props => {
 
     switch (sortOption) {
       case 'mostRecent':
-        return [['createdAt'], ['asc']]
-      case 'leastRecent':
         return [['createdAt'], ['desc']]
+      case 'leastRecent':
+        return [['createdAt'], ['asc']]
       default:
         return
     }
