@@ -11,6 +11,7 @@ export type ActionType =
   | { type: 'setComment'; payload: CommentType }
   | { type: 'setAgent'; payload: SocketMessageType }
   | { type: 'setEscalation'; payload: SocketMessageType }
+  | { type: 'setRead'; payload: string }
   | { type: 'setError'; payload: any }
 
 const Reducer = (state: StateType, action: ActionType): StateType => {
@@ -33,6 +34,7 @@ const Reducer = (state: StateType, action: ActionType): StateType => {
     case 'setEscalations':
       return produce(state, draft => {
         draft.escalations = _.keyBy(action.payload, 'id') as EscalationsMapType
+        draft.reads = _.mapValues(draft.escalations, escalation => escalation.userConversation.createdOn)
       })
     case 'setComment':
       return produce(state, draft => {
@@ -57,12 +59,20 @@ const Reducer = (state: StateType, action: ActionType): StateType => {
       })
     case 'setEscalation':
       return produce(state, draft => {
+        console.log('setEscalation', action.payload.payload)
         draft.escalations = {
           ...draft.escalations,
           [action.payload.id]: {
             ...draft.escalations[action.payload.id],
             ...action.payload.payload
           }
+        }
+      })
+    case 'setRead':
+      return produce(state, draft => {
+        draft.reads = {
+          ...draft.reads,
+          [action.payload]: draft.escalations[action.payload].userConversation.createdOn
         }
       })
     case 'setError':

@@ -15,11 +15,16 @@ export interface EscalationsMapType {
   [key: string]: EscalationType
 }
 
+export interface ReadsMapType {
+  [key: string]: Date
+}
+
 export type StateType = {
   readonly currentAgent?: AgentType
   readonly currentEscalation?: EscalationType
   readonly agents: AgentsMapType
   readonly escalations: EscalationsMapType
+  readonly reads: ReadsMapType
   readonly error?: any
 }
 
@@ -28,6 +33,7 @@ const initialState: StateType = {
   currentEscalation: null,
   agents: {},
   escalations: {},
+  reads: {},
   error: null
 }
 

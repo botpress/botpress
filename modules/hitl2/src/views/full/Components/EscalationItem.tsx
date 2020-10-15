@@ -21,10 +21,12 @@ const EscalationItem: FC<Props> = props => {
 
   const { state, dispatch } = useContext(Context)
 
+  const [readStatus, setReadStatus] = useState('read')
   const [fromNow, setFromNow] = useState(moment(props.createdAt).fromNow())
 
   async function handleSelect(id: string) {
     dispatch({ type: 'setCurrentEscalation', payload: id })
+    dispatch({ type: 'setRead', payload: id })
   }
 
   async function handleAssign() {
@@ -64,6 +66,12 @@ const EscalationItem: FC<Props> = props => {
     return () => clearInterval(interval)
   }, [])
 
+  useEffect(() => {
+    state.reads[props.id] && props.userConversation.createdOn > state.reads[props.id]
+      ? setReadStatus('unread')
+      : setReadStatus('read')
+  }, [state.reads, props.userConversation])
+
   return (
     <Grid>
       <Row between="xs">
@@ -74,6 +82,7 @@ const EscalationItem: FC<Props> = props => {
             {lang.tr('module.hitl2.escalation.created', { date: fromNow })}
           </p>
           <p>From: {props.userConversation.channel}</p>
+          <p>{readStatus}</p>
         </Col>
         <Col>
           <EscalationBadge
