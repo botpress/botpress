@@ -8,7 +8,7 @@ import { Stream } from 'stream'
 import tar from 'tar'
 import tmp from 'tmp'
 
-export default class ModelService {
+export default class ModelRepository {
   constructor(private modelDir: string) {}
 
   public async init() {
@@ -67,14 +67,10 @@ export default class ModelService {
     tmpDir.removeCallback()
   }
 
-  public makeModelId(hash: string, languageCode: string, seed: number) {
-    return `${hash}.${languageCode}.${seed}`
-  }
-
   public makeFileName(modelId: string, password: string): string {
     const fname = crypto
       .createHash('md5')
-      .update(JSON.stringify({ modelId, password }))
+      .update(`${modelId}${password}`)
       .digest('hex')
 
     return `${fname}.model`

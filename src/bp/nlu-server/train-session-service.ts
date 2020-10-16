@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import crypto from 'crypto'
 import LRUCache from 'lru-cache'
 
 export default class TrainSessionService {
@@ -11,31 +12,41 @@ export default class TrainSessionService {
 
   constructor() {}
 
-  makeTrainingSession = (modelFileName: string, language: string): sdk.NLU.TrainingSession => ({
-    key: modelFileName,
+  makeTrainingSession = (modelId: string, password: string, language: string): sdk.NLU.TrainingSession => ({
+    key: this._makeTrainSessionKey(modelId, password),
     status: 'training',
     progress: 0,
     language
   })
 
-  getTrainingSession(modelFileName: string): sdk.NLU.TrainingSession | undefined {
-    const ts = this.trainSessions[modelFileName]
+  getTrainingSession(modelId: string, password: string): sdk.NLU.TrainingSession | undefined {
+    const key = this._makeTrainSessionKey(modelId, password)
+    const ts = this.trainSessions[key]
     if (ts) {
       return ts
     }
-    return this.releasedTrainSessions.get(modelFileName)
+    return this.releasedTrainSessions.get(key)
   }
 
-  setTrainingSession(modelFileName: string, trainSession: sdk.NLU.TrainingSession) {
-    if (this.releasedTrainSessions.get(modelFileName)) {
-      this.releasedTrainSessions.del(modelFileName)
+  setTrainingSession(modelId: string, password: string, trainSession: sdk.NLU.TrainingSession) {
+    const key = this._makeTrainSessionKey(modelId, password)
+    if (this.releasedTrainSessions.get(key)) {
+      this.releasedTrainSessions.del(key)
     }
-    this.trainSessions[modelFileName] = trainSession
+    this.trainSessions[key] = trainSession
   }
 
-  releaseTrainingSession(modelFileName: string): void {
-    const ts = this.trainSessions[modelFileName]
-    delete this.trainSessions[modelFileName]
-    this.releasedTrainSessions.set(modelFileName, ts)
+  releaseTrainingSession(modelId: string, password: string): void {
+    const key = this._makeTrainSessionKey(modelId, password)
+    const ts = this.trainSessions[key]
+    delete this.trainSessions[key]
+    this.releasedTrainSessions.set(key, ts)
+  }
+
+  private _makeTrainSessionKey(modelId: string, password: string) {
+    return crypto
+      .createHash('md5')
+      .update(`${modelId}${password}`)
+      .digest('hex')
   }
 }

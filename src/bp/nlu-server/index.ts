@@ -1,3 +1,4 @@
+import bytes from 'bytes'
 import chalk from 'chalk'
 import cluster from 'cluster'
 import _ from 'lodash'
@@ -32,6 +33,10 @@ export default async function(options: ArgV) {
     return
   } else if (cluster.isWorker && process.env.WORKER_TYPE !== WORKER_TYPES.WEB) {
     return
+  }
+
+  if (!bytes(options.bodySize)) {
+    throw new Error(`Specified body-size "${options.bodySize}" has an invalid format.`)
   }
 
   options.modelDir = options.modelDir || path.join(process.APP_DATA_PATH, 'models')
@@ -91,6 +96,24 @@ ${_.repeat(' ', 9)}========================================`)
     )
   } else {
     logger.info(`limit: ${chalk.redBright('disabled')} (no protection - anyone can query without limitation)`)
+  }
+
+  if (options.config) {
+    if (config.ducklingEnabled) {
+      logger.info(`duckling: ${chalk.greenBright('enabled')} url=${config.ducklingURL}`)
+    } else {
+      logger.info(`duckling: ${chalk.redBright('disabled')}`)
+    }
+
+    for (const source of config.languageSources) {
+      logger.info(`lang server: url=${source.endpoint}`)
+    }
+  }
+
+  logger.info(`body size: allowing HTTP resquests body of size ${options.bodySize}`)
+
+  if (options.batchSize > 0) {
+    logger.info(`batch size: allowing up to ${options.batchSize} predictions in one call to POST /predict`)
   }
 
   await API(options, nluVersion)

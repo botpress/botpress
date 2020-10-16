@@ -1,9 +1,9 @@
 import bodyParser from 'body-parser'
+import { IO } from 'botpress/sdk'
 import cors from 'cors'
 import express, { Application } from 'express'
 import rateLimit from 'express-rate-limit'
 import { createServer } from 'http'
-import { validate } from 'joi'
 import _ from 'lodash'
 import ms from 'ms'
 import Engine from 'nlu-core/engine'
@@ -12,11 +12,12 @@ import { authMiddleware, handleErrorLogging, handleUnexpectedError } from '../ht
 import Logger from '../simple-logger'
 
 import makeLoggerWrapper from './logger-wrapper'
-import ModelService from './model-service'
+import ModelService from './model/model-service'
+import removeNoneIntent from './remove-none'
 import TrainService from './train-service'
 import TrainSessionService from './train-session-service'
-import { TrainInput } from './typings'
-import { TrainInputCreateSchema } from './validation'
+import { mapTrainInput } from './utils'
+import validateInput from './validation/validate'
 
 export interface APIOptions {
   host: string
@@ -25,6 +26,8 @@ export interface APIOptions {
   authToken?: string
   limitWindow: string
   limit: number
+  bodySize: string
+  batchSize: number
 }
 
 const debug = DEBUG('api')
@@ -36,7 +39,7 @@ const createExpressApp = (options: APIOptions): Application => {
   // This must be first, otherwise the /info endpoint can't be called when token is used
   app.use(cors())
 
-  app.use(bodyParser.json({ limit: '250kb' }))
+  app.use(bodyParser.json({ limit: options.bodySize }))
 
   app.use((req, res, next) => {
     res.header('X-Powered-By', 'Botpress')
@@ -85,23 +88,17 @@ export default async function(options: APIOptions, nluVersion: string) {
   const router = express.Router({ mergeParams: true })
   router.post('/train', async (req, res) => {
     try {
-      // TODO: add actual validation that all slots reference existing entities
-      // and all dollar signs $ reference existing slots
-      const input: TrainInput = await validate(req.body, TrainInputCreateSchema, {
-        stripUnknown: true
-      })
+      const input = await validateInput(req.body)
+      const { intents, entities, seed, language, password } = mapTrainInput(input)
 
-      const { topics, entities, language, password } = input
-      const intents = _.flatMap(Object.values(topics))
-      const modelHash = engine.computeModelHash(intents, input.entities, input.language)
+      const modelHash = engine.computeModelHash(intents, entities, language)
 
-      const seed = input.seed ?? Math.round(Math.random() * 10000)
-      const modelId = modelService.makeModelId(modelHash, input.language, seed)
-      const modelFileName = modelService.makeFileName(modelId, password)
+      const pickedSeed = seed ?? Math.round(Math.random() * 10000)
+      const modelId = modelService.makeModelId(modelHash, input.language, pickedSeed)
 
       // return the modelId as fast as possible
       // tslint:disable-next-line: no-floating-promises
-      trainService.train(modelFileName, intents, entities, language, seed)
+      trainService.train(modelId, password, intents, entities, language, pickedSeed)
 
       return res.send({ success: true, modelId })
     } catch (err) {
@@ -113,10 +110,9 @@ export default async function(options: APIOptions, nluVersion: string) {
     try {
       const { modelId } = req.params
       const { password } = req.query
-      const modelFileName = modelService.makeFileName(modelId, password ?? '')
-      let session = trainSessionService.getTrainingSession(modelFileName)
+      let session = trainSessionService.getTrainingSession(modelId, password)
       if (!session) {
-        const model = await modelService.getModel(modelFileName)
+        const model = await modelService.getModel(modelId, password ?? '')
 
         if (!model) {
           return res
@@ -141,12 +137,13 @@ export default async function(options: APIOptions, nluVersion: string) {
   router.post('/train/:modelId/cancel', async (req, res) => {
     try {
       const { modelId } = req.params
-      const { password } = req.body
-      const modelFileName = modelService.makeFileName(modelId, password ?? '')
-      const session = trainSessionService.getTrainingSession(modelFileName)
+      let { password } = req.body
+      password = password ?? ''
+
+      const session = trainSessionService.getTrainingSession(modelId, password)
 
       if (session?.status === 'training') {
-        await engine.cancelTraining(modelFileName)
+        await engine.cancelTraining(session.key)
         return res.send({ success: true })
       }
 
@@ -159,17 +156,25 @@ export default async function(options: APIOptions, nluVersion: string) {
   router.post('/predict/:modelId', async (req, res) => {
     try {
       const { modelId } = req.params
-      const { sentence, password } = req.body
-      const modelFileName = modelService.makeFileName(modelId, password ?? '')
-      const model = await modelService.getModel(modelFileName)
+      const { texts, password } = req.body
+
+      if (!_.isArray(texts) || (options.batchSize > 0 && texts.length > options.batchSize)) {
+        throw new Error(
+          `Batch size of ${texts.length} is larger than the allowed maximum batch size (${options.batchSize}).`
+        )
+      }
+
+      const model = await modelService.getModel(modelId, password)
 
       if (model) {
         await engine.loadModel(model)
 
-        const prediction = await engine.predict(sentence, [], model?.languageCode!)
+        const rawPredictions = await Promise.map(texts as string[], t => engine.predict(t, [], model.languageCode))
+        const withoutNone = rawPredictions.map(removeNoneIntent)
+
         engine.unloadModel(model.languageCode)
 
-        return res.send({ success: true, prediction })
+        return res.send({ success: true, predictions: withoutNone })
       }
 
       res.status(404).send({ success: false, error: `modelId ${modelId} can't be found` })

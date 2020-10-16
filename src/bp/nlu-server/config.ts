@@ -2,7 +2,7 @@ import { NLU } from 'botpress/sdk'
 import fse from 'fs-extra'
 import { validate } from 'joi'
 
-import { NLUConfigSchema } from './validation'
+import { NLUConfigSchema } from './validation/schemas'
 
 export const DEFAULT_LANG_SERVER = 'https://lang-01.botpress.io'
 export const DEFAULT_DUCK_SERVER = 'https://duckling.botpress.io'

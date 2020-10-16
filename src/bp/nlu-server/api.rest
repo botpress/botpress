@@ -12,36 +12,31 @@ Content-Type: application/json
 
 {
   "language": "en",
-  "topics": {
-    "global": [
-      {
-        "name": "fruit-is-moldy",
-        "utterances": {
-          "en": [
+  "topics": [
+    {
+      "name": "global",
+      "intents": [
+        {
+          "name": "fruit-is-moldy",
+          "examples": [
             "fruit is moldy",
             "this fruit is moldy",
             "this $moldy_fruit is not good to eat",
             "theses $moldy_fruit have passed",
             "theses $moldy_fruit look bad",
             "theses $moldy_fruit look soo moldy"
+          ],
+          "variables": [
+            {
+              "name": "moldy_fruit",
+              "type": "fruits"
+            }
           ]
         },
-        "slots": [
-          {
-            "id": "hxr9f-c7FmkQaZsXqdTvc",
-            "name": "moldy_fruit",
-            "entity": "fruits",
-            "color": 1
-          }
-        ],
-        "contexts": ["global"]
-      },
-      {
-        "name": "hello",
-        "contexts": ["global"],
-        "slots": [],
-        "utterances": {
-          "en": [
+        {
+          "name": "hello",
+          "variables": [],
+          "examples": [
             "good day!",
             "good morning",
             "holla",
@@ -54,12 +49,10 @@ Content-Type: application/json
             "hi",
             "hello"
           ]
-        }
-      },
-      {
-        "name": "talk-to-manager",
-        "utterances": {
-          "en": [
+        },
+        {
+          "name": "talk-to-manager",
+          "examples": [
             "talk to manager",
             "I want to talk to the manager",
             "Who's your boss?",
@@ -68,36 +61,40 @@ Content-Type: application/json
             "Can I talk to your boss? plz",
             "I wanna speak to manager please",
             "let me speak to your fucking boss or someone"
-          ]
+          ],
+          "variables": []
         },
-        "slots": [],
-        "contexts": ["global"]
-      },
-      {
-        "name": "where-is",
-        "utterances": {
-          "en": [
+        {
+          "name": "where-is",
+          "examples": [
             "where is $thing_to_search ?",
             "where are $thing_to_search ?",
             "can you help me find $thing_to_search ?",
             "I'm searching for $thing_to_search ?",
             "where is the $thing_to_search ?",
             "where are the $thing_to_search ?"
+          ],
+          "variables": [
+            {
+              "name": "thing_to_search",
+              "type": "fruits"
+            }
           ]
-        },
-        "slots": [
-          {
-            "id": "CHXyZ20FCsaagRJ7OO_3Y",
-            "name": "thing_to_search",
-            "entity": "fruits",
-            "color": 1
-          }
-        ],
-        "contexts": ["global"]
-      }
-    ]
-  },
-  "entities": [],
+        }
+      ]
+    }
+  ],
+  "enums": [
+    {
+      "name": "fruits",
+      "fuzzy": 0.9,
+      "values": [
+        { "name": "banana", "synonyms": ["bananas"] },
+        { "name": "apple", "synonyms": ["apples"] },
+        { "name": "grape", "synonyms": ["grapes"] }
+      ]
+    }
+  ],
   "password": "123456",
   "seed": 42
 }
@@ -126,6 +123,6 @@ POST {{api}}/predict/{{modelId}}
 Content-Type: application/json
 
 {
-  "sentence" : "These grapes look moldy",
+  "texts" : ["These grapes look moldy", "Can I talk with the person in charge?"],
   "password": "123456"
 }
