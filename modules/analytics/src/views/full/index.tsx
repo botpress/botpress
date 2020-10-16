@@ -420,7 +420,7 @@ const Analytics: FC<any> = ({ bp }) => {
           name={lang.tr('module.analytics.mostAskedQuestions')}
           items={state.topQnaQuestions.map(q => ({
             count: q.count,
-            label: q.question || `[${lang.tr('module.analytics.deletedQna')}, ID: ${q.id.replace(`__qna__`, '')}]`,
+            label: q.question || renderDeletedQna(q.id),
             onClick: q.question ? navigateToElement(q.id, 'qna') : undefined
           }))}
           className={cx(style.genericMetric, style.half, style.list)}
@@ -428,6 +428,9 @@ const Analytics: FC<any> = ({ bp }) => {
       </div>
     )
   }
+
+  const renderDeletedQna = (id: string) =>
+    `[${lang.tr('module.analytics.deletedQna')}, ID: ${id.replace(`__qna__`, '')}]`
 
   const getLanguagesData = () => {
     const metrics = state.metrics.filter(m => m.metric === 'msg_nlu_language')
