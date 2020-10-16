@@ -6,14 +6,12 @@ import { createApi } from '../api'
 import en from '../translations/en.json'
 import fr from '../translations/fr.json'
 
-import dialogConditions from './dialog-conditions'
 import { getOnBotMount } from './module-lifecycle/on-bot-mount'
 import { getOnBotUnmount } from './module-lifecycle/on-bot-unmount'
 import { getOnServerReady } from './module-lifecycle/on-server-ready'
 import { getOnSeverStarted } from './module-lifecycle/on-server-started'
 import { NLUState } from './typings'
 
-const langServerInfo = { version: '', domain: '', dim: 0 }
 const state: NLUState = {
   nluByBot: {},
   sendNLUStatusEvent: async () => {}
@@ -61,7 +59,6 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onBotMount,
   onBotUnmount,
   onModuleUnmount,
-  dialogConditions,
   onTopicChanged,
   translations: { en, fr },
   definition: {

@@ -102,11 +102,9 @@ export const TrainingStatusComponent: FC<Props> = props => {
         <span className={style.message}>{message}</span>
 
         {status === 'needs-training' && (
-          <ToolTip content={lang.tr('statusBar.trainChatbotTooltip')}>
-            <Button minimal className={style.button} onClick={onTrainClicked}>
-              {lang.tr('statusBar.trainChatbot')}
-            </Button>
-          </ToolTip>
+          <Button minimal className={style.button} onClick={onTrainClicked}>
+            {lang.tr('statusBar.trainChatbot')}
+          </Button>
         )}
         {status === 'training' && (
           <Button minimal className={cx(style.button, style.danger)} onClick={onCancelClicked}>

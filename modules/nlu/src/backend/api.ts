@@ -4,7 +4,6 @@ import _ from 'lodash'
 
 import { createApi } from '../api'
 
-import recommendations from './intents/recommendations'
 import legacyElectionPipeline from './legacy-election'
 import { getTrainingSession } from './train-session-service'
 import { NLUState } from './typings'
@@ -94,9 +93,5 @@ export default async (bp: typeof sdk, state: NLUState) => {
     } catch {
       res.sendStatus(500)
     }
-  })
-
-  router.get('/ml-recommendations', async (req, res) => {
-    res.send(recommendations)
   })
 }

@@ -1,10 +1,5 @@
 import { NLU } from 'botpress/sdk'
 
-export interface NluMlRecommendations {
-  minUtterancesForML: number
-  goodUtterancesForML: number
-}
-
 export type NLUState = {
   nluByBot: _.Dictionary<BotState>
   broadcastLoadModel?: (botId: string, hash: string, language: string) => Promise<void>
