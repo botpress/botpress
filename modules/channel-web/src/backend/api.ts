@@ -303,8 +303,12 @@ export default async (bp: typeof sdk, db: Database) => {
     asyncMiddleware(async (req: BPRequest, res: Response) => {
       const payload = req.body || {}
       const { botId = undefined, userId = undefined } = req.params || {}
+      let { conversationId = undefined } = req.query || {}
       await bp.users.getOrCreateUser('web', userId, botId)
-      const conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
+
+      if (!conversationId) {
+        conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
+      }
 
       const event = bp.IO.Event({
         botId,

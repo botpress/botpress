@@ -20,6 +20,7 @@
   "handlingAndUnderstanding": "Manipulation et compréhension",
   "interval": "{startDate} à {endDate}",
   "messageExchanged": "Messages échangés",
+  "messagesByLanguage": "Messages par langue",
   "messagesReceived": "Messages reçus",
   "misunderstoodMessages": "messages incompris",
   "mostAskedQuestions": "10 Questions les plus posées",

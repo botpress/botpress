@@ -38,9 +38,17 @@ const validateChoice = async data => {
     choice = _.findKey(data.keywords, keywords =>
       _.some(keywords || [], k => {
         const keyword = lcstr(k)
-        return preview.includes(keyword) || userText.includes(keyword) || choiceValue.includes(keyword)
+        return preview === keyword || userText === keyword || choiceValue === keyword
       })
     )
+    if (!choice) {
+      choice = _.findKey(data.keywords, keywords =>
+        _.some(keywords || [], k => {
+          const keyword = lcstr(k)
+          return preview.includes(keyword) || userText.includes(keyword) || choiceValue.includes(keyword)
+        })
+      )
+    }
   }
 
   const keySuffix = args.randomId ? `-${args.randomId}` : ''
