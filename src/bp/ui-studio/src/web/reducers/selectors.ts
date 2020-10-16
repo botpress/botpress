@@ -4,6 +4,8 @@ import { FlowView, Prompts, Variables } from 'common/typings'
 import _ from 'lodash'
 import { createSelector } from 'reselect'
 
+import { flattenNodesStructure } from '../util'
+
 import { RootReducer } from '.'
 
 const _getFlowsByName = (state: RootReducer) => state.flows?.flowsByName
@@ -57,29 +59,43 @@ export const getFlowNamesList = createSelector([getAllFlows], flows => {
   })
 })
 
+export const getFlattenCurrentFlow = createSelector(
+  [_getFlowsByName, _getCurrentFlow],
+  (flowsByName, currFlow): FlowView => {
+    return flowsByName[currFlow]
+  }
+)
+
 export const getCurrentFlow = createSelector(
   [_getFlowsByName, _getCurrentFlow],
   (flowsByName, currFlow): FlowView => {
 
-  if (!flowsByName[currFlow]) {
-    return
-  }
-
-  const nodes = flowsByName[currFlow]?.nodes?.reduce((acc, node: any) => {
-    if (node.isMagnetNode) {
-      acc = acc.map(x => {
-        if (node.name !== x.next?.[0].node) {
-          return x
-        }
-
-        return { ...x, childrenNodes: [...(x.childrenNodes ? x.childrenNodes : []), node] }
-      })
+    if (!flowsByName[currFlow]) {
+      return
     }
 
-    return [...acc, ...(!node.isMagnetNode ? [node] : [])]
-  }, [])
+    const mapMagnetNodes = (x, node) => {
+      if (node.name !== x.next?.[0].node) {
+        if (!x.childrenNodes) {
+          return x
+        } else {
+          return { ...x, childrenNodes: x.childrenNodes.map(y => mapMagnetNodes(y, node)) }
+        }
+      }
 
-  return {...flowsByName[currFlow], nodes}
+      return { ...x, childrenNodes: [...(x.childrenNodes ? x.childrenNodes : []), node] }
+    }
+
+
+    const nodes = flowsByName[currFlow]?.nodes?.reduce((acc, node: any) => {
+      if (node.isMagnetNode) {
+        acc = acc.map(x => mapMagnetNodes(x, node))
+      }
+
+      return [...acc, ...(!node.isMagnetNode ? [node] : [])]
+    }, [])
+
+    return {...flowsByName[currFlow], nodes}
   }
 )
 
@@ -135,7 +151,7 @@ export const getCallerFlowsOutcomeUsage = createSelector(
   }
 )
 
-export const getCurrentFlowNode = createSelector([getCurrentFlow, _getCurrentFlowNode], (currentFlow, currFlowNode):
+export const getCurrentFlowNode = createSelector([getFlattenCurrentFlow, _getCurrentFlowNode], (currentFlow, currFlowNode):
   | FlowNode
   | undefined => {
   return _.find(currentFlow?.nodes, { id: currFlowNode })

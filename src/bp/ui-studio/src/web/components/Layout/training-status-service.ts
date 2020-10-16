@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { NLU } from 'botpress/sdk'
+import storage from '~/util/storage'
 import EventBus from '~/util/EventBus'
 
 export class TrainingStatusService {
@@ -18,7 +19,7 @@ export class TrainingStatusService {
   public startPolling() {
     EventBus.default.on('statusbar.event', this.onStatusBarEvent)
     this.pollingHandle = window.setInterval(
-      () => this.session?.status !== 'training' && this.fetchTrainingStatus(),
+      () => !storage.get('skipTraining') && this.session?.status !== 'training' && this.fetchTrainingStatus(),
       1500
     ) // for training-needed
   }

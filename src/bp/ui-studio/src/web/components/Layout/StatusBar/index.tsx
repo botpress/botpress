@@ -1,7 +1,9 @@
+import { Button } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useReducer, useState } from 'react'
 import { connect } from 'react-redux'
+import storage from '~/util/storage'
 
 import style from './style.scss'
 import ConfigStatus from './ConfigStatus'
@@ -30,6 +32,7 @@ export const formReducer = (state, action) => {
 const StatusBar: FC<Props> = props => {
   const [state, dispatch] = useReducer(formReducer, { title: '', body: '' })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [forceUpdate, setForceUpdate] = useState(false)
   return (
     <footer className={style.statusBar}>
       <div className={style.item}>
@@ -62,6 +65,18 @@ const StatusBar: FC<Props> = props => {
         )}
       </div>
       <div className={style.item}>
+        {storage.get('skipTraining') && (
+          <Button
+            minimal
+            className={style.button}
+            onClick={() => {
+              storage.del('skipTraining')
+              setForceUpdate(!forceUpdate)
+            }}
+          >
+            Resume Training Polling
+          </Button>
+        )}
         <TrainingStatusComponent />
         {props.user && props.user.isSuperAdmin && <ConfigStatus />}
       </div>

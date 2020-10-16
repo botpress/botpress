@@ -141,6 +141,7 @@ class Diagram extends Component<Props> {
       editNodeItem: this.editNodeItem.bind(this),
       selectedNodeItem: () => this.getPropsProperty('activeFormItem'),
       deleteSelectedElements: this.deleteSelectedElements.bind(this),
+      deleteSingleNode: this.deleteSingleNode.bind(this),
       getCurrentFlow: () => this.getPropsProperty('currentFlow'),
       updateFlowNode: this.updateNodeAndRefresh.bind(this),
       switchFlowNode: this.switchFlowNode.bind(this),
@@ -283,7 +284,7 @@ class Diagram extends Component<Props> {
     }
 
     if (this.dragPortSource) {
-      console.log(!prevProps.currentFlowNode && this.props.currentFlowNode)
+      // console.log(this.props.currentFlowNode)
     }
     if (this.dragPortSource && !prevProps.currentFlowNode && this.props.currentFlowNode) {
       // tslint:disable-next-line: no-floating-promises
@@ -786,6 +787,10 @@ class Diagram extends Component<Props> {
     } else {
       element.remove() // it's a point or something else
     }
+  }
+
+  deleteSingleNode(node) {
+    this.props.removeFlowNode(node)
   }
 
   deleteSelectedElements() {

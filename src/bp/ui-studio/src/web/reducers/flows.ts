@@ -1,6 +1,6 @@
 import { FlowNode } from 'botpress/sdk'
 import { FlowView, NodeView } from 'common/typings'
-import _ from 'lodash'
+import _, { flatten } from 'lodash'
 import reduceReducers from 'reduce-reducers'
 import { handleActions } from 'redux-actions'
 import {
@@ -499,6 +499,23 @@ let reducer = handleActions(
   defaultState
 )
 
+const getMagnetNodesIds = (node, nodes) => {
+  let nodeIds = []
+  const next = node.next.find(next => next.condition === 'true' && next.node !== '')
+
+  if (next) {
+    const nodeToRemove = _.find(nodes, { name: next.node })
+    if (nodeToRemove) {
+      nodeIds = nodeIds.concat(nodeToRemove.id)
+      if (nodeToRemove.next.find(next => next.condition === 'true' && next.node !== '')) {
+        nodeIds = nodeIds.concat(getMagnetNodesIds(nodeToRemove, nodes))
+      }
+    }
+  }
+
+  return nodeIds
+}
+
 reducer = reduceReducers(
   reducer,
   handleActions(
@@ -786,6 +803,7 @@ reducer = reduceReducers(
         const flowsToRemove = []
         const flattenNodes = flattenNodesStructure(state.flowsByName[state.currentFlow].nodes)
         const nodeToRemove = _.find(flattenNodes, { id: payload?.id })
+        const nodeToRemoveIds = [payload.id, ...getMagnetNodesIds(nodeToRemove, flattenNodes)]
 
         if (nodeToRemove.type === 'skill-call') {
           if (findNodesThatReferenceFlow(state, nodeToRemove.flow).length <= 1) {
@@ -800,7 +818,7 @@ reducer = reduceReducers(
             ..._.omit(state.flowsByName, flowsToRemove),
             [state.currentFlow]: {
               ...state.flowsByName[state.currentFlow],
-              nodes: flattenNodes.filter(node => node.id !== payload.id)
+              nodes: flattenNodes.filter(node => !nodeToRemoveIds.includes(node.id))
             }
           }
         }
@@ -885,8 +903,11 @@ reducer = reduceReducers(
 
       [requestCreateFlowNode]: (state, { payload }) => {
         const flattenNodes = flattenNodesStructure(state.flowsByName[state.currentFlow].nodes)
+        const id = prettyId()
+
         return {
         ...state,
+        currentFlowNode: id,
         flowsByName: {
           ...state.flowsByName,
           [state.currentFlow]: {
@@ -895,7 +916,7 @@ reducer = reduceReducers(
               ...flattenNodes,
               _.merge(
                 {
-                  id: prettyId(),
+                  id,
                   name: getNextNodeName(payload.type, flattenNodes),
                   x: 0,
                   y: 0,

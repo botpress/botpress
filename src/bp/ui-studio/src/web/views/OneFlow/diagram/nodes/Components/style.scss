@@ -88,6 +88,11 @@
   border-radius: 0 0 5px 5px;
   transition: border 0.3s;
 
+  .nodeWrapper {
+    border: none !important;
+    width: 148px;
+  }
+
   &.highlighted {
     border: 1px solid var(--ocean) !important;
 

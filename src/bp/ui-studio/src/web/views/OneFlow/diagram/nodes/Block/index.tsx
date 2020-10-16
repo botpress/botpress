@@ -25,7 +25,8 @@ interface Props {
   node: BlockModel
   getCurrentFlow: () => FlowView
   handlePortClick: (e: React.MouseEvent, node: BlockModel) => void
-  onDeleteSelectedElements: () => void
+  onDeleteSelectedElements?: () => void
+  deleteSingleNode?: (node: BlockModel) => void
   editNodeItem: (node: BlockModel, index: number) => void
   selectedNodeItem: () => { node: BlockModel; index: number }
   getConditions: () => DecisionTriggerCondition[]
@@ -55,6 +56,7 @@ const BlockWidget: FC<Props> = ({
   handlePortClick,
   editNodeItem,
   onDeleteSelectedElements,
+  deleteSingleNode,
   selectedNodeItem,
   getConditions,
   switchFlowNode,
@@ -104,7 +106,7 @@ const BlockWidget: FC<Props> = ({
             </div>
           }
           intent={Intent.DANGER}
-          onClick={onDeleteSelectedElements}
+          onClick={() => (onDeleteSelectedElements ? onDeleteSelectedElements() : deleteSingleNode(node))}
         />
       </Menu>
     )
@@ -112,14 +114,9 @@ const BlockWidget: FC<Props> = ({
 
   const inputPortInHeader = !['trigger'].includes(nodeType) && !isMagnetNode
   const outPortInHeader = !['failure', 'prompt', 'router', 'success', 'sub-workflow'].includes(nodeType)
-  const canCollapse = !['failure', 'prompt', 'router', 'success', 'sub-workflow'].includes(nodeType)
   const hasContextMenu = !['failure', 'success'].includes(nodeType)
 
   const debugInfo = getDebugInfo(node.name)
-
-  if (node.next?.[0].condition === 'true' && node.next?.[0].node !== '') {
-    // console.log(getCurrentFlow()?.nodes.filter(node => node.name === node.next?.[0].node))
-  }
 
   const renderContents = (passedNode?) => {
     const theNode = passedNode || node
@@ -177,7 +174,6 @@ const BlockWidget: FC<Props> = ({
     }
   }
 
-  // console.log(node)
   return (
     <Fragment>
       <NodeWrapper isHighlighed={node.isHighlighted || node.isSelected()}>
@@ -194,6 +190,7 @@ const BlockWidget: FC<Props> = ({
           {outPortInHeader && (
             <StandardPortWidget
               name="out0"
+              hidden={!!node.childrenNodes?.length}
               node={node}
               className={cx(style.out, style.portBtn)}
               simplePortClick={e => handlePortClick(e, node)}
@@ -201,28 +198,29 @@ const BlockWidget: FC<Props> = ({
           )}
         </NodeHeader>
         {renderContents()}
+        {node.childrenNodes?.map((childNode, index) => {
+          const modelNode = new BlockModel(childNode as any)
+
+          return (
+            <BlockWidget
+              key={index}
+              node={modelNode}
+              handlePortClick={handlePortClick}
+              getCurrentFlow={getCurrentFlow}
+              getLanguage={getLanguage}
+              editNodeItem={editNodeItem}
+              deleteSingleNode={deleteSingleNode}
+              selectedNodeItem={selectedNodeItem}
+              getConditions={getConditions}
+              switchFlowNode={switchFlowNode}
+              addCondition={addCondition}
+              addMessage={addMessage}
+              getDebugInfo={getDebugInfo}
+              getFlows={getFlows}
+            />
+          )
+        })}
       </NodeWrapper>
-      {node.childrenNodes?.map((childNode, index) => {
-        const modelNode = new BlockModel(childNode as any)
-        return (
-          <BlockWidget
-            key={index}
-            node={modelNode}
-            handlePortClick={handlePortClick}
-            getCurrentFlow={getCurrentFlow}
-            getLanguage={getLanguage}
-            editNodeItem={editNodeItem}
-            onDeleteSelectedElements={onDeleteSelectedElements}
-            selectedNodeItem={selectedNodeItem}
-            getConditions={getConditions}
-            switchFlowNode={switchFlowNode}
-            addCondition={addCondition}
-            addMessage={addMessage}
-            getDebugInfo={getDebugInfo}
-            getFlows={getFlows}
-          />
-        )
-      })}
     </Fragment>
   )
 }
@@ -318,6 +316,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
   private editNodeItem: (node: BlockModel, index: number) => void
   private selectedNodeItem: () => { node: BlockModel; index: number }
   private deleteSelectedElements: () => void
+  private deleteSingleNode: (node: BlockModel) => void
   private getConditions: () => DecisionTriggerCondition[]
   private handlePortClick: (e: React.MouseEvent, node: BlockModel) => void
   private getCurrentFlow: () => FlowView
@@ -334,6 +333,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
     this.editNodeItem = methods.editNodeItem
     this.selectedNodeItem = methods.selectedNodeItem
     this.deleteSelectedElements = methods.deleteSelectedElements
+    this.deleteSingleNode = methods.deleteSingleNode
     this.handlePortClick = methods.handlePortClick
     this.getCurrentFlow = methods.getCurrentFlow
     this.getConditions = methods.getConditions
@@ -354,6 +354,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
         getLanguage={this.getLanguage}
         editNodeItem={this.editNodeItem}
         onDeleteSelectedElements={this.deleteSelectedElements}
+        deleteSingleNode={this.deleteSingleNode}
         selectedNodeItem={this.selectedNodeItem}
         getConditions={this.getConditions}
         switchFlowNode={this.switchFlowNode}
