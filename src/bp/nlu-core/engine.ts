@@ -10,7 +10,7 @@ import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipe
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
 import { computeKmeans, ProcessIntents, Trainer, TrainInput, TrainOutput } from './training-pipeline'
-import { EntityCacheDump, Intent, ListEntity, ListEntityModel, PatternEntity, Tools } from './typings'
+import { EntityCacheDump, Intent, ListEntity, ListEntityModel, NLUVersionInfo, PatternEntity, Tools } from './typings'
 
 const trainDebug = DEBUG('nlu').sub('training')
 
@@ -49,13 +49,8 @@ export default class Engine implements NLU.Engine {
   }
 
   // we might want to make this language specific
-  public computeModelHash(
-    intents: NLU.IntentDefinition[],
-    entities: NLU.EntityDefinition[],
-    version: NLUVersionInfo,
-    lang: string
-  ): string {
-    const { nluVersion, langServerInfo } = version
+  public computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string {
+    const { nluVersion, langServerInfo } = Engine._version
 
     const singleLangIntents = intents.map(i => ({ ...i, utterances: i.utterances[lang] }))
 
@@ -142,7 +137,7 @@ export default class Engine implements NLU.Engine {
       ctxToTrain
     }
 
-    const hash = this.computeModelHash(intentDefs, entityDefs, Engine._version, languageCode)
+    const hash = this.computeModelHash(intentDefs, entityDefs, languageCode)
     const model = await this._trainAndMakeModel(input, hash, reportTrainingProgress)
     if (!model) {
       return

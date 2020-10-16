@@ -154,7 +154,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
   }
 
   public get langServerInfo(): LangServerInfo {
-    return this._version.langServerInfo
+    return this._langServerInfo
   }
 
   private extractLangServerInfo(data) {
@@ -168,8 +168,7 @@ export class RemoteLanguageProvider implements LanguageProvider {
       dim: data.dimentions,
       domain: data.domain
     }
-
-    this._version = { ...this._version, langServerInfo }
+    this._langServerInfo = langServerInfo
   }
 
   private computeCacheFilesPaths = () => {
@@ -516,11 +515,11 @@ export class RemoteLanguageProvider implements LanguageProvider {
   }
 
   private computeVersionHash = () => {
-    const { nluVersion, langServerInfo } = this._version
-    const { dim, domain, version: langServerVersion } = langServerInfo
+    const { _nluVersion, _langServerInfo } = this
+    const { dim, domain, version: langServerVersion } = _langServerInfo
 
     const omitPatchNumber = (v: string) => `${semver.major(v)}.${semver.minor(v)}.0`
-    const hashContent = `${omitPatchNumber(nluVersion)}:${omitPatchNumber(langServerVersion)}:${dim}:${domain}`
+    const hashContent = `${omitPatchNumber(_nluVersion)}:${omitPatchNumber(langServerVersion)}:${dim}:${domain}`
     return crypto
       .createHash('md5')
       .update(hashContent)
