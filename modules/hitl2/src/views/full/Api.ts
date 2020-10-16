@@ -41,7 +41,7 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
 
   return {
     setOnline: async () => bp.axios.post(`${base}/agents/me/online`).then(res => res.data),
-    setOffline: async () => bp.axios.delete(`${base}/agents/me/online`).then(res => res.data),
+    setOffline: async () => bp.axios.post(`${base}/agents/me/offline`).then(res => res.data),
     getAgents: async (online?: boolean) =>
       bp.axios.get(`${base}/agents`, { params: { online: online } }).then(res => res.data),
     getCurrentAgent: async () => bp.axios.get(`${base}/agents/me`).then(res => res.data),

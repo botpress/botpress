@@ -88,8 +88,8 @@ export default async (bp: typeof sdk, state) => {
     })
   )
 
-  router.delete(
-    '/agents/me/online',
+  router.post(
+    '/agents/me/offline',
     hitlMiddleware(async (req: RequestWithUser, res: Response) => {
       const { email, strategy } = req.tokenUser!
       const agentId = makeAgentId(strategy, email)
