@@ -1,20 +1,12 @@
 import * as sdk from 'botpress/sdk'
-import Joi, { validate } from 'joi'
+import Joi from 'joi'
 import _ from 'lodash'
+
+import { createApi } from '../api'
 
 import { isOn as isAutoTrainOn, set as setAutoTrain } from './autoTrain'
 import Engine from './engine'
-import { EntityDefCreateSchema } from './entities/validation'
-import {
-  deleteIntent,
-  getIntent,
-  getIntents,
-  saveIntent,
-  updateContextsFromTopics,
-  updateIntent
-} from './intents/intent-service'
 import recommendations from './intents/recommendations'
-import { IntentDefCreateSchema } from './intents/validation'
 import legacyElectionPipeline from './legacy-election'
 import { crossValidate } from './tools/cross-validation'
 import { getTrainingSession } from './train-session-service'
@@ -27,14 +19,6 @@ export const PredictSchema = Joi.object().keys({
   text: Joi.string().required()
 })
 
-const removeSlotsFromUtterances = (utterances: { [key: string]: any }, slotNames: string[]) =>
-  _.fromPairs(
-    Object.entries(utterances).map(([key, val]) => {
-      const regex = new RegExp(`\\[([^\\[\\]\\(\\)]+?)\\]\\((${slotNames.join('|')})\\)`, 'gi')
-      return [key, val.map((u: string) => u.replace(regex, '$1'))]
-    })
-  )
-
 export default async (bp: typeof sdk, state: NLUState) => {
   const router = bp.http.createRouterForBot('nlu')
 
@@ -46,10 +30,10 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
   router.post('/cross-validation/:lang', async (req, res) => {
     const { botId, lang } = req.params
-    const ghost = bp.ghost.forBot(botId)
 
-    const intentDefs = await getIntents(ghost)
-    const entityDefs = await state.nluByBot[botId].entityService.getCustomEntities()
+    const api = await createApi(bp, botId)
+    const intentDefs = await api.fetchIntents()
+    const entityDefs = await api.fetchEntities()
 
     bp.logger.forBot(botId).info('Started cross validation')
     const xValidationRes = await crossValidate(botId, intentDefs, entityDefs, lang, bp.logger)
@@ -80,215 +64,6 @@ export default async (bp: typeof sdk, state: NLUState) => {
       res.send({ nlu })
     } catch (err) {
       res.status(500).send('Could not extract nlu data')
-    }
-  })
-
-  router.get('/intents', async (req, res) => {
-    const { botId } = req.params
-    const ghost = bp.ghost.forBot(botId)
-    const intentDefs = await getIntents(ghost)
-    res.send(intentDefs)
-  })
-
-  router.get('/intents/:intent', async (req, res) => {
-    const { botId, intent } = req.params
-    const ghost = bp.ghost.forBot(botId)
-    const intentDef = await getIntent(ghost, intent)
-    res.send(intentDef)
-  })
-
-  router.post('/intents/:intent/delete', async (req, res) => {
-    const { botId, intent } = req.params
-    const ghost = bp.ghost.forBot(botId)
-    try {
-      await deleteIntent(ghost, intent)
-      res.sendStatus(204)
-    } catch (err) {
-      bp.logger
-        .forBot(botId)
-        .attachError(err)
-        .error('Could not delete intent')
-      res.status(400).send(err.message)
-    }
-  })
-
-  router.post('/intents', async (req, res) => {
-    const { botId } = req.params
-    const ghost = bp.ghost.forBot(botId)
-    try {
-      const intentDef = await validate(req.body, IntentDefCreateSchema, {
-        stripUnknown: true
-      })
-
-      await saveIntent(ghost, intentDef, state.nluByBot[botId].entityService)
-
-      res.sendStatus(200)
-    } catch (err) {
-      bp.logger
-        .forBot(botId)
-        .attachError(err)
-        .warn('Cannot create intent')
-      res.status(400).send(err.message)
-    }
-  })
-
-  router.post('/intents/:intentName', async (req, res) => {
-    const { botId, intentName } = req.params
-    const ghost = bp.ghost.forBot(botId)
-    try {
-      await updateIntent(ghost, intentName, req.body, state.nluByBot[botId].entityService)
-      res.sendStatus(200)
-    } catch (err) {
-      bp.logger
-        .forBot(botId)
-        .attachError(err)
-        .error('Could not update intent')
-      res.sendStatus(400)
-    }
-  })
-
-  router.post('/condition/intentChanged', async (req, res) => {
-    const { botId } = req.params
-    const { action } = req.body
-    const condition = req.body.condition as sdk.DecisionTriggerCondition
-
-    if (action === 'delete' || action === 'create') {
-      try {
-        const ghost = bp.ghost.forBot(botId)
-
-        await updateContextsFromTopics(ghost, state.nluByBot[botId].entityService, [
-          condition.params?.intentName as string
-        ])
-        return res.sendStatus(200)
-      } catch (err) {
-        return res.status(400).send(err.message)
-      }
-    }
-
-    res.sendStatus(200)
-  })
-
-  router.post('/sync/intents/topics', async (req, res) => {
-    const { botId } = req.params
-    const { intentNames } = req.body
-    const ghost = bp.ghost.forBot(botId)
-
-    try {
-      await updateContextsFromTopics(ghost, state.nluByBot[botId].entityService, intentNames)
-      res.sendStatus(200)
-    } catch (err) {
-      bp.logger
-        .forBot(botId)
-        .attachError(err)
-        .error('Could not update intent topics')
-      res.status(400).send(err.message)
-    }
-  })
-
-  router.get('/contexts', async (req, res) => {
-    const botId = req.params.botId
-    const ghost = bp.ghost.forBot(botId)
-    const intents = await getIntents(ghost)
-    const ctxs = _.chain(intents)
-      .flatMap(i => i.contexts)
-      .uniq()
-      .value()
-
-    res.send(ctxs)
-  })
-
-  router.get('/entities', async (req, res) => {
-    const { botId } = req.params
-    const entities = await state.nluByBot[botId].entityService.getEntities()
-    res.json(entities.map(x => ({ ...x, label: `${x.type}.${x.name}` })))
-  })
-
-  router.get('/entities/:entityName', async (req, res) => {
-    const { botId, entityName } = req.params
-    try {
-      const entity = await state.nluByBot[botId].entityService.getEntity(entityName)
-      res.send(entity)
-    } catch (err) {
-      bp.logger
-        .forBot(botId)
-        .attachError(err)
-        .error(`Could not get entity ${entityName}`)
-      res.send(400)
-    }
-  })
-
-  router.post('/entities', async (req, res) => {
-    const { botId } = req.params
-    try {
-      const entityDef = (await validate(req.body, EntityDefCreateSchema, {
-        stripUnknown: true
-      })) as sdk.NLU.EntityDefinition
-
-      await state.nluByBot[botId].entityService.saveEntity(entityDef)
-
-      res.sendStatus(200)
-    } catch (err) {
-      bp.logger
-        .forBot(botId)
-        .attachError(err)
-        .warn('Cannot create entity')
-      res.status(400).send(err.message)
-    }
-  })
-
-  router.post('/entities/:id', async (req, res) => {
-    const { botId, id } = req.params
-    try {
-      const entityDef = (await validate(req.body, EntityDefCreateSchema, {
-        stripUnknown: true
-      })) as sdk.NLU.EntityDefinition
-
-      await state.nluByBot[botId].entityService.updateEntity(id, entityDef)
-      res.sendStatus(200)
-    } catch (err) {
-      bp.logger
-        .forBot(botId)
-        .attachError(err)
-        .error('Could not update entity')
-      res.status(400).send(err.message)
-    }
-  })
-
-  router.post('/entities/:id/delete', async (req, res) => {
-    const { botId, id } = req.params
-    try {
-      const entityService = state.nluByBot[botId].entityService
-      await entityService.deleteEntity(id)
-
-      const ghost = bp.ghost.forBot(botId)
-      const affectedIntents = (await getIntents(ghost)).filter(intent =>
-        intent.slots.some(slot => slot.entities.includes(id))
-      )
-
-      await Promise.map(affectedIntents, intent => {
-        const [affectedSlots, unaffectedSlots] = _.partition(intent.slots, slot => slot.entities.includes(id))
-        const [slotsToDelete, slotsToKeep] = _.partition(affectedSlots, slot => slot.entities.length === 1)
-        const updatedIntent = {
-          ...intent,
-          slots: [
-            ...unaffectedSlots,
-            ...slotsToKeep.map(slot => ({ ...slot, entities: _.without(slot.entities, id) }))
-          ],
-          utterances: removeSlotsFromUtterances(
-            intent.utterances,
-            slotsToDelete.map(slot => slot.name)
-          )
-        }
-        return saveIntent(ghost, updatedIntent, entityService)
-      })
-
-      res.sendStatus(204)
-    } catch (err) {
-      bp.logger
-        .forBot(botId)
-        .attachError(err)
-        .error('Could not delete entity')
-      res.status(404).send(err.message)
     }
   })
 

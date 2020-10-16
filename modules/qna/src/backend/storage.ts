@@ -57,7 +57,7 @@ export default class Storage {
   async syncQnaToNlu(): Promise<void> {
     const axiosConfig = await this.getAxiosConfig()
     const allQuestions = await this.fetchQNAs()
-    const { data: allIntents } = await axios.get(`/mod/nlu/intents`, axiosConfig)
+    const { data: allIntents } = await axios.get(`/nlu/intents`, axiosConfig)
 
     const leftOverQnaIntents = allIntents.filter(
       (intent: sdk.NLU.IntentDefinition) =>
@@ -65,7 +65,7 @@ export default class Storage {
         !_.find(allQuestions, q => getIntentId(q.id).toLowerCase() === intent.name)
     )
     await Promise.map(leftOverQnaIntents, (intent: sdk.NLU.IntentDefinition) =>
-      axios.post(`/mod/nlu/intents/${intent.name}/delete`, {}, axiosConfig)
+      axios.post(`/nlu/intents/${intent.name}/delete`, {}, axiosConfig)
     )
 
     const qnaItemsToSync = allQuestions.filter(
@@ -88,7 +88,7 @@ export default class Storage {
       utterances: utterances
     }
 
-    await axios.post('/mod/nlu/intents', intent, axiosConfig)
+    await axios.post('/nlu/intents', intent, axiosConfig)
   }
 
   async update(data: QnaEntry, id: string): Promise<string> {
@@ -113,7 +113,7 @@ export default class Storage {
   async deleteMatchingIntent(id: string) {
     const axiosConfig = await this.getAxiosConfig()
     try {
-      await axios.post(`/mod/nlu/intents/${getIntentId(id)}/delete`, {}, axiosConfig)
+      await axios.post(`/nlu/intents/${getIntentId(id)}/delete`, {}, axiosConfig)
     } catch (err) {
       /* swallow error */
     }

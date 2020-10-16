@@ -3,15 +3,16 @@ import _ from 'lodash'
 
 export default {
   id: 'extracted_entity',
-  label: `An entity was extracted from the user's message`,
-  description: `Entity {type} {comparison} {value}`,
-  params: {
-    type: {
-      required: true,
-      label: 'Select the type of entity',
-      type: 'list',
-      list: {
-        endpoint: 'BOT_API_PATH/mod/nlu/entities',
+  label: 'module.nlu.conditions.variableExtractedFromMessage',
+  description: 'Entity {type} {comparison} {value}',
+  fields: [
+    {
+      key: 'type',
+      type: 'select',
+      label: 'module.nlu.conditions.fields.label.variableType',
+      placeholder: 'module.nlu.conditions.fields.placeholder.pickVariableType',
+      dynamicOptions: {
+        endpoint: 'BOT_API_PATH/nlu/entities',
         valueField: 'label',
         labelField: 'label'
       }
