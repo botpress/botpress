@@ -1,9 +1,12 @@
 import React, { FC, useState, useEffect } from 'react'
 import moment from 'moment'
+import cx from 'classnames'
 
 import { EscalationType } from '../../../../types'
 
 import { lang } from 'botpress/shared'
+
+import styles from './../../style.scss'
 
 const EscalationItem: FC<EscalationType> = props => {
   const [fromNow, setFromNow] = useState(moment(props.createdAt).fromNow())
@@ -18,11 +21,12 @@ const EscalationItem: FC<EscalationType> = props => {
   }, [])
 
   return (
-    <li>
-      <p>Id: {props.id}</p>
-      <p className="bp3-text-small bp3-text-muted">{lang.tr('module.hitl2.escalation.created', { date: fromNow })}</p>
-      <p>From: {props.userConversation.channel}</p>
-    </li>
+    <div className={cx(styles.escalationItem)}>
+      <p>#{props.id}</p>
+      <p className="bp3-text-small bp3-text-muted">
+        {props.status} ⋅ {lang.tr('module.hitl2.escalation.created', { date: fromNow })}
+      </p>
+    </div>
   )
 }
 

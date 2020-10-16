@@ -15,7 +15,7 @@ const Comment: FC<CommentType> = props => {
   const agent = state.agents[props.agentId]
 
   return (
-    <div>
+    <div style={{ marginBottom: 'var(--spacing-xx-large)' }}>
       <p>{props.content}</p>
       <p className="bp3-text-small bp3-text-muted">
         {formatDate(props.createdAt)} <span>⋅</span> {agent.fullName || agent.id}

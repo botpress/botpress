@@ -9,7 +9,7 @@ const CommentForm: FC<Props> = props => {
   const [content, setContent] = useState('')
 
   return (
-    <div>
+    <div style={{ display: 'flex' }}>
       <TextArea
         fill={true}
         value={content}

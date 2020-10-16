@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
+import cx from 'classnames'
 
 import { EscalationType } from '../../../../types'
 import { EscalationsMapType } from '../../sidebar/Store'
@@ -8,6 +9,8 @@ import { Spinner } from '@blueprintjs/core'
 import CasesIcon from './../../Icons/CasesIcon'
 import { EmptyState, lang } from 'botpress/shared'
 import EscalationItem from './EscalationItem'
+
+import styles from './../../style.scss'
 
 interface Props {
   escalations: EscalationsMapType
@@ -23,20 +26,17 @@ const EscalationList: FC<Props> = props => {
   }, [props.escalations])
 
   return (
-    <div>
+    <div className={cx(styles.escalationList)}>
       {props.loading && <Spinner></Spinner>}
 
       {!props.loading && _.isEmpty(items) && (
         <EmptyState icon={<CasesIcon />} text={lang.tr('module.hitl2.sidebar.escalations.empty')}></EmptyState>
       )}
 
-      {!_.isEmpty(items) && (
-        <ul>
-          {_.values(items).map((escalation: EscalationType) => (
-            <EscalationItem key={escalation.id} {...escalation}></EscalationItem>
-          ))}
-        </ul>
-      )}
+      {!_.isEmpty(items) &&
+        _.values(items).map((escalation: EscalationType) => (
+          <EscalationItem key={escalation.id} {...escalation}></EscalationItem>
+        ))}
     </div>
   )
 }

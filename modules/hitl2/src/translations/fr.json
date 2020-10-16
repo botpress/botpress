@@ -11,8 +11,8 @@
   "sortBy": "Trier Par",
   "filterBy": "Filtrer Par",
   "agent": {
-    "online": "connecté",
-    "offline": "déconnecté",
+    "online": "Connecté",
+    "offline": "Déconnecté",
     "getOnline": "Se connecter",
     "getOffline": "Se déconnecter",
     "onlineSuccess": "Vous êtes maintenant connecté",

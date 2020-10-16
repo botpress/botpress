@@ -28,7 +28,7 @@
     "axios": "^0.19.0",
     "bluebird": "^3.5",
     "boolean": "^3.0.1",
-    "classnames": "^2.2",
+    "classnames": "^2.2.6",
     "haikunator": "^2.1.2",
     "immer": "^7",
     "joi": "^17",

@@ -1,60 +1,27 @@
 import React, { FC, useContext, useState, useEffect } from 'react'
 import _ from 'lodash'
 import moment from 'moment'
+import cx from 'classnames'
 
-import { ApiType } from '../Api'
 import { EscalationType } from '../../../types'
 
 import { Context } from '../app/Store'
 
-import { Grid, Row, Col } from 'react-flexbox-grid'
-import { Icon, Button } from '@blueprintjs/core'
-import { toast, lang } from 'botpress/shared'
+import { Icon } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import EscalationBadge from './EscalationBadge'
 
-type Props = {
-  api: ApiType
-} & EscalationType
+import styles from './../style.scss'
 
-const EscalationItem: FC<Props> = props => {
-  const { api } = props
-
+const EscalationItem: FC<EscalationType> = props => {
   const { state, dispatch } = useContext(Context)
 
-  const [readStatus, setReadStatus] = useState('read')
+  const [readStatus, setReadStatus] = useState(true)
   const [fromNow, setFromNow] = useState(moment(props.createdAt).fromNow())
 
   async function handleSelect(id: string) {
     dispatch({ type: 'setCurrentEscalation', payload: id })
     dispatch({ type: 'setRead', payload: id })
-  }
-
-  async function handleAssign() {
-    try {
-      const escalation = await api.assignEscalation(props.id)
-      api.setOnline()
-      toast.success(lang.tr('module.hitl2.escalation.assign', { id: escalation.id }))
-    } catch (error) {
-      if (_.inRange(error.response.status, 400, 499)) {
-        toast.failure(error.response.data.errors[0].detail)
-      } else {
-        dispatch({ type: 'setError', payload: error })
-      }
-    }
-  }
-
-  async function handleResolve() {
-    try {
-      const escalation = await api.resolveEscalation(props.id)
-      api.setOnline()
-      toast.success(lang.tr('module.hitl2.escalation.resolve', { id: escalation.id }))
-    } catch (error) {
-      if (_.inRange(error.response.status, 400, 499)) {
-        toast.failure(error.response.data.errors[0].detail)
-      } else {
-        dispatch({ type: 'setError', payload: error })
-      }
-    }
   }
 
   useEffect(() => {
@@ -68,38 +35,35 @@ const EscalationItem: FC<Props> = props => {
 
   useEffect(() => {
     state.reads[props.id] && props.userConversation.createdOn > state.reads[props.id]
-      ? setReadStatus('unread')
-      : setReadStatus('read')
+      ? setReadStatus(false)
+      : setReadStatus(true)
   }, [state.reads, props.userConversation])
 
   return (
-    <Grid>
-      <Row between="xs">
-        <Col>{state.currentEscalation?.id == props.id ? <Icon icon="dot" intent="primary"></Icon> : null}</Col>
-        <Col>
-          <p>Id: {props.id}</p>
-          <p className="bp3-text-small bp3-text-muted">
-            {lang.tr('module.hitl2.escalation.created', { date: fromNow })}
-          </p>
-          <p>From: {props.userConversation.channel}</p>
-          <p>{readStatus}</p>
-        </Col>
-        <Col>
-          <EscalationBadge
-            status={props.status}
-            assignedToAgent={state.agents[props.agentId]}
-            currentAgent={state.currentAgent}
-          ></EscalationBadge>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <Button onClick={() => handleSelect(props.id)}>Select</Button>
-          <Button onClick={handleAssign}>Assign to me</Button>
-          <Button onClick={handleResolve}>Resolve</Button>
-        </Col>
-      </Row>
-    </Grid>
+    <div
+      className={cx(styles.escalationItem)}
+      style={{
+        backgroundColor: state.currentEscalation?.id == props.id ? 'var(--hover-ocean)' : null
+      }}
+      onClick={() => handleSelect(props.id)}
+    >
+      <div style={{ minWidth: 16, textAlign: 'center' }}>
+        {!readStatus && <Icon icon="dot" intent="primary"></Icon>}
+      </div>
+      <div>
+        <p>#{props.id}</p>
+        <p className="bp3-text-small bp3-text-muted">{lang.tr('module.hitl2.escalation.created', { date: fromNow })}</p>
+        <p>From: {props.userConversation.channel}</p>
+        <p>{readStatus}</p>
+      </div>
+      <div style={{ marginLeft: 'auto' }}>
+        <EscalationBadge
+          status={props.status}
+          assignedToAgent={state.agents[props.agentId]}
+          currentAgent={state.currentAgent}
+        ></EscalationBadge>
+      </div>
+    </div>
   )
 }
 

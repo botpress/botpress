@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import React, { FC, useContext, useState, useEffect } from 'react'
+import cx from 'classnames'
 
 import { ApiType } from '../Api'
 import { EscalationType } from './../../../types'
@@ -11,6 +12,8 @@ import { EmptyState, Tabs, lang } from 'botpress/shared'
 import CasesIcon from './../Icons/CasesIcon'
 import EscalationListFilter, { SortType, FilterType } from './EscalationListFilter'
 import EscalationItem from './EscalationItem'
+
+import styles from './../style.scss'
 
 interface Props {
   api: ApiType
@@ -62,7 +65,7 @@ const EscalationList: FC<Props> = props => {
   }, [filterOptions, sortOption, props.escalations])
 
   return (
-    <div>
+    <div className={cx(styles.escalationList)}>
       <Tabs tabs={[{ id: 'escalations', title: lang.tr('module.hitl2.tab') }]} />
 
       {props.loading && <Spinner></Spinner>}
@@ -82,11 +85,11 @@ const EscalationList: FC<Props> = props => {
       )}
 
       {items.length && (
-        <ul>
+        <div>
           {items.map((escalation, i) => (
             <EscalationItem key={escalation.id} api={api} {...escalation}></EscalationItem>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   )

@@ -11,8 +11,8 @@
   "sortBy": "Sort By",
   "filterBy": "Filter By",
   "agent": {
-    "online": "online",
-    "offline": "offline",
+    "online": "Online",
+    "offline": "Offline",
     "getOnline": "Get online",
     "getOffline": "Get offline",
     "onlineSuccess": "You are now online",

@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import _ from 'lodash'
+import cx from 'classnames'
 
 import { Api, castEscalation } from './Api'
 import { Context, Store } from './app/Store'
@@ -12,6 +13,8 @@ import { lang, toast } from 'botpress/shared'
 import AgentProfile from './Components/AgentProfile'
 import Conversation from './Components/Conversation'
 import EscalationList from './Components/EscalationList'
+
+import styles from './style.scss'
 
 const App = ({ bp }) => {
   const api = Api(bp)
@@ -103,12 +106,11 @@ const App = ({ bp }) => {
   }, [state.error])
 
   return (
-    <Grid>
+    <Grid fluid className={cx(styles.app)}>
       <Row>
         <Col>
           <AgentProfile toggleOnline={toggleOnline} loading={loading} {...state.currentAgent}></AgentProfile>
         </Col>
-        <Col></Col>
       </Row>
       <Row>
         <Col md={4}>

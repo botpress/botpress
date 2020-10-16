@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import React, { useContext, useEffect, useState } from 'react'
+import cx from 'classnames'
 
 import { Api, castEscalation } from './Api'
 import { Store, Context } from './sidebar/Store'
@@ -12,6 +13,8 @@ import Collapsible from '../../../../../src/bp/ui-shared-lite/Collapsible'
 
 import AgentList from './sidebar/components/AgentList'
 import EscalationList from './sidebar/components/EscalationList'
+
+import styles from './style.scss'
 
 const Sidebar = ({ bp, close }) => {
   const api = Api(bp)
@@ -74,6 +77,7 @@ const Sidebar = ({ bp, close }) => {
       </div>
 
       <div
+        className={cx(styles.sidebar)}
         style={{
           display: 'flex',
           flexDirection: 'column',

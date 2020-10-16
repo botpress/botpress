@@ -1,11 +1,11 @@
 import _ from 'lodash'
-import React, { FC, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import hash from 'object-hash'
 import Haikunator from 'haikunator'
 
-import { EventType } from '../../../types'
+import { EventType, UserType } from '../../../types'
 
-import { HTMLTable } from '@blueprintjs/core'
+import { Divider, HTMLTable } from '@blueprintjs/core'
 import { EmptyState, lang } from 'botpress/shared'
 import Collapsible from '../../../../../../src/bp/ui-shared-lite/Collapsible'
 
@@ -14,15 +14,16 @@ interface Props {
 }
 
 const UserProfile: FC<Props> = props => {
-  const [expanded, setExpanded] = useState(true)
+  const [expanded, setExpanded] = useState(!_.isEmpty(variables()))
+  const [user, setUser] = useState({} as UserType)
   const [userNames, setUserNames] = useState({})
   const [haiku] = useState(() => {
     return new Haikunator({ defaults: { tokenLength: 0 } })
   })
 
-  const user = _.get(JSON.parse(props.conversation.event), 'state.user', {})
-
-  const variables = _.omit(user, 'language', 'timezone', 'fullname', 'emil')
+  useEffect(() => {
+    setUser(_.get(JSON.parse(props.conversation.event), 'state.user', {}))
+  }, [props.conversation])
 
   function defaultUserName(): string {
     const key = hash(_.pick(props.conversation, ['channel', 'threadId']))
@@ -35,21 +36,25 @@ const UserProfile: FC<Props> = props => {
     return userNames[key]
   }
 
+  function variables() {
+    return _.omit(user, 'fullname', 'email')
+  }
+
   return (
     <div>
-      <ul>
-        <li>fullName: {user.fullName || defaultUserName()}</li>
-        <li>email: {user.email}</li>
-        <li>timezone: {user.timezone}</li>
-        <li>language: {user.language}</li>
-      </ul>
+      <h6 className="bp3-heading" style={{ color: 'var(--ocean)' }}>
+        {user.fullName || defaultUserName()}
+      </h6>
+      {user.email && <p>{user.email}</p>}
+
+      <Divider></Divider>
 
       <Collapsible
         opened={expanded}
         toggleExpand={() => setExpanded(!expanded)}
         name={lang.tr('module.hitl2.user.variables.heading')}
       >
-        {_.isEmpty(variables) ? (
+        {_.isEmpty(variables()) ? (
           <EmptyState text={lang.tr('module.hitl2.user.variables.empty')}></EmptyState>
         ) : (
           <HTMLTable condensed={true} width="100%">
@@ -60,7 +65,7 @@ const UserProfile: FC<Props> = props => {
               </tr>
             </thead>
             <tbody>
-              {Object.entries(variables).map((entry, index) => (
+              {Object.entries(variables()).map((entry, index) => (
                 <tr key={index}>
                   <td>{entry[0]}</td>
                   <td>{entry[1]}</td>

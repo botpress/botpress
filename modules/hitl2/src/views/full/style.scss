@@ -1,0 +1,38 @@
+.h100 {
+  height: 100%;
+}
+
+.w100 {
+  width: 100%;
+}
+
+.app {
+  .escalationList {
+    padding-right: var(--spacing-xx-large);
+    padding-left: var(--spacing-xx-large);
+    background-color: var(--bg);
+  }
+
+  .escalationItem {
+    display: flex;
+    padding: 10px var(--spacing-xx-large);
+    border-radius: 5px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--seashell);
+    }
+  }
+}
+
+.sidebar {
+  .escalationItem {
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--seashell);
+    }
+  }
+}

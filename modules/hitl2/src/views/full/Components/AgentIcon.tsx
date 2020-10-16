@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { Icon } from '@blueprintjs/core'
+import { Icon, Colors } from '@blueprintjs/core'
 
 interface Props {
   online: boolean
@@ -13,7 +13,7 @@ const AgentIcon: FC<Props> = props => {
       position: 'absolute' as 'absolute',
       width: 5,
       height: 5,
-      backgroundColor: props.online ? '#0d8050' : 'transparent',
+      backgroundColor: props.online ? Colors.GREEN1 : 'transparent',
       borderRadius: 5
     }
   }
