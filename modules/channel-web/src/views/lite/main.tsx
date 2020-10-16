@@ -16,6 +16,7 @@ import { checkLocationOrigin, initializeAnalytics, trackMessage, trackWebchatSta
 const _values = obj => Object.keys(obj).map(x => obj[x])
 
 class Web extends React.Component<MainProps> {
+  private config: any
   private socket: BpSocket
   private parentClass: string
   private hasBeenInitialized: boolean = false
@@ -65,36 +66,36 @@ class Web extends React.Component<MainProps> {
 
     if (this.props.activeView === 'side' || this.props.isFullscreen) {
       this.hasBeenInitialized = true
-      await this.socket.waitForUserId()
+
+      if (this.config.lazySocket) {
+        await this.initializeSocket()
+      }
+
       await this.props.initializeChat()
+      this.setupObserver()
     }
   }
 
   async initialize() {
-    const config = this.extractConfig()
+    this.config = this.extractConfig()
 
-    if (config.exposeStore) {
+    if (this.config.exposeStore) {
       window.parent['webchat_store'] = this.props.store
     }
 
-    this.socket = new BpSocket(this.props.bp, config)
-    this.socket.onMessage = this.handleNewMessage
-    this.socket.onTyping = this.handleTyping
-    this.socket.onData = this.handleDataMessage
-    this.socket.onUserIdChanged = this.props.setUserId
-    this.socket.setup()
+    this.config.overrides && this.loadOverrides(this.config.overrides)
 
-    config.overrides && this.loadOverrides(config.overrides)
-    config.userId && this.socket.changeUserId(config.userId)
-    config.containerWidth && window.parent.postMessage({ type: 'setWidth', value: config.containerWidth }, '*')
+    this.config.containerWidth &&
+      window.parent.postMessage({ type: 'setWidth', value: this.config.containerWidth }, '*')
 
-    await this.socket.waitForUserId()
+    this.config.reference && this.props.setReference()
 
-    config.reference && this.props.setReference()
-
-    this.setupObserver()
     // tslint:disable-next-line: no-floating-promises
     this.props.fetchBotInfo()
+
+    if (!this.config.lazySocket) {
+      await this.initializeSocket()
+    }
   }
 
   extractConfig() {
@@ -107,6 +108,18 @@ class Web extends React.Component<MainProps> {
     this.props.updateConfig(userConfig, this.props.bp)
 
     return userConfig
+  }
+
+  async initializeSocket() {
+    this.socket = new BpSocket(this.props.bp, this.config)
+    this.socket.onMessage = this.handleNewMessage
+    this.socket.onTyping = this.handleTyping
+    this.socket.onData = this.handleDataMessage
+    this.socket.onUserIdChanged = this.props.setUserId
+    this.socket.setup()
+
+    this.config.userId && this.socket.changeUserId(this.config.userId)
+    await this.socket.waitForUserId()
   }
 
   loadOverrides(overrides) {
