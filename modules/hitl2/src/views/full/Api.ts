@@ -3,6 +3,7 @@ import { AxiosInstance } from 'axios'
 import moment from 'moment'
 import { AgentType, CommentType, EscalationType } from '../../types'
 
+// TODO Handle casting when object is undefined
 export function castDate(object: any, paths: string[]) {
   paths.map(path => {
     _.get(object, path, false) && _.set(object, path, moment(_.get(object, path)).toDate())
@@ -37,6 +38,7 @@ export interface ApiType {
 }
 
 export const Api = (bp: { axios: AxiosInstance }): ApiType => {
+  // TODO might be a finer way to do this
   const base = '/mod/hitl2'
 
   return {
@@ -54,7 +56,7 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
       bp.axios
         .post(`${base}/escalations/${id}/comments`, payload)
         .then(res => res.data)
-        .then(data => data.map(item => castComment(item))),
+        .then(data => castComment(data)),
     getEscalations: async (orderByColumn?: string, orderByDirection?: string, limit?: number) =>
       bp.axios
         .get(`${base}/escalations`, {
