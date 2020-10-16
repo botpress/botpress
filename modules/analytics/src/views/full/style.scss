@@ -265,6 +265,15 @@ $success-color: #56b149;
       span:nth-child(2) {
         margin-left: 5px;
       }
+
+      &.disabled {
+        color: black;
+      }
+
+      &.disabled:hover {
+        cursor: default;
+        text-decoration: none;
+      }
     }
   }
 

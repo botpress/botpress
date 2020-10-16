@@ -8,6 +8,7 @@ interface CssExports {
   'diffNumber': string;
   'diffNumberDown': string;
   'diffNumberUp': string;
+  'disabled': string;
   'empty': string;
   'emptyState': string;
   'exportButton': string;
