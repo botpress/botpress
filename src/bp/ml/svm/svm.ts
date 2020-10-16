@@ -1,14 +1,14 @@
-import _ from 'lodash'
 import assert from 'assert'
+import _ from 'lodash'
 import numeric from 'numeric'
 
 import BaseSVM from './addon'
+import { checkConfig, defaultConfig } from './config'
 import gridSearch from './grid-search'
 import { GridSearchResult } from './grid-search/typings'
 import { normalizeDataset, normalizeInput } from './normalize'
 import reduce from './reduce-dataset'
-import { SvmConfig, Data, SvmModel, Report } from './typings'
-import { defaultConfig, checkConfig } from './config'
+import { Data, Report, SvmConfig, SvmModel } from './typings'
 
 class TrainingCanceledError extends Error {
   constructor(msg: string) {

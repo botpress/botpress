@@ -1,7 +1,7 @@
-import tmp from 'tmp'
 import { MLToolkit } from 'botpress/sdk'
+import tmp from 'tmp'
 
-import crfsuite, { Trainer as AddonTrainer, Tagger as AddonTagger } from './addon'
+import crfsuite, { Tagger as AddonTagger, Trainer as AddonTrainer } from './addon'
 
 export class Trainer implements MLToolkit.CRF.Trainer {
   private trainer: AddonTrainer

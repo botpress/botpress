@@ -1,15 +1,15 @@
-import _ from 'lodash'
 import assert from 'assert'
+import _ from 'lodash'
 import numeric from 'numeric'
 
-import splitDataset from './split-dataset'
-import crossCombinations from './cross-combinations'
-import { SvmConfig, Data } from '../typings'
 import BaseSVM from '../addon'
 import { defaultParameters } from '../config'
+import { Data, SvmConfig } from '../typings'
 
+import crossCombinations from './cross-combinations'
 import evaluators from './evaluators'
-import { GridSearchResult, GridSearchProgress } from './typings'
+import splitDataset from './split-dataset'
+import { GridSearchProgress, GridSearchResult } from './typings'
 
 export default async function(
   dataset: Data[],

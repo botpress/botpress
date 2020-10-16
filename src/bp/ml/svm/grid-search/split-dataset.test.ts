@@ -1,5 +1,7 @@
 import _ from 'lodash'
+
 import { Data } from '../typings'
+
 import split from './split-dataset'
 
 const SEED = 42

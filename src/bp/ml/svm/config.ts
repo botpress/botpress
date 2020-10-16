@@ -1,7 +1,7 @@
-import _ from 'lodash'
 import assert from 'assert'
+import _ from 'lodash'
 
-import { SvmConfig, SvmParameters, SvmTypes, KernelTypes } from './typings'
+import { KernelTypes, SvmConfig, SvmParameters, SvmTypes } from './typings'
 
 export function checkConfig(config: SvmConfig) {
   assert(config.kFold > 0, 'k-fold must be >= 1')

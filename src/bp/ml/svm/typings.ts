@@ -1,4 +1,4 @@
-import { GridSearchParameters, OtherParameters, Model, Parameters } from './addon/typings'
+import { GridSearchParameters, Model, OtherParameters, Parameters } from './addon/typings'
 
 interface LibConfig {
   kFold: number

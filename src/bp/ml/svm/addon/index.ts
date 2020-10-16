@@ -1,9 +1,10 @@
 import assert from 'assert'
-import numeric from 'numeric'
 import _ from 'lodash'
+import numeric from 'numeric'
 
-import addon, { NSVM, Parameters, Model } from './typings'
 import { Data } from '../typings'
+
+import addon, { Model, NSVM, Parameters } from './typings'
 
 export default class BaseSVM {
   private _clf: NSVM | undefined

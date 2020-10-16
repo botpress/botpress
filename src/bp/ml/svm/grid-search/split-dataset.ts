@@ -1,7 +1,8 @@
 import assert from 'assert'
 import _ from 'lodash'
-import { Data } from '../typings'
 import seedrandom from 'seedrandom'
+
+import { Data } from '../typings'
 
 export default function(dataset: Data[], seed: number, k: number): SplittedDataSet[] {
   const kFold = Math.min(dataset.length, k)
