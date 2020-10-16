@@ -91,7 +91,7 @@ $success-color: #56b149;
 }
 
 .emptyState {
-  color: #757575;
+  color: var(--reef);
   font-size: 14px;
   margin: 20px 0;
 
@@ -263,6 +263,15 @@ $success-color: #56b149;
 
       span:nth-child(2) {
         margin-left: 5px;
+      }
+
+      &.disabled {
+        color: var(--reef);
+      }
+
+      &.disabled:hover {
+        cursor: default;
+        text-decoration: none;
       }
     }
   }

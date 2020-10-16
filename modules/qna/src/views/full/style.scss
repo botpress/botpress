@@ -66,7 +66,8 @@
       border: 1px solid var(--reef);
     }
 
-    &:focus, &:focus-within {
+    &:focus,
+    &:focus-within {
       outline-color: transparent;
       outline-style: none;
       font-weight: 300;
@@ -99,7 +100,8 @@
   margin-bottom: var(--spacing-large);
 }
 
-.initialLoading, .loading {
+.initialLoading,
+.loading {
   :global {
     .bp3-spinner-track {
       stroke: var(--gray) !important;
@@ -129,7 +131,8 @@
   justify-content: flex-end;
   margin-top: var(--spacing-xxx-large);
 
-  .input, .contextInput {
+  .input,
+  .contextInput {
     background: #fff;
     border-radius: 3px;
     border: 1px solid var(--gray);
@@ -146,7 +149,8 @@
       border: 1px solid var(--reef);
     }
 
-    &:focus, &:focus-within {
+    &:focus,
+    &:focus-within {
       outline-color: transparent;
       outline-style: none;
       font-weight: 300;
@@ -173,7 +177,9 @@
     position: relative;
 
     :global {
-      .bp3-tag-input, .bp3-tag-input-values, input {
+      .bp3-tag-input,
+      .bp3-tag-input-values,
+      input {
         display: block;
         font-size: 14px;
         font-weight: 300;
@@ -236,9 +242,10 @@
       fill: var(--ocean);
     }
 
-    &:hover, &:focus {
+    &:hover,
+    &:focus {
       color: var(--ocean);
-      background:  var(--hover-ocean);
+      background: var(--hover-ocean);
     }
   }
 
@@ -302,7 +309,9 @@
       }
     }
 
-    .right :global(.bp3-popover-wrapper) + :global(.bp3-popover-wrapper) .tag, .right :global(.bp3-popover-wrapper) + .tag, .right .tag + :global(.bp3-popover-wrapper) .tag {
+    .right :global(.bp3-popover-wrapper) + :global(.bp3-popover-wrapper) .tag,
+    .right :global(.bp3-popover-wrapper) + .tag,
+    .right .tag + :global(.bp3-popover-wrapper) .tag {
       margin-left: var(--spacing-medium);
     }
 
@@ -325,6 +334,9 @@
       &.warning {
         color: var(--lighthouse);
         background: var(--hover-lighthouse-30);
+      }
+      &.qnaId {
+        margin-left: var(--spacing-medium);
       }
     }
 
@@ -360,12 +372,14 @@
 
     &:focus-within {
       & + .textareaWrapper {
-        .textarea, .contentAnswer {
+        .textarea,
+        .contentAnswer {
           border-top-color: transparent;
         }
       }
 
-      .textarea, .contentAnswer {
+      .textarea,
+      .contentAnswer {
         border-top-color: var(--ocean);
         border-bottom-color: var(--ocean);
 
@@ -384,7 +398,8 @@
     }
   }
 
-  .textarea, .contentAnswer {
+  .textarea,
+  .contentAnswer {
     background: transparent;
     border: none;
     border-bottom: 1px solid var(--gray);

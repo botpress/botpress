@@ -8,7 +8,6 @@ import { bindActionCreators } from 'redux'
 import { toggleBottomPanel, viewModeChanged } from '~/actions'
 import SelectContentManager from '~/components/Content/Select/Manager'
 import PluginInjectionSite from '~/components/PluginInjectionSite'
-import BackendToast from '~/components/Util/BackendToast'
 import Config from '~/views/Config'
 import Content from '~/views/Content'
 import FlowBuilder from '~/views/FlowBuilder'
@@ -194,7 +193,6 @@ const Layout: FC<ILayoutProps> = props => {
           </SplitPane>
 
           <PluginInjectionSite site="overlay" />
-          <BackendToast />
           <SelectContentManager />
           <GuidedTour isDisplayed={guidedTourOpen} onToggle={toggleGuidedTour} />
           <LanguageServerHealth />
