@@ -61,8 +61,5 @@
       "Comment se fait-il que le service d'assistance ne fonctionne pas?"
     ]
   },
-  "slots": [],
-  "metadata": {
-    "enabled": true
-  }
+  "slots": []
 }

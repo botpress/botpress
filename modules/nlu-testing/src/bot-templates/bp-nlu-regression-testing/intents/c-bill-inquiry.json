@@ -65,8 +65,5 @@
   "slots": [],
   "contexts": [
     "C"
-  ],
-  "metadata": {
-    "enabled": true
-  }
+  ]
 }
