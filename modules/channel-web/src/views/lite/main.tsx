@@ -10,13 +10,13 @@ import constants from './core/constants'
 import BpSocket from './core/socket'
 import ChatIcon from './icons/Chat'
 import { RootStore, StoreDef } from './store'
-import { Message } from './typings'
+import { Config, Message } from './typings'
 import { checkLocationOrigin, initializeAnalytics, trackMessage, trackWebchatState } from './utils'
 
 const _values = obj => Object.keys(obj).map(x => obj[x])
 
 class Web extends React.Component<MainProps> {
-  private config: any
+  private config: Config
   private socket: BpSocket
   private parentClass: string
   private hasBeenInitialized: boolean = false
@@ -67,7 +67,7 @@ class Web extends React.Component<MainProps> {
     if (this.props.activeView === 'side' || this.props.isFullscreen) {
       this.hasBeenInitialized = true
 
-      if (this.config.lazySocket) {
+      if (this.isLazySocket()) {
         await this.initializeSocket()
       }
 
@@ -90,10 +90,9 @@ class Web extends React.Component<MainProps> {
 
     this.config.reference && this.props.setReference()
 
-    // tslint:disable-next-line: no-floating-promises
-    this.props.fetchBotInfo()
+    await this.props.fetchBotInfo()
 
-    if (!this.config.lazySocket) {
+    if (!this.isLazySocket()) {
       await this.initializeSocket()
     }
   }
@@ -243,6 +242,10 @@ class Web extends React.Component<MainProps> {
     }, constants.MIN_TIME_BETWEEN_SOUNDS)
   }
 
+  isLazySocket() {
+    return this.config.lazySocket || this.props.botInfo?.lazySocket
+  }
+
   handleResetUnreadCount = () => {
     if (document.hasFocus?.() && this.props.activeView === 'side') {
       this.props.resetUnread()
@@ -305,6 +308,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   config: store.config,
   sendData: store.sendData,
   initializeChat: store.initializeChat,
+  botInfo: store.botInfo,
   fetchBotInfo: store.fetchBotInfo,
   updateConfig: store.updateConfig,
   mergeConfig: store.mergeConfig,
@@ -337,6 +341,7 @@ type MainProps = { store: RootStore } & Pick<
   | 'bp'
   | 'config'
   | 'initializeChat'
+  | 'botInfo'
   | 'fetchBotInfo'
   | 'sendMessage'
   | 'setUserId'
