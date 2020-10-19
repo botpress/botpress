@@ -13,7 +13,7 @@ import rewire from '../sdk/rewire'
 
 global.rewire = rewire as any
 import { NLU } from 'botpress/sdk'
-import Engine from 'nlu-core/engine'
+import Engine from 'nlu/engine'
 import { setupMasterNode, WORKER_TYPES } from '../cluster'
 import Logger from '../simple-logger'
 import API, { APIOptions } from './api'

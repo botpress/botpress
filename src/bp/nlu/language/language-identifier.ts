@@ -1,8 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import { readFileSync, writeFileSync } from 'fs'
 import _ from 'lodash'
-import { Predictors } from 'nlu-core/predict-pipeline'
-import { Tools } from 'nlu-core/typings'
+import { Predictors } from 'nlu/predict-pipeline'
+import { Tools } from 'nlu/typings'
 import { join } from 'path'
 import tmp from 'tmp'
 

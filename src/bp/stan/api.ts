@@ -5,7 +5,7 @@ import rateLimit from 'express-rate-limit'
 import { createServer } from 'http'
 import _ from 'lodash'
 import ms from 'ms'
-import Engine from 'nlu-core/engine'
+import Engine from 'nlu/engine'
 
 import { authMiddleware, handleErrorLogging, handleUnexpectedError } from '../http-utils'
 import Logger from '../simple-logger'

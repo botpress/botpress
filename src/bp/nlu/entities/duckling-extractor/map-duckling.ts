@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { EntityExtractionResult } from 'nlu-core/typings'
+import { EntityExtractionResult } from 'nlu/typings'
 
 import { Duckling, DucklingDimension, DucklingReturn, DucklingType, DucklingValue, Value, ValueUnit } from './typings'
 
