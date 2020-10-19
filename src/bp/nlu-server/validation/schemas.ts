@@ -29,25 +29,12 @@ const PatternSchema = Joi.object().keys({
     .default([])
 })
 
-const ComplexSchema = Joi.object().keys({
+const VariableSchema = Joi.object().keys({
   name: Joi.string().required(),
-  enums: Joi.array()
-    .items(Joi.string())
-    .optional()
-    .default([]),
-  patterns: Joi.array()
-    .items(Joi.string())
-    .optional()
-    .default([]),
-  examples: Joi.array()
+  types: Joi.array()
     .items(Joi.string())
     .optional()
     .default([])
-})
-
-const VariableSchema = Joi.object().keys({
-  name: Joi.string().required(),
-  type: Joi.string().required()
 })
 
 const IntentSchema = Joi.object().keys({
@@ -81,10 +68,6 @@ export const TrainInputSchema = Joi.object().keys({
     .default([]),
   patterns: Joi.array()
     .items(PatternSchema)
-    .optional()
-    .default([]),
-  complexes: Joi.array()
-    .items(ComplexSchema)
     .optional()
     .default([]),
   password: Joi.string()

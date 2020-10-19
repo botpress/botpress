@@ -3,7 +3,6 @@ export interface TrainInput {
   topics: Topic[]
   enums: Enum[]
   patterns: Pattern[]
-  complexes: Complex[]
   password: string
   seed?: number
 }
@@ -21,7 +20,7 @@ export interface Intent {
 
 export interface Variable {
   name: string
-  type: string
+  types: string[]
 }
 
 export interface Enum {
@@ -39,12 +38,5 @@ export interface Pattern {
   name: string
   regex: string
   case_sensitive: boolean
-  examples: string[]
-}
-
-export type Complex = {
-  name: string
-  enums: string[]
-  patterns: string[]
   examples: string[]
 }

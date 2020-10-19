@@ -23,9 +23,9 @@ const TICKET_PATTERN: Pattern = {
   examples: ['ABC-123']
 }
 
-const VARIABLE_CITY_FROM: Variable = { name: 'city-from', type: 'city' }
+const VARIABLE_CITY_FROM: Variable = { name: 'city-from', types: ['city'] }
 
-const VARIABLE_TICKET_PROBLEM: Variable = { name: 'tick-with-problem', type: 'ticket' }
+const VARIABLE_TICKET_PROBLEM: Variable = { name: 'tick-with-problem', types: ['ticket'] }
 
 const INTENT_FLY: Intent = {
   name: 'fly',
@@ -57,7 +57,7 @@ const BOUILLON_TOPIC: Topic = {
     {
       name: 'vote restaurant',
       examples: ['I vote for $restaurant-to-vote'],
-      variables: [{ name: 'restaurant-to-vote', type: 'restaurant' }]
+      variables: [{ name: 'restaurant-to-vote', types: ['restaurant'] }]
     }
   ]
 }
@@ -73,7 +73,6 @@ test('validate with correct format should pass', async () => {
     language: LANG,
     password: PW,
     patterns: [],
-    complexes: [],
     seed: 42
   }
 
@@ -108,7 +107,6 @@ test('validate with empty string pw should be allowed', async () => {
     enums: [CITY_ENUM],
     language: LANG,
     patterns: [],
-    complexes: [],
     seed: 42,
     password: ''
   }
@@ -133,7 +131,7 @@ test('validate input without enums and patterns should pass', async () => {
   const validated = await validateInput(trainInput)
 
   // assert
-  const expected: TrainInput = { ...trainInput, enums: [], patterns: [], complexes: [] }
+  const expected: TrainInput = { ...trainInput, enums: [], patterns: [] }
   expect(validated).toStrictEqual(expected)
 })
 
@@ -166,7 +164,6 @@ test('validate without intent should fail', async () => {
     language: LANG,
     password: PW,
     patterns: [],
-    complexes: [],
     seed: 42
   }
 
@@ -186,7 +183,6 @@ test('validate enum without values or patterns without regexes or empty complex 
     language: LANG,
     password: PW,
     patterns: [],
-    complexes: [],
     seed: 42
   }
 
@@ -196,24 +192,12 @@ test('validate enum without values or patterns without regexes or empty complex 
     language: LANG,
     password: PW,
     patterns: [incompletePattern],
-    complexes: [],
-    seed: 42
-  }
-
-  const emptyComplex: TrainInput = {
-    topics: [BOUILLON_TOPIC],
-    enums: [],
-    language: LANG,
-    password: PW,
-    patterns: [],
-    complexes: [{ name: 'restaurant', enums: [], patterns: [], examples: [] }],
     seed: 42
   }
 
   // act & assert
   await expect(validateInput(withoutValues)).rejects.toThrow()
   await expect(validateInput(withoutRegexes)).rejects.toThrow()
-  await expect(validateInput(emptyComplex)).rejects.toThrow()
 })
 
 test('validate with an unexisting referenced enum should throw', async () => {
@@ -224,7 +208,6 @@ test('validate with an unexisting referenced enum should throw', async () => {
     language: LANG,
     password: PW,
     patterns: [TICKET_PATTERN],
-    complexes: [],
     seed: 42
   }
 
@@ -240,7 +223,6 @@ test('validate with an unexisting referenced pattern should throw', async () => 
     language: LANG,
     password: PW,
     patterns: [],
-    complexes: [],
     seed: 42
   }
 
@@ -257,8 +239,8 @@ test('validate with an unexisting referenced complex should throw', async () => 
         intents: [
           {
             name: 'vote restaurant',
-            examples: ['I vote for $restaurant-to-vote'],
-            variables: [{ name: 'restaurant-to-vote', type: 'restaurant' }]
+            examples: ['I vote for [Burger king](restaurant-to-vote)'],
+            variables: [{ name: 'restaurant-to-vote', types: ['restaurant'] }]
           }
         ]
       }
@@ -267,30 +249,6 @@ test('validate with an unexisting referenced complex should throw', async () => 
     language: LANG,
     password: PW,
     patterns: [],
-    complexes: [],
-    seed: 42
-  }
-
-  // act & assert
-  await expect(validateInput(trainInput)).rejects.toThrow()
-})
-
-test('validate with an unexisting referenced variable should throw', async () => {
-  // arrange
-  const withoutTicketProblem: Intent = {
-    name: 'problem',
-    examples: ['problem with ticket $tick-with-problem', 'problem with ticket'],
-    variables: []
-  }
-  const topic: Topic = { name: 'problem', intents: [withoutTicketProblem] }
-
-  const trainInput: TrainInput = {
-    topics: [topic],
-    enums: [],
-    language: LANG,
-    password: PW,
-    patterns: [TICKET_PATTERN],
-    complexes: [],
     seed: 42
   }
 
@@ -306,55 +264,10 @@ test('validate with correct format but unexpected property should fail', async (
     language: LANG,
     password: PW,
     patterns: [],
-    complexes: [],
     seed: 42,
     entities: []
   }
 
   // act & assert
   await expect(validateInput(trainInput)).rejects.toThrow()
-})
-
-test('validate with a complex referencing an unexisting enum or pattern should throw', async () => {
-  // arrange
-  const trainInput: TrainInput = {
-    topics: [BOUILLON_TOPIC],
-    enums: [CITY_ENUM],
-    language: LANG,
-    password: PW,
-    patterns: [],
-    complexes: [{ name: 'restaurant', examples: [], patterns: ['postal-code'], enums: ['known-restaurant'] }],
-    seed: 42
-  }
-
-  // act & assert
-  await expect(validateInput(trainInput)).rejects.toThrow()
-})
-
-test('validate with a complex referencing an enum and pattern should not throw', async () => {
-  // arrange
-  const trainInput: TrainInput = {
-    topics: [BOUILLON_TOPIC],
-    enums: [
-      {
-        name: 'known-restaurant',
-        values: [
-          { name: 'burger king', synonyms: ['BK'] },
-          { name: 'mcdo', synonyms: ['donald'] }
-        ],
-        fuzzy: 1
-      }
-    ],
-    language: LANG,
-    password: PW,
-    patterns: [{ name: 'postal-code', regex: '\\w{6}', case_sensitive: false, examples: [] }],
-    complexes: [{ name: 'restaurant', examples: [], patterns: ['postal-code'], enums: ['known-restaurant'] }],
-    seed: 42
-  }
-
-  // act
-  const validated = await validateInput(trainInput)
-
-  //  assert
-  expect(validated).toStrictEqual(trainInput)
 })
