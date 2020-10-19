@@ -23,7 +23,7 @@ export async function getTrainingSession(
 ): Promise<sdk.NLU.TrainingSession> {
   const key = makeTrainSessionKey(botId, language)
   const trainSession = await bp.kvs.forBot(botId).get(key)
-  return trainSession || { ...DEFAULT_TRAINING_SESSION, language }
+  return trainSession || { ...DEFAULT_TRAINING_SESSION, language, key }
 }
 
 export function setTrainingSession(bp: typeof sdk, botId: string, trainSession: sdk.NLU.TrainingSession): Promise<any> {

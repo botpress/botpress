@@ -15,6 +15,12 @@ const USER_CREDENTIALS = {
   password: '123456'
 }
 
+const sleep = (ms) => {
+  return new Promise(resolve => {
+    setTimeout(resolve, ms)
+  })
+}
+
 const login = async () => {
   try {
     const { data } = await axios.post(`${BASE}/api/v1/auth/login/basic/default`, USER_CREDENTIALS)
@@ -52,6 +58,11 @@ const createBot = async (axiosConfig, botInfo) => {
     }
     throw err
   }
+}
+
+const startTraining = async (axiosConfig, botInfo) => {
+  console.log(`[${botInfo.id}] start training.`)
+  return axios.post(`${BASE}/api/v1/bots/${botInfo.id}/mod/nlu/train`, {}, axiosConfig)
 }
 
 const waitForTraining = async (axiosConfig, botInfo) => {
@@ -168,6 +179,9 @@ const handleRegression = async botInfo => {
 
 const runRegressionForBot = async (axiosConfig, botInfo, tolerance = 0) => {
   await createBot(axiosConfig, botInfo)
+  await sleep(500)
+  await startTraining(axiosConfig, botInfo)
+  await sleep(500)
   await waitForTraining(axiosConfig, botInfo)
   console.log(chalk.green(chalk.bold(`[${botInfo.id}] Training Done!`)))
 
