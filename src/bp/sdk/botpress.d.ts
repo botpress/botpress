@@ -507,6 +507,14 @@ declare module 'botpress/sdk' {
       validLanguages: string[]
     }
 
+    /**
+     * idle : occures when there are no training sessions for a bot
+     * done : when a training is complete
+     * needs-training : when current chatbot model differs from training data
+     * training: when a chatbot is currently training
+     * canceled: when a training has been canceled by the user
+     * errored: when a chatbot failed to train
+     */
     export type TrainingStatus = 'idle' | 'done' | 'needs-training' | 'training' | 'canceled' | 'errored' | null
 
     export interface TrainingSession {

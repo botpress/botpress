@@ -6,13 +6,47 @@ import yn from 'yn'
 import { createApi } from '../../api'
 import { makeLoggerWrapper } from '../logger'
 import * as ModelService from '../model-service'
-import { makeTrainingSession, makeTrainSessionKey, setTrainingSession } from '../train-session-service'
+import {
+  getTrainingSession,
+  makeTrainingSession,
+  makeTrainSessionKey,
+  setTrainingSession
+} from '../train-session-service'
 import { NLUState } from '../typings'
 
 const missingLangMsg = botId =>
   `Bot ${botId} has configured languages that are not supported by language sources. Configure a before incoming hook to call an external NLU provider for those languages.`
 
 const KVS_TRAINING_STATUS_KEY = 'nlu:trainingStatus'
+
+function registerNeedTrainingWatcher(bp: typeof sdk, botId: string, engine: sdk.NLU.Engine, state: NLUState) {
+  function hasPotentialNLUChange(filePath: string): boolean {
+    return (
+      filePath.endsWith('.intents.json') ||
+      filePath.endsWith('.flow.json') ||
+      filePath.includes('/intents/') || // legacy
+      filePath.includes('/entities/')
+    )
+  }
+
+  return bp.ghost.forBot(botId).onFileChanged(async filePath => {
+    if (hasPotentialNLUChange(filePath)) {
+      const api = await createApi(bp, botId)
+      const intentDefs = await api.fetchIntentsWithQNAs()
+      const entityDefs = await api.fetchEntities()
+
+      const languageWithChanges = (await bp.bots.getBotById(botId)).languages.filter(lang => {
+        const hash = engine.computeModelHash(intentDefs, entityDefs, lang)
+        return !engine.hasModel(lang, hash)
+      })
+      await Promise.map(languageWithChanges, async lang => {
+        const trainSession = await getTrainingSession(bp, botId, lang)
+        trainSession.status = 'needs-training'
+        return Promise.all([setTrainingSession(bp, botId, trainSession), state.sendNLUStatusEvent(botId, trainSession)])
+      })
+    }
+  })
+}
 
 export function getOnBotMount(state: NLUState) {
   return async (bp: typeof sdk, botId: string) => {
@@ -104,6 +138,8 @@ export function getOnBotMount(state: NLUState) {
       })
     }
 
+    const needsTrainingWatcher = registerNeedTrainingWatcher(bp, botId, engine, state)
+
     const { defaultLanguage } = bot
     state.nluByBot[botId] = {
       botId,
@@ -111,7 +147,8 @@ export function getOnBotMount(state: NLUState) {
       defaultLanguage,
       trainOrLoad,
       trainSessions: {},
-      cancelTraining
+      cancelTraining,
+      needsTrainingWatcher
     }
 
     trainOrLoad(yn(process.env.FORCE_TRAIN_ON_MOUNT)) // floating promise on purpose

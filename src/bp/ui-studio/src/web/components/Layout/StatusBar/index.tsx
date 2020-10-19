@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 import style from './style.scss'
 import ConfigStatus from './ConfigStatus'
 import LangSwitcher from './LangSwitcher'
-import { TrainingStatusComponent } from './TrainingStatus'
+import TrainingStatusComponent from './TrainingStatus'
 
 interface Props {
   langSwitcherOpen: boolean

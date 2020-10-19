@@ -35,20 +35,6 @@ export default async (bp: typeof sdk, state: NLUState) => {
   router.get('/training/:language', async (req, res) => {
     const { language, botId } = req.params
     const session = await getTrainingSession(bp, botId, language)
-    //  temp hack
-    if (session.status === 'idle' || session.status === 'done') {
-      // TODO: get rid of training status 'idle' which is alway replaced by 'needs-training' anyway
-      const engine = state.nluByBot[botId].engine
-      const client = await createApi(bp, botId)
-      const intentDefs = await client.fetchIntentsWithQNAs()
-      const entityDefs = await client.fetchEntities()
-
-      const hash = engine.computeModelHash(intentDefs, entityDefs, language)
-      const hasModel = engine.hasModel(language, hash)
-      if (!hasModel) {
-        session.status = 'needs-training'
-      }
-    }
     res.send(session)
   })
 

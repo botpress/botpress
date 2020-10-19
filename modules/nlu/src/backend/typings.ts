@@ -1,4 +1,4 @@
-import { NLU } from 'botpress/sdk'
+import { ListenHandle, NLU } from 'botpress/sdk'
 
 export type NLUState = {
   nluByBot: _.Dictionary<BotState>
@@ -14,6 +14,7 @@ export interface BotState {
   trainOrLoad: (forceTrain: boolean) => Promise<void>
   trainSessions: _.Dictionary<NLU.TrainingSession>
   cancelTraining: () => Promise<void>
+  needsTrainingWatcher: ListenHandle
 }
 
 export interface NLUProgressEvent {
