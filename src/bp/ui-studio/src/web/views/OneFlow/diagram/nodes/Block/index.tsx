@@ -112,7 +112,7 @@ const BlockWidget: FC<Props> = ({
     )
   }
 
-  const inputPortInHeader = !['trigger'].includes(nodeType) && !isMagnetNode
+  const inputPortInHeader = !['trigger'].includes(nodeType)
   const outPortInHeader = !['failure', 'prompt', 'router', 'success', 'sub-workflow'].includes(nodeType)
   const hasContextMenu = !['failure', 'success'].includes(nodeType)
 
@@ -186,8 +186,10 @@ const BlockWidget: FC<Props> = ({
           debugInfo={debugInfo}
           nodeType={nodeType}
         >
-          <StandardPortWidget hidden={!inputPortInHeader} name="in" node={node} className={style.in} />
-          {outPortInHeader && (
+          {!isMagnetNode && (
+            <StandardPortWidget hidden={!inputPortInHeader} name="in" node={node} className={style.in} />
+          )}
+          {outPortInHeader && !node.childrenNodes?.length && (
             <StandardPortWidget
               name="out0"
               hidden={!!node.childrenNodes?.length}

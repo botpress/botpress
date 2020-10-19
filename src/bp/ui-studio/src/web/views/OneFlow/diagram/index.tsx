@@ -75,6 +75,8 @@ import { StandardNodeModel, StandardWidgetFactory } from '~/views/FlowBuilder/di
 import { textToItemId } from '~/views/FlowBuilder/diagram/nodes_v2/utils'
 import style from '~/views/FlowBuilder/diagram/style.scss'
 
+import { flattenNodesStructure } from '../../../util'
+
 import { prepareEventForDiagram } from './debugger'
 import { BlockModel, BlockWidgetFactory } from './nodes/Block'
 import menuStyle from './style.scss'
@@ -283,9 +285,6 @@ class Diagram extends Component<Props> {
       }
     }
 
-    if (this.dragPortSource) {
-      // console.log(this.props.currentFlowNode)
-    }
     if (this.dragPortSource && !prevProps.currentFlowNode && this.props.currentFlowNode) {
       // tslint:disable-next-line: no-floating-promises
       this.linkCreatedNode()
@@ -357,6 +356,15 @@ class Diagram extends Component<Props> {
     this.diagramWidget.forceUpdate()
   }
 
+  getLastChildNode(node) {
+    let childNode = node?.childrenNodes?.[0]
+    if (childNode?.childrenNodes?.length) {
+      childNode = this.getLastChildNode(childNode)
+    }
+
+    return childNode
+  }
+
   linkCreatedNode = async () => {
     const sourcePort: DefaultPortModel = _.get(this.dragPortSource, 'parent.sourcePort')
     this.dragPortSource = undefined
@@ -367,7 +375,12 @@ class Diagram extends Component<Props> {
 
     if (!sourcePort.in) {
       const sourcePortIndex = Number(sourcePort.name.replace('out', ''))
-      await this.updateTransitionNode(sourcePort.parent.id, sourcePortIndex, this.props.currentFlowNode.name)
+      let sourcePortNode = sourcePort.parent
+      if ((sourcePortNode as BlockModel)?.childrenNodes?.length) {
+        sourcePortNode = this.getLastChildNode(sourcePortNode)
+      }
+
+      await this.updateTransitionNode(sourcePortNode.id, sourcePortIndex, this.props.currentFlowNode.name)
     } else {
       await this.updateTransitionNode(this.props.currentFlowNode.id, 0, sourcePort.parent['name'])
     }

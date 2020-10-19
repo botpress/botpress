@@ -539,7 +539,11 @@ reducer = reduceReducers(
               const nodeLinks = payload.links.filter(link => link.source === node.id)
               const next = node.next.map((value, index) => {
                 const link = nodeLinks.find(link => Number(link.sourcePort.replace('out', '')) === index)
-                const targetNode = _.find(flattenNodes, { id: (link || {}).target })
+                let targetNode = _.find(flattenNodes, { id: (link || {}).target })
+                if (!targetNode && value.condition === 'true' && value.node !== '') {
+                  targetNode = _.find(flattenNodes, { name: value.node })
+                }
+
                 let remapNode = ''
 
                 if (value.node.includes('.flow.json') || value.node === 'END' || value.node.startsWith('#')) {
@@ -764,7 +768,6 @@ reducer = reduceReducers(
         const currentFlow = state.flowsByName[state.currentFlow]
         const currentNode = _.find(flattenNodesStructure(state.flowsByName[state.currentFlow].nodes), { id: state.currentFlowNode })
         const needsUpdate = name => name === (currentNode || {}).name && payload.name
-
         const updateNodeName = elements =>
           elements.map(element => {
             return {
