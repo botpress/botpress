@@ -174,6 +174,7 @@ export type Config = {
   exposeStore: boolean
   /** Reference ensures that a specific value and its signature are valid */
   reference: string
+  /** If true, Websocket is created when the Webchat is opened. Bot cannot be proactive. */
   lazySocket: boolean
 }
 
