@@ -14,7 +14,7 @@ import AgentProfile from './Components/AgentProfile'
 import Conversation from './Components/Conversation'
 import EscalationList from './Components/EscalationList'
 
-import styles from './style.scss'
+import style from './style.scss'
 
 const App = ({ bp }) => {
   const api = Api(bp)
@@ -106,21 +106,19 @@ const App = ({ bp }) => {
   }, [state.error])
 
   return (
-    <Grid fluid className={cx(styles.app)}>
-      <Row>
-        <Col>
-          <AgentProfile toggleOnline={toggleOnline} loading={loading} {...state.currentAgent}></AgentProfile>
-        </Col>
-      </Row>
-      <Row>
-        <Col md={4}>
-          <EscalationList api={api} escalations={state.escalations} loading={loading}></EscalationList>
-        </Col>
-        <Col md={8}>
-          <Conversation api={api} escalation={state.currentEscalation}></Conversation>
-        </Col>
-      </Row>
-    </Grid>
+    <div className={style.app}>
+      <div className={style.header}>
+        <AgentProfile toggleOnline={toggleOnline} loading={loading} {...state.currentAgent} />
+      </div>
+      <div className={style.mainContent}>
+        <div className={style.sidebar}>
+          <EscalationList api={api} escalations={state.escalations} loading={loading} />
+        </div>
+        <div className={style.content}>
+          <Conversation api={api} escalation={state.currentEscalation} />
+        </div>
+      </div>
+    </div>
   )
 }
 

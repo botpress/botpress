@@ -43,7 +43,8 @@
     "empty": "Aucun commentaires"
   },
   "conversation": {
-    "empty": "Sélectionnez une escalation en attente pour engager la conversation avec vos clients."
+    "empty": "Sélectionnez une escalation en attente pour engager la conversation avec vos clients.",
+    "tab": "Conversation"
   },
   "escalations": {
     "empty": "Il n'y a présentement aucune escalation grâce à ton équipe et toi-même."

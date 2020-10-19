@@ -2,10 +2,17 @@
 // Please do not change this file!
 interface CssExports {
   'app': string;
+  'content': string;
+  'conversationWrapper': string;
+  'escalationInfo': string;
   'escalationItem': string;
   'escalationList': string;
   'h100': string;
+  'header': string;
+  'main': string;
+  'mainContent': string;
   'sidebar': string;
+  'tabs': string;
   'w100': string;
 }
 declare var cssExports: CssExports;

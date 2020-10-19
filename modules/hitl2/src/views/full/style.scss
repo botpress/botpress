@@ -7,17 +7,63 @@
 }
 
 .app {
-  .escalationList {
-    padding-right: var(--spacing-xx-large);
-    padding-left: var(--spacing-xx-large);
-    background-color: var(--bg);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  .header {
+    flex-grow: 0;
+    flex-shrink: 1;
+  }
+
+  .mainContent {
+    flex-grow: 1;
+    flex-shrink: 0;
+    display: flex;
+
+    .sidebar {
+      display: flex;
+      flex-grow: 0;
+      flex-shrink: 1;
+      width: 480px;
+    }
+
+    .content {
+      background: #fff;
+      display: flex;
+      flex-grow: 1;
+      flex-shrink: 0;
+
+      .conversationWrapper {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        height: 100%;
+        padding-left: var(--spacing-x-large);
+      }
+
+      .tabs {
+        flex-grow: 0;
+        flex-shrink: 1;
+      }
+
+      .main {
+        flex-grow: 1;
+      }
+
+      .escalationInfo {
+        display: flex;
+        flex-grow: 0;
+        flex-shrink: 1;
+      }
+    }
   }
 
   .escalationItem {
-    display: flex;
-    padding: 10px var(--spacing-xx-large);
     border-radius: 5px;
     cursor: pointer;
+    display: flex;
+    padding: 10px var(--spacing-xx-large);
 
     &:hover {
       background-color: var(--seashell);
@@ -26,10 +72,19 @@
 }
 
 .sidebar {
+  .escalationList {
+    background-color: var(--bg);
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    height: 100%;
+    padding: 0 var(--spacing-x-large);
+  }
+
   .escalationItem {
-    padding: 5px 10px;
     border-radius: 5px;
     cursor: pointer;
+    padding: 5px 10px;
 
     &:hover {
       background-color: var(--seashell);

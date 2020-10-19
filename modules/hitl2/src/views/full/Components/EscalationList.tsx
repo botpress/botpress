@@ -10,7 +10,7 @@ import { Context, EscalationsMapType } from '../app/Store'
 import { Spinner } from '@blueprintjs/core'
 import { EmptyState, Tabs, lang } from 'botpress/shared'
 import CasesIcon from './../Icons/CasesIcon'
-import EscalationListFilter, { SortType, FilterType } from './EscalationListFilter'
+import EscalationListHeader, { SortType, FilterType } from './EscalationListHeader'
 import EscalationItem from './EscalationItem'
 
 import styles from './../style.scss'
@@ -66,25 +66,21 @@ const EscalationList: FC<Props> = props => {
 
   return (
     <div className={cx(styles.escalationList)}>
-      <Tabs tabs={[{ id: 'escalations', title: lang.tr('module.hitl2.tab') }]} />
+      <EscalationListHeader
+        filterOptions={filterOptions}
+        sortOption={sortOption}
+        setFilterOptions={setFilterOptions}
+        setSortOption={setSortOption}
+        disabled={!items.length}
+      ></EscalationListHeader>
 
       {props.loading && <Spinner></Spinner>}
-
-      {!props.loading && (
-        <EscalationListFilter
-          filterOptions={filterOptions}
-          sortOption={sortOption}
-          setFilterOptions={setFilterOptions}
-          setSortOption={setSortOption}
-          disabled={!items.length}
-        ></EscalationListFilter>
-      )}
 
       {!props.loading && !items.length && (
         <EmptyState icon={<CasesIcon />} text={lang.tr('module.hitl2.escalations.empty')}></EmptyState>
       )}
 
-      {items.length && (
+      {!!items.length && (
         <div>
           {items.map((escalation, i) => (
             <EscalationItem key={escalation.id} api={api} {...escalation}></EscalationItem>

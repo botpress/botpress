@@ -43,7 +43,8 @@
     "empty": "No comments"
   },
   "conversation": {
-    "empty": "Select a pending case to engage conversation with your clients."
+    "empty": "Select a pending case to engage conversation with your clients.",
+    "tab": "Conversation"
   },
   "escalations": {
     "empty": "Thanks to you and your team, there are no pending handoffs right now."

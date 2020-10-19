@@ -1,4 +1,4 @@
-import React, { FC, useContext } from 'react'
+import React, { FC, Fragment, useContext } from 'react'
 import _ from 'lodash'
 import cx from 'classnames'
 
@@ -13,7 +13,7 @@ import { EmptyState, Tabs, toast, lang } from 'botpress/shared'
 import AgentsIcon from './../Icons/AgentsIcon'
 import Sidebar from './Sidebar'
 
-import styles from './../style.scss'
+import style from './../style.scss'
 
 interface Props {
   api: ApiType
@@ -53,45 +53,28 @@ const Conversation: FC<Props> = props => {
   }
 
   return (
-    <Row className={cx(styles.h100)}>
-      {!props.escalation && (
-        <Col xs={12} className={cx(styles.h100)}>
-          <Tabs
-            tabs={[{ id: 'conversation', title: lang.tr('module.hitl2.tab') }]}
-            style={{ marginBottom: 'var(--spacing-xx-large)' }}
-          />
-          <EmptyState icon={<AgentsIcon />} text={lang.tr('module.hitl2.conversation.empty')}></EmptyState>
-        </Col>
-      )}
+    <Fragment>
+      <div className={style.conversationWrapper}>
+        <Tabs tabs={[{ id: 'conversation', title: lang.tr('module.hitl2.conversation.tab') }]} className={style.tabs} />
+        <div className={style.main}>
+          {!props.escalation ? (
+            <EmptyState icon={<AgentsIcon />} text={lang.tr('module.hitl2.conversation.empty')}></EmptyState>
+          ) : (
+            <Fragment>
+              <Button onClick={handleAssign}>Assign to me</Button>
+              <Button onClick={handleResolve}>Resolve</Button>
+            </Fragment>
+          )}
+        </div>
+      </div>
 
       {props.escalation && (
-        <Col md={8} className={cx(styles.h100)}>
-          <Tabs
-            tabs={[{ id: 'conversation', title: lang.tr('module.hitl2.tab') }]}
-            style={{ marginBottom: 'var(--spacing-xx-large)' }}
-          />
-          <Button onClick={handleAssign}>Assign to me</Button>
-          <Button onClick={handleResolve}>Resolve</Button>
-        </Col>
+        <div className={style.escalationInfo}>
+          <Tabs tabs={[{ id: 'user', title: lang.tr('module.hitl2.sidebar.tab') }]} className={style.tabs} />
+          <Sidebar api={props.api} escalation={props.escalation}></Sidebar>
+        </div>
       )}
-
-      {props.escalation && (
-        <Col md={4} className={cx(styles.h100)}>
-          <div
-            className={cx(styles.h100)}
-            style={{ paddingLeft: 'var(--spacing-xx-large)', borderLeft: '1px solid var(--seashell)' }}
-          >
-            {props.escalation && (
-              <Tabs
-                tabs={[{ id: 'user', title: lang.tr('module.hitl2.tab') }]}
-                style={{ marginBottom: 'var(--spacing-xx-large)' }}
-              />
-            )}
-            {props.escalation && <Sidebar api={props.api} escalation={props.escalation}></Sidebar>}
-          </div>
-        </Col>
-      )}
-    </Row>
+    </Fragment>
   )
 }
 
