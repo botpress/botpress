@@ -50,25 +50,32 @@ export const importQuestions = async (data: ImportData, storage, bp, statusCallb
     }
   }
 
-  const existingQuestionItems = (await (storage as Storage).fetchQNAs()).map(item => item.id)
-  const itemsToSave = questions.filter(item => !existingQuestionItems.includes(item.id))
-  const entriesToSave = itemsToSave.map(q => q.data)
+  const existingQnaIds = (await (storage as Storage).fetchQNAs()).map(item => item.id)
+
+  for (const qnaItem of questions) {
+    qnaItem.data.enabled = true
+  }
 
   let questionsSavedCount = 0
-  return Promise.each(entriesToSave, async (question: QnaEntry & { category?: string }) => {
-    const item = { ...question, enabled: true }
+  return Promise.each(questions, async (qnaItem: QnaItem & { data: { category?: string } }) => {
+    const { data, id } = qnaItem
 
     // Support for previous QnA
-    if (item.category) {
-      item.contexts = [item.category]
-      delete item.category
+    if (data.category) {
+      data.contexts = [data.category]
+      delete data.category
     }
 
-    await (storage as Storage).insert(item)
+    if (existingQnaIds.includes(id)) {
+      await (storage as Storage).update(data, id)
+    } else {
+      await (storage as Storage).insert(data)
+    }
+
     questionsSavedCount += 1
     statusCallback(
       uploadStatusId,
-      `Saved ${questionsSavedCount}/${entriesToSave.length} question${entriesToSave.length === 1 ? '' : 's'}`
+      `Saved ${questionsSavedCount}/${questions.length} question${questions.length === 1 ? '' : 's'}`
     )
   })
 }

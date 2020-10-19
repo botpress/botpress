@@ -1,3 +1,22 @@
+## [12.10.8](https://github.com/botpress/botpress/compare/v12.10.7...v12.10.8) (2020-10-06)
+
+
+### Bug Fixes
+
+* **admin:** update react scripts ([#3983](https://github.com/botpress/botpress/issues/3983)) ([1a4ba1e](https://github.com/botpress/botpress/commit/1a4ba1e))
+* **basic-skills:** choice: kw strict equality comparison ([#3975](https://github.com/botpress/botpress/issues/3975)) ([efac56e](https://github.com/botpress/botpress/commit/efac56e))
+* **channel-web:** database indices ([#3981](https://github.com/botpress/botpress/issues/3981)) ([907cc80](https://github.com/botpress/botpress/commit/907cc80))
+* **webchat:** add missing column ([#4008](https://github.com/botpress/botpress/issues/4008)) ([26697d8](https://github.com/botpress/botpress/commit/26697d8))
+
+
+### Features
+
+* **analytics:** messages by language ([#4020](https://github.com/botpress/botpress/issues/4020)) ([2d21cd1](https://github.com/botpress/botpress/commit/2d21cd1))
+* **channel-web:** conversationId ([#4016](https://github.com/botpress/botpress/issues/4016)) ([f783b66](https://github.com/botpress/botpress/commit/f783b66))
+* **hitl:** add thread_id to sessions table ([#3982](https://github.com/botpress/botpress/issues/3982)) ([332f1a2](https://github.com/botpress/botpress/commit/332f1a2))
+
+
+
 ## [12.10.7](https://github.com/botpress/botpress/compare/v12.10.6...v12.10.7) (2020-09-11)
 
 
