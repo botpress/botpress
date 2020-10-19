@@ -243,7 +243,7 @@ class Web extends React.Component<MainProps> {
   }
 
   isLazySocket() {
-    return this.config.lazySocket || this.props.botInfo?.lazySocket
+    return this.config.lazySocket === true || this.props.botInfo?.lazySocket
   }
 
   handleResetUnreadCount = () => {
