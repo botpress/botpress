@@ -91,9 +91,8 @@ const Layout: FC<ILayoutProps & StateProps> = props => {
     const trainStatusService = new TrainingStatusService(props.contentLang, props.trainSessionReceived)
     // tslint:disable-next-line: no-floating-promises
     trainStatusService.fetchTrainingStatus()
-    trainStatusService.startPolling()
-
-    return () => trainStatusService.stopPolling()
+    trainStatusService.listen()
+    return () => trainStatusService.stopListening()
   }, [props.contentLang])
 
   useEffect(() => {
