@@ -170,7 +170,7 @@ export default class Repository {
         `comments.createdAt as ${this.commentPrefix}:createdAt`
       )
       .leftJoin('comments', 'escalations.id', 'comments.escalationId')
-      .where('escalations.botId', botId)
+      .andWhere('escalations.botId', botId)
       .distinct()
       .modify(this.applyLimit, limit)
       .modify(this.applyOrderBy, orderByColumn, orderByDirection)
@@ -270,10 +270,22 @@ export default class Repository {
           .transacting(trx)
           .then(this.hydrateComments.bind(this))
           .then(async data =>
-            this.hydrateEvents(await this.userEventsQuery().transacting(trx), data, 'userConversation')
+            this.hydrateEvents(
+              await this.userEventsQuery()
+                .andWhere('escalations.botId', botId)
+                .transacting(trx),
+              data,
+              'userConversation'
+            )
           )
           .then(async data =>
-            this.hydrateEvents(await this.agentEventsQuery().transacting(trx), data, 'agentConversation')
+            this.hydrateEvents(
+              await this.agentEventsQuery()
+                .andWhere('escalations.botId', botId)
+                .transacting(trx),
+              data,
+              'agentConversation'
+            )
           )
       })
       .then(data => data as EscalationType[])
