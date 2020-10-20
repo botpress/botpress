@@ -129,9 +129,9 @@ const compileBackend = (modulePath: string, babelConfig) => {
     try {
       const dBefore = Date.now()
       const result = babel.transformFileSync(file, babelConfig)
-      const destMap = dest + '.map'
+      const destMap = `${dest}.map`
 
-      fs.writeFileSync(dest, result.code + os.EOL + `//# sourceMappingURL=${path.basename(destMap)}`)
+      fs.writeFileSync(dest, `${result.code}${os.EOL}//# sourceMappingURL=${path.basename(destMap)}`)
       result.map.sources = [path.relative(babelConfig.sourceRoot, file)]
       fs.writeFileSync(destMap, JSON.stringify(result.map))
 
