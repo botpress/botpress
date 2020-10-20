@@ -72,11 +72,11 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
       bp.axios
         .post(`${base}/escalations/${id}/assign`)
         .then(res => res.data)
-        .then(data => data.map(castEscalation)),
+        .then(data => castEscalation(data)),
     resolveEscalation: async id =>
       bp.axios
         .post(`${base}/escalations/${id}/resolve`)
         .then(res => res.data)
-        .then(data => data.map(castEscalation))
+        .then(data => castEscalation(data))
   }
 }
