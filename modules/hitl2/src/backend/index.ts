@@ -4,11 +4,13 @@ import en from '../translations/en.json'
 import fr from '../translations/fr.json'
 
 import api from './api'
+import { registerMiddleware, unregisterMiddleware } from './middleware'
 
 const onServerStarted = async (bp: typeof sdk) => {}
 
 const onServerReady = async (bp: typeof sdk) => {
   await api(bp)
+  await registerMiddleware(bp)
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {}
@@ -17,6 +19,7 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {}
 
 const onModuleUnmount = async (bp: typeof sdk) => {
   bp.http.deleteRouterForBot('hitl2')
+  unregisterMiddleware(bp)
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {
