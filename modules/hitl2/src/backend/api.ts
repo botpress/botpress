@@ -18,7 +18,6 @@ import {
   CreateEscalationSchema,
   AssignEscalationSchema,
   ResolveEscalationSchema,
-  AgentOnlineSchema,
   AgentOnlineValidation,
   escalationStatusRule
 } from './validation'
