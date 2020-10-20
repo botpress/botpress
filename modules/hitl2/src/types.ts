@@ -27,8 +27,8 @@ export interface EscalationType {
   target?: string
   agentId?: string
   status: 'pending' | 'assigned' | 'resolved'
-  userConversationId: string
-  agentConversationId: string
+  userThreadId: string
+  agentThreadId: string
   userConversation: EventType
   agentConversation: EventType
   comments: CommentType[]

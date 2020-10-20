@@ -33,8 +33,8 @@ export default class Repository {
       'id',
       'botId',
       'agentId',
-      'userConversationId',
-      'agentConversationId',
+      'userThreadId',
+      'agentThreadId',
       'status',
       'assignedAt',
       'resolvedAt',
@@ -131,12 +131,12 @@ export default class Repository {
       .database<EscalationType>('escalations')
       .select(
         'escalations.id as escalation:id',
-        'escalations.userConversationId as escalation:userConversationId',
+        'escalations.userThreadId as escalation:userThreadId',
         'most_recent_event.*'
       )
       .join(
         this.recentConversationQuery().where('direction', 'incoming'),
-        'escalations.userConversationId',
+        'escalations.userThreadId',
         'most_recent_event.threadId'
       )
   }
@@ -146,12 +146,12 @@ export default class Repository {
       .database<EscalationType>('escalations')
       .select(
         'escalations.id as escalation:id',
-        'escalations.agentConversationId as escalation:agentConversationId',
+        'escalations.agentThreadId as escalation:agentThreadId',
         'most_recent_event.*'
       )
       .join(
         this.recentConversationQuery().where('direction', 'incoming'),
-        'escalations.agentConversationId',
+        'escalations.agentThreadId',
         'most_recent_event.threadId'
       )
   }

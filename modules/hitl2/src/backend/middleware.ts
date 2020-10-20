@@ -59,11 +59,11 @@ const registerMiddleware = async (bp: typeof sdk) => {
     if (!escalation) {
       next()
       return
-    } else if (escalation.userConversationId === event.threadId) {
+    } else if (escalation.userThreadId === event.threadId) {
       // Handle incoming message from user
       if (escalation.status === 'assigned') {
-        // There only is an agentId & agentConversationId after assignation
-        await pipeEvent(event, escalation.agentId, escalation.agentConversationId)
+        // There only is an agentId & agentThreadId after assignation
+        await pipeEvent(event, escalation.agentId, escalation.agentThreadId)
       }
 
       realtime.sendPayload({
@@ -72,9 +72,9 @@ const registerMiddleware = async (bp: typeof sdk) => {
         id: escalation.id,
         payload: escalation
       })
-    } else if (escalation.agentConversationId === event.threadId) {
+    } else if (escalation.agentThreadId === event.threadId) {
       // Handle incoming message from agent
-      await pipeEvent(event, escalation.target, escalation.userConversationId)
+      await pipeEvent(event, escalation.target, escalation.userThreadId)
     }
 
     next(undefined, false)
