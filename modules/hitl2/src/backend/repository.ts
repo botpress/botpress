@@ -33,8 +33,8 @@ export default class Repository {
       'id',
       'botId',
       'agentId',
-      'userConversationId',
-      'agentConversationId',
+      'userThreadId',
+      'agentThreadId',
       'status',
       'assignedAt',
       'resolvedAt',
@@ -126,32 +126,17 @@ export default class Repository {
       .as('most_recent_event')
   }
 
-  private userEventsQuery(): Knex.QueryBuilder {
+  private userEventsQuery() {
     return this.bp
-      .database('escalations')
+      .database<EscalationType>('escalations')
       .select(
         'escalations.id as escalation:id',
-        'escalations.userConversationId as escalation:userConversationId',
+        'escalations.userThreadId as escalation:userThreadId',
         'most_recent_event.*'
       )
       .join(
         this.recentConversationQuery().where('direction', 'incoming'),
-        'escalations.userConversationId',
-        'most_recent_event.threadId'
-      )
-  }
-
-  private agentEventsQuery(): Knex.QueryBuilder {
-    return this.bp
-      .database('escalations')
-      .select(
-        'escalations.id as escalation:id',
-        'escalations.agentConversationId as escalation:agentConversationId',
-        'most_recent_event.*'
-      )
-      .join(
-        this.recentConversationQuery().where('direction', 'incoming'),
-        'escalations.agentConversationId',
+        'escalations.userThreadId',
         'most_recent_event.threadId'
       )
   }
@@ -170,11 +155,28 @@ export default class Repository {
         `comments.createdAt as ${this.commentPrefix}:createdAt`
       )
       .leftJoin('comments', 'escalations.id', 'comments.escalationId')
-      .where('escalations.botId', botId)
+      .andWhere('escalations.botId', botId)
       .distinct()
       .modify(this.applyLimit, limit)
       .modify(this.applyOrderBy, orderByColumn, orderByDirection)
       .orderBy([{ column: 'comments.createdAt', order: 'asc' }])
+  }
+
+  private applyQuery = (query?: Knex.QueryCallback) => {
+    return (builder: Knex.QueryBuilder) => {
+      if (query) {
+        return builder.modify(query)
+      } else {
+        return builder
+      }
+    }
+  }
+
+  escalationsQuery = async (botId: string, query?: Knex.QueryCallback): Promise<EscalationType[]> => {
+    return await this.bp
+      .database<EscalationType>('escalations')
+      .where('botId', botId)
+      .modify(this.applyQuery(query))
   }
 
   getAgentOnline = async (botId: string, agentId: string): Promise<boolean> => {
@@ -208,7 +210,7 @@ export default class Repository {
 
     const applyConditions = (records: []) => {
       if ('online' in conditions) {
-        return _.filter(records, ['online', online]) as AgentType[]
+        return _.filter<AgentType>(records, ['online', online])
       } else {
         return records
       }
@@ -241,28 +243,43 @@ export default class Repository {
       .then(applyConditions)
   }
 
-  getEscalations = async (botId: string, conditions: CollectionConditions = {}): Promise<EscalationType[]> => {
+  getEscalationsWithComents = async (
+    botId: string,
+    conditions: CollectionConditions = {},
+    query?: Knex.QueryCallback
+  ): Promise<EscalationType[]> => {
     return await this.bp.database
       .transaction(async trx => {
         return await this.escalationsWithCommentsQuery(botId, conditions)
+          .modify(this.applyQuery(query))
           .transacting(trx)
           .then(this.hydrateComments.bind(this))
           .then(async data =>
-            this.hydrateEvents(await this.userEventsQuery().transacting(trx), data, 'userConversation')
-          )
-          .then(async data =>
-            this.hydrateEvents(await this.agentEventsQuery().transacting(trx), data, 'agentConversation')
+            this.hydrateEvents(
+              await this.userEventsQuery()
+                .andWhere('escalations.botId', botId)
+                .transacting(trx),
+              data,
+              'userConversation'
+            )
           )
       })
       .then(data => data as EscalationType[])
   }
 
-  getEscalation = (id: string): Promise<EscalationType> => {
-    return this.bp
-      .database('escalations')
-      .where({ id: id })
-      .limit(1)
-      .then(data => _.head(data) as EscalationType)
+  getEscalationWithComments = async (
+    botId: string,
+    id: string,
+    query?: Knex.QueryCallback
+  ): Promise<EscalationType> => {
+    return await this.escalationsWithCommentsQuery(botId)
+      .andWhere('escalations.id', id)
+      .modify(this.applyQuery(query))
+      .then(this.hydrateComments.bind(this))
+      .then(async data =>
+        this.hydrateEvents(await this.userEventsQuery().andWhere('escalations.id', id), data, 'userConversation')
+      )
+      .then(data => _.head(data))
   }
 
   createEscalation = async (botId: string, attributes: Partial<EscalationType>): Promise<EscalationType> => {
@@ -297,15 +314,6 @@ export default class Repository {
             'userConversation'
           )
         )
-        .then(async data =>
-          this.hydrateEvents(
-            await this.agentEventsQuery()
-              .whereIn(['escalations.id'], ids as [])
-              .transacting(trx),
-            data,
-            'agentConversation'
-          )
-        )
         .then(data => _.head(data))
     })
   }
@@ -325,7 +333,7 @@ export default class Repository {
     )
 
     return await this.bp.database.transaction(async trx => {
-      await trx('escalations')
+      await trx<EscalationType>('escalations')
         .where({ id: id })
         .update(payload)
 
@@ -340,15 +348,6 @@ export default class Repository {
               .transacting(trx),
             data,
             'userConversation'
-          )
-        )
-        .then(async data =>
-          this.hydrateEvents(
-            await this.agentEventsQuery()
-              .andWhere('escalations.id', id)
-              .transacting(trx),
-            data,
-            'agentConversation'
           )
         )
         .then(data => _.head(data))
@@ -366,8 +365,6 @@ export default class Repository {
       ['updatedAt', 'createdAt']
     )
 
-    return this.bp.database
-      .insertAndRetrieve('comments', payload, this.commentColumns)
-      .then(data => data as CommentType)
+    return this.bp.database.insertAndRetrieve<CommentType>('comments', payload, this.commentColumns)
   }
 }

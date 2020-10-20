@@ -11,7 +11,8 @@ export const CreateEscalationSchema = Joi.object({
   status: Joi.string()
     .required()
     .valid('pending'),
-  userConversationId: Joi.string().required()
+  target: Joi.string().required(),
+  userThreadId: Joi.string().required()
 })
 
 export const AssignEscalationSchema = Joi.object({
@@ -19,6 +20,7 @@ export const AssignEscalationSchema = Joi.object({
   status: Joi.string()
     .required()
     .valid('assigned'),
+  agentThreadId: Joi.string().required(),
   assignedAt: Joi.date().required()
 })
 
@@ -27,10 +29,6 @@ export const ResolveEscalationSchema = Joi.object({
     .required()
     .valid('resolved'),
   resolvedAt: Joi.date().required()
-})
-
-export const AgentOnlineSchema = Joi.object({
-  online: Joi.boolean().required()
 })
 
 export const AgentOnlineValidation = Joi.object({

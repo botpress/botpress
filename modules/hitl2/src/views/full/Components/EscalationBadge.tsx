@@ -15,7 +15,7 @@ interface Props {
 const EscalationBadge: FC<Props> = props => {
   switch (props.status) {
     case 'assigned':
-      if (props.assignedToAgent?.id == props.currentAgent?.id) {
+      if (props.assignedToAgent?.id === props.currentAgent?.id) {
         return (
           <div className={cx(sharedStyle.badge, sharedStyle.ocean)}>
             {lang.tr('module.hitl2.escalation.assignment.me')}

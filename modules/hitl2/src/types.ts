@@ -24,12 +24,12 @@ export type UserType = {
 
 export interface EscalationType {
   id: string
+  target?: string
   agentId?: string
   status: 'pending' | 'assigned' | 'resolved'
-  userConversationId: string
-  agentConversationId: string
+  userThreadId: string
+  agentThreadId: string
   userConversation: EventType
-  agentConversation: EventType
   comments: CommentType[]
   assignedAt?: Date
   resolvedAt?: Date

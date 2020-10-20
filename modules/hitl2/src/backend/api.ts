@@ -3,6 +3,7 @@ import _ from 'lodash'
 import { Request, Response } from 'express'
 import Joi from 'joi'
 import { boolean } from 'boolean'
+import { v4 as uuidv4 } from 'uuid'
 
 import { RequestWithUser } from 'common/typings'
 import { BPRequest } from 'common/http'
@@ -17,13 +18,12 @@ import {
   CreateEscalationSchema,
   AssignEscalationSchema,
   ResolveEscalationSchema,
-  AgentOnlineSchema,
   AgentOnlineValidation,
   escalationStatusRule
 } from './validation'
 import Repository, { AgentCollectionConditions, CollectionConditions } from './repository'
 
-export default async (bp: typeof sdk, state) => {
+export default async (bp: typeof sdk) => {
   const router = bp.http.createRouterForBot('hitl2')
   const repository = new Repository(bp)
   const realtime = socket(bp)
@@ -77,7 +77,7 @@ export default async (bp: typeof sdk, state) => {
         online: online
       }
 
-      realtime.send({
+      realtime.sendPayload({
         resource: 'agent',
         type: 'update',
         id: agentId,
@@ -99,7 +99,7 @@ export default async (bp: typeof sdk, state) => {
         online: online
       }
 
-      realtime.send({
+      realtime.sendPayload({
         resource: 'agent',
         type: 'update',
         id: agentId,
@@ -113,7 +113,7 @@ export default async (bp: typeof sdk, state) => {
   router.get(
     '/escalations',
     hitlMiddleware(async (req: Request, res: Response) => {
-      const escalations = await repository.getEscalations(
+      const escalations = await repository.getEscalationsWithComents(
         req.params.botId,
         _.pick(req.query, ['limit', 'orderByColumn', 'orderByDirection']) as CollectionConditions
       )
@@ -124,22 +124,41 @@ export default async (bp: typeof sdk, state) => {
   router.post(
     '/escalations',
     hitlMiddleware(async (req: Request, res: Response) => {
-      const payload = Object.assign(req.body, {
-        status: 'pending'
-      })
+      const payload = {
+        ..._.pick(req.body, ['target', 'userThreadId']),
+        status: 'pending' as 'pending'
+      }
 
       Joi.attempt(payload, CreateEscalationSchema)
 
-      const escalation = await repository.createEscalation(req.params.botId, payload)
+      // Prevent creating a new escalation if one is currently pending or assigned
+      let escalation
+      escalation = await repository
+        .escalationsQuery(req.params.botId, builder => {
+          return builder
+            .andWhere('target', payload.target)
+            .andWhere('userThreadId', payload.userThreadId)
+            .whereNot('status', 'resolved')
+            .orderBy('createdAt')
+            .limit(1)
+        })
+        .then(data => _.head(data))
 
-      realtime.send({
-        resource: 'escalation',
-        type: 'create',
-        id: escalation.id,
-        payload: escalation
-      })
+      if (escalation) {
+        res.sendStatus(200)
+      } else {
+        escalation = await repository.createEscalation(req.params.botId, payload)
 
-      res.json(escalation)
+        realtime.sendPayload({
+          resource: 'escalation',
+          type: 'create',
+          id: escalation.id,
+          payload: escalation
+        })
+
+        res.status(201)
+        res.json(escalation)
+      }
     })
   )
 
@@ -154,11 +173,12 @@ export default async (bp: typeof sdk, state) => {
       Joi.attempt({ online: online }, AgentOnlineValidation)
 
       let escalation
-      escalation = await repository.getEscalation(req.params.id)
+      escalation = await repository.getEscalationWithComments(req.params.botId, req.params.id)
 
       const payload: Partial<EscalationType> = {
         agentId: agentId,
         status: 'assigned',
+        agentThreadId: uuidv4(),
         assignedAt: new Date()
       }
 
@@ -170,9 +190,28 @@ export default async (bp: typeof sdk, state) => {
         throw new UnprocessableEntityError(e)
       }
 
-      escalation = await repository.updateEscalation(req.params.botId, req.params.id, payload)
+      // Find or create an "agent" user to send messages to
+      const user = (await bp.users.getOrCreateUser('web', agentId, req.params.botId)).result
 
-      realtime.send({
+      try {
+        escalation = await repository.updateEscalation(req.params.botId, req.params.id, payload)
+
+        await bp.events.sendEvent(
+          bp.IO.Event({
+            botId: req.params.botId,
+            target: user.id,
+            threadId: escalation.agentThreadId,
+            channel: 'web',
+            direction: 'outgoing',
+            type: 'text',
+            payload: {
+              type: 'text',
+              text: 'Start of escalation discussion'
+            }
+          })
+        )
+      } catch (error) {}
+      realtime.sendPayload({
         resource: 'escalation',
         type: 'update',
         id: escalation.id,
@@ -194,7 +233,7 @@ export default async (bp: typeof sdk, state) => {
       Joi.attempt({ online: online }, AgentOnlineValidation)
 
       let escalation
-      escalation = await repository.getEscalation(req.params.id)
+      escalation = await repository.getEscalationWithComments(req.params.botId, req.params.id)
 
       const payload: Partial<EscalationType> = {
         status: 'resolved',
@@ -211,7 +250,7 @@ export default async (bp: typeof sdk, state) => {
 
       escalation = await repository.updateEscalation(req.params.botId, req.params.id, payload)
 
-      realtime.send({
+      realtime.sendPayload({
         resource: 'escalation',
         type: 'update',
         id: escalation.id,
@@ -237,6 +276,7 @@ export default async (bp: typeof sdk, state) => {
 
       const comment = await repository.createComment(payload)
 
+      res.status(201)
       res.json(comment)
     })
   )
