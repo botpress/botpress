@@ -29,15 +29,19 @@ const Header: FC<HeaderProps> = ({ children, rightButtons, leftButtons }) => {
           </div>
         )}
         <div className={style.list}>
-          {leftButtons.map(({ divider, icon, label, onClick, tooltip }, index) => {
+          {leftButtons.map(({ divider, icon, label, onClick, tooltip, element }, index) => {
             return (
               <Fragment key={index}>
                 {divider && <span className={style.divider}></span>}
                 <ToolTip content={tooltip}>
-                  <button className={cx(style.item, style.itemSpacing)} onClick={onClick}>
-                    <Icon color="#1a1e22" icon={icon as IconName} iconSize={16} />
-                    {label && <span className={style.label}>{label}</span>}
-                  </button>
+                  {element ? (
+                    element
+                  ) : (
+                    <button className={cx(style.item, style.itemSpacing)} onClick={onClick}>
+                      <Icon color="#1a1e22" icon={icon as IconName} iconSize={16} />
+                      {label && <span className={style.label}>{label}</span>}
+                    </button>
+                  )}
                 </ToolTip>
               </Fragment>
             )

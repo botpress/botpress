@@ -13,8 +13,8 @@
   "agent": {
     "online": "Online",
     "offline": "Offline",
-    "getOnline": "Get online",
-    "getOffline": "Get offline",
+    "getOnline": "Get Online",
+    "getOffline": "Get Offline",
     "onlineSuccess": "You are now online",
     "offlineSuccess": "You are now offline"
   },

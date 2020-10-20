@@ -1,4 +1,4 @@
-import { lang, toast } from 'botpress/shared'
+import { lang, MainContent, toast } from 'botpress/shared'
 import _ from 'lodash'
 import React, { useContext, useEffect, useState } from 'react'
 
@@ -79,6 +79,7 @@ const App = ({ bp }) => {
   }
 
   useEffect(() => {
+    // tslint:disable-next-line: no-floating-promises
     Promise.all([getCurrentAgent(), getAgents(), getEscalations()]).then(() => {
       setLoading(false)
     })
@@ -99,11 +100,15 @@ const App = ({ bp }) => {
     }
   }, [state.error])
 
+  const leftHeaderButtons = [
+    {
+      element: <AgentProfile toggleOnline={toggleOnline} loading={loading} {...state.currentAgent} />
+    }
+  ]
+
   return (
     <div className={style.app}>
-      <div className={style.header}>
-        <AgentProfile toggleOnline={toggleOnline} loading={loading} {...state.currentAgent} />
-      </div>
+      <MainContent.Header leftButtons={leftHeaderButtons} />
       <div className={style.mainContent}>
         <div className={style.sidebar}>
           <EscalationList api={api} escalations={state.escalations} loading={loading} />

@@ -202,6 +202,15 @@
   margin-bottom: 37px;
 }
 
+.agentBtnWrapper {
+  position: relative;
+
+  :global(.more-options-more-menu) {
+    right: -8px;
+    top: 70%;
+  }
+}
+
 .divider {
   background: var(--gray);
   height: 1px;
