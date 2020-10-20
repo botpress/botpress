@@ -276,6 +276,7 @@ export default async (bp: typeof sdk) => {
 
       const comment = await repository.createComment(payload)
 
+      res.status(201)
       res.json(comment)
     })
   )
