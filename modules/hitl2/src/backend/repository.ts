@@ -141,21 +141,6 @@ export default class Repository {
       )
   }
 
-  private agentEventsQuery() {
-    return this.bp
-      .database<EscalationType>('escalations')
-      .select(
-        'escalations.id as escalation:id',
-        'escalations.agentThreadId as escalation:agentThreadId',
-        'most_recent_event.*'
-      )
-      .join(
-        this.recentConversationQuery().where('direction', 'incoming'),
-        'escalations.agentThreadId',
-        'most_recent_event.threadId'
-      )
-  }
-
   private escalationsWithCommentsQuery(botId: string, conditions: CollectionConditions = {}): Knex.QueryBuilder {
     const { limit, orderByColumn, orderByDirection } = conditions
 
@@ -278,15 +263,6 @@ export default class Repository {
               'userConversation'
             )
           )
-          .then(async data =>
-            this.hydrateEvents(
-              await this.agentEventsQuery()
-                .andWhere('escalations.botId', botId)
-                .transacting(trx),
-              data,
-              'agentConversation'
-            )
-          )
       })
       .then(data => data as EscalationType[])
   }
@@ -302,9 +278,6 @@ export default class Repository {
       .then(this.hydrateComments.bind(this))
       .then(async data =>
         this.hydrateEvents(await this.userEventsQuery().andWhere('escalations.id', id), data, 'userConversation')
-      )
-      .then(async data =>
-        this.hydrateEvents(await this.agentEventsQuery().andWhere('escalations.id', id), data, 'agentConversation')
       )
       .then(data => _.head(data))
   }
@@ -341,15 +314,6 @@ export default class Repository {
             'userConversation'
           )
         )
-        .then(async data =>
-          this.hydrateEvents(
-            await this.agentEventsQuery()
-              .whereIn(['escalations.id'], ids as [])
-              .transacting(trx),
-            data,
-            'agentConversation'
-          )
-        )
         .then(data => _.head(data))
     })
   }
@@ -384,15 +348,6 @@ export default class Repository {
               .transacting(trx),
             data,
             'userConversation'
-          )
-        )
-        .then(async data =>
-          this.hydrateEvents(
-            await this.agentEventsQuery()
-              .andWhere('escalations.id', id)
-              .transacting(trx),
-            data,
-            'agentConversation'
           )
         )
         .then(data => _.head(data))
