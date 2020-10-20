@@ -7,14 +7,15 @@ const yn = require('yn')
 const verbose = process.argv.includes('--verbose')
 
 const build = () => {
+  gulp.task('build:shared', gulp.series([cleanShared, sharedBuild]))
   gulp.task('build:studio', gulp.series([buildStudio, cleanStudio, cleanStudioAssets, copyStudio]))
-  gulp.task('build:admin', gulp.series([buildAdmin, copyAdmin]))
+  gulp.task('build:admin', gulp.series([buildAdmin, cleanAdmin, copyAdmin]))
 
   if (yn(process.env.GULP_PARALLEL)) {
-    return gulp.parallel(['build:studio', 'build:admin'])
+    return gulp.series(['build:shared', gulp.parallel(['build:studio', 'build:admin'])])
   }
 
-  return gulp.series(['build:studio', 'build:admin'])
+  return gulp.series(['build:shared', 'build:studio', 'build:admin'])
 }
 
 // Required since modules are using some dependencies from the studio
@@ -54,6 +55,10 @@ const cleanStudio = () => {
   return gulp.src('./out/bp/ui-studio/public', { allowEmpty: true }).pipe(rimraf())
 }
 
+const cleanAdmin = () => {
+  return gulp.src('./out/bp/ui-admin/public', { allowEmpty: true }).pipe(rimraf())
+}
+
 const cleanStudioAssets = () => {
   return gulp.src('./out/bp/data/assets/ui-studio', { allowEmpty: true }).pipe(rimraf())
 }
@@ -89,7 +94,7 @@ const cleanShared = () => {
 const watchShared = gulp.series([
   cleanShared,
   cb => {
-    const shared = exec('yarn && yarn start', { cwd: 'src/bp/ui-shared' }, err => cb(err))
+    const shared = exec('yarn && yarn watch', { cwd: 'src/bp/ui-shared' }, err => cb(err))
     shared.stdout.pipe(process.stdout)
     shared.stderr.pipe(process.stderr)
   }
