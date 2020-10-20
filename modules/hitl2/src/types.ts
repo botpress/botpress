@@ -30,7 +30,6 @@ export interface EscalationType {
   userThreadId: string
   agentThreadId: string
   userConversation: EventType
-  agentConversation: EventType
   comments: CommentType[]
   assignedAt?: Date
   resolvedAt?: Date
