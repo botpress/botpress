@@ -3,10 +3,10 @@ import { readFileSync, writeFileSync } from 'fs'
 import _ from 'lodash'
 import { Predictors } from 'nlu-core/predict-pipeline'
 import { Tools } from 'nlu-core/typings'
-import { join } from 'path'
+import path from 'path'
 import tmp from 'tmp'
 
-const PRETRAINED_LID_176 = join(__dirname, './pre-trained/lid.176.ftz')
+const PRETRAINED_LID_176 = path.join(process.APP_DATA_PATH, `./pre-trained/lid.176.ftz`)
 const NA_LANG = 'n/a'
 
 class FastTextLanguageId {
