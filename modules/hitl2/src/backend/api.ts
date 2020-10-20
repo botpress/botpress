@@ -3,6 +3,7 @@ import _ from 'lodash'
 import { Request, Response } from 'express'
 import Joi from 'joi'
 import { boolean } from 'boolean'
+import { v4 as uuidv4 } from 'uuid'
 
 import { RequestWithUser } from 'common/typings'
 import { BPRequest } from 'common/http'
@@ -124,22 +125,41 @@ export default async (bp: typeof sdk) => {
   router.post(
     '/escalations',
     hitlMiddleware(async (req: Request, res: Response) => {
-      const payload = Object.assign(req.body, {
-        status: 'pending'
-      })
+      const payload = {
+        ..._.pick(req.body, ['target', 'userConversationId']),
+        status: 'pending' as 'pending'
+      }
 
       Joi.attempt(payload, CreateEscalationSchema)
 
-      const escalation = await repository.createEscalation(req.params.botId, payload)
+      // Prevent creating a new escalation if one is currently pending or assigned
+      let escalation
+      escalation = await repository
+        .escalationsQuery(req.params.botId, builder => {
+          return builder
+            .andWhere('target', payload.target)
+            .andWhere('userConversationId', payload.userConversationId)
+            .whereNot('status', 'resolved')
+            .orderBy('createdAt')
+            .limit(1)
+        })
+        .then(data => _.head(data))
 
-      realtime.send({
-        resource: 'escalation',
-        type: 'create',
-        id: escalation.id,
-        payload: escalation
-      })
+      if (escalation) {
+        res.sendStatus(200)
+      } else {
+        escalation = await repository.createEscalation(req.params.botId, payload)
 
-      res.json(escalation)
+        realtime.sendPayload({
+          resource: 'escalation',
+          type: 'create',
+          id: escalation.id,
+          payload: escalation
+        })
+
+        res.status(201)
+        res.json(escalation)
+      }
     })
   )
 

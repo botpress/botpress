@@ -1,7 +1,7 @@
 const axios = require('axios')
 
 /**
- * Creates an unassigned escalation. Escalations can then be assigned and resolved by agents.
+ * Creates an escalation for a given conversation. By default escalations are unassigned, they can then be assigned to agents and resolved.
  *
  * @title Escalate
  * @category HITL
@@ -12,7 +12,8 @@ const escalate = async event => {
   await axios.post(
     '/mod/hitl2/escalations',
     {
-      userConversationId: event.threadId
+      userConversationId: event.threadId,
+      target: event.target
     },
     axiosConfig
   )

@@ -37,6 +37,7 @@ const migration: sdk.ModuleMigration = {
         table.string('agentId')
         table.string('userConversationId').notNullable()
         table.string('agentConversationId')
+        table.string('target').notNullable()
         table.string('status').notNullable()
         table.dateTime('assignedAt')
         table.dateTime('resolvedAt')

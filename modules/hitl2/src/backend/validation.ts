@@ -11,6 +11,7 @@ export const CreateEscalationSchema = Joi.object({
   status: Joi.string()
     .required()
     .valid('pending'),
+  target: Joi.string().required(),
   userConversationId: Joi.string().required()
 })
 
