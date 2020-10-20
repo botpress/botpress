@@ -20,6 +20,7 @@ export const AssignEscalationSchema = Joi.object({
   status: Joi.string()
     .required()
     .valid('assigned'),
+  agentConversationId: Joi.string().required(),
   assignedAt: Joi.date().required()
 })
 

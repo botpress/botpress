@@ -179,6 +179,7 @@ export default async (bp: typeof sdk) => {
       const payload: Partial<EscalationType> = {
         agentId: agentId,
         status: 'assigned',
+        agentConversationId: uuidv4(),
         assignedAt: new Date()
       }
 
@@ -190,9 +191,28 @@ export default async (bp: typeof sdk) => {
         throw new UnprocessableEntityError(e)
       }
 
-      escalation = await repository.updateEscalation(req.params.botId, req.params.id, payload)
+      // Find or create an "agent" user to send messages to
+      const user = (await bp.users.getOrCreateUser('web', agentId, req.params.botId)).result
 
-      realtime.send({
+      try {
+        escalation = await repository.updateEscalation(req.params.botId, req.params.id, payload)
+
+        await bp.events.sendEvent(
+          bp.IO.Event({
+            botId: req.params.botId,
+            target: user.id,
+            threadId: escalation.agentConversationId,
+            channel: 'web',
+            direction: 'outgoing',
+            type: 'text',
+            payload: {
+              type: 'text',
+              text: 'Start of escalation discussion'
+            }
+          })
+        )
+      } catch (error) {}
+      realtime.sendPayload({
         resource: 'escalation',
         type: 'update',
         id: escalation.id,
