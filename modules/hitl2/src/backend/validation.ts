@@ -31,10 +31,6 @@ export const ResolveEscalationSchema = Joi.object({
   resolvedAt: Joi.date().required()
 })
 
-export const AgentOnlineSchema = Joi.object({
-  online: Joi.boolean().required()
-})
-
 export const AgentOnlineValidation = Joi.object({
   online: Joi.boolean()
     .valid(true)
