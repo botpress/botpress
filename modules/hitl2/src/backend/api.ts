@@ -125,7 +125,7 @@ export default async (bp: typeof sdk) => {
     '/escalations',
     hitlMiddleware(async (req: Request, res: Response) => {
       const payload = {
-        ..._.pick(req.body, ['target', 'userConversationId']),
+        ..._.pick(req.body, ['target', 'userThreadId']),
         status: 'pending' as 'pending'
       }
 
@@ -137,7 +137,7 @@ export default async (bp: typeof sdk) => {
         .escalationsQuery(req.params.botId, builder => {
           return builder
             .andWhere('target', payload.target)
-            .andWhere('userConversationId', payload.userConversationId)
+            .andWhere('userThreadId', payload.userThreadId)
             .whereNot('status', 'resolved')
             .orderBy('createdAt')
             .limit(1)
@@ -178,7 +178,7 @@ export default async (bp: typeof sdk) => {
       const payload: Partial<EscalationType> = {
         agentId: agentId,
         status: 'assigned',
-        agentConversationId: uuidv4(),
+        agentThreadId: uuidv4(),
         assignedAt: new Date()
       }
 
@@ -200,7 +200,7 @@ export default async (bp: typeof sdk) => {
           bp.IO.Event({
             botId: req.params.botId,
             target: user.id,
-            threadId: escalation.agentConversationId,
+            threadId: escalation.agentThreadId,
             channel: 'web',
             direction: 'outgoing',
             type: 'text',

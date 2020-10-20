@@ -12,7 +12,7 @@ export const CreateEscalationSchema = Joi.object({
     .required()
     .valid('pending'),
   target: Joi.string().required(),
-  userConversationId: Joi.string().required()
+  userThreadId: Joi.string().required()
 })
 
 export const AssignEscalationSchema = Joi.object({
@@ -20,7 +20,7 @@ export const AssignEscalationSchema = Joi.object({
   status: Joi.string()
     .required()
     .valid('assigned'),
-  agentConversationId: Joi.string().required(),
+  agentThreadId: Joi.string().required(),
   assignedAt: Joi.date().required()
 })
 

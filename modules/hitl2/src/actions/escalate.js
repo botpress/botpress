@@ -12,7 +12,7 @@ const escalate = async event => {
   await axios.post(
     '/mod/hitl2/escalations',
     {
-      userConversationId: event.threadId,
+      userThreadId: event.threadId,
       target: event.target
     },
     axiosConfig
