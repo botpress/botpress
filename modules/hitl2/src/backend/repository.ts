@@ -177,6 +177,23 @@ export default class Repository {
       .orderBy([{ column: 'comments.createdAt', order: 'asc' }])
   }
 
+  private applyQuery = (query?: Knex.QueryCallback) => {
+    return (builder: Knex.QueryBuilder) => {
+      if (query) {
+        return builder.modify(query)
+      } else {
+        return builder
+      }
+    }
+  }
+
+  escalationsQuery = async (botId: string, query?: Knex.QueryCallback): Promise<EscalationType[]> => {
+    return await this.bp
+      .database<EscalationType>('escalations')
+      .where('botId', botId)
+      .modify(this.applyQuery(query))
+  }
+
   getAgentOnline = async (botId: string, agentId: string): Promise<boolean> => {
     const value = await this.bp.kvs.forBot(botId).get(`hitl2:online:${agentId}`)
     return !!value
@@ -241,10 +258,15 @@ export default class Repository {
       .then(applyConditions)
   }
 
-  getEscalations = async (botId: string, conditions: CollectionConditions = {}): Promise<EscalationType[]> => {
+  getEscalationsWithComents = async (
+    botId: string,
+    conditions: CollectionConditions = {},
+    query?: Knex.QueryCallback
+  ): Promise<EscalationType[]> => {
     return await this.bp.database
       .transaction(async trx => {
         return await this.escalationsWithCommentsQuery(botId, conditions)
+          .modify(this.applyQuery(query))
           .transacting(trx)
           .then(this.hydrateComments.bind(this))
           .then(async data =>
@@ -257,12 +279,22 @@ export default class Repository {
       .then(data => data as EscalationType[])
   }
 
-  getEscalation = (id: string): Promise<EscalationType> => {
-    return this.bp
-      .database('escalations')
-      .where({ id: id })
-      .limit(1)
-      .then(data => _.head(data) as EscalationType)
+  getEscalationWithComments = async (
+    botId: string,
+    id: string,
+    query?: Knex.QueryCallback
+  ): Promise<EscalationType> => {
+    return await this.escalationsWithCommentsQuery(botId)
+      .andWhere('escalations.id', id)
+      .modify(this.applyQuery(query))
+      .then(this.hydrateComments.bind(this))
+      .then(async data =>
+        this.hydrateEvents(await this.userEventsQuery().andWhere('escalations.id', id), data, 'userConversation')
+      )
+      .then(async data =>
+        this.hydrateEvents(await this.agentEventsQuery().andWhere('escalations.id', id), data, 'agentConversation')
+      )
+      .then(data => _.head(data))
   }
 
   createEscalation = async (botId: string, attributes: Partial<EscalationType>): Promise<EscalationType> => {
