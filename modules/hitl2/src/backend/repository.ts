@@ -126,9 +126,9 @@ export default class Repository {
       .as('most_recent_event')
   }
 
-  private userEventsQuery(): Knex.QueryBuilder {
+  private userEventsQuery() {
     return this.bp
-      .database('escalations')
+      .database<EscalationType>('escalations')
       .select(
         'escalations.id as escalation:id',
         'escalations.userConversationId as escalation:userConversationId',
@@ -141,9 +141,9 @@ export default class Repository {
       )
   }
 
-  private agentEventsQuery(): Knex.QueryBuilder {
+  private agentEventsQuery() {
     return this.bp
-      .database('escalations')
+      .database<EscalationType>('escalations')
       .select(
         'escalations.id as escalation:id',
         'escalations.agentConversationId as escalation:agentConversationId',
@@ -208,7 +208,7 @@ export default class Repository {
 
     const applyConditions = (records: []) => {
       if ('online' in conditions) {
-        return _.filter(records, ['online', online]) as AgentType[]
+        return _.filter<AgentType>(records, ['online', online])
       } else {
         return records
       }
@@ -325,7 +325,7 @@ export default class Repository {
     )
 
     return await this.bp.database.transaction(async trx => {
-      await trx('escalations')
+      await trx<EscalationType>('escalations')
         .where({ id: id })
         .update(payload)
 
@@ -366,8 +366,6 @@ export default class Repository {
       ['updatedAt', 'createdAt']
     )
 
-    return this.bp.database
-      .insertAndRetrieve('comments', payload, this.commentColumns)
-      .then(data => data as CommentType)
+    return this.bp.database.insertAndRetrieve<CommentType>('comments', payload, this.commentColumns)
   }
 }
