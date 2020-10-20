@@ -28,12 +28,12 @@ const AgentProfile: FC<Props> = ({ toggleOnline, online, loading }) => {
     <div className={style.agentBtnWrapper}>
       <MoreOptions
         element={
-          <Button onClick={() => setShowingOption(true)} loading={loading} minimal={true}>
+          <Button className={style.agentBtn} onClick={() => setShowingOption(true)} loading={loading} minimal={true}>
             <AgentIcon online={online} />
-            <span style={{ paddingLeft: 10 }}>
+            <span className={style.agentBtnText}>
               {online ? lang.tr('module.hitl2.agent.online') : lang.tr('module.hitl2.agent.offline')}
             </span>
-            <Icon icon="caret-down"></Icon>
+            <Icon icon="chevron-down"></Icon>
           </Button>
         }
         show={showingOption}

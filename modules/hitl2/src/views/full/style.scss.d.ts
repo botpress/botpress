@@ -2,6 +2,8 @@
 // Please do not change this file!
 interface CssExports {
   'active': string;
+  'agentBtn': string;
+  'agentBtnText': string;
   'agentBtnWrapper': string;
   'app': string;
   'badge': string;

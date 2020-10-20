@@ -205,6 +205,21 @@
 .agentBtnWrapper {
   position: relative;
 
+  .agentBtn {
+    color: var(--shark);
+    font-size: 12px;
+    line-height: 1.25;
+
+    .agentBtnText {
+      margin-left: var(--spacing-medium);
+      margin-right: var(--spacing-small);
+    }
+
+    svg {
+      fill: var(--shark) !important;
+    }
+  }
+
   :global(.more-options-more-menu) {
     right: -8px;
     top: 70%;
