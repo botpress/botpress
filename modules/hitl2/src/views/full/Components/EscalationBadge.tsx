@@ -14,7 +14,7 @@ interface Props {
 const EscalationBadge: FC<Props> = props => {
   switch (props.status) {
     case 'assigned':
-      if (props.assignedToAgent.id == props.currentAgent.id) {
+      if (props.assignedToAgent.id == props.currentAgent?.id) {
         return <Tag intent="primary">{lang.tr('module.hitl2.escalation.assignment.me')}</Tag>
       } else {
         return (
