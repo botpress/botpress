@@ -3,29 +3,19 @@ import * as sdk from 'botpress/sdk'
 import en from '../translations/en.json'
 import fr from '../translations/fr.json'
 
-import { setup, teardown } from './setup'
 import api from './api'
-
-interface State {}
-
-let state: State = {}
 
 const onServerStarted = async (bp: typeof sdk) => {}
 
 const onServerReady = async (bp: typeof sdk) => {
-  await api(bp, state)
+  await api(bp)
 }
 
-const onBotMount = async (bp: typeof sdk, botId: string) => {
-  await setup(bp, botId, state)
-}
+const onBotMount = async (bp: typeof sdk, botId: string) => {}
 
-const onBotUnmount = async (bp: typeof sdk, botId: string) => {
-  await teardown(bp, botId, state)
-}
+const onBotUnmount = async (bp: typeof sdk, botId: string) => {}
 
 const onModuleUnmount = async (bp: typeof sdk) => {
-  state = undefined
   bp.http.deleteRouterForBot('hitl2')
 }
 

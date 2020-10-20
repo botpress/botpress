@@ -23,7 +23,7 @@ import {
 } from './validation'
 import Repository, { AgentCollectionConditions, CollectionConditions } from './repository'
 
-export default async (bp: typeof sdk, state) => {
+export default async (bp: typeof sdk) => {
   const router = bp.http.createRouterForBot('hitl2')
   const repository = new Repository(bp)
   const realtime = socket(bp)
