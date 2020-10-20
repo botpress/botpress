@@ -31,5 +31,5 @@ export default (a: string, b: string): number => {
     }
   }
 
-  return (alen - res) / alen
+  return (blen - res) / blen
 }
