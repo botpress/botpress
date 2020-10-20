@@ -78,7 +78,7 @@ export default async (bp: typeof sdk) => {
         online: online
       }
 
-      realtime.send({
+      realtime.sendPayload({
         resource: 'agent',
         type: 'update',
         id: agentId,
@@ -100,7 +100,7 @@ export default async (bp: typeof sdk) => {
         online: online
       }
 
-      realtime.send({
+      realtime.sendPayload({
         resource: 'agent',
         type: 'update',
         id: agentId,
@@ -251,7 +251,7 @@ export default async (bp: typeof sdk) => {
 
       escalation = await repository.updateEscalation(req.params.botId, req.params.id, payload)
 
-      realtime.send({
+      realtime.sendPayload({
         resource: 'escalation',
         type: 'update',
         id: escalation.id,
