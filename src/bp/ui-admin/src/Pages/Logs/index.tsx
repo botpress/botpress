@@ -44,7 +44,7 @@ const Logs: FC<Props> = props => {
   const [botFilter, setBotFilter] = useState<Option>(EVERYTHING[0])
   const [hostFilter, setHostFilter] = useState<Option>(EVERYTHING[0])
   const [dateRange, setDateRange] = useState<DateRange>()
-  const [filters, setFilters] = useState()
+  const [filters, setFilters] = useState<any>()
   const [hostNames, setHostNames] = useState<string[]>([])
 
   const [onlyWorkspace, setOnlyWorkspace] = useState(!props.profile.isSuperAdmin)
