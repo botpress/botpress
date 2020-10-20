@@ -114,7 +114,7 @@ export default async (bp: typeof sdk) => {
   router.get(
     '/escalations',
     hitlMiddleware(async (req: Request, res: Response) => {
-      const escalations = await repository.getEscalations(
+      const escalations = await repository.getEscalationsWithComents(
         req.params.botId,
         _.pick(req.query, ['limit', 'orderByColumn', 'orderByDirection']) as CollectionConditions
       )
@@ -174,7 +174,7 @@ export default async (bp: typeof sdk) => {
       Joi.attempt({ online: online }, AgentOnlineValidation)
 
       let escalation
-      escalation = await repository.getEscalation(req.params.id)
+      escalation = await repository.getEscalationWithComments(req.params.botId, req.params.id)
 
       const payload: Partial<EscalationType> = {
         agentId: agentId,
@@ -234,7 +234,7 @@ export default async (bp: typeof sdk) => {
       Joi.attempt({ online: online }, AgentOnlineValidation)
 
       let escalation
-      escalation = await repository.getEscalation(req.params.id)
+      escalation = await repository.getEscalationWithComments(req.params.botId, req.params.id)
 
       const payload: Partial<EscalationType> = {
         status: 'resolved',
