@@ -1,6 +1,7 @@
 ---
-id: updating
+id: version-12.10.9-updating
 title: Updating to New Releases
+original_id: updating
 ---
 
 Download the latest Botpress version [here](https://botpress.com/download).

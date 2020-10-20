@@ -47,7 +47,7 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
       const question = await storage.getQnaItem(req.params.id)
       res.send(question)
     } catch (e) {
-      sendToastError('Fetch', e.message)
+      res.status(404).send(e.message || 'Error')
     }
   })
 
@@ -81,7 +81,6 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
     } catch (e) {
       bp.logger.attachError(e).error(`Could not delete QnA #${req.params.id}`)
       res.status(500).send(e.message || 'Error')
-      sendToastError('Delete', e.message)
     }
   })
 
@@ -162,12 +161,6 @@ export default async (bp: typeof sdk, bots: ScopedBots) => {
       res.status(500).send(e.message || 'Error')
     }
   })
-
-  const sendToastError = (action: string, error: string) => {
-    bp.realtime.sendPayload(
-      bp.RealTimePayload.forAdmins('toast.qna-save', { text: `QnA ${action} Error: ${error}`, type: 'error' })
-    )
-  }
 
   const updateUploadStatus = (uploadStatusId: string, status: string) => {
     if (uploadStatusId) {
