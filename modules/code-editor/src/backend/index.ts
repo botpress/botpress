@@ -12,8 +12,13 @@ const onServerReady = async (bp: typeof sdk) => {
   await api(bp, new Editor(bp, config))
 }
 
+const onModuleUnmount = async (bp: typeof sdk) => {
+  bp.http.deleteRouterForBot('code-editor')
+}
+
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerReady,
+  onModuleUnmount,
   translations: { en, fr },
   definition: {
     name: 'code-editor',
