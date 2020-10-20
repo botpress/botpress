@@ -1,20 +1,14 @@
-import React, { useContext, useEffect, useState } from 'react'
+import { lang, toast } from 'botpress/shared'
 import _ from 'lodash'
-import cx from 'classnames'
-
-import { Api, castEscalation } from './Api'
-import { Context, Store } from './app/Store'
+import React, { useContext, useEffect, useState } from 'react'
 
 import { SocketMessageType } from './../../types'
-
-import { Grid, Row, Col } from 'react-flexbox-grid'
-import { lang, toast } from 'botpress/shared'
-
+import { Context, Store } from './app/Store'
+import style from './style.scss'
+import { Api, castEscalation } from './Api'
 import AgentProfile from './Components/AgentProfile'
 import Conversation from './Components/Conversation'
 import EscalationList from './Components/EscalationList'
-
-import style from './style.scss'
 
 const App = ({ bp }) => {
   const api = Api(bp)

@@ -285,34 +285,6 @@ input[type='file']::-webkit-file-upload-button {
       }
     }
 
-    .right :global(.bp3-popover-wrapper) + :global(.bp3-popover-wrapper) .tag,
-    .right :global(.bp3-popover-wrapper) + .tag,
-    .right .tag + :global(.bp3-popover-wrapper) .tag {
-      margin-left: var(--spacing-medium);
-    }
-
-    .tag {
-      background: var(--bg);
-      border-radius: 3px;
-      color: var(--shark);
-      display: inline-block;
-      font-size: 10px;
-      height: 20px;
-      line-height: 20px;
-      padding: 1px 6px 0;
-      text-transform: uppercase;
-      white-space: nowrap;
-
-      & + .tag {
-        margin-left: var(--spacing-medium);
-      }
-
-      &.warning {
-        color: var(--lighthouse);
-        background: var(--hover-lighthouse-30);
-      }
-    }
-
     .right {
       align-items: center;
       display: flex;

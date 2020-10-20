@@ -1,6 +1,6 @@
 import { Button, Icon, Position, Tooltip } from '@blueprintjs/core'
 import { BotEvent, Content, Flow, FlowNode } from 'botpress/sdk'
-import { confirmDialog, Contents, FormFields, lang, MoreOptions, MoreOptionsItems } from 'botpress/shared'
+import { confirmDialog, Contents, FormFields, lang, MoreOptions, MoreOptionsItems, sharedStyle } from 'botpress/shared'
 import { getFlowLabel } from 'botpress/utils'
 import cx from 'classnames'
 import { QnaItem } from 'full/utils/qnaList.utils'
@@ -261,24 +261,26 @@ const QnA: FC<Props> = props => {
                   </ul>
                 }
               >
-                <span className={cx(style.tag, style.warning)}>{lang.tr('module.qna.form.cantBeSaved')}</span>
+                <span className={cx(sharedStyle.badge, sharedStyle.warning)}>
+                  {lang.tr('module.qna.form.cantBeSaved')}
+                </span>
               </Tooltip>
             )}
             {!data.enabled && (
               <Tooltip position={Position.BOTTOM} content={lang.tr('module.qna.form.disabledTooltip')}>
-                <span className={style.tag}>{lang.tr('disabled')}</span>
+                <span className={sharedStyle.badge}>{lang.tr('disabled')}</span>
               </Tooltip>
             )}
             {!!missingTranslation && (
-              <span className={cx(style.tag, style.warning)}>{lang.tr('needsTranslation')}</span>
+              <span className={cx(sharedStyle.badge, sharedStyle.warning)}>{lang.tr('needsTranslation')}</span>
             )}
             {showIncomplete && (
               <Tooltip position={Position.BOTTOM} content={lang.tr('module.qna.form.incompleteTooltip')}>
-                <span className={cx(style.tag)}>{lang.tr('incomplete')}</span>
+                <span className={cx(sharedStyle.badge)}>{lang.tr('incomplete')}</span>
               </Tooltip>
             )}
             {!showIncomplete && (
-              <span className={style.tag}>{`${questions?.filter(q => q.trim()).length || 0} ${lang.tr(
+              <span className={sharedStyle.badge}>{`${questions?.filter(q => q.trim()).length || 0} ${lang.tr(
                 'module.qna.form.q'
               )} · ${answers?.filter(a => a.trim()).length || 0}  ${lang.tr('module.qna.form.a')}`}</span>
             )}

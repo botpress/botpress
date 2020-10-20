@@ -1,9 +1,10 @@
+import { lang } from 'botpress/shared'
+import cx from 'classnames'
 import React, { FC } from 'react'
 
-import { AgentType } from './../../../types'
+import sharedStyle from '../../../../../../src/bp/ui-shared-lite/style.scss'
 
-import { Tag } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { AgentType } from './../../../types'
 
 interface Props {
   status: string
@@ -14,19 +15,25 @@ interface Props {
 const EscalationBadge: FC<Props> = props => {
   switch (props.status) {
     case 'assigned':
-      if (props.assignedToAgent.id == props.currentAgent.id) {
-        return <Tag intent="primary">{lang.tr('module.hitl2.escalation.assignment.me')}</Tag>
+      if (props.assignedToAgent?.id == props.currentAgent?.id) {
+        return (
+          <div className={cx(sharedStyle.badge, sharedStyle.ocean)}>
+            {lang.tr('module.hitl2.escalation.assignment.me')}
+          </div>
+        )
       } else {
         return (
-          <Tag intent="none">
-            {lang.tr('module.hitl2.escalation.assignment.other', { name: props.assignedToAgent.fullName })}
-          </Tag>
+          <div className={cx(sharedStyle.badge, sharedStyle.white)}>
+            {lang.tr('module.hitl2.escalation.assignment.other', { name: props.assignedToAgent?.fullName })}
+          </div>
         )
       }
-    case 'resolved':
-      return <Tag intent="success">{lang.tr(`module.hitl2.escalation.status.${props.status}`)}</Tag>
     default:
-      return <Tag>{lang.tr(`module.hitl2.escalation.status.${props.status}`)}</Tag>
+      return (
+        <div className={cx(sharedStyle.badge, sharedStyle.warning)}>
+          {lang.tr(`module.hitl2.escalation.status.${props.status}`)}
+        </div>
+      )
   }
 }
 

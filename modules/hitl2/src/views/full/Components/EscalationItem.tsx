@@ -1,23 +1,31 @@
-import React, { FC, useContext, useState, useEffect } from 'react'
-import _ from 'lodash'
-import moment from 'moment'
-import cx from 'classnames'
-
-import { EscalationType } from '../../../types'
-
-import { Context } from '../app/Store'
-
 import { Icon } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
+import cx from 'classnames'
+import _ from 'lodash'
+import moment from 'moment'
+import React, { FC, useContext, useEffect, useState } from 'react'
+
+import { EscalationType } from '../../../types'
+import { Context } from '../app/Store'
+import { ApiType } from '../Api'
+
+import style from './../style.scss'
 import EscalationBadge from './EscalationBadge'
 
-import styles from './../style.scss'
+interface Props {
+  api: ApiType
+  escalation: EscalationType
+}
 
-const EscalationItem: FC<EscalationType> = props => {
+const EscalationItem: FC<Props> = ({ api, escalation }) => {
+  if (!escalation) {
+    return null
+  }
+  const { createdAt, userConversation, id, status, agentId } = escalation
   const { state, dispatch } = useContext(Context)
 
   const [readStatus, setReadStatus] = useState(true)
-  const [fromNow, setFromNow] = useState(moment(props.createdAt).fromNow())
+  const [fromNow, setFromNow] = useState(moment(createdAt).fromNow())
 
   async function handleSelect(id: string) {
     dispatch({ type: 'setCurrentEscalation', payload: id })
@@ -28,38 +36,47 @@ const EscalationItem: FC<EscalationType> = props => {
     const refreshRate = 1000 * 60 // ms
 
     const interval = setInterval(() => {
-      setFromNow(moment(props.createdAt).fromNow())
+      setFromNow(moment(createdAt).fromNow())
     }, refreshRate)
     return () => clearInterval(interval)
   }, [])
 
   useEffect(() => {
-    state.reads[props.id] && props.userConversation.createdOn > state.reads[props.id]
-      ? setReadStatus(false)
-      : setReadStatus(true)
-  }, [state.reads, props.userConversation])
+    state.reads[id] && userConversation.createdOn > state.reads[id] ? setReadStatus(false) : setReadStatus(true)
+  }, [state.reads, userConversation])
+
+  const printAgent = () => {
+    // TODO Add condition to show "Previous agent: ..."
+    if (!agentId) {
+      return lang.tr('module.hitl2.escalation.noPreviousAgent')
+    } else if (agentId === state.currentAgent?.id) {
+      return lang.tr('module.hitl2.escalation.you')
+    } else {
+      return lang.tr('module.hitl2.escalation.agent', { agentName: state.agents?.[agentId]?.fullName })
+    }
+  }
 
   return (
     <div
-      className={cx(styles.escalationItem)}
-      style={{
-        backgroundColor: state.currentEscalation?.id == props.id ? 'var(--hover-ocean)' : null
-      }}
-      onClick={() => handleSelect(props.id)}
+      className={cx(style.escalationItem, { [style.active]: state.currentEscalation?.id == id })}
+      onClick={() => handleSelect(id)}
     >
-      <div style={{ minWidth: 16, textAlign: 'center' }}>
-        {!readStatus && <Icon icon="dot" intent="primary"></Icon>}
+      {!readStatus && <span className={style.unreadDot}></span>}
+      <div className={style.info}>
+        {/* TODO add client name and click action here */}
+        <button className={style.clientName} type="button" onClick={() => {}}>
+          Some Client Name
+        </button>{' '}
+        #{id}
+        <p>
+          From {userConversation.channel} ⋅ {printAgent()}
+        </p>
+        <p className={style.createdDate}>{lang.tr('module.hitl2.escalation.created', { date: fromNow })}</p>
       </div>
-      <div>
-        <p>#{props.id}</p>
-        <p className="bp3-text-small bp3-text-muted">{lang.tr('module.hitl2.escalation.created', { date: fromNow })}</p>
-        <p>From: {props.userConversation.channel}</p>
-        <p>{readStatus}</p>
-      </div>
-      <div style={{ marginLeft: 'auto' }}>
+      <div className={style.badge}>
         <EscalationBadge
-          status={props.status}
-          assignedToAgent={state.agents[props.agentId]}
+          status={status}
+          assignedToAgent={state.agents[agentId]}
           currentAgent={state.currentAgent}
         ></EscalationBadge>
       </div>

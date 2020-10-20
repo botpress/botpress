@@ -1,11 +1,8 @@
-import _ from 'lodash'
 import React, { useContext, useEffect } from 'react'
 
-import { Api } from './Api'
-import { Store, Context } from './agentStatus/Store'
-
 import { SocketMessageType } from './../../types'
-
+import { Context, Store } from './agentStatus/Store'
+import { Api } from './Api'
 import AgentIcon from './Components/AgentIcon'
 
 const AgentStatus = ({ bp }) => {

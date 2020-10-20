@@ -1,5 +1,9 @@
-import React, { FC, useState } from 'react'
 import { Button, TextArea } from '@blueprintjs/core'
+import React, { FC, useState } from 'react'
+
+import style from '../style.scss'
+
+import SendIcon from './SendIcon'
 
 interface Props {
   onSubmit: (content: string) => Promise<any>
@@ -9,23 +13,22 @@ const CommentForm: FC<Props> = props => {
   const [content, setContent] = useState('')
 
   return (
-    <div style={{ display: 'flex' }}>
-      <TextArea
-        fill={true}
+    <div className={style.commentForm}>
+      <textarea
         value={content}
         onChange={event => {
           setContent(event.target.value)
         }}
-      ></TextArea>
+      ></textarea>
       <Button
+        icon={<SendIcon />}
         onClick={() => {
+          // tslint:disable-next-line: no-floating-promises
           props.onSubmit(content).then(() => {
             setContent('')
           })
         }}
-      >
-        Send
-      </Button>
+      />
     </div>
   )
 }

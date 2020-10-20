@@ -1,6 +1,7 @@
-import _ from 'lodash'
 import { AxiosInstance } from 'axios'
+import _ from 'lodash'
 import moment from 'moment'
+
 import { AgentType, CommentType, EscalationType } from '../../types'
 
 // TODO Handle casting when object is undefined

@@ -1,19 +1,15 @@
-import React, { FC, Fragment, useContext } from 'react'
-import _ from 'lodash'
-import cx from 'classnames'
-
-import { ApiType } from '../Api'
-import { EscalationType } from '../../../types'
-
-import { Context } from '../app/Store'
-
-import { Row, Col } from 'react-flexbox-grid'
 import { Button } from '@blueprintjs/core'
-import { EmptyState, Tabs, toast, lang } from 'botpress/shared'
-import AgentsIcon from './../Icons/AgentsIcon'
-import Sidebar from './Sidebar'
+import { EmptyState, lang, Tabs, toast } from 'botpress/shared'
+import _ from 'lodash'
+import React, { FC, Fragment, useContext } from 'react'
+
+import { EscalationType } from '../../../types'
+import { Context } from '../app/Store'
+import { ApiType } from '../Api'
 
 import style from './../style.scss'
+import AgentsIcon from './../Icons/AgentsIcon'
+import Sidebar from './Sidebar'
 
 interface Props {
   api: ApiType
@@ -27,6 +23,7 @@ const Conversation: FC<Props> = props => {
   async function handleAssign() {
     try {
       const escalation = await api.assignEscalation(props.escalation.id)
+      // tslint:disable-next-line: no-floating-promises
       api.setOnline()
       toast.success(lang.tr('module.hitl2.escalation.assign', { id: escalation.id }))
     } catch (error) {
@@ -41,6 +38,7 @@ const Conversation: FC<Props> = props => {
   async function handleResolve() {
     try {
       const escalation = await api.resolveEscalation(props.escalation.id)
+      // tslint:disable-next-line: no-floating-promises
       api.setOnline()
       toast.success(lang.tr('module.hitl2.escalation.resolve', { id: escalation.id }))
     } catch (error) {
@@ -70,7 +68,10 @@ const Conversation: FC<Props> = props => {
 
       {props.escalation && (
         <div className={style.escalationInfo}>
-          <Tabs tabs={[{ id: 'user', title: lang.tr('module.hitl2.sidebar.tab') }]} className={style.tabs} />
+          <Tabs
+            tabs={[{ id: 'user', title: lang.tr('module.hitl2.escalation.contactDetails') }]}
+            className={style.tabs}
+          />
           <Sidebar api={props.api} escalation={props.escalation}></Sidebar>
         </div>
       )}

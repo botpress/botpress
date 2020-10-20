@@ -1,19 +1,17 @@
-import _ from 'lodash'
-import React, { FC, useContext, useState, useEffect } from 'react'
+import { Spinner } from '@blueprintjs/core'
+import { EmptyState, lang, Tabs } from 'botpress/shared'
 import cx from 'classnames'
-
-import { ApiType } from '../Api'
-import { EscalationType } from './../../../types'
+import _ from 'lodash'
+import React, { FC, useContext, useEffect, useState } from 'react'
 
 import { Context, EscalationsMapType } from '../app/Store'
+import { ApiType } from '../Api'
 
-import { Spinner } from '@blueprintjs/core'
-import { EmptyState, Tabs, lang } from 'botpress/shared'
-import CasesIcon from './../Icons/CasesIcon'
-import EscalationListHeader, { SortType, FilterType } from './EscalationListHeader'
-import EscalationItem from './EscalationItem'
-
+import { EscalationType } from './../../../types'
 import styles from './../style.scss'
+import CasesIcon from './../Icons/CasesIcon'
+import EscalationItem from './EscalationItem'
+import EscalationListHeader, { FilterType, SortType } from './EscalationListHeader'
 
 interface Props {
   api: ApiType
@@ -80,13 +78,10 @@ const EscalationList: FC<Props> = props => {
         <EmptyState icon={<CasesIcon />} text={lang.tr('module.hitl2.escalations.empty')}></EmptyState>
       )}
 
-      {!!items.length && (
-        <div>
-          {items.map((escalation, i) => (
-            <EscalationItem key={escalation.id} api={api} {...escalation}></EscalationItem>
-          ))}
-        </div>
-      )}
+      {!!items.length &&
+        items.map((escalation, i) => (
+          <EscalationItem key={escalation.id} api={api} escalation={escalation}></EscalationItem>
+        ))}
     </div>
   )
 }

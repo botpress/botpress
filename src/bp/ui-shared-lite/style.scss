@@ -489,6 +489,37 @@ input[type='radio'] {
   }
 }
 
+.badge {
+  background: var(--bg);
+  border-radius: 3px;
+  color: var(--shark);
+  display: inline-block;
+  font-size: 10px;
+  height: 20px;
+  line-height: 20px;
+  padding: 1px 6px 0;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  & + .badge {
+    margin-left: var(--spacing-medium);
+  }
+
+  &.warning {
+    background: var(--hover-lighthouse-30);
+    color: var(--lighthouse);
+  }
+
+  &.white {
+    background: #fff;
+  }
+
+  &.ocean {
+    background: var(--hover-ocean);
+    color: var(--ocean);
+  }
+}
+
 .searchBar {
   &:not(.noPadding) {
     padding: 0 0 var(--spacing-medium) !important;

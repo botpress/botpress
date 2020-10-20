@@ -16,7 +16,7 @@
 :global(.layout-emulator-open) {
   .rightSidebar {
     right: calc(var(--emulator-width) + var(--debugger-width));
-    border-right: 1px solid var(--gray);
+    border-right: 1px solid var(--seashell);
   }
 }
 

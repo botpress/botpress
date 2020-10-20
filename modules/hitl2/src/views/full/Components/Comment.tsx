@@ -1,26 +1,35 @@
-import React, { FC, useContext } from 'react'
+import { ContentSection, lang } from 'botpress/shared'
 import moment from 'moment'
-
-import { Context } from '../app/Store'
+import React, { FC, useContext } from 'react'
 
 import { CommentType } from '../../../types'
+import { Context } from '../app/Store'
+import style from '../style.scss'
 
-const Comment: FC<CommentType> = props => {
+interface Props {
+  threadId: string
+  comment: CommentType
+}
+
+const Comment: FC<Props> = ({ comment, threadId }) => {
+  const { agentId, content, createdAt } = comment
   const { state } = useContext(Context)
 
   function formatDate(str) {
     return moment(str).format('DD/MM/YYYY')
   }
 
-  const agent = state.agents[props.agentId]
+  const agent = state.agents[agentId] || { fullName: 'test name', id: '1' }
 
   return (
-    <div style={{ marginBottom: 'var(--spacing-xx-large)' }}>
-      <p>{props.content}</p>
-      <p className="bp3-text-small bp3-text-muted">
-        {formatDate(props.createdAt)} <span>⋅</span> {agent.fullName || agent.id}
+    <ContentSection title={`#${threadId}`}>
+      <ul>
+        <li>{content}</li>
+      </ul>
+      <p className={style.createdDate}>
+        {formatDate(createdAt)} <span>⋅</span> {agent?.fullName || agent?.id}
       </p>
-    </div>
+    </ContentSection>
   )
 }
 
