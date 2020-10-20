@@ -286,6 +286,7 @@ export default class WebchatDb {
           'ON ("conversationId") message_type, message_text, full_name, avatar_url, sent_on, "conversationId"'
         )
       )
+      .whereIn('conversationId', conversationIds)
       .orderBy('conversationId')
       .orderBy('sent_on', 'desc')
 
