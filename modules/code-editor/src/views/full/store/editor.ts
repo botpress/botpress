@@ -4,7 +4,7 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import path from 'path'
 
 import { EditableFile } from '../../../backend/typings'
-import { calculateHash, toastSuccess } from '../utils'
+import { calculateHash } from '../utils'
 import { wrapper } from '../utils/wrapper'
 
 import { RootStore } from '.'
@@ -109,7 +109,7 @@ class EditorStore {
     await this._editorRef.getAction('editor.action.formatDocument').run()
 
     if (await this.rootStore.api.saveFile({ ...this.currentFile, content: this.fileContent })) {
-      toastSuccess(lang.tr('module.code-editor.store.fileSaved'))
+      toast.success(lang.tr('module.code-editor.store.fileSaved'))
 
       await this.rootStore.fetchFiles()
       this.resetOriginalHash()
