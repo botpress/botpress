@@ -33,6 +33,7 @@ export default class Repository {
       'id',
       'botId',
       'agentId',
+      'userId',
       'userThreadId',
       'agentThreadId',
       'status',

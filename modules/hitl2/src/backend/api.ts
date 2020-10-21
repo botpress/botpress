@@ -125,7 +125,7 @@ export default async (bp: typeof sdk) => {
     '/escalations',
     hitlMiddleware(async (req: Request, res: Response) => {
       const payload = {
-        ..._.pick(req.body, ['target', 'userThreadId']),
+        ..._.pick(req.body, ['userId', 'userThreadId']),
         status: 'pending' as 'pending'
       }
 
@@ -136,7 +136,7 @@ export default async (bp: typeof sdk) => {
       escalation = await repository
         .escalationsQuery(req.params.botId, builder => {
           return builder
-            .andWhere('target', payload.target)
+            .andWhere('userId', payload.userId)
             .andWhere('userThreadId', payload.userThreadId)
             .whereNot('status', 'resolved')
             .orderBy('createdAt')

@@ -13,7 +13,7 @@ const escalate = async event => {
     '/mod/hitl2/escalations',
     {
       userThreadId: event.threadId,
-      target: event.target
+      userId: event.target
     },
     axiosConfig
   )

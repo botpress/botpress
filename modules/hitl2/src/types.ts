@@ -24,8 +24,8 @@ export type UserType = {
 
 export interface EscalationType {
   id: string
-  target?: string
   agentId?: string
+  userId: string
   status: 'pending' | 'assigned' | 'resolved'
   userThreadId: string
   agentThreadId: string
