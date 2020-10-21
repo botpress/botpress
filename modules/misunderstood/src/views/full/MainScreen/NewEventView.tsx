@@ -5,7 +5,7 @@ import { SplashScreen } from 'botpress/ui'
 import pick from 'lodash/pick'
 import React from 'react'
 
-import { ApiFlaggedEvent, RESOLUTION_TYPE, ResolutionData } from '../../../types'
+import { ApiFlaggedEvent, ResolutionData, RESOLUTION_TYPE } from '../../../types'
 import StickyActionBar from '../StickyActionBar'
 
 import style from './style.scss'

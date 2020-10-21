@@ -43,8 +43,8 @@ const buildModule = (modulePath, cb) => {
   const targetOs = getTargetOSConfig()
   const linkCmd = process.env.LINK ? `&& yarn link "module-builder"` : ''
   const buildCommand = process.argv.find(x => x.toLowerCase() === '--prod')
-    ? `cross-env NODE_ENV=production yarn build --nomap`
-    : 'yarn build'
+    ? `cross-env NODE_ENV=production yarn build --nomap --fail-on-error`
+    : 'yarn build --fail-on-error'
 
   exec(
     `cross-env npm_config_target_platform=${targetOs} yarn ${linkCmd} && ${buildCommand}`,
@@ -93,7 +93,21 @@ const buildModuleBuilder = cb => {
 }
 
 const buildModules = () => {
-  const modules = getAllModulesRoot()
+  const allModules = getAllModulesRoot()
+
+  const command = process.argv[process.argv.length - 2]
+  const moduleArgs = process.argv[process.argv.length - 1].split(',')
+
+  let moduleFilter = m => true
+  if (command === '--m') {
+    moduleFilter = m => moduleArgs.includes(m)
+  } else if (command === '--a') {
+    // if command="--a nlu" we match nlu, nlu-testing and nlu-extras
+    moduleFilter = m => moduleArgs.some(arg => !!m.match(new RegExp(`${arg}`)))
+  }
+
+  const modules = allModules.filter(m => moduleFilter(path.basename(m)))
+
   const tasks = modules.map(m => {
     const config = readModuleConfig(m)
     const moduleName = _.get(config, 'name', 'Unknown')
