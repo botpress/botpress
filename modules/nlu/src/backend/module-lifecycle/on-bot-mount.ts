@@ -19,6 +19,22 @@ const missingLangMsg = botId =>
 
 const KVS_TRAINING_STATUS_KEY = 'nlu:trainingStatus'
 
+async function annouceNeedsTraining(bp: typeof sdk, botId: string, engine: sdk.NLU.Engine, state: NLUState) {
+  const api = await createApi(bp, botId)
+  const intentDefs = await api.fetchIntentsWithQNAs()
+  const entityDefs = await api.fetchEntities()
+
+  const languageWithChanges = (await bp.bots.getBotById(botId)).languages.filter(lang => {
+    const hash = engine.computeModelHash(intentDefs, entityDefs, lang)
+    return !engine.hasModel(lang, hash)
+  })
+  await Promise.map(languageWithChanges, async lang => {
+    const trainSession = await getTrainingSession(bp, botId, lang)
+    trainSession.status = 'needs-training'
+    return Promise.all([setTrainingSession(bp, botId, trainSession), state.sendNLUStatusEvent(botId, trainSession)])
+  })
+}
+
 function registerNeedTrainingWatcher(bp: typeof sdk, botId: string, engine: sdk.NLU.Engine, state: NLUState) {
   function hasPotentialNLUChange(filePath: string): boolean {
     return (
@@ -29,21 +45,9 @@ function registerNeedTrainingWatcher(bp: typeof sdk, botId: string, engine: sdk.
     )
   }
 
-  return bp.ghost.forBot(botId).onFileChanged(async filePath => {
+  return bp.ghost.forBot(botId).onFileChanged(filePath => {
     if (hasPotentialNLUChange(filePath)) {
-      const api = await createApi(bp, botId)
-      const intentDefs = await api.fetchIntentsWithQNAs()
-      const entityDefs = await api.fetchEntities()
-
-      const languageWithChanges = (await bp.bots.getBotById(botId)).languages.filter(lang => {
-        const hash = engine.computeModelHash(intentDefs, entityDefs, lang)
-        return !engine.hasModel(lang, hash)
-      })
-      await Promise.map(languageWithChanges, async lang => {
-        const trainSession = await getTrainingSession(bp, botId, lang)
-        trainSession.status = 'needs-training'
-        return Promise.all([setTrainingSession(bp, botId, trainSession), state.sendNLUStatusEvent(botId, trainSession)])
-      })
+      return annouceNeedsTraining(bp, botId, engine, state)
     }
   })
 }
@@ -150,5 +154,9 @@ export function getOnBotMount(state: NLUState) {
       cancelTraining,
       needsTrainingWatcher
     }
+
+    // to return as fast as possible
+    // tslint:disable-next-line: no-floating-promises
+    annouceNeedsTraining(bp, bot.id, engine, state)
   }
 }
