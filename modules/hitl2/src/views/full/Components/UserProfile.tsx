@@ -11,21 +11,25 @@ interface Props {
   conversation: EventType
 }
 
-const UserProfile: FC<Props> = props => {
+const UserProfile: FC<Props> = ({ conversation }) => {
   const [expanded, setExpanded] = useState(false)
   const [user, setUser] = useState({} as UserType)
-  const defaultUserName = useRef<string>()
+  const key = useRef<string>()
+  const defaultUserName = useRef<{ [key: string]: string }>({})
   const [haiku] = useState(() => {
     return new Haikunator({ defaults: { tokenLength: 0 } })
   })
 
   useEffect(() => {
-    setUser(_.get(JSON.parse(props.conversation.event), 'state.user', {}))
-  }, [props.conversation])
+    key.current = hash(_.pick(conversation, ['channel', 'threadId']))
+    setUser(_.get(JSON.parse(conversation.event), 'state.user', {}))
+  }, [conversation])
 
-  if (!defaultUserName.current) {
-    defaultUserName.current = haiku.haikunate({ delimiter: ' ' })
+  if (!defaultUserName.current[key.current]) {
+    defaultUserName.current[key.current] = haiku.haikunate({ delimiter: ' ' })
   }
+
+  const variables = _.omit(user?.variables, 'fullname', 'email')
 
   return (
     <div>
@@ -38,7 +42,7 @@ const UserProfile: FC<Props> = props => {
         {user.email && <p>{user.email}</p>}
       </div>
 
-      {!!user?.variables?.length && (
+      {!!variables.length && (
         <Fragment>
           <div className={style.divider}></div>
           <Collapsible
@@ -54,7 +58,7 @@ const UserProfile: FC<Props> = props => {
                 </tr>
               </thead>
               <tbody>
-                {user.variables.map((entry, index) => (
+                {variables.map((entry, index) => (
                   <tr key={index}>
                     <td>{entry.name}</td>
                     <td>{entry.value}</td>
