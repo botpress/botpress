@@ -19,7 +19,7 @@ const Comment: FC<Props> = ({ comment, threadId }) => {
     return moment(str).format('DD/MM/YYYY')
   }
 
-  const agent = state.agents[agentId] || { fullName: 'test name', id: '1' }
+  const agent = state.agents[agentId]
 
   return (
     <ContentSection title={`#${threadId}`}>
