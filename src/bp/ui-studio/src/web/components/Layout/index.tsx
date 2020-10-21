@@ -5,9 +5,10 @@ import { connect } from 'react-redux'
 import { Redirect, Route, Switch } from 'react-router-dom'
 import SplitPane from 'react-split-pane'
 import { bindActionCreators } from 'redux'
-import { toggleBottomPanel, viewModeChanged } from '~/actions'
+import { setEmulatorOpen, toggleBottomPanel, viewModeChanged } from '~/actions'
 import SelectContentManager from '~/components/Content/Select/Manager'
 import PluginInjectionSite from '~/components/PluginInjectionSite'
+import storage from '~/util/storage'
 import Config from '~/views/Config'
 import Content from '~/views/Content'
 import FlowBuilder from '~/views/FlowBuilder'
@@ -26,6 +27,7 @@ import Toolbar from './Toolbar'
 import BottomPanel from './Toolbar/BottomPanel'
 
 const { isInputFocused } = utils
+const WEBCHAT_PANEL_STATUS = 'bp::webchatOpened'
 
 interface ILayoutProps {
   viewModeChanged: any
@@ -37,6 +39,7 @@ interface ILayoutProps {
   history: any
   bottomPanel: boolean
   translations: any
+  setEmulatorOpen: (state: boolean) => void
 }
 
 const Layout: FC<ILayoutProps> = props => {
@@ -52,6 +55,27 @@ const Layout: FC<ILayoutProps> = props => {
     })
 
     setTimeout(() => BotUmountedWarning(), 500)
+
+    const handleWebChatPanel = message => {
+      if (message.data.name === 'webchatLoaded' && storage.get(WEBCHAT_PANEL_STATUS) === 'opened') {
+        toggleEmulator()
+      }
+
+      if (message.data.name === 'webchatOpened') {
+        storage.set(WEBCHAT_PANEL_STATUS, 'opened')
+        props.setEmulatorOpen(true)
+      }
+
+      if (message.data.name === 'webchatClosed') {
+        storage.set(WEBCHAT_PANEL_STATUS, 'closed')
+        props.setEmulatorOpen(false)
+      }
+    }
+    window.addEventListener('message', handleWebChatPanel)
+
+    return () => {
+      window.removeEventListener('message', handleWebChatPanel)
+    }
   }, [])
 
   useEffect(() => {
@@ -213,10 +237,12 @@ const Layout: FC<ILayoutProps> = props => {
 const mapStateToProps = state => ({
   viewMode: state.ui.viewMode,
   docHints: state.ui.docHints,
+  emulatorOpen: state.ui.emulatorOpen,
   bottomPanel: state.ui.bottomPanel,
   translations: state.language.translations
 })
 
-const mapDispatchToProps = dispatch => bindActionCreators({ viewModeChanged, toggleBottomPanel }, dispatch)
+const mapDispatchToProps = dispatch =>
+  bindActionCreators({ viewModeChanged, toggleBottomPanel, setEmulatorOpen }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Layout)

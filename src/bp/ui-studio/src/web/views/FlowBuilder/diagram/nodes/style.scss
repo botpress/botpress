@@ -6,6 +6,16 @@
   border-color: #028aee !important;
 }
 
+.removeLinkButton {
+  cursor: pointer;
+  rect {
+    fill: var(--hover-lighthouse-30);
+  }
+  .trash {
+    fill: var(--lighthouse) !important;
+  }
+}
+
 .node-container {
   width: 200px;
   background: white;

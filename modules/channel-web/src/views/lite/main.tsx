@@ -72,7 +72,6 @@ class Web extends React.Component<MainProps> {
       }
 
       await this.props.initializeChat()
-      this.setupObserver()
     }
   }
 
@@ -95,6 +94,8 @@ class Web extends React.Component<MainProps> {
     if (!this.isLazySocket()) {
       await this.initializeSocket()
     }
+
+    this.setupObserver()
   }
 
   extractConfig() {
@@ -263,7 +264,7 @@ class Web extends React.Component<MainProps> {
     return (
       <button
         className={classnames('bpw-widget-btn', 'bpw-floating-button', {
-          ['bpw-anim-' + this.props.widgetTransition || 'none']: true
+          [`bpw-anim-${this.props.widgetTransition || 'none'}`]: true
         })}
         aria-label={this.props.intl.formatMessage({ id: 'widget.toggle' })}
         onClick={this.props.showChat.bind(this)}

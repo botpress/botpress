@@ -11,6 +11,7 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
+import { IO } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
@@ -35,11 +36,13 @@ import {
   updateFlowNode,
   updateFlowProblems
 } from '~/actions'
+import { history } from '~/components/Routes'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 import { SaySomethingWidgetFactory } from '~/views/OneFlow/diagram/nodes/SaySomethingNode'
 
 import { SkillDefinition } from '../sidePanel/FlowTools'
 
+import { prepareEventForDiagram } from './debugger'
 import { defaultTransition, DiagramManager, DIAGRAM_PADDING, nodeTypes, Point } from './manager'
 import { DeletableLinkFactory } from './nodes/LinkWidget'
 import { SkillCallNodeModel, SkillCallWidgetFactory } from './nodes/SkillCallNode'
@@ -50,6 +53,35 @@ import { ListenWidgetFactory } from './nodes_v2/ListenNode'
 import { RouterNodeModel, RouterWidgetFactory } from './nodes_v2/RouterNode'
 import style from './style.scss'
 
+interface OwnProps {
+  childRef: (el: any) => void
+  readOnly: boolean
+  canPasteNode: boolean
+  selectedTopic: string
+  selectedWorkflow: string
+  flowPreview: boolean
+  highlightFilter: string
+  showSearch: boolean
+  hideSearch: () => void
+  currentLang: string
+  setCurrentLang: (lang: string) => void
+  languages: string[]
+  defaultLang: string
+  handleFilterChanged: (event: any) => void
+}
+
+type StateProps = ReturnType<typeof mapStateToProps>
+type DispatchProps = typeof mapDispatchToProps
+
+type Props = DispatchProps & StateProps & OwnProps
+
+type BpNodeModel = StandardNodeModel | SkillCallNodeModel
+
+type ExtendedDiagramEngine = {
+  enableLinkPoints?: boolean
+  flowBuilder?: any
+} & DiagramEngine
+
 class Diagram extends Component<Props> {
   private diagramEngine: ExtendedDiagramEngine
   private diagramWidget: DiagramWidget
@@ -57,6 +89,10 @@ class Diagram extends Component<Props> {
   private manager: DiagramManager
   /** Represents the source port clicked when the user is connecting a node */
   private dragPortSource: any
+
+  state = {
+    nodeInfos: []
+  }
 
   constructor(props) {
     super(props)
@@ -76,27 +112,40 @@ class Diagram extends Component<Props> {
     this.manager = new DiagramManager(this.diagramEngine, { switchFlowNode: this.props.switchFlowNode })
 
     if (this.props.highlightFilter) {
-      this.manager.setHighlightedNodes(this.props.highlightFilter)
+      this.manager.setHighlightFilter(this.props.highlightFilter)
     }
 
     // @ts-ignore
-    window.highlightNode = (flowName: string, nodeName: string) => {
-      this.manager.setHighlightedNodes(nodeName)
+    window.showEventOnDiagram = () => {
+      return event => this.showEventOnDiagram(event)
+    }
+  }
 
-      if (!flowName || !nodeName) {
-        // Refreshing the model anyway, to remove the highlight if node is undefined
-        this.manager.syncModel()
-        return
-      }
+  getDebugInfo = (nodeName: string) => {
+    return (this.state.nodeInfos ?? [])
+      .filter(x => x.workflow === this.props.currentFlow?.name.replace('.flow.json', ''))
+      .find(x => x?.node === nodeName)
+  }
 
-      try {
-        if (this.props.currentFlow.name !== flowName) {
-          this.props.switchFlow(flowName)
-        } else {
-          this.manager.syncModel()
-        }
-      } catch (err) {
-        console.error('Error when switching flow or refreshing', err)
+  showEventOnDiagram(event?: IO.IncomingEvent) {
+    if (!event) {
+      this.manager.setHighlightedNodes([])
+      this.setState({ nodeInfos: [] })
+      return
+    }
+
+    const { flows } = this.props
+    const { nodeInfos, highlightedNodes } = prepareEventForDiagram(event, flows)
+
+    this.manager.setHighlightedNodes(highlightedNodes)
+    this.manager.highlightLinkedNodes()
+    this.setState({ nodeInfos })
+
+    if (highlightedNodes.length) {
+      const firstFlow = highlightedNodes[0].flow
+
+      if (this.props.currentFlow?.name !== firstFlow) {
+        this.props.switchFlow(firstFlow)
       }
     }
   }
@@ -142,20 +191,20 @@ class Diagram extends Component<Props> {
     }
 
     // Refresh nodes when the filter is displayed
-    if (this.props.highlightFilter && this.props.showSearch) {
-      this.manager.setHighlightedNodes(this.props.highlightFilter)
+    if (this.props.highlightFilter) {
+      this.manager.setHighlightFilter(this.props.highlightFilter)
       this.manager.syncModel()
     }
 
     // Refresh nodes when the filter is updated
     if (this.props.highlightFilter !== prevProps.highlightFilter) {
-      this.manager.setHighlightedNodes(this.props.highlightFilter)
+      this.manager.setHighlightFilter(this.props.highlightFilter)
       this.manager.syncModel()
     }
 
     // Clear nodes when search field is hidden
-    if (!this.props.showSearch && prevProps.showSearch) {
-      this.manager.setHighlightedNodes([])
+    if (!this.props.highlightFilter) {
+      this.manager.setHighlightFilter()
       this.manager.syncModel()
     }
   }
@@ -577,47 +626,6 @@ class Diagram extends Component<Props> {
     )
   }
 }
-
-interface Props {
-  currentFlow: any
-  switchFlow: (flowName: string) => void
-  switchFlowNode: (nodeId: string) => any
-  updateFlowProblems: (problems: NodeProblem[]) => void
-  openFlowNodeProps: () => void
-  closeFlowNodeProps: () => void
-  updateFlow: any
-  createFlowNode: (props: any) => void
-  createFlow: (name: string) => void
-  insertNewSkillNode: any
-  updateFlowNode: any
-  fetchFlows: any
-  setDiagramAction: any
-  pasteFlowNode: ({ x, y }) => void
-  currentDiagramAction: any
-  copyFlowNode: () => void
-  currentFlowNode: any
-  removeFlowNode: any
-  buildSkill: any
-  readOnly: boolean
-  canPasteNode: boolean
-  showSearch: boolean
-  hideSearch: () => void
-  handleFilterChanged: (event: object) => void
-  highlightFilter: string
-  skills: SkillDefinition[]
-}
-
-interface NodeProblem {
-  nodeName: string
-  missingPorts: any
-}
-
-type BpNodeModel = StandardNodeModel | SkillCallNodeModel
-
-type ExtendedDiagramEngine = {
-  enableLinkPoints?: boolean
-  flowBuilder?: any
-} & DiagramEngine
 
 const mapStateToProps = state => ({
   flows: state.flows,

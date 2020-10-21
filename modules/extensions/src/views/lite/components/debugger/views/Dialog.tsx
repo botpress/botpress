@@ -77,7 +77,7 @@ const Dialog: SFC<Props> = props => {
     <div className={style.block}>
       <H4>Dialog Manager</H4>
       <Decision decision={props.decision} />
-      {props.stacktrace && props.stacktrace.length > 0 && <Flow stacktrace={props.stacktrace} />}
+      {/* {props.stacktrace && props.stacktrace.length > 0 && <Flow stacktrace={props.stacktrace} />} */}
       {props.suggestions && props.suggestions.length > 0 && <Suggestions suggestions={props.suggestions} />}
     </div>
   )
