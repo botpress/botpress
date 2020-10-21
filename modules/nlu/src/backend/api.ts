@@ -63,7 +63,9 @@ export default async (bp: typeof sdk, state: NLUState) => {
   router.post('/train', async (req, res) => {
     try {
       const { botId } = req.params
-      await state.nluByBot[botId].trainOrLoad(false)
+      // to return as fast as possible
+      // tslint:disable-next-line: no-floating-promises
+      state.nluByBot[botId].trainOrLoad(false)
       res.sendStatus(200)
     } catch {
       res.sendStatus(500)

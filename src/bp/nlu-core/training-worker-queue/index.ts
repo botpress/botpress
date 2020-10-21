@@ -182,7 +182,7 @@ if (cluster.isMaster) {
       return sendToWebWorker(response)
     }
 
-    worker.kill('SIGKILL')
+    worker.process.kill('SIGKILL')
     const exitHandler = (worker: Worker, _exitCode: number, _signal: string) => {
       const response: IncomingMessage<'training_canceled'> = {
         type: 'training_canceled',

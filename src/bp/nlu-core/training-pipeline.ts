@@ -538,6 +538,8 @@ export const Trainer: Trainer = async (
     debouncedProgress(normalizedProgress)
   }
 
+  reportTrainingProgress(0) // 0%
+
   let step = await PreprocessInput(input, tools)
   reportProgress() // 10%
 

@@ -24,7 +24,12 @@ async function annouceNeedsTraining(bp: typeof sdk, botId: string, engine: sdk.N
   const intentDefs = await api.fetchIntentsWithQNAs()
   const entityDefs = await api.fetchEntities()
 
-  const languageWithChanges = (await bp.bots.getBotById(botId)).languages.filter(lang => {
+  const languageWithChanges = (await bp.bots.getBotById(botId)).languages.filter(async lang => {
+    const ts = await getTrainingSession(bp, botId, lang)
+    if (ts.status === 'training') {
+      return false // do not send a needs-training event if currently training
+    }
+
     const hash = engine.computeModelHash(intentDefs, entityDefs, lang)
     return !engine.hasModel(lang, hash)
   })
@@ -37,12 +42,7 @@ async function annouceNeedsTraining(bp: typeof sdk, botId: string, engine: sdk.N
 
 function registerNeedTrainingWatcher(bp: typeof sdk, botId: string, engine: sdk.NLU.Engine, state: NLUState) {
   function hasPotentialNLUChange(filePath: string): boolean {
-    return (
-      filePath.endsWith('.intents.json') ||
-      filePath.endsWith('.flow.json') ||
-      filePath.includes('/intents/') || // legacy
-      filePath.includes('/entities/')
-    )
+    return filePath.includes('/intents/') || filePath.includes('/entities/')
   }
 
   return bp.ghost.forBot(botId).onFileChanged(filePath => {

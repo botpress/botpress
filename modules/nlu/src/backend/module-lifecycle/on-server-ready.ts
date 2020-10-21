@@ -33,7 +33,7 @@ export function getOnServerReady(state: NLUState) {
         trainSession.status = 'canceled'
         await setTrainingSession(bp, botId, trainSession)
 
-        await state.nluByBot[botId].engine.cancelTraining(trainSession.key)
+        return state.nluByBot[botId].engine.cancelTraining(trainSession.key)
       }
     }
 
