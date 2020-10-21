@@ -1339,6 +1339,105 @@ declare module 'botpress/sdk' {
     node: string
   }
 
+  export interface MultiLangText {
+    [lang: string]: string
+  }
+
+  export type FormDataField = any
+
+  export interface FormData {
+    id?: string
+    contentType?: string
+    [key: string]: FormDataField
+  }
+
+  interface FormOption {
+    value: any
+    label: string
+    related?: FormField
+  }
+
+  interface FormContextMenu {
+    type: string
+    label: string
+  }
+
+  // TODO use namespace to group form related interfaces
+  export interface FormDynamicOptions {
+    /** An enpoint to call to get the options */
+    endpoint: string
+    /** Used with _.get() on the data returned by api to get to the list of items */
+    path?: string
+    /** Field from DB to map as the value of the options */
+    valueField: string
+    /** Field from DB to map as the label of the options */
+    labelField: string
+  }
+
+  export type FormFieldType =
+    | 'checkbox'
+    | 'group'
+    | 'number'
+    | 'overridable'
+    | 'select'
+    | 'multi-select'
+    | 'text'
+    | 'text_array'
+    | 'textarea'
+    | 'upload'
+    | 'url'
+    | 'hidden'
+    | 'tag-input'
+    | 'variable'
+
+  export interface FormField {
+    type: FormFieldType
+    key: string
+    label?: string
+    overrideKey?: string
+    placeholder?: string | string[]
+    emptyPlaceholder?: string
+    options?: FormOption[]
+    defaultValue?: FormDataField
+    required?: boolean
+    variableTypes?: string[]
+    customPlaceholder?: boolean
+    max?: number
+    min?: number
+    maxLength?: number
+    valueManipulation?: {
+      regex: string
+      modifier: string
+      replaceChar: string
+    }
+    translated?: boolean
+    dynamicOptions?: FormDynamicOptions
+    fields?: FormField[]
+    moreInfo?: FormMoreInfo
+    /** When specified, indicate if array elements match the provided pattern */
+    validation?: {
+      regex?: RegExp
+      list?: any[]
+      validator?: (items: any[], newItem: any) => boolean
+    }
+    group?: {
+      /** You have to specify the add button label */
+      addLabel?: string
+      addLabelTooltip?: string
+      /** You can specify a minimum so the delete button won't show if there isn't more than the minimum */
+      minimum?: number
+      /** You can specify that there's one item of the group by default even if no minimum */
+      defaultItem?: boolean
+      /** You can add a contextual menu to add extra options */
+      contextMenu?: FormContextMenu[]
+    }
+  }
+
+  export interface FormMoreInfo {
+    label: string
+    url?: string
+  }
+
   /**
    * A Node Action represent all the possible actions that will be executed when the user is on the node. When the user
    * enters the node, actions in the 'onEnter' are executed. If there are actions in 'onReceive', they will be called

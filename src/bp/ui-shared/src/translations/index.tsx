@@ -1,3 +1,4 @@
+import { MultiLangText } from 'botpress/sdk'
 import { isEmpty, merge } from 'lodash'
 import { createIntl, createIntlCache, IntlShape } from 'react-intl'
 
@@ -91,7 +92,7 @@ const getUserLocale = () => {
 /**
  * Can either receive an ID, or an object with keys of supported languages
  */
-const lang = (id: string | { [lang: string]: string }, values?: { [variable: string]: any }): string => {
+const lang = (id: string | MultiLangText, values?: { [variable: string]: any }): string => {
   if (!id) {
     return ''
   }
