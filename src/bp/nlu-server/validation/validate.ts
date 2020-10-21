@@ -1,14 +1,16 @@
 import { validate } from 'joi'
+import { DUCKLING_ENTITIES } from 'nlu-core/entities/duckling-extractor'
 
 import { Enum, Intent, Pattern, TrainInput, Variable } from '../typings'
 
-import extractVariables from './extractVariables'
 import { TrainInputSchema } from './schemas'
+
+const SLOT_ANY = 'any'
 
 const makeVariableChecker = (enums: Enum[], patterns: Pattern[]) => (variable: Variable) => {
   const { types, name } = variable
 
-  const supportedTypes = [...enums.map(e => e.name), ...patterns.map(p => p.name)]
+  const supportedTypes = [...enums.map(e => e.name), ...patterns.map(p => p.name), ...DUCKLING_ENTITIES, SLOT_ANY]
   for (const type of types) {
     if (!supportedTypes.includes(type)) {
       throw new Error(`Variable ${name} references variable type ${type}, but it does not exist.`)
