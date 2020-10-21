@@ -1,4 +1,4 @@
-utterance,context,conditions,status,date: 7/7/2020,summary: 69.3,nlu seed: 42
+utterance,context,conditions,status,date: 10/21/2020,summary: 68.95,nlu seed: 42
 What is the contact number?,A,"-intent,is,a-contact-details",pass
 WHAT IS THE CONTACT NUMBER?,A,"-intent,is,a-contact-details",pass
 WHAT is THE contact NUMBER,A,"-intent,is,a-contact-details",pass
@@ -49,7 +49,7 @@ hellpine,E,"-intent,is,e-contact-details",fail
 hellpine,F,"-intent,is,f-contact-details",fail
 isseu,A,"-intent,is,a-problem",fail
 isseu,C,"-intent,is,c-problem",fail
-isseu,D,"-intent,is,d-problem",pass
+isseu,D,"-intent,is,d-problem",fail
 isseu,E,"-intent,is,e-problem",fail
 isseu,F,"-intent,is,f-problem",fail
 teck isseu,A,"-intent,is,a-problem",fail
@@ -70,7 +70,7 @@ Please help with technical issye,F,"-intent,is,f-problem",pass
 I want to amend my statrment,A,"-intent,is,a-bill-inquiry",pass
 I want to amend my statrment,C,"-intent,is,c-bill-inquiry",fail
 I want to amend my statrment,D,"-intent,is,d-bill-inquiry",fail
-I want to amend my statrment,E,"-intent,is,e-bill-inquiry",fail
+I want to amend my statrment,E,"-intent,is,e-bill-inquiry",pass
 how do I go about csncelling,A,"-intent,is,a-cancellation",pass
 how do I go about csncelling,C,"-intent,is,c-cancellation",pass
 how do I go about csncelling,D,"-intent,is,d-cancellation",pass
@@ -86,8 +86,8 @@ Why is my screen lockef?,C,"-intent,is,c-none",pass
 Why is my screen lockef?,D,"-intent,is,d-none",pass
 Why is my screen lockef?,E,"-intent,is,e-none",pass
 Why is my screen lockef?,F,"-intent,is,f-none",pass
-Got a ptobkem,A,"-intent,is,a-problem",pass
-Got a ptobkem,C,"-intent,is,c-problem",pass
+Got a ptobkem,A,"-intent,is,a-problem",fail
+Got a ptobkem,C,"-intent,is,c-problem",fail
 Got a ptobkem,D,"-intent,is,d-problem",pass
 Got a ptobkem,E,"-intent,is,e-problem",fail
 Got a ptobkem,F,"-intent,is,f-problem",pass
@@ -160,11 +160,11 @@ contactnumber,C,"-intent,is,c-contact-details",pass
 contactnumber,D,"-intent,is,d-contact-details",pass
 contactnumber,E,"-intent,is,e-contact-details",pass
 contactnumber,F,"-intent,is,f-contact-details",pass
-I'm having some trouble tologin,A,"-intent,is,a-problem",fail
-I'm having some trouble tologin,C,"-intent,is,c-problem",fail
+I'm having some trouble tologin,A,"-intent,is,a-problem",pass
+I'm having some trouble tologin,C,"-intent,is,c-problem",pass
 I'm having some trouble tologin,D,"-intent,is,d-problem",fail
 I'm having some trouble tologin,E,"-intent,is,e-problem",fail
-I'm having some trouble tologin,F,"-intent,is,f-problem",pass
+I'm having some trouble tologin,F,"-intent,is,f-problem",fail
 trouble tologin,A,"-intent,is,a-problem",fail
 trouble tologin,C,"-intent,is,c-problem",fail
 trouble tologin,D,"-intent,is,d-problem",fail
@@ -172,8 +172,8 @@ trouble tologin,E,"-intent,is,e-problem",fail
 trouble tologin,F,"-intent,is,f-problem",fail
 loginproblem,A,"-intent,is,a-problem",pass
 loginproblem,C,"-intent,is,c-problem",pass
-loginproblem,D,"-intent,is,d-problem",pass
-loginproblem,E,"-intent,is,e-problem",pass
+loginproblem,D,"-intent,is,d-problem",fail
+loginproblem,E,"-intent,is,e-problem",fail
 loginproblem,F,"-intent,is,f-problem",fail
 screenlocked,A,"-intent,is,a-none",pass
 screenlocked,C,"-intent,is,c-none",pass
@@ -183,7 +183,7 @@ screenlocked,F,"-intent,is,f-none",pass
 Whats the contactnumer,A,"-intent,is,a-contact-details",fail
 Whats the contactnumer,C,"-intent,is,c-contact-details",pass
 Whats the contactnumer,D,"-intent,is,d-contact-details",pass
-Whats the contactnumer,E,"-intent,is,e-contact-details",fail
+Whats the contactnumer,E,"-intent,is,e-contact-details",pass
 Whats the contactnumer,F,"-intent,is,f-contact-details",pass
 How can Icanncel,A,"-intent,is,a-cancellation",pass
 How can Icanncel,C,"-intent,is,c-cancellation",pass
@@ -196,10 +196,10 @@ How can Icancerl,D,"-intent,is,d-cancellation",pass
 How can Icancerl,E,"-intent,is,e-cancellation",pass
 How can Icancerl,F,"-intent,is,f-cancellation",pass
 Where tofind your land line?,A,"-intent,is,a-contact-details",fail
-Where tofind your land line?,C,"-intent,is,c-contact-details",pass
-Where tofind your land line?,D,"-intent,is,d-contact-details",pass
+Where tofind your land line?,C,"-intent,is,c-contact-details",fail
+Where tofind your land line?,D,"-intent,is,d-contact-details",fail
 Where tofind your land line?,E,"-intent,is,e-contact-details",fail
-Where tofind your land line?,F,"-intent,is,f-contact-details",pass
+Where tofind your land line?,F,"-intent,is,f-contact-details",fail
 teckproblem,A,"-intent,is,a-problem",pass
 teckproblem,C,"-intent,is,c-problem",fail
 teckproblem,D,"-intent,is,d-problem",fail
@@ -237,7 +237,7 @@ Why are my screens locked?,F,"-intent,is,f-none",pass
 Where can I find your landlinne?,A,"-intent,is,a-contact-details",pass
 Where can I find your landlinne?,C,"-intent,is,c-contact-details",pass
 Where can I find your landlinne?,D,"-intent,is,d-contact-details",pass
-Where can I find your landlinne?,E,"-intent,is,e-contact-details",fail
+Where can I find your landlinne?,E,"-intent,is,e-contact-details",pass
 Where can I find your landlinne?,F,"-intent,is,f-contact-details",pass
 Please help with technnical issue,A,"-intent,is,a-problem",pass
 Please help with technnical issue,C,"-intent,is,c-problem",pass
@@ -316,7 +316,7 @@ Theirs a problem with my screen,A,"-intent,is,a-problem",pass
 Theirs a problem with my screen,C,"-intent,is,c-problem",pass
 Theirs a problem with my screen,D,"-intent,is,d-problem",pass
 Theirs a problem with my screen,E,"-intent,is,e-problem",pass
-Theirs a problem with my screen,F,"-intent,is,f-problem",pass
+Theirs a problem with my screen,F,"-intent,is,f-problem",fail
 I am experiencing difficulties using the system,A,"-intent,is,a-problem",pass
 I am experiencing difficulties using the system,C,"-intent,is,c-problem",pass
 I am experiencing difficulties using the system,D,"-intent,is,d-problem",pass
@@ -401,9 +401,9 @@ I can not login,E,"-intent,is,e-none",pass
 I can not login,F,"-intent,is,f-none",pass
 I can't login in for some reason,A,"-intent,is,a-none",fail
 I can't login in for some reason,C,"-intent,is,c-none",fail
-I can't login in for some reason,D,"-intent,is,d-none",pass
+I can't login in for some reason,D,"-intent,is,d-none",fail
 I can't login in for some reason,E,"-intent,is,e-none",fail
-I can't login in for some reason,F,"-intent,is,f-none",pass
+I can't login in for some reason,F,"-intent,is,f-none",fail
 I can not get the right results,A,"-intent,is,a-none",fail
 I can not get the right results,C,"-intent,is,c-none",fail
 I can not get the right results,D,"-intent,is,d-none",fail
@@ -525,7 +525,7 @@ I need my bill amended,D,"-intent,is,d-bill-inquiry",fail
 I need my bill amended,E,"-intent,is,e-bill-inquiry",fail
 Rectify my bill,A,"-intent,is,a-bill-inquiry",pass
 Rectify my bill,C,"-intent,is,c-bill-inquiry",fail
-Rectify my bill,D,"-intent,is,d-bill-inquiry",pass
+Rectify my bill,D,"-intent,is,d-bill-inquiry",fail
 Rectify my bill,E,"-intent,is,e-bill-inquiry",fail
 Details of my bill,A,"-intent,is,a-bill-inquiry",pass
 Details of my bill,C,"-intent,is,c-bill-inquiry",pass
@@ -584,7 +584,7 @@ technical problem,C,"-intent,is,c-problem",pass
 technical problem,D,"-intent,is,d-problem",pass
 technical problem,E,"-intent,is,e-problem",pass
 Please help with technical support,A,"-intent,is,a-problem",pass
-Please help with technical support,C,"-intent,is,c-problem",fail
+Please help with technical support,C,"-intent,is,c-problem",pass
 Please help with technical support,D,"-intent,is,d-problem",pass
 Please help with technical support,E,"-intent,is,e-problem",pass
 Please help with technical issue,A,"-intent,is,a-problem",pass
@@ -711,7 +711,7 @@ Do you have toll free line?,A,"-intent,is,a-contact-details",fail
 Do you have toll free line?,C,"-intent,is,c-contact-details",pass
 Do you have toll free line?,D,"-intent,is,d-contact-details",fail
 Do you have toll free line?,E,"-intent,is,e-contact-details",pass
-Is there someone I can talk to,A,"-intent,is,a-contact-details",fail
+Is there someone I can talk to,A,"-intent,is,a-contact-details",pass
 Is there someone I can talk to,C,"-intent,is,c-contact-details",pass
 Is there someone I can talk to,D,"-intent,is,d-contact-details",pass
 Is there someone I can talk to,E,"-intent,is,e-contact-details",pass
@@ -897,8 +897,8 @@ options,E,"-intent,is,e-none",pass
 options,F,"-intent,is,f-none",pass
 start,A,"-intent,is,a-none",fail
 start,B,"-intent,is,b-none",pass
-start,C,"-intent,is,c-none",fail
-start,D,"-intent,is,d-none",pass
+start,C,"-intent,is,c-none",pass
+start,D,"-intent,is,d-none",fail
 start,E,"-intent,is,e-none",pass
 start,F,"-intent,is,f-none",pass
 what can you do,A,"-intent,is,a-none",fail
@@ -1017,8 +1017,8 @@ I want to locate you CEO,E,"-intent,is,e-none",fail
 I want to locate you CEO,F,"-intent,is,f-none",pass
 How many employees work for your company,A,"-intent,is,a-none",fail
 How many employees work for your company,B,"-intent,is,b-none",pass
-How many employees work for your company,C,"-intent,is,c-none",fail
-How many employees work for your company,D,"-intent,is,d-none",fail
+How many employees work for your company,C,"-intent,is,c-none",pass
+How many employees work for your company,D,"-intent,is,d-none",pass
 How many employees work for your company,E,"-intent,is,e-none",fail
 How many employees work for your company,F,"-intent,is,f-none",pass
 how many locations do you have,A,"-intent,is,a-none",fail
