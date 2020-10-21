@@ -306,6 +306,7 @@ try {
         },
         offline: {
           description: 'Whether or not the language server has internet access',
+          type: 'boolean',
           default: false
         },
         dim: {

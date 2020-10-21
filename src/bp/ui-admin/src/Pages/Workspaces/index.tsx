@@ -22,7 +22,7 @@ interface Props {
 }
 
 const Workspaces: FC<Props> = props => {
-  const [workspace, setWorkspace] = useState()
+  const [workspace, setWorkspace] = useState<Workspace>()
   const [pipelineModalOpen, setPipelineModalOpen] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [rolloutModalOpen, setRolloutModalOpen] = useState(false)
@@ -121,21 +121,21 @@ const Workspaces: FC<Props> = props => {
       </SplitPage>
 
       <EditWorkspaceModal
-        workspace={workspace}
+        workspace={workspace!}
         isOpen={editModalOpen}
         toggle={() => setEditModalOpen(!editModalOpen)}
         refreshWorkspaces={refreshWorkspaces}
       />
 
       <ChangePipelineModal
-        workspace={workspace}
+        workspace={workspace!}
         isOpen={pipelineModalOpen}
         toggle={() => setPipelineModalOpen(!pipelineModalOpen)}
         refreshWorkspaces={refreshWorkspaces}
       />
 
       <DeleteWorkspaceModal
-        workspace={workspace}
+        workspace={workspace!}
         isOpen={deleteModalOpen}
         toggle={() => setDeleteModalOpen(!deleteModalOpen)}
         refreshWorkspaces={refreshWorkspaces}
@@ -153,7 +153,4 @@ const Workspaces: FC<Props> = props => {
 
 const mapStateToProps = state => ({ workspaces: state.server.workspaces })
 
-export default connect(
-  mapStateToProps,
-  { fetchWorkspaces, fetchMyWorkspaces }
-)(Workspaces)
+export default connect(mapStateToProps, { fetchWorkspaces, fetchMyWorkspaces })(Workspaces)

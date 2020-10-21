@@ -5,12 +5,12 @@ import moment from 'moment'
 
 import {
   DbFlaggedEvent,
-  FLAG_REASON,
+  FlaggedEvent,
   FLAGGED_MESSAGE_STATUS,
   FLAGGED_MESSAGE_STATUSES,
-  FlaggedEvent,
-  RESOLUTION_TYPE,
-  ResolutionData
+  FLAG_REASON,
+  ResolutionData,
+  RESOLUTION_TYPE
 } from '../types'
 
 import applyChanges from './applyChanges'

@@ -8,7 +8,7 @@
     "node": ">=10"
   },
   "scripts": {
-    "start": "node ./webpack.config.js --watch",
+    "watch": "node ./webpack.config.js --watch",
     "build": "cross-env NODE_ENV=production node ./webpack.config.js --compile --nomap && yarn scss",
     "scss": "node-sass src/theme/main.scss dist/theme.css --importer=node_modules/node-sass-tilde-importer"
   },
