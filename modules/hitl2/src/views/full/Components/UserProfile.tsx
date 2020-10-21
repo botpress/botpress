@@ -29,14 +29,14 @@ const UserProfile: FC<Props> = ({ conversation }) => {
     defaultUserName.current[key.current] = haiku.haikunate({ delimiter: ' ' })
   }
 
-  const variables = _.omit(user?.variables, 'fullname', 'email')
+  const variables = user?.variables?.filter(x => !['fullname', 'email'].includes(x.name)) || []
 
   return (
     <div>
       <div className={style.profileHeader}>
         {/* TODO Add click action here */}
         <button className={style.clientName} onClick={() => {}}>
-          {user.fullName || defaultUserName.current}
+          {user.fullName || defaultUserName.current?.[key.current]}
         </button>
         {/* TODO Should add company name here */}
         {user.email && <p>{user.email}</p>}

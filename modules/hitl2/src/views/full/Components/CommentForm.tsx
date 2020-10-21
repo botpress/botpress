@@ -1,4 +1,5 @@
-import { Button, TextArea } from '@blueprintjs/core'
+import { Button } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import React, { FC, useState } from 'react'
 
 import style from '../style.scss'
@@ -16,6 +17,7 @@ const CommentForm: FC<Props> = props => {
     <div className={style.commentForm}>
       <textarea
         value={content}
+        placeholder={lang.tr('module.hitl2.commentForm.addNote')}
         onChange={event => {
           setContent(event.target.value)
         }}
