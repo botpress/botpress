@@ -215,7 +215,7 @@ const QnAList: FC<Props> = props => {
 
   return (
     <MainLayout.Wrapper childRef={ref => (wrapperRef.current = ref)}>
-      <MainLayout.Header className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
+      <MainLayout.Toolbar className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
 
       <div className={style.searchWrapper}>
         <input
