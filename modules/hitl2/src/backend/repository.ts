@@ -14,7 +14,7 @@ export interface AgentCollectionConditions {
 export interface CollectionConditions {
   limit?: number
   orderByColumn?: string
-  orderByDirection?: string
+  orderByDirection?: 'asc' | 'desc'
 }
 
 export default class Repository {
