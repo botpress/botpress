@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { RequestWithUser } from 'common/typings'
 import { BPRequest } from 'common/http'
 
+import { StateType } from './index'
 import { EscalationType, CommentType } from './../types'
 
 import socket from './socket'
@@ -23,7 +24,7 @@ import {
 } from './validation'
 import Repository, { AgentCollectionConditions, CollectionConditions } from './repository'
 
-export default async (bp: typeof sdk) => {
+export default async (bp: typeof sdk, state: StateType) => {
   const router = bp.http.createRouterForBot('hitl2')
   const repository = new Repository(bp)
   const realtime = socket(bp)
@@ -134,8 +135,9 @@ export default async (bp: typeof sdk) => {
       // Prevent creating a new escalation if one is currently pending or assigned
       let escalation
       escalation = await repository
-        .escalationsQuery(req.params.botId, builder => {
+        .escalationsQuery(builder => {
           return builder
+            .where('botId', req.params.botId)
             .andWhere('userId', payload.userId)
             .andWhere('userThreadId', payload.userThreadId)
             .whereNot('status', 'resolved')
@@ -148,6 +150,7 @@ export default async (bp: typeof sdk) => {
         res.sendStatus(200)
       } else {
         escalation = await repository.createEscalation(req.params.botId, payload)
+        state.setEscalation(req.params.botId, escalation.userThreadId, escalation)
 
         realtime.sendPayload({
           resource: 'escalation',
@@ -249,6 +252,7 @@ export default async (bp: typeof sdk) => {
       }
 
       escalation = await repository.updateEscalation(req.params.botId, req.params.id, payload)
+      state.unsetEscalation(req.params.botId, escalation.userThreadId)
 
       realtime.sendPayload({
         resource: 'escalation',

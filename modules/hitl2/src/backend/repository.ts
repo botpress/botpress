@@ -173,11 +173,8 @@ export default class Repository {
     }
   }
 
-  escalationsQuery = async (botId: string, query?: Knex.QueryCallback): Promise<EscalationType[]> => {
-    return await this.bp
-      .database<EscalationType>('escalations')
-      .where('botId', botId)
-      .modify(this.applyQuery(query))
+  escalationsQuery = async (query?: Knex.QueryCallback): Promise<EscalationType[]> => {
+    return await this.bp.database<EscalationType>('escalations').modify(this.applyQuery(query))
   }
 
   getAgentOnline = async (botId: string, agentId: string): Promise<boolean> => {

@@ -3,14 +3,23 @@ import * as sdk from 'botpress/sdk'
 import en from '../translations/en.json'
 import fr from '../translations/fr.json'
 
+import { EscalationType } from './../types'
+
 import api from './api'
 import { registerMiddleware, unregisterMiddleware } from './middleware'
+
+export interface StateType {
+  setEscalation?: (botId: string, threadId: string, escalation: EscalationType) => void
+  unsetEscalation?: (botId: string, threadId: string) => void
+}
+
+const state: StateType = {}
 
 const onServerStarted = async (bp: typeof sdk) => {}
 
 const onServerReady = async (bp: typeof sdk) => {
-  await api(bp)
-  await registerMiddleware(bp)
+  await api(bp, state)
+  await registerMiddleware(bp, state)
 }
 
 const onBotMount = async (bp: typeof sdk, botId: string) => {}
