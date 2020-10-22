@@ -24,6 +24,7 @@ export type UserType = {
 
 export interface EscalationType {
   id: string
+  botId: string
   agentId?: string
   userId: string
   status: 'pending' | 'assigned' | 'resolved'
