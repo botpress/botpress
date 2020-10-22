@@ -241,7 +241,7 @@ export default class Repository {
       .then(applyConditions)
   }
 
-  getEscalationsWithComents = async (
+  getEscalationsWithComments = async (
     botId: string,
     conditions: CollectionConditions = {},
     query?: Knex.QueryCallback
