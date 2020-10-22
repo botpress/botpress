@@ -149,8 +149,10 @@ export default async (bp: typeof sdk, state: StateType) => {
       if (escalation) {
         res.sendStatus(200)
       } else {
-        escalation = await repository.createEscalation(req.params.botId, payload)
-        state.setEscalation(req.params.botId, escalation.userThreadId, escalation)
+        escalation = await repository.createEscalation(req.params.botId, payload).then(escalation => {
+          state.cacheEscalation(req.params.botId, escalation.userThreadId, escalation)
+          return escalation
+        })
 
         realtime.sendPayload({
           resource: 'escalation',
@@ -251,8 +253,10 @@ export default async (bp: typeof sdk, state: StateType) => {
         throw new UnprocessableEntityError(e)
       }
 
-      escalation = await repository.updateEscalation(req.params.botId, req.params.id, payload)
-      state.unsetEscalation(req.params.botId, escalation.userThreadId)
+      escalation = await repository.updateEscalation(req.params.botId, req.params.id, payload).then(escalation => {
+        state.expireEscalation(req.params.botId, escalation.userThreadId)
+        return escalation
+      })
 
       realtime.sendPayload({
         resource: 'escalation',

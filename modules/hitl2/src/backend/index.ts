@@ -9,8 +9,8 @@ import api from './api'
 import { registerMiddleware, unregisterMiddleware } from './middleware'
 
 export interface StateType {
-  setEscalation?: (botId: string, threadId: string, escalation: EscalationType) => void
-  unsetEscalation?: (botId: string, threadId: string) => void
+  cacheEscalation?: Function
+  expireEscalation?: Function
 }
 
 const state: StateType = {}

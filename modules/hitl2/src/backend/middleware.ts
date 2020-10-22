@@ -31,21 +31,12 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
     return cache.get(_.join([botId, threadId], '.'))
   }
 
-  const setEscalation = async (cache, botId: string, threadId: string, escalation: EscalationType) => {
+  const cacheEscalation = async (botId: string, threadId: string, escalation: EscalationType) => {
     cache.set(_.join([botId, threadId], '.'), escalation.id)
   }
 
-  const unsetEscalation = async (cache, botId: string, threadId: string) => {
+  const expireEscalation = async (botId: string, threadId: string) => {
     cache.del(_.join([botId, threadId], '.'))
-  }
-
-  state.setEscalation = async (botId: string, threadId: string, escalation: EscalationType) => {
-    const distributedSet = await bp.distributed.broadcast(setEscalation)
-    distributedSet(cache, botId, threadId, escalation)
-  }
-  state.unsetEscalation = async (botId: string, threadId: string) => {
-    const distributedUnset = await bp.distributed.broadcast(unsetEscalation)
-    distributedUnset(cache, botId, threadId)
   }
 
   const incomingHandler = async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
@@ -62,13 +53,29 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
       return
     }
 
-    const escalation = await repository.getEscalationWithComments(event.botId, escalationId)
+    const escalation = await repository
+      .escalationsQuery(builder => {
+        builder.where('id', escalationId)
+      })
+      .then(data => _.head(data))
 
+    // Handle incoming message from user
     if (escalation.userThreadId === event.threadId) {
-      // Handle incoming message from user
+      event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
+
       if (escalation.status === 'assigned') {
         // There only is an agentId & agentThreadId after assignation
         pipeEvent(event, escalation.agentId, escalation.agentThreadId)
+      }
+
+      // At this moment the event isn't persisted yet so an approximate
+      // representation is built and sent to the frontend, which relies on
+      // this to update the escalation's preview and read status.
+      escalation.userConversation = {
+        event: JSON.stringify(_.pick(event, ['preview'])),
+        success: undefined,
+        threadId: undefined,
+        ..._.pick(event, ['id', 'direction', 'botId', 'channel', 'createdOn', 'threadId'])
       }
 
       realtime.sendPayload({
@@ -77,8 +84,9 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
         id: escalation.id,
         payload: escalation
       })
-    } else if (escalation.agentThreadId === event.threadId) {
+
       // Handle incoming message from agent
+    } else if (escalation.agentThreadId === event.threadId) {
       pipeEvent(event, escalation.userId, escalation.userThreadId)
     }
 
@@ -93,12 +101,17 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
       })
       .then(escalations => {
         escalations.forEach(escalation => {
-          setEscalation(cache, escalation.botId, escalation.userThreadId, escalation)
+          cacheEscalation(escalation.botId, escalation.userThreadId, escalation)
         })
       })
       .then(() => bp.logger.debug('cache ----', cache.keys()))
   }
+
+  state.cacheEscalation = await bp.distributed.broadcast(cacheEscalation)
+  state.expireEscalation = await bp.distributed.broadcast(expireEscalation)
+
   warmup(cache)
+
   bp.events.registerMiddleware({
     name: 'hitl.incoming',
     direction: 'incoming',
