@@ -103,8 +103,6 @@ export class FlowService {
         }
       })
 
-      // const orderedFlows = _.orderBy(flowsWithParents, x => x.name)
-
       this._allFlows.set(botId, flowsWithParents)
       return flowsWithParents
     } catch (err) {
@@ -126,7 +124,7 @@ export class FlowService {
     const schemaError = validateFlowSchema(flow, await this._isOneFlow(botId))
 
     if (!flow || schemaError) {
-      throw new Error(`Invalid schema for "${flowPath}". ` + schemaError)
+      throw new Error(`Invalid schema for "${flowPath}". ${schemaError} `)
     }
 
     const uiEq = await this.ghost.forBot(botId).readFileAsObject<FlowView>(FLOW_DIR, this.uiPath(flowPath))
@@ -270,7 +268,7 @@ export class FlowService {
       name: previousName,
       botId,
       modification: 'rename',
-      newName: newName,
+      newName,
       userEmail
     })
   }
@@ -281,7 +279,7 @@ export class FlowService {
   }
 
   private _buildFlowMutexKey(flowLocation: string): string {
-    return 'FLOWMUTEX: ' + flowLocation
+    return `FLOWMUTEX: ${flowLocation}`
   }
 
   private async _testAndLockMutex(botId: string, currentFlowEditor: string, flowLocation: string): Promise<FlowMutex> {
@@ -385,7 +383,7 @@ export class FlowService {
     let topics = await this.getTopics(botId)
     topics = topics.filter(x => x.name !== topicName)
 
-    await this.ghost.forBot(botId).upsertFile('ndu', `topics.json`, JSON.stringify(topics, undefined, 2))
+    await this.ghost.forBot(botId).upsertFile('ndu', 'topics.json', JSON.stringify(topics, undefined, 2))
     await this.moduleLoader.onTopicChanged(botId, topicName, undefined)
   }
 
@@ -393,7 +391,7 @@ export class FlowService {
     let topics = await this.getTopics(botId)
     topics = _.uniqBy([...topics, topic], x => x.name)
 
-    await this.ghost.forBot(botId).upsertFile('ndu', `topics.json`, JSON.stringify(topics, undefined, 2))
+    await this.ghost.forBot(botId).upsertFile('ndu', 'topics.json', JSON.stringify(topics, undefined, 2))
     await this.moduleLoader.onTopicChanged(botId, undefined, topic.name)
   }
 
@@ -401,7 +399,7 @@ export class FlowService {
     let topics = await this.getTopics(botId)
     topics = _.uniqBy([...topics.filter(x => x.name !== topicName), topic], x => x.name)
 
-    await this.ghost.forBot(botId).upsertFile('ndu', `topics.json`, JSON.stringify(topics, undefined, 2))
+    await this.ghost.forBot(botId).upsertFile('ndu', 'topics.json', JSON.stringify(topics, undefined, 2))
 
     if (topicName !== topic.name) {
       await this.moduleLoader.onTopicChanged(botId, topicName, topic.name)
