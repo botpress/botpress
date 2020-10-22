@@ -82,7 +82,9 @@ export class FlowService {
       return this._allFlows.get(botId)!
     }
 
-    const flowsPath = this.ghost.forBot(botId).directoryListing(FLOW_DIR, '*.flow.json')
+    const flowsPath = this.ghost.forBot(botId).directoryListing(FLOW_DIR, '*.flow.json', undefined, undefined, {
+      sortOrder: { column: 'filePath' }
+    })
 
     try {
       const flows = await Promise.map(flowsPath, async (flowPath: string) => {
@@ -101,10 +103,10 @@ export class FlowService {
         }
       })
 
-      const orderedFlows = _.orderBy(flowsWithParents, x => x.name)
+      // const orderedFlows = _.orderBy(flowsWithParents, x => x.name)
 
-      this._allFlows.set(botId, orderedFlows)
-      return orderedFlows
+      this._allFlows.set(botId, flowsWithParents)
+      return flowsWithParents
     } catch (err) {
       this.logger
         .forBot(botId)
