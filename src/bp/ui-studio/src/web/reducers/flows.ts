@@ -206,7 +206,8 @@ const doRenameFlow = ({ currentName, newName, flows }) =>
 
     if (f.nodes) {
       let json = JSON.stringify(f.nodes)
-      json = json.replace(currentName, newName)
+      const regex = new RegExp(currentName, 'g')
+      json = json.replace(regex, newName)
       f.nodes = JSON.parse(json)
     }
 
