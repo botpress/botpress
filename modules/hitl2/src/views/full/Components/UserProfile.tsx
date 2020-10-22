@@ -1,80 +1,74 @@
-import _ from 'lodash'
-import React, { FC, useEffect, useState } from 'react'
-import hash from 'object-hash'
+import { Collapsible, lang } from 'botpress/shared'
 import Haikunator from 'haikunator'
+import _ from 'lodash'
+import hash from 'object-hash'
+import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
 import { EventType, UserType } from '../../../types'
-
-import { Divider, HTMLTable } from '@blueprintjs/core'
-import { EmptyState, lang } from 'botpress/shared'
-import Collapsible from '../../../../../../src/bp/ui-shared-lite/Collapsible'
+import style from '../style.scss'
 
 interface Props {
   conversation: EventType
 }
 
-const UserProfile: FC<Props> = props => {
-  const [expanded, setExpanded] = useState(!_.isEmpty(variables()))
+const UserProfile: FC<Props> = ({ conversation }) => {
+  const [expanded, setExpanded] = useState(false)
   const [user, setUser] = useState({} as UserType)
-  const [userNames, setUserNames] = useState({})
+  const key = useRef<string>()
+  const defaultUserName = useRef<{ [key: string]: string }>({})
   const [haiku] = useState(() => {
     return new Haikunator({ defaults: { tokenLength: 0 } })
   })
 
   useEffect(() => {
-    setUser(_.get(JSON.parse(props.conversation.event), 'state.user', {}))
-  }, [props.conversation])
+    key.current = hash(_.pick(conversation, ['channel', 'threadId']))
+    setUser(_.get(JSON.parse(conversation.event), 'state.user', {}))
+  }, [conversation])
 
-  function defaultUserName(): string {
-    const key = hash(_.pick(props.conversation, ['channel', 'threadId']))
-
-    if (!userNames[key]) {
-      userNames[key] = haiku.haikunate({ delimiter: ' ' })
-      setUserNames(userNames)
-    }
-
-    return userNames[key]
+  if (!defaultUserName.current[key.current]) {
+    defaultUserName.current[key.current] = haiku.haikunate({ delimiter: ' ' })
   }
 
-  function variables() {
-    return _.omit(user, 'fullname', 'email')
-  }
+  const variables = user?.variables?.filter(x => !['fullname', 'email'].includes(x.name)) || []
 
   return (
     <div>
-      <h6 className="bp3-heading" style={{ color: 'var(--ocean)' }}>
-        {user.fullName || defaultUserName()}
-      </h6>
-      {user.email && <p>{user.email}</p>}
+      <div className={style.profileHeader}>
+        {/* TODO Add click action here */}
+        <button className={style.clientName} onClick={() => {}}>
+          {user.fullName || defaultUserName.current?.[key.current]}
+        </button>
+        {/* TODO Should add company name here */}
+        {user.email && <p>{user.email}</p>}
+      </div>
 
-      <Divider></Divider>
-
-      <Collapsible
-        opened={expanded}
-        toggleExpand={() => setExpanded(!expanded)}
-        name={lang.tr('module.hitl2.user.variables.heading')}
-      >
-        {_.isEmpty(variables()) ? (
-          <EmptyState text={lang.tr('module.hitl2.user.variables.empty')}></EmptyState>
-        ) : (
-          <HTMLTable condensed={true} width="100%">
-            <thead>
-              <tr>
-                <th>Variable</th>
-                <th>Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(variables()).map((entry, index) => (
-                <tr key={index}>
-                  <td>{entry[0]}</td>
-                  <td>{entry[1]}</td>
+      {!!variables.length && (
+        <Fragment>
+          <div className={style.divider}></div>
+          <Collapsible
+            opened={expanded}
+            toggleExpand={() => setExpanded(!expanded)}
+            name={lang.tr('module.hitl2.user.variables.heading')}
+          >
+            <table className={style.table}>
+              <thead>
+                <tr>
+                  <th>{lang.tr('module.hitl2.user.variables.variable')}</th>
+                  <th>{lang.tr('module.hitl2.user.variables.value')}</th>
                 </tr>
-              ))}
-            </tbody>
-          </HTMLTable>
-        )}
-      </Collapsible>
+              </thead>
+              <tbody>
+                {variables.map((entry, index) => (
+                  <tr key={index}>
+                    <td>{entry.name}</td>
+                    <td>{entry.value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Collapsible>
+        </Fragment>
+      )}
     </div>
   )
 }

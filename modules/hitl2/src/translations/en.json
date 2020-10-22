@@ -13,15 +13,16 @@
   "agent": {
     "online": "Online",
     "offline": "Offline",
-    "getOnline": "Get online",
-    "getOffline": "Get offline",
+    "getOnline": "Get Online",
+    "getOffline": "Get Offline",
     "onlineSuccess": "You are now online",
     "offlineSuccess": "You are now offline"
   },
   "escalation": {
     "created": "Created {date}",
+    "contactDetails": "Contact Details",
     "status": {
-      "pending": "pending",
+      "pending": "Unassigned",
       "assigned": "assigned",
       "resolved": "resolved"
     },
@@ -30,20 +31,29 @@
       "other": "Assigned to {name}"
     },
     "assign": "Escalation {id} successfully assigned",
-    "resolve": "Escalation {id} successfully resolved"
+    "resolve": "Escalation {id} successfully resolved",
+    "noPreviousAgent": "No prevous agent",
+    "you": "You",
+    "agent": "Agent: {agentName}"
   },
   "user": {
     "variables": {
       "heading": "Contact variables",
-      "empty": "No variables"
+      "empty": "No variables",
+      "variable": "Variable",
+      "value": "Value"
     }
+  },
+  "commentForm": {
+    "addNote": "Add Note"
   },
   "comments": {
     "heading": "Notes from agents",
     "empty": "No comments"
   },
   "conversation": {
-    "empty": "Select a pending case to engage conversation with your clients."
+    "empty": "Select a pending case to engage conversation with your clients.",
+    "tab": "Conversation"
   },
   "escalations": {
     "empty": "Thanks to you and your team, there are no pending handoffs right now."

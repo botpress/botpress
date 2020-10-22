@@ -1,10 +1,10 @@
-import React, { FC } from 'react'
+import { Button, Icon } from '@blueprintjs/core'
+import { lang, MoreOptions } from 'botpress/shared'
+import React, { FC, useState } from 'react'
+
+import style from '../style.scss'
 
 import { AgentType } from './../../../types'
-
-import { Popover, Position, Menu, MenuItem, Button, Icon } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
-
 import AgentIcon from './AgentIcon'
 
 type Props = {
@@ -12,34 +12,35 @@ type Props = {
   loading: boolean
 } & Partial<AgentType>
 
-const AgentProfile: FC<Props> = props => {
-  return (
-    <Popover
-      content={
-        <Menu>
-          {props.online ? (
-            <MenuItem
-              onClick={() => props.toggleOnline(false)}
-              text={lang.tr('module.hitl2.agent.getOffline')}
-            ></MenuItem>
-          ) : (
-            <MenuItem
-              onClick={() => props.toggleOnline(true)}
-              text={lang.tr('module.hitl2.agent.getOnline')}
-            ></MenuItem>
-          )}
-        </Menu>
+const AgentProfile: FC<Props> = ({ toggleOnline, online, loading }) => {
+  const [showingOption, setShowingOption] = useState(false)
+
+  const optionsItems = [
+    {
+      label: lang.tr(`module.hitl2.agent.${online ? 'getOffline' : 'getOnline'}`),
+      action: () => {
+        toggleOnline(!online)
       }
-      position={Position.BOTTOM_RIGHT}
-    >
-      <Button loading={props.loading} minimal={true} style={{ position: 'relative' }}>
-        <AgentIcon online={props.online} />
-        <span style={{ paddingLeft: 10 }}>
-          {props?.online ? lang.tr('module.hitl2.agent.online') : lang.tr('module.hitl2.agent.offline')}
-        </span>
-        <Icon icon="caret-down"></Icon>
-      </Button>
-    </Popover>
+    }
+  ]
+
+  return (
+    <div className={style.agentBtnWrapper}>
+      <MoreOptions
+        element={
+          <Button className={style.agentBtn} onClick={() => setShowingOption(true)} loading={loading} minimal={true}>
+            <AgentIcon online={online} />
+            <span className={style.agentBtnText}>
+              {online ? lang.tr('module.hitl2.agent.online') : lang.tr('module.hitl2.agent.offline')}
+            </span>
+            <Icon icon="chevron-down"></Icon>
+          </Button>
+        }
+        show={showingOption}
+        onToggle={() => setShowingOption(false)}
+        items={optionsItems}
+      />
+    </div>
   )
 }
 

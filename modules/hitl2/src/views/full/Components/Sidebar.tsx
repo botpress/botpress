@@ -1,35 +1,31 @@
+import { Collapsible, lang } from 'botpress/shared'
 import _ from 'lodash'
-import React, { FC, useContext, useEffect, useState } from 'react'
-import cx from 'classnames'
+import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
 
+import { EscalationType } from '../../../types'
 import { Context } from '../app/Store'
+import style from '../style.scss'
 
 import { ApiType } from './../Api'
-import { EscalationType } from '../../../types'
-
-import { lang } from 'botpress/shared'
-import Collapsible from '../../../../../../src/bp/ui-shared-lite/Collapsible'
-import UserProfile from './UserProfile'
-import CommentList from './CommentList'
+import Comment from './Comment'
 import CommentForm from './CommentForm'
-
-import styles from './../style.scss'
+import UserProfile from './UserProfile'
 
 interface Props {
   api: ApiType
   escalation: EscalationType
 }
 
-const Sidebar: FC<Props> = props => {
-  const { api } = props
-
+const Sidebar: FC<Props> = ({ escalation, api }) => {
+  const { id, comments, userConversation } = escalation
   const { dispatch } = useContext(Context)
 
   const [expanded, setExpanded] = useState(false)
 
-  async function createComment(content: string) {
+  const createComment = async (content: string) => {
     try {
-      const comment = await api.createComment(props.escalation.id, { content: content })
+      const comment = await api.createComment(id, { content: content })
+      // tslint:disable-next-line: no-floating-promises
       api.setOnline()
       dispatch({ type: 'setComment', payload: comment })
     } catch (error) {
@@ -38,29 +34,30 @@ const Sidebar: FC<Props> = props => {
   }
 
   useEffect(() => {
-    setExpanded(!_.isEmpty(props.escalation.comments))
-  }, [props.escalation.comments])
+    setExpanded(!!comments.length)
+  }, [comments])
 
   return (
-    <div className={cx(styles.h100)} style={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-      <div className={cx(styles.w100)}>
-        <UserProfile conversation={props.escalation.userConversation}></UserProfile>
-      </div>
+    <Fragment>
+      <UserProfile conversation={userConversation}></UserProfile>
 
-      <div className={cx(styles.w100)}>
-        <Collapsible
-          opened={expanded}
-          toggleExpand={() => setExpanded(!expanded)}
-          name={lang.tr('module.hitl2.comments.heading')}
-        >
-          <CommentList comments={props.escalation.comments}></CommentList>
-        </Collapsible>
-      </div>
+      {!!comments.length && (
+        <Fragment>
+          <div className={style.divider}></div>
+          <Collapsible
+            opened={expanded}
+            toggleExpand={() => setExpanded(!expanded)}
+            name={lang.tr('module.hitl2.comments.heading')}
+          >
+            {comments.map(comment => {
+              return <Comment key={comment.id} threadId={userConversation.threadId} comment={comment}></Comment>
+            })}
+          </Collapsible>
+        </Fragment>
+      )}
 
-      <div style={{ width: '100%', marginTop: 'auto' }}>
-        <CommentForm onSubmit={createComment}></CommentForm>
-      </div>
-    </div>
+      <CommentForm onSubmit={createComment}></CommentForm>
+    </Fragment>
   )
 }
 

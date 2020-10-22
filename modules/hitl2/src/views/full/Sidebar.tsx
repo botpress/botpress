@@ -1,20 +1,15 @@
+import { Divider, Icon } from '@blueprintjs/core'
+import { Collapsible, lang, MainContent, sharedStyle, Tabs } from 'botpress/shared'
+import cx from 'classnames'
 import _ from 'lodash'
 import React, { useContext, useEffect, useState } from 'react'
-import cx from 'classnames'
-
-import { Api, castEscalation } from './Api'
-import { Store, Context } from './sidebar/Store'
 
 import { SocketMessageType } from './../../types'
-
-import { Divider, Icon } from '@blueprintjs/core'
-import { MainContent, Tabs, lang, sharedStyle } from 'botpress/shared'
-import Collapsible from '../../../../../src/bp/ui-shared-lite/Collapsible'
-
 import AgentList from './sidebar/components/AgentList'
 import EscalationList from './sidebar/components/EscalationList'
-
+import { Context, Store } from './sidebar/Store'
 import styles from './style.scss'
+import { Api, castEscalation } from './Api'
 
 const Sidebar = ({ bp, close }) => {
   const api = Api(bp)
@@ -107,7 +102,7 @@ const Sidebar = ({ bp, close }) => {
 
         <div style={{ marginTop: 'auto', paddingBottom: 20 }}>
           <Divider style={{ marginBottom: 10 }}></Divider>
-          <a href={hitlPath}>
+          <a href={'hitlPath'}>
             <Icon icon="headset" style={{ marginRight: 10 }}></Icon>
             {lang.tr('module.hitl2.sidebar.access')}
           </a>

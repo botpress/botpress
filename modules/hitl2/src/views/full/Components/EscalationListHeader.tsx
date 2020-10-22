@@ -1,6 +1,8 @@
-import React, { FC } from 'react'
 import { Checkbox } from '@blueprintjs/core'
-import { MainContent, HeaderButtonProps, lang } from 'botpress/shared'
+import { lang, MainContent, ToolbarButtonProps } from 'botpress/shared'
+import React, { FC } from 'react'
+
+import style from '../style.scss'
 
 export interface FilterType {
   unassigned: boolean
@@ -18,8 +20,8 @@ interface Props {
   disabled: boolean
 }
 
-const EscalationListFilter: FC<Props> = props => {
-  const buttons: HeaderButtonProps[] = [
+const EscalationListHeader: FC<Props> = props => {
+  const buttons: ToolbarButtonProps[] = [
     {
       icon: 'sort',
       optionsItems: [
@@ -83,7 +85,13 @@ const EscalationListFilter: FC<Props> = props => {
     }
   ]
 
-  return <MainContent.Header buttons={buttons}></MainContent.Header>
+  return (
+    <MainContent.Toolbar
+      className={style.escalationListHeader}
+      tabs={[{ id: 'escalations', title: lang.tr('module.hitl2.sidebar.tab') }]}
+      buttons={buttons}
+    ></MainContent.Toolbar>
+  )
 }
 
-export default EscalationListFilter
+export default EscalationListHeader
