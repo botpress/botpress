@@ -13,12 +13,12 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   const repository = new Repository(bp)
   const cache = new LRU<string, EscalationType>({ max: 100, maxAge: 60 * 60 * 24 }) // 1 day
 
-  const pipeEvent = async (event: sdk.IO.IncomingEvent, targetUser: string, targetThread: string) => {
-    await bp.events.sendEvent(
+  const pipeEvent = async (event: sdk.IO.IncomingEvent, target: string, threadId: string) => {
+    bp.events.sendEvent(
       bp.IO.Event({
         botId: event.botId,
-        target: targetUser,
-        threadId: targetThread,
+        target: target,
+        threadId: threadId,
         channel: event.channel,
         direction: 'outgoing',
         type: event.type,
