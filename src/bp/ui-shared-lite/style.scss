@@ -394,11 +394,6 @@ select:global(.form-control) {
   }
 
   :global {
-    .tags-input .tagify {
-      padding-left: 0 !important;
-      padding-right: 0 !important;
-    }
-
     .tag-btn-wrapper {
       margin-top: calc(var(--spacing-small) * -1) !important;
       margin-right: 0 !important;
