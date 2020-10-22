@@ -9,7 +9,7 @@ declare namespace NodeJS {
     printErrorDefault(err: Error): void
     DEBUG: IDebug
     BOTPRESS_CORE_EVENT: IEmitCoreEvent
-    BOTPRESS_CORE_EVENT_TYPES: BOTPRESS_CORE_EVENTS
+    BOTPRESS_CORE_EVENT_TYPES: BotpressCoreEvents
     require: ExtraRequire
     rewire: (name: string) => string
     printBotLog(botId: string, args: any[]): void
@@ -280,7 +280,7 @@ declare interface Dic<T> {
   [Key: string]: T
 }
 
-declare interface BOTPRESS_CORE_EVENTS {
+declare interface BotpressCoreEvents {
   bp_core_session_created: { botId: string; channel: string }
   bp_core_send_content: { botId: string; channel: string; source: string; details: string }
   bp_core_workflow_started: { botId: string; channel: string; wfName: string }
@@ -292,9 +292,9 @@ declare interface BOTPRESS_CORE_EVENTS {
 }
 
 interface IEmitCoreEvent {
-  <T extends keyof BOTPRESS_CORE_EVENTS>(
+  <T extends keyof BotpressCoreEvents>(
     event: T,
-    args: { [key in keyof BOTPRESS_CORE_EVENTS[T]]: BOTPRESS_CORE_EVENTS[T][key] }
+    args: { [key in keyof BotpressCoreEvents[T]]: BotpressCoreEvents[T][key] }
   ): void
 }
 
