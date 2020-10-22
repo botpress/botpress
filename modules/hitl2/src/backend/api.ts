@@ -180,9 +180,9 @@ export default async (bp: typeof sdk, state: StateType) => {
 
       const payload: Partial<EscalationType> = {
         agentId: agentId,
-        status: 'assigned',
         agentThreadId: uuidv4(),
-        assignedAt: new Date()
+        assignedAt: new Date(),
+        status: 'assigned'
       }
 
       Joi.attempt(payload, AssignEscalationSchema)
@@ -193,27 +193,27 @@ export default async (bp: typeof sdk, state: StateType) => {
         throw new UnprocessableEntityError(e)
       }
 
+      escalation = await repository.updateEscalation(req.params.botId, req.params.id, payload)
+
       // Find or create an "agent" user to send messages to
       const user = (await bp.users.getOrCreateUser('web', agentId, req.params.botId)).result
 
-      try {
-        escalation = await repository.updateEscalation(req.params.botId, req.params.id, payload)
+      // Initiate a conversation with agent
+      await bp.events.sendEvent(
+        bp.IO.Event({
+          botId: req.params.botId,
+          target: user.id,
+          threadId: escalation.agentThreadId,
+          channel: 'web',
+          direction: 'outgoing',
+          type: 'text',
+          payload: {
+            type: 'text', // type : history
+            text: 'Start of escalation discussion' // custom component data
+          }
+        })
+      )
 
-        await bp.events.sendEvent(
-          bp.IO.Event({
-            botId: req.params.botId,
-            target: user.id,
-            threadId: escalation.agentThreadId,
-            channel: 'web',
-            direction: 'outgoing',
-            type: 'text',
-            payload: {
-              type: 'text',
-              text: 'Start of escalation discussion'
-            }
-          })
-        )
-      } catch (error) {}
       realtime.sendPayload({
         resource: 'escalation',
         type: 'update',
