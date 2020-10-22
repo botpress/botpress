@@ -64,7 +64,7 @@ declare type PRO_FEATURES = 'seats'
 /**
  * This is a copy of process.env to add typing and documentation to variables
  */
-declare type BotpressEnvironmentVariables = {
+declare interface BotpressEnvironmentVariables {
   /** Replace the path of the NodeJS Native Extensions for external OS-specific libraries such as fastText and CRFSuite */
   readonly NATIVE_EXTENSIONS_DIR?: string
 
@@ -95,7 +95,7 @@ declare type BotpressEnvironmentVariables = {
   /** If pro features are enabled or not. When enabled, the license key must be provided */
   readonly PRO_ENABLED?: boolean
 
-  /** When running botpress in production, some optimizations are applied*/
+  /** When running botpress in production, some optimizations are applied */
   readonly BP_PRODUCTION?: boolean
 
   /** Enable cluster mode */
@@ -280,7 +280,7 @@ declare interface Dic<T> {
   [Key: string]: T
 }
 
-declare type BOTPRESS_CORE_EVENTS = {
+declare interface BOTPRESS_CORE_EVENTS {
   bp_core_session_created: { botId: string; channel: string }
   bp_core_send_content: { botId: string; channel: string; source: string; details: string }
   bp_core_workflow_started: { botId: string; channel: string; wfName: string }
