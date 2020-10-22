@@ -11,7 +11,7 @@ import Repository from './repository'
 const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   const realtime = Socket(bp)
   const repository = new Repository(bp)
-  const cache = new LRU<string, EscalationType>({ max: 100, maxAge: 60 * 60 * 24 }) // 1 day
+  const cache = new LRU<string, string>({ max: 1000, maxAge: 1000 * 60 * 60 * 24 }) // 1 day
 
   const pipeEvent = async (event: sdk.IO.IncomingEvent, target: string, threadId: string) => {
     bp.events.sendEvent(
