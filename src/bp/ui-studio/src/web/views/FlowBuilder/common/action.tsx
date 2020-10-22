@@ -9,6 +9,7 @@ import Markdown from 'react-markdown'
 import { connect } from 'react-redux'
 import { fetchContentItem, refreshFlowsLinks } from '~/actions'
 
+import { isMissingCurlyBraceClosure } from '../../../components/Util/form.util'
 import withLanguage from '../../../components/Util/withLanguage'
 import { textToItemId } from '../diagram/nodes_v2/utils'
 
@@ -141,7 +142,11 @@ class ActionItem extends Component<Props> {
       return '{' + stripDots(x) + '}'
     })
 
-    const mustached = restoreDots(Mustache.render(htmlTpl, vars))
+    let mustached = restoreDots(htmlTpl)
+
+    if (!isMissingCurlyBraceClosure(htmlTpl)) {
+      mustached = restoreDots(Mustache.render(htmlTpl, vars))
+    }
 
     const html = { __html: mustached }
 
