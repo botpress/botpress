@@ -113,7 +113,7 @@ export default async (bp: typeof sdk) => {
   router.get(
     '/escalations',
     hitlMiddleware(async (req: Request, res: Response) => {
-      const escalations = await repository.getEscalationsWithComents(
+      const escalations = await repository.getEscalationsWithComments(
         req.params.botId,
         _.pick(req.query, ['limit', 'orderByColumn', 'orderByDirection']) as CollectionConditions
       )
