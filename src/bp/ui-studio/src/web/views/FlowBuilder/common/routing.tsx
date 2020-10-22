@@ -4,6 +4,8 @@ import Mustache from 'mustache'
 import React, { Component } from 'react'
 import { OverlayTrigger, Popover, Well } from 'react-bootstrap'
 
+import { ROUTER_CONDITON_REGEX } from '../utils/general.util'
+
 const style = require('./style.scss')
 
 interface Props {
@@ -22,7 +24,7 @@ const parseCondition = condition => {
   condition = condition.trim()
 
   const extractProps = () => {
-    const props = condition.match(/(.*)\.(.*?) (.*)/)
+    const props = condition.match(ROUTER_CONDITON_REGEX)
     if (props && props.length > 3) {
       return { type: availableProps.find(x => x.value === props[1]), field: props[2], expression: props[3] }
     }
