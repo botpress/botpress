@@ -21,15 +21,15 @@ Content-Type: application/json
           "examples": [
             "fruit is moldy",
             "this fruit is moldy",
-            "this $moldy_fruit is not good to eat",
-            "theses $moldy_fruit have passed",
-            "theses $moldy_fruit look bad",
-            "theses $moldy_fruit look soo moldy"
+            "this [banana](fruit) is not good to eat",
+            "theses [oranges](fruit) have passed",
+            "theses [grapes](fruit) look bad",
+            "theses [apples](fruit) look soo moldy"
           ],
           "variables": [
             {
               "name": "moldy_fruit",
-              "type": "fruits"
+              "types": ["fruits"]
             }
           ]
         },
@@ -60,24 +60,24 @@ Content-Type: application/json
             "I'd like to speak to your manager",
             "Can I talk to your boss? plz",
             "I wanna speak to manager please",
-            "let me speak to your fucking boss or someone"
+            "let me speak to your boss or someone"
           ],
           "variables": []
         },
         {
           "name": "where-is",
           "examples": [
-            "where is $thing_to_search ?",
-            "where are $thing_to_search ?",
-            "can you help me find $thing_to_search ?",
-            "I'm searching for $thing_to_search ?",
-            "where is the $thing_to_search ?",
-            "where are the $thing_to_search ?"
+            "where is [milk](thing_to_search) ?",
+            "where are [apples](thing_to_search) ?",
+            "can you help me find [apples](thing_to_search) ?",
+            "I'm searching for [pie](thing_to_search) ?",
+            "where is the [milk](thing_to_search) ?",
+            "where are the [milk](thing_to_search) ?"
           ],
           "variables": [
             {
               "name": "thing_to_search",
-              "type": "fruits"
+              "types": ["fruits", "any"]
             }
           ]
         }
@@ -91,7 +91,8 @@ Content-Type: application/json
       "values": [
         { "name": "banana", "synonyms": ["bananas"] },
         { "name": "apple", "synonyms": ["apples"] },
-        { "name": "grape", "synonyms": ["grapes"] }
+        { "name": "grape", "synonyms": ["grapes"] },
+        { "name": "orange", "synonyms": ["oranges"] }
       ]
     }
   ],
