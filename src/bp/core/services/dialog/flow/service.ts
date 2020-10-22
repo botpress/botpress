@@ -101,8 +101,10 @@ export class FlowService {
         }
       })
 
-      this._allFlows.set(botId, flowsWithParents)
-      return flowsWithParents
+      const orderedFlows = _.orderBy(flowsWithParents, x => x.name)
+
+      this._allFlows.set(botId, orderedFlows)
+      return orderedFlows
     } catch (err) {
       this.logger
         .forBot(botId)
