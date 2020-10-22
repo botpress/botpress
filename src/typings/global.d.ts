@@ -115,6 +115,7 @@ declare type BotpressEnvironmentVariables = {
 
   /**
    * Set this to true if you're exposing Botpress through a reverse proxy such as Nginx
+   * Can also be either an IP address or a hostname
    * Read more: https://expressjs.com/en/guide/behind-proxies.html
    */
   readonly REVERSE_PROXY?: string

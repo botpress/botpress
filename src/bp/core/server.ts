@@ -21,6 +21,7 @@ import ms from 'ms'
 import path from 'path'
 import portFinder from 'portfinder'
 import { URL } from 'url'
+import yn from 'yn'
 
 import { ExternalAuthConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
@@ -136,7 +137,8 @@ export default class HTTPServer {
     }
 
     if (process.core_env.REVERSE_PROXY) {
-      this.app.set('trust proxy', process.core_env.REVERSE_PROXY)
+      const boolVal = yn(process.core_env.REVERSE_PROXY)
+      this.app.set('trust proxy', boolVal === null ? process.core_env.REVERSE_PROXY : boolVal)
     }
 
     this.app.use(debugRequestMw)
