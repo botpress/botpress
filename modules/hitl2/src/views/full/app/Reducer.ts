@@ -18,10 +18,7 @@ const Reducer = (state: StateType, action: ActionType): StateType => {
   switch (action.type) {
     case 'setCurrentAgent':
       return produce(state, draft => {
-        draft.currentAgent = {
-          ...draft.currentAgent,
-          ...action.payload
-        } as AgentType
+        draft.currentAgent = _.merge(draft.currentAgent, action.payload)
       })
     case 'setCurrentEscalation':
       return produce(state, draft => {
@@ -46,10 +43,7 @@ const Reducer = (state: StateType, action: ActionType): StateType => {
       return produce(state, draft => {
         draft.agents = {
           ...draft.agents,
-          [action.payload.id]: {
-            ...draft.agents[action.payload.id],
-            ...action.payload.payload
-          }
+          [action.payload.id]: _.merge(draft.agents[action.payload.id], action.payload.payload)
         }
         // Note: because currentAgent is an actual object,
         // instead of a reference, must be manually updated
@@ -61,10 +55,7 @@ const Reducer = (state: StateType, action: ActionType): StateType => {
       return produce(state, draft => {
         draft.escalations = {
           ...draft.escalations,
-          [action.payload.id]: {
-            ...draft.escalations[action.payload.id],
-            ...action.payload.payload
-          }
+          [action.payload.id]: _.merge(draft.escalations[action.payload.id], action.payload.payload)
         }
       })
     case 'setRead':
