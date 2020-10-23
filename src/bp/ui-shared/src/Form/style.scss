@@ -1,0 +1,55 @@
+.moreInfo {
+  color: var(--reef);
+  display: block;
+  font-size: 10px;
+  line-height: 1.25;
+  margin: var(--spacing-small) 0 var(--spacing-medium);
+}
+
+.requiredField {
+  color: var(--lighthouse);
+  margin-left: var(--spacing-x-small);
+}
+
+a.moreInfo {
+  color: var(--ocean);
+  transition: color 0.3s;
+
+  &:hover,
+  &:focus,
+  &:active {
+    color: var(--hover-ocean);
+    text-decoration: none;
+  }
+}
+
+.moreInfo.isCheckbox {
+  margin-left: 26px;
+}
+
+.formGroup > div {
+  padding-bottom: var(--spacing-large);
+  border-bottom: 1px solid var(--gray);
+
+  .formGroup > div {
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+}
+
+.labelBtn {
+  color: var(--ocean) !important;
+  padding: 0 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  font-size: 12px !important;
+  line-height: 1.25 !important;
+  min-height: auto !important;
+  margin: 0 !important;
+  transition: color 0.3s;
+
+  &:hover {
+    background: none !important;
+    color: var(--shark) !important;
+  }
+}
