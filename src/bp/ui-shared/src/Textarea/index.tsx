@@ -49,7 +49,7 @@ const Textarea: FC<TextareaProps> = ({
   const updateHeight = () => {
     if (inputRef.current) {
       inputRef.current.style.height = '0'
-      inputRef.current.style.height = inputRef.current.scrollHeight + 'px'
+      inputRef.current.style.height = `${inputRef.current.scrollHeight}px`
       setForceUpdate(!forceUpdate)
     }
   }
@@ -64,7 +64,7 @@ const Textarea: FC<TextareaProps> = ({
     <Fragment>
       <textarea
         onPaste={onPaste}
-        style={{ height: height.current + 'px' }}
+        style={{ height: `${height.current}px` }}
         ref={inputRef}
         className={cx(style.textarea, className)}
         value={value || refValue}

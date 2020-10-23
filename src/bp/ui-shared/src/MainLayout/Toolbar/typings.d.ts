@@ -1,6 +1,7 @@
 import { IButtonProps, IconName } from '@blueprintjs/core'
-import { MoreOptionsItems } from '../../MoreOptions/typings'
+
 import { Tab } from '../../../../ui-shared-lite/Tabs/typings'
+import { MoreOptionsItems } from '../../MoreOptions/typings'
 
 export interface ToolbarProps {
   tabs?: Tab[]
