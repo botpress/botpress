@@ -17,8 +17,8 @@ export const NeedsTrainingWarning: FC<Props> = (props: Props) => {
 
   useEffect(() => {
     const axios = api.getSecured()
-    // tslint:disable-next-line: no-floating-promises
 
+    // tslint:disable-next-line: no-floating-promises
     BbPromise.map(languages, async lang => {
       try {
         const { data } = await axios.get(`bots/${bot}/mod/nlu/training/${lang}`)
