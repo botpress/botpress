@@ -138,8 +138,8 @@ class ActionItem extends Component<Props> {
 
     const htmlTpl = textContent.replace(/{{([a-z$@0-9. _-]*?)}}/gi, x => {
       const name = stripDots(x.replace(/{|}/g, ''))
-      vars[name] = '<span class="var">' + x + '</span>'
-      return '{' + stripDots(x) + '}'
+      vars[name] = `<span class="var">${x}</span>`
+      return `{${stripDots(x)}}`
     })
 
     let mustached = restoreDots(htmlTpl)
