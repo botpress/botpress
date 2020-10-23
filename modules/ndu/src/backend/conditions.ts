@@ -131,11 +131,14 @@ export const dialogConditions: sdk.Condition[] = [
       const preview = caseSensitive ? event.preview : event.preview?.toLowerCase() || ''
       const userText = caseSensitive ? event.payload?.text : event.payload?.text?.toLowerCase() || ''
 
-      const foundMatch = (candidate || []).find(
-        word =>
+      const foundMatch = (candidate || []).find((originalWord: string) => {
+        const word = caseSensitive ? originalWord : originalWord.toLowerCase()
+
+        return (
           (!exactMatch && (preview.includes(word) || userText.includes(word))) ||
           (exactMatch && (preview === word || userText === word))
-      )
+        )
+      })
 
       return foundMatch ? 1 : 0
     }
