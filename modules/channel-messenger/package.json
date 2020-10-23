@@ -17,10 +17,10 @@
     "bluebird-global": "^1.0.1",
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
-    "lodash": "^4.17.11"
+    "lodash": "^4.17.19"
   },
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.12"
+    "lodash": ">=4.17.19"
   }
 }

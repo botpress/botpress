@@ -49,6 +49,7 @@ interface State {
   selectedChannel: string
   shownSection: string
   disableAnalyticsFetching?: boolean
+  topQnaQuestions: { id: string; question?: string; count: number }[]
 }
 
 interface ExportPeriod {
@@ -126,6 +127,11 @@ const fetchReducer = (state: State, action): State => {
       dateRange,
       disableAnalyticsFetching: true
     }
+  } else if (action.type === 'receivedTopQnaQuestions') {
+    return {
+      ...state,
+      topQnaQuestions: action.data.topQnaQuestions
+    }
   } else {
     throw new Error(`That action type isn't supported.`)
   }
@@ -135,6 +141,8 @@ const defaultChannels = [
   { value: 'all', label: lang.tr('module.analytics.channels.all') },
   { value: 'api', label: lang.tr('module.analytics.channels.api') }
 ]
+
+const qnaQuestionsCache = { found: {}, notFound: new Set<string>() }
 
 const Analytics: FC<any> = ({ bp }) => {
   const loadJson = useRef(null)
@@ -147,7 +155,8 @@ const Analytics: FC<any> = ({ bp }) => {
     previousRangeMetrics: [],
     pageTitle: lang.tr('module.analytics.dashboard'),
     selectedChannel: defaultChannels[0].value,
-    shownSection: 'dashboard'
+    shownSection: 'dashboard',
+    topQnaQuestions: []
   })
 
   useEffect(() => {
@@ -188,6 +197,11 @@ const Analytics: FC<any> = ({ bp }) => {
     })
   }, [state.dateRange, state.selectedChannel])
 
+  useEffect(() => {
+    // tslint:disable-next-line: no-floating-promises
+    fetchQnaQuestions()
+  }, [state.metrics])
+
   const fetchAnalytics = async (channel: string, dateRange): Promise<MetricEntry[]> => {
     const startDate = moment(dateRange[0]).unix()
     const endDate = moment(dateRange[1]).unix()
@@ -199,6 +213,49 @@ const Analytics: FC<any> = ({ bp }) => {
       }
     })
     return data.metrics
+  }
+
+  const fetchQnaQuestions = async () => {
+    const metrics = orderMetrics(getMetric('msg_sent_qna_count').filter(metric => metric.subMetric)).slice(0, 10)
+
+    const topQnaQuestions = await Promise.all(
+      metrics.map(async ({ name: id, count }) => {
+        if (id in qnaQuestionsCache.found) {
+          return { count, id, question: qnaQuestionsCache.found[id] }
+        }
+
+        if (qnaQuestionsCache.notFound.has(id)) {
+          return { count, id }
+        }
+
+        let response
+        try {
+          response = await fetchQnaQuestion(id.replace('__qna__', ''))
+        } catch (e) {
+          qnaQuestionsCache.notFound.add(id)
+          return { count, id }
+        }
+
+        const {
+          data: { questions }
+        } = response
+        const question = (questions[lang.getLocale()] ||
+          questions[lang.defaultLocale] ||
+          Object.values(questions)[0])[0]
+        qnaQuestionsCache.found[id] = question
+        return { count, id, question }
+      })
+    )
+
+    dispatch({
+      type: 'receivedTopQnaQuestions',
+      data: { topQnaQuestions }
+    })
+  }
+
+  const fetchQnaQuestion = async (id: string): Promise<any> => {
+    const { data } = await bp.axios.get(`mod/qna/questions/${id}`)
+    return data
   }
 
   const handleChannelChange = async ({ target: { value: selectedChannel } }) => {
@@ -265,19 +322,37 @@ const Analytics: FC<any> = ({ bp }) => {
 
   const getMetric = metricName => state.metrics.filter(x => x.metric === metricName)
 
-  const getTopItems = (metricName: string, type: string) => {
-    const grouped = _.groupBy(getMetric(metricName), 'subMetric')
-    const results = _.orderBy(
+  const getTopItems = (
+    metricName: string,
+    type: string,
+    options?: {
+      nameRenderer?: (name: string) => string
+      filter?: (x: any) => boolean
+    }
+  ) => {
+    const { nameRenderer, filter } = options || {}
+
+    let metrics = getMetric(metricName)
+    if (filter) {
+      metrics = metrics.filter(filter)
+    }
+    const results = orderMetrics(metrics)
+
+    return results.map(x => ({
+      label: `${nameRenderer ? nameRenderer(x.name) : x.name}`,
+      count: x.count,
+      href: '',
+      onClick: navigateToElement(x.name, type)
+    }))
+  }
+
+  const orderMetrics = metrics => {
+    const grouped = _.groupBy(metrics, 'subMetric')
+    return _.orderBy(
       Object.keys(grouped).map(x => ({ name: x, count: _.sumBy(grouped[x], 'value') })),
       x => x.count,
       'desc'
     )
-
-    return results.map(x => ({
-      label: `${x.name} (${x.count})`,
-      href: '',
-      onClick: navigateToElement(x.name, type)
-    }))
   }
 
   const renderEngagement = () => {
@@ -288,12 +363,14 @@ const Analytics: FC<any> = ({ bp }) => {
     return (
       <div className={style.metricsContainer}>
         <NumberMetric
+          className={style.half}
           diffFromPreviousRange={newUserCountDiff}
           previousDateRange={state.previousDateRange}
           name={lang.tr('module.analytics.newUsers', { nb: getMetricCount('new_users_count') })}
           value={getNewUsersPercent()}
         />
         <NumberMetric
+          className={style.half}
           diffFromPreviousRange={activeUserCountDiff}
           previousDateRange={state.previousDateRange}
           name={lang.tr('module.analytics.returningUsers', { nb: getMetricCount('active_users_count') })}
@@ -314,8 +391,9 @@ const Analytics: FC<any> = ({ bp }) => {
 
     return (
       <div className={style.metricsContainer}>
-        <TimeSeriesChart name="Sessions" data={sessionsCount} className={style.threeQuarterGrid} channels={channels} />
+        <TimeSeriesChart name="Sessions" data={sessionsCount} className={style.fullGrid} channels={channels} />
         <NumberMetric
+          className={style.half}
           name={lang.tr('module.analytics.messageExchanged')}
           value={getAvgMsgPerSessions()}
           iconBottom="chat"
@@ -340,17 +418,36 @@ const Analytics: FC<any> = ({ bp }) => {
         />
         <ItemsList
           name={lang.tr('module.analytics.mostAskedQuestions')}
-          items={getTopItems('msg_sent_qna_count', 'qna')}
-          itemLimit={10}
-          hasTooltip
+          items={state.topQnaQuestions.map(q => ({
+            count: q.count,
+            label: q.question || renderDeletedQna(q.id),
+            onClick: q.question ? navigateToElement(q.id, 'qna') : undefined
+          }))}
           className={cx(style.genericMetric, style.half, style.list)}
         />
       </div>
     )
   }
 
+  const renderDeletedQna = (id: string) =>
+    `[${lang.tr('module.analytics.deletedQna')}, ID: ${id.replace(`__qna__`, '')}]`
+
+  const getLanguagesData = () => {
+    const metrics = state.metrics.filter(m => m.metric === 'msg_nlu_language')
+    if (metrics.length === 0) {
+      return []
+    }
+
+    const total = _.sum(metrics.map(m => m.value))
+
+    return _.sortBy(metrics, m => m.value)
+      .reverse()
+      .map(m => ({ value: getNotNaN((m.value / total) * 100, '%'), language: m.subMetric }))
+  }
+
   const renderHandlingUnderstanding = () => {
-    const { total, inside, outside } = getMisunderStoodData()
+    const misunderstood = getMisunderStoodData()
+    const languages = getLanguagesData()
     const positiveFeedback = getMetricCount('feedback_positive_qna')
     const negativeFeedback = getMetricCount('feedback_negative_qna')
     const positivePct = Math.round((positiveFeedback / (positiveFeedback + negativeFeedback)) * 100)
@@ -359,12 +456,34 @@ const Analytics: FC<any> = ({ bp }) => {
       <div className={cx(style.metricsContainer, style.fullWidth)}>
         <div className={cx(style.genericMetric, style.quarter)}>
           <div>
-            <p className={style.numberMetricValue}>{total}</p>
+            <p className={style.numberMetricValue}>{misunderstood.total}</p>
             <h3 className={style.metricName}>{lang.tr('module.analytics.misunderstoodMessages')}</h3>
           </div>
           <div>
-            <FlatProgressChart value={inside} color="#DE4343" name={`${inside} inside flows`} />
-            <FlatProgressChart value={outside} color="#F2B824" name={`${outside} outside flows`} />
+            <FlatProgressChart
+              value={misunderstood.inside}
+              color="#DE4343"
+              name={`${misunderstood.inside} inside flows`}
+            />
+            <FlatProgressChart
+              value={misunderstood.outside}
+              color="#F2B824"
+              name={`${misunderstood.outside} outside flows`}
+            />
+          </div>
+        </div>
+        <div className={cx(style.genericMetric, style.quarter)}>
+          <div>
+            <h3 className={style.metricName}>{lang.tr('module.analytics.messagesByLanguage')}</h3>
+          </div>
+          <div>
+            {languages.map(i => (
+              <FlatProgressChart
+                value={i.value}
+                color="#F2B824"
+                name={`${lang.tr(`isoLangs.${i.language}.name`)}: ${i.value}`}
+              />
+            ))}
           </div>
         </div>
         {isNDU && (

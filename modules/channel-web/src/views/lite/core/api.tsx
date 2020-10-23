@@ -117,9 +117,10 @@ export default class WebchatApi {
     }
   }
 
-  async sendEvent(data: any): Promise<void> {
+  async sendEvent(data: any, convoId: number): Promise<void> {
     try {
-      return this.axios.post(`/events/${this.userId}`, data, this.axiosConfig)
+      const config = { params: { conversationId: convoId }, ...this.axiosConfig }
+      return this.axios.post(`/events/${this.userId}`, data, config)
     } catch (err) {
       await this.handleApiError(err)
     }

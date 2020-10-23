@@ -46,9 +46,9 @@ const FlowBuilder = (props: Props) => {
   const [showSearch, setShowSearch] = useState(false)
   const [readOnly, setReadOnly] = useState(false)
   const [flowPreview, setFlowPreview] = useState(true)
-  const [mutex, setMutex] = useState()
+  const [mutex, setMutex] = useState<any>()
   const [actions, setActions] = useState(allActions)
-  const [highlightFilter, setHighlightFilter] = useState()
+  const [highlightFilter, setHighlightFilter] = useState<string>()
 
   useEffect(() => {
     props.refreshActions()

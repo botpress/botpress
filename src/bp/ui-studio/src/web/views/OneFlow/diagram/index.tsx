@@ -11,7 +11,7 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
-import { lang, MainContent } from 'botpress/shared'
+import { lang, MainLayout } from 'botpress/shared'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
@@ -39,8 +39,8 @@ import { toastSuccess } from '~/components/Shared/Utils'
 import { getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/reducers'
 import {
   defaultTransition,
-  DIAGRAM_PADDING,
   DiagramManager,
+  DIAGRAM_PADDING,
   nodeTypes,
   Point
 } from '~/views/FlowBuilder/diagram/manager'
@@ -399,7 +399,7 @@ class Diagram extends Component<Props> {
                 onClick={() => {
                   const elementId = textToItemId((targetModel as SaySomethingNodeModel).onEnter?.[0])
                   this.props.addElementToLibrary(elementId)
-                  toastSuccess(`Added to library`)
+                  toastSuccess('Added to library')
                 }}
               />
             )}
@@ -423,7 +423,7 @@ class Diagram extends Component<Props> {
   }, 500)
 
   createFlow(name: string) {
-    this.props.createFlow(name + '.flow.json')
+    this.props.createFlow(`${name}.flow.json`)
   }
 
   canTargetOpenInspector = target => {
@@ -645,7 +645,7 @@ class Diagram extends Component<Props> {
 
   render() {
     return (
-      <MainContent.Wrapper>
+      <MainLayout.Wrapper>
         <WorkflowToolbar />
         <Fragment>
           <div
@@ -674,7 +674,7 @@ class Diagram extends Component<Props> {
             toggle={() => this.setState({ isTriggerEditOpen: !this.state.isTriggerEditOpen })}
           />
         </Fragment>
-      </MainContent.Wrapper>
+      </MainLayout.Wrapper>
     )
   }
 

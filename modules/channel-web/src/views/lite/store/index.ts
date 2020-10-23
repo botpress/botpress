@@ -15,6 +15,7 @@ import {
   EventFeedback,
   Message,
   MessageWrapper,
+  QueuedMessage,
   StudioConnector
 } from '../typings'
 import { downloadFile, trackMessage } from '../utils'
@@ -67,6 +68,8 @@ class RootStore {
 
   @observable
   public botUILanguage: string = chosenLocale
+
+  public delayedMessages: QueuedMessage[] = []
 
   constructor({ fullscreen }) {
     this.composer = new ComposerStore(this)
@@ -126,8 +129,12 @@ class RootStore {
       return
     }
 
-    this.currentConversation.messages.push({ ...event, conversationId: +event.conversationId })
-    this.currentConversation.typingUntil = event.userId ? this.currentConversation.typingUntil : undefined
+    const message: Message = { ...event, conversationId: +event.conversationId }
+    if (this.isBotTyping.get() && !event.userId) {
+      this.delayedMessages.push({ message, showAt: this.currentConversation.typingUntil })
+    } else {
+      this.currentConversation.messages.push(message)
+    }
   }
 
   @action.bound
@@ -138,7 +145,11 @@ class RootStore {
       return
     }
 
-    this.currentConversation.typingUntil = new Date(Date.now() + event.timeInMs)
+    let start = new Date()
+    if (isBefore(start, this.currentConversation.typingUntil)) {
+      start = this.currentConversation.typingUntil
+    }
+    this.currentConversation.typingUntil = new Date(+start + event.timeInMs)
     this._startTypingTimer()
   }
 
@@ -147,7 +158,7 @@ class RootStore {
   async initializeChat(): Promise<void> {
     try {
       await this.fetchConversations()
-      await this.fetchConversation()
+      await this.fetchConversation(this.config.conversationId)
       runInAction('-> setInitialized', () => {
         this.isInitialized = true
       })
@@ -300,7 +311,7 @@ class RootStore {
   @action.bound
   async sendData(data: any): Promise<void> {
     if (!constants.MESSAGE_TYPES.includes(data.type)) {
-      return await this.api.sendEvent(data)
+      return await this.api.sendEvent(data, this.currentConversationId)
     }
 
     await this.api.sendMessage(data, this.currentConversationId)
@@ -383,15 +394,18 @@ class RootStore {
     this.isBotTyping.set(true)
 
     this._typingInterval = setInterval(() => {
-      const typeUntil = this.currentConversation && this.currentConversation.typingUntil
-      if (!typeUntil || isBefore(new Date(typeUntil), new Date())) {
+      const typeUntil = new Date(this.currentConversation && this.currentConversation.typingUntil)
+      if (!typeUntil || isBefore(typeUntil, new Date())) {
         this._expireTyping()
+      } else {
+        this.emptyDelayedMessagesQueue(false)
       }
     }, 50)
   }
 
   @action.bound
   private _expireTyping() {
+    this.emptyDelayedMessagesQueue(true)
     this.isBotTyping.set(false)
     this.currentConversation.typingUntil = undefined
 
@@ -403,8 +417,21 @@ class RootStore {
   updateBotUILanguage(lang: string): void {
     runInAction('-> setBotUILanguage', () => {
       this.botUILanguage = lang
-      localStorage.setItem('bp/channel-web/user-lang', lang)
+      window.BP_STORAGE?.set('bp/channel-web/user-lang', lang)
     })
+  }
+
+  @action.bound
+  private emptyDelayedMessagesQueue(removeAll: boolean) {
+    while (this.delayedMessages.length) {
+      const message = this.delayedMessages[0]
+      if (removeAll || isBefore(message.showAt, new Date())) {
+        this.currentConversation.messages.push(message.message)
+        this.delayedMessages.shift()
+      } else {
+        break
+      }
+    }
   }
 
   /** Returns the current conversation ID, or the last one if it didn't expired. Otherwise, returns nothing. */
