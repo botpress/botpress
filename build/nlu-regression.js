@@ -183,7 +183,7 @@ const runRegressionForBot = async (axiosConfig, botInfo, tolerance = 0) => {
   await startTraining(axiosConfig, botInfo)
   await sleep(500)
   await waitForTraining(axiosConfig, botInfo)
-  await sleep(1000)
+  await sleep(2000)
   console.log(chalk.green(chalk.bold(`[${botInfo.id}] Training Done!`)))
 
   const score = await runAllTests(axiosConfig, botInfo)
