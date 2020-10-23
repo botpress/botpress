@@ -268,12 +268,6 @@
       text-transform: uppercase;
       font-weight: bold;
       transition: color 0.3s;
-      height: $height;
-      line-height: $height;
-    }
-
-    .bp3-navbar-group {
-      height: $height;
     }
 
     .bp3-tab[aria-selected='true'] {
@@ -300,7 +294,7 @@
       margin-right: var(--spacing-x-large);
     }
 
-    .bp3-tab:not([aria-disabled="true"]):hover {
+    .bp3-tab:not([aria-disabled='true']):hover {
       color: var(--reef) !important;
     }
 

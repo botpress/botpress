@@ -1,3 +1,4 @@
+import { MultiLangText } from 'botpress/sdk'
 import { isEmpty, merge } from 'lodash'
 import { createIntl, createIntlCache, IntlShape } from 'react-intl'
 
@@ -72,7 +73,7 @@ const langAvaibale = (): string[] => {
 const squash = (space, root = {}, path = '') => {
   for (const [key, value] of Object.entries(space)) {
     if (typeof value === 'object' && value !== null) {
-      squash(value, root, path + key + '.')
+      squash(value, root, `${path}${key}.`)
     } else {
       root[path + key] = value
     }
@@ -91,7 +92,7 @@ const getUserLocale = () => {
 /**
  * Can either receive an ID, or an object with keys of supported languages
  */
-const lang = (id: string | { [lang: string]: string }, values?: { [variable: string]: any }): string => {
+const lang = (id: string | MultiLangText, values?: { [variable: string]: any }): string => {
   if (!id) {
     return ''
   }

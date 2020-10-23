@@ -11,7 +11,7 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
-import { lang, MainContent } from 'botpress/shared'
+import { lang, MainLayout } from 'botpress/shared'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
@@ -645,7 +645,7 @@ class Diagram extends Component<Props> {
 
   render() {
     return (
-      <MainContent.Wrapper>
+      <MainLayout.Wrapper>
         <WorkflowToolbar />
         <Fragment>
           <div
@@ -674,7 +674,7 @@ class Diagram extends Component<Props> {
             toggle={() => this.setState({ isTriggerEditOpen: !this.state.isTriggerEditOpen })}
           />
         </Fragment>
-      </MainContent.Wrapper>
+      </MainLayout.Wrapper>
     )
   }
 

@@ -25,6 +25,12 @@ const initStudio = cb => {
   studio.stderr.pipe(process.stderr)
 }
 
+const buildSharedLite = () => {
+  gulp.task('build:sharedLite', gulp.series([sharedLiteBuild]))
+
+  return gulp.series(['build:sharedLite'])
+}
+
 const buildShared = () => {
   gulp.task('build:shared', gulp.series([cleanShared, sharedBuild]))
 
@@ -100,6 +106,12 @@ const watchShared = gulp.series([
   }
 ])
 
+const sharedLiteBuild = cb => {
+  const shared = exec('yarn', { cwd: 'src/bp/ui-shared-lite' }, err => cb(err))
+  shared.stdout.pipe(process.stdout)
+  shared.stderr.pipe(process.stderr)
+}
+
 const sharedBuild = cb => {
   const shared = exec('yarn && yarn build', { cwd: 'src/bp/ui-shared' }, err => cb(err))
   shared.stdout.pipe(process.stdout)
@@ -115,5 +127,6 @@ module.exports = {
   watchAdmin,
   initStudio,
   watchShared,
+  buildSharedLite,
   buildShared
 }
