@@ -11,7 +11,7 @@ export interface BotState {
   botId: string
   engine: NLU.Engine
   defaultLanguage: string
-  trainOrLoad: (forceTrain: boolean) => Promise<void>
+  trainOrLoad: (disableTraining: boolean) => Promise<void>
   trainSessions: _.Dictionary<NLU.TrainingSession>
   cancelTraining: () => Promise<void>
   needsTrainingWatcher: ListenHandle

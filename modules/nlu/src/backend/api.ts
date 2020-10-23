@@ -1,8 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import Joi from 'joi'
 import _ from 'lodash'
-
-import { createApi } from '../api'
+import yn from 'yn'
 
 import legacyElectionPipeline from './legacy-election'
 import { getTrainingSession } from './train-session-service'
@@ -63,9 +62,13 @@ export default async (bp: typeof sdk, state: NLUState) => {
   router.post('/train', async (req, res) => {
     try {
       const { botId } = req.params
+
+      // Is it this even necessary anymore ?
+      const disableTraining = yn(process.env.BP_NLU_DISABLE_TRAINING)
+
       // to return as fast as possible
       // tslint:disable-next-line: no-floating-promises
-      state.nluByBot[botId].trainOrLoad(false)
+      state.nluByBot[botId].trainOrLoad(disableTraining)
       res.sendStatus(200)
     } catch {
       res.sendStatus(500)

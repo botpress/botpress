@@ -1,7 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import ms from 'ms'
-import yn from 'yn'
 
 import { createApi } from '../../api'
 import { makeLoggerWrapper } from '../logger'
@@ -24,15 +23,21 @@ async function annouceNeedsTraining(bp: typeof sdk, botId: string, engine: sdk.N
   const intentDefs = await api.fetchIntentsWithQNAs()
   const entityDefs = await api.fetchEntities()
 
-  const languageWithChanges = (await bp.bots.getBotById(botId)).languages.filter(async lang => {
-    const ts = await getTrainingSession(bp, botId, lang)
-    if (ts.status === 'training') {
+  const botLanguages = (await bp.bots.getBotById(botId)).languages
+  const trainSessions = await Promise.map(
+    botLanguages,
+    async (lang: string) => await getTrainingSession(bp, botId, lang)
+  )
+
+  const languageWithChanges = botLanguages.filter(lang => {
+    const ts = trainSessions.find(t => t.language === lang)
+    if (ts?.status === 'training') {
       return false // do not send a needs-training event if currently training
     }
-
     const hash = engine.computeModelHash(intentDefs, entityDefs, lang)
     return !engine.hasModel(lang, hash)
   })
+
   await Promise.map(languageWithChanges, async lang => {
     const trainSession = await getTrainingSession(bp, botId, lang)
     trainSession.status = 'needs-training'
@@ -64,7 +69,7 @@ export function getOnBotMount(state: NLUState) {
 
     const engine = new bp.NLU.Engine(bot.id, makeLoggerWrapper(bp, botId))
     const trainOrLoad = _.debounce(
-      async (forceTrain: boolean = false) => {
+      async (disableTraining: boolean) => {
         // bot got deleted
         if (!state.nluByBot[botId]) {
           return
@@ -91,7 +96,7 @@ export function getOnBotMount(state: NLUState) {
 
             const trainSession = makeTrainingSession(botId, languageCode, lock)
             state.nluByBot[botId].trainSessions[languageCode] = trainSession
-            if ((forceTrain || !model) && !yn(process.env.BP_NLU_DISABLE_TRAINING)) {
+            if (!model && !disableTraining) {
               await setTrainingSession(bp, botId, trainSession)
 
               const progressCallback = async (progress: number) => {
@@ -102,7 +107,7 @@ export function getOnBotMount(state: NLUState) {
               const rand = () => Math.round(Math.random() * 10000)
               const nluSeed = parseInt(process.env.NLU_SEED) || rand()
 
-              const options: sdk.NLU.TrainingOptions = { forceTrain, nluSeed, progressCallback }
+              const options: sdk.NLU.TrainingOptions = { forceTrain: false, nluSeed, progressCallback }
               model = await engine.train(trainSession.key, intentDefs, entityDefs, languageCode, options)
               if (model) {
                 trainSession.status = 'done'
@@ -155,8 +160,8 @@ export function getOnBotMount(state: NLUState) {
       needsTrainingWatcher
     }
 
-    // to return as fast as possible
-    // tslint:disable-next-line: no-floating-promises
-    annouceNeedsTraining(bp, bot.id, engine, state)
+    const disableTraining = true
+    await trainOrLoad(disableTraining)
+    await annouceNeedsTraining(bp, bot.id, engine, state)
   }
 }
