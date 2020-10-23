@@ -1,8 +1,7 @@
 import { Button, Classes, MenuItem } from '@blueprintjs/core'
 import { ItemPredicate, Select } from '@blueprintjs/select'
 import cx from 'classnames'
-import { FC, useEffect, useState } from 'react'
-import React from 'react'
+import React, { FC, useEffect, useState } from 'react'
 
 import { lang } from '../translations'
 import confirmDialog from '../ConfirmDialog'

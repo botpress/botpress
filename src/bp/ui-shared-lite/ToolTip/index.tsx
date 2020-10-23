@@ -54,9 +54,9 @@ const tipPosition = (positionClasses, el) => {
   let right = 'auto'
 
   if (xClass === 'left' && (yClass === 'top' || yClass === 'bottom')) {
-    right = elWidth / 2 - 5 + 'px'
+    right = `${elWidth / 2 - 5}px`
   } else if (xClass === 'right' && (yClass === 'top' || yClass === 'bottom')) {
-    left = elWidth / 2 - 5 + 'px'
+    left = `${elWidth / 2 - 5}px`
   } else if (!xClass) {
     left = '50%'
   }
@@ -164,8 +164,8 @@ const ToolTip: FC<ToolTipProps> = ({ children, content, position = 'top', hoverO
       const tipPos = tipPosition({ xClass, yClass }, el)
 
       const inlineStyle = {
-        left: left + 'px',
-        top: top + 'px'
+        left: `${left}px`,
+        top: `${top}px`
       }
 
       setTimeout(() => {

@@ -73,7 +73,7 @@ const langAvaibale = (): string[] => {
 const squash = (space, root = {}, path = '') => {
   for (const [key, value] of Object.entries(space)) {
     if (typeof value === 'object' && value !== null) {
-      squash(value, root, path + key + '.')
+      squash(value, root, `${path}${key}.`)
     } else {
       root[path + key] = value
     }

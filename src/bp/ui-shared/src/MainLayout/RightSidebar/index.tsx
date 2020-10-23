@@ -1,6 +1,5 @@
 import cx from 'classnames'
-import { useEffect } from 'react'
-import React, { FC } from 'react'
+import React, { FC, useEffect } from 'react'
 
 import style from './style.scss'
 import { RightSidebarProps } from './typings'

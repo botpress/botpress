@@ -1,9 +1,6 @@
 import { Button, Icon } from '@blueprintjs/core'
 import cx from 'classnames'
-import { FC, useState } from 'react'
-import React from 'react'
-import { useEffect } from 'react'
-import { Fragment } from 'react'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 
 import Overlay from '../../../ui-shared-lite/Overlay'
 import { lang } from '../translations'

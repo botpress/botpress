@@ -46,7 +46,7 @@ const Upload: FC<UploadFieldProps> = props => {
         uploading: false
       }
     } else {
-      throw new Error(`That action type isn't supported.`)
+      throw new Error("That action type isn't supported.")
     }
   }
 
@@ -67,7 +67,7 @@ const Upload: FC<UploadFieldProps> = props => {
 
     dispatch({ type: 'uploadStart' })
     await props.axios
-      .post(props.customPath ? props.customPath : `media`, data, { headers: { 'Content-Type': 'multipart/form-data' } })
+      .post(props.customPath ? props.customPath : 'media', data, { headers: { 'Content-Type': 'multipart/form-data' } })
       .then(response => {
         const { url } = response.data
 

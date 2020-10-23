@@ -1,5 +1,5 @@
-import { ItemListPredicate, ItemRenderer } from '@blueprintjs/select'
 import { IconName } from '@blueprintjs/core'
+import { ItemListPredicate, ItemRenderer } from '@blueprintjs/select'
 
 export interface Option {
   label: string
