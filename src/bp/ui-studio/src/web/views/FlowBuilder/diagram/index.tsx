@@ -11,7 +11,8 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { lang, MainLayout } from 'botpress/shared'
+import cx from 'classnames'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
@@ -38,6 +39,7 @@ import {
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 import { SaySomethingWidgetFactory } from '~/views/OneFlow/diagram/nodes/SaySomethingNode'
 
+import WorkflowToolbar from '../../OneFlow/diagram/WorkflowToolbar'
 import { SkillDefinition } from '../sidePanel/FlowTools'
 
 import { defaultTransition, DiagramManager, DIAGRAM_PADDING, nodeTypes, Point } from './manager'
@@ -556,24 +558,31 @@ class Diagram extends Component<Props> {
 
   render() {
     return (
-      <div
-        id="diagramContainer"
-        ref={ref => (this.diagramContainer = ref)}
-        tabIndex={1}
-        style={{ outline: 'none', width: '100%', height: '100%' }}
-        onContextMenu={this.handleContextMenu}
-        onDrop={this.handleToolDropped}
-        onDragOver={event => event.preventDefault()}
+      <MainLayout.Wrapper
+        className={cx({
+          'emulator-open': this.props.emulatorOpen
+        })}
       >
-        <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
+        <WorkflowToolbar />
+        <div
+          id="diagramContainer"
+          ref={ref => (this.diagramContainer = ref)}
+          tabIndex={1}
+          style={{ outline: 'none', width: '100%', height: '100%' }}
+          onContextMenu={this.handleContextMenu}
+          onDrop={this.handleToolDropped}
+          onDragOver={event => event.preventDefault()}
+        >
+          <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
 
-        <DiagramWidget
-          ref={w => (this.diagramWidget = w)}
-          deleteKeys={[]}
-          diagramEngine={this.diagramEngine}
-          inverseZoom
-        />
-      </div>
+          <DiagramWidget
+            ref={w => (this.diagramWidget = w)}
+            deleteKeys={[]}
+            diagramEngine={this.diagramEngine}
+            inverseZoom
+          />
+        </div>
+      </MainLayout.Wrapper>
     )
   }
 }
@@ -600,6 +609,7 @@ interface Props {
   buildSkill: any
   readOnly: boolean
   canPasteNode: boolean
+  emulatorOpen: boolean
   showSearch: boolean
   hideSearch: () => void
   handleFilterChanged: (event: object) => void
@@ -625,6 +635,7 @@ const mapStateToProps = state => ({
   currentFlowNode: getCurrentFlowNode(state),
   currentDiagramAction: state.flows.currentDiagramAction,
   canPasteNode: Boolean(state.flows.nodeInBuffer),
+  emulatorOpen: state.ui.emulatorOpen,
   skills: state.skills.installed
 })
 

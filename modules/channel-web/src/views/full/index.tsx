@@ -18,6 +18,7 @@ export class WebBotpressUIInjection extends React.Component {
     script.onload = () =>
       window.botpressWebChat.init({
         hideWidget: true,
+        isEmulator: true,
         botName: 'Bot Emulator',
         botConvoDescription: 'Test your bot live',
         enableReset: true,

@@ -258,6 +258,7 @@ class ViewStore {
   showChat() {
     if (this.disableAnimations) {
       this.activeView = 'side'
+      this.postMessage('webchatOpened')
       return this._updateTransitions({ widgetTransition: undefined, sideTransition: 'none' })
     }
 
@@ -280,6 +281,7 @@ class ViewStore {
 
     if (this.disableAnimations) {
       this.activeView = 'widget'
+      this.postMessage('webchatClosed')
       return this._updateTransitions({ widgetTransition: undefined, sideTransition: undefined })
     }
 
