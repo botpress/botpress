@@ -1,6 +1,5 @@
 .wRightSidebar {
   padding-right: calc(var(--spacing-x-large) + var(--right-sidebar-width)) !important;
-  transition: padding-right 0.3s;
 }
 
 :global(.emulator-open) {
@@ -28,7 +27,6 @@
   bottom: 28px;
   overflow: auto;
   transform: translateX(100%);
-  transition: transform 0.3s, width 0.3s;
   z-index: 10;
 
   &.show {
