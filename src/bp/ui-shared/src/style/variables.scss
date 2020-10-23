@@ -4,12 +4,18 @@
   // Albert variables
   // We should start using these variables from now on and phase out the rest of this file
   --white: #ffffff;
-  --seashell: #f5f6f8;
+  --bg: #f5f6f8;
+  --seashell: #e2e2e2;
   --gray: #bec5c9;
   --reef: #5c7080;
   --shark: #1a1e22;
   --overlay: rgba(26, 30, 34, 0.8);
+  --success: #019d90;
   --say: #a4ded0;
+  --trigger: #ffe5b4;
+  --execute: #b0c4de;
+  --prompt: #e2c7e0;
+  --if-else: #febbad;
   --lighthouse: #f66f48;
   --focus-lighthouse: #e06542;
   --hover-lighthouse: #f39c82;
@@ -27,4 +33,6 @@
   --spacing-xxxx-large: 28px;
 
   --right-sidebar-width: 240px;
+  --emulator-width: 240px;
+  --debugger-width: 240px;
 }
