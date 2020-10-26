@@ -264,7 +264,7 @@ const doCreateNewFlow = name => {
 
   return {
     version: '0.1',
-    name: name,
+    name,
     location: name,
     label: undefined,
     description: '',
@@ -528,7 +528,7 @@ reducer = reduceReducers(
         })
 
         const newNode = {
-          id: 'skill-' + flowRandomId,
+          id: `skill-${flowRandomId}`,
           type: 'skill-call',
           skill: skillId,
           name: `${skillId}-${flowRandomId}`,
@@ -592,7 +592,7 @@ reducer = reduceReducers(
             [payload.editFlowName]: modifiedFlow,
             [state.currentFlow]: {
               ...state.flowsByName[state.currentFlow],
-              nodes: nodes
+              nodes
             }
           }
         }
