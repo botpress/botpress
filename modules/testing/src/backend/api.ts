@@ -13,6 +13,14 @@ export default async (bp: typeof sdk, testByBot: TestByBot) => {
     res.send({ scenarios, status })
   })
 
+  router.post('/deleteScenario', async (req, res) => {
+    if (!req.body.name) {
+      return res.sendStatus(400)
+    }
+    await testByBot[req.params.botId].deleteScenario(req.body.name)
+    res.sendStatus(200)
+  })
+
   router.post('/runAll', async (req, res) => {
     await testByBot[req.params.botId].executeAll()
     res.sendStatus(200)

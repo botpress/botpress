@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { Panel, Label, Glyphicon } from 'react-bootstrap'
-import { MdExpandLess, MdExpandMore } from 'react-icons/md'
+import { MdExpandLess, MdExpandMore, MdDelete } from 'react-icons/md'
 
 import style from './style.scss'
 import Interaction from './Interaction'
@@ -35,6 +35,11 @@ class Scenario extends React.Component {
     this.setState({ expanded })
   }
 
+  handleDeleteClick = e => {
+    e.stopPropagation()
+    this.props.delete(this.props.scenario)
+  }
+
   handleRunClick = e => {
     e.stopPropagation()
     this.props.run(this.props.scenario)
@@ -61,6 +66,7 @@ class Scenario extends React.Component {
               {scenario.steps.length === 1 ? '' : 's'}
             </span>
             {this.renderStatusLabel(scenario.status)}
+            <MdDelete onClick={this.handleDeleteClick} className={classnames(style.run, 'text-danger')}  />
           </div>
         </Panel.Heading>
         <Panel.Collapse>

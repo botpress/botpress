@@ -82,6 +82,11 @@ export default class Testing extends React.Component {
     this.longPoll()
   }
 
+  deleteSingleScenario = async scenario => {
+    await this.props.bp.axios.post('/mod/testing/deleteScenario', { name: scenario.name })
+    await this.loadScenarios()
+  }
+
   getQnaPreviews(scenarios) {
     return _.chain(scenarios)
       .flatMapDeep(scenario => scenario.steps.map(interaction => interaction.botReplies))
@@ -182,6 +187,7 @@ export default class Testing extends React.Component {
                       key={s.name}
                       scenario={s}
                       run={this.runSingleScenario.bind(this, s)}
+                      delete={this.deleteSingleScenario.bind(this, s)}
                       previews={this.state.previews}
                       bp={this.props.bp}
                       isRunning={this.state.isRunning}

@@ -85,6 +85,11 @@ export class Testing {
     await this._loadScenarios()
   }
 
+  async deleteScenario(name) {
+    await this.bp.ghost.forBot(this.botId).deleteFile(SCENARIO_FOLDER, name + '.json')
+    await this._loadScenarios()
+  }
+
   private _executeScenario(scenario: Scenario) {
     const eventDestination: sdk.IO.EventDestination = {
       channel: 'web',
