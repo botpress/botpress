@@ -54,6 +54,7 @@
       "createNew": "Create new {title}",
       "currentlySearching": "Currently Searching in",
       "deleteElements": "Delete selected elements",
+      "missingClosingCurlyBrace": "Missing closing curly brace",
       "import": {
         "analysis": "Analysis",
         "clearExisting": "Clear all existing elements, then import those from my file",
