@@ -127,7 +127,7 @@ export interface StudioConnector {
   loadModuleView: any
 }
 
-export type Config = {
+export interface Config {
   botId?: string
   externalAuthToken?: string
   userId?: string
@@ -179,7 +179,7 @@ export type Config = {
   /** Refers to a specific webchat reference in parent window. Useful when using multiple chat window */
   chatId?: string,
   /** CSS class to be applied to iframe*/
-  className: string
+  className?: string
 }
 
 type OverridableComponents = 'below_conversation' | 'before_container' | 'composer'

@@ -266,7 +266,7 @@ class Web extends React.Component<MainProps> {
     return (
       <button
         className={classnames('bpw-widget-btn', 'bpw-floating-button', {
-          ['bpw-anim-' + this.props.widgetTransition || 'none']: true
+          [`bpw-anim-${this.props.widgetTransition || 'none'}`]: true
         })}
         aria-label={this.props.intl.formatMessage({ id: 'widget.toggle' })}
         onClick={this.props.showChat.bind(this)}
