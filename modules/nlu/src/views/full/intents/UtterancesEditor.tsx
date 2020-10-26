@@ -302,6 +302,7 @@ export class UtterancesEditor extends React.Component<Props> {
       from = Math.min(selection.anchor.offset, selection.focus.offset)
       to = Math.max(selection.anchor.offset, selection.focus.offset)
 
+
       if (from !== to) {
         if (selection.isFocused) {
           this.showSlotPopover()
