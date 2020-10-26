@@ -1,0 +1,73 @@
+{
+  "sort": {
+    "mostRecentlyCreated": "Modifié plus récemment",
+    "leastRecentlyCreated": "Modifié plus anciennement"
+  },
+  "filter": {
+    "unassigned": "Non-assigné",
+    "assignedMe": "Assigné à moi",
+    "assignedOther": "Assigné à d'autres"
+  },
+  "sortBy": "Trier Par",
+  "filterBy": "Filtrer Par",
+  "agent": {
+    "online": "Connecté",
+    "offline": "Déconnecté",
+    "getOnline": "Se connecter",
+    "getOffline": "Se déconnecter",
+    "onlineSuccess": "Vous êtes maintenant connecté",
+    "offlineSuccess": "Vous êtes maintenant déconnecté"
+  },
+  "escalation": {
+    "created": "Créée {date}",
+    "contactDetails": "Détails du contact",
+    "status": {
+      "pending": "Non attribué",
+      "assigned": "assignée",
+      "resolved": "résolue"
+    },
+    "assignment": {
+      "me": "Assigné à moi",
+      "other": "Assignée à {name}"
+    },
+    "assign": "L'escalation {id} a été assignée avec succès",
+    "resolve": "L'escalation {id} a été résoulue avec succès",
+    "noPreviousAgent": "Aucun agent précédent",
+    "you": "Vous",
+    "agent": "Agent: {agentName}"
+  },
+  "user": {
+    "variables": {
+      "heading": "Variables",
+      "empty": "Aucune variables",
+      "variable": "Variable",
+      "value": "Valeur"
+    }
+  },
+  "commentForm": {
+    "addNote": "Ajouter une note"
+  },
+  "comments": {
+    "heading": "Notes d'agents",
+    "empty": "Aucun commentaires"
+  },
+  "conversation": {
+    "empty": "Sélectionnez une escalation en attente pour engager la conversation avec vos clients.",
+    "tab": "Conversation"
+  },
+  "escalations": {
+    "empty": "Il n'y a présentement aucune escalation grâce à ton équipe et toi-même."
+  },
+  "sidebar": {
+    "tab": "Escalations",
+    "access": "Accéder aux Escalations Botpress",
+    "agents": {
+      "heading": "Agents Connectés",
+      "empty": "Il n'y a aucun agent connecté actuellement"
+    },
+    "escalations": {
+      "heading": "Escalations Récentes",
+      "empty": "Il n'y a présentement aucune escalation grâce à ton équipe et toi-même."
+    }
+  }
+}
