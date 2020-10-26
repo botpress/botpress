@@ -114,7 +114,8 @@ export default async (bp: typeof sdk, db: Database) => {
         details: botInfo.details,
         languages: botInfo.languages,
         extraStylesheet: config.extraStylesheet,
-        security
+        security,
+        lazySocket: config.lazySocket
       })
     })
   )

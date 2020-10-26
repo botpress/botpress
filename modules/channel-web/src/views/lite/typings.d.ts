@@ -174,6 +174,8 @@ export type Config = {
   exposeStore: boolean
   /** Reference ensures that a specific value and its signature are valid */
   reference: string
+  /** If true, Websocket is created when the Webchat is opened. Bot cannot be proactive. */
+  lazySocket?: boolean
 }
 
 type OverridableComponents = 'below_conversation' | 'before_container' | 'composer'
@@ -205,6 +207,7 @@ export interface BotInfo {
   security: {
     escapeHTML: boolean
   }
+  lazySocket: boolean
 }
 
 interface Conversation {

@@ -1,5 +1,5 @@
 import { Spinner } from '@blueprintjs/core'
-import { EmptyState, HeaderButtonProps, lang, MainContent } from 'botpress/shared'
+import { EmptyState, HeaderButtonProps, lang, MainLayout } from 'botpress/shared'
 import { Downloader, reorderFlows } from 'botpress/utils'
 import cx from 'classnames'
 import { debounce } from 'lodash'
@@ -214,8 +214,8 @@ const QnAList: FC<Props> = props => {
   const hasFilteredResults = questionSearch.length || filterContexts.length
 
   return (
-    <MainContent.Wrapper childRef={ref => (wrapperRef.current = ref)}>
-      <MainContent.Header className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
+    <MainLayout.Wrapper childRef={ref => (wrapperRef.current = ref)}>
+      <MainLayout.Toolbar className={style.header} tabChange={setCurrentTab} tabs={tabs} buttons={buttons} />
 
       <div className={style.searchWrapper}>
         <input
@@ -328,7 +328,7 @@ const QnAList: FC<Props> = props => {
         isOpen={showImportModal}
         toggle={() => setShowImportModal(!showImportModal)}
       />
-    </MainContent.Wrapper>
+    </MainLayout.Wrapper>
   )
 }
 

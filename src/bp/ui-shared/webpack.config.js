@@ -20,6 +20,7 @@ const config = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js', '.css'],
     alias: {
+      '~': path.resolve(__dirname, './src'),
       common: path.resolve(__dirname, '../../../out/bp/common')
     }
   },
@@ -48,13 +49,18 @@ const config = {
               localIdentName: '[name]__[local]___[hash:base64:5]'
             }
           },
-          { loader: 'postcss-loader' },
+          {
+            loader: 'postcss-loader',
+            options: {
+              options: {}
+            }
+          },
           { loader: 'sass-loader' }
         ]
       },
       {
         test: /\.css$/,
-        exclude: /node_modules/,
+        exclude: /node_modules\/(?!@yaireo).*/,
         use: ['style-loader', 'css-loader']
       }
     ]

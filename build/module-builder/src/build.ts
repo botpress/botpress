@@ -60,6 +60,9 @@ export async function buildBackend(modulePath: string) {
   const tsConfigFile = ts.findConfigFile(modulePath, ts.sys.fileExists, 'tsconfig.json')
   const skipCheck = process.argv.find(x => x.toLowerCase() === '--skip-check')
 
+  // By default you don't want it to fail when watching, hence the flag
+  const failOnError = process.argv.find(x => x.toLowerCase() === '--fail-on-error')
+
   let validCode = true
   if (!skipCheck && tsConfigFile) {
     validCode = runTypeChecker(modulePath)
@@ -72,6 +75,8 @@ export async function buildBackend(modulePath: string) {
     compileBackend(modulePath, babelConfig)
 
     normal(`Generated backend (${Date.now() - start} ms)`, path.basename(modulePath))
+  } else if (failOnError) {
+    process.exit(1)
   }
 }
 
@@ -124,9 +129,9 @@ const compileBackend = (modulePath: string, babelConfig) => {
     try {
       const dBefore = Date.now()
       const result = babel.transformFileSync(file, babelConfig)
-      const destMap = dest + '.map'
+      const destMap = `${dest}.map`
 
-      fs.writeFileSync(dest, result.code + os.EOL + `//# sourceMappingURL=${path.basename(destMap)}`)
+      fs.writeFileSync(dest, `${result.code}${os.EOL}//# sourceMappingURL=${path.basename(destMap)}`)
       result.map.sources = [path.relative(babelConfig.sourceRoot, file)]
       fs.writeFileSync(destMap, JSON.stringify(result.map))
 

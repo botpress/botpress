@@ -5,7 +5,7 @@ import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
-import { converseApiEvents } from '../converse'
+import { buildUserKey, converseApiEvents } from '../converse'
 import { Hooks, HookService } from '../hook/hook-service'
 
 import { FlowError, ProcessingError, TimeoutNodeNotFound } from './errors'
@@ -83,7 +83,7 @@ export class DialogEngine {
     }
 
     try {
-      await converseApiEvents.emitAsync(`action.start.${event.target}`, event)
+      await converseApiEvents.emitAsync(`action.start.${buildUserKey(event.botId, event.target)}`, event)
       const result = await this.instructionProcessor.process(botId, instruction, event)
 
       if (result.followUpAction === 'none') {
@@ -121,7 +121,7 @@ export class DialogEngine {
     } catch (err) {
       this._reportProcessingError(botId, err, event, instruction)
     } finally {
-      await converseApiEvents.emitAsync(`action.end.${event.target}`, event)
+      await converseApiEvents.emitAsync(`action.end.${buildUserKey(event.botId, event.target)}`, event)
     }
 
     return event
