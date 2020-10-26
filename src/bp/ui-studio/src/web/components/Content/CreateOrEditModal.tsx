@@ -5,6 +5,8 @@ import React from 'react'
 import { Button } from 'react-bootstrap'
 import ContentForm from '~/components/ContentForm'
 
+import { getFormData } from '../../util/NodeFormData'
+import { isMissingCurlyBraceClosure } from '../Util/form.util'
 import withLanguage from '../Util/withLanguage'
 
 import style from './style.scss'
@@ -73,6 +75,13 @@ class CreateOrEditModal extends React.Component<Props, State> {
   }
 
   renderForm() {
+    const formData = getFormData(
+      { formData: this.props.formData },
+      this.props.contentLang,
+      this.props.defaultLanguage,
+      {}
+    )
+
     return (
       <div>
         <ContentForm
@@ -91,7 +100,11 @@ class CreateOrEditModal extends React.Component<Props, State> {
             >
               {lang.tr('cancel')}
             </button>
-            <button className={classnames('bp-button')} type="submit">
+            <button
+              className={classnames('bp-button')}
+              type="submit"
+              disabled={isMissingCurlyBraceClosure(formData?.text)}
+            >
               {lang.tr('submit')}
             </button>
           </div>

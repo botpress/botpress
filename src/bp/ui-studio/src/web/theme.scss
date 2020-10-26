@@ -92,14 +92,18 @@ b {
   outline: 0;
   transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, color 0.15s ease-in-out;
 
-  &:hover,
-  &:focus,
-  &:active {
+  &:not(:disabled):hover,
+  &:not(:disabled):focus,
+  &:not(:disabled):active {
     color: $btn-text-color;
     background-color: $btn-bg-color-hover;
     outline: 0;
     box-shadow: none;
     border: 1px solid transparent;
+  }
+
+  &:disabled {
+    opacity: 0.4;
   }
 }
 
