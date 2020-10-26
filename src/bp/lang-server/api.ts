@@ -5,6 +5,7 @@ import rateLimit from 'express-rate-limit'
 import { createServer } from 'http'
 import _ from 'lodash'
 import ms from 'ms'
+import yn from 'yn'
 
 import { BadRequestError } from '../core/routers/errors'
 
@@ -23,7 +24,7 @@ import {
   serviceLoadingMiddleware
 } from './util'
 
-export type APIOptions = {
+export interface APIOptions {
   host: string
   port: number
   authToken?: string
@@ -48,7 +49,7 @@ const createExpressApp = (options: APIOptions): Application => {
 
   app.use((req, res, next) => {
     res.header('X-Powered-By', 'Botpress')
-    debugRequest('incoming ' + req.path, { ip: req.ip })
+    debugRequest(`incoming ${req.path}`, { ip: req.ip })
     next()
   })
 
@@ -56,7 +57,8 @@ const createExpressApp = (options: APIOptions): Application => {
   app.use(handleUnexpectedError)
 
   if (process.core_env.REVERSE_PROXY) {
-    app.set('trust proxy', process.core_env.REVERSE_PROXY)
+    const boolVal = yn(process.core_env.REVERSE_PROXY)
+    app.set('trust proxy', boolVal === null ? process.core_env.REVERSE_PROXY : boolVal)
   }
 
   if (options.limit > 0) {
