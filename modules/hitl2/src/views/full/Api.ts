@@ -13,13 +13,22 @@ export function castDate(object: any, paths: string[]) {
 }
 
 export function castEscalation(item) {
-  return _.thru(
-    castDate(item, ['createdAt', 'updatedAt', 'assignedAt', 'resolvedAt', 'userConversation.createdOn']),
-    casted => {
-      casted.comments = _.castArray(casted.comments).map(comment => castComment(comment))
-      return casted
-    }
-  )
+  return _.chain(item)
+    .thru(value =>
+      castDate(value, ['createdAt', 'updatedAt', 'assignedAt', 'resolvedAt', 'userConversation.createdOn'])
+    )
+    .thru(value => {
+      value.userConversation = {
+        ...value.userConversation,
+        event: JSON.parse(value.userConversation.event)
+      }
+      return value
+    })
+    .thru(value => {
+      value.comments = _.castArray(value.comments).map(comment => castComment(comment))
+      return value
+    })
+    .value()
 }
 
 export function castComment(item) {
