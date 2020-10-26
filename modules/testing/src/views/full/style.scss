@@ -56,9 +56,14 @@
     }
     .scenarioStatus {
       display: flex;
-      align-items: baseline;
+      align-items: center;
       > span {
         margin-right: 10px;
+      }
+      .delete {
+        margin-left: 10px;
+        cursor: pointer;
+        font-size: 15px;
       }
     }
   }

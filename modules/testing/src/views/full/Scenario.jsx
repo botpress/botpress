@@ -66,7 +66,7 @@ class Scenario extends React.Component {
               {scenario.steps.length === 1 ? '' : 's'}
             </span>
             {this.renderStatusLabel(scenario.status)}
-            <MdDelete onClick={this.handleDeleteClick} className={classnames(style.run, 'text-danger')}  />
+            <MdDelete onClick={this.handleDeleteClick} className={classnames(style.delete, 'text-danger')}  />
           </div>
         </Panel.Heading>
         <Panel.Collapse>
