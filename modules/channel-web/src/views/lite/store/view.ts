@@ -217,7 +217,7 @@ class ViewStore {
   @action.bound
   addCustomAction(newAction: CustomAction) {
     if (this.customActions.find(act => act.id === newAction.id)) {
-      console.error('Can\'t add another action with the same ID.')
+      console.error("Can't add another action with the same ID.")
       return
     }
 
@@ -232,7 +232,7 @@ class ViewStore {
   @action.bound
   addHeaderButton(newButton: CustomButton) {
     if (this.customButtons.find(btn => btn.id === newButton.id)) {
-      console.error('Can\'t add another button with the same ID.')
+      console.error("Can't add another button with the same ID.")
       return
     }
 
