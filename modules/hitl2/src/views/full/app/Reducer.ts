@@ -14,6 +14,7 @@ export type ActionType =
   | { type: 'setAgent'; payload: SocketMessageType }
   | { type: 'setEscalation'; payload: SocketMessageType }
   | { type: 'setRead'; payload: string }
+  | { type: 'setDefault'; payload: Object }
   | { type: 'setError'; payload: any }
 
 const Reducer = (state: StateType, action: ActionType): StateType => {
@@ -59,6 +60,10 @@ const Reducer = (state: StateType, action: ActionType): StateType => {
           ...draft.escalations,
           [action.payload.id]: _.merge(draft.escalations[action.payload.id], action.payload.payload)
         }
+      })
+    case 'setDefault':
+      return produce(state, draft => {
+        draft.defaults = _.merge(draft.defaults, action.payload)
       })
     case 'setRead':
       return produce(state, draft => {

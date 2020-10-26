@@ -1,10 +1,10 @@
 import { Collapsible, lang } from 'botpress/shared'
-import Haikunator from 'haikunator'
 import _ from 'lodash'
-import hash from 'object-hash'
-import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
+import React, { FC, Fragment, useEffect, useContext, useState } from 'react'
 
 import { EventType, UserType } from '../../../types'
+import { generateUsername, getOrSet } from './../app/utils'
+import { Context } from '../app/Store'
 import style from '../style.scss'
 
 interface Props {
@@ -12,22 +12,41 @@ interface Props {
 }
 
 const UserProfile: FC<Props> = ({ conversation }) => {
+  const { state, dispatch } = useContext(Context)
+
   const [expanded, setExpanded] = useState(false)
   const [user, setUser] = useState({} as UserType)
-  const key = useRef<string>()
-  const defaultUserName = useRef<{ [key: string]: string }>({})
-  const [haiku] = useState(() => {
-    return new Haikunator({ defaults: { tokenLength: 0 } })
-  })
+  const [defaultUsername, setDefaultUsername] = useState()
 
   useEffect(() => {
-    key.current = hash(_.pick(conversation, ['channel', 'threadId']))
-    setUser(_.get(JSON.parse(conversation.event), 'state.user', {}))
+    setUser(_.get(conversation.event, 'state.user', {}))
   }, [conversation])
 
-  if (!defaultUserName.current[key.current]) {
-    defaultUserName.current[key.current] = haiku.haikunate({ delimiter: ' ' })
-  }
+
+  useEffect(() => {
+    const key = _.get(conversation.event, 'target')
+    const username = getOrSet(
+      () => {
+        return _.get(state, `defaults.user.${key}.username`)
+      },
+      value => {
+        dispatch({
+          type: 'setDefault',
+          payload: {
+            user: {
+              [key]: {
+                username: value
+              }
+            }
+          }
+        })
+      },
+      generateUsername()
+    )
+
+    setDefaultUsername(username)
+  }, [conversation])
+
 
   const variables = user?.variables?.filter(x => !['fullname', 'email'].includes(x.name)) || []
 
@@ -36,7 +55,7 @@ const UserProfile: FC<Props> = ({ conversation }) => {
       <div className={style.profileHeader}>
         {/* TODO Add click action here */}
         <button className={style.clientName} onClick={() => {}}>
-          {user.fullName || defaultUserName.current?.[key.current]}
+          {user.fullName || defaultUsername}
         </button>
         {/* TODO Should add company name here */}
         {user.email && <p>{user.email}</p>}

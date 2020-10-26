@@ -5,6 +5,7 @@ import moment from 'moment'
 import React, { FC, useContext, useEffect, useState } from 'react'
 
 import { EscalationType } from '../../../types'
+import { generateUsername, getOrSet } from './../app/utils'
 import { Context } from '../app/Store'
 import { ApiType } from '../Api'
 
@@ -23,6 +24,7 @@ const EscalationItem: FC<Props> = ({ api, escalation }) => {
   const { createdAt, userConversation, id, status, agentId } = escalation
   const { state, dispatch } = useContext(Context)
 
+  const [defaultUsername, setDefaultUsername] = useState()
   const [readStatus, setReadStatus] = useState(true)
   const [fromNow, setFromNow] = useState(moment(createdAt).fromNow())
 
@@ -44,6 +46,30 @@ const EscalationItem: FC<Props> = ({ api, escalation }) => {
     state.reads[id] && userConversation.createdOn > state.reads[id] ? setReadStatus(false) : setReadStatus(true)
   }, [state.reads, userConversation])
 
+  useEffect(() => {
+    const key = _.get(escalation.userConversation.event, 'target')
+    const username = getOrSet(
+      () => {
+        return _.get(state, `defaults.user.${key}.username`)
+      },
+      value => {
+        dispatch({
+          type: 'setDefault',
+          payload: {
+            user: {
+              [key]: {
+                username: value
+              }
+            }
+          }
+        })
+      },
+      generateUsername()
+    )
+
+    setDefaultUsername(username)
+  }, [escalation.userConversation])
+
   const printAgent = () => {
     // TODO Add condition to show "Previous agent: ..."
     if (!agentId) {
@@ -64,7 +90,7 @@ const EscalationItem: FC<Props> = ({ api, escalation }) => {
       <div className={style.info}>
         {/* TODO add client name and click action here */}
         <button className={style.clientName} type="button" onClick={() => {}}>
-          Some Client Name
+          {_.get(escalation.userConversation.event, 'state.user.fullName') || defaultUsername}
         </button>{' '}
         #{id}
         <p>
