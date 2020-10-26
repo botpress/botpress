@@ -3,7 +3,7 @@ import * as sdk from 'botpress/sdk'
 import { asyncMiddleware as asyncMw, StandardError, UnexpectedError } from 'common/http'
 import { Request, Response } from 'express'
 
-import { FLAGGED_MESSAGE_STATUSES, FlaggedEvent } from '../types'
+import { FlaggedEvent, FLAGGED_MESSAGE_STATUSES } from '../types'
 
 import Db from './db'
 

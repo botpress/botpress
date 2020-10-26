@@ -4,7 +4,7 @@ import { Container, SidePanel, SplashScreen } from 'botpress/ui'
 import classnames from 'classnames'
 import React from 'react'
 
-import { FLAGGED_MESSAGE_STATUS, FlaggedEvent, ResolutionData } from '../../types'
+import { FlaggedEvent, FLAGGED_MESSAGE_STATUS, ResolutionData } from '../../types'
 
 import style from './style.scss'
 import ApiClient from './ApiClient'
