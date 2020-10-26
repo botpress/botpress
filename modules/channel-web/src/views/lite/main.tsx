@@ -85,8 +85,7 @@ class Web extends React.Component<MainProps> {
 
     this.config.overrides && this.loadOverrides(this.config.overrides)
 
-    this.config.containerWidth &&
-      window.parent.postMessage({ type: 'setWidth', value: this.config.containerWidth }, '*')
+    this.config.containerWidth && this.postMessageToParent('setWidth', this.config.containerWidth)
 
     this.config.reference && this.props.setReference()
 
@@ -95,6 +94,10 @@ class Web extends React.Component<MainProps> {
     if (!this.isLazySocket()) {
       await this.initializeSocket()
     }
+  }
+
+  postMessageToParent(type: string, value: any) {
+    window.parent?.postMessage({ type, value, chatId : this.props.config.chatId }, '*')
   }
 
   extractConfig() {
@@ -149,7 +152,7 @@ class Web extends React.Component<MainProps> {
 
     observe(this.props.dimensions, 'container', data => {
       if (data.newValue && window.parent) {
-        window.parent.postMessage({ type: 'setWidth', value: data.newValue }, '*')
+        this.postMessageToParent('setWidth', data.newValue)
       }
     })
   }
@@ -284,7 +287,7 @@ class Web extends React.Component<MainProps> {
     })
 
     if (this.parentClass !== parentClass) {
-      window.parent?.postMessage({ type: 'setClass', value: parentClass }, '*')
+      this.postMessageToParent('setClass', parentClass)
       this.parentClass = parentClass
     }
 
