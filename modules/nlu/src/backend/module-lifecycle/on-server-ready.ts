@@ -16,8 +16,10 @@ export function getOnServerReady(state: NLUState) {
       const ghost = bp.ghost.forBot(botId)
       const model = await getModel(ghost, hash, language)
       if (model) {
-        if (state.nluByBot[botId]) {
-          await state.nluByBot[botId].engine.loadModel(model)
+        const botState = state.nluByBot[botId]
+        if (botState) {
+          botState.modelsByLang[model.languageCode] = model.hash
+          await botState.engine.loadModel(model, model.hash)
         } else {
           bp.logger.warn(`Can't load model for unmounted bot ${botId}`)
         }

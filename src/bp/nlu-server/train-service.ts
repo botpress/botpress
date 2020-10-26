@@ -33,11 +33,7 @@ export default class TrainService {
     }
 
     try {
-      const model = await this.engine.train(ts.key, intents, entities, language, {
-        forceTrain: true,
-        nluSeed,
-        progressCallback
-      })
+      const model = await this.engine.train(ts.key, intents, entities, language, { nluSeed, progressCallback })
       this.logger.info(`[${modelId}] Training Done.`)
 
       await this.modelService.saveModel(model, modelId, password)

@@ -75,7 +75,7 @@ export default async function(options: APIOptions, nluVersion: string) {
   const loggerWrapper = makeLoggerWrapper(logger)
 
   const engine = new Engine('nlu-server', loggerWrapper)
-  const modelService = new ModelService(options.modelDir)
+  const modelService = new ModelService(options.modelDir, engine)
   await modelService.init()
   const trainSessionService = new TrainSessionService()
   const trainService = new TrainService(logger, engine, modelService, trainSessionService)
@@ -90,10 +90,8 @@ export default async function(options: APIOptions, nluVersion: string) {
       const input = await validateInput(req.body)
       const { intents, entities, seed, language, password } = mapTrainInput(input)
 
-      const modelHash = engine.computeModelHash(intents, entities, language)
-
       const pickedSeed = seed ?? Math.round(Math.random() * 10000)
-      const modelId = modelService.makeModelId(modelHash, input.language, pickedSeed)
+      const modelId = modelService.makeModelId(intents, entities, language, pickedSeed)
 
       // return the modelId as fast as possible
       // tslint:disable-next-line: no-floating-promises
@@ -166,12 +164,12 @@ export default async function(options: APIOptions, nluVersion: string) {
       const model = await modelService.getModel(modelId, password)
 
       if (model) {
-        await engine.loadModel(model)
+        if (!engine.hasModel(modelId)) {
+          await engine.loadModel(model, modelId)
+        }
 
         const rawPredictions = await Promise.map(texts as string[], t => engine.predict(t, [], model.languageCode))
         const withoutNone = rawPredictions.map(removeNoneIntent)
-
-        engine.unloadModel(model.languageCode)
 
         return res.send({ success: true, predictions: withoutNone })
       }

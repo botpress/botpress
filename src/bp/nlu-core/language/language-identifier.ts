@@ -45,12 +45,8 @@ class FastTextLanguageId {
 }
 
 let langIdentifier: FastTextLanguageId
-export default async function(
-  sentence: string,
-  predictorsByLang: _.Dictionary<Predictors>,
-  tools: Tools
-): Promise<string> {
-  const supportedLanguages = Object.keys(predictorsByLang)
+export default async function(sentence: string, predictors: Predictors[], tools: Tools): Promise<string> {
+  const supportedLanguages = predictors.map(p => p.lang)
 
   if (!langIdentifier) {
     langIdentifier = new FastTextLanguageId(tools.mlToolkit)
@@ -73,7 +69,7 @@ export default async function(
         .map(lang => ({
           lang,
           sentence: sentence.toLowerCase(),
-          tokens: _.orderBy(Object.keys(predictorsByLang[lang].vocabVectors), 'length', 'desc')
+          tokens: _.orderBy(Object.keys(predictors.find(p => p.lang === lang)?.vocabVectors ?? {}), 'length', 'desc')
         }))
         .map(({ lang, sentence, tokens }) => {
           for (const token of tokens) {

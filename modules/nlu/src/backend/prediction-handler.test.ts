@@ -14,6 +14,8 @@ const fr = 'fr'
 const en = 'en'
 const de = 'de'
 
+const makeModelsByLang = (langs: string[]) => _.zipObject(langs, langs)
+
 function makeEngineMock(loadedModels: string[]): NLU.Engine {
   return (<Partial<NLU.Engine>>{
     loadModel: async (m: NLU.Model) => {
@@ -32,7 +34,7 @@ function makeEngineMock(loadedModels: string[]): NLU.Engine {
       return detectedLanguage
     },
 
-    hasModelForLang: (lang: string) => loadedModels.includes(lang),
+    hasModel: (modelId: string) => loadedModels.includes(modelId),
 
     predict: jest.fn(async (textInput: string, ctx: string[], language: string) => {
       if (loadedModels.includes(language)) {
@@ -108,7 +110,13 @@ describe('predict', () => {
     const engine = makeEngineMock(modelsInEngine)
 
     // act
-    const predictionHandler = new PredictionHandler(modelProvider, engine, anticipatedLang, defaultLang)
+    const predictionHandler = new PredictionHandler(
+      makeModelsByLang(modelsOnFs),
+      modelProvider,
+      engine,
+      anticipatedLang,
+      defaultLang
+    )
     const result = await predictionHandler.predict(germanUtt, ['global'])
 
     // assert
@@ -128,7 +136,13 @@ describe('predict', () => {
     const engine = makeEngineMock(modelsInEngine)
 
     // act
-    const predictionHandler = new PredictionHandler(modelProvider, engine, anticipatedLang, defaultLang)
+    const predictionHandler = new PredictionHandler(
+      makeModelsByLang(modelsOnFs),
+      modelProvider,
+      engine,
+      anticipatedLang,
+      defaultLang
+    )
     const result = await predictionHandler.predict(germanUtt, ['global'])
 
     // assert
@@ -148,7 +162,13 @@ describe('predict', () => {
     const engine = makeEngineMock(modelsInEngine)
 
     // act
-    const predictionHandler = new PredictionHandler(modelProvider, engine, anticipatedLang, defaultLang)
+    const predictionHandler = new PredictionHandler(
+      makeModelsByLang(modelsOnFs),
+      modelProvider,
+      engine,
+      anticipatedLang,
+      defaultLang
+    )
     const result = await predictionHandler.predict(germanUtt, ['global'])
 
     // assert
@@ -168,7 +188,13 @@ describe('predict', () => {
     const engine = makeEngineMock(modelsInEngine)
 
     // act
-    const predictionHandler = new PredictionHandler(modelProvider, engine, anticipatedLang, defaultLang)
+    const predictionHandler = new PredictionHandler(
+      makeModelsByLang(modelsOnFs),
+      modelProvider,
+      engine,
+      anticipatedLang,
+      defaultLang
+    )
     const result = await predictionHandler.predict(germanUtt, ['global'])
 
     // assert
@@ -188,7 +214,13 @@ describe('predict', () => {
     const engine = makeEngineMock(modelsInEngine)
 
     // act
-    const predictionHandler = new PredictionHandler(modelProvider, engine, anticipatedLang, defaultLang)
+    const predictionHandler = new PredictionHandler(
+      makeModelsByLang(modelsOnFs),
+      modelProvider,
+      engine,
+      anticipatedLang,
+      defaultLang
+    )
     const result = await predictionHandler.predict(germanUtt, ['global'])
 
     // assert
@@ -208,7 +240,13 @@ describe('predict', () => {
     const engine = makeEngineMock(modelsInEngine)
 
     // act
-    const predictionHandler = new PredictionHandler(modelProvider, engine, anticipatedLang, defaultLang)
+    const predictionHandler = new PredictionHandler(
+      makeModelsByLang(modelsOnFs),
+      modelProvider,
+      engine,
+      anticipatedLang,
+      defaultLang
+    )
     const result = await predictionHandler.predict(germanUtt, ['global'])
 
     // assert
@@ -228,7 +266,13 @@ describe('predict', () => {
     const engine = makeEngineMock(modelsInEngine)
 
     // act & assert
-    const predictionHandler = new PredictionHandler(modelProvider, engine, anticipatedLang, defaultLang)
+    const predictionHandler = new PredictionHandler(
+      makeModelsByLang(modelsOnFs),
+      modelProvider,
+      engine,
+      anticipatedLang,
+      defaultLang
+    )
     await assertThrows(() => predictionHandler.predict(germanUtt, ['global']))
     assertPredictCalled(engine.predict as jest.Mock, [])
     assertModelLoaded(modelProvider.getLatestModel as jest.Mock, [de, fr, en])

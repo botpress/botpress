@@ -1,6 +1,7 @@
 import { NLU } from 'botpress/sdk'
 import _ from 'lodash'
 import LRUCache from 'lru-cache'
+import Engine from 'nlu-core/engine'
 
 import ModelRepository from './model-repo'
 
@@ -22,7 +23,7 @@ export default class ModelService {
     length: model => model.data.input.length + model.data.output.length
   })
 
-  constructor(modelDir: string) {
+  constructor(modelDir: string, private engine: Engine) {
     this._modelRepo = new ModelRepository(modelDir)
   }
 
@@ -51,7 +52,13 @@ export default class ModelService {
     return this._modelRepo.saveModel(model, modelFileName)
   }
 
-  public makeModelId(hash: string, languageCode: string, seed: number) {
-    return `${hash}.${languageCode}.${seed}`
+  public makeModelId(
+    intents: NLU.IntentDefinition[],
+    entities: NLU.EntityDefinition[],
+    languageCode: string,
+    seed: number
+  ) {
+    const hash = this.engine.computeModelHash(intents, entities, languageCode)
+    return `${hash}.${seed}`
   }
 }

@@ -15,6 +15,7 @@ export interface BotState {
   trainSessions: _.Dictionary<NLU.TrainingSession>
   cancelTraining: () => Promise<void>
   needsTrainingWatcher: ListenHandle
+  modelsByLang: _.Dictionary<string>
 }
 
 export interface NLUProgressEvent {

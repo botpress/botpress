@@ -43,8 +43,8 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
       }
 
       try {
-        const { engine, defaultLanguage } = state.nluByBot[event.botId]
         const { botId, preview, nlu } = event
+        const { engine, defaultLanguage, modelsByLang } = state.nluByBot[botId]
 
         const ghost = bp.ghost.forBot(botId)
         const modelProvider = {
@@ -52,7 +52,13 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
         }
 
         const anticipatedLanguage = event.state.user?.language || defaultLanguage
-        const predictionHandler = new PredictionHandler(modelProvider, engine, anticipatedLanguage, defaultLanguage)
+        const predictionHandler = new PredictionHandler(
+          modelsByLang,
+          modelProvider,
+          engine,
+          anticipatedLanguage,
+          defaultLanguage
+        )
         const nluResults = await predictionHandler.predict(preview, nlu?.includedContexts)
 
         _.merge(event, { nlu: nluResults ?? {} })

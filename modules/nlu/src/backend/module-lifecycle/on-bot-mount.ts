@@ -35,7 +35,7 @@ async function annouceNeedsTraining(bp: typeof sdk, botId: string, engine: sdk.N
       return false // do not send a needs-training event if currently training
     }
     const hash = engine.computeModelHash(intentDefs, entityDefs, lang)
-    return !engine.hasModel(lang, hash)
+    return !engine.hasModel(hash)
   })
 
   await Promise.map(languageWithChanges, async lang => {
@@ -71,7 +71,8 @@ export function getOnBotMount(state: NLUState) {
     const trainOrLoad = _.debounce(
       async (disableTraining: boolean) => {
         // bot got deleted
-        if (!state.nluByBot[botId]) {
+        const botState = state.nluByBot[botId]
+        if (!botState) {
           return
         }
 
@@ -95,7 +96,8 @@ export function getOnBotMount(state: NLUState) {
             let model = await ModelService.getModel(ghost, hash, languageCode)
 
             const trainSession = makeTrainingSession(botId, languageCode, lock)
-            state.nluByBot[botId].trainSessions[languageCode] = trainSession
+
+            botState.trainSessions[languageCode] = trainSession
             if (!model && !disableTraining) {
               await setTrainingSession(bp, botId, trainSession)
 
@@ -107,13 +109,15 @@ export function getOnBotMount(state: NLUState) {
               const rand = () => Math.round(Math.random() * 10000)
               const nluSeed = parseInt(process.env.NLU_SEED) || rand()
 
-              const options: sdk.NLU.TrainingOptions = { forceTrain: false, nluSeed, progressCallback }
+              const previousModel = botState.modelsByLang[languageCode]
+              const options: sdk.NLU.TrainingOptions = { previousModel, nluSeed, progressCallback }
               try {
                 model = await engine.train(trainSession.key, intentDefs, entityDefs, languageCode, options)
 
                 trainSession.status = 'done'
                 await state.sendNLUStatusEvent(botId, trainSession)
-                await engine.loadModel(model)
+                botState.modelsByLang[languageCode] = model.hash
+                await engine.loadModel(model, model.hash)
                 await ModelService.saveModel(ghost, model, hash)
               } catch (err) {
                 if (bp.NLU.errors.isTrainingCanceled(err)) {
@@ -165,7 +169,8 @@ export function getOnBotMount(state: NLUState) {
       trainOrLoad,
       trainSessions: {},
       cancelTraining,
-      needsTrainingWatcher
+      needsTrainingWatcher,
+      modelsByLang: {}
     }
 
     const disableTraining = true

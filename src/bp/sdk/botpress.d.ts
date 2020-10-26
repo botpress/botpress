@@ -457,9 +457,8 @@ declare module 'botpress/sdk' {
       static getLanguages: () => string[]
       constructor(botId: string, logger: Logger)
       computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string
-      loadModel: (m: Model) => Promise<void>
-      hasModel: (lang: string, hash: string) => boolean
-      hasModelForLang: (lang: string) => boolean
+      loadModel: (model: Model, modelId: string) => Promise<void>
+      hasModel: (modelId: string) => boolean
       train: (
         trainSessionId: string,
         intentDefs: NLU.IntentDefinition[],
@@ -468,8 +467,8 @@ declare module 'botpress/sdk' {
         options: TrainingOptions
       ) => Promise<Model>
       cancelTraining: (trainSessionId: string) => Promise<void>
-      detectLanguage: (sentence: string) => Promise<string>
-      predict: (t: string, ctx: string[], language: string) => Promise<IO.EventUnderstanding>
+      detectLanguage: (text: string, models: string[]) => Promise<string>
+      predict: (text: string, ctx: string[], modelId: string) => Promise<IO.EventUnderstanding>
     }
 
     export interface Config {
@@ -490,14 +489,15 @@ declare module 'botpress/sdk' {
     }
 
     export interface TrainingOptions {
-      forceTrain: boolean
       nluSeed: number
       progressCallback: (x: number) => void
+      previousModel?: string
     }
 
     export interface Model {
       hash: string
       languageCode: string
+      seed: number
       startedAt: Date
       finishedAt: Date
       data: {
