@@ -50,7 +50,7 @@ class Composer extends React.Component<ComposerProps> {
       if (shouldFocusNext) {
         this.props.focusNext()
       }
-    } else if (e.key == 'ArrowUp' || e.key == 'ArrowDown') {
+    } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
       this.props.recallHistory(e.key)
     }
   }

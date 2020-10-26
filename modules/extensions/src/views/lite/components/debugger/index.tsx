@@ -166,7 +166,7 @@ export class Debugger extends React.Component<Props, State> {
     this.setState({ fetching: true })
 
     try {
-      const { data: event } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
+      const { data: event } = await this.props.store.bp.axios.get(`/mod/extensions/events/${eventId}`)
 
       this.setState({ event, showEventNotFound: !event, fetching: false })
 

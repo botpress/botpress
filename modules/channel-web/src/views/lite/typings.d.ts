@@ -127,6 +127,7 @@ export interface StudioConnector {
   loadModuleView: any
 }
 
+/* tslint:disable interface-over-type-literal */
 export type Config = {
   botId?: string
   externalAuthToken?: string
@@ -178,6 +179,7 @@ export type Config = {
   /** If true, Websocket is created when the Webchat is opened. Bot cannot be proactive. */
   lazySocket?: boolean
 }
+/* tslint:enable interface-over-type-literal */
 
 type OverridableComponents = 'below_conversation' | 'before_container' | 'composer'
 

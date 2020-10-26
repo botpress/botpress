@@ -4,9 +4,10 @@ import Message from '../lite/components/messages/Message'
 import * as Keyboard from '../lite/components/Keyboard'
 
 const INJECTION_ID = 'bp-channel-web-injection'
-const INJECTION_URL = `assets/modules/channel-web/inject.js`
+const INJECTION_URL = 'assets/modules/channel-web/inject.js'
 
 export class WebBotpressUIInjection extends React.Component {
+  /* tslint:disable:prefer-function-over-method */
   componentDidMount() {
     if (document.getElementById(INJECTION_ID)) {
       return
@@ -51,6 +52,7 @@ export class WebBotpressUIInjection extends React.Component {
   render() {
     return null
   }
+  /* tslint:enable:prefer-function-over-method */
 }
 
 export {

@@ -43,7 +43,7 @@ class Container extends React.Component<ContainerProps> {
   render() {
     const classNames = classnames('bpw-layout', 'bpw-chat-container', {
       'bpw-layout-fullscreen': this.props.isFullscreen && 'fullscreen',
-      ['bpw-anim-' + this.props.sideTransition]: true
+      [`bpw-anim-${this.props.sideTransition}`]: true
     })
 
     return (

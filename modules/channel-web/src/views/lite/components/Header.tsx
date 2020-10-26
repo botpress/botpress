@@ -50,7 +50,7 @@ class Header extends React.Component<HeaderProps> {
       }
     }
 
-    if (idx == Object.keys(this.btnEls).length) {
+    if (idx === Object.keys(this.btnEls).length) {
       this.onBlur()
       this.props.focusNext()
     }
@@ -186,15 +186,15 @@ class Header extends React.Component<HeaderProps> {
       return
     }
 
-    if (e.key == 'ArrowUp') {
+    if (e.key === 'ArrowUp') {
       this.props.focusPrevious()
-    } else if (e.key == 'ArrowDown') {
+    } else if (e.key === 'ArrowDown') {
       this.props.focusNext()
-    } else if (e.key == 'ArrowLeft') {
+    } else if (e.key === 'ArrowLeft') {
       this.changeButtonFocus(-1)
-    } else if (e.key == 'ArrowRight') {
+    } else if (e.key === 'ArrowRight') {
       this.changeButtonFocus(1)
-    } else if (e.key == 'Enter') {
+    } else if (e.key === 'Enter') {
       e.preventDefault()
       action()
     }

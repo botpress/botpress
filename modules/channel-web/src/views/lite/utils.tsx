@@ -46,7 +46,7 @@ export const checkLocationOrigin = () => {
   if (!window.location.origin) {
     const { protocol, hostname, port } = window.location
     // @ts-ignore
-    window.location.origin = `${protocol}//${hostname}${port && ':' + port}`
+    window.location.origin = `${protocol}//${hostname}${port && `:${port}`}`
   }
 }
 
@@ -63,7 +63,7 @@ export const initializeAnalytics = () => {
       // @ts-ignore
       ReactGA.pageview(window.location.pathname + window.location.search)
     } catch (err) {
-      console.log('Error init analytics', err)
+      console.error('Error init analytics', err)
     }
   }
 }
@@ -92,5 +92,5 @@ export const renderUnsafeHTML = (message: string = '', escaped: boolean): string
   }
 
   const html = snarkdown(message)
-  return html.replace(/<a href/gi, `<a target="_blank" href`)
+  return html.replace(/<a href/gi, '<a target="_blank" href')
 }
