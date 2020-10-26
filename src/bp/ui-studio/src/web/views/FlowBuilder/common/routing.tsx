@@ -35,7 +35,7 @@ const parseCondition = condition => {
   } else if (condition.includes('event.nlu.intent.name')) {
     const intent = condition.match(/'(.*)'/)
     return { type: 'intent', value: intent && intent[1] }
-  } else if (availableProps.some(props => condition.indexOf(props.value + '.') === 0)) {
+  } else if (availableProps.some(props => condition.indexOf(`${props.value}.`) === 0)) {
     return { type: 'props', value: extractProps() }
   } else {
     return { type: 'raw' }
@@ -56,9 +56,12 @@ const getLabel = parsedCondition => {
 }
 
 export default class RoutingItem extends Component<Props> {
+  /* tslint:disable:prefer-function-over-method */
   renderNormal(child) {
     return child
   }
+  /* tslint:enable:prefer-function-over-method */
+
   // TODO migrate styling to blueprint
   renderOverlay = child => {
     const popoverHoverFocus = (
@@ -90,8 +93,8 @@ export default class RoutingItem extends Component<Props> {
 
       const htmlTpl = caption.replace(/\[(.+)]/gi, x => {
         const name = stripDots(x.replace(/\[|]/g, ''))
-        vars[name] = '<span class="val">' + _.escape(name) + '</span>'
-        return '{{{' + name + '}}}'
+        vars[name] = `<span class="val">${_.escape(name)}</span>`
+        return `{{{${name}}}}`
       })
 
       const mustached = restoreDots(Mustache.render(htmlTpl, vars))
