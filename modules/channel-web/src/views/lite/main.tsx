@@ -97,7 +97,7 @@ class Web extends React.Component<MainProps> {
   }
 
   postMessageToParent(type: string, value: any) {
-    window.parent?.postMessage({ type, value, chatId : this.props.config.chatId }, '*')
+    window.parent?.postMessage({ type, value, chatId : this.config.chatId }, '*')
   }
 
   extractConfig() {
@@ -283,7 +283,8 @@ class Web extends React.Component<MainProps> {
     }
 
     const parentClass = classnames(`bp-widget-web bp-widget-${this.props.activeView}`, {
-      'bp-widget-hidden': !this.props.showWidgetButton && this.props.displayWidgetView
+      'bp-widget-hidden': !this.props.showWidgetButton && this.props.displayWidgetView,
+      [this.props.config.className]: !!this.props.config.className
     })
 
     if (this.parentClass !== parentClass) {
