@@ -60,6 +60,7 @@
       "createNew": "Créer un nouveau {title}",
       "currentlySearching": "Type sélectionné",
       "deleteElements": "Supprimer les éléments sélectionnés",
+      "missingClosingCurlyBrace": "Accolade de fermeture manquante",
       "import": {
         "analysis": "Analyse",
         "clearExisting": "Effacez tous les éléments existants, puis importez ceux de mon fichier",
