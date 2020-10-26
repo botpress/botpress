@@ -4,7 +4,7 @@ import React, { FC, useState } from 'react'
 
 import style from '../style.scss'
 
-import SendIcon from './SendIcon'
+import SendIcon from '../Icons/SendIcon'
 
 interface Props {
   onSubmit: (content: string) => Promise<any>
