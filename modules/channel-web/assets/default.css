@@ -701,7 +701,7 @@
   .bpw-composer {
     position: relative;
     outline: none;
-    padding: var(--spacing-x-large) 40px var(--spacing-x-large) var(--spacing-large);
+    padding: var(--spacing-x-large) 50px var(--spacing-x-large) var(--spacing-large);
   }
 
   .bpw-send-button:disabled {
@@ -746,7 +746,7 @@
 
   .bpw-send-button {
     position: absolute;
-    right: -30px;
+    right: -45px;
     top: 50%;
     transform: translate(0, -50%);
     border: none;

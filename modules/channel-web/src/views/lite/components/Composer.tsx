@@ -1,7 +1,7 @@
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
-import { InjectedIntlProps, injectIntl } from 'react-intl'
+import { FormattedMessage, InjectedIntlProps, injectIntl } from 'react-intl'
 
 import ToolTip from '../../../../../../src/bp/ui-shared-lite/ToolTip'
 import Send from '../icons/Send'
@@ -83,7 +83,7 @@ class Composer extends React.Component<ComposerProps> {
             {placeholder}
           </label>
 
-          <ToolTip content={this.props.isEmulator ? 'Interact with your chatbot' : 'Send Message'}>
+          <ToolTip childId="btn-send" content={this.props.isEmulator ? 'Interact with your chatbot' : 'Send Message'}>
             <button
               className={'bpw-send-button'}
               disabled={!this.props.message.length}
@@ -94,7 +94,7 @@ class Composer extends React.Component<ComposerProps> {
               })}
               id="btn-send"
             >
-              <Send />
+              <FormattedMessage id={'composer.send'} />
             </button>
           </ToolTip>
         </div>
