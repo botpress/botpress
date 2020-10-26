@@ -178,7 +178,7 @@ export interface Config {
   lazySocket?: boolean,
   /** Refers to a specific webchat reference in parent window. Useful when using multiple chat window */
   chatId?: string,
-  /** CSS class to be applied to iframe*/
+  /** CSS class to be applied to iframe */
   className?: string
 }
 
