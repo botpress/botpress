@@ -1,11 +1,13 @@
-import { HeaderButtonProps, lang, MainContent } from 'botpress/shared'
+import { HeaderButtonProps, lang, MainLayout } from 'botpress/shared'
 import _ from 'lodash'
 import React from 'react'
 import { connect } from 'react-redux'
 import { flowEditorRedo, flowEditorUndo } from '~/actions'
 import { canFlowRedo, canFlowUndo } from '~/reducers'
 
-const WorkflowToolbar = props => {
+import style from './style.scss'
+
+const WorkflowToolbar = ({ canRedo, canUndo, currentTab, redo, tabChange, undo }) => {
   const tabs = [
     {
       id: 'workflow',
@@ -13,22 +15,30 @@ const WorkflowToolbar = props => {
     }
   ]
 
-  const buttons: HeaderButtonProps[] = [
+  const flowButtons: HeaderButtonProps[] = [
     {
       icon: 'undo',
-      disabled: !props.canUndo,
+      disabled: !canUndo,
       tooltip: lang.tr('undo'),
-      onClick: props.undo
+      onClick: undo
     },
     {
       icon: 'redo',
-      disabled: !props.canRedo,
+      disabled: !canRedo,
       tooltip: lang.tr('redo'),
-      onClick: props.redo
+      onClick: redo
     }
   ]
 
-  return <MainContent.Header tabs={tabs} buttons={buttons} />
+  return (
+    <MainLayout.Toolbar
+      className={style.header}
+      tabs={tabs}
+      buttons={flowButtons}
+      currentTab={currentTab}
+      tabChange={tabChange}
+    />
+  )
 }
 
 const mapStateToProps = state => ({

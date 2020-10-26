@@ -1,0 +1,71 @@
+.toaster {
+  :global {
+    .bp3-toast {
+      background: #fff !important;
+      padding: var(--spacing-large) var(--spacing-medium) !important;
+      border-radius: 5px !important;
+      box-shadow: none !important;
+      margin: -8px 0 18px !important;
+      align-items: center;
+
+      & > .bp3-icon {
+        color: #fff;
+        margin: 0 var(--spacing-medium) 0 0 !important;
+        padding: 0 !important;
+
+        svg {
+          width: 20px;
+          height: 20px;
+        }
+      }
+
+      &.bp3-intent-danger {
+        background: var(--hover-lighthouse-30) !important;
+
+        & > .bp3-icon {
+          color: var(--lighthouse);
+        }
+      }
+
+      &.bp3-intent-warning {
+        background: var(--hover-lighthouse-30) !important;
+
+        & > .bp3-icon {
+          color: var(--lighthouse);
+        }
+      }
+
+      &.bp3-intent-success {
+        background: var(--say) !important;
+
+        & > .bp3-icon {
+          color: var(--success);
+        }
+      }
+
+      &.bp3-intent-primary > .bp3-icon {
+        color: var(--shark);
+      }
+    }
+
+    .bp3-toast-message {
+      font-size: 12px;
+      line-height: 1.35;
+      color: var(--shark);
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .bp3-button-group .bp3-icon svg {
+      fill: var(--shark) !important;
+    }
+  }
+}
+
+.hideDismiss {
+  :global {
+    .bp3-toast-message + .bp3-button-group {
+      display: none !important;
+    }
+  }
+}
