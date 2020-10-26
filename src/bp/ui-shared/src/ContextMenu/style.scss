@@ -1,0 +1,71 @@
+.contextMenuWrapper {
+  position: absolute;
+  z-index: 9999;
+  border-radius: 2px;
+  box-shadow: 0 8px 24px 0 rgba(16, 22, 26, 0.4);
+  background-color: #fff;
+  transform: translate(-23px, 8px);
+
+  &:before {
+    content: '';
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid #fff;
+    position: absolute;
+    top: -8px;
+    left: 15px;
+  }
+
+  :global {
+    .bp3-heading {
+      font-size: 12px !important;
+      font-weight: bold !important;
+      line-height: 1.08 !important;
+      color: var(--shark) !important;
+      padding: 0 !important;
+    }
+
+    .bp3-menu-item {
+      color: var(--shark);
+      font-size: 12px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      border-radius: 5px;
+      padding: var(--spacing-medium) !important;
+      transition: background 0.3s;
+
+      &:hover {
+        background-color: var(--bg) !important;
+      }
+
+      .bp3-icon {
+        margin-top: 0 !important;
+      }
+
+      svg,
+      path {
+        fill: var(--shark) !important;
+        height: 12px;
+        width: auto;
+      }
+
+      &.bp3-intent-danger {
+        color: var(--lighthouse);
+
+        svg {
+          fill: var(--lighthouse) !important;
+        }
+
+        &:hover {
+          color: var(--lighthouse);
+          background: var(--hover-lighthouse-30);
+
+          svg {
+            fill: var(--lighthouse) !important;
+          }
+        }
+      }
+    }
+  }
+}

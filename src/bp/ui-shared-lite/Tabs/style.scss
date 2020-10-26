@@ -1,0 +1,41 @@
+.tabs {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0;
+  margin: 0;
+
+  &.float {
+    float: left;
+  }
+
+  li:not(:last-child) {
+    margin-right: var(--spacing-x-large);
+  }
+
+  button {
+    background: none;
+    border: none;
+    border-top: 2px solid transparent;
+    cursor: pointer;
+    padding: var(--spacing-medium) 0 0;
+    margin: 0;
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 1.25;
+    color: var(--gray);
+    text-transform: uppercase;
+    transition: color 0.3s, border 0.3s;
+
+    &:not(.active):hover {
+      color: var(--reef);
+    }
+
+    &.active {
+      border-color: var(--ocean);
+      color: var(--shark);
+      cursor: default;
+    }
+  }
+}
