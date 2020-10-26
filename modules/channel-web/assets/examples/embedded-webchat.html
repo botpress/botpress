@@ -4,6 +4,7 @@
     <title>Embedded Webchat</title>
     <!-- Set the base URL to access this page, for example: /botpress/
     It must match the path configured as an externalUrl in Botpress config, and in the init method -->
+    <link rel="stylesheet" href="/assets/modules/channel-web/examples/parent.css" type="text/css" />
     <base href="/" />
     <!-- Object.assign polyfill (required for IE) -->
     <script src="assets/modules/channel-web/object_assign.js"></script>
@@ -41,6 +42,10 @@
     <button id="change-lang3-bp">Browser (default)</button>
     <h2>Control User Identity</h2>
     <p>The current user ID is <span id="user-id-bp">UNKNOWN</span></p>
+    
+    <h2>Working with multiple chat windows</h2>
+    <button id="show-second-bp">Toggle second chat window</button>
+    <div id="chat2"></div>
 
     <script>
       function parseQuery(queryString) {
@@ -66,7 +71,7 @@
         To change the styling of the webchat, you can either edit directly default.css, or use the extraStylesheet property.
         This allows you to customize the chat on a per-bot basis.
       */
-        //extraStylesheet: 'assets/modules/channel-web/examples/my-theme.css'
+        //extraStylesheet: 'assets/channel-web/examples/my-theme.css'
       }
 
       window.botpressWebChat.init(lastConfig)
@@ -149,6 +154,30 @@
 
       document.getElementById('toggle-bp').addEventListener('click', function() {
         window.botpressWebChat.sendEvent({ type: webchatOpen ? 'hide' : 'show' })
+      })
+      
+      let secondInit = false
+      document.getElementById('show-second-bp').addEventListener('click', function() {
+        if(!secondInit){
+          const config = {
+            host: window.location.origin || 'http://localhost:3000',
+            botId: botId,
+            showConversationsButton: false,
+            botName: 'Chat window #2',
+            className: 'chat2',
+            enableReset: false,
+            chatId:'second',
+            hideWidget:true,
+            disableAnimations:true,
+            containerWidth:600,
+            layoutWidth:600
+          }
+          window.botpressWebChat.init(config, '#chat2')
+          secondInit = true
+        }
+        window.setTimeout(function(){
+          window.botpressWebChat.sendEvent({type: 'toggle'}, 'second')
+        },200)
       })
     </script>
   </body>
