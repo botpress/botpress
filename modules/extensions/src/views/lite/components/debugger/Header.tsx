@@ -3,7 +3,6 @@ import React from 'react'
 
 import Icons from '../../../../../../../src/bp/ui-shared-lite/Icons'
 import Tabs from '../../../../../../../src/bp/ui-shared-lite/Tabs'
-import lang from '../../../lang'
 
 import style from './style.scss'
 
@@ -25,7 +24,7 @@ export default ({ newSession, toggleSettings, maximized, setMaximized }) => {
         <Tooltip content="Configure settings">
           <Button minimal={true} icon="cog" onClick={toggleSettings} />
         </Tooltip>
-        <Tooltip content={lang.tr(maximized ? 'minimizeInspector' : 'maximizeInspector')}>
+        <Tooltip content={maximized ? 'Minimize Inspector' : 'Maximize Inspector'}>
           <Button minimal icon={maximized ? <Icons.Minimize /> : 'fullscreen'} onClick={setMaximized} />
         </Tooltip>
       </div>
