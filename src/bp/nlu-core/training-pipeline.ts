@@ -20,7 +20,6 @@ import {
   ListEntity,
   ListEntityModel,
   PatternEntity,
-  SeededLodashProvider,
   TFIDF,
   Token2Vec,
   Tools,
@@ -510,17 +509,11 @@ const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progres
 
 const NB_STEPS = 6 // change this if the training pipeline changes
 
-export type Trainer = (
+export const Trainer = async (
   input: TrainInput,
   tools: Tools,
   progress?: (x: number) => void
-) => Promise<TrainOutput | undefined>
-
-export const Trainer: Trainer = async (
-  input: TrainInput,
-  tools: Tools,
-  progress?: (x: number) => void
-): Promise<TrainOutput | undefined> => {
+): Promise<TrainOutput> => {
   let totalProgress = 0
   let normalizedProgress = 0
 

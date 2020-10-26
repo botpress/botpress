@@ -446,6 +446,11 @@ declare module 'botpress/sdk' {
   }
 
   export namespace NLU {
+    export namespace errors {
+      export const isTrainingCanceled: (err: Error) => boolean
+      export const isTrainingAlreadyStarted: (err: Error) => boolean
+    }
+
     export class Engine {
       static initialize: (config: Config, logger: NLU.Logger) => Promise<void>
       static getHealth: () => Health
@@ -461,7 +466,7 @@ declare module 'botpress/sdk' {
         entityDefs: NLU.EntityDefinition[],
         languageCode: string,
         options: TrainingOptions
-      ) => Promise<Model | undefined>
+      ) => Promise<Model>
       cancelTraining: (trainSessionId: string) => Promise<void>
       detectLanguage: (sentence: string) => Promise<string>
       predict: (t: string, ctx: string[], language: string) => Promise<IO.EventUnderstanding>

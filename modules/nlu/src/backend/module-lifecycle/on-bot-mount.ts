@@ -108,16 +108,24 @@ export function getOnBotMount(state: NLUState) {
               const nluSeed = parseInt(process.env.NLU_SEED) || rand()
 
               const options: sdk.NLU.TrainingOptions = { forceTrain: false, nluSeed, progressCallback }
-              model = await engine.train(trainSession.key, intentDefs, entityDefs, languageCode, options)
-              if (model) {
-                trainSession.status = 'done'
-                await state.sendNLUStatusEvent(botId, trainSession)
-                await engine.loadModel(model)
-                await ModelService.saveModel(ghost, model, hash)
-              } else {
-                trainSession.status = 'needs-training'
-                await state.sendNLUStatusEvent(botId, trainSession)
+              try {
+                model = await engine.train(trainSession.key, intentDefs, entityDefs, languageCode, options)
+              } catch (err) {
+                if (bp.NLU.errors.isTrainingCanceled(err)) {
+                  bp.logger.info('Training cancelled')
+                  trainSession.status = 'needs-training'
+                  await state.sendNLUStatusEvent(botId, trainSession)
+                } else if (bp.NLU.errors.isTrainingAlreadyStarted(err)) {
+                  bp.logger.info('Training already started')
+                } else {
+                  bp.logger.attachError(err).error('Could not finish training NLU model')
+                }
               }
+
+              trainSession.status = 'done'
+              await state.sendNLUStatusEvent(botId, trainSession)
+              await engine.loadModel(model)
+              await ModelService.saveModel(ghost, model, hash)
             } else {
               trainSession.progress = 1
               trainSession.status = 'done'

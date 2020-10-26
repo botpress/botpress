@@ -10,7 +10,7 @@ import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipe
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
 import { computeKmeans, ProcessIntents, TrainInput, TrainOutput } from './training-pipeline'
-import { TrainingCanceledError, TrainingWorkerQueue } from './training-worker-queue'
+import { TrainingWorkerQueue } from './training-worker-queue'
 import { EntityCacheDump, Intent, ListEntity, PatternEntity, Tools } from './typings'
 
 const trainDebug = DEBUG('nlu').sub('training')
@@ -78,7 +78,7 @@ export default class Engine implements NLU.Engine {
     entityDefs: NLU.EntityDefinition[],
     languageCode: string,
     options: NLU.TrainingOptions
-  ): Promise<NLU.Model | undefined> {
+  ): Promise<NLU.Model> {
     trainDebug.forBot(this.botId, `Started ${languageCode} training`)
 
     const list_entities = entityDefs
@@ -151,11 +151,19 @@ export default class Engine implements NLU.Engine {
       ctxToTrain
     }
 
-    const hash = this.computeModelHash(intentDefs, entityDefs, languageCode)
-    const model = await this._trainAndMakeModel(trainSessionId, input, hash, progressCallback)
+    const startedAt = new Date()
+    const output = await Engine._trainingWorkerQueue.startTraining(trainSessionId, input, progressCallback)
 
-    if (!model) {
-      return
+    const hash = this.computeModelHash(intentDefs, entityDefs, languageCode)
+    const model: PredictableModel = {
+      startedAt,
+      finishedAt: new Date(),
+      languageCode: input.languageCode,
+      hash,
+      data: {
+        input,
+        output
+      }
     }
 
     if (!trainAllCtx) {
@@ -184,42 +192,6 @@ export default class Engine implements NLU.Engine {
     output.intent_model_by_ctx = { ...previousIntents, ...currentOutput.intent_model_by_ctx }
     output.oos_model = { ...previousOOS, ...currentOutput.oos_model }
     return output
-  }
-
-  private async _trainAndMakeModel(
-    trainSessionId: string,
-    input: TrainInput,
-    hash: string,
-    progressCallback: (progress: number) => void
-  ): Promise<PredictableModel | undefined> {
-    const startedAt = new Date()
-    let output: TrainOutput | undefined
-
-    try {
-      output = await Engine._trainingWorkerQueue.startTraining(trainSessionId, input, progressCallback)
-    } catch (err) {
-      if (err instanceof TrainingCanceledError) {
-        this.logger.info('Training cancelled')
-        return
-      }
-      this.logger.error('Could not finish training NLU model', err)
-      return
-    }
-
-    if (!output) {
-      return
-    }
-
-    return {
-      startedAt,
-      finishedAt: new Date(),
-      languageCode: input.languageCode,
-      hash,
-      data: {
-        input,
-        output
-      }
-    }
   }
 
   private modelAlreadyLoaded(model: NLU.Model) {
