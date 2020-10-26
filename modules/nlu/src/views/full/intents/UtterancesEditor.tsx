@@ -158,7 +158,7 @@ export class UtterancesEditor extends React.Component<Props> {
     }
 
     event.clipboardData.setData('text/plain', lines.join('\n'))
-    event.clipboardData.setData('text/html', '<ul>' + lines.map(x => `<li>${x}</li>`).join('') + '</ul>')
+    event.clipboardData.setData('text/html', `<ul>${lines.map(x => `<li>${x}</li>`).join('')}</ul>`)
     event.preventDefault()
   }
 
