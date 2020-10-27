@@ -48,20 +48,23 @@
     .title {
       display: flex;
       align-items: center;
-      span {
-        margin-right: 12px;
+      span,
+      button {
+        margin-right: 6px;
       }
       cursor: pointer;
+    }
+    .subtitle {
+      font-size: 10px;
+      font-style: italic;
+      opacity: 80%;
+      padding-top: 3px;
     }
     .scenarioStatus {
       display: flex;
       align-items: center;
-      > span {
-        margin-right: 10px;
-      }
-      .delete {
-        margin-left: 10px;
-        cursor: pointer;
+      > * {
+        margin-left: 12px;
       }
     }
   }

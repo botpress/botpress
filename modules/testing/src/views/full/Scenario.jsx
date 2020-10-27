@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Panel, Label } from 'react-bootstrap'
+import { Panel, Label, Button } from 'react-bootstrap'
 import { Icon, Intent } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 
@@ -53,20 +53,23 @@ class Scenario extends React.Component {
       <Panel className={style.scenario} id={scenario.name} expanded={expanded}>
         <Panel.Heading className={style.scenarioHead}>
           <Panel.Title className={style.title} onClick={this.toggleExpanded.bind(this, !expanded)}>
-            {expanded && <Icon icon={IconNames.CHEVRON_UP} />}
-            {!expanded && <Icon icon={IconNames.CHEVRON_DOWN} />}
+            <Button bsSize="small" className={'btn-light'}>
+              <Icon icon={expanded ? IconNames.CHEVRON_UP: IconNames.CHEVRON_DOWN} style={{ margin: 0 }} />
+            </Button>
             <span>{scenario.name}</span>
-            {!isRunning && (
-              <Icon icon={IconNames.PLAY} onClick={this.handleRunClick} className={style.run} intent={Intent.SUCCESS} />
-            )}
-          </Panel.Title>
-          <div className={style.scenarioStatus}>
-            <span>
+            <span className={style.subtitle}>
               {scenario.status && `${scenario.completedSteps} /`} {scenario.steps.length} interaction
               {scenario.steps.length === 1 ? '' : 's'}
             </span>
+          </Panel.Title>
+          <div className={style.scenarioStatus}>
             {this.renderStatusLabel(scenario.status)}
-            <Icon icon={IconNames.DELETE} onClick={this.handleDeleteClick} intent={Intent.DANGER} className={style.delete}  />
+            <Button bsSize="small" variant="danger" className={'btn-danger'} onClick={this.handleDeleteClick}>
+              <Icon size={11} icon={IconNames.TRASH} />
+            </Button>
+            <Button bsSize="small" variant="success" className={'btn-success'} disabled={isRunning} onClick={this.handleRunClick}>
+              <Icon size={13} icon={IconNames.PLAY} />
+            </Button>
           </div>
         </Panel.Heading>
         <Panel.Collapse>

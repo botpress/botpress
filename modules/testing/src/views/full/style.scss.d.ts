@@ -2,7 +2,6 @@
 // Please do not change this file!
 interface CssExports {
   'botReplies': string;
-  'delete': string;
   'empty': string;
   'interaction': string;
   'interactionStatus': string;
@@ -14,6 +13,7 @@ interface CssExports {
   'scenarioPreview': string;
   'scenarioRecorder': string;
   'scenarioStatus': string;
+  'subtitle': string;
   'summary': string;
   'title': string;
   'workspace': string;

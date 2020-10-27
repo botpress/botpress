@@ -1,5 +1,7 @@
 import React from 'react'
-import { Grid, Row, Col, Button, Glyphicon } from 'react-bootstrap'
+import { Grid, Row, Col, Button } from 'react-bootstrap'
+import { Icon, Intent } from '@blueprintjs/core'
+import { IconNames } from '@blueprintjs/icons'
 import style from './style.scss'
 import ScenarioRecorder from './ScenarioRecorder'
 import NoScenarios from './NoScenarios'
@@ -43,6 +45,11 @@ export default class Testing extends React.Component {
     }
 
     this.setState(newState)
+  }
+
+  deleteAllScenarios = async () => {
+    await this.props.bp.axios.post('/mod/testing/deleteAllScenarios')
+    await this.loadScenarios()
   }
 
   loadPreviews = async () => {
@@ -160,11 +167,15 @@ export default class Testing extends React.Component {
                   <Col md={4}>
                     <div className="pull-right">
                       <Button bsSize="small" onClick={this.runAllScenarios} disabled={this.state.isRunning}>
-                        <Glyphicon glyph="play" /> Run All
+                        <Icon icon={IconNames.PLAY} intent={Intent.SUCCESS} /> Run All
                       </Button>
                       &nbsp;
                       <Button bsSize="small" onClick={this.startRecording}>
-                        <Glyphicon glyph="record " /> Record new
+                        <Icon icon={IconNames.RECORD} /> Record new
+                      </Button>
+                      &nbsp;
+                      <Button bsSize="small" variant="danger" onClick={this.deleteAllScenarios}>
+                        <Icon icon={IconNames.TRASH} /> Delete all
                       </Button>
                     </div>
                   </Col>

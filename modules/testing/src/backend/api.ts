@@ -58,6 +58,11 @@ export default async (bp: typeof sdk, testByBot: TestByBot) => {
     }
   })
 
+  router.post('/deleteAllScenarios', async (req, res) => {
+    await testByBot[req.params.botId].deleteAllScenarios()
+    return res.sendStatus(200)
+  })
+
   router.post('/incomingEvent', (req, res) => {
     const event = req.body as sdk.IO.IncomingEvent
     res.send(testByBot[req.params.botId].processIncomingEvent(event))

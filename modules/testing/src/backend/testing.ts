@@ -96,6 +96,16 @@ export class Testing {
     await this._loadScenarios()
   }
 
+  async deleteAllScenarios() {
+    const scenarios = await this.getScenarios()
+
+    return Promise.all(
+      scenarios.map(async scenario => {
+        await this.deleteScenario(scenario.name)
+      })
+    )
+  }
+
   private _executeScenario(scenario: Scenario) {
     const eventDestination: sdk.IO.EventDestination = {
       channel: 'web',
