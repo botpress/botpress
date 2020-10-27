@@ -151,7 +151,7 @@ class Diagram extends Component<Props> {
     }
 
     // Refresh nodes when the filter is displayed
-    if (this.props.highlightFilter && this.props.showSearch) {
+    if (this.props.highlightFilter) {
       this.manager.setHighlightedNodes(this.props.highlightFilter)
       this.manager.syncModel()
     }
@@ -159,12 +159,6 @@ class Diagram extends Component<Props> {
     // Refresh nodes when the filter is updated
     if (this.props.highlightFilter !== prevProps.highlightFilter) {
       this.manager.setHighlightedNodes(this.props.highlightFilter)
-      this.manager.syncModel()
-    }
-
-    // Clear nodes when search field is hidden
-    if (!this.props.showSearch && prevProps.showSearch) {
-      this.manager.setHighlightedNodes([])
       this.manager.syncModel()
     }
   }
@@ -492,19 +486,6 @@ class Diagram extends Component<Props> {
           <Tag intent={nbReceive > 0 ? Intent.PRIMARY : Intent.NONE}>{nbReceive}</Tag>{' '}
           {lang.tr('studio.flow.flowWideOnReceives', { count: nbReceive })}
         </Button>
-        {this.props.showSearch && (
-          <ControlGroup>
-            <InputGroup
-              id="input-highlight-name"
-              tabIndex={1}
-              placeholder={lang.tr('studio.flow.highlightByName')}
-              value={this.props.highlightFilter}
-              onChange={this.props.handleFilterChanged}
-              autoFocus
-            />
-            <Button icon="small-cross" onClick={this.props.hideSearch} />
-          </ControlGroup>
-        )}
       </div>
     )
   }
