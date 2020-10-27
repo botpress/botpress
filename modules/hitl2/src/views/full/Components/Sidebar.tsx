@@ -25,8 +25,6 @@ const Sidebar: FC<Props> = ({ escalation, api }) => {
   const createComment = async (content: string) => {
     try {
       const comment = await api.createComment(id, { content: content })
-      // tslint:disable-next-line: no-floating-promises
-      api.setOnline()
       dispatch({ type: 'setComment', payload: comment })
     } catch (error) {
       dispatch({ type: 'setError', payload: error })

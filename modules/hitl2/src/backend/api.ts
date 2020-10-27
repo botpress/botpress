@@ -194,6 +194,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       }
 
       escalation = await repository.updateEscalation(req.params.botId, req.params.id, payload)
+      await repository.setAgentOnline(req.params.botId, agentId, true) // Bump agent session timeout
 
       // Find or create an "agent" user to send messages to
       const user = (await bp.users.getOrCreateUser('web', agentId, req.params.botId)).result
@@ -255,6 +256,7 @@ export default async (bp: typeof sdk, state: StateType) => {
         state.expireEscalation(req.params.botId, escalation.userThreadId)
         return escalation
       })
+      await repository.setAgentOnline(req.params.botId, agentId, true) // Bump agent session timeout
 
       realtime.sendPayload({
         resource: 'escalation',
@@ -271,16 +273,18 @@ export default async (bp: typeof sdk, state: StateType) => {
     '/escalations/:id/comments',
     hitlMiddleware(async (req: RequestWithUser, res: Response) => {
       const { email, strategy } = req.tokenUser!
+      const agentId = makeAgentId(strategy, email)
 
       const payload: CommentType = {
         ...req.body,
         escalationId: req.params.id,
-        agentId: makeAgentId(strategy, email)
+        agentId: agentId
       }
 
       Joi.attempt(payload, CreateCommentSchema)
 
       const comment = await repository.createComment(payload)
+      await repository.setAgentOnline(req.params.botId, agentId, true) // Bump agent session timeout
 
       res.status(201)
       res.json(comment)

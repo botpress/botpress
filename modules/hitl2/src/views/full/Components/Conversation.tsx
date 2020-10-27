@@ -23,8 +23,6 @@ const Conversation: FC<Props> = props => {
   async function handleAssign() {
     try {
       const escalation = await api.assignEscalation(props.escalation.id)
-      // tslint:disable-next-line: no-floating-promises
-      api.setOnline()
       toast.success(lang.tr('module.hitl2.escalation.assign', { id: escalation.id }))
     } catch (error) {
       if (_.inRange(error.response.status, 400, 499)) {
@@ -38,8 +36,6 @@ const Conversation: FC<Props> = props => {
   async function handleResolve() {
     try {
       const escalation = await api.resolveEscalation(props.escalation.id)
-      // tslint:disable-next-line: no-floating-promises
-      api.setOnline()
       toast.success(lang.tr('module.hitl2.escalation.resolve', { id: escalation.id }))
     } catch (error) {
       if (_.inRange(error.response.status, 400, 499)) {
