@@ -26,7 +26,7 @@ async function annouceNeedsTraining(bp: typeof sdk, botId: string, engine: sdk.N
   const botLanguages = (await bp.bots.getBotById(botId)).languages
   const trainSessions = await Promise.map(
     botLanguages,
-    async (lang: string) => await getTrainingSession(bp, botId, lang)
+    async (lang: string) => getTrainingSession(bp, botId, lang)
   )
 
   const languageWithChanges = botLanguages.filter(lang => {

@@ -77,7 +77,7 @@ export const exportCompleteWorkflow = async (workflowName: string) => {
       content: await getContentElements(cmsIds),
       actions: await getActions(actionNames),
       intents: await getIntents(intentNames),
-      skills: await Promise.mapSeries(skills, async flowN2 => await exportFlowData(flows, flowN2))
+      skills: await Promise.mapSeries(skills, async flowN2 => exportFlowData(flows, flowN2))
     }
   }
 

@@ -42,7 +42,7 @@ export const setupMasterNode = (logger: sdk.Logger) => {
   cluster.setupMaster({ execArgv: process.pkg ? [] : process.execArgv })
 
   registerMsgHandler('reboot_server', (_message, worker) => {
-    logger.warn(`Restarting server...`)
+    logger.warn('Restarting server...')
     worker.disconnect()
     worker.kill()
   })
@@ -59,7 +59,7 @@ export const setupMasterNode = (logger: sdk.Logger) => {
     }
 
     const { exitedAfterDisconnect, id } = worker
-    debug(`Process exiting %o`, { workerId: id, code, signal, exitedAfterDisconnect })
+    debug('Process exiting %o', { workerId: id, code, signal, exitedAfterDisconnect })
     // Reset the counter when the reboot was intended
     if (exitedAfterDisconnect) {
       webServerRebootCount = 0
@@ -99,7 +99,7 @@ export const setupMasterNode = (logger: sdk.Logger) => {
 function spawnWebWorker() {
   const { id } = cluster.fork({ SERVER_ID: process.SERVER_ID, WORKER_TYPE: WORKER_TYPES.WEB })
   process.WEB_WORKER = id
-  debug(`Spawned Web Worker`)
+  debug('Spawned Web Worker')
 }
 
 export async function spawnNewTrainingWorker(config: sdk.NLU.Config, requestId: string): Promise<number> {

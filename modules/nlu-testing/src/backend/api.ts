@@ -203,7 +203,7 @@ async function isRunningFromSources(bp: typeof sdk, botId: string): Promise<stri
     }
 
     const sourceDirectory = path.resolve(process.PROJECT_LOCATION, '../..')
-    const botTemplatesPath = path.resolve(sourceDirectory, `./modules/nlu-testing/src/bot-templates`)
+    const botTemplatesPath = path.resolve(sourceDirectory, './modules/nlu-testing/src/bot-templates')
     const childDirs = fs.readdirSync(botTemplatesPath)
 
     const botTemplateUnderTesting = childDirs.find(template => {
@@ -315,7 +315,7 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
       reason: success
         ? ''
         : `Context doesn't match. \nexpected: ${expected} \nreceived: ${received} \nconfidence: ${conf}`,
-      received: received,
+      received,
       expected
     }
   }
