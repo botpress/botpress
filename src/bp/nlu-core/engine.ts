@@ -16,19 +16,31 @@ import { EntityCacheDump, Intent, ListEntity, PatternEntity, Tools } from './typ
 
 const trainDebug = DEBUG('nlu').sub('training')
 
-type LoadedModel = {
+interface LoadedModel {
   model: PredictableModel
   predictors: Predictors
   entityCache: EntityCacheManager
+}
+
+// TODO: this should might be settable
+const DEFAULT_OPTIONS: Options = {
+  maxLoadedModels: 5
+}
+
+interface Options {
+  maxLoadedModels: number
 }
 
 export default class Engine implements NLU.Engine {
   private _tools!: Tools
   private _trainingWorkerQueue!: TrainingWorkerQueue
 
-  private modelsById: LRUCache<string, LoadedModel> = new LRUCache(1000)
+  private modelsById: LRUCache<string, LoadedModel>
 
-  constructor(private logger: NLU.Logger) {}
+  constructor(private logger: NLU.Logger, opt?: Partial<Options>) {
+    const options: Options = { ...DEFAULT_OPTIONS, ...opt }
+    this.modelsById = new LRUCache(options.maxLoadedModels)
+  }
 
   public getHealth() {
     return this._tools.getHealth()

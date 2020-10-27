@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import LRUCache from 'lru-cache'
 import { ColdListEntityModel, EntityCache, EntityCacheDump, EntityExtractionResult } from 'nlu-core/typings'
 
