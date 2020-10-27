@@ -121,10 +121,6 @@ class Diagram extends Component<Props> {
     this.manager.setCurrentFlow(this.props.currentFlow)
     this.manager.setReadOnly(this.props.readOnly)
 
-    if (!prevProps.showSearch && this.props.showSearch) {
-      this.searchRef.current.focus()
-    }
-
     if (this.diagramContainer) {
       this.manager.setDiagramContainer(this.diagramWidget, {
         width: this.diagramContainer.offsetWidth,
@@ -551,6 +547,7 @@ class Diagram extends Component<Props> {
 
         <div className={style.searchWrapper}>
           <SearchBar
+            id="input-highlight-name"
             className={style.noPadding}
             ref={this.searchRef}
             onBlur={this.props.hideSearch}
@@ -604,7 +601,6 @@ interface Props {
   buildSkill: any
   readOnly: boolean
   canPasteNode: boolean
-  showSearch: boolean
   hideSearch: () => void
   handleFilterChanged: (event: any) => void
   highlightFilter: string
