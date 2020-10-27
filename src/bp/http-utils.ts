@@ -37,7 +37,7 @@ export const authMiddleware = (secureToken: string, secondToken?: string) => (re
     return next(new UnauthorizedError('Authentication token is missing'))
   }
 
-  if (secureToken !== token && secondToken != token) {
+  if (secureToken !== token && secondToken !== token) {
     debugAuth('Invalid token', { ip: req.ip })
     return next(new UnauthorizedError('Invalid Bearer token'))
   }

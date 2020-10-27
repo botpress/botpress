@@ -24,10 +24,7 @@ async function annouceNeedsTraining(bp: typeof sdk, botId: string, engine: sdk.N
   const entityDefs = await api.fetchEntities()
 
   const botLanguages = (await bp.bots.getBotById(botId)).languages
-  const trainSessions = await Promise.map(
-    botLanguages,
-    async (lang: string) => await getTrainingSession(bp, botId, lang)
-  )
+  const trainSessions = await Promise.map(botLanguages, (lang: string) => getTrainingSession(bp, botId, lang))
 
   const languageWithChanges = botLanguages.filter(lang => {
     const ts = trainSessions.find(t => t.language === lang)

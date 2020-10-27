@@ -36,17 +36,17 @@ export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[
 
   process.BOTPRESS_EVENTS.on('bp_core_feedback_positive', ({ channel, botId, type }) => {
     if (type === 'qna') {
-      db.incrementMetric(botId, channel, `feedback_positive_qna`)
+      db.incrementMetric(botId, channel, 'feedback_positive_qna')
     } else if (type === 'workflow') {
-      db.incrementMetric(botId, channel, `feedback_positive_workflow`)
+      db.incrementMetric(botId, channel, 'feedback_positive_workflow')
     }
   })
 
   process.BOTPRESS_EVENTS.on('bp_core_feedback_negative', ({ channel, botId, type }) => {
     if (type === 'qna') {
-      db.incrementMetric(botId, channel, `feedback_negative_qna`)
+      db.incrementMetric(botId, channel, 'feedback_negative_qna')
     } else if (type === 'workflow') {
-      db.incrementMetric(botId, channel, `feedback_negative_workflow`)
+      db.incrementMetric(botId, channel, 'feedback_negative_workflow')
     }
   })
 

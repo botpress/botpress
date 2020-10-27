@@ -145,7 +145,7 @@ const notifications = (notificationService: NotificationsService): typeof sdk.no
 
 const security = (): typeof sdk.security => {
   return {
-    getMessageSignature: getMessageSignature
+    getMessageSignature
   }
 }
 
@@ -286,13 +286,13 @@ export class BotpressAPIProvider {
   async create(loggerName: string, owner: string): Promise<typeof sdk> {
     return {
       version: '',
-      RealTimePayload: RealTimePayload,
+      RealTimePayload,
       LoggerLevel: require('./sdk/enums').LoggerLevel,
       LogLevel: require('./sdk/enums').LogLevel,
       NodeActionType: require('./sdk/enums').NodeActionType,
       IO: {
-        Event: Event,
-        WellKnownFlags: WellKnownFlags
+        Event,
+        WellKnownFlags
       },
       MLToolkit: this.mlToolkit,
       dialog: this.dialog,
@@ -326,11 +326,11 @@ export function createForModule(moduleId: string): Promise<typeof sdk> {
 
 export function createForGlobalHooks(): Promise<typeof sdk> {
   // return Promise.resolve(<typeof sdk>{})
-  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create(`Hooks`, 'hooks')
+  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create('Hooks', 'hooks')
 }
 
 export function createForBotpress(): Promise<typeof sdk> {
-  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create(`Botpress`, 'botpress')
+  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create('Botpress', 'botpress')
 }
 
 export function createForAction(): Promise<typeof sdk> {

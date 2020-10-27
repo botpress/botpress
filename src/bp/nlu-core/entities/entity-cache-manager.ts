@@ -1,7 +1,7 @@
 import LRUCache from 'lru-cache'
 import { ColdListEntityModel, EntityCache, EntityCacheDump, EntityExtractionResult } from 'nlu-core/typings'
 
-type CacheByName = {
+interface CacheByName {
   [name: string]: EntityCacheDump
 }
 
