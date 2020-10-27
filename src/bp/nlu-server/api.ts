@@ -165,7 +165,7 @@ export default async function(options: APIOptions, engine: Engine) {
           await engine.loadModel(model, modelId)
         }
 
-        const rawPredictions = await Promise.map(texts as string[], t => engine.predict(t, [], model.languageCode))
+        const rawPredictions = await Promise.map(texts as string[], t => engine.predict(t, [], modelId))
         const withoutNone = rawPredictions.map(removeNoneIntent)
 
         return res.send({ success: true, predictions: withoutNone })
@@ -173,7 +173,7 @@ export default async function(options: APIOptions, engine: Engine) {
 
       res.status(404).send({ success: false, error: `modelId ${modelId} can't be found` })
     } catch (err) {
-      res.status(404).send({ success: false, error: err.message })
+      res.status(500).send({ success: false, error: err.message })
     }
   })
 
