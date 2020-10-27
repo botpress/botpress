@@ -316,8 +316,7 @@ class RootStore {
   @action.bound
   async sendData(data: any): Promise<void> {
     if (!constants.MESSAGE_TYPES.includes(data.type)) {
-      // tslint:disable-next-line: no-return-await
-      return await this.api.sendEvent(data, this.currentConversationId)
+      return this.api.sendEvent(data, this.currentConversationId)
     }
 
     await this.api.sendMessage(data, this.currentConversationId)

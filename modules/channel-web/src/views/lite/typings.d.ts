@@ -127,8 +127,7 @@ export interface StudioConnector {
   loadModuleView: any
 }
 
-/* tslint:disable interface-over-type-literal */
-export type Config = {
+export interface Config {
   botId?: string
   externalAuthToken?: string
   userId?: string
