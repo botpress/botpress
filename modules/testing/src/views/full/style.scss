@@ -48,11 +48,10 @@
     .title {
       display: flex;
       align-items: center;
-      cursor: pointer;
-      .run {
-        font-size: 12px;
-        margin-left: 15px;
+      span {
+        margin-right: 12px;
       }
+      cursor: pointer;
     }
     .scenarioStatus {
       display: flex;
@@ -63,7 +62,6 @@
       .delete {
         margin-left: 10px;
         cursor: pointer;
-        font-size: 15px;
       }
     }
   }

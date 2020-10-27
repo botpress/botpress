@@ -7,7 +7,6 @@ interface CssExports {
   'interaction': string;
   'interactionStatus': string;
   'reportInteractions': string;
-  'run': string;
   'scenario': string;
   'scenarioBody': string;
   'scenarioFooter': string;

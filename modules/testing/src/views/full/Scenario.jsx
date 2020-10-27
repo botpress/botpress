@@ -1,12 +1,12 @@
 import React from 'react'
 
-import { Panel, Label, Glyphicon } from 'react-bootstrap'
-import { MdExpandLess, MdExpandMore, MdDelete } from 'react-icons/md'
+import { Panel, Label } from 'react-bootstrap'
+import { Icon, Intent } from "@blueprintjs/core";
+import { IconNames } from "@blueprintjs/icons";
 
 import style from './style.scss'
 import Interaction from './Interaction'
 import FailureReport from './FailureReport'
-import classnames from 'classnames'
 
 class Scenario extends React.Component {
   state = {
@@ -53,11 +53,11 @@ class Scenario extends React.Component {
       <Panel className={style.scenario} id={scenario.name} expanded={expanded}>
         <Panel.Heading className={style.scenarioHead}>
           <Panel.Title className={style.title} onClick={this.toggleExpanded.bind(this, !expanded)}>
-            {expanded && <MdExpandLess />}
-            {!expanded && <MdExpandMore />}
+            {expanded && <Icon icon={IconNames.CHEVRON_UP} />}
+            {!expanded && <Icon icon={IconNames.CHEVRON_DOWN} />}
             <span>{scenario.name}</span>
             {!isRunning && (
-              <Glyphicon onClick={this.handleRunClick} className={classnames(style.run, 'text-success')} glyph="play" />
+              <Icon icon={IconNames.PLAY} onClick={this.handleRunClick} className={style.run} intent={Intent.SUCCESS} />
             )}
           </Panel.Title>
           <div className={style.scenarioStatus}>
@@ -66,7 +66,7 @@ class Scenario extends React.Component {
               {scenario.steps.length === 1 ? '' : 's'}
             </span>
             {this.renderStatusLabel(scenario.status)}
-            <MdDelete onClick={this.handleDeleteClick} className={classnames(style.delete, 'text-danger')}  />
+            <Icon icon={IconNames.DELETE} onClick={this.handleDeleteClick} intent={Intent.DANGER} className={style.delete}  />
           </div>
         </Panel.Heading>
         <Panel.Collapse>
