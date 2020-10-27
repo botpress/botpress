@@ -31,6 +31,7 @@ import { AdminRouter, AuthRouter, BotsRouter, ModulesRouter } from './routers'
 import { ContentRouter } from './routers/bots/content'
 import { ConverseRouter } from './routers/bots/converse'
 import { HintsRouter } from './routers/bots/hints'
+import { NLURouter } from './routers/bots/nlu'
 import { isDisabled } from './routers/conditionalMiddleware'
 import { InvalidExternalToken, PaymentRequiredError } from './routers/errors'
 import { SdkApiRouter } from './routers/sdk/router'
@@ -53,6 +54,7 @@ import { JobService } from './services/job-service'
 import { LogsService } from './services/logs/service'
 import MediaService from './services/media'
 import { MonitoringService } from './services/monitoring'
+import { NLUService } from './services/nlu/nlu-service'
 import { NotificationsService } from './services/notification/service'
 import { WorkspaceService } from './services/workspace-service'
 import { TYPES } from './types'
@@ -83,6 +85,7 @@ export default class HTTPServer {
   private readonly adminRouter: AdminRouter
   private readonly botsRouter: BotsRouter
   private contentRouter!: ContentRouter
+  private nluRouter!: NLURouter
   private readonly modulesRouter: ModulesRouter
   private readonly shortLinksRouter: ShortLinksRouter
   private converseRouter!: ConverseRouter
@@ -128,7 +131,8 @@ export default class HTTPServer {
     @inject(TYPES.MonitoringService) private monitoringService: MonitoringService,
     @inject(TYPES.AlertingService) private alertingService: AlertingService,
     @inject(TYPES.JobService) private jobService: JobService,
-    @inject(TYPES.LogsRepository) private logsRepo: LogsRepository
+    @inject(TYPES.LogsRepository) private logsRepo: LogsRepository,
+    @inject(TYPES.NLUService) private nluService: NLUService
   ) {
     this.app = express()
 
@@ -224,10 +228,12 @@ export default class HTTPServer {
       this.workspaceService,
       this.ghostService
     )
+    this.nluRouter = new NLURouter(this.logger, this.authService, this.workspaceService, this.nluService)
     this.converseRouter = new ConverseRouter(this.logger, this.converseService, this.authService, this)
     this.hintsRouter = new HintsRouter(this.logger, this.hintsService, this.authService, this.workspaceService)
     this.botsRouter.router.use('/content', this.contentRouter.router)
     this.botsRouter.router.use('/converse', this.converseRouter.router)
+    this.botsRouter.router.use('/nlu', this.nluRouter.router)
 
     // tslint:disable-next-line: no-floating-promises
     AppLifecycle.waitFor(AppLifecycleEvents.BOTPRESS_READY).then(() => {

@@ -239,7 +239,7 @@ export const fetchContentCategories = () => dispatch =>
 
 export const receiveContentItems = createAction('CONTENT/ITEMS/RECEIVE')
 export const fetchContentItems = ({ contentType, ...query }) => dispatch => {
-  const type = contentType && contentType != 'all' ? `${contentType}/` : ''
+  const type = contentType && contentType !== 'all' ? `${contentType}/` : ''
 
   return axios
     .post(`${window.BOT_API_PATH}/content/${type}elements`, query)
@@ -386,7 +386,7 @@ export const requestEditSkill = nodeId => (dispatch, getState) => {
       editSkill({
         skillId: node.skill,
         flowName: node.flow,
-        nodeId: nodeId,
+        nodeId,
         data: flow.skillData
       })
     )
@@ -422,10 +422,12 @@ export const refreshActions = () => dispatch => {
 export const intentsReceived = createAction('INTENTS/RECEIVED')
 export const refreshIntents = () => dispatch => {
   // tslint:disable-next-line: no-floating-promises
-  axios.get(`${window.BOT_API_PATH}/mod/nlu/intents`).then(({ data }) => {
+  axios.get(`${window.BOT_API_PATH}/nlu/intents`).then(({ data }) => {
     dispatch(intentsReceived(data))
   })
 }
+
+export const trainSessionReceived = createAction('TRAIN_SESSION/RECEIVED')
 
 export const conditionsReceived = createAction('CONDITIONS/RECEIVED')
 export const refreshConditions = () => dispatch => {

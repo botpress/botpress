@@ -53,7 +53,7 @@ declare namespace NodeJS {
     DISABLE_BOT_SANDBOX: boolean
     DISABLE_TRANSITION_SANDBOX: boolean
     WEB_WORKER: number
-    ML_WORKERS: number[]
+    TRAINING_WORKERS: number[]
   }
 }
 
@@ -226,7 +226,7 @@ declare interface BotpressEnvironmentVariables {
    * Defaults to 4 if supported by CPU
    * @default 4
    */
-  readonly BP_NUM_ML_WORKERS?: number
+  readonly BP_NUM_ML_THREADS?: number
 
   /**
    * Overrides the maximum file size allowed for the BPFS
@@ -245,6 +245,13 @@ declare interface BotpressEnvironmentVariables {
    * @default false
    */
   readonly BP_CODE_EDITOR_DISABLE_ADVANCED?: boolean
+
+  /**
+   * Overwrites the modules that are enabled by default.
+   * Has to be formatted as JSON,
+   * ex: ['nlu', 'nlu-testing']
+   */
+  readonly BP_ENABLED_MODULES?: string
 }
 
 interface IDebug {
