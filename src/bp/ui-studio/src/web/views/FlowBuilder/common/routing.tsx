@@ -56,11 +56,9 @@ const getLabel = parsedCondition => {
 }
 
 export default class RoutingItem extends Component<Props> {
-  /* tslint:disable:prefer-function-over-method */
   renderNormal(child) {
     return child
   }
-  /* tslint:enable:prefer-function-over-method */
 
   // TODO migrate styling to blueprint
   renderOverlay = child => {
