@@ -11,8 +11,6 @@ import lang from '../../../lang'
 
 import Settings from './settings'
 import style from './style.scss'
-import { loadSettings } from './utils'
-import { Error } from './views/Error'
 import { Inspector } from './views/Inspector'
 import { NDU } from './views/NDU'
 import { Processing } from './views/Processing'
@@ -246,7 +244,6 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   renderEvent() {
-    const eventError = _.get(this.state, 'event.state.__error')
     const ndu = _.get(this.state, 'event.ndu')
     const processing = _.get(this.state, 'event.processing')
 
@@ -275,17 +272,6 @@ export class Debugger extends React.Component<Props, State> {
           {ndu && <Tab id="ndu" title="NDU" panel={<NDU ndu={ndu} />} />}
           {processing && <Tab id="processing" title="Processing" panel={<Processing processing={processing} />} />}
           <Tab id="advanced" title="Raw JSON" panel={<Inspector data={this.state.event} />} />
-          {eventError && (
-            <Tab
-              id="errors"
-              title={
-                <span>
-                  <Icon icon="error" color="red" /> Error
-                </span>
-              }
-              panel={<Error error={eventError} />}
-            />
-          )}
         </Tabs>
       </div>
     )
