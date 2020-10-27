@@ -110,6 +110,11 @@ export function getOnBotMount(state: NLUState) {
               const options: sdk.NLU.TrainingOptions = { forceTrain: false, nluSeed, progressCallback }
               try {
                 model = await engine.train(trainSession.key, intentDefs, entityDefs, languageCode, options)
+
+                trainSession.status = 'done'
+                await state.sendNLUStatusEvent(botId, trainSession)
+                await engine.loadModel(model)
+                await ModelService.saveModel(ghost, model, hash)
               } catch (err) {
                 if (bp.NLU.errors.isTrainingCanceled(err)) {
                   bp.logger.info('Training cancelled')
@@ -121,11 +126,6 @@ export function getOnBotMount(state: NLUState) {
                   bp.logger.attachError(err).error('Could not finish training NLU model')
                 }
               }
-
-              trainSession.status = 'done'
-              await state.sendNLUStatusEvent(botId, trainSession)
-              await engine.loadModel(model)
-              await ModelService.saveModel(ghost, model, hash)
             } else {
               trainSession.progress = 1
               trainSession.status = 'done'
