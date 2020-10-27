@@ -4,7 +4,7 @@ import _ from 'lodash'
 import makeApi from '../api'
 import { getModel } from '../model-service'
 import { setTrainingSession } from '../train-session-service'
-import { NLUState, TrainingSession } from '../typings'
+import { NLUState } from '../typings'
 
 export function getOnServerReady(state: NLUState) {
   return async (bp: typeof sdk) => {
@@ -25,14 +25,15 @@ export function getOnServerReady(state: NLUState) {
     }
 
     const cancelTraining = async (botId: string, language: string) => {
-      const trainSession: TrainingSession = _.get(state, `nluByBot.${botId}.trainSessions.${language}`)
-
+      const trainSession: sdk.NLU.TrainingSession = state.nluByBot[botId]?.trainSessions[language]
       if (trainSession && trainSession.status === 'training') {
         if (trainSession.lock) {
-          trainSession.lock.unlock()
+          await trainSession.lock.unlock()
         }
         trainSession.status = 'canceled'
         await setTrainingSession(bp, botId, trainSession)
+
+        return state.nluByBot[botId].engine.cancelTraining(trainSession.key)
       }
     }
 

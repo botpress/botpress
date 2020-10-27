@@ -1,3 +1,4 @@
+import { NLU } from 'botpress/sdk'
 import { lang, utils } from 'botpress/shared'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 import { HotKeys } from 'react-hotkeys'
@@ -5,7 +6,7 @@ import { connect } from 'react-redux'
 import { Redirect, Route, Switch } from 'react-router-dom'
 import SplitPane from 'react-split-pane'
 import { bindActionCreators } from 'redux'
-import { setEmulatorOpen, toggleBottomPanel, viewModeChanged } from '~/actions'
+import { setEmulatorOpen, toggleBottomPanel, trainSessionReceived, viewModeChanged } from '~/actions'
 import SelectContentManager from '~/components/Content/Select/Manager'
 import PluginInjectionSite from '~/components/PluginInjectionSite'
 import storage from '~/util/storage'
@@ -16,6 +17,7 @@ import Logs from '~/views/Logs'
 import Module from '~/views/Module'
 import OneFlow from '~/views/OneFlow'
 
+import { TrainingStatusService } from './training-status-service'
 import BotUmountedWarning from './BotUnmountedWarning'
 import CommandPalette from './CommandPalette'
 import GuidedTour from './GuidedTour'
@@ -40,9 +42,11 @@ interface ILayoutProps {
   bottomPanel: boolean
   translations: any
   setEmulatorOpen: (state: boolean) => void
+  contentLang: string
+  trainSessionReceived: (ts: NLU.TrainingSession) => void
 }
 
-const Layout: FC<ILayoutProps> = props => {
+const Layout: FC<ILayoutProps> = (props: ILayoutProps) => {
   const mainElRef = useRef(null)
   const [langSwitcherOpen, setLangSwitcherOpen] = useState(false)
   const [guidedTourOpen, setGuidedTourOpen] = useState(false)
@@ -77,6 +81,14 @@ const Layout: FC<ILayoutProps> = props => {
       window.removeEventListener('message', handleWebChatPanel)
     }
   }, [])
+
+  useEffect(() => {
+    const trainStatusService = new TrainingStatusService(props.contentLang, props.trainSessionReceived)
+    // tslint:disable-next-line: no-floating-promises
+    trainStatusService.fetchTrainingStatus()
+    trainStatusService.listen()
+    return () => trainStatusService.stopListening()
+  }, [props.contentLang])
 
   useEffect(() => {
     if (props.translations) {
@@ -238,10 +250,10 @@ const mapStateToProps = state => ({
   viewMode: state.ui.viewMode,
   docHints: state.ui.docHints,
   bottomPanel: state.ui.bottomPanel,
-  translations: state.language.translations
+  translations: state.language.translations,
+  contentLang: state.language.contentLang
 })
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators({ viewModeChanged, toggleBottomPanel, setEmulatorOpen }, dispatch)
+const mapDispatchToProps = dispatch => bindActionCreators({ viewModeChanged, toggleBottomPanel, setEmulatorOpen, trainSessionReceived }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Layout)

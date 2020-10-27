@@ -11,8 +11,24 @@
   width: 100%;
   z-index: 1000;
 
+  .button {
+    background-color: var(--seashell);
+    height: 20px;
+    border-radius: 3px;
+    padding: 6px;
+    &.danger {
+      background-color: var(--lighthouse);
+      color: white;
+    }
+  }
+
   .botName {
     color: var(--c-text--light);
+  }
+
+  .message {
+    color: var(--gray);
+    // margin-right: 10px;
   }
 
   .item {
@@ -20,7 +36,7 @@
     align-items: center;
 
     > *:not(:first-child) {
-      margin-left: 20px
+      margin-left: 20px;
     }
   }
 }

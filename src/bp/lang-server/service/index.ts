@@ -7,7 +7,7 @@ import path from 'path'
 import { VError } from 'verror'
 
 import toolkit from '../../ml/toolkit'
-import { LangServerLogger } from '../logger'
+import Logger from '../../simple-logger'
 
 import { LoadedBPEModel, LoadedFastTextModel, ModelFileInfo, ModelSet } from './typing'
 
@@ -23,10 +23,10 @@ export default class LanguageService {
   private _models: Dic<ModelSet> = {}
   private _ready: boolean = false
   private _cache
-  private logger: LangServerLogger
+  private logger: Logger
 
   constructor(public readonly dim: number, public readonly domain: string, private readonly langDir: string) {
-    this.logger = new LangServerLogger('Service')
+    this.logger = new Logger('Service')
   }
 
   async initialize() {
@@ -81,7 +81,7 @@ export default class LanguageService {
 
   private _getFileInfo = (regexMatch: RegExpMatchArray, isFastText, file): ModelFileInfo => {
     const [__, domain, langCode, dim] = regexMatch
-    return isFastText ? { domain, langCode, dim: Number(dim), file: file } : { domain, langCode, file }
+    return isFastText ? { domain, langCode, dim: Number(dim), file } : { domain, langCode, file }
   }
 
   private _getModelInfoFromFile = (file: string): ModelFileInfo => {
@@ -233,7 +233,7 @@ export default class LanguageService {
       throw new Error(`Model for lang '${lang}' is not loaded in memory`)
     }
 
-    return await Promise.all(tokens.map(await this._getQueryVectors(fastTextModel as LoadedFastTextModel)))
+    return Promise.all(tokens.map(await this._getQueryVectors(fastTextModel as LoadedFastTextModel)))
   }
 
   getModels() {
