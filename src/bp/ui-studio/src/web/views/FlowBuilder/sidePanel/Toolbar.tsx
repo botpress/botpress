@@ -1,12 +1,9 @@
-import { AnchorButton, Popover, Position, Tag, Tooltip } from '@blueprintjs/core'
+import { Popover, Position, Tag, Tooltip } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import { FlowMutex } from 'common/typings'
-import _ from 'lodash'
 import React from 'react'
 import { connect } from 'react-redux'
-import { flowEditorRedo, flowEditorUndo } from '~/actions'
 import { RightToolbarButtons, Toolbar } from '~/components/Shared/Interface'
-import { canFlowRedo, canFlowUndo } from '~/reducers'
 import { getCurrentFlow } from '~/reducers'
 
 import style from './style.scss'

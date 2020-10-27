@@ -170,7 +170,7 @@ export interface SearchBarProps {
   icon?: IconName | MaybeElement
   /** Show or hide button */
   showButton?: boolean
-  /** Called when search input loses focus*/
+  /** Called when search input loses focus */
   onBlur?: (e: React.FocusEvent) => void
   /** This is called when the user clicks on the button */
   onButtonClick?: (e: React.MouseEvent) => void
