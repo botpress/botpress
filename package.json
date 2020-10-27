@@ -3,7 +3,7 @@
   "version": "12.10.10",
   "description": "The world's most powerful conversational engine",
   "engines": {
-    "node": ">=10"
+    "node": ">=12"
   },
   "main": "index.js",
   "repository": "https://github.com/botpress/botpress.git",
@@ -24,6 +24,7 @@
   "dependencies": {
     "axios": "^0.19.0",
     "bluebird-global": "^1.0.1",
+    "bluebird-retry": "^0.11.0",
     "body-parser": "^1.18.3",
     "cerialize": "^0.1.18",
     "chalk": "^2.4.2",
@@ -56,16 +57,17 @@
     "lodash": "^4.17.19",
     "lodash-decorators": "^6.0.0",
     "lru-cache": "^5.1.1",
+    "mathjs": "^5.9.0",
     "mime-types": "^2.1.27",
     "ml-kmeans": "^5.0.0",
     "moment": "^2.24.0",
-    "mout": "^1.1.0",
     "ms": "^2.1.1",
     "multer": "^1.4.1",
     "mustache": "^3.0.1",
     "nanoid": "^2.0.1",
     "node-machine-id": "^1.1.10",
     "numeric": "^1.2.6",
+    "object-sizeof": "^1.5.2",
     "on-headers": "^1.0.2",
     "passport": "^0.4.0",
     "passport-oauth2": "^1.5.0",
@@ -74,11 +76,11 @@
     "pg": "^7.8.0",
     "plur": "^3.0.1",
     "portfinder": "^1.0.20",
-    "q": "^1.5.1",
     "querystring": "^0.2.0",
     "redlock": "^3.1.2",
     "reflect-metadata": "^0.1.13",
     "replace-in-file": "^4.1.1",
+    "seedrandom": "^3.0.5",
     "semver": "^5.6.0",
     "socket.io": "^2.2.0",
     "socket.io-redis": "^5.2.0",
@@ -100,6 +102,8 @@
     "@commitlint/cli": "^7.2.1",
     "@commitlint/config-conventional": "^7.1.2",
     "@types/bluebird-global": "^3.5.9",
+    "@types/bluebird-retry": "^0.11.4",
+    "@types/bytes": "^3.1.0",
     "@types/expect-puppeteer": "^4.4.0",
     "@types/express": "^4.16.0",
     "@types/fs-extra": "^5.0.4",
@@ -110,13 +114,16 @@
     "@types/jsonwebtoken": "^8.3.7",
     "@types/lodash": "^4.14.116",
     "@types/lru-cache": "^5.1.0",
+    "@types/mkdirp": "^1.0.1",
     "@types/ms": "^0.7.30",
     "@types/mustache": "^0.8.31",
     "@types/node": "^10.10.3",
+    "@types/numeric": "^1.2.1",
     "@types/passport": "^1.0.0",
     "@types/puppeteer": "^2.0.0",
     "@types/redis": "^2.8.10",
     "@types/redlock": "^4.0.0",
+    "@types/seedrandom": "^2.4.28",
     "@types/socket.io": "^2.1.2",
     "@types/tmp": "^0.0.33",
     "@types/universal-analytics": "^0.4.2",
@@ -159,7 +166,7 @@
   },
   "optionalDependencies": {
     "ioredis": "^4.14.1",
-    "sqlite3": "4.0.6"
+    "sqlite3": "4.2.0"
   },
   "husky": {
     "hooks": {
