@@ -86,7 +86,7 @@ const migration: Migration = {
             direction, "incomingEventId", "workflowId", feedback, success, event, "createdOn"
           FROM ${TABLE_NAME}`)
         } else {
-          await db.raw(`
+          await trx.raw(`
             INSERT INTO
               ${TEMP_TABLE_NAME} (${tableFields})
             SELECT
