@@ -123,6 +123,7 @@
       "errorWhileSaving": "There was an error while saving, deleting or renaming a flow. Last modification might not have been saved on server. Please reload page before continuing flow edition",
       "flowWideOnReceives": "flow-wide on {count, plural, one {receive} other {receives}}",
       "flowWideTransitions": "flow-wide {count, plural, one {transition} other {transitions}}",
+      "filterNodes": "Filter Nodes",
       "highlightByName": "Highlight nodes by name",
       "logs": {
         "autoRefresh": "Auto-refresh",

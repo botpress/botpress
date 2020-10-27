@@ -122,6 +122,7 @@
       "errorWhileSaving": "Une erreur s'est produite lors de l'enregistrement, de la suppression ou du changement de nom d'un flow. La dernière modification n'a peut-être pas été enregistrée sur le serveur. Veuillez recharger la page avant de continuer l'édition du flow",
       "flowWideOnReceives": "{count, plural, one {réception} other {réceptions}} à l'échelle du flow",
       "flowWideTransitions": "{count, plural, one {transition} other {transitions}} à l'échelle du flow",
+      "filterNodes": "Filtrer les nodes",
       "highlightByName": "Tapez le nom d'un élément",
       "logs": {
         "autoRefresh": "Actualisation automatique",
