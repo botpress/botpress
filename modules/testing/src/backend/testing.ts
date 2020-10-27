@@ -86,6 +86,12 @@ export class Testing {
   }
 
   async deleteScenario(name) {
+    const exists = await this.bp.ghost.forBot(this.botId).fileExists(SCENARIO_FOLDER, name + '.json')
+
+    if (!exists) {
+      return
+    }
+
     await this.bp.ghost.forBot(this.botId).deleteFile(SCENARIO_FOLDER, name + '.json')
     await this._loadScenarios()
   }
