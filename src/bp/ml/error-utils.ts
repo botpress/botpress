@@ -1,6 +1,9 @@
 import _ from 'lodash'
 
-export interface ErrorMessage { message: string; stack?: string }
+export interface ErrorMessage {
+  message: string
+  stack?: string
+}
 
 export function serializeError(err: any): ErrorMessage {
   if (err instanceof Error) {
