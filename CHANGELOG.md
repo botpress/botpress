@@ -3,13 +3,6 @@
 
 ### Bug Fixes
 
-* repair all tslint errors of nlu + node12 branch ([#4124](https://github.com/botpress/botpress/issues/4124)) ([8b7ed2a](https://github.com/botpress/botpress/commit/8b7ed2a))
-* **code-editor:** fix firefox scroll & minor changes ([#4094](https://github.com/botpress/botpress/issues/4094)) ([2bd0bec](https://github.com/botpress/botpress/commit/2bd0bec))
-* **converse:** tangled messages with multiple bots ([#4085](https://github.com/botpress/botpress/issues/4085)) ([14be745](https://github.com/botpress/botpress/commit/14be745))
-* **core:** reverse proxy support all types ([#4105](https://github.com/botpress/botpress/issues/4105)) ([c5b88cb](https://github.com/botpress/botpress/commit/c5b88cb))
-* **flow:** ordering is different on postgres ([#4102](https://github.com/botpress/botpress/issues/4102)) ([6f26e31](https://github.com/botpress/botpress/commit/6f26e31))
-* **lang-server:** offline is a boolean cli arg ([#4084](https://github.com/botpress/botpress/issues/4084)) ([08d82bd](https://github.com/botpress/botpress/commit/08d82bd))
-* **ndu:** skill choice issue with capitalized choices ([#4109](https://github.com/botpress/botpress/issues/4109)) ([d2d550d](https://github.com/botpress/botpress/commit/d2d550d))
 * **nlu:** added back dialog conditions ([0d10101](https://github.com/botpress/botpress/commit/0d10101))
 * **nlu:** copy utterances don't copy numbers and empty lines ([#4079](https://github.com/botpress/botpress/issues/4079)) ([607a83d](https://github.com/botpress/botpress/commit/607a83d))
 * **nlu:** duckling numbers have no unit but a value ([#4069](https://github.com/botpress/botpress/issues/4069)) ([7859362](https://github.com/botpress/botpress/commit/7859362))
@@ -30,18 +23,6 @@
 * **stan:** allowed variable types include system and any ([8a16ae6](https://github.com/botpress/botpress/commit/8a16ae6))
 * **stan:** rm complexes from stan's API ([cd6c399](https://github.com/botpress/botpress/commit/cd6c399))
 * **stan:** update api.rest file to the markdown notation ([a7f0b6b](https://github.com/botpress/botpress/commit/a7f0b6b))
-* **studio:** fix router properties [#3488](https://github.com/botpress/botpress/issues/3488) ([#4107](https://github.com/botpress/botpress/issues/4107)) ([d926c95](https://github.com/botpress/botpress/commit/d926c95))
-* **studio:** fix skill reorder [#4011](https://github.com/botpress/botpress/issues/4011) ([#4101](https://github.com/botpress/botpress/issues/4101)) ([6bde467](https://github.com/botpress/botpress/commit/6bde467))
-* **studio:** put back previous library ([6374721](https://github.com/botpress/botpress/commit/6374721))
-* **studio:** unclosed brackets crashing UI [#3678](https://github.com/botpress/botpress/issues/3678) ([#4106](https://github.com/botpress/botpress/issues/4106)) ([3dbb6e4](https://github.com/botpress/botpress/commit/3dbb6e4))
-* **studio:** update all nodes when renaming flows [#3936](https://github.com/botpress/botpress/issues/3936) ([#4100](https://github.com/botpress/botpress/issues/4100)) ([7afa2e6](https://github.com/botpress/botpress/commit/7afa2e6))
-* native-extensions of centos are used for red-hat ([9c0432a](https://github.com/botpress/botpress/commit/9c0432a))
-* **webchat:** added condition to query ([#4082](https://github.com/botpress/botpress/issues/4082)) ([c0a24a7](https://github.com/botpress/botpress/commit/c0a24a7))
-* repaired debugger by fixing outFiles ([#4013](https://github.com/botpress/botpress/issues/4013)) ([1312035](https://github.com/botpress/botpress/commit/1312035))
-* **admin:** update react scripts ([#3983](https://github.com/botpress/botpress/issues/3983)) ([1a4ba1e](https://github.com/botpress/botpress/commit/1a4ba1e))
-* **analytics:** display deleted QnAs ([#4076](https://github.com/botpress/botpress/issues/4076)) ([f46019d](https://github.com/botpress/botpress/commit/f46019d))
-* **basic-skills:** choice: kw strict equality comparison ([#3975](https://github.com/botpress/botpress/issues/3975)) ([efac56e](https://github.com/botpress/botpress/commit/efac56e))
-* **channel-web:** database indices ([#3981](https://github.com/botpress/botpress/issues/3981)) ([907cc80](https://github.com/botpress/botpress/commit/907cc80))
 * **core:** ubuntu is default linux ([#3536](https://github.com/botpress/botpress/issues/3536)) ([0cd5383](https://github.com/botpress/botpress/commit/0cd5383))
 * **mltoolkit:** error are passed by mlworkers to web worker ([#3792](https://github.com/botpress/botpress/issues/3792)) ([d6d70cd](https://github.com/botpress/botpress/commit/d6d70cd))
 * **mltoolkit:** no need for gridsearch in svm when only one combination ([#3734](https://github.com/botpress/botpress/issues/3734)) ([5eb9625](https://github.com/botpress/botpress/commit/5eb9625))
@@ -70,28 +51,19 @@
 * **nlu-testing:** allow testing both intent and slot without ctx ([#3761](https://github.com/botpress/botpress/issues/3761)) ([19efd8c](https://github.com/botpress/botpress/commit/19efd8c))
 * **nlu-testing:** latest-results are by bot ([#3561](https://github.com/botpress/botpress/issues/3561)) ([fd93535](https://github.com/botpress/botpress/commit/fd93535))
 * update all linux native extensions ([#3548](https://github.com/botpress/botpress/issues/3548)) ([641bad6](https://github.com/botpress/botpress/commit/641bad6))
-* **qna:** stable QnA IDs when importing ([#4031](https://github.com/botpress/botpress/issues/4031)) ([703e48e](https://github.com/botpress/botpress/commit/703e48e))
-* **webchat:** add missing column ([#4008](https://github.com/botpress/botpress/issues/4008)) ([26697d8](https://github.com/botpress/botpress/commit/26697d8))
 
 
 ### Features
 
 * **admin:** indicate if bot needs training in admin ([#4108](https://github.com/botpress/botpress/issues/4108)) ([2b8a570](https://github.com/botpress/botpress/commit/2b8a570))
-* **analytics:** messages by language ([#4020](https://github.com/botpress/botpress/issues/4020)) ([2d21cd1](https://github.com/botpress/botpress/commit/2d21cd1))
-* **channel-web:** conversationId ([#4016](https://github.com/botpress/botpress/issues/4016)) ([f783b66](https://github.com/botpress/botpress/commit/f783b66))
-* **hitl:** add thread_id to sessions table ([#3982](https://github.com/botpress/botpress/issues/3982)) ([332f1a2](https://github.com/botpress/botpress/commit/332f1a2))
 * **nlu:** new field spellChecked in event understanding ([#3953](https://github.com/botpress/botpress/issues/3953)) ([8d7ca44](https://github.com/botpress/botpress/commit/8d7ca44))
 * **nlu:** nlu testing always gives the same result ([#3513](https://github.com/botpress/botpress/issues/3513)) ([8cb8a75](https://github.com/botpress/botpress/commit/8cb8a75))
 * **nlu:** tokenize using vocab when s-piece is struggling ([#3543](https://github.com/botpress/botpress/issues/3543)) ([587b522](https://github.com/botpress/botpress/commit/587b522))
 * **nlu:** train now button becomes retrain all when auto train is on ([#3512](https://github.com/botpress/botpress/issues/3512)) ([83f6ea7](https://github.com/botpress/botpress/commit/83f6ea7))
 * **nlu:** training cancelation + usage of both worker threads and child process ([#3841](https://github.com/botpress/botpress/issues/3841)) ([2ea3e22](https://github.com/botpress/botpress/commit/2ea3e22))
-* **NLU:** entities encoding ([#3301](https://github.com/botpress/botpress/issues/3301)) ([06c7de6](https://github.com/botpress/botpress/commit/06c7de6))
+* **nlu:** entities encoding ([#3301](https://github.com/botpress/botpress/issues/3301)) ([06c7de6](https://github.com/botpress/botpress/commit/06c7de6))
 * **nlu-testing:** added github check to prevent regression on NLU BPDS ([#3565](https://github.com/botpress/botpress/issues/3565)) ([92348f3](https://github.com/botpress/botpress/commit/92348f3))
-* **qna:** copy Qna ID to clipboard ([#4057](https://github.com/botpress/botpress/issues/4057)) ([31de13f](https://github.com/botpress/botpress/commit/31de13f))
 * **stan:** completly new API to botpress Stan ([a403f83](https://github.com/botpress/botpress/commit/a403f83)), closes [#4064](https://github.com/botpress/botpress/issues/4064) [#4019](https://github.com/botpress/botpress/issues/4019) [#3996](https://github.com/botpress/botpress/issues/3996) [#4006](https://github.com/botpress/botpress/issues/4006)
-* **webchat:** lazy socket ([#4077](https://github.com/botpress/botpress/issues/4077)) ([f0e9a9c](https://github.com/botpress/botpress/commit/f0e9a9c))
-* added command to build specific modules ([#3569](https://github.com/botpress/botpress/issues/3569)) ([2408393](https://github.com/botpress/botpress/commit/2408393))
-* standalone nlu first implementation ([#3895](https://github.com/botpress/botpress/issues/3895)) ([157c1d2](https://github.com/botpress/botpress/commit/157c1d2))
 
 
 
