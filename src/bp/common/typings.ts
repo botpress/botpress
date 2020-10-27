@@ -1,5 +1,4 @@
-import { BotDetails, Flow, FlowNode, IO, RolloutStrategy, StageRequestApprovers } from 'botpress/sdk'
-import { StrategyUser } from 'botpress/sdk'
+import { BotDetails, Flow, FlowNode, IO, RolloutStrategy, StageRequestApprovers, StrategyUser } from 'botpress/sdk'
 import { Request } from 'express'
 
 import { BotpressConfig } from '../core/config/botpress.config'

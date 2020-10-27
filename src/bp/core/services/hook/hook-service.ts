@@ -1,6 +1,4 @@
 import * as sdk from 'botpress/sdk'
-import { IO } from 'botpress/sdk'
-import { Incident } from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { ActionScope } from 'common/typings'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
@@ -60,43 +58,43 @@ export namespace Hooks {
   }
 
   export class BeforeIncomingMiddleware extends BaseHook {
-    constructor(bp: typeof sdk, event: IO.Event) {
+    constructor(bp: typeof sdk, event: sdk.IO.Event) {
       super('before_incoming_middleware', { bp, event })
     }
   }
 
   export class AfterIncomingMiddleware extends BaseHook {
-    constructor(bp: typeof sdk, event: IO.Event) {
+    constructor(bp: typeof sdk, event: sdk.IO.Event) {
       super('after_incoming_middleware', { bp, event })
     }
   }
 
   export class BeforeOutgoingMiddleware extends BaseHook {
-    constructor(bp: typeof sdk, event: IO.Event) {
+    constructor(bp: typeof sdk, event: sdk.IO.Event) {
       super('before_outgoing_middleware', { bp, event })
     }
   }
 
   export class AfterEventProcessed extends BaseHook {
-    constructor(bp: typeof sdk, event: IO.Event) {
+    constructor(bp: typeof sdk, event: sdk.IO.Event) {
       super('after_event_processed', { bp, event })
     }
   }
 
   export class BeforeSessionTimeout extends BaseHook {
-    constructor(bp: typeof sdk, event: IO.Event) {
+    constructor(bp: typeof sdk, event: sdk.IO.Event) {
       super('before_session_timeout', { bp, event })
     }
   }
 
   export class BeforeSuggestionsElection extends BaseHook {
-    constructor(bp: typeof sdk, sessionId: string, event: IO.Event, suggestions: IO.Suggestion[]) {
+    constructor(bp: typeof sdk, sessionId: string, event: sdk.IO.Event, suggestions: sdk.IO.Suggestion[]) {
       super('before_suggestions_election', { bp, sessionId, event, suggestions })
     }
   }
 
   export class OnIncidentStatusChanged extends BaseHook {
-    constructor(bp: typeof sdk, incident: Incident) {
+    constructor(bp: typeof sdk, incident: sdk.Incident) {
       super('on_incident_status_changed', { bp, incident })
     }
   }
@@ -166,7 +164,7 @@ export class HookService {
 
   private _listenForCacheInvalidation() {
     this.cache.events.on('invalidation', key => {
-      if (key.toLowerCase().indexOf(`/hooks/`) > -1) {
+      if (key.toLowerCase().indexOf('/hooks/') > -1) {
         // clear the cache if there's any file that has changed in the `hooks` folder
         this._scriptsCache.clear()
         this._invalidateDebounce()
@@ -191,7 +189,7 @@ export class HookService {
   async disableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean> {
     try {
       const rootPath = moduleName ? `/hooks/${hookType}/${moduleName}/` : `/hooks/${hookType}/`
-      await this.ghost.global().renameFile(rootPath, hookName + '.js', `.${hookName}.js`)
+      await this.ghost.global().renameFile(rootPath, `${hookName}.js`, `.${hookName}.js`)
       return true
     } catch (error) {
       // if the hook was already disabled or not found
@@ -202,7 +200,7 @@ export class HookService {
   async enableHook(hookName: string, hookType: string, moduleName?: string): Promise<boolean> {
     try {
       const rootPath = moduleName ? `/hooks/${hookType}/${moduleName}/` : `/hooks/${hookType}/`
-      await this.ghost.global().renameFile(rootPath, `.${hookName}.js`, hookName + '.js')
+      await this.ghost.global().renameFile(rootPath, `.${hookName}.js`, `${hookName}.js`)
       return true
     } catch (error) {
       // if the hook was already enabled (or not found)
@@ -218,11 +216,11 @@ export class HookService {
     }
 
     try {
-      const globalHooks = filterDisabled(await this.ghost.global().directoryListing('hooks/' + hook.folder, '*.js'))
+      const globalHooks = filterDisabled(await this.ghost.global().directoryListing(`hooks/${hook.folder}`, '*.js'))
       const scripts = await Promise.map(globalHooks, async path => this._getHookScript(hook.folder, path))
 
       if (botId) {
-        const botHooks = filterDisabled(await this.ghost.forBot(botId).directoryListing('hooks/' + hook.folder, '*.js'))
+        const botHooks = filterDisabled(await this.ghost.forBot(botId).directoryListing(`hooks/${hook.folder}`, '*.js'))
         scripts.push(...(await Promise.map(botHooks, async path => this._getHookScript(hook.folder, path, botId))))
       }
 
@@ -237,9 +235,9 @@ export class HookService {
   private async _getHookScript(hookFolder: string, path: string, botId?: string) {
     let script: string
     if (!botId) {
-      script = await this.ghost.global().readFileAsString('hooks/' + hookFolder, path)
+      script = await this.ghost.global().readFileAsString(`hooks/${hookFolder}`, path)
     } else {
-      script = await this.ghost.forBot(botId).readFileAsString('hooks/' + hookFolder, path)
+      script = await this.ghost.forBot(botId).readFileAsString(`hooks/${hookFolder}`, path)
     }
 
     const filename = path.replace(/^.*[\\\/]/, '')
@@ -289,7 +287,7 @@ export class HookService {
       return
     }
 
-    const event = hook.args.event as IO.Event
+    const event = hook.args.event as sdk.IO.Event
     if (error) {
       addErrorToEvent(
         {

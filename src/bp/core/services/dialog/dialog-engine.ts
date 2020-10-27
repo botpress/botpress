@@ -115,7 +115,7 @@ export class DialogEngine {
             {
               type: 'dialog-transition',
               stacktrace: err.stacktrace || err.stack,
-              destination: destination
+              destination
             },
             event
           )
@@ -339,7 +339,7 @@ export class DialogEngine {
       const prevJumpPoint = _.findLast(jumpPoints, j => !j.used)
 
       if (!jumpPoints || !prevJumpPoint) {
-        this._debug(event.botId, event.target, 'no previous flow found, current node is ' + context.currentNode)
+        this._debug(event.botId, event.target, `no previous flow found, current node is ${context.currentNode}`)
         return event
       }
 
@@ -465,7 +465,7 @@ export class DialogEngine {
   private _findFlow(botId: string, flowName: string) {
     const flows = this._flowsByBot.get(botId)
     if (!flows) {
-      throw new FlowError(`Could not find any flow.`, botId, flowName)
+      throw new FlowError('Could not find any flow.', botId, flowName)
     }
 
     const flow = flows.find(x => x.name === flowName)

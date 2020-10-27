@@ -117,7 +117,7 @@ export class EventCollector {
     }
 
     if (!event.botId || !event.channel || !event.direction) {
-      throw new Error(`Can't store event missing required fields (botId, channel, direction)`)
+      throw new Error("Can't store event missing required fields (botId, channel, direction)")
     }
 
     const { id, botId, channel, threadId, target, direction, type } = event
@@ -203,7 +203,7 @@ export class EventCollector {
         }
       })
       .catch(err => {
-        this.logger.attachError(err).error(`Couldn't store events to the database. Re-queuing elements`)
+        this.logger.attachError(err).error("Couldn't store events to the database. Re-queuing elements")
         const elementsToRetry = elements
           .map(x => ({ ...x, retry: x.retry ? x.retry + 1 : 1 }))
           .filter(x => x.retry < this.MAX_RETRY_ATTEMPTS)

@@ -8,8 +8,7 @@ import { printObject } from 'core/misc/print'
 import { TasksRepository } from 'core/repositories/tasks'
 import { NotFoundError } from 'core/routers/errors'
 import { ACTION_SERVER_AUDIENCE } from 'core/routers/sdk/utils'
-import { injectable } from 'inversify'
-import { inject, tagged } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
 import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
@@ -81,7 +80,7 @@ export default class ActionService {
 
     const service = new Promise<ScopedActionService>(async cb => {
       if (!(await this.botService.botExists(botId, true))) {
-        throw new NotFoundError(`This bot does not exist`)
+        throw new NotFoundError('This bot does not exist')
       }
 
       const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
@@ -94,7 +93,7 @@ export default class ActionService {
 
   private _listenForCacheInvalidation() {
     this.cache.events.on('invalidation', key => {
-      if (key.toLowerCase().indexOf(`/actions`) > -1) {
+      if (key.toLowerCase().indexOf('/actions') > -1) {
         this._invalidateDebounce(key)
       }
     })
@@ -190,7 +189,7 @@ export class ScopedActionService {
         {
           type: 'action-execution',
           stacktrace: err.stacktrace || err.stack,
-          actionName: actionName,
+          actionName,
           actionArgs: _.omit(actionArgs, ['event'])
         },
         incomingEvent
@@ -260,11 +259,11 @@ export class ScopedActionService {
     taskInfo.endedAt = new Date()
     taskInfo.statusCode = statusCode
 
-    if (statusCode != 200) {
+    if (statusCode !== 200) {
       this.tasksRepository.createTask({
         ...taskInfo,
         status: 'failed',
-        failureReason: `http:bad_status_code`
+        failureReason: 'http:bad_status_code'
       })
       return
     }
@@ -355,7 +354,7 @@ export class ScopedActionService {
     const action = await this._findAction(actionName)
     const code = await this._getActionScript(action.name, action.scope, action.legacy)
 
-    const botFolder = action.scope === 'global' ? 'global' : 'bots/' + this.botId
+    const botFolder = action.scope === 'global' ? 'global' : `bots/${this.botId}`
     const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/${actionName}.js`))
     const lookups = getBaseLookupPaths(dirPath)
 
@@ -378,7 +377,7 @@ export class ScopedActionService {
     const clearDebounce = _.debounce(this._clearCache.bind(this), DEBOUNCE_DELAY, { leading: true, trailing: false })
 
     this.cache.events.on('invalidation', key => {
-      if (key.toLowerCase().indexOf(`/actions`) > -1) {
+      if (key.toLowerCase().indexOf('/actions') > -1) {
         clearDebounce()
       }
     })
@@ -406,9 +405,9 @@ export class ScopedActionService {
 
     let script: string
     if (scope === 'global') {
-      script = await this.ghost.global().readFileAsString('actions', name + '.js')
+      script = await this.ghost.global().readFileAsString('actions', `${name}.js`)
     } else {
-      const filename = legacy ? name + '.js' : name + '.http.js'
+      const filename = legacy ? `${name}.js` : `${name}.http.js`
       script = await this.ghost.forBot(this.botId).readFileAsString('actions', filename)
     }
 

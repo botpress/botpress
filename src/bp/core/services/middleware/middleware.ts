@@ -4,7 +4,7 @@ import ms from 'ms'
 
 import { addStepToEvent } from './event-collector'
 
-type MiddlewareChainOptions = {
+interface MiddlewareChainOptions {
   timeoutInMs: number
 }
 

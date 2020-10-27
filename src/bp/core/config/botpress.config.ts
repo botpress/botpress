@@ -6,7 +6,7 @@ import { IncidentRule } from '../services/alerting-service'
 
 export type BotpressCondition = '$isProduction' | '$isDevelopment'
 
-export type ModuleConfigEntry = {
+export interface ModuleConfigEntry {
   location: string
   enabled: boolean
 }
@@ -74,7 +74,7 @@ export interface LogsConfig {
  * We use the library "ms", so head over to this page to see supported formats: https://www.npmjs.com/package/ms
  */
 
-export type BotpressConfig = {
+export interface BotpressConfig {
   version: string
   appSecret: string
   httpServer: {
@@ -379,7 +379,7 @@ export interface DataRetentionConfig {
  * @example "profile.email": "30d"
  * @default {}
  */
-export type RetentionPolicy = {
+export interface RetentionPolicy {
   [key: string]: string
 }
 
@@ -547,7 +547,9 @@ export interface AuthStrategyLdap {
   certificates: string[]
 }
 
-export type FieldMapping = { [bpAttribute: string]: string }
+export interface FieldMapping {
+  [bpAttribute: string]: string
+}
 
 export interface MonitoringConfig {
   /**

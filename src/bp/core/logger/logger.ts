@@ -125,9 +125,9 @@ export class PersistedConsoleLogger implements Logger {
         const asAxios = this.attachedError as AxiosError
         if (asAxios.response && asAxios.config) {
           forceIndentMessage = true
-          message += '\n' + `HTTP (${asAxios.config.method}) URL ${asAxios.config.url}`
+          message += `\nHTTP (${asAxios.config.method}) URL ${asAxios.config.url}`
           if (asAxios.config.params && Object.keys(asAxios.config.params).length > 0) {
-            message += '\n' + `Params (${JSON.stringify(asAxios.config.params)})`
+            message += `\nParams (${JSON.stringify(asAxios.config.params)})`
           }
           if (asAxios.response && asAxios.response.data) {
             let errMsg = ''
@@ -152,12 +152,12 @@ export class PersistedConsoleLogger implements Logger {
             if (typeof errMsg === 'string' && errMsg.length) {
               errMsg = errMsg.trim()
               if (errMsg.length >= 100) {
-                errMsg = errMsg.substr(0, 100) + ' (...)'
+                errMsg = `${errMsg.substr(0, 100)} (...)`
               }
-              message += '\n' + `Received "${errMsg}"`
+              message += `\nReceived "${errMsg}"`
             }
           }
-          message += '\n' + this.attachedError.message
+          message += `\n${this.attachedError.message}`
         } else {
           message += ` [${this.attachedError.name}, ${this.attachedError.message}]`
         }
@@ -169,7 +169,7 @@ export class PersistedConsoleLogger implements Logger {
     const time = moment().format(timeFormat)
 
     const displayName = process.env.INDENT_LOGS ? this.name.substr(0, 15).padEnd(15, ' ') : this.name
-    const newLineIndent = chalk.dim(' '.repeat(`${timeFormat} ${displayName}`.length)) + ' '
+    const newLineIndent = `${chalk.dim(' '.repeat(`${timeFormat} ${displayName}`.length))} `
     let indentedMessage =
       level === LoggerLevel.Error && !forceIndentMessage ? message : message.replace(/\r\n|\n/g, os.EOL + newLineIndent)
 
@@ -179,8 +179,8 @@ export class PersistedConsoleLogger implements Logger {
       this.attachedError.stack &&
       this.attachedError['__hideStackTrace'] !== true
     ) {
-      indentedMessage += chalk.grey(os.EOL + 'STACK TRACE')
-      indentedMessage += chalk.grey(os.EOL + this.attachedError.stack)
+      indentedMessage += chalk.grey(`${os.EOL}STACK TRACE`)
+      indentedMessage += chalk.grey(`${os.EOL}${this.attachedError.stack}`)
     }
 
     const entry: LoggerEntry = {
@@ -214,6 +214,7 @@ export class PersistedConsoleLogger implements Logger {
     }
 
     if (this.displayLevel >= this.currentMessageLevel!) {
+      // tslint:disable-next-line: no-console
       console.log(
         chalk`{grey ${time}} {${this.colors[level]}.bold ${displayName}} ${indentedMessage}${serializedMetadata}`
       )

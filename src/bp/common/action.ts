@@ -14,7 +14,7 @@ export const parseActionInstruction = (actionInstruction: string): ActionInstruc
   const serverAndAction = _.head(chunks)!
   let argsStr = ''
   if (chunks.length > 1) {
-    argsStr = actionInstruction.replace(serverAndAction + ' ', '')
+    argsStr = actionInstruction.replace(`${serverAndAction} `, '')
   }
   const serverAndActionChunks = serverAndAction.split(':')
   let actionName

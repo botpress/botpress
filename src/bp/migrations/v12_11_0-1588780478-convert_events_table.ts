@@ -101,7 +101,7 @@ const migration: Migration = {
         await database.knex.schema.transacting(trx).renameTable(TEMP_TABLE_NAME, TABLE_NAME)
       })
     } catch (err) {
-      bp.logger.attachError(err).error(`Could not fix events table`)
+      bp.logger.attachError(err).error('Could not fix events table')
       return { success: false, message: 'Could not fix events table' }
     }
 
