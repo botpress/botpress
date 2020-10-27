@@ -182,7 +182,7 @@ function results2CSV(tests: Test[], results: _.Dictionary<TestResult>) {
 function isRunningFromSources(): string | undefined {
   try {
     const sourceDirectory = path.resolve(process.PROJECT_LOCATION, '../..')
-    const latestResultsPath = path.resolve(sourceDirectory, `./modules/nlu-testing/latest-results.csv`)
+    const latestResultsPath = path.resolve(sourceDirectory, './modules/nlu-testing/latest-results.csv')
     const exists = fs.existsSync(latestResultsPath)
     return exists ? latestResultsPath : undefined
   } catch {
@@ -280,7 +280,7 @@ function conditionMatchNDU(nlu: sdk.IO.EventUnderstanding, [key, matcher, expect
       reason: success
         ? ''
         : `Context doesn't match. \nexpected: ${expected} \nreceived: ${received} \nconfidence: ${conf}`,
-      received: received,
+      received,
       expected
     }
   }

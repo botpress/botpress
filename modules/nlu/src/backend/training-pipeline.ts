@@ -113,7 +113,7 @@ const makeListEntityModel = async (entity: ListEntity, botId: string, languageCo
   return <ListEntityModel>{
     type: 'custom.list',
     id: `custom.list.${entity.name}`,
-    languageCode: languageCode,
+    languageCode,
     entityName: entity.name,
     fuzzyTolerance: entity.fuzzyTolerance,
     sensitive: entity.sensitive,
@@ -309,7 +309,7 @@ export const ProcessIntents = async (
 
     const vocab = buildIntentVocab(utterances, entityModels)
 
-    return { ...intent, utterances: utterances, vocab, slot_entities: allowedEntities }
+    return { ...intent, utterances, vocab, slot_entities: allowedEntities }
   })
 }
 

@@ -1,4 +1,4 @@
-import { IconName, MaybeElement, Position, IDialogProps } from '@blueprintjs/core'
+import { IconName, IDialogProps, MaybeElement, Position } from '@blueprintjs/core'
 import React from 'react'
 
 declare module 'botpress/ui' {

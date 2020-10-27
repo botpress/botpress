@@ -54,7 +54,7 @@ import { WorkspaceService } from './services/workspace-service'
 import { Statistics } from './stats'
 import { TYPES } from './types'
 
-export type StartOptions = {
+export interface StartOptions {
   modules: sdk.ModuleEntryPoint[]
 }
 
@@ -121,7 +121,7 @@ export class Botpress {
 
   private async initialize(options: StartOptions) {
     if (!process.IS_PRODUCTION) {
-      this.logger.info(`Running in DEVELOPMENT MODE`)
+      this.logger.info('Running in DEVELOPMENT MODE')
     }
 
     this.config = await this.configProvider.getBotpressConfig()
@@ -162,7 +162,7 @@ export class Botpress {
         const { scopes } = await this.ghostService.global().readFileAsObject('/', 'debug.json')
         setDebugScopes(scopes.join(','))
       } catch (err) {
-        this.logger.attachError(err).error(`Couldn't load debug scopes. Check the syntax of debug.json`)
+        this.logger.attachError(err).error("Couldn't load debug scopes. Check the syntax of debug.json")
       }
     }
   }
@@ -203,7 +203,7 @@ export class Botpress {
     if (!appSecret) {
       appSecret = nanoid(40)
       await this.configProvider.mergeBotpressConfig({ appSecret }, true)
-      this.logger.debug(`JWT Secret isn't defined. Generating a random key...`)
+      this.logger.debug("JWT Secret isn't defined. Generating a random key...")
     }
 
     process.APP_SECRET = appSecret

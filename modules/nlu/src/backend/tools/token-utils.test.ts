@@ -69,8 +69,8 @@ describe('Raw token processing', () => {
       `${SPACE}Hei`,
       'Sen',
       'berg',
-      `!&$`,
-      `!¿}{@~`
+      '!&$',
+      '!¿}{@~'
     ]
 
     expect(processUtteranceTokens(toks)).toEqual([
@@ -88,7 +88,7 @@ describe('Raw token processing', () => {
       '!&$!¿}{@~'
     ])
 
-    const moreToks = [`${SPACE}jag`, `${SPACE}ä`, `r`, `${SPACE}väl`, `digt`, `${SPACE}hungrig`]
+    const moreToks = [`${SPACE}jag`, `${SPACE}ä`, 'r', `${SPACE}väl`, 'digt', `${SPACE}hungrig`]
     expect(processUtteranceTokens(moreToks)).toEqual(['jag', SPACE, 'är', SPACE, 'väldigt', SPACE, 'hungrig'])
   })
 

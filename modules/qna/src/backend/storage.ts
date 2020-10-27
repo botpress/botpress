@@ -57,7 +57,7 @@ export default class Storage {
   async syncQnaToNlu(): Promise<void> {
     const axiosConfig = await this.getAxiosConfig()
     const allQuestions = await this.fetchQNAs()
-    const { data: allIntents } = await axios.get(`/mod/nlu/intents`, axiosConfig)
+    const { data: allIntents } = await axios.get('/mod/nlu/intents', axiosConfig)
 
     const leftOverQnaIntents = allIntents.filter(
       (intent: sdk.NLU.IntentDefinition) =>
@@ -85,7 +85,7 @@ export default class Storage {
       name: getIntentId(qnaItem.id),
       entities: [],
       contexts: qnaItem.data.contexts,
-      utterances: utterances
+      utterances
     }
 
     await axios.post('/mod/nlu/intents', intent, axiosConfig)

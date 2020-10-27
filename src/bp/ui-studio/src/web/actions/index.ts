@@ -386,7 +386,7 @@ export const requestEditSkill = nodeId => (dispatch, getState) => {
       editSkill({
         skillId: node.skill,
         flowName: node.flow,
-        nodeId: nodeId,
+        nodeId,
         data: flow.skillData
       })
     )

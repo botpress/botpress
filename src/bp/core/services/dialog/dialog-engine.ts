@@ -108,7 +108,7 @@ export class DialogEngine {
           event.state.__error = {
             type: 'dialog-transition',
             stacktrace: err.stacktrace || err.stack,
-            destination: destination
+            destination
           }
 
           const { onErrorFlowTo } = event.state.temp
@@ -438,12 +438,12 @@ export class DialogEngine {
   private _findFlow(botId: string, flowName: string) {
     const flows = this._flowsByBot.get(botId)
     if (!flows) {
-      throw new FlowError(`Could not find any flow.`, botId, flowName)
+      throw new FlowError('Could not find any flow.', botId, flowName)
     }
 
     const flow = flows.find(x => x.name === flowName)
     if (!flow) {
-      throw new FlowError(`Flow not found."`, botId, flowName)
+      throw new FlowError('Flow not found."', botId, flowName)
     }
     return flow
   }
@@ -451,7 +451,7 @@ export class DialogEngine {
   private _findNode(botId: string, flow: FlowView, nodeName: string) {
     const node = flow.nodes && flow.nodes.find(x => x.name === nodeName)
     if (!node) {
-      throw new FlowError(`Node not found.`, botId, flow.name, nodeName)
+      throw new FlowError('Node not found.', botId, flow.name, nodeName)
     }
     return node
   }

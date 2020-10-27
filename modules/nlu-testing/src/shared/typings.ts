@@ -34,7 +34,7 @@ export interface F1 {
   f1: number
 }
 
-export type XValidationResults = {
+export interface XValidationResults {
   intents: _.Dictionary<F1>
   slots: F1
 }

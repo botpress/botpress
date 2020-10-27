@@ -13,7 +13,7 @@ import { StateManager } from '../middleware/state-manager'
 
 import { DialogEngine } from './dialog-engine'
 
-type SendSuggestionResult = { executeFlows: boolean }
+interface SendSuggestionResult { executeFlows: boolean }
 
 @injectable()
 export class DecisionEngine {

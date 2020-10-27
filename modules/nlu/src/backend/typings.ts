@@ -10,7 +10,7 @@ export const BIO = {
 
 export type Tag = 'o' | 'B' | 'I'
 
-export type Token2Vec = { [token: string]: number[] }
+export interface Token2Vec { [token: string]: number[] }
 
 export interface Gateway {
   source: LanguageSource
@@ -104,7 +104,7 @@ export type ListEntity = Readonly<{
 export type EntityCache = LRUCache<string, EntityExtractionResult[]>
 export type EntityCacheDump = LRUCache.Entry<string, EntityExtractionResult[]>[]
 
-export type ListEntityModel = {
+export interface ListEntityModel {
   type: 'custom.list'
   id: string
   languageCode: string
@@ -116,7 +116,7 @@ export type ListEntityModel = {
   cache?: EntityCache | EntityCacheDump
 }
 
-export type ExtractedSlot = {
+export interface ExtractedSlot {
   confidence: number
   name: string
   source: string
@@ -124,8 +124,8 @@ export type ExtractedSlot = {
   entity?: EntityExtractionResult
 }
 
-export type SlotExtractionResult = { slot: ExtractedSlot; start: number; end: number }
-export type ExtractedEntity = {
+export interface SlotExtractionResult { slot: ExtractedSlot; start: number; end: number }
+export interface ExtractedEntity {
   confidence: number
   type: string
   metadata: {

@@ -54,10 +54,10 @@ export class MigrationService {
   async initialize() {
     let configVersion = process.env.TESTMIG_CONFIG_VERSION || (await this.configProvider.getBotpressConfig()).version
 
-    debug(`Migration Check: %o`, { configVersion, currentVersion: this.currentVersion })
+    debug('Migration Check: %o', { configVersion, currentVersion: this.currentVersion })
 
     if (yn(process.env.SKIP_MIGRATIONS)) {
-      debug(`Skipping Migrations`)
+      debug('Skipping Migrations')
       return
     }
 
@@ -80,7 +80,7 @@ export class MigrationService {
 
     if (!process.AUTO_MIGRATE) {
       this.logger.error(
-        `Botpress needs to migrate your data. Please make a copy of your data, then start it with "./bp --auto-migrate"`
+        'Botpress needs to migrate your data. Please make a copy of your data, then start it with "./bp --auto-migrate"'
       )
 
       // When failsafe is enabled, simply stop executing migrations
@@ -95,7 +95,7 @@ export class MigrationService {
   }
 
   async executeMissingBotMigrations(botId: string, botVersion: string) {
-    debug.forBot(botId, `Checking missing migrations for bot `, { botId, botVersion })
+    debug.forBot(botId, 'Checking missing migrations for bot ', { botId, botVersion })
 
     const missingMigrations = this.filterBotTarget(this.filterMissing(this.getAllMigrations(), botVersion))
     if (!missingMigrations.length) {
@@ -108,7 +108,7 @@ export class MigrationService {
 
     await Promise.mapSeries(missingMigrations, async ({ filename }) => {
       const result = await this.loadedMigrations[filename].up(opts)
-      debug.forBot(botId, `Migration step finished`, { filename, result })
+      debug.forBot(botId, 'Migration step finished', { filename, result })
       if (result.success) {
         this.logger.info(`- ${result.message || 'Success'}`)
       } else {
@@ -118,7 +118,7 @@ export class MigrationService {
     })
 
     if (hasFailures) {
-      return this.logger.error(`Could not complete bot migration. It may behave unexpectedly.`)
+      return this.logger.error('Could not complete bot migration. It may behave unexpectedly.')
     }
 
     await this.configProvider.mergeBotConfig(botId, { version: this.currentVersion })
@@ -168,7 +168,7 @@ ${_.repeat(' ', 9)}========================================`)
 
     if (hasFailures) {
       this.logger.error(
-        `Some steps failed to complete. Please fix errors manually, then restart Botpress so the update process may finish.`
+        'Some steps failed to complete. Please fix errors manually, then restart Botpress so the update process may finish.'
       )
 
       if (!process.IS_FAILSAFE) {
@@ -205,7 +205,7 @@ ${_.repeat(' ', 9)}========================================`)
       if (filtered.length) {
         filtered.map(x => logger.warn(`- ${x.description}`))
       } else {
-        logger.warn(`- None`)
+        logger.warn('- None')
       }
     })
   }

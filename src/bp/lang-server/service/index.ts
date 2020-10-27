@@ -81,7 +81,7 @@ export default class LanguageService {
 
   private _getFileInfo = (regexMatch: RegExpMatchArray, isFastText, file): ModelFileInfo => {
     const [__, domain, langCode, dim] = regexMatch
-    return isFastText ? { domain, langCode, dim: Number(dim), file: file } : { domain, langCode, file }
+    return isFastText ? { domain, langCode, dim: Number(dim), file } : { domain, langCode, file }
   }
 
   private _getModelInfoFromFile = (file: string): ModelFileInfo => {
@@ -233,7 +233,7 @@ export default class LanguageService {
       throw new Error(`Model for lang '${lang}' is not loaded in memory`)
     }
 
-    return await Promise.all(tokens.map(await this._getQueryVectors(fastTextModel as LoadedFastTextModel)))
+    return Promise.all(tokens.map(await this._getQueryVectors(fastTextModel as LoadedFastTextModel)))
   }
 
   getModels() {

@@ -40,7 +40,7 @@ const StatusBar: FC<Props> = props => {
         progress: progress ? Math.floor(progress * 100) : state.progress
       }
     } else {
-      throw new Error(`That action type isn't supported.`)
+      throw new Error("That action type isn't supported.")
     }
   }
 

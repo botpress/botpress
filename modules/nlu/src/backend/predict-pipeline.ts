@@ -9,7 +9,7 @@ import { getUtteranceFeatures } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import * as math from './tools/math'
 import { replaceConsecutiveSpaces } from './tools/strings'
-import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex, TrainArtefacts } from './training-pipeline'
+import { ExactMatchIndex, EXACT_MATCH_STR_OPTIONS, TrainArtefacts } from './training-pipeline'
 import { EntityExtractionResult, Intent, PatternEntity, SlotExtractionResult, Tools } from './typings'
 import Utterance, { buildUtteranceBatch, getAlternateUtterance, UtteranceEntity } from './utterance/utterance'
 
@@ -32,7 +32,7 @@ export interface PredictInput {
   sentence: string
 }
 
-export type PredictStep = {
+export interface PredictStep {
   readonly rawText: string
   includedContexts: string[]
   detectedLanguage: string
@@ -53,7 +53,7 @@ export type PredictStep = {
 export type PredictOutput = sdk.IO.EventUnderstanding
 
 // only to comply with E1
-type E1IntentPred = {
+interface E1IntentPred {
   name: string
   context: string
   confidence: number
@@ -549,7 +549,7 @@ function MapStepToOutput(step: PredictStep, startTime: number): PredictOutput {
     return {
       ...preds,
       [label]: {
-        confidence: confidence,
+        confidence,
         oos: step.oos_predictions[label] || 0,
         intents
       }

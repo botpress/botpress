@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { Config } from 'src/config'
+
 import Storage from './storage'
 
 export type Action = 'text' | 'redirect' | 'text_redirect'

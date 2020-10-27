@@ -168,7 +168,7 @@ export default class SlotTagger {
   }
 
   get serialized(): Promise<Buffer> {
-    return (async () => await Promise.fromCallback(cb => fs.readFile(this._crfModelFn, cb)))() as Promise<Buffer>
+    return (async () => Promise.fromCallback(cb => fs.readFile(this._crfModelFn, cb)))() as Promise<Buffer>
   }
 
   private tokenSliceFeatures(

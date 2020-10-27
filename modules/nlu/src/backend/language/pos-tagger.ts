@@ -75,7 +75,7 @@ function wordFeatures(seq: string[], idx: number): string[] {
     alpha: a,
     contains_num: d > 0,
     contains_special: word.length - a - d > 0,
-    word: word,
+    word,
     prev_word: bos ? '' : seq[idx - 1].toLowerCase(),
     next_word: eos ? '' : seq[idx + 1].toLowerCase()
   }
