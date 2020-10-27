@@ -36,13 +36,13 @@ function makeEngineMock(loadedModels: string[]): NLU.Engine {
 
     hasModel: (modelId: string) => loadedModels.includes(modelId),
 
-    predict: jest.fn(async (textInput: string, ctx: string[], language: string) => {
-      if (loadedModels.includes(language)) {
+    predict: jest.fn(async (textInput: string, ctx: string[], modelId: string) => {
+      if (loadedModels.includes(modelId)) {
         return <IO.EventUnderstanding>{
           entities: [],
           predictions: {},
           includedContexts: ctx,
-          language,
+          language: modelId,
           ms: Date.now()
         }
       }
@@ -58,7 +58,7 @@ function makeModelProviderMock(modelsOnFs: string[]): ModelProvider {
         return <NLU.Model>{
           startedAt: new Date(),
           finishedAt: new Date(),
-          hash: 'heyheyhey ;)',
+          hash: languageCode,
           languageCode,
           data: {
             input: '',
@@ -111,7 +111,7 @@ describe('predict', () => {
 
     // act
     const predictionHandler = new PredictionHandler(
-      makeModelsByLang(modelsOnFs),
+      makeModelsByLang(modelsInEngine),
       modelProvider,
       engine,
       anticipatedLang,
@@ -137,7 +137,7 @@ describe('predict', () => {
 
     // act
     const predictionHandler = new PredictionHandler(
-      makeModelsByLang(modelsOnFs),
+      makeModelsByLang(modelsInEngine),
       modelProvider,
       engine,
       anticipatedLang,
@@ -163,7 +163,7 @@ describe('predict', () => {
 
     // act
     const predictionHandler = new PredictionHandler(
-      makeModelsByLang(modelsOnFs),
+      makeModelsByLang(modelsInEngine),
       modelProvider,
       engine,
       anticipatedLang,
@@ -189,7 +189,7 @@ describe('predict', () => {
 
     // act
     const predictionHandler = new PredictionHandler(
-      makeModelsByLang(modelsOnFs),
+      makeModelsByLang(modelsInEngine),
       modelProvider,
       engine,
       anticipatedLang,
@@ -215,7 +215,7 @@ describe('predict', () => {
 
     // act
     const predictionHandler = new PredictionHandler(
-      makeModelsByLang(modelsOnFs),
+      makeModelsByLang(modelsInEngine),
       modelProvider,
       engine,
       anticipatedLang,
@@ -241,7 +241,7 @@ describe('predict', () => {
 
     // act
     const predictionHandler = new PredictionHandler(
-      makeModelsByLang(modelsOnFs),
+      makeModelsByLang(modelsInEngine),
       modelProvider,
       engine,
       anticipatedLang,
@@ -267,7 +267,7 @@ describe('predict', () => {
 
     // act & assert
     const predictionHandler = new PredictionHandler(
-      makeModelsByLang(modelsOnFs),
+      makeModelsByLang(modelsInEngine),
       modelProvider,
       engine,
       anticipatedLang,
