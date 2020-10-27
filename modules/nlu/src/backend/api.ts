@@ -49,9 +49,11 @@ export default async (bp: typeof sdk, state: NLUState) => {
       return res.status(404).send(`Bot ${botId} doesn't exist`)
     }
 
+    const modelId = botNLU.modelsByLang[botNLU.defaultLanguage]
+
     try {
       // TODO: language should be a path param of route
-      let nlu = await state.engine.predict(value.text, value.contexts, botNLU.defaultLanguage)
+      let nlu = await state.engine.predict(value.text, value.contexts, modelId)
       nlu = legacyElectionPipeline(nlu)
       res.send({ nlu })
     } catch (err) {
