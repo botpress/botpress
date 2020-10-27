@@ -452,10 +452,10 @@ declare module 'botpress/sdk' {
     }
 
     export class Engine {
-      static initialize: (config: Config, logger: NLU.Logger) => Promise<void>
-      static getHealth: () => Health
-      static getLanguages: () => string[]
-      constructor(botId: string, logger: Logger)
+      constructor(logger: Logger)
+      initialize: (config: Config) => Promise<void>
+      getHealth: () => Health
+      getLanguages: () => string[]
       computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string
       loadModel: (model: Model, modelId: string) => Promise<void>
       hasModel: (modelId: string) => boolean

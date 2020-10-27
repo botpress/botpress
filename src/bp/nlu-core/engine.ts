@@ -23,38 +23,33 @@ type LoadedModel = {
 }
 
 export default class Engine implements NLU.Engine {
-  private static _tools: Tools
-  private static _trainingWorkerQueue: TrainingWorkerQueue
+  private _tools!: Tools
+  private _trainingWorkerQueue!: TrainingWorkerQueue
 
   private modelsById: LRUCache<string, LoadedModel> = new LRUCache(1000)
 
-  constructor(private botId: string, private logger: NLU.Logger) {}
+  constructor(private logger: NLU.Logger) {}
 
-  // NOTE: removed private in order to prevent important refactor (which will be done later)
-  public static get tools() {
-    return this._tools
-  }
-
-  public static getHealth() {
+  public getHealth() {
     return this._tools.getHealth()
   }
 
-  public static getLanguages() {
+  public getLanguages() {
     return this._tools.getLanguages()
   }
 
-  public static getVersionInfo() {
+  public getVersionInfo() {
     return this._tools.getVersionInfo()
   }
 
-  public static async initialize(config: NLU.Config, logger: NLU.Logger): Promise<void> {
-    this._tools = await initializeTools(config, logger)
+  public async initialize(config: NLU.Config): Promise<void> {
+    this._tools = await initializeTools(config, this.logger)
     const version = this._tools.getVersionInfo()
     if (!version.nluVersion.length || !version.langServerInfo.version.length) {
-      logger.warning('Either the nlu version or the lang server version is not set correctly.')
+      this.logger.warning('Either the nlu version or the lang server version is not set correctly.')
     }
 
-    this._trainingWorkerQueue = new TrainingWorkerQueue(config, logger)
+    this._trainingWorkerQueue = new TrainingWorkerQueue(config, this.logger)
   }
 
   public hasModel(modelId: string) {
@@ -62,7 +57,7 @@ export default class Engine implements NLU.Engine {
   }
 
   public computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string {
-    const { nluVersion, langServerInfo } = Engine._tools.getVersionInfo()
+    const { nluVersion, langServerInfo } = this._tools.getVersionInfo()
 
     const singleLangIntents = intents.map(i => ({ ...i, utterances: i.utterances[lang] }))
 
@@ -79,7 +74,7 @@ export default class Engine implements NLU.Engine {
     languageCode: string,
     options: NLU.TrainingOptions
   ): Promise<NLU.Model> {
-    trainDebug.forBot(this.botId, `Started ${languageCode} training`)
+    trainDebug(`Started ${languageCode} training`)
 
     const { previousModel: previousModelHash, nluSeed, progressCallback } = options
     const previousModel = previousModelHash ? this.modelsById.get(previousModelHash) : undefined
@@ -137,10 +132,9 @@ export default class Engine implements NLU.Engine {
     const debugMsg = trainAllCtx
       ? `Training all contexts for language: ${languageCode}`
       : `Retraining only contexts: [${ctxToTrain}] for language: ${languageCode}`
-    trainDebug.forBot(this.botId, debugMsg)
+    trainDebug(debugMsg)
 
     const input: TrainInput = {
-      botId: this.botId,
       nluSeed,
       languageCode,
       list_entities,
@@ -151,7 +145,7 @@ export default class Engine implements NLU.Engine {
     }
 
     const startedAt = new Date()
-    const output = await Engine._trainingWorkerQueue.startTraining(trainSessionId, input, progressCallback)
+    const output = await this._trainingWorkerQueue.startTraining(trainSessionId, input, progressCallback)
 
     const hash = this.computeModelHash(intentDefs, entityDefs, languageCode)
     const model: PredictableModel = {
@@ -170,13 +164,13 @@ export default class Engine implements NLU.Engine {
       model.data.output = this._mergeModelOutputs(model.data.output, previousModel!.model.data.output, contexts)
     }
 
-    trainDebug.forBot(this.botId, `Successfully finished ${languageCode} training`)
+    trainDebug(`Successfully finished ${languageCode} training`)
 
     return serializeModel(model)
   }
 
   cancelTraining(trainSessionId: string): Promise<void> {
-    return Engine._trainingWorkerQueue.cancelTraining(trainSessionId)
+    return this._trainingWorkerQueue.cancelTraining(trainSessionId)
   }
 
   private _mergeModelOutputs(
@@ -217,13 +211,13 @@ export default class Engine implements NLU.Engine {
   }
 
   private async _makePredictors(input: TrainInput, output: TrainOutput): Promise<Predictors> {
-    const tools = Engine._tools
+    const tools = this._tools
 
     /**
      * TODO: extract this function some place else,
-     * Engine shouldn't be dependant of training pipeline...
+     * Engine's predict() shouldn't be dependant of training pipeline...
      */
-    const intents = await ProcessIntents(input.intents, input.languageCode, output.list_entities, Engine._tools)
+    const intents = await ProcessIntents(input.intents, input.languageCode, output.list_entities, this._tools)
 
     const basePredictors: Predictors = {
       ...output,
@@ -280,7 +274,7 @@ export default class Engine implements NLU.Engine {
       includedContexts
     }
 
-    return Predict(input, Engine._tools, loaded.predictors)
+    return Predict(input, this._tools, loaded.predictors)
   }
 
   async detectLanguage(text: string, models: string[]): Promise<string> {
@@ -290,7 +284,7 @@ export default class Engine implements NLU.Engine {
     }
 
     const predictors = loaded.map(m => m!.predictors)
-    return DetectLanguage(text, predictors, Engine._tools)
+    return DetectLanguage(text, predictors, this._tools)
   }
 
   private _ctxHasChanged = (previousIntents: Intent<string>[], currentIntents: Intent<string>[]) => (ctx: string) => {

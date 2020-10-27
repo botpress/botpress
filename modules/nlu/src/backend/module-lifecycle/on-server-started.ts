@@ -2,7 +2,6 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import legacyElectionPipeline from '../legacy-election'
-import { makeLoggerWrapper } from '../logger'
 import { getLatestModel } from '../model-service'
 import { PredictionHandler } from '../prediction-handler'
 import { setTrainingSession } from '../train-session-service'
@@ -20,7 +19,7 @@ async function initializeReportingTool(bp: typeof sdk, state: NLUState) {
 const EVENTS_TO_IGNORE = ['session_reference', 'session_reset', 'bp_dialog_timeout', 'visit', 'say_something', '']
 
 const ignoreEvent = (bp: typeof sdk, state: NLUState, event: sdk.IO.IncomingEvent) => {
-  const health = bp.NLU.Engine.getHealth()
+  const health = state.engine.getHealth()
   return (
     !state.nluByBot[event.botId] ||
     !health.isEnabled ||
@@ -44,7 +43,8 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
 
       try {
         const { botId, preview, nlu } = event
-        const { engine, defaultLanguage, modelsByLang } = state.nluByBot[botId]
+        const { engine, nluByBot } = state
+        const { defaultLanguage, modelsByLang } = nluByBot[botId]
 
         const ghost = bp.ghost.forBot(botId)
         const modelProvider = {
@@ -114,7 +114,16 @@ export function getOnSeverStarted(state: NLUState) {
   return async (bp: typeof sdk) => {
     await initializeReportingTool(bp, state)
     const globalConfig = await bp.config.getModuleConfig('nlu')
-    await bp.NLU.Engine.initialize(globalConfig, makeLoggerWrapper(bp))
+
+    const logger = <sdk.NLU.Logger>{
+      info: (msg: string) => bp.logger.info(msg),
+      warning: (msg: string, err?: Error) => (err ? bp.logger.attachError(err).warn(msg) : bp.logger.warn(msg)),
+      error: (msg: string, err?: Error) => (err ? bp.logger.attachError(err).error(msg) : bp.logger.error(msg))
+    }
+    const engine = new bp.NLU.Engine(logger)
+    await engine.initialize(globalConfig)
+    state.engine = engine
+
     await registerMiddleware(bp, state)
   }
 }

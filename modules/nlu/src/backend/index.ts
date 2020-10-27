@@ -13,6 +13,7 @@ import { getOnSeverStarted } from './module-lifecycle/on-server-started'
 import { NLUState } from './typings'
 
 const state: NLUState = {
+  engine: undefined,
   nluByBot: {},
   sendNLUStatusEvent: async () => {}
 }

@@ -32,7 +32,6 @@ type ListEntityWithCache = ListEntity & {
 }
 
 export type TrainInput = Readonly<{
-  botId: string
   nluSeed: number
   languageCode: string
   pattern_entities: PatternEntity[]
@@ -94,7 +93,7 @@ const KMEANS_OPTIONS = {
 } as sdk.MLToolkit.KMeans.KMeansOptions
 
 const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainStep> => {
-  debugTraining.forBot(input.botId, 'Preprocessing intents')
+  debugTraining('Preprocessing intents')
   input = _.cloneDeep(input)
   const list_entities = await Promise.map(input.list_entities, list =>
     makeListEntityModel(list, input.languageCode, tools)

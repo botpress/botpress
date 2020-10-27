@@ -10,7 +10,6 @@ import Engine from 'nlu-core/engine'
 import { authMiddleware, handleErrorLogging, handleUnexpectedError } from '../http-utils'
 import Logger from '../simple-logger'
 
-import makeLoggerWrapper from './logger-wrapper'
 import ModelService from './model/model-service'
 import removeNoneIntent from './remove-none'
 import TrainService from './train-service'
@@ -69,19 +68,17 @@ const createExpressApp = (options: APIOptions): Application => {
   return app
 }
 
-export default async function(options: APIOptions, nluVersion: string) {
+export default async function(options: APIOptions, engine: Engine) {
   const app = createExpressApp(options)
   const logger = new Logger('API')
-  const loggerWrapper = makeLoggerWrapper(logger)
 
-  const engine = new Engine('nlu-server', loggerWrapper)
   const modelService = new ModelService(options.modelDir, engine)
   await modelService.init()
   const trainSessionService = new TrainSessionService()
   const trainService = new TrainService(logger, engine, modelService, trainSessionService)
 
   app.get('/info', (req, res) => {
-    res.send({ version: nluVersion })
+    res.send({ version: engine.getVersionInfo() })
   })
 
   const router = express.Router({ mergeParams: true })

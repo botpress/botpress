@@ -1,6 +1,7 @@
 import { ListenHandle, NLU } from 'botpress/sdk'
 
 export type NLUState = {
+  engine: NLU.Engine
   nluByBot: _.Dictionary<BotState>
   broadcastLoadModel?: (botId: string, hash: string, language: string) => Promise<void>
   broadcastCancelTraining?: (botId: string, language: string) => Promise<void>
@@ -9,7 +10,6 @@ export type NLUState = {
 
 export interface BotState {
   botId: string
-  engine: NLU.Engine
   defaultLanguage: string
   trainOrLoad: (disableTraining: boolean) => Promise<void>
   trainSessions: _.Dictionary<NLU.TrainingSession>
