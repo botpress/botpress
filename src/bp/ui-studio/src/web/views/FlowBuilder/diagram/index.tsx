@@ -11,7 +11,7 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { lang, MainLayout, sharedStyle } from 'botpress/shared'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
@@ -35,9 +35,11 @@ import {
   updateFlowNode,
   updateFlowProblems
 } from '~/actions'
+import { SearchBar } from '~/components/Shared/Interface'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 import { SaySomethingWidgetFactory } from '~/views/OneFlow/diagram/nodes/SaySomethingNode'
 
+import WorkflowToolbar from '../../OneFlow/diagram/WorkflowToolbar'
 import { SkillDefinition } from '../sidePanel/FlowTools'
 
 import { defaultTransition, DiagramManager, DIAGRAM_PADDING, nodeTypes, Point } from './manager'
@@ -54,6 +56,7 @@ class Diagram extends Component<Props> {
   private diagramEngine: ExtendedDiagramEngine
   private diagramWidget: DiagramWidget
   private diagramContainer: HTMLDivElement
+  private searchRef: React.RefObject<HTMLInputElement>
   private manager: DiagramManager
   /** Represents the source port clicked when the user is connecting a node */
   private dragPortSource: any
@@ -99,6 +102,8 @@ class Diagram extends Component<Props> {
         console.error('Error when switching flow or refreshing', err)
       }
     }
+
+    this.searchRef = React.createRef()
   }
 
   componentDidMount() {
@@ -115,6 +120,10 @@ class Diagram extends Component<Props> {
   componentDidUpdate(prevProps, prevState) {
     this.manager.setCurrentFlow(this.props.currentFlow)
     this.manager.setReadOnly(this.props.readOnly)
+
+    if (!prevProps.showSearch && this.props.showSearch) {
+      this.searchRef.current.focus()
+    }
 
     if (this.diagramContainer) {
       this.manager.setDiagramContainer(this.diagramWidget, {
@@ -556,24 +565,38 @@ class Diagram extends Component<Props> {
 
   render() {
     return (
-      <div
-        id="diagramContainer"
-        ref={ref => (this.diagramContainer = ref)}
-        tabIndex={1}
-        style={{ outline: 'none', width: '100%', height: '100%' }}
-        onContextMenu={this.handleContextMenu}
-        onDrop={this.handleToolDropped}
-        onDragOver={event => event.preventDefault()}
-      >
-        <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
+      <MainLayout.Wrapper>
+        <WorkflowToolbar />
 
-        <DiagramWidget
-          ref={w => (this.diagramWidget = w)}
-          deleteKeys={[]}
-          diagramEngine={this.diagramEngine}
-          inverseZoom
-        />
-      </div>
+        <div className={style.searchWrapper}>
+          <SearchBar
+            className={style.noPadding}
+            ref={this.searchRef}
+            onBlur={this.props.hideSearch}
+            value={this.props.highlightFilter}
+            placeholder={lang.tr('studio.flow.filterNodes')}
+            onChange={value => this.props.handleFilterChanged({ target: { value } })}
+          />
+        </div>
+        <div
+          id="diagramContainer"
+          ref={ref => (this.diagramContainer = ref)}
+          tabIndex={1}
+          style={{ outline: 'none', width: '100%', height: '100%' }}
+          onContextMenu={this.handleContextMenu}
+          onDrop={this.handleToolDropped}
+          onDragOver={event => event.preventDefault()}
+        >
+          <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
+
+          <DiagramWidget
+            ref={w => (this.diagramWidget = w)}
+            deleteKeys={[]}
+            diagramEngine={this.diagramEngine}
+            inverseZoom
+          />
+        </div>
+      </MainLayout.Wrapper>
     )
   }
 }
@@ -602,7 +625,7 @@ interface Props {
   canPasteNode: boolean
   showSearch: boolean
   hideSearch: () => void
-  handleFilterChanged: (event: object) => void
+  handleFilterChanged: (event: any) => void
   highlightFilter: string
   skills: SkillDefinition[]
 }
