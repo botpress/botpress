@@ -188,7 +188,7 @@ export class Botpress {
       return
     }
 
-    if (!experimental) {
+    if (experimental) {
       this.logger.info('Local Action Server will only run in experimental mode')
       return
     }
