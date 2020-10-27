@@ -12,6 +12,7 @@ import { TYPES } from '../../types'
 import { incrementMetric } from '../monitoring'
 import { Queue } from '../queue'
 
+import { addStepToEvent, EventCollector, LAST_EVENT_STEP } from './event-collector'
 import { MiddlewareChain } from './middleware'
 
 const directionRegex = /^(incoming|outgoing)$/
@@ -36,6 +37,9 @@ const eventSchema = {
   debugger: joi.bool().optional(),
   credentials: joi.any().optional(),
   incomingEventId: joi.string().optional(),
+  activeProcessing: joi.object().optional(),
+  processing: joi.object().optional(),
+  ndu: joi.any().optional(),
   nlu: joi
     .object({
       intent: joi.object().optional(),
@@ -95,7 +99,8 @@ export class EventEngine {
     @tagged('name', 'EventEngine')
     private logger: sdk.Logger,
     @inject(TYPES.IncomingQueue) private incomingQueue: Queue,
-    @inject(TYPES.OutgoingQueue) private outgoingQueue: Queue
+    @inject(TYPES.OutgoingQueue) private outgoingQueue: Queue,
+    @inject(TYPES.EventCollector) private eventCollector: EventCollector
   ) {
     this.incomingQueue.subscribe(async event => {
       await this._infoMiddleware(event)
@@ -111,6 +116,9 @@ export class EventEngine {
       const { outgoing } = await this.getBotMiddlewareChains(event.botId)
       await outgoing.run(event)
       this._outgoingPerf.record()
+
+      addStepToEvent(LAST_EVENT_STEP, event)
+      this.eventCollector.storeEvent(event)
     })
 
     this.setupPerformanceHooks()
@@ -169,6 +177,8 @@ export class EventEngine {
 
   async sendEvent(event: sdk.IO.Event): Promise<void> {
     this.validateEvent(event)
+    addStepToEvent('received', event)
+    this.eventCollector.storeEvent(event)
 
     if (event.direction === 'incoming') {
       debugIncoming.forBot(event.botId, 'send ', event)
@@ -189,9 +199,9 @@ export class EventEngine {
       const replyEvent = Event({
         ..._.pick(eventDestination, keys),
         direction: 'outgoing',
-        type: _.get(payload, 'type', 'default'),
+        type: payload.type ?? 'text',
         payload,
-        incomingEventId: incomingEventId
+        incomingEventId
       })
 
       await this.sendEvent(replyEvent)
@@ -207,11 +217,11 @@ export class EventEngine {
     const outgoing = new MiddlewareChain()
 
     for (const mw of this.incomingMiddleware) {
-      incoming.use(mw.handler)
+      incoming.use(mw)
     }
 
     for (const mw of this.outgoingMiddleware) {
-      outgoing.use(mw.handler)
+      outgoing.use(mw)
     }
 
     return { incoming, outgoing }

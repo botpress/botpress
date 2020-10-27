@@ -99,6 +99,7 @@ declare module 'botpress/sdk' {
   export interface Logger {
     forBot(botId: string): this
     attachError(error: Error): this
+    attachEvent(event: IO.Event): this
     persist(shouldPersist: boolean): this
     level(level: LogLevel): this
     noEmit(): this
@@ -638,6 +639,11 @@ declare module 'botpress/sdk' {
       readonly credentials?: any
       /** When false, some properties used by the debugger are stripped from the event before storing */
       debugger?: boolean
+      activeProcessing?: ProcessingEntry
+      /** Track processing steps during the lifetime of the event  */
+      processing?: {
+        [activity: string]: ProcessingEntry
+      }
       /**
        * Check if the event has a specific flag
        * @param flag The flag symbol to verify. {@link IO.WellKnownFlags} to know more about existing flags
@@ -652,6 +658,12 @@ declare module 'botpress/sdk' {
        * @example event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
        */
       setFlag(flag: symbol, value: boolean): void
+    }
+
+    interface ProcessingEntry {
+      logs?: string[]
+      errors?: EventError[]
+      date?: Date
     }
 
     /**
@@ -751,11 +763,15 @@ declare module 'botpress/sdk' {
     }
 
     export interface EventError {
-      type: 'action-execution' | 'dialog-transition'
+      type: 'action-execution' | 'dialog-transition' | 'dialog-engine' | 'hook-execution'
       stacktrace?: string
       actionName?: string
       actionArgs?: any
+      hookName?: string
       destination?: string
+      /** Represent the location where the error was triggered  */
+      flowName?: string
+      nodeName?: string
     }
 
     export interface JumpPoint {
@@ -811,10 +827,11 @@ declare module 'botpress/sdk' {
 
     export type StoredEvent = {
       /** This ID is automatically generated when inserted in the DB  */
-      readonly id?: number
+      readonly id: string
       direction: EventDirection
       /** Outgoing events will have the incoming event ID, if they were triggered by one */
       incomingEventId?: string
+      type: string
       sessionId: string
       workflowId?: string
       feedback?: number
@@ -858,8 +875,9 @@ declare module 'botpress/sdk' {
      * Call next with an error as first argument to throw an error
      * Call next with true as second argument to swallow the event (i.e. stop the processing chain)
      * Call next with no parameters or false as second argument to continue processing to next middleware
+     * Call next with the last parameter as true to mark the middleware as "skipped" in the event processing
      */
-    export type MiddlewareNextCallback = (error?: Error, swallow?: boolean) => void
+    export type MiddlewareNextCallback = (error?: Error, swallow?: boolean, skipped?: boolean) => void
 
     /**
      * The actual middleware function that gets executed. It receives an event and expects to call next()
@@ -1786,7 +1804,7 @@ declare module 'botpress/sdk' {
      * @param id - The ID of the event to update
      * @param fields - Fields to update on the event
      */
-    export function updateEvent(id: number, fields: Partial<IO.StoredEvent>): Promise<void>
+    export function updateEvent(id: string, fields: Partial<IO.StoredEvent>): Promise<void>
 
     /**
      * Register the user feedback for a specific event. The type property is used to increment associated metrics

@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { IO, Logger } from 'botpress/sdk'
+import { extractEventCommonArgs } from 'common/action'
 import { ObjectCache } from 'common/object-cache'
 import { ActionScope, ActionServer, LocalActionDefinition } from 'common/typings'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
@@ -23,6 +24,7 @@ import { clearRequireCache, requireFromString } from '../../modules/require'
 import { TYPES } from '../../types'
 import { BotService } from '../bot-service'
 import { ActionExecutionError } from '../dialog/errors'
+import { addErrorToEvent, addStepToEvent } from '../middleware/event-collector'
 import { WorkspaceService } from '../workspace-service'
 
 import { extractMetadata } from './metadata'
@@ -177,12 +179,25 @@ export class ScopedActionService {
       }
 
       debug.forBot(incomingEvent.botId, 'done running', { actionName, actionArgs })
+      addStepToEvent(`action:${actionName}:completed`, incomingEvent)
     } catch (err) {
       this.logger
         .forBot(this.botId)
         .attachError(err)
         .error(`An error occurred while executing the action "${actionName}`)
-      throw new ActionExecutionError(err.message, actionName, err.stack)
+
+      addErrorToEvent(
+        {
+          type: 'action-execution',
+          stacktrace: err.stacktrace || err.stack,
+          actionName: actionName,
+          actionArgs: _.omit(actionArgs, ['event'])
+        },
+        incomingEvent
+      )
+      const name = actionName ?? incomingEvent.state.context?.currentNode ?? ''
+      addStepToEvent(`action:${name}:error`, incomingEvent)
+      throw new ActionExecutionError(err.message, name, err.stack)
     }
   }
 
@@ -287,15 +302,11 @@ export class ScopedActionService {
 
     const { code, _require, dirPath, action } = await this.loadLocalAction(actionName)
 
-    const args = {
-      event: incomingEvent,
-      user: incomingEvent.state.user,
-      temp: incomingEvent.state.temp,
-      session: incomingEvent.state.session,
+    const args = extractEventCommonArgs(incomingEvent, {
       args: actionArgs,
       printObject,
       process: UntrustedSandbox.getSandboxProcessArgs()
-    }
+    })
 
     switch (runType) {
       case 'trusted': {

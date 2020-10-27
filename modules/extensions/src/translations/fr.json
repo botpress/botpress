@@ -1,4 +1,6 @@
 {
+  "errorExecuting": "Erreur lors de l'exécution de l'action \"{name}\"",
+  "errorTransition": "Erreur lors de la transition vers \"{name}\"",
   "types": {
     "dropdown": {
       "allowCreate": "Permettre la création de nouvelles options",
@@ -15,5 +17,19 @@
       "widthDesc": "La largeur par défaut affiche le menu déroulant et le bouton sur une même ligne.",
       "widthTitle": "La largeur du menu déroulant (en pixel)"
     }
+  },
+  "processing": {
+    "afterMW": "Après le Middleware",
+    "beforeMW": "Avant le Middleware",
+    "received": "Événement Reçu",
+    "stateLoaded": "Chargement Données Utilisateur",
+    "hook": "Hook",
+    "mw": "Middleware",
+    "dialog": "Exécution du dialogue",
+    "action": "Action",
+    "completed": "Traitement complété",
+    "executedIn": "Exécuté en {n} ms",
+    "type": "Type",
+    "stacktrace": "Stacktrace"
   }
 }

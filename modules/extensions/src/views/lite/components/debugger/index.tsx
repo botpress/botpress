@@ -5,8 +5,9 @@ import _ from 'lodash'
 import ms from 'ms'
 import nanoid from 'nanoid'
 import React from 'react'
-import { MdBugReport } from 'react-icons/md'
 import 'ui-shared/dist/theme.css'
+
+import lang from '../../../lang'
 
 import Settings from './settings'
 import style from './style.scss'
@@ -14,6 +15,7 @@ import { loadSettings } from './utils'
 import { Error } from './views/Error'
 import { Inspector } from './views/Inspector'
 import { NDU } from './views/NDU'
+import { Processing } from './views/Processing'
 import Summary from './views/Summary'
 import EventNotFound from './EventNotFound'
 import FetchingEvent from './FetchingEvent'
@@ -23,8 +25,8 @@ import Unauthorized from './Unauthorized'
 
 export const updater = { callback: undefined }
 
-const WEBCHAT_WIDTH = 400
-const DEV_TOOLS_WIDTH = 450
+const WEBCHAT_WIDTH = 360
+const DEV_TOOLS_WIDTH = 350
 const RETRY_PERIOD = 500 // Delay (ms) between each call to the backend to fetch a desired event
 const RETRY_SECURITY_FACTOR = 3
 const DEBOUNCE_DELAY = 100
@@ -34,15 +36,15 @@ interface Props {
 }
 
 interface State {
-  event: any
+  event: sdk.IO.IncomingEvent
   selectedTabId: string
   visible: boolean
   showSettings: boolean
   showEventNotFound: boolean
   fetching: boolean
   unauthorized: boolean
-  eventsCache: sdk.IO.IncomingEvent[]
   updateDiagram: boolean
+  eventsCache: sdk.IO.IncomingEvent[]
 }
 
 export class Debugger extends React.Component<Props, State> {
@@ -68,6 +70,8 @@ export class Debugger extends React.Component<Props, State> {
     // @ts-ignore
     const parentShowEvent = window.parent.showEventOnDiagram
     this.showEventOnDiagram = parentShowEvent ? parentShowEvent() : () => {}
+
+    lang.init()
 
     updater.callback = this.loadEvent
 
@@ -171,6 +175,10 @@ export class Debugger extends React.Component<Props, State> {
           console.error("Couldn't load event on workflow", err)
         }
       }
+
+      if (!event.processing?.['completed']) {
+        keepRetrying = true
+      }
     } catch (err) {
       keepRetrying = true
     }
@@ -240,6 +248,7 @@ export class Debugger extends React.Component<Props, State> {
   renderEvent() {
     const eventError = _.get(this.state, 'event.state.__error')
     const ndu = _.get(this.state, 'event.ndu')
+    const processing = _.get(this.state, 'event.processing')
 
     return (
       <div className={style.content}>
@@ -264,6 +273,7 @@ export class Debugger extends React.Component<Props, State> {
             }
           />
           {ndu && <Tab id="ndu" title="NDU" panel={<NDU ndu={ndu} />} />}
+          {processing && <Tab id="processing" title="Processing" panel={<Processing processing={processing} />} />}
           <Tab id="advanced" title="Raw JSON" panel={<Inspector data={this.state.event} />} />
           {eventError && (
             <Tab

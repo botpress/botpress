@@ -94,7 +94,7 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
         EVENTS_TO_IGNORE.includes(event.type) ||
         event.hasFlag(bp.IO.WellKnownFlags.SKIP_NATIVE_NLU)
       ) {
-        return next()
+        return next(undefined, false, true)
       }
 
       let nluResults = {}

@@ -45,6 +45,10 @@ export class ConverseService {
       order: 10000,
       direction: 'outgoing',
       handler: (event: IO.Event, next) => {
+        if (event.channel !== 'api') {
+          return next(undefined, false, true)
+        }
+
         this._handleCapturePayload(event)
         next()
       }
@@ -56,6 +60,10 @@ export class ConverseService {
       order: 10000,
       direction: 'incoming',
       handler: (event: IO.Event, next) => {
+        if (event.channel !== 'api') {
+          return next(undefined, false, true)
+        }
+
         this._handleCaptureContext(event as IO.IncomingEvent)
         next()
       }
@@ -163,10 +171,6 @@ export class ConverseService {
   }
 
   private _handleCapturePayload(event: IO.Event) {
-    if (event.channel !== 'api') {
-      return
-    }
-
     const userKey = buildUserKey(event.botId, event.target)
     if (!this._responseMap[userKey]) {
       this._responseMap[userKey] = { responses: [] }
@@ -176,10 +180,6 @@ export class ConverseService {
   }
 
   private _handleCaptureContext(event: IO.IncomingEvent) {
-    if (event.channel !== 'api') {
-      return
-    }
-
     const userKey = buildUserKey(event.botId, event.target)
     if (!this._responseMap[userKey]) {
       this._responseMap[userKey] = { responses: [] }
