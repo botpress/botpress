@@ -451,9 +451,9 @@ declare module 'botpress/sdk' {
       export const isTrainingAlreadyStarted: (err: Error) => boolean
     }
 
-    export class Engine {
-      constructor(logger: Logger)
-      initialize: (config: Config) => Promise<void>
+    export const makeEngine: (config: Config, logger: Logger) => Promise<Engine>
+
+    export interface Engine {
       getHealth: () => Health
       getLanguages: () => string[]
       computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string

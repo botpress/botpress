@@ -120,9 +120,7 @@ export function getOnSeverStarted(state: NLUState) {
       warning: (msg: string, err?: Error) => (err ? bp.logger.attachError(err).warn(msg) : bp.logger.warn(msg)),
       error: (msg: string, err?: Error) => (err ? bp.logger.attachError(err).error(msg) : bp.logger.error(msg))
     }
-    const engine = new bp.NLU.Engine(logger)
-    await engine.initialize(globalConfig)
-    state.engine = engine
+    state.engine = await bp.NLU.makeEngine(globalConfig, logger)
 
     await registerMiddleware(bp, state)
   }

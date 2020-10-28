@@ -56,9 +56,9 @@ export default async function(options: ArgV) {
     warning: (msg: string, err?: Error) => (err ? logger.attachError(err).warn(msg) : logger.warn(msg)),
     error: (msg: string, err?: Error) => (err ? logger.attachError(err).error(msg) : logger.error(msg))
   }
-  const engine = new Engine(loggerWrapper)
+  const engine = new Engine()
   try {
-    await engine.initialize(config)
+    await engine.initialize(config, loggerWrapper)
   } catch (err) {
     // TODO: Make lang provider throw if it can't connect.
     logger

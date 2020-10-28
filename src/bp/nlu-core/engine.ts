@@ -37,7 +37,7 @@ export default class Engine implements NLU.Engine {
 
   private modelsById: LRUCache<string, LoadedModel>
 
-  constructor(private logger: NLU.Logger, opt?: Partial<Options>) {
+  constructor(opt?: Partial<Options>) {
     const options: Options = { ...DEFAULT_OPTIONS, ...opt }
     this.modelsById = new LRUCache(options.maxLoadedModels)
   }
@@ -54,14 +54,14 @@ export default class Engine implements NLU.Engine {
     return this._tools.getVersionInfo()
   }
 
-  public async initialize(config: NLU.Config): Promise<void> {
-    this._tools = await initializeTools(config, this.logger)
+  public async initialize(config: NLU.Config, logger: NLU.Logger): Promise<void> {
+    this._tools = await initializeTools(config, logger)
     const version = this._tools.getVersionInfo()
     if (!version.nluVersion.length || !version.langServerInfo.version.length) {
-      this.logger.warning('Either the nlu version or the lang server version is not set correctly.')
+      logger.warning('Either the nlu version or the lang server version is not set correctly.')
     }
 
-    this._trainingWorkerQueue = new TrainingWorkerQueue(config, this.logger)
+    this._trainingWorkerQueue = new TrainingWorkerQueue(config, logger)
   }
 
   public hasModel(modelId: string) {
