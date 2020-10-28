@@ -177,8 +177,11 @@ export class EventEngine {
 
   async sendEvent(event: sdk.IO.Event): Promise<void> {
     this.validateEvent(event)
-    addStepToEvent('received', event)
-    this.eventCollector.storeEvent(event)
+
+    if (event.debugger) {
+      addStepToEvent('received', event)
+      this.eventCollector.storeEvent(event)
+    }
 
     if (event.direction === 'incoming') {
       debugIncoming.forBot(event.botId, 'send ', event)

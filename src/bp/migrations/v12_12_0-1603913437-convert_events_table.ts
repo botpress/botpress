@@ -66,7 +66,7 @@ const migration: Migration = {
           table.string('threadId').nullable()
           table.string('target').nullable()
           table.string('sessionId').nullable()
-          table.string('type').notNullable()
+          table.string('type').nullable()
           table.string('direction').notNullable()
           table.string('incomingEventId').nullable()
           table.string('workflowId').nullable()
