@@ -249,7 +249,6 @@ const Layout: FC<ILayoutProps> = (props: ILayoutProps) => {
 const mapStateToProps = state => ({
   viewMode: state.ui.viewMode,
   docHints: state.ui.docHints,
-  emulatorOpen: state.ui.emulatorOpen,
   bottomPanel: state.ui.bottomPanel,
   translations: state.language.translations,
   contentLang: state.language.contentLang
