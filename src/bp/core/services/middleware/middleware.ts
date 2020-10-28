@@ -33,18 +33,18 @@ export class MiddlewareChain {
       const result = await Promise.race<Boolean[]>([timePromise, mwPromise])
 
       if (timedOut) {
-        addStepToEvent(`mw:${name}:timedOut`, event)
+        addStepToEvent(event, 'mw', name, 'timedOut')
         continue
       } else if (typeof result !== 'undefined') {
         const [swallow, skipped] = result as Boolean[]
 
         if (swallow) {
-          addStepToEvent(`mw:${name}:swallowed`, event)
+          addStepToEvent(event, 'mw', name, 'swallowed')
           break
         } else if (skipped) {
-          addStepToEvent(`mw:${name}:skipped`, event)
+          addStepToEvent(event, 'mw', name, 'skipped')
         } else {
-          addStepToEvent(`mw:${name}:completed`, event)
+          addStepToEvent(event, 'mw', name, 'completed')
         }
       }
     }

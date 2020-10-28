@@ -353,7 +353,7 @@ export class Botpress {
 
     this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       await this.stateManager.restore(event)
-      addStepToEvent('stateLoaded', event)
+      addStepToEvent(event, 'stateLoaded')
       await this.hookService.executeHook(new Hooks.BeforeIncomingMiddleware(this.api, event))
     }
 
@@ -376,14 +376,14 @@ export class Botpress {
       const sessionId = SessionIdFactory.createIdFromEvent(event)
 
       if (event.debugger) {
-        addStepToEvent('dialog:start', event)
+        addStepToEvent(event, 'dialog', 'start')
         this.eventCollector.storeEvent(event)
       }
 
       await this.decisionEngine.processEvent(sessionId, event)
 
       if (event.debugger) {
-        addStepToEvent(LAST_EVENT_STEP, event)
+        addStepToEvent(event, LAST_EVENT_STEP)
         this.eventCollector.storeEvent(event)
       }
 

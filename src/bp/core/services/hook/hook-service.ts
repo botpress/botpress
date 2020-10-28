@@ -299,7 +299,7 @@ export class HookService {
       )
     }
 
-    addStepToEvent(`hook:${hookName}:${status}`, event)
+    addStepToEvent(event, 'hook', hookName, status)
   }
 
   private async runWithoutVm(hookScript: HookScript, hook: Hooks.BaseHook, botId: string, _require: Function) {

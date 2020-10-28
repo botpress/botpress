@@ -117,7 +117,7 @@ export class EventEngine {
       await outgoing.run(event)
       this._outgoingPerf.record()
 
-      addStepToEvent(LAST_EVENT_STEP, event)
+      addStepToEvent(event, LAST_EVENT_STEP)
       this.eventCollector.storeEvent(event)
     })
 
@@ -179,7 +179,7 @@ export class EventEngine {
     this.validateEvent(event)
 
     if (event.debugger) {
-      addStepToEvent('received', event)
+      addStepToEvent(event, 'received')
       this.eventCollector.storeEvent(event)
     }
 

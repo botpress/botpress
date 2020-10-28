@@ -14,14 +14,14 @@ import { SessionIdFactory } from '../dialog/session/id-factory'
 type BatchEvent = sdk.IO.StoredEvent & { retry?: number }
 export const LAST_EVENT_STEP = 'completed'
 
-export const addStepToEvent = (step: string, event: sdk.IO.Event) => {
+export const addStepToEvent = (event: sdk.IO.Event, scope: string, name?: string, status?: string) => {
   if (!event?.debugger) {
     return
   }
 
   event.processing = {
     ...(event.processing || {}),
-    [step]: {
+    [`${scope}${name ? `:${name}` : ''}${status ? `:${status}` : ''}`]: {
       ...(event?.activeProcessing || {}),
       date: new Date()
     }

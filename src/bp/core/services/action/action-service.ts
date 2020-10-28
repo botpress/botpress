@@ -178,7 +178,7 @@ export class ScopedActionService {
       }
 
       debug.forBot(incomingEvent.botId, 'done running', { actionName, actionArgs })
-      addStepToEvent(`action:${actionName}:completed`, incomingEvent)
+      addStepToEvent(incomingEvent, 'action', actionName, 'completed')
     } catch (err) {
       this.logger
         .forBot(this.botId)
@@ -195,7 +195,7 @@ export class ScopedActionService {
         incomingEvent
       )
       const name = actionName ?? incomingEvent.state.context?.currentNode ?? ''
-      addStepToEvent(`action:${name}:error`, incomingEvent)
+      addStepToEvent(incomingEvent, 'action', name, 'error')
       throw new ActionExecutionError(err.message, name, err.stack)
     }
   }
