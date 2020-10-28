@@ -6,7 +6,7 @@ import { connect } from 'react-redux'
 import { Redirect, Route, Switch } from 'react-router-dom'
 import SplitPane from 'react-split-pane'
 import { bindActionCreators } from 'redux'
-import { toggleBottomPanel, trainSessionReceived, setEmulatorOpen, viewModeChanged } from '~/actions'
+import { setEmulatorOpen, toggleBottomPanel, trainSessionReceived, viewModeChanged } from '~/actions'
 import SelectContentManager from '~/components/Content/Select/Manager'
 import PluginInjectionSite from '~/components/PluginInjectionSite'
 import storage from '~/util/storage'
@@ -256,6 +256,6 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ viewModeChanged, toggleBottomPanel, trainSessionReceived, setEmulatorOpen }, dispatch)
+  bindActionCreators({ viewModeChanged, toggleBottomPanel, setEmulatorOpen, trainSessionReceived }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Layout)

@@ -147,10 +147,12 @@ class ViewStore {
     }
   }
 
+  /* tslint:disable:prefer-function-over-method */
   @action.bound
   postMessage(name: string) {
     window.parent.postMessage({ name }, '*')
   }
+  /* tslint:enable:prefer-function-over-method */
 
   @action.bound
   incrementUnread() {
