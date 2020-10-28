@@ -108,7 +108,7 @@ export class StateManager {
     if (this.useRedis) {
       await this._redisClient.set(
         getRedisSessionKey(sessionId),
-        JSON.stringify(_.omit(event.state, ['__stacktrace', '__error', 'workflow'])),
+        JSON.stringify(_.omit(event.state, ['__stacktrace', 'workflow'])),
         'PX',
         REDIS_MEMORY_DURATION
       )
