@@ -6,6 +6,7 @@ import { createServer } from 'http'
 import { authMiddleware, handleErrorLogging, handleUnexpectedError, isAdminToken, RequestWithLang } from 'http-utils'
 import _ from 'lodash'
 import ms from 'ms'
+import yn from 'yn'
 
 import { BadRequestError } from '../core/routers/errors'
 import Logger from '../simple-logger'
@@ -16,7 +17,7 @@ import LanguageService from './service'
 import DownloadManager from './service/download-manager'
 import { assertValidLanguage, serviceLoadingMiddleware } from './util'
 
-export type APIOptions = {
+export interface APIOptions {
   version: string
   host: string
   port: number
@@ -42,7 +43,7 @@ const createExpressApp = (options: APIOptions): Application => {
 
   app.use((req, res, next) => {
     res.header('X-Powered-By', 'Botpress')
-    debugRequest('incoming ' + req.path, { ip: req.ip })
+    debugRequest(`incoming ${req.path}`, { ip: req.ip })
     next()
   })
 
@@ -50,7 +51,8 @@ const createExpressApp = (options: APIOptions): Application => {
   app.use(handleUnexpectedError)
 
   if (process.core_env.REVERSE_PROXY) {
-    app.set('trust proxy', process.core_env.REVERSE_PROXY)
+    const boolVal = yn(process.core_env.REVERSE_PROXY)
+    app.set('trust proxy', boolVal === null ? process.core_env.REVERSE_PROXY : boolVal)
   }
 
   if (options.limit > 0) {

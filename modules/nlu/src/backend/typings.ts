@@ -1,6 +1,6 @@
 import { ListenHandle, NLU } from 'botpress/sdk'
 
-export type NLUState = {
+export interface NLUState {
   engine: NLU.Engine
   nluByBot: _.Dictionary<BotState>
   broadcastLoadModel?: (botId: string, hash: string, language: string) => Promise<void>

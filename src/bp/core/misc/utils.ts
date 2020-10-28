@@ -19,7 +19,7 @@ export function createMockLogger(): Logger {
 export function createSpyObject<T>(): MockObject<T> {
   const obj = {}
   const handler: ProxyHandler<object> = {
-    get: function(obj, prop) {
+    get(obj, prop) {
       if (prop === 'T') {
         return proxy
       }

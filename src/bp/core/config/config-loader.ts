@@ -107,7 +107,7 @@ export class ConfigProvider {
       const defaultConfig: BotpressConfig = defaultJsonBuilder(botpressConfigSchema)
 
       const config = {
-        $schema: `../botpress.config.schema.json`,
+        $schema: '../botpress.config.schema.json',
         ...defaultConfig,
         modules: await this.getModulesListConfig(),
         version: process.BOTPRESS_VERSION
@@ -144,7 +144,7 @@ export class ConfigProvider {
 
     // here it's ok to use the module resolver because we are discovering the built-in modules only
     const resolver = new ModuleResolver(this.logger)
-    return await resolver.getModulesList().map(module => {
+    return resolver.getModulesList().map(module => {
       return { location: `MODULES_ROOT/${module}`, enabled: enabledModules.includes(module) }
     })
   }
@@ -159,7 +159,7 @@ export class ConfigProvider {
     } catch (err) {
       this.logger
         .attachError(err)
-        .warn(`Error parsing BP_ENABLED_MODULES environment variable. Falling back to default modules`)
+        .warn('Error parsing BP_ENABLED_MODULES environment variable. Falling back to default modules')
     }
   }
 

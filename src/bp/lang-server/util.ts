@@ -16,7 +16,7 @@ export const assertValidLanguage = (service: LanguageService) => (req, _res, nex
   const language = req.body.lang || req.params.lang
 
   if (!language) {
-    return next(new BadRequestError(`Param 'lang' is mandatory`))
+    return next(new BadRequestError("Param 'lang' is mandatory"))
   }
 
   if (!_.isString(language)) {

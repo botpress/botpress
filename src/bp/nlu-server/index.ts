@@ -81,7 +81,7 @@ export default async function(options: ArgV) {
   const { nluVersion } = engine.getVersionInfo()
 
   logger.info(chalk`========================================
-{bold ${center(`Botpress NLU Server`, 40, 9)}}
+{bold ${center('Botpress NLU Server', 40, 9)}}
 {dim ${center(`Version ${nluVersion}`, 40, 9)}}
 {dim ${center(`OS ${process.distro}`, 40, 9)}}
 ${_.repeat(' ', 9)}========================================`)

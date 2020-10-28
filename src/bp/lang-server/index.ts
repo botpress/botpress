@@ -61,7 +61,7 @@ export default async function(options: ArgV) {
   }
 
   logger.info(chalk`========================================
-{bold ${center(`Botpress Language Server`, 40, 9)}}
+{bold ${center('Botpress Language Server', 40, 9)}}
 {dim ${center(`Version ${version}`, 40, 9)}}
 {dim ${center(`OS ${process.distro}`, 40, 9)}}
 ${_.repeat(' ', 9)}========================================`)

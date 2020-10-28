@@ -1,5 +1,4 @@
-import { AxiosInstance } from 'axios'
-import axios from 'axios'
+import axios, { AxiosInstance } from 'axios'
 import { NLU } from 'botpress/sdk'
 import * as sdk from 'botpress/sdk'
 

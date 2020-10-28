@@ -1,3 +1,23 @@
+## [12.10.10](https://github.com/botpress/botpress/compare/v12.10.9...v12.10.10) (2020-10-27)
+
+
+### Bug Fixes
+
+* **code-editor:** fix firefox scroll & minor changes ([#4094](https://github.com/botpress/botpress/issues/4094)) ([2bd0bec](https://github.com/botpress/botpress/commit/2bd0bec))
+* **converse:** tangled messages with multiple bots ([#4085](https://github.com/botpress/botpress/issues/4085)) ([14be745](https://github.com/botpress/botpress/commit/14be745))
+* **core:** reverse proxy support all types ([#4105](https://github.com/botpress/botpress/issues/4105)) ([c5b88cb](https://github.com/botpress/botpress/commit/c5b88cb))
+* **flow:** ordering is different on postgres ([#4102](https://github.com/botpress/botpress/issues/4102)) ([6f26e31](https://github.com/botpress/botpress/commit/6f26e31))
+* **lang-server:** offline is a boolean cli arg ([#4084](https://github.com/botpress/botpress/issues/4084)) ([08d82bd](https://github.com/botpress/botpress/commit/08d82bd))
+* **ndu:** skill choice issue with capitalized choices ([#4109](https://github.com/botpress/botpress/issues/4109)) ([d2d550d](https://github.com/botpress/botpress/commit/d2d550d))
+* **nlu:** copy utterances don't copy numbers and empty lines ([#4079](https://github.com/botpress/botpress/issues/4079)) ([607a83d](https://github.com/botpress/botpress/commit/607a83d))
+* **nlu:** entity form issue [#4036](https://github.com/botpress/botpress/issues/4036) ([#4099](https://github.com/botpress/botpress/issues/4099)) ([2dbe9d5](https://github.com/botpress/botpress/commit/2dbe9d5))
+* **studio:** fix skill reorder [#4011](https://github.com/botpress/botpress/issues/4011) ([#4101](https://github.com/botpress/botpress/issues/4101)) ([6bde467](https://github.com/botpress/botpress/commit/6bde467))
+* **studio:** unclosed brackets crashing UI [#3678](https://github.com/botpress/botpress/issues/3678) ([#4106](https://github.com/botpress/botpress/issues/4106)) ([3dbb6e4](https://github.com/botpress/botpress/commit/3dbb6e4))
+* **studio:** update all nodes when renaming flows [#3936](https://github.com/botpress/botpress/issues/3936) ([#4100](https://github.com/botpress/botpress/issues/4100)) ([7afa2e6](https://github.com/botpress/botpress/commit/7afa2e6))
+* **webchat:** added condition to query ([#4082](https://github.com/botpress/botpress/issues/4082)) ([c0a24a7](https://github.com/botpress/botpress/commit/c0a24a7))
+
+
+
 ## [12.10.9](https://github.com/botpress/botpress/compare/v12.10.7...v12.10.9) (2020-10-19)
 
 

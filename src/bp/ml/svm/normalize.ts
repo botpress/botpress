@@ -21,8 +21,8 @@ export function normalizeDataset(dataset: Data[], mu?, sigma?) {
 
   return {
     dataset: dataset.map(l => [normalizeInput(l[0], mu, sigma), l[1]] as Data),
-    mu: mu,
-    sigma: sigma
+    mu,
+    sigma
   }
 }
 

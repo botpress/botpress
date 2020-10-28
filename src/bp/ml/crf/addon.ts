@@ -4,7 +4,7 @@ export default addon as BindingType
 type TaggerCtor = new () => Tagger
 type TrainerCtor = new (opt?: TrainerOptions) => Trainer
 
-type BindingType = {
+interface BindingType {
   Tagger: TaggerCtor
   Trainer: TrainerCtor
 }

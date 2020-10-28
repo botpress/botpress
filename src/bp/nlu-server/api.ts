@@ -41,7 +41,7 @@ const createExpressApp = (options: APIOptions): Application => {
 
   app.use((req, res, next) => {
     res.header('X-Powered-By', 'Botpress')
-    debugRequest('incoming ' + req.path, { ip: req.ip })
+    debugRequest(`incoming ${req.path}`, { ip: req.ip })
     next()
   })
 

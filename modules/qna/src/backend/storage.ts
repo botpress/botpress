@@ -57,7 +57,7 @@ export default class Storage {
   async syncQnaToNlu(): Promise<void> {
     const axiosConfig = await this.getAxiosConfig()
     const allQuestions = await this.fetchQNAs()
-    const { data: allIntents } = await axios.get(`/nlu/intents`, axiosConfig)
+    const { data: allIntents } = await axios.get('/nlu/intents', axiosConfig)
 
     const leftOverQnaIntents = allIntents.filter(
       (intent: sdk.NLU.IntentDefinition) =>
@@ -85,7 +85,7 @@ export default class Storage {
       name: getIntentId(qnaItem.id),
       entities: [],
       contexts: qnaItem.data.contexts,
-      utterances: utterances
+      utterances
     }
 
     await axios.post('/nlu/intents', intent, axiosConfig)
@@ -139,7 +139,7 @@ export default class Storage {
   }
 
   private async checkForDuplicatedQuestions(newItem: QnaEntry, editingQnaId?: string) {
-    const qnaItems = (await this.fetchQNAs()).filter(q => !editingQnaId || q.id != editingQnaId)
+    const qnaItems = (await this.fetchQNAs()).filter(q => !editingQnaId || q.id !== editingQnaId)
 
     const newQuestions = Object.values(newItem.questions).reduce((a, b) => a.concat(b), [])
     const dupes = qnaItems
