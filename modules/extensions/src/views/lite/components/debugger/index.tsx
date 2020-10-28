@@ -179,7 +179,7 @@ export class Debugger extends React.Component<Props, State> {
         }
       }
 
-      if (!event.processing?.['completed']) {
+      if (event.processing && !event.processing.completed) {
         keepRetrying = true
       }
     } catch (err) {
@@ -211,7 +211,7 @@ export class Debugger extends React.Component<Props, State> {
     }
 
     const { data: event } = await this.props.store.bp.axios.get(`/mod/extensions/events/${eventId}`)
-    if (!event.processing?.['completed']) {
+    if (!event.processing?.completed) {
       return event
     }
 
