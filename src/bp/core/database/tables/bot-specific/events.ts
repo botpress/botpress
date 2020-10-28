@@ -13,6 +13,7 @@ export class EventsTable extends Table {
       table.string('threadId').nullable()
       table.string('target').nullable()
       table.string('sessionId').nullable()
+      table.string('type').notNullable()
       table.string('direction').notNullable()
       table.string('incomingEventId').nullable()
       table.string('workflowId').nullable()
@@ -20,7 +21,7 @@ export class EventsTable extends Table {
       table.boolean('success').nullable()
       table.json('event').notNullable()
       table.timestamp('createdOn').notNullable()
-      table.index('createdOn', 'ets_idx')
+      table.index('createdOn', 'events_idx')
       created = true
     })
     return created
