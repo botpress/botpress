@@ -36,10 +36,13 @@ export function getUnitAndValue(duck: Duckling): ValueUnit {
     }
 
     if (_isTimeInterval(time)) {
-      const { from } = time
-      return {
-        value: from.value,
-        unit: from.grain
+      const { from, to } = time
+      const chosen = from ?? to
+      if (chosen) {
+        return {
+          value: chosen.value,
+          unit: chosen.grain
+        }
       }
     }
   }
