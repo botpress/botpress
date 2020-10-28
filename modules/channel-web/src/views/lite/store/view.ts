@@ -66,7 +66,7 @@ class ViewStore {
 
   @computed
   get showConversationsButton() {
-    return this.rootStore.config?.showConversationsButton
+    return !this.rootStore.config?.conversationId && this.rootStore.config?.showConversationsButton
   }
 
   @computed
@@ -147,10 +147,12 @@ class ViewStore {
     }
   }
 
+  /* tslint:disable:prefer-function-over-method */
   @action.bound
   postMessage(name: string) {
     window.parent.postMessage({ name }, '*')
   }
+  /* tslint:enable:prefer-function-over-method */
 
   @action.bound
   incrementUnread() {

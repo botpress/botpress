@@ -5,7 +5,7 @@ export const dialogConditions: sdk.Condition[] = [
   {
     id: 'user_channel_is',
     label: 'User is using a specific channel',
-    description: `The user speaks on channel {channelName}`,
+    description: 'The user speaks on channel {channelName}',
     params: {
       channelName: {
         label: 'Select a channel from the list',
@@ -24,7 +24,7 @@ export const dialogConditions: sdk.Condition[] = [
   {
     id: 'user_language_is',
     label: 'User speaks a specific language',
-    description: `The user's language is {language}`,
+    description: "The user's language is {language}",
     params: {
       language: {
         label: 'Language',
@@ -51,7 +51,7 @@ export const dialogConditions: sdk.Condition[] = [
   {
     id: 'user_topic_source',
     label: 'User is coming from a specific topic',
-    description: `The user's last topic was {topicName}`,
+    description: "The user's last topic was {topicName}",
     params: {
       topicName: {
         label: 'Name of the topic',
@@ -71,7 +71,7 @@ export const dialogConditions: sdk.Condition[] = [
   {
     id: 'raw_js',
     label: 'Raw JS expression',
-    description: `{label}`,
+    description: '{label}',
     params: {
       expression: { label: 'Expression to evaluate', type: 'string', rows: 5 },
       label: { label: 'Custom label', type: 'string', defaultValue: 'Raw JS expression' }
@@ -103,7 +103,7 @@ export const dialogConditions: sdk.Condition[] = [
   {
     id: 'custom_confidence',
     label: 'Custom confidence level',
-    description: `Confidence level of {confidence}`,
+    description: 'Confidence level of {confidence}',
     params: { confidence: { label: 'Confidence', type: 'number' } },
     evaluate: (_event, params) => {
       return params.confidence
@@ -119,7 +119,7 @@ export const dialogConditions: sdk.Condition[] = [
   {
     id: 'type_text',
     label: 'The user typed something specific',
-    description: `The user typed {text}`,
+    description: 'The user typed {text}',
     params: {
       candidate: { label: 'One or multiple words to detect (one per line)', type: 'array', rows: 5 },
       exactMatch: { label: 'Must be an exact match', type: 'boolean', defaultValue: false },
@@ -131,11 +131,14 @@ export const dialogConditions: sdk.Condition[] = [
       const preview = caseSensitive ? event.preview : event.preview?.toLowerCase() || ''
       const userText = caseSensitive ? event.payload?.text : event.payload?.text?.toLowerCase() || ''
 
-      const foundMatch = (candidate || []).find(
-        word =>
+      const foundMatch = (candidate || []).find((originalWord: string) => {
+        const word = caseSensitive ? originalWord : originalWord.toLowerCase()
+
+        return (
           (!exactMatch && (preview.includes(word) || userText.includes(word))) ||
           (exactMatch && (preview === word || userText === word))
-      )
+        )
+      })
 
       return foundMatch ? 1 : 0
     }

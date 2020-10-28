@@ -1,4 +1,4 @@
-utterance,context,conditions,status,date: 8/12/2020,summary: 52.8
+utterance,context,conditions,status,date: 10/21/2020,summary: 57.30,nlu seed: 42
 A MP34 I WHAT I WISH FOR LOL,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,MP34",pass
 I wanto by a AKP447,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,AKP447",fail
 I wish to get my hands on a Ak-47,patterns,"-intent,is,buy-guns-slot:gun_to_buy,is,Ak-47",pass
@@ -35,11 +35,11 @@ Harvey's,any,"-intent,is,vote-restaurant-slot:restaurant,is,Harvey's",fail
 Cherry-pick your way to your favorite grape,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,grape",pass
 I'm going banana about the tought of eating this orange,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,orange",pass
 Apple computer's make me wanna eat some cherries!!!,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,cherries",pass
-I really want to eat a banana in the big apple,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,banana",fail
+I really want to eat a banana in the big apple,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,banana",pass
 In the big apple I wanna eat cherries,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,cherries",pass
-I'm going banana about eating this orange in the big apple tonight,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,orange",fail
-I'm going banana about eating this chile pepper in the big apple tonight,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,chile pepper",fail
-about to eat my lemon at the big apple right now,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,lemon",fail
+I'm going banana about eating this orange in the big apple tonight,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,orange",pass
+I'm going banana about eating this chile pepper in the big apple tonight,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,chile pepper",pass
+about to eat my lemon at the big apple right now,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,lemon",pass
 I want a flight which leaves Prague and land in Tataouine,1-entity,"-intent,is,book-flight-slot:to_city,is,Tataouine-slot:from_city,is,Prague",pass
 Sofia to Tokyo,1-entity,"-intent,is,book-flight-slot:to_city,is,Tokyo-slot:from_city,is,Sofia",fail
 flight to Tokyo,1-entity,"-intent,is,book-flight-slot:to_city,is,Tokyo",pass
@@ -47,8 +47,8 @@ flight from Vaduz,1-entity,"-intent,is,book-flight-slot:from_city,is,Vaduz",pass
 register a flight to Stockholm leaving Tripolis,1-entity,"-intent,is,book-flight-slot:to_city,is,Stockholm-slot:from_city,is,Tripolis",pass
 I want to fly high and reach Teheran by leaving Tallinn,1-entity,"-intent,is,book-flight-slot:to_city,is,Teheran-slot:from_city,is,Tallinn",fail
 I'm heading to montreal to fire cherries on buildings,multi-slot-multi-entity,"-intent,is,fire-something-slot:thing_to_fire,is,cherries-slot:time_or_place,is,montreal",fail
-I will try out my AK47 at the party monday,multi-slot-multi-entity,"-intent,is,fire-something-slot:thing_to_fire,is,AK47-slot:time_or_place,is,monday",fail
-I will try out my AK47 at the party tonight,multi-slot-multi-entity,"-intent,is,fire-something-slot:thing_to_fire,is,AK47-slot:time_or_place,is,tonight",fail
+I will try out my AK47 at the party monday,multi-slot-multi-entity,"-intent,is,fire-something-slot:thing_to_fire,is,AK47-slot:time_or_place,is,monday",pass
+I will try out my AK47 at the party tonight,multi-slot-multi-entity,"-intent,is,fire-something-slot:thing_to_fire,is,AK47-slot:time_or_place,is,tonight",pass
 fire melons in new-york,multi-slot-multi-entity,"-intent,is,fire-something-slot:thing_to_fire,is,melons-slot:time_or_place,is,new-york",fail
 let's go fire melons in montreal,multi-slot-multi-entity,"-intent,is,fire-something-slot:thing_to_fire,is,melons-slot:time_or_place,is,montreal",fail
 fire employe #426661,multi-entity,"-intent,is,fire-employe-slot:employe_to_fire,is,426661",pass
@@ -72,8 +72,8 @@ buy an aple,list,"-intent,is,buy-fruits-slot:fruit-to-buy,is,aple",fail
 I wana buy ornage,list,"-intent,is,buy-fruits-slot:fruit-to-buy,is,ornage",pass
 Please give em abanana,list,"-intent,is,buy-fruits-slot:fruit-to-buy,is,banana",fail
 eating na aple at banana republic,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,aple",fail
-On my trip to lemon cove I ate anorange,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,orange",pass
-eat an Orange Vale's lemon,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,lemon",pass
+On my trip to lemon cove I ate anorange,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,orange",fail
+eat an Orange Vale's lemon,no-slot,"-intent,is,eat-fruit-slot:fruit_to_eat,is,lemon",fail
 I want to reach Teheran by leaving Tallinn,1-entity,"-intent,is,book-flight-slot:from_city,is,Tallinn-slot:to_city,is,Teheran",fail
 fly from montrael to quebec,1-entity,"-intent,is,book-flight-slot:from_city,is,montrael-slot:to_city,is,quebc",fail
 fly from montreal to quebc,1-entity,"-intent,is,book-flight-slot:from_city,is,montreal-slot:to_city,is,quebec",fail
