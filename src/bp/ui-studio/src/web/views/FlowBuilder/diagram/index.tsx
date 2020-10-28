@@ -12,7 +12,7 @@ import {
   Toaster
 } from '@blueprintjs/core'
 import { IO } from 'botpress/sdk'
-import { lang } from 'botpress/shared'
+import { lang, MainLayout, sharedStyle } from 'botpress/shared'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
@@ -37,9 +37,11 @@ import {
   updateFlowProblems
 } from '~/actions'
 import { history } from '~/components/Routes'
+import { SearchBar } from '~/components/Shared/Interface'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 import { SaySomethingWidgetFactory } from '~/views/OneFlow/diagram/nodes/SaySomethingNode'
 
+import WorkflowToolbar from '../../OneFlow/diagram/WorkflowToolbar'
 import { SkillDefinition } from '../sidePanel/FlowTools'
 
 import { prepareEventForDiagram } from './debugger'
@@ -86,6 +88,7 @@ class Diagram extends Component<Props> {
   private diagramEngine: ExtendedDiagramEngine
   private diagramWidget: DiagramWidget
   private diagramContainer: HTMLDivElement
+  private searchRef: React.RefObject<HTMLInputElement>
   private manager: DiagramManager
   /** Represents the source port clicked when the user is connecting a node */
   private dragPortSource: any
@@ -148,6 +151,8 @@ class Diagram extends Component<Props> {
         this.props.switchFlow(firstFlow)
       }
     }
+
+    this.searchRef = React.createRef()
   }
 
   componentDidMount() {
@@ -199,12 +204,6 @@ class Diagram extends Component<Props> {
     // Refresh nodes when the filter is updated
     if (this.props.highlightFilter !== prevProps.highlightFilter) {
       this.manager.setHighlightFilter(this.props.highlightFilter)
-      this.manager.syncModel()
-    }
-
-    // Clear nodes when search field is hidden
-    if (!this.props.highlightFilter) {
-      this.manager.setHighlightFilter()
       this.manager.syncModel()
     }
   }
@@ -532,19 +531,6 @@ class Diagram extends Component<Props> {
           <Tag intent={nbReceive > 0 ? Intent.PRIMARY : Intent.NONE}>{nbReceive}</Tag>{' '}
           {lang.tr('studio.flow.flowWideOnReceives', { count: nbReceive })}
         </Button>
-        {this.props.showSearch && (
-          <ControlGroup>
-            <InputGroup
-              id="input-highlight-name"
-              tabIndex={1}
-              placeholder={lang.tr('studio.flow.highlightByName')}
-              value={this.props.highlightFilter}
-              onChange={this.props.handleFilterChanged}
-              autoFocus
-            />
-            <Button icon="small-cross" onClick={this.props.hideSearch} />
-          </ControlGroup>
-        )}
       </div>
     )
   }
@@ -605,24 +591,39 @@ class Diagram extends Component<Props> {
 
   render() {
     return (
-      <div
-        id="diagramContainer"
-        ref={ref => (this.diagramContainer = ref)}
-        tabIndex={1}
-        style={{ outline: 'none', width: '100%', height: '100%' }}
-        onContextMenu={this.handleContextMenu}
-        onDrop={this.handleToolDropped}
-        onDragOver={event => event.preventDefault()}
-      >
-        <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
+      <MainLayout.Wrapper>
+        <WorkflowToolbar />
 
-        <DiagramWidget
-          ref={w => (this.diagramWidget = w)}
-          deleteKeys={[]}
-          diagramEngine={this.diagramEngine}
-          inverseZoom
-        />
-      </div>
+        <div className={style.searchWrapper}>
+          <SearchBar
+            id="input-highlight-name"
+            className={style.noPadding}
+            ref={this.searchRef}
+            onBlur={this.props.hideSearch}
+            value={this.props.highlightFilter}
+            placeholder={lang.tr('studio.flow.filterNodes')}
+            onChange={value => this.props.handleFilterChanged({ target: { value } })}
+          />
+        </div>
+        <div
+          id="diagramContainer"
+          ref={ref => (this.diagramContainer = ref)}
+          tabIndex={1}
+          style={{ outline: 'none', width: '100%', height: '100%' }}
+          onContextMenu={this.handleContextMenu}
+          onDrop={this.handleToolDropped}
+          onDragOver={event => event.preventDefault()}
+        >
+          <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
+
+          <DiagramWidget
+            ref={w => (this.diagramWidget = w)}
+            deleteKeys={[]}
+            diagramEngine={this.diagramEngine}
+            inverseZoom
+          />
+        </div>
+      </MainLayout.Wrapper>
     )
   }
 }

@@ -1,6 +1,9 @@
+import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useRef, useState } from 'react'
 import SmartInput from '~/components/SmartInput'
 import style from '~/views/OneFlow/sidePanel/form/style.scss'
+
+import { isMissingCurlyBraceClosure } from '../Util/form.util'
 
 interface Props {
   formData: any
@@ -38,6 +41,9 @@ const Text: FC<Props> = props => {
           className={style.textarea}
           isSideForm
         />
+        {isMissingCurlyBraceClosure(value) && (
+          <p className={style.fieldError}>{lang.tr('studio.content.missingClosingCurlyBrace')}</p>
+        )}
       </div>
     </div>
   )

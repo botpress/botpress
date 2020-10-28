@@ -162,12 +162,16 @@ export interface SearchBarProps {
   id?: string
   /** Text to display when there's no input value */
   placeholder?: string
+  /** Set value when used as controled component */
+  value?: string
   /** This is called whenever the text in the input changes */
   onChange?: (text: string) => void
   /** The name of the icon to use. Can also be a JSX element */
   icon?: IconName | MaybeElement
   /** Show or hide button */
   showButton?: boolean
+  /** Called when search input loses focus */
+  onBlur?: (e: React.FocusEvent) => void
   /** This is called when the user clicks on the button */
   onButtonClick?: (e: React.MouseEvent) => void
 }

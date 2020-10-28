@@ -357,6 +357,7 @@ declare module 'botpress/sdk' {
       export interface SVMOptions {
         classifier: 'C_SVC' | 'NU_SVC' | 'ONE_CLASS' | 'EPSILON_SVR' | 'NU_SVR'
         kernel: 'LINEAR' | 'POLY' | 'RBF' | 'SIGMOID'
+        seed: number
         c?: number | number[]
         gamma?: number | number[]
         probability?: boolean
@@ -379,7 +380,7 @@ declare module 'botpress/sdk' {
 
       export class Trainer {
         constructor()
-        train(points: DataPoint[], options?: Partial<SVMOptions>, callback?: TrainProgressCallback): Promise<string>
+        train(points: DataPoint[], options?: SVMOptions, callback?: TrainProgressCallback): Promise<string>
         isTrained(): boolean
       }
 
@@ -409,7 +410,7 @@ declare module 'botpress/sdk' {
     }
 
     export namespace CRF {
-      export interface Tagger {
+      export class Tagger {
         tag(xseq: Array<string[]>): { probability: number; result: string[] }
         open(model_filename: string): boolean
         marginal(xseq: Array<string[]>): { [label: string]: number }[]
@@ -419,8 +420,8 @@ declare module 'botpress/sdk' {
         [key: string]: string
       }
 
-      export interface TrainerCallback {
-        (message: string): void
+      export interface TrainProgressCallback {
+        (iteration: number): void
       }
 
       interface DataPoint {
@@ -428,12 +429,9 @@ declare module 'botpress/sdk' {
         labels: string[]
       }
 
-      export interface Trainer {
-        train(elements: DataPoint[], options: TrainerOptions): Promise<string>
+      export class Trainer {
+        train(elements: DataPoint[], options: TrainerOptions, progressCallback?: TrainProgressCallback): Promise<string>
       }
-
-      export const createTrainer: () => Trainer
-      export const createTagger: () => Tagger
     }
 
     export namespace SentencePiece {
@@ -448,6 +446,85 @@ declare module 'botpress/sdk' {
   }
 
   export namespace NLU {
+    export class Engine {
+      static initialize: (config: Config, logger: NLU.Logger) => Promise<void>
+      static getHealth: () => Health
+      static getLanguages: () => string[]
+      constructor(botId: string, logger: Logger)
+      computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string
+      loadModel: (m: Model) => Promise<void>
+      hasModel: (lang: string, hash: string) => boolean
+      hasModelForLang: (lang: string) => boolean
+      train: (
+        trainSessionId: string,
+        intentDefs: NLU.IntentDefinition[],
+        entityDefs: NLU.EntityDefinition[],
+        languageCode: string,
+        options: TrainingOptions
+      ) => Promise<Model | undefined>
+      cancelTraining: (trainSessionId: string) => Promise<void>
+      detectLanguage: (sentence: string) => Promise<string>
+      predict: (t: string, ctx: string[], language: string) => Promise<IO.EventUnderstanding>
+    }
+
+    export interface Config {
+      ducklingURL: string
+      ducklingEnabled: boolean
+      languageSources: LanguageSource[]
+    }
+
+    export interface LanguageSource {
+      endpoint: string
+      authToken?: string
+    }
+
+    export interface Logger {
+      info: (msg: string) => void
+      warning: (msg: string, err?: Error) => void
+      error: (msg: string, err?: Error) => void
+    }
+
+    export interface TrainingOptions {
+      forceTrain: boolean
+      nluSeed: number
+      progressCallback: (x: number) => void
+    }
+
+    export interface Model {
+      hash: string
+      languageCode: string
+      startedAt: Date
+      finishedAt: Date
+      data: {
+        input: string
+        output: string
+      }
+    }
+
+    export interface Health {
+      isEnabled: boolean
+      validProvidersCount: number
+      validLanguages: string[]
+    }
+
+    /**
+     * idle : occures when there are no training sessions for a bot
+     * done : when a training is complete
+     * needs-training : when current chatbot model differs from training data
+     * training: when a chatbot is currently training
+     * canceled: when a training has been canceled by the user
+     * errored: when a chatbot failed to train
+     */
+    export type TrainingStatus = 'idle' | 'done' | 'needs-training' | 'training' | 'canceled' | 'errored' | null
+
+    export interface TrainingSession {
+      key: string
+      status: TrainingStatus
+      language: string
+      progress: number
+      lock?: RedisLock
+    }
+
     export type EntityType = 'system' | 'pattern' | 'list'
 
     export interface EntityDefOccurrence {
@@ -529,7 +606,12 @@ declare module 'botpress/sdk' {
       [context: string]: {
         confidence: number
         oos: number
-        intents: { label: string; confidence: number; slots: SlotCollection }[]
+        intents: {
+          label: string
+          confidence: number
+          slots: SlotCollection
+          extractor: 'exact-matcher' | 'classifier'
+        }[]
       }
     }
   }
@@ -669,16 +751,17 @@ declare module 'botpress/sdk' {
     }
 
     export interface EventUnderstanding {
-      intent: NLU.Intent
+      intent?: NLU.Intent
       /** Predicted intents needs disambiguation */
-      readonly ambiguous: boolean
-      intents: NLU.Intent[]
+      readonly ambiguous?: boolean
+      intents?: NLU.Intent[]
       /** The language used for prediction. Will be equal to detected language when its part of supported languages, falls back to default language otherwise */
       readonly language: string
       /** Language detected from users input. */
-      readonly detectedLanguage: string
+      readonly detectedLanguage?: string
+      readonly spellChecked?: string
       readonly entities: NLU.Entity[]
-      readonly slots: NLU.SlotCollection
+      readonly slots?: NLU.SlotCollection
       readonly errored: boolean
       readonly includedContexts: string[]
       readonly predictions?: NLU.Predictions

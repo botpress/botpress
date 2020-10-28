@@ -7,7 +7,7 @@ import _ from 'lodash'
 import React, { FC, useState } from 'react'
 
 import { NluItem } from '..'
-import { NLUApi } from '../../api'
+import { NLUApi } from '../../../api'
 
 import NameModal from './NameModal'
 
