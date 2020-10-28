@@ -82,7 +82,7 @@ class SplitDataSetError extends Error {
   }
 }
 
-type SplittedDataSet = {
+interface SplittedDataSet {
   train: Data[]
   test: Data[]
 }

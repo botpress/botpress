@@ -3,7 +3,7 @@ export default addon as BindingType
 
 type SvmCtor = new (args?: { random_seed: number }) => NSVM
 type HelloWorld = () => string
-type BindingType = {
+interface BindingType {
   NSVM: SvmCtor
   hello: HelloWorld
 }
@@ -46,7 +46,7 @@ interface AugmentedParameters extends Parameters {
 }
 
 export type GridSearchParameters = 'C' | 'gamma' | 'degree' | 'nu' | 'p' | 'coef0'
-export type OtherParameters = {
+export interface OtherParameters {
   svm_type: number
   kernel_type: number
   cache_size: number

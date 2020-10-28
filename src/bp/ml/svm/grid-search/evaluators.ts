@@ -40,8 +40,8 @@ class ClassificationEvaluator implements Evaluator {
         recall = tp / sumExpected[label]
       }
       return {
-        precision: precision,
-        recall: recall,
+        precision,
+        recall,
         fscore: this.computeFScore(precision, recall),
         size: sumExpected[label]
       }

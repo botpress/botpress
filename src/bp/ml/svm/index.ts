@@ -122,7 +122,7 @@ export class Predictor implements sdk.MLToolkit.SVM.Predictor {
     if (this.parameters?.probability) {
       return this._predictProb(coordinates)
     } else {
-      return await this._predictOne(coordinates)
+      return this._predictOne(coordinates)
     }
   }
 

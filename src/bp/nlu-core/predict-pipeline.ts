@@ -8,7 +8,7 @@ import { isPOSAvailable } from './language/pos-tagger'
 import { getUtteranceFeatures } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import { replaceConsecutiveSpaces } from './tools/strings'
-import { EXACT_MATCH_STR_OPTIONS, ExactMatchIndex } from './training-pipeline'
+import { ExactMatchIndex, EXACT_MATCH_STR_OPTIONS } from './training-pipeline'
 import {
   EntityExtractionResult,
   ExtractedEntity,

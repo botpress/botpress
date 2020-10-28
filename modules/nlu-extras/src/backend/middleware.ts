@@ -44,7 +44,7 @@ export const registerMiddleware = async (bp: typeof sdk) => {
           event.nlu['dialogflow-nlu'] = { ...result, engine: 'dialogflow' }
         }
       } catch (err) {
-        bp.logger.warn('Error extracting NLU from Dialogflow: ' + err.message)
+        bp.logger.warn(`Error extracting NLU from Dialogflow: ${err.message}`)
       } finally {
         next()
       }

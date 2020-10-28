@@ -17,7 +17,7 @@ const MLToolkit: typeof sdk.MLToolkit = {
     kmeans
   },
   CRF: {
-    Tagger: Tagger,
+    Tagger,
     Trainer: CRFTrainer
   },
   SVM: {

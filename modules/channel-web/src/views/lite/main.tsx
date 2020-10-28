@@ -72,7 +72,6 @@ class Web extends React.Component<MainProps> {
       }
 
       await this.props.initializeChat()
-      this.setupObserver()
     }
   }
 
@@ -95,6 +94,8 @@ class Web extends React.Component<MainProps> {
     if (!this.isLazySocket()) {
       await this.initializeSocket()
     }
+
+    this.setupObserver()
   }
 
   extractConfig() {

@@ -69,7 +69,7 @@ export default async function(
 
       return clf.train(ss.train, seed, params).then(() => {
         done += 1
-        progressCb({ done: done, total: total })
+        progressCb({ done, total })
         return _.map(ss.test, function(test) {
           return [clf.predictSync(test[0]), test[1]]
         })
@@ -83,7 +83,7 @@ export default async function(
 
         return {
           params,
-          report: report
+          report
         } as GridSearchResult
       },
       err => {

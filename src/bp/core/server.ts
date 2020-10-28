@@ -21,6 +21,7 @@ import ms from 'ms'
 import path from 'path'
 import portFinder from 'portfinder'
 import { URL } from 'url'
+import yn from 'yn'
 
 import { ExternalAuthConfig } from './config/botpress.config'
 import { ConfigProvider } from './config/config-loader'
@@ -140,7 +141,8 @@ export default class HTTPServer {
     }
 
     if (process.core_env.REVERSE_PROXY) {
-      this.app.set('trust proxy', process.core_env.REVERSE_PROXY)
+      const boolVal = yn(process.core_env.REVERSE_PROXY)
+      this.app.set('trust proxy', boolVal === null ? process.core_env.REVERSE_PROXY : boolVal)
     }
 
     this.app.use(debugRequestMw)
@@ -331,7 +333,7 @@ export default class HTTPServer {
     this.app.use(`${BASE_API_PATH}/modules`, this.modulesRouter.router)
     this.app.use(`${BASE_API_PATH}/bots/:botId`, this.botsRouter.router)
     this.app.use(`${BASE_API_PATH}/sdk`, this.sdkApiRouter.router)
-    this.app.use(`/s`, this.shortLinksRouter.router)
+    this.app.use('/s', this.shortLinksRouter.router)
 
     this.app.use((err, _req, _res, next) => {
       if (err instanceof UnlicensedError) {
@@ -534,7 +536,7 @@ export default class HTTPServer {
 
       if (!keyId || !jwksUri) {
         this.logger.error(
-          `External User Auth: Couldn't configure the JWKS Client. They keyId and jwksUri parameters must be set`
+          "External User Auth: Couldn't configure the JWKS Client. They keyId and jwksUri parameters must be set"
         )
         return
       }
@@ -547,11 +549,11 @@ export default class HTTPServer {
       } catch (error) {
         this.logger
           .attachError(error)
-          .error(`External User Auth: Couldn't open public key file /data/global/end_users_auth.pub`)
+          .error("External User Auth: Couldn't open public key file /data/global/end_users_auth.pub")
         return
       }
     } else if (config.publicKey.length < 128) {
-      this.logger.error(`External User Auth: The provided publicKey is invalid (too short). Min length is 128 chars.`)
+      this.logger.error('External User Auth: The provided publicKey is invalid (too short). Min length is 128 chars.')
       return
     }
 

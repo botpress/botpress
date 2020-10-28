@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-export type ModelProvider = {
+export interface ModelProvider {
   getLatestModel: (lang: string) => Promise<sdk.NLU.Model | undefined>
 }
 

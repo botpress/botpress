@@ -416,7 +416,7 @@ try {
       alias: 'v',
       description: 'verbosity level'
     })
-    .command('version', `Display the server's version`, {}, () => {
+    .command('version', "Display the server's version", {}, () => {
       console.log(`Botpress: v${metadataContent.version}`)
       console.log(`NodeJS: ${process.version}`)
     })
