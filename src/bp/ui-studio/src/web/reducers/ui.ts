@@ -3,6 +3,7 @@ import { handleActions } from 'redux-actions'
 import {
   addDocumentationHint,
   removeDocumentationHint,
+  setEmulatorOpen,
   toggleBottomPanel,
   updateDocumentationModal,
   updateGlobalStyle,
@@ -56,7 +57,11 @@ const reducer = handleActions(
         ...state,
         bottomPanel: value
       }
-    }
+    },
+    [setEmulatorOpen]: (state, { payload }) => ({
+      ...state,
+      emulatorOpen: payload
+    })
   },
   defaultState
 )

@@ -92,6 +92,11 @@ class RootStore {
   }
 
   @computed
+  get isEmulator(): boolean {
+    return this.config?.isEmulator || false
+  }
+
+  @computed
   get hasBotInfoDescription(): boolean {
     return !!this.config.botConvoDescription?.length
   }
@@ -163,7 +168,7 @@ class RootStore {
         this.isInitialized = true
       })
     } catch (err) {
-      console.log('Error while fetching data, creating new convo...', err)
+      console.error('Error while fetching data, creating new convo...', err)
       await this.createConversation()
     }
 
@@ -303,7 +308,7 @@ class RootStore {
 
       downloadFile(name, blobFile)
     } catch (err) {
-      console.log('Error trying to download conversation')
+      console.error('Error trying to download conversation')
     }
   }
 
@@ -311,7 +316,7 @@ class RootStore {
   @action.bound
   async sendData(data: any): Promise<void> {
     if (!constants.MESSAGE_TYPES.includes(data.type)) {
-      return await this.api.sendEvent(data, this.currentConversationId)
+      return this.api.sendEvent(data, this.currentConversationId)
     }
 
     await this.api.sendMessage(data, this.currentConversationId)
