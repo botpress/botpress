@@ -41,10 +41,10 @@ type DucklingTimeValue<T extends DucklingType> = T extends 'interval'
   ? TimeInterval & { values?: ({ type: 'interval' } & TimeInterval)[] }
   : ValueGrain & { values?: ({ type: 'value' } & ValueGrain)[] }
 
-export interface TimeInterval {
+export type TimeInterval = Partial<{
   from: ValueGrain
   to: ValueGrain
-}
+}>
 
 export type ValueGrain = Value & {
   grain: string

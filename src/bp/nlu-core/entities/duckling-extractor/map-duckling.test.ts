@@ -122,3 +122,37 @@ test('zero is supported', () => {
   expect(value).toBe(0)
   expect(unit).toBe('')
 })
+
+test('time interval with no from date should still work', () => {
+  // arrange
+  const duck = {
+    body: 'until 6:00pm tonight',
+    start: 256,
+    value: {
+      values: [
+        {
+          to: {
+            value: '2020-10-22T18:00:00.000-04:00',
+            grain: 'minute'
+          },
+          type: 'interval' as 'interval'
+        }
+      ],
+      to: {
+        value: '2020-10-22T18:00:00.000-04:00',
+        grain: 'minute'
+      },
+      type: 'interval' as 'interval'
+    },
+    end: 276,
+    dim: 'time' as 'time',
+    latent: false
+  }
+
+  // act
+  const { unit, value } = getUnitAndValue(duck)
+
+  // assert
+  expect(value).toBe('2020-10-22T18:00:00.000-04:00')
+  expect(unit).toBe('minute')
+})
