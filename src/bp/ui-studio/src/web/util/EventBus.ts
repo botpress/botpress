@@ -34,7 +34,6 @@ class EventBus extends EventEmitter2 {
 
   updateVisitorId = (newId: string, userIdScope?: string) => {
     setVisitorId(newId, userIdScope)
-    this.setup(userIdScope)
   }
 
   setup = (userIdScope?: string) => {
