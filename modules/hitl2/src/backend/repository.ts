@@ -44,7 +44,7 @@ export default class Repository {
 
     this.commentColumns = ['id', 'agentId', 'content', 'createdAt', 'updatedAt']
 
-    this.eventColumns = ['id', 'direction', 'botId', 'channel', 'success', 'createdOn', 'threadId', 'event']
+    this.eventColumns = ['id', 'direction', 'botId', 'channel', 'success', 'createdOn', 'threadId', 'type', 'event']
 
     this.commentColumnsPrefixed = this.commentColumns.map(s => this.commentPrefix.concat(':', s))
   }
@@ -101,29 +101,38 @@ export default class Repository {
     })
   }
 
-  private hydrateEvents(rows: any[], escalations: any[], key: string) {
-    const toMerge = rows.map(row => {
+  // This mutates escalations
+  private hydrateEvents(events: any[], escalations: any[], key: string): any[] {
+    escalations.forEach(escalation => (escalation.userConversation = {}))
+
+    const toMerge = events.map(event => {
       return _.tap({}, item => {
-        item['id'] = row[`${this.escalationPrefix}:id`]
-        item[key] = _.pick(row, this.eventColumns)
+        item['id'] = event[`${this.escalationPrefix}:id`]
+        item[key] = _.pick(event, this.eventColumns)
       })
     })
 
-    return _.merge(escalations, toMerge)
+    return _.values(_.merge(_.keyBy(escalations, 'id'), _.keyBy(toMerge, 'id')))
   }
 
   // To get the most recent event, we assume the 'Id' column is ordered;
-  // thus meaning the highest Id is also the most recent
-  private recentConversationQuery(): Knex.QueryBuilder {
+  // thus meaning the highest Id is also the most recent.
+  //
+  // - Note: We're interested in 'incoming' & 'text' events only
+  private recentEventQuery(): Knex.QueryBuilder {
     return this.bp
       .database('events')
       .select('*')
-      .whereIn('id', function() {
-        this.max('id')
-          .from('events')
-          .groupBy('threadId')
+      .where('direction', 'incoming')
+      .andWhere(function() {
+        this.whereIn('id', function() {
+          this.max('id')
+            .from('events')
+            .where('type', 'text')
+            .groupBy('threadId')
+        })
       })
-      .as('most_recent_event')
+      .as('recent_event')
   }
 
   private userEventsQuery() {
@@ -132,13 +141,9 @@ export default class Repository {
       .select(
         'escalations.id as escalation:id',
         'escalations.userThreadId as escalation:userThreadId',
-        'most_recent_event.*'
+        'recent_event.*'
       )
-      .join(
-        this.recentConversationQuery().where('direction', 'incoming'),
-        'escalations.userThreadId',
-        'most_recent_event.threadId'
-      )
+      .join(this.recentEventQuery(), 'escalations.userThreadId', 'recent_event.threadId')
   }
 
   private escalationsWithCommentsQuery(botId: string, conditions: CollectionConditions = {}): Knex.QueryBuilder {
@@ -254,7 +259,7 @@ export default class Repository {
           .then(async data =>
             this.hydrateEvents(
               await this.userEventsQuery()
-                .andWhere('escalations.botId', botId)
+                .where('escalations.botId', botId)
                 .transacting(trx),
               data,
               'userConversation'
@@ -274,7 +279,7 @@ export default class Repository {
       .modify(this.applyQuery(query))
       .then(this.hydrateComments.bind(this))
       .then(async data =>
-        this.hydrateEvents(await this.userEventsQuery().andWhere('escalations.id', id), data, 'userConversation')
+        this.hydrateEvents(await this.userEventsQuery().where('escalations.id', id), data, 'userConversation')
       )
       .then(data => _.head(data))
   }
@@ -341,7 +346,7 @@ export default class Repository {
         .then(async data =>
           this.hydrateEvents(
             await this.userEventsQuery()
-              .andWhere('escalations.id', id)
+              .where('escalations.id', id)
               .transacting(trx),
             data,
             'userConversation'

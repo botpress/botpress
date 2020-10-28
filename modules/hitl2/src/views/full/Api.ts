@@ -18,6 +18,10 @@ export function castEscalation(item) {
       castDate(value, ['createdAt', 'updatedAt', 'assignedAt', 'resolvedAt', 'userConversation.createdOn'])
     )
     .thru(value => {
+      if (_.isEmpty(value.userConversation)) {
+        return value
+      }
+
       value.userConversation = {
         ...value.userConversation,
         event: JSON.parse(value.userConversation.event)
@@ -25,6 +29,10 @@ export function castEscalation(item) {
       return value
     })
     .thru(value => {
+      if (_.isEmpty(value.comments)) {
+        return value
+      }
+
       value.comments = _.castArray(value.comments).map(comment => castComment(comment))
       return value
     })

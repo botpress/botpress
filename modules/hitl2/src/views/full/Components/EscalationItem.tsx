@@ -96,6 +96,7 @@ const EscalationItem: FC<Props> = ({ api, escalation }) => {
         <p>
           From {userConversation.channel} ⋅ {printAgent()}
         </p>
+        <p>{_.get(userConversation, 'event.preview')}</p>
         <p className={style.createdDate}>{lang.tr('module.hitl2.escalation.created', { date: fromNow })}</p>
       </div>
       <div className={style.badge}>
