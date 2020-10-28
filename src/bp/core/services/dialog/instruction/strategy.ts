@@ -214,10 +214,10 @@ export class TransitionStrategy implements InstructionStrategy {
 
     const vm = new NodeVM({
       wrapper: 'none',
-      sandbox: sandbox,
+      sandbox,
       timeout: 5000
     })
     const runner = new VmRunner()
-    return await runner.runInVm(vm, code)
+    return runner.runInVm(vm, code)
   }
 }
