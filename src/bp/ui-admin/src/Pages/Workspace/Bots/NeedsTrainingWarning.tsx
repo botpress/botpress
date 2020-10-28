@@ -1,7 +1,7 @@
-import { Classes, Icon, Intent, Position } from '@blueprintjs/core'
+import { Icon, Intent, Position, Tooltip } from '@blueprintjs/core'
 import { Promise as BbPromise } from 'bluebird'
-import { ToolTip } from 'botpress/shared'
-import React, { FC, useEffect, useState } from 'react'
+import { lang } from 'botpress/shared'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 import api from '~/api'
 
 interface Props {
@@ -32,11 +32,22 @@ export const NeedsTrainingWarning: FC<Props> = (props: Props) => {
 
   }, [])
 
+  const message = () => <Fragment>
+    <div>
+      {lang.tr('admin.needsTraining')}
+    </div>
+    <div>
+      {lang.tr('admin.howToTrain')}
+    </div>
+  </Fragment >
+
   if (needsTraining) {
     return (
-      <ToolTip content="Needs training..." className={Classes.TOOLTIP_INDICATOR} position={Position.TOP} intent={Intent.DANGER}>
-        <Icon icon="warning-sign" intent={Intent.DANGER} style={{ marginLeft: 10 }} />
-      </ToolTip>
+      <Tooltip intent={Intent.WARNING}
+               content={message()}
+               position={Position.TOP}>
+        <Icon icon="warning-sign" intent={Intent.WARNING} style={{ marginLeft: 10 }} />
+      </Tooltip>
       )
   }
   return null
