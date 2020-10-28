@@ -12,6 +12,7 @@ import {
   Toaster
 } from '@blueprintjs/core'
 import { lang, MainLayout, sharedStyle } from 'botpress/shared'
+import cx from 'classnames'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
@@ -546,7 +547,7 @@ class Diagram extends Component<Props> {
         className={cx({
           'emulator-open': this.props.emulatorOpen
         })}
-       >
+      >
         <WorkflowToolbar />
 
         <div className={style.searchWrapper}>
