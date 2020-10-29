@@ -1,4 +1,4 @@
-import { boolean } from 'boolean'
+import yn from 'yn'
 import * as sdk from 'botpress/sdk'
 import { BPRequest } from 'common/http'
 import { RequestWithUser } from 'common/typings'
@@ -57,7 +57,7 @@ export default async (bp: typeof sdk, state: StateType) => {
         req.params.botId,
         _.tap(_.pick(req.query, 'online'), conditions => {
           if (conditions.online) {
-            conditions.online = boolean(conditions.online)
+            conditions.online = yn(conditions.online)
           }
         }) as AgentCollectionConditions
       )

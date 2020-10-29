@@ -27,7 +27,6 @@
     "@blueprintjs/core": "^3.31.0",
     "axios": "^0.19.0",
     "bluebird": "^3.5",
-    "boolean": "^3.0.1",
     "classnames": "^2.2.6",
     "haikunator": "^2.1.2",
     "immer": "^7",
@@ -36,7 +35,8 @@
     "moment": "^2.24",
     "object-hash": "^2.0.3",
     "react-flexbox-grid": "^2.1.2",
-    "uuid": "^8.3.1"
+    "uuid": "^8.3.1",
+    "yn": "^4.0.0"
   },
   "resolutions": {
     "fstream": ">=1.0.12",
