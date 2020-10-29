@@ -42,8 +42,8 @@ interface State {
   fetching: boolean
   maximized: boolean
   unauthorized: boolean
-  updateDiagram: boolean
   eventsCache: sdk.IO.IncomingEvent[]
+  updateDiagram: boolean
 }
 
 export class Debugger extends React.Component<Props, State> {

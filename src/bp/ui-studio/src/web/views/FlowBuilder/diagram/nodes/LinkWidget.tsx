@@ -258,7 +258,7 @@ export class DeletableLinkFactory extends AbstractLinkFactory {
   }
 
   generateReactWidget(diagramEngine, link) {
-    return <DeletableLinkWidget link={link} color="#bec5c9" width={2} diagramEngine={diagramEngine} />
+    return <DeletableLinkWidget link={link} color="var(--gray)" width={2} diagramEngine={diagramEngine} />
   }
 
   getNewInstance() {

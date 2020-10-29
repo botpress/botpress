@@ -1,8 +1,7 @@
 import _ from 'lodash'
 
-import jaroDistance from '../tools/jaro'
-import levenDistance from '../tools/levenshtein'
 import { extractPattern } from '../tools/patterns-utils'
+import { jaroWinklerSimilarity, levenshteinSimilarity } from '../tools/strings'
 import { EntityExtractionResult, ListEntityModel, PatternEntity, WarmedListEntityModel } from '../typings'
 import Utterance, { UtteranceToken } from '../utterance/utterance'
 
@@ -49,8 +48,8 @@ function computeExactScore(a: string[], b: string[]): number {
 function computeFuzzyScore(a: string[], b: string[]): number {
   const str1 = a.join('')
   const str2 = b.join('')
-  const d1 = levenDistance(str1, str2)
-  const d2 = jaroDistance(str1, str2, { caseSensitive: false })
+  const d1 = levenshteinSimilarity(str1, str2)
+  const d2 = jaroWinklerSimilarity(str1, str2, { caseSensitive: false })
   return (d1 + d2) / 2
 }
 
