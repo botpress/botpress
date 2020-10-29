@@ -2,6 +2,7 @@ import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import Knex from 'knex'
 import _ from 'lodash'
+import { SortOrder } from 'botpress/sdk'
 
 import { AgentType, CommentType, EscalationType } from './../types'
 import { makeAgentId } from './helpers'
@@ -10,10 +11,8 @@ export interface AgentCollectionConditions {
   online?: boolean
 }
 
-export interface CollectionConditions {
+export interface CollectionConditions extends Partial<SortOrder> {
   limit?: number
-  orderByColumn?: string
-  orderByDirection?: 'asc' | 'desc'
 }
 
 export default class Repository {
@@ -65,18 +64,22 @@ export default class Repository {
     return object
   }
 
-  private applyLimit(query: Knex.QueryBuilder, limit?: number) {
-    if (limit) {
-      return query.limit(_.toNumber(limit))
-    } else return query
+  private applyLimit(query: Knex.QueryBuilder, conditions?: CollectionConditions) {
+    if (conditions.limit) {
+      return query.limit(_.toNumber(conditions.limit))
+    } else {
+      return query
+    }
   }
 
-  private applyOrderBy(query: Knex.QueryBuilder, orderByColumn?: string, orderByDirection?: string) {
-    if (orderByColumn) {
-      return query.orderBy(orderByColumn)
-    } else if (orderByColumn && orderByDirection) {
-      return query.orderBy(orderByColumn, orderByDirection)
-    } else return query
+  private applyOrderBy(query: Knex.QueryBuilder, conditions?: CollectionConditions) {
+    if (conditions.column) {
+      return query.orderBy(conditions.column)
+    } else if (conditions.column && conditions.desc) {
+      return query.orderBy(conditions.column, conditions.desc ? 'desc' : 'asc')
+    } else {
+      return query
+    }
   }
 
   // This mutates rows
@@ -149,8 +152,6 @@ export default class Repository {
   }
 
   private escalationsWithCommentsQuery(botId: string, conditions: CollectionConditions = {}): Knex.QueryBuilder {
-    const { limit, orderByColumn, orderByDirection } = conditions
-
     return this.bp
       .database('escalations')
       .select(
@@ -164,8 +165,8 @@ export default class Repository {
       .leftJoin('comments', 'escalations.id', 'comments.escalationId')
       .where('escalations.botId', botId)
       .distinct()
-      .modify(this.applyLimit, limit)
-      .modify(this.applyOrderBy, orderByColumn, orderByDirection)
+      .modify(this.applyLimit, conditions)
+      .modify(this.applyOrderBy, conditions)
       .orderBy([{ column: 'comments.createdAt', order: 'asc' }])
   }
 

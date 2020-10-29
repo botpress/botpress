@@ -38,7 +38,7 @@ const Sidebar = ({ bp, close }) => {
 
   async function getEscalations() {
     try {
-      const data = await api.getEscalations('escalations.createdAt', 'asc', 5)
+      const data = await api.getEscalations('escalations.createdAt', false, 5)
       dispatch({ type: 'setEscalations', payload: data })
     } catch (error) {
       dispatch({ type: 'setError', payload: error })

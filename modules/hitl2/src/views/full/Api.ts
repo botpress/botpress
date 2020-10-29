@@ -50,7 +50,7 @@ export interface ApiType {
   getCurrentAgent: () => Promise<AgentType>
   getComments: (id: string) => Promise<CommentType[]>
   createComment: (id: string, payload: Partial<CommentType>) => Promise<CommentType>
-  getEscalations: (orderByColumn?: string, orderByDirection?: string, limit?: number) => Promise<EscalationType[]>
+  getEscalations: (column?: string, desc?: boolean, limit?: number) => Promise<EscalationType[]>
   assignEscalation: (id: string) => Promise<EscalationType>
   resolveEscalation: (id: string) => Promise<EscalationType>
 }
@@ -75,12 +75,12 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
         .post(`${base}/escalations/${id}/comments`, payload)
         .then(res => res.data)
         .then(data => castComment(data)),
-    getEscalations: async (orderByColumn?: string, orderByDirection?: string, limit?: number) =>
+    getEscalations: async (column?: string, desc?: boolean, limit?: number) =>
       bp.axios
         .get(`${base}/escalations`, {
           params: {
-            orderByDirection: orderByDirection,
-            orderByColumn: orderByColumn,
+            desc: desc,
+            column: column,
             limit: limit
           }
         })
