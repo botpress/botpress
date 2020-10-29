@@ -1,3 +1,4 @@
+import { Tag, Intent } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC } from 'react'
@@ -14,6 +15,8 @@ interface Props {
 
 const EscalationBadge: FC<Props> = props => {
   switch (props.status) {
+    case 'resolved':
+      return <Tag intent={Intent.SUCCESS}>{lang.tr(`module.hitl2.escalation.status.${props.status}`)}</Tag>
     case 'assigned':
       if (props.assignedToAgent?.id === props.currentAgent?.id) {
         return (

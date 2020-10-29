@@ -6,7 +6,8 @@
   "filter": {
     "unassigned": "Unassigned",
     "assignedMe": "Assigned to Me",
-    "assignedOther": "Assigned to Others"
+    "assignedOther": "Assigned to Others",
+    "resolved": "Resolved"
   },
   "sortBy": "Sort By",
   "filterBy": "Filter By",

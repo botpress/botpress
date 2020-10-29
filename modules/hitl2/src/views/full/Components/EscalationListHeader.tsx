@@ -8,6 +8,7 @@ export interface FilterType {
   unassigned: boolean
   assignedMe: boolean
   assignedOther: boolean
+  resolved: boolean
 }
 
 export type SortType = 'mostRecent' | 'leastRecent'
@@ -75,6 +76,17 @@ const EscalationListHeader: FC<Props> = props => {
               label={lang.tr('module.hitl2.filter.assignedOther')}
               onChange={() =>
                 props.setFilterOptions({ ...props.filterOptions, assignedOther: !props.filterOptions.assignedOther })
+              }
+            />
+          )
+        },
+        {
+          content: (
+            <Checkbox
+              checked={props.filterOptions.resolved}
+              label={lang.tr('module.hitl2.filter.resolved')}
+              onChange={() =>
+                props.setFilterOptions({ ...props.filterOptions, resolved: !props.filterOptions.resolved })
               }
             />
           )

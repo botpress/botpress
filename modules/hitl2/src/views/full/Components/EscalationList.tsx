@@ -28,7 +28,8 @@ const EscalationList: FC<Props> = props => {
   const [filterOptions, setFilterOptions] = useState<FilterType>({
     unassigned: true,
     assignedMe: true,
-    assignedOther: true
+    assignedOther: true,
+    resolved: false
   })
   const [sortOption, setSortOption] = useState<SortType>('mostRecent')
 
@@ -36,7 +37,8 @@ const EscalationList: FC<Props> = props => {
     const conditions = {
       unassigned: item.agentId == null,
       assignedMe: item.status == 'assigned' && item.agentId == state.currentAgent?.id,
-      assignedOther: item.agentId !== null && item.agentId !== state.currentAgent?.id
+      assignedOther: item.agentId !== null && item.agentId !== state.currentAgent?.id,
+      resolved: item.status == 'resolved'
     }
 
     return _.some(_.pickBy(conditions), (value, key) => filterOptions[key])
@@ -69,7 +71,7 @@ const EscalationList: FC<Props> = props => {
         sortOption={sortOption}
         setFilterOptions={setFilterOptions}
         setSortOption={setSortOption}
-        disabled={!items.length}
+        disabled={_.isEmpty(props.escalations)}
       ></EscalationListHeader>
 
       {props.loading && <Spinner></Spinner>}
