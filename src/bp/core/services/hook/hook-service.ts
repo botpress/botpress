@@ -15,7 +15,7 @@ import { clearRequireCache, requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
 import { filterDisabled, runOutsideVm } from '../action/utils'
 import { VmRunner } from '../action/vm'
-import { addErrorToEvent, addStepToEvent } from '../middleware/event-collector'
+import { addErrorToEvent, addStepToEvent, StepScopes, StepStatus } from '../middleware/event-collector'
 
 const debug = DEBUG('hooks')
 const DEBOUNCE_DELAY = ms('2s')
@@ -282,7 +282,7 @@ export class HookService {
     hook.debug.forBot(botId, 'after execute')
   }
 
-  private addEventStep = (hookName: string, status: 'completed' | 'error', hook: Hooks.BaseHook, error?: any) => {
+  private addEventStep = (hookName: string, status: string, hook: Hooks.BaseHook, error?: any) => {
     if (!hook.args?.event) {
       return
     }
@@ -299,7 +299,7 @@ export class HookService {
       )
     }
 
-    addStepToEvent(event, 'hook', hookName, status)
+    addStepToEvent(event, StepScopes.Hook, hookName, status)
   }
 
   private async runWithoutVm(hookScript: HookScript, hook: Hooks.BaseHook, botId: string, _require: Function) {
@@ -313,10 +313,10 @@ export class HookService {
     try {
       const fn = new Function(...Object.keys(args), hookScript.code)
       await fn(...Object.values(args))
-      this.addEventStep(hookScript.name, 'completed', hook)
+      this.addEventStep(hookScript.name, StepStatus.Completed, hook)
       return
     } catch (err) {
-      this.addEventStep(hookScript.name, 'error', hook, err)
+      this.addEventStep(hookScript.name, StepStatus.Error, hook, err)
       this.logScriptError(err, botId, hookScript.path, hook.folder)
     }
   }

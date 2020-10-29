@@ -23,7 +23,7 @@ import { clearRequireCache, requireFromString } from '../../modules/require'
 import { TYPES } from '../../types'
 import { BotService } from '../bot-service'
 import { ActionExecutionError } from '../dialog/errors'
-import { addErrorToEvent, addStepToEvent } from '../middleware/event-collector'
+import { addErrorToEvent, addStepToEvent, StepScopes, StepStatus } from '../middleware/event-collector'
 import { WorkspaceService } from '../workspace-service'
 
 import { extractMetadata } from './metadata'
@@ -178,7 +178,7 @@ export class ScopedActionService {
       }
 
       debug.forBot(incomingEvent.botId, 'done running', { actionName, actionArgs })
-      addStepToEvent(incomingEvent, 'action', actionName, 'completed')
+      addStepToEvent(incomingEvent, StepScopes.Action, actionName, StepStatus.Completed)
     } catch (err) {
       this.logger
         .forBot(this.botId)
@@ -195,7 +195,7 @@ export class ScopedActionService {
         incomingEvent
       )
       const name = actionName ?? incomingEvent.state.context?.currentNode ?? ''
-      addStepToEvent(incomingEvent, 'action', name, 'error')
+      addStepToEvent(incomingEvent, StepScopes.Action, name, StepStatus.Error)
       throw new ActionExecutionError(err.message, name, err.stack)
     }
   }

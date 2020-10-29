@@ -12,7 +12,7 @@ import { TYPES } from '../../types'
 import { incrementMetric } from '../monitoring'
 import { Queue } from '../queue'
 
-import { addStepToEvent, EventCollector, LAST_EVENT_STEP } from './event-collector'
+import { addStepToEvent, EventCollector, StepScopes } from './event-collector'
 import { MiddlewareChain } from './middleware'
 
 const directionRegex = /^(incoming|outgoing)$/
@@ -117,7 +117,7 @@ export class EventEngine {
       await outgoing.run(event)
       this._outgoingPerf.record()
 
-      addStepToEvent(event, LAST_EVENT_STEP)
+      addStepToEvent(event, StepScopes.EndProcessing)
       this.eventCollector.storeEvent(event)
     })
 
@@ -179,7 +179,7 @@ export class EventEngine {
     this.validateEvent(event)
 
     if (event.debugger) {
-      addStepToEvent(event, 'received')
+      addStepToEvent(event, StepScopes.Received)
       this.eventCollector.storeEvent(event)
     }
 

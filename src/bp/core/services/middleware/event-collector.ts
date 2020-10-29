@@ -12,7 +12,25 @@ import ms from 'ms'
 import { SessionIdFactory } from '../dialog/session/id-factory'
 
 type BatchEvent = sdk.IO.StoredEvent & { retry?: number }
-export const LAST_EVENT_STEP = 'completed'
+
+export const StepScopes = {
+  Received: 'received',
+  StateLoaded: 'stateLoaded',
+  Middleware: 'mw',
+  Dialog: 'dialog',
+  Action: 'action',
+  Hook: 'hook',
+  EndProcessing: 'completed'
+}
+
+export const StepStatus = {
+  Started: 'start',
+  Completed: 'completed',
+  Error: 'error',
+  TimedOut: 'timedOut',
+  Swallowed: 'swallowed',
+  Skipped: 'skipped'
+}
 
 export const addStepToEvent = (event: sdk.IO.Event, scope: string, name?: string, status?: string) => {
   if (!event?.debugger) {

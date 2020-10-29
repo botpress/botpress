@@ -40,7 +40,7 @@ import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { HintsService } from './services/hints'
 import { Hooks, HookService } from './services/hook/hook-service'
 import { LogsJanitor } from './services/logs/janitor'
-import { addStepToEvent, EventCollector, LAST_EVENT_STEP } from './services/middleware/event-collector'
+import { addStepToEvent, EventCollector, StepScopes, StepStatus } from './services/middleware/event-collector'
 import { EventEngine } from './services/middleware/event-engine'
 import { StateManager } from './services/middleware/state-manager'
 import { MigrationService } from './services/migration'
@@ -353,7 +353,7 @@ export class Botpress {
 
     this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       await this.stateManager.restore(event)
-      addStepToEvent(event, 'stateLoaded')
+      addStepToEvent(event, StepScopes.StateLoaded)
       await this.hookService.executeHook(new Hooks.BeforeIncomingMiddleware(this.api, event))
     }
 
@@ -376,14 +376,14 @@ export class Botpress {
       const sessionId = SessionIdFactory.createIdFromEvent(event)
 
       if (event.debugger) {
-        addStepToEvent(event, 'dialog', 'start')
+        addStepToEvent(event, StepScopes.Dialog, StepStatus.Started)
         this.eventCollector.storeEvent(event)
       }
 
       await this.decisionEngine.processEvent(sessionId, event)
 
       if (event.debugger) {
-        addStepToEvent(event, LAST_EVENT_STEP)
+        addStepToEvent(event, StepScopes.EndProcessing)
         this.eventCollector.storeEvent(event)
       }
 

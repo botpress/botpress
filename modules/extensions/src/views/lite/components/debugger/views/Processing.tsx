@@ -68,7 +68,7 @@ export const Processing: FC<{ processing: { [activity: string]: sdk.IO.Processin
             {hasLog && (
               <span className={style.infoBox}>
                 {item.logs.map(log => (
-                  <div key={log}>{log}</div>
+                  <div key={log.substr(0, 20)}>{log}</div>
                 ))}
               </span>
             )}
