@@ -38,7 +38,7 @@ export const analyzeWorkflowFile = async (file: ExportedFlow, flows: FlowView[])
   }
 
   try {
-    const { data: intents } = await axios.get(`${window.BOT_API_PATH}/mod/nlu/intents`)
+    const { data: intents } = await axios.get(`${window.BOT_API_PATH}/nlu/intents`)
 
     for (const intent of file.intents) {
       const existing = intents.find(x => x.name === intent.name)
@@ -100,7 +100,7 @@ export const executeWorkflowActions = async (actions: ImportAction[]) => {
 
   try {
     await Promise.each(getActionsForType('intent'), ({ data }) =>
-      axios.post(`${window.BOT_API_PATH}/mod/nlu/intents`, data)
+      axios.post(`${window.BOT_API_PATH}/nlu/intents`, data)
     )
   } catch (err) {
     console.error(`Can't import intents: ${err}`)

@@ -188,9 +188,13 @@ $status-bar-height: 24px;
   padding: 10px 0;
 }
 
-.trainingControlContainer {
-  display: flex;
-  flex-direction: row-reverse;
-  border-bottom: 1px solid #eee;
-  padding-right: 5vw;
+.chooseLabel {
+  display: block;
+  width: 100%;
+  font-size: 14px;
+  margin: 0 0 var(--spacing-small);
+}
+
+.createBtn {
+  display: block;
 }

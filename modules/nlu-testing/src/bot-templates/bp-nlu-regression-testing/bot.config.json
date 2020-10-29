@@ -1,5 +1,6 @@
 {
   "$schema": "../../bot.config.schema.json",
+  "bpdsId": "bp-nlu-regression-testing",
   "description": "BPDS are handcrafted datasets. Intents in each contexts are built with a specific distribution in mind, making intent classification hard to achieve.",
   "active": true,
   "version": "1.0.0",
@@ -17,5 +18,5 @@
     "expiration": "1 week"
   },
   "defaultLanguage": "en",
-  "languages": ["en", "ar", "ru", "fr"]
+  "languages": ["en"]
 }

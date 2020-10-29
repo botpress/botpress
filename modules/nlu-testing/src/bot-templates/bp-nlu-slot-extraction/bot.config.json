@@ -1,6 +1,6 @@
 {
   "$schema": "../../bot.config.schema.json",
-  "bpdsId": "slot-extraction",
+  "bpdsId": "bp-nlu-slot-extraction",
   "description": "This dataset aims to test slot extraction",
   "active": true,
   "version": "1.0.0",
