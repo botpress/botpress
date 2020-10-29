@@ -17,7 +17,7 @@ export class RealTimePayload {
    */
   static forVisitor(visitorId: string, eventName: string, payload: any): RealTimePayload {
     if (!eventName.toLowerCase().startsWith('guest.')) {
-      eventName = 'guest.' + eventName
+      eventName = `guest.${eventName}`
     }
 
     return new RealTimePayload(eventName, {

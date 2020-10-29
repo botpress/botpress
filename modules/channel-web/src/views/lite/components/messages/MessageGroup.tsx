@@ -79,7 +79,7 @@ class MessageGroup extends React.Component<Props> {
               {fromLabel}
             </span>
             {sortBy(messages, 'eventId').map((message, i, messages) => {
-              const isLastMsg = i == messages.length - 1
+              const isLastMsg = i === messages.length - 1
               const payload = this.convertPayloadFromOldFormat(message)
 
               const showInlineFeedback =
