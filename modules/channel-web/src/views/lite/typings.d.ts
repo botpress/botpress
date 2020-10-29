@@ -127,7 +127,7 @@ export interface StudioConnector {
   loadModuleView: any
 }
 
-export type Config = {
+export interface Config {
   botId?: string
   externalAuthToken?: string
   userId?: string
@@ -136,6 +136,7 @@ export type Config = {
   userIdScope?: string
   enableReset: boolean
   stylesheet: string
+  isEmulator?: boolean
   extraStylesheet: string
   showConversationsButton: boolean
   showUserName: boolean

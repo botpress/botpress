@@ -23,8 +23,8 @@ import Unauthorized from './Unauthorized'
 
 export const updater = { callback: undefined }
 
-const WEBCHAT_WIDTH = 400
-const DEV_TOOLS_WIDTH = 450
+const WEBCHAT_WIDTH = 240
+const DEV_TOOLS_WIDTH = 240
 const RETRY_PERIOD = 500 // Delay (ms) between each call to the backend to fetch a desired event
 const RETRY_SECURITY_FACTOR = 3
 const DEBOUNCE_DELAY = 100
@@ -40,6 +40,7 @@ interface State {
   showSettings: boolean
   showEventNotFound: boolean
   fetching: boolean
+  maximized: boolean
   unauthorized: boolean
 }
 
@@ -51,6 +52,7 @@ export class Debugger extends React.Component<Props, State> {
     selectedTabId: 'basic',
     showSettings: false,
     fetching: false,
+    maximized: false,
     unauthorized: false
   }
   allowedRetryCount = 0
@@ -107,6 +109,9 @@ export class Debugger extends React.Component<Props, State> {
     this.props.store.view.removeCustomAction('actionDebug')
     window.removeEventListener('keydown', this.hotkeyListener)
     this.resetWebchat()
+
+    window.parent.document.documentElement.style.setProperty('--debugger-width', '240px')
+    document.documentElement.style.setProperty('--debugger-width', '240px')
   }
 
   componentDidUpdate(_prevProps, prevState) {
@@ -161,7 +166,7 @@ export class Debugger extends React.Component<Props, State> {
     this.setState({ fetching: true })
 
     try {
-      const { data: event } = await this.props.store.bp.axios.get('/mod/extensions/events/' + eventId)
+      const { data: event } = await this.props.store.bp.axios.get(`/mod/extensions/events/${eventId}`)
 
       this.setState({ event, showEventNotFound: !event, fetching: false })
 
@@ -188,6 +193,17 @@ export class Debugger extends React.Component<Props, State> {
   toggleDebugger = () => {
     this.props.store.view.setContainerWidth(this.state.visible ? WEBCHAT_WIDTH : WEBCHAT_WIDTH + DEV_TOOLS_WIDTH)
     this.setState({ visible: !this.state.visible })
+  }
+
+  toggleMaximized = () => {
+    this.props.store.view.setContainerWidth(
+      !this.state.maximized ? WEBCHAT_WIDTH + DEV_TOOLS_WIDTH * 2 : WEBCHAT_WIDTH + DEV_TOOLS_WIDTH
+    )
+    const newWidth = !this.state.maximized ? '480px' : '240px'
+
+    window.parent.document.documentElement.style.setProperty('--debugger-width', newWidth)
+    document.documentElement.style.setProperty('--debugger-width', newWidth)
+    this.setState({ maximized: !this.state.maximized })
   }
 
   toggleSettings = e => this.setState({ showSettings: !this.state.showSettings })
@@ -242,7 +258,12 @@ export class Debugger extends React.Component<Props, State> {
     return (
       <div className={style.container2}>
         <Settings store={this.props.store} isOpen={this.state.showSettings} toggle={this.toggleSettings} />
-        <Header newSession={this.handleNewSession} toggleSettings={this.toggleSettings} />
+        <Header
+          newSession={this.handleNewSession}
+          toggleSettings={this.toggleSettings}
+          maximized={this.state.maximized}
+          setMaximized={this.toggleMaximized}
+        />
         {!this.state.event && this.renderWhenNoEvent()}
         {this.state.event && this.renderEvent()}
       </div>

@@ -12,6 +12,7 @@ import {
   Toaster
 } from '@blueprintjs/core'
 import { lang, MainLayout, sharedStyle } from 'botpress/shared'
+import cx from 'classnames'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
@@ -542,7 +543,11 @@ class Diagram extends Component<Props> {
 
   render() {
     return (
-      <MainLayout.Wrapper>
+      <MainLayout.Wrapper
+        className={cx({
+          'emulator-open': this.props.emulatorOpen
+        })}
+      >
         <WorkflowToolbar />
 
         <div className={style.searchWrapper}>
@@ -601,6 +606,8 @@ interface Props {
   buildSkill: any
   readOnly: boolean
   canPasteNode: boolean
+  emulatorOpen: boolean
+  showSearch: boolean
   hideSearch: () => void
   handleFilterChanged: (event: any) => void
   highlightFilter: string
@@ -625,6 +632,7 @@ const mapStateToProps = state => ({
   currentFlowNode: getCurrentFlowNode(state),
   currentDiagramAction: state.flows.currentDiagramAction,
   canPasteNode: Boolean(state.flows.nodeInBuffer),
+  emulatorOpen: state.ui.emulatorOpen,
   skills: state.skills.installed
 })
 
