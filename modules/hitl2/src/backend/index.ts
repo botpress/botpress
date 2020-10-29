@@ -5,6 +5,7 @@ import fr from '../translations/fr.json'
 
 import api from './api'
 import { registerMiddleware, unregisterMiddleware } from './middleware'
+import Repository from './repository'
 
 export interface StateType {
   cacheEscalation?: Function
@@ -13,14 +14,16 @@ export interface StateType {
 
 const state: StateType = {}
 
-const onServerStarted = async (bp: typeof sdk) => {}
+let repository
 
-const onServerReady = async (bp: typeof sdk) => {
-  await api(bp, state)
-  await registerMiddleware(bp, state)
+const onServerStarted = async (bp: typeof sdk) => {
+  repository = new Repository(bp)
 }
 
-
+const onServerReady = async (bp: typeof sdk) => {
+  await api(bp, repository, state)
+  await registerMiddleware(bp, state)
+}
 
 const onModuleUnmount = async (bp: typeof sdk) => {
   bp.http.deleteRouterForBot('hitl2')

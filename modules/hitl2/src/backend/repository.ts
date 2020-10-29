@@ -4,6 +4,7 @@ import Knex from 'knex'
 import _ from 'lodash'
 import { SortOrder } from 'botpress/sdk'
 
+import migrate from "./migrate"
 import { AgentType, CommentType, EscalationType } from './../types'
 import { makeAgentId } from './helpers'
 
@@ -46,6 +47,10 @@ export default class Repository {
     this.eventColumns = ['id', 'direction', 'botId', 'channel', 'success', 'createdOn', 'threadId', 'type', 'event']
 
     this.commentColumnsPrefixed = this.commentColumns.map(s => this.commentPrefix.concat(':', s))
+  }
+
+  async initialize() {
+    migrate(this.bp)
   }
 
   private axiosConfig = async (req, botId: string): Promise<sdk.AxiosBotConfig> => {
