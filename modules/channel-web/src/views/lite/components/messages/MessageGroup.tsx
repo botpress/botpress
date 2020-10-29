@@ -1,5 +1,5 @@
 import classnames from 'classnames'
-import { sortBy } from 'lodash'
+import sortBy from 'lodash/sortBy'
 import { inject } from 'mobx-react'
 import React from 'react'
 
