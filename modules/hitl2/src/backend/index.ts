@@ -20,9 +20,7 @@ const onServerReady = async (bp: typeof sdk) => {
   await registerMiddleware(bp, state)
 }
 
-const onBotMount = async (bp: typeof sdk, botId: string) => {}
 
-const onBotUnmount = async (bp: typeof sdk, botId: string) => {}
 
 const onModuleUnmount = async (bp: typeof sdk) => {
   bp.http.deleteRouterForBot('hitl2')
@@ -32,8 +30,6 @@ const onModuleUnmount = async (bp: typeof sdk) => {
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
-  onBotMount,
-  onBotUnmount,
   onModuleUnmount,
   translations: { en, fr },
   definition: {
