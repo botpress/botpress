@@ -20,7 +20,10 @@ export class Notification {
   public archived = false
 }
 
-interface DefaultGetOptions { archived?: boolean; read?: boolean }
+interface DefaultGetOptions {
+  archived?: boolean
+  read?: boolean
+}
 
 export interface NotificationsRepository {
   get(botId: string, id: string): Promise<Notification>
