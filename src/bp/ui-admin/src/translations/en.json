@@ -1,5 +1,7 @@
 {
   "admin": {
+    "needsTraining": "This bot needs training.",
+    "howToTrain": "On the studio, click on the \"Train Now\" button (located on the bottom right corner).",
     "alerting": {
       "activeIncidents": "Active Incidents",
       "alertingAndIncidents": "Alerting & Incidents",

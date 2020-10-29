@@ -63,5 +63,7 @@
     ]
   },
   "slots": [],
-  "contexts": ["A"]
+  "contexts": [
+    "A"
+  ]
 }

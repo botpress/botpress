@@ -46,7 +46,7 @@ You can download the binaries [here](https://botpress.com/download?utm_source=gi
 
 ## Building from source
 
-**Prerequisites**: Node 10.11 (you can use [nvm](https://github.com/creationix/nvm)) and Yarn.
+**Prerequisites**: Node 12.13 (you can use [nvm](https://github.com/creationix/nvm)) and Yarn.
 
 1. Run `yarn` to fetch node packages.
 1. Run `yarn build` to build the core, the UI and the modules.
