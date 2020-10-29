@@ -286,6 +286,12 @@ export default class Repository {
       .then(async data => _.head(data))
   }
 
+  getEscalation = async (id: string, query?: Knex.QueryCallback): Promise<EscalationType> => {
+    return await this.escalationsQuery(builder => {
+      builder.where('id', id).modify(this.applyQuery(query))
+    }).then(data => _.head(data))
+  }
+
   createEscalation = async (botId: string, attributes: Partial<EscalationType>): Promise<EscalationType> => {
     const now = new Date()
     const payload = this.castDate(

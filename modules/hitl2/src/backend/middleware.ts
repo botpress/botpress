@@ -52,11 +52,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
       return
     }
 
-    const escalation = await repository
-      .escalationsQuery(builder => {
-        builder.where('id', escalationId)
-      })
-      .then(data => _.head(data))
+    const escalation = await repository.getEscalation(escalationId)
 
     // Handle incoming message from user
     if (escalation.userThreadId === event.threadId) {
