@@ -37,7 +37,7 @@ export const AgentOnlineValidation = Joi.object({
     .messages({ 'any.only': 'You must be online to perform this action' })
 })
 
-export const escalationStatusRule = (original: string, value: string) => {
+export const validateEscalationStatusRule = (original: string, value: string) => {
   let message: string
 
   if (original == 'pending' && value != 'assigned') {

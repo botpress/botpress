@@ -18,7 +18,7 @@ import {
   AssignEscalationSchema,
   CreateCommentSchema,
   CreateEscalationSchema,
-  escalationStatusRule,
+  validateEscalationStatusRule,
   ResolveEscalationSchema
 } from './validation'
 
@@ -188,7 +188,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       Joi.attempt(payload, AssignEscalationSchema)
 
       try {
-        escalationStatusRule(escalation.status, payload.status)
+        validateEscalationStatusRule(escalation.status, payload.status)
       } catch (e) {
         throw new UnprocessableEntityError(e)
       }
@@ -247,7 +247,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       Joi.attempt(payload, ResolveEscalationSchema)
 
       try {
-        escalationStatusRule(escalation.status, payload.status)
+        validateEscalationStatusRule(escalation.status, payload.status)
       } catch (e) {
         throw new UnprocessableEntityError(e)
       }
