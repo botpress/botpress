@@ -20,12 +20,15 @@ const defaultState = {
   customStyle: {},
   docHints: [],
   docModal: null,
-  bottomPanel: defaultBottomPanelOpen || false
+  bottomPanel: defaultBottomPanelOpen || false,
+  emulatorOpen: false
 }
 
 export interface UiReducer {
   viewMode: any
   docHints: string[]
+  emulatorOpen: boolean
+  bottomPanel: boolean
 }
 
 const reducer = handleActions(

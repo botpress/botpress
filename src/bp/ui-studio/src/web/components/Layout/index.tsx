@@ -254,6 +254,7 @@ const mapStateToProps = state => ({
   contentLang: state.language.contentLang
 })
 
-const mapDispatchToProps = dispatch => bindActionCreators({ viewModeChanged, toggleBottomPanel, setEmulatorOpen, trainSessionReceived }, dispatch)
+const mapDispatchToProps = dispatch =>
+  bindActionCreators({ viewModeChanged, toggleBottomPanel, setEmulatorOpen, trainSessionReceived }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Layout)

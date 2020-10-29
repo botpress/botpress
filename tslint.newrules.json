@@ -6,7 +6,7 @@
     "interface-over-type-literal": true,
     "prefer-template": true,
     "quotemark": [true, "single", "jsx-double", "avoid-escape", "avoid-template"],
-    "no-console": {"severity": "warning", "options": ["log"]},
+    "no-console": { "severity": "warning", "options": ["log"] },
     "no-return-await": true,
     "triple-equals": [true, "allow-null-check", "allow-undefined-check"],
     "no-duplicate-imports": [true, { "allow-namespace-imports": true }]
