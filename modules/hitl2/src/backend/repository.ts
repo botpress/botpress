@@ -57,6 +57,7 @@ export default class Repository {
     return config
   }
 
+  // This mutates object
   private castDate(object, paths) {
     paths.map(path => {
       _.has(object, path) && _.set(object, path, this.bp.database.date.format(_.get(object, path)))
@@ -78,7 +79,8 @@ export default class Repository {
     } else return query
   }
 
-  private hydrateComments(rows: any[]): any[] {
+  // This mutates rows
+  private hydrateComments(rows: any[]): EscalationType[] {
     const records = rows.reduce((memo, row) => {
       memo[row.id] = memo[row.id] || {
         ..._.pick(row, this.escalationColumns),
@@ -160,7 +162,7 @@ export default class Repository {
         `comments.createdAt as ${this.commentPrefix}:createdAt`
       )
       .leftJoin('comments', 'escalations.id', 'comments.escalationId')
-      .andWhere('escalations.botId', botId)
+      .where('escalations.botId', botId)
       .distinct()
       .modify(this.applyLimit, limit)
       .modify(this.applyOrderBy, orderByColumn, orderByDirection)
@@ -266,7 +268,7 @@ export default class Repository {
             )
           )
       })
-      .then(data => data as EscalationType[])
+      .then(async data => data as EscalationType[])
   }
 
   getEscalationWithComments = async (
@@ -281,7 +283,7 @@ export default class Repository {
       .then(async data =>
         this.hydrateEvents(await this.userEventsQuery().where('escalations.id', id), data, 'userConversation')
       )
-      .then(data => _.head(data))
+      .then(async data => _.head(data))
   }
 
   createEscalation = async (botId: string, attributes: Partial<EscalationType>): Promise<EscalationType> => {
@@ -299,24 +301,24 @@ export default class Repository {
     return await this.bp.database.transaction(async trx => {
       await trx('escalations').insert(payload)
 
-      const ids = await trx
+      const id = await trx
         .select(this.bp.database.raw('last_insert_rowid() as id'))
-        .then(result => _.map(result, 'id'))
+        .then(result => _.head(_.map(result, 'id')))
 
       return await trx('escalations')
         .where('botId', botId)
-        .whereIn(['id'], ids as [])
+        .where('id', id)
         .then(this.hydrateComments.bind(this)) // Note: there won't be any comments yet, but an empty collection is required
         .then(async data =>
           this.hydrateEvents(
             await this.userEventsQuery()
-              .whereIn(['escalations.id'], ids as [])
+              .where('escalations.id', id)
               .transacting(trx),
             data,
             'userConversation'
           )
         )
-        .then(data => _.head(data))
+        .then(async data => _.head(data))
     })
   }
 
@@ -352,7 +354,7 @@ export default class Repository {
             'userConversation'
           )
         )
-        .then(data => _.head(data))
+        .then(async data => _.head(data))
     })
   }
 
