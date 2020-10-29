@@ -46,7 +46,7 @@ export default async (bp: typeof sdk, state: StateType) => {
     hitlMiddleware(async (req: RequestWithUser, res: Response) => {
       const { email, strategy } = req.tokenUser!
       const payload = await repository.getCurrentAgent(req, req.params.botId, makeAgentId(strategy, email))
-      res.json(payload)
+      res.send(payload)
     })
   )
 
@@ -61,7 +61,7 @@ export default async (bp: typeof sdk, state: StateType) => {
           }
         }) as AgentCollectionConditions
       )
-      res.json(agents)
+      res.send(agents)
     })
   )
 
@@ -83,7 +83,7 @@ export default async (bp: typeof sdk, state: StateType) => {
         payload: payload
       })
 
-      res.json(payload)
+      res.send(payload)
     })
   )
 
@@ -105,7 +105,7 @@ export default async (bp: typeof sdk, state: StateType) => {
         payload: payload
       })
 
-      res.json(payload)
+      res.send(payload)
     })
   )
 
@@ -116,7 +116,7 @@ export default async (bp: typeof sdk, state: StateType) => {
         req.params.botId,
         _.pick(req.query, ['limit', 'orderByColumn', 'orderByDirection']) as CollectionConditions
       )
-      res.json(escalations)
+      res.send(escalations)
     })
   )
 
@@ -222,7 +222,7 @@ export default async (bp: typeof sdk, state: StateType) => {
         payload: escalation
       })
 
-      res.json(escalation)
+      res.send(escalation)
     })
   )
 
@@ -265,7 +265,7 @@ export default async (bp: typeof sdk, state: StateType) => {
         payload: escalation
       })
 
-      res.json(escalation)
+      res.send(escalation)
     })
   )
 
@@ -287,7 +287,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       await repository.setAgentOnline(req.params.botId, agentId, true) // Bump agent session timeout
 
       res.status(201)
-      res.json(comment)
+      res.send(comment)
     })
   )
 }
