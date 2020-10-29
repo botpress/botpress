@@ -1,3 +1,3 @@
 import { TeamsClient } from './client'
 
-export type Clients = { [key: string]: TeamsClient }
+export interface Clients { [key: string]: TeamsClient }

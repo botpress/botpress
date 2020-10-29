@@ -10,7 +10,7 @@ import {
 } from '../utils'
 
 const waitForFilesToLoad = async () =>
-  await page.waitForFunction(`document.querySelectorAll(".bp3-icon-document").length > 0`)
+  page.waitForFunction('document.querySelectorAll(".bp3-icon-document").length > 0')
 
 describe('Module - Code Editor', () => {
   beforeAll(async () => {
@@ -32,7 +32,7 @@ describe('Module - Code Editor', () => {
     await page.focus('#monaco-editor')
     await page.mouse.click(469, 297)
     await page.waitFor(500) // Required so the editor is correctly focused at the right place
-    await page.keyboard.type(`const lol = 'hi' //`)
+    await page.keyboard.type("const lol = 'hi' //")
 
     await Promise.all([
       expectBotApiCallSuccess('mod/code-editor/save', 'POST'),

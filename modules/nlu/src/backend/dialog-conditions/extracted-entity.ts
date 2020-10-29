@@ -3,8 +3,8 @@ import _ from 'lodash'
 
 export default {
   id: 'extracted_entity',
-  label: `An entity was extracted from the user's message`,
-  description: `Entity {type} {comparison} {value}`,
+  label: "An entity was extracted from the user's message",
+  description: 'Entity {type} {comparison} {value}',
   params: {
     type: {
       required: true,

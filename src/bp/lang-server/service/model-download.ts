@@ -116,7 +116,7 @@ export default class ModelDownload {
       fse.unlinkSync(tmpPath)
     }
 
-    debug(`deleting model %o`, { path: tmpPath, type: model.type, lang: model.language })
+    debug('deleting model %o', { path: tmpPath, type: model.type, lang: model.language })
   }
 
   private async _makeModelAvailable(model: DownloadableModel) {

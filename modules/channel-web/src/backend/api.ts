@@ -39,7 +39,7 @@ export default async (bp: typeof sdk, db: Database) => {
       files: 1,
       fileSize: 5242880 // 5MB
     },
-    filename: function(req, file, cb) {
+    filename(req, file, cb) {
       const userId = _.get(req, 'params.userId') || 'anonymous'
       const ext = path.extname(file.originalname)
 
@@ -72,12 +72,12 @@ export default async (bp: typeof sdk, db: Database) => {
 
     const s3 = new aws.S3(awsConfig)
     const s3Storage = multers3({
-      s3: s3,
+      s3,
       bucket: globalConfig.uploadsS3Bucket || 'uploads',
       contentType: multers3.AUTO_CONTENT_TYPE,
       cacheControl: 'max-age=31536000', // one year caching
       acl: 'public-read',
-      key: function(req, file, cb) {
+      key(req, file, cb) {
         const userId = _.get(req, 'params.userId') || 'anonymous'
         const ext = path.extname(file.originalname)
 
@@ -368,7 +368,7 @@ export default async (bp: typeof sdk, db: Database) => {
       await bp.users.getOrCreateUser('web', userId, botId)
 
       const payload = {
-        text: `Reset the conversation`,
+        text: 'Reset the conversation',
         type: 'session_reset'
       }
 
@@ -411,7 +411,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
       const payload = {
         text: message,
-        signature: signature,
+        signature,
         type: 'session_reference'
       }
 

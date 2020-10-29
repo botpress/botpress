@@ -240,7 +240,7 @@ export class BotService {
   async importBot(botId: string, archive: Buffer, workspaceId: string, allowOverwrite?: boolean): Promise<void> {
     const startTime = Date.now()
     if (!isValidBotId(botId)) {
-      throw new InvalidOperationError(`Can't import bot; the bot ID contains invalid characters`)
+      throw new InvalidOperationError("Can't import bot; the bot ID contains invalid characters")
     }
 
     if (await this.botExists(botId)) {
@@ -324,9 +324,9 @@ export class BotService {
   private async _validateBotArchive(directory: string): Promise<string> {
     const configFile = await Promise.fromCallback<string[]>(cb => glob('**/bot.config.json', { cwd: directory }, cb))
     if (configFile.length > 1) {
-      throw new InvalidOperationError(`Bots must be imported in separate archives`)
+      throw new InvalidOperationError('Bots must be imported in separate archives')
     } else if (configFile.length !== 1) {
-      throw new InvalidOperationError(`The archive doesn't seem to contain a bot`)
+      throw new InvalidOperationError("The archive doesn't seem to contain a bot")
     }
 
     return path.join(directory, path.dirname(configFile[0]))

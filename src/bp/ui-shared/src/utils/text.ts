@@ -6,5 +6,5 @@ export const renderUnsafeHTML = (message: string = '', escaped?: boolean): strin
   }
 
   const html = snarkdown(message)
-  return html.replace(/<a href/gi, `<a target="_blank" href`)
+  return html.replace(/<a href/gi, '<a target="_blank" href')
 }

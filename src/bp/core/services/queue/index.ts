@@ -7,7 +7,7 @@ export interface QueueOptions {
 
 export const defaultOptions: QueueOptions = { retries: 2, drainInterval: 2000 }
 
-export type JobWithEvent = {
+export interface JobWithEvent {
   event: IO.Event
 }
 

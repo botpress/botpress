@@ -133,7 +133,7 @@ const fetchReducer = (state: State, action): State => {
       topQnaQuestions: action.data.topQnaQuestions
     }
   } else {
-    throw new Error(`That action type isn't supported.`)
+    throw new Error("That action type isn't supported.")
   }
 }
 
@@ -430,7 +430,7 @@ const Analytics: FC<any> = ({ bp }) => {
   }
 
   const renderDeletedQna = (id: string) =>
-    `[${lang.tr('module.analytics.deletedQna')}, ID: ${id.replace(`__qna__`, '')}]`
+    `[${lang.tr('module.analytics.deletedQna')}, ID: ${id.replace('__qna__', '')}]`
 
   const getLanguagesData = () => {
     const metrics = state.metrics.filter(m => m.metric === 'msg_nlu_language')
@@ -556,7 +556,7 @@ const Analytics: FC<any> = ({ bp }) => {
 
   const exportCsv = async () => {
     const data = [
-      `"date","botId","channel","metric","subMetric","value"`,
+      '"date","botId","channel","metric","subMetric","value"',
       ...state.metrics.map(entry => {
         return [entry.date, entry.botId, entry.channel, entry.metric, entry.subMetric, entry.value]
           .map(x => (x || 'N/A').toString().replace(/"/g, '\\"'))
@@ -567,7 +567,7 @@ const Analytics: FC<any> = ({ bp }) => {
 
     const link = document.createElement('a')
     link.href = URL.createObjectURL(new Blob([data]))
-    link.download = `analytics.csv`
+    link.download = 'analytics.csv'
     link.click()
   }
   const exportJson = () => {
@@ -589,7 +589,7 @@ const Analytics: FC<any> = ({ bp }) => {
 
     const link = document.createElement('a')
     link.href = URL.createObjectURL(new Blob([JSON.stringify(json, undefined, 2)]))
-    link.download = `analytics.json`
+    link.download = 'analytics.json'
     link.click()
   }
 
@@ -616,7 +616,7 @@ const Analytics: FC<any> = ({ bp }) => {
           data: { dateRange: [moment(currentPeriod.startDate).toDate(), moment(currentPeriod.endDate).toDate()] }
         })
       } catch (err) {
-        console.error(`Could not load metrics`, err)
+        console.error('Could not load metrics', err)
       }
     }
   }
