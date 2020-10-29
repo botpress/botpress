@@ -108,7 +108,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   warmup(cache)
 
   bp.events.registerMiddleware({
-    name: 'hitl.incoming',
+    name: 'hitl2.incoming',
     direction: 'incoming',
     order: 20,
     description: 'Where magic happens',
@@ -117,7 +117,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
 }
 
 const unregisterMiddleware = async (bp: typeof sdk) => {
-  bp.events.removeMiddleware('hitl.incoming')
+  bp.events.removeMiddleware('hitl2.incoming')
 }
 
 export { registerMiddleware, unregisterMiddleware }
