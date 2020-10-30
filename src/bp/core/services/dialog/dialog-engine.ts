@@ -5,7 +5,7 @@ import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 
-import { converseApiEvents } from '../converse'
+import { buildUserKey, converseApiEvents } from '../converse'
 import { Hooks, HookService } from '../hook/hook-service'
 
 import { FlowError, ProcessingError, TimeoutNodeNotFound } from './errors'
@@ -83,7 +83,7 @@ export class DialogEngine {
     }
 
     try {
-      await converseApiEvents.emitAsync(`action.start.${event.target}`, event)
+      await converseApiEvents.emitAsync(`action.start.${buildUserKey(event.botId, event.target)}`, event)
       const result = await this.instructionProcessor.process(botId, instruction, event)
 
       if (result.followUpAction === 'none') {
@@ -108,7 +108,7 @@ export class DialogEngine {
           event.state.__error = {
             type: 'dialog-transition',
             stacktrace: err.stacktrace || err.stack,
-            destination: destination
+            destination
           }
 
           const { onErrorFlowTo } = event.state.temp
@@ -121,7 +121,7 @@ export class DialogEngine {
     } catch (err) {
       this._reportProcessingError(botId, err, event, instruction)
     } finally {
-      await converseApiEvents.emitAsync(`action.end.${event.target}`, event)
+      await converseApiEvents.emitAsync(`action.end.${buildUserKey(event.botId, event.target)}`, event)
     }
 
     return event
@@ -404,18 +404,7 @@ export class DialogEngine {
 
   protected async _loadFlows(botId: string) {
     const flows = await this.flowService.loadAll(botId)
-
-    const flowsWithParents = flows.map(flow => {
-      const flowName = flow.name.replace('.flow.json', '')
-      const parentFlow = flows.find(x => x.name !== flow.name && flowName.startsWith(x.name.replace('.flow.json', '')))
-
-      return {
-        ...flow,
-        parent: parentFlow?.name.replace('.flow.json', '')
-      }
-    })
-
-    this._flowsByBot.set(botId, flowsWithParents)
+    this._flowsByBot.set(botId, flows)
   }
 
   private _detectInfiniteLoop(stacktrace: IO.JumpPoint[], botId: string) {
@@ -449,12 +438,12 @@ export class DialogEngine {
   private _findFlow(botId: string, flowName: string) {
     const flows = this._flowsByBot.get(botId)
     if (!flows) {
-      throw new FlowError(`Could not find any flow.`, botId, flowName)
+      throw new FlowError('Could not find any flow.', botId, flowName)
     }
 
     const flow = flows.find(x => x.name === flowName)
     if (!flow) {
-      throw new FlowError(`Flow not found."`, botId, flowName)
+      throw new FlowError('Flow not found."', botId, flowName)
     }
     return flow
   }
@@ -462,7 +451,7 @@ export class DialogEngine {
   private _findNode(botId: string, flow: FlowView, nodeName: string) {
     const node = flow.nodes && flow.nodes.find(x => x.name === nodeName)
     if (!node) {
-      throw new FlowError(`Node not found.`, botId, flow.name, nodeName)
+      throw new FlowError('Node not found.', botId, flow.name, nodeName)
     }
     return node
   }

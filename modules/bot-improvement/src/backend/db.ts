@@ -108,7 +108,7 @@ export default (bp: typeof sdk): Database => {
     try {
       qnaItems = (await axios.get('/mod/qna/questions', axiosConfig)).data.items
     } catch (e) {
-      bp.logger.attachError(e).error(`Could not fetch QnA questions`)
+      bp.logger.attachError(e).error('Could not fetch QnA questions')
     }
 
     const feedbackItems = flaggedEvents.map(flaggedEvent => {

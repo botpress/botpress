@@ -44,7 +44,13 @@
   },
   "statusBar": {
     "contentLanguage": "Content Language",
-    "switchLang": "Change the bot content language. Currently editing: {currentLang}"
+    "switchLang": "Change the bot content language. Currently editing: {currentLang}",
+    "trainChatbot": "Train Chatbot",
+    "training": "Training",
+    "ready": "Ready",
+    "cancelTraining": "Cancel Training",
+    "canceling": "Canceling",
+    "trainingError": "Cannot train Chatbot"
   },
   "studio": {
     "content": {
@@ -54,6 +60,7 @@
       "createNew": "Create new {title}",
       "currentlySearching": "Currently Searching in",
       "deleteElements": "Delete selected elements",
+      "missingClosingCurlyBrace": "Missing closing curly brace",
       "import": {
         "analysis": "Analysis",
         "clearExisting": "Clear all existing elements, then import those from my file",
@@ -116,6 +123,7 @@
       "errorWhileSaving": "There was an error while saving, deleting or renaming a flow. Last modification might not have been saved on server. Please reload page before continuing flow edition",
       "flowWideOnReceives": "flow-wide on {count, plural, one {receive} other {receives}}",
       "flowWideTransitions": "flow-wide {count, plural, one {transition} other {transitions}}",
+      "filterNodes": "Filter Nodes",
       "highlightByName": "Highlight nodes by name",
       "logs": {
         "autoRefresh": "Auto-refresh",

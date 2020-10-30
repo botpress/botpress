@@ -4,7 +4,7 @@ import Message from '../lite/components/messages/Message'
 import * as Keyboard from '../lite/components/Keyboard'
 
 const INJECTION_ID = 'bp-channel-web-injection'
-const INJECTION_URL = `assets/modules/channel-web/inject.js`
+const INJECTION_URL = 'assets/modules/channel-web/inject.js'
 
 export class WebBotpressUIInjection extends React.Component {
   componentDidMount() {
@@ -18,6 +18,7 @@ export class WebBotpressUIInjection extends React.Component {
     script.onload = () =>
       window.botpressWebChat.init({
         hideWidget: true,
+        isEmulator: true,
         botName: 'Bot Emulator',
         botConvoDescription: 'Test your bot live',
         enableReset: true,

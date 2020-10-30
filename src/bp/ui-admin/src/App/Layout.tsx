@@ -27,11 +27,9 @@ interface Props {
 }
 
 const App: FC<Props> = props => {
-  const [tokenInterval, setTokenInterval] = useState()
+  const [tokenInterval, setTokenInterval] = useState<any>()
 
   useEffect(() => {
-    setupBranding()
-
     props.fetchLicensing()
     props.fetchProfile()
 
@@ -42,23 +40,6 @@ const App: FC<Props> = props => {
     )
   }, [])
 
-  const setupBranding = () => {
-    window.document.title = window.APP_NAME || 'Botpress Admin Panel'
-
-    if (window.APP_FAVICON) {
-      const link = document.querySelector('link[rel="icon"]')
-      link && link.setAttribute('href', window.APP_FAVICON)
-    }
-
-    if (window.APP_CUSTOM_CSS) {
-      const sheet = document.createElement('link')
-      sheet.rel = 'stylesheet'
-      sheet.href = window.APP_CUSTOM_CSS
-      sheet.type = 'text/css'
-      document.head.appendChild(sheet)
-    }
-  }
-
   const tryRefreshToken = async () => {
     try {
       if (!tokenNeedsRefresh()) {
@@ -67,17 +48,17 @@ const App: FC<Props> = props => {
 
       const tokenData = getToken(false) as StoredToken
 
-      const { data } = await api.getSecured().get(`/auth/refresh`)
+      const { data } = await api.getSecured().get('/auth/refresh')
       const { newToken } = data.payload
 
       if (newToken !== tokenData.token) {
         setToken(newToken)
-        console.log(`Token refreshed successfully`)
+        console.info('Token refreshed successfully')
       } else {
         clearInterval(tokenInterval)
       }
     } catch (err) {
-      console.error(`Error validating & refreshing token`, err)
+      console.error('Error validating & refreshing token', err)
     }
   }
 

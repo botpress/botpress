@@ -20,10 +20,10 @@
     "axios": "^0.19.2",
     "bluebird": "^3.7.0",
     "classnames": "^2.2.6",
-    "lodash": "^4.17.15"
+    "lodash": "^4.17.19"
   },
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.12"
+    "lodash": ">=4.17.19"
   }
 }

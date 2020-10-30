@@ -23,7 +23,7 @@ export const ImportModal: FC<Props> = props => {
       const form = new FormData()
       form.append('file', file)
 
-      const { data } = await props.axios.post(`/mod/nlu-testing/import`, form, {
+      const { data } = await props.axios.post('/mod/nlu-testing/import', form, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
       importSuccess(data)

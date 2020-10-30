@@ -35,7 +35,7 @@ const ArrayFieldTemplate = props => {
         const { type } = schema.items
 
         return (
-          <div key={element.key} className={style.innerWrapper}>
+          <div key={`${element.key}-${element.index}`} className={style.innerWrapper}>
             {type === 'string' ? (
               <SmartInput
                 key={`${key.current}${element.key}`}

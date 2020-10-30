@@ -8,12 +8,6 @@ export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[
 
   const removeExt = (name: string) => name?.replace(/\.flow\.json$/i, '')
 
-  process.BOTPRESS_EVENTS.on('bp_core_decision_elected', ({ channel, botId, source }) => {
-    if (source === 'qna') {
-      db.incrementMetric(botId, channel, 'msg_sent_qna_count')
-    }
-  })
-
   process.BOTPRESS_EVENTS.on('bp_core_send_content', ({ channel, botId, source, details }) => {
     if (source === 'qna') {
       db.incrementMetric(botId, channel, 'msg_sent_qna_count', details)
@@ -42,17 +36,17 @@ export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[
 
   process.BOTPRESS_EVENTS.on('bp_core_feedback_positive', ({ channel, botId, type }) => {
     if (type === 'qna') {
-      db.incrementMetric(botId, channel, `feedback_positive_qna`)
+      db.incrementMetric(botId, channel, 'feedback_positive_qna')
     } else if (type === 'workflow') {
-      db.incrementMetric(botId, channel, `feedback_positive_workflow`)
+      db.incrementMetric(botId, channel, 'feedback_positive_workflow')
     }
   })
 
   process.BOTPRESS_EVENTS.on('bp_core_feedback_negative', ({ channel, botId, type }) => {
     if (type === 'qna') {
-      db.incrementMetric(botId, channel, `feedback_negative_qna`)
+      db.incrementMetric(botId, channel, 'feedback_negative_qna')
     } else if (type === 'workflow') {
-      db.incrementMetric(botId, channel, `feedback_negative_workflow`)
+      db.incrementMetric(botId, channel, 'feedback_negative_workflow')
     }
   })
 
@@ -60,7 +54,7 @@ export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[
     name: 'analytics.incoming',
     direction: 'incoming',
     handler: incomingMiddleware,
-    order: 12, // after nlu and qna
+    order: 140, // after nlu election and qna
     description: 'Tracks incoming messages for Analytics purposes'
   })
 
@@ -88,6 +82,11 @@ export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[
     }
     if (!!intentName?.length) {
       db.incrementMetric(event.botId, event.channel, 'msg_nlu_intent', event.nlu?.intent?.name)
+    }
+
+    const language = event.nlu?.language
+    if (language) {
+      db.incrementMetric(event.botId, event.channel, 'msg_nlu_language', language)
     }
 
     next()

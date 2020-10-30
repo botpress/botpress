@@ -33,7 +33,7 @@ function* amendFiles(yarnInstall: boolean) {
       }
 
       if (!IS_DRY_RUN && yarnInstall) {
-        console.log(chalk.grey(`==> yarn install --force`))
+        console.log(chalk.grey('==> yarn install --force'))
         try {
           cp.execSync('yarn install --force', {
             env: process.env,
@@ -44,9 +44,9 @@ function* amendFiles(yarnInstall: boolean) {
               fs.openSync('err.out', 'w') // Direct child's stderr to a file.
             ]
           })
-          console.log(chalk.green(`    success`))
+          console.log(chalk.green('    success'))
         } catch (err) {
-          console.error(chalk.red(`==> ERROR running yarn install (see err.out)`))
+          console.error(chalk.red('==> ERROR running yarn install (see err.out)'))
         }
       }
     }
@@ -57,7 +57,7 @@ function* amendFiles(yarnInstall: boolean) {
   if (count > 0) {
     console.log(chalk.green(`Changed ${chalk.bold(count.toString())} file${count === 1 ? '' : 's'} successfully`))
     if (IS_DRY_RUN) {
-      console.log(chalk.red.bold(`THIS WAS A DRY RUN, SO NO FILE WAS ACTUALLY CHANGED`))
+      console.log(chalk.red.bold('THIS WAS A DRY RUN, SO NO FILE WAS ACTUALLY CHANGED'))
       console.log(chalk.red(`Run this again with ${chalk.bold('--apply')} to execute the changes`))
     }
   } else {
@@ -76,7 +76,7 @@ for (const [content, file, save] of amendFiles(true)) {
   // fstream vulnerability CVE-2019-13173
   content.resolutions = Object.assign({}, content.resolutions, {
     fstream: '>=1.0.12',
-    lodash: '>=4.17.12'
+    lodash: '>=4.17.19'
   })
   save()
 }

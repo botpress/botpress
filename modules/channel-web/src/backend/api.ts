@@ -19,6 +19,15 @@ const ERR_CONV_ID_REQ = '`conversationId` is required and must be valid'
 const ERR_BAD_LANGUAGE = '`language` is required and must be valid'
 
 const USER_ID_MAX_LENGTH = 40
+const SUPPORTED_MESSAGES = [
+  'text',
+  'quick_reply',
+  'form',
+  'login_prompt',
+  'visit',
+  'request_start_conversation',
+  'postback'
+]
 
 export default async (bp: typeof sdk, db: Database) => {
   const asyncMiddleware = asyncMw(bp.logger)
@@ -30,7 +39,7 @@ export default async (bp: typeof sdk, db: Database) => {
       files: 1,
       fileSize: 5242880 // 5MB
     },
-    filename: function(req, file, cb) {
+    filename(req, file, cb) {
       const userId = _.get(req, 'params.userId') || 'anonymous'
       const ext = path.extname(file.originalname)
 
@@ -63,12 +72,12 @@ export default async (bp: typeof sdk, db: Database) => {
 
     const s3 = new aws.S3(awsConfig)
     const s3Storage = multers3({
-      s3: s3,
+      s3,
       bucket: globalConfig.uploadsS3Bucket || 'uploads',
       contentType: multers3.AUTO_CONTENT_TYPE,
       cacheControl: 'max-age=31536000', // one year caching
       acl: 'public-read',
-      key: function(req, file, cb) {
+      key(req, file, cb) {
         const userId = _.get(req, 'params.userId') || 'anonymous'
         const ext = path.extname(file.originalname)
 
@@ -105,7 +114,8 @@ export default async (bp: typeof sdk, db: Database) => {
         details: botInfo.details,
         languages: botInfo.languages,
         extraStylesheet: config.extraStylesheet,
-        security
+        security,
+        lazySocket: config.lazySocket
       })
     })
   )
@@ -127,11 +137,7 @@ export default async (bp: typeof sdk, db: Database) => {
       let { conversationId = undefined } = req.query || {}
       conversationId = conversationId && parseInt(conversationId)
 
-      if (
-        !['text', 'quick_reply', 'form', 'login_prompt', 'visit', 'request_start_conversation', 'postback'].includes(
-          payload.type
-        )
-      ) {
+      if (!SUPPORTED_MESSAGES.includes(payload.type)) {
         // TODO: Support files
         return res.status(400).send(ERR_MSG_TYPE)
       }
@@ -155,7 +161,15 @@ export default async (bp: typeof sdk, db: Database) => {
         conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
       }
 
-      await sendNewMessage(botId, userId, conversationId, payload, req.credentials, !!req.headers.authorization)
+      await sendNewMessage(
+        botId,
+        userId,
+        conversationId,
+        payload,
+        req.credentials,
+        !!req.headers.authorization,
+        user.result
+      )
 
       return res.sendStatus(200)
     })
@@ -245,7 +259,8 @@ export default async (bp: typeof sdk, db: Database) => {
     conversationId,
     payload,
     credentials: any,
-    useDebugger?: boolean
+    useDebugger?: boolean,
+    user?: sdk.User
   ) {
     const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
@@ -277,10 +292,10 @@ export default async (bp: typeof sdk, db: Database) => {
       event.debugger = true
     }
 
-    const message = await db.appendUserMessage(botId, userId, conversationId, sanitizedPayload, event.id)
-
+    const message = await db.appendUserMessage(botId, userId, conversationId, sanitizedPayload, event.id, user)
     bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
-    return bp.events.sendEvent(event)
+
+    await bp.events.sendEvent(event)
   }
 
   router.post(
@@ -289,8 +304,12 @@ export default async (bp: typeof sdk, db: Database) => {
     asyncMiddleware(async (req: BPRequest, res: Response) => {
       const payload = req.body || {}
       const { botId = undefined, userId = undefined } = req.params || {}
+      let { conversationId = undefined } = req.query || {}
       await bp.users.getOrCreateUser('web', userId, botId)
-      const conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
+
+      if (!conversationId) {
+        conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
+      }
 
       const event = bp.IO.Event({
         botId,
@@ -349,7 +368,7 @@ export default async (bp: typeof sdk, db: Database) => {
       await bp.users.getOrCreateUser('web', userId, botId)
 
       const payload = {
-        text: `Reset the conversation`,
+        text: 'Reset the conversation',
         type: 'session_reset'
       }
 
@@ -392,7 +411,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
       const payload = {
         text: message,
-        signature: signature,
+        signature,
         type: 'session_reference'
       }
 

@@ -20,6 +20,7 @@ const config = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js', '.css'],
     alias: {
+      '~': path.resolve(__dirname, './src'),
       common: path.resolve(__dirname, '../../../out/bp/common')
     }
   },
@@ -48,13 +49,18 @@ const config = {
               localIdentName: '[name]__[local]___[hash:base64:5]'
             }
           },
-          { loader: 'postcss-loader' },
+          {
+            loader: 'postcss-loader',
+            options: {
+              options: {}
+            }
+          },
           { loader: 'sass-loader' }
         ]
       },
       {
         test: /\.css$/,
-        exclude: /node_modules/,
+        exclude: /node_modules\/(?!@yaireo).*/,
         use: ['style-loader', 'css-loader']
       }
     ]
@@ -66,6 +72,18 @@ if (process.argv.find(x => x.toLowerCase() === '--analyze')) {
 }
 
 const compiler = webpack(config)
+
+compiler.hooks.done.tap('ExitCodePlugin', stats => {
+  const errors = stats.compilation.errors
+  if (errors && errors.length && process.argv.indexOf('--watch') === -1) {
+    for (const e of errors) {
+      console.error(e.message)
+    }
+    console.error('Webpack build failed')
+    process.exit(1)
+  }
+})
+
 const postProcess = (err, stats) => {
   if (err) {
     throw err

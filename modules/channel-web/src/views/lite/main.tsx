@@ -10,11 +10,13 @@ import constants from './core/constants'
 import BpSocket from './core/socket'
 import ChatIcon from './icons/Chat'
 import { RootStore, StoreDef } from './store'
-import { checkLocationOrigin, initializeAnalytics, trackMessage, trackWebchatState } from './utils'
+import { Config, Message } from './typings'
+import { checkLocationOrigin, initializeAnalytics, isIE, trackMessage, trackWebchatState } from './utils'
 
 const _values = obj => Object.keys(obj).map(x => obj[x])
 
 class Web extends React.Component<MainProps> {
+  private config: Config
   private socket: BpSocket
   private parentClass: string
   private hasBeenInitialized: boolean = false
@@ -30,7 +32,7 @@ class Web extends React.Component<MainProps> {
     initializeAnalytics()
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.props.store.setIntlProvider(this.props.intl)
     window.store = this.props.store
 
@@ -42,10 +44,9 @@ class Web extends React.Component<MainProps> {
       }
     })
 
-    // tslint:disable-next-line: no-floating-promises
-    this.initialize()
-    // tslint:disable-next-line: no-floating-promises
-    this.initializeIfChatDisplayed()
+    await this.initialize()
+    await this.initializeIfChatDisplayed()
+
     this.props.setLoadingCompleted()
   }
 
@@ -65,36 +66,36 @@ class Web extends React.Component<MainProps> {
 
     if (this.props.activeView === 'side' || this.props.isFullscreen) {
       this.hasBeenInitialized = true
-      await this.socket.waitForUserId()
+
+      if (this.isLazySocket()) {
+        await this.initializeSocket()
+      }
+
       await this.props.initializeChat()
     }
   }
 
   async initialize() {
-    const config = this.extractConfig()
+    this.config = this.extractConfig()
 
-    if (config.exposeStore) {
+    if (this.config.exposeStore) {
       window.parent['webchat_store'] = this.props.store
     }
 
-    this.socket = new BpSocket(this.props.bp, config)
-    this.socket.onMessage = this.handleNewMessage
-    this.socket.onTyping = this.props.updateTyping
-    this.socket.onData = this.handleDataMessage
-    this.socket.onUserIdChanged = this.props.setUserId
-    this.socket.setup()
+    this.config.overrides && this.loadOverrides(this.config.overrides)
 
-    config.overrides && this.loadOverrides(config.overrides)
-    config.userId && this.socket.changeUserId(config.userId)
-    config.containerWidth && window.parent.postMessage({ type: 'setWidth', value: config.containerWidth }, '*')
+    this.config.containerWidth &&
+      window.parent.postMessage({ type: 'setWidth', value: this.config.containerWidth }, '*')
 
-    await this.socket.waitForUserId()
+    this.config.reference && this.props.setReference()
 
-    config.reference && this.props.setReference()
+    await this.props.fetchBotInfo()
+
+    if (!this.isLazySocket()) {
+      await this.initializeSocket()
+    }
 
     this.setupObserver()
-    // tslint:disable-next-line: no-floating-promises
-    this.props.fetchBotInfo()
   }
 
   extractConfig() {
@@ -107,6 +108,18 @@ class Web extends React.Component<MainProps> {
     this.props.updateConfig(userConfig, this.props.bp)
 
     return userConfig
+  }
+
+  async initializeSocket() {
+    this.socket = new BpSocket(this.props.bp, this.config)
+    this.socket.onMessage = this.handleNewMessage
+    this.socket.onTyping = this.handleTyping
+    this.socket.onData = this.handleDataMessage
+    this.socket.onUserIdChanged = this.props.setUserId
+    this.socket.setup()
+
+    this.config.userId && this.socket.changeUserId(this.config.userId)
+    await this.socket.waitForUserId()
   }
 
   loadOverrides(overrides) {
@@ -176,6 +189,11 @@ class Web extends React.Component<MainProps> {
       return
     }
 
+    if (this.props.config.conversationId && Number(this.props.config.conversationId) !== Number(event.conversationId)) {
+      // don't do anything, it's a message from another conversation
+      return
+    }
+
     trackMessage('received')
     await this.props.addEventToConversation(event)
 
@@ -186,6 +204,15 @@ class Web extends React.Component<MainProps> {
     }
 
     this.handleResetUnreadCount()
+  }
+
+  handleTyping = async (event: Message) => {
+    if (this.props.config.conversationId && Number(this.props.config.conversationId) !== Number(event.conversationId)) {
+      // don't do anything, it's a message from another conversation
+      return
+    }
+
+    await this.props.updateTyping(event)
   }
 
   handleDataMessage = event => {
@@ -216,6 +243,13 @@ class Web extends React.Component<MainProps> {
     }, constants.MIN_TIME_BETWEEN_SOUNDS)
   }
 
+  isLazySocket() {
+    if (this.config.lazySocket !== undefined) {
+      return this.config.lazySocket
+    }
+    return this.props.botInfo?.lazySocket
+  }
+
   handleResetUnreadCount = () => {
     if (document.hasFocus?.() && this.props.activeView === 'side') {
       this.props.resetUnread()
@@ -230,7 +264,7 @@ class Web extends React.Component<MainProps> {
     return (
       <button
         className={classnames('bpw-widget-btn', 'bpw-floating-button', {
-          ['bpw-anim-' + this.props.widgetTransition || 'none']: true
+          [`bpw-anim-${this.props.widgetTransition}` || 'none']: true
         })}
         aria-label={this.props.intl.formatMessage({ id: 'widget.toggle' })}
         onClick={this.props.showChat.bind(this)}
@@ -246,7 +280,8 @@ class Web extends React.Component<MainProps> {
       return null
     }
 
-    const parentClass = classnames(`bp-widget-web bp-widget-${this.props.activeView}`, {
+    const emulatorClass = this.props.isEmulator ? ' emulator' : ''
+    const parentClass = classnames(`bp-widget-web bp-widget-${this.props.activeView}${emulatorClass}`, {
       'bp-widget-hidden': !this.props.showWidgetButton && this.props.displayWidgetView
     })
 
@@ -260,6 +295,7 @@ class Web extends React.Component<MainProps> {
     return (
       <div onFocus={this.handleResetUnreadCount}>
         {!!stylesheet?.length && <link rel="stylesheet" type="text/css" href={stylesheet} />}
+        {isIE && <link rel="stylesheet" type="text/css" href="assets/modules/channel-web/default_ie.css" />}
         {!!extraStylesheet?.length && <link rel="stylesheet" type="text/css" href={extraStylesheet} />}
         <h1 id="tchat-label" className="sr-only" tabIndex={-1}>
           {this.props.intl.formatMessage({
@@ -278,6 +314,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   config: store.config,
   sendData: store.sendData,
   initializeChat: store.initializeChat,
+  botInfo: store.botInfo,
   fetchBotInfo: store.fetchBotInfo,
   updateConfig: store.updateConfig,
   mergeConfig: store.mergeConfig,
@@ -286,6 +323,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   updateTyping: store.updateTyping,
   sendMessage: store.sendMessage,
   setReference: store.setReference,
+  isEmulator: store.isEmulator,
   updateBotUILanguage: store.updateBotUILanguage,
   isWebchatReady: store.view.isWebchatReady,
   showWidgetButton: store.view.showWidgetButton,
@@ -310,11 +348,13 @@ type MainProps = { store: RootStore } & Pick<
   | 'bp'
   | 'config'
   | 'initializeChat'
+  | 'botInfo'
   | 'fetchBotInfo'
   | 'sendMessage'
   | 'setUserId'
   | 'sendData'
   | 'intl'
+  | 'isEmulator'
   | 'updateTyping'
   | 'setReference'
   | 'updateBotUILanguage'

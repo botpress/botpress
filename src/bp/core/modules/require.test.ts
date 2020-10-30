@@ -43,7 +43,7 @@ describe('explodePath', () => {
 
 describe('requireAtPaths', () => {
   const fileContent = name => `module.exports = "${name}"`
-  const pkgJson = `{ "main": "src/main.js" }`
+  const pkgJson = '{ "main": "src/main.js" }'
   let base1: tmp.SynchrounousResult
 
   beforeEach(() => {

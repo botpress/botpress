@@ -9,7 +9,7 @@ const FullView = props => {
   const migrateBot = async () => {
     try {
       await props.bp.axios.post('/mod/ndu/migrate')
-      toastSuccess(`Bot migrated successfully ! Reloading...`)
+      toastSuccess('Bot migrated successfully ! Reloading...')
 
       window.location.reload()
     } catch (err) {

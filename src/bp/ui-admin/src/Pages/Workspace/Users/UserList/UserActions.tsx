@@ -110,7 +110,7 @@ const UserActions: FC<Props> = props => {
 
   const changeRole = async (newRoleId: string) => {
     try {
-      await api.getSecured().post(`/admin/users/workspace/update_role`, {
+      await api.getSecured().post('/admin/users/workspace/update_role', {
         ...props.user,
         role: newRoleId
       })

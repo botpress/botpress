@@ -2,6 +2,7 @@ import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
 
+import MoreOptions from '../../../../../../src/bp/ui-shared-lite/MoreOptions'
 import Close from '../icons/Close'
 import Download from '../icons/Download'
 import Information from '../icons/Information'
@@ -15,7 +16,8 @@ class Header extends React.Component<HeaderProps> {
   private btnEls: { [index: number]: HTMLElement } = {}
 
   state = {
-    currentFocusIdx: undefined
+    currentFocusIdx: undefined,
+    showingOption: false
   }
 
   componentDidMount() {
@@ -48,7 +50,7 @@ class Header extends React.Component<HeaderProps> {
       }
     }
 
-    if (idx == Object.keys(this.btnEls).length) {
+    if (idx === Object.keys(this.btnEls).length) {
       this.onBlur()
       this.props.focusNext()
     }
@@ -184,21 +186,63 @@ class Header extends React.Component<HeaderProps> {
       return
     }
 
-    if (e.key == 'ArrowUp') {
+    if (e.key === 'ArrowUp') {
       this.props.focusPrevious()
-    } else if (e.key == 'ArrowDown') {
+    } else if (e.key === 'ArrowDown') {
       this.props.focusNext()
-    } else if (e.key == 'ArrowLeft') {
+    } else if (e.key === 'ArrowLeft') {
       this.changeButtonFocus(-1)
-    } else if (e.key == 'ArrowRight') {
+    } else if (e.key === 'ArrowRight') {
       this.changeButtonFocus(1)
-    } else if (e.key == 'Enter') {
+    } else if (e.key === 'Enter') {
       e.preventDefault()
       action()
     }
   }
 
+  setShowingOption = val => {
+    this.setState({ showingOption: val })
+  }
+
   render() {
+    const optionsItems = []
+
+    if (this.props.showResetButton) {
+      optionsItems.push({
+        label: 'Reload',
+        action: this.props.resetSession
+      })
+    }
+    if (this.props.showDownloadButton) {
+      optionsItems.push({
+        label: 'Download Conversation',
+        action: this.props.downloadConversation
+      })
+    }
+
+    if (this.props.showConversationsButton) {
+      optionsItems.push({
+        label: 'Toggle List View',
+        action: this.props.toggleConversations
+      })
+    }
+
+    if (this.props.showBotInfoButton) {
+      optionsItems.push({
+        label: 'Toggle Bot Info',
+        action: this.props.toggleBotInfo
+      })
+    }
+
+    if (this.props.isEmulator) {
+      return (
+        <div className="bpw-emulator-header">
+          <span className="bpw-emulator-header-tab">Emulator</span>
+          <MoreOptions show={this.state.showingOption} onToggle={this.setShowingOption} items={optionsItems} />
+        </div>
+      )
+    }
+
     return (
       <div className={'bpw-header-container'}>
         <div className={'bpw-header-title-flexbox'}>
@@ -241,7 +285,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   botName: store.botName,
   botAvatarUrl: store.botAvatarUrl,
   hasBotInfoDescription: store.hasBotInfoDescription,
-
+  isEmulator: store.isEmulator,
   botConvoDescription: store.config.botConvoDescription,
   enableArrowNavigation: store.config.enableArrowNavigation
 }))(observer(Header))
@@ -255,6 +299,7 @@ type HeaderProps = Pick<
   | 'focusedArea'
   | 'isConversationsDisplayed'
   | 'botName'
+  | 'isEmulator'
   | 'hasUnreadMessages'
   | 'unreadCount'
   | 'hasBotInfoDescription'

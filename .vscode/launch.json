@@ -3,7 +3,7 @@
   "configurations": [
     {
       "type": "node",
-      "runtimeVersion": "10.11.0",
+      "runtimeVersion": "12.13.0",
       "request": "launch",
       "name": "Debug App",
       "program": "${workspaceFolder}/out/bp/index.js",
@@ -18,10 +18,36 @@
       },
       "smartStep": true,
       "outFiles": [
-        "${workspaceFolder}/out",
-        "${workspaceFolder}/modules/*/dist",
-        "${workspaceFolder}/private-modules/*/dist",
-        "!${workspaceFolder}/**/node_modules"
+        "${workspaceFolder}/out/**/*.js",
+        "${workspaceFolder}/modules/**/dist/**/*.js",
+        "${workspaceFolder}/private-modules/**/dist/**/*.js",
+        "!${workspaceFolder}/**/node_modules/**/*.js"
+      ],
+      "console": "integratedTerminal",
+      "sourceMaps": true,
+      "autoAttachChildProcesses": true
+    },
+    {
+      "type": "node",
+      "runtimeVersion": "12.13.0",
+      "request": "launch",
+      "name": "Debug NLU Server",
+      "program": "${workspaceFolder}/out/bp/index.js",
+      "cwd": "${workspaceFolder}",
+      "args": ["nlu", "--config=${workspaceFolder}/out/bp/data/global/config/nlu.json"],
+      "protocol": "auto",
+      "env": {
+        "BP_MODULES_PATH": "${workspaceFolder}/modules:${workspaceFolder}/internal-modules",
+        "NODE_PATH": "${workspaceFolder}/out/bp",
+        "DEBUG": "bp:none",
+        "BLUEBIRD_DEBUG": "1"
+      },
+      "smartStep": true,
+      "outFiles": [
+        "${workspaceFolder}/out/**/*.js",
+        "${workspaceFolder}/modules/**/dist/**/*.js",
+        "${workspaceFolder}/private-modules/**/dist/**/*.js",
+        "!${workspaceFolder}/**/node_modules/**/*.js"
       ],
       "console": "integratedTerminal",
       "sourceMaps": true,
@@ -49,7 +75,6 @@
           "-c=${workspaceFolder}/jest.config.js"
         ]
       },
-      "outFiles": ["${workspaceFolder}/out/"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "sourceMaps": true,

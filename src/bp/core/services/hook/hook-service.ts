@@ -159,7 +159,7 @@ export class HookService {
 
   private _listenForCacheInvalidation() {
     this.cache.events.on('invalidation', key => {
-      if (key.toLowerCase().indexOf(`/hooks/`) > -1) {
+      if (key.toLowerCase().indexOf('/hooks/') > -1) {
         // clear the cache if there's any file that has changed in the `hooks` folder
         this._scriptsCache.clear()
         this._invalidateDebounce()

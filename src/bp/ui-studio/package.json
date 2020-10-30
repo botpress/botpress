@@ -27,7 +27,7 @@
   "resolutions": {
     "socket.io/**/debug": "^3.2.6",
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.12"
+    "lodash": ">=4.17.19"
   },
   "dependencies": {
     "@blueprintjs/core": "^3.23.1",
@@ -121,7 +121,7 @@
     "hard-source-webpack-plugin": "git+https://github.com/botpress/hard-source-webpack-plugin.git",
     "html-webpack-plugin": "^3.2.0",
     "immutable": "^4.0.0-rc.12",
-    "node-sass": "^4.8.3",
+    "node-sass": "^4.14.1",
     "postcss-loader": "^2.0.8",
     "raw-loader": "^1.0.0",
     "sass-loader": "^6.0.6",
