@@ -69,7 +69,7 @@ export async function setupMiddleware(bp: typeof sdk, clients: Clients) {
     const chatId = event.threadId || event.target
 
     if (!_.includes(outgoingTypes, messageType)) {
-      return next(new Error('Unsupported event type: ' + event.type))
+      return next(new Error(`Unsupported event type: ${event.type}`))
     }
 
     if (messageType === 'typing') {
@@ -108,7 +108,7 @@ async function sendCarousel(event: sdk.IO.Event, client: Telegraf<ContextMessage
 
 async function sendTextMessage(event: sdk.IO.Event, client: Telegraf<ContextMessageUpdate>, chatId: string) {
   const keyboard = Markup.keyboard(keyboardButtons<Button>(event.payload.quick_replies))
-  if (event.payload.markdown != false) {
+  if (event.payload.markdown !== false) {
     // Attempt at sending with markdown first, fallback to regular text on failure
     await client.telegram
       .sendMessage(chatId, event.preview, Extra.markdown(true).markup({ ...keyboard, one_time_keyboard: true }))
