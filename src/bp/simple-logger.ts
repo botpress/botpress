@@ -26,7 +26,7 @@ export default class Logger implements sdk.Logger {
   public readonly displayLevel: number
   private currentMessageLevel: LogLevel | undefined
 
-  constructor(private name: string) {
+  constructor(private name: string, private silent = false) {
     this.displayLevel = process.VERBOSITY_LEVEL || 0
   }
 
@@ -85,9 +85,10 @@ export default class Logger implements sdk.Logger {
     }
 
     if (this.displayLevel >= this.currentMessageLevel!) {
-      console.log(
-        chalk`{grey ${time}} {${this.colors[level]}.bold ${displayName}} ${indentedMessage}${serializedMetadata}`
-      )
+      !this.silent &&
+        console.log(
+          chalk`{grey ${time}} {${this.colors[level]}.bold ${displayName}} ${indentedMessage}${serializedMetadata}`
+        )
     }
 
     this.currentMessageLevel = undefined

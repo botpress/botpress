@@ -365,6 +365,11 @@ try {
         batchSize: {
           description: 'Allowed number of text inputs in one call to POST /predict.',
           default: -1
+        },
+        silent: {
+          description: 'Do not log in console after server is launched',
+          default: false,
+          type: 'boolean'
         }
       },
       argv => {

@@ -27,6 +27,7 @@ export interface APIOptions {
   limit: number
   bodySize: string
   batchSize: number
+  silent: boolean
 }
 
 const debug = DEBUG('api')
@@ -71,7 +72,7 @@ const createExpressApp = (options: APIOptions): Application => {
 
 export default async function(options: APIOptions, nluVersion: string) {
   const app = createExpressApp(options)
-  const logger = new Logger('API')
+  const logger = new Logger('API', options.silent)
   const loggerWrapper = makeLoggerWrapper(logger)
 
   const engine = new Engine('nlu-server', loggerWrapper)
