@@ -10,8 +10,8 @@ import rewire from '../sdk/rewire'
 // tslint:disable-next-line:ordered-imports
 
 global.rewire = rewire as any
+import Logger from '../simple-logger'
 import API, { APIOptions } from './api'
-import { LangServerLogger } from './logger'
 import LanguageService from './service'
 import DownloadManager from './service/download-manager'
 
@@ -34,7 +34,7 @@ export interface ArgV {
 export default async function(options: ArgV) {
   options.langDir = options.langDir || path.join(process.APP_DATA_PATH, 'embeddings')
 
-  const logger = new LangServerLogger('Launcher')
+  const logger = new Logger('Launcher')
 
   global.printLog = args => {
     const message = args[0]
@@ -48,7 +48,10 @@ export default async function(options: ArgV) {
   const langService = new LanguageService(options.dim, options.domain, options.langDir)
   const downloadManager = new DownloadManager(options.dim, options.domain, options.langDir, options.metadataLocation)
 
+  const version = '1.1.0' // TODO: declare this elsewhere
+
   const apiOptions: APIOptions = {
+    version,
     host: options.host,
     port: options.port,
     authToken: options.authToken,
@@ -58,7 +61,8 @@ export default async function(options: ArgV) {
   }
 
   logger.info(chalk`========================================
-{bold ${center(`Botpress Language Server`, 40, 9)}}
+{bold ${center('Botpress Language Server', 40, 9)}}
+{dim ${center(`Version ${version}`, 40, 9)}}
 {dim ${center(`OS ${process.distro}`, 40, 9)}}
 ${_.repeat(' ', 9)}========================================`)
 

@@ -64,7 +64,7 @@ const tipPosition = (positionClasses, el) => {
   return { left, right }
 }
 
-const ToolTip: FC<ToolTipProps> = ({ children, content, position = 'top', hoverOpenDelay }) => {
+const ToolTip: FC<ToolTipProps> = ({ childId, children, content, position = 'top', hoverOpenDelay }) => {
   if (!content) {
     return children
   }
@@ -193,7 +193,7 @@ const ToolTip: FC<ToolTipProps> = ({ children, content, position = 'top', hoverO
   }
 
   const mouseMove = e => {
-    if (!e.target?.closest(`#${id.current}-trigger`)) {
+    if (!e.target?.closest(`#${childId || `${id.current}-trigger`}`)) {
       hide()
     }
   }
@@ -235,7 +235,7 @@ const ToolTip: FC<ToolTipProps> = ({ children, content, position = 'top', hoverO
   }
 
   return cloneElement(Children.only(children), {
-    id: `${id.current}-trigger`,
+    id: childId || `${id.current}-trigger`,
     onMouseEnter: show,
     onMouseLeave: hide
   })
