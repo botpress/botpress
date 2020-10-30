@@ -25,7 +25,7 @@ const types = {
   content: 'Changes to Content Files (*.json)'
 }
 /**
- * Use a combination of these environment variables to easily test migrations.à
+ * Use a combination of these environment variables to easily test migrations.
  * TESTMIG_ALL: Runs every migration since 12.0.0
  * TESTMIG_NEW: Runs new migrations after package.json version
  * TESTMIG_BP_VERSION: Change the target version of your migration

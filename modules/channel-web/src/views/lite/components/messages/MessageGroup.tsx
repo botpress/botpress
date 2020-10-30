@@ -1,4 +1,5 @@
 import classnames from 'classnames'
+import sortBy from 'lodash/sortBy'
 import { inject } from 'mobx-react'
 import React from 'react'
 
@@ -51,6 +52,8 @@ class MessageGroup extends React.Component<Props> {
   }
 
   render() {
+    const { messages, avatar, isBot, showUserName, userName } = this.props
+
     const fromLabel = this.props.store.intl.formatMessage({
       id: this.props.isBot ? 'message.fromBotLabel' : 'message.fromMeLabel',
       defaultMessage: 'Me'
@@ -64,37 +67,35 @@ class MessageGroup extends React.Component<Props> {
       <div
         role="main"
         className={classnames('bpw-message-big-container', {
-          'bpw-from-user': !this.props.isBot,
-          'bpw-from-bot': this.props.isBot
+          'bpw-from-user': !isBot,
+          'bpw-from-bot': isBot
         })}
       >
-        {this.props.avatar}
+        {avatar}
         <div role="region" className={'bpw-message-container'}>
-          {this.props.showUserName && <div className={'bpw-message-username'}>{this.props.userName}</div>}
+          {showUserName && <div className={'bpw-message-username'}>{userName}</div>}
           <div aria-live="assertive" role="log" className={'bpw-message-group'}>
             <span data-from={fromLabel} className="from hidden" aria-hidden="true">
               {fromLabel}
             </span>
-            {this.props.messages.map((data, i) => {
-              const isLastMsg = i == this.props.messages.length - 1
-              const payload = this.convertPayloadFromOldFormat(data)
+            {sortBy(messages, 'eventId').map((message, i, messages) => {
+              const isLastMsg = i === messages.length - 1
+              const payload = this.convertPayloadFromOldFormat(message)
 
               const showInlineFeedback =
-                this.props.isBot &&
-                isLastMsg &&
-                (payload.wrapped ? payload.wrapped.collectFeedback : payload.collectFeedback)
+                isBot && isLastMsg && (payload.wrapped ? payload.wrapped.collectFeedback : payload.collectFeedback)
 
               return (
                 <Message
-                  key={`msg-${i}`}
+                  key={message.id}
                   isHighlighted={
-                    this.props.highlightedMessages && this.props.highlightedMessages.includes(data.incomingEventId)
+                    this.props.highlightedMessages && this.props.highlightedMessages.includes(message.incomingEventId)
                   }
                   inlineFeedback={
                     showInlineFeedback && (
                       <InlineFeedback
                         intl={this.props.store.intl}
-                        incomingEventId={data.incomingEventId}
+                        incomingEventId={message.incomingEventId}
                         onFeedback={this.props.onFeedback}
                         eventFeedbacks={this.props.store.eventFeedbacks}
                       />
@@ -103,10 +104,10 @@ class MessageGroup extends React.Component<Props> {
                   fromLabel={fromLabel}
                   isLastOfGroup={i >= this.props.messages.length - 1}
                   isLastGroup={this.props.isLastGroup}
-                  isBotMessage={!data.userId}
-                  incomingEventId={data.incomingEventId}
+                  isBotMessage={!message.userId}
+                  incomingEventId={message.incomingEventId}
                   payload={payload}
-                  sentOn={data.sent_on}
+                  sentOn={message.sent_on}
                   onSendData={this.props.onSendData}
                   onFileUpload={this.props.onFileUpload}
                   bp={this.props.bp}

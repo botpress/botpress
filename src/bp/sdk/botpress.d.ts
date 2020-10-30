@@ -667,7 +667,6 @@ declare module 'botpress/sdk' {
      * These are the arguments required when creating a new {@link Event}
      */
     interface EventCtorArgs {
-      id?: string
       type: string
       channel: string
       target: string

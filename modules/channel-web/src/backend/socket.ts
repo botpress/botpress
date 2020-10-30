@@ -55,7 +55,8 @@ export default async (bp: typeof sdk, db: Database) => {
         (event.payload || {}).botAvatarUrl || botAvatarUrl,
         conversationId,
         event.payload,
-        event.incomingEventId
+        event.incomingEventId,
+        event.id
       )
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(userId, 'webchat.message', message))
     } else {
