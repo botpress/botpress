@@ -90,7 +90,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
   const router = bp.http.createRouterForBot('channel-web', { checkAuthentication: false, enableJsonBodyParser: true })
   const perBotCache = apicache.options({
-    appendKey: req => req.method + ' for bot ' + req.params && req.params.botId,
+    appendKey: req => `${req.method} for bot ${req.params?.boId}`,
     statusCodes: { include: [200] }
   }).middleware
 
@@ -266,7 +266,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
     if (
       (!payload.text || !_.isString(payload.text) || payload.text.length > config.maxMessageLength) &&
-      payload.type != 'postback'
+      payload.type !== 'postback'
     ) {
       throw new Error(`Text must be a valid string of less than ${config.maxMessageLength} chars`)
     }
@@ -382,6 +382,9 @@ export default async (bp: typeof sdk, db: Database) => {
 
   router.post('/conversations/:userId/new', async (req: BPRequest, res: Response) => {
     const { userId, botId } = req.params
+    if (!userId) {
+      return res.status(400).send({ message: 'Invalid user ID' })
+    }
     const convoId = await db.createConversation(botId, userId)
     res.send({ convoId })
   })
@@ -397,7 +400,7 @@ export default async (bp: typeof sdk, db: Database) => {
         throw new Error('Invalid reference')
       }
 
-      if (!conversationId || conversationId == 'null') {
+      if (!conversationId || conversationId === 'null') {
         conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
       }
 

@@ -106,6 +106,7 @@ export class DiagramManager {
         isHighlighted: this.shouldHighlightNode(node)
       })
     })
+    this.activeModel.addListener({ zoomUpdated: e => this.storeDispatch.zoomToLevel?.(Math.floor(e.zoom)) })
 
     this.activeModel.addAll(...nodes)
     nodes.forEach(node => this._createNodeLinks(node, nodes, this.currentFlow.links))
