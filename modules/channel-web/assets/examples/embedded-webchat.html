@@ -141,16 +141,19 @@
 
       let secondInit = false
       const secondChatId = 'second'
-      function delayedToggle() {
+      function toggleChat2() {
         window.setTimeout(function() {
           window.window.botpressWebChat.sendEvent({ type: 'toggle' }, secondChatId)
-        }, 200)
+        }, 100)
       }
       document.getElementById('show-second-bp').addEventListener('click', function() {
         if (!secondInit) {
           const config = {
             host: window.location.origin || 'http://localhost:3000',
             botId: botId,
+            userId: Math.random()
+              .toString()
+              .slice(-4),
             showConversationsButton: false,
             botName: 'Chat window #2',
             className: 'chat2',
@@ -165,7 +168,7 @@
           window.botpressWebChat.init(config, '#chat2')
           secondInit = true
         } else {
-          delayedToggle()
+          toggleChat2()
         }
       })
 
@@ -187,12 +190,10 @@
             document.getElementById('toggle-bp').style.backgroundColor = 'green'
           }
         } else if (message.data.chatId === secondChatId) {
+          // chat 2
           // all that fuss to make sure we don't display the same conversation
           if (message.data.name === 'webchatLoaded') {
-            window[secondChatId]['webchat_store'].createConversation().then(function(conversationId) {
-              window[secondChatId]['webchat_store'].mergeConfig({ conversationId: conversationId })
-              delayedToggle()
-            })
+            toggleChat2()
           }
         }
       })

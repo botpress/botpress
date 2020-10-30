@@ -158,14 +158,6 @@ class Web extends React.Component<MainProps> {
         this.postMessageToParent('setWidth', data.newValue)
       }
     })
-
-    // observe(this.props.config, 'conversationId', data => {
-    //   if (!data.oldValue || data.oldValue === data.newValue) {
-    //     return
-    //   }
-
-    //   // this.props.store.fetchConversation()
-    // })
   }
 
   handleIframeApi = async ({ data: { action, payload } }) => {
