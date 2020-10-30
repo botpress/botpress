@@ -33,7 +33,7 @@ export default class Debug extends React.Component<Props, State> {
   }
 
   loadConfiguration = async () => {
-    const { data } = await api.getSecured().get(`/admin/server/debug`)
+    const { data } = await api.getSecured().get('/admin/server/debug')
     const rootNode = { label: 'bp', children: [], expandDisabled: true }
 
     for (const element of Object.keys(data).sort()) {
@@ -57,7 +57,7 @@ export default class Debug extends React.Component<Props, State> {
 
   saveConfiguration = async () => {
     const debugScope = this.state.checked && this.state.checked.join(',')
-    await api.getSecured().post(`/admin/server/debug`, { debugScope, persist: this.state.persist })
+    await api.getSecured().post('/admin/server/debug', { debugScope, persist: this.state.persist })
 
     toastSuccess(lang.tr('admin.debug.confUpdated'))
   }

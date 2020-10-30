@@ -244,7 +244,7 @@ const printConfig = async () => {
 }
 
 const printBotsList = async () => {
-  const workspaces = await Ghost.global().readFileAsObject<Workspace[]>('/', `workspaces.json`)
+  const workspaces = await Ghost.global().readFileAsObject<Workspace[]>('/', 'workspaces.json')
   const botIds = (await Ghost.bots().directoryListing('/', 'bot.config.json')).map(path.dirname)
 
   await Promise.mapSeries(botIds, async botId => {

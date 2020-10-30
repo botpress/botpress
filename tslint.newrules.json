@@ -2,10 +2,7 @@
   "defaultSeverity": "error",
   "extends": "./tslint.json",
   "rules": {
-    "object-literal-shorthand": true,
-    "interface-over-type-literal": true,
     "prefer-template": true,
-    "quotemark": [true, "single", "jsx-double", "avoid-escape", "avoid-template"],
     "no-console": { "severity": "warning", "options": ["log"] },
     "no-return-await": true,
     "triple-equals": [true, "allow-null-check", "allow-undefined-check"],

@@ -41,7 +41,7 @@ const DownloadLinks: FC<{ version: string; dockerUrl: string }> = props => {
       <br />
       Docker Image
       <hr />
-      <a href={props.dockerUrl || `https://hub.docker.com/r/botpress/server`} target="_blank">
+      <a href={props.dockerUrl || 'https://hub.docker.com/r/botpress/server'} target="_blank">
         <code>botpress/server:{version}</code>
       </a>
     </div>

@@ -1,3 +1,5 @@
 import { SlackClient } from './client'
 
-export type Clients = { [key: string]: SlackClient }
+export interface Clients {
+  [key: string]: SlackClient
+}

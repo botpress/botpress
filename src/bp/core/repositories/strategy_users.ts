@@ -46,7 +46,7 @@ export class StrategyUsersRepository {
     await this.database
       .knex(this._getTableName(strategy))
       .where({ strategy })
-      .andWhere(this.database.knex.raw(`LOWER(email) = ?`, [email.toLowerCase()]))
+      .andWhere(this.database.knex.raw('LOWER(email) = ?', [email.toLowerCase()]))
       .update(updated)
   }
 
@@ -54,7 +54,7 @@ export class StrategyUsersRepository {
     return this.database
       .knex(this._getTableName(strategy))
       .where({ strategy })
-      .andWhere(this.database.knex.raw(`LOWER(email) = ?`, [email.toLowerCase()]))
+      .andWhere(this.database.knex.raw('LOWER(email) = ?', [email.toLowerCase()]))
       .del()
   }
 
@@ -62,7 +62,7 @@ export class StrategyUsersRepository {
     const user = await this.database
       .knex(this._getTableName(strategy))
       .where({ strategy })
-      .andWhere(this.database.knex.raw(`LOWER(email) = ?`, [email.toLowerCase()]))
+      .andWhere(this.database.knex.raw('LOWER(email) = ?', [email.toLowerCase()]))
       .limit(1)
       .select('attributes')
       .first()
@@ -99,7 +99,7 @@ export class StrategyUsersRepository {
     return this.database
       .knex(this._getTableName(strategy))
       .where({ strategy })
-      .andWhere(this.database.knex.raw(`LOWER(email) = ?`, [email.toLowerCase()]))
+      .andWhere(this.database.knex.raw('LOWER(email) = ?', [email.toLowerCase()]))
       .update({ attributes: this.database.knex.json.set({ ...originalAttributes, ...attributes }) })
   }
 
@@ -112,7 +112,7 @@ export class StrategyUsersRepository {
       .knex(this._getTableName(strategy))
       .select('*')
       .where({ strategy })
-      .andWhere(this.database.knex.raw(`LOWER(email) = ?`, [email.toLowerCase()]))
+      .andWhere(this.database.knex.raw('LOWER(email) = ?', [email.toLowerCase()]))
       .limit(1)
       .first()
       .then(res => {

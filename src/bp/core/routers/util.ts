@@ -169,7 +169,7 @@ export const assertSuperAdmin = (req: Request, res: Response, next: Function) =>
 
 export const assertWorkspace = async (req: RequestWithUser, _res: Response, next: NextFunction) => {
   if (!req.workspace) {
-    return next(new InvalidOperationError(`Workspace is missing. Set header X-BP-Workspace`))
+    return next(new InvalidOperationError('Workspace is missing. Set header X-BP-Workspace'))
   }
   next()
 }
@@ -251,7 +251,7 @@ const checkPermissions = (workspaceService: WorkspaceService) => (
 
   if (!req.tokenUser) {
     audit(debugFailure, { email: 'n/a', reason: 'unauthenticated' })
-    return new ForbiddenError(`Unauthorized`)
+    return new ForbiddenError('Unauthorized')
   }
 
   if (!req.workspace && req.params.botId) {
@@ -259,7 +259,7 @@ const checkPermissions = (workspaceService: WorkspaceService) => (
   }
 
   if (!req.workspace) {
-    throw new InvalidOperationError(`Workspace is missing. Set header X-BP-Workspace`)
+    throw new InvalidOperationError('Workspace is missing. Set header X-BP-Workspace')
   }
 
   const { email, strategy, isSuperAdmin } = req.tokenUser
@@ -272,7 +272,7 @@ const checkPermissions = (workspaceService: WorkspaceService) => (
 
   if (!email || !strategy) {
     audit(debugFailure, { reason: 'missing auth parameter' })
-    return new NotFoundError(`Missing one of the required parameters: email or strategy`)
+    return new NotFoundError('Missing one of the required parameters: email or strategy')
   }
 
   const user = await workspaceService.findUser(email, strategy, req.workspace)

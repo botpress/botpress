@@ -76,7 +76,7 @@ export class StateManager {
           return
         }
       } catch (err) {
-        this.logger.attachError(err).error(`Error reading user state from Redis`)
+        this.logger.attachError(err).error('Error reading user state from Redis')
       }
     }
 
