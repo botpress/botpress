@@ -10,7 +10,7 @@ const migration: Migration = {
   up: async ({ configProvider }: MigrationOpts): Promise<sdk.MigrationResult> => {
     const config = await configProvider.getBotpressConfig()
     if (config.actionServers) {
-      return { success: true, message: `Action Servers configuration already exists, skipping...` }
+      return { success: true, message: 'Action Servers configuration already exists, skipping...' }
     }
 
     await configProvider.mergeBotpressConfig({

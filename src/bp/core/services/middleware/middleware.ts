@@ -2,7 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import ms from 'ms'
 
-type MiddlewareChainOptions = {
+interface MiddlewareChainOptions {
   timeoutInMs: number
 }
 

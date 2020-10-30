@@ -11,9 +11,9 @@ const migration: Migration = {
   },
   up: async ({ inversify }: MigrationOpts): Promise<sdk.MigrationResult> => {
     const ghost = inversify.get<GhostService>(TYPES.GhostService)
-    const workspaces: any = await ghost.global().readFileAsObject('/', `workspaces.json`)
+    const workspaces: any = await ghost.global().readFileAsObject('/', 'workspaces.json')
     if (workspaces.length > 1) {
-      return { success: false, message: `More than one workspace exist in the file, data would be lost.` }
+      return { success: false, message: 'More than one workspace exist in the file, data would be lost.' }
     }
 
     const newWorkspace = [

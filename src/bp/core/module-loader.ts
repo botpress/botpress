@@ -427,7 +427,7 @@ export class ModuleLoader {
       const resolver = new ModuleResolver(this.logger)
       return await extractModuleInfo({ location: tmpFolder, enabled: false }, resolver)
     } catch (err) {
-      this.logger.attachError(err).warn(`Invalid module archive`)
+      this.logger.attachError(err).warn('Invalid module archive')
     } finally {
       tmpDir.removeCallback()
     }

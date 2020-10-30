@@ -20,10 +20,10 @@ export default async (bp: typeof sdk, db: Database) => {
           content: row.text,
           outboxed: db.knex.bool.parse(row.outboxed),
           errored: db.knex.bool.parse(row.errored),
-          progress: progress,
+          progress,
           userTimezone: !row.ts,
-          date: date,
-          time: time,
+          date,
+          time,
           id: row.id,
           filteringConditions: row.filters && JSON.parse(row.filters)
         }

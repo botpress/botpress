@@ -65,7 +65,7 @@ export class BotsRouter extends CustomRouter {
         const isBotAdmin = await this.hasPermissions(req, 'read', this.resource)
         const isChatUser = await this.hasPermissions(req, 'read', 'user.bots')
         if (!isBotAdmin && !isChatUser) {
-          throw new ForbiddenError(`No permission to view bots`)
+          throw new ForbiddenError('No permission to view bots')
         }
 
         const workspace = await this.workspaceService.findWorkspace(req.workspace!)

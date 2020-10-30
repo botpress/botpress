@@ -2,7 +2,7 @@ import * as sdk from 'botpress/sdk'
 
 const migration: sdk.ModuleMigration = {
   info: {
-    description: `Adds incomingEventId to the table web_messages`,
+    description: 'Adds incomingEventId to the table web_messages',
     type: 'database'
   },
   up: async ({ bp }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {

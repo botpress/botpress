@@ -4,7 +4,7 @@ import _ from 'lodash'
 export default {
   id: 'user_intent_is',
   label: 'User asks something (intent)',
-  description: `The user's intention is {intentName}`,
+  description: "The user's intention is {intentName}",
   callback: '/mod/nlu/condition/intentChanged',
   displayOrder: 0,
   params: {

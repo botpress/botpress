@@ -26,7 +26,7 @@ export const HOOK_SIGNATURES = {
   bot: sdk.BotConfig,
   users: Partial<sdk.StrategyUser[]>,
   pipeline: sdk.Pipeline)`,
-  on_bot_error: `function hook(bp: typeof sdk, botId: string, events: sdk.LoggerEntry[])`
+  on_bot_error: 'function hook(bp: typeof sdk, botId: string, events: sdk.LoggerEntry[])'
 }
 
 export const BOT_SCOPED_HOOKS = [
