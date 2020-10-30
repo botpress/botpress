@@ -356,11 +356,11 @@ export default class HitlDb {
     if (this.knex.isLite) {
       query.orWhere('attr_fullName', 'like', `%${searchTerm}%`)
       query.select(
-        this.knex.raw(`hitl_sessions.id, json_extract(srv_channel_users.attributes, '$.full_name') as attr_fullName`)
+        this.knex.raw("hitl_sessions.id, json_extract(srv_channel_users.attributes, '$.full_name') as attr_fullName")
       )
     } else {
       query.orWhereRaw(`srv_channel_users.attributes ->>'full_name' like '%${searchTerm}%'`)
-      query.select(this.knex.raw(`hitl_sessions.id`))
+      query.select(this.knex.raw('hitl_sessions.id'))
     }
 
     return query

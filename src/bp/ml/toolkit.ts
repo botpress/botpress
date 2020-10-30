@@ -6,8 +6,6 @@ import nanoid from 'nanoid'
 
 import { Tagger, Trainer as CRFTrainer } from './crf'
 import { FastTextModel } from './fasttext'
-import computeJaroWinklerDistance from './homebrew/jaro-winkler'
-import computeLevenshteinDistance from './homebrew/levenshtein'
 import { MLThreadPool } from './ml-thread-pool'
 import { processor } from './sentencepiece'
 import { Predictor, Trainer as SVMTrainer } from './svm'
@@ -25,7 +23,6 @@ const MLToolkit: typeof sdk.MLToolkit = {
     Trainer: SVMTrainer
   },
   FastText: { Model: FastTextModel },
-  Strings: { computeLevenshteinDistance, computeJaroWinklerDistance },
   SentencePiece: { createProcessor: processor }
 }
 

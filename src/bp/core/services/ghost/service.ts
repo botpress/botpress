@@ -23,7 +23,7 @@ import { FileRevision, PendingRevisions, ReplaceContent, ServerWidePendingRevisi
 import DBStorageDriver from './db-driver'
 import DiskStorageDriver from './disk-driver'
 
-export type BpfsScopedChange = {
+export interface BpfsScopedChange {
   // An undefined bot ID = global
   botId: string | undefined
   // The list of local files which will overwrite their remote counterpart
@@ -85,7 +85,7 @@ export class GhostService {
 
   // Not caching this scope since it's rarely used
   root(useDbDriver?: boolean): ScopedGhostService {
-    return new ScopedGhostService(`./data`, this.diskDriver, this.dbDriver, useDbDriver ?? this.useDbDriver, this.cache)
+    return new ScopedGhostService('./data', this.diskDriver, this.dbDriver, useDbDriver ?? this.useDbDriver, this.cache)
   }
 
   global(): ScopedGhostService {
@@ -94,7 +94,7 @@ export class GhostService {
     }
 
     const scopedGhost = new ScopedGhostService(
-      `./data/global`,
+      './data/global',
       this.diskDriver,
       this.dbDriver,
       this.useDbDriver,
@@ -233,7 +233,7 @@ export class GhostService {
     }
 
     const scopedGhost = new ScopedGhostService(
-      `./data/bots`,
+      './data/bots',
       this.diskDriver,
       this.dbDriver,
       this.useDbDriver,
@@ -351,7 +351,7 @@ export class ScopedGhostService {
     }
   ) {
     if (![-1, this.baseDir.length - 1].includes(this.baseDir.indexOf('*'))) {
-      throw new Error(`Base directory can only contain '*' at the end of the path`)
+      throw new Error("Base directory can only contain '*' at the end of the path")
     }
 
     this.isDirectoryGlob = this.baseDir.endsWith('*')
@@ -370,7 +370,7 @@ export class ScopedGhostService {
     if (await this.fileExists('/', 'bot.config.json')) {
       const config = await this.readFileAsObject<BotConfig>('/', 'bot.config.json')
       if (config.locked) {
-        throw new Error(`Bot locked`)
+        throw new Error('Bot locked')
       }
     }
   }
@@ -427,7 +427,7 @@ export class ScopedGhostService {
     }
 
     if (this.isDirectoryGlob) {
-      throw new Error(`Ghost can't read or write under this scope`)
+      throw new Error("Ghost can't read or write under this scope")
     }
 
     const fileName = this._normalizeFileName(rootFolder, file)
@@ -549,7 +549,7 @@ export class ScopedGhostService {
 
   async readFileAsBuffer(rootFolder: string, file: string): Promise<Buffer> {
     if (this.isDirectoryGlob) {
-      throw new Error(`Ghost can't read or write under this scope`)
+      throw new Error("Ghost can't read or write under this scope")
     }
 
     const fileName = this._normalizeFileName(rootFolder, file)
@@ -609,7 +609,7 @@ export class ScopedGhostService {
   async deleteFile(rootFolder: string, file: string): Promise<void> {
     await this._assertBotUnlocked(rootFolder, file)
     if (this.isDirectoryGlob) {
-      throw new Error(`Ghost can't read or write under this scope`)
+      throw new Error("Ghost can't read or write under this scope")
     }
 
     const fileName = this._normalizeFileName(rootFolder, file)
@@ -642,7 +642,7 @@ export class ScopedGhostService {
   async deleteFolder(folder: string): Promise<void> {
     await this._assertBotUnlocked(folder)
     if (this.isDirectoryGlob) {
-      throw new Error(`Ghost can't read or write under this scope`)
+      throw new Error("Ghost can't read or write under this scope")
     }
 
     const folderName = this._normalizeFolderName(folder)

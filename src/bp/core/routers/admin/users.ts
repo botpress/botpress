@@ -81,7 +81,7 @@ export class UsersRouter extends CustomRouter {
 
         const existingUser = await this.authService.findUser(req.body.email, strategy)
         if (!existingUser) {
-          throw new InvalidOperationError(`User doesn't exist`)
+          throw new InvalidOperationError("User doesn't exist")
         }
 
         const email = existingUser.email

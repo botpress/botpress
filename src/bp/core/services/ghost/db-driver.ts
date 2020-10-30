@@ -214,7 +214,7 @@ export default class DBStorageDriver implements StorageDriver {
         .knex('srv_ghost_index')
         .where({
           file_path: filePath,
-          revision: revision
+          revision
         })
         .del()
     } catch (e) {

@@ -110,7 +110,7 @@ export const CSVExport = (tests: Test[], testResults: _.Dictionary<TestResult>) 
       .join(' AND ')
 
   const data = [
-    `"id","utterance","conditions","success","reason"`,
+    '"id","utterance","conditions","success","reason"',
     ...tests.map(test => {
       return [
         test.id,
@@ -126,7 +126,7 @@ export const CSVExport = (tests: Test[], testResults: _.Dictionary<TestResult>) 
   ].join('\r\n')
   const link = document.createElement('a')
   link.href = URL.createObjectURL(new Blob([data]))
-  link.download = `botpress_nlu_tests_results.csv`
+  link.download = 'botpress_nlu_tests_results.csv'
   link.click()
 }
 

@@ -1,4 +1,5 @@
 import classnames from 'classnames'
+import set from 'lodash/set'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import queryString from 'query-string'
@@ -79,13 +80,13 @@ class Web extends React.Component<MainProps> {
     this.config = this.extractConfig()
 
     if (this.config.exposeStore) {
-      window.parent['webchat_store'] = this.props.store
+      const storePath = this.config.chatId ? `${this.config.chatId}.webchat_store` : 'webchat_store'
+      set(window.parent, storePath, this.props.store)
     }
 
     this.config.overrides && this.loadOverrides(this.config.overrides)
 
-    this.config.containerWidth &&
-      window.parent.postMessage({ type: 'setWidth', value: this.config.containerWidth }, '*')
+    this.config.containerWidth && this.postMessageToParent('setWidth', this.config.containerWidth)
 
     this.config.reference && this.props.setReference()
 
@@ -96,6 +97,10 @@ class Web extends React.Component<MainProps> {
     }
 
     this.setupObserver()
+  }
+
+  postMessageToParent(type: string, value: any) {
+    window.parent?.postMessage({ type, value, chatId: this.config.chatId }, '*')
   }
 
   extractConfig() {
@@ -150,7 +155,7 @@ class Web extends React.Component<MainProps> {
 
     observe(this.props.dimensions, 'container', data => {
       if (data.newValue && window.parent) {
-        window.parent.postMessage({ type: 'setWidth', value: data.newValue }, '*')
+        this.postMessageToParent('setWidth', data.newValue)
       }
     })
   }
@@ -282,11 +287,12 @@ class Web extends React.Component<MainProps> {
 
     const emulatorClass = this.props.isEmulator ? ' emulator' : ''
     const parentClass = classnames(`bp-widget-web bp-widget-${this.props.activeView}${emulatorClass}`, {
-      'bp-widget-hidden': !this.props.showWidgetButton && this.props.displayWidgetView
+      'bp-widget-hidden': !this.props.showWidgetButton && this.props.displayWidgetView,
+      [this.props.config.className]: !!this.props.config.className
     })
 
     if (this.parentClass !== parentClass) {
-      window.parent?.postMessage({ type: 'setClass', value: parentClass }, '*')
+      this.postMessageToParent('setClass', parentClass)
       this.parentClass = parentClass
     }
 

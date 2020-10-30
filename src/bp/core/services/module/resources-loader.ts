@@ -130,7 +130,7 @@ export class ModuleResourceLoader {
 
   private async isSymbolicLink(filePath) {
     const fullPath = path.resolve(`${process.PROJECT_LOCATION}/${filePath}`)
-    return fse.pathExistsSync(fullPath) && (await fse.lstatSync(fullPath).isSymbolicLink())
+    return fse.pathExistsSync(fullPath) && fse.lstatSync(fullPath).isSymbolicLink()
   }
 
   private async _loadModuleResources(): Promise<void> {
@@ -293,7 +293,7 @@ export class ModuleResourceLoader {
   private async _executeMigration(migrationsFile: string) {
     const content: ModuleMigrationInstruction[] = JSON.parse(fse.readFileSync(migrationsFile, 'utf8'))
     if (!content) {
-      throw new Error(`Expected a valid JSON object.`)
+      throw new Error('Expected a valid JSON object.')
     }
 
     for (const migration of content) {

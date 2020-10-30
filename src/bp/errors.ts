@@ -7,7 +7,7 @@ export class InvalidParameterError extends VError {}
 export class UnlicensedError extends VError {}
 
 export type MessageFn = (args: any[]) => string
-export type ErrorOptions = {
+export interface ErrorOptions {
   hideStackTrace: boolean
 }
 

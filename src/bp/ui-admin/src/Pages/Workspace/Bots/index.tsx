@@ -117,7 +117,7 @@ class Bots extends Component<Props> {
 
   viewLogs(botId: string) {
     this.props.history.push(
-      generatePath(`/workspace/:workspaceId?/logs?botId=:botId`, {
+      generatePath('/workspace/:workspaceId?/logs?botId=:botId', {
         workspaceId: getActiveWorkspace() || undefined,
         botId
       })

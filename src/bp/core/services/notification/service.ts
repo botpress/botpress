@@ -28,7 +28,7 @@ export class NotificationsService {
   }
 
   async getInbox(botId: string): Promise<Notification[]> {
-    return await this.notificationsRepository.getAll(botId, { archived: false, read: false })
+    return this.notificationsRepository.getAll(botId, { archived: false, read: false })
   }
 
   async markAsRead(botId: string, notificationId: string): Promise<void> {

@@ -97,7 +97,7 @@ export const validateFilePayload = async (
   }
 
   if (!arePermissionsValid(def, editableFile, permissions, actionType)) {
-    throw new EditorError(`No permission`)
+    throw new EditorError('No permission')
   }
 
   if (def.isJSON && content) {
