@@ -105,7 +105,12 @@ export function getPOSTagger(languageCode: string, toolkit: typeof sdk.MLToolkit
 
   if (!taggersByLang[languageCode]) {
     const tagger = new toolkit.CRF.Tagger()
+
+    console.log('start: initialize POS')
+    console.log(`path: ${getPretrainedModelFilePath(languageCode)}`)
     tagger.open(getPretrainedModelFilePath(languageCode))
+    console.log('end: initialize POS')
+
     taggersByLang[languageCode] = tagger
   }
 
