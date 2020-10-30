@@ -79,7 +79,7 @@ export default class ActionService {
 
     const service = new Promise<ScopedActionService>(async cb => {
       if (!(await this.botService.botExists(botId, true))) {
-        throw new NotFoundError(`This bot does not exist`)
+        throw new NotFoundError('This bot does not exist')
       }
 
       const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
@@ -92,7 +92,7 @@ export default class ActionService {
 
   private _listenForCacheInvalidation() {
     this.cache.events.on('invalidation', key => {
-      if (key.toLowerCase().indexOf(`/actions`) > -1) {
+      if (key.toLowerCase().indexOf('/actions') > -1) {
         this._invalidateDebounce(key)
       }
     })
@@ -249,7 +249,7 @@ export class ScopedActionService {
       this.tasksRepository.createTask({
         ...taskInfo,
         status: 'failed',
-        failureReason: `http:bad_status_code`
+        failureReason: 'http:bad_status_code'
       })
       return
     }
@@ -367,7 +367,7 @@ export class ScopedActionService {
     const clearDebounce = _.debounce(this._clearCache.bind(this), DEBOUNCE_DELAY, { leading: true, trailing: false })
 
     this.cache.events.on('invalidation', key => {
-      if (key.toLowerCase().indexOf(`/actions`) > -1) {
+      if (key.toLowerCase().indexOf('/actions') > -1) {
         clearDebounce()
       }
     })

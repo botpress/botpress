@@ -92,7 +92,7 @@ const createNodes = data => {
           node: 'extracted'
         },
         {
-          condition: `temp.notExtracted == "true"`,
+          condition: 'temp.notExtracted == "true"',
           node: '#'
         },
         {

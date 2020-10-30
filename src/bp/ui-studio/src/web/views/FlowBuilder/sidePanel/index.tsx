@@ -18,7 +18,7 @@ import FlowTools from './FlowTools'
 import Toolbar from './Toolbar'
 export type PanelPermissions = 'create' | 'rename' | 'delete'
 
-type Props = {
+interface Props {
   flowsNames: string[]
   onCreateFlow: (flowName: string) => void
   flows: any

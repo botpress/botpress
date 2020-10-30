@@ -15,7 +15,11 @@ export const sanitizeBotId = (text: string) =>
     .replace(/\s/g, '-')
     .replace(/[^a-z0-9_-]/g, '')
 
-type SelectOption<T> = { label: string; value: T; __isNew__?: boolean }
+interface SelectOption<T> {
+  label: string
+  value: T
+  __isNew__?: boolean
+}
 
 interface OwnProps {
   isOpen: boolean
@@ -128,7 +132,7 @@ class CreateBotModal extends Component<Props, State> {
     }
 
     try {
-      await api.getSecured().post(`/admin/bots`, newBot)
+      await api.getSecured().post('/admin/bots', newBot)
       this.props.onCreateBotSuccess()
       this.toggleDialog()
     } catch (error) {

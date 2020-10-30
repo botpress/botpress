@@ -29,7 +29,7 @@ describe('Ghost Service', () => {
     ghost = new GhostService(diskDriver.T, dbDriver.T, cache.T, logger.T)
   })
 
-  describe(`Using Disk Driver`, () => {
+  describe('Using Disk Driver', () => {
     beforeEach(async () => {
       await ghost.initialize(false, true)
     })
@@ -55,7 +55,7 @@ describe('Ghost Service', () => {
     it('Reads files from disk', async () => {
       diskDriver.readFile
         .mockReturnValueOnce(Buffer.from(''))
-        .mockReturnValueOnce(`{ "name": "test" }`)
+        .mockReturnValueOnce('{ "name": "test" }')
         .mockReturnValueOnce('Hello')
 
       const res1 = await ghost.global().readFileAsBuffer('test', 'a.json')
@@ -68,7 +68,7 @@ describe('Ghost Service', () => {
     })
 
     it('Reads file from cache if cached', async () => {
-      const json = `{ "name": "test" }`
+      const json = '{ "name": "test" }'
       cache.has.mockReturnValue(true)
       cache.get.mockReturnValue(json)
 
@@ -82,7 +82,7 @@ describe('Ghost Service', () => {
     })
 
     it('Caches the file if not already cached', async () => {
-      const json = `{ "name": "test" }`
+      const json = '{ "name": "test" }'
       cache.has.mockReturnValue(false)
 
       diskDriver.listRevisions.mockReturnValue([])
@@ -127,7 +127,7 @@ describe('Ghost Service', () => {
 
         expect(diskDriver.readFile).not.toHaveBeenCalled()
         expect(dbDriver.readFile).toHaveBeenCalled()
-        expect(content).toContain(`test/my/test.json`)
+        expect(content).toContain('test/my/test.json')
       })
       it('write uses DB', async () => {
         await ghost.global().upsertFile('test', 'test.json', 'my content')

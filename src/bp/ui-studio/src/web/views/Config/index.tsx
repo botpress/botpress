@@ -188,7 +188,7 @@ class ConfigView extends Component<Props, State> {
     const { error } = Joi.validate(bot, BotEditSchema)
     if (error) {
       toastFailure(lang.tr('config.formContainsErrors'))
-      this.setState({ error: error, isSaving: false })
+      this.setState({ error, isSaving: false })
       return
     }
 

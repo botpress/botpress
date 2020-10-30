@@ -58,7 +58,7 @@ export default class ModuleUnpacker {
       // Trying to rename first, since moving is very slow on windows
       fse.renameSync(temporaryDestination, finalDestination)
     } catch (err) {
-      this.logger.warn(`Couldn't rename folder, trying to move it instead`)
+      this.logger.warn("Couldn't rename folder, trying to move it instead")
       fse.moveSync(temporaryDestination, finalDestination)
     }
 

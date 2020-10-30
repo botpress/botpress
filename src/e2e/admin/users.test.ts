@@ -27,8 +27,8 @@ describe('Admin - Users', () => {
     await page.keyboard.press('Enter')
 
     await Promise.all([
-      expectAdminApiCallSuccess(`users`, 'POST'),
-      expectAdminApiCallSuccess(`users`, 'GET'),
+      expectAdminApiCallSuccess('users', 'POST'),
+      expectAdminApiCallSuccess('users', 'GET'),
       clickOn('#btn-submit')
     ])
 
@@ -56,7 +56,7 @@ describe('Admin - Users', () => {
   it('Change role to administrator', async () => {
     await page.waitFor(500)
     await clickButtonForUser('#btn-changeRole', testUserEmail)
-    await Promise.all([expectAdminApiCallSuccess(`users/workspace/update_role`, 'POST'), clickOn('#btn-role-admin')])
+    await Promise.all([expectAdminApiCallSuccess('users/workspace/update_role', 'POST'), clickOn('#btn-role-admin')])
   })
 
   it('Delete created user', async () => {

@@ -20,7 +20,10 @@ export class Notification {
   public archived = false
 }
 
-type DefaultGetOptions = { archived?: boolean; read?: boolean }
+interface DefaultGetOptions {
+  archived?: boolean
+  read?: boolean
+}
 
 export interface NotificationsRepository {
   get(botId: string, id: string): Promise<Notification>
@@ -71,11 +74,11 @@ export class KnexNotificationsRepository implements NotificationsRepository {
 
   async insert(botId: string, notification: Notification): Promise<Notification> {
     const now = this.database.knex.date.now
-    return await this.database.knex.insertAndRetrieve<Notification>(
+    return this.database.knex.insertAndRetrieve<Notification>(
       this.TABLE_NAME,
       {
         id: notification.id,
-        botId: botId,
+        botId,
         level: notification.level,
         message: notification.message,
         module_id: notification.moduleId,

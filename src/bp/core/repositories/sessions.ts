@@ -112,9 +112,9 @@ export class KnexSessionRepository implements SessionRepository {
 
     // We only process expired context if there is actually a context
     if (this.database.knex.isLite) {
-      query = query.andWhereRaw(this.database.knex.raw(`context <> '{}' `))
+      query = query.andWhereRaw(this.database.knex.raw("context <> '{}' "))
     } else {
-      query = query.andWhereRaw(this.database.knex.raw(`context::text <> '{}'::text`))
+      query = query.andWhereRaw(this.database.knex.raw("context::text <> '{}'::text"))
     }
 
     return (await query
