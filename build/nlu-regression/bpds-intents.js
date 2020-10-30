@@ -8,7 +8,8 @@ const problemMaker = (bitfan) => (topic) => {
   };
 };
 
-export default async function testy(bitfan) {
+module.exports = async function testy(bitfan) {
+
   const allTopics = ["A", "B", "C", "D", "E", "F"];
 
   const metrics = [

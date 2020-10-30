@@ -8,7 +8,7 @@ const makeProblem = (bitfan) => (topic) => {
   };
 };
 
-export default async function sloty(bitfan) {
+module.exports = async function sloty(bitfan) {
 
   const allTopics = [
     "A",
