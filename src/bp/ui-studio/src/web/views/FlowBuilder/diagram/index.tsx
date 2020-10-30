@@ -54,7 +54,7 @@ import { ExecuteWidgetFactory } from './nodes_v2/ExecuteNode'
 import { ListenWidgetFactory } from './nodes_v2/ListenNode'
 import { RouterNodeModel, RouterWidgetFactory } from './nodes_v2/RouterNode'
 import style from './style.scss'
-import Toolbar from './Toolbar'
+import NodeToolbar from './NodeToolbar'
 import ZoomToolbar from './ZoomToolbar'
 
 interface OwnProps {
@@ -638,7 +638,7 @@ class Diagram extends Component<Props> {
             inverseZoom
           />
           <ZoomToolbar />
-          {canAdd && <Toolbar />}
+          {canAdd && <NodeToolbar />}
         </div>
       </MainLayout.Wrapper>
     )
