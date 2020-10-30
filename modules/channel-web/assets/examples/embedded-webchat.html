@@ -147,29 +147,29 @@
         }, 100)
       }
       document.getElementById('show-second-bp').addEventListener('click', function() {
-        if (!secondInit) {
-          const config = {
-            host: window.location.origin || 'http://localhost:3000',
-            botId: botId,
-            userId: Math.random()
-              .toString()
-              .slice(-4),
-            showConversationsButton: false,
-            botName: 'Chat window #2',
-            className: 'chat2',
-            enableReset: false,
-            chatId: secondChatId,
-            hideWidget: true,
-            disableAnimations: true,
-            containerWidth: 700,
-            layoutWidth: 700,
-            exposeStore: true
-          }
-          window.botpressWebChat.init(config, '#chat2')
-          secondInit = true
-        } else {
+        if (secondInit) {
           toggleChat2()
+          return
         }
+        const config = {
+          host: window.location.origin || 'http://localhost:3000',
+          botId: botId,
+          userId: Math.random()
+            .toString()
+            .slice(-4),
+          showConversationsButton: false,
+          botName: 'Chat window #2',
+          className: 'chat2',
+          enableReset: false,
+          chatId: secondChatId,
+          hideWidget: true,
+          disableAnimations: true,
+          containerWidth: 700,
+          layoutWidth: 700,
+          exposeStore: true
+        }
+        window.botpressWebChat.init(config, '#chat2')
+        secondInit = true
       })
 
       window.addEventListener('message', function(message) {
@@ -178,23 +178,22 @@
           if (message.data.name === 'webchatLoaded') {
             toggleChat2()
           }
-          return
-        }
+        } else {
+          // chat 1
+          if (message.data.userId) {
+            userId = message.data.userId
+            document.getElementById('user-id-bp').innerText = userId
+          }
 
-        // chat 1
-        if (message.data.userId) {
-          userId = message.data.userId
-          document.getElementById('user-id-bp').innerText = userId
-        }
+          if (message.data.name === 'webchatOpened') {
+            webchatOpen = true
+            document.getElementById('toggle-bp').style.backgroundColor = 'red'
+          }
 
-        if (message.data.name === 'webchatOpened') {
-          webchatOpen = true
-          document.getElementById('toggle-bp').style.backgroundColor = 'red'
-        }
-
-        if (message.data.name === 'webchatClosed') {
-          webchatOpen = false
-          document.getElementById('toggle-bp').style.backgroundColor = 'green'
+          if (message.data.name === 'webchatClosed') {
+            webchatOpen = false
+            document.getElementById('toggle-bp').style.backgroundColor = 'green'
+          }
         }
       })
     </script>
