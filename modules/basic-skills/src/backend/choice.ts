@@ -176,7 +176,7 @@ const generateFlow = async (
   return {
     transitions: createTransitions(data),
     flow: {
-      nodes: nodes,
+      nodes,
       catchAll: {
         next: []
       }

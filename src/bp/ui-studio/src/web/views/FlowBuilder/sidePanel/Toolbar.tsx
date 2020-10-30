@@ -1,12 +1,9 @@
-import { AnchorButton, Popover, Position, Tag, Tooltip } from '@blueprintjs/core'
+import { Popover, Position, Tag, Tooltip } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import { FlowMutex } from 'common/typings'
-import _ from 'lodash'
 import React from 'react'
 import { connect } from 'react-redux'
-import { flowEditorRedo, flowEditorUndo } from '~/actions'
-import { LeftToolbarButtons, RightToolbarButtons, Toolbar } from '~/components/Shared/Interface'
-import { canFlowRedo, canFlowUndo } from '~/reducers'
+import { RightToolbarButtons, Toolbar } from '~/components/Shared/Interface'
 import { getCurrentFlow } from '~/reducers'
 
 import style from './style.scss'
@@ -85,16 +82,12 @@ const FlowMutexInfo = (props: { mutexInfo: MutexInfo }) => {
 }
 
 const MiniToolbar = props => {
+  if (!props.mutexInfo && !props.flowProblems.length) {
+    return null
+  }
+
   return (
     <Toolbar>
-      <LeftToolbarButtons>
-        <Tooltip content={lang.tr('undo')} position={Position.BOTTOM}>
-          <AnchorButton id="btn-undo" icon="undo" disabled={!props.canUndo} onClick={props.undo} />
-        </Tooltip>
-        <Tooltip content={lang.tr('redo')} position={Position.BOTTOM}>
-          <AnchorButton id="btn-redo" icon="redo" disabled={!props.canRedo} onClick={props.redo} />
-        </Tooltip>
-      </LeftToolbarButtons>
       <RightToolbarButtons>
         <FlowMutexInfo {...props} />
         <FlowProblems {...props} />
@@ -104,15 +97,8 @@ const MiniToolbar = props => {
 }
 
 const mapStateToProps = state => ({
-  canUndo: canFlowUndo(state),
-  canRedo: canFlowRedo(state),
   flowProblems: state.flows.flowProblems,
   currentFlow: getCurrentFlow(state)
 })
 
-const mapDispatchToProps = {
-  undo: flowEditorUndo,
-  redo: flowEditorRedo
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(MiniToolbar)
+export default connect(mapStateToProps)(MiniToolbar)

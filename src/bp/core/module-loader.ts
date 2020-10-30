@@ -307,6 +307,8 @@ export class ModuleLoader {
         this.logger.warn(`Error in module "${name}" 'onServerReady'. Module will still be loaded. Err: ${err.message}`)
       }
     }
+
+    AppLifecycle.setDone(AppLifecycleEvents.MODULES_READY)
   }
 
   public async loadModulesForBot(botId: string) {
@@ -425,7 +427,7 @@ export class ModuleLoader {
       const resolver = new ModuleResolver(this.logger)
       return await extractModuleInfo({ location: tmpFolder, enabled: false }, resolver)
     } catch (err) {
-      this.logger.attachError(err).warn(`Invalid module archive`)
+      this.logger.attachError(err).warn('Invalid module archive')
     } finally {
       tmpDir.removeCallback()
     }

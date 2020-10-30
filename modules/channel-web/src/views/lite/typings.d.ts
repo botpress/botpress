@@ -127,14 +127,16 @@ export interface StudioConnector {
   loadModuleView: any
 }
 
-export type Config = {
+export interface Config {
   botId?: string
   externalAuthToken?: string
   userId?: string
+  conversationId?: number
   /** Allows to set a different user id for different windows (eg: studio, specific bot, etc) */
   userIdScope?: string
   enableReset: boolean
   stylesheet: string
+  isEmulator?: boolean
   extraStylesheet: string
   showConversationsButton: boolean
   showUserName: boolean
@@ -173,6 +175,8 @@ export type Config = {
   exposeStore: boolean
   /** Reference ensures that a specific value and its signature are valid */
   reference: string
+  /** If true, Websocket is created when the Webchat is opened. Bot cannot be proactive. */
+  lazySocket?: boolean
 }
 
 type OverridableComponents = 'below_conversation' | 'before_container' | 'composer'
@@ -204,6 +208,7 @@ export interface BotInfo {
   security: {
     escapeHTML: boolean
   }
+  lazySocket: boolean
 }
 
 interface Conversation {
@@ -249,6 +254,11 @@ export interface Message {
   sent_on: Date
   // The typing delay in ms
   timeInMs: number
+}
+
+export interface QueuedMessage {
+  message: Message
+  showAt: Date
 }
 
 export interface HTMLInputEvent extends Event {

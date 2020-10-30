@@ -3,7 +3,7 @@ import { Migration, MigrationOpts } from 'core/services/migration'
 
 const migration: Migration = {
   info: {
-    description: `Adds server hostname to the logs table`,
+    description: 'Adds server hostname to the logs table',
     type: 'database'
   },
   up: async ({ bp }: MigrationOpts): Promise<sdk.MigrationResult> => {

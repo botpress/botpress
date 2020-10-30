@@ -14,15 +14,15 @@ describe('Studio - CMS', () => {
 
   it('Load CMS', async () => {
     await clickOn('#bp-menu_Content')
-    await expectBotApiCallSuccess(`content/elements`, 'POST')
+    await expectBotApiCallSuccess('content/elements', 'POST')
   })
 
   it('Filter text elements', async () => {
-    await page.waitForFunction(`document.querySelectorAll(".icon-edit").length > 0`)
+    await page.waitForFunction('document.querySelectorAll(".icon-edit").length > 0')
     const before = await getElementCount()
 
     await clickOn('#btn-filter-builtin_text')
-    await expectBotApiCallSuccess(`content/builtin_text/elements`, 'POST')
+    await expectBotApiCallSuccess('content/builtin_text/elements', 'POST')
     const after = await getElementCount()
     await expect(after).toBeLessThan(before)
   })

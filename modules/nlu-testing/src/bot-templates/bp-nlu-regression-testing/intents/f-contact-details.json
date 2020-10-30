@@ -1,6 +1,8 @@
 {
   "name": "f-contact-details",
-  "contexts": ["F"],
+  "contexts": [
+    "F"
+  ],
   "utterances": {
     "en": [
       "What is the helpline number?",

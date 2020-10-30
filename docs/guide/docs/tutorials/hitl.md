@@ -21,12 +21,19 @@ Once you have this module installed, you will be able to:
 
 There are several ways you can pause the conversation:
 
-- from the admin-panel, toggling the appropriate button
+- from the HITL module, toggling the pause button
+
+![Pause button](hitl_pause.png)
+
 - by performing an API-request:
-  - POST /mod/hitl/sessions/{$id}/pause
-  - POST /mod/hitl/sessions/{$id}/unpause
-  - POST /mod/hitl/channel/{$channel}/user/{$userId}/pause
-  - POST /mod/hitl/channel/{$channel}/user/{$userId}/unpause
+
+   `let base = EXTERNAL_URL + '/api/v1/bots/' + botId + '/mod/hitl` 
+  - POST {$base}/sessions/{$id}/pause
+  - POST {$base}/sessions/{$id}/unpause
+  - POST {$base}/channel/{$channel}/user/{$userId}/pause
+  - POST {$base}/channel/{$channel}/user/{$userId}/unpause
+  
+For example: POST http://localhost:3000/api/v1/bots/welcome-bot/mod/hitl/sessions/13/pause
 
 ## Alerting agents
 

@@ -4,7 +4,7 @@ import _ from 'lodash'
 
 import { TYPES } from '../../../types'
 
-export type NavigationArgs = {
+export interface NavigationArgs {
   previousNodeName: string
   previousFlowName: string
   currentNodeName: string
@@ -13,7 +13,7 @@ export type NavigationArgs = {
   destination: string
 }
 
-export type NavigationPosition = {
+export interface NavigationPosition {
   nodeName: string
   flowName: string
   previousNode: string

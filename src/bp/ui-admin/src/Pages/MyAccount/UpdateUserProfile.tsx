@@ -13,8 +13,8 @@ interface Props {
 }
 
 const UpdateUserProfile: FC<Props> = props => {
-  const [firstname, setFirstname] = useState()
-  const [lastname, setLastname] = useState()
+  const [firstname, setFirstname] = useState<string>()
+  const [lastname, setLastname] = useState<string>()
 
   useEffect(() => {
     setFirstname(props.profile.firstname)

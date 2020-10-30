@@ -4,7 +4,7 @@ import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
-import { NLUApi } from '../../api'
+import { NLUApi } from '../../../api'
 
 import Slots from './slots/Slots'
 import style from './style.scss'

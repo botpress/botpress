@@ -15,7 +15,7 @@ const migration: sdk.ModuleMigration = {
         const entityDef = (await bpfs.readFileAsObject('./entities', fileName)) as sdk.NLU.EntityDefinition
         entityDef.occurrences = _.cloneDeep(entityDef['occurences'])
         delete entityDef['occurences']
-        await bpfs.upsertFile('./entities', fileName, JSON.stringify(entityDef, undefined, 2))
+        await bpfs.upsertFile('./entities', fileName, JSON.stringify(entityDef, undefined, 2), { ignoreLock: true })
       }
     }
     if (metadata.botId) {

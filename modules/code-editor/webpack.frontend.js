@@ -7,6 +7,16 @@ module.exports = ({ full, lite }) => {
       ...full.output,
       publicPath: 'assets/modules/code-editor/web/'
     },
+    module: {
+      ...full.module,
+      rules: [
+        ...full.module.rules,
+        {
+          test: /\.ttf$/,
+          use: ['file-loader']
+        }
+      ]
+    },
     plugins: [
       ...full.plugins,
       new MonacoWebpackPlugin({
@@ -18,6 +28,7 @@ module.exports = ({ full, lite }) => {
           'codelens',
           'contextmenu',
           'coreCommands',
+          'clipboard',
           'dnd',
           'find',
           'folding',
@@ -28,9 +39,11 @@ module.exports = ({ full, lite }) => {
           'hover',
           'inPlaceReplace',
           'links',
+          'onTypeRename',
           'parameterHints',
           'quickCommand',
           'quickOutline',
+          'rename',
           'smartSelect',
           'suggest',
           'wordHighlighter',

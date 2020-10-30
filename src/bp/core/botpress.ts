@@ -31,7 +31,7 @@ import AuthService from './services/auth/auth-service'
 import { BotMonitoringService } from './services/bot-monitoring-service'
 import { BotService } from './services/bot-service'
 import { CMSService } from './services/cms'
-import { converseApiEvents } from './services/converse'
+import { buildUserKey, converseApiEvents } from './services/converse'
 import { DecisionEngine } from './services/dialog/decision-engine'
 import { DialogEngine } from './services/dialog/dialog-engine'
 import { ProcessingError } from './services/dialog/errors'
@@ -54,7 +54,7 @@ import { WorkspaceService } from './services/workspace-service'
 import { Statistics } from './stats'
 import { TYPES } from './types'
 
-export type StartOptions = {
+export interface StartOptions {
   modules: sdk.ModuleEntryPoint[]
 }
 
@@ -121,7 +121,7 @@ export class Botpress {
 
   private async initialize(options: StartOptions) {
     if (!process.IS_PRODUCTION) {
-      this.logger.info(`Running in DEVELOPMENT MODE`)
+      this.logger.info('Running in DEVELOPMENT MODE')
     }
 
     this.config = await this.configProvider.getBotpressConfig()
@@ -162,7 +162,7 @@ export class Botpress {
         const { scopes } = await this.ghostService.global().readFileAsObject('/', 'debug.json')
         setDebugScopes(scopes.join(','))
       } catch (err) {
-        this.logger.attachError(err).error(`Couldn't load debug scopes. Check the syntax of debug.json`)
+        this.logger.attachError(err).error("Couldn't load debug scopes. Check the syntax of debug.json")
       }
     }
   }
@@ -203,7 +203,7 @@ export class Botpress {
     if (!appSecret) {
       appSecret = nanoid(40)
       await this.configProvider.mergeBotpressConfig({ appSecret }, true)
-      this.logger.debug(`JWT Secret isn't defined. Generating a random key...`)
+      this.logger.debug("JWT Secret isn't defined. Generating a random key...")
     }
 
     process.APP_SECRET = appSecret
@@ -268,6 +268,10 @@ export class Botpress {
 
   async deployAssets() {
     try {
+      for (const dir of ['./pre-trained', './stop-words']) {
+        await copyDir(path.resolve(__dirname, '../nlu-core/language', dir), path.resolve(process.APP_DATA_PATH, dir))
+      }
+
       const assets = path.resolve(process.PROJECT_LOCATION, 'data/assets')
       await copyDir(path.join(__dirname, '../ui-admin'), `${assets}/ui-admin`)
 
@@ -287,6 +291,7 @@ export class Botpress {
 
   @WrapErrorsWith('Error while discovering bots')
   async discoverBots(): Promise<void> {
+    await AppLifecycle.waitFor(AppLifecycleEvents.MODULES_READY)
     const botsRef = await this.workspaceService.getBotRefs()
     const botsIds = await this.botService.getBotsIds()
     const unlinked = _.difference(botsIds, botsRef)
@@ -369,7 +374,7 @@ export class Botpress {
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
       const sessionId = SessionIdFactory.createIdFromEvent(event)
       await this.decisionEngine.processEvent(sessionId, event)
-      await converseApiEvents.emitAsync(`done.${event.target}`, event)
+      await converseApiEvents.emitAsync(`done.${buildUserKey(event.botId, event.target)}`, event)
     }
 
     this.eventEngine.onBeforeOutgoingMiddleware = async (event: sdk.IO.IncomingEvent) => {

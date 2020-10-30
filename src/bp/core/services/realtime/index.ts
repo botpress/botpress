@@ -113,13 +113,13 @@ export default class RealtimeService {
           }
 
           this.ee.emit(event.name, event.data, 'client', {
-            visitorId: visitorId,
+            visitorId,
             socketId: socket.id,
             guest: false,
             admin: true
           })
         } catch (err) {
-          this.logger.attachError(err).error(`Error processing incoming admin event`)
+          this.logger.attachError(err).error('Error processing incoming admin event')
         }
       })
     })
@@ -152,12 +152,12 @@ export default class RealtimeService {
 
           this.ee.emit(event.name, event.data, 'client', {
             socketId: socket.id,
-            visitorId: visitorId,
+            visitorId,
             guest: true,
             admin: false
           })
         } catch (err) {
-          this.logger.attachError(err).error(`Error processing incoming guest event`)
+          this.logger.attachError(err).error('Error processing incoming guest event')
         }
       })
     })

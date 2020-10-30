@@ -1,8 +1,12 @@
 import { Button, Classes, MenuItem } from '@blueprintjs/core'
 import { ItemPredicate, Select } from '@blueprintjs/select'
-import { FC, useEffect, useState } from 'react'
-import React from 'react'
+import cx from 'classnames'
+import React, { FC, useEffect, useState } from 'react'
 
+import { lang } from '../translations'
+import confirmDialog from '../ConfirmDialog'
+
+import style from './style.scss'
 import { DropdownProps, Option } from './typings'
 
 const itemRenderer = (option, { modifiers, handleClick }) => {
@@ -18,6 +22,7 @@ const itemRenderer = (option, { modifiers, handleClick }) => {
       key={option.label || option}
       onClick={handleClick}
       text={option.label || option}
+      icon={option.icon}
     />
   )
 }
@@ -27,7 +32,24 @@ const filterOptions: ItemPredicate<Option> = (query, option) => {
 }
 
 const Dropdown: FC<DropdownProps> = props => {
-  const { defaultItem, items, onChange, small, icon, rightIcon, spaced, className, filterable } = props
+  const {
+    hideActiveItemIcon,
+    placeholder,
+    filterPlaceholder,
+    confirmChange,
+    defaultItem,
+    items,
+    onChange,
+    small,
+    icon,
+    rightIcon,
+    children,
+    spaced,
+    className,
+    filterable,
+    filterList,
+    customItemRenderer
+  } = props
   const [activeItem, setActiveItem] = useState<Option | undefined>()
   const SimpleDropdown = Select.ofType<Option>()
 
@@ -35,27 +57,51 @@ const Dropdown: FC<DropdownProps> = props => {
     setActiveItem(typeof defaultItem === 'string' ? items.find(item => item.value === defaultItem) : defaultItem)
   }, [defaultItem])
 
+  const updateSelectedOption = option => {
+    onChange(option)
+  }
+
+  const btnText = activeItem ? activeItem.label : placeholder
+
   return (
     <SimpleDropdown
       filterable={filterable}
       className={className}
+      inputProps={{ placeholder: filterPlaceholder || lang('filter') }}
       items={items}
       activeItem={activeItem}
-      popoverProps={{ minimal: true }}
-      itemRenderer={itemRenderer}
+      popoverProps={{ minimal: true, usePortal: false }}
+      itemRenderer={customItemRenderer || itemRenderer}
       itemPredicate={filterOptions}
-      onItemSelect={option => {
-        onChange(option)
-        setActiveItem(option)
+      itemListPredicate={filterList}
+      onItemSelect={async option => {
+        if (confirmChange) {
+          confirmChange.callback?.(false)
+
+          if (
+            await confirmDialog(confirmChange.message, {
+              acceptLabel: confirmChange.acceptLabel
+            })
+          ) {
+            confirmChange.callback?.(true)
+            updateSelectedOption(option)
+          } else {
+            confirmChange.callback?.(true)
+          }
+        } else {
+          updateSelectedOption(option)
+        }
       }}
     >
-      <Button
-        text={small ? <small>{activeItem && activeItem.label}</small> : activeItem && activeItem.label}
-        icon={icon}
-        rightIcon={rightIcon || 'double-caret-vertical'}
-        small={small}
-        style={{ margin: spaced ? '0 5px 0 5px' : 0 }}
-      />
+      {children || (
+        <Button
+          className={cx(style.btn, { [style.spaced]: spaced, [style.placeholder]: !activeItem })}
+          text={small ? <small>{btnText}</small> : btnText}
+          icon={!hideActiveItemIcon && (activeItem?.icon ?? icon)}
+          rightIcon={rightIcon || 'double-caret-vertical'}
+          small={small}
+        />
+      )}
     </SimpleDropdown>
   )
 }

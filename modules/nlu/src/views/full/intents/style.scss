@@ -78,6 +78,7 @@ p.utterance {
     margin-right: 5px;
     opacity: 0.5;
     text-align: center;
+    user-select: none;
 
     &.count {
       width: inherit;

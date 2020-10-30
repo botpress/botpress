@@ -14,7 +14,9 @@ declare module 'knex' {
     now(): Raw
     today(): Raw
     isBefore(d1: ColumnOrDate, d2: ColumnOrDate): Raw
+    isBeforeOrOn(d1: ColumnOrDate, d2: ColumnOrDate): Raw
     isAfter(d1: ColumnOrDate, d2: ColumnOrDate): Raw
+    isAfterOrOn(d1: ColumnOrDate, d2: ColumnOrDate): Raw
     isBetween(date: ColumnOrDate, betweenA: ColumnOrDate, betweenB: ColumnOrDate): Raw
     isSameDay(d1: ColumnOrDate, d2: ColumnOrDate): Raw
     hourOfDay(date: ColumnOrDate): Raw

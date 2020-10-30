@@ -188,7 +188,7 @@ export class BotsRouter extends CustomRouter {
       },
       sendUsageStats: this.botpressConfig!.sendUsageStats,
       uuid: this.machineId,
-      gaId: gaId,
+      gaId,
       flowEditorDisabled: !process.IS_LICENSED
     }
   }

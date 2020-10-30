@@ -19,7 +19,7 @@ export function createMockLogger(): Logger {
 export function createSpyObject<T>(): MockObject<T> {
   const obj = {}
   const handler: ProxyHandler<object> = {
-    get: function(obj, prop) {
+    get(obj, prop) {
       if (prop === 'T') {
         return proxy
       }
@@ -133,4 +133,11 @@ export const sanitize = (input: string, type?: 'file' | 'folder') => {
     .replace(regex.control, '')
     .replace(regex.reserved, '')
     .replace(type === 'folder' ? regex.illegalFolder : regex.illegalFile, '')
+}
+
+export const sanitizeFileName = (name: string): string => {
+  return name
+    .toLowerCase()
+    .replace(/\.json$/i, '')
+    .replace(/[\t\s]/gi, '-')
 }

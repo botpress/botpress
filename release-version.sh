@@ -30,6 +30,8 @@ select VERSION in patch minor major "Specific Version"
         yarn cmd changelog
         node build/remove_changelog_dupes.js
 
+        node build/update_pkg_version.js
+
         # Create commit
         git add -A
         git commit -m "v$NEW_VERSION"
