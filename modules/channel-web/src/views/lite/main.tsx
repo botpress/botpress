@@ -1,4 +1,5 @@
 import classnames from 'classnames'
+import set from 'lodash/set'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import queryString from 'query-string'
@@ -79,7 +80,8 @@ class Web extends React.Component<MainProps> {
     this.config = this.extractConfig()
 
     if (this.config.exposeStore) {
-      window.parent['webchat_store'] = this.props.store
+      const storePath = this.config.chatId ? `${this.config.chatId}.webchat_store` : 'webchat_store'
+      set(window.parent, storePath, this.props.store)
     }
 
     this.config.overrides && this.loadOverrides(this.config.overrides)
@@ -156,6 +158,14 @@ class Web extends React.Component<MainProps> {
         this.postMessageToParent('setWidth', data.newValue)
       }
     })
+
+    // observe(this.props.config, 'conversationId', data => {
+    //   if (!data.oldValue || data.oldValue === data.newValue) {
+    //     return
+    //   }
+
+    //   // this.props.store.fetchConversation()
+    // })
   }
 
   handleIframeApi = async ({ data: { action, payload } }) => {

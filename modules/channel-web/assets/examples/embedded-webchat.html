@@ -42,7 +42,7 @@
     <button id="change-lang3-bp">Browser (default)</button>
     <h2>Control User Identity</h2>
     <p>The current user ID is <span id="user-id-bp">UNKNOWN</span></p>
-    
+
     <h2>Working with multiple chat windows</h2>
     <button id="show-second-bp">Toggle second chat window</button>
     <div id="chat2"></div>
@@ -75,23 +75,6 @@
       }
 
       window.botpressWebChat.init(lastConfig)
-
-      window.addEventListener('message', function(message) {
-        if (message.data.userId) {
-          userId = message.data.userId
-          document.getElementById('user-id-bp').innerText = userId
-        }
-
-        if (message.data.name === 'webchatOpened') {
-          webchatOpen = true
-          document.getElementById('toggle-bp').style.backgroundColor = 'red'
-        }
-
-        if (message.data.name === 'webchatClosed') {
-          webchatOpen = false
-          document.getElementById('toggle-bp').style.backgroundColor = 'green'
-        }
-      })
 
       document.getElementById('origin').innerText = window.location.origin
 
@@ -155,10 +138,16 @@
       document.getElementById('toggle-bp').addEventListener('click', function() {
         window.botpressWebChat.sendEvent({ type: webchatOpen ? 'hide' : 'show' })
       })
-      
+
       let secondInit = false
+      const secondChatId = 'second'
+      function delayedToggle() {
+        window.setTimeout(function() {
+          window.window.botpressWebChat.sendEvent({ type: 'toggle' }, secondChatId)
+        }, 200)
+      }
       document.getElementById('show-second-bp').addEventListener('click', function() {
-        if(!secondInit){
+        if (!secondInit) {
           const config = {
             host: window.location.origin || 'http://localhost:3000',
             botId: botId,
@@ -166,18 +155,46 @@
             botName: 'Chat window #2',
             className: 'chat2',
             enableReset: false,
-            chatId:'second',
-            hideWidget:true,
-            disableAnimations:true,
-            containerWidth:600,
-            layoutWidth:600
+            chatId: secondChatId,
+            hideWidget: true,
+            disableAnimations: true,
+            containerWidth: 700,
+            layoutWidth: 700,
+            exposeStore: true
           }
           window.botpressWebChat.init(config, '#chat2')
           secondInit = true
+        } else {
+          delayedToggle()
         }
-        window.setTimeout(function(){
-          window.botpressWebChat.sendEvent({type: 'toggle'}, 'second')
-        },200)
+      })
+
+      window.addEventListener('message', function(message) {
+        // chat 1
+        if (!message.data.chatId) {
+          if (message.data.userId) {
+            userId = message.data.userId
+            document.getElementById('user-id-bp').innerText = userId
+          }
+
+          if (message.data.name === 'webchatOpened') {
+            webchatOpen = true
+            document.getElementById('toggle-bp').style.backgroundColor = 'red'
+          }
+
+          if (message.data.name === 'webchatClosed') {
+            webchatOpen = false
+            document.getElementById('toggle-bp').style.backgroundColor = 'green'
+          }
+        } else if (message.data.chatId === secondChatId) {
+          // all that fuss to make sure we don't display the same conversation
+          if (message.data.name === 'webchatLoaded') {
+            window[secondChatId]['webchat_store'].createConversation().then(function(conversationId) {
+              window[secondChatId]['webchat_store'].mergeConfig({ conversationId: conversationId })
+              delayedToggle()
+            })
+          }
+        }
       })
     </script>
   </body>
