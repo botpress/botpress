@@ -16,7 +16,7 @@ jobs:
       - name: Build core
         run: |
           NODE_OPTIONS="--max-old-space-size=6000" yarn cmd build:core
-      - name: Dummy
+      - name: Hello
         run: |
           echo "hello"
       - name: Install Bitfan
