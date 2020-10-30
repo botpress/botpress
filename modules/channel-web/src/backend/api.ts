@@ -383,7 +383,7 @@ export default async (bp: typeof sdk, db: Database) => {
   router.post('/conversations/:userId/new', async (req: BPRequest, res: Response) => {
     const { userId, botId } = req.params
     if (!userId) {
-      res.status(400).send({ message: 'Invalid user ID' })
+      return res.status(400).send({ message: 'Invalid user ID' })
     }
     const convoId = await db.createConversation(botId, userId)
     res.send({ convoId })

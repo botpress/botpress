@@ -143,7 +143,7 @@
       const secondChatId = 'second'
       function toggleChat2() {
         window.setTimeout(function() {
-          window.window.botpressWebChat.sendEvent({ type: 'toggle' }, secondChatId)
+          window.botpressWebChat.sendEvent({ type: 'toggle' }, secondChatId)
         }, 100)
       }
       document.getElementById('show-second-bp').addEventListener('click', function() {
@@ -173,28 +173,28 @@
       })
 
       window.addEventListener('message', function(message) {
-        // chat 1
-        if (!message.data.chatId) {
-          if (message.data.userId) {
-            userId = message.data.userId
-            document.getElementById('user-id-bp').innerText = userId
-          }
-
-          if (message.data.name === 'webchatOpened') {
-            webchatOpen = true
-            document.getElementById('toggle-bp').style.backgroundColor = 'red'
-          }
-
-          if (message.data.name === 'webchatClosed') {
-            webchatOpen = false
-            document.getElementById('toggle-bp').style.backgroundColor = 'green'
-          }
-        } else if (message.data.chatId === secondChatId) {
-          // chat 2
-          // all that fuss to make sure we don't display the same conversation
+        // chat2
+        if (message.data.chatId === secondChatId) {
           if (message.data.name === 'webchatLoaded') {
             toggleChat2()
           }
+          return
+        }
+
+        // chat 1
+        if (message.data.userId) {
+          userId = message.data.userId
+          document.getElementById('user-id-bp').innerText = userId
+        }
+
+        if (message.data.name === 'webchatOpened') {
+          webchatOpen = true
+          document.getElementById('toggle-bp').style.backgroundColor = 'red'
+        }
+
+        if (message.data.name === 'webchatClosed') {
+          webchatOpen = false
+          document.getElementById('toggle-bp').style.backgroundColor = 'green'
         }
       })
     </script>
