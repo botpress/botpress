@@ -4,6 +4,7 @@ export default class BpSocket {
   private events: any
   private userId: string
   private userIdScope: string
+  private chatId: string | undefined
 
   public onMessage: (event: any) => void
   public onTyping: (event: any) => void
@@ -13,6 +14,7 @@ export default class BpSocket {
   constructor(bp, config: Config) {
     this.events = bp?.events
     this.userIdScope = config.userIdScope
+    this.chatId = config.chatId
   }
 
   public setup() {
@@ -33,7 +35,7 @@ export default class BpSocket {
 
   public postToParent = (type: string, payload: any) => {
     // we could filter on event type if necessary
-    window.parent?.postMessage(payload, '*')
+    window.parent?.postMessage({ ...payload, chatId: this.chatId }, '*')
   }
 
   public changeUserId(newId: string): Promise<void> {

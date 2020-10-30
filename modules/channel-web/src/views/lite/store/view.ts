@@ -147,12 +147,11 @@ class ViewStore {
     }
   }
 
-  /* tslint:disable:prefer-function-over-method */
   @action.bound
   postMessage(name: string) {
-    window.parent.postMessage({ name }, '*')
+    const chatId = this.rootStore.config.chatId
+    window.parent.postMessage({ name, chatId }, '*')
   }
-  /* tslint:enable:prefer-function-over-method */
 
   @action.bound
   incrementUnread() {

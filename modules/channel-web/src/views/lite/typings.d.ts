@@ -176,7 +176,11 @@ export interface Config {
   /** Reference ensures that a specific value and its signature are valid */
   reference: string
   /** If true, Websocket is created when the Webchat is opened. Bot cannot be proactive. */
-  lazySocket?: boolean
+  lazySocket?: boolean,
+  /** Refers to a specific webchat reference in parent window. Useful when using multiple chat window */
+  chatId?: string,
+  /** CSS class to be applied to iframe */
+  className?: string
 }
 
 type OverridableComponents = 'below_conversation' | 'before_container' | 'composer'

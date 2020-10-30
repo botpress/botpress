@@ -44,6 +44,7 @@ describe('Module - Channel Web', () => {
   })
 
   it('Create new conversation', async () => {
+    await page.waitFor(1000)
     await clickOn('#btn-conversations')
     await clickOn('#btn-convo-add')
     await expect(await getMessageCount(page)).toBe(0)
