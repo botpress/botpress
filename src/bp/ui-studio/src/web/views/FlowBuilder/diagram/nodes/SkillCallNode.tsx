@@ -1,4 +1,4 @@
-import { Icon } from '@blueprintjs/core'
+import { Icon, IconName } from '@blueprintjs/core'
 import classnames from 'classnames'
 import _ from 'lodash'
 import React from 'react'
@@ -7,7 +7,13 @@ import { AbstractNodeFactory } from 'storm-react-diagrams'
 
 import ActionItem from '../../common/action'
 import ConditionItem from '../../common/condition'
-import { SkillDefinition } from '../../sidePanel/FlowTools'
+
+interface SkillDefinition {
+  id: string
+  name: string
+  icon: IconName
+  moduleName: string
+}
 
 import { BaseNodeModel } from './BaseNodeModel'
 import { StandardIncomingPortModel, StandardOutgoingPortModel, StandardPortWidget } from './Ports'
