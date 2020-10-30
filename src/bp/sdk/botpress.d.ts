@@ -392,23 +392,6 @@ declare module 'botpress/sdk' {
       }
     }
 
-    export namespace Strings {
-      /**
-       * Returns the levenshtein similarity between two strings
-       * sim(a, b) = (|a| - dist(a, b)) / |a| where |a| < |b|
-       * sim(a, b) ∈ [0, 1]
-       * @returns the proximity between 0 and 1, where 1 is very close
-       */
-      export const computeLevenshteinDistance: (a: string, b: string) => number
-
-      /**
-       * Returns the jaro-winkler similarity between two strings
-       * sim(a, b) = 1 - dist(a, b)
-       * @returns the proximity between 0 and 1, where 1 is very close
-       */
-      export const computeJaroWinklerDistance: (a: string, b: string, options: { caseSensitive: boolean }) => number
-    }
-
     export namespace CRF {
       export class Tagger {
         tag(xseq: Array<string[]>): { probability: number; result: string[] }

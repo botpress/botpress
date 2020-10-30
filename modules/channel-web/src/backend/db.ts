@@ -50,7 +50,7 @@ export default class WebchatDb {
         this.batchSize
       )
       .catch(err => {
-        this.bp.logger.attachError(err).error(`Couldn't store messages to the database. Re-queuing elements`)
+        this.bp.logger.attachError(err).error("Couldn't store messages to the database. Re-queuing elements")
         const elementsToRetry = elements
           .map(x => ({ ...x, retry: x.retry ? x.retry + 1 : 1 }))
           .filter(x => x.retry < this.MAX_RETRY_ATTEMPTS)
@@ -186,7 +186,7 @@ export default class WebchatDb {
       sent_on: now,
       message_raw: raw,
       message_data: data,
-      payload: payload
+      payload
     }
   }
 
@@ -196,7 +196,7 @@ export default class WebchatDb {
     const now = new Date()
     const message: DBMessage = {
       id: uuid.v4(),
-      conversationId: conversationId,
+      conversationId,
       incomingEventId,
       userId: undefined,
       full_name: botName,
@@ -216,7 +216,7 @@ export default class WebchatDb {
       sent_on: now,
       message_raw: raw,
       message_data: data,
-      payload: payload
+      payload
     }
   }
 
@@ -358,7 +358,7 @@ export default class WebchatDb {
   }
 
   async getConversationMessages(conversationId, limit: number, fromId?: string): Promise<any> {
-    let query = this.knex('web_messages').where({ conversationId: conversationId })
+    let query = this.knex('web_messages').where({ conversationId })
 
     if (fromId) {
       query = query.andWhere('id', '<', fromId)

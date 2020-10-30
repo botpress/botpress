@@ -13,14 +13,14 @@ export interface StorageDriver {
   moveFile(fromPath: string, toPath: string): Promise<void>
 }
 
-export type FileRevision = {
+export interface FileRevision {
   path: string
   revision: string
   created_by: string
   created_on: Date
 }
 
-export type PendingRevisions = {
+export interface PendingRevisions {
   [rootFolder: string]: Array<FileRevision>
 }
 

@@ -42,7 +42,7 @@ const list_entities: ListEntityModel[] = [
   },
   {
     entityName: 'airport',
-    fuzzyTolerance: FuzzyTolerance.Loose,
+    fuzzyTolerance: FuzzyTolerance.Medium,
     id: 'custom.list.city',
     languageCode: 'en',
     mappingsTokens: {

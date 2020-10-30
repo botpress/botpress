@@ -42,12 +42,12 @@ export class KeyValueStore {
   // All these are deprecated in sdk. Should be removed.
 
   get = async (botId: string, key: string, path?: string) => {
-    this.logger.warn(`bp.kvs.get is deprecated, use bp.kvs.global().get or bp.kvs.forBot(botId).get`)
+    this.logger.warn('bp.kvs.get is deprecated, use bp.kvs.global().get or bp.kvs.forBot(botId).get')
     return this.forBot(botId).get(key, path)
   }
 
   set = (botId: string, key: string, value, path?: string) => {
-    this.logger.warn(`bp.kvs.set is deprecated, use bp.kvs.global().set or bp.kvs.forBot(botId).set`)
+    this.logger.warn('bp.kvs.set is deprecated, use bp.kvs.global().set or bp.kvs.forBot(botId).set')
     return this.forBot(botId).set(key, value, path)
   }
 

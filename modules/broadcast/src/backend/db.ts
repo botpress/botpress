@@ -63,7 +63,7 @@ export default class BroadcastDb {
       date_time: dateTime,
       ts: ts ? this.knex.date.format(ts) : undefined,
       text: content,
-      type: type,
+      type,
       outboxed: false,
       errored: false,
       total_count: 0,
@@ -86,7 +86,7 @@ export default class BroadcastDb {
       date_time: dateTime,
       ts: ts ? this.knex.date.format(ts) : undefined,
       text: content,
-      type: type,
+      type,
       filters: JSON.stringify(filters)
     }
 

@@ -101,7 +101,7 @@ async function prepareLocalModules(logger: sdk.Logger) {
     // We remove the local copy in case something is deleted from the database
     await Ghost.root(false).deleteFolder('modules')
   } catch (err) {
-    logger.attachError(err).warn(`Could not clear local modules cache`)
+    logger.attachError(err).warn('Could not clear local modules cache')
   }
 
   await Ghost.root().syncDatabaseFilesToDisk('modules')
@@ -146,7 +146,7 @@ async function start() {
   }
 
   logger.info(chalk`========================================
-{bold ${center(`Botpress Server`, 40, 9)}}
+{bold ${center('Botpress Server', 40, 9)}}
 {dim ${center(`Version ${sdk.version}`, 40, 9)}}
 {dim ${center(`OS ${process.distro}`, 40, 9)}}
 ${_.repeat(' ', 9)}========================================`)

@@ -63,7 +63,7 @@ export enum CONFIRM_DIALOG {
 }
 
 export const autoAnswerDialog = (promptText?: string, repeat?: boolean) => {
-  const dialog = async (dialog: Dialog) => await dialog.accept(promptText)
+  const dialog = async (dialog: Dialog) => dialog.accept(promptText)
 
   if (!repeat) {
     page.once('dialog', dialog)

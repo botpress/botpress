@@ -154,7 +154,7 @@ export class Choice extends React.Component<SkillProps<ChoiceData> & { bp: any }
         }
         return acc
       }, {})
-      this.setState({ contentId: element.id, keywords: keywords })
+      this.setState({ contentId: element.id, keywords })
     }
   }
 

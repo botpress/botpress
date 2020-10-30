@@ -149,7 +149,7 @@ export class ActionStrategy implements InstructionStrategy {
       event.state.__error = {
         type: 'action-execution',
         stacktrace: err.stacktrace || err.stack,
-        actionName: actionName,
+        actionName,
         actionArgs: _.omit(args, ['event'])
       }
 
@@ -221,10 +221,10 @@ export class TransitionStrategy implements InstructionStrategy {
 
     const vm = new NodeVM({
       wrapper: 'none',
-      sandbox: sandbox,
+      sandbox,
       timeout: 5000
     })
     const runner = new VmRunner()
-    return await runner.runInVm(vm, code)
+    return runner.runInVm(vm, code)
   }
 }

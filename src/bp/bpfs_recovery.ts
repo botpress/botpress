@@ -27,7 +27,7 @@ export default async (argv, action) => {
     await database.initialize()
     await ghost.initialize(useDbDriver)
   } catch (err) {
-    console.error(chalk.red(`Error during initialization`), err)
+    console.error(chalk.red('Error during initialization'), err)
     return process.exit()
   }
 
@@ -43,7 +43,7 @@ export default async (argv, action) => {
   }
 
   if (!file) {
-    console.error(chalk.red(`The --file parameter is required`))
+    console.error(chalk.red('The --file parameter is required'))
     process.exit()
   }
 

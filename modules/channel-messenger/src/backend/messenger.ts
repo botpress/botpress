@@ -15,7 +15,11 @@ const debugHttpOut = debugHttp.sub('out')
 const outgoingTypes = ['text', 'typing', 'login_prompt', 'carousel']
 type MessengerAction = 'typing_on' | 'typing_off' | 'mark_seen'
 
-type MountedBot = { pageId: string; botId: string; client: MessengerClient }
+interface MountedBot {
+  pageId: string
+  botId: string
+  client: MessengerClient
+}
 
 export class MessengerService {
   private readonly http = axios.create({ baseURL: 'https://graph.facebook.com/v3.2/me' })
@@ -33,7 +37,7 @@ export class MessengerService {
     }
 
     if (!config.appSecret?.length || config.appSecret === 'app_secret') {
-      throw new Error(`You need to set a valid value for "appSecret" in data/global/config/channel-messenger.json`)
+      throw new Error('You need to set a valid value for "appSecret" in data/global/config/channel-messenger.json')
     }
 
     this.appSecret = config.appSecret
@@ -88,7 +92,7 @@ export class MessengerService {
 
       const pageId = data.id
       const client = new MessengerClient(botId, this.bp, this.http)
-      this.mountedBots.push({ botId: botId, client, pageId })
+      this.mountedBots.push({ botId, client, pageId })
 
       await client.setupGreeting()
       await client.setupGetStarted()
