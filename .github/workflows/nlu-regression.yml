@@ -27,4 +27,4 @@ jobs:
       - name: Run Regression Test
         run: |
           yarn start nlu & sleep 20s &&
-          node ./build/nlu-regression.js
+          node ./build/nlu-regression/index.js
