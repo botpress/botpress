@@ -200,13 +200,23 @@ export default class Repository {
   getCurrentAgent = async (req, botId: string, agentId: string): Promise<AgentType> => {
     const online = await this.getAgentOnline(botId, agentId)
 
-    const { data } = await axios.get('/auth/me/profile', await this.axiosConfig(req, botId))
-
-    return {
-      ...data.payload,
-      id: agentId,
-      online: online
-    } as AgentType
+    try {
+      const { data } = await axios.get('/auth/me/profile', this.axiosConfig(req, botId))
+      return {
+        ...data.payload,
+        id: agentId,
+        online: online
+      } as AgentType
+    } catch (error) {
+      if (error.response.status == 404) {
+        return {
+          id: agentId,
+          online: online
+        } as AgentType
+      } else {
+        throw error
+      }
+    }
   }
 
   getAgents = async (botId: string, conditions: AgentCollectionConditions = {}): Promise<AgentType[]> => {
