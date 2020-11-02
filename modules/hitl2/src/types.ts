@@ -1,14 +1,4 @@
-interface UserProfile {
-  email: string
-  isSuperAdmin?: boolean
-  strategyType: string
-  strategy: string
-  firstname?: string
-  lastname?: string
-  picture_url?: string
-  fullName: string
-  permissions?: []
-}
+import { UserProfile } from 'common/typings'
 
 export type AgentType = {
   id: string
