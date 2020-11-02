@@ -99,6 +99,9 @@ declare module 'botpress/sdk' {
   export interface Logger {
     forBot(botId: string): this
     attachError(error: Error): this
+    /**
+     * Attaching an event to the log entry will display the associated logs in the Processing tab on the debugger
+     */
     attachEvent(event: IO.Event): this
     persist(shouldPersist: boolean): this
     level(level: LogLevel): this
