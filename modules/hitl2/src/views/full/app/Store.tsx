@@ -1,4 +1,5 @@
 import React, { createContext, Dispatch, useReducer } from 'react'
+import { Dictionary } from 'lodash'
 
 import { AgentType, EscalationType } from '../../../types'
 
@@ -7,18 +8,6 @@ import Reducer, { ActionType } from './Reducer'
 type StoreType = {
   state: StateType
   dispatch: Dispatch<ActionType>
-}
-
-export interface AgentsMapType {
-  [key: string]: AgentType
-}
-
-export interface EscalationsMapType {
-  [key: string]: EscalationType
-}
-
-export interface ReadsMapType {
-  [key: string]: Date
 }
 
 export interface UserDefaultsType {
@@ -30,9 +19,9 @@ export interface UserDefaultsType {
 export type StateType = {
   readonly currentAgent?: AgentType
   readonly currentEscalation?: EscalationType
-  readonly agents: AgentsMapType
-  readonly escalations: EscalationsMapType
-  readonly reads: ReadsMapType
+  readonly agents: Dictionary<AgentType>
+  readonly escalations: Dictionary<EscalationType>
+  readonly reads: Dictionary<Date>
   readonly defaults: {
     user?: UserDefaultsType
   }

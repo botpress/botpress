@@ -1,4 +1,5 @@
 import React, { createContext, useReducer, Dispatch } from 'react'
+import { Dictionary } from 'lodash'
 import { AgentType, EscalationType } from '../../../types'
 import Reducer, { ActionType } from './Reducer'
 
@@ -7,17 +8,9 @@ type StoreType = {
   dispatch: Dispatch<ActionType>
 }
 
-export interface AgentsMapType {
-  [key: string]: AgentType
-}
-
-export interface EscalationsMapType {
-  [key: string]: EscalationType
-}
-
 export type StateType = {
-  readonly agents: AgentsMapType
-  readonly escalations: EscalationsMapType
+  readonly agents: Dictionary<AgentType>
+  readonly escalations: Dictionary<EscalationType>
   readonly error?: any
 }
 

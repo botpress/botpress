@@ -3,7 +3,6 @@ import React, { FC, useEffect, useState } from 'react'
 import cx from 'classnames'
 
 import { EscalationType } from '../../../../types'
-import { EscalationsMapType } from '../../sidebar/Store'
 
 import { Spinner } from '@blueprintjs/core'
 import CasesIcon from './../../Icons/CasesIcon'
@@ -13,7 +12,7 @@ import EscalationItem from './EscalationItem'
 import styles from './../../style.scss'
 
 interface Props {
-  escalations: EscalationsMapType
+  escalations: object
   loading: boolean
   itemCount?: number
 }

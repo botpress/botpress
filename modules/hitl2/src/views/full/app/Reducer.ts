@@ -3,7 +3,7 @@ import _ from 'lodash'
 
 import { AgentType, CommentType, EscalationType, SocketMessageType } from '../../../types'
 
-import { AgentsMapType, EscalationsMapType, StateType } from './Store'
+import { StateType } from './Store'
 
 export type ActionType =
   | { type: 'setCurrentAgent'; payload: Partial<AgentType> }
@@ -29,11 +29,11 @@ const Reducer = (state: StateType, action: ActionType): StateType => {
       })
     case 'setAgents':
       return produce(state, draft => {
-        draft.agents = _.keyBy(action.payload, 'id') as AgentsMapType
+        draft.agents = _.keyBy(action.payload, 'id')
       })
     case 'setEscalations':
       return produce(state, draft => {
-        draft.escalations = _.keyBy(action.payload, 'id') as EscalationsMapType
+        draft.escalations = _.keyBy(action.payload, 'id')
         draft.reads = _.mapValues(draft.escalations, escalation => escalation.userConversation.createdOn)
       })
     case 'setComment':

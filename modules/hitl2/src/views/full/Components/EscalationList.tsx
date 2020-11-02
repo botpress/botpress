@@ -4,7 +4,7 @@ import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, useContext, useEffect, useState } from 'react'
 
-import { Context, EscalationsMapType } from '../app/Store'
+import { Context } from '../app/Store'
 import { ApiType } from '../Api'
 
 import { EscalationType } from './../../../types'
@@ -15,7 +15,7 @@ import EscalationListHeader, { FilterType, SortType } from './EscalationListHead
 
 interface Props {
   api: ApiType
-  escalations: EscalationsMapType
+  escalations: object
   loading: boolean
 }
 

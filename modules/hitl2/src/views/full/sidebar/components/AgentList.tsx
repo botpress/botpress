@@ -2,7 +2,6 @@ import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
 import { AgentType } from '../../../../types'
-import { AgentsMapType } from '../../sidebar/Store'
 
 import { Spinner } from '@blueprintjs/core'
 import { EmptyState, lang } from 'botpress/shared'
@@ -10,7 +9,7 @@ import AgentItem from './AgentItem'
 import AgentsIcon from '../../Icons/AgentsIcon'
 
 interface Props {
-  agents: AgentsMapType
+  agents: object
   loading: boolean
 }
 
