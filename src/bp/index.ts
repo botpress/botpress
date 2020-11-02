@@ -328,6 +328,55 @@ try {
       }
     )
     .command(
+      'nlu',
+      'Launch a local stand-alone nlu server',
+      {
+        port: {
+          description: 'The port to listen to',
+          default: 3200
+        },
+        host: {
+          description: 'Binds the nlu server to a specific hostname',
+          default: 'localhost'
+        },
+        modelDir: {
+          description: 'Directory where models will be saved'
+        },
+        authToken: {
+          description: 'When enabled, this token is required for clients to query your nlu server'
+        },
+        limit: {
+          description: 'Maximum number of requests per IP per "limitWindow" interval (0 means unlimited)',
+          default: 0
+        },
+        limitWindow: {
+          description: 'Time window on which the limit is applied (use standard notation, ex: 25m or 1h)',
+          default: '1h'
+        },
+        config: {
+          description:
+            'Path of the NLU configuration file (ex: "~/bp-nlu-config.json"). \
+            Use to configure the duckling and language servers endpoints.'
+        },
+        bodySize: {
+          description: 'Allowed size of HTTP requests body',
+          default: '250kb'
+        },
+        batchSize: {
+          description: 'Allowed number of text inputs in one call to POST /predict.',
+          default: -1
+        }
+      },
+      argv => {
+        process.VERBOSITY_LEVEL = argv.verbose ? Number(argv.verbose) : defaultVerbosity
+
+        getos.default().then(distro => {
+          process.distro = distro
+          require('./nlu-server').default(argv)
+        })
+      }
+    )
+    .command(
       'diag',
       'Generate a diagnostic report\nAlternative: set BP_DIAG=true',
       {
@@ -366,6 +415,10 @@ try {
     .option('verbose', {
       alias: 'v',
       description: 'verbosity level'
+    })
+    .command('version', "Display the server's version", {}, () => {
+      console.log(`Botpress: v${metadataContent.version}`)
+      console.log(`NodeJS: ${process.version}`)
     })
     .count('verbose')
     .help().argv

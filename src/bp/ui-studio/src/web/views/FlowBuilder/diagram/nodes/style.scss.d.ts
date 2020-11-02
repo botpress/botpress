@@ -13,6 +13,7 @@ interface CssExports {
   'node-container': string;
   'portContainer': string;
   'portLabel': string;
+  'removeLinkButton': string;
   'returnPort': string;
   'section-next': string;
   'section-onEnter': string;
@@ -23,6 +24,7 @@ interface CssExports {
   'subflowPort': string;
   'subtitle': string;
   'topPort': string;
+  'trash': string;
   'waiting': string;
 }
 declare var cssExports: CssExports;

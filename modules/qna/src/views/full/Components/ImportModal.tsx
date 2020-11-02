@@ -70,7 +70,7 @@ export const ImportModal: FC<Props> = props => {
       form.append('file', file)
       form.append('action', importAction)
 
-      const { data } = await props.axios.post(`/mod/qna/import`, form, axiosConfig)
+      const { data } = await props.axios.post('/mod/qna/import', form, axiosConfig)
       setStatusId(data)
     } catch (err) {
       clearStatus()

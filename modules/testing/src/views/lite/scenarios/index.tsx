@@ -8,8 +8,8 @@ import { AppToaster } from './toaster'
 import ScenarioDetails from './ScenarioDetails'
 import SplashScreen from './SplashScreen'
 
-const WEBCHAT_WIDTH = 400
-const DEV_TOOLS_WIDTH = 450
+const WEBCHAT_WIDTH = 240
+const DEV_TOOLS_WIDTH = 240
 
 export const updater = { callback: undefined }
 

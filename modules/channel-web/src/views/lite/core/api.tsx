@@ -52,7 +52,7 @@ export default class WebchatApi {
       const { data } = await this.axios.get('/botInfo', this.axiosConfig)
       return data
     } catch (err) {
-      console.log(`Error while loading bot info`, err)
+      console.error('Error while loading bot info', err)
     }
   }
 
@@ -61,15 +61,15 @@ export default class WebchatApi {
       const { data } = await this.axios.get(`/preferences/${this.userId}`, this.axiosConfig)
       return data
     } catch (err) {
-      console.log(`Error while fetching preferences`, err)
+      console.error('Error while fetching preferences', err)
     }
   }
 
   async updateUserPreferredLanguage(language: string) {
     try {
-      await this.axios.post(`/preferences/${this.userId}`, { language: language }, this.axiosConfig)
+      await this.axios.post(`/preferences/${this.userId}`, { language }, this.axiosConfig)
     } catch (err) {
-      console.log(`Error in updating user preferred language`, err)
+      console.error('Error in updating user preferred language', err)
     }
   }
 
@@ -78,7 +78,7 @@ export default class WebchatApi {
       const { data } = await this.axios.get(`/conversations/${this.userId}`, this.axiosConfig)
       return data
     } catch (err) {
-      console.log(`Error while fetching convos`, err)
+      console.error('Error while fetching convos', err)
     }
   }
 
@@ -95,7 +95,7 @@ export default class WebchatApi {
     try {
       this.axios.post(`/conversations/${this.userId}/${convoId}/reset`, {}, this.axiosConfig)
     } catch (err) {
-      console.log(`Error while resetting convo`, err)
+      console.error('Error while resetting convo', err)
     }
   }
 
@@ -104,7 +104,7 @@ export default class WebchatApi {
       const { data } = await this.axios.post(`/conversations/${this.userId}/new`, {}, this.axiosConfig)
       return data.convoId
     } catch (err) {
-      console.log(`Error in create conversation`, err)
+      console.error('Error in create conversation', err)
     }
   }
 
@@ -113,7 +113,7 @@ export default class WebchatApi {
       const { data } = await this.axios.get(`/conversations/${this.userId}/${convoId}/download/txt`, this.axiosConfig)
       return { name: data.name, txt: data.txt }
     } catch (err) {
-      console.log(`Error in download convo`, err)
+      console.error('Error in download convo', err)
     }
   }
 
@@ -137,7 +137,7 @@ export default class WebchatApi {
 
   async sendFeedback(feedback: number, eventId: string): Promise<void> {
     try {
-      return this.axios.post(`/saveFeedback`, { eventId, target: this.userId, feedback }, this.axiosConfig)
+      return this.axios.post('/saveFeedback', { eventId, target: this.userId, feedback }, this.axiosConfig)
     } catch (err) {
       await this.handleApiError(err)
     }
@@ -145,7 +145,7 @@ export default class WebchatApi {
 
   async getEventIdsFeedbackInfo(eventIds: string[]): Promise<EventFeedback[]> {
     try {
-      const { data } = await this.axios.post(`/feedbackInfo`, { eventIds, target: this.userId }, this.axiosConfig)
+      const { data } = await this.axios.post('/feedbackInfo', { eventIds, target: this.userId }, this.axiosConfig)
       return data
     } catch (err) {
       await this.handleApiError(err)
@@ -179,7 +179,7 @@ export default class WebchatApi {
 
     if (data.errorCode === 'BP_0401') {
       this.updateAxiosConfig({ botId: this.botId, externalAuthToken: undefined })
-      console.log(`External token expired or invalid. Removed from future requests`)
+      console.error('External token expired or invalid. Removed from future requests')
     }
   }
 }

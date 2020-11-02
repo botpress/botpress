@@ -55,7 +55,7 @@ export default class StrategyBasic {
         const { strategyId } = req.params
 
         if (!(await this.authService.isFirstUser())) {
-          return res.status(403).send(`Registration is disabled`)
+          return res.status(403).send('Registration is disabled')
         }
 
         const { email, password } = req.body

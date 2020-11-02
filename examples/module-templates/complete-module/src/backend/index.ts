@@ -23,7 +23,7 @@ const onFlowChanged = async (bp: typeof sdk, botId: string, flow: sdk.Flow) => {
  * This is where you would include your 'demo-bot' definitions.
  * You can copy the content of any existing bot and mark them as "templates", so you can create multiple bots from the same template.
  */
-const botTemplates: sdk.BotTemplate[] = [{ id: 'my_bot_demo', name: 'Bot Demo', desc: `Some description` }]
+const botTemplates: sdk.BotTemplate[] = [{ id: 'my_bot_demo', name: 'Bot Demo', desc: 'Some description' }]
 
 /**
  * Skills allows you to create custom logic and use them easily on the flow editor

@@ -4,7 +4,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 
-export type DialogExpiry = {
+export interface DialogExpiry {
   context: Date
   session: Date
 }

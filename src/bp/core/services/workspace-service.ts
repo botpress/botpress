@@ -44,7 +44,7 @@ export class WorkspaceService {
   }
 
   async getWorkspaces(): Promise<Workspace[]> {
-    const workspaces = await this.ghost.global().readFileAsObject<Workspace[]>('/', `workspaces.json`)
+    const workspaces = await this.ghost.global().readFileAsObject<Workspace[]>('/', 'workspaces.json')
     if (!workspaces || !workspaces.length) {
       throw new Error('No workspace found in workspaces.json')
     }
@@ -53,13 +53,13 @@ export class WorkspaceService {
   }
 
   async save(workspaces: Workspace[]): Promise<void> {
-    return this.ghost.global().upsertFile('/', `workspaces.json`, JSON.stringify(workspaces, undefined, 2))
+    return this.ghost.global().upsertFile('/', 'workspaces.json', JSON.stringify(workspaces, undefined, 2))
   }
 
   async mergeWorkspaceConfig(workspaceId: string, partialData: Partial<Workspace>) {
     const workspaces = await this.getWorkspaces()
     if (!workspaces.find(x => x.id === workspaceId)) {
-      throw new NotFoundError(`Workspace doesn't exist`)
+      throw new NotFoundError("Workspace doesn't exist")
     }
 
     return this.save(workspaces.map(wks => (wks.id === workspaceId ? { ...wks, ...partialData } : wks)))
@@ -112,7 +112,7 @@ export class WorkspaceService {
 
     const workspace = workspaces.find(x => x.id === workspaceId)
     if (!workspace) {
-      throw new NotFoundError(`Unknown workspace`)
+      throw new NotFoundError('Unknown workspace')
     }
 
     return workspace
@@ -131,7 +131,7 @@ export class WorkspaceService {
     }
 
     if (!defaultPipelines[workspace.pipelineId]) {
-      throw new InvalidOperationError(`Invalid pipeline`)
+      throw new InvalidOperationError('Invalid pipeline')
     }
 
     const newWorkspace = {
@@ -147,7 +147,7 @@ export class WorkspaceService {
   async deleteWorkspace(workspaceId: string): Promise<void> {
     const workspaces = await this.getWorkspaces()
     if (!workspaces.find(x => x.id === workspaceId)) {
-      throw new NotFoundError(`Workspace doesn't exist`)
+      throw new NotFoundError("Workspace doesn't exist")
     }
 
     return this.save(workspaces.filter(x => x.id !== workspaceId))
@@ -155,7 +155,7 @@ export class WorkspaceService {
 
   async addUserToWorkspace(email: string, strategy: string, workspaceId: string, options?: AddWorkspaceUserOptions) {
     if (!(await this.usersRepo.findUser(email, strategy))) {
-      throw new Error(`Specified user doesn't exist`)
+      throw new Error("Specified user doesn't exist")
     }
 
     const workspace = await this.findWorkspace(workspaceId)
