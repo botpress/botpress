@@ -27,6 +27,24 @@ export default async (bp: typeof sdk, state: StateType) => {
   const repository = new Repository(bp)
   const realtime = socket(bp)
 
+  const agentOnlineMiddleware = async (req: BPRequest, res: Response, next) => {
+    const { email, strategy } = req.tokenUser!
+    const agentId = makeAgentId(strategy, email)
+    const online = await repository.getAgentOnline(req.params.botId, agentId)
+
+    try {
+      Joi.attempt({ online: online }, AgentOnlineValidation)
+    } catch (err) {
+      if (err instanceof Joi.ValidationError) {
+        return formatError(res, new UnprocessableEntityError(err))
+      } else {
+        return next(err)
+      }
+    }
+
+    next()
+  }
+
   const hitlMiddleware = fn => {
     return (req: BPRequest, res: Response, next) => {
       Promise.resolve(fn(req as BPRequest, res, next)).catch(err => {
@@ -163,13 +181,11 @@ export default async (bp: typeof sdk, state: StateType) => {
 
   router.post(
     '/escalations/:id/assign',
+    agentOnlineMiddleware,
     hitlMiddleware(async (req: RequestWithUser, res: Response) => {
       const { email, strategy } = req.tokenUser!
 
       const agentId = makeAgentId(strategy, email)
-      const online = await repository.getAgentOnline(req.params.botId, agentId)
-
-      Joi.attempt({ online: online }, AgentOnlineValidation)
 
       let escalation
       escalation = await repository.getEscalationWithComments(req.params.botId, req.params.id)
@@ -224,13 +240,12 @@ export default async (bp: typeof sdk, state: StateType) => {
 
   router.post(
     '/escalations/:id/resolve',
+    agentOnlineMiddleware,
     hitlMiddleware(async (req: RequestWithUser, res: Response) => {
       const { email, strategy } = req.tokenUser!
 
       const agentId = makeAgentId(strategy, email)
-      const online = await repository.getAgentOnline(req.params.botId, agentId)
 
-      Joi.attempt({ online: online }, AgentOnlineValidation)
 
       let escalation
       escalation = await repository.getEscalationWithComments(req.params.botId, req.params.id)
