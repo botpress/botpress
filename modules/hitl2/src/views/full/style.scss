@@ -11,54 +11,32 @@
   flex-direction: column;
   height: 100%;
 
-  .header {
-    flex-grow: 0;
-    flex-shrink: 1;
-  }
-
   .mainContent {
-    flex-grow: 1;
-    flex-shrink: 0;
     display: flex;
+    flex: 1 1 auto;
 
     .sidebar {
-      display: flex;
-      flex-grow: 0;
-      flex-shrink: 1;
-      width: 480px;
+      width: 25%;
+      padding-left: var(--spacing-x-large);
     }
 
     .content {
-      background: #fff;
       display: flex;
       flex-grow: 1;
-      flex-shrink: 0;
+      background: #fff;
 
       .conversationWrapper {
-        display: flex;
-        flex-direction: column;
         flex-grow: 1;
         height: 100%;
         padding-left: var(--spacing-x-large);
       }
 
-      .tabs {
-        flex-grow: 0;
-        flex-shrink: 1;
-      }
-
-      .main {
-        flex-grow: 1;
-      }
-
-      .escalationInfo {
-        border-left: 1px solid var(--seashell);
+      .sidebarWrapper {
         display: flex;
         flex-direction: column;
-        flex-grow: 0;
-        flex-shrink: 1;
-        padding: 0 var(--spacing-x-large) var(--spacing-x-large);
-        width: 240px;
+        width: 20%;
+        padding-left: var(--spacing-x-large);
+        border-left: 1px solid var(--seashell);
 
         .createdDate {
           font-size: 10px;
@@ -86,6 +64,7 @@
         .commentForm {
           display: flex;
           margin-top: auto;
+          margin-bottom: var(--spacing-x-large);
 
           textarea {
             background: var(--white);
@@ -147,6 +126,7 @@
     }
 
     .info {
+      width: 75%;
       color: var(--shark);
       font-size: 12px;
       line-height: 1.5;

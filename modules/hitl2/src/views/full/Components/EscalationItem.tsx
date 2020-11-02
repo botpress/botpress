@@ -1,3 +1,4 @@
+import { Text } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -89,14 +90,14 @@ const EscalationItem: FC<Props> = ({ api, escalation }) => {
       {!readStatus && <span className={style.unreadDot}></span>}
       <div className={style.info}>
         {/* TODO add client name and click action here */}
-        <button className={style.clientName} type="button" onClick={() => {}}>
+        <button className={style.clientName} type="button">
           {_.get(escalation.userConversation.event, 'state.user.fullName') || defaultUsername}
         </button>{' '}
         #{id}
         <p>
           From {userConversation.channel} ⋅ {printAgent()}
         </p>
-        <p>{_.get(userConversation, 'event.preview')}</p>
+        <Text ellipsize={true}>{_.get(userConversation, 'event.preview')}</Text>
         <p className={style.createdDate}>{lang.tr('module.hitl2.escalation.created', { date: fromNow })}</p>
       </div>
       <div className={style.badge}>

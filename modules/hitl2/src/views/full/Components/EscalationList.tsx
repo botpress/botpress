@@ -1,14 +1,13 @@
 import { Spinner } from '@blueprintjs/core'
 import { EmptyState, lang } from 'botpress/shared'
-import cx from 'classnames'
+// import cx from 'classnames'
 import _ from 'lodash'
-import React, { FC, useContext, useEffect, useState } from 'react'
+import React, { Fragment, FC, useContext, useEffect, useState } from 'react'
 
 import { Context } from '../app/Store'
 import { ApiType } from '../Api'
 
 import { EscalationType } from './../../../types'
-import styles from './../style.scss'
 import CasesIcon from './../Icons/CasesIcon'
 import EscalationItem from './EscalationItem'
 import EscalationListHeader, { FilterType, SortType } from './EscalationListHeader'
@@ -65,7 +64,7 @@ const EscalationList: FC<Props> = props => {
   }, [filterOptions, sortOption, props.escalations])
 
   return (
-    <div className={cx(styles.escalationList)}>
+    <Fragment>
       <EscalationListHeader
         filterOptions={filterOptions}
         sortOption={sortOption}
@@ -84,7 +83,7 @@ const EscalationList: FC<Props> = props => {
         items.map((escalation, i) => (
           <EscalationItem key={escalation.id} api={api} escalation={escalation}></EscalationItem>
         ))}
-    </div>
+    </Fragment>
   )
 }
 

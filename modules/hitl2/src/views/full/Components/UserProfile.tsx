@@ -22,7 +22,6 @@ const UserProfile: FC<Props> = ({ conversation }) => {
     setUser(_.get(conversation.event, 'state.user', {}))
   }, [conversation])
 
-
   useEffect(() => {
     const key = _.get(conversation.event, 'target')
     const username = getOrSet(
@@ -47,21 +46,18 @@ const UserProfile: FC<Props> = ({ conversation }) => {
     setDefaultUsername(username)
   }, [conversation])
 
-
   const variables = user?.variables?.filter(x => !['fullname', 'email'].includes(x.name)) || []
 
   return (
     <div>
       <div className={style.profileHeader}>
         {/* TODO Add click action here */}
-        <button className={style.clientName} onClick={() => {}}>
-          {user.fullName || defaultUsername}
-        </button>
+        <button className={style.clientName}>{user.fullName || defaultUsername}</button>
         {/* TODO Should add company name here */}
         {user.email && <p>{user.email}</p>}
       </div>
 
-      {!!variables.length && (
+      {!_.isEmpty(variables.length) && (
         <Fragment>
           <div className={style.divider}></div>
           <Collapsible

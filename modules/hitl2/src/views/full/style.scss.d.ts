@@ -13,19 +13,16 @@ interface CssExports {
   'conversationWrapper': string;
   'createdDate': string;
   'divider': string;
-  'escalationInfo': string;
   'escalationItem': string;
   'escalationList': string;
   'escalationListHeader': string;
   'h100': string;
-  'header': string;
   'info': string;
-  'main': string;
   'mainContent': string;
   'profileHeader': string;
   'sidebar': string;
+  'sidebarWrapper': string;
   'table': string;
-  'tabs': string;
   'unreadDot': string;
   'w100': string;
 }

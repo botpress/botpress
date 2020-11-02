@@ -49,8 +49,8 @@ const Conversation: FC<Props> = props => {
   return (
     <Fragment>
       <div className={style.conversationWrapper}>
-        <Tabs tabs={[{ id: 'conversation', title: lang.tr('module.hitl2.conversation.tab') }]} className={style.tabs} />
-        <div className={style.main}>
+        <Tabs tabs={[{ id: 'conversation', title: lang.tr('module.hitl2.conversation.tab') }]} />
+        <div className={style.h100}>
           {!props.escalation ? (
             <EmptyState icon={<AgentsIcon />} text={lang.tr('module.hitl2.conversation.empty')}></EmptyState>
           ) : (
@@ -63,11 +63,8 @@ const Conversation: FC<Props> = props => {
       </div>
 
       {props.escalation && (
-        <div className={style.escalationInfo}>
-          <Tabs
-            tabs={[{ id: 'user', title: lang.tr('module.hitl2.escalation.contactDetails') }]}
-            className={style.tabs}
-          />
+        <div className={style.sidebarWrapper}>
+          <Tabs tabs={[{ id: 'user', title: lang.tr('module.hitl2.escalation.contactDetails') }]} />
           <Sidebar api={props.api} escalation={props.escalation}></Sidebar>
         </div>
       )}
