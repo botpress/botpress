@@ -5,15 +5,15 @@ import _ from 'lodash'
 import ms from 'ms'
 import nanoid from 'nanoid'
 import React from 'react'
-import { MdBugReport } from 'react-icons/md'
 import 'ui-shared/dist/theme.css'
+
+import lang from '../../../lang'
 
 import Settings from './settings'
 import style from './style.scss'
-import { loadSettings } from './utils'
-import { Error } from './views/Error'
 import { Inspector } from './views/Inspector'
 import { NDU } from './views/NDU'
+import { Processing } from './views/Processing'
 import Summary from './views/Summary'
 import EventNotFound from './EventNotFound'
 import FetchingEvent from './FetchingEvent'
@@ -34,7 +34,7 @@ interface Props {
 }
 
 interface State {
-  event: any
+  event: sdk.IO.IncomingEvent
   selectedTabId: string
   visible: boolean
   showSettings: boolean
@@ -70,6 +70,8 @@ export class Debugger extends React.Component<Props, State> {
     // @ts-ignore
     const parentShowEvent = window.parent.showEventOnDiagram
     this.showEventOnDiagram = parentShowEvent ? parentShowEvent() : () => {}
+
+    lang.init()
 
     updater.callback = this.loadEvent
 
@@ -176,6 +178,10 @@ export class Debugger extends React.Component<Props, State> {
           console.error("Couldn't load event on workflow", err)
         }
       }
+
+      if (event.processing && !event.processing.completed) {
+        keepRetrying = true
+      }
     } catch (err) {
       keepRetrying = true
     }
@@ -205,7 +211,7 @@ export class Debugger extends React.Component<Props, State> {
     }
 
     const { data: event } = await this.props.store.bp.axios.get(`/mod/extensions/events/${eventId}`)
-    if (!event.processing?.['completed']) {
+    if (!event.processing?.completed) {
       return event
     }
 
@@ -254,8 +260,8 @@ export class Debugger extends React.Component<Props, State> {
   }
 
   renderEvent() {
-    const eventError = _.get(this.state, 'event.state.__error')
     const ndu = _.get(this.state, 'event.ndu')
+    const processing = _.get(this.state, 'event.processing')
 
     return (
       <div className={style.content}>
@@ -280,18 +286,8 @@ export class Debugger extends React.Component<Props, State> {
             }
           />
           {ndu && <Tab id="ndu" title="NDU" panel={<NDU ndu={ndu} />} />}
+          {processing && <Tab id="processing" title="Processing" panel={<Processing processing={processing} />} />}
           <Tab id="advanced" title="Raw JSON" panel={<Inspector data={this.state.event} />} />
-          {eventError && (
-            <Tab
-              id="errors"
-              title={
-                <span>
-                  <Icon icon="error" color="red" /> Error
-                </span>
-              }
-              panel={<Error error={eventError} />}
-            />
-          )}
         </Tabs>
       </div>
     )

@@ -648,7 +648,7 @@ export interface EventCollectorConfig {
   ignoredEventProperties: string[]
   /**
    * These properties are only stored with the event when the user is logged on the studio
-   * @default ["ndu.triggers","ndu.predictions","nlu.predictions"]
+   * @default ["ndu.triggers","ndu.predictions","nlu.predictions","state","processing","activeProcessing"]
    */
   debuggerProperties: string[]
 }
