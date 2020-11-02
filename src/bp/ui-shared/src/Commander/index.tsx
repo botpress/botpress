@@ -65,7 +65,7 @@ const Commander: FC<CommanderProps> = props => {
             if (_.isFunction(shortcut.method)) {
               shortcut.method()
             } else {
-              console.error(`Invalid argument`)
+              console.error('Invalid argument')
             }
             return
         }

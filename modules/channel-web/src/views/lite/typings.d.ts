@@ -127,7 +127,7 @@ export interface StudioConnector {
   loadModuleView: any
 }
 
-export type Config = {
+export interface Config {
   botId?: string
   externalAuthToken?: string
   userId?: string
@@ -136,6 +136,7 @@ export type Config = {
   userIdScope?: string
   enableReset: boolean
   stylesheet: string
+  isEmulator?: boolean
   extraStylesheet: string
   showConversationsButton: boolean
   showUserName: boolean
@@ -175,7 +176,11 @@ export type Config = {
   /** Reference ensures that a specific value and its signature are valid */
   reference: string
   /** If true, Websocket is created when the Webchat is opened. Bot cannot be proactive. */
-  lazySocket?: boolean
+  lazySocket?: boolean,
+  /** Refers to a specific webchat reference in parent window. Useful when using multiple chat window */
+  chatId?: string,
+  /** CSS class to be applied to iframe */
+  className?: string
 }
 
 type OverridableComponents = 'below_conversation' | 'before_container' | 'composer'
@@ -241,6 +246,7 @@ export type CurrentConversation = {
 export interface Message {
   id: string
   userId: string
+  eventId: string
   incomingEventId: string
   conversationId: number
   avatar_url: string | undefined

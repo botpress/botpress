@@ -17,7 +17,7 @@ export const getOrCreate = (type: 'subscriber' | 'commands' | 'socket', url?: st
 
     const RETRY_STRATEGY = times => {
       if (times > 10) {
-        throw new Error(`Unable to connect to the Redis cluster after multiple attempts.`)
+        throw new Error('Unable to connect to the Redis cluster after multiple attempts.')
       }
       return Math.min(times * 200, 5000)
     }

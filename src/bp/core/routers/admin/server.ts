@@ -91,7 +91,7 @@ export class ServerRouter extends CustomRouter {
 
         if (!config.allowServerReboot) {
           this.logger.warn(`User ${user} requested a server reboot, but the feature is disabled.`)
-          return res.status(400).send(`Rebooting the server is disabled in the botpress.config.json file`)
+          return res.status(400).send('Rebooting the server is disabled in the botpress.config.json file')
         }
 
         this.logger.info(`User ${user} requested a server reboot for ${req.query.hostname}`)

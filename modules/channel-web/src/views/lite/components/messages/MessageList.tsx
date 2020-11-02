@@ -1,6 +1,6 @@
 import { ResizeObserver } from '@juggle/resize-observer'
 import differenceInMinutes from 'date-fns/difference_in_minutes'
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
@@ -77,8 +77,9 @@ class MessageList extends React.Component<MessageListProps, State> {
     }
 
     const maxScroll = this.messagesDiv.scrollHeight - this.messagesDiv.clientHeight
-    const shouldFocusNext = e.key == 'ArrowRight' || (e.key == 'ArrowDown' && this.messagesDiv.scrollTop == maxScroll)
-    const shouldFocusPrevious = e.key == 'ArrowLeft' || (e.key == 'ArrowUp' && this.messagesDiv.scrollTop == 0)
+    const shouldFocusNext =
+      e.key === 'ArrowRight' || (e.key === 'ArrowDown' && this.messagesDiv.scrollTop === maxScroll)
+    const shouldFocusPrevious = e.key === 'ArrowLeft' || (e.key === 'ArrowUp' && this.messagesDiv.scrollTop === 0)
 
     if (shouldFocusNext) {
       this.messagesDiv.blur()
@@ -215,7 +216,7 @@ class MessageList extends React.Component<MessageListProps, State> {
           <div className="bpw-new-messages-indicator" onClick={e => this.tryScrollToBottom()}>
             <span>
               {this.props.intl.formatMessage({
-                id: 'messages.newMessage' + (this.props.currentMessages.length === 1 ? '' : 's')
+                id: `messages.newMessage${this.props.currentMessages.length === 1 ? '' : 's'}`
               })}
             </span>
           </div>

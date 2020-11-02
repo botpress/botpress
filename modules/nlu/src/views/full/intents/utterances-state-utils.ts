@@ -1,7 +1,8 @@
 import _ from 'lodash'
 import { MarkJSON, NodeJSON, TextJSON, Value, ValueJSON } from 'slate'
 
-import { ParsedSlot, parseUtterance } from '../../../backend/utterance/utterance-parser'
+// this mess i temporary...
+import { ParsedSlot, parseUtterance } from '../../../../../../src/bp/nlu-core/utterance/utterance-parser'
 
 export const SLOT_MARK = 'slotName'
 

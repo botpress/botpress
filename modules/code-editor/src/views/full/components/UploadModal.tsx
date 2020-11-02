@@ -48,7 +48,7 @@ const fetchReducer = (state: State, action): State => {
   } else if (action.type === 'showError') {
     return { ...state, isLoading: false, hasError: true }
   } else {
-    throw new Error(`That action type isn't supported.`)
+    throw new Error("That action type isn't supported.")
   }
 }
 

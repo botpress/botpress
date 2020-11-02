@@ -1,7 +1,7 @@
 import classnames from 'classnames'
 import pick from 'lodash/pick'
 import { inject, observer } from 'mobx-react'
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 import { InjectedIntlProps, injectIntl } from 'react-intl'
 
 import { RootStore, StoreDef } from '../../store'
@@ -136,7 +136,7 @@ class Message extends Component<MessageProps> {
 
     const type = this.props.type || (this.props.payload && this.props.payload.type)
     const wrappedType = this.props.payload && this.props.payload.wrapped && this.props.payload.wrapped.type
-    const renderer = (this['render_' + type] || this.render_unsupported).bind(this)
+    const renderer = (this[`render_${type}`] || this.render_unsupported).bind(this)
     const wrappedClass = `bpw-bubble-${wrappedType}`
 
     const rendered = renderer()
@@ -156,7 +156,7 @@ class Message extends Component<MessageProps> {
 
     return (
       <div
-        className={classnames(this.props.className, wrappedClass, 'bpw-chat-bubble', 'bpw-bubble-' + type, {
+        className={classnames(this.props.className, wrappedClass, 'bpw-chat-bubble', `bpw-bubble-${type}`, {
           'bpw-bubble-highlight': this.props.isHighlighted
         })}
         data-from={this.props.fromLabel}

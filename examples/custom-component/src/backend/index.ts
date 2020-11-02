@@ -5,7 +5,7 @@ const botTemplates: sdk.BotTemplate[] = [
   {
     id: 'custom-component-demo',
     name: 'Demo - Custom Components',
-    desc: `This module shows how to implement custom components on channel web`
+    desc: 'This module shows how to implement custom components on channel web'
   }
 ]
 

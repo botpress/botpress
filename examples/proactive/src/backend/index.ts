@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
 
 const botTemplates: sdk.BotTemplate[] = [
-  { id: 'proactive-bot', name: 'Proactive Bot', desc: `The bot used to run the proactive interactive tutorials` }
+  { id: 'proactive-bot', name: 'Proactive Bot', desc: 'The bot used to run the proactive interactive tutorials' }
 ]
 
 const onServerStarted = async (bp: typeof sdk) => {}

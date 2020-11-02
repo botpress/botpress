@@ -279,6 +279,6 @@ export const fetchReducer = (state: State, action): State => {
       items: state.items
     }
   } else {
-    throw new Error(`That action type isn't supported.`)
+    throw new Error("That action type isn't supported.")
   }
 }

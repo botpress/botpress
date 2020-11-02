@@ -5,12 +5,11 @@ import { toastFailure, toastSuccess } from 'botpress/utils'
 import _ from 'lodash'
 import React from 'react'
 
-import { Test, TestResult, XValidationResults } from '../../shared/typings'
+import { Test, TestResult } from '../../shared/typings'
 import { computeSummary } from '../../shared/utils'
 
 import { makeApi } from './api'
 import style from './style.scss'
-import { CrossValidationResults } from './F1Metrics'
 import { ImportModal } from './ImportModal'
 import { TestModal } from './TestModal'
 import { TestTable } from './TestTable'
@@ -22,7 +21,6 @@ interface State {
   testResults: _.Dictionary<TestResult>
   loading: boolean
   working: boolean
-  f1Metrics: XValidationResults
   currentTest?: Test
 }
 
@@ -41,8 +39,7 @@ export default class NLUTests extends React.Component<Props, State> {
     tests: [],
     testResults: {},
     loading: true,
-    working: false,
-    f1Metrics: null
+    working: false
   }
 
   createTest = () => {
@@ -68,12 +65,6 @@ export default class NLUTests extends React.Component<Props, State> {
   refreshTests = async () => {
     // tslint:disable-next-line: no-floating-promises
     this.api.fetchTests().then(tests => this.setState({ tests, loading: false, currentTest: undefined }))
-  }
-
-  computeXValidation = async () => {
-    this.setState({ working: true })
-    const f1Metrics = await this.api.computeCrossValidation(this.props.contentLang)
-    this.setState({ f1Metrics, working: false })
   }
 
   runTests = async () => {
@@ -112,7 +103,7 @@ export default class NLUTests extends React.Component<Props, State> {
   }
 
   render() {
-    const shouldRenderSplash = !this.state.loading && !this.state.tests.length && !this.state.f1Metrics
+    const shouldRenderSplash = !this.state.loading && !this.state.tests.length
     return (
       <Container sidePanelHidden={true} yOverflowScroll={true}>
         <div />
@@ -140,15 +131,6 @@ export default class NLUTests extends React.Component<Props, State> {
               {!!this.state.tests.length && (
                 <Button intent="primary" minimal icon="play" text="Run tests" onClick={() => this.runTests()} />
               )}
-              <Button
-                disabled={this.state.tests.length === 0}
-                type="button"
-                intent="primary"
-                minimal
-                icon="function"
-                onClick={() => this.computeXValidation()}
-                text="Run Cross Validation"
-              />
               {this.state.working && (
                 <span className={style.working}>
                   <Spinner size={20} />
@@ -190,7 +172,6 @@ export default class NLUTests extends React.Component<Props, State> {
                   deleteTest={this.deleteTest}
                 />
               )}
-              <CrossValidationResults f1Metrics={this.state.f1Metrics} />
               <TestModal
                 test={this.state.currentTest}
                 api={this.api}
