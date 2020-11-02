@@ -43,9 +43,9 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
       return next()
     }
 
+    // Either a pending or assigned escalation
     const escalationId = getEscalation(cache, event.botId, event.threadId)
 
-    // Only escalations with status 'pending' or 'assigned' are cached
     if (!escalationId) {
       next(undefined, false)
       return
@@ -87,6 +87,9 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
     next()
   }
 
+  // Performance: Eager load and cache escalations that will be required on every incoming message.
+  // - Only escalations with status 'pending' or 'assigned' are cached because they are the only
+  // ones for which the middleware handles agent <-> user event piping
   const warmup = cache => {
     return repository
       .escalationsQuery(builder => {
@@ -97,13 +100,12 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
           cacheEscalation(escalation.botId, escalation.userThreadId, escalation)
         })
       })
-      .then(() => bp.logger.debug('cache ----', cache.keys()))
   }
 
   state.cacheEscalation = await bp.distributed.broadcast(cacheEscalation)
   state.expireEscalation = await bp.distributed.broadcast(expireEscalation)
 
-  warmup(cache)
+  await warmup(cache)
 
   bp.events.registerMiddleware({
     name: 'hitl2.incoming',

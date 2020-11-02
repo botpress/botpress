@@ -5,14 +5,14 @@ import moment from 'moment'
 import { AgentType, CommentType, EscalationType } from '../../types'
 
 // TODO Handle casting when object is undefined
-export function castDate(object: any, paths: string[]) {
+export function castDate<T extends object>(object: T, paths: string[]): T {
   paths.map(path => {
     _.get(object, path, false) && _.set(object, path, moment(_.get(object, path)).toDate())
   })
   return object
 }
 
-export function castEscalation(item) {
+export function castEscalation(item: EscalationType) {
   return _.chain(item)
     .thru(value =>
       castDate(value, ['createdAt', 'updatedAt', 'assignedAt', 'resolvedAt', 'userConversation.createdOn'])
@@ -24,7 +24,7 @@ export function castEscalation(item) {
 
       value.userConversation = {
         ...value.userConversation,
-        event: JSON.parse(value.userConversation.event)
+        event: JSON.parse(<string>value.userConversation.event)
       }
       return value
     })
@@ -39,7 +39,7 @@ export function castEscalation(item) {
     .value()
 }
 
-export function castComment(item) {
+export function castComment(item: CommentType) {
   return castDate(item, ['createdAt', 'updatedAt'])
 }
 

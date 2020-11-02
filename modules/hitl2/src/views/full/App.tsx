@@ -63,12 +63,7 @@ const App = ({ bp }) => {
 
   async function toggleOnline(online: boolean) {
     try {
-      let agent
-      if (online) {
-        agent = await api.setOnline()
-      } else {
-        agent = await api.setOffline()
-      }
+      const agent = online ? await api.setOnline() : await api.setOffline()
       dispatch({ type: 'setCurrentAgent', payload: agent }) // optimistic update, will also be updated via websocket event
       online
         ? toast.success(lang.tr('module.hitl2.agent.onlineSuccess'))

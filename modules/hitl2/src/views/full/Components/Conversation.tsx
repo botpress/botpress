@@ -25,7 +25,7 @@ const Conversation: FC<Props> = props => {
       const escalation = await api.assignEscalation(props.escalation.id)
       toast.success(lang.tr('module.hitl2.escalation.assign', { id: escalation.id }))
     } catch (error) {
-      if (_.inRange(error.response.status, 400, 499)) {
+      if (_.inRange(_.get(error, 'response.status'), 400, 499)) {
         toast.failure(error.response.data.errors[0].detail)
       } else {
         dispatch({ type: 'setError', payload: error })
@@ -38,7 +38,7 @@ const Conversation: FC<Props> = props => {
       const escalation = await api.resolveEscalation(props.escalation.id)
       toast.success(lang.tr('module.hitl2.escalation.resolve', { id: escalation.id }))
     } catch (error) {
-      if (_.inRange(error.response.status, 400, 499)) {
+      if (_.inRange(_.get(error, 'response.status'), 400, 499)) {
         toast.failure(error.response.data.errors[0].detail)
       } else {
         dispatch({ type: 'setError', payload: error })

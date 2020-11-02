@@ -4,7 +4,7 @@ import cx from 'classnames'
 import _ from 'lodash'
 import React, { useContext, useEffect, useState } from 'react'
 
-import { SocketMessageType } from './../../types'
+import { SocketMessageType, EscalationType } from './../../types'
 import AgentList from './sidebar/components/AgentList'
 import EscalationList from './sidebar/components/EscalationList'
 import { Context, Store } from './sidebar/Store'
@@ -27,7 +27,7 @@ const Sidebar = ({ bp, close }) => {
         return dispatch({
           type: 'setEscalation',
           payload: _.thru(message, () => {
-            message.payload = castEscalation(message.payload)
+            message.payload = castEscalation(message.payload as EscalationType)
             return message
           })
         })

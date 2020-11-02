@@ -72,9 +72,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       const agentId = makeAgentId(strategy, email)
 
       const online = await repository.setAgentOnline(req.params.botId, agentId, true)
-      const payload = {
-        online: online
-      }
+      const payload = { online }
 
       realtime.sendPayload({
         resource: 'agent',
@@ -131,8 +129,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       Joi.attempt(payload, CreateEscalationSchema)
 
       // Prevent creating a new escalation if one is currently pending or assigned
-      let escalation
-      escalation = await repository
+      let escalation = await repository
         .escalationsQuery(builder => {
           return builder
             .where('botId', req.params.botId)
@@ -142,26 +139,25 @@ export default async (bp: typeof sdk, state: StateType) => {
             .orderBy('createdAt')
             .limit(1)
         })
-        .then(data => _.head(data))
+        .then(data => _.head(data) as EscalationType)
 
       if (escalation) {
-        res.sendStatus(200)
-      } else {
-        escalation = await repository.createEscalation(req.params.botId, payload).then(escalation => {
-          state.cacheEscalation(req.params.botId, escalation.userThreadId, escalation)
-          return escalation
-        })
-
-        realtime.sendPayload({
-          resource: 'escalation',
-          type: 'create',
-          id: escalation.id,
-          payload: escalation
-        })
-
-        res.status(201)
-        res.json(escalation)
+        return res.sendStatus(200)
       }
+
+      escalation = await repository.createEscalation(req.params.botId, payload).then(escalation => {
+        state.cacheEscalation(req.params.botId, escalation.userThreadId, escalation)
+        return escalation
+      })
+
+      realtime.sendPayload({
+        resource: 'escalation',
+        type: 'create',
+        id: escalation.id,
+        payload: escalation
+      })
+
+      res.status(201).send(escalation)
     })
   )
 

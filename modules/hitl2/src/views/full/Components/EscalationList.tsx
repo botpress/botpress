@@ -1,5 +1,5 @@
 import { Spinner } from '@blueprintjs/core'
-import { EmptyState, lang, Tabs } from 'botpress/shared'
+import { EmptyState, lang } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, useContext, useEffect, useState } from 'react'

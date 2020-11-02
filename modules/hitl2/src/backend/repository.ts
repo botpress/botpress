@@ -16,12 +16,12 @@ export interface CollectionConditions extends Partial<SortOrder> {
 }
 
 export default class Repository {
-  private escalationColumns: string[]
-  private commentColumns: string[]
-  private eventColumns: string[]
-  private commentColumnsPrefixed: string[]
-  private commentPrefix: string
-  private escalationPrefix: string
+  private readonly escalationColumns: string[]
+  private readonly commentColumns: string[]
+  private readonly eventColumns: string[]
+  private readonly commentColumnsPrefixed: string[]
+  private readonly commentPrefix: string
+  private readonly escalationPrefix: string
 
   constructor(private bp: typeof sdk) {
     this.commentPrefix = 'comment'
@@ -124,7 +124,7 @@ export default class Repository {
   // thus meaning the highest Id is also the most recent.
   //
   // - Note: We're interested in 'incoming' & 'text' events only
-  private recentEventQuery(): Knex.QueryBuilder {
+  private recentEventQuery() {
     return this.bp
       .database('events')
       .select('*')
@@ -151,7 +151,7 @@ export default class Repository {
       .join(this.recentEventQuery(), 'escalations.userThreadId', 'recent_event.threadId')
   }
 
-  private escalationsWithCommentsQuery(botId: string, conditions: CollectionConditions = {}): Knex.QueryBuilder {
+  private escalationsWithCommentsQuery(botId: string, conditions: CollectionConditions = {}) {
     return this.bp
       .database('escalations')
       .select(
@@ -180,8 +180,8 @@ export default class Repository {
     }
   }
 
-  escalationsQuery = async (query?: Knex.QueryCallback): Promise<EscalationType[]> => {
-    return await this.bp.database<EscalationType>('escalations').modify(this.applyQuery(query))
+  escalationsQuery = (query?: Knex.QueryCallback) => {
+    return this.bp.database<EscalationType>('escalations').modify(this.applyQuery(query))
   }
 
   getAgentOnline = async (botId: string, agentId: string): Promise<boolean> => {
@@ -198,16 +198,13 @@ export default class Repository {
   getCurrentAgent = async (req, botId: string, agentId: string): Promise<AgentType> => {
     const online = await this.getAgentOnline(botId, agentId)
 
-    return axios
-      .get('/auth/me/profile', await this.axiosConfig(req, botId))
-      .then(response => response.data.payload)
-      .then(data => {
-        return {
-          ...data,
-          id: agentId,
-          online: online
-        } as AgentType
-      })
+    const { data } = await axios.get('/auth/me/profile', await this.axiosConfig(req, botId))
+
+    return {
+      ...data.payload,
+      id: agentId,
+      online: online
+    } as AgentType
   }
 
   getAgents = async (botId: string, conditions: AgentCollectionConditions = {}): Promise<AgentType[]> => {
