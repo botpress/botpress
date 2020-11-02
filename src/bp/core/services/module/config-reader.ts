@@ -11,9 +11,7 @@ import { GhostService } from '../'
 
 const debug = DEBUG('configuration').sub('modules')
 
-interface Config {
-  [key: string]: any
-}
+export type Config = Dic<any>
 
 /**
  * Load configuration for a specific module in the following precedence order:
