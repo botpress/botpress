@@ -1,8 +1,9 @@
 import React from 'react'
 
 import { Panel, Label, Button } from 'react-bootstrap'
-import { Icon, Intent } from "@blueprintjs/core";
-import { IconNames } from "@blueprintjs/icons";
+import { Icon } from '@blueprintjs/core'
+import { confirmDialog } from 'botpress/shared'
+import { IconNames } from '@blueprintjs/icons'
 
 import style from './style.scss'
 import Interaction from './Interaction'
@@ -35,9 +36,14 @@ class Scenario extends React.Component {
     this.setState({ expanded })
   }
 
-  handleDeleteClick = e => {
+  handleDeleteClick = async e => {
     e.stopPropagation()
-    this.props.delete(this.props.scenario)
+    const shouldDelete = await confirmDialog('Are you sure you want to delete this scenario?', {
+      acceptLabel: 'Delete'
+    })
+    if (shouldDelete) {
+      this.props.delete(this.props.scenario)
+    }
   }
 
   handleRunClick = e => {
@@ -54,7 +60,7 @@ class Scenario extends React.Component {
         <Panel.Heading className={style.scenarioHead}>
           <Panel.Title className={style.title} onClick={this.toggleExpanded.bind(this, !expanded)}>
             <Button bsSize="small" className={'btn-light'}>
-              <Icon icon={expanded ? IconNames.CHEVRON_UP: IconNames.CHEVRON_DOWN} style={{ margin: 0 }} />
+              <Icon icon={expanded ? IconNames.CHEVRON_UP : IconNames.CHEVRON_DOWN} style={{ margin: 0 }} />
             </Button>
             <span>{scenario.name}</span>
             <span className={style.subtitle}>
@@ -67,7 +73,13 @@ class Scenario extends React.Component {
             <Button bsSize="small" variant="danger" className={'btn-danger'} onClick={this.handleDeleteClick}>
               <Icon size={11} icon={IconNames.TRASH} />
             </Button>
-            <Button bsSize="small" variant="success" className={'btn-success'} disabled={isRunning} onClick={this.handleRunClick}>
+            <Button
+              bsSize="small"
+              variant="success"
+              className={'btn-success'}
+              disabled={isRunning}
+              onClick={this.handleRunClick}
+            >
               <Icon size={13} icon={IconNames.PLAY} />
             </Button>
           </div>
