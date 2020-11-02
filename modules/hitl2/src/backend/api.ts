@@ -130,7 +130,7 @@ export default async (bp: typeof sdk, state: StateType) => {
     errorMiddleware(async (req: Request, res: Response) => {
       const escalations = await repository.getEscalationsWithComments(
         req.params.botId,
-        _.pick(req.query, ['limit', 'orderByColumn', 'orderByDirection']) as CollectionConditions
+        _.pick(req.query, ['limit', 'column', 'desc']) as CollectionConditions
       )
       res.send(escalations)
     })
