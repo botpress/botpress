@@ -1,7 +1,7 @@
 import { EditableFile } from '../../../backend/typings'
 import { HOOK_SIGNATURES } from '../../../typings/hooks'
 
-const START_COMMENT = `/** Your code starts below */`
+const START_COMMENT = '/** Your code starts below */'
 const END_COMMENT = '/** Your code ends here */'
 
 const ACTION_HTTP_SIGNATURE =

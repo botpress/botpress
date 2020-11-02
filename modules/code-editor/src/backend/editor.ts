@@ -179,7 +179,7 @@ export default class Editor {
 
       fileContent = typings.toString()
       if (name === 'botpress.d.ts') {
-        fileContent = fileContent.replace(`'botpress/sdk'`, `sdk`)
+        fileContent = fileContent.replace("'botpress/sdk'", 'sdk')
       }
     } catch (err) {
       this.bp.logger.warn(`Couldn't load file ${filePath} `)
@@ -200,7 +200,7 @@ export default class Editor {
     const moduleTypings = await this.getModuleTypings()
 
     const files = [
-      { name: 'node.d.ts', location: path.join(__dirname, `/../typings/node.d.txt`) },
+      { name: 'node.d.ts', location: path.join(__dirname, '/../typings/node.d.txt') },
       { name: 'botpress.d.ts', location: path.join(__dirname, '/../botpress.d.js') },
       // Required so array.includes() can be used without displaying an error
       { name: 'es6include.d.ts', location: path.join(__dirname, '/../typings/es6include.txt') }

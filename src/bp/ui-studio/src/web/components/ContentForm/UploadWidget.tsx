@@ -38,7 +38,7 @@ const UploadWidget: FC<any> = props => {
         uploading: false
       }
     } else {
-      throw new Error(`That action type isn't supported.`)
+      throw new Error("That action type isn't supported.")
     }
   }
 

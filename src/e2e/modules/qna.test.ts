@@ -27,7 +27,7 @@ describe('Module - QNA', () => {
 
     expect(await getQnaCount()).toBe(2)
     await page.keyboard.press('Delete')
-    await clickOn(`[class^='bp3-tag-remove']`)
+    await clickOn("[class^='bp3-tag-remove']")
   })
 
   it('Create new entry', async () => {

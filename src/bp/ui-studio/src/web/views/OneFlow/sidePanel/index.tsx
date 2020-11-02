@@ -124,7 +124,7 @@ const SidePanelContent: FC<Props> = props => {
 
   const downloadTextFile = (text, fileName) => {
     const link = document.createElement('a')
-    link.href = URL.createObjectURL(new Blob([text], { type: `application/json` }))
+    link.href = URL.createObjectURL(new Blob([text], { type: 'application/json' }))
     link.download = fileName
     link.click()
   }
