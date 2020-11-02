@@ -121,9 +121,10 @@ class Web extends React.Component<MainProps> {
     this.socket.onTyping = this.handleTyping
     this.socket.onData = this.handleDataMessage
     this.socket.onUserIdChanged = this.props.setUserId
-    this.socket.setup()
 
     this.config.userId && this.socket.changeUserId(this.config.userId)
+
+    this.socket.setup()
     await this.socket.waitForUserId()
   }
 
@@ -144,6 +145,8 @@ class Web extends React.Component<MainProps> {
       }
 
       await this.socket.changeUserId(data.newValue)
+      await this.socket.setup()
+      await this.socket.waitForUserId()
       await this.props.initializeChat()
     })
 

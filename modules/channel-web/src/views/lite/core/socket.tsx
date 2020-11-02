@@ -38,9 +38,8 @@ export default class BpSocket {
     window.parent?.postMessage({ ...payload, chatId: this.chatId }, '*')
   }
 
-  public changeUserId(newId: string): Promise<void> {
+  public changeUserId(newId: string) {
     this.events.updateVisitorId(newId, this.userIdScope)
-    return this.waitForUserId()
   }
 
   /** Waits until the VISITOR ID is set  */
