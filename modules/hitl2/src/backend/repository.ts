@@ -48,12 +48,14 @@ export default class Repository {
     this.commentColumnsPrefixed = this.commentColumns.map(s => this.commentPrefix.concat(':', s))
   }
 
-  private axiosConfig = async (req, botId: string): Promise<sdk.AxiosBotConfig> => {
-    const config = await this.bp.http.getAxiosConfigForBot(botId, { localUrl: true })
-    config.baseURL = _.trim(config.baseURL, `/bots/${botId}`)
-    config.headers['Authorization'] = req.headers.authorization
-    config.headers['X-BP-Workspace'] = req.workspace
-    return config
+  private axiosConfig = (req, botId: string): sdk.AxiosBotConfig => {
+    return {
+      baseURL: `${process.LOCAL_URL}/api/v1/bots/${botId}`,
+      headers: {
+        Authorization: req.headers.authorization,
+        'X-BP-Workspace': req.workspace
+      }
+    }
   }
 
   // This mutates object
