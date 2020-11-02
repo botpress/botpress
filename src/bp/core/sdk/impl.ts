@@ -17,7 +17,7 @@ export class RealTimePayload {
    */
   static forVisitor(visitorId: string, eventName: string, payload: any): RealTimePayload {
     if (!eventName.toLowerCase().startsWith('guest.')) {
-      eventName = 'guest.' + eventName
+      eventName = `guest.${eventName}`
     }
 
     return new RealTimePayload(eventName, {
@@ -58,7 +58,7 @@ export class IOEvent implements sdk.IO.Event {
     this.botId = args.botId
     this.createdOn = new Date()
     this.threadId = args.threadId ? args.threadId.toString() : undefined
-    this.id = args.id || (Date.now() * 100000 + ((Math.random() * 100000) | 0)).toString()
+    this.id = this.makeId()
     this.preview = args.preview || this.constructPreview()
     this.flags = {}
     this.state = { __stacktrace: [] }
@@ -86,6 +86,13 @@ export class IOEvent implements sdk.IO.Event {
       ms: 0,
       ...args.nlu
     }
+  }
+
+  private makeId(): string {
+    // nanosecond temporal + 3 rand digits
+    return `${process.hrtime.bigint()}${Math.random()
+      .toString()
+      .slice(-3)}`
   }
 
   public hasFlag(flag: symbol): boolean {

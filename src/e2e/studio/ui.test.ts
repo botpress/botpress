@@ -9,6 +9,7 @@ describe('Studio - UI', () => {
 
   it('Emulator window toggle properly', async () => {
     await page.waitFor(1000)
+    await page.focus('#mainLayout')
     await page.type('#mainLayout', 'e')
     await page.keyboard.type('Much automated!')
     await Promise.all([expectBotApiCallSuccess('mod/channel-web/messages/'), page.keyboard.press('Enter')])

@@ -131,6 +131,7 @@ export default class WebchatDb {
           table.string('id').primary()
           table.integer('conversationId')
           table.string('incomingEventId')
+          table.string('eventId')
           table.string('userId')
           table.string('message_type') // @ deprecated Remove in a future release (11.9)
           table.text('message_text') // @ deprecated Remove in a future release (11.9)
@@ -156,7 +157,7 @@ export default class WebchatDb {
     userId: string,
     conversationId: number,
     payload: any,
-    incomingEventId: string,
+    eventId: string,
     user?: sdk.User
   ) {
     const { fullName, avatar_url } = await this.getUserInfo(userId, user)
@@ -166,7 +167,8 @@ export default class WebchatDb {
     const message: DBMessage = {
       id: uuid.v4(),
       conversationId,
-      incomingEventId,
+      eventId,
+      incomingEventId: eventId,
       userId,
       full_name: fullName,
       avatar_url,
@@ -190,13 +192,21 @@ export default class WebchatDb {
     }
   }
 
-  async appendBotMessage(botName, botAvatar, conversationId, payload, incomingEventId) {
+  async appendBotMessage(
+    botName: string,
+    botAvatar: string,
+    conversationId: number,
+    payload: any,
+    incomingEventId: string,
+    eventId: string
+  ) {
     const { type, text, raw, data } = payload
 
     const now = new Date()
     const message: DBMessage = {
       id: uuid.v4(),
       conversationId,
+      eventId,
       incomingEventId,
       userId: undefined,
       full_name: botName,

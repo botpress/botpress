@@ -1,0 +1,10 @@
+#second-container {
+  position: relative;
+  height: 500px;
+}
+
+#second-container #second.chat2 {
+  position: absolute;
+  top: 0;
+  left: 0;
+}

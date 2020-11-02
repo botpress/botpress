@@ -289,6 +289,9 @@ export const addDocumentationHint = createAction('UI/ADD_DOCUMENTATION_HINT')
 export const removeDocumentationHint = createAction('UI/REMOVE_DOCUMENTATION_HINT')
 export const updateDocumentationModal = createAction('UI/UPDATE_DOCUMENTATION_MODAL')
 export const toggleBottomPanel = createAction('UI/TOGGLE_BOTTOM_PANEL')
+export const zoomIn = createAction('UI/ZOOM_IN_DIAGRAM')
+export const zoomOut = createAction('UI/ZOOM_OUT_DIAGRAM')
+export const zoomToLevel = createAction('UI/ZOOM_TO_LEVEL_DIAGRAM')
 export const setEmulatorOpen = createAction('EMULATOR_OPENED')
 
 // User
