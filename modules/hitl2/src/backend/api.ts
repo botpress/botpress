@@ -45,7 +45,7 @@ export default async (bp: typeof sdk, state: StateType) => {
     next()
   }
 
-  const hitlMiddleware = fn => {
+  const errorMiddleware = fn => {
     return (req: BPRequest, res: Response, next) => {
       Promise.resolve(fn(req as BPRequest, res, next)).catch(err => {
         if (err instanceof ResponseError) {
@@ -61,7 +61,7 @@ export default async (bp: typeof sdk, state: StateType) => {
 
   router.get(
     '/agents/me',
-    hitlMiddleware(async (req: RequestWithUser, res: Response) => {
+    errorMiddleware(async (req: RequestWithUser, res: Response) => {
       const { email, strategy } = req.tokenUser!
       const payload = await repository.getCurrentAgent(req, req.params.botId, makeAgentId(strategy, email))
       res.send(payload)
@@ -70,7 +70,7 @@ export default async (bp: typeof sdk, state: StateType) => {
 
   router.get(
     '/agents',
-    hitlMiddleware(async (req: RequestWithUser, res: Response) => {
+    errorMiddleware(async (req: RequestWithUser, res: Response) => {
       const agents = await repository.getAgents(
         req.params.botId,
         _.tap(_.pick(req.query, 'online'), conditions => {
@@ -85,7 +85,7 @@ export default async (bp: typeof sdk, state: StateType) => {
 
   router.post(
     '/agents/me/online',
-    hitlMiddleware(async (req: RequestWithUser, res: Response) => {
+    errorMiddleware(async (req: RequestWithUser, res: Response) => {
       const { email, strategy } = req.tokenUser!
       const agentId = makeAgentId(strategy, email)
 
@@ -105,7 +105,7 @@ export default async (bp: typeof sdk, state: StateType) => {
 
   router.post(
     '/agents/me/offline',
-    hitlMiddleware(async (req: RequestWithUser, res: Response) => {
+    errorMiddleware(async (req: RequestWithUser, res: Response) => {
       const { email, strategy } = req.tokenUser!
       const agentId = makeAgentId(strategy, email)
 
@@ -127,7 +127,7 @@ export default async (bp: typeof sdk, state: StateType) => {
 
   router.get(
     '/escalations',
-    hitlMiddleware(async (req: Request, res: Response) => {
+    errorMiddleware(async (req: Request, res: Response) => {
       const escalations = await repository.getEscalationsWithComments(
         req.params.botId,
         _.pick(req.query, ['limit', 'orderByColumn', 'orderByDirection']) as CollectionConditions
@@ -138,7 +138,7 @@ export default async (bp: typeof sdk, state: StateType) => {
 
   router.post(
     '/escalations',
-    hitlMiddleware(async (req: Request, res: Response) => {
+    errorMiddleware(async (req: Request, res: Response) => {
       const payload = {
         ..._.pick(req.body, ['userId', 'userThreadId']),
         status: 'pending' as 'pending'
@@ -182,7 +182,7 @@ export default async (bp: typeof sdk, state: StateType) => {
   router.post(
     '/escalations/:id/assign',
     agentOnlineMiddleware,
-    hitlMiddleware(async (req: RequestWithUser, res: Response) => {
+    errorMiddleware(async (req: RequestWithUser, res: Response) => {
       const { email, strategy } = req.tokenUser!
 
       const agentId = makeAgentId(strategy, email)
@@ -241,7 +241,7 @@ export default async (bp: typeof sdk, state: StateType) => {
   router.post(
     '/escalations/:id/resolve',
     agentOnlineMiddleware,
-    hitlMiddleware(async (req: RequestWithUser, res: Response) => {
+    errorMiddleware(async (req: RequestWithUser, res: Response) => {
       const { email, strategy } = req.tokenUser!
 
       const agentId = makeAgentId(strategy, email)
@@ -282,7 +282,7 @@ export default async (bp: typeof sdk, state: StateType) => {
 
   router.post(
     '/escalations/:id/comments',
-    hitlMiddleware(async (req: RequestWithUser, res: Response) => {
+    errorMiddleware(async (req: RequestWithUser, res: Response) => {
       const { email, strategy } = req.tokenUser!
       const agentId = makeAgentId(strategy, email)
 
