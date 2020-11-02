@@ -139,7 +139,6 @@ export const BUILTIN_MODULES = [
   'channel-smooch',
   'channel-teams',
   'channel-telegram',
-  'channel-twilio',
   'channel-web',
   'code-editor',
   'examples',
@@ -149,8 +148,6 @@ export const BUILTIN_MODULES = [
   'misunderstood',
   'ndu',
   'nlu',
-  'nlu-extras',
-  'nlu-testing',
   'qna',
   'testing',
   'uipath'
