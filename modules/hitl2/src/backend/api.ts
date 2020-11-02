@@ -22,8 +22,9 @@ import {
   ResolveEscalationSchema
 } from './validation'
 
-export default async (bp: typeof sdk, repository: Repository, state: StateType) => {
+export default async (bp: typeof sdk, state: StateType) => {
   const router = bp.http.createRouterForBot('hitl2')
+  const repository = new Repository(bp)
   const realtime = socket(bp)
 
   const hitlMiddleware = fn => {

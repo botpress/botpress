@@ -43,7 +43,6 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
       return next()
     }
 
-
     const escalationId = getEscalation(cache, event.botId, event.threadId)
 
     // Only escalations with status 'pending' or 'assigned' are cached
@@ -89,8 +88,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   }
 
   const warmup = cache => {
-    bp.logger.debug('warmup ----')
-    repository
+    return repository
       .escalationsQuery(builder => {
         builder.where('status', 'pending').orWhere('status', 'assigned')
       })

@@ -3,6 +3,7 @@ import * as sdk from 'botpress/sdk'
 import en from '../translations/en.json'
 import fr from '../translations/fr.json'
 
+import migrate from './migrate'
 import api from './api'
 import { registerMiddleware, unregisterMiddleware } from './middleware'
 import Repository from './repository'
@@ -14,14 +15,13 @@ export interface StateType {
 
 const state: StateType = {}
 
-let repository
-
 const onServerStarted = async (bp: typeof sdk) => {
-  repository = new Repository(bp)
+  await migrate(bp)
 }
 
 const onServerReady = async (bp: typeof sdk) => {
-  await api(bp, repository, state)
+  await migrate(bp)
+  await api(bp, state)
   await registerMiddleware(bp, state)
 }
 
