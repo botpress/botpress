@@ -49,7 +49,7 @@ export class TelemetryRepository {
     })
   }
 
-  async pruneEntries() {
+  async pruneEntries(): Promise<void> {
     const config = await this.config.getBotpressConfig()
     const limit = config.telemetry?.entriesLimit ?? DEFAULT_ENTRIES_LIMIT
 
@@ -61,17 +61,10 @@ export class TelemetryRepository {
       .offset(limit)
       .then(rows => rows.map(entry => entry.uuid))
 
-    if (uuIds.length) {
-      await Promise.mapSeries(_.chunk(uuIds, 500), async uuIdChunk => {
-        await this.database
-          .knex(this.tableName)
-          .whereIn('uuid', uuIdChunk)
-          .del()
-      })
-    }
+    return this.removeMany(uuIds)
   }
 
-  async removeMany(uuIds: string[]) {
+  async removeMany(uuIds: string[]): Promise<void> {
     await Promise.mapSeries(_.chunk(uuIds, 500), async uuIdChunk => {
       await this.database
         .knex(this.tableName)
@@ -91,12 +84,13 @@ export class TelemetryRepository {
       const uuIds = events.map(event => event.uuid)
       await this.updateAvailability(uuIds, this.database.knex.bool.false())
     }
+
     return events.map(event => this.database.knex.json.get(event.payload))
   }
 
   async insertPayload(uuid: string, payload: JSON) {
     await this.database.knex(this.tableName).insert({
-      uuid: uuid,
+      uuid,
       payload: this.database.knex.json.set(payload),
       available: this.database.knex.bool.true(),
       lastChanged: this.database.knex.date.now(),
