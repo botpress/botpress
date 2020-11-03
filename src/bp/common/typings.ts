@@ -1,4 +1,4 @@
-import { BotDetails, Flow, FlowNode, RolloutStrategy, StageRequestApprovers, StrategyUser } from 'botpress/sdk'
+import { BotDetails, Flow, FlowNode, IO, RolloutStrategy, StageRequestApprovers, StrategyUser } from 'botpress/sdk'
 import { Request } from 'express'
 
 import { BotpressConfig } from '../core/config/botpress.config'
@@ -201,6 +201,23 @@ export interface LibraryElement {
   type: 'say_something' | 'execute'
   preview: string
   path: string
+}
+
+export interface OutgoingEventCommonArgs {
+  event: IO.Event
+  // Any other additional property
+  [property: string]: any
+}
+
+export interface EventCommonArgs {
+  event: IO.IncomingEvent
+  user: { [attribute: string]: any }
+  temp: { [property: string]: any }
+  bot: { [property: string]: any }
+  session: IO.CurrentSession
+  workflow: IO.WorkflowHistory
+  // Any other additional property
+  [property: string]: any
 }
 
 export interface ServerHealth {

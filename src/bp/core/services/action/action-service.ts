@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { IO, Logger } from 'botpress/sdk'
+import { extractEventCommonArgs } from 'common/action'
 import { ObjectCache } from 'common/object-cache'
 import { ActionScope, ActionServer, LocalActionDefinition } from 'common/typings'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
@@ -7,8 +8,7 @@ import { printObject } from 'core/misc/print'
 import { TasksRepository } from 'core/repositories/tasks'
 import { NotFoundError } from 'core/routers/errors'
 import { ACTION_SERVER_AUDIENCE } from 'core/routers/sdk/utils'
-import { injectable } from 'inversify'
-import { inject, tagged } from 'inversify'
+import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
 import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
@@ -23,6 +23,7 @@ import { clearRequireCache, requireFromString } from '../../modules/require'
 import { TYPES } from '../../types'
 import { BotService } from '../bot-service'
 import { ActionExecutionError } from '../dialog/errors'
+import { addErrorToEvent, addStepToEvent, StepScopes, StepStatus } from '../middleware/event-collector'
 import { WorkspaceService } from '../workspace-service'
 
 import { extractMetadata } from './metadata'
@@ -177,12 +178,25 @@ export class ScopedActionService {
       }
 
       debug.forBot(incomingEvent.botId, 'done running', { actionName, actionArgs })
+      addStepToEvent(incomingEvent, StepScopes.Action, actionName, StepStatus.Completed)
     } catch (err) {
       this.logger
         .forBot(this.botId)
         .attachError(err)
         .error(`An error occurred while executing the action "${actionName}`)
-      throw new ActionExecutionError(err.message, actionName, err.stack)
+
+      addErrorToEvent(
+        {
+          type: 'action-execution',
+          stacktrace: err.stacktrace || err.stack,
+          actionName,
+          actionArgs: _.omit(actionArgs, ['event'])
+        },
+        incomingEvent
+      )
+      const name = actionName ?? incomingEvent.state.context?.currentNode ?? ''
+      addStepToEvent(incomingEvent, StepScopes.Action, name, StepStatus.Error)
+      throw new ActionExecutionError(err.message, name, err.stack)
     }
   }
 
@@ -245,7 +259,7 @@ export class ScopedActionService {
     taskInfo.endedAt = new Date()
     taskInfo.statusCode = statusCode
 
-    if (statusCode != 200) {
+    if (statusCode !== 200) {
       this.tasksRepository.createTask({
         ...taskInfo,
         status: 'failed',
@@ -287,15 +301,11 @@ export class ScopedActionService {
 
     const { code, _require, dirPath, action } = await this.loadLocalAction(actionName)
 
-    const args = {
-      event: incomingEvent,
-      user: incomingEvent.state.user,
-      temp: incomingEvent.state.temp,
-      session: incomingEvent.state.session,
+    const args = extractEventCommonArgs(incomingEvent, {
       args: actionArgs,
       printObject,
       process: UntrustedSandbox.getSandboxProcessArgs()
-    }
+    })
 
     switch (runType) {
       case 'trusted': {
@@ -344,7 +354,7 @@ export class ScopedActionService {
     const action = await this._findAction(actionName)
     const code = await this._getActionScript(action.name, action.scope, action.legacy)
 
-    const botFolder = action.scope === 'global' ? 'global' : 'bots/' + this.botId
+    const botFolder = action.scope === 'global' ? 'global' : `bots/${this.botId}`
     const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/${actionName}.js`))
     const lookups = getBaseLookupPaths(dirPath)
 
@@ -395,9 +405,9 @@ export class ScopedActionService {
 
     let script: string
     if (scope === 'global') {
-      script = await this.ghost.global().readFileAsString('actions', name + '.js')
+      script = await this.ghost.global().readFileAsString('actions', `${name}.js`)
     } else {
-      const filename = legacy ? name + '.js' : name + '.http.js'
+      const filename = legacy ? `${name}.js` : `${name}.http.js`
       script = await this.ghost.forBot(this.botId).readFileAsString('actions', filename)
     }
 
