@@ -55,8 +55,7 @@ export const UsageModal: FC<Props> = props => {
   const getHref = x => {
     if (x.original.type === 'Flow') {
       const flowName = x.original.name.replace(/\.flow\.json$/i, '')
-      const path = window.USE_ONEFLOW ? 'oneflow' : 'flows'
-      return `/studio/${window.BOT_ID}/${path}/${flowName}/#search:${x.original.node}`
+      return `/studio/${window.BOT_ID}/flows/${flowName}/#search:${x.original.node}`
     } else {
       return `/studio/${window.BOT_ID}/modules/qna?id=${x.original.id}`
     }
