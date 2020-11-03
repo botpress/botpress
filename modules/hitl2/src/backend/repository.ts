@@ -50,7 +50,7 @@ export default class Repository {
 
   private axiosConfig = (req, botId: string): sdk.AxiosBotConfig => {
     return {
-      baseURL: `${process.LOCAL_URL}/api/v1/bots/${botId}`,
+      baseURL: `${process.LOCAL_URL}/api/v1`,
       headers: {
         Authorization: req.headers.authorization,
         'X-BP-Workspace': req.workspace
@@ -200,23 +200,12 @@ export default class Repository {
   getCurrentAgent = async (req, botId: string, agentId: string): Promise<AgentType> => {
     const online = await this.getAgentOnline(botId, agentId)
 
-    try {
-      const { data } = await axios.get('/auth/me/profile', this.axiosConfig(req, botId))
-      return {
-        ...data.payload,
-        id: agentId,
-        online: online
-      } as AgentType
-    } catch (error) {
-      if (error.response.status == 404) {
-        return {
-          id: agentId,
-          online: online
-        } as AgentType
-      } else {
-        throw error
-      }
-    }
+    const { data } = await axios.get('/auth/me/profile', this.axiosConfig(req, botId))
+    return {
+      ...data.payload,
+      id: agentId,
+      online: online
+    } as AgentType
   }
 
   getAgents = async (botId: string, conditions: AgentCollectionConditions = {}): Promise<AgentType[]> => {
