@@ -21,7 +21,7 @@ interface Props {
 const EscalationList: FC<Props> = props => {
   const { api } = props
 
-  const { state } = useContext(Context)
+  const { state, dispatch } = useContext(Context)
 
   const [items, setItems] = useState([])
   const [filterOptions, setFilterOptions] = useState<FilterType>({
@@ -55,12 +55,17 @@ const EscalationList: FC<Props> = props => {
   }
 
   useEffect(() => {
-    setItems(
-      _.chain(_.values(props.escalations))
-        .filter(filterBy)
-        .orderBy(...orderConditions())
-        .value()
-    )
+    const filtered = _.chain(_.values(props.escalations))
+      .filter(filterBy)
+      .orderBy(...orderConditions())
+      .value()
+
+    // Unselect current escalation when excluded from list
+    if (!_.includes(_.map(filtered, 'id'), state.currentEscalation?.id)) {
+      dispatch({ type: 'setCurrentEscalation', payload: null })
+    }
+
+    setItems(filtered)
   }, [filterOptions, sortOption, props.escalations])
 
   return (
