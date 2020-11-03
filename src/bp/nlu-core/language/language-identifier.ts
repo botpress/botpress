@@ -20,15 +20,11 @@ class FastTextLanguageId {
   protected static async initializeModel() {
     const tmpFn = tmp.tmpNameSync({ postfix: '.ftz' })
 
-    console.log('start: initialize lang Id')
-
     const modelBuff = readFileSync(PRETRAINED_LID_176)
     writeFileSync(tmpFn, modelBuff)
     const ft = new FastTextLanguageId.toolkit.FastText.Model()
     await ft.loadFromFile(tmpFn)
     FastTextLanguageId.model = ft
-
-    console.log('done: initialize lang Id')
   }
 
   async identify(text: string): Promise<sdk.MLToolkit.FastText.PredictResult[]> {
