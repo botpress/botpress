@@ -3,13 +3,13 @@
 	url = git@github.com:botpress/botpress-pro.git
 [submodule "src/bp/ml/crfsuite"]
 	path = src/bp/ml/crfsuite
-	url = https://github.com/botpress/node-crfsuite.git
+	url = https://github.com/botpress/node-crfsuite-napi.git
 [submodule "src/bp/ml/fasttext"]
 	path = src/bp/ml/fasttext
 	url = https://github.com/botpress/node-fasttext.git
 [submodule "src/bp/ml/node-svm"]
 	path = src/bp/ml/node-svm
-	url = https://github.com/botpress/node-svm
+	url = https://github.com/botpress/node-svm-napi.git
 [submodule "src/bp/ml/sentencepiece"]
 	path = src/bp/ml/sentencepiece
 	url = git@github.com:botpress/node-sentencepiece.git

@@ -74,7 +74,7 @@ export const makeMainRoutes = () => {
   }
 
   return (
-    <Provider store={store}>
+    <Provider store={store as any}>
       <ConnectedRouter history={history}>
         <Switch>
           <Route path="/login/:strategy?/:workspace?" render={props => <LoginPage auth={auth} {...props} />} />

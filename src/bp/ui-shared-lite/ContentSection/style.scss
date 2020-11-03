@@ -1,0 +1,41 @@
+.section {
+  margin-top: var(--spacing-large);
+
+  p,
+  a {
+    color: var(--shark);
+    font-size: 12px;
+    line-height: 1.25;
+    margin: 0;
+  }
+
+  a {
+    color: var(--ocean);
+  }
+
+  ul {
+    list-style: none;
+    margin: var(--spacing-medium) 0;
+    padding: 0 0 0 var(--spacing-medium);
+    border-left: 1px solid var(--seashell);
+
+    li {
+      color: var(--shark);
+      font-size: 12px;
+      line-height: 1;
+      margin-top: var(--spacing-small);
+
+      &:first-of-type {
+        margin-top: 0;
+      }
+    }
+  }
+
+  .sectionTitle {
+    color: var(--shark);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.08;
+    margin: 0 0 var(--spacing-small);
+  }
+}

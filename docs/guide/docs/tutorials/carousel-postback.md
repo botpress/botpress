@@ -19,7 +19,7 @@ It's now time to create the bot. Use [this link](/docs/assets/bot_carouselexampl
 
 ![Screenshot of the bot](assets/carousel-postback-bot.png)
 
-As you can see, the bot wil first display a Carousel, then flow to a different node based on event's state.
+As you can see, the bot wil first display a Carousel, then flow to a different node based on the value of `temp.cityClicked`. The current transitions do not work yet, let's see the hook.
 
 ### Implementing the hook
 
@@ -27,12 +27,21 @@ From the Code Editor, create a new hook. This hook will be of **category** "Afte
 Paste the following snippet inside your hook file:
 
 ```javascript
-async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent) {
+function hook(bp: typeof sdk, event: sdk.IO.IncomingEvent) {
   /** Your code starts below */
 
   async function hook() {
-    if (event.type === 'postback') {
-      const payload = event.payload.payload
+    const backs = ['callback', 'postback']
+    if (backs.includes(event.type)) {
+      let payload = ''
+      switch (event.type) {
+        case 'callback': // For Facebook Messenger
+          payload = event.payload.text
+          break
+        case 'postback': // For Web
+          payload = event.payload.payload
+      }
+
       switch (payload) {
         case 'mtl':
           event.state.temp.cityClicked = 'mtl'
@@ -47,15 +56,16 @@ async function action(bp: typeof sdk, event: sdk.IO.IncomingEvent) {
   }
 
   return hook()
+
   /** Your code ends here */
 }
 ```
 
-Save the your hook file and open the emulator.
+Save the hook and open the emulator.
 
 ### Testing your bot
 
-Now, summon the bot by sending a quick hello message. The bot will display the carousel.
+Summon the bot by sending a quick hello message. The bot will display the carousel.
 Click on a button of the carousel. The bot's response will vary based on the button that was clicked:
 
 ![Emulator](assets/carousel-postback-emulator.png)

@@ -32,7 +32,7 @@ const onBotMount = async (bp: typeof sdk, botId: string) => {
       const dataset = await getDataset(bpfs)
       const zip = await createZip(dataset, moduleBotConfig.dialogflow)
       await restoreAgent(zip, moduleBotConfig.dialogflow)
-      bp.logger.forBot(botId).info(`Started DialogFlow training`)
+      bp.logger.forBot(botId).info('Started DialogFlow training')
     },
     5000,
     { maxWait: 30000 }

@@ -1,13 +1,14 @@
 import { Button, Classes, Dialog, FileInput, FormGroup, H4, Intent, Switch, TextArea } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
+import ms from 'ms'
 import React, { Fragment, useState } from 'react'
 import api from '~/api'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
 
 const _uploadArchive = async (fileContent: any, doUpdate: boolean) => {
   const { data } = await api
-    .getSecured({ timeout: 60000 })
+    .getSecured({ timeout: ms('10m') })
     .post(`/admin/versioning/${doUpdate ? 'update' : 'changes'}`, fileContent, {
       headers: { 'Content-Type': 'application/tar+gzip' }
     })

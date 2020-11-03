@@ -18,7 +18,11 @@ export interface UserRepository {
   getUserCount(): Promise<any>
 }
 
-type Row = { channel: string; botId: string; userId: string }
+interface Row {
+  channel: string
+  botId: string
+  userId: string
+}
 
 @injectable()
 export class KnexUserRepository implements UserRepository {
@@ -65,7 +69,7 @@ export class KnexUserRepository implements UserRepository {
       this.batches = _.omit(this.batches, keys)
       // build a master query
       const today = this.database.knex.date.today().toQuery()
-      const values = keys.map(k => this.database.knex.raw(`(:botId, :channel, :userId)`, original[k])).join(',')
+      const values = keys.map(k => this.database.knex.raw('(:botId, :channel, :userId)', original[k] as any)).join(',')
       const query = this.database.knex
         .raw(
           // careful if changing this query, make sure it works in both SQLite and Postgres
@@ -121,7 +125,7 @@ export class KnexUserRepository implements UserRepository {
     if (ug) {
       const user: User = {
         channel,
-        id: id,
+        id,
         createdOn: ug.created_at,
         updatedOn: ug.updated_at,
         attributes: this.database.knex.json.get(ug.attributes),
@@ -170,6 +174,11 @@ export class KnexUserRepository implements UserRepository {
   async setAttributes(channel: string, user_id: string, attributes: any, trx?: Knex.Transaction): Promise<void> {
     channel = channel.toLowerCase()
     await this._dataRetentionUpdate(channel, user_id, attributes)
+
+    const originalAttributes = await this.getAttributes(channel, user_id)
+    if (_.isEqual(originalAttributes, attributes)) {
+      return
+    }
 
     const req = this.database
       .knex(this.tableName)

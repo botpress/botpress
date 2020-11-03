@@ -66,7 +66,7 @@ class ViewStore {
 
   @computed
   get showConversationsButton() {
-    return this.rootStore.config?.showConversationsButton
+    return !this.rootStore.config?.conversationId && this.rootStore.config?.showConversationsButton
   }
 
   @computed
@@ -149,7 +149,8 @@ class ViewStore {
 
   @action.bound
   postMessage(name: string) {
-    window.parent.postMessage({ name: name }, '*')
+    const chatId = this.rootStore.config.chatId
+    window.parent.postMessage({ name, chatId }, '*')
   }
 
   @action.bound
@@ -201,21 +202,21 @@ class ViewStore {
   @action.bound
   setLayoutWidth(width: string | number) {
     if (width) {
-      this.dimensions.layout = typeof width === 'number' ? width + 'px' : width
+      this.dimensions.layout = typeof width === 'number' ? `${width}px` : width
     }
   }
 
   @action.bound
   setContainerWidth(width: string | number) {
     if (width) {
-      this.dimensions.container = width = typeof width === 'number' ? width + 'px' : width
+      this.dimensions.container = width = typeof width === 'number' ? `${width}px` : width
     }
   }
 
   @action.bound
   addCustomAction(newAction: CustomAction) {
     if (this.customActions.find(act => act.id === newAction.id)) {
-      console.log(`Can't add another action with the same ID.`)
+      console.error("Can't add another action with the same ID.")
       return
     }
 
@@ -230,7 +231,7 @@ class ViewStore {
   @action.bound
   addHeaderButton(newButton: CustomButton) {
     if (this.customButtons.find(btn => btn.id === newButton.id)) {
-      console.log(`Can't add another button with the same ID.`)
+      console.error("Can't add another button with the same ID.")
       return
     }
 
@@ -258,6 +259,7 @@ class ViewStore {
   showChat() {
     if (this.disableAnimations) {
       this.activeView = 'side'
+      this.postMessage('webchatOpened')
       return this._updateTransitions({ widgetTransition: undefined, sideTransition: 'none' })
     }
 
@@ -280,6 +282,7 @@ class ViewStore {
 
     if (this.disableAnimations) {
       this.activeView = 'widget'
+      this.postMessage('webchatClosed')
       return this._updateTransitions({ widgetTransition: undefined, sideTransition: undefined })
     }
 

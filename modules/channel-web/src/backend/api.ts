@@ -39,7 +39,7 @@ export default async (bp: typeof sdk, db: Database) => {
       files: 1,
       fileSize: 5242880 // 5MB
     },
-    filename: function(req, file, cb) {
+    filename(req, file, cb) {
       const userId = _.get(req, 'params.userId') || 'anonymous'
       const ext = path.extname(file.originalname)
 
@@ -72,12 +72,12 @@ export default async (bp: typeof sdk, db: Database) => {
 
     const s3 = new aws.S3(awsConfig)
     const s3Storage = multers3({
-      s3: s3,
+      s3,
       bucket: globalConfig.uploadsS3Bucket || 'uploads',
       contentType: multers3.AUTO_CONTENT_TYPE,
       cacheControl: 'max-age=31536000', // one year caching
       acl: 'public-read',
-      key: function(req, file, cb) {
+      key(req, file, cb) {
         const userId = _.get(req, 'params.userId') || 'anonymous'
         const ext = path.extname(file.originalname)
 
@@ -90,7 +90,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
   const router = bp.http.createRouterForBot('channel-web', { checkAuthentication: false, enableJsonBodyParser: true })
   const perBotCache = apicache.options({
-    appendKey: req => req.method + ' for bot ' + req.params && req.params.botId,
+    appendKey: req => `${req.method} for bot ${req.params?.boId}`,
     statusCodes: { include: [200] }
   }).middleware
 
@@ -114,7 +114,8 @@ export default async (bp: typeof sdk, db: Database) => {
         details: botInfo.details,
         languages: botInfo.languages,
         extraStylesheet: config.extraStylesheet,
-        security
+        security,
+        lazySocket: config.lazySocket
       })
     })
   )
@@ -265,7 +266,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
     if (
       (!payload.text || !_.isString(payload.text) || payload.text.length > config.maxMessageLength) &&
-      payload.type != 'postback'
+      payload.type !== 'postback'
     ) {
       throw new Error(`Text must be a valid string of less than ${config.maxMessageLength} chars`)
     }
@@ -303,8 +304,12 @@ export default async (bp: typeof sdk, db: Database) => {
     asyncMiddleware(async (req: BPRequest, res: Response) => {
       const payload = req.body || {}
       const { botId = undefined, userId = undefined } = req.params || {}
+      let { conversationId = undefined } = req.query || {}
       await bp.users.getOrCreateUser('web', userId, botId)
-      const conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
+
+      if (!conversationId) {
+        conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
+      }
 
       const event = bp.IO.Event({
         botId,
@@ -363,7 +368,7 @@ export default async (bp: typeof sdk, db: Database) => {
       await bp.users.getOrCreateUser('web', userId, botId)
 
       const payload = {
-        text: `Reset the conversation`,
+        text: 'Reset the conversation',
         type: 'session_reset'
       }
 
@@ -377,6 +382,9 @@ export default async (bp: typeof sdk, db: Database) => {
 
   router.post('/conversations/:userId/new', async (req: BPRequest, res: Response) => {
     const { userId, botId } = req.params
+    if (!userId) {
+      return res.status(400).send({ message: 'Invalid user ID' })
+    }
     const convoId = await db.createConversation(botId, userId)
     res.send({ convoId })
   })
@@ -392,7 +400,7 @@ export default async (bp: typeof sdk, db: Database) => {
         throw new Error('Invalid reference')
       }
 
-      if (!conversationId || conversationId == 'null') {
+      if (!conversationId || conversationId === 'null') {
         conversationId = await db.getOrCreateRecentConversation(botId, userId, { originatesFromUserMessage: true })
       }
 
@@ -406,7 +414,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
       const payload = {
         text: message,
-        signature: signature,
+        signature,
         type: 'session_reference'
       }
 

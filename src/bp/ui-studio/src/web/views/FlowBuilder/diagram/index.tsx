@@ -11,7 +11,9 @@ import {
   Tag,
   Toaster
 } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
+import { IO } from 'botpress/sdk'
+import { lang, MainLayout, sharedStyle } from 'botpress/shared'
+import cx from 'classnames'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
@@ -33,14 +35,17 @@ import {
   switchFlowNode,
   updateFlow,
   updateFlowNode,
-  updateFlowProblems
+  updateFlowProblems,
+  zoomToLevel
 } from '~/actions'
+import { SearchBar } from '~/components/Shared/Interface'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 import { SaySomethingWidgetFactory } from '~/views/OneFlow/diagram/nodes/SaySomethingNode'
 
-import { SkillDefinition } from '../sidePanel/FlowTools'
+import WorkflowToolbar from '../../OneFlow/diagram/WorkflowToolbar'
 
-import { defaultTransition, DIAGRAM_PADDING, DiagramManager, nodeTypes, Point } from './manager'
+import { prepareEventForDiagram } from './debugger'
+import { defaultTransition, DiagramManager, DIAGRAM_PADDING, nodeTypes, Point } from './manager'
 import { DeletableLinkFactory } from './nodes/LinkWidget'
 import { SkillCallNodeModel, SkillCallWidgetFactory } from './nodes/SkillCallNode'
 import { StandardNodeModel, StandardWidgetFactory } from './nodes/StandardNode'
@@ -49,14 +54,50 @@ import { ExecuteWidgetFactory } from './nodes_v2/ExecuteNode'
 import { ListenWidgetFactory } from './nodes_v2/ListenNode'
 import { RouterNodeModel, RouterWidgetFactory } from './nodes_v2/RouterNode'
 import style from './style.scss'
+import NodeToolbar from './NodeToolbar'
+import ZoomToolbar from './ZoomToolbar'
+
+interface OwnProps {
+  childRef: (el: any) => void
+  readOnly: boolean
+  canPasteNode: boolean
+  selectedTopic: string
+  selectedWorkflow: string
+  flowPreview: boolean
+  highlightFilter: string
+  showSearch: boolean
+  hideSearch: () => void
+  currentLang: string
+  setCurrentLang: (lang: string) => void
+  languages: string[]
+  defaultLang: string
+  handleFilterChanged: (event: any) => void
+}
+
+type StateProps = ReturnType<typeof mapStateToProps>
+type DispatchProps = typeof mapDispatchToProps
+
+type Props = DispatchProps & StateProps & OwnProps
+
+type BpNodeModel = StandardNodeModel | SkillCallNodeModel
+
+type ExtendedDiagramEngine = {
+  enableLinkPoints?: boolean
+  flowBuilder?: any
+} & DiagramEngine
 
 class Diagram extends Component<Props> {
   private diagramEngine: ExtendedDiagramEngine
   private diagramWidget: DiagramWidget
   private diagramContainer: HTMLDivElement
+  private searchRef: React.RefObject<HTMLInputElement>
   private manager: DiagramManager
   /** Represents the source port clicked when the user is connecting a node */
   private dragPortSource: any
+
+  state = {
+    nodeInfos: []
+  }
 
   constructor(props) {
     super(props)
@@ -73,32 +114,50 @@ class Diagram extends Component<Props> {
 
     // This reference allows us to update flow nodes from widgets
     this.diagramEngine.flowBuilder = this
-    this.manager = new DiagramManager(this.diagramEngine, { switchFlowNode: this.props.switchFlowNode })
+    this.manager = new DiagramManager(this.diagramEngine, {
+      switchFlowNode: this.props.switchFlowNode,
+      zoomToLevel: this.props.zoomToLevel
+    })
 
     if (this.props.highlightFilter) {
-      this.manager.setHighlightedNodes(this.props.highlightFilter)
+      this.manager.setHighlightFilter(this.props.highlightFilter)
     }
 
     // @ts-ignore
-    window.highlightNode = (flowName: string, nodeName: string) => {
-      this.manager.setHighlightedNodes(nodeName)
+    window.showEventOnDiagram = () => {
+      return event => this.showEventOnDiagram(event)
+    }
+  }
 
-      if (!flowName || !nodeName) {
-        // Refreshing the model anyway, to remove the highlight if node is undefined
-        this.manager.syncModel()
-        return
-      }
+  getDebugInfo = (nodeName: string) => {
+    return (this.state.nodeInfos ?? [])
+      .filter(x => x.workflow === this.props.currentFlow?.name.replace('.flow.json', ''))
+      .find(x => x?.node === nodeName)
+  }
 
-      try {
-        if (this.props.currentFlow.name !== flowName) {
-          this.props.switchFlow(flowName)
-        } else {
-          this.manager.syncModel()
-        }
-      } catch (err) {
-        console.error('Error when switching flow or refreshing', err)
+  showEventOnDiagram(event?: IO.IncomingEvent) {
+    if (!event) {
+      this.manager.setHighlightedNodes([])
+      this.setState({ nodeInfos: [] })
+      return
+    }
+
+    const { flows } = this.props
+    const { nodeInfos, highlightedNodes } = prepareEventForDiagram(event, flows)
+
+    this.manager.setHighlightedNodes(highlightedNodes)
+    this.manager.highlightLinkedNodes()
+    this.setState({ nodeInfos })
+
+    if (highlightedNodes.length) {
+      const firstFlow = highlightedNodes[0].flow
+
+      if (this.props.currentFlow?.name !== firstFlow) {
+        this.props.switchFlow(firstFlow)
       }
     }
+
+    this.searchRef = React.createRef()
   }
 
   componentDidMount() {
@@ -128,6 +187,10 @@ class Diagram extends Component<Props> {
       this.linkCreatedNode()
     }
 
+    if (prevProps.zoomLevel !== this.props.zoomLevel) {
+      this.diagramEngine.diagramModel.setZoomLevel(this.props.zoomLevel)
+    }
+
     const isDifferentFlow = _.get(prevProps, 'currentFlow.name') !== _.get(this, 'props.currentFlow.name')
 
     if (!this.props.currentFlow) {
@@ -142,20 +205,14 @@ class Diagram extends Component<Props> {
     }
 
     // Refresh nodes when the filter is displayed
-    if (this.props.highlightFilter && this.props.showSearch) {
-      this.manager.setHighlightedNodes(this.props.highlightFilter)
+    if (this.props.highlightFilter) {
+      this.manager.setHighlightFilter(this.props.highlightFilter)
       this.manager.syncModel()
     }
 
     // Refresh nodes when the filter is updated
     if (this.props.highlightFilter !== prevProps.highlightFilter) {
-      this.manager.setHighlightedNodes(this.props.highlightFilter)
-      this.manager.syncModel()
-    }
-
-    // Clear nodes when search field is hidden
-    if (!this.props.showSearch && prevProps.showSearch) {
-      this.manager.setHighlightedNodes([])
+      this.manager.setHighlightFilter(this.props.highlightFilter)
       this.manager.syncModel()
     }
   }
@@ -345,7 +402,7 @@ class Diagram extends Component<Props> {
   }, 500)
 
   createFlow(name: string) {
-    this.props.createFlow(name + '.flow.json')
+    this.props.createFlow(`${name}.flow.json`)
   }
 
   canTargetOpenInspector = target => {
@@ -483,19 +540,6 @@ class Diagram extends Component<Props> {
           <Tag intent={nbReceive > 0 ? Intent.PRIMARY : Intent.NONE}>{nbReceive}</Tag>{' '}
           {lang.tr('studio.flow.flowWideOnReceives', { count: nbReceive })}
         </Button>
-        {this.props.showSearch && (
-          <ControlGroup>
-            <InputGroup
-              id="input-highlight-name"
-              tabIndex={1}
-              placeholder={lang.tr('studio.flow.highlightByName')}
-              value={this.props.highlightFilter}
-              onChange={this.props.handleFilterChanged}
-              autoFocus
-            />
-            <Button icon="small-cross" onClick={this.props.hideSearch} />
-          </ControlGroup>
-        )}
       </div>
     )
   }
@@ -555,69 +599,51 @@ class Diagram extends Component<Props> {
   }
 
   render() {
-    return (
-      <div
-        id="diagramContainer"
-        ref={ref => (this.diagramContainer = ref)}
-        tabIndex={1}
-        style={{ outline: 'none', width: '100%', height: '100%' }}
-        onContextMenu={this.handleContextMenu}
-        onDrop={this.handleToolDropped}
-        onDragOver={event => event.preventDefault()}
-      >
-        <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
+    const canAdd = !this.props.defaultLang || this.props.defaultLang === this.props.currentLang
 
-        <DiagramWidget
-          ref={w => (this.diagramWidget = w)}
-          deleteKeys={[]}
-          diagramEngine={this.diagramEngine}
-          inverseZoom
-        />
-      </div>
+    return (
+      <MainLayout.Wrapper
+        className={cx({
+          'emulator-open': this.props.emulatorOpen
+        })}
+      >
+        <WorkflowToolbar />
+
+        <div className={style.searchWrapper}>
+          <SearchBar
+            id="input-highlight-name"
+            className={style.noPadding}
+            ref={this.searchRef}
+            onBlur={this.props.hideSearch}
+            value={this.props.highlightFilter}
+            placeholder={lang.tr('studio.flow.filterNodes')}
+            onChange={value => this.props.handleFilterChanged({ target: { value } })}
+          />
+        </div>
+        <div
+          id="diagramContainer"
+          ref={ref => (this.diagramContainer = ref)}
+          tabIndex={1}
+          style={{ outline: 'none', width: '100%', height: '100%' }}
+          onContextMenu={this.handleContextMenu}
+          onDrop={this.handleToolDropped}
+          onDragOver={event => event.preventDefault()}
+        >
+          <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
+
+          <DiagramWidget
+            ref={w => (this.diagramWidget = w)}
+            deleteKeys={[]}
+            diagramEngine={this.diagramEngine}
+            inverseZoom
+          />
+          <ZoomToolbar />
+          {canAdd && <NodeToolbar />}
+        </div>
+      </MainLayout.Wrapper>
     )
   }
 }
-
-interface Props {
-  currentFlow: any
-  switchFlow: (flowName: string) => void
-  switchFlowNode: (nodeId: string) => any
-  updateFlowProblems: (problems: NodeProblem[]) => void
-  openFlowNodeProps: () => void
-  closeFlowNodeProps: () => void
-  updateFlow: any
-  createFlowNode: (props: any) => void
-  createFlow: (name: string) => void
-  insertNewSkillNode: any
-  updateFlowNode: any
-  fetchFlows: any
-  setDiagramAction: any
-  pasteFlowNode: ({ x, y }) => void
-  currentDiagramAction: any
-  copyFlowNode: () => void
-  currentFlowNode: any
-  removeFlowNode: any
-  buildSkill: any
-  readOnly: boolean
-  canPasteNode: boolean
-  showSearch: boolean
-  hideSearch: () => void
-  handleFilterChanged: (event: object) => void
-  highlightFilter: string
-  skills: SkillDefinition[]
-}
-
-interface NodeProblem {
-  nodeName: string
-  missingPorts: any
-}
-
-type BpNodeModel = StandardNodeModel | SkillCallNodeModel
-
-type ExtendedDiagramEngine = {
-  enableLinkPoints?: boolean
-  flowBuilder?: any
-} & DiagramEngine
 
 const mapStateToProps = state => ({
   flows: state.flows,
@@ -625,6 +651,8 @@ const mapStateToProps = state => ({
   currentFlowNode: getCurrentFlowNode(state),
   currentDiagramAction: state.flows.currentDiagramAction,
   canPasteNode: Boolean(state.flows.nodeInBuffer),
+  emulatorOpen: state.ui.emulatorOpen,
+  zoomLevel: state.ui.zoomLevel,
   skills: state.skills.installed
 })
 
@@ -644,6 +672,7 @@ const mapDispatchToProps = {
   pasteFlowNode,
   insertNewSkillNode,
   updateFlowProblems,
+  zoomToLevel,
   buildSkill: buildNewSkill
 }
 

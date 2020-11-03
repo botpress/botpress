@@ -2,6 +2,7 @@ import { Icon, IconName } from '@blueprintjs/core'
 import cx from 'classnames'
 import React, { FC } from 'react'
 
+import { lang } from '../translations'
 import { keyMap } from '../utils/keyboardShortcuts'
 
 import style from './style.scss'
@@ -14,7 +15,7 @@ const ShortcutLabel: FC<ShortcutLabelProps> = props => {
   let shortcutKeys, keys
 
   if (shortcut) {
-    shortcutKeys = Array.isArray(keyMap[shortcut]) ? keyMap[shortcut].join('/') : keyMap[shortcut]
+    shortcutKeys = Array.isArray(keyMap[shortcut]) ? keyMap[shortcut].join(` ${lang('or')} `) : keyMap[shortcut]
   }
 
   keys = props.keys || shortcutKeys?.split(/(\/|\s|\+)/).filter(item => !!item.trim() && item !== '+')
@@ -23,10 +24,11 @@ const ShortcutLabel: FC<ShortcutLabelProps> = props => {
     <span className={cx(style.shortcut, { [style.light]: props.light })}>
       {keys.map((key, index) => {
         const icon = iconKeys.includes(key) && (`key-${key}` as IconName)
+        key = key === lang('or') ? key : key.toUpperCase()
 
         return (
           <span className={cx({ [style.noLineHeight]: icon, [style.baseLineHeight]: !icon })} key={index}>
-            {icon ? <Icon icon={icon} iconSize={12} /> : key.toUpperCase()}
+            {icon ? <Icon icon={icon} iconSize={12} /> : key}
           </span>
         )
       })}

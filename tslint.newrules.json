@@ -1,0 +1,11 @@
+{
+  "defaultSeverity": "error",
+  "extends": "./tslint.json",
+  "rules": {
+    "prefer-template": true,
+    "no-console": { "severity": "warning", "options": ["log"] },
+    "no-return-await": true,
+    "triple-equals": [true, "allow-null-check", "allow-undefined-check"],
+    "no-duplicate-imports": [true, { "allow-namespace-imports": true }]
+  }
+}

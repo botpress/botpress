@@ -1,10 +1,10 @@
-import { confirmDialog, lang } from 'botpress/shared'
+import { confirmDialog, lang, toast } from 'botpress/shared'
 import { action, observable, runInAction } from 'mobx'
 import path from 'path'
 
 import { EditableFile, FilePermissions, FilesDS, FileType } from '../../../backend/typings'
 import { FileFilters } from '../typings'
-import { FILENAME_REGEX, toastFailure, toastSuccess } from '../utils'
+import { FILENAME_REGEX } from '../utils'
 import { baseHook, httpAction, legacyAction } from '../utils/templates'
 
 import CodeEditorApi from './api'
@@ -144,7 +144,7 @@ class RootStore {
     ) {
       if (await this.api.deleteFile(file)) {
         this.editor.closeFile()
-        toastSuccess(lang.tr('module.code-editor.store.fileDeleted'))
+        toast.success(lang.tr('module.code-editor.store.fileDeleted'))
         await this.fetchFiles()
       }
     }
@@ -154,7 +154,7 @@ class RootStore {
   async disableFile(file: EditableFile): Promise<void> {
     const newName = file.name.charAt(0) !== '.' ? '.' + file.name : file.name
     if (await this.api.renameFile(file, newName)) {
-      toastSuccess(lang.tr('module.code-editor.store.fileDisabled'))
+      toast.success(lang.tr('module.code-editor.store.fileDisabled'))
       await this.fetchFiles()
     }
   }
@@ -164,7 +164,7 @@ class RootStore {
     const newName = file.name.charAt(0) === '.' ? file.name.substr(1) : file.name
 
     if (await this.api.renameFile(file, newName)) {
-      toastSuccess(lang.tr('module.code-editor.store.fileEnabled'))
+      toast.success(lang.tr('module.code-editor.store.fileEnabled'))
       await this.fetchFiles()
     }
   }
@@ -172,7 +172,7 @@ class RootStore {
   @action.bound
   async renameFile(file: EditableFile, newName: string) {
     if (await this.api.renameFile(file, newName)) {
-      toastSuccess(lang.tr('module.code-editor.store.fileRenamed'))
+      toast.success(lang.tr('module.code-editor.store.fileRenamed'))
       await this.fetchFiles()
     }
   }
@@ -192,12 +192,12 @@ class RootStore {
     }
 
     if (await this.api.fileExists(duplicate)) {
-      toastFailure(lang.tr('module.code-editor.store.alreadyExists'))
+      toast.failure(lang.tr('module.code-editor.store.alreadyExists'))
       return
     }
 
     if (await this.api.saveFile(duplicate)) {
-      toastSuccess(lang.tr('module.code-editor.store.fileDuplicated'))
+      toast.success(lang.tr('module.code-editor.store.fileDuplicated'))
       await this.fetchFiles()
     }
   }
@@ -205,7 +205,7 @@ class RootStore {
   @action.bound
   async uploadFile(data: FormData) {
     if (await this.api.uploadFile(data)) {
-      toastSuccess(lang.tr('module.code-editor.store.fileUploaded'))
+      toast.success(lang.tr('module.code-editor.store.fileUploaded'))
       await this.fetchFiles()
     }
   }

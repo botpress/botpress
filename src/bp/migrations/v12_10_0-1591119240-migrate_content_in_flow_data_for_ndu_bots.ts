@@ -81,7 +81,9 @@ const migration: Migration = {
             ..._.pick(flow, ['version', 'catchAll', 'startNode', 'skillData', 'triggers', 'label', 'description']),
             nodes: flow.nodes.map(node => _.omit(node, 'x', 'y', 'lastModified'))
           }
-          await ghost.upsertFile('./flows', flow.location!, JSON.stringify(flowContent, undefined, 2))
+          await ghost.upsertFile('./flows', flow.location!, JSON.stringify(flowContent, undefined, 2), {
+            ignoreLock: true
+          })
         } catch (err) {
           bp.logger
             .forBot(botId)

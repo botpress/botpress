@@ -54,7 +54,7 @@ botpress/server:$TAG
 
 Once the first node is started, use the same command to start Botpress on the other nodes.
 
-## Enable Redis Cluster
+## Enable Redis Replication
 
 Botpress can connect to multiple Redis server for better redundancy if one of the Redis server goes down. To enable this, you must set the `REDIS_URL` variable to a list of host/port combinations.
 

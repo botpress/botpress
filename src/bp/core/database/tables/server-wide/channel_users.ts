@@ -11,6 +11,7 @@ export class ChannelUsersTable extends Table {
       table.string('user_id')
       table.json('attributes')
       table.timestamps(true, true)
+      table.index(['channel', 'user_id'], 'scu_idx')
       created = true
     })
     return created

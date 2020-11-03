@@ -472,14 +472,14 @@ export class UnderstandingEngine {
     for (const faq of faqs) {
       for (const topicName of faq.contexts) {
         triggers.push(<sdk.NDU.FaqTrigger>{
-          topicName: topicName,
+          topicName,
           conditions: [
             {
               id: 'user_intent_is',
 
               params: {
                 intentName: faq.name,
-                topicName: topicName
+                topicName
               }
             }
           ],

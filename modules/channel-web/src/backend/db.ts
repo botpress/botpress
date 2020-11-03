@@ -50,7 +50,7 @@ export default class WebchatDb {
         this.batchSize
       )
       .catch(err => {
-        this.bp.logger.attachError(err).error(`Couldn't store messages to the database. Re-queuing elements`)
+        this.bp.logger.attachError(err).error("Couldn't store messages to the database. Re-queuing elements")
         const elementsToRetry = elements
           .map(x => ({ ...x, retry: x.retry ? x.retry + 1 : 1 }))
           .filter(x => x.retry < this.MAX_RETRY_ATTEMPTS)
@@ -124,12 +124,14 @@ export default class WebchatDb {
         table.timestamp('last_heard_on') // The last time the user interacted with the bot. Used for "recent" conversation
         table.timestamp('user_last_seen_on')
         table.timestamp('bot_last_seen_on')
+        table.index(['userId', 'botId'], 'wcub_idx')
       })
       .then(() => {
         return this.knex.createTableIfNotExists('web_messages', function(table) {
           table.string('id').primary()
           table.integer('conversationId')
           table.string('incomingEventId')
+          table.string('eventId')
           table.string('userId')
           table.string('message_type') // @ deprecated Remove in a future release (11.9)
           table.text('message_text') // @ deprecated Remove in a future release (11.9)
@@ -139,7 +141,14 @@ export default class WebchatDb {
           table.string('full_name')
           table.string('avatar_url')
           table.timestamp('sent_on')
+          table.index(['conversationId', 'sent_on'], 'wmcs_idx')
         })
+      })
+      .then(() => {
+        // Index creation with where condition is unsupported by knex
+        return this.knex.raw(
+          `CREATE INDEX IF NOT EXISTS wmcms_idx ON web_messages ("conversationId", message_type, sent_on DESC) WHERE message_type != 'visit';`
+        )
       })
   }
 
@@ -148,7 +157,7 @@ export default class WebchatDb {
     userId: string,
     conversationId: number,
     payload: any,
-    incomingEventId: string,
+    eventId: string,
     user?: sdk.User
   ) {
     const { fullName, avatar_url } = await this.getUserInfo(userId, user)
@@ -158,7 +167,8 @@ export default class WebchatDb {
     const message: DBMessage = {
       id: uuid.v4(),
       conversationId,
-      incomingEventId,
+      eventId,
+      incomingEventId: eventId,
       userId,
       full_name: fullName,
       avatar_url,
@@ -178,17 +188,25 @@ export default class WebchatDb {
       sent_on: now,
       message_raw: raw,
       message_data: data,
-      payload: payload
+      payload
     }
   }
 
-  async appendBotMessage(botName, botAvatar, conversationId, payload, incomingEventId) {
+  async appendBotMessage(
+    botName: string,
+    botAvatar: string,
+    conversationId: number,
+    payload: any,
+    incomingEventId: string,
+    eventId: string
+  ) {
     const { type, text, raw, data } = payload
 
     const now = new Date()
     const message: DBMessage = {
       id: uuid.v4(),
-      conversationId: conversationId,
+      conversationId,
+      eventId,
       incomingEventId,
       userId: undefined,
       full_name: botName,
@@ -208,7 +226,7 @@ export default class WebchatDb {
       sent_on: now,
       message_raw: raw,
       message_data: data,
-      payload: payload
+      payload
     }
   }
 
@@ -273,7 +291,12 @@ export default class WebchatDb {
 
     let lastMessages: any = this.knex
       .from('web_messages')
-      .distinct(this.knex.raw('ON ("conversationId") *'))
+      .distinct(
+        this.knex.raw(
+          'ON ("conversationId") message_type, message_text, full_name, avatar_url, sent_on, "conversationId"'
+        )
+      )
+      .whereIn('conversationId', conversationIds)
       .orderBy('conversationId')
       .orderBy('sent_on', 'desc')
 
@@ -345,7 +368,7 @@ export default class WebchatDb {
   }
 
   async getConversationMessages(conversationId, limit: number, fromId?: string): Promise<any> {
-    let query = this.knex('web_messages').where({ conversationId: conversationId })
+    let query = this.knex('web_messages').where({ conversationId })
 
     if (fromId) {
       query = query.andWhere('id', '<', fromId)

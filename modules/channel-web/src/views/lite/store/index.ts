@@ -92,6 +92,11 @@ class RootStore {
   }
 
   @computed
+  get isEmulator(): boolean {
+    return this.config?.isEmulator || false
+  }
+
+  @computed
   get hasBotInfoDescription(): boolean {
     return !!this.config.botConvoDescription?.length
   }
@@ -158,12 +163,12 @@ class RootStore {
   async initializeChat(): Promise<void> {
     try {
       await this.fetchConversations()
-      await this.fetchConversation()
+      await this.fetchConversation(this.config.conversationId)
       runInAction('-> setInitialized', () => {
         this.isInitialized = true
       })
     } catch (err) {
-      console.log('Error while fetching data, creating new convo...', err)
+      console.error('Error while fetching data, creating new convo...', err)
       await this.createConversation()
     }
 
@@ -206,14 +211,16 @@ class RootStore {
 
   /** Fetch the specified conversation ID, or try to fetch a valid one from the list */
   @action.bound
-  async fetchConversation(convoId?: number): Promise<void> {
+  async fetchConversation(convoId?: number): Promise<number> {
     const conversationId = convoId || this._getCurrentConvoId()
     if (!conversationId) {
       return this.createConversation()
     }
 
     const conversation: CurrentConversation = await this.api.fetchConversation(convoId || this._getCurrentConvoId())
-    await this.extractFeedback(conversation && conversation.messages)
+    if (conversation?.messages) {
+      await this.extractFeedback(conversation.messages)
+    }
 
     runInAction('-> setConversation', () => {
       this.currentConversation = conversation
@@ -249,10 +256,11 @@ class RootStore {
 
   /** Creates a new conversation and switches to it */
   @action.bound
-  async createConversation(): Promise<void> {
+  async createConversation(): Promise<number> {
     const newId = await this.api.createConversation()
     await this.fetchConversations()
     await this.fetchConversation(newId)
+    return newId
   }
 
   @action.bound
@@ -303,7 +311,7 @@ class RootStore {
 
       downloadFile(name, blobFile)
     } catch (err) {
-      console.log('Error trying to download conversation')
+      console.error('Error trying to download conversation')
     }
   }
 
@@ -311,7 +319,7 @@ class RootStore {
   @action.bound
   async sendData(data: any): Promise<void> {
     if (!constants.MESSAGE_TYPES.includes(data.type)) {
-      return await this.api.sendEvent(data)
+      return this.api.sendEvent(data, this.currentConversationId)
     }
 
     await this.api.sendMessage(data, this.currentConversationId)
@@ -417,7 +425,7 @@ class RootStore {
   updateBotUILanguage(lang: string): void {
     runInAction('-> setBotUILanguage', () => {
       this.botUILanguage = lang
-      localStorage.setItem('bp/channel-web/user-lang', lang)
+      window.BP_STORAGE?.set('bp/channel-web/user-lang', lang)
     })
   }
 

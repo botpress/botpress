@@ -9,6 +9,7 @@ import hints from './hints'
 import language from './language'
 import modules from './modules'
 import ndu, { NduReducer } from './ndu'
+import nlu, { NLUReducer } from './nlu'
 import notifications from './notifications'
 import skills, { SkillsReducer } from './skills'
 import ui, { UiReducer } from './ui'
@@ -27,7 +28,8 @@ const bpApp = combineReducers({
   skills,
   language,
   hints,
-  ndu
+  ndu,
+  nlu
 })
 export default bpApp
 
@@ -41,4 +43,5 @@ export interface RootReducer {
   ui: UiReducer
   bot: BotConfig
   bots: BotsReducer
+  nlu: NLUReducer
 }

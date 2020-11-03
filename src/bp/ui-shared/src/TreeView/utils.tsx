@@ -69,7 +69,7 @@ export function buildTree<T>({
   for (const nodeData of elements) {
     const nodePath = nodeData[pathProps]
     if (!nodePath) {
-      console.error(`Invalid path`)
+      console.error('Invalid path')
       return []
     }
 
