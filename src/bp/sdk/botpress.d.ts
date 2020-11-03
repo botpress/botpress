@@ -1549,7 +1549,7 @@ declare module 'botpress/sdk' {
     baseURL: string
     headers: {
       Authorization: string
-      'X-BP-Workspace': string
+      'X-BP-Workspace'?: string
     }
   }
 
