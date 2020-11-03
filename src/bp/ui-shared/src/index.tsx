@@ -27,7 +27,9 @@ import ShortcutLabel from './ShortcutLabel'
 import Textarea from './Textarea'
 import { toast } from './Toaster'
 import TreeView from './TreeView'
+import { isOperationAllowed } from './AccessControl'
 
+exports.isOperationAllowed = isOperationAllowed
 exports.Checkbox = Checkbox
 exports.Collapsible = Collapsible
 exports.Commander = Commander

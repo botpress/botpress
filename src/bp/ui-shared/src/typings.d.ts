@@ -1,6 +1,7 @@
 import { FormField, MultiLangText } from 'botpress/sdk'
 import React from 'react'
 
+import { PermissionAllowedProps } from '../../ui-shared/src/AccessControl/typings'
 import { CheckboxProps } from '../../ui-shared-lite/Checkbox/typings'
 import { CollapsibleProps } from '../../ui-shared-lite/Collapsible/typings'
 import { ContentSectionProps } from '../../ui-shared-lite/ContentSection/typings'
@@ -30,6 +31,7 @@ import { ToastOptions } from './Toaster'
 import { TreeViewProps } from './TreeView/typings'
 
 declare module 'botpress/shared' {
+  export function isOperationAllowed(props: PermissionAllowedProps): boolean
   export function Checkbox(props: CheckboxProps): JSX.Element
   export function Collapsible(props: CollapsibleProps): JSX.Element
   export function Commander(props: CommanderProps): JSX.Element
