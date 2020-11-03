@@ -4,11 +4,11 @@ import { EmptyState, lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { Fragment, FC, useContext, useEffect, useState } from 'react'
 
-import { Context } from '../app/Store'
-import { ApiType } from '../Api'
+import { Context } from '../Store'
+import { ApiType } from '../../Api'
 
-import { EscalationType } from './../../../types'
-import CasesIcon from './../Icons/CasesIcon'
+import { EscalationType } from './../../../../types'
+import CasesIcon from './../../Icons/CasesIcon'
 import EscalationItem from './EscalationItem'
 import EscalationListHeader, { FilterType, SortType } from './EscalationListHeader'
 

@@ -3,12 +3,12 @@ import { EmptyState, lang, Tabs, toast } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useContext } from 'react'
 
-import { EscalationType } from '../../../types'
-import { Context } from '../app/Store'
-import { ApiType } from '../Api'
+import { EscalationType } from '../../../../types'
+import { Context } from '../Store'
+import { ApiType } from '../../Api'
 
-import style from './../style.scss'
-import AgentsIcon from './../Icons/AgentsIcon'
+import style from './../../style.scss'
+import AgentsIcon from './../../Icons/AgentsIcon'
 import Sidebar from './Sidebar'
 
 interface Props {

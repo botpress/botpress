@@ -2,9 +2,9 @@ import { Button, Icon } from '@blueprintjs/core'
 import { lang, MoreOptions } from 'botpress/shared'
 import React, { FC, useState } from 'react'
 
-import style from '../style.scss'
+import style from '../../style.scss'
 
-import { AgentType } from './../../../types'
+import { AgentType } from './../../../../types'
 import AgentIcon from './AgentIcon'
 
 type Props = {

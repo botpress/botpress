@@ -2,9 +2,9 @@ import { Button } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import React, { FC, useState } from 'react'
 
-import style from '../style.scss'
+import style from '../../style.scss'
 
-import SendIcon from '../Icons/SendIcon'
+import SendIcon from '../../Icons/SendIcon'
 
 interface Props {
   onSubmit: (content: string) => Promise<any>

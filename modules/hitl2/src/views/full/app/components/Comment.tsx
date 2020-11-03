@@ -2,9 +2,9 @@ import { ContentSection } from 'botpress/shared'
 import moment from 'moment'
 import React, { FC, useContext } from 'react'
 
-import { CommentType } from '../../../types'
-import { Context } from '../app/Store'
-import style from '../style.scss'
+import { CommentType } from '../../../../types'
+import { Context } from '../Store'
+import style from '../../style.scss'
 
 interface Props {
   threadId: string

@@ -5,12 +5,12 @@ import _ from 'lodash'
 import moment from 'moment'
 import React, { FC, useContext, useEffect, useState } from 'react'
 
-import { EscalationType } from '../../../types'
-import { generateUsername, getOrSet } from './../app/utils'
-import { Context } from '../app/Store'
-import { ApiType } from '../Api'
+import { EscalationType } from '../../../../types'
+import { generateUsername, getOrSet } from './../utils'
+import { Context } from '../Store'
+import { ApiType } from '../../Api'
 
-import style from './../style.scss'
+import style from './../../style.scss'
 import EscalationBadge from './EscalationBadge'
 
 interface Props {

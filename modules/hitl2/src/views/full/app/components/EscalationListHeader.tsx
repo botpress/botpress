@@ -2,7 +2,7 @@ import { Checkbox } from '@blueprintjs/core'
 import { lang, MainLayout, ToolbarButtonProps } from 'botpress/shared'
 import React, { FC } from 'react'
 
-import style from '../style.scss'
+import style from '../../style.scss'
 
 export interface FilterType {
   unassigned: boolean
