@@ -1,4 +1,5 @@
 import classnames from 'classnames'
+import set from 'lodash/set'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import queryString from 'query-string'
@@ -11,7 +12,7 @@ import BpSocket from './core/socket'
 import ChatIcon from './icons/Chat'
 import { RootStore, StoreDef } from './store'
 import { Config, Message } from './typings'
-import { checkLocationOrigin, initializeAnalytics, trackMessage, trackWebchatState } from './utils'
+import { checkLocationOrigin, initializeAnalytics, isIE, trackMessage, trackWebchatState } from './utils'
 
 const _values = obj => Object.keys(obj).map(x => obj[x])
 
@@ -79,13 +80,13 @@ class Web extends React.Component<MainProps> {
     this.config = this.extractConfig()
 
     if (this.config.exposeStore) {
-      window.parent['webchat_store'] = this.props.store
+      const storePath = this.config.chatId ? `${this.config.chatId}.webchat_store` : 'webchat_store'
+      set(window.parent, storePath, this.props.store)
     }
 
     this.config.overrides && this.loadOverrides(this.config.overrides)
 
-    this.config.containerWidth &&
-      window.parent.postMessage({ type: 'setWidth', value: this.config.containerWidth }, '*')
+    this.config.containerWidth && this.postMessageToParent('setWidth', this.config.containerWidth)
 
     this.config.reference && this.props.setReference()
 
@@ -96,6 +97,10 @@ class Web extends React.Component<MainProps> {
     }
 
     this.setupObserver()
+  }
+
+  postMessageToParent(type: string, value: any) {
+    window.parent?.postMessage({ type, value, chatId: this.config.chatId }, '*')
   }
 
   extractConfig() {
@@ -116,9 +121,10 @@ class Web extends React.Component<MainProps> {
     this.socket.onTyping = this.handleTyping
     this.socket.onData = this.handleDataMessage
     this.socket.onUserIdChanged = this.props.setUserId
-    this.socket.setup()
 
     this.config.userId && this.socket.changeUserId(this.config.userId)
+
+    this.socket.setup()
     await this.socket.waitForUserId()
   }
 
@@ -139,6 +145,8 @@ class Web extends React.Component<MainProps> {
       }
 
       await this.socket.changeUserId(data.newValue)
+      await this.socket.setup()
+      await this.socket.waitForUserId()
       await this.props.initializeChat()
     })
 
@@ -150,7 +158,7 @@ class Web extends React.Component<MainProps> {
 
     observe(this.props.dimensions, 'container', data => {
       if (data.newValue && window.parent) {
-        window.parent.postMessage({ type: 'setWidth', value: data.newValue }, '*')
+        this.postMessageToParent('setWidth', data.newValue)
       }
     })
   }
@@ -264,7 +272,7 @@ class Web extends React.Component<MainProps> {
     return (
       <button
         className={classnames('bpw-widget-btn', 'bpw-floating-button', {
-          ['bpw-anim-' + this.props.widgetTransition || 'none']: true
+          [`bpw-anim-${this.props.widgetTransition}` || 'none']: true
         })}
         aria-label={this.props.intl.formatMessage({ id: 'widget.toggle' })}
         onClick={this.props.showChat.bind(this)}
@@ -280,12 +288,14 @@ class Web extends React.Component<MainProps> {
       return null
     }
 
-    const parentClass = classnames(`bp-widget-web bp-widget-${this.props.activeView}`, {
-      'bp-widget-hidden': !this.props.showWidgetButton && this.props.displayWidgetView
+    const emulatorClass = this.props.isEmulator ? ' emulator' : ''
+    const parentClass = classnames(`bp-widget-web bp-widget-${this.props.activeView}${emulatorClass}`, {
+      'bp-widget-hidden': !this.props.showWidgetButton && this.props.displayWidgetView,
+      [this.props.config.className]: !!this.props.config.className
     })
 
     if (this.parentClass !== parentClass) {
-      window.parent?.postMessage({ type: 'setClass', value: parentClass }, '*')
+      this.postMessageToParent('setClass', parentClass)
       this.parentClass = parentClass
     }
 
@@ -294,6 +304,7 @@ class Web extends React.Component<MainProps> {
     return (
       <div onFocus={this.handleResetUnreadCount}>
         {!!stylesheet?.length && <link rel="stylesheet" type="text/css" href={stylesheet} />}
+        {isIE && <link rel="stylesheet" type="text/css" href="assets/modules/channel-web/default_ie.css" />}
         {!!extraStylesheet?.length && <link rel="stylesheet" type="text/css" href={extraStylesheet} />}
         <h1 id="tchat-label" className="sr-only" tabIndex={-1}>
           {this.props.intl.formatMessage({
@@ -321,6 +332,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   updateTyping: store.updateTyping,
   sendMessage: store.sendMessage,
   setReference: store.setReference,
+  isEmulator: store.isEmulator,
   updateBotUILanguage: store.updateBotUILanguage,
   isWebchatReady: store.view.isWebchatReady,
   showWidgetButton: store.view.showWidgetButton,
@@ -351,6 +363,7 @@ type MainProps = { store: RootStore } & Pick<
   | 'setUserId'
   | 'sendData'
   | 'intl'
+  | 'isEmulator'
   | 'updateTyping'
   | 'setReference'
   | 'updateBotUILanguage'

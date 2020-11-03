@@ -1,7 +1,7 @@
 import { PartialObject } from 'lodash'
 import util from 'util'
 
-export type PrintOptions = {
+export interface PrintOptions {
   colors: boolean
   depth: number
 }

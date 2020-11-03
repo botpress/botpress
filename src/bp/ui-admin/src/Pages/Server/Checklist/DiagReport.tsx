@@ -14,7 +14,7 @@ export const DiagReport = () => {
 
       const link = document.createElement('a')
       link.href = URL.createObjectURL(new Blob([data]))
-      link.download = `diagnostic.txt`
+      link.download = 'diagnostic.txt'
       link.click()
     } catch (err) {
       toastFailure(`Couldn't generate diagnostic report: ${err}`)

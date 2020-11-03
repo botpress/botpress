@@ -81,7 +81,7 @@ const generateFlowLegacy = async (data: ChoiceData): Promise<sdk.FlowGenerationR
   return {
     transitions: createTransitions(data, randomId),
     flow: {
-      nodes: nodes,
+      nodes,
       catchAll: {
         next: []
       }

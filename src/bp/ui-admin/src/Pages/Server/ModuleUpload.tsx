@@ -30,7 +30,7 @@ const reducer = (state: State, action): State => {
   } else if (type === 'startUpload') {
     return { ...state, isLoading: true }
   } else {
-    throw new Error(`That action type isn't supported.`)
+    throw new Error("That action type isn't supported.")
   }
 }
 
@@ -52,7 +52,7 @@ export const ImportModal: FC<Props> = props => {
 
       const { data } = await api
         .getSecured({ timeout: 50000, toastErrors: false })
-        .post(`/admin/server/modules/upload`, form, {
+        .post('/admin/server/modules/upload', form, {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
 

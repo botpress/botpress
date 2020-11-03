@@ -26,7 +26,11 @@ class Container extends React.Component<ContainerProps> {
       return <BotInfo />
     } else {
       return (
-        <div className={'bpw-msg-list-container'}>
+        <div
+          className={classnames('bpw-msg-list-container', {
+            'bpw-emulator': this.props.isEmulator
+          })}
+        >
           <MessageList />
           <Keyboard.Default>
             <OverridableComponent name={'composer'} original={Composer} />
@@ -39,7 +43,7 @@ class Container extends React.Component<ContainerProps> {
   render() {
     const classNames = classnames('bpw-layout', 'bpw-chat-container', {
       'bpw-layout-fullscreen': this.props.isFullscreen && 'fullscreen',
-      ['bpw-anim-' + this.props.sideTransition]: true
+      [`bpw-anim-${this.props.sideTransition}`]: true
     })
 
     return (
@@ -63,6 +67,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   isFullscreen: store.view.isFullscreen,
   sideTransition: store.view.sideTransition,
   dimensions: store.view.dimensions,
+  isEmulator: store.isEmulator,
   isInitialized: store.isInitialized,
   isPoweredByDisplayed: store.view.isPoweredByDisplayed,
   config: store.config,
@@ -80,5 +85,6 @@ type ContainerProps = { store?: RootStore } & InjectedIntlProps &
     | 'sideTransition'
     | 'isInitialized'
     | 'dimensions'
+    | 'isEmulator'
     | 'isPoweredByDisplayed'
   >

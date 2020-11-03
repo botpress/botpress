@@ -95,7 +95,7 @@ export default class Database {
           const [date, botId, channel, metric, subMetric] = key.split('|')
           const value = original[key]
           return this.knex
-            .raw(`(:date:, :botId, :channel, :metric, :subMetric, :value)`, {
+            .raw('(:date:, :botId, :channel, :metric, :subMetric, :value)', {
               date: this.knex.raw(`date('${date}')`),
               botId,
               channel,

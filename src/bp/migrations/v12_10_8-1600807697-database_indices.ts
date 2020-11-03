@@ -26,7 +26,7 @@ const migration: Migration = {
         `CREATE INDEX IF NOT EXISTS wmcms_idx ON web_messages ("conversationId", message_type, sent_on DESC) WHERE message_type != 'visit';`
       )
     } catch (err) {
-      bp.logger.attachError(err).error(`Could not add indices`)
+      bp.logger.attachError(err).error('Could not add indices')
       return { success: false, message: 'Could not add indices' }
     }
     return { success: true, message: 'Configuration updated successfully' }

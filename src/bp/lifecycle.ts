@@ -9,7 +9,11 @@ export enum AppLifecycleEvents {
   MODULES_READY = 'MODULES_READY'
 }
 
-type CacheEntry = { promise: Promise<void>; resolve: Function; reject: Function }
+interface CacheEntry {
+  promise: Promise<void>
+  resolve: Function
+  reject: Function
+}
 
 @injectable()
 export class AppLifecycle {
