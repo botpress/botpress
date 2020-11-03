@@ -6,9 +6,9 @@ import { SocketMessageType } from './../../types'
 import { Context, Store } from './app/Store'
 import style from './style.scss'
 import { Api, castEscalation } from './Api'
-import AgentProfile from './Components/AgentProfile'
-import Conversation from './Components/Conversation'
-import EscalationList from './Components/EscalationList'
+import AgentProfile from './app/components/AgentProfile'
+import Conversation from './app/components/Conversation'
+import EscalationList from './app/components/EscalationList'
 
 const App = ({ bp }) => {
   const api = Api(bp)

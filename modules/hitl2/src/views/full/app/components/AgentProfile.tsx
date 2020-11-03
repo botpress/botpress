@@ -5,7 +5,7 @@ import React, { FC, useState } from 'react'
 import style from '../../style.scss'
 
 import { AgentType } from './../../../../types'
-import AgentIcon from './AgentIcon'
+import AgentIcon from '../../shared/components/AgentIcon'
 
 type Props = {
   toggleOnline: (online) => {}

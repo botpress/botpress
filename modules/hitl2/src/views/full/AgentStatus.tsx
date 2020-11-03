@@ -3,7 +3,7 @@ import React, { useContext, useEffect } from 'react'
 import { SocketMessageType } from './../../types'
 import { Context, Store } from './agentStatus/Store'
 import { Api } from './Api'
-import AgentIcon from './Components/AgentIcon'
+import AgentIcon from './shared/components/AgentIcon'
 
 const AgentStatus = ({ bp }) => {
   const api = Api(bp)
