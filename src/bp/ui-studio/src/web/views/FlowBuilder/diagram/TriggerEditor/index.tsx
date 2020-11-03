@@ -11,7 +11,7 @@ import { switchFlowNode, updateFlowNode } from '~/actions'
 import { FlowView } from '../../../../../../../../../out/bp/common/typings'
 import withLanguage from '../../../../components/Util/withLanguage'
 import { getCurrentFlow } from '../../../../reducers'
-import { BlockModel } from '../nodes_alb/Block'
+import { BlockModel } from '../nodes/Block'
 
 import triggerStyles from './style.scss'
 import ConditionDropdown from './Condition/ConditionDropdown'

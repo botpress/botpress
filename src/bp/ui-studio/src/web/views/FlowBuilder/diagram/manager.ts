@@ -5,9 +5,9 @@ import { hashCode } from '~/util'
 
 import { FlowNode } from './debugger'
 import { BaseNodeModel } from './nodes/BaseNodeModel'
+import { BlockModel } from './nodes/Block'
 import { SkillCallNodeModel } from './nodes/SkillCallNode'
 import { StandardNodeModel } from './nodes/StandardNode'
-import { BlockModel } from './nodes_alb/Block'
 
 const passThroughNodeProps: string[] = [
   'name',
