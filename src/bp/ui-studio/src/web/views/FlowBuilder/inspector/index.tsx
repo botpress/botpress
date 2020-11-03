@@ -14,7 +14,7 @@ import {
 } from '~/actions'
 import { getCurrentFlow, getCurrentFlowNode } from '~/reducers'
 
-import SaySomethingForm from '../../OneFlow/sidePanel/form/SaySomethingForm'
+import SaySomethingForm from '../../FlowBuilder/sidePanelTopics/form/SaySomethingForm'
 import { nodeTypes } from '../diagram/manager'
 import FlowInformation from '../nodeProps/FlowInformation'
 import SkillCallNode from '../nodeProps/SkillCallNode'

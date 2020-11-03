@@ -15,7 +15,6 @@ import Content from '~/views/Content'
 import FlowBuilder from '~/views/FlowBuilder'
 import Logs from '~/views/Logs'
 import Module from '~/views/Module'
-import OneFlow from '~/views/OneFlow'
 
 import { TrainingStatusService } from './training-status-service'
 import BotUmountedWarning from './BotUnmountedWarning'

@@ -20,11 +20,11 @@ import { isOperationAllowed } from '~/components/Shared/Utils/AccessControl'
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
 import { RootReducer } from '~/reducers'
 
-import SidePanelOneFlow from '../OneFlow/sidePanel'
+import SidePanelOneFlow from '../FlowBuilder/sidePanelTopics'
 
 import Diagram from './diagram'
-import { PanelPermissions } from './sidePanel'
-import SidePanel from './sidePanel'
+import { PanelPermissions } from './sidePanelFlows'
+import SidePanel from './sidePanelFlows'
 import SkillsBuilder from './skills'
 import style from './style.scss'
 

@@ -42,9 +42,6 @@ import {
 import { SearchBar } from '~/components/Shared/Interface'
 import { getAllFlows, getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/reducers'
 import storage from '~/util/storage'
-import TriggerEditor from '~/views/OneFlow/diagram/TriggerEditor'
-
-import WorkflowToolbar from '../../OneFlow/diagram/WorkflowToolbar'
 
 import { prepareEventForDiagram } from './debugger'
 import { defaultTransition, DiagramManager, DIAGRAM_PADDING, nodeTypes, Point } from './manager'
@@ -54,6 +51,8 @@ import { StandardNodeModel, StandardWidgetFactory } from './nodes/StandardNode'
 import { BlockWidgetFactory } from './nodes_alb/Block'
 import style from './style.scss'
 import NodeToolbar from './NodeToolbar'
+import TriggerEditor from './TriggerEditor'
+import WorkflowToolbar from './WorkflowToolbar'
 import ZoomToolbar from './ZoomToolbar'
 
 interface OwnProps {
