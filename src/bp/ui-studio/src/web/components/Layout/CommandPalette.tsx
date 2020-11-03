@@ -75,7 +75,7 @@ const CommandPalette: FC<Props> = props => {
         label: lang.tr('commander.switchBot', { name: getBotDisplayName(bot) }),
         type: 'redirect' as any,
         category: 'studio',
-        url: window.location.origin + '/studio/' + bot.id
+        url: `${window.location.origin}/studio/${bot.id}`
       })),
       ...props.modules
         .filter(module => !module.noInterface)

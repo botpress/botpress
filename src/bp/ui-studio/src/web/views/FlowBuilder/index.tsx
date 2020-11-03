@@ -23,8 +23,7 @@ import { RootReducer } from '~/reducers'
 import SidePanelOneFlow from '../FlowBuilder/sidePanelTopics'
 
 import Diagram from './diagram'
-import { PanelPermissions } from './sidePanelFlows'
-import SidePanel from './sidePanelFlows'
+import SidePanel, { PanelPermissions } from './sidePanelFlows'
 import SkillsBuilder from './skills'
 import style from './style.scss'
 

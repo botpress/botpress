@@ -1,7 +1,6 @@
 import { Intent, Menu, MenuDivider, MenuItem } from '@blueprintjs/core'
 import { DecisionTriggerCondition, Flow, FormData } from 'botpress/sdk'
-import { contextMenu, lang, sharedStyle, ShortcutLabel, toast, utils } from 'botpress/shared'
-import { parseFlowName } from 'common/flow'
+import { contextMenu, lang, sharedStyle, ShortcutLabel, toast } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import React, { FC } from 'react'
 import { AbstractNodeFactory, DiagramEngine } from 'storm-react-diagrams'

@@ -20,7 +20,7 @@ const RouterContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem }) => 
     <div className={style.contentsWrapper}>
       {(node?.next || []).map((item, i) => (
         <NodeContentItem
-          onEdit={() => (i == node.next.length - 1 ? {} : editNodeItem?.(node, i))}
+          onEdit={() => (i === node.next.length - 1 ? {} : editNodeItem?.(node, i))}
           className={cx({
             [style.active]: selectedContent?.node?.id === node.id && i === selectedContent?.index
           })}

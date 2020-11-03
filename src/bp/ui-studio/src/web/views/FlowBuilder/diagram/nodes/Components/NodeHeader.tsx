@@ -37,7 +37,7 @@ const NodeHeader: FC<Props> = ({
       <Button
         icon={setExpanded ? icon : null}
         onClick={e => {
-          if (e.screenX - startMouse.x === 0 && e.screenY - startMouse.y == 0) {
+          if (e.screenX - startMouse.x === 0 && e.screenY - startMouse.y === 0) {
             setExpanded && setExpanded(!expanded)
           }
         }}
