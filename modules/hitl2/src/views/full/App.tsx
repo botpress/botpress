@@ -7,7 +7,7 @@ import { Context, Store } from './app/Store'
 import style from './style.scss'
 import { Api, castEscalation } from './Api'
 import AgentProfile from './app/components/AgentProfile'
-import Conversation from './app/components/Conversation'
+import ConversationContainer from './app/components/ConversationContainer'
 import EscalationList from './app/components/EscalationList'
 
 const App = ({ bp }) => {
@@ -109,7 +109,7 @@ const App = ({ bp }) => {
           <EscalationList api={api} escalations={state.escalations} loading={loading} />
         </div>
         <div className={style.content}>
-          <Conversation api={api} escalation={state.currentEscalation} />
+          <ConversationContainer api={api} escalation={state.currentEscalation} />
         </div>
       </div>
     </div>

@@ -7,8 +7,8 @@ import { EscalationType } from '../../../../types'
 import { Context } from '../Store'
 import { ApiType } from '../../Api'
 
-import style from './../../style.scss'
-import AgentsIcon from './../../Icons/AgentsIcon'
+import style from '../../style.scss'
+import AgentsIcon from '../../Icons/AgentsIcon'
 import Sidebar from './Sidebar'
 
 interface Props {
@@ -16,7 +16,7 @@ interface Props {
   escalation?: EscalationType
 }
 
-const Conversation: FC<Props> = props => {
+const ConversationContainer: FC<Props> = props => {
   const { state, dispatch } = useContext(Context)
   const { api } = props
 
@@ -72,4 +72,4 @@ const Conversation: FC<Props> = props => {
   )
 }
 
-export default Conversation
+export default ConversationContainer
