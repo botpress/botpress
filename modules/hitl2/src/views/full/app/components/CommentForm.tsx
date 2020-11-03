@@ -4,8 +4,6 @@ import React, { FC, useState } from 'react'
 
 import style from '../../style.scss'
 
-import SendIcon from '../../Icons/SendIcon'
-
 interface Props {
   onSubmit: (content: string) => Promise<any>
 }
@@ -23,14 +21,15 @@ const CommentForm: FC<Props> = props => {
         }}
       ></textarea>
       <Button
-        icon={<SendIcon />}
         onClick={() => {
           // tslint:disable-next-line: no-floating-promises
           props.onSubmit(content).then(() => {
             setContent('')
           })
         }}
-      />
+      >
+        {lang.tr('module.hitl2.commentForm.submit')}
+      </Button>
     </div>
   )
 }

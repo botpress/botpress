@@ -46,7 +46,8 @@
     }
   },
   "commentForm": {
-    "addNote": "Ajouter une note"
+    "addNote": "Ajouter une note",
+    "submit": "Ajouter"
   },
   "comments": {
     "heading": "Notes d'agents",
