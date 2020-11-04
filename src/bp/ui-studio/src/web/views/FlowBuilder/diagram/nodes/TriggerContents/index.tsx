@@ -2,18 +2,14 @@ import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC, Fragment } from 'react'
 
-import { BlockModel } from '../Block'
+import { BlockProps } from '../Block'
 import style from '../Components/style.scss'
 import NodeContentItem from '../Components/NodeContentItem'
 
-interface Props {
-  node: BlockModel
-  editNodeItem: (node: BlockModel, index: number) => void
-  selectedNodeItem: () => { node: BlockModel; index: number }
-  getConditions: () => any
-  currentLang: string
-  defaultLang: string
-}
+type Props = { currentLang: string; defaultLang: string } & Pick<
+  BlockProps,
+  'node' | 'editNodeItem' | 'selectedNodeItem' | 'getConditions'
+>
 
 const TriggerContents: FC<Props> = ({
   node,
@@ -23,7 +19,7 @@ const TriggerContents: FC<Props> = ({
   currentLang,
   defaultLang
 }) => {
-  const conditionLabels = getConditions().reduce((acc, cond) => ({ ...acc, [cond.id]: cond.label }), {})
+  const conditionLabels = getConditions().reduce((acc, { id, label }) => ({ ...acc, [id]: label }), {})
   const selectedCondition = selectedNodeItem()
 
   return (

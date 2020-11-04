@@ -3,24 +3,17 @@ import React, { FC } from 'react'
 import RoutingItem from '~/views/FlowBuilder/common/routing'
 import { StandardPortWidget } from '~/views/FlowBuilder/diagram/nodes/Ports'
 
-import { BlockModel } from '../Block'
+import { BlockProps } from '../Block'
 import style from '../Components/style.scss'
 import NodeContentItem from '../Components/NodeContentItem'
 
-interface Props {
-  node: BlockModel
-  editNodeItem: (node: BlockModel, index: number) => void
-}
+type Props = Pick<BlockProps, 'node' | 'editNodeItem'>
 
 const RouterContents: FC<Props> = ({ node, editNodeItem }) => {
   return (
     <div className={style.contentsWrapper}>
       {(node?.next || []).map((item, i) => (
-        <NodeContentItem
-          onEdit={() => (i === node.next.length - 1 ? {} : editNodeItem?.(node, i))}
-          className={cx(style.contentWrapper, style.small)}
-          key={i}
-        >
+        <NodeContentItem onEdit={() => editNodeItem(node, i)} className={cx(style.contentWrapper, style.small)} key={i}>
           <div className={cx(style.content, style.readOnly)}>
             <RoutingItem condition={item} position={i} />
             <StandardPortWidget name={`out${i}`} node={node} className={cx(style.outRouting, 'if-else')} />

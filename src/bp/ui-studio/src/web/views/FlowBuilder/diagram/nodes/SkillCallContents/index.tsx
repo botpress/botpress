@@ -5,7 +5,7 @@ import ConditionItem from '~/views/FlowBuilder/common/condition'
 
 import ActionItem from '../../../common/action'
 import { StandardPortWidget } from '../../nodes/Ports'
-import { BlockModel } from '../Block'
+import { BlockProps } from '../Block'
 import style from '../Components/style.scss'
 import localStyle from '../StandardContents/style.scss'
 
@@ -16,9 +16,7 @@ export interface SkillDefinition {
   moduleName: string
 }
 
-interface Props {
-  node: BlockModel
-}
+type Props = Pick<BlockProps, 'node'>
 
 const SkillCallContents: FC<Props> = ({ node }) => {
   return (
