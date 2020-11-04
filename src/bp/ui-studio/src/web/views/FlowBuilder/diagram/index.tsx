@@ -45,7 +45,7 @@ import storage from '~/util/storage'
 
 import { prepareEventForDiagram } from './debugger'
 import { defaultTransition, DiagramManager, DIAGRAM_PADDING, nodeTypes, Point } from './manager'
-import { BlockModel, BlockWidgetFactory } from './nodes/Block'
+import { BlockModel, BlockProps, BlockWidgetFactory } from './nodes/Block'
 import { DeletableLinkFactory } from './nodes/LinkWidget'
 import style from './style.scss'
 import NodeToolbar from './NodeToolbar'
@@ -108,7 +108,8 @@ class Diagram extends Component<Props> {
   constructor(props) {
     super(props)
 
-    const commonProps = {
+    const commonProps: BlockProps = {
+      node: undefined,
       selectedNodeItem: () => this.getPropsProperty('activeFormItem'),
       deleteSelectedElements: this.deleteSelectedElements.bind(this),
       copySelectedElement: this.copySelectedElement.bind(this),
@@ -127,7 +128,9 @@ class Diagram extends Component<Props> {
       getDebugInfo: this.getDebugInfo,
       getFlows: () => this.getPropsProperty('flows'),
       getSkills: () => this.getPropsProperty('skills'),
-      disconnectNode: this.disconnectNode.bind(this)
+      disconnectNode: this.disconnectNode.bind(this),
+      // Temporary, maybe we could open the elementinstead of double-click?
+      editNodeItem: (node, idx) => console.log(node, idx)
     }
 
     this.diagramEngine = new DiagramEngine()

@@ -1,16 +1,13 @@
 import React, { FC } from 'react'
 
 import ActionModalSmall from '../../../nodeProps/ActionModalSmall'
-import { BlockModel } from '../Block'
+import { BlockProps } from '../Block'
 import style from '../Components/style.scss'
+import NodeContentItem from '../Components/NodeContentItem'
 
-interface Props {
-  node: BlockModel
-  updateFlowNode: (args: any) => void
-  switchFlowNode: (id: string) => void
-}
+type Props = Pick<BlockProps, 'node' | 'updateFlowNode' | 'switchFlowNode' | 'editNodeItem'>
 
-const ExecuteContents: FC<Props> = ({ node, switchFlowNode, updateFlowNode }) => {
+const ExecuteContents: FC<Props> = ({ node, switchFlowNode, updateFlowNode, editNodeItem }) => {
   const handleItemChanged = actionText => {
     switchFlowNode(node.id)
     updateFlowNode({ onEnter: [actionText] })
@@ -19,11 +16,11 @@ const ExecuteContents: FC<Props> = ({ node, switchFlowNode, updateFlowNode }) =>
   const actionName = (node.onEnter && node.onEnter.length && node.onEnter[0]) || ''
   return (
     <div className={style.contentsWrapper}>
-      <div className={style.contentWrapper}>
+      <NodeContentItem onEdit={() => editNodeItem(node, 0)} className={style.contentWrapper}>
         <div className={style.content}>
           <ActionModalSmall text={actionName} onChange={handleItemChanged} layoutv2 />
         </div>
-      </div>
+      </NodeContentItem>
     </div>
   )
 }

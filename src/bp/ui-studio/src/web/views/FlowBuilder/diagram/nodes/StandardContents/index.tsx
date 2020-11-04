@@ -4,14 +4,12 @@ import ConditionItem from '~/views/FlowBuilder/common/condition'
 
 import ActionItem from '../../../common/action'
 import { StandardPortWidget } from '../../nodes/Ports'
-import { BlockModel } from '../Block'
+import { BlockProps } from '../Block'
 import style from '../Components/style.scss'
 
 import localStyle from './style.scss'
 
-interface Props {
-  node: BlockModel
-}
+type Props = Pick<BlockProps, 'node'>
 
 const StandardContents: FC<Props> = ({ node }) => {
   const isWaiting = node.waitOnReceive

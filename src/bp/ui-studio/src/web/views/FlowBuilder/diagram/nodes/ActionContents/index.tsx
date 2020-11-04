@@ -2,7 +2,7 @@ import { parseActionInstruction } from 'common/action'
 import { ActionServer } from 'common/typings'
 import React, { FC, Fragment } from 'react'
 
-import { BlockModel } from '../Block'
+import { BlockProps } from '../Block'
 import style from '../Components/style.scss'
 
 export const ActionInfo: FC<{ action: Action }> = ({ action }) => {
@@ -17,10 +17,7 @@ export const ActionInfo: FC<{ action: Action }> = ({ action }) => {
   )
 }
 
-interface Props {
-  node: BlockModel
-  editNodeItem: (node: BlockModel, index: number) => void
-}
+type Props = Pick<BlockProps, 'node' | 'editNodeItem'>
 
 const ActionContents: FC<Props> = ({ node, editNodeItem }) => (
   <div className={style.contentsWrapper}>
