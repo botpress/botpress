@@ -7,9 +7,9 @@ import withLanguage from '~/components/Util/withLanguage'
 import { getFormData } from '~/util/NodeFormData'
 import commonStyle from '~/views/FlowBuilder/common/style.scss'
 
-import componentStyle from '../Components/style.scss'
+import style from '../Components/style.scss'
 
-import style from './style.scss'
+import localStyle from './style.scss'
 
 interface OwnProps {
   node: any
@@ -41,11 +41,11 @@ const SayNodeContent: FC<Props> = props => {
     const { image, title, subtitle } = item
 
     return (
-      <div key={index} className={style.contentImgWrapper}>
-        {image && <div style={{ backgroundImage: `url('${image}')` }} className={style.img}></div>}
-        <div className={style.textWrapper}>
-          {title && <span className={style.primaryText}>{title}</span>}
-          {subtitle && <span className={style.secondaryText}>{_.truncate(subtitle, { length: 25 })}</span>}
+      <div key={index} className={localStyle.contentImgWrapper}>
+        {image && <div style={{ backgroundImage: `url('${image}')` }} className={localStyle.img}></div>}
+        <div className={localStyle.textWrapper}>
+          {title && <span className={localStyle.primaryText}>{title}</span>}
+          {subtitle && <span className={localStyle.secondaryText}>{_.truncate(subtitle, { length: 25 })}</span>}
         </div>
       </div>
     )
@@ -60,9 +60,9 @@ const SayNodeContent: FC<Props> = props => {
   }
 
   return (
-    <div className={componentStyle.contentsWrapper}>
-      <div className={componentStyle.contentWrapper}>
-        <div className={componentStyle.content}>
+    <div className={style.contentsWrapper}>
+      <div className={style.contentWrapper}>
+        <div className={style.content}>
           <MarkdownContent markdown={markdown} content={text} />
           {!!variationsCount && <span className={commonStyle.extraItems}>+ {variationsCount} variations</span>}
         </div>

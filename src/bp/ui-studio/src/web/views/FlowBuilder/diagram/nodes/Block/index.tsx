@@ -16,6 +16,8 @@ import NodeWrapper from '../Components/NodeWrapper'
 import ExecuteContents from '../ExecuteContents'
 import RouterContents from '../RouterContents'
 import SaySomethingContents from '../SaySomethingContents'
+import SkillCallContents from '../SkillCallContents'
+import StandardContents from '../StandardContents'
 import TriggerContents from '../TriggerContents'
 
 interface Props {
@@ -37,6 +39,7 @@ interface Props {
   getDebugInfo: (nodeName: string) => NodeDebugInfo
   getFlows: () => Flow[]
   updateFlowNode: (args: any) => void
+  updateFlow: (args: any) => void
 }
 
 const defaultLabels = {
@@ -59,6 +62,8 @@ const BlockWidget: FC<Props> = ({
   getConditions,
   switchFlowNode,
   updateFlowNode,
+  getCurrentFlow,
+  updateFlow,
   getLanguage,
   getExpandedNodes,
   setExpanded,
@@ -76,6 +81,11 @@ const BlockWidget: FC<Props> = ({
     if (defaultLang && defaultLang !== currentLang) {
       toast.info('studio.flow.cannotAddContent')
       return
+    }
+
+    const canMakeStartNode = () => {
+      const current = getCurrentFlow().startNode
+      return current && node.name && current !== node.name
     }
 
     switchFlowNode(node.id)
@@ -100,6 +110,12 @@ const BlockWidget: FC<Props> = ({
         />
         <MenuDivider />
         {nodeType === 'trigger' && <MenuItem icon="edit" text={lang.tr('edit')} onClick={() => editTriggers(node)} />}
+        <MenuItem
+          icon="star"
+          text={lang.tr('studio.flow.setAsStart')}
+          disabled={!canMakeStartNode()}
+          onClick={() => updateFlow({ startNode: node.name })}
+        />
         <MenuItem icon="minimize" text={lang.tr('studio.flow.disconnectNode')} onClick={() => disconnectNode(node)} />
         {nodeType === 'router' ? (
           <React.Fragment>
@@ -121,8 +137,8 @@ const BlockWidget: FC<Props> = ({
   }
 
   const inputPortInHeader = !['trigger'].includes(nodeType)
-  const outPortInHeader = !['failure', 'router', 'success'].includes(nodeType)
-  const canCollapse = !['failure', 'router', 'success', 'listen'].includes(nodeType)
+  const outPortInHeader = !['failure', 'router', 'success', 'standard', 'skill-call'].includes(nodeType)
+  const canCollapse = !['failure', 'router', 'success', 'listen', 'standard', 'skill-call'].includes(nodeType)
   const hasContextMenu = !['failure', 'success'].includes(nodeType)
 
   const debugInfo = getDebugInfo(node.name)
@@ -134,7 +150,7 @@ const BlockWidget: FC<Props> = ({
       case 'execute':
         return <ExecuteContents node={node} updateFlowNode={updateFlowNode} switchFlowNode={switchFlowNode} />
       case 'router':
-        return <RouterContents node={node} editNodeItem={editNodeItem} selectedNodeItem={selectedNodeItem} />
+        return <RouterContents node={node} editNodeItem={editNodeItem} />
       case 'say_something':
         return (
           <SaySomethingContents
@@ -156,6 +172,10 @@ const BlockWidget: FC<Props> = ({
             currentLang={currentLang}
           />
         )
+      case 'standard':
+        return <StandardContents node={node} />
+      case 'skill-call':
+        return <SkillCallContents node={node} />
 
       default:
         return null
@@ -168,14 +188,19 @@ const BlockWidget: FC<Props> = ({
 
   const expanded = getExpandedNodes().includes(node.id)
 
+  // Larger node size because they have a lot of content and it looks too cramped
+  const isLarge = ['standard', 'skill-call'].includes(nodeType)
+
   return (
-    <NodeWrapper isHighlighed={node.isHighlighted || node.isSelected()}>
+    <NodeWrapper isHighlighed={node.isHighlighted || node.isSelected()} isLarge={isLarge}>
       <NodeHeader
         className={style[nodeType]}
         setExpanded={canCollapse && handleExpanded}
         expanded={canCollapse && expanded}
         handleContextMenu={!node.isReadOnly && hasContextMenu && handleContextMenu}
-        defaultLabel={lang.tr(defaultLabels[nodeType])}
+        defaultLabel={
+          lang.tr(defaultLabels[nodeType]) || (nodeType === 'skill-call' ? `Skill | ${node.name}` : node.name)
+        }
         debugInfo={debugInfo}
         nodeType={nodeType}
       >
@@ -240,7 +265,7 @@ export class BlockModel extends BaseNodeModel {
     this.conditions = conditions
     this.activeWorkflow = activeWorkflow
     this.isNew = isNew
-    this.nodeType = data.type
+    this.nodeType = data.type || 'standard'
     this.content = data.content
     this.flow = data.flow
     this.isReadOnly = data.isReadOnly
@@ -265,6 +290,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
   private updateFlowNode: (args: any) => void
   private editTriggers: (node: BlockModel) => void
   private disconnectNode: (node: BlockModel) => void
+  private updateFlow: (args: any) => void
 
   constructor(methods) {
     super('block')
@@ -286,6 +312,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
     this.updateFlowNode = methods.updateFlowNode
     this.editTriggers = methods.editTriggers
     this.disconnectNode = methods.disconnectNode
+    this.updateFlow = methods.updateFlow
   }
 
   generateReactWidget(diagramEngine: DiagramEngine, node: BlockModel) {
@@ -309,6 +336,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
         getFlows={this.getFlows}
         editTriggers={this.editTriggers}
         disconnectNode={this.disconnectNode}
+        updateFlow={this.updateFlow}
       />
     )
   }

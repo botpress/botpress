@@ -9,24 +9,19 @@ import NodeContentItem from '../Components/NodeContentItem'
 
 interface Props {
   node: BlockModel
-  selectedNodeItem: () => { node: BlockModel; index: number }
   editNodeItem: (node: BlockModel, index: number) => void
 }
 
-const RouterContents: FC<Props> = ({ node, editNodeItem, selectedNodeItem }) => {
-  const selectedContent = selectedNodeItem()
-
+const RouterContents: FC<Props> = ({ node, editNodeItem }) => {
   return (
     <div className={style.contentsWrapper}>
       {(node?.next || []).map((item, i) => (
         <NodeContentItem
           onEdit={() => (i === node.next.length - 1 ? {} : editNodeItem?.(node, i))}
-          className={cx({
-            [style.active]: selectedContent?.node?.id === node.id && i === selectedContent?.index
-          })}
+          className={cx(style.contentWrapper, style.small)}
           key={i}
         >
-          <div className={style.content}>
+          <div className={cx(style.content, style.readOnly)}>
             <RoutingItem condition={item} position={i} />
             <StandardPortWidget name={`out${i}`} node={node} className={cx(style.outRouting, 'if-else')} />
           </div>
