@@ -194,10 +194,15 @@
   }
 
   .debugInfo {
-    padding: 5px;
+    padding: 3px;
     font-size: 10px;
     text-align: center;
     font-weight: normal;
+
+    div {
+      min-height: 15px;
+      padding: 4px;
+    }
 
     &.say_something,
     &:hover.say_something {
