@@ -11,6 +11,7 @@ const { Debug } = require('./debug')
 const { getAppDataPath } = require('./core/misc/app_data')
 
 const printPlainError = err => {
+  // tslint:disable: no-console
   console.log('Error starting botpress')
   console.log(err)
   console.log(err.message)
@@ -417,8 +418,8 @@ try {
       description: 'verbosity level'
     })
     .command('version', "Display the server's version", {}, () => {
-      console.log(`Botpress: v${metadataContent.version}`)
-      console.log(`NodeJS: ${process.version}`)
+      console.info(`Botpress: v${metadataContent.version}`)
+      console.info(`NodeJS: ${process.version}`)
     })
     .count('verbose')
     .help().argv

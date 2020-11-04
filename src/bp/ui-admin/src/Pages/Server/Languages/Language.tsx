@@ -61,7 +61,7 @@ const Language: FC<Props> = props => {
     try {
       await api.getSecured({ timeout: 10000 }).post(`/admin/languages/${props.language.code}/load`)
     } catch (err) {
-      console.log('error loading model')
+      console.error('error loading model')
     } finally {
       setLoading(false)
     }
