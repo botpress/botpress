@@ -38,6 +38,11 @@ export default async function(options: ArgV) {
     throw new Error(`Specified body-size "${options.bodySize}" has an invalid format.`)
   }
 
+  const maxCacheSize = bytes(options.modelCacheSize)
+  if (!maxCacheSize) {
+    throw new Error(`Specified model cache-size "${options.modelCacheSize}" has an invalid format.`)
+  }
+
   options.modelDir = options.modelDir || path.join(process.APP_DATA_PATH, 'models')
 
   let config: NLU.Config
@@ -56,7 +61,7 @@ export default async function(options: ArgV) {
     warning: (msg: string, err?: Error) => (err ? logger.attachError(err).warn(msg) : logger.warn(msg)),
     error: (msg: string, err?: Error) => (err ? logger.attachError(err).error(msg) : logger.error(msg))
   }
-  const engine = new Engine()
+  const engine = new Engine({ maxCacheSize })
   try {
     await engine.initialize(config, loggerWrapper)
   } catch (err) {

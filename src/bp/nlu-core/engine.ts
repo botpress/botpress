@@ -2,11 +2,12 @@ import { MLToolkit, NLU } from 'botpress/sdk'
 import crypto from 'crypto'
 import _ from 'lodash'
 import LRUCache from 'lru-cache'
+import sizeof from 'object-sizeof'
 
 import { EntityCacheManager } from './entities/entity-cache-manager'
 import { initializeTools } from './initialize-tools'
 import DetectLanguage from './language/language-identifier'
-import { deserializeModel, PredictableModel, serializeModel } from './model-manager'
+import { deserializeModel, PredictableModel, serializeModel } from './model-serializer'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
@@ -22,13 +23,12 @@ interface LoadedModel {
   entityCache: EntityCacheManager
 }
 
-// TODO: this should might be settable
 const DEFAULT_OPTIONS: Options = {
-  maxLoadedModels: 5
+  maxCacheSize: 250000000 // 250mb of model cache
 }
 
 interface Options {
-  maxLoadedModels: number
+  maxCacheSize: number
 }
 
 export default class Engine implements NLU.Engine {
@@ -39,7 +39,10 @@ export default class Engine implements NLU.Engine {
 
   constructor(opt?: Partial<Options>) {
     const options: Options = { ...DEFAULT_OPTIONS, ...opt }
-    this.modelsById = new LRUCache(options.maxLoadedModels)
+    this.modelsById = new LRUCache({
+      max: options.maxCacheSize,
+      length: sizeof // ignores size of functions, but let's assume it's small
+    })
   }
 
   public getHealth() {
