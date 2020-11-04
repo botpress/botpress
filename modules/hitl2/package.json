@@ -33,8 +33,6 @@
     "joi": "^17",
     "lodash": ">=4.17",
     "moment": "^2.24",
-    "object-hash": "^2.0.3",
-    "react-flexbox-grid": "^2.1.2",
     "uuid": "^8.3.1",
     "yn": "^4.0.0"
   },
