@@ -47,7 +47,7 @@ export class DataRetentionService {
       return
     }
 
-    const changedPaths = _.flatten(differences.filter(diff => diff.kind != this.DELETED_ATTR).map(diff => diff.path))
+    const changedPaths = _.flatten(differences.filter(diff => diff.kind !== this.DELETED_ATTR).map(diff => diff.path))
     if (!changedPaths.length) {
       return
     }

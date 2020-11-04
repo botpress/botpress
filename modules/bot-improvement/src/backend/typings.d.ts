@@ -27,7 +27,7 @@ type CorrectedActionType = 'qna' | 'start_goal'
 
 export interface FeedbackItem {
   sessionId: string
-  eventId: number
+  eventId: string
   timestamp: Date
   source: {
     type: SourceType
@@ -41,7 +41,7 @@ export interface FeedbackItem {
 }
 
 export interface Message {
-  id: number
+  id: string
   type: string
   text: string
   raw_message: any

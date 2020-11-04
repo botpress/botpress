@@ -65,7 +65,7 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
     try {
       await axios.post(`${BASE_NLU_URL}/train/delete`)
     } catch (err) {
-      console.log('cannot cancel training')
+      console.error('cannot cancel training')
     } finally {
       setLoading(false)
     }

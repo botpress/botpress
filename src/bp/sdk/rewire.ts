@@ -172,7 +172,7 @@ if (global.process.env.BP_DEBUG_REQUIRE) {
   setInterval(() => {
     const significantCalls = _.take(_.orderBy(allRequires, 'duration', 'desc'), TOP_COUNT)
     const formattedCalls = significantCalls.map((x, i) => `${i}) ${x.duration}\t\t${x.call}`).join(os.EOL)
-    console.log(formattedCalls)
+    console.info(formattedCalls)
     allRequires = []
   }, SAMPLING_INTERVAL)
 }

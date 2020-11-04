@@ -17,7 +17,6 @@ import UpdatePassword from '~/Pages/MyAccount/UpdatePassword'
 import UserProfile from '~/Pages/MyAccount/UpdateUserProfile'
 
 import { fetchProfile } from '../reducers/user'
-import Auth from '../Auth/index'
 import BasicAuthentication from '../Auth/index'
 
 interface Props {
@@ -35,7 +34,7 @@ const UserDropdownMenu: FC<Props> = props => {
   }, [])
 
   const logout = () => {
-    const auth: BasicAuthentication = new Auth()
+    const auth: BasicAuthentication = new BasicAuthentication()
     auth.logout()
   }
 

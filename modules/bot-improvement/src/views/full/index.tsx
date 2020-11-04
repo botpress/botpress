@@ -1,5 +1,4 @@
-import { Callout, Icon } from '@blueprintjs/core'
-import { Tab, Tabs } from '@blueprintjs/core'
+import { Callout, Icon, Tab, Tabs } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import { Container } from 'botpress/ui'
 import _ from 'lodash'
