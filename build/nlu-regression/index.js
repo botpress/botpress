@@ -4,44 +4,61 @@ const chalk = require("chalk")
 const bpdsIntents = require("./tests/bpds-intents")
 const bpdsSlots = require("./tests/bpds-slots")
 
-const { updateResults, readResults, compareResults } = require("./score-service")
+const { updateResults, readResults } = require("./score-service")
 
-const ALLOWED_REGRESSION = 0.05
+function formatReason(groupedBy, reason) {
+  const prefix = groupedBy === "seed" ? "for seed" 
+                : groupedBy === "problem" ? "for problem" 
+                : "for"
+  return `${prefix} "${reason.group}", for metric "${reason.metric}", 
+          current score is ${reason.currentScore}, while previous score is ${reason.previousScore}.`
+}
 
-async function runTest(test, args) {
-  const { update, keepGoing } = args
+function formatRegressionMessage(testName, comparison) {
+  const makeReasonMsg = (r) => formatReason(comparison.groupedBy, r)
+  const formattedReasons = comparison.reasons.map(makeReasonMsg)
 
-  const results = await test.fn(bitfan)
-    
+  if (comparison.status === "regression") {
+    return `There seems to be a regression on test ${testName}.\n` +
+            'Reasons are:\n' +
+            `${formattedReasons.join(",\n")}`
+  }
+  if (comparison.status === "tolerated-regression") {
+    return `There seems to be a regression on test ${testName}, but regression is small enough to be tolerated.\n` +
+            "Reasons are:\n" +
+            `${formattedReasons.join(",\n")}`
+  }
+  return `No regression noted for test ${testName}.`
+}
+
+async function runTest(test, { update, keepGoing }) {
+  const { name, computePerformance, evaluatePerformance } = test(bitfan)
+  const performance = await computePerformance() 
+
   if (update) {
-    await updateResults(test.name, results)
+    await updateResults(name, performance)
     return true
   }
 
-  const previousResults = await readResults(test.name)
-  const { success, reason } = compareResults(results, previousResults, ALLOWED_REGRESSION)
+  const previousPerformance = await readResults(name)
+  const comparison = await evaluatePerformance(performance, previousPerformance)
 
-  console.log("")
-  if (!success) {
-    const msg = `There was a regression while running test: ${test.name}.\nReason is: ${reason}.`
+  const regressionMessage = `\n${formatRegressionMessage(name, comparison)}\n`
+  if (comparison.status === "regression") {
     if (!keepGoing) {
-      throw new Error(msg)
+      throw new Error(regressionMessage)
     }
-
-    console.error(chalk.yellow(`${msg}`))
-    console.error("Skipping to next test...\n")
+    console.log(chalk.red(regressionMessage))
+    console.log("Skipping to next test...")
     return false
   } 
   
-  if (reason) {
-    const msg = `There was a regression while running test: ${test.name} but it's under ${delta * 100}% so it's tolerated.
-                \nReason is: ${reason}.\n`
-    console.log(chalk.yellow(msg))
+  if (comparison.status !== "success") {
+    console.log(chalk.yellow(regressionMessage))
     return true
   }
-
-  const msg = `No regression noted.\n`
-  console.log(chalk.green(msg))
+  
+  console.log(chalk.green(regressionMessage))
   return true
 }
 
@@ -51,18 +68,19 @@ async function main(args) {
 
   const tests = [bpdsIntents, bpdsSlots]
 
-  let testPass = true
+  let testsPass = true
   for (const test of tests) {
-    const currentTestPass = await runTest(test, { update, keepGoing }) 
-    testPass = testPass && currentTestPass
-  }
-
-  if (!update && !testPass) {
-    throw new Error("There was a regression in at least one test.")
+    const currentTestPass = await runTest(test, { update, keepGoing })
+    testsPass = testsPass && currentTestPass
   }
 
   if (update) {
     console.log(chalk.green("Test results where update with success."))
+    return
+  }
+  
+  if (!testsPass) {
+    throw new Error("There was a regression in at least one test.")
   }
 }
 

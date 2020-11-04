@@ -8,54 +8,67 @@ const problemMaker = (bitfan) => (topic) => {
   };
 };
 
+module.exports = function(bitfan) {
 
-const test = {
-  name: "bpds-slots",
-  fn: async function(bitfan) {
+  const avgStrictSlotAccuray = bitfan.metrics.averageScore(bitfan.criterias.slotsAre)
+  const avgLooseSlotAccuray = bitfan.metrics.averageScore(bitfan.criterias.slotIncludes)
+  const avgSlotCountAccuray = bitfan.metrics.averageScore(bitfan.criterias.slotCountIs)
 
-    const allTopics = [
-      "A",
-      "B",
-      "C",
-      "D",
-      "E",
-      "F",
-      "G",
-      "H",
-      "I",
-      "J",
-    ];
+  const metrics = [
+    avgStrictSlotAccuray,
+    avgLooseSlotAccuray,
+    avgSlotCountAccuray
+  ]
 
-    const criterias = [
-      bitfan.criterias.slotsAre,
-      bitfan.criterias.slotIncludes,
-      bitfan.criterias.slotCountIs,
-    ];
+  return {
+    name: "bpds-slots",
+    
+    computePerformance: async function() {
+      const allTopics = [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "I",
+        "J",
+      ];
+  
+      const makeProblem = problemMaker(bitfan)
+      const problems = allTopics.map(makeProblem);
+  
+      const stanEndpoint = "http://localhost:3200";
+      const password = "123456";
+      const engine = bitfan.engines.makeBpSlotEngine(stanEndpoint, password);
+  
+      const solution = {
+        name: "bpds slot",
+        problems,
+        engine,
+        metrics,
+      };
+  
+      const seeds = [42];
+      const results = await bitfan.runSolution(solution, seeds);
+  
+      const report = bitfan.evaluateMetrics(results, metrics);
+      bitfan.visualisation.showReport(report);
+      // bitfan.visualisation.showSlotsResults(results);
+  
+      return report
+    },
 
-    const metrics = criterias.map(bitfan.metrics.averageScore);
-
-    const makeProblem = problemMaker(bitfan)
-    const problems = allTopics.map(makeProblem);
-
-    const stanEndpoint = "http://localhost:3200";
-    const password = "123456";
-    const engine = bitfan.engines.makeBpSlotEngine(stanEndpoint, password);
-
-    const solution = {
-      name: "bpds slot",
-      problems,
-      engine,
-      metrics,
-    };
-
-    const seeds = [42];
-    const results = await bitfan.runSolution(solution, seeds);
-
-    const report = bitfan.evaluateMetrics(results, metrics);
-    bitfan.visualisation.showReport(report);
-    // bitfan.visualisation.showSlotsResults(results);
-
-    return report
+    evaluatePerformance: async function(previousPerformance, currentPerformance) {
+      const toleranceByMetric = {
+        [avgStrictSlotAccuray.name]: 0.02,
+        [avgLooseSlotAccuray.name]: 0.02,
+        [avgSlotCountAccuray.name]: 0.02
+      }
+      return bitfan.comparePerformances(previousPerformance, currentPerformance, { toleranceByMetric })
+    }
   }
+
 }
-module.exports = test

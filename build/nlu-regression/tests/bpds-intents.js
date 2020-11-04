@@ -9,51 +9,66 @@ const problemMaker = (bitfan) => (topic) => {
 };
 
 
-const test = {
-  name: "bpds-intent",
-  fn: async function(bitfan) {
-    const allTopics = [
-      "A",
-      "B",
-      "C",
-      "D",
-      "E",
-      "F"
-    ];
+module.exports = function(bitfan) {
 
-    const makeProblem = problemMaker(bitfan)
-    const problems = allTopics.map(makeProblem);
+  const avgIntentAccurancy = bitfan.metrics.averageScore(bitfan.criterias.labelIs)
+  const metrics = [
+    avgIntentAccurancy,
+    bitfan.metrics.oosAccuracy,
+    bitfan.metrics.oosPrecision,
+    bitfan.metrics.oosRecall,
+    bitfan.metrics.oosF1,
+  ];
 
-    const stanEndpoint = "http://localhost:3200";
-    const password = "123456";
-    const engine = bitfan.engines.makeBpIntentEngine(stanEndpoint, password);
+  return {
+    name: "bpds-intent",
 
-    const metrics = [
-      bitfan.metrics.averageScore(bitfan.criterias.labelIs),
-      bitfan.metrics.oosAccuracy,
-      bitfan.metrics.oosPrecision,
-      bitfan.metrics.oosRecall,
-      bitfan.metrics.oosF1,
-    ];
+    computePerformance: async function() {
+      const allTopics = [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ];
+  
+      const makeProblem = problemMaker(bitfan)
+      const problems = allTopics.map(makeProblem);
+  
+      const stanEndpoint = "http://localhost:3200";
+      const password = "123456";
+      const engine = bitfan.engines.makeBpIntentEngine(stanEndpoint, password);
+  
+      const solution = {
+        name: "bpds intent",
+        problems,
+        engine,
+        metrics,
+      };
+  
+      const seeds = [42, 69, 666];
+      const results = await bitfan.runSolution(solution, seeds);
+  
+      const reportBySeed = bitfan.evaluateMetrics(results, metrics, { groupBy: "seed" });
+      const reportByProblem = bitfan.evaluateMetrics(results, metrics, { groupBy: "problem" });
+  
+      await bitfan.visualisation.showReport(reportBySeed);
+      await bitfan.visualisation.showReport(reportByProblem);
+      await bitfan.visualisation.showOOSConfusion(results);
+  
+      return reportBySeed
+    },
 
-    const solution = {
-      name: "bpds intent",
-      problems,
-      engine,
-      metrics,
-    };
-
-    const seeds = [42, 69, 666];
-    const results = await bitfan.runSolution(solution, seeds);
-
-    const reportBySeed = bitfan.evaluateMetrics(results, metrics, { groupBy: "seed" });
-    const reportByProblem = bitfan.evaluateMetrics(results, metrics, { groupBy: "problem" });
-
-    await bitfan.visualisation.showReport(reportBySeed);
-    await bitfan.visualisation.showReport(reportByProblem);
-    await bitfan.visualisation.showOOSConfusion(results);
-
-    return bitfan.evaluateMetrics(results, [bitfan.metrics.averageScore(bitfan.criterias.labelIs)], { groupBy: "seed" });
+    evaluatePerformance: async function(currentPerformance, previousPerformance) {
+      const toleranceByMetric = {
+        [avgIntentAccurancy.name]: 0.02,
+        [bitfan.metrics.oosAccuracy.name]: 0.05,
+        [bitfan.metrics.oosPrecision.name]: 0.05,
+        [bitfan.metrics.oosRecall.name]: 0.05,
+        [bitfan.metrics.oosF1.name]: 0.15, // more tolerance for f1 score
+      }
+      return bitfan.comparePerformances(previousPerformance, currentPerformance, { toleranceByMetric })
+    }
   }
 }
-module.exports = test
