@@ -8,8 +8,6 @@ import { Link, RouteComponentProps, withRouter } from 'react-router-dom'
 import { DefaultPortModel, PortWidget } from 'storm-react-diagrams'
 import { getFlowNames, getFlowNamesList } from '~/reducers'
 
-import { newNodeTypes } from '../manager'
-
 import style from './style.scss'
 
 export class StandardIncomingPortModel extends DefaultPortModel {
@@ -117,13 +115,12 @@ export class StandardPortWidgetDisconnected extends React.PureComponent<Props> {
       [style.missingConnection]: missingConnection
     })
 
-    const isNewNodeType = newNodeTypes.includes(this.props.node.type)
     return (
       <div className={className}>
         <PortWidget {...this.props} />
         {type === 'subflow' && this.renderSubflowNode()}
         {type === 'end' && this.renderEndNode()}
-        {!isNewNodeType && type === 'start' && this.renderStartNode()}
+        {type === 'start' && this.renderStartNode()}
         {type === 'return' && this.renderReturnNode()}
       </div>
     )
