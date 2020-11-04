@@ -1,6 +1,7 @@
 import { Checkbox, Tab, Tabs } from '@blueprintjs/core'
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
+import cx from 'classnames'
 import _ from 'lodash'
 import ms from 'ms'
 import nanoid from 'nanoid'
@@ -270,7 +271,7 @@ export class Debugger extends React.Component<Props, State> {
     return (
       <Tab
         id="processing"
-        className={hasError && style.tabError}
+        className={cx({ [style.tabError]: hasError })}
         title="Processing"
         panel={<Processing processing={processing} />}
       />
