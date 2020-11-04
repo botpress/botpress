@@ -16,9 +16,6 @@ jobs:
       - name: Build core
         run: |
           NODE_OPTIONS="--max-old-space-size=6000" yarn cmd build:core
-      - name: Hello
-        run: |
-          echo "hello"
       - name: Install Bitfan
         run: |
           yarn add npm-cli-login
