@@ -16,7 +16,7 @@ import NodeWrapper from '../Components/NodeWrapper'
 import ExecuteContents from '../ExecuteContents'
 import RouterContents from '../RouterContents'
 import SaySomethingContents from '../SaySomethingContents'
-import SkillCallContents from '../SkillCallContents'
+import SkillCallContents, { SkillDefinition } from '../SkillCallContents'
 import StandardContents from '../StandardContents'
 import TriggerContents from '../TriggerContents'
 
@@ -40,6 +40,7 @@ interface Props {
   getFlows: () => Flow[]
   updateFlowNode: (args: any) => void
   updateFlow: (args: any) => void
+  getSkills: () => SkillDefinition[]
 }
 
 const defaultLabels = {
@@ -69,7 +70,8 @@ const BlockWidget: FC<Props> = ({
   setExpanded,
   getDebugInfo,
   editTriggers,
-  disconnectNode
+  disconnectNode,
+  getSkills
 }) => {
   const { nodeType } = node
   const { currentLang, defaultLang } = getLanguage()
@@ -189,18 +191,24 @@ const BlockWidget: FC<Props> = ({
   const expanded = getExpandedNodes().includes(node.id)
 
   // Larger node size because they have a lot of content and it looks too cramped
-  const isLarge = ['standard', 'skill-call'].includes(nodeType)
+  const isOldNode = ['standard', 'skill-call'].includes(nodeType)
+
+  let label = lang.tr(defaultLabels[nodeType])
+  if (isOldNode) {
+    label =
+      nodeType === 'skill-call'
+        ? `${lang.tr(getSkills()?.find(x => x.id === node.skill)?.name) || ''} | ${node.name}`
+        : node.name
+  }
 
   return (
-    <NodeWrapper isHighlighed={node.isHighlighted || node.isSelected()} isLarge={isLarge}>
+    <NodeWrapper isHighlighed={node.isHighlighted || node.isSelected()} isLarge={isOldNode}>
       <NodeHeader
         className={style[nodeType]}
         setExpanded={canCollapse && handleExpanded}
         expanded={canCollapse && expanded}
         handleContextMenu={!node.isReadOnly && hasContextMenu && handleContextMenu}
-        defaultLabel={
-          lang.tr(defaultLabels[nodeType]) || (nodeType === 'skill-call' ? `Skill | ${node.name}` : node.name)
-        }
+        defaultLabel={label}
         debugInfo={debugInfo}
         nodeType={nodeType}
       >
@@ -220,6 +228,7 @@ export class BlockModel extends BaseNodeModel {
   public nodeType: string
   public content?: FormData
   public flow: string
+  public skill?: string
 
   constructor({
     id,
@@ -228,6 +237,7 @@ export class BlockModel extends BaseNodeModel {
     name,
     type,
     flow,
+    skill,
     content,
     onEnter = [],
     next = [],
@@ -247,6 +257,7 @@ export class BlockModel extends BaseNodeModel {
       onEnter,
       next,
       flow,
+      skill,
       isStartNode,
       isHighlighted,
       conditions,
@@ -268,6 +279,7 @@ export class BlockModel extends BaseNodeModel {
     this.nodeType = data.type || 'standard'
     this.content = data.content
     this.flow = data.flow
+    this.skill = data.skill
     this.isReadOnly = data.isReadOnly
   }
 }
@@ -291,6 +303,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
   private editTriggers: (node: BlockModel) => void
   private disconnectNode: (node: BlockModel) => void
   private updateFlow: (args: any) => void
+  private getSkills: () => SkillDefinition[]
 
   constructor(methods) {
     super('block')
@@ -313,6 +326,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
     this.editTriggers = methods.editTriggers
     this.disconnectNode = methods.disconnectNode
     this.updateFlow = methods.updateFlow
+    this.getSkills = methods.getSkills
   }
 
   generateReactWidget(diagramEngine: DiagramEngine, node: BlockModel) {
@@ -337,6 +351,7 @@ export class BlockWidgetFactory extends AbstractNodeFactory {
         editTriggers={this.editTriggers}
         disconnectNode={this.disconnectNode}
         updateFlow={this.updateFlow}
+        getSkills={this.getSkills}
       />
     )
   }
