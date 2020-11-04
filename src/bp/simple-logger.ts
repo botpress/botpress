@@ -71,6 +71,7 @@ export default class Logger implements sdk.Logger {
     const time = moment().format(timeFormat)
 
     const displayName = process.env.INDENT_LOGS ? this.name.substr(0, 15).padEnd(15, ' ') : this.name
+    // tslint:disable-next-line:prefer-template
     const newLineIndent = chalk.dim(' '.repeat(`${timeFormat} ${displayName}`.length)) + ' '
     let indentedMessage = level === LoggerLevel.Error ? message : message.replace(/\r\n|\n/g, os.EOL + newLineIndent)
 
@@ -80,6 +81,7 @@ export default class Logger implements sdk.Logger {
       this.attachedError.stack &&
       this.attachedError['__hideStackTrace'] !== true
     ) {
+      // tslint:disable-next-line:prefer-template
       indentedMessage += chalk.grey(os.EOL + 'STACK TRACE')
       indentedMessage += chalk.grey(os.EOL + this.attachedError.stack)
     }

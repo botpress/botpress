@@ -19,7 +19,6 @@ class FastTextLanguageId {
 
   protected static async initializeModel() {
     const tmpFn = tmp.tmpNameSync({ postfix: '.ftz' })
-
     const modelBuff = readFileSync(PRETRAINED_LID_176)
     writeFileSync(tmpFn, modelBuff)
     const ft = new FastTextLanguageId.toolkit.FastText.Model()

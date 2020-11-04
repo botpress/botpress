@@ -368,7 +368,7 @@ try {
           default: -1
         },
         silent: {
-          description: 'Do not log in console after server is launched',
+          description: 'No logging after server is launched',
           default: false,
           type: 'boolean'
         }

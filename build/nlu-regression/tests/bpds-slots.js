@@ -70,5 +70,4 @@ module.exports = function(bitfan) {
       return bitfan.comparePerformances(currentPerformance, previousPerformance, { toleranceByMetrics })
     }
   }
-
 }
