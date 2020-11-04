@@ -11,16 +11,9 @@ import { lang } from 'botpress/shared'
 import moment from 'moment'
 import style from './../../style.scss'
 
-interface Props {
-  api: ApiType
-  escalation: EscalationType
-}
+const EscalationItem: FC<EscalationType> = props => {
+  const { createdAt, id, status, agentId, userConversation } = props
 
-const EscalationItem: FC<Props> = ({ api, escalation }) => {
-  if (!escalation) {
-    return null
-  }
-  const { createdAt, userConversation, id, status, agentId } = escalation
   const { state, dispatch } = useContext(Context)
 
   const [defaultUsername, setDefaultUsername] = useState()
@@ -46,7 +39,7 @@ const EscalationItem: FC<Props> = ({ api, escalation }) => {
   }, [state.reads, userConversation])
 
   useEffect(() => {
-    const key = _.get(escalation.userConversation.event, 'target')
+    const key = _.get(userConversation.event, 'target')
     const username = getOrSet(
       () => {
         return _.get(state, `defaults.user.${key}.username`)
@@ -67,16 +60,14 @@ const EscalationItem: FC<Props> = ({ api, escalation }) => {
     )
 
     setDefaultUsername(username)
-  }, [escalation.userConversation])
+  }, [userConversation])
 
-  const printAgent = () => {
-    // TODO Add condition to show "Previous agent: ..."
-    if (!agentId) {
-      return lang.tr('module.hitl2.escalation.noPreviousAgent')
-    } else if (agentId === state.currentAgent?.id) {
+  const agentName = () => {
+    if (agentId && agentId === state.currentAgent?.id) {
       return lang.tr('module.hitl2.escalation.you')
-    } else {
-      return lang.tr('module.hitl2.escalation.agent', { agentName: state.agents?.[agentId]?.fullName })
+    } else if (agentId) {
+      const agent = state.agents[agentId]
+      return lang.tr('module.hitl2.escalation.agent', { agentName: agent?.fullName || agent?.id })
     }
   }
 
@@ -87,13 +78,12 @@ const EscalationItem: FC<Props> = ({ api, escalation }) => {
     >
       {!readStatus && <span className={style.unreadDot}></span>}
       <div className={style.info}>
-        {/* TODO add client name and click action here */}
-        <button className={style.clientName} type="button">
-          {_.get(escalation.userConversation.event, 'state.user.fullName') || defaultUsername}
-        </button>{' '}
+        <span className={style.clientName}>
+          {_.get(userConversation.event, 'state.user.fullName') || defaultUsername}
+        </span>{' '}
         #{id}
         <p>
-          From {userConversation.channel} ⋅ {printAgent()}
+          From {userConversation.channel} ⋅ {agentName()}
         </p>
         <Text ellipsize={true}>{_.get(userConversation, 'event.preview')}</Text>
         <p className={style.createdDate}>{lang.tr('module.hitl2.escalation.created', { date: fromNow })}</p>

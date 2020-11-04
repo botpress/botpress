@@ -23,13 +23,9 @@
     "created": "Created {date}",
     "contactDetails": "Contact Details",
     "status": {
-      "pending": "Unassigned",
+      "pending": "pending",
       "assigned": "assigned",
       "resolved": "resolved"
-    },
-    "assignment": {
-      "me": "Assigned to me",
-      "other": "Assigned to {name}"
     },
     "assign": "Escalation {id} successfully assigned",
     "resolve": "Escalation {id} successfully resolved",

@@ -47,9 +47,17 @@ const ConversationContainer: FC<Props> = props => {
     }
   }
 
+  function canAssign() {
+    return props.escalation.status === 'pending'
+  }
+
+  function canResolve() {
+    return props.escalation.status === 'assigned' && props.escalation.agentId === state.currentAgent?.id
+  }
+
   return (
     <Fragment>
-      <div className={style.conversationWrapper}>
+      <div className={cx(style.conversationContainer)}>
         <Tabs tabs={[{ id: 'conversation', title: lang.tr('module.hitl2.conversation.tab') }]} />
         <div className={style.h100}>
           {!props.escalation ? (

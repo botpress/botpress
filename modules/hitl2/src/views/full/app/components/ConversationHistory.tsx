@@ -1,5 +1,5 @@
 import { EmptyState, lang } from 'botpress/shared'
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 
 import { ApiType } from '../../Api'
 import MessageList from './MessageList'
@@ -23,14 +23,13 @@ const ConversationHistory: FC<Props> = props => {
   useEffect(() => {
     getMessages().then(() => setLoading(false))
   }, [props.conversationId])
-
   return (
-    <div className={style.conversationHistory}>
+    <Fragment>
       {loading && <Spinner></Spinner>}
       {!loading && !messages.length && <EmptyState text="NO MESSAGES"></EmptyState>}
 
       {!!messages.length && <MessageList messages={messages}></MessageList>}
-    </div>
+    </Fragment>
   )
 }
 
