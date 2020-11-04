@@ -1,8 +1,7 @@
 import { Button, Callout, FileInput, FormGroup, InputGroup, Intent, TextArea } from '@blueprintjs/core'
 import axios from 'axios'
 import { BotConfig } from 'botpress/sdk'
-import { lang } from 'botpress/shared'
-import { confirmDialog } from 'botpress/shared'
+import { confirmDialog, lang } from 'botpress/shared'
 import { BotEditSchema } from 'common/validation'
 import Joi from 'joi'
 import _ from 'lodash'
@@ -188,7 +187,7 @@ class ConfigView extends Component<Props, State> {
     const { error } = Joi.validate(bot, BotEditSchema)
     if (error) {
       toastFailure(lang.tr('config.formContainsErrors'))
-      this.setState({ error: error, isSaving: false })
+      this.setState({ error, isSaving: false })
       return
     }
 

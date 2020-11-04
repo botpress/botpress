@@ -1,12 +1,93 @@
-function injectDOMElement(tagName, targetSelector, options) {
+// full backward compatibility
+const DEFAULT_CHAT_ID = 'bp-web-widget'
+const DEFAULT_IFRAME_ID = 'bp-widget'
+const DEFAULT_IFRAME_CLASS = 'bp-widget-web'
+
+function _getContainerId(chatId) {
+  return chatId ? chatId + '-container' : DEFAULT_CHAT_ID
+}
+
+function _getIframeId(chatId) {
+  return chatId || DEFAULT_IFRAME_ID
+}
+
+function _injectDOMElement(tagName, selector, options) {
   const element = document.createElement(tagName)
   if (options) {
     Object.keys(options).forEach(function(key) {
       element[key] = options[key]
     })
   }
-  document.querySelector(targetSelector).appendChild(element)
+  document.querySelector(selector).appendChild(element)
   return element
+}
+
+function _generateIFrameHTML(host, config) {
+  const botId = config.botId || ''
+  const options = encodeURIComponent(JSON.stringify({ config: config }))
+  let iframeSrc = host + '/lite/' + botId + '/?m=channel-web&v=Embedded&options=' + options
+  if (config.ref) {
+    iframeSrc += '&ref=' + encodeURIComponent(config.ref)
+  }
+  const title = config.botConvoDescription || config.botName || config.botId
+  
+  const iframeId = _getIframeId(config.chatId)
+  return '<iframe id="' + iframeId + '" title="' + encodeURIComponent(title) + '" frameborder="0" src="' + iframeSrc + '" class="' + DEFAULT_IFRAME_CLASS + '"/>'
+}
+
+const chatRefs = {}
+
+// provides proper chat reference
+function _getChatRef(chatId){
+  chatId = chatId || DEFAULT_CHAT_ID
+  const fakeChatRef = { 
+    postMessage: function()  {console.warn('No webchat with id ' + chatId + ' has not been initialized, \n please use window.botpressWebChat.init first.')}
+  }
+ 
+  return chatRefs[chatId] || fakeChatRef
+}
+
+function configure(payload, chatId) {
+  const chatWindow = _getChatRef(chatId)
+  chatWindow.postMessage({ action: 'configure', payload: payload }, '*')
+}
+function sendEvent(payload, chatId) {
+  const chatWindow = _getChatRef(chatId)
+  chatWindow.postMessage({ action: 'event', payload: payload }, '*')
+}
+function mergeConfig(payload, chatId) {
+  const chatWindow = _getChatRef(chatId)
+  chatWindow.postMessage({ action: 'mergeConfig', payload: payload }, '*')
+}
+
+/**
+ * 
+ * @param {object} config Configuration object you want to apply to your webchat instance
+ * @param {string} targetSelector css selector under which you want your webchat to be rendered
+ */
+function init(config, targetSelector) {
+  targetSelector = targetSelector || 'body' 
+  const chatId = config.chatId || DEFAULT_CHAT_ID
+  const host = config.host || window.ROOT_PATH || ''
+  
+  const cssHref = host + '/assets/modules/channel-web/inject.css'
+  _injectDOMElement('link', 'head', { rel: 'stylesheet', href: cssHref })
+  
+  const iframeHTML = _generateIFrameHTML(host, config)
+  
+  const containerId = _getContainerId(config.chatId)
+  const iframeId = _getIframeId(config.chatId)
+  _injectDOMElement('div', targetSelector, { id: containerId, innerHTML: iframeHTML })
+
+  const iframeRef = document.querySelector('#' + containerId + ' #' + iframeId).contentWindow
+  chatRefs[chatId] = iframeRef
+}
+
+window.botpressWebChat = {
+  init: init,
+  configure: configure,
+  sendEvent: sendEvent,
+  mergeConfig: mergeConfig
 }
 
 window.addEventListener('message', function(payload) {
@@ -15,50 +96,12 @@ window.addEventListener('message', function(payload) {
     return
   }
 
+  const iframeSelector = '#' + _getIframeId(data.chatId)
   if (data.type === 'setClass') {
-    document.querySelector('#bp-widget').setAttribute('class', data.value)
+    document.querySelector(iframeSelector).setAttribute('class', data.value)
   } else if (data.type === 'setWidth') {
-    const width = data.value
+    const width = typeof data.value === 'number' ? data.value + 'px' : data.value
 
-    document.querySelector('#bp-widget').style.width = typeof width === 'number' ? width + 'px' : width
+    document.querySelector(iframeSelector).style.width = width
   }
 })
-
-function init(config) {
-  const host = config.host || window.ROOT_PATH || ''
-  const botId = config.botId || ''
-  const cssHref = host + '/assets/modules/channel-web/inject.css'
-  injectDOMElement('link', 'head', { rel: 'stylesheet', href: cssHref })
-  const options = encodeURIComponent(JSON.stringify({ config: config }))
-  let iframeSrc = host + '/lite/' + botId + '/?m=channel-web&v=Embedded&options=' + options
-  if (config.ref) {
-    iframeSrc += '&ref=' + encodeURIComponent(config.ref)
-  }
-  const title = config.botConvoDescription || config.botName || config.botId
-  const iframeHTML =
-    '<iframe id="bp-widget" title="' +
-    encodeURIComponent(title) +
-    '" frameborder="0" src="' +
-    iframeSrc +
-    '" class="bp-widget-web"/>'
-  injectDOMElement('div', 'body', { id: 'bp-web-widget', innerHTML: iframeHTML })
-
-  const iframeWindow = document.querySelector('#bp-web-widget > #bp-widget').contentWindow
-  function configure(payload) {
-    iframeWindow.postMessage({ action: 'configure', payload: payload }, '*')
-  }
-  function sendEvent(payload) {
-    iframeWindow.postMessage({ action: 'event', payload: payload }, '*')
-  }
-  function mergeConfig(payload) {
-    iframeWindow.postMessage({ action: 'mergeConfig', payload: payload }, '*')
-  }
-
-  window.botpressWebChat.configure = configure
-  window.botpressWebChat.sendEvent = sendEvent
-  window.botpressWebChat.mergeConfig = mergeConfig
-}
-
-// Do we want to expose 'onPostback'
-// Or do we let it as is (window listens on message) ?
-window.botpressWebChat = { init: init }

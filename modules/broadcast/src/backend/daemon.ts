@@ -53,7 +53,7 @@ export default async (botId: string, bp: typeof sdk, db: Database) => {
         language = user.result.attributes.language
       }
 
-      const event = { state: { user: { language: language } } }
+      const event = { state: { user: { language } } }
       const eventDestination = { channel: row.platform, botId, target: row.userId }
       const payloads = await bp.cms.renderElement(`!${row.text}`, { event }, eventDestination)
 

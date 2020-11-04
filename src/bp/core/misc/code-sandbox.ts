@@ -8,7 +8,7 @@ import tmp from 'tmp'
 import { VError } from 'verror'
 import { NodeVM } from 'vm2'
 
-export type CodeFile = {
+export interface CodeFile {
   relativePath: string
   code: string
 }

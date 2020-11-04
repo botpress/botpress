@@ -109,7 +109,7 @@ export const getToken = async (config: DialogflowConfig) => {
     return token
   }
 
-  throw new Error(`Could not authenticate to Dialogflow`)
+  throw new Error('Could not authenticate to Dialogflow')
 }
 
 export const restoreAgent = async (base64Zip: string, config: DialogflowConfig) => {
@@ -132,7 +132,7 @@ export const predict = async (config: DialogflowConfig, text: string, langCode: 
     queryParams: {
       contexts: contexts.filter(x => x.toLowerCase() !== 'global').map(x => ({ name: x, lifespanCount: 1 }))
     },
-    queryInput: { text: { languageCode: langCode, text: text } }
+    queryInput: { text: { languageCode: langCode, text } }
   }
 
   const { data } = await axios.post(

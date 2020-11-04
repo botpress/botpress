@@ -26,6 +26,17 @@
   }
 }
 
+.actions-container {
+  text-align: right;
+  margin: 6px 0;
+  & > button {
+    margin: 0 4px;
+    &:first-child {
+      margin-right: 12px;
+    }
+  }
+}
+
 .scenario {
   border: solid 1px #eee;
   margin: 2px 0;
@@ -48,17 +59,23 @@
     .title {
       display: flex;
       align-items: center;
-      cursor: pointer;
-      .run {
-        font-size: 12px;
-        margin-left: 15px;
+      span,
+      button {
+        margin-right: 6px;
       }
+      cursor: pointer;
+    }
+    .subtitle {
+      font-size: 10px;
+      font-style: italic;
+      opacity: 80%;
+      padding-top: 3px;
     }
     .scenarioStatus {
       display: flex;
-      align-items: baseline;
-      > span {
-        margin-right: 10px;
+      align-items: center;
+      > * {
+        margin-left: 12px;
       }
     }
   }

@@ -23,14 +23,14 @@ export const prepareImport = async (parsedJson: any): Promise<ImportData> => {
     }
     return { questions: result.qnas, content: result.contentElements }
   } catch (err) {
-    debug(`New format doesn't match provided file %o`, { err })
+    debug("New format doesn't match provided file %o", { err })
   }
 
   try {
     const result = (await validate(parsedJson, QnaItemArraySchema)) as QnaItem[]
     return { questions: result, content: undefined }
   } catch (err) {
-    debug(`Old format doesn't match provided file %o`, { err })
+    debug("Old format doesn't match provided file %o", { err })
   }
 
   return {}

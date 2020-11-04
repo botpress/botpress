@@ -1,7 +1,6 @@
 import { Button, Classes, MenuItem } from '@blueprintjs/core'
 import { Select } from '@blueprintjs/select'
-import { FC, useState } from 'react'
-import React from 'react'
+import React, { FC, useState } from 'react'
 
 export interface Option {
   label: string

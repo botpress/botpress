@@ -88,7 +88,7 @@ export const getCommonShortcuts = () => {
       label: lang('commander.links.documentation'),
       type: 'popup',
       category: 'external',
-      url: `https://botpress.io/docs/introduction/`
+      url: 'https://botpress.io/docs/introduction/'
     },
     ...adminShortcuts.map(x => ({ ...x, category: 'admin', location: 'admin' as any }))
   ]

@@ -47,7 +47,7 @@ export class DataRetentionService {
       return
     }
 
-    const changedPaths = _.flatten(differences.filter(diff => diff.kind != this.DELETED_ATTR).map(diff => diff.path))
+    const changedPaths = _.flatten(differences.filter(diff => diff.kind !== this.DELETED_ATTR).map(diff => diff.path))
     if (!changedPaths.length) {
       return
     }
@@ -68,7 +68,7 @@ export class DataRetentionService {
   }
 
   private async get(channel: string, user_id: string, field_path: string) {
-    return await this.database
+    return this.database
       .knex(this.tableName)
       .where({ channel, user_id, field_path })
       .limit(1)
@@ -101,7 +101,7 @@ export class DataRetentionService {
   }
 
   async getExpired(batchSize): Promise<ExpiredData[]> {
-    return await this.database
+    return this.database
       .knex(this.tableName)
       .andWhere(this.database.knex.date.isBefore('expiry_date', new Date()))
       .select('channel', 'user_id', 'field_path')
