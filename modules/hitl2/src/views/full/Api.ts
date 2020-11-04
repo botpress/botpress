@@ -2,7 +2,7 @@ import { AxiosInstance } from 'axios'
 import _ from 'lodash'
 import moment from 'moment'
 
-import { AgentType, CommentType, EscalationType } from '../../types'
+import { AgentType, CommentType, EscalationType, EventType } from '../../types'
 
 // TODO Handle casting when object is undefined
 export function castDate<T extends object>(object: T, paths: string[]): T {
@@ -24,7 +24,7 @@ export function castEscalation(item: EscalationType) {
 
       value.userConversation = {
         ...value.userConversation,
-        event: JSON.parse(<string>value.userConversation.event)
+        event: JSON.parse(value.userConversation.event as string)
       }
       return value
     })

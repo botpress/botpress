@@ -1,4 +1,5 @@
 import { UserProfile } from 'common/typings'
+import * as sdk from 'botpress/sdk'
 
 export type AgentType = {
   id: string
@@ -28,16 +29,9 @@ export interface EscalationType {
   updatedAt: Date
 }
 
-export interface EventType {
-  id: string
-  direction: string
-  botId: string
-  channel: string
-  success: boolean
-  createdOn: Date
-  threadId: string
-  event: string
-}
+export type EventType = {
+  event: string | sdk.IO.Event
+} & sdk.IO.StoredEvent
 
 export interface CommentType {
   id: string

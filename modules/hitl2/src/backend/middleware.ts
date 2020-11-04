@@ -65,18 +65,21 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
       // At this moment the event isn't persisted yet so an approximate
       // representation is built and sent to the frontend, which relies on
       // this to update the escalation's preview and read status.
-      escalation.userConversation = {
-        event: JSON.stringify(_.pick(event, ['preview'])),
-        success: undefined,
-        threadId: undefined,
-        ..._.pick(event, ['id', 'direction', 'botId', 'channel', 'createdOn', 'threadId'])
+      const payload = {
+        ...escalation,
+        userConversation: {
+          event: JSON.stringify(_.pick(event, ['preview'])),
+          success: undefined,
+          threadId: undefined,
+          ..._.pick(event, ['id', 'direction', 'botId', 'channel', 'createdOn', 'threadId'])
+        }
       }
 
       realtime.sendPayload({
         resource: 'escalation',
         type: 'update',
         id: escalation.id,
-        payload: escalation
+        payload: payload
       })
 
       // Handle incoming message from agent
