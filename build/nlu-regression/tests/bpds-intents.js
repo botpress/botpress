@@ -60,7 +60,7 @@ module.exports = function(bitfan) {
       return reportBySeed
     },
 
-    evaluatePerformance: async function(currentPerformance, previousPerformance) {
+    evaluatePerformance: function(currentPerformance, previousPerformance) {
       const toleranceByMetrics = {
         [avgIntentAccurancy.name]: 0.02,
         [bitfan.metrics.oosAccuracy.name]: 0.05,

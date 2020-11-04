@@ -41,7 +41,7 @@ async function runTest(test, { update, keepGoing }) {
   }
 
   const previousPerformance = await readResults(name)
-  const comparison = await evaluatePerformance(performance, previousPerformance)
+  const comparison = evaluatePerformance(performance, previousPerformance)
 
   const regressionMessage = `\n${formatRegressionMessage(name, comparison, performance.groupedBy)}\n`
   if (comparison.status === "regression") {

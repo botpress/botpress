@@ -61,7 +61,7 @@ module.exports = function(bitfan) {
       return report
     },
 
-    evaluatePerformance: async function(currentPerformance, previousPerformance) {
+    evaluatePerformance: function(currentPerformance, previousPerformance) {
       const toleranceByMetrics = {
         [avgStrictSlotAccuray.name]: 0.02,
         [avgLooseSlotAccuray.name]: 0.02,
