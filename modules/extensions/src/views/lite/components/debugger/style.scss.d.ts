@@ -8,6 +8,7 @@ interface CssExports {
   'container': string;
   'container2': string;
   'content': string;
+  'debuggerIcon': string;
   'error': string;
   'expanded': string;
   'group': string;
