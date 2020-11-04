@@ -15,7 +15,7 @@ export class PredictionHandler {
   ) {}
 
   async predict(textInput: string, includedContexts: string[]) {
-    const detectedLanguage = await this.engine.detectLanguage(textInput, Object.values(this.modelsByLang))
+    const detectedLanguage = await this.engine.detectLanguage(textInput, this.modelsByLang)
 
     let nluResults: sdk.IO.EventUnderstanding | undefined
 

@@ -292,14 +292,12 @@ export default class Engine implements NLU.Engine {
     return Predict(input, this._tools, loaded.predictors)
   }
 
-  async detectLanguage(text: string, models: string[]): Promise<string> {
-    const loaded = models.map(id => this.modelsById.get(id))
-    if (loaded.some(_.isUndefined)) {
-      throw new Error(`one of models is not loaded: ${models.join(', ')}`)
+  async detectLanguage(text: string, modelsByLang: _.Dictionary<string>): Promise<string> {
+    const predictorsByLang = _.mapValues(modelsByLang, id => this.modelsById.get(id)?.predictors)
+    if (!this._dictionnaryIsFilled(predictorsByLang)) {
+      throw new Error(`one of models is not loaded: ${modelsByLang}`)
     }
-
-    const predictors = loaded.map(m => m!.predictors)
-    return DetectLanguage(text, predictors, this._tools)
+    return DetectLanguage(text, predictorsByLang, this._tools)
   }
 
   private _ctxHasChanged = (previousIntents: Intent<string>[], currentIntents: Intent<string>[]) => (ctx: string) => {
@@ -314,5 +312,10 @@ export default class Engine implements NLU.Engine {
       .createHash('md5')
       .update(JSON.stringify(intentsOfCtx))
       .digest('hex')
+  }
+
+  // TODO: this should go someplace else, but I find it very handy
+  private _dictionnaryIsFilled = <T>(dictionnary: { [key: string]: T | undefined }): dictionnary is Dic<T> => {
+    return !Object.values(dictionnary).some(_.isUndefined)
   }
 }

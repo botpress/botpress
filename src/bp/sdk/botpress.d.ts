@@ -454,7 +454,7 @@ declare module 'botpress/sdk' {
         options: TrainingOptions
       ) => Promise<Model>
       cancelTraining: (trainSessionId: string) => Promise<void>
-      detectLanguage: (text: string, models: string[]) => Promise<string>
+      detectLanguage: (text: string, modelByLang: Dic<string>) => Promise<string>
       predict: (text: string, ctx: string[], modelId: string) => Promise<IO.EventUnderstanding>
     }
 
