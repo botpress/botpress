@@ -37,17 +37,7 @@ export interface Point {
 }
 
 const createNodeModel = (node, modelProps) => {
-  const { type } = node
-
-  if (type === 'skill-call') {
-    return new SkillCallNodeModel(modelProps)
-  } else if (
-    ['say_something', 'execute', 'listen', 'router', 'action', 'success', 'trigger', 'failure'].includes(type)
-  ) {
-    return new BlockModel(modelProps)
-  } else {
-    return new StandardNodeModel(modelProps)
-  }
+  return new BlockModel(modelProps)
 }
 
 export class DiagramManager {

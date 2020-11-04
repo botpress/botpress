@@ -45,10 +45,8 @@ import storage from '~/util/storage'
 
 import { prepareEventForDiagram } from './debugger'
 import { defaultTransition, DiagramManager, DIAGRAM_PADDING, nodeTypes, Point } from './manager'
-import { BlockWidgetFactory } from './nodes/Block'
+import { BlockModel, BlockWidgetFactory } from './nodes/Block'
 import { DeletableLinkFactory } from './nodes/LinkWidget'
-import { SkillCallNodeModel, SkillCallWidgetFactory } from './nodes/SkillCallNode'
-import { StandardNodeModel, StandardWidgetFactory } from './nodes/StandardNode'
 import style from './style.scss'
 import NodeToolbar from './NodeToolbar'
 import TriggerEditor from './TriggerEditor'
@@ -75,8 +73,6 @@ type StateProps = ReturnType<typeof mapStateToProps>
 type DispatchProps = typeof mapDispatchToProps
 
 type Props = DispatchProps & StateProps & OwnProps
-
-type BpNodeModel = StandardNodeModel | SkillCallNodeModel
 
 type ExtendedDiagramEngine = {
   enableLinkPoints?: boolean
@@ -119,6 +115,7 @@ class Diagram extends Component<Props> {
       getCurrentFlow: () => this.getPropsProperty('currentFlow'),
       updateFlowNode: this.updateNodeAndRefresh.bind(this),
       switchFlowNode: this.switchFlowNode.bind(this),
+      updateFlow: this.getPropsProperty('updateFlow'),
       getLanguage: () => ({
         currentLang: this.getPropsProperty('currentLang'),
         defaultLang: this.getPropsProperty('defaultLang')
@@ -133,8 +130,6 @@ class Diagram extends Component<Props> {
     }
 
     this.diagramEngine = new DiagramEngine()
-    this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
-    this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory(this.props.skills))
     this.diagramEngine.registerNodeFactory(new BlockWidgetFactory(commonProps))
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
 
@@ -500,18 +495,12 @@ class Diagram extends Component<Props> {
       return false
     }
 
-    const targetModel = target.model
-    const { nodeType } = targetModel
-    return (
-      targetModel instanceof StandardNodeModel ||
-      targetModel instanceof SkillCallNodeModel ||
-      nodeType === 'router' ||
-      nodeType === 'say_something'
-    )
+    const nodeType = target.model?.nodeType
+    return nodeType === 'router' || nodeType === 'say_something' || nodeType === 'standard' || nodeType === 'skill-call'
   }
 
   onDiagramClick = (event: MouseEvent) => {
-    const selectedNode = this.manager.getSelectedNode() as BpNodeModel
+    const selectedNode = this.manager.getSelectedNode() as BlockModel
     const currentNode = this.props.currentFlowNode
     const target = this.diagramWidget.getMouseElement(event)
 

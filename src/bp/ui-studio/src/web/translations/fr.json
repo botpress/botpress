@@ -104,6 +104,10 @@
       "cantDeleteStart": "Vous ne pouvez pas supprimer le point d'entrée.",
       "cantDeleteSuccess": "Vous ne pouvez pas supprimer le nœud de réussite.",
       "chips": "Chips",
+      "prevWorkflow": "Retourner au workflow précédent",
+      "nextWorkflow": "Aller au prochain workflow",
+      "endOfWorkflow": "Fin du workflow",
+      "errorOccurred": "Une erreur est survenue ici",
       "condition": {
         "addCondition": "Ajouter condition",
         "backToList": "Retour à la liste",
