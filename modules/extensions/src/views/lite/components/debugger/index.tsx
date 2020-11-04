@@ -1,6 +1,7 @@
-import { Checkbox, Icon, Tab, Tabs } from '@blueprintjs/core'
+import { Checkbox, Tab, Tabs } from '@blueprintjs/core'
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
+import cx from 'classnames'
 import _ from 'lodash'
 import ms from 'ms'
 import nanoid from 'nanoid'
@@ -259,9 +260,26 @@ export class Debugger extends React.Component<Props, State> {
     return <SplashScreen />
   }
 
+  renderProcessingTab() {
+    const processing = _.get(this.state, 'event.processing') as _.Dictionary<sdk.IO.ProcessingEntry> | null
+    if (!processing) {
+      return
+    }
+
+    const hasError = Object.values(processing).some(item => item.errors?.length > 0)
+
+    return (
+      <Tab
+        id="processing"
+        className={cx({ [style.tabError]: hasError })}
+        title="Processing"
+        panel={<Processing processing={processing} />}
+      />
+    )
+  }
+
   renderEvent() {
     const ndu = _.get(this.state, 'event.ndu')
-    const processing = _.get(this.state, 'event.processing')
 
     return (
       <div className={style.content}>
@@ -286,7 +304,7 @@ export class Debugger extends React.Component<Props, State> {
             }
           />
           {ndu && <Tab id="ndu" title="NDU" panel={<NDU ndu={ndu} />} />}
-          {processing && <Tab id="processing" title="Processing" panel={<Processing processing={processing} />} />}
+          {this.renderProcessingTab()}
           <Tab id="advanced" title="Raw JSON" panel={<Inspector data={this.state.event} />} />
         </Tabs>
       </div>

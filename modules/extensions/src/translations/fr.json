@@ -1,6 +1,7 @@
 {
   "errorExecuting": "Erreur lors de l'exécution de l'action \"{name}\"",
   "errorTransition": "Erreur lors de la transition vers \"{name}\"",
+  "splashMessage": "Débutez un conversation avec votre chatbot et clickez sur un message pour l'inspecter",
   "types": {
     "dropdown": {
       "allowCreate": "Permettre la création de nouvelles options",
