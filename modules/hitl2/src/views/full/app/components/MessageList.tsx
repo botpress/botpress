@@ -1,9 +1,10 @@
-import React, { FC } from 'react'
 import * as sdk from 'botpress/sdk'
-import cx from 'classnames'
-import style from './../../style.scss'
+
+import React, { FC } from 'react'
 
 import Message from './Message'
+import cx from 'classnames'
+import style from './../../style.scss'
 
 interface Props {
   messages: sdk.IO.StoredEvent[]

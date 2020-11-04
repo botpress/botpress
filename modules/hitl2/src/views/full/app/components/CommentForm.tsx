@@ -1,7 +1,8 @@
-import { Button } from '@blueprintjs/core'
-import { lang } from 'botpress/shared'
-import React, { FC, useState } from 'react'
+import React, { FC, useContext, useState } from 'react'
+import { isOperationAllowed, lang } from 'botpress/shared'
 
+import { Button } from '@blueprintjs/core'
+import { Context } from '../Store'
 import style from '../../style.scss'
 
 interface Props {

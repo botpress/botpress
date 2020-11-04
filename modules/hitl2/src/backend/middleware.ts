@@ -1,11 +1,11 @@
 import * as sdk from 'botpress/sdk'
-import _ from 'lodash'
-import LRU from 'lru-cache'
 
 import { EscalationType } from './../types'
-import { StateType } from './index'
+import LRU from 'lru-cache'
 import Repository from './repository'
 import Socket from './socket'
+import { StateType } from './index'
+import _ from 'lodash'
 
 const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   const realtime = Socket(bp)

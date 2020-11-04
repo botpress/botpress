@@ -1,26 +1,27 @@
-import yn from 'yn'
 import * as sdk from 'botpress/sdk'
-import { BPRequest } from 'common/http'
-import { RequestWithUser } from 'common/typings'
-import { Request, Response } from 'express'
-import Joi from 'joi'
-import _ from 'lodash'
-import { v4 as uuidv4 } from 'uuid'
 
-import { CommentType, EscalationType } from './../types'
-import { ResponseError, UnprocessableEntityError } from './errors'
-import { formatError, makeAgentId } from './helpers'
-import { StateType } from './index'
-import Repository, { AgentCollectionConditions, CollectionConditions } from './repository'
-import socket from './socket'
 import {
   AgentOnlineValidation,
   AssignEscalationSchema,
   CreateCommentSchema,
   CreateEscalationSchema,
-  validateEscalationStatusRule,
-  ResolveEscalationSchema
+  ResolveEscalationSchema,
+  validateEscalationStatusRule
 } from './validation'
+import { CommentType, EscalationType } from './../types'
+import Repository, { AgentCollectionConditions, CollectionConditions } from './repository'
+import { Request, Response } from 'express'
+import { ResponseError, UnprocessableEntityError } from './errors'
+import { formatError, makeAgentId } from './helpers'
+
+import { BPRequest } from 'common/http'
+import Joi from 'joi'
+import { RequestWithUser } from 'common/typings'
+import { StateType } from './index'
+import _ from 'lodash'
+import socket from './socket'
+import { v4 as uuidv4 } from 'uuid'
+import yn from 'yn'
 
 export default async (bp: typeof sdk, state: StateType) => {
   const router = bp.http.createRouterForBot('hitl2')

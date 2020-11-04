@@ -1,10 +1,11 @@
-import axios from 'axios'
 import * as sdk from 'botpress/sdk'
-import Knex from 'knex'
-import _ from 'lodash'
-import { SortOrder } from 'botpress/sdk'
 
 import { AgentType, CommentType, EscalationType } from './../types'
+
+import Knex from 'knex'
+import { SortOrder } from 'botpress/sdk'
+import _ from 'lodash'
+import axios from 'axios'
 import { makeAgentId } from './helpers'
 
 export interface AgentCollectionConditions {

@@ -1,8 +1,7 @@
-import React, { createContext, Dispatch, useReducer } from 'react'
+import React, { Dispatch, createContext, useReducer } from 'react'
+import Reducer, { ActionType } from './Reducer'
 
 import { AgentType } from '../../../types'
-
-import Reducer, { ActionType } from './Reducer'
 
 type StoreType = {
   state: StateType

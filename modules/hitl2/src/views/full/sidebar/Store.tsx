@@ -1,7 +1,8 @@
-import React, { createContext, useReducer, Dispatch } from 'react'
-import { Dictionary } from 'lodash'
 import { AgentType, EscalationType } from '../../../types'
+import React, { Dispatch, createContext, useReducer } from 'react'
 import Reducer, { ActionType } from './Reducer'
+
+import { Dictionary } from 'lodash'
 
 type StoreType = {
   state: StateType

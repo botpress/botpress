@@ -1,14 +1,12 @@
-import _, { Dictionary } from 'lodash'
-import React, { FC, useEffect, useState } from 'react'
-import cx from 'classnames'
-
-import { EscalationType } from '../../../../types'
-
-import { Spinner } from '@blueprintjs/core'
-import CasesIcon from './../../Icons/CasesIcon'
 import { EmptyState, lang } from 'botpress/shared'
-import EscalationItem from './EscalationItem'
+import React, { FC, useEffect, useState } from 'react'
+import _, { Dictionary } from 'lodash'
 
+import CasesIcon from './../../Icons/CasesIcon'
+import EscalationItem from './EscalationItem'
+import { EscalationType } from '../../../../types'
+import { Spinner } from '@blueprintjs/core'
+import cx from 'classnames'
 import styles from './../../style.scss'
 
 interface Props {

@@ -1,9 +1,9 @@
-import { ContentSection } from 'botpress/shared'
-import moment from 'moment'
 import React, { FC, useContext } from 'react'
 
 import { CommentType } from '../../../../types'
+import { ContentSection } from 'botpress/shared'
 import { Context } from '../Store'
+import moment from 'moment'
 import style from '../../style.scss'
 
 interface Props {

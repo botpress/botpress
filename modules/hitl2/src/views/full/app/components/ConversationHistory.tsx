@@ -1,10 +1,10 @@
-import React, { FC, useEffect, useState } from 'react'
-import _ from 'lodash'
-import { Spinner } from '@blueprintjs/core'
 import { EmptyState, lang } from 'botpress/shared'
+import React, { FC, useEffect, useState } from 'react'
 
 import { ApiType } from '../../Api'
 import MessageList from './MessageList'
+import { Spinner } from '@blueprintjs/core'
+import _ from 'lodash'
 import style from '../../style.scss'
 
 interface Props {

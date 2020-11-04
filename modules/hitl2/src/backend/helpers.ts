@@ -1,7 +1,6 @@
 import { Response } from 'express'
-import _ from 'lodash'
-
 import { ResponseError } from './errors'
+import _ from 'lodash'
 
 export const makeAgentId = (strategy: string, email: string): string => {
   return _.join(_.compact([strategy, email]), '/')

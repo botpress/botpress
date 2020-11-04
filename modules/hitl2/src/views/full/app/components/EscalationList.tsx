@@ -1,16 +1,14 @@
-import { Spinner } from '@blueprintjs/core'
 import { EmptyState, lang } from 'botpress/shared'
-// import cx from 'classnames'
-import _ from 'lodash'
-import React, { Fragment, FC, useContext, useEffect, useState } from 'react'
-
-import { Context } from '../Store'
-import { ApiType } from '../../Api'
-
-import { EscalationType } from './../../../../types'
-import CasesIcon from './../../Icons/CasesIcon'
-import EscalationItem from './EscalationItem'
 import EscalationListHeader, { FilterType, SortType } from './EscalationListHeader'
+import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
+
+import { ApiType } from '../../Api'
+import CasesIcon from './../../Icons/CasesIcon'
+import { Context } from '../Store'
+import EscalationItem from './EscalationItem'
+import { EscalationType } from './../../../../types'
+import { Spinner } from '@blueprintjs/core'
+import _ from 'lodash'
 
 interface Props {
   api: ApiType

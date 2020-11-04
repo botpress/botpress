@@ -1,5 +1,5 @@
-import _ from 'lodash'
 import Haikunator from 'haikunator'
+import _ from 'lodash'
 
 function generateUsername() {
   const haiku = new Haikunator({ defaults: { tokenLength: 0 } })

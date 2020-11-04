@@ -1,11 +1,9 @@
-import React, { FC, useState, useEffect } from 'react'
-import moment from 'moment'
-import cx from 'classnames'
+import React, { FC, useEffect, useState } from 'react'
 
 import { EscalationType } from '../../../../types'
-
+import cx from 'classnames'
 import { lang } from 'botpress/shared'
-
+import moment from 'moment'
 import styles from './../../style.scss'
 
 const EscalationItem: FC<EscalationType> = props => {

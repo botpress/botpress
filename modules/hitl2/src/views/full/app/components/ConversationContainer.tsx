@@ -1,15 +1,16 @@
-import { Button } from '@blueprintjs/core'
-import { EmptyState, lang, Tabs, toast } from 'botpress/shared'
-import _ from 'lodash'
+import { EmptyState, Tabs, lang, toast } from 'botpress/shared'
 import React, { FC, Fragment, useContext } from 'react'
 
-import { EscalationType } from '../../../../types'
-import { Context } from '../Store'
-import { ApiType } from '../../Api'
-
-import style from '../../style.scss'
 import AgentsIcon from '../../Icons/AgentsIcon'
+import { ApiType } from '../../Api'
+import { Button } from '@blueprintjs/core'
+import { Context } from '../Store'
+import ConversationHistory from './ConversationHistory'
+import { EscalationType } from '../../../../types'
 import Sidebar from './Sidebar'
+import _ from 'lodash'
+import cx from 'classnames'
+import style from '../../style.scss'
 
 interface Props {
   api: ApiType

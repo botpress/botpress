@@ -1,15 +1,14 @@
 import { Collapsible, lang } from 'botpress/shared'
-import _ from 'lodash'
 import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
-
-import { EscalationType } from '../../../../types'
-import { Context } from '../Store'
-import style from '../../style.scss'
 
 import { ApiType } from './../../Api'
 import Comment from './Comment'
 import CommentForm from './CommentForm'
+import { Context } from '../Store'
+import { EscalationType } from '../../../../types'
 import UserProfile from './UserProfile'
+import _ from 'lodash'
+import style from '../../style.scss'
 
 interface Props {
   api: ApiType

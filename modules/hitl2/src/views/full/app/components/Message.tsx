@@ -1,5 +1,7 @@
-import React, { FC } from 'react'
 import * as sdk from 'botpress/sdk'
+
+import React, { FC } from 'react'
+
 import cx from 'classnames'
 import style from './../../style.scss'
 
