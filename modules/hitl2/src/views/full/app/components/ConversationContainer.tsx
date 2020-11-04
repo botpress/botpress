@@ -58,6 +58,7 @@ const ConversationContainer: FC<Props> = props => {
               <Button onClick={handleAssign}>Assign to me</Button>
               <Button onClick={handleResolve}>Resolve</Button>
             </Fragment>
+              <ConversationHistory api={api} conversationId={props.escalation.userThreadId}></ConversationHistory>
           )}
         </div>
       </div>

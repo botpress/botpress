@@ -376,4 +376,14 @@ export default class Repository {
 
     return this.bp.database.insertAndRetrieve<CommentType>('comments', payload, this.commentColumns)
   }
+
+  getMessages = async (botId: string, id: string, conditions: CollectionConditions = {}) => {
+    return await this.bp
+      .database<sdk.IO.StoredEvent>('events')
+      .select('*')
+      .where('botId', botId)
+      .andWhere('threadId', id)
+      .orderBy('createdOn')
+      .modify(this.applyLimit, conditions)
+  }
 }

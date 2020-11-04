@@ -43,6 +43,16 @@ export function castComment(item: CommentType) {
   return castDate(item, ['createdAt', 'updatedAt'])
 }
 
+export function castMessage(item: EventType) {
+  return _.chain(item)
+    .thru(value => castDate(value, ['createdOn']))
+    .thru(value => {
+      value.event = JSON.parse(value.event as string)
+      return value
+    })
+    .value()
+}
+
 export interface ApiType {
   setOnline: () => Promise<Partial<AgentType>>
   setOffline: () => Promise<Partial<AgentType>>
@@ -53,6 +63,7 @@ export interface ApiType {
   getEscalations: (column?: string, desc?: boolean, limit?: number) => Promise<EscalationType[]>
   assignEscalation: (id: string) => Promise<EscalationType>
   resolveEscalation: (id: string) => Promise<EscalationType>
+  getMessages: (id: string, limit?: number) => Promise<EventType[]>
 }
 
 export const Api = (bp: { axios: AxiosInstance }): ApiType => {
@@ -75,7 +86,7 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
         .post(`${base}/escalations/${id}/comments`, payload)
         .then(res => res.data)
         .then(data => castComment(data)),
-    getEscalations: async (column?: string, desc?: boolean, limit?: number) =>
+    getEscalations: async (column?, desc?, limit?) =>
       bp.axios
         .get(`${base}/escalations`, {
           params: {
@@ -95,6 +106,11 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
       bp.axios
         .post(`${base}/escalations/${id}/resolve`)
         .then(res => res.data)
-        .then(data => castEscalation(data))
+        .then(data => castEscalation(data)),
+    getMessages: async (id, limit?) =>
+      bp.axios
+        .get(`${base}/conversations/${id}/messages`, { params: { limit: limit } })
+        .then(res => res.data)
+        .then(data => data.map(castMessage))
   }
 }

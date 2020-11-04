@@ -301,4 +301,15 @@ export default async (bp: typeof sdk, state: StateType) => {
       res.send(comment)
     })
   )
+
+  router.get(
+    '/conversations/:id/messages',
+    errorMiddleware(async (req: RequestWithUser, res: Response) => {
+      req.tokenUser!
+
+      const messages = await repository.getMessages(req.params.botId, req.params.id)
+
+      res.send(messages)
+    })
+  )
 }
