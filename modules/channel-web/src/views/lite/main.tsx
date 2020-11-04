@@ -7,6 +7,7 @@ import React from 'react'
 import { injectIntl } from 'react-intl'
 
 import Container from './components/Container'
+import Stylesheet from './components/Stylesheet'
 import constants from './core/constants'
 import BpSocket from './core/socket'
 import ChatIcon from './icons/Chat'
@@ -283,11 +284,7 @@ class Web extends React.Component<MainProps> {
     )
   }
 
-  render() {
-    if (!this.props.isWebchatReady) {
-      return null
-    }
-
+  applyAndRenderStyle() {
     const emulatorClass = this.props.isEmulator ? ' emulator' : ''
     const parentClass = classnames(`bp-widget-web bp-widget-${this.props.activeView}${emulatorClass}`, {
       'bp-widget-hidden': !this.props.showWidgetButton && this.props.displayWidgetView,
@@ -299,13 +296,25 @@ class Web extends React.Component<MainProps> {
       this.parentClass = parentClass
     }
 
-    const { stylesheet, extraStylesheet } = this.props.config
+    const { isEmulator, stylesheet, extraStylesheet } = this.props.config
+    return (
+      <React.Fragment>
+        {!!stylesheet?.length && <Stylesheet href={stylesheet} />}
+        {!stylesheet && <Stylesheet href={`assets/modules/channel-web/default${isEmulator ? '-emulator' : ''}.css`} />}
+        {!isIE && <Stylesheet href={'assets/modules/channel-web/font.css'} />}
+        {!!extraStylesheet?.length && <Stylesheet href={extraStylesheet} />}
+      </React.Fragment>
+    )
+  }
+
+  render() {
+    if (!this.props.isWebchatReady) {
+      return null
+    }
 
     return (
       <div onFocus={this.handleResetUnreadCount}>
-        {!!stylesheet?.length && <link rel="stylesheet" type="text/css" href={stylesheet} />}
-        {isIE && <link rel="stylesheet" type="text/css" href="assets/modules/channel-web/default_ie.css" />}
-        {!!extraStylesheet?.length && <link rel="stylesheet" type="text/css" href={extraStylesheet} />}
+        {this.applyAndRenderStyle()}
         <h1 id="tchat-label" className="sr-only" tabIndex={-1}>
           {this.props.intl.formatMessage({
             id: 'widget.title',
