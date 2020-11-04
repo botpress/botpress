@@ -43,7 +43,7 @@ export interface CommentType {
 }
 
 export interface SocketMessageType {
-  payload: {}
+  payload: any
   resource: string
   type: string
   id: string

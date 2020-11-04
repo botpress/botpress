@@ -2,7 +2,6 @@ import { EmptyState, lang } from 'botpress/shared'
 import EscalationListHeader, { FilterType, SortType } from './EscalationListHeader'
 import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
 
-import { ApiType } from '../../Api'
 import CasesIcon from './../../Icons/CasesIcon'
 import { Context } from '../Store'
 import EscalationItem from './EscalationItem'
@@ -11,14 +10,11 @@ import { Spinner } from '@blueprintjs/core'
 import _ from 'lodash'
 
 interface Props {
-  api: ApiType
   escalations: object
   loading: boolean
 }
 
 const EscalationList: FC<Props> = props => {
-  const { api } = props
-
   const { state, dispatch } = useContext(Context)
 
   const [items, setItems] = useState([])
@@ -82,10 +78,7 @@ const EscalationList: FC<Props> = props => {
         <EmptyState icon={<CasesIcon />} text={lang.tr('module.hitl2.escalations.empty')}></EmptyState>
       )}
 
-      {!!items.length &&
-        items.map((escalation, i) => (
-          <EscalationItem key={escalation.id} api={api} escalation={escalation}></EscalationItem>
-        ))}
+      {!!items.length && items.map(escalation => <EscalationItem key={escalation.id} {...escalation}></EscalationItem>)}
     </Fragment>
   )
 }

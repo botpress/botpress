@@ -25,7 +25,7 @@ const App = ({ bp }) => {
         return dispatch({
           type: 'setEscalation',
           payload: _.thru(message, () => {
-            message.payload = castEscalation(message.payload)
+            message.payload = castEscalation(message.payload as EscalationType)
             return message
           })
         })
@@ -106,7 +106,7 @@ const App = ({ bp }) => {
       <MainLayout.Header leftButtons={leftHeaderButtons} />
       <div className={style.mainContent}>
         <div className={style.sidebar}>
-          <EscalationList api={api} escalations={state.escalations} loading={loading} />
+          <EscalationList escalations={state.escalations} loading={loading} />
         </div>
         <div className={style.content}>
           <ConversationContainer api={api} escalation={state.currentEscalation} />
