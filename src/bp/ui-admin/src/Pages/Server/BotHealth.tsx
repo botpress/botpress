@@ -74,7 +74,7 @@ const BotHealth: FC<Props> = props => {
     }
 
     props.history.push(
-      generatePath(`/workspace/:workspaceId?/logs?botId=:botId`, {
+      generatePath('/workspace/:workspaceId?/logs?botId=:botId', {
         workspaceId: getActiveWorkspace() || undefined,
         botId
       })
@@ -167,10 +167,10 @@ const BotHealth: FC<Props> = props => {
 
     try {
       await api.getSecured().post(`/admin/bots/${botId}/reload`)
-      toastSuccess(`Bot remounted successfully`)
+      toastSuccess('Bot remounted successfully')
     } catch (err) {
-      console.log(err)
-      toastFailure(`Could not mount bot. Check server logs for details`)
+      console.error(err)
+      toastFailure('Could not mount bot. Check server logs for details')
     }
   }
 

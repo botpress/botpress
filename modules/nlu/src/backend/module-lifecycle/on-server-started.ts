@@ -39,7 +39,7 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
       'Process natural language in the form of text. Structured data with an action and parameters for that action is injected in the incoming message event.',
     handler: async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
       if (ignoreEvent(bp, state, event)) {
-        return next()
+        return next(undefined, false, true)
       }
 
       try {

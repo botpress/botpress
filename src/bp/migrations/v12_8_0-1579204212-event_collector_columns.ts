@@ -2,7 +2,7 @@ import * as sdk from 'botpress/sdk'
 
 const migration: sdk.ModuleMigration = {
   info: {
-    description: `Add workflowId columns to events table`,
+    description: 'Add workflowId columns to events table',
     type: 'database'
   },
   up: async ({ bp }: sdk.ModuleMigrationOpts): Promise<sdk.MigrationResult> => {

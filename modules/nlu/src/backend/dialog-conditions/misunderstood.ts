@@ -4,7 +4,7 @@ import _ from 'lodash'
 export default {
   id: 'user_intent_misunderstood',
   label: 'Users says something misunderstood (intent)',
-  description: `The user's intention is misunderstood`,
+  description: "The user's intention is misunderstood",
   displayOrder: 3,
   params: {
     maxConfidence: {

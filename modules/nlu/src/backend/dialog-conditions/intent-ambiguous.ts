@@ -10,7 +10,7 @@ interface Params {
 export default {
   id: 'intent_is_ambiguous',
   label: 'Intent is ambiguous within topic',
-  description: `The users's intention is can be interpreted as multiple intents within the same topic`,
+  description: "The users's intention is can be interpreted as multiple intents within the same topic",
   displayOrder: 1,
   params: {
     ambiguityThreshold: { label: 'Ambiguity threshold', type: 'number', defaultValue: 0.1 },

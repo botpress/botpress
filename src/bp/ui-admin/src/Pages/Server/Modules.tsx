@@ -51,7 +51,7 @@ const Modules: FC<Props> = props => {
           { acceptLabel: 'Restart server(s) now' }
         )
       ) {
-        await api.getSecured().post(`/admin/server/rebootServer`)
+        await api.getSecured().post('/admin/server/rebootServer')
         setRestart(true)
       }
     } catch (err) {
