@@ -1,5 +1,5 @@
 import produce from 'immer'
-import _ from 'lodash'
+import _, { Dictionary } from 'lodash'
 
 import { AgentType, CommentType, EscalationType, SocketMessageType } from '../../../types'
 
@@ -13,7 +13,7 @@ export type ActionType =
   | { type: 'setComment'; payload: CommentType }
   | { type: 'setAgent'; payload: SocketMessageType }
   | { type: 'setEscalation'; payload: SocketMessageType }
-  | { type: 'setRead'; payload: string }
+  | { type: 'setRead'; payload: Dictionary<Date> }
   | { type: 'setDefault'; payload: Object }
   | { type: 'setError'; payload: any }
 

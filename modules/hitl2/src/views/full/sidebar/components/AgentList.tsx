@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import _, { Dictionary } from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
 import { AgentType } from '../../../../types'
@@ -9,7 +9,7 @@ import AgentItem from './AgentItem'
 import AgentsIcon from '../../Icons/AgentsIcon'
 
 interface Props {
-  agents: object
+  agents: Dictionary<AgentType>
   loading: boolean
 }
 
