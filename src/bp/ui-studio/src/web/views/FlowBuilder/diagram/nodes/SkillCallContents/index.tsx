@@ -1,3 +1,4 @@
+import { IconName } from '@blueprintjs/core'
 import cx from 'classnames'
 import React, { FC } from 'react'
 import ConditionItem from '~/views/FlowBuilder/common/condition'
@@ -7,6 +8,13 @@ import { StandardPortWidget } from '../../nodes/Ports'
 import { BlockModel } from '../Block'
 import style from '../Components/style.scss'
 import localStyle from '../StandardContents/style.scss'
+
+export interface SkillDefinition {
+  id: string
+  name: string
+  icon: IconName
+  moduleName: string
+}
 
 interface Props {
   node: BlockModel

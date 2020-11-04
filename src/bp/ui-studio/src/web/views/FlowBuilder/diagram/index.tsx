@@ -126,6 +126,7 @@ class Diagram extends Component<Props> {
       editTriggers: this.editTriggers.bind(this),
       getDebugInfo: this.getDebugInfo,
       getFlows: () => this.getPropsProperty('flows'),
+      getSkills: () => this.getPropsProperty('skills'),
       disconnectNode: this.disconnectNode.bind(this)
     }
 
