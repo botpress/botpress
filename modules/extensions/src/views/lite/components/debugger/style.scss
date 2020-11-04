@@ -190,6 +190,38 @@
   padding: 10px var(--spacing-large);
   height: calc(100% - 50px);
   overflow-y: auto;
+
+  :global {
+    .bp3-tab-indicator-wrapper {
+      display: none;
+    }
+
+    .bp3-tab {
+      font-weight: bold;
+      font-size: 12px;
+      border-bottom: 2px solid transparent;
+
+      &[aria-selected='true'] {
+        color: var(--shark);
+        border-bottom: 2px solid var(--ocean);
+      }
+
+      &[aria-selected='false'] {
+        color: var(--seashell);
+      }
+    }
+  }
+
+  .tabError {
+    color: var(--hover-lighthouse) !important;
+    &:hover {
+      color: var(--lighthouse) !important;
+    }
+    &[aria-selected='true'] {
+      color: var(--lighthouse) !important;
+      border-bottom: 2px solid var(--lighthouse);
+    }
+  }
 }
 
 .inspectorContainer {

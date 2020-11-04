@@ -30,6 +30,7 @@ interface CssExports {
   'stacktrace': string;
   'subSection': string;
   'summaryTable': string;
+  'tabError': string;
   'time': string;
   'title': string;
   'triggerGroup': string;
