@@ -22,7 +22,12 @@ const EscalationItem: FC<EscalationType> = props => {
 
   async function handleSelect(id: string) {
     dispatch({ type: 'setCurrentEscalation', payload: id })
-    dispatch({ type: 'setRead', payload: id })
+    dispatch({
+      type: 'setRead',
+      payload: {
+        [id]: state.escalations[id].userConversation.createdOn
+      }
+    })
   }
 
   useEffect(() => {

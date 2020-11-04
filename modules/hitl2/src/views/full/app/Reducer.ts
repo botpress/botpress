@@ -66,10 +66,7 @@ const Reducer = (state: StateType, action: ActionType): StateType => {
       })
     case 'setRead':
       return produce(state, draft => {
-        draft.reads = {
-          ...draft.reads,
-          [action.payload]: draft.escalations[action.payload].userConversation.createdOn
-        }
+        draft.reads = _.merge(draft.reads, action.payload)
       })
     case 'setError':
       return produce(state, draft => {
