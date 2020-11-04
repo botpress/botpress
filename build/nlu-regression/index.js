@@ -10,12 +10,12 @@ function formatReason(groupedBy, reason) {
   const prefix = groupedBy === "seed" ? "for seed" 
                 : groupedBy === "problem" ? "for problem" 
                 : "for"
-  return `${prefix} "${reason.group}", for metric "${reason.metric}", 
-          current score is ${reason.currentScore}, while previous score is ${reason.previousScore}.`
+  return ` - ${prefix} "${reason.group}", for metric "${reason.metric}",\n`+ 
+         `   current score is ${reason.currentScore}, while previous score is ${reason.previousScore}.`
 }
 
-function formatRegressionMessage(testName, comparison) {
-  const makeReasonMsg = (r) => formatReason(comparison.groupedBy, r)
+function formatRegressionMessage(testName, comparison, groupedBy) {
+  const makeReasonMsg = (r) => formatReason(groupedBy, r)
   const formattedReasons = comparison.reasons.map(makeReasonMsg)
 
   if (comparison.status === "regression") {
@@ -43,13 +43,13 @@ async function runTest(test, { update, keepGoing }) {
   const previousPerformance = await readResults(name)
   const comparison = await evaluatePerformance(performance, previousPerformance)
 
-  const regressionMessage = `\n${formatRegressionMessage(name, comparison)}\n`
+  const regressionMessage = `\n${formatRegressionMessage(name, comparison, performance.groupedBy)}\n`
   if (comparison.status === "regression") {
     if (!keepGoing) {
       throw new Error(regressionMessage)
     }
     console.log(chalk.red(regressionMessage))
-    console.log("Skipping to next test...")
+    console.log(chalk.gray("Skipping to next test...\n"))
     return false
   } 
   
@@ -87,6 +87,6 @@ async function main(args) {
 main(process.argv.slice(2))
   .then(() => {})
   .catch(err => {
-    console.error(chalk.red("\nThe following error occured:\n"), err)
+    console.error(chalk.red("The following error occured:\n"), err)
     process.exit(1)
   })
