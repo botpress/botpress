@@ -18,8 +18,9 @@ interface Props {
 }
 
 const ConversationContainer: FC<Props> = props => {
-  const { state, dispatch } = useContext(Context)
   const { api } = props
+
+  const { state, dispatch } = useContext(Context)
 
   async function handleAssign() {
     try {
@@ -59,21 +60,25 @@ const ConversationContainer: FC<Props> = props => {
     <Fragment>
       <div className={cx(style.conversationContainer)}>
         <Tabs tabs={[{ id: 'conversation', title: lang.tr('module.hitl2.conversation.tab') }]} />
-        <div className={style.h100}>
-          {!props.escalation ? (
-            <EmptyState icon={<AgentsIcon />} text={lang.tr('module.hitl2.conversation.empty')}></EmptyState>
-          ) : (
-            <Fragment>
-              <Button onClick={handleAssign}>Assign to me</Button>
-              <Button onClick={handleResolve}>Resolve</Button>
-            </Fragment>
+
+        {!props.escalation ? (
+          <EmptyState icon={<AgentsIcon />} text={lang.tr('module.hitl2.conversation.empty')}></EmptyState>
+        ) : (
+          <Fragment>
+            <div className={cx(style.action)}>
+              {canAssign() && <Button onClick={handleAssign}>Assign to me</Button>}
+              {canResolve() && <Button onClick={handleResolve}>Resolve</Button>}
+            </div>
+
+            <div className={style.conversationHistory}>
               <ConversationHistory api={api} conversationId={props.escalation.userThreadId}></ConversationHistory>
-          )}
-        </div>
+            </div>
+          </Fragment>
+        )}
       </div>
 
       {props.escalation && (
-        <div className={style.sidebarWrapper}>
+        <div className={cx(style.sidebarContainer)}>
           <Tabs tabs={[{ id: 'user', title: lang.tr('module.hitl2.escalation.contactDetails') }]} />
           <Sidebar api={props.api} escalation={props.escalation}></Sidebar>
         </div>

@@ -25,7 +25,7 @@
       flex-grow: 1;
       background: #fff;
 
-      .conversationWrapper {
+      .conversationContainer {
         flex-grow: 1;
         height: 100%;
         padding-left: var(--spacing-x-large);
@@ -35,7 +35,7 @@
         }
       }
 
-      .sidebarWrapper {
+      .sidebarContainer {
         display: flex;
         flex-direction: column;
         width: 20%;

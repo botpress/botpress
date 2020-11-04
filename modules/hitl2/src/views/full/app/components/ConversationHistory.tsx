@@ -5,7 +5,6 @@ import { ApiType } from '../../Api'
 import MessageList from './MessageList'
 import { Spinner } from '@blueprintjs/core'
 import _ from 'lodash'
-import style from '../../style.scss'
 
 interface Props {
   api: ApiType
