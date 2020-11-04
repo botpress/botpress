@@ -300,8 +300,8 @@ class Web extends React.Component<MainProps> {
     return (
       <React.Fragment>
         {!!stylesheet?.length && <Stylesheet href={stylesheet} />}
+        {!stylesheet && <Stylesheet href={`assets/modules/channel-web/default${isEmulator ? '-emulator' : ''}.css`} />}
         {!isIE && <Stylesheet href={'assets/modules/channel-web/font.css'} />}
-        <Stylesheet href={`assets/modules/channel-web/default${isEmulator ? '-emulator' : ''}.css`} />
         {!!extraStylesheet?.length && <Stylesheet href={extraStylesheet} />}
       </React.Fragment>
     )
