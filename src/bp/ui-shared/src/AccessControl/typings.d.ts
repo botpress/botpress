@@ -4,7 +4,7 @@ export interface RequiredPermission {
   /** The resource to check permissions. Ex: module.qna */
   resource?: string
   /** The operation to check */
-  operation?: 'read' | 'write'
+  operation?: PermissionOperation
   /** Should the user be a super admin to see this? */
   superAdmin?: boolean
 }
@@ -19,3 +19,5 @@ export type AccessControlProps = {
   /** Optionally set a fallback component if no access */
   readonly fallback?: React.ReactNode
 } & PermissionAllowedProps
+
+export type PermissionOperation = 'read' | 'write'

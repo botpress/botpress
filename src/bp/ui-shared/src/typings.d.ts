@@ -1,7 +1,6 @@
 import { FormField, MultiLangText } from 'botpress/sdk'
 import React from 'react'
 
-import { PermissionAllowedProps } from '../../ui-shared/src/AccessControl/typings'
 import { CheckboxProps } from '../../ui-shared-lite/Checkbox/typings'
 import { CollapsibleProps } from '../../ui-shared-lite/Collapsible/typings'
 import { ContentSectionProps } from '../../ui-shared-lite/ContentSection/typings'
@@ -10,6 +9,12 @@ import { OverlayProps } from '../../ui-shared-lite/Overlay/typings'
 import { TabsProps } from '../../ui-shared-lite/Tabs/typings'
 import { ToolTipProps } from '../../ui-shared-lite/ToolTip/typings'
 
+import {
+  AccessControlProps,
+  PermissionAllowedProps,
+  PermissionOperation,
+  RequiredPermission
+} from './AccessControl/typings'
 import { CommanderProps, QuickShortcut } from './Commander/typings'
 import { ConfirmDialogOptions } from './ConfirmDialog/typings'
 import { DialogProps } from './Dialog/typings'
@@ -107,6 +112,7 @@ declare module 'botpress/shared' {
   export const sharedStyle: CssExports
 
   export { Option, MoreOptionsItems, HeaderButtonProps, ToolbarButtonProps, QuickShortcut, MenuItem, HeaderButton }
+  export { RequiredPermission, PermissionAllowedProps, AccessControlProps, PermissionOperation }
 }
 
 declare global {

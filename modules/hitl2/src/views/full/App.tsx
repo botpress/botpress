@@ -2,7 +2,8 @@ import { lang, MainLayout, toast } from 'botpress/shared'
 import _ from 'lodash'
 import React, { useContext, useEffect, useState } from 'react'
 
-import { EscalationType, SocketMessageType } from './../../types'
+import { EscalationType, SocketMessageType } from '../../types'
+
 import AgentProfile from './app/components/AgentProfile'
 import ConversationContainer from './app/components/ConversationContainer'
 import EscalationList from './app/components/EscalationList'
@@ -109,7 +110,12 @@ const App = ({ bp }) => {
           <EscalationList escalations={state.escalations} loading={loading} />
         </div>
         <div className={style.content}>
-          <ConversationContainer bp={bp} api={api} escalation={state.currentEscalation} />
+          <ConversationContainer
+            bp={bp}
+            api={api}
+            escalation={state.currentEscalation}
+            currentAgent={state.currentAgent}
+          />
         </div>
       </div>
     </div>

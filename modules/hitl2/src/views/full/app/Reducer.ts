@@ -25,6 +25,7 @@ const Reducer = (state: StateType, action: ActionType): StateType => {
       })
     case 'setCurrentEscalation':
       return produce(state, draft => {
+        debugger
         draft.currentEscalation = draft.escalations[action.payload]
       })
     case 'setAgents':
@@ -59,6 +60,11 @@ const Reducer = (state: StateType, action: ActionType): StateType => {
         draft.escalations = {
           ...draft.escalations,
           [action.payload.id]: _.merge(draft.escalations[action.payload.id], action.payload.payload)
+        }
+
+        // This is not good, we have some data duplication
+        if (draft.currentEscalation?.id === action.payload.id) {
+          draft.currentEscalation = draft.escalations[action.payload.id]
         }
       })
     case 'setDefault':

@@ -1,14 +1,13 @@
 import * as sdk from 'botpress/sdk'
-import { UserProfile } from 'common/typings'
 
 // TODO fix this and use those from common/typings
-interface AuthRule {
+export interface AuthRule {
   res: string
   op: string
 }
-interface UserProfile {
+export interface UserProfile {
   email: string
-  isSuperAdmin?: boolean
+  isSuperAdmin: boolean
   strategyType: string
   strategy: string
   firstname?: string
