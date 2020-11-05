@@ -93,8 +93,6 @@ const TextFieldsArray: FC<TextFieldsArrayProps> = ({
 
   return (
     <div className={sharedStyle.items}>
-      <h2>{label}</h2>
-      {moreInfo}
       {localItems?.map((item, index) => {
         const missingTranslation = refValue?.[index] && !item
 

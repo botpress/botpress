@@ -1,5 +1,5 @@
 import { Intent, Menu, MenuDivider, MenuItem } from '@blueprintjs/core'
-import { DecisionTriggerCondition, Flow, FormData } from 'botpress/sdk'
+import { DecisionTriggerCondition, Flow } from 'botpress/sdk'
 import { contextMenu, lang, sharedStyle, ShortcutLabel, toast } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import React, { FC } from 'react'
@@ -164,6 +164,7 @@ const BlockWidget: FC<BlockProps> = ({
             node={node}
             content={node.content}
             defaultLang={defaultLang}
+            editNodeItem={editNodeItem}
             selectedNodeItem={selectedNodeItem}
             currentLang={currentLang}
           />
@@ -228,7 +229,7 @@ export class BlockModel extends BaseNodeModel {
   public isNew: boolean
   public isReadOnly: boolean
   public nodeType: string
-  public content?: FormData
+  public content?: any
   public flow: string
   public skill?: string
 

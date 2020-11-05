@@ -1,22 +1,32 @@
-import { BotEvent, FlowVariable, FormData, FormField } from 'botpress/sdk'
+import { BotEvent } from 'botpress/sdk'
+import { ControlForm } from 'common/controls'
 
 export interface InvalidField {
   field: string
   message: string
 }
 
-export interface FormProps {
+export type FormProps = {
+  fields: ControlForm
+  formData?: any
+  fieldsError?: { [field: string]: string }
+  onUpdate: (data: { [key: string]: any }, changedKey: string) => void
+  getCustomPlaceholder?: (field: string, index) => string
+  invalidFields?: InvalidField[]
+} & CommonProps
+
+interface CommonProps {
   axios?: any
   defaultLang?: string
   currentLang?: string
   mediaPath?: string
   overrideFields?: { [field: string]: (props: any) => JSX.Element }
-  fields: FormField[]
-  advancedSettings?: FormField[]
-  formData?: FormData
-  fieldsError?: { [field: string]: string }
-  onUpdate: (data: { [key: string]: any }) => void
-  getCustomPlaceholder?: (field: string, index) => string
-  invalidFields?: InvalidField[]
   events?: BotEvent[]
 }
+
+export type SingleControlProps = {
+  control: Control
+  value: any
+  onChange: (value) => void
+  fieldError?: string
+} & CommonProps

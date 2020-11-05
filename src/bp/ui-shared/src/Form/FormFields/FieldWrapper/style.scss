@@ -1,10 +1,10 @@
 .label {
-  color: var(--shark);
+  color: var(--dark-gray);
   display: block;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.25;
-  margin: var(--spacing-large) 0 var(--spacing-small);
+  margin: var(--spacing-medium) 0 var(--spacing-small);
 }
 
 .errorMessage {

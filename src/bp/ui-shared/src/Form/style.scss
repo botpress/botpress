@@ -53,3 +53,28 @@ a.moreInfo {
     color: var(--shark) !important;
   }
 }
+
+.noSection {
+  padding-bottom: 5px;
+}
+
+.collapse {
+  .group {
+    border-top: 1px solid var(--gray);
+    padding-bottom: 5px;
+  }
+
+  .header {
+    padding: var(--spacing-medium) var(--spacing-large) var(--spacing-x-small) var(--spacing-large);
+    color: var(--gray);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04rem;
+    cursor: pointer;
+  }
+
+  .icon {
+    right: 12px;
+    position: absolute;
+  }
+}

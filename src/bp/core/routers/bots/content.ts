@@ -48,6 +48,7 @@ export class ContentRouter extends CustomRouter {
             hidden: type.hidden,
             schema: {
               json: type.jsonSchema,
+              newJson: type.newSchema,
               ui: type.uiSchema,
               title: type.title,
               renderer: type.id

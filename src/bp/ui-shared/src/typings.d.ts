@@ -1,4 +1,4 @@
-import { FormField, MultiLangText } from 'botpress/sdk'
+import { MultiLangText } from 'botpress/sdk'
 import React from 'react'
 
 import { CheckboxProps } from '../../ui-shared-lite/Checkbox/typings'
@@ -47,7 +47,9 @@ declare module 'botpress/shared' {
   }
   export const Form: {
     Form(props: FormProps): JSX.Element
-    createEmptyDataFromSchema: (fields: FormField[], lang?: string) => any
+    /** Use this component when you need to display a single field (hide Form's boilerplate) */
+    SingleControl(props: SingleControlProps): JSX.Element
+    createEmptyDataFromSchema: (fields: ControlForm, lang?: string) => any
   }
   export const FormFields: {
     AddButton(props: AddButtonProps): JSX.Element

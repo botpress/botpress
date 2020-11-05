@@ -160,6 +160,25 @@ module.exports = {
     }
   },
 
+  newSchema: {
+    displayedIn: ['qna', 'sayNode'],
+    order: 0,
+    fields: {
+      image: {
+        type: 'file',
+        title: 'module.builtin.types.image.uploadImage',
+        section: 'basic'
+      },
+      text: {
+        type: 'string',
+        translated: true,
+        title: 'title',
+        placeholder: 'module.builtin.optional',
+        section: 'basic'
+      }
+    }
+  },
+
   computePreviewText: formData => {
     if (!formData.image) {
       return

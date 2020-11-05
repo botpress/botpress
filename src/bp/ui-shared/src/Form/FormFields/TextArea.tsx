@@ -1,5 +1,5 @@
-import { FormField } from 'botpress/sdk'
 import cx from 'classnames'
+import { ControlString } from 'common/controls'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 
 import sharedStyle from '../../../../ui-shared-lite/style.scss'
@@ -8,7 +8,7 @@ import Textarea from '../../Textarea'
 
 import { FieldProps } from './typings'
 
-type TextAreaProps = FieldProps & { field: FormField }
+type TextAreaProps = FieldProps & { field: ControlString }
 
 const TextArea: FC<TextAreaProps> = ({
   onBlur,

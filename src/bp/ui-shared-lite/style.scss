@@ -12,7 +12,6 @@
 
 .wrapper {
   background: #fff;
-  padding: 0 var(--spacing-xx-large) var(--spacing-xx-large) var(--spacing-large);
 }
 
 .formHeader {
@@ -20,6 +19,8 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  padding: 0 var(--spacing-x-large) 0 var(--spacing-x-large);
+  width: 95%;
 
   &.noSelect {
     padding-bottom: var(--spacing-medium);
@@ -79,16 +80,13 @@
 .typeField {
   padding-bottom: var(--spacing-xx-large);
   margin-bottom: var(--spacing-xx-large);
-
-  &:not(.noBorder) {
-    border-bottom: 1px solid var(--gray);
-  }
 }
 
 .fieldWrapper {
   display: block;
-  line-height: 0;
+  // line-height: 0;
   width: 100%;
+  padding: 0 var(--spacing-x-large) 0 var(--spacing-x-large);
 
   :global {
     .bp3-file-input {
@@ -141,10 +139,10 @@
 }
 
 .formLabel {
-  color: var(--shark);
+  color: var(--dark-gray);
   display: block;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.25;
   margin: var(--spacing-xx-large) 0 var(--spacing-small);
 }
@@ -296,9 +294,7 @@ select:global(.form-control) {
     font-size: 16px !important;
     font-weight: 400 !important;
     justify-content: space-between !important;
-    min-height: 40px !important;
     line-height: 1.25 !important;
-    padding: var(--spacing-medium) var(--spacing-large) calc(var(--spacing-medium) - 1px) !important;
     width: 100% !important;
 
     &:focus,
@@ -317,7 +313,7 @@ select:global(.form-control) {
   font-size: 12px !important;
   font-weight: 400 !important;
   line-height: 1.85 !important;
-  padding: var(--spacing-medium) var(--spacing-large) !important;
+  padding: var(--spacing-small) var(--spacing-medium) !important;
   resize: none;
   transition: border 0.3s !important;
   width: 100% !important;

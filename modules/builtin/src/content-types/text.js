@@ -110,6 +110,36 @@ module.exports = {
       }
     }
   },
+  newSchema: {
+    displayedIn: ['sayNode'],
+    order: 0,
+    fields: {
+      text: {
+        type: 'component',
+        overrideKey: 'smartInput',
+        translated: true,
+        title: 'text',
+        section: 'basic'
+      },
+      variations: {
+        type: 'array',
+        translated: true,
+        title: 'variations',
+        section: 'basic'
+      },
+      markdown: {
+        type: 'boolean',
+        title: 'module.builtin.useMarkdown',
+        defaultValue: true,
+        moreInfo: {
+          label: 'learnMore',
+          url: 'https://daringfireball.net/projects/markdown/'
+        },
+        section: 'basic'
+      }
+    }
+  },
+
   computePreviewText: formData => formData.text,
 
   renderElement: renderElement

@@ -1240,6 +1240,7 @@ declare module 'botpress/sdk' {
      * The jsonSchema used to validate the form data of the Content Elements.
      */
     jsonSchema: object
+    newSchema?: object
     uiSchema?: object
 
     /**
@@ -1389,6 +1390,7 @@ declare module 'botpress/sdk' {
     type?: FlowNodeType
     timeoutNode?: string
     flow?: string
+    isNew?: boolean
     /** Used internally by the flow editor */
     readonly lastModified?: Date
   } & NodeActions
@@ -1427,25 +1429,6 @@ declare module 'botpress/sdk' {
     [lang: string]: string
   }
 
-  export type FormDataField = any
-
-  export interface FormData {
-    id?: string
-    contentType?: string
-    [key: string]: FormDataField
-  }
-
-  interface FormOption {
-    value: any
-    label: string
-    related?: FormField
-  }
-
-  interface FormContextMenu {
-    type: string
-    label: string
-  }
-
   // TODO use namespace to group form related interfaces
   export interface FormDynamicOptions {
     /** An enpoint to call to get the options */
@@ -1456,65 +1439,6 @@ declare module 'botpress/sdk' {
     valueField: string
     /** Field from DB to map as the label of the options */
     labelField: string
-  }
-
-  export type FormFieldType =
-    | 'checkbox'
-    | 'group'
-    | 'number'
-    | 'overridable'
-    | 'select'
-    | 'multi-select'
-    | 'text'
-    | 'text_array'
-    | 'textarea'
-    | 'upload'
-    | 'url'
-    | 'hidden'
-    | 'tag-input'
-    | 'variable'
-
-  export interface FormField {
-    type: FormFieldType
-    key: string
-    label?: string
-    overrideKey?: string
-    placeholder?: string | string[]
-    emptyPlaceholder?: string
-    options?: FormOption[]
-    defaultValue?: FormDataField
-    required?: boolean
-    variableTypes?: string[]
-    customPlaceholder?: boolean
-    max?: number
-    min?: number
-    maxLength?: number
-    valueManipulation?: {
-      regex: string
-      modifier: string
-      replaceChar: string
-    }
-    translated?: boolean
-    dynamicOptions?: FormDynamicOptions
-    fields?: FormField[]
-    moreInfo?: FormMoreInfo
-    /** When specified, indicate if array elements match the provided pattern */
-    validation?: {
-      regex?: RegExp
-      list?: any[]
-      validator?: (items: any[], newItem: any) => boolean
-    }
-    group?: {
-      /** You have to specify the add button label */
-      addLabel?: string
-      addLabelTooltip?: string
-      /** You can specify a minimum so the delete button won't show if there isn't more than the minimum */
-      minimum?: number
-      /** You can specify that there's one item of the group by default even if no minimum */
-      defaultItem?: boolean
-      /** You can add a contextual menu to add extra options */
-      contextMenu?: FormContextMenu[]
-    }
   }
 
   export interface FormMoreInfo {

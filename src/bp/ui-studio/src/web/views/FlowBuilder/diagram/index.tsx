@@ -25,12 +25,14 @@ import {
   copyFlowNode,
   createFlow,
   createFlowNode,
+  fetchContentCategories,
   fetchFlows,
   insertNewSkillNode,
   openFlowNodeProps,
   pasteFlowNode,
   refreshFlowsLinks,
   removeFlowNode,
+  setActiveFormItem,
   setDiagramAction,
   switchFlow,
   switchFlowNode,
@@ -48,6 +50,7 @@ import { defaultTransition, DiagramManager, DIAGRAM_PADDING, nodeTypes, Point } 
 import { BlockModel, BlockProps, BlockWidgetFactory } from './nodes/Block'
 import { DeletableLinkFactory } from './nodes/LinkWidget'
 import style from './style.scss'
+import Forms from './Forms'
 import NodeToolbar from './NodeToolbar'
 import TriggerEditor from './TriggerEditor'
 import WorkflowToolbar from './WorkflowToolbar'
@@ -95,6 +98,7 @@ class Diagram extends Component<Props> {
   private diagramContainer: HTMLDivElement
   private searchRef: React.RefObject<HTMLInputElement>
   private manager: DiagramManager
+  private timeout
   /** Represents the source port clicked when the user is connecting a node */
   private dragPortSource: any
 
@@ -129,8 +133,7 @@ class Diagram extends Component<Props> {
       getFlows: () => this.getPropsProperty('flows'),
       getSkills: () => this.getPropsProperty('skills'),
       disconnectNode: this.disconnectNode.bind(this),
-      // Temporary, maybe we could open the elementinstead of double-click?
-      editNodeItem: (node, idx) => console.log(node, idx)
+      editNodeItem: this.editNodeItem.bind(this)
     }
 
     this.diagramEngine = new DiagramEngine()
@@ -198,6 +201,16 @@ class Diagram extends Component<Props> {
       .find(x => x?.node === nodeName)
   }
 
+  editNodeItem(node, index) {
+    clearTimeout(this.timeout)
+    if (node.isNew) {
+      this.updateExpandedNodes(node.id, true)
+      this.props.updateFlowNode({ isNew: false })
+    }
+
+    this.props.setActiveFormItem({ node, index })
+  }
+
   showEventOnDiagram(event?: IO.IncomingEvent) {
     if (!event) {
       this.manager.setHighlightedNodes([])
@@ -225,6 +238,8 @@ class Diagram extends Component<Props> {
 
   componentDidMount() {
     this.props.fetchFlows()
+    this.props.fetchContentCategories()
+
     this.setState({ expandedNodes: getExpandedNodes() })
 
     ReactDOM.findDOMNode(this.diagramWidget).addEventListener('click', this.onDiagramClick)
@@ -243,10 +258,11 @@ class Diagram extends Component<Props> {
     this.manager.setReadOnly(this.props.readOnly)
 
     if (this.diagramContainer) {
-      this.manager.setDiagramContainer(this.diagramWidget, {
-        width: this.diagramContainer.offsetWidth,
-        height: this.diagramContainer.offsetHeight
-      })
+      const { offsetWidth, offsetHeight } = this.diagramContainer
+
+      if (offsetHeight !== 0 && offsetWidth !== 0) {
+        this.manager.setDiagramContainer(this.diagramWidget, { width: offsetWidth, height: offsetHeight })
+      }
     }
 
     if (this.dragPortSource && !prevProps.currentFlowNode && this.props.currentFlowNode) {
@@ -680,51 +696,62 @@ class Diagram extends Component<Props> {
     const canAdd = !this.props.defaultLang || this.props.defaultLang === this.props.currentLang
 
     return (
-      <MainLayout.Wrapper
-        className={cx({
-          'emulator-open': this.props.emulatorOpen
-        })}
-      >
-        <WorkflowToolbar />
-
-        <div className={style.searchWrapper}>
-          <SearchBar
-            id="input-highlight-name"
-            className={style.noPadding}
-            ref={this.searchRef}
-            onBlur={this.props.hideSearch}
-            value={this.props.highlightFilter}
-            placeholder={lang.tr('studio.flow.filterNodes')}
-            onChange={value => this.props.handleFilterChanged({ target: { value } })}
-          />
-        </div>
-        <div
-          id="diagramContainer"
-          ref={ref => (this.diagramContainer = ref)}
-          tabIndex={1}
-          style={{ outline: 'none', width: '100%', height: '100%' }}
-          onContextMenu={this.handleContextMenu}
-          onDrop={this.handleToolDropped}
-          onDragOver={event => event.preventDefault()}
+      <Fragment>
+        <MainLayout.Wrapper
+          className={cx({
+            'emulator-open': this.props.emulatorOpen
+          })}
         >
-          <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
+          <WorkflowToolbar />
 
-          <DiagramWidget
-            ref={w => (this.diagramWidget = w)}
-            deleteKeys={[]}
-            diagramEngine={this.diagramEngine}
-            inverseZoom
-          />
-          <ZoomToolbar />
-          {canAdd && <NodeToolbar />}
-          <TriggerEditor
-            node={this.state.currentTriggerNode}
-            isOpen={this.state.isTriggerEditOpen}
-            diagramEngine={this.diagramEngine}
-            toggle={() => this.setState({ isTriggerEditOpen: !this.state.isTriggerEditOpen })}
-          />
-        </div>
-      </MainLayout.Wrapper>
+          <div className={style.searchWrapper}>
+            <SearchBar
+              id="input-highlight-name"
+              className={style.noPadding}
+              ref={this.searchRef}
+              onBlur={this.props.hideSearch}
+              value={this.props.highlightFilter}
+              placeholder={lang.tr('studio.flow.filterNodes')}
+              onChange={value => this.props.handleFilterChanged({ target: { value } })}
+            />
+          </div>
+          <div
+            id="diagramContainer"
+            ref={ref => (this.diagramContainer = ref)}
+            tabIndex={1}
+            style={{ outline: 'none', width: '100%', height: '100%' }}
+            onContextMenu={this.handleContextMenu}
+            onDrop={this.handleToolDropped}
+            onDragOver={event => event.preventDefault()}
+          >
+            <div className={style.floatingInfo}>{this.renderCatchAllInfo()}</div>
+
+            <DiagramWidget
+              ref={w => (this.diagramWidget = w)}
+              deleteKeys={[]}
+              diagramEngine={this.diagramEngine}
+              inverseZoom
+            />
+            <ZoomToolbar />
+            {canAdd && <NodeToolbar />}
+            <TriggerEditor
+              node={this.state.currentTriggerNode}
+              isOpen={this.state.isTriggerEditOpen}
+              diagramEngine={this.diagramEngine}
+              toggle={() => this.setState({ isTriggerEditOpen: !this.state.isTriggerEditOpen })}
+            />
+          </div>
+        </MainLayout.Wrapper>
+
+        {/* <Forms
+          diagramEngine={this.diagramEngine}
+          deleteSelectedElements={this.deleteSelectedElements.bind(this)}
+          updateEditingNodeItem={activeFormItem => this.props.setActiveFormItem(activeFormItem)}
+          updateTimeout={timeout => (this.timeout = timeout)}
+          currentLang={this.props.currentLang}
+          defaultLang={this.props.defaultLang}
+        /> */}
+      </Fragment>
     )
   }
 }
@@ -757,8 +784,10 @@ const mapDispatchToProps = {
   pasteFlowNode,
   refreshFlowsLinks,
   insertNewSkillNode,
+  fetchContentCategories,
   updateFlowProblems,
   zoomToLevel,
+  setActiveFormItem,
   buildSkill: buildNewSkill
 }
 

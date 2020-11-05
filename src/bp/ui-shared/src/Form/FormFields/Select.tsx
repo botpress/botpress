@@ -1,4 +1,4 @@
-import { FormOption } from 'botpress/sdk'
+import { FormOption } from 'common/controls'
 import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 

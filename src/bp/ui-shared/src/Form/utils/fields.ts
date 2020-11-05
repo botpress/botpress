@@ -1,38 +1,34 @@
-import { FormData, FormField } from 'botpress/sdk'
+import { Control, ControlForm, ControlType } from 'common/controls'
+import _ from 'lodash'
 
+import { ControlWithKey } from '..'
 import { lang as langTr } from '../../translations'
 
-export const createEmptyDataFromSchema = (fields: FormField[], lang?: string): FormData => {
-  return fields.reduce((acc, field) => ({ ...acc, [field.key]: getFieldDefaultValue(field, lang) }), {})
+export const fieldsToMap = (fields: ControlForm): ControlWithKey => {
+  return Object.keys(fields).map(key => ({ key, ...fields[key] }))
 }
 
-export const getFieldDefaultValue = (field: Partial<FormField>, lang?: string) => {
+export const createEmptyDataFromSchema = (fields: ControlWithKey, lang?: string): any => {
+  const fieldList: ControlWithKey = _.isArray(fields) ? fields : fieldsToMap(fields)
+  return fieldList.reduce((acc, field) => ({ ...acc, [field.key]: getFieldDefaultValue(field, lang) }), {})
+}
+
+export const getFieldDefaultValue = (field: Control, lang?: string) => {
   if (field.defaultValue !== undefined) {
     return typeof field.defaultValue === 'string' ? langTr(field.defaultValue) : field.defaultValue
   }
 
   switch (field.type) {
-    case 'hidden':
-      return
-    case 'checkbox':
+    case ControlType.Boolean:
       return false
-    case 'group':
-      if (!field.fields || (!field.group?.minimum && !field.group?.defaultItem)) {
-        return []
-      }
-
-      return [createEmptyDataFromSchema(field.fields, lang)]
-    case 'number':
+    case ControlType.Number:
       return
-    case 'select':
-      return null
-    case 'text_array':
+    case ControlType.Enum:
+      return field.multiple ? [] : null
+    case ControlType.Array:
       return field.translated ? { [lang!]: [''] } : ['']
-    case 'overridable':
-    case 'text':
-    case 'textarea':
-    case 'upload':
-    case 'url':
+    case ControlType.String:
+    case ControlType.File:
       return field.translated ? { [lang!]: '' } : ''
   }
 }

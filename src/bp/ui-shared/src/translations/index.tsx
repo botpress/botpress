@@ -92,7 +92,7 @@ const getUserLocale = () => {
 /**
  * Can either receive an ID, or an object with keys of supported languages
  */
-const lang = (id: string | MultiLangText, values?: { [variable: string]: any }): string => {
+const lang = (id?: string | MultiLangText, values?: { [variable: string]: any }): string => {
   if (!id) {
     return ''
   }

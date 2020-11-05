@@ -1,14 +1,14 @@
+import { Icon } from '@blueprintjs/core'
 import { FormMoreInfo } from 'botpress/sdk'
-import cx from 'classnames'
 import _ from 'lodash'
-import React, { Fragment } from 'react'
+import React from 'react'
+import ToolTip from '~/../../ui-shared-lite/ToolTip'
 
 import { lang } from '../../translations'
-import style from '../style.scss'
 
 import { createEmptyDataFromSchema } from './fields'
 
-export const printMoreInfo = (moreInfo: FormMoreInfo, isCheckbox = false): JSX.Element | undefined => {
+export const printMoreInfo = (moreInfo?: FormMoreInfo | any, isCheckbox = false): JSX.Element | undefined => {
   if (!moreInfo) {
     return
   }
@@ -16,13 +16,19 @@ export const printMoreInfo = (moreInfo: FormMoreInfo, isCheckbox = false): JSX.E
   const { url, label } = moreInfo
   if (url) {
     return (
-      <a className={cx(style.moreInfo, { [style.isCheckbox]: isCheckbox })} href={url} target="_blank">
-        {lang(label)}
-      </a>
+      <ToolTip content={`${lang(label)}\n\nClick to read more about this`}>
+        <a href={url} target="_blank">
+          <Icon icon="help" color="var(--gray)" iconSize={13} />
+        </a>
+      </ToolTip>
     )
   }
 
-  return <p className={cx(style.moreInfo, { [style.isCheckbox]: isCheckbox })}>{lang(label)}</p>
+  return (
+    <ToolTip content={lang(label)}>
+      <Icon icon="help" color="var(--gray)" iconSize={13} />
+    </ToolTip>
+  )
 }
 
 export const changeEmptyStrToNull = data => {
@@ -50,9 +56,6 @@ const loopThroughData = data => {
   }, {})
 }
 
-const VARIABLES_REGEX = /(\$[^(\s|\$|\{{)]+)/im
-const EVENT_REGEX = /\{\{(.*?)\}\}/im
-
 export const formReducer = (state, action) => {
   if (action.type === 'add') {
     const { field, parent, currentLang, onUpdate } = action.data
@@ -68,7 +71,7 @@ export const formReducer = (state, action) => {
         ...state,
         [key]: updatedItem
       }
-      onUpdate?.(newState)
+      onUpdate?.(newState, field.key)
       return newState
     }
 
@@ -77,7 +80,7 @@ export const formReducer = (state, action) => {
       [field.key]: [...(state[field.key] || []), newData]
     }
 
-    onUpdate?.(newState)
+    onUpdate?.(newState, field.key)
     return newState
   } else if (action.type === 'deleteGroupItem') {
     const { deleteIndex, field, onUpdate, parent } = action.data
@@ -98,7 +101,7 @@ export const formReducer = (state, action) => {
       ...state,
       [field]: [...state[field].filter((item, index) => index !== deleteIndex)]
     }
-    onUpdate?.(newState)
+    onUpdate?.(newState, field)
     return newState
   } else if (action.type === 'updateField') {
     const { field, type, parent, onUpdate, lang, newFormData } = action.data
@@ -128,7 +131,7 @@ export const formReducer = (state, action) => {
         ...state
       }
 
-      onUpdate?.(changeEmptyStrToNull(newState))
+      onUpdate?.(changeEmptyStrToNull(newState), field)
       return newState
     }
 
@@ -142,7 +145,7 @@ export const formReducer = (state, action) => {
       [field]: value
     }
 
-    onUpdate?.(changeEmptyStrToNull(newState))
+    onUpdate?.(changeEmptyStrToNull(newState), field)
     return { ...newState }
   } else if (action.type === 'updateOverridableField') {
     const { value, field, parent, onUpdate, newFormData } = action.data
@@ -162,7 +165,7 @@ export const formReducer = (state, action) => {
         ...state
       }
 
-      onUpdate?.(changeEmptyStrToNull(newState))
+      onUpdate?.(changeEmptyStrToNull(newState), field)
       return newState
     }
 
@@ -172,7 +175,7 @@ export const formReducer = (state, action) => {
       ...value
     }
 
-    onUpdate?.(changeEmptyStrToNull(newState))
+    onUpdate?.(changeEmptyStrToNull(newState), field)
     return { ...newState }
   } else if (action.type === 'setData') {
     return {

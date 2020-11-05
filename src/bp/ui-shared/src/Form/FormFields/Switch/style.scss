@@ -1,0 +1,18 @@
+.switch {
+  padding-left: 15px;
+  margin-top: 2px;
+
+  :global {
+    .bp3-control {
+      font-weight: 300;
+      color: var(--dark-gray);
+      margin-bottom: 2px;
+    }
+
+    .bp3-switch {
+      .bp3-control-indicator {
+        font-size: 12px;
+      }
+    }
+  }
+}

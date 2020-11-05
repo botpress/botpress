@@ -27,7 +27,7 @@ interface Props {
   onChange: (value: string[][]) => void
   value: string[][]
   options: string[][]
-  placeholder: string
+  placeholder?: string
 }
 
 const MultiSelectComponent: FC<Props> = ({ onChange, value, options, placeholder }) => {
@@ -44,7 +44,7 @@ const MultiSelectComponent: FC<Props> = ({ onChange, value, options, placeholder
   }
 
   const getSelectedItemIndex = item => {
-    return value.indexOf(item)
+    return value?.indexOf(item)
   }
 
   const selectItem = item => {
@@ -61,7 +61,7 @@ const MultiSelectComponent: FC<Props> = ({ onChange, value, options, placeholder
       popoverProps={{ minimal: true, usePortal: false }}
       selectedItems={value}
       items={options}
-      placeholder={lang(placeholder)}
+      placeholder={lang(placeholder || '')}
       tagRenderer={(item: any) => item.label}
       itemRenderer={itemRenderer}
       tagInputProps={{

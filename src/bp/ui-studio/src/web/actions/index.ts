@@ -496,6 +496,8 @@ export const getModuleTranslations = () => dispatch => {
   })
 }
 
+export const setActiveFormItem = createAction('FLOWS/ACTIVE_FORM_ITEM')
+
 export const botsReceived = createAction('BOTS/RECEIVED')
 export const fetchBotIds = () => dispatch => {
   // tslint:disable-next-line: no-floating-promises

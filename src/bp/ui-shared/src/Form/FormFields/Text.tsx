@@ -1,6 +1,6 @@
-import { FormField } from 'botpress/sdk'
 import cx from 'classnames'
 import React, { FC, Fragment, useEffect, useState } from 'react'
+import { Control, ControlType } from '~/../../common/controls'
 
 import sharedStyle from '../../../../ui-shared-lite/style.scss'
 import { lang } from '../../translations'
@@ -8,23 +8,16 @@ import { getFieldDefaultValue } from '../utils/fields'
 
 import { FieldProps } from './typings'
 
-type TextProps = FieldProps & { field: FormField }
+type TextProps = FieldProps & { field: Control }
 
-const Text: FC<TextProps> = ({
-  onBlur,
-  onChange,
-  placeholder,
-  field: { valueManipulation, type, min, max, maxLength, defaultValue, required },
-  value,
-  refValue,
-  childRef
-}) => {
-  const [localValue, setLocalValue] = useState(value || getFieldDefaultValue({ type, defaultValue }))
+const Text: FC<TextProps> = ({ onBlur, onChange, placeholder, field, value, refValue, childRef }) => {
+  const { type, defaultValue, required } = field
+  const [localValue, setLocalValue] = useState(value || getFieldDefaultValue(field))
 
   const missingTranslation = refValue && !value
 
   useEffect(() => {
-    setLocalValue(value ?? getFieldDefaultValue({ type, defaultValue }))
+    setLocalValue(value ?? getFieldDefaultValue(field))
   }, [value])
 
   const onKeyDown = e => {
@@ -35,19 +28,22 @@ const Text: FC<TextProps> = ({
   }
 
   const reformatValue = value => {
-    if (valueManipulation) {
-      const { regex, modifier, replaceChar } = valueManipulation
+    if (field.type === ControlType.String && field.valueManipulation) {
+      const { regex, modifier, replaceChar } = field.valueManipulation
       const re = new RegExp(regex, modifier)
 
       value = value.replace(re, replaceChar)
     }
 
-    if (max !== undefined && Number(value) > max) {
-      value = `${max}`
-    }
+    if (field.type === ControlType.Number) {
+      const { min, max } = field
+      if (max !== undefined && Number(value) > max) {
+        value = `${max}`
+      }
 
-    if (min !== undefined && Number(value) < min) {
-      value = `${min}`
+      if (min !== undefined && Number(value) < min) {
+        value = `${min}`
+      }
     }
 
     return value
@@ -68,7 +64,7 @@ const Text: FC<TextProps> = ({
         ref={ref => childRef?.(ref)}
         className={cx(sharedStyle.input, { 'has-error': missingTranslation })}
         type={type}
-        maxLength={maxLength}
+        maxLength={(field.type === ControlType.String && field.maxLength) || undefined}
         placeholder={placeholder}
         onKeyDown={onKeyDown}
         onChange={e => {

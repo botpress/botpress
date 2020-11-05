@@ -15,7 +15,6 @@ interface CssExports {
   'imgWrapperActions': string;
   'input': string;
   'items': string;
-  'noBorder': string;
   'noPadding': string;
   'noSelect': string;
   'ocean': string;

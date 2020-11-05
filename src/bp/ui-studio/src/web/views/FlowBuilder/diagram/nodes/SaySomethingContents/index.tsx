@@ -8,6 +8,7 @@ import { getFormData } from '~/util/NodeFormData'
 import commonStyle from '~/views/FlowBuilder/common/style.scss'
 
 import style from '../Components/style.scss'
+import NodeContentItem from '../Components/NodeContentItem'
 
 import localStyle from './style.scss'
 
@@ -17,6 +18,7 @@ interface OwnProps {
   data: any
   contentLang: string
   defaultLanguage: string
+  editNodeItem: any
 }
 
 type StateProps = ReturnType<typeof mapStateToProps>
@@ -24,7 +26,7 @@ type DispatchProps = typeof mapDispatchToProps
 type Props = DispatchProps & StateProps & OwnProps
 
 const SayNodeContent: FC<Props> = props => {
-  const { node, contentLang, defaultLanguage } = props
+  const { node, contentLang, defaultLanguage, editNodeItem } = props
   const { text, variations, contentType, markdown, items, ...nodeContent } = getFormData(
     node.content || {},
     contentLang,
@@ -61,12 +63,12 @@ const SayNodeContent: FC<Props> = props => {
 
   return (
     <div className={style.contentsWrapper}>
-      <div className={style.contentWrapper}>
+      <NodeContentItem onEdit={() => editNodeItem(node, 0)} className={style.contentWrapper}>
         <div className={style.content}>
           <MarkdownContent markdown={markdown} content={text} />
           {!!variationsCount && <span className={commonStyle.extraItems}>+ {variationsCount} variations</span>}
         </div>
-      </div>
+      </NodeContentItem>
     </div>
   )
 }
