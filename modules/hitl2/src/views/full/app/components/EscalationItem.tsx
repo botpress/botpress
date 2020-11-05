@@ -18,7 +18,7 @@ const EscalationItem: FC<EscalationType> = props => {
   const { state, dispatch } = useContext(Context)
 
   const [defaultUsername, setDefaultUsername] = useState()
-  const [readStatus, setReadStatus] = useState(true)
+  const [readStatus, setReadStatus] = useState(false)
   const [fromNow, setFromNow] = useState(moment(createdAt).fromNow())
 
   async function handleSelect(id: string) {
@@ -29,6 +29,7 @@ const EscalationItem: FC<EscalationType> = props => {
         [id]: state.escalations[id].userConversation.createdOn
       }
     })
+    setReadStatus(true)
   }
 
   useEffect(() => {
@@ -41,8 +42,12 @@ const EscalationItem: FC<EscalationType> = props => {
   }, [])
 
   useEffect(() => {
-    state.reads[id] && userConversation.createdOn > state.reads[id] ? setReadStatus(false) : setReadStatus(true)
-  }, [state.reads, userConversation])
+    if (state.currentEscalation?.id === id) {
+      setReadStatus(true)
+    } else if (state.reads[id] && state.reads[id] < userConversation.createdOn) {
+      setReadStatus(false)
+    }
+  }, [userConversation])
 
   useEffect(() => {
     const key = _.get(userConversation.event, 'target')

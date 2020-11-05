@@ -22,15 +22,6 @@ const App = ({ bp }) => {
       case 'agent':
         return dispatch({ type: 'setAgent', payload: message })
       case 'escalation':
-        if (message.type == 'create') {
-          dispatch({
-            type: 'setRead',
-            payload: {
-              [message.id]: message.payload.userConversation.createdOn
-            }
-          })
-        }
-
         return dispatch({
           type: 'setEscalation',
           payload: _.thru(message, () => {
