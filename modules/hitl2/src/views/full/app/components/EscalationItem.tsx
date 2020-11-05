@@ -94,7 +94,7 @@ const EscalationItem: FC<EscalationType> = props => {
         </span>{' '}
         #{id}
         <p>
-          From {userConversation.channel} ⋅ {agentName()}
+          <span>From {userConversation.channel}</span> {agentName() && ' ⋅ ' + agentName()}
         </p>
         <Text ellipsize={true}>{_.get(userConversation, 'event.preview')}</Text>
         <p className={style.createdDate}>{lang.tr('module.hitl2.escalation.created', { date: fromNow })}</p>
