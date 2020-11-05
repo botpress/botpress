@@ -127,6 +127,8 @@ export function getOnBotMount(state: NLUState) {
                     .forBot(botId)
                     .attachError(err)
                     .error('Could not finish training NLU model')
+                  trainSession.status = 'needs-training'
+                  await state.sendNLUStatusEvent(botId, trainSession)
                 }
               }
             } else {
