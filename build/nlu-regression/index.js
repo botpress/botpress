@@ -21,7 +21,7 @@ function formatRegressionMessage(testName, comparison, groupedBy) {
   if (comparison.status === "regression") {
     return `There seems to be a regression on test ${testName}.\n` +
             'Reasons are:\n' +
-            `${formattedReasons.join(",\n")}`
+            `${formattedReasons.join("\n")}`
   }
   if (comparison.status === "tolerated-regression") {
     return `There seems to be a regression on test ${testName}, but regression is small enough to be tolerated.\n` +

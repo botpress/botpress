@@ -1,46 +1,46 @@
 {
-  "generatedOn": "2020-11-04T16:37:48.119Z",
+  "generatedOn": "2020-11-05T18:58:41.987Z",
   "groupedBy": "seed",
   "scores": [
     {
       "metric": "avgScore:labelIs",
       "group": "42",
-      "score": 0.6788256227758007
+      "score": 0.7033976124885216
     },
     {
       "metric": "oosAccuracy",
       "group": "42",
-      "score": 0.7766903914590747
+      "score": 0.7869605142332415
     },
     {
       "metric": "oosPrecision",
       "group": "42",
-      "score": 0.739240506329114
+      "score": 0.7795698924731183
     },
     {
       "metric": "oosRecall",
       "group": "42",
-      "score": 0.6636363636363637
+      "score": 0.6590909090909091
     },
     {
       "metric": "oosF1",
       "group": "42",
-      "score": 0.6994011976047905
+      "score": 0.7142857142857143
     },
     {
       "metric": "avgScore:labelIs",
       "group": "69",
-      "score": 0.6868327402135231
+      "score": 0.7125803489439853
     },
     {
       "metric": "oosAccuracy",
       "group": "69",
-      "score": 0.7980427046263345
+      "score": 0.8025711662075299
     },
     {
       "metric": "oosPrecision",
       "group": "69",
-      "score": 0.7870619946091644
+      "score": 0.8133704735376045
     },
     {
       "metric": "oosRecall",
@@ -50,22 +50,22 @@
     {
       "metric": "oosF1",
       "group": "69",
-      "score": 0.720098643649815
+      "score": 0.7309136420525657
     },
     {
       "metric": "avgScore:labelIs",
       "group": "666",
-      "score": 0.6672597864768683
+      "score": 0.6887052341597796
     },
     {
       "metric": "oosAccuracy",
       "group": "666",
-      "score": 0.7749110320284698
+      "score": 0.7777777777777778
     },
     {
       "metric": "oosPrecision",
       "group": "666",
-      "score": 0.7604456824512534
+      "score": 0.7844827586206896
     },
     {
       "metric": "oosRecall",
@@ -75,7 +75,7 @@
     {
       "metric": "oosF1",
       "group": "666",
-      "score": 0.6833541927409261
+      "score": 0.6928934010152284
     }
   ]
 }
