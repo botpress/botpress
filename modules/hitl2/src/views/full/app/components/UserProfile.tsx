@@ -1,11 +1,12 @@
 import { Collapsible, lang } from 'botpress/shared'
-import { EventType, UserType } from '../../../../types'
-import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
-import { generateUsername, getOrSet } from './../utils'
-
-import { Context } from '../Store'
 import _ from 'lodash'
+import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
+
+import { EventType, UserType } from '../../../../types'
 import style from '../../style.scss'
+import { Context } from '../Store'
+
+import { generateUsername, getOrSet } from './../utils'
 
 interface Props {
   conversation: EventType

@@ -1,10 +1,11 @@
 import { Button, Icon } from '@blueprintjs/core'
-import { MoreOptions, lang } from 'botpress/shared'
+import { lang, MoreOptions } from 'botpress/shared'
 import React, { FC, useState } from 'react'
 
 import AgentIcon from '../../shared/components/AgentIcon'
-import { AgentType } from './../../../../types'
 import style from '../../style.scss'
+
+import { AgentType } from './../../../../types'
 
 type Props = {
   toggleOnline: (online) => {}

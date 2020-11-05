@@ -1,7 +1,7 @@
-import { MainLayout, ToolbarButtonProps, lang } from 'botpress/shared'
+import { Checkbox } from '@blueprintjs/core'
+import { lang, MainLayout, ToolbarButtonProps } from 'botpress/shared'
 import React, { FC } from 'react'
 
-import { Checkbox } from '@blueprintjs/core'
 import style from '../../style.scss'
 
 export interface FilterType {

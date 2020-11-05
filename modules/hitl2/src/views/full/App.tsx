@@ -1,14 +1,14 @@
-import { Api, castEscalation } from './Api'
-import { Context, Store } from './app/Store'
-import { EscalationType, SocketMessageType } from './../../types'
-import { MainLayout, lang, toast } from 'botpress/shared'
+import { lang, MainLayout, toast } from 'botpress/shared'
+import _ from 'lodash'
 import React, { useContext, useEffect, useState } from 'react'
 
+import { EscalationType, SocketMessageType } from './../../types'
 import AgentProfile from './app/components/AgentProfile'
 import ConversationContainer from './app/components/ConversationContainer'
 import EscalationList from './app/components/EscalationList'
-import _ from 'lodash'
+import { Context, Store } from './app/Store'
 import style from './style.scss'
+import { Api, castEscalation } from './Api'
 
 const App = ({ bp }) => {
   const api = Api(bp)

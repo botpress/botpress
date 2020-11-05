@@ -1,14 +1,15 @@
-import React, { Dispatch, createContext, useReducer } from 'react'
-import Reducer, { ActionType } from './Reducer'
+import React, { createContext, Dispatch, useReducer } from 'react'
 
 import { AgentType } from '../../../types'
 
-type StoreType = {
+import Reducer, { ActionType } from './Reducer'
+
+interface StoreType {
   state: StateType
   dispatch: Dispatch<ActionType>
 }
 
-export type StateType = {
+export interface StateType {
   readonly currentAgent: AgentType
   readonly error?: any
 }

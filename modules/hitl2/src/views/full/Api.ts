@@ -1,8 +1,8 @@
-import { AgentType, CommentType, EscalationType, EventType } from '../../types'
-
 import { AxiosInstance } from 'axios'
 import _ from 'lodash'
 import moment from 'moment'
+
+import { AgentType, CommentType, EscalationType, EventType } from '../../types'
 
 // TODO Handle casting when object is undefined
 export function castDate<T extends object>(object: T, paths: string[]): T {
@@ -74,7 +74,7 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
     setOnline: async () => bp.axios.post(`${base}/agents/me/online`).then(res => res.data),
     setOffline: async () => bp.axios.post(`${base}/agents/me/offline`).then(res => res.data),
     getAgents: async (online?: boolean) =>
-      bp.axios.get(`${base}/agents`, { params: { online: online } }).then(res => res.data),
+      bp.axios.get(`${base}/agents`, { params: { online } }).then(res => res.data),
     getCurrentAgent: async () => bp.axios.get(`${base}/agents/me`).then(res => res.data),
     getComments: async id =>
       bp.axios
@@ -90,9 +90,9 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
       bp.axios
         .get(`${base}/escalations`, {
           params: {
-            desc: desc,
-            column: column,
-            limit: limit
+            desc,
+            column,
+            limit
           }
         })
         .then(res => res.data)
@@ -109,7 +109,7 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
         .then(data => castEscalation(data)),
     getMessages: async (id, limit?) =>
       bp.axios
-        .get(`${base}/conversations/${id}/messages`, { params: { limit: limit } })
+        .get(`${base}/conversations/${id}/messages`, { params: { limit } })
         .then(res => res.data)
         .then(data => data.map(castMessage))
   }

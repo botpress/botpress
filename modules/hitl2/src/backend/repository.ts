@@ -1,11 +1,10 @@
+import axios from 'axios'
 import * as sdk from 'botpress/sdk'
+import { SortOrder } from 'botpress/sdk'
+import Knex from 'knex'
+import _ from 'lodash'
 
 import { AgentType, CommentType, EscalationType } from './../types'
-
-import Knex from 'knex'
-import { SortOrder } from 'botpress/sdk'
-import _ from 'lodash'
-import axios from 'axios'
 import { makeAgentId } from './helpers'
 
 export interface AgentCollectionConditions {
@@ -205,12 +204,12 @@ export default class Repository {
     return {
       ...data.payload,
       id: agentId,
-      online: online
+      online
     } as AgentType
   }
 
   getAgents = async (botId: string, conditions: AgentCollectionConditions = {}): Promise<AgentType[]> => {
-    let { online } = conditions
+    const { online } = conditions
 
     const applyConditions = (records: []) => {
       if ('online' in conditions) {
@@ -297,7 +296,7 @@ export default class Repository {
     const payload = this.castDate(
       {
         ...attributes,
-        botId: botId,
+        botId,
         createdAt: now,
         updatedAt: now
       },
@@ -344,7 +343,7 @@ export default class Repository {
 
     return await this.bp.database.transaction(async trx => {
       await trx<EscalationType>('escalations')
-        .where({ id: id })
+        .where({ id })
         .update(payload)
 
       return await this.escalationsWithCommentsQuery(botId)

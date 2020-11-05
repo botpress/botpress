@@ -1,8 +1,9 @@
+import produce from 'immer'
+import _ from 'lodash'
+
 import { AgentType, EscalationType, SocketMessageType } from '../../../types'
 
 import { StateType } from './Store'
-import _ from 'lodash'
-import produce from 'immer'
 
 export type ActionType =
   | { type: 'setAgents'; payload: AgentType[] }

@@ -1,15 +1,16 @@
-import React, { FC, useContext, useEffect, useState } from 'react'
-import { generateUsername, getOrSet } from './../utils'
-
-import { Context } from '../Store'
-import EscalationBadge from './EscalationBadge'
-import { EscalationType } from '../../../../types'
 import { Text } from '@blueprintjs/core'
-import _ from 'lodash'
-import cx from 'classnames'
 import { lang } from 'botpress/shared'
+import cx from 'classnames'
+import _ from 'lodash'
 import moment from 'moment'
+import React, { FC, useContext, useEffect, useState } from 'react'
+
+import { EscalationType } from '../../../../types'
+import { Context } from '../Store'
+
 import style from './../../style.scss'
+import { generateUsername, getOrSet } from './../utils'
+import EscalationBadge from './EscalationBadge'
 
 const EscalationItem: FC<EscalationType> = props => {
   const { createdAt, id, status, agentId, userConversation } = props

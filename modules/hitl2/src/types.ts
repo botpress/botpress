@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import { UserProfile } from 'common/typings'
 
 // TODO fix this and use those from common/typings
 interface AuthRule {

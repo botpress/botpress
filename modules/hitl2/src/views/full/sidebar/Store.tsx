@@ -1,15 +1,16 @@
+import { Dictionary } from 'lodash'
+import React, { createContext, Dispatch, useReducer } from 'react'
+
 import { AgentType, EscalationType } from '../../../types'
-import React, { Dispatch, createContext, useReducer } from 'react'
+
 import Reducer, { ActionType } from './Reducer'
 
-import { Dictionary } from 'lodash'
-
-type StoreType = {
+interface StoreType {
   state: StateType
   dispatch: Dispatch<ActionType>
 }
 
-export type StateType = {
+export interface StateType {
   readonly agents: Dictionary<AgentType>
   readonly escalations: Dictionary<EscalationType>
   readonly error?: any

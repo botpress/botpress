@@ -1,10 +1,11 @@
+import { Spinner } from '@blueprintjs/core'
 import { EmptyState, lang } from 'botpress/shared'
+import _ from 'lodash'
 import React, { FC, Fragment, useEffect, useState } from 'react'
 
 import { ApiType } from '../../Api'
+
 import MessageList from './MessageList'
-import { Spinner } from '@blueprintjs/core'
-import _ from 'lodash'
 
 interface Props {
   api: ApiType

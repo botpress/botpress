@@ -18,7 +18,7 @@ export class ResponseError {
   static formatValidationError(validation: ValidationError, code: string): Message[] {
     return validation.details.map(detail => {
       return {
-        code: code,
+        code,
         title: detail.type,
         detail: detail.message
       }
@@ -31,7 +31,7 @@ export class NotFoundError extends ResponseError {
     super(
       [
         {
-          code: code,
+          code,
           title: 'Not found',
           detail: `${resource} with id ${id} not found.`
         }

@@ -1,5 +1,18 @@
 import * as sdk from 'botpress/sdk'
+import { BPRequest } from 'common/http'
+import { RequestWithUser } from 'common/typings'
+import { Request, Response } from 'express'
+import Joi from 'joi'
+import _ from 'lodash'
+import { v4 as uuidv4 } from 'uuid'
+import yn from 'yn'
 
+import { CommentType, EscalationType } from './../types'
+import { ResponseError, UnprocessableEntityError } from './errors'
+import { formatError, makeAgentId } from './helpers'
+import { StateType } from './index'
+import Repository, { AgentCollectionConditions, CollectionConditions } from './repository'
+import socket from './socket'
 import {
   AgentOnlineValidation,
   AssignEscalationSchema,
@@ -8,20 +21,6 @@ import {
   ResolveEscalationSchema,
   validateEscalationStatusRule
 } from './validation'
-import { CommentType, EscalationType } from './../types'
-import Repository, { AgentCollectionConditions, CollectionConditions } from './repository'
-import { Request, Response } from 'express'
-import { ResponseError, UnprocessableEntityError } from './errors'
-import { formatError, makeAgentId } from './helpers'
-
-import { BPRequest } from 'common/http'
-import Joi from 'joi'
-import { RequestWithUser } from 'common/typings'
-import { StateType } from './index'
-import _ from 'lodash'
-import socket from './socket'
-import { v4 as uuidv4 } from 'uuid'
-import yn from 'yn'
 
 export default async (bp: typeof sdk, state: StateType) => {
   const router = bp.http.createRouterForBot('hitl2')
@@ -34,7 +33,7 @@ export default async (bp: typeof sdk, state: StateType) => {
     const online = await repository.getAgentOnline(req.params.botId, agentId)
 
     try {
-      Joi.attempt({ online: online }, AgentOnlineValidation)
+      Joi.attempt({ online }, AgentOnlineValidation)
     } catch (err) {
       if (err instanceof Joi.ValidationError) {
         return formatError(res, new UnprocessableEntityError(err))
@@ -97,7 +96,7 @@ export default async (bp: typeof sdk, state: StateType) => {
         resource: 'agent',
         type: 'update',
         id: agentId,
-        payload: payload
+        payload
       })
 
       res.send(payload)
@@ -112,14 +111,14 @@ export default async (bp: typeof sdk, state: StateType) => {
 
       const online = await repository.setAgentOnline(req.params.botId, agentId, false)
       const payload = {
-        online: online
+        online
       }
 
       realtime.sendPayload({
         resource: 'agent',
         type: 'update',
         id: agentId,
-        payload: payload
+        payload
       })
 
       res.send(payload)
@@ -192,7 +191,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       escalation = await repository.getEscalationWithComments(req.params.botId, req.params.id)
 
       const payload: Partial<EscalationType> = {
-        agentId: agentId,
+        agentId,
         agentThreadId: uuidv4(),
         assignedAt: new Date(),
         status: 'assigned'
@@ -290,7 +289,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       const payload: CommentType = {
         ...req.body,
         escalationId: req.params.id,
-        agentId: agentId
+        agentId
       }
 
       Joi.attempt(payload, CreateCommentSchema)

@@ -1,8 +1,7 @@
 import * as sdk from 'botpress/sdk'
-
+import cx from 'classnames'
 import React, { FC } from 'react'
 
-import cx from 'classnames'
 import style from './../../style.scss'
 
 const Message: FC<sdk.IO.StoredEvent> = props => {

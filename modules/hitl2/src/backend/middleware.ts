@@ -1,11 +1,11 @@
 import * as sdk from 'botpress/sdk'
+import _ from 'lodash'
+import LRU from 'lru-cache'
 
 import { EscalationType } from './../types'
-import LRU from 'lru-cache'
+import { StateType } from './index'
 import Repository from './repository'
 import Socket from './socket'
-import { StateType } from './index'
-import _ from 'lodash'
 
 const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   const realtime = Socket(bp)
@@ -16,8 +16,8 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
     bp.events.sendEvent(
       bp.IO.Event({
         botId: event.botId,
-        target: target,
-        threadId: threadId,
+        target,
+        threadId,
         channel: event.channel,
         direction: 'outgoing',
         type: event.type,
@@ -79,7 +79,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
         resource: 'escalation',
         type: 'update',
         id: escalation.id,
-        payload: payload
+        payload
       })
 
       // Handle incoming message from agent
