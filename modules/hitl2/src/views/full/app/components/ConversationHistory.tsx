@@ -15,17 +15,24 @@ interface Props {
 }
 
 const ConversationHistory: FC<Props> = props => {
+  // Number of messages to display
+  const MESSAGE_COUNT = 10
+
   const [loading, setLoading] = useState(true)
   const [messages, setMessages] = useState([])
 
   function handleMessage(message: SocketMessageType) {
     if (message.resource == 'event' && message.type == 'create') {
-      setMessages(messages => _.sortBy([...messages, castMessage(message.payload)], 'createdOn'))
+      setMessages(messages =>
+        _.sortBy([...messages, castMessage(message.payload)], 'createdOn').slice(MESSAGE_COUNT * -1)
+      )
     }
   }
 
   async function getMessages() {
-    setMessages(_.sortBy(await props.api.getMessages(props.conversationId, 'createdOn', true, 10), 'createdOn'))
+    setMessages(
+      _.sortBy(await props.api.getMessages(props.conversationId, 'createdOn', true, MESSAGE_COUNT), 'createdOn')
+    )
   }
 
   useEffect(() => {
