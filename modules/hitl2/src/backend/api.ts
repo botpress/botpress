@@ -307,7 +307,11 @@ export default async (bp: typeof sdk, state: StateType) => {
     errorMiddleware(async (req: RequestWithUser, res: Response) => {
       req.tokenUser!
 
-      const messages = await repository.getMessages(req.params.botId, req.params.id)
+      const messages = await repository.getMessages(
+        req.params.botId,
+        req.params.id,
+        _.pick(req.query, ['limit', 'column', 'desc']) as CollectionConditions
+      )
 
       res.send(messages)
     })

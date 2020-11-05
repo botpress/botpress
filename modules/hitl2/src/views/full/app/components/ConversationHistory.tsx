@@ -25,7 +25,7 @@ const ConversationHistory: FC<Props> = props => {
   }
 
   async function getMessages() {
-    setMessages(await props.api.getMessages(props.conversationId, 10))
+    setMessages(_.sortBy(await props.api.getMessages(props.conversationId, 'createdOn', true, 10), 'createdOn'))
   }
 
   useEffect(() => {

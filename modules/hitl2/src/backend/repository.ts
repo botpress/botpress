@@ -383,7 +383,7 @@ export default class Repository {
       .select('*')
       .where('botId', botId)
       .andWhere('threadId', id)
-      .orderBy('createdOn')
       .modify(this.applyLimit, conditions)
+      .modify(this.applyOrderBy, conditions)
   }
 }

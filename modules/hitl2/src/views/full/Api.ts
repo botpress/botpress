@@ -63,7 +63,7 @@ export interface ApiType {
   getEscalations: (column?: string, desc?: boolean, limit?: number) => Promise<EscalationType[]>
   assignEscalation: (id: string) => Promise<EscalationType>
   resolveEscalation: (id: string) => Promise<EscalationType>
-  getMessages: (id: string, limit?: number) => Promise<EventType[]>
+  getMessages: (id: string, column?: string, desc?: boolean, limit?: number) => Promise<EventType[]>
 }
 
 export const Api = (bp: { axios: AxiosInstance }): ApiType => {
@@ -107,9 +107,9 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
         .post(`${base}/escalations/${id}/resolve`)
         .then(res => res.data)
         .then(data => castEscalation(data)),
-    getMessages: async (id, limit?) =>
+    getMessages: async (id, column?, desc?, limit?) =>
       bp.axios
-        .get(`${base}/conversations/${id}/messages`, { params: { limit } })
+        .get(`${base}/conversations/${id}/messages`, { params: { desc, column, limit } })
         .then(res => res.data)
         .then(data => data.map(castMessage))
   }
