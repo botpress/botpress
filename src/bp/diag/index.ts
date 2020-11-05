@@ -90,7 +90,7 @@ export const print = (text: string) => {
   if (outputFile && typeof outputFile === 'string') {
     fse.appendFileSync(outputFile!, stripAnsi(text) + os.EOL, 'utf8')
   } else {
-    console.log(text)
+    console.info(text)
   }
 }
 

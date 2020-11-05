@@ -20,7 +20,7 @@ class OverridableComponent extends React.Component<Props, State> {
   }
 
   componentDidCatch(error, info) {
-    console.log(`Error in overridable component ${this.props.name}. Loading original component.`, error, info)
+    console.error(`Error in overridable component ${this.props.name}. Loading original component.`, error, info)
     this.setState({ components: [{ key: 'original', element: this.props.original }] })
   }
 
