@@ -1,5 +1,21 @@
-import { UserProfile } from 'common/typings'
 import * as sdk from 'botpress/sdk'
+
+// TODO fix this and use those from common/typings
+interface AuthRule {
+  res: string
+  op: string
+}
+interface UserProfile {
+  email: string
+  isSuperAdmin?: boolean
+  strategyType: string
+  strategy: string
+  firstname?: string
+  lastname?: string
+  picture_url?: string
+  fullName: string
+  permissions: AuthRule[] | undefined
+}
 
 export type AgentType = {
   id: string
