@@ -13,7 +13,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   const cache = new LRU<string, string>({ max: 1000, maxAge: 1000 * 60 * 60 * 24 }) // 1 day
 
   const pipeEvent = async (event: sdk.IO.IncomingEvent, target: string, threadId: string) => {
-    bp.events.sendEvent(
+    return bp.events.sendEvent(
       bp.IO.Event({
         botId: event.botId,
         target,
@@ -30,11 +30,11 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
     return cache.get(_.join([botId, threadId], '.'))
   }
 
-  const cacheEscalation = async (botId: string, threadId: string, escalation: EscalationType) => {
+  const cacheEscalation = (botId: string, threadId: string, escalation: EscalationType) => {
     cache.set(_.join([botId, threadId], '.'), escalation.id)
   }
 
-  const expireEscalation = async (botId: string, threadId: string) => {
+  const expireEscalation = (botId: string, threadId: string) => {
     cache.del(_.join([botId, threadId], '.'))
   }
 
@@ -59,7 +59,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
 
       if (escalation.status === 'assigned') {
         // There only is an agentId & agentThreadId after assignation
-        pipeEvent(event, escalation.agentId, escalation.agentThreadId)
+        await pipeEvent(event, escalation.agentId, escalation.agentThreadId)
       }
 
       // At this moment the event isn't persisted yet so an approximate
