@@ -1,9 +1,9 @@
-import React, { FC, useContext, useState } from 'react'
-import { isOperationAllowed, lang } from 'botpress/shared'
-
 import { Button } from '@blueprintjs/core'
-import { Context } from '../Store'
+import { isOperationAllowed, lang } from 'botpress/shared'
+import React, { FC, useContext, useState } from 'react'
+
 import style from '../../style.scss'
+import { Context } from '../Store'
 
 interface Props {
   onSubmit: (content: string) => Promise<any>

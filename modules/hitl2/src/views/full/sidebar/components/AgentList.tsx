@@ -1,11 +1,12 @@
+import { Spinner } from '@blueprintjs/core'
 import { EmptyState, lang } from 'botpress/shared'
-import React, { FC, useEffect, useState } from 'react'
 import _, { Dictionary } from 'lodash'
+import React, { FC, useEffect, useState } from 'react'
 
-import AgentItem from './AgentItem'
 import { AgentType } from '../../../../types'
 import AgentsIcon from '../../Icons/AgentsIcon'
-import { Spinner } from '@blueprintjs/core'
+
+import AgentItem from './AgentItem'
 
 interface Props {
   agents: Dictionary<AgentType>

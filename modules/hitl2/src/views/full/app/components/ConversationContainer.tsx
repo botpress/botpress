@@ -1,18 +1,21 @@
-import { EmptyState, Tabs, lang, toast } from 'botpress/shared'
+import { Button } from '@blueprintjs/core'
+import * as sdk from 'botpress/sdk'
+import { EmptyState, lang, Tabs, toast } from 'botpress/shared'
+import cx from 'classnames'
+import _ from 'lodash'
 import React, { FC, Fragment, useContext } from 'react'
 
-import AgentsIcon from '../../Icons/AgentsIcon'
-import { ApiType } from '../../Api'
-import { Button } from '@blueprintjs/core'
-import { Context } from '../Store'
-import ConversationHistory from './ConversationHistory'
 import { EscalationType } from '../../../../types'
-import Sidebar from './Sidebar'
-import _ from 'lodash'
-import cx from 'classnames'
 import style from '../../style.scss'
+import { ApiType } from '../../Api'
+import AgentsIcon from '../../Icons/AgentsIcon'
+import { Context } from '../Store'
+
+import ConversationHistory from './ConversationHistory'
+import Sidebar from './Sidebar'
 
 interface Props {
+  bp: typeof sdk
   api: ApiType
   escalation?: EscalationType
 }
@@ -71,7 +74,11 @@ const ConversationContainer: FC<Props> = props => {
             </div>
 
             <div className={style.conversationHistory}>
-              <ConversationHistory api={api} conversationId={props.escalation.userThreadId}></ConversationHistory>
+              <ConversationHistory
+                bp={props.bp}
+                api={api}
+                conversationId={props.escalation.userThreadId}
+              ></ConversationHistory>
             </div>
           </Fragment>
         )}

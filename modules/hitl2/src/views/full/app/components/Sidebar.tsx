@@ -1,14 +1,15 @@
 import { Collapsible, lang } from 'botpress/shared'
+import _ from 'lodash'
 import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
+
+import { EscalationType } from '../../../../types'
+import style from '../../style.scss'
+import { Context } from '../Store'
 
 import { ApiType } from './../../Api'
 import Comment from './Comment'
 import CommentForm from './CommentForm'
-import { Context } from '../Store'
-import { EscalationType } from '../../../../types'
 import UserProfile from './UserProfile'
-import _ from 'lodash'
-import style from '../../style.scss'
 
 interface Props {
   api: ApiType
@@ -23,7 +24,7 @@ const Sidebar: FC<Props> = ({ escalation, api }) => {
 
   const createComment = async (content: string) => {
     try {
-      const comment = await api.createComment(id, { content: content })
+      const comment = await api.createComment(id, { content })
       dispatch({ type: 'setComment', payload: comment })
     } catch (error) {
       dispatch({ type: 'setError', payload: error })

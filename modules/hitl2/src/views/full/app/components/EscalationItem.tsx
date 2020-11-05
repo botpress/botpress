@@ -1,15 +1,16 @@
-import React, { FC, useContext, useEffect, useState } from 'react'
-import { generateUsername, getOrSet } from './../utils'
-
-import { Context } from '../Store'
-import EscalationBadge from './EscalationBadge'
-import { EscalationType } from '../../../../types'
 import { Text } from '@blueprintjs/core'
-import _ from 'lodash'
-import cx from 'classnames'
 import { lang } from 'botpress/shared'
+import cx from 'classnames'
+import _ from 'lodash'
 import moment from 'moment'
+import React, { FC, useContext, useEffect, useState } from 'react'
+
+import { EscalationType } from '../../../../types'
+import { Context } from '../Store'
+
 import style from './../../style.scss'
+import { generateUsername, getOrSet } from './../utils'
+import EscalationBadge from './EscalationBadge'
 
 const EscalationItem: FC<EscalationType> = props => {
   const { createdAt, id, status, agentId, userConversation } = props
@@ -17,7 +18,7 @@ const EscalationItem: FC<EscalationType> = props => {
   const { state, dispatch } = useContext(Context)
 
   const [defaultUsername, setDefaultUsername] = useState()
-  const [readStatus, setReadStatus] = useState(true)
+  const [readStatus, setReadStatus] = useState(false)
   const [fromNow, setFromNow] = useState(moment(createdAt).fromNow())
 
   async function handleSelect(id: string) {
@@ -28,6 +29,7 @@ const EscalationItem: FC<EscalationType> = props => {
         [id]: state.escalations[id].userConversation.createdOn
       }
     })
+    setReadStatus(true)
   }
 
   useEffect(() => {
@@ -40,8 +42,12 @@ const EscalationItem: FC<EscalationType> = props => {
   }, [])
 
   useEffect(() => {
-    state.reads[id] && userConversation.createdOn > state.reads[id] ? setReadStatus(false) : setReadStatus(true)
-  }, [state.reads, userConversation])
+    if (state.currentEscalation?.id === id) {
+      setReadStatus(true)
+    } else if (state.reads[id] && state.reads[id] < userConversation.createdOn) {
+      setReadStatus(false)
+    }
+  }, [userConversation])
 
   useEffect(() => {
     const key = _.get(userConversation.event, 'target')

@@ -1,12 +1,12 @@
 import * as sdk from 'botpress/sdk'
 
-import { registerMiddleware, unregisterMiddleware } from './middleware'
-
-import Repository from './repository'
-import api from './api'
 import en from '../translations/en.json'
 import fr from '../translations/fr.json'
+
+import api from './api'
+import { registerMiddleware, unregisterMiddleware } from './middleware'
 import migrate from './migrate'
+import Repository from './repository'
 
 export interface StateType {
   cacheEscalation?: Function

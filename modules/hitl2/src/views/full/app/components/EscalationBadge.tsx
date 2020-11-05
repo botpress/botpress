@@ -1,8 +1,8 @@
 import { Intent, Tag } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import React, { FC } from 'react'
 
 import { AgentType } from './../../../../types'
-import { lang } from 'botpress/shared'
 
 interface Props {
   status: string

@@ -1,14 +1,14 @@
-import { Api, castEscalation } from './Api'
-import { Context, Store } from './app/Store'
-import { EscalationType, SocketMessageType } from './../../types'
-import { MainLayout, lang, toast } from 'botpress/shared'
+import { lang, MainLayout, toast } from 'botpress/shared'
+import _ from 'lodash'
 import React, { useContext, useEffect, useState } from 'react'
 
+import { EscalationType, SocketMessageType } from './../../types'
 import AgentProfile from './app/components/AgentProfile'
 import ConversationContainer from './app/components/ConversationContainer'
 import EscalationList from './app/components/EscalationList'
-import _ from 'lodash'
+import { Context, Store } from './app/Store'
 import style from './style.scss'
+import { Api, castEscalation } from './Api'
 
 const App = ({ bp }) => {
   const api = Api(bp)
@@ -22,15 +22,6 @@ const App = ({ bp }) => {
       case 'agent':
         return dispatch({ type: 'setAgent', payload: message })
       case 'escalation':
-        if (message.type == 'create') {
-          dispatch({
-            type: 'setRead',
-            payload: {
-              [message.id]: message.payload.userConversation.createdOn
-            }
-          })
-        }
-
         return dispatch({
           type: 'setEscalation',
           payload: _.thru(message, () => {
@@ -118,7 +109,7 @@ const App = ({ bp }) => {
           <EscalationList escalations={state.escalations} loading={loading} />
         </div>
         <div className={style.content}>
-          <ConversationContainer api={api} escalation={state.currentEscalation} />
+          <ConversationContainer bp={bp} api={api} escalation={state.currentEscalation} />
         </div>
       </div>
     </div>

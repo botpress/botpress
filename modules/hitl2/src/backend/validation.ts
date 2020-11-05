@@ -56,7 +56,7 @@ export const validateEscalationStatusRule = (original: string, value: string) =>
     'Invalid transition',
     [
       {
-        message: message,
+        message,
         type: 'transition'
       }
     ],

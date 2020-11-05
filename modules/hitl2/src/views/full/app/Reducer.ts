@@ -1,8 +1,9 @@
-import { AgentType, CommentType, EscalationType, SocketMessageType } from '../../../types'
+import produce from 'immer'
 import _, { Dictionary } from 'lodash'
 
+import { AgentType, CommentType, EscalationType, SocketMessageType } from '../../../types'
+
 import { StateType } from './Store'
-import produce from 'immer'
 
 export type ActionType =
   | { type: 'setCurrentAgent'; payload: Partial<AgentType> }

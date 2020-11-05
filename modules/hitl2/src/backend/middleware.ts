@@ -1,11 +1,11 @@
 import * as sdk from 'botpress/sdk'
+import _ from 'lodash'
+import LRU from 'lru-cache'
 
 import { EscalationType } from './../types'
-import LRU from 'lru-cache'
+import { StateType } from './index'
 import Repository from './repository'
 import Socket from './socket'
-import { StateType } from './index'
-import _ from 'lodash'
 
 const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   const realtime = Socket(bp)
@@ -13,11 +13,11 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   const cache = new LRU<string, string>({ max: 1000, maxAge: 1000 * 60 * 60 * 24 }) // 1 day
 
   const pipeEvent = async (event: sdk.IO.IncomingEvent, target: string, threadId: string) => {
-    bp.events.sendEvent(
+    return bp.events.sendEvent(
       bp.IO.Event({
         botId: event.botId,
-        target: target,
-        threadId: threadId,
+        target,
+        threadId,
         channel: event.channel,
         direction: 'outgoing',
         type: event.type,
@@ -30,11 +30,11 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
     return cache.get(_.join([botId, threadId], '.'))
   }
 
-  const cacheEscalation = async (botId: string, threadId: string, escalation: EscalationType) => {
+  const cacheEscalation = (botId: string, threadId: string, escalation: EscalationType) => {
     cache.set(_.join([botId, threadId], '.'), escalation.id)
   }
 
-  const expireEscalation = async (botId: string, threadId: string) => {
+  const expireEscalation = (botId: string, threadId: string) => {
     cache.del(_.join([botId, threadId], '.'))
   }
 
@@ -59,32 +59,39 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
 
       if (escalation.status === 'assigned') {
         // There only is an agentId & agentThreadId after assignation
-        pipeEvent(event, escalation.agentId, escalation.agentThreadId)
+        await pipeEvent(event, escalation.agentId, escalation.agentThreadId)
       }
 
       // At this moment the event isn't persisted yet so an approximate
       // representation is built and sent to the frontend, which relies on
       // this to update the escalation's preview and read status.
-      const payload = {
-        ...escalation,
-        userConversation: {
-          event: JSON.stringify(_.pick(event, ['preview'])),
-          success: undefined,
-          threadId: undefined,
-          ..._.pick(event, ['id', 'direction', 'botId', 'channel', 'createdOn', 'threadId'])
-        }
+      const partialEvent = {
+        event: JSON.stringify(_.pick(event, ['preview'])),
+        success: undefined,
+        threadId: undefined,
+        ..._.pick(event, ['id', 'direction', 'botId', 'channel', 'createdOn', 'threadId'])
       }
 
       realtime.sendPayload({
         resource: 'escalation',
         type: 'update',
         id: escalation.id,
-        payload: payload
+        payload: {
+          ...escalation,
+          userConversation: partialEvent
+        }
+      })
+
+      realtime.sendPayload({
+        resource: 'event',
+        type: 'create',
+        id: null,
+        payload: partialEvent
       })
 
       // Handle incoming message from agent
     } else if (escalation.agentThreadId === event.threadId) {
-      pipeEvent(event, escalation.userId, escalation.userThreadId)
+      await pipeEvent(event, escalation.userId, escalation.userThreadId)
     }
 
     next()

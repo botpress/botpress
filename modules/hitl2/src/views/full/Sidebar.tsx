@@ -1,15 +1,15 @@
-import { Api, castEscalation } from './Api'
-import { Collapsible, MainLayout, Tabs, lang, sharedStyle } from 'botpress/shared'
-import { Context, Store } from './sidebar/Store'
 import { Divider, Icon } from '@blueprintjs/core'
-import { EscalationType, SocketMessageType } from './../../types'
+import { Collapsible, lang, MainLayout, sharedStyle, Tabs } from 'botpress/shared'
+import cx from 'classnames'
+import _ from 'lodash'
 import React, { useContext, useEffect, useState } from 'react'
 
+import { EscalationType, SocketMessageType } from './../../types'
 import AgentList from './sidebar/components/AgentList'
 import EscalationList from './sidebar/components/EscalationList'
-import _ from 'lodash'
-import cx from 'classnames'
+import { Context, Store } from './sidebar/Store'
 import styles from './style.scss'
+import { Api, castEscalation } from './Api'
 
 const Sidebar = ({ bp, close }) => {
   const api = Api(bp)
