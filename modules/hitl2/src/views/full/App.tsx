@@ -118,7 +118,7 @@ const App = ({ bp }) => {
           <EscalationList escalations={state.escalations} loading={loading} />
         </div>
         <div className={style.content}>
-          <ConversationContainer api={api} escalation={state.currentEscalation} />
+          <ConversationContainer bp={bp} api={api} escalation={state.currentEscalation} />
         </div>
       </div>
     </div>
