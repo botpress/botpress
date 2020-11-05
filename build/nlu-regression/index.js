@@ -10,8 +10,11 @@ function formatReason(groupedBy, reason) {
   const prefix = groupedBy === "seed" ? "for seed" 
                 : groupedBy === "problem" ? "for problem" 
                 : "for"
-  return ` - ${prefix} "${reason.group}", for metric "${reason.metric}",\n`+ 
-         `   current score is ${reason.currentScore}, while previous score is ${reason.previousScore}.`
+
+  const { group, metric, currentScore, previousScore, allowedRegression } = reason
+
+  return ` - ${prefix} "${group}", for metric "${metric}",\n`+ 
+         `   current score is ${currentScore}, while previous score is ${previousScore} (allowed regression is ${allowedRegression}).`
 }
 
 function formatRegressionMessage(testName, comparison, groupedBy) {
