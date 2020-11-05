@@ -75,10 +75,10 @@ export default class Repository {
   }
 
   private applyOrderBy(query: Knex.QueryBuilder, conditions?: CollectionConditions) {
-    if (conditions.column) {
-      return query.orderBy(conditions.column)
-    } else if (conditions.column && conditions.desc) {
+    if (_.has(conditions, 'column') && _.has(conditions, 'desc')) {
       return query.orderBy(conditions.column, conditions.desc ? 'desc' : 'asc')
+    } else if (_.has(conditions, 'column')) {
+      return query.orderBy(conditions.column)
     } else {
       return query
     }
