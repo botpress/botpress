@@ -4,29 +4,17 @@ import { FC } from 'react'
 import Form from '.'
 import { SingleControlProps } from './typings'
 
-const SingleControl: FC<SingleControlProps> = ({
-  control,
-  value,
-  onChange,
-  defaultLang,
-  currentLang,
-  mediaPath,
-  overrideFields,
-  fieldError,
-  events
-}) => {
-  const FAKE_FIELD = 'field_name'
+const SingleControl: FC<SingleControlProps> = props => {
+  const TEMP_FIELD = 'field'
+  const { control, value, fieldError, onChange } = props
+
   return (
     <Form.Form
-      defaultLang={defaultLang}
-      currentLang={currentLang}
-      mediaPath={mediaPath}
-      overrideFields={overrideFields}
-      events={events}
-      fields={{ [FAKE_FIELD]: control }}
-      formData={{ [FAKE_FIELD]: value }}
-      fieldsError={fieldError ? { [FAKE_FIELD]: fieldError } : undefined}
-      onUpdate={newData => onChange(newData[FAKE_FIELD])}
+      {...props}
+      fields={{ [TEMP_FIELD]: control }}
+      formData={{ [TEMP_FIELD]: value }}
+      fieldsError={fieldError ? { [TEMP_FIELD]: fieldError } : undefined}
+      onUpdate={newData => onChange(newData[TEMP_FIELD])}
     />
   )
 }
