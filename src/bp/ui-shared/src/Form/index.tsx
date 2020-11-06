@@ -1,8 +1,7 @@
 import { Button, Collapse, Icon } from '@blueprintjs/core'
 import { Control, ControlForm, ControlType } from 'common/controls'
 import _ from 'lodash'
-import React, { FC, Fragment, useEffect, useReducer, useRef } from 'react'
-import { useState } from 'react'
+import React, { FC, Fragment, useEffect, useReducer, useRef, useState } from 'react'
 
 import sharedStyle from '../../../ui-shared-lite/style.scss'
 import Checkbox from '../../../ui-shared-lite/Checkbox'
