@@ -62,7 +62,6 @@ const Forms: FC<Props> = ({
   }
 
   const updateNodeContent = data => {
-    console.log('UPD', { content: data.content }, node)
     switchFlowNode(node.id)
     updateEditingNodeItem({ node: { ...node, content: data.content }, index })
     updateFlowNode({ content: data.content })
@@ -115,7 +114,6 @@ const Forms: FC<Props> = ({
           onUpdate={updateExecute}
           onCodeEdit={(code, editorCallback, template) => {
             loadInEditor({ code, editorCallback, template })
-            console.log({ code, editorCallback, template })
             setActiveView(ViewType.CodeEditor)
           }}
           keepOpen={activeView === ViewType.CodeEditor}

@@ -1,4 +1,3 @@
-import { CustomTemplate } from 'common/controls'
 import _ from 'lodash'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import babylon from 'prettier/parser-babylon'
@@ -25,7 +24,8 @@ interface Props {
   displayed: boolean
   hints: Hint[]
   bp: any
-  template?: string | CustomTemplate
+  // Supposed to be string | CustomTemplate but there are some minor issues with common typings & webpack
+  template?: any
 }
 
 interface Hint {
@@ -244,7 +244,7 @@ export default class MinimalEditor extends React.Component<Props> {
 
     _.forEach(typings, (content, name) => {
       if (!name.includes('.schema.')) {
-        monaco.languages.typescript.typescriptDefaults.addExtraLib(content, 'bp://types/' + name)
+        monaco.languages.typescript.typescriptDefaults.addExtraLib(content, `bp://types/${name}`)
       }
     })
 
@@ -289,7 +289,7 @@ export default class MinimalEditor extends React.Component<Props> {
       _.pickBy(typings, (content, name) => name.includes('.schema.')),
       (result, content, name) => {
         result.push({
-          uri: 'bp://types/' + name,
+          uri: `bp://types/${name}`,
           schema: JSON.parse(content)
         })
         return result

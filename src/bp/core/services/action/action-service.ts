@@ -366,7 +366,7 @@ export class ScopedActionService {
   }
 
   private async _getCodeActionDetails(actionCode: string) {
-    const botFolder = 'bots/' + this.botId
+    const botFolder = `bots/${this.botId}`
     const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/__internal.js`))
     const lookups = getBaseLookupPaths(dirPath)
     const _require = prepareRequire(dirPath, lookups)
