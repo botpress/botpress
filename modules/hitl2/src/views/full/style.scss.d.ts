@@ -12,6 +12,7 @@ interface CssExports {
   'commentForm': string;
   'content': string;
   'conversationContainer': string;
+  'conversationDetails': string;
   'conversationHistory': string;
   'createdDate': string;
   'divider': string;

@@ -1,6 +1,14 @@
 import * as sdk from 'botpress/sdk'
 
 // TODO fix this and use those from common/typings
+declare global {
+  interface Window {
+    botpressWebChat: {
+      init: (config: any, containerSelector?: string) => void
+    }
+    BOT_ID: string
+  }
+}
 export interface AuthRule {
   res: string
   op: string

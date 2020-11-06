@@ -219,7 +219,7 @@ export default class Repository {
       }
     }
 
-    return await this.bp
+    return this.bp
       .database('workspace_users')
       .then(data => {
         return data.map(async row => {
@@ -251,9 +251,9 @@ export default class Repository {
     conditions: CollectionConditions = {},
     query?: Knex.QueryCallback
   ): Promise<EscalationType[]> => {
-    return await this.bp.database
+    return this.bp.database
       .transaction(async trx => {
-        return await this.escalationsWithCommentsQuery(botId, conditions)
+        return this.escalationsWithCommentsQuery(botId, conditions)
           .modify(this.applyQuery(query))
           .transacting(trx)
           .then(this.hydrateComments.bind(this))
@@ -275,7 +275,7 @@ export default class Repository {
     id: string,
     query?: Knex.QueryCallback
   ): Promise<EscalationType> => {
-    return await this.escalationsWithCommentsQuery(botId)
+    return this.escalationsWithCommentsQuery(botId)
       .andWhere('escalations.id', id)
       .modify(this.applyQuery(query))
       .then(this.hydrateComments.bind(this))
@@ -286,7 +286,7 @@ export default class Repository {
   }
 
   getEscalation = async (id: string, query?: Knex.QueryCallback): Promise<EscalationType> => {
-    return await this.escalationsQuery(builder => {
+    return this.escalationsQuery(builder => {
       builder.where('id', id).modify(this.applyQuery(query))
     }).then(data => _.head(data))
   }
@@ -303,14 +303,14 @@ export default class Repository {
       ['assignedAt', 'resolvedAt', 'createdAt', 'updatedAt']
     )
 
-    return await this.bp.database.transaction(async trx => {
+    return this.bp.database.transaction(async trx => {
       await trx('escalations').insert(payload)
 
       const id = await trx
         .select(this.bp.database.raw('last_insert_rowid() as id'))
         .then(result => _.head(_.map(result, 'id')))
 
-      return await trx('escalations')
+      return trx('escalations')
         .where('botId', botId)
         .where('id', id)
         .then(this.hydrateComments.bind(this)) // Note: there won't be any comments yet, but an empty collection is required
@@ -341,12 +341,12 @@ export default class Repository {
       ['assignedAt', 'resolvedAt', 'updatedAt']
     )
 
-    return await this.bp.database.transaction(async trx => {
+    return this.bp.database.transaction(async trx => {
       await trx<EscalationType>('escalations')
         .where({ id })
         .update(payload)
 
-      return await this.escalationsWithCommentsQuery(botId)
+      return this.escalationsWithCommentsQuery(botId)
         .andWhere('escalations.id', id)
         .transacting(trx)
         .then(this.hydrateComments.bind(this))
@@ -378,7 +378,7 @@ export default class Repository {
   }
 
   getMessages = async (botId: string, id: string, conditions: CollectionConditions = {}) => {
-    return await this.bp
+    return this.bp
       .database<sdk.IO.StoredEvent>('events')
       .select('*')
       .where('botId', botId)

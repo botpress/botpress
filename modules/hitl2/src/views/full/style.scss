@@ -9,7 +9,6 @@
 .app {
   display: flex;
   flex-direction: column;
-  height: 100%;
 
   .mainContent {
     display: flex;
@@ -18,6 +17,7 @@
     .sidebar {
       width: 25%;
       padding-left: var(--spacing-x-large);
+      background-color: var(--bg);
     }
 
     .content {
@@ -26,6 +26,8 @@
       background: #fff;
 
       .conversationContainer {
+        display: flex;
+        flex-direction: column;
         flex-grow: 1;
         height: 100%;
         padding-left: var(--spacing-x-large);
@@ -35,78 +37,85 @@
         }
       }
 
-      .sidebarContainer {
+      .conversationDetails {
         display: flex;
-        flex-direction: column;
-        width: 20%;
-        padding-left: var(--spacing-x-large);
-        border-left: 1px solid var(--seashell);
-
-        .createdDate {
-          font-size: 10px;
+        & > div {
+          flex: 1;
         }
 
-        .table {
-          margin-top: var(--spacing-medium);
-          width: 100%;
-
-          th {
-            color: var(--shark);
-            font-size: 12px;
-            font-weight: 500;
-            line-height: 1.08;
-            padding-bottom: var(--spacing-small);
-          }
-
-          td {
-            font-size: 10px;
-            line-height: 1.5;
-            color: var(--shark);
-          }
-        }
-
-        .commentForm {
+        .sidebarContainer {
           display: flex;
-          margin-top: auto;
-          margin-bottom: var(--spacing-x-large);
+          flex-direction: column;
+          width: 20%;
+          padding-left: var(--spacing-x-large);
+          border-left: 1px solid var(--seashell);
 
-          textarea {
-            background: var(--white);
-            border-radius: 15px;
-            border: solid 1px var(--seashell);
-            color: var(--shark);
-            font-family: inherit;
-            font-size: 12px;
-            height: 40px;
-            line-height: 1.25;
-            padding: 12px 10px 10px;
-            resize: none;
-            transition: border 0.3s;
+          .createdDate {
+            font-size: 10px;
+          }
+
+          .table {
+            margin-top: var(--spacing-medium);
             width: 100%;
 
-            &:focus {
-              border-color: var(--ocean);
+            th {
+              color: var(--shark);
+              font-size: 12px;
+              font-weight: 500;
+              line-height: 1.08;
+              padding-bottom: var(--spacing-small);
+            }
+
+            td {
+              font-size: 10px;
+              line-height: 1.5;
+              color: var(--shark);
             }
           }
 
-          button {
-            background: none;
-            border: none;
-            box-shadow: none;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            min-width: 40px;
-            padding: 0;
-          }
+          .commentForm {
+            display: flex;
+            margin-top: auto;
+            margin-bottom: var(--spacing-x-large);
 
-          button path {
-            fill: var(--shark);
-            transition: fill 0.3s;
-          }
+            textarea {
+              background: var(--white);
+              border-radius: 15px;
+              border: solid 1px var(--seashell);
+              color: var(--shark);
+              font-family: inherit;
+              font-size: 12px;
+              height: 40px;
+              line-height: 1.25;
+              padding: 12px 10px 10px;
+              resize: none;
+              transition: border 0.3s;
+              width: 100%;
 
-          button:hover path {
-            fill: var(--ocean);
+              &:focus {
+                border-color: var(--ocean);
+              }
+            }
+
+            button {
+              background: none;
+              border: none;
+              box-shadow: none;
+              cursor: pointer;
+              font-size: 14px;
+              font-weight: 500;
+              min-width: 40px;
+              padding: 0;
+            }
+
+            button path {
+              fill: var(--shark);
+              transition: fill 0.3s;
+            }
+
+            button:hover path {
+              fill: var(--ocean);
+            }
           }
         }
       }

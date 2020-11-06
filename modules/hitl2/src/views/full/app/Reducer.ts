@@ -25,7 +25,6 @@ const Reducer = (state: StateType, action: ActionType): StateType => {
       })
     case 'setCurrentEscalation':
       return produce(state, draft => {
-        debugger
         draft.currentEscalation = draft.escalations[action.payload]
       })
     case 'setAgents':
@@ -51,7 +50,7 @@ const Reducer = (state: StateType, action: ActionType): StateType => {
         }
         // Note: because currentAgent is an actual object,
         // instead of a reference, must be manually updated
-        if (state.currentAgent.id == action.payload.id) {
+        if (state.currentAgent.id === action.payload.id) {
           draft.currentAgent = draft.agents[action.payload.id]
         }
       })

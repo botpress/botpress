@@ -88,10 +88,12 @@ const ConversationContainer: FC<Props> = props => {
         <div className={cx(style.action)}>
           <Button onClick={handleResolve}>{lang.tr('module.hitl.resolve')}</Button>
         </div>
-        <LiveChat escalation={props.escalation} />
-        <div className={cx(style.sidebarContainer)}>
-          <Tabs tabs={[{ id: 'user', title: lang.tr('module.hitl2.escalation.contactDetails') }]} />
-          <Sidebar api={props.api} escalation={props.escalation}></Sidebar>
+        <div className={style.conversationDetails}>
+          <LiveChat escalation={props.escalation} currentAgent={props.currentAgent} />
+          <div className={cx(style.sidebarContainer)}>
+            <Tabs tabs={[{ id: 'user', title: lang.tr('module.hitl2.escalation.contactDetails') }]} />
+            <Sidebar api={props.api} escalation={props.escalation}></Sidebar>
+          </div>
         </div>
       </Fragment>
     )

@@ -118,6 +118,7 @@ const App = ({ bp }) => {
           />
         </div>
       </div>
+      <script src="assets/modules/channel-web/inject.js"></script>
     </div>
   )
 }

@@ -1,10 +1,10 @@
+import Axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import { BPRequest } from 'common/http'
 import { RequestWithUser } from 'common/typings'
 import { Request, Response } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
-import { v4 as uuidv4 } from 'uuid'
 import yn from 'yn'
 
 import { CommentType, EscalationType } from './../types'
@@ -183,20 +183,25 @@ export default async (bp: typeof sdk, state: StateType) => {
     '/escalations/:id/assign',
     agentOnlineMiddleware,
     errorMiddleware(async (req: RequestWithUser, res: Response) => {
+      const { botId } = req.params
       const { email, strategy } = req.tokenUser!
 
       const agentId = makeAgentId(strategy, email)
 
-      let escalation
-      escalation = await repository.getEscalationWithComments(req.params.botId, req.params.id)
+      let escalation: Partial<EscalationType> = await repository.getEscalationWithComments(
+        req.params.botId,
+        req.params.id
+      )
 
+      const axioxconfig = await bp.http.getAxiosConfigForBot(botId)
+      const { data } = await Axios.post(`/mod/channel-web/conversations/${agentId}/new`, {}, axioxconfig)
+      const agentThreadId = data.convoId.toString()
       const payload: Partial<EscalationType> = {
         agentId,
-        agentThreadId: uuidv4(),
+        agentThreadId,
         assignedAt: new Date(),
         status: 'assigned'
       }
-
       Joi.attempt(payload, AssignEscalationSchema)
 
       try {
@@ -206,26 +211,8 @@ export default async (bp: typeof sdk, state: StateType) => {
       }
 
       escalation = await repository.updateEscalation(req.params.botId, req.params.id, payload)
-      await repository.setAgentOnline(req.params.botId, agentId, true) // Bump agent session timeout
-
-      // Find or create an "agent" user to send messages to
-      const user = (await bp.users.getOrCreateUser('web', agentId, req.params.botId)).result
-
-      // Initiate a conversation with agent
-      await bp.events.sendEvent(
-        bp.IO.Event({
-          botId: req.params.botId,
-          target: user.id,
-          threadId: escalation.agentThreadId,
-          channel: 'web',
-          direction: 'outgoing',
-          type: 'text',
-          payload: {
-            type: 'text', // type : history
-            text: 'Start of escalation discussion' // custom component data
-          }
-        })
-      )
+      state.cacheEscalation(req.params.botId, agentThreadId, escalation)
+      await repository.setAgentOnline(req.params.botId, agentId, true) // Bump agent session timeout move this in express middleware
 
       realtime.sendPayload({
         resource: 'escalation',
@@ -245,7 +232,6 @@ export default async (bp: typeof sdk, state: StateType) => {
       const { email, strategy } = req.tokenUser!
 
       const agentId = makeAgentId(strategy, email)
-
 
       let escalation
       escalation = await repository.getEscalationWithComments(req.params.botId, req.params.id)

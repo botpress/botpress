@@ -1,10 +1,13 @@
+import crypto from 'crypto'
 import { Response } from 'express'
-import _ from 'lodash'
 
 import { ResponseError } from './errors'
 
 export const makeAgentId = (strategy: string, email: string): string => {
-  return _.join(_.compact([strategy, email]), '/')
+  return crypto
+    .createHash('md5')
+    .update([strategy, email].filter(Boolean).join('-'))
+    .digest('hex')
 }
 
 export const formatError = (res: Response, error: ResponseError) => {

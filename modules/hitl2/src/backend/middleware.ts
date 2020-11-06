@@ -105,8 +105,9 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
       .escalationsQuery(builder => {
         builder.where('status', 'pending').orWhere('status', 'assigned')
       })
-      .then(escalations => {
+      .then((escalations: EscalationType[]) => {
         escalations.forEach(escalation => {
+          cacheEscalation(escalation.botId, escalation.agentThreadId, escalation)
           cacheEscalation(escalation.botId, escalation.userThreadId, escalation)
         })
       })
@@ -120,7 +121,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   bp.events.registerMiddleware({
     name: 'hitl2.incoming',
     direction: 'incoming',
-    order: 20,
+    order: 0,
     description: 'Where magic happens',
     handler: incomingHandler
   })
