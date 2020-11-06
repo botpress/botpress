@@ -140,6 +140,7 @@
         "tryingToLoad": "Il semble que vous essayez de charger un module qui n'a pas été enregistré. Veuillez vous assurer que le module est enregistré puis redémarrez le bot."
       },
       "node": {
+        "noActionSelected": "Aucune action sélectionnée",
         "actionParameters": "Paramètres d'action",
         "actionServer": "Serveur d'action",
         "actionServerTooltip": "Il s'agit du serveur d'action sur lequel l'action sera exécutée",
@@ -165,6 +166,8 @@
         "executeCode": "⚡ Exécuter du code",
         "finishAddAction": "Ajouter action",
         "finishUpdateAction": "Mettre à jour l'action",
+        "pickAction": "Choisissez une action",
+        "customCode": "Code personnalisé",
         "hasNoParameters": "Cette action n'a pas de paramètres",
         "loadingActionServer": "Veuillez patienter, chargement des serveurs d'action ...",
         "message": "Message",

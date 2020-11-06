@@ -12,4 +12,5 @@ export interface MainContainerProps {
     [id: string]: (keyEvent?: KeyboardEvent) => void
   }
   readonly children: React.ReactNode
+  className?: string
 }

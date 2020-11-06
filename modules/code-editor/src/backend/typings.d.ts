@@ -9,6 +9,7 @@ export interface TypingDefinitions {
 export type FileType =
   | 'action_legacy'
   | 'action_http'
+  | 'action' // New signature without arguments
   | 'hook'
   | 'bot_config'
   | 'main_config'

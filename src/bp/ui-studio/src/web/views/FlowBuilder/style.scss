@@ -14,3 +14,35 @@
 .wrapper {
   background-color: #f1f1f1;
 }
+
+.hidden {
+  display: none;
+}
+
+.codeEditor {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+
+  .header {
+    background: #fdfdfd;
+    border-top: 1px solid #eeeeee;
+    border-bottom: 1px solid #eeeeee;
+    position: relative;
+    height: 50px;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px;
+
+    .title {
+      color: var(--dark-gray);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .actions {
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+}

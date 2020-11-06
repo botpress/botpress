@@ -83,6 +83,7 @@ type ExtendedDiagramEngine = {
 } & DiagramEngine
 
 const EXPANDED_NODES_KEY = `bp::${window.BOT_ID}::expandedNodes`
+const autoOpenNodes = ['execute']
 
 const getExpandedNodes = () => {
   try {
@@ -270,6 +271,17 @@ class Diagram extends Component<Props> {
       this.linkCreatedNode()
     }
 
+    if (
+      !prevState.activeFormItem &&
+      this.props.currentFlowNode?.isNew &&
+      autoOpenNodes.includes(this.props.currentFlowNode?.type)
+    ) {
+      this.editNodeItem(this.props.currentFlowNode, 0)
+    }
+    if (prevProps.zoomLevel !== this.props.zoomLevel) {
+      this.diagramEngine.diagramModel.setZoomLevel(this.props.zoomLevel)
+    }
+
     if (prevProps.zoomLevel !== this.props.zoomLevel) {
       this.diagramEngine.diagramModel.setZoomLevel(this.props.zoomLevel)
     }
@@ -346,7 +358,8 @@ class Diagram extends Component<Props> {
         next: [defaultTransition]
       })
     },
-    executeNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'execute', next: [defaultTransition] }),
+    executeNode: (point: Point) =>
+      this.props.createFlowNode({ ...point, type: 'execute', isNew: true, next: [defaultTransition] }),
     listenNode: (point: Point) =>
       this.props.createFlowNode({ ...point, type: 'listen', onReceive: [], next: [defaultTransition] }),
     routerNode: (point: Point) => this.props.createFlowNode({ ...point, type: 'router' }),
@@ -743,14 +756,14 @@ class Diagram extends Component<Props> {
           </div>
         </MainLayout.Wrapper>
 
-        {/* <Forms
+        <Forms
           diagramEngine={this.diagramEngine}
           deleteSelectedElements={this.deleteSelectedElements.bind(this)}
           updateEditingNodeItem={activeFormItem => this.props.setActiveFormItem(activeFormItem)}
           updateTimeout={timeout => (this.timeout = timeout)}
           currentLang={this.props.currentLang}
           defaultLang={this.props.defaultLang}
-        /> */}
+        />
       </Fragment>
     )
   }

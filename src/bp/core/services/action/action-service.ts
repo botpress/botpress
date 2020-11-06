@@ -110,6 +110,7 @@ export default class ActionService {
 }
 
 export interface RunActionProps {
+  actionCode?: string
   actionName: string
   incomingEvent: IO.IncomingEvent
   actionArgs: any
@@ -160,7 +161,7 @@ export class ScopedActionService {
   }
 
   async runAction(props: RunActionProps & { actionServer?: ActionServer }): Promise<void> {
-    const { actionName, actionArgs, actionServer, incomingEvent } = props
+    const { actionName, actionCode, actionArgs, actionServer, incomingEvent } = props
     process.ASSERT_LICENSED()
 
     debug.forBot(incomingEvent.botId, 'run action', { actionName, incomingEvent, actionArgs })
@@ -170,6 +171,7 @@ export class ScopedActionService {
         await this._runInActionServer({ ...props, actionServer })
       } else {
         await this.runLocalAction({
+          actionCode,
           actionName,
           actionArgs,
           incomingEvent,
@@ -297,9 +299,11 @@ export class ScopedActionService {
       runType: RunType
     }
   ) {
-    const { actionName, actionArgs, incomingEvent, runType } = props
+    const { actionName, actionCode, actionArgs, incomingEvent, runType } = props
 
-    const { code, _require, dirPath, action } = await this.loadLocalAction(actionName)
+    const { code, _require, dirPath, action } = actionCode
+      ? await this._getCodeActionDetails(actionCode)
+      : await this.loadLocalAction(actionName!)
 
     const args = extractEventCommonArgs(incomingEvent, {
       args: actionArgs,
@@ -359,6 +363,15 @@ export class ScopedActionService {
     const lookups = getBaseLookupPaths(dirPath)
 
     return { code, dirPath, lookups, action }
+  }
+
+  private async _getCodeActionDetails(actionCode: string) {
+    const botFolder = 'bots/' + this.botId
+    const dirPath = path.resolve(path.join(process.PROJECT_LOCATION, `/data/${botFolder}/actions/__internal.js`))
+    const lookups = getBaseLookupPaths(dirPath)
+    const _require = prepareRequire(dirPath, lookups)
+
+    return { code: actionCode, dirPath, _require, action: { scope: botFolder as any } }
   }
 
   public async loadLocalAction(actionName: string) {

@@ -29,6 +29,7 @@ const passThroughNodeProps: string[] = [
   'conditions',
   'type',
   'content',
+  'execute',
   'activeWorkflow'
 ]
 export const DIAGRAM_PADDING: number = 100

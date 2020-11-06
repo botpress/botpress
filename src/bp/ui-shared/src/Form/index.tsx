@@ -38,7 +38,7 @@ const focusFirstElement = parent => {
 
 const printLabel = (field: Control, data, parent, currentLang?) => {
   if (field.title?.startsWith('fields::') && field.title?.length) {
-    const labelField = field.fields?.find(subField => subField.key === field.title.replace('fields::', ''))
+    const labelField = field.fields?.find(subField => subField.key === field.title?.replace('fields::', ''))
     const fieldData = labelField.translated ? data[labelField.key]?.[currentLang] : data[labelField.key]
 
     return fieldData || ' '
@@ -81,7 +81,8 @@ const Form: FC<FormProps> = ({
   getCustomPlaceholder,
   invalidFields,
   events,
-  fieldsError
+  fieldsError,
+  onCodeEdit
 }) => {
   const newFormData = createEmptyDataFromSchema(fieldsToList(fields), currentLang)
   const [state, dispatch] = useReducer(formReducer, formData || newFormData)
@@ -241,6 +242,18 @@ const Form: FC<FormProps> = ({
                 }
               })}
             </Fragment>
+            {printError(key)}
+          </FieldWrapper>
+        )
+
+      case ControlType.CodeEditor:
+        return (
+          <FieldWrapper key={key} label={printLabel(field, currentValue, parent, currentLang)} invalid={invalid}>
+            <Button
+              onClick={() => onCodeEdit?.(currentValue, data => onUpdate({ [key]: data }, key), field.template)}
+              text={lang('editCode')}
+              fill
+            />
             {printError(key)}
           </FieldWrapper>
         )

@@ -3,6 +3,7 @@ import { handleActions } from 'redux-actions'
 import {
   addDocumentationHint,
   removeDocumentationHint,
+  setActiveView,
   setEmulatorOpen,
   toggleBottomPanel,
   updateDocumentationModal,
@@ -15,6 +16,20 @@ import {
 
 import storage from '../util/storage'
 
+export enum ViewType {
+  CodeEditor = 'code-editor',
+  Diagram = 'diagram'
+}
+
+export interface UiReducer {
+  viewMode: any
+  docHints: string[]
+  emulatorOpen: boolean
+  zoomLevel: number
+  bottomPanel: boolean
+  activeView: ViewType
+}
+
 const bottomPanelStorageKey = `bp::${window.BOT_ID}::bottom-panel-open`
 const defaultBottomPanelOpen = storage.get(bottomPanelStorageKey) === 'true'
 
@@ -25,15 +40,8 @@ const defaultState = {
   docModal: null,
   bottomPanel: defaultBottomPanelOpen || false,
   emulatorOpen: false,
-  zoomLevel: 100
-}
-
-export interface UiReducer {
-  viewMode: any
-  docHints: string[]
-  emulatorOpen: boolean
-  zoomLevel: number
-  bottomPanel: boolean
+  zoomLevel: 100,
+  activeView: ViewType.Diagram
 }
 
 const reducer = handleActions(
@@ -88,6 +96,10 @@ const reducer = handleActions(
     [setEmulatorOpen]: (state, { payload }) => ({
       ...state,
       emulatorOpen: payload
+    }),
+    [setActiveView]: (state, { payload }) => ({
+      ...state,
+      activeView: payload
     })
   },
   defaultState

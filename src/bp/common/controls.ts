@@ -22,14 +22,15 @@ export enum ControlType {
   Enum = 'enum',
   /** Display an upload component so users can pick a file from their filesystem */
   File = 'file',
-
+  /** Displays a button which opens a full-sized code editor  */
+  CodeEditor = 'code-editor',
   /** Display a custom component from an override field or from a custom module */
   Component = 'component'
 }
 
 export interface BaseControl {
   /** Label displayed on top of the control */
-  title: string
+  title?: string
   /** Display an help icon next to the control */
   moreInfo?: MoreInfo
   defaultValue?: any
@@ -106,6 +107,17 @@ export interface ControlComponent extends BaseControl {
   componentName?: string
 }
 
+export interface CustomTemplate {
+  beforeCode?: string
+  afterCode?: string
+}
+
+export interface ControlCodeEditor extends BaseControl {
+  type: ControlType.CodeEditor
+  /** The base template to wrap the code with */
+  template?: string | CustomTemplate
+}
+
 export type Control =
   | ControlBoolean
   | ControlEnum
@@ -114,6 +126,7 @@ export type Control =
   | ControlArray
   | ControlFile
   | ControlComponent
+  | ControlCodeEditor
 
 export interface ControlForm {
   [propertyName: string]: Control

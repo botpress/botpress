@@ -19,7 +19,7 @@ const MainContainer: FC<MainContainerProps> = props => {
   const children = React.Children.toArray(props.children)
 
   return (
-    <HotKeys handlers={keyHandlers} keyMap={props.keyMap || {}} className={style.fullsize} focused>
+    <HotKeys handlers={keyHandlers} keyMap={props.keyMap || {}} className={cx(style.fullsize, props.className)} focused>
       <div className={style.container}>
         {showSidePanel && <div className={style.leftSideBar}>{children[0]}</div>}
         <div className={cx(style.fullsize, style.mainContent, { [style.yOverflowScroll]: props.yOverflowScroll })}>

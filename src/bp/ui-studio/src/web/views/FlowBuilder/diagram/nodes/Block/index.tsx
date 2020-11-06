@@ -1,5 +1,5 @@
 import { Intent, Menu, MenuDivider, MenuItem } from '@blueprintjs/core'
-import { DecisionTriggerCondition, Flow } from 'botpress/sdk'
+import { DecisionTriggerCondition, ExecuteNode, Flow } from 'botpress/sdk'
 import { contextMenu, lang, sharedStyle, ShortcutLabel, toast } from 'botpress/shared'
 import { FlowView } from 'common/typings'
 import React, { FC } from 'react'
@@ -148,14 +148,7 @@ const BlockWidget: FC<BlockProps> = ({
       case 'action':
         return <ActionContents node={node} editNodeItem={editNodeItem} />
       case 'execute':
-        return (
-          <ExecuteContents
-            node={node}
-            editNodeItem={editNodeItem}
-            updateFlowNode={updateFlowNode}
-            switchFlowNode={switchFlowNode}
-          />
-        )
+        return <ExecuteContents node={node} editNodeItem={editNodeItem} />
       case 'router':
         return <RouterContents node={node} editNodeItem={editNodeItem} />
       case 'say_something':
@@ -230,6 +223,7 @@ export class BlockModel extends BaseNodeModel {
   public isReadOnly: boolean
   public nodeType: string
   public content?: any
+  public execute?: ExecuteNode
   public flow: string
   public skill?: string
 
@@ -242,6 +236,7 @@ export class BlockModel extends BaseNodeModel {
     flow,
     skill,
     content,
+    execute,
     onEnter = [],
     next = [],
     conditions = [],
@@ -264,6 +259,7 @@ export class BlockModel extends BaseNodeModel {
       isStartNode,
       isHighlighted,
       conditions,
+      execute,
       activeWorkflow,
       isNew,
       isReadOnly
@@ -281,6 +277,7 @@ export class BlockModel extends BaseNodeModel {
     this.isNew = isNew
     this.nodeType = data.type || 'standard'
     this.content = data.content
+    this.execute = data.execute
     this.flow = data.flow
     this.skill = data.skill
     this.isReadOnly = data.isReadOnly

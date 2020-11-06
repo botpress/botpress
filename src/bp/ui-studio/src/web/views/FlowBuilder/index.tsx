@@ -1,7 +1,8 @@
 import { lang, MainContainer, utils } from 'botpress/shared'
+import cx from 'classnames'
 import { FlowView } from 'common/typings'
 import _ from 'lodash'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { Fragment, useEffect, useRef, useState } from 'react'
 import { connect } from 'react-redux'
 import { RouteComponentProps, withRouter } from 'react-router-dom'
 import {
@@ -12,6 +13,7 @@ import {
   refreshActions,
   refreshConditions,
   refreshIntents,
+  setActiveView,
   setDiagramAction,
   switchFlow
 } from '~/actions'
@@ -19,6 +21,7 @@ import { Timeout, toastFailure, toastInfo } from '~/components/Shared/Utils'
 import { isOperationAllowed } from '~/components/Shared/Utils/AccessControl'
 import DocumentationProvider from '~/components/Util/DocumentationProvider'
 import { RootReducer } from '~/reducers'
+import { ViewType } from '~/reducers/ui'
 
 import SidePanelOneFlow from '../FlowBuilder/sidePanelTopics'
 
@@ -26,6 +29,7 @@ import Diagram from './diagram'
 import SidePanel, { PanelPermissions } from './sidePanelFlows'
 import SkillsBuilder from './skills'
 import style from './style.scss'
+import CodeEditor from './CodeEditor'
 
 interface OwnProps {
   currentMutex: any
@@ -160,44 +164,50 @@ const FlowBuilder = (props: Props) => {
   }
 
   return (
-    <MainContainer keyHandlers={keyHandlers}>
-      {window.USE_ONEFLOW ? (
-        <SidePanelOneFlow
-          onDeleteSelectedElements={() => diagram?.deleteSelectedElements()}
-          readOnly={readOnly}
-          mutexInfo={mutex}
-          permissions={actions}
-          onCreateFlow={createFlow}
-        />
-      ) : (
-        <SidePanel
-          onDeleteSelectedElements={() => diagram?.deleteSelectedElements()}
-          readOnly={readOnly}
-          mutexInfo={mutex}
-          permissions={actions}
-          onCreateFlow={createFlow}
-        />
-      )}
+    <Fragment>
+      <CodeEditor />
+      <MainContainer
+        keyHandlers={keyHandlers}
+        className={cx({ [style.hidden]: props.activeView !== ViewType.Diagram })}
+      >
+        {window.USE_ONEFLOW ? (
+          <SidePanelOneFlow
+            onDeleteSelectedElements={() => diagram?.deleteSelectedElements()}
+            readOnly={readOnly}
+            mutexInfo={mutex}
+            permissions={actions}
+            onCreateFlow={createFlow}
+          />
+        ) : (
+          <SidePanel
+            onDeleteSelectedElements={() => diagram?.deleteSelectedElements()}
+            readOnly={readOnly}
+            mutexInfo={mutex}
+            permissions={actions}
+            onCreateFlow={createFlow}
+          />
+        )}
 
-      <div className={style.diagram}>
-        <Diagram
-          readOnly={readOnly}
-          showSearch={showSearch}
-          hideSearch={() => setShowSearch(false)}
-          handleFilterChanged={handleFilterChanged}
-          highlightFilter={highlightFilter}
-          ref={el => {
-            if (!!el) {
-              // @ts-ignore
-              diagram = el.getWrappedInstance()
-            }
-          }}
-        />
-      </div>
+        <div className={style.diagram}>
+          <Diagram
+            readOnly={readOnly}
+            showSearch={showSearch}
+            hideSearch={() => setShowSearch(false)}
+            handleFilterChanged={handleFilterChanged}
+            highlightFilter={highlightFilter}
+            ref={el => {
+              if (!!el) {
+                // @ts-ignore
+                diagram = el.getWrappedInstance()
+              }
+            }}
+          />
+        </div>
 
-      <DocumentationProvider file="flows" />
-      <SkillsBuilder />
-    </MainContainer>
+        <DocumentationProvider file="flows" />
+        <SkillsBuilder />
+      </MainContainer>
+    </Fragment>
   )
 }
 
@@ -206,7 +216,8 @@ const mapStateToProps = (state: RootReducer) => ({
   flowsByName: state.flows.flowsByName,
   showFlowNodeProps: state.flows.showFlowNodeProps,
   user: state.user,
-  errorSavingFlows: state.flows.errorSavingFlows
+  errorSavingFlows: state.flows.errorSavingFlows,
+  activeView: state.ui.activeView
 })
 
 const mapDispatchToProps = {
@@ -218,7 +229,8 @@ const mapDispatchToProps = {
   closeFlowNodeProps,
   refreshActions,
   refreshIntents,
-  refreshConditions
+  refreshConditions,
+  setActiveView
 }
 
 export default connect<StateProps, DispatchProps, OwnProps>(

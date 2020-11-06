@@ -1,5 +1,5 @@
 import { IO, Logger } from 'botpress/sdk'
-import { parseActionInstruction } from 'common/action'
+import { extractEventCommonArgs, parseActionInstruction } from 'common/action'
 import { ActionServer } from 'common/typings'
 import ActionServersService from 'core/services/action/action-servers-service'
 import ActionService from 'core/services/action/action-service'
@@ -37,12 +37,41 @@ export class ActionStrategy implements InstructionStrategy {
     return instructionFn.indexOf('say ') === 0
   }
 
+  public static isExecuteNode(instructionFn: string): boolean {
+    return instructionFn === 'exec'
+  }
+
   async processInstruction(botId, instruction, event): Promise<ProcessingResult> {
     if (ActionStrategy.isSayInstruction(instruction.fn)) {
       return this.invokeOutputProcessor(botId, instruction, event)
+    } else if (ActionStrategy.isExecuteNode(instruction.fn)) {
+      return this.executeAction(botId, instruction, event)
     } else {
       return this.invokeAction(botId, instruction, event)
     }
+  }
+
+  private async executeAction(botId, instruction, event: IO.IncomingEvent): Promise<ProcessingResult> {
+    const { code, params, actionName } = instruction.args
+
+    try {
+      const actionArgs = extractEventCommonArgs(event)
+
+      const service = await this.actionService.forBot(botId)
+      await service.runAction({
+        actionName,
+        actionCode: code,
+        incomingEvent: event,
+        actionArgs: _.mapValues(params, ({ value }) => renderTemplate(value, actionArgs))
+      })
+    } catch (err) {
+      const { onErrorFlowTo } = event.state.temp
+      const errorFlow = typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : 'error.flow.json'
+
+      return ProcessingResult.transition(errorFlow)
+    }
+
+    return ProcessingResult.none()
   }
 
   private async invokeOutputProcessor(botId, instruction, event: IO.IncomingEvent): Promise<ProcessingResult> {

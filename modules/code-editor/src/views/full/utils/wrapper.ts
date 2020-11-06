@@ -1,8 +1,8 @@
-import { EditableFile } from '../../../backend/typings'
+import { EditableFile, FileType } from '../../../backend/typings'
 import { HOOK_SIGNATURES } from '../../../typings/hooks'
 
-const START_COMMENT = '/** Your code starts below */'
-const END_COMMENT = '/** Your code ends here */'
+export const START_COMMENT = '/** Your code starts below */'
+export const END_COMMENT = '/** Your code ends here */'
 
 const ACTION_HTTP_SIGNATURE =
   'function action(event: sdk.IO.IncomingEvent, args: any, { user, temp, session } = event.state)'
@@ -11,11 +11,14 @@ const ACTION_LEGACY_SIGNATURE =
   'function action(bp: typeof sdk, event: sdk.IO.IncomingEvent, args: any, { user, temp, session } = event.state)'
 
 const wrapper = {
-  add: (file: EditableFile, content: string) => {
-    const { type, hookType, botId } = file
+  add: (file: EditableFile | FileType, content: string) => {
+    const type = typeof file === 'string' ? file : file.type
+    const hookType = typeof file === 'string' ? undefined : file.hookType
 
     if (type === 'action_legacy') {
       return `${ACTION_LEGACY_SIGNATURE} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}`
+    } else if (type === 'action') {
+      return `${ACTION_LEGACY_SIGNATURE} {\n    return async () => {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n  }\n}`
     } else if (type === 'action_http') {
       return `${ACTION_HTTP_SIGNATURE} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}`
     } else if (type === 'hook' && HOOK_SIGNATURES[hookType]) {
@@ -34,7 +37,10 @@ const wrapper = {
       return content
     }
   },
-  remove: (content: string, type: string) => {
+  custom: (content: string, before: string, after: string) => {
+    return `${before} \n ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n  ${after}`
+  },
+  remove: (content: string, type?: string) => {
     if (type === 'bot_config') {
       return content.replace('bp://types/bot.config.schema.json', '../../bot.config.schema.json')
     }

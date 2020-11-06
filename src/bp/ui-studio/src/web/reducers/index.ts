@@ -3,6 +3,7 @@ import { combineReducers } from 'redux'
 
 import bot from './bot'
 import bots, { BotsReducer } from './bots'
+import codeEditor, { CodeEditorReducer } from './code-editor'
 import content, { ContentReducer } from './content'
 import flows, { FlowReducer } from './flows'
 import hints from './hints'
@@ -29,7 +30,8 @@ const bpApp = combineReducers({
   language,
   hints,
   ndu,
-  nlu
+  nlu,
+  codeEditor
 })
 export default bpApp
 
@@ -44,4 +46,6 @@ export interface RootReducer {
   bot: BotConfig
   bots: BotsReducer
   nlu: NLUReducer
+  codeEditor: CodeEditorReducer
+  hints: { inputs: any }
 }

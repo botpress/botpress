@@ -1,10 +1,12 @@
 import _ from 'lodash'
 import React, { FC, Fragment } from 'react'
 import { connect } from 'react-redux'
-import { setActiveFormItem, switchFlowNode, updateFlow, updateFlowNode } from '~/actions'
+import { loadInEditor, setActiveFormItem, setActiveView, switchFlowNode, updateFlow, updateFlowNode } from '~/actions'
 import { getAllFlows, getCurrentFlow, getCurrentFlowNode, RootReducer } from '~/reducers'
+import { ViewType } from '~/reducers/ui'
 
 import ContentForm from './ContentForm'
+import ExecuteForm from './ExecuteForm'
 
 interface OwnProps {
   currentLang: string
@@ -30,8 +32,15 @@ const Forms: FC<Props> = ({
   deleteSelectedElements,
   diagramEngine,
   activeFormItem,
+  updateFlowNode,
+  switchFlowNode,
   setActiveFormItem,
-  updateTimeout
+  updateTimeout,
+  actions,
+  loadInEditor,
+  hints,
+  setActiveView,
+  activeView
 }) => {
   const { node, index, data } = activeFormItem || {}
   const formType: string = node?.nodeType || node?.type || activeFormItem?.type
@@ -39,6 +48,8 @@ const Forms: FC<Props> = ({
   let currentItem
   if (formType === 'say_something') {
     currentItem = node?.content
+  } else if (formType === 'execute') {
+    currentItem = node?.execute
   }
 
   const getEmptyContent = content => {
@@ -62,6 +73,12 @@ const Forms: FC<Props> = ({
     setActiveFormItem(null)
   }
 
+  const updateExecute = data => {
+    switchFlowNode(node.id)
+    updateEditingNodeItem({ node: { ...node, execute: { ...node.execute, ...data } }, index })
+    updateFlowNode({ execute: { ...node.execute, ...data } })
+  }
+
   const close = () => {
     updateTimeout(
       setTimeout(() => {
@@ -72,7 +89,7 @@ const Forms: FC<Props> = ({
 
   return (
     <Fragment>
-      {formType === 'say_something' && (
+      {/* {formType === 'say_something' && (
         <ContentForm
           customKey={`${node.id}${index}`}
           contentTypes={contentTypes}
@@ -85,6 +102,25 @@ const Forms: FC<Props> = ({
           onUpdate={updateNodeContent}
           close={close}
         />
+      )} */}
+      {formType === 'execute' && (
+        <ExecuteForm
+          node={currentFlowNode}
+          customKey={`${node?.id}`}
+          deleteNode={deleteSelectedElements}
+          contentLang={currentLang}
+          actions={actions}
+          events={hints}
+          formData={currentItem}
+          onUpdate={updateExecute}
+          onCodeEdit={(code, editorCallback, template) => {
+            loadInEditor({ code, editorCallback, template })
+            console.log({ code, editorCallback, template })
+            setActiveView(ViewType.CodeEditor)
+          }}
+          keepOpen={activeView === ViewType.CodeEditor}
+          close={close}
+        />
       )}
     </Fragment>
   )
@@ -95,14 +131,19 @@ const mapStateToProps = (state: RootReducer) => ({
   flows: getAllFlows(state),
   currentFlowNode: getCurrentFlowNode(state),
   activeFormItem: state.flows.activeFormItem,
-  contentTypes: state.content.categories
+  contentTypes: state.content.categories,
+  actions: state.skills.actions,
+  hints: state.hints.inputs,
+  activeView: state.ui.activeView
 })
 
 const mapDispatchToProps = {
   switchFlowNode,
   updateFlowNode,
   updateFlow,
-  setActiveFormItem
+  loadInEditor,
+  setActiveFormItem,
+  setActiveView
 }
 
 export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(Forms)

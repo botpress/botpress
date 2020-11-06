@@ -1391,9 +1391,19 @@ declare module 'botpress/sdk' {
     timeoutNode?: string
     flow?: string
     isNew?: boolean
+    execute?: ExecuteNode
     /** Used internally by the flow editor */
     readonly lastModified?: Date
   } & NodeActions
+
+  export interface ExecuteNode {
+    actionName?: string
+    /** Custom title when creating a new action */
+    title?: string
+    /** List of possible parameters for the action */
+    params?: { [key: string]: any }
+    code?: string
+  }
 
   export type TriggerNode = FlowNode & {
     conditions: DecisionTriggerCondition[]

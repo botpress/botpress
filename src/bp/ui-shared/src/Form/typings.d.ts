@@ -22,6 +22,7 @@ interface CommonProps {
   mediaPath?: string
   overrideFields?: { [field: string]: (props: any) => JSX.Element }
   events?: BotEvent[]
+  onCodeEdit?: (value: string | undefined, onChange: (data: string) => void, template?: string | CustomTemplate) => void
 }
 
 export type SingleControlProps = {

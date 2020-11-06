@@ -1,0 +1,23 @@
+.editorWrap {
+  flex-grow: 1;
+}
+
+.editorWrap > div {
+  width: 100%;
+  height: 100%;
+}
+
+.formWrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.hidden {
+  display: none;
+}
+
+.maximized {
+  left: 280px; // main menu + topics list width
+  width: auto;
+  border-left: 1px solid var(--gray);
+}
