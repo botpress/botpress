@@ -1,5 +1,4 @@
-import { IO, Logger } from 'botpress/sdk'
-import { ContentElement, ContentType, KnexExtended, SearchParams } from 'botpress/sdk'
+import { ContentElement, ContentType, IO, KnexExtended, Logger, SearchParams } from 'botpress/sdk'
 import { renderRecursive, renderTemplate } from 'core/misc/templating'
 import { ModuleLoader } from 'core/module-loader'
 import { inject, injectable, tagged } from 'inversify'

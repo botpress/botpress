@@ -169,7 +169,7 @@ const BotHealth: FC<Props> = props => {
       await api.getSecured().post(`/admin/bots/${botId}/reload`)
       toastSuccess('Bot remounted successfully')
     } catch (err) {
-      console.log(err)
+      console.error(err)
       toastFailure('Could not mount bot. Check server logs for details')
     }
   }
