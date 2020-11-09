@@ -49,6 +49,7 @@
     "training": "Entraînement en cours",
     "ready": "Prêt",
     "cancelTraining": "Annuler l'entraînement",
+    "trainingPending": "Entraînement en attente",
     "canceling": "Annulation en cours",
     "trainingError": "L'agent ne peut pas être entraîné"
   },
