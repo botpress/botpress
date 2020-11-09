@@ -3,6 +3,7 @@ import _ from 'lodash'
 import LRU from 'lru-cache'
 
 import { EscalationType } from './../types'
+import { measure } from './helpers'
 import { StateType } from './index'
 import Repository from './repository'
 import Socket from './socket'
@@ -122,10 +123,15 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
       })
   }
 
+  await measure('cache-warmup', warmup(), items => {
+    items.getEntries().forEach(entry => {
+      debug('performance', _.pick(entry, 'name', 'duration'))
+    })
+  })
+
   state.cacheEscalation = await bp.distributed.broadcast(cacheEscalation)
   state.expireEscalation = await bp.distributed.broadcast(expireEscalation)
 
-  await warmup(cache)
 
   bp.events.registerMiddleware({
     name: 'hitl2.incoming',
