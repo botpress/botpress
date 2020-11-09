@@ -29,18 +29,20 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
     )
   }
 
+  const cacheKey = (a, b) => _.join([a, b], '.')
+
   const getEscalation = (cache, botId, threadId) => {
-    return cache.get(_.join([botId, threadId], '.'))
+    return cache.get(cacheKey(botId, threadId))
   }
 
   const cacheEscalation = (botId: string, threadId: string, escalation: EscalationType) => {
-    cache.set(_.join([botId, threadId], '.'), escalation.id)
     debug.forBot(botId, 'Caching escalation', { id: escalation.id, threadId })
+    cache.set(cacheKey(botId, threadId), escalation.id)
   }
 
   const expireEscalation = (botId: string, threadId: string) => {
-    cache.del(_.join([botId, threadId], '.'))
     debug.forBot(botId, 'Expiring escalation', { threadId })
+    cache.del(cacheKey(botId, threadId))
   }
 
   const incomingHandler = async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
