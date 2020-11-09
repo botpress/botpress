@@ -4,4 +4,10 @@ export interface Config {
    * @default 10m
    */
   agentSessionTimeout: string
+
+  /**
+   * @param messageCount Number of messages to display in the conversation history
+   * @default 10
+   */
+  messageCount: number
 }
