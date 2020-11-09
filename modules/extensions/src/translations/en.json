@@ -1,6 +1,7 @@
 {
   "errorExecuting": "Error executing action \"{name}\"",
   "errorTransition": "Error during transition to \"{name}\"",
+  "splashMessage": "Engage conversation with your chatbot and click on any message to inspect its behaviors.",
   "types": {
     "dropdown": {
       "allowCreate": "Allow creation of new options",

@@ -8,6 +8,7 @@ interface CssExports {
   'container': string;
   'container2': string;
   'content': string;
+  'debuggerIcon': string;
   'error': string;
   'expanded': string;
   'group': string;
@@ -30,6 +31,7 @@ interface CssExports {
   'stacktrace': string;
   'subSection': string;
   'summaryTable': string;
+  'tabError': string;
   'time': string;
   'title': string;
   'triggerGroup': string;
