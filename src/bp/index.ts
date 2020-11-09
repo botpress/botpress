@@ -364,8 +364,13 @@ try {
           default: '250kb'
         },
         batchSize: {
-          description: 'Allowed number of text inputs in one call to POST /predict.',
+          description: 'Allowed number of text inputs in one call to POST /predict',
           default: -1
+        },
+        modelCacheSize: {
+          description:
+            'Max allocated memory for model cache. Too few memory will result in more access to file system.',
+          default: '250mb'
         }
       },
       argv => {

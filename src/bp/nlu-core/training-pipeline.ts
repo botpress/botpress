@@ -20,7 +20,6 @@ import {
   ListEntity,
   ListEntityModel,
   PatternEntity,
-  SeededLodashProvider,
   TFIDF,
   Token2Vec,
   Tools,
@@ -33,7 +32,6 @@ type ListEntityWithCache = ListEntity & {
 }
 
 export type TrainInput = Readonly<{
-  botId: string
   nluSeed: number
   languageCode: string
   pattern_entities: PatternEntity[]
@@ -95,7 +93,7 @@ const KMEANS_OPTIONS = {
 } as sdk.MLToolkit.KMeans.KMeansOptions
 
 const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainStep> => {
-  debugTraining.forBot(input.botId, 'Preprocessing intents')
+  debugTraining('Preprocessing intents')
   input = _.cloneDeep(input)
   const list_entities = await Promise.map(input.list_entities, list =>
     makeListEntityModel(list, input.languageCode, tools)
@@ -510,17 +508,11 @@ const TrainOutOfScope = async (input: TrainStep, tools: Tools, progress: progres
 
 const NB_STEPS = 6 // change this if the training pipeline changes
 
-export type Trainer = (
+export const Trainer = async (
   input: TrainInput,
   tools: Tools,
   progress?: (x: number) => void
-) => Promise<TrainOutput | undefined>
-
-export const Trainer: Trainer = async (
-  input: TrainInput,
-  tools: Tools,
-  progress?: (x: number) => void
-): Promise<TrainOutput | undefined> => {
+): Promise<TrainOutput> => {
   let totalProgress = 0
   let normalizedProgress = 0
 
