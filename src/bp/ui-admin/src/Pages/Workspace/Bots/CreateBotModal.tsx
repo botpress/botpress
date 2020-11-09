@@ -127,7 +127,7 @@ class CreateBotModal extends Component<Props, State> {
     const newBot = {
       id: this.state.botId,
       name: this.state.botName,
-      template: _.pick(this.state.selectedTemplate, ['id', 'moduleId']),
+      template: _.pick(this.state.selectedTemplate, ['id', 'moduleName']),
       category: this.state.selectedCategory && this.state.selectedCategory.value
     }
 

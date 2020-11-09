@@ -328,9 +328,11 @@ export class BotpressAPIProvider {
   }
 }
 
-export function createForModule(moduleId: string): Promise<typeof sdk> {
+export function createForModule(moduleName: string): Promise<typeof sdk> {
   // return Promise.resolve(<typeof sdk>{})
-  return container.get<BotpressAPIProvider>(TYPES.BotpressAPIProvider).create(`Mod[${moduleId}]`, `module.${moduleId}`)
+  return container
+    .get<BotpressAPIProvider>(TYPES.BotpressAPIProvider)
+    .create(`Mod[${moduleName}]`, `module.${moduleName}`)
 }
 
 export function createForGlobalHooks(): Promise<typeof sdk> {

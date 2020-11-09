@@ -194,7 +194,6 @@ declare module 'botpress/sdk' {
     /** Gives a short description of your module, which is displayed once the template is selected */
     desc: string
     /** These are used internally by Botpress when they are registered on startup */
-    readonly moduleId?: string
     readonly moduleName?: string
   }
 
@@ -1975,15 +1974,15 @@ declare module 'botpress/sdk' {
   }
 
   export namespace config {
-    export function getModuleConfig(moduleId: string): Promise<any>
+    export function getModuleConfig(moduleName: string): Promise<any>
 
     /**
      * Returns the configuration values for the specified module and bot.
-     * @param moduleId
+     * @param moduleName
      * @param botId
      * @param ignoreGlobal Enable this when you want only bot-specific configuration to be possible
      */
-    export function getModuleConfigForBot(moduleId: string, botId: string, ignoreGlobal?: boolean): Promise<any>
+    export function getModuleConfigForBot(moduleName: string, botId: string, ignoreGlobal?: boolean): Promise<any>
 
     /**
      * Returns the configuration options of Botpress

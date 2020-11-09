@@ -520,15 +520,15 @@ export class BotService {
     this._invalidateBotIds()
   }
 
-  public async getBotTemplate(moduleId: string, templateId: string): Promise<FileContent[]> {
-    const resourceLoader = new ModuleResourceLoader(this.logger, moduleId, this.ghostService)
+  public async getBotTemplate(moduleName: string, templateId: string): Promise<FileContent[]> {
+    const resourceLoader = new ModuleResourceLoader(this.logger, moduleName, this.ghostService)
     const templatePath = await resourceLoader.getBotTemplatePath(templateId)
 
     return this._loadBotTemplateFiles(templatePath)
   }
 
   private async _createBotFromTemplate(botConfig: BotConfig, template: BotTemplate): Promise<BotConfig | undefined> {
-    const resourceLoader = new ModuleResourceLoader(this.logger, template.moduleId!, this.ghostService)
+    const resourceLoader = new ModuleResourceLoader(this.logger, template.moduleName!, this.ghostService)
     const templatePath = await resourceLoader.getBotTemplatePath(template.id)
     const templateConfigPath = path.resolve(templatePath, BOT_CONFIG_FILENAME)
 
