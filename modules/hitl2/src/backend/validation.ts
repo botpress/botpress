@@ -1,5 +1,4 @@
-import Joi from 'joi'
-import { ValidationError } from 'joi'
+import Joi, { ValidationError } from 'joi'
 
 export const CreateCommentSchema = Joi.object({
   escalationId: Joi.number().required(),
@@ -40,13 +39,13 @@ export const AgentOnlineValidation = Joi.object({
 export const validateEscalationStatusRule = (original: string, value: string) => {
   let message: string
 
-  if (original == 'pending' && value != 'assigned') {
+  if (original === 'pending' && value !== 'assigned') {
     message = `Status "${original}" can only transition to "assigned"`
-  } else if (original == 'assigned' && value != 'resolved') {
+  } else if (original === 'assigned' && value !== 'resolved') {
     message = `Status "${original}" can only transition to "resolved"`
-  } else if (original == value) {
+  } else if (original === value) {
     message = `Status "${original}" can't transition to "${value}"`
-  } else if (original == 'resolved') {
+  } else if (original === 'resolved') {
     message = `Status "${original}" can't transition to "${value}"`
   } else {
     return

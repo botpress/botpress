@@ -128,7 +128,7 @@ export default class Repository {
   // - Note: We're interested in 'incoming' & 'text' events only
   private recentEventQuery() {
     return this.bp
-      .database('events')
+      .database<sdk.IO.StoredEvent>('events')
       .select('*')
       .where('direction', 'incoming')
       .andWhere(function() {
@@ -142,7 +142,7 @@ export default class Repository {
       .as('recent_event')
   }
 
-  private userEventsQuery() {
+  private userEventsQuery(): Knex.QueryBuilder {
     return this.bp
       .database<EscalationType>('escalations')
       .select(
@@ -155,7 +155,7 @@ export default class Repository {
 
   private escalationsWithCommentsQuery(botId: string, conditions: CollectionConditions = {}) {
     return this.bp
-      .database('escalations')
+      .database<EscalationType>('escalations')
       .select(
         'escalations.*',
         `comments.id as ${this.commentPrefix}:id`,
@@ -377,7 +377,7 @@ export default class Repository {
     return this.bp.database.insertAndRetrieve<CommentType>('comments', payload, this.commentColumns)
   }
 
-  getMessages = async (botId: string, id: string, conditions: CollectionConditions = {}) => {
+  getMessages = (botId: string, id: string, conditions: CollectionConditions = {}) => {
     return this.bp
       .database<sdk.IO.StoredEvent>('events')
       .select('*')

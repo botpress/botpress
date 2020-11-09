@@ -110,15 +110,17 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   // Performance: Eager load and cache escalations that will be required on every incoming message.
   // - Only escalations with status 'pending' or 'assigned' are cached because they are the only
   // ones for which the middleware handles agent <-> user event piping
-  const warmup = cache => {
+  // - Escalations must be accessible both via their respective agent thread ID and user thread ID
+  // for two-way message piping
+  const warmup = () => {
     return repository
       .escalationsQuery(builder => {
         builder.where('status', 'pending').orWhere('status', 'assigned')
       })
       .then((escalations: EscalationType[]) => {
         escalations.forEach(escalation => {
-          cacheEscalation(escalation.botId, escalation.agentThreadId, escalation)
-          cacheEscalation(escalation.botId, escalation.userThreadId, escalation)
+          escalation.agentThreadId && cacheEscalation(escalation.botId, escalation.agentThreadId, escalation)
+          escalation.userThreadId && cacheEscalation(escalation.botId, escalation.userThreadId, escalation)
         })
       })
   }
