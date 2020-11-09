@@ -2,6 +2,7 @@ import { AxiosInstance } from 'axios'
 import _ from 'lodash'
 import moment from 'moment'
 
+import { Config } from '../../config'
 import { AgentType, CommentType, EscalationType, EventType } from '../../types'
 
 // TODO Handle casting when object is undefined
@@ -54,6 +55,7 @@ export function castMessage(item: EventType) {
 }
 
 export interface ApiType {
+  getConfig: () => Promise<Config>
   setOnline: () => Promise<Partial<AgentType>>
   setOffline: () => Promise<Partial<AgentType>>
   getAgents: (online?: boolean) => Promise<AgentType[]>
@@ -71,10 +73,10 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
   const base = '/mod/hitl2'
 
   return {
+    getConfig: async () => bp.axios.get(`/hitl2/config/${window.BOT_ID}`),
     setOnline: async () => bp.axios.post(`${base}/agents/me/online`).then(res => res.data),
     setOffline: async () => bp.axios.post(`${base}/agents/me/offline`).then(res => res.data),
-    getAgents: async (online?: boolean) =>
-      bp.axios.get(`${base}/agents`, { params: { online } }).then(res => res.data),
+    getAgents: async (online?: boolean) => bp.axios.get(`${base}/agents`, { params: { online } }).then(res => res.data),
     getCurrentAgent: async () => bp.axios.get(`${base}/agents/me`).then(res => res.data),
     getComments: async id =>
       bp.axios

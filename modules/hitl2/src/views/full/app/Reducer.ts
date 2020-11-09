@@ -1,6 +1,7 @@
 import produce from 'immer'
 import _, { Dictionary } from 'lodash'
 
+import { Config } from '../../../config'
 import { AgentType, CommentType, EscalationType, SocketMessageType } from '../../../types'
 
 import { StateType } from './Store'
@@ -14,6 +15,7 @@ export type ActionType =
   | { type: 'setAgent'; payload: SocketMessageType }
   | { type: 'setEscalation'; payload: SocketMessageType }
   | { type: 'setRead'; payload: Dictionary<Date> }
+  | { type: 'setConfig'; payload: Config }
   | { type: 'setDefault'; payload: Object }
   | { type: 'setError'; payload: any }
 
@@ -73,6 +75,10 @@ const Reducer = (state: StateType, action: ActionType): StateType => {
     case 'setRead':
       return produce(state, draft => {
         draft.reads = _.merge(draft.reads, action.payload)
+      })
+    case 'setConfig':
+      return produce(state, draft => {
+        draft.config = _.merge(draft.config, action.payload)
       })
     case 'setError':
       return produce(state, draft => {
