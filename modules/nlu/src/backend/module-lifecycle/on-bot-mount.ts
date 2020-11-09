@@ -3,7 +3,6 @@ import _ from 'lodash'
 import ms from 'ms'
 
 import { createApi } from '../../api'
-import { makeLoggerWrapper } from '../logger'
 import * as ModelService from '../model-service'
 import {
   getTrainingSession,
@@ -32,7 +31,7 @@ async function annouceNeedsTraining(bp: typeof sdk, botId: string, engine: sdk.N
       return false // do not send a needs-training event if currently training
     }
     const hash = engine.computeModelHash(intentDefs, entityDefs, lang)
-    return !engine.hasModel(lang, hash)
+    return !engine.hasModel(hash)
   })
 
   await Promise.map(languageWithChanges, async lang => {
@@ -59,15 +58,16 @@ export function getOnBotMount(state: NLUState) {
     const bot = await bp.bots.getBotById(botId)
     const ghost = bp.ghost.forBot(botId)
 
-    const languages = _.intersection(bot.languages, bp.NLU.Engine.getLanguages())
+    const languages = _.intersection(bot.languages, state.engine.getLanguages())
     if (bot.languages.length !== languages.length) {
-      bp.logger.warn(missingLangMsg(botId), { notSupported: _.difference(bot.languages, languages) })
+      bp.logger.forBot(botId).warn(missingLangMsg(botId), { notSupported: _.difference(bot.languages, languages) })
     }
 
-    const engine = new bp.NLU.Engine(bot.id, makeLoggerWrapper(bp, botId))
+    const { engine } = state
     const trainOrLoad = async (disableTraining: boolean) => {
       // bot got deleted
-      if (!state.nluByBot[botId]) {
+      const botState = state.nluByBot[botId]
+      if (!botState) {
         return
       }
 
@@ -91,7 +91,8 @@ export function getOnBotMount(state: NLUState) {
           let model = await ModelService.getModel(ghost, hash, languageCode)
 
           const trainSession = makeTrainingSession(botId, languageCode, lock)
-          state.nluByBot[botId].trainSessions[languageCode] = trainSession
+
+          botState.trainSessions[languageCode] = trainSession
           if (!model && !disableTraining) {
             await state.sendNLUStatusEvent(botId, trainSession)
 
@@ -104,16 +105,31 @@ export function getOnBotMount(state: NLUState) {
             const rand = () => Math.round(Math.random() * 10000)
             const nluSeed = parseInt(process.env.NLU_SEED) || rand()
 
-            const options: sdk.NLU.TrainingOptions = { forceTrain: false, nluSeed, progressCallback }
-            model = await engine.train(trainSession.key, intentDefs, entityDefs, languageCode, options)
-            if (model) {
+            const previousModel = botState.modelsByLang[languageCode]
+            const options: sdk.NLU.TrainingOptions = { previousModel, nluSeed, progressCallback }
+            try {
+              model = await engine.train(trainSession.key, intentDefs, entityDefs, languageCode, options)
+
               trainSession.status = 'done'
               await state.sendNLUStatusEvent(botId, trainSession)
-              await engine.loadModel(model)
+              botState.modelsByLang[languageCode] = model.hash
+              await engine.loadModel(model, model.hash)
               await ModelService.saveModel(ghost, model, hash)
-            } else {
-              trainSession.status = 'needs-training'
-              await state.sendNLUStatusEvent(botId, trainSession)
+            } catch (err) {
+              if (bp.NLU.errors.isTrainingCanceled(err)) {
+                bp.logger.forBot(botId).info('Training cancelled')
+                trainSession.status = 'needs-training'
+                await state.sendNLUStatusEvent(botId, trainSession)
+              } else if (bp.NLU.errors.isTrainingAlreadyStarted(err)) {
+                bp.logger.forBot(botId).info('Training already started')
+              } else {
+                bp.logger
+                  .forBot(botId)
+                  .attachError(err)
+                  .error('Training could not finish because of an unexpected error.')
+                trainSession.status = 'needs-training'
+                await state.sendNLUStatusEvent(botId, trainSession)
+              }
             }
           } else {
             trainSession.progress = 1
@@ -146,12 +162,12 @@ export function getOnBotMount(state: NLUState) {
     const { defaultLanguage } = bot
     state.nluByBot[botId] = {
       botId,
-      engine,
       defaultLanguage,
       trainOrLoad,
       trainSessions: {},
       cancelTraining,
-      needsTrainingWatcher
+      needsTrainingWatcher,
+      modelsByLang: {}
     }
 
     const disableTraining = true
