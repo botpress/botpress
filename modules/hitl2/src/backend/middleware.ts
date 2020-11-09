@@ -7,12 +7,15 @@ import { StateType } from './index'
 import Repository from './repository'
 import Socket from './socket'
 
+const debug = DEBUG('hitl2')
+
 const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   const realtime = Socket(bp)
   const repository = new Repository(bp)
   const cache = new LRU<string, string>({ max: 1000, maxAge: 1000 * 60 * 60 * 24 }) // 1 day
 
   const pipeEvent = async (event: sdk.IO.IncomingEvent, target: string, threadId: string) => {
+    debug('Piping event', { threadId, target })
     return bp.events.sendEvent(
       bp.IO.Event({
         botId: event.botId,
@@ -32,10 +35,12 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
 
   const cacheEscalation = (botId: string, threadId: string, escalation: EscalationType) => {
     cache.set(_.join([botId, threadId], '.'), escalation.id)
+    debug.forBot(botId, 'Caching escalation', { id: escalation.id, threadId })
   }
 
   const expireEscalation = (botId: string, threadId: string) => {
     cache.del(_.join([botId, threadId], '.'))
+    debug.forBot(botId, 'Expiring escalation', { threadId })
   }
 
   const incomingHandler = async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
@@ -55,6 +60,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
 
     // Handle incoming message from user
     if (escalation.userThreadId === event.threadId) {
+      debug.forBot(event.botId, 'Handling message from User', { direction: event.direction, threadId: event.threadId })
       event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
 
       if (escalation.status === 'assigned') {
@@ -91,6 +97,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
 
       // Handle incoming message from agent
     } else if (escalation.agentThreadId === event.threadId) {
+      debug.forBot(event.botId, 'Handling message from Agent', { direction: event.direction, threadId: event.threadId })
       await pipeEvent(event, escalation.userId, escalation.userThreadId)
     }
 
