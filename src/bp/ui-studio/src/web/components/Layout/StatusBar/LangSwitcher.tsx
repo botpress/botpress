@@ -34,8 +34,8 @@ class LangSwitcher extends React.Component<Props> {
   }
 
   componentDidUpdate(prevProps) {
-    const idx = this.props.languages.findIndex(l => l == this.props.contentLang)
-    if (idx != -1 && !_.isEmpty(this.elems)) {
+    const idx = this.props.languages.findIndex(l => l === this.props.contentLang)
+    if (idx !== -1 && !_.isEmpty(this.elems)) {
       this.elems[idx].focus()
     }
 
@@ -60,7 +60,7 @@ class LangSwitcher extends React.Component<Props> {
   }
 
   handleKeyDown = (l, e) => {
-    if (e.key == 'Enter') {
+    if (e.key === 'Enter') {
       this.switchLang(l)
     }
   }

@@ -15,7 +15,7 @@ const storage: BPStorage = {
       const driver = getDriver()
       driver ? driver.setItem(key, value) : Cookie.set(key, value)
     } catch (err) {
-      console.log('Error while getting data from storage.', err.message)
+      console.error('Error while getting data from storage.', err.message)
     }
   },
   get: (key: string) => {
@@ -23,7 +23,7 @@ const storage: BPStorage = {
       const driver = getDriver()
       return driver ? driver.getItem(key) : Cookie.get(key)
     } catch (err) {
-      console.log('Error while getting data from storage.', err.message)
+      console.error('Error while getting data from storage.', err.message)
     }
   },
   del: (key: string) => {
@@ -31,7 +31,7 @@ const storage: BPStorage = {
       const driver = getDriver()
       driver ? driver.removeItem(key) : Cookie.remove(key)
     } catch (err) {
-      console.log('Error while deleting data from storage.', err.message)
+      console.error('Error while deleting data from storage.', err.message)
     }
   }
 }

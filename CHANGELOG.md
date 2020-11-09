@@ -1,3 +1,32 @@
+# [12.12.0](https://github.com/botpress/botpress/compare/v12.10.10...v12.12.0) (2020-11-05)
+
+
+### Bug Fixes
+
+* **channel-web:** default style when not emulator ([#4162](https://github.com/botpress/botpress/issues/4162)) ([e0d2d73](https://github.com/botpress/botpress/commit/e0d2d73))
+* **channel-web:** web messages displayed in wrong order ([#4142](https://github.com/botpress/botpress/issues/4142)) ([3d49ce3](https://github.com/botpress/botpress/commit/3d49ce3))
+* **core:** Ensure version not greater than next major ([#4148](https://github.com/botpress/botpress/issues/4148)) ([1090474](https://github.com/botpress/botpress/commit/1090474))
+* **debugger:** error indicator in processing tab & better splash ([#4159](https://github.com/botpress/botpress/issues/4159)) ([a4e2eb1](https://github.com/botpress/botpress/commit/a4e2eb1))
+* **nlu:** duckling can return interval with to but no from ([#4123](https://github.com/botpress/botpress/issues/4123)) ([b9c87e8](https://github.com/botpress/botpress/commit/b9c87e8))
+* **node:** update .nvmrc for node 12 ([#4125](https://github.com/botpress/botpress/issues/4125)) ([5753d45](https://github.com/botpress/botpress/commit/5753d45))
+* **studio:** put back previous library ([6374721](https://github.com/botpress/botpress/commit/6374721))
+* **webchat:** debugger on first open ([#4127](https://github.com/botpress/botpress/issues/4127)) ([b890bde](https://github.com/botpress/botpress/commit/b890bde))
+* **webchat:** prevent WS reset when userId is set ([#4138](https://github.com/botpress/botpress/issues/4138)) ([06b842a](https://github.com/botpress/botpress/commit/06b842a))
+* repair all tslint errors of nlu + node12 branch ([#4124](https://github.com/botpress/botpress/issues/4124)) ([8b7ed2a](https://github.com/botpress/botpress/commit/8b7ed2a))
+* repaired debugger by fixing outFiles ([#4013](https://github.com/botpress/botpress/issues/4013)) ([1312035](https://github.com/botpress/botpress/commit/1312035))
+
+
+### Features
+
+* **admin:** change color of the needs training warning to orange ([#4130](https://github.com/botpress/botpress/issues/4130)) ([4df369c](https://github.com/botpress/botpress/commit/4df369c))
+* **core:** event processing ([#4122](https://github.com/botpress/botpress/issues/4122)) ([998d30d](https://github.com/botpress/botpress/commit/998d30d))
+* **debugger:** show traces on workflow ([#4097](https://github.com/botpress/botpress/issues/4097)) ([50f077d](https://github.com/botpress/botpress/commit/50f077d))
+* **emulator:** reapply emulator styling ([#4112](https://github.com/botpress/botpress/issues/4112)) ([f0bf1b4](https://github.com/botpress/botpress/commit/f0bf1b4))
+* **studio:** workflow toolbar ([#4120](https://github.com/botpress/botpress/issues/4120)) ([a187bc4](https://github.com/botpress/botpress/commit/a187bc4))
+* **testing:** Delete feature for test scenarios [#4111](https://github.com/botpress/botpress/issues/4111) ([#4114](https://github.com/botpress/botpress/issues/4114)) ([041e703](https://github.com/botpress/botpress/commit/041e703))
+
+
+
 # [12.11.0](https://github.com/botpress/botpress/compare/v12.10.7...v12.11.0) (2020-10-27)
 
 
