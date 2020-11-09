@@ -1,0 +1,81 @@
+{
+  "generatedOn": "2020-11-05T18:58:41.987Z",
+  "groupedBy": "seed",
+  "scores": [
+    {
+      "metric": "avgScore:labelIs",
+      "group": "42",
+      "score": 0.7033976124885216
+    },
+    {
+      "metric": "oosAccuracy",
+      "group": "42",
+      "score": 0.7869605142332415
+    },
+    {
+      "metric": "oosPrecision",
+      "group": "42",
+      "score": 0.7795698924731183
+    },
+    {
+      "metric": "oosRecall",
+      "group": "42",
+      "score": 0.6590909090909091
+    },
+    {
+      "metric": "oosF1",
+      "group": "42",
+      "score": 0.7142857142857143
+    },
+    {
+      "metric": "avgScore:labelIs",
+      "group": "69",
+      "score": 0.7125803489439853
+    },
+    {
+      "metric": "oosAccuracy",
+      "group": "69",
+      "score": 0.8025711662075299
+    },
+    {
+      "metric": "oosPrecision",
+      "group": "69",
+      "score": 0.8133704735376045
+    },
+    {
+      "metric": "oosRecall",
+      "group": "69",
+      "score": 0.6636363636363637
+    },
+    {
+      "metric": "oosF1",
+      "group": "69",
+      "score": 0.7309136420525657
+    },
+    {
+      "metric": "avgScore:labelIs",
+      "group": "666",
+      "score": 0.6887052341597796
+    },
+    {
+      "metric": "oosAccuracy",
+      "group": "666",
+      "score": 0.7777777777777778
+    },
+    {
+      "metric": "oosPrecision",
+      "group": "666",
+      "score": 0.7844827586206896
+    },
+    {
+      "metric": "oosRecall",
+      "group": "666",
+      "score": 0.6204545454545455
+    },
+    {
+      "metric": "oosF1",
+      "group": "666",
+      "score": 0.6928934010152284
+    }
+  ]
+}

@@ -13,6 +13,7 @@ import rewire from '../sdk/rewire'
 
 global.rewire = rewire as any
 import { NLU } from 'botpress/sdk'
+import { copyDir } from 'core/misc/pkg-fs'
 import Engine from 'nlu-core/engine'
 import { setupMasterNode, WORKER_TYPES } from '../cluster'
 import Logger from '../simple-logger'
@@ -32,6 +33,10 @@ export default async function(options: ArgV) {
     return
   } else if (cluster.isWorker && process.env.WORKER_TYPE !== WORKER_TYPES.WEB) {
     return
+  }
+
+  for (const dir of ['./pre-trained', './stop-words']) {
+    await copyDir(path.resolve(__dirname, '../nlu-core/language', dir), path.resolve(process.APP_DATA_PATH, dir))
   }
 
   if (!bytes(options.bodySize)) {
