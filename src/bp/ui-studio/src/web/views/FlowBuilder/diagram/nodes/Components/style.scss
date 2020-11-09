@@ -45,7 +45,7 @@
 }
 
 .nodeWrapper {
-  background: #fff;
+  background: rgba(255, 255, 255, 0.7);
   border: 1px solid transparent !important;
   width: 150px;
   border: 1px solid transparent;
@@ -429,26 +429,6 @@
 
     &.say_something:before {
       background-color: var(--say) !important;
-    }
-
-    &:global(.if-else):before {
-      background-color: var(--if-else) !important;
-    }
-
-    &:global(.success):before {
-      background-color: var(--success) !important;
-    }
-
-    &:global(.failure):before {
-      background-color: var(--lighthouse) !important;
-    }
-
-    &:global(.standard):before {
-      background-color: var(--standard) !important;
-    }
-
-    &:global(.skill-call):before {
-      background-color: var(--lighthouse) !important;
     }
   }
 }
