@@ -27,6 +27,7 @@ export default async (bp: typeof sdk, state: StateType) => {
   const repository = new Repository(bp)
   const realtime = socket(bp)
 
+  // Enforces for an agent to be 'online' before executing an action
   const agentOnlineMiddleware = async (req: BPRequest, res: Response, next) => {
     const { email, strategy } = req.tokenUser!
     const agentId = makeAgentId(strategy, email)
@@ -45,6 +46,7 @@ export default async (bp: typeof sdk, state: StateType) => {
     next()
   }
 
+  // Catches exceptions and handles those that are expected
   const errorMiddleware = fn => {
     return (req: BPRequest, res: Response, next) => {
       Promise.resolve(fn(req as BPRequest, res, next)).catch(err => {
