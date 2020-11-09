@@ -13,7 +13,8 @@ import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
 import { computeKmeans, ProcessIntents, TrainInput, TrainOutput } from './training-pipeline'
 import { TrainingWorkerQueue } from './training-worker-queue'
-import { EntityCacheDump, Intent, ListEntity, PatternEntity, Tools } from './typings'
+import { EntityCacheDump, ListEntity, PatternEntity, Tools } from './typings'
+import { getModifiedContexts, mergeModelOutputs } from './warm-training-handler'
 
 const trainDebug = DEBUG('nlu').sub('training')
 
@@ -133,18 +134,14 @@ export default class Engine implements NLU.Engine {
         slot_definitions: x.slots
       }))
 
-    let trainAllCtx = !previousModel
     let ctxToTrain = contexts
-    if (!!previousModel) {
+    if (previousModel) {
       const previousIntents = previousModel.model.data.input.intents
-      const ctxHasChanged = this._ctxHasChanged(previousIntents, intents)
-      const modifiedCtx = contexts.filter(ctxHasChanged)
-
-      trainAllCtx = modifiedCtx.length >= contexts.length
-      ctxToTrain = trainAllCtx ? contexts : modifiedCtx
+      const contextChangeLog = getModifiedContexts(intents, previousIntents)
+      ctxToTrain = [...contextChangeLog.createdContexts, ...contextChangeLog.modifiedContexts]
     }
 
-    const debugMsg = trainAllCtx
+    const debugMsg = previousModel
       ? `Training all contexts for language: ${languageCode}`
       : `Retraining only contexts: [${ctxToTrain}] for language: ${languageCode}`
     trainDebug(debugMsg)
@@ -175,8 +172,8 @@ export default class Engine implements NLU.Engine {
       }
     }
 
-    if (!trainAllCtx) {
-      model.data.output = this._mergeModelOutputs(model.data.output, previousModel!.model.data.output, contexts)
+    if (previousModel) {
+      model.data.output = mergeModelOutputs(model.data.output, previousModel.model.data.output, contexts)
     }
 
     trainDebug(`Successfully finished ${languageCode} training`)
@@ -186,21 +183,6 @@ export default class Engine implements NLU.Engine {
 
   cancelTraining(trainSessionId: string): Promise<void> {
     return this._trainingWorkerQueue.cancelTraining(trainSessionId)
-  }
-
-  private _mergeModelOutputs(
-    currentOutput: TrainOutput,
-    previousOutput: TrainOutput,
-    allContexts: string[]
-  ): TrainOutput {
-    const output = { ...currentOutput }
-
-    const previousIntents = _.pick(previousOutput.intent_model_by_ctx, allContexts)
-    const previousOOS = _.pick(previousOutput.oos_model, allContexts)
-
-    output.intent_model_by_ctx = { ...previousIntents, ...currentOutput.intent_model_by_ctx }
-    output.oos_model = { ...previousOOS, ...currentOutput.oos_model }
-    return output
   }
 
   async loadModel(serialized: NLU.Model, modelId: string) {
@@ -298,20 +280,6 @@ export default class Engine implements NLU.Engine {
       throw new Error(`one of models is not loaded: ${modelsByLang}`)
     }
     return DetectLanguage(text, predictorsByLang, this._tools)
-  }
-
-  private _ctxHasChanged = (previousIntents: Intent<string>[], currentIntents: Intent<string>[]) => (ctx: string) => {
-    const prevHash = this._computeCtxHash(previousIntents, ctx)
-    const currHash = this._computeCtxHash(currentIntents, ctx)
-    return prevHash !== currHash
-  }
-
-  private _computeCtxHash = (intents: Intent<string>[], ctx: string) => {
-    const intentsOfCtx = intents.filter(i => i.contexts.includes(ctx))
-    return crypto
-      .createHash('md5')
-      .update(JSON.stringify(intentsOfCtx))
-      .digest('hex')
   }
 
   // TODO: this should go someplace else, but I find it very handy
