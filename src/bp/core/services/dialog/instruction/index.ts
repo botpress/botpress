@@ -5,7 +5,7 @@ export type InstructionType = 'transition' | 'on-enter' | 'on-receive' | 'wait' 
  * @property fn The function to execute
  * @property node The target node OR flow to transition to
  */
-export type Instruction = {
+export interface Instruction {
   type: InstructionType
   fn?: string
   node?: string

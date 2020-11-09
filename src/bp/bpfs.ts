@@ -7,10 +7,8 @@ import _ from 'lodash'
 import path from 'path'
 import rimraf from 'rimraf'
 
-import { extractArchive } from './core/misc/archive'
-import { createArchiveFromFolder } from './core/misc/archive'
-import { bytesToString } from './core/misc/utils'
-import { asBytes } from './core/misc/utils'
+import { createArchiveFromFolder, extractArchive } from './core/misc/archive'
+import { asBytes, bytesToString } from './core/misc/utils'
 import { BpfsScopedChange, FileChange } from './core/services'
 
 // This is a dependency of axios, and sets the default body limit to 10mb. Need it to be higher
@@ -44,7 +42,7 @@ class BPFS {
     this.sourceDir = args.sourceDir && path.resolve(args.sourceDir)
 
     if (!this.serverUrl || !this.authToken || !this.authToken.length) {
-      this._endWithError(`Missing parameter "url" or "authToken"`)
+      this._endWithError('Missing parameter "url" or "authToken"')
     }
 
     if (action === 'pull' && !this.targetDir) {
@@ -64,30 +62,30 @@ class BPFS {
     try {
       // We clear only those two folders, so assets are preserved
       if (cleanBefore) {
-        console.log(chalk.blue(`Cleaning data folder before pulling data...`))
+        console.info(chalk.blue('Cleaning data folder before pulling data...'))
         await this._clearDir(path.join(this.targetDir, 'global'))
         await this._clearDir(path.join(this.targetDir, 'bots'))
       } else if (fse.existsSync(this.targetDir)) {
         const fileCount = await this._filesCount(this.targetDir)
-        console.log(chalk.blue(`Remote files will be pulled in an existing folder containing ${fileCount} files`))
+        console.info(chalk.blue(`Remote files will be pulled in an existing folder containing ${fileCount} files`))
       }
 
-      console.log(chalk.blue(`Pulling all remote changes from ${this.serverUrl} to ${this.targetDir} ...`))
+      console.info(chalk.blue(`Pulling all remote changes from ${this.serverUrl} to ${this.targetDir} ...`))
 
       const { data: archive } = await axiosClient.get('export')
       if (dryRun) {
-        console.log(chalk.yellow(`Dry run completed. Successfully downloaded archive.`))
+        console.info(chalk.yellow('Dry run completed. Successfully downloaded archive.'))
         return process.exit()
       }
 
-      console.log(
+      console.info(
         chalk.blue(`Extracting archive to local file system... (archive size: ${bytesToString(archive.length)}`)
       )
 
       await extractArchive(archive, this.targetDir)
 
       const fileCount = await this._filesCount(this.targetDir)
-      console.log(chalk.green(`Successfully extracted ${fileCount} files from the remote server!`))
+      console.info(chalk.green(`Successfully extracted ${fileCount} files from the remote server!`))
     } catch (err) {
       const error = err.response ? `${err.response.statusText} (${err.response.status})` : err.message
       this._endWithError(`Could not pull changes: ${error}`)
@@ -104,12 +102,12 @@ class BPFS {
     }
 
     try {
-      console.log(chalk.blue(`Preparing an archive of your local files from ${this.sourceDir}...`))
+      console.info(chalk.blue(`Preparing an archive of your local files from ${this.sourceDir}...`))
 
       const archive = await createArchiveFromFolder(this.sourceDir, pushedArchiveIgnoredFiles)
       const axiosClient = this._getPushAxiosClient(archive.length)
 
-      console.log(
+      console.info(
         chalk.blue(`Sending archive to server for comparison... (archive size: ${bytesToString(archive.length)})`)
       )
       const { data } = await axiosClient.post('changes', archive)
@@ -119,11 +117,11 @@ class BPFS {
         this._printChangeList(changeList)
 
         if (dryRun) {
-          console.log(chalk.yellow(`Dry run completed. Nothing was pushed to server`))
+          console.info(chalk.yellow('Dry run completed. Nothing was pushed to server'))
           return process.exit()
         }
 
-        console.log(chalk.blue(`Pushing local changes to ${this.serverUrl}... ${useForce ? '(using --force)' : ''}`))
+        console.info(chalk.blue(`Pushing local changes to ${this.serverUrl}... ${useForce ? '(using --force)' : ''}`))
 
         await axiosClient.post('update', archive)
 
@@ -131,7 +129,7 @@ class BPFS {
           await this._clearRevisions(this.sourceDir)
         }
 
-        console.log(
+        console.info(
           chalk.green(
             `Successfully pushed ${localFiles.length} local file${localFiles.length === 1 ? '' : 's'} to remote server!`
           )
@@ -139,7 +137,7 @@ class BPFS {
       } else {
         this._printOutOfSync()
         this._printChangeList(changeList)
-        console.log(chalk.red(`Nothing was pushed on the remote server.`))
+        console.info(chalk.red('Nothing was pushed on the remote server.'))
       }
     } catch (err) {
       const error = err.response ? `${err.response.statusText} (${err.response.status})` : err.message
@@ -212,12 +210,12 @@ class BPFS {
   }
 
   private _printOutOfSync() {
-    console.log(`
+    console.info(`
 ${chalk.yellow('Conflict warning')}
 Remote has changes that are not synced to your environment.
 Backup your changes and use "pull" to get those changes on your file system.`)
 
-    console.log(`
+    console.info(`
 Use ${chalk.yellow('--force')} to overwrite remote changes with yours.
 `)
   }
@@ -231,7 +229,7 @@ Use ${chalk.yellow('--force')} to overwrite remote changes with yours.
       .map(this._printLine)
       .join('\n')
 
-    return console.log(`
+    return console.info(`
 Differences between ${chalk.green('local')} and ${chalk.red('remote')} changes
 
 ${lines}
@@ -239,18 +237,18 @@ ${lines}
   }
 
   private _endWithError(message: string) {
-    console.log(chalk.red(`${chalk.bold('Error:')} ${message}`))
+    console.info(chalk.red(`${chalk.bold('Error:')} ${message}`))
     process.exit()
   }
 }
 
 export default async (argv, action) => {
   const bpfs = new BPFS(argv, action)
-  console.log(`\n`)
+  console.info('\n')
   if (action === 'pull') {
     await bpfs.pullChanges()
   } else if (action === 'push') {
     await bpfs.pushChanges()
   }
-  console.log(`\n`)
+  console.info('\n')
 }

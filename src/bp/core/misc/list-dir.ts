@@ -1,7 +1,10 @@
 import fs from 'fs'
 import path from 'path'
 
-export type FileListing = { relativePath: string; absolutePath: string }
+export interface FileListing {
+  relativePath: string
+  absolutePath: string
+}
 
 export function listDir(
   dirPath: string,

@@ -13,9 +13,9 @@ export interface HitlApi {
 
 export const makeApi = (bp: { axios: AxiosInstance }): HitlApi => ({
   findSessions: (searchText: string, pausedOnly: boolean) =>
-    bp.axios.get(`/mod/hitl/sessions`, { params: { pausedOnly, searchText } }).then(res => res.data),
+    bp.axios.get('/mod/hitl/sessions', { params: { pausedOnly, searchText } }).then(res => res.data),
   fetchSessionMessages: sessionId => bp.axios.get(`/mod/hitl/sessions/${sessionId}`).then(res => res.data),
-  getAttributes: () => bp.axios.get(`/mod/hitl/config/attributes`).then(res => res.data),
+  getAttributes: () => bp.axios.get('/mod/hitl/config/attributes').then(res => res.data),
   sendMessage: (sessionId, message) => bp.axios.post(`/mod/hitl/sessions/${sessionId}/message`, { message }),
   setPauseState: (sessionId, action) => bp.axios.post(`/mod/hitl/sessions/${sessionId}/${action}`)
 })

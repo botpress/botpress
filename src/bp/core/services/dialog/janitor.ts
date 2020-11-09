@@ -79,12 +79,12 @@ export class DialogJanitor extends Janitor {
       // This event only exists so that processTimeout can call processEvent
       const fakeEvent = Event({
         type: 'timeout',
-        channel: channel,
-        target: target,
-        threadId: threadId,
+        channel,
+        target,
+        threadId,
         direction: 'incoming',
         payload: '',
-        botId: botId
+        botId
       }) as IO.IncomingEvent
 
       const { result: user } = await this.userRepo.getOrCreate(channel, target, botId)

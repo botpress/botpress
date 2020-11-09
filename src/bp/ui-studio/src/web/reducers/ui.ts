@@ -3,10 +3,14 @@ import { handleActions } from 'redux-actions'
 import {
   addDocumentationHint,
   removeDocumentationHint,
+  setEmulatorOpen,
   toggleBottomPanel,
   updateDocumentationModal,
   updateGlobalStyle,
-  viewModeChanged
+  viewModeChanged,
+  zoomIn,
+  zoomOut,
+  zoomToLevel
 } from '~/actions'
 
 import storage from '../util/storage'
@@ -19,12 +23,17 @@ const defaultState = {
   customStyle: {},
   docHints: [],
   docModal: null,
-  bottomPanel: defaultBottomPanelOpen || false
+  bottomPanel: defaultBottomPanelOpen || false,
+  emulatorOpen: false,
+  zoomLevel: 100
 }
 
 export interface UiReducer {
   viewMode: any
   docHints: string[]
+  emulatorOpen: boolean
+  zoomLevel: number
+  bottomPanel: boolean
 }
 
 const reducer = handleActions(
@@ -56,7 +65,30 @@ const reducer = handleActions(
         ...state,
         bottomPanel: value
       }
-    }
+    },
+    [zoomIn]: (state, {}) => {
+      return {
+        ...state,
+        zoomLevel: state.zoomLevel + 25
+      }
+    },
+    [zoomToLevel]: (state, { payload }) => {
+      return {
+        ...state,
+        zoomLevel: payload
+      }
+    },
+    [zoomOut]: (state, {}) => {
+      const newLevel = state.zoomLevel - 25
+      return {
+        ...state,
+        zoomLevel: newLevel > 10 ? newLevel : 10
+      }
+    },
+    [setEmulatorOpen]: (state, { payload }) => ({
+      ...state,
+      emulatorOpen: payload
+    })
   },
   defaultState
 )

@@ -7,6 +7,7 @@ import { connect } from 'react-redux'
 import SmartInput from '~/components/SmartInput'
 import { getFlowLabel, reorderFlows } from '~/components/Shared/Utils'
 import { lang, Dialog } from 'botpress/shared'
+import { ROUTER_CONDITON_REGEX } from '../utils/general.util'
 
 const availableProps = [
   { label: 'User Data', value: 'user' },
@@ -107,7 +108,8 @@ class ConditionModalForm extends Component {
   }
 
   extractProps(condition) {
-    const props = condition.match(/(.*)\.(.*?) (.*)/)
+    const props = condition.match(ROUTER_CONDITON_REGEX)
+
     if (props && props.length > 3) {
       this.setState({
         matchPropsType: availableProps.find(x => x.value === props[1]),

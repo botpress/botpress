@@ -61,7 +61,7 @@ export class SlackClient {
 
   private async _setupInteractiveListener() {
     this.interactive.action({ type: 'button' }, async payload => {
-      debugIncoming(`Received interactive message %o`, payload)
+      debugIncoming('Received interactive message %o', payload)
 
       const actionId = _.get(payload, 'actions[0].action_id', '')
       const label = _.get(payload, 'actions[0].text.text', '')
@@ -89,7 +89,7 @@ export class SlackClient {
     })
 
     this.interactive.action({ actionId: 'feedback-overflow' }, async payload => {
-      debugIncoming(`Received feedback %o`, payload)
+      debugIncoming('Received feedback %o', payload)
 
       const action = payload.actions[0]
       const blockId = action.block_id
@@ -123,7 +123,7 @@ export class SlackClient {
     const discardedSubtypes = ['bot_message', 'message_deleted', 'message_changed']
 
     com.on('message', async payload => {
-      debugIncoming(`Received real time payload %o`, payload)
+      debugIncoming('Received real time payload %o', payload)
 
       if (!discardedSubtypes.includes(payload.subtype) && !payload.bot_id) {
         await this.sendEvent(payload, {
@@ -133,7 +133,7 @@ export class SlackClient {
       }
     })
 
-    com.on('error', err => this.bp.logger.attachError(err).error(`An error occurred`))
+    com.on('error', err => this.bp.logger.attachError(err).error('An error occurred'))
   }
 
   private async _getUserInfo(userId: string) {
@@ -223,7 +223,7 @@ export class SlackClient {
       ]
     }
 
-    debugOutgoing(`Sending message %o`, message)
+    debugOutgoing('Sending message %o', message)
     await this.client.chat.postMessage(message)
 
     next(undefined, false)

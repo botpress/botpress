@@ -290,7 +290,7 @@ const TopicList: FC<Props> = props => {
     setIsEditingNew(false)
 
     if (isTopic) {
-      if (value !== item.id && !props.topics.find(x => x.name == value)) {
+      if (value !== item.id && !props.topics.find(x => x.name === value)) {
         await axios.post(`${window.BOT_API_PATH}/topic/${item.id}`, { name: value, description: undefined })
 
         if (expanded[item.id]) {

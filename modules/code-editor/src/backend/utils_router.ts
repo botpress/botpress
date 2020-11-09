@@ -56,7 +56,7 @@ export const getPermissionsMw = (bp: typeof sdk) => async (req: any, res, next):
 
 export const validateFilePayloadMw = (actionType: 'read' | 'write') => async (req, res, next) => {
   if (!req.permissions || !req.body) {
-    next(new Error(`Missing parameters`))
+    next(new Error('Missing parameters'))
   }
 
   try {

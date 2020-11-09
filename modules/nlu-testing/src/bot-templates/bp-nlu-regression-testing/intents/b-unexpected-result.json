@@ -53,5 +53,7 @@
     ]
   },
   "slots": [],
-  "contexts": ["B"]
+  "contexts": [
+    "B"
+  ]
 }

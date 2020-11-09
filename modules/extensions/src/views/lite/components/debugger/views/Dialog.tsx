@@ -43,31 +43,6 @@ const Suggestions: SFC<{ suggestions: sdk.IO.Suggestion[] }> = props => (
   </div>
 )
 
-const highlightNode = (flow: string, node: string) => {
-  // @ts-ignore
-  window.parent && window.parent.highlightNode && window.parent.highlightNode(flow, node)
-}
-
-const Flow: SFC<{ stacktrace: sdk.IO.JumpPoint[] }> = props => (
-  <div className={style.subSection}>
-    <H5 color={Colors.DARK_GRAY5}>Flow Nodes</H5>
-    <ol>
-      {props.stacktrace.map(({ flow, node }, idx) => {
-        const flowName = flow && flow.replace(/\.flow\.json$/i, '')
-        return (
-          <li key={`${flow}:${node}:${idx}`}>
-            <span>
-              <a onClick={() => highlightNode(flow, node)}>
-                {flowName} / {node}
-              </a>
-            </span>
-          </li>
-        )
-      })}
-    </ol>
-  </div>
-)
-
 const Dialog: SFC<Props> = props => {
   if (!props.decision) {
     return null
@@ -77,7 +52,6 @@ const Dialog: SFC<Props> = props => {
     <div className={style.block}>
       <H4>Dialog Manager</H4>
       <Decision decision={props.decision} />
-      {props.stacktrace && props.stacktrace.length > 0 && <Flow stacktrace={props.stacktrace} />}
       {props.suggestions && props.suggestions.length > 0 && <Suggestions suggestions={props.suggestions} />}
     </div>
   )

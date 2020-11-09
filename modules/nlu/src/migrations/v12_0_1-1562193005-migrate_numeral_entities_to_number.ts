@@ -18,7 +18,7 @@ const migration: sdk.ModuleMigration = {
           }
           return slot
         })
-        await bpfs.upsertFile('./intents', file, JSON.stringify(content, undefined, 2))
+        await bpfs.upsertFile('./intents', file, JSON.stringify(content, undefined, 2), { ignoreLock: true })
       }
     }
 

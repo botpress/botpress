@@ -14,11 +14,11 @@ import Inspector from '../inspector'
 
 import FlowsList from './FlowsList'
 import FlowNameModal from './FlowNameModal'
-import FlowTools from './FlowTools'
 import Toolbar from './Toolbar'
+
 export type PanelPermissions = 'create' | 'rename' | 'delete'
 
-type Props = {
+interface Props {
   flowsNames: string[]
   onCreateFlow: (flowName: string) => void
   flows: any
@@ -95,10 +95,6 @@ const SidePanelContent: FC<Props> = props => {
               currentFlow={props.currentFlow}
               filter={filter}
             />
-          </SidePanelSection>
-
-          <SidePanelSection label={lang.tr('tools')}>
-            <FlowTools />
           </SidePanelSection>
         </React.Fragment>
       )}

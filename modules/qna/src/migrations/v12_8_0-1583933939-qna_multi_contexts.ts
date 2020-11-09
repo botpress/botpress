@@ -21,7 +21,7 @@ const migration: sdk.ModuleMigration = {
           content.data.contexts = category ? [category] : []
           delete content.data.category
 
-          await bpfs.upsertFile('./qna', file, JSON.stringify(content, undefined, 2))
+          await bpfs.upsertFile('./qna', file, JSON.stringify(content, undefined, 2), { ignoreLock: true })
           hasChanges = true
         }
       }

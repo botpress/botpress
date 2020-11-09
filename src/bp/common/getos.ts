@@ -1,7 +1,7 @@
 import 'bluebird-global'
 import os from 'os'
 
-class Distro implements OSDistribution {
+export class Distro implements OSDistribution {
   os!: NodeJS.Platform
   dist!: string
   codename!: string

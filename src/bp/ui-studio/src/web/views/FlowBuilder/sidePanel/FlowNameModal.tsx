@@ -22,7 +22,7 @@ export const sanitizeName = (text: string) =>
     .replace(/\/\//, '/')
 
 const FlowNameModal: FC<Props> = props => {
-  const [name, setName] = useState()
+  const [name, setName] = useState<string>()
 
   useEffect(() => {
     props.action === 'rename' ? setName(props.originalName.replace(/\.flow\.json$/i, '')) : setName('')

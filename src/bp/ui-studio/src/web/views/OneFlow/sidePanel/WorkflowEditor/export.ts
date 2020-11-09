@@ -30,7 +30,7 @@ const getActions = async (actionNames: string[]) => {
 const getIntents = async (intentNames: string[]) => {
   try {
     const getIntent = async (intentName: string) => {
-      const { data } = await axios.get(`${window.BOT_API_PATH}/mod/nlu/intents/${intentName}`)
+      const { data } = await axios.get(`${window.BOT_API_PATH}/nlu/intents/${intentName}`)
       return data
     }
 
@@ -77,7 +77,7 @@ export const exportCompleteWorkflow = async (workflowName: string) => {
       content: await getContentElements(cmsIds),
       actions: await getActions(actionNames),
       intents: await getIntents(intentNames),
-      skills: await Promise.mapSeries(skills, async flowN2 => await exportFlowData(flows, flowN2))
+      skills: await Promise.mapSeries(skills, async flowN2 => exportFlowData(flows, flowN2))
     }
   }
 

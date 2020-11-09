@@ -80,9 +80,30 @@ export class Testing {
   async saveScenario(name, scenario) {
     await this.bp.ghost
       .forBot(this.botId)
-      .upsertFile(SCENARIO_FOLDER, name + '.json', JSON.stringify(scenario, undefined, 2))
+      .upsertFile(SCENARIO_FOLDER, `${name}.json`, JSON.stringify(scenario, undefined, 2))
 
     await this._loadScenarios()
+  }
+
+  async deleteScenario(name) {
+    const exists = await this.bp.ghost.forBot(this.botId).fileExists(SCENARIO_FOLDER, `${name}.json`)
+
+    if (!exists) {
+      return
+    }
+
+    await this.bp.ghost.forBot(this.botId).deleteFile(SCENARIO_FOLDER, `${name}.json`)
+    await this._loadScenarios()
+  }
+
+  async deleteAllScenarios() {
+    const scenarios = await this.getScenarios()
+
+    return Promise.all(
+      scenarios.map(async scenario => {
+        await this.deleteScenario(scenario.name)
+      })
+    )
   }
 
   private _executeScenario(scenario: Scenario) {
@@ -103,7 +124,7 @@ export class Testing {
     // TODO perform scenario validation here
     const scenario: Scenario = await this.bp.ghost
       .forBot(this.botId)
-      .readFileAsObject(SCENARIO_FOLDER, liteScenario.name + '.json')
+      .readFileAsObject(SCENARIO_FOLDER, `${liteScenario.name}.json`)
 
     this._executeScenario({ ...liteScenario, ...scenario })
   }

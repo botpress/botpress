@@ -20,6 +20,8 @@ import { toastInfo } from '~/utils/toaster'
 
 import AccessControl, { isChatUser } from '../../../App/AccessControl'
 
+import { NeedsTrainingWarning } from './NeedsTrainingWarning'
+
 interface Props {
   bot: BotConfig
   hasError: boolean
@@ -136,6 +138,12 @@ const BotItemCompact: FC<Props> = ({
           </span>
         )}
         <a href={botStudioLink}>{bot.name || bot.id}</a>
+
+        {/*
+          TODO: remove this NeedsTrainingWarning component.
+          This is a temp fix but won't be usefull after we bring back training on bot mount.
+          */}
+        <NeedsTrainingWarning bot={bot.id} languages={bot.languages} />
 
         {!bot.defaultLanguage && (
           <Tooltip position="right" content={lang.tr('admin.workspace.bots.item.languageIsMissing')}>

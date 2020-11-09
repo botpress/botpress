@@ -94,7 +94,7 @@ Use this code in your `index.html`:
 </html>
 ```
 
-### Send message when openning webchat
+### Send message when opening webchat
 
 This will send an event when the webchat button bubble is clicked
 

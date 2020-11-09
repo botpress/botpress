@@ -39,5 +39,7 @@
   "skip": "Skip",
   "updated": "Updated",
   "waitWhileDataLoading": "Please wait while we're loading data",
-  "whatIsMessageType": "What is this message type?"
+  "whatIsMessageType": "What is this message type?",
+  "couldNotLoadConversation": "Could not load conversation",
+  "conversationDeleted": "This conversation was too old and has been deleted"
 }

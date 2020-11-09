@@ -1,4 +1,7 @@
 {
+  "errorExecuting": "Erreur lors de l'exécution de l'action \"{name}\"",
+  "errorTransition": "Erreur lors de la transition vers \"{name}\"",
+  "splashMessage": "Débutez un conversation avec votre chatbot et clickez sur un message pour l'inspecter",
   "types": {
     "dropdown": {
       "allowCreate": "Permettre la création de nouvelles options",
@@ -16,5 +19,19 @@
       "widthTitle": "La largeur du menu déroulant (en pixel)",
       "placeholderText": "Le placeholder de la liste déroulante"
     }
+  },
+  "processing": {
+    "afterMW": "Après le Middleware",
+    "beforeMW": "Avant le Middleware",
+    "received": "Événement Reçu",
+    "stateLoaded": "Chargement Données Utilisateur",
+    "hook": "Hook",
+    "mw": "Middleware",
+    "dialog": "Exécution du dialogue",
+    "action": "Action",
+    "completed": "Traitement complété",
+    "executedIn": "Exécuté en {n} ms",
+    "type": "Type",
+    "stacktrace": "Stacktrace"
   }
 }

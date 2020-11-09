@@ -11,6 +11,7 @@ const { Debug } = require('./debug')
 const { getAppDataPath } = require('./core/misc/app_data')
 
 const printPlainError = err => {
+  // tslint:disable: no-console
   console.log('Error starting botpress')
   console.log(err)
   console.log(err.message)
@@ -76,6 +77,30 @@ try {
     defaultVerbosity = Number(process.env.VERBOSITY_LEVEL)
   }
 
+  process.IS_PRO_AVAILABLE = fs.existsSync(path.resolve(process.PROJECT_LOCATION, 'pro')) || !!process.pkg
+  process.DISABLE_GLOBAL_SANDBOX = yn(process.env.DISABLE_GLOBAL_SANDBOX)
+  process.DISABLE_BOT_SANDBOX = yn(process.env.DISABLE_BOT_SANDBOX)
+  process.DISABLE_TRANSITION_SANDBOX = yn(process.env.DISABLE_TRANSITION_SANDBOX)
+  process.IS_LICENSED = true
+  process.ASSERT_LICENSED = () => {}
+  process.BOTPRESS_VERSION = metadataContent.version
+  process.BPFS_STORAGE = process.core_env.BPFS_STORAGE || 'disk'
+
+  const configPath = path.join(process.PROJECT_LOCATION, '/data/global/botpress.config.json')
+
+  if (process.IS_PRO_AVAILABLE) {
+    process.CLUSTER_ENABLED = yn(process.env.CLUSTER_ENABLED)
+
+    if (process.env.PRO_ENABLED === undefined) {
+      if (fs.existsSync(configPath)) {
+        const config = require(configPath)
+        process.IS_PRO_ENABLED = config.pro && config.pro.enabled
+      }
+    } else {
+      process.IS_PRO_ENABLED = yn(process.env.PRO_ENABLED)
+    }
+  }
+
   require('yargs')
     .command(
       ['serve', '$0'],
@@ -96,38 +121,19 @@ try {
       },
       argv => {
         process.IS_PRODUCTION = argv.production || yn(process.env.BP_PRODUCTION) || yn(process.env.CLUSTER_ENABLED)
-        process.BPFS_STORAGE = process.core_env.BPFS_STORAGE || 'disk'
 
         process.AUTO_MIGRATE =
           process.env.AUTO_MIGRATE === undefined ? yn(argv.autoMigrate) : yn(process.env.AUTO_MIGRATE)
 
         process.VERBOSITY_LEVEL = argv.verbose ? Number(argv.verbose) : defaultVerbosity
-        process.DISABLE_GLOBAL_SANDBOX = yn(process.env.DISABLE_GLOBAL_SANDBOX)
-        process.DISABLE_BOT_SANDBOX = yn(process.env.DISABLE_BOT_SANDBOX)
-        process.DISABLE_TRANSITION_SANDBOX = yn(process.env.DISABLE_TRANSITION_SANDBOX)
-        process.IS_LICENSED = true
-        process.ASSERT_LICENSED = () => {}
-        process.BOTPRESS_VERSION = metadataContent.version
-
-        process.IS_PRO_AVAILABLE = fs.existsSync(path.resolve(process.PROJECT_LOCATION, 'pro')) || !!process.pkg
-        const configPath = path.join(process.PROJECT_LOCATION, '/data/global/botpress.config.json')
-
-        if (process.IS_PRO_AVAILABLE) {
-          process.CLUSTER_ENABLED = yn(process.env.CLUSTER_ENABLED)
-
-          if (process.env.PRO_ENABLED === undefined) {
-            if (fs.existsSync(configPath)) {
-              const config = require(configPath)
-              process.IS_PRO_ENABLED = config.pro && config.pro.enabled
-            }
-          } else {
-            process.IS_PRO_ENABLED = yn(process.env.PRO_ENABLED)
-          }
-        }
 
         getos.default().then(distro => {
           process.distro = distro
-          require('./bootstrap')
+          if (yn(process.env.BP_DIAG)) {
+            require('./diag').default(argv)
+          } else {
+            require('./bootstrap')
+          }
         })
       }
     )
@@ -184,7 +190,8 @@ try {
           type: 'string'
         },
         dest: {
-          description: 'Path where the file will be copied locally (if not set, it uses the same path as "file")',
+          description:
+            'Path where the file will be copied locally (relative to data/, if not set, it uses the same path as "file")',
           type: 'string'
         }
       },
@@ -300,6 +307,7 @@ try {
         },
         offline: {
           description: 'Whether or not the language server has internet access',
+          type: 'boolean',
           default: false
         },
         dim: {
@@ -320,6 +328,85 @@ try {
         })
       }
     )
+    .command(
+      'nlu',
+      'Launch a local stand-alone nlu server',
+      {
+        port: {
+          description: 'The port to listen to',
+          default: 3200
+        },
+        host: {
+          description: 'Binds the nlu server to a specific hostname',
+          default: 'localhost'
+        },
+        modelDir: {
+          description: 'Directory where models will be saved'
+        },
+        authToken: {
+          description: 'When enabled, this token is required for clients to query your nlu server'
+        },
+        limit: {
+          description: 'Maximum number of requests per IP per "limitWindow" interval (0 means unlimited)',
+          default: 0
+        },
+        limitWindow: {
+          description: 'Time window on which the limit is applied (use standard notation, ex: 25m or 1h)',
+          default: '1h'
+        },
+        config: {
+          description:
+            'Path of the NLU configuration file (ex: "~/bp-nlu-config.json"). \
+            Use to configure the duckling and language servers endpoints.'
+        },
+        bodySize: {
+          description: 'Allowed size of HTTP requests body',
+          default: '250kb'
+        },
+        batchSize: {
+          description: 'Allowed number of text inputs in one call to POST /predict.',
+          default: -1
+        }
+      },
+      argv => {
+        process.VERBOSITY_LEVEL = argv.verbose ? Number(argv.verbose) : defaultVerbosity
+
+        getos.default().then(distro => {
+          process.distro = distro
+          require('./nlu-server').default(argv)
+        })
+      }
+    )
+    .command(
+      'diag',
+      'Generate a diagnostic report\nAlternative: set BP_DIAG=true',
+      {
+        config: {
+          alias: 'c',
+          description: 'Include all configuration files\nAlternative: set BP_DIAG_CONFIG=true',
+          default: false
+        },
+        includePasswords: {
+          description: 'Passwords will not be obfuscated in the output\nAlternative: set BP_DIAG_INCLUDE_PASWORDS=true',
+          default: false
+        },
+        outputFile: {
+          alias: 'o',
+          description: 'Send the output to the specified filename\nAlternative: set BP_DIAG_OUTPUT=filename'
+        },
+        monitor: {
+          alias: 'm',
+          description:
+            'Starts an HTTP server and a Redis client, then outputs traces in real time\nAlternative: set BP_DIAG_MONITOR=true'
+        }
+      },
+      argv => {
+        getos.default().then(distro => {
+          process.distro = distro
+          require('./diag').default(argv)
+        })
+      }
+    )
     .command('extract', 'Extract module archive files (.tgz) in their respective folders', {}, argv => {
       getos.default().then(distro => {
         process.distro = distro
@@ -329,6 +416,10 @@ try {
     .option('verbose', {
       alias: 'v',
       description: 'verbosity level'
+    })
+    .command('version', "Display the server's version", {}, () => {
+      console.info(`Botpress: v${metadataContent.version}`)
+      console.info(`NodeJS: ${process.version}`)
     })
     .count('verbose')
     .help().argv
