@@ -7,7 +7,7 @@ import { getPOSTagger, tagSentence } from './language/pos-tagger'
 import SeededLodashProvider from './tools/seeded-lodash'
 import { LanguageProvider, NLUVersionInfo, Token2Vec, Tools } from './typings'
 
-const NLU_VERSION = '1.4.0'
+const NLU_VERSION = '1.4.1'
 
 const healthGetter = (languageProvider: LanguageProvider) => (): NLU.Health => {
   const { validProvidersCount, validLanguages } = languageProvider.getHealth()
