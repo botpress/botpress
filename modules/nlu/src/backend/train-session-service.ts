@@ -10,7 +10,7 @@ export const makeTrainSessionKey = (botId: string, language: string): string => 
 
 export const makeTrainingSession = (botId: string, language: string, lock: sdk.RedisLock): sdk.NLU.TrainingSession => ({
   key: makeTrainSessionKey(botId, language),
-  status: 'training',
+  status: 'training-pending',
   progress: 0,
   language,
   lock
