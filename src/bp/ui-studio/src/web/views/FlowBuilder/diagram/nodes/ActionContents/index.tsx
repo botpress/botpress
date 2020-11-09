@@ -7,7 +7,7 @@ import style from '../Components/style.scss'
 
 export const ActionInfo: FC<{ action: Action }> = ({ action }) => {
   if (!action.name || !action.actionServerId) {
-    return <Fragment>⚠️ No action chosen</Fragment>
+    return <Fragment>No action chosen</Fragment>
   }
 
   return (
