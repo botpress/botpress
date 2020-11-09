@@ -173,7 +173,7 @@ export default class WebchatApi {
     // @deprecated 11.9 (replace with proper error management)
     const data = get(error, 'response.data', {})
     if (data && typeof data === 'string' && data.includes('BP_CONV_NOT_FOUND')) {
-      console.log('Conversation not found, starting a new one...')
+      console.error('Conversation not found, starting a new one...')
       await this.createConversation()
     }
 

@@ -85,6 +85,7 @@ export default class Logger implements sdk.Logger {
     }
 
     if (this.displayLevel >= this.currentMessageLevel!) {
+      // tslint:disable-next-line: no-console
       console.log(
         chalk`{grey ${time}} {${this.colors[level]}.bold ${displayName}} ${indentedMessage}${serializedMetadata}`
       )
