@@ -10,7 +10,6 @@ import Engine from 'nlu-core/engine'
 import { authMiddleware, handleErrorLogging, handleUnexpectedError } from '../http-utils'
 import Logger from '../simple-logger'
 
-import makeLoggerWrapper from './logger-wrapper'
 import ModelService from './model/model-service'
 import removeNoneIntent from './remove-none'
 import TrainService from './train-service'
@@ -27,6 +26,7 @@ export interface APIOptions {
   limit: number
   bodySize: string
   batchSize: number
+  modelCacheSize: string
 }
 
 const debug = DEBUG('api')
@@ -69,19 +69,17 @@ const createExpressApp = (options: APIOptions): Application => {
   return app
 }
 
-export default async function(options: APIOptions, nluVersion: string) {
+export default async function(options: APIOptions, engine: Engine) {
   const app = createExpressApp(options)
   const logger = new Logger('API')
-  const loggerWrapper = makeLoggerWrapper(logger)
 
-  const engine = new Engine('nlu-server', loggerWrapper)
-  const modelService = new ModelService(options.modelDir)
+  const modelService = new ModelService(options.modelDir, engine)
   await modelService.init()
   const trainSessionService = new TrainSessionService()
   const trainService = new TrainService(logger, engine, modelService, trainSessionService)
 
   app.get('/info', (req, res) => {
-    res.send({ version: nluVersion })
+    res.send({ version: engine.getVersionInfo() })
   })
 
   const router = express.Router({ mergeParams: true })
@@ -90,10 +88,8 @@ export default async function(options: APIOptions, nluVersion: string) {
       const input = await validateInput(req.body)
       const { intents, entities, seed, language, password } = mapTrainInput(input)
 
-      const modelHash = engine.computeModelHash(intents, entities, language)
-
       const pickedSeed = seed ?? Math.round(Math.random() * 10000)
-      const modelId = modelService.makeModelId(modelHash, input.language, pickedSeed)
+      const modelId = modelService.makeModelId(intents, entities, language, pickedSeed)
 
       // return the modelId as fast as possible
       // tslint:disable-next-line: no-floating-promises
@@ -166,19 +162,19 @@ export default async function(options: APIOptions, nluVersion: string) {
       const model = await modelService.getModel(modelId, password)
 
       if (model) {
-        await engine.loadModel(model)
+        if (!engine.hasModel(modelId)) {
+          await engine.loadModel(model, modelId)
+        }
 
-        const rawPredictions = await Promise.map(texts as string[], t => engine.predict(t, [], model.languageCode))
+        const rawPredictions = await Promise.map(texts as string[], t => engine.predict(t, [], modelId))
         const withoutNone = rawPredictions.map(removeNoneIntent)
-
-        engine.unloadModel(model.languageCode)
 
         return res.send({ success: true, predictions: withoutNone })
       }
 
       res.status(404).send({ success: false, error: `modelId ${modelId} can't be found` })
     } catch (err) {
-      res.status(404).send({ success: false, error: err.message })
+      res.status(500).send({ success: false, error: err.message })
     }
   })
 

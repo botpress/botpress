@@ -18,7 +18,6 @@ import { setupMasterNode, WORKER_TYPES } from '../cluster'
 import Logger from '../simple-logger'
 import API, { APIOptions } from './api'
 import { getConfig } from './config'
-import makeLoggerWrapper from './logger-wrapper'
 
 const debug = DEBUG('api')
 
@@ -39,6 +38,11 @@ export default async function(options: ArgV) {
     throw new Error(`Specified body-size "${options.bodySize}" has an invalid format.`)
   }
 
+  const maxCacheSize = bytes(options.modelCacheSize)
+  if (!maxCacheSize) {
+    throw new Error(`Specified model cache-size "${options.modelCacheSize}" has an invalid format.`)
+  }
+
   options.modelDir = options.modelDir || path.join(process.APP_DATA_PATH, 'models')
 
   let config: NLU.Config
@@ -52,9 +56,14 @@ export default async function(options: ArgV) {
     process.exit(1) // TODO: this should also exit master process... Find a way to do so in cluster.ts
   }
 
-  const loggerWrapper = makeLoggerWrapper(logger)
+  const loggerWrapper = <NLU.Logger>{
+    info: (msg: string) => logger.info(msg),
+    warning: (msg: string, err?: Error) => (err ? logger.attachError(err).warn(msg) : logger.warn(msg)),
+    error: (msg: string, err?: Error) => (err ? logger.attachError(err).error(msg) : logger.error(msg))
+  }
+  const engine = new Engine({ maxCacheSize })
   try {
-    await Engine.initialize(config, loggerWrapper)
+    await engine.initialize(config, loggerWrapper)
   } catch (err) {
     // TODO: Make lang provider throw if it can't connect.
     logger
@@ -74,7 +83,7 @@ export default async function(options: ArgV) {
 
   debug('NLU Server Options %o', options)
 
-  const { nluVersion } = Engine.getVersionInfo()
+  const { nluVersion } = engine.getVersionInfo()
 
   logger.info(chalk`========================================
 {bold ${center('Botpress NLU Server', 40, 9)}}
@@ -116,5 +125,5 @@ ${_.repeat(' ', 9)}========================================`)
     logger.info(`batch size: allowing up to ${options.batchSize} predictions in one call to POST /predict`)
   }
 
-  await API(options, nluVersion)
+  await API(options, engine)
 }

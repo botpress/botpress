@@ -19,7 +19,7 @@ export default async (bp: typeof sdk, state: NLUState) => {
 
   router.get('/health', async (req, res) => {
     // When the health is bad, we'll refresh the status in case it changed (eg: user added languages)
-    const health = bp.NLU.Engine.getHealth()
+    const health = state.engine.getHealth()
     res.send(health)
   })
 
@@ -49,9 +49,11 @@ export default async (bp: typeof sdk, state: NLUState) => {
       return res.status(404).send(`Bot ${botId} doesn't exist`)
     }
 
+    const modelId = botNLU.modelsByLang[botNLU.defaultLanguage]
+
     try {
       // TODO: language should be a path param of route
-      let nlu = await botNLU.engine.predict(value.text, value.contexts, botNLU.defaultLanguage)
+      let nlu = await state.engine.predict(value.text, value.contexts, modelId)
       nlu = legacyElectionPipeline(nlu)
       res.send({ nlu })
     } catch (err) {

@@ -1,5 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import Engine from 'nlu-core/engine'
+import { isTrainingAlreadyStarted } from 'nlu-core/errors'
+import { isTrainingCanceled } from 'nlu-core/training-worker-queue/communication'
 
 import ModelService from './model/model-service'
 import TrainSessionService from './train-session-service'
@@ -20,24 +22,26 @@ export default class TrainService {
     language: string,
     nluSeed: number
   ) => {
-    try {
-      this.logger.info(`[${modelId}] Training Started.`)
+    this.logger.info(`[${modelId}] Training Started.`)
 
-      const ts = this.trainSessionService.makeTrainingSession(modelId, password, language)
+    const ts = this.trainSessionService.makeTrainingSession(modelId, password, language)
+    this.trainSessionService.setTrainingSession(modelId, password, ts)
+
+    const progressCallback = (progress: number) => {
+      ts.progress = progress
       this.trainSessionService.setTrainingSession(modelId, password, ts)
+    }
 
-      const progressCallback = (progress: number) => {
-        ts.progress = progress
-        this.trainSessionService.setTrainingSession(modelId, password, ts)
-      }
+    try {
+      const model = await this.engine.train(ts.key, intents, entities, language, { nluSeed, progressCallback })
+      this.logger.info(`[${modelId}] Training Done.`)
 
-      const model = await this.engine.train(ts.key, intents, entities, language, {
-        forceTrain: true,
-        nluSeed,
-        progressCallback
-      })
-
-      if (!model) {
+      await this.modelService.saveModel(model, modelId, password)
+      ts.status = 'done'
+      this.trainSessionService.setTrainingSession(modelId, password, ts)
+      this.trainSessionService.releaseTrainingSession(modelId, password)
+    } catch (err) {
+      if (isTrainingCanceled(err)) {
         this.logger.info(`[${modelId}] Training Canceled.`)
 
         ts.status = 'canceled'
@@ -46,14 +50,16 @@ export default class TrainService {
         return
       }
 
-      this.logger.info(`[${modelId}] Training Done.`)
+      if (isTrainingAlreadyStarted(err)) {
+        this.logger.error('training already started')
+        return
+      }
 
-      await this.modelService.saveModel(model, modelId, password)
-      ts.status = 'done'
+      ts.status = 'errored'
       this.trainSessionService.setTrainingSession(modelId, password, ts)
       this.trainSessionService.releaseTrainingSession(modelId, password)
-    } catch (err) {
       this.logger.attachError(err).error('an error occured during training')
+      return
     }
   }
 }
