@@ -165,17 +165,6 @@ const ExecuteForm: FC<Props> = ({
           <Tabs tabs={[{ id: 'content', title: lang.tr('studio.flow.nodeType.execute') }]} />
           <div>
             <MoreOptions show={showOptions} onToggle={setShowOptions} items={moreOptionsItems} />
-            {isCodeEditor && (
-              <Tooltip content={lang.tr(maximized ? 'minimizeInspector' : 'maximizeInspector')}>
-                <Button
-                  className={sharedStyle.expandBtn}
-                  small
-                  minimal
-                  icon={maximized ? <Icons.Minimize /> : 'fullscreen'}
-                  onClick={toggleSize}
-                />
-              </Tooltip>
-            )}
           </div>
         </div>
         <div

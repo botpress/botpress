@@ -1,18 +1,6 @@
-import {
-  Button,
-  ContextMenu,
-  ControlGroup,
-  InputGroup,
-  Intent,
-  Menu,
-  MenuDivider,
-  MenuItem,
-  Position,
-  Tag,
-  Toaster
-} from '@blueprintjs/core'
+import { Button, Intent, Menu, MenuDivider, MenuItem, Position, Tag, Toaster } from '@blueprintjs/core'
 import { IO } from 'botpress/sdk'
-import { contextMenu, Icons, lang, MainLayout, sharedStyle, ShortcutLabel } from 'botpress/shared'
+import { contextMenu, Icons, lang, MainLayout, sharedStyle, ShortcutLabel, toast } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
@@ -580,27 +568,34 @@ class Diagram extends Component<Props> {
     { leading: true }
   )
 
+  deleteElement(element) {
+    if (this.diagramEngine.isModelLocked(element)) {
+      return
+    }
+
+    if (element['isStartNode']) {
+      return toast.failure(lang.tr('studio.flow.cantDeleteStart'))
+    } else if (element.type === 'success') {
+      return toast.failure(lang.tr('studio.flow.cantDeleteSuccess'))
+    } else if (element.type === 'failure') {
+      return toast.failure(lang.tr('studio.flow.cantDeleteFailure'))
+    } else if (_.includes(nodeTypes, element['nodeType']) || _.includes(nodeTypes, element.type)) {
+      this.props.removeFlowNode(element)
+    } else if (element.type === 'default') {
+      element.remove()
+      this.checkForLinksUpdate()
+    } else {
+      element.remove() // it's a point or something else
+    }
+  }
+
   deleteSelectedElements() {
     const elements = _.sortBy(this.diagramEngine.getDiagramModel().getSelectedItems(), 'nodeType')
+    this.props.setActiveFormItem(null)
 
     // Use sorting to make the nodes first in the array, deleting the node before the links
     for (const element of elements) {
-      if (!this.diagramEngine.isModelLocked(element)) {
-        if (element['isStartNode']) {
-          return alert(lang.tr('studio.flow.cantDeleteStart'))
-        } else if (element.type === 'success') {
-          return alert(lang.tr('studio.flow.cantDeleteSuccess'))
-        } else if (element.type === 'failure') {
-          return alert(lang.tr('studio.flow.cantDeleteFailure'))
-        } else if (_.includes(nodeTypes, element['nodeType']) || _.includes(nodeTypes, element.type)) {
-          this.props.removeFlowNode(element)
-        } else if (element.type === 'default') {
-          element.remove()
-          this.checkForLinksUpdate()
-        } else {
-          element.remove() // it's a point or something else
-        }
-      }
+      this.deleteElement(element)
     }
 
     this.props.closeFlowNodeProps()
