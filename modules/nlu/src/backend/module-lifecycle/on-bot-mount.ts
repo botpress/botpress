@@ -65,76 +65,73 @@ export function getOnBotMount(state: NLUState) {
     }
 
     const engine = new bp.NLU.Engine(bot.id, makeLoggerWrapper(bp, botId))
-    const trainOrLoad = _.debounce(
-      async (disableTraining: boolean) => {
-        // bot got deleted
-        if (!state.nluByBot[botId]) {
-          return
-        }
+    const trainOrLoad = async (disableTraining: boolean) => {
+      // bot got deleted
+      if (!state.nluByBot[botId]) {
+        return
+      }
 
-        const api = await createApi(bp, botId)
-        const intentDefs = await api.fetchIntentsWithQNAs()
-        const entityDefs = await api.fetchEntities()
+      const api = await createApi(bp, botId)
+      const intentDefs = await api.fetchIntentsWithQNAs()
+      const entityDefs = await api.fetchEntities()
 
-        const kvs = bp.kvs.forBot(botId)
-        await kvs.set(KVS_TRAINING_STATUS_KEY, 'training')
+      const kvs = bp.kvs.forBot(botId)
+      await kvs.set(KVS_TRAINING_STATUS_KEY, 'training')
 
-        try {
-          await Promise.mapSeries(languages, async languageCode => {
-            // shorter lock and extend in training steps
-            const lock = await bp.distributed.acquireLock(makeTrainSessionKey(botId, languageCode), ms('5m'))
-            if (!lock) {
-              return
-            }
+      try {
+        await Promise.mapSeries(languages, async languageCode => {
+          // shorter lock and extend in training steps
+          const lock = await bp.distributed.acquireLock(makeTrainSessionKey(botId, languageCode), ms('5m'))
+          if (!lock) {
+            return
+          }
 
-            const hash = engine.computeModelHash(intentDefs, entityDefs, languageCode)
-            await ModelService.pruneModels(ghost, languageCode)
-            let model = await ModelService.getModel(ghost, hash, languageCode)
+          const hash = engine.computeModelHash(intentDefs, entityDefs, languageCode)
+          await ModelService.pruneModels(ghost, languageCode)
+          let model = await ModelService.getModel(ghost, hash, languageCode)
 
-            const trainSession = makeTrainingSession(botId, languageCode, lock)
-            state.nluByBot[botId].trainSessions[languageCode] = trainSession
-            if (!model && !disableTraining) {
-              await setTrainingSession(bp, botId, trainSession)
+          const trainSession = makeTrainingSession(botId, languageCode, lock)
+          state.nluByBot[botId].trainSessions[languageCode] = trainSession
+          if (!model && !disableTraining) {
+            await state.sendNLUStatusEvent(botId, trainSession)
 
-              const progressCallback = async (progress: number) => {
-                trainSession.progress = progress
-                await state.sendNLUStatusEvent(botId, trainSession)
-              }
-
-              const rand = () => Math.round(Math.random() * 10000)
-              const nluSeed = parseInt(process.env.NLU_SEED) || rand()
-
-              const options: sdk.NLU.TrainingOptions = { forceTrain: false, nluSeed, progressCallback }
-              model = await engine.train(trainSession.key, intentDefs, entityDefs, languageCode, options)
-              if (model) {
-                trainSession.status = 'done'
-                await state.sendNLUStatusEvent(botId, trainSession)
-                await engine.loadModel(model)
-                await ModelService.saveModel(ghost, model, hash)
-              } else {
-                trainSession.status = 'needs-training'
-                await state.sendNLUStatusEvent(botId, trainSession)
-              }
-            } else {
-              trainSession.progress = 1
-              trainSession.status = 'done'
+            const progressCallback = async (progress: number) => {
+              trainSession.status = 'training'
+              trainSession.progress = progress
               await state.sendNLUStatusEvent(botId, trainSession)
             }
-            try {
-              if (model) {
-                await state.broadcastLoadModel(botId, hash, languageCode)
-              }
-            } finally {
-              await lock.unlock()
+
+            const rand = () => Math.round(Math.random() * 10000)
+            const nluSeed = parseInt(process.env.NLU_SEED) || rand()
+
+            const options: sdk.NLU.TrainingOptions = { forceTrain: false, nluSeed, progressCallback }
+            model = await engine.train(trainSession.key, intentDefs, entityDefs, languageCode, options)
+            if (model) {
+              trainSession.status = 'done'
+              await state.sendNLUStatusEvent(botId, trainSession)
+              await engine.loadModel(model)
+              await ModelService.saveModel(ghost, model, hash)
+            } else {
+              trainSession.status = 'needs-training'
+              await state.sendNLUStatusEvent(botId, trainSession)
             }
-          })
-        } finally {
-          await kvs.delete(KVS_TRAINING_STATUS_KEY)
-        }
-      },
-      10000,
-      { leading: true }
-    )
+          } else {
+            trainSession.progress = 1
+            trainSession.status = 'done'
+            await state.sendNLUStatusEvent(botId, trainSession)
+          }
+          try {
+            if (model) {
+              await state.broadcastLoadModel(botId, hash, languageCode)
+            }
+          } finally {
+            await lock.unlock()
+          }
+        })
+      } finally {
+        await kvs.delete(KVS_TRAINING_STATUS_KEY)
+      }
+    }
 
     const cancelTraining = async () => {
       await Promise.map(languages, async lang => {

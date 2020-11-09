@@ -1,4 +1,4 @@
-import { Button } from '@blueprintjs/core'
+import { Button, Spinner } from '@blueprintjs/core'
 import axios from 'axios'
 import { NLU } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
@@ -83,12 +83,18 @@ const TrainingStatusComponent: FC<Props> = (props: Props) => {
             {lang.tr('statusBar.trainChatbot')}
           </Button>
         )}
+        {status === 'training-pending' && (
+          <div className={style.pending}>
+            <span className={cx(style.pending, style.text)}>{lang.tr('statusBar.trainingPending')}</span>
+            <Spinner size={5}/>
+          </div>
+        )}
         {status === 'training' && (
           <Button minimal className={cx(style.button, style.danger)} onClick={onCancelClicked} disabled={loading}>
             {lang.tr('statusBar.cancelTraining')}
           </Button>
         )}
-      </div>
+      </div >
     )
   }
 }
