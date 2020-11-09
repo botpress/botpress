@@ -12,7 +12,11 @@ export interface BotState {
   botId: string
   defaultLanguage: string
   trainOrLoad: (disableTraining: boolean) => Promise<void>
+
+  // TODO: we keep this DS in memory because it contains an unserializable lock,
+  // but this should be abstracted by the train session service.
   trainSessions: _.Dictionary<NLU.TrainingSession>
+
   cancelTraining: () => Promise<void>
   needsTrainingWatcher: ListenHandle
   modelsByLang: _.Dictionary<string>
