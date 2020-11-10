@@ -1,6 +1,16 @@
-import { Button } from '@blueprintjs/core'
+import { Button, Icon } from '@blueprintjs/core'
 import * as sdk from 'botpress/sdk'
-import { EmptyState, isOperationAllowed, lang, PermissionOperation, Tabs, toast } from 'botpress/shared'
+import {
+  EmptyState,
+  Icons,
+  isOperationAllowed,
+  lang,
+  MainLayout,
+  PermissionOperation,
+  Tabs,
+  toast,
+  ToolbarButtonProps
+} from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useContext } from 'react'
@@ -67,29 +77,53 @@ const ConversationContainer: FC<Props> = props => {
 
   // TODO extract this as a component
   function renderConversationHistory() {
+    const toolbarButton: ToolbarButtonProps = {
+      icon: 'selection',
+      content: (
+        <Button
+          className={style.coversationButton}
+          minimal
+          rightIcon="following"
+          disabled={!canAssign()}
+          onClick={handleAssign}
+        >
+          {lang.tr('module.hitl2.assignToMe')}
+        </Button>
+      )
+    }
     return (
-      <Fragment>
-        {canAssign() && (
-          <div className={cx(style.action)}>
-            <Button onClick={handleAssign}>{lang.tr('module.hitl.assignToMe')}</Button>
-          </div>
-        )}
-
-        <div className={style.conversationHistory}>
-          <ConversationHistory bp={props.bp} api={api} conversationId={props.escalation.userThreadId} />
-        </div>
-      </Fragment>
+      <div className={cx(style.column, style.conversation)}>
+        <MainLayout.Toolbar
+          className={style.hitlToolBar}
+          tabs={[{ id: 'conversation', title: lang.tr('module.hitl2.conversation.tab') }]}
+          buttons={[toolbarButton]}
+        />
+        <ConversationHistory bp={props.bp} api={api} conversationId={props.escalation.userThreadId} />
+      </div>
     )
   }
 
   function renderLiveChat() {
+    const toolbarButton: ToolbarButtonProps = {
+      icon: 'tick-circle',
+      content: (
+        <Button className={style.coversationButton} minimal rightIcon="following" onClick={handleResolve}>
+          {lang.tr('module.hitl2.resolve')}
+        </Button>
+      )
+    }
     return (
       <Fragment>
-        <div className={cx(style.action)}>
-          <Button onClick={handleResolve}>{lang.tr('module.hitl.resolve')}</Button>
-        </div>
-        <div className={style.conversationDetails}>
+        <div className={cx(style.column, style.conversation)}>
+          <MainLayout.Toolbar
+            className={style.hitlToolBar}
+            tabs={[{ id: 'conversation', title: lang.tr('module.hitl2.conversation.tab') }]}
+            buttons={[toolbarButton]}
+          />
           <LiveChat escalation={props.escalation} currentAgent={props.currentAgent} />
+        </div>
+        {/* TODO you are at fixing the style of this */}
+        <div className={cx(style.column)}>
           <div className={cx(style.sidebarContainer)}>
             <Tabs tabs={[{ id: 'user', title: lang.tr('module.hitl2.escalation.contactDetails') }]} />
             <Sidebar api={props.api} escalation={props.escalation}></Sidebar>
@@ -99,22 +133,26 @@ const ConversationContainer: FC<Props> = props => {
     )
   }
 
-  const shouldRenderHistory =
-    props.escalation && props.escalation?.agentId !== props.currentAgent.id && currentAgentHasReadAccess()
+  function renderEmpty() {
+    return (
+      <div className={cx(style.column, style.emptyContainer)}>
+        <MainLayout.Toolbar
+          className={style.hitlToolBar}
+          tabs={[{ id: 'conversation', title: lang.tr('module.hitl2.conversation.tab') }]}
+        />
+        <EmptyState icon={<AgentsIcon />} text={lang.tr('module.hitl2.conversation.empty')}></EmptyState>
+      </div>
+    )
+  }
+
+  const shouldRenderHistory = props.escalation && props.escalation.status !== 'assigned' && currentAgentHasReadAccess()
   const shouldRenderLiveChat =
     props.escalation?.status === 'assigned' && props.escalation?.agentId === props.currentAgent.id
   return (
     <Fragment>
-      <div className={cx(style.conversationContainer)}>
-        <Tabs tabs={[{ id: 'conversation', title: lang.tr('module.hitl2.conversation.tab') }]} />
-
-        {!props.escalation && (
-          <EmptyState icon={<AgentsIcon />} text={lang.tr('module.hitl2.conversation.empty')}></EmptyState>
-        )}
-        {shouldRenderHistory && renderConversationHistory()}
-        {shouldRenderLiveChat && renderLiveChat()}
-        {/* {props.escalation && props.escalation?.agentId === props.currentAgent.id} */}
-      </div>
+      {!props.escalation && renderEmpty()}
+      {shouldRenderHistory && renderConversationHistory()}
+      {shouldRenderLiveChat && renderLiveChat()}
     </Fragment>
   )
 }

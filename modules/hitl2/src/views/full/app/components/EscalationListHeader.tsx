@@ -99,7 +99,7 @@ const EscalationListHeader: FC<Props> = props => {
 
   return (
     <MainLayout.Toolbar
-      className={style.escalationListHeader}
+      className={style.hitlToolBar}
       tabs={[{ id: 'escalations', title: lang.tr('module.hitl2.sidebar.tab') }]}
       buttons={buttons}
     ></MainLayout.Toolbar>

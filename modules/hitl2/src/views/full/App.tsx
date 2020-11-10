@@ -1,4 +1,5 @@
-import { lang, MainLayout, toast } from 'botpress/shared'
+import { lang, MainLayout, Tabs, toast } from 'botpress/shared'
+import cx from 'classnames'
 import _ from 'lodash'
 import React, { useContext, useEffect, useState } from 'react'
 
@@ -106,17 +107,15 @@ const App = ({ bp }) => {
     <div className={style.app}>
       <MainLayout.Header leftButtons={leftHeaderButtons} />
       <div className={style.mainContent}>
-        <div className={style.sidebar}>
+        <div className={cx(style.sidebar, style.column)}>
           <EscalationList escalations={state.escalations} loading={loading} />
         </div>
-        <div className={style.content}>
-          <ConversationContainer
-            bp={bp}
-            api={api}
-            escalation={state.currentEscalation}
-            currentAgent={state.currentAgent}
-          />
-        </div>
+        <ConversationContainer
+          bp={bp}
+          api={api}
+          escalation={state.currentEscalation}
+          currentAgent={state.currentAgent}
+        />
       </div>
       <script src="assets/modules/channel-web/inject.js"></script>
     </div>
