@@ -7,7 +7,7 @@ import style from '../../style.scss'
 import { Context } from '../Store'
 
 interface Props {
-  onSubmit: (content: string) => Promise<any>
+  onSubmit: (content: string) => Promise<void>
 }
 
 const CommentForm: FC<Props> = props => {

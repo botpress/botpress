@@ -1,7 +1,10 @@
 import * as sdk from 'botpress/sdk'
+const debug = DEBUG('hitl2')
 
 export default async (bp: typeof sdk) => {
   await bp.database.createTableIfNotExists('comments', table => {
+    debug("Creating database table 'comments'")
+
     table
       .increments('id')
       .primary()
@@ -23,6 +26,8 @@ export default async (bp: typeof sdk) => {
   })
 
   await bp.database.createTableIfNotExists('escalations', table => {
+    debug("Creating database table 'escalations'")
+
     table
       .increments('id')
       .primary()

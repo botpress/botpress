@@ -35,7 +35,7 @@ interface Props {
 const ConversationContainer: FC<Props> = props => {
   const { api } = props
 
-  const { state, dispatch } = useContext(Context)
+  const { dispatch } = useContext(Context)
 
   async function handleAssign() {
     try {
