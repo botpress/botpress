@@ -25,6 +25,7 @@ import Utterance, { buildUtteranceBatch, getAlternateUtterance, UtteranceEntity 
 export type ExactMatchResult = (sdk.MLToolkit.SVM.Prediction & { extractor: 'exact-matcher' }) | undefined
 
 export type Predictors = {
+  lang: string
   list_entities: ListEntityModel[] // no need for cache
   tfidf: TFIDF
   vocabVectors: Token2Vec
@@ -65,10 +66,10 @@ const NONE_INTENT = 'none'
 async function preprocessInput(
   input: PredictInput,
   tools: Tools,
-  predictorsBylang: _.Dictionary<Predictors>
-): Promise<{ step: InitialStep; predictors: Predictors }> {
+  predictors: Predictors
+): Promise<{ step: InitialStep }> {
   const usedLanguage = input.language
-  const predictors = predictorsBylang[usedLanguage]
+
   if (_.isEmpty(predictors)) {
     // eventually better validation than empty check
     throw new Error(`Predictor for language: ${usedLanguage} is not valid`)
@@ -81,7 +82,7 @@ async function preprocessInput(
     languageCode: usedLanguage
   }
 
-  return { step, predictors }
+  return { step }
 }
 
 async function makePredictionUtterance(input: InitialStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
@@ -410,15 +411,11 @@ export function findExactIntentForCtx(
   }
 }
 
-export const Predict = async (
-  input: PredictInput,
-  tools: Tools,
-  predictorsByLang: _.Dictionary<Predictors>
-): Promise<PredictOutput> => {
+export const Predict = async (input: PredictInput, tools: Tools, predictors: Predictors): Promise<PredictOutput> => {
   try {
     const t0 = Date.now()
     // tslint:disable-next-line
-    let { step, predictors } = await preprocessInput(input, tools, predictorsByLang)
+    let { step } = await preprocessInput(input, tools, predictors)
 
     const initialStep = await makePredictionUtterance(step, predictors, tools)
     const entitesStep = await extractEntities(initialStep, predictors, tools)
