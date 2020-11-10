@@ -106,7 +106,6 @@
 
         button path {
           fill: var(--shark);
-          transition: fill 0.3s;
         }
 
         button:hover path {
@@ -251,6 +250,7 @@
     .webchatIframe {
       position: relative;
       width: 100%;
+      z-index: 10;
     }
   }
 }

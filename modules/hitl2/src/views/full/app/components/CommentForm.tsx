@@ -15,12 +15,27 @@ const CommentForm: FC<Props> = props => {
   const [content, setContent] = useState('')
 
   function currentAgentHasPermission(operation: PermissionOperation): boolean {
-    return isOperationAllowed({ user: state.currentAgent as UserProfile, resource: 'module.hitl2', operation })
+    return (
+      state.currentAgent?.online &&
+      isOperationAllowed({ user: state.currentAgent as UserProfile, resource: 'module.hitl2', operation })
+    )
+  }
+
+  function submit(e?: React.MouseEvent) {
+    e?.preventDefault()
+    props.onSubmit(content).then(() => setContent(''))
+  }
+
+  function textAreaKeyDown(e: React.KeyboardEvent) {
+    if (!e.shiftKey && e.key === 'Enter') {
+      submit()
+    }
   }
 
   return (
     <div className={style.commentForm}>
       <textarea
+        onKeyDown={textAreaKeyDown}
         disabled={!currentAgentHasPermission('write')}
         value={content}
         placeholder={lang.tr('module.hitl2.commentForm.addNote')}
@@ -28,15 +43,7 @@ const CommentForm: FC<Props> = props => {
           setContent(event.target.value)
         }}
       ></textarea>
-      <Button
-        disabled={!currentAgentHasPermission('write')}
-        onClick={() => {
-          // tslint:disable-next-line: no-floating-promises
-          props.onSubmit(content).then(() => {
-            setContent('')
-          })
-        }}
-      >
+      <Button disabled={!currentAgentHasPermission('write')} onClick={submit}>
         {lang.tr('module.hitl2.commentForm.submit')}
       </Button>
     </div>
