@@ -190,3 +190,6 @@ b {
 :global(.bp3-tooltip .bp3-popover-content) {
   padding: 5px 8px !important;
 }
+:global(#bp-widget) {
+  z-index: 98;
+}
