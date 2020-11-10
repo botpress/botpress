@@ -40,6 +40,7 @@
       flex-grow: 1;
       height: 100%;
     }
+
     .sidebarContainer {
       width: 25%;
       padding-left: var(--spacing-x-large);
@@ -66,205 +67,205 @@
           line-height: 1.5;
           color: var(--shark);
         }
+      }
 
-        .commentForm {
-          display: flex;
-          margin-top: auto;
-          margin-bottom: var(--spacing-x-large);
+      .commentForm {
+        display: flex;
+        margin-top: auto;
+        margin-bottom: var(--spacing-x-large);
 
-          textarea {
-            background: var(--white);
-            border-radius: 15px;
-            border: solid 1px var(--seashell);
-            color: var(--shark);
-            font-family: inherit;
-            font-size: 12px;
-            height: 40px;
-            line-height: 1.25;
-            padding: 12px 10px 10px;
-            resize: none;
-            transition: border 0.3s;
-            width: 100%;
+        textarea {
+          background: var(--white);
+          border-radius: 15px;
+          border: solid 1px var(--seashell);
+          color: var(--shark);
+          font-family: inherit;
+          font-size: 12px;
+          height: 40px;
+          line-height: 1.25;
+          padding: 12px 10px 10px;
+          resize: none;
+          transition: border 0.3s;
+          width: 100%;
 
-            &:focus {
-              border-color: var(--ocean);
-            }
-          }
-
-          button {
-            background: none;
-            border: none;
-            box-shadow: none;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            min-width: 40px;
-            padding: 0;
-          }
-
-          button path {
-            fill: var(--shark);
-            transition: fill 0.3s;
-          }
-
-          button:hover path {
-            fill: var(--ocean);
+          &:focus {
+            border-color: var(--ocean);
           }
         }
-      }
-    }
 
-    .escalationItem {
-      border-radius: 5px;
-      cursor: pointer;
-      display: flex;
-      padding: var(--spacing-x-large) var(--spacing-large) var(--spacing-large);
-      transition: background 0.3s;
-      align-items: center;
-
-      &:hover {
-        background-color: var(--seashell);
-      }
-
-      &.active {
-        background-color: var(--hover-ocean);
-      }
-
-      .info {
-        width: 75%;
-        color: var(--shark);
-        font-size: 12px;
-        line-height: 1.5;
-
-        p {
-          margin: 0;
+        button {
+          background: none;
+          border: none;
+          box-shadow: none;
+          cursor: pointer;
+          font-size: 14px;
+          font-weight: 500;
+          min-width: 40px;
+          padding: 0;
         }
-      }
 
-      .badge {
-        margin-left: auto;
-      }
+        button path {
+          fill: var(--shark);
+          transition: fill 0.3s;
+        }
 
-      .unreadDot {
-        background: var(--ocean);
-        border-radius: 50%;
-        display: block;
-        height: 10px;
-        margin-right: var(--spacing-large);
-        width: 10px;
-      }
-    }
-  }
-
-  .createdDate {
-    color: var(--reef) !important;
-    font-size: 12px;
-    line-height: 1.5;
-  }
-
-  .clientName {
-    background: none;
-    border: none;
-    color: var(--ocean);
-    font-size: 14px;
-    line-height: 1.29;
-    margin: 0;
-    padding: 0;
-  }
-
-  .profileHeader {
-    margin-top: var(--spacing-xx-large);
-    font-size: 12px;
-    line-height: 1.25;
-    color: var(--shark);
-
-    p {
-      margin: 0;
-    }
-  }
-
-  .hitlToolBar {
-    margin-bottom: var(--spacing-xx-large);
-
-    .coversationButton {
-      &:global(.bp3-button):not(:global(.bp3-disabled)):hover {
-        background-color: transparent !important;
-        color: var(--ocean);
-        svg {
-          fill: var(--ocean) !important;
+        button:hover path {
+          fill: var(--ocean);
         }
       }
     }
   }
 
-  .agentBtnWrapper {
-    position: relative;
+  .escalationItem {
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    padding: var(--spacing-x-large) var(--spacing-large) var(--spacing-large);
+    transition: background 0.3s;
+    align-items: center;
 
-    .agentBtn {
+    &:hover {
+      background-color: var(--seashell);
+    }
+
+    &.active {
+      background-color: var(--hover-ocean);
+    }
+
+    .info {
+      width: 75%;
       color: var(--shark);
       font-size: 12px;
-      line-height: 1.25;
+      line-height: 1.5;
 
-      .agentBtnText {
-        margin-left: var(--spacing-medium);
-        margin-right: var(--spacing-small);
+      p {
+        margin: 0;
       }
+    }
 
+    .badge {
+      margin-left: auto;
+    }
+
+    .unreadDot {
+      background: var(--ocean);
+      border-radius: 50%;
+      display: block;
+      height: 10px;
+      margin-right: var(--spacing-large);
+      width: 10px;
+    }
+  }
+}
+
+.createdDate {
+  color: var(--reef) !important;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.clientName {
+  background: none;
+  border: none;
+  color: var(--ocean);
+  font-size: 14px;
+  line-height: 1.29;
+  margin: 0;
+  padding: 0;
+}
+
+.profileHeader {
+  margin-top: var(--spacing-xx-large);
+  font-size: 12px;
+  line-height: 1.25;
+  color: var(--shark);
+
+  p {
+    margin: 0;
+  }
+}
+
+.hitlToolBar {
+  margin-bottom: var(--spacing-xx-large);
+
+  .coversationButton {
+    &:global(.bp3-button):not(:global(.bp3-disabled)):hover {
+      background-color: transparent !important;
+      color: var(--ocean);
       svg {
-        fill: var(--shark) !important;
+        fill: var(--ocean) !important;
       }
     }
+  }
+}
 
-    :global(.more-options-more-menu) {
-      right: -8px;
-      top: 70%;
+.agentBtnWrapper {
+  position: relative;
+
+  .agentBtn {
+    color: var(--shark);
+    font-size: 12px;
+    line-height: 1.25;
+
+    .agentBtnText {
+      margin-left: var(--spacing-medium);
+      margin-right: var(--spacing-small);
+    }
+
+    svg {
+      fill: var(--shark) !important;
     }
   }
 
-  .divider {
-    background: var(--gray);
-    height: 1px;
-    margin: var(--spacing-xx-large) 0 var(--spacing-x-large);
-    width: 100%;
+  :global(.more-options-more-menu) {
+    right: -8px;
+    top: 70%;
   }
+}
 
-  .sidebar {
-    .escalationList {
-      background-color: var(--bg);
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-      height: 100%;
-      padding: 0 var(--spacing-x-large);
-    }
-  }
+.divider {
+  background: var(--gray);
+  height: 1px;
+  margin: var(--spacing-xx-large) 0 var(--spacing-x-large);
+  width: 100%;
+}
 
-  .liveConversation {
+.sidebar {
+  .escalationList {
+    background-color: var(--bg);
+    display: flex;
+    flex-direction: column;
     flex-grow: 1;
-    .webchatWrapper {
+    height: 100%;
+    padding: 0 var(--spacing-x-large);
+  }
+}
+
+.liveConversation {
+  flex-grow: 1;
+  .webchatWrapper {
+    height: 100%;
+    > div {
       height: 100%;
-      > div {
-        height: 100%;
-      }
-      .webchatIframe {
-        position: relative;
-        width: 100%;
-      }
+    }
+    .webchatIframe {
+      position: relative;
+      width: 100%;
     }
   }
+}
 
-  .conversationHistory {
-    max-width: 570px;
+.conversationHistory {
+  max-width: 570px;
 
-    .messageList {
-      flex-grow: 1;
-      overflow-y: auto;
+  .messageList {
+    flex-grow: 1;
+    overflow-y: auto;
 
-      .message {
-        margin-bottom: var(--spacing-x-large);
-        padding: 50px; //var(--spacing-x-large);
-        background-color: var(--bg);
-      }
+    .message {
+      margin-bottom: var(--spacing-x-large);
+      padding: 50px; //var(--spacing-x-large);
+      background-color: var(--bg);
     }
   }
 }
