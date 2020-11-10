@@ -5,6 +5,7 @@ import { RequestWithUser } from 'common/typings'
 import { Request, Response } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
+import ms from 'ms'
 import yn from 'yn'
 
 import { CommentType, EscalationType } from './../types'
@@ -26,6 +27,7 @@ export default async (bp: typeof sdk, state: StateType) => {
   const router = bp.http.createRouterForBot('hitl2')
   const repository = new Repository(bp)
   const realtime = socket(bp)
+  const debug = DEBUG('hitl2')
 
   // Enforces for an agent to be 'online' before executing an action
   const agentOnlineMiddleware = async (req: BPRequest, res: Response, next) => {
@@ -61,6 +63,35 @@ export default async (bp: typeof sdk, state: StateType) => {
     }
   }
 
+  // Fires a realtime event when an agent's session is expired
+  const registerTimeout = async (botId: string, agentId: string) => {
+    debug.forBot(botId, 'Registering timeout', { agentId })
+
+    const { agentSessionTimeout } = await bp.config.getModuleConfigForBot('hitl2', botId)
+
+    // Clears previously registered timeout to avoid old timers to execute
+    unregisterTimeout(agentId)
+
+    state.timeouts[agentId] = setTimeout(async () => {
+      // By now the agent *should* be offline, but we check nonetheless
+      const online = await repository.getAgentOnline(botId, agentId)
+      const payload = { online }
+
+      realtime.sendPayload({
+        resource: 'agent',
+        type: 'update',
+        id: agentId,
+        payload
+      })
+    }, ms(agentSessionTimeout as string))
+  }
+
+  const unregisterTimeout = (agentId: string) => {
+    if (state.timeouts[agentId]) {
+      clearTimeout(state.timeouts[agentId])
+    }
+  }
+
   router.get(
     '/agents/me',
     errorMiddleware(async (req: RequestWithUser, res: Response) => {
@@ -92,6 +123,8 @@ export default async (bp: typeof sdk, state: StateType) => {
       const agentId = makeAgentId(strategy, email)
 
       const online = await repository.setAgentOnline(req.params.botId, agentId, true)
+      await registerTimeout(req.params.botId, agentId)
+
       const payload = { online }
 
       realtime.sendPayload({
@@ -112,6 +145,8 @@ export default async (bp: typeof sdk, state: StateType) => {
       const agentId = makeAgentId(strategy, email)
 
       const online = await repository.setAgentOnline(req.params.botId, agentId, false)
+      unregisterTimeout(agentId)
+
       const payload = {
         online
       }
@@ -214,7 +249,10 @@ export default async (bp: typeof sdk, state: StateType) => {
 
       escalation = await repository.updateEscalation(req.params.botId, req.params.id, payload)
       state.cacheEscalation(req.params.botId, agentThreadId, escalation)
-      await repository.setAgentOnline(req.params.botId, agentId, true) // Bump agent session timeout move this in express middleware
+
+      // Bump agent session timeout
+      await repository.setAgentOnline(req.params.botId, agentId, true)
+      await registerTimeout(req.params.botId, agentId)
 
       realtime.sendPayload({
         resource: 'escalation',
@@ -255,7 +293,9 @@ export default async (bp: typeof sdk, state: StateType) => {
         state.expireEscalation(req.params.botId, escalation.userThreadId)
         return escalation
       })
+
       await repository.setAgentOnline(req.params.botId, agentId, true) // Bump agent session timeout
+      await registerTimeout(req.params.botId, agentId)
 
       realtime.sendPayload({
         resource: 'escalation',
@@ -283,7 +323,9 @@ export default async (bp: typeof sdk, state: StateType) => {
       Joi.attempt(payload, CreateCommentSchema)
 
       const comment = await repository.createComment(payload)
+
       await repository.setAgentOnline(req.params.botId, agentId, true) // Bump agent session timeout
+      await registerTimeout(req.params.botId, agentId)
 
       res.status(201)
       res.send(comment)
