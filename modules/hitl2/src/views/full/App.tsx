@@ -63,6 +63,15 @@ const App = ({ bp }) => {
     }
   }
 
+  async function getConfig() {
+    try {
+      const config = await api.getConfig()
+      dispatch({ type: 'setConfig', payload: config })
+    } catch (error) {
+      dispatch({ type: 'setError', payload: error })
+    }
+  }
+
   async function toggleOnline(online: boolean) {
     try {
       const agent = online ? await api.setOnline() : await api.setOffline()
@@ -77,7 +86,7 @@ const App = ({ bp }) => {
 
   useEffect(() => {
     // tslint:disable-next-line: no-floating-promises
-    Promise.all([getCurrentAgent(), getAgents(), getEscalations()]).then(() => {
+    Promise.all([getCurrentAgent(), getAgents(), getEscalations(), getConfig()]).then(() => {
       setLoading(false)
     })
   }, [])

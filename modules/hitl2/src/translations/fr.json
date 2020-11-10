@@ -27,8 +27,10 @@
       "assigned": "assignée",
       "resolved": "résolue"
     },
-    "assign": "L'escalation {id} a été assignée avec succès",
-    "resolve": "L'escalation {id} a été résoulue avec succès",
+    "assign": "Assigner",
+    "resolve": "Résoudre",
+    "assigned": "L'escalation {id} a été assignée avec succès",
+    "resolved": "L'escalation {id} a été résoulue avec succès",
     "noPreviousAgent": "Aucun agent précédent",
     "you": "Vous",
     "agent": "Agent: {agentName}"

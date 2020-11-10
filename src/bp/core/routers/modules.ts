@@ -157,6 +157,26 @@ export class ModulesRouter extends CustomRouter {
         res.send(await this.moduleLoader.getTranslations())
       })
     )
+
+    // ?botId
+    this.router.get(
+      '/:moduleName/config',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req, res, next) => {
+        const supportedModules = ['hitl2']
+        const moduleInfo = await this._findModule(req.params.moduleName)
+
+        if (!supportedModules.includes(moduleInfo.name)) {
+          throw new UnexpectedError(`Endpoint not available for the '${moduleInfo.name}' module`)
+        }
+
+        if (req.params.botId) {
+          res.send(await this.moduleLoader.configReader.getForBot(moduleInfo.name, req.params.botId, true))
+        } else {
+          res.send(await this.moduleLoader.configReader.getGlobal(moduleInfo.name))
+        }
+      })
+    )
   }
 
   private async _findModule(moduleName: string): Promise<ModuleInfo> {

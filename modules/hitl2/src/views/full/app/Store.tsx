@@ -1,6 +1,7 @@
 import { Dictionary } from 'lodash'
 import React, { createContext, Dispatch, useReducer } from 'react'
 
+import { Config } from '../../../config'
 import { AgentType, EscalationType } from '../../../types'
 
 import Reducer, { ActionType } from './Reducer'
@@ -22,6 +23,7 @@ export interface StateType {
   readonly agents: Dictionary<AgentType>
   readonly escalations: Dictionary<EscalationType>
   readonly reads: Dictionary<Date>
+  readonly config?: Config
   readonly defaults: {
     user?: UserDefaultsType
   }
@@ -34,6 +36,7 @@ const initialState: StateType = {
   agents: {},
   escalations: {},
   reads: {},
+  config: null,
   defaults: {},
   error: null
 }

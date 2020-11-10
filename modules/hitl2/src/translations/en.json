@@ -27,9 +27,10 @@
       "assigned": "assigned",
       "resolved": "resolved"
     },
-    "assign": "Escalation {id} successfully assigned",
-    "resolve": "Escalation {id} successfully resolved",
-    "noPreviousAgent": "No prevous agent",
+    "assign": "Assign",
+    "resolve": "Resolve",
+    "assigned": "Escalation {id} successfully assigned",
+    "resolved": "Escalation {id} successfully resolved",
     "you": "You",
     "agent": "Agent: {agentName}"
   },

@@ -3,6 +3,7 @@ import Joi, { ValidationError } from 'joi'
 export const CreateCommentSchema = Joi.object({
   escalationId: Joi.number().required(),
   agentId: Joi.string().required(),
+  threadId: Joi.string().required(),
   content: Joi.string().required()
 })
 

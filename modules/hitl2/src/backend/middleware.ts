@@ -16,7 +16,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   const cache = new LRU<string, string>({ max: 1000, maxAge: 1000 * 60 * 60 * 24 }) // 1 day
 
   const pipeEvent = async (event: sdk.IO.IncomingEvent, target: string, threadId: string) => {
-    debug('Piping event', { threadId, target })
+    debug.forBot(event.botId, 'Piping event', { threadId, target })
     return bp.events.sendEvent(
       bp.IO.Event({
         botId: event.botId,

@@ -49,7 +49,7 @@ const Sidebar: FC<Props> = ({ escalation, api }) => {
             ownProps={{ transitionDuration: 0 }}
           >
             {comments.map(comment => {
-              return <Comment key={comment.id} threadId={userConversation.threadId} comment={comment}></Comment>
+              return <Comment key={comment.id} {...comment}></Comment>
             })}
           </Collapsible>
         </Fragment>

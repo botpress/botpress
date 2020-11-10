@@ -35,12 +35,12 @@ interface Props {
 const ConversationContainer: FC<Props> = props => {
   const { api } = props
 
-  const { state, dispatch } = useContext(Context)
+  const { dispatch } = useContext(Context)
 
   async function handleAssign() {
     try {
       const escalation = await api.assignEscalation(props.escalation.id)
-      toast.success(lang.tr('module.hitl2.escalation.assign', { id: escalation.id }))
+      toast.success(lang.tr('module.hitl2.escalation.assigned', { id: escalation.id }))
     } catch (error) {
       if (_.inRange(_.get(error, 'response.status'), 400, 499)) {
         toast.failure(error.response.data.errors[0].detail)
@@ -53,7 +53,7 @@ const ConversationContainer: FC<Props> = props => {
   async function handleResolve() {
     try {
       const escalation = await api.resolveEscalation(props.escalation.id)
-      toast.success(lang.tr('module.hitl2.escalation.resolve', { id: escalation.id }))
+      toast.success(lang.tr('module.hitl2.escalation.resolved', { id: escalation.id }))
     } catch (error) {
       if (_.inRange(_.get(error, 'response.status'), 400, 499)) {
         toast.failure(error.response.data.errors[0].detail)
@@ -87,7 +87,7 @@ const ConversationContainer: FC<Props> = props => {
           disabled={!canAssign()}
           onClick={handleAssign}
         >
-          {lang.tr('module.hitl2.assignToMe')}
+          {lang.tr('module.hitl2.escalation.assign')}
         </Button>
       )
     }
@@ -108,7 +108,7 @@ const ConversationContainer: FC<Props> = props => {
       icon: 'tick-circle',
       content: (
         <Button className={style.coversationButton} minimal rightIcon="tick-circle" onClick={handleResolve}>
-          {lang.tr('module.hitl2.resolve')}
+          {lang.tr('module.hitl2.escalation.resolve')}
         </Button>
       )
     }

@@ -1,10 +1,11 @@
 import { Spinner } from '@blueprintjs/core'
 import { EmptyState } from 'botpress/shared'
 import _ from 'lodash'
-import React, { FC, Fragment, useEffect, useState } from 'react'
+import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
 
 import { SocketMessageType } from '../../../../types'
 import { ApiType, castMessage } from '../../Api'
+import { Context } from '../Store'
 
 import MessageList from './MessageList'
 
@@ -15,8 +16,7 @@ interface Props {
 }
 
 const ConversationHistory: FC<Props> = props => {
-  // Number of messages to display
-  const MESSAGE_COUNT = 10
+  const { state } = useContext(Context)
 
   const [loading, setLoading] = useState(true)
   const [messages, setMessages] = useState([])
@@ -24,14 +24,15 @@ const ConversationHistory: FC<Props> = props => {
   function handleMessage(message: SocketMessageType) {
     if (message.resource === 'event' && message.type === 'create') {
       setMessages(messages =>
-        _.sortBy([...messages, castMessage(message.payload)], 'createdOn').slice(MESSAGE_COUNT * -1)
+        _.sortBy([...messages, castMessage(message.payload)], 'id').slice(state.config.messageCount * -1)
       )
     }
   }
 
   async function getMessages() {
+    // Event IDs are ordered
     setMessages(
-      _.sortBy(await props.api.getMessages(props.conversationId, 'createdOn', true, MESSAGE_COUNT), 'createdOn')
+      _.sortBy(await props.api.getMessages(props.conversationId, 'id', true, state.config.messageCount), 'id')
     )
   }
 

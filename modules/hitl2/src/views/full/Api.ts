@@ -2,6 +2,7 @@ import { AxiosInstance } from 'axios'
 import _ from 'lodash'
 import moment from 'moment'
 
+import { Config } from '../../config'
 import { AgentType, CommentType, EscalationType, EventType } from '../../types'
 
 // TODO Handle casting when object is undefined
@@ -54,6 +55,7 @@ export function castMessage(item: EventType) {
 }
 
 export interface ApiType {
+  getConfig: () => Promise<Config>
   setOnline: () => Promise<Partial<AgentType>>
   setOffline: () => Promise<Partial<AgentType>>
   getAgents: (online?: boolean) => Promise<AgentType[]>
@@ -67,28 +69,32 @@ export interface ApiType {
 }
 
 export const Api = (bp: { axios: AxiosInstance }): ApiType => {
-  // TODO might be a finer way to do this
-  const base = '/mod/hitl2'
+  const config = {
+    baseURL: bp.axios.defaults.baseURL.concat('/mod/hitl2')
+  }
 
   return {
-    setOnline: async () => bp.axios.post(`${base}/agents/me/online`).then(res => res.data),
-    setOffline: async () => bp.axios.post(`${base}/agents/me/offline`).then(res => res.data),
+    getConfig: async () =>
+      bp.axios.get('/modules/hitl2/config', { baseURL: window.API_PATH, params: { botId: window.BOT_ID } }),
+    setOnline: async () => bp.axios.post(`/agents/me/online`, null, config).then(res => res.data),
+    setOffline: async () => bp.axios.post(`/agents/me/offline`, null, config).then(res => res.data),
     getAgents: async (online?: boolean) =>
-      bp.axios.get(`${base}/agents`, { params: { online } }).then(res => res.data),
-    getCurrentAgent: async () => bp.axios.get(`${base}/agents/me`).then(res => res.data),
+      bp.axios.get('/agents', { ...config, params: { online } }).then(res => res.data),
+    getCurrentAgent: async () => bp.axios.get(`/agents/me`, config).then(res => res.data),
     getComments: async id =>
       bp.axios
-        .get(`${base}/escalations/${id}/comments`)
+        .get(`/escalations/${id}/comments`, config)
         .then(res => res.data)
         .then(data => data.map(item => castComment(item))),
     createComment: async (id, payload) =>
       bp.axios
-        .post(`${base}/escalations/${id}/comments`, payload)
+        .post(`/escalations/${id}/comments`, payload, config)
         .then(res => res.data)
         .then(data => castComment(data)),
     getEscalations: async (column?, desc?, limit?) =>
       bp.axios
-        .get(`${base}/escalations`, {
+        .get('/escalations', {
+          ...config,
           params: {
             desc,
             column,
@@ -99,17 +105,17 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
         .then(data => data.map(castEscalation)),
     assignEscalation: async id =>
       bp.axios
-        .post(`${base}/escalations/${id}/assign`)
+        .post(`/escalations/${id}/assign`, null, config)
         .then(res => res.data)
         .then(data => castEscalation(data)),
     resolveEscalation: async id =>
       bp.axios
-        .post(`${base}/escalations/${id}/resolve`)
+        .post(`/escalations/${id}/resolve`, null, config)
         .then(res => res.data)
         .then(data => castEscalation(data)),
     getMessages: async (id, column?, desc?, limit?) =>
       bp.axios
-        .get(`${base}/conversations/${id}/messages`, { params: { desc, column, limit } })
+        .get(`/conversations/${id}/messages`, { ...config, params: { desc, column, limit } })
         .then(res => res.data)
         .then(data => data.map(castMessage))
   }

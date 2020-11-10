@@ -61,7 +61,7 @@ const EscalationList: FC<Props> = props => {
     }
 
     setItems(filtered)
-  }, [filterOptions, sortOption, props.escalations])
+  }, [filterOptions, sortOption, props.escalations, props.loading])
 
   return (
     <Fragment>
@@ -79,7 +79,9 @@ const EscalationList: FC<Props> = props => {
         <EmptyState icon={<CasesIcon />} text={lang.tr('module.hitl2.escalations.empty')}></EmptyState>
       )}
 
-      {!!items.length && items.map(escalation => <EscalationItem key={escalation.id} {...escalation}></EscalationItem>)}
+      {!props.loading &&
+        items.length &&
+        items.map(escalation => <EscalationItem key={escalation.id} {...escalation}></EscalationItem>)}
     </Fragment>
   )
 }
