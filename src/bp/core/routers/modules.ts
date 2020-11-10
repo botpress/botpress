@@ -157,6 +157,21 @@ export class ModulesRouter extends CustomRouter {
         res.send(await this.moduleLoader.getTranslations())
       })
     )
+
+    // ?botId
+    this.router.get(
+      '/:moduleName/config',
+      this.checkTokenHeader,
+      this.asyncMiddleware(async (req, res) => {
+        const moduleInfo = await this._findModule(req.params.moduleName)
+
+        if (req.params.botId) {
+          res.send(await this.moduleLoader.configReader.getForBot(moduleInfo.name, req.params.botId, true))
+        } else {
+          res.send(await this.moduleLoader.configReader.getGlobal(moduleInfo.name))
+        }
+      })
+    )
   }
 
   private async _findModule(moduleName: string): Promise<ModuleInfo> {
