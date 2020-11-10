@@ -60,12 +60,8 @@ const LiveChat: React.FC<Props> = ({ escalation, currentAgent }) => {
     console.log('escalation changed and webchat loaded, set webchat target user and conversationID') // maybe not target
     // TODO set webchat user and conversationId
   }, [escalation])
-  return (
-    <div id={WEBCHAT_ID}>
-      {!webchatLoaded && <div>loading</div>}
-      <div>live convo is displayed here conversation id to render is {escalation.agentThreadId}</div>
-    </div>
-  )
+
+  return <div id={WEBCHAT_ID}>{!webchatLoaded && <div>loading</div>}</div>
 }
 
 export default LiveChat

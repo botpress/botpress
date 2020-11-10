@@ -9,113 +9,116 @@
 .app {
   display: flex;
   flex-direction: column;
+  height: 100%;
+  background-color: #fff;
 
   .mainContent {
     display: flex;
     flex: 1 1 auto;
+    height: calc(100% - 50px);
+
+    .column {
+      padding-left: var(--spacing-large);
+      padding-right: var(--spacing-large);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .emptyContainer {
+      flex: 1;
+    }
 
     .sidebar {
       width: 25%;
-      padding-left: var(--spacing-x-large);
       background-color: var(--bg);
     }
 
-    .content {
+    .conversationContainer {
       display: flex;
+      flex-direction: column;
       flex-grow: 1;
-      background: #fff;
+      height: 100%;
+    }
 
-      .conversationContainer {
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
-        height: 100%;
-        padding-left: var(--spacing-x-large);
-
-        .action {
-          min-height: 100px;
-        }
+    .conversationDetails {
+      display: flex;
+      & > div {
+        flex: 1;
       }
 
-      .conversationDetails {
+      .sidebarContainer {
         display: flex;
-        & > div {
-          flex: 1;
+        flex-direction: column;
+        width: 20%;
+        padding-left: var(--spacing-x-large);
+        border-left: 1px solid var(--seashell);
+
+        .createdDate {
+          font-size: 10px;
         }
 
-        .sidebarContainer {
-          display: flex;
-          flex-direction: column;
-          width: 20%;
-          padding-left: var(--spacing-x-large);
-          border-left: 1px solid var(--seashell);
+        .table {
+          margin-top: var(--spacing-medium);
+          width: 100%;
 
-          .createdDate {
-            font-size: 10px;
+          th {
+            color: var(--shark);
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 1.08;
+            padding-bottom: var(--spacing-small);
           }
 
-          .table {
-            margin-top: var(--spacing-medium);
+          td {
+            font-size: 10px;
+            line-height: 1.5;
+            color: var(--shark);
+          }
+        }
+
+        .commentForm {
+          display: flex;
+          margin-top: auto;
+          margin-bottom: var(--spacing-x-large);
+
+          textarea {
+            background: var(--white);
+            border-radius: 15px;
+            border: solid 1px var(--seashell);
+            color: var(--shark);
+            font-family: inherit;
+            font-size: 12px;
+            height: 40px;
+            line-height: 1.25;
+            padding: 12px 10px 10px;
+            resize: none;
+            transition: border 0.3s;
             width: 100%;
 
-            th {
-              color: var(--shark);
-              font-size: 12px;
-              font-weight: 500;
-              line-height: 1.08;
-              padding-bottom: var(--spacing-small);
-            }
-
-            td {
-              font-size: 10px;
-              line-height: 1.5;
-              color: var(--shark);
+            &:focus {
+              border-color: var(--ocean);
             }
           }
 
-          .commentForm {
-            display: flex;
-            margin-top: auto;
-            margin-bottom: var(--spacing-x-large);
+          button {
+            background: none;
+            border: none;
+            box-shadow: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            min-width: 40px;
+            padding: 0;
+          }
 
-            textarea {
-              background: var(--white);
-              border-radius: 15px;
-              border: solid 1px var(--seashell);
-              color: var(--shark);
-              font-family: inherit;
-              font-size: 12px;
-              height: 40px;
-              line-height: 1.25;
-              padding: 12px 10px 10px;
-              resize: none;
-              transition: border 0.3s;
-              width: 100%;
+          button path {
+            fill: var(--shark);
+            transition: fill 0.3s;
+          }
 
-              &:focus {
-                border-color: var(--ocean);
-              }
-            }
-
-            button {
-              background: none;
-              border: none;
-              box-shadow: none;
-              cursor: pointer;
-              font-size: 14px;
-              font-weight: 500;
-              min-width: 40px;
-              padding: 0;
-            }
-
-            button path {
-              fill: var(--shark);
-              transition: fill 0.3s;
-            }
-
-            button:hover path {
-              fill: var(--ocean);
-            }
+          button:hover path {
+            fill: var(--ocean);
           }
         }
       }
@@ -191,8 +194,18 @@
   }
 }
 
-.escalationListHeader {
-  margin-bottom: 37px;
+.hitlToolBar {
+  margin-bottom: var(--spacing-xx-large);
+
+  .coversationButton {
+    &:global(.bp3-button):not(:global(.bp3-disabled)):hover {
+      background-color: transparent !important;
+      color: var(--ocean);
+      svg {
+        fill: var(--ocean) !important;
+      }
+    }
+  }
 }
 
 .agentBtnWrapper {
@@ -237,12 +250,10 @@
   }
 }
 
-.conversationHistory {
-  display: flex;
-  flex-direction: column;
+.conversation {
+  max-width: 570px;
 
   .messageList {
-    // height: 500px;
     flex-grow: 1;
     overflow-y: auto;
 
