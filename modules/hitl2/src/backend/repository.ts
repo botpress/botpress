@@ -41,7 +41,7 @@ export default class Repository {
       'updatedAt'
     ]
 
-    this.commentColumns = ['id', 'agentId', 'content', 'createdAt', 'updatedAt']
+    this.commentColumns = ['id', 'agentId', 'escalationId', 'threadId', 'content', 'createdAt', 'updatedAt']
 
     this.eventColumns = ['id', 'direction', 'botId', 'channel', 'success', 'createdOn', 'threadId', 'type', 'event']
 
@@ -160,11 +160,13 @@ export default class Repository {
         'escalations.*',
         `comments.id as ${this.commentPrefix}:id`,
         `comments.agentId as ${this.commentPrefix}:agentId`,
+        `comments.escalationId as ${this.commentPrefix}:escalationId`,
+        `comments.threadId as ${this.commentPrefix}:threadId`,
         `comments.content as ${this.commentPrefix}:content`,
         `comments.updatedAt as ${this.commentPrefix}:updatedAt`,
         `comments.createdAt as ${this.commentPrefix}:createdAt`
       )
-      .leftJoin('comments', 'escalations.id', 'comments.escalationId')
+      .leftJoin('comments', 'escalations.userThreadId', 'comments.threadId')
       .where('escalations.botId', botId)
       .distinct()
       .modify(this.applyLimit, conditions)

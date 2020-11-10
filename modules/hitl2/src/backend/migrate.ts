@@ -11,6 +11,7 @@ export default async (bp: typeof sdk) => {
       .references('escalations.id')
       .notNullable()
       .onDelete('CASCADE')
+    table.string('threadId').notNullable()
     table.string('agentId').notNullable()
     table.text('content')
     table.dateTime('createdAt').notNullable()

@@ -48,7 +48,7 @@ const Sidebar: FC<Props> = ({ escalation, api }) => {
             name={lang.tr('module.hitl2.comments.heading')}
           >
             {comments.map(comment => {
-              return <Comment key={comment.id} threadId={userConversation.threadId} comment={comment}></Comment>
+              return <Comment key={comment.id} {...comment}></Comment>
             })}
           </Collapsible>
         </Fragment>

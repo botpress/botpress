@@ -61,6 +61,7 @@ export interface CommentType {
   id: string
   agentId: string
   escalationId: string
+  threadId: string
   content: string
   createdAt: Date
   updatedAt: Date

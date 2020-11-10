@@ -6,28 +6,22 @@ import { CommentType } from '../../../../types'
 import style from '../../style.scss'
 import { Context } from '../Store'
 
-interface Props {
-  threadId: string
-  comment: CommentType
-}
-
-const Comment: FC<Props> = ({ comment, threadId }) => {
-  const { agentId, content, createdAt } = comment
+const Comment: FC<CommentType> = props => {
   const { state } = useContext(Context)
 
   function formatDate(str) {
     return moment(str).format('DD/MM/YYYY')
   }
 
-  const agent = state.agents[agentId]
+  const agent = state.agents[props.agentId]
 
   return (
-    <ContentSection title={`#${threadId}`}>
+    <ContentSection title={`#${props.escalationId}`}>
       <ul>
-        <li>{content}</li>
+        <li>{props.content}</li>
       </ul>
       <p className={style.createdDate}>
-        {formatDate(createdAt)} <span>⋅</span> {agent?.fullName || agent?.id}
+        {formatDate(props.createdAt)} <span>⋅</span> {agent?.fullName || agent?.id}
       </p>
     </ContentSection>
   )
