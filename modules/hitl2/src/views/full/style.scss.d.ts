@@ -10,9 +10,8 @@ interface CssExports {
   'clientName': string;
   'column': string;
   'commentForm': string;
-  'conversation': string;
   'conversationContainer': string;
-  'conversationDetails': string;
+  'conversationHistory': string;
   'coversationButton': string;
   'createdDate': string;
   'divider': string;
@@ -22,6 +21,7 @@ interface CssExports {
   'h100': string;
   'hitlToolBar': string;
   'info': string;
+  'liveConversation': string;
   'mainContent': string;
   'message': string;
   'messageList': string;
@@ -31,6 +31,8 @@ interface CssExports {
   'table': string;
   'unreadDot': string;
   'w100': string;
+  'webchatIframe': string;
+  'webchatWrapper': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

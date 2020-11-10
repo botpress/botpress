@@ -92,7 +92,7 @@ const ConversationContainer: FC<Props> = props => {
       )
     }
     return (
-      <div className={cx(style.column, style.conversation)}>
+      <div className={cx(style.column, style.conversationHistory)}>
         <MainLayout.Toolbar
           className={style.hitlToolBar}
           tabs={[{ id: 'conversation', title: lang.tr('module.hitl2.conversation.tab') }]}
@@ -107,14 +107,14 @@ const ConversationContainer: FC<Props> = props => {
     const toolbarButton: ToolbarButtonProps = {
       icon: 'tick-circle',
       content: (
-        <Button className={style.coversationButton} minimal rightIcon="following" onClick={handleResolve}>
+        <Button className={style.coversationButton} minimal rightIcon="tick-circle" onClick={handleResolve}>
           {lang.tr('module.hitl2.resolve')}
         </Button>
       )
     }
     return (
       <Fragment>
-        <div className={cx(style.column, style.conversation)}>
+        <div className={cx(style.column, style.liveConversation)}>
           <MainLayout.Toolbar
             className={style.hitlToolBar}
             tabs={[{ id: 'conversation', title: lang.tr('module.hitl2.conversation.tab') }]}
@@ -122,12 +122,9 @@ const ConversationContainer: FC<Props> = props => {
           />
           <LiveChat escalation={props.escalation} currentAgent={props.currentAgent} />
         </div>
-        {/* TODO you are at fixing the style of this */}
-        <div className={cx(style.column)}>
-          <div className={cx(style.sidebarContainer)}>
-            <Tabs tabs={[{ id: 'user', title: lang.tr('module.hitl2.escalation.contactDetails') }]} />
-            <Sidebar api={props.api} escalation={props.escalation}></Sidebar>
-          </div>
+        <div className={cx(style.column, style.sidebarContainer)}>
+          <Tabs tabs={[{ id: 'user', title: lang.tr('module.hitl2.escalation.contactDetails') }]} />
+          <Sidebar api={props.api} escalation={props.escalation}></Sidebar>
         </div>
       </Fragment>
     )

@@ -48,6 +48,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
 
   const incomingHandler = async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
     if (event.type !== 'text') {
+      // we might want to handle other types
       return next()
     }
 
@@ -104,6 +105,10 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
       await pipeEvent(event, escalation.userId, escalation.userThreadId)
     }
 
+    // the session or bot is paused, swallow the message
+    // @ts-ignore
+    Object.assign(event, { isPause: true })
+
     next()
   }
 
@@ -133,7 +138,6 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
 
   state.cacheEscalation = await bp.distributed.broadcast(cacheEscalation)
   state.expireEscalation = await bp.distributed.broadcast(expireEscalation)
-
 
   bp.events.registerMiddleware({
     name: 'hitl2.incoming',

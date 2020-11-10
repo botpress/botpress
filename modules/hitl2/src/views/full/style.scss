@@ -40,86 +40,76 @@
       flex-grow: 1;
       height: 100%;
     }
+    .sidebarContainer {
+      width: 25%;
+      padding-left: var(--spacing-x-large);
+      border-left: 1px solid var(--seashell);
 
-    .conversationDetails {
-      display: flex;
-      & > div {
-        flex: 1;
+      .createdDate {
+        font-size: 10px;
       }
 
-      .sidebarContainer {
-        display: flex;
-        flex-direction: column;
-        width: 20%;
-        padding-left: var(--spacing-x-large);
-        border-left: 1px solid var(--seashell);
+      .table {
+        margin-top: var(--spacing-medium);
+        width: 100%;
 
-        .createdDate {
-          font-size: 10px;
+        th {
+          color: var(--shark);
+          font-size: 12px;
+          font-weight: 500;
+          line-height: 1.08;
+          padding-bottom: var(--spacing-small);
         }
 
-        .table {
-          margin-top: var(--spacing-medium);
+        td {
+          font-size: 10px;
+          line-height: 1.5;
+          color: var(--shark);
+        }
+      }
+
+      .commentForm {
+        display: flex;
+        margin-top: auto;
+        margin-bottom: var(--spacing-x-large);
+
+        textarea {
+          background: var(--white);
+          border-radius: 15px;
+          border: solid 1px var(--seashell);
+          color: var(--shark);
+          font-family: inherit;
+          font-size: 12px;
+          height: 40px;
+          line-height: 1.25;
+          padding: 12px 10px 10px;
+          resize: none;
+          transition: border 0.3s;
           width: 100%;
 
-          th {
-            color: var(--shark);
-            font-size: 12px;
-            font-weight: 500;
-            line-height: 1.08;
-            padding-bottom: var(--spacing-small);
-          }
-
-          td {
-            font-size: 10px;
-            line-height: 1.5;
-            color: var(--shark);
+          &:focus {
+            border-color: var(--ocean);
           }
         }
 
-        .commentForm {
-          display: flex;
-          margin-top: auto;
-          margin-bottom: var(--spacing-x-large);
+        button {
+          background: none;
+          border: none;
+          box-shadow: none;
+          cursor: pointer;
+          font-size: 14px;
+          font-weight: 500;
+          min-width: 40px;
+          padding: 0;
+        }
 
-          textarea {
-            background: var(--white);
-            border-radius: 15px;
-            border: solid 1px var(--seashell);
-            color: var(--shark);
-            font-family: inherit;
-            font-size: 12px;
-            height: 40px;
-            line-height: 1.25;
-            padding: 12px 10px 10px;
-            resize: none;
-            transition: border 0.3s;
-            width: 100%;
+        button path {
+          fill: var(--shark);
+          transition: fill 0.3s;
+        }
 
-            &:focus {
-              border-color: var(--ocean);
-            }
-          }
-
-          button {
-            background: none;
-            border: none;
-            box-shadow: none;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            min-width: 40px;
-            padding: 0;
-          }
-
-          button path {
-            fill: var(--shark);
-            transition: fill 0.3s;
-          }
-
-          button:hover path {
-            fill: var(--ocean);
-          }
+        button:hover path {
+          fill: var(--ocean);
         }
       }
     }
@@ -250,7 +240,21 @@
   }
 }
 
-.conversation {
+.liveConversation {
+  flex-grow: 1;
+  .webchatWrapper {
+    height: 100%;
+    > div {
+      height: 100%;
+    }
+    .webchatIframe {
+      position: relative;
+      width: 100%;
+    }
+  }
+}
+
+.conversationHistory {
   max-width: 570px;
 
   .messageList {

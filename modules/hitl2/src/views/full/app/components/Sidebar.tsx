@@ -46,6 +46,7 @@ const Sidebar: FC<Props> = ({ escalation, api }) => {
             opened={expanded}
             toggleExpand={() => setExpanded(!expanded)}
             name={lang.tr('module.hitl2.comments.heading')}
+            ownProps={{ transitionDuration: 0 }}
           >
             {comments.map(comment => {
               return <Comment key={comment.id} threadId={userConversation.threadId} comment={comment}></Comment>
