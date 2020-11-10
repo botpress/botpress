@@ -367,6 +367,11 @@ try {
           description: 'Allowed number of text inputs in one call to POST /predict',
           default: -1
         },
+        silent: {
+          description: 'No logging after server is launched',
+          default: false,
+          type: 'boolean'
+        },
         modelCacheSize: {
           description:
             'Max allocated memory for model cache. Too few memory will result in more access to file system.',
