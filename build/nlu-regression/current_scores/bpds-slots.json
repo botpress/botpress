@@ -1,0 +1,21 @@
+{
+  "generatedOn": "2020-11-04T16:38:02.720Z",
+  "groupedBy": "all",
+  "scores": [
+    {
+      "metric": "avgScore:slotsAre",
+      "group": "all",
+      "score": 0.5955056179775281
+    },
+    {
+      "metric": "avgScore:slotIncludes",
+      "group": "all",
+      "score": 0.6573033707865169
+    },
+    {
+      "metric": "avgScore:slotCountIs",
+      "group": "all",
+      "score": 0.7078651685393258
+    }
+  ]
+}
