@@ -29,8 +29,8 @@
     },
     "assign": "Assign",
     "resolve": "Resolve",
-    "assigned": "Escalation {id} successfully assigned",
-    "resolved": "Escalation {id} successfully resolved",
+    "assigned": "Handoff {id} successfully assigned",
+    "resolved": "Handoff {id} successfully resolved",
     "you": "You",
     "agent": "Agent: {agentName}"
   },
@@ -51,7 +51,7 @@
     "empty": "No comments"
   },
   "conversation": {
-    "empty": "Select a pending case to engage conversation with your clients.",
+    "empty": "Select a pending handoff to engage conversation with your clients.",
     "tab": "Conversation"
   },
   "escalations": {
@@ -62,10 +62,10 @@
     "access": "Access Botpress Handoffs",
     "agents": {
       "heading": "Agents Online",
-      "empty": "There are no agents online right now."
+      "empty": "No agents online right now."
     },
     "escalations": {
-      "heading": "Most Recent Escalations",
+      "heading": "Most Recent Handoffs",
       "empty": "Thanks to you and your team, there are no pending handoffs right now."
     }
   }

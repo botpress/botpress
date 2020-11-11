@@ -56,7 +56,7 @@
     "tab": "Conversation"
   },
   "escalations": {
-    "empty": "Il n'y a présentement aucune escalation grâce à ton équipe et toi-même."
+    "empty": "Il n'y a présentement aucune escalation grâce à vous et votre équipe."
   },
   "sidebar": {
     "tab": "Escalations",
@@ -67,7 +67,7 @@
     },
     "escalations": {
       "heading": "Escalations Récentes",
-      "empty": "Il n'y a présentement aucune escalation grâce à ton équipe et toi-même."
+      "empty": "Il n'y a présentement aucune escalation grâce à vous et votre équipe."
     }
   }
 }
