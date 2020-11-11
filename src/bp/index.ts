@@ -366,7 +366,7 @@ try {
           default: 'https://duckling.botpress.io'
         },
         ducklingEnabled: {
-          description: 'Weither or not to enable Duckling',
+          description: 'Whether or not to enable Duckling',
           default: true,
           type: 'boolean'
         },
