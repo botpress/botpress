@@ -64,11 +64,11 @@ const ConversationContainer: FC<Props> = props => {
   }
 
   function currentAgentHasReadAccess(): boolean {
-    return isOperationAllowed({ user: props.currentAgent as UserProfile, resource: 'module.hitl2', operation: 'read' })
+    return isOperationAllowed({ user: props.currentAgent, resource: 'module.hitl2', operation: 'read' })
   }
 
   function currentAgentHasPermission(operation: PermissionOperation): boolean {
-    return isOperationAllowed({ user: props.currentAgent as UserProfile, resource: 'module.hitl2', operation })
+    return isOperationAllowed({ user: props.currentAgent, resource: 'module.hitl2', operation })
   }
 
   function canAssign(): boolean {
@@ -144,7 +144,7 @@ const ConversationContainer: FC<Props> = props => {
 
   const shouldRenderHistory = props.escalation && props.escalation.status !== 'assigned' && currentAgentHasReadAccess()
   const shouldRenderLiveChat =
-    props.escalation?.status === 'assigned' && props.escalation?.agentId === props.currentAgent.id
+    props.escalation?.status === 'assigned' && props.escalation?.agentId === props.currentAgent.agentId
   return (
     <Fragment>
       {!props.escalation && renderEmpty()}

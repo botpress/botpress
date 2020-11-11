@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import { WorkspaceUser } from 'common/typings'
 
 // TODO fix this and use those from common/typings
 declare global {
@@ -27,10 +28,10 @@ export interface UserProfile {
 
 export type AgentType = {
   id: string
-  workspace: string
-  role: string
+  agentId: string
   online: boolean
-} & Partial<UserProfile>
+} & UserProfile &
+  Pick<WorkspaceUser, 'role'>
 
 export type UserType = {
   id: string
