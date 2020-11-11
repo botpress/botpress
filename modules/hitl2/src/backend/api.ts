@@ -314,9 +314,12 @@ export default async (bp: typeof sdk, state: StateType) => {
       const { email, strategy } = req.tokenUser!
       const agentId = makeAgentId(strategy, email)
 
+      const escalation = await repository.getEscalation(req.params.id)
+
       const payload: CommentType = {
         ...req.body,
-        escalationId: req.params.id,
+        escalationId: escalation.id,
+        threadId: escalation.userThreadId,
         agentId
       }
 
