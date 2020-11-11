@@ -39,9 +39,10 @@ const SayNodeContent: FC<Props> = props => {
 
   const renderCard = (item, index?) => {
     const { image, title, subtitle } = item
+    const key = _.truncate(title || subtitle, { length: 15 })
 
     return (
-      <div key={index} className={localStyle.contentImgWrapper}>
+      <div key={key} className={localStyle.contentImgWrapper}>
         {image && <div style={{ backgroundImage: `url('${image}')` }} className={localStyle.img}></div>}
         <div className={localStyle.textWrapper}>
           {title && <span className={localStyle.primaryText}>{title}</span>}
