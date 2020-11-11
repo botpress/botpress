@@ -119,12 +119,7 @@ const App = ({ bp }) => {
         <div className={cx(style.sidebar, style.column)}>
           <EscalationList escalations={state.escalations} loading={loading} />
         </div>
-        <ConversationContainer
-          bp={bp}
-          api={api}
-          escalation={state.currentEscalation}
-          currentAgent={state.currentAgent}
-        />
+        <ConversationContainer bp={bp} api={api} />
       </div>
       <script src="assets/modules/channel-web/inject.js"></script>
     </div>
