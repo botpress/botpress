@@ -15,6 +15,7 @@ const WRAPPER_ID = `${WEBCHAT_ID}-wrapper`
 
 const LiveChat: React.FC<Props> = ({ escalation, currentAgent }) => {
   const [webchatLoaded, setwebchatLoaded] = useState(false)
+  const [webchatOpen, setwebchatOpen] = useState(false)
 
   function getWebchatStore() {
     return window[WEBCHAT_ID].webchat_store
@@ -29,6 +30,7 @@ const LiveChat: React.FC<Props> = ({ escalation, currentAgent }) => {
       store.view.setContainerWidth('100%')
       store.view.setLayoutWidth('100%')
       store.view.showChat()
+      setwebchatOpen(true)
       setwebchatLoaded(true)
     }
   }
@@ -49,9 +51,9 @@ const LiveChat: React.FC<Props> = ({ escalation, currentAgent }) => {
       showPoweredBy: false,
       showUserAvatar: false,
       enableResetSessionShortcut: false,
-      enableTranscriptDownload: false
-      // stylesheet
-      // extrastylesheet
+      enableTranscriptDownload: false,
+      closeOnEscape: false,
+      stylesheet: 'assets/modules/hitl2/webchat-theme.css'
     }
     window.botpressWebChat.init(webchatConfig, `#${WRAPPER_ID}`)
     window.addEventListener('message', webchatEventListener)
@@ -63,14 +65,10 @@ const LiveChat: React.FC<Props> = ({ escalation, currentAgent }) => {
   useEffect(() => {
     if (!webchatLoaded) {
       return
-      // push action in queue ... ? necessary ?
     }
 
     const store = getWebchatStore()
     store.fetchConversation(escalation.agentThreadId)
-    // we might need to change the
-    // store.console.log('escalation changed and webchat loaded, set webchat target user and conversationID') // maybe not target
-    // TODO set webchat user and conversationId
   }, [escalation])
 
   return (

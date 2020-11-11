@@ -193,6 +193,7 @@
       color: var(--ocean);
       svg {
         fill: var(--ocean) !important;
+        transition: none;
       }
     }
   }
