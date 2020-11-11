@@ -69,7 +69,7 @@ export class VersioningRouter extends CustomRouter {
 
           res.sendStatus(200)
         } catch (error) {
-          throw new UnprocessableEntityError('Error while pushing changes', error)
+          throw new UnprocessableEntityError('Error while pushing changes')
         } finally {
           tmpDir.removeCallback()
         }

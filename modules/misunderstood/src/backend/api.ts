@@ -25,7 +25,7 @@ export default async (bp: typeof sdk, db: Db) => {
         await db.addEvent(event)
         res.sendStatus(201)
       } catch (err) {
-        throw new UnprocessableEntityError('Could not create entry', err)
+        throw new UnprocessableEntityError('Could not create entry')
       }
     })
   )
@@ -40,7 +40,7 @@ export default async (bp: typeof sdk, db: Db) => {
         await db.updateStatus(botId, id, status, resolutionData)
         res.sendStatus(200)
       } catch (err) {
-        throw new UnprocessableEntityError('Could not update event', err)
+        throw new UnprocessableEntityError('Could not update event')
       }
     })
   )

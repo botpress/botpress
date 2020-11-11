@@ -359,7 +359,7 @@ export class BotsRouter extends CustomRouter {
             return res.send(423) // Mutex locked
           }
 
-          throw new UnprocessableEntityError('Error saving flow', err)
+          throw new UnprocessableEntityError('Error saving flow')
         }
       })
     )

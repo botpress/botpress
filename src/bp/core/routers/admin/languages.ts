@@ -73,7 +73,7 @@ export class LanguagesRouter extends CustomRouter {
             ...(await this.getExtraLangs())
           })
         } catch (err) {
-          throw new UnprocessableEntityError('Could not fetch languages', err)
+          throw new UnprocessableEntityError('Could not fetch languages')
         }
       })
     )

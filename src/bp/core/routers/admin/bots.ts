@@ -161,7 +161,7 @@ export class BotsRouter extends CustomRouter {
 
           return res.sendStatus(200)
         } catch (err) {
-          throw new UnprocessableEntityError('Cannot request state change for bot', err)
+          throw new UnprocessableEntityError('Cannot request state change for bot')
         }
       })
     )
@@ -176,7 +176,7 @@ export class BotsRouter extends CustomRouter {
 
           return res.sendStatus(200)
         } catch (err) {
-          throw new UnprocessableEntityError('Cannot approve state change for bot', err)
+          throw new UnprocessableEntityError('Cannot approve state change for bot')
         }
       })
     )
@@ -194,7 +194,7 @@ export class BotsRouter extends CustomRouter {
             botId
           })
         } catch (err) {
-          throw new UnprocessableEntityError('Cannot update bot', err)
+          throw new UnprocessableEntityError('Cannot update bot')
         }
       })
     )
@@ -210,7 +210,7 @@ export class BotsRouter extends CustomRouter {
           await this.workspaceService.deleteBotRef(botId)
           return sendSuccess(res, 'Removed bot from team', { botId })
         } catch (err) {
-          throw new UnprocessableEntityError('Cannot delete bot', err)
+          throw new UnprocessableEntityError('Cannot delete bot')
         }
       })
     )
@@ -260,7 +260,7 @@ export class BotsRouter extends CustomRouter {
             revisions
           })
         } catch (err) {
-          throw new UnprocessableEntityError('Cannot list revisions for bot', err)
+          throw new UnprocessableEntityError('Cannot list revisions for bot')
         }
       })
     )
@@ -274,7 +274,7 @@ export class BotsRouter extends CustomRouter {
           await this.botService.createRevision(botId)
           return sendSuccess(res, `Created a new revision for bot ${botId}`)
         } catch (err) {
-          throw new UnprocessableEntityError('Cannot create new revision for bot', err)
+          throw new UnprocessableEntityError('Cannot create new revision for bot')
         }
       })
     )

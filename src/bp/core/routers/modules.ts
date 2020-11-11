@@ -56,7 +56,7 @@ export class ModulesRouter extends CustomRouter {
 
           res.sendStatus(200)
         } catch (err) {
-          throw new UnprocessableEntityError('Could not unpack module', err)
+          throw new UnprocessableEntityError('Could not unpack module')
         }
       })
     )
@@ -144,7 +144,7 @@ export class ModulesRouter extends CustomRouter {
           const metadata: FlowGeneratorMetadata = { botId: req.query.botId, isOneFlow: yn(req.query.isOneFlow) }
           res.send(this.skillService.finalizeFlow(await flowGenerator(req.body, metadata)))
         } catch (err) {
-          throw new UnprocessableEntityError('Could not generate flow', err)
+          throw new UnprocessableEntityError('Could not generate flow')
         }
       })
     )

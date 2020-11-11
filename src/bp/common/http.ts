@@ -88,48 +88,40 @@ export class StandardError extends ResponseError {
 export class BadRequestError extends ResponseError {
   type = 'BadRequestError'
 
-  constructor(message: string) {
-    super(`Bad Request: ${message}`, 400, 'BP_0040')
-  }
-}
-
-export class UnprocessableEntityError extends ResponseError {
-  type = 'UnprocessableEntity'
-
-  constructor(message = 'UnprocessableEntity', detailedMessage?: string) {
-    super([message, detailedMessage].filter(Boolean).join(': '), 422)
+  constructor(message?: string) {
+    super(['Bad Request', message].filter(Boolean).join(': '), 400, 'BP_0040')
   }
 }
 
 export class UnauthorizedError extends ResponseError {
   type = 'UnauthorizedError'
 
-  constructor(message: string) {
-    super(`Unauthorized: ${message}`, 401, 'BP_0041')
+  constructor(message?: string) {
+    super(['Unauthorized', message].filter(Boolean).join(': '), 401, 'BP_0041')
   }
 }
 
 export class PaymentRequiredError extends ResponseError {
   type = 'PaymentRequiredError'
 
-  constructor(message: string) {
-    super(message || '', 402, 'BP_0042')
+  constructor(message?: string) {
+    super(['Payment Required', message].filter(Boolean).join(': '), 402, 'BP_0042')
   }
 }
 
 export class ForbiddenError extends ResponseError {
   type = 'ForbiddenError'
 
-  constructor(message: string) {
-    super(`Forbidden: ${message}`, 403, 'BP_0043')
+  constructor(message?: string) {
+    super(['Forbidden', message].filter(Boolean).join(': '), 403, 'BP_0043')
   }
 }
 
 export class NotFoundError extends ResponseError {
   type = 'NotFoundError'
 
-  constructor(message: string) {
-    super(`Not Found: ${message}`, 404, 'BP_0044')
+  constructor(message?: string) {
+    super(['Not Found', message].filter(Boolean).join(': '), 404, 'BP_0044')
   }
 }
 
@@ -141,18 +133,26 @@ export class ConflictError extends ResponseError {
   }
 }
 
+export class UnprocessableEntityError extends ResponseError {
+  type = 'UnprocessableEntity'
+
+  constructor(message?: string) {
+    super(['Unprocessable Entity', message].filter(Boolean).join(': '), 422)
+  }
+}
+
 export class InternalServerError extends ResponseError {
   type = 'InternalServerError'
 
-  constructor(message = '') {
-    super(message, 500, 'BP_0050')
+  constructor(message?: string) {
+    super(['Internal Server Error', message].filter(Boolean).join(': '), 500, 'BP_0050')
   }
 }
 
 export class ServiceUnavailableError extends ResponseError {
   type = 'ServiceUnavailableError'
 
-  constructor(message: string) {
-    super(`Service Unavailable: ${message}`, 503, 'BP_0140') // Suggestion to go from 400 to 503
+  constructor(message?: string) {
+    super(['Service Unavailable', message].filter(Boolean).join(': '), 503, 'BP_0140')
   }
 }
