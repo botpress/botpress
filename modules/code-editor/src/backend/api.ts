@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { asyncMiddleware as asyncMw, BPRequest, UnexpectedError } from 'common/http'
+import { asyncMiddleware as asyncMw, BPRequest, UnprocessableEntityError } from 'common/http'
 import _ from 'lodash'
 import multer from 'multer'
 import path from 'path'
@@ -42,7 +42,7 @@ export default async (bp: typeof sdk, editor: Editor) => {
         const includeBuiltin = req.query.includeBuiltin === 'true'
         res.send(await editor.forBot(req.params.botId).getAllFiles(req.permissions, rawFiles, includeBuiltin))
       } catch (err) {
-        throw new UnexpectedError('Error fetching files', err)
+        throw new UnprocessableEntityError('Error fetching files', err)
       }
     })
   )
@@ -58,7 +58,7 @@ export default async (bp: typeof sdk, editor: Editor) => {
         await editor.forBot(req.params.botId).saveFile(req.body)
         res.sendStatus(200)
       } catch (err) {
-        throw new UnexpectedError('Cannot save file', err)
+        throw new UnprocessableEntityError('Cannot save file', err)
       }
     })
   )
@@ -75,7 +75,7 @@ export default async (bp: typeof sdk, editor: Editor) => {
 
         res.send({ fileContent })
       } catch (err) {
-        throw new UnexpectedError('Error reading file', err)
+        throw new UnprocessableEntityError('Error reading file', err)
       }
     })
   )
@@ -107,7 +107,7 @@ export default async (bp: typeof sdk, editor: Editor) => {
         await editor.forBot(req.params.botId).renameFile(req.body.file, req.body.newName)
         res.sendStatus(200)
       } catch (err) {
-        throw new UnexpectedError('Could not rename file', err)
+        throw new UnprocessableEntityError('Could not rename file', err)
       }
     })
   )
@@ -123,7 +123,7 @@ export default async (bp: typeof sdk, editor: Editor) => {
         await editor.forBot(req.params.botId).deleteFile(req.body)
         res.sendStatus(200)
       } catch (err) {
-        throw new UnexpectedError('Could not delete file', err)
+        throw new UnprocessableEntityError('Could not delete file', err)
       }
     })
   )
@@ -141,7 +141,7 @@ export default async (bp: typeof sdk, editor: Editor) => {
         await bp.ghost.forRoot().upsertFile(folder, filename, req.file.buffer)
         res.sendStatus(200)
       } catch (err) {
-        throw new UnexpectedError('Could not upload file', err)
+        throw new UnprocessableEntityError('Could not upload file', err)
       }
     })
   )
@@ -153,7 +153,7 @@ export default async (bp: typeof sdk, editor: Editor) => {
       try {
         res.send(req.permissions)
       } catch (err) {
-        throw new UnexpectedError('Could not fetch permissions', err)
+        throw new UnprocessableEntityError('Could not fetch permissions', err)
       }
     })
   )
@@ -164,7 +164,7 @@ export default async (bp: typeof sdk, editor: Editor) => {
       try {
         res.send(await editor.loadTypings())
       } catch (err) {
-        throw new UnexpectedError('Could not load typings. Code completion will not be available', err)
+        throw new UnprocessableEntityError('Could not load typings. Code completion will not be available', err)
       }
     })
   )

@@ -1,7 +1,7 @@
 import { Logger, StrategyUser } from 'botpress/sdk'
+import { BadRequestError, ConflictError } from 'common/http'
 import { RequestWithUser } from 'common/typings'
 import { AuthStrategyBasic } from 'core/config/botpress.config'
-import { BadRequestError, ConflictError } from 'core/routers/errors'
 import { Request, Router } from 'express'
 import _ from 'lodash'
 import moment from 'moment'

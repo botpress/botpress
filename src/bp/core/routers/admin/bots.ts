@@ -1,5 +1,5 @@
 import { BotConfig, Logger } from 'botpress/sdk'
-import { UnexpectedError } from 'common/http'
+import { ConflictError, ForbiddenError, UnprocessableEntityError } from 'common/http'
 import { RequestWithUser } from 'common/typings'
 import { ConfigProvider } from 'core/config/config-loader'
 import { BotService } from 'core/services/bot-service'
@@ -10,7 +10,6 @@ import _ from 'lodash'
 import yn from 'yn'
 
 import { CustomRouter } from '../customRouter'
-import { ConflictError, ForbiddenError } from '../errors'
 import {
   assertBotpressPro,
   assertSuperAdmin,
@@ -162,7 +161,7 @@ export class BotsRouter extends CustomRouter {
 
           return res.sendStatus(200)
         } catch (err) {
-          throw new UnexpectedError('Cannot request state change for bot', err)
+          throw new UnprocessableEntityError('Cannot request state change for bot', err)
         }
       })
     )
@@ -177,7 +176,7 @@ export class BotsRouter extends CustomRouter {
 
           return res.sendStatus(200)
         } catch (err) {
-          throw new UnexpectedError('Cannot approve state change for bot', err)
+          throw new UnprocessableEntityError('Cannot approve state change for bot', err)
         }
       })
     )
@@ -195,7 +194,7 @@ export class BotsRouter extends CustomRouter {
             botId
           })
         } catch (err) {
-          throw new UnexpectedError('Cannot update bot', err)
+          throw new UnprocessableEntityError('Cannot update bot', err)
         }
       })
     )
@@ -211,7 +210,7 @@ export class BotsRouter extends CustomRouter {
           await this.workspaceService.deleteBotRef(botId)
           return sendSuccess(res, 'Removed bot from team', { botId })
         } catch (err) {
-          throw new UnexpectedError('Cannot delete bot', err)
+          throw new UnprocessableEntityError('Cannot delete bot', err)
         }
       })
     )
@@ -261,7 +260,7 @@ export class BotsRouter extends CustomRouter {
             revisions
           })
         } catch (err) {
-          throw new UnexpectedError('Cannot list revisions for bot', err)
+          throw new UnprocessableEntityError('Cannot list revisions for bot', err)
         }
       })
     )
@@ -275,7 +274,7 @@ export class BotsRouter extends CustomRouter {
           await this.botService.createRevision(botId)
           return sendSuccess(res, `Created a new revision for bot ${botId}`)
         } catch (err) {
-          throw new UnexpectedError('Cannot create new revision for bot', err)
+          throw new UnprocessableEntityError('Cannot create new revision for bot', err)
         }
       })
     )

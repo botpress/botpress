@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { Logger } from 'botpress/sdk'
-import { StandardError, UnexpectedError } from 'common/http'
+import { StandardError, UnprocessableEntityError } from 'common/http'
 import { ConfigProvider } from 'core/config/config-loader'
 import { ModuleLoader } from 'core/module-loader'
 import { WorkspaceService } from 'core/services/workspace-service'
@@ -73,7 +73,7 @@ export class LanguagesRouter extends CustomRouter {
             ...(await this.getExtraLangs())
           })
         } catch (err) {
-          throw new UnexpectedError('Could not fetch languages', err)
+          throw new UnprocessableEntityError('Could not fetch languages', err)
         }
       })
     )

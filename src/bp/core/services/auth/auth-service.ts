@@ -1,4 +1,5 @@
 import { Logger, RolloutStrategy, StrategyUser } from 'botpress/sdk'
+import { BadRequestError } from 'common/http'
 import { AuthStrategy, AuthStrategyBasic } from 'core/config/botpress.config'
 import { ConfigProvider } from 'core/config/config-loader'
 import Database from 'core/database'
@@ -6,7 +7,6 @@ import { StrategyUserTable } from 'core/database/tables/server-wide/strategy_use
 import { getMessageSignature } from 'core/misc/security'
 import { ModuleLoader } from 'core/module-loader'
 import { StrategyUsersRepository } from 'core/repositories/strategy_users'
-import { BadRequestError } from 'core/routers/errors'
 import { Event } from 'core/sdk/impl'
 import { inject, injectable, tagged } from 'inversify'
 import jsonwebtoken from 'jsonwebtoken'

@@ -1,6 +1,6 @@
 import { Logger, RouterOptions } from 'botpress/sdk'
 import { Serialize } from 'cerialize'
-import { UnexpectedError } from 'common/http'
+import { NotFoundError, UnprocessableEntityError } from 'common/http'
 import { gaId, machineUUID } from 'common/stats'
 import { FlowView } from 'common/typings'
 import { BotpressConfig } from 'core/config/botpress.config'
@@ -32,7 +32,6 @@ import { URL } from 'url'
 
 import { disableForModule } from '../conditionalMiddleware'
 import { CustomRouter } from '../customRouter'
-import { NotFoundError } from '../errors'
 import { checkMethodPermissions, checkTokenHeader, needPermissions } from '../util'
 
 const debugMedia = DEBUG('audit:action:media-upload')
@@ -360,7 +359,7 @@ export class BotsRouter extends CustomRouter {
             return res.send(423) // Mutex locked
           }
 
-          throw new UnexpectedError('Error saving flow', err)
+          throw new UnprocessableEntityError('Error saving flow', err)
         }
       })
     )

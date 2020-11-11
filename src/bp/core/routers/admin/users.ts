@@ -1,4 +1,5 @@
 import { Logger } from 'botpress/sdk'
+import { ConflictError } from 'common/http'
 import { WorkspaceUser } from 'common/typings'
 import AuthService from 'core/services/auth/auth-service'
 import { InvalidOperationError } from 'core/services/auth/errors'
@@ -8,7 +9,6 @@ import Joi from 'joi'
 import _ from 'lodash'
 
 import { CustomRouter } from '../customRouter'
-import { ConflictError } from '../errors'
 import {
   assertBotpressPro,
   assertSuperAdmin,

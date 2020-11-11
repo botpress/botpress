@@ -11,7 +11,6 @@ import Joi from 'joi'
 import _ from 'lodash'
 
 import { CustomRouter } from '../customRouter'
-import { NotFoundError } from '../errors'
 
 export class WorkspacesRouter extends CustomRouter {
   constructor(

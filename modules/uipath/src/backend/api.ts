@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { asyncMiddleware as asyncMw, UnexpectedError } from 'common/http'
+import { asyncMiddleware as asyncMw, UnprocessableEntityError } from 'common/http'
 import jsonwebtoken from 'jsonwebtoken'
 
 import { jwtAuthorizerMiddleware } from './auth'
@@ -23,7 +23,7 @@ export default async (bp: typeof sdk) => {
         const token = jsonwebtoken.sign({}, process.APP_SECRET, { expiresIn })
         res.send({ token })
       } catch (err) {
-        throw new UnexpectedError('Could not get token', err)
+        throw new UnprocessableEntityError('Could not get token', err)
       }
     })
   )
@@ -47,7 +47,7 @@ export default async (bp: typeof sdk) => {
 
         res.sendStatus(200)
       } catch (err) {
-        throw new UnexpectedError('Could not send message', err)
+        throw new UnprocessableEntityError('Could not send message', err)
       }
     })
   )

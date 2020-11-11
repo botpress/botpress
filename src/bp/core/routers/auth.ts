@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import { BadRequestError, NotFoundError } from 'common/http'
 import { AuthRule, ChatUserAuth, RequestWithUser, TokenUser, UserProfile } from 'common/typings'
 import { ConfigProvider } from 'core/config/config-loader'
 import { AuthStrategies } from 'core/services/auth-strategies'
@@ -11,7 +12,6 @@ import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 
 import { CustomRouter } from './customRouter'
-import { BadRequestError, NotFoundError } from './errors'
 import { assertWorkspace, checkTokenHeader, success as sendSuccess, validateBodySchema } from './util'
 
 export class AuthRouter extends CustomRouter {

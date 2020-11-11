@@ -1,5 +1,13 @@
 import { Logger, StrategyUser } from 'botpress/sdk'
 import { checkRule } from 'common/auth'
+import {
+  BadRequestError,
+  ForbiddenError,
+  InternalServerError,
+  NotFoundError,
+  PaymentRequiredError,
+  UnauthorizedError
+} from 'common/http'
 import { InvalidOperationError } from 'core/services/auth/errors'
 import { WorkspaceService } from 'core/services/workspace-service'
 import { NextFunction, Request, Response } from 'express'
@@ -9,15 +17,6 @@ import onHeaders from 'on-headers'
 import { RequestWithUser, TokenUser } from '../../common/typings'
 import AuthService, { SERVER_USER, WORKSPACE_HEADER } from '../services/auth/auth-service'
 import { incrementMetric } from '../services/monitoring'
-
-import {
-  BadRequestError,
-  ForbiddenError,
-  InternalServerError,
-  NotFoundError,
-  PaymentRequiredError,
-  UnauthorizedError
-} from './errors'
 
 const debugFailure = DEBUG('audit:collab:fail')
 const debugSuccess = DEBUG('audit:collab:success')

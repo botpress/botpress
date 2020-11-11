@@ -1,5 +1,6 @@
 import bodyParser from 'body-parser'
 import { AxiosBotConfig, AxiosOptions, http, Logger, RouterOptions } from 'botpress/sdk'
+import { UnauthorizedError, PaymentRequiredError } from 'common/http'
 import LicensingService from 'common/licensing-service'
 import { RequestWithUser } from 'common/typings'
 import session from 'cookie-session'
@@ -33,7 +34,6 @@ import { ConverseRouter } from './routers/bots/converse'
 import { HintsRouter } from './routers/bots/hints'
 import { NLURouter } from './routers/bots/nlu'
 import { isDisabled } from './routers/conditionalMiddleware'
-import { InvalidExternalToken, PaymentRequiredError } from './routers/errors'
 import { SdkApiRouter } from './routers/sdk/router'
 import { ShortLinksRouter } from './routers/shortlinks'
 import { hasPermissions, monitoringMiddleware, needPermissions } from './routers/util'
@@ -482,7 +482,7 @@ export default class HTTPServer {
       try {
         req.credentials = await this.decodeExternalToken(req.headers[EXTERNAL_AUTH_HEADER])
       } catch (error) {
-        return next(new InvalidExternalToken(error.message))
+        return next(new UnauthorizedError(error.message))
       }
     }
 

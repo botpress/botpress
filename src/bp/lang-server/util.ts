@@ -1,12 +1,12 @@
 import _ from 'lodash'
 
-import { BadRequestError, NotReadyError } from '../core/routers/errors'
+import { BadRequestError, ServiceUnavailableError } from 'common/http'
 
 import LanguageService from './service'
 
 export const serviceLoadingMiddleware = (service: LanguageService) => (_req, _res, next) => {
   if (!service.isReady) {
-    return next(new NotReadyError('Language Server is still loading'))
+    return next(new ServiceUnavailableError('Language Server is still loading'))
   }
 
   next()

@@ -1,7 +1,6 @@
+import { UnauthorizedError } from 'common/http'
 import { Request } from 'express'
 import _ from 'lodash'
-
-import { UnauthorizedError } from './core/routers/errors'
 
 const debugAuth = DEBUG('api:auth')
 

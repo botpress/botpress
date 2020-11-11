@@ -1,7 +1,7 @@
 import bodyParser from 'body-parser'
 import { Logger } from 'botpress/sdk'
+import { BadRequestError, UnauthorizedError } from 'common/http'
 import { ActionDefinition } from 'common/typings'
-import { BadRequestError, UnauthorizedError } from 'core/routers/errors'
 import { ACTION_SERVER_AUDIENCE } from 'core/routers/sdk/utils'
 import { asyncMiddleware, AsyncMiddleware, TypedRequest, TypedResponse } from 'core/routers/util'
 import { TYPES } from 'core/types'

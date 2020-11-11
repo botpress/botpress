@@ -1,10 +1,9 @@
 import { SdkApiPayload } from 'botpress/apiSdk'
+import { BadRequestError, UnauthorizedError } from 'common/http'
 import { NextFunction, Request, Response } from 'express'
 import Joi from 'joi'
 import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
-
-import { BadRequestError, UnauthorizedError } from '../errors'
 
 import { validations } from './validation'
 

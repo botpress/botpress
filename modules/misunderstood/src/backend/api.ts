@@ -1,6 +1,6 @@
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
-import { asyncMiddleware as asyncMw, StandardError, UnexpectedError } from 'common/http'
+import { asyncMiddleware as asyncMw, StandardError, UnprocessableEntityError } from 'common/http'
 import { Request, Response } from 'express'
 
 import { FlaggedEvent, FLAGGED_MESSAGE_STATUSES } from '../types'
@@ -25,7 +25,7 @@ export default async (bp: typeof sdk, db: Db) => {
         await db.addEvent(event)
         res.sendStatus(201)
       } catch (err) {
-        throw new UnexpectedError('Could not create entry', err)
+        throw new UnprocessableEntityError('Could not create entry', err)
       }
     })
   )
@@ -40,7 +40,7 @@ export default async (bp: typeof sdk, db: Db) => {
         await db.updateStatus(botId, id, status, resolutionData)
         res.sendStatus(200)
       } catch (err) {
-        throw new UnexpectedError('Could not update event', err)
+        throw new UnprocessableEntityError('Could not update event', err)
       }
     })
   )

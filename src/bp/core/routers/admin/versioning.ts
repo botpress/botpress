@@ -1,5 +1,5 @@
 import { Logger } from 'botpress/sdk'
-import { UnexpectedError } from 'common/http'
+import { UnprocessableEntityError } from 'common/http'
 import { extractArchive } from 'core/misc/archive'
 import { GhostService } from 'core/services'
 import { BotService } from 'core/services/bot-service'
@@ -69,7 +69,7 @@ export class VersioningRouter extends CustomRouter {
 
           res.sendStatus(200)
         } catch (error) {
-          throw new UnexpectedError('Error while pushing changes', error)
+          throw new UnprocessableEntityError('Error while pushing changes', error)
         } finally {
           tmpDir.removeCallback()
         }

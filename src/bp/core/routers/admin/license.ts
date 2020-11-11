@@ -1,4 +1,5 @@
 import { Logger } from 'botpress/sdk'
+import { BadRequestError } from 'common/http'
 import LicensingService, { LicenseInfo, LicenseStatus } from 'common/licensing-service'
 import { RequestWithUser } from 'common/typings'
 import { ConfigProvider } from 'core/config/config-loader'
@@ -6,7 +7,6 @@ import { Router } from 'express'
 import _ from 'lodash'
 
 import { CustomRouter } from '../customRouter'
-import { BadRequestError } from '../errors'
 import { assertSuperAdmin, success as sendSuccess } from '../util'
 
 type LicensingStatus = {
