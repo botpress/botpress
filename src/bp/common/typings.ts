@@ -21,18 +21,6 @@ export interface CreatedUser {
   tempPassword: string
 }
 
-export interface WorkspaceUser {
-  email: string
-  strategy: string
-  role: string
-  workspace: string
-  workspaceName?: string
-}
-
-export type WorkspaceUserInfo = {
-  attributes: any
-} & WorkspaceUser
-
 export interface AuthStrategyConfig {
   strategyType: string
   strategyId: string

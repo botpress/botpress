@@ -7,7 +7,6 @@
 declare module 'botpress/sdk' {
   import { NextFunction, Request, Response, Router } from 'express'
   import Knex from 'knex'
-
   export interface KnexExtension {
     isLite: boolean
     location: string
@@ -1646,6 +1645,18 @@ declare module 'botpress/sdk' {
     allowedUsages?: number
   }
 
+  export interface WorkspaceUser {
+    email: string
+    strategy: string
+    role: string
+    workspace: string
+    workspaceName?: string
+  }
+
+  export type WorkspaceUserWithAttributes = {
+    attributes: any
+  } & WorkspaceUser
+
   export interface AddWorkspaceUserOptions {
     /** Select an existing custom role for that user. If role, asAdmin and asChatUser are undefined, then it will pick the default role */
     role?: string
@@ -2136,6 +2147,24 @@ declare module 'botpress/sdk' {
      * @returns boolean indicating if code was valid & enough usage were left
      */
     export function consumeInviteCode(workspaceId: string, inviteCode?: string): Promise<boolean>
+
+    /**
+     * Retreives users in a given workspace. A user's object will be hydrated with desired attributes
+     * @param workspaceId
+     * @param attributes list of desired attributes
+     * @returns all users in workspace with desired attributes
+     */
+    export function getWorkspaceUsersWithAttributes(
+      workspaceId: string,
+      attributes?: string[]
+    ): Promise<WorkspaceUserWithAttributes[]>
+
+    /**
+     * Retreives users in a given workspace
+     * @param workspaceId
+     * @returns all users in workspace only email and strategy
+     */
+    export function getWorkspaceUsers(workspaceId: string): Promise<WorkspaceUser[]>
   }
 
   export namespace notifications {
