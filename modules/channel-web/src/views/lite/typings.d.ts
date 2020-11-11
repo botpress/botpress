@@ -144,6 +144,7 @@ export interface Config {
   showTimestamp: boolean
   enableTranscriptDownload: boolean
   enableArrowNavigation: boolean
+  closeOnEscape: boolean
   botName?: string
   composerPlaceholder?: string
   avatarUrl?: string

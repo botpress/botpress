@@ -40,9 +40,14 @@ class Web extends React.Component<MainProps> {
 
     window.addEventListener('message', this.handleIframeApi)
     window.addEventListener('keydown', e => {
+      if (!this.props.config.closeOnEscape) {
+        return
+      }
       if (e.key === 'Escape') {
         this.props.hideChat()
-        window.parent.document.getElementById('mainLayout').focus()
+        if (this.props.config.isEmulator) {
+          window.parent.document.getElementById('mainLayout').focus()
+        }
       }
     })
 
