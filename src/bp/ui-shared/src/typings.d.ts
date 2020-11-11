@@ -19,7 +19,7 @@ import { AddButtonProps, FieldWrapperProps, SelectProps, TextFieldsArrayProps } 
 import { MainContainerProps } from './MainContainer/typings'
 import { HeaderButton, HeaderProps } from './MainLayout/Header/typings'
 import { MenuItem, MenuProps } from './MainLayout/Menu/typings'
-import { RightSidebarProps } from './MainLayout/RightSidebar/typings'
+import { RightSidePanelProps } from './MainLayout/RightSidePanel/typings'
 import { ToolbarButtonProps, ToolbarProps } from './MainLayout/Toolbar/typings'
 import { WrapperProps } from './MainLayout/Wrapper/typings'
 import { MarkdownContentProps } from './MarkdownContent/typings'
@@ -43,7 +43,7 @@ declare module 'botpress/shared' {
     Header(props: HeaderProps): JSX.Element
     Wrapper(props: WrapperProps): JSX.Element
     Menu(props: MenuProps): JSX.Element
-    RightSidebar(props: RightSidebarProps): JSX.Element
+    RightSidePanel(props: RightSidePanelProps): JSX.Element
   }
   export const Form: {
     Form(props: FormProps): JSX.Element

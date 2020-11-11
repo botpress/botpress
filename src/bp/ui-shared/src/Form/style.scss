@@ -78,3 +78,9 @@ a.moreInfo {
     position: absolute;
   }
 }
+
+.moreInfoIcon {
+  svg {
+    color: var(--gray);
+  }
+}

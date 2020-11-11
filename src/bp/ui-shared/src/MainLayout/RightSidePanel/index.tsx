@@ -2,9 +2,9 @@ import cx from 'classnames'
 import React, { FC, useEffect } from 'react'
 
 import style from './style.scss'
-import { RightSidebarProps } from './typings'
+import { RightSidePanelProps } from './typings'
 
-const RightSidebar: FC<RightSidebarProps> = ({ className, canOutsideClickClose, close, children }) => {
+const RightSidePanel: FC<RightSidePanelProps> = ({ className, canOutsideClickClose, close, children }) => {
   let container
   const contentWrapper = document.getElementById('main-content-wrapper')
   const classList = [style.show, ...(className?.split(' ') || [])].filter(Boolean)
@@ -40,4 +40,4 @@ const RightSidebar: FC<RightSidebarProps> = ({ className, canOutsideClickClose, 
   )
 }
 
-export default RightSidebar
+export default RightSidePanel

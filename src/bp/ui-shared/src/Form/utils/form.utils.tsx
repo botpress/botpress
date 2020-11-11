@@ -5,6 +5,7 @@ import React from 'react'
 import ToolTip from '~/../../ui-shared-lite/ToolTip'
 
 import { lang } from '../../translations'
+import style from '../style.scss'
 
 import { createEmptyDataFromSchema } from './fields'
 
@@ -16,9 +17,9 @@ export const printMoreInfo = (moreInfo?: FormMoreInfo | any, isCheckbox = false)
   const { url, label } = moreInfo
   if (url) {
     return (
-      <ToolTip content={`${lang(label)}\n\nClick to read more about this`}>
+      <ToolTip content={`${label ? `${lang(label)}\n\n` : ''}${lang('clickToOpen')}`}>
         <a href={url} target="_blank">
-          <Icon icon="help" color="var(--gray)" iconSize={13} />
+          <Icon icon="help" className={style.moreInfoIcon} iconSize={13} />
         </a>
       </ToolTip>
     )
@@ -26,7 +27,7 @@ export const printMoreInfo = (moreInfo?: FormMoreInfo | any, isCheckbox = false)
 
   return (
     <ToolTip content={lang(label)}>
-      <Icon icon="help" color="var(--gray)" iconSize={13} />
+      <Icon icon="help" className={style.moreInfoIcon} iconSize={13} />
     </ToolTip>
   )
 }

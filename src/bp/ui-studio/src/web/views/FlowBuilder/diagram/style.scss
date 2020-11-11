@@ -10,6 +10,12 @@
   padding-right: calc(var(--spacing-x-large) + var(--emulator-width) + var(--debugger-width)) !important;
 }
 
+.diagram {
+  outline: none;
+  width: 100%;
+  height: 100%;
+}
+
 .floatingInfo {
   position: absolute;
   left: 10px;

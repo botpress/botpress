@@ -5,7 +5,7 @@ import { ControlWithKey } from '..'
 import { lang as langTr } from '../../translations'
 
 export const fieldsToMap = (fields: ControlForm): ControlWithKey => {
-  return Object.keys(fields).map(key => ({ key, ...fields[key] }))
+  return Object.entries(fields).map(([key, entry]) => ({ key, ...entry }))
 }
 
 export const createEmptyDataFromSchema = (fields: ControlWithKey, lang?: string): any => {

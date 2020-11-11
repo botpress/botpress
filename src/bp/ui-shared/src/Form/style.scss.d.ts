@@ -9,6 +9,7 @@ interface CssExports {
   'isCheckbox': string;
   'labelBtn': string;
   'moreInfo': string;
+  'moreInfoIcon': string;
   'noSection': string;
   'requiredField': string;
 }

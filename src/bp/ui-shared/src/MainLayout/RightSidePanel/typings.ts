@@ -1,4 +1,4 @@
-export interface RightSidebarProps {
+export interface RightSidePanelProps {
   className?: string
   canOutsideClickClose?: boolean
   close?: () => void

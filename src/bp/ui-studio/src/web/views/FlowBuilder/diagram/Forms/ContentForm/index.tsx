@@ -69,7 +69,7 @@ const ContentForm: FC<Props> = ({
   }
 
   return (
-    <MainLayout.RightSidebar
+    <MainLayout.RightSidePanel
       className={sharedStyle.wrapper}
       canOutsideClickClose={canOutsideClickClose}
       close={() => close(editingContent)}
@@ -108,7 +108,7 @@ const ContentForm: FC<Props> = ({
           />
         )}
       </Fragment>
-    </MainLayout.RightSidebar>
+    </MainLayout.RightSidePanel>
   )
 }
 

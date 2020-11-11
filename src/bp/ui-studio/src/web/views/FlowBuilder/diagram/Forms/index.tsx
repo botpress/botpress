@@ -41,17 +41,16 @@ const Forms: FC<Props> = ({
     currentItem = node?.content
   }
 
-  const getEmptyContent = content => {
+  const getEmptyContent = (content?: { contentType: string; [prop: string]: any }) => {
     if (!content) {
       return { contentType: 'builtin_text' }
     }
     return {
-      contentType: content[Object.keys(content)[0]]?.contentType
+      contentType: Object.values(content)[0]?.contentType
     }
   }
 
   const updateNodeContent = data => {
-    console.log('UPD', { content: data.content }, node)
     switchFlowNode(node.id)
     updateEditingNodeItem({ node: { ...node, content: data.content }, index })
     updateFlowNode({ content: data.content })

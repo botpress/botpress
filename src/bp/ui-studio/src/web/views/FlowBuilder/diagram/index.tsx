@@ -719,7 +719,7 @@ class Diagram extends Component<Props> {
             id="diagramContainer"
             ref={ref => (this.diagramContainer = ref)}
             tabIndex={1}
-            style={{ outline: 'none', width: '100%', height: '100%' }}
+            className={style.diagram}
             onContextMenu={this.handleContextMenu}
             onDrop={this.handleToolDropped}
             onDragOver={event => event.preventDefault()}
@@ -743,14 +743,14 @@ class Diagram extends Component<Props> {
           </div>
         </MainLayout.Wrapper>
 
-        {/* <Forms
+        <Forms
           diagramEngine={this.diagramEngine}
           deleteSelectedElements={this.deleteSelectedElements.bind(this)}
           updateEditingNodeItem={activeFormItem => this.props.setActiveFormItem(activeFormItem)}
           updateTimeout={timeout => (this.timeout = timeout)}
           currentLang={this.props.currentLang}
           defaultLang={this.props.defaultLang}
-        /> */}
+        />
       </Fragment>
     )
   }
