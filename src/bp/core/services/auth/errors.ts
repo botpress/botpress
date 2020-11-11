@@ -8,15 +8,6 @@ export class InvalidOperationError extends ResponseError {
   type = 'InvalidOperationError'
 }
 
-export class InvalidCredentialsError extends ResponseError {
-  constructor(message?: string) {
-    super('Invalid credentials' + (message ? ' ' + message : ''), 400, 'BP_0009')
-    this.skipLogging = true
-  }
-
-  type = 'InvalidCredentialsError'
-}
-
 export class LockedOutError extends ResponseError {
   constructor(message?: string) {
     super('Account locked out' + (message ? ' ' + message : ''), 400, 'BP_0011')

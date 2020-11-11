@@ -1,5 +1,5 @@
 import { Logger, StrategyUser } from 'botpress/sdk'
-import { BadRequestError, ConflictError } from 'common/http'
+import { BadRequestError, ConflictError, UnauthorizedError } from 'common/http'
 import { RequestWithUser } from 'common/typings'
 import { AuthStrategyBasic } from 'core/config/botpress.config'
 import { Request, Router } from 'express'
@@ -12,7 +12,7 @@ import { charsets, PasswordPolicy } from 'password-sheriff'
 import { asyncMiddleware, success as sendSuccess } from '../../routers/util'
 
 import AuthService, { SERVER_USER } from './auth-service'
-import { InvalidCredentialsError, LockedOutError, PasswordExpiredError, WeakPasswordError } from './errors'
+import { LockedOutError, PasswordExpiredError, WeakPasswordError } from './errors'
 import { saltHashPassword, validateHash } from './util'
 
 const debug = DEBUG('audit:users:basic')
@@ -148,13 +148,13 @@ export default class StrategyBasic {
   ) {
     if (email === SERVER_USER) {
       debug('user tried to login with server user %o', { email, ipAddress })
-      throw new InvalidCredentialsError()
+      throw new UnauthorizedError()
     }
 
     const user = await this.authService.findUser(email, strategy)
     if (!user) {
       debug('login failed; user does not exist %o', { email, ipAddress })
-      throw new InvalidCredentialsError()
+      throw new UnauthorizedError()
     }
     const strategyOptions = _.get(await this.authService.getStrategy(strategy), 'options') as AuthStrategyBasic
     if (!validateHash(password || '', user.password!, user.salt!)) {
@@ -162,7 +162,7 @@ export default class StrategyBasic {
       // this.stats.track('auth', 'login', 'fail')
 
       await this._incrementWrongPassword(user, strategyOptions)
-      throw new InvalidCredentialsError()
+      throw new UnauthorizedError()
     }
     const { locked_out, last_login_attempt, password_expiry_date, password_expired } = user.attributes
 
