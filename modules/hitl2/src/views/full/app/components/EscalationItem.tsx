@@ -74,11 +74,10 @@ const EscalationItem: FC<EscalationType> = props => {
   }, [userConversation])
 
   const agentName = () => {
-    if (agentId && agentId === state.currentAgent?.id) {
+    if (agentId && agentId === state.currentAgent?.agentId) {
       return lang.tr('module.hitl2.escalation.you')
     } else if (agentId) {
-      const agent = state.agents[agentId]
-      return lang.tr('module.hitl2.escalation.agent', { agentName: agent?.fullName || agent?.id })
+      return state.agents[agentId].fullName
     }
   }
 
@@ -92,19 +91,15 @@ const EscalationItem: FC<EscalationType> = props => {
         <span className={style.clientName}>
           {_.get(userConversation.event, 'state.user.fullName') || defaultUsername}
         </span>{' '}
-        #{id}
+        <strong>#{id}</strong>
         <p>
           <span>From {userConversation.channel}</span> {agentName() && ' ⋅ ' + agentName()}
         </p>
         <Text ellipsize={true}>{_.get(userConversation, 'event.preview')}</Text>
-        <p className={style.createdDate}>{lang.tr('module.hitl2.escalation.created', { date: fromNow })}</p>
+        <p className={style.createdDate}>{fromNow}</p>
       </div>
       <div className={style.badge}>
-        <EscalationBadge
-          status={status}
-          assignedToAgent={state.agents[agentId]}
-          currentAgent={state.currentAgent}
-        ></EscalationBadge>
+        <EscalationBadge status={status}></EscalationBadge>
       </div>
     </div>
   )

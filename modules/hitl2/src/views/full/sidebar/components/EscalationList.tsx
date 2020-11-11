@@ -17,7 +17,7 @@ interface Props {
 }
 
 const EscalationList: FC<Props> = props => {
-  const [items, setItems] = useState([])
+  const [items, setItems] = useState<EscalationType[]>([])
 
   useEffect(() => {
     setItems(_.slice(_.orderBy(_.values(props.escalations), 'createdAt', 'desc'), 0, props.itemCount))
@@ -32,9 +32,7 @@ const EscalationList: FC<Props> = props => {
       )}
 
       {!_.isEmpty(items) &&
-        _.values(items).map((escalation: EscalationType) => (
-          <EscalationItem key={escalation.id} {...escalation}></EscalationItem>
-        ))}
+        _.values(items).map(escalation => <EscalationItem key={escalation.id} {...escalation}></EscalationItem>)}
     </div>
   )
 }

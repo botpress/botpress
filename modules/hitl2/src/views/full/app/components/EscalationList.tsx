@@ -18,7 +18,7 @@ interface Props {
 const EscalationList: FC<Props> = props => {
   const { state, dispatch } = useContext(Context)
 
-  const [items, setItems] = useState([])
+  const [items, setItems] = useState<EscalationType[]>([])
   const [filterOptions, setFilterOptions] = useState<FilterType>({
     unassigned: true,
     assignedMe: true,

@@ -14,7 +14,7 @@ interface Props {
 }
 
 const AgentList: FC<Props> = props => {
-  const [items, setItems] = useState([])
+  const [items, setItems] = useState<AgentType[]>([])
 
   useEffect(() => {
     setItems(_.filter(_.values(props.agents), ['online', true]))
@@ -30,7 +30,7 @@ const AgentList: FC<Props> = props => {
 
       {!_.isEmpty(items) && (
         <ul>
-          {_.values(items).map((agent: AgentType) => (
+          {_.values(items).map(agent => (
             <AgentItem key={agent.id} {...agent}></AgentItem>
           ))}
         </ul>

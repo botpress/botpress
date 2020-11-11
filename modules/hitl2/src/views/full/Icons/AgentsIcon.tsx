@@ -1,6 +1,6 @@
-import React, { FC } from 'react'
+import React from 'react'
 
-const AgentsIcon: FC<{}> = () => (
+export default () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="70" height="70" viewBox="0 0 70 70">
     <g fill="none" fillRule="evenodd">
       <path
@@ -18,5 +18,3 @@ const AgentsIcon: FC<{}> = () => (
     </g>
   </svg>
 )
-
-export default AgentsIcon

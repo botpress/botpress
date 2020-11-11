@@ -16,8 +16,8 @@ const UserProfile: FC<Props> = ({ conversation }) => {
   const { state, dispatch } = useContext(Context)
 
   const [expanded, setExpanded] = useState(false)
-  const [user, setUser] = useState({} as UserType)
-  const [defaultUsername, setDefaultUsername] = useState()
+  const [user, setUser] = useState<UserType>()
+  const [defaultUsername, setDefaultUsername] = useState<string>()
 
   useEffect(() => {
     setUser(_.get(conversation.event, 'state.user', {}))
@@ -47,18 +47,14 @@ const UserProfile: FC<Props> = ({ conversation }) => {
     setDefaultUsername(username)
   }, [conversation])
 
-  const variables = user?.variables?.filter(x => !['fullname', 'email'].includes(x.name)) || []
-
   return (
     <div>
       <div className={style.profileHeader}>
-        {/* TODO Add click action here */}
-        <button className={style.clientName}>{user.fullName || defaultUsername}</button>
-        {/* TODO Should add company name here */}
-        {user.email && <p>{user.email}</p>}
+        <button className={style.clientName}>{(user && user.fullName) || defaultUsername}</button>
+        {user && <p>{user.email}</p>}
       </div>
 
-      {!_.isEmpty(variables.length) && (
+      {user && !_.isEmpty(user.variables) && (
         <Fragment>
           <div className={style.divider}></div>
           <Collapsible
@@ -74,7 +70,7 @@ const UserProfile: FC<Props> = ({ conversation }) => {
                 </tr>
               </thead>
               <tbody>
-                {variables.map((entry, index) => (
+                {user.variables.map((entry, index) => (
                   <tr key={index}>
                     <td>{entry.name}</td>
                     <td>{entry.value}</td>
