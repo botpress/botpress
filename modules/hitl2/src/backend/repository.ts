@@ -174,6 +174,21 @@ export default class Repository {
       .orderBy([{ column: 'comments.createdAt', order: 'asc' }])
   }
 
+  private usersQuery = () => {
+    return this.bp
+      .database('strategy_default')
+      .select('*')
+      .orderBy('created_at')
+      .then(data => {
+        return data.map(user => {
+          return {
+            ...user,
+            attributes: this.bp.database.json.get(user.attributes)
+          }
+        })
+      })
+  }
+
   private applyQuery = (query?: Knex.QueryCallback) => {
     return (builder: Knex.QueryBuilder) => {
       if (query) {
@@ -199,18 +214,22 @@ export default class Repository {
     return value
   }
 
+  // This returns an agent with the following additional properties:
+  // - isSuperAdmin
+  // - permissions
+  // - strategyType
   getCurrentAgent = async (req, botId: string, agentId: string): Promise<AgentType> => {
     const online = await this.getAgentOnline(botId, agentId)
 
     const { data } = await axios.get('/auth/me/profile', this.axiosConfig(req, botId))
     return {
       ...data.payload,
-      id: agentId,
+      agentId,
       online
     } as AgentType
   }
 
-  getAgents = async (botId: string, conditions: AgentCollectionConditions = {}): Promise<AgentType[]> => {
+  getAgents = async (botId: string, conditions: AgentCollectionConditions = {}): Promise<Partial<AgentType>[]> => {
     const { online } = conditions
 
     const applyConditions = (records: []) => {
@@ -221,29 +240,28 @@ export default class Repository {
       }
     }
 
-    return this.bp
-      .database('workspace_users')
+    return this.usersQuery()
       .then(data => {
-        return data.map(async row => {
+        // Build agent
+        return data.map<Partial<AgentType>>(user => {
           return {
-            ...row,
-            id: makeAgentId(row.strategy, row.email),
-            online: await this.getAgentOnline(botId, makeAgentId(row.strategy, row.email))
+            ..._.pick(user, ['id', 'email', 'strategy', 'created_at', 'updated_at']),
+            ..._.pick(user.attributes, ['firstname', 'lastname', 'picture_url']),
+            fullName: [user.attributes.firstname, user.attributes.lastname].filter(Boolean).join(' ')
           }
         })
       })
-      .then(async agents => {
-        const superAdmins = (await this.bp.config.getBotpressConfig()).superAdmins
-        const admins = superAdmins.map(async admin => {
-          return {
-            ...admin,
-            id: makeAgentId(admin.strategy, admin.email),
-            online: await this.getAgentOnline(botId, makeAgentId(admin.strategy, admin.email)),
-            workspace: 'default'
-          }
-        })
-
-        return Promise.all([...agents, ...admins])
+      .then(data => {
+        // Append agent-related attributes
+        return Promise.all(
+          data.map(async row => {
+            return {
+              ...row,
+              agentId: makeAgentId(row.strategy, row.email),
+              online: await this.getAgentOnline(botId, makeAgentId(row.strategy, row.email))
+            }
+          })
+        )
       })
       .then(applyConditions)
   }

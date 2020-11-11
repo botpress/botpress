@@ -31,8 +31,7 @@
     "resolve": "Resolve",
     "assigned": "Handoff {id} successfully assigned",
     "resolved": "Handoff {id} successfully resolved",
-    "you": "You",
-    "agent": "Agent: {agentName}"
+    "you": "You"
   },
   "user": {
     "variables": {

@@ -75,7 +75,9 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
 
   return {
     getConfig: async () =>
-      bp.axios.get('/modules/hitl2/config', { baseURL: window.API_PATH, params: { botId: window.BOT_ID } }),
+      bp.axios
+        .get('/modules/hitl2/config', { baseURL: window.API_PATH, params: { botId: window.BOT_ID } })
+        .then(res => res.data),
     setOnline: async () => bp.axios.post(`/agents/me/online`, null, config).then(res => res.data),
     setOffline: async () => bp.axios.post(`/agents/me/offline`, null, config).then(res => res.data),
     getAgents: async (online?: boolean) =>

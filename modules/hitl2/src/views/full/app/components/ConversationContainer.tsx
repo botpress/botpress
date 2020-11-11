@@ -15,7 +15,6 @@ import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useContext } from 'react'
 
-import { AgentType, EscalationType, UserProfile } from '../../../../types'
 import style from '../../style.scss'
 import { ApiType } from '../../Api'
 import AgentsIcon from '../../Icons/AgentsIcon'
@@ -28,18 +27,16 @@ import Sidebar from './Sidebar'
 interface Props {
   bp: typeof sdk
   api: ApiType
-  escalation?: EscalationType
-  currentAgent: AgentType
 }
 
 const ConversationContainer: FC<Props> = props => {
   const { api } = props
 
-  const { dispatch } = useContext(Context)
+  const { state, dispatch } = useContext(Context)
 
   async function handleAssign() {
     try {
-      const escalation = await api.assignEscalation(props.escalation.id)
+      const escalation = await api.assignEscalation(state.currentEscalation.id)
       toast.success(lang.tr('module.hitl2.escalation.assigned', { id: escalation.id }))
     } catch (error) {
       if (_.inRange(_.get(error, 'response.status'), 400, 499)) {
@@ -52,7 +49,7 @@ const ConversationContainer: FC<Props> = props => {
 
   async function handleResolve() {
     try {
-      const escalation = await api.resolveEscalation(props.escalation.id)
+      const escalation = await api.resolveEscalation(state.currentEscalation.id)
       toast.success(lang.tr('module.hitl2.escalation.resolved', { id: escalation.id }))
     } catch (error) {
       if (_.inRange(_.get(error, 'response.status'), 400, 499)) {
@@ -64,15 +61,17 @@ const ConversationContainer: FC<Props> = props => {
   }
 
   function currentAgentHasReadAccess(): boolean {
-    return isOperationAllowed({ user: props.currentAgent as UserProfile, resource: 'module.hitl2', operation: 'read' })
+    return isOperationAllowed({ user: state.currentAgent, resource: 'module.hitl2', operation: 'read' })
   }
 
   function currentAgentHasPermission(operation: PermissionOperation): boolean {
-    return isOperationAllowed({ user: props.currentAgent as UserProfile, resource: 'module.hitl2', operation })
+    return isOperationAllowed({ user: state.currentAgent, resource: 'module.hitl2', operation })
   }
 
   function canAssign(): boolean {
-    return props.escalation?.status === 'pending' && currentAgentHasPermission('write') && props.currentAgent.online
+    return (
+      state.currentEscalation?.status === 'pending' && currentAgentHasPermission('write') && state.currentAgent.online
+    )
   }
 
   // TODO extract this as a component
@@ -98,7 +97,7 @@ const ConversationContainer: FC<Props> = props => {
           tabs={[{ id: 'conversation', title: lang.tr('module.hitl2.conversation.tab') }]}
           buttons={[toolbarButton]}
         />
-        <ConversationHistory bp={props.bp} api={api} conversationId={props.escalation.userThreadId} />
+        <ConversationHistory bp={props.bp} api={api} conversationId={state.currentEscalation.userThreadId} />
       </div>
     )
   }
@@ -120,11 +119,11 @@ const ConversationContainer: FC<Props> = props => {
             tabs={[{ id: 'conversation', title: lang.tr('module.hitl2.conversation.tab') }]}
             buttons={[toolbarButton]}
           />
-          <LiveChat escalation={props.escalation} currentAgent={props.currentAgent} />
+          <LiveChat escalation={state.currentEscalation} currentAgent={state.currentAgent} />
         </div>
         <div className={cx(style.column, style.sidebarContainer)}>
           <Tabs tabs={[{ id: 'user', title: lang.tr('module.hitl2.escalation.contactDetails') }]} />
-          <Sidebar api={props.api} escalation={props.escalation}></Sidebar>
+          <Sidebar api={props.api} escalation={state.currentEscalation}></Sidebar>
         </div>
       </Fragment>
     )
@@ -142,12 +141,13 @@ const ConversationContainer: FC<Props> = props => {
     )
   }
 
-  const shouldRenderHistory = props.escalation && props.escalation.status !== 'assigned' && currentAgentHasReadAccess()
+  const shouldRenderHistory =
+    state.currentEscalation && state.currentEscalation.status !== 'assigned' && currentAgentHasReadAccess()
   const shouldRenderLiveChat =
-    props.escalation?.status === 'assigned' && props.escalation?.agentId === props.currentAgent.id
+    state.currentEscalation?.status === 'assigned' && state.currentEscalation?.agentId === state.currentAgent.agentId
   return (
     <Fragment>
-      {!props.escalation && renderEmpty()}
+      {!state.currentEscalation && renderEmpty()}
       {shouldRenderHistory && renderConversationHistory()}
       {shouldRenderLiveChat && renderLiveChat()}
     </Fragment>

@@ -6,8 +6,6 @@ import { AgentType } from './../../../../types'
 
 interface Props {
   status: string
-  assignedToAgent: Partial<AgentType>
-  currentAgent?: AgentType
 }
 
 const EscalationBadge: FC<Props> = props => {

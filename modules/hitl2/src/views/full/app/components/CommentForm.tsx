@@ -17,7 +17,7 @@ const CommentForm: FC<Props> = props => {
   function currentAgentHasPermission(operation: PermissionOperation): boolean {
     return (
       state.currentAgent?.online &&
-      isOperationAllowed({ user: state.currentAgent as UserProfile, resource: 'module.hitl2', operation })
+      isOperationAllowed({ user: state.currentAgent, resource: 'module.hitl2', operation })
     )
   }
 
