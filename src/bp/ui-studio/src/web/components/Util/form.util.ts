@@ -3,12 +3,10 @@ export const isMissingCurlyBraceClosure = (text: string): boolean => {
 
   return brackets && !(brackets.length % 2 === 0 &&
     new Array(brackets.length / 2)
-      .fill([])
-      .map( () => brackets.splice(0, 2))
-      .map( bracket =>
-        bracket[0].match(/{{{?/g) &&
-        bracket[1].match(/}}}?/g) &&
-        bracket[0].length === bracket[1].length
-      )
+      .fill('')
+      .map( () => {
+        const [leftBracket, rightBracket] = brackets.splice(0, 2)
+        return leftBracket.match(/{{{?/g) && rightBracket.match(/}}}?/g) && leftBracket.length === rightBracket.length
+      })
       .reduce((a, c) => c && a))
 }
