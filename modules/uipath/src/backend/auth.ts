@@ -1,6 +1,5 @@
+import { UnauthorizedError } from 'common/http'
 import jsonwebtoken from 'jsonwebtoken'
-
-import { UnauthorizedError } from './error'
 
 export const jwtAuthorizerMiddleware = async (req, res, next) => {
   if (!req.headers.authorization) {
