@@ -7,6 +7,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@master
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12.13.0'
       - name: Install Dependencies
         run: |
           yarn
@@ -19,6 +22,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@master
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12.13.0'
       - name: Install Dependencies
         run: |
           yarn

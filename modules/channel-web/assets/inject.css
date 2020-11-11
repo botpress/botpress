@@ -3,7 +3,7 @@
   display: block;
   position: fixed;
   visibility: none;
-  z-index: 100000;
+  z-index: 20;
   max-height: 100vh;
   max-width: 100vw;
   transition: none;
