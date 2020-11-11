@@ -1,4 +1,5 @@
 import { Spinner } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import React, { useEffect, useState } from 'react'
 
 import { AgentType, EscalationType } from '../../../../types'
@@ -53,6 +54,7 @@ const LiveChat: React.FC<Props> = ({ escalation, currentAgent }) => {
       enableResetSessionShortcut: false,
       enableTranscriptDownload: false,
       closeOnEscape: false,
+      composerPlaceholder: lang.tr('module.hitl2.conversation.composerPlaceholder'),
       stylesheet: 'assets/modules/hitl2/webchat-theme.css'
     }
     window.botpressWebChat.init(webchatConfig, `#${WRAPPER_ID}`)

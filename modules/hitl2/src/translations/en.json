@@ -52,7 +52,8 @@
   },
   "conversation": {
     "empty": "Select a pending handoff to engage conversation with your clients.",
-    "tab": "Conversation"
+    "tab": "Conversation",
+    "composerPlaceholder": "Reply to user"
   },
   "escalations": {
     "empty": "Thanks to you and your team, there are no pending handoffs right now."

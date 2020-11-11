@@ -53,7 +53,8 @@
   },
   "conversation": {
     "empty": "Sélectionnez une escalation en attente pour engager la conversation avec vos clients.",
-    "tab": "Conversation"
+    "tab": "Conversation",
+    "composerPlaceholder": "Répondre à l'utilisateur"
   },
   "escalations": {
     "empty": "Il n'y a présentement aucune escalation grâce à vous et votre équipe."
