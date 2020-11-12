@@ -9,8 +9,8 @@ import ms from 'ms'
 import yn from 'yn'
 
 import { CommentType, EscalationType } from './../types'
-import { ResponseError, UnprocessableEntityError } from './errors'
-import { formatError, makeAgentId } from './helpers'
+import { UnauthorizedError, UnprocessableEntityError } from './errors'
+import { formatValidationError, makeAgentId } from './helpers'
 import { StateType } from './index'
 import Repository, { AgentCollectionConditions, CollectionConditions } from './repository'
 import socket from './socket'
@@ -39,7 +39,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       Joi.attempt({ online }, AgentOnlineValidation)
     } catch (err) {
       if (err instanceof Joi.ValidationError) {
-        return formatError(res, new UnprocessableEntityError(err))
+        return next(new UnprocessableEntityError(formatValidationError(err)))
       } else {
         return next(err)
       }
@@ -52,10 +52,8 @@ export default async (bp: typeof sdk, state: StateType) => {
   const errorMiddleware = fn => {
     return (req: BPRequest, res: Response, next) => {
       Promise.resolve(fn(req as BPRequest, res, next)).catch(err => {
-        if (err instanceof ResponseError) {
-          formatError(res, err)
-        } else if (err instanceof Joi.ValidationError) {
-          formatError(res, new UnprocessableEntityError(err))
+        if (err instanceof Joi.ValidationError) {
+          throw new UnprocessableEntityError(formatValidationError(err))
         } else {
           next(err)
         }
@@ -245,7 +243,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       try {
         validateEscalationStatusRule(escalation.status, payload.status)
       } catch (e) {
-        throw new UnprocessableEntityError(e)
+        throw new UnprocessableEntityError(formatValidationError(e))
       }
 
       escalation = await repository.updateEscalation(req.params.botId, req.params.id, payload)
@@ -287,7 +285,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       try {
         validateEscalationStatusRule(escalation.status, payload.status)
       } catch (e) {
-        throw new UnprocessableEntityError(e)
+        throw new UnprocessableEntityError(formatValidationError(e))
       }
 
       escalation = await repository.updateEscalation(req.params.botId, req.params.id, payload).then(escalation => {

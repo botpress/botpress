@@ -1,8 +1,8 @@
 import crypto from 'crypto'
-import { Response } from 'express'
 import { performance, PerformanceObserver, PerformanceObserverCallback } from 'perf_hooks'
 
-import { ResponseError } from './errors'
+import { ValidationError } from 'joi'
+import _ from 'lodash'
 
 export const makeAgentId = (strategy: string, email: string): string => {
   return crypto
@@ -11,11 +11,8 @@ export const makeAgentId = (strategy: string, email: string): string => {
     .digest('hex')
 }
 
-export const formatError = (res: Response, error: ResponseError) => {
-  res.status(error.statusCode)
-  res.json({
-    errors: error.messages
-  })
+export const formatValidationError = (validation: ValidationError) => {
+  return _.map(validation.details, 'message').join(', ')
 }
 
 // Measures the execution time of an async function
