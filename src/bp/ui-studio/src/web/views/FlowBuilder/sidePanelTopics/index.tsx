@@ -82,7 +82,7 @@ const SidePanelContent: FC<Props> = props => {
     props.getQnaCountByTopic()
   }, [])
 
-  const goToFlow = flow => history.push(`/oneflow/${flow.replace(/\.flow\.json/, '')}`)
+  const goToFlow = flow => history.push(`/flows/${flow.replace(/\.flow\.json/, '')}`)
 
   const editQnA = (topicName: string) => {
     setSelectedTopic(topicName)

@@ -2,13 +2,12 @@ import { Icon } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
 import reject from 'lodash/reject'
-import values from 'lodash/values'
 import React, { FC, useState } from 'react'
 import { connect } from 'react-redux'
 import { deleteFlow, duplicateFlow, renameFlow } from '~/actions'
 import { history } from '~/components/Routes'
 import { SearchBar, SidePanel, SidePanelSection } from '~/components/Shared/Interface'
-import { getCurrentFlow, getDirtyFlows } from '~/reducers'
+import { getAllFlows, getCurrentFlow, getDirtyFlows, getFlowNamesList } from '~/reducers'
 
 import Inspector from '../inspector'
 
@@ -114,10 +113,10 @@ const SidePanelContent: FC<Props> = props => {
 
 const mapStateToProps = state => ({
   currentFlow: getCurrentFlow(state),
-  flows: values(state.flows.flowsByName),
+  flows: getAllFlows(state),
   dirtyFlows: getDirtyFlows(state),
   flowProblems: state.flows.flowProblems,
-  flowsNames: _.keys(state.flows.flowsByName),
+  flowsName: getFlowNamesList(state),
   showFlowNodeProps: state.flows.showFlowNodeProps
 })
 

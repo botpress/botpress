@@ -3,19 +3,11 @@ import _ from 'lodash'
 import { DefaultLinkModel, DiagramEngine, DiagramModel, DiagramWidget, PointModel } from 'storm-react-diagrams'
 import { hashCode } from '~/util'
 
-import { SaySomethingNodeModel } from '../../OneFlow/diagram/nodes/SaySomethingNode'
-
 import { FlowNode } from './debugger'
 import { BaseNodeModel } from './nodes/BaseNodeModel'
+import { BlockModel } from './nodes/Block'
 import { SkillCallNodeModel } from './nodes/SkillCallNode'
 import { StandardNodeModel } from './nodes/StandardNode'
-import { ActionNodeModel } from './nodes_v2/ActionNode'
-import { ExecuteNodeModel } from './nodes_v2/ExecuteNode'
-import { FailureNodeModel } from './nodes_v2/FailureNode'
-import { ListenNodeModel } from './nodes_v2/ListenNode'
-import { RouterNodeModel } from './nodes_v2/RouterNode'
-import { SuccessNodeModel } from './nodes_v2/SuccessNode'
-import { TriggerNodeModel } from './nodes_v2/TriggerNode'
 
 const passThroughNodeProps: string[] = [
   'name',
@@ -24,6 +16,7 @@ const passThroughNodeProps: string[] = [
   'next',
   'skill',
   'conditions',
+  'type',
   'content',
   'activeWorkflow'
 ]
@@ -45,24 +38,13 @@ export interface Point {
 
 const createNodeModel = (node, modelProps) => {
   const { type } = node
+
   if (type === 'skill-call') {
     return new SkillCallNodeModel(modelProps)
-  } else if (type === 'say_something') {
-    return new SaySomethingNodeModel(modelProps)
-  } else if (type === 'execute') {
-    return new ExecuteNodeModel(modelProps)
-  } else if (type === 'listen') {
-    return new ListenNodeModel(modelProps)
-  } else if (type === 'router') {
-    return new RouterNodeModel(modelProps)
-  } else if (type === 'action') {
-    return new ActionNodeModel(modelProps)
-  } else if (type === 'success') {
-    return new SuccessNodeModel(modelProps)
-  } else if (type === 'trigger') {
-    return new TriggerNodeModel(modelProps)
-  } else if (type === 'failure') {
-    return new FailureNodeModel(modelProps)
+  } else if (
+    ['say_something', 'execute', 'listen', 'router', 'action', 'success', 'trigger', 'failure'].includes(type)
+  ) {
+    return new BlockModel(modelProps)
   } else {
     return new StandardNodeModel(modelProps)
   }

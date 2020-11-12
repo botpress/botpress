@@ -7,12 +7,12 @@ import withLanguage from '~/components/Util/withLanguage'
 import { getFormData } from '~/util/NodeFormData'
 import commonStyle from '~/views/FlowBuilder/common/style.scss'
 
-import style from '../style.scss'
+import componentStyle from '../Components/style.scss'
 
-import { SaySomethingNodeModel } from './index'
+import style from './style.scss'
 
 interface OwnProps {
-  node: SaySomethingNodeModel
+  node: any
   contentType: string
   data: any
   contentLang: string
@@ -60,9 +60,13 @@ const SayNodeContent: FC<Props> = props => {
   }
 
   return (
-    <div className={style.text}>
-      <MarkdownContent markdown={markdown} content={text} />
-      {!!variationsCount && <span className={commonStyle.extraItems}>+ {variationsCount} variations</span>}
+    <div className={componentStyle.contentsWrapper}>
+      <div className={componentStyle.contentWrapper}>
+        <div className={componentStyle.content}>
+          <MarkdownContent markdown={markdown} content={text} />
+          {!!variationsCount && <span className={commonStyle.extraItems}>+ {variationsCount} variations</span>}
+        </div>
+      </div>
     </div>
   )
 }
