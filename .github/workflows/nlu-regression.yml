@@ -22,7 +22,8 @@ jobs:
           echo ${{ toJson(github.event) }}
           echo ${{ toJson(github.event.pull_request) }}
           echo ${{ toJson(github.event.pull_request.head) }}  
-          echo ${{ toJson(github.event.pull_request.head.fork) }}
+          echo ${{ toJson(github.event.pull_request.head.repo) }}
+          echo ${{ toJson(github.event.pull_request.head.repo.fork) }}
       - name: Checkout code
         uses: actions/checkout@master
       - uses: actions/setup-node@v1
