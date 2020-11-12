@@ -23,7 +23,12 @@ const onServerStarted = async (bp: typeof sdk) => {
 const onServerReady = async (bp: typeof sdk) => {
   await migrate(bp)
   await api(bp, state)
-  await registerMiddleware(bp, state)
+
+  if (process.IS_PRO_ENABLED) {
+    await registerMiddleware(bp, state)
+  } else {
+    bp.logger.info('HITL2: module is disabled because it requires Botpress Pro', { module: 'hitl2' })
+  }
 }
 
 const onModuleUnmount = async (bp: typeof sdk) => {

@@ -50,6 +50,14 @@ export default async (bp: typeof sdk, state: StateType) => {
     next()
   }
 
+  const licenseMiddleware = async (req: BPRequest, res: Response, next) => {
+    if (!process.IS_PRO_ENABLED) {
+      return next(new UnauthorizedError('Botpress Pro must be enabled'))
+    }
+
+    next()
+  }
+
   // Catches exceptions and handles those that are expected
   const errorMiddleware = fn => {
     return (req: BPRequest, res: Response, next) => {
@@ -63,6 +71,7 @@ export default async (bp: typeof sdk, state: StateType) => {
     }
   }
 
+  router.use(licenseMiddleware)
 
   router.get(
     '/agents/me',
