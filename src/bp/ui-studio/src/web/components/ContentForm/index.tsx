@@ -4,7 +4,7 @@ import React, { FC } from 'react'
 import Form from 'react-jsonschema-form'
 import SmartInput from '~/components/SmartInput'
 import { getFormData } from '~/util/NodeFormData'
-import style from '~/views/OneFlow/sidePanel/form/style.scss'
+import style from '~/views/FlowBuilder/sidePanelTopics/form/style.scss'
 
 import withLanguage from '../Util/withLanguage'
 
@@ -71,7 +71,7 @@ const translatePropsRecursive = obj => {
 const ContentForm: FC<Props> = props => {
   const handleOnChange = event => {
     const newFields = Object.keys(event.formData).reduce((obj, key) => {
-      obj[key + '$' + props.contentLang] = event.formData[key]
+      obj[`${key}$${props.contentLang}`] = event.formData[key]
       return obj
     }, {})
 

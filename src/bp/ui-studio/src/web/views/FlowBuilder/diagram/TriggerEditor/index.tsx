@@ -11,7 +11,7 @@ import { switchFlowNode, updateFlowNode } from '~/actions'
 import { FlowView } from '../../../../../../../../../out/bp/common/typings'
 import withLanguage from '../../../../components/Util/withLanguage'
 import { getCurrentFlow } from '../../../../reducers'
-import { TriggerNodeModel } from '../../../FlowBuilder/diagram/nodes_v2/TriggerNode'
+import { BlockModel } from '../nodes/Block'
 
 import triggerStyles from './style.scss'
 import ConditionDropdown from './Condition/ConditionDropdown'
@@ -19,7 +19,7 @@ import ConditionEditor from './Condition/Editor'
 import ConditionItem from './Condition/Item'
 
 interface OwnProps {
-  node: TriggerNodeModel
+  node: BlockModel
   isOpen: boolean
   diagramEngine: any
   readOnly?: boolean
@@ -60,7 +60,7 @@ const EditTriggerModal: FC<Props> = props => {
         currentFlow
       } = props
 
-      setConditions(conditions)
+      setConditions(conditions as any)
       setActiveWorkflow(activeWorkflow)
       setTopicName(currentFlow?.location?.split('/')[0])
     }

@@ -354,10 +354,21 @@ try {
           description: 'Time window on which the limit is applied (use standard notation, ex: 25m or 1h)',
           default: '1h'
         },
-        config: {
-          description:
-            'Path of the NLU configuration file (ex: "~/bp-nlu-config.json"). \
-            Use to configure the duckling and language servers endpoints.'
+        languageURL: {
+          description: 'URL of your language server',
+          default: 'https://lang-01.botpress.io'
+        },
+        languageAuthToken: {
+          description: 'Authentification token for your language server'
+        },
+        ducklingURL: {
+          description: 'URL of your Duckling server; Only relevant if "ducklingEnabled" is true',
+          default: 'https://duckling.botpress.io'
+        },
+        ducklingEnabled: {
+          description: 'Whether or not to enable Duckling',
+          default: true,
+          type: 'boolean'
         },
         bodySize: {
           description: 'Allowed size of HTTP requests body',

@@ -26,7 +26,7 @@ const versionGetter = (languageProvider: LanguageProvider) => (): NLUVersionInfo
 }
 
 const initializeLanguageProvider = async (
-  config: NLU.Config,
+  config: NLU.LanguageConfig,
   logger: NLU.Logger,
   seededLodashProvider: SeededLodashProvider
 ) => {
@@ -50,11 +50,11 @@ const initializeLanguageProvider = async (
   }
 }
 
-const initDucklingExtractor = async (config: NLU.Config, logger: NLU.Logger): Promise<void> => {
+const initDucklingExtractor = async (config: NLU.LanguageConfig, logger: NLU.Logger): Promise<void> => {
   await DucklingEntityExtractor.configure(config.ducklingEnabled, config.ducklingURL, logger)
 }
 
-export async function initializeTools(config: NLU.Config, logger: NLU.Logger): Promise<Tools> {
+export async function initializeTools(config: NLU.LanguageConfig, logger: NLU.Logger): Promise<Tools> {
   await initDucklingExtractor(config, logger)
 
   const seededLodashProvider = new SeededLodashProvider()
