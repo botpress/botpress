@@ -44,7 +44,7 @@ jobs:
       - name: Echo filtered files
         run: |
           echo "test1234"
-          echo ${{ steps.filtered_files.outputs.files }}
+          echo ${{ steps.filtered_files.outputs.files == null }}
       - if: steps.filtered_files.outputs.files != null
         name: Run TSLint (new rules)
         run: |
