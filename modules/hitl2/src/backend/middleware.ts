@@ -2,18 +2,21 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import LRU from 'lru-cache'
 
+import { StateType } from './index'
 import { EscalationType } from './../types'
 import { measure } from './helpers'
-import { StateType } from './index'
 import Repository from './repository'
 import Socket from './socket'
 
-const debug = DEBUG('hitl2')
+import AgentSession from './agentSession'
 
 const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
-  const realtime = Socket(bp)
-  const repository = new Repository(bp)
   const cache = new LRU<string, string>({ max: 1000, maxAge: 1000 * 60 * 60 * 24 }) // 1 day
+  const repository = new Repository(bp)
+  const realtime = Socket(bp)
+  const { registerTimeout } = AgentSession(bp, repository, state.timeouts)
+
+  const debug = DEBUG('hitl2')
 
   const pipeEvent = async (event: sdk.IO.IncomingEvent, target: string, threadId: string) => {
     debug.forBot(event.botId, 'Piping event', { threadId, target })
@@ -102,7 +105,13 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
       // Handle incoming message from agent
     } else if (escalation.agentThreadId === event.threadId) {
       debug.forBot(event.botId, 'Handling message from Agent', { direction: event.direction, threadId: event.threadId })
+
       await pipeEvent(event, escalation.userId, escalation.userThreadId)
+
+      await repository.setAgentOnline(event.botId, escalation.agentId, true) // Bump agent session timeout
+      await registerTimeout(event.botId, escalation.agentId).then(() => {
+        debug.forBot(event.botId, 'Registering timeout', { agentId: escalation.agentId })
+      })
     }
 
     // the session or bot is paused, swallow the message
