@@ -19,11 +19,10 @@ jobs:
     steps:
       - name: Echo github repository
         run: |
-          echo ${{ github.event }}
-          echo ${{ github.event.pull_request }}
-          echo ${{ github.event.pull_request.head }}  
-          echo ${{ github.event.pull_request.head.fork }}
-          echo ${{ toJson(github) }}
+          echo ${{ toJson(github.event) }}
+          echo ${{ toJson(github.event.pull_request) }}
+          echo ${{ toJson(github.event.pull_request.head) }}  
+          echo ${{ toJson(github.event.pull_request.head.fork) }}
       - name: Checkout code
         uses: actions/checkout@master
       - uses: actions/setup-node@v1
