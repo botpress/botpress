@@ -82,7 +82,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
         ..._.pick(event, ['id', 'direction', 'botId', 'channel', 'createdOn', 'threadId'])
       }
 
-      realtime.sendPayload({
+      realtime.sendPayload(event.botId, {
         resource: 'escalation',
         type: 'update',
         id: escalation.id,
@@ -92,7 +92,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
         }
       })
 
-      realtime.sendPayload({
+      realtime.sendPayload(event.botId, {
         resource: 'event',
         type: 'create',
         id: null,

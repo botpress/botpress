@@ -6,9 +6,9 @@ const debug = DEBUG('hitl2').sub('realtime')
 
 export default (bp: typeof sdk) => {
   return {
-    sendPayload: (message: SocketMessageType) => {
-      debug('Sending message', { message })
-      bp.realtime.sendPayload(new bp.RealTimePayload('hitl2', message))
+    sendPayload: (botId: string, message: SocketMessageType) => {
+      debug.forBot(botId, 'Sending message', { message })
+      bp.realtime.sendPayload(new bp.RealTimePayload(`hitl2:${botId}`, message))
     }
   }
 }

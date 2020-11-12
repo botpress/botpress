@@ -128,7 +128,7 @@ export default async (bp: typeof sdk, state: StateType) => {
 
       const payload = { online }
 
-      realtime.sendPayload({
+      realtime.sendPayload(req.params.botId, {
         resource: 'agent',
         type: 'update',
         id: agentId,
@@ -152,7 +152,7 @@ export default async (bp: typeof sdk, state: StateType) => {
         online
       }
 
-      realtime.sendPayload({
+      realtime.sendPayload(req.params.botId, {
         resource: 'agent',
         type: 'update',
         id: agentId,
@@ -206,7 +206,7 @@ export default async (bp: typeof sdk, state: StateType) => {
         return escalation
       })
 
-      realtime.sendPayload({
+      realtime.sendPayload(req.params.botId, {
         resource: 'escalation',
         type: 'create',
         id: escalation.id,
@@ -255,7 +255,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       await repository.setAgentOnline(req.params.botId, agentId, true)
       await registerTimeout(req.params.botId, agentId)
 
-      realtime.sendPayload({
+      realtime.sendPayload(req.params.botId, {
         resource: 'escalation',
         type: 'update',
         id: escalation.id,
@@ -298,7 +298,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       await repository.setAgentOnline(req.params.botId, agentId, true) // Bump agent session timeout
       await registerTimeout(req.params.botId, agentId)
 
-      realtime.sendPayload({
+      realtime.sendPayload(req.params.botId, {
         resource: 'escalation',
         type: 'update',
         id: escalation.id,
