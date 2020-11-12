@@ -41,6 +41,7 @@ jobs:
         id: filtered_files
         run: |
           echo ::set-output name=files::$(node build/tslint-filter-files.js ${{ steps.get_file_changes.outputs.files }})
-      - name: Run TSLint (new rules)
+      - if: steps.filtered_files.outputs.files != null
+        name: Run TSLint (new rules)
         run: |
           yarn run tslint -c tslint.newrules.json ${{ steps.filtered_files.outputs.files }}

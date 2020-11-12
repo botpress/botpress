@@ -2,6 +2,7 @@ name: NLU Regression
 on: [pull_request]
 jobs:
   nlu:
+    if: github.event.pull_request.head.repo.fork == false
     name: Run regression
     runs-on: ubuntu-latest
     steps:
