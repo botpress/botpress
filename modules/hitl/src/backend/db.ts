@@ -37,6 +37,7 @@ export default class HitlDb {
         table.timestamp('last_heard_on')
         table.boolean('paused')
         table.string('paused_trigger')
+        table.string('thread_id')
       })
       .then(() => {
         return this.knex.createTableIfNotExists('hitl_messages', function(table) {
