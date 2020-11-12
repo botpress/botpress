@@ -10,8 +10,8 @@
     "title": "Contextos"
   },
   "contexts": "Contextos",
-  "create": "Crear una nueva Q y A",
-  "edit": "Editar Q y A",
+  "create": "Crear una nueva Q&A",
+  "edit": "Editar Q&A",
   "editor": {
     "andOr": "y / o",
     "answers": "Respuestas",
@@ -27,7 +27,7 @@
     "redirectToFlow": "Redireccionar al flujo",
     "typePressAddAnswer": "Escriba y presione enter para agregar una respuesta. Utilice ALT-Enter para una nueva línea"
   },
-  "exportToJson": "Exportar a JSON",
+  "exportToJson": "Exportar en JSON",
   "form": {
     "a": "A",
     "addAnswerAlternative": "Agregar alternativas de respuesta",
@@ -73,11 +73,11 @@
   },
   "fullName": "Q&A",
   "hint": {
-    "addMoreQuestions": "Añadir {máspreguntas} para que tu Q y A sean más resistentes.",
+    "addMoreQuestions": "Añadir {máspreguntas} para que tu Q&A sean más resistentes.",
     "exactMatchOnly": "solo coincidencia exacta",
     "moreQuestions": "Permanecer más 'remanentes, plurales, una 'pregunta' otras 'preguntas'",
-    "willBeExact": "Esta Q y A usará {exactMatchOnly}. Para permitir el aprendizaje automático, añada al menos {remaining} más {remaining, plural, one {question} other {questions}}",
-    "willBeIgnored": "Esta Q y A serán ignoradas, comienza a agregar preguntas para que sea entrenable."
+    "willBeExact": "Esta Q&A usará {exactMatchOnly}. Para permitir el aprendizaje automático, añada al menos {remaining} más {remaining, plural, one {pregunta} other {preguntas}}",
+    "willBeIgnored": "Esta Q&A será ignorada, comienza a agregar preguntas para que sea entrenable."
   },
   "import": {
     "analysis": "Análisis",
@@ -87,7 +87,7 @@
     "insertNewQuestions": "Insertar las nuevas preguntas de mi archivo y crear/actualizar elementos de contenido asociados",
     "notAbleToExtract": "No hemos podido extraer ningún dato de su archivo. O el archivo está vacío o no coincide con ningún formato conocido.",
     "selectJson": "Seleccione su archivo JSON",
-    "selectJsonHelp": "Seleccione un archivo JSON exportado desde el módulo QNA. Verá un resumen de los cambios al hacer clic en Siguiente",
+    "selectJsonHelp": "Seleccione un archivo JSON exportado desde el módulo Q&A. Verá un resumen de los cambios al hacer clic en Siguiente",
     "uploadFile": "Cargar archivo",
     "uploadStatus": "Estado de carga",
     "uploadSuccessful": "Subir con éxito",

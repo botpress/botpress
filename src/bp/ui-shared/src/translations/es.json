@@ -38,9 +38,9 @@
     "searchCommand": "Buscar un comando",
     "switchBot": "Cambiar a bot: {name}",
     "switchWorkspace": "Espacio de trabajo: {nombre}",
-    "toDismiss": "to dismiss",
-    "toNavigate": "to navigate",
-    "toSelect": "to select",
+    "toDismiss": "para cerrar",
+    "toNavigate": "para navegar",
+    "toSelect": "para seleccionar",
     "typeCommand": "Escribe un comando",
     "viewBot": "Ver bot: {name}"
   },
@@ -72,7 +72,7 @@
   "enabled": "Habilitado",
   "error": "Error",
   "execute": "Ejecutar",
-  "expandAll": "Expand AllExpandir todo",
+  "expandAll": "Expandir todo",
   "export": "Exportar",
   "exportToJson": "Exportar a JSON",
   "failure": "Fracaso",
@@ -90,52 +90,52 @@
   "intent": "intent",
   "isoLangs": {
     "ar": {
-      "name": "Arabic",
+      "name": "Árabe",
       "nativeName": "العربية"
     },
     "nl": {
-      "name": "Dutch",
+      "name": "Holandés",
       "nativeName": "Nederlands, Vlaams"
     },
     "en": {
-      "name": "English",
+      "name": "Inglés",
       "nativeName": "English"
     },
     "fr": {
-      "name": "French",
+      "name": "Francés",
       "nativeName": "Français"
     },
     "de": {
-      "name": "German",
+      "name": "Alemán",
       "nativeName": "Deutsch"
     },
     "he": {
-      "name": "Hebrew",
+      "name": "Hebreo",
       "nativeName": "עברית"
     },
     "it": {
-      "name": "Italian",
+      "name": "Italiano",
       "nativeName": "Italiano"
     },
     "ja": {
-      "name": "Japanese",
+      "name": "Japonés",
       "nativeName": "日本語 (にほんご／にっぽんご)"
     },
     "pl": {
-      "name": "Polish",
+      "name": "Polaco",
       "nativeName": "polski"
     },
     "pt": {
-      "name": "Portuguese",
+      "name": "Portugués",
       "nativeName": "Português"
     },
     "ru": {
-      "name": "Russian",
+      "name": "Ruso",
       "nativeName": "русский язык"
     },
     "es": {
-      "name": "Spanish",
-      "nativeName": "español"
+      "name": "Español",
+      "nativeName": "Español"
     }
   },
   "label": "Etiqueta",

@@ -10,8 +10,8 @@
   },
   "fileStatus": {
     "fileInformation": "Información de archivo",
-    "fixThem": "Por favor, asegúrese de arreglar {count, plural, one {it} other {them}} antes de guardar.",
-    "thereAreErrors": "Hay {count, plural, one {is} other {are}} {count} {count, plural, one {error} other {errors}} en su archivo.",
+    "fixThem": "Por favor, asegúrese de {count, plural, one {arreglarlo} other {arreglarlos}} antes de guardar.",
+    "thereAreErrors": "Hay {count} {count, plural, one {error} other {errores}} en su archivo.",
     "viewDetails": "Ver detalles"
   },
   "fullName": "Editor de código",
