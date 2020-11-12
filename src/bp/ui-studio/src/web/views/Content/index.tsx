@@ -1,5 +1,5 @@
 import { ActionBuilderProps, ContentElement } from 'botpress/sdk'
-import { lang } from 'botpress/shared'
+import { lang, utils } from 'botpress/shared'
 import classnames from 'classnames'
 import { FlowView, NodeView } from 'common/typings'
 import _ from 'lodash'
@@ -172,8 +172,9 @@ class ContentView extends Component<Props, State> {
   }
 
   handleModalShowForEdit = (id: string) => {
-    const contentToEdit = _.find(this.props.contentItems, { id }).formData
-    this.setState({ modifyId: id, showModal: true, contentToEdit })
+    const contentToEdit = _.find(this.props.contentItems, { id })
+    utils.inspect(contentToEdit)
+    this.setState({ modifyId: id, showModal: true, contentToEdit: contentToEdit.formData })
   }
 
   handleRefresh = () => {

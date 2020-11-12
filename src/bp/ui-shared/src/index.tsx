@@ -10,6 +10,7 @@ import ToolTip from '../../ui-shared-lite/ToolTip'
 
 import { defaultLocale, lang, langAvaibale, langExtend, langInit, langLocale } from './translations'
 import { isInputFocused } from './utils/inputs'
+import { inspect } from './utils/inspect'
 import { controlKey, keyMap } from './utils/keyboardShortcuts'
 import { Commander } from './Commander'
 import confirmDialog from './ConfirmDialog'
@@ -62,4 +63,4 @@ exports.lang = {
   defaultLocale
 }
 exports.toast = toast
-exports.utils = { controlKey, keyMap, isInputFocused }
+exports.utils = { controlKey, keyMap, isInputFocused, inspect }

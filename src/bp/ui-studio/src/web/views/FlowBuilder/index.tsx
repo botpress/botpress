@@ -67,6 +67,7 @@ const FlowBuilder = (props: Props) => {
 
   useEffect(() => {
     props.currentFlow && pushFlowState(props.currentFlow)
+    utils.inspect(props.flowsByName[props.currentFlow])
   }, [props.currentFlow])
 
   useEffect(() => {
