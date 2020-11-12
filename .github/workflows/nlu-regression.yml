@@ -2,7 +2,7 @@ name: NLU Regression
 on: [pull_request]
 jobs:
   nlu:
-    if: ${{ secrets.PAT_BITFAN != null }}
+    if: github.repository == 'botpress/botpress'
     name: Run regression
     runs-on: ubuntu-latest
     steps:
@@ -27,7 +27,7 @@ jobs:
           yarn start nlu --silent & sleep 5s && node ./build/nlu-regression/index.js
 
   nlu-warning:
-    if: ${{ secrets.PAT_BITFAN == null }}
+    if: github.repository != 'botpress/botpress'
     name: Log NLU warning
     runs-on: ubuntu-latest
     steps:
