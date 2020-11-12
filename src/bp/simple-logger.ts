@@ -26,7 +26,7 @@ export default class Logger implements sdk.Logger {
   public readonly displayLevel: number
   private currentMessageLevel: LogLevel | undefined
 
-  constructor(private name: string) {
+  constructor(private name: string, private silent = false) {
     this.displayLevel = process.VERBOSITY_LEVEL || 0
   }
 
@@ -71,6 +71,7 @@ export default class Logger implements sdk.Logger {
     const time = moment().format(timeFormat)
 
     const displayName = process.env.INDENT_LOGS ? this.name.substr(0, 15).padEnd(15, ' ') : this.name
+    // tslint:disable-next-line:prefer-template
     const newLineIndent = chalk.dim(' '.repeat(`${timeFormat} ${displayName}`.length)) + ' '
     let indentedMessage = level === LoggerLevel.Error ? message : message.replace(/\r\n|\n/g, os.EOL + newLineIndent)
 
@@ -80,15 +81,17 @@ export default class Logger implements sdk.Logger {
       this.attachedError.stack &&
       this.attachedError['__hideStackTrace'] !== true
     ) {
+      // tslint:disable-next-line:prefer-template
       indentedMessage += chalk.grey(os.EOL + 'STACK TRACE')
       indentedMessage += chalk.grey(os.EOL + this.attachedError.stack)
     }
 
     if (this.displayLevel >= this.currentMessageLevel!) {
-      // tslint:disable-next-line: no-console
-      console.log(
-        chalk`{grey ${time}} {${this.colors[level]}.bold ${displayName}} ${indentedMessage}${serializedMetadata}`
-      )
+      !this.silent &&
+        // tslint:disable-next-line: no-console
+        console.log(
+          chalk`{grey ${time}} {${this.colors[level]}.bold ${displayName}} ${indentedMessage}${serializedMetadata}`
+        )
     }
 
     this.currentMessageLevel = undefined

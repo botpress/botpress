@@ -458,7 +458,11 @@ declare module 'botpress/sdk' {
       predict: (text: string, ctx: string[], modelId: string) => Promise<IO.EventUnderstanding>
     }
 
-    export interface Config {
+    export interface Config extends LanguageConfig {
+      modelCacheSize: number
+    }
+
+    export interface LanguageConfig {
       ducklingURL: string
       ducklingEnabled: boolean
       languageSources: LanguageSource[]
