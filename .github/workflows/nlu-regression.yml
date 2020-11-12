@@ -18,7 +18,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Echo github repository
-        run: echo ${{ github.ref }}
+        run: |
+          echo ${{ github.repository }}
+          echo ${{ github.ref }}
+          echo ${{ github.owner }}
+          echo ${{ toJson(github) }}
       - name: Checkout code
         uses: actions/checkout@master
       - uses: actions/setup-node@v1
