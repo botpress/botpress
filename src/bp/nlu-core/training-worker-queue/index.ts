@@ -2,6 +2,7 @@ import { NLU } from 'botpress/sdk'
 import cluster, { Worker } from 'cluster'
 import _ from 'lodash'
 import { deserializeError, serializeError } from 'ml/error-utils'
+import { TrainingAlreadyStarted, TrainingCanceled } from 'nlu-core/errors'
 
 import { registerMsgHandler, spawnNewTrainingWorker, WORKER_TYPES } from '../../cluster'
 import { initializeTools } from '../initialize-tools'
@@ -21,8 +22,6 @@ import {
   isWorkerReady,
   OutgoingMessage
 } from './communication'
-
-export class TrainingCanceledError extends Error {}
 
 export class TrainingWorkerQueue {
   private readyWorkers: number[] = []
@@ -56,9 +55,13 @@ export class TrainingWorkerQueue {
     })
   }
 
-  public async startTraining(trainSessionId: string, input: TrainInput, progress: (x: number) => void) {
+  public async startTraining(
+    trainSessionId: string,
+    input: TrainInput,
+    progress: (x: number) => void
+  ): Promise<TrainOutput> {
     if (!!this.activeWorkers[trainSessionId]) {
-      return // training already started
+      throw new TrainingAlreadyStarted(`Training ${trainSessionId} already started`)
     }
 
     if (!this.readyWorkers.length) {
@@ -73,7 +76,7 @@ export class TrainingWorkerQueue {
     try {
       output = await this._startTraining(worker, input, progress)
     } catch (err) {
-      const isTrainingCanceled = err instanceof TrainingCanceledError
+      const isTrainingCanceled = err instanceof TrainingCanceled
       if (!isTrainingCanceled) {
         this._prepareForNextTraining(trainSessionId)
       }
@@ -116,7 +119,7 @@ export class TrainingWorkerQueue {
         }
         if (isTrainingCanceled(msg)) {
           process.off('message', handler)
-          reject(new TrainingCanceledError())
+          reject(new TrainingCanceled())
         }
         if (isTrainingProgress(msg)) {
           progress(msg.payload.progress)
@@ -182,7 +185,6 @@ if (cluster.isMaster) {
       return sendToWebWorker(response)
     }
 
-    worker.process.kill('SIGKILL')
     const exitHandler = (worker: Worker, _exitCode: number, _signal: string) => {
       const response: IncomingMessage<'training_canceled'> = {
         type: 'training_canceled',
@@ -192,6 +194,8 @@ if (cluster.isMaster) {
       sendToWebWorker(response)
     }
     cluster.once('exit', exitHandler)
+
+    worker.process.kill('SIGKILL')
   }
 
   registerMsgHandler('make_new_worker', async (msg: OutgoingMessage<'make_new_worker'>) =>

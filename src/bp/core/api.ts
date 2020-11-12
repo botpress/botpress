@@ -7,6 +7,7 @@ import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import MLToolkit from 'ml/toolkit'
 import Engine from 'nlu-core/engine'
+import { isTrainingAlreadyStarted, isTrainingCanceled } from 'nlu-core/errors'
 
 import { container } from './app.inversify'
 import { ConfigProvider } from './config/config-loader'
@@ -191,7 +192,9 @@ const workspaces = (workspaceService: WorkspaceService): typeof sdk.workspaces =
     getBotWorkspaceId: workspaceService.getBotWorkspaceId.bind(workspaceService),
     getWorkspaceRollout: workspaceService.getWorkspaceRollout.bind(workspaceService),
     addUserToWorkspace: workspaceService.addUserToWorkspace.bind(workspaceService),
-    consumeInviteCode: workspaceService.consumeInviteCode.bind(workspaceService)
+    consumeInviteCode: workspaceService.consumeInviteCode.bind(workspaceService),
+    getWorkspaceUsers: workspaceService.getWorkspaceUsers.bind(workspaceService),
+    getWorkspaceUsersWithAttributes: workspaceService.getWorkspaceUsersWithAttributes.bind(workspaceService)
   }
 }
 
@@ -313,7 +316,15 @@ export class BotpressAPIProvider {
       workspaces: this.workspaces,
       distributed: this.distributed,
       NLU: {
-        Engine // TODO: expose only instance of engine instead of class
+        makeEngine: async (config: sdk.NLU.Config, logger: sdk.NLU.Logger) => {
+          const engine = new Engine()
+          await engine.initialize(config, logger)
+          return engine
+        },
+        errors: {
+          isTrainingAlreadyStarted,
+          isTrainingCanceled
+        }
       }
     }
   }

@@ -3,7 +3,6 @@ import { ObjectCache } from 'common/object-cache'
 import { ActionScope } from 'common/typings'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
-import { WorkspaceUserAttributes } from 'core/repositories/workspace_users'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import ms from 'ms'
@@ -115,7 +114,7 @@ export namespace Hooks {
     constructor(
       bp: typeof sdk,
       bot: sdk.BotConfig,
-      users: WorkspaceUserAttributes[],
+      users: sdk.WorkspaceUserWithAttributes[],
       pipeline: sdk.Pipeline,
       hookResult: any
     ) {
@@ -128,7 +127,7 @@ export namespace Hooks {
       bp: typeof sdk,
       previousBotConfig: sdk.BotConfig,
       bot: sdk.BotConfig,
-      users: WorkspaceUserAttributes[],
+      users: sdk.WorkspaceUserWithAttributes[],
       pipeline: sdk.Pipeline
     ) {
       super('after_stage_changed', { bp, previousBotConfig, bot, users, pipeline })

@@ -1,8 +1,8 @@
 name: NLU Regression
 on: [pull_request]
 jobs:
-  unit:
-    name: BPDS
+  nlu:
+    name: Run regression
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -13,16 +13,14 @@ jobs:
       - name: Fetch Node Packages
         run: |
           yarn --verbose
-      - name: Build core, NLU and NLU-Testing
+      - name: Build core
         run: |
           NODE_OPTIONS="--max-old-space-size=6000" yarn cmd build:core
-          yarn cmd build:sharedLite
-          yarn cmd build:shared
-          yarn cmd init:studio
-          yarn cmd build:modules --m nlu,nlu-testing
+      - name: Install Bitfan
+        run: |
+          yarn add npm-cli-login
+          ./node_modules/npm-cli-login/bin/npm-cli-login.js -r https://npm.pkg.github.com -u botpressops -p ${{ secrets.PAT_BITFAN }} -e ops@botpress.com
+          yarn add @botpress/bitfan
       - name: Run Regression Test
         run: |
-          export NLU_SEED=42
-          export BP_ENABLED_MODULES='["nlu", "nlu-testing"]'
-          yarn start & sleep 20s &&
-          node ./build/nlu-regression.js
+          yarn start nlu --silent & sleep 5s && node ./build/nlu-regression/index.js

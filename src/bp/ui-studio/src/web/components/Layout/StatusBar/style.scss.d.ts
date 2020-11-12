@@ -10,7 +10,9 @@ interface CssExports {
   'langItem': string;
   'langSwitherMenu': string;
   'message': string;
+  'pending': string;
   'statusBar': string;
+  'text': string;
 }
 declare var cssExports: CssExports;
 export = cssExports;

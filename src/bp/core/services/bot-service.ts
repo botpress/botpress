@@ -432,7 +432,7 @@ export class BotService {
     const alteredBot = _.cloneDeep(currentConfig)
 
     const attributes = ['last_logon', 'firstname', 'lastname']
-    const users = await this.workspaceService.getWorkspaceUsersAttributes(workspaceId, attributes)
+    const users = await this.workspaceService.getWorkspaceUsersWithAttributes(workspaceId, attributes)
 
     const api = await createForGlobalHooks()
     const currentStage = <Stage>pipeline.find(s => s.id === currentConfig.pipeline_status.current_stage.id)
@@ -617,7 +617,7 @@ export class BotService {
         botId,
         PersistedConsoleLogger.listenForAllLogs((level, message, args) => {
           this.realtimeService.sendToSocket(
-            RealTimePayload.forAdmins('logs::' + botId, {
+            RealTimePayload.forAdmins(`logs::${botId}`, {
               level,
               message,
               args

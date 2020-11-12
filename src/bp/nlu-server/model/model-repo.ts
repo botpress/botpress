@@ -15,7 +15,9 @@ export default class ModelRepository {
     mkdirp.sync(this.modelDir)
   }
 
-  public async getModel(modelFileName: string): Promise<NLU.Model | undefined> {
+  public async getModel(modelId: string, password: string): Promise<NLU.Model | undefined> {
+    const modelFileName = this._makeFileName(modelId, password)
+
     const { modelDir } = this
 
     const fpath = path.join(modelDir, modelFileName)
@@ -42,8 +44,9 @@ export default class ModelRepository {
     }
   }
 
-  public async saveModel(model: NLU.Model, modelFileName: string): Promise<void> {
+  public async saveModel(model: NLU.Model, modelId: string, password: string): Promise<void> {
     const { modelDir } = this
+    const modelFileName = this._makeFileName(modelId, password)
 
     const serialized = JSON.stringify(model)
 
@@ -67,7 +70,7 @@ export default class ModelRepository {
     tmpDir.removeCallback()
   }
 
-  public makeFileName(modelId: string, password: string): string {
+  private _makeFileName(modelId: string, password: string): string {
     const fname = crypto
       .createHash('md5')
       .update(`${modelId}${password}`)

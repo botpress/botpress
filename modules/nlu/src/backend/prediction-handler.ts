@@ -7,6 +7,7 @@ export interface ModelProvider {
 
 export class PredictionHandler {
   constructor(
+    private modelsByLang: _.Dictionary<string>,
     private modelProvider: ModelProvider,
     private engine: sdk.NLU.Engine,
     private anticipatedLanguage: string,
@@ -14,7 +15,7 @@ export class PredictionHandler {
   ) {}
 
   async predict(textInput: string, includedContexts: string[]) {
-    const detectedLanguage = await this.engine.detectLanguage(textInput)
+    const detectedLanguage = await this.engine.detectLanguage(textInput, this.modelsByLang)
 
     let nluResults: sdk.IO.EventUnderstanding | undefined
 
@@ -39,14 +40,15 @@ export class PredictionHandler {
     includedContexts: string[],
     lang: string
   ): Promise<sdk.IO.EventUnderstanding | undefined> {
-    if (!this.engine.hasModelForLang(lang)) {
+    if (!this.modelsByLang[lang] || !this.engine.hasModel(this.modelsByLang[lang])) {
       const model = await this.modelProvider.getLatestModel(lang)
       if (!model) {
         return
       }
-      await this.engine.loadModel(model)
+      this.modelsByLang[lang] = model.hash
+      await this.engine.loadModel(model, model.hash)
     }
-    return this.engine.predict(textInput, includedContexts, lang)
+    return this.engine.predict(textInput, includedContexts, this.modelsByLang[lang])
   }
 
   private isEmptyOrError(nluResults: sdk.IO.EventUnderstanding | undefined) {

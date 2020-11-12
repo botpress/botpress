@@ -1,10 +1,17 @@
-import { AddWorkspaceUserOptions, Logger, RolloutStrategy, WorkspaceRollout } from 'botpress/sdk'
+import {
+  AddWorkspaceUserOptions,
+  Logger,
+  RolloutStrategy,
+  WorkspaceRollout,
+  WorkspaceUser,
+  WorkspaceUserWithAttributes
+} from 'botpress/sdk'
 import { CHAT_USER_ROLE, defaultPipelines, defaultWorkspace } from 'common/defaults'
-import { AuthRole, CreateWorkspace, Pipeline, Workspace, WorkspaceUser } from 'common/typings'
+import { AuthRole, CreateWorkspace, Pipeline, Workspace } from 'common/typings'
 import { WorkspaceInviteCode, WorkspaceInviteCodesRepository } from 'core/repositories'
 import { StrategyUsersRepository } from 'core/repositories/strategy_users'
-import { WorkspaceUserAttributes, WorkspaceUsersRepository } from 'core/repositories/workspace_users'
-import { BadRequestError, ConflictError, NotFoundError } from 'core/routers/errors'
+import { WorkspaceUsersRepository } from 'core/repositories/workspace_users'
+import { ConflictError, NotFoundError } from 'core/routers/errors'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import nanoid from 'nanoid/generate'
@@ -252,13 +259,13 @@ export class WorkspaceService {
     return this.workspaceRepo.getWorkspaceUsers(workspace)
   }
 
-  async getWorkspaceUsersAttributes(
+  async getWorkspaceUsersWithAttributes(
     workspace: string,
-    filteredAttributes?: string[]
-  ): Promise<WorkspaceUserAttributes[]> {
+    attributes?: string[]
+  ): Promise<WorkspaceUserWithAttributes[]> {
     const workspaceUsers = await this.workspaceRepo.getWorkspaceUsers(workspace)
     const uniqStrategies = _.uniq(_.map(workspaceUsers, 'strategy'))
-    const usersInfo = await this._getUsersAttributes(workspaceUsers, uniqStrategies, filteredAttributes)
+    const usersInfo = await this._getUsersAttributes(workspaceUsers, uniqStrategies, attributes)
 
     return workspaceUsers.map(u => ({ ...u, attributes: usersInfo[u.email.toLowerCase()] }))
   }
