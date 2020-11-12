@@ -195,6 +195,7 @@ declare module 'botpress/sdk' {
     desc: string
     /** These are used internally by Botpress when they are registered on startup */
     readonly moduleName?: string
+    readonly moduleFullName?: string
   }
 
   export interface ModuleDefinition {

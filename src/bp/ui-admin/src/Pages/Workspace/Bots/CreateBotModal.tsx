@@ -104,7 +104,7 @@ class CreateBotModal extends Component<Props, State> {
       return this.props.fetchBotTemplates()
     }
 
-    const templatesByModule = _.groupBy(this.props.botTemplates, 'moduleName')
+    const templatesByModule = _.groupBy(this.props.botTemplates, 'moduleFullName')
     const groupedOptions = _.toPairs(templatesByModule).map(g => ({ label: g[0], options: g[1] }))
 
     this.setState({ templates: groupedOptions, selectedTemplate: undefined })
@@ -127,7 +127,7 @@ class CreateBotModal extends Component<Props, State> {
     const newBot = {
       id: this.state.botId,
       name: this.state.botName,
-      template: _.pick(this.state.selectedTemplate, ['id', 'moduleName']),
+      template: _.pick(this.state.selectedTemplate, ['id', 'moduleFullName']),
       category: this.state.selectedCategory && this.state.selectedCategory.value
     }
 

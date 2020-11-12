@@ -330,7 +330,7 @@ export class ModuleLoader {
       .filter(module => module.botTemplates)
       .map(module => {
         return module.botTemplates!.map(template => {
-          return { ...template, moduleName: module.definition.name }
+          return { ...template, moduleName: module.definition.name, moduleFullName: module.definition.fullName }
         })
       })
 
