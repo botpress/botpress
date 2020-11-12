@@ -6,6 +6,8 @@ jobs:
     name: Log NLU warning
     runs-on: ubuntu-latest
     steps:
+      - name: Echo github repository
+        run: echo ${{ github.repository }}
       - name: Echo Warning Message
         run: |
           echo "Warning: nlu-regression check could not run because the PR comes from a fork."
@@ -15,6 +17,8 @@ jobs:
     name: Run regression
     runs-on: ubuntu-latest
     steps:
+      - name: Echo github repository
+        run: echo ${{ github.repository }}
       - name: Checkout code
         uses: actions/checkout@master
       - uses: actions/setup-node@v1
