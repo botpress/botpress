@@ -20,8 +20,22 @@ const flag = async () => {
 
     return false
   }
+  
+  const inWaitNode = async () => {
+    const { currentFlow, currentNode } = event.state.context
+    if (currentFlow && currentNode) {
+      const flow = await bp.ghost.forBot(event.botId).readFileAsObject('flows', currentFlow)
+      const node = _.find(flow.nodes, node => node.name === currentNode)
+      
+      if (node && node.onReceive != null) {
+        return true
+      }
+    }
 
-  if (event.type === 'text' && event.nlu.intent.name === 'none' && !(await matchesQuickReply())) {
+    return false
+  }
+
+  if (event.type === 'text' && event.nlu.intent.name === 'none' && !(await matchesQuickReply()) && !(await inWaitNode())) {
     const data = {
       eventId: event.id,
       botId: event.botId,
