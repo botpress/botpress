@@ -19,9 +19,10 @@ jobs:
     steps:
       - name: Echo github repository
         run: |
-          echo ${{ github.repository }}
-          echo ${{ github.ref }}
-          echo ${{ github.owner }}
+          echo ${{ github.event }}
+          echo ${{ github.event.pull_request }}
+          echo ${{ github.event.pull_request.head }}  
+          echo ${{ github.event.pull_request.head.fork }}
           echo ${{ toJson(github) }}
       - name: Checkout code
         uses: actions/checkout@master
