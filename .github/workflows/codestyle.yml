@@ -41,10 +41,6 @@ jobs:
         id: filtered_files
         run: |
           echo ::set-output name=files::$(node build/tslint-filter-files.js ${{ steps.get_file_changes.outputs.files }})
-      - name: Echo filtered files
-        run: |
-          echo "test1234"
-          echo ${{ steps.filtered_files.outputs.files == null }}
       - if: steps.filtered_files.outputs.files != null
         name: Run TSLint (new rules)
         run: |
