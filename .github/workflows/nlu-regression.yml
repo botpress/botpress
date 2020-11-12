@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Echo github repository
-        run: echo ${{ github.repository }}
+        run: echo ${{ github.ref }}
       - name: Checkout code
         uses: actions/checkout@master
       - uses: actions/setup-node@v1
