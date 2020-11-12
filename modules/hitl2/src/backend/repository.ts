@@ -174,21 +174,6 @@ export default class Repository {
       .orderBy([{ column: 'comments.createdAt', order: 'asc' }])
   }
 
-  private usersQuery = () => {
-    return this.bp
-      .database('strategy_default')
-      .select('*')
-      .orderBy('created_at')
-      .then(data => {
-        return data.map(user => {
-          return {
-            ...user,
-            attributes: this.bp.database.json.get(user.attributes)
-          }
-        })
-      })
-  }
-
   private applyQuery = (query?: Knex.QueryCallback) => {
     return (builder: Knex.QueryBuilder) => {
       if (query) {
@@ -229,7 +214,11 @@ export default class Repository {
     } as AgentType
   }
 
-  getAgents = async (botId: string, conditions: AgentCollectionConditions = {}): Promise<Partial<AgentType>[]> => {
+  getAgents = async (
+    botId: string,
+    workspace: string,
+    conditions: AgentCollectionConditions = {}
+  ): Promise<Partial<AgentType>[]> => {
     const { online } = conditions
 
     const applyConditions = (records: []) => {
@@ -240,13 +229,13 @@ export default class Repository {
       }
     }
 
-    return this.usersQuery()
+    return this.bp.workspaces
+      .getWorkspaceUsersWithAttributes(workspace, ['firstname', 'lastname'])
       .then(data => {
         // Build agent
         return data.map<Partial<AgentType>>(user => {
           return {
-            ..._.pick(user, ['id', 'email', 'strategy', 'created_at', 'updated_at']),
-            ..._.pick(user.attributes, ['firstname', 'lastname', 'picture_url']),
+            ...user,
             fullName: [user.attributes.firstname, user.attributes.lastname].filter(Boolean).join(' ')
           }
         })

@@ -106,6 +106,7 @@ export default async (bp: typeof sdk, state: StateType) => {
     errorMiddleware(async (req: RequestWithUser, res: Response) => {
       const agents = await repository.getAgents(
         req.params.botId,
+        req.workspace,
         _.tap(_.pick(req.query, 'online'), conditions => {
           if (conditions.online) {
             conditions.online = yn(conditions.online)
