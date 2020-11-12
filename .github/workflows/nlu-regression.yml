@@ -2,7 +2,7 @@ name: NLU Regression
 on: [pull_request]
 jobs:
   nlu:
-    if: github.event.pull_request.head.repo.fork = true
+    if: github.event.pull_request.head.repo.fork == true
     name: Run regression
     runs-on: ubuntu-latest
     steps:
@@ -27,7 +27,7 @@ jobs:
           yarn start nlu --silent & sleep 5s && node ./build/nlu-regression/index.js
 
   nlu-warning:
-    if: github.event.pull_request.head.repo.fork = false
+    if: github.event.pull_request.head.repo.fork == false
     name: Log NLU warning
     runs-on: ubuntu-latest
     steps:
