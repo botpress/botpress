@@ -27,7 +27,7 @@ export class TrainingWorkerQueue {
   private readyWorkers: number[] = []
   private activeWorkers: { [trainSessionId: string]: number } = {}
 
-  constructor(private config: NLU.Config, private logger: NLU.Logger) {}
+  constructor(private config: NLU.LanguageConfig, private logger: NLU.Logger) {}
 
   public async cancelTraining(trainSessionId: string): Promise<void> {
     const workerId = this.activeWorkers[trainSessionId]

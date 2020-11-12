@@ -26,6 +26,7 @@
     "bluebird-global": "^1.0.1",
     "bluebird-retry": "^0.11.0",
     "body-parser": "^1.18.3",
+    "bytes": "^3.1.0",
     "cerialize": "^0.1.18",
     "chalk": "^2.4.2",
     "chokidar": "^2.1.5",

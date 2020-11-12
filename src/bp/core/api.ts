@@ -315,8 +315,10 @@ export class BotpressAPIProvider {
       distributed: this.distributed,
       NLU: {
         makeEngine: async (config: sdk.NLU.Config, logger: sdk.NLU.Logger) => {
-          const engine = new Engine()
-          await engine.initialize(config, logger)
+          const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize } = config
+          const langConfig = { ducklingEnabled, ducklingURL, languageSources }
+          const engine = new Engine({ maxCacheSize: modelCacheSize })
+          await engine.initialize(langConfig, logger)
           return engine
         },
         errors: {
