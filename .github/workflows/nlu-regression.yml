@@ -25,12 +25,3 @@ jobs:
       - name: Run Regression Test
         run: |
           yarn start nlu --silent & sleep 5s && node ./build/nlu-regression/index.js
-
-  nlu-warning:
-    if: github.event.pull_request.head.repo.fork == true
-    name: Log NLU warning
-    runs-on: ubuntu-latest
-    steps:
-      - name: Echo Warning Message
-        run: |
-          echo "Warning: nlu-regression check could not run because the PR comes from a fork."
