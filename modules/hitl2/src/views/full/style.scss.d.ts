@@ -23,6 +23,7 @@ interface CssExports {
   'info': string;
   'liveConversation': string;
   'mainContent': string;
+  'mainNav': string;
   'message': string;
   'messageList': string;
   'profileHeader': string;

@@ -11,6 +11,7 @@ import EscalationList from './app/components/EscalationList'
 import { Context, Store } from './app/Store'
 import style from './style.scss'
 import { Api, castEscalation } from './Api'
+import AgentList from './app/components/AgentList'
 
 const App = ({ bp }) => {
   const api = Api(bp)
@@ -106,15 +107,14 @@ const App = ({ bp }) => {
     }
   }, [state.error])
 
-  const leftHeaderButtons = [
-    {
-      element: <AgentProfile toggleOnline={toggleOnline} loading={loading} {...state.currentAgent} />
-    }
-  ]
 
   return (
     <div className={style.app}>
-      <MainLayout.Header leftButtons={leftHeaderButtons} />
+      <div className={style.mainNav}>
+        <AgentList loading={loading} agents={state.agents} />
+        <AgentProfile toggleOnline={toggleOnline} loading={loading} {...state.currentAgent} />
+      </div>
+
       <div className={style.mainContent}>
         <div className={cx(style.sidebar, style.column)}>
           <EscalationList escalations={state.escalations} loading={loading} />
