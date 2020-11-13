@@ -334,6 +334,10 @@
           "developer": {
             "description": "Les développeurs ont un accès complet en lecture et en écriture aux bots, y compris les flows, le contenu, le NLU et les actions",
             "name": "Développeur"
+          },
+          "agent": {
+            "description": "Les Agents sont responsable du HITL",
+            "name": "Agent"
           }
         },
         "helpText": "Pour modifier les rôles, veuillez consulter «rôles» dans le fichier workspaces.json.",

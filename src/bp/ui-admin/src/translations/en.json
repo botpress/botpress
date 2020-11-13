@@ -334,6 +334,10 @@
           "developer": {
             "description": "Developers have full read/write access to bots, including flows, content, NLU and actions",
             "name": "Developer"
+          },
+          "agent": {
+            "description": "Agents handle HITL",
+            "name": "Agent"
           }
         },
         "helpText": "To change roles, please see “roles” in the workspaces.json file.",
