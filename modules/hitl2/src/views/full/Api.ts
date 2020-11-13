@@ -56,8 +56,8 @@ export function castMessage(item: EventType) {
 
 export interface ApiType {
   getConfig: () => Promise<Config>
-  setOnline: () => Promise<Partial<AgentType>>
-  setOffline: () => Promise<Partial<AgentType>>
+  setOnline: () => Promise<{ online: true }>
+  setOffline: () => Promise<{ online: false }>
   getAgents: (online?: boolean) => Promise<AgentType[]>
   getCurrentAgent: () => Promise<AgentType>
   getComments: (id: string) => Promise<CommentType[]>

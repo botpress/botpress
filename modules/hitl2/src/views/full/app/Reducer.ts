@@ -48,15 +48,13 @@ const Reducer = (state: StateType, action: ActionType): StateType => {
       return produce(state, draft => {
         draft.agents = {
           ...draft.agents,
-          [action.payload.payload.agentId]: _.merge(
-            draft.agents[action.payload.payload.agentId],
-            action.payload.payload
-          )
+          [action.payload.id]: _.merge(draft.agents[action.payload.id], action.payload.payload)
         }
+
         // Note: because currentAgent is an actual object,
         // instead of a reference, must be manually updated
-        if (state.currentAgent.agentId === action.payload.payload.agentId) {
-          draft.currentAgent = draft.agents[action.payload.payload.agentId]
+        if (state.currentAgent.agentId === action.payload.id) {
+          draft.currentAgent = draft.agents[action.payload.id]
         }
       })
     case 'setEscalation':
