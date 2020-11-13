@@ -1,4 +1,6 @@
 {
+  "name": "hitl2",
+  "fullName": "HITL 2",
   "sort": {
     "mostRecentlyCreated": "Most Recently Created",
     "leastRecentlyCreated": "Least Recently Created"
