@@ -187,6 +187,21 @@ export default async (bp: typeof sdk, state: StateType) => {
         return escalation
       })
 
+      bp.events.sendEvent(
+        bp.IO.Event({
+          botId: req.params.botId,
+          target: escalation.userId,
+          threadId: escalation.userThreadId,
+          channel: 'web',
+          direction: 'outgoing',
+          type: 'text',
+          payload: {
+            type: 'text',
+            text: 'You are being transfered to an agent.'
+          }
+        })
+      )
+
       realtime.sendPayload(req.params.botId, {
         resource: 'escalation',
         type: 'create',
@@ -235,6 +250,21 @@ export default async (bp: typeof sdk, state: StateType) => {
       // Bump agent session timeout
       await repository.setAgentOnline(req.params.botId, agentId, true)
       await registerTimeout(req.params.botId, agentId)
+
+      bp.events.sendEvent(
+        bp.IO.Event({
+          botId: req.params.botId,
+          target: escalation.userId,
+          threadId: escalation.userThreadId,
+          channel: 'web',
+          direction: 'outgoing',
+          type: 'text',
+          payload: {
+            type: 'text',
+            text: 'You have been assigned to an agent.'
+          }
+        })
+      )
 
       realtime.sendPayload(req.params.botId, {
         resource: 'escalation',
