@@ -35,7 +35,7 @@ const AgentList: FC<Props> = props => {
 
       {!props.loading && !_.isEmpty(props.agents) && (
         <ul style={{ padding: 0, margin: 0, listStyleType: 'none' }}>
-          {_.values(props.agents).map(agent => (
+          {_.filter(_.values(props.agents), 'online').map(agent => (
             <li key={agent.agentId} style={{ display: 'inline', marginRight: '8px' }}>
               <div style={{ position: 'relative', display: 'inline-block' }}>
                 <Initial
