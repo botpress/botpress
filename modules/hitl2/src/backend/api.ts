@@ -77,7 +77,7 @@ export default async (bp: typeof sdk, state: StateType) => {
     '/agents/me',
     errorMiddleware(async (req: RequestWithUser, res: Response) => {
       const { email, strategy } = req.tokenUser!
-      const payload = await repository.getCurrentAgent(req, req.params.botId, makeAgentId(strategy, email))
+      const payload = await repository.getCurrentAgent(req as BPRequest, req.params.botId, makeAgentId(strategy, email))
       res.send(payload)
     })
   )
