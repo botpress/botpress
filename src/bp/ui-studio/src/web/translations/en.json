@@ -105,6 +105,10 @@
       "cantDeleteStart": "You can't delete the start node.",
       "cantDeleteSuccess": "You can't delete the success node.",
       "chips": "Chips",
+      "prevWorkflow": "Go to previous workflow",
+      "nextWorkflow": "Go to next workflow",
+      "endOfWorkflow": "End of the workflow",
+      "errorOccurred": "An error occurred here",
       "condition": {
         "addCondition": "Add condition",
         "backToList": "Back to list",

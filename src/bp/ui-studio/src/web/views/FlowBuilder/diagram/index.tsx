@@ -45,10 +45,8 @@ import storage from '~/util/storage'
 
 import { prepareEventForDiagram } from './debugger'
 import { defaultTransition, DiagramManager, DIAGRAM_PADDING, nodeTypes, Point } from './manager'
-import { BlockWidgetFactory } from './nodes/Block'
+import { BlockModel, BlockProps, BlockWidgetFactory } from './nodes/Block'
 import { DeletableLinkFactory } from './nodes/LinkWidget'
-import { SkillCallNodeModel, SkillCallWidgetFactory } from './nodes/SkillCallNode'
-import { StandardNodeModel, StandardWidgetFactory } from './nodes/StandardNode'
 import style from './style.scss'
 import NodeToolbar from './NodeToolbar'
 import TriggerEditor from './TriggerEditor'
@@ -75,8 +73,6 @@ type StateProps = ReturnType<typeof mapStateToProps>
 type DispatchProps = typeof mapDispatchToProps
 
 type Props = DispatchProps & StateProps & OwnProps
-
-type BpNodeModel = StandardNodeModel | SkillCallNodeModel
 
 type ExtendedDiagramEngine = {
   enableLinkPoints?: boolean
@@ -112,13 +108,15 @@ class Diagram extends Component<Props> {
   constructor(props) {
     super(props)
 
-    const commonProps = {
+    const commonProps: BlockProps = {
+      node: undefined,
       selectedNodeItem: () => this.getPropsProperty('activeFormItem'),
       deleteSelectedElements: this.deleteSelectedElements.bind(this),
       copySelectedElement: this.copySelectedElement.bind(this),
       getCurrentFlow: () => this.getPropsProperty('currentFlow'),
       updateFlowNode: this.updateNodeAndRefresh.bind(this),
       switchFlowNode: this.switchFlowNode.bind(this),
+      updateFlow: this.getPropsProperty('updateFlow'),
       getLanguage: () => ({
         currentLang: this.getPropsProperty('currentLang'),
         defaultLang: this.getPropsProperty('defaultLang')
@@ -129,12 +127,13 @@ class Diagram extends Component<Props> {
       editTriggers: this.editTriggers.bind(this),
       getDebugInfo: this.getDebugInfo,
       getFlows: () => this.getPropsProperty('flows'),
-      disconnectNode: this.disconnectNode.bind(this)
+      getSkills: () => this.getPropsProperty('skills'),
+      disconnectNode: this.disconnectNode.bind(this),
+      // Temporary, maybe we could open the elementinstead of double-click?
+      editNodeItem: (node, idx) => console.log(node, idx)
     }
 
     this.diagramEngine = new DiagramEngine()
-    this.diagramEngine.registerNodeFactory(new StandardWidgetFactory())
-    this.diagramEngine.registerNodeFactory(new SkillCallWidgetFactory(this.props.skills))
     this.diagramEngine.registerNodeFactory(new BlockWidgetFactory(commonProps))
     this.diagramEngine.registerLinkFactory(new DeletableLinkFactory())
 
@@ -500,18 +499,12 @@ class Diagram extends Component<Props> {
       return false
     }
 
-    const targetModel = target.model
-    const { nodeType } = targetModel
-    return (
-      targetModel instanceof StandardNodeModel ||
-      targetModel instanceof SkillCallNodeModel ||
-      nodeType === 'router' ||
-      nodeType === 'say_something'
-    )
+    const nodeType = target.model?.nodeType
+    return nodeType === 'router' || nodeType === 'say_something' || nodeType === 'standard' || nodeType === 'skill-call'
   }
 
   onDiagramClick = (event: MouseEvent) => {
-    const selectedNode = this.manager.getSelectedNode() as BpNodeModel
+    const selectedNode = this.manager.getSelectedNode() as BlockModel
     const currentNode = this.props.currentFlowNode
     const target = this.diagramWidget.getMouseElement(event)
 
