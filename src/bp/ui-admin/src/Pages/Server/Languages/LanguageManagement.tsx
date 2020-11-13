@@ -63,7 +63,7 @@ const LanguageManagement: FC<Props> = props => {
               language={lang}
               allowActions={!props.readOnly}
               languageSource={props.languageSource}
-              downloadProgress={languages.downloading.find(l => l.lang == lang.code)}
+              downloadProgress={languages.downloading.find(l => l.lang === lang.code)}
             />
           ))}
         </div>

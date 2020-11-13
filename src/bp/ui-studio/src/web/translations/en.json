@@ -49,6 +49,7 @@
     "training": "Training",
     "ready": "Ready",
     "cancelTraining": "Cancel Training",
+    "trainingPending": "Training Pending",
     "canceling": "Canceling",
     "trainingError": "Cannot train Chatbot"
   },

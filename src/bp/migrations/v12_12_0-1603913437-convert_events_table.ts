@@ -30,6 +30,15 @@ const migration: Migration = {
     }
 
     if (columnType !== 'integer') {
+      // Handle a case for developers where a previous migration marked v13.0.0 converts the table, but didn't add the type
+      if (!(await bp.database.schema.hasColumn(TABLE_NAME, 'type'))) {
+        await bp.database.schema.alterTable(TABLE_NAME, table => {
+          table.string('type').nullable()
+        })
+
+        return { success: true, message: 'Added column type to events table' }
+      }
+
       return { success: true, message: 'Table is already migrated' }
     } else {
       const tempTableExists = await bp.database.schema.hasTable(TEMP_TABLE_NAME)

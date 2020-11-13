@@ -7,10 +7,8 @@ import _ from 'lodash'
 import path from 'path'
 import rimraf from 'rimraf'
 
-import { extractArchive } from './core/misc/archive'
-import { createArchiveFromFolder } from './core/misc/archive'
-import { bytesToString } from './core/misc/utils'
-import { asBytes } from './core/misc/utils'
+import { createArchiveFromFolder, extractArchive } from './core/misc/archive'
+import { asBytes, bytesToString } from './core/misc/utils'
 import { BpfsScopedChange, FileChange } from './core/services'
 
 // This is a dependency of axios, and sets the default body limit to 10mb. Need it to be higher

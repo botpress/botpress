@@ -11,7 +11,7 @@ type Props = Pick<BlockProps, 'node' | 'editNodeItem'>
 
 const RouterContents: FC<Props> = ({ node, editNodeItem }) => {
   return (
-    <div className={style.contentsWrapper}>
+    <div className={cx(style.contentsWrapper, style.router)}>
       {(node?.next || []).map((item, i) => (
         <NodeContentItem onEdit={() => editNodeItem(node, i)} className={cx(style.contentWrapper, style.small)} key={i}>
           <div className={cx(style.content, style.readOnly)}>

@@ -15,7 +15,7 @@ const StandardContents: FC<Props> = ({ node }) => {
   const isWaiting = node.waitOnReceive
 
   return (
-    <div className={style.contentsWrapper}>
+    <div className={cx(style.contentsWrapper, style.standard)}>
       {node.onEnter?.map((item, i) => {
         return (
           <ActionItem

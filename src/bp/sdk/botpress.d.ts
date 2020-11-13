@@ -433,28 +433,36 @@ declare module 'botpress/sdk' {
   }
 
   export namespace NLU {
-    export class Engine {
-      static initialize: (config: Config, logger: NLU.Logger) => Promise<void>
-      static getHealth: () => Health
-      static getLanguages: () => string[]
-      constructor(botId: string, logger: Logger)
+    export namespace errors {
+      export const isTrainingCanceled: (err: Error) => boolean
+      export const isTrainingAlreadyStarted: (err: Error) => boolean
+    }
+
+    export const makeEngine: (config: Config, logger: Logger) => Promise<Engine>
+
+    export interface Engine {
+      getHealth: () => Health
+      getLanguages: () => string[]
       computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string
-      loadModel: (m: Model) => Promise<void>
-      hasModel: (lang: string, hash: string) => boolean
-      hasModelForLang: (lang: string) => boolean
+      loadModel: (model: Model, modelId: string) => Promise<void>
+      hasModel: (modelId: string) => boolean
       train: (
         trainSessionId: string,
         intentDefs: NLU.IntentDefinition[],
         entityDefs: NLU.EntityDefinition[],
         languageCode: string,
         options: TrainingOptions
-      ) => Promise<Model | undefined>
+      ) => Promise<Model>
       cancelTraining: (trainSessionId: string) => Promise<void>
-      detectLanguage: (sentence: string) => Promise<string>
-      predict: (t: string, ctx: string[], language: string) => Promise<IO.EventUnderstanding>
+      detectLanguage: (text: string, modelByLang: Dic<string>) => Promise<string>
+      predict: (text: string, ctx: string[], modelId: string) => Promise<IO.EventUnderstanding>
     }
 
-    export interface Config {
+    export interface Config extends LanguageConfig {
+      modelCacheSize: number
+    }
+
+    export interface LanguageConfig {
       ducklingURL: string
       ducklingEnabled: boolean
       languageSources: LanguageSource[]
@@ -472,14 +480,15 @@ declare module 'botpress/sdk' {
     }
 
     export interface TrainingOptions {
-      forceTrain: boolean
       nluSeed: number
       progressCallback: (x: number) => void
+      previousModel?: string
     }
 
     export interface Model {
       hash: string
       languageCode: string
+      seed: number
       startedAt: Date
       finishedAt: Date
       data: {
@@ -498,11 +507,20 @@ declare module 'botpress/sdk' {
      * idle : occures when there are no training sessions for a bot
      * done : when a training is complete
      * needs-training : when current chatbot model differs from training data
+     * training-pending : when a training was launched, but the training process is not started yet
      * training: when a chatbot is currently training
-     * canceled: when a training has been canceled by the user
+     * canceled: when a user cancels a training and the training is being canceled
      * errored: when a chatbot failed to train
      */
-    export type TrainingStatus = 'idle' | 'done' | 'needs-training' | 'training' | 'canceled' | 'errored' | null
+    export type TrainingStatus =
+      | 'idle'
+      | 'done'
+      | 'needs-training'
+      | 'training-pending'
+      | 'training'
+      | 'canceled'
+      | 'errored'
+      | null
 
     export interface TrainingSession {
       key: string

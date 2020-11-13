@@ -14,7 +14,7 @@ async function migrateFlow(
   const contentIds = _.chain(flow.nodes)
     .filter(n => n.type === 'say_something')
     .flatMap(n => n.onEnter)
-    .filter(instruction => instruction && typeof instruction == 'string' && (instruction as string).startsWith('say'))
+    .filter(instruction => instruction && typeof instruction === 'string' && (instruction as string).startsWith('say'))
     .map((instruction: string) => instruction.split('#!')[1])
     .value()
 

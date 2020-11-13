@@ -102,7 +102,7 @@ function spawnWebWorker() {
   debug('Spawned Web Worker')
 }
 
-export async function spawnNewTrainingWorker(config: sdk.NLU.Config, requestId: string): Promise<number> {
+export async function spawnNewTrainingWorker(config: sdk.NLU.LanguageConfig, requestId: string): Promise<number> {
   if (!process.TRAINING_WORKERS) {
     process.TRAINING_WORKERS = []
   }

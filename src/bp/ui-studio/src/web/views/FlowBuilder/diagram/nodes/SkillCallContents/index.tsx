@@ -20,7 +20,7 @@ type Props = Pick<BlockProps, 'node'>
 
 const SkillCallContents: FC<Props> = ({ node }) => {
   return (
-    <div className={style.contentsWrapper}>
+    <div className={cx(style.contentsWrapper, style['skill-call'])}>
       {node.onReceive?.map((item, i) => {
         return (
           <ActionItem

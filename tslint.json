@@ -18,6 +18,10 @@
     "no-var-keyword": true,
     "quotemark": [true, "single", "jsx-double", "avoid-escape", "avoid-template"],
     "semicolon": [true, "never", "ignore-bound-class-methods"],
+    "triple-equals": [true, "allow-null-check", "allow-undefined-check"],
+    "no-duplicate-imports": [true, { "allow-namespace-imports": true }],
+    "no-console": { "severity": "warning", "options": ["log"] },
+    "no-return-await": true,
     "whitespace": [
       true,
       "check-branch",

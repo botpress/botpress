@@ -167,15 +167,27 @@
   > div {
     text-align: center;
     margin: auto;
-    width: 80%;
-    color: #353535;
-    padding-bottom: 20%;
-    svg {
-      font-size: 110px;
-      color: $light-gray3;
+    padding: var(--spacing-medium) var(--spacing-large);
+
+    .debuggerIcon {
+      display: block;
+      margin-bottom: var(--spacing-x-large);
     }
-    h2 {
-      margin: 10px 0;
+
+    ul {
+      text-align: left;
+      padding: 0 0 0 30px;
+      font-size: 12px;
+      line-height: 1.25;
+      text-align: center;
+      color: var(--shark);
+    }
+
+    p {
+      font-size: 12px;
+      line-height: 1.25;
+      text-align: center;
+      color: var(--shark);
     }
   }
 }
@@ -190,6 +202,38 @@
   padding: 10px var(--spacing-large);
   height: calc(100% - 50px);
   overflow-y: auto;
+
+  :global {
+    .bp3-tab-indicator-wrapper {
+      display: none;
+    }
+
+    .bp3-tab {
+      font-weight: bold;
+      font-size: 12px;
+      border-bottom: 2px solid transparent;
+
+      &[aria-selected='true'] {
+        color: var(--shark);
+        border-bottom: 2px solid var(--ocean);
+      }
+
+      &[aria-selected='false'] {
+        color: var(--seashell);
+      }
+    }
+  }
+
+  .tabError {
+    color: var(--hover-lighthouse) !important;
+    &:hover {
+      color: var(--lighthouse) !important;
+    }
+    &[aria-selected='true'] {
+      color: var(--lighthouse) !important;
+      border-bottom: 2px solid var(--lighthouse);
+    }
+  }
 }
 
 .inspectorContainer {

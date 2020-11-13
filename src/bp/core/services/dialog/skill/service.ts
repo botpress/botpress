@@ -8,7 +8,7 @@ export class SkillService {
   constructor() {}
 
   public finalizeFlow(partialFlow: FlowGenerationResult) {
-    if (_.get(partialFlow, 'flow.nodes.length') == 0) {
+    if (_.get(partialFlow, 'flow.nodes.length') === 0) {
       throw new Error('You must provide a flow with at least one node')
     }
 

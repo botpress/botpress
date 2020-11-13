@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
-import { InjectedIntlProps } from 'react-intl'
-import { injectIntl } from 'react-intl'
+import { InjectedIntlProps, injectIntl } from 'react-intl'
 
 import { Renderer } from '../../../typings'
 

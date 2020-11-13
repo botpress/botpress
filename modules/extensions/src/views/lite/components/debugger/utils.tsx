@@ -11,7 +11,7 @@ export const loadSettings = (): Settings => {
     const settings = window['BP_STORAGE'].get(SETTINGS_KEY)
     return settings ? JSON.parse(settings) : DEFAULT_SETTINGS
   } catch (err) {
-    console.log('Error loading settings', err)
+    console.error('Error loading settings', err)
     return DEFAULT_SETTINGS
   }
 }

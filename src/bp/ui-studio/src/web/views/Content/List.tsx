@@ -130,7 +130,7 @@ class ListView extends Component<Props, State> {
       return { column: sort.id, desc: sort.desc }
     })
 
-    if (sortOrder[0].column == 'usage') {
+    if (sortOrder[0].column === 'usage') {
       // we save the sorting locally, because the database doesn't have the 'usage' column
       this.state.sortOrderUsage = sortOrder[0].desc ? 'desc' : 'asc'
       sortOrder = []

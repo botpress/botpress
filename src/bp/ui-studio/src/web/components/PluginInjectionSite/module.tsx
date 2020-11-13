@@ -122,7 +122,7 @@ Please check our migration guide here: https://botpress.com/docs/developers/migr
     const { moduleComponent } = this.state
 
     if (this.state.error) {
-      console.log('Error rendering plugin', this.state.error)
+      console.error('Error rendering plugin', this.state.error)
       return (this.props.onNotFound && this.props.onNotFound(this.state.error)) || null
     }
 
