@@ -31,7 +31,7 @@ const AgentList: FC<Props> = props => {
       {!_.isEmpty(items) && (
         <ul>
           {_.values(items).map(agent => (
-            <AgentItem key={agent.id} {...agent}></AgentItem>
+            <AgentItem key={agent.agentId} {...agent}></AgentItem>
           ))}
         </ul>
       )}

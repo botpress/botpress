@@ -1,6 +1,7 @@
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import { SortOrder } from 'botpress/sdk'
+import { BPRequest } from 'common/http'
 import Knex from 'knex'
 import _ from 'lodash'
 
@@ -46,16 +47,6 @@ export default class Repository {
     this.eventColumns = ['id', 'direction', 'botId', 'channel', 'success', 'createdOn', 'threadId', 'type', 'event']
 
     this.commentColumnsPrefixed = this.commentColumns.map(s => this.commentPrefix.concat(':', s))
-  }
-
-  private axiosConfig = (req, botId: string): sdk.AxiosBotConfig => {
-    return {
-      baseURL: `${process.LOCAL_URL}/api/v1`,
-      headers: {
-        Authorization: req.headers.authorization,
-        'X-BP-Workspace': req.workspace
-      }
-    }
   }
 
   // This mutates object
@@ -203,10 +194,17 @@ export default class Repository {
   // - isSuperAdmin
   // - permissions
   // - strategyType
-  getCurrentAgent = async (req, botId: string, agentId: string): Promise<AgentType> => {
+  getCurrentAgent = async (req: BPRequest, botId: string, agentId: string): Promise<AgentType> => {
     const online = await this.getAgentOnline(botId, agentId)
 
-    const { data } = await axios.get('/auth/me/profile', this.axiosConfig(req, botId))
+    const { data } = await axios.get('/auth/me/profile', {
+      baseURL: `${process.LOCAL_URL}/api/v1`,
+      headers: {
+        Authorization: req.headers.authorization,
+        'X-BP-Workspace': req.workspace
+      }
+    })
+
     return {
       ...data.payload,
       agentId,
@@ -214,6 +212,9 @@ export default class Repository {
     } as AgentType
   }
 
+  // Fetch a list of agents, missing these properties:
+  // - permissions
+  // - strategyType
   getAgents = async (
     botId: string,
     workspace: string,
@@ -229,19 +230,48 @@ export default class Repository {
       }
     }
 
+    const getUsers = async (strategy: string, emails: string[]) => {
+      const users = await this.bp
+        .database(`strategy_${strategy}`)
+        .select('*')
+        .whereIn('email', emails)
+
+      return users.map(user => ({
+        ...user,
+        attributes: this.bp.database.json.get(user.attributes)
+      }))
+    }
+
     return this.bp.workspaces
       .getWorkspaceUsersWithAttributes(workspace, ['firstname', 'lastname'])
-      .then(data => {
-        // Build agent
-        return data.map<Partial<AgentType>>(user => {
+      .then(agents => {
+        return agents.map(agent => {
           return {
-            ...user,
-            fullName: [user.attributes.firstname, user.attributes.lastname].filter(Boolean).join(' ')
+            ...agent,
+            isSuperAdmin: false
           }
         })
       })
+      .then(async agents => {
+        const superAdmins = _.keyBy((await this.bp.config.getBotpressConfig()).superAdmins, 'strategy')
+        const strategies = _.keys(superAdmins)
+
+        const hydrated = _.flatten(
+          await Promise.mapSeries(strategies, async strategy => {
+            const emails = _.map(_.castArray(superAdmins[strategy]), 'email')
+            return getUsers(strategy, emails)
+          })
+        ).map(user => {
+          return {
+            ..._.pick(user, 'email', 'strategy'),
+            isSuperAdmin: true,
+            attributes: _.pick(user.attributes, 'firstname', 'lastname', 'created_on', 'updated_on')
+          }
+        })
+
+        return [...agents, ...hydrated]
+      })
       .then(data => {
-        // Append agent-related attributes
         return Promise.all(
           data.map(async row => {
             return {

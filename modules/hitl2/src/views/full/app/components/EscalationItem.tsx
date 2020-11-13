@@ -73,11 +73,18 @@ const EscalationItem: FC<EscalationType> = props => {
     setDefaultUsername(username)
   }, [userConversation])
 
+  const userName = () => {
+    return _.get(userConversation.event, 'state.user.fullName') || state.config.defaultUsername
+      ? defaultUsername
+      : lang.tr('module.hitl2.user.anonymous')
+  }
+
   const agentName = () => {
     if (agentId && agentId === state.currentAgent?.agentId) {
       return lang.tr('module.hitl2.escalation.you')
     } else if (agentId) {
-      return state.agents[agentId].fullName
+      const agent = state.agents[agentId]
+      return [agent.attributes.firstname, agent.attributes.lastname].filter(Boolean).join(' ')
     }
   }
 
@@ -88,12 +95,9 @@ const EscalationItem: FC<EscalationType> = props => {
     >
       {!readStatus && <span className={style.unreadDot}></span>}
       <div className={style.info}>
-        <span className={style.clientName}>
-          {_.get(userConversation.event, 'state.user.fullName') || defaultUsername}
-        </span>{' '}
-        <strong>#{id}</strong>
+        <span className={style.clientName}>{userName()}</span> <strong>#{id}</strong>
         <p>
-          <span>From {userConversation.channel}</span> {agentName() && ' ⋅ ' + agentName()}
+          <span>From {userConversation.channel}</span> ⋅ <span>{agentName()}</span>
         </p>
         <Text ellipsize={true}>{_.get(userConversation, 'event.preview')}</Text>
         <p className={style.createdDate}>{fromNow}</p>

@@ -13,7 +13,10 @@ const Comment: FC<CommentType> = props => {
     return moment(str).format('DD/MM/YYYY')
   }
 
-  const agent = state.agents[props.agentId]
+  function agentName() {
+    const agent = state.agents[props.agentId]
+    return [agent.attributes.firstname, agent.attributes.lastname].filter(Boolean).join(' ')
+  }
 
   return (
     <ContentSection title={`#${props.escalationId}`}>
@@ -21,7 +24,7 @@ const Comment: FC<CommentType> = props => {
         <li>{props.content}</li>
       </ul>
       <p className={style.createdDate}>
-        {formatDate(props.createdAt)} <span>⋅</span> {agent?.fullName || agent?.id}
+        {formatDate(props.createdAt)} <span>⋅</span> {agentName()}
       </p>
     </ContentSection>
   )

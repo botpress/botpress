@@ -40,7 +40,7 @@ const LiveChat: React.FC<Props> = ({ escalation, currentAgent }) => {
     const webchatConfig = {
       host: window.location.origin,
       botId: window.BOT_ID,
-      userId: currentAgent.id,
+      userId: currentAgent.agentId,
       conversationId: escalation.agentThreadId, // parseint ?
       showConversationsButton: false,
       enableReset: false,

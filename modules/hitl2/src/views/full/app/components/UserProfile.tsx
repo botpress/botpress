@@ -47,10 +47,16 @@ const UserProfile: FC<Props> = ({ conversation }) => {
     setDefaultUsername(username)
   }, [conversation])
 
+  const userName = () => {
+    return (user && user.fullName) || state.config.defaultUsername
+      ? defaultUsername
+      : lang.tr('module.hitl2.user.anonymous')
+  }
+
   return (
     <div>
       <div className={style.profileHeader}>
-        <button className={style.clientName}>{(user && user.fullName) || defaultUsername}</button>
+        <span className={style.clientName}>{userName()}</span>
         {user && <p>{user.email}</p>}
       </div>
 

@@ -27,11 +27,12 @@ export interface UserProfile {
 }
 
 export type AgentType = {
-  id: string
   agentId: string
   online: boolean
-} & UserProfile &
-  Pick<WorkspaceUserWithAttributes, 'role'>
+  role?: Pick<WorkspaceUserWithAttributes, 'role'>
+  workspace?: Pick<WorkspaceUserWithAttributes, 'workspace'>
+  attributes: Pick<UserProfile, 'firstname' | 'lastname'>
+} & Pick<UserProfile, 'email' | 'strategy' | 'isSuperAdmin' | 'permissions'>
 
 export type UserType = {
   id: string

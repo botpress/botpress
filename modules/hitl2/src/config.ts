@@ -10,4 +10,10 @@ export interface Config {
    * @default 10
    */
   messageCount: number
+
+  /**
+   * @param defaultUsername Wether or not to display a random username for anonymous users
+   * @default false
+   */
+  defaultUsername: boolean
 }

@@ -35,6 +35,7 @@
     "you": "Vous"
   },
   "user": {
+    "anonymous": "Anonyme",
     "variables": {
       "heading": "Variables",
       "empty": "Aucune variables",
