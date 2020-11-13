@@ -4,10 +4,21 @@ import { DefaultLinkModel, DiagramEngine, DiagramModel, DiagramWidget, PointMode
 import { hashCode } from '~/util'
 
 import { FlowNode } from './debugger'
-import { BaseNodeModel } from './nodes/BaseNodeModel'
 import { BlockModel } from './nodes/Block'
-import { SkillCallNodeModel } from './nodes/SkillCallNode'
-import { StandardNodeModel } from './nodes/StandardNode'
+
+interface NodeProblem {
+  nodeName: string
+  missingPorts: any
+}
+
+interface DiagramContainerSize {
+  width: number
+  height: number
+}
+
+type ExtendedDiagramModel = {
+  linksHash?: number
+} & DiagramModel
 
 const passThroughNodeProps: string[] = [
   'name',
@@ -25,9 +36,6 @@ export const DIAGRAM_PADDING: number = 100
 // Must be identified by the deleteSelectedElement logic to know it needs to delete something
 export const nodeTypes = ['standard', 'trigger', 'skill-call', 'say_something', 'execute', 'listen', 'router', 'action']
 
-// Using the new node types to prevent displaying start port
-export const newNodeTypes = ['say_something', 'execute', 'listen', 'router']
-
 // Default transition applied for new nodes 1.5
 export const defaultTransition = { condition: 'true', node: '' }
 
@@ -37,17 +45,7 @@ export interface Point {
 }
 
 const createNodeModel = (node, modelProps) => {
-  const { type } = node
-
-  if (type === 'skill-call') {
-    return new SkillCallNodeModel(modelProps)
-  } else if (
-    ['say_something', 'execute', 'listen', 'router', 'action', 'success', 'trigger', 'failure'].includes(type)
-  ) {
-    return new BlockModel(modelProps)
-  } else {
-    return new StandardNodeModel(modelProps)
-  }
+  return new BlockModel(modelProps)
 }
 
 export class DiagramManager {
@@ -146,7 +144,7 @@ export class DiagramManager {
 
     this.currentFlow &&
       this.currentFlow.nodes.forEach((node: NodeView) => {
-        const model = this.activeModel.getNode(node.id) as BpNodeModel
+        const model = this.activeModel.getNode(node.id) as BlockModel
         if (!model) {
           // Node doesn't exist
           this._addNode(node)
@@ -345,8 +343,8 @@ export class DiagramManager {
     const nodes = this.activeModel.getNodes()
     return Object.keys(nodes)
       .map(node => ({
-        nodeName: (nodes[node] as BpNodeModel).name,
-        missingPorts: (nodes[node] as BpNodeModel).next.filter(n => n.node === '').length
+        nodeName: (nodes[node] as BlockModel).name,
+        missingPorts: (nodes[node] as BlockModel).next.filter(n => n.node === '').length
       }))
       .filter(x => x.missingPorts > 0)
   }
@@ -380,7 +378,7 @@ export class DiagramManager {
     model.lastModified = node.lastModified
   }
 
-  private _syncNode(node: NodeView, model: BpNodeModel, snapshot) {
+  private _syncNode(node: NodeView, model: BlockModel, snapshot) {
     // @ts-ignore
     model.setData({
       ..._.pick(node, passThroughNodeProps),
@@ -527,17 +525,3 @@ export class DiagramManager {
     return _.sortBy(links, ['source', 'target'])
   }
 }
-
-interface NodeProblem {
-  nodeName: string
-  missingPorts: any
-}
-
-interface DiagramContainerSize {
-  width: number
-  height: number
-}
-type BpNodeModel = SkillCallNodeModel | BaseNodeModel
-type ExtendedDiagramModel = {
-  linksHash?: number
-} & DiagramModel

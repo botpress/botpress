@@ -36,8 +36,16 @@
   cursor: grabbing;
 }
 
+.large {
+  width: 200px !important;
+
+  .contentWrapper {
+    width: 187px;
+  }
+}
+
 .nodeWrapper {
-  background: #fff;
+  background: rgba(255, 255, 255, 0.7);
   border: 1px solid transparent !important;
   width: 150px;
   border: 1px solid transparent;
@@ -48,7 +56,8 @@
     border: 1px solid var(--ocean) !important;
 
     .say_something,
-    .prompt,
+    .standard,
+    .skill-call,
     .trigger,
     .execute,
     .action,
@@ -95,15 +104,13 @@
       &:hover.router,
       &.success,
       &:hover.success,
-      &.prompt,
-      &:hover.prompt {
+      &.standard,
+      &:hover.standard,
+      &.skill-call,
+      &:hover.skill-call {
         border-color: var(--ocean);
       }
     }
-  }
-
-  .prompt :global(.port):before {
-    background: var(--prompt);
   }
 
   .trigger :global(.port):before {
@@ -131,8 +138,12 @@
     background: var(--success);
   }
 
-  .prompt :global(.port):before {
-    background: var(--prompt);
+  .standard :global(.port):before {
+    background: var(--standard);
+  }
+
+  .skill-call :global(.port):before {
+    background: var(--skill-call);
   }
 
   :global {
@@ -183,10 +194,15 @@
   }
 
   .debugInfo {
-    padding: 5px;
+    padding: 3px;
     font-size: 10px;
     text-align: center;
     font-weight: normal;
+
+    div {
+      min-height: 15px;
+      padding: 4px;
+    }
 
     &.say_something,
     &:hover.say_something {
@@ -225,9 +241,14 @@
       background: var(--success);
     }
 
-    &.prompt,
-    &:hover.prompt {
-      background: var(--prompt);
+    &.standard,
+    &:hover.standard {
+      background: var(--standard);
+    }
+
+    &.skill-call,
+    &:hover.skill-call {
+      background: var(--skill-call);
     }
 
     :global(.bp3-button).button {
@@ -311,9 +332,14 @@
       border-color: var(--success);
     }
 
-    &.prompt,
-    &:hover.prompt {
-      border-color: var(--prompt);
+    &.standard,
+    &:hover.standard {
+      border-color: var(--standard);
+    }
+
+    &.skill-call,
+    &:hover.skill-call {
+      border-color: var(--skill-call);
     }
 
     .button {
@@ -404,22 +430,6 @@
     &.say_something:before {
       background-color: var(--say) !important;
     }
-
-    :before {
-      background-color: var(--prompt) !important;
-    }
-
-    &:global(.if-else):before {
-      background-color: var(--if-else) !important;
-    }
-
-    &:global(.success):before {
-      background-color: var(--success) !important;
-    }
-
-    &:global(.failure):before {
-      background-color: var(--lighthouse) !important;
-    }
   }
 }
 
@@ -450,6 +460,11 @@
   position: relative;
   width: 135px;
   z-index: 1;
+
+  &.small {
+    height: auto;
+    min-height: 20px;
+  }
 
   &:first-of-type {
     margin-top: 0;
