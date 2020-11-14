@@ -15,7 +15,6 @@ import Content from '~/views/Content'
 import FlowBuilder from '~/views/FlowBuilder'
 import Logs from '~/views/Logs'
 import Module from '~/views/Module'
-import OneFlow from '~/views/OneFlow'
 
 import { TrainingStatusService } from './training-status-service'
 import BotUmountedWarning from './BotUnmountedWarning'
@@ -210,17 +209,12 @@ const Layout: FC<ILayoutProps> = (props: ILayoutProps) => {
                   exact
                   path="/"
                   render={() => {
-                    if (!window.IS_BOT_MOUNTED) {
-                      return <Redirect to="/config" />
-                    }
-
-                    return window.USE_ONEFLOW ? <Redirect to="/oneflow" /> : <Redirect to="/flows" />
+                    return window.IS_BOT_MOUNTED ? <Redirect to="/flows" /> : <Redirect to="/config" />
                   }}
                 />
                 <Route exact path="/content" component={Content} />
                 <Route exact path="/flows/:flow*" component={FlowBuilder} />
                 <Route exact path="/config" component={Config} />
-                <Route exact path="/oneflow/:flow*" component={OneFlow} />
                 <Route exact path="/modules/:moduleName/:componentName?" render={props => <Module {...props} />} />
                 <Route exact path="/logs" component={Logs} />
               </Switch>

@@ -1,0 +1,42 @@
+{
+  "actionButton": "Botón de Acción",
+  "fullName": "Habilidades básicas",
+  "types": {
+    "actionButton": {
+      "buttonTitle": "Título del botón",
+      "description": "Un botón que desencadena una acción, a menudo utilizada en tarjetas",
+      "textTitle": "Enter text or the ID of a content element (ex: #!builtin_text-myid)",
+      "title": "Action Button"
+    },
+    "card": {
+      "description": "Un mensaje de tarjeta con un título con subtítulos opcionales, imagen y botones de acción."
+    },
+    "carousel": {
+      "cards": "Tarjetas de carrusel",
+      "description": "Un carrusel es un conjunto de cartas.",
+      "title": "Carrusel"
+    },
+    "image": {
+      "description": "Un mensaje que muestra una imagen con un título opcional.",
+      "imageLabel": "Título (opcional)",
+      "labelDesc": "Algunas plataformas requieren nombrar las imágenes.",
+      "permissionDenied": "You don't have permission to upload files for this bot. Talk to your team owner.",
+      "title": "Imagen",
+      "uploadImage": "Cargar imagen"
+    },
+    "singleChoice": {
+      "choice": "Elección",
+      "description": "Sugerir opciones al usuario con la intención de seleccionar solo una (con un mensaje opcional)",
+      "itemTitle": "El título de la elección (esto es lo que se muestra al usuario)",
+      "itemValue": "El valor que obtiene el bot cuando el usuario elige esta opción (normalmente oculto al usuario)",
+      "title": "Elección única"
+    },
+    "text": {
+      "alternatives": "Alternativas (opcional)",
+      "description": "Un mensaje de texto regular con indicadores de escritura opcionales y alternativas",
+      "message": "Mensaje"
+    }
+  },
+  "typingIndicator": "Mostrar indicadores de escritura",
+  "useMarkdown": "Usar markdown"
+}

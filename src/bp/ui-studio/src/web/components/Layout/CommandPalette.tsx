@@ -35,7 +35,7 @@ const CommandPalette: FC<Props> = props => {
         label: lang.tr('flows'),
         type: 'goto',
         category: 'studio',
-        url: `/${window.USE_ONEFLOW ? 'oneflow' : 'flows'}/main`
+        url: `/${window.USE_ONEFLOW ? 'flows' : 'flows/main'}`
       },
       { label: lang.tr('content'), type: 'goto', category: 'studio', url: '/content' },
       {
@@ -75,7 +75,7 @@ const CommandPalette: FC<Props> = props => {
         label: lang.tr('commander.switchBot', { name: getBotDisplayName(bot) }),
         type: 'redirect' as any,
         category: 'studio',
-        url: window.location.origin + '/studio/' + bot.id
+        url: `${window.location.origin}/studio/${bot.id}`
       })),
       ...props.modules
         .filter(module => !module.noInterface)

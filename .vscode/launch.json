@@ -31,10 +31,15 @@
       "type": "node",
       "runtimeVersion": "12.13.0",
       "request": "launch",
-      "name": "Debug NLU Server",
+      "name": "Debug Stan",
       "program": "${workspaceFolder}/out/bp/index.js",
       "cwd": "${workspaceFolder}",
-      "args": ["nlu", "--config=${workspaceFolder}/out/bp/data/global/config/nlu.json"],
+      "args": [
+        "nlu", 
+        "--languageURL=http://localhost:3100", 
+        "--ducklingURL=http://localhost:8000", 
+        "--modelCacheSize=1gb"
+      ],
       "protocol": "auto",
       "env": {
         "BP_MODULES_PATH": "${workspaceFolder}/modules:${workspaceFolder}/internal-modules",

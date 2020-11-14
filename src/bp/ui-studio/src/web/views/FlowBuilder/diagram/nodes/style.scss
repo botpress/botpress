@@ -1,5 +1,13 @@
-:global(.srd-diagram .node) {
-  opacity: 0.9;
+:global(.srd-diagram .srd-default-link--path-selected) {
+  stroke: var(--gray) !important;
+  animation: none;
+  stroke-dasharray: 6, 2;
+}
+
+:global(.srd-diagram .srd-default-link--path-dragging) {
+  stroke: var(--ocean) !important;
+  animation: none;
+  stroke-dasharray: none;
 }
 
 :global(.srd-diagram .node.selected) > .node-container {
@@ -164,7 +172,7 @@
 }
 
 .portLabel .label {
-  position: relative;
+  position: absolute;
   padding: 5px;
   right: -20px;
   display: inline;
@@ -192,6 +200,7 @@
 .startPort .label {
   color: green;
   font-size: 11px;
-  right: -83px;
-  top: -40px;
+  left: -40px;
+  right: auto;
+  top: -7px;
 }

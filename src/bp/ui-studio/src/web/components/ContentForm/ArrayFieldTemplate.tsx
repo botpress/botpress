@@ -2,7 +2,7 @@ import { AnchorButton, Button, ButtonGroup, Intent, Position, Tooltip } from '@b
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import React, { Fragment, useEffect, useRef } from 'react'
-import style from '~/views/OneFlow/sidePanel/form/style.scss'
+import style from '~/views/FlowBuilder/sidePanelTopics/form/style.scss'
 
 import SmartInput from '../SmartInput'
 

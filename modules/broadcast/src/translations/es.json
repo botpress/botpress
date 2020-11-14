@@ -1,0 +1,49 @@
+{
+  "fullName": "Broadcast",
+  "title": "Broadcast",
+  "cantFetchFromServer": "No se puede recuperar la lista de broadcast del servidor.",
+  "contentFieldRequired": "El campo de contenido es obligatorio.",
+  "unknownErrorOccurred": "Un error desconocido ocurrió",
+  "processing": "Procesando",
+  "notStarted": "No empezado",
+  "done": "Hecho",
+  "usersTime": "tiempo de los usuarios",
+  "yourTime": "su tiempo",
+  "noFilter": "No filtrar",
+  "filters": "filtros",
+  "youHaveNoBroadcasts": "No tienes broadcasts",
+  "newBroadcast": "Nuevo Broadcast",
+
+  "section": {
+    "upcoming": "Próximos broadcasts (próximos 3 días)",
+    "past": "Broadcasts pasados (last 3 days)",
+    "other": "Otros broadcasts"
+  },
+
+  "table": {
+    "date": "Fecha",
+    "content": "Contenido",
+    "filters": "Filtros",
+    "progress": "Progreso",
+    "action": "Acción"
+  },
+
+  "alert": {
+    "title": "Se produjo un error al enviar un Broadcast.",
+    "message": "Eche un vistazo a los registros para ver qué sucedió",
+    "hide": "Ocultar alerta"
+  },
+
+  "form": {
+    "content": "Contenido",
+    "pickContent": "Seleccionar contenido",
+    "date": "Fecha",
+    "time": "Hora",
+    "userTimeZone": "Zona horaria del usuario",
+    "filters": "Filtros",
+    "modify": "Modificar",
+    "create": "Crear",
+    "modifyBroadcast": "Modificar Broadcast",
+    "createBroadcast": "Crear Broadcast"
+  }
+}

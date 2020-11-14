@@ -11,7 +11,6 @@ import { fetchContentItem, refreshFlowsLinks } from '~/actions'
 
 import { isMissingCurlyBraceClosure } from '../../../components/Util/form.util'
 import withLanguage from '../../../components/Util/withLanguage'
-import { textToItemId } from '../diagram/nodes_v2/utils'
 
 import style from './style.scss'
 
@@ -24,6 +23,8 @@ interface Props {
   contentLang: string
   layoutv2?: boolean
 }
+
+export const textToItemId = text => text?.match(/^say #!(.*)$/)?.[1]
 
 class ActionItem extends Component<Props> {
   state = {
