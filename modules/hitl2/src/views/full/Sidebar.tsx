@@ -5,9 +5,9 @@ import _ from 'lodash'
 import React, { useContext, useEffect, useState } from 'react'
 
 import { EscalationType, SocketMessageType } from './../../types'
-import AgentList from './sidebar/components/AgentList'
-import EscalationList from './sidebar/components/EscalationList'
-import { Context, Store } from './sidebar/Store'
+import AgentList from './studio-sidebar/components/AgentList'
+import EscalationList from './studio-sidebar/components/EscalationList'
+import { Context, Store } from './studio-sidebar/Store'
 import styles from './style.scss'
 import { Api, castEscalation } from './Api'
 
