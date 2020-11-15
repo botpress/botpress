@@ -4,8 +4,7 @@ import moment from 'moment'
 import React, { FC, useEffect, useState } from 'react'
 
 import { EscalationType } from '../../../../types'
-
-import styles from './../../style.scss'
+import styles from '../../style.scss'
 
 const EscalationItem: FC<EscalationType> = props => {
   const [fromNow, setFromNow] = useState(moment(props.createdAt).fromNow())

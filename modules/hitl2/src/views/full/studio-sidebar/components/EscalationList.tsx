@@ -5,9 +5,9 @@ import _, { Dictionary } from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
 import { EscalationType } from '../../../../types'
+import styles from '../../style.scss'
+import CasesIcon from '../../Icons/CasesIcon'
 
-import styles from './../../style.scss'
-import CasesIcon from './../../Icons/CasesIcon'
 import EscalationItem from './EscalationItem'
 
 interface Props {
