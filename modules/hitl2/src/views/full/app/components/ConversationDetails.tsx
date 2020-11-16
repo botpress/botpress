@@ -33,7 +33,7 @@ const ConversationDetails: FC<Props> = ({ escalation, api }) => {
   }
 
   useEffect(() => {
-    setExpanded(!!comments.length)
+    setExpanded(!_.isEmpty(comments))
   }, [comments])
 
   return (
@@ -41,7 +41,7 @@ const ConversationDetails: FC<Props> = ({ escalation, api }) => {
       <Tabs tabs={[{ id: 'user', title: lang.tr('module.hitl2.escalation.contactDetails') }]} />
       <UserProfile conversation={userConversation} />
 
-      {!!comments.length && (
+      {!_.isEmpty(comments) && (
         <Fragment>
           <div className={style.divider}></div>
           <Collapsible

@@ -75,12 +75,12 @@ const EscalationList: FC<Props> = props => {
 
       {props.loading && <Spinner></Spinner>}
 
-      {!props.loading && !items.length && (
+      {!props.loading && _.isEmpty(items) && (
         <EmptyState icon={<CasesIcon />} text={lang.tr('module.hitl2.escalations.empty')}></EmptyState>
       )}
 
       {!props.loading &&
-        items.length &&
+        !_.isEmpty(items) &&
         items.map(escalation => <EscalationItem key={escalation.id} {...escalation}></EscalationItem>)}
     </Fragment>
   )
