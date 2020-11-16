@@ -2,13 +2,13 @@ import { Spinner } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import React, { useEffect, useState } from 'react'
 
-import { AgentType, EscalationType } from '../../../../types'
+import { IAgent, IEscalation } from '../../../../types'
 import style from '../../style.scss'
 
 // Sjhould we use context instead ?
 interface Props {
-  escalation: EscalationType
-  currentAgent: AgentType
+  escalation: IEscalation
+  currentAgent: IAgent
 }
 
 const WEBCHAT_ID = 'hitl-webchat'
@@ -23,10 +23,13 @@ const LiveChat: React.FC<Props> = ({ escalation, currentAgent }) => {
   }
 
   function webchatEventListener(message: MessageEvent) {
+    console.log('hey', message.data)
+
     if (message.data.chatId !== WEBCHAT_ID) {
       return
     }
     const store = getWebchatStore()
+
     if (message.data.name === 'webchatLoaded') {
       store.view.setContainerWidth('100%')
       store.view.setLayoutWidth('100%')

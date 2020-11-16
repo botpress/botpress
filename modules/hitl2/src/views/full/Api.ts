@@ -3,7 +3,7 @@ import _ from 'lodash'
 import moment from 'moment'
 
 import { Config } from '../../config'
-import { AgentType, CommentType, EscalationType, EventType } from '../../types'
+import { IAgent, IComment, IEscalation, IEvent } from '../../types'
 
 // TODO Handle casting when object is undefined
 export function castDate<T extends object>(object: T, paths: string[]): T {
@@ -13,7 +13,7 @@ export function castDate<T extends object>(object: T, paths: string[]): T {
   return object
 }
 
-export function castEscalation(item: EscalationType) {
+export function castEscalation(item: IEscalation) {
   return _.chain(item)
     .thru(value =>
       castDate(value, ['createdAt', 'updatedAt', 'assignedAt', 'resolvedAt', 'userConversation.createdOn'])
@@ -40,11 +40,11 @@ export function castEscalation(item: EscalationType) {
     .value()
 }
 
-export function castComment(item: CommentType) {
+export function castComment(item: IComment) {
   return castDate(item, ['createdAt', 'updatedAt'])
 }
 
-export function castMessage(item: EventType) {
+export function castMessage(item: IEvent) {
   return _.chain(item)
     .thru(value => castDate(value, ['createdOn']))
     .thru(value => {
@@ -58,14 +58,14 @@ export interface ApiType {
   getConfig: () => Promise<Config>
   setOnline: () => Promise<{ online: true }>
   setOffline: () => Promise<{ online: false }>
-  getAgents: (online?: boolean) => Promise<AgentType[]>
-  getCurrentAgent: () => Promise<AgentType>
-  getComments: (id: string) => Promise<CommentType[]>
-  createComment: (id: string, payload: Partial<CommentType>) => Promise<CommentType>
-  getEscalations: (column?: string, desc?: boolean, limit?: number) => Promise<EscalationType[]>
-  assignEscalation: (id: string) => Promise<EscalationType>
-  resolveEscalation: (id: string) => Promise<EscalationType>
-  getMessages: (id: string, column?: string, desc?: boolean, limit?: number) => Promise<EventType[]>
+  getAgents: (online?: boolean) => Promise<IAgent[]>
+  getCurrentAgent: () => Promise<IAgent>
+  getComments: (id: string) => Promise<IComment[]>
+  createComment: (id: string, payload: Partial<IComment>) => Promise<IComment>
+  getEscalations: (column?: string, desc?: boolean, limit?: number) => Promise<IEscalation[]>
+  assignEscalation: (id: string) => Promise<IEscalation>
+  resolveEscalation: (id: string) => Promise<IEscalation>
+  getMessages: (id: string, column?: string, desc?: boolean, limit?: number) => Promise<IEvent[]>
 }
 
 export const Api = (bp: { axios: AxiosInstance }): ApiType => {
@@ -78,11 +78,11 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
       bp.axios
         .get('/modules/hitl2/config', { baseURL: window.API_PATH, params: { botId: window.BOT_ID } })
         .then(res => res.data),
-    setOnline: async () => bp.axios.post(`/agents/me/online`, null, config).then(res => res.data),
-    setOffline: async () => bp.axios.post(`/agents/me/offline`, null, config).then(res => res.data),
+    setOnline: async () => bp.axios.post('/agents/me/online', null, config).then(res => res.data),
+    setOffline: async () => bp.axios.post('/agents/me/offline', null, config).then(res => res.data),
     getAgents: async (online?: boolean) =>
       bp.axios.get('/agents', { ...config, params: { online } }).then(res => res.data),
-    getCurrentAgent: async () => bp.axios.get(`/agents/me`, config).then(res => res.data),
+    getCurrentAgent: async () => bp.axios.get('/agents/me', config).then(res => res.data),
     getComments: async id =>
       bp.axios
         .get(`/escalations/${id}/comments`, config)

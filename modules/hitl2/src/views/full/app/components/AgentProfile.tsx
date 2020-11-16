@@ -5,12 +5,12 @@ import React, { FC, useState } from 'react'
 import AgentIcon from '../../shared/components/AgentIcon'
 import style from '../../style.scss'
 
-import { AgentType } from './../../../../types'
+import { IAgent } from './../../../../types'
 
 type Props = {
   toggleOnline: (online) => {}
   loading: boolean
-} & Partial<AgentType>
+} & Partial<IAgent>
 
 const AgentProfile: FC<Props> = ({ toggleOnline, online, loading }) => {
   const [showingOption, setShowingOption] = useState(false)

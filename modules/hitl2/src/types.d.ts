@@ -14,7 +14,7 @@ export interface AuthRule {
   res: string
   op: string
 }
-export interface UserProfile {
+export interface IUserProfile {
   email: string
   isSuperAdmin: boolean
   strategyType: string
@@ -26,40 +26,42 @@ export interface UserProfile {
   permissions: AuthRule[] | undefined
 }
 
-export type AgentType = {
+export type IAgent = {
   agentId: string
   online: boolean
   role?: Pick<WorkspaceUserWithAttributes, 'role'>
   workspace?: Pick<WorkspaceUserWithAttributes, 'workspace'>
-  attributes: Pick<UserProfile, 'firstname' | 'lastname'>
-} & Pick<UserProfile, 'email' | 'strategy' | 'isSuperAdmin' | 'permissions'>
+  attributes: Pick<IUserProfile, 'firstname' | 'lastname'>
+} & Pick<IUserProfile, 'email' | 'strategy' | 'isSuperAdmin' | 'permissions'>
 
-export type UserType = {
+export type IUser = {
   id: string
   variables?: { name: string; value: any }[]
-} & Partial<UserProfile>
+} & Partial<IUserProfile>
 
-export interface EscalationType {
+export type EscalationType = 'pending' | 'assigned' | 'resolved'
+export interface IEscalation {
   id: string
   botId: string
   agentId?: string
   userId: string
-  status: 'pending' | 'assigned' | 'resolved'
+  status: EscalationType
+  userChannel: string
   userThreadId: string
   agentThreadId: string
-  userConversation: EventType
-  comments: CommentType[]
+  userConversation: IEvent
+  comments: IComment[]
   assignedAt?: Date
   resolvedAt?: Date
   createdAt: Date
   updatedAt: Date
 }
 
-export type EventType = {
+export type IEvent = {
   event: string | sdk.IO.Event
 } & sdk.IO.StoredEvent
 
-export interface CommentType {
+export interface IComment {
   id: string
   agentId: string
   escalationId: string
@@ -69,7 +71,7 @@ export interface CommentType {
   updatedAt: Date
 }
 
-export interface SocketMessageType {
+export interface ISocketMessage {
   payload: any
   resource: string
   type: string

@@ -2,7 +2,7 @@ import { Dictionary } from 'lodash'
 import React, { createContext, Dispatch, useReducer } from 'react'
 
 import { Config } from '../../../config'
-import { AgentType, EscalationType } from '../../../types'
+import { IAgent, IEscalation } from '../../../types'
 
 import Reducer, { ActionType } from './Reducer'
 
@@ -18,10 +18,10 @@ export interface UserDefaultsType {
 }
 
 export interface StateType {
-  readonly currentAgent?: AgentType
-  readonly currentEscalation?: EscalationType
-  readonly agents: Dictionary<AgentType>
-  readonly escalations: Dictionary<EscalationType>
+  readonly currentAgent?: IAgent
+  readonly currentEscalation?: IEscalation
+  readonly agents: Dictionary<IAgent>
+  readonly escalations: Dictionary<IEscalation>
   readonly reads: Dictionary<Date>
   readonly config?: Config
   readonly defaults: {

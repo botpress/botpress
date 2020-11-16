@@ -1,13 +1,13 @@
 import produce from 'immer'
 import _ from 'lodash'
 
-import { AgentType, SocketMessageType } from '../../../types'
+import { IAgent, ISocketMessage } from '../../../types'
 
 import { StateType } from './Store'
 
 export type ActionType =
-  | { type: 'setCurrentAgent'; payload: Partial<AgentType> }
-  | { type: 'setAgent'; payload: SocketMessageType }
+  | { type: 'setCurrentAgent'; payload: Partial<IAgent> }
+  | { type: 'setAgent'; payload: ISocketMessage }
   | { type: 'setError'; payload: any }
 
 const Reducer = (state: StateType, action: ActionType): StateType => {
@@ -17,7 +17,7 @@ const Reducer = (state: StateType, action: ActionType): StateType => {
         draft.currentAgent = {
           ...draft.currentAgent,
           ...action.payload
-        } as AgentType
+        } as IAgent
       })
     case 'setAgent':
       return produce(state, draft => {

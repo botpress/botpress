@@ -3,15 +3,16 @@ import cx from 'classnames'
 import _ from 'lodash'
 import React, { useContext, useEffect, useState } from 'react'
 
-import { EscalationType, SocketMessageType } from '../../types'
+import { IEscalation, ISocketMessage } from '../../types'
 
+import AgentList from './app/components/AgentList'
 import AgentProfile from './app/components/AgentProfile'
 import ConversationContainer from './app/components/ConversationContainer'
+import EmptyConversation from './app/components/EmptyConversation'
 import EscalationList from './app/components/EscalationList'
 import { Context, Store } from './app/Store'
 import style from './style.scss'
 import { Api, castEscalation } from './Api'
-import AgentList from './app/components/AgentList'
 
 const App = ({ bp }) => {
   const api = Api(bp)
@@ -20,7 +21,7 @@ const App = ({ bp }) => {
 
   const [loading, setLoading] = useState(true)
 
-  function handleMessage(message: SocketMessageType) {
+  function handleMessage(message: ISocketMessage) {
     switch (message.resource) {
       case 'agent':
         return dispatch({ type: 'setAgent', payload: message })
@@ -28,7 +29,7 @@ const App = ({ bp }) => {
         return dispatch({
           type: 'setEscalation',
           payload: _.thru(message, () => {
-            message.payload = castEscalation(message.payload as EscalationType)
+            message.payload = castEscalation(message.payload as IEscalation)
             return message
           })
         })
@@ -107,7 +108,6 @@ const App = ({ bp }) => {
     }
   }, [state.error])
 
-
   return (
     <div className={style.app}>
       <div className={style.mainNav}>
@@ -119,7 +119,8 @@ const App = ({ bp }) => {
         <div className={cx(style.sidebar, style.column)}>
           <EscalationList escalations={state.escalations} loading={loading} />
         </div>
-        <ConversationContainer bp={bp} api={api} />
+        {!state.currentEscalation && <EmptyConversation />}
+        {state.currentEscalation && <ConversationContainer bp={bp} api={api} />}
       </div>
       <script src="assets/modules/channel-web/inject.js"></script>
     </div>

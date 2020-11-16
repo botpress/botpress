@@ -2,7 +2,7 @@ import { Button } from '@blueprintjs/core'
 import { isOperationAllowed, lang, PermissionOperation } from 'botpress/shared'
 import React, { FC, useContext, useState } from 'react'
 
-import { UserProfile } from '../../../../types'
+import { IUserProfile } from '../../../../types'
 import style from '../../style.scss'
 import { Context } from '../Store'
 

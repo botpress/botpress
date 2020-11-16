@@ -24,11 +24,15 @@ const onServerStarted = async (bp: typeof sdk) => {
 }
 
 const onServerReady = async (bp: typeof sdk) => {
+  if (!process.IS_PRO_ENABLED) {
+    bp.logger.info('HITL2: module is disabled because it requires Botpress Pro', { module: 'hitl2' })
+    return
+  }
+
   const workspace = Workspace(bp)
 
   await migrate(bp)
   await api(bp, state)
-
   await workspace
     .insertRole('default', [
       {
@@ -49,11 +53,7 @@ const onServerReady = async (bp: typeof sdk) => {
     ])
     .then(() => debug('Updating workspace configuration', { role: 'agent' }))
 
-  if (process.IS_PRO_ENABLED) {
-    await registerMiddleware(bp, state)
-  } else {
-    bp.logger.info('HITL2: module is disabled because it requires Botpress Pro', { module: 'hitl2' })
-  }
+  await registerMiddleware(bp, state)
 }
 
 const onModuleUnmount = async (bp: typeof sdk) => {

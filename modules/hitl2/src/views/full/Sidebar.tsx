@@ -4,7 +4,7 @@ import cx from 'classnames'
 import _ from 'lodash'
 import React, { useContext, useEffect, useState } from 'react'
 
-import { EscalationType, SocketMessageType } from './../../types'
+import { IEscalation, ISocketMessage } from './../../types'
 import AgentList from './studio-sidebar/components/AgentList'
 import EscalationList from './studio-sidebar/components/EscalationList'
 import { Context, Store } from './studio-sidebar/Store'
@@ -19,7 +19,7 @@ const Sidebar = ({ bp, close }) => {
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState({ agents: true, escalations: true })
 
-  function handleMessage(message: SocketMessageType) {
+  function handleMessage(message: ISocketMessage) {
     switch (message.resource) {
       case 'agent':
         return dispatch({ type: 'setAgent', payload: message })
@@ -27,7 +27,7 @@ const Sidebar = ({ bp, close }) => {
         return dispatch({
           type: 'setEscalation',
           payload: _.thru(message, () => {
-            message.payload = castEscalation(message.payload as EscalationType)
+            message.payload = castEscalation(message.payload as IEscalation)
             return message
           })
         })

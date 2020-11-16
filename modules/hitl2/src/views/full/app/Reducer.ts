@@ -2,18 +2,18 @@ import produce from 'immer'
 import _, { Dictionary } from 'lodash'
 
 import { Config } from '../../../config'
-import { AgentType, CommentType, EscalationType, SocketMessageType } from '../../../types'
+import { IAgent, IComment, IEscalation, ISocketMessage } from '../../../types'
 
 import { StateType } from './Store'
 
 export type ActionType =
-  | { type: 'setCurrentAgent'; payload: Partial<AgentType> }
+  | { type: 'setCurrentAgent'; payload: Partial<IAgent> }
   | { type: 'setCurrentEscalation'; payload: string }
-  | { type: 'setAgents'; payload: AgentType[] }
-  | { type: 'setEscalations'; payload: EscalationType[] }
-  | { type: 'setComment'; payload: CommentType }
-  | { type: 'setAgent'; payload: SocketMessageType }
-  | { type: 'setEscalation'; payload: SocketMessageType }
+  | { type: 'setAgents'; payload: IAgent[] }
+  | { type: 'setEscalations'; payload: IEscalation[] }
+  | { type: 'setComment'; payload: IComment }
+  | { type: 'setAgent'; payload: ISocketMessage }
+  | { type: 'setEscalation'; payload: ISocketMessage }
   | { type: 'setRead'; payload: Dictionary<Date> }
   | { type: 'setConfig'; payload: Config }
   | { type: 'setDefault'; payload: Object }

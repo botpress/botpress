@@ -5,7 +5,7 @@ import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
 
 import { Context } from '../Store'
 
-import { EscalationType } from './../../../../types'
+import { IEscalation } from './../../../../types'
 import CasesIcon from './../../Icons/CasesIcon'
 import EscalationItem from './EscalationItem'
 import EscalationListHeader, { FilterType, SortType } from './EscalationListHeader'
@@ -18,7 +18,7 @@ interface Props {
 const EscalationList: FC<Props> = props => {
   const { state, dispatch } = useContext(Context)
 
-  const [items, setItems] = useState<EscalationType[]>([])
+  const [items, setItems] = useState<IEscalation[]>([])
   const [filterOptions, setFilterOptions] = useState<FilterType>({
     unassigned: true,
     assignedMe: true,
@@ -27,7 +27,7 @@ const EscalationList: FC<Props> = props => {
   })
   const [sortOption, setSortOption] = useState<SortType>('mostRecent')
 
-  function filterBy(item: EscalationType): boolean {
+  function filterBy(item: IEscalation): boolean {
     const conditions = {
       unassigned: item.agentId == null,
       assignedMe: item.status == 'assigned' && item.agentId == state.currentAgent?.agentId,

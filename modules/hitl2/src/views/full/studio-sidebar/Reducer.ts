@@ -1,15 +1,15 @@
 import produce from 'immer'
 import _ from 'lodash'
 
-import { AgentType, EscalationType, SocketMessageType } from '../../../types'
+import { IAgent, IEscalation, ISocketMessage } from '../../../types'
 
 import { StateType } from './Store'
 
 export type ActionType =
-  | { type: 'setAgents'; payload: AgentType[] }
-  | { type: 'setEscalations'; payload: EscalationType[] }
-  | { type: 'setAgent'; payload: SocketMessageType }
-  | { type: 'setEscalation'; payload: SocketMessageType }
+  | { type: 'setAgents'; payload: IAgent[] }
+  | { type: 'setEscalations'; payload: IEscalation[] }
+  | { type: 'setAgent'; payload: ISocketMessage }
+  | { type: 'setEscalation'; payload: ISocketMessage }
   | { type: 'setError'; payload: any }
 
 const Reducer = (state: StateType, action: ActionType): StateType => {

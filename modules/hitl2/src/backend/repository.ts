@@ -5,7 +5,7 @@ import { BPRequest } from 'common/http'
 import Knex from 'knex'
 import _ from 'lodash'
 
-import { AgentType, CommentType, EscalationType } from './../types'
+import { IAgent, IComment, IEscalation } from './../types'
 import { makeAgentId } from './helpers'
 
 export interface AgentCollectionConditions {
@@ -76,7 +76,7 @@ export default class Repository {
   }
 
   // This mutates rows
-  private hydrateComments(rows: any[]): EscalationType[] {
+  private hydrateComments(rows: any[]): IEscalation[] {
     const records = rows.reduce((memo, row) => {
       memo[row.id] = memo[row.id] || {
         ..._.pick(row, this.escalationColumns),
@@ -135,7 +135,7 @@ export default class Repository {
 
   private userEventsQuery(): Knex.QueryBuilder {
     return this.bp
-      .database<EscalationType>('escalations')
+      .database<IEscalation>('escalations')
       .select(
         'escalations.id as escalation:id',
         'escalations.userThreadId as escalation:userThreadId',
@@ -146,7 +146,7 @@ export default class Repository {
 
   private escalationsWithCommentsQuery(botId: string, conditions: CollectionConditions = {}) {
     return this.bp
-      .database<EscalationType>('escalations')
+      .database<IEscalation>('escalations')
       .select(
         'escalations.*',
         `comments.id as ${this.commentPrefix}:id`,
@@ -176,7 +176,7 @@ export default class Repository {
   }
 
   escalationsQuery = (query?: Knex.QueryCallback) => {
-    return this.bp.database<EscalationType>('escalations').modify(this.applyQuery(query))
+    return this.bp.database<IEscalation>('escalations').modify(this.applyQuery(query))
   }
 
   getAgentOnline = async (botId: string, agentId: string): Promise<boolean> => {
@@ -194,7 +194,7 @@ export default class Repository {
   // - isSuperAdmin
   // - permissions
   // - strategyType
-  getCurrentAgent = async (req: BPRequest, botId: string, agentId: string): Promise<AgentType> => {
+  getCurrentAgent = async (req: BPRequest, botId: string, agentId: string): Promise<IAgent> => {
     const online = await this.getAgentOnline(botId, agentId)
 
     const { data } = await axios.get('/auth/me/profile', {
@@ -209,7 +209,7 @@ export default class Repository {
       ...data.payload,
       agentId,
       online
-    } as AgentType
+    } as IAgent
   }
 
   // Fetch a list of agents, missing these properties:
@@ -219,12 +219,12 @@ export default class Repository {
     botId: string,
     workspace: string,
     conditions: AgentCollectionConditions = {}
-  ): Promise<Partial<AgentType>[]> => {
+  ): Promise<Partial<IAgent>[]> => {
     const { online } = conditions
 
     const applyConditions = (records: []) => {
       if ('online' in conditions) {
-        return _.filter<AgentType>(records, ['online', online])
+        return _.filter<IAgent>(records, ['online', online])
       } else {
         return records
       }
@@ -289,7 +289,7 @@ export default class Repository {
     botId: string,
     conditions: CollectionConditions = {},
     query?: Knex.QueryCallback
-  ): Promise<EscalationType[]> => {
+  ): Promise<IEscalation[]> => {
     return this.bp.database
       .transaction(async trx => {
         return this.escalationsWithCommentsQuery(botId, conditions)
@@ -306,14 +306,10 @@ export default class Repository {
             )
           )
       })
-      .then(async data => data as EscalationType[])
+      .then(async data => data as IEscalation[])
   }
 
-  getEscalationWithComments = async (
-    botId: string,
-    id: string,
-    query?: Knex.QueryCallback
-  ): Promise<EscalationType> => {
+  getEscalationWithComments = async (botId: string, id: string, query?: Knex.QueryCallback): Promise<IEscalation> => {
     return this.escalationsWithCommentsQuery(botId)
       .andWhere('escalations.id', id)
       .modify(this.applyQuery(query))
@@ -324,13 +320,13 @@ export default class Repository {
       .then(async data => _.head(data))
   }
 
-  getEscalation = async (id: string, query?: Knex.QueryCallback): Promise<EscalationType> => {
+  getEscalation = async (id: string, query?: Knex.QueryCallback): Promise<IEscalation> => {
     return this.escalationsQuery(builder => {
       builder.where('id', id).modify(this.applyQuery(query))
     }).then(data => _.head(data))
   }
 
-  createEscalation = async (botId: string, attributes: Partial<EscalationType>): Promise<EscalationType> => {
+  createEscalation = async (botId: string, attributes: Partial<IEscalation>): Promise<IEscalation> => {
     const now = new Date()
     const payload = this.castDate(
       {
@@ -369,8 +365,8 @@ export default class Repository {
   updateEscalation = async (
     botId: string,
     id: string,
-    attributes: Partial<EscalationType>
-  ): Promise<Partial<EscalationType>> => {
+    attributes: Partial<IEscalation>
+  ): Promise<Partial<IEscalation>> => {
     const now = new Date()
     const payload = this.castDate(
       {
@@ -381,7 +377,7 @@ export default class Repository {
     )
 
     return this.bp.database.transaction(async trx => {
-      await trx<EscalationType>('escalations')
+      await trx<IEscalation>('escalations')
         .where({ id })
         .update(payload)
 
@@ -402,7 +398,7 @@ export default class Repository {
     })
   }
 
-  createComment = (attributes: Partial<CommentType>): Promise<CommentType> => {
+  createComment = (attributes: Partial<IComment>): Promise<IComment> => {
     const now = new Date()
     const payload = this.castDate(
       {
@@ -413,7 +409,7 @@ export default class Repository {
       ['updatedAt', 'createdAt']
     )
 
-    return this.bp.database.insertAndRetrieve<CommentType>('comments', payload, this.commentColumns)
+    return this.bp.database.insertAndRetrieve<IComment>('comments', payload, this.commentColumns)
   }
 
   getMessages = (botId: string, id: string, conditions: CollectionConditions = {}) => {

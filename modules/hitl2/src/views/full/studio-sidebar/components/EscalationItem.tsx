@@ -3,10 +3,10 @@ import cx from 'classnames'
 import moment from 'moment'
 import React, { FC, useEffect, useState } from 'react'
 
-import { EscalationType } from '../../../../types'
+import { IEscalation } from '../../../../types'
 import styles from '../../style.scss'
 
-const EscalationItem: FC<EscalationType> = props => {
+const EscalationItem: FC<IEscalation> = props => {
   const [fromNow, setFromNow] = useState(moment(props.createdAt).fromNow())
 
   useEffect(() => {

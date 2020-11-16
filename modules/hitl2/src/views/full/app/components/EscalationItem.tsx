@@ -5,14 +5,14 @@ import _ from 'lodash'
 import moment from 'moment'
 import React, { FC, useContext, useEffect, useState } from 'react'
 
-import { EscalationType } from '../../../../types'
+import { IEscalation } from '../../../../types'
 import { Context } from '../Store'
 
 import style from './../../style.scss'
 import { generateUsername, getOrSet } from './../utils'
 import EscalationBadge from './EscalationBadge'
 
-const EscalationItem: FC<EscalationType> = props => {
+const EscalationItem: FC<IEscalation> = props => {
   const { createdAt, id, status, agentId, userConversation } = props
 
   const { state, dispatch } = useContext(Context)

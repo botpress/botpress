@@ -1,9 +1,9 @@
 import { lang } from 'botpress/shared'
 import React, { FC } from 'react'
 
-import { AgentType } from '../../../../types'
+import { IAgent } from '../../../../types'
 
-const AgentItem: FC<Partial<AgentType>> = props => {
+const AgentItem: FC<Partial<IAgent>> = props => {
   const agentName = () => {
     return [props.attributes.firstname, props.attributes.lastname].filter(Boolean).join(' ')
   }

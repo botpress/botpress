@@ -6,14 +6,14 @@ import { Request, Response } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
 import yn from 'yn'
-import { CommentType, EscalationType } from './../types'
+
+import { EscalationType, IComment, IEscalation } from './../types'
+import AgentSession from './agentSession'
 import { UnauthorizedError, UnprocessableEntityError } from './errors'
 import { formatValidationError, makeAgentId } from './helpers'
 import { StateType } from './index'
 import Repository, { AgentCollectionConditions, CollectionConditions } from './repository'
 import Socket from './socket'
-import AgentSession from './agentSession'
-
 import {
   AgentOnlineValidation,
   AssignEscalationSchema,
@@ -159,8 +159,8 @@ export default async (bp: typeof sdk, state: StateType) => {
     '/escalations',
     errorMiddleware(async (req: Request, res: Response) => {
       const payload = {
-        ..._.pick(req.body, ['userId', 'userThreadId']),
-        status: 'pending' as 'pending'
+        ..._.pick(req.body, ['userId', 'userThreadId', 'userChannel']),
+        status: <EscalationType>'pending'
       }
 
       Joi.attempt(payload, CreateEscalationSchema)
@@ -172,11 +172,12 @@ export default async (bp: typeof sdk, state: StateType) => {
             .where('botId', req.params.botId)
             .andWhere('userId', payload.userId)
             .andWhere('userThreadId', payload.userThreadId)
+            .andWhere('userChannel', payload.userChannel)
             .whereNot('status', 'resolved')
             .orderBy('createdAt')
             .limit(1)
         })
-        .then(data => _.head(data) as EscalationType)
+        .then(data => _.head(data) as IEscalation)
 
       if (escalation) {
         return res.sendStatus(200)
@@ -222,15 +223,12 @@ export default async (bp: typeof sdk, state: StateType) => {
 
       const agentId = makeAgentId(strategy, email)
 
-      let escalation: Partial<EscalationType> = await repository.getEscalationWithComments(
-        req.params.botId,
-        req.params.id
-      )
+      let escalation: Partial<IEscalation> = await repository.getEscalationWithComments(req.params.botId, req.params.id)
 
-      const axioxconfig = await bp.http.getAxiosConfigForBot(botId)
+      const axioxconfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
       const { data } = await Axios.post(`/mod/channel-web/conversations/${agentId}/new`, {}, axioxconfig)
       const agentThreadId = data.convoId.toString()
-      const payload: Partial<EscalationType> = {
+      const payload: Partial<IEscalation> = {
         agentId,
         agentThreadId,
         assignedAt: new Date(),
@@ -261,7 +259,7 @@ export default async (bp: typeof sdk, state: StateType) => {
           type: 'text',
           payload: {
             type: 'text',
-            text: 'You have been assigned to an agent.'
+            text: 'You have been assigned to an agent.' // TODO replace this by bp.cms.renderElement to handle translation
           }
         })
       )
@@ -288,7 +286,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       let escalation
       escalation = await repository.getEscalationWithComments(req.params.botId, req.params.id)
 
-      const payload: Partial<EscalationType> = {
+      const payload: Partial<IEscalation> = {
         status: 'resolved',
         resolvedAt: new Date()
       }
@@ -330,7 +328,7 @@ export default async (bp: typeof sdk, state: StateType) => {
 
       const escalation = await repository.getEscalation(req.params.id)
 
-      const payload: CommentType = {
+      const payload: IComment = {
         ...req.body,
         escalationId: escalation.id,
         threadId: escalation.userThreadId,

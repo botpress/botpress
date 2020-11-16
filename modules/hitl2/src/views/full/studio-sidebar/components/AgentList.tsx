@@ -3,18 +3,18 @@ import { EmptyState, lang } from 'botpress/shared'
 import _, { Dictionary } from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
-import { AgentType } from '../../../../types'
+import { IAgent } from '../../../../types'
 import AgentsIcon from '../../Icons/AgentsIcon'
 
 import AgentItem from './AgentItem'
 
 interface Props {
-  agents: Dictionary<AgentType>
+  agents: Dictionary<IAgent>
   loading: boolean
 }
 
 const AgentList: FC<Props> = props => {
-  const [items, setItems] = useState<AgentType[]>([])
+  const [items, setItems] = useState<IAgent[]>([])
 
   useEffect(() => {
     setItems(_.filter(_.values(props.agents), ['online', true]))

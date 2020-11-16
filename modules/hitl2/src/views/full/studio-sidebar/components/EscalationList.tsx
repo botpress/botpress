@@ -4,20 +4,20 @@ import cx from 'classnames'
 import _, { Dictionary } from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
-import { EscalationType } from '../../../../types'
+import { IEscalation } from '../../../../types'
 import styles from '../../style.scss'
 import CasesIcon from '../../Icons/CasesIcon'
 
 import EscalationItem from './EscalationItem'
 
 interface Props {
-  escalations: Dictionary<EscalationType>
+  escalations: Dictionary<IEscalation>
   loading: boolean
   itemCount?: number
 }
 
 const EscalationList: FC<Props> = props => {
-  const [items, setItems] = useState<EscalationType[]>([])
+  const [items, setItems] = useState<IEscalation[]>([])
 
   useEffect(() => {
     setItems(_.slice(_.orderBy(_.values(props.escalations), 'createdAt', 'desc'), 0, props.itemCount))

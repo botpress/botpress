@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react'
 
-import { SocketMessageType } from './../../types'
+import { ISocketMessage } from './../../types'
 import { Context, Store } from './agentStatus/Store'
 import AgentIcon from './shared/components/AgentIcon'
 import { Api } from './Api'
@@ -10,7 +10,7 @@ const AgentStatus = ({ bp }) => {
 
   const { state, dispatch } = useContext(Context)
 
-  function handleMessage(message: SocketMessageType) {
+  function handleMessage(message: ISocketMessage) {
     switch (message.resource) {
       case 'agent':
         return dispatch({ type: 'setAgent', payload: message })

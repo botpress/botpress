@@ -36,6 +36,7 @@ export default async (bp: typeof sdk) => {
     table.string('userId').notNullable()
     table.string('agentId')
     table.string('userThreadId').notNullable()
+    table.string('userChannel').notNullable()
     table.string('agentThreadId')
     table.string('status').notNullable()
     table.dateTime('assignedAt')

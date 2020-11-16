@@ -3,7 +3,7 @@ import { EmptyState } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
 
-import { SocketMessageType } from '../../../../types'
+import { ISocketMessage } from '../../../../types'
 import { ApiType, castMessage } from '../../Api'
 import { Context } from '../Store'
 
@@ -21,7 +21,7 @@ const ConversationHistory: FC<Props> = props => {
   const [loading, setLoading] = useState(true)
   const [messages, setMessages] = useState([])
 
-  function handleMessage(message: SocketMessageType) {
+  function handleMessage(message: ISocketMessage) {
     if (message.resource === 'event' && message.type === 'create') {
       setMessages(messages =>
         _.sortBy([...messages, castMessage(message.payload)], 'id').slice(state.config.messageCount * -1)

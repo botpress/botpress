@@ -2,13 +2,12 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import LRU from 'lru-cache'
 
-import { StateType } from './index'
-import { EscalationType } from './../types'
+import { IEscalation } from './../types'
+import AgentSession from './agentSession'
 import { measure } from './helpers'
+import { StateType } from './index'
 import Repository from './repository'
 import Socket from './socket'
-
-import AgentSession from './agentSession'
 
 const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   const cache = new LRU<string, string>({ max: 1000, maxAge: 1000 * 60 * 60 * 24 }) // 1 day
@@ -18,19 +17,9 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
 
   const debug = DEBUG('hitl2')
 
-  const pipeEvent = async (event: sdk.IO.IncomingEvent, target: string, threadId: string) => {
-    debug.forBot(event.botId, 'Piping event', { threadId, target })
-    return bp.events.sendEvent(
-      bp.IO.Event({
-        botId: event.botId,
-        target,
-        threadId,
-        channel: event.channel,
-        direction: 'outgoing',
-        type: event.type,
-        payload: event.payload
-      })
-    )
+  const pipeEvent = async (event: sdk.IO.IncomingEvent, eventDestination: sdk.IO.EventDestination) => {
+    debug.forBot(event.botId, 'Piping event tp', eventDestination)
+    return bp.events.replyToEvent(eventDestination, [{ type: 'typing', value: 10 }, event.payload])
   }
 
   const cacheKey = (a, b) => _.join([a, b], '.')
@@ -39,7 +28,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
     return cache.get(cacheKey(botId, threadId))
   }
 
-  const cacheEscalation = (botId: string, threadId: string, escalation: EscalationType) => {
+  const cacheEscalation = (botId: string, threadId: string, escalation: IEscalation) => {
     debug.forBot(botId, 'Caching escalation', { id: escalation.id, threadId })
     cache.set(cacheKey(botId, threadId), escalation.id)
   }
@@ -51,7 +40,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
 
   const incomingHandler = async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
     if (event.type !== 'text') {
-      // we might want to handle other types
+      // TODO we might want to handle other types
       return next()
     }
 
@@ -68,11 +57,15 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
     // Handle incoming message from user
     if (escalation.userThreadId === event.threadId) {
       debug.forBot(event.botId, 'Handling message from User', { direction: event.direction, threadId: event.threadId })
-      event.setFlag(bp.IO.WellKnownFlags.SKIP_DIALOG_ENGINE, true)
 
       if (escalation.status === 'assigned') {
         // There only is an agentId & agentThreadId after assignation
-        await pipeEvent(event, escalation.agentId, escalation.agentThreadId)
+        await pipeEvent(event, {
+          botId: escalation.botId,
+          target: escalation.agentId,
+          threadId: escalation.agentThreadId,
+          channel: 'web'
+        })
       }
 
       // At this moment the event isn't persisted yet so an approximate
@@ -106,7 +99,12 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
     } else if (escalation.agentThreadId === event.threadId) {
       debug.forBot(event.botId, 'Handling message from Agent', { direction: event.direction, threadId: event.threadId })
 
-      await pipeEvent(event, escalation.userId, escalation.userThreadId)
+      await pipeEvent(event, {
+        botId: escalation.botId,
+        threadId: escalation.userThreadId,
+        target: escalation.userId,
+        channel: escalation.userChannel
+      })
 
       await repository.setAgentOnline(event.botId, escalation.agentId, true) // Bump agent session timeout
       await registerTimeout(event.botId, escalation.agentId).then(() => {
@@ -115,6 +113,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
     }
 
     // the session or bot is paused, swallow the message
+    // TODO deprecate usage of isPause
     // @ts-ignore
     Object.assign(event, { isPause: true })
 
@@ -131,7 +130,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
       .escalationsQuery(builder => {
         builder.where('status', 'pending').orWhere('status', 'assigned')
       })
-      .then((escalations: EscalationType[]) => {
+      .then((escalations: IEscalation[]) => {
         escalations.forEach(escalation => {
           escalation.agentThreadId && cacheEscalation(escalation.botId, escalation.agentThreadId, escalation)
           escalation.userThreadId && cacheEscalation(escalation.botId, escalation.userThreadId, escalation)
@@ -152,7 +151,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
     name: 'hitl2.incoming',
     direction: 'incoming',
     order: 0,
-    description: 'Where magic happens',
+    description: 'Where magic between users and agents happens',
     handler: incomingHandler
   })
 }

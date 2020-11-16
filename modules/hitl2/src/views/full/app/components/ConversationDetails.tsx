@@ -1,22 +1,23 @@
-import { Collapsible, lang } from 'botpress/shared'
+import { Collapsible, lang, Tabs } from 'botpress/shared'
+import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
 
-import { EscalationType } from '../../../../types'
+import { IEscalation } from '../../../../types'
 import style from '../../style.scss'
+import { ApiType } from '../../Api'
 import { Context } from '../Store'
 
-import { ApiType } from './../../Api'
 import Comment from './Comment'
 import CommentForm from './CommentForm'
 import UserProfile from './UserProfile'
 
 interface Props {
   api: ApiType
-  escalation: EscalationType
+  escalation: IEscalation
 }
 
-const Sidebar: FC<Props> = ({ escalation, api }) => {
+const ConversationDetails: FC<Props> = ({ escalation, api }) => {
   const { id, comments, userConversation } = escalation
   const { dispatch } = useContext(Context)
 
@@ -36,8 +37,9 @@ const Sidebar: FC<Props> = ({ escalation, api }) => {
   }, [comments])
 
   return (
-    <Fragment>
-      <UserProfile conversation={userConversation}></UserProfile>
+    <div className={cx(style.column, style.sidebarContainer)}>
+      <Tabs tabs={[{ id: 'user', title: lang.tr('module.hitl2.escalation.contactDetails') }]} />
+      <UserProfile conversation={userConversation} />
 
       {!!comments.length && (
         <Fragment>
@@ -56,8 +58,8 @@ const Sidebar: FC<Props> = ({ escalation, api }) => {
       )}
 
       <CommentForm onSubmit={createComment}></CommentForm>
-    </Fragment>
+    </div>
   )
 }
 
-export default Sidebar
+export default ConversationDetails

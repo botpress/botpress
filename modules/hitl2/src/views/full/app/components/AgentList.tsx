@@ -1,19 +1,18 @@
 import { Colors } from '@blueprintjs/core'
 import { Spinner } from '@blueprintjs/core'
-import { Initial } from 'react-initial'
-
 import _, { Dictionary } from 'lodash'
 import React, { FC } from 'react'
+import { Initial } from 'react-initial'
 
-import { AgentType } from '../../../../types'
+import { IAgent } from '../../../../types'
 
 interface Props {
-  agents: Dictionary<AgentType>
+  agents: Dictionary<IAgent>
   loading: boolean
 }
 
 const AgentList: FC<Props> = props => {
-  function agentName(agent: AgentType) {
+  function agentName(agent: IAgent) {
     return [agent.attributes.firstname, agent.attributes.lastname].filter(Boolean).join(' ')
   }
 

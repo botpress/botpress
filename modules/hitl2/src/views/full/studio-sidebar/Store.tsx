@@ -1,7 +1,7 @@
 import { Dictionary } from 'lodash'
 import React, { createContext, Dispatch, useReducer } from 'react'
 
-import { AgentType, EscalationType } from '../../../types'
+import { IAgent, IEscalation } from '../../../types'
 
 import Reducer, { ActionType } from './Reducer'
 
@@ -11,8 +11,8 @@ interface StoreType {
 }
 
 export interface StateType {
-  readonly agents: Dictionary<AgentType>
-  readonly escalations: Dictionary<EscalationType>
+  readonly agents: Dictionary<IAgent>
+  readonly escalations: Dictionary<IEscalation>
   readonly error?: any
 }
 

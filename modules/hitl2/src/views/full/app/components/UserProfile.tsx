@@ -2,21 +2,21 @@ import { Collapsible, lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
 
-import { EventType, UserType } from '../../../../types'
+import { IEvent, IUser } from '../../../../types'
 import style from '../../style.scss'
 import { Context } from '../Store'
 
 import { generateUsername, getOrSet } from './../utils'
 
 interface Props {
-  conversation: EventType
+  conversation: IEvent
 }
 
 const UserProfile: FC<Props> = ({ conversation }) => {
   const { state, dispatch } = useContext(Context)
 
   const [expanded, setExpanded] = useState(false)
-  const [user, setUser] = useState<UserType>()
+  const [user, setUser] = useState<IUser>()
   const [defaultUsername, setDefaultUsername] = useState<string>()
 
   useEffect(() => {

@@ -1,6 +1,6 @@
 import React, { createContext, Dispatch, useReducer } from 'react'
 
-import { AgentType } from '../../../types'
+import { IAgent } from '../../../types'
 
 import Reducer, { ActionType } from './Reducer'
 
@@ -10,7 +10,7 @@ interface StoreType {
 }
 
 export interface StateType {
-  readonly currentAgent: AgentType
+  readonly currentAgent: IAgent
   readonly error?: any
 }
 
