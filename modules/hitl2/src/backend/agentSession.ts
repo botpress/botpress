@@ -5,16 +5,17 @@ import Repository from './repository'
 
 export default (bp: typeof sdk, repository: Repository, cache: object) => {
   // Fires a realtime event when an agent's session is expired
-  const registerTimeout = async (botId: string, agentId: string) => {
+  const registerTimeout = async (workspaceId: string, botId: string, agentId: string) => {
     const realtime = Socket(bp)
 
+    const key = cacheKey(workspaceId, botId, agentId)
     const { agentSessionTimeout } = await bp.config.getModuleConfigForBot('hitl2', botId)
 
     // Clears previously registered timeout to avoid old timers to execute
-    unregisterTimeout(agentId)
+    unregisterTimeout(workspaceId, botId, agentId)
 
     // Set a new timeout that will fire a realtime event
-    cache[agentId] = setTimeout(async () => {
+    cache[key] = setTimeout(async () => {
       // By now the agent *should* be offline, but we check nonetheless
       const online = await repository.getAgentOnline(botId, agentId)
       const payload = { online }
@@ -28,11 +29,19 @@ export default (bp: typeof sdk, repository: Repository, cache: object) => {
     }, ms(agentSessionTimeout as string))
   }
 
-  const unregisterTimeout = (agentId: string) => {
-    if (cache[agentId]) {
-      clearTimeout(cache[agentId])
+  const unregisterTimeout = (workspaceId: string, botId: string, agentId: string) => {
+    const key = cacheKey(workspaceId, botId, agentId)
+
+    if (cache[key]) {
+      clearTimeout(cache[key])
     }
   }
 
   return { registerTimeout, unregisterTimeout }
+}
+
+// Cache key that scopes agent status on a per-workspace basis.
+// It could also be scoped on a per-bot basis.
+export const cacheKey = (workspaceId: string, botId: string, agentId: string) => {
+  return [workspaceId, agentId].join('.')
 }

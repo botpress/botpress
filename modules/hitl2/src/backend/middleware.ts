@@ -107,9 +107,11 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
       })
 
       await repository.setAgentOnline(event.botId, escalation.agentId, true) // Bump agent session timeout
-      await registerTimeout(event.botId, escalation.agentId).then(() => {
-        debug.forBot(event.botId, 'Registering timeout', { agentId: escalation.agentId })
-      })
+      await registerTimeout(await bp.workspaces.getBotWorkspaceId(event.botId), event.botId, escalation.agentId).then(
+        () => {
+          debug.forBot(event.botId, 'Registering timeout', { agentId: escalation.agentId })
+        }
+      )
     }
 
     // the session or bot is paused, swallow the message

@@ -7,6 +7,7 @@ import _ from 'lodash'
 
 import { IAgent, IComment, IEscalation } from './../types'
 import { makeAgentId } from './helpers'
+import { cacheKey } from './agentSession'
 
 export interface AgentCollectionConditions {
   online?: boolean
@@ -179,14 +180,21 @@ export default class Repository {
     return this.bp.database<IEscalation>('escalations').modify(this.applyQuery(query))
   }
 
+  // hitl2:online:workspaceId:agentId
+  agentSessionCacheKey = async (botId: string, agentId: string) => {
+    return ['hitl2', 'online', cacheKey(await this.bp.workspaces.getBotWorkspaceId(botId), botId, agentId)].join(':')
+  }
+
   getAgentOnline = async (botId: string, agentId: string): Promise<boolean> => {
-    const value = await this.bp.kvs.forBot(botId).get(`hitl2:online:${agentId}`)
+    const value = await this.bp.kvs.forBot(botId).get(await this.agentSessionCacheKey(botId, agentId))
     return !!value
   }
 
   setAgentOnline = async (botId: string, agentId: string, value: boolean): Promise<boolean> => {
     const config = await this.bp.config.getModuleConfigForBot('hitl2', botId)
-    await this.bp.kvs.forBot(botId).set(`hitl2:online:${agentId}`, value, null, config.agentSessionTimeout)
+    await this.bp.kvs
+      .forBot(botId)
+      .set(await this.agentSessionCacheKey(botId, agentId), value, null, config.agentSessionTimeout)
     return value
   }
 

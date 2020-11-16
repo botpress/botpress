@@ -105,7 +105,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       const agentId = makeAgentId(strategy, email)
 
       const online = await repository.setAgentOnline(req.params.botId, agentId, true)
-      await registerTimeout(req.params.botId, agentId)
+      await registerTimeout(req.workspace, req.params.botId, agentId)
 
       const payload = { online }
 
@@ -127,7 +127,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       const agentId = makeAgentId(strategy, email)
 
       const online = await repository.setAgentOnline(req.params.botId, agentId, false)
-      unregisterTimeout(agentId)
+      unregisterTimeout(req.workspace, req.params.botId, agentId)
 
       const payload = {
         online
@@ -247,7 +247,7 @@ export default async (bp: typeof sdk, state: StateType) => {
 
       // Bump agent session timeout
       await repository.setAgentOnline(req.params.botId, agentId, true)
-      await registerTimeout(req.params.botId, agentId)
+      await registerTimeout(req.workspace, req.params.botId, agentId)
 
       bp.events.sendEvent(
         bp.IO.Event({
@@ -305,7 +305,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       })
 
       await repository.setAgentOnline(req.params.botId, agentId, true) // Bump agent session timeout
-      await registerTimeout(req.params.botId, agentId).then(() => {
+      await registerTimeout(req.workspace, req.params.botId, agentId).then(() => {
         debug.forBot(req.params.botId, 'Registering timeout', { agentId })
       })
 
@@ -340,7 +340,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       const comment = await repository.createComment(payload)
 
       await repository.setAgentOnline(req.params.botId, agentId, true) // Bump agent session timeout
-      await registerTimeout(req.params.botId, agentId).then(() => {
+      await registerTimeout(req.workspace, req.params.botId, agentId).then(() => {
         debug.forBot(req.params.botId, 'Registering timeout', { agentId })
       })
 
