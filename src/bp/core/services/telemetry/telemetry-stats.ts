@@ -12,7 +12,7 @@ import yn from 'yn'
 import { GhostService } from '..'
 import { JobService } from '../job-service'
 
-const debug = DEBUG('stats')
+const debug = DEBUG('telemetry')
 
 export const DEFAULT = '***default***'
 export const REDACTED = '***redacted***'
