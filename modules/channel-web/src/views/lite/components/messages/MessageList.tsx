@@ -30,15 +30,17 @@ class MessageList extends React.Component<MessageListProps, State> {
       focus.newValue === 'convo' && this.messagesDiv.focus()
     })
 
-    observe(this.props.currentMessages, messages => {
-      if (this.state.manualScroll) {
-        if (!this.state.showNewMessageIndicator) {
-          this.setState({ showNewMessageIndicator: true })
+    if (this.props.currentMessages) {
+      observe(this.props.currentMessages, messages => {
+        if (this.state.manualScroll) {
+          if (!this.state.showNewMessageIndicator) {
+            this.setState({ showNewMessageIndicator: true })
+          }
+          return
         }
-        return
-      }
-      this.tryScrollToBottom()
-    })
+        this.tryScrollToBottom()
+      })
+    }
 
     // this should account for keyboard rendering as it triggers a resize of the messagesDiv
     this.divSizeObserver = new ResizeObserver(

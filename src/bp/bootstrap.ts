@@ -134,8 +134,9 @@ async function start() {
   await prepareLocalModules(logger)
 
   const globalConfig = await Config.getBotpressConfig()
-  const enabledModules = globalConfig.modules.filter(m => m.enabled)
-  const disabledModules = globalConfig.modules.filter(m => !m.enabled)
+  const modules = _.uniqBy(globalConfig.modules, x => x.location)
+  const enabledModules = modules.filter(m => m.enabled)
+  const disabledModules = modules.filter(m => !m.enabled)
 
   const resolver = new ModuleResolver(logger)
 
