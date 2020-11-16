@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import lang from 'common/lang'
 import { copyDir } from 'core/misc/pkg-fs'
 import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
@@ -34,13 +35,12 @@ import { CMSService } from './services/cms'
 import { buildUserKey, converseApiEvents } from './services/converse'
 import { DecisionEngine } from './services/dialog/decision-engine'
 import { DialogEngine } from './services/dialog/dialog-engine'
-import { ProcessingError } from './services/dialog/errors'
 import { DialogJanitor } from './services/dialog/janitor'
 import { SessionIdFactory } from './services/dialog/session/id-factory'
 import { HintsService } from './services/hints'
 import { Hooks, HookService } from './services/hook/hook-service'
 import { LogsJanitor } from './services/logs/janitor'
-import { EventCollector } from './services/middleware/event-collector'
+import { addStepToEvent, EventCollector, StepScopes, StepStatus } from './services/middleware/event-collector'
 import { EventEngine } from './services/middleware/event-engine'
 import { StateManager } from './services/middleware/state-manager'
 import { MigrationService } from './services/migration'
@@ -353,6 +353,7 @@ export class Botpress {
 
     this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       await this.stateManager.restore(event)
+      addStepToEvent(event, StepScopes.StateLoaded)
       await this.hookService.executeHook(new Hooks.BeforeIncomingMiddleware(this.api, event))
     }
 
@@ -373,7 +374,19 @@ export class Botpress {
 
       await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
       const sessionId = SessionIdFactory.createIdFromEvent(event)
+
+      if (event.debugger) {
+        addStepToEvent(event, StepScopes.Dialog, StepStatus.Started)
+        this.eventCollector.storeEvent(event)
+      }
+
       await this.decisionEngine.processEvent(sessionId, event)
+
+      if (event.debugger) {
+        addStepToEvent(event, StepScopes.EndProcessing)
+        this.eventCollector.storeEvent(event)
+      }
+
       await converseApiEvents.emitAsync(`done.${buildUserKey(event.botId, event.target)}`, event)
     }
 
@@ -430,19 +443,6 @@ export class Botpress {
 
     await this.dataRetentionService.initialize()
 
-    const dialogEngineLogger = await this.loggerProvider('DialogEngine')
-    this.dialogEngine.onProcessingError = (err, hideStack?) => {
-      const message = this.formatProcessingError(err)
-      if (!hideStack) {
-        dialogEngineLogger
-          .forBot(err.botId)
-          .attachError(err)
-          .warn(message)
-      } else {
-        dialogEngineLogger.forBot(err.botId).warn(message)
-      }
-    }
-
     this.notificationService.onNotification = notification => {
       const payload: sdk.RealTimePayload = {
         eventName: 'notifications.new',
@@ -451,7 +451,7 @@ export class Botpress {
       this.realtimeService.sendToSocket(payload)
     }
 
-    this.stateManager.initialize()
+    await this.stateManager.initialize()
     await this.logJanitor.start()
     await this.dialogJanitor.start()
     await this.monitoringService.start()
@@ -462,6 +462,8 @@ export class Botpress {
     if (this.config!.dataRetention) {
       await this.dataRetentionJanitor.start()
     }
+
+    lang.init(await this.moduleLoader.getTranslations())
 
     // tslint:disable-next-line: no-floating-promises
     this.hintsService.refreshAll()
@@ -488,14 +490,6 @@ export class Botpress {
 
   private async startRealtime() {
     await this.realtimeService.installOnHttpServer(this.httpServer.httpServer)
-  }
-
-  private formatProcessingError(err: ProcessingError) {
-    return `Error processing '${err.instruction}'
-Err: ${err.message}
-BotId: ${err.botId}
-Flow: ${err.flowName}
-Node: ${err.nodeName}`
   }
 
   private trackStart() {

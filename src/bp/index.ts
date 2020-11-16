@@ -11,6 +11,7 @@ const { Debug } = require('./debug')
 const { getAppDataPath } = require('./core/misc/app_data')
 
 const printPlainError = err => {
+  // tslint:disable: no-console
   console.log('Error starting botpress')
   console.log(err)
   console.log(err.message)
@@ -354,18 +355,39 @@ try {
           description: 'Time window on which the limit is applied (use standard notation, ex: 25m or 1h)',
           default: '1h'
         },
-        config: {
-          description:
-            'Path of the NLU configuration file (ex: "~/bp-nlu-config.json"). \
-            Use to configure the duckling and language servers endpoints.'
+        languageURL: {
+          description: 'URL of your language server',
+          default: 'https://lang-01.botpress.io'
+        },
+        languageAuthToken: {
+          description: 'Authentification token for your language server'
+        },
+        ducklingURL: {
+          description: 'URL of your Duckling server; Only relevant if "ducklingEnabled" is true',
+          default: 'https://duckling.botpress.io'
+        },
+        ducklingEnabled: {
+          description: 'Whether or not to enable Duckling',
+          default: true,
+          type: 'boolean'
         },
         bodySize: {
           description: 'Allowed size of HTTP requests body',
           default: '250kb'
         },
         batchSize: {
-          description: 'Allowed number of text inputs in one call to POST /predict.',
+          description: 'Allowed number of text inputs in one call to POST /predict',
           default: -1
+        },
+        silent: {
+          description: 'No logging after server is launched',
+          default: false,
+          type: 'boolean'
+        },
+        modelCacheSize: {
+          description:
+            'Max allocated memory for model cache. Too few memory will result in more access to file system.',
+          default: '250mb'
         }
       },
       argv => {
@@ -418,8 +440,8 @@ try {
       description: 'verbosity level'
     })
     .command('version', "Display the server's version", {}, () => {
-      console.log(`Botpress: v${metadataContent.version}`)
-      console.log(`NodeJS: ${process.version}`)
+      console.info(`Botpress: v${metadataContent.version}`)
+      console.info(`NodeJS: ${process.version}`)
     })
     .count('verbose')
     .help().argv

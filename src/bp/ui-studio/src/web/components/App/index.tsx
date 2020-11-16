@@ -131,7 +131,7 @@ class App extends Component<Props> {
 
       if (newToken !== tokenData.token) {
         setToken(newToken)
-        console.log('Token refreshed successfully')
+        console.info('Token refreshed successfully')
       } else {
         clearInterval(this.interval)
       }

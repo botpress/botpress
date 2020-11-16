@@ -4,6 +4,7 @@ import _ from 'lodash'
 
 import en from '../translations/en.json'
 import fr from '../translations/fr.json'
+import es from '../translations/es.json'
 
 import api from './api'
 import Database from './db'
@@ -32,7 +33,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
   onModuleUnmount,
-  translations: { en, fr },
+  translations: { en, fr, es },
   definition: {
     name: 'analytics',
     fullName: 'Analytics',

@@ -7,10 +7,20 @@ import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 import { InfoTooltip } from '~/components/Shared/Interface'
 
-import { Action, Parameters } from '../diagram/nodes_v2/ActionNode'
-
 import style from './style.scss'
 import { ActionParameters } from './ActionParameters'
+
+type PropType<TObj, TProp extends keyof TObj> = TObj[TProp]
+
+export interface Parameters {
+  [name: string]: string
+}
+
+export interface Action {
+  name: string
+  parameters: Parameters
+  actionServerId: PropType<ActionServer, 'id'>
+}
 
 export interface ParameterValue {
   definition: ActionParameterDefinition

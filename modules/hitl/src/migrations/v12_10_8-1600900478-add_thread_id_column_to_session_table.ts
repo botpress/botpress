@@ -17,7 +17,7 @@ const migration: sdk.ModuleMigration = {
 
       return {
         success: true,
-        message: exists ? 'thread_id column created.' : 'thread_id column already exists, skipping...'
+        message: exists ? 'thread_id column already exists, skipping...' : 'thread_id column created.'
       }
     } catch (err) {
       return { success: false, message: err.message }

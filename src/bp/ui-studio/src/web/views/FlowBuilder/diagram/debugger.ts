@@ -41,11 +41,29 @@ export const prepareEventForDiagram = (event: sdk.IO.IncomingEvent, flows: FlowV
 
   try {
     highlightedNodes = processStackTrace(__stacktrace, context, getNode)
+    processErrors(event, getNode)
   } catch (err) {
     console.error(`Error processing event: ${err}`)
   }
 
   return { nodeInfos: nodes.filter(Boolean), highlightedNodes }
+}
+
+const processErrors = (event: sdk.IO.IncomingEvent, getNode: (flow: string, node: string) => NodeDebugInfo) => {
+  if (!event.processing) {
+    return
+  }
+
+  Object.values(event.processing)
+    .filter(x => x.errors?.length)
+    .forEach(({ errors }) => {
+      errors.forEach(error => {
+        console.log(error)
+        if (error.flowName && error.nodeName) {
+          getNode(error.flowName, error.nodeName).hasError = true
+        }
+      })
+    })
 }
 
 const processStackTrace = (

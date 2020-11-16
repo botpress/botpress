@@ -196,7 +196,7 @@ export class BotService {
     ]) as Partial<BotConfig>
 
     // bot needs to be mounted to perform the language changes
-    if (updatedFields.defaultLanguage && updatedFields.defaultLanguage != actualBot.defaultLanguage) {
+    if (updatedFields.defaultLanguage && updatedFields.defaultLanguage !== actualBot.defaultLanguage) {
       updatedFields.disabled = false
     }
 
@@ -481,7 +481,7 @@ export class BotService {
   }
 
   private async _promoteCopy(initialBot: BotConfig, newBot: BotConfig) {
-    if (initialBot.id == newBot.id) {
+    if (initialBot.id === newBot.id) {
       newBot.id = `${newBot.id}__${moment().format('YY-MM-DD')}__${Math.round(Math.random() * 100)}`
     }
 
@@ -734,7 +734,7 @@ export class BotService {
 
     if (await this.workspaceService.hasPipeline(workspaceId)) {
       const botConfig = await this.configProvider.getBotConfig(botId)
-      if (revParts.length < 3 || revParts[2] != botConfig.pipeline_status.current_stage.id) {
+      if (revParts.length < 3 || revParts[2] !== botConfig.pipeline_status.current_stage.id) {
         throw new VError('cannot rollback a bot to a different stage')
       }
     }

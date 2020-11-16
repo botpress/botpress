@@ -1,9 +1,9 @@
 {
   "name": "botpress",
-  "version": "12.11.0",
+  "version": "12.12.1",
   "description": "The world's most powerful conversational engine",
   "engines": {
-    "node": ">=12"
+    "node": "^12"
   },
   "main": "index.js",
   "repository": "https://github.com/botpress/botpress.git",
@@ -28,6 +28,7 @@
     "bluebird-global": "^1.0.1",
     "bluebird-retry": "^0.11.0",
     "body-parser": "^1.18.3",
+    "bytes": "^3.1.0",
     "cerialize": "^0.1.18",
     "chalk": "^2.4.2",
     "chokidar": "^2.1.5",
@@ -48,6 +49,7 @@
     "glob": "^7.1.3",
     "globrex": "^0.1.2",
     "https-proxy-agent": "^2.2.3",
+    "intl-messageformat": "^2.2.0",
     "inversify": "^4.13.0",
     "joi": "^13.6.0",
     "json-schema-defaults": "^0.4.0",

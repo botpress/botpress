@@ -18,8 +18,9 @@ const Toolbar: FC = (props: any) => {
   return (
     <div className={style.toolbar} onContextMenu={e => e.stopPropagation()}>
       <ToolItem label={lang.tr('studio.flow.sidePanel.node')} type="node" id="standard" icon="chat" />
-      {window.EXPERIMENTAL && (
+      {(window.EXPERIMENTAL || window.USE_ONEFLOW) && (
         <Fragment>
+          {window.USE_ONEFLOW && <ToolItem label={lang.tr('trigger')} type="node" id="trigger" icon="send-to-graph" />}
           <ToolItem label={lang.tr('say')} type="node" id="say_something" icon={<Icons.Say />} />
           <ToolItem label={lang.tr('execute')} type="node" id="execute" icon="code" />
           <ToolItem label={lang.tr('listen')} type="node" id="listen" icon="hand" />

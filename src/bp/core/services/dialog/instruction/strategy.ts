@@ -146,13 +146,6 @@ export class ActionStrategy implements InstructionStrategy {
 
       await service.runAction({ actionName, incomingEvent: event, actionArgs: args, actionServer })
     } catch (err) {
-      event.state.__error = {
-        type: 'action-execution',
-        stacktrace: err.stacktrace || err.stack,
-        actionName,
-        actionArgs: _.omit(args, ['event'])
-      }
-
       const { onErrorFlowTo } = event.state.temp
       const errorFlow = typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : 'error.flow.json'
 
