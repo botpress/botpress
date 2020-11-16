@@ -4,6 +4,7 @@ import _ from 'lodash'
 
 import en from '../translations/en.json'
 import fr from '../translations/fr.json'
+import es from '../translations/es.json'
 
 import apiCall from './callApi'
 import choice from './choice'
@@ -48,7 +49,7 @@ const skillsToRegister: sdk.Skill[] = [
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerReady,
   onModuleUnmount,
-  translations: { en, fr },
+  translations: { en, fr, es },
   definition: {
     name: 'basic-skills',
     menuIcon: 'fiber_smart_record',

@@ -81,6 +81,11 @@ declare module 'botpress/shared' {
     defaultLocale: string
   }
 
+  export const telemetry: {
+    startFallback(api: AxiosInstance): Promise<void>
+    sendTelemetry(events: TelemetryEvent[]): boolean
+  }
+
   export const Icons: {
     Brackets(): JSX.Element
     Minimize(): JSX.Element
