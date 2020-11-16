@@ -45,6 +45,7 @@ const ConversationHistory: FC<Props> = props => {
     // tslint:disable-next-line: no-floating-promises
     getMessages().then(() => setLoading(false))
   }, [props.conversationId])
+
   return (
     <Fragment>
       {loading && <Spinner></Spinner>}

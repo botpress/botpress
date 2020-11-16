@@ -15,9 +15,11 @@ const Message: FC<sdk.IO.StoredEvent> = props => {
   }
 
   return (
-    <div className={cx(style.message)}>
-      <p>{props.event.preview}</p>
-      <p>{formattedTime(props.createdOn)}</p>
+    <div className={cx(style.bpwChatBubble)}>
+      <div className={cx(style.bpwChatBubbleContent)}>
+        <p>{props.event.preview}</p>
+        <p className={cx(style.createdDate)}>{formattedTime(props.createdOn)}</p>
+      </div>
     </div>
   )
 }

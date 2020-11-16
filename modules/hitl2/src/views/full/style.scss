@@ -1,11 +1,3 @@
-.h100 {
-  height: 100%;
-}
-
-.w100 {
-  width: 100%;
-}
-
 .app {
   display: flex;
   flex-direction: column;
@@ -262,17 +254,43 @@
   }
 }
 
-.conversationHistory {
-  max-width: 570px;
+.messageList {
+  flex-grow: 1;
+  overflow-y: auto;
 
-  .messageList {
-    flex-grow: 1;
-    overflow-y: auto;
+  .bpwChatBubble {
+    margin-bottom: var(--spacing-medium);
+    white-space: pre-wrap;
+    word-break: break-word;
 
-    .message {
-      margin-bottom: var(--spacing-x-large);
-      padding: 50px; //var(--spacing-x-large);
-      background-color: var(--bg);
+    p {
+      margin: 0;
+    }
+  }
+
+  .bpwChatBubble:first-of-type {
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+  }
+
+  .bpwChatBubble:last-of-type {
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+  }
+
+  .bpwChatBubbleContent {
+    border: solid 1px var(--seashell);
+    font-size: 12px;
+    line-height: 1.25;
+    border-radius: 15px;
+    color: var(--shark);
+    padding: var(--spacing-medium);
+    transition: border 0.3s, background 0.3s, color 0.3s;
+
+    .createdDate {
+      color: var(--reef) !important;
+      font-size: 10px;
+      line-height: 1.25;
     }
   }
 }
