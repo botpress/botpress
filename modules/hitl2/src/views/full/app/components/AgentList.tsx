@@ -3,6 +3,7 @@ import { Spinner } from '@blueprintjs/core'
 import _, { Dictionary } from 'lodash'
 import React, { FC } from 'react'
 import { Initial } from 'react-initial'
+import { Tooltip, Position } from '@blueprintjs/core'
 
 import { IAgent } from '../../../../types'
 
@@ -36,18 +37,20 @@ const AgentList: FC<Props> = props => {
         <ul style={{ padding: 0, margin: 0, listStyleType: 'none' }}>
           {_.filter(_.values(props.agents), 'online').map(agent => (
             <li key={agent.agentId} style={{ display: 'inline', marginRight: '8px' }}>
-              <div style={{ position: 'relative', display: 'inline-block' }}>
-                <Initial
-                  style={{ borderRadius: '50%' }}
-                  name={agentName(agent)}
-                  charCount={2}
-                  height={30}
-                  width={30}
-                  fontSize={12}
-                  fontWeight={500}
-                ></Initial>
-                <span style={dotStyle(agent.online)}></span>
-              </div>
+              <Tooltip content={agentName(agent)} position={Position.BOTTOM}>
+                <div style={{ position: 'relative', display: 'inline-block' }}>
+                  <Initial
+                    style={{ borderRadius: '50%' }}
+                    name={agentName(agent)}
+                    charCount={2}
+                    height={30}
+                    width={30}
+                    fontSize={12}
+                    fontWeight={500}
+                  ></Initial>
+                  <span style={dotStyle(agent.online)}></span>
+                </div>
+              </Tooltip>
             </li>
           ))}
         </ul>
