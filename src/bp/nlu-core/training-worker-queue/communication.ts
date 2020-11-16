@@ -4,7 +4,7 @@ import { ErrorMessage } from 'ml/error-utils'
 import { TrainInput, TrainOutput } from '../training-pipeline'
 
 export type OutgoingPayload<T extends OutgoingMessageType> = T extends 'make_new_worker'
-  ? { config: NLU.Config; requestId: string }
+  ? { config: NLU.LanguageConfig; requestId: string }
   : T extends 'start_training'
   ? { input: TrainInput }
   : {}

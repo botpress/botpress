@@ -318,6 +318,14 @@ export interface BotpressConfig {
    * @default false
    */
   experimental: boolean
+
+  telemetry: {
+    /**
+     * The number of entries stored in the telemetry database
+     * @default 1000
+     */
+    entriesLimit: number
+  }
 }
 
 export interface ExternalAuthConfig {
@@ -648,7 +656,7 @@ export interface EventCollectorConfig {
   ignoredEventProperties: string[]
   /**
    * These properties are only stored with the event when the user is logged on the studio
-   * @default ["ndu.triggers","ndu.predictions","nlu.predictions"]
+   * @default ["ndu.triggers","ndu.predictions","nlu.predictions","state","processing","activeProcessing"]
    */
   debuggerProperties: string[]
 }

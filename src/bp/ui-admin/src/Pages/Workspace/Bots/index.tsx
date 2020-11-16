@@ -12,15 +12,14 @@ import {
   Position
 } from '@blueprintjs/core'
 import { BotConfig } from 'botpress/sdk'
-import { confirmDialog, lang } from 'botpress/shared'
+import { confirmDialog, lang, telemetry } from 'botpress/shared'
 import { ServerHealth, UserProfile } from 'common/typings'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { generatePath, RouteComponentProps } from 'react-router'
 import { Alert, Col, Row } from 'reactstrap'
-import { toastSuccess } from '~/utils/toaster'
-import { toastFailure } from '~/utils/toaster'
+import { toastFailure, toastSuccess } from '~/utils/toaster'
 import { filterList } from '~/utils/util'
 import PageContainer from '~/App/PageContainer'
 import SplitPage from '~/App/SplitPage'
@@ -75,6 +74,8 @@ class Bots extends Component<Props> {
     if (!this.props.licensing) {
       this.props.fetchLicensing()
     }
+
+    telemetry.startFallback(api.getSecured()).catch()
   }
 
   toggleCreateBotModal = () => {
@@ -110,7 +111,7 @@ class Bots extends Component<Props> {
       this.props.fetchBotHealth()
       toastSuccess(lang.tr('admin.workspace.bots.remounted'))
     } catch (err) {
-      console.log(err)
+      console.error(err)
       toastFailure(lang.tr('admin.workspace.bots.couldNotMount'))
     }
   }

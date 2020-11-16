@@ -1,6 +1,6 @@
 import { NLU } from 'botpress/sdk'
 
-export interface Config extends NLU.Config {
+export interface Config {
   /**
    * If you want a fully on-prem installation, you can host
    * Facebook's Duckling on your own infrastructure and change this URL
@@ -26,4 +26,10 @@ export interface Config extends NLU.Config {
    * @default [{ "endpoint": "https://lang-01.botpress.io" }]
    */
   languageSources: NLU.LanguageSource[]
+
+  /**
+   * Maximum allowed model cache size
+   * @default 500mb
+   */
+  modelCacheSize: string
 }

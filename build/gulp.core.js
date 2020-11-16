@@ -9,6 +9,7 @@ const buildJsonSchemas = require('./jsonschemas')
 const fs = require('fs')
 const mkdirp = require('mkdirp')
 const exec = require('child_process').exec
+const rimraf = require('gulp-rimraf')
 
 const maybeFetchPro = () => {
   const isProBuild = process.env.EDITION === 'pro' || fs.existsSync('pro')
@@ -27,6 +28,10 @@ const writeMetadata = () => {
   )
 
   return file('metadata.json', metadata, { src: true }).pipe(gulp.dest('./'))
+}
+
+const clearMigrations = () => {
+  return gulp.src('./out/bp/migrations/*.*', { allowEmpty: true }).pipe(rimraf())
 }
 
 const tsProject = ts.createProject(path.resolve(__dirname, '../src/tsconfig.json'))
@@ -114,6 +119,7 @@ const checkTranslations = cb => {
 
 const build = () => {
   return gulp.series([
+    clearMigrations,
     maybeFetchPro,
     writeMetadata,
     compileTypescript,

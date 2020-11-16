@@ -42,6 +42,7 @@ declare namespace NodeJS {
     CLUSTER_ENABLED: boolean
     ASSERT_LICENSED: Function
     BOTPRESS_VERSION: string
+    TELEMETRY_URL: string
     core_env: BotpressEnvironmentVariables
     distro: OSDistribution
     BOTPRESS_EVENTS: EventEmitter
@@ -294,8 +295,8 @@ declare interface BotpressCoreEvents {
   bp_core_workflow_completed: { botId: string; channel: string; wfName: string }
   bp_core_workflow_failed: { botId: string; channel: string; wfName: string }
   bp_core_enter_flow: { botId: string; channel: string; flowName: string }
-  bp_core_feedback_positive: { botId: string; channel: string; type: string; eventId?: number }
-  bp_core_feedback_negative: { botId: string; channel: string; type: string; eventId?: number }
+  bp_core_feedback_positive: { botId: string; channel: string; type: string; eventId?: string }
+  bp_core_feedback_negative: { botId: string; channel: string; type: string; eventId?: string }
 }
 
 interface IEmitCoreEvent {

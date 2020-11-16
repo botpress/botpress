@@ -1,19 +1,20 @@
-import { Checkbox, Icon, Tab, Tabs } from '@blueprintjs/core'
+import { Checkbox, Tab, Tabs } from '@blueprintjs/core'
 import 'bluebird-global'
 import * as sdk from 'botpress/sdk'
+import cx from 'classnames'
 import _ from 'lodash'
 import ms from 'ms'
 import nanoid from 'nanoid'
 import React from 'react'
-import { MdBugReport } from 'react-icons/md'
 import 'ui-shared/dist/theme.css'
+
+import lang from '../../../lang'
 
 import Settings from './settings'
 import style from './style.scss'
-import { loadSettings } from './utils'
-import { Error } from './views/Error'
 import { Inspector } from './views/Inspector'
 import { NDU } from './views/NDU'
+import { Processing } from './views/Processing'
 import Summary from './views/Summary'
 import EventNotFound from './EventNotFound'
 import FetchingEvent from './FetchingEvent'
@@ -34,7 +35,7 @@ interface Props {
 }
 
 interface State {
-  event: any
+  event: sdk.IO.IncomingEvent
   selectedTabId: string
   visible: boolean
   showSettings: boolean
@@ -70,6 +71,8 @@ export class Debugger extends React.Component<Props, State> {
     // @ts-ignore
     const parentShowEvent = window.parent.showEventOnDiagram
     this.showEventOnDiagram = parentShowEvent ? parentShowEvent() : () => {}
+
+    lang.init()
 
     updater.callback = this.loadEvent
 
@@ -176,6 +179,10 @@ export class Debugger extends React.Component<Props, State> {
           console.error("Couldn't load event on workflow", err)
         }
       }
+
+      if (event.processing && !event.processing.completed) {
+        keepRetrying = true
+      }
     } catch (err) {
       keepRetrying = true
     }
@@ -205,7 +212,7 @@ export class Debugger extends React.Component<Props, State> {
     }
 
     const { data: event } = await this.props.store.bp.axios.get(`/mod/extensions/events/${eventId}`)
-    if (!event.processing?.['completed']) {
+    if (!event.processing?.completed) {
       return event
     }
 
@@ -253,8 +260,25 @@ export class Debugger extends React.Component<Props, State> {
     return <SplashScreen />
   }
 
+  renderProcessingTab() {
+    const processing = _.get(this.state, 'event.processing') as _.Dictionary<sdk.IO.ProcessingEntry> | null
+    if (!processing) {
+      return
+    }
+
+    const hasError = Object.values(processing).some(item => item.errors?.length > 0)
+
+    return (
+      <Tab
+        id="processing"
+        className={cx({ [style.tabError]: hasError })}
+        title="Processing"
+        panel={<Processing processing={processing} />}
+      />
+    )
+  }
+
   renderEvent() {
-    const eventError = _.get(this.state, 'event.state.__error')
     const ndu = _.get(this.state, 'event.ndu')
 
     return (
@@ -280,18 +304,8 @@ export class Debugger extends React.Component<Props, State> {
             }
           />
           {ndu && <Tab id="ndu" title="NDU" panel={<NDU ndu={ndu} />} />}
+          {this.renderProcessingTab()}
           <Tab id="advanced" title="Raw JSON" panel={<Inspector data={this.state.event} />} />
-          {eventError && (
-            <Tab
-              id="errors"
-              title={
-                <span>
-                  <Icon icon="error" color="red" /> Error
-                </span>
-              }
-              panel={<Error error={eventError} />}
-            />
-          )}
         </Tabs>
       </div>
     )

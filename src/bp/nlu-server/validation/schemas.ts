@@ -1,7 +1,5 @@
 import Joi from 'joi'
 
-import { DEFAULT_DUCK_SERVER, DEFAULT_LANG_SERVER, DEFAULT_LANG_SOURCES } from '../config'
-
 const EnumOccurenceSchema = Joi.object({
   name: Joi.string().required(), // ex: 'Paris', 'Montreal', 'Québec'
   synonyms: Joi.array() // ex: 'La Ville des lumières', 'City of Paris'
@@ -75,17 +73,4 @@ export const TrainInputSchema = Joi.object().keys({
     .optional()
     .default(''),
   seed: Joi.number().optional()
-})
-
-const LanguageSourcesSchema = Joi.object().keys({
-  endpoint: Joi.string().default(DEFAULT_LANG_SERVER),
-  authToken: Joi.string().optional()
-})
-
-export const NLUConfigSchema = Joi.object().keys({
-  ducklingURL: Joi.string().default(DEFAULT_DUCK_SERVER),
-  ducklingEnabled: Joi.bool().default(true),
-  languageSources: Joi.array()
-    .items(LanguageSourcesSchema)
-    .default(DEFAULT_LANG_SOURCES)
 })
