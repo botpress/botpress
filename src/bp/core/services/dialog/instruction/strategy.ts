@@ -62,7 +62,7 @@ export class ActionStrategy implements InstructionStrategy {
         actionName,
         actionCode: code,
         incomingEvent: event,
-        actionArgs: _.mapValues(params, ({ value }) => renderTemplate(value, actionArgs))
+        actionArgs: _.mapValues(params, value => renderTemplate(value, actionArgs))
       })
     } catch (err) {
       const { onErrorFlowTo } = event.state.temp
@@ -114,17 +114,10 @@ export class ActionStrategy implements InstructionStrategy {
       event.state.session.lastMessages.push(message)
     }
 
-    args = {
-      ...args,
-      event,
-      user: _.get(event, 'state.user', {}),
-      session: _.get(event, 'state.session', {}),
-      temp: _.get(event, 'state.temp', {}),
-      bot: _.get(event, 'state.bot', {})
-    }
+    const commonArgs = extractEventCommonArgs(event, args)
 
     const eventDestination = _.pick(event, ['channel', 'target', 'botId', 'threadId'])
-    const renderedElements = await this.cms.renderElement(outputType, args, eventDestination)
+    const renderedElements = await this.cms.renderElement(outputType, commonArgs, eventDestination)
     await this.eventEngine.replyToEvent(eventDestination, renderedElements, event.id)
 
     return ProcessingResult.none()
@@ -142,15 +135,9 @@ export class ActionStrategy implements InstructionStrategy {
       throw new Error(`Action "${actionName}" has invalid arguments (not a valid JSON string): ${argsStr}`)
     }
 
-    const actionArgs = {
-      event,
-      user: _.get(event, 'state.user', {}),
-      session: _.get(event, 'state.session', {}),
-      temp: _.get(event, 'state.temp', {}),
-      bot: _.get(event, 'state.bot', {})
-    }
+    const commonArgs = extractEventCommonArgs(event, args)
 
-    args = _.mapValues(args, value => renderTemplate(value, actionArgs))
+    args = _.mapValues(args, value => renderTemplate(value, commonArgs))
 
     let actionServer: ActionServer | undefined
     if (actionServerId) {

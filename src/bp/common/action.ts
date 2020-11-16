@@ -42,19 +42,19 @@ export const extractEventCommonArgs = (
 ): EventCommonArgs | OutgoingEventCommonArgs => {
   if (event.direction === 'outgoing') {
     return {
-      ...(args ?? {}),
+      ...(args || {}),
       event
     }
   }
   const incomingEvent = event as IO.IncomingEvent
 
   return {
-    ...(args ?? {}),
+    ...(args || {}),
     event: incomingEvent,
-    user: incomingEvent.state.user ?? {},
-    session: incomingEvent.state.session ?? ({} as IO.CurrentSession),
-    temp: incomingEvent.state.temp ?? {},
-    bot: incomingEvent.state.bot ?? {},
-    workflow: incomingEvent.state.workflow ?? ({} as IO.WorkflowHistory)
+    user: incomingEvent.state.user || {},
+    session: incomingEvent.state.session || ({} as IO.CurrentSession),
+    temp: incomingEvent.state.temp || {},
+    bot: incomingEvent.state.bot || {},
+    workflow: incomingEvent.state.workflow || ({} as IO.WorkflowHistory)
   }
 }
