@@ -7,8 +7,8 @@ import { IAgent, IEscalation } from '../../../types'
 
 import Reducer, { ActionType } from './Reducer'
 
-interface StoreType {
-  state: StateType
+interface IStore {
+  state: IState
   dispatch: Dispatch<ActionType>
 }
 
@@ -18,7 +18,7 @@ export interface UserDefaultsType {
   }
 }
 
-export interface StateType {
+export interface IState {
   readonly currentAgent?: IAgent
   readonly currentEscalation?: IEscalation
   readonly agents: Dictionary<IAgent>
@@ -31,7 +31,7 @@ export interface StateType {
   readonly error?: AxiosError<Error>
 }
 
-const initialState: StateType = {
+const initialState: IState = {
   currentAgent: null,
   currentEscalation: null,
   agents: {},
@@ -42,7 +42,7 @@ const initialState: StateType = {
   error: null
 }
 
-export const Context = createContext<StoreType>({ state: initialState, dispatch: () => null })
+export const Context = createContext<IStore>({ state: initialState, dispatch: () => null })
 
 export const Store = ({ children }) => {
   const [state, dispatch] = useReducer(Reducer, initialState)

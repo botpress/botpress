@@ -1,4 +1,4 @@
-import { lang, MainLayout, Tabs, toast } from 'botpress/shared'
+import { lang, toast } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { useContext, useEffect, useState } from 'react'

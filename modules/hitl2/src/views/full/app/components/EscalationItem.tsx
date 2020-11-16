@@ -97,7 +97,7 @@ const EscalationItem: FC<IEscalation> = props => {
       <div className={style.info}>
         <span className={style.clientName}>{userName()}</span> <strong>#{id}</strong>
         <p>
-          <span>From {userConversation.channel}</span> ⋅ <span>{agentName()}</span>
+          <span>From {userConversation.channel}</span> {agentId && '⋅'} <span>{agentName()}</span>
         </p>
         <Text ellipsize={true}>{_.get(userConversation, 'event.preview')}</Text>
         <p className={style.createdDate}>{fromNow}</p>

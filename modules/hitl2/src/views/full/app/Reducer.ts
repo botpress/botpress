@@ -4,7 +4,7 @@ import _, { Dictionary } from 'lodash'
 import { Config } from '../../../config'
 import { IAgent, IComment, IEscalation, ISocketMessage } from '../../../types'
 
-import { StateType } from './Store'
+import { IState } from './Store'
 
 export type ActionType =
   | { type: 'setCurrentAgent'; payload: Partial<IAgent> }
@@ -17,9 +17,9 @@ export type ActionType =
   | { type: 'setRead'; payload: Dictionary<Date> }
   | { type: 'setConfig'; payload: Config }
   | { type: 'setDefault'; payload: Object }
-  | { type: 'setError'; payload: any }
+  | { type: 'setError'; payload: Error }
 
-const Reducer = (state: StateType, action: ActionType): StateType => {
+const Reducer = (state: IState, action: ActionType): IState => {
   switch (action.type) {
     case 'setCurrentAgent':
       return produce(state, draft => {
@@ -52,7 +52,7 @@ const Reducer = (state: StateType, action: ActionType): StateType => {
         }
 
         // Note: because currentAgent is an actual object,
-        // instead of a reference, must be manually updated
+        // instead of a reference, it must be manually updated
         if (state.currentAgent.agentId === action.payload.id) {
           draft.currentAgent = draft.agents[action.payload.id]
         }
@@ -64,7 +64,8 @@ const Reducer = (state: StateType, action: ActionType): StateType => {
           [action.payload.id]: _.merge(draft.escalations[action.payload.id], action.payload.payload)
         }
 
-        // This is not good, we have some data duplication
+        // Note: because currentEscalation is an actual object,
+        // instead of a reference, it must be manually updated
         if (draft.currentEscalation?.id === action.payload.id) {
           draft.currentEscalation = draft.escalations[action.payload.id]
         }

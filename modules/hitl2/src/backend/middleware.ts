@@ -18,13 +18,13 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   const debug = DEBUG('hitl2')
 
   const pipeEvent = async (event: sdk.IO.IncomingEvent, eventDestination: sdk.IO.EventDestination) => {
-    debug.forBot(event.botId, 'Piping event tp', eventDestination)
+    debug.forBot(event.botId, 'Piping event', eventDestination)
     return bp.events.replyToEvent(eventDestination, [{ type: 'typing', value: 10 }, event.payload])
   }
 
-  const cacheKey = (a, b) => _.join([a, b], '.')
+  const cacheKey = (a, b) => [a, b].join('.')
 
-  const getEscalation = (cache, botId, threadId) => {
+  const getEscalation = (botId: string, threadId: string) => {
     return cache.get(cacheKey(botId, threadId))
   }
 
@@ -45,7 +45,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
     }
 
     // Either a pending or assigned escalation
-    const escalationId = getEscalation(cache, event.botId, event.threadId)
+    const escalationId = getEscalation(event.botId, event.threadId)
 
     if (!escalationId) {
       next(undefined, false)
