@@ -28,11 +28,7 @@ const ConversationContainer: FC<Props> = props => {
       const escalation = await api.assignEscalation(state.currentEscalation.id)
       toast.success(lang.tr('module.hitl2.escalation.assigned', { id: escalation.id }))
     } catch (error) {
-      if (_.inRange(_.get(error, 'response.status'), 400, 499)) {
-        toast.failure(error.response.data.errors[0].detail)
-      } else {
-        dispatch({ type: 'setError', payload: error })
-      }
+      dispatch({ type: 'setError', payload: error })
     }
   }
 
@@ -41,11 +37,7 @@ const ConversationContainer: FC<Props> = props => {
       const escalation = await api.resolveEscalation(state.currentEscalation.id)
       toast.success(lang.tr('module.hitl2.escalation.resolved', { id: escalation.id }))
     } catch (error) {
-      if (_.inRange(_.get(error, 'response.status'), 400, 499)) {
-        toast.failure(error.response.data.errors[0].detail)
-      } else {
-        dispatch({ type: 'setError', payload: error })
-      }
+      dispatch({ type: 'setError', payload: error })
     }
   }
 

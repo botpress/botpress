@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios'
 import { Dictionary } from 'lodash'
 import React, { createContext, Dispatch, useReducer } from 'react'
 
@@ -27,7 +28,7 @@ export interface StateType {
   readonly defaults: {
     user?: UserDefaultsType
   }
-  readonly error?: any
+  readonly error?: AxiosError<Error>
 }
 
 const initialState: StateType = {

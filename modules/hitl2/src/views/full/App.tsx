@@ -100,11 +100,7 @@ const App = ({ bp }) => {
 
   useEffect(() => {
     if (state.error) {
-      if (state.error.response) {
-        toast.failure(`Error: ${state.error.response.data.message}`)
-      } else {
-        toast.failure(`Error: ${state.error}`)
-      }
+      toast.failure(`Error: ${state.error.response.data?.message}`)
     }
   }, [state.error])
 
