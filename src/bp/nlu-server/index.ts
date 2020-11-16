@@ -18,12 +18,14 @@ import Engine from 'nlu-core/engine'
 import { setupMasterNode, WORKER_TYPES } from '../cluster'
 import Logger from '../simple-logger'
 import API, { APIOptions } from './api'
-import { getConfig } from './config'
 
 const debug = DEBUG('api')
 
 type ArgV = APIOptions & {
-  config?: string
+  languageURL: string
+  languageAuthToken?: string
+  ducklingURL: string
+  ducklingEnabled: boolean
 }
 
 export default async function(options: ArgV) {
@@ -50,17 +52,6 @@ export default async function(options: ArgV) {
 
   options.modelDir = options.modelDir || path.join(process.APP_DATA_PATH, 'models')
 
-  let config: NLU.Config
-  try {
-    config = await getConfig(options.config)
-  } catch (err) {
-    logger.attachError(err).error(
-      `Config file ${options.config} could not be read. \
-        Make sure the file exists and that it contains an actual NLU Config in a JSON format.`
-    )
-    process.exit(1) // TODO: this should also exit master process... Find a way to do so in cluster.ts
-  }
-
   const loggerWrapper = <NLU.Logger>{
     info: (msg: string) => logger.info(msg),
     warning: (msg: string, err?: Error) => (err ? logger.attachError(err).warn(msg) : logger.warn(msg)),
@@ -68,7 +59,17 @@ export default async function(options: ArgV) {
   }
   const engine = new Engine({ maxCacheSize })
   try {
-    await engine.initialize(config, loggerWrapper)
+    const langConfig: NLU.LanguageConfig = {
+      languageSources: [
+        {
+          endpoint: options.languageURL,
+          authToken: options.languageAuthToken
+        }
+      ],
+      ducklingEnabled: options.ducklingEnabled,
+      ducklingURL: options.ducklingURL
+    }
+    await engine.initialize(langConfig, loggerWrapper)
   } catch (err) {
     // TODO: Make lang provider throw if it can't connect.
     logger
@@ -112,17 +113,12 @@ ${_.repeat(' ', 9)}========================================`)
     logger.info(`limit: ${chalk.redBright('disabled')} (no protection - anyone can query without limitation)`)
   }
 
-  if (options.config) {
-    if (config.ducklingEnabled) {
-      logger.info(`duckling: ${chalk.greenBright('enabled')} url=${config.ducklingURL}`)
-    } else {
-      logger.info(`duckling: ${chalk.redBright('disabled')}`)
-    }
-
-    for (const source of config.languageSources) {
-      logger.info(`lang server: url=${source.endpoint}`)
-    }
+  if (options.ducklingEnabled) {
+    logger.info(`duckling: ${chalk.greenBright('enabled')} url=${options.ducklingURL}`)
+  } else {
+    logger.info(`duckling: ${chalk.redBright('disabled')}`)
   }
+  logger.info(`lang server: url=${options.languageURL}`)
 
   logger.info(`body size: allowing HTTP resquests body of size ${options.bodySize}`)
 

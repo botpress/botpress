@@ -1,7 +1,7 @@
 import { lang } from 'botpress/shared'
 import React, { FC, useEffect, useRef, useState } from 'react'
 import SmartInput from '~/components/SmartInput'
-import style from '~/views/OneFlow/sidePanel/form/style.scss'
+import style from '~/views/FlowBuilder/sidePanelTopics/form/style.scss'
 
 import { isMissingCurlyBraceClosure } from '../Util/form.util'
 

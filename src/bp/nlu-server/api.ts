@@ -160,20 +160,19 @@ export default async function(options: APIOptions, engine: Engine) {
         )
       }
 
-      const model = await modelService.getModel(modelId, password)
-
-      if (model) {
-        if (!engine.hasModel(modelId)) {
-          await engine.loadModel(model, modelId)
+      if (!engine.hasModel(modelId)) {
+        const model = await modelService.getModel(modelId, password)
+        if (!model) {
+          return res.status(404).send({ success: false, error: `modelId ${modelId} can't be found` })
         }
 
-        const rawPredictions = await Promise.map(texts as string[], t => engine.predict(t, [], modelId))
-        const withoutNone = rawPredictions.map(removeNoneIntent)
-
-        return res.send({ success: true, predictions: withoutNone })
+        await engine.loadModel(model, modelId)
       }
 
-      res.status(404).send({ success: false, error: `modelId ${modelId} can't be found` })
+      const rawPredictions = await Promise.map(texts as string[], t => engine.predict(t, [], modelId))
+      const withoutNone = rawPredictions.map(removeNoneIntent)
+
+      return res.send({ success: true, predictions: withoutNone })
     } catch (err) {
       res.status(500).send({ success: false, error: err.message })
     }
