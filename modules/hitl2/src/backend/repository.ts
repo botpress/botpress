@@ -35,6 +35,7 @@ export default class Repository {
       'agentId',
       'userId',
       'userThreadId',
+      'userChannel',
       'agentThreadId',
       'status',
       'assignedAt',
