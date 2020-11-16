@@ -83,7 +83,11 @@ const TYPES = {
   NLUService: Symbol.for('NLUService'),
   TelemetryRepository: Symbol.for('TelemetryRepository'),
   ActionStats: Symbol.for('ActionStats'),
-  LegacyStats: Symbol.for('LegacyStats')
+  LegacyStats: Symbol.for('LegacyStats'),
+  RolesStats: Symbol.for('RolesStats'),
+  SDKStats: Symbol.for('SDKStats'),
+  HooksStats: Symbol.for('HooksStats'),
+  ConfigsStats: Symbol.for('ConfigsStats')
 }
 
 export { TYPES }
