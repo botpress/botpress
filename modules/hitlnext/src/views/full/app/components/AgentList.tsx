@@ -14,7 +14,13 @@ interface Props {
 
 const AgentList: FC<Props> = props => {
   function agentName(agent: IAgent) {
-    return [agent.attributes.firstname, agent.attributes.lastname].filter(Boolean).join(' ')
+    const { firstname, lastname } = agent.attributes
+
+    if (firstname || lastname) {
+      return [firstname, lastname].filter(Boolean).join(' ')
+    } else {
+      return agent.email
+    }
   }
 
   function dotStyle(online) {

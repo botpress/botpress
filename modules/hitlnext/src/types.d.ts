@@ -31,7 +31,7 @@ export type IAgent = {
   online: boolean
   role?: Pick<WorkspaceUserWithAttributes, 'role'>
   workspace?: Pick<WorkspaceUserWithAttributes, 'workspace'>
-  attributes: Pick<IUserProfile, 'firstname' | 'lastname'>
+  attributes?: Pick<IUserProfile, 'firstname' | 'lastname'>
 } & Pick<IUserProfile, 'email' | 'strategy' | 'isSuperAdmin' | 'permissions'>
 
 export type IUser = {
