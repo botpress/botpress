@@ -67,8 +67,6 @@ export class Debugger extends React.Component<Props, State> {
       await this.loadEvent(this.props.eventId)
     }
 
-    lang.init()
-
     try {
       const { data } = await axios.get(`${window.BOT_API_PATH}/mod/extensions/events/update-frequency`)
       const { collectionInterval } = data
