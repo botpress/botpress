@@ -8,6 +8,7 @@ declare global {
       init: (config: any, containerSelector?: string) => void
     }
     BOT_ID: string
+    BP_STORAGE: any
   }
 }
 export interface AuthRule {
