@@ -29,6 +29,7 @@
       "assigned": "assigned",
       "resolved": "resolved"
     },
+    "assignedToAgent": "You've been assigned to an agent",
     "assignedToYou": "Conversation Handed to You",
     "assign": "Assign",
     "resolve": "Resolve",

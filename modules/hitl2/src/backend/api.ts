@@ -250,40 +250,41 @@ export default async (bp: typeof sdk, state: StateType) => {
       await repository.setAgentOnline(req.params.botId, agentId, true)
       await registerTimeout(req.workspace, req.params.botId, agentId)
 
-      const eventDestination = {
-        botId: req.params.botId,
-        target: escalation.userId,
-        threadId: escalation.userThreadId,
-        channel: escalation.userChannel
+      const baseCustomEventPayload: Partial<sdk.IO.EventCtorArgs> = {
+        botId: escalation.botId,
+        direction: 'outgoing',
+        type: 'custom',
+        payload: {
+          type: 'custom',
+          module: 'hitl2',
+          component: 'HandoffAssigned',
+          noBubble: true, // super hack to make sure wrapper use our style, don't change
+          wrapped: {
+            type: 'history' // super hack to make sure wrapper use our style, don't change
+          }
+        }
       }
 
-      bp.events.replyToEvent(
-        eventDestination,
-        await bp.cms.renderElement(
-          'builtin_text',
-          { type: 'text', text: 'You have been assigned to an agent.' },
-          eventDestination
-        )
+      // custom event to user
+      bp.events.sendEvent(
+        bp.IO.Event(<sdk.IO.EventCtorArgs>{
+          ...baseCustomEventPayload,
+          target: escalation.userId,
+          threadId: escalation.userThreadId,
+          channel: escalation.userChannel
+        })
       )
 
+      // custom event to user
       bp.events.sendEvent(
-        bp.IO.Event({
-          botId: escalation.botId,
-          target: escalation.agentId,
-          channel: 'web',
-          threadId: escalation.agentThreadId,
-          direction: 'outgoing',
-          type: 'custom',
-          payload: {
-            type: 'custom',
-            module: 'hitl2',
-            component: 'HandoffAssigned',
-            noBubble: true,
-            wrapped: {
-              type: 'history' // super hack to make sure wrapper use our style, don't change
-            }
-          }
-        })
+        bp.IO.Event(
+          _.merge(_.cloneDeep(baseCustomEventPayload), {
+            target: escalation.agentId,
+            channel: 'web',
+            threadId: escalation.agentThreadId,
+            payload: { forAgent: true }
+          }) as sdk.IO.EventCtorArgs
+        )
       )
 
       realtime.sendPayload(req.params.botId, {

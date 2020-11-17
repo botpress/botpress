@@ -27,8 +27,10 @@
     "status": {
       "pending": "en attente",
       "assigned": "assignée",
+
       "resolved": "résolue"
     },
+    "assignedToAgent": "Vous avez été assigné à un agent",
     "assignedToYou": "La conversation vous a été assigné",
     "assign": "Assigner",
     "resolve": "Résoudre",
