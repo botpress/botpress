@@ -13,7 +13,7 @@ import { generateUsername, getOrSet } from '../utils'
 import HandoffBadge from './HandoffBadge'
 
 const HandoffItem: FC<IHandoff> = props => {
-  const { createdAt, id, status, agentId, userConversation } = props
+  const { createdAt, id, status, agentId, userConversation, userChannel } = props
 
   const { state, dispatch } = useContext(Context)
 
@@ -89,14 +89,14 @@ const HandoffItem: FC<IHandoff> = props => {
 
   return (
     <div
-      className={cx(style.escalationItem, { [style.active]: state.currentHandoff?.id == id })}
+      className={cx(style.escalationItem, { [style.active]: state.currentHandoff?.id === id })}
       onClick={() => handleSelect(id)}
     >
       {!readStatus && <span className={style.unreadDot}></span>}
       <div className={style.info}>
         <span className={style.clientName}>{userName()}</span> <strong>#{id}</strong>
         <p>
-          <span>From {userConversation.channel}</span> {agentId && '⋅'} <span>{agentName()}</span>
+          <span>From {userChannel}</span> {agentId && '⋅'} <span>{agentName()}</span>
         </p>
         <Text ellipsize={true}>{_.get(userConversation, 'event.preview')}</Text>
         <p className={style.createdDate}>{fromNow}</p>
