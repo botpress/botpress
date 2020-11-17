@@ -50,32 +50,44 @@ const ConversationContainer: FC<Props> = props => {
     state.currentEscalation?.status === 'assigned' &&
     state.currentEscalation?.agentId === state.currentAgent.agentId
 
-  const liveChatButton = (
-    <Button
-      className={style.coversationButton}
-      minimal
-      rightIcon="tick-circle"
-      onClick={handleResolve}
-      text={lang.tr('module.hitl2.escalation.resolve')}
-    />
-  )
+  const liveChatButtons = () => [
+    {
+      // TODO you are here, on click toggle history
+      content: <Button className={style.coversationButton} minimal text={' ......  shot history    ......'} />
+    },
+    {
+      content: (
+        <Button
+          className={style.coversationButton}
+          minimal
+          rightIcon="tick-circle"
+          onClick={handleResolve}
+          text={lang.tr('module.hitl2.escalation.resolve')}
+        />
+      )
+    }
+  ]
 
-  const historyButton = (
-    <Button
-      className={style.coversationButton}
-      minimal
-      rightIcon="following"
-      disabled={
-        !(
-          state.currentEscalation?.status === 'pending' &&
-          currentAgentHasPermission('write') &&
-          state.currentAgent.online
-        )
-      }
-      onClick={handleAssign}
-      text={lang.tr('module.hitl2.escalation.assign')}
-    />
-  )
+  const historyButtons = () => [
+    {
+      content: (
+        <Button
+          className={style.coversationButton}
+          minimal
+          rightIcon="following"
+          disabled={
+            !(
+              state.currentEscalation?.status === 'pending' &&
+              currentAgentHasPermission('write') &&
+              state.currentAgent.online
+            )
+          }
+          onClick={handleAssign}
+          text={lang.tr('module.hitl2.escalation.assign')}
+        />
+      )
+    }
+  ]
 
   const content = shouldRenderLiveChat ? (
     <LiveChat escalation={state.currentEscalation} currentAgent={state.currentAgent} />
@@ -88,7 +100,7 @@ const ConversationContainer: FC<Props> = props => {
         <MainLayout.Toolbar
           className={style.hitlToolBar}
           tabs={[{ id: 'conversation', title: lang.tr('module.hitl2.conversation.tab') }]}
-          buttons={[{ content: shouldRenderLiveChat ? liveChatButton : historyButton }]}
+          buttons={shouldRenderLiveChat ? liveChatButtons() : historyButtons()}
         />
         {content}
       </div>

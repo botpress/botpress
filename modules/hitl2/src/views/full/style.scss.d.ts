@@ -7,6 +7,7 @@ interface CssExports {
   'agentBtnWrapper': string;
   'app': string;
   'badge': string;
+  'bot': string;
   'bpwChatBubble': string;
   'bpwChatBubbleContent': string;
   'clientName': string;
@@ -24,12 +25,15 @@ interface CssExports {
   'liveConversation': string;
   'mainContent': string;
   'mainNav': string;
+  'message': string;
+  'messageContainer': string;
   'messageList': string;
   'profileHeader': string;
   'sidebar': string;
   'sidebarContainer': string;
   'table': string;
   'unreadDot': string;
+  'user': string;
   'webchatIframe': string;
   'webchatWrapper': string;
 }

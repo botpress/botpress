@@ -23,9 +23,11 @@ export function castEscalation(item: IEscalation) {
         return value
       }
 
-      value.userConversation = {
-        ...value.userConversation,
-        event: JSON.parse(value.userConversation.event as string)
+      if (typeof value.userConversation.event === 'string') {
+        value.userConversation = {
+          ...value.userConversation,
+          event: JSON.parse(value.userConversation.event as string)
+        }
       }
       return value
     })
@@ -43,17 +45,6 @@ export function castEscalation(item: IEscalation) {
 export function castComment(item: IComment) {
   return castDate(item, ['createdAt', 'updatedAt'])
 }
-
-export function castMessage(item: IEvent) {
-  return _.chain(item)
-    .thru(value => castDate(value, ['createdOn']))
-    .thru(value => {
-      value.event = JSON.parse(value.event as string)
-      return value
-    })
-    .value()
-}
-
 export interface ApiType {
   getConfig: () => Promise<Config>
   setOnline: () => Promise<{ online: true }>
@@ -119,6 +110,5 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
       bp.axios
         .get(`/conversations/${id}/messages`, { ...config, params: { desc, column, limit } })
         .then(res => res.data)
-        .then(data => data.map(castMessage))
   }
 }

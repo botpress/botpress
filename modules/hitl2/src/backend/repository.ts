@@ -421,13 +421,11 @@ export default class Repository {
     return this.bp.database.insertAndRetrieve<IComment>('comments', payload, this.commentColumns)
   }
 
-  getMessages = (botId: string, id: string, conditions: CollectionConditions = {}) => {
-    return this.bp
-      .database<sdk.IO.StoredEvent>('events')
-      .select('*')
-      .where('botId', botId)
-      .andWhere('threadId', id)
-      .modify(this.applyLimit, conditions)
-      .modify(this.applyOrderBy, conditions)
+  // TODO bp.events.findEvents instead, wil
+  getMessages = (botId: string, threadId: string, conditions: CollectionConditions = {}) => {
+    return this.bp.events.findEvents(
+      { botId, threadId },
+      { count: conditions.limit, sortOrder: [{ column: 'id', desc: true }] }
+    )
   }
 }

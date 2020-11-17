@@ -11,7 +11,7 @@ interface Props {
 const EscalationBadge: FC<Props> = props => {
   switch (props.status) {
     case 'resolved':
-      return <Tag intent={Intent.SUCCESS}>{lang.tr(`module.hitl2.escalation.status.${props.status}`)}</Tag>
+      return <Tag intent={Intent.NONE}>{lang.tr(`module.hitl2.escalation.status.${props.status}`)}</Tag>
     case 'assigned':
       return <Tag intent={Intent.PRIMARY}>{lang.tr(`module.hitl2.escalation.status.${props.status}`)}</Tag>
     case 'pending':

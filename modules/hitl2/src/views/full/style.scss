@@ -1,3 +1,19 @@
+:global(.bp3-tag) {
+  background-color: var(--seashell);
+  color: var(--reef);
+  text-transform: uppercase;
+  font-size: 10px;
+
+  &:global(.bp3-intent-primary) {
+    background-color: var(--hover-ocean);
+    color: var(--ocean);
+  }
+  &:global(.bp3-intent-warning) {
+    background-color: var(--hover-lighthouse-30);
+    color: var(--lighthouse);
+  }
+}
+
 .app {
   display: flex;
   flex-direction: column;
@@ -120,6 +136,7 @@
     padding: var(--spacing-x-large) var(--spacing-large) var(--spacing-large);
     transition: background 0.3s;
     align-items: center;
+    margin: 5px 0;
 
     &:hover {
       background-color: var(--seashell);
@@ -257,6 +274,38 @@
 .messageList {
   flex-grow: 1;
   overflow-y: auto;
+
+  .messageContainer {
+    display: flex;
+    width: 100%;
+    .message {
+      max-width: 75%;
+      max-width: 75%;
+      border: solid 1px var(--bg);
+      font-size: 12px;
+      line-height: 1.25;
+      border-radius: 15px;
+      color: var(--shark);
+      padding: var(--spacing-medium);
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    &.user {
+      justify-content: flex-start;
+      .message {
+        border-bottom-left-radius: 0;
+      }
+    }
+    &.bot {
+      justify-content: flex-end;
+      .message {
+        border-bottom-right-radius: 0;
+        background-color: var(--bg);
+      }
+    }
+  }
 
   .bpwChatBubble {
     margin-bottom: var(--spacing-medium);

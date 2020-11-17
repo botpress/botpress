@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios'
 import { lang, toast } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -100,7 +101,7 @@ const App = ({ bp }) => {
 
   useEffect(() => {
     if (state.error) {
-      toast.failure(`Error: ${state.error.response.data?.message}`)
+      toast.failure(`Error: ${state.error!.message}`)
     }
   }, [state.error])
 

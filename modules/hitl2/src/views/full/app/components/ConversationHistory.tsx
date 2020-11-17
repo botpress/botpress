@@ -1,10 +1,11 @@
 import { Spinner } from '@blueprintjs/core'
+import { IO } from 'botpress/sdk'
 import { EmptyState } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
 
 import { ISocketMessage } from '../../../../types'
-import { ApiType, castMessage } from '../../Api'
+import { ApiType } from '../../Api'
 import { Context } from '../Store'
 
 import MessageList from './MessageList'
@@ -19,21 +20,12 @@ const ConversationHistory: FC<Props> = props => {
   const { state } = useContext(Context)
 
   const [loading, setLoading] = useState(true)
-  const [messages, setMessages] = useState([])
+  const [events, setEvents] = useState<IO.StoredEvent[]>([])
 
-  function handleMessage(message: ISocketMessage) {
+  const handleMessage = (message: ISocketMessage) => {
     if (message.resource === 'event' && message.type === 'create') {
-      setMessages(messages =>
-        _.sortBy([...messages, castMessage(message.payload)], 'id').slice(state.config.messageCount * -1)
-      )
+      setEvents(evts => _.sortBy([...evts, message.payload], 'id'))
     }
-  }
-
-  async function getMessages() {
-    // Event IDs are ordered
-    setMessages(
-      _.sortBy(await props.api.getMessages(props.conversationId, 'id', true, state.config.messageCount), 'id')
-    )
   }
 
   useEffect(() => {
@@ -42,15 +34,17 @@ const ConversationHistory: FC<Props> = props => {
   }, [])
 
   useEffect(() => {
-    // tslint:disable-next-line: no-floating-promises
-    getMessages().then(() => setLoading(false))
+    props.api.getMessages(props.conversationId, 'id', true, state.config.messageCount).then(evts => {
+      setEvents(_.sortBy(evts, 'id'))
+      setLoading(false)
+    })
   }, [props.conversationId])
 
   return (
     <Fragment>
       {loading && <Spinner></Spinner>}
-      {!loading && _.isEmpty(messages) && <EmptyState text="NO MESSAGES"></EmptyState>}
-      {!loading && !_.isEmpty(messages) && <MessageList messages={messages}></MessageList>}
+      {!loading && _.isEmpty(events) && <EmptyState text="NO MESSAGES"></EmptyState>}
+      {!loading && !_.isEmpty(events) && <MessageList messages={events}></MessageList>}
     </Fragment>
   )
 }

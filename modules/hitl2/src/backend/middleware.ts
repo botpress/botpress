@@ -72,7 +72,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
       // representation is built and sent to the frontend, which relies on
       // this to update the escalation's preview and read status.
       const partialEvent = {
-        event: JSON.stringify(_.pick(event, ['preview'])),
+        event: _.pick(event, ['preview']),
         success: undefined,
         threadId: undefined,
         ..._.pick(event, ['id', 'direction', 'botId', 'channel', 'createdOn', 'threadId'])

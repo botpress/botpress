@@ -1,27 +1,16 @@
-import * as sdk from 'botpress/sdk'
+import { IO } from 'botpress/sdk'
 import cx from 'classnames'
 import React, { FC } from 'react'
 
-import style from './../../style.scss'
+import style from '../../style.scss'
 
-const Message: FC<sdk.IO.StoredEvent> = props => {
-  function formattedTime(time) {
-    return time.toLocaleString(navigator.language, {
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-
-  return (
-    <div className={cx(style.bpwChatBubble)}>
-      <div className={cx(style.bpwChatBubbleContent)}>
-        <p>{props.event.preview}</p>
-        <p className={cx(style.createdDate)}>{formattedTime(props.createdOn)}</p>
-      </div>
+// This does not suppport funky content types nor custom components
+// Either export message from webchat in ui-shared lite and show it here
+// Or show a "readonly webchat"
+export const Message: FC<IO.StoredEvent> = props => (
+  <div className={cx(style.messageContainer, props.direction === 'incoming' ? style.user : style.bot)}>
+    <div className={cx(style.message)}>
+      <span>{props.event.preview}</span>
     </div>
-  )
-}
-
-export default Message
+  </div>
+)

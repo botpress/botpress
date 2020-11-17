@@ -30,9 +30,9 @@ const EscalationList: FC<Props> = props => {
   function filterBy(item: IEscalation): boolean {
     const conditions = {
       unassigned: item.agentId == null,
-      assignedMe: item.status == 'assigned' && item.agentId == state.currentAgent?.agentId,
+      assignedMe: item.status === 'assigned' && item.agentId === state.currentAgent?.agentId,
       assignedOther: item.agentId !== null && item.agentId !== state.currentAgent?.agentId,
-      resolved: item.status == 'resolved'
+      resolved: item.status === 'resolved'
     }
 
     return _.some(_.pickBy(conditions), (value, key) => filterOptions[key])

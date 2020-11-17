@@ -359,6 +359,7 @@ export class Botpress {
 
     this.eventEngine.onAfterIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       if (event.isPause) {
+        this.eventCollector.storeEvent(event)
         return
       }
 
