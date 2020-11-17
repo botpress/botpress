@@ -3,6 +3,7 @@ import { IO } from 'botpress/sdk'
 import { EmptyState } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
+import { WEBSOCKET_TOPIC } from '../../../../constants'
 
 import { ISocketMessage } from '../../../../types'
 import { ApiType } from '../../Api'
@@ -29,8 +30,8 @@ const ConversationHistory: FC<Props> = props => {
   }
 
   useEffect(() => {
-    props.bp.events.on(`hitlnext:${window.BOT_ID}`, handleMessage.bind(this))
-    return () => props.bp.events.off(`hitlnext:${window.BOT_ID}`, handleMessage)
+    props.bp.events.on(`${WEBSOCKET_TOPIC}:${window.BOT_ID}`, handleMessage.bind(this))
+    return () => props.bp.events.off(`${WEBSOCKET_TOPIC}:${window.BOT_ID}`, handleMessage)
   }, [])
 
   useEffect(() => {

@@ -4,6 +4,7 @@ import { ISocketMessage } from './../../types'
 import { Context, Store } from './agentStatus/Store'
 import AgentIcon from './shared/components/AgentIcon'
 import { Api } from './Api'
+import { WEBSOCKET_TOPIC } from '../../constants'
 
 const AgentStatus = ({ bp }) => {
   const api = Api(bp)
@@ -33,7 +34,7 @@ const AgentStatus = ({ bp }) => {
   }, [])
 
   useEffect(() => {
-    bp.events.on(`hitlnext:${window.BOT_ID}`, handleMessage)
+    bp.events.on(`${WEBSOCKET_TOPIC}:${window.BOT_ID}`, handleMessage)
     return () => bp.events.off(`hitlnext:${window.BOT_ID}`, handleMessage)
   }, [])
 

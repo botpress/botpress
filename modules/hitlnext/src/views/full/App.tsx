@@ -3,7 +3,7 @@ import { lang, toast } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { useContext, useEffect, useState } from 'react'
-
+import { WEBSOCKET_TOPIC } from './../../constants'
 import { IEscalation, ISocketMessage } from '../../types'
 
 import AgentList from './app/components/AgentList'
@@ -95,8 +95,8 @@ const App = ({ bp }) => {
   }, [])
 
   useEffect(() => {
-    bp.events.on(`hitlnext:${window.BOT_ID}`, handleMessage)
-    return () => bp.events.off(`hitlnext:${window.BOT_ID}`, handleMessage)
+    bp.events.on(`${WEBSOCKET_TOPIC}:${window.BOT_ID}`, handleMessage)
+    return () => bp.events.off(`${WEBSOCKET_TOPIC}:${window.BOT_ID}`, handleMessage)
   }, [])
 
   useEffect(() => {

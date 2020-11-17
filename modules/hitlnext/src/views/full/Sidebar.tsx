@@ -10,6 +10,7 @@ import EscalationList from './studio-sidebar/components/EscalationList'
 import { Context, Store } from './studio-sidebar/Store'
 import styles from './style.scss'
 import { Api, castEscalation } from './Api'
+import { WEBSOCKET_TOPIC } from '../../constants'
 
 const Sidebar = ({ bp, close }) => {
   const api = Api(bp)
@@ -61,8 +62,8 @@ const Sidebar = ({ bp, close }) => {
   }, [])
 
   useEffect(() => {
-    bp.events.on(`hitlnext:${window.BOT_ID}`, handleMessage)
-    return () => bp.events.off(`hitlnext:${window.BOT_ID}`, handleMessage)
+    bp.events.on(`${WEBSOCKET_TOPIC}:${window.BOT_ID}`, handleMessage)
+    return () => bp.events.off(`${WEBSOCKET_TOPIC}:${window.BOT_ID}`, handleMessage)
   }, [])
 
   return (
