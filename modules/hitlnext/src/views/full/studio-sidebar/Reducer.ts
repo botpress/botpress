@@ -1,15 +1,15 @@
 import produce from 'immer'
 import _ from 'lodash'
 
-import { IAgent, IEscalation, ISocketMessage } from '../../../types'
+import { IAgent, IHandoff, ISocketMessage } from '../../../types'
 
 import { StateType } from './Store'
 
 export type ActionType =
   | { type: 'setAgents'; payload: IAgent[] }
-  | { type: 'setEscalations'; payload: IEscalation[] }
+  | { type: 'setHandoffs'; payload: IHandoff[] }
   | { type: 'setAgent'; payload: ISocketMessage }
-  | { type: 'setEscalation'; payload: ISocketMessage }
+  | { type: 'setHandoff'; payload: ISocketMessage }
   | { type: 'setError'; payload: any }
 
 const Reducer = (state: StateType, action: ActionType): StateType => {
@@ -18,9 +18,9 @@ const Reducer = (state: StateType, action: ActionType): StateType => {
       return produce(state, draft => {
         draft.agents = _.keyBy(action.payload, 'id')
       })
-    case 'setEscalations':
+    case 'setHandoffs':
       return produce(state, draft => {
-        draft.escalations = _.keyBy(action.payload, 'id')
+        draft.handoffs = _.keyBy(action.payload, 'id')
       })
     case 'setAgent':
       return produce(state, draft => {
@@ -32,12 +32,12 @@ const Reducer = (state: StateType, action: ActionType): StateType => {
           }
         }
       })
-    case 'setEscalation':
+    case 'setHandoff':
       return produce(state, draft => {
-        draft.escalations = {
-          ...draft.escalations,
+        draft.handoffs = {
+          ...draft.handoffs,
           [action.payload.id]: {
-            ...draft.escalations[action.payload.id],
+            ...draft.handoffs[action.payload.id],
             ...action.payload.payload
           }
         }

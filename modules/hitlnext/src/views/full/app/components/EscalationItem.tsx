@@ -5,14 +5,14 @@ import _ from 'lodash'
 import moment from 'moment'
 import React, { FC, useContext, useEffect, useState } from 'react'
 
-import { IEscalation } from '../../../../types'
+import { IHandoff } from '../../../../types'
 import { Context } from '../Store'
 
 import style from './../../style.scss'
 import { generateUsername, getOrSet } from './../utils'
 import EscalationBadge from './EscalationBadge'
 
-const EscalationItem: FC<IEscalation> = props => {
+const HandoffItem: FC<IHandoff> = props => {
   const { createdAt, id, status, agentId, userConversation } = props
 
   const { state, dispatch } = useContext(Context)
@@ -22,11 +22,11 @@ const EscalationItem: FC<IEscalation> = props => {
   const [fromNow, setFromNow] = useState(moment(createdAt).fromNow())
 
   async function handleSelect(id: string) {
-    dispatch({ type: 'setCurrentEscalation', payload: id })
+    dispatch({ type: 'setCurrentHandoff', payload: id })
     dispatch({
       type: 'setRead',
       payload: {
-        [id]: state.escalations[id].userConversation.createdOn
+        [id]: state.handoffs[id].userConversation.createdOn
       }
     })
   }
@@ -80,7 +80,7 @@ const EscalationItem: FC<IEscalation> = props => {
 
   const agentName = () => {
     if (agentId && agentId === state.currentAgent?.agentId) {
-      return lang.tr('module.hitlnext.escalation.you')
+      return lang.tr('module.hitlnext.handoff.you')
     } else if (agentId) {
       const agent = state.agents[agentId]
       return [agent.attributes.firstname, agent.attributes.lastname].filter(Boolean).join(' ')
@@ -89,7 +89,7 @@ const EscalationItem: FC<IEscalation> = props => {
 
   return (
     <div
-      className={cx(style.escalationItem, { [style.active]: state.currentEscalation?.id == id })}
+      className={cx(style.escalationItem, { [style.active]: state.currentHandoff?.id == id })}
       onClick={() => handleSelect(id)}
     >
       {!readStatus && <span className={style.unreadDot}></span>}
@@ -108,4 +108,4 @@ const EscalationItem: FC<IEscalation> = props => {
   )
 }
 
-export default EscalationItem
+export default HandoffItem

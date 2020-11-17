@@ -3,7 +3,7 @@ import { Dictionary } from 'lodash'
 import React, { createContext, Dispatch, useReducer, useEffect } from 'react'
 
 import { Config } from '../../../config'
-import { IAgent, IEscalation } from '../../../types'
+import { IAgent, IHandoff } from '../../../types'
 
 import Storage from './storage'
 import Reducer, { ActionType } from './Reducer'
@@ -21,9 +21,9 @@ export interface UserDefaultsType {
 
 export interface IState {
   readonly currentAgent?: IAgent
-  readonly currentEscalation?: IEscalation
+  readonly currentHandoff?: IHandoff
   readonly agents: Dictionary<IAgent>
-  readonly escalations: Dictionary<IEscalation>
+  readonly handoffs: Dictionary<IHandoff>
   readonly reads: Dictionary<Date>
   readonly config?: Config
   readonly defaults: {
@@ -34,9 +34,9 @@ export interface IState {
 
 const initialState: IState = {
   currentAgent: null,
-  currentEscalation: null,
+  currentHandoff: null,
   agents: {},
-  escalations: {},
+  handoffs: {},
   reads: Storage.get('reads'),
   config: null,
   defaults: {},

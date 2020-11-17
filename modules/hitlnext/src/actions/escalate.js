@@ -1,7 +1,7 @@
 const axios = require('axios')
 
 /**
- * Creates an escalation for a given conversation. By default escalations are unassigned, they can then be assigned to agents and resolved.
+ * Creates an escalation for a given conversation. By default handoffs are unassigned, they can then be assigned to agents and resolved.
  *
  * @title Escalate
  * @category hitl2
@@ -10,7 +10,7 @@ const axios = require('axios')
 const escalate = async event => {
   const axiosConfig = await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
   await axios.post(
-    '/mod/hitlnext/escalations',
+    '/mod/hitlnext/handoffs',
     {
       userThreadId: event.threadId,
       userId: event.target,

@@ -59,7 +59,7 @@
     "tab": "Conversation",
     "composerPlaceholder": "Reply to user"
   },
-  "escalations": {
+  "handoffs": {
     "empty": "Thanks to you and your team, there are no pending handoffs right now."
   },
   "sidebar": {
@@ -69,7 +69,7 @@
       "heading": "Agents Online",
       "empty": "No agents online right now."
     },
-    "escalations": {
+    "handoffs": {
       "heading": "Most Recent Handoffs",
       "empty": "Thanks to you and your team, there are no pending handoffs right now."
     }

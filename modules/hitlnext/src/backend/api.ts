@@ -7,7 +7,7 @@ import Joi from 'joi'
 import _ from 'lodash'
 import yn from 'yn'
 
-import { EscalationType, IComment, IEscalation } from './../types'
+import { HandoffType, IComment, IHandoff } from './../types'
 import AgentSession from './agentSession'
 import { UnauthorizedError, UnprocessableEntityError } from './errors'
 import { formatValidationError, makeAgentId } from './helpers'
@@ -16,11 +16,11 @@ import Repository, { AgentCollectionConditions, CollectionConditions } from './r
 import Socket from './socket'
 import {
   AgentOnlineValidation,
-  AssignEscalationSchema,
+  AssignHandoffSchema,
   CreateCommentSchema,
-  CreateEscalationSchema,
-  ResolveEscalationSchema,
-  validateEscalationStatusRule
+  CreateHandoffSchema,
+  ResolveHandoffSchema,
+  validateHandoffStatusRule
 } from './validation'
 
 export default async (bp: typeof sdk, state: StateType) => {
@@ -145,29 +145,29 @@ export default async (bp: typeof sdk, state: StateType) => {
   )
 
   router.get(
-    '/escalations',
+    '/handoffs',
     errorMiddleware(async (req: Request, res: Response) => {
-      const escalations = await repository.getEscalationsWithComments(
+      const handoffs = await repository.getHandoffsWithComments(
         req.params.botId,
         _.pick(req.query, ['limit', 'column', 'desc']) as CollectionConditions
       )
-      res.send(escalations)
+      res.send(handoffs)
     })
   )
 
   router.post(
-    '/escalations',
+    '/handoffs',
     errorMiddleware(async (req: Request, res: Response) => {
       const payload = {
         ..._.pick(req.body, ['userId', 'userThreadId', 'userChannel']),
-        status: <EscalationType>'pending'
+        status: <HandoffType>'pending'
       }
 
-      Joi.attempt(payload, CreateEscalationSchema)
+      Joi.attempt(payload, CreateHandoffSchema)
 
-      // Prevent creating a new escalation if one is currently pending or assigned
-      let escalation = await repository
-        .escalationsQuery(builder => {
+      // Prevent creating a new handoff if one is currently pending or assigned
+      let handoff = await repository
+        .handoffsQuery(builder => {
           return builder
             .where('botId', req.params.botId)
             .andWhere('userId', payload.userId)
@@ -177,22 +177,22 @@ export default async (bp: typeof sdk, state: StateType) => {
             .orderBy('createdAt')
             .limit(1)
         })
-        .then(data => _.head(data) as IEscalation)
+        .then(data => _.head(data) as IHandoff)
 
-      if (escalation) {
+      if (handoff) {
         return res.sendStatus(200)
       }
 
-      escalation = await repository.createEscalation(req.params.botId, payload).then(escalation => {
-        state.cacheEscalation(req.params.botId, escalation.userThreadId, escalation)
-        return escalation
+      handoff = await repository.createHandoff(req.params.botId, payload).then(handoff => {
+        state.cacheHandoff(req.params.botId, handoff.userThreadId, handoff)
+        return handoff
       })
 
       const eventDestination = {
         botId: req.params.botId,
-        target: escalation.userId,
-        threadId: escalation.userThreadId,
-        channel: escalation.userChannel
+        target: handoff.userId,
+        threadId: handoff.userThreadId,
+        channel: handoff.userChannel
       }
 
       bp.events.replyToEvent(
@@ -205,18 +205,18 @@ export default async (bp: typeof sdk, state: StateType) => {
       )
 
       realtime.sendPayload(req.params.botId, {
-        resource: 'escalation',
+        resource: 'handoff',
         type: 'create',
-        id: escalation.id,
-        payload: escalation
+        id: handoff.id,
+        payload: handoff
       })
 
-      res.status(201).send(escalation)
+      res.status(201).send(handoff)
     })
   )
 
   router.post(
-    '/escalations/:id/assign',
+    '/handoffs/:id/assign',
     agentOnlineMiddleware,
     errorMiddleware(async (req: RequestWithUser, res: Response) => {
       const { botId } = req.params
@@ -224,34 +224,34 @@ export default async (bp: typeof sdk, state: StateType) => {
 
       const agentId = makeAgentId(strategy, email)
 
-      let escalation: Partial<IEscalation> = await repository.getEscalationWithComments(req.params.botId, req.params.id)
+      let handoff: Partial<IHandoff> = await repository.getHandoffWithComments(req.params.botId, req.params.id)
 
       const axioxconfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
       const { data } = await Axios.post(`/mod/channel-web/conversations/${agentId}/new`, {}, axioxconfig)
       const agentThreadId = data.convoId.toString()
-      const payload: Partial<IEscalation> = {
+      const payload: Partial<IHandoff> = {
         agentId,
         agentThreadId,
         assignedAt: new Date(),
         status: 'assigned'
       }
-      Joi.attempt(payload, AssignEscalationSchema)
+      Joi.attempt(payload, AssignHandoffSchema)
 
       try {
-        validateEscalationStatusRule(escalation.status, payload.status)
+        validateHandoffStatusRule(handoff.status, payload.status)
       } catch (e) {
         throw new UnprocessableEntityError(formatValidationError(e))
       }
 
-      escalation = await repository.updateEscalation(req.params.botId, req.params.id, payload)
-      state.cacheEscalation(req.params.botId, agentThreadId, escalation)
+      handoff = await repository.updateHandoff(req.params.botId, req.params.id, payload)
+      state.cacheHandoff(req.params.botId, agentThreadId, handoff)
 
       // Bump agent session timeout
       await repository.setAgentOnline(req.params.botId, agentId, true)
       await registerTimeout(req.workspace, req.params.botId, agentId)
 
       const baseCustomEventPayload: Partial<sdk.IO.EventCtorArgs> = {
-        botId: escalation.botId,
+        botId: handoff.botId,
         direction: 'outgoing',
         type: 'custom',
         payload: {
@@ -269,9 +269,9 @@ export default async (bp: typeof sdk, state: StateType) => {
       bp.events.sendEvent(
         bp.IO.Event(<sdk.IO.EventCtorArgs>{
           ...baseCustomEventPayload,
-          target: escalation.userId,
-          threadId: escalation.userThreadId,
-          channel: escalation.userChannel
+          target: handoff.userId,
+          threadId: handoff.userThreadId,
+          channel: handoff.userChannel
         })
       )
 
@@ -279,52 +279,52 @@ export default async (bp: typeof sdk, state: StateType) => {
       bp.events.sendEvent(
         bp.IO.Event(
           _.merge(_.cloneDeep(baseCustomEventPayload), {
-            target: escalation.agentId,
+            target: handoff.agentId,
             channel: 'web',
-            threadId: escalation.agentThreadId,
+            threadId: handoff.agentThreadId,
             payload: { forAgent: true }
           }) as sdk.IO.EventCtorArgs
         )
       )
 
       realtime.sendPayload(req.params.botId, {
-        resource: 'escalation',
+        resource: 'handoff',
         type: 'update',
-        id: escalation.id,
-        payload: escalation
+        id: handoff.id,
+        payload: handoff
       })
 
-      res.send(escalation)
+      res.send(handoff)
     })
   )
 
   router.post(
-    '/escalations/:id/resolve',
+    '/handoffs/:id/resolve',
     agentOnlineMiddleware,
     errorMiddleware(async (req: RequestWithUser, res: Response) => {
       const { email, strategy } = req.tokenUser!
 
       const agentId = makeAgentId(strategy, email)
 
-      let escalation
-      escalation = await repository.getEscalationWithComments(req.params.botId, req.params.id)
+      let handoff
+      handoff = await repository.getHandoffWithComments(req.params.botId, req.params.id)
 
-      const payload: Partial<IEscalation> = {
+      const payload: Partial<IHandoff> = {
         status: 'resolved',
         resolvedAt: new Date()
       }
 
-      Joi.attempt(payload, ResolveEscalationSchema)
+      Joi.attempt(payload, ResolveHandoffSchema)
 
       try {
-        validateEscalationStatusRule(escalation.status, payload.status)
+        validateHandoffStatusRule(handoff.status, payload.status)
       } catch (e) {
         throw new UnprocessableEntityError(formatValidationError(e))
       }
 
-      escalation = await repository.updateEscalation(req.params.botId, req.params.id, payload).then(escalation => {
-        state.expireEscalation(req.params.botId, escalation.userThreadId)
-        return escalation
+      handoff = await repository.updateHandoff(req.params.botId, req.params.id, payload).then(handoff => {
+        state.expireHandoff(req.params.botId, handoff.userThreadId)
+        return handoff
       })
 
       await repository.setAgentOnline(req.params.botId, agentId, true) // Bump agent session timeout
@@ -333,28 +333,28 @@ export default async (bp: typeof sdk, state: StateType) => {
       })
 
       realtime.sendPayload(req.params.botId, {
-        resource: 'escalation',
+        resource: 'handoff',
         type: 'update',
-        id: escalation.id,
-        payload: escalation
+        id: handoff.id,
+        payload: handoff
       })
 
-      res.send(escalation)
+      res.send(handoff)
     })
   )
 
   router.post(
-    '/escalations/:id/comments',
+    '/handoffs/:id/comments',
     errorMiddleware(async (req: RequestWithUser, res: Response) => {
       const { email, strategy } = req.tokenUser!
       const agentId = makeAgentId(strategy, email)
 
-      const escalation = await repository.getEscalation(req.params.id)
+      const handoff = await repository.getHandoff(req.params.id)
 
       const payload: IComment = {
         ...req.body,
-        escalationId: escalation.id,
-        threadId: escalation.userThreadId,
+        escalationId: handoff.id,
+        threadId: handoff.userThreadId,
         agentId
       }
 

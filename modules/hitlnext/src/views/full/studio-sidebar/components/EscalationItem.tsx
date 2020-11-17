@@ -3,10 +3,10 @@ import cx from 'classnames'
 import moment from 'moment'
 import React, { FC, useEffect, useState } from 'react'
 
-import { IEscalation } from '../../../../types'
+import { IHandoff } from '../../../../types'
 import styles from '../../style.scss'
 
-const EscalationItem: FC<IEscalation> = props => {
+const HandoffItem: FC<IHandoff> = props => {
   const [fromNow, setFromNow] = useState(moment(props.createdAt).fromNow())
 
   useEffect(() => {
@@ -22,10 +22,10 @@ const EscalationItem: FC<IEscalation> = props => {
     <div className={cx(styles.escalationItem)}>
       <p>#{props.id}</p>
       <p className="bp3-text-small bp3-text-muted">
-        {props.status} ⋅ {lang.tr('module.hitlnext.escalation.created', { date: fromNow })}
+        {props.status} ⋅ {lang.tr('module.hitlnext.handoff.created', { date: fromNow })}
       </p>
     </div>
   )
 }
 
-export default EscalationItem
+export default HandoffItem

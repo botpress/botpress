@@ -4,41 +4,41 @@ import cx from 'classnames'
 import _, { Dictionary } from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
-import { IEscalation } from '../../../../types'
+import { IHandoff } from '../../../../types'
 import styles from '../../style.scss'
 import CasesIcon from '../../Icons/CasesIcon'
 
 import EscalationItem from './EscalationItem'
 
 interface Props {
-  escalations: Dictionary<IEscalation>
+  handoffs: Dictionary<IHandoff>
   loading: boolean
   itemCount?: number
 }
 
-const EscalationList: FC<Props> = props => {
-  const [items, setItems] = useState<IEscalation[]>([])
+const HandoffList: FC<Props> = props => {
+  const [items, setItems] = useState<IHandoff[]>([])
 
   useEffect(() => {
-    setItems(_.slice(_.orderBy(_.values(props.escalations), 'createdAt', 'desc'), 0, props.itemCount))
-  }, [props.escalations])
+    setItems(_.slice(_.orderBy(_.values(props.handoffs), 'createdAt', 'desc'), 0, props.itemCount))
+  }, [props.handoffs])
 
   return (
     <div className={cx(styles.escalationList)}>
       {props.loading && <Spinner></Spinner>}
 
       {!props.loading && _.isEmpty(items) && (
-        <EmptyState icon={<CasesIcon />} text={lang.tr('module.hitlnext.sidebar.escalations.empty')}></EmptyState>
+        <EmptyState icon={<CasesIcon />} text={lang.tr('module.hitlnext.sidebar.handoffs.empty')}></EmptyState>
       )}
 
       {!_.isEmpty(items) &&
-        _.values(items).map(escalation => <EscalationItem key={escalation.id} {...escalation}></EscalationItem>)}
+        _.values(items).map(handoff => <EscalationItem key={handoff.id} {...handoff}></EscalationItem>)}
     </div>
   )
 }
 
-EscalationList.defaultProps = {
+HandoffList.defaultProps = {
   itemCount: 5
 }
 
-export default EscalationList
+export default HandoffList

@@ -39,13 +39,13 @@ export type IUser = {
   variables?: { name: string; value: any }[]
 } & Partial<IUserProfile>
 
-export type EscalationType = 'pending' | 'assigned' | 'resolved'
-export interface IEscalation {
+export type HandoffType = 'pending' | 'assigned' | 'resolved'
+export interface IHandoff {
   id: string
   botId: string
   agentId?: string
   userId: string
-  status: EscalationType
+  status: HandoffType
   userChannel: string
   userThreadId: string
   agentThreadId: string

@@ -21,7 +21,7 @@ interface Props {
   disabled: boolean
 }
 
-const EscalationListHeader: FC<Props> = props => {
+const HandoffListHeader: FC<Props> = props => {
   const buttons: ToolbarButtonProps[] = [
     {
       icon: 'sort',
@@ -100,10 +100,10 @@ const EscalationListHeader: FC<Props> = props => {
   return (
     <MainLayout.Toolbar
       className={style.hitlToolBar}
-      tabs={[{ id: 'escalations', title: lang.tr('module.hitlnext.sidebar.tab') }]}
+      tabs={[{ id: 'handoffs', title: lang.tr('module.hitlnext.sidebar.tab') }]}
       buttons={buttons}
     ></MainLayout.Toolbar>
   )
 }
 
-export default EscalationListHeader
+export default HandoffListHeader

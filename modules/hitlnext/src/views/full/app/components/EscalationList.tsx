@@ -5,20 +5,20 @@ import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
 
 import { Context } from '../Store'
 
-import { IEscalation } from './../../../../types'
+import { IHandoff } from './../../../../types'
 import CasesIcon from './../../Icons/CasesIcon'
 import EscalationItem from './EscalationItem'
 import EscalationListHeader, { FilterType, SortType } from './EscalationListHeader'
 
 interface Props {
-  escalations: object
+  handoffs: object
   loading: boolean
 }
 
-const EscalationList: FC<Props> = props => {
+const HandoffList: FC<Props> = props => {
   const { state, dispatch } = useContext(Context)
 
-  const [items, setItems] = useState<IEscalation[]>([])
+  const [items, setItems] = useState<IHandoff[]>([])
   const [filterOptions, setFilterOptions] = useState<FilterType>({
     unassigned: true,
     assignedMe: true,
@@ -27,7 +27,7 @@ const EscalationList: FC<Props> = props => {
   })
   const [sortOption, setSortOption] = useState<SortType>('mostRecent')
 
-  function filterBy(item: IEscalation): boolean {
+  function filterBy(item: IHandoff): boolean {
     const conditions = {
       unassigned: item.agentId == null,
       assignedMe: item.status === 'assigned' && item.agentId === state.currentAgent?.agentId,
@@ -50,18 +50,18 @@ const EscalationList: FC<Props> = props => {
   }
 
   useEffect(() => {
-    const filtered = _.chain(_.values(props.escalations))
+    const filtered = _.chain(_.values(props.handoffs))
       .filter(filterBy)
       .orderBy(...orderConditions())
       .value()
 
-    // Unselect current escalation when excluded from list
-    if (!_.includes(_.map(filtered, 'id'), state.currentEscalation?.id)) {
-      dispatch({ type: 'setCurrentEscalation', payload: null })
+    // Unselect current handoff when excluded from list
+    if (!_.includes(_.map(filtered, 'id'), state.currentHandoff?.id)) {
+      dispatch({ type: 'setCurrentHandoff', payload: null })
     }
 
     setItems(filtered)
-  }, [filterOptions, sortOption, props.escalations, props.loading])
+  }, [filterOptions, sortOption, props.handoffs, props.loading])
 
   return (
     <Fragment>
@@ -70,20 +70,20 @@ const EscalationList: FC<Props> = props => {
         sortOption={sortOption}
         setFilterOptions={setFilterOptions}
         setSortOption={setSortOption}
-        disabled={_.isEmpty(props.escalations)}
+        disabled={_.isEmpty(props.handoffs)}
       ></EscalationListHeader>
 
       {props.loading && <Spinner></Spinner>}
 
       {!props.loading && _.isEmpty(items) && (
-        <EmptyState icon={<CasesIcon />} text={lang.tr('module.hitlnext.escalations.empty')}></EmptyState>
+        <EmptyState icon={<CasesIcon />} text={lang.tr('module.hitlnext.handoffs.empty')}></EmptyState>
       )}
 
       {!props.loading &&
         !_.isEmpty(items) &&
-        items.map(escalation => <EscalationItem key={escalation.id} {...escalation}></EscalationItem>)}
+        items.map(handoff => <EscalationItem key={handoff.id} {...handoff}></EscalationItem>)}
     </Fragment>
   )
 }
 
-export default EscalationList
+export default HandoffList

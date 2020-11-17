@@ -3,7 +3,7 @@ import _ from 'lodash'
 import moment from 'moment'
 
 import { Config } from '../../config'
-import { IAgent, IComment, IEscalation, IEvent } from '../../types'
+import { IAgent, IComment, IHandoff, IEvent } from '../../types'
 
 // TODO Handle casting when object is undefined
 export function castDate<T extends object>(object: T, paths: string[]): T {
@@ -13,7 +13,7 @@ export function castDate<T extends object>(object: T, paths: string[]): T {
   return object
 }
 
-export function castEscalation(item: IEscalation) {
+export function castHandoff(item: IHandoff) {
   return _.chain(item)
     .thru(value =>
       castDate(value, ['createdAt', 'updatedAt', 'assignedAt', 'resolvedAt', 'userConversation.createdOn'])
@@ -53,9 +53,9 @@ export interface ApiType {
   getCurrentAgent: () => Promise<IAgent>
   getComments: (id: string) => Promise<IComment[]>
   createComment: (id: string, payload: Partial<IComment>) => Promise<IComment>
-  getEscalations: (column?: string, desc?: boolean, limit?: number) => Promise<IEscalation[]>
-  assignEscalation: (id: string) => Promise<IEscalation>
-  resolveEscalation: (id: string) => Promise<IEscalation>
+  getHandoffs: (column?: string, desc?: boolean, limit?: number) => Promise<IHandoff[]>
+  assignHandoff: (id: string) => Promise<IHandoff>
+  resolveHandoff: (id: string) => Promise<IHandoff>
   getMessages: (id: string, column?: string, desc?: boolean, limit?: number) => Promise<IEvent[]>
 }
 
@@ -76,17 +76,17 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
     getCurrentAgent: async () => bp.axios.get('/agents/me', config).then(res => res.data),
     getComments: async id =>
       bp.axios
-        .get(`/escalations/${id}/comments`, config)
+        .get(`/handoffs/${id}/comments`, config)
         .then(res => res.data)
         .then(data => data.map(item => castComment(item))),
     createComment: async (id, payload) =>
       bp.axios
-        .post(`/escalations/${id}/comments`, payload, config)
+        .post(`/handoffs/${id}/comments`, payload, config)
         .then(res => res.data)
         .then(data => castComment(data)),
-    getEscalations: async (column?, desc?, limit?) =>
+    getHandoffs: async (column?, desc?, limit?) =>
       bp.axios
-        .get('/escalations', {
+        .get('/handoffs', {
           ...config,
           params: {
             desc,
@@ -95,17 +95,17 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
           }
         })
         .then(res => res.data)
-        .then(data => data.map(castEscalation)),
-    assignEscalation: async id =>
+        .then(data => data.map(castHandoff)),
+    assignHandoff: async id =>
       bp.axios
-        .post(`/escalations/${id}/assign`, null, config)
+        .post(`/handoffs/${id}/assign`, null, config)
         .then(res => res.data)
-        .then(data => castEscalation(data)),
-    resolveEscalation: async id =>
+        .then(data => castHandoff(data)),
+    resolveHandoff: async id =>
       bp.axios
-        .post(`/escalations/${id}/resolve`, null, config)
+        .post(`/handoffs/${id}/resolve`, null, config)
         .then(res => res.data)
-        .then(data => castEscalation(data)),
+        .then(data => castHandoff(data)),
     getMessages: async (id, column?, desc?, limit?) =>
       bp.axios
         .get(`/conversations/${id}/messages`, { ...config, params: { desc, column, limit } })

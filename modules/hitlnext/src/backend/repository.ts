@@ -5,7 +5,7 @@ import { BPRequest } from 'common/http'
 import Knex from 'knex'
 import _ from 'lodash'
 
-import { IAgent, IComment, IEscalation } from './../types'
+import { IAgent, IComment, IHandoff } from './../types'
 import { cacheKey } from './agentSession'
 import { makeAgentId } from './helpers'
 
@@ -27,7 +27,7 @@ export default class Repository {
 
   constructor(private bp: typeof sdk) {
     this.commentPrefix = 'comment'
-    this.escalationPrefix = 'escalation'
+    this.escalationPrefix = 'handoff'
 
     this.escalationColumns = [
       'id',
@@ -78,7 +78,7 @@ export default class Repository {
   }
 
   // This mutates rows
-  private hydrateComments(rows: any[]): IEscalation[] {
+  private hydrateComments(rows: any[]): IHandoff[] {
     const records = rows.reduce((memo, row) => {
       memo[row.id] = memo[row.id] || {
         ..._.pick(row, this.escalationColumns),
@@ -101,9 +101,9 @@ export default class Repository {
     })
   }
 
-  // This mutates escalations
-  private hydrateEvents(events: any[], escalations: any[], key: string): any[] {
-    escalations.forEach(escalation => (escalation.userConversation = {}))
+  // This mutates handoffs
+  private hydrateEvents(events: any[], handoffs: any[], key: string): any[] {
+    handoffs.forEach(handoff => (handoff.userConversation = {}))
 
     const toMerge = events.map(event => {
       return _.tap({}, item => {
@@ -112,7 +112,7 @@ export default class Repository {
       })
     })
 
-    return _.values(_.merge(_.keyBy(escalations, 'id'), _.keyBy(toMerge, 'id')))
+    return _.values(_.merge(_.keyBy(handoffs, 'id'), _.keyBy(toMerge, 'id')))
   }
 
   // To get the most recent event, we assume the 'Id' column is ordered;
@@ -137,20 +137,16 @@ export default class Repository {
 
   private userEventsQuery(): Knex.QueryBuilder {
     return this.bp
-      .database<IEscalation>('escalations')
-      .select(
-        'escalations.id as escalation:id',
-        'escalations.userThreadId as escalation:userThreadId',
-        'recent_event.*'
-      )
-      .join(this.recentEventQuery(), 'escalations.userThreadId', 'recent_event.threadId')
+      .database<IHandoff>('handoffs')
+      .select('handoffs.id as handoff:id', 'handoffs.userThreadId as handoff:userThreadId', 'recent_event.*')
+      .join(this.recentEventQuery(), 'handoffs.userThreadId', 'recent_event.threadId')
   }
 
-  private escalationsWithCommentsQuery(botId: string, conditions: CollectionConditions = {}) {
+  private handoffsWithCommentsQuery(botId: string, conditions: CollectionConditions = {}) {
     return this.bp
-      .database<IEscalation>('escalations')
+      .database<IHandoff>('handoffs')
       .select(
-        'escalations.*',
+        'handoffs.*',
         `comments.id as ${this.commentPrefix}:id`,
         `comments.agentId as ${this.commentPrefix}:agentId`,
         `comments.escalationId as ${this.commentPrefix}:escalationId`,
@@ -159,8 +155,8 @@ export default class Repository {
         `comments.updatedAt as ${this.commentPrefix}:updatedAt`,
         `comments.createdAt as ${this.commentPrefix}:createdAt`
       )
-      .leftJoin('comments', 'escalations.userThreadId', 'comments.threadId')
-      .where('escalations.botId', botId)
+      .leftJoin('comments', 'handoffs.userThreadId', 'comments.threadId')
+      .where('handoffs.botId', botId)
       .distinct()
       .modify(this.applyLimit, conditions)
       .modify(this.applyOrderBy, conditions)
@@ -177,8 +173,8 @@ export default class Repository {
     }
   }
 
-  escalationsQuery = (query?: Knex.QueryCallback) => {
-    return this.bp.database<IEscalation>('escalations').modify(this.applyQuery(query))
+  handoffsQuery = (query?: Knex.QueryCallback) => {
+    return this.bp.database<IHandoff>('handoffs').modify(this.applyQuery(query))
   }
 
   // hitlnext:online:workspaceId:agentId
@@ -294,48 +290,48 @@ export default class Repository {
       .then(applyConditions)
   }
 
-  getEscalationsWithComments = async (
+  getHandoffsWithComments = async (
     botId: string,
     conditions: CollectionConditions = {},
     query?: Knex.QueryCallback
-  ): Promise<IEscalation[]> => {
+  ): Promise<IHandoff[]> => {
     return this.bp.database
       .transaction(async trx => {
-        return this.escalationsWithCommentsQuery(botId, conditions)
+        return this.handoffsWithCommentsQuery(botId, conditions)
           .modify(this.applyQuery(query))
           .transacting(trx)
           .then(this.hydrateComments.bind(this))
           .then(async data =>
             this.hydrateEvents(
               await this.userEventsQuery()
-                .where('escalations.botId', botId)
+                .where('handoffs.botId', botId)
                 .transacting(trx),
               data,
               'userConversation'
             )
           )
       })
-      .then(async data => data as IEscalation[])
+      .then(async data => data as IHandoff[])
   }
 
-  getEscalationWithComments = async (botId: string, id: string, query?: Knex.QueryCallback): Promise<IEscalation> => {
-    return this.escalationsWithCommentsQuery(botId)
-      .andWhere('escalations.id', id)
+  getHandoffWithComments = async (botId: string, id: string, query?: Knex.QueryCallback): Promise<IHandoff> => {
+    return this.handoffsWithCommentsQuery(botId)
+      .andWhere('handoffs.id', id)
       .modify(this.applyQuery(query))
       .then(this.hydrateComments.bind(this))
       .then(async data =>
-        this.hydrateEvents(await this.userEventsQuery().where('escalations.id', id), data, 'userConversation')
+        this.hydrateEvents(await this.userEventsQuery().where('handoffs.id', id), data, 'userConversation')
       )
       .then(async data => _.head(data))
   }
 
-  getEscalation = async (id: string, query?: Knex.QueryCallback): Promise<IEscalation> => {
-    return this.escalationsQuery(builder => {
+  getHandoff = async (id: string, query?: Knex.QueryCallback): Promise<IHandoff> => {
+    return this.handoffsQuery(builder => {
       builder.where('id', id).modify(this.applyQuery(query))
     }).then(data => _.head(data))
   }
 
-  createEscalation = async (botId: string, attributes: Partial<IEscalation>): Promise<IEscalation> => {
+  createHandoff = async (botId: string, attributes: Partial<IHandoff>): Promise<IHandoff> => {
     const now = new Date()
     const payload = this.castDate(
       {
@@ -348,20 +344,20 @@ export default class Repository {
     )
 
     return this.bp.database.transaction(async trx => {
-      await trx('escalations').insert(payload)
+      await trx('handoffs').insert(payload)
 
       const id = await trx
         .select(this.bp.database.raw('last_insert_rowid() as id'))
         .then(result => _.head(_.map(result, 'id')))
 
-      return trx('escalations')
+      return trx('handoffs')
         .where('botId', botId)
         .where('id', id)
         .then(this.hydrateComments.bind(this)) // Note: there won't be any comments yet, but an empty collection is required
         .then(async data =>
           this.hydrateEvents(
             await this.userEventsQuery()
-              .where('escalations.id', id)
+              .where('handoffs.id', id)
               .transacting(trx),
             data,
             'userConversation'
@@ -371,11 +367,7 @@ export default class Repository {
     })
   }
 
-  updateEscalation = async (
-    botId: string,
-    id: string,
-    attributes: Partial<IEscalation>
-  ): Promise<Partial<IEscalation>> => {
+  updateHandoff = async (botId: string, id: string, attributes: Partial<IHandoff>): Promise<Partial<IHandoff>> => {
     const now = new Date()
     const payload = this.castDate(
       {
@@ -386,18 +378,18 @@ export default class Repository {
     )
 
     return this.bp.database.transaction(async trx => {
-      await trx<IEscalation>('escalations')
+      await trx<IHandoff>('handoffs')
         .where({ id })
         .update(payload)
 
-      return this.escalationsWithCommentsQuery(botId)
-        .andWhere('escalations.id', id)
+      return this.handoffsWithCommentsQuery(botId)
+        .andWhere('handoffs.id', id)
         .transacting(trx)
         .then(this.hydrateComments.bind(this))
         .then(async data =>
           this.hydrateEvents(
             await this.userEventsQuery()
-              .where('escalations.id', id)
+              .where('handoffs.id', id)
               .transacting(trx),
             data,
             'userConversation'

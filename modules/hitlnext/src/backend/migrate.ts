@@ -2,8 +2,8 @@ import * as sdk from 'botpress/sdk'
 const debug = DEBUG('hitlnext')
 
 export default async (bp: typeof sdk) => {
-  await bp.database.createTableIfNotExists('escalations', table => {
-    debug("Creating database table 'escalations'")
+  await bp.database.createTableIfNotExists('handoffs', table => {
+    debug("Creating database table 'handoffs'")
 
     table
       .increments('id')
@@ -34,7 +34,7 @@ export default async (bp: typeof sdk) => {
       .notNullable()
     table
       .integer('escalationId')
-      .references('escalations.id')
+      .references('handoffs.id')
       .notNullable()
       .onDelete('CASCADE')
     table.string('threadId').notNullable()

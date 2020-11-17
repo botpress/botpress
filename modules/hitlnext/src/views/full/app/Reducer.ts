@@ -2,18 +2,18 @@ import produce from 'immer'
 import _, { Dictionary } from 'lodash'
 
 import { Config } from '../../../config'
-import { IAgent, IComment, IEscalation, ISocketMessage } from '../../../types'
+import { IAgent, IComment, IHandoff, ISocketMessage } from '../../../types'
 
 import { IState } from './Store'
 
 export type ActionType =
   | { type: 'setCurrentAgent'; payload: Partial<IAgent> }
-  | { type: 'setCurrentEscalation'; payload: string }
+  | { type: 'setCurrentHandoff'; payload: string }
   | { type: 'setAgents'; payload: IAgent[] }
-  | { type: 'setEscalations'; payload: IEscalation[] }
+  | { type: 'setHandoffs'; payload: IHandoff[] }
   | { type: 'setComment'; payload: IComment }
   | { type: 'setAgent'; payload: ISocketMessage }
-  | { type: 'setEscalation'; payload: ISocketMessage }
+  | { type: 'setHandoff'; payload: ISocketMessage }
   | { type: 'setRead'; payload: Dictionary<Date> }
   | { type: 'setConfig'; payload: Config }
   | { type: 'setDefault'; payload: Object }
@@ -25,23 +25,23 @@ const Reducer = (state: IState, action: ActionType): IState => {
       return produce(state, draft => {
         draft.currentAgent = _.merge(draft.currentAgent, action.payload)
       })
-    case 'setCurrentEscalation':
+    case 'setCurrentHandoff':
       return produce(state, draft => {
-        draft.currentEscalation = draft.escalations[action.payload]
+        draft.currentHandoff = draft.handoffs[action.payload]
       })
     case 'setAgents':
       return produce(state, draft => {
         draft.agents = _.keyBy(action.payload, 'agentId')
       })
-    case 'setEscalations':
+    case 'setHandoffs':
       return produce(state, draft => {
-        draft.escalations = _.keyBy(action.payload, 'id')
+        draft.handoffs = _.keyBy(action.payload, 'id')
       })
     case 'setComment':
       return produce(state, draft => {
-        const escalation = draft.escalations[action.payload.escalationId]
-        escalation.comments.push(action.payload)
-        draft.currentEscalation = escalation
+        const handoff = draft.handoffs[action.payload.escalationId]
+        handoff.comments.push(action.payload)
+        draft.currentHandoff = handoff
       })
     case 'setAgent':
       return produce(state, draft => {
@@ -56,21 +56,21 @@ const Reducer = (state: IState, action: ActionType): IState => {
           draft.currentAgent = draft.agents[action.payload.id]
         }
       })
-    case 'setEscalation':
+    case 'setHandoff':
       return produce(state, draft => {
-        draft.escalations = {
-          ...draft.escalations,
-          [action.payload.id]: _.merge(draft.escalations[action.payload.id], action.payload.payload)
+        draft.handoffs = {
+          ...draft.handoffs,
+          [action.payload.id]: _.merge(draft.handoffs[action.payload.id], action.payload.payload)
         }
 
-        // Note: because currentEscalation is an actual object,
+        // Note: because currentHandoff is an actual object,
         // instead of a reference, it must be manually updated
-        if (draft.currentEscalation?.id === action.payload.id) {
-          draft.currentEscalation = draft.escalations[action.payload.id]
+        if (draft.currentHandoff?.id === action.payload.id) {
+          draft.currentHandoff = draft.handoffs[action.payload.id]
         }
 
-        // Note: Because it is the current escalation, it is assumed to be instantly read
-        if (draft.currentEscalation?.id === action.payload.id) {
+        // Note: Because it is the current handoff, it is assumed to be instantly read
+        if (draft.currentHandoff?.id === action.payload.id) {
           draft.reads = _.merge(draft.reads, {
             [action.payload.id]: action.payload.payload.userConversation.createdOn
           })

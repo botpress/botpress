@@ -12,8 +12,8 @@ import Workspace from './workspace'
 const debug = DEBUG('hitlnext')
 
 export interface StateType {
-  cacheEscalation?: Function
-  expireEscalation?: Function
+  cacheHandoff?: Function
+  expireHandoff?: Function
   timeouts?: Dictionary<NodeJS.Timeout>
 }
 

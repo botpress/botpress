@@ -2,7 +2,7 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import LRU from 'lru-cache'
 
-import { IEscalation } from './../types'
+import { IHandoff } from './../types'
 import AgentSession from './agentSession'
 import { measure } from './helpers'
 import { StateType } from './index'
@@ -24,17 +24,17 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
 
   const cacheKey = (a, b) => [a, b].join('.')
 
-  const getEscalation = (botId: string, threadId: string) => {
+  const getHandoff = (botId: string, threadId: string) => {
     return cache.get(cacheKey(botId, threadId))
   }
 
-  const cacheEscalation = (botId: string, threadId: string, escalation: IEscalation) => {
-    debug.forBot(botId, 'Caching escalation', { id: escalation.id, threadId })
-    cache.set(cacheKey(botId, threadId), escalation.id)
+  const cacheHandoff = (botId: string, threadId: string, handoff: IHandoff) => {
+    debug.forBot(botId, 'Caching handoff', { id: handoff.id, threadId })
+    cache.set(cacheKey(botId, threadId), handoff.id)
   }
 
-  const expireEscalation = (botId: string, threadId: string) => {
-    debug.forBot(botId, 'Expiring escalation', { threadId })
+  const expireHandoff = (botId: string, threadId: string) => {
+    debug.forBot(botId, 'Expiring handoff', { threadId })
     cache.del(cacheKey(botId, threadId))
   }
 
@@ -44,33 +44,33 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
       return next()
     }
 
-    // Either a pending or assigned escalation
-    const escalationId = getEscalation(event.botId, event.threadId)
+    // Either a pending or assigned handoff
+    const escalationId = getHandoff(event.botId, event.threadId)
 
     if (!escalationId) {
       next(undefined, false)
       return
     }
 
-    const escalation = await repository.getEscalation(escalationId)
+    const handoff = await repository.getHandoff(escalationId)
 
     // Handle incoming message from user
-    if (escalation.userThreadId === event.threadId) {
+    if (handoff.userThreadId === event.threadId) {
       debug.forBot(event.botId, 'Handling message from User', { direction: event.direction, threadId: event.threadId })
 
-      if (escalation.status === 'assigned') {
+      if (handoff.status === 'assigned') {
         // There only is an agentId & agentThreadId after assignation
         await pipeEvent(event, {
-          botId: escalation.botId,
-          target: escalation.agentId,
-          threadId: escalation.agentThreadId,
+          botId: handoff.botId,
+          target: handoff.agentId,
+          threadId: handoff.agentThreadId,
           channel: 'web'
         })
       }
 
       // At this moment the event isn't persisted yet so an approximate
       // representation is built and sent to the frontend, which relies on
-      // this to update the escalation's preview and read status.
+      // this to update the handoff's preview and read status.
       const partialEvent = {
         event: _.pick(event, ['preview']),
         success: undefined,
@@ -79,11 +79,11 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
       }
 
       realtime.sendPayload(event.botId, {
-        resource: 'escalation',
+        resource: 'handoff',
         type: 'update',
-        id: escalation.id,
+        id: handoff.id,
         payload: {
-          ...escalation,
+          ...handoff,
           userConversation: partialEvent
         }
       })
@@ -96,20 +96,20 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
       })
 
       // Handle incoming message from agent
-    } else if (escalation.agentThreadId === event.threadId) {
+    } else if (handoff.agentThreadId === event.threadId) {
       debug.forBot(event.botId, 'Handling message from Agent', { direction: event.direction, threadId: event.threadId })
 
       await pipeEvent(event, {
-        botId: escalation.botId,
-        threadId: escalation.userThreadId,
-        target: escalation.userId,
-        channel: escalation.userChannel
+        botId: handoff.botId,
+        threadId: handoff.userThreadId,
+        target: handoff.userId,
+        channel: handoff.userChannel
       })
 
-      await repository.setAgentOnline(event.botId, escalation.agentId, true) // Bump agent session timeout
-      await registerTimeout(await bp.workspaces.getBotWorkspaceId(event.botId), event.botId, escalation.agentId).then(
+      await repository.setAgentOnline(event.botId, handoff.agentId, true) // Bump agent session timeout
+      await registerTimeout(await bp.workspaces.getBotWorkspaceId(event.botId), event.botId, handoff.agentId).then(
         () => {
-          debug.forBot(event.botId, 'Registering timeout', { agentId: escalation.agentId })
+          debug.forBot(event.botId, 'Registering timeout', { agentId: handoff.agentId })
         }
       )
     }
@@ -122,20 +122,20 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
     next()
   }
 
-  // Performance: Eager load and cache escalations that will be required on every incoming message.
-  // - Only escalations with status 'pending' or 'assigned' are cached because they are the only
+  // Performance: Eager load and cache handoffs that will be required on every incoming message.
+  // - Only handoffs with status 'pending' or 'assigned' are cached because they are the only
   // ones for which the middleware handles agent <-> user event piping
-  // - Escalations must be accessible both via their respective agent thread ID and user thread ID
+  // - Handoffs must be accessible both via their respective agent thread ID and user thread ID
   // for two-way message piping
   const warmup = () => {
     return repository
-      .escalationsQuery(builder => {
+      .handoffsQuery(builder => {
         builder.where('status', 'pending').orWhere('status', 'assigned')
       })
-      .then((escalations: IEscalation[]) => {
-        escalations.forEach(escalation => {
-          escalation.agentThreadId && cacheEscalation(escalation.botId, escalation.agentThreadId, escalation)
-          escalation.userThreadId && cacheEscalation(escalation.botId, escalation.userThreadId, escalation)
+      .then((handoffs: IHandoff[]) => {
+        handoffs.forEach(handoff => {
+          handoff.agentThreadId && cacheHandoff(handoff.botId, handoff.agentThreadId, handoff)
+          handoff.userThreadId && cacheHandoff(handoff.botId, handoff.userThreadId, handoff)
         })
       })
   }
@@ -146,8 +146,8 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
     })
   })
 
-  state.cacheEscalation = await bp.distributed.broadcast(cacheEscalation)
-  state.expireEscalation = await bp.distributed.broadcast(expireEscalation)
+  state.cacheHandoff = await bp.distributed.broadcast(cacheHandoff)
+  state.expireHandoff = await bp.distributed.broadcast(expireHandoff)
 
   bp.events.registerMiddleware({
     name: 'hitlnext.incoming',

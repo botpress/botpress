@@ -3,7 +3,7 @@ import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
 
-import { IEscalation } from '../../../../types'
+import { IHandoff } from '../../../../types'
 import style from '../../style.scss'
 import { ApiType } from '../../Api'
 import { Context } from '../Store'
@@ -14,11 +14,11 @@ import UserProfile from './UserProfile'
 
 interface Props {
   api: ApiType
-  escalation: IEscalation
+  handoff: IHandoff
 }
 
-const ConversationDetails: FC<Props> = ({ escalation, api }) => {
-  const { id, comments, userConversation } = escalation
+const ConversationDetails: FC<Props> = ({ handoff, api }) => {
+  const { id, comments, userConversation } = handoff
   const { dispatch } = useContext(Context)
 
   const [expanded, setExpanded] = useState(false)
@@ -38,7 +38,7 @@ const ConversationDetails: FC<Props> = ({ escalation, api }) => {
 
   return (
     <div className={cx(style.column, style.sidebarContainer)}>
-      <Tabs tabs={[{ id: 'user', title: lang.tr('module.hitlnext.escalation.contactDetails') }]} />
+      <Tabs tabs={[{ id: 'user', title: lang.tr('module.hitlnext.handoff.contactDetails') }]} />
       <UserProfile conversation={userConversation} />
 
       {!_.isEmpty(comments) && (

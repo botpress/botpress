@@ -8,17 +8,17 @@ interface Props {
   status: string
 }
 
-const EscalationBadge: FC<Props> = props => {
+const HandoffBadge: FC<Props> = props => {
   switch (props.status) {
     case 'resolved':
-      return <Tag intent={Intent.NONE}>{lang.tr(`module.hitlnext.escalation.status.${props.status}`)}</Tag>
+      return <Tag intent={Intent.NONE}>{lang.tr(`module.hitlnext.handoff.status.${props.status}`)}</Tag>
     case 'assigned':
-      return <Tag intent={Intent.PRIMARY}>{lang.tr(`module.hitlnext.escalation.status.${props.status}`)}</Tag>
+      return <Tag intent={Intent.PRIMARY}>{lang.tr(`module.hitlnext.handoff.status.${props.status}`)}</Tag>
     case 'pending':
-      return <Tag intent={Intent.WARNING}>{lang.tr(`module.hitlnext.escalation.status.${props.status}`)}</Tag>
+      return <Tag intent={Intent.WARNING}>{lang.tr(`module.hitlnext.handoff.status.${props.status}`)}</Tag>
     default:
-      return <Tag>{lang.tr(`module.hitlnext.escalation.status.${props.status}`)}</Tag>
+      return <Tag>{lang.tr(`module.hitlnext.handoff.status.${props.status}`)}</Tag>
   }
 }
 
-export default EscalationBadge
+export default HandoffBadge

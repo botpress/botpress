@@ -61,7 +61,7 @@
     "tab": "Conversation",
     "composerPlaceholder": "Répondre à l'utilisateur"
   },
-  "escalations": {
+  "handoffs": {
     "empty": "Il n'y a présentement aucune escalation grâce à vous et votre équipe."
   },
   "sidebar": {
@@ -71,7 +71,7 @@
       "heading": "Agents Connectés",
       "empty": "Il n'y a aucun agent connecté actuellement"
     },
-    "escalations": {
+    "handoffs": {
       "heading": "Escalations Récentes",
       "empty": "Il n'y a présentement aucune escalation grâce à vous et votre équipe."
     }

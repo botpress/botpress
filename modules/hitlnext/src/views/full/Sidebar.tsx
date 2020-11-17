@@ -4,12 +4,12 @@ import cx from 'classnames'
 import _ from 'lodash'
 import React, { useContext, useEffect, useState } from 'react'
 
-import { IEscalation, ISocketMessage } from './../../types'
+import { IHandoff, ISocketMessage } from './../../types'
 import AgentList from './studio-sidebar/components/AgentList'
 import EscalationList from './studio-sidebar/components/EscalationList'
 import { Context, Store } from './studio-sidebar/Store'
 import styles from './style.scss'
-import { Api, castEscalation } from './Api'
+import { Api, castHandoff } from './Api'
 import { WEBSOCKET_TOPIC } from '../../constants'
 
 const Sidebar = ({ bp, close }) => {
@@ -18,17 +18,17 @@ const Sidebar = ({ bp, close }) => {
   const { state, dispatch } = useContext(Context)
 
   const [loading, setLoading] = useState(true)
-  const [expanded, setExpanded] = useState({ agents: true, escalations: true })
+  const [expanded, setExpanded] = useState({ agents: true, handoffs: true })
 
   function handleMessage(message: ISocketMessage) {
     switch (message.resource) {
       case 'agent':
         return dispatch({ type: 'setAgent', payload: message })
-      case 'escalation':
+      case 'handoff':
         return dispatch({
-          type: 'setEscalation',
+          type: 'setHandoff',
           payload: _.thru(message, () => {
-            message.payload = castEscalation(message.payload as IEscalation)
+            message.payload = castHandoff(message.payload as IHandoff)
             return message
           })
         })
@@ -37,10 +37,10 @@ const Sidebar = ({ bp, close }) => {
     }
   }
 
-  async function getEscalations() {
+  async function getHandoffs() {
     try {
-      const data = await api.getEscalations('escalations.createdAt', false, 5)
-      dispatch({ type: 'setEscalations', payload: data })
+      const data = await api.getHandoffs('handoffs.createdAt', false, 5)
+      dispatch({ type: 'setHandoffs', payload: data })
     } catch (error) {
       dispatch({ type: 'setError', payload: error })
     }
@@ -56,7 +56,7 @@ const Sidebar = ({ bp, close }) => {
   }
 
   useEffect(() => {
-    Promise.all([getEscalations(), getAgents()]).then(() => {
+    Promise.all([getHandoffs(), getAgents()]).then(() => {
       setLoading(false)
     })
   }, [])
@@ -83,11 +83,11 @@ const Sidebar = ({ bp, close }) => {
       >
         <div style={{ width: '100%' }}>
           <Collapsible
-            opened={expanded.escalations}
-            toggleExpand={() => setExpanded({ ...expanded, escalations: !expanded.escalations })}
-            name={lang.tr('module.hitlnext.sidebar.escalations.heading')}
+            opened={expanded.handoffs}
+            toggleExpand={() => setExpanded({ ...expanded, handoffs: !expanded.handoffs })}
+            name={lang.tr('module.hitlnext.sidebar.handoffs.heading')}
           >
-            <EscalationList escalations={state.escalations} loading={loading}></EscalationList>
+            <EscalationList handoffs={state.handoffs} loading={loading}></EscalationList>
           </Collapsible>
         </div>
 

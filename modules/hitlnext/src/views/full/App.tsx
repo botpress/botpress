@@ -4,7 +4,7 @@ import cx from 'classnames'
 import _ from 'lodash'
 import React, { useContext, useEffect, useState } from 'react'
 import { WEBSOCKET_TOPIC } from './../../constants'
-import { IEscalation, ISocketMessage } from '../../types'
+import { IHandoff, ISocketMessage } from '../../types'
 
 import AgentList from './app/components/AgentList'
 import AgentProfile from './app/components/AgentProfile'
@@ -13,7 +13,7 @@ import EmptyConversation from './app/components/EmptyConversation'
 import EscalationList from './app/components/EscalationList'
 import { Context, Store } from './app/Store'
 import style from './style.scss'
-import { Api, castEscalation } from './Api'
+import { Api, castHandoff } from './Api'
 
 const App = ({ bp }) => {
   const api = Api(bp)
@@ -26,11 +26,11 @@ const App = ({ bp }) => {
     switch (message.resource) {
       case 'agent':
         return dispatch({ type: 'setAgent', payload: message })
-      case 'escalation':
+      case 'handoff':
         return dispatch({
-          type: 'setEscalation',
+          type: 'setHandoff',
           payload: _.thru(message, () => {
-            message.payload = castEscalation(message.payload as IEscalation)
+            message.payload = castHandoff(message.payload as IHandoff)
             return message
           })
         })
@@ -57,10 +57,10 @@ const App = ({ bp }) => {
     }
   }
 
-  async function getEscalations() {
+  async function getHandoffs() {
     try {
-      const escalations = await api.getEscalations()
-      dispatch({ type: 'setEscalations', payload: escalations })
+      const handoffs = await api.getHandoffs()
+      dispatch({ type: 'setHandoffs', payload: handoffs })
     } catch (error) {
       dispatch({ type: 'setError', payload: error })
     }
@@ -89,7 +89,7 @@ const App = ({ bp }) => {
 
   useEffect(() => {
     // tslint:disable-next-line: no-floating-promises
-    Promise.all([getCurrentAgent(), getAgents(), getEscalations(), getConfig()]).then(() => {
+    Promise.all([getCurrentAgent(), getAgents(), getHandoffs(), getConfig()]).then(() => {
       setLoading(false)
     })
   }, [])
@@ -115,10 +115,10 @@ const App = ({ bp }) => {
 
       <div className={style.mainContent}>
         <div className={cx(style.sidebar, style.column)}>
-          <EscalationList escalations={state.escalations} loading={loading} />
+          <EscalationList handoffs={state.handoffs} loading={loading} />
         </div>
-        {!state.currentEscalation && <EmptyConversation />}
-        {state.currentEscalation && <ConversationContainer bp={bp} api={api} />}
+        {!state.currentHandoff && <EmptyConversation />}
+        {state.currentHandoff && <ConversationContainer bp={bp} api={api} />}
       </div>
       <script src="assets/modules/channel-web/inject.js"></script>
     </div>

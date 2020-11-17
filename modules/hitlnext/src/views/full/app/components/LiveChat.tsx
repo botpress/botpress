@@ -2,19 +2,19 @@ import { Spinner } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import React, { useEffect, useState } from 'react'
 
-import { IAgent, IEscalation } from '../../../../types'
+import { IAgent, IHandoff } from '../../../../types'
 import style from '../../style.scss'
 
 // Sjhould we use context instead ?
 interface Props {
-  escalation: IEscalation
+  handoff: IHandoff
   currentAgent: IAgent
 }
 
 const WEBCHAT_ID = 'hitl-webchat'
 const WRAPPER_ID = `${WEBCHAT_ID}-wrapper`
 
-const LiveChat: React.FC<Props> = ({ escalation, currentAgent }) => {
+const LiveChat: React.FC<Props> = ({ handoff, currentAgent }) => {
   const [webchatLoaded, setwebchatLoaded] = useState(false)
   const [webchatOpen, setwebchatOpen] = useState(false)
 
@@ -42,7 +42,7 @@ const LiveChat: React.FC<Props> = ({ escalation, currentAgent }) => {
       host: window.location.origin,
       botId: window.BOT_ID,
       userId: currentAgent.agentId,
-      conversationId: escalation.agentThreadId, // parseint ?
+      conversationId: handoff.agentThreadId, // parseint ?
       showConversationsButton: false,
       enableReset: false,
       chatId: WEBCHAT_ID,
@@ -71,8 +71,8 @@ const LiveChat: React.FC<Props> = ({ escalation, currentAgent }) => {
     }
 
     const store = getWebchatStore()
-    store.fetchConversation(escalation.agentThreadId)
-  }, [escalation])
+    store.fetchConversation(handoff.agentThreadId)
+  }, [handoff])
 
   return (
     <div id={WRAPPER_ID} className={style.webchatWrapper}>

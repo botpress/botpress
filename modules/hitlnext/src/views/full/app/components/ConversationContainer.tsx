@@ -25,8 +25,8 @@ const ConversationContainer: FC<Props> = props => {
 
   async function handleAssign() {
     try {
-      const escalation = await api.assignEscalation(state.currentEscalation.id)
-      toast.success(lang.tr('module.hitlnext.escalation.assigned', { id: escalation.id }))
+      const handoff = await api.assignHandoff(state.currentHandoff.id)
+      toast.success(lang.tr('module.hitlnext.handoff.assigned', { id: handoff.id }))
     } catch (error) {
       dispatch({ type: 'setError', payload: error })
     }
@@ -34,8 +34,8 @@ const ConversationContainer: FC<Props> = props => {
 
   async function handleResolve() {
     try {
-      const escalation = await api.resolveEscalation(state.currentEscalation.id)
-      toast.success(lang.tr('module.hitlnext.escalation.resolved', { id: escalation.id }))
+      const handoff = await api.resolveHandoff(state.currentHandoff.id)
+      toast.success(lang.tr('module.hitlnext.handoff.resolved', { id: handoff.id }))
     } catch (error) {
       dispatch({ type: 'setError', payload: error })
     }
@@ -47,8 +47,8 @@ const ConversationContainer: FC<Props> = props => {
 
   const shouldRenderLiveChat =
     state.currentAgent.online &&
-    state.currentEscalation?.status === 'assigned' &&
-    state.currentEscalation?.agentId === state.currentAgent.agentId
+    state.currentHandoff?.status === 'assigned' &&
+    state.currentHandoff?.agentId === state.currentAgent.agentId
 
   const liveChatButtons = () => [
     {
@@ -62,7 +62,7 @@ const ConversationContainer: FC<Props> = props => {
           minimal
           rightIcon="tick-circle"
           onClick={handleResolve}
-          text={lang.tr('module.hitlnext.escalation.resolve')}
+          text={lang.tr('module.hitlnext.handoff.resolve')}
         />
       )
     }
@@ -77,22 +77,22 @@ const ConversationContainer: FC<Props> = props => {
           rightIcon="following"
           disabled={
             !(
-              state.currentEscalation?.status === 'pending' &&
+              state.currentHandoff?.status === 'pending' &&
               currentAgentHasPermission('write') &&
               state.currentAgent.online
             )
           }
           onClick={handleAssign}
-          text={lang.tr('module.hitlnext.escalation.assign')}
+          text={lang.tr('module.hitlnext.handoff.assign')}
         />
       )
     }
   ]
 
   const content = shouldRenderLiveChat ? (
-    <LiveChat escalation={state.currentEscalation} currentAgent={state.currentAgent} />
+    <LiveChat handoff={state.currentHandoff} currentAgent={state.currentAgent} />
   ) : (
-    <ConversationHistory bp={props.bp} api={api} conversationId={state.currentEscalation.userThreadId} />
+    <ConversationHistory bp={props.bp} api={api} conversationId={state.currentHandoff.userThreadId} />
   )
   return (
     <Fragment>
@@ -104,7 +104,7 @@ const ConversationContainer: FC<Props> = props => {
         />
         {content}
       </div>
-      <ConversationDetails api={props.api} escalation={state.currentEscalation}></ConversationDetails>
+      <ConversationDetails api={props.api} handoff={state.currentHandoff}></ConversationDetails>
     </Fragment>
   )
 }

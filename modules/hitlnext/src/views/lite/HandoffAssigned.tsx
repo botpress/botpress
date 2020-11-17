@@ -20,7 +20,7 @@ export const HandoffAssigned = props => {
   debugger
   return (
     <Fragment>
-      {isLangInit && <div className={style.handoffAssigned}>{lang.tr(`module.hitlnext.escalation.${trKey}`)}</div>}
+      {isLangInit && <div className={style.handoffAssigned}>{lang.tr(`module.hitlnext.handoff.${trKey}`)}</div>}
     </Fragment>
   )
 }

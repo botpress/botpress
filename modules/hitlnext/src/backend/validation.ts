@@ -7,7 +7,7 @@ export const CreateCommentSchema = Joi.object({
   content: Joi.string().required()
 })
 
-export const CreateEscalationSchema = Joi.object({
+export const CreateHandoffSchema = Joi.object({
   status: Joi.string()
     .required()
     .valid('pending'),
@@ -16,7 +16,7 @@ export const CreateEscalationSchema = Joi.object({
   userChannel: Joi.string().required()
 })
 
-export const AssignEscalationSchema = Joi.object({
+export const AssignHandoffSchema = Joi.object({
   agentId: Joi.string().required(),
   status: Joi.string()
     .required()
@@ -25,7 +25,7 @@ export const AssignEscalationSchema = Joi.object({
   assignedAt: Joi.date().required()
 })
 
-export const ResolveEscalationSchema = Joi.object({
+export const ResolveHandoffSchema = Joi.object({
   status: Joi.string()
     .required()
     .valid('resolved'),
@@ -38,7 +38,7 @@ export const AgentOnlineValidation = Joi.object({
     .messages({ 'any.only': 'You must be online to perform this action' })
 })
 
-export const validateEscalationStatusRule = (original: string, value: string) => {
+export const validateHandoffStatusRule = (original: string, value: string) => {
   let message: string
 
   if (original === 'pending' && value !== 'assigned') {
