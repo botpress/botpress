@@ -21,7 +21,7 @@
     "onlineSuccess": "Vous êtes maintenant connecté",
     "offlineSuccess": "Vous êtes maintenant déconnecté"
   },
-  "escalation": {
+  "handoff": {
     "created": "Créée {date}",
     "contactDetails": "Détails du contact",
     "status": {

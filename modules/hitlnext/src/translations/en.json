@@ -21,7 +21,7 @@
     "onlineSuccess": "You are now online",
     "offlineSuccess": "You are now offline"
   },
-  "escalation": {
+  "handoff": {
     "created": "Created {date}",
     "contactDetails": "Contact Details",
     "status": {
