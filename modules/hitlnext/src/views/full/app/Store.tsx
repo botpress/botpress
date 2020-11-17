@@ -29,7 +29,7 @@ export interface IState {
   readonly defaults: {
     user?: UserDefaultsType
   }
-  readonly error?: Error | AxiosError<Error>
+  readonly error?: Error
 }
 
 const initialState: IState = {
