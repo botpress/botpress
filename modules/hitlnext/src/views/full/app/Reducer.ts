@@ -36,7 +36,6 @@ const Reducer = (state: IState, action: ActionType): IState => {
     case 'setEscalations':
       return produce(state, draft => {
         draft.escalations = _.keyBy(action.payload, 'id')
-        draft.reads = _.mapValues(draft.escalations, escalation => escalation.userConversation.createdOn)
       })
     case 'setComment':
       return produce(state, draft => {
@@ -68,6 +67,13 @@ const Reducer = (state: IState, action: ActionType): IState => {
         // instead of a reference, it must be manually updated
         if (draft.currentEscalation?.id === action.payload.id) {
           draft.currentEscalation = draft.escalations[action.payload.id]
+        }
+
+        // Note: Because it is the current escalation, it is assumed to be instantly read
+        if (draft.currentEscalation?.id === action.payload.id) {
+          draft.reads = _.merge(draft.reads, {
+            [action.payload.id]: action.payload.payload.userConversation.createdOn
+          })
         }
       })
     case 'setDefault':

@@ -29,7 +29,6 @@ const EscalationItem: FC<IEscalation> = props => {
         [id]: state.escalations[id].userConversation.createdOn
       }
     })
-    setReadStatus(true)
   }
 
   useEffect(() => {
@@ -42,12 +41,12 @@ const EscalationItem: FC<IEscalation> = props => {
   }, [])
 
   useEffect(() => {
-    if (state.currentEscalation?.id === id) {
-      setReadStatus(true)
-    } else if (state.reads[id] && state.reads[id] < userConversation.createdOn) {
+    if (state.reads[id] && state.reads[id] < userConversation.createdOn) {
       setReadStatus(false)
+    } else if (state.reads[id] && state.reads[id] >= userConversation.createdOn) {
+      setReadStatus(true)
     }
-  }, [userConversation])
+  }, [userConversation, state.reads])
 
   useEffect(() => {
     const key = _.get(userConversation.event, 'target')

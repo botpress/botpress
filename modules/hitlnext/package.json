@@ -34,6 +34,7 @@
     "lodash": ">=4.17",
     "moment": "^2.24",
     "react-initial": "^1.0.12",
+    "serialize-javascript": "^5.0.1",
     "uuid": "^8.3.1",
     "yn": "^4.0.0"
   },
