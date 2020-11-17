@@ -256,7 +256,7 @@ export default async (bp: typeof sdk, state: StateType) => {
         type: 'custom',
         payload: {
           type: 'custom',
-          module: 'hitl2',
+          module: 'hitlnext',
           component: 'HandoffAssigned',
           noBubble: true, // super hack to make sure wrapper use our style, don't change
           wrapped: {
