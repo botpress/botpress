@@ -8,9 +8,9 @@ import React, { FC, useContext, useEffect, useState } from 'react'
 import { IHandoff } from '../../../../types'
 import { Context } from '../Store'
 
-import style from './../../style.scss'
-import { generateUsername, getOrSet } from './../utils'
-import EscalationBadge from './EscalationBadge'
+import style from '../../style.scss'
+import { generateUsername, getOrSet } from '../utils'
+import HandoffBadge from './HandoffBadge'
 
 const HandoffItem: FC<IHandoff> = props => {
   const { createdAt, id, status, agentId, userConversation } = props
@@ -102,7 +102,7 @@ const HandoffItem: FC<IHandoff> = props => {
         <p className={style.createdDate}>{fromNow}</p>
       </div>
       <div className={style.badge}>
-        <EscalationBadge status={status}></EscalationBadge>
+        <HandoffBadge status={status}></HandoffBadge>
       </div>
     </div>
   )

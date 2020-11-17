@@ -8,7 +8,7 @@ import { IHandoff } from '../../../../types'
 import styles from '../../style.scss'
 import CasesIcon from '../../Icons/CasesIcon'
 
-import EscalationItem from './EscalationItem'
+import HandoffItem from './HandoffItem'
 
 interface Props {
   handoffs: Dictionary<IHandoff>
@@ -31,8 +31,7 @@ const HandoffList: FC<Props> = props => {
         <EmptyState icon={<CasesIcon />} text={lang.tr('module.hitlnext.sidebar.handoffs.empty')}></EmptyState>
       )}
 
-      {!_.isEmpty(items) &&
-        _.values(items).map(handoff => <EscalationItem key={handoff.id} {...handoff}></EscalationItem>)}
+      {!_.isEmpty(items) && _.values(items).map(handoff => <HandoffItem key={handoff.id} {...handoff}></HandoffItem>)}
     </div>
   )
 }

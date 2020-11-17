@@ -10,7 +10,7 @@ import AgentList from './app/components/AgentList'
 import AgentProfile from './app/components/AgentProfile'
 import ConversationContainer from './app/components/ConversationContainer'
 import EmptyConversation from './app/components/EmptyConversation'
-import EscalationList from './app/components/EscalationList'
+import HandoffList from './app/components/HandoffList'
 import { Context, Store } from './app/Store'
 import style from './style.scss'
 import { Api, castHandoff } from './Api'
@@ -115,7 +115,7 @@ const App = ({ bp }) => {
 
       <div className={style.mainContent}>
         <div className={cx(style.sidebar, style.column)}>
-          <EscalationList handoffs={state.handoffs} loading={loading} />
+          <HandoffList handoffs={state.handoffs} loading={loading} />
         </div>
         {!state.currentHandoff && <EmptyConversation />}
         {state.currentHandoff && <ConversationContainer bp={bp} api={api} />}

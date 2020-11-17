@@ -5,10 +5,10 @@ import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
 
 import { Context } from '../Store'
 
-import { IHandoff } from './../../../../types'
-import CasesIcon from './../../Icons/CasesIcon'
-import EscalationItem from './EscalationItem'
-import EscalationListHeader, { FilterType, SortType } from './EscalationListHeader'
+import { IHandoff } from '../../../../types'
+import CasesIcon from '../../Icons/CasesIcon'
+import HandoffItem from './HandoffItem'
+import HandoffListHeader, { FilterType, SortType } from './HandoffListHeader'
 
 interface Props {
   handoffs: object
@@ -65,13 +65,13 @@ const HandoffList: FC<Props> = props => {
 
   return (
     <Fragment>
-      <EscalationListHeader
+      <HandoffListHeader
         filterOptions={filterOptions}
         sortOption={sortOption}
         setFilterOptions={setFilterOptions}
         setSortOption={setSortOption}
         disabled={_.isEmpty(props.handoffs)}
-      ></EscalationListHeader>
+      ></HandoffListHeader>
 
       {props.loading && <Spinner></Spinner>}
 
@@ -81,7 +81,7 @@ const HandoffList: FC<Props> = props => {
 
       {!props.loading &&
         !_.isEmpty(items) &&
-        items.map(handoff => <EscalationItem key={handoff.id} {...handoff}></EscalationItem>)}
+        items.map(handoff => <HandoffItem key={handoff.id} {...handoff}></HandoffItem>)}
     </Fragment>
   )
 }

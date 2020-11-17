@@ -6,7 +6,7 @@ import React, { useContext, useEffect, useState } from 'react'
 
 import { IHandoff, ISocketMessage } from './../../types'
 import AgentList from './studio-sidebar/components/AgentList'
-import EscalationList from './studio-sidebar/components/EscalationList'
+import HandoffList from './studio-sidebar/components/HandoffList'
 import { Context, Store } from './studio-sidebar/Store'
 import styles from './style.scss'
 import { Api, castHandoff } from './Api'
@@ -87,7 +87,7 @@ const Sidebar = ({ bp, close }) => {
             toggleExpand={() => setExpanded({ ...expanded, handoffs: !expanded.handoffs })}
             name={lang.tr('module.hitlnext.sidebar.handoffs.heading')}
           >
-            <EscalationList handoffs={state.handoffs} loading={loading}></EscalationList>
+            <HandoffList handoffs={state.handoffs} loading={loading}></HandoffList>
           </Collapsible>
         </div>
 
