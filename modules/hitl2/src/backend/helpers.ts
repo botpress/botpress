@@ -1,8 +1,7 @@
 import crypto from 'crypto'
-import { performance, PerformanceObserver, PerformanceObserverCallback } from 'perf_hooks'
-
 import { ValidationError } from 'joi'
 import _ from 'lodash'
+import { performance, PerformanceObserver, PerformanceObserverCallback } from 'perf_hooks'
 
 export const makeAgentId = (strategy: string, email: string): string => {
   return crypto

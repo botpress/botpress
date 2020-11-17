@@ -23,8 +23,6 @@ const LiveChat: React.FC<Props> = ({ escalation, currentAgent }) => {
   }
 
   function webchatEventListener(message: MessageEvent) {
-    console.log('hey', message.data)
-
     if (message.data.chatId !== WEBCHAT_ID) {
       return
     }

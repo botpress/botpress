@@ -6,8 +6,8 @@ import Knex from 'knex'
 import _ from 'lodash'
 
 import { IAgent, IComment, IEscalation } from './../types'
-import { makeAgentId } from './helpers'
 import { cacheKey } from './agentSession'
+import { makeAgentId } from './helpers'
 
 export interface AgentCollectionConditions {
   online?: boolean

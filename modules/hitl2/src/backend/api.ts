@@ -266,6 +266,26 @@ export default async (bp: typeof sdk, state: StateType) => {
         )
       )
 
+      bp.events.sendEvent(
+        bp.IO.Event({
+          botId: escalation.botId,
+          target: escalation.agentId,
+          channel: 'web',
+          threadId: escalation.agentThreadId,
+          direction: 'outgoing',
+          type: 'custom',
+          payload: {
+            type: 'custom',
+            module: 'hitl2',
+            component: 'HandoffAssigned',
+            noBubble: true,
+            wrapped: {
+              type: 'history' // super hack to make sure wrapper use our style, don't change
+            }
+          }
+        })
+      )
+
       realtime.sendPayload(req.params.botId, {
         resource: 'escalation',
         type: 'update',

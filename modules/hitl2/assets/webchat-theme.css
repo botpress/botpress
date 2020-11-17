@@ -346,6 +346,10 @@
   * Chat Bubble configuration. You can add other classes to match different renderers,
   *  for example .bpw-bubble-text or .bpw-bubble-carousel
   */
+  .bpw-bubble-history {
+    width: 100%;
+  }
+
   .bpw-chat-bubble {
     color: rgb(255, 255, 255);
 

@@ -1,7 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import ms from 'ms'
-import Socket from './socket'
+
 import Repository from './repository'
+import Socket from './socket'
 
 export default (bp: typeof sdk, repository: Repository, cache: object) => {
   // Fires a realtime event when an agent's session is expired

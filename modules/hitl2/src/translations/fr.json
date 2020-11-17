@@ -29,6 +29,7 @@
       "assigned": "assignée",
       "resolved": "résolue"
     },
+    "assignedToYou": "La conversation vous a été assigné",
     "assign": "Assigner",
     "resolve": "Résoudre",
     "assigned": "L'escalation {id} a été assignée avec succès",

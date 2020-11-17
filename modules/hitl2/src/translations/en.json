@@ -29,6 +29,7 @@
       "assigned": "assigned",
       "resolved": "resolved"
     },
+    "assignedToYou": "Conversation Handed to You",
     "assign": "Assign",
     "resolve": "Resolve",
     "assigned": "Handoff {id} successfully assigned",
