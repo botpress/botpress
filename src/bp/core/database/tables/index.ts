@@ -16,6 +16,7 @@ import {
 import {
   ChannelUsersTable,
   DataRetentionTable,
+  MigrationsTable,
   ServerMetadataTable,
   TelemetryTable,
   WorkspaceInviteCodesTable,
@@ -39,7 +40,8 @@ const tables: typeof Table[] = [
   TelemetryTable,
   EventsTable,
   TasksTable,
-  BotUsersTable
+  BotUsersTable,
+  MigrationsTable
 ]
 
 export default <(new (knex: Knex) => Table)[]>tables
