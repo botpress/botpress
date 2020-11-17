@@ -9,7 +9,7 @@ let locale = ''
 let isDev: boolean
 
 const init = () => {
-  lang.init(translations, 'module.hitl2.')
+  lang.init(translations, 'module.hitlnext.')
   locale = getUserLocale()
   isDev = localStorage.getItem('langdebug') === 'true'
 }

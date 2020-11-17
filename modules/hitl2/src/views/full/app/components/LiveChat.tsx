@@ -55,8 +55,8 @@ const LiveChat: React.FC<Props> = ({ escalation, currentAgent }) => {
       enableResetSessionShortcut: false,
       enableTranscriptDownload: false,
       closeOnEscape: false,
-      composerPlaceholder: lang.tr('module.hitl2.conversation.composerPlaceholder'),
-      stylesheet: 'assets/modules/hitl2/webchat-theme.css'
+      composerPlaceholder: lang.tr('module.hitlnext.conversation.composerPlaceholder'),
+      stylesheet: 'assets/modules/hitlnext/webchat-theme.css'
     }
     window.botpressWebChat.init(webchatConfig, `#${WRAPPER_ID}`)
     window.addEventListener('message', webchatEventListener)

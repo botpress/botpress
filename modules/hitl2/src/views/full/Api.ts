@@ -61,13 +61,13 @@ export interface ApiType {
 
 export const Api = (bp: { axios: AxiosInstance }): ApiType => {
   const config = {
-    baseURL: bp.axios.defaults.baseURL.concat('/mod/hitl2')
+    baseURL: bp.axios.defaults.baseURL.concat('/mod/hitlnext')
   }
 
   return {
     getConfig: async () =>
       bp.axios
-        .get('/modules/hitl2/config', { baseURL: window.API_PATH, params: { botId: window.BOT_ID } })
+        .get('/modules/hitlnext/config', { baseURL: window.API_PATH, params: { botId: window.BOT_ID } })
         .then(res => res.data),
     setOnline: async () => bp.axios.post('/agents/me/online', null, config).then(res => res.data),
     setOffline: async () => bp.axios.post('/agents/me/offline', null, config).then(res => res.data),

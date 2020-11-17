@@ -10,7 +10,7 @@ const axios = require('axios')
 const escalate = async event => {
   const axiosConfig = await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
   await axios.post(
-    '/mod/hitl2/escalations',
+    '/mod/hitlnext/escalations',
     {
       userThreadId: event.threadId,
       userId: event.target,

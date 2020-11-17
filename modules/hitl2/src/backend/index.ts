@@ -9,7 +9,7 @@ import { registerMiddleware, unregisterMiddleware } from './middleware'
 import migrate from './migrate'
 import Workspace from './workspace'
 
-const debug = DEBUG('hitl2')
+const debug = DEBUG('hitlnext')
 
 export interface StateType {
   cacheEscalation?: Function
@@ -25,7 +25,8 @@ const onServerStarted = async (bp: typeof sdk) => {
 
 const onServerReady = async (bp: typeof sdk) => {
   if (!process.IS_PRO_ENABLED) {
-    bp.logger.info('HITL2: module is disabled because it requires Botpress Pro', { module: 'hitl2' })
+    const config = await bp.config.getModuleConfig('hitlnext')
+    bp.logger.info(`${config.fullName} module is disabled because it requires Botpress Pro`)
     return
   }
 
@@ -45,7 +46,7 @@ const onServerReady = async (bp: typeof sdk) => {
             op: '+r'
           },
           {
-            res: 'module.hitl2',
+            res: 'module.hitlnext',
             op: '+r+w'
           }
         ]
@@ -57,7 +58,7 @@ const onServerReady = async (bp: typeof sdk) => {
 }
 
 const onModuleUnmount = async (bp: typeof sdk) => {
-  bp.http.deleteRouterForBot('hitl2')
+  bp.http.deleteRouterForBot('hitlnext')
   await unregisterMiddleware(bp)
 }
 
@@ -67,10 +68,10 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onModuleUnmount,
   translations: { en, fr },
   definition: {
-    name: 'hitl2',
+    name: 'hitlnext',
     menuIcon: 'headset',
-    menuText: 'HITL 2',
-    fullName: 'HITL 2',
+    menuText: 'HITL Next',
+    fullName: 'HITL Next',
     homepage: 'https://botpress.com',
     noInterface: false
   }

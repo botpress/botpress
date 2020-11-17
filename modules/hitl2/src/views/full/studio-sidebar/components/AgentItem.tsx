@@ -14,7 +14,7 @@ const AgentItem: FC<Partial<IAgent>> = props => {
         <strong>Id: {props.agentId}</strong>
       </p>
       <p>Name: {agentName()}</p>
-      <p>Online: {props.online ? lang.tr('module.hitl2.agent.online') : lang.tr('module.hitl2.agent.offline')}</p>
+      <p>Online: {props.online ? lang.tr('module.hitlnext.agent.online') : lang.tr('module.hitlnext.agent.offline')}</p>
     </li>
   )
 }

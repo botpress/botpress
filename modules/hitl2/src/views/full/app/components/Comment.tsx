@@ -16,7 +16,7 @@ const Comment: FC<IComment> = props => {
   function agentName() {
     const agent = state.agents[props.agentId]
     if (state.currentAgent?.agentId === props.agentId) {
-      return lang.tr('module.hitl2.escalation.you')
+      return lang.tr('module.hitlnext.escalation.you')
     }
 
     const displayName = [agent.attributes.firstname, agent.attributes.lastname].filter(Boolean).join(' ')

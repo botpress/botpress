@@ -33,8 +33,8 @@ const AgentStatus = ({ bp }) => {
   }, [])
 
   useEffect(() => {
-    bp.events.on(`hitl2:${window.BOT_ID}`, handleMessage)
-    return () => bp.events.off(`hitl2:${window.BOT_ID}`, handleMessage)
+    bp.events.on(`hitlnext:${window.BOT_ID}`, handleMessage)
+    return () => bp.events.off(`hitlnext:${window.BOT_ID}`, handleMessage)
   }, [])
 
   return <AgentIcon online={state.currentAgent?.online} />

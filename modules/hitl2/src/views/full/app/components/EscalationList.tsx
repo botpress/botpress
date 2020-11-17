@@ -76,7 +76,7 @@ const EscalationList: FC<Props> = props => {
       {props.loading && <Spinner></Spinner>}
 
       {!props.loading && _.isEmpty(items) && (
-        <EmptyState icon={<CasesIcon />} text={lang.tr('module.hitl2.escalations.empty')}></EmptyState>
+        <EmptyState icon={<CasesIcon />} text={lang.tr('module.hitlnext.escalations.empty')}></EmptyState>
       )}
 
       {!props.loading &&

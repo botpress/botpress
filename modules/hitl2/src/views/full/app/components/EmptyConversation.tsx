@@ -9,8 +9,8 @@ export default () => (
   <div className={cx(style.column, style.emptyContainer)}>
     <MainLayout.Toolbar
       className={style.hitlToolBar}
-      tabs={[{ id: 'conversation', title: lang.tr('module.hitl2.conversation.tab') }]}
+      tabs={[{ id: 'conversation', title: lang.tr('module.hitlnext.conversation.tab') }]}
     />
-    <EmptyState icon={<AgentsIcon />} text={lang.tr('module.hitl2.conversation.empty')} />
+    <EmptyState icon={<AgentsIcon />} text={lang.tr('module.hitlnext.conversation.empty')} />
   </div>
 )

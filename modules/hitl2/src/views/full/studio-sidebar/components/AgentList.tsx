@@ -25,7 +25,7 @@ const AgentList: FC<Props> = props => {
       {props.loading && <Spinner></Spinner>}
 
       {!props.loading && _.isEmpty(items) && (
-        <EmptyState icon={<AgentsIcon />} text={lang.tr('module.hitl2.sidebar.agents.empty')}></EmptyState>
+        <EmptyState icon={<AgentsIcon />} text={lang.tr('module.hitlnext.sidebar.agents.empty')}></EmptyState>
       )}
 
       {!_.isEmpty(items) && (

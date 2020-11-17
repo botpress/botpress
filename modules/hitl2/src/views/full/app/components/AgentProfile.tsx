@@ -17,7 +17,7 @@ const AgentProfile: FC<Props> = ({ toggleOnline, online, loading }) => {
 
   const optionsItems = [
     {
-      label: lang.tr(`module.hitl2.agent.${online ? 'getOffline' : 'getOnline'}`),
+      label: lang.tr(`module.hitlnext.agent.${online ? 'getOffline' : 'getOnline'}`),
       action: () => {
         toggleOnline(!online)
       }
@@ -31,7 +31,7 @@ const AgentProfile: FC<Props> = ({ toggleOnline, online, loading }) => {
           <Button className={style.agentBtn} onClick={() => setShowingOption(true)} loading={loading} minimal={true}>
             <AgentIcon online={online} />
             <span className={style.agentBtnText}>
-              {online ? lang.tr('module.hitl2.agent.online') : lang.tr('module.hitl2.agent.offline')}
+              {online ? lang.tr('module.hitlnext.agent.online') : lang.tr('module.hitlnext.agent.offline')}
             </span>
             <Icon icon="chevron-down"></Icon>
           </Button>

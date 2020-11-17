@@ -26,7 +26,7 @@ const ConversationContainer: FC<Props> = props => {
   async function handleAssign() {
     try {
       const escalation = await api.assignEscalation(state.currentEscalation.id)
-      toast.success(lang.tr('module.hitl2.escalation.assigned', { id: escalation.id }))
+      toast.success(lang.tr('module.hitlnext.escalation.assigned', { id: escalation.id }))
     } catch (error) {
       dispatch({ type: 'setError', payload: error })
     }
@@ -35,14 +35,14 @@ const ConversationContainer: FC<Props> = props => {
   async function handleResolve() {
     try {
       const escalation = await api.resolveEscalation(state.currentEscalation.id)
-      toast.success(lang.tr('module.hitl2.escalation.resolved', { id: escalation.id }))
+      toast.success(lang.tr('module.hitlnext.escalation.resolved', { id: escalation.id }))
     } catch (error) {
       dispatch({ type: 'setError', payload: error })
     }
   }
 
   function currentAgentHasPermission(operation: PermissionOperation): boolean {
-    return isOperationAllowed({ user: state.currentAgent, resource: 'module.hitl2', operation })
+    return isOperationAllowed({ user: state.currentAgent, resource: 'module.hitlnext', operation })
   }
 
   const shouldRenderLiveChat =
@@ -62,7 +62,7 @@ const ConversationContainer: FC<Props> = props => {
           minimal
           rightIcon="tick-circle"
           onClick={handleResolve}
-          text={lang.tr('module.hitl2.escalation.resolve')}
+          text={lang.tr('module.hitlnext.escalation.resolve')}
         />
       )
     }
@@ -83,7 +83,7 @@ const ConversationContainer: FC<Props> = props => {
             )
           }
           onClick={handleAssign}
-          text={lang.tr('module.hitl2.escalation.assign')}
+          text={lang.tr('module.hitlnext.escalation.assign')}
         />
       )
     }
@@ -99,7 +99,7 @@ const ConversationContainer: FC<Props> = props => {
       <div className={cx(style.column, style.liveConversation)}>
         <MainLayout.Toolbar
           className={style.hitlToolBar}
-          tabs={[{ id: 'conversation', title: lang.tr('module.hitl2.conversation.tab') }]}
+          tabs={[{ id: 'conversation', title: lang.tr('module.hitlnext.conversation.tab') }]}
           buttons={shouldRenderLiveChat ? liveChatButtons() : historyButtons()}
         />
         {content}

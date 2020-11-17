@@ -163,7 +163,7 @@ export class ModulesRouter extends CustomRouter {
       '/:moduleName/config',
       this.checkTokenHeader,
       this.asyncMiddleware(async (req, res, next) => {
-        const supportedModules = ['hitl2']
+        const supportedModules = ['hitlnext']
         const moduleInfo = await this._findModule(req.params.moduleName)
 
         if (!supportedModules.includes(moduleInfo.name)) {

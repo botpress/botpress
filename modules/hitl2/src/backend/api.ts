@@ -24,12 +24,12 @@ import {
 } from './validation'
 
 export default async (bp: typeof sdk, state: StateType) => {
-  const router = bp.http.createRouterForBot('hitl2')
+  const router = bp.http.createRouterForBot('hitlnext')
   const repository = new Repository(bp)
   const realtime = Socket(bp)
   const { registerTimeout, unregisterTimeout } = AgentSession(bp, repository, state.timeouts)
 
-  const debug = DEBUG('hitl2')
+  const debug = DEBUG('hitlnext')
 
   // Enforces for an agent to be 'online' before executing an action
   const agentOnlineMiddleware = async (req: BPRequest, res: Response, next) => {

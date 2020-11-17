@@ -50,7 +50,7 @@ const UserProfile: FC<Props> = ({ conversation }) => {
   const userName = () => {
     return (user && user.fullName) || state.config.defaultUsername
       ? defaultUsername
-      : lang.tr('module.hitl2.user.anonymous')
+      : lang.tr('module.hitlnext.user.anonymous')
   }
 
   return (
@@ -66,13 +66,13 @@ const UserProfile: FC<Props> = ({ conversation }) => {
           <Collapsible
             opened={expanded}
             toggleExpand={() => setExpanded(!expanded)}
-            name={lang.tr('module.hitl2.user.variables.heading')}
+            name={lang.tr('module.hitlnext.user.variables.heading')}
           >
             <table className={style.table}>
               <thead>
                 <tr>
-                  <th>{lang.tr('module.hitl2.user.variables.variable')}</th>
-                  <th>{lang.tr('module.hitl2.user.variables.value')}</th>
+                  <th>{lang.tr('module.hitlnext.user.variables.variable')}</th>
+                  <th>{lang.tr('module.hitlnext.user.variables.value')}</th>
                 </tr>
               </thead>
               <tbody>

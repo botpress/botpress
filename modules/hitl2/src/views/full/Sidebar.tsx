@@ -61,14 +61,14 @@ const Sidebar = ({ bp, close }) => {
   }, [])
 
   useEffect(() => {
-    bp.events.on(`hitl2:${window.BOT_ID}`, handleMessage)
-    return () => bp.events.off(`hitl2:${window.BOT_ID}`, handleMessage)
+    bp.events.on(`hitlnext:${window.BOT_ID}`, handleMessage)
+    return () => bp.events.off(`hitlnext:${window.BOT_ID}`, handleMessage)
   }, [])
 
   return (
     <MainLayout.RightSidebar className={sharedStyle.wrapper} canOutsideClickClose close={() => close()}>
       <div className={sharedStyle.formHeader}>
-        <Tabs tabs={[{ id: 'content', title: lang.tr('module.hitl2.sidebar.tab') }]} />
+        <Tabs tabs={[{ id: 'content', title: lang.tr('module.hitlnext.sidebar.tab') }]} />
       </div>
 
       <div
@@ -84,7 +84,7 @@ const Sidebar = ({ bp, close }) => {
           <Collapsible
             opened={expanded.escalations}
             toggleExpand={() => setExpanded({ ...expanded, escalations: !expanded.escalations })}
-            name={lang.tr('module.hitl2.sidebar.escalations.heading')}
+            name={lang.tr('module.hitlnext.sidebar.escalations.heading')}
           >
             <EscalationList escalations={state.escalations} loading={loading}></EscalationList>
           </Collapsible>
@@ -94,7 +94,7 @@ const Sidebar = ({ bp, close }) => {
           <Collapsible
             opened={expanded.agents}
             toggleExpand={() => setExpanded({ ...expanded, agents: !expanded.agents })}
-            name={lang.tr('module.hitl2.sidebar.agents.heading')}
+            name={lang.tr('module.hitlnext.sidebar.agents.heading')}
           >
             <AgentList agents={state.agents} loading={loading}></AgentList>
           </Collapsible>
@@ -104,7 +104,7 @@ const Sidebar = ({ bp, close }) => {
           <Divider style={{ marginBottom: 10 }}></Divider>
           <a href={'hitlPath'}>
             <Icon icon="headset" style={{ marginRight: 10 }}></Icon>
-            {lang.tr('module.hitl2.sidebar.access')}
+            {lang.tr('module.hitlnext.sidebar.access')}
           </a>
         </div>
       </div>

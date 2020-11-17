@@ -29,8 +29,8 @@ const ConversationHistory: FC<Props> = props => {
   }
 
   useEffect(() => {
-    props.bp.events.on(`hitl2:${window.BOT_ID}`, handleMessage.bind(this))
-    return () => props.bp.events.off(`hitl2:${window.BOT_ID}`, handleMessage)
+    props.bp.events.on(`hitlnext:${window.BOT_ID}`, handleMessage.bind(this))
+    return () => props.bp.events.off(`hitlnext:${window.BOT_ID}`, handleMessage)
   }, [])
 
   useEffect(() => {

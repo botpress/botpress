@@ -10,7 +10,7 @@ export default (bp: typeof sdk, repository: Repository, cache: object) => {
     const realtime = Socket(bp)
 
     const key = cacheKey(workspaceId, botId, agentId)
-    const { agentSessionTimeout } = await bp.config.getModuleConfigForBot('hitl2', botId)
+    const { agentSessionTimeout } = await bp.config.getModuleConfigForBot('hitlnext', botId)
 
     // Clears previously registered timeout to avoid old timers to execute
     unregisterTimeout(workspaceId, botId, agentId)

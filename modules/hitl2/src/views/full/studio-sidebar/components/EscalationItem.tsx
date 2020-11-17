@@ -22,7 +22,7 @@ const EscalationItem: FC<IEscalation> = props => {
     <div className={cx(styles.escalationItem)}>
       <p>#{props.id}</p>
       <p className="bp3-text-small bp3-text-muted">
-        {props.status} ⋅ {lang.tr('module.hitl2.escalation.created', { date: fromNow })}
+        {props.status} ⋅ {lang.tr('module.hitlnext.escalation.created', { date: fromNow })}
       </p>
     </div>
   )

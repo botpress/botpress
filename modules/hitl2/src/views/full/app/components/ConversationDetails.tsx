@@ -38,7 +38,7 @@ const ConversationDetails: FC<Props> = ({ escalation, api }) => {
 
   return (
     <div className={cx(style.column, style.sidebarContainer)}>
-      <Tabs tabs={[{ id: 'user', title: lang.tr('module.hitl2.escalation.contactDetails') }]} />
+      <Tabs tabs={[{ id: 'user', title: lang.tr('module.hitlnext.escalation.contactDetails') }]} />
       <UserProfile conversation={userConversation} />
 
       {!_.isEmpty(comments) && (
@@ -47,7 +47,7 @@ const ConversationDetails: FC<Props> = ({ escalation, api }) => {
           <Collapsible
             opened={expanded}
             toggleExpand={() => setExpanded(!expanded)}
-            name={lang.tr('module.hitl2.comments.heading')}
+            name={lang.tr('module.hitlnext.comments.heading')}
             ownProps={{ transitionDuration: 0 }}
           >
             {comments.map(comment => {

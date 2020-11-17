@@ -28,7 +28,7 @@ const EscalationList: FC<Props> = props => {
       {props.loading && <Spinner></Spinner>}
 
       {!props.loading && _.isEmpty(items) && (
-        <EmptyState icon={<CasesIcon />} text={lang.tr('module.hitl2.sidebar.escalations.empty')}></EmptyState>
+        <EmptyState icon={<CasesIcon />} text={lang.tr('module.hitlnext.sidebar.escalations.empty')}></EmptyState>
       )}
 
       {!_.isEmpty(items) &&

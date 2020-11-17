@@ -80,8 +80,8 @@ const App = ({ bp }) => {
       const agent = online ? await api.setOnline() : await api.setOffline()
       dispatch({ type: 'setCurrentAgent', payload: agent }) // optimistic update, will also be updated via websocket event
       online
-        ? toast.success(lang.tr('module.hitl2.agent.onlineSuccess'))
-        : toast.success(lang.tr('module.hitl2.agent.offlineSuccess'))
+        ? toast.success(lang.tr('module.hitlnext.agent.onlineSuccess'))
+        : toast.success(lang.tr('module.hitlnext.agent.offlineSuccess'))
     } catch (error) {
       dispatch({ type: 'setError', payload: error })
     }
@@ -95,8 +95,8 @@ const App = ({ bp }) => {
   }, [])
 
   useEffect(() => {
-    bp.events.on(`hitl2:${window.BOT_ID}`, handleMessage)
-    return () => bp.events.off(`hitl2:${window.BOT_ID}`, handleMessage)
+    bp.events.on(`hitlnext:${window.BOT_ID}`, handleMessage)
+    return () => bp.events.off(`hitlnext:${window.BOT_ID}`, handleMessage)
   }, [])
 
   useEffect(() => {

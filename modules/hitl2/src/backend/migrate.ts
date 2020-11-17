@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-const debug = DEBUG('hitl2')
+const debug = DEBUG('hitlnext')
 
 export default async (bp: typeof sdk) => {
   await bp.database.createTableIfNotExists('escalations', table => {

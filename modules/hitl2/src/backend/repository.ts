@@ -181,9 +181,9 @@ export default class Repository {
     return this.bp.database<IEscalation>('escalations').modify(this.applyQuery(query))
   }
 
-  // hitl2:online:workspaceId:agentId
+  // hitlnext:online:workspaceId:agentId
   agentSessionCacheKey = async (botId: string, agentId: string) => {
-    return ['hitl2', 'online', cacheKey(await this.bp.workspaces.getBotWorkspaceId(botId), botId, agentId)].join(':')
+    return ['hitlnext', 'online', cacheKey(await this.bp.workspaces.getBotWorkspaceId(botId), botId, agentId)].join(':')
   }
 
   getAgentOnline = async (botId: string, agentId: string): Promise<boolean> => {
@@ -192,7 +192,7 @@ export default class Repository {
   }
 
   setAgentOnline = async (botId: string, agentId: string, value: boolean): Promise<boolean> => {
-    const config = await this.bp.config.getModuleConfigForBot('hitl2', botId)
+    const config = await this.bp.config.getModuleConfigForBot('hitlnext', botId)
     await this.bp.kvs
       .forBot(botId)
       .set(await this.agentSessionCacheKey(botId, agentId), value, null, config.agentSessionTimeout)

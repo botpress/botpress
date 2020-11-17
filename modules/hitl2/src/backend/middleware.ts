@@ -15,7 +15,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   const realtime = Socket(bp)
   const { registerTimeout } = AgentSession(bp, repository, state.timeouts)
 
-  const debug = DEBUG('hitl2')
+  const debug = DEBUG('hitlnext')
 
   const pipeEvent = async (event: sdk.IO.IncomingEvent, eventDestination: sdk.IO.EventDestination) => {
     debug.forBot(event.botId, 'Piping event', eventDestination)
@@ -150,7 +150,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   state.expireEscalation = await bp.distributed.broadcast(expireEscalation)
 
   bp.events.registerMiddleware({
-    name: 'hitl2.incoming',
+    name: 'hitlnext.incoming',
     direction: 'incoming',
     order: 0,
     description: 'Where magic between users and agents happens',
@@ -159,7 +159,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
 }
 
 const unregisterMiddleware = async (bp: typeof sdk) => {
-  bp.events.removeMiddleware('hitl2.incoming')
+  bp.events.removeMiddleware('hitlnext.incoming')
 }
 
 export { registerMiddleware, unregisterMiddleware }

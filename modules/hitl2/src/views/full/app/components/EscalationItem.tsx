@@ -76,12 +76,12 @@ const EscalationItem: FC<IEscalation> = props => {
   const userName = () => {
     return _.get(userConversation.event, 'state.user.fullName') || state.config.defaultUsername
       ? defaultUsername
-      : lang.tr('module.hitl2.user.anonymous')
+      : lang.tr('module.hitlnext.user.anonymous')
   }
 
   const agentName = () => {
     if (agentId && agentId === state.currentAgent?.agentId) {
-      return lang.tr('module.hitl2.escalation.you')
+      return lang.tr('module.hitlnext.escalation.you')
     } else if (agentId) {
       const agent = state.agents[agentId]
       return [agent.attributes.firstname, agent.attributes.lastname].filter(Boolean).join(' ')

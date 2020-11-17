@@ -17,7 +17,7 @@ const CommentForm: FC<Props> = props => {
   function currentAgentHasPermission(operation: PermissionOperation): boolean {
     return (
       state.currentAgent?.online &&
-      isOperationAllowed({ user: state.currentAgent, resource: 'module.hitl2', operation })
+      isOperationAllowed({ user: state.currentAgent, resource: 'module.hitlnext', operation })
     )
   }
 
@@ -38,13 +38,13 @@ const CommentForm: FC<Props> = props => {
         onKeyDown={textAreaKeyDown}
         disabled={!currentAgentHasPermission('write')}
         value={content}
-        placeholder={lang.tr('module.hitl2.commentForm.addNote')}
+        placeholder={lang.tr('module.hitlnext.commentForm.addNote')}
         onChange={event => {
           setContent(event.target.value)
         }}
       ></textarea>
       <Button disabled={!currentAgentHasPermission('write')} onClick={submit}>
-        {lang.tr('module.hitl2.commentForm.submit')}
+        {lang.tr('module.hitlnext.commentForm.submit')}
       </Button>
     </div>
   )

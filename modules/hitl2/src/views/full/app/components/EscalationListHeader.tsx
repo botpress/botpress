@@ -27,21 +27,21 @@ const EscalationListHeader: FC<Props> = props => {
       icon: 'sort',
       optionsItems: [
         {
-          label: lang.tr('module.hitl2.sort.mostRecentlyCreated'),
+          label: lang.tr('module.hitlnext.sort.mostRecentlyCreated'),
           selected: props.sortOption === 'mostRecent',
           action: () => {
             props.setSortOption('mostRecent')
           }
         },
         {
-          label: lang.tr('module.hitl2.sort.leastRecentlyCreated'),
+          label: lang.tr('module.hitlnext.sort.leastRecentlyCreated'),
           selected: props.sortOption === 'leastRecent',
           action: () => {
             props.setSortOption('leastRecent')
           }
         }
       ],
-      tooltip: lang.tr('module.hitl2.sortBy'),
+      tooltip: lang.tr('module.hitlnext.sortBy'),
       disabled: props.disabled
     },
     {
@@ -51,7 +51,7 @@ const EscalationListHeader: FC<Props> = props => {
           content: (
             <Checkbox
               checked={props.filterOptions.unassigned}
-              label={lang.tr('module.hitl2.filter.unassigned')}
+              label={lang.tr('module.hitlnext.filter.unassigned')}
               onChange={() =>
                 props.setFilterOptions({ ...props.filterOptions, unassigned: !props.filterOptions.unassigned })
               }
@@ -62,7 +62,7 @@ const EscalationListHeader: FC<Props> = props => {
           content: (
             <Checkbox
               checked={props.filterOptions.assignedMe}
-              label={lang.tr('module.hitl2.filter.assignedMe')}
+              label={lang.tr('module.hitlnext.filter.assignedMe')}
               onChange={() =>
                 props.setFilterOptions({ ...props.filterOptions, assignedMe: !props.filterOptions.assignedMe })
               }
@@ -73,7 +73,7 @@ const EscalationListHeader: FC<Props> = props => {
           content: (
             <Checkbox
               checked={props.filterOptions.assignedOther}
-              label={lang.tr('module.hitl2.filter.assignedOther')}
+              label={lang.tr('module.hitlnext.filter.assignedOther')}
               onChange={() =>
                 props.setFilterOptions({ ...props.filterOptions, assignedOther: !props.filterOptions.assignedOther })
               }
@@ -84,7 +84,7 @@ const EscalationListHeader: FC<Props> = props => {
           content: (
             <Checkbox
               checked={props.filterOptions.resolved}
-              label={lang.tr('module.hitl2.filter.resolved')}
+              label={lang.tr('module.hitlnext.filter.resolved')}
               onChange={() =>
                 props.setFilterOptions({ ...props.filterOptions, resolved: !props.filterOptions.resolved })
               }
@@ -92,7 +92,7 @@ const EscalationListHeader: FC<Props> = props => {
           )
         }
       ],
-      tooltip: lang.tr('module.hitl2.filterBy'),
+      tooltip: lang.tr('module.hitlnext.filterBy'),
       disabled: props.disabled
     }
   ]
@@ -100,7 +100,7 @@ const EscalationListHeader: FC<Props> = props => {
   return (
     <MainLayout.Toolbar
       className={style.hitlToolBar}
-      tabs={[{ id: 'escalations', title: lang.tr('module.hitl2.sidebar.tab') }]}
+      tabs={[{ id: 'escalations', title: lang.tr('module.hitlnext.sidebar.tab') }]}
       buttons={buttons}
     ></MainLayout.Toolbar>
   )
