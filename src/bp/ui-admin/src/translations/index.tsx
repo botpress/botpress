@@ -2,7 +2,8 @@ import { lang } from 'botpress/shared'
 
 import en from './en.json'
 import fr from './fr.json'
-const translations = { en, fr }
+import es from './es.json'
+const translations = { en, fr, es }
 
 const initializeTranslations = () => {
   lang.extend(translations)

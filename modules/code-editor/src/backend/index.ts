@@ -3,6 +3,7 @@ import * as sdk from 'botpress/sdk'
 import { Config } from '../config'
 import en from '../translations/en.json'
 import fr from '../translations/fr.json'
+import es from '../translations/es.json'
 
 import api from './api'
 import Editor from './editor'
@@ -19,7 +20,7 @@ const onModuleUnmount = async (bp: typeof sdk) => {
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerReady,
   onModuleUnmount,
-  translations: { en, fr },
+  translations: { en, fr, es },
   definition: {
     name: 'code-editor',
     menuIcon: 'code',

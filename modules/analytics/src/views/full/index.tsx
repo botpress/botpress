@@ -74,7 +74,7 @@ const navigateToElement = (name: string, type: string) => () => {
   if (type === 'qna') {
     url = `/modules/qna?id=${name.replace('__qna__', '')}`
   } else if (type === 'workflow') {
-    url = `/oneflow/${name}`
+    url = `/flows/${name}`
   }
   window.postMessage({ action: 'navigate-url', payload: url }, '*')
 }

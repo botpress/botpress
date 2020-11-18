@@ -44,8 +44,8 @@ export class BaseNodeModel extends NodeModel {
 
     // We create as many output port as needed
     for (let i = 0; i < next.length; i++) {
-      if (!this.ports['out' + i]) {
-        this.addPort(new StandardOutgoingPortModel('out' + i))
+      if (!this.ports[`out${i}`]) {
+        this.addPort(new StandardOutgoingPortModel(`out${i}`))
       }
     }
 
