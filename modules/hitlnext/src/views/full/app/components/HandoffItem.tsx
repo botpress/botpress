@@ -41,9 +41,9 @@ const HandoffItem: FC<IHandoff> = props => {
   }, [])
 
   useEffect(() => {
-    if (state.reads?.[id] < userConversation.createdOn) {
+    if (state.reads[id] < userConversation.createdOn) {
       setReadStatus(false)
-    } else if (state.reads?.[id] >= userConversation.createdOn) {
+    } else if (state.reads[id] >= userConversation.createdOn) {
       setReadStatus(true)
     }
   }, [userConversation, state.reads])

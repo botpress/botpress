@@ -37,7 +37,7 @@ const initialState: IState = {
   currentHandoff: null,
   agents: {},
   handoffs: {},
-  reads: Storage.get('reads'),
+  reads: Storage.get('reads', {}),
   config: null,
   defaults: {},
   error: null
