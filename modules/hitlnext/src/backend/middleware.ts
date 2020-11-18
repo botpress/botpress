@@ -48,14 +48,14 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
     }
 
     // Either a pending or assigned handoff
-    const escalationId = getHandoff(event.botId, event.threadId)
+    const handoffId = getHandoff(event.botId, event.threadId)
 
-    if (!escalationId) {
+    if (!handoffId) {
       next(undefined, false)
       return
     }
 
-    const handoff = await repository.getHandoff(escalationId)
+    const handoff = await repository.getHandoff(handoffId)
 
     // Handle incoming message from user
     if (handoff.userThreadId === event.threadId) {

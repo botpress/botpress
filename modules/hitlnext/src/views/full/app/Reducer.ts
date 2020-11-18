@@ -39,7 +39,7 @@ const Reducer = (state: IState, action: ActionType): IState => {
       })
     case 'setComment':
       return produce(state, draft => {
-        const handoff = draft.handoffs[action.payload.escalationId]
+        const handoff = draft.handoffs[action.payload.handoffId]
         handoff.comments.push(action.payload)
         draft.currentHandoff = handoff
       })

@@ -356,7 +356,7 @@ export default async (bp: typeof sdk, state: StateType) => {
 
       const payload: IComment = {
         ...req.body,
-        escalationId: handoff.id,
+        handoffId: handoff.id,
         threadId: handoff.userThreadId,
         agentId
       }

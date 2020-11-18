@@ -129,7 +129,7 @@
     }
   }
 
-  .escalationItem {
+  .handoffItem {
     border-radius: 5px;
     cursor: pointer;
     display: flex;
@@ -246,7 +246,7 @@
 }
 
 .sidebar {
-  .escalationList {
+  .handoffList {
     background-color: var(--bg);
     display: flex;
     flex-direction: column;

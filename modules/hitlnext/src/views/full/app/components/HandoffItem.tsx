@@ -89,7 +89,7 @@ const HandoffItem: FC<IHandoff> = props => {
 
   return (
     <div
-      className={cx(style.escalationItem, { [style.active]: state.currentHandoff?.id === id })}
+      className={cx(style.handoffItem, { [style.active]: state.currentHandoff?.id === id })}
       onClick={() => handleSelect(id)}
     >
       {!readStatus && <span className={style.unreadDot}></span>}

@@ -65,7 +65,7 @@ export type IEvent = {
 export interface IComment {
   id: string
   agentId: string
-  escalationId: string
+  handoffId: string
   threadId: string
   content: string
   createdAt: Date

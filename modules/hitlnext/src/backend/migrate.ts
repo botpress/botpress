@@ -35,7 +35,7 @@ export default async (bp: typeof sdk) => {
       .primary()
       .notNullable()
     table
-      .integer('escalationId')
+      .integer('handoffId')
       .references('handoffs.id')
       .notNullable()
       .onDelete('CASCADE')
@@ -46,7 +46,7 @@ export default async (bp: typeof sdk) => {
     table.dateTime('updatedAt').notNullable()
 
     table.unique(['id'])
-    table.index('escalationId')
+    table.index('handoffId')
     table.index('agentId')
   })
 }

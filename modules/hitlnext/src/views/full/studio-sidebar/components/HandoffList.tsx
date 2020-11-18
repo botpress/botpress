@@ -24,7 +24,7 @@ const HandoffList: FC<Props> = props => {
   }, [props.handoffs])
 
   return (
-    <div className={cx(styles.escalationList)}>
+    <div className={cx(styles.handoffList)}>
       {props.loading && <Spinner></Spinner>}
 
       {!props.loading && _.isEmpty(items) && (

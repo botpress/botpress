@@ -24,7 +24,7 @@ const Comment: FC<IComment> = props => {
   }
 
   return (
-    <ContentSection title={`#${props.escalationId}`}>
+    <ContentSection title={`#${props.handoffId}`}>
       <ul>
         <li>{props.content}</li>
       </ul>

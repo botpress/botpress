@@ -20,18 +20,18 @@ export interface CollectionConditions extends Partial<SortOrder> {
 }
 
 export default class Repository {
-  private readonly escalationColumns: string[]
+  private readonly handoffColumns: string[]
   private readonly commentColumns: string[]
   private readonly eventColumns: string[]
   private readonly commentColumnsPrefixed: string[]
   private readonly commentPrefix: string
-  private readonly escalationPrefix: string
+  private readonly handoffPrefix: string
 
   constructor(private bp: typeof sdk) {
     this.commentPrefix = 'comment'
-    this.escalationPrefix = 'handoff'
+    this.handoffPrefix = 'handoff'
 
-    this.escalationColumns = [
+    this.handoffColumns = [
       'id',
       'botId',
       'agentId',
@@ -46,7 +46,7 @@ export default class Repository {
       'updatedAt'
     ]
 
-    this.commentColumns = ['id', 'agentId', 'escalationId', 'threadId', 'content', 'createdAt', 'updatedAt']
+    this.commentColumns = ['id', 'agentId', 'handoffId', 'threadId', 'content', 'createdAt', 'updatedAt']
 
     this.eventColumns = ['id', 'direction', 'botId', 'channel', 'success', 'createdOn', 'threadId', 'type', 'event']
 
@@ -83,7 +83,7 @@ export default class Repository {
   private hydrateComments(rows: any[]): IHandoff[] {
     const records = rows.reduce((memo, row) => {
       memo[row.id] = memo[row.id] || {
-        ..._.pick(row, this.escalationColumns),
+        ..._.pick(row, this.handoffColumns),
         comments: {}
       }
 
@@ -105,11 +105,11 @@ export default class Repository {
 
   // This mutates handoffs
   private hydrateEvents(events: any[], handoffs: any[], key: string): any[] {
-    handoffs.forEach(handoff => (handoff.userConversation = {}))
+    handoffs.forEach(handoff => (handoff[key] = {}))
 
     const toMerge = events.map(event => {
       return _.tap({}, item => {
-        item['id'] = event[`${this.escalationPrefix}:id`]
+        item['id'] = event[`${this.handoffPrefix}:id`]
         item[key] = _.pick(event, this.eventColumns)
       })
     })
@@ -151,7 +151,7 @@ export default class Repository {
         'handoffs.*',
         `comments.id as ${this.commentPrefix}:id`,
         `comments.agentId as ${this.commentPrefix}:agentId`,
-        `comments.escalationId as ${this.commentPrefix}:escalationId`,
+        `comments.handoffId as ${this.commentPrefix}:handoffId`,
         `comments.threadId as ${this.commentPrefix}:threadId`,
         `comments.content as ${this.commentPrefix}:content`,
         `comments.updatedAt as ${this.commentPrefix}:updatedAt`,

@@ -18,8 +18,8 @@ interface CssExports {
   'createdDate': string;
   'divider': string;
   'emptyContainer': string;
-  'escalationItem': string;
-  'escalationList': string;
+  'handoffItem': string;
+  'handoffList': string;
   'hitlToolBar': string;
   'info': string;
   'liveConversation': string;

@@ -19,7 +19,7 @@ const HandoffItem: FC<IHandoff> = props => {
   }, [])
 
   return (
-    <div className={cx(styles.escalationItem)}>
+    <div className={cx(styles.handoffItem)}>
       <p>#{props.id}</p>
       <p className="bp3-text-small bp3-text-muted">
         {props.status} ⋅ {lang.tr('module.hitlnext.handoff.created', { date: fromNow })}

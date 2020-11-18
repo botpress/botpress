@@ -1,7 +1,7 @@
 const axios = require('axios')
 
 /**
- * Creates an escalation for a given conversation. By default handoffs are unassigned, they can then be assigned to agents and resolved.
+ * Creates an handoff for a given conversation. By default handoffs are unassigned, they can then be assigned to agents and resolved.
  *
  * @title Handoff
  * @category hitlnext
