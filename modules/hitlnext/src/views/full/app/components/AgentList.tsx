@@ -52,7 +52,6 @@ const AgentList: FC<Props> = props => {
                     fontSize={12}
                     fontWeight={500}
                   ></Initial>
-                  <span style={dotStyle(agent.online)}></span>
                 </div>
               </Tooltip>
             </li>
