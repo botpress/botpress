@@ -16,4 +16,9 @@ export interface Config {
    * @default false
    */
   defaultUsername: boolean
+
+  /**
+   * @param botAvatarUrl Image url you want to display as avatar when an agent takes control
+   */
+  botAvatarUrl?: string
 }

@@ -3,8 +3,9 @@ const axios = require('axios')
 /**
  * Creates an escalation for a given conversation. By default handoffs are unassigned, they can then be assigned to agents and resolved.
  *
- * @title Escalate
+ * @title Handoff
  * @category hitlnext
+ * @description Transfers control of the conversation to an agent
  * @author Botpress, Inc.
  */
 const escalate = async event => {

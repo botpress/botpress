@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import { Dictionary } from 'lodash'
 
+import { MODULE_NAME } from '../constants'
 import en from '../translations/en.json'
 import fr from '../translations/fr.json'
 
@@ -9,7 +10,7 @@ import { registerMiddleware, unregisterMiddleware } from './middleware'
 import migrate from './migrate'
 import Workspace from './workspace'
 
-const debug = DEBUG('hitlnext')
+const debug = DEBUG(MODULE_NAME)
 
 export interface StateType {
   cacheHandoff?: Function
@@ -25,7 +26,7 @@ const onServerStarted = async (bp: typeof sdk) => {
 
 const onServerReady = async (bp: typeof sdk) => {
   if (!process.IS_PRO_ENABLED) {
-    const config = await bp.config.getModuleConfig('hitlnext')
+    const config = await bp.config.getModuleConfig(MODULE_NAME)
     bp.logger.info(`${config.fullName} module is disabled because it requires Botpress Pro`)
     return
   }
@@ -46,7 +47,7 @@ const onServerReady = async (bp: typeof sdk) => {
             op: '+r'
           },
           {
-            res: 'module.hitlnext',
+            res: `module.${MODULE_NAME}`,
             op: '+r+w'
           }
         ]
@@ -58,7 +59,7 @@ const onServerReady = async (bp: typeof sdk) => {
 }
 
 const onModuleUnmount = async (bp: typeof sdk) => {
-  bp.http.deleteRouterForBot('hitlnext')
+  bp.http.deleteRouterForBot(MODULE_NAME)
   await unregisterMiddleware(bp)
 }
 
@@ -68,12 +69,13 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onModuleUnmount,
   translations: { en, fr },
   definition: {
-    name: 'hitlnext',
+    name: MODULE_NAME,
     menuIcon: 'headset',
     menuText: 'HITL Next',
     fullName: 'HITL Next',
     homepage: 'https://botpress.com',
-    noInterface: false
+    noInterface: false,
+    experimental: true
   }
 }
 

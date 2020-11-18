@@ -6,10 +6,10 @@ import moment from 'moment'
 import React, { FC, useContext, useEffect, useState } from 'react'
 
 import { IHandoff } from '../../../../types'
-import { Context } from '../Store'
-
 import style from '../../style.scss'
 import { generateUsername, getOrSet } from '../utils'
+import { Context } from '../Store'
+
 import HandoffBadge from './HandoffBadge'
 
 const HandoffItem: FC<IHandoff> = props => {
@@ -41,9 +41,9 @@ const HandoffItem: FC<IHandoff> = props => {
   }, [])
 
   useEffect(() => {
-    if (state.reads[id] && state.reads[id] < userConversation.createdOn) {
+    if (state.reads?.[id] < userConversation.createdOn) {
       setReadStatus(false)
-    } else if (state.reads[id] && state.reads[id] >= userConversation.createdOn) {
+    } else if (state.reads?.[id] >= userConversation.createdOn) {
       setReadStatus(true)
     }
   }, [userConversation, state.reads])

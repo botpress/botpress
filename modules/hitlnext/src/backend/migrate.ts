@@ -1,5 +1,7 @@
 import * as sdk from 'botpress/sdk'
-const debug = DEBUG('hitlnext')
+
+import { MODULE_NAME } from '../constants'
+const debug = DEBUG(MODULE_NAME)
 
 export default async (bp: typeof sdk) => {
   await bp.database.createTableIfNotExists('handoffs', table => {

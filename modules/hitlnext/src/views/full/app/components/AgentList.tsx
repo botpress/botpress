@@ -1,9 +1,7 @@
-import { Colors } from '@blueprintjs/core'
-import { Spinner } from '@blueprintjs/core'
+import { Colors, Position, Spinner, Tooltip } from '@blueprintjs/core'
 import _, { Dictionary } from 'lodash'
 import React, { FC } from 'react'
 import { Initial } from 'react-initial'
-import { Tooltip, Position } from '@blueprintjs/core'
 
 import { IAgent } from '../../../../types'
 

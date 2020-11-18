@@ -2,6 +2,9 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import LRU from 'lru-cache'
 
+import { Config } from '../config'
+import { MODULE_NAME } from '../constants'
+
 import { IHandoff } from './../types'
 import AgentSession from './agentSession'
 import { measure } from './helpers'
@@ -15,7 +18,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   const realtime = Socket(bp)
   const { registerTimeout } = AgentSession(bp, repository, state.timeouts)
 
-  const debug = DEBUG('hitlnext')
+  const debug = DEBUG(MODULE_NAME)
 
   const pipeEvent = async (event: sdk.IO.IncomingEvent, eventDestination: sdk.IO.EventDestination) => {
     debug.forBot(event.botId, 'Piping event', eventDestination)
@@ -98,6 +101,9 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
       // Handle incoming message from agent
     } else if (handoff.agentThreadId === event.threadId) {
       debug.forBot(event.botId, 'Handling message from Agent', { direction: event.direction, threadId: event.threadId })
+
+      const { botAvatarUrl }: Config = await bp.config.getModuleConfigForBot(MODULE_NAME, event.botId)
+      Object.assign(event.payload, { from: 'agent', botAvatarUrl }) // TODO set avatar url from agent profile if nothing in config
 
       await pipeEvent(event, {
         botId: handoff.botId,

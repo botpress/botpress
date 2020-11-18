@@ -13,6 +13,9 @@
       "default": false,
       "type": "boolean"
     },
+    "botAvatarUrl": {
+      "type": "string"
+    },
     "$schema": {
       "type": "string"
     }

@@ -7,6 +7,8 @@ import Joi from 'joi'
 import _ from 'lodash'
 import yn from 'yn'
 
+import { MODULE_NAME } from '../constants'
+
 import { HandoffType, IComment, IHandoff } from './../types'
 import AgentSession from './agentSession'
 import { UnauthorizedError, UnprocessableEntityError } from './errors'
@@ -24,12 +26,12 @@ import {
 } from './validation'
 
 export default async (bp: typeof sdk, state: StateType) => {
-  const router = bp.http.createRouterForBot('hitlnext')
+  const router = bp.http.createRouterForBot(MODULE_NAME)
   const repository = new Repository(bp)
   const realtime = Socket(bp)
   const { registerTimeout, unregisterTimeout } = AgentSession(bp, repository, state.timeouts)
 
-  const debug = DEBUG('hitlnext')
+  const debug = DEBUG(MODULE_NAME)
 
   // Enforces for an agent to be 'online' before executing an action
   const agentOnlineMiddleware = async (req: BPRequest, res: Response, next) => {
@@ -256,35 +258,35 @@ export default async (bp: typeof sdk, state: StateType) => {
         type: 'custom',
         payload: {
           type: 'custom',
-          module: 'hitlnext',
+          module: MODULE_NAME,
           component: 'HandoffAssigned',
           noBubble: true, // super hack to make sure wrapper use our style, don't change
           wrapped: {
-            type: 'history' // super hack to make sure wrapper use our style, don't change
+            type: 'handoff' // super hack to make sure wrapper use our style, don't change
           }
         }
       }
 
       // custom event to user
       bp.events.sendEvent(
-        bp.IO.Event(<sdk.IO.EventCtorArgs>{
-          ...baseCustomEventPayload,
-          target: handoff.userId,
-          threadId: handoff.userThreadId,
-          channel: handoff.userChannel
-        })
-      )
-
-      // custom event to user
-      bp.events.sendEvent(
         bp.IO.Event(
           _.merge(_.cloneDeep(baseCustomEventPayload), {
-            target: handoff.agentId,
-            channel: 'web',
-            threadId: handoff.agentThreadId,
-            payload: { forAgent: true }
+            target: handoff.userId,
+            threadId: handoff.userThreadId,
+            channel: handoff.userChannel,
+            payload: { from: 'agent' }
           }) as sdk.IO.EventCtorArgs
         )
+      )
+
+      // custom event to agent
+      bp.events.sendEvent(
+        bp.IO.Event({
+          ...baseCustomEventPayload,
+          target: handoff.agentId,
+          channel: 'web',
+          threadId: handoff.agentThreadId
+        } as sdk.IO.EventCtorArgs)
       )
 
       realtime.sendPayload(req.params.botId, {

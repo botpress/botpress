@@ -1,6 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import ms from 'ms'
 
+import { MODULE_NAME } from '../constants'
+
 import Repository from './repository'
 import Socket from './socket'
 
@@ -10,7 +12,7 @@ export default (bp: typeof sdk, repository: Repository, cache: object) => {
     const realtime = Socket(bp)
 
     const key = cacheKey(workspaceId, botId, agentId)
-    const { agentSessionTimeout } = await bp.config.getModuleConfigForBot('hitlnext', botId)
+    const { agentSessionTimeout } = await bp.config.getModuleConfigForBot(MODULE_NAME, botId)
 
     // Clears previously registered timeout to avoid old timers to execute
     unregisterTimeout(workspaceId, botId, agentId)

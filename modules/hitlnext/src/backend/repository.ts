@@ -5,6 +5,8 @@ import { BPRequest } from 'common/http'
 import Knex from 'knex'
 import _ from 'lodash'
 
+import { MODULE_NAME } from '../constants'
+
 import { IAgent, IComment, IHandoff } from './../types'
 import { cacheKey } from './agentSession'
 import { makeAgentId } from './helpers'
@@ -179,7 +181,9 @@ export default class Repository {
 
   // hitlnext:online:workspaceId:agentId
   agentSessionCacheKey = async (botId: string, agentId: string) => {
-    return ['hitlnext', 'online', cacheKey(await this.bp.workspaces.getBotWorkspaceId(botId), botId, agentId)].join(':')
+    return [MODULE_NAME, 'online', cacheKey(await this.bp.workspaces.getBotWorkspaceId(botId), botId, agentId)].join(
+      ':'
+    )
   }
 
   getAgentOnline = async (botId: string, agentId: string): Promise<boolean> => {
@@ -188,7 +192,7 @@ export default class Repository {
   }
 
   setAgentOnline = async (botId: string, agentId: string, value: boolean): Promise<boolean> => {
-    const config = await this.bp.config.getModuleConfigForBot('hitlnext', botId)
+    const config = await this.bp.config.getModuleConfigForBot(MODULE_NAME, botId)
     await this.bp.kvs
       .forBot(botId)
       .set(await this.agentSessionCacheKey(botId, agentId), value, null, config.agentSessionTimeout)

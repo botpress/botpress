@@ -1,9 +1,9 @@
 import * as sdk from 'botpress/sdk'
 
+import { MODULE_NAME, WEBSOCKET_TOPIC } from '../constants'
 import { ISocketMessage } from '../types'
-import { WEBSOCKET_TOPIC } from './../constants'
 
-const debug = DEBUG('hitlnext').sub('realtime')
+const debug = DEBUG(MODULE_NAME).sub('realtime')
 
 export default (bp: typeof sdk) => {
   return {

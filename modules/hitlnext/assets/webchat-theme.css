@@ -346,7 +346,7 @@
   * Chat Bubble configuration. You can add other classes to match different renderers,
   *  for example .bpw-bubble-text or .bpw-bubble-carousel
   */
-  .bpw-bubble-history {
+  .bpw-bubble-handoff {
     width: 100%;
   }
 
