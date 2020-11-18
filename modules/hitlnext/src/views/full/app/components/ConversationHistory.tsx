@@ -3,13 +3,12 @@ import { IO } from 'botpress/sdk'
 import { EmptyState } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
-import { WEBSOCKET_TOPIC } from '../../../../constants'
 
+import { WEBSOCKET_TOPIC } from '../../../../constants'
 import { ISocketMessage } from '../../../../types'
+import MessageList from '../../../lite/MessageList'
 import { ApiType } from '../../Api'
 import { Context } from '../Store'
-
-import MessageList from './MessageList'
 
 interface Props {
   bp: any
@@ -25,7 +24,7 @@ const ConversationHistory: FC<Props> = props => {
 
   const handleMessage = (message: ISocketMessage) => {
     if (message.resource === 'event' && message.type === 'create') {
-      setEvents(evts => _.sortBy([...evts, message.payload], 'id'))
+      setEvents(evts => [...evts, message.payload])
     }
   }
 
@@ -36,7 +35,7 @@ const ConversationHistory: FC<Props> = props => {
 
   useEffect(() => {
     props.api.getMessages(props.conversationId, 'id', true, state.config.messageCount).then(evts => {
-      setEvents(_.sortBy(evts, 'id'))
+      setEvents(evts)
       setLoading(false)
     })
   }, [props.conversationId])
@@ -45,7 +44,7 @@ const ConversationHistory: FC<Props> = props => {
     <Fragment>
       {loading && <Spinner></Spinner>}
       {!loading && _.isEmpty(events) && <EmptyState text="NO MESSAGES"></EmptyState>}
-      {!loading && !_.isEmpty(events) && <MessageList messages={events}></MessageList>}
+      {!loading && !_.isEmpty(events) && <MessageList events={events}></MessageList>}
     </Fragment>
   )
 }

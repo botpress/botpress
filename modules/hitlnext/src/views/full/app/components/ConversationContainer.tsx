@@ -52,10 +52,6 @@ const ConversationContainer: FC<Props> = props => {
 
   const liveChatButtons = () => [
     {
-      // TODO you are here, on click toggle history
-      content: <Button className={style.coversationButton} minimal text={' ......  shot history    ......'} />
-    },
-    {
       content: (
         <Button
           className={style.coversationButton}

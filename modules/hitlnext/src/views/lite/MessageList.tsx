@@ -1,12 +1,13 @@
 import * as sdk from 'botpress/sdk'
 import cx from 'classnames'
+import sortby from 'lodash/sortBy'
 import React, { FC } from 'react'
 
-import style from './../../style.scss'
+import style from './style.scss'
 import { Message } from './Message'
 
 interface Props {
-  messages: sdk.IO.StoredEvent[]
+  events: sdk.IO.StoredEvent[]
 }
 
 // This does not support message groups
@@ -16,8 +17,8 @@ const MessageList: FC<Props> = props => {
   // TODO some smart grouping do display date
   return (
     <div className={cx(style.messageList)}>
-      {props.messages.map(m => (
-        <Message key={m.id} {...m} />
+      {sortby(props.events, 'id').map(ev => (
+        <Message key={ev.id} {...ev} />
       ))}
     </div>
   )

@@ -16,7 +16,6 @@ const WRAPPER_ID = `${WEBCHAT_ID}-wrapper`
 
 const LiveChat: React.FC<Props> = ({ handoff, currentAgent }) => {
   const [webchatLoaded, setwebchatLoaded] = useState(false)
-  const [webchatOpen, setwebchatOpen] = useState(false)
 
   function getWebchatStore() {
     return window[WEBCHAT_ID].webchat_store
@@ -31,8 +30,8 @@ const LiveChat: React.FC<Props> = ({ handoff, currentAgent }) => {
     if (message.data.name === 'webchatLoaded') {
       store.view.setContainerWidth('100%')
       store.view.setLayoutWidth('100%')
+    } else if (message.data.name === 'webchatReady') {
       store.view.showChat()
-      setwebchatOpen(true)
       setwebchatLoaded(true)
     }
   }

@@ -2,7 +2,7 @@ import { IO } from 'botpress/sdk'
 import cx from 'classnames'
 import React, { FC } from 'react'
 
-import style from '../../style.scss'
+import style from './style.scss'
 
 // This does not suppport funky content types nor custom components
 // Either export message from webchat in ui-shared lite and show it here

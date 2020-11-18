@@ -263,15 +263,10 @@ export default async (bp: typeof sdk, state: StateType) => {
         payload: {
           type: 'custom',
           module: MODULE_NAME,
-          component: 'HandoffAssigned',
-          noBubble: true, // super hack to make sure wrapper use our style, don't change
-          wrapped: {
-            type: 'handoff' // super hack to make sure wrapper use our style, don't change
-          }
+          component: 'HandoffAssigned'
         }
       }
 
-      // custom event to user
       bp.events.sendEvent(
         bp.IO.Event(
           _.merge(_.cloneDeep(baseCustomEventPayload), {
@@ -283,14 +278,21 @@ export default async (bp: typeof sdk, state: StateType) => {
         )
       )
 
+      const recentEvents = await bp.events.findEvents(
+        { botId, threadId: handoff.userThreadId },
+        { count: 10, sortOrder: [{ column: 'id', desc: true }] }
+      )
+
       // custom event to agent
       bp.events.sendEvent(
-        bp.IO.Event({
-          ...baseCustomEventPayload,
-          target: handoff.agentId,
-          channel: 'web',
-          threadId: handoff.agentThreadId
-        } as sdk.IO.EventCtorArgs)
+        bp.IO.Event(
+          _.merge(_.cloneDeep(baseCustomEventPayload), {
+            target: handoff.agentId,
+            channel: 'web',
+            threadId: handoff.agentThreadId,
+            payload: { recentEvents, noBubble: true, wrapped: { type: 'handoff' } } // super hack to make sure wrapper use our style, don't change this until fixed properly
+          } as sdk.IO.EventCtorArgs)
+        )
       )
 
       realtime.sendPayload(req.params.botId, {
