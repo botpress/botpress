@@ -125,12 +125,12 @@ export default class Repository {
     return this.bp
       .database<sdk.IO.StoredEvent>('events')
       .select('*')
-      .where('direction', 'incoming')
       .andWhere(function() {
         this.whereIn('id', function() {
           this.max('id')
             .from('events')
             .where('type', 'text')
+            .andWhere('direction', 'incoming')
             .groupBy('threadId')
         })
       })
