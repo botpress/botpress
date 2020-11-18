@@ -87,7 +87,7 @@ class MessageGroup extends React.Component<Props> {
 
               return (
                 <Message
-                  key={message.id}
+                  key={message.eventId}
                   isHighlighted={
                     this.props.highlightedMessages && this.props.highlightedMessages.includes(message.incomingEventId)
                   }
