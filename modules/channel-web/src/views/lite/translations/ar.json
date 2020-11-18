@@ -1,5 +1,6 @@
 {
   "composer.placeholder": "الرد على {name}",
+  "composer.placeholderInit": "قل شيئا ل {name}",
   "composer.send": "إرسال",
   "header.conversations": "محادثات",
   "conversationList.untitledConversation": "محادثة بلا عنوان",
