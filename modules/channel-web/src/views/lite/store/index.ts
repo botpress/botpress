@@ -1,4 +1,5 @@
 import isBefore from 'date-fns/is_before'
+import isValid from 'date-fns/is_valid'
 import merge from 'lodash/merge'
 import { action, computed, observable, runInAction } from 'mobx'
 import ms from 'ms'
@@ -403,7 +404,7 @@ class RootStore {
 
     this._typingInterval = setInterval(() => {
       const typeUntil = new Date(this.currentConversation && this.currentConversation.typingUntil)
-      if (!typeUntil || isBefore(typeUntil, new Date())) {
+      if (!typeUntil || !isValid(typeUntil) || isBefore(typeUntil, new Date())) {
         this._expireTyping()
       } else {
         this.emptyDelayedMessagesQueue(false)
