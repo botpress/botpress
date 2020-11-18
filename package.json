@@ -1,6 +1,6 @@
 {
   "name": "botpress",
-  "version": "12.12.0",
+  "version": "12.13.0",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": "^12"
@@ -11,7 +11,7 @@
   "license": "AGPL-3.0",
   "private": true,
   "scripts": {
-    "start": "cd ./out/bp && cross-env NODE_PATH=./ cross-env BP_MODULES_PATH=./data/modules/:../../modules:../../internal-modules node index.js",
+    "start": "cd ./out/bp && cross-env NODE_PATH=./ cross-env BP_MODULES_PATH=./data/modules/:../../modules:../../internal-modules cross-env TELEMETRY_URL=https://telemetry.botpress.dev/ingest node index.js",
     "cmd": "yarn run gulp",
     "build": "yarn cmd build",
     "watch": "yarn cmd watch",
@@ -22,10 +22,13 @@
     "commitmsg": "commitlint -e $GIT_PARAMS"
   },
   "dependencies": {
+    "@babel/parser": "^7.11.2",
+    "@babel/traverse": "^7.11.0",
     "axios": "^0.19.0",
     "bluebird-global": "^1.0.1",
     "bluebird-retry": "^0.11.0",
     "body-parser": "^1.18.3",
+    "bytes": "^3.1.0",
     "cerialize": "^0.1.18",
     "chalk": "^2.4.2",
     "chokidar": "^2.1.5",

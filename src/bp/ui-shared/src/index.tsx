@@ -8,6 +8,7 @@ import Overlay from '../../ui-shared-lite/Overlay'
 import Tabs from '../../ui-shared-lite/Tabs'
 import ToolTip from '../../ui-shared-lite/ToolTip'
 
+import { sendTelemetry, startFallback } from './telemetry'
 import { defaultLocale, lang, langAvaibale, langExtend, langInit, langLocale } from './translations'
 import { isInputFocused } from './utils/inputs'
 import { controlKey, keyMap } from './utils/keyboardShortcuts'
@@ -63,3 +64,7 @@ exports.lang = {
 }
 exports.toast = toast
 exports.utils = { controlKey, keyMap, isInputFocused }
+exports.telemetry = {
+  startFallback,
+  sendTelemetry
+}

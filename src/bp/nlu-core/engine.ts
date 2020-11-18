@@ -1,4 +1,5 @@
 import { MLToolkit, NLU } from 'botpress/sdk'
+import bytes from 'bytes'
 import crypto from 'crypto'
 import _ from 'lodash'
 import LRUCache from 'lru-cache'
@@ -25,7 +26,7 @@ interface LoadedModel {
 }
 
 const DEFAULT_OPTIONS: Options = {
-  maxCacheSize: 250000000 // 250mb of model cache
+  maxCacheSize: 262144000 // 250mb of model cache
 }
 
 interface Options {
@@ -58,7 +59,7 @@ export default class Engine implements NLU.Engine {
     return this._tools.getVersionInfo()
   }
 
-  public async initialize(config: NLU.Config, logger: NLU.Logger): Promise<void> {
+  public async initialize(config: NLU.LanguageConfig, logger: NLU.Logger): Promise<void> {
     this._tools = await initializeTools(config, logger)
     const version = this._tools.getVersionInfo()
     if (!version.nluVersion.length || !version.langServerInfo.version.length) {
@@ -191,6 +192,13 @@ export default class Engine implements NLU.Engine {
     }
 
     const model = deserializeModel(serialized)
+    const modelSize = sizeof(model)
+    if (modelSize >= this.modelsById.max) {
+      const msg = `Can't load model ${modelId} as it is bigger than the maximum allowed size`
+      const details = `model size: ${bytes(modelSize)}, max allowed: ${bytes(this.modelsById.max)}`
+      throw new Error(`${msg} (${details}).`)
+    }
+
     const { input, output } = model.data
 
     this.modelsById.set(modelId, {

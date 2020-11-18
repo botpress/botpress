@@ -26,6 +26,7 @@ export interface APIOptions {
   limit: number
   bodySize: string
   batchSize: number
+  silent: boolean
   modelCacheSize: string
 }
 
@@ -71,7 +72,7 @@ const createExpressApp = (options: APIOptions): Application => {
 
 export default async function(options: APIOptions, engine: Engine) {
   const app = createExpressApp(options)
-  const logger = new Logger('API')
+  const logger = new Logger('API', options.silent)
 
   const modelService = new ModelService(options.modelDir, engine)
   await modelService.init()
@@ -159,20 +160,19 @@ export default async function(options: APIOptions, engine: Engine) {
         )
       }
 
-      const model = await modelService.getModel(modelId, password)
-
-      if (model) {
-        if (!engine.hasModel(modelId)) {
-          await engine.loadModel(model, modelId)
+      if (!engine.hasModel(modelId)) {
+        const model = await modelService.getModel(modelId, password)
+        if (!model) {
+          return res.status(404).send({ success: false, error: `modelId ${modelId} can't be found` })
         }
 
-        const rawPredictions = await Promise.map(texts as string[], t => engine.predict(t, [], modelId))
-        const withoutNone = rawPredictions.map(removeNoneIntent)
-
-        return res.send({ success: true, predictions: withoutNone })
+        await engine.loadModel(model, modelId)
       }
 
-      res.status(404).send({ success: false, error: `modelId ${modelId} can't be found` })
+      const rawPredictions = await Promise.map(texts as string[], t => engine.predict(t, [], modelId))
+      const withoutNone = rawPredictions.map(removeNoneIntent)
+
+      return res.send({ success: true, predictions: withoutNone })
     } catch (err) {
       res.status(500).send({ success: false, error: err.message })
     }
