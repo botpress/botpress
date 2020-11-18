@@ -47,10 +47,16 @@ export interface IHandoff {
   agentThreadId: string
   userConversation: IEvent
   comments: IComment[]
+  user: IUser
   assignedAt?: Date
   resolvedAt?: Date
   createdAt: Date
   updatedAt: Date
+}
+
+export type IUser = {
+  id: string
+  attributes: string
 }
 
 export type IEvent = {

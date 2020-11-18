@@ -18,7 +18,7 @@ interface Props {
 }
 
 const ConversationDetails: FC<Props> = ({ handoff, api }) => {
-  const { id, comments, userConversation } = handoff
+  const { id, comments, user } = handoff
   const { dispatch } = useContext(Context)
 
   const [expanded, setExpanded] = useState(false)
@@ -39,7 +39,7 @@ const ConversationDetails: FC<Props> = ({ handoff, api }) => {
   return (
     <div className={cx(style.column, style.sidebarContainer)}>
       <Tabs tabs={[{ id: 'user', title: lang.tr('module.hitlnext.handoff.contactDetails') }]} />
-      <UserProfile conversation={userConversation} />
+      <UserProfile {...user} />
 
       {!_.isEmpty(comments) && (
         <Fragment>
