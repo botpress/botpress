@@ -15,13 +15,11 @@ export const HandoffAssigned = props => {
     }, 10) // hack to make sure translations are initialized
   }, [])
 
-  const forAgent = props.from !== 'agent'
-
   return (
     <Fragment>
-      {forAgent && <MessageList events={props.recentEvents || []} />}
-      {isLangInit && props.from === 'agent' && <span>{lang.tr('module.hitlnext.handoff.assignedToAgent')}</span>}
-      {isLangInit && props.from !== 'agent' && (
+      {props.forAgent && <MessageList events={props.recentEvents || []} />}
+      {isLangInit && !props.forAgent && <span>{lang.tr('module.hitlnext.handoff.assignedToAgent')}</span>}
+      {isLangInit && props.forAgent && (
         <div className={style.handoffAssigned}>{lang.tr('module.hitlnext.handoff.assignedToYou')}</div>
       )}
     </Fragment>

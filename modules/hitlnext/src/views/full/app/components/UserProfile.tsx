@@ -50,34 +50,33 @@ const UserProfile: FC<IUser> = props => {
         <span className={style.clientName}>{userName()}</span>
         {!_.isEmpty(props.attributes) && props.attributes['email'] && <p>{props.attributes['email']}</p>}
       </div>
-
-      {!_.isEmpty(props.attributes) && (
-        <Fragment>
-          <div className={style.divider}></div>
-          <Collapsible
-            opened={expanded}
-            toggleExpand={() => setExpanded(!expanded)}
-            name={lang.tr('module.hitlnext.user.variables.heading')}
-          >
-            <table className={style.table}>
-              <thead>
-                <tr>
-                  <th>{lang.tr('module.hitlnext.user.variables.variable')}</th>
-                  <th>{lang.tr('module.hitlnext.user.variables.value')}</th>
+      <Collapsible
+        opened={expanded}
+        toggleExpand={() => setExpanded(!expanded)}
+        name={lang.tr('module.hitlnext.user.variables.heading')}
+        ownProps={{ transitionDuration: 10 }}
+      >
+        {/* TODO show empty state here */}
+        {_.isEmpty(props.attributes) && <div>nothing to show here</div>}
+        {!_.isEmpty(props.attributes) && (
+          <table className={style.table}>
+            <thead>
+              <tr>
+                <th>{lang.tr('module.hitlnext.user.variables.variable')}</th>
+                <th>{lang.tr('module.hitlnext.user.variables.value')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(props.attributes).map((entry, index) => (
+                <tr key={index}>
+                  <td>{entry[0]}</td>
+                  <td>{entry[1]}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {Object.entries(props.attributes).map((entry, index) => (
-                  <tr key={index}>
-                    <td>{entry[0]}</td>
-                    <td>{entry[1]}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </Collapsible>
-        </Fragment>
-      )}
+              ))}
+            </tbody>
+          </table>
+        )}
+      </Collapsible>
     </div>
   )
 }

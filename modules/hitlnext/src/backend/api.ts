@@ -257,13 +257,14 @@ export default async (bp: typeof sdk, state: StateType) => {
         }
       }
 
+      // custom event to user
       bp.events.sendEvent(
         bp.IO.Event(
           _.merge(_.cloneDeep(baseCustomEventPayload), {
             target: handoff.userId,
             threadId: handoff.userThreadId,
             channel: handoff.userChannel,
-            payload: { from: 'agent' }
+            payload: { forAgent: false }
           }) as sdk.IO.EventCtorArgs
         )
       )
@@ -280,7 +281,7 @@ export default async (bp: typeof sdk, state: StateType) => {
             target: handoff.agentId,
             channel: 'web',
             threadId: handoff.agentThreadId,
-            payload: { recentEvents, noBubble: true, wrapped: { type: 'handoff' } } // super hack to make sure wrapper use our style, don't change this until fixed properly
+            payload: { forAgent: true, recentEvents, noBubble: true, wrapped: { type: 'handoff' } } // super hack to make sure wrapper use our style, don't change this until fixed properly
           } as sdk.IO.EventCtorArgs)
         )
       )
