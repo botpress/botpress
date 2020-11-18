@@ -35,11 +35,6 @@ export type IAgent = {
   attributes?: Pick<IUserProfile, 'firstname' | 'lastname'>
 } & Pick<IUserProfile, 'email' | 'strategy' | 'isSuperAdmin' | 'permissions'>
 
-export type IUser = {
-  id: string
-  variables?: { name: string; value: any }[]
-} & Partial<IUserProfile>
-
 export type HandoffType = 'pending' | 'assigned' | 'resolved'
 export interface IHandoff {
   id: string

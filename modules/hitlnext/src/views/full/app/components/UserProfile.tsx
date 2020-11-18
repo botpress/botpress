@@ -2,7 +2,7 @@ import { Collapsible, lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
 
-import { IEvent, IUser } from '../../../../types'
+import { IEvent } from '../../../../types'
 import style from '../../style.scss'
 import { Context } from '../Store'
 
@@ -15,12 +15,12 @@ interface Props {
 const UserProfile: FC<Props> = ({ conversation }) => {
   const { state, dispatch } = useContext(Context)
 
-  const [expanded, setExpanded] = useState(false)
-  const [user, setUser] = useState<IUser>()
+  const [expanded, setExpanded] = useState(true)
+  const [variables, setVariables] = useState({})
   const [defaultUsername, setDefaultUsername] = useState<string>()
 
   useEffect(() => {
-    setUser(_.get(conversation.event, 'state.user', {}))
+    setVariables(_.get(conversation.event, 'state.user'))
   }, [conversation])
 
   useEffect(() => {
@@ -48,7 +48,7 @@ const UserProfile: FC<Props> = ({ conversation }) => {
   }, [conversation])
 
   const userName = () => {
-    return (user && user.fullName) || state.config.defaultUsername
+    return (variables && variables['fullName']) || state.config.defaultUsername
       ? defaultUsername
       : lang.tr('module.hitlnext.user.anonymous')
   }
@@ -57,10 +57,10 @@ const UserProfile: FC<Props> = ({ conversation }) => {
     <div>
       <div className={style.profileHeader}>
         <span className={style.clientName}>{userName()}</span>
-        {user && <p>{user.email}</p>}
+        {variables && variables['email'] && <p>{variables['email']}</p>}
       </div>
 
-      {user && !_.isEmpty(user.variables) && (
+      {!_.isEmpty(variables) && (
         <Fragment>
           <div className={style.divider}></div>
           <Collapsible
@@ -76,10 +76,10 @@ const UserProfile: FC<Props> = ({ conversation }) => {
                 </tr>
               </thead>
               <tbody>
-                {user.variables.map((entry, index) => (
+                {Object.entries(variables).map((entry, index) => (
                   <tr key={index}>
-                    <td>{entry.name}</td>
-                    <td>{entry.value}</td>
+                    <td>{entry[0]}</td>
+                    <td>{entry[1]}</td>
                   </tr>
                 ))}
               </tbody>
