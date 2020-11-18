@@ -12,7 +12,7 @@ export const HandoffAssigned = props => {
     lang.init()
     setTimeout(() => {
       setLangInit(true)
-    }, 400) // hack to make sure translations are initialized
+    }, 10) // hack to make sure translations are initialized
   }, [])
 
   const forAgent = props.from !== 'agent'
