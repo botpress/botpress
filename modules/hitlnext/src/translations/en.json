@@ -31,7 +31,7 @@
     },
     "assignedToAgent": "You've been assigned to an agent",
     "assignedToYou": "Conversation Handed to You",
-    "assign": "Assign",
+    "assign": "Assign to me",
     "resolve": "Resolve",
     "assigned": "Handoff {id} successfully assigned",
     "resolved": "Handoff {id} successfully resolved",
