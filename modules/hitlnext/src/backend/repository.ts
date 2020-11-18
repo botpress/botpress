@@ -417,7 +417,6 @@ export default class Repository {
     return this.bp.database.insertAndRetrieve<IComment>('comments', payload, this.commentColumns)
   }
 
-  // TODO bp.events.findEvents instead, wil
   getMessages = (botId: string, threadId: string, conditions: CollectionConditions = {}) => {
     return this.bp.events.findEvents(
       { botId, threadId },

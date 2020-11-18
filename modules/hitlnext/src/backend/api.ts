@@ -73,6 +73,12 @@ export default async (bp: typeof sdk, state: StateType) => {
     }
   }
 
+  const extendAgentSession = async (workspace: string, botId: string, agentId: string): Promise<void> => {
+    await repository.setAgentOnline(botId, agentId, true)
+    await registerTimeout(workspace, botId, agentId)
+    debug.forBot(botId, 'Registering timeout', { agentId })
+  }
+
   router.use(licenseMiddleware)
 
   router.get(
@@ -248,9 +254,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       handoff = await repository.updateHandoff(req.params.botId, req.params.id, payload)
       state.cacheHandoff(req.params.botId, agentThreadId, handoff)
 
-      // Bump agent session timeout
-      await repository.setAgentOnline(req.params.botId, agentId, true)
-      await registerTimeout(req.workspace, req.params.botId, agentId)
+      await extendAgentSession(req.workspace, req.params.botId, agentId)
 
       const baseCustomEventPayload: Partial<sdk.IO.EventCtorArgs> = {
         botId: handoff.botId,
@@ -329,10 +333,7 @@ export default async (bp: typeof sdk, state: StateType) => {
         return handoff
       })
 
-      await repository.setAgentOnline(req.params.botId, agentId, true) // Bump agent session timeout
-      await registerTimeout(req.workspace, req.params.botId, agentId).then(() => {
-        debug.forBot(req.params.botId, 'Registering timeout', { agentId })
-      })
+      await extendAgentSession(req.workspace, req.params.botId, agentId)
 
       realtime.sendPayload(req.params.botId, {
         resource: 'handoff',
@@ -364,10 +365,7 @@ export default async (bp: typeof sdk, state: StateType) => {
 
       const comment = await repository.createComment(payload)
 
-      await repository.setAgentOnline(req.params.botId, agentId, true) // Bump agent session timeout
-      await registerTimeout(req.workspace, req.params.botId, agentId).then(() => {
-        debug.forBot(req.params.botId, 'Registering timeout', { agentId })
-      })
+      await extendAgentSession(req.workspace, req.params.botId, agentId)
 
       res.status(201)
       res.send(comment)
