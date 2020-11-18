@@ -2,29 +2,20 @@ import { Collapsible, lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
 
-import { IEvent } from '../../../../types'
+import { IUser } from '../../../../types'
 import style from '../../style.scss'
 import { Context } from '../Store'
 
 import { generateUsername, getOrSet } from './../utils'
 
-interface Props {
-  conversation: IEvent
-}
-
-const UserProfile: FC<Props> = ({ conversation }) => {
+const UserProfile: FC<IUser> = props => {
   const { state, dispatch } = useContext(Context)
 
   const [expanded, setExpanded] = useState(true)
-  const [variables, setVariables] = useState({})
   const [defaultUsername, setDefaultUsername] = useState<string>()
 
   useEffect(() => {
-    setVariables(_.get(conversation.event, 'state.user'))
-  }, [conversation])
-
-  useEffect(() => {
-    const key = _.get(conversation.event, 'target')
+    const key = props.id
     const username = getOrSet(
       () => {
         return _.get(state, `defaults.user.${key}.username`)
@@ -45,10 +36,10 @@ const UserProfile: FC<Props> = ({ conversation }) => {
     )
 
     setDefaultUsername(username)
-  }, [conversation])
+  }, [props.id])
 
   const userName = () => {
-    return (variables && variables['fullName']) || state.config.defaultUsername
+    return (!_.isEmpty(props.attributes) && props.attributes['fullName']) || state.config.defaultUsername
       ? defaultUsername
       : lang.tr('module.hitlnext.user.anonymous')
   }
@@ -57,10 +48,10 @@ const UserProfile: FC<Props> = ({ conversation }) => {
     <div>
       <div className={style.profileHeader}>
         <span className={style.clientName}>{userName()}</span>
-        {variables && variables['email'] && <p>{variables['email']}</p>}
+        {!_.isEmpty(props.attributes) && props.attributes['email'] && <p>{props.attributes['email']}</p>}
       </div>
 
-      {!_.isEmpty(variables) && (
+      {!_.isEmpty(props.attributes) && (
         <Fragment>
           <div className={style.divider}></div>
           <Collapsible
@@ -76,7 +67,7 @@ const UserProfile: FC<Props> = ({ conversation }) => {
                 </tr>
               </thead>
               <tbody>
-                {Object.entries(variables).map((entry, index) => (
+                {Object.entries(props.attributes).map((entry, index) => (
                   <tr key={index}>
                     <td>{entry[0]}</td>
                     <td>{entry[1]}</td>

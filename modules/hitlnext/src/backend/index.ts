@@ -25,12 +25,6 @@ const onServerStarted = async (bp: typeof sdk) => {
 }
 
 const onServerReady = async (bp: typeof sdk) => {
-  if (!process.IS_PRO_ENABLED) {
-    const config = await bp.config.getModuleConfig(MODULE_NAME)
-    bp.logger.info(`${config.fullName} module is disabled because it requires Botpress Pro`)
-    return
-  }
-
   const workspace = Workspace(bp)
 
   await migrate(bp)

@@ -22,14 +22,18 @@ export interface CollectionConditions extends Partial<SortOrder> {
 export default class Repository {
   private readonly handoffColumns: string[]
   private readonly commentColumns: string[]
+  private readonly userColumns: string[]
   private readonly eventColumns: string[]
   private readonly commentColumnsPrefixed: string[]
+  private readonly userColumnsPrefixed: string[]
   private readonly commentPrefix: string
   private readonly handoffPrefix: string
+  private readonly userPrefix: string
 
   constructor(private bp: typeof sdk) {
     this.commentPrefix = 'comment'
     this.handoffPrefix = 'handoff'
+    this.userPrefix = 'user'
 
     this.handoffColumns = [
       'id',
@@ -50,7 +54,11 @@ export default class Repository {
 
     this.eventColumns = ['id', 'direction', 'botId', 'channel', 'success', 'createdOn', 'threadId', 'type', 'event']
 
+    this.userColumns = ['id', 'attributes']
+
     this.commentColumnsPrefixed = this.commentColumns.map(s => this.commentPrefix.concat(':', s))
+
+    this.userColumnsPrefixed = this.userColumns.map(s => this.userPrefix.concat(':', s))
   }
 
   // This mutates object
@@ -80,7 +88,7 @@ export default class Repository {
   }
 
   // This mutates rows
-  private hydrateComments(rows: any[]): IHandoff[] {
+  private hydrateHandoffs(rows: any[]): IHandoff[] {
     const records = rows.reduce((memo, row) => {
       memo[row.id] = memo[row.id] || {
         ..._.pick(row, this.handoffColumns),
@@ -90,6 +98,13 @@ export default class Repository {
       if (row[`${this.commentPrefix}:id`]) {
         const record = _.mapKeys(_.pick(row, this.commentColumnsPrefixed), (v, k) => _.split(k, ':').pop())
         memo[row.id].comments[row[`${this.commentPrefix}:id`]] = record
+      }
+
+      if (row[`${this.userPrefix}:id`]) {
+        const record = _.mapKeys(_.pick(row, this.userColumnsPrefixed), (v, k) => _.split(k, ':').pop())
+        record.attributes = this.bp.database.json.get(record.attributes) // Parse json
+
+        memo[row.id].user = record
       }
 
       return memo
@@ -109,8 +124,11 @@ export default class Repository {
 
     const toMerge = events.map(event => {
       return _.tap({}, item => {
+        const record = _.pick(event, this.eventColumns)
+        record.event = this.bp.database.json.get(record.event)
+
         item['id'] = event[`${this.handoffPrefix}:id`]
-        item[key] = _.pick(event, this.eventColumns)
+        item[key] = record
       })
     })
 
@@ -144,7 +162,7 @@ export default class Repository {
       .join(this.recentEventQuery(), 'handoffs.userThreadId', 'recent_event.threadId')
   }
 
-  private handoffsWithCommentsQuery(botId: string, conditions: CollectionConditions = {}) {
+  private handoffsWithAssociationsQuery(botId: string, conditions: CollectionConditions = {}) {
     return this.bp
       .database<IHandoff>('handoffs')
       .select(
@@ -155,9 +173,12 @@ export default class Repository {
         `comments.threadId as ${this.commentPrefix}:threadId`,
         `comments.content as ${this.commentPrefix}:content`,
         `comments.updatedAt as ${this.commentPrefix}:updatedAt`,
-        `comments.createdAt as ${this.commentPrefix}:createdAt`
+        `comments.createdAt as ${this.commentPrefix}:createdAt`,
+        `srv_channel_users.user_id as ${this.userPrefix}:id`,
+        `srv_channel_users.attributes as ${this.userPrefix}:attributes`
       )
       .leftJoin('comments', 'handoffs.userThreadId', 'comments.threadId')
+      .leftJoin('srv_channel_users', 'handoffs.userId', 'srv_channel_users.user_id')
       .where('handoffs.botId', botId)
       .distinct()
       .modify(this.applyLimit, conditions)
@@ -301,10 +322,10 @@ export default class Repository {
   ): Promise<IHandoff[]> => {
     return this.bp.database
       .transaction(async trx => {
-        return this.handoffsWithCommentsQuery(botId, conditions)
+        return this.handoffsWithAssociationsQuery(botId, conditions)
           .modify(this.applyQuery(query))
           .transacting(trx)
-          .then(this.hydrateComments.bind(this))
+          .then(this.hydrateHandoffs.bind(this))
           .then(async data =>
             this.hydrateEvents(
               await this.userEventsQuery()
@@ -319,10 +340,10 @@ export default class Repository {
   }
 
   getHandoffWithComments = async (botId: string, id: string, query?: Knex.QueryCallback): Promise<IHandoff> => {
-    return this.handoffsWithCommentsQuery(botId)
+    return this.handoffsWithAssociationsQuery(botId)
       .andWhere('handoffs.id', id)
       .modify(this.applyQuery(query))
-      .then(this.hydrateComments.bind(this))
+      .then(this.hydrateHandoffs.bind(this))
       .then(async data =>
         this.hydrateEvents(await this.userEventsQuery().where('handoffs.id', id), data, 'userConversation')
       )
@@ -357,7 +378,7 @@ export default class Repository {
       return trx('handoffs')
         .where('botId', botId)
         .where('id', id)
-        .then(this.hydrateComments.bind(this)) // Note: there won't be any comments yet, but an empty collection is required
+        .then(this.hydrateHandoffs.bind(this))
         .then(async data =>
           this.hydrateEvents(
             await this.userEventsQuery()
@@ -386,10 +407,10 @@ export default class Repository {
         .where({ id })
         .update(payload)
 
-      return this.handoffsWithCommentsQuery(botId)
+      return this.handoffsWithAssociationsQuery(botId)
         .andWhere('handoffs.id', id)
         .transacting(trx)
-        .then(this.hydrateComments.bind(this))
+        .then(this.hydrateHandoffs.bind(this))
         .then(async data =>
           this.hydrateEvents(
             await this.userEventsQuery()
