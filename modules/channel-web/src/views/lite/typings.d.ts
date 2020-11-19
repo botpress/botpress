@@ -144,6 +144,7 @@ export interface Config {
   showTimestamp: boolean
   enableTranscriptDownload: boolean
   enableArrowNavigation: boolean
+  closeOnEscape: boolean
   botName?: string
   composerPlaceholder?: string
   avatarUrl?: string
@@ -176,9 +177,9 @@ export interface Config {
   /** Reference ensures that a specific value and its signature are valid */
   reference: string
   /** If true, Websocket is created when the Webchat is opened. Bot cannot be proactive. */
-  lazySocket?: boolean,
+  lazySocket?: boolean
   /** Refers to a specific webchat reference in parent window. Useful when using multiple chat window */
-  chatId?: string,
+  chatId?: string
   /** CSS class to be applied to iframe */
   className?: string
 }

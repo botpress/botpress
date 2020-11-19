@@ -1,6 +1,5 @@
 import { configure } from 'mobx'
 import { inject, observer, Provider } from 'mobx-react'
-import DevTools from 'mobx-react-devtools'
 import React from 'react'
 import { IntlProvider } from 'react-intl'
 
@@ -39,7 +38,6 @@ class ExposedWebChat extends React.Component<Props, State> {
         <IntlProvider locale={locale} messages={translations[locale]} defaultLocale={defaultLocale}>
           <React.Fragment>
             <Chat {...this.props} />
-            {process.env.NODE_ENV === 'development' && <DevTools className="bpw-mobx-tools" />}
           </React.Fragment>
         </IntlProvider>
       </Provider>

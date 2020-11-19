@@ -9,6 +9,12 @@ import { OverlayProps } from '../../ui-shared-lite/Overlay/typings'
 import { TabsProps } from '../../ui-shared-lite/Tabs/typings'
 import { ToolTipProps } from '../../ui-shared-lite/ToolTip/typings'
 
+import {
+  AccessControlProps,
+  PermissionAllowedProps,
+  PermissionOperation,
+  RequiredPermission
+} from './AccessControl/typings'
 import { CommanderProps, QuickShortcut } from './Commander/typings'
 import { ConfirmDialogOptions } from './ConfirmDialog/typings'
 import { DialogProps } from './Dialog/typings'
@@ -30,6 +36,7 @@ import { ToastOptions } from './Toaster'
 import { TreeViewProps } from './TreeView/typings'
 
 declare module 'botpress/shared' {
+  export function isOperationAllowed(props: PermissionAllowedProps): boolean
   export function Checkbox(props: CheckboxProps): JSX.Element
   export function Collapsible(props: CollapsibleProps): JSX.Element
   export function Commander(props: CommanderProps): JSX.Element
@@ -110,6 +117,7 @@ declare module 'botpress/shared' {
   export const sharedStyle: CssExports
 
   export { Option, MoreOptionsItems, HeaderButtonProps, ToolbarButtonProps, QuickShortcut, MenuItem, HeaderButton }
+  export { RequiredPermission, PermissionAllowedProps, AccessControlProps, PermissionOperation }
 }
 
 declare global {
