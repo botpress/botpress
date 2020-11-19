@@ -368,7 +368,7 @@ export default class Repository {
     )
 
     return this.bp.database.transaction(async trx => {
-      const id = await this.bp.database.insertAndRetrieve('handoffs', payload, 'id', null, trx)
+      const id = await this.bp.database.insertAndRetrieve('handoffs', payload, 'id', 'id', trx)
 
       return trx('handoffs')
         .where('botId', botId)
