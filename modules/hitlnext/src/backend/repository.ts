@@ -180,7 +180,6 @@ export default class Repository {
       .leftJoin('comments', 'handoffs.userThreadId', 'comments.threadId')
       .leftJoin('srv_channel_users', 'handoffs.userId', 'srv_channel_users.user_id')
       .where('handoffs.botId', botId)
-      .distinct()
       .modify(this.applyLimit, conditions)
       .modify(this.applyOrderBy, conditions)
       .orderBy([{ column: 'comments.createdAt', order: 'asc' }])
