@@ -3,9 +3,10 @@ import { lang, toast } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { useContext, useEffect, useState } from 'react'
-import { WEBSOCKET_TOPIC } from './../../constants'
+
 import { IHandoff, ISocketMessage } from '../../types'
 
+import { WEBSOCKET_TOPIC } from './../../constants'
 import AgentList from './app/components/AgentList'
 import AgentProfile from './app/components/AgentProfile'
 import ConversationContainer from './app/components/ConversationContainer'
@@ -96,7 +97,12 @@ const App = ({ bp }) => {
 
   useEffect(() => {
     bp.events.on(`${WEBSOCKET_TOPIC}:${window.BOT_ID}`, handleMessage)
-    return () => bp.events.off(`${WEBSOCKET_TOPIC}:${window.BOT_ID}`, handleMessage)
+    const i = setInterval(() => getHandoffs(), 2000)
+
+    return () => {
+      bp.events.off(`${WEBSOCKET_TOPIC}:${window.BOT_ID}`, handleMessage)
+      clearInterval(i)
+    }
   }, [])
 
   useEffect(() => {

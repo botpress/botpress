@@ -123,7 +123,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
     // the session or bot is paused, swallow the message
     // TODO deprecate usage of isPause
     // @ts-ignore
-    Object.assign(event, { isPause: true })
+    Object.assign(event, { isPause: true, handoffId: handoff.id })
 
     next()
   }
