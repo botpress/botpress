@@ -24,4 +24,5 @@ jobs:
           yarn add @botpress/bitfan@0.3.0
       - name: Run Regression Test
         run: |
-          yarn start nlu --silent & sleep 5s && node ./build/nlu-regression/index.js
+          yarn start nlu --silent --ducklingEnabled=false & 
+          sleep 5s && node ./build/nlu-regression/index.js

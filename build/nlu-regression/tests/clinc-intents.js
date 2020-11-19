@@ -39,19 +39,11 @@ module.exports = function(bitfan) {
 
       const makeProblem = problemMaker(bitfan)
 
-      const resultsForSeed42 = await bitfan.runSolution({
+      const results = await bitfan.runSolution({
         name: "bpds intent",
         problems: [await makeProblem("clinc150, 20 utt/intent, seed 42", "clinc150_20_42-train", "clinc150_100-test")],
         engine,
       }, [42]);
-
-      const resultsForSeed69 = await bitfan.runSolution({
-        name: "bpds intent",
-        problems: [await makeProblem("clinc150, 20 utt/intent, seed 69", "clinc150_20_69-train", "clinc150_100-test")],
-        engine
-      }, [69]);
-
-      const results = [...resultsForSeed42, ...resultsForSeed69]
 
       const performanceReport = bitfan.evaluateMetrics(results, metrics);
       await bitfan.visualisation.showPerformanceReport(performanceReport, { groupBy: "problem" });

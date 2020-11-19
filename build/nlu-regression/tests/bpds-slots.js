@@ -40,7 +40,7 @@ module.exports = function(bitfan) {
       const allTopics = [
         "A",
         "B",
-        "C",
+        // "C", /* skip C as it involves duckling which slows down regression check */
         "D",
         "E",
         "F",
