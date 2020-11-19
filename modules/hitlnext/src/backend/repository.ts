@@ -368,11 +368,7 @@ export default class Repository {
     )
 
     return this.bp.database.transaction(async trx => {
-      await trx('handoffs').insert(payload)
-
-      const id = await trx
-        .select(this.bp.database.raw('last_insert_rowid() as id'))
-        .then(result => _.head(_.map(result, 'id')))
+      const id = await this.bp.database.insertAndRetrieve('handoffs', payload, 'id', null, trx)
 
       return trx('handoffs')
         .where('botId', botId)
