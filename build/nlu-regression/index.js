@@ -4,6 +4,7 @@ const chalk = require("chalk")
 const bpdsIntents = require("./tests/bpds-intents")
 const bpdsSlots = require("./tests/bpds-slots")
 const clincIntents = require("./tests/clinc-intents")
+const bpdsSpell = require("./tests/bpds-spell")
 
 const { updateResults, readResults } = require("./score-service")
 
@@ -43,7 +44,8 @@ async function main(args) {
 
   const tests = [
     bpdsIntents, 
-    bpdsSlots, 
+    bpdsSlots,
+    bpdsSpell,
     clincIntents
   ]
 
