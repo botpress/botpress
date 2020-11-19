@@ -49,7 +49,7 @@ export class ModuleResourceLoader {
   }
 
   constructor(private logger: Logger, private moduleName: string, private ghost: GhostService) {
-    this.globalPaths = [`/actions/${this.moduleName}`, `/content-types/${this.moduleName}`]
+    this.globalPaths = [`/actions/${this.moduleName}/`, `/content-types/${this.moduleName}/`]
     this.hookMatcher = new RegExp(`^[a-z_]+?\/${this.moduleName}/`)
   }
 
