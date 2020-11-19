@@ -131,7 +131,7 @@ If you have a restricted app, you may need to specify the tenantId also.`
     const messageType = event.type === 'default' ? 'text' : event.type
 
     if (!_.includes(outgoingTypes, messageType)) {
-      throw new Error('Unsupported event type: ' + event.type)
+      throw new Error(`Unsupported event type: ${event.type}`)
     }
 
     const ref = await this._getConversationRef(event.threadId)
