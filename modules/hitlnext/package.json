@@ -20,22 +20,18 @@
       "botpress/utils": "BotpressUtils"
     }
   },
-  "devDependencies": {
-    "@types/react-bootstrap": "^0.32.23"
-  },
   "dependencies": {
     "@blueprintjs/core": "^3.31.0",
     "axios": "^0.19.0",
     "bluebird": "^3.5",
     "classnames": "^2.2.6",
     "haikunator": "^2.1.2",
-    "immer": "^7",
+    "immer": "^8",
     "joi": "^17",
     "lodash": ">=4.17",
     "moment": "^2.24",
     "react-initial": "^1.0.12",
     "serialize-javascript": "^5.0.1",
-    "uuid": "^8.3.1",
     "yn": "^4.0.0"
   },
   "resolutions": {
