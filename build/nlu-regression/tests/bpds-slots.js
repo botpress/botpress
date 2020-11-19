@@ -46,7 +46,7 @@ module.exports = function(bitfan) {
         "F",
         "G",
         "H",
-        "I",
+        // "I", /* skip I as it involves duckling which slows down regression check */
         "J",
       ];
   
