@@ -1,4 +1,5 @@
 import { ContentSection, lang } from 'botpress/shared'
+import { agentName } from '../../shared/helper'
 import moment from 'moment'
 import React, { FC, useContext } from 'react'
 
@@ -13,14 +14,14 @@ const Comment: FC<IComment> = props => {
     return moment(str).format('DD/MM/YYYY')
   }
 
-  function agentName() {
+  function displayAgentName() {
     const agent = state.agents[props.agentId]
+
     if (state.currentAgent?.agentId === props.agentId) {
       return lang.tr('module.hitlnext.handoff.you')
+    } else {
+      return agentName(agent)
     }
-
-    const displayName = [agent.attributes.firstname, agent.attributes.lastname].filter(Boolean).join(' ')
-    return displayName || agent.email
   }
 
   return (
@@ -29,7 +30,7 @@ const Comment: FC<IComment> = props => {
         <li>{props.content}</li>
       </ul>
       <p className={style.createdDate}>
-        {formatDate(props.createdAt)} <span>⋅</span> {agentName()}
+        {formatDate(props.createdAt)} <span>⋅</span> {displayAgentName()}
       </p>
     </ContentSection>
   )

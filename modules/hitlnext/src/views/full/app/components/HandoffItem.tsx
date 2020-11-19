@@ -11,6 +11,7 @@ import { generateUsername, getOrSet } from '../utils'
 import { Context } from '../Store'
 
 import HandoffBadge from './HandoffBadge'
+import { agentName } from '../../shared/helper'
 
 const HandoffItem: FC<IHandoff> = props => {
   const { createdAt, id, status, agentId, userConversation, userChannel } = props
@@ -78,12 +79,12 @@ const HandoffItem: FC<IHandoff> = props => {
       : lang.tr('module.hitlnext.user.anonymous')
   }
 
-  const agentName = () => {
+  const displayAgentName = () => {
     if (agentId && agentId === state.currentAgent?.agentId) {
       return lang.tr('module.hitlnext.handoff.you')
     } else if (agentId) {
       const agent = state.agents[agentId]
-      return [agent.attributes.firstname, agent.attributes.lastname].filter(Boolean).join(' ')
+      return agentName(agent)
     }
   }
 
@@ -96,7 +97,7 @@ const HandoffItem: FC<IHandoff> = props => {
       <div className={style.info}>
         <span className={style.clientName}>{userName()}</span> <strong>#{id}</strong>
         <p>
-          <span>From {userChannel}</span> {agentId && '⋅'} <span>{agentName()}</span>
+          <span>From {userChannel}</span> {agentId && '⋅'} <span>{displayAgentName()}</span>
         </p>
         <Text ellipsize={true}>{_.get(userConversation, 'event.preview')}</Text>
         <p className={style.createdDate}>{fromNow}</p>

@@ -1,4 +1,5 @@
 import { Colors, Position, Spinner, Tooltip } from '@blueprintjs/core'
+import { agentName } from '../../shared/helper'
 import _, { Dictionary } from 'lodash'
 import React, { FC } from 'react'
 import { Initial } from 'react-initial'
@@ -11,16 +12,6 @@ interface Props {
 }
 
 const AgentList: FC<Props> = props => {
-  function agentName(agent: IAgent) {
-    const { firstname, lastname } = agent.attributes
-
-    if (firstname || lastname) {
-      return [firstname, lastname].filter(Boolean).join(' ')
-    } else {
-      return agent.email
-    }
-  }
-
   function dotStyle(online) {
     return {
       top: -3,
