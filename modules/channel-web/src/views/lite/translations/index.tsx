@@ -7,6 +7,7 @@ import localeFr from 'react-intl/locale-data/fr'
 import localePt from 'react-intl/locale-data/pt'
 import localeRu from 'react-intl/locale-data/ru'
 import localeUk from 'react-intl/locale-data/uk'
+import localeIt from 'react-intl/locale-data/it'
 
 import ar from './ar.json'
 import de from './de.json'
@@ -16,9 +17,10 @@ import fr from './fr.json'
 import pt from './pt.json'
 import ru from './ru.json'
 import uk from './uk.json'
+import it from './it.json'
 
 const defaultLocale = 'en'
-const translations = { en, fr, pt, es, ar, ru, uk, de }
+const translations = { en, fr, pt, es, ar, ru, uk, de, it }
 
 const getUserLocale = (manualLocale?: 'browser' | string) => {
   const code = str => str.split('-')[0]
@@ -38,7 +40,8 @@ const initializeLocale = () => {
     ...localeAr,
     ...localeRu,
     ...localeUk,
-    ...localeDe
+    ...localeDe,
+    ...localeIt,
   ])
 }
 
