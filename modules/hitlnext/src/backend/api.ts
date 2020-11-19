@@ -71,6 +71,17 @@ export default async (bp: typeof sdk, state: StateType) => {
     debug.forBot(botId, 'Registering timeout', { agentId })
   }
 
+  // This should be available for all modules
+  // The only thing we would need is a jsdoc comment @private on configs
+  // we don't want to expose in some modules
+  router.get(
+    '/config',
+    errorMiddleware(async (req: RequestWithUser, res: Response) => {
+      const configs = await bp.config.getModuleConfigForBot(MODULE_NAME, req.params.botId)
+      res.send(configs)
+    })
+  )
+
   router.get(
     '/agents/me',
     errorMiddleware(async (req: RequestWithUser, res: Response) => {

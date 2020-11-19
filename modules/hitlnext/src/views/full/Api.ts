@@ -3,7 +3,7 @@ import _ from 'lodash'
 import moment from 'moment'
 
 import { Config } from '../../config'
-import { IAgent, IComment, IHandoff, IEvent } from '../../types'
+import { IAgent, IComment, IEvent, IHandoff } from '../../types'
 
 // TODO Handle casting when object is undefined
 export function castDate<T extends object>(object: T, paths: string[]): T {
@@ -65,10 +65,7 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
   }
 
   return {
-    getConfig: async () =>
-      bp.axios
-        .get('/modules/hitlnext/config', { baseURL: window.API_PATH, params: { botId: window.BOT_ID } })
-        .then(res => res.data),
+    getConfig: async () => bp.axios.get('/config', config).then(res => res.data),
     setOnline: async () => bp.axios.post('/agents/me/online', null, config).then(res => res.data),
     setOffline: async () => bp.axios.post('/agents/me/offline', null, config).then(res => res.data),
     getAgents: async (online?: boolean) =>
