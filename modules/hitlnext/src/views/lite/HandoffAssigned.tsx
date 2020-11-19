@@ -8,7 +8,7 @@ import MessageList from './MessageList'
 async function initLang(): Promise<void> {
   return new Promise(resolve => {
     lang.init()
-    setTimeout(resolve, 10) // hack to make sure translations are initialized before 1st rendering
+    setTimeout(resolve, 100) // hack to make sure translations are initialized before 1st rendering
   })
 }
 

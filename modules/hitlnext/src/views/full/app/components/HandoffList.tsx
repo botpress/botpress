@@ -22,7 +22,7 @@ const HandoffList: FC<Props> = props => {
   const [filterOptions, setFilterOptions] = useState<FilterType>({
     unassigned: true,
     assignedMe: true,
-    assignedOther: true,
+    assignedOther: false,
     resolved: false
   })
   const [sortOption, setSortOption] = useState<SortType>('mostRecent')
