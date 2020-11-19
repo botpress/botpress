@@ -1,5 +1,5 @@
 {
-  "generatedOn": "2020-11-19T15:44:52.222Z",
+  "generatedOn": "2020-11-19T18:42:41.360Z",
   "scores": [
     {
       "metric": "avgScore:slotsAre",
@@ -41,19 +41,19 @@
       "metric": "avgScore:slotsAre",
       "problem": "bpds slot C",
       "seed": 42,
-      "score": 0.625
+      "score": 0.5
     },
     {
       "metric": "avgScore:slotIncludes",
       "problem": "bpds slot C",
       "seed": 42,
-      "score": 0.6875
+      "score": 0.625
     },
     {
       "metric": "avgScore:slotCountIs",
       "problem": "bpds slot C",
       "seed": 42,
-      "score": 0.75
+      "score": 0.625
     },
     {
       "metric": "avgScore:slotsAre",
