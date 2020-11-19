@@ -6,4 +6,4 @@ export class LiteView extends React.Component {
   }
 }
 
-export { HandoffAssigned } from './HandoffAssigned'
+export { HandoffAssignedForAgent, HandoffAssignedForUser } from './HandoffAssigned'

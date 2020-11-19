@@ -15,7 +15,6 @@ const WEBCHAT_ID = 'hitl-webchat'
 const WRAPPER_ID = `${WEBCHAT_ID}-wrapper`
 
 const LiveChat: React.FC<Props> = ({ handoff, currentAgent }) => {
-  const [webchatLoaded, setwebchatLoaded] = useState(false)
   const [webchatReady, setWebchatReady] = useState(false)
 
   function getWebchatStore() {
