@@ -11,7 +11,7 @@ import { MODULE_NAME } from '../constants'
 
 import { HandoffType, IComment, IHandoff } from './../types'
 import AgentSession from './agentSession'
-import { UnauthorizedError, UnprocessableEntityError } from './errors'
+import { UnprocessableEntityError } from './errors'
 import { formatValidationError, makeAgentId } from './helpers'
 import { StateType } from './index'
 import Repository, { AgentCollectionConditions, CollectionConditions } from './repository'
@@ -360,7 +360,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       const { email, strategy } = req.tokenUser!
       const agentId = makeAgentId(strategy, email)
 
-      const handoff = await repository.getHandoff(req.params.id)
+      const handoff = await repository.getHandoffWithComments(req.params.botId, req.params.id)
 
       const payload: IComment = {
         ...req.body,
@@ -372,7 +372,14 @@ export default async (bp: typeof sdk, state: StateType) => {
       Joi.attempt(payload, CreateCommentSchema)
 
       const comment = await repository.createComment(payload)
+      handoff.comments = [...handoff.comments, comment]
 
+      realtime.sendPayload(req.params.botId, {
+        resource: 'handoff',
+        type: 'update',
+        id: handoff.id,
+        payload: handoff
+      })
       await extendAgentSession(req.workspace, req.params.botId, agentId)
 
       res.status(201)

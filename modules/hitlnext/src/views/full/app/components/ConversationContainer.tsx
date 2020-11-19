@@ -25,7 +25,7 @@ const ConversationContainer: FC<Props> = props => {
 
   async function handleAssign() {
     try {
-      const handoff = await api.assignHandoff(state.currentHandoff.id)
+      const handoff = await api.assignHandoff(state.selectedHandoffId)
       toast.success(lang.tr('module.hitlnext.handoff.assigned', { id: handoff.id }))
     } catch (error) {
       dispatch({ type: 'setError', payload: error })
@@ -34,7 +34,7 @@ const ConversationContainer: FC<Props> = props => {
 
   async function handleResolve() {
     try {
-      const handoff = await api.resolveHandoff(state.currentHandoff.id)
+      const handoff = await api.resolveHandoff(state.selectedHandoffId)
       toast.success(lang.tr('module.hitlnext.handoff.resolved', { id: handoff.id }))
     } catch (error) {
       dispatch({ type: 'setError', payload: error })
@@ -45,10 +45,12 @@ const ConversationContainer: FC<Props> = props => {
     return isOperationAllowed({ user: state.currentAgent, resource: 'module.hitlnext', operation })
   }
 
+  const selectedHandoff = state.handoffs[state.selectedHandoffId]
+
   const shouldRenderLiveChat =
     state.currentAgent.online &&
-    state.currentHandoff?.status === 'assigned' &&
-    state.currentHandoff?.agentId === state.currentAgent.agentId
+    selectedHandoff.status === 'assigned' &&
+    selectedHandoff.agentId === state.currentAgent.agentId
 
   const liveChatButtons = () => [
     {
@@ -72,11 +74,7 @@ const ConversationContainer: FC<Props> = props => {
           minimal
           rightIcon="following"
           disabled={
-            !(
-              state.currentHandoff?.status === 'pending' &&
-              currentAgentHasPermission('write') &&
-              state.currentAgent.online
-            )
+            !(selectedHandoff.status === 'pending' && currentAgentHasPermission('write') && state.currentAgent.online)
           }
           onClick={handleAssign}
           text={lang.tr('module.hitlnext.handoff.assign')}
@@ -86,9 +84,9 @@ const ConversationContainer: FC<Props> = props => {
   ]
 
   const content = shouldRenderLiveChat ? (
-    <LiveChat handoff={state.currentHandoff} currentAgent={state.currentAgent} />
+    <LiveChat handoff={selectedHandoff} currentAgent={state.currentAgent} />
   ) : (
-    <ConversationHistory bp={props.bp} api={api} conversationId={state.currentHandoff.userThreadId} />
+    <ConversationHistory bp={props.bp} api={api} conversationId={selectedHandoff.userThreadId} />
   )
   return (
     <Fragment>
@@ -100,7 +98,7 @@ const ConversationContainer: FC<Props> = props => {
         />
         {content}
       </div>
-      <ConversationDetails api={props.api} handoff={state.currentHandoff}></ConversationDetails>
+      <ConversationDetails api={props.api} handoff={selectedHandoff}></ConversationDetails>
     </Fragment>
   )
 }

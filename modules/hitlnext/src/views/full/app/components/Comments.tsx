@@ -22,8 +22,7 @@ export const Comments: FC<Props> = ({ handoff, api }) => {
 
   const createComment = async (content: string) => {
     try {
-      const comment = await api.createComment(id, { content })
-      dispatch({ type: 'setComment', payload: comment })
+      await api.createComment(id, { content })
     } catch (error) {
       dispatch({ type: 'setError', payload: error })
     }

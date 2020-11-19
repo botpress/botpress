@@ -2,16 +2,15 @@ import produce from 'immer'
 import _, { Dictionary } from 'lodash'
 
 import { Config } from '../../../config'
-import { IAgent, IComment, IHandoff, ISocketMessage } from '../../../types'
+import { IAgent, IHandoff, ISocketMessage } from '../../../types'
 
 import { IState } from './Store'
 
 export type ActionType =
   | { type: 'setCurrentAgent'; payload: Partial<IAgent> }
-  | { type: 'setCurrentHandoff'; payload: string }
+  | { type: 'setSelectedHandoffId'; payload: string }
   | { type: 'setAgents'; payload: IAgent[] }
   | { type: 'setHandoffs'; payload: IHandoff[] }
-  | { type: 'setComment'; payload: IComment }
   | { type: 'setAgent'; payload: ISocketMessage }
   | { type: 'setHandoff'; payload: ISocketMessage }
   | { type: 'setRead'; payload: Dictionary<Date> }
@@ -25,9 +24,9 @@ const Reducer = (state: IState, action: ActionType): IState => {
       return produce(state, draft => {
         draft.currentAgent = _.merge(draft.currentAgent, action.payload)
       })
-    case 'setCurrentHandoff':
+    case 'setSelectedHandoffId':
       return produce(state, draft => {
-        draft.currentHandoff = draft.handoffs[action.payload]
+        draft.selectedHandoffId = action.payload
       })
     case 'setAgents':
       return produce(state, draft => {
@@ -36,12 +35,6 @@ const Reducer = (state: IState, action: ActionType): IState => {
     case 'setHandoffs':
       return produce(state, draft => {
         draft.handoffs = _.keyBy(action.payload, 'id')
-      })
-    case 'setComment':
-      return produce(state, draft => {
-        const handoff = draft.handoffs[action.payload.handoffId]
-        handoff.comments.push(action.payload)
-        draft.currentHandoff = handoff
       })
     case 'setAgent':
       return produce(state, draft => {
@@ -62,15 +55,8 @@ const Reducer = (state: IState, action: ActionType): IState => {
           ...draft.handoffs,
           [action.payload.id]: _.merge(draft.handoffs[action.payload.id], action.payload.payload)
         }
-
-        // Note: because currentHandoff is an actual object,
-        // instead of a reference, it must be manually updated
-        if (draft.currentHandoff?.id === action.payload.id) {
-          draft.currentHandoff = draft.handoffs[action.payload.id]
-        }
-
         // Note: Because it is the current handoff, it is assumed to be instantly read
-        if (draft.currentHandoff?.id === action.payload.id) {
+        if (draft.selectedHandoffId === action.payload.id) {
           draft.reads = _.merge(draft.reads, {
             [action.payload.id]: action.payload.payload.userConversation.createdOn
           })

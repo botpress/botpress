@@ -1,4 +1,3 @@
-import { AxiosError } from 'axios'
 import { lang, toast } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -97,12 +96,8 @@ const App = ({ bp }) => {
 
   useEffect(() => {
     bp.events.on(`${WEBSOCKET_TOPIC}:${window.BOT_ID}`, handleMessage)
-    const i = setInterval(() => getHandoffs(), 2000)
 
-    return () => {
-      bp.events.off(`${WEBSOCKET_TOPIC}:${window.BOT_ID}`, handleMessage)
-      clearInterval(i)
-    }
+    return () => bp.events.off(`${WEBSOCKET_TOPIC}:${window.BOT_ID}`, handleMessage)
   }, [])
 
   useEffect(() => {
@@ -123,8 +118,8 @@ const App = ({ bp }) => {
         <div className={cx(style.sidebar, style.column)}>
           <HandoffList handoffs={state.handoffs} loading={loading} />
         </div>
-        {!state.currentHandoff && <EmptyConversation />}
-        {state.currentHandoff && <ConversationContainer bp={bp} api={api} />}
+        {!state.selectedHandoffId && <EmptyConversation />}
+        {state.selectedHandoffId && <ConversationContainer bp={bp} api={api} />}
       </div>
       <script src="assets/modules/channel-web/inject.js"></script>
     </div>

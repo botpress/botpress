@@ -6,12 +6,12 @@ import moment from 'moment'
 import React, { FC, useContext, useEffect, useState } from 'react'
 
 import { IHandoff } from '../../../../types'
+import { agentName } from '../../shared/helper'
 import style from '../../style.scss'
 import { generateUsername, getOrSet } from '../utils'
 import { Context } from '../Store'
 
 import HandoffBadge from './HandoffBadge'
-import { agentName } from '../../shared/helper'
 
 const HandoffItem: FC<IHandoff> = props => {
   const { createdAt, id, status, agentId, userConversation, userChannel } = props
@@ -23,7 +23,7 @@ const HandoffItem: FC<IHandoff> = props => {
   const [fromNow, setFromNow] = useState(moment(createdAt).fromNow())
 
   async function handleSelect(id: string) {
-    dispatch({ type: 'setCurrentHandoff', payload: id })
+    dispatch({ type: 'setSelectedHandoffId', payload: id })
     dispatch({
       type: 'setRead',
       payload: {
@@ -90,7 +90,7 @@ const HandoffItem: FC<IHandoff> = props => {
 
   return (
     <div
-      className={cx(style.handoffItem, { [style.active]: state.currentHandoff?.id === id })}
+      className={cx(style.handoffItem, { [style.active]: state.selectedHandoffId === id })}
       onClick={() => handleSelect(id)}
     >
       {!readStatus && <span className={style.unreadDot}></span>}

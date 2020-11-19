@@ -3,10 +3,10 @@ import { EmptyState, lang } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
 
-import { Context } from '../Store'
-
 import { IHandoff } from '../../../../types'
 import CasesIcon from '../../Icons/CasesIcon'
+import { Context } from '../Store'
+
 import HandoffItem from './HandoffItem'
 import HandoffListHeader, { FilterType, SortType } from './HandoffListHeader'
 
@@ -56,8 +56,8 @@ const HandoffList: FC<Props> = props => {
       .value()
 
     // Unselect current handoff when excluded from list
-    if (!_.includes(_.map(filtered, 'id'), state.currentHandoff?.id)) {
-      dispatch({ type: 'setCurrentHandoff', payload: null })
+    if (!_.includes(_.map(filtered, 'id'), state.selectedHandoffId)) {
+      dispatch({ type: 'setSelectedHandoffId', payload: null })
     }
 
     setItems(filtered)

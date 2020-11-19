@@ -1,6 +1,5 @@
-import { AxiosError } from 'axios'
 import { Dictionary } from 'lodash'
-import React, { createContext, Dispatch, useReducer, useEffect } from 'react'
+import React, { createContext, Dispatch, useEffect, useReducer } from 'react'
 
 import { Config } from '../../../config'
 import { IAgent, IHandoff } from '../../../types'
@@ -21,7 +20,7 @@ export interface UserDefaultsType {
 
 export interface IState {
   readonly currentAgent?: IAgent
-  readonly currentHandoff?: IHandoff
+  readonly selectedHandoffId: string | null
   readonly agents: Dictionary<IAgent>
   readonly handoffs: Dictionary<IHandoff>
   readonly reads: Dictionary<Date>
@@ -34,7 +33,7 @@ export interface IState {
 
 const initialState: IState = {
   currentAgent: null,
-  currentHandoff: null,
+  selectedHandoffId: null,
   agents: {},
   handoffs: {},
   reads: Storage.get('reads', {}),
