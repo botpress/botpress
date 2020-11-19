@@ -87,6 +87,16 @@ export default class Repository {
     }
   }
 
+  private applyQuery = (query?: Knex.QueryCallback) => {
+    return (builder: Knex.QueryBuilder) => {
+      if (query) {
+        return builder.modify(query)
+      } else {
+        return builder
+      }
+    }
+  }
+
   // This mutates rows
   private hydrateHandoffs(rows: any[]): IHandoff[] {
     const records = rows.reduce((memo, row) => {
@@ -119,7 +129,7 @@ export default class Repository {
   }
 
   // This mutates handoffs
-  private hydrateEvents(events: any[], handoffs: any[], key: string): any[] {
+  private hydrateEvents<T>(events: any[], handoffs: any[], key: string): T[] {
     handoffs.forEach(handoff => (handoff[key] = {}))
 
     const toMerge = events.map(event => {
@@ -185,14 +195,41 @@ export default class Repository {
       .orderBy([{ column: 'comments.createdAt', order: 'asc' }])
   }
 
-  private applyQuery = (query?: Knex.QueryCallback) => {
-    return (builder: Knex.QueryBuilder) => {
-      if (query) {
-        return builder.modify(query)
-      } else {
-        return builder
-      }
+  private findHandoffs(
+    botId: string,
+    conditions: CollectionConditions = {},
+    query?: Knex.QueryCallback,
+    trx?: Knex.Transaction
+  ) {
+    const execute = async (trx: Knex.Transaction) => {
+      const data = await this.handoffsWithAssociationsQuery(botId, conditions)
+        .modify(this.applyQuery(query))
+        .transacting(trx)
+        .then(this.hydrateHandoffs.bind(this))
+
+      const hydrated = this.hydrateEvents<IHandoff>(
+        await this.userEventsQuery()
+          .where('handoffs.botId', botId)
+          .transacting(trx),
+        data,
+        'userConversation'
+      )
+
+      return hydrated
     }
+
+    // Either join an existing transaction or start one
+    if (trx) {
+      return execute(trx)
+    } else {
+      return this.bp.database.transaction(trx => execute(trx))
+    }
+  }
+
+  private async findHandoff(botId: string, id: string, trx?: Knex.Transaction) {
+    return this.findHandoffs(botId, undefined, builder => builder.andWhere('handoffs.id', id), trx).then(data =>
+      _.head(data)
+    )
   }
 
   handoffsQuery = (query?: Knex.QueryCallback) => {
@@ -314,48 +351,21 @@ export default class Repository {
       .then(applyConditions)
   }
 
-  getHandoffsWithComments = async (
-    botId: string,
-    conditions: CollectionConditions = {},
-    query?: Knex.QueryCallback
-  ): Promise<IHandoff[]> => {
-    return this.bp.database
-      .transaction(async trx => {
-        return this.handoffsWithAssociationsQuery(botId, conditions)
-          .modify(this.applyQuery(query))
-          .transacting(trx)
-          .then(this.hydrateHandoffs.bind(this))
-          .then(async data =>
-            this.hydrateEvents(
-              await this.userEventsQuery()
-                .where('handoffs.botId', botId)
-                .transacting(trx),
-              data,
-              'userConversation'
-            )
-          )
-      })
-      .then(async data => data as IHandoff[])
+  getHandoffsWithAssociations = (botId: string, conditions: CollectionConditions = {}, query?: Knex.QueryCallback) => {
+    return this.findHandoffs(botId, conditions, query)
   }
 
-  getHandoffWithComments = async (botId: string, id: string, query?: Knex.QueryCallback): Promise<IHandoff> => {
-    return this.handoffsWithAssociationsQuery(botId)
-      .andWhere('handoffs.id', id)
-      .modify(this.applyQuery(query))
-      .then(this.hydrateHandoffs.bind(this))
-      .then(async data =>
-        this.hydrateEvents(await this.userEventsQuery().where('handoffs.id', id), data, 'userConversation')
-      )
-      .then(async data => _.head(data))
+  getHandoffWithAssociations = (botId: string, id: string) => {
+    return this.findHandoff(botId, id)
   }
 
-  getHandoff = async (id: string, query?: Knex.QueryCallback): Promise<IHandoff> => {
+  getHandoff = (id: string, query?: Knex.QueryCallback) => {
     return this.handoffsQuery(builder => {
       builder.where('id', id).modify(this.applyQuery(query))
-    }).then(data => _.head(data))
+    }).then(data => _.head(data) as IHandoff)
   }
 
-  createHandoff = async (botId: string, attributes: Partial<IHandoff>): Promise<IHandoff> => {
+  createHandoff = async (botId: string, attributes: Partial<IHandoff>) => {
     const now = new Date()
     const payload = this.castDate(
       {
@@ -368,26 +378,12 @@ export default class Repository {
     )
 
     return this.bp.database.transaction(async trx => {
-      const id = await this.bp.database.insertAndRetrieve('handoffs', payload, 'id', 'id', trx)
-
-      return trx('handoffs')
-        .where('botId', botId)
-        .where('id', id)
-        .then(this.hydrateHandoffs.bind(this))
-        .then(async data =>
-          this.hydrateEvents(
-            await this.userEventsQuery()
-              .where('handoffs.id', id)
-              .transacting(trx),
-            data,
-            'userConversation'
-          )
-        )
-        .then(async data => _.head(data))
+      const id = await this.bp.database.insertAndRetrieve<string>('handoffs', payload, 'id', 'id', trx)
+      return await this.findHandoff(botId, id, trx)
     })
   }
 
-  updateHandoff = async (botId: string, id: string, attributes: Partial<IHandoff>): Promise<Partial<IHandoff>> => {
+  updateHandoff = async (botId: string, id: string, attributes: Partial<IHandoff>) => {
     const now = new Date()
     const payload = this.castDate(
       {
@@ -401,25 +397,11 @@ export default class Repository {
       await trx<IHandoff>('handoffs')
         .where({ id })
         .update(payload)
-
-      return this.handoffsWithAssociationsQuery(botId)
-        .andWhere('handoffs.id', id)
-        .transacting(trx)
-        .then(this.hydrateHandoffs.bind(this))
-        .then(async data =>
-          this.hydrateEvents(
-            await this.userEventsQuery()
-              .where('handoffs.id', id)
-              .transacting(trx),
-            data,
-            'userConversation'
-          )
-        )
-        .then(async data => _.head(data))
+      return await this.findHandoff(botId, id, trx)
     })
   }
 
-  createComment = (attributes: Partial<IComment>): Promise<IComment> => {
+  createComment = (attributes: Partial<IComment>) => {
     const now = new Date()
     const payload = this.castDate(
       {
