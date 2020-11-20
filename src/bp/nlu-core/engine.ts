@@ -45,6 +45,7 @@ export default class Engine implements NLU.Engine {
       max: options.maxCacheSize,
       length: sizeof // ignores size of functions, but let's assume it's small
     })
+    trainDebug(`model cache size is: ${bytes(options.maxCacheSize)}`)
   }
 
   public getHealth() {
@@ -192,20 +193,24 @@ export default class Engine implements NLU.Engine {
     }
 
     const model = deserializeModel(serialized)
-    const modelSize = sizeof(model)
+    const { input, output } = model.data
+
+    const modelCacheItem: LoadedModel = {
+      model,
+      predictors: await this._makePredictors(input, output),
+      entityCache: this._makeCacheManager(output)
+    }
+
+    const modelSize = sizeof(modelCacheItem)
     if (modelSize >= this.modelsById.max) {
       const msg = `Can't load model ${modelId} as it is bigger than the maximum allowed size`
       const details = `model size: ${bytes(modelSize)}, max allowed: ${bytes(this.modelsById.max)}`
       throw new Error(`${msg} (${details}).`)
     }
 
-    const { input, output } = model.data
-
-    this.modelsById.set(modelId, {
-      model,
-      predictors: await this._makePredictors(input, output),
-      entityCache: this._makeCacheManager(output)
-    })
+    this.modelsById.set(modelId, modelCacheItem)
+    trainDebug(`Size of model #${modelId} is ${modelSize}`)
+    trainDebug(`Model cache has entries: [${this.modelsById.keys().join(', ')}]`)
   }
 
   private _makeCacheManager(output: TrainOutput) {
