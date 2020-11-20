@@ -4,9 +4,8 @@ const problemMaker = (bitfan) => async (name, trainSet, testSet) => {
     lang: "en",
     fileType: "dataset",
     type: "intent",
-    namespace: "bpds"
+    namespace: ""
   }
-
   const trainFileDef = { name: trainSet, ...fileDef }
   const testFileDef = { name: testSet, ...fileDef }
 
@@ -31,34 +30,22 @@ module.exports = function(bitfan) {
   ];
 
   return {
-    name: "bpds-intent",
+    name: "clinc150",
 
     computePerformance: async function() {
-        
-      const makeProblem = problemMaker(bitfan)
-      const problems = [
-        await makeProblem("bpsd A", "A-train", "A-test"),
-        await makeProblem("bpds A imbalanced", "A-imbalanced-train", "A-test"),
-        await makeProblem("bpds A fewshot", "A-fewshot-train", "A-test"),
-        await makeProblem("bpds B", "B-train", "B-test"),
-      ];
-  
       const stanEndpoint = "http://localhost:3200";
       const password = "123456";
       const engine = bitfan.engines.makeBpIntentEngine(stanEndpoint, password);
-  
-      const solution = {
+
+      const makeProblem = problemMaker(bitfan)
+
+      const results = await bitfan.runSolution({
         name: "bpds intent",
-        problems,
-        engine
-      };
-  
-      const seeds = [42, 69, 666];
-      const results = await bitfan.runSolution(solution, seeds);
-  
+        problems: [await makeProblem("clinc150, 20 utt/intent, seed 42", "clinc150_20_42-train", "clinc150_100-test")],
+        engine,
+      }, [42]);
+
       const performanceReport = bitfan.evaluateMetrics(results, metrics);
-  
-      await bitfan.visualisation.showPerformanceReport(performanceReport, { groupBy: "seed" });
       await bitfan.visualisation.showPerformanceReport(performanceReport, { groupBy: "problem" });
       await bitfan.visualisation.showOOSConfusion(results);
   
