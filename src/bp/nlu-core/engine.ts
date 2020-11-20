@@ -188,7 +188,9 @@ export default class Engine implements NLU.Engine {
   }
 
   async loadModel(serialized: NLU.Model, modelId: string) {
+    trainDebug(`Load model ${modelId}`)
     if (this.hasModel(modelId)) {
+      trainDebug(`Model ${modelId} already loaded.`)
       return
     }
 
@@ -202,6 +204,8 @@ export default class Engine implements NLU.Engine {
     }
 
     const modelSize = sizeof(modelCacheItem)
+    trainDebug(`Size of model #${modelId} is ${bytes(modelSize)}`)
+
     if (modelSize >= this.modelsById.max) {
       const msg = `Can't load model ${modelId} as it is bigger than the maximum allowed size`
       const details = `model size: ${bytes(modelSize)}, max allowed: ${bytes(this.modelsById.max)}`
@@ -209,8 +213,8 @@ export default class Engine implements NLU.Engine {
     }
 
     this.modelsById.set(modelId, modelCacheItem)
-    trainDebug(`Size of model #${modelId} is ${modelSize}`)
-    trainDebug(`Model cache has entries: [${this.modelsById.keys().join(', ')}]`)
+    trainDebug('Model loaded with succes.')
+    trainDebug(`Model cache entries are: [${this.modelsById.keys().join(', ')}]`)
   }
 
   private _makeCacheManager(output: TrainOutput) {
