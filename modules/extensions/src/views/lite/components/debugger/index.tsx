@@ -24,7 +24,7 @@ import Unauthorized from './Unauthorized'
 
 export const updater = { callback: undefined }
 
-const WEBCHAT_WIDTH = 240
+const WEBCHAT_WIDTH = 300
 const DEV_TOOLS_WIDTH = 240
 const RETRY_PERIOD = 500 // Delay (ms) between each call to the backend to fetch a desired event
 const RETRY_SECURITY_FACTOR = 3

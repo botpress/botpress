@@ -66,16 +66,18 @@ export const login = (email, password) => {
 }
 
 export const setVisitorId = (userId: string, userIdScope?: string) => {
-  storage.set(userIdScope ? `bp/socket/${userIdScope}/user` : 'bp/socket/user', userId)
-  window.__BP_VISITOR_ID = userId
+  if (typeof userId === 'string' && userId !== 'undefined') {
+    storage.set(userIdScope ? `bp/socket/${userIdScope}/user` : 'bp/socket/user', userId)
+    window.__BP_VISITOR_ID = userId
+  }
 }
 
 export const getUniqueVisitorId = (userIdScope?: string): string => {
   const key = userIdScope ? `bp/socket/${userIdScope}/user` : 'bp/socket/user'
 
   let userId = storage.get(key)
-  if (!userId) {
-    userId = nanoid()
+  if (typeof userId !== 'string' || userId === 'undefined') {
+    userId = nanoid(24)
     storage.set(key, userId)
   }
 
