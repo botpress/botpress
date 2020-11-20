@@ -74,10 +74,11 @@ class Web extends React.Component<MainProps> {
     if (this.props.activeView === 'side' || this.props.isFullscreen) {
       this.hasBeenInitialized = true
 
-      if (this.isLazySocket()) {
+      if (this.isLazySocket() || !this.socket) {
         await this.initializeSocket()
       }
 
+      await this.socket.waitForUserId()
       await this.props.initializeChat()
     }
   }
