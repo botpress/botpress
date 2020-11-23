@@ -101,6 +101,7 @@ class MessageGroup extends React.Component<Props> {
                       />
                     )
                   }
+                  noBubble={!!payload.noBubble}
                   fromLabel={fromLabel}
                   isLastOfGroup={i >= this.props.messages.length - 1}
                   isLastGroup={this.props.isLastGroup}

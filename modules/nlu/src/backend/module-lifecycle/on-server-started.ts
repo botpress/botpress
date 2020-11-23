@@ -59,7 +59,8 @@ const registerMiddleware = async (bp: typeof sdk, state: NLUState) => {
           modelProvider,
           engine,
           anticipatedLanguage,
-          defaultLanguage
+          defaultLanguage,
+          bp.logger.forBot(botId)
         )
         const nluResults = await predictionHandler.predict(preview, nlu?.includedContexts)
 

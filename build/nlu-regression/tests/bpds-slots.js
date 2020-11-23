@@ -1,9 +1,22 @@
-const problemMaker = (bitfan) => (topic) => {
+const BbPromise = require("bluebird")
+
+const problemMaker = (bitfan) => async (topic) => {
+  
+  const fileDef = {
+    lang: "en",
+    fileType: "dataset",
+    type: "slot",
+    namespace: "bpds"
+  }
+
+  const trainFileDef = { name: `${topic}-train`, ...fileDef }
+  const testFileDef = { name: `${topic}-test`, ...fileDef }
+  
   return {
     name: `bpds slot ${topic}`,
     type: "slot",
-    trainSet: bitfan.datasets.bpds.slots.train[topic],
-    testSet: bitfan.datasets.bpds.slots.test[topic],
+    trainSet: await bitfan.datasets.readDataset(trainFileDef),
+    testSet: await bitfan.datasets.readDataset(testFileDef),
     lang: "en",
   };
 };
@@ -27,18 +40,18 @@ module.exports = function(bitfan) {
       const allTopics = [
         "A",
         "B",
-        "C",
+        // "C", /* skip C as it involves duckling which slows down regression check */
         "D",
         "E",
         "F",
         "G",
         "H",
-        "I",
+        // "I", /* skip I as it involves duckling which slows down regression check */
         "J",
       ];
   
       const makeProblem = problemMaker(bitfan)
-      const problems = allTopics.map(makeProblem);
+      const problems = await BbPromise.map(allTopics, makeProblem);
   
       const stanEndpoint = "http://localhost:3200";
       const password = "123456";
@@ -47,15 +60,14 @@ module.exports = function(bitfan) {
       const solution = {
         name: "bpds slot",
         problems,
-        engine,
-        metrics,
+        engine
       };
   
       const seeds = [42];
       const results = await bitfan.runSolution(solution, seeds);
   
       const report = bitfan.evaluateMetrics(results, metrics);
-      bitfan.visualisation.showReport(report);
+      bitfan.visualisation.showPerformanceReport(report);
       // bitfan.visualisation.showSlotsResults(results);
   
       return report

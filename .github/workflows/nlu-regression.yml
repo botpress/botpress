@@ -21,7 +21,8 @@ jobs:
         run: |
           yarn add npm-cli-login
           ./node_modules/npm-cli-login/bin/npm-cli-login.js -r https://npm.pkg.github.com -u botpressops -p ${{ secrets.PAT_BITFAN }} -e ops@botpress.com
-          yarn add @botpress/bitfan@0.2.6
+          yarn add @botpress/bitfan@0.3.0
       - name: Run Regression Test
         run: |
-          yarn start nlu --silent & sleep 5s && node ./build/nlu-regression/index.js
+          yarn start nlu --silent --ducklingEnabled=false & 
+          sleep 5s && node ./build/nlu-regression/index.js
