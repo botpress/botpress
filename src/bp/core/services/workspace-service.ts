@@ -259,15 +259,10 @@ export class WorkspaceService {
     }))
   }
 
-  private async getSuperAdmins(workspace: string): Promise<WorkspaceUser[]> {
-    const supEmailStrategies = (await this.configProvider.getBotpressConfig()).superAdmins
-
-    return Promise.map(supEmailStrategies, ({ email, strategy }) =>
-      this.usersRepo.findUser(email, strategy).then(u => ({ ...(u as StrategyUser), role: 'admin', workspace }))
-    )
-  }
-
-  async getWorkspaceUsers(workspace: string, options: Partial<GetWorkspaceUsersOptions> = {}) {
+  async getWorkspaceUsers(
+    workspace: string,
+    options: Partial<GetWorkspaceUsersOptions> = {}
+  ): Promise<WorkspaceUser[] | WorkspaceUserWithAttributes[]> {
     const opts: GetWorkspaceUsersOptions = { attributes: [], includeSuperAdmins: false, ...options }
 
     const superAdmins = opts.includeSuperAdmins ? await this.getSuperAdmins(workspace) : []
@@ -286,38 +281,32 @@ export class WorkspaceService {
 
     return workspaceUsers.map(u => ({
       ..._.omit(u, ['password', 'salt']),
-      attributes: [allUsersAttrs[u.email.toLowerCase()]]
+      attributes: allUsersAttrs[u.email.toLowerCase()]
     })) as WorkspaceUserWithAttributes[]
   }
 
-  async getWorkspaceUsersWithAttributes(
-    workspace: string,
-    attributes?: string[]
-  ): Promise<WorkspaceUserWithAttributes[]> {
-    const workspaceUsers = await this.workspaceRepo.getWorkspaceUsers(workspace)
-    const uniqStrategies = _.uniq(_.map(workspaceUsers, 'strategy'))
-    const usersInfo = await this._getUsersAttributes(workspaceUsers, uniqStrategies, attributes)
-
-    return workspaceUsers.map(u => ({ ...u, attributes: usersInfo[u.email.toLowerCase()] }))
+  private async getSuperAdmins(workspace: string): Promise<WorkspaceUser[]> {
+    return (await this.configProvider.getBotpressConfig()).superAdmins.map(u => ({
+      ...(u as StrategyUser),
+      role: 'admin', // purposefully marked as admin and not superadmin
+      workspace
+    }))
   }
 
   private async _getUsersAttributes(
     users: WorkspaceUser[],
     strategies: string[],
-    attributes: any
+    attributes: string[] | undefined
   ): Promise<{ [email: string]: object }> {
-    const attr = {}
-    const usersInfo = _.flatten(
-      await Promise.map(strategies, strategy => this._getUsersInfoForStrategy(users, strategy, attributes))
-    )
+    const userStrategyInfo = await Promise.map(strategies, strategy => {
+      const emails = users.filter(u => u.strategy === strategy).map(u => u.email)
+      return this.usersRepo.getMultipleUserAttributes(emails, strategy, attributes)
+    })
 
-    usersInfo.forEach(u => (attr[u.email] = { ...u.attributes, createdOn: u.createdOn, updatedOn: u.updatedOn }))
-    return attr
-  }
-
-  private async _getUsersInfoForStrategy(users: WorkspaceUser[], strategy: string, attributes: any) {
-    const emails = users.filter(x => x.strategy === strategy).map(x => x.email)
-    return this.usersRepo.getMultipleUserAttributes(emails, strategy, attributes)
+    return _.flatten(userStrategyInfo).reduce((attrs, userInfo) => {
+      attrs[userInfo.email] = { ...attrs[userInfo.email], ...userInfo.attributes }
+      return attrs
+    }, {})
   }
 
   async getUniqueCollaborators(): Promise<number> {
@@ -357,6 +346,7 @@ export class WorkspaceService {
     return !!pipeline && pipeline.length > 1
   }
 
+  // @deprecated
   async listUsers(workspaceId?: string): Promise<WorkspaceUser[]> {
     if (workspaceId) {
       return this.getWorkspaceUsers(workspaceId)

@@ -1648,12 +1648,6 @@ declare module 'botpress/sdk' {
     inviteCode?: string
     allowedUsages?: number
   }
-
-  export interface GetWorkspaceUsersOptions {
-    attributes: string[] | '*'
-    includeSuperAdmins: boolean
-  }
-
   export interface WorkspaceUser {
     email: string
     strategy: string
@@ -1665,6 +1659,11 @@ declare module 'botpress/sdk' {
   export type WorkspaceUserWithAttributes = {
     attributes: any
   } & WorkspaceUser
+
+  export interface GetWorkspaceUsersOptions {
+    attributes: string[] | '*'
+    includeSuperAdmins: boolean
+  }
 
   export interface AddWorkspaceUserOptions {
     /** Select an existing custom role for that user. If role, asAdmin and asChatUser are undefined, then it will pick the default role */
@@ -2167,7 +2166,7 @@ declare module 'botpress/sdk' {
      */
     export function getWorkspaceUsers(
       workspaceId: string,
-      options: Partial<GetWorkspaceUsersOptions>
+      options?: Partial<GetWorkspaceUsersOptions>
     ): Promise<WorkspaceUser[] | WorkspaceUserWithAttributes[]>
   }
 
