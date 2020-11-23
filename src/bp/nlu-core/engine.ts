@@ -213,7 +213,7 @@ export default class Engine implements NLU.Engine {
     }
 
     this.modelsById.set(modelId, modelCacheItem)
-    trainDebug('Model loaded with succes.')
+    trainDebug('Model loaded with success')
     trainDebug(`Model cache entries are: [${this.modelsById.keys().join(', ')}]`)
   }
 
@@ -292,9 +292,15 @@ export default class Engine implements NLU.Engine {
   }
 
   async detectLanguage(text: string, modelsByLang: _.Dictionary<string>): Promise<string> {
+    trainDebug(`Detecting language for input: "${text}"`)
+
     const predictorsByLang = _.mapValues(modelsByLang, id => this.modelsById.get(id)?.predictors)
     if (!this._dictionnaryIsFilled(predictorsByLang)) {
-      throw new Error(`one of models is not loaded: ${modelsByLang}`)
+      const missingLangs = _(predictorsByLang)
+        .pickBy(pred => _.isUndefined(pred))
+        .keys()
+        .value()
+      throw new Error(`No models loaded for the following languages: [${missingLangs.join(', ')}]`)
     }
     return DetectLanguage(text, predictorsByLang, this._tools)
   }
