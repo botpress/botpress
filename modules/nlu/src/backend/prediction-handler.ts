@@ -19,9 +19,7 @@ export class PredictionHandler {
     const modelCacheState = _.mapValues(this.modelsByLang, model => ({ model, loaded: this.engine.hasModel(model) }))
 
     const missingModels = _(modelCacheState)
-      .toPairs()
-      .filter(([lang, mod]) => !mod.loaded)
-      .fromPairs()
+      .pickBy(mod => !mod.loaded)
       .mapValues(({ model }) => model)
       .value()
 
@@ -33,9 +31,7 @@ export class PredictionHandler {
     }
 
     const loadedModels = _(modelCacheState)
-      .toPairs()
-      .filter(([lang, mod]) => mod.loaded)
-      .fromPairs()
+      .pickBy(mod => mod.loaded)
       .mapValues(({ model }) => model)
       .value()
 

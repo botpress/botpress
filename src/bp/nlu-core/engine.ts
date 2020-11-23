@@ -297,9 +297,7 @@ export default class Engine implements NLU.Engine {
     const predictorsByLang = _.mapValues(modelsByLang, id => this.modelsById.get(id)?.predictors)
     if (!this._dictionnaryIsFilled(predictorsByLang)) {
       const missingLangs = _(predictorsByLang)
-        .toPairs()
-        .filter(([lang, pred]) => _.isUndefined(pred))
-        .fromPairs()
+        .pickBy(pred => _.isUndefined(pred))
         .keys()
         .value()
       throw new Error(`No models loaded for the following languages: [${missingLangs.join(', ')}]`)
