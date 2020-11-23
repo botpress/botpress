@@ -193,8 +193,7 @@ const workspaces = (workspaceService: WorkspaceService): typeof sdk.workspaces =
     getWorkspaceRollout: workspaceService.getWorkspaceRollout.bind(workspaceService),
     addUserToWorkspace: workspaceService.addUserToWorkspace.bind(workspaceService),
     consumeInviteCode: workspaceService.consumeInviteCode.bind(workspaceService),
-    getWorkspaceUsers: workspaceService.getWorkspaceUsers.bind(workspaceService),
-    getWorkspaceUsersWithAttributes: workspaceService.getWorkspaceUsersWithAttributes.bind(workspaceService)
+    getWorkspaceUsers: workspaceService.getWorkspaceUsers.bind(workspaceService)
   }
 }
 

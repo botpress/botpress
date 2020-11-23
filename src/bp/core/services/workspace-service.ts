@@ -1,13 +1,16 @@
 import {
   AddWorkspaceUserOptions,
+  GetWorkspaceUsersOptions,
   Logger,
   RolloutStrategy,
+  StrategyUser,
   WorkspaceRollout,
   WorkspaceUser,
   WorkspaceUserWithAttributes
 } from 'botpress/sdk'
 import { CHAT_USER_ROLE, defaultPipelines, defaultWorkspace } from 'common/defaults'
 import { AuthRole, CreateWorkspace, Pipeline, Workspace } from 'common/typings'
+import { ConfigProvider } from 'core/config/config-loader'
 import { WorkspaceInviteCode, WorkspaceInviteCodesRepository } from 'core/repositories'
 import { StrategyUsersRepository } from 'core/repositories/strategy_users'
 import { WorkspaceUsersRepository } from 'core/repositories/workspace_users'
@@ -40,7 +43,8 @@ export class WorkspaceService {
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.WorkspaceUsersRepository) private workspaceRepo: WorkspaceUsersRepository,
     @inject(TYPES.StrategyUsersRepository) private usersRepo: StrategyUsersRepository,
-    @inject(TYPES.WorkspaceInviteCodesRepository) private inviteCodesRepo: WorkspaceInviteCodesRepository
+    @inject(TYPES.WorkspaceInviteCodesRepository) private inviteCodesRepo: WorkspaceInviteCodesRepository,
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {}
 
   async initialize(): Promise<void> {
@@ -255,8 +259,35 @@ export class WorkspaceService {
     }))
   }
 
-  async getWorkspaceUsers(workspace: string) {
-    return this.workspaceRepo.getWorkspaceUsers(workspace)
+  private async getSuperAdmins(workspace: string): Promise<WorkspaceUser[]> {
+    const supEmailStrategies = (await this.configProvider.getBotpressConfig()).superAdmins
+
+    return Promise.map(supEmailStrategies, ({ email, strategy }) =>
+      this.usersRepo.findUser(email, strategy).then(u => ({ ...(u as StrategyUser), role: 'admin', workspace }))
+    )
+  }
+
+  async getWorkspaceUsers(workspace: string, options: Partial<GetWorkspaceUsersOptions> = {}) {
+    const opts: GetWorkspaceUsersOptions = { attributes: [], includeSuperAdmins: false, ...options }
+
+    const superAdmins = opts.includeSuperAdmins ? await this.getSuperAdmins(workspace) : []
+    const workspaceUsers = [...superAdmins, ...(await this.workspaceRepo.getWorkspaceUsers(workspace))]
+
+    if (!opts.attributes.length || (typeof opts.attributes === 'string' && opts.attributes !== '*')) {
+      return workspaceUsers
+    }
+
+    const uniqStrategies = _(workspaceUsers)
+      .map('strategy')
+      .uniq()
+      .value()
+    const attrToFetch = opts.attributes === '*' ? undefined : opts.attributes
+    const allUsersAttrs = await this._getUsersAttributes(workspaceUsers, uniqStrategies, attrToFetch)
+
+    return workspaceUsers.map(u => ({
+      ..._.omit(u, ['password', 'salt']),
+      attributes: [allUsersAttrs[u.email.toLowerCase()]]
+    })) as WorkspaceUserWithAttributes[]
   }
 
   async getWorkspaceUsersWithAttributes(
@@ -270,7 +301,11 @@ export class WorkspaceService {
     return workspaceUsers.map(u => ({ ...u, attributes: usersInfo[u.email.toLowerCase()] }))
   }
 
-  private async _getUsersAttributes(users: WorkspaceUser[], strategies: string[], attributes: any) {
+  private async _getUsersAttributes(
+    users: WorkspaceUser[],
+    strategies: string[],
+    attributes: any
+  ): Promise<{ [email: string]: object }> {
     const attr = {}
     const usersInfo = _.flatten(
       await Promise.map(strategies, strategy => this._getUsersInfoForStrategy(users, strategy, attributes))
