@@ -79,11 +79,11 @@ export default async function(options: APIOptions, engine: Engine) {
   const trainSessionService = new TrainSessionService()
   const trainService = new TrainService(logger, engine, modelService, trainSessionService)
 
-  app.get('/info', (req, res) => {
+  const router = express.Router({ mergeParams: true })
+  router.get('/info', async (req, res) => {
     res.send({ version: engine.getVersionInfo() })
   })
 
-  const router = express.Router({ mergeParams: true })
   router.post('/train', async (req, res) => {
     try {
       const input = await validateInput(req.body)
@@ -178,7 +178,7 @@ export default async function(options: APIOptions, engine: Engine) {
     }
   })
 
-  app.use('/', router)
+  app.use(['/v1', '/'], router)
   app.use(handleErrorLogging)
 
   const httpServer = createServer(app)
