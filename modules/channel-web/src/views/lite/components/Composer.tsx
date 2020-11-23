@@ -57,10 +57,18 @@ class Composer extends React.Component<ComposerProps> {
 
   handleMessageChanged = e => this.props.updateMessage(e.target.value)
 
+  isLastMessageFromBot = (): boolean => {
+    return this.props.currentConversation &&
+      this.props.currentConversation.messages &&
+      this.props.currentConversation.messages.length &&
+      !this.props.currentConversation.messages.slice(-1).pop().userId
+  }
+
   render() {
     const placeholder =
       this.props.composerPlaceholder ||
-      this.props.intl.formatMessage({ id: 'composer.placeholder' }, { name: this.props.botName })
+      this.props.intl.formatMessage({
+        id: this.isLastMessageFromBot() ? 'composer.placeholder' : 'composer.placeholderInit' }, { name: this.props.botName })
 
     return (
       <div role="region" className={'bpw-composer'}>
@@ -118,6 +126,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   enableArrowNavigation: store.config.enableArrowNavigation,
   enableResetSessionShortcut: store.config.enableResetSessionShortcut,
   resetSession: store.resetSession,
+  currentConversation: store.currentConversation,
   isEmulator: store.isEmulator
 }))(injectIntl(observer(Composer)))
 
@@ -142,4 +151,5 @@ type ComposerProps = {
     | 'resetSession'
     | 'isEmulator'
     | 'enableResetSessionShortcut'
+    | 'currentConversation'
   >

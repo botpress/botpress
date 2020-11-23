@@ -58,7 +58,6 @@ export default class ConditionItem extends Component {
 
     return renderer(
       <div className={classnames(this.props.className, style['action-item'], style['condition'])}>
-        <span className={style.icon}>❓</span>
         <span className={style.name} dangerouslySetInnerHTML={{ __html: raw }} />
         {this.props.children}
       </div>

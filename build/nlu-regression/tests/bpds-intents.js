@@ -1,9 +1,20 @@
-const problemMaker = (bitfan) => (topic) => {
-  return {
-    name: `bpds intents ${topic}`,
+const problemMaker = (bitfan) => async (name, trainSet, testSet) => {
+
+  const fileDef = {
+    lang: "en",
+    fileType: "dataset",
     type: "intent",
-    trainSet: bitfan.datasets.bpds.intents.train[topic],
-    testSet: bitfan.datasets.bpds.intents.test[topic],
+    namespace: "bpds"
+  }
+
+  const trainFileDef = { name: trainSet, ...fileDef }
+  const testFileDef = { name: testSet, ...fileDef }
+
+  return {
+    name,
+    type: "intent",
+    trainSet: await bitfan.datasets.readDataset(trainFileDef),
+    testSet: await bitfan.datasets.readDataset(testFileDef),
     lang: "en",
   };
 };
@@ -11,9 +22,8 @@ const problemMaker = (bitfan) => (topic) => {
 
 module.exports = function(bitfan) {
 
-  const avgIntentAccurancy = bitfan.metrics.averageScore(bitfan.criterias.labelIs)
   const metrics = [
-    avgIntentAccurancy,
+    bitfan.metrics.accuracy,
     bitfan.metrics.oosAccuracy,
     bitfan.metrics.oosPrecision,
     bitfan.metrics.oosRecall,
@@ -24,17 +34,14 @@ module.exports = function(bitfan) {
     name: "bpds-intent",
 
     computePerformance: async function() {
-      const allTopics = [
-        "A",
-        "B",
-        "C",
-        "D",
-        "E",
-        "F"
-      ];
-  
+        
       const makeProblem = problemMaker(bitfan)
-      const problems = allTopics.map(makeProblem);
+      const problems = [
+        await makeProblem("bpsd A", "A-train", "A-test"),
+        await makeProblem("bpds A imbalanced", "A-imbalanced-train", "A-test"),
+        await makeProblem("bpds A fewshot", "A-fewshot-train", "A-test"),
+        await makeProblem("bpds B", "B-train", "B-test"),
+      ];
   
       const stanEndpoint = "http://localhost:3200";
       const password = "123456";
@@ -43,26 +50,24 @@ module.exports = function(bitfan) {
       const solution = {
         name: "bpds intent",
         problems,
-        engine,
-        metrics,
+        engine
       };
   
       const seeds = [42, 69, 666];
       const results = await bitfan.runSolution(solution, seeds);
   
-      const reportBySeed = bitfan.evaluateMetrics(results, metrics, { groupBy: "seed" });
-      const reportByProblem = bitfan.evaluateMetrics(results, metrics, { groupBy: "problem" });
+      const performanceReport = bitfan.evaluateMetrics(results, metrics);
   
-      await bitfan.visualisation.showReport(reportBySeed);
-      await bitfan.visualisation.showReport(reportByProblem);
+      await bitfan.visualisation.showPerformanceReport(performanceReport, { groupBy: "seed" });
+      await bitfan.visualisation.showPerformanceReport(performanceReport, { groupBy: "problem" });
       await bitfan.visualisation.showOOSConfusion(results);
   
-      return reportBySeed
+      return performanceReport
     },
 
     evaluatePerformance: function(currentPerformance, previousPerformance) {
       const toleranceByMetric = {
-        [avgIntentAccurancy.name]: 0.02,
+        [bitfan.metrics.accuracy.name]: 0.02,
         [bitfan.metrics.oosAccuracy.name]: 0.05,
         [bitfan.metrics.oosPrecision.name]: 0.05,
         [bitfan.metrics.oosRecall.name]: 0.05,

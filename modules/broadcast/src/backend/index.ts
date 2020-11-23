@@ -3,6 +3,7 @@ import * as sdk from 'botpress/sdk'
 
 import en from '../translations/en.json'
 import fr from '../translations/fr.json'
+import es from '../translations/es.json'
 
 import api from './api'
 import Daemon from './daemon'
@@ -27,7 +28,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
   onBotMount,
-  translations: { en, fr },
+  translations: { en, fr, es },
   definition: {
     name: 'broadcast',
     menuIcon: 'settings_input_antenna',

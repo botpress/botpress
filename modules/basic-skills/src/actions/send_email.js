@@ -18,8 +18,8 @@ const getTransport = async botId => {
   return config.transportConnectionString
 }
 
-const extractTextFromPayloads = payloads => {
-  const text = _.get(payloads.find(p => p.type === 'text'), 'text', '')
+const extractTextFromPayloads = (payloads, text_msg_type='text') => {
+  const text = _.get(payloads.find(p => p.type === text_msg_type), 'text', '')
   return text.replace('(missing translation) ', '').replace(/([A-Z0-9_ -]+: )/gi, '')
 }
 
@@ -39,8 +39,9 @@ const sendEmail = async () => {
     const renderedSubject = await bp.cms.renderElement('!' + args.subjectElement, params, event)
     const renderedContent = await bp.cms.renderElement('!' + args.contentElement, params, event)
 
-    const subject = extractTextFromPayloads(renderedSubject)
-    const content = extractTextFromPayloads(renderedContent)
+    const text_msg_type = event.channel === 'teams' ? 'message' : 'text'
+    const subject = extractTextFromPayloads(renderedSubject, text_msg_type)
+    const content = extractTextFromPayloads(renderedContent, text_msg_type)
 
     const mailOptions = {
       from: args.fromAddress,

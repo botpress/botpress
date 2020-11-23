@@ -1,5 +1,6 @@
 {
   "composer.placeholder": "Fale com {name}",
+  "composer.placeholderInit": "Diga alguma coisa para {name}",
   "composer.send": "Mandar",
   "header.conversations": "Conversas",
   "conversationList.untitledConversation": "Conversa sem título",
