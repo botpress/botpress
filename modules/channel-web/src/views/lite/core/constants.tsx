@@ -31,6 +31,7 @@ export default {
     externalAuthToken: undefined,
     showPoweredBy: window.SHOW_POWERED_BY,
     enablePersistHistory: true,
-    enableResetSessionShortcut: false
+    enableResetSessionShortcut: false,
+    closeOnEscape: true
   }
 }

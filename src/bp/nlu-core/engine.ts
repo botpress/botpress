@@ -1,4 +1,5 @@
 import { MLToolkit, NLU } from 'botpress/sdk'
+import bytes from 'bytes'
 import crypto from 'crypto'
 import _ from 'lodash'
 import LRUCache from 'lru-cache'
@@ -25,7 +26,7 @@ interface LoadedModel {
 }
 
 const DEFAULT_OPTIONS: Options = {
-  maxCacheSize: 250000000 // 250mb of model cache
+  maxCacheSize: 262144000 // 250mb of model cache
 }
 
 interface Options {
@@ -44,6 +45,7 @@ export default class Engine implements NLU.Engine {
       max: options.maxCacheSize,
       length: sizeof // ignores size of functions, but let's assume it's small
     })
+    trainDebug(`model cache size is: ${bytes(options.maxCacheSize)}`)
   }
 
   public getHealth() {
@@ -58,7 +60,7 @@ export default class Engine implements NLU.Engine {
     return this._tools.getVersionInfo()
   }
 
-  public async initialize(config: NLU.Config, logger: NLU.Logger): Promise<void> {
+  public async initialize(config: NLU.LanguageConfig, logger: NLU.Logger): Promise<void> {
     this._tools = await initializeTools(config, logger)
     const version = this._tools.getVersionInfo()
     if (!version.nluVersion.length || !version.langServerInfo.version.length) {
@@ -186,18 +188,33 @@ export default class Engine implements NLU.Engine {
   }
 
   async loadModel(serialized: NLU.Model, modelId: string) {
+    trainDebug(`Load model ${modelId}`)
     if (this.hasModel(modelId)) {
+      trainDebug(`Model ${modelId} already loaded.`)
       return
     }
 
     const model = deserializeModel(serialized)
     const { input, output } = model.data
 
-    this.modelsById.set(modelId, {
+    const modelCacheItem: LoadedModel = {
       model,
       predictors: await this._makePredictors(input, output),
       entityCache: this._makeCacheManager(output)
-    })
+    }
+
+    const modelSize = sizeof(modelCacheItem)
+    trainDebug(`Size of model #${modelId} is ${bytes(modelSize)}`)
+
+    if (modelSize >= this.modelsById.max) {
+      const msg = `Can't load model ${modelId} as it is bigger than the maximum allowed size`
+      const details = `model size: ${bytes(modelSize)}, max allowed: ${bytes(this.modelsById.max)}`
+      throw new Error(`${msg} (${details}).`)
+    }
+
+    this.modelsById.set(modelId, modelCacheItem)
+    trainDebug('Model loaded with success')
+    trainDebug(`Model cache entries are: [${this.modelsById.keys().join(', ')}]`)
   }
 
   private _makeCacheManager(output: TrainOutput) {
@@ -275,9 +292,15 @@ export default class Engine implements NLU.Engine {
   }
 
   async detectLanguage(text: string, modelsByLang: _.Dictionary<string>): Promise<string> {
+    trainDebug(`Detecting language for input: "${text}"`)
+
     const predictorsByLang = _.mapValues(modelsByLang, id => this.modelsById.get(id)?.predictors)
     if (!this._dictionnaryIsFilled(predictorsByLang)) {
-      throw new Error(`one of models is not loaded: ${modelsByLang}`)
+      const missingLangs = _(predictorsByLang)
+        .pickBy(pred => _.isUndefined(pred))
+        .keys()
+        .value()
+      throw new Error(`No models loaded for the following languages: [${missingLangs.join(', ')}]`)
     }
     return DetectLanguage(text, predictorsByLang, this._tools)
   }
