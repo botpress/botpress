@@ -1,6 +1,6 @@
 import { Logger, RouterOptions } from 'botpress/sdk'
 import { Serialize } from 'cerialize'
-import { UnexpectedError } from 'common/http'
+import { decodeFolderPath, UnexpectedError } from 'common/http'
 import { gaId, machineUUID } from 'common/stats'
 import { FlowView } from 'common/typings'
 import { BotpressConfig } from 'core/config/botpress.config'
@@ -37,6 +37,14 @@ import { checkMethodPermissions, checkTokenHeader, needPermissions } from '../ut
 
 const debugMedia = DEBUG('audit:action:media-upload')
 const DEFAULT_MAX_SIZE = '10mb'
+
+const parseFlowNameMiddleware = (req, _, next) => {
+  const { flowName } = req.params
+  if (flowName) {
+    req.params.flowName = decodeFolderPath(flowName)
+  }
+  next()
+}
 
 export class BotsRouter extends CustomRouter {
   private actionService: ActionService
@@ -343,6 +351,7 @@ export class BotsRouter extends CustomRouter {
       '/flow/:flowName',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
+      parseFlowNameMiddleware,
       this.asyncMiddleware(async (req, res) => {
         const { botId, flowName } = req.params
         const flow = <FlowView>req.body.flow
@@ -370,6 +379,7 @@ export class BotsRouter extends CustomRouter {
       '/flow/:flowName/delete',
       this.checkTokenHeader,
       this.needPermissions('write', 'bot.flows'),
+      parseFlowNameMiddleware,
       this.asyncMiddleware(async (req, res) => {
         const { botId, flowName } = req.params
 

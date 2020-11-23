@@ -13,6 +13,16 @@ const escapeHtmlSimple = (str: string) => {
     .replace(/`/g, '&#96;')
 }
 
+export const URL_FOLDER_SEPERATOR = '|!|slash|!|'
+
+export const encodeFolderPath = (path: string): string => {
+  return path.replace('/', URL_FOLDER_SEPERATOR)
+}
+
+export const decodeFolderPath = (urlPath: string): string => {
+  return urlPath.replace(URL_FOLDER_SEPERATOR, '/')
+}
+
 export type BPRequest = Request & {
   authUser: StrategyUser | undefined
   tokenUser: TokenUser | undefined
