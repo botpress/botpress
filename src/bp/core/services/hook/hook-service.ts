@@ -13,7 +13,7 @@ import { NodeVM } from 'vm2'
 import { GhostService } from '..'
 import { clearRequireCache, requireAtPaths } from '../../modules/require'
 import { TYPES } from '../../types'
-import { filterDisabled, runOutsideVm } from '../action/utils'
+import { filterDisabled, getBaseLookupPaths, runOutsideVm } from '../action/utils'
 import { VmRunner } from '../action/vm'
 import { addErrorToEvent, addStepToEvent, StepScopes, StepStatus } from '../middleware/event-collector'
 
@@ -164,7 +164,7 @@ export class HookService {
 
   private _listenForCacheInvalidation() {
     this.cache.events.on('invalidation', key => {
-      if (key.toLowerCase().indexOf('/hooks/') > -1) {
+      if (key.toLowerCase().indexOf('/hooks/') > -1 || key.toLowerCase().indexOf('/libraries') > -1) {
         // clear the cache if there's any file that has changed in the `hooks` folder
         this._scriptsCache.clear()
         this._invalidateDebounce()
@@ -174,7 +174,7 @@ export class HookService {
 
   private _invalidateRequire() {
     Object.keys(require.cache)
-      .filter(r => r.match(/(\\|\/)hooks(\\|\/)/g))
+      .filter(r => r.match(/(\\|\/)hooks(\\|\/)/g) || r.match(/(\\|\/)shared_libs(\\|\/)/g))
       .map(file => delete require.cache[file])
 
     clearRequireCache()
@@ -245,17 +245,7 @@ export class HookService {
   }
 
   private _prepareRequire(fullPath: string, hookType: string) {
-    const hookLocation = path.dirname(fullPath)
-
-    let parts = path.relative(process.PROJECT_LOCATION, hookLocation).split(path.sep)
-    parts = parts.slice(parts.indexOf(hookType) + 1) // We only keep the parts after /hooks/{type}/...
-
-    const lookups: string[] = [hookLocation]
-
-    if (parts[0] in process.LOADED_MODULES) {
-      // the hook is in a directory by the same name as a module
-      lookups.unshift(process.LOADED_MODULES[parts[0]])
-    }
+    const lookups = getBaseLookupPaths(fullPath, hookType)
 
     return module => requireAtPaths(module, lookups, fullPath)
   }
