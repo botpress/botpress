@@ -1,9 +1,9 @@
+import { lang } from 'botpress/shared'
 import { Container, ItemList, SidePanel, SidePanelSection, SplashScreen } from 'botpress/ui'
 import React, { useEffect, useState } from 'react'
 
 import style from './style.scss'
 import AddLibrary from './AddLibrary'
-import UploadLibrary from './UploadLibrary'
 import ViewLibrary from './ViewLibrary'
 
 export interface InstalledLibrary {
@@ -48,8 +48,8 @@ const MainView = props => {
     <Container>
       <SidePanel>
         <SidePanelSection
-          label="Libraries"
-          actions={[{ icon: 'add', tooltip: 'Add Library', onClick: () => setPage('add') }]}
+          label={lang.tr('module.libraries.libraries')}
+          actions={[{ icon: 'add', tooltip: lang.tr('add'), onClick: () => setPage('add') }]}
         >
           <ItemList items={libraries} onElementClicked={handleLibClicked} />
         </SidePanelSection>
@@ -58,15 +58,13 @@ const MainView = props => {
         {page === 'splash' && (
           <SplashScreen
             icon="book"
-            title="Shared Libraries"
+            title={lang.tr('module.libraries.fullName')}
             description={
               <div>
-                These libraries can be used by every bots, actions and hooks. You can also create custom pieces of code
-                which can be imported by hooks and actions on the code editor.
+                {lang.tr('module.libraries.splash.text1')}
                 <br />
                 <br />
-                It is also possible to edit manually the <strong>package.json</strong> file to install shared libraries
-                using the code editor
+                {lang.tr('module.libraries.splash.text2')}
               </div>
             }
           />

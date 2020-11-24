@@ -16,7 +16,7 @@ export type FileType =
   | 'hook_example'
   | 'action_example'
   | 'raw'
-  | 'shared_lib'
+  | 'shared_libs'
 
 export interface EditableFile {
   /** The name of the file, extracted from its location */

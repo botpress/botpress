@@ -52,7 +52,8 @@
     "hooks": "Hooks",
     "moduleConf": "Module Configurations",
     "pipelineHooks": "Pipeline Hooks",
-    "rawFileEditor": "Raw File Editor"
+    "rawFileEditor": "Raw File Editor",
+    "sharedLibs": "Shared Libraries"
   },
   "splash": {
     "advancedEditor": "Advanced Editor",

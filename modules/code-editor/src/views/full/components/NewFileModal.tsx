@@ -29,6 +29,7 @@ const NewFileModal: FC<Props> = props => {
   const [isScoped, setScoped] = useState(FileTypes[props.selectedType]?.allowScoped ?? true)
 
   useEffect(() => {
+    setScoped(FileTypes[props.selectedType]?.allowScoped)
     setName('')
   }, [props.isOpen])
 

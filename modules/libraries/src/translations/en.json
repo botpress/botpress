@@ -1,4 +1,12 @@
 {
   "fullName": "Shared Libraries",
-  "addLibrary": "Add a new library"
+  "addLibrary": "Add a new library",
+  "searchNpm": "Search library on NPM (recommended)",
+  "searchGithub": "Add from a GitHub repository (can be slow)",
+  "uploadArchive": "Upload an archive",
+  "libraries": "Libraries",
+  "splash": {
+    "text1": "These libraries can be used by every bots, actions and hooks. You can also create custom pieces of code which can be imported by hooks and actions on the code editor.",
+    "text2": "It is also possible to edit manually the package.json file to install shared libraries using the code editor"
+  }
 }

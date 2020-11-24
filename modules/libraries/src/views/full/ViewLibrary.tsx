@@ -47,11 +47,16 @@ const ViewLibrary: FC<Props> = props => {
       return
     }
 
-    const { name, version } = props.lib
+    setLoading(true)
+    try {
+      const { name } = props.lib
 
-    const { data } = await props.axios.post('/mod/libraries/delete', { name })
-    setResult(data)
-    props.refreshLibraries()
+      const { data } = await props.axios.post('/mod/libraries/delete', { name })
+      setResult(data)
+      props.refreshLibraries()
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -68,7 +73,8 @@ const ViewLibrary: FC<Props> = props => {
       <br />
       <br />
       <h5>Delete library</h5>
-      This will delete the library and all of its dependencies
+      This will delete the library and all of its dependencies. If the archive exists on the BPFS, it will also be
+      removed.
       <br />
       <Button onClick={deleteLibrary} disabled={loading} text={loading ? 'Please wait...' : 'Delete'} />
       <TaskResult message={result} />

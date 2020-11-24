@@ -56,19 +56,24 @@ const AddLibrary = props => {
     }
   }
 
+  const changeSource = source => {
+    setSource(source)
+    setResult('')
+  }
+
   return (
     <div>
       <div className={style.title}>{lang.tr('module.libraries.addLibrary')}</div>
-      <RadioGroup onChange={e => setSource(e.currentTarget.value)} selectedValue={source}>
-        <Radio label="Search library on NPM (recommended)" value="npm" />
-        <Radio label="Add from a GitHub repository (can be slow)" value="github" />
-        <Radio label="Upload an archive" value="archive" />
+      <RadioGroup onChange={e => changeSource(e.currentTarget.value)} selectedValue={source}>
+        <Radio label={lang.tr('module.libraries.searchNpm')} value="npm" />
+        <Radio label={lang.tr('module.libraries.searchGithub')} value="github" />
+        <Radio label={lang.tr('module.libraries.uploadArchive')} value="archive" />
       </RadioGroup>
       <br />
 
       {source === 'npm' && (
         <div>
-          <h5>Search library on NPM</h5>
+          <h5>{lang.tr('search')}</h5>
           <Dropdown items={items} onChange={val => setActiveItem(val)} onQueryChange={searchChanged} />
 
           {activeItem && (
@@ -84,7 +89,7 @@ const AddLibrary = props => {
               <Button
                 onClick={addLib}
                 disabled={processing}
-                text={processing ? 'Please wait...' : 'Add Library'}
+                text={lang.tr(processing ? 'pleaseWait' : 'Add Library')}
               ></Button>
             </div>
           )}

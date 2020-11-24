@@ -78,7 +78,7 @@ class PanelContent extends React.Component<Props> {
     this.addFiles('global.module_config', lang.tr('module.code-editor.sidePanel.global'), moduleConfigFiles)
 
     const sharedLibs = []
-    this.addFiles('global.shared_lib', lang.tr('module.code-editor.sidePanel.global'), sharedLibs)
+    this.addFiles('global.shared_libs', lang.tr('module.code-editor.sidePanel.global'), sharedLibs)
 
     this.addFiles('hook_example', EXAMPLE_FOLDER_LABEL, hookFiles)
     this.addFiles('action_example', EXAMPLE_FOLDER_LABEL, actionFiles)
@@ -185,7 +185,7 @@ class PanelContent extends React.Component<Props> {
   }
 
   renderSharedLibs() {
-    if (!this.hasPermission('global.shared_lib')) {
+    if (!this.hasPermission('global.shared_libs')) {
       return null
     }
 
@@ -194,14 +194,14 @@ class PanelContent extends React.Component<Props> {
         id: 'btn-add-action',
         icon: <Icon icon="add" />,
         key: 'add',
-        onClick: () => this.createFilePrompt('shared_lib')
+        onClick: () => this.createFilePrompt('shared_libs')
       }
     ]
 
     return (
-      <SidePanelSection label={lang.tr('Shared Libraries')} actions={actions}>
+      <SidePanelSection label={lang.tr('module.code-editor.sidePanel.sharedLibs')} actions={actions}>
         <FileNavigator
-          id="shared_lib"
+          id="shared_libs"
           files={this.state.sharedLibs}
           expandedNodes={this.expandedNodes}
           selectedNode={this.state.selectedNode}

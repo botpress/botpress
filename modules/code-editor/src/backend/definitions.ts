@@ -75,10 +75,10 @@ export const FileTypes: { [type: string]: FileDefinition } = {
     },
     canDelete: () => false
   },
-  shared_lib: {
+  shared_libs: {
     allowGlobal: true,
     allowScoped: false,
-    permission: 'shared_lib',
+    permission: 'shared_libs',
     ghost: {
       baseDir: '/libraries'
     },

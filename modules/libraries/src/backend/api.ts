@@ -41,7 +41,7 @@ export default async (bp: typeof sdk) => {
     // Archive was just uploaded, ensure it has been copied locally before installing
     // TODO handle correctly
     if (uploaded) {
-      await Promise.delay(1000)
+      await Promise.delay(3000)
     }
 
     const result = await executeNpm(['install', name])
@@ -54,7 +54,7 @@ export default async (bp: typeof sdk) => {
   router.post('/delete', async (req: BPRequest, res: Response) => {
     const { name } = req.body
 
-    await removeLibrary(name)
+    await removeLibrary(name, bp)
     const result = await executeNpm()
 
     await publishPackageChanges(bp)
