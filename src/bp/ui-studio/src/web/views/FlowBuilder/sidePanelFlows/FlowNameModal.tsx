@@ -1,5 +1,6 @@
 import { Button, Callout, Classes, Dialog, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
+import { URL_FOLDER_SEPERATOR } from 'common/http'
 import _ from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
 
@@ -51,6 +52,8 @@ const FlowNameModal: FC<Props> = props => {
   const alreadyExists =
     !isIdentical && _.some(props.flowsNames, n => n.toLowerCase() === `${name}.flow.json`.toLowerCase())
 
+  const hasIllegalWord = name?.includes(URL_FOLDER_SEPERATOR)
+
   let dialog: { icon: any; title: string } = { icon: 'add', title: lang.tr('studio.flow.sidePanel.createFlow') }
   let submitText = lang.tr('create')
   if (props.action === 'duplicate') {
@@ -85,6 +88,11 @@ const FlowNameModal: FC<Props> = props => {
               {lang.tr('studio.flow.sidePanel.nameInUseMessage')}
             </Callout>
           )}
+          {hasIllegalWord && (
+            <Callout title={lang.tr('studio.flow.sidePanel.nameHasillegalWord')} intent={Intent.DANGER}>
+              {lang.tr('studio.flow.sidePanel.nameHasillegalWordMessage')}
+            </Callout>
+          )}
         </div>
 
         <div className={Classes.DIALOG_FOOTER}>
@@ -94,7 +102,7 @@ const FlowNameModal: FC<Props> = props => {
               type="submit"
               text={submitText}
               onClick={submit}
-              disabled={!name || isIdentical || alreadyExists}
+              disabled={!name || isIdentical || alreadyExists || hasIllegalWord}
             />
           </div>
         </div>
