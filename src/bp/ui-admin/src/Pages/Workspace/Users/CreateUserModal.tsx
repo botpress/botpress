@@ -1,6 +1,7 @@
 import { Button, FormGroup } from '@blueprintjs/core'
+import { WorkspaceUser, WorkspaceUserWithAttributes } from 'botpress/sdk'
 import { Dialog, lang } from 'botpress/shared'
-import { AuthRole, AuthStrategyConfig, CreatedUser, WorkspaceUser, WorkspaceUserInfo } from 'common/typings'
+import { AuthRole, AuthStrategyConfig, CreatedUser } from 'common/typings'
 import React, { FC, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import AsyncSelect from 'react-select/lib/AsyncCreatable'
@@ -24,7 +25,7 @@ interface DispatchProps {
 }
 
 interface StateProps {
-  availableUsers: WorkspaceUserInfo[]
+  availableUsers: WorkspaceUserWithAttributes[]
 }
 
 type Props = DispatchProps & StateProps & OwnProps

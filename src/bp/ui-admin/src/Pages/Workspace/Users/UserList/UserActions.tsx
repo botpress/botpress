@@ -8,15 +8,16 @@ import {
   PopoverInteractionKind,
   Position
 } from '@blueprintjs/core'
+import { WorkspaceUserWithAttributes } from 'botpress/sdk'
 import { confirmDialog, lang } from 'botpress/shared'
-import { AuthRole, AuthStrategyConfig, WorkspaceUser } from 'common/typings'
+import { AuthRole, AuthStrategyConfig } from 'common/typings'
 import React, { FC } from 'react'
 import { connect } from 'react-redux'
 import api from '~/api'
 import { toastFailure, toastSuccess } from '~/utils/toaster'
 
 interface OwnProps {
-  user: WorkspaceUser
+  user: WorkspaceUserWithAttributes
   onUserUpdated: () => void
   onPasswordReset: (email, newPassword) => void
 }
