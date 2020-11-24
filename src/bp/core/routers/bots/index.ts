@@ -144,7 +144,7 @@ export class BotsRouter extends CustomRouter {
    * A good explanation is available here: https://github.com/expressjs/express/issues/2596
    */
   deleteRouter(path: string, app: Express) {
-    const relPath = '/mod/' + path
+    const relPath = `/mod/${path}`
 
     // We need to access the global stack and dig in it to find the desired stack
     const mainRouterStack = app._router.stack
@@ -175,13 +175,13 @@ export class BotsRouter extends CustomRouter {
       disableForModule('bodyParserUrlEncoder', path)
     }
 
-    const relPath = '/mod/' + path
+    const relPath = `/mod/${path}`
     this.router.use(relPath, router)
 
     router['getPublicPath'] = async () => {
       await AppLifecycle.waitFor(AppLifecycleEvents.HTTP_SERVER_READY)
       const externalUrl = new URL(process.EXTERNAL_URL)
-      const subPath = externalUrl.pathname + '/api/v1/bots/BOT_ID' + relPath
+      const subPath = `${externalUrl.pathname}/api/v1/bots/BOT_ID${relPath}`
       return new URL(subPath.replace('//', '/'), externalUrl.origin).href
     }
 
