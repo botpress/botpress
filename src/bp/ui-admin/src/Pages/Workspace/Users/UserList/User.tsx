@@ -41,7 +41,7 @@ const User: FC<Props> = ({ user, showPicture, currentUserEmail, onUserUpdated, o
         <div className="dates">
           <span className="field">
             <b>{lang.tr('admin.workspace.users.collaborators.created')}: </b>
-            {moment(user.attributes.created_at || user.attributes.createdOn).fromNow()}
+            {moment(user.attributes.created_at).fromNow()}
           </span>
           <span className="field">
             <b>{lang.tr('admin.workspace.users.collaborators.lastLogin')}: </b>

@@ -11,11 +11,31 @@ export class PredictionHandler {
     private modelProvider: ModelProvider,
     private engine: sdk.NLU.Engine,
     private anticipatedLanguage: string,
-    private defaultLanguage: string
+    private defaultLanguage: string,
+    private logger: sdk.Logger
   ) {}
 
   async predict(textInput: string, includedContexts: string[]) {
-    const detectedLanguage = await this.engine.detectLanguage(textInput, this.modelsByLang)
+    const modelCacheState = _.mapValues(this.modelsByLang, model => ({ model, loaded: this.engine.hasModel(model) }))
+
+    const missingModels = _(modelCacheState)
+      .pickBy(mod => !mod.loaded)
+      .mapValues(({ model }) => model)
+      .value()
+
+    if (Object.keys(missingModels).length) {
+      const formattedMissingModels = JSON.stringify(missingModels, undefined, 2)
+      this.logger.warn(
+        `About to detect language, but the following models are not loaded: \n${formattedMissingModels}\nMake sure you have enough cache space to fit all models for your bot.`
+      )
+    }
+
+    const loadedModels = _(modelCacheState)
+      .pickBy(mod => mod.loaded)
+      .mapValues(({ model }) => model)
+      .value()
+
+    const detectedLanguage = await this.engine.detectLanguage(textInput, loadedModels)
 
     let nluResults: sdk.IO.EventUnderstanding | undefined
 
