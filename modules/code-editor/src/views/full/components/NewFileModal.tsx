@@ -26,7 +26,7 @@ const sanitizeName = (text: string) =>
 
 const NewFileModal: FC<Props> = props => {
   const [name, setName] = useState('')
-  const [isScoped, setScoped] = useState(true)
+  const [isScoped, setScoped] = useState(FileTypes[props.selectedType]?.allowScoped ?? true)
 
   useEffect(() => {
     setName('')

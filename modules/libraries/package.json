@@ -1,0 +1,18 @@
+{
+  "name": "libraries",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "main": "dist/backend/index.js",
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0-only",
+  "scripts": {
+    "build": "node ../../build/module-builder/bin/entry build",
+    "watch": "node ../../build/module-builder/bin/entry watch",
+    "package": "node ../../build/module-builder/bin/entry package"
+  },
+  "dependencies": {
+    "axios": "^0.21.0",
+    "npm": "^6.14.8"
+  }
+}

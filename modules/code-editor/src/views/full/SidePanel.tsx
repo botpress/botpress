@@ -25,6 +25,7 @@ class PanelContent extends React.Component<Props> {
     botConfigs: [],
     moduleConfigFiles: [],
     rawFiles: [],
+    sharedLibs: [],
     selectedNode: '',
     selectedFile: undefined,
     isMoveModalOpen: false,
@@ -76,10 +77,13 @@ class PanelContent extends React.Component<Props> {
     this.addFiles('bot.module_config', lang.tr('module.code-editor.sidePanel.currentBot'), moduleConfigFiles)
     this.addFiles('global.module_config', lang.tr('module.code-editor.sidePanel.global'), moduleConfigFiles)
 
+    const sharedLibs = []
+    this.addFiles('global.shared_lib', lang.tr('module.code-editor.sidePanel.global'), sharedLibs)
+
     this.addFiles('hook_example', EXAMPLE_FOLDER_LABEL, hookFiles)
     this.addFiles('action_example', EXAMPLE_FOLDER_LABEL, actionFiles)
 
-    this.setState({ actionFiles, hookFiles, botConfigs: botConfigFiles, moduleConfigFiles, rawFiles })
+    this.setState({ actionFiles, hookFiles, botConfigs: botConfigFiles, moduleConfigFiles, rawFiles, sharedLibs })
   }
 
   updateNodeExpanded = (id: string, isExpanded: boolean) => {
@@ -171,6 +175,34 @@ class PanelContent extends React.Component<Props> {
         <FileNavigator
           id="actions"
           files={this.state.actionFiles}
+          expandedNodes={this.expandedNodes}
+          selectedNode={this.state.selectedNode}
+          onNodeStateExpanded={this.updateNodeExpanded}
+          onNodeStateSelected={this.updateNodeSelected}
+        />
+      </SidePanelSection>
+    )
+  }
+
+  renderSharedLibs() {
+    if (!this.hasPermission('global.shared_lib')) {
+      return null
+    }
+
+    const actions = [
+      {
+        id: 'btn-add-action',
+        icon: <Icon icon="add" />,
+        key: 'add',
+        onClick: () => this.createFilePrompt('shared_lib')
+      }
+    ]
+
+    return (
+      <SidePanelSection label={lang.tr('Shared Libraries')} actions={actions}>
+        <FileNavigator
+          id="shared_lib"
+          files={this.state.sharedLibs}
           expandedNodes={this.expandedNodes}
           selectedNode={this.state.selectedNode}
           onNodeStateExpanded={this.updateNodeExpanded}
@@ -320,6 +352,7 @@ class PanelContent extends React.Component<Props> {
               <React.Fragment>
                 {this.renderSectionActions()}
                 {this.renderSectionHooks()}
+                {this.renderSharedLibs()}
                 {this.renderSectionConfig()}
                 {this.renderSectionModuleConfig()}
               </React.Fragment>
