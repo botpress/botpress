@@ -60,6 +60,8 @@ function renderElement(data, channel) {
     return renderSlack(data)
   } else if (channel === 'smooch') {
     return [data]
+  } else if (channel === 'teams') {
+    return [{ ...data, type: 'dropdown_choice' }]
   }
 
   return []

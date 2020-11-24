@@ -1,4 +1,4 @@
-import { BotConfig, BotTemplate, Logger, Stage } from 'botpress/sdk'
+import { BotConfig, BotTemplate, Logger, Stage, WorkspaceUserWithAttributes } from 'botpress/sdk'
 import cluster from 'cluster'
 import { BotHealth, ServerHealth } from 'common/typings'
 import { BotCreationSchema, BotEditSchema, isValidBotId } from 'common/validation'
@@ -431,8 +431,8 @@ export class BotService {
     const bpConfig = await this.configProvider.getBotpressConfig()
     const alteredBot = _.cloneDeep(currentConfig)
 
-    const attributes = ['last_logon', 'firstname', 'lastname']
-    const users = await this.workspaceService.getWorkspaceUsersAttributes(workspaceId, attributes)
+    const options = { attributes: ['last_logon', 'firstname', 'lastname'] }
+    const users = (await this.workspaceService.getWorkspaceUsers(workspaceId, options)) as WorkspaceUserWithAttributes[]
 
     const api = await createForGlobalHooks()
     const currentStage = <Stage>pipeline.find(s => s.id === currentConfig.pipeline_status.current_stage.id)
@@ -617,7 +617,7 @@ export class BotService {
         botId,
         PersistedConsoleLogger.listenForAllLogs((level, message, args) => {
           this.realtimeService.sendToSocket(
-            RealTimePayload.forAdmins('logs::' + botId, {
+            RealTimePayload.forAdmins(`logs::${botId}`, {
               level,
               message,
               args

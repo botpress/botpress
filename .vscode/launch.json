@@ -2,14 +2,13 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "node",
+      "type": "pwa-node",
       "runtimeVersion": "12.13.0",
       "request": "launch",
       "name": "Debug App",
       "program": "${workspaceFolder}/out/bp/index.js",
       "cwd": "${workspaceFolder}",
       "args": ["start"],
-      "protocol": "auto",
       "env": {
         "BP_MODULES_PATH": "${workspaceFolder}/modules:${workspaceFolder}/internal-modules",
         "NODE_PATH": "${workspaceFolder}/out/bp",
@@ -36,9 +35,9 @@
       "program": "${workspaceFolder}/out/bp/index.js",
       "cwd": "${workspaceFolder}",
       "args": [
-        "nlu", 
-        "--languageURL=http://localhost:3100", 
-        "--ducklingURL=http://localhost:8000", 
+        "nlu",
+        "--languageURL=http://localhost:3100",
+        "--ducklingURL=http://localhost:8000",
         "--modelCacheSize=1gb"
       ],
       "protocol": "auto",
