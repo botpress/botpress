@@ -8,7 +8,7 @@ import _ from 'lodash'
 import { MODULE_NAME } from '../constants'
 
 import { IAgent, IComment, IHandoff } from './../types'
-import { cacheKey } from './agentSession'
+import { buildCacheKey } from './agentSession'
 import { makeAgentId } from './helpers'
 
 export interface AgentCollectionConditions {
@@ -238,9 +238,7 @@ export default class Repository {
 
   // hitlnext:online:workspaceId:agentId
   agentSessionCacheKey = async (botId: string, agentId: string) => {
-    return [MODULE_NAME, 'online', cacheKey(await this.bp.workspaces.getBotWorkspaceId(botId), botId, agentId)].join(
-      ':'
-    )
+    return [MODULE_NAME, 'online', buildCacheKey(await this.bp.workspaces.getBotWorkspaceId(botId), agentId)].join(':')
   }
 
   getAgentOnline = async (botId: string, agentId: string): Promise<boolean> => {

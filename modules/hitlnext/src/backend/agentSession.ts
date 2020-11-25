@@ -11,7 +11,7 @@ export default (bp: typeof sdk, repository: Repository, cache: object) => {
   const registerTimeout = async (workspaceId: string, botId: string, agentId: string) => {
     const realtime = Socket(bp)
 
-    const key = cacheKey(workspaceId, botId, agentId)
+    const key = buildCacheKey(workspaceId, agentId)
     const { agentSessionTimeout } = await bp.config.getModuleConfigForBot(MODULE_NAME, botId)
 
     // Clears previously registered timeout to avoid old timers to execute
@@ -33,7 +33,7 @@ export default (bp: typeof sdk, repository: Repository, cache: object) => {
   }
 
   const unregisterTimeout = (workspaceId: string, botId: string, agentId: string) => {
-    const key = cacheKey(workspaceId, botId, agentId)
+    const key = buildCacheKey(workspaceId, agentId)
 
     if (cache[key]) {
       clearTimeout(cache[key])
@@ -45,6 +45,6 @@ export default (bp: typeof sdk, repository: Repository, cache: object) => {
 
 // Cache key that scopes agent status on a per-workspace basis.
 // It could also be scoped on a per-bot basis.
-export const cacheKey = (workspaceId: string, botId: string, agentId: string) => {
+export const buildCacheKey = (workspaceId: string, agentId: string) => {
   return [workspaceId, agentId].join('.')
 }
