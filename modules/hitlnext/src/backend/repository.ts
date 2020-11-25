@@ -362,7 +362,7 @@ export default class Repository {
 
   getHandoff = (id: string, query?: Knex.QueryCallback) => {
     return this.handoffsQuery(builder => {
-      builder.where('id', id).modify(this.applyQuery(query))
+      builder.where({ id }).modify(this.applyQuery(query))
     }).then(data => _.head(data) as IHandoff)
   }
 
