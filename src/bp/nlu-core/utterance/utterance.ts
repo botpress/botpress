@@ -150,8 +150,7 @@ export default class Utterance {
       totalWeight += weight
 
       /**
-       * TODO: experiment without dividing by norm
-       * The follwing posts suggests there might important information in a word vector's length:
+       * The following posts suggests there might be important information in a word vector's length:
        * - https://stats.stackexchange.com/questions/177905/should-i-normalize-word2vecs-word-vectors-before-using-them
        * - https://stackoverflow.com/questions/36034454/what-meaning-does-the-length-of-a-word2vec-vector-have
        */
