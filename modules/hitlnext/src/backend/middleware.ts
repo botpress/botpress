@@ -42,6 +42,62 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
     cache.del(cacheKey(botId, threadId))
   }
 
+  const handleIncomingFromUser = async (handoff: IHandoff, event: sdk.IO.IncomingEvent) => {
+    if (handoff.status === 'assigned') {
+      // There only is an agentId & agentThreadId after assignation
+      await pipeEvent(event, {
+        botId: handoff.botId,
+        target: handoff.agentId,
+        threadId: handoff.agentThreadId,
+        channel: 'web'
+      })
+    }
+
+    // At this moment the event isn't persisted yet so an approximate
+    // representation is built and sent to the frontend, which relies on
+    // this to update the handoff's preview and read status.
+    const partialEvent = {
+      event: _.pick(event, ['preview']),
+      success: undefined,
+      threadId: undefined,
+      ..._.pick(event, ['id', 'direction', 'botId', 'channel', 'createdOn', 'threadId'])
+    }
+
+    realtime.sendPayload(event.botId, {
+      resource: 'handoff',
+      type: 'update',
+      id: handoff.id,
+      payload: {
+        ...handoff,
+        userConversation: partialEvent
+      }
+    })
+
+    realtime.sendPayload(event.botId, {
+      resource: 'event',
+      type: 'create',
+      id: null,
+      payload: partialEvent
+    })
+  }
+
+  const handleIncomingFromAgent = async (handoff: IHandoff, event: sdk.IO.IncomingEvent) => {
+    const { botAvatarUrl }: Config = await bp.config.getModuleConfigForBot(MODULE_NAME, event.botId)
+    Object.assign(event.payload, { from: 'agent', botAvatarUrl }) // TODO set avatar url from agent profile if nothing in config
+
+    await pipeEvent(event, {
+      botId: handoff.botId,
+      threadId: handoff.userThreadId,
+      target: handoff.userId,
+      channel: handoff.userChannel
+    })
+
+    await repository.setAgentOnline(event.botId, handoff.agentId, true) // Bump agent session timeout
+    await registerTimeout(await bp.workspaces.getBotWorkspaceId(event.botId), event.botId, handoff.agentId).then(() => {
+      debug.forBot(event.botId, 'Registering timeout', { agentId: handoff.agentId })
+    })
+  }
+
   const incomingHandler = async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
     if (event.type !== 'text') {
       // TODO we might want to handle other types
@@ -58,67 +114,15 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
 
     const handoff = await repository.getHandoff(handoffId)
 
-    // Handle incoming message from user
-    if (handoff.userThreadId === event.threadId) {
+    const incomingFromUser = handoff.userThreadId === event.threadId
+    const incomingFromAgent = handoff.agentThreadId === event.threadId
+
+    if (incomingFromUser) {
       debug.forBot(event.botId, 'Handling message from User', { direction: event.direction, threadId: event.threadId })
-
-      if (handoff.status === 'assigned') {
-        // There only is an agentId & agentThreadId after assignation
-        await pipeEvent(event, {
-          botId: handoff.botId,
-          target: handoff.agentId,
-          threadId: handoff.agentThreadId,
-          channel: 'web'
-        })
-      }
-
-      // At this moment the event isn't persisted yet so an approximate
-      // representation is built and sent to the frontend, which relies on
-      // this to update the handoff's preview and read status.
-      const partialEvent = {
-        event: _.pick(event, ['preview']),
-        success: undefined,
-        threadId: undefined,
-        ..._.pick(event, ['id', 'direction', 'botId', 'channel', 'createdOn', 'threadId'])
-      }
-
-      realtime.sendPayload(event.botId, {
-        resource: 'handoff',
-        type: 'update',
-        id: handoff.id,
-        payload: {
-          ...handoff,
-          userConversation: partialEvent
-        }
-      })
-
-      realtime.sendPayload(event.botId, {
-        resource: 'event',
-        type: 'create',
-        id: null,
-        payload: partialEvent
-      })
-
-      // Handle incoming message from agent
-    } else if (handoff.agentThreadId === event.threadId) {
+      handleIncomingFromUser(handoff, event)
+    } else if (incomingFromAgent) {
       debug.forBot(event.botId, 'Handling message from Agent', { direction: event.direction, threadId: event.threadId })
-
-      const { botAvatarUrl }: Config = await bp.config.getModuleConfigForBot(MODULE_NAME, event.botId)
-      Object.assign(event.payload, { from: 'agent', botAvatarUrl }) // TODO set avatar url from agent profile if nothing in config
-
-      await pipeEvent(event, {
-        botId: handoff.botId,
-        threadId: handoff.userThreadId,
-        target: handoff.userId,
-        channel: handoff.userChannel
-      })
-
-      await repository.setAgentOnline(event.botId, handoff.agentId, true) // Bump agent session timeout
-      await registerTimeout(await bp.workspaces.getBotWorkspaceId(event.botId), event.botId, handoff.agentId).then(
-        () => {
-          debug.forBot(event.botId, 'Registering timeout', { agentId: handoff.agentId })
-        }
-      )
+      handleIncomingFromAgent(handoff, event)
     }
 
     // the session or bot is paused, swallow the message
