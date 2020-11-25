@@ -8,9 +8,7 @@ import fr from '../translations/fr.json'
 import api from './api'
 import { registerMiddleware, unregisterMiddleware } from './middleware'
 import migrate from './migrate'
-import Workspace from './workspace'
-
-const debug = DEBUG(MODULE_NAME)
+import upsertAgentRoles from './workspace'
 
 export interface StateType {
   cacheHandoff?: Function
@@ -25,30 +23,9 @@ const onServerStarted = async (bp: typeof sdk) => {
 }
 
 const onServerReady = async (bp: typeof sdk) => {
-  const workspace = Workspace(bp)
-
   await migrate(bp)
+  await upsertAgentRoles(bp)
   await api(bp, state)
-  await workspace
-    .insertRole('default', [
-      {
-        id: 'agent',
-        name: 'admin.workspace.roles.default.agent.name',
-        description: 'admin.workspace.roles.default.agent.description',
-        rules: [
-          {
-            res: '*',
-            op: '+r'
-          },
-          {
-            res: `module.${MODULE_NAME}`,
-            op: '+r+w'
-          }
-        ]
-      }
-    ])
-    .then(() => debug('Updating workspace configuration', { role: 'agent' }))
-
   await registerMiddleware(bp, state)
 }
 

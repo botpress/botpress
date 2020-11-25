@@ -2,7 +2,32 @@ import * as sdk from 'botpress/sdk'
 import { Workspace } from 'common/typings'
 import _ from 'lodash'
 
-export default (bp: typeof sdk) => {
+import { MODULE_NAME } from '../constants'
+
+const debug = DEBUG(MODULE_NAME)
+
+const ROLE_CONFIGURATION = [
+  {
+    id: 'agent',
+    name: 'admin.workspace.roles.default.agent.name',
+    description: 'admin.workspace.roles.default.agent.description',
+    rules: [
+      {
+        res: '*',
+        op: '+r'
+      },
+      {
+        res: `module.${MODULE_NAME}`,
+        op: '+r+w'
+      }
+    ]
+  }
+]
+
+/**
+ * Create or update an 'agent' role in all workspaces
+ */
+const upsertAgentRoles = async (bp: typeof sdk) => {
   const list = () => {
     return bp.ghost.forGlobal().readFileAsObject<Workspace[]>('/', 'workspaces.json')
   }
@@ -11,8 +36,7 @@ export default (bp: typeof sdk) => {
     return bp.ghost.forGlobal().upsertFile('/', 'workspaces.json', JSON.stringify(workspaces, undefined, 2))
   }
 
-  // Insert or update a role for a given workspace
-  const insertRole = async (workspaceId: string, data: any) => {
+  const upsertRole = async (workspaceId: string, data: any) => {
     const workspaces = await list()
     return save(
       workspaces.map(workspace =>
@@ -23,5 +47,12 @@ export default (bp: typeof sdk) => {
     )
   }
 
-  return { insertRole }
+  const workspaces = await list()
+
+  workspaces.forEach(workspace => {
+    debug('Upserting agent role in workspace configuration', { workspace })
+    upsertRole(workspace.id, ROLE_CONFIGURATION)
+  })
 }
+
+export default upsertAgentRoles
