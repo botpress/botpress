@@ -86,11 +86,7 @@ export default class Repository {
 
   private applyQuery = (query?: Knex.QueryCallback) => {
     return (builder: Knex.QueryBuilder) => {
-      if (query) {
-        return builder.modify(query)
-      } else {
-        return builder
-      }
+      return query ? builder.modify(query) : builder
     }
   }
 
