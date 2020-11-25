@@ -21,54 +21,42 @@ export interface CollectionConditions extends Partial<SortOrder> {
   limit?: number
 }
 
-export default class Repository {
-  private timeouts: object
-  private readonly handoffColumns: string[]
-  private readonly commentColumns: string[]
-  private readonly userColumns: string[]
-  private readonly eventColumns: string[]
-  private readonly commentColumnsPrefixed: string[]
-  private readonly userColumnsPrefixed: string[]
-  private readonly commentPrefix: string
-  private readonly handoffPrefix: string
-  private readonly userPrefix: string
+const commentPrefix = 'comment'
+const handoffPrefix = 'handoff'
+const userPrefix = 'user'
 
+const handoffColumns = [
+  'id',
+  'botId',
+  'agentId',
+  'userId',
+  'userThreadId',
+  'userChannel',
+  'agentThreadId',
+  'status',
+  'assignedAt',
+  'resolvedAt',
+  'createdAt',
+  'updatedAt'
+]
+
+const commentColumns = ['id', 'agentId', 'handoffId', 'threadId', 'content', 'createdAt', 'updatedAt']
+
+const eventColumns = ['id', 'direction', 'botId', 'channel', 'success', 'createdOn', 'threadId', 'type', 'event']
+
+const userColumns = ['id', 'attributes']
+
+const commentColumnsPrefixed = commentColumns.map(s => commentPrefix.concat(':', s))
+
+const userColumnsPrefixed = userColumns.map(s => userPrefix.concat(':', s))
+
+export default class Repository {
   /**
    *
    * @param bp
    * @param timeouts Object to store agent session timeouts
    */
-  constructor(private bp: typeof sdk, timeouts: object) {
-    this.timeouts = timeouts
-    this.commentPrefix = 'comment'
-    this.handoffPrefix = 'handoff'
-    this.userPrefix = 'user'
-
-    this.handoffColumns = [
-      'id',
-      'botId',
-      'agentId',
-      'userId',
-      'userThreadId',
-      'userChannel',
-      'agentThreadId',
-      'status',
-      'assignedAt',
-      'resolvedAt',
-      'createdAt',
-      'updatedAt'
-    ]
-
-    this.commentColumns = ['id', 'agentId', 'handoffId', 'threadId', 'content', 'createdAt', 'updatedAt']
-
-    this.eventColumns = ['id', 'direction', 'botId', 'channel', 'success', 'createdOn', 'threadId', 'type', 'event']
-
-    this.userColumns = ['id', 'attributes']
-
-    this.commentColumnsPrefixed = this.commentColumns.map(s => this.commentPrefix.concat(':', s))
-
-    this.userColumnsPrefixed = this.userColumns.map(s => this.userPrefix.concat(':', s))
-  }
+  constructor(private bp: typeof sdk, private timeouts: object) {}
 
   // This mutates object
   private castDate(object, paths) {
@@ -110,17 +98,17 @@ export default class Repository {
   private hydrateHandoffs(rows: any[]): IHandoff[] {
     const records = rows.reduce((memo, row) => {
       memo[row.id] = memo[row.id] || {
-        ..._.pick(row, this.handoffColumns),
+        ..._.pick(row, handoffColumns),
         comments: {}
       }
 
-      if (row[`${this.commentPrefix}:id`]) {
-        const record = _.mapKeys(_.pick(row, this.commentColumnsPrefixed), (v, k) => _.split(k, ':').pop())
-        memo[row.id].comments[row[`${this.commentPrefix}:id`]] = record
+      if (row[`${commentPrefix}:id`]) {
+        const record = _.mapKeys(_.pick(row, commentColumnsPrefixed), (v, k) => _.split(k, ':').pop())
+        memo[row.id].comments[row[`${commentPrefix}:id`]] = record
       }
 
-      if (row[`${this.userPrefix}:id`]) {
-        const record = _.mapKeys(_.pick(row, this.userColumnsPrefixed), (v, k) => _.split(k, ':').pop())
+      if (row[`${userPrefix}:id`]) {
+        const record = _.mapKeys(_.pick(row, userColumnsPrefixed), (v, k) => _.split(k, ':').pop())
         record.attributes = this.bp.database.json.get(record.attributes) // Parse json
 
         memo[row.id].user = record
@@ -143,10 +131,10 @@ export default class Repository {
 
     const toMerge = events.map(event => {
       return _.tap({}, item => {
-        const record = _.pick(event, this.eventColumns)
+        const record = _.pick(event, eventColumns)
         record.event = this.bp.database.json.get(record.event)
 
-        item['id'] = event[`${this.handoffPrefix}:id`]
+        item['id'] = event[`${handoffPrefix}:id`]
         item[key] = record
       })
     })
@@ -178,8 +166,8 @@ export default class Repository {
     return this.bp
       .database<IHandoff>(HANDOFF_TABLE_NAME)
       .select(
-        `${HANDOFF_TABLE_NAME}.id as handoff:id`,
-        `${HANDOFF_TABLE_NAME}.userThreadId as handoff:userThreadId`,
+        `${HANDOFF_TABLE_NAME}.id as ${handoffPrefix}:id`,
+        `${HANDOFF_TABLE_NAME}.userThreadId as ${handoffPrefix}:userThreadId`,
         'recent_event.*'
       )
       .join(this.recentEventQuery(), `${HANDOFF_TABLE_NAME}.userThreadId`, 'recent_event.threadId')
@@ -190,15 +178,15 @@ export default class Repository {
       .database<IHandoff>(HANDOFF_TABLE_NAME)
       .select(
         `${HANDOFF_TABLE_NAME}.*`,
-        `${COMMENT_TABLE_NAME}.id as ${this.commentPrefix}:id`,
-        `${COMMENT_TABLE_NAME}.agentId as ${this.commentPrefix}:agentId`,
-        `${COMMENT_TABLE_NAME}.handoffId as ${this.commentPrefix}:handoffId`,
-        `${COMMENT_TABLE_NAME}.threadId as ${this.commentPrefix}:threadId`,
-        `${COMMENT_TABLE_NAME}.content as ${this.commentPrefix}:content`,
-        `${COMMENT_TABLE_NAME}.updatedAt as ${this.commentPrefix}:updatedAt`,
-        `${COMMENT_TABLE_NAME}.createdAt as ${this.commentPrefix}:createdAt`,
-        `srv_channel_users.user_id as ${this.userPrefix}:id`,
-        `srv_channel_users.attributes as ${this.userPrefix}:attributes`
+        `${COMMENT_TABLE_NAME}.id as ${commentPrefix}:id`,
+        `${COMMENT_TABLE_NAME}.agentId as ${commentPrefix}:agentId`,
+        `${COMMENT_TABLE_NAME}.handoffId as ${commentPrefix}:handoffId`,
+        `${COMMENT_TABLE_NAME}.threadId as ${commentPrefix}:threadId`,
+        `${COMMENT_TABLE_NAME}.content as ${commentPrefix}:content`,
+        `${COMMENT_TABLE_NAME}.updatedAt as ${commentPrefix}:updatedAt`,
+        `${COMMENT_TABLE_NAME}.createdAt as ${commentPrefix}:createdAt`,
+        `srv_channel_users.user_id as ${userPrefix}:id`,
+        `srv_channel_users.attributes as ${userPrefix}:attributes`
       )
       .leftJoin(COMMENT_TABLE_NAME, `${HANDOFF_TABLE_NAME}.userThreadId`, `${COMMENT_TABLE_NAME}.threadId`)
       .leftJoin('srv_channel_users', `${HANDOFF_TABLE_NAME}.userId`, 'srv_channel_users.user_id')
@@ -434,7 +422,7 @@ export default class Repository {
       ['updatedAt', 'createdAt']
     )
 
-    return this.bp.database.insertAndRetrieve<IComment>(COMMENT_TABLE_NAME, payload, this.commentColumns)
+    return this.bp.database.insertAndRetrieve<IComment>(COMMENT_TABLE_NAME, payload, commentColumns)
   }
 
   getMessages = (botId: string, threadId: string, conditions: CollectionConditions = {}) => {
