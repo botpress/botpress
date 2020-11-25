@@ -162,11 +162,15 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
       })
   }
 
-  await measure('cache-warmup', warmup(), items => {
-    items.getEntries().forEach(entry => {
-      debug('performance', _.pick(entry, 'name', 'duration'))
+  if (debug.enabled) {
+    await measure('cache-warmup', warmup(), items => {
+      items.getEntries().forEach(entry => {
+        debug('performance', _.pick(entry, 'name', 'duration'))
+      })
     })
-  })
+  } else {
+    await warmup()
+  }
 
   state.cacheHandoff = await bp.distributed.broadcast(cacheHandoff)
   state.expireHandoff = await bp.distributed.broadcast(expireHandoff)
