@@ -109,7 +109,7 @@ export default class Repository {
 
       if (row[`${userPrefix}:id`]) {
         const record = _.mapKeys(_.pick(row, userColumnsPrefixed), (v, k) => _.split(k, ':').pop())
-        record.attributes = this.bp.database.json.get(record.attributes) // Parse json
+        record.attributes = this.bp.database.json.get(record.attributes)
 
         memo[row.id].user = record
       }
