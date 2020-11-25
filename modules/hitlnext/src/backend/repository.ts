@@ -117,12 +117,7 @@ export default class Repository {
       return memo
     }, {})
 
-    return _.values(records).map(record => {
-      return {
-        ...record,
-        comments: _.values(record.comments)
-      }
-    })
+    return _.values(records).map(record => ({ ...record, comments: _.values(record.comments) }))
   }
 
   // This mutates handoffs
