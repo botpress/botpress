@@ -49,8 +49,8 @@ const upsertAgentRoles = async (bp: typeof sdk) => {
 
   const workspaces = await list()
 
+  debug('Upserting agent role in workspace(s):', _.map(workspaces, 'id'))
   workspaces.forEach(workspace => {
-    debug('Upserting agent role in workspace configuration', { workspace })
     upsertRole(workspace.id, ROLE_CONFIGURATION)
   })
 }
