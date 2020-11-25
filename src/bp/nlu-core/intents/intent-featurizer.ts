@@ -6,5 +6,5 @@ import { getEntitiesEncoding } from './entities-featurizer'
 
 export function getIntentFeatures(utt: Utterance, customEntities: string[]): number[] {
   const entitiesOH = getEntitiesEncoding(utt, customEntities)
-  return [...utt.sentenceEmbedding, utt.tokens.length, ...entitiesOH]
+  return [...utt.sentenceEmbedding(), utt.tokens.length, ...entitiesOH]
 }
