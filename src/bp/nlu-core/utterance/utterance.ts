@@ -3,7 +3,7 @@ import _ from 'lodash'
 
 import { POSClass } from '../language/pos-tagger'
 import { SPECIAL_CHARSET } from '../tools/chars'
-import { computeNorm, scalarDivide, scalarMultiply, vectorAdd } from '../tools/math'
+import { computeNorm, scalarDivide, scalarMultiply, vectorAdd, zeroes } from '../tools/math'
 import { replaceConsecutiveSpaces } from '../tools/strings'
 import { convertToRealSpaces, isSpace, isWord, SPACE } from '../tools/token-utils'
 import { getClosestToken } from '../tools/vocab'
@@ -118,17 +118,28 @@ export default class Utterance {
     return this._tokens
   }
 
-  get sentenceEmbedding(): number[] {
+  sentenceEmbedding(
+    options?: Partial<{
+      keepToken: (t: UtteranceToken) => boolean
+    }>
+  ): number[] {
     if (this._sentenceEmbedding) {
       return this._sentenceEmbedding
     }
 
+    const defaultOptions = {
+      keepToken: () => true
+    }
+    const resolvedOptions = { ...defaultOptions, ...(options || {}) }
+
     let totalWeight = 0
     const dims = this._tokens[0].vector.length
-    let sentenceEmbedding = new Array(dims).fill(0)
+    let sentenceEmbedding = zeroes(dims)
+
+    const tokens = this.tokens.filter(resolvedOptions.keepToken)
 
     // Algorithm strongly inspired by Fasttext classifier (see method FastText::getSentenceVector)
-    for (const token of this.tokens) {
+    for (const token of tokens) {
       const norm = computeNorm(token.vector as number[])
       if (norm <= 0 || !token.isWord) {
         // ignore special char tokens in sentence embeddings
@@ -137,7 +148,13 @@ export default class Utterance {
 
       const weight = Math.min(1, token.tfidf) // TODO: there's already an upper limit on TFIDF
       totalWeight += weight
-      const weightedVec = scalarMultiply(token.vector as number[], weight / norm) // TODO: experiment without dividing by norm
+
+      /**
+       * The following posts suggests there might be important information in a word vector's length:
+       * - https://stats.stackexchange.com/questions/177905/should-i-normalize-word2vecs-word-vectors-before-using-them
+       * - https://stackoverflow.com/questions/36034454/what-meaning-does-the-length-of-a-word2vec-vector-have
+       */
+      const weightedVec = scalarMultiply(token.vector as number[], weight / norm)
       sentenceEmbedding = vectorAdd(sentenceEmbedding, weightedVec)
     }
 
