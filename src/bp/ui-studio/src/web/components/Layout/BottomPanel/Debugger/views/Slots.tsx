@@ -19,7 +19,7 @@ const renderSlotItem = (name: string, slot: any) => {
                 content={lang.tr('bottomPanel.debugger.slots.value', { x: s.value })}
                 position="top"
               >
-                <li style={{ textDecoration: 'underline' }}>{s.source}</li>
+                <li className={style.underline}>{s.source}</li>
               </Tooltip>
             ))}
           </ul>
@@ -33,7 +33,7 @@ const renderSlotItem = (name: string, slot: any) => {
       <td>{name}</td>
       <td>
         <Tooltip content={lang.tr('bottomPanel.debugger.slots.value', { x: slot.value })}>
-          <span style={{ textDecoration: 'underline' }}>{slot.source}</span>
+          <span className={style.underline}>{slot.source}</span>
         </Tooltip>
       </td>
       <td>

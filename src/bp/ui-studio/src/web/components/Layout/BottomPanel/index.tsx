@@ -80,12 +80,7 @@ const BottomPanel = props => {
         <Tab id="logs" title={lang.tr('logs')} />
       </Tabs>
 
-      <div
-        className={cx(style.padded, {
-          'emulator-open': props.emulatorOpen
-        })}
-        style={{ width: '100%' }}
-      >
+      <div className={cx(style.padded, style.fullWidth, { 'emulator-open': props.emulatorOpen })}>
         {tab === 'logs' && <Logs commonButtons={commonButtons} />}
         {tab === 'debugger' && (
           <Debugger

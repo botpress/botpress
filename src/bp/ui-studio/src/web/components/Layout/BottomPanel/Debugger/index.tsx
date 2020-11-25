@@ -24,7 +24,7 @@ import { NDU } from './views/NDU'
 import { Processing } from './views/Processing'
 import Summary from './views/Summary'
 
-const RETRY_PERIOD = 500 // Delay (ms) between each call to the backend to fetch a desired event
+const DELAY_BETWEEN_CALLS = 500
 const RETRY_SECURITY_FACTOR = 3
 const DEBOUNCE_DELAY = 100
 
@@ -71,7 +71,7 @@ export class Debugger extends React.Component<Props, State> {
       const { data } = await axios.get(`${window.BOT_API_PATH}/mod/extensions/events/update-frequency`)
       const { collectionInterval } = data
       const maxDelai = ms(collectionInterval as string) * RETRY_SECURITY_FACTOR
-      this.allowedRetryCount = Math.ceil(maxDelai / RETRY_PERIOD)
+      this.allowedRetryCount = Math.ceil(maxDelai / DELAY_BETWEEN_CALLS)
     } catch (err) {
       const errorCode = _.get(err, 'response.status')
       if (errorCode === 403) {
@@ -118,7 +118,7 @@ export class Debugger extends React.Component<Props, State> {
       if (this.currentRetryCount < this.allowedRetryCount) {
         this.currentRetryCount++
 
-        await Promise.delay(RETRY_PERIOD)
+        await Promise.delay(DELAY_BETWEEN_CALLS)
         await this.loadEvent(eventId)
       } else {
         this.currentRetryCount = 0
@@ -195,7 +195,7 @@ export class Debugger extends React.Component<Props, State> {
     )
   }
 
-  renderEvent() {
+  render() {
     const hasEvent = !!this.state.event
     const ndu = _.get(this.state, 'event.ndu')
 
@@ -255,15 +255,6 @@ export class Debugger extends React.Component<Props, State> {
           {this.props.commonButtons}
         </ButtonGroup>
       </Tabs>
-    )
-  }
-
-  render() {
-    return (
-      <Fragment>
-        {/* {!this.state.event && this.renderWhenNoEvent()} */}
-        {this.renderEvent()}
-      </Fragment>
     )
   }
 }
