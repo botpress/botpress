@@ -12,6 +12,7 @@ import { generateUsername, getOrSet } from '../utils'
 import { Context } from '../Store'
 
 import HandoffBadge from './HandoffBadge'
+import ms from 'ms'
 
 const HandoffItem: FC<IHandoff> = props => {
   const { createdAt, id, status, agentId, userConversation, userChannel } = props
@@ -33,7 +34,7 @@ const HandoffItem: FC<IHandoff> = props => {
   }
 
   useEffect(() => {
-    const refreshRate = 1000 * 60 // ms
+    const refreshRate = ms('1m')
 
     const interval = setInterval(() => {
       setFromNow(moment(createdAt).fromNow())
