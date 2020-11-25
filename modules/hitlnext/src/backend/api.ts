@@ -382,8 +382,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       })
       await extendAgentSession(req.workspace, req.params.botId, agentId)
 
-      res.status(201)
-      res.send(comment)
+      res.status(201).send(comment)
     })
   )
 
