@@ -370,7 +370,7 @@ describe('UtteranceClass', () => {
     const fakePOS = testTokens.map(_ => 'ADJ') as POSClass[]
     const u = new Utterance(testTokens, vecs, fakePOS, 'en')
     u.setGlobalTfidf(globalTFIDF)
-    u.sentenceEmbedding.forEach((actual, idx) => {
+    u.sentenceEmbedding().forEach((actual, idx) => {
       expect(actual).toBeCloseTo(expectedEmbeddings[idx], 3)
     })
   })
