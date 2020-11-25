@@ -1,11 +1,12 @@
 import * as sdk from 'botpress/sdk'
 
-import { MODULE_NAME } from '../constants'
+import { MODULE_NAME, HANDOFF_TABLE_NAME, COMMENT_TABLE_NAME } from '../constants'
+
 const debug = DEBUG(MODULE_NAME)
 
 export default async (bp: typeof sdk) => {
-  await bp.database.createTableIfNotExists('handoffs', table => {
-    debug("Creating database table 'handoffs'")
+  await bp.database.createTableIfNotExists(HANDOFF_TABLE_NAME, table => {
+    debug(`Creating database table '${HANDOFF_TABLE_NAME}'`)
 
     table
       .increments('id')
@@ -27,8 +28,8 @@ export default async (bp: typeof sdk) => {
     table.index(['botId'])
   })
 
-  await bp.database.createTableIfNotExists('comments', table => {
-    debug("Creating database table 'comments'")
+  await bp.database.createTableIfNotExists(COMMENT_TABLE_NAME, table => {
+    debug(`Creating database table '${COMMENT_TABLE_NAME}'`)
 
     table
       .increments('id')

@@ -6,12 +6,12 @@ import Knex from 'knex'
 import _ from 'lodash'
 import ms from 'ms'
 
-import { MODULE_NAME } from '../constants'
+import { COMMENT_TABLE_NAME, HANDOFF_TABLE_NAME, MODULE_NAME } from '../constants'
 
 import { IAgent, IComment, IHandoff } from './../types'
 import { makeAgentId } from './helpers'
 
-const debug = DEBUG('hitlnext')
+const debug = DEBUG(MODULE_NAME)
 
 export interface AgentCollectionConditions {
   online?: boolean
@@ -176,32 +176,36 @@ export default class Repository {
 
   private userEventsQuery(): Knex.QueryBuilder {
     return this.bp
-      .database<IHandoff>('handoffs')
-      .select('handoffs.id as handoff:id', 'handoffs.userThreadId as handoff:userThreadId', 'recent_event.*')
-      .join(this.recentEventQuery(), 'handoffs.userThreadId', 'recent_event.threadId')
+      .database<IHandoff>(HANDOFF_TABLE_NAME)
+      .select(
+        `${HANDOFF_TABLE_NAME}.id as handoff:id`,
+        `${HANDOFF_TABLE_NAME}.userThreadId as handoff:userThreadId`,
+        'recent_event.*'
+      )
+      .join(this.recentEventQuery(), `${HANDOFF_TABLE_NAME}.userThreadId`, 'recent_event.threadId')
   }
 
   private handoffsWithAssociationsQuery(botId: string, conditions: CollectionConditions = {}) {
     return this.bp
-      .database<IHandoff>('handoffs')
+      .database<IHandoff>(HANDOFF_TABLE_NAME)
       .select(
-        'handoffs.*',
-        `comments.id as ${this.commentPrefix}:id`,
-        `comments.agentId as ${this.commentPrefix}:agentId`,
-        `comments.handoffId as ${this.commentPrefix}:handoffId`,
-        `comments.threadId as ${this.commentPrefix}:threadId`,
-        `comments.content as ${this.commentPrefix}:content`,
-        `comments.updatedAt as ${this.commentPrefix}:updatedAt`,
-        `comments.createdAt as ${this.commentPrefix}:createdAt`,
+        `${HANDOFF_TABLE_NAME}.*`,
+        `${COMMENT_TABLE_NAME}.id as ${this.commentPrefix}:id`,
+        `${COMMENT_TABLE_NAME}.agentId as ${this.commentPrefix}:agentId`,
+        `${COMMENT_TABLE_NAME}.handoffId as ${this.commentPrefix}:handoffId`,
+        `${COMMENT_TABLE_NAME}.threadId as ${this.commentPrefix}:threadId`,
+        `${COMMENT_TABLE_NAME}.content as ${this.commentPrefix}:content`,
+        `${COMMENT_TABLE_NAME}.updatedAt as ${this.commentPrefix}:updatedAt`,
+        `${COMMENT_TABLE_NAME}.createdAt as ${this.commentPrefix}:createdAt`,
         `srv_channel_users.user_id as ${this.userPrefix}:id`,
         `srv_channel_users.attributes as ${this.userPrefix}:attributes`
       )
-      .leftJoin('comments', 'handoffs.userThreadId', 'comments.threadId')
-      .leftJoin('srv_channel_users', 'handoffs.userId', 'srv_channel_users.user_id')
-      .where('handoffs.botId', botId)
+      .leftJoin(COMMENT_TABLE_NAME, `${HANDOFF_TABLE_NAME}.userThreadId`, `${COMMENT_TABLE_NAME}.threadId`)
+      .leftJoin('srv_channel_users', `${HANDOFF_TABLE_NAME}.userId`, 'srv_channel_users.user_id')
+      .where(`${HANDOFF_TABLE_NAME}.botId`, botId)
       .modify(this.applyLimit, conditions)
       .modify(this.applyOrderBy, conditions)
-      .orderBy([{ column: 'comments.createdAt', order: 'asc' }])
+      .orderBy([{ column: `${COMMENT_TABLE_NAME}.createdAt`, order: 'asc' }])
   }
 
   private findHandoffs(
@@ -218,7 +222,7 @@ export default class Repository {
 
       const hydrated = this.hydrateEvents<IHandoff>(
         await this.userEventsQuery()
-          .where('handoffs.botId', botId)
+          .where(`${HANDOFF_TABLE_NAME}.botId`, botId)
           .transacting(trx),
         data,
         'userConversation'
@@ -236,13 +240,16 @@ export default class Repository {
   }
 
   private async findHandoff(botId: string, id: string, trx?: Knex.Transaction) {
-    return this.findHandoffs(botId, undefined, builder => builder.andWhere('handoffs.id', id), trx).then(data =>
-      _.head(data)
-    )
+    return this.findHandoffs(
+      botId,
+      undefined,
+      builder => builder.andWhere(`${HANDOFF_TABLE_NAME}.id`, id),
+      trx
+    ).then(data => _.head(data))
   }
 
   handoffsQuery = (query?: Knex.QueryCallback) => {
-    return this.bp.database<IHandoff>('handoffs').modify(this.applyQuery(query))
+    return this.bp.database<IHandoff>(HANDOFF_TABLE_NAME).modify(this.applyQuery(query))
   }
 
   // hitlnext:online:workspaceId:agentId
@@ -393,7 +400,7 @@ export default class Repository {
     )
 
     return this.bp.database.transaction(async trx => {
-      const id = await this.bp.database.insertAndRetrieve<string>('handoffs', payload, 'id', 'id', trx)
+      const id = await this.bp.database.insertAndRetrieve<string>(HANDOFF_TABLE_NAME, payload, 'id', 'id', trx)
       return await this.findHandoff(botId, id, trx)
     })
   }
@@ -409,7 +416,7 @@ export default class Repository {
     )
 
     return this.bp.database.transaction(async trx => {
-      await trx<IHandoff>('handoffs')
+      await trx<IHandoff>(HANDOFF_TABLE_NAME)
         .where({ id })
         .update(payload)
       return await this.findHandoff(botId, id, trx)
@@ -427,7 +434,7 @@ export default class Repository {
       ['updatedAt', 'createdAt']
     )
 
-    return this.bp.database.insertAndRetrieve<IComment>('comments', payload, this.commentColumns)
+    return this.bp.database.insertAndRetrieve<IComment>(COMMENT_TABLE_NAME, payload, this.commentColumns)
   }
 
   getMessages = (botId: string, threadId: string, conditions: CollectionConditions = {}) => {
