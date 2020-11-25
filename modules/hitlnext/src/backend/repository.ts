@@ -259,8 +259,6 @@ export default class Repository {
   // - permissions
   // - strategyType
   getCurrentAgent = async (req: BPRequest, botId: string, agentId: string): Promise<IAgent> => {
-    const online = await this.getAgentOnline(botId, agentId)
-
     const { data } = await axios.get('/auth/me/profile', {
       baseURL: `${process.LOCAL_URL}/api/v1`,
       headers: {
@@ -272,81 +270,29 @@ export default class Repository {
     return {
       ...data.payload,
       agentId,
-      online
+      online: await this.getAgentOnline(botId, agentId)
     } as IAgent
   }
 
-  // Fetch a list of agents, missing these properties:
-  // - permissions
-  // - strategyType
-  getAgents = async (
-    botId: string,
-    workspace: string,
-    conditions: AgentCollectionConditions = {}
-  ): Promise<Partial<IAgent>[]> => {
-    const { online } = conditions
-
-    const applyConditions = (records: []) => {
-      if ('online' in conditions) {
-        return _.filter<IAgent>(records, ['online', online])
-      } else {
-        return records
-      }
+  getAgents = async (botId: string, workspace: string): Promise<Partial<IAgent>[]> => {
+    const options: sdk.GetWorkspaceUsersOptions = {
+      includeSuperAdmins: true,
+      attributes: ['firstname', 'lastname', 'created_at', 'updated_at']
     }
 
-    const getUsers = async (strategy: string, emails: string[]) => {
-      const users = await this.bp
-        .database(`strategy_${strategy}`)
-        .select('*')
-        .whereIn('email', emails)
-
-      return users.map(user => ({
+    // TODO filter out properly this is a quick fix
+    const users = (await this.bp.workspaces.getWorkspaceUsers(workspace, options)).filter(
+      u => u.role === 'admin' || u.role === 'admin'
+    )
+    // @ts-ignore
+    return Promise.map(users, async user => {
+      const agentId = makeAgentId(user.strategy, user.email)
+      return {
         ...user,
-        attributes: this.bp.database.json.get(user.attributes)
-      }))
-    }
-
-    return this.bp.workspaces
-      .getWorkspaceUsersWithAttributes(workspace, ['firstname', 'lastname'])
-      .then(agents => {
-        return agents.map(agent => {
-          return {
-            ...agent,
-            isSuperAdmin: false
-          }
-        })
-      })
-      .then(async agents => {
-        const superAdmins = _.keyBy((await this.bp.config.getBotpressConfig()).superAdmins, 'strategy')
-        const strategies = _.keys(superAdmins)
-
-        const hydrated = _.flatten(
-          await Promise.mapSeries(strategies, async strategy => {
-            const emails = _.map(_.castArray(superAdmins[strategy]), 'email')
-            return getUsers(strategy, emails)
-          })
-        ).map(user => {
-          return {
-            ..._.pick(user, 'email', 'strategy'),
-            isSuperAdmin: true,
-            attributes: _.pick(user.attributes, 'firstname', 'lastname', 'created_on', 'updated_on')
-          }
-        })
-
-        return [...agents, ...hydrated]
-      })
-      .then(data => {
-        return Promise.all(
-          data.map(async row => {
-            return {
-              ...row,
-              agentId: makeAgentId(row.strategy, row.email),
-              online: await this.getAgentOnline(botId, makeAgentId(row.strategy, row.email))
-            }
-          })
-        )
-      })
-      .then(applyConditions)
+        agentId,
+        online: await this.getAgentOnline(botId, agentId)
+      }
+    })
   }
 
   getHandoffsWithAssociations = (botId: string, conditions: CollectionConditions = {}, query?: Knex.QueryCallback) => {

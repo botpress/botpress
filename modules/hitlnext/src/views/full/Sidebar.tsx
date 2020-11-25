@@ -4,13 +4,14 @@ import cx from 'classnames'
 import _ from 'lodash'
 import React, { useContext, useEffect, useState } from 'react'
 
+import { WEBSOCKET_TOPIC } from '../../constants'
+
 import { IHandoff, ISocketMessage } from './../../types'
 import AgentList from './studio-sidebar/components/AgentList'
 import HandoffList from './studio-sidebar/components/HandoffList'
 import { Context, Store } from './studio-sidebar/Store'
 import styles from './style.scss'
 import { Api, castHandoff } from './Api'
-import { WEBSOCKET_TOPIC } from '../../constants'
 
 const Sidebar = ({ bp, close }) => {
   const api = Api(bp)
@@ -48,8 +49,8 @@ const Sidebar = ({ bp, close }) => {
 
   async function getAgents() {
     try {
-      const data = await api.getAgents(true)
-      dispatch({ type: 'setAgents', payload: data })
+      const data = await api.getAgents()
+      dispatch({ type: 'setAgents', payload: data.filter(a => a.online) })
     } catch (error) {
       dispatch({ type: 'setError', payload: error })
     }

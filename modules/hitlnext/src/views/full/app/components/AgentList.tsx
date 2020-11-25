@@ -1,10 +1,10 @@
 import { Colors, Position, Spinner, Tooltip } from '@blueprintjs/core'
-import { agentName } from '../../shared/helper'
 import _, { Dictionary } from 'lodash'
 import React, { FC } from 'react'
 import { Initial } from 'react-initial'
 
 import { IAgent } from '../../../../types'
+import { agentName } from '../../shared/helper'
 
 interface Props {
   agents: Dictionary<IAgent>
@@ -24,13 +24,25 @@ const AgentList: FC<Props> = props => {
     }
   }
 
+  if (!props.loading && _.isEmpty(props.agents)) {
+    return <div />
+  }
+
+  if (props.loading) {
+    return (
+      <div>
+        <Spinner></Spinner>
+      </div>
+    )
+  }
+
+  // TODO className for ul
   return (
     <div>
-      {props.loading && <Spinner></Spinner>}
-
-      {!props.loading && !_.isEmpty(props.agents) && (
-        <ul style={{ padding: 0, margin: 0, listStyleType: 'none' }}>
-          {_.filter(_.values(props.agents), 'online').map(agent => (
+      <ul style={{ padding: 0, margin: 0, listStyleType: 'none' }}>
+        {Object.values(props.agents)
+          .filter(a => a.online)
+          .map(agent => (
             <li key={agent.agentId} style={{ display: 'inline', marginRight: '8px' }}>
               <Tooltip content={agentName(agent)} position={Position.BOTTOM}>
                 <div style={{ position: 'relative', display: 'inline-block' }}>
@@ -47,8 +59,7 @@ const AgentList: FC<Props> = props => {
               </Tooltip>
             </li>
           ))}
-        </ul>
-      )}
+      </ul>
     </div>
   )
 }

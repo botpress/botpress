@@ -77,8 +77,7 @@ const App = ({ bp }) => {
 
   async function toggleOnline(online: boolean) {
     try {
-      const agent = online ? await api.setOnline() : await api.setOffline()
-      dispatch({ type: 'setCurrentAgent', payload: agent }) // optimistic update, will also be updated via websocket event
+      online ? await api.setOnline() : await api.setOffline()
       online
         ? toast.success(lang.tr('module.hitlnext.agent.onlineSuccess'))
         : toast.success(lang.tr('module.hitlnext.agent.offlineSuccess'))
@@ -88,7 +87,6 @@ const App = ({ bp }) => {
   }
 
   useEffect(() => {
-    // tslint:disable-next-line: no-floating-promises
     Promise.all([getCurrentAgent(), getAgents(), getHandoffs(), getConfig()]).then(() => {
       setLoading(false)
     })

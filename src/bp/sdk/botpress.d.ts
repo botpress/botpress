@@ -1674,10 +1674,6 @@ declare module 'botpress/sdk' {
     workspaceName?: string
   }
 
-  export type WorkspaceUserWithAttributes = {
-    attributes: any
-  } & WorkspaceUser
-
   export interface AddWorkspaceUserOptions {
     /** Select an existing custom role for that user. If role, asAdmin and asChatUser are undefined, then it will pick the default role */
     role?: string
