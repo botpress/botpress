@@ -10,7 +10,6 @@ import yn from 'yn'
 import { MODULE_NAME } from '../constants'
 
 import { HandoffType, IComment, IHandoff } from './../types'
-import AgentSession from './agentSession'
 import { UnprocessableEntityError } from './errors'
 import { formatValidationError, makeAgentId } from './helpers'
 import { StateType } from './index'
@@ -27,11 +26,8 @@ import {
 
 export default async (bp: typeof sdk, state: StateType) => {
   const router = bp.http.createRouterForBot(MODULE_NAME)
-  const repository = new Repository(bp)
+  const repository = new Repository(bp, state.timeouts)
   const realtime = Socket(bp)
-  const { registerTimeout, unregisterTimeout } = AgentSession(bp, repository, state.timeouts)
-
-  const debug = DEBUG(MODULE_NAME)
 
   // Enforces for an agent to be 'online' before executing an action
   const agentOnlineMiddleware = async (req: BPRequest, res: Response, next) => {
@@ -65,10 +61,21 @@ export default async (bp: typeof sdk, state: StateType) => {
     }
   }
 
-  const extendAgentSession = async (workspace: string, botId: string, agentId: string): Promise<void> => {
-    await repository.setAgentOnline(botId, agentId, true)
-    await registerTimeout(workspace, botId, agentId)
-    debug.forBot(botId, 'Registering timeout', { agentId })
+  const extendAgentSession = async (botId, agentId) => {
+    return repository.setAgentOnline(botId, agentId, async () => {
+      // By now the agent *should* be offline, but we check nonetheless
+      const online = await repository.getAgentOnline(botId, agentId)
+      const payload = {
+        online
+      }
+
+      realtime.sendPayload(botId, {
+        resource: 'agent',
+        type: 'update',
+        id: agentId,
+        payload
+      })
+    })
   }
 
   // This should be available for all modules
@@ -105,8 +112,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       const { email, strategy } = req.tokenUser!
       const agentId = makeAgentId(strategy, email)
 
-      const online = await repository.setAgentOnline(req.params.botId, agentId, true)
-      await registerTimeout(req.workspace, req.params.botId, agentId)
+      const online = await extendAgentSession(req.params.botId, agentId)
 
       const payload = { online }
 
@@ -127,8 +133,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       const { email, strategy } = req.tokenUser!
       const agentId = makeAgentId(strategy, email)
 
-      const online = await repository.setAgentOnline(req.params.botId, agentId, false)
-      unregisterTimeout(req.workspace, req.params.botId, agentId)
+      const online = await repository.unsetAgentOnline(req.params.botId, agentId)
 
       const payload = {
         online
@@ -247,7 +252,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       handoff = await repository.updateHandoff(req.params.botId, req.params.id, payload)
       state.cacheHandoff(req.params.botId, agentThreadId, handoff)
 
-      await extendAgentSession(req.workspace, req.params.botId, agentId)
+      await extendAgentSession(req.params.botId, agentId)
 
       const baseCustomEventPayload: Partial<sdk.IO.EventCtorArgs> = {
         botId: handoff.botId,
@@ -333,7 +338,7 @@ export default async (bp: typeof sdk, state: StateType) => {
         return handoff
       })
 
-      await extendAgentSession(req.workspace, req.params.botId, agentId)
+      await extendAgentSession(req.params.botId, agentId)
 
       realtime.sendPayload(req.params.botId, {
         resource: 'handoff',
@@ -372,7 +377,8 @@ export default async (bp: typeof sdk, state: StateType) => {
         id: handoff.id,
         payload: handoff
       })
-      await extendAgentSession(req.workspace, req.params.botId, agentId)
+
+      await extendAgentSession(req.params.botId, agentId)
 
       res.status(201).send(comment)
     })

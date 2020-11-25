@@ -7,7 +7,6 @@ import { Config } from '../config'
 import { MODULE_NAME } from '../constants'
 
 import { IHandoff } from './../types'
-import AgentSession from './agentSession'
 import { measure } from './helpers'
 import { StateType } from './index'
 import Repository from './repository'
@@ -15,9 +14,8 @@ import Socket from './socket'
 
 const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   const cache = new LRU<string, string>({ max: 1000, maxAge: ms('1 day') })
-  const repository = new Repository(bp)
+  const repository = new Repository(bp, state.timeouts)
   const realtime = Socket(bp)
-  const { registerTimeout } = AgentSession(bp, repository, state.timeouts)
 
   const debug = DEBUG(MODULE_NAME)
 
@@ -83,7 +81,10 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
 
   const handleIncomingFromAgent = async (handoff: IHandoff, event: sdk.IO.IncomingEvent) => {
     const { botAvatarUrl }: Config = await bp.config.getModuleConfigForBot(MODULE_NAME, event.botId)
-    Object.assign(event.payload, { from: 'agent', botAvatarUrl }) // TODO set avatar url from agent profile if nothing in config
+    Object.assign(event.payload, {
+      from: 'agent',
+      botAvatarUrl
+    }) // TODO set avatar url from agent profile if nothing in config
 
     await pipeEvent(event, {
       botId: handoff.botId,
@@ -92,9 +93,19 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
       channel: handoff.userChannel
     })
 
-    await repository.setAgentOnline(event.botId, handoff.agentId, true) // Bump agent session timeout
-    await registerTimeout(await bp.workspaces.getBotWorkspaceId(event.botId), event.botId, handoff.agentId).then(() => {
-      debug.forBot(event.botId, 'Registering timeout', { agentId: handoff.agentId })
+    await repository.setAgentOnline(event.botId, handoff.agentId, async () => {
+      // By now the agent *should* be offline, but we check nonetheless
+      const online = await repository.getAgentOnline(event.botId, handoff.agentId)
+      const payload = {
+        online
+      }
+
+      realtime.sendPayload(event.botId, {
+        resource: 'agent',
+        type: 'update',
+        id: handoff.agentId,
+        payload
+      })
     })
   }
 

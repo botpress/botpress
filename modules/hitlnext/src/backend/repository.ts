@@ -4,12 +4,14 @@ import { SortOrder } from 'botpress/sdk'
 import { BPRequest } from 'common/http'
 import Knex from 'knex'
 import _ from 'lodash'
+import ms from 'ms'
 
 import { MODULE_NAME } from '../constants'
 
 import { IAgent, IComment, IHandoff } from './../types'
-import { buildCacheKey } from './agentSession'
 import { makeAgentId } from './helpers'
+
+const debug = DEBUG('hitlnext')
 
 export interface AgentCollectionConditions {
   online?: boolean
@@ -20,6 +22,7 @@ export interface CollectionConditions extends Partial<SortOrder> {
 }
 
 export default class Repository {
+  private timeouts: object
   private readonly handoffColumns: string[]
   private readonly commentColumns: string[]
   private readonly userColumns: string[]
@@ -30,7 +33,13 @@ export default class Repository {
   private readonly handoffPrefix: string
   private readonly userPrefix: string
 
-  constructor(private bp: typeof sdk) {
+  /**
+   *
+   * @param bp
+   * @param timeouts Object to store agent session timeouts
+   */
+  constructor(private bp: typeof sdk, timeouts: object) {
+    this.timeouts = timeouts
     this.commentPrefix = 'comment'
     this.handoffPrefix = 'handoff'
     this.userPrefix = 'user'
@@ -237,8 +246,40 @@ export default class Repository {
   }
 
   // hitlnext:online:workspaceId:agentId
-  agentSessionCacheKey = async (botId: string, agentId: string) => {
-    return [MODULE_NAME, 'online', buildCacheKey(await this.bp.workspaces.getBotWorkspaceId(botId), agentId)].join(':')
+  private agentSessionCacheKey = async (botId: string, agentId: string) => {
+    return [MODULE_NAME, 'online', await this.bp.workspaces.getBotWorkspaceId(botId), agentId].join(':')
+  }
+
+  // Cache key that scopes agent status on a per-workspace basis.
+  // It could also be scoped on a per-bot basis.
+  // workspaceId:agentId
+  private agentTimeoutCacheKey = (workspaceId: string, agentId: string) => {
+    return [workspaceId, agentId].join('.')
+  }
+
+  // Fires a realtime event when an agent's session is expired
+  private registerTimeout = async (
+    workspaceId: string,
+    botId: string,
+    agentId: string,
+    callback: (...args: any[]) => void
+  ) => {
+    const key = this.agentTimeoutCacheKey(workspaceId, agentId)
+    const { agentSessionTimeout } = await this.bp.config.getModuleConfigForBot(MODULE_NAME, botId)
+
+    // Clears previously registered timeout to avoid old timers to execute
+    this.unregisterTimeout(workspaceId, botId, agentId)
+
+    // Set a new timeout
+    this.timeouts[key] = setTimeout(callback, ms(agentSessionTimeout as string))
+  }
+
+  private unregisterTimeout = async (workspaceId: string, botId: string, agentId: string) => {
+    const key = this.agentTimeoutCacheKey(workspaceId, agentId)
+
+    if (this.timeouts[key]) {
+      clearTimeout(this.timeouts[key])
+    }
   }
 
   getAgentOnline = async (botId: string, agentId: string): Promise<boolean> => {
@@ -246,12 +287,42 @@ export default class Repository {
     return !!value
   }
 
-  setAgentOnline = async (botId: string, agentId: string, value: boolean): Promise<boolean> => {
+  /**
+   *
+   * @param botId
+   * @param agentId
+   * @param callback The function called when the agent's session expires
+   */
+  setAgentOnline = async (botId: string, agentId: string, callback: (...args: any[]) => void): Promise<boolean> => {
     const config = await this.bp.config.getModuleConfigForBot(MODULE_NAME, botId)
+
     await this.bp.kvs
       .forBot(botId)
-      .set(await this.agentSessionCacheKey(botId, agentId), value, null, config.agentSessionTimeout)
-    return value
+      .set(await this.agentSessionCacheKey(botId, agentId), true, null, config.agentSessionTimeout)
+      .then(async () => {
+        const workspace = await this.bp.workspaces.getBotWorkspaceId(botId)
+
+        await this.registerTimeout(workspace, botId, agentId, callback).then(() => {
+          debug.forBot(botId, 'Registering timeout', { agentId: agentId })
+        })
+      })
+
+    return true
+  }
+
+  unsetAgentOnline = async (botId: string, agentId: string) => {
+    const config = await this.bp.config.getModuleConfigForBot(MODULE_NAME, botId)
+
+    await this.bp.kvs
+      .forBot(botId)
+      .set(await this.agentSessionCacheKey(botId, agentId), false, null, config.agentSessionTimeout)
+      .then(async () => {
+        const workspace = await this.bp.workspaces.getBotWorkspaceId(botId)
+
+        await this.unregisterTimeout(workspace, botId, agentId)
+      })
+
+    return false
   }
 
   // This returns an agent with the following additional properties:
