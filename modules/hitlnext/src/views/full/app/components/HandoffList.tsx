@@ -31,7 +31,7 @@ const HandoffList: FC<Props> = props => {
     const conditions = {
       unassigned: item.agentId == null,
       assignedMe: item.status === 'assigned' && item.agentId === state.currentAgent?.agentId,
-      assignedOther: item.agentId !== null && item.agentId !== state.currentAgent?.agentId,
+      assignedOther: item.status === 'assigned' && item.agentId !== state.currentAgent?.agentId,
       resolved: item.status === 'resolved'
     }
 
