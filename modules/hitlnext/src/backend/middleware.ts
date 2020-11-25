@@ -12,12 +12,12 @@ import { StateType } from './index'
 import Repository from './repository'
 import Socket from './socket'
 
+const debug = DEBUG(MODULE_NAME)
+
 const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   const cache = new LRU<string, string>({ max: 1000, maxAge: ms('1 day') })
   const repository = new Repository(bp, state.timeouts)
   const realtime = Socket(bp)
-
-  const debug = DEBUG(MODULE_NAME)
 
   const pipeEvent = async (event: sdk.IO.IncomingEvent, eventDestination: sdk.IO.EventDestination) => {
     debug.forBot(event.botId, 'Piping event', eventDestination)
