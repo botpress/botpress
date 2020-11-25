@@ -156,7 +156,7 @@ export default async (bp: typeof sdk, state: StateType) => {
   router.get(
     '/handoffs',
     errorMiddleware(async (req: Request, res: Response) => {
-      const handoffs = await repository.getHandoffsWithComments(
+      const handoffs = await repository.getHandoffsWithAssociations(
         req.params.botId,
         _.pick(req.query, ['limit', 'column', 'desc']) as CollectionConditions
       )
@@ -233,7 +233,7 @@ export default async (bp: typeof sdk, state: StateType) => {
 
       const agentId = makeAgentId(strategy, email)
 
-      let handoff: Partial<IHandoff> = await repository.getHandoffWithComments(req.params.botId, req.params.id)
+      let handoff: Partial<IHandoff> = await repository.getHandoffWithAssociations(req.params.botId, req.params.id)
 
       const axioxconfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
       const { data } = await Axios.post(`/mod/channel-web/conversations/${agentId}/new`, {}, axioxconfig)
@@ -321,7 +321,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       const agentId = makeAgentId(strategy, email)
 
       let handoff
-      handoff = await repository.getHandoffWithComments(req.params.botId, req.params.id)
+      handoff = await repository.getHandoffWithAssociations(req.params.botId, req.params.id)
 
       const payload: Partial<IHandoff> = {
         status: 'resolved',
@@ -360,7 +360,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       const { email, strategy } = req.tokenUser!
       const agentId = makeAgentId(strategy, email)
 
-      const handoff = await repository.getHandoffWithComments(req.params.botId, req.params.id)
+      const handoff = await repository.getHandoffWithAssociations(req.params.botId, req.params.id)
 
       const payload: IComment = {
         ...req.body,
@@ -382,8 +382,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       })
       await extendAgentSession(req.workspace, req.params.botId, agentId)
 
-      res.status(201)
-      res.send(comment)
+      res.status(201).send(comment)
     })
   )
 
