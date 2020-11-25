@@ -1,6 +1,7 @@
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import moment from 'moment'
+import ms from 'ms'
 import React, { FC, useEffect, useState } from 'react'
 
 import { IHandoff } from '../../../../types'
@@ -10,7 +11,7 @@ const HandoffItem: FC<IHandoff> = props => {
   const [fromNow, setFromNow] = useState(moment(props.createdAt).fromNow())
 
   useEffect(() => {
-    const refreshRate = 1000 * 60 // ms
+    const refreshRate = ms('1m')
 
     const interval = setInterval(() => {
       setFromNow(moment(props.createdAt).fromNow())
