@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import LRU from 'lru-cache'
+import ms from 'ms'
 
 import { Config } from '../config'
 import { MODULE_NAME } from '../constants'
@@ -13,7 +14,7 @@ import Repository from './repository'
 import Socket from './socket'
 
 const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
-  const cache = new LRU<string, string>({ max: 1000, maxAge: 1000 * 60 * 60 * 24 }) // 1 day
+  const cache = new LRU<string, string>({ max: 1000, maxAge: ms('1 day') })
   const repository = new Repository(bp)
   const realtime = Socket(bp)
   const { registerTimeout } = AgentSession(bp, repository, state.timeouts)
