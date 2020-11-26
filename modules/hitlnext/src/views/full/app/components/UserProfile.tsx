@@ -9,13 +9,14 @@ import { Context } from '../Store'
 import { generateUsername, getOrSet } from './../utils'
 
 const UserProfile: FC<IUser> = props => {
+  const { attributes, id } = props
   const { state, dispatch } = useContext(Context)
 
   const [expanded, setExpanded] = useState(true)
   const [defaultUsername, setDefaultUsername] = useState<string>()
 
   useEffect(() => {
-    const key = props.id
+    const key = id
     const username = getOrSet(
       () => {
         return _.get(state, `defaults.user.${key}.username`)
@@ -36,10 +37,10 @@ const UserProfile: FC<IUser> = props => {
     )
 
     setDefaultUsername(username)
-  }, [props.id])
+  }, [id])
 
   const userName = () => {
-    return (!_.isEmpty(props.attributes) && props.attributes['fullName']) || state.config.defaultUsername
+    return (!_.isEmpty(attributes) && attributes['fullName']) || state.config.defaultUsername
       ? defaultUsername
       : lang.tr('module.hitlnext.user.anonymous')
   }
@@ -48,7 +49,7 @@ const UserProfile: FC<IUser> = props => {
     <div>
       <div className={style.profileHeader}>
         <span className={style.clientName}>{userName()}</span>
-        {!_.isEmpty(props.attributes) && props.attributes['email'] && <p>{props.attributes['email']}</p>}
+        {attributes?.email && <p>{attributes.email}</p>}
       </div>
       <Collapsible
         opened={expanded}
@@ -57,8 +58,8 @@ const UserProfile: FC<IUser> = props => {
         ownProps={{ transitionDuration: 10 }}
       >
         {/* TODO show empty state here */}
-        {_.isEmpty(props.attributes) && <div>nothing to show here</div>}
-        {!_.isEmpty(props.attributes) && (
+        {_.isEmpty(attributes) && <div>nothing to show here</div>}
+        {!_.isEmpty(attributes) && (
           <table className={style.table}>
             <thead>
               <tr>
@@ -67,7 +68,7 @@ const UserProfile: FC<IUser> = props => {
               </tr>
             </thead>
             <tbody>
-              {Object.entries(props.attributes).map((entry, index) => (
+              {Object.entries(attributes).map((entry, index) => (
                 <tr key={index}>
                   <td>{entry[0]}</td>
                   <td>{entry[1]}</td>

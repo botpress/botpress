@@ -54,9 +54,15 @@ export interface IHandoff {
   updatedAt: Date
 }
 
+interface IUserAttributes extends Object {
+  timezone: string
+  language: string
+  email: string
+}
+
 export interface IUser {
   id: string
-  attributes: string
+  attributes: IUserAttributes
 }
 
 export type IEvent = {
