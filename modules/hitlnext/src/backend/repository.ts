@@ -231,6 +231,18 @@ export default class Repository {
     return this.bp.database<IHandoff>(HANDOFF_TABLE_NAME).modify(this.applyQuery(query))
   }
 
+  // Checks for existing 'active' handoffs, where 'active' means having a 'status' other than 'resolved'
+  existingActiveHandoff = (botId: string, userId: string, userThreadId: string, userChannel: string) => {
+    return this.handoffsQuery(builder => {
+      return builder
+        .where('botId', botId)
+        .andWhere('userId', userId)
+        .andWhere('userThreadId', userThreadId)
+        .andWhere('userChannel', userChannel)
+        .whereNot('status', 'resolved')
+    }).then(data => !_.isEmpty(data))
+  }
+
   // hitlnext:online:workspaceId:agentId
   private agentSessionCacheKey = async (botId: string, agentId: string) => {
     return [MODULE_NAME, 'online', await this.bp.workspaces.getBotWorkspaceId(botId), agentId].join(':')

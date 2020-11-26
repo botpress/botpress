@@ -171,25 +171,16 @@ export default async (bp: typeof sdk, state: StateType) => {
 
       Joi.attempt(payload, CreateHandoffSchema)
 
-      // Prevent creating a new handoff if one is currently pending or assigned
-      let handoff = await repository
-        .handoffsQuery(builder => {
-          return builder
-            .where('botId', req.params.botId)
-            .andWhere('userId', payload.userId)
-            .andWhere('userThreadId', payload.userThreadId)
-            .andWhere('userChannel', payload.userChannel)
-            .whereNot('status', 'resolved')
-            .orderBy('createdAt')
-            .limit(1)
+      // Prevent creating a new handoff if one for the same conversation is currently active
+      await repository
+        .existingActiveHandoff(req.params.botId, payload.userId, payload.userThreadId, payload.userChannel)
+        .then(existing => {
+          if (existing) {
+            return res.sendStatus(200)
+          }
         })
-        .then(data => _.head(data) as IHandoff)
 
-      if (handoff) {
-        return res.sendStatus(200)
-      }
-
-      handoff = await repository.createHandoff(req.params.botId, payload).then(handoff => {
+      const handoff = await repository.createHandoff(req.params.botId, payload).then(handoff => {
         state.cacheHandoff(req.params.botId, handoff.userThreadId, handoff)
         return handoff
       })
