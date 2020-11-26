@@ -11,6 +11,7 @@ import { copyFileLocally, createDefaultExample, createDefaultPackageJson, execut
 export let sharedLibsDir
 export let packageJsonPath
 export let packageLockJsonPath
+export let isOffline
 
 let broascastSync
 
@@ -18,6 +19,11 @@ const onServerStarted = async (bp: typeof sdk) => {
   sharedLibsDir = path.join(process.cwd(), 'shared_libs')
   packageJsonPath = path.join(sharedLibsDir, 'package.json')
   packageLockJsonPath = path.join(sharedLibsDir, 'package-lock.json')
+
+  const config = await bp.config.getModuleConfig('libraries')
+  if (config.offlineMode) {
+    isOffline = true
+  }
 
   mkdirp.sync(sharedLibsDir)
 
@@ -33,9 +39,9 @@ const onServerStarted = async (bp: typeof sdk) => {
 
   const synchronize = async (triggerInstall?: boolean, files?: string[]) => {
     if (files !== undefined) {
-      await syncAllFiles(bp)
-    } else {
       await Promise.mapSeries(files, file => copyFileLocally(file, bp))
+    } else {
+      await syncAllFiles(bp)
     }
 
     if (triggerInstall) {

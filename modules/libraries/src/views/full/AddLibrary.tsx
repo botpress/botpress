@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 
 import style from './style.scss'
 import Dropdown from './Dropdown'
-import TaskResult from './TaskResult'
+import PackageLib from './PackageLib'
 import UploadLibrary from './UploadLibrary'
 
 interface LibEntry {
@@ -23,18 +23,21 @@ interface LibEntry {
 const AddLibrary = props => {
   const [items, setItems] = useState([])
   const [activeItem, setActiveItem] = useState<LibEntry>()
-  const [result, setResult] = useState('')
+
   const [processing, setProcessing] = useState(false)
   const [repoName, setRepoName] = useState('')
   const [source, setSource] = useState('npm')
 
   const searchChanged = async (query, event) => {
     if (event) {
-      const { data } = await props.axios.get(`/mod/libraries/search/${query}`)
+      try {
+        const { data } = await props.axios.get(`/mod/libraries/search/${query}`)
 
-      setItems(data)
-      setResult('')
-      setRepoName('')
+        setItems(data)
+        setRepoName('')
+      } catch (err) {
+        toast.failure(`Error while querying the registry. ${err}`)
+      }
     }
   }
 
@@ -42,15 +45,15 @@ const AddLibrary = props => {
     setProcessing(true)
 
     try {
-      const { data } = await props.axios.post('/mod/libraries/add', {
+      await props.axios.post('/mod/libraries/add', {
         name: repoName || activeItem.name,
         version: activeItem?.version
       })
 
-      setResult(data)
+      toast.success('Library added successfully!')
       props.refreshLibraries()
     } catch (err) {
-      toast.failure(err)
+      toast.failure(`There was an error adding the library. Check server logs for more details ${err}`)
     } finally {
       setProcessing(false)
     }
@@ -58,7 +61,12 @@ const AddLibrary = props => {
 
   const changeSource = source => {
     setSource(source)
-    setResult('')
+  }
+
+  const onItemChanged = async (item: LibEntry) => {
+    setActiveItem(item)
+    const { data } = await props.axios.get(`/mod/libraries/details/${item.name}`)
+    console.log(data)
   }
 
   return (
@@ -74,7 +82,7 @@ const AddLibrary = props => {
       {source === 'npm' && (
         <div>
           <h5>{lang.tr('search')}</h5>
-          <Dropdown items={items} onChange={val => setActiveItem(val)} onQueryChange={searchChanged} />
+          <Dropdown items={items} onChange={onItemChanged} onQueryChange={searchChanged} />
 
           {activeItem && (
             <div className={style.libInfo}>
@@ -86,11 +94,14 @@ const AddLibrary = props => {
               <a href={activeItem.links.repository}>View on Github</a> | <a href={activeItem.links.bugs}>View Bugs</a>
               <br />
               <br />
-              <Button
-                onClick={addLib}
-                disabled={processing}
-                text={lang.tr(processing ? 'pleaseWait' : 'Add Library')}
-              ></Button>
+              <div style={{ display: 'flex' }}>
+                <Button
+                  onClick={addLib}
+                  disabled={processing}
+                  text={lang.tr(processing ? 'pleaseWait' : 'Add Library')}
+                />
+                <PackageLib axios={props.axios} name={activeItem.name} version=""></PackageLib>
+              </div>
             </div>
           )}
         </div>
@@ -110,8 +121,6 @@ const AddLibrary = props => {
           <UploadLibrary {...props} />
         </div>
       )}
-
-      <TaskResult message={result} />
     </div>
   )
 }

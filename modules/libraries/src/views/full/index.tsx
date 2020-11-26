@@ -1,10 +1,9 @@
-import { lang } from 'botpress/shared'
+import { confirmDialog, lang, toast } from 'botpress/shared'
 import { Container, ItemList, SidePanel, SidePanelSection, SplashScreen } from 'botpress/ui'
 import React, { useEffect, useState } from 'react'
 
 import style from './style.scss'
 import AddLibrary from './AddLibrary'
-import ViewLibrary from './ViewLibrary'
 
 export interface InstalledLibrary {
   name: string
@@ -32,13 +31,33 @@ const MainView = props => {
           </span>
         ),
         data: { name, version },
-        value: name
+        value: name,
+        contextMenu: [
+          {
+            label: lang.tr('delete'),
+            icon: 'delete',
+            onClick: () => deleteLibrary(name)
+          }
+        ]
       }))
     )
   }
 
+  const deleteLibrary = async (name: string) => {
+    if (!(await confirmDialog('Are you sure you want to remove this library ?', { acceptLabel: 'Remove' }))) {
+      return
+    }
+
+    try {
+      await props.bp.axios.post('/mod/libraries/delete', { name })
+      await refreshLibraries()
+      toast.info('Library removed successfully')
+    } catch (err) {
+      toast.failure('There was an error while removing the library. Check server logs for more details')
+    }
+  }
+
   const handleLibClicked = item => {
-    setPage('view')
     setLib(item.data)
   }
 
@@ -49,7 +68,10 @@ const MainView = props => {
       <SidePanel>
         <SidePanelSection
           label={lang.tr('module.libraries.libraries')}
-          actions={[{ icon: 'add', tooltip: lang.tr('add'), onClick: () => setPage('add') }]}
+          actions={[
+            { icon: 'add', tooltip: lang.tr('add'), onClick: () => setPage('add') },
+            { icon: 'upload', tooltip: lang.tr('upload archive'), onClick: () => setPage('upload') }
+          ]}
         >
           <ItemList items={libraries} onElementClicked={handleLibClicked} />
         </SidePanelSection>
@@ -72,7 +94,6 @@ const MainView = props => {
 
         <div className={style.container}>
           {page === 'add' && <AddLibrary axios={props.bp.axios} {...commonProps} />}
-          {page === 'view' && <ViewLibrary axios={props.bp.axios} lib={lib} {...commonProps} />}
         </div>
       </div>
     </Container>

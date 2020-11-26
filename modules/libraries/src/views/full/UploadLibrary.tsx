@@ -63,10 +63,11 @@ const UploadLibrary: FC<Props> = props => {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
 
-        const { data } = await props.axios.post('/mod/libraries/add', { name: file.name, uploaded: true })
+        const { data } = await props.axios.post('/mod/libraries/add', { name: file.name, uploaded: fullPath })
 
         dispatch({ type: 'uploadCompleted', data })
         props.refreshLibraries()
+        toast.success('Library added successfully!')
       } catch (err) {
         toast.failure(err, 'module.code-editor.error.cannotUploadFile')
       }
@@ -92,29 +93,25 @@ const UploadLibrary: FC<Props> = props => {
   }
 
   return (
-    <div>
-      <div
-        onDragOver={e => e.preventDefault()}
-        onDrop={e => {
-          e.preventDefault()
-          readFile(e.dataTransfer.files)
-        }}
-      >
-        <FileInput
-          text={filePath || `${lang.tr('chooseFile')}...`}
-          onChange={e => readFile((e.target as HTMLInputElement).files)}
-        />
+    <div
+      onDragOver={e => e.preventDefault()}
+      onDrop={e => {
+        e.preventDefault()
+        readFile(e.dataTransfer.files)
+      }}
+    >
+      <FileInput
+        text={filePath || `${lang.tr('chooseFile')}...`}
+        onChange={e => readFile((e.target as HTMLInputElement).files)}
+      />
 
-        <Button
-          id="btn-submit"
-          text={isLoading ? lang.tr('pleaseWait') : lang.tr('submit')}
-          disabled={isLoading || hasError || !filePath}
-          onClick={submitChanges}
-          intent={Intent.PRIMARY}
-        />
-
-        <TaskResult message={result} />
-      </div>
+      <Button
+        id="btn-submit"
+        text={isLoading ? lang.tr('pleaseWait') : lang.tr('submit')}
+        disabled={isLoading || hasError || !filePath}
+        onClick={submitChanges}
+        intent={Intent.PRIMARY}
+      />
     </div>
   )
 }

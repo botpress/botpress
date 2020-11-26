@@ -1,10 +1,11 @@
 import * as sdk from 'botpress/sdk'
 import { spawn } from 'child_process'
 import fse from 'fs-extra'
+import npmBundle from 'npm-bundle'
 import path from 'path'
 import tmp from 'tmp'
 
-import { packageJsonPath, packageLockJsonPath, sharedLibsDir } from '.'
+import { isOffline, packageJsonPath, packageLockJsonPath, sharedLibsDir } from '.'
 
 const debug = DEBUG('libraries')
 
@@ -15,6 +16,13 @@ export const executeNpm = async (args: string[] = ['install'], customLibsDir?: s
   try {
     const cwd = customLibsDir ? customLibsDir : sharedLibsDir
     debug('executing npm', { execPath: process.execPath, moduleDir, cwd, args })
+
+    if (isOffline) {
+      args.push('--offline')
+    }
+
+    // Hides superfluous messages
+    args.push('--no-fund')
 
     const spawned = spawn(process.execPath, [`${moduleDir}/${nodeFolder}/npm/bin/npm-cli.js`, ...args], {
       cwd,
@@ -38,31 +46,10 @@ export const executeNpm = async (args: string[] = ['install'], customLibsDir?: s
 }
 
 export const packageLibrary = async (name: string, version: string) => {
-  const tmpDir = tmp.dirSync({ unsafeCleanup: true })
+  const output: any = await Promise.fromCallback(cb => npmBundle([name], { verbose: true }, cb))
+  const fname = output.file.replace('\n', '')
 
-  try {
-    const jsonPackage = {
-      name,
-      version: '1.0.0',
-      description: '',
-      private: true,
-      license: 'MIT',
-      publishConfig: { registry: 'http://no-host.local' },
-      dependencies: {
-        [name]: version
-      },
-      bundledDependencies: [name]
-    }
-
-    await fse.writeFile(path.join(tmpDir.name, 'package.json'), JSON.stringify(jsonPackage, undefined, 2))
-    await executeNpm(['install'], tmpDir.name)
-    await executeNpm(['pack'], tmpDir.name)
-
-    const archiveName = (await fse.readdir(tmpDir.name)).find(x => x.endsWith('.tgz'))
-    return await fse.readFile(path.join(tmpDir.name, archiveName))
-  } finally {
-    tmpDir.removeCallback()
-  }
+  return fse.readFile(path.join(fname))
 }
 
 export const syncAllFiles = async (bp: typeof sdk) => {
@@ -76,6 +63,7 @@ export const copyFileLocally = async (fileName: string, bp: typeof sdk): Promise
   }
 
   try {
+    console.log('copying localy', fileName)
     const fileContent = await bp.ghost.forGlobal().readFileAsBuffer('libraries', fileName)
     await fse.writeFile(path.join(sharedLibsDir, fileName), fileContent)
     return true
@@ -148,7 +136,7 @@ export const createDefaultPackageJson = async () => {
     repository: 'none',
     dependencies: {},
     author: '',
-    license: 'MIT'
+    private: true
   }
 
   await fse.writeFile(packageJsonPath, JSON.stringify(baseJson, undefined, 2))
