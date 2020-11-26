@@ -1,4 +1,4 @@
-import { Button, Icon } from '@blueprintjs/core'
+import { Button } from '@blueprintjs/core'
 import * as sdk from 'botpress/sdk'
 import { isOperationAllowed, lang, MainLayout, PermissionOperation, toast } from 'botpress/shared'
 import cx from 'classnames'

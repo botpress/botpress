@@ -13,10 +13,6 @@ import { makeAgentId } from './helpers'
 
 const debug = DEBUG(MODULE_NAME)
 
-export interface AgentCollectionConditions {
-  online?: boolean
-}
-
 export interface CollectionConditions extends Partial<SortOrder> {
   limit?: number
 }

@@ -5,7 +5,6 @@ import { RequestWithUser } from 'common/typings'
 import { Request, Response } from 'express'
 import Joi from 'joi'
 import _ from 'lodash'
-import yn from 'yn'
 
 import { MODULE_NAME } from '../constants'
 
@@ -13,7 +12,7 @@ import { HandoffType, IComment, IHandoff } from './../types'
 import { UnprocessableEntityError } from './errors'
 import { formatValidationError, makeAgentId } from './helpers'
 import { StateType } from './index'
-import Repository, { AgentCollectionConditions, CollectionConditions } from './repository'
+import Repository, { CollectionConditions } from './repository'
 import Socket from './socket'
 import {
   AgentOnlineValidation,

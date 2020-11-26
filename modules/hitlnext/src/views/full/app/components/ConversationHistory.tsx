@@ -17,6 +17,8 @@ interface Props {
 }
 
 const ConversationHistory: FC<Props> = props => {
+  const { bp, api, conversationId } = props
+
   const { state } = useContext(Context)
 
   const [loading, setLoading] = useState(true)
@@ -29,16 +31,16 @@ const ConversationHistory: FC<Props> = props => {
   }
 
   useEffect(() => {
-    props.bp.events.on(`${WEBSOCKET_TOPIC}:${window.BOT_ID}`, handleMessage.bind(this))
-    return () => props.bp.events.off(`${WEBSOCKET_TOPIC}:${window.BOT_ID}`, handleMessage)
+    bp.events.on(`${WEBSOCKET_TOPIC}:${window.BOT_ID}`, handleMessage.bind(this))
+    return () => bp.events.off(`${WEBSOCKET_TOPIC}:${window.BOT_ID}`, handleMessage)
   }, [])
 
   useEffect(() => {
-    props.api.getMessages(props.conversationId, 'id', true, state.config.messageCount).then(evts => {
+    api.getMessages(conversationId, 'id', true, state.config.messageCount).then(evts => {
       setEvents(evts)
       setLoading(false)
     })
-  }, [props.conversationId])
+  }, [conversationId])
 
   return (
     <Fragment>
