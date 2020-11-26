@@ -110,9 +110,9 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   }
 
   const incomingHandler = async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
+    // TODO we might want to handle other types
     if (event.type !== 'text') {
-      // TODO we might want to handle other types
-      return next()
+      return next(undefined, false, true)
     }
 
     const handoffId = getCachedHandoff(event.botId, event.threadId)
