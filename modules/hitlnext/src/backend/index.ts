@@ -18,10 +18,6 @@ export interface StateType {
 
 const state: StateType = { timeouts: {} }
 
-const onServerStarted = async (bp: typeof sdk) => {
-  await migrate(bp)
-}
-
 const onServerReady = async (bp: typeof sdk) => {
   await migrate(bp)
   await upsertAgentRoles(bp)
@@ -35,7 +31,6 @@ const onModuleUnmount = async (bp: typeof sdk) => {
 }
 
 const entryPoint: sdk.ModuleEntryPoint = {
-  onServerStarted,
   onServerReady,
   onModuleUnmount,
   translations: { en, fr },
