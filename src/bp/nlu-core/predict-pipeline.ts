@@ -5,6 +5,7 @@ import { extractListEntities, extractPatternEntities } from './entities/custom-e
 import { getCtxFeatures } from './intents/context-featurizer'
 import { getIntentFeatures } from './intents/intent-featurizer'
 import { isPOSAvailable } from './language/pos-tagger'
+import makeSpellChecker from './language/spell-checker'
 import { getUtteranceFeatures } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import { replaceConsecutiveSpaces } from './tools/strings'
@@ -20,7 +21,7 @@ import {
   Token2Vec,
   Tools
 } from './typings'
-import Utterance, { buildUtteranceBatch, getAlternateUtterance, UtteranceEntity } from './utterance/utterance'
+import Utterance, { buildUtteranceBatch, preprocessRawUtterance, UtteranceEntity } from './utterance/utterance'
 
 export type ExactMatchResult = (sdk.MLToolkit.SVM.Prediction & { extractor: 'exact-matcher' }) | undefined
 
@@ -88,14 +89,22 @@ async function preprocessInput(
 async function makePredictionUtterance(input: InitialStep, predictors: Predictors, tools: Tools): Promise<PredictStep> {
   const { tfidf, vocabVectors, kmeans } = predictors
 
-  const text = replaceConsecutiveSpaces(input.rawText.trim())
-  const [utterance] = await buildUtteranceBatch([text], input.languageCode, tools, vocabVectors)
-  const alternateUtterance = getAlternateUtterance(utterance, vocabVectors)
+  const text = preprocessRawUtterance(input.rawText.trim())
 
-  Array(utterance, alternateUtterance).forEach(u => {
-    u?.setGlobalTfidf(tfidf)
-    u?.setKmeans(kmeans)
-  })
+  const spellChecker = makeSpellChecker(Object.keys(predictors.vocabVectors), input.languageCode, tools)
+  const spellChecked = await spellChecker(text)
+
+  const [utterance, alternateUtterance] = await buildUtteranceBatch(
+    _.uniq([text, spellChecked]),
+    input.languageCode,
+    tools,
+    vocabVectors
+  )
+
+  utterance.setGlobalTfidf(tfidf)
+  utterance.setKmeans(kmeans)
+  alternateUtterance?.setGlobalTfidf(tfidf)
+  alternateUtterance?.setKmeans(kmeans)
 
   return {
     ...input,
