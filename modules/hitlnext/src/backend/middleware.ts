@@ -144,21 +144,17 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   }
 
   // Performance: Eager load and cache handoffs that will be required on every incoming message.
-  // - Only handoffs with status 'pending' or 'assigned' are cached because they are the only
-  // ones for which the middleware handles agent <-> user event piping
+  // - Only 'active' handoffs are cached because they are the only ones for which the middleware
+  // handles agent <-> user event piping
   // - Handoffs must be accessible both via their respective agent thread ID and user thread ID
   // for two-way message piping
   const warmup = () => {
-    return repository
-      .handoffsQuery(builder => {
-        builder.where('status', 'pending').orWhere('status', 'assigned')
+    return repository.listActiveHandoffs().then((handoffs: IHandoff[]) => {
+      handoffs.forEach(handoff => {
+        handoff.agentThreadId && cacheHandoff(handoff.botId, handoff.agentThreadId, handoff)
+        handoff.userThreadId && cacheHandoff(handoff.botId, handoff.userThreadId, handoff)
       })
-      .then((handoffs: IHandoff[]) => {
-        handoffs.forEach(handoff => {
-          handoff.agentThreadId && cacheHandoff(handoff.botId, handoff.agentThreadId, handoff)
-          handoff.userThreadId && cacheHandoff(handoff.botId, handoff.userThreadId, handoff)
-        })
-      })
+    })
   }
 
   if (debug.enabled) {

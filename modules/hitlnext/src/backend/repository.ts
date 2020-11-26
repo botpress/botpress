@@ -80,8 +80,8 @@ export default class Repository {
     }
   }
 
-  private applyQuery = (query?: Knex.QueryCallback) => {
-    return (builder: Knex.QueryBuilder) => {
+  private applyQuery = <T>(query?: Knex.QueryCallback) => {
+    return (builder: Knex.QueryBuilder<T>) => {
       return query ? builder.modify(query) : builder
     }
   }
@@ -223,22 +223,6 @@ export default class Repository {
     ).then(data => _.head(data))
   }
 
-  handoffsQuery = (query?: Knex.QueryCallback) => {
-    return this.bp.database<IHandoff>(HANDOFF_TABLE_NAME).modify(this.applyQuery(query))
-  }
-
-  // Checks for existing 'active' handoffs, where 'active' means having a 'status' other than 'resolved'
-  existingActiveHandoff = (botId: string, userId: string, userThreadId: string, userChannel: string) => {
-    return this.handoffsQuery(builder => {
-      return builder
-        .where('botId', botId)
-        .andWhere('userId', userId)
-        .andWhere('userThreadId', userThreadId)
-        .andWhere('userChannel', userChannel)
-        .whereNot('status', 'resolved')
-    }).then(data => !_.isEmpty(data))
-  }
-
   // hitlnext:online:workspaceId:agentId
   private agentSessionCacheKey = async (botId: string, agentId: string) => {
     return [MODULE_NAME, 'online', await this.bp.workspaces.getBotWorkspaceId(botId), agentId].join(':')
@@ -359,6 +343,30 @@ export default class Repository {
     })
   }
 
+  // Note:
+  // - this is meant to find handoffs across bots
+  // - 'active' means having a 'status' of either 'pending' or 'assigned'
+  listActiveHandoffs = () => {
+    return this.bp
+      .database<IHandoff>(HANDOFF_TABLE_NAME)
+      .where('status', 'pending')
+      .orWhere('status', 'assigned')
+  }
+
+  // Note:
+  // - 'active' means having a 'status' of either 'pending' or 'assigned'
+  existingActiveHandoff = (botId: string, userId: string, userThreadId: string, userChannel: string) => {
+    return this.bp
+      .database<IHandoff>(HANDOFF_TABLE_NAME)
+      .where('botId', botId)
+      .andWhere('userId', userId)
+      .andWhere('userThreadId', userThreadId)
+      .andWhere('userChannel', userChannel)
+      .andWhere('status', 'pending')
+      .orWhere('status', 'assigned')
+      .then(data => !_.isEmpty(data))
+  }
+
   listHandoffsWithAssociations = (botId: string, conditions: CollectionConditions = {}, query?: Knex.QueryCallback) => {
     return this.listHandoffs(botId, conditions, query)
   }
@@ -367,10 +375,13 @@ export default class Repository {
     return this.findHandoff(botId, id)
   }
 
-  getHandoff = (id: string, query?: Knex.QueryCallback) => {
-    return this.handoffsQuery(builder => {
-      builder.where({ id }).modify(this.applyQuery(query))
-    }).then(data => _.head(data) as IHandoff)
+  getHandoff = (id: string) => {
+    return this.bp
+      .database<IHandoff>(HANDOFF_TABLE_NAME)
+      .select('*')
+      .where({ id })
+      .limit(1)
+      .then(data => _.head(data))
   }
 
   createHandoff = async (botId: string, attributes: Partial<IHandoff>) => {
