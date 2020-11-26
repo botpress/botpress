@@ -57,7 +57,6 @@ export class TelemetryRepository {
       .from(this.tableName)
       .select('uuid')
       .orderBy('creationDate', 'desc')
-      .limit(-1)
       .offset(limit)
       .then(rows => rows.map(entry => entry.uuid))
 
