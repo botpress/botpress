@@ -60,8 +60,6 @@ const LiveChat: React.FC<Props> = ({ handoff, currentAgent }) => {
     window.botpressWebChat.init(webchatConfig, `#${WRAPPER_ID}`)
     window.addEventListener('message', webchatEventListener)
     return () => window.removeEventListener('message', webchatEventListener)
-    // init webchat and window event listeners
-    // return a function that removes event listeners
   }, [])
 
   useEffect(() => {
