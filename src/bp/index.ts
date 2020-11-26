@@ -399,6 +399,8 @@ try {
         })
       }
     )
+    .boolean('config')
+    .boolean('includePasswords')
     .command(
       'diag',
       'Generate a diagnostic report\nAlternative: set BP_DIAG=true',
