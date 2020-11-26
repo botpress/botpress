@@ -79,7 +79,7 @@ export class PredictionHandler {
       const merged = mergeSpellChecked(originalOutput as PredictOutput, spellCheckedOutput as PredictOutput)
       return { ...merged, spellChecked }
     }
-    const output = this.engine.predict(textInput, includedContexts, this.modelsByLang[lang])
+    const output = await this.engine.predict(textInput, includedContexts, this.modelsByLang[lang])
     return { ...output, spellChecked }
   }
 
