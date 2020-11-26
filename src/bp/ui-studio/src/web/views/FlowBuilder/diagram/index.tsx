@@ -147,11 +147,6 @@ class Diagram extends Component<Props> {
     if (this.props.highlightFilter) {
       this.manager.setHighlightFilter(this.props.highlightFilter)
     }
-
-    // @ts-ignore
-    window.showEventOnDiagram = () => {
-      return event => this.showEventOnDiagram(event)
-    }
   }
 
   getStateProperty(propertyName: string) {
@@ -256,6 +251,10 @@ class Diagram extends Component<Props> {
 
     if (prevProps.zoomLevel !== this.props.zoomLevel) {
       this.diagramEngine.diagramModel.setZoomLevel(this.props.zoomLevel)
+    }
+
+    if (prevProps.debuggerEvent !== this.props.debuggerEvent) {
+      this.showEventOnDiagram(this.props.debuggerEvent)
     }
 
     const isDifferentFlow = _.get(prevProps, 'currentFlow.name') !== _.get(this, 'props.currentFlow.name')
@@ -737,6 +736,7 @@ const mapStateToProps = (state: RootReducer) => ({
   currentDiagramAction: state.flows.currentDiagramAction,
   canPasteNode: Boolean(state.flows.nodeInBuffer),
   emulatorOpen: state.ui.emulatorOpen,
+  debuggerEvent: state.flows.debuggerEvent,
   zoomLevel: state.ui.zoomLevel,
   conditions: state.ndu.conditions,
   skills: state.skills.installed
