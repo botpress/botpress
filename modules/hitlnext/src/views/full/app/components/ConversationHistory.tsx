@@ -45,8 +45,7 @@ const ConversationHistory: FC<Props> = props => {
   return (
     <Fragment>
       {loading && <Spinner></Spinner>}
-      {!loading && _.isEmpty(events) && <EmptyState text="NO MESSAGES"></EmptyState>}
-      {!loading && !_.isEmpty(events) && <MessageList events={events}></MessageList>}
+      {!loading && <MessageList events={events}></MessageList>}
     </Fragment>
   )
 }
