@@ -100,7 +100,7 @@ export default async (bp: typeof sdk, state: StateType) => {
   router.get(
     '/agents',
     errorMiddleware(async (req: RequestWithUser, res: Response) => {
-      const agents = await repository.getAgents(req.params.botId, req.workspace)
+      const agents = await repository.listAgents(req.params.botId, req.workspace)
       res.send(agents)
     })
   )
@@ -152,7 +152,7 @@ export default async (bp: typeof sdk, state: StateType) => {
   router.get(
     '/handoffs',
     errorMiddleware(async (req: Request, res: Response) => {
-      const handoffs = await repository.getHandoffsWithAssociations(
+      const handoffs = await repository.listHandoffsWithAssociations(
         req.params.botId,
         _.pick(req.query, ['limit', 'column', 'desc']) as CollectionConditions
       )
@@ -379,7 +379,7 @@ export default async (bp: typeof sdk, state: StateType) => {
     errorMiddleware(async (req: RequestWithUser, res: Response) => {
       req.tokenUser!
 
-      const messages = await repository.getMessages(
+      const messages = await repository.listMessages(
         req.params.botId,
         req.params.id,
         _.pick(req.query, ['limit', 'column', 'desc']) as CollectionConditions

@@ -183,7 +183,7 @@ export default class Repository {
       .orderBy([{ column: `${COMMENT_TABLE_NAME}.createdAt`, order: 'asc' }])
   }
 
-  private findHandoffs(
+  private listHandoffs(
     botId: string,
     conditions: CollectionConditions = {},
     query?: Knex.QueryCallback,
@@ -215,7 +215,7 @@ export default class Repository {
   }
 
   private async findHandoff(botId: string, id: string, trx?: Knex.Transaction) {
-    return this.findHandoffs(
+    return this.listHandoffs(
       botId,
       undefined,
       builder => builder.andWhere(`${HANDOFF_TABLE_NAME}.id`, id),
@@ -251,7 +251,6 @@ export default class Repository {
     return [workspaceId, agentId].join('.')
   }
 
-  // Fires a realtime event when an agent's session is expired
   private registerTimeout = async (
     workspaceId: string,
     botId: string,
@@ -339,7 +338,7 @@ export default class Repository {
     } as IAgent
   }
 
-  getAgents = async (botId: string, workspace: string): Promise<Partial<IAgent>[]> => {
+  listAgents = async (botId: string, workspace: string): Promise<Partial<IAgent>[]> => {
     const options: sdk.GetWorkspaceUsersOptions = {
       includeSuperAdmins: true,
       attributes: ['firstname', 'lastname', 'created_at', 'updated_at']
@@ -360,8 +359,8 @@ export default class Repository {
     })
   }
 
-  getHandoffsWithAssociations = (botId: string, conditions: CollectionConditions = {}, query?: Knex.QueryCallback) => {
-    return this.findHandoffs(botId, conditions, query)
+  listHandoffsWithAssociations = (botId: string, conditions: CollectionConditions = {}, query?: Knex.QueryCallback) => {
+    return this.listHandoffs(botId, conditions, query)
   }
 
   getHandoffWithAssociations = (botId: string, id: string) => {
@@ -424,7 +423,7 @@ export default class Repository {
     return this.bp.database.insertAndRetrieve<IComment>(COMMENT_TABLE_NAME, payload, commentColumns)
   }
 
-  getMessages = (botId: string, threadId: string, conditions: CollectionConditions = {}) => {
+  listMessages = (botId: string, threadId: string, conditions: CollectionConditions = {}) => {
     return this.bp.events.findEvents(
       { botId, threadId },
       { count: conditions.limit, sortOrder: [{ column: 'id', desc: true }] }
