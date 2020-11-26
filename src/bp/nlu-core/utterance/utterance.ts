@@ -271,7 +271,7 @@ export default class Utterance {
   }
 }
 
-export const preprocessRawUtterance = _.flow([replaceConsecutiveSpaces, replaceEllipsis])
+export const preprocessRawUtterance: (raw: string) => string = _.flow([replaceConsecutiveSpaces, replaceEllipsis])
 
 export async function buildUtteranceBatch(
   raw_utterances: string[],

@@ -150,3 +150,5 @@ type SlotDefinition = Readonly<{
   name: string
   entities: string[]
 }>
+
+export type ValueOf<T> = T[keyof T]
