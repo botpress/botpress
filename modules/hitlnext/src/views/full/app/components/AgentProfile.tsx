@@ -8,18 +8,18 @@ import style from '../../style.scss'
 import { IAgent } from './../../../../types'
 
 type Props = {
-  toggleOnline: (online) => {}
+  setOnline: (online) => {}
   loading: boolean
 } & Partial<IAgent>
 
-const AgentProfile: FC<Props> = ({ toggleOnline, online, loading }) => {
+const AgentProfile: FC<Props> = ({ setOnline, online, loading }) => {
   const [showingOption, setShowingOption] = useState(false)
 
   const optionsItems = [
     {
       label: lang.tr(`module.hitlnext.agent.${online ? 'getOffline' : 'getOnline'}`),
       action: () => {
-        toggleOnline(!online)
+        setOnline(!online)
       }
     }
   ]

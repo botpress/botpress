@@ -75,7 +75,7 @@ const App = ({ bp }) => {
     }
   }
 
-  async function toggleOnline(online: boolean) {
+  async function setOnline(online: boolean) {
     try {
       online ? await api.setOnline() : await api.setOffline()
       online
@@ -109,7 +109,7 @@ const App = ({ bp }) => {
     <div className={style.app}>
       <div className={style.mainNav}>
         <AgentList loading={loading} agents={state.agents} />
-        <AgentProfile toggleOnline={toggleOnline} loading={loading} {...state.currentAgent} />
+        <AgentProfile setOnline={setOnline} loading={loading} {...state.currentAgent} />
       </div>
 
       <div className={style.mainContent}>
