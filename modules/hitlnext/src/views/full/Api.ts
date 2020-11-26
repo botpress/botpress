@@ -6,31 +6,21 @@ import { Config } from '../../config'
 import { IAgent, IComment, IEvent, IHandoff } from '../../types'
 
 // TODO Handle casting when object is undefined
-export function castDate<T extends object>(object: T, paths: string[]): T {
+function castDate<T extends object>(object: T, paths: string[]): T {
   paths.map(path => {
     _.get(object, path, false) && _.set(object, path, moment(_.get(object, path)).toDate())
   })
   return object
 }
 
+/**
+ * Cast stringified properties to their native type
+ */
 export function castHandoff(item: IHandoff) {
   return _.chain(item)
     .thru(value =>
       castDate(value, ['createdAt', 'updatedAt', 'assignedAt', 'resolvedAt', 'userConversation.createdOn'])
     )
-    .thru(value => {
-      if (_.isEmpty(value.userConversation)) {
-        return value
-      }
-
-      if (typeof value.userConversation.event === 'string') {
-        value.userConversation = {
-          ...value.userConversation,
-          event: JSON.parse(value.userConversation.event as string)
-        }
-      }
-      return value
-    })
     .thru(value => {
       if (_.isEmpty(value.comments)) {
         return value
@@ -42,6 +32,9 @@ export function castHandoff(item: IHandoff) {
     .value()
 }
 
+/**
+ * Cast stringified properties to their native type
+ */
 export function castComment(item: IComment) {
   return castDate(item, ['createdAt', 'updatedAt'])
 }
