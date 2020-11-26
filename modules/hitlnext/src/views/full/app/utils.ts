@@ -8,7 +8,9 @@ function generateUsername() {
 
 function getOrSet(get: Function, set: (value: any) => void, value) {
   const got = get()
-  if (got != null) { return got }
+  if (got != null) {
+    return got
+  }
   set(value)
   return value
 }
