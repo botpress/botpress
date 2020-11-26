@@ -30,5 +30,7 @@ export const measure = async <T>(
   performance.mark(`${namespace}-end`)
   performance.measure(namespace, `${namespace}-start`, `${namespace}-end`)
 
+  observer.disconnect()
+
   return value
 }
