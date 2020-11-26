@@ -18,8 +18,7 @@ import {
   SlotExtractionResult,
   TFIDF,
   Token2Vec,
-  Tools,
-  ValueOf
+  Tools
 } from './typings'
 import Utterance, { buildUtteranceBatch, preprocessRawUtterance, UtteranceEntity } from './utterance/utterance'
 
@@ -346,82 +345,23 @@ export function findExactIntentForCtx(
   }
 }
 
-const mergeOutputs = (originalOutput: PredictOutput, spellCheckedOutput: PredictOutput): PredictOutput => {
-  const mostConfidentContext = (preds: sdk.NLU.Predictions): ValueOf<sdk.NLU.Predictions> =>
-    _(preds)
-      .values()
-      .maxBy(p => p.confidence)!
-
-  const mostConfidentIntent = (preds: ValueOf<sdk.NLU.Predictions>) =>
-    _(preds.intents)
-      .filter(i => i.label !== NONE_INTENT)
-      .maxBy(i => i.confidence)!
-
-  const originalPredictions: sdk.NLU.Predictions = originalOutput.predictions!
-  const spellCheckedPredictions: sdk.NLU.Predictions = spellCheckedOutput.predictions!
-
-  const mergedPredictions = _.cloneDeep(originalPredictions)
-
-  const mergeContextConfidence =
-    mostConfidentContext(originalPredictions).confidence < mostConfidentContext(spellCheckedPredictions).confidence
-
-  for (const ctx of Object.keys(mergedPredictions)) {
-    const originalPred = originalPredictions[ctx]
-    const spellCheckedPred = spellCheckedPredictions[ctx]
-
-    if (mergeContextConfidence) {
-      mergedPredictions[ctx].confidence = _.mean([originalPred.confidence, spellCheckedPred.confidence])
-    }
-
-    if (
-      originalPred.intents.length &&
-      mostConfidentIntent(originalPred).confidence <= mostConfidentIntent(spellCheckedPred).confidence
-    ) {
-      for (const intent of mergedPredictions[ctx].intents) {
-        const originalIntent = originalPred.intents.find(i => i.label === intent.label)!
-        const spellCheckedIntent = spellCheckedPred.intents.find(i => i.label === intent.label)!
-        intent.confidence = _.max([originalIntent.confidence, spellCheckedIntent.confidence])!
-      }
-    }
-
-    mergedPredictions[ctx].oos = spellCheckedPred.oos
-  }
-
-  return { ...originalOutput, predictions: mergedPredictions }
-}
-
 export const Predict = async (input: PredictInput, tools: Tools, predictors: Predictors): Promise<PredictOutput> => {
   try {
     const { includedContexts, language, sentence } = input
 
     const t0 = Date.now()
 
-    const preprocessed = preprocessRawUtterance(sentence)
+    // tslint:disable-next-line
+    let { step } = await preprocessInput({ includedContexts, language, sentence: sentence }, tools, predictors)
 
-    const spellChecker = makeSpellChecker(Object.keys(predictors.vocabVectors), input.language, tools)
-    const spellChecked = await spellChecker(preprocessed)
-
-    const outputs: PredictOutput[] = []
-    for (const inputString of _.uniq([preprocessed, spellChecked])) {
-      // tslint:disable-next-line
-      let { step } = await preprocessInput({ includedContexts, language, sentence: inputString }, tools, predictors)
-
-      const initialStep = await makePredictionUtterance(step, predictors, tools)
-      const entitesStep = await extractEntities(initialStep, predictors, tools)
-      const oosStep = await predictOutOfScope(entitesStep, predictors)
-      const ctxStep = await predictContext(oosStep, predictors)
-      const intentStep = await predictIntent(ctxStep, predictors)
-      const slotStep = await extractSlots(intentStep, predictors)
-      const output = MapStepToOutput(slotStep, t0)
-      outputs.push(output)
-    }
-
-    const [originalOutput, spellCheckedOutput] = outputs
-    if (!!spellCheckedOutput) {
-      const merged = mergeOutputs(originalOutput, spellCheckedOutput)
-      return { ...merged, spellChecked }
-    }
-    return { ...originalOutput, spellChecked }
+    const initialStep = await makePredictionUtterance(step, predictors, tools)
+    const entitesStep = await extractEntities(initialStep, predictors, tools)
+    const oosStep = await predictOutOfScope(entitesStep, predictors)
+    const ctxStep = await predictContext(oosStep, predictors)
+    const intentStep = await predictIntent(ctxStep, predictors)
+    const slotStep = await extractSlots(intentStep, predictors)
+    const output = MapStepToOutput(slotStep, t0)
+    return output
   } catch (err) {
     // tslint:disable-next-line: no-console
     console.log('Could not perform predict data', err)

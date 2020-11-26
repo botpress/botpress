@@ -8,6 +8,7 @@ import sizeof from 'object-sizeof'
 import { EntityCacheManager } from './entities/entity-cache-manager'
 import { initializeTools } from './initialize-tools'
 import DetectLanguage from './language/language-identifier'
+import makeSpellChecker from './language/spell-checker'
 import { deserializeModel, PredictableModel, serializeModel } from './model-serializer'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
@@ -15,6 +16,7 @@ import { isPatternValid } from './tools/patterns-utils'
 import { computeKmeans, ProcessIntents, TrainInput, TrainOutput } from './training-pipeline'
 import { TrainingWorkerQueue } from './training-worker-queue'
 import { EntityCacheDump, ListEntity, PatternEntity, Tools } from './typings'
+import { preprocessRawUtterance } from './utterance/utterance'
 import { getModifiedContexts, mergeModelOutputs } from './warm-training-handler'
 
 const trainDebug = DEBUG('nlu').sub('training')
@@ -289,6 +291,21 @@ export default class Engine implements NLU.Engine {
     }
 
     return Predict(input, this._tools, loaded.predictors)
+  }
+
+  async spellCheck(sentence: string, modelId: string) {
+    const loaded = this.modelsById.get(modelId)
+    if (!loaded) {
+      throw new Error(`model ${modelId} not loaded`)
+    }
+
+    const preprocessed = preprocessRawUtterance(sentence)
+    const spellChecker = makeSpellChecker(
+      Object.keys(loaded.predictors.vocabVectors),
+      loaded.model.languageCode,
+      this._tools
+    )
+    return spellChecker(preprocessed)
   }
 
   async detectLanguage(text: string, modelsByLang: _.Dictionary<string>): Promise<string> {

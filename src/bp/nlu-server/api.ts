@@ -169,7 +169,11 @@ export default async function(options: APIOptions, engine: Engine) {
         await engine.loadModel(model, modelId)
       }
 
-      const rawPredictions = await Promise.map(texts as string[], t => engine.predict(t, [], modelId))
+      const rawPredictions = await Promise.map(texts as string[], async t => {
+        const spellChecked = await engine.spellCheck(t, modelId)
+        const output = await engine.predict(t, [], modelId)
+        return { ...output, spellChecked }
+      })
       const withoutNone = rawPredictions.map(removeNoneIntent)
 
       return res.send({ success: true, predictions: withoutNone })

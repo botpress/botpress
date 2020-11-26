@@ -3,7 +3,7 @@ import Joi from 'joi'
 import _ from 'lodash'
 import yn from 'yn'
 
-import legacyElectionPipeline from './legacy-election'
+import legacyElectionPipeline from './election/legacy-election'
 import { getTrainingSession } from './train-session-service'
 import { NLUState } from './typings'
 
