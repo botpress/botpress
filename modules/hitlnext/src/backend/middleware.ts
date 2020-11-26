@@ -24,20 +24,20 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
     return bp.events.replyToEvent(eventDestination, [{ type: 'typing', value: 10 }, event.payload])
   }
 
-  const cacheKey = (a, b) => [a, b].join('.')
+  const handoffCacheKey = (botId: string, threadId: string) => [botId, threadId].join('.')
 
-  const getHandoff = (botId: string, threadId: string) => {
-    return cache.get(cacheKey(botId, threadId))
+  const getCachedHandoff = (botId: string, threadId: string) => {
+    return cache.get(handoffCacheKey(botId, threadId))
   }
 
   const cacheHandoff = (botId: string, threadId: string, handoff: IHandoff) => {
     debug.forBot(botId, 'Caching handoff', { id: handoff.id, threadId })
-    cache.set(cacheKey(botId, threadId), handoff.id)
+    cache.set(handoffCacheKey(botId, threadId), handoff.id)
   }
 
   const expireHandoff = (botId: string, threadId: string) => {
     debug.forBot(botId, 'Expiring handoff', { threadId })
-    cache.del(cacheKey(botId, threadId))
+    cache.del(handoffCacheKey(botId, threadId))
   }
 
   const handleIncomingFromUser = async (handoff: IHandoff, event: sdk.IO.IncomingEvent) => {
@@ -115,8 +115,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
       return next()
     }
 
-    // Either a pending or assigned handoff
-    const handoffId = getHandoff(event.botId, event.threadId)
+    const handoffId = getCachedHandoff(event.botId, event.threadId)
 
     if (!handoffId) {
       next(undefined, false)
