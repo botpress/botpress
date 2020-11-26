@@ -3,6 +3,7 @@ import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
+import ms from 'ms'
 import React, { FC, useContext, useEffect, useState } from 'react'
 
 import { IHandoff } from '../../../../types'
@@ -12,7 +13,6 @@ import { generateUsername, getOrSet } from '../utils'
 import { Context } from '../Store'
 
 import HandoffBadge from './HandoffBadge'
-import ms from 'ms'
 
 const HandoffItem: FC<IHandoff> = props => {
   const { createdAt, id, status, agentId, userConversation, userChannel } = props

@@ -1,8 +1,8 @@
 import { lang } from 'botpress/shared'
-import { agentName } from '../../shared/helper'
 import React, { FC } from 'react'
 
 import { IAgent } from '../../../../types'
+import { agentName } from '../../shared/helper'
 
 const AgentItem: FC<IAgent> = props => {
   return (

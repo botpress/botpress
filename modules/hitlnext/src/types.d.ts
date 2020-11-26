@@ -54,7 +54,7 @@ export interface IHandoff {
   updatedAt: Date
 }
 
-export type IUser = {
+export interface IUser {
   id: string
   attributes: string
 }

@@ -1,10 +1,11 @@
 import React, { useContext, useEffect } from 'react'
 
+import { WEBSOCKET_TOPIC } from '../../constants'
+
 import { ISocketMessage } from './../../types'
 import { Context, Store } from './agentStatus/Store'
 import AgentIcon from './shared/components/AgentIcon'
 import { Api } from './Api'
-import { WEBSOCKET_TOPIC } from '../../constants'
 
 const AgentStatus = ({ bp }) => {
   const api = Api(bp)

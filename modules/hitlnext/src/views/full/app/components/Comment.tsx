@@ -1,9 +1,9 @@
 import { ContentSection, lang } from 'botpress/shared'
-import { agentName } from '../../shared/helper'
 import moment from 'moment'
 import React, { FC, useContext } from 'react'
 
 import { IComment } from '../../../../types'
+import { agentName } from '../../shared/helper'
 import style from '../../style.scss'
 import { Context } from '../Store'
 

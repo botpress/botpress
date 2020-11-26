@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 
-import { MODULE_NAME, HANDOFF_TABLE_NAME, COMMENT_TABLE_NAME } from '../constants'
+import { COMMENT_TABLE_NAME, HANDOFF_TABLE_NAME, MODULE_NAME } from '../constants'
 
 const debug = DEBUG(MODULE_NAME)
 

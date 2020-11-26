@@ -289,7 +289,7 @@ export default class Repository {
         const workspace = await this.bp.workspaces.getBotWorkspaceId(botId)
 
         await this.registerTimeout(workspace, botId, agentId, callback).then(() => {
-          debug.forBot(botId, 'Registering timeout', { agentId: agentId })
+          debug.forBot(botId, 'Registering timeout', { agentId })
         })
       })
 
@@ -380,7 +380,7 @@ export default class Repository {
 
     return this.bp.database.transaction(async trx => {
       const id = await this.bp.database.insertAndRetrieve<string>(HANDOFF_TABLE_NAME, payload, 'id', 'id', trx)
-      return await this.findHandoff(botId, id, trx)
+      return this.findHandoff(botId, id, trx)
     })
   }
 
@@ -398,7 +398,7 @@ export default class Repository {
       await trx<IHandoff>(HANDOFF_TABLE_NAME)
         .where({ id })
         .update(payload)
-      return await this.findHandoff(botId, id, trx)
+      return this.findHandoff(botId, id, trx)
     })
   }
 
