@@ -8,7 +8,7 @@ import ms from 'ms'
 
 import { COMMENT_TABLE_NAME, HANDOFF_TABLE_NAME, MODULE_NAME } from '../constants'
 
-import { IAgent, IComment, IHandoff } from './../types'
+import { IAgent, IComment, IEvent, IHandoff } from './../types'
 import { makeAgentId } from './helpers'
 
 const debug = DEBUG(MODULE_NAME)
@@ -87,33 +87,40 @@ export default class Repository {
   }
 
   // This mutates rows
-  private hydrateHandoffs(rows: any[]): IHandoff[] {
-    const records = rows.reduce((memo, row) => {
-      memo[row.id] = memo[row.id] || {
-        ..._.pick(row, handoffColumns),
-        comments: {}
-      }
+  private hydrateHandoffs(rows: IHandoff[]) {
+    const records = _.reduce(
+      rows,
+      (memo, row) => {
+        memo[row.id] = memo[row.id] || {
+          ..._.pick(row, handoffColumns),
+          comments: {}
+        }
 
-      if (row[`${commentPrefix}:id`]) {
-        const record = _.mapKeys(_.pick(row, commentColumnsPrefixed), (v, k) => _.split(k, ':').pop())
-        memo[row.id].comments[row[`${commentPrefix}:id`]] = record
-      }
+        if (row[`${commentPrefix}:id`]) {
+          const record = _.mapKeys(_.pick(row, commentColumnsPrefixed), (v, k) => _.split(k, ':').pop())
+          memo[row.id].comments[row[`${commentPrefix}:id`]] = record
+        }
 
-      if (row[`${userPrefix}:id`]) {
-        const record = _.mapKeys(_.pick(row, userColumnsPrefixed), (v, k) => _.split(k, ':').pop())
-        record.attributes = this.bp.database.json.get(record.attributes)
+        if (row[`${userPrefix}:id`]) {
+          const record = _.mapKeys(_.pick(row, userColumnsPrefixed), (v, k) => _.split(k, ':').pop())
+          record.attributes = this.bp.database.json.get(record.attributes)
 
-        memo[row.id].user = record
-      }
+          memo[row.id].user = record
+        }
 
-      return memo
-    }, {})
+        return memo
+      },
+      {}
+    )
 
-    return _.values(records).map(record => ({ ...record, comments: _.values(record.comments) }))
+    return _.values(records).map((record: IHandoff) => ({
+      ...record,
+      comments: _.values(record.comments)
+    }))
   }
 
   // This mutates handoffs
-  private hydrateEvents<T>(events: any[], handoffs: any[], key: string): T[] {
+  private hydrateEvents(events: IEvent[], handoffs: IHandoff[], key: string) {
     handoffs.forEach(handoff => (handoff[key] = {}))
 
     const toMerge = events.map(event => {
@@ -195,7 +202,7 @@ export default class Repository {
         .transacting(trx)
         .then(this.hydrateHandoffs.bind(this))
 
-      const hydrated = this.hydrateEvents<IHandoff>(
+      const hydrated = this.hydrateEvents(
         await this.userEventsQuery()
           .where(`${HANDOFF_TABLE_NAME}.botId`, botId)
           .transacting(trx),
