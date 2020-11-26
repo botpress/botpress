@@ -35,7 +35,8 @@
     "resolve": "Resolve",
     "assigned": "Handoff {id} successfully assigned",
     "resolved": "Handoff {id} successfully resolved",
-    "you": "You"
+    "you": "You",
+    "from": "From {channel}"
   },
   "user": {
     "anonymous": "Anonymous User",

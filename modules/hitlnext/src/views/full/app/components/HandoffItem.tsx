@@ -98,7 +98,8 @@ const HandoffItem: FC<IHandoff> = props => {
       <div className={style.info}>
         <span className={style.clientName}>{userName()}</span> <strong>#{id}</strong>
         <p>
-          <span>From {userChannel}</span> {agentId && '⋅'} <span>{displayAgentName()}</span>
+          <span>{lang.tr('modules.hitlnext.handoff.from', { channel: userChannel })}</span> {agentId && '⋅'}{' '}
+          <span>{displayAgentName()}</span>
         </p>
         <Text ellipsize={true}>{_.get(userConversation, 'event.preview')}</Text>
         <p className={style.createdDate}>{fromNow}</p>
