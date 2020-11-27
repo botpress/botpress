@@ -1,15 +1,12 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { allInRange, GetZPercent, std } from './tools/math'
+import { allInRange, GetZPercent, std } from '../tools/math'
 
-type PredictOutput = Omit<sdk.IO.EventUnderstanding, 'predictions'> & {
-  predictions: sdk.NLU.Predictions
-}
+import { NONE_INTENT, PredictOutput } from './typings'
 
 const OOS_AS_NONE_TRESH = 0.4
 const LOW_INTENT_CONFIDENCE_TRESH = 0.4
-const NONE_INTENT = 'none' // should extract in comon code
 
 // @deprecated > 13
 export default function legacyElectionPipeline(input: sdk.IO.EventUnderstanding) {
