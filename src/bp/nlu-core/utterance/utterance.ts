@@ -4,7 +4,7 @@ import _ from 'lodash'
 import { POSClass } from '../language/pos-tagger'
 import { SPECIAL_CHARSET } from '../tools/chars'
 import { computeNorm, scalarDivide, scalarMultiply, vectorAdd, zeroes } from '../tools/math'
-import { replaceConsecutiveSpaces } from '../tools/strings'
+import { replaceConsecutiveSpaces, replaceEllipsis } from '../tools/strings'
 import { convertToRealSpaces, isSpace, isWord, SPACE } from '../tools/token-utils'
 import { getClosestToken } from '../tools/vocab'
 import { ExtractedEntity, ExtractedSlot, TFIDF, Token2Vec, Tools } from '../typings'
@@ -272,13 +272,16 @@ export default class Utterance {
   }
 }
 
+export const preprocessRawUtterance = _.flow([replaceConsecutiveSpaces, replaceEllipsis])
+
 export async function buildUtteranceBatch(
   raw_utterances: string[],
   language: string,
   tools: Tools,
   vocab?: Token2Vec
 ): Promise<Utterance[]> {
-  const parsed = raw_utterances.map(u => parseUtterance(replaceConsecutiveSpaces(u)))
+  const preprocessed = raw_utterances.map(preprocessRawUtterance)
+  const parsed = preprocessed.map(parseUtterance)
   const tokenUtterances = await tools.tokenize_utterances(
     parsed.map(p => p.utterance),
     language,

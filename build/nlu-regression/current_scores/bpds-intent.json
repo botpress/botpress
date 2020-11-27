@@ -1,5 +1,5 @@
 {
-  "generatedOn": "2020-11-26T14:29:16.578Z",
+  "generatedOn": "2020-11-26T15:02:40.071Z",
   "scores": [
     {
       "metric": "accuracy",
@@ -95,91 +95,91 @@
       "metric": "accuracy",
       "problem": "bpds A imbalanced",
       "seed": 42,
-      "score": 0.45454545454545453
+      "score": 0.45
     },
     {
       "metric": "oosAccuracy",
       "problem": "bpds A imbalanced",
       "seed": 42,
-      "score": 0.6181818181818182
+      "score": 0.6136363636363636
     },
     {
       "metric": "oosPrecision",
       "problem": "bpds A imbalanced",
       "seed": 42,
-      "score": 0.5754716981132075
+      "score": 0.5714285714285714
     },
     {
       "metric": "oosRecall",
       "problem": "bpds A imbalanced",
       "seed": 42,
-      "score": 0.61
+      "score": 0.6
     },
     {
       "metric": "oosF1",
       "problem": "bpds A imbalanced",
       "seed": 42,
-      "score": 0.5922330097087378
+      "score": 0.5853658536585366
     },
     {
       "metric": "accuracy",
       "problem": "bpds A imbalanced",
       "seed": 69,
-      "score": 0.6181818181818182
+      "score": 0.6136363636363636
     },
     {
       "metric": "oosAccuracy",
       "problem": "bpds A imbalanced",
       "seed": 69,
-      "score": 0.740909090909091
+      "score": 0.7363636363636363
     },
     {
       "metric": "oosPrecision",
       "problem": "bpds A imbalanced",
       "seed": 69,
-      "score": 0.7945205479452054
+      "score": 0.7916666666666666
     },
     {
       "metric": "oosRecall",
       "problem": "bpds A imbalanced",
       "seed": 69,
-      "score": 0.58
+      "score": 0.57
     },
     {
       "metric": "oosF1",
       "problem": "bpds A imbalanced",
       "seed": 69,
-      "score": 0.6705202312138728
+      "score": 0.6627906976744186
     },
     {
       "metric": "accuracy",
       "problem": "bpds A imbalanced",
       "seed": 666,
-      "score": 0.5681818181818182
+      "score": 0.5636363636363636
     },
     {
       "metric": "oosAccuracy",
       "problem": "bpds A imbalanced",
       "seed": 666,
-      "score": 0.6954545454545454
+      "score": 0.6909090909090909
     },
     {
       "metric": "oosPrecision",
       "problem": "bpds A imbalanced",
       "seed": 666,
-      "score": 0.7704918032786885
+      "score": 0.7666666666666667
     },
     {
       "metric": "oosRecall",
       "problem": "bpds A imbalanced",
       "seed": 666,
-      "score": 0.47
+      "score": 0.46
     },
     {
       "metric": "oosF1",
       "problem": "bpds A imbalanced",
       "seed": 666,
-      "score": 0.5838509316770186
+      "score": 0.575
     },
     {
       "metric": "accuracy",
