@@ -8,7 +8,7 @@ import _ from 'lodash'
 
 import { MODULE_NAME } from '../constants'
 
-import { HandoffType, IComment, IHandoff } from './../types'
+import { HandoffType, IAgent, IComment, IHandoff } from './../types'
 import { UnprocessableEntityError } from './errors'
 import { formatValidationError, makeAgentId } from './helpers'
 import { StateType } from './index'
@@ -135,7 +135,7 @@ export default async (bp: typeof sdk, state: StateType) => {
   router.get(
     '/handoffs',
     errorMiddleware(async (req: Request, res: Response) => {
-      const handoffs = await repository.listHandoffsWithAssociations(
+      const handoffs = await repository.listHandoffs(
         req.params.botId,
         _.pick(req.query, ['limit', 'column', 'desc']) as CollectionConditions
       )
@@ -203,7 +203,7 @@ export default async (bp: typeof sdk, state: StateType) => {
 
       const agentId = makeAgentId(strategy, email)
 
-      let handoff: Partial<IHandoff> = await repository.getHandoffWithAssociations(req.params.botId, req.params.id)
+      let handoff = await repository.findHandoff(req.params.botId, req.params.id)
 
       const axioxconfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
       const { data } = await Axios.post(`/mod/channel-web/conversations/${agentId}/new`, {}, axioxconfig)
@@ -291,7 +291,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       const agentId = makeAgentId(strategy, email)
 
       let handoff
-      handoff = await repository.getHandoffWithAssociations(req.params.botId, req.params.id)
+      handoff = await repository.findHandoff(req.params.botId, req.params.id)
 
       const payload: Pick<IHandoff, 'status' | 'resolvedAt'> = {
         status: 'resolved',
@@ -330,7 +330,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       const { email, strategy } = req.tokenUser!
       const agentId = makeAgentId(strategy, email)
 
-      const handoff = await repository.getHandoffWithAssociations(req.params.botId, req.params.id)
+      const handoff = await repository.findHandoff(req.params.botId, req.params.id)
 
       const payload: Pick<IComment, 'content' | 'handoffId' | 'threadId' | 'agentId'> = {
         ...req.body,

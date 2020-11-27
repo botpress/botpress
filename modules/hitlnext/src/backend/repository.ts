@@ -190,65 +190,6 @@ export default class Repository {
       .orderBy([{ column: `${COMMENT_TABLE_NAME}.createdAt`, order: 'asc' }])
   }
 
-  private listHandoffs(
-    botId: string,
-    conditions: CollectionConditions = {},
-    query?: Knex.QueryCallback,
-    trx?: Knex.Transaction
-  ) {
-    const execute = async (trx: Knex.Transaction) => {
-      const data = await this.handoffsWithAssociationsQuery(botId, conditions)
-        .modify(this.applyQuery(query))
-        .transacting(trx)
-        .then(this.hydrateHandoffs.bind(this))
-
-      const hydrated = this.hydrateEvents(
-        await this.userEventsQuery()
-          .where(`${HANDOFF_TABLE_NAME}.botId`, botId)
-          .transacting(trx),
-        data,
-        'userConversation'
-      )
-
-      return hydrated
-    }
-
-    // Either join an existing transaction or start one
-    if (trx) {
-      return execute(trx)
-    } else {
-      return this.bp.database.transaction(trx => execute(trx))
-    }
-  }
-
-  private async findHandoff(botId: string, id: string, trx?: Knex.Transaction) {
-    const execute = async (trx: Knex.Transaction) => {
-      const data = await this.handoffsWithAssociationsQuery(botId)
-        .transacting(trx)
-        .then(this.hydrateHandoffs.bind(this))
-
-      const hydrated = this.hydrateEvents(
-        await this.userEventsQuery()
-          .where(`${HANDOFF_TABLE_NAME}.botId`, botId)
-          .andWhere(`${HANDOFF_TABLE_NAME}.id`, id)
-          .transacting(trx),
-        data,
-        'userConversation'
-      )
-
-      return _.head(hydrated)
-    }
-
-    // Either join an existing transaction or start one
-    if (trx) {
-      const data = await execute(trx)
-      return data
-    } else {
-      const data = await this.bp.database.transaction(trx => execute(trx))
-      return data
-    }
-  }
-
   // hitlnext:online:workspaceId:agentId
   private agentSessionCacheKey = async (botId: string, agentId: string) => {
     return [MODULE_NAME, 'online', await this.bp.workspaces.getBotWorkspaceId(botId), agentId].join(':')
@@ -369,6 +310,37 @@ export default class Repository {
     })
   }
 
+  listHandoffs(
+    botId: string,
+    conditions: CollectionConditions = {},
+    query?: Knex.QueryCallback,
+    trx?: Knex.Transaction
+  ) {
+    const execute = async (trx: Knex.Transaction) => {
+      const data = await this.handoffsWithAssociationsQuery(botId, conditions)
+        .modify(this.applyQuery(query))
+        .transacting(trx)
+        .then(this.hydrateHandoffs.bind(this))
+
+      const hydrated = this.hydrateEvents(
+        await this.userEventsQuery()
+          .where(`${HANDOFF_TABLE_NAME}.botId`, botId)
+          .transacting(trx),
+        data,
+        'userConversation'
+      )
+
+      return hydrated
+    }
+
+    // Either join an existing transaction or start one
+    if (trx) {
+      return execute(trx)
+    } else {
+      return this.bp.database.transaction(trx => execute(trx))
+    }
+  }
+
   // Note:
   // - this is meant to find handoffs across bots
   // - 'active' means having a 'status' of either 'pending' or 'assigned'
@@ -393,14 +365,42 @@ export default class Repository {
       .then(data => !_.isEmpty(data))
   }
 
-  listHandoffsWithAssociations = (botId: string, conditions: CollectionConditions = {}, query?: Knex.QueryCallback) => {
-    return this.listHandoffs(botId, conditions, query)
+  /**
+   * Finds a handoff *with* it's associations
+   * @param id
+   */
+  async findHandoff(botId: string, id: string, trx?: Knex.Transaction) {
+    const execute = async (trx: Knex.Transaction) => {
+      const data = await this.handoffsWithAssociationsQuery(botId)
+        .transacting(trx)
+        .then(this.hydrateHandoffs.bind(this))
+
+      const hydrated = this.hydrateEvents(
+        await this.userEventsQuery()
+          .where(`${HANDOFF_TABLE_NAME}.botId`, botId)
+          .andWhere(`${HANDOFF_TABLE_NAME}.id`, id)
+          .transacting(trx),
+        data,
+        'userConversation'
+      )
+
+      return _.head(hydrated)
+    }
+
+    // Either join an existing transaction or start one
+    if (trx) {
+      const data = await execute(trx)
+      return data
+    } else {
+      const data = await this.bp.database.transaction(trx => execute(trx))
+      return data
+    }
   }
 
-  getHandoffWithAssociations = (botId: string, id: string) => {
-    return this.findHandoff(botId, id)
-  }
-
+  /**
+   * Finds a handoff *without* it's associations
+   * @param id
+   */
   getHandoff = (id: string) => {
     return this.bp
       .database<IHandoff>(HANDOFF_TABLE_NAME)
