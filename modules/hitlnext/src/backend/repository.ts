@@ -55,7 +55,7 @@ export default class Repository {
   constructor(private bp: typeof sdk, private timeouts: object) {}
 
   // This mutates object
-  private castDate(object, paths) {
+  private castDate(object: object, paths: string[]) {
     paths.map(path => {
       _.has(object, path) && _.set(object, path, this.bp.database.date.format(_.get(object, path)))
     })
@@ -222,12 +222,31 @@ export default class Repository {
   }
 
   private async findHandoff(botId: string, id: string, trx?: Knex.Transaction) {
-    return this.listHandoffs(
-      botId,
-      undefined,
-      builder => builder.andWhere(`${HANDOFF_TABLE_NAME}.id`, id),
-      trx
-    ).then(data => _.head(data))
+    const execute = async (trx: Knex.Transaction) => {
+      const data = await this.handoffsWithAssociationsQuery(botId)
+        .transacting(trx)
+        .then(this.hydrateHandoffs.bind(this))
+
+      const hydrated = this.hydrateEvents(
+        await this.userEventsQuery()
+          .where(`${HANDOFF_TABLE_NAME}.botId`, botId)
+          .andWhere(`${HANDOFF_TABLE_NAME}.id`, id)
+          .transacting(trx),
+        data,
+        'userConversation'
+      )
+
+      return _.head(hydrated)
+    }
+
+    // Either join an existing transaction or start one
+    if (trx) {
+      const data = await execute(trx)
+      return data
+    } else {
+      const data = await this.bp.database.transaction(trx => execute(trx))
+      return data
+    }
   }
 
   // hitlnext:online:workspaceId:agentId

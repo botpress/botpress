@@ -37,7 +37,7 @@ export default async (bp: typeof sdk) => {
       .notNullable()
     table
       .integer('handoffId')
-      .references('handoffs.id')
+      .references(`${HANDOFF_TABLE_NAME}.id`)
       .notNullable()
       .onDelete('CASCADE')
     table.string('threadId').notNullable()

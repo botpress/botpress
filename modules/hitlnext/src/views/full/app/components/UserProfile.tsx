@@ -56,8 +56,6 @@ const UserProfile: FC<IUser> = ({ attributes, id }) => {
         name={lang.tr('module.hitlnext.user.variables.heading')}
         ownProps={{ transitionDuration: 10 }}
       >
-        {/* TODO show empty state here */}
-        {_.isEmpty(attributes) && <div>nothing to show here</div>}
         {!_.isEmpty(attributes) && (
           <table className={style.table}>
             <thead>

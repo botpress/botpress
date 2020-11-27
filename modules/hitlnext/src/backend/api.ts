@@ -119,7 +119,7 @@ export default async (bp: typeof sdk, state: StateType) => {
         await repository.unsetAgentOnline(req.params.botId, agentId)
       }
 
-      const payload = { online }
+      const payload: Pick<IAgent, 'online'> = { online }
 
       realtime.sendPayload(req.params.botId, {
         resource: 'agent',
@@ -146,7 +146,7 @@ export default async (bp: typeof sdk, state: StateType) => {
   router.post(
     '/handoffs',
     errorMiddleware(async (req: Request, res: Response) => {
-      const payload = {
+      const payload: Pick<IHandoff, 'userId' | 'userThreadId' | 'userChannel' | 'status'> = {
         ..._.pick(req.body, ['userId', 'userThreadId', 'userChannel']),
         status: <HandoffType>'pending'
       }
@@ -208,7 +208,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       const axioxconfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
       const { data } = await Axios.post(`/mod/channel-web/conversations/${agentId}/new`, {}, axioxconfig)
       const agentThreadId = data.convoId.toString()
-      const payload: Partial<IHandoff> = {
+      const payload: Pick<IHandoff, 'agentId' | 'agentThreadId' | 'assignedAt' | 'status'> = {
         agentId,
         agentThreadId,
         assignedAt: new Date(),
@@ -293,7 +293,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       let handoff
       handoff = await repository.getHandoffWithAssociations(req.params.botId, req.params.id)
 
-      const payload: Partial<IHandoff> = {
+      const payload: Pick<IHandoff, 'status' | 'resolvedAt'> = {
         status: 'resolved',
         resolvedAt: new Date()
       }
@@ -332,7 +332,7 @@ export default async (bp: typeof sdk, state: StateType) => {
 
       const handoff = await repository.getHandoffWithAssociations(req.params.botId, req.params.id)
 
-      const payload: IComment = {
+      const payload: Pick<IComment, 'content' | 'handoffId' | 'threadId' | 'agentId'> = {
         ...req.body,
         handoffId: handoff.id,
         threadId: handoff.userThreadId,

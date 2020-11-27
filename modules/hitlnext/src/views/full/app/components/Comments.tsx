@@ -36,7 +36,6 @@ export const Comments: FC<Props> = ({ handoff, api }) => {
         name={lang.tr('module.hitlnext.comments.heading')}
         ownProps={{ transitionDuration: 10 }}
       >
-        {_.isEmpty(comments) && <div>Nothing to show here</div>}
         {comments.map(comment => {
           return <Comment key={comment.id} {...comment}></Comment>
         })}

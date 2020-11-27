@@ -96,7 +96,7 @@ const HandoffItem: FC<IHandoff> = ({ createdAt, id, status, agentId, userConvers
       <div className={style.info}>
         <span className={style.clientName}>{userName()}</span> <strong>#{id}</strong>
         <p>
-          <span>{lang.tr('modules.hitlnext.handoff.from', { channel: userChannel })}</span> {agentId && '⋅'}{' '}
+          <span>{lang.tr('module.hitlnext.handoff.from', { channel: userChannel })}</span> {agentId && '⋅'}{' '}
           <span>{displayAgentName()}</span>
         </p>
         <Text ellipsize={true}>{_.get(userConversation, 'event.preview')}</Text>
