@@ -1,4 +1,4 @@
-import { Button, InputGroup, Radio, RadioGroup } from '@blueprintjs/core'
+import { Button, ControlGroup, InputGroup, Radio, RadioGroup } from '@blueprintjs/core'
 import { lang, toast } from 'botpress/shared'
 import React, { useState } from 'react'
 
@@ -110,8 +110,14 @@ const AddLibrary = props => {
       {source === 'github' && (
         <div>
           <h5>Add from a GitHub repository</h5>
-          <InputGroup placeholder="botpress/botpress#master" onChange={e => setRepoName(e.currentTarget.value)} />
-          <Button onClick={addLib} disabled={processing} text={processing ? 'Please wait...' : 'Add Library'}></Button>
+          <ControlGroup>
+            <InputGroup placeholder="botpress/botpress#master" onChange={e => setRepoName(e.currentTarget.value)} />
+            <Button
+              onClick={addLib}
+              disabled={processing}
+              text={processing ? 'Please wait...' : 'Add Library'}
+            ></Button>
+          </ControlGroup>
         </div>
       )}
 
