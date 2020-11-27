@@ -14,6 +14,8 @@
   "sortBy": "Sort By",
   "filterBy": "Filter By",
   "agent": {
+    "status": "Status: {status}",
+    "name": "Name: {name}",
     "online": "Online",
     "offline": "Offline",
     "getOnline": "Get Online",

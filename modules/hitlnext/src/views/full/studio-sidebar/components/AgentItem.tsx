@@ -10,8 +10,12 @@ const AgentItem: FC<IAgent> = props => {
       <p>
         <strong>Id: {props.agentId}</strong>
       </p>
-      <p>Name: {agentName(props)}</p>
-      <p>Online: {props.online ? lang.tr('module.hitlnext.agent.online') : lang.tr('module.hitlnext.agent.offline')}</p>
+      <p>{lang.tr('module.hitlnext.agent.name', { name: agentName(props) })}</p>
+      <p>
+        {lang.tr('module.hitlnext.agent.status', {
+          status: props.online ? lang.tr('module.hitlnext.agent.online') : lang.tr('module.hitlnext.agent.offline')
+        })}
+      </p>
     </li>
   )
 }
