@@ -6,7 +6,8 @@ import fs from 'fs'
 import path from 'path'
 
 import { packageJsonPath } from '.'
-import { copyFileLocally, executeNpm, packageLibrary, publishPackageChanges, removeLibrary } from './utils'
+import { packageLibrary } from './packager'
+import { copyFileLocally, executeNpm, publishPackageChanges, removeLibrary } from './utils'
 
 export default async (bp: typeof sdk) => {
   const asyncMiddleware = asyncMw(bp.logger)
@@ -69,9 +70,13 @@ export default async (bp: typeof sdk) => {
       const result = await executeNpm(['install', name])
       bp.logger.forBot(req.params.botId).info(`Installing library ${name}\n ${result}`)
 
-      await publishPackageChanges(bp)
+      if (result.indexOf('ERR!') === -1) {
+        await publishPackageChanges(bp)
 
-      res.sendStatus(200)
+        res.sendStatus(200)
+      } else {
+        res.sendStatus(400)
+      }
     })
   )
 

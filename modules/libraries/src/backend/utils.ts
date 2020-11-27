@@ -1,9 +1,7 @@
 import * as sdk from 'botpress/sdk'
 import { spawn } from 'child_process'
 import fse from 'fs-extra'
-import npmBundle from 'npm-bundle'
 import path from 'path'
-import tmp from 'tmp'
 
 import { isOffline, packageJsonPath, packageLockJsonPath, sharedLibsDir } from '.'
 
@@ -45,13 +43,6 @@ export const executeNpm = async (args: string[] = ['install'], customLibsDir?: s
   }
 }
 
-export const packageLibrary = async (name: string, version: string) => {
-  const output: any = await Promise.fromCallback(cb => npmBundle([name], { verbose: true }, cb))
-  const fname = output.file.replace('\n', '')
-
-  return fse.readFile(path.join(fname))
-}
-
 export const syncAllFiles = async (bp: typeof sdk) => {
   const files = await bp.ghost.forGlobal().directoryListing('libraries/', '*.*')
   await Promise.mapSeries(files, file => copyFileLocally(file, bp))
@@ -63,7 +54,6 @@ export const copyFileLocally = async (fileName: string, bp: typeof sdk): Promise
   }
 
   try {
-    console.log('copying localy', fileName)
     const fileContent = await bp.ghost.forGlobal().readFileAsBuffer('libraries', fileName)
     await fse.writeFile(path.join(sharedLibsDir, fileName), fileContent)
     return true
