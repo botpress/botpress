@@ -3,7 +3,7 @@ import * as sdk from 'botpress/sdk'
 import { MODULE_NAME, WEBSOCKET_TOPIC } from '../constants'
 import { ISocketMessage } from '../types'
 
-const debug = DEBUG(MODULE_NAME).sub('realtime')
+const debug = DEBUG(MODULE_NAME)
 
 export default (bp: typeof sdk) => {
   return {
