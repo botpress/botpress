@@ -5,7 +5,6 @@ import React, { useEffect, useState } from 'react'
 import { IAgent, IHandoff } from '../../../../types'
 import style from '../../style.scss'
 
-// Sjhould we use context instead ?
 interface Props {
   handoff: IHandoff
   currentAgent: IAgent
