@@ -9,11 +9,11 @@ import { EntityCacheManager } from './entities/entity-cache-manager'
 import { initializeTools } from './initialize-tools'
 import DetectLanguage from './language/language-identifier'
 import makeSpellChecker from './language/spell-checker'
-import { deserializeModel, PredictableModel, serializeModel } from './model-serializer'
+import { deserializeIntent, deserializeModel, PredictableModel, serializeModel } from './model-serializer'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
-import { computeKmeans, ProcessIntents, TrainInput, TrainOutput } from './training-pipeline'
+import { TrainInput, TrainOutput } from './training-pipeline'
 import { TrainingWorkerQueue } from './training-worker-queue'
 import { EntityCacheDump, ListEntity, PatternEntity, Tools } from './typings'
 import { preprocessRawUtterance } from './utterance/utterance'
@@ -228,17 +228,12 @@ export default class Engine implements NLU.Engine {
 
   private async _makePredictors(input: TrainInput, output: TrainOutput): Promise<Predictors> {
     const tools = this._tools
-
-    /**
-     * TODO: extract this function some place else,
-     * Engine's predict() shouldn't be dependant of training pipeline...
-     */
-    const intents = await ProcessIntents(input.intents, input.languageCode, output.list_entities, this._tools)
+    const { intents } = output
 
     const basePredictors: Predictors = {
       ...output,
       lang: input.languageCode,
-      intents,
+      intents: intents.map(deserializeIntent),
       pattern_entities: input.pattern_entities
     }
 
@@ -265,15 +260,12 @@ export default class Engine implements NLU.Engine {
       slot_tagger.load(output.slots_model)
     }
 
-    const kmeans = computeKmeans(intents!, tools) // TODO load from artefacts when persisted
-
     return {
       ...basePredictors,
       ctx_classifier,
       oos_classifier_per_ctx: oos_classifier,
       intent_classifier_per_ctx,
-      slot_tagger,
-      kmeans
+      slot_tagger
     }
   }
 

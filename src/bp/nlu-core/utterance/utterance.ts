@@ -1,12 +1,13 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
+import { nearest } from 'nlu-core/clustering'
 
 import { POSClass } from '../language/pos-tagger'
 import { SPECIAL_CHARSET } from '../tools/chars'
 import { computeNorm, scalarDivide, scalarMultiply, vectorAdd, zeroes } from '../tools/math'
 import { replaceConsecutiveSpaces, replaceEllipsis } from '../tools/strings'
 import { convertToRealSpaces, isSpace, isWord, SPACE } from '../tools/token-utils'
-import { ExtractedEntity, ExtractedSlot, TFIDF, Token2Vec, Tools } from '../typings'
+import { ExtractedEntity, ExtractedSlot, SerializedKmeansResult, TFIDF, Token2Vec, Tools } from '../typings'
 
 import { parseUtterance } from './utterance-parser'
 
@@ -48,6 +49,20 @@ export type UtteranceToken = Readonly<{
   toString(options?: TokenToStringOptions): string
 }>
 
+export interface SerializedUtterance {
+  tokens: string[]
+  vectors: number[][]
+  POStags: POSClass[]
+  sentenceEmbedding: number[]
+  languageCode: string
+
+  slots: UtteranceSlot[]
+  entities: UtteranceEntity[]
+
+  tfidf?: TFIDF
+  kmeans?: SerializedKmeansResult
+}
+
 export const DefaultTokenToStringOptions: TokenToStringOptions = { lowerCase: false, realSpaces: true, trim: false }
 
 export default class Utterance {
@@ -55,8 +70,19 @@ export default class Utterance {
   public entities: ReadonlyArray<UtteranceEntity> = []
   private _tokens: ReadonlyArray<UtteranceToken> = []
   private _globalTfidf?: TFIDF
-  private _kmeans?: sdk.MLToolkit.KMeans.KmeansResult
+  private _kmeans?: SerializedKmeansResult
   private _sentenceEmbedding?: number[]
+
+  public static fromSerial(serialized: SerializedUtterance): Utterance {
+    const { tokens, vectors, POStags, languageCode, sentenceEmbedding, slots, entities, tfidf, kmeans } = serialized
+    const utterance = new Utterance(tokens, vectors, POStags, languageCode)
+    utterance._sentenceEmbedding = sentenceEmbedding
+    utterance.slots = slots
+    utterance.entities = entities
+    tfidf && utterance.setGlobalTfidf(tfidf)
+    kmeans && utterance.setKmeans(kmeans)
+    return utterance
+  }
 
   constructor(tokens: string[], vectors: number[][], posTags: POSClass[], public languageCode: Readonly<string>) {
     const allSameLength = [tokens, vectors, posTags].every(arr => arr.length === tokens.length)
@@ -87,7 +113,7 @@ export default class Utterance {
           },
           get cluster(): number {
             const wordVec = vectors[i]
-            return (that._kmeans && that._kmeans.nearest([wordVec])[0]) || 1
+            return (that._kmeans && nearest(that._kmeans, [wordVec])[0]) || 1
           },
           value,
           vector: vectors[i],
@@ -165,7 +191,7 @@ export default class Utterance {
     this._globalTfidf = tfidf
   }
 
-  setKmeans(kmeans?: sdk.MLToolkit.KMeans.KmeansResult) {
+  setKmeans(kmeans?: SerializedKmeansResult) {
     this._kmeans = kmeans
   }
 
@@ -224,6 +250,26 @@ export default class Utterance {
     }
 
     return utterance
+  }
+
+  serialize(): SerializedUtterance {
+    const tokens = this.tokens.map(x => x.value)
+    const vectors = this.tokens.map(x => <number[]>x.vector)
+    const POStags = this.tokens.map(x => x.POS)
+    const sentenceEmbedding = this.sentenceEmbedding()
+    const { languageCode, slots, entities, _kmeans, _globalTfidf } = this
+
+    return {
+      tokens,
+      vectors,
+      POStags,
+      sentenceEmbedding,
+      languageCode,
+      slots: slots as UtteranceSlot[],
+      entities: entities as UtteranceEntity[],
+      tfidf: _globalTfidf,
+      kmeans: _kmeans
+    }
   }
 
   private _validateRange(start: number, end: number) {

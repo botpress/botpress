@@ -34,7 +34,13 @@ const _makeTrainOuput = (
     oos_model: _(oosModels)
       .map(i => [i.ctx, i.model])
       .fromPairs()
-      .value()
+      .value(),
+    kmeans: {
+      clusters: [],
+      centroids: [],
+      iterations: 0
+    },
+    intents: []
   }
 }
 

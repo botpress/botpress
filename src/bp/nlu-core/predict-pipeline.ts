@@ -14,6 +14,7 @@ import {
   Intent,
   ListEntityModel,
   PatternEntity,
+  SerializedKmeansResult,
   SlotExtractionResult,
   TFIDF,
   Token2Vec,
@@ -36,7 +37,7 @@ export type Predictors = {
   ctx_classifier: sdk.MLToolkit.SVM.Predictor
   intent_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
   oos_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
-  kmeans: sdk.MLToolkit.KMeans.KmeansResult
+  kmeans: SerializedKmeansResult
   slot_tagger: SlotTagger // TODO replace this by MlToolkit.CRF.Tagger
 }>
 

@@ -64,6 +64,7 @@
     "mathjs": "^5.9.0",
     "mime-types": "^2.1.27",
     "ml-kmeans": "^5.0.0",
+    "ml-nearest-vector": "^2.0.1",
     "moment": "^2.24.0",
     "ms": "^2.1.1",
     "multer": "^1.4.1",

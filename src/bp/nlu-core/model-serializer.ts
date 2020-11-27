@@ -2,6 +2,8 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { TrainInput, TrainOutput } from './training-pipeline'
+import { Intent } from './typings'
+import Utterance, { SerializedUtterance } from './utterance/utterance'
 
 export type PredictableModel = Omit<sdk.NLU.Model, 'data'> & {
   data: {
@@ -47,4 +49,18 @@ export function deserializeModel(serialized: sdk.NLU.Model): PredictableModel {
   }
   model.data.output.slots_model = Buffer.from(model.data.output.slots_model)
   return model
+}
+
+export const serializeIntent = (intent: Intent<Utterance>): Intent<SerializedUtterance> => {
+  return {
+    ...intent,
+    utterances: intent.utterances.map(u => u.serialize())
+  }
+}
+
+export const deserializeIntent = (intent: Intent<SerializedUtterance>): Intent<Utterance> => {
+  return {
+    ...intent,
+    utterances: intent.utterances.map(u => Utterance.fromSerial(u))
+  }
 }

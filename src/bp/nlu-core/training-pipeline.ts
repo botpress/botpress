@@ -1,12 +1,14 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import { computeKmeans, serializeKmeans } from './clustering'
 import { extractListEntitiesWithCache, extractPatternEntities } from './entities/custom-entity-extractor'
 import { warmEntityCache } from './entities/entity-cache-manager'
 import { getCtxFeatures } from './intents/context-featurizer'
 import { getIntentFeatures } from './intents/intent-featurizer'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getStopWordsForLang } from './language/stopWords'
+import { serializeIntent } from './model-serializer'
 import { featurizeInScopeUtterances, featurizeOOSUtterances } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import { replaceConsecutiveSpaces } from './tools/strings'
@@ -20,12 +22,18 @@ import {
   ListEntity,
   ListEntityModel,
   PatternEntity,
+  SerializedKmeansResult,
   TFIDF,
   Token2Vec,
   Tools,
   WarmedListEntityModel
 } from './typings'
-import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
+import Utterance, {
+  buildUtteranceBatch,
+  SerializedUtterance,
+  UtteranceToken,
+  UtteranceToStringOptions
+} from './utterance/utterance'
 
 type ListEntityWithCache = ListEntity & {
   cache: EntityCacheDump
@@ -59,13 +67,14 @@ export interface TrainOutput {
   list_entities: ColdListEntityModel[]
   tfidf: TFIDF
   vocabVectors: Token2Vec
-  // kmeans: KmeansResult
+  kmeans?: SerializedKmeansResult
   contexts: string[]
   ctx_model: string
   intent_model_by_ctx: Dic<string>
   slots_model: Buffer
   exact_match_index: ExactMatchIndex
   oos_model: _.Dictionary<string>
+  intents: Intent<SerializedUtterance>[]
 }
 
 export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] }>
@@ -85,12 +94,6 @@ export const EXACT_MATCH_STR_OPTIONS: UtteranceToStringOptions = {
   entities: 'keep-name'
 }
 export const MIN_NB_UTTERANCES = 3
-const NUM_CLUSTERS = 8
-const KMEANS_OPTIONS = {
-  iterations: 250,
-  initialization: 'random',
-  seed: 666 // so training is consistent
-} as sdk.MLToolkit.KMeans.KMeansOptions
 
 const PreprocessInput = async (input: TrainInput, tools: Tools): Promise<TrainStep> => {
   debugTraining('Preprocessing intents')
@@ -133,27 +136,6 @@ const makeListEntityModel = async (entity: ListEntityWithCache, languageCode: st
     ),
     cache
   }
-}
-
-export const computeKmeans = (
-  intents: Intent<Utterance>[],
-  tools: Tools
-): sdk.MLToolkit.KMeans.KmeansResult | undefined => {
-  const data = _.chain(intents)
-    .filter(i => i.name !== NONE_INTENT)
-    .flatMap(i => i.utterances)
-    .flatMap(u => u.tokens)
-    .uniqBy((t: UtteranceToken) => t.value)
-    .map((t: UtteranceToken) => t.vector)
-    .value() as number[][]
-
-  if (data.length < 2) {
-    return
-  }
-
-  const k = data.length > NUM_CLUSTERS ? NUM_CLUSTERS : 2
-
-  return tools.mlToolkit.KMeans.kmeans(data, k, KMEANS_OPTIONS)
 }
 
 const ClusterTokens = (input: TrainStep, tools: Tools): TrainStep => {
@@ -567,8 +549,9 @@ export const Trainer = async (
     slots_model: slots_model!,
     vocabVectors: step.vocabVectors,
     exact_match_index,
-    // kmeans: {} add this when mlKmeans supports loading from serialized data,
-    contexts: input.contexts
+    kmeans: step.kmeans && serializeKmeans(step.kmeans),
+    contexts: input.contexts,
+    intents: step.intents.map(serializeIntent)
   }
 
   return output
