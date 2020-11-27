@@ -1,10 +1,7 @@
-import { Button, FileInput, Intent, TextArea } from '@blueprintjs/core'
+import { Button, FileInput, Intent } from '@blueprintjs/core'
 import { lang, toast } from 'botpress/shared'
 import { InstalledLibrary } from 'full'
 import React, { FC } from 'react'
-
-import style from './style.scss'
-import TaskResult from './TaskResult'
 
 interface Props {
   lib: InstalledLibrary
@@ -22,7 +19,7 @@ const fetchReducer = (state, action) => {
       hasError: false
     }
   } else if (action.type === 'uploadCompleted') {
-    return { ...state, result: action.data, isLoading: false }
+    return { ...state, isLoading: false }
   } else if (action.type === 'receivedFile') {
     const { file, filePath, fullPath } = action.data
     return { ...state, file, filePath, fullPath }
@@ -41,14 +38,13 @@ const fetchReducer = (state, action) => {
 const UploadLibrary: FC<Props> = props => {
   const [state, dispatch] = React.useReducer(fetchReducer, {
     file: undefined,
-    result: '',
     fullPath: '',
     filePath: '',
     isLoading: false,
     hasError: false
   })
 
-  const { file, fullPath, filePath, isLoading, hasError, result } = state
+  const { file, fullPath, filePath, isLoading, hasError } = state
 
   const submitChanges = async () => {
     dispatch({ type: 'startUpload' })
@@ -58,21 +54,17 @@ const UploadLibrary: FC<Props> = props => {
       form.append('location', fullPath)
       form.append('file', file)
 
-      try {
-        await props.axios.post('/mod/code-editor/upload', form, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        })
+      await props.axios.post('/mod/code-editor/upload', form, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
 
-        const { data } = await props.axios.post('/mod/libraries/add', { name: file.name, uploaded: fullPath })
+      const { data } = await props.axios.post('/mod/libraries/add', { name: file.name, uploaded: fullPath })
+      dispatch({ type: 'uploadCompleted', data })
 
-        dispatch({ type: 'uploadCompleted', data })
-        props.refreshLibraries()
-        toast.success('Library added successfully!')
-      } catch (err) {
-        toast.failure(err, 'module.code-editor.error.cannotUploadFile')
-      }
+      props.refreshLibraries()
+      toast.success('Library added successfully!')
     } catch (err) {
-      dispatch({ type: 'hasError' })
+      dispatch({ type: 'showError' })
       toast.failure(err.message)
     }
   }

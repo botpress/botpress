@@ -37,9 +37,9 @@ const onServerStarted = async (bp: typeof sdk) => {
   const initialSetup = await executeNpm()
   bp.logger.info(`Updating shared libraries...\n${initialSetup}`)
 
-  const synchronize = async (triggerInstall?: boolean, files?: string[]) => {
-    if (files !== undefined) {
-      await Promise.mapSeries(files, file => copyFileLocally(file, bp))
+  const synchronize = async (triggerInstall?: boolean, file?: string) => {
+    if (file !== undefined) {
+      await copyFileLocally(file, bp)
     } else {
       await syncAllFiles(bp)
     }
