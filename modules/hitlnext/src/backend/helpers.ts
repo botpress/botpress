@@ -2,6 +2,7 @@ import crypto from 'crypto'
 import { ValidationError } from 'joi'
 import _ from 'lodash'
 import { performance, PerformanceObserver, PerformanceObserverCallback } from 'perf_hooks'
+import Repository from './repository'
 
 export const makeAgentId = (strategy: string, email: string): string => {
   return crypto
@@ -33,4 +34,21 @@ export const measure = async <T>(
   observer.disconnect()
 
   return value
+}
+
+export const extendAgentSession = async (repository: Repository, realtime: any, botId: string, agentId: string) => {
+  return repository.setAgentOnline(botId, agentId, async () => {
+    // By now the agent *should* be offline, but we check nonetheless
+    const online = await repository.getAgentOnline(botId, agentId)
+    const payload = {
+      online
+    }
+
+    realtime.sendPayload(botId, {
+      resource: 'agent',
+      type: 'update',
+      id: agentId,
+      payload
+    })
+  })
 }

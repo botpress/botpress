@@ -7,7 +7,7 @@ import { Config } from '../config'
 import { MODULE_NAME } from '../constants'
 
 import { IHandoff } from './../types'
-import { measure } from './helpers'
+import { extendAgentSession, measure } from './helpers'
 import { StateType } from './index'
 import Repository from './repository'
 import Socket from './socket'
@@ -93,20 +93,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
       channel: handoff.userChannel
     })
 
-    await repository.setAgentOnline(event.botId, handoff.agentId, async () => {
-      // By now the agent *should* be offline, but we check nonetheless
-      const online = await repository.getAgentOnline(event.botId, handoff.agentId)
-      const payload = {
-        online
-      }
-
-      realtime.sendPayload(event.botId, {
-        resource: 'agent',
-        type: 'update',
-        id: handoff.agentId,
-        payload
-      })
-    })
+    await extendAgentSession(repository, realtime, event.botId, handoff.agentId)
   }
 
   const incomingHandler = async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {

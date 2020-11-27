@@ -10,7 +10,7 @@ import { MODULE_NAME } from '../constants'
 
 import { HandoffType, IAgent, IComment, IHandoff } from './../types'
 import { UnprocessableEntityError } from './errors'
-import { formatValidationError, makeAgentId } from './helpers'
+import { extendAgentSession, formatValidationError, makeAgentId } from './helpers'
 import { StateType } from './index'
 import Repository, { CollectionConditions } from './repository'
 import Socket from './socket'
@@ -60,23 +60,6 @@ export default async (bp: typeof sdk, state: StateType) => {
     }
   }
 
-  const extendAgentSession = async (botId, agentId) => {
-    return repository.setAgentOnline(botId, agentId, async () => {
-      // By now the agent *should* be offline, but we check nonetheless
-      const online = await repository.getAgentOnline(botId, agentId)
-      const payload = {
-        online
-      }
-
-      realtime.sendPayload(botId, {
-        resource: 'agent',
-        type: 'update',
-        id: agentId,
-        payload
-      })
-    })
-  }
-
   // This should be available for all modules
   // The only thing we would need is a jsdoc comment @private on configs
   // we don't want to expose in some modules
@@ -114,7 +97,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       const { online } = req.body
 
       if (online) {
-        await extendAgentSession(req.params.botId, agentId)
+        await extendAgentSession(repository, realtime, req.params.botId, agentId)
       } else {
         await repository.unsetAgentOnline(req.params.botId, agentId)
       }
@@ -225,7 +208,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       handoff = await repository.updateHandoff(req.params.botId, req.params.id, payload)
       state.cacheHandoff(req.params.botId, agentThreadId, handoff)
 
-      await extendAgentSession(req.params.botId, agentId)
+      await extendAgentSession(repository, realtime, req.params.botId, agentId)
 
       const baseCustomEventPayload: Partial<sdk.IO.EventCtorArgs> = {
         botId: handoff.botId,
@@ -311,7 +294,7 @@ export default async (bp: typeof sdk, state: StateType) => {
         return handoff
       })
 
-      await extendAgentSession(req.params.botId, agentId)
+      await extendAgentSession(repository, realtime, req.params.botId, agentId)
 
       realtime.sendPayload(req.params.botId, {
         resource: 'handoff',
@@ -351,7 +334,7 @@ export default async (bp: typeof sdk, state: StateType) => {
         payload: handoff
       })
 
-      await extendAgentSession(req.params.botId, agentId)
+      await extendAgentSession(repository, realtime, req.params.botId, agentId)
 
       res.status(201).send(comment)
     })
