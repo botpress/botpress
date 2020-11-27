@@ -1,5 +1,5 @@
 {
-  "generatedOn": "2020-11-27T19:30:08.495Z",
+  "generatedOn": "2020-11-27T21:11:14.287Z",
   "scores": [
     {
       "metric": "accuracy",
@@ -11,13 +11,13 @@
       "metric": "oosAccuracy",
       "problem": "bpsd A",
       "seed": 42,
-      "score": 0.7818181818181819
+      "score": 0.7772727272727272
     },
     {
       "metric": "oosPrecision",
       "problem": "bpsd A",
       "seed": 42,
-      "score": 0.7954545454545454
+      "score": 0.7865168539325843
     },
     {
       "metric": "oosRecall",
@@ -29,7 +29,7 @@
       "metric": "oosF1",
       "problem": "bpsd A",
       "seed": 42,
-      "score": 0.7446808510638298
+      "score": 0.7407407407407408
     },
     {
       "metric": "accuracy",
@@ -41,13 +41,13 @@
       "metric": "oosAccuracy",
       "problem": "bpsd A",
       "seed": 69,
-      "score": 0.7863636363636364
+      "score": 0.7818181818181819
     },
     {
       "metric": "oosPrecision",
       "problem": "bpsd A",
       "seed": 69,
-      "score": 0.797752808988764
+      "score": 0.7888888888888889
     },
     {
       "metric": "oosRecall",
@@ -59,7 +59,7 @@
       "metric": "oosF1",
       "problem": "bpsd A",
       "seed": 69,
-      "score": 0.7513227513227513
+      "score": 0.7473684210526317
     },
     {
       "metric": "accuracy",
@@ -71,13 +71,13 @@
       "metric": "oosAccuracy",
       "problem": "bpsd A",
       "seed": 666,
-      "score": 0.7863636363636364
+      "score": 0.7818181818181819
     },
     {
       "metric": "oosPrecision",
       "problem": "bpsd A",
       "seed": 666,
-      "score": 0.7912087912087912
+      "score": 0.782608695652174
     },
     {
       "metric": "oosRecall",
@@ -89,7 +89,7 @@
       "metric": "oosF1",
       "problem": "bpsd A",
       "seed": 666,
-      "score": 0.7539267015706805
+      "score": 0.7499999999999999
     },
     {
       "metric": "accuracy",
@@ -131,13 +131,13 @@
       "metric": "oosAccuracy",
       "problem": "bpds A imbalanced",
       "seed": 69,
-      "score": 0.7272727272727273
+      "score": 0.7227272727272728
     },
     {
       "metric": "oosPrecision",
       "problem": "bpds A imbalanced",
       "seed": 69,
-      "score": 0.7702702702702703
+      "score": 0.76
     },
     {
       "metric": "oosRecall",
@@ -149,7 +149,7 @@
       "metric": "oosF1",
       "problem": "bpds A imbalanced",
       "seed": 69,
-      "score": 0.6551724137931034
+      "score": 0.6514285714285714
     },
     {
       "metric": "accuracy",
@@ -191,13 +191,13 @@
       "metric": "oosAccuracy",
       "problem": "bpds A fewshot",
       "seed": 42,
-      "score": 0.7090909090909091
+      "score": 0.7045454545454546
     },
     {
       "metric": "oosPrecision",
       "problem": "bpds A fewshot",
       "seed": 42,
-      "score": 0.6836734693877551
+      "score": 0.6767676767676768
     },
     {
       "metric": "oosRecall",
@@ -209,7 +209,7 @@
       "metric": "oosF1",
       "problem": "bpds A fewshot",
       "seed": 42,
-      "score": 0.6767676767676768
+      "score": 0.6733668341708543
     },
     {
       "metric": "accuracy",
@@ -221,13 +221,13 @@
       "metric": "oosAccuracy",
       "problem": "bpds A fewshot",
       "seed": 69,
-      "score": 0.65
+      "score": 0.6454545454545455
     },
     {
       "metric": "oosPrecision",
       "problem": "bpds A fewshot",
       "seed": 69,
-      "score": 0.6716417910447762
+      "score": 0.6617647058823529
     },
     {
       "metric": "oosRecall",
@@ -239,7 +239,7 @@
       "metric": "oosF1",
       "problem": "bpds A fewshot",
       "seed": 69,
-      "score": 0.5389221556886228
+      "score": 0.5357142857142857
     },
     {
       "metric": "accuracy",
@@ -251,13 +251,13 @@
       "metric": "oosAccuracy",
       "problem": "bpds A fewshot",
       "seed": 666,
-      "score": 0.7227272727272728
+      "score": 0.7181818181818181
     },
     {
       "metric": "oosPrecision",
       "problem": "bpds A fewshot",
       "seed": 666,
-      "score": 0.7294117647058823
+      "score": 0.7209302325581395
     },
     {
       "metric": "oosRecall",
@@ -269,7 +269,7 @@
       "metric": "oosF1",
       "problem": "bpds A fewshot",
       "seed": 666,
-      "score": 0.6702702702702702
+      "score": 0.6666666666666666
     },
     {
       "metric": "accuracy",
