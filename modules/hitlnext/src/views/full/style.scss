@@ -134,13 +134,14 @@
   }
 
   .handoffItem {
+    width: 100%;
+    display: flex;
+    margin: 5px 0;
+    padding: var(--spacing-x-large) var(--spacing-large) var(--spacing-large);
     border-radius: 5px;
     cursor: pointer;
-    display: flex;
-    padding: var(--spacing-x-large) var(--spacing-large) var(--spacing-large);
     transition: background 0.3s;
     align-items: center;
-    margin: 5px 0;
 
     &:hover {
       background-color: var(--seashell);
@@ -187,13 +188,13 @@
   }
 
   .dot {
-    top: -3;
-    right: -3;
-    position: 'absolute';
-    width: 5;
-    height: 5;
-    background-color: 'transparent';
-    border-radius: 5;
+    top: -3px;
+    right: -3px;
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    background-color: transparent;
+    border-radius: 5px;
   }
 
   .createdDate {
