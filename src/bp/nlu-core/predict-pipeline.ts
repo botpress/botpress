@@ -5,7 +5,6 @@ import { extractListEntities, extractPatternEntities } from './entities/custom-e
 import { getCtxFeatures } from './intents/context-featurizer'
 import { getIntentFeatures } from './intents/intent-featurizer'
 import { isPOSAvailable } from './language/pos-tagger'
-import makeSpellChecker from './language/spell-checker'
 import { getUtteranceFeatures } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import { ExactMatchIndex, EXACT_MATCH_STR_OPTIONS } from './training-pipeline'
@@ -300,10 +299,10 @@ function MapStepToOutput(step: SlotStep, startTime: number): PredictOutput {
     const intents = !intentPred
       ? []
       : intentPred.map(i => ({
-          extractor: 'classifier', // exact-matcher overwrites this field in line below
-          ...i,
-          slots: (step.slot_predictions_per_intent?.[i.label] || []).reduce(slotsCollectionReducer, {})
-        }))
+        extractor: 'classifier', // exact-matcher overwrites this field in line below
+        ...i,
+        slots: (step.slot_predictions_per_intent?.[i.label] || []).reduce(slotsCollectionReducer, {})
+      }))
 
     const includeOOS = !intents.filter(x => x.extractor === 'exact-matcher').length
 

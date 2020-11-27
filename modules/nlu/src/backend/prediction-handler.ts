@@ -16,7 +16,7 @@ export class PredictionHandler {
     private anticipatedLanguage: string,
     private defaultLanguage: string,
     private logger: sdk.Logger
-  ) {}
+  ) { }
 
   async predict(textInput: string, includedContexts: string[]) {
     const modelCacheState = _.mapValues(this.modelsByLang, model => ({ model, loaded: this.engine.hasModel(model) }))
