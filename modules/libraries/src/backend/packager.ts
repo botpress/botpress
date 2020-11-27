@@ -6,6 +6,7 @@ import { executeNpm } from './utils'
 
 const debug = DEBUG('libraries').sub('packager')
 
+const scriptsToDisable = ['publish', 'prepublish', 'postpublish']
 const emptyPackage = {
   name: 'temp',
   version: '1.0.0',
@@ -22,8 +23,8 @@ const disableScripts = pkg => {
     return
   }
 
-  pkg.scripts.forEach(script => {
-    if (['publish', 'prepublish', 'postpublish'].includes(script) && pkg.scripts[script]) {
+  scriptsToDisable.forEach(script => {
+    if (pkg.scripts[script]) {
       pkg.scripts['_' + script] = pkg.scripts[script]
       delete pkg.scripts[script]
     }
