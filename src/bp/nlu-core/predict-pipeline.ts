@@ -299,10 +299,10 @@ function MapStepToOutput(step: SlotStep, startTime: number): PredictOutput {
     const intents = !intentPred
       ? []
       : intentPred.map(i => ({
-        extractor: 'classifier', // exact-matcher overwrites this field in line below
-        ...i,
-        slots: (step.slot_predictions_per_intent?.[i.label] || []).reduce(slotsCollectionReducer, {})
-      }))
+          extractor: 'classifier', // exact-matcher overwrites this field in line below
+          ...i,
+          slots: (step.slot_predictions_per_intent?.[i.label] || []).reduce(slotsCollectionReducer, {})
+        }))
 
     const includeOOS = !intents.filter(x => x.extractor === 'exact-matcher').length
 
