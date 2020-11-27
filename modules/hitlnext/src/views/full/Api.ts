@@ -40,8 +40,7 @@ export function castComment(item: IComment) {
 }
 export interface ApiType {
   getConfig: () => Promise<Config>
-  setOnline: () => Promise<{ online: true }>
-  setOffline: () => Promise<{ online: false }>
+  setOnline: (online: boolean) => Promise<{ online: boolean }>
   getAgents: (online?: boolean) => Promise<IAgent[]>
   getCurrentAgent: () => Promise<IAgent>
   getComments: (id: string) => Promise<IComment[]>
@@ -59,8 +58,7 @@ export const Api = (bp: { axios: AxiosInstance }): ApiType => {
 
   return {
     getConfig: async () => bp.axios.get('/config', config).then(res => res.data),
-    setOnline: async () => bp.axios.post('/agents/me/online', null, config).then(res => res.data),
-    setOffline: async () => bp.axios.post('/agents/me/offline', null, config).then(res => res.data),
+    setOnline: async online => bp.axios.post('/agents/me/online', { online }, config).then(res => res.data),
     getAgents: async () => bp.axios.get('/agents', config).then(res => res.data),
     getCurrentAgent: async () => bp.axios.get('/agents/me', config).then(res => res.data),
     getComments: async id =>

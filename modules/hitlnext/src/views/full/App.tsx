@@ -82,7 +82,7 @@ const App: FC<Props> = ({ bp }) => {
 
   async function setOnline(online: boolean) {
     try {
-      online ? await api.setOnline() : await api.setOffline()
+      online ? await api.setOnline(true) : await api.setOnline(false)
       online
         ? toast.success(lang.tr('module.hitlnext.agent.onlineSuccess'))
         : toast.success(lang.tr('module.hitlnext.agent.offlineSuccess'))

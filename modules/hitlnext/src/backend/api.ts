@@ -111,32 +111,15 @@ export default async (bp: typeof sdk, state: StateType) => {
       const { email, strategy } = req.tokenUser!
       const agentId = makeAgentId(strategy, email)
 
-      const online = await extendAgentSession(req.params.botId, agentId)
+      const { online } = req.body
+
+      if (online) {
+        await extendAgentSession(req.params.botId, agentId)
+      } else {
+        await repository.unsetAgentOnline(req.params.botId, agentId)
+      }
 
       const payload = { online }
-
-      realtime.sendPayload(req.params.botId, {
-        resource: 'agent',
-        type: 'update',
-        id: agentId,
-        payload
-      })
-
-      res.send(payload)
-    })
-  )
-
-  router.post(
-    '/agents/me/offline',
-    errorMiddleware(async (req: RequestWithUser, res: Response) => {
-      const { email, strategy } = req.tokenUser!
-      const agentId = makeAgentId(strategy, email)
-
-      const online = await repository.unsetAgentOnline(req.params.botId, agentId)
-
-      const payload = {
-        online
-      }
 
       realtime.sendPayload(req.params.botId, {
         resource: 'agent',
