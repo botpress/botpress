@@ -174,7 +174,7 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
     name: 'hitlnext.incoming',
     direction: 'incoming',
     order: 0,
-    description: 'Where magic between users and agents happens',
+    description: 'Handles message-passing between users and agents',
     handler: incomingHandler
   })
 }
