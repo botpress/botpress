@@ -13,7 +13,7 @@ type Props = {
 } & Partial<IAgent>
 
 const AgentProfile: FC<Props> = ({ setOnline, online, loading }) => {
-  const [showingOption, setShowingOption] = useState(false)
+  const [display, setDisplay] = useState(false)
 
   const optionsItems = [
     {
@@ -28,7 +28,7 @@ const AgentProfile: FC<Props> = ({ setOnline, online, loading }) => {
     <div className={style.agentBtnWrapper}>
       <MoreOptions
         element={
-          <Button className={style.agentBtn} onClick={() => setShowingOption(true)} loading={loading} minimal={true}>
+          <Button className={style.agentBtn} onClick={() => setDisplay(true)} loading={loading} minimal={true}>
             <AgentIcon online={online} />
             <span className={style.agentBtnText}>
               {online ? lang.tr('module.hitlnext.agent.online') : lang.tr('module.hitlnext.agent.offline')}
@@ -36,8 +36,8 @@ const AgentProfile: FC<Props> = ({ setOnline, online, loading }) => {
             <Icon icon="chevron-down"></Icon>
           </Button>
         }
-        show={showingOption}
-        onToggle={() => setShowingOption(false)}
+        show={display}
+        onToggle={() => setDisplay(false)}
         items={optionsItems}
       />
     </div>
