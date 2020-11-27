@@ -1,27 +1,21 @@
 import { Colors, Icon } from '@blueprintjs/core'
 import React, { FC } from 'react'
+import cx from 'classnames'
+import styles from '../../style.scss'
 
 interface Props {
   online: boolean
 }
 
 const AgentIcon: FC<Props> = ({ online }) => {
-  function dotStyle() {
-    return {
-      top: -3,
-      right: -3,
-      position: 'absolute' as 'absolute',
-      width: 5,
-      height: 5,
-      backgroundColor: online ? Colors.GREEN1 : 'transparent',
-      borderRadius: 5
-    }
-  }
-
   return (
     <span style={{ position: 'relative' }}>
       <Icon icon="headset"></Icon>
-      <span style={dotStyle()}></span>
+      {online ? (
+        <span className={cx(styles.dot)} style={{ backgroundColor: Colors.GREEN1 }}></span>
+      ) : (
+        <span className={cx(styles.dot)}></span>
+      )}
     </span>
   )
 }

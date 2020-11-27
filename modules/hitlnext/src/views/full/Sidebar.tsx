@@ -79,16 +79,8 @@ const Sidebar: FC<Props> = ({ bp, close }) => {
         <Tabs tabs={[{ id: 'content', title: lang.tr('module.hitlnext.sidebar.tab') }]} />
       </div>
 
-      <div
-        className={cx(styles.sidebar)}
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'flex-end',
-          height: '100%'
-        }}
-      >
-        <div style={{ width: '100%' }}>
+      <div className={cx(styles.sidebar)}>
+        <div className={cx(styles.w100)}>
           <Collapsible
             opened={expanded.handoffs}
             toggleExpand={() => setExpanded({ ...expanded, handoffs: !expanded.handoffs })}
@@ -98,7 +90,7 @@ const Sidebar: FC<Props> = ({ bp, close }) => {
           </Collapsible>
         </div>
 
-        <div style={{ width: '100%' }}>
+        <div className={cx(styles.w100)}>
           <Collapsible
             opened={expanded.agents}
             toggleExpand={() => setExpanded({ ...expanded, agents: !expanded.agents })}

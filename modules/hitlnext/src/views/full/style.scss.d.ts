@@ -5,6 +5,8 @@ interface CssExports {
   'agentBtn': string;
   'agentBtnText': string;
   'agentBtnWrapper': string;
+  'agentList': string;
+  'agentListItem': string;
   'app': string;
   'badge': string;
   'clientName': string;
@@ -14,6 +16,7 @@ interface CssExports {
   'coversationButton': string;
   'createdDate': string;
   'divider': string;
+  'dot': string;
   'emptyContainer': string;
   'handoffItem': string;
   'handoffList': string;
@@ -27,6 +30,7 @@ interface CssExports {
   'sidebarContainer': string;
   'table': string;
   'unreadDot': string;
+  'w100': string;
   'webchatIframe': string;
   'webchatWrapper': string;
 }

@@ -2,6 +2,8 @@ import { Colors, Position, Spinner, Tooltip } from '@blueprintjs/core'
 import _, { Dictionary } from 'lodash'
 import React, { FC } from 'react'
 import { Initial } from 'react-initial'
+import cx from 'classnames'
+import styles from './../../style.scss'
 
 import { IAgent } from '../../../../types'
 import { agentName } from '../../shared/helper'
@@ -12,18 +14,6 @@ interface Props {
 }
 
 const AgentList: FC<Props> = ({ agents, loading }) => {
-  function dotStyle(online) {
-    return {
-      top: -3,
-      right: -3,
-      position: 'absolute' as 'absolute',
-      width: 8,
-      height: 8,
-      backgroundColor: online ? Colors.GREEN1 : Colors.RED1,
-      borderRadius: '50%'
-    }
-  }
-
   if (!loading && _.isEmpty(agents)) {
     return <div />
   }
@@ -36,14 +26,13 @@ const AgentList: FC<Props> = ({ agents, loading }) => {
     )
   }
 
-  // TODO className for ul
   return (
     <div>
-      <ul style={{ padding: 0, margin: 0, listStyleType: 'none' }}>
+      <ul className={cx(styles.agentList)}>
         {Object.values(agents)
           .filter(a => a.online)
           .map(agent => (
-            <li key={agent.agentId} style={{ display: 'inline', marginRight: '8px' }}>
+            <li key={agent.agentId} className={cx(styles.agentListItem)}>
               <Tooltip content={agentName(agent)} position={Position.BOTTOM}>
                 <div style={{ position: 'relative', display: 'inline-block' }}>
                   <Initial
