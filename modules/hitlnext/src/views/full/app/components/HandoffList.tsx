@@ -15,7 +15,7 @@ interface Props {
   loading: boolean
 }
 
-const HandoffList: FC<Props> = props => {
+const HandoffList: FC<Props> = ({ handoffs, loading }) => {
   const { state, dispatch } = useContext(Context)
 
   const [items, setItems] = useState<IHandoff[]>([])
@@ -50,7 +50,7 @@ const HandoffList: FC<Props> = props => {
   }
 
   useEffect(() => {
-    const filtered = _.chain(_.values(props.handoffs))
+    const filtered = _.chain(_.values(handoffs))
       .filter(filterBy)
       .orderBy(...orderConditions())
       .value()
@@ -61,7 +61,7 @@ const HandoffList: FC<Props> = props => {
     }
 
     setItems(filtered)
-  }, [filterOptions, sortOption, props.handoffs, props.loading])
+  }, [filterOptions, sortOption, handoffs, loading])
 
   return (
     <Fragment>
@@ -70,18 +70,16 @@ const HandoffList: FC<Props> = props => {
         sortOption={sortOption}
         setFilterOptions={setFilterOptions}
         setSortOption={setSortOption}
-        disabled={_.isEmpty(props.handoffs)}
+        disabled={_.isEmpty(handoffs)}
       ></HandoffListHeader>
 
-      {props.loading && <Spinner></Spinner>}
+      {loading && <Spinner></Spinner>}
 
-      {!props.loading && _.isEmpty(items) && (
+      {!loading && _.isEmpty(items) && (
         <EmptyState icon={<CasesIcon />} text={lang.tr('module.hitlnext.handoffs.empty')}></EmptyState>
       )}
 
-      {!props.loading &&
-        !_.isEmpty(items) &&
-        items.map(handoff => <HandoffItem key={handoff.id} {...handoff}></HandoffItem>)}
+      {!loading && !_.isEmpty(items) && items.map(handoff => <HandoffItem key={handoff.id} {...handoff}></HandoffItem>)}
     </Fragment>
   )
 }

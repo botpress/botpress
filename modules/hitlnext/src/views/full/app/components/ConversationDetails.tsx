@@ -15,7 +15,7 @@ interface Props {
   handoff: IHandoff
 }
 
-const ConversationDetails: FC<Props> = ({ handoff, api }) => (
+const ConversationDetails: FC<Props> = ({ api, handoff }) => (
   <div className={cx(style.column, style.sidebarContainer)}>
     <Tabs tabs={[{ id: 'user', title: lang.tr('module.hitlnext.handoff.contactDetails') }]} />
     <UserProfile {...handoff.user} />

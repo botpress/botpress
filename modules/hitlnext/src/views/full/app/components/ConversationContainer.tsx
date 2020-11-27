@@ -1,5 +1,4 @@
 import { Button } from '@blueprintjs/core'
-import * as sdk from 'botpress/sdk'
 import { isOperationAllowed, lang, MainLayout, PermissionOperation, toast } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -12,15 +11,14 @@ import { Context } from '../Store'
 import ConversationDetails from './ConversationDetails'
 import ConversationHistory from './ConversationHistory'
 import LiveChat from './LiveChat'
+import { AxiosInstance } from 'axios'
 
 interface Props {
-  bp: typeof sdk
   api: ApiType
+  bp: { axios: AxiosInstance; events: any }
 }
 
-const ConversationContainer: FC<Props> = props => {
-  const { api } = props
-
+const ConversationContainer: FC<Props> = ({ api, bp }) => {
   const { state, dispatch } = useContext(Context)
 
   async function handleAssign() {
@@ -86,7 +84,7 @@ const ConversationContainer: FC<Props> = props => {
   const content = shouldRenderLiveChat ? (
     <LiveChat handoff={selectedHandoff} currentAgent={state.currentAgent} />
   ) : (
-    <ConversationHistory bp={props.bp} api={api} conversationId={selectedHandoff.userThreadId} />
+    <ConversationHistory bp={bp} api={api} conversationId={selectedHandoff.userThreadId} />
   )
   return (
     <Fragment>
@@ -98,7 +96,7 @@ const ConversationContainer: FC<Props> = props => {
         />
         {content}
       </div>
-      <ConversationDetails api={props.api} handoff={selectedHandoff}></ConversationDetails>
+      <ConversationDetails api={api} handoff={selectedHandoff}></ConversationDetails>
     </Fragment>
   )
 }

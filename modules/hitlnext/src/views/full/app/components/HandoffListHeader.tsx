@@ -1,7 +1,6 @@
 import { Checkbox } from '@blueprintjs/core'
 import { lang, MainLayout, ToolbarButtonProps } from 'botpress/shared'
 import React, { FC } from 'react'
-
 import style from '../../style.scss'
 
 export interface FilterType {
@@ -21,28 +20,28 @@ interface Props {
   disabled: boolean
 }
 
-const HandoffListHeader: FC<Props> = props => {
+const HandoffListHeader: FC<Props> = ({ filterOptions, sortOption, setFilterOptions, setSortOption, disabled }) => {
   const buttons: ToolbarButtonProps[] = [
     {
       icon: 'sort',
       optionsItems: [
         {
           label: lang.tr('module.hitlnext.sort.mostRecentlyCreated'),
-          selected: props.sortOption === 'mostRecent',
+          selected: sortOption === 'mostRecent',
           action: () => {
-            props.setSortOption('mostRecent')
+            setSortOption('mostRecent')
           }
         },
         {
           label: lang.tr('module.hitlnext.sort.leastRecentlyCreated'),
-          selected: props.sortOption === 'leastRecent',
+          selected: sortOption === 'leastRecent',
           action: () => {
-            props.setSortOption('leastRecent')
+            setSortOption('leastRecent')
           }
         }
       ],
       tooltip: lang.tr('module.hitlnext.sortBy'),
-      disabled: props.disabled
+      disabled: disabled
     },
     {
       icon: 'filter',
@@ -50,50 +49,42 @@ const HandoffListHeader: FC<Props> = props => {
         {
           content: (
             <Checkbox
-              checked={props.filterOptions.unassigned}
+              checked={filterOptions.unassigned}
               label={lang.tr('module.hitlnext.filter.unassigned')}
-              onChange={() =>
-                props.setFilterOptions({ ...props.filterOptions, unassigned: !props.filterOptions.unassigned })
-              }
+              onChange={() => setFilterOptions({ ...filterOptions, unassigned: !filterOptions.unassigned })}
             />
           )
         },
         {
           content: (
             <Checkbox
-              checked={props.filterOptions.assignedMe}
+              checked={filterOptions.assignedMe}
               label={lang.tr('module.hitlnext.filter.assignedMe')}
-              onChange={() =>
-                props.setFilterOptions({ ...props.filterOptions, assignedMe: !props.filterOptions.assignedMe })
-              }
+              onChange={() => setFilterOptions({ ...filterOptions, assignedMe: !filterOptions.assignedMe })}
             />
           )
         },
         {
           content: (
             <Checkbox
-              checked={props.filterOptions.assignedOther}
+              checked={filterOptions.assignedOther}
               label={lang.tr('module.hitlnext.filter.assignedOther')}
-              onChange={() =>
-                props.setFilterOptions({ ...props.filterOptions, assignedOther: !props.filterOptions.assignedOther })
-              }
+              onChange={() => setFilterOptions({ ...filterOptions, assignedOther: !filterOptions.assignedOther })}
             />
           )
         },
         {
           content: (
             <Checkbox
-              checked={props.filterOptions.resolved}
+              checked={filterOptions.resolved}
               label={lang.tr('module.hitlnext.filter.resolved')}
-              onChange={() =>
-                props.setFilterOptions({ ...props.filterOptions, resolved: !props.filterOptions.resolved })
-              }
+              onChange={() => setFilterOptions({ ...filterOptions, resolved: !filterOptions.resolved })}
             />
           )
         }
       ],
       tooltip: lang.tr('module.hitlnext.filterBy'),
-      disabled: props.disabled
+      disabled: disabled
     }
   ]
 

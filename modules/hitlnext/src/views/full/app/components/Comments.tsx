@@ -10,8 +10,8 @@ import Comment from './Comment'
 import CommentForm from './CommentForm'
 
 interface Props {
-  handoff: IHandoff
   api: ApiType
+  handoff: IHandoff
 }
 
 export const Comments: FC<Props> = ({ handoff, api }) => {

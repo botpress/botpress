@@ -13,18 +13,18 @@ interface Props {
   loading: boolean
 }
 
-const AgentList: FC<Props> = props => {
+const AgentList: FC<Props> = ({ agents, loading }) => {
   const [items, setItems] = useState<IAgent[]>([])
 
   useEffect(() => {
-    setItems(_.filter(_.values(props.agents), ['online', true]))
-  }, [props.agents])
+    setItems(_.filter(_.values(agents), ['online', true]))
+  }, [agents])
 
   return (
     <div>
-      {props.loading && <Spinner></Spinner>}
+      {loading && <Spinner></Spinner>}
 
-      {!props.loading && _.isEmpty(items) && (
+      {!loading && _.isEmpty(items) && (
         <EmptyState icon={<AgentsIcon />} text={lang.tr('module.hitlnext.sidebar.agents.empty')}></EmptyState>
       )}
 

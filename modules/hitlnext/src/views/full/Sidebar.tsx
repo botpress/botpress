@@ -2,7 +2,7 @@ import { Divider, Icon } from '@blueprintjs/core'
 import { Collapsible, lang, MainLayout, sharedStyle, Tabs } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { FC, useContext, useEffect, useState } from 'react'
 
 import { WEBSOCKET_TOPIC } from '../../constants'
 
@@ -12,8 +12,14 @@ import HandoffList from './studio-sidebar/components/HandoffList'
 import { Context, Store } from './studio-sidebar/Store'
 import styles from './style.scss'
 import { Api, castHandoff } from './Api'
+import { AxiosInstance } from 'axios'
 
-const Sidebar = ({ bp, close }) => {
+interface Props {
+  bp: { axios: AxiosInstance; events: any }
+  close: Function
+}
+
+const Sidebar: FC<Props> = ({ bp, close }) => {
   const api = Api(bp)
 
   const { state, dispatch } = useContext(Context)

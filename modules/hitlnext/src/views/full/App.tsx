@@ -1,7 +1,7 @@
 import { lang, toast } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { FC, useContext, useEffect, useState } from 'react'
 
 import { IHandoff, ISocketMessage } from '../../types'
 
@@ -14,8 +14,13 @@ import HandoffList from './app/components/HandoffList'
 import { Context, Store } from './app/Store'
 import style from './style.scss'
 import { Api, castHandoff } from './Api'
+import { AxiosInstance } from 'axios'
 
-const App = ({ bp }) => {
+interface Props {
+  bp: { axios: AxiosInstance; events: any }
+}
+
+const App: FC<Props> = ({ bp }) => {
   const api = Api(bp)
 
   const { state, dispatch } = useContext(Context)

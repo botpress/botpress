@@ -8,8 +8,7 @@ import { Context } from '../Store'
 
 import { generateUsername, getOrSet } from './../utils'
 
-const UserProfile: FC<IUser> = props => {
-  const { attributes, id } = props
+const UserProfile: FC<IUser> = ({ attributes, id }) => {
   const { state, dispatch } = useContext(Context)
 
   const [expanded, setExpanded] = useState(true)

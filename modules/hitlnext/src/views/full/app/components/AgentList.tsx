@@ -11,7 +11,7 @@ interface Props {
   loading: boolean
 }
 
-const AgentList: FC<Props> = props => {
+const AgentList: FC<Props> = ({ agents, loading }) => {
   function dotStyle(online) {
     return {
       top: -3,
@@ -24,11 +24,11 @@ const AgentList: FC<Props> = props => {
     }
   }
 
-  if (!props.loading && _.isEmpty(props.agents)) {
+  if (!loading && _.isEmpty(agents)) {
     return <div />
   }
 
-  if (props.loading) {
+  if (loading) {
     return (
       <div>
         <Spinner></Spinner>
@@ -40,7 +40,7 @@ const AgentList: FC<Props> = props => {
   return (
     <div>
       <ul style={{ padding: 0, margin: 0, listStyleType: 'none' }}>
-        {Object.values(props.agents)
+        {Object.values(agents)
           .filter(a => a.online)
           .map(agent => (
             <li key={agent.agentId} style={{ display: 'inline', marginRight: '8px' }}>

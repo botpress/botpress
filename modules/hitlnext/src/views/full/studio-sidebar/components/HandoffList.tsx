@@ -16,18 +16,18 @@ interface Props {
   itemCount?: number
 }
 
-const HandoffList: FC<Props> = props => {
+const HandoffList: FC<Props> = ({ handoffs, loading, itemCount }) => {
   const [items, setItems] = useState<IHandoff[]>([])
 
   useEffect(() => {
-    setItems(_.slice(_.orderBy(_.values(props.handoffs), 'createdAt', 'desc'), 0, props.itemCount))
-  }, [props.handoffs])
+    setItems(_.slice(_.orderBy(_.values(handoffs), 'createdAt', 'desc'), 0, itemCount))
+  }, [handoffs])
 
   return (
     <div className={cx(styles.handoffList)}>
-      {props.loading && <Spinner></Spinner>}
+      {loading && <Spinner></Spinner>}
 
-      {!props.loading && _.isEmpty(items) && (
+      {!loading && _.isEmpty(items) && (
         <EmptyState icon={<CasesIcon />} text={lang.tr('module.hitlnext.sidebar.handoffs.empty')}></EmptyState>
       )}
 

@@ -14,9 +14,7 @@ import { Context } from '../Store'
 
 import HandoffBadge from './HandoffBadge'
 
-const HandoffItem: FC<IHandoff> = props => {
-  const { createdAt, id, status, agentId, userConversation, userChannel } = props
-
+const HandoffItem: FC<IHandoff> = ({ createdAt, id, status, agentId, userConversation, userChannel }) => {
   const { state, dispatch } = useContext(Context)
 
   const [defaultUsername, setDefaultUsername] = useState()

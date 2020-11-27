@@ -1,6 +1,6 @@
 import { Spinner } from '@blueprintjs/core'
+import { AxiosInstance } from 'axios'
 import { IO } from 'botpress/sdk'
-import { EmptyState } from 'botpress/shared'
 import _ from 'lodash'
 import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
 
@@ -11,14 +11,12 @@ import { ApiType } from '../../Api'
 import { Context } from '../Store'
 
 interface Props {
-  bp: any
   api: ApiType
+  bp: { axios: AxiosInstance; events: any }
   conversationId: string
 }
 
-const ConversationHistory: FC<Props> = props => {
-  const { bp, api, conversationId } = props
-
+const ConversationHistory: FC<Props> = ({ api, bp, conversationId }) => {
   const { state } = useContext(Context)
 
   const [loading, setLoading] = useState(true)

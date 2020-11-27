@@ -10,7 +10,7 @@ interface Props {
   onSubmit: (content: string) => Promise<void>
 }
 
-const CommentForm: FC<Props> = props => {
+const CommentForm: FC<Props> = ({ onSubmit }) => {
   const { state } = useContext(Context)
   const [content, setContent] = useState('')
 
@@ -23,7 +23,7 @@ const CommentForm: FC<Props> = props => {
 
   function submit(e?: React.MouseEvent) {
     e?.preventDefault()
-    props.onSubmit(content).then(() => setContent(''))
+    onSubmit(content).then(() => setContent(''))
   }
 
   function textAreaKeyDown(e: React.KeyboardEvent) {
