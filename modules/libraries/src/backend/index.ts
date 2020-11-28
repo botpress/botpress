@@ -6,7 +6,14 @@ import path from 'path'
 import en from '../translations/en.json'
 
 import api from './api'
-import { copyFileLocally, createDefaultExample, createDefaultPackageJson, executeNpm, syncAllFiles } from './utils'
+import {
+  copyFileLocally,
+  createDefaultExample,
+  createDefaultPackageJson,
+  createNodeSymlink,
+  executeNpm,
+  syncAllFiles
+} from './utils'
 
 export let sharedLibsDir
 export let packageJsonPath
@@ -33,6 +40,8 @@ const onServerStarted = async (bp: typeof sdk) => {
     await createDefaultPackageJson()
     await createDefaultExample(bp)
   }
+
+  await createNodeSymlink()
 
   const initialSetup = await executeNpm()
   bp.logger.info(`Updating shared libraries...\n${initialSetup}`)

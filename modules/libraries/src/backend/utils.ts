@@ -22,10 +22,14 @@ export const executeNpm = async (args: string[] = ['install'], customLibsDir?: s
     // Hides superfluous messages
     args.push('--no-fund')
 
+    // Necessary for post install scripts when running from the binary
+    args.push('--scripts-prepend-node-path')
+
     const spawned = spawn(process.execPath, [`${moduleDir}/${nodeFolder}/npm/bin/npm-cli.js`, ...args], {
       cwd,
       env: {
         ...process.env,
+        PATH: `${process.env.PATH}:${path.dirname(process.execPath)}`,
         PKG_EXECPATH: 'PKG_INVOKE_NODEJS'
       }
     })
@@ -35,11 +39,19 @@ export const executeNpm = async (args: string[] = ['install'], customLibsDir?: s
     spawned.stdout.on('data', msg => resultBuffer.push(msg.toString()))
     spawned.stderr.on('data', msg => resultBuffer.push(msg.toString()))
 
-    await Promise.fromCallback(cb => spawned.stdout.on('end', cb))
+    await Promise.fromCallback(cb => spawned.stdout.on('close', cb))
 
     return resultBuffer.join('')
   } catch (err) {
     console.error('error ', err)
+  }
+}
+
+export const createNodeSymlink = async () => {
+  const nodePath = path.join(path.dirname(process.execPath), 'node')
+
+  if (!(await fse.pathExists(nodePath))) {
+    await fse.symlink(process.execPath, nodePath)
   }
 }
 
