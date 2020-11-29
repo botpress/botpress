@@ -1,6 +1,9 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
+import mergeSpellChecked from './election/spellcheck-handler'
+import { PredictOutput } from './election/typings'
+
 export interface ModelProvider {
   getLatestModel: (lang: string) => Promise<sdk.NLU.Model | undefined>
 }
@@ -68,7 +71,16 @@ export class PredictionHandler {
       this.modelsByLang[lang] = model.hash
       await this.engine.loadModel(model, model.hash)
     }
-    return this.engine.predict(textInput, includedContexts, this.modelsByLang[lang])
+
+    const spellChecked = await this.engine.spellCheck(textInput, this.modelsByLang[lang])
+    if (spellChecked !== textInput) {
+      const originalOutput = await this.engine.predict(textInput, includedContexts, this.modelsByLang[lang])
+      const spellCheckedOutput = await this.engine.predict(spellChecked, includedContexts, this.modelsByLang[lang])
+      const merged = mergeSpellChecked(originalOutput as PredictOutput, spellCheckedOutput as PredictOutput)
+      return { ...merged, spellChecked }
+    }
+    const output = await this.engine.predict(textInput, includedContexts, this.modelsByLang[lang])
+    return { ...output, spellChecked }
   }
 
   private isEmptyOrError(nluResults: sdk.IO.EventUnderstanding | undefined) {

@@ -7,7 +7,7 @@ import { log, mean, std } from 'mathjs'
  * Vectorial distance between two N-dimentional points
  * a[] and b[] must be of same dimention
  */
-export function ndistance(a: number[], b: number[]): number {
+export function euclideanDistance(a: number[], b: number[]): number {
   if (a.length !== b.length) {
     throw new Error(`Can't calculate distance between vectors of different length (${a.length} vs ${b.length})`)
   }

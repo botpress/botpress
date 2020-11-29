@@ -51,14 +51,13 @@ export class TelemetryRepository {
 
   async pruneEntries(): Promise<void> {
     const config = await this.config.getBotpressConfig()
-    const limit = config.telemetry?.entriesLimit ?? DEFAULT_ENTRIES_LIMIT
+    const offset = config.telemetry?.entriesLimit ?? DEFAULT_ENTRIES_LIMIT
 
     const uuIds = await this.database.knex
       .from(this.tableName)
       .select('uuid')
       .orderBy('creationDate', 'desc')
-      .limit(-1)
-      .offset(limit)
+      .offset(offset)
       .then(rows => rows.map(entry => entry.uuid))
 
     return this.removeMany(uuIds)
