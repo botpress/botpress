@@ -6,7 +6,7 @@ import React, { FC, useEffect, useState } from 'react'
 import style from './style.scss'
 import { CollapsibleProps } from './typings'
 
-const Collapsible: FC<CollapsibleProps> = ({ opened, hidden, toggleExpand, name, children }) => {
+const Collapsible: FC<CollapsibleProps> = ({ opened, hidden, toggleExpand, name, children, ownProps }) => {
   const [isOpen, setOpen] = useState(opened)
 
   useEffect(() => {
@@ -34,7 +34,9 @@ const Collapsible: FC<CollapsibleProps> = ({ opened, hidden, toggleExpand, name,
         text={name}
         onClick={handleToggle}
       />
-      <Collapse isOpen={isOpen}>{children}</Collapse>
+      <Collapse isOpen={isOpen} {...ownProps}>
+        {children}
+      </Collapse>
     </div>
   )
 }

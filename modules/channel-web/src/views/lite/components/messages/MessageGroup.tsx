@@ -87,7 +87,7 @@ class MessageGroup extends React.Component<Props> {
 
               return (
                 <Message
-                  key={message.id}
+                  key={message.eventId}
                   isHighlighted={
                     this.props.highlightedMessages && this.props.highlightedMessages.includes(message.incomingEventId)
                   }
@@ -101,6 +101,7 @@ class MessageGroup extends React.Component<Props> {
                       />
                     )
                   }
+                  noBubble={!!payload.noBubble}
                   fromLabel={fromLabel}
                   isLastOfGroup={i >= this.props.messages.length - 1}
                   isLastGroup={this.props.isLastGroup}

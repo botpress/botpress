@@ -333,18 +333,124 @@
   "toolbar": {
     "emulator": "Émulateur",
     "help": "Aide",
-    "logsPanel": "Panneau de journalisation",
+    "bottomPanel": "Panneau inférieur",
     "readDoc": "Lire la documentation",
     "showEmulator": "Afficher l'émulateur",
-    "toggleLogsPanel": "Basculer le panneau de journalisation",
+    "toggleBottomPanel": "Basculer le panneau inférieur",
     "toggleEmulator": "Basculer l'émulateur",
-    "toggleSidePanel": "Basculer le panneau latéral",
-    "bottomPanel": {
+    "toggleSidePanel": "Basculer le panneau latéral"
+  },
+  "bottomPanel": {
+    "inspector": {
+      "autoExpand": "Automatiquement expandre les noeuds"
+    },
+    "closePanel": "Fermer le panneau",
+    "logs": {
       "scrollToFollow": "Suivre les journaux",
       "downloadLogs": "Télécharger",
       "clearHistory": "Effacer l'historique",
-      "closePanel": "Fermer le panneau",
-      "endOfLogs": "Fin des journaux"
+      "endOfLogs": "Fin des journaux",
+      "debug": {
+        "confUpdated": "La configuration de débogage a été mise à jour avec succès!"
+      }
+    },
+    "debugger": {
+      "fetchingEvent": "Récupération de l'événement...",
+      "topIntents": "Principales intentions",
+      "topPredictions": "Principales prédictions",
+      "displayDebugging": "Afficher débobage dans les workflows",
+      "autoFocus": "Auto-focus sur les nouveaux messages",
+      "newSession": "Créer une nouvelle session",
+      "splashMessage": "Engagez la conversation avec votre chatbot et cliquez sur n'importe quel message pour inspecter ses comportements.",
+      "unauthorized": "Non autorisé",
+      "unauthorizedMessage": "Vous ne disposez pas des autorisations suffisantes pour inspecter les événements.",
+      "unauthorizedMessage2": "Autorisation requise: accès en écriture sur \"module.extensions\"",
+      "processing": {
+        "afterMW": "Après le Middleware",
+        "beforeMW": "Avant le Middleware",
+        "received": "Événement Reçu",
+        "stateLoaded": "Chargement Données Utilisateur",
+        "hook": "Hook",
+        "mw": "Middleware",
+        "dialog": "Exécution du dialogue",
+        "action": "Action",
+        "completed": "Traitement complété",
+        "executedIn": "Exécuté en {n} ms",
+        "type": "Type",
+        "stacktrace": "Stacktrace",
+        "timedOut": "La requête a expiré"
+      },
+      "actions": {
+        "say": "Dire {x}",
+        "startWorkflow": "Commencer workflow {x}",
+        "goToNode": "Aller au noeud {x}",
+        "redirectTo": "Rediriger vers {x}",
+        "continue": "Continuer",
+        "cancelPrompt": "Annuler Prompt",
+        "informPrompt": "Informer Prompt"
+      },
+      "dialog": {
+        "decision": "Décision",
+        "suggestions": "Suggestions",
+        "flowNodes": "Noeuds de flux",
+        "dialogManager": "Gestionnaire de dialogue"
+      },
+      "entities": {
+        "type": "Type",
+        "source": "Source",
+        "normalizedValue": "Valeur normalisée"
+      },
+      "inspector": {
+        "copyEventPath": "Copier le chemin de l'événement",
+        "expandAll": "Ouvrir tout"
+      },
+      "notAvailable": "Non disponible",
+      "ndu": {
+        "topTriggers": "Top déclencheurs",
+        "decisionsTaken": "Décisions prises",
+        "sendKnowledge": "Envoyer connaissances {x}",
+        "startWorkflow": "Démarrer workflow {x}",
+        "goToNode": "Aller au noeud {x}",
+        "redirectTo": "Rediriger vers {x}",
+        "continueFlowExecution": "Continuer l'exécution du flux",
+        "informCurrentPrompt": "Informer le prompt actuel",
+        "cancelCurrentPrompt": "Annuler le prompt actuel",
+        "noResults": "Aucun résultat",
+        "dialogUnderstanding": "Compréhension du dialogue"
+      },
+      "nlu": {
+        "intentsVeryClose": "Les intentions prévues sont très proches.",
+        "youCanAccountForIt": "Vous pouvez en rendre compte en vérifiant la variable : ",
+        "ambiguous": "Ambigu",
+        "languageUnderstanding": "Compréhension du langage"
+      },
+      "slots": {
+        "slot": "Slot",
+        "source": "Source",
+        "extracted": "Extraction",
+        "value": "Valeur: {x}",
+        "turnsAgo": "Il y a {x} tours",
+        "thisTurn": "Ce tour"
+      },
+      "summary": {
+        "cannotDisplay": "Impossible d'afficher le résumé de l'événement",
+        "state": "État",
+        "errors": "Erreurs"
+      },
+      "triggers": {
+        "insideTopic": "Intérieur du sujet",
+        "outsideTopic": "Extérieur du sujet",
+        "insideWorkflow": "Dans le workflow",
+        "qna": "Q&R",
+        "wf": "WF",
+        "node": "Noeud"
+      },
+      "eventNotFound": {
+        "title": "Événement introuvable",
+        "message": "L'événement demandé est introuvable. Raisons possibles:",
+        "message2": "Le collecteur d'événements n'est pas activé dans Botpress Config",
+        "message3": "L'événement a été supprimé de la base de données"
+      }
     }
   }
 }

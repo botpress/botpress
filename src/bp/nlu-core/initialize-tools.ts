@@ -65,7 +65,7 @@ export async function initializeTools(config: NLU.LanguageConfig, logger: NLU.Lo
       const tagger = getPOSTagger(lang, MLToolkit)
       return tokenUtterances.map(u => tagSentence(tagger, u))
     },
-    tokenize_utterances: (utterances: string[], lang: string, vocab?: Token2Vec) =>
+    tokenize_utterances: (utterances: string[], lang: string, vocab?: string[]) =>
       languageProvider.tokenize(utterances, lang, vocab),
     vectorize_tokens: async (tokens, lang) => {
       const a = await languageProvider.vectorize(tokens, lang)

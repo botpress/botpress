@@ -79,11 +79,11 @@ export default async function(options: APIOptions, engine: Engine) {
   const trainSessionService = new TrainSessionService()
   const trainService = new TrainService(logger, engine, modelService, trainSessionService)
 
-  app.get('/info', (req, res) => {
+  const router = express.Router({ mergeParams: true })
+  router.get('/info', async (req, res) => {
     res.send({ version: engine.getVersionInfo() })
   })
 
-  const router = express.Router({ mergeParams: true })
   router.post('/train', async (req, res) => {
     try {
       const input = await validateInput(req.body)
@@ -169,7 +169,11 @@ export default async function(options: APIOptions, engine: Engine) {
         await engine.loadModel(model, modelId)
       }
 
-      const rawPredictions = await Promise.map(texts as string[], t => engine.predict(t, [], modelId))
+      const rawPredictions = await Promise.map(texts as string[], async t => {
+        const spellChecked = await engine.spellCheck(t, modelId)
+        const output = await engine.predict(t, [], modelId)
+        return { ...output, spellChecked }
+      })
       const withoutNone = rawPredictions.map(removeNoneIntent)
 
       return res.send({ success: true, predictions: withoutNone })
@@ -178,7 +182,7 @@ export default async function(options: APIOptions, engine: Engine) {
     }
   })
 
-  app.use('/', router)
+  app.use(['/v1', '/'], router)
   app.use(handleErrorLogging)
 
   const httpServer = createServer(app)

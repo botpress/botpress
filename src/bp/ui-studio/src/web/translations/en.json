@@ -335,18 +335,123 @@
   "toolbar": {
     "emulator": "Emulator",
     "help": "Help",
-    "logsPanel": "Logs Panel",
+    "bottomPanel": "Bottom Panel",
     "readDoc": "Read Documentation",
     "showEmulator": "Show Emulator",
-    "toggleLogsPanel": "Toggle Logs Panel",
+    "toggleBottomPanel": "Toggle Bottom Panel",
     "toggleEmulator": "Toggle Emulator",
-    "toggleSidePanel": "Toggle Side Panel",
-    "bottomPanel": {
+    "toggleSidePanel": "Toggle Side Panel"
+  },
+  "bottomPanel": {
+    "inspector": {
+      "autoExpand": "Auto-expand all nodes"
+    },
+    "closePanel": "Close Panel",
+    "logs": {
       "scrollToFollow": "Scroll to follow logs",
       "downloadLogs": "Download Logs",
       "clearHistory": "Clear log history",
-      "closePanel": "Close Panel",
-      "endOfLogs": "End of logs"
+      "endOfLogs": "End of logs",
+      "debug": {
+        "confUpdated": "Debug configuration updated successfully!"
+      }
+    },
+    "debugger": {
+      "fetchingEvent": "Fetching event...",
+      "topIntents": "Top Intents",
+      "topPredictions": "Top Predictions",
+      "displayDebugging": "Display debugging in workflows",
+      "autoFocus": "Auto-focus on new messages",
+      "newSession": "Create a new session",
+      "splashMessage": "Engage conversation with your chatbot and click on any message to inspect its behaviors.",
+      "unauthorized": "Unauthorized",
+      "unauthorizedMessage": "You lack sufficient permissions to inspect events.",
+      "unauthorizedMessage2": "Permission required: write access on \"module.extensions\"",
+      "processing": {
+        "afterMW": "After Middleware",
+        "beforeMW": "Before Middleware",
+        "received": "Event Received",
+        "stateLoaded": "Loaded User State",
+        "hook": "Hook",
+        "mw": "Middleware",
+        "dialog": "Processing Dialog",
+        "action": "Action",
+        "completed": "Event Processing Completed",
+        "executedIn": "Executed in {n} ms",
+        "type": "Type",
+        "stacktrace": "Stacktrace"
+      },
+      "actions": {
+        "say": "Say {x}",
+        "startWorkflow": "Start workflow {x}",
+        "goToNode": "Go to node {x}",
+        "redirectTo": "Redirect to {x}",
+        "continue": "Continue",
+        "cancelPrompt": "Cancel Prompt",
+        "informPrompt": "Inform Prompt"
+      },
+      "dialog": {
+        "decision": "Decision",
+        "suggestions": "Suggestions",
+        "flowNodes": "Flow Nodes",
+        "dialogManager": "Dialog Manager"
+      },
+      "entities": {
+        "type": "Type",
+        "source": "Source",
+        "normalizedValue": "Normalized Value"
+      },
+      "inspector": {
+        "copyEventPath": "Copy Event Path",
+        "expandAll": "Expand All"
+      },
+      "notAvailable": "Not available",
+      "ndu": {
+        "topTriggers": "Top Triggers",
+        "decisionsTaken": "Decisions Taken",
+        "sendKnowledge": "Send knowledge {x}",
+        "startWorkflow": "Start workflow {x}",
+        "goToNode": "Go to node {x}",
+        "redirectTo": "Redirect to {x}",
+        "continueFlowExecution": "Continue flow execution",
+        "informCurrentPrompt": "Inform current prompt",
+        "cancelCurrentPrompt": "Cancel current prompt",
+        "noResults": "No results",
+        "dialogUnderstanding": "Dialog Understanding"
+      },
+      "nlu": {
+        "intentsVeryClose": "Predicted intents are very close.",
+        "youCanAccountForIt": "You can account for it checking the variable : ",
+        "ambiguous": "Ambiguous",
+        "languageUnderstanding": "Language Understanding"
+      },
+      "slots": {
+        "slot": "Slot",
+        "source": "Source",
+        "extracted": "Extracted",
+        "value": "Value: {x}",
+        "turnsAgo": "{x} turns ago",
+        "thisTurn": "This turn"
+      },
+      "summary": {
+        "cannotDisplay": "Cannot display event summary",
+        "state": "State",
+        "errors": "Errors"
+      },
+      "triggers": {
+        "insideTopic": "Inside Topic",
+        "outsideTopic": "Outside Topic",
+        "insideWorkflow": "Inside Workflow",
+        "qna": "QnA",
+        "wf": "WF",
+        "node": "Node"
+      },
+      "eventNotFound": {
+        "title": "Event not found",
+        "message": "The requested event was not found. Possible reasons:",
+        "message2": "The Event Collector is not enabled in Botpress Config",
+        "message3": "The event was pruned from the database"
+      }
     }
   }
 }
