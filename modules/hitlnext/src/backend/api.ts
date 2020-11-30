@@ -137,13 +137,16 @@ export default async (bp: typeof sdk, state: StateType) => {
       Joi.attempt(payload, CreateHandoffSchema)
 
       // Prevent creating a new handoff if one for the same conversation is currently active
-      await repository
-        .existingActiveHandoff(req.params.botId, payload.userId, payload.userThreadId, payload.userChannel)
-        .then(existing => {
-          if (existing) {
-            return res.sendStatus(200)
-          }
-        })
+      const existing = await repository.existingActiveHandoff(
+        req.params.botId,
+        payload.userId,
+        payload.userThreadId,
+        payload.userChannel
+      )
+
+      if (existing) {
+        return res.sendStatus(200)
+      }
 
       const handoff = await repository.createHandoff(req.params.botId, payload).then(handoff => {
         state.cacheHandoff(req.params.botId, handoff.userThreadId, handoff)
