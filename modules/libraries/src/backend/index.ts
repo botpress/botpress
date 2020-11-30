@@ -4,6 +4,7 @@ import mkdirp from 'mkdirp'
 import path from 'path'
 
 import en from '../translations/en.json'
+import fr from '../translations/fr.json'
 
 import api from './api'
 import {
@@ -90,7 +91,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
   onModuleUnmount,
-  translations: { en },
+  translations: { en, fr },
   definition: {
     name: 'libraries',
     menuIcon: 'book',
