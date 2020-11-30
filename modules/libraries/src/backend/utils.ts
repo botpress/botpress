@@ -9,6 +9,8 @@ const debug = DEBUG('libraries')
 
 const LIB_FOLDER = 'libraries/'
 
+const sanitizeArg = text => text.replace(/[^a-zA-Z0-9\/_.@^\-\(\) ]/g, '').replace(/\/\//, '/')
+
 export const executeNpm = async (args: string[] = ['install'], customLibsDir?: string): Promise<string> => {
   const moduleDir = process.LOADED_MODULES['libraries']
   const nodeFolder = process.pkg ? 'node_production_modules' : 'node_modules'
@@ -23,11 +25,13 @@ export const executeNpm = async (args: string[] = ['install'], customLibsDir?: s
   // Necessary for post install scripts when running from the binary
   args.push('--scripts-prepend-node-path')
 
+  const cleanArgs = args.map(x => sanitizeArg(x))
+
   const cwd = customLibsDir ? customLibsDir : sharedLibsDir
-  debug('executing npm', { execPath: process.execPath, moduleDir, cwd, args })
+  debug('executing npm', { execPath: process.execPath, moduleDir, cwd, args, cleanArgs })
 
   try {
-    const spawned = spawn(process.execPath, [`${moduleDir}/${nodeFolder}/npm/bin/npm-cli.js`, ...args], {
+    const spawned = spawn(process.execPath, [`${moduleDir}/${nodeFolder}/npm/bin/npm-cli.js`, ...cleanArgs], {
       cwd,
       env: {
         ...process.env,
