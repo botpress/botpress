@@ -42,6 +42,14 @@ export const serializeKmeans = (kmeans: sdk.MLToolkit.KMeans.KmeansResult): Seri
   return { centroids, clusters, iterations }
 }
 
+export const deserializeKmeans = (kmeans: SerializedKmeansResult): sdk.MLToolkit.KMeans.KmeansResult => {
+  const { centroids, clusters, iterations } = kmeans
+  const thisNearest = (data: sdk.MLToolkit.KMeans.DataPoint[]) => {
+    return nearest(kmeans, data)
+  }
+  return { centroids, clusters, iterations, nearest: thisNearest }
+}
+
 /**
  * Copied from https://github.com/mljs/kmeans/blob/master/src/utils.js
  */

@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import { nearest } from 'nlu-core/clustering'
+import { deserializeKmeans } from 'nlu-core/clustering'
 
 import { POSClass } from '../language/pos-tagger'
 import { SPECIAL_CHARSET } from '../tools/chars'
@@ -70,7 +70,7 @@ export default class Utterance {
   public entities: ReadonlyArray<UtteranceEntity> = []
   private _tokens: ReadonlyArray<UtteranceToken> = []
   private _globalTfidf?: TFIDF
-  private _kmeans?: SerializedKmeansResult
+  private _kmeans?: sdk.MLToolkit.KMeans.KmeansResult
   private _sentenceEmbedding?: number[]
 
   public static fromSerial(serialized: SerializedUtterance): Utterance {
@@ -80,7 +80,11 @@ export default class Utterance {
     utterance.slots = slots
     utterance.entities = entities
     tfidf && utterance.setGlobalTfidf(tfidf)
-    kmeans && utterance.setKmeans(kmeans)
+
+    if (kmeans) {
+      const warmKmneans = deserializeKmeans(kmeans)
+      utterance.setKmeans(warmKmneans)
+    }
     return utterance
   }
 
@@ -113,7 +117,7 @@ export default class Utterance {
           },
           get cluster(): number {
             const wordVec = vectors[i]
-            return (that._kmeans && nearest(that._kmeans, [wordVec])[0]) || 1
+            return (that._kmeans && that._kmeans.nearest([wordVec])[0]) || 1
           },
           value,
           vector: vectors[i],
@@ -191,7 +195,7 @@ export default class Utterance {
     this._globalTfidf = tfidf
   }
 
-  setKmeans(kmeans?: SerializedKmeansResult) {
+  setKmeans(kmeans?: sdk.MLToolkit.KMeans.KmeansResult) {
     this._kmeans = kmeans
   }
 

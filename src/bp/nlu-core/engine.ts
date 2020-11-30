@@ -5,6 +5,7 @@ import _ from 'lodash'
 import LRUCache from 'lru-cache'
 import sizeof from 'object-sizeof'
 
+import { deserializeKmeans } from './clustering'
 import { EntityCacheManager } from './entities/entity-cache-manager'
 import { initializeTools } from './initialize-tools'
 import DetectLanguage from './language/language-identifier'
@@ -244,6 +245,7 @@ export default class Engine implements NLU.Engine {
   private async _makePredictors(input: TrainInput, output: TrainOutput): Promise<Predictors> {
     const tools = this._tools
     const { intents: inputIntents, languageCode, pattern_entities } = input
+    const { ctx_model, intent_model_by_ctx, oos_model, kmeans } = output
 
     /**
      * TODO: extract this function some place else,
@@ -251,11 +253,14 @@ export default class Engine implements NLU.Engine {
      */
     const intents = await ProcessIntents(inputIntents, input.languageCode, output.list_entities, this._tools)
 
+    const warmKmeans = kmeans && deserializeKmeans(kmeans)
+
     const basePredictors: Predictors = {
       ...output,
       lang: languageCode,
       intents,
-      pattern_entities
+      pattern_entities,
+      kmeans: warmKmeans
     }
 
     if (_.flatMap(intents, i => i.utterances).length <= 0) {
@@ -264,7 +269,6 @@ export default class Engine implements NLU.Engine {
       return basePredictors
     }
 
-    const { ctx_model, intent_model_by_ctx, oos_model } = output
     const ctx_classifier = ctx_model ? new tools.mlToolkit.SVM.Predictor(ctx_model) : undefined
     const intent_classifier_per_ctx = _.toPairs(intent_model_by_ctx).reduce(
       (c, [ctx, intentModel]) => ({ ...c, [ctx]: new tools.mlToolkit.SVM.Predictor(intentModel as string) }),

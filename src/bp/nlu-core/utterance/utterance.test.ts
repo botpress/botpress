@@ -112,6 +112,26 @@ describe('UtteranceClass', () => {
       expect(utterance.tokens[0].tfidf).toEqual(0.245)
       expect(utterance.tokens[3].tfidf).toEqual(1)
     })
+
+    test('kmeans', () => {
+      const utterance = new Utterance(TOKENS, VECTORS, POS_TAGS, 'en')
+
+      expect(utterance.tokens[0].cluster).toEqual(1)
+
+      const mockedKmeans = {
+        nearest: jest
+          .fn()
+          .mockReturnValueOnce([4])
+          .mockReturnValue([2])
+      }
+
+      // @ts-ignore
+      utterance.setKmeans(mockedKmeans as MLToolkit.KMeans.KmeansResult)
+      expect(utterance.tokens[0].cluster).toEqual(4)
+      expect(mockedKmeans.nearest.mock.calls[0][0][0]).toEqual(VECTORS[0])
+      expect(utterance.tokens[3].cluster).toEqual(2)
+      expect(mockedKmeans.nearest.mock.calls[1][0][0]).toEqual(VECTORS[3])
+    })
   })
 
   describe('slots', () => {

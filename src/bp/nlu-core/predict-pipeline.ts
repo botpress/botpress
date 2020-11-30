@@ -37,7 +37,7 @@ export type Predictors = {
   ctx_classifier: sdk.MLToolkit.SVM.Predictor
   intent_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
   oos_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>
-  kmeans: SerializedKmeansResult
+  kmeans: sdk.MLToolkit.KMeans.KmeansResult
   slot_tagger: SlotTagger // TODO replace this by MlToolkit.CRF.Tagger
 }>
 
