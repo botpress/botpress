@@ -360,18 +360,19 @@ export default class Repository {
       .andWhere('userId', userId)
       .andWhere('userThreadId', userThreadId)
       .andWhere('userChannel', userChannel)
-      .andWhere('status', 'pending')
-      .orWhere('status', 'assigned')
+      .andWhere(function() {
+        this.where('status', 'assigned').orWhere('status', 'pending')
+      })
       .then(data => !_.isEmpty(data))
   }
 
   /**
    * Finds a handoff *with* it's associations
-   * @param id
    */
   async findHandoff(botId: string, id: string, trx?: Knex.Transaction) {
     const execute = async (trx: Knex.Transaction) => {
       const data = await this.handoffsWithAssociationsQuery(botId)
+        .andWhere(`${HANDOFF_TABLE_NAME}.id`, id)
         .transacting(trx)
         .then(this.hydrateHandoffs.bind(this))
 
@@ -389,17 +390,14 @@ export default class Repository {
 
     // Either join an existing transaction or start one
     if (trx) {
-      const data = await execute(trx)
-      return data
+      return execute(trx)
     } else {
-      const data = await this.bp.database.transaction(trx => execute(trx))
-      return data
+      return this.bp.database.transaction(trx => execute(trx))
     }
   }
 
   /**
    * Finds a handoff *without* it's associations
-   * @param id
    */
   getHandoff = (id: string) => {
     return this.bp
