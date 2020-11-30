@@ -194,7 +194,7 @@ export default class Engine implements NLU.Engine {
 
     if (!_.isUndefined(options.modelId)) {
       trainDebug(`Loading model ${options.modelId}`)
-      model.data.output.slots_model = Buffer.from(model.data.output.slots_model) // no clue why this is needed....
+      model.data.output.slots_model = Buffer.from(model.data.output.slots_model) // because of training worker
       await this.loadModel(model, options.modelId)
     }
 
