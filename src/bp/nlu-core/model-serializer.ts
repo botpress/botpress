@@ -2,14 +2,16 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { TrainInput, TrainOutput } from './training-pipeline'
-import { Intent } from './typings'
-import Utterance, { SerializedUtterance } from './utterance/utterance'
 
 export type PredictableModel = Omit<sdk.NLU.Model, 'data'> & {
   data: {
     input: TrainInput
     output: TrainOutput
   }
+}
+
+export const isSerializedModel = (model: sdk.NLU.Model | PredictableModel): model is sdk.NLU.Model => {
+  return _.isString(model.data.input)
 }
 
 export function serializeModel(model: PredictableModel): sdk.NLU.Model {

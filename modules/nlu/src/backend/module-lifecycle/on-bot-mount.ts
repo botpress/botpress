@@ -106,14 +106,12 @@ export function getOnBotMount(state: NLUState) {
             const nluSeed = parseInt(process.env.NLU_SEED) || rand()
 
             const previousModel = botState.modelsByLang[languageCode]
-            const options: sdk.NLU.TrainingOptions = { previousModel, nluSeed, progressCallback }
+            const options: sdk.NLU.TrainingOptions = { previousModel, nluSeed, progressCallback, modelId: hash }
             try {
               model = await engine.train(trainSession.key, intentDefs, entityDefs, languageCode, options)
-
               trainSession.status = 'done'
               await state.sendNLUStatusEvent(botId, trainSession)
-              botState.modelsByLang[languageCode] = model.hash
-              await engine.loadModel(model, model.hash)
+              botState.modelsByLang[languageCode] = hash
               await ModelService.saveModel(ghost, model, hash)
             } catch (err) {
               if (bp.NLU.errors.isTrainingCanceled(err)) {

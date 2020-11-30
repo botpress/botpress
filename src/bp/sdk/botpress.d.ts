@@ -450,7 +450,7 @@ declare module 'botpress/sdk' {
         intentDefs: NLU.IntentDefinition[],
         entityDefs: NLU.EntityDefinition[],
         languageCode: string,
-        options: TrainingOptions
+        options?: Partial<TrainingOptions>
       ) => Promise<Model>
       cancelTraining: (trainSessionId: string) => Promise<void>
       detectLanguage: (text: string, modelByLang: Dic<string>) => Promise<string>
@@ -482,7 +482,8 @@ declare module 'botpress/sdk' {
     export interface TrainingOptions {
       nluSeed: number
       progressCallback: (x: number) => void
-      previousModel?: string
+      previousModel: string | undefined // previous modelId to recover parts of model that doesnt need to be trained again
+      modelId: string | undefined // if undefined, model won't be loaded after training
     }
 
     export interface Model {

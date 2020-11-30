@@ -9,7 +9,7 @@ import { EntityCacheManager } from './entities/entity-cache-manager'
 import { initializeTools } from './initialize-tools'
 import DetectLanguage from './language/language-identifier'
 import makeSpellChecker from './language/spell-checker'
-import { deserializeModel, PredictableModel, serializeModel } from './model-serializer'
+import { deserializeModel, isSerializedModel, PredictableModel, serializeModel } from './model-serializer'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
@@ -27,11 +27,18 @@ interface LoadedModel {
   entityCache: EntityCacheManager
 }
 
-const DEFAULT_OPTIONS: Options = {
+const DEFAULT_ENGINE_OPTIONS: EngineOptions = {
   maxCacheSize: 262144000 // 250mb of model cache
 }
 
-interface Options {
+const DEFAULT_TRAINING_OPTIONS: NLU.TrainingOptions = {
+  nluSeed: Math.round(Math.random() * 10000),
+  progressCallback: () => {},
+  previousModel: undefined,
+  modelId: undefined
+}
+
+interface EngineOptions {
   maxCacheSize: number
 }
 
@@ -41,8 +48,8 @@ export default class Engine implements NLU.Engine {
 
   private modelsById: LRUCache<string, LoadedModel>
 
-  constructor(opt?: Partial<Options>) {
-    const options: Options = { ...DEFAULT_OPTIONS, ...opt }
+  constructor(opt?: Partial<EngineOptions>) {
+    const options: EngineOptions = { ...DEFAULT_ENGINE_OPTIONS, ...opt }
     this.modelsById = new LRUCache({
       max: options.maxCacheSize,
       length: sizeof // ignores size of functions, but let's assume it's small
@@ -92,9 +99,11 @@ export default class Engine implements NLU.Engine {
     intentDefs: NLU.IntentDefinition[],
     entityDefs: NLU.EntityDefinition[],
     languageCode: string,
-    options: NLU.TrainingOptions
+    opt?: Partial<NLU.TrainingOptions>
   ): Promise<NLU.Model> {
     trainDebug(`Started ${languageCode} training`)
+
+    const options = { ...DEFAULT_TRAINING_OPTIONS, ...opt }
 
     const { previousModel: previousModelHash, nluSeed, progressCallback } = options
     const previousModel = previousModelHash ? this.modelsById.get(previousModelHash) : undefined
@@ -182,6 +191,11 @@ export default class Engine implements NLU.Engine {
 
     trainDebug(`Successfully finished ${languageCode} training`)
 
+    if (!_.isUndefined(options.modelId)) {
+      trainDebug(`Loading model ${model.hash}`)
+      await this.loadModel(model, options.modelId)
+    }
+
     return serializeModel(model)
   }
 
@@ -189,14 +203,14 @@ export default class Engine implements NLU.Engine {
     return this._trainingWorkerQueue.cancelTraining(trainSessionId)
   }
 
-  async loadModel(serialized: NLU.Model, modelId: string) {
+  async loadModel(inputModel: NLU.Model | PredictableModel, modelId: string) {
     trainDebug(`Load model ${modelId}`)
     if (this.hasModel(modelId)) {
       trainDebug(`Model ${modelId} already loaded.`)
       return
     }
 
-    const model = deserializeModel(serialized)
+    const model = isSerializedModel(inputModel) ? deserializeModel(inputModel) : inputModel
     const { input, output } = model.data
 
     const modelCacheItem: LoadedModel = {
