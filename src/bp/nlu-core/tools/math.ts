@@ -17,7 +17,7 @@ export function euclideanDistanceSquared(a: number[], b: number[]): number {
     const diff = b[i] - a[i]
     total += diff * diff
   }
-  return Math.sqrt(total)
+  return total
 }
 
 export function euclideanDistance(a: number[], b: number[]): number {
