@@ -13,7 +13,7 @@ import { deserializeModel, isSerializedModel, PredictableModel, serializeModel }
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
-import { TrainInput, TrainOutput } from './training-pipeline'
+import { ProcessIntents, TrainInput, TrainOutput } from './training-pipeline'
 import { TrainingWorkerQueue } from './training-worker-queue'
 import { EntityCacheDump, ListEntity, PatternEntity, Tools } from './typings'
 import { preprocessRawUtterance } from './utterance/utterance'
@@ -242,7 +242,13 @@ export default class Engine implements NLU.Engine {
 
   private async _makePredictors(input: TrainInput, output: TrainOutput): Promise<Predictors> {
     const tools = this._tools
-    const { intents, languageCode, pattern_entities } = input
+    const { intents: inputIntents, languageCode, pattern_entities } = input
+
+    /**
+     * TODO: extract this function some place else,
+     * Engine's predict() shouldn't be dependant of training pipeline...
+     */
+    const intents = await ProcessIntents(inputIntents, input.languageCode, output.list_entities, this._tools)
 
     const basePredictors: Predictors = {
       ...output,

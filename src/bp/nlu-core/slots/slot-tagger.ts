@@ -61,7 +61,7 @@ export function predictionLabelToTagResult(prediction: { [label: string]: number
   } as TagResult
 }
 
-export function removeInvalidTagsForIntent(intent: Intent<string>, tag: TagResult): TagResult {
+export function removeInvalidTagsForIntent(intent: Intent<Utterance>, tag: TagResult): TagResult {
   if (tag.tag === BIO.OUT) {
     return tag
   }
@@ -80,7 +80,7 @@ export function removeInvalidTagsForIntent(intent: Intent<string>, tag: TagResul
 }
 
 export function makeExtractedSlots(
-  intent: Intent<string>,
+  intent: Intent<Utterance>,
   utterance: Utterance,
   slotTagResults: TagResult[]
 ): SlotExtractionResult[] {
@@ -158,11 +158,10 @@ export default class SlotTagger {
     const elements: sdk.MLToolkit.CRF.DataPoint[] = []
 
     for (const intent of intents) {
-      const strIntent = { ...intent, utterances: intent.utterances.map(u => u.toString()) }
       for (const utterance of intent.utterances) {
         const features: string[][] = utterance.tokens
           .filter(x => !x.isSpace)
-          .map(this.tokenSliceFeatures.bind(this, strIntent, utterance, false))
+          .map(this.tokenSliceFeatures.bind(this, intent, utterance, false))
         const labels = labelizeUtterance(utterance)
 
         elements.push({ features, labels })
@@ -178,7 +177,7 @@ export default class SlotTagger {
   }
 
   private tokenSliceFeatures(
-    intent: Intent<string>,
+    intent: Intent<Utterance>,
     utterance: Utterance,
     isPredict: boolean,
     token: UtteranceToken
@@ -220,7 +219,7 @@ export default class SlotTagger {
   }
 
   private _getTokenFeatures(
-    intent: Intent<string>,
+    intent: Intent<Utterance>,
     utterance: Utterance,
     token: UtteranceToken,
     isPredict: boolean
@@ -244,14 +243,14 @@ export default class SlotTagger {
     ].filter(_.identity) as featurizer.CRFFeature[] // some features can be undefined
   }
 
-  getSequenceFeatures(intent: Intent<string>, utterance: Utterance, isPredict: boolean): string[][] {
+  getSequenceFeatures(intent: Intent<Utterance>, utterance: Utterance, isPredict: boolean): string[][] {
     return _.chain(utterance.tokens)
       .filter(t => !t.isSpace)
       .map(t => this.tokenSliceFeatures(intent, utterance, isPredict, t))
       .value()
   }
 
-  async extract(utterance: Utterance, intent: Intent<string>): Promise<SlotExtractionResult[]> {
+  async extract(utterance: Utterance, intent: Intent<Utterance>): Promise<SlotExtractionResult[]> {
     const features = this.getSequenceFeatures(intent, utterance, true)
     debugExtract('vectorize', features)
 
