@@ -50,6 +50,8 @@ export default async (bp: typeof sdk) => {
       const result = await executeNpm(command.split(' '))
       bp.logger.forBot(req.params.botId).info(`Executing NPM command ${command} \n ${result}`)
 
+      await publishPackageChanges(bp)
+
       res.sendStatus(200)
     })
   )
