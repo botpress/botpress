@@ -27,12 +27,7 @@ import {
   Tools,
   WarmedListEntityModel
 } from './typings'
-import Utterance, {
-  buildUtteranceBatch,
-  SerializedUtterance,
-  UtteranceToken,
-  UtteranceToStringOptions
-} from './utterance/utterance'
+import Utterance, { buildUtteranceBatch, UtteranceToken, UtteranceToStringOptions } from './utterance/utterance'
 
 type ListEntityWithCache = ListEntity & {
   cache: EntityCacheDump
