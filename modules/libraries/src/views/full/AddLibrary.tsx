@@ -86,19 +86,17 @@ const AddLibrary = props => {
 
           {activeItem && (
             <div className={style.libInfo}>
-              {lang.tr('name')}: {activeItem.name}
+              {lang.tr('name')}: {activeItem.name} (
+              <a href={activeItem.links.repository}>{lang.tr('module.libraries.viewGithub')}</a>)
               <br />
               {lang.tr('description')}: {activeItem.description}
-              <br />
-              <br />
-              <a href={activeItem.links.repository}>View on Github</a> | <a href={activeItem.links.bugs}>View Bugs</a>
               <br />
               <br />
               <div style={{ display: 'flex' }}>
                 <Button
                   onClick={addLib}
                   disabled={processing}
-                  text={lang.tr(processing ? 'pleaseWait' : 'Add Library')}
+                  text={lang.tr(processing ? 'pleaseWait' : 'module.libraries.addLibrary')}
                 />
                 <PackageLib axios={props.axios} name={activeItem.name} version=""></PackageLib>
               </div>
@@ -109,21 +107,21 @@ const AddLibrary = props => {
 
       {source === 'github' && (
         <div>
-          <h5>Add from a GitHub repository</h5>
+          <h5>{lang.tr('module.libraries.searchGithub')}</h5>
           <ControlGroup>
             <InputGroup placeholder="botpress/botpress#master" onChange={e => setRepoName(e.currentTarget.value)} />
             <Button
               onClick={addLib}
               disabled={processing}
-              text={processing ? 'Please wait...' : 'Add Library'}
-            ></Button>
+              text={processing ? 'pleaseWait' : 'module.libraries.addLibrary'}
+            />
           </ControlGroup>
         </div>
       )}
 
       {source === 'archive' && (
         <div>
-          <h5>Upload archive</h5>
+          <h5>{lang.tr('module.libraries.uploadArchive')}</h5>
           <UploadLibrary {...props} />
         </div>
       )}

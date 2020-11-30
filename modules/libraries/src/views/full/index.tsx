@@ -68,10 +68,7 @@ const MainView = props => {
       <SidePanel>
         <SidePanelSection
           label={lang.tr('module.libraries.libraries')}
-          actions={[
-            { icon: 'add', tooltip: lang.tr('add'), onClick: () => setPage('add') },
-            { icon: 'upload', tooltip: lang.tr('upload archive'), onClick: () => setPage('upload') }
-          ]}
+          actions={[{ icon: 'add', tooltip: lang.tr('add'), onClick: () => setPage('add') }]}
         >
           <ItemList items={libraries} onElementClicked={handleLibClicked} />
         </SidePanelSection>

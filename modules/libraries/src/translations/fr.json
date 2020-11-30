@@ -8,5 +8,6 @@
   "splash": {
     "text1": "Ces librairies peuvent être utilisées par tous les bots, actions et hooks.",
     "text2": "Vous pouvez également modifier directement le fichier package.json pour installer des librairies via l'éditeur de code"
-  }
+  },
+  "viewGithub": "Voir sur Github"
 }

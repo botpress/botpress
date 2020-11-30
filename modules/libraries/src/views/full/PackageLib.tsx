@@ -1,6 +1,5 @@
 import { Button } from '@blueprintjs/core'
 import { toast } from 'botpress/shared'
-import { InstalledLibrary } from 'full'
 import React, { FC, useRef, useState } from 'react'
 
 interface Props {
