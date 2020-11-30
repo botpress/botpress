@@ -19,6 +19,7 @@ export let sharedLibsDir
 export let packageJsonPath
 export let packageLockJsonPath
 export let isOffline
+export let bpLogger: sdk.Logger
 
 let broascastSync
 
@@ -26,6 +27,7 @@ const onServerStarted = async (bp: typeof sdk) => {
   sharedLibsDir = path.join(process.cwd(), 'shared_libs')
   packageJsonPath = path.join(sharedLibsDir, 'package.json')
   packageLockJsonPath = path.join(sharedLibsDir, 'package-lock.json')
+  bpLogger = bp.logger
 
   const config = await bp.config.getModuleConfig('libraries')
   if (config.offlineMode) {

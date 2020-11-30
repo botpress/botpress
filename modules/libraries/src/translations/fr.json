@@ -1,0 +1,12 @@
+{
+  "fullName": "Librairies Partagées",
+  "addLibrary": "Ajouter une nouvelle librairie",
+  "searchNpm": "Chercher une librairie sur NPM (recommandé)",
+  "searchGithub": "Ajouter un répertoire GitHub (peut être lent)",
+  "uploadArchive": "Téléverser une archive",
+  "libraries": "Librairies",
+  "splash": {
+    "text1": "Ces librairies peuvent être utilisées par tous les bots, actions et hooks.",
+    "text2": "Vous pouvez également modifier directement le fichier package.json pour installer des librairies via l'éditeur de code"
+  }
+}

@@ -11,11 +11,12 @@ import { copyFileLocally, executeNpm, publishPackageChanges, removeLibrary } fro
 
 export default async (bp: typeof sdk) => {
   const asyncMiddleware = asyncMw(bp.logger)
-  const router = bp.http.createRouterForBot('libraries', { checkAuthentication: false, enableJsonBodyParser: true })
+  const router = bp.http.createRouterForBot('libraries')
 
   router.get(
     '/list',
     asyncMiddleware(async (req: any, res: any) => {
+      // const packageJson = await
       const { dependencies } = JSON.parse(fs.readFileSync(packageJsonPath, 'UTF-8').toString())
       res.send(dependencies)
     })
@@ -64,6 +65,7 @@ export default async (bp: typeof sdk) => {
       const { name, uploaded } = req.body
 
       if (uploaded) {
+        // Since we rely on the code-editor for uploading the archive, the file needs to be copied on the file system before installing
         await copyFileLocally(path.basename(uploaded), bp)
       }
 

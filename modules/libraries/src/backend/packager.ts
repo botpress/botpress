@@ -2,11 +2,20 @@ import fse from 'fs-extra'
 import path from 'path'
 import tmp from 'tmp'
 
+import { bpLogger } from '.'
 import { executeNpm } from './utils'
+
+interface Package {
+  name: string
+  scripts: { [scriptName: string]: string }
+  dependencies: { [scriptName: string]: string }
+  bundledDependencies: string[]
+}
 
 const debug = DEBUG('libraries').sub('packager')
 
 const scriptsToDisable = ['publish', 'prepublish', 'postpublish']
+
 const emptyPackage = {
   name: 'temp',
   version: '1.0.0',
@@ -18,7 +27,7 @@ const emptyPackage = {
   license: 'ISC'
 }
 
-const disableScripts = pkg => {
+const disableScripts = (pkg: Package) => {
   if (!pkg.scripts) {
     return
   }
@@ -31,7 +40,7 @@ const disableScripts = pkg => {
   })
 }
 
-const addBundledDeps = pkg => {
+const addBundledDeps = (pkg: Package) => {
   if (pkg.dependencies) {
     pkg.bundledDependencies = Object.keys(pkg.dependencies)
   }
@@ -48,10 +57,10 @@ export const packageLibrary = async (name: string, version: string) => {
     await fse.writeFile(tempPackageJson, JSON.stringify(emptyPackage, undefined, 2))
 
     // Legacy bundling ensures the library's dependencies are inside the library folder
-    const installResult = await executeNpm(['install', name, '--legacy-bundling'], tmpDir.name)
+    const installResult = await executeNpm(['install', `${name}@${version}`, '--legacy-bundling'], tmpDir.name)
     debug('Temporary installation of the library ', { installResult })
 
-    const pkg = JSON.parse(await fse.readFile(libPackageJson, 'utf8'))
+    const pkg: Package = JSON.parse(await fse.readFile(libPackageJson, 'utf8'))
     addBundledDeps(pkg)
     disableScripts(pkg)
 
@@ -63,7 +72,7 @@ export const packageLibrary = async (name: string, version: string) => {
     const archiveName = (await fse.readdir(libFolder)).find(x => x.endsWith('.tgz'))
     return await fse.readFile(path.join(libFolder, archiveName))
   } catch (err) {
-    console.log(err)
+    bpLogger.attachError(err).error('Error while trying to package the library')
   } finally {
     tmpDir.removeCallback()
   }

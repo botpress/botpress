@@ -1,7 +1,9 @@
 {
   "name": "libraries",
-  "version": "1.0.0",
-  "description": "",
+  "fullName": "Libraries",
+  "version": "1.1.0",
+  "status": "experimental",
+  "description": "Provides the tooling necessary to easily install libraries that can be used by other scripts",
   "private": true,
   "main": "dist/backend/index.js",
   "author": "Botpress, Inc.",

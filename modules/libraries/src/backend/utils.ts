@@ -7,24 +7,26 @@ import { isOffline, packageJsonPath, packageLockJsonPath, sharedLibsDir } from '
 
 const debug = DEBUG('libraries')
 
+const LIB_FOLDER = 'libraries/'
+
 export const executeNpm = async (args: string[] = ['install'], customLibsDir?: string): Promise<string> => {
   const moduleDir = process.LOADED_MODULES['libraries']
   const nodeFolder = process.pkg ? 'node_production_modules' : 'node_modules'
 
+  if (isOffline) {
+    args.push('--offline')
+  }
+
+  // Hides superfluous messages
+  args.push('--no-fund')
+
+  // Necessary for post install scripts when running from the binary
+  args.push('--scripts-prepend-node-path')
+
+  const cwd = customLibsDir ? customLibsDir : sharedLibsDir
+  debug('executing npm', { execPath: process.execPath, moduleDir, cwd, args })
+
   try {
-    const cwd = customLibsDir ? customLibsDir : sharedLibsDir
-    debug('executing npm', { execPath: process.execPath, moduleDir, cwd, args })
-
-    if (isOffline) {
-      args.push('--offline')
-    }
-
-    // Hides superfluous messages
-    args.push('--no-fund')
-
-    // Necessary for post install scripts when running from the binary
-    args.push('--scripts-prepend-node-path')
-
     const spawned = spawn(process.execPath, [`${moduleDir}/${nodeFolder}/npm/bin/npm-cli.js`, ...args], {
       cwd,
       env: {
@@ -56,17 +58,17 @@ export const createNodeSymlink = async () => {
 }
 
 export const syncAllFiles = async (bp: typeof sdk) => {
-  const files = await bp.ghost.forGlobal().directoryListing('libraries/', '*.*')
+  const files = await bp.ghost.forGlobal().directoryListing(LIB_FOLDER, '*.*')
   await Promise.mapSeries(files, file => copyFileLocally(file, bp))
 }
 
 export const copyFileLocally = async (fileName: string, bp: typeof sdk): Promise<boolean> => {
-  if (!(await bp.ghost.forGlobal().fileExists('libraries', fileName))) {
+  if (!(await bp.ghost.forGlobal().fileExists(LIB_FOLDER, fileName))) {
     return false
   }
 
   try {
-    const fileContent = await bp.ghost.forGlobal().readFileAsBuffer('libraries', fileName)
+    const fileContent = await bp.ghost.forGlobal().readFileAsBuffer(LIB_FOLDER, fileName)
     await fse.writeFile(path.join(sharedLibsDir, fileName), fileContent)
     return true
   } catch (err) {
@@ -77,8 +79,8 @@ export const copyFileLocally = async (fileName: string, bp: typeof sdk): Promise
 
 const deleteLibraryArchive = async (filename: string, bp: typeof sdk) => {
   try {
-    if (await bp.ghost.forGlobal().fileExists('/libraries', filename)) {
-      await bp.ghost.forGlobal().deleteFile('/libraries', filename)
+    if (await bp.ghost.forGlobal().fileExists(LIB_FOLDER, filename)) {
+      await bp.ghost.forGlobal().deleteFile(LIB_FOLDER, filename)
     }
 
     if (await fse.pathExists(path.join(sharedLibsDir, filename))) {
@@ -107,10 +109,10 @@ export const removeLibrary = async (name: string, bp: typeof sdk) => {
 
 export const publishPackageChanges = async (bp: typeof sdk) => {
   const packageContent = await fse.readFile(packageJsonPath, 'UTF-8')
-  await bp.ghost.forGlobal().upsertFile('/libraries', 'package.json', packageContent)
+  await bp.ghost.forGlobal().upsertFile(LIB_FOLDER, 'package.json', packageContent)
 
   const packageLockContent = await fse.readFile(packageLockJsonPath, 'UTF-8')
-  await bp.ghost.forGlobal().upsertFile('/libraries', 'package-lock.json', packageLockContent)
+  await bp.ghost.forGlobal().upsertFile(LIB_FOLDER, 'package-lock.json', packageLockContent)
 }
 
 export const createDefaultExample = async (bp: typeof sdk) => {
@@ -123,7 +125,7 @@ module.exports = {
   getPage: url => axios.get(url)
 }`
 
-  await bp.ghost.forGlobal().upsertFile('/libraries', 'example.js', exampleFile)
+  await bp.ghost.forGlobal().upsertFile(LIB_FOLDER, 'example.js', exampleFile)
 }
 
 export const createDefaultPackageJson = async () => {
