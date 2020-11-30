@@ -1,4 +1,5 @@
 import { Button } from '@blueprintjs/core'
+import { AxiosInstance } from 'axios'
 import { isOperationAllowed, lang, MainLayout, PermissionOperation, toast } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -11,7 +12,6 @@ import { Context } from '../Store'
 import ConversationDetails from './ConversationDetails'
 import ConversationHistory from './ConversationHistory'
 import LiveChat from './LiveChat'
-import { AxiosInstance } from 'axios'
 
 interface Props {
   api: ApiType

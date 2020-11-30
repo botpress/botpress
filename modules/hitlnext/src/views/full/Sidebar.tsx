@@ -1,4 +1,5 @@
 import { Divider, Icon } from '@blueprintjs/core'
+import { AxiosInstance } from 'axios'
 import { Collapsible, lang, MainLayout, sharedStyle, Tabs } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
@@ -12,7 +13,6 @@ import HandoffList from './studio-sidebar/components/HandoffList'
 import { Context, Store } from './studio-sidebar/Store'
 import styles from './style.scss'
 import { Api, castHandoff } from './Api'
-import { AxiosInstance } from 'axios'
 
 interface Props {
   bp: { axios: AxiosInstance; events: any }

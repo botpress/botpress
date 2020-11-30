@@ -1,6 +1,7 @@
 import { Colors, Icon } from '@blueprintjs/core'
-import React, { FC } from 'react'
 import cx from 'classnames'
+import React, { FC } from 'react'
+
 import styles from '../../style.scss'
 
 interface Props {

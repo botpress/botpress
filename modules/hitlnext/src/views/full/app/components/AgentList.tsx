@@ -1,12 +1,13 @@
 import { Colors, Position, Spinner, Tooltip } from '@blueprintjs/core'
+import cx from 'classnames'
 import _, { Dictionary } from 'lodash'
 import React, { FC } from 'react'
 import { Initial } from 'react-initial'
-import cx from 'classnames'
-import styles from './../../style.scss'
 
 import { IAgent } from '../../../../types'
 import { agentName } from '../../shared/helper'
+
+import styles from './../../style.scss'
 
 interface Props {
   agents: Dictionary<IAgent>

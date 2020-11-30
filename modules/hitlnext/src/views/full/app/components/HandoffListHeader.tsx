@@ -1,6 +1,7 @@
 import { Checkbox } from '@blueprintjs/core'
 import { lang, MainLayout, ToolbarButtonProps } from 'botpress/shared'
 import React, { FC } from 'react'
+
 import style from '../../style.scss'
 
 export interface FilterType {
@@ -41,7 +42,7 @@ const HandoffListHeader: FC<Props> = ({ filterOptions, sortOption, setFilterOpti
         }
       ],
       tooltip: lang.tr('module.hitlnext.sortBy'),
-      disabled: disabled
+      disabled
     },
     {
       icon: 'filter',
@@ -84,7 +85,7 @@ const HandoffListHeader: FC<Props> = ({ filterOptions, sortOption, setFilterOpti
         }
       ],
       tooltip: lang.tr('module.hitlnext.filterBy'),
-      disabled: disabled
+      disabled
     }
   ]
 

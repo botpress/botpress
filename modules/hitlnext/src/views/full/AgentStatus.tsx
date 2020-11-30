@@ -1,3 +1,4 @@
+import { AxiosInstance } from 'axios'
 import React, { FC, useContext, useEffect } from 'react'
 
 import { WEBSOCKET_TOPIC } from '../../constants'
@@ -6,7 +7,6 @@ import { ISocketMessage } from './../../types'
 import { Context, Store } from './agentStatus/Store'
 import AgentIcon from './shared/components/AgentIcon'
 import { Api } from './Api'
-import { AxiosInstance } from 'axios'
 
 interface Props {
   bp: { axios: AxiosInstance; events: any }
