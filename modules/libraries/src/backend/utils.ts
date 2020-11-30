@@ -121,9 +121,14 @@ export const createDefaultExample = async (bp: typeof sdk) => {
 
 module.exports = {
   hello: () => console.log('Hello there!'),
-  printLog: message => console.log('Custom message:, message),
+  printLog: message => console.log('Custom message:, message'),
   getPage: url => axios.get(url)
-}`
+}
+
+// Usage in your hooks/actions:
+// const file = require('example')
+// file.hello()
+`
 
   await bp.ghost.forGlobal().upsertFile(LIB_FOLDER, 'example.js', exampleFile)
 }
