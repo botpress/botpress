@@ -2,7 +2,7 @@ import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import { asyncMiddleware as asyncMw, BPRequest } from 'common/http'
 import { Response } from 'express'
-import fs from 'fs'
+import fse from 'fs-extra'
 import path from 'path'
 
 import { packageJsonPath } from '.'
@@ -16,8 +16,9 @@ export default async (bp: typeof sdk) => {
   router.get(
     '/list',
     asyncMiddleware(async (req: any, res: any) => {
-      // const packageJson = await
-      const { dependencies } = JSON.parse(fs.readFileSync(packageJsonPath, 'UTF-8').toString())
+      const packageJson = await fse.readFile(packageJsonPath, 'UTF-8')
+      const { dependencies } = JSON.parse(packageJson.toString())
+
       res.send(dependencies)
     })
   )

@@ -65,8 +65,9 @@ const AddLibrary = props => {
 
   const onItemChanged = async (item: LibEntry) => {
     setActiveItem(item)
-    const { data } = await props.axios.get(`/mod/libraries/details/${item.name}`)
-    console.log(data)
+
+    // Not used yet, in a future update it will display a dropdown with list of versions if we don't want the latest one
+    // const { data } = await props.axios.get(`/mod/libraries/details/${item.name}`)
   }
 
   return (
