@@ -49,7 +49,7 @@ describe('makeExtractedSlots', () => {
   let tagResults: TagResult[]
   const testIntent = {
     slot_entities: ['CS_Field']
-  } as Intent<Utterance>
+  } as Intent<string>
 
   beforeEach(() => {
     u = makeTestUtterance('No one is safe big AI is watching')

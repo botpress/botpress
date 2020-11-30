@@ -9,7 +9,7 @@ import { EntityCacheManager } from './entities/entity-cache-manager'
 import { initializeTools } from './initialize-tools'
 import DetectLanguage from './language/language-identifier'
 import makeSpellChecker from './language/spell-checker'
-import { deserializeIntent, deserializeModel, PredictableModel, serializeModel } from './model-serializer'
+import { deserializeModel, PredictableModel, serializeModel } from './model-serializer'
 import { Predict, PredictInput, Predictors, PredictOutput } from './predict-pipeline'
 import SlotTagger from './slots/slot-tagger'
 import { isPatternValid } from './tools/patterns-utils'
@@ -228,16 +228,16 @@ export default class Engine implements NLU.Engine {
 
   private async _makePredictors(input: TrainInput, output: TrainOutput): Promise<Predictors> {
     const tools = this._tools
-    const { intents } = output
+    const { intents, languageCode, pattern_entities } = input
 
     const basePredictors: Predictors = {
       ...output,
-      lang: input.languageCode,
-      intents: intents.map(deserializeIntent),
-      pattern_entities: input.pattern_entities
+      lang: languageCode,
+      intents,
+      pattern_entities
     }
 
-    if (_.flatMap(input.intents, i => i.utterances).length <= 0) {
+    if (_.flatMap(intents, i => i.utterances).length <= 0) {
       // we don't want to return undefined as extraction won't be triggered
       // we want to make it possible to extract entities without having any intents
       return basePredictors

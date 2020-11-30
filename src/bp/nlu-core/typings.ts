@@ -2,6 +2,8 @@ import { AxiosInstance } from 'axios'
 import sdk from 'botpress/sdk'
 import LRUCache from 'lru-cache'
 
+import Utterance, { SerializedUtterance } from './utterance/utterance'
+
 export const BIO = {
   INSIDE: 'I',
   BEGINNING: 'B',
@@ -137,7 +139,7 @@ export interface SystemEntityExtractor {
   extract(input: string, lang: string): Promise<EntityExtractionResult[]>
 }
 
-export type Intent<T> = Readonly<{
+export type Intent<T extends string | Utterance> = Readonly<{
   name: string
   contexts: string[]
   slot_definitions: SlotDefinition[]

@@ -39,8 +39,7 @@ const _makeTrainOuput = (
       clusters: [],
       centroids: [],
       iterations: 0
-    },
-    intents: []
+    }
   }
 }
 

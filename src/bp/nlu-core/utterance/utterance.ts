@@ -252,6 +252,7 @@ export default class Utterance {
     return utterance
   }
 
+  // curently unused but let's keep it in code base for debugging purposes
   serialize(): SerializedUtterance {
     const tokens = this.tokens.map(x => x.value)
     const vectors = this.tokens.map(x => <number[]>x.vector)

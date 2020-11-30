@@ -8,7 +8,6 @@ import { getCtxFeatures } from './intents/context-featurizer'
 import { getIntentFeatures } from './intents/intent-featurizer'
 import { isPOSAvailable } from './language/pos-tagger'
 import { getStopWordsForLang } from './language/stopWords'
-import { serializeIntent } from './model-serializer'
 import { featurizeInScopeUtterances, featurizeOOSUtterances } from './out-of-scope-featurizer'
 import SlotTagger from './slots/slot-tagger'
 import { replaceConsecutiveSpaces } from './tools/strings'
@@ -74,7 +73,6 @@ export interface TrainOutput {
   slots_model: Buffer
   exact_match_index: ExactMatchIndex
   oos_model: _.Dictionary<string>
-  intents: Intent<SerializedUtterance>[]
 }
 
 export type ExactMatchIndex = _.Dictionary<{ intent: string; contexts: string[] }>
@@ -550,8 +548,7 @@ export const Trainer = async (
     vocabVectors: step.vocabVectors,
     exact_match_index,
     kmeans: step.kmeans && serializeKmeans(step.kmeans),
-    contexts: input.contexts,
-    intents: step.intents.map(serializeIntent)
+    contexts: input.contexts
   }
 
   return output

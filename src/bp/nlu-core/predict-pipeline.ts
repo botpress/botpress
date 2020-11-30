@@ -32,7 +32,7 @@ export type Predictors = {
   contexts: string[]
   exact_match_index: ExactMatchIndex
   pattern_entities: PatternEntity[]
-  intents: Intent<Utterance>[]
+  intents: Intent<string>[]
 } & Partial<{
   ctx_classifier: sdk.MLToolkit.SVM.Predictor
   intent_classifier_per_ctx: _.Dictionary<sdk.MLToolkit.SVM.Predictor>

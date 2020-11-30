@@ -72,7 +72,7 @@ export function getWordFeat(token: UtteranceToken, isPredict: boolean): CRFFeatu
   }
 }
 
-export function getInVocabFeat(token: UtteranceToken, intent: Intent<Utterance>): CRFFeature {
+export function getInVocabFeat(token: UtteranceToken, intent: Intent<string>): CRFFeature {
   if (!intent.vocab) {
     throw new Error('getInVocabFeat requires a vocab')
   }
@@ -126,7 +126,7 @@ export function getSpecialChars(token: UtteranceToken): CRFFeature {
   }
 }
 
-export function getIntentFeature(intent: Intent<Utterance>): CRFFeature {
+export function getIntentFeature(intent: Intent<string>): CRFFeature {
   return {
     name: 'intent',
     value: sanitize(intent.name.replace(/\s/g, '')),
