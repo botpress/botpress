@@ -9,5 +9,7 @@
     "text1": "These libraries can be used by every bots, actions and hooks. You can also create custom pieces of code which can be imported by hooks and actions on the code editor.",
     "text2": "It is also possible to edit manually the package.json file to install shared libraries using the code editor"
   },
-  "viewGithub": "View on Github"
+  "viewGithub": "View on Github",
+  "customCommand": "Type a custom command",
+  "openConsole": "Open the console to view command output"
 }

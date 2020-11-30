@@ -9,7 +9,21 @@ const debug = DEBUG('libraries')
 
 const LIB_FOLDER = 'libraries/'
 
-const sanitizeArg = text => text.replace(/[^a-zA-Z0-9\/_.@^\-\(\) ]/g, '').replace(/\/\//, '/')
+const packageNameRegex = /^(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/
+const versionRegex = /@[~^]?([\dvx*]+(?:[-.](?:[\dx*]+|alpha|beta))*)/
+
+const sanitizeArg = (text: string) => text.replace(/[^a-zA-Z0-9\/_.@^\-\(\) ]/g, '').replace(/\/\//, '/')
+
+export const validateNameVersion = ({ name, version }: { name: string; version?: string }) => {
+  const nameValid = name && packageNameRegex.test(name)
+  const versionValid = !version || (version && versionRegex.test(version))
+
+  if (!nameValid || !versionValid) {
+    throw new Error('Invalid characters found')
+  }
+
+  return { name, version }
+}
 
 export const executeNpm = async (args: string[] = ['install'], customLibsDir?: string): Promise<string> => {
   const moduleDir = process.LOADED_MODULES['libraries']
@@ -95,12 +109,12 @@ const deleteLibraryArchive = async (filename: string, bp: typeof sdk) => {
   }
 }
 
-export const removeLibrary = async (name: string, bp: typeof sdk) => {
+export const removeLibrary = async (name: string, bp: typeof sdk): Promise<boolean> => {
   const packageContent = JSON.parse(await fse.readFile(packageJsonPath, 'UTF-8'))
   const source = packageContent.dependencies[name]
 
   if (!source) {
-    return
+    return false
   }
 
   if (source.endsWith('.tgz')) {
@@ -109,6 +123,8 @@ export const removeLibrary = async (name: string, bp: typeof sdk) => {
 
   delete packageContent.dependencies[name]
   await fse.writeFile(packageJsonPath, JSON.stringify(packageContent, undefined, 2))
+
+  return true
 }
 
 export const publishPackageChanges = async (bp: typeof sdk) => {

@@ -7,7 +7,7 @@ import path from 'path'
 
 import { packageJsonPath } from '.'
 import { packageLibrary } from './packager'
-import { copyFileLocally, executeNpm, publishPackageChanges, removeLibrary } from './utils'
+import { copyFileLocally, executeNpm, publishPackageChanges, removeLibrary, validateNameVersion } from './utils'
 
 export default async (bp: typeof sdk) => {
   const asyncMiddleware = asyncMw(bp.logger)
@@ -26,7 +26,7 @@ export default async (bp: typeof sdk) => {
   router.post(
     '/package',
     asyncMiddleware(async (req: any, res: any) => {
-      const { name, version } = req.body
+      const { name, version } = validateNameVersion(req.body)
       const archive = await packageLibrary(name, version)
 
       res.writeHead(200, {
@@ -36,6 +36,21 @@ export default async (bp: typeof sdk) => {
       })
 
       res.end(archive)
+    })
+  )
+
+  router.post(
+    '/executeNpm',
+    asyncMiddleware(async (req: any, res: any) => {
+      if (!req.tokenUser?.isSuperAdmin) {
+        return res.sendStatus(401)
+      }
+
+      const { command } = req.body
+      const result = await executeNpm(command.split(' '))
+      bp.logger.forBot(req.params.botId).info(`Executing NPM command ${command} \n ${result}`)
+
+      res.sendStatus(200)
     })
   )
 
@@ -63,14 +78,15 @@ export default async (bp: typeof sdk) => {
   router.post(
     '/add',
     asyncMiddleware(async (req: any, res: any) => {
-      const { name, uploaded } = req.body
+      const { name, version } = validateNameVersion(req.body)
+      const { uploaded } = req.body
 
       if (uploaded) {
         // Since we rely on the code-editor for uploading the archive, the file needs to be copied on the file system before installing
         await copyFileLocally(path.basename(uploaded), bp)
       }
 
-      const result = await executeNpm(['install', name])
+      const result = await executeNpm(['install', !version ? name : `${name}@${version}`])
       bp.logger.forBot(req.params.botId).info(`Installing library ${name}\n ${result}`)
 
       if (result.indexOf('ERR!') === -1) {
@@ -86,9 +102,11 @@ export default async (bp: typeof sdk) => {
   router.post(
     '/delete',
     asyncMiddleware(async (req: BPRequest, res: Response) => {
-      const { name } = req.body
+      const { name } = validateNameVersion(req.body)
 
-      await removeLibrary(name, bp)
+      if (!(await removeLibrary(name, bp))) {
+        return res.sendStatus(400)
+      }
 
       const result = await executeNpm()
       bp.logger.forBot(req.params.botId).info(`Removing library ${name}\n ${result}`)

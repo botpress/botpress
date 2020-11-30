@@ -1,5 +1,6 @@
 import { Button, ControlGroup, InputGroup, Radio, RadioGroup } from '@blueprintjs/core'
 import { lang, toast } from 'botpress/shared'
+import { isOperationAllowed } from 'botpress/utils'
 import React, { useState } from 'react'
 
 import style from './style.scss'
@@ -27,6 +28,7 @@ const AddLibrary = props => {
   const [processing, setProcessing] = useState(false)
   const [repoName, setRepoName] = useState('')
   const [source, setSource] = useState('npm')
+  const [command, setCommand] = useState('')
 
   const searchChanged = async (query, event) => {
     if (event) {
@@ -59,6 +61,21 @@ const AddLibrary = props => {
     }
   }
 
+  const executeCommand = async () => {
+    setProcessing(true)
+
+    try {
+      await props.axios.post('/mod/libraries/executeNpm', { command })
+
+      toast.success('Command execution completed')
+      props.refreshLibraries()
+    } catch (err) {
+      toast.failure(`There was an error executing the command. Check server logs for more details ${err}`)
+    } finally {
+      setProcessing(false)
+    }
+  }
+
   const changeSource = source => {
     setSource(source)
   }
@@ -77,6 +94,10 @@ const AddLibrary = props => {
         <Radio label={lang.tr('module.libraries.searchNpm')} value="npm" />
         <Radio label={lang.tr('module.libraries.searchGithub')} value="github" />
         <Radio label={lang.tr('module.libraries.uploadArchive')} value="archive" />
+
+        {isOperationAllowed && isOperationAllowed({ superAdmin: true }) && (
+          <Radio label={lang.tr('module.libraries.customCommand')} value="command" />
+        )}
       </RadioGroup>
       <br />
 
@@ -124,6 +145,22 @@ const AddLibrary = props => {
         <div>
           <h5>{lang.tr('module.libraries.uploadArchive')}</h5>
           <UploadLibrary {...props} />
+        </div>
+      )}
+
+      {source === 'command' && (
+        <div>
+          <h5>{lang.tr('module.libraries.customCommand')}</h5>
+          <ControlGroup>
+            <InputGroup placeholder="install axios" onChange={e => setCommand(e.currentTarget.value)} />
+            <Button
+              onClick={executeCommand}
+              disabled={processing}
+              text={lang.tr(processing ? 'pleaseWait' : 'execute')}
+            />
+          </ControlGroup>
+          <br />
+          {lang.tr('module.libraries.openConsole')}
         </div>
       )}
     </div>
