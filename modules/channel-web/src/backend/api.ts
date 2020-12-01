@@ -19,7 +19,6 @@ const ERR_CONV_ID_REQ = '`conversationId` is required and must be valid'
 const ERR_BAD_LANGUAGE = '`language` is required and must be valid'
 
 const USER_ID_MAX_LENGTH = 40
-const USER_ID_MIN_LENGTH = 18
 const SUPPORTED_MESSAGES = [
   'text',
   'quick_reply',
@@ -247,7 +246,7 @@ export default async (bp: typeof sdk, db: Database) => {
   })
 
   function validateUserId(userId: string) {
-    if (!userId || userId.length > USER_ID_MAX_LENGTH || userId.length < USER_ID_MIN_LENGTH) {
+    if (!userId || userId.length > USER_ID_MAX_LENGTH || userId.toLowerCase() === 'undefined') {
       return false
     }
 
