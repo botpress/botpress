@@ -1,7 +1,7 @@
 import '../../../../src/bp/sdk/botpress.d'
 
 // tslint:disable-next-line: ordered-imports
-import { NLU, IO } from 'botpress/sdk'
+import { NLU, IO, Logger } from 'botpress/sdk'
 
 import _ from 'lodash'
 import { ModelProvider, PredictionHandler } from './prediction-handler'
@@ -14,10 +14,14 @@ const fr = 'fr'
 const en = 'en'
 const de = 'de'
 
+const loggerMock = (<Partial<Logger>>{ warn: (msg: string) => {} }) as Logger
+
 const makeModelsByLang = (langs: string[]) => _.zipObject(langs, langs)
 
 function makeEngineMock(loadedModels: string[]): NLU.Engine {
   return (<Partial<NLU.Engine>>{
+    spellCheck: async (text: string, modelId: string) => text,
+
     loadModel: async (m: NLU.Model) => {
       loadedModels.push(m.languageCode)
     },
@@ -115,7 +119,8 @@ describe('predict', () => {
       modelProvider,
       engine,
       anticipatedLang,
-      defaultLang
+      defaultLang,
+      loggerMock
     )
     const result = await predictionHandler.predict(germanUtt, ['global'])
 
@@ -141,7 +146,8 @@ describe('predict', () => {
       modelProvider,
       engine,
       anticipatedLang,
-      defaultLang
+      defaultLang,
+      loggerMock
     )
     const result = await predictionHandler.predict(germanUtt, ['global'])
 
@@ -167,7 +173,8 @@ describe('predict', () => {
       modelProvider,
       engine,
       anticipatedLang,
-      defaultLang
+      defaultLang,
+      loggerMock
     )
     const result = await predictionHandler.predict(germanUtt, ['global'])
 
@@ -193,7 +200,8 @@ describe('predict', () => {
       modelProvider,
       engine,
       anticipatedLang,
-      defaultLang
+      defaultLang,
+      loggerMock
     )
     const result = await predictionHandler.predict(germanUtt, ['global'])
 
@@ -219,7 +227,8 @@ describe('predict', () => {
       modelProvider,
       engine,
       anticipatedLang,
-      defaultLang
+      defaultLang,
+      loggerMock
     )
     const result = await predictionHandler.predict(germanUtt, ['global'])
 
@@ -245,7 +254,8 @@ describe('predict', () => {
       modelProvider,
       engine,
       anticipatedLang,
-      defaultLang
+      defaultLang,
+      loggerMock
     )
     const result = await predictionHandler.predict(germanUtt, ['global'])
 
@@ -271,7 +281,8 @@ describe('predict', () => {
       modelProvider,
       engine,
       anticipatedLang,
-      defaultLang
+      defaultLang,
+      loggerMock
     )
     await assertThrows(() => predictionHandler.predict(germanUtt, ['global']))
     assertPredictCalled(engine.predict as jest.Mock, [])

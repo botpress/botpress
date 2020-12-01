@@ -18,19 +18,5 @@
       "widthDesc": "The default size displays the select and the button on one line. Change it to fit your needs",
       "widthTitle": "The width of the component (in pixels)"
     }
-  },
-  "processing": {
-    "afterMW": "After Middleware",
-    "beforeMW": "Before Middleware",
-    "received": "Event Received",
-    "stateLoaded": "Loaded User State",
-    "hook": "Hook",
-    "mw": "Middleware",
-    "dialog": "Processing Dialog",
-    "action": "Action",
-    "completed": "Event Processing Completed",
-    "executedIn": "Executed in {n} ms",
-    "type": "Type",
-    "stacktrace": "Stacktrace"
   }
 }

@@ -11,7 +11,7 @@ const getActions = async (actionNames: string[]) => {
       const { data } = await axios.post(`${window.BOT_API_PATH}/mod/code-editor/readFile`, {
         botId: !isGlobal && window.BOT_ID,
         location: `${actionName}.js`,
-        type: 'action'
+        type: 'action_legacy'
       })
 
       return data?.fileContent

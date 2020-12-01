@@ -1,6 +1,6 @@
 {
   "name": "botpress",
-  "version": "12.12.1",
+  "version": "12.14.0",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": "^12"
@@ -22,6 +22,8 @@
     "commitmsg": "commitlint -e $GIT_PARAMS"
   },
   "dependencies": {
+    "@babel/parser": "^7.11.2",
+    "@babel/traverse": "^7.11.0",
     "axios": "^0.19.0",
     "bluebird-global": "^1.0.1",
     "bluebird-retry": "^0.11.0",
