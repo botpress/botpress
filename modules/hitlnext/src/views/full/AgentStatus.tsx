@@ -36,6 +36,7 @@ const AgentStatus: FC<Props> = ({ bp }) => {
   }
 
   useEffect(() => {
+    // tslint:disable-next-line: no-floating-promises
     getCurrentAgent()
   }, [])
 

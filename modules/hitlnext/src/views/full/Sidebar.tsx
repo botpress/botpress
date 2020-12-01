@@ -63,6 +63,7 @@ const Sidebar: FC<Props> = ({ bp, close }) => {
   }
 
   useEffect(() => {
+    // tslint:disable-next-line: no-floating-promises
     Promise.all([getHandoffs(), getAgents()]).then(() => {
       setLoading(false)
     })

@@ -16,6 +16,7 @@ export const HandoffAssignedForAgent = props => {
   const [isLangInit, setLangInit] = useState(false)
 
   useEffect(() => {
+    // tslint:disable-next-line: no-floating-promises
     initLang().then(() => setLangInit(true))
   }, [])
 
@@ -32,6 +33,7 @@ export const HandoffAssignedForUser = () => {
   const [isLangInit, setLangInit] = useState(false)
 
   useEffect(() => {
+    // tslint:disable-next-line: no-floating-promises
     initLang().then(() => setLangInit(true))
   }, [])
 

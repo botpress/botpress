@@ -224,7 +224,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       }
 
       // custom event to user
-      bp.events.sendEvent(
+      await bp.events.sendEvent(
         bp.IO.Event(
           _.merge(_.cloneDeep(baseCustomEventPayload), {
             target: handoff.userId,
@@ -241,7 +241,7 @@ export default async (bp: typeof sdk, state: StateType) => {
       )
 
       // custom event to agent
-      bp.events.sendEvent(
+      await bp.events.sendEvent(
         bp.IO.Event(
           _.merge(_.cloneDeep(baseCustomEventPayload), {
             target: handoff.agentId,

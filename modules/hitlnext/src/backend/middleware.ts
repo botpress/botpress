@@ -116,10 +116,10 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
 
     if (incomingFromUser) {
       debug.forBot(event.botId, 'Handling message from User', { direction: event.direction, threadId: event.threadId })
-      handleIncomingFromUser(handoff, event)
+      await handleIncomingFromUser(handoff, event)
     } else if (incomingFromAgent) {
       debug.forBot(event.botId, 'Handling message from Agent', { direction: event.direction, threadId: event.threadId })
-      handleIncomingFromAgent(handoff, event)
+      await handleIncomingFromAgent(handoff, event)
     }
 
     // the session or bot is paused, swallow the message
