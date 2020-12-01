@@ -439,25 +439,6 @@ declare module 'botpress/sdk' {
 
     export const makeEngine: (config: Config, logger: Logger) => Promise<Engine>
 
-    export interface Engine {
-      getHealth: () => Health
-      getLanguages: () => string[]
-      computeModelHash(intents: NLU.IntentDefinition[], entities: NLU.EntityDefinition[], lang: string): string
-      loadModel: (model: Model, modelId: string) => Promise<void>
-      hasModel: (modelId: string) => boolean
-      train: (
-        trainSessionId: string,
-        intentDefs: NLU.IntentDefinition[],
-        entityDefs: NLU.EntityDefinition[],
-        languageCode: string,
-        options: TrainingOptions
-      ) => Promise<Model>
-      cancelTraining: (trainSessionId: string) => Promise<void>
-      detectLanguage: (text: string, modelByLang: Dic<string>) => Promise<string>
-      predict: (text: string, ctx: string[], modelId: string) => Promise<IO.EventUnderstanding>
-      spellCheck(sentence: string, modelId: string): Promise<string>
-    }
-
     export interface Config extends LanguageConfig {
       modelCacheSize: number
     }
@@ -479,16 +460,45 @@ declare module 'botpress/sdk' {
       error: (msg: string, err?: Error) => void
     }
 
-    export interface TrainingOptions {
-      nluSeed: number
-      progressCallback: (x: number) => void
-      previousModel?: string
+    export interface TrainingSet {
+      intentDefs: NLU.IntentDefinition[]
+      entityDefs: NLU.EntityDefinition[]
+      languageCode: string
+      seed: number // seeds random number generator in nlu training
     }
 
-    export interface Model {
-      hash: string
-      languageCode: string
-      seed: number
+    export interface TrainingOptions {
+      progressCallback: (x: number) => void
+      previousModel: ModelId
+    }
+
+    export interface Engine {
+      getHealth: () => Health
+      getLanguages: () => string[]
+      computeModelId: (trainSet: TrainingSet) => ModelId
+      loadModel: (model: Model) => Promise<void>
+      unloadModel: (modelId: ModelId) => void
+      hasModel: (modelId: ModelId) => boolean
+      train: (trainSessionId: string, trainSet: TrainingSet, options?: Partial<TrainingOptions>) => Promise<Model>
+      cancelTraining: (trainSessionId: string) => Promise<void>
+      detectLanguage: (text: string, modelByLang: Dic<ModelId>) => Promise<string>
+      predict: (text: string, ctx: string[], modelId: ModelId) => Promise<IO.EventUnderstanding>
+      spellCheck: (sentence: string, modelId: ModelId) => Promise<string>
+    }
+
+    export namespace modelId {
+      export const toString: (modelId: ModelId) => string // to use ModelId as a key
+      export const fromString: (stringId: string) => ModelId // to parse information from a key
+    }
+
+    export interface ModelId {
+      versionHash: string // represents the version of the NLU and the lang server beign used
+      contentHash: string // represents the intent and entity definitions the model was trained with
+      seed: number // number to seed the random number generators used during nlu training
+      lang: string // language of the model
+    }
+
+    export type Model = ModelId & {
       startedAt: Date
       finishedAt: Date
       data: {
