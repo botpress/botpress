@@ -15,12 +15,17 @@ const escapeHtmlSimple = (str: string) => {
 
 export const URL_FOLDER_SEPERATOR = '|!|slash|!|'
 
+const escapeRegExp = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+const decoded_folder_seperator_re = /\//g
+const encoded_folder_seperator_re = new RegExp(escapeRegExp(URL_FOLDER_SEPERATOR), 'g')
+
 export const encodeFolderPath = (path: string): string => {
-  return path.replace('/', URL_FOLDER_SEPERATOR)
+  return path.replace(decoded_folder_seperator_re, URL_FOLDER_SEPERATOR)
 }
 
 export const decodeFolderPath = (urlPath: string): string => {
-  return urlPath.replace(URL_FOLDER_SEPERATOR, '/')
+  return urlPath.replace(encoded_folder_seperator_re, '/')
 }
 
 export type BPRequest = Request & {
