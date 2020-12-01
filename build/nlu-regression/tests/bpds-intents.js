@@ -67,10 +67,10 @@ module.exports = function(bitfan) {
 
     evaluatePerformance: function(currentPerformance, previousPerformance) {
       const toleranceByMetric = {
-        [bitfan.metrics.accuracy.name]: 0.02,
+        [bitfan.metrics.accuracy.name]: 0.03,
         [bitfan.metrics.oosAccuracy.name]: 0.05,
-        [bitfan.metrics.oosPrecision.name]: 0.05,
-        [bitfan.metrics.oosRecall.name]: 0.05,
+        [bitfan.metrics.oosPrecision.name]: 0.075,
+        [bitfan.metrics.oosRecall.name]: 0.075,
         [bitfan.metrics.oosF1.name]: 0.15, // more tolerance for f1 score
       }
       return bitfan.comparePerformances(currentPerformance, previousPerformance, { toleranceByMetric })

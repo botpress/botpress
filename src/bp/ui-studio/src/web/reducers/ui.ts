@@ -5,6 +5,7 @@ import {
   removeDocumentationHint,
   setEmulatorOpen,
   toggleBottomPanel,
+  toggleBottomPanelExpand,
   updateDocumentationModal,
   updateGlobalStyle,
   viewModeChanged,
@@ -15,6 +16,16 @@ import {
 
 import storage from '../util/storage'
 
+export interface UiReducer {
+  viewMode: any
+  docHints: string[]
+  emulatorOpen: boolean
+  zoomLevel: number
+  bottomPanel: boolean
+  bottomPanelExpanded: boolean
+  setEmulatorOpen: (newState: boolean) => void
+}
+
 const bottomPanelStorageKey = `bp::${window.BOT_ID}::bottom-panel-open`
 const defaultBottomPanelOpen = storage.get(bottomPanelStorageKey) === 'true'
 
@@ -24,16 +35,9 @@ const defaultState = {
   docHints: [],
   docModal: null,
   bottomPanel: defaultBottomPanelOpen || false,
+  bottomPanelExpanded: false,
   emulatorOpen: false,
   zoomLevel: 100
-}
-
-export interface UiReducer {
-  viewMode: any
-  docHints: string[]
-  emulatorOpen: boolean
-  zoomLevel: number
-  bottomPanel: boolean
 }
 
 const reducer = handleActions(
@@ -57,6 +61,10 @@ const reducer = handleActions(
     [updateDocumentationModal]: (state, { payload }) => ({
       ...state,
       docModal: payload
+    }),
+    [toggleBottomPanelExpand]: state => ({
+      ...state,
+      bottomPanelExpanded: !state.bottomPanelExpanded
     }),
     [toggleBottomPanel]: (state, {}) => {
       const value = !state.bottomPanel

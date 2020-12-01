@@ -40,7 +40,7 @@ export interface LanguageProvider {
   languages: string[]
   langServerInfo: LangServerInfo
   vectorize(tokens: string[], lang: string): Promise<Float32Array[]>
-  tokenize(utterances: string[], lang: string, vocab?: Token2Vec): Promise<string[][]>
+  tokenize(utterances: string[], lang: string, vocab?: string[]): Promise<string[][]>
   generateSimilarJunkWords(subsetVocab: string[], lang: string): Promise<string[]>
   getHealth(): Partial<sdk.NLU.Health>
 }
@@ -120,7 +120,7 @@ export interface SeededLodashProvider {
 }
 
 export interface Tools {
-  tokenize_utterances(utterances: string[], languageCode: string, vocab?: Token2Vec): Promise<string[][]>
+  tokenize_utterances(utterances: string[], languageCode: string, vocab?: string[]): Promise<string[][]>
   vectorize_tokens(tokens: string[], languageCode: string): Promise<number[][]>
   partOfSpeechUtterances(utterances: string[][], languageCode: string): string[][]
   generateSimilarJunkWords(vocabulary: string[], languageCode: string): Promise<string[]>

@@ -4,9 +4,8 @@ import _ from 'lodash'
 import { POSClass } from '../language/pos-tagger'
 import { SPECIAL_CHARSET } from '../tools/chars'
 import { computeNorm, scalarDivide, scalarMultiply, vectorAdd, zeroes } from '../tools/math'
-import { replaceConsecutiveSpaces } from '../tools/strings'
+import { replaceConsecutiveSpaces, replaceEllipsis } from '../tools/strings'
 import { convertToRealSpaces, isSpace, isWord, SPACE } from '../tools/token-utils'
-import { getClosestToken } from '../tools/vocab'
 import { ExtractedEntity, ExtractedSlot, TFIDF, Token2Vec, Tools } from '../typings'
 
 import { parseUtterance } from './utterance-parser'
@@ -272,17 +271,20 @@ export default class Utterance {
   }
 }
 
+export const preprocessRawUtterance: (raw: string) => string = _.flow([replaceConsecutiveSpaces, replaceEllipsis])
+
 export async function buildUtteranceBatch(
   raw_utterances: string[],
   language: string,
   tools: Tools,
   vocab?: Token2Vec
 ): Promise<Utterance[]> {
-  const parsed = raw_utterances.map(u => parseUtterance(replaceConsecutiveSpaces(u)))
+  const preprocessed = raw_utterances.map(preprocessRawUtterance)
+  const parsed = preprocessed.map(parseUtterance)
   const tokenUtterances = await tools.tokenize_utterances(
     parsed.map(p => p.utterance),
     language,
-    vocab
+    vocab ? Object.keys(vocab) : []
   )
   const POSUtterances = tools.partOfSpeechUtterances(tokenUtterances, language) as POSClass[][]
   const uniqTokens = _.uniq(_.flatten(tokenUtterances))
@@ -311,64 +313,6 @@ export async function buildUtteranceBatch(
 
       return utterance
     })
-}
-
-interface AlternateToken {
-  value: string
-  vector: number[] | ReadonlyArray<number>
-  POS: POSClass
-  isAlter?: boolean
-}
-
-function uttTok2altTok(token: UtteranceToken): AlternateToken {
-  return {
-    ..._.pick(token, ['vector', 'POS']),
-    value: token.toString(),
-    isAlter: false
-  }
-}
-
-function isClosestTokenValid(originalToken: UtteranceToken, closestToken: string): boolean {
-  return isWord(closestToken) && originalToken.value.length > 3 && closestToken.length > 3
-}
-
-/**
- * @description Returns slightly different version of the given utterance, replacing OOV tokens with their closest IV syntaxical neighbour
- * @param utterance the original utterance
- * @param vocabVectors Bot wide vocabulary
- */
-export function getAlternateUtterance(utterance: Utterance, vocabVectors: Token2Vec): Utterance | undefined {
-  return _.chain(utterance.tokens)
-    .map(token => {
-      const strTok = token.toString({ lowerCase: true })
-      if (!token.isWord || vocabVectors[strTok] || !_.isEmpty(token.entities)) {
-        return uttTok2altTok(token)
-      }
-
-      const closestToken = getClosestToken(strTok, token.vector, vocabVectors, false)
-      if (isClosestTokenValid(token, closestToken)) {
-        return {
-          value: closestToken,
-          vector: vocabVectors[closestToken],
-          POS: token.POS,
-          isAlter: true
-        } as AlternateToken
-      } else {
-        return uttTok2altTok(token)
-      }
-    })
-    .thru((altToks: AlternateToken[]) => {
-      const hasAlternate = altToks.length === utterance.tokens.length && altToks.some(t => t.isAlter)
-      if (hasAlternate) {
-        return new Utterance(
-          altToks.map(t => t.value),
-          altToks.map(t => <number[]>t.vector),
-          altToks.map(t => t.POS),
-          utterance.languageCode
-        )
-      }
-    })
-    .value()
 }
 
 /**

@@ -5,7 +5,7 @@ import { POSClass } from '../language/pos-tagger'
 import { SPACE, tokenizeLatinTextForTests } from '../tools/token-utils'
 import { EntityExtractor, ExtractedEntity, ExtractedSlot } from '../typings'
 
-import Utterance, { UtteranceToStringOptions } from './utterance'
+import Utterance, { preprocessRawUtterance, UtteranceToStringOptions } from './utterance'
 
 const METADATA = {
   source: '',
@@ -373,6 +373,14 @@ describe('UtteranceClass', () => {
     u.sentenceEmbedding().forEach((actual, idx) => {
       expect(actual).toBeCloseTo(expectedEmbeddings[idx], 3)
     })
+  })
+
+  test('preprocess raw utterances with horizontal ellipsis', () => {
+    const raw = 'That there’s some good in this world, Mr. Frodo… and it’s worth fighting for.'
+    const preprocessed = preprocessRawUtterance(raw)
+
+    const expected = 'That there’s some good in this world, Mr. Frodo... and it’s worth fighting for.'
+    expect(preprocessed).toBe(expected)
   })
 })
 
